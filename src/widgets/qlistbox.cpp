@@ -656,31 +656,29 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 /*! \enum QListBox::SelectionMode
 
   This enumerated type is used by QListBox to indicate how it reacts
-  to selection by the user.  It has four values: <ul>
+  to selection by the user.  It has four values:
 
-  <li> \c Single - When the user selects an item, any already-selected
+  \value Single  When the user selects an item, any already-selected
   item becomes unselected and the user cannot unselect the selected
   item. This means that the user can never clear the selection, even
   though the selection may be cleared by the application programmer
   using QListBox::clearSelection().
 
-  <li> \c Multi - When the user selects an item in the most ordinary
+  \value Multi  When the user selects an item in the most ordinary
   way, the selection status of that item is toggled and the other
   items are left alone.
 
-  <li> \c Extended - When the user selects an item in the most
-  ordinary way, the selection is cleared and the new item selected.
-  However, if the user presses the CTRL key when clicking on an item,
-  the clicked item gets toggled and all other items are left untouched. And
-  if the user presses the SHIFT key while clicking on an item, all items
-  between the current item and the clicked item get selected or unselected,
-  depending on the state of the clicked item.
+  \value Extended When the user selects an item in the most ordinary
+  way, the selection is cleared and the new item selected.  However,
+  if the user presses the CTRL key when clicking on an item, the
+  clicked item gets toggled and all other items are left
+  untouched. And if the user presses the SHIFT key while clicking on
+  an item, all items between the current item and the clicked item get
+  selected or unselected, depending on the state of the clicked item.
   Also, multiple items can be selected by dragging the mouse while the
   left mouse button stays pressed.
 
-  <li> \c NoSelection - Items cannot be selected.
-
-  </ul>
+  \value NoSelection  Items cannot be selected.
 
   In other words, \c Single is a real single-selection list box, \c
   Multi is a real multi-selection list box, \c Extended is a list box
@@ -695,17 +693,15 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   This enum type decides how QListBox lays out its rows and columns.
   The two modes interact, of course.
 
-  The possible values for each mode are: <ul>
+  The possible values for each mode are:
 
-  <li> \c FixedNumber - There is a fixed number of rows (or columns).
+  \value FixedNumber  There is a fixed number of rows (or columns).
 
-  <li> \c FitToHeight - There are as many rows as will fit on-screen.
+  \value FitToHeight  There are as many rows as will fit on-screen.
   (Ditto with \c FitToWidth and columns.)
 
-  <li> \c Variable - There are as many rows as are required by the
+  \value Variable  There are as many rows as are required by the
   column mode.  (Or as many columns as required by the row mode.)
-
-  </ul>
 
   Example: When you call setRowMode( FitToHeight ), columnMode()
   automatically becomes \c Variable to accommodate the row mode you've

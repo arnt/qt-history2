@@ -889,15 +889,13 @@ void QSpinBox::styleChange( QStyle& old )
 
 /*! \enum QSpinBox::ButtonSymbols
   This enum type determines what the buttons in a spin box show.  The
-  currently defined values are: <ul>
+  currently defined values are:
 
-  <li> \c UpDownArrows - the buttons show little arrows in the
+  \value UpDownArrows - the buttons show little arrows in the
   classic style.  This is the default.
 
-  <li> \c PlusMinus - the buttons show + and - symbols.  This is
+  \value PlusMinus - the buttons show + and - symbols.  This is
   often considered to be more meaningful than \c UpDownArrows.
-
-  </ul>
 */
 
 /*!  Sets the spin box to display \a newSymbols on its buttons.  \a

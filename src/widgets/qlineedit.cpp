@@ -222,15 +222,14 @@ struct QLineEditPrivate {
 
   This enum type describes how QLineEdit displays its
   contents.  The defined values are:
-  <ul>
-  <li> \c Normal - displays characters as they are entered.  This is
+
+  \value Normal  displays characters as they are entered.  This is
 	the default.
-  <li> \c NoEcho - does not display anything. This may be appropriate
+  \value NoEcho  does not display anything. This may be appropriate
 	for passwords where even the length of the password should
 	be kept secret.
-  <li> \c Password - displays asterisks instead of the characters
+  \value Password  displays asterisks instead of the characters
 	actually entered.
-  </ul>
 
   \sa setEchoMode() echoMode()
 */

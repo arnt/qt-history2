@@ -3109,13 +3109,13 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
   The \e policy can be:
 
-  \value QWidget::TabFocus  the widget accepts focus by tabbing.
-  \value QWidget::ClickFocus  the widget accepts focus by clicking.
-  \value QWidget::StrongFocus  the widget accepts focus by both tabbing
+  \value TabFocus  the widget accepts focus by tabbing.
+  \value ClickFocus  the widget accepts focus by clicking.
+  \value StrongFocus  the widget accepts focus by both tabbing
   and clicking.
-  \value QWidget::WheelFocus  like StrongFocus plus the widget accepts
+  \value WheelFocus  like StrongFocus plus the widget accepts
   focus by using the mouse wheel.
-  \value QWidget::NoFocus  the widget does not accept focus.
+  \value NoFocus  the widget does not accept focus.
 
 */
 

@@ -133,13 +133,11 @@
 /*! \enum QFrame::Shadow
 
   This enum type defines the 3D effect used for QFrame's frame.  The
-  currently defined effects are: <ul>
+  currently defined effects are:
 
-  <li> \c Plain - the frame and contents appear level with the surroundings
-  <li> \c Raised - the frame and contents appear raised
-  <li> \c Sunken - the frame and contents appear sunken
-
-  </ul>
+  \value Plain  the frame and contents appear level with the surroundings
+  \value Raised the frame and contents appear raised
+  \value Sunken the frame and contents appear sunken
 
   Shadow interacts with QFrame::Shape, the lineWidth() and the
   midLineWidth().  The <a href="#picture">picture of the frames</a> in

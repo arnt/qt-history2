@@ -586,28 +586,23 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 /*!
   \enum QDockWindow::Place
+  
+  This enum specifies the possible locations for a QDockWindow:
 
-  A QDockWindow can be either placed
-  <ul>
-  <li>\c InDock - inside a QDockArea, or
-  <li>\c OutsideDock - floating on the desktop
-  </ul>
-
+  \value InDock  inside a QDockArea
+  \value OutsideDock  floating on the desktop
 */
 
 /*!
   \enum QDockWindow::CloseMode
 
-  Using setCloseMode() you can specify the close mode of a
-  QDockWindow. This can be one of
+  This enum type specifies how a QDockWindow is closed. The currently
+  possible values are:
 
-  <ul>
-  <li>\c Never - Can be never closed by the user
-  <li>\c Docked - Gets a close button on the handle if docked
-  <li>\c Undocked - Gets a close button on the titelbar if floating
-  <li>\c Always - Always has a closebutton
-  </ul>
-
+  \value Never  The dock window cannot be closed by the user
+  \value Docked  The dock window has a close button only when docked.
+  \value Undocked  The dock window has a close button only when floating.
+  \value Always The dock window always has a close button.
 */
 
 /*! \fn void QDockWindow::orientationChanged( Orientation o )

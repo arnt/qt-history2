@@ -101,7 +101,8 @@ public:
         Letter_Other,             //   Lo
 
         Punctuation_Connector,    //   Pc
-        Punctuation_Dask,         //   Pd
+        Punctuation_Dash,         //   Pd
+        Punctuation_Dask = Punctuation_Dash, // oops
         Punctuation_Open,         //   Ps
         Punctuation_Close,        //   Pe
         Punctuation_InitialQuote, //   Pi
@@ -373,11 +374,11 @@ struct Q_EXPORT QStringData : public QShared {
 	}
 	dirty = 1;
     }
-#ifdef Q_OS_MAC9    
+#ifdef Q_OS_MAC9
     uint len;
 #else
     uint len : 30;
-#endif    
+#endif
     uint simpletext : 1;
 #ifdef Q_OS_MAC9
     uint maxl;
@@ -589,7 +590,7 @@ private:
     bool findArg(int& pos, int& len) const;
 
     void checkSimpleText() const;
-    
+
     static QChar* asciiToUnicode( const char*, uint * len, uint maxlen=(uint)-1 );
     static QChar* asciiToUnicode( const QByteArray&, uint * len );
     static char* unicodeToAscii( const QChar*, uint len );

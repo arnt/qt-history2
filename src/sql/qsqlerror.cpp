@@ -50,20 +50,18 @@
 
 */
 
-/*! \enum QSqlError::Type 
-  
+/*! \enum QSqlError::Type
+
   This enum type describes the type of SQL error that occurred.
-  
-  The currently defined values are: 
-  
-  <ul>
-  <li>\c None - no error occurred
-  <li>\c Connection - connection error
-  <li>\c Statement - statement syntax error
-  <li>\c Transaction - transaction failed error
-  <li>\c Unknown - unknown error
-  </ul>
-*/  
+
+  The currently defined values are:
+
+  \value None  no error occurred
+  \value Connection  connection error
+  \value Statement  statement syntax error
+  \value Transaction  transaction failed error
+  \value Unknown  unknown error
+*/
 
 /*!  Constructs an error containing the driver error text \a driverText,
     the database-specific error text \a databaseText, the type \a type and
@@ -151,7 +149,7 @@ void QSqlError::setDatabaseText( const QString& databaseText )
     databaseError = databaseText;
 }
 
-/*!  Returns the error type, or -1 if the type cannot be determined.  
+/*!  Returns the error type, or -1 if the type cannot be determined.
 
   \sa QSqlError::Type.
 

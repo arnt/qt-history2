@@ -816,19 +816,16 @@ void QSplitter::recalc( bool update )
 
 /*! \enum QSplitter::ResizeMode
 
-  This enum type describes how QSplitter will resize each of its child widgets.  The currently defined values are: <ul>
+  This enum type describes how QSplitter will resize each of its child widgets.  The currently defined values are:
 
-  <li> \c Stretch - the widget will be resized when the splitter
+  \value Stretch  the widget will be resized when the splitter
   itself is resized.
 
-  <li> \c KeepSize - QSplitter will try to keep this widget's size
+  \value KeepSize  QSplitter will try to keep this widget's size
   unchanged.
 
-  <li> \c FollowSizeHint - QSplitter will resize the widget when its
+  \value FollowSizeHint  QSplitter will resize the widget when its
   size hint changes.
-
-  </ul>
-
 */
 
 /*!

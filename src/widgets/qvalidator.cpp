@@ -105,16 +105,14 @@
 /*! \enum QValidator::State
 
   This enum type defines the states in which a validated string can
-  exist.  There are currently three states: <ul>
+  exist.  There are currently three states:
 
-  <li> \c Invalid - the string is \e clearly invalid.
+  \value Invalid  the string is \e clearly invalid.
 
-  <li> \c Intermediate - the string is a plausible intermediate value
+  \value Intermediate  the string is a plausible intermediate value
   during editing.
 
-  <li> \c Acceptable - the string is acceptable as a final result.
-
-  </ul>
+  \value Acceptable  the string is acceptable as a final result.
 
   The state \c Valid has been renamed \c Intermediate.  The old name
   confused too many people and is now obsolete.
@@ -512,7 +510,7 @@ void QDoubleValidator::setDecimals( int decimals )
 	QPushButton *button = new QPushButton( "&Quit", split );
 	app.setMainWidget( split );
 	split->show();
-	app.connect( edit, SIGNAL( returnPressed() ), button, SLOT( animateClick() ) ); 
+	app.connect( edit, SIGNAL( returnPressed() ), button, SLOT( animateClick() ) );
 	app.connect( button, SIGNAL( clicked() ), &app, SLOT( quit() ) );
 	return app.exec();
     }
@@ -522,11 +520,11 @@ void QDoubleValidator::setDecimals( int decimals )
     normally be associated with a widget as in the example above.
   \code
     // Integers 1 to 9999, i.e. a digit between 1 and 9 followed by up to 3 digits
-    QRegExp rx( "[1-9]\\d{0,3}" ); 
+    QRegExp rx( "[1-9]\\d{0,3}" );
     QRegExpValidator v( rx, 0 ); // The validator treats the regexp as "^[1-9]\\d{0,3}$"
     QString s;
 
-    s = "0";     v.validate( s, 0 ); // Returns Invalid 
+    s = "0";     v.validate( s, 0 ); // Returns Invalid
     s = "12345"; v.validate( s, 0 ); // Returns Invalid
     s = "1";     v.validate( s, 0 ); // Returns Valid
 
@@ -568,8 +566,8 @@ QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
 
 /*!
   Constructs a validator object which accepts all strings that match the
-  regular expression \a rx. 
-  
+  regular expression \a rx.
+
   The match is made against the entire string, e.g. if the regexp is
   <b>[A-Fa-f0-9]+</b> it will be treated as <b>^[A-Fa-f0-9]+$</b>.
 */

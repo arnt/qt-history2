@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#28 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#29 $
 **
 ** Implementation of QSocket class.
 **
@@ -235,14 +235,13 @@ void QSocket::setSocketDevice( QSocketDevice *device )
   \enum QSocket::State
 
   This enum defines the connection states:
-  <ul>
-  <li> \c QSocket::Idle if there is no connection
-  <li> \c QSocket::HostLookup during a DNS lookup
-  <li> \c QSocket::Connecting during TCP connection establishment
-  <li> \c QSocket::Connected when there is an operational connection
-  <li> \c QSocket::Closing if the socket is closing down, but is not
+
+  \value Idle if there is no connection
+  \value HostLookup during a DNS lookup
+  \value Connecting during TCP connection establishment
+  \value Connected when there is an operational connection
+  \value Closing if the socket is closing down, but is not
   yet closed.
-  </ul>
 */
 
 /*!
@@ -269,6 +268,10 @@ QSocket::State QSocket::state() const
   connected() and goes into \c Connected state.  If there is an error
   at any point, it emits error().
 
+  \a host may be an IP address in string form, or it may be a DNS
+  name. QSocket will do a normal DNS lookup if required.  Note that \a
+  port in native byte order, unlike some other libraries.
+  
   \sa state()
 */
 
@@ -357,11 +360,9 @@ void QSocket::tryConnecting()
   \enum QSocket::Error
 
   This enum specifies the possible errors:
-  <ul>
-  <li> \c QSocket::ErrConnectionRefused if the connection was refused
-  <li> \c QSocket::ErrHostNotFound if the host was not found
-  <li> \c QSocket::ErrSocketRead if a read from the socket failed
-  </ul>
+  \value ErrConnectionRefused if the connection was refused
+  \value ErrHostNotFound if the host was not found
+  \value ErrSocketRead if a read from the socket failed
 */
 
 /*!
@@ -1209,8 +1210,8 @@ void QSocket::setSocketIntern( int socket )
 }
 
 
-/*!
-  Returns the host port number of this socket.
+/*!  Returns the host port number of this socket, in native byte
+  order.
 */
 
 Q_UINT16 QSocket::port() const
@@ -1224,6 +1225,9 @@ Q_UINT16 QSocket::port() const
 /*!  Returns the peer's host port number, normally as specified to the
   connectToHost() function.  If none has been set, this function
   returns 0.
+
+  Note that Qt always uses native byte order - 67 is 67 in Qt, there
+  is no need to call htons().
 */
 
 Q_UINT16 QSocket::peerPort() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#7 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#8 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -73,18 +73,17 @@ public:
   This enum type describes the error states of QSocketDevice.  At present these
   errors are defined:
 
-  <ul>
-  <li> \c NoError - all is fine.
+  \value NoError  all is fine.
 
-  <li> \c AlreadyBound - bind() said so.
+  \value AlreadyBound  bind() said so.
 
-  <li> \c Inaccessible - the operating system or firewall prohibits something.
+  \value Inaccessible  the operating system or firewall prohibits something.
 
-  <li> \c NoResources - the operating system ran out of something.
+  \value NoResources  the operating system ran out of something.
 
-  <li> \c Bug - there seems to be a bug in QSocketDevice.
+  \value Bug  there seems to be a bug in QSocketDevice.
 
-  <li> \c Impossible - the impossible happened, usually because you confused
+  \value Impossible  the impossible happened, usually because you confused
   QSocketDevice horribly.  Simple example:
   \code
   ::close( sd->socket() );
@@ -93,27 +92,24 @@ public:
   The libc ::close() closes the socket, but QSocketDevice is not aware
   of that.  So when you call writeBlock(), the impossible happens.
 
-  <li> \c NoFiles - the operating system will not let QSocketDevice open
+  \value NoFiles  the operating system will not let QSocketDevice open
   another file.
 
-  <li> \c ConnectionRefused - a connection attempt was rejected by the
+  \value ConnectionRefused  a connection attempt was rejected by the
   peer.
 
-  <li> \c NetworkFailure - there is a network failure between this host
+  \value NetworkFailure  there is a network failure between this host
   and... and whatever.
 
-  <li> \c UnknownError - the operating system reacted in a way that the
+  \value UnknownError  the operating system reacted in a way that the
   Qt developers did not foresee.
-  </ul>
 */
 
 /*! \enum QSocketDevice::Type
 
   This enum type describes the type of the socket:
-  <ul>
-  <li> \c Stream - a stream socket
-  <li> \c Datagram - a datagram socket
-  </ul>
+  \value Stream  a stream socket (TCP, usually)
+  \value Datagram  a datagram socket (UDP, usually)
 */
 
 
@@ -436,6 +432,9 @@ void QSocketDevice::setSendBufferSize( uint size )
 /*!
   Returns the port number of this socket device. This may be 0 for a while,
   but is set to something sensible when there is a sensible value it can have.
+
+  Note that Qt always uses native byte order - 67 is 67 in Qt, there
+  is no need to call htons().
 */
 Q_UINT16 QSocketDevice::port() const
 {
@@ -449,7 +448,7 @@ Q_UINT16 QSocketDevice::port() const
   sensible value it can have.
 
   Note that for Datagram sockets, this is the source port of the last packet
-  received.
+  received, and that it is in native byte order.
 */
 Q_UINT16 QSocketDevice::peerPort() const
 {

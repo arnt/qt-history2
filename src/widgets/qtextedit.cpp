@@ -143,19 +143,16 @@
 
   This enum is used by doKeyboardAction() to specify which action
   should be exectuted:
-	
-  <ul>
 
-  <li>\c ActionBackspace - Delete the character at the left of the cursor
+  \value ActionBackspace  Delete the character at the left of the cursor
 
-  <li> \c ActionDelete - Delete the character at the right of the cursor
+  \value ActionDelete  Delete the character at the right of the cursor
 
-  <li> \c ActionReturn - Split the paragraph at the cursor position
+  \value ActionReturn  Split the paragraph at the cursor position
 
-  <li> \c ActionKill - Delete the text until the end of the paragraph,
-  or if the cursor is at the end of the paragraph, join this and the next paragraph.
-
-  </ul>
+  \value ActionKill Delete the text until the end of the paragraph, or
+  if the cursor is at the end of the paragraph, join this and the next
+  paragraph.
 */
 
 /*! \enum QTextEdit::MoveDirection

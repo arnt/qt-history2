@@ -378,7 +378,7 @@ QString QDir::convertSeparators( const QString &pathName )
 	    n[i] = '\\';
     }
 #elif defined(Q_OS_MAC9)
-	while(n.length() && n[0] == '/' ) n = n.right(n.length()-1); 
+	while(n.length() && n[0] == '/' ) n = n.right(n.length()-1);
     for ( int i=0; i<(int)n.length(); i++ ) {
 	if ( n[i] == '/' )
 	    n[i] = ':';
@@ -502,21 +502,20 @@ void QDir::setNameFilter( const QString &nameFilter )
 
   This enum describes how QDir is to select what entries in a
   directory to return.  The filter value is specified by or-ing
-  together values from the following list: <ul>
+  together values from the following list:
 
-  <li> \c Dirs - List directories only
-  <li> \c Files - List files only
+  \value Dirs  List directories only
+  \value Files  List files only
 
-  <li> \c  Drives - List disk drives (does nothing under unix)
-  <li> \c  NoSymLinks - Do not list symbolic links (where they exist)
-  <li> \c  Readable - List files for which the application has read access.
-  <li> \c  Writable - List files for which the application has write access.
-  <li> \c  Executable - List files for which the application has execute access
-  <li> \c  Modified - Only list files that have been modified (does nothing
+  \value  Drives  List disk drives (does nothing under unix)
+  \value  NoSymLinks  Do not list symbolic links (where they exist)
+  \value  Readable  List files for which the application has read access.
+  \value  Writable  List files for which the application has write access.
+  \value  Executable  List files for which the application has execute access
+  \value  Modified  Only list files that have been modified (does nothing
   under unix)
-  <li> \c  Hidden - List hidden files (on unix, files starting with a .)
-  <li> \c  System - List system files (does nothing under unix)
-  </ul>
+  \value  Hidden  List hidden files (on unix, files starting with a .)
+  \value  System  List system files (does nothing under unix)
 
   If you do not set any of \c Readable, \c Writable or \c Executable,
   QDir will set all three of them.  This makes the default easy to
@@ -557,18 +556,16 @@ void QDir::setFilter( int filterSpec )
 
   This enum describes how QDir is to sort entries in a directory when
   it returns a list of them.  The sort value is specified by or-ing
-  together values from the following list: <ul>
+  together values from the following list:
 
-  <li> \c Name - sort by name
-  <li> \c Time - sort by time (modification time)
-  <li> \c Size - sort by file size
-  <li> \c Unsorted - do not sort
+  \value Name  sort by name
+  \value Time  sort by time (modification time)
+  \value Size  sort by file size
+  \value Unsorted  do not sort
 
-  <li> \c DirsFirst - put all directories first in the list
-  <li> \c Reversed - reverse the sort order
-  <li> \c IgnoreCase - sort case-insensitively
-
-  </ul>
+  \value DirsFirst  put all directories first in the list
+  \value Reversed  reverse the sort order
+  \value IgnoreCase  sort case-insensitively
 
   You can only specify one of the first four.  If you specify both \c
   DirsFirst and \c Reversed, directories are still put first but the
@@ -581,22 +578,9 @@ void QDir::setFilter( int filterSpec )
   Sets the sorting order used by entryList() and entryInfoList().
 
   The \e sortSpec is specified by or-ing values from the enum
-  SortSpec. The different values are:
-
-  One of these:
-  <dl compact>
-  <dt>Name<dd> Sort by name (alphabetical order).
-  <dt>Time<dd> Sort by time (most recent first).
-  <dt>Size<dd> Sort by size (largest first).
-  <dt>Unsorted<dd> Use the operating system order (UNIX does NOT sort
-  alphabetically).
-
-  ORed with zero or more of these:
-
-  <dt>DirsFirst<dd> Always put directory names first.
-  <dt>Reversed<dd> Reverse sort order.
-  <dt>IgnoreCase<dd> Ignore case when sorting by name.
-  </dl>
+  SortSpec.
+  
+  \sa sorting() SortSpec
 */
 
 void QDir::setSorting( int sortSpec )

@@ -86,12 +86,10 @@
 
   This type determines how numbers are shown. The possible values are:
 
-  <ul>
-  <li>\c Hex - Hexadecimal
-  <li>\c Dec - Decimal
-  <li>\c Oct - Octal
-  <li>\c Bin - Binary
-  </ul>
+  \value Hex  Hexadecimal
+  \value Dec  Decimal
+  \value Oct  Octal
+  \value Bin  Binary
  */
 
 /*! \enum QLCDNumber::SegmentStyle
@@ -99,11 +97,9 @@
   This type determines the visual appearance of the QLCDNumber
   widget. The possible values are:
 
-  <ul>
-  <li>\c Outline gives raised segments filled with the background brush.
-  <li>\c Filled gives raised segments filled with the foreground brush.
-  <li>\c Flat gives flat segments filled with the foreground brush.
-  </ul>
+  \value Outline gives raised segments filled with the background brush.
+  \value Filled gives raised segments filled with the foreground brush.
+  \value Flat gives flat segments filled with the foreground brush.
  */
 
 

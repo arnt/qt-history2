@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qhttp.cpp#30 $
+** $Id: //depot/qt/main/src/network/qhttp.cpp#31 $
 **
 ** Implementation of QHtpp and related classes.
 **
@@ -181,7 +181,7 @@ signals:
     void replyHeader( const QHttpReplyHeader& repl );
     void requestFailed();
     void finished();
-    
+
 protected:
     void timerEvent( QTimerEvent * );
 
@@ -286,7 +286,7 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
 */
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
-{	
+{
     parse( str );
 }
 
@@ -518,21 +518,21 @@ QString QHttpHeader::contentType() const
     QString type = m_values[ "content-type" ];
     if ( type.isEmpty() )
 	return QString::null;
-    
+
     int pos = type.find( ";" );
     if ( pos == -1 )
 	return type;
-    
+
     return type.left( pos ).stripWhiteSpace();
 }
 
 /*
   \enum QHttpHeader::Connection
 
-  <ul>
-  <li> Close
-  <li> KeepAlive
-  </ul>
+  \value Close - the connection should be closed when the current
+  request is finished
+
+  \value KeepAlive - the connection should be kept around for reuse
 */
 /*!
   Returns the value of the special HTTP header entry \c connection.
@@ -792,7 +792,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
   HTTP requests have a method which describes the action of the request. The
   most common requests are "GET" and "POST". In addition to the method the
   header also includes a request-URI to specify the location for the method.
-  
+
   Since this is a subclass of QHttpHeader, all functions in this class are also
   available, especially setValue() and value().
 
@@ -808,7 +808,7 @@ QHttpRequestHeader::QHttpRequestHeader()
 }
 
 /*!
-  Constructs a HTTP request header for the method \a method, the request-URI 
+  Constructs a HTTP request header for the method \a method, the request-URI
   \a path and the protocol-version \a version.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
@@ -893,7 +893,7 @@ bool QHttpRequestHeader::parseLine( const QString& line, int number )
 		if ( v.length() >= 8 && v.left( 5 ) == "HTTP/" &&
 			v[5].isDigit() && v[6] == '.' && v[7].isDigit() ) {
 		    m_version = 10 * ( v[5].latin1() - '0' ) +
-			( v[7].latin1() - '0' );		
+			( v[7].latin1() - '0' );
 		    return TRUE;
 		}
 	    }
@@ -976,7 +976,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   This signal is emitted when the reply is available. The reply header is
   passed in \a repl and the data of the reply is passed in \a data. Do not
   call request() in response to this signal. Instead wait for finished().
- 
+
   If this QHttpClient has a device set, then this signal is not emitted.
 
   \sa replyChunk()
@@ -1012,7 +1012,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   This signal is emitted if the HTTP header of the reply is available. The
   header is passed in \a repl.
- 
+
   It is now possible to decide wether the reply data should be read in memory
   or rather in some device by calling setDevice().
 
@@ -1224,7 +1224,7 @@ void QHttpClient::closed()
     } else if ( m_state == Connecting || m_state == Sending ) {
 	emit requestFailed();
     }
-    
+
     m_postDevice = 0;
     m_state = Closed;
     m_idleTimer = startTimer( 0 );
@@ -1248,7 +1248,7 @@ void QHttpClient::error( int )
 {
     m_postDevice = 0;
 
-    if ( m_state == Connecting || m_state == Reading || m_state == Sending ) {	
+    if ( m_state == Connecting || m_state == Reading || m_state == Sending ) {
 	emit requestFailed();
     }
 
@@ -1376,7 +1376,7 @@ void QHttpClient::readyRead()
 	// Read everything ?
 	// We can only know that is the content length was given in advance.
 	// Otherwise we emit the signal in closed().
-	if ( !m_reply.hasAutoContentLength() && m_bytesRead == m_reply.contentLength() ) {	
+	if ( !m_reply.hasAutoContentLength() && m_bytesRead == m_reply.contentLength() ) {
 	    if ( m_device )
 		emit reply( m_reply, m_device );
 	    else
@@ -1393,7 +1393,7 @@ void QHttpClient::readyRead()
 		// "after" this method returned.
 		m_idleTimer = startTimer( 0 );
 		break;
-	    case QHttpHeader::Close:		
+	    case QHttpHeader::Close:
 		// Close the socket
 		close();
 		break;
@@ -1405,20 +1405,25 @@ void QHttpClient::readyRead()
 /*
   \enum QHttpClient::State
 
-  This enum is used to specify the state the client is in. The possible values
-  are:
-  <ul>
-  <li> Closed: The connection was just closed, but still one can not make new
-       requests using this client. Better wait for Idle.
-  <li> Connecting: A request was issued and the client is looking up IP
-       addresses or connecting to the remote host.
-  <li> Sending: The client is sending its request to the server.
-  <li> Reading: The client has sent its request and is reading the servers
-       response.
-  <li> Alive: The connection to the host is open. It is possible to make new
-       requests.
-  <li> Idle: There is no open connection. It is possible to make new requests.
-  </ul>
+  This enum is used to specify the state the client is in. The
+  possible values are:
+
+  \value Closed The connection was just closed, but still one can not
+  make new requests using this client. Better wait for Idle.
+
+  \value Connecting A request was issued and the client is looking up
+  IP addresses or connecting to the remote host.
+
+  \value Sending  The client is sending its request to the server.
+
+  \value Reading The client has sent its request and is reading the
+  servers response.
+
+  \value Alive The connection to the host is open. It is possible to
+  make new requests.
+
+  \value Idle There is no open connection. It is possible to make new
+  requests.
 */
 /*!
   Returns the state of the HTTP client.

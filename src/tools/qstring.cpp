@@ -11380,74 +11380,86 @@ constructors.
 
 /*! \enum QChar::Category
 
-This enum maps the Unicode character categories.  The currently known
-categories are: <ul>
+This enum maps the Unicode character categories.  The following
+characters are normative in Unicode:
 
-<li> \c NoCategory - used when Qt is dazed and confused and cannot
+\value Mark_NonSpacing  (Unicode class name Mn
+
+\value Mark_SpacingCombining  (Unicode class name Mc
+
+\value Mark_Enclosing  (Unicode class name Me
+
+\value Number_DecimalDigit  (Unicode class name Nd
+
+\value Number_Letter  (Unicode class name Nl
+
+\value Number_Other  Unicode class name No
+
+\value Separator_Space  Unicode class name Zs
+
+\value Separator_Line  Unicode class name Zl
+
+\value Separator_Paragraph  Unicode class name Zp
+
+\value Other_Control  Unicode class name Cc
+
+\value Other_Format  Unicode class name Cf
+
+\value Other_Surrogate  Unicode class name Cs
+
+\value Other_PrivateUse  Unicode class name Co
+
+\value Other_NotAssigned  Unicode class name Cn
+
+
+The following categories are informative in Unicode:
+
+\value Letter_Uppercase  Unicode class name Lu
+
+\value Letter_Lowercase  Unicode class name Ll
+
+\value Letter_Titlecase  Unicode class name Lt
+
+\value Letter_Modifier  Unicode class name Lm
+
+\value Letter_Other Unicode class name Lo
+
+\value Punctuation_Connector  Unicode class name Pc
+
+\value Punctuation_Dash  Unicode class name Pd
+
+\value Punctuation_Open  Unicode class name Ps 
+
+\value Punctuation_Close  Unicode class name Pe
+
+\value Punctuation_InitialQuote  Unicode class name Pi
+
+\value Punctuation_FinalQuote  Unicode class name Pf
+
+\value Punctuation_Other  Unicode class name Po
+
+\value Symbol_Math  Unicode class name Sm
+
+\value Symbol_Currency  Unicode class name Sc
+
+\value Symbol_Modifier  Unicode class name Sk
+
+\value Symbol_Other  Unicode class name So
+
+
+There are two categories that are specific to Qt:
+
+\value NoCategory  used when Qt is dazed and confused and cannot
 make sense of anything.
 
-<li> \c Mark_NonSpacing - (Mn) -
+\value Punctuation_Dask  old typo alias for Punctuation_Dash
 
-<li> \c Mark_SpacingCombining - (Mc) -
-
-<li> \c Mark_Enclosing - (Me) -
-
-<li> \c Number_DecimalDigit - (Nd) -
-
-<li> \c Number_Letter - (Nl) -
-
-<li> \c Number_Other - (No) -
-
-<li> \c Separator_Space - (Zs) -
-
-<li> \c Separator_Line - (Zl) -
-
-<li> \c Separator_Paragraph - (Zp) -
-
-<li> \c Other_Control - (Cc) -
-
-<li> \c Other_Format - (Cf) -
-
-<li> \c Other_Surrogate - (Cs) -
-
-<li> \c Other_PrivateUse - (Co) -
-
-<li> \c Other_NotAssigned - (Cn) -
-
-<li> \c Letter_Uppercase - (Lu) -
-
-<li> \c Letter_Lowercase - (Ll) -
-
-<li> \c Letter_Titlecase - (Lt) -
-
-<li> \c Letter_Modifier - (Lm) -
-
-<li> \c Letter_Other - (Lo) -
-
-<li> \c Punctuation_Connector - (Pc) -
-
-<li> \c Punctuation_Dask - (Pd) -
-
-<li> \c Punctuation_Open - (Ps) -
-
-<li> \c Punctuation_Close - (Pe) -
-
-<li> \c Punctuation_InitialQuote - (Pi) -
-
-<li> \c Punctuation_FinalQuote - (Pf) -
-
-<li> \c Punctuation_Other - (Po) -
-
-<li> \c Symbol_Math - (Sm) -
-
-<li> \c Symbol_Currency - (Sc) -
-
-<li> \c Symbol_Modifier - (Sk) -
-
-<li> \c Symbol_Other - (So) -
-
-</ul>
 */
+
+// ### note: the next four "documentation" blocks contain lies.  When
+// you write "see x for y", you make a statement that x explains or
+// talks about y.  in the future, we should avoid such lies.  either
+// don't write such sentences, or at least link somewhere useful.
 
 /*! \enum QChar::Direction
 
@@ -14922,7 +14934,7 @@ QString &QString::setLatin1( const char *str, int len )
     return *this;
 }
 
-/*!\fn bool simpleText() const 
+/*!\fn bool simpleText() const
   \internal
 */
 

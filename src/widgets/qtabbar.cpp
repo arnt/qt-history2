@@ -122,19 +122,17 @@ QTab::~QTab()
 */
 
 /*! \enum QTabBar::Shape
-  This enum type lists the built-in shapes supported by QTabBar:<ul>
+  This enum type lists the built-in shapes supported by QTabBar:
 
-  <li> \c RoundedAbove - the normal rounded look above the pages
+  \value RoundedAbove  the normal rounded look above the pages
 
-  <li> \c RoundedBelow - the normal rounded look below the pages
+  \value RoundedBelow  the normal rounded look below the pages
 
-  <li> \c TriangularAbove - triangular tabs above the pages (very
+  \value TriangularAbove  triangular tabs above the pages (very
   unusual; included for completeness)
 
-  <li> \c TriangularBelow - triangular tabs similar to those used in
+  \value TriangularBelow  triangular tabs similar to those used in
   the spreadsheet Excel, for example
-
-  </ul>
 */
 
 struct QTabPrivate {

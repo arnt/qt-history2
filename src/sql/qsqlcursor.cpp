@@ -155,22 +155,18 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
   database.
 
   The currently defined values are:
-  <ul>
 
-  <li> \c ReadOnly - the cursor can only select records from the
+  \value ReadOnly  the cursor can only select records from the
   database.
 
-  <li> \c Insert - the cursor can insert records into the database.
+  \value Insert  the cursor can insert records into the database.
 
-  <li> \c Update - the cursor can update records in the database.
+  \value Update  the cursor can update records in the database.
 
-  <li> \c Delete - the cursor can delete records from the database.
+  \value Delete  the cursor can delete records from the database.
 
-  <li> \c Writable - the cursor can insert, update and delete records
+  \value Writable  the cursor can insert, update and delete records
   in the database.
-
-  </ul>
-
 */
 
 /*!  Constructs a cursor on database \a db.  If \a autopopulate is

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#54 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#55 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **

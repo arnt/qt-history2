@@ -485,23 +485,22 @@ flag explicitly.
 /*! \enum QScrollView::ResizePolicy
 
   This enum type is used to control QScrollView's reaction to resize
-  events.  There are three possible settings:<ul>
+  events.  There are three possible settings:
 
-  <li> \c Default - QScrollView selects one of the other settings
+  \value Default  QScrollView selects one of the other settings
   automatically when it has to.  In this version, QScrollView
   changes to \c Manual if you resize the contents with resizeContents()
   and to \c AutoOne if a child is added.
 
-  <li> \c Manual - the view stays the size set by resizeContents().
+  \value Manual  the view stays the size set by resizeContents().
 
-  <li> \c AutoOne - if there is only one child widget the view stays
+  \value AutoOne  if there is only one child widget the view stays
   the size of that widget.  Otherwise the behaviour is undefined.
 
-  <li> \c AutoOneFit - if there is only one child widget the child
-  will be stretched to fit the QScrollView.  
+  \value AutoOneFit  if there is only one child widget the child
+  will be stretched to fit the QScrollView.
   Otherwise the behaviour is undefined.
 
-  </ul>
 */
 //####  The widget will be resized to its sizeHint() when a LayoutHint event
 //#### is received
@@ -1002,16 +1001,14 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
 /*! \enum QScrollView::ScrollBarMode
 
   This enum type describes the various modes of QScrollView's scroll
-  bars.  The defined modes are: <ul>
+  bars.  The defined modes are:
 
-   <li> \c Auto - QScrollView shows a scroll bar when the content is
+   \value Auto  QScrollView shows a scroll bar when the content is
    too tall to fit and not otherwise.  This is the default.
 
-   <li> \c AlwaysOff - QScrollView never shows a scroll bar.
+   \value AlwaysOff  QScrollView never shows a scroll bar.
 
-   <li> \c AlwaysOn - QScrollView always shows a scroll bar.
-
-   </ul>
+   \value AlwaysOn  QScrollView always shows a scroll bar.
 
    (The modes for the horizontal and vertical scroll bars are independent.)
 */

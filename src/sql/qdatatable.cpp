@@ -111,11 +111,9 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
   The currently defined values are:
 
-  <ul>
-  <li> \c Yes
-  <li> \c No
-  <li> \c Cancel
-  </ul>
+  \value Yes
+  \value No
+  \value Cancel
 */
 
 /*! \enum QDataTable::Refresh
@@ -124,11 +122,9 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
   The currently defined values are:
 
-  <ul>
-  <li> \c Data -- refresh the data
-  <li> \c Column -- refresh the list of fields, e.g. the column headings
-  <li> \c All -- refresh both the data and the list of fields
-  </ul>
+  \value Data  refresh the data
+  \value Column  refresh the list of fields, e.g. the column headings
+  \value All  refresh both the data and the list of fields
 */
 
 

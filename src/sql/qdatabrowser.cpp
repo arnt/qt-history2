@@ -79,26 +79,23 @@ public:
   This enum type describes where the browser is currently positioned.
 
   The currently defined values are:
-  <ul>
 
-  <li> \c Unknown - the boundary cannot be determined (usually because
+  \value Unknown  the boundary cannot be determined (usually because
   there is no default cursor, or the default cursor is not active).
 
-  <li> \c None - the browser is not positioned on a boundary.
+  \value None  the browser is not positioned on a boundary.
 
-  <li> \c BeforeBeginning - the browser is positioned before the
+  \value BeforeBeginning  the browser is positioned before the
   beginning of the available records.
 
-  <li> \c Beginning - the browser is positioned at the beginning of
+  \value Beginning  the browser is positioned at the beginning of
   the available records.
 
-  <li> \c End - the browser is positioned at the end of
+  \value End  the browser is positioned at the end of
   the available records.
 
-  <li> \c AfterEnd - the browser is positioned after the end of the
+  \value AfterEnd  the browser is positioned after the end of the
   available records.
-
-  </ul>
 */
 
 QDataBrowser::QDataBrowser( QWidget *parent, const char *name, WFlags fl )

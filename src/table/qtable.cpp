@@ -217,19 +217,16 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   This enum type defines whether and when the user may edit a table
   cell.  The currently defined states are:
 
-  <ul>
-  <li>\c Always - the cell always is and always looks editable.
+  \value Always  the cell always is and always looks editable.
 
-  <li>\c WhenCurrent - the cell is editable, and looks editable
+  \value WhenCurrent  the cell is editable, and looks editable
   whenever it has keyboard focus (see QTable::setCurrentCell()).
 
-  <li>\c OnTyping - the cell is editable, but looks editable only when
+  \value OnTyping  the cell is editable, but looks editable only when
   the user types in it or double-clicks in it. (This is like \c
   WhenCurrent in function but can look a bit cleaner.)
 
-  <li>\c Never - the cell isn't editable.
-
-  </ul>
+  \value Never  the cell isn't editable.
 */
 
 /*!  Creates a table item for the table \a table that contains the text
@@ -917,26 +914,26 @@ bool QCheckTableItem::isChecked() const
 */
 
 /*! \enum QTable::EditMode
-  <ul>
-  <li>\c NotEditing - the cell is not being now
-  <li>\c Editing - the cell is being edited, from its old contents
-  <li>\c Replacing - the cell is being edited, and was cleared when
+  
+  
+  \value NotEditing  the cell is not being now
+  \value Editing  the cell is being edited, from its old contents
+  \value Replacing  the cell is being edited, and was cleared when
          editing started
-  </ul>
-
 */
 /*! \enum QTable::SelectionMode
-  <ul>
-  <li>\c NoSelection - No cell can be selected by the user.
-  <li>\c Single - The user may select one range of cells only.
-  <li>\c Multi - Multi-range selections are possible.
-  </ul>
+
+  
+  \value NoSelection  No cell can be selected by the user.
+  \value Single  The user may select one range of cells only.
+  \value Multi  Multi-range selections are possible.
 */
 
 /*! \fn void QTable::clicked( int row, int col, int button, const QPoint &mousePos )
-  This signal is emitted as soon as a user clicks on \a
-  row and \a col using mousebutton \a button.
-  The actual mouse position is passed as \a mousePos.
+
+  This signal is emitted as soon as a user clicks on \a row and \a col
+  using mousebutton \a button.  The actual mouse position is passed as
+  \a mousePos.
 */
 
 /*! \fn void QTable::doubleClicked( int row, int col, int button, const QPoint &mousePos )

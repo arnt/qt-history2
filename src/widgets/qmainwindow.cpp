@@ -580,18 +580,22 @@ public:
   \enum Qt::Dock
 
   Each dock window can be in one of the following positions:
-  <ul>
-    <li>\c Top - above the central widget, below the menubar.
-    <li>\c Bottom - below the central widget, above the status bar.
-    <li>\c Left - to the left of the central widget.
-    <li>\c Right - to the left of the central widget.
-    <li>\c Minimized - the toolbar is not shown - all handles of minimized
-    toolbars are drawn in one row below the menu bar.
-    <li> \c TornOff - floating dock window as own top level window which
-    always stays on to of the mainwindow.
-    </ul>
 
-  Other values are also defined for future expansion.
+  \value Top  above the central widget, below the menubar.
+
+  \value Bottom  below the central widget, above the status bar.
+
+  \value Left  to the left of the central widget.
+
+  \value Right to the left of the central widget.
+  
+  \value Minimized the toolbar is not shown - all handles of minimized
+  toolbars are drawn in one row below the menu bar.
+
+  \value TornOff floating dock window as own top level window which
+  always stays on to of the mainwindow.
+
+  \value Unmanaged not managed by a QMainWindow.
 */
 
 /*!  Constructs an empty main window. */

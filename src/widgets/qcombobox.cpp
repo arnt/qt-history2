@@ -134,25 +134,23 @@
 /*! \enum QComboBox::Policy
 
   This enum type specifies what QComboBox should do with a new string
-  entered by the user.  The following policies are defined: <ul>
+  entered by the user.  The following policies are defined:
 
-  <li> \c NoInsertion means not to insert the string in the combo.
+  \value NoInsertion means not to insert the string in the combo.
 
-  <li> \c AtTop means to insert the string at the top of the combo box.
+  \value AtTop means to insert the string at the top of the combo box.
 
-  <li> \c AtCurrent means to replace the previously selected item with
+  \value AtCurrent means to replace the previously selected item with
   the typed string.
 
-  <li> \c AtBottom means to insert the string at the bottom of the
+  \value AtBottom means to insert the string at the bottom of the
   combo box.
 
-  <li> \c AfterCurrent means to to insert the string just after the
+  \value AfterCurrent means to to insert the string just after the
   previously selected item.
 
-  <li> \c BeforeCurrent means to to insert the string just before the
+  \value BeforeCurrent means to to insert the string just before the
   previously selected item.
-
-  </ul>
 
   activated() is always emitted, of course.
 

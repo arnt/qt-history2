@@ -2479,21 +2479,22 @@ QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 
 /*! \enum QTextView::WordWrap
 
-  This enum describes the multiline edit's word wrap mode.
+  This enum describes the QTextView's word wrap mode.  The following
+  values are valid:
 
-  The following values are valid:
-    <ul>
-    <li> \c NoWrap - no word wrap at all.
-    <li> \c WidgetWidth - word wrap depending on the current
-     width of the editor widget
-    <li> \c FixedPixelWidth - wrap according to a fix amount
-     of pixels ( see wrapColumnOrWidth() )
-    <li> \c FixedColumnWidth - wrap according to a fix character
-     column. This is useful whenever you need formatted text that
-     can also be displayed gracefully on devices with monospaced
-     fonts, for example a standard VT100 terminal. In that case
-     wrapColumnOrWidth() should typically be set to 80.
-  </ul>
+  \value NoWrap  no word wrap at all.
+
+  \value WidgetWidth word wrap depending on the current width of the
+  widget
+
+  \value FixedPixelWidth wrap according to a fixed amount of pixels
+  (see wrapColumnOrWidth() )
+
+  \value FixedColumnWidth wrap according to a fixed character
+  column. This is useful whenever you need formatted text that can
+  also be displayed gracefully on devices with monospaced fonts, for
+  example a standard VT100 terminal. In that case wrapColumnOrWidth()
+  should typically be set to 80.
 
  \sa setWordWrap()
 */
@@ -2582,10 +2583,8 @@ int QTextView::wrapColumnOrWidth() const
   Defines where text can be wrapped in word wrap mode.
 
   The following values are valid:
-  <ul>
-  <li> \c AtWhiteSpace - break only after whitespace
-  <li> \c Anywhere - break anywhere
-   </ul>
+  \value AtWhiteSpace  break only after whitespace
+  \value Anywhere  break anywhere
 
    \sa setWrapPolicy()
 */

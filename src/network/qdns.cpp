@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#17 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#18 $
 **
 ** Implementation of QDns class.
 **
@@ -1623,28 +1623,24 @@ void QDns::setLabel( const QHostAddress & address )
   use, useful for GUI programs and important enough to support right
   away:
 
-  <ul>
-
-  <li> \c None - no information.  This exists only so that QDns can
+  \value None  no information.  This exists only so that QDns can
   have a default.
 
-  <li> \c A - IPv4 addresses.  By far the most common type.
+  \value A  IPv4 addresses.  By far the most common type.
 
-  <li> \c Aaaa - Ipv6 addresses.  So far mostly unused.
+  \value Aaaa  Ipv6 addresses.  So far mostly unused.
 
-  <li> \c Mx - Mail eXchanger names.  Used for mail delivery.
+  \value Mx  Mail eXchanger names.  Used for mail delivery.
 
-  <li> \c Srv - SeRVer names.  Generic record type for finding
+  \value Srv  SeRVer names.  Generic record type for finding
   servers.  So far mostly unused.
 
-  <li> \c Cname - canonical name.  Maps from nicknames to the true
+  \value Cname  canonical name.  Maps from nicknames to the true
   name (the canonical name) for a host.
 
-  <li> \c Ptr - name PoinTeR.  Maps from IPv4 or IPv6 addresses to hostnames.
+  \value Ptr  name PoinTeR.  Maps from IPv4 or IPv6 addresses to hostnames.
 
-  <li> \c Txt - arbitrary text for domains.
-
-  </ul>
+  \value Txt  arbitrary text for domains.
 
   We expect that some support for the
   <a href="http://www.dns.net/dnsrd/rfc/rfc2535.html">RFC-2535</a>

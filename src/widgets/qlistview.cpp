@@ -911,7 +911,7 @@ void QListViewItem::takeItem( QListViewItem * item )
     if ( lv && !lv->d->clearing ) {
 	if ( lv->d->oldFocusItem == this )
 	    lv->d->oldFocusItem = 0;
-	
+
 	if ( lv->d->iterators ) {
 	    QListViewItemIterator *i = lv->d->iterators->first();
 	    while ( i ) {
@@ -1957,19 +1957,19 @@ void QListViewPrivate::Root::setup()
 /*! \enum QListView::SelectionMode
 
   This enumerated type is used by QListView to indicate how it reacts
-  to selection by the user.  It has four values: <ul>
+  to selection by the user.  It has four values:
 
-  <li> \c Single - When the user selects an item, any already-selected
+  \value Single  When the user selects an item, any already-selected
   item becomes unselected, and the user cannot unselect the selected
   item. This means that the user can never clear the selection, even
   though the selection may be cleared by the application programmer
   using QListView::clearSelection().
 
-  <li> \c Multi - When the user selects an item in the most ordinary
+  \value Multi  When the user selects an item in the most ordinary
   way, the selection status of that item is toggled and the other
   items are left alone.
 
-  <li> \c Extended - When the user selects an item in the most
+  \value Extended When the user selects an item in the most
   ordinary way, the selection is cleared and the new item selected.
   However, if the user presses the CTRL key when clicking on an item,
   the clicked item gets toggled and all other items are left untouched. And
@@ -1979,9 +1979,7 @@ void QListViewPrivate::Root::setup()
   Also, multiple items can be selected by dragging the mouse while the
   left mouse button stays pressed.
 
-  <li> \c NoSelection - Items cannot be selected.
-
-  </ul>
+  \value NoSelection  Items cannot be selected.
 
   In other words, \c Single is a real single-selection list view, \c
   Multi a real multi-selection list view, \c Extended is a list view
@@ -2847,16 +2845,14 @@ int QListView::columnWidth( int c ) const
 /*! \enum QListView::WidthMode
 
   This enum type describes how the width of a column in the view
-  changes.  The currently defined modes are: <ul>
+  changes.  The currently defined modes are:
 
-  <li> \c Manual - the column width does not change automatically.
+  \value Manual the column width does not change automatically.
 
-  <li> \c Maximum - the column is automatically sized according to the
+  \value Maximum  the column is automatically sized according to the
   widths of all items in the column.  (Note: The column never shrinks
   in this case.) This means the column is always resized to the
   width of the item with the largest width in the column.
-
-  </ul>
 
   \sa setColumnWidth() setColumnWidthMode() columnWidth()
 */
@@ -4876,11 +4872,8 @@ void QListView::repaintItem( const QListViewItem * item ) const
 
 /*! \enum QCheckListItem::Type
 
-  This enum type defines the modes in which a QCheckListItem can be the following: <ul>
-  <li> \c RadioButton -
-  <li> \c CheckBox -
-  <li> \c Controller -
-  </ul>
+  This enum type defines the modes in which a QCheckListItem can be
+  the following:
 */
 
 /* XPM */

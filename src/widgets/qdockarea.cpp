@@ -457,16 +457,14 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 /*!
   \enum QDockArea::Gravity
+  
+  This enum speifices which way gravity points in a dock area.
 
-  This enum specifies wheather the dock windows in that area can be
-  resized normally (to the right/bottom) or revers (left/top). The
-  splitter-like handles for resizable dock windows are placed and controlled
-  according to that information.
+  \value Normal The top or left of an area is stable, and the bottom
+  or right end may be user-movable.
 
-  <ul>
-  <li>\c  Normal
-  <li>\c Reverse
-  </ul>
+  \value Reverse The bottom or right of an area is stable, and the top
+  or left end may be user-movable.
 */
 
 /*! Creates a QDockArea with the orientation \a o, Gravity \a g as
@@ -632,10 +630,10 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 		dockLine++;
 	    }
 	}
-	
+
 	if ( !insertLine && wasAloneInLine && lr.contains( pos ) ) // if we are alone in a line and just moved in there, re-insert it
 	    insertLine = TRUE;
-	
+
 #if defined(QDOCKAREA_DEBUG)
 	qDebug( "insert in line %d, and insert that line: %d", dockLine, insertLine );
 	qDebug( "     (btw, we have %d lines)", lines.count() );
@@ -657,8 +655,8 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	    // make sure each line start has a new line
 	    for ( dw = lineStarts.first(); dw; dw = lineStarts.next() )
 		dw->setNewLine( TRUE );
-				
-	    // find the index of the first widget in the search line	
+
+	    // find the index of the first widget in the search line
 	    int searchLine = dockLine;
 #if defined(QDOCKAREA_DEBUG)
 	    qDebug( "search line start of %d", searchLine );
@@ -944,7 +942,7 @@ bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
 	return FALSE;
     if ( forbiddenWidgets.findRef( dw ) != -1 )
 	return FALSE;
-    if ( !parentWidget() || !parentWidget()->inherits( "QMainWindow" ) )	
+    if ( !parentWidget() || !parentWidget()->inherits( "QMainWindow" ) )
 	return TRUE;
     QMainWindow *mw = (QMainWindow*)parentWidget();
     if ( !mw->hasDockWindow( dw ) )

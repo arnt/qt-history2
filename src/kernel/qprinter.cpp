@@ -122,9 +122,10 @@
   This enum type (not to be confused with Qt::Orientation) is used to
   decide how Qt should print on each sheet.
 
-  \value Portrait   the page's height is greater than its width (the default).
+  \value Portrait the page's height is greater than its width (the
+  default).
 
-  \value Landscape  the page's width is greater than its height.
+  \value Landscape the page's width is greater than its height.
 
   This type interacts with QPrinter::PageSize and
   QPrinter::setFullPage() to determine the final size of the page
@@ -140,36 +141,37 @@
   determine the printable area (see QPaintDeviceMetrics).
 
   The defined sizes (with setFullPage( TRUE )) are
-  \value QPrinter::A0 (841 x 1189 mm)
-  \value QPrinter::A1 (594 x 841 mm)
-  \value QPrinter::A2 (420 x 594 mm)
-  \value QPrinter::A3 (297 x 420 mm)
-  \value QPrinter::A4 (210 x 297 mm, 8.26 x 11.7 inches)
-  \value QPrinter::A5 (148 x 210 mm)
-  \value QPrinter::A6 (105 x 148 mm)
-  \value QPrinter::A7 (74 x 105 mm)
-  \value QPrinter::A8 (52 x 74 mm)
-  \value QPrinter::A9 (37 x 52 mm)
-  \value QPrinter::B0 (1030 x 1456 mm)
-  \value QPrinter::B1 (728 x 1030 mm)
-  \value QPrinter::B10 (32 x 45 mm)
-  \value QPrinter::B2 (515 x 728 mm)
-  \value QPrinter::B3 (364 x 515 mm)
-  \value QPrinter::B4 (257 x 364 mm)
-  \value QPrinter::B5 (182 x 257 mm, 7.17 x 10.13 inches)
-  \value QPrinter::B6 (128 x 182 mm)
-  \value QPrinter::B7 (91 x 128 mm)
-  \value QPrinter::B8 (64 x 91 mm)
-  \value QPrinter::B9 (45 x 64 mm)
-  \value QPrinter::C5E (163 x 229 mm)
-  \value QPrinter::Comm10E (105 x 241 mm, US Common #10 Envelope)
-  \value QPrinter::DLE (110 x 220 mm)
-  \value QPrinter::Executive (7.5 x 10 inches, 191 x 254 mm)
-  \value QPrinter::Folio (210 x 330 mm)
-  \value QPrinter::Ledger (432 x 279 mm)
-  \value QPrinter::Legal (8.5 x 14 inches, 216 x 356 mm)
-  \value QPrinter::Letter (8.5 x 11 inches, 216 x 279 mm)
-  \value QPrinter::Tabloid (279 x 432 mm)
+
+  \value A0 841 x 1189 mm
+  \value A1 594 x 841 mm
+  \value A2 420 x 594 mm
+  \value A3 297 x 420 mm
+  \value A4 210 x 297 mm, 8.26 x 11.7 inches
+  \value A5 148 x 210 mm
+  \value A6 105 x 148 mm
+  \value A7 74 x 105 mm
+  \value A8 52 x 74 mm
+  \value A9 37 x 52 mm
+  \value B0 1030 x 1456 mm
+  \value B1 728 x 1030 mm
+  \value B10 32 x 45 mm
+  \value B2 515 x 728 mm
+  \value B3 364 x 515 mm
+  \value B4 257 x 364 mm
+  \value B5 182 x 257 mm, 7.17 x 10.13 inches
+  \value B6 128 x 182 mm
+  \value B7 91 x 128 mm
+  \value B8 64 x 91 mm
+  \value B9 45 x 64 mm
+  \value C5E 163 x 229 mm
+  \value Comm10E 105 x 241 mm, US Common #10 Envelope
+  \value DLE 110 x 220 mm
+  \value Executive 7.5 x 10 inches, 191 x 254 mm
+  \value Folio 210 x 330 mm
+  \value Ledger 432 x 279 mm
+  \value Legal 8.5 x 14 inches, 216 x 356 mm
+  \value Letter 8.5 x 11 inches, 216 x 279 mm
+  \value Tabloid 279 x 432 mm
 
   With setFullPage(FALSE) (the default), the metrics will be a bit
   smaller; how much depends on the printer in use.
@@ -181,10 +183,10 @@
   This enum type is used by QPrinter/QPrintDialog to tell the
   application program how to print.  The possible values are
 
-  \value QPrinter::FirstPageFirst  the lowest-numbered page should
+  \value FirstPageFirst  the lowest-numbered page should
   be printed first.
 
-  \value QPrinter::LastPageFirst  the highest-numbered page should
+  \value LastPageFirst  the highest-numbered page should
   be printed first.
 */
 
@@ -209,19 +211,19 @@
 
   Note: It is currently only implemented for Windows.
 
-  \value QPrinter::OnlyOne
-  \value QPrinter::Lower
-  \value QPrinter::Middle
-  \value QPrinter::Manual
-  \value QPrinter::Envelope
-  \value QPrinter::EnvelopeManual
-  \value QPrinter::Auto
-  \value QPrinter::Tractor
-  \value QPrinter::SmallFormat
-  \value QPrinter::LargeFormat
-  \value QPrinter::LargeCapacity
-  \value QPrinter::Cassette
-  \value QPrinter::FormSource
+  \value OnlyOne
+  \value Lower
+  \value Middle
+  \value Manual
+  \value Envelope
+  \value EnvelopeManual
+  \value Auto
+  \value Tractor
+  \value SmallFormat
+  \value LargeFormat
+  \value LargeCapacity
+  \value Cassette
+  \value FormSource
 */
 
 /*!

@@ -97,15 +97,14 @@ public:
 /*! \enum QMenuBar::Separator
 
   This enum type is used to decide whether QMenuBar should draw a
-  separator line at its bottom.  The possible values are: <ul>
+  separator line at its bottom.  The possible values are:
 
-  <li> \c Never - In many applications there is already a separator,
+  \value Never  In many applications there is already a separator,
   and having two looks stupid.
 
-  <li> \c InWindowsStyle - In some other applications a separator
+  \value InWindowsStyle  In some other applications a separator
   looks good in Windows style, but nowhere else.
 
-  </ul>
  */
 
 /*!

@@ -88,7 +88,7 @@ struct QButtonData
 	group = 0;
 #endif
 #ifndef QT_NO_ACCEL
-	a = 0; 	
+	a = 0;
 #endif
     }
 #ifndef QT_NO_BUTTONGROUP
@@ -244,30 +244,27 @@ QTimer *QButton::timer()
 /*! \enum QButton::ToggleType
 
   This enum type defines what a button can do in response to a
-  mouse/keyboard press: <ul>
+  mouse/keyboard press:
 
-  <li> \c SingleShot - pressing the button causes an action, then the
+  \value SingleShot  pressing the button causes an action, then the
   button returns to the unpressed state.
 
-  <li> \c Toggle - pressing the button toggles it between an \c On and
+  \value Toggle  pressing the button toggles it between an \c On and
   and \c Off state.
 
-  <li> \c Tristate - pressing the button cycles between the three
+  \value Tristate  pressing the button cycles between the three
   states \c On, \c Off and \c NoChange
-
-  </ul>
 
 */
 
 /*! \enum QButton::ToggleState
 
-  This enum defines the state of a toggle button at any moment.  The possible values are as follows: <ul>
+  This enum defines the state of a toggle button at any moment.  The
+  possible values are as follows:
 
-  <li> \c Off - the button is in the "off" state
-  <li> \c NoChange - the button is in the default/unchanged state
-  <li> \c On - the button is in the "on" state
-
-  </ul>
+  \value Off  the button is in the "off" state
+  \value NoChange  the button is in the default/unchanged state
+  \value On  the button is in the "on" state
 */
 
 

@@ -96,18 +96,16 @@
 
 /*! \enum QTabWidget::TabPosition
 
-  This enum type defines where QTabWidget can draw the tab row: <ul>
-  <li> \c Top - above the pages
-  <li> \c Bottom - below the pages
-  </ul>
+  This enum type defines where QTabWidget can draw the tab row:
+  \value Top  above the pages
+  \value Bottom  below the pages
 */
 
 /*! \enum QTabWidget::TabShape
 
-  This enum type defines the shape of the tabs: <ul>
-  <li> \c Rounded - rounded look (normal)
-  <li> \c Triangular - triangular look (very unusual, included for completeness)
-  </ul>
+  This enum type defines the shape of the tabs: 
+  \value Rounded  rounded look (normal)
+  \value Triangular  triangular look (very unusual, included for completeness)
 */
 
 /* undocumented now

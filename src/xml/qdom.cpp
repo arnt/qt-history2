@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#60 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#61 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1104,7 +1104,7 @@ QDomNodePrivate* QDomNodePrivate::insertBefore( QDomNodePrivate* newChild, QDomN
     // Error check
     if ( refChild && refChild->parent != this )
 	return 0;
-    
+
     // "mark lists as dirty"
     qt_nodeListTime++;
 
@@ -1662,32 +1662,30 @@ void QDomNode::setNodeValue( const QString& v )
   \enum QDomNode::NodeType
 
   This enum defines the type of the node:
-  <ul>
-  <li> \c QDomNode::ElementNode - the node is an element
-  <li> \c QDomNode::AttributeNode - the node is an attribute
-  <li> \c QDomNode::TextNode - the node is a text
-  <li> \c QDomNode::CDATASectionNode - the node is a CDATA section
-  <li> \c QDomNode::EntityReferenceNode - the node is an entity reference
-  <li> \c QDomNode::EntityNode - the node is an entity
-  <li> \c QDomNode::ProcessingInstructionNode - the node is a processing
+  \value QDomNode::ElementNode  the node is an element
+  \value QDomNode::AttributeNode  the node is an attribute
+  \value QDomNode::TextNode  the node is a text
+  \value QDomNode::CDATASectionNode  the node is a CDATA section
+  \value QDomNode::EntityReferenceNode  the node is an entity reference
+  \value QDomNode::EntityNode  the node is an entity
+  \value QDomNode::ProcessingInstructionNode  the node is a processing
           instruction
-  <li> \c QDomNode::CommentNode - the node is a comment
-  <li> \c QDomNode::DocumentNode - the node is a document
-  <li> \c QDomNode::DocumentTypeNode - the node is a document type
-  <li> \c QDomNode::DocumentFragmentNode - the node is a document fragment
-  <li> \c QDomNode::NotationNode - the node is a notation
-  <li> \c QDomNode::BaseNode - the node is a QDomNode object rather than a
+  \value QDomNode::CommentNode  the node is a comment
+  \value QDomNode::DocumentNode  the node is a document
+  \value QDomNode::DocumentTypeNode  the node is a document type
+  \value QDomNode::DocumentFragmentNode  the node is a document fragment
+  \value QDomNode::NotationNode  the node is a notation
+  \value QDomNode::BaseNode  the node is a QDomNode object rather than a
           subclass of it
-  <li> \c QDomNode::CharacterDataNode - the node is a QDomCharacterData object
+  \value QDomNode::CharacterDataNode  the node is a QDomCharacterData object
           rather than a subclass of it.
-  </ul>
 */
 /*!
   Returns the type of the node.
 
   \sa toAttr() toCDATASection() toDocumentFragment() toDocument()
   toDocumentType() toElement() toEntityReference() toText() toEntity()
-  toNotation() toProcessingInstruction() toCharacterData() toComment() 
+  toNotation() toProcessingInstruction() toCharacterData() toComment()
 */
 QDomNode::NodeType QDomNode::nodeType() const
 {
@@ -4234,7 +4232,7 @@ bool QDomElement::hasAttributeNS( const QString& nsURI, const QString& localName
   <h1>Hello <b>Qt</b> <![CDATA[<xml is cool>]]></h1>
   \endcode
 
-  The function text() of the QDomElement for the &lt;h1&gt; tag, 
+  The function text() of the QDomElement for the &lt;h1&gt; tag,
   will return "Hello Qt &lt;xml is cool&gt;".
 
   Comments are ignored by this function. It evaluates only

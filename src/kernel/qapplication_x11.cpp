@@ -35,8 +35,6 @@
 **
 **********************************************************************/
 
-// NOT REVISED
-
 #define select		_qt_hide_select
 #define gettimeofday	_qt_hide_gettimeofday
 

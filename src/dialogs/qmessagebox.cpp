@@ -485,15 +485,17 @@ errors which can't be easily fixed:
   \enum QMessageBox::Icon
 
   This type includes the following values:
-  \value QMessageBox::NoIcon  the message box does not have any icon.
 
-  \value QMessageBox::Information  an icon
-  indicating that the message is nothing out of the ordinary.
-  
-  \value QMessageBox::Warning  an icon indicating that the message
-  is a warning, but can be dealt with.
-  
-  \value QMessageBox::Critical  an icon indicating that the message represents a critical problem.
+  \value NoIcon the message box does not have any icon.
+
+  \value Information an icon indicating that the message is nothing
+  out of the ordinary.
+
+  \value Warning an icon indicating that the message is a warning, but
+  can be dealt with.
+
+  \value Critical an icon indicating that the message represents a
+  critical problem.
 
 */
 
