@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#19 $
 **
 ** Implementation of QGGeometry class
 **
@@ -11,9 +11,10 @@
 
 #include "qgmanagr.h"
 #include "qlist.h"
+#include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#19 $");
 
 
 
@@ -807,14 +808,7 @@ void QGManager::resizeAll()
     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
  
-    if ( menuBar )
-	{
-	    //### workaround; don't try this at home, kids
-	    QResizeEvent e( QSize( ww, hh ), QSize( 1, 1 ) );
-	    menuBar->eventFilter( main, &e );
-	}
- 
-    int mbh = menuBar ? menuBar->height() : 0;
+    int mbh = menuBar ? ((QMenuBar *)menuBar)->heightForWidth( ww ) : 0;
 
     if ( menuBar && mbh != menuBarHeight ) {
 	int ombh = menuBarHeight;
