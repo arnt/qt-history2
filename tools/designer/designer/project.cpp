@@ -1588,7 +1588,7 @@ QObjectList *Project::run()
     iiface->onShowError( this, SLOT( emitRuntimeError( QObject *, int, const QString & ) ) );
 
     iiface->init();
-    for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+    for ( sources = sourceFiles();
 	  sources.current(); ++sources ) {
 	SourceFile* f = sources.current();
 	iiface->exec( f, f->text() );
@@ -1606,7 +1606,7 @@ QObjectList *Project::run()
 	    iiface->setBreakPoints( fw, bps );
     }
 
-    for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+    for ( sources = sourceFiles();
 	  sources.current(); ++sources ) {
 	SourceFile* f = sources.current();
 	QValueList<uint> bps = MetaDataBase::breakPoints( f );
