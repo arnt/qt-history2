@@ -1588,13 +1588,18 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     if ( scr >= ScreenCount( dpy ) )		// sanity check
 	return QPixmap();
 
+    // map x and y to the root window
+    WId unused;
+    if ( ! XTranslateCoordinates( dpy, window, a.root, x, y, &x, &y, &unused ) )
+	return QPixmap();
+
     QPixmap pm( w, h );				// create new pixmap
     pm.data->uninit = FALSE;
     pm.x11SetScreen( scr );
 
     GC gc = qt_xget_temp_gc( scr, FALSE );
     XSetSubwindowMode( dpy, gc, IncludeInferiors );
-    XCopyArea( dpy, window, pm.handle(), gc, x, y, w, h, 0, 0 );
+    XCopyArea( dpy, a.root, pm.handle(), gc, x, y, w, h, 0, 0 );
     XSetSubwindowMode( dpy, gc, ClipByChildren );
 
     return pm;
