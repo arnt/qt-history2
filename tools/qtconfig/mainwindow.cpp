@@ -144,7 +144,7 @@ static void setStyleHelper(QWidget *w, QStyle *s)
     if (! children)
 	return;
 
-    QListIterator<QObject> childit(*children);
+    QPtrListIterator<QObject> childit(*children);
     QObject *child;
     while ((child = childit.current()) != 0) {
 	++childit;

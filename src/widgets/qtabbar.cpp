@@ -47,7 +47,7 @@
 /*!
   \class QTab qtabbar.h
   \brief The QTab class provides the structures in a QTabBar.
-  
+
 
   For custom QTabBar tab headings.
 
@@ -178,8 +178,8 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->rightB = new QToolButton( RightArrow, this );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
-    l = new QList<QTab>;
-    lstatic = new QList<QTab>;
+    l = new QPtrList<QTab>;
+    lstatic = new QPtrList<QTab>;
     lstatic->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
@@ -412,7 +412,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     QRect tr = r;
     if ( t->id == currentTab() )
- 	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
+	tr.setBottom( tr.bottom() - style().defaultFrameWidth() );
 
     if ( t->enabled && isEnabled()  ) {
 #if defined(Q_WS_WIN)
@@ -546,7 +546,7 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
     QTab * selected = 0;
     bool moreThanOne = FALSE;
 
-    QListIterator<QTab> i( *l );
+    QPtrListIterator<QTab> i( *l );
     while( i.current() ) {
 	QTab * t = i.current();
 	++i;
@@ -749,7 +749,7 @@ QTab * QTabBar::tab( int id ) const
 
 
 /*! Returns a pointer to the tab at the position \a index.
-  
+
   \sa indexOf
 */
 
@@ -761,9 +761,9 @@ QTab * QTabBar::tabAt( int index ) const
 }
 
 
-/*! 
+/*!
   Returns the position index of the tab with id \a id.
-  
+
   \sa indexOf, tabAt
  */
 int QTabBar::indexOf( int id ) const
@@ -792,7 +792,7 @@ int QTabBar::count() const
 /*!
   The list of QTab objects added.
 */
-QList<QTab> * QTabBar::tabList()
+QPtrList<QTab> * QTabBar::tabList()
 {
     return l;
 }
@@ -1015,27 +1015,27 @@ void QTabBar::updateArrowButtons()
 #ifndef QT_NO_ACCESSIBILITY
 
 /*! \reimp */
-QString QTabBar::stateDescription() const 
-{ 
-    return tab(currentTab()) ? tr("current page: %1").arg( tab(currentTab())->text() ) : QString::null; 
+QString QTabBar::stateDescription() const
+{
+    return tab(currentTab()) ? tr("current page: %1").arg( tab(currentTab())->text() ) : QString::null;
 }
 
 /*! \reimp */
-QString QTabBar::contentsDescription() const 
-{ 
-    return QString::null; 
+QString QTabBar::contentsDescription() const
+{
+    return QString::null;
 }
 
 /*! \reimp */
-QString QTabBar::typeDescription() const 
-{ 
-    return tr("tab bar"); 
+QString QTabBar::typeDescription() const
+{
+    return tr("tab bar");
 }
 
 /*! \reimp */
-QString QTabBar::useDescription() const 
-{ 
-    return tr("To switch page, use cursor keys."); 
+QString QTabBar::useDescription() const
+{
+    return tr("To switch page, use cursor keys.");
 }
 
 #endif

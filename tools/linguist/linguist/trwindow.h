@@ -20,7 +20,7 @@
 #include "phrase.h"
 
 #include <qmainwindow.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qdict.h>
 #include <qprinter.h>
 #include <qstringlist.h>
@@ -61,7 +61,7 @@ public:
 protected:
     void readConfig();
     void writeConfig();
-    
+
 private slots:
     void doneAndNext();
     void prev();
@@ -85,7 +85,7 @@ private slots:
     void revertSorting();
     void about();
     void aboutQt();
-    
+
     void setupPhrase();
     bool maybeSave();
     void updateCaption();
@@ -100,7 +100,7 @@ private slots:
     void revalidate();
 
 private:
-    typedef QList<PhraseBook> PBL;
+    typedef QPtrList<PhraseBook> PBL;
     typedef QDict<PhraseBook> PBD;
 
     static void setupImageDict();
@@ -121,10 +121,10 @@ private:
 		 bool verbose = FALSE );
     bool searchItem( const QString & searchWhere, QListViewItem * j,
 		     QListViewItem * k );
-    
+
     int             itemToIndex( QListView * view, QListViewItem * item );
     QListViewItem * indexToItem( QListView * view, int index );
-    
+
     QListView     * plv;
     QListView     * lv;
     QListView     * slv;
@@ -198,7 +198,7 @@ private:
     Action *prevUnfinishedAct;
     Action *nextUnfinishedAct;
     Action *finishedAndNextAct;
-    
+
 };
 
 #endif

@@ -39,7 +39,7 @@
 #define QGCACHE_H
 
 #ifndef QT_H
-#include "qcollection.h"
+#include "qptrcollection.h"
 #include "qglist.h"
 #include "qgdict.h"
 #endif // QT_H
@@ -50,7 +50,7 @@ class QCListIt;
 class QCDict;
 
 
-class Q_EXPORT QGCache : public QCollection	// generic LRU cache
+class Q_EXPORT QGCache : public QPtrCollection	// generic LRU cache
 {
 friend class QGCacheIterator;
 protected:
@@ -70,17 +70,17 @@ protected:
     void    setMaxCost( int maxCost );
     void    clear();
 
-    bool    insert_string( const QString &key, QCollection::Item,
+    bool    insert_string( const QString &key, QPtrCollection::Item,
 			   int cost, int priority );
-    bool    insert_other( const char *key, QCollection::Item,
+    bool    insert_other( const char *key, QPtrCollection::Item,
 			  int cost, int priority );
     bool    remove_string( const QString &key );
     bool    remove_other( const char *key );
-    QCollection::Item take_string( const QString &key );
-    QCollection::Item take_other( const char *key );
+    QPtrCollection::Item take_string( const QString &key );
+    QPtrCollection::Item take_other( const char *key );
 
-    QCollection::Item find_string( const QString &key, bool ref=TRUE ) const;
-    QCollection::Item find_other( const char *key, bool ref=TRUE ) const;
+    QPtrCollection::Item find_string( const QString &key, bool ref=TRUE ) const;
+    QPtrCollection::Item find_other( const char *key, bool ref=TRUE ) const;
 
     void    statistics() const;
 
@@ -106,19 +106,19 @@ protected:
     uint	      count()   const;
     bool	      atFirst() const;
     bool	      atLast()  const;
-    QCollection::Item toFirst();
-    QCollection::Item toLast();
+    QPtrCollection::Item toFirst();
+    QPtrCollection::Item toLast();
 
-    QCollection::Item get() const;
+    QPtrCollection::Item get() const;
     QString	      getKeyString() const;
     const char       *getKeyAscii()  const;
     long	      getKeyInt()    const;
 
-    QCollection::Item operator()();
-    QCollection::Item operator++();
-    QCollection::Item operator+=( uint );
-    QCollection::Item operator--();
-    QCollection::Item operator-=( uint );
+    QPtrCollection::Item operator()();
+    QPtrCollection::Item operator++();
+    QPtrCollection::Item operator+=( uint );
+    QPtrCollection::Item operator--();
+    QPtrCollection::Item operator-=( uint );
 
 protected:
     QCListIt *it;				// iterator on cache list

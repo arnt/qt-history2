@@ -467,7 +467,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
     bool selChanged = FALSE;
     for ( int i = 1; i < doc->numSelections(); ++i ) // start with 1 as we don't want to remove the Standard-Selection
- 	selChanged = doc->removeSelection( i ) || selChanged;
+	selChanged = doc->removeSelection( i ) || selChanged;
 
     if ( selChanged ) {
 	cursor->parag()->document()->nextDoubleBuffered = TRUE;
@@ -705,10 +705,10 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	    undoRedoInfo.d->text = QString::null;
 	}
 	undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
- 	if ( cursor->parag()->at( cursor->index() )->format() ) {
- 	    cursor->parag()->at( cursor->index() )->format()->addRef();
- 	    undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
- 	}
+	if ( cursor->parag()->at( cursor->index() )->format() ) {
+	    cursor->parag()->at( cursor->index() )->format()->addRef();
+	    undoRedoInfo.d->text.at( undoRedoInfo.d->text.length() - 1 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+	}
 	if ( cursor->remove() )
 	    undoRedoInfo.d->text += "\n";
 	break;
@@ -729,10 +729,10 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	}
 	cursor->gotoLeft();
 	undoRedoInfo.d->text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
- 	if ( cursor->parag()->at( cursor->index() )->format() ) {
- 	    cursor->parag()->at( cursor->index() )->format()->addRef();
- 	    undoRedoInfo.d->text.at( 0 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
- 	}
+	if ( cursor->parag()->at( cursor->index() )->format() ) {
+	    cursor->parag()->at( cursor->index() )->format()->addRef();
+	    undoRedoInfo.d->text.at( 0 ).setFormat( cursor->parag()->at( cursor->index() )->format() );
+	}
 	undoRedoInfo.index = cursor->index();
 	if ( cursor->remove() ) {
 	    undoRedoInfo.d->text.remove( 0, 1 );
@@ -1304,8 +1304,8 @@ void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
 void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
     if ( isReadOnly() || !QTextDrag::canDecode( e ) ) {
-        e->ignore();
-        return;
+	e->ignore();
+	return;
     }
     e->acceptAction();
     inDnD = TRUE;
@@ -1316,8 +1316,8 @@ void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
     if ( isReadOnly() || !QTextDrag::canDecode( e ) ) {
-        e->ignore();
-        return;
+	e->ignore();
+	return;
     }
     drawCursor( FALSE );
     placeCursor( e->pos(),  cursor );
@@ -1376,10 +1376,10 @@ void QTextView::contentsContextMenuEvent( QContextMenuEvent *e )
 	    clear();
 	else if ( r == d->id[ IdSelectAll ] )
 	    selectAll();
- 	else if ( r == d->id[ IdUndo ] )
- 	    undo();
- 	else if ( r == d->id[ IdRedo ] )
- 	    redo();
+	else if ( r == d->id[ IdUndo ] )
+	    undo();
+	else if ( r == d->id[ IdRedo ] )
+	    redo();
 #ifndef QT_NO_CLIPBOARD
 	else if ( r == d->id[ IdCut ] )
 	    cut();
@@ -1823,7 +1823,7 @@ void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
 	clearUndoRedo();
 	undoRedoInfo.type = UndoRedoInfo::ParagType;
-	QValueList< QVector<QStyleSheetItem> > oldStyles;
+	QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
 	undoRedoInfo.oldStyles.clear();
 	undoRedoInfo.oldStyles << cursor->parag()->styleSheetItems();
 	undoRedoInfo.oldListStyles.clear();
@@ -1877,7 +1877,7 @@ void QTextView::setAlignment( int a )
 	if ( cursor->parag()->alignment() != a ) {
 	    clearUndoRedo();
 	    undoRedoInfo.type = UndoRedoInfo::Alignment;
-	    QArray<int> oa( 1 );
+	    QMemArray<int> oa( 1 );
 	    oa[ 0 ] = cursor->parag()->alignment();
 	    undoRedoInfo.oldAligns = oa;
 	    undoRedoInfo.newAlign = a;
@@ -1898,7 +1898,7 @@ void QTextView::setAlignment( int a )
 	undoRedoInfo.type = UndoRedoInfo::Alignment;
 	undoRedoInfo.id = start->paragId();
 	undoRedoInfo.eid = end->paragId();
-	QArray<int> oa( QMAX( 0, len ) );
+	QMemArray<int> oa( QMAX( 0, len ) );
 	int i = 0;
 	while ( start ) {
 	    if ( i < (int)oa.size() )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#32 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#33 $
 **
 ** Implementation of QDns class.
 **
@@ -57,12 +57,12 @@
 
 #include "qdatetime.h"
 #include "qdict.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qstring.h"
 #include "qtimer.h"
 #include "qapplication.h"
-#include "qvector.h"
-#include "qstrlist.h"
+#include "qptrvector.h"
+#include "qptrstrlist.h"
 #include "qptrdict.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -91,8 +91,8 @@ static Q_UINT32 now()
 }
 
 
-static QList<QHostAddress> * ns = 0;
-static QStrList * domains = 0;
+static QPtrList<QHostAddress> * ns = 0;
+static QPtrStrList * domains = 0;
 
 static void doResInit();
 
@@ -154,7 +154,7 @@ public:
     ~QDnsDomain();
 
     static void add( const QString & label, QDnsRR * );
-    static QList<QDnsRR> * cached( const QDns * );
+    static QPtrList<QDnsRR> * cached( const QDns * );
 
     void take( QDnsRR * );
 
@@ -166,7 +166,7 @@ public:
 
 public:
     QString l;
-    QList<QDnsRR> * rrs;
+    QPtrList<QDnsRR> * rrs;
 };
 
 
@@ -205,7 +205,7 @@ private:
     int size;
     int pp;
 
-    QList<QDnsRR> * rrs;
+    QPtrList<QDnsRR> * rrs;
 
     // convenience
     int next;
@@ -251,7 +251,7 @@ QDnsAnswer::QDnsAnswer( QDnsQuery * query_ )
     size = 0;
     query = query_;
     pp = 0;
-    rrs = new QList<QDnsRR>;
+    rrs = new QPtrList<QDnsRR>;
     rrs->setAutoDelete( FALSE );
     next = size;
     ttl = 0;
@@ -277,7 +277,7 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
     size = (int)answer_.size();
     query = query_;
     pp = 0;
-    rrs = new QList<QDnsRR>;
+    rrs = new QPtrList<QDnsRR>;
     rrs->setAutoDelete( FALSE );
     next = size;
     ttl = 0;
@@ -289,7 +289,7 @@ QDnsAnswer::QDnsAnswer( const QByteArray& answer_,
 QDnsAnswer::~QDnsAnswer()
 {
     if ( !ok && rrs ) {
-	QListIterator<QDnsRR> it( *rrs );
+	QPtrListIterator<QDnsRR> it( *rrs );
 	QDnsRR * tmprr;
 	while( (tmprr=it.current()) != 0 ) {
 	    ++it;
@@ -711,7 +711,7 @@ void QDnsAnswer::parse()
     while( (rr=rrs->current()) != 0 ) {
 	rrs->next();
 	if ( rr && rr->domain && rr->domain->rrs ) {
-	    QList<QDnsRR> * drrs = rr->domain->rrs;
+	    QPtrList<QDnsRR> * drrs = rr->domain->rrs;
 	    drrs->first();
 	    QDnsRR * older;
 	    while( (older=drrs->current()) != 0 ) {
@@ -824,7 +824,7 @@ public:
     void answer();
 
 public:
-    QVector<QDnsQuery> queries;
+    QPtrVector<QDnsQuery> queries;
     QDict<QDnsDomain> cache;
     QSocketDevice * socket;
 };
@@ -856,7 +856,7 @@ void QDnsUgleHack::ugle( bool emitAnyway)
 
 QDnsManager::QDnsManager()
     : QDnsSocket( qApp, "Internal DNS manager" ),
-      queries( QVector<QDnsQuery>( 0 ) ),
+      queries( QPtrVector<QDnsQuery>( 0 ) ),
       cache( QDict<QDnsDomain>( 83, FALSE ) ),
       socket( new QSocketDevice( QSocketDevice::Datagram ) )
 {
@@ -882,7 +882,7 @@ QDnsManager::QDnsManager()
     // O(n*n) stuff here.  but for 3 and 6, O(n*n) with a low k should
     // be perfect.  the point is to eliminate any duplicates that
     // might be hidden in the lists.
-    QList<QHostAddress> * ns = new QList<QHostAddress>;
+    QPtrList<QHostAddress> * ns = new QPtrList<QHostAddress>;
 
     ::ns->first();
     QHostAddress * h;
@@ -905,7 +905,7 @@ QDnsManager::QDnsManager()
     ::ns = ns;
     ::ns->setAutoDelete( TRUE );
 
-    QStrList * domains = new QStrList( TRUE );
+    QPtrStrList * domains = new QPtrStrList( TRUE );
 
     ::domains->first();
     const char * s;
@@ -1194,7 +1194,7 @@ void QDnsDomain::add( const QString & label, QDnsRR * rr )
 {
     QDnsDomain * d = QDnsManager::manager()->domain( label );
     if ( !d->rrs ) {
-	d->rrs = new QList<QDnsRR>;
+	d->rrs = new QPtrList<QDnsRR>;
 	d->rrs->setAutoDelete( TRUE );
     }
     d->rrs->append( rr );
@@ -1202,9 +1202,9 @@ void QDnsDomain::add( const QString & label, QDnsRR * rr )
 }
 
 
-QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
+QPtrList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 {
-    QList<QDnsRR> * l = new QList<QDnsRR>;
+    QPtrList<QDnsRR> * l = new QPtrList<QDnsRR>;
 
     // test at first if you have to start a query at all
     if ( r->recordType() == QDns::A ) {
@@ -1580,7 +1580,7 @@ void QDns::setLabel( const QString & label )
 	}
 	if ( dots < maxDots ) {
 	    (void)QDnsManager::manager();
-	    QStrListIterator it( *domains );
+	    QPtrStrListIterator it( *domains );
 	    const char * dom;
 	    while( (dom=it.current()) != 0 ) {
 		++it;
@@ -1752,7 +1752,7 @@ bool QDns::isWorking() const
     if ( t == None )
 	return FALSE;
 
-    QList<QDnsRR> * ll = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * ll = QDnsDomain::cached( this );
     int queries = n.count();
     while( ll->current() != 0 ) {
 	if ( ll->current()->nxdomain )
@@ -1786,7 +1786,7 @@ QValueList<QHostAddress> QDns::addresses() const
     if ( t != A && t != Aaaa )
 	return result;
 
-    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
@@ -1816,7 +1816,7 @@ QValueList<QDns::MailServer> QDns::mailServers() const
     if ( t != Mx )
 	return result;
 
-    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
@@ -1850,7 +1850,7 @@ QValueList<QDns::Server> QDns::servers() const
     if ( t != Srv )
 	return result;
 
-    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
@@ -1878,7 +1878,7 @@ QStringList QDns::hostNames() const
     if ( t != Ptr )
 	return result;
 
-    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
@@ -1905,7 +1905,7 @@ QStringList QDns::texts() const
     if ( t != Txt )
 	return result;
 
-    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
@@ -1936,7 +1936,7 @@ QStringList QDns::texts() const
 
 QString QDns::canonicalName() const
 {
-    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
@@ -1993,9 +1993,9 @@ static void doResInit()
 {
     if ( ns )
 	return;
-    ns = new QList<QHostAddress>;
+    ns = new QPtrList<QHostAddress>;
     ns->setAutoDelete( TRUE );
-    domains = new QStrList( TRUE );
+    domains = new QPtrStrList( TRUE );
     domains->setAutoDelete( TRUE );
 
     res_init();
@@ -2003,7 +2003,7 @@ static void doResInit()
     // find the name servers to use
     for( i=0; i < MAXNS && i < _res.nscount; i++ ) {
 	ns->append( new QHostAddress(
-		             ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
+			     ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
     }
 #if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ )
@@ -2136,9 +2136,9 @@ static void doResInit()
 
     if ( ns )
 	return;
-    ns = new QList<QHostAddress>;
+    ns = new QPtrList<QHostAddress>;
     ns->setAutoDelete( TRUE );
-    domains = new QStrList( TRUE );
+    domains = new QPtrStrList( TRUE );
     domains->setAutoDelete( TRUE );
 
     QString domainName, nameServer, searchList;
@@ -2146,7 +2146,7 @@ static void doResInit()
 
     bool gotNetworkParams = FALSE;
     if ( QApplication::winVersion() == Qt::WV_98 ||
-	 QApplication::winVersion() == Qt::WV_2000 || 
+	 QApplication::winVersion() == Qt::WV_2000 ||
 	 QApplication::winVersion() == Qt::WV_XP ) {
 	// for 98 and 2000 try the API call GetNetworkParams()
 	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );

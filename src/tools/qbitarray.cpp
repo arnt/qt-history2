@@ -540,7 +540,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
   Returns data specific to QBitArray that extends what QGArray provides.
   \internal
-  QCollection mechanism for allowing extra/different data.
+  QPtrCollection mechanism for allowing extra/different data.
 */
 
 
@@ -548,7 +548,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
   Deletes data specific to QBitArray that extended what QGArray provided.
   \internal
-  QCollection mechanism for allowing extra/different data.
+  QPtrCollection mechanism for allowing extra/different data.
 */
 
 

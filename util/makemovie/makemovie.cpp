@@ -18,7 +18,7 @@
 #include <qfile.h>
 #include <qstrlist.h>
 #include <qsortedlist.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qpngio.h>
 
 #include "QwCluster.h"
@@ -50,7 +50,7 @@ private:
     int time;
 };
 
-typedef QList<QMovieFrame> QMovieFrames;
+typedef QPtrList<QMovieFrame> QMovieFrames;
 
 /*
 QDataStream& operator>>(QDataStream& str, QMovieFrame& frame)
@@ -104,7 +104,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
 
 QwClusterizer clusterizer( MAX_CLUSTERS );
 
-QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
+QPtrList<QMovieFrame> optimize( QStrList& files, unsigned int count )
 {
     QImage img1;
     QImage img2;
@@ -116,7 +116,7 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
     writer.setDisposalMethod(QPNGImageWriter::NoDisposal);
     writer.setLooping(3);
 
-    QList<QMovieFrame> frames;
+    QPtrList<QMovieFrame> frames;
     if ( count == 0 )
       return frames;
 
@@ -149,8 +149,8 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       nextfile = files.next();
       if (!img3.load( nextfile ))
       {
-        fprintf( stderr, "Error reading image from %s\n", nextfile );
-        exit(1);
+	fprintf( stderr, "Error reading image from %s\n", nextfile );
+	exit(1);
       }
       img2 = img3.convertDepth(32,Qt::ColorOnly);
       //img3 = img3.convertDepth(8,Qt::ColorOnly|Qt::PreferDither|Qt::OrderedDither);
@@ -166,13 +166,13 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       QPixmap pix;
       if ( demo_mode )
       {
-        // Convert the first image
-        pix.convertFromImage( img1, Qt::ColorOnly | Qt::AvoidDither );
+	// Convert the first image
+	pix.convertFromImage( img1, Qt::ColorOnly | Qt::AvoidDither );
 
-        // We want to paint the difference red
-        painter.begin( &pix );
-        pen.setColor( Qt::green );
-        painter.setPen( pen );
+	// We want to paint the difference red
+	painter.begin( &pix );
+	pen.setColor( Qt::green );
+	painter.setPen( pen );
       }
 
       // Almost random walk thru the lines
@@ -181,53 +181,53 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       int ww = eight_pixel_mode ? img1.width()/8 : img1.width();
       int hh = img1.height();
       do {
-        uchar *uline = img1.scanLine(h);
-        QRgb* line = (QRgb*)uline;
-        uchar *uline2 = img2.scanLine(h);
-        QRgb* line2 = (QRgb*)uline2;
-        // Pseudo random walk along a line.
-        int w = 0;
-        do {
+	uchar *uline = img1.scanLine(h);
+	QRgb* line = (QRgb*)uline;
+	uchar *uline2 = img2.scanLine(h);
+	QRgb* line2 = (QRgb*)uline2;
+	// Pseudo random walk along a line.
+	int w = 0;
+	do {
 	    if ( eight_pixel_mode ) {
-	        for( int x = 0; x < 8; x++ )
-	        {
+		for( int x = 0; x < 8; x++ )
+		{
 		    if ( line[w*8+x] != line2[w*8+x] )
 		    {
-		        if ( demo_mode )
-		            painter.drawLine( w*8, h, w*8 + 7, h );
+			if ( demo_mode )
+			    painter.drawLine( w*8, h, w*8 + 7, h );
 
-		        clusterizer.add( QRect( w*8, h, 8, 1 ) );
-		        break;
+			clusterizer.add( QRect( w*8, h, 8, 1 ) );
+			break;
 		    }
-	        }
+		}
 	    } else {
-	        if ( line[w] != line2[w] ) {
+		if ( line[w] != line2[w] ) {
 		    if ( demo_mode )
 			painter.drawPoint( w, h );
 		    clusterizer.add( QRect( w, h, 1, 1 ) );
 		}
 	    }
-            w = (w + 293) % ww;
-        } while( w );
-        h = (h + 199) % hh;
+	    w = (w + 293) % ww;
+	} while( w );
+	h = (h + 199) % hh;
       } while( h );
 
       printf("------------ Image %i clusters=%i-------------\n",i,clusterizer.clusters());
       if ( demo_mode )
       {
-        // Paint the blue rectangles
-        pen.setColor( Qt::blue );
-        painter.setPen( pen );
-        for( int c = 0; c < clusterizer.clusters(); c++ )
-        {
-          QRect rect = clusterizer[c];
-          // printf("Rect (%i|%i) (%i|%i)\n",rect.left(),rect.top(),rect.right(),rect.bottom());
-          painter.drawRect( rect );
-        }
-        painter.end();
-        QLabel* label2 = new QLabel( 0 );
-        label2->setPixmap( pix );
-        label2->show();
+	// Paint the blue rectangles
+	pen.setColor( Qt::blue );
+	painter.setPen( pen );
+	for( int c = 0; c < clusterizer.clusters(); c++ )
+	{
+	  QRect rect = clusterizer[c];
+	  // printf("Rect (%i|%i) (%i|%i)\n",rect.left(),rect.top(),rect.right(),rect.bottom());
+	  painter.drawRect( rect );
+	}
+	painter.end();
+	QLabel* label2 = new QLabel( 0 );
+	label2->setPixmap( pix );
+	label2->show();
       }
 
       // Convert the new image to create the difference frames.
@@ -239,18 +239,18 @@ QList<QMovieFrame> optimize( QStrList& files, unsigned int count )
       int area = 0;
       for( int c = 0; c < clusterizer.clusters(); c++ )
       {
-        QRect r = clusterizer[c];
-        area += r.width() * r.height();
-        maxrect = maxrect.unite( r );
+	QRect r = clusterizer[c];
+	area += r.width() * r.height();
+	maxrect = maxrect.unite( r );
       }
       // How much do we loose if we take just a simple frame ?
       if ( (float)area * 1.20 >= (float)( maxrect.width() * maxrect.height() ) )
       {
-        QMovieFrame* f = new QMovieFrame( maxrect.left(), maxrect.top(),
+	QMovieFrame* f = new QMovieFrame( maxrect.left(), maxrect.top(),
 			    maxrect.width(), maxrect.height(), FRAME_DELAY );
-        frames.append( f );
-        printf("....... No optimization possible .......Factor of saving was %f percent \n",
-      	 ((float)(maxrect.width() * maxrect.height())) / (float)area * 100.0 - 100.0 );
+	frames.append( f );
+	printf("....... No optimization possible .......Factor of saving was %f percent \n",
+	 ((float)(maxrect.width() * maxrect.height())) / (float)area * 100.0 - 100.0 );
 	QImage clip = img3.copy(maxrect.left(), maxrect.top(),
 				maxrect.width(), maxrect.height());
 	writer.setFrameDelay(FRAME_DELAY);
@@ -259,29 +259,29 @@ qDebug("offset = %d,%d",maxrect.left(), maxrect.top());
       }
       else
       {
-        printf(".... The optimization is %f percent\n",
-      	 ((float)(maxrect.width() * maxrect.height())) / (float)area * 100.0 - 100.0 );
-        // Sort the frames by their y-coordinate. This will
-        // lead to a more smooth update.
-        QSortedList<QMovieFrame> list;
-        for( int c = 0; c < clusterizer.clusters(); c++ )
-        {
-          QRect rect = clusterizer[c];
-          
-          QMovieFrame* f = new QMovieFrame( rect.left(), rect.top(),
+	printf(".... The optimization is %f percent\n",
+	 ((float)(maxrect.width() * maxrect.height())) / (float)area * 100.0 - 100.0 );
+	// Sort the frames by their y-coordinate. This will
+	// lead to a more smooth update.
+	QSortedList<QMovieFrame> list;
+	for( int c = 0; c < clusterizer.clusters(); c++ )
+	{
+	  QRect rect = clusterizer[c];
+
+	  QMovieFrame* f = new QMovieFrame( rect.left(), rect.top(),
 			    rect.width(), rect.height(), 0 );
-          list.inSort( f );
-        }
-        if ( list.first() )
-          list.first()->setDelay( FRAME_DELAY );
-        // Copy the sorted frames to the movie
+	  list.inSort( f );
+	}
+	if ( list.first() )
+	  list.first()->setDelay( FRAME_DELAY );
+	// Copy the sorted frames to the movie
 	writer.setFrameDelay(0);
-        QMovieFrame* f = list.first();
+	QMovieFrame* f = list.first();
 	while (f != 0) {
-            frames.append( f );
+	    frames.append( f );
 	    QMovieFrame* nf = list.next();
 	    if ( !nf )
-	        writer.setFrameDelay(FRAME_DELAY);
+		writer.setFrameDelay(FRAME_DELAY);
 	    QImage clip = img3.copy(f->xOffset(), f->yOffset(),
 				    f->width(), f->height());
 	    writer.writeImage(clip, f->xOffset(), f->yOffset());
@@ -310,7 +310,7 @@ int main(int argc, char** argv)
     if ( argc >= 2 && strcmp( argv[1], "-demo" ) == 0 )
       demo_mode = true;
 
-    QList<QMovieFrame> frames;
+    QPtrList<QMovieFrame> frames;
 
     bool load_mode = false;
     if ( argc >= 2 && strcmp( argv[1], "-load" ) == 0 )

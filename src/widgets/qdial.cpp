@@ -146,7 +146,7 @@ QDial::QDial( QWidget *parent, const char *name )
 
 
 /*!  Constructs a dial whose value can never be smaller than \a
-  minValue or greater than \a maxValue, whose page step size is 
+  minValue or greater than \a maxValue, whose page step size is
   \a pageStep, and whose value is initially \a value.
 
   \a value is forced to be within the legal range.
@@ -981,4 +981,3 @@ QString	QDial::typeDescription() const
 #endif
 
 #endif // QT_FEATURE_DIAL
-

@@ -88,7 +88,7 @@ class NodeItem: public QCanvasEllipse
 public:
     NodeItem( QCanvas *canvas );
     ~NodeItem() {}
-    
+
     void addInEdge( EdgeItem *edge ) { inList.append( edge ); }
     void addOutEdge( EdgeItem *edge ) { outList.append( edge ); }
 
@@ -96,8 +96,8 @@ public:
 
     //    QPoint center() { return boundingRect().center(); }
 private:
-    QList<EdgeItem> inList;
-    QList<EdgeItem> outList;
+    QPtrList<EdgeItem> inList;
+    QPtrList<EdgeItem> outList;
 };
 
 
@@ -137,13 +137,13 @@ void NodeItem::moveBy(double dx, double dy)
 {
     QCanvasEllipse::moveBy( dx, dy );
 
-    QListIterator<EdgeItem> it1( inList );
+    QPtrListIterator<EdgeItem> it1( inList );
     EdgeItem *edge;
     while (( edge = it1.current() )) {
 	++it1;
 	edge->setToPoint( int(x()), int(y()) );
     }
-    QListIterator<EdgeItem> it2( outList );
+    QPtrListIterator<EdgeItem> it2( outList );
     while (( edge = it2.current() )) {
 	++it2;
 	edge->setFromPoint( int(x()), int(y()) );
@@ -318,7 +318,7 @@ void BouncyLogo::advance(int stage)
       } break;
       case 1:
 	QCanvasItem::advance(stage);
-        break;
+	break;
     }
 }
 
@@ -657,7 +657,7 @@ void Main::addLine()
 {
     QCanvasLine* i = new QCanvasLine(&canvas);
     i->setPoints( rand()%canvas.width(), rand()%canvas.height(),
-                  rand()%canvas.width(), rand()%canvas.height() );
+		  rand()%canvas.width(), rand()%canvas.height() );
     i->setPen( QPen(QColor(rand()%32*8,rand()%32*8,rand()%32*8), 6) );
     i->setZ(rand()%256);
     i->show();
@@ -685,7 +685,7 @@ void Main::addMesh()
 			      this, "progress", TRUE );
 #endif
 
-    QArray<NodeItem*> lastRow(cols);
+    QMemArray<NodeItem*> lastRow(cols);
     for ( int j = 0; j < rows; j++ ) {
 	int n = j%2 ? cols-1 : cols;
 	NodeItem *prev = 0;
@@ -736,4 +736,3 @@ void Main::addRectangle()
     i->setZ(z);
     i->show();
 }
-

@@ -40,10 +40,10 @@
 #ifndef QT_H
 #include <qscrollview.h>
 #include <qpixmap.h>
-#include <qvector.h>
+#include <qptrvector.h>
 #include <qheader.h>
-#include <qarray.h>
-#include <qlist.h>
+#include <qmemarray.h>
+#include <qptrlist.h>
 #include <qguardedptr.h>
 #include <qshared.h>
 #include <qintdict.h>
@@ -204,7 +204,7 @@ private:
 // MOC_SKIP_BEGIN
 template class Q_EXPORT QVector<QTableItem>;
 template class Q_EXPORT QVector<QWidget>;
-template class Q_EXPORT QList<QTableSelection>;
+template class Q_EXPORT QPtrList<QTableSelection>;
 template class Q_EXPORT QIntDict<int>;
 // MOC_SKIP_END
 #endif
@@ -340,9 +340,9 @@ public slots:
     virtual void insertRows( int row, int count = 1 );
     virtual void insertColumns( int col, int count = 1 );
     virtual void removeRow( int row );
-    virtual void removeRows( const QArray<int> &rows );
+    virtual void removeRows( const QMemArray<int> &rows );
     virtual void removeColumn( int col );
-    virtual void removeColumns( const QArray<int> &cols );
+    virtual void removeColumns( const QMemArray<int> &cols );
 
     virtual void editCell( int row, int col, bool replace = FALSE );
 
@@ -433,14 +433,14 @@ private:
     void updateColWidgets( int col );
 
 private:
-    QVector<QTableItem> contents;
-    QVector<QWidget> widgets;
+    QPtrVector<QTableItem> contents;
+    QPtrVector<QWidget> widgets;
     int curRow;
     int curCol;
     QTableHeader *leftHeader, *topHeader;
     EditMode edMode;
     int editCol, editRow;
-    QList<QTableSelection> selections;
+    QPtrList<QTableSelection> selections;
     QTableSelection *currentSel;
     QTimer *autoScrollTimer;
     int lastSortCol;

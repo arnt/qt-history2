@@ -250,7 +250,7 @@ void FormList::setProject( Project *pro )
 	}
     }
 
-    QList<FormWindow> forms = project->unnamedForms();
+    QPtrList<FormWindow> forms = project->unnamedForms();
     for ( FormWindow *fw = forms.first(); fw; fw = forms.next() ) {
 	FormListItem *item = new FormListItem( formsParent, fw->mainContainer()->name(), "", fw );
 	item->setType( FormListItem::Form );
@@ -272,7 +272,7 @@ void FormList::setProject( Project *pro )
     if ( !iface || !iface->supports( LanguageInterface::AdditionalFiles ) )
 	return;
 
-    QList<SourceFile> sources = pro->sourceFiles();
+    QPtrList<SourceFile> sources = pro->sourceFiles();
     for ( SourceFile *f = sources.first(); f; f = sources.next() )
 	(void)new FormListItem( sourceParent, pro->makeRelative( f->fileName() ), f );
 }

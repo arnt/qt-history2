@@ -80,7 +80,7 @@ private:
     void saveProperty( QObject *w, const QString &name, const QVariant &value, QVariant::Type t, QTextStream &ts, int indent );
     void saveProperty( const QVariant &value, QTextStream &ts, int indent );
     void saveItems( QObject *obj, QTextStream &ts, int indent );
-    void saveItem( const QStringList &text, const QList<QPixmap> &pixmaps, QTextStream &ts, int indent );
+    void saveItem( const QStringList &text, const QPtrList<QPixmap> &pixmaps, QTextStream &ts, int indent );
     void saveItem( QListViewItem *i, QTextStream &ts, int indent );
     void saveConnections( QTextStream &ts, int indent );
     void saveCustomWidgets( QTextStream &ts, int indent );
@@ -89,7 +89,7 @@ private:
     void saveColor( QTextStream &ts, int indent, const QColor &c );
     void saveMetaInfo( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent, const QString &tagname = "pixmap" );
-    void saveActions( const QList<QAction> &actions, QTextStream &ts, int indent );
+    void saveActions( const QPtrList<QAction> &actions, QTextStream &ts, int indent );
     void saveChildActions( QAction *a, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );

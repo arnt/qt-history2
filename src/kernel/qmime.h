@@ -122,7 +122,7 @@ private:
 #ifdef Q_WS_WIN
 
 #ifndef QT_H
-#include "qlist.h" // down here for GCC 2.7.* compatibility
+#include "qptrlist.h" // down here for GCC 2.7.* compatibility
 #endif // QT_H
 
 /*
@@ -138,7 +138,7 @@ public:
 
     static void initialize();
 
-    static QList<QWindowsMime> all();
+    static QPtrList<QWindowsMime> all();
     static QWindowsMime* convertor( const char* mime, int cf );
     static const char* cfToMime(int cf);
 

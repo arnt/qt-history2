@@ -141,7 +141,7 @@ public:
     void endCompose();
     void startCompose(QWidget *);
 };
-void QMacInputMethod::endCompose() 
+void QMacInputMethod::endCompose()
 {
     if(!composing)
 	return;
@@ -481,7 +481,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   QApplication cursor stack
  *****************************************************************************/
 
-typedef QList<QCursor> QCursorList;
+typedef QPtrList<QCursor> QCursorList;
 static QCursorList *cursorStack = 0;
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace)
@@ -609,7 +609,7 @@ struct TimerInfo {
     int id;
 };
 static int zero_timer_count = 0;
-typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
+typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
 static TimerList *timerList	= 0;		// timer list
 static EventLoopTimerUPP timerUPP = NULL;       //UPP
 
@@ -749,8 +749,8 @@ struct QSockNot {
 };
 
 
-typedef QList<QSockNot> QSNList;
-typedef QListIterator<QSockNot> QSNListIt;
+typedef QPtrList<QSockNot> QSNList;
+typedef QPtrListIterator<QSockNot> QSNListIt;
 
 static int	sn_highest = -1;
 static QSNList *sn_read	   = 0;
@@ -1191,16 +1191,16 @@ bool QApplication::do_mouse_down( Point *pt )
     case inDrag:
     {
 	    DragWindow( wp, *pt, 0 );
-	    QPoint np, op(widget->crect.x(), widget->crect.y());    
+	    QPoint np, op(widget->crect.x(), widget->crect.y());
 	    {
-	        QMacSavedPortInfo savedInfo(widget);
-	        Point p = { 0, 0 };
-	        LocalToGlobal(&p);
-	        np = QPoint(p.h, p.v);
+		QMacSavedPortInfo savedInfo(widget);
+		Point p = { 0, 0 };
+		LocalToGlobal(&p);
+		np = QPoint(p.h, p.v);
 	    }
 	    if(np != op) {
-	        widget->crect = QRect( np, widget->crect.size());
-	        QMoveEvent qme( np, op);
+		widget->crect = QRect( np, widget->crect.size());
+		QMoveEvent qme( np, op);
 	    }
 	}
 	break;
@@ -1222,8 +1222,8 @@ bool QApplication::do_mouse_down( Point *pt )
 	    int nw = LoWord( growWindowSize );
 	    int nh = HiWord( growWindowSize );
 	    if(nw != widget->width() || nh != widget->height()) {
-	        if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget) 
-		        widget->resize(nw, nh);
+		if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget)
+			widget->resize(nw, nh);
 		}
 	}
 	break;
@@ -1571,7 +1571,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(popupwidget->mapFromGlobal( p ));
 	    bool was_context = FALSE;
-	    if(etype == QEvent::MouseButtonPress && 	
+	    if(etype == QEvent::MouseButtonPress &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
@@ -1679,7 +1679,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(widget->mapFromGlobal( p ));
 	    bool was_context = FALSE;
-	    if(etype == QEvent::MouseButtonPress && 	
+	    if(etype == QEvent::MouseButtonPress &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
 		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
@@ -1783,12 +1783,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			    qt_app_im.startCompose(widget);
 		    }
 		} else {
-		    if((modifiers & (Qt::ControlButton | Qt::AltButton)) || 
+		    if((modifiers & (Qt::ControlButton | Qt::AltButton)) ||
 		       (mychar > 127 || mychar < 0)) {
 			mystr = QString();
 			chr = 0;
 		    }
-		    QKeyEvent ke(etype,mychar, chr, modifiers, 
+		    QKeyEvent ke(etype,mychar, chr, modifiers,
 				 mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		    QApplication::sendEvent(widget,&ke);
 		}
@@ -1807,7 +1807,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(ekind == kEventWindowShown )
 		unhandled_dialogs.insert((void *)wid, (void *)1);
 	    else if(ekind == kEventWindowHidden)
-		unhandled_dialogs.remove((void *)wid);		
+		unhandled_dialogs.remove((void *)wid);
 	    else
 		qWarning("Couldn't find EventClassWindow widget for %d", (int)wid);
 	    break;
@@ -1827,7 +1827,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		widget->crect.setRect( nx, ny, widget->width(), widget->height() );
 		QMoveEvent qme( widget->crect.topLeft(), QPoint( ox, oy) );
 		QApplication::sendEvent( widget, &qme );
-	    } 
+	    }
 	    if((flags & kWindowBoundsChangeSizeChanged)) {
 		// nw/nh might not match the actual size if setSizeIncrement is used
 		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;

@@ -95,7 +95,7 @@ void SqlFormWizard::connectionSelected( const QString &c )
 
     listBoxTable->clear();
     editTable->clear();
-    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	if ( d->name() == c  || ( d->name() == "(default)" || d->name().isEmpty() ) && c == "(default)")
 	    listBoxTable->insertStringList( d->tables() );
@@ -112,7 +112,7 @@ void SqlFormWizard::autoPopulate( bool populate )
     DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
     if ( !proIface )
 	return;
-    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     listBoxField->clear();
     listBoxSortField->clear();
     listBoxSelectedField->clear();
@@ -268,7 +268,7 @@ void SqlFormWizard::setupPage1()
     listBoxConnection->clear();
     editTable->clear();
     editConnection->clear();
-    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     QStringList lst;
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() )
 	lst << d->name();
@@ -323,7 +323,7 @@ void SqlFormWizard::accept()
 	formWindow->setPropertyChanged( widget, "sort", TRUE );
     }
 
-    QList<DesignerDatabase> databases = proIface->databaseConnections();
+    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     DesignerDatabase *database = 0;
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {

@@ -12,7 +12,7 @@
 #define APPLICATION_H
 
 #include <qmainwindow.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class QMultiLineEdit;
 class QToolBar;

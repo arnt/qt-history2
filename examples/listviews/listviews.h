@@ -15,7 +15,7 @@
 #include <qstring.h>
 #include <qobject.h>
 #include <qdatetime.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qlistview.h>
 
 class QListView;
@@ -97,7 +97,7 @@ public:
 
 protected:
     QString fName;
-    QList<Message> lstMessages;
+    QPtrList<Message> lstMessages;
 
 };
 
@@ -155,7 +155,7 @@ protected:
     QLabel *message;
     QPopupMenu* menu;
 
-    QList<Folder> lstFolders;
+    QPtrList<Folder> lstFolders;
 
 protected slots:
     void slotFolderChanged( QListViewItem* );
@@ -165,4 +165,3 @@ protected slots:
 };
 
 #endif
-

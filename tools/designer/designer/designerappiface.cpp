@@ -81,7 +81,7 @@ DesignerFormWindow *DesignerInterfaceImpl::currentForm() const
     return 0;
 }
 
-QList<DesignerProject> DesignerInterfaceImpl::projectList() const
+QPtrList<DesignerProject> DesignerInterfaceImpl::projectList() const
 {
     return mainWindow->projectList();
 }
@@ -135,14 +135,14 @@ DesignerProjectImpl::DesignerProjectImpl( Project *pr )
 {
 }
 
-QList<DesignerFormWindow> DesignerProjectImpl::formList() const
+QPtrList<DesignerFormWindow> DesignerProjectImpl::formList() const
 {
-    QList<DesignerFormWindow> list;
+    QPtrList<DesignerFormWindow> list;
     QObjectList *forms = project->formList();
     if ( !forms )
 	return list;
 
-    QListIterator<QObject> it( *forms );
+    QPtrListIterator<QObject> it( *forms );
     while ( it.current() ) {
 	QObject *obj = it.current();
 	QWidget *par = 0;
@@ -211,11 +211,11 @@ void DesignerProjectImpl::setupDatabases() const
     MainWindow::self->editDatabaseConnections();
 }
 
-QList<DesignerDatabase> DesignerProjectImpl::databaseConnections() const
+QPtrList<DesignerDatabase> DesignerProjectImpl::databaseConnections() const
 {
-    QList<DesignerDatabase> lst;
+    QPtrList<DesignerDatabase> lst;
 #ifndef QT_NO_SQL
-    QList<DatabaseConnection> conns = project->databaseConnections();
+    QPtrList<DatabaseConnection> conns = project->databaseConnections();
     for ( DatabaseConnection *d = conns.first(); d; d = conns.next() )
 	lst.append( d->iFace() );
 #endif
@@ -556,9 +556,9 @@ void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
 {
 }
 
-QList<QAction> DesignerFormWindowImpl::actionList() const
+QPtrList<QAction> DesignerFormWindowImpl::actionList() const
 {
-    return QList<QAction>();
+    return QPtrList<QAction>();
 }
 
 QAction *DesignerFormWindowImpl::createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,

@@ -30,7 +30,7 @@
 #include <qvariant.h>
 #include <qobject.h>
 #include <qlistview.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qmap.h>
 
 class QWizard;
@@ -141,7 +141,7 @@ signals:
     void modificationChanged( bool m );
 
 private:
-    QList<Command> history;
+    QPtrList<Command> history;
     int current, steps;
     bool modified;
     int savedAt;
@@ -349,14 +349,14 @@ class MacroCommand : public Command
 {
 public:
     MacroCommand( const QString &n, FormWindow *fw,
-		  const QList<Command> &cmds );
+		  const QPtrList<Command> &cmds );
 
     void execute();
     void unexecute();
     Type type() const { return Macro; }
 
 private:
-    QList<Command> commands;
+    QPtrList<Command> commands;
 
 };
 
@@ -400,7 +400,7 @@ class MoveTabPageCommand : public Command
 {
 public:
     MoveTabPageCommand(const QString &n, FormWindow *fw,
-                       QTabWidget *tw, QWidget *page,  const QString& label, int nIndex, int oIndex );
+		       QTabWidget *tw, QWidget *page,  const QString& label, int nIndex, int oIndex );
 
     void execute();
     void unexecute();
@@ -474,7 +474,7 @@ class SwapWizardPagesCommand : public Command
 {
 public:
     SwapWizardPagesCommand( const QString &n, FormWindow *fw,
-                              QWizard *w, int index1, int index2 );
+			      QWizard *w, int index1, int index2 );
 
     void execute();
     void unexecute();

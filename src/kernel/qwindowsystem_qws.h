@@ -37,7 +37,7 @@
 #include <qwssocket_qws.h>
 #include <qmap.h>
 #include <qdatetime.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qimage.h>
 
 #include "qwsproperty_qws.h"
@@ -189,12 +189,12 @@ public:
     static void setDesktopBackground( const QColor & );
     static QWSMouseHandler *mouseHandler();
     static void setMouseHandler(QWSMouseHandler*);
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     static QWSKeyboardHandler* keyboardHandler();
     static void setKeyboardHandler(QWSKeyboardHandler* kh);
 #endif
 
-    static QList<QWSInternalWindowInfo> * windowList();
+    static QPtrList<QWSInternalWindowInfo> * windowList();
 
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES
@@ -210,7 +210,7 @@ public:
     QWSWindow *windowAt( const QPoint& pos );
 
     // For debugging only at this time
-    QList<QWSWindow> clientWindows() { return windows; }
+    QPtrList<QWSWindow> clientWindows() { return windows; }
 
     void openMouse();
     void closeMouse();
@@ -339,16 +339,16 @@ private:
     QRegion serverRegion;
     QRegion dirtyBackground;
     bool disablePainting;
-    QList<QWSMouseHandler> mousehandlers;
+    QPtrList<QWSMouseHandler> mousehandlers;
 #ifndef QT_NO_QWS_KEYBOARD
-    QList<QWSKeyboardHandler> keyboardhandlers;
+    QPtrList<QWSKeyboardHandler> keyboardhandlers;
 #endif
 
-    QList<QWSCommandStruct> commandQueue;
+    QPtrList<QWSCommandStruct> commandQueue;
     QWSRegionManager *rgnMan;
 
     // Window management
-    QList<QWSWindow> windows; // first=topmost
+    QPtrList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
     void moveWindowRegion(QWSWindow*, int dx, int dy );
@@ -366,7 +366,7 @@ private:
     QWSSoundServer *soundserver;
 #endif
 #ifndef QT_NO_COP
-    QMap<QString, QList<QWSClient> > channels;
+    QMap<QString, QPtrList<QWSClient> > channels;
 #endif
 };
 

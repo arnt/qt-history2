@@ -39,7 +39,7 @@
 #define QTEXTBROWSER_H
 
 #ifndef QT_H
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"

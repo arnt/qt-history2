@@ -34,7 +34,7 @@
 
 #ifndef QT_NO_SOUND
 
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qsocketnotifier.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -334,7 +334,7 @@ public slots:
 		    unwritten = available*(sound_stereo+1);
 		    cursor = (char*)d8;
 		}
-		QListIterator<QWSSoundServerBucket> it(active);
+		QPtrListIterator<QWSSoundServerBucket> it(active);
 		for (; (bucket = *it);) {
 		    ++it;
 		    if ( bucket->finished() )
@@ -413,7 +413,7 @@ private:
 	}
     }
 
-    QList<QWSSoundServerBucket> active;
+    QPtrList<QWSSoundServerBucket> active;
     int fd;
     int unwritten;
     char* cursor;

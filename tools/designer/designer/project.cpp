@@ -592,14 +592,14 @@ void Project::save()
 }
 
 #ifndef QT_NO_SQL
-QList<DatabaseConnection> Project::databaseConnections() const
+QPtrList<DatabaseConnection> Project::databaseConnections() const
 {
     return dbConnections;
 }
 #endif
 
 #ifndef QT_NO_SQL
-void Project::setDatabaseConnections( const QList<DatabaseConnection> &lst )
+void Project::setDatabaseConnections( const QPtrList<DatabaseConnection> &lst )
 {
     dbConnections = lst;
 }
@@ -992,9 +992,9 @@ void Project::addSourceFile( SourceFile *sf )
     save();
 }
 
-QList<FormWindow> Project::unnamedForms() const
+QPtrList<FormWindow> Project::unnamedForms() const
 {
-    QList<FormWindow> fws;
+    QPtrList<FormWindow> fws;
     for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it ) {
 	if ( (*it).isEmpty() )
 	    fws.append( it.key() );
@@ -1002,9 +1002,9 @@ QList<FormWindow> Project::unnamedForms() const
     return fws;
 }
 
-QList<FormWindow> Project::forms() const
+QPtrList<FormWindow> Project::forms() const
 {
-    QList<FormWindow> fws;
+    QPtrList<FormWindow> fws;
     for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
 	fws.append( it.key() );
     return fws;

@@ -37,6 +37,7 @@
 
 #include "qapplication.h"
 #include "qapplication_p.h"
+#include "qnamespace.h"
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
@@ -299,7 +300,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     int curr_winstate = 0;
 
     if (topLevel && ! (desktop || popup)) {
-       	ulong wsa_mask = 0;
+	ulong wsa_mask = 0;
 	if (testWFlags(WStyle_Customize)) {
 	    if (testWFlags(WStyle_NoBorder)) {
 		struct {
@@ -325,7 +326,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		// toolbar netwm type
 		net_wintypes[curr_wintype++] = qt_net_wm_window_type_toolbar;
 	    }
-	} else if (testWFlags(WStyle_Dialog)) {
+	} else if (testWFlags(WType_Dialog)) {
 	    setWFlags(WStyle_NormalBorder | WStyle_Title |
 		      WStyle_SysMenu | WStyle_ContextHelp);
 
@@ -416,7 +417,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	XClassHint class_hint;
-	class_hint.res_class = (char *)title; 	// app name and widget name
+	class_hint.res_class = (char *)title;	// app name and widget name
 	class_hint.res_name = name() ? (char *)name() : (char *)title;
 	XSetWMProperties( dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints,
 			  &class_hint );
@@ -943,11 +944,11 @@ void QWidget::setIcon( const QPixmap &pixmap )
     if ( !pixmap.isNull() ) {
 	QPixmap* pm = new QPixmap( pixmap );
 	extra->topextra->icon = pm;
-  	if ( !pm->mask() )
-  	    pm->setMask( pm->createHeuristicMask() ); // may do detach()
+	if ( !pm->mask() )
+	    pm->setMask( pm->createHeuristicMask() ); // may do detach()
 	icon_pixmap = pm->handle();
-  	if ( pm->mask() )
-  	    mask_pixmap = pm->mask()->handle();
+	if ( pm->mask() )
+	    mask_pixmap = pm->mask()->handle();
     }
     XWMHints *h = XGetWMHints( x11Display(), winId() );
     XWMHints  wm_hints;
@@ -1285,7 +1286,7 @@ void QWidget::update( int x, int y, int w, int h )
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
 	    QApplication::postEvent( this,
-	        new QPaintEvent( visibleRect().intersect(QRect(x,y,w,h)),
+		new QPaintEvent( visibleRect().intersect(QRect(x,y,w,h)),
 				 !testWFlags( WRepaintNoErase ) ) );
     }
 }
@@ -1339,7 +1340,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r.isEmpty() )
 	    return; // nothing to do
 	QPaintEvent e( r, erase );
- 	if ( r != rect() )
+	if ( r != rect() )
 	    qt_set_paintevent_clipping( this, r );
 	if ( erase && w != 0 && h != 0 ) {
 	    if ( backgroundOrigin() == WidgetOrigin )
@@ -2247,7 +2248,7 @@ void QWidget::updateFrameStrut() const
 
 	// if the parent window is the root window, an Enlightenment virtual root or
 	// a NET WM virtual root window, stop here
-   	data_ret = 0;
+	data_ret = 0;
 	if (p == r ||
 	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p,
 				qt_enlightenment_desktop, 0, 1, FALSE, XA_CARDINAL,

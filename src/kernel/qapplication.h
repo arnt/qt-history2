@@ -53,7 +53,7 @@ class QTranslator;
 #if defined(Q_WS_QWS)
 class QWSDecoration;
 #endif
-template <class type> class QList;
+template <class type> class QPtrList;
 
 class QApplication;
 extern Q_EXPORT QApplication *qApp;		// global application object
@@ -254,7 +254,7 @@ public:
 #if defined(QT_THREAD_SUPPORT)
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);
-    bool 	     locked();
+    bool	     locked();
     bool             tryLock();
 #endif
 
@@ -325,7 +325,7 @@ private:
     static bool	     fade_menu;
     static bool	     fade_tooltip;
 
-    QList<QTranslator> *translators;
+    QPtrList<QTranslator> *translators;
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
     QString	     session_id;
@@ -346,7 +346,7 @@ private:
     bool	     inPopupMode() const;
     void	     closePopup( QWidget *popup );
     void	     openPopup( QWidget *popup );
-    void 	     setActiveWindow( QWidget* act );
+    void	     setActiveWindow( QWidget* act );
 
     static void      removePostedEvent( QEvent * );
 

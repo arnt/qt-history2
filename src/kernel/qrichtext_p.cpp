@@ -389,7 +389,7 @@ void QTextFormat::updateStyleFlags()
 	different |= Bold;
 }
 
-QString QTextString::toString( const QArray<QTextStringChar> &data )
+QString QTextString::toString( const QMemArray<QTextStringChar> &data )
 {
     QString s;
     int l = data.size();
@@ -401,7 +401,7 @@ QString QTextString::toString( const QArray<QTextStringChar> &data )
 	uc++;
 	c++;
     }
-	
+
     return s;
 }
 
@@ -417,7 +417,7 @@ QString QTextString::toReverseString() const
 	uc++;
 	c--;
     }
-	
+
     return s;
 }
 
@@ -561,9 +561,9 @@ int QTextParag::alignment() const
     return Qt::AlignAuto;
 }
 
-QVector<QStyleSheetItem> QTextParag::styleSheetItems() const
+QPtrVector<QStyleSheetItem> QTextParag::styleSheetItems() const
 {
-    QVector<QStyleSheetItem> vec;
+    QPtrVector<QStyleSheetItem> vec;
     vec.resize( styleSheetItemsVec.size() );
     for ( int i = 0; i < (int)vec.size(); ++i )
 	vec.insert( i, styleSheetItemsVec[ i ] );
@@ -580,7 +580,7 @@ QStyleSheetItem *QTextParag::style() const
 int QTextParag::numberOfSubParagraph() const
 {
     if ( numSubParag != -1 )
- 	return numSubParag;
+	return numSubParag;
     int n = 0;
     QTextParag *p = (QTextParag*)this;
     while ( p && style() == p->style() && listStyle() == p->listStyle() ) {
@@ -655,4 +655,3 @@ QTextStringChar::~QTextStringChar()
 	    break;
     }
 }
-

@@ -64,7 +64,7 @@ public:
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;
-    QList< QNetworkOperation > oldOps;
+    QPtrList< QNetworkOperation > oldOps;
 };
 
 // NOT REVISED
@@ -213,7 +213,7 @@ public:
 */
 
 /*!
-  \fn void QUrlOperator::startedNextCopy( const QList<QNetworkOperation> &lst )
+  \fn void QUrlOperator::startedNextCopy( const QPtrList<QNetworkOperation> &lst )
 
   This signal is emitted if copy() starts a new copy operation. \a lst
   contains all QNetworkOperations related to this copy operation.
@@ -521,13 +521,13 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   \sa get(), put()
 */
 
-QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move )
+QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move )
 {
 #ifdef QURLOPERATOR_DEBUG
     qDebug( "QUrlOperator: copy %s %s %d", from.latin1(), to.latin1(), move );
 #endif
 
-    QList<QNetworkOperation> ops;
+    QPtrList<QNetworkOperation> ops;
     ops.setAutoDelete( FALSE );
 
     QUrlOperator *u = new QUrlOperator( *this, from );
@@ -1082,7 +1082,7 @@ void QUrlOperator::finishedCopy()
 
     QString cp = d->waitingCopies.first();
     d->waitingCopies.remove( cp );
-    QList<QNetworkOperation> lst = copy( cp, d->waitingCopiesDest, d->waitingCopiesMove );
+    QPtrList<QNetworkOperation> lst = copy( cp, d->waitingCopiesDest, d->waitingCopiesMove );
     emit startedNextCopy( lst );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#70 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#71 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -41,7 +41,7 @@
 
 #include "qxml.h"
 #include "qmap.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qdict.h"
 #include "qtextstream.h"
 #include "qtextcodec.h"
@@ -196,7 +196,7 @@ public:
     QDomNodePrivate* node_impl;
     QString tagname;
     QString nsURI;
-    QList<QDomNodePrivate> list;
+    QPtrList<QDomNodePrivate> list;
     long timestamp;
 };
 
@@ -1671,16 +1671,16 @@ void QDomNode::setNodeValue( const QString& v )
   \value EntityReferenceNode  the node is an entity reference
   \value EntityNode  the node is an entity
   \value ProcessingInstructionNode  the node is a processing
-          instruction
+	  instruction
   \value CommentNode  the node is a comment
   \value DocumentNode  the node is a document
   \value DocumentTypeNode  the node is a document type
   \value DocumentFragmentNode  the node is a document fragment
   \value NotationNode  the node is a notation
   \value BaseNode  the node is a QDomNode object rather than a
-          subclass of it
+	  subclass of it
   \value CharacterDataNode  the node is a QDomCharacterData object
-          rather than a subclass of it.
+	  rather than a subclass of it.
 */
 /*!
   Returns the type of the node.
@@ -3374,7 +3374,7 @@ void QDomCharacterData::replaceData( unsigned long offset, unsigned long count, 
 QDomNode::NodeType QDomCharacterData::nodeType() const
 {
     if( !impl )
-        return CharacterDataNode;
+	return CharacterDataNode;
     return QDomNode::nodeType();
 }
 
@@ -3832,9 +3832,9 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 	else
 	    s << ">" << endl;
 	QDomNodePrivate::save( s, indent + 1 );
- 	if ( !last->isText() )
- 	    for( int i = 0; i < indent; ++i )
- 		s << " ";
+	if ( !last->isText() )
+	    for( int i = 0; i < indent; ++i )
+		s << " ";
 	s << "</" << name << ">" << endl;
     } else {
 	s << "/>" << endl;
@@ -5654,7 +5654,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   while( !n.isNull() ) {
       QDomElement e = n.toElement(); // try to convert the node to an element.
       if( !e.isNull() ) { // the node was really an element.
-          cout << e.tagName() << endl;
+	  cout << e.tagName() << endl;
       }
       n = n.nextSibling();
   }

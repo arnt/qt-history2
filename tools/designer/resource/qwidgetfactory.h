@@ -24,7 +24,7 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qcstring.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qimage.h"
 #include "qpixmap.h"
 #include "qvaluelist.h"
@@ -125,7 +125,7 @@ private:
     QMap<QWidget*, SqlWidgetConnection> sqlWidgetConnections;
     QMap<QString, QString> buddies;
     QMap<QTable*, QValueList<Field> > fieldMaps;
-    QList<QAction> actionList;
+    QPtrList<QAction> actionList;
     QMap<QObject *, EventFunction> eventMap;
     QMap<QString, QString> languageSlots;
     QMap<QString, Functions*> languageFunctions;

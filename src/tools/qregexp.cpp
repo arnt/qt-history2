@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qarray.h"
+#include "qmemarray.h"
 #include "qbitarray.h"
 #include "qcache.h"
 #include "qintdict.h"
@@ -43,7 +43,7 @@
 #include "qregexp.h"
 #include "qstring.h"
 #include "qtl.h"
-#include "qvector.h"
+#include "qptrvector.h"
 
 #include <limits.h>
 
@@ -119,8 +119,8 @@
     regexp engine how many occurrences of the expression we want, e.g.
     <b>x{1,1}</b> means match an <b>x</b> which occurs at least once and
     at most once. We'll look at assertions and more complex expressions
-    later. 
-    
+    later.
+
     Note that in general regexps cannot be used to check for balanced
     brackets or tags. For example if you want to match an opening html
     \c <b> and its closing \c </b> you can only use a regexp if you know
@@ -674,14 +674,14 @@ static const int EOS = -1;
 
 #ifndef QT_NO_REGEXP_OPTIM
 static int engCount = 0;
-static QArray<int> *noOccurrences = 0;
-static QArray<int> *firstOccurrenceAtZero = 0;
+static QMemArray<int> *noOccurrences = 0;
+static QMemArray<int> *firstOccurrenceAtZero = 0;
 #endif
 
 /*
-  Merges two QArrays of ints and puts the result into the first one.
+  Merges two QMemArrays of ints and puts the result into the first one.
 */
-static void mergeInto( QArray<int> *a, const QArray<int>& b )
+static void mergeInto( QMemArray<int> *a, const QMemArray<int>& b )
 {
     int asize = a->size();
     int bsize = b.size();
@@ -694,7 +694,7 @@ static void mergeInto( QArray<int> *a, const QArray<int>& b )
 #endif
     } else if ( bsize >= 1 ) {
 	int csize = asize + bsize;
-	QArray<int> c( csize );
+	QMemArray<int> c( csize );
 	int i = 0, j = 0, k = 0;
 	while ( i < asize ) {
 	    if ( j < bsize ) {
@@ -826,7 +826,7 @@ public:
 
 	bool in( QChar ch ) const;
 #ifndef QT_NO_REGEXP_OPTIM
-	const QArray<int>& firstOccurrence() const { return occ1; }
+	const QMemArray<int>& firstOccurrence() const { return occ1; }
 #endif
 
 #if defined(QT_DEBUG)
@@ -845,10 +845,10 @@ public:
 	};
 
 	int c; // character classes
-	QArray<Range> r; // character ranges
+	QMemArray<Range> r; // character ranges
 	bool n; // negative?
 #ifndef QT_NO_REGEXP_OPTIM
-	QArray<int> occ1; // first-occurrence array
+	QMemArray<int> occ1; // first-occurrence array
 #endif
     };
 #else
@@ -857,7 +857,7 @@ public:
 	int x; // dummy
 
 #ifndef QT_NO_REGEXP_OPTIM
-	const QArray<int>& firstOccurrence() const {
+	const QMemArray<int>& firstOccurrence() const {
 	    return *firstOccurrenceAtZero;
 	}
 #endif
@@ -873,7 +873,7 @@ public:
     bool isValid() const { return valid; }
     bool caseSensitive() const { return cs; }
     int numCaptures() const { return realncap; }
-    QArray<int> match( const QString& str, int pos, bool minimal,
+    QMemArray<int> match( const QString& str, int pos, bool minimal,
 		       bool oneTest );
     int matchedLength() const { return mmMatchedLen; }
 
@@ -883,9 +883,9 @@ public:
     int createState( int bref );
 #endif
 
-    void addCatTransitions( const QArray<int>& from, const QArray<int>& to );
+    void addCatTransitions( const QMemArray<int>& from, const QMemArray<int>& to );
 #ifndef QT_NO_REGEXP_CAPTURE
-    void addPlusTransitions( const QArray<int>& from, const QArray<int>& to,
+    void addPlusTransitions( const QMemArray<int>& from, const QMemArray<int>& to,
 			     int atom );
 #endif
 
@@ -901,7 +901,7 @@ public:
 #ifndef QT_NO_REGEXP_OPTIM
     void setupGoodStringHeuristic( int earlyStart, int lateStart,
 				   const QString& str );
-    void setupBadCharHeuristic( int minLen, const QArray<int>& firstOcc );
+    void setupBadCharHeuristic( int minLen, const QMemArray<int>& firstOcc );
     void heuristicallyChooseHeuristic();
 #endif
 
@@ -923,7 +923,7 @@ private:
 	int atom; // which atom does this state belong to?
 #endif
 	int match; // what does it match? (see CharClassBit and BackRefBit)
-	QArray<int> outs; // out-transitions
+	QMemArray<int> outs; // out-transitions
 	QMap<int, int> *reenter; // atoms reentered when transiting out
 	QMap<int, int> *anchors; // anchors met when transiting out
 
@@ -1017,23 +1017,23 @@ private:
 #endif
     bool matchHere();
 
-    QVector<State> s; // array of states
+    QPtrVector<State> s; // array of states
     int ns; // number of states
 #ifndef QT_NO_REGEXP_CAPTURE
-    QArray<Atom> f; // atom hierarchy
+    QMemArray<Atom> f; // atom hierarchy
     int nf; // number of atoms
     int cf; // current atom
 #endif
     int realncap; // number of captures, seen from the outside
     int ncap; // number of captures, seen from the inside
 #ifndef QT_NO_REGEXP_CCLASS
-    QVector<CharClass> cl; // array of character classes
+    QPtrVector<CharClass> cl; // array of character classes
 #endif
 #ifndef QT_NO_REGEXP_LOOKAHEAD
-    QVector<Lookahead> ahead; // array of lookaheads
+    QPtrVector<Lookahead> ahead; // array of lookaheads
 #endif
 #ifndef QT_NO_REGEXP_ANCHOR_ALT
-    QArray<AnchorAlternation> aa; // array of (a, b) pairs of anchors
+    QMemArray<AnchorAlternation> aa; // array of (a, b) pairs of anchors
 #endif
 #ifndef QT_NO_REGEXP_OPTIM
     bool caretAnchored; // does the regexp start with ^?
@@ -1052,7 +1052,7 @@ private:
     QString goodStr; // the string that any match has to contain
 
     int minl; // the minimum length of a match
-    QArray<int> occ1; // first-occurrence array
+    QMemArray<int> occ1; // first-occurrence array
 #endif
 
     /*
@@ -1094,8 +1094,8 @@ private:
 	void addAnchorsToEngine( const Box& to ) const;
 
 	QRegExpEngine *eng; // the automaton under construction
-	QArray<int> ls; // the left states (firstpos)
-	QArray<int> rs; // the right states (lastpos)
+	QMemArray<int> ls; // the left states (firstpos)
+	QMemArray<int> rs; // the right states (lastpos)
 	QMap<int, int> lanchors; // the left anchors
 	QMap<int, int> ranchors; // the right anchors
 	int skipanchors; // the anchors to match if the box is skipped
@@ -1111,7 +1111,7 @@ private:
 
 	int minl; // the minimum length of this box
 #ifndef QT_NO_REGEXP_OPTIM
-	QArray<int> occ1; // first-occurrence array
+	QMemArray<int> occ1; // first-occurrence array
 #endif
     };
     friend class Box;
@@ -1164,9 +1164,9 @@ private:
     int mmPos; // the current position in the string
     int mmLen; // the length of the input string
     bool mmMinimal; // minimal matching?
-    QArray<int> mmCaptured; // an array of pairs (start, len)
-    QArray<int> mmCapturedNoMatch; // an array of pairs (-1, -1)
-    QArray<int> mmBigArray; // big QArray<int> array
+    QMemArray<int> mmCaptured; // an array of pairs (start, len)
+    QMemArray<int> mmCapturedNoMatch; // an array of pairs (-1, -1)
+    QMemArray<int> mmBigArray; // big QMemArray<int> array
     int *mmInNextStack; // is state is mmNextStack?
     int *mmCurStack; // stack of current states
     int *mmNextStack; // stack of next states
@@ -1211,7 +1211,7 @@ QRegExpEngine::~QRegExpEngine()
   Tries to match in str and returns an array of (begin, length) pairs for
   captured text.  If there is no match, all pairs are (-1, -1).
 */
-QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
+QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 				  bool oneTest )
 {
     mmStr = &str;
@@ -1298,8 +1298,8 @@ int QRegExpEngine::createState( int bref )
   Cat-transitions are distinguished from plus-transitions for capturing.
 */
 
-void QRegExpEngine::addCatTransitions( const QArray<int>& from,
-				       const QArray<int>& to )
+void QRegExpEngine::addCatTransitions( const QMemArray<int>& from,
+				       const QMemArray<int>& to )
 {
     for ( int i = 0; i < (int) from.size(); i++ ) {
 	State *st = s[from[i]];
@@ -1308,12 +1308,12 @@ void QRegExpEngine::addCatTransitions( const QArray<int>& from,
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
-void QRegExpEngine::addPlusTransitions( const QArray<int>& from,
-					const QArray<int>& to, int atom )
+void QRegExpEngine::addPlusTransitions( const QMemArray<int>& from,
+					const QMemArray<int>& to, int atom )
 {
     for ( int i = 0; i < (int) from.size(); i++ ) {
 	State *st = s[from[i]];
-	QArray<int> oldOuts = st->outs.copy();
+	QMemArray<int> oldOuts = st->outs.copy();
 	mergeInto( &st->outs, to );
 	if ( f[atom].capture >= 0 ) {
 	    if ( st->reenter == 0 )
@@ -1387,7 +1387,7 @@ void QRegExpEngine::setupGoodStringHeuristic( int earlyStart, int lateStart,
 }
 
 void QRegExpEngine::setupBadCharHeuristic( int minLen,
-					   const QArray<int>& firstOcc )
+					   const QMemArray<int>& firstOcc )
 {
     minl = minLen;
     occ1 = cs ? firstOcc : *firstOccurrenceAtZero;
@@ -1493,8 +1493,8 @@ void QRegExpEngine::setup( bool caseSensitive )
 {
 #ifndef QT_NO_REGEXP_OPTIM
     if ( engCount++ == 0 ) {
-	noOccurrences = new QArray<int>( NumBadChars );
-	firstOccurrenceAtZero = new QArray<int>( NumBadChars );
+	noOccurrences = new QMemArray<int>( NumBadChars );
+	firstOccurrenceAtZero = new QMemArray<int>( NumBadChars );
 	noOccurrences->fill( NoOccurrence );
 	firstOccurrenceAtZero->fill( 0 );
     }
@@ -1798,7 +1798,7 @@ bool QRegExpEngine::matchHere()
 	for ( j = 0; j < ncur; j++ ) {
 	    int cur = mmCurStack[j];
 	    State *scur = s[cur];
-	    QArray<int>& outs = scur->outs;
+	    QMemArray<int>& outs = scur->outs;
 	    for ( k = 0; k < (int) outs.size(); k++ ) {
 		int next = outs[k];
 		State *snext = s[next];
@@ -2845,7 +2845,7 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
     mmCapturedNoMatch.fill( -1, 2 + 2 * realncap );
 
     /*
-      We use one QArray<int> for all the big data used a lot in matchHere() and
+      We use one QMemArray<int> for all the big data used a lot in matchHere() and
       friends.
     */
 #ifndef QT_NO_REGEXP_OPTIM
@@ -3074,7 +3074,7 @@ struct QRegExpPrivate
     QString t; // last string passed to QRegExp::search() or searchRev()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
 #endif
-    QArray<int> captured; // what QRegExpEngine::search() returned last
+    QMemArray<int> captured; // what QRegExpEngine::search() returned last
 
     QRegExpPrivate() { captured.fill( -1, 2 ); }
 };

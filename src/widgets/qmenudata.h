@@ -109,9 +109,9 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#include "qlist.h"
-typedef QList<QMenuItem>	 QMenuItemList;
-typedef QListIterator<QMenuItem> QMenuItemListIt;
+#include "qptrlist.h"
+typedef QPtrList<QMenuItem>	 QMenuItemList;
+typedef QPtrListIterator<QMenuItem> QMenuItemListIt;
 
 #else
 
@@ -217,8 +217,8 @@ public:
     void	changeItem( const QString &text, int id ) { changeItem( id, text); } // obsolete
     void	changeItem( const QPixmap &pixmap, int id ) { changeItem( id, pixmap ); } // obsolete
     void	changeItem( const QIconSet &icon, const QString &text, int id ) {	// obsolete
-	changeItem( id, icon, text ); 
-    } 
+	changeItem( id, icon, text );
+    }
 
     bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );
@@ -255,7 +255,7 @@ protected:
     uint	   badSize	: 1;
     uint	   mouseBtDn	: 1;
     uint	avoid_circularity : 1;
-    uint 	actItemDown : 1;
+    uint	actItemDown : 1;
     virtual void   menuContentsChanged();
     virtual void   menuStateChanged();
     virtual void   menuInsPopup( QPopupMenu * );

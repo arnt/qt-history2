@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qptrdict.h"
 #include "qbrush.h"
 #include "qpen.h"
@@ -68,8 +68,8 @@ class QCanvasPixmap;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QList< QCanvasItem >;
-template class Q_EXPORT QList< QCanvasView >;
+template class Q_EXPORT QPtrList< QCanvasItem >;
+template class Q_EXPORT QPtrList< QCanvasView >;
 template class Q_EXPORT QValueList< QCanvasItem* >;
 // MOC_SKIP_END
 #endif
@@ -390,7 +390,7 @@ class Q_EXPORT QCanvasPixmapArray
 public:
     QCanvasPixmapArray();
     QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=0);
-    QCanvasPixmapArray(QList<QPixmap>, QList<QPoint> hotspots);
+    QCanvasPixmapArray(QPtrList<QPixmap>, QPtrList<QPoint> hotspots);
     ~QCanvasPixmapArray();
 
     bool readPixmaps(const QString& datafilenamepattern, int framecount=0);

@@ -90,7 +90,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
     sender = sndr;
     receiver = rcvr;
 
-    QStrList sigs = sender->metaObject()->signalNames( TRUE );
+    QPtrStrList sigs = sender->metaObject()->signalNames( TRUE );
     sigs.remove( "destroyed()" );
     signalBox->insertStrList( sigs );
 
@@ -198,7 +198,7 @@ void ConnectionEditor::signalChanged()
 	    if ( !s.data() )
 		continue;
 	    s = MetaDataBase::normalizeSlot( s );
- 	    if ( checkConnectArgs( signal.data(), receiver, s ) )
+	    if ( checkConnectArgs( signal.data(), receiver, s ) )
 		slotBox->insertItem( QString( (*it).slot ) );
 	}
     }
@@ -266,7 +266,7 @@ void ConnectionEditor::okClicked()
     QString n = tr( "Connect/Disconnect signals and slots of '%1' and '%2'" ).arg( sender->name() ).arg( receiver->name() );
     QValueList<MetaDataBase::Connection>::Iterator cit;
     if ( !oldConnections.isEmpty() ) {
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	for ( cit = oldConnections.begin(); cit != oldConnections.end(); ++cit ) {
 	    commands.append( new RemoveConnectionCommand( tr( "Remove connection" ),
 							  formWindow, *cit ) );
@@ -276,7 +276,7 @@ void ConnectionEditor::okClicked()
 
     if ( !connections.isEmpty() ) {
 	QMap<QListViewItem*, MyConnection>::Iterator it = connections.begin();
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	for ( ; it != connections.end(); ++it ) {
 	    MyConnection c = *it;
 	    MetaDataBase::Connection conn;
@@ -291,7 +291,7 @@ void ConnectionEditor::okClicked()
     }
 
     if ( rmConn || addConn ) {
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	if ( rmConn )
 	    commands.append( rmConn );
 	if ( addConn )

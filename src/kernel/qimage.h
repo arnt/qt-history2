@@ -88,8 +88,8 @@ public:
 
     QImage     &operator=( const QImage & );
     QImage     &operator=( const QPixmap & );
-    bool   	operator==( const QImage & ) const;
-    bool   	operator!=( const QImage & ) const;
+    bool	operator==( const QImage & ) const;
+    bool	operator!=( const QImage & ) const;
     void	detach();
     QImage	copy()		const;
     QImage	copy(int x, int y, int w, int h, int conversion_flags=0) const;
@@ -103,7 +103,7 @@ public:
     QRect	rect()		const	{ return QRect(0,0,data->w,data->h); }
     int		depth()		const	{ return data->d; }
     int		numColors()	const	{ return data->ncols; }
-    Endian 	bitOrder()	const	{ return (Endian) data->bitordr; }
+    Endian	bitOrder()	const	{ return (Endian) data->bitordr; }
 
     QRgb	color( int i )	const;
     void	setColor( int i, QRgb c );
@@ -125,7 +125,7 @@ public:
 #ifdef Q_WS_QWS
     QGfx * graphicsContext();
 #endif
-    
+
     bool	create( int width, int height, int depth, int numColors=0,
 			Endian bitOrder=IgnoreEndian );
     bool	create( const QSize&, int depth, int numColors=0,
@@ -170,8 +170,8 @@ public:
     static Endian systemByteOrder();
 
     static const char* imageFormat( const QString &fileName );
-    static QStrList inputFormats();
-    static QStrList outputFormats();
+    static QPtrStrList inputFormats();
+    static QPtrStrList outputFormats();
 #ifndef QT_NO_STRINGLIST
     static QStringList inputFormatList();
     static QStringList outputFormatList();
@@ -284,8 +284,8 @@ public:
 
     static const char* imageFormat( const QString &fileName );
     static const char *imageFormat( QIODevice * );
-    static QStrList inputFormats();
-    static QStrList outputFormats();
+    static QPtrStrList inputFormats();
+    static QPtrStrList outputFormats();
 
     static void defineIOHandler( const char *format,
 				 const char *header,

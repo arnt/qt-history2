@@ -270,7 +270,7 @@ public:
     HorizontalLayoutList( const QWidgetList &l )
 	: QWidgetList( l ) {}
 
-    int compareItems( QCollection::Item item1, QCollection::Item item2 ) {
+    int compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 ) {
 	QWidget *w1 = (QWidget*)item1;
 	QWidget *w2 = (QWidget*)item2;
 	if ( w1->x() == w2->x() )
@@ -332,7 +332,7 @@ public:
     VerticalLayoutList( const QWidgetList &l )
 	: QWidgetList( l ) {}
 
-    int compareItems( QCollection::Item item1, QCollection::Item item2 ) {
+    int compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 ) {
 	QWidget *w1 = (QWidget*)item1;
 	QWidget *w2 = (QWidget*)item2;
 	if ( w1->y() == w2->y() )
@@ -660,7 +660,7 @@ void Grid::merge()
     int r,c;
     for ( c = 0; c < ncols; c++ )
 	cols[c] = FALSE;
-	
+
     for ( r = 0; r < nrows; r++ )
 	rows[r] = FALSE;
 
@@ -777,12 +777,12 @@ void GridLayout::buildGrid()
 		      br.top() + r* resolution.height() );
 	    QRect cr( p, resolution );
 	    for ( w = widgets.first(); w; w = widgets.next() ) {
- 		    // check that the overlap is significant
- 		    QRect intersect = cr.intersect( w->geometry() );
- 		    if ( intersect.size().width() > resolution.width()/2 &&
- 			 intersect.size().height() > resolution.height()/2 ) {
- 			grid->setCell( r, c, w );
- 		    }
+		    // check that the overlap is significant
+		    QRect intersect = cr.intersect( w->geometry() );
+		    if ( intersect.size().width() > resolution.width()/2 &&
+			 intersect.size().height() > resolution.height()/2 ) {
+			grid->setCell( r, c, w );
+		    }
 	    }
 	}
     }
@@ -900,8 +900,8 @@ Qt::Orientation Spacer::orientation() const
 void Spacer::setOrientation( Qt::Orientation o )
 {
     if ( orient == o )
- 	return;
-	
+	return;
+
     SizeType st = sizeType();
     orient = o;
     setSizeType( st );

@@ -41,7 +41,7 @@
 #include "qlistbox.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qstrlist.h"
+#include "qptrstrlist.h"
 #include "qpixmap.h"
 #include "qtimer.h"
 #include "qapplication.h"
@@ -97,7 +97,7 @@
   style.
 
   Combo boxes can contain pixmaps as well as texts; the
-  insert() and changeItem() functions are suitably overloaded.  For 
+  insert() and changeItem() functions are suitably overloaded.  For
   read-write combo boxes, the function clearEdit()
   is provided, to clear the displayed string without changing the
   combo box' contents.
@@ -226,7 +226,7 @@ struct QComboData
     void updateLinedGeometry();
 
     void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
-    				l->setMouseTracking( TRUE );}
+				l->setMouseTracking( TRUE );}
 
     void setPopupMenu( QComboBoxPopup * pm ) { pop = pm; usingLBox = FALSE; }
 
@@ -278,7 +278,7 @@ void QComboData::updateLinedGeometry()
 
 bool QComboBox::getMetrics( int *dist, int *buttonW, int *buttonH ) const
 {
-    if ( d->usingListBox() && style() == WindowsStyle ) {
+    if ( d->usingListBox()  && style() == WindowsStyle ) {
 	QRect r  = arrowRect();
 	*buttonW = r.width();
 	*buttonH = r.height();
@@ -465,7 +465,7 @@ int QComboBox::count() const
   \overload
 */
 
-void QComboBox::insertStrList( const QStrList &list, int index )
+void QComboBox::insertStrList( const QPtrStrList &list, int index )
 {
     insertStrList( &list, index );
 }
@@ -477,7 +477,7 @@ void QComboBox::insertStrList( const QStrList &list, int index )
   strings.  See insertStringList().
 */
 
-void QComboBox::insertStrList( const QStrList *list, int index )
+void QComboBox::insertStrList( const QPtrStrList *list, int index )
 {
     if ( !list ) {
 #if defined(QT_CHECK_NULL)
@@ -485,7 +485,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 #endif
 	return;
     }
-    QStrListIterator it( *list );
+    QPtrStrListIterator it( *list );
     const char* tmp;
     if ( index < 0 )
 	index = count();
@@ -698,12 +698,12 @@ void QComboBox::removeItem( int index )
 	currentChanged();
     }
     else {
-        if ( !d->ed ) {
-            if (d->current < cnt - 1)
-                setCurrentItem( d->current );
-            else
-                setCurrentItem( d->current - 1 );
-        }
+	if ( !d->ed ) {
+	    if (d->current < cnt - 1)
+		setCurrentItem( d->current );
+	    else
+		setCurrentItem( d->current - 1 );
+	}
     }
 
 }
@@ -821,7 +821,7 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 
 /*!
   Replaces the item at position \e index with a pixmap plus text.
-  
+
   \sa insertItem()
 */
 
@@ -1112,7 +1112,7 @@ void QComboBox::paintEvent( QPaintEvent * )
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
 	style().drawComboButton( &p, 0, 0, width(), height(),
 				 g, d->arrowDown, d->ed != 0 );
-       	if ( hasFocus() ) {
+	if ( hasFocus() ) {
 	    style().drawFocusRect(&p, style().
 				  comboButtonFocusRect(0,0,width(),height()),
 				  g, &g.button());
@@ -1373,7 +1373,7 @@ void QComboBox::popup()
 	d->listBox()->blockSignals( TRUE );
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( block );
-	d->listBox()->setAutoScrollBar( TRUE );
+	/*	d->listBox()->setAutoScrollBar( TRUE ); ###NO_COMPAT???*/
 
 #ifndef QT_NO_EFFECTS
 	if ( QApplication::isEffectEnabled( UI_AnimateCombo ) )
@@ -1883,9 +1883,9 @@ void QComboBox::setListBox( QListBox * newListBox )
     newListBox->reparent( this, WType_Popup, QPoint(0,0), FALSE );
     d->setListBox( newListBox );
     d->listBox()->setFont( font() );
-    d->listBox()->setAutoScrollBar( FALSE );
-    d->listBox()->setBottomScrollBar( FALSE );
-    d->listBox()->setAutoBottomScrollBar( FALSE );
+    /* d->listBox()->setAutoScrollBar( FALSE ); ########QT_NO_COMPAT ??? */
+    /*d->listBox()->setBottomScrollBar( FALSE );########QT_NO_COMPAT ??? */
+    /*d->listBox()->setAutoBottomScrollBar( FALSE );########QT_NO_COMPAT ??? */
     d->listBox()->setFrameStyle( QFrame::Box | QFrame::Plain );
     d->listBox()->setLineWidth( 1 );
     d->listBox()->resize( 100, 10 );
@@ -2113,29 +2113,29 @@ void QComboBox::setBackgroundPixmap( const QPixmap & pixmap )
 
 #ifndef QT_NO_ACCESSIBILITY
 /*! \reimp */
-QString QComboBox::stateDescription() const 
-{ 
-    return tr("selected item: %1").arg( currentText() ); 
+QString QComboBox::stateDescription() const
+{
+    return tr("selected item: %1").arg( currentText() );
 }
 
 /*! \reimp */
-QString QComboBox::contentsDescription() const 
-{ 
-    return QString::null; 
+QString QComboBox::contentsDescription() const
+{
+    return QString::null;
 }
 
 /*! \reimp */
-QString QComboBox::typeDescription() const 
-{ 
-    return tr("combo box"); 
+QString QComboBox::typeDescription() const
+{
+    return tr("combo box");
 }
 
 /*! \reimp */
-QString QComboBox::useDescription() const 
-{ 
+QString QComboBox::useDescription() const
+{
     if ( editable() )
-	return tr( "To select item, use up and down keys." ); 
-    else 
+	return tr( "To select item, use up and down keys." );
+    else
 	return tr( "To open list, press space bar." );
 }
 #endif

@@ -29,7 +29,7 @@
 
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qmap.h>
 #include <qinterfacemanager.h>
 #include "../interfaces/projectsettingsiface.h"
@@ -138,8 +138,8 @@ public:
     void save();
 
 #ifndef QT_NO_SQL
-    QList<DatabaseConnection> databaseConnections() const;
-    void setDatabaseConnections( const QList<DatabaseConnection> &lst );
+    QPtrList<DatabaseConnection> databaseConnections() const;
+    void setDatabaseConnections( const QPtrList<DatabaseConnection> &lst );
     void addDatabaseConnection( DatabaseConnection *conn );
     void removeDatabaseConnection( const QString &conn );
     DatabaseConnection *databaseConnection( const QString &name );
@@ -171,11 +171,11 @@ public:
 
     void setActive( bool b );
 
-    QList<SourceFile> sourceFiles() const { return sources; }
+    QPtrList<SourceFile> sourceFiles() const { return sources; }
     void addSourceFile( SourceFile *sf );
 
-    QList<FormWindow> unnamedForms() const;
-    QList<FormWindow> forms() const;
+    QPtrList<FormWindow> unnamedForms() const;
+    QPtrList<FormWindow> forms() const;
 
 private:
     void parse();
@@ -191,7 +191,7 @@ private:
     QMap<FormWindow*, QString> formWindows;
     QString dbFile;
 #ifndef QT_NO_SQL
-    QList<DatabaseConnection> dbConnections;
+    QPtrList<DatabaseConnection> dbConnections;
 #endif
     QString lang;
     DesignerProject *iface;
@@ -200,7 +200,7 @@ private:
     QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QString imgFile;
     PixmapCollection *pixCollection;
-    QList<SourceFile> sources;
+    QPtrList<SourceFile> sources;
 
 };
 

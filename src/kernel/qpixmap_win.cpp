@@ -58,7 +58,7 @@ struct QMCPFreeNode {
     short size;
 };
 
-typedef QList<QMCPFreeNode> QMCPFreeList;
+typedef QPtrList<QMCPFreeNode> QMCPFreeList;
 
 class QMultiCellPixmap {
 public:
@@ -611,7 +611,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     data->hasAlpha = img.hasAlphaBuffer() &&
 	( QApplication::winVersion() == Qt::WV_98 ||
-	  QApplication::winVersion() == Qt::WV_2000 || 
+	  QApplication::winVersion() == Qt::WV_2000 ||
 	  QApplication::winVersion() == Qt::WV_XP );
 
     if ( data->hasAlpha && d==32 ) {
@@ -1029,7 +1029,7 @@ void QMultiCellPixmap::freeCell( int offset, int size )
   width 1..16, 17..32, 33..64 and 65..128.
 */
 
-typedef QList<QMultiCellPixmap>  QMultiCellPixmapList;
+typedef QPtrList<QMultiCellPixmap>  QMultiCellPixmapList;
 typedef QMultiCellPixmapList   *pQMultiCellPixmapList;
 
 static const int mcp_num_lists  = 8;
@@ -1117,7 +1117,7 @@ int QPixmap::allocCell()
 	DeleteDC( hdc );
 	hdc = 0;
 	DeleteObject( DATA_HBM );
-	DATA_HBM = 0;	
+	DATA_HBM = 0;
     }
     data->mcp = TRUE;
     DATA_MCPI = new QMCPI;

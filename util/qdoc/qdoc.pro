@@ -47,7 +47,7 @@ SOURCES		= binarywriter.cpp \
 		  ../../src/codecs/qtextcodec.cpp \
 		  ../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qbuffer.cpp \
-		  ../../src/tools/qcollection.cpp \
+		  ../../src/tools/qptrcollection.cpp \
 		  ../../src/tools/qcstring.cpp \
 		  ../../src/tools/qdatastream.cpp \
 		  ../../src/tools/qdatetime.cpp \

@@ -252,7 +252,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	pm = new QPixmap( sz );			// create new pixmap
 	Q_CHECK_PTR( pm );
 	pm->fill( g.background() );
-	pmpaint.begin( pm );	
+	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
 	wx=x;  wy=y;				// save x,y coords
 	x = y = 0;
@@ -393,20 +393,20 @@ void QCheckBox::updateMask()
 
 /*! \reimp */
 QString QCheckBox::stateDescription() const
-{ 
-    return isChecked() ? tr("checked") : tr("unchecked"); 
+{
+    return isChecked() ? tr("checked") : tr("unchecked");
 }
 
 /*! \reimp */
 QString QCheckBox::useDescription() const
-{ 
-    return isChecked() ? tr("To uncheck, use space bar") : tr("To check, use space bar"); 
+{
+    return isChecked() ? tr("To uncheck, use space bar") : tr("To check, use space bar");
 }
 
 /*! \reimp */
 QString QCheckBox::typeDescription() const
-{ 
-    return tr("check box"); 
+{
+    return tr("check box");
 }
 
 #endif

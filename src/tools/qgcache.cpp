@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qgcache.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qdict.h"
 #include "qstring.h"
 
@@ -58,13 +58,13 @@
 
 struct QCacheItem
 {
-    QCacheItem( void *k, QCollection::Item d, int c, short p )
+    QCacheItem( void *k, QPtrCollection::Item d, int c, short p )
 	: priority(p), skipPriority(p), cost(c), key(k), data(d), node(0) {}
     short	priority;
     short	skipPriority;
     int		cost;
     void       *key;
-    QCollection::Item data;
+    QPtrCollection::Item data;
     QLNode     *node;
 };
 
@@ -73,7 +73,7 @@ struct QCacheItem
   QCList class (internal list of cache items)
  *****************************************************************************/
 
-class QCList : private QList<QCacheItem>
+class QCList : private QPtrList<QCacheItem>
 {
 friend class QGCacheIterator;
 friend class QCListIt;
@@ -86,15 +86,15 @@ public:
     void	take( QCacheItem * );
     void	reference( QCacheItem * );
 
-    void	setAutoDelete( bool del ) { QCollection::setAutoDelete(del); }
+    void	setAutoDelete( bool del ) { QPtrCollection::setAutoDelete(del); }
 
-    bool	removeFirst()	{ return QList<QCacheItem>::removeFirst(); }
-    bool	removeLast()	{ return QList<QCacheItem>::removeLast(); }
+    bool	removeFirst()	{ return QPtrList<QCacheItem>::removeFirst(); }
+    bool	removeLast()	{ return QPtrList<QCacheItem>::removeLast(); }
 
-    QCacheItem *first()		{ return QList<QCacheItem>::first(); }
-    QCacheItem *last()		{ return QList<QCacheItem>::last(); }
-    QCacheItem *prev()		{ return QList<QCacheItem>::prev(); }
-    QCacheItem *next()		{ return QList<QCacheItem>::next(); }
+    QCacheItem *first()		{ return QPtrList<QCacheItem>::first(); }
+    QCacheItem *last()		{ return QPtrList<QCacheItem>::last(); }
+    QCacheItem *prev()		{ return QPtrList<QCacheItem>::prev(); }
+    QCacheItem *next()		{ return QPtrList<QCacheItem>::next(); }
 
 #if defined(QT_DEBUG)
     int		inserts;			// variables for statistics
@@ -125,7 +125,7 @@ void QCList::insert( QCacheItem *ci )
 	item = next();
     }
     if ( item )
-	QList<QCacheItem>::insert( at(), ci );
+	QPtrList<QCacheItem>::insert( at(), ci );
     else
 	append( ci );
 #if defined(QT_DEBUG)
@@ -136,7 +136,7 @@ void QCList::insert( QCacheItem *ci )
 
 inline void QCList::insert( int i, QCacheItem *ci )
 {
-    QList<QCacheItem>::insert( i, ci );
+    QPtrList<QCacheItem>::insert( i, ci );
 #if defined(QT_DEBUG)
     Q_ASSERT( ci->node == 0 );
 #endif
@@ -166,11 +166,11 @@ inline void QCList::reference( QCacheItem *ci )
 }
 
 
-class QCListIt: public QListIterator<QCacheItem>
+class QCListIt: public QPtrListIterator<QCacheItem>
 {
 public:
-    QCListIt( const QCList *p ): QListIterator<QCacheItem>( *p ) {}
-    QCListIt( const QCListIt *p ): QListIterator<QCacheItem>( *p ) {}
+    QCListIt( const QCList *p ): QPtrListIterator<QCacheItem>( *p ) {}
+    QCListIt( const QCListIt *p ): QPtrListIterator<QCacheItem>( *p ) {}
 };
 
 
@@ -261,7 +261,7 @@ QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 */
 
 QGCache::QGCache( const QGCache & )
-    : QCollection()
+    : QPtrCollection()
 {
 #if defined(QT_CHECK_NULL)
     qFatal( "QGCache::QGCache(QGCache &): Cannot copy a cache" );
@@ -345,7 +345,7 @@ void QGCache::setMaxCost( int maxCost )
   invalid.
 */
 
-bool QGCache::insert_string( const QString &key, QCollection::Item data,
+bool QGCache::insert_string( const QString &key, QPtrCollection::Item data,
 			     int cost, int priority)
 {
     if ( tCost + cost > mCost ) {
@@ -377,7 +377,7 @@ bool QGCache::insert_string( const QString &key, QCollection::Item data,
 
 /*! \internal */
 
-bool QGCache::insert_other( const char *key, QCollection::Item data,
+bool QGCache::insert_other( const char *key, QPtrCollection::Item data,
 			    int cost, int priority)
 {
     if ( tCost + cost > mCost ) {
@@ -442,7 +442,7 @@ bool QGCache::remove_other( const char *key )
   Takes an item out of the cache (no delete).
 */
 
-QCollection::Item QGCache::take_string( const QString &key )
+QPtrCollection::Item QGCache::take_string( const QString &key )
 {
     QCacheItem *ci = dict->take_string( key );	// take from dict
     Item d;
@@ -463,7 +463,7 @@ QCollection::Item QGCache::take_string( const QString &key )
   Takes an item out of the cache (no delete).
 */
 
-QCollection::Item QGCache::take_other( const char *key )
+QPtrCollection::Item QGCache::take_other( const char *key )
 {
     QCacheItem *ci;
     if ( keytype == AsciiKey )
@@ -522,7 +522,7 @@ void QGCache::clear()
   Finds an item in the cache.
 */
 
-QCollection::Item QGCache::find_string( const QString &key, bool ref ) const
+QPtrCollection::Item QGCache::find_string( const QString &key, bool ref ) const
 {
     QCacheItem *ci = dict->find_string( key );
 #if defined(QT_DEBUG)
@@ -546,7 +546,7 @@ QCollection::Item QGCache::find_string( const QString &key, bool ref ) const
   Finds an item in the cache.
 */
 
-QCollection::Item QGCache::find_other( const char *key, bool ref ) const
+QPtrCollection::Item QGCache::find_other( const char *key, bool ref ) const
 {
     QCacheItem *ci = keytype == AsciiKey ? dict->find_ascii(key)
 					 : dict->find_int((long)key);
@@ -751,7 +751,7 @@ bool QGCacheIterator::atLast() const
   Sets the list iterator to point to the first item in the cache.
 */
 
-QCollection::Item QGCacheIterator::toFirst()
+QPtrCollection::Item QGCacheIterator::toFirst()
 {
     QCacheItem *item = it->toFirst();
     return item ? item->data : 0;
@@ -762,7 +762,7 @@ QCollection::Item QGCacheIterator::toFirst()
   Sets the list iterator to point to the last item in the cache.
 */
 
-QCollection::Item QGCacheIterator::toLast()
+QPtrCollection::Item QGCacheIterator::toLast()
 {
     QCacheItem *item = it->toLast();
     return item ? item->data : 0;
@@ -773,7 +773,7 @@ QCollection::Item QGCacheIterator::toLast()
   Returns the current item.
 */
 
-QCollection::Item QGCacheIterator::get() const
+QPtrCollection::Item QGCacheIterator::get() const
 {
     QCacheItem *item = it->current();
     return item ? item->data : 0;
@@ -817,7 +817,7 @@ long QGCacheIterator::getKeyInt() const
   Moves to the next item (postfix).
 */
 
-QCollection::Item QGCacheIterator::operator()()
+QPtrCollection::Item QGCacheIterator::operator()()
 {
     QCacheItem *item = it->operator()();
     return item ? item->data : 0;
@@ -828,7 +828,7 @@ QCollection::Item QGCacheIterator::operator()()
   Moves to the next item (prefix).
 */
 
-QCollection::Item QGCacheIterator::operator++()
+QPtrCollection::Item QGCacheIterator::operator++()
 {
     QCacheItem *item = it->operator++();
     return item ? item->data : 0;
@@ -839,7 +839,7 @@ QCollection::Item QGCacheIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-QCollection::Item QGCacheIterator::operator+=( uint jump )
+QPtrCollection::Item QGCacheIterator::operator+=( uint jump )
 {
     QCacheItem *item = it->operator+=(jump);
     return item ? item->data : 0;
@@ -850,7 +850,7 @@ QCollection::Item QGCacheIterator::operator+=( uint jump )
   Moves to the previous item (prefix).
 */
 
-QCollection::Item QGCacheIterator::operator--()
+QPtrCollection::Item QGCacheIterator::operator--()
 {
     QCacheItem *item = it->operator--();
     return item ? item->data : 0;
@@ -861,7 +861,7 @@ QCollection::Item QGCacheIterator::operator--()
   Moves \e jumps positions backward.
 */
 
-QCollection::Item QGCacheIterator::operator-=( uint jump )
+QPtrCollection::Item QGCacheIterator::operator-=( uint jump )
 {
     QCacheItem *item = it->operator-=(jump);
     return item ? item->data : 0;

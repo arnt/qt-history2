@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qtoolbar.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qtextstream.h"
 #endif // QT_H
 
@@ -104,8 +104,8 @@ public:
 
     bool getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
 
-    QList<QDockWindow> dockWindows( Dock dock ) const;
-    QList<QDockWindow> dockWindows() const;
+    QPtrList<QDockWindow> dockWindows( Dock dock ) const;
+    QPtrList<QDockWindow> dockWindows() const;
     void lineUpDockWindows( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
@@ -120,7 +120,7 @@ public:
     bool hasDockWindow( QDockWindow *dw );
 
     bool toolBarsMovable() const;
-    QList<QToolBar> toolBars( Dock dock ) const;
+    QPtrList<QToolBar> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
 
     QDockArea *dockingArea( const QPoint &p );

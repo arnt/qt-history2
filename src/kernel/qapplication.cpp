@@ -318,7 +318,7 @@ static QDesktopWidget *desktopWidget = 0;	// root window widgets
 #ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
 #endif
-QWidgetList * qt_modal_stack=0; 		// stack of modal widgets
+QWidgetList * qt_modal_stack=0;		// stack of modal widgets
 
 // Definitions for posted events
 struct QPostEvent {
@@ -328,21 +328,21 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-class Q_EXPORT QPostEventList : public QList<QPostEvent>
+class Q_EXPORT QPostEventList : public QPtrList<QPostEvent>
 {
 public:
-    QPostEventList() : QList<QPostEvent>() {}
-    QPostEventList( const QPostEventList &list ) : QList<QPostEvent>(list) {}
+    QPostEventList() : QPtrList<QPostEvent>() {}
+    QPostEventList( const QPostEventList &list ) : QPtrList<QPostEvent>(list) {}
    ~QPostEventList() { clear(); }
     QPostEventList &operator=(const QPostEventList &list)
-	{ return (QPostEventList&)QList<QPostEvent>::operator=(list); }
+	{ return (QPostEventList&)QPtrList<QPostEvent>::operator=(list); }
 };
-class Q_EXPORT QPostEventListIt : public QListIterator<QPostEvent>
+class Q_EXPORT QPostEventListIt : public QPtrListIterator<QPostEvent>
 {
 public:
-    QPostEventListIt( const QPostEventList &l ) : QListIterator<QPostEvent>(l) {}
+    QPostEventListIt( const QPostEventList &l ) : QPtrListIterator<QPostEvent>(l) {}
     QPostEventListIt &operator=(const QPostEventListIt &i)
-{ return (QPostEventListIt&)QListIterator<QPostEvent>::operator=(i); }
+{ return (QPostEventListIt&)QPtrListIterator<QPostEvent>::operator=(i); }
 };
 
 static QPostEventList *globalPostedEvents = 0;	// list of posted events
@@ -1410,7 +1410,7 @@ void QApplication::polish( QWidget *w )
 
   The list is created using \c new and must be deleted by the caller.
 
-  The list is empty (QList::isEmpty()) if there are no top level
+  The list is empty (QPtrList::isEmpty()) if there are no top level
   widgets.
 
   Note that some of the top level widgets may be hidden, for example
@@ -1436,7 +1436,7 @@ void QApplication::polish( QWidget *w )
   The widgets in the list may be deleted by someone else at any time.
 
   \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
-      QList::isEmpty()
+      QPtrList::isEmpty()
 */
 
 QWidgetList *QApplication::topLevelWidgets()
@@ -1449,7 +1449,7 @@ QWidgetList *QApplication::topLevelWidgets()
 
   The list is created using new and must be deleted by the caller.
 
-  The list is empty (QList::isEmpty()) if there are no widgets.
+  The list is empty (QPtrList::isEmpty()) if there are no widgets.
 
   Note that some of the widgets may be hidden.
 
@@ -1473,7 +1473,7 @@ QWidgetList *QApplication::topLevelWidgets()
   \warning Delete the list away as soon you have finished using it.
   The widgets in the list may be deleted by someone else at any time.
 
-  \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(),
+  \sa topLevelWidgets(), QWidget::isVisible(), QPtrList::isEmpty(),
 */
 
 QWidgetList *QApplication::allWidgets()
@@ -1999,7 +1999,7 @@ void QApplication::syncX()	{}		// do nothing
 void QApplication::installTranslator( QTranslator * mf )
 {
     if ( !translators )
-	translators = new QList<QTranslator>;
+	translators = new QPtrList<QTranslator>;
     if ( mf )
 	translators->insert( 0, mf );
 
@@ -2108,7 +2108,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
     // context can be null, for global stuff
 
     if ( translators ) {
-	QListIterator<QTranslator> it( *translators );
+	QPtrListIterator<QTranslator> it( *translators );
 	QTranslator * mf;
 	QString result;
 	while( (mf = it.current()) != 0 ) {
@@ -2692,14 +2692,14 @@ int QApplication::enter_loop()
 	quit_now = FALSE;
 	emit aboutToQuit();
 	//### qt-bugs/arc-09/18433
-// 	QWidgetList *list = topLevelWidgets();
-// 	QWidgetListIt it(*list);
-// 	QWidget * w;
-// 	while( (w=it.current()) != 0 ) {
-// 	    ++it;
-// 	    if ( w->testWFlags( WDestructiveClose ) )
-// 		delete w;
-// 	}
+//	QWidgetList *list = topLevelWidgets();
+//	QWidgetListIt it(*list);
+//	QWidget * w;
+//	while( (w=it.current()) != 0 ) {
+//	    ++it;
+//	    if ( w->testWFlags( WDestructiveClose ) )
+//		delete w;
+//	}
     }
 
     return 0;

@@ -310,7 +310,7 @@ void QStyle::drawToolButton( QPainter * p, int x, int y, int w, int h,
   \sa drawBevelButton(), drawDropDownButton()
 */
 void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool on, bool down, bool /*enabled*/, 
+		     const QColorGroup &g, bool on, bool down, bool /*enabled*/,
 		     bool /*autoRaised*/, const QBrush *fill )
 {
     drawToolButton( p, x, y, w, h, g, on || down, fill );
@@ -324,7 +324,7 @@ void QStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
   otherwise drawPanel.
 
   \sa drawToolButton
-*/  
+*/
 void QStyle::drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool down, bool /*enabled*/, bool autoRaised,
 		     const QBrush *fill )

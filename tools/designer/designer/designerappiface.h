@@ -36,7 +36,7 @@ public:
 
     DesignerProject *currentProject() const;
     DesignerFormWindow *currentForm() const;
-    QList<DesignerProject> projectList() const;
+    QPtrList<DesignerProject> projectList() const;
     void showStatusMessage( const QString &, int ms = 0 ) const;
     DesignerDock *createDock() const;
     DesignerOutputDock *outputDock() const;
@@ -61,7 +61,7 @@ class DesignerProjectImpl: public DesignerProject
 public:
     DesignerProjectImpl( Project *pr );
 
-    QList<DesignerFormWindow> formList() const;
+    QPtrList<DesignerFormWindow> formList() const;
     QStringList formNames() const;
     QObjectList *run();
     void addForm( DesignerFormWindow * );
@@ -73,7 +73,7 @@ public:
     QString databaseFile() const;
     void setDatabaseFile( const QString & );
     void setupDatabases() const;
-    QList<DesignerDatabase> databaseConnections() const;
+    QPtrList<DesignerDatabase> databaseConnections() const;
     void addDatabase( DesignerDatabase * );
     void removeDatabase( DesignerDatabase * );
     void save() const;
@@ -173,7 +173,7 @@ public:
     QWidget *form() const;
     void setListViewIcon( const QPixmap & );
     void setCurrentWidget( QWidget * );
-    QList<QAction> actionList() const;
+    QPtrList<QAction> actionList() const;
     QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
 			   QObject* parent, const char* name = 0, bool toggle = FALSE );
     void addAction( QAction * );

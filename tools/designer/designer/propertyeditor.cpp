@@ -43,7 +43,7 @@
 #include <qapplication.h>
 #include <qheader.h>
 #include <qlineedit.h>
-#include <qstrlist.h>
+#include <qptrstrlist.h>
 #include <qmetaobject.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -504,7 +504,7 @@ void PropertyItem::setText( int col, const QString &t )
     if ( col == 1 )
 	txt = txt.replace( QRegExp( "\n" ), " " );
     QListViewItem::setText( col, txt );
-}	
+}
 
 // --------------------------------------------------------------
 
@@ -2348,7 +2348,7 @@ void PropertyList::setupProperties()
     if ( !editor->widget() )
 	return;
     bool allProperties = !editor->widget()->inherits( "Spacer" );
-    QStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
+    QPtrStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QObject *w = editor->widget();
@@ -2357,7 +2357,7 @@ void PropertyList::setupProperties()
 	w->isWidgetType() &&
 	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
 	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
-    for ( QListIterator<char> it( lst ); it.current(); ++it ) {
+    for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
 	const QMetaProperty* p =
 	    editor->widget()->metaObject()->
 	    property( editor->widget()->metaObject()->findProperty( it.current(), allProperties), allProperties );
@@ -2453,7 +2453,7 @@ void PropertyList::setupProperties()
 		    qWarning( "Sets except 'alignment' not supported yet.... %s.", p->name() );
 		}
 	    } else if ( p->isEnumType() ) {
-		QStrList l = p->enumKeys();
+		QPtrStrList l = p->enumKeys();
 		QStringList lst;
 		for ( uint i = 0; i < l.count(); ++i ) {
 		    QString k = l.at( i );
@@ -2717,7 +2717,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
     else if ( o == viewport() ) {
 	QMouseEvent *me;
 	PropertyListItem* i;
-    	switch ( e->type() ) {
+	switch ( e->type() ) {
 	case QEvent::MouseButtonPress:
 	    me = (QMouseEvent*)e;
 	    i = (PropertyListItem*) itemAt( me->pos() );
@@ -2788,7 +2788,7 @@ void PropertyList::refetchData()
     updateEditorSize();
 }
 
-static void clearAlignList( QStrList &l )
+static void clearAlignList( QPtrStrList &l )
 {
     if ( l.count() == 1 )
 	return;
@@ -2813,7 +2813,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    p = editor->widget()->metaObject()->
 		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    align &= ~AlignVertical_Mask;
-	    QStrList l = p->valueToKeys( align );
+	    QPtrStrList l = p->valueToKeys( align );
 	    clearAlignList( l );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "vAlign" ) {
@@ -2980,9 +2980,9 @@ void EventList::setup()
 	    }
 	}
     } else {
-	QStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );
+	QPtrStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );
 	sigs.remove( "destroyed()" );
-	QStrListIterator it( sigs );
+	QPtrStrListIterator it( sigs );
 	while ( it.current() ) {
 	    HierarchyItem *eventItem = new HierarchyItem( this, it.current(), QString::null, QString::null );
 	    eventItem->setOpen( TRUE );
@@ -3028,7 +3028,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	    if ( pt != -1 )
 		s1 = s1.left( pt );
 	    s = QString( editor->widget()->name() ) + "_" + s1;
-	} else {	
+	} else {
 	    s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
 	}
 	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, s, QString::null, QString::null );
@@ -3261,7 +3261,7 @@ QString PropertyEditor::classOfCurrentProperty() const
     QString curr = currentProperty();
     QMetaObject *mo = o->metaObject();
     while ( mo ) {
-	QStrList props = mo->propertyNames( FALSE );
+	QPtrStrList props = mo->propertyNames( FALSE );
 	if ( props.find( curr.latin1() ) != -1 )
 	    return mo->className();
 	mo = mo->superClass();

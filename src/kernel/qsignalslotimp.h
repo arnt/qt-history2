@@ -40,33 +40,33 @@
 
 #ifndef QT_H
 #include "qconnection.h"
-#include "qlist.h"
-#include "qvector.h"
+#include "qptrlist.h"
+#include "qptrvector.h"
 #endif // QT_H
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QList<QConnection>;
-template class Q_EXPORT QListIterator<QConnection>;
+template class Q_EXPORT QPtrList<QConnection>;
+template class Q_EXPORT QPtrListIterator<QConnection>;
 #endif
 
 
-class Q_EXPORT QConnectionList : public QList<QConnection>
+class Q_EXPORT QConnectionList : public QPtrList<QConnection>
 {
 public:
-    QConnectionList() : QList<QConnection>() {}
-    QConnectionList( const QConnectionList &list ) : QList<QConnection>(list) {}
+    QConnectionList() : QPtrList<QConnection>() {}
+    QConnectionList( const QConnectionList &list ) : QPtrList<QConnection>(list) {}
    ~QConnectionList() { clear(); }
     QConnectionList &operator=(const QConnectionList &list)
-	{ return (QConnectionList&)QList<QConnection>::operator=(list); }
+	{ return (QConnectionList&)QPtrList<QConnection>::operator=(list); }
 };
 
-class Q_EXPORT QConnectionListIt : public QListIterator<QConnection>
+class Q_EXPORT QConnectionListIt : public QPtrListIterator<QConnection>
 {
 public:
-    QConnectionListIt( const QConnectionList &l ) : QListIterator<QConnection>(l) {}
+    QConnectionListIt( const QConnectionList &l ) : QPtrListIterator<QConnection>(l) {}
     QConnectionListIt &operator=(const QConnectionListIt &i)
-	{ return (QConnectionListIt&)QListIterator<QConnection>::operator=(i); }
+	{ return (QConnectionListIt&)QPtrListIterator<QConnection>::operator=(i); }
 };
 
 
@@ -76,23 +76,23 @@ template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
 #endif
 
 
-class Q_EXPORT QSignalVec : public QVector<QConnectionList>
+class Q_EXPORT QSignalVec : public QPtrVector<QConnectionList>
 {
 public:
     QSignalVec(int size=17 )
-	: QVector<QConnectionList>(size) {}
+	: QPtrVector<QConnectionList>(size) {}
     QSignalVec( const QSignalVec &dict )
-	: QVector<QConnectionList>(dict) {}
+	: QPtrVector<QConnectionList>(dict) {}
    ~QSignalVec() { clear(); }
     QSignalVec &operator=(const QSignalVec &dict)
-	{ return (QSignalVec&)QVector<QConnectionList>::operator=(dict); }
+	{ return (QSignalVec&)QPtrVector<QConnectionList>::operator=(dict); }
     QConnectionList* at( uint index ) const  {
-	return index >= size()? 0 : QVector<QConnectionList>::at(index);
+	return index >= size()? 0 : QPtrVector<QConnectionList>::at(index);
     }
     bool  insert( uint index, const QConnectionList* d ) {
 	if (index >= size() )
 	    resize( 2*index + 1);
-	return QVector<QConnectionList>::insert(index, d);
+	return QPtrVector<QConnectionList>::insert(index, d);
     }
 };
 

@@ -43,6 +43,11 @@
 #include "qdatastream.h"
 #endif // QT_H
 
+#ifndef QT_NO_STL
+#include <iterator>
+#include <list>
+#endif
+
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4284) // "return type for operator -> is not a UDT"
 #endif
@@ -71,11 +76,11 @@ class Q_EXPORT QValueListIterator
      * Typedefs
      */
     typedef QValueListNode<T>* NodePtr;
-
-#if 0
+#ifndef QT_NO_STL
     typedef std::bidirectional_iterator_tag  iterator_category;
     typedef T        value_type;
     typedef ptrdiff_t  difference_type;
+    typedef size_t size_type;
     typedef T*   pointer;
     typedef T& reference;
 #endif
@@ -130,6 +135,14 @@ class Q_EXPORT QValueListConstIterator
      * Typedefs
      */
     typedef QValueListNode<T>* NodePtr;
+#ifndef QT_NO_STL
+    typedef std::bidirectional_iterator_tag  iterator_category;
+    typedef T        value_type;
+    typedef ptrdiff_t  difference_type;
+    typedef size_t size_type;
+    typedef const T*   pointer;
+    typedef const T& reference;
+#endif
 
     /**
      * Variables
@@ -312,6 +325,19 @@ public:
     uint nodes;
 };
 
+#ifdef QT_CHECK_RANGE
+# ifndef QT_NO_DEBUG
+#  define QT_CHECK_INVALID_LIST_ELEMENT if ( isEmpty() ) qWarning( "QValueList: Warning invalid element" )
+#  define QT_CHECK_INVALID_LIST_ELEMENT_FATAL Q_ASSERT( !empty() );
+# else
+#  define QT_CHECK_INVALID_LIST_ELEMENT
+#  define QT_CHECK_INVALID_LIST_ELEMENT_FATAL
+# endif
+#else
+# define QT_CHECK_INVALID_LIST_ELEMENT
+# define QT_CHECK_INVALID_LIST_ELEMENT_FATAL
+#endif
+
 template <class T>
 class Q_EXPORT QValueList
 {
@@ -319,20 +345,35 @@ public:
     /**
      * Typedefs
      */
+    typedef QValueListIterator<T> iterator;
+    typedef QValueListConstIterator<T> const_iterator;
+    typedef T value_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef size_t size_type;
+#ifndef QT_NO_STL
+    typedef ptrdiff_t difference_type;
+#else
+    typedef int difference_type;
+#endif
     typedef QValueListIterator<T> Iterator;
     typedef QValueListConstIterator<T> ConstIterator;
     typedef T ValueType;
-
-#if 0
-    typedef QValueListIterator<T> iterator;
-    typedef T value_type;
-#endif
 
     /**
      * API
      */
     QValueList() { sh = new QValueListPrivate<T>; }
     QValueList( const QValueList<T>& l ) { sh = l.sh; sh->ref(); }
+#ifndef QT_NO_STL
+    QValueList( const std::list<T>& l )
+    {
+	sh = new QValueListPrivate<T>;
+	qCopy( l.begin(), l.end(), std::back_inserter( *this ) );
+    }
+#endif
     ~QValueList() { sh->derefAndDelete(); }
 
     QValueList<T>& operator= ( const QValueList<T>& l )
@@ -341,6 +382,79 @@ public:
 	sh->derefAndDelete();
 	sh = l.sh;
 	return *this;
+    }
+#ifndef QT_NO_STL
+    QValueList<T>& operator= ( const std::list<T>& l )
+    {
+	detach();
+	qCopy( l.begin(), l.end(), std::back_inserter( *this ) );
+	return *this;
+    }
+    bool operator== ( const std::list<T>& l ) const
+    {
+	if ( count() != l.count() )
+	    return FALSE;
+	return qEqual( begin(), end(), l.begin() );
+    }
+#endif
+    bool operator== ( const QValueList<T>& l ) const
+    {
+	if ( count() != l.count() )
+	    return FALSE;
+	ConstIterator it2 = begin();
+	ConstIterator it = l.begin();
+	for( ; it != l.end(); ++it, ++it2 )
+	    if ( !( *it == *it2 ) )
+		return FALSE;
+	return TRUE;
+    }
+
+    bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
+    Iterator begin() { detach(); return Iterator( sh->node->next ); }
+    ConstIterator begin() const { return ConstIterator( sh->node->next ); }
+    Iterator end() { detach(); return Iterator( sh->node ); }
+    ConstIterator end() const { return ConstIterator( sh->node ); }
+    Iterator insert( Iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
+    void remove( const T& x ) { detach(); sh->remove( x ); }
+    void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
+
+    QValueList<T>& operator<< ( const T& x )
+    {
+	append( x );
+	return *this;
+    }
+
+    size_type size() const { return sh->nodes; }
+    size_type max_size() const { return size_type( -1 ); }
+    bool empty() const { return sh->nodes == 0; }
+    void swap( QValueList<T>& x ) { qSwap( *this, x ); }
+    void push_front( const T& x ) { detach(); sh->insert( begin(), x ); }
+    void push_back( const T& x ) { detach(); sh->insert( end(), x ); }
+    iterator erase( iterator pos ) { detach(); return sh->remove( pos ); }
+    iterator erase( iterator first, iterator last )
+    {
+	while ( first != last )
+	    erase( first++ );
+	return last;
+    }
+    reference front() { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *begin(); }
+    const_reference front() const { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *begin(); }
+    reference back() { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *(--end()); }
+    const_reference back() const { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *(--end()); }
+    void pop_front() { QT_CHECK_INVALID_LIST_ELEMENT; erase( begin() ); }
+    void pop_back() {
+	QT_CHECK_INVALID_LIST_ELEMENT;
+	iterator tmp = end();
+	erase( --tmp );
+    }
+    void insert( iterator pos, size_type n, const T& x )
+    {
+	for ( ; n > 0; --n )
+	    insert( pos, x );
+    }
+    void sort()
+    {
+	qHeapSort( *this );
     }
 
     QValueList<T> operator+ ( const QValueList<T>& l ) const
@@ -358,46 +472,26 @@ public:
 	return *this;
     }
 
-    bool operator== ( const QValueList<T>& l ) const
-    {
-	if ( count() != l.count() )
-	    return FALSE;
-	ConstIterator it2 = begin();
-	ConstIterator it = l.begin();
-	for( ; it != l.end(); ++it, ++it2 )
-	    if ( !( *it == *it2 ) )
-		return FALSE;
-	return TRUE;
-    }
 
-    bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
-
-    Iterator begin() { detach(); return Iterator( sh->node->next ); }
-    ConstIterator begin() const { return ConstIterator( sh->node->next ); }
-    Iterator end() { detach(); return Iterator( sh->node ); }
-    ConstIterator end() const { return ConstIterator( sh->node ); }
     Iterator fromLast() { detach(); return Iterator( sh->node->prev ); }
     ConstIterator fromLast() const { return ConstIterator( sh->node->prev ); }
 
     bool isEmpty() const { return ( sh->nodes == 0 ); }
 
-    Iterator insert( Iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
-
     Iterator append( const T& x ) { detach(); return sh->insert( end(), x ); }
     Iterator prepend( const T& x ) { detach(); return sh->insert( begin(), x ); }
 
     Iterator remove( Iterator it ) { detach(); return sh->remove( it ); }
-    void remove( const T& x ) { detach(); sh->remove( x ); }
 
-    T& first() { detach(); return sh->node->next->data; }
-    const T& first() const { return sh->node->next->data; }
-    T& last() { detach(); return sh->node->prev->data; }
-    const T& last() const { return sh->node->prev->data; }
+    T& first() { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->node->next->data; }
+    const T& first() const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->node->next->data; }
+    T& last() { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->node->prev->data; }
+    const T& last() const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->node->prev->data; }
 
-    T& operator[] ( uint i ) { detach(); return sh->at(i)->data; }
-    const T& operator[] ( uint i ) const { return sh->at(i)->data; }
-    Iterator at( uint i ) { detach(); return Iterator( sh->at(i) ); }
-    ConstIterator at( uint i ) const { return ConstIterator( sh->at(i) ); }
+    T& operator[] ( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->at(i)->data; }
+    const T& operator[] ( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->at(i)->data; }
+    Iterator at( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return Iterator( sh->at(i) ); }
+    ConstIterator at( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return ConstIterator( sh->at(i) ); }
     Iterator find ( const T& x ) { detach(); return Iterator( sh->find( sh->node->next, x) ); }
     ConstIterator find ( const T& x ) const { return ConstIterator( sh->find( sh->node->next, x) ); }
     Iterator find ( Iterator it, const T& x ) { detach(); return Iterator( sh->find( it.node, x ) ); }
@@ -407,20 +501,11 @@ public:
 
     uint count() const { return sh->nodes; }
 
-    void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
-
-
     QValueList<T>& operator+= ( const T& x )
     {
 	append( x );
 	return *this;
     }
-    QValueList<T>& operator<< ( const T& x )
-    {
-	append( x );
-	return *this;
-    }
-
 
 protected:
     /**
@@ -433,6 +518,18 @@ protected:
      */
     QValueListPrivate<T>* sh;
 };
+
+#if 0
+#ifndef QT_NO_STL
+template <class T>
+inline bool operator<( const QValueList<T>& x,
+		       const QValueList<T>& y )
+{
+    return std::lexicographical_compare( x.begin(), x.end(),
+				    y.begin(), y.end() );
+}
+#endif
+#endif
 
 #ifndef QT_NO_DATASTREAM
 template<class T>

@@ -277,10 +277,10 @@ container and tool classes.</li>
 detach() them if you need to assign them between threads.</li>
 
 <li>Be wary of Qt classes which were not designed with thread safety in mind;
-for instance, QList's API is not thread-safe and if different threads
-need to iterate through a QList they should lock before calling
-QList::first() and unlock after reaching the end, rather than locking and
-unlocking around QList::next().</li>
+for instance, QPtrList's API is not thread-safe and if different threads
+need to iterate through a QPtrList they should lock before calling
+QPtrList::first() and unlock after reaching the end, rather than locking and
+unlocking around QPtrList::next().</li>
 
 <li>Be sure to create objects that inherit or use QWidget, QTimer and 
 QSocketNotifier objects only in the GUI thread.  On some platforms,

@@ -12,7 +12,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
-	qglist.obj qcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
+	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
 	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj
 
 #	$(LINK) $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
@@ -27,12 +27,12 @@ clean::
 	-del $(OBJS) $(QTOBJS)
 
 distclean:: clean
-	-del qmake 
+	-del qmake
 
-.c.obj: 
+.c.obj:
 	$(CXX) -c -o$@ $(CFLAGS) $<
 
-.cpp.obj: 
+.cpp.obj:
 	$(CXX) -c -o$@ $(CFLAGS) $<
 
 qtextstream.obj: $(QTDIR)\src\tools\qtextstream.cpp
@@ -65,8 +65,8 @@ qbuffer.obj: $(QTDIR)\src\tools\qbuffer.cpp
 qglist.obj: $(QTDIR)\src\tools\qglist.cpp
 	$(CXX) -c -o$@ $(CFLAGS) $(QTDIR)\src\tools\qglist.cpp
 
-qcollection.obj: $(QTDIR)\src\tools\qcollection.cpp
-	$(CXX) -c -o$@ $(CFLAGS) $(QTDIR)\src\tools\qcollection.cpp
+qptrcollection.obj: $(QTDIR)\src\tools\qptrcollection.cpp
+	$(CXX) -c -o$@ $(CFLAGS) $(QTDIR)\src\tools\qptrcollection.cpp
 
 qfile.obj: $(QTDIR)\src\tools\qfile.cpp
 	$(CXX) -c -o$@ $(CFLAGS) $(QTDIR)\src\tools\qfile.cpp

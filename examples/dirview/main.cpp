@@ -24,7 +24,7 @@ int main( int argc, char ** argv )
     mw.setTreeStepSize( 20 );
 
     const QFileInfoList* roots = QDir::drives();
-    QListIterator<QFileInfo> i(*roots);
+    QPtrListIterator<QFileInfo> i(*roots);
     QFileInfo* fi;
     while ( (fi = *i) ) {
 	++i;

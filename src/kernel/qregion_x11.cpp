@@ -468,11 +468,11 @@ struct _XRegion {
   The union of all the rectangles is equal to the original region.
 */
 
-QArray<QRect> QRegion::rects() const
+QMemArray<QRect> QRegion::rects() const
 {
-    QArray<QRect> a( (int)data->rgn->numRects );
+    QMemArray<QRect> a( (int)data->rgn->numRects );
     BOX *r = data->rgn->rects;
-    for ( int i=0; i<(int)a.size(); i++ ) { 
+    for ( int i=0; i<(int)a.size(); i++ ) {
 	a[i].setCoords( r->x1, r->y1, r->x2-1, r->y2-1);
 	r++;
     }

@@ -1679,7 +1679,7 @@ void MainWindow::fileCreateTemplate()
 	}
     }
 
-    QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	if ( w->isContainer )
 	    dia.listClass->insertItem( w->className );
@@ -2293,7 +2293,7 @@ QObjectList *MainWindow::runProject()
 			    return 0;
 			}
 		    }
-		    QList<SourceFile> sources = currentProject->sourceFiles();
+		    QPtrList<SourceFile> sources = currentProject->sourceFiles();
 		    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 			QStringList error;
 			QValueList<int> line;
@@ -2333,7 +2333,7 @@ QObjectList *MainWindow::runProject()
 
 	LanguageInterface *liface = MetaDataBase::languageInterface( lang );
 	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
-	    QList<SourceFile> sources = currentProject->sourceFiles();
+	    QPtrList<SourceFile> sources = currentProject->sourceFiles();
 	    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 		iiface->exec( f, f->text() );
 	    }
@@ -2342,14 +2342,14 @@ QObjectList *MainWindow::runProject()
 
     QObjectList *l = new QObjectList;
     if ( iiface ) {
-	QList<FormWindow> frms = currentProject->forms();
+	QPtrList<FormWindow> frms = currentProject->forms();
 	for ( FormWindow *fw = frms.first(); fw; fw = frms.next() ) {
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( fw, bps );
 	}
 
-	QList<SourceFile> files = currentProject->sourceFiles();
+	QPtrList<SourceFile> files = currentProject->sourceFiles();
 	for ( SourceFile *f = files.first(); f; f = files.next() ) {
 	    QValueList<int> bps = MetaDataBase::breakPoints( f );
 	    if ( !bps.isEmpty() )
@@ -3020,7 +3020,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
 
-    QList<SourceEditor> waitingForDelete;
+    QPtrList<SourceEditor> waitingForDelete;
     waitingForDelete.setAutoDelete( TRUE );
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->object() == w )
@@ -3598,7 +3598,7 @@ void MainWindow::writeConfig()
     ts << *this;
     f.close();
 
-    QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     config.writeEntry( keybase + "CustomWidgets/num", (int)lst->count() );
     int j = 0;
     QDir::home().mkdir( ".designer" );
@@ -4046,7 +4046,7 @@ void MainWindow::rebuildCustomWidgetGUI()
     customWidgetToolBar->clear();
     customWidgetMenu->clear();
     int count = 0;
-    QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
 
     actionToolsCustomWidget->addTo( customWidgetMenu );
     customWidgetMenu->insertSeparator();
@@ -4468,9 +4468,9 @@ void MainWindow::setupRecentlyProjectsMenu()
     }
 }
 
-QList<DesignerProject> MainWindow::projectList() const
+QPtrList<DesignerProject> MainWindow::projectList() const
 {
-    QList<DesignerProject> list;
+    QPtrList<DesignerProject> list;
     QMapConstIterator<QAction*, Project*> it = projects.begin();
 
     while( it != projects.end() ) {
@@ -4748,7 +4748,7 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
     }
 
     if ( !found ) {
-	QList<SourceFile> sources = currentProject->sourceFiles();
+	QPtrList<SourceFile> sources = currentProject->sourceFiles();
 	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 	    if ( f == o ) {
 		editSource( f );

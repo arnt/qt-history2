@@ -39,7 +39,7 @@
 #define QDIR_H
 
 #ifndef QT_H
-#include "qstrlist.h"
+#include "qptrstrlist.h"
 #include "qfileinfo.h"
 #include "qglobal.h"
 #include "qwindowdefs.h"
@@ -47,8 +47,8 @@
 
 
 #ifndef QT_NO_DIR
-typedef QList<QFileInfo> QFileInfoList;
-typedef QListIterator<QFileInfo> QFileInfoListIterator;
+typedef QPtrList<QFileInfo> QFileInfoList;
+typedef QPtrListIterator<QFileInfo> QFileInfoListIterator;
 class QStringList;
 
 
@@ -123,10 +123,10 @@ public:
 
     uint count() const;
     QString	operator[]( int ) const;
-    
-    virtual QStrList encodedEntryList( int filterSpec = DefaultFilter,
+
+    virtual QPtrStrList encodedEntryList( int filterSpec = DefaultFilter,
 				       int sortSpec   = DefaultSort  ) const;
-    virtual QStrList encodedEntryList( const QString &nameFilter,
+    virtual QPtrStrList encodedEntryList( const QString &nameFilter,
 				       int filterSpec = DefaultFilter,
 				       int sortSpec   = DefaultSort   ) const;
     virtual QStringList entryList( int filterSpec = DefaultFilter,

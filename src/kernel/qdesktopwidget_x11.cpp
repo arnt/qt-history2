@@ -14,7 +14,7 @@ public:
     int screenCount;
 
     QWidget **screens;
-    QArray<QRect> rects;
+    QMemArray<QRect> rects;
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()

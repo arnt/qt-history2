@@ -151,11 +151,11 @@
   the item itself. This is called a shallow copy. It is possible to make the
   dictionary copy all of the item's data (known as a deep copy) when an
   item is inserted.  insert() calls the virtual function
-  QCollection::newItem() for the item to be inserted.
+  QPtrCollection::newItem() for the item to be inserted.
   Inherit a dictionary and reimplement it if you want deep copies.
 
   When removing a dictionary item, the virtual function
-  QCollection::deleteItem() is called.  QAsciiDict's default implementation
+  QPtrCollection::deleteItem() is called.  QAsciiDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
   \sa QAsciiDictIterator, QDict, QIntDict, QPtrDict,
@@ -283,7 +283,7 @@
   If there are two or more items with equal keys, then the last inserted
   of these will be removed.
 
-  The removed item is deleted if \link QCollection::setAutoDelete()
+  The removed item is deleted if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
 
   All dictionary iterators that refer to the removed item will be set to
@@ -296,7 +296,7 @@
   \fn type *QAsciiDict::take( const char *key )
 
   Takes the item associated with \e key out of the dictionary without
-  deleting it (even if \link QCollection::setAutoDelete()
+  deleting it (even if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled).
 
   If there are two or more items with equal keys, then the last inserted
@@ -316,7 +316,7 @@
 
   Removes all items from the dictionary.
 
-  The removed items are deleted if \link QCollection::setAutoDelete()
+  The removed items are deleted if \link QPtrCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
 
   All dictionary iterators that operate on dictionary are reset.

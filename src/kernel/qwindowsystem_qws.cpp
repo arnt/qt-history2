@@ -132,7 +132,7 @@ QWSClient::QWSClient( QObject* parent, int socket )
     }
 #else
     isClosed = FALSE;
-#endif //QT_NO_QWS_MULTIPROCESS    
+#endif //QT_NO_QWS_MULTIPROCESS
 }
 
 QWSClient::~QWSClient()
@@ -161,7 +161,7 @@ void QWSClient::errorHandler( int err )
 	s = "Socket Read";
 	break;
     }
-#endif    
+#endif
     //qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
     isClosed = TRUE;
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -182,8 +182,8 @@ void QWSClient::sendEvent( QWSEvent* event )
     if ( csocket ) {
 	event->write( csocket );
 	csocket->flush();
-    } 
-    else 
+    }
+    else
 #endif
     {
 	qt_client_enqueue( event );
@@ -261,17 +261,17 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
 #ifndef QT_NO_SOUND
 #ifdef QT_USE_OLD_QWS_SOUND
 
-        /*
-        ***
-        ****
+	/*
+	***
+	****
 *************
 **********
 **********  WARNING:  This code is obsoleted by tests/qsound,
 **********            which will soobn be used instead.
 *************
-        ****
-        ***
-        */
+	****
+	***
+	*/
 
 struct QRiffChunk {
     char id[4];
@@ -418,7 +418,7 @@ public:
 	QWSSoundServerBucket* bucket;
 	int available = sound_buffer_size;
 	int n = 0;
-	QListIterator<QWSSoundServerBucket> it(active);
+	QPtrListIterator<QWSSoundServerBucket> it(active);
 	for (; (bucket = *it);) {
 	    ++it;
 	    int m = bucket->max();
@@ -520,7 +520,7 @@ private:
 	}
     }
 
-    QList<QWSSoundServerBucket> active;
+    QPtrList<QWSSoundServerBucket> active;
     QSocketNotifier* sn;
     QWSSoundServer* server;
 };
@@ -617,7 +617,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #endif
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    
+
     if ( !geteuid() ) {
 	if(mount(0,"/var/shm","shm",0,0)) {
 	    /* This just confuses people with 2.2 kernels
@@ -627,7 +627,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 	}
     }
 #endif
-    
+
     // no selection yet
     selectionOwner.windowid = -1;
     selectionOwner.time.set( -1, -1, -1, -1 );
@@ -699,7 +699,7 @@ void QWSServer::clientClosed()
     QWSClient* cl = (QWSClient*)sender();
 
     // Remove any queued commands for this client
-    QListIterator<QWSCommandStruct> it(commandQueue);
+    QPtrListIterator<QWSCommandStruct> it(commandQueue);
     for (QWSCommandStruct* cs = it.current(); (cs=*it); ++it ) {
 	if ( cs->client == cl ) {
 	    commandQueue.removeRef(cs);
@@ -710,12 +710,12 @@ void QWSServer::clientClosed()
 #ifndef QT_NO_COP
     // Enfore unsubscription from all channels.
     QCopChannel::detach( cl );
-#endif    
-    
+#endif
+
     QRegion exposed;
     {
 	// Shut down all windows for this client
-	QListIterator<QWSWindow> it( windows );
+	QPtrListIterator<QWSWindow> it( windows );
 	QWSWindow* w;
 	while (( w = it.current() )) {
 	    ++it;
@@ -725,7 +725,7 @@ void QWSServer::clientClosed()
     }
     {
 	// Delete all windows for this client
-	QListIterator<QWSWindow> it( windows );
+	QPtrListIterator<QWSWindow> it( windows );
 	QWSWindow* w;
 	while (( w = it.current() )) {
 	    ++it;
@@ -785,13 +785,13 @@ QWSCommand* QWSClient::readMoreCommand()
 
 	// Not finished reading a whole command.
 	return 0;
-    } 
-    else 
-#endif    
+    }
+    else
+#endif
     {
 	return qt_get_server_queue()->dequeue();
     }
-    
+
 }
 
 
@@ -955,7 +955,7 @@ void QWSServer::refresh()
 void QWSServer::setMaxWindowRect(const QRect& r)
 {
     QRect tr = qt_screen->mapToDevice(r,
-        QSize(qt_screen->width(),qt_screen->height()));
+	QSize(qt_screen->width(),qt_screen->height()));
     if ( maxwindow_rect != tr ) {
 	maxwindow_rect = tr;
 	sendMaxWindowRectEvents();
@@ -1052,9 +1052,9 @@ void QWSServer::setMouseHandler(QWSMouseHandler* mh)
     qwsServer->mousehandlers.prepend(mh);
 }
 
-QList<QWSInternalWindowInfo> * QWSServer::windowList()
+QPtrList<QWSInternalWindowInfo> * QWSServer::windowList()
 {
-    QList<QWSInternalWindowInfo> * ret=new QList<QWSInternalWindowInfo>;
+    QPtrList<QWSInternalWindowInfo> * ret=new QPtrList<QWSInternalWindowInfo>;
     ret->setAutoDelete(true);
     QWSWindow * window;
     for(window=qwsServer->windows.first();window!=0;
@@ -1092,7 +1092,7 @@ void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
 			       bool response )
 {
     Q_ASSERT( c );
-    
+
     QWSQCopMessageEvent event;
     event.simpleData.is_response = response;
     event.simpleData.lchannel = ch.length();
@@ -1109,7 +1109,7 @@ void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
     memcpy( d, msg.data(), event.simpleData.lmessage );
     d += event.simpleData.lmessage;
     memcpy( d, data.data(), event.simpleData.ldata );
-    
+
     event.setData( raw.data(), l );
 
     c->sendEvent( &event );
@@ -1273,7 +1273,7 @@ void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client )
 
     if ( !changingw->forClient(client) ) {
        qWarning("Disabled: clients changing other client's focus");
-        return;
+	return;
     }
 
     setFocus(changingw, gain);
@@ -1336,11 +1336,11 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
 	lowerWindow( changingw, alt );
     else
 	raiseWindow( changingw, alt );
-    
+
     if ( !changingw->forClient(client) ) {
 	refresh();
     }
-    
+
 }
 #ifndef QT_NO_QWS_PROPERTIES
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
@@ -1439,7 +1439,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
     int id = cmd->simpleData.id;
     QWSCursor *curs = 0;
     if (id <= LastCursor) {
-        curs = QWSCursor::systemCursor(id);
+	curs = QWSCursor::systemCursor(id);
     }
     else {
 	QWSCursorMap cursMap = client->cursors;
@@ -1454,7 +1454,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 
     if (mouseGrabber) {
 	// If the mouse is being grabbed, we don't want just anyone to
-        // be able to change the cursor.  We do want the cursor to be set
+	// be able to change the cursor.  We do want the cursor to be set
 	// correctly once mouse grabbing is stopped though.
 	QWSWindow* win = findWindow(cmd->simpleData.windowid, client);
 	if (win != mouseGrabber)
@@ -1725,7 +1725,7 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     cr = qt_screen->mapFromDevice( cr, s );
     QPoint p1 = qt_screen->mapFromDevice( QPoint(0, 0), s );
     QPoint p2 = qt_screen->mapFromDevice( QPoint(dx, dy), s );
-    
+
     QRect br( cr.boundingRect() );
     gfx->setClipRegion( cr );
     gfx->scroll( br.x(), br.y(), br.width(), br.height(),
@@ -2057,7 +2057,7 @@ void QWSServer::setDesktopBackground( const QColor &c )
 	delete bgImage;
 	bgImage = 0;
     }
-	
+
     if ( qwsServer )
 	qwsServer->refreshBackground();
 }

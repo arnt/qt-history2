@@ -38,7 +38,7 @@
 #include "qlock_qws.h"
 #include "qwindowdefs.h"
 
-#include "qlist.h"
+#include "qptrlist.h"
 
 // Class forward definitions
 class QWSRegionManager;
@@ -87,7 +87,7 @@ public:
     void removeProperty( int winId, int property );
     bool getProperty( int winId, int property, char *&data, int &len );
 
-    QList<QWSWindowInfo> * windowList();
+    QPtrList<QWSWindowInfo> * windowList();
 
     void requestRegion( int winId, QRegion );
     void moveRegion( int winId, int dx, int dy );
@@ -104,7 +104,7 @@ public:
     void playSoundFile( const QString& );
     void registerChannel( const QCString& channel );
     void sendMessage(const QCString &channel, const QCString &msg,
-                       const QByteArray &data );
+		       const QByteArray &data );
 
     QWSQCopMessageEvent* waitForQCopResponse();
 

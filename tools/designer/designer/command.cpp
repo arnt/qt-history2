@@ -38,7 +38,7 @@
 #include <qlistbox.h>
 #include <qiconview.h>
 #include <qmultilineedit.h>
-#include <qstack.h>
+#include <qptrstack.h>
 #include <qheader.h>
 #ifndef QT_NO_TABLE
 #include <qtable.h>
@@ -78,7 +78,7 @@ void CommandHistory::addCommand( Command *cmd, bool tryCompress )
 	if ( current < savedAt )
 	    savedAt = -2;
 
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	commands.setAutoDelete( FALSE );
 
 	for( int i = 0; i <= current; ++i ) {
@@ -771,7 +771,7 @@ void BreakLayoutCommand::unexecute()
 // ------------------------------------------------------------
 
 MacroCommand::MacroCommand( const QString &n, FormWindow *fw,
-			    const QList<Command> &cmds )
+			    const QPtrList<Command> &cmds )
     : Command( n, fw ), commands( cmds )
 {
 }
@@ -1304,10 +1304,10 @@ void PopulateListViewCommand::transferItems( QListView *from, QListView *to )
     }
 
     QListViewItemIterator it( from );
-    QStack<QListViewItem> fromParents, toParents;
+    QPtrStack<QListViewItem> fromParents, toParents;
     fromParents.push( 0 );
     toParents.push( 0 );
-    QStack<QListViewItem> toLasts;
+    QPtrStack<QListViewItem> toLasts;
     QListViewItem *fromLast = 0;
     toLasts.push( 0 );
     int cols = from->columns();

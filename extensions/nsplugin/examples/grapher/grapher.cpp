@@ -8,7 +8,7 @@
 #include <qpixmap.h>
 #include <qmenubar.h>
 #include <qpushbutton.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qmessagebox.h>
 
 // Include some C library functions.
@@ -35,7 +35,7 @@ public:
 	QString* str;
     };
 
-    virtual QList<Datum>& graphData()=0;
+    virtual QPtrList<Datum>& graphData()=0;
     virtual ColType colType(int col) const=0;
     virtual int nCols() const=0;
 };
@@ -123,7 +123,7 @@ Graph::Graph( GraphModel& mdl ) :
 
     menubar->insertItem("Style", stylemenu);
     menubar->insertSeparator();
-     
+
     QPopupMenu* help = new QPopupMenu;
     help->insertItem( "About plugin...", this, SIGNAL(aboutPlugin()) );
     help->insertItem( "About data...", this, SIGNAL(aboutData()) );
@@ -189,7 +189,7 @@ void Graph::paintBar(QPaintEvent* event)
 	return;
     }
 
-    QList<GraphModel::Datum>& data = model.graphData();
+    QPtrList<GraphModel::Datum>& data = model.graphData();
 
     double max = 0.0;
 
@@ -222,8 +222,8 @@ void Graph::paintBar(QPaintEvent* event)
 	    int bw = (w-w/4-x)/(data.count()-i);
 	    int bh = int((h-h/4-1)*rowdata[0].dbl/max);
 	    p.drawRect( w/8+x, h-h/8-1-bh, bw, bh );
-	    
-	    // ### This causes a crash, so comment out for now	    
+
+	    // ### This causes a crash, so comment out for now
 	    /*if (model.colType(1) == GraphModel::Label) {
 		p.drawText(w/8+x, h-h/8, bw, fh+h/8,
 		    WordBreak|AlignTop|AlignHCenter,
@@ -271,7 +271,7 @@ void Graph::paintPie(QPaintEvent* event)
 	return;
     }
 
-    QList<GraphModel::Datum>& data = model.graphData();
+    QPtrList<GraphModel::Datum>& data = model.graphData();
 
     double total = 0.0;
 
@@ -326,7 +326,7 @@ void Graph::paintPie(QPaintEvent* event)
 	    double a = rowdata[0].dbl * 360 / total * M_PI / 180;
 	    int x = int(cos(apos+a/2)*w*5/16 + w/2 + 0.5);
 	    int y = int(sin(apos+a/2)*h*5/16 + h/2 + 0.5);
-	    
+
 	    // ### This causes a crash, so comment out for now
 	    /*p.drawText(x-w/8, y-h/8, w/4, h/4,
 		WordBreak|AlignCenter,
@@ -403,12 +403,12 @@ private:
     // Grapher is a GraphModel, so it implements the pure virtual
     // functions of that class.
     //
-    QList<Datum>& graphData();
+    QPtrList<Datum>& graphData();
     ColType colType(int col) const;
     int nCols() const;
 
     void consumeLine();
-    QList<Datum> data;
+    QPtrList<Datum> data;
     QBuffer line;
     bool firstline;
     int ncols;
@@ -433,7 +433,7 @@ Grapher::~Grapher()
 {
 }
 
-QList<GraphModel::Datum>& Grapher::graphData()
+QPtrList<GraphModel::Datum>& Grapher::graphData()
 {
     return data;
 }
@@ -482,7 +482,7 @@ void Grapher::consumeLine()
     if (firstline) {
 	firstline = FALSE;
 	ncols=0;
-	QList<ColType> typelist;
+	QPtrList<ColType> typelist;
 	typelist.setAutoDelete(TRUE);
 	do {
 	    QString typestr;

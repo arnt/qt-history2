@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qurl.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qnetworkprotocol.h"
 #include "qstringlist.h" // QString->QStringList conversion
 #endif // QT_H
@@ -72,7 +72,7 @@ public:
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *get( const QString &location = QString::null );
     virtual const QNetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
-    virtual QList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
+    virtual QPtrList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
     virtual void copy( const QStringList &files, const QString &dest, bool move = FALSE );
     virtual bool isDir( bool *ok = 0 );
 
@@ -95,7 +95,7 @@ signals:
     void itemChanged( QNetworkOperation *res );
     void data( const QByteArray &, QNetworkOperation *res );
     void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
-    void startedNextCopy( const QList<QNetworkOperation> &lst );
+    void startedNextCopy( const QPtrList<QNetworkOperation> &lst );
     void connectionStateChanged( int state, const QString &data );
 
 protected:

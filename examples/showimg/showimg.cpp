@@ -43,7 +43,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     menubar = new QMenuBar(this);
     menubar->setSeparator( QMenuBar::InWindowsStyle );
 
-    QStrList fmt = QImage::outputFormats();
+    QPtrStrList fmt = QImage::outputFormats();
     saveimage = new QPopupMenu( menubar );
     savepixmap = new QPopupMenu( menubar );
     for (const char* f = fmt.first(); f; f = fmt.next()) {
@@ -461,7 +461,7 @@ void ImageViewer::scale()
 void ImageViewer::resizeEvent( QResizeEvent * )
 {
     status->setGeometry(0, height() - status->height(),
-		        width(), status->height());
+			width(), status->height());
 
     if ( pm.size() == QSize( 0, 0 ) )		// we couldn't load the image
 	return;

@@ -124,7 +124,7 @@
   previously set, \e not the attributes of the actual window system
   font that will be used for drawing. Information about
   the font that will be used for drawing can be obtained by using QFontInfo, but be
-  aware that QFontInfo may be slow and that its results depend on 
+  aware that QFontInfo may be slow and that its results depend on
   which fonts are installed.
 
   In general font handling and loading are costly operations,
@@ -210,7 +210,7 @@
   The QFont::Script enum represents \link unicode.html Unicode \endlink
   allocated scripts. For exhaustive
   coverage see \link http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t
-  The Unicode Standard Version 3.0 \endlink. 
+  The Unicode Standard Version 3.0 \endlink.
   The following scripts are supported:
 
   Modern European alphabetic scripts (left to right):
@@ -221,93 +221,93 @@
   \value Armenian contains the Armenian alphabet used with the Armenian language.
   \value Georgian covers at least the language Georgian.
   \value Runic covers the known constituents of the Runic alphabets used
-         by the early and medieval societies in the Germanic, Scandinavian, and Anglo-Saxon
-         areas.
+	 by the early and medieval societies in the Germanic, Scandinavian, and Anglo-Saxon
+	 areas.
   \value Ogham is an alphabetical script used to write a very early form of Irish.
-  \value SpacingModifiers are small signs indicating modifications of a preceeding letter. 
+  \value SpacingModifiers are small signs indicating modifications of a preceeding letter.
   \value CombiningMarks consists of diacritical marks not specific to a particular alphabet,
-         diacritical marks used in combination with mathematical and technical symbols,
-         and glyph encodings applied to multiple letterforms.
+	 diacritical marks used in combination with mathematical and technical symbols,
+	 and glyph encodings applied to multiple letterforms.
 
   Middle Eastern scripts (right to left):
 
-  \value Hebrew is used for writing Hebrew, Yiddish, and some other languages.  
+  \value Hebrew is used for writing Hebrew, Yiddish, and some other languages.
   \value Arabic covers the Arabic language as well as Persian, Urdu, Kurdish and some
-         others.
+	 others.
   \value Syriac is used to write the active liturgical languages and dialects of several
-         Middle Eastern and Southeast Indian communities.
+	 Middle Eastern and Southeast Indian communities.
   \value Thaana is used to write the Maledivian Dhivehi language.
 
   South and Southeast Asian scripts (left to right with few historical exceptions):
 
   \value Devanagari covers classical Sanskrit and modern Hindi as well as several other
-         languages.
+	 languages.
   \value Bengali is a relative to Devanagari employed to write the Bengali language
-         used in West Bengal/India and Bangladesh as well as several minority languages.
+	 used in West Bengal/India and Bangladesh as well as several minority languages.
   \value Gurmukhi is another Devanagari relative used to write Punjabi.
   \value Gujarati is closely related to Devanagari and used to write the Gujarati
-         language of the Gujarat state in India.
+	 language of the Gujarat state in India.
   \value Oriya is used to write the Oriya language of Orissa state/India.
   \value Tamil is used to write the Tamil language of Tamil Nadu state/India,
-         Sri Lanka, Singapore and parts of Malaysia as well as some minority languages.
+	 Sri Lanka, Singapore and parts of Malaysia as well as some minority languages.
   \value Telugu is used to write the Telugu language of Andhra Pradesh state/India
-         and some minority languages.
+	 and some minority languages.
   \value Kannada is another South Indian script used to write the Kannada language of
-         Karnataka state/India and some minority languages.
+	 Karnataka state/India and some minority languages.
   \value Malayalam is used to write the Malayalam language of Kerala state/India.
   \value Sinhala is used for Sri Lanka's majority language Sinhala and is also employed
-         to write Pali, Sanskrit, and Tamil.
-  \value Thai is used to write Thai and other Southeast Asian languages. 
+	 to write Pali, Sanskrit, and Tamil.
+  \value Thai is used to write Thai and other Southeast Asian languages.
   \value Lao is a language and script quite similar to Thai.
-  \value Tibetan is the script used to write Tibetan in several countries like Tibet, 
-         the bordering Indian regions, or Nepal. It is also used in the Buddist
-         philosophy and liturgy of the Mongolian cultural area.
+  \value Tibetan is the script used to write Tibetan in several countries like Tibet,
+	 the bordering Indian regions, or Nepal. It is also used in the Buddist
+	 philosophy and liturgy of the Mongolian cultural area.
   \value Myanmar is mainly used to write the Burmese language of Myanmar (former Burma).
   \value Khmer is the official language of Kampuchea.
 
   East Asian scripts (traditionally top-down, right to left, modern often horizontal
-         left to right):
+	 left to right):
 
   \value Han consists of the CJK (Chinese, Japanese, Korean) idiographic characters.
   \value Hiragana is a cursive syllabary used to indicate phonetics and pronounciation
-         of Japanese words.
+	 of Japanese words.
   \value Katakana is a non-cursive syllabic script used to write Japanese words with
-         visual emphasis and non-Japanese words in a phonetical manner.
+	 visual emphasis and non-Japanese words in a phonetical manner.
   \value Hangul is a Korean script consisting of alphabetic components.
   \value Bopomofo is a phonetic alphabet for Chinese
-         (mainly Mandarin). 
+	 (mainly Mandarin).
   \value Yi (also called Cuan or Wei) is a syllabary used to write the Yi language
-         of Southwestern China, Myanmar, Laos, and Vietnam.  
+	 of Southwestern China, Myanmar, Laos, and Vietnam.
 
   Additional scripts that do not fit well into the script categories above:
 
-  \value Ethiopic is a syllabary used by several Central East African languages.  
+  \value Ethiopic is a syllabary used by several Central East African languages.
   \value Cherokee is a left-to-right syllabic script used to write the Cherokee language.
   \value CanadianAboriginal consists of the syllabics used by some Canadian aboriginal societies.
-  \value Mongolian is the traditional (and recently reintroduced) script used to write Mongolian. 
+  \value Mongolian is the traditional (and recently reintroduced) script used to write Mongolian.
 
   Symbols:
 
   \value CurrencySymbols contains currency symbols not encoded in other scripts.
   \value LetterlikeSymbols consists of symbols derived  from ordinary letters of an
-         alphabetical script.                  
+	 alphabetical script.
   \value NumberForms are provided for compatibility with other existing character sets.
   \value MathematicalOperators consists of encodings for operators,
-         relations and other symbols like arrows used in a mathematical context.
+	 relations and other symbols like arrows used in a mathematical context.
   \value TechnicalSymbols contains representations for control codes, the space symbol,
-         APL symbols and other symbols mainly used in the context of electronic data 
-         processing.
+	 APL symbols and other symbols mainly used in the context of electronic data
+	 processing.
   \value GeometricSymbols covers block elements and geometric shapes.
   \value MiscellaneousSymbols consists of a heterogeneous collection of symbols that
-         do not fit any other Unicode character block, e.g. Dingbats.
+	 do not fit any other Unicode character block, e.g. Dingbats.
   \value EnclosedAndSquare is provided for compatibility with some East Asian standards.
   \value Braille is an international writing system used by blind people. This script encodes
-         the 256 eight-dot patterns with the 64 six-dot patterns as a subset.
+	 the 256 eight-dot patterns with the 64 six-dot patterns as a subset.
 
 
   \value Unicode includes all the above scripts.
 
-  The values below are provided for completeness and must not be used in user programs.  
+  The values below are provided for completeness and must not be used in user programs.
 
   \value HanX11 For internal use only.
   \value LatinBasic For internal use only.
@@ -371,7 +371,7 @@ QFont::QFont()
 
 
 /*! Constructs a font object with the specified \a family, \a pointSize,
-  \a weight and \a italic settings. 
+  \a weight and \a italic settings.
 
   If \a pointSize is less than or equal to 0 it is set to 1.
 
@@ -513,7 +513,7 @@ int QFont::pointSize() const
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
-  \sa pointSize(), QFontInfo, setPixelSize() 
+  \sa pointSize(), QFontInfo, setPixelSize()
 */
 void QFont::setPointSize( int pointSize )
 {
@@ -560,7 +560,7 @@ void QFont::setPointSizeFloat( float pointSize )
 }
 
 
-/*! Returns the requested height of characters in the font in points (1/72 inch). 
+/*! Returns the requested height of characters in the font in points (1/72 inch).
   If the font size was determined in pixels, this function returns -1.
 
   \sa pointSize() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
@@ -669,7 +669,7 @@ int QFont::weight() const
 
   Qt uses a weighting scale from 0 to 99 similar but not
   equal to the scales used in Windows or CSS. A thickness of
-  0 leads to an ultralight, 99 to an extremely black font. 
+  0 leads to an ultralight, 99 to an extremely black font.
 
   This enum contains the predefined font weights:
 
@@ -860,7 +860,7 @@ QFont::StyleHint QFont::styleHint() const
   \value SansSerif prefers sans serif fonts.
   \value Helvetica indicates the same as \c SansSerif.
 
-  \value Serif chooses fonts with serifs if possible.  
+  \value Serif chooses fonts with serifs if possible.
   \value Times is the same as \c Serif.
 
   \value TypeWriter prefers fixed-pitch fonts.
@@ -869,7 +869,7 @@ QFont::StyleHint QFont::styleHint() const
   \value OldEnglish chooses decorative fonts preferably.
   \value Decorative is the same as \c OldEnglish.
 
-  \value System defers to system fonts. 
+  \value System defers to system fonts.
 */
 
 /*! \enum QFont::StyleStrategy
@@ -879,25 +879,25 @@ QFont::StyleHint QFont::styleHint() const
 
   The following strategies are available:
 
-  \value PreferDefault is the default style strategy. It does not prefer 
-         any type of font.
+  \value PreferDefault is the default style strategy. It does not prefer
+	 any type of font.
   \value PreferBitmap prefers bitmap fonts (as opposed to outline fonts).
   \value PreferDevice prefers device fonts.
   \value PreferOutline prefers outline fonts (as opposed to bitmap fonts).
   \value ForceOutline forces the use of outline fonts.
 
-  Any of these may be ORed with an indicator whether 
+  Any of these may be ORed with an indicator whether
   \value PreferMatch exact matching or
   \value PreferQuality good quality should be preferred.
 
-  Whilst all strategies work on Windows, \c PreferDefault and \c PreferBitmap are 
+  Whilst all strategies work on Windows, \c PreferDefault and \c PreferBitmap are
   the only ones currently supported with X11.
 */
 
 /*! Sets the style hint and strategy to \a hint and \a strategy,
   respectively.
 
-  Without explicit setting of a style hint \link StyleHint AnyStyle\endlink 
+  Without explicit setting of a style hint \link StyleHint AnyStyle\endlink
   is used.
 
   The style strategy defaults to \link StyleStrategy PreferDefault.\endlink
@@ -1046,7 +1046,7 @@ QString QFont::lastResortFont() const
 }
 
 
-/*! Returns whether raw mode is used for font name matching (TRUE) or not (FALSE). 
+/*! Returns whether raw mode is used for font name matching (TRUE) or not (FALSE).
 
   \sa setRawMode() rawName()
 */
@@ -1158,7 +1158,7 @@ QString QFont::substitute( const QString &familyName )
   (Code taken from \link simple-font-demo-example.html
    fonts/simple-qfont-demo/viewer.cpp \endlink)
 
-   \sa substitute() insertSubstitutions() insertSubstitution() removeSubstitution() 
+   \sa substitute() insertSubstitutions() insertSubstitution() removeSubstitution()
  */
 QStringList QFont::substitutes(const QString &familyName)
 {
@@ -1503,7 +1503,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
 // with non-null painter pointers, and no other objects.  Callers of
 // these functions must maintain this invariant.
 
-typedef QList<QFontMetrics> QFontMetricsList;
+typedef QPtrList<QFontMetrics> QFontMetricsList;
 static QFontMetricsList *fm_list = 0;
 
 QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
@@ -1536,7 +1536,7 @@ static void removeFontMetrics( QFontMetrics *fm )
 void QFontMetrics::reset( const QPainter *painter )
 {
     if ( fm_list ) {
-	QListIterator<QFontMetrics> it( *fm_list );
+	QPtrListIterator<QFontMetrics> it( *fm_list );
 	QFontMetrics * fm;
 	while( (fm=it.current()) != 0 ) {
 	    ++it;
@@ -1846,7 +1846,7 @@ QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
 // with non-null painter pointers, and no other objects.  Callers of
 // these functions must maintain this invariant.
 
-typedef QList<QFontInfo> QFontInfoList;
+typedef QPtrList<QFontInfo> QFontInfoList;
 static QFontInfoList *fi_list = 0;
 
 QCleanupHandler<QFontInfoList> qfont_cleanup_fontinfolist;
@@ -1880,7 +1880,7 @@ static void removeFontInfo( QFontInfo *fi )
 void QFontInfo::reset( const QPainter *painter )
 {
     if ( fi_list ) {
-	QListIterator<QFontInfo> it( *fi_list );
+	QPtrListIterator<QFontInfo> it( *fi_list );
 	QFontInfo * fi;
 	while( (fi=it.current()) != 0 ) {
 	    ++it;
@@ -2827,5 +2827,3 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
     // return QFont::UnknownScript;
     return QFont::Unicode;
 }
-
-

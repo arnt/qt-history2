@@ -379,14 +379,14 @@ better alternative.  Here is an example of illegal syntax:
         Q_OBJECT
     [...]
     public slots:
-        void apply(void (*applyFunction)(QList*, void*), char*); // illegal
+        void apply(void (*applyFunction)(QPtrList*, void*), char*); // illegal
     };
 \endcode
 
 <p>
 You can work around this restriction like this:
 \code
-    typedef void (*ApplyFunctionType)(QList*, void*);
+    typedef void (*ApplyFunctionType)(QPtrList*, void*);
 
     class someClass : public QObject {
         Q_OBJECT

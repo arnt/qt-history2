@@ -39,7 +39,7 @@
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qgif.h"
 #include <stdlib.h>
 
@@ -264,7 +264,7 @@ public:
     static void ensureFactories()
     {
 	if ( !factories ) {
-	    factories = new QList<QImageFormatType>;
+	    factories = new QPtrList<QImageFormatType>;
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 	    gif_decoder_factory = new QGIFFormatType;
@@ -273,7 +273,7 @@ public:
 	}
     }
 
-    static QList<QImageFormatType> * factories;
+    static QPtrList<QImageFormatType> * factories;
 
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
@@ -284,7 +284,7 @@ public:
     int count;
 };
 
-QList<QImageFormatType> * QImageDecoder::Private::factories = 0;
+QPtrList<QImageFormatType> * QImageDecoder::Private::factories = 0;
 // See qgif.h for important information regarding this option
 #if defined(QT_BUILTIN_GIF_READER) && QT_BUILTIN_GIF_READER == 1
 QGIFFormatType * QImageDecoder::Private::gif_decoder_factory = 0;
@@ -417,11 +417,11 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 /*!
   Returns a sorted list of formats for which asynchronous loading is supported.
 */
-QStrList QImageDecoder::inputFormats()
+QPtrStrList QImageDecoder::inputFormats()
 {
     Private::ensureFactories();
 
-    QStrList result;
+    QPtrStrList result;
 
     for (QImageFormatType* f = Private::factories->first();
 	 f;

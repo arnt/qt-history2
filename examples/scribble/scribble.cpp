@@ -35,7 +35,7 @@ Canvas::Canvas( QWidget *parent, const char *name )
 {
 
     if ((qApp->argc() > 0) && !buffer.load(qApp->argv()[1]))
-    	buffer.fill( colorGroup().base() );
+	buffer.fill( colorGroup().base() );
     setBackgroundMode( QWidget::PaletteBase );
 #ifndef QT_NO_CURSOR
     setCursor( Qt::crossCursor );
@@ -68,23 +68,23 @@ void Canvas::mouseReleaseEvent( QMouseEvent * )
 void Canvas::mouseMoveEvent( QMouseEvent *e )
 {
     if ( mousePressed ) {
-        QPainter painter;
-        painter.begin( &buffer );
-        painter.setPen( pen );
-        polyline[2] = polyline[1];
-        polyline[1] = polyline[0];
-        polyline[0] = e->pos();
-        painter.drawPolyline( polyline );
-        painter.end();
+	QPainter painter;
+	painter.begin( &buffer );
+	painter.setPen( pen );
+	polyline[2] = polyline[1];
+	polyline[1] = polyline[0];
+	polyline[0] = e->pos();
+	painter.drawPolyline( polyline );
+	painter.end();
 
-        QRect r = polyline.boundingRect();
-        r = r.normalize();
-        r.setLeft( r.left() - penWidth() );
-        r.setTop( r.top() - penWidth() );
-        r.setRight( r.right() + penWidth() );
-        r.setBottom( r.bottom() + penWidth() );
+	QRect r = polyline.boundingRect();
+	r = r.normalize();
+	r.setLeft( r.left() - penWidth() );
+	r.setTop( r.top() - penWidth() );
+	r.setRight( r.right() + penWidth() );
+	r.setBottom( r.bottom() + penWidth() );
 
-        bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
+	bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
     }
 }
 
@@ -93,9 +93,9 @@ void Canvas::resizeEvent( QResizeEvent *e )
     QWidget::resizeEvent( e );
 
     int w = width() > buffer.width() ?
-            width() : buffer.width();
+	    width() : buffer.width();
     int h = height() > buffer.height() ?
-            height() : buffer.height();
+	    height() : buffer.height();
 
     QPixmap tmp( buffer );
     buffer.resize( w, h );
@@ -107,7 +107,7 @@ void Canvas::paintEvent( QPaintEvent *e )
 {
     QWidget::paintEvent( e );
 
-    QArray<QRect> rects = e->region().rects();
+    QMemArray<QRect> rects = e->region().rects();
     for ( uint i = 0; i < rects.count(); i++ ) {
 	QRect r = rects[(int)i];
 	bitBlt( this, r.x(), r.y(), &buffer, r.x(), r.y(), r.width(), r.height() );
@@ -152,8 +152,8 @@ void Scribble::slotSave()
     formats.setAutoDelete( TRUE );
 
     for ( unsigned int i = 0; i < QImageIO::outputFormats().count(); i++ ) {
-        QString str = QString( QImageIO::outputFormats().at( i ) );
-        formats.insert( menu->insertItem( QString( "%1..." ).arg( str ) ), new QString( str ) );
+	QString str = QString( QImageIO::outputFormats().at( i ) );
+	formats.insert( menu->insertItem( QString( "%1..." ).arg( str ) ), new QString( str ) );
     }
 
     menu->setMouseTracking( TRUE );

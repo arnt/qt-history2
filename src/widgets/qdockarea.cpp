@@ -79,7 +79,7 @@ QSize QDockAreaLayout::sizeHint() const
 
     int w = 0;
     int h = 0;
-    QListIterator<QDockWindow> it( *dockWindows );
+    QPtrListIterator<QDockWindow> it( *dockWindows );
     QDockWindow *dw = 0;
     it.toFirst();
     int y = -1;
@@ -130,10 +130,10 @@ QSize QDockAreaLayout::minimumSize() const
 	return QSize( 0, 0 );
     QSize s;
 
-    QListIterator<QDockWindow> it( *dockWindows );
+    QPtrListIterator<QDockWindow> it( *dockWindows );
     QDockWindow *dw = 0;
     while ( ( dw = it.current() ) != 0 ) {
- 	++it;
+	++it;
 	if ( dw->isHidden() )
 	    continue;
 	QSize msh( dw->minimumSizeHint() );
@@ -146,7 +146,7 @@ QSize QDockAreaLayout::minimumSize() const
 	    ms.setWidth( 0 );
 	else
 	    ms.setHeight( 0 );
- 	s = s.expandedTo( ms ).expandedTo( msh );
+	s = s.expandedTo( ms ).expandedTo( msh );
     }
 
     if ( s.width() < 0 )
@@ -315,7 +315,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     // init
     lines.clear();
     ls.clear();
-    QListIterator<QDockWindow> it( *dockWindows );
+    QPtrListIterator<QDockWindow> it( *dockWindows );
     QDockWindow *dw = 0;
     int start = start_pos( r, orientation() );
     int pos = start;
@@ -327,7 +327,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
- 	++it;
+	++it;
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
 	// find position for the widget: This is the maximum of the
@@ -392,7 +392,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     it.toFirst();
     bool hadResizable = FALSE;
     while ( ( dw = it.current() ) != 0 ) {
- 	++it;
+	++it;
 	if ( !dw->isVisibleTo( parentWidget ) )
 	    continue;
 	hadResizable = hadResizable || dw->isResizeEnabled();
@@ -406,7 +406,7 @@ int QDockAreaLayout::heightForWidth( int w ) const
 {
     if ( dockWindows->isEmpty() && parentWidget )
 	return parentWidget->minimumHeight();
-	
+
     if ( cached_width != w ) {
 	QDockAreaLayout * mthis = (QDockAreaLayout*)this;
 	mthis->cached_width = w;
@@ -527,7 +527,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
 QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const char *name )
     : QWidget( parent, name ), orient( o ), layout( 0 ), hPos( h )
 {
-    dockWindows = new QList<QDockWindow>;
+    dockWindows = new QPtrList<QDockWindow>;
     layout = new QDockAreaLayout( this, o, dockWindows, -1, -1, "toollayout" );
     installEventFilter( this );
 }
@@ -594,7 +594,7 @@ bool QDockArea::hasDockWindow( QDockWindow *w, int *index )
 
 int QDockArea::lineOf( int index )
 {
-    QList<QDockWindow> lineStarts = layout->lineStarts();
+    QPtrList<QDockWindow> lineStarts = layout->lineStarts();
     int i = 0;
     for ( QDockWindow *w = lineStarts.first(); w; w = lineStarts.next(), ++i ) {
 	if ( dockWindows->find( w ) >= index )
@@ -603,7 +603,7 @@ int QDockArea::lineOf( int index )
     return i;
 }
 
-/*! 
+/*!
     \overload
 
     Moves the QDockWindow \a w inside the dock area where \a p is the
@@ -635,7 +635,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 
     QDockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow( w );
-    QList<QDockWindow> lineStarts = layout->lineStarts();
+    QPtrList<QDockWindow> lineStarts = layout->lineStarts();
     QValueList<QRect> lines = layout->lineList();
     bool wasAloneInLine = FALSE;
     QPoint pos = mapFromGlobal( p );
@@ -699,7 +699,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 		dockLine = lines.count(); // insert after the last line
 	} else { // inside the dock (we have found a dockLine)
 	    if ( point_pos( pos, orientation(), TRUE ) <
-		 point_pos( lineRect.topLeft(), orientation(), TRUE ) + 4 ) { 	// mouse was at the very beginning of the line
+		 point_pos( lineRect.topLeft(), orientation(), TRUE ) + 4 ) {	// mouse was at the very beginning of the line
 		insertLine = TRUE;					// insert a new line before that with the docking widget
 	    } else if ( point_pos( pos, orientation(), TRUE ) >
 			point_pos( lineRect.topLeft(), orientation(), TRUE ) +
@@ -841,7 +841,7 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
 	return;
     dockWindow = dockWindows->at( i );
     dockWindows->remove( i );
-    QList<QDockWindow> lineStarts = layout->lineStarts();
+    QPtrList<QDockWindow> lineStarts = layout->lineStarts();
     if ( fixNewLines && lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
 	dockWindows->at( i )->setNewLine( TRUE );
     w->setFixedExtentWidth( -1 );
@@ -918,7 +918,7 @@ bool QDockArea::isEmpty() const
 /*! Returns a list of the dock windows of the dock area.
  */
 
-QList<QDockWindow> QDockArea::dockWindowList() const
+QPtrList<QDockWindow> QDockArea::dockWindowList() const
 {
     return *dockWindows;
 }
@@ -946,13 +946,13 @@ QDockArea::DockWindowData *QDockArea::dockWindowData( QDockWindow *w )
 	delete data;
 	return 0;
     }
-    QList<QDockWindow> lineStarts = layout->lineStarts();
+    QPtrList<QDockWindow> lineStarts = layout->lineStarts();
     int i = -1;
     for ( QDockWindow *dw = dockWindows->first(); dw; dw = dockWindows->next() ) {
- 	if ( lineStarts.findRef( dw ) != -1 )
- 	    ++i;
- 	if ( dw == w )
- 	    break;
+	if ( lineStarts.findRef( dw ) != -1 )
+	    ++i;
+	if ( dw == w )
+	    break;
     }
     data->line = i;
     data->offset = point_pos( QPoint( w->x(), w->y() ), orientation() );
@@ -974,7 +974,7 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
     if ( dockWindows->isEmpty() ) {
 	dockWindows->append( dockWindow );
     } else {
-	QList<QDockWindow> lineStarts = layout->lineStarts();
+	QPtrList<QDockWindow> lineStarts = layout->lineStarts();
 	int index = 0;
 	if ( (int)lineStarts.count() > data->line )
 	    index = dockWindows->find( lineStarts.at( data->line ) );
@@ -1039,7 +1039,7 @@ bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
     return TRUE;
 }
 
-/*! 
+/*!
     If \a accept is TRUE, \a dw can be docked in the dock area. If \a
     accept is FALSE, \a dw cannot be docked in the dock area.
 
@@ -1109,7 +1109,7 @@ int QDockArea::maxSpace( int hint, QDockWindow *dw )
 
 void QDockArea::setFixedExtent( int d, QDockWindow *dw )
 {
-    QList<QDockWindow> lst;
+    QPtrList<QDockWindow> lst;
     QDockWindow *w;
     for ( w = dockWindows->first(); w; w = dockWindows->next() ) {
 	if ( orientation() == Horizontal ) {
@@ -1153,9 +1153,9 @@ bool QDockArea::isLastDockWindow( QDockWindow *dw )
 
 #ifndef QT_NO_TEXTSTREAM
 
-/*! 
+/*!
 
-    \relates QDockArea 
+    \relates QDockArea
 
     Writes the layout of the dock windows in the \a dockArea to the
    text stream \a ts.
@@ -1166,7 +1166,7 @@ bool QDockArea::isLastDockWindow( QDockWindow *dw )
 QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
 {
     QString str;
-    QList<QDockWindow> l = dockArea.dockWindowList();
+    QPtrList<QDockWindow> l = dockArea.dockWindowList();
 
     for ( QDockWindow *dw = l.first(); dw; dw = l.next() )
 	str += "[" + QString( dw->caption() ) + "," + QString::number( (int)dw->offset() ) +
@@ -1177,9 +1177,9 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
     return ts;
 }
 
-/*! 
+/*!
 
-    \relates QDockArea 
+    \relates QDockArea
 
     Reads the layout description of the dock windows in the \a dockArea
    from the text stream \a ts and restores it.
@@ -1198,7 +1198,7 @@ QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
     enum State { Pre, Name, Offset, NewLine, Width, Height, Visible, Post };
     int state = Pre;
     QChar c;
-    QList<QDockWindow> l = dockArea.dockWindowList();
+    QPtrList<QDockWindow> l = dockArea.dockWindowList();
 
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	c = s[ i ];
@@ -1225,9 +1225,9 @@ QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
 		    break;
 		}
 	    }
-	
+
 	    name = offset = newLine = width = height = visible = "";
-	
+
 	    state = Pre;
 	    continue;
 	}

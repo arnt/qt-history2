@@ -145,7 +145,7 @@ void KAsteroidsView::newGame()
     }
     reset();
     if ( mTimerId < 0 )
-        mTimerId = startTimer( REFRESH_DELAY );
+	mTimerId = startTimer( REFRESH_DELAY );
     emit updateVitals();
 }
 
@@ -163,7 +163,7 @@ void KAsteroidsView::pause( bool p )
 	    mTimerId = -1;
 	}
     } else if ( mPaused && !p )
-        mTimerId = startTimer( REFRESH_DELAY );
+	mTimerId = startTimer( REFRESH_DELAY );
     mPaused = p;
 }
 
@@ -202,10 +202,10 @@ void KAsteroidsView::newShip()
 void KAsteroidsView::setShield( bool s )
 {
     if ( shieldTimer->isActive() && !s ) {
-        shieldTimer->stop();
-        hideShield();
+	shieldTimer->stop();
+	hideShield();
     } else {
-        shieldOn = s && mShieldCount;
+	shieldOn = s && mShieldCount;
     }
 }
 
@@ -213,15 +213,15 @@ void KAsteroidsView::brake( bool b )
 {
     if ( mBrakeCount )
     {
-        if ( brakeShip && !b )
-        {
-            rotateL = false;
-            rotateR = false;
-            thrustShip = false;
-            rotateRate = ROTATE_RATE;
-        }
+	if ( brakeShip && !b )
+	{
+	    rotateL = false;
+	    rotateR = false;
+	    thrustShip = false;
+	    rotateRate = ROTATE_RATE;
+	}
 
-        brakeShip = b;
+	brakeShip = b;
     }
 }
 
@@ -234,10 +234,10 @@ void KAsteroidsView::readSprites()
     int i = 0;
     while ( kas_animations[i].id )
     {
-        animation.insert( kas_animations[i].id,
-            new QCanvasPixmapArray( sprites_prefix + kas_animations[i].path,
-                                    kas_animations[i].frames ) );
-        i++;
+	animation.insert( kas_animations[i].id,
+	    new QCanvasPixmapArray( sprites_prefix + kas_animations[i].path,
+				    kas_animations[i].frames ) );
+	i++;
     }
 
     ship = new QCanvasSprite( animation[ID_SHIP], &field );
@@ -253,28 +253,28 @@ void KAsteroidsView::addRocks( int num )
 {
     for ( int i = 0; i < num; i++ )
     {
-        KRock *rock = new KRock( animation[ID_ROCK_LARGE], &field,
+	KRock *rock = new KRock( animation[ID_ROCK_LARGE], &field,
 			     ID_ROCK_LARGE, randInt(2), randInt(2) ? -1 : 1 );
-        double dx = (2.0 - randDouble()*4.0) * rockSpeed;
-        double dy = (2.0 - randDouble()*4.0) * rockSpeed;
-        rock->setVelocity( dx, dy );
-        rock->setFrame( randInt( rock->frameCount() ) );
-        if ( dx > 0 )
-        {
-            if ( dy > 0 )
-                rock->move( 5, 5, 0 );
-            else
-                rock->move( 5, field.height() - 25, 0 );
-        }
-        else
-        {
-            if ( dy > 0 )
-                rock->move( field.width() - 25, 5, 0 );
-            else
-                rock->move( field.width() - 25, field.height() - 25, 0 );
-        }
-        rock->show( );
-        rocks.append( rock );
+	double dx = (2.0 - randDouble()*4.0) * rockSpeed;
+	double dy = (2.0 - randDouble()*4.0) * rockSpeed;
+	rock->setVelocity( dx, dy );
+	rock->setFrame( randInt( rock->frameCount() ) );
+	if ( dx > 0 )
+	{
+	    if ( dy > 0 )
+		rock->move( 5, 5, 0 );
+	    else
+		rock->move( 5, field.height() - 25, 0 );
+	}
+	else
+	{
+	    if ( dy > 0 )
+		rock->move( field.width() - 25, 5, 0 );
+	    else
+		rock->move( field.width() - 25, field.height() - 25, 0 );
+	}
+	rock->show( );
+	rocks.append( rock );
     }
 }
 
@@ -325,7 +325,7 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
     // move rocks forward
     for ( rock = rocks.first(); rock; rock = rocks.next() ) {
 	((KRock *)rock)->nextFrame();
-        wrapSprite( rock );
+	wrapSprite( rock );
     }
 
     wrapSprite( ship );
@@ -336,19 +336,19 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
     // these are generated when a ship explodes
     for ( KBit *bit = bits.first(); bit; bit = bits.next() )
     {
-        if ( bit->expired() )
-        {
-            bits.removeRef( bit );
-        }
-        else
-        {
-            bit->growOlder();
-            bit->setFrame( ( bit->frame()+1 ) % bit->frameCount() );
-        }
+	if ( bit->expired() )
+	{
+	    bits.removeRef( bit );
+	}
+	else
+	{
+	    bit->growOlder();
+	    bit->setFrame( ( bit->frame()+1 ) % bit->frameCount() );
+	}
     }
 
     for ( KExhaust *e = exhaust.first(); e; e = exhaust.next() )
-        exhaust.removeRef( e );
+	exhaust.removeRef( e );
 
     // move / rotate ship.
     // check for collision with a rock.
@@ -359,19 +359,19 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
 
     if ( textSprite->visible() )
     {
-        if ( textDy < 0 &&
+	if ( textDy < 0 &&
 	     textSprite->boundingRect().y() <= -textSprite->boundingRect().height() ) {
-            textSprite->hide();
-        } else {
-            textSprite->moveBy( 0, textDy );
-        }
-        if ( textSprite->boundingRect().y() > (field.height()-textSprite->boundingRect().height())/2 )
-            textDy = 0;
+	    textSprite->hide();
+	} else {
+	    textSprite->moveBy( 0, textDy );
+	}
+	if ( textSprite->boundingRect().y() > (field.height()-textSprite->boundingRect().height())/2 )
+	    textDy = 0;
     }
 
     if ( vitalsChanged && !(mFrameNum % 10) ) {
-        emit updateVitals();
-        vitalsChanged = false;
+	emit updateVitals();
+	vitalsChanged = false;
     }
 
     mFrameNum++;
@@ -383,14 +383,14 @@ void KAsteroidsView::wrapSprite( QCanvasItem *s )
     int y = int(s->y() + s->boundingRect().height() / 2);
 
     if ( x > field.width() )
-        s->move( s->x() - field.width(), s->y() );
+	s->move( s->x() - field.width(), s->y() );
     else if ( x < 0 )
-        s->move( field.width() + s->x(), s->y() );
+	s->move( field.width() + s->x(), s->y() );
 
     if ( y > field.height() )
-        s->move( s->x(), s->y() - field.height() );
+	s->move( s->x(), s->y() - field.height() );
     else if ( y < 0 )
-        s->move( s->x(), field.height() + s->y() );
+	s->move( s->x(), field.height() + s->y() );
 }
 
 // - - -
@@ -403,85 +403,85 @@ void KAsteroidsView::rockHit( QCanvasItem *hit )
     {
       case 4:
       case 5:
-        nPup = new KPowerup( animation[ID_ENERGY_POWERUP], &field,
-                             ID_ENERGY_POWERUP );
-        break;
+	nPup = new KPowerup( animation[ID_ENERGY_POWERUP], &field,
+			     ID_ENERGY_POWERUP );
+	break;
       case 10:
 //        nPup = new KPowerup( animation[ID_TELEPORT_POWERUP], &field,
 //                             ID_TELEPORT_POWERUP );
-        break;
+	break;
       case 15:
-        nPup = new KPowerup( animation[ID_BRAKE_POWERUP], &field,
-                                  ID_BRAKE_POWERUP );
-        break;
+	nPup = new KPowerup( animation[ID_BRAKE_POWERUP], &field,
+				  ID_BRAKE_POWERUP );
+	break;
       case 20:
-        nPup = new KPowerup( animation[ID_SHIELD_POWERUP], &field,
-                                  ID_SHIELD_POWERUP );
-        break;
+	nPup = new KPowerup( animation[ID_SHIELD_POWERUP], &field,
+				  ID_SHIELD_POWERUP );
+	break;
       case 24:
       case 25:
-        nPup = new KPowerup( animation[ID_SHOOT_POWERUP], &field,
-                                  ID_SHOOT_POWERUP );
-        break;
+	nPup = new KPowerup( animation[ID_SHOOT_POWERUP], &field,
+				  ID_SHOOT_POWERUP );
+	break;
     }
     if ( nPup )
     {
-        double r = 0.5 - randDouble();
-        nPup->move( hit->x(), hit->y(), 0 );
-        nPup->setVelocity( hit->xVelocity() + r, hit->yVelocity() + r );
-        nPup->show( );
-        powerups.append( nPup );
+	double r = 0.5 - randDouble();
+	nPup->move( hit->x(), hit->y(), 0 );
+	nPup->setVelocity( hit->xVelocity() + r, hit->yVelocity() + r );
+	nPup->show( );
+	powerups.append( nPup );
     }
 
     if ( hit->rtti() == ID_ROCK_LARGE || hit->rtti() == ID_ROCK_MEDIUM )
     {
-        // break into smaller rocks
-        double addx[4] = { 1.0, 1.0, -1.0, -1.0 };
-        double addy[4] = { -1.0, 1.0, -1.0, 1.0 };
+	// break into smaller rocks
+	double addx[4] = { 1.0, 1.0, -1.0, -1.0 };
+	double addy[4] = { -1.0, 1.0, -1.0, 1.0 };
 
-        double dx = hit->xVelocity();
-        double dy = hit->yVelocity();
+	double dx = hit->xVelocity();
+	double dy = hit->yVelocity();
 
 	double maxRockSpeed = MAX_ROCK_SPEED * rockSpeed;
-        if ( dx > maxRockSpeed )
-            dx = maxRockSpeed;
-        else if ( dx < -maxRockSpeed )
-            dx = -maxRockSpeed;
-        if ( dy > maxRockSpeed )
-            dy = maxRockSpeed;
-        else if ( dy < -maxRockSpeed )
-            dy = -maxRockSpeed;
+	if ( dx > maxRockSpeed )
+	    dx = maxRockSpeed;
+	else if ( dx < -maxRockSpeed )
+	    dx = -maxRockSpeed;
+	if ( dy > maxRockSpeed )
+	    dy = maxRockSpeed;
+	else if ( dy < -maxRockSpeed )
+	    dy = -maxRockSpeed;
 
-        QCanvasSprite *nrock;
+	QCanvasSprite *nrock;
 
-        for ( int i = 0; i < 4; i++ )
-        {
-            double r = rockSpeed/2 - randDouble()*rockSpeed;
-            if ( hit->rtti() == ID_ROCK_LARGE )
-            {
-                nrock = new KRock( animation[ID_ROCK_MEDIUM], &field,
+	for ( int i = 0; i < 4; i++ )
+	{
+	    double r = rockSpeed/2 - randDouble()*rockSpeed;
+	    if ( hit->rtti() == ID_ROCK_LARGE )
+	    {
+		nrock = new KRock( animation[ID_ROCK_MEDIUM], &field,
 			       ID_ROCK_MEDIUM, randInt(2), randInt(2) ? -1 : 1 );
-                emit rockHit( 0 );
-            }
-            else
-            {
-                nrock = new KRock( animation[ID_ROCK_SMALL], &field,
+		emit rockHit( 0 );
+	    }
+	    else
+	    {
+		nrock = new KRock( animation[ID_ROCK_SMALL], &field,
 			       ID_ROCK_SMALL, randInt(2), randInt(2) ? -1 : 1 );
-                emit rockHit( 1 );
-            }
+		emit rockHit( 1 );
+	    }
 
-            nrock->move( hit->x(), hit->y(), 0 );
-            nrock->setVelocity( dx+addx[i]*rockSpeed+r, dy+addy[i]*rockSpeed+r );
+	    nrock->move( hit->x(), hit->y(), 0 );
+	    nrock->setVelocity( dx+addx[i]*rockSpeed+r, dy+addy[i]*rockSpeed+r );
 	    nrock->setFrame( randInt( nrock->frameCount() ) );
-            nrock->show( );
-            rocks.append( nrock );
-        }
+	    nrock->show( );
+	    rocks.append( nrock );
+	}
     }
     else if ( hit->rtti() == ID_ROCK_SMALL )
-        emit rockHit( 2 );
+	emit rockHit( 2 );
     rocks.removeRef( (QCanvasSprite *)hit );
     if ( rocks.count() == 0 )
-        emit rocksRemoved();
+	emit rocksRemoved();
 }
 
 void KAsteroidsView::reducePower( int val )
@@ -489,27 +489,27 @@ void KAsteroidsView::reducePower( int val )
     shipPower -= val;
     if ( shipPower <= 0 )
     {
-        shipPower = 0;
-        thrustShip = false;
-        if ( shieldOn )
-        {
-            shieldOn = false;
-            shield->hide();
-        }
+	shipPower = 0;
+	thrustShip = false;
+	if ( shieldOn )
+	{
+	    shieldOn = false;
+	    shield->hide();
+	}
     }
     vitalsChanged = true;
 }
 
 void KAsteroidsView::addExhaust( double x, double y, double dx,
-                                 double dy, int count )
+				 double dy, int count )
 {
     for ( int i = 0; i < count; i++ )
     {
-        KExhaust *e = new KExhaust( animation[ID_EXHAUST], &field );
-        e->move( x + 2 - randDouble()*4, y + 2 - randDouble()*4 );
-        e->setVelocity( dx, dy );
-        e->show( );
-        exhaust.append( e );
+	KExhaust *e = new KExhaust( animation[ID_EXHAUST], &field );
+	e->move( x + 2 - randDouble()*4, y + 2 - randDouble()*4 );
+	e->setVelocity( dx, dy );
+	e->show( );
+	exhaust.append( e );
     }
 }
 
@@ -519,34 +519,34 @@ void KAsteroidsView::processMissiles()
 
     // if a missile has hit a rock, remove missile and break rock into smaller
     // rocks or remove completely.
-    QListIterator<KMissile> it(missiles);
+    QPtrListIterator<KMissile> it(missiles);
 
     for ( ; it.current(); ++it )
     {
-        missile = it.current();
-        missile->growOlder();
+	missile = it.current();
+	missile->growOlder();
 
-        if ( missile->expired() )
-        {
-            missiles.removeRef( missile );
-            continue;
-        }
+	if ( missile->expired() )
+	{
+	    missiles.removeRef( missile );
+	    continue;
+	}
 
-        wrapSprite( missile );
+	wrapSprite( missile );
 
-        QCanvasItemList hits = missile->collisions( true );
-        QCanvasItemList::Iterator hit;
-        for ( hit = hits.begin(); hit != hits.end(); ++hit )
-        {
-            if ( (*hit)->rtti() >= ID_ROCK_LARGE &&
-                 (*hit)->rtti() <= ID_ROCK_SMALL )
-            {
-                shotsHit++;
-                rockHit( *hit );
-                missiles.removeRef( missile );
-                break;
-            }
-        }
+	QCanvasItemList hits = missile->collisions( true );
+	QCanvasItemList::Iterator hit;
+	for ( hit = hits.begin(); hit != hits.end(); ++hit )
+	{
+	    if ( (*hit)->rtti() >= ID_ROCK_LARGE &&
+		 (*hit)->rtti() <= ID_ROCK_SMALL )
+	    {
+		shotsHit++;
+		rockHit( *hit );
+		missiles.removeRef( missile );
+		break;
+	    }
+	}
     }
 }
 
@@ -556,162 +556,162 @@ void KAsteroidsView::processShip()
 {
     if ( ship->visible() )
     {
-        if ( shieldOn )
-        {
-            shield->show();
-            reducePower( SHIELD_ON_COST );
-            static int sf = 0;
-            sf++;
+	if ( shieldOn )
+	{
+	    shield->show();
+	    reducePower( SHIELD_ON_COST );
+	    static int sf = 0;
+	    sf++;
 
-            if ( sf % 2 )
-                shield->setFrame( (shield->frame()+1) % shield->frameCount() );
-            shield->move( ship->x() - 9, ship->y() - 9 );
+	    if ( sf % 2 )
+		shield->setFrame( (shield->frame()+1) % shield->frameCount() );
+	    shield->move( ship->x() - 9, ship->y() - 9 );
 
-            QCanvasItemList hits = shield->collisions( true );
-            QCanvasItemList::Iterator it;
-            for ( it = hits.begin(); it != hits.end(); ++it )
-            {
-                if ( (*it)->rtti() >= ID_ROCK_LARGE &&
-                     (*it)->rtti() <= ID_ROCK_SMALL )
-                {
-                    int factor;
-                    switch ( (*it)->rtti() )
-                    {
-                        case ID_ROCK_LARGE:
-                            factor = 3;
-                            break;
+	    QCanvasItemList hits = shield->collisions( true );
+	    QCanvasItemList::Iterator it;
+	    for ( it = hits.begin(); it != hits.end(); ++it )
+	    {
+		if ( (*it)->rtti() >= ID_ROCK_LARGE &&
+		     (*it)->rtti() <= ID_ROCK_SMALL )
+		{
+		    int factor;
+		    switch ( (*it)->rtti() )
+		    {
+			case ID_ROCK_LARGE:
+			    factor = 3;
+			    break;
 
-                        case ID_ROCK_MEDIUM:
-                            factor = 2;
-                            break;
+			case ID_ROCK_MEDIUM:
+			    factor = 2;
+			    break;
 
-                        default:
-                            factor = 1;
-                    }
+			default:
+			    factor = 1;
+		    }
 
-                    if ( factor > mShieldCount )
-                    {
-                        // shield not strong enough
-                        shieldOn = false;
-                        break;
-                    }
-                    rockHit( *it );
-                    // the more shields we have the less costly
-                    reducePower( factor * (SHIELD_HIT_COST - mShieldCount*2) );
-                }
-            }
-        }
+		    if ( factor > mShieldCount )
+		    {
+			// shield not strong enough
+			shieldOn = false;
+			break;
+		    }
+		    rockHit( *it );
+		    // the more shields we have the less costly
+		    reducePower( factor * (SHIELD_HIT_COST - mShieldCount*2) );
+		}
+	    }
+	}
 
-        if ( !shieldOn )
-        {
-            shield->hide();
-            QCanvasItemList hits = ship->collisions( true );
-            QCanvasItemList::Iterator it;
-            for ( it = hits.begin(); it != hits.end(); ++it )
-            {
-                if ( (*it)->rtti() >= ID_ROCK_LARGE &&
-                     (*it)->rtti() <= ID_ROCK_SMALL )
-                {
-                    KBit *bit;
-                    for ( int i = 0; i < 12; i++ )
-                    {
-                      bit = new KBit( animation[ID_BIT], &field );
-                      bit->move( ship->x() + 5 - randDouble() * 10,
-                                 ship->y() + 5 - randDouble() * 10,
-                                 randInt(bit->frameCount()) );
-                      bit->setVelocity( 1-randDouble()*2,
-                                        1-randDouble()*2 );
-                      bit->setDeath( 60 + randInt(60) );
-                      bit->show( );
-                      bits.append( bit );
-                    }
-                    ship->hide();
-                    shield->hide();
-                    emit shipKilled();
-                    break;
-                }
-            }
-        }
+	if ( !shieldOn )
+	{
+	    shield->hide();
+	    QCanvasItemList hits = ship->collisions( true );
+	    QCanvasItemList::Iterator it;
+	    for ( it = hits.begin(); it != hits.end(); ++it )
+	    {
+		if ( (*it)->rtti() >= ID_ROCK_LARGE &&
+		     (*it)->rtti() <= ID_ROCK_SMALL )
+		{
+		    KBit *bit;
+		    for ( int i = 0; i < 12; i++ )
+		    {
+		      bit = new KBit( animation[ID_BIT], &field );
+		      bit->move( ship->x() + 5 - randDouble() * 10,
+				 ship->y() + 5 - randDouble() * 10,
+				 randInt(bit->frameCount()) );
+		      bit->setVelocity( 1-randDouble()*2,
+					1-randDouble()*2 );
+		      bit->setDeath( 60 + randInt(60) );
+		      bit->show( );
+		      bits.append( bit );
+		    }
+		    ship->hide();
+		    shield->hide();
+		    emit shipKilled();
+		    break;
+		}
+	    }
+	}
 
 
-        if ( rotateSlow )
-            rotateSlow--;
+	if ( rotateSlow )
+	    rotateSlow--;
 
-        if ( rotateL )
-        {
-            shipAngle -= rotateSlow ? 1 : rotateRate;
-            if ( shipAngle < 0 )
-                shipAngle += SHIP_STEPS;
-        }
+	if ( rotateL )
+	{
+	    shipAngle -= rotateSlow ? 1 : rotateRate;
+	    if ( shipAngle < 0 )
+		shipAngle += SHIP_STEPS;
+	}
 
-        if ( rotateR )
-        {
-            shipAngle += rotateSlow ? 1 : rotateRate;
-            if ( shipAngle >= SHIP_STEPS )
-                shipAngle -= SHIP_STEPS;
-        }
+	if ( rotateR )
+	{
+	    shipAngle += rotateSlow ? 1 : rotateRate;
+	    if ( shipAngle >= SHIP_STEPS )
+		shipAngle -= SHIP_STEPS;
+	}
 
-        double angle = shipAngle * PI_X_2 / SHIP_STEPS;
-        double cosangle = cos( angle );
-        double sinangle = sin( angle );
+	double angle = shipAngle * PI_X_2 / SHIP_STEPS;
+	double cosangle = cos( angle );
+	double sinangle = sin( angle );
 
-        if ( brakeShip )
-        {
-            thrustShip = false;
-            rotateL = false;
-            rotateR = false;
-            rotateRate = ROTATE_RATE;
-            if ( fabs(shipDx) < 2.5 && fabs(shipDy) < 2.5 )
-            {
-                shipDx = 0.0;
-                shipDy = 0.0;
-                ship->setVelocity( shipDx, shipDy );
-                brakeShip = false;
-            }
-            else
-            {
-                double motionAngle = atan2( -shipDy, -shipDx );
-                if ( angle > M_PI )
-                    angle -= PI_X_2;
-                double angleDiff = angle - motionAngle;
-                if ( angleDiff > M_PI )
-                    angleDiff = PI_X_2 - angleDiff;
-                else if ( angleDiff < -M_PI )
-                    angleDiff = PI_X_2 + angleDiff;
-                double fdiff = fabs( angleDiff );
-                if ( fdiff > 0.08 )
-                {
-                    if ( angleDiff > 0 )
-                        rotateL = true;
-                    else if ( angleDiff < 0 )
-                        rotateR = true;
-                    if ( fdiff > 0.6 )
-                        rotateRate = mBrakeCount + 1;
-                    else if ( fdiff > 0.4 )
-                        rotateRate = 2;
-                    else
-                        rotateRate = 1;
+	if ( brakeShip )
+	{
+	    thrustShip = false;
+	    rotateL = false;
+	    rotateR = false;
+	    rotateRate = ROTATE_RATE;
+	    if ( fabs(shipDx) < 2.5 && fabs(shipDy) < 2.5 )
+	    {
+		shipDx = 0.0;
+		shipDy = 0.0;
+		ship->setVelocity( shipDx, shipDy );
+		brakeShip = false;
+	    }
+	    else
+	    {
+		double motionAngle = atan2( -shipDy, -shipDx );
+		if ( angle > M_PI )
+		    angle -= PI_X_2;
+		double angleDiff = angle - motionAngle;
+		if ( angleDiff > M_PI )
+		    angleDiff = PI_X_2 - angleDiff;
+		else if ( angleDiff < -M_PI )
+		    angleDiff = PI_X_2 + angleDiff;
+		double fdiff = fabs( angleDiff );
+		if ( fdiff > 0.08 )
+		{
+		    if ( angleDiff > 0 )
+			rotateL = true;
+		    else if ( angleDiff < 0 )
+			rotateR = true;
+		    if ( fdiff > 0.6 )
+			rotateRate = mBrakeCount + 1;
+		    else if ( fdiff > 0.4 )
+			rotateRate = 2;
+		    else
+			rotateRate = 1;
 
-                    if ( rotateRate > 5 )
-                        rotateRate = 5;
-                }
-                else if ( fabs(shipDx) > 1 || fabs(shipDy) > 1 )
-                {
-                    thrustShip = true;
-                    // we'll make braking a bit faster
-                    shipDx += cosangle/6 * (mBrakeCount - 1);
-                    shipDy += sinangle/6 * (mBrakeCount - 1);
-                    reducePower( BRAKE_ON_COST );
-                    addExhaust( ship->x() + 20 - cosangle*22,
-                                ship->y() + 20 - sinangle*22,
-                                shipDx-cosangle, shipDy-sinangle,
-                                mBrakeCount+1 );
-                }
-            }
-        }
+		    if ( rotateRate > 5 )
+			rotateRate = 5;
+		}
+		else if ( fabs(shipDx) > 1 || fabs(shipDy) > 1 )
+		{
+		    thrustShip = true;
+		    // we'll make braking a bit faster
+		    shipDx += cosangle/6 * (mBrakeCount - 1);
+		    shipDy += sinangle/6 * (mBrakeCount - 1);
+		    reducePower( BRAKE_ON_COST );
+		    addExhaust( ship->x() + 20 - cosangle*22,
+				ship->y() + 20 - sinangle*22,
+				shipDx-cosangle, shipDy-sinangle,
+				mBrakeCount+1 );
+		}
+	    }
+	}
 
-        if ( thrustShip )
-        {
+	if ( thrustShip )
+	{
 	    // The ship has a terminal velocity, but trying to go faster
 	    // still uses fuel (can go faster diagonally - don't care).
 	    double thrustx = cosangle/4;
@@ -721,46 +721,46 @@ void KAsteroidsView::processShip()
 	    if ( fabs(shipDy + thrusty) < MAX_SHIP_SPEED )
 		shipDy += thrusty;
 	    ship->setVelocity( shipDx, shipDy );
-            reducePower( 1 );
-            addExhaust( ship->x() + 20 - cosangle*20,
-                        ship->y() + 20 - sinangle*20,
-                        shipDx-cosangle, shipDy-sinangle, 3 );
-        }
+	    reducePower( 1 );
+	    addExhaust( ship->x() + 20 - cosangle*20,
+			ship->y() + 20 - sinangle*20,
+			shipDx-cosangle, shipDy-sinangle, 3 );
+	}
 
-        ship->setFrame( shipAngle >> 1 );
+	ship->setFrame( shipAngle >> 1 );
 
-        if ( shootShip )
-        {
-            if ( !shootDelay && (int)missiles.count() < mShootCount + 2 )
-            {
-              KMissile *missile = new KMissile( animation[ID_MISSILE], &field );
-              missile->move( 21+ship->x()+cosangle*21,
-                             21+ship->y()+sinangle*21, 0 );
-              missile->setVelocity( shipDx + cosangle*MISSILE_SPEED,
-                                    shipDy + sinangle*MISSILE_SPEED );
-              missile->show( );
-              missiles.append( missile );
-              shotsFired++;
-              reducePower( 1 );
+	if ( shootShip )
+	{
+	    if ( !shootDelay && (int)missiles.count() < mShootCount + 2 )
+	    {
+	      KMissile *missile = new KMissile( animation[ID_MISSILE], &field );
+	      missile->move( 21+ship->x()+cosangle*21,
+			     21+ship->y()+sinangle*21, 0 );
+	      missile->setVelocity( shipDx + cosangle*MISSILE_SPEED,
+				    shipDy + sinangle*MISSILE_SPEED );
+	      missile->show( );
+	      missiles.append( missile );
+	      shotsFired++;
+	      reducePower( 1 );
 
-              shootDelay = 5;
-            }
+	      shootDelay = 5;
+	    }
 
-            if ( shootDelay )
-              shootDelay--;
-        }
+	    if ( shootDelay )
+	      shootDelay--;
+	}
 
-        if ( teleportShip )
-        {
-            int ra = rand() % 10;
-            if( ra == 0 )
-            ra += rand() % 20;
-            int xra = ra * 60 + ( (rand() % 20) * (rand() % 20) );
-            int yra = ra * 50 - ( (rand() % 20) * (rand() % 20) );
-            ship->move( xra, yra );
-        }
+	if ( teleportShip )
+	{
+	    int ra = rand() % 10;
+	    if( ra == 0 )
+	    ra += rand() % 20;
+	    int xra = ra * 60 + ( (rand() % 20) * (rand() % 20) );
+	    int yra = ra * 50 - ( (rand() % 20) * (rand() % 20) );
+	    ship->move( xra, yra );
+	}
 
-        vitalsChanged = true;
+	vitalsChanged = true;
     }
 }
 
@@ -770,72 +770,72 @@ void KAsteroidsView::processPowerups()
 {
     if ( !powerups.isEmpty() )
     {
-        // if player gets the powerup remove it from the screen, if option
-        // "Can destroy powerups" is enabled and a missile hits the powerup
-        // destroy it
+	// if player gets the powerup remove it from the screen, if option
+	// "Can destroy powerups" is enabled and a missile hits the powerup
+	// destroy it
 
-        KPowerup *pup;
-        QListIterator<KPowerup> it( powerups );
+	KPowerup *pup;
+	QPtrListIterator<KPowerup> it( powerups );
 
-        for( ; it.current(); ++it )
-        {
-            pup = it.current();
-            pup->growOlder();
+	for( ; it.current(); ++it )
+	{
+	    pup = it.current();
+	    pup->growOlder();
 
-            if( pup->expired() )
-            {
-                powerups.removeRef( pup );
-                continue;
-            }
+	    if( pup->expired() )
+	    {
+		powerups.removeRef( pup );
+		continue;
+	    }
 
-            wrapSprite( pup );
+	    wrapSprite( pup );
 
-            QCanvasItemList hits = pup->collisions( true );
-            QCanvasItemList::Iterator it;
-            for ( it = hits.begin(); it != hits.end(); ++it )
-            {
-                if ( (*it) == ship )
-                {
-                    switch( pup->rtti() )
-                    {
-                      case ID_ENERGY_POWERUP:
-                        shipPower += 150;
-                        if ( shipPower > MAX_POWER_LEVEL )
-                            shipPower = MAX_POWER_LEVEL;
-                        break;
-                      case ID_TELEPORT_POWERUP:
-                        mTeleportCount++;
-                        break;
-                      case ID_BRAKE_POWERUP:
-                        if ( mBrakeCount < MAX_BRAKES )
-                            mBrakeCount++;
-                        break;
-                      case ID_SHIELD_POWERUP:
-                        if ( mShieldCount < MAX_SHIELDS )
-                            mShieldCount++;
-                        break;
-                      case ID_SHOOT_POWERUP:
-                        if ( mShootCount < MAX_FIREPOWER )
-                            mShootCount++;
-                        break;
-                    }
+	    QCanvasItemList hits = pup->collisions( true );
+	    QCanvasItemList::Iterator it;
+	    for ( it = hits.begin(); it != hits.end(); ++it )
+	    {
+		if ( (*it) == ship )
+		{
+		    switch( pup->rtti() )
+		    {
+		      case ID_ENERGY_POWERUP:
+			shipPower += 150;
+			if ( shipPower > MAX_POWER_LEVEL )
+			    shipPower = MAX_POWER_LEVEL;
+			break;
+		      case ID_TELEPORT_POWERUP:
+			mTeleportCount++;
+			break;
+		      case ID_BRAKE_POWERUP:
+			if ( mBrakeCount < MAX_BRAKES )
+			    mBrakeCount++;
+			break;
+		      case ID_SHIELD_POWERUP:
+			if ( mShieldCount < MAX_SHIELDS )
+			    mShieldCount++;
+			break;
+		      case ID_SHOOT_POWERUP:
+			if ( mShootCount < MAX_FIREPOWER )
+			    mShootCount++;
+			break;
+		    }
 
-                    powerups.removeRef( pup );
-                    vitalsChanged = true;
-                }
-                else if ( (*it) == shield )
+		    powerups.removeRef( pup );
+		    vitalsChanged = true;
+		}
+		else if ( (*it) == shield )
 		{
 		    powerups.removeRef( pup );
 		}
-                else if ( (*it)->rtti() == ID_MISSILE )
-                {
-                    if ( can_destroy_powerups )
-                    {
-                      powerups.removeRef( pup );
-                    }
-                }
-            }
-        }
+		else if ( (*it)->rtti() == ID_MISSILE )
+		{
+		    if ( can_destroy_powerups )
+		    {
+		      powerups.removeRef( pup );
+		    }
+		}
+	    }
+	}
     }         // -- if( powerups.isEmpty() )
 }
 
@@ -858,4 +858,3 @@ int KAsteroidsView::randInt( int range )
 {
     return rand() % range;
 }
-

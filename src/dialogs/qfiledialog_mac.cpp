@@ -25,7 +25,7 @@ static QString extractFilter( const QString& rawFilter )
 }
 
 // Makes a list of filters from ;;-separated text.
-static QList<QRegExp> makeFiltersList( const QString &filter )
+static QPtrList<QRegExp> makeFiltersList( const QString &filter )
 {
     QString f( filter );
 
@@ -33,7 +33,7 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
 	f = QFileDialog::tr( "All Files (*.*)" );
 
     if ( f.isEmpty() )
-	return QList<QRegExp>();
+	return QPtrList<QRegExp>();
 
     int i = f.find( ";;", 0 );
     QString sep( ";;" );
@@ -44,18 +44,18 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
 	}
     }
 
-    QList<QRegExp> ret;
+    QPtrList<QRegExp> ret;
     QStringList filts = QStringList::split( sep, f);
-    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) 
+    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it )
 	ret.append(new QRegExp(extractFilter((*it)), TRUE, TRUE));
     return ret;
 }
 
-   
-QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
+
+QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 				 void *myd, NavFilterModes)
-{	
-    QList<QRegExp> *filt = (QList<QRegExp> *)myd;
+{
+    QPtrList<QRegExp> *filt = (QPtrList<QRegExp> *)myd;
     if(!filt)
 	return true;
 
@@ -70,14 +70,14 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 
 	    AEGetDescData( theItem, &FSSpec, sizeof(FSSpec));
 
-	    if(NewAlias( NULL, &FSSpec, &alias ) != noErr) 
+	    if(NewAlias( NULL, &FSSpec, &alias ) != noErr)
 		return true;
 	    GetAliasInfo(alias, (AliasInfoType)x++, str);
 	    if(str[0]) {
 		strncpy((char *)tmp, (const char *)str+1, str[0]);
 		tmp[str[0]] = '\0';
-		
-		for (QListIterator<QRegExp> it(*filt); it.current(); ++it ) {
+
+		for (QPtrListIterator<QRegExp> it(*filt); it.current(); ++it ) {
 		    if(it.current()->exactMatch( tmp ))
 			return true;
 		}
@@ -88,14 +88,14 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     return true;
 }
 static NavObjectFilterUPP mac_navUPP = NULL;
-static void cleanup_navUPP() 
+static void cleanup_navUPP()
 {
     DisposeNavObjectFilterUPP(mac_navUPP);
     mac_navUPP = NULL;
 }
-static const NavObjectFilterUPP make_navUPP() 
+static const NavObjectFilterUPP make_navUPP()
 {
-    if(mac_navUPP) 
+    if(mac_navUPP)
 	return mac_navUPP;
     qAddPostRoutine( cleanup_navUPP );
     return mac_navUPP = NewNavObjectFilterUPP(qt_mac_nav_filter);
@@ -112,7 +112,7 @@ QString QFileDialog::macGetOpenFileName( const QString &/*initialSelection*/,
 					 QWidget *parent, const char* name,
 					 const QString& caption )
 {
-    return macGetOpenFileNames(filter, initialDirectory, 
+    return macGetOpenFileNames(filter, initialDirectory,
 			       parent, name, caption).first();
 }
 
@@ -130,8 +130,8 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     NavGetDefaultDialogOptions( &options );
     options.version = kNavDialogOptionsVersion;
     options.location.h = options.location.v = -1;
-    if(parent) 
-	strcpy((char *)options.clientName, 
+    if(parent)
+	strcpy((char *)options.clientName,
 	       (const char *) p_str(parent->caption()));
     if(caption.length())
 	strcpy((char *)options.windowTitle,
@@ -143,21 +143,21 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
 	QString macFilename = initialDirectory->mid( 1 );
 	while ( macFilename.find( "/" ) != -1 )
 	    macFilename.replace( macFilename.find( "/" ), 1, ":" );
-	//FIXME: prepend the volume name to the macFilename 
+	//FIXME: prepend the volume name to the macFilename
 
 	FSSpec fileSpec;
-	err = FSpLocationFromFullPath( macFilename.length(), 
-				       macFilename.latin1(), &fileSpec ); 
+	err = FSpLocationFromFullPath( macFilename.length(),
+				       macFilename.latin1(), &fileSpec );
 	if(err == noErr) {
 	    err = AECreateDesc(typeFSS, &fileSpec, sizeof(fileSpec), &initial );
 	    if(err == noErr)
 		use_initial = TRUE;
 	}
     }
-    
+
     NavReplyRecord ret;
-    QList<QRegExp> filts = makeFiltersList(filter);
-    NavGetFile(use_initial ? &initial : NULL, &ret, &options, NULL, NULL, 
+    QPtrList<QRegExp> filts = makeFiltersList(filter);
+    NavGetFile(use_initial ? &initial : NULL, &ret, &options, NULL, NULL,
 	       make_navUPP(), NULL, (void *) (filts.isEmpty() ? NULL : &filts));
     filts.setAutoDelete(TRUE);
     filts.clear();
@@ -165,18 +165,18 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
     long count;
     err = AECountItems(&(ret.selection), &count);
 
-    if(!ret.validRecord || err != noErr || !count) 
+    if(!ret.validRecord || err != noErr || !count)
 	goto get_name_out;
 
-    AEKeyword  	keyword;
+    AEKeyword	keyword;
     DescType    type;
     Size        size;
     FSSpec      FSSpec;
 
     for(long index = 1; index <= count; index++) {
-	err = AEGetNthPtr(&(ret.selection), index, typeFSS, &keyword, 
+	err = AEGetNthPtr(&(ret.selection), index, typeFSS, &keyword,
 			  &type,&FSSpec, sizeof(FSSpec), &size);
-	if(err != noErr) 
+	if(err != noErr)
 	    goto get_name_out;
 
 	AliasHandle alias;
@@ -185,7 +185,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
 	tmp[0] = '/';
 	tmpstr = "";
 
-	if(NewAlias( NULL, &FSSpec, &alias ) != noErr) 
+	if(NewAlias( NULL, &FSSpec, &alias ) != noErr)
 	    goto get_name_out;
 	while(1) {
 	    GetAliasInfo(alias, (AliasInfoType)x++, str);
@@ -218,8 +218,8 @@ QString QFileDialog::macGetSaveFileName( const QString &,
     NavGetDefaultDialogOptions( &options );
     options.version = kNavDialogOptionsVersion;
     options.location.h = options.location.v = -1;
-    if(parent) 
-	strcpy((char *)options.clientName, 
+    if(parent)
+	strcpy((char *)options.clientName,
 	       (const char *) p_str(parent->caption()));
     if(caption.length())
 	strcpy((char *)options.windowTitle,
@@ -231,21 +231,21 @@ QString QFileDialog::macGetSaveFileName( const QString &,
 	QString macFilename = initialDirectory->mid( 1 );
 	while ( macFilename.find( "/" ) != -1 )
 	    macFilename.replace( macFilename.find( "/" ), 1, ":" );
-	//FIXME: prepend the volume name to the macFilename 
+	//FIXME: prepend the volume name to the macFilename
 
 	FSSpec fileSpec;
-	err = FSpLocationFromFullPath( macFilename.length(), 
-				       macFilename.latin1(), &fileSpec ); 
+	err = FSpLocationFromFullPath( macFilename.length(),
+				       macFilename.latin1(), &fileSpec );
 	if(err == noErr) {
 	    err = AECreateDesc(typeFSS, &fileSpec, sizeof(fileSpec), &initial );
 	    if(err == noErr)
 		use_initial = TRUE;
 	}
     }
-    
+
     NavReplyRecord ret;
-    QList<QRegExp> filts = makeFiltersList(filter);
-    NavPutFile(use_initial ? &initial : NULL, &ret, &options, NULL, 
+    QPtrList<QRegExp> filts = makeFiltersList(filter);
+    NavPutFile(use_initial ? &initial : NULL, &ret, &options, NULL,
 	       'cute', kNavGenericSignature, (void *) filts.isEmpty() ? NULL : &filts);
     filts.setAutoDelete(TRUE);
     filts.clear();
@@ -253,17 +253,17 @@ QString QFileDialog::macGetSaveFileName( const QString &,
     long count;
     err = AECountItems(&(ret.selection), &count);
 
-    if(!ret.validRecord || err != noErr || !count) 
+    if(!ret.validRecord || err != noErr || !count)
 	goto put_name_out;
 
-    AEKeyword  	keyword;
+    AEKeyword	keyword;
     DescType    type;
     Size        size;
     FSSpec      FSSpec;
 
-    err = AEGetNthPtr(&(ret.selection), 1, typeFSS, &keyword, 
+    err = AEGetNthPtr(&(ret.selection), 1, typeFSS, &keyword,
 		      &type,&FSSpec, sizeof(FSSpec), &size);
-    if(err != noErr) 
+    if(err != noErr)
 	goto put_name_out;
 
     AliasHandle alias;

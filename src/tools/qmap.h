@@ -41,8 +41,13 @@
 #ifndef QT_H
 #include "qshared.h"
 #include "qdatastream.h"
+#include "qpair.h"
 #endif // QT_H
 
+#ifndef QT_NO_STL
+#include <iterator>
+#include <map>
+#endif
 
 struct QMapNodeBase
 {
@@ -90,6 +95,13 @@ class Q_EXPORT QMapIterator
      * Typedefs
      */
     typedef QMapNode< K, T >* NodePtr;
+#ifndef QT_NO_STL
+    typedef std::bidirectional_iterator_tag  iterator_category;
+    typedef T          value_type;
+    typedef ptrdiff_t  difference_type;
+    typedef T*         pointer;
+    typedef T&         reference;
+#endif
 
     /**
      * Variables
@@ -188,6 +200,13 @@ class Q_EXPORT QMapConstIterator
      * Typedefs
      */
     typedef QMapNode< K, T >* NodePtr;
+#ifndef QT_NO_STL
+    typedef std::bidirectional_iterator_tag  iterator_category;
+    typedef T          value_type;
+    typedef ptrdiff_t  difference_type;
+    typedef const T*   pointer;
+    typedef const T&   reference;
+#endif
 
     /**
      * Variables
@@ -213,7 +232,7 @@ class Q_EXPORT QMapConstIterator
 
 private:
     int inc() {
-        QMapNodeBase* tmp = node;
+	QMapNodeBase* tmp = node;
 	if ( tmp->right ) {
 	    tmp = tmp->right;
 	    while ( tmp->left )
@@ -496,6 +515,18 @@ protected:
     NodePtr header;
 };
 
+#ifdef QT_CHECK_RANGE
+# ifndef QT_NO_DEBUG
+#  define QT_CHECK_INVALID_MAP_ELEMENT if ( isEmpty() ) qWarning( "QMap: Warning invalid element" )
+#  define QT_CHECK_INVALID_MAP_ELEMENT_FATAL Q_ASSERT( !empty() );
+# else
+#  define QT_CHECK_INVALID_MAP_ELEMENT
+#  define QT_CHECK_INVALID_MAP_ELEMENT_FATAL
+# endif
+#else
+# define QT_CHECK_INVALID_MAP_ELEMENT
+# define QT_CHECK_INVALID_MAP_ELEMENT_FATAL
+#endif
 
 template<class Key, class T>
 class Q_EXPORT QMap
@@ -504,36 +535,138 @@ public:
     /**
      * Typedefs
      */
-    typedef QMapIterator< Key, T > Iterator;
-    typedef QMapConstIterator< Key, T > ConstIterator;
-    typedef T ValueType;
-    typedef QMapPrivate< Key, T > Priv;
+    typedef Key              key_type;
+    typedef T                mapped_type;
+    typedef QPair<const key_type, mapped_type> value_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef size_t      size_type;
+#ifndef QT_NO_STL
+    typedef ptrdiff_t difference_type;
+#else
+    typedef int difference_type;
+#endif
+
+    typedef QMapIterator<Key,T> iterator;
+    typedef QMapConstIterator<Key,T> const_iterator;
 
     /**
      * API
      */
     QMap() { sh = new QMapPrivate< Key, T >; }
     QMap( const QMap<Key,T>& m ) { sh = m.sh; sh->ref(); }
+
+#ifndef QT_NO_STL
+    QMap( const std::map<Key,T>& m )
+    {
+	sh = new QMapPrivate<Key,T>;
+	std::map<Key,T>::const_iterator it = m.begin();
+	for ( ; it != m.end(); ++it )
+	    insert( *it );
+    }
+#endif
     ~QMap() { if ( sh->deref() ) delete sh; }
-
     QMap<Key,T>& operator= ( const QMap<Key,T>& m )
-	{ m.sh->ref(); if ( sh->deref() ) delete sh; sh = m.sh; return *this; }
+    {
+	m.sh->ref();
+	if ( sh->deref() )
+	    delete sh;
+	sh = m.sh;
+	return *this;
+    }
+#ifndef QT_NO_STL
+    QMap<Key,T>& operator= ( const std::map<Key,T>& m )
+    {
+	clear();
+	std::map<Key,T>::const_iterator it = m.begin();
+	for ( ; it != m.end(); ++it )
+	    insert( *it );
+	return *this;
+    }
+#endif
 
-    Iterator begin() { detach(); return sh->begin(); }
-    Iterator end() { detach(); return sh->end(); }
-    ConstIterator begin() const { return ((const Priv*)sh)->begin(); }
-    ConstIterator end() const { return ((const Priv*)sh)->end(); }
+    iterator begin() { detach(); return sh->begin(); }
+    iterator end() { detach(); return sh->end(); }
+    const_iterator begin() const { return ((const Priv*)sh)->begin(); }
+    const_iterator end() const { return ((const Priv*)sh)->end(); }
+
+    iterator replace( const Key& k, const T& v ) {
+	remove( k );
+	return insert( k, v );
+    }
+
+    size_type size() const { return sh->node_count; }
+    size_type max_size() const { return size_type(-1); }
+    bool empty() const { return sh->node_count == 0; }
+    void swap( QMap<Key,T>& x ) { qSwap( *this, x ); }
+    QPair<iterator,bool> insert( const value_type& x )
+    {
+	detach();
+	uint n = count();
+	Iterator it = sh->insertSingle( x.first );
+	if ( overwrite || n < count() )
+	    it.data() = x.second;
+	return it;
+    }
+    void erase( iterator it )
+    {
+	detach();
+	sh->remove( it );
+    }
+    void erase( const key_type& k )
+    {
+	detach();
+	Iterator it( sh->find( k ).node );
+	if ( it != end() )
+	    sh->remove( it );
+    }
+    size_type count( const key_type& k )
+    {
+	Iterator it( sh->find( k ).node );
+	if ( it != end() ) {
+	    size_type c = 1;
+	    while ( ++it && it != end() )
+		++c;
+	    return c;
+	}
+	return 0;
+    }
+
+    T& operator[] ( const Key& k )
+    {
+	detach();
+	QMapNode<Key,T>* p = sh->find( k ).node;
+	if ( p != sh->end().node )
+	    return p->data;
+	return insert( k, T() ).data();
+    }
+
+    void clear()
+    {
+	if ( sh->count == 1 )
+	    sh->clear();
+	else {
+	    sh->deref();
+	    sh = new QMapPrivate<Key,T>;
+	}
+    }
+
+    typedef QMapIterator< Key, T > Iterator;
+    typedef QMapConstIterator< Key, T > ConstIterator;
+    typedef T ValueType;
+    typedef QMapPrivate< Key, T > Priv;
 
     Iterator find ( const Key& k )
-	{ detach(); return Iterator( sh->find( k ).node ); }
-    ConstIterator find ( const Key& k ) const
-	{ return sh->find( k ); }
-    T& operator[] ( const Key& k ) {
-	detach(); QMapNode<Key,T>* p = sh->find( k ).node;
-	if ( p != sh->end().node ) return p->data;
-	return insert( k, T() ).data(); }
+    {
+	detach();
+	return Iterator( sh->find( k ).node );
+    }
+    ConstIterator find ( const Key& k ) const {	return sh->find( k ); }
+
     const T& operator[] ( const Key& k ) const
-	{ return sh->find( k ).data(); }
+	{ QT_CHECK_INVALID_MAP_ELEMENT; return sh->find( k ).data(); }
     bool contains ( const Key& k ) const
 	{ return find( k ) != end(); }
 	//{ return sh->find( k ) != ((const Priv*)sh)->end(); }
@@ -542,32 +675,29 @@ public:
 
     bool isEmpty() const { return sh->node_count == 0; }
 
+
     Iterator insert( const Key& key, const T& value, bool overwrite = TRUE ) {
-        detach();
+	detach();
 	uint n = count();
-        Iterator it = sh->insertSingle( key );
+	Iterator it = sh->insertSingle( key );
 	if ( overwrite || n < count() )
 	    it.data() = value;
-        return it;
+	return it;
     }
 
     void remove( Iterator it ) { detach(); sh->remove( it ); }
     void remove( const Key& k ) {
-        detach();
-        Iterator it( sh->find( k ).node );
-        if ( it != end() )
-            sh->remove( it );
+	detach();
+	Iterator it( sh->find( k ).node );
+	if ( it != end() )
+	    sh->remove( it );
     }
-
-    Iterator replace( const Key& k, const T& v ) {
-	remove( k );
-	return insert( k, v );
-    }
-
-    void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QMapPrivate<Key,T>; } }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QMap<Key,T>& ) const { return FALSE; }
+#ifndef QT_NO_STL
+    bool operator==( const std::map<Key,T>& ) const { return FALSE; }
+#endif
 #endif
 
 protected:

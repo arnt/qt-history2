@@ -46,7 +46,7 @@
 
 
 struct QComboData;
-class QStrList;
+class QPtrStrList;
 class QStringList;
 class QLineEdit;
 class QValidator;
@@ -76,8 +76,8 @@ class Q_EXPORT QComboBox : public QWidget
     int		count() const;
 
     void	insertStringList( const QStringList &, int index=-1 );
-    void	insertStrList( const QStrList &, int index=-1 );
-    void	insertStrList( const QStrList *, int index=-1 );
+    void	insertStrList( const QPtrStrList &, int index=-1 );
+    void	insertStrList( const QPtrStrList *, int index=-1 );
     void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
     void	insertItem( const QString &text, int index=-1 );
@@ -116,13 +116,13 @@ class Q_EXPORT QComboBox : public QWidget
 		  AfterCurrent, BeforeCurrent };
 
     virtual void setInsertionPolicy( Policy policy );
-    Policy 	insertionPolicy() const;
+    Policy	insertionPolicy() const;
 
     virtual void setValidator( const QValidator * );
     const QValidator * validator() const;
 
     virtual void setListBox( QListBox * );
-    QListBox * 	listBox() const;
+    QListBox *	listBox() const;
 
     QLineEdit*	lineEdit() const;
 
@@ -131,11 +131,11 @@ class Q_EXPORT QComboBox : public QWidget
 
     bool	eventFilter( QObject *object, QEvent *event );
 
-    void 	setDuplicatesEnabled( bool enable );
-    bool 	duplicatesEnabled() const;
+    void	setDuplicatesEnabled( bool enable );
+    bool	duplicatesEnabled() const;
 
-    bool 	editable() const;
-    void 	setEditable( bool );
+    bool	editable() const;
+    void	setEditable( bool );
 
     virtual const QColor &	foregroundColor() const;
     virtual void		setForegroundColor( const QColor & );

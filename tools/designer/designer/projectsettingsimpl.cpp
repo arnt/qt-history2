@@ -136,14 +136,14 @@ void ProjectSettings::okClicked()
 
 void ProjectSettings::removeProject()
 {
-    QList<QListViewItem> lst;
+    QPtrList<QListViewItem> lst;
     QListViewItemIterator it( listInterfaces );
     while ( it.current() ) {
 	if ( it.current()->isSelected() )
 	    lst.append( it.current() );
 	++it;
     }
-	
+
     for ( QListViewItem *i = lst.first(); i; i = lst.next() ) {
 	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
 	FormWindow *fw = 0;

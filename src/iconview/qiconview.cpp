@@ -52,8 +52,8 @@
 #include "qkeycode.h"
 #include "qapplication.h"
 #include "qtextedit.h"
-#include "qarray.h"
-#include "qlist.h"
+#include "qmemarray.h"
+#include "qptrlist.h"
 #include "qvbox.h"
 #include "qtooltip.h"
 #include "qbitmap.h"
@@ -257,7 +257,7 @@ public:
 	}
 	ItemContainer *p, *n;
 	QRect rect;
-	QList<QIconViewItem> items;
+	QPtrList<QIconViewItem> items;
     } *firstContainer, *lastContainer;
 
     struct SortableItem {
@@ -3401,73 +3401,73 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare ) const
 {
     if ( !d->firstItem )
-        return 0;
+	return 0;
 
     if ( compare == CaseSensitive || compare == 0 )
-        compare |= ExactMatch;
+	compare |= ExactMatch;
 
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive) )
-        comtxt = text.lower();
+	comtxt = text.lower();
 
     QIconViewItem *item;
     if ( d->currentItem )
 	item = d->currentItem;
     else
 	item = d->firstItem;
-    
+
     if ( item ) {
-        for ( ; item; item = item->next ) {
-            if ( ! (compare & CaseSensitive) )
-                itmtxt = item->text().lower();
+	for ( ; item; item = item->next ) {
+	    if ( ! (compare & CaseSensitive) )
+		itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-	    
-            if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt )
-                    return item;
-            }
-	    
-            if ( compare & BeginsWith ) {
-                if ( itmtxt.startsWith( comtxt ) )
-                    return item;
-            }
-	    
-            if ( compare & EndsWith ) {
-                if ( itmtxt.right( comtxt.length() ) == comtxt )
-                    return item;
-            }
-	    
-            if ( compare & Contains ) {
-                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-                    return item;
-            }
-        }
-	
+
+	    if ( compare & ExactMatch ) {
+		if ( itmtxt == comtxt )
+		    return item;
+	    }
+
+	    if ( compare & BeginsWith ) {
+		if ( itmtxt.startsWith( comtxt ) )
+		    return item;
+	    }
+
+	    if ( compare & EndsWith ) {
+		if ( itmtxt.right( comtxt.length() ) == comtxt )
+		    return item;
+	    }
+
+	    if ( compare & Contains ) {
+		if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+		    return item;
+	    }
+	}
+
 	if ( d->currentItem && d->firstItem ) {
-            item = d->firstItem;
+	    item = d->firstItem;
 	    for ( ; item && item != d->currentItem; item = item->next ) {
 		if ( ! (compare & CaseSensitive) )
 		    itmtxt = item->text().lower();
 		else
 		    itmtxt = item->text();
-		
+
 		if ( compare & ExactMatch ) {
 		    if ( itmtxt == comtxt )
 			return item;
 		}
-		
+
 		if ( compare & BeginsWith ) {
 		    if ( itmtxt.startsWith( comtxt ) )
 			return item;
 		}
-		
+
 		if ( compare & EndsWith ) {
 		    if ( itmtxt.right( comtxt.length() ) == comtxt )
 			return item;
 		}
-		
+
 		if ( compare & Contains ) {
 		    if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
 			return item;
@@ -5042,8 +5042,8 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	    y = QMAX( y, i->y() + i->height() );
 	}
 
-	QArray<QRect> rects = r.rects();
-	QArray<QRect>::Iterator it = rects.begin();
+	QMemArray<QRect> rects = r.rects();
+	QMemArray<QRect>::Iterator it = rects.begin();
 	bool foundPlace = FALSE;
 	for ( ; it != rects.end(); ++it ) {
 	    QRect rect = *it;
@@ -5160,7 +5160,7 @@ void QIconView::initDragEnter( QDropEvent *e )
 	QIconDrag::Private::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
     } else if ( QUriDrag::canDecode( e ) ) {
-	QStrList lst;
+	QPtrStrList lst;
 	QUriDrag::decode( e, lst );
 	d->numDragItems = lst.count();
     } else {

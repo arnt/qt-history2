@@ -3,7 +3,7 @@ OBJS=project.o main.o makefile.o unixmake.o borland_bmake.o msvc_nmake.o msvc_ds
 
 #qt code
 QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
-	qcollection.o qfile.o qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
+	qptrcollection.o qfile.o qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qlibrary.o
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
@@ -55,8 +55,8 @@ qbuffer.o: @REL_QTDIR@/src/tools/qbuffer.cpp
 qglist.o: @REL_QTDIR@/src/tools/qglist.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qglist.cpp
 
-qcollection.o: @REL_QTDIR@/src/tools/qcollection.cpp
-	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qcollection.cpp
+qptrcollection.o: @REL_QTDIR@/src/tools/qptrcollection.cpp
+	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qptrcollection.cpp
 
 qfile.o: @REL_QTDIR@/src/tools/qfile.cpp
 	$(CXX) -c -O2 -o $@ $(CFLAGS) @REL_QTDIR@/src/tools/qfile.cpp
@@ -128,10 +128,8 @@ projectgenerator.o: generators/projectgenerator.cpp
 	$(CXX) -c -o $@ $(CFLAGS) generators/projectgenerator.cpp
 
 #default rules
-.c.o: 
+.c.o:
 	$(CXX) -c -o $@ $(CFLAGS) -O2 $<
 
-.cpp.o: 
+.cpp.o:
 	$(CXX) -c -o $@ $(CFLAGS) -O2 $<
-
-

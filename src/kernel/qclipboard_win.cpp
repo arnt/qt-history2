@@ -151,7 +151,7 @@ public:
     }
 
     // Not efficient to iterate over this (so we provide provides() above).
-	
+
 	// In order to be able to use UniCode characters, we have to give
 	// it a higher priority than single-byte characters.  To do this, we
 	// treat CF_TEXT as a special case and postpones its processing until
@@ -164,9 +164,9 @@ public:
 	if ( n >= 0 ) {
 	    if ( OpenClipboard( clipboardOwner()->winId() ) ) {
 		int cf = 0;
-		QList<QWindowsMime> all = QWindowsMime::all();
+		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
-                    if ( qt_winver & Qt::WV_NT_based && cf == CF_TEXT )
+		    if ( qt_winver & Qt::WV_NT_based && cf == CF_TEXT )
 				sawSBText = true;
 			else {
 				mime = QWindowsMime::cfToMime(cf);
@@ -181,7 +181,7 @@ public:
 
 		// If we did not find a suitable mime type, yet skipped
 		// CF_TEXT due to the priorities above, give it a shot
-                if ( qt_winver & Qt::WV_NT_based && !mime && sawSBText ) {
+		if ( qt_winver & Qt::WV_NT_based && !mime && sawSBText ) {
 			mime = QWindowsMime::cfToMime( CF_TEXT );
 			if ( mime ) {
 				n--;
@@ -199,7 +199,7 @@ public:
     {
 	QByteArray r;
 	if ( OpenClipboard( clipboardOwner()->winId() ) ) {
-	    QList<QWindowsMime> all = QWindowsMime::all();
+	    QPtrList<QWindowsMime> all = QWindowsMime::all();
 	    for (QWindowsMime* c = all.first(); c; c = all.next()) {
 		int cf = c->cfFor(mime);
 		if ( cf ) {
@@ -240,24 +240,24 @@ public:
    ~QClipboardData();
 
     void setSource(QMimeSource* s)
-    { 
-	delete src; 
-	src = s; 
+    {
+	delete src;
+	src = s;
 	if ( src )
 	    src->clearCache();
     }
     QMimeSource* source()
-    { 
+    {
 	if ( src )
 	    src->clearCache();
-	return src; 
+	return src;
     }
     QMimeSource* provider()
-    { 
-	if (!prov) 
-	    prov = new QClipboardWatcher(); 
+    {
+	if (!prov)
+	    prov = new QClipboardWatcher();
 	prov->clearCache();
-	return prov; 
+	return prov;
     }
 
 private:
@@ -426,7 +426,7 @@ void QClipboard::setData( QMimeSource* src )
 
     // Register all the formats of src that we can render.
     const char* mime;
-    QList<QWindowsMime> all = QWindowsMime::all();
+    QPtrList<QWindowsMime> all = QWindowsMime::all();
     for (int i = 0; mime = src->format(i); i++) {
 	for (QWindowsMime* c = all.first(); c; c = all.next()) {
 	    if ( c->cfFor(mime) ) {

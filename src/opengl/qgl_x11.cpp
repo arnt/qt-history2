@@ -118,7 +118,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     int n, i;
 
     // qDebug( "Choosing cmap for vID %0x", vi->visualid );
-        
+
     if ( vi->visualid ==
 	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
 	// qDebug( "Using x11AppColormap" );
@@ -181,7 +181,7 @@ struct TransColor
     long	color;
 };
 
-static QArray<TransColor> trans_colors;
+static QMemArray<TransColor> trans_colors;
 static int trans_colors_init = FALSE;
 
 
@@ -423,7 +423,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     int i = 0;
     spec[i++] = GLX_LEVEL;
     spec[i++] = f.plane();
-    
+
 #if defined(GLX_VERSION_1_1) && defined(GLX_EXT_visual_info)
     static bool useTranspExt = FALSE;
     static bool useTranspExtChecked = FALSE;
@@ -485,10 +485,10 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 	}
     }
     else {
- 	spec[i++] = GLX_BUFFER_SIZE;
- 	spec[i++] = bufDepth;
+	spec[i++] = GLX_BUFFER_SIZE;
+	spec[i++] = bufDepth;
     }
-    
+
     spec[i] = None;
     return glXChooseVisual( paintDevice->x11Display(),
 			    paintDevice->x11Screen(), spec );

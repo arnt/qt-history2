@@ -495,7 +495,7 @@ inline bool QWidgetMapper::remove( WId id )
 	state. This implies WState_Disabled.
   <dt>WState_Visible<dd> The widget is currently visible.
   <dt>WState_ForceHide<dd> The widget is explicitly hidden, i.e. it won't become
-  	visible unless you call show() on it.  ForceHide implies !WState_Visible
+	visible unless you call show() on it.  ForceHide implies !WState_Visible
   <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
   <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
   <dt>WState_CompressKeys<dd> Compress keyboard events.
@@ -508,7 +508,7 @@ inline bool QWidgetMapper::remove( WId id )
   <dt>WState_Polished<dd> The widget has been "polished" (i.e. late initializated ) by a QStyle.
   <dt>WState_DND<dd> The widget supports drag and drop, see setAcceptDrops().
   <dt> WState_Exposed<dd> the widget was finally exposed (x11 only,
-        helps avoiding paint event doubling).
+	helps avoiding paint event doubling).
   </dl>
 */
 
@@ -712,9 +712,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    fd->focusWidgets.append( this );
     } else {
 	if ( !parentWidget()->isEnabled() )
-	    setWState( WState_Disabled ); 	// propagate enabled state
-   	if ( parentWidget()->isVisibleTo( 0 ) )
- 	    setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
+	    setWState( WState_Disabled );	// propagate enabled state
+	if ( parentWidget()->isVisibleTo( 0 ) )
+	    setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     }
 }
 
@@ -737,7 +737,7 @@ QWidget::~QWidget()
     // Remove myself and all children from the can-take-focus list
     QFocusData *f = focusData( FALSE );
     if ( f ) {
-	QListIterator<QWidget> it(f->focusWidgets);
+	QPtrListIterator<QWidget> it(f->focusWidgets);
 	QWidget *w;
 	while ( (w = it.current()) ) {
 	    ++it;
@@ -3340,9 +3340,9 @@ void QWidget::show()
 		    s.setHeight( heightForWidth( s.width() ) );
 		exp = sizePolicy().expanding();
 	    }
- 	if ( exp & QSizePolicy::Horizontal )
+	if ( exp & QSizePolicy::Horizontal )
 	    s.setWidth( QMAX( s.width(), 200 ) );
- 	if ( exp & QSizePolicy::Vertical )
+	if ( exp & QSizePolicy::Vertical )
 	    s.setHeight( QMAX( s.height(), 150 ) );
 	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
 	s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
@@ -4000,7 +4000,7 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    break;
 
-        case QEvent::IMStart: {
+	case QEvent::IMStart: {
 	    QIMEvent *i = (QIMEvent *) e;
 	    imStartEvent(i);
 	    if (! i->isAccepted())
@@ -4008,19 +4008,19 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 
-        case QEvent::IMCompose: {
+	case QEvent::IMCompose: {
 	    QIMEvent *i = (QIMEvent *) e;
-            imComposeEvent(i);
-            if (! i->isAccepted())
-	        return FALSE;
+	    imComposeEvent(i);
+	    if (! i->isAccepted())
+		return FALSE;
 	    }
 	    break;
 
-        case QEvent::IMEnd: {
+	case QEvent::IMEnd: {
 	    QIMEvent *i = (QIMEvent *) e;
-            imEndEvent(i);
+	    imEndEvent(i);
 	    if (! i->isAccepted())
-	        return FALSE;
+		return FALSE;
 	    }
 	    break;
 
@@ -4114,8 +4114,8 @@ bool QWidget::event( QEvent *e )
 	    break;
 #ifndef QT_NO_PALETTE
 	case QEvent::ParentPaletteChange:
- 	    if ( isTopLevel() )
- 		break;
+	    if ( isTopLevel() )
+		break;
 	    // FALL THROUGH
 	case QEvent::ApplicationPaletteChange:
 	    if ( !own_palette && !isDesktop() ) {
@@ -4140,7 +4140,7 @@ bool QWidget::event( QEvent *e )
 		delete cl;
 	    }
 	    break;
-        default:
+	default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );
 		return TRUE;

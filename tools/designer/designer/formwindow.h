@@ -174,7 +174,7 @@ public:
 
     void setActiveObject( QObject *o );
 
-    QList<QAction> &actionList() { return actions; }
+    QPtrList<QAction> &actionList() { return actions; }
     QAction *findAction( const QString &name );
 
     void setProject( Project *pro );
@@ -256,7 +256,7 @@ private:
     QPoint sizePreviewPos;
     QPixmap sizePreviewPixmap;
     MainWindow *mainwindow;
-    QList<WidgetSelection> selections;
+    QPtrList<WidgetSelection> selections;
     QPtrDict<WidgetSelection> usedSelections;
     QRect widgetGeom, rubber;
     QPoint oldPressPos, origPressPos;
@@ -275,14 +275,14 @@ private:
     QObject *connectSender, *connectReceiver;
     QString filename;
     QPixmap *buffer;
-    QList<OrderIndicator> orderIndicators;
+    QPtrList<OrderIndicator> orderIndicators;
     QWidgetList orderedWidgets;
     QWidgetList stackedWidgets;
     QWidget *mContainer;
     bool pixInline, pixProject;
     QString pixLoader;
     bool toolFixed;
-    QList<QAction> actions;
+    QPtrList<QAction> actions;
     Project *proj;
     DesignerFormWindow *iface;
     QWidget* targetContainer;

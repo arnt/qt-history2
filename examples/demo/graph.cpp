@@ -171,14 +171,14 @@ void NodeItem::calcForce() {
     for ( it2 = outList.begin(); it2 != outList.end(); ++it2 ) {
 	e = (*it2);
 	n = e->to;
- 	xvel = xvel - ( x() - n->x() ) / w;
- 	yvel = yvel - ( y() - n->y() ) / w;
+	xvel = xvel - ( x() - n->x() ) / w;
+	yvel = yvel - ( y() - n->y() ) / w;
     }
     for ( it2 = inList.begin(); it2 != inList.end(); ++it2 ) {
 	e = (*it2);
 	n = e->from;
- 	xvel = xvel - ( x() - n->x() ) / w;
- 	yvel = yvel - ( y() - n->y() ) / w;
+	xvel = xvel - ( x() - n->x() ) / w;
+	yvel = yvel - ( y() - n->y() ) / w;
     }
     if ( QABS( xvel ) < .1 && QABS( yvel ) < .1 )
 	xvel = yvel = 0;
@@ -331,7 +331,7 @@ void BouncyText::advance( int stage )
       } break;
       case 1:
 	QCanvasItem::advance( stage );
-        break;
+	break;
     }
 }
 
@@ -416,7 +416,7 @@ void FigureEditor::initialize()
     int rows = 3;
     int cols = 3;
 
-    QArray<NodeItem*> lastRow(cols);
+    QMemArray<NodeItem*> lastRow(cols);
     for ( int r = 0; r < rows; r++ ) {
 	NodeItem *prev = 0;
 	for ( int c = 0; c < cols; c++ ) {
@@ -441,4 +441,3 @@ void FigureEditor::initialize()
     i->show();
     setCanvas( graph->canvas );
 }
-

@@ -51,10 +51,10 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   \ingroup drawing
   \ingroup shared
 
-  \inherit QArray
+  \inherit QMemArray
 
   The QPointArray is an array of QPoint objects. In addition to the
-  functions provided by QArray, QPointArray provides some
+  functions provided by QMemArray, QPointArray provides some
   point-specific functions.
 
   For convenient reading and writing of the point data: setPoints(),
@@ -68,7 +68,7 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
   QPainter::drawPolyline(), QPainter::drawPolygon() and
   QPainter::drawCubicBezier().
 
-  Note that because this class is a QArray, copying an array and modifying
+  Note that because this class is a QMemArray, copying an array and modifying
   the copy modifies the original as well - the copy is shallow, not deep.
   You \e must detach() the array in code like this:
 
@@ -76,15 +76,15 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
     void drawGiraffe( const QPointArray & r, QPainter * p )
     {
 	QPointArray tmp = r;
-        tmp.detach();
-        // some code that modifies tmp
-        p->drawPoints( tmp );
+	tmp.detach();
+	// some code that modifies tmp
+	p->drawPoints( tmp );
     }
   \endcode
 
   If you forget the tmp.detach(), the const array will be modified.
 
-  \sa QPainter QWMatrix QArray
+  \sa QPainter QWMatrix QMemArray
 */
 
 
@@ -200,7 +200,7 @@ void QPointArray::translate( int dx, int dy )
 
 void QPointArray::point( uint index, int *x, int *y ) const
 {
-    QPoint p = QArray<QPoint>::at( index );
+    QPoint p = QMemArray<QPoint>::at( index );
     if ( x )
 	*x = (int)p.x();
     if ( y )
@@ -213,7 +213,7 @@ void QPointArray::point( uint index, int *x, int *y ) const
 
 QPoint QPointArray::point( uint index ) const
 { // #### index out of bounds
-    return QArray<QPoint>::at( index );
+    return QMemArray<QPoint>::at( index );
 }
 
 /*!
@@ -226,7 +226,7 @@ QPoint QPointArray::point( uint index ) const
 
 void QPointArray::setPoint( uint index, int x, int y )
 { // #### index out of bounds
-    QArray<QPoint>::at( index ) = QPoint( x, y );
+    QMemArray<QPoint>::at( index ) = QPoint( x, y );
 }
 
 /*!
@@ -470,13 +470,13 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 	while ( npts-- ) {
 	    if ( i >= (int)size() )			// wrap index
 		i = 0;
-	    a.QArray<QPoint>::at( j++ ) = QArray<QPoint>::at( i++ );
+	    a.QMemArray<QPoint>::at( j++ ) = QMemArray<QPoint>::at( i++ );
 	}
     } else {
 	while ( npts-- ) {
 	    if ( i < 0 )				// wrap index
 		i = (int)size()-1;
-	    a.QArray<QPoint>::at( j++ ) = QArray<QPoint>::at( i-- );
+	    a.QMemArray<QPoint>::at( j++ ) = QMemArray<QPoint>::at( i-- );
 	}
     }
     *this = a;
@@ -523,11 +523,11 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 
     int n = offset;
     for (i = (PIV2 >> (16 - m)); i >= 0; --i) {
-        a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
-        ux -= vx >> m;
-        vx += ux >> m;
-        uy -= vy >> m;
-        vy += uy >> m;
+	a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
+	ux -= vx >> m;
+	vx += ux >> m;
+	uy -= vy >> m;
+	vy += uy >> m;
     }
     offset = n;
 
@@ -811,7 +811,7 @@ int pnt_on_line( const int* p, const int* q, const int* t )
 	}
 
     if ( QABS((q[1]-p[1])*(t[0]-p[0])-(t[1]-p[1])*(q[0]-p[0])) >=
-        (QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
+	(QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
 
     if (((q[0]<p[0])&&(p[0]<t[0])) || ((q[1]<p[1])&&(p[1]<t[1])))
 	return 1 ;
@@ -835,7 +835,7 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
 	if ( accsize >= maxsize-4 )
 	    return;
 	// Running out of space - approximate by a line.
-        acc[accsize++] = ctrl[0];
+	acc[accsize++] = ctrl[0];
 	acc[accsize++] = ctrl[1];
 	acc[accsize++] = ctrl[6];
 	acc[accsize++] = ctrl[7];
@@ -868,8 +868,8 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
 
     if ( ( pnt_on_line( c0, c3, c1 ) == 2 && pnt_on_line( c0, c3, c2 ) == 2 )
       || ( QABS(c1[0]-c0[0]) <= 1 && QABS(c1[1]-c0[1]) <= 1
-        && QABS(c2[0]-c0[0]) <= 1 && QABS(c2[1]-c0[1]) <= 1
-        && QABS(c3[0]-c1[0]) <= 1 && QABS(c3[1]-c0[1]) <= 1 ) )
+	&& QABS(c2[0]-c0[0]) <= 1 && QABS(c2[1]-c0[1]) <= 1
+	&& QABS(c3[0]-c1[0]) <= 1 && QABS(c3[1]-c0[1]) <= 1 ) )
     {
 	// Approximate by one line.
 	// Dont need to write last pt as it is the same as first pt

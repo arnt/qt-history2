@@ -41,7 +41,7 @@
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qbitarray.h"
-#include "qvector.h"
+#include "qptrvector.h"
 #include "qapplication.h"
 
 static const int GRIPMARGIN  = 4;		//half the size of the resize area
@@ -88,13 +88,13 @@ struct QHeaderData
     }
 
 
-    QArray<QCOORD>	sizes;
-    QArray<QCOORD>	heights;
-    QArray<QCOORD>	positions; // sorted by index
-    QVector<QString>	labels;
-    QVector<QIconSet>	iconsets;
-    QArray<int>	        i2s;
-    QArray<int>	        s2i;
+    QMemArray<QCOORD>	sizes;
+    QMemArray<QCOORD>	heights;
+    QMemArray<QCOORD>	positions; // sorted by index
+    QPtrVector<QString>	labels;
+    QPtrVector<QIconSet> iconsets;
+    QMemArray<int>	        i2s;
+    QMemArray<int>	        s2i;
 
     QBitArray           clicks;
     QBitArray           resize;
@@ -176,7 +176,7 @@ struct QHeaderData
 */
 
 QHeader::QHeader( QWidget *parent, const char *name )
-    : QWidget( parent, name, WNorthWestGravity )
+    : QWidget( parent, name, WStaticContents )
 {
     orient = Horizontal;
     init( 0 );
@@ -190,7 +190,7 @@ QHeader::QHeader( QWidget *parent, const char *name )
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
-    : QWidget( parent, name, WNorthWestGravity )
+    : QWidget( parent, name, WStaticContents )
 {
     orient = Horizontal;
     init( n );

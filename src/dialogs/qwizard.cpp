@@ -45,7 +45,7 @@
 #include "qlabel.h"
 #include "qwidgetstack.h"
 #include "qapplication.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qpainter.h"
 #include "qaccel.h"
 
@@ -112,7 +112,7 @@ public:
     QVBoxLayout * v;
     Page * current;
     QWidgetStack * ws;
-    QList<Page> pages;
+    QPtrList<Page> pages;
     QLabel * title;
     QPushButton * backButton;
     QPushButton * nextButton;
@@ -264,7 +264,7 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
     }
 
     if ( index < 0  || index > (int)d->pages.count() )
-        index = d->pages.count();
+	index = d->pages.count();
 
     Private::Page * p = new Private::Page( page, title );
     p->backEnabled = ( index > 0 );
@@ -402,7 +402,7 @@ void QWizard::setHelpEnabled( bool enable )
 /*!
   \fn void QWizard::setFinish( QWidget *, bool )
   \obsolete
-  
+
   Use setFinishEnabled instead
 */
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#36 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#37 $
 **
 ** Implementation of QSocket class.
 **
@@ -37,7 +37,7 @@
 
 #include "qsocket.h"
 #ifndef QT_NO_NETWORK
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
 
@@ -63,7 +63,7 @@ public:
     Q_UINT16		port;			// host port
     QSocketDevice      *socket;			// connection socket
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
-    QList<QByteArray>	rba, wba;		// list of read/write bufs
+    QPtrList<QByteArray> rba, wba;		// list of read/write bufs
     QHostAddress	addr;			// connection address
     Q_ULONG		rsize, wsize;		// read/write total buf size
     Q_ULONG		rindex, windex;		// read/write index
@@ -984,7 +984,7 @@ int QSocket::ungetch( int ch )
 
   \code
     while( !socket->canReadLine() )
-        ...
+	...
   \endcode
 
   \sa setMode(), readLine()
@@ -1156,7 +1156,7 @@ void QSocket::sn_read()
 
 void QSocket::sn_write()
 {
-    if ( d->state == Connecting ) 		// connection established?
+    if ( d->state == Connecting )		// connection established?
 	tryConnection();
     flush();
 }
@@ -1221,10 +1221,10 @@ void QSocket::setSocketIntern( int socket )
     d->socket->setSocket(socket, QSocketDevice::Stream );
     delete d->rsn;
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
-                                  this, "read" );
+				  this, "read" );
     delete d->wsn;
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
-                                  this, "write" );
+				  this, "write" );
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
     d->rsn->setEnabled( FALSE );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );

@@ -13,7 +13,7 @@
 
 
 #include <qpushbutton.h>
-#include <qvector.h>
+#include <qptrvector.h>
 
 class QComboBox;
 class QLabel;
@@ -44,8 +44,8 @@ private:
 // Using template vector to make vector-class of TicTacButton.
 // This vector is used by the TicTacGameBoard class defined below.
 
-typedef QVector<TicTacButton>	TicTacButtons;
-typedef QArray<int>		TicTacArray;
+typedef QPtrVector<TicTacButton>	TicTacButtons;
+typedef QMemArray<int>		TicTacArray;
 
 
 // --------------------------------------------------------------------------
@@ -71,8 +71,8 @@ private slots:
 private:
     void        setState( State state ) { st = state; }
     void	updateButtons();
-    int  	checkBoard( TicTacArray * );
-    void 	computerMove();
+    int	checkBoard( TicTacArray * );
+    void	computerMove();
     State	st;
     int		nBoard;
     bool	comp_starts;

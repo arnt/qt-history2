@@ -206,12 +206,12 @@ void QLabel::init()
 #endif
     align = AlignAuto | AlignVCenter | ExpandTabs;
     if ( frameWidth() == 0 ) {
-        extraMargin = 0;
-    } else if ( frameWidth() > 0 ) { 
-        QFontMetrics f( font() );
-        extraMargin = f.width( 'x' ) / 2;
+	extraMargin = 0;
+    } else if ( frameWidth() > 0 ) {
+	QFontMetrics f( font() );
+	extraMargin = f.width( 'x' ) / 2;
     } else {
-        extraMargin = -1;
+	extraMargin = -1;
     }
     autoresize = FALSE;
     scaledcontents = FALSE;
@@ -561,7 +561,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	    w = 2000;
 	br = fm.boundingRect( 0, 0, w ,2000, alignment(), text() );
 	if ( tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2 )
-	    	br = fm.boundingRect( 0, 0, w/2, 2000, alignment(), text() );
+		br = fm.boundingRect( 0, 0, w/2, 2000, alignment(), text() );
 	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4 )
 	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
@@ -727,7 +727,7 @@ void QLabel::drawContents( QPainter *p )
 #ifndef QT_NO_MOVIE
     if ( mov ) {
 	// ### should add movie to qDrawItem
- 	QRect r = style().itemRect( p,
+	QRect r = style().itemRect( p,
 				    cr.x(), cr.y(), cr.width(), cr.height(),
 				    align, isEnabled(), &(mov->framePixmap()),
 				    QString::null );
@@ -948,9 +948,9 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	updateGeometry();
     if ( autoresize ) {
 	adjustSize();
-        update(cr.x(), cr.y(), cr.width(), cr.height());
+	update(cr.x(), cr.y(), cr.width(), cr.height());
     } else {
-        update(cr.x(), cr.y(), cr.width(), cr.height());
+	update(cr.x(), cr.y(), cr.width(), cr.height());
 	updateGeometry();
 	if ( autoMask() )
 	    updateMask();

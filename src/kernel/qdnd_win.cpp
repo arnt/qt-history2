@@ -77,7 +77,7 @@ LPFORMATETC allFormats(int& n)
 {
     n = 0;
     QWindowsMime* wm;
-    QList<QWindowsMime> mimes = QWindowsMime::all();
+    QPtrList<QWindowsMime> mimes = QWindowsMime::all();
     for ( wm = mimes.first(); wm; wm = mimes.next() )
 	n += wm->countCf();
 
@@ -107,7 +107,7 @@ LPFORMATETC someFormats(const char* mime, int& n)
 {
     n = 0;
     QWindowsMime* wm;
-    QList<QWindowsMime> mimes = QWindowsMime::all();
+    QPtrList<QWindowsMime> mimes = QWindowsMime::all();
     for ( wm = mimes.first(); wm; wm = mimes.next() )
 	if (wm->cfFor(mime)) n += wm->countCf();
 
@@ -140,7 +140,7 @@ LPFORMATETC someFormats(const QMimeSource* ms, int& n)
 {
     n = 0;
     QWindowsMime* wm;
-    QList<QWindowsMime> mimes = QWindowsMime::all();
+    QPtrList<QWindowsMime> mimes = QWindowsMime::all();
     for ( wm = mimes.first(); wm; wm = mimes.next() )
 	n += wm->countCf();
 

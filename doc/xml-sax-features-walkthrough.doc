@@ -232,7 +232,7 @@ All we have to implement so far is content handling.
 In addition we have a function that selects a listview
 for the output.
 
-\printuntil QStack
+\printuntil QPtrStack
 
 Keep in mind that we write a SAX2 parser that doesn't
 have an object model to keep all elements and attributes
@@ -320,7 +320,7 @@ Therefore we define a \l QListViewItem variable.
 
 As long as the element \e stack isn't empty the current element
 is a child of the topmost (last unclosed) element on the stack. Thus we
-create a new \l QListViewItem as a child of QStack::stack.top() with 
+create a new \l QListViewItem as a child of QPtrStack::stack.top() with 
 the new element's qualified name in the first column and the according
 namespace URI (or nothing) in the second one.
 

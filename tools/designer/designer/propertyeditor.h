@@ -24,7 +24,7 @@
 #include <qfeatures.h>
 #include <qvariant.h>
 #include <qlistview.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qguardedptr.h>
 #include <qtabwidget.h>
 #include <qmodules.h>
@@ -114,7 +114,7 @@ private:
     bool open, changed;
     PropertyItem *property;
     QString propertyName;
-    QList<PropertyItem> children;
+    QPtrList<PropertyItem> children;
     QColor backColor;
     QPushButton *resetButton;
 

@@ -24,7 +24,7 @@
 #include <qvariant.h>
 #include <qlistview.h>
 #include <qtabwidget.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class FormWindow;
 class QResizeEvent;

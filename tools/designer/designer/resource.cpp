@@ -483,7 +483,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	QTabWidget* tw = (QTabWidget*) obj;
 	QObjectList* tmpl = tw->queryList( "QWidgetStack" );
 	const QObjectList *l = tmpl->first()->children();
-	for ( QListIterator<QObject> it ( *l ); it.current(); ++it ) {
+	for ( QPtrListIterator<QObject> it ( *l ); it.current(); ++it ) {
 	    if ( !it.current()->isWidgetType() ||
 		 qstrcmp( it.current()->className(), "QWidgetStackPrivate::Invisible" ) == 0 ||
 		 !( ((QDesignerTabWidget*)tw)->tabBar()->tab(  ((QWidgetStack*)tmpl->first())->id( ((QWidget*)it.current()) ) ) ) )
@@ -512,7 +512,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	QWizard* wiz = (QWizard*)obj;
 	QObjectList* tmpl = wiz->queryList( "QWidgetStack" );
 	const QObjectList *l = tmpl->first()->children();
-	for ( QListIterator<QObject> it ( *l ); it.current(); ++it ) {
+	for ( QPtrListIterator<QObject> it ( *l ); it.current(); ++it ) {
 	    if ( !it.current()->isWidgetType() ||
 		 qstrcmp( it.current()->className(), "QWidgetStackPrivate::Invisible" ) == 0 ||
 		 ( (QDesignerWizard*)wiz )->isPageRemoved( (QWidget*)it.current() ) )
@@ -562,7 +562,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent++;
 	    QStringList text;
 	    text << i->text();
-	    QList<QPixmap> pixmaps;
+	    QPtrList<QPixmap> pixmaps;
 	    if ( i->pixmap() )
 		pixmaps.append( i->pixmap() );
 	    saveItem( text, pixmaps, ts, indent );
@@ -578,7 +578,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent++;
 	    QStringList text;
 	    text << i->text();
-	    QList<QPixmap> pixmaps;
+	    QPtrList<QPixmap> pixmaps;
 	    if ( i->pixmap() )
 		pixmaps.append( i->pixmap() );
 	    saveItem( text, pixmaps, ts, indent );
@@ -593,7 +593,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent++;
 	    QStringList l;
 	    l << lv->header()->label( i );
-	    QList<QPixmap> pix;
+	    QPtrList<QPixmap> pix;
 	    pix.setAutoDelete( TRUE );
 	    if ( lv->header()->iconSet( i ) )
 		pix.append( new QPixmap( lv->header()->iconSet( i )->pixmap() ) );
@@ -623,7 +623,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent++;
 	    QStringList l;
 	    l << table->horizontalHeader()->label( i );
-	    QList<QPixmap> pix;
+	    QPtrList<QPixmap> pix;
 	    pix.setAutoDelete( TRUE );
 	    if ( table->horizontalHeader()->iconSet( i ) )
 		pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
@@ -643,7 +643,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    indent++;
 	    QStringList l;
 	    l << table->verticalHeader()->label( i );
-	    QList<QPixmap> pix;
+	    QPtrList<QPixmap> pix;
 	    pix.setAutoDelete( TRUE );
 	    if ( table->verticalHeader()->iconSet( i ) )
 		pix.append( new QPixmap( table->verticalHeader()->iconSet( i )->pixmap() ) );
@@ -662,7 +662,7 @@ void Resource::saveItem( QListViewItem *i, QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<item>" << endl;
 	indent++;
 
-	QList<QPixmap> pixmaps;
+	QPtrList<QPixmap> pixmaps;
 	QStringList textes;
 	for ( int c = 0; c < lv->columns(); ++c ) {
 	    pixmaps.append( i->pixmap( c ) );
@@ -722,7 +722,7 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
     return QPixmap();
 }
 
-void Resource::saveItem( const QStringList &text, const QList<QPixmap> &pixmaps, QTextStream &ts, int indent )
+void Resource::saveItem( const QStringList &text, const QPtrList<QPixmap> &pixmaps, QTextStream &ts, int indent )
 {
     QStringList::ConstIterator it = text.begin();
     for ( ; it != text.end(); ++it ) {
@@ -734,7 +734,7 @@ void Resource::saveItem( const QStringList &text, const QList<QPixmap> &pixmaps,
     }
 
     for ( int i = 0; i < (int)pixmaps.count(); ++i ) {
-	QPixmap *p = ( (QList<QPixmap>)pixmaps ).at( i );
+	QPixmap *p = ( (QPtrList<QPixmap>)pixmaps ).at( i );
 	ts << makeIndent( indent ) << "<property name=\"pixmap\">" << endl;
 	indent++;
 	if ( p )
@@ -788,7 +788,7 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 
     }
 
-    for ( QListIterator<QObject> it ( *l ); it.current(); ++it )
+    for ( QPtrListIterator<QObject> it ( *l ); it.current(); ++it )
 	saveObject( it.current(), grid, ts, indent );
     if ( !closeTag.isEmpty() ) {
 	indent--;
@@ -822,8 +822,8 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
 
-    QStrList lst = w->metaObject()->propertyNames( !w->inherits( "Spacer" ) );
-    for ( QListIterator<char> it( lst ); it.current(); ++it ) {
+    QPtrStrList lst = w->metaObject()->propertyNames( !w->inherits( "Spacer" ) );
+    for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
 	if ( changed.find( QString::fromLatin1( it.current() ) ) == changed.end() )
 	    continue;
 	const QMetaProperty* p = w->metaObject()->
@@ -890,7 +890,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 void Resource::saveSetProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
     const QMetaProperty *p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
-    QStrList l( p->valueToKeys( w->property( name ).toInt() ) );
+    QPtrStrList l( p->valueToKeys( w->property( name ).toInt() ) );
     QString v;
     for ( uint i = 0; i < l.count(); ++i ) {
 	v += l.at( i );
@@ -1523,7 +1523,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     } else if ( e.tagName() == "set" && p && p->isSetType() ) {
 	QString keys( v.toString() );
 	QStringList lst = QStringList::split( '|', keys );
-	QStrList l;
+	QPtrStrList l;
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
 	    l.append( *it );
 	v = QVariant( p->keysToValue( l ) );
@@ -1834,7 +1834,7 @@ void Resource::saveCustomWidgets( QTextStream &ts, int indent )
     ts << makeIndent( indent ) << "<customwidgets>" << endl;
     indent++;
 
-    QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	if ( usedCustomWidgets.findIndex( w->className ) == -1 )
 	    continue;
@@ -2086,13 +2086,13 @@ void Resource::saveChildActions( QAction *a, QTextStream &ts, int indent )
     }
 }
 
-void Resource::saveActions( const QList<QAction> &actions, QTextStream &ts, int indent )
+void Resource::saveActions( const QPtrList<QAction> &actions, QTextStream &ts, int indent )
 {
     if ( actions.isEmpty() )
 	return;
     ts << makeIndent( indent ) << "<actions>" << endl;
     indent++;
-    QListIterator<QAction> it( actions );
+    QPtrListIterator<QAction> it( actions );
     while ( it.current() ) {
 	QAction *a = it.current();
 	bool isGroup = a->inherits( "QActionGroup" );
@@ -2178,7 +2178,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
     ts << makeIndent( indent ) << "<toolbars>" << endl;
     indent++;
 
-    QList<QToolBar> tbList;
+    QPtrList<QToolBar> tbList;
     for ( int i = 0; i <= (int)Qt::Minimized; ++i ) {
 	tbList = mw->toolBars( (Qt::Dock)i );
 	if ( tbList.isEmpty() )
@@ -2189,7 +2189,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label(), TRUE )
 	       << "\" name=\"" << entitize( tb->name(), TRUE ) << "\">" << endl;
 	    indent++;
-	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
+	    QPtrList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
 		if ( a->inherits( "QSeparatorAction" ) ) {
 		    ts << makeIndent( indent ) << "<separator/>" << endl;
@@ -2231,7 +2231,7 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	QMenuItem *m = mw->menuBar()->findItem( mw->menuBar()->idAt( i ) );
 	if ( !m )
 	    continue;
-	QList<QAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
+	QPtrList<QAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
 	for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
 	    if ( a->inherits( "QSeparatorAction" ) )
 		ts <<  makeIndent( indent ) << "<separator/>" << endl;

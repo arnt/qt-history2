@@ -16,19 +16,19 @@
 #define CARD_H
 
 #include <qlayout.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class CardLayout : public QLayout
 {
 public:
     CardLayout( QWidget *parent, int dist )
-        : QLayout( parent, 0, dist ) {}
+	: QLayout( parent, 0, dist ) {}
     CardLayout( QLayout* parent, int dist)
-        : QLayout( parent, dist ) {}
+	: QLayout( parent, dist ) {}
     CardLayout( int dist )
-        : QLayout( dist ) {}
+	: QLayout( dist ) {}
     ~CardLayout();
-    
+
     void addItem( QLayoutItem *item );
     QSize sizeHint() const;
     QSize minimumSize() const;
@@ -36,9 +36,8 @@ public:
     void setGeometry( const QRect &rect );
 
 private:
-    QList<QLayoutItem> list;
+    QPtrList<QLayoutItem> list;
 
 };
 
 #endif
-

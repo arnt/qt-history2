@@ -40,7 +40,7 @@
 #if defined(QT_THREAD_SUPPORT)
 
 #include "qapplication.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qintdict.h"
 #include "qthread_p.h"
 
@@ -218,7 +218,7 @@ class QThreadPostEventPrivate : public QObject
 public:
     QThreadPostEventPrivate();
 
-    QList<QThreadQtEvent> events;
+    QPtrList<QThreadQtEvent> events;
     QMutex eventmutex;
 
 public slots:
@@ -509,7 +509,7 @@ bool QThread::running() const
 /*!
   \class QWaitCondition qthread.h
   \brief The QWaitCondition class allows waiting/waking for conditions
-         between threads.
+	 between threads.
 
   \ingroup environment
 

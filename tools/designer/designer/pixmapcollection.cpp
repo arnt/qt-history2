@@ -87,7 +87,7 @@ QString PixmapCollection::unifyName( const QString &n )
 	    restart = TRUE;
 	}
     }
-	
+
     return name;
 }
 
@@ -221,7 +221,7 @@ void PixmapCollection::createCppFile()
     out << "#include <qpixmap.h>" << endl << endl;
 
 
-    QList<EmbedImage> list_image;
+    QPtrList<EmbedImage> list_image;
     for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	QImage img = (*it).pix.convertToImage();
 	EmbedImage *e = new EmbedImage;
@@ -293,19 +293,19 @@ void PixmapCollection::createCppFile()
 	    "    QImage* img = dict.find(name);\n"
 	    "    if ( !img ) {\n"
 	    "        for (int i=0; embed_image_vec[i].data; i++) {\n"
-	    "    	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
-	    "    	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
-	    "    			embed_image_vec[i].width,\n"
-	    "    			embed_image_vec[i].height,\n"
-	    "    			embed_image_vec[i].depth,\n"
-	    "    			(QRgb*)embed_image_vec[i].colorTable,\n"
-	    "    			embed_image_vec[i].numColors,\n"
-	    "    			QImage::BigEndian\n"
-	    "    		);\n"
-	    "    	    if ( embed_image_vec[i].alpha )\n"
-	    "    	        img->setAlphaBuffer(TRUE);\n"
-	    "    	    break;\n"
-	    "    	}\n"
+	    "	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
+	    "	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
+	    "			embed_image_vec[i].width,\n"
+	    "			embed_image_vec[i].height,\n"
+	    "			embed_image_vec[i].depth,\n"
+	    "			(QRgb*)embed_image_vec[i].colorTable,\n"
+	    "			embed_image_vec[i].numColors,\n"
+	    "			QImage::BigEndian\n"
+	    "		);\n"
+	    "	    if ( embed_image_vec[i].alpha )\n"
+	    "	        img->setAlphaBuffer(TRUE);\n"
+	    "	    break;\n"
+	    "	}\n"
 	    "        }\n"
 	    "        if ( !img ) {\n"
 	    "            static QImage dummy;\n"
@@ -314,7 +314,7 @@ void PixmapCollection::createCppFile()
 	    "    }\n"
 	    "    return *img;\n"
 	    "}\n\n";
-	
+
 	out << "class DesignerMimeSourceFactory : public QMimeSourceFactory" << endl;
 	out << "{" << endl;
 	out << "public:" << endl;

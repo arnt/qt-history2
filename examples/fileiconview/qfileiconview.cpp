@@ -13,7 +13,7 @@
 #include <qstringlist.h>
 #include <qpixmap.h>
 #include <qmime.h>
-#include <qstrlist.h>
+#include <qptrstrlist.h>
 #include <qdragobject.h>
 #include <qmessagebox.h>
 #include <qevent.h>
@@ -416,7 +416,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QStrList lst;
+    QPtrStrList lst;
     QUriDrag::decode( e, lst );
 
     QString str;
@@ -656,7 +656,7 @@ QDragObject *QtFileIconView::dragObject()
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
     QtFileIconDrag *drag = new QtFileIconDrag( viewport() );
     drag->setPixmap( *currentItem()->pixmap(),
- 		     QPoint( currentItem()->pixmapRect().width() / 2, currentItem()->pixmapRect().height() / 2 ) );
+		     QPoint( currentItem()->pixmapRect().width() / 2, currentItem()->pixmapRect().height() / 2 ) );
     for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item;
 	  item = (QtFileIconViewItem*)item->nextItem() ) {
 	if ( item->isSelected() ) {
@@ -667,7 +667,7 @@ QDragObject *QtFileIconView::dragObject()
 				 item->pixmapRect( FALSE ).y() - orig.y(),
 				 item->pixmapRect().width(), item->pixmapRect().height() ),
 			  QRect( item->textRect( FALSE ).x() - orig.x(),
-				 item->textRect( FALSE ).y() - orig.y(), 	
+				 item->textRect( FALSE ).y() - orig.y(),
 				 item->textRect().width(), item->textRect().height() ),
 			  QString( item->filename() ) );
 	}
@@ -694,7 +694,7 @@ void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QStrList lst;
+    QPtrStrList lst;
     QUriDrag::decode( e, lst );
 
     QString str;

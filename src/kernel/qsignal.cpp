@@ -177,7 +177,9 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
+#ifndef QT_NO_COMPAT
     emit intSignal( val.toInt() );
+#endif
     emit signal( val );
 }
 
@@ -212,7 +214,7 @@ QVariant QSignal::value() const
     return val;
 }
 
-
+#ifndef QT_NO_COMPAT
 void QSignal::setParameter( int value )
 {
     val = value;
@@ -222,3 +224,4 @@ int QSignal::parameter() const
 {
     return val.toInt();
 }
+#endif

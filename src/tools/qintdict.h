@@ -72,12 +72,12 @@ private:
 };
 
 #if defined(Q_DELETING_VOID_UNDEFINED)
-template<> inline void QIntDict<void>::deleteItem( QCollection::Item )
+template<> inline void QIntDict<void>::deleteItem( QPtrCollection::Item )
 {
 }
 #endif
 
-template<class type> inline void QIntDict<type>::deleteItem( QCollection::Item d )
+template<class type> inline void QIntDict<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) delete (type *)d;
 }

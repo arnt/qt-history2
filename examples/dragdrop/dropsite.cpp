@@ -76,7 +76,7 @@ void DropSite::dragLeaveEvent( QDragLeaveEvent * )
 void DropSite::dropEvent( QDropEvent * e )
 {
     setBackgroundColor(lightGray);
-    
+
     // Try to decode to the data you understand...
 
     QString str;
@@ -93,7 +93,7 @@ void DropSite::dropEvent( QDropEvent * e )
 	return;
     }
 
-    QStrList strings;
+    QPtrStrList strings;
     if ( QUrlDrag::decode( e, strings ) ) {
 	QString m("Full URLs:\n");
 	for (const char* u=strings.first(); u; u=strings.next())
@@ -110,7 +110,7 @@ void DropSite::dropEvent( QDropEvent * e )
     }
 
     if ( SecretDrag::decode( e, str ) ) {
-        setText( str );
+	setText( str );
 	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
 	return;
     }

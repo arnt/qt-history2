@@ -261,7 +261,7 @@ QString::vsprintf()
   An user requested we add a function that takes a format string and va list.
   (support/arc-11/23705)  
 
-QQueue:
+QPtrQueue:
   bool remove( type* ) - to remove a pending item from the queue
   bool isPending( type* ) - to determine if an item is pending
   And have an iterator.  (see support/arc-11/23842)

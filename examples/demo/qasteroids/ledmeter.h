@@ -8,12 +8,12 @@
 #define __LEDMETER_H__
 
 #include <qframe.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 
 class KALedMeter : public QFrame
 {
-    Q_OBJECT       
+    Q_OBJECT
 public:
     KALedMeter( QWidget *parent );
 
@@ -38,17 +38,16 @@ protected:
 protected:
     struct ColorRange
     {
-        int mPc;
-        int mValue;
-        QColor mColor;
+	int mPc;
+	int mValue;
+	QColor mColor;
     };
 
     int mRange;
     int mCount;
     int mCurrentCount;
     int mValue;
-    QList<ColorRange> mCRanges;
+    QPtrList<ColorRange> mCRanges;
 };
 
 #endif
-

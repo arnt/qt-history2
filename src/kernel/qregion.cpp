@@ -224,7 +224,7 @@ void QRegion::exec( const QByteArray &buffer, int ver )
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
 {
-    QArray<QRect> a = r.rects();
+    QMemArray<QRect> a = r.rects();
     if ( a.isEmpty() ) {
 	s << (Q_UINT32)0;
     } else {
@@ -329,4 +329,3 @@ QRegion& QRegion::operator-=( const QRegion &r )
 */
 QRegion& QRegion::operator^=( const QRegion &r )
     { return *this = *this ^ r; }
-

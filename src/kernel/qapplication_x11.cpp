@@ -360,7 +360,7 @@ struct QScrollInProgress {
     int dx, dy;
 };
 long QScrollInProgress::serial=0;
-static QList<QScrollInProgress> *sip_list = 0;
+static QPtrList<QScrollInProgress> *sip_list = 0;
 
 
 // stuff in qt_xdnd.cpp
@@ -401,7 +401,7 @@ extern void qt_create_std_palette();
 
 void qt_x11_intern_atom( const char *, Atom * );
 
-static QList<QWidget>* deferred_map_list = 0;
+static QPtrList<QWidget>* deferred_map_list = 0;
 static void qt_deferred_map_cleanup()
 {
     delete deferred_map_list;
@@ -410,7 +410,7 @@ static void qt_deferred_map_cleanup()
 void qt_deferred_map_add( QWidget* w)
 {
     if ( !deferred_map_list ) {
-	deferred_map_list = new QList<QWidget>;
+	deferred_map_list = new QPtrList<QWidget>;
 	qAddPostRoutine( qt_deferred_map_cleanup );
     }
     deferred_map_list->append( w );
@@ -2059,7 +2059,7 @@ void qRemovePostRoutine( QtCleanUpFunction p )
 // HACK HACK
 /*
 void clean_post_routines(void *obj, unsigned long len, const char *name) {
-    QListIterator<void> post_it(*postRList);
+    QPtrListIterator<void> post_it(*postRList);
     void *post;
 
     unsigned long objl = (unsigned long) obj, ptrl;
@@ -2269,7 +2269,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   QApplication cursor stack
  *****************************************************************************/
 
-typedef QList<QCursor> QCursorList;
+typedef QPtrList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
 
@@ -2640,8 +2640,8 @@ struct QSockNot {
     fd_set  *queue;
 };
 
-typedef QList<QSockNot> QSNList;
-typedef QListIterator<QSockNot> QSNListIt;
+typedef QPtrList<QSockNot> QSNList;
+typedef QPtrListIterator<QSockNot> QSNListIt;
 
 static int	sn_highest = -1;
 static QSNList *sn_read	   = 0;
@@ -3845,7 +3845,7 @@ struct TimerInfo {				// internal timer info
     QObject *obj;				// - object to receive event
 };
 
-typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
+typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
 
 static QBitArray *timerBitVec;			// timer bit vector
 static TimerList *timerList	= 0;		// timer list
@@ -5044,12 +5044,12 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
 #endif
 
 
-// declared above: static QList<QScrollInProgress> *sip_list = 0;
+// declared above: static QPtrList<QScrollInProgress> *sip_list = 0;
 
 void qt_insert_sip( QWidget* scrolled_widget, int dx, int dy )
 {
     if ( !sip_list ) {
-	sip_list = new QList<QScrollInProgress>;
+	sip_list = new QPtrList<QScrollInProgress>;
 	sip_list->setAutoDelete( TRUE );
     }
 

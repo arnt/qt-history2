@@ -35,7 +35,7 @@
 
 #ifndef QT_H
 #include "qfont.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #endif // QT_H
 
 // These are stored in the shared memory segment in front of their
@@ -166,9 +166,9 @@ class QFontManager {
 
 public:
 
-    QList<QFontFactory> factories;
-    QList<QRenderedFont> cachedfonts;
-    QList<QDiskFont> diskfonts;
+    QPtrList<QFontFactory> factories;
+    QPtrList<QRenderedFont> cachedfonts;
+    QPtrList<QDiskFont> diskfonts;
 
     QFontManager();
     ~QFontManager();
@@ -200,7 +200,3 @@ void qt_init_fonts();
 extern QFontManager * qt_fontmanager;
 
 #endif
-
-
-
-

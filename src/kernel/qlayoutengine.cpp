@@ -70,7 +70,7 @@ static inline int fRound( int i ) {
   pos and space give the interval (relative to parentWidget topLeft.)
 */
 
-void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
+void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		      int space, int spacer )
 {
     typedef int fixed;
@@ -165,12 +165,12 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 	  If there are more deficit pixels than surplus pixels,
 	  give the minimum size items what they need, and repeat.
 	  Otherwise give to the maximum size items, and repeat.
-	
+
 	  I have a wonderful mathematical proof for the correctness of
 	  this principle, but unfortunately this comment is too
 	  small to contain it.
 	*/
-	
+
 	int surplus, deficit;
 	do {
 	    surplus = deficit = 0;

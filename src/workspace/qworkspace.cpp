@@ -194,9 +194,9 @@ private:
 class QWorkspace::Data {
 public:
     QWorkspaceChild* active;
-    QList<QWorkspaceChild> windows;
-    QList<QWorkspaceChild> focus;
-    QList<QWidget> icons;
+    QPtrList<QWorkspaceChild> windows;
+    QPtrList<QWorkspaceChild> focus;
+    QPtrList<QWidget> icons;
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
     QFrame* maxcontrols;
@@ -308,7 +308,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	QWidget* w = (QWidget*) e->child();
 	if ( !w || !w->testWFlags( WStyle_NormalBorder | WStyle_DialogBorder )
 	     || d->icons.contains( w ) )
-	    return; 	    // nothing to do
+	    return;	    // nothing to do
 
 	bool hasBeenHidden = w->isHidden();
 	bool hasSize = w->testWState( WState_Resized );
@@ -559,7 +559,7 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     if ( d->maxWindow )
 	d->maxWindow->adjustToFullscreen();
 
-    QListIterator<QWidget> it( d->icons );
+    QPtrListIterator<QWidget> it( d->icons );
     while ( it.current() ) {
 	QWorkspaceChild* w = (QWorkspaceChild*)it.current();
 	++it;
@@ -782,8 +782,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		maximizeWindow( d->active );
 
 	    if ( !d->maxWindow ) {
-    		hideMaximizeControls();
-   		inCaptionChange = TRUE;
+		hideMaximizeControls();
+		inCaptionChange = TRUE;
 		if ( !!d->topCaption )
 		    topLevelWidget()->setCaption( d->topCaption );
 		inCaptionChange = FALSE;
@@ -855,7 +855,7 @@ void QWorkspace::showMaximizeControls()
 	l->addWidget( iconB );
 	iconB->setFocusPolicy( NoFocus );
 	iconB->setIconSet( QPixmap( (const char **)qt_minimize_xpm ));
- 	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( iconB, SIGNAL( clicked() ),
 		 this, SLOT( minimizeActiveWindow() ) );
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
@@ -863,7 +863,7 @@ void QWorkspace::showMaximizeControls()
 	l->addWidget( restoreB );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( QPixmap( (const char **)qt_normalize_xpm ));
- 	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( restoreB, SIGNAL( clicked() ),
 		 this, SLOT( normalizeActiveWindow() ) );
 
@@ -873,7 +873,7 @@ void QWorkspace::showMaximizeControls()
 	l->addWidget( closeB );
 	closeB->setFocusPolicy( NoFocus );
 	closeB->setIconSet( QPixmap( (const char **)qt_close_xpm ) );
- 	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ),
 		 this, SLOT( closeActiveWindow() ) );
 
@@ -927,14 +927,14 @@ void QWorkspace::hideMaximizeControls()
 void QWorkspace::closeActiveWindow()
 {
     if ( d->maxWindow && d->maxWindow->windowWidget() )
-    	d->maxWindow->windowWidget()->close();
+	d->maxWindow->windowWidget()->close();
     else if ( d->active && d->active->windowWidget() )
 	    d->active->windowWidget()->close();
 }
 
 void QWorkspace::closeAllWindows()
 {
-    QListIterator<QWorkspaceChild> it( d->windows );
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
     QWorkspaceChild *c = 0;
     while ( ( c = it.current() ) != 0 ) {
 	++it;
@@ -1140,7 +1140,7 @@ void QWorkspace::cascade()
     const int yoffset = 20;
 
     // make a list of all relevant mdi clients
-    QList<QWorkspaceChild> widgets;
+    QPtrList<QWorkspaceChild> widgets;
     for ( QWorkspaceChild* wc = d->focus.first(); wc; wc = d->focus.next() ) {
 	if ( wc->windowWidget()->isVisibleTo( this ) && !wc->windowWidget()->testWFlags( WStyle_Tool ) ) {
 	    widgets.append( wc );
@@ -1151,7 +1151,7 @@ void QWorkspace::cascade()
     int y = 0;
 
     setUpdatesEnabled( FALSE );
-    QListIterator<QWorkspaceChild> it( widgets );
+    QPtrListIterator<QWorkspaceChild> it( widgets );
     int children = d->windows.count() - 1;
     while ( it.current () ) {
 	QWorkspaceChild *child = it.current();
@@ -1462,7 +1462,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::CaptionChange:
 	setCaption( childWidget->caption() );
 	if ( iconw )
- 	    iconw->setText( childWidget->caption() );
+	    iconw->setText( childWidget->caption() );
 	break;
     case QEvent::IconChange:
 	{
@@ -1759,7 +1759,7 @@ void QWorkspaceChild::internalRaise()
 	return;
     }
 
-    QList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
+    QPtrList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
 
     for (QWorkspaceChild* c = l.first(); c; c = l.next() ) {
 	if ( c->windowWidget() &&

@@ -273,7 +273,7 @@ QWSServer::QWSServer( int sw, int sh, int simulate_depth, int flags,
     int arg = 1;
     semctl(semset,0,SETVAL,arg);
     //    semctl(semset,1,SETVAL,arg); //###SEMAPHORE_BUG
-    
+
     if ( simulate_depth ) {
 	// Simulate card with 8 megs of memory or so
 	shmid = shmget(IPC_PRIVATE,/* swidth*sheight*sizeof(QRgb) */
@@ -360,7 +360,7 @@ void QWSServer::clientClosed()
     QWSClient* cl = (QWSClient*)sender();
 
     QRegion exposed;
-    QListIterator<QWSWindow> it( windows );
+    QPtrListIterator<QWSWindow> it( windows );
     QWSWindow* w;
     while (( w = it.current() )) {
 	++it;
@@ -472,7 +472,7 @@ void QWSServer::doClient()
 #ifdef QWS_REGION_DEBUG
 	    qDebug( "QWSCommand::RegionAck from %p pending:%d",
 		    client, pending_region_acks);
-#endif	
+#endif
 	    if ( pending_region_acks == 0 ) {
 		givePendingRegion();
 	    }
@@ -698,7 +698,7 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
     }
     if ( !changingw->forClient(client) ) {
        qWarning("Disabled: clients changing other client's window region");
-        return;
+	return;
      }
     setWindowRegion( changingw, region );
     if ( focusw == changingw && region.isEmpty() )
@@ -720,7 +720,7 @@ void QWSServer::invokeSetFocus( QWSRequestFocusCommand *cmd, QWSClient *client )
 
     if ( !changingw->forClient(client) ) {
        qWarning("Disabled: clients changing other client's focus");
-        return;
+	return;
     }
 
     setFocus(changingw, gain);
@@ -774,7 +774,7 @@ void QWSServer::invokeSetAltitude( QWSChangeAltitudeCommand *cmd,
     }
     if ( !changingw->forClient(client) ) {
        qWarning("Disabled: clients changing other client's altitude");
-        return;
+	return;
      }
     if ( alt < 0 )
 	lowerWindow( changingw, alt );
@@ -787,9 +787,9 @@ void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
     qDebug( "QWSServer::invokeAddProperty %d %d", cmd->simpleData.windowid,
 	    cmd->simpleData.property );
     if ( properties()->addProperty( cmd->simpleData.windowid, cmd->simpleData.property ) )
- 	qDebug( "add property successful" );
+	qDebug( "add property successful" );
     else
- 	qDebug( "adding property failed" );
+	qDebug( "adding property failed" );
 }
 
 void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
@@ -806,7 +806,7 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyNewValue );
    } else
- 	qDebug( "setting property failed" );
+	qDebug( "setting property failed" );
 }
 
 void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
@@ -815,11 +815,11 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 	    cmd->simpleData.property );
     if ( properties()->removeProperty( cmd->simpleData.windowid,
 				       cmd->simpleData.property ) ) {
- 	qDebug( "remove property successful" );
+	qDebug( "remove property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyDeleted );
     } else
- 	qDebug( "removing property failed" );
+	qDebug( "removing property failed" );
 }
 
 void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client )
@@ -831,11 +831,11 @@ void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client
     if ( properties()->getProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    data, len ) ) {
- 	qDebug( "get property successful" );
+	qDebug( "get property successful" );
 	client->sendPropertyReplyEvent( cmd->simpleData.property, len, data );
 	delete [] data;
     } else {
- 	qDebug( "get property failed" );
+	qDebug( "get property failed" );
 	client->sendPropertyReplyEvent( cmd->simpleData.property, -1, 0 );
 	delete [] data;
     }
@@ -894,7 +894,7 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 //    qDebug( "QWSServer::invokeSelectCursor %d", id);
     cursor = 0;
     if (id <= LastCursor) {
-        cursor = QWSCursor::systemCursor(id);
+	cursor = QWSCursor::systemCursor(id);
     }
     else {
 	QWSCursorMap cursMap = client->cursors;
@@ -936,7 +936,7 @@ bool QWSWindow::removeAllocation(QRegion r)
 	//static int not_used_yet = 0; // protocol doesn't use this.
 	//##### using window ID for event ID is a hack! reconsider
 	c->sendRegionRemoveEvent( id, id, r );
-	
+
 	return TRUE; // ack required
     }
     return FALSE;
@@ -1020,7 +1020,7 @@ void QWSServer::lowerWindow( QWSWindow *changingw, int )
 	pendingAllocation = QRegion();
 	pendingWindex = -1; //slight hack, will repaint server region
     }
-	
+
     //change position in list:
 
     QWSWindow *w = windows.first();
@@ -1150,5 +1150,3 @@ void QWSServer::setMouse(const QPoint& p,int bstate)
     if ( mousePos == QPoint(0,0) && bstate==7 )
 	qApp->quit();
 }
-
-

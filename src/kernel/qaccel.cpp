@@ -42,7 +42,7 @@
 #include "qsignal.h"
 #include "qapplication.h"
 #include "qwidget.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qwhatsthis.h"
 #include "qguardedptr.h"
 
@@ -126,7 +126,7 @@ struct QAccelItem {				// internal accelerator item
 };
 
 
-typedef QList<QAccelItem> QAccelList; // internal accelerator list
+typedef QPtrList<QAccelItem> QAccelList; // internal accelerator list
 
 
 class QAccel::Private {

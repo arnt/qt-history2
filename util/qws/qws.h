@@ -25,7 +25,7 @@
 #include <qmap.h>
 #include <qdatetime.h>
 #include <qqueue.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qmap.h>
 
 #include "qwsproperty.h"
@@ -90,7 +90,7 @@ public:
     enum ServerFlags { DisableKeyboard = 0x01,
 		       DisableMouse = 0x02,
 		       DisableAccel = 0x04 };
-    
+
     uchar* frameBuffer() { return framebuffer; }
 
     void sendKeyEvent(int unicode, int modifiers, bool isPress,
@@ -105,7 +105,7 @@ public:
     QWSWindow *windowAt( const QPoint& pos );
 
     // For debugging only at this time
-    QList<QWSWindow> clientWindows() { return windows; }
+    QPtrList<QWSWindow> clientWindows() { return windows; }
 
     void openMouse();
     void closeMouse();
@@ -195,7 +195,7 @@ private:
     int pendingWindex;
 
     // Window management
-    QList<QWSWindow> windows; // first=topmost
+    QPtrList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
     void setWindowRegion(QWSWindow*, QRegion r );
@@ -224,13 +224,13 @@ class QWSClient : private QSocket
 public:
     QWSClient( QObject* parent, int socket, int shmid,
 		int swidth, int sheight, int sdepth,
-	        int ramid, int fblen, int offscreen, int offscreenlen);
+		int ramid, int fblen, int offscreen, int offscreenlen);
     ~QWSClient();
 
     int socket() const;
 
-    QObject* asQObject() { return (QObject*)this; } //### private inheritance 
-    
+    QObject* asQObject() { return (QObject*)this; } //### private inheritance
+
     void sendEvent( QWSEvent* event );
     void sendRegionAddEvent( int winid, bool ack, QRegion );
     void sendRegionRemoveEvent( int winid, int eventid, QRegion );

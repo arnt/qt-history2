@@ -37,10 +37,10 @@
 
 #include "qlistbox.h"
 #ifndef QT_NO_LISTBOX
-#include "qarray.h"
+#include "qmemarray.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
-#include "qstrlist.h"
+#include "qptrstrlist.h"
 #include "qpixmap.h"
 #include "qapplication.h"
 #include "qptrdict.h"
@@ -84,8 +84,8 @@ public:
     bool variableHeight;
     bool variableWidth;
 
-    QArray<int> columnPos;
-    QArray<int> rowPos;
+    QMemArray<int> columnPos;
+    QMemArray<int> rowPos;
     int columnPosOne;
 
     bool rowModeWins;
@@ -737,7 +737,7 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 */
 
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
-    : QScrollView( parent, name, f | WNorthWestGravity | WRepaintNoErase )
+    : QScrollView( parent, name, f | WStaticContents | WRepaintNoErase )
 {
     d = new QListBoxPrivate( this );
     d->updateTimer = new QTimer( this, "listbox update timer" );
@@ -1020,7 +1020,7 @@ uint QListBox::count() const
   \sa insertItem(), insertStringList()
 */
 
-void QListBox::insertStrList( const QStrList *list, int index )
+void QListBox::insertStrList( const QPtrStrList *list, int index )
 {
     if ( !list ) {
 #if defined(QT_CHECK_NULL)
@@ -1073,9 +1073,9 @@ void QListBox::insertStringList( const QStringList & list, int index )
   \sa insertItem(), insertStringList()
 */
 
-void QListBox::insertStrList( const QStrList & list, int index )
+void QListBox::insertStrList( const QPtrStrList & list, int index )
 {
-    QStrListIterator it( list );
+    QPtrStrListIterator it( list );
     const char* txt;
     if ( index < 0 )
 	index = count();
@@ -3783,12 +3783,12 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 	return 0;
 
     if ( compare == CaseSensitive || compare == 0 )
-        compare |= ExactMatch;
+	compare |= ExactMatch;
 
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive ) )
-        comtxt = text.lower();
+	comtxt = text.lower();
 
     QListBoxItem *item;
     if ( d->current )
@@ -3797,56 +3797,56 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 	item = d->head;
 
     if ( item ) {
-        for ( ; item; item = item->n ) {
-            if ( ! (compare & CaseSensitive) )
-                itmtxt = item->text().lower();
+	for ( ; item; item = item->n ) {
+	    if ( ! (compare & CaseSensitive) )
+		itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-	    
-            if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt )
-                    return item;
-            }
-	    
-            if ( compare & BeginsWith ) {
-                if ( itmtxt.startsWith( comtxt ) )
-                    return item;
-            }
-	    
-            if ( compare & EndsWith ) {
-                if ( itmtxt.right( comtxt.length() ) == comtxt )
-                    return item;
-            }
-	    
-            if ( compare & Contains ) {
-                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-                    return item;
-            }
-        }
-	
-        if ( d->current && d->head ) {
+
+	    if ( compare & ExactMatch ) {
+		if ( itmtxt == comtxt )
+		    return item;
+	    }
+
+	    if ( compare & BeginsWith ) {
+		if ( itmtxt.startsWith( comtxt ) )
+		    return item;
+	    }
+
+	    if ( compare & EndsWith ) {
+		if ( itmtxt.right( comtxt.length() ) == comtxt )
+		    return item;
+	    }
+
+	    if ( compare & Contains ) {
+		if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+		    return item;
+	    }
+	}
+
+	if ( d->current && d->head ) {
 	    item = d->head;
 	    for ( ; item && item != d->current; item = item->n ) {
 		if ( ! (compare & CaseSensitive) )
 		    itmtxt = item->text().lower();
 		else
 		    itmtxt = item->text();
-		
+
 		if ( compare & ExactMatch ) {
 		    if ( itmtxt == comtxt )
 			return item;
 		}
-		
+
 		if ( compare & BeginsWith ) {
 		    if ( itmtxt.startsWith( comtxt ) )
 			return item;
 		}
-		
+
 		if ( compare & EndsWith ) {
 		    if ( itmtxt.right( comtxt.length() ) == comtxt )
 			return item;
 		}
-		
+
 		if ( compare & Contains ) {
 		    if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
 			return item;

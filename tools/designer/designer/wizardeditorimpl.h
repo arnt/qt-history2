@@ -24,7 +24,7 @@
 class QWizard;
 class FormWindow;
 
-#include <qlist.h>
+#include <qptrlist.h>
 
 #include "wizardeditor.h"
 #include "command.h"
@@ -58,7 +58,7 @@ private:
 private:
     FormWindow *formwindow;
     QWizard *wizard;
-    QList<Command> commands;
+    QPtrList<Command> commands;
 };
 
 #endif

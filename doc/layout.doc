@@ -237,7 +237,7 @@ To write your own layout class, you must define the following:
   <li>A data structure to store the items
        handle by the layout.
 	Each item is a \link QLayoutItem QLayoutItem\endlink.
-	We will just use a QList in this example.
+	We will just use a QPtrList in this example.
   <li>\link QLayout::addItem() addItem() \endlink, how to add items
 	to the layout.
   <li>\link QLayout::setGeometry() setGeometry() \endlink, how to do the
@@ -259,7 +259,7 @@ minimumSize()\endlink.
 #define CARD_H
 
 #include <qlayout.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class CardLayout : public QLayout
 {
@@ -279,7 +279,7 @@ public:
     void setGeometry(const QRect &rect);
 
 private:
-    QList<QLayoutItem> list;
+    QPtrList<QLayoutItem> list;
 };
 
 #endif
@@ -312,7 +312,7 @@ a constructor. In our example we do not need a destructor.
 class CardLayoutIterator :public QGLayoutIterator
 {
 public:
-  CardLayoutIterator(QList<QLayoutItem> *l)
+  CardLayoutIterator(QPtrList<QLayoutItem> *l)
     : idx(0), list(l)  {}
 
   QLayoutItem *current()
@@ -326,7 +326,7 @@ public:
 
 private:
   int idx;
-  QList<QLayoutItem> *list;
+  QPtrList<QLayoutItem> *list;
 };
 \endcode
 
@@ -380,7 +380,7 @@ void CardLayout::setGeometry(const QRect &rect)
 {
     QLayout::setGeometry(rect);
 
-    QListIterator<QLayoutItem> it(list);
+    QPtrListIterator<QLayoutItem> it(list);
     if (it.count() == 0)
 	return;
 
@@ -415,7 +415,7 @@ QSize CardLayout::sizeHint() const
     int n = list.count();
     if ( n > 0 )
 	s = QSize(100,70); //start with a nice default size
-    QListIterator<QLayoutItem> it(list);
+    QPtrListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
 	++it;
@@ -428,7 +428,7 @@ QSize CardLayout::minimumSize() const
 {
     QSize s(0,0);
     int n = list.count();
-    QListIterator<QLayoutItem> it(list);
+    QPtrListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
 	++it;

@@ -41,7 +41,7 @@
 
 #include "qapplication.h" //for postEvent() in QBoxLayout::setDirection
 #include "qwidget.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qsizepolicy.h"
 
 #include "qlayoutengine_p.h"
@@ -51,7 +51,7 @@ class QLayoutBox
 {
 public:
     QLayoutBox( QLayoutItem *lit ) { item_ = lit; }
-
+ 
     QLayoutBox( QWidget *wid ) { item_ = new QWidgetItem( wid ); }
     QLayoutBox( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
 		QSizePolicy::SizeType vData= QSizePolicy::Minimum )
@@ -146,11 +146,11 @@ private:
     int cc;
     bool hReversed;
     bool vReversed;
-    QArray<QLayoutStruct> rowData;
-    QArray<QLayoutStruct> colData;
-    QArray<QLayoutStruct> *hfwData;
-    QList<QLayoutBox> things;
-    QList<QMultiBox> *multi;
+    QMemArray<QLayoutStruct> rowData;
+    QMemArray<QLayoutStruct> colData;
+    QMemArray<QLayoutStruct> *hfwData;
+    QPtrList<QLayoutBox> things;
+    QPtrList<QMultiBox> *multi;
     bool needRecalc;
     bool has_hfw;
     int hfw_width;
@@ -214,9 +214,9 @@ void QLayoutArray::recalcHFW( int w, int spacing )
     //go through all children, using colData and heightForWidth()
     //and put the results in hfw_rowData
     if ( !hfwData )
-	hfwData = new QArray<QLayoutStruct>( rr );
+	hfwData = new QMemArray<QLayoutStruct>( rr );
     setupHfwLayoutData( spacing );
-    QArray<QLayoutStruct> &rData = *hfwData;
+    QMemArray<QLayoutStruct> &rData = *hfwData;
 
     int h = 0;
     int n = 0;
@@ -247,7 +247,7 @@ int QLayoutArray::heightForWidth( int w, int spacing )
 
 bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 {
-    QListIterator<QLayoutBox> it( things );
+    QPtrListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
@@ -260,7 +260,7 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 	}
     }
     if ( multi ) {
-	QListIterator<QMultiBox> it( *multi );
+	QPtrListIterator<QMultiBox> it( *multi );
 	QMultiBox * mbox;
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
@@ -410,7 +410,7 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
     box->col = col1;
     QMultiBox *mbox = new QMultiBox( box, row2, col2 );
     if ( !multi ) {
-	multi = new QList<QMultiBox>;
+	multi = new QPtrList<QMultiBox>;
 	multi->setAutoDelete(TRUE);
     }
     multi->append( mbox );
@@ -458,7 +458,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 }
 
 
-static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
+static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 				int start, int end,
 				int minSize, int sizeHint )
 {
@@ -502,7 +502,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 	    if ( chain[i].maximumSize < chain[i].minimumSize )
 		chain[i].maximumSize = chain[i].minimumSize;
 	    pos = nextPos;
- 	}
+	}
 
     } else if ( w < minSize ) {
 	//qDebug( "Big multicell" );
@@ -539,7 +539,7 @@ void QLayoutArray::setupLayoutData( int spacing )
     for ( i = 0; i < cc; i++ ) {
 	colData[i].initParameters();
     }
-    QListIterator<QLayoutBox> it( things );
+    QPtrListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
@@ -548,7 +548,7 @@ void QLayoutArray::setupLayoutData( int spacing )
     }
 
     if ( multi ) {
-	QListIterator<QMultiBox> it( *multi );
+	QPtrListIterator<QMultiBox> it( *multi );
 	QMultiBox * mbox;
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
@@ -597,7 +597,7 @@ void QLayoutArray::setupLayoutData( int spacing )
 
 void QLayoutArray::addHfwData ( QLayoutBox *box, int width )
 {
-    QArray<QLayoutStruct> &rData = *hfwData;
+    QMemArray<QLayoutStruct> &rData = *hfwData;
     if ( box->hasHeightForWidth() ) {
 	int hint = box->heightForWidth( width );
 	rData[box->row].sizeHint = QMAX( hint,
@@ -623,20 +623,20 @@ void QLayoutArray::addHfwData ( QLayoutBox *box, int width )
  */
 void QLayoutArray::setupHfwLayoutData( int spacing )
 {
-    QArray<QLayoutStruct> &rData = *hfwData;
+    QMemArray<QLayoutStruct> &rData = *hfwData;
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rData[i] = rowData[i];
 	rData[i].minimumSize = rData[i].sizeHint = 0;
     }
-    QListIterator<QLayoutBox> it( things );
+    QPtrListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
 	addHfwData( box, colData[box->col].size );
     }
     if ( multi ) {
-	QListIterator<QMultiBox> it( *multi );
+	QPtrListIterator<QMultiBox> it( *multi );
 	QMultiBox * mbox;
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
@@ -677,7 +677,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
     setupLayoutData( spacing );
 
     qGeomCalc( colData, 0, cc, r.x(), r.width(), spacing );
-    QArray<QLayoutStruct> *rDataPtr;
+    QMemArray<QLayoutStruct> *rDataPtr;
     if ( has_hfw ) {
 	recalcHFW( r.width(), spacing );
 	qGeomCalc( *hfwData, 0, rr, r.y(), r.height(), spacing );
@@ -686,9 +686,9 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	qGeomCalc( rowData, 0, rr, r.y(), r.height(), spacing );
 	rDataPtr = &rowData;
     }
-    QArray<QLayoutStruct> &rData = *rDataPtr; //cannot assign to reference
+    QMemArray<QLayoutStruct> &rData = *rDataPtr; //cannot assign to reference
 
-    QListIterator<QLayoutBox> it( things );
+    QPtrListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
@@ -703,7 +703,7 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	box->setGeometry( QRect( x, y, w, h ) );
     }
     if ( multi ) {
-	QListIterator<QMultiBox> it( *multi );
+	QPtrListIterator<QMultiBox> it( *multi );
 	QMultiBox * mbox;
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
@@ -1436,8 +1436,8 @@ public:
 	dirty = TRUE;
     }
 
-    QList<QBoxLayoutItem> list;
-    QArray<QLayoutStruct> *geomArray;
+    QPtrList<QBoxLayoutItem> list;
+    QMemArray<QLayoutStruct> *geomArray;
     int hfwWidth;
     int hfwHeight;
     QSize sizeHint;
@@ -1773,7 +1773,7 @@ void QBoxLayout::setGeometry( const QRect &r )
 	QRect s( cr.x()+margin(), cr.y()+margin(),
 		 cr.width()-2*margin(), cr.height()-2*margin() );
 
-	QArray<QLayoutStruct> a = *data->geomArray;
+	QMemArray<QLayoutStruct> a = *data->geomArray;
 	int pos = horz(dir) ? s.x() : s.y();
 	int space = horz(dir) ? s.width() : s.height();
 	int n = a.count();
@@ -2090,7 +2090,7 @@ int QBoxLayout::findWidget( QWidget* w )
 
 bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 {
-    QListIterator<QBoxLayoutItem> it( data->list );
+    QPtrListIterator<QBoxLayoutItem> it( data->list );
     QBoxLayoutItem *box;
     while ( (box=it.current()) != 0 ) {
 	++it;
@@ -2113,7 +2113,7 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
 bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 {
-    QListIterator<QBoxLayoutItem> it( data->list );
+    QPtrListIterator<QBoxLayoutItem> it( data->list );
     QBoxLayoutItem *box;
     while ( (box=it.current()) != 0 ) {
 	++it;
@@ -2141,7 +2141,7 @@ void QBoxLayout::setDirection( Direction direction )
 	//#### a bit yucky, knows too much.
 	//#### probably best to add access functions to spacerItem
 	//#### or even a QSpacerItem::flip()
-	QListIterator<QBoxLayoutItem> it( data->list );
+	QPtrListIterator<QBoxLayoutItem> it( data->list );
 	QBoxLayoutItem *box;
 	while ( (box=it.current()) != 0 ) {
 	    ++it;
@@ -2203,8 +2203,8 @@ void QBoxLayout::setupGeom()
 
     delete data->geomArray;
     int n = data->list.count();
-    data->geomArray = new QArray<QLayoutStruct>( n );
-    QArray<QLayoutStruct> &a = *data->geomArray;
+    data->geomArray = new QMemArray<QLayoutStruct>( n );
+    QMemArray<QLayoutStruct> &a = *data->geomArray;
 
     bool first = TRUE;
     for ( int i = 0; i < n; i++ ) {
@@ -2281,7 +2281,7 @@ int QBoxLayout::calcHfw( int w )
 {
     int h = 0;
     if ( horz(dir) ) {
-	QArray<QLayoutStruct> &a = *data->geomArray;
+	QMemArray<QLayoutStruct> &a = *data->geomArray;
 	int n = a.count();
 	qGeomCalc( a, 0, n, 0, w, spacing() );
 	for ( int i = 0; i < n; i++ ) {
@@ -2289,7 +2289,7 @@ int QBoxLayout::calcHfw( int w )
 	    h = QMAX( h, box->hfw( a[i].size ) );
 	}
     } else {
-	QListIterator<QBoxLayoutItem> it( data->list );
+	QPtrListIterator<QBoxLayoutItem> it( data->list );
 	QBoxLayoutItem *box;
 	bool first = TRUE;
 	while ( (box=it.current()) != 0 ) {

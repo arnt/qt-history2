@@ -72,7 +72,7 @@ public:
     QRegion eor( const QRegion & )	const;
 
     QRect   boundingRect() const;
-    QArray<QRect> rects() const;
+    QMemArray<QRect> rects() const;
     void setRects( const QRect *, int );
 
     QRegion operator|( const QRegion & ) const;
@@ -116,7 +116,7 @@ private:
     friend class QWidget;
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
     QRegion(const RgnHandle);
-#endif    
+#endif
     void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
 #if defined(Q_WS_WIN)
@@ -124,9 +124,9 @@ private:
 #elif defined(Q_WS_X11)
 	Region rgn;
 #elif defined(Q_WS_MAC)
-        RgnHandle rgn;
+	RgnHandle rgn;
 #elif defined(Q_WS_QWS)
-        void * rgn;
+	void * rgn;
 #endif
 	bool   is_null;
     } *data;

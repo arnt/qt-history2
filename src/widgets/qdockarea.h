@@ -40,11 +40,10 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qdockwindow.h"
 #include "qlayout.h"
 #include "qvaluelist.h"
-#include "qlist.h"
 #include "qguardedptr.h"
 #include "qtextstream.h"
 #endif // QT_H
@@ -58,7 +57,7 @@ class QDockWindowResizeHandle;
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class Q_EXPORT QValueList<QRect>;
-template class Q_EXPORT QList<QDockWindow>;
+template class Q_EXPORT QPtrList<QDockWindow>;
 // MOC_SKIP_END
 #endif
 
@@ -68,7 +67,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
     friend class QDockArea;
 
 public:
-    QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
+    QDockAreaLayout( QWidget* parent, Qt::Orientation o, QPtrList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
 	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ), skipNextLayout( FALSE ) { init(); }
     ~QDockAreaLayout() {}
 
@@ -83,7 +82,7 @@ public:
     void invalidate();
     Qt::Orientation orientation() const { return orient; }
     QValueList<QRect> lineList() const { return lines; }
-    QList<QDockWindow> lineStarts() const { return ls; }
+    QPtrList<QDockWindow> lineStarts() const { return ls; }
 
 protected:
     void setGeometry( const QRect& );
@@ -94,10 +93,10 @@ private:
     Qt::Orientation orient;
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
-    QList<QDockWindow> *dockWindows;
+    QPtrList<QDockWindow> *dockWindows;
     QWidget *parentWidget;
     QValueList<QRect> lines;
-    QList<QDockWindow> ls;
+    QPtrList<QDockWindow> ls;
     bool skipNextLayout;
 
 };
@@ -129,7 +128,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
     bool isEmpty() const;
     int count() const;
-    QList<QDockWindow> dockWindowList() const;
+    QPtrList<QDockWindow> dockWindowList() const;
     void lineUp( bool keepNewLines );
 
     bool isDockWindowAccepted( QDockWindow *dw );
@@ -157,10 +156,10 @@ private:
 
 private:
     Orientation orient;
-    QList<QDockWindow> *dockWindows;
+    QPtrList<QDockWindow> *dockWindows;
     QDockAreaLayout *layout;
     HandlePosition hPos;
-    QList<QDockWindow> forbiddenWidgets;
+    QPtrList<QDockWindow> forbiddenWidgets;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -176,4 +175,3 @@ Q_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
 #endif
 
 #endif
-

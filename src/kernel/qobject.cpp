@@ -387,7 +387,7 @@ QObject::~QObject()
 	remove_tree( this );		// remove from global root list
 	isTree = FALSE;
     }
-    if ( parentObj ) 				// remove it from parent object
+    if ( parentObj )				// remove it from parent object
 	parentObj->removeChild( this );
     register QObject *obj;
     if ( senderObjects ) {			// disconnect from senders
@@ -502,7 +502,7 @@ bool QObject::isA( const char *clname ) const
     // QScrollBar inherits QWidget and QRangeControl
     QScrollBar *s = new QScrollBar( 0 );
     s->inherits( "QWidget" );		// returns TRUE
-    s->inherits( "QRangeControl" ); 	// returns FALSE
+    s->inherits( "QRangeControl" );	// returns FALSE
   \endcode
 
   (\l QRangeControl is not a QObject.)
@@ -1761,20 +1761,20 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
 	signal++;
 
- 	QMetaObject *smeta = s->metaObject();
- 	if ( !smeta )			// no meta object
- 	    return FALSE;
- 	int signal_index = smeta->findSignal( signal, TRUE );
- 	if ( signal_index < 0 ) {
+	QMetaObject *smeta = s->metaObject();
+	if ( !smeta )			// no meta object
+	    return FALSE;
+	int signal_index = smeta->findSignal( signal, TRUE );
+	if ( signal_index < 0 ) {
 #if defined(QT_CHECK_RANGE)
-  		qWarning( "QObject::disconnect: No such signal %s::%s",
-  			 s->className(), signal );
+		qWarning( "QObject::disconnect: No such signal %s::%s",
+			 s->className(), signal );
 #endif
- 		return FALSE;
- 	}
- 	clist = s->connections->at( signal_index );
- 	if ( !clist )
-  	    return FALSE;
+		return FALSE;
+	}
+	clist = s->connections->at( signal_index );
+	if ( !clist )
+	    return FALSE;
 
 	c = clist->first();
 	while ( c ) {				// for all receivers...
@@ -1900,26 +1900,26 @@ QMetaObject* QObject::staticMetaObject()
     };
 
     static const QMetaEnum::Item enum_3[] = {
-        { "FixedColor",  (int) Qt::FixedColor },
-        { "FixedPixmap",  (int) Qt::FixedPixmap },
-        { "NoBackground",  (int) Qt::NoBackground },
-        { "PaletteForeground",  (int) Qt::PaletteForeground },
-        { "PaletteButton",  (int) Qt::PaletteButton },
-        { "PaletteLight",  (int) Qt::PaletteLight },
-        { "PaletteMidlight",  (int) Qt::PaletteMidlight },
-        { "PaletteDark",  (int) Qt::PaletteDark },
-        { "PaletteMid",  (int) Qt::PaletteMid },
-        { "PaletteText",  (int) Qt::PaletteText },
-        { "PaletteBrightText",  (int) Qt::PaletteBrightText },
-        { "PaletteBase",  (int) Qt::PaletteBase },
-        { "PaletteBackground",  (int) Qt::PaletteBackground },
-        { "PaletteShadow",  (int) Qt::PaletteShadow },
-        { "PaletteHighlight",  (int) Qt::PaletteHighlight },
-        { "PaletteHighlightedText",  (int) Qt::PaletteHighlightedText },
-        { "PaletteButtonText",  (int) Qt::PaletteButtonText },
+	{ "FixedColor",  (int) Qt::FixedColor },
+	{ "FixedPixmap",  (int) Qt::FixedPixmap },
+	{ "NoBackground",  (int) Qt::NoBackground },
+	{ "PaletteForeground",  (int) Qt::PaletteForeground },
+	{ "PaletteButton",  (int) Qt::PaletteButton },
+	{ "PaletteLight",  (int) Qt::PaletteLight },
+	{ "PaletteMidlight",  (int) Qt::PaletteMidlight },
+	{ "PaletteDark",  (int) Qt::PaletteDark },
+	{ "PaletteMid",  (int) Qt::PaletteMid },
+	{ "PaletteText",  (int) Qt::PaletteText },
+	{ "PaletteBrightText",  (int) Qt::PaletteBrightText },
+	{ "PaletteBase",  (int) Qt::PaletteBase },
+	{ "PaletteBackground",  (int) Qt::PaletteBackground },
+	{ "PaletteShadow",  (int) Qt::PaletteShadow },
+	{ "PaletteHighlight",  (int) Qt::PaletteHighlight },
+	{ "PaletteHighlightedText",  (int) Qt::PaletteHighlightedText },
+	{ "PaletteButtonText",  (int) Qt::PaletteButtonText },
 	{ "PaletteLink", (int) Qt::PaletteLink },
 	{ "PaletteLinkVisited", (int) Qt::PaletteLinkVisited },
-        { "X11ParentRelative",  (int) Qt::X11ParentRelative }
+	{ "X11ParentRelative",  (int) Qt::X11ParentRelative }
     };
 
     static const QMetaEnum enum_tbl[] = {
@@ -1952,8 +1952,8 @@ QMetaObject* QObject::staticMetaObject()
 #ifndef QT_NO_PROPERTIES
 	props_tbl, 1,
 #endif
-        enum_tbl, 4,
-        0, 0 );
+	enum_tbl, 4,
+	0, 0 );
 
     cleanUp_QObject.setMetaObject( metaObj );
 
@@ -2020,9 +2020,9 @@ void QObject::FNAME( int signal, TYPE param )				      \
     if ( !connections || signalsBlocked() || signal < 0 )		      \
 	return;								      \
     QConnectionList *clist = connections->at( signal );			      \
-    if ( !clist )						      	      \
+    if ( !clist )							      \
 	return;								      \
-    UObject o[2]; 							      \
+    UObject o[2];							      \
     pUType_##TYPE->set( o+1, param );					      \
     activate_signal( clist, o );					      \
 }
@@ -2173,9 +2173,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
 	    if ( p->isSetType() ) {
 		QString s = value.toString();
-		// QStrList does not support split, use QStringList for that.
+		// QPtrStrList does not support split, use QStringList for that.
 		QStringList l = QStringList::split( '|', s );
-		QStrList keys;
+		QPtrStrList keys;
 		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
 		    keys.append( (*it).stripWhiteSpace().latin1() );
 		v = QVariant( p->keysToValue( keys ) );
@@ -2232,7 +2232,7 @@ bool QObject::qt_invoke( int _id, UObject* )
 	cleanupEventFilter();
 	break;
      default:
-        return FALSE;
+	return FALSE;
     }
     return TRUE;
 }

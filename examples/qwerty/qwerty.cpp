@@ -18,13 +18,13 @@
 #include <qpainter.h>
 #include <qmessagebox.h>
 #include <qpaintdevicemetrics.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 #include <qtextcodec.h>
 
 const bool no_writing = FALSE;
 
-static QList<QTextCodec> *codecList = 0;
+static QPtrList<QTextCodec> *codecList = 0;
 
 enum { Uni = 0, MBug = 1, Lat1 = 2, Local = 3, Guess = 4, Codec = 5 };
 
@@ -89,7 +89,7 @@ Editor::~Editor()
 void Editor::rebuildCodecList()
 {
     delete codecList;
-    codecList = new QList<QTextCodec>;
+    codecList = new QPtrList<QTextCodec>;
     QTextCodec *codec;
     int i;
     for (i = 0; (codec = QTextCodec::codecForIndex(i)); i++)
@@ -115,7 +115,7 @@ void Editor::rebuildCodecList()
 void Editor::newDoc()
 {
     Editor *ed = new Editor;
-    if ( qApp->desktop()->size().width() < 450 
+    if ( qApp->desktop()->size().width() < 450
 	 || qApp->desktop()->size().height() < 450 ) {
 	ed->showMaximized();
     } else {
@@ -131,7 +131,7 @@ void Editor::load()
     QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
     if ( !fn.isEmpty() )
 	load( fn, -1 );
-#endif    
+#endif
 }
 
 void Editor::load( const QString& fileName, int code )
@@ -206,7 +206,7 @@ void Editor::saveAsEncoding( int code )
 
 void Editor::addEncoding()
 {
-#ifndef QT_NO_FILEDIALOG    
+#ifndef QT_NO_FILEDIALOG
     QString fn = QFileDialog::getOpenFileName( QString::null, "*.map", this );
     if ( !fn.isEmpty() ) {
 	QFile f(fn);
@@ -268,15 +268,15 @@ void Editor::print()
 	p.setFont( e->font() );
 	QFontMetrics fm = p.fontMetrics();
 	QPaintDeviceMetrics metrics( &printer ); // need width/height
-	                                         // of printer surface
+						 // of printer surface
 	const int MARGIN = metrics.logicalDpiX() / 2; // half-inch margin
 	int yPos        = MARGIN;		// y position for each line
 
 	for( int i = 0 ; i < e->numLines() ; i++ ) {
 	    if ( printer.aborted() )
-	        break;
+		break;
 	    if ( yPos + fm.lineSpacing() > metrics.height() - MARGIN ) {
-	        // no more room on this page
+		// no more room on this page
 		if ( !printer.newPage() )          // start new page
 		    break;                           // some error
 		yPos = MARGIN;			 // back to top of page

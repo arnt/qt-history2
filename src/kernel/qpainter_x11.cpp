@@ -110,7 +110,7 @@ void qt_erase_region( QWidget* w, const QRegion& region)
     if ( w == paintEventDevice )
 	reg = paintEventClipRegion->intersect( reg );
 
-    QArray<QRect> r = reg.rects();
+    QMemArray<QRect> r = reg.rects();
     for (uint i=0; i<r.size(); i++) {
 	const QRect& rr = r[(int)i];
 	XClearArea( w->x11Display(), w->winId(),
@@ -2328,9 +2328,9 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 
     if ( pa[index] != pa[index+npoints-1] ){   // close open pointarray
 	pa.detach();
-    	pa.resize( index+npoints+1 );
-    	pa.setPoint( index+npoints, pa[index] );
-    	npoints++;
+	pa.resize( index+npoints+1 );
+	pa.setPoint( index+npoints, pa[index] );
+	npoints++;
     }
 
     if ( cbrush.style() != NoBrush ) {		// draw filled polygon
@@ -2453,7 +2453,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 
     if ( pdev->x11Screen() != pixmap.x11Screen() ) {
 	QPixmap* p = (QPixmap*) &pixmap;
- 	p->x11SetScreen( pdev->x11Screen() );
+	p->x11SetScreen( pdev->x11Screen() );
     }
 
     QPixmap::x11SetDefaultScreen( pixmap.x11Screen() );
@@ -2801,7 +2801,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 {
     if ( !isActive() )
 	return;
-    if ( len == 0 || pos >= (int)str.length() ) 	// empty string
+    if ( len == 0 || pos >= (int)str.length() )	// empty string
 	return;
     if ( pos + len > (int)str.length() )
 	len = str.length() - pos;
@@ -2956,4 +2956,3 @@ QPoint QPainter::pos() const
 {
     return curPt;
 }
-

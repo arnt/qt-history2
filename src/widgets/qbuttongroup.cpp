@@ -38,7 +38,7 @@
 #include "qbuttongroup.h"
 #ifndef QT_NO_BUTTONGROUP
 #include "qbutton.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qapplication.h"
 
 
@@ -88,7 +88,7 @@ struct QButtonItem
 };
 
 
-class QButtonList: public QList<QButtonItem>
+class QButtonList: public QPtrList<QButtonItem>
 {
 public:
     QButtonList() {}
@@ -96,7 +96,7 @@ public:
 };
 
 
-typedef QListIterator<QButtonItem> QButtonListIt;
+typedef QPtrListIterator<QButtonItem> QButtonListIt;
 
 
 /*!
@@ -201,7 +201,7 @@ bool QButtonGroup::isExclusive() const
   radio buttons\endlink. A non-exclusive group allow many buttons to be
   switched on at the same time.
 
-  The default setting is FALSE. 
+  The default setting is FALSE.
 
   Note that radio buttons can be set exclusive by both, setExclusive(),
   and setRadioButtonExclusive(). QButtonGroup treats radio buttons

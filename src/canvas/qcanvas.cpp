@@ -50,7 +50,7 @@
 
 class QCanvas::Data {
 public:
-    QList<QCanvasView> viewList;
+    QPtrList<QCanvasView> viewList;
     QPtrDict<void> itemDict;
     QPtrDict<void> animDict;
 };
@@ -586,7 +586,7 @@ QCanvasItemList QCanvas::allItems()
 
 
 /*!
-Changes the size of the QCanvas to have a width of \a w and a height of \a h. 
+Changes the size of the QCanvas to have a width of \a w and a height of \a h.
 This is a slow operation.
 */
 void QCanvas::resize(int w, int h)
@@ -595,7 +595,7 @@ void QCanvas::resize(int w, int h)
 	return;
 
     QCanvasItem* item;
-    QList<QCanvasItem> hidden;
+    QPtrList<QCanvasItem> hidden;
     for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
 	if (((QCanvasItem*)it.currentKey())->visible()) {
 	    ((QCanvasItem*)it.currentKey())->hide();
@@ -666,7 +666,7 @@ void QCanvas::retune(int chunksze, int mxclusters)
     maxclusters=mxclusters;
 
     if ( chunksize!=chunksze ) {
-	QList<QCanvasItem> hidden;
+	QPtrList<QCanvasItem> hidden;
 	for (QPtrDictIterator<void> it=d->itemDict; it.currentKey(); ++it) {
 	    if (((QCanvasItem*)it.currentKey())->visible()) {
 		((QCanvasItem*)it.currentKey())->hide();
@@ -942,7 +942,7 @@ void QCanvas::update()
 {
     QCanvasClusterizer clusterizer(d->viewList.count());
 #ifndef QT_NO_TRANSFORMATIONS
-    QList<QRect> doneareas;
+    QPtrList<QRect> doneareas;
     doneareas.setAutoDelete(TRUE);
 #endif
 
@@ -1292,8 +1292,8 @@ void QCanvas::setChangedChunkContaining(int x, int y)
 /*!
 \internal
 This method adds the QCanvasItem \a g to the list of those which need to be
-drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like 
-SetChangedChunk and SetChangedChunkContaining, this method marks the 
+drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like
+SetChangedChunk and SetChangedChunkContaining, this method marks the
 chunk as `dirty'.
 */
 void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
@@ -1306,8 +1306,8 @@ void QCanvas::addItemToChunk(QCanvasItem* g, int x, int y)
 /*!
 \internal
 This method removes the QCanvasItem \a g from the list of those which need to
-be drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like 
-SetChangedChunk and SetChangedChunkContaining, this method marks the chunk 
+be drawn if the given chunk at location ( \a x, \a y ) is redrawn.  Like
+SetChangedChunk and SetChangedChunkContaining, this method marks the chunk
 as `dirty'.
 */
 void QCanvas::removeItemFromChunk(QCanvasItem* g, int x, int y)
@@ -2391,7 +2391,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
 
 
 /*!
-  Constructs a QCanvasPixmap from an image file at the location 
+  Constructs a QCanvasPixmap from an image file at the location
   specified in \a datafilename by loading it.
 */
 QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
@@ -2514,7 +2514,7 @@ QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
 
 /*! Constructs a QCanvasPixmapArray from the list of QPixmaps \a list. */
 
-QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QList<QPoint> hotspots) :
+QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> hotspots) :
     framecount(list.count()),
     img(new QCanvasPixmap*[list.count()])
 {
@@ -2679,7 +2679,7 @@ int QCanvasSprite::leftEdge() const
     return int(x()) - image()->hotx;
 }
 
-/*!  
+/*!
   \overload
 
   Returns what the x coordinate of the left edge of the sprite
@@ -2702,7 +2702,7 @@ int QCanvasSprite::topEdge() const
     return int(y())-image()->hoty;
 }
 
-/*!  
+/*!
   \overload
 
   Returns what the y coordinate of the top edge of the sprite
@@ -2725,7 +2725,7 @@ int QCanvasSprite::rightEdge() const
     return leftEdge()+image()->width()-1;
 }
 
-/*!  
+/*!
   \overload
 
   Returns what the x coordinate of the right edge of the sprite
@@ -2748,7 +2748,7 @@ int QCanvasSprite::bottomEdge() const
     return topEdge()+image()->height()-1;
 }
 
-/*!  
+/*!
   \overload
 
   Returns what the y coordinate of the top edge of the sprite
@@ -2885,15 +2885,15 @@ void QCanvasSprite::draw(QPainter& painter)
   \module canvas
 
   A QCanvasView is widget which is a view of a QCanvas.
-  
+
   You can easily make this view interactible by subclassing QCanvasView and
-  by reimplementing QScrollView::contentsMousePressEvent().  
+  by reimplementing QScrollView::contentsMousePressEvent().
 
   \code
     void MyCanvasView::contentsMousePressEvent( QMouseEvent* e )
     {
 	QCanvasItemList l = canvas()->collisions(e->pos());
-        for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
+	for (QCanvasItemList::Iterator it=l.begin(); it!=l.end(); ++it) {
 	    if ( (*it)->rtti() == 5 )
 		qDebug("A QCanvasRectangle lies somewhere at this point");
 	}
@@ -2905,7 +2905,7 @@ void QCanvasSprite::draw(QPainter& painter)
   calling canvas().
 
   You can also set a transformation matrix which will allow you to
-  "transform" the view of the canvas. For instance, this could be zooming 
+  "transform" the view of the canvas. For instance, this could be zooming
   in and out of the canvas, and also rotating.
 
   \code
@@ -2916,8 +2916,8 @@ void QCanvasSprite::draw(QPainter& painter)
   \endcode
 
   You can set the world matrix by calling setWorldMatrix().  You have to
-  ensure that the world matrix you set is invertible (i.e. can have an 
-  opposite, for example, if you zoom in by 2 times, then the inverse would be 
+  ensure that the world matrix you set is invertible (i.e. can have an
+  opposite, for example, if you zoom in by 2 times, then the inverse would be
   zooming out by 2 times.)
 
   \code
@@ -2936,12 +2936,12 @@ void QCanvasSprite::draw(QPainter& painter)
   calling worldMatrix().  You can get a reference to the current world matrix
   inverted by calling inverseWorldMatrix().
 
-  \sa QWMatrix QPainter::setWorldMatrix() 
+  \sa QWMatrix QPainter::setWorldMatrix()
 
 */
 
 /*!
-  Constructs a QCanvasView with the parent \a parent, and the name \a name, using 
+  Constructs a QCanvasView with the parent \a parent, and the name \a name, using
   the widget flags \a f.  It is not associated to any canvas, so you will need
   to call setCanvas() before displaying a canvas.
 
@@ -2958,7 +2958,7 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
 /*!
   \overload
 
-  Constructs a QCanvasView which views the canvas \a canvas, with the parent 
+  Constructs a QCanvasView which views the canvas \a canvas, with the parent
   \a parent, and the name \a name, using the widget flags \a f.
 */
 QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFlags f) :
@@ -3029,9 +3029,9 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
   Sets the transformation matrix of the QCanvasView to \a wm.  The matrix must
   be invertible (i.e. if you create a world matrix that zooms out by 2 times, then
   the inverse of this matrix is that it will zoom in by 2 times).
-  
+
   When you use this, you should note that the performance of the QCanvasView will
-  drop considerably.  
+  drop considerably.
 
   \sa worldMatrix() inverseWorldMatrix()
 */
@@ -3191,10 +3191,10 @@ bool QCanvasPolygonalItem::winding() const
     return wind;
 }
 
-/*! 
+/*!
 
   This function sets the polygonal item to use \e winding algorithm for
-  determine the "inside" of the polygon if \a enable is TRUE, otherwise it 
+  determine the "inside" of the polygon if \a enable is TRUE, otherwise it
   uses the odd-even algorithm.
 
   The default is to use the odd-even algorithm.
@@ -3473,7 +3473,7 @@ QCanvasPolygon::~QCanvasPolygon()
 
 /*!
   Draws the shape using the painter \a p.
-    
+
   Note that QCanvasPolygon does not support an outline (pen is
   always NoPen).
 */
@@ -3592,7 +3592,7 @@ bool QCanvasSpline::closed() const
 
 void QCanvasSpline::recalcPoly()
 {
-    QList<QPointArray> segs;
+    QPtrList<QPointArray> segs;
     segs.setAutoDelete(TRUE);
     int n=0;
     for (int i=0; i<(int)bez.count()-1; i+=3) {
@@ -4085,7 +4085,7 @@ QCanvasText::QCanvasText(const QString& t, QCanvas* canvas) :
 }
 
 /*!
-  Constructs a QCanvasText with the text \a t and font \a f, on the 
+  Constructs a QCanvasText with the text \a t and font \a f, on the
   canvas \a canvas.
 
   The text should not contain newlines.

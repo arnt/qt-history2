@@ -15,8 +15,8 @@
 class BorderLayoutIterator : public QGLayoutIterator
 {
 public:
-    BorderLayoutIterator( const QList<BorderLayout::BorderLayoutStruct> *l )
-        : idx( 0 ) , list( (QList<BorderLayout::BorderLayoutStruct>*)l )
+    BorderLayoutIterator( const QPtrList<BorderLayout::BorderLayoutStruct> *l )
+	: idx( 0 ) , list( (QPtrList<BorderLayout::BorderLayoutStruct>*)l )
     {}
 
     uint count() const;
@@ -29,7 +29,7 @@ public:
 
 private:
     int idx;
-    QList<BorderLayout::BorderLayoutStruct> *list;
+    QPtrList<BorderLayout::BorderLayoutStruct> *list;
 
 };
 
@@ -138,92 +138,90 @@ void BorderLayout::doLayout( const QRect &rct, bool /*testonly*/ )
     BorderLayoutStruct *o;
     BorderLayoutStruct *center = 0;
     while ( ( o = it.currentStruct() ) != 0 ) {
-        ++it;
+	++it;
 
-        if ( o->pos == North ) {
-            o->item->setGeometry( QRect( rct.x(), nh, rct.width(), o->item->sizeHint().height() ) );
-            nh += o->item->geometry().height() + spacing();
-        }
-        if ( o->pos == South ) {
-            o->item->setGeometry( QRect( o->item->geometry().x(), o->item->geometry().y(),
-                                         rct.width(), o->item->sizeHint().height() ) );
-            sh += o->item->geometry().height() + spacing();
-            o->item->setGeometry( QRect( rct.x(), rct.y() + rct.height() - sh + spacing(),
-                                         o->item->geometry().width(), o->item->geometry().height() ) );
-        }
-        if ( o->pos == Center )
-            center = o;
+	if ( o->pos == North ) {
+	    o->item->setGeometry( QRect( rct.x(), nh, rct.width(), o->item->sizeHint().height() ) );
+	    nh += o->item->geometry().height() + spacing();
+	}
+	if ( o->pos == South ) {
+	    o->item->setGeometry( QRect( o->item->geometry().x(), o->item->geometry().y(),
+					 rct.width(), o->item->sizeHint().height() ) );
+	    sh += o->item->geometry().height() + spacing();
+	    o->item->setGeometry( QRect( rct.x(), rct.y() + rct.height() - sh + spacing(),
+					 o->item->geometry().width(), o->item->geometry().height() ) );
+	}
+	if ( o->pos == Center )
+	    center = o;
     }
 
     h = rct.height() - nh - sh;
 
     it.toFirst();
     while ( ( o = it.currentStruct() ) != 0 ) {
-        ++it;
+	++it;
 
-        if ( o->pos == West ) {
-            o->item->setGeometry( QRect( rct.x() + ww, nh, o->item->sizeHint().width(), h ) );
-            ww += o->item->geometry().width() + spacing();
-        }
-        if ( o->pos == East ) {
-            o->item->setGeometry( QRect( o->item->geometry().x(), o->item->geometry().y(),
-                                         o->item->sizeHint().width(), h ) );
-            ew += o->item->geometry().width() + spacing();
-            o->item->setGeometry( QRect( rct.x() + rct.width() - ew + spacing(), nh,
-                                         o->item->geometry().width(), o->item->geometry().height() ) );
-        }
+	if ( o->pos == West ) {
+	    o->item->setGeometry( QRect( rct.x() + ww, nh, o->item->sizeHint().width(), h ) );
+	    ww += o->item->geometry().width() + spacing();
+	}
+	if ( o->pos == East ) {
+	    o->item->setGeometry( QRect( o->item->geometry().x(), o->item->geometry().y(),
+					 o->item->sizeHint().width(), h ) );
+	    ew += o->item->geometry().width() + spacing();
+	    o->item->setGeometry( QRect( rct.x() + rct.width() - ew + spacing(), nh,
+					 o->item->geometry().width(), o->item->geometry().height() ) );
+	}
     }
 
     if ( center )
-        center->item->setGeometry( QRect( ww, nh, rct.width() - ew - ww, h ) );
+	center->item->setGeometry( QRect( ww, nh, rct.width() - ew - ww, h ) );
 }
 
 void BorderLayout::calcSize( SizeType st )
 {
     if ( ( st == Minimum && !msizeDirty ) ||
-         ( st == SizeHint && !sizeDirty ) )
-        return;
+	 ( st == SizeHint && !sizeDirty ) )
+	return;
 
     int w = 0, h = 0;
 
     BorderLayoutIterator it = BorderLayoutIterator( &list );
     BorderLayoutStruct *o;
     while ( ( o = it.currentStruct() ) != 0 ) {
-        ++it;
-        if ( o->pos == North ||
-             o->pos == South ) {
-            if ( st == Minimum )
-                h += o->item->minimumSize().height();
-            else
-                h += o->item->sizeHint().height();
-        }
-        else if ( o->pos == West ||
-                  o->pos == East ) {
-            if ( st == Minimum )
-                w += o->item->minimumSize().width();
-            else
-                w += o->item->sizeHint().width();
-        } else {
-            if ( st == Minimum ) {
-                h += o->item->minimumSize().height();
-                w += o->item->minimumSize().width();
-            }
-            else {
-                h += o->item->sizeHint().height();
-                w += o->item->sizeHint().width();
-            }
-        }
+	++it;
+	if ( o->pos == North ||
+	     o->pos == South ) {
+	    if ( st == Minimum )
+		h += o->item->minimumSize().height();
+	    else
+		h += o->item->sizeHint().height();
+	}
+	else if ( o->pos == West ||
+		  o->pos == East ) {
+	    if ( st == Minimum )
+		w += o->item->minimumSize().width();
+	    else
+		w += o->item->sizeHint().width();
+	} else {
+	    if ( st == Minimum ) {
+		h += o->item->minimumSize().height();
+		w += o->item->minimumSize().width();
+	    }
+	    else {
+		h += o->item->sizeHint().height();
+		w += o->item->sizeHint().width();
+	    }
+	}
     }
 
     if ( st == Minimum ) {
-        msizeDirty = FALSE;
-        mcached = QSize( w, h );
+	msizeDirty = FALSE;
+	mcached = QSize( w, h );
     } else {
-        sizeDirty = FALSE;
-        cached = QSize( w, h );
+	sizeDirty = FALSE;
+	cached = QSize( w, h );
     }
 
     return;
 }
-
-

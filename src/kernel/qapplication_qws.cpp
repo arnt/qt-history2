@@ -224,7 +224,7 @@ extern void qt_setMaxWindowRect(const QRect&);
 static void setMaxWindowRect(const QRect& r)
 {
     QRect tr = qt_screen->mapFromDevice(r,
-        qt_screen->mapToDevice(QSize(qt_screen->width(),qt_screen->height())));
+	qt_screen->mapToDevice(QSize(qt_screen->width(),qt_screen->height())));
     qt_setMaxWindowRect(tr);
 }
 
@@ -312,7 +312,7 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
 timeval		*qt_wait_timer();
-timeval 	*qt_wait_timer_max = 0;
+timeval	*qt_wait_timer_max = 0;
 int	        qt_activate_timers();
 
 QObject	       *qt_clipboard = 0;
@@ -424,7 +424,7 @@ private:
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;
 #endif
-    QList<QWSEvent> queue;
+    QPtrList<QWSEvent> queue;
 
     QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
@@ -1157,12 +1157,12 @@ void QWSDisplay::grabMouse( QWidget *w, bool grab )
     d->sendCommand( cmd );
 }
 
-QList<QWSWindowInfo> * QWSDisplay::windowList()
+QPtrList<QWSWindowInfo> * QWSDisplay::windowList()
 {
-    QList<QWSWindowInfo> * ret=new QList<QWSWindowInfo>;
+    QPtrList<QWSWindowInfo> * ret=new QPtrList<QWSWindowInfo>;
     ret->setAutoDelete(true);
     if(d->directServerConnection()) {
-	QList<QWSInternalWindowInfo> * qin=QWSServer::windowList();
+	QPtrList<QWSInternalWindowInfo> * qin=QWSServer::windowList();
 	QWSInternalWindowInfo * qwi;
 	for(qwi=qin->first();qwi!=0;qwi=qin->next()) {
 	    QWSWindowInfo * tmp=new QWSWindowInfo();
@@ -1689,7 +1689,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   QApplication cursor stack
  *****************************************************************************/
 #ifndef QT_NO_CURSOR
-typedef QList<QCursor> QCursorList;
+typedef QPtrList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
@@ -1844,8 +1844,8 @@ struct QSockNot {
     fd_set  *queue;
 };
 
-typedef QList<QSockNot> QSNList;
-typedef QListIterator<QSockNot> QSNListIt;
+typedef QPtrList<QSockNot> QSNList;
+typedef QPtrListIterator<QSockNot> QSNListIt;
 
 static int	sn_highest = -1;
 static QSNList *sn_read	   = 0;
@@ -2660,7 +2660,7 @@ struct TimerInfo {				// internal timer info
     QObject *obj;				// - object to receive event
 };
 
-typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
+typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
 
 static QBitArray *timerBitVec;			// timer bit vector
 static TimerList *timerList	= 0;		// timer list
@@ -3499,4 +3499,3 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	return animate_ui;
     }
 }
-

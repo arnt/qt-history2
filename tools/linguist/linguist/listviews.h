@@ -18,7 +18,7 @@
 #define LISTVIEWS_H
 
 #include <qstring.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qregexp.h>
 #include <qlistview.h>
 
@@ -56,12 +56,12 @@ public:
     void incrementObsoleteCount();
     bool isContextObsolete();
     void updateStatus();
-    
+
     QString context() const { return text( 1 ); }
     QString comment() const { return com; }
     QString fullContext() const;
     bool    finished() const { return unfinishedCount == 0; }
-    
+
     MessageLVI * firstMessageItem() { return messageItems.first(); }
     MessageLVI * nextMessageItem() { return messageItems.next(); }
     MessageLVI * takeMessageItem( int i ) { return messageItems.take( i ); }
@@ -69,10 +69,10 @@ public:
     void         instantiateMessageItem( QListView * lv, MessageLVI * i );
     int          messageItemsInList() { return messageItems.count(); }
 
-    void paintCell( QPainter * p, const QColorGroup & cg, int column, 
+    void paintCell( QPainter * p, const QColorGroup & cg, int column,
 		    int width, int align );
 private:
-    QList<MessageLVI> messageItems;    
+    QPtrList<MessageLVI> messageItems;
     QString com;
     int unfinishedCount;
     int dangerCount;
@@ -94,7 +94,7 @@ public:
 
     void setContextLVI( ContextLVI * c ) { ctxt = c; }
     ContextLVI * contextLVI() const { return ctxt; }
-    
+
     QString context() const;
     QString sourceText() const { return tx; }
     QString comment() const { return com; }
@@ -102,8 +102,8 @@ public:
     bool finished() const { return fini; }
     MetaTranslatorMessage message() const;
 
-    void paintCell( QPainter * p, const QColorGroup & cg, int column, 
-		    int width, int align );    
+    void paintCell( QPainter * p, const QColorGroup & cg, int column,
+		    int width, int align );
 private:
     MetaTranslatorMessage m;
     QString tx;

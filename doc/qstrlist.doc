@@ -2,4 +2,4 @@
 ** $Id: qstrlist.doc,v 2.4 1999/10/13 17:24:19 aavit Exp $
 *****************************************************************************/
 
-//typedef QListIterator<char> QStrListIterator;
+//typedef QPtrListIterator<char> QStrListIterator;

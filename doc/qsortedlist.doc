@@ -45,15 +45,15 @@
   \ingroup collection
   \ingroup tools
 
-  If you want to sort a QList you have to reimplement the
+  If you want to sort a QPtrList you have to reimplement the
   QGList::compareItems() method.  If the elements of your list support
   operator<() and operator==(), you can use QSortedList instead.
   Its compareItems() calls operator<() and operator==() and returns an
   appropriate result.
 
-  Otherwise, this is as QList.
+  Otherwise, this is as QPtrList.
 
-  \sa QList, \link collection.html Collection Classes\endlink
+  \sa QPtrList, \link collection.html Collection Classes\endlink
 */
 
 
@@ -86,7 +86,7 @@
 */
 
 /*!
-   \fn int QSortedList::compareItems( QCollection::Item s1, QCollection::Item s2 )
+   \fn int QSortedList::compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 )
 
    \reimp
 

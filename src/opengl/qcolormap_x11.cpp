@@ -37,29 +37,29 @@
 
 #include "qcolormap.h"
 #include "qshared.h"
-#include "qarray.h"
+#include "qmemarray.h"
 #include "qwidget.h"
 #include "qt_x11.h"
 
 class QColormapPrivate : public QShared
 {
 public:
-    QColormapPrivate() { 
-	valid  = FALSE; 
+    QColormapPrivate() {
+	valid  = FALSE;
 	size   = 0;
 	widget = 0;
 	cells  = 0;
 	map    = 0;
     }
-    
+
     ~QColormapPrivate() {
 	if ( valid && widget && map )
 	    XFreeColormap( widget->x11Display(), map );
     }
-    
+
     bool valid;
     int size;
-    QArray< QRgb > cells;
+    QMemArray< QRgb > cells;
     Colormap       map;
     QWidget * widget;
 };
@@ -69,20 +69,20 @@ QColormap::QColormap( QWidget * w, const char * name )
     : QObject( w, name )
 {
     d = new QColormapPrivate();
-    if ( !w ) 
+    if ( !w )
 	return;
-	
+
     bool validVisual = FALSE;
     int  numVisuals;
     long mask;
     XVisualInfo templ;
     XVisualInfo *visuals;
     VisualID id = XVisualIDFromVisual( (Visual *) w->x11Visual() );
-    
+
     mask = VisualScreenMask;
     templ.screen = w->x11Screen();
     visuals = XGetVisualInfo( w->x11Display(), mask, &templ, &numVisuals );
-    
+
     for ( int i = 0; i < numVisuals; i++ ) {
 	if ( visuals[i].visualid == id ) {
 	    switch ( visuals[i].c_class ) {
@@ -99,7 +99,7 @@ QColormap::QColormap( QWidget * w, const char * name )
 	    }
 	    break;
 	}
-    } 
+    }
     XFree( visuals );
 
     if ( !validVisual ) {
@@ -107,11 +107,11 @@ QColormap::QColormap( QWidget * w, const char * name )
 		  "colormap for this visual (ID = 0x%x).", (uint) id );
 	return;
     }
-    
+
     d->map = XCreateColormap( w->x11Display(), w->topLevelWidget()->winId(),
 			      (Visual *) w->x11Visual(), AllocAll );
     if ( d->map ) {
-	XSetWindowColormap( w->x11Display(), w->topLevelWidget()->winId(), 
+	XSetWindowColormap( w->x11Display(), w->topLevelWidget()->winId(),
 			    d->map );
 	d->valid  = TRUE;
 	d->size   = ((Visual *) w->x11Visual())->map_entries;
@@ -141,7 +141,7 @@ QColormap & QColormap::operator=( const QColormap & map )
     if ( d->deref() )
 	delete d;
     d = map.d;
-    
+
     return *this;
 }
 
@@ -155,14 +155,14 @@ void QColormap::detach()
 	newd->valid  = d->valid;
 	newd->cells  = d->cells;
 	newd->cells.detach();
-	newd->map = XCreateColormap( d->widget->x11Display(), 
+	newd->map = XCreateColormap( d->widget->x11Display(),
 				     d->widget->topLevelWidget()->winId(),
 				     (Visual *) d->widget->x11Visual(),
 				     AllocAll );
 	if ( d->deref() )
 	    delete d;
 	d = newd;
-	
+
 	// Re-set the color cells in the new colormap
 	for ( int x = 0; x < d->size; x++ )
 	    setRgb( x, d->cells[ x ] );
@@ -175,7 +175,7 @@ void QColormap::setRgb( int idx, QRgb color )
 	return;
     }
 
-#if defined(QT_CHECK_RANGE)    
+#if defined(QT_CHECK_RANGE)
     if ( idx < 0 || idx > d->size ) {
 	qWarning( "QColormap::setRgb: Index out of range." );
 	return;
@@ -223,4 +223,3 @@ int QColormap::size() const
 {
     return d->size;
 }
-

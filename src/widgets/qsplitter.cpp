@@ -41,8 +41,8 @@
 #include "qdrawutil.h"
 #include "qbitmap.h"
 #include "../kernel/qlayoutengine_p.h"
-#include "qlist.h"
-#include "qarray.h"
+#include "qptrlist.h"
+#include "qmemarray.h"
 #include "qobjectlist.h"
 #include "qapplication.h" //sendPostedEvents
 
@@ -156,7 +156,7 @@ class QSplitterData
 public:
     QSplitterData() : opaque( FALSE ), firstShow( TRUE ) {}
 
-    QList<QSplitterLayoutStruct> list;
+    QPtrList<QSplitterLayoutStruct> list;
     bool opaque;
     bool firstShow;
 };
@@ -265,7 +265,7 @@ void QSplitter::init()
     if ( orient == Horizontal )
 	setSizePolicy( QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum) );
     else
-    	setSizePolicy( QSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding) );
 }
 
 
@@ -292,7 +292,7 @@ void QSplitter::setOrientation( Orientation o )
     if ( orient == Horizontal )
 	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum ) );
     else
-    	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding ) );
 
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
@@ -708,7 +708,7 @@ void QSplitter::doResize()
     QRect r = contentsRect();
     int i;
     int n = data->list.count();
-    QArray<QLayoutStruct> a( n );
+    QMemArray<QLayoutStruct> a( n );
     for ( i = 0; i< n; i++ ) {
 	a[i].init();
 	QSplitterLayoutStruct *s = data->list.at(i);

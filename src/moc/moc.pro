@@ -9,7 +9,7 @@ DEPENDPATH	= ../../include ../tools .
 DESTDIR         = ../../bin
 OBJECTS_DIR	= .
 SOURCES		= ../tools/qbuffer.cpp	    \
-		  ../tools/qcollection.cpp  \
+		  ../tools/qptrcollection.cpp  \
 		  ../tools/qcstring.cpp	    \
 		  ../tools/qdatastream.cpp  \
 		  ../tools/qdatetime.cpp    \

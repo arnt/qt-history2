@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#71 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -42,8 +42,8 @@
 #include "qplatformdefs.h"
 
 #include "qapplication.h"
-#include "qqueue.h"
-#include "qlist.h"
+#include "qptrqueue.h"
+#include "qptrlist.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
@@ -77,7 +77,7 @@ public:
     QByteArray bufStdout;
     QByteArray bufStderr;
 
-    QQueue<QByteArray> stdinBuf;
+    QPtrQueue<QByteArray> stdinBuf;
 
     QSocketNotifier *notifierStdin;
     QSocketNotifier *notifierStdout;
@@ -171,7 +171,7 @@ public slots:
 public:
     struct sigaction oldactChld;
     struct sigaction oldactPipe;
-    QList<QProc> *procList;
+    QPtrList<QProc> *procList;
     int sigchldFd[2];
 };
 
@@ -179,7 +179,7 @@ QCleanupHandler<QProcessManager> qprocess_cleanup_procmanager;
 
 QProcessManager::QProcessManager()
 {
-    procList = new QList<QProc>;
+    procList = new QPtrList<QProc>;
     procList->setAutoDelete( TRUE );
 
     // The SIGCHLD handler writes to a socket to tell the manager that
@@ -757,7 +757,7 @@ void QProcess::writeToStdin( const QByteArray& buf )
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
     if ( d->notifierStdin != 0 )
-        d->notifierStdin->setEnabled( TRUE );
+	d->notifierStdin->setEnabled( TRUE );
 }
 
 

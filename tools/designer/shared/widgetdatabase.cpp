@@ -28,7 +28,7 @@
 
 #include <qapplication.h>
 #include <globaldefs.h>
-#include <qstrlist.h>
+#include <qptrstrlist.h>
 #include <qdict.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -45,8 +45,8 @@ static WidgetDatabaseRecord* db[ dbsize ];
 static QDict<int> *className2Id = 0;
 static int dbcount  = 0;
 static int dbcustomcount = 200;
-static QStrList *wGroups;
-static QStrList *invisibleGroups;
+static QPtrStrList *wGroups;
+static QPtrStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static QInterfaceManager<WidgetInterface> *widgetPluginManager = 0;
 
@@ -99,8 +99,8 @@ void WidgetDatabase::setupDataBase()
     if ( dbcount )
 	return;
 
-    wGroups = new QStrList;
-    invisibleGroups = new QStrList;
+    wGroups = new QPtrStrList;
+    invisibleGroups = new QPtrStrList;
     invisibleGroups->append( "Forms" );
     invisibleGroups->append( "Temp" );
     className2Id = new QDict<int>( dbdictsize );

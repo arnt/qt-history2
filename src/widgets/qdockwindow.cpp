@@ -932,8 +932,8 @@ void QDockWindow::updateGui()
 {
     if ( curPlace == OutsideDock ) {
 	hbox->setMargin( 2 );
- 	horHandle->hide();
- 	verHandle->hide();
+	horHandle->hide();
+	verHandle->hide();
 	if ( moveEnabled )
 	    titleBar->show();
 	else

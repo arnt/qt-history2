@@ -40,10 +40,10 @@
 #include "qlist.h"
 #include "qmap.h"
 
-typedef QMap<QString, QList<QWSClient> > QCopServerMap;
+typedef QMap<QString, QPtrList<QWSClient> > QCopServerMap;
 static QCopServerMap *qcopServerMap = 0;
 
-typedef QMap<QString, QList<QCopChannel> > QCopClientMap;
+typedef QMap<QString, QPtrList<QCopChannel> > QCopClientMap;
 static QCopClientMap *qcopClientMap = 0;
 
 class QCopChannel::Private
@@ -100,7 +100,7 @@ QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* 
 	return;
     }
 
-    it = qcopClientMap->insert( channel, QList<QCopChannel>() );
+    it = qcopClientMap->insert( channel, QPtrList<QCopChannel>() );
     it.data().append( this );
 
     // inform server about this channel
@@ -228,7 +228,7 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
     // do we need a new channel list ?
     QCopServerMap::Iterator it = qcopServerMap->find( ch );
     if ( it == qcopServerMap->end() )
-	it = qcopServerMap->insert( ch, QList<QWSClient>() );
+	it = qcopServerMap->insert( ch, QPtrList<QWSClient>() );
 
     it.data().append( cl );
 }
@@ -286,7 +286,7 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	return;
     }
 
-    QList<QWSClient> clist = (*qcopServerMap)[ ch ];
+    QPtrList<QWSClient> clist = (*qcopServerMap)[ ch ];
     if ( clist.isEmpty() ) {
 	qWarning( "QCopChannel: no client registered for channel %s", ch.data() );
 	return;
@@ -313,7 +313,7 @@ void QCopChannel::processEvent( const QCString &ch, const QCString &msg,
 	return;
 
     // feed local clients with received data
-    QList<QCopChannel> clients = (*qcopClientMap)[ ch ];
+    QPtrList<QCopChannel> clients = (*qcopClientMap)[ ch ];
     for ( QCopChannel *p = clients.first(); p != 0; p = clients.next() )
 	p->receive( msg, data );
 }

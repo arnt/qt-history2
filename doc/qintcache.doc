@@ -70,11 +70,10 @@
   the item itself. This is called a shallow copy. It is possible to make the
   dictionary copy all of the item's data (known as a deep copy) when an
   item is inserted.  insert() calls the virtual function
-  QCollection::newItem() for the item to be inserted.
+  QPtrCollection::newItem() for the item to be inserted.
   Inherit a dictionary and reimplement it if you want deep copies.
 
   When removing a cache item, the virtual function
-  QCollection::deleteItem() is called.  Its default implementation
   in QIntCache is to delete the item if auto-deletion is enabled.
 
   There is a QIntCacheIterator which may be used to traverse the

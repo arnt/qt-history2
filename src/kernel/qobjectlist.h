@@ -40,32 +40,32 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #endif // QT_H
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QList<QObject>;
-template class Q_EXPORT QListIterator<QObject>;
+template class Q_EXPORT QPtrList<QObject>;
+template class Q_EXPORT QPtrListIterator<QObject>;
 #endif
 
 
-class Q_EXPORT QObjectList : public QList<QObject>
+class Q_EXPORT QObjectList : public QPtrList<QObject>
 {
 public:
-    QObjectList() : QList<QObject>() {}
-    QObjectList( const QObjectList &list ) : QList<QObject>(list) {}
+    QObjectList() : QPtrList<QObject>() {}
+    QObjectList( const QObjectList &list ) : QPtrList<QObject>(list) {}
    ~QObjectList() { clear(); }
     QObjectList &operator=(const QObjectList &list)
-	{ return (QObjectList&)QList<QObject>::operator=(list); }
+	{ return (QObjectList&)QPtrList<QObject>::operator=(list); }
 };
 
-class Q_EXPORT QObjectListIt : public QListIterator<QObject>
+class Q_EXPORT QObjectListIt : public QPtrListIterator<QObject>
 {
 public:
-    QObjectListIt( const QObjectList &l ) : QListIterator<QObject>(l) {}
+    QObjectListIt( const QObjectList &l ) : QPtrListIterator<QObject>(l) {}
     QObjectListIt &operator=(const QObjectListIt &i)
-	{ return (QObjectListIt&)QListIterator<QObject>::operator=(i); }
+	{ return (QObjectListIt&)QPtrListIterator<QObject>::operator=(i); }
 };
 
 

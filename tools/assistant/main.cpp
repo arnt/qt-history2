@@ -2,7 +2,7 @@
 #include "mainwindow.h"
 #include <qserversocket.h>
 #include <qsocket.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 const int server_port = 7358;
 
@@ -35,7 +35,7 @@ private slots:
     void dataReceived();
 
 private:
-    QList<QSocket> connections;
+    QPtrList<QSocket> connections;
     MainWindow *mainWindow;
 
 };

@@ -39,7 +39,7 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qpainter.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qiconset.h"
 #endif // QT_H
 
@@ -144,7 +144,7 @@ protected:
     void keyPressEvent( QKeyEvent * );
     void styleChange( QStyle& );
 
-    QList<QTab> * tabList();
+    QPtrList<QTab> * tabList();
 
 #ifndef QT_NO_ACCESSIBILITY
     QString stateDescription() const;
@@ -157,8 +157,8 @@ private slots:
     void scrollTabs();
 
 private:
-    QList<QTab> * l;
-    QList<QTab> * lstatic;
+    QPtrList<QTab> * l;
+    QPtrList<QTab> * lstatic;
     void makeVisible( QTab* t  );
     void updateArrowButtons();
     QTabPrivate * d;

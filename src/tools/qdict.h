@@ -80,7 +80,7 @@ template<> inline void QDict<void>::deleteItem( Item )
 }
 #endif
 
-template<class type> inline void QDict<type>::deleteItem( QCollection::Item d )
+template<class type> inline void QDict<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) delete (type *)d;
 }

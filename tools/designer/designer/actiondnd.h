@@ -5,7 +5,7 @@
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qpixmap.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qmap.h>
 #include <qaction.h>
 
@@ -121,7 +121,7 @@ class QDesignerToolBar : public QToolBar
 public:
     QDesignerToolBar( QMainWindow *mw );
     QDesignerToolBar( QMainWindow *mw, Dock dock );
-    QList<QAction> insertedActions() const { return actionList; }
+    QPtrList<QAction> insertedActions() const { return actionList; }
     void addAction( QAction *a );
 
     void clear();
@@ -161,7 +161,7 @@ private:
     QPoint lastIndicatorPos;
     QWidget *insertAnchor;
     bool afterAnchor;
-    QList<QAction> actionList;
+    QPtrList<QAction> actionList;
     QMap<QWidget*, QAction*> actionMap;
     QPoint dragStartPos;
     QDesignerIndicatorWidget *indicator;
@@ -223,7 +223,7 @@ class QDesignerPopupMenu : public QPopupMenu
 
 public:
     QDesignerPopupMenu( QWidget *w );
-    QList<QAction> insertedActions() const { return actionList; }
+    QPtrList<QAction> insertedActions() const { return actionList; }
     void addAction( QAction *a );
     void reInsert();
     void insertAction( int index, QAction *a ) { actionList.insert( index, a ); }
@@ -252,7 +252,7 @@ private:
 private:
     QPoint lastIndicatorPos;
     int insertAt;
-    QList<QAction> actionList;
+    QPtrList<QAction> actionList;
     QPoint dragStartPos;
     bool mousePressed;
     QDesignerIndicatorWidget *indicator;

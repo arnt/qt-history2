@@ -2,7 +2,7 @@
 #define QCLEANUPHANDLER_H
 
 #ifndef QT_H
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qguardedptr.h>
 #endif // QT_H
 
@@ -20,7 +20,7 @@ public:
 
     void remove( Type *object )
     {
-	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
+	QPtrListIterator<QGuardedPtr<Type> > it( cleanupObjects );
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
@@ -34,7 +34,7 @@ public:
 
     bool isEmpty() const
     {
-	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
+	QPtrListIterator<QGuardedPtr<Type> > it( cleanupObjects );
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
 	    ++it;
@@ -45,7 +45,7 @@ public:
     }
 
     void clear() {
-	QListIterator<QGuardedPtr<Type> > it( cleanupObjects );
+	QPtrListIterator<QGuardedPtr<Type> > it( cleanupObjects );
 	it.toLast();
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
@@ -57,7 +57,7 @@ public:
     }
 
 private:
-    QList<QGuardedPtr<Type> > cleanupObjects;
+    QPtrList<QGuardedPtr<Type> > cleanupObjects;
 };
 
 template<class Type>
@@ -71,7 +71,7 @@ public:
     Type* add( Type* object )
     {
 	if ( !cleanupObjects ) {
-	    cleanupObjects = new QList<Type>;
+	    cleanupObjects = new QPtrList<Type>;
 	}
 	cleanupObjects->insert( 0, object );
 	return object;
@@ -95,7 +95,7 @@ public:
 	if ( !cleanupObjects )
 	    return;
 
-	QListIterator<Type> it( *cleanupObjects );
+	QPtrListIterator<Type> it( *cleanupObjects );
 	it.toLast();
 	while ( it.current() ) {
 	    Type* object = it.current();
@@ -109,7 +109,7 @@ public:
     }
 
 private:
-    QList<Type> *cleanupObjects;
+    QPtrList<Type> *cleanupObjects;
 };
 
 #endif //QCLEANUPHANDLER_H

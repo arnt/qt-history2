@@ -33,7 +33,7 @@
 #include "qbitmap.h"
 #include "qpaintdevicemetrics.h"
 #include "qpixmapcache.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qintdict.h"
 #include "qprinter.h"
 #include <stdlib.h>
@@ -387,7 +387,7 @@ void QPainter::updateFont()
 	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
 	bool vxfScale = testf(Qt2Compat) && testf(VxF)
-	                && ( dw != ww || dw != vw || dh != wh || dh != vh );
+			&& ( dw != ww || dw != vw || dh != wh || dh != vh );
 	bool stockFont;
 	hfont = cfont.create( &stockFont, hdc, vxfScale );
 	killFont = !stockFont;
@@ -708,7 +708,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	if ( tabarray )				// update tabarray for device
 	    setTabArray( tabarray );
     }
-    
+
     setf( IsActive );
     pdev->painters++;				// also tell paint device
     Q_ASSERT(pdev->painters==1);
@@ -2312,5 +2312,3 @@ QPoint QPainter::pos() const
     }
     return  p;
 }
-
-

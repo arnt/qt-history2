@@ -18,8 +18,8 @@ QCursor on Win32
 Small
 -----
 
-QArray
-    For some reason, sorting a QArray<int> does not work, but QArray<char> does. (qt-bugs/arc-07/14998)
+QMemArray
+    For some reason, sorting a QMemArray<int> does not work, but QMemArray<char> does. (qt-bugs/arc-07/14998)
 
 QPopupMenu
     Fix updateItem() (qt-bugs/arc-06/13748).

@@ -338,7 +338,7 @@ class QThreadEventsPrivate : public QObject
     Q_OBJECT
 public:
     QThreadEventsPrivate();
-    QList<QThreadQtEvent> events;
+    QPtrList<QThreadQtEvent> events;
     QCriticalSection protect;
     void add(QThreadQtEvent *);
 public slots:
@@ -359,7 +359,7 @@ void QThreadEventsPrivate::sendEvents()
     protect.enter();
     QThreadQtEvent * qte;
     for( qte = events.first(); qte != 0; qte = events.next() )
-        qApp->postEvent( qte->object, qte->event );
+	qApp->postEvent( qte->object, qte->event );
     events.clear();
     protect.leave();
 }
@@ -407,7 +407,7 @@ QWaitConditionPrivate::~QWaitConditionPrivate()
 {
     if ( !CloseHandle( handle ) || !CloseHandle( single ) ) {
 #ifdef QT_CHECK_RANGE
-        qSystemWarning( "Condition destroy failure" );
+	qSystemWarning( "Condition destroy failure" );
 #endif
     }
 }
@@ -416,7 +416,7 @@ int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
 {
     s.enter();
     if ( countWaiter )
-        waitersCount++;
+	waitersCount++;
     Qt::HANDLE hnds[2] = { handle, single };
     s.leave();
     int ret = WaitForMultipleObjects( 2, hnds, FALSE, time );
@@ -477,11 +477,11 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     bool lastWaiter = ( (result == WAIT_OBJECT_0 )  && d->waitersCount == 0 ); // last waiter on waitAll?
     d->s.leave();
     if ( lastWaiter ) {
-        if ( !ResetEvent ( d->handle ) ) {
+	if ( !ResetEvent ( d->handle ) ) {
     #ifdef QT_CHECK_RANGE
-        qSystemWarning( "Condition could not be reset" );
+	qSystemWarning( "Condition could not be reset" );
     #endif
-        }
+	}
     }
     switch ( result ) {
     case WAIT_TIMEOUT:
@@ -504,11 +504,11 @@ void QWaitCondition::wakeOne()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-        if ( !SetEvent( d->single ) ) {
+	if ( !SetEvent( d->single ) ) {
     #ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
     #endif
-        }
+	}
     }
     d->s.leave();
 }
@@ -518,11 +518,11 @@ void QWaitCondition::wakeAll()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-        if ( !PulseEvent( d->handle ) ) {
+	if ( !PulseEvent( d->handle ) ) {
     #ifdef QT_CHECK_RANGE
-        qSystemWarning( "Condition could not be set" );
+	qSystemWarning( "Condition could not be set" );
     #endif
-        }
+	}
     }
     d->s.leave();
 }
@@ -594,7 +594,7 @@ Qt::HANDLE QThread::currentThread()
 void QThread::postEvent( QObject *o,QEvent *e )
 {
     if( !qthreadEventsPrivate )
-        qthreadEventsPrivate = new QThreadEventsPrivate();
+	qthreadEventsPrivate = new QThreadEventsPrivate();
     qthreadEventsPrivate->protect.enter();
     qthreadEventsPrivate->add( new QThreadQtEvent(o,e)  );
     qthreadEventsPrivate->protect.leave();

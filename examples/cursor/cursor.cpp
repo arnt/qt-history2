@@ -65,10 +65,11 @@ public:
 
 CursorView::CursorView()			// construct view
 {
-    static struct {
-	CursorShape	shape;					
+    struct List {
+	CursorShape	shape;
 	const char*	name;			// cursor name
-    } list[] = {
+    };
+    static List list[] = {
 	{ ArrowCursor,		"arrowCursor" },
 	{ UpArrowCursor,	"upArrowCursor" },
 	{ CrossCursor,		"crossCursor" },

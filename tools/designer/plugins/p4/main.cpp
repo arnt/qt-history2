@@ -570,18 +570,18 @@ void P4Interface::p4Diff()
 void P4Interface::p4Refresh()
 {
     if ( !appInterface )
-        return;
+	return;
 
     P4Info::files()->clear();
 
-    QList<DesignerProject> projects = appInterface->projectList();
-    QListIterator<DesignerProject> pit( projects );
+    QPtrList<DesignerProject> projects = appInterface->projectList();
+    QPtrListIterator<DesignerProject> pit( projects );
     while ( pit.current() ) {
 	DesignerProject *pIface = pit.current();
 	++pit;
 
-	QList<DesignerFormWindow> forms = pIface->formList();
-	QListIterator<DesignerFormWindow> fit( forms );
+	QPtrList<DesignerFormWindow> forms = pIface->formList();
+	QPtrListIterator<DesignerFormWindow> fit( forms );
 	while ( fit.current() ) {
 	    DesignerFormWindow *fwIface = fit.current();
 	    ++fit;
@@ -620,7 +620,7 @@ void P4Interface::formChanged()
     DesignerFormWindow *fwIface = 0;
 
     if ( !appInterface )
-        return;
+	return;
 
     QString filename;
     if ( ( fwIface = appInterface->currentForm() ) ) {
@@ -657,15 +657,15 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 
     QWidget *form = 0;
     DesignerFormWindow *fwIface = 0;
-    
-    QList<DesignerProject> projects = appInterface->projectList();
-    QListIterator<DesignerProject> pit( projects );
+
+    QPtrList<DesignerProject> projects = appInterface->projectList();
+    QPtrListIterator<DesignerProject> pit( projects );
     while ( pit.current() ) {
 	DesignerProject *pIface = pit.current();
 	++pit;
 
-	QList<DesignerFormWindow> forms = pIface->formList();
-	QListIterator<DesignerFormWindow> fit( forms );
+	QPtrList<DesignerFormWindow> forms = pIface->formList();
+	QPtrListIterator<DesignerFormWindow> fit( forms );
 	while ( fit.current() ) {
 	    fwIface = fit.current();
 	    ++fit;
@@ -718,7 +718,7 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 	    default:
 		break;
 	    }
-	
+
 	    actionSync->setEnabled( FALSE );
 	    actionEdit->setEnabled( FALSE );
 	    actionSubmit->setEnabled( TRUE );

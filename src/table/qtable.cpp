@@ -106,9 +106,9 @@ private:
     bool doSelection( QMouseEvent *e );
 
 private:
-    QArray<int> states, oldStates;
-    QArray<bool> stretchable;
-    QArray<int> sectionSizes, sectionPoses;
+    QMemArray<int> states, oldStates;
+    QMemArray<bool> stretchable;
+    QMemArray<int> sectionSizes, sectionPoses;
     bool mousePressed;
     int pressPos, startPos, endPos;
     QTable *table;
@@ -1870,9 +1870,9 @@ void QTable::resizeData( int len )
 
 void QTable::swapRows( int row1, int row2 )
 {
-    QVector<QTableItem> tmpContents;
+    QPtrVector<QTableItem> tmpContents;
     tmpContents.resize( numCols() );
-    QVector<QWidget> tmpWidgets;
+    QPtrVector<QWidget> tmpWidgets;
     tmpWidgets.resize( numCols() );
     int i;
 
@@ -1967,9 +1967,9 @@ void QTable::setTopMargin( int m )
 
 void QTable::swapColumns( int col1, int col2 )
 {
-    QVector<QTableItem> tmpContents;
+    QPtrVector<QTableItem> tmpContents;
     tmpContents.resize( numRows() );
-    QVector<QWidget> tmpWidgets;
+    QPtrVector<QWidget> tmpWidgets;
     tmpWidgets.resize( numRows() );
     int i;
 
@@ -2254,7 +2254,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
     reg = reg.subtract( QRect( contentsToViewport( QPoint( 0, 0 ) ), tableSize() ) );
 
     // And draw the rectangles (transformed as needed)
-    QArray<QRect> r = reg.rects();
+    QMemArray<QRect> r = reg.rects();
     for ( int i = 0; i < (int)r.count(); ++i)
 	p->fillRect( r[ i ], colorGroup().brush( QColorGroup::Base ) );
 }
@@ -2510,7 +2510,7 @@ void QTable::ensureCellVisible( int row, int col )
 
 bool QTable::isSelected( int row, int col ) const
 {
-    QListIterator<QTableSelection> it( selections );
+    QPtrListIterator<QTableSelection> it( selections );
     QTableSelection *s;
     while ( ( s = it.current() ) != 0 ) {
 	++it;
@@ -2538,7 +2538,7 @@ bool QTable::isSelected( int row, int col ) const
 bool QTable::isRowSelected( int row, bool full ) const
 {
     if ( !full ) {
-	QListIterator<QTableSelection> it( selections );
+	QPtrListIterator<QTableSelection> it( selections );
 	QTableSelection *s;
 	while ( ( s = it.current() ) != 0 ) {
 	    ++it;
@@ -2550,7 +2550,7 @@ bool QTable::isRowSelected( int row, bool full ) const
 	    return TRUE;
 	}
     } else {
-	QListIterator<QTableSelection> it( selections );
+	QPtrListIterator<QTableSelection> it( selections );
 	QTableSelection *s;
 	while ( ( s = it.current() ) != 0 ) {
 	    ++it;
@@ -2577,7 +2577,7 @@ bool QTable::isRowSelected( int row, bool full ) const
 bool QTable::isColumnSelected( int col, bool full ) const
 {
     if ( !full ) {
-	QListIterator<QTableSelection> it( selections );
+	QPtrListIterator<QTableSelection> it( selections );
 	QTableSelection *s;
 	while ( ( s = it.current() ) != 0 ) {
 	    ++it;
@@ -2589,7 +2589,7 @@ bool QTable::isColumnSelected( int col, bool full ) const
 	    return TRUE;
 	}
     } else {
-	QListIterator<QTableSelection> it( selections );
+	QPtrListIterator<QTableSelection> it( selections );
 	QTableSelection *s;
 	while ( ( s = it.current() ) != 0 ) {
 	    ++it;
@@ -3609,7 +3609,7 @@ void QTable::setNumRows( int r )
     if ( w > leftMargin() )
 	setLeftMargin( w );
 
-    QVector<QTableItem> tmp;
+    QPtrVector<QTableItem> tmp;
     tmp.resize( contents.size() );
     int i;
     for ( i = 0; i < (int)tmp.size(); ++i )
@@ -3660,7 +3660,7 @@ void QTable::setNumCols( int c )
 	    topHeader->removeLabel( numCols() - 1 );
     }
 
-    QVector<QTableItem> tmp;
+    QPtrVector<QTableItem> tmp;
     tmp.resize( contents.size() );
     int i;
     for ( i = 0; i < (int)tmp.size(); ++i )
@@ -4585,7 +4585,7 @@ void QTable::removeRow( int row )
    \sa removeRow() insertRows() removeColumns()
 */
 
-void QTable::removeRows( const QArray<int> &rows )
+void QTable::removeRows( const QMemArray<int> &rows )
 {
     if ( rows.count() == 0 )
 	return;
@@ -4623,7 +4623,7 @@ void QTable::removeColumn( int col )
    \sa removeColumn() insertColumns() removeRows()
 */
 
-void QTable::removeColumns( const QArray<int> &cols )
+void QTable::removeColumns( const QMemArray<int> &cols )
 {
     if ( cols.count() == 0 )
 	return;

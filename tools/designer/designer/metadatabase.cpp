@@ -30,7 +30,7 @@
 #include <qlayout.h>
 #include <qptrdict.h>
 #include <qobjectlist.h>
-#include <qstrlist.h>
+#include <qptrstrlist.h>
 #include <qmetaobject.h>
 #include <qwidgetlist.h>
 #include <qmainwindow.h>
@@ -63,7 +63,7 @@ public:
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
-static QList<MetaDataBase::CustomWidget> *cWidgets = 0;
+static QPtrList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
 static QStringList langList;
 static QStringList editorLangList;
@@ -88,7 +88,7 @@ inline void setupDataBase()
     if ( !db || !cWidgets ) {
 	db = new QPtrDict<MetaDataBaseRecord>( 1481 );
 	db->setAutoDelete( TRUE );
-	cWidgets = new QList<MetaDataBase::CustomWidget>;
+	cWidgets = new QPtrList<MetaDataBase::CustomWidget>;
 	cWidgets->setAutoDelete( TRUE );
     }
 }
@@ -454,8 +454,8 @@ void MetaDataBase::doConnections( QObject *o )
 	QString s2 = "1""%1";
 	s2 = s2.arg( conn.slot );
 
-	QStrList signalList = sender->metaObject()->signalNames( TRUE );
-	QStrList slotList = receiver->metaObject()->slotNames( TRUE );
+	QPtrStrList signalList = sender->metaObject()->signalNames( TRUE );
+	QPtrStrList slotList = receiver->metaObject()->slotNames( TRUE );
 
 	// avoid warnings
 	if ( signalList.find( conn.signal ) == -1 ||
@@ -560,7 +560,7 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
 	return FALSE;
     }
 
-    QStrList slotList = o->metaObject()->slotNames( TRUE );
+    QPtrStrList slotList = o->metaObject()->slotNames( TRUE );
     if ( slotList.find( slot ) != -1 )
 	return TRUE;
 
@@ -653,7 +653,7 @@ void MetaDataBase::removeCustomWidget( CustomWidget *w )
     cWidgets->removeRef( w );
 }
 
-QList<MetaDataBase::CustomWidget> *MetaDataBase::customWidgets()
+QPtrList<MetaDataBase::CustomWidget> *MetaDataBase::customWidgets()
 {
     setupDataBase();
     return cWidgets;
@@ -898,7 +898,7 @@ MetaDataBase::CustomWidget &MetaDataBase::CustomWidget::operator=( const CustomW
 
 bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 {
-    QStrList sigList = QWidget::staticMetaObject()->signalNames( TRUE );
+    QPtrStrList sigList = QWidget::staticMetaObject()->signalNames( TRUE );
     if ( sigList.find( signal ) != -1 )
 	return TRUE;
     for ( QValueList<QCString>::ConstIterator it = lstSignals.begin(); it != lstSignals.end(); ++it ) {
@@ -910,7 +910,7 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 
 bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 {
-    QStrList slotList = QWidget::staticMetaObject()->slotNames( TRUE );
+    QPtrStrList slotList = QWidget::staticMetaObject()->slotNames( TRUE );
     if ( slotList.find( slot ) != -1 )
 	return TRUE;
 
@@ -923,7 +923,7 @@ bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 
 bool MetaDataBase::CustomWidget::hasProperty( const QCString &prop ) const
 {
-    QStrList propList = QWidget::staticMetaObject()->propertyNames( TRUE );
+    QPtrStrList propList = QWidget::staticMetaObject()->propertyNames( TRUE );
     if ( propList.find( prop ) != -1 )
 	return TRUE;
 

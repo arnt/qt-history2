@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#28 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#29 $
 **
 ** Definition of QStringList class
 **
@@ -41,12 +41,12 @@
 #ifndef QT_H
 #include "qvaluelist.h"
 #include "qstring.h"
+#include "qptrstrlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_STRINGLIST
 
 class QRegExp;
-class QStrList;
 
 class Q_EXPORT QStringList : public QValueList<QString>
 {
@@ -59,7 +59,7 @@ public:
     QStringList( const char* i ) { append(i); }
 #endif
 
-    static QStringList fromStrList(const QStrList&);
+    static QStringList fromStrList(const QPtrStrList&);
 
     void sort();
 

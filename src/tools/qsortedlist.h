@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/tools/qsortedlist.h#3 $
 **
-** Definition of QList template/macro class
+** Definition of QSortedList template/macro class
 **
 ** Created : 920701
 **
@@ -39,20 +39,20 @@
 #define QSORTEDLIST_H
 
 #ifndef QT_H
-#include "qlist.h"
+#include "qptrlist.h"
 #endif // QT_H
 
 
-template<class type> class Q_EXPORT QSortedList : public QList<type>
+template<class type> class Q_EXPORT QSortedList : public QPtrList<type>
 {
 public:
     QSortedList() {}
-    QSortedList( const QSortedList<type> &l ) : QList<type>(l) {}
+    QSortedList( const QSortedList<type> &l ) : QPtrList<type>(l) {}
     ~QSortedList() { clear(); }
     QSortedList<type> &operator=(const QSortedList<type> &l)
-      { return (QSortedList<type>&)QList<type>::operator=(l); }
+      { return (QSortedList<type>&)QPtrList<type>::operator=(l); }
 
-    virtual int compareItems( QCollection::Item s1, QCollection::Item s2 )
+    virtual int compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 )
       { if ( *((type*)s1) == *((type*)s2) ) return 0; return ( *((type*)s1) < *((type*)s2) ? -1 : 1 ); }
 };
 

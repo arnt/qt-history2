@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qgdict.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qstring.h"
 #include "qdatastream.h"
 #include <ctype.h>
@@ -64,14 +64,14 @@ static const int op_insert  = 1;
 static const int op_replace = 2;
 
 
-class QGDItList : public QList<QGDictIterator>
+class QGDItList : public QPtrList<QGDictIterator>
 {
 public:
-    QGDItList() : QList<QGDictIterator>() {}
-    QGDItList( const QGDItList &list ) : QList<QGDictIterator>(list) {}
+    QGDItList() : QPtrList<QGDictIterator>() {}
+    QGDItList( const QGDItList &list ) : QPtrList<QGDictIterator>(list) {}
    ~QGDItList() { clear(); }
     QGDItList &operator=(const QGDItList &list)
-	{ return (QGDItList&)QList<QGDictIterator>::operator=(list); }
+	{ return (QGDItList&)QPtrList<QGDictIterator>::operator=(list); }
 };
 
 
@@ -162,7 +162,7 @@ int QGDict::hashKeyAscii( const char *key )
   \sa write()
 */
 
-QDataStream& QGDict::read( QDataStream &s, QCollection::Item &item )
+QDataStream& QGDict::read( QDataStream &s, QPtrCollection::Item &item )
 {
     item = 0;
     return s;
@@ -175,7 +175,7 @@ QDataStream& QGDict::read( QDataStream &s, QCollection::Item &item )
   \sa read()
 */
 
-QDataStream& QGDict::write( QDataStream &s, QCollection::Item ) const
+QDataStream& QGDict::write( QDataStream &s, QPtrCollection::Item ) const
 {
     return s;
 }
@@ -228,7 +228,7 @@ void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 */
 
 QGDict::QGDict( const QGDict & dict )
-    : QCollection( dict )
+    : QPtrCollection( dict )
 {
     init( dict.vlen, (KeyType)dict.keytype, dict.cases, dict.copyk );
     QGDictIterator it( dict );
@@ -302,7 +302,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
 }
 
 
-/*! \fn QCollection::Item QGDictIterator::get() const
+/*! \fn QPtrCollection::Item QGDictIterator::get() const
 
   \internal
 */
@@ -350,7 +350,7 @@ QGDict &QGDict::operator=( const QGDict &dict )
   The do-it-all function; op is one of op_find, op_insert, op_replace
 */
 
-QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d,
+QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::Item d,
 				       int op )
 {
     QStringBucket *n = 0;
@@ -393,7 +393,7 @@ QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d,
 
 /*!  \internal */
 
-QCollection::Item QGDict::look_ascii( const char *key, QCollection::Item d, int op )
+QPtrCollection::Item QGDict::look_ascii( const char *key, QPtrCollection::Item d, int op )
 {
     QAsciiBucket *n;
     int	index = hashKeyAscii(key) % vlen;
@@ -432,7 +432,7 @@ QCollection::Item QGDict::look_ascii( const char *key, QCollection::Item d, int 
 
 /*!  \internal */
 
-QCollection::Item QGDict::look_int( long key, QCollection::Item d, int op )
+QPtrCollection::Item QGDict::look_int( long key, QPtrCollection::Item d, int op )
 {
     QIntBucket *n;
     int index = (int)((ulong)key % vlen);	// simple hash
@@ -463,7 +463,7 @@ QCollection::Item QGDict::look_int( long key, QCollection::Item d, int op )
 
 /*!  \internal */
 
-QCollection::Item QGDict::look_ptr( void *key, QCollection::Item d, int op )
+QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op )
 {
     QPtrBucket *n;
     int index = (int)((ulong)key % vlen);	// simple hash
@@ -598,7 +598,7 @@ void QGDict::unlink_common( int index, QBaseBucket *node, QBaseBucket *prev )
     numItems--;
 }
 
-QStringBucket *QGDict::unlink_string( const QString &key, QCollection::Item d )
+QStringBucket *QGDict::unlink_string( const QString &key, QPtrCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -634,7 +634,7 @@ QStringBucket *QGDict::unlink_string( const QString &key, QCollection::Item d )
     return 0;
 }
 
-QAsciiBucket *QGDict::unlink_ascii( const char *key, QCollection::Item d )
+QAsciiBucket *QGDict::unlink_ascii( const char *key, QPtrCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -655,7 +655,7 @@ QAsciiBucket *QGDict::unlink_ascii( const char *key, QCollection::Item d )
     return 0;
 }
 
-QIntBucket *QGDict::unlink_int( long key, QCollection::Item d )
+QIntBucket *QGDict::unlink_int( long key, QPtrCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -675,7 +675,7 @@ QIntBucket *QGDict::unlink_int( long key, QCollection::Item d )
     return 0;
 }
 
-QPtrBucket *QGDict::unlink_ptr( void *key, QCollection::Item d )
+QPtrBucket *QGDict::unlink_ptr( void *key, QPtrCollection::Item d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -703,7 +703,7 @@ QPtrBucket *QGDict::unlink_ptr( void *key, QCollection::Item d )
   item when several items have the same key).
 */
 
-bool QGDict::remove_string( const QString &key, QCollection::Item item )
+bool QGDict::remove_string( const QString &key, QPtrCollection::Item item )
 {
     QStringBucket *n = unlink_string( key, item );
     if ( n ) {
@@ -718,7 +718,7 @@ bool QGDict::remove_string( const QString &key, QCollection::Item item )
 
 /*!  \internal */
 
-bool QGDict::remove_ascii( const char *key, QCollection::Item item )
+bool QGDict::remove_ascii( const char *key, QPtrCollection::Item item )
 {
     QAsciiBucket *n = unlink_ascii( key, item );
     if ( n ) {
@@ -733,7 +733,7 @@ bool QGDict::remove_ascii( const char *key, QCollection::Item item )
 
 /*!  \internal */
 
-bool QGDict::remove_int( long key, QCollection::Item item )
+bool QGDict::remove_int( long key, QPtrCollection::Item item )
 {
     QIntBucket *n = unlink_int( key, item );
     if ( n ) {
@@ -746,7 +746,7 @@ bool QGDict::remove_int( long key, QCollection::Item item )
 
 /*!  \internal */
 
-bool QGDict::remove_ptr( void *key, QCollection::Item item )
+bool QGDict::remove_ptr( void *key, QPtrCollection::Item item )
 {
     QPtrBucket *n = unlink_ptr( key, item );
     if ( n ) {
@@ -759,7 +759,7 @@ bool QGDict::remove_ptr( void *key, QCollection::Item item )
 
 /*!  \internal */
 
-QCollection::Item QGDict::take_string( const QString &key )
+QPtrCollection::Item QGDict::take_string( const QString &key )
 {
     QStringBucket *n = unlink_string( key );
     Item d;
@@ -775,7 +775,7 @@ QCollection::Item QGDict::take_string( const QString &key )
 
 /*!  \internal */
 
-QCollection::Item QGDict::take_ascii( const char *key )
+QPtrCollection::Item QGDict::take_ascii( const char *key )
 {
     QAsciiBucket *n = unlink_ascii( key );
     Item d;
@@ -793,7 +793,7 @@ QCollection::Item QGDict::take_ascii( const char *key )
 
 /*!  \internal */
 
-QCollection::Item QGDict::take_int( long key )
+QPtrCollection::Item QGDict::take_int( long key )
 {
     QIntBucket *n = unlink_int( key );
     Item d;
@@ -809,7 +809,7 @@ QCollection::Item QGDict::take_int( long key )
 
 /*!  \internal */
 
-QCollection::Item QGDict::take_ptr( void *key )
+QPtrCollection::Item QGDict::take_ptr( void *key )
 {
     QPtrBucket *n = unlink_ptr( key );
     Item d;
@@ -1132,7 +1132,7 @@ QGDictIterator::~QGDictIterator()
   Sets the iterator to point to the first item in the dictionary.
 */
 
-QCollection::Item QGDictIterator::toFirst()
+QPtrCollection::Item QGDictIterator::toFirst()
 {
     if ( !dict ) {
 #if defined(QT_CHECK_NULL)
@@ -1159,7 +1159,7 @@ QCollection::Item QGDictIterator::toFirst()
   Moves to the next item (postfix).
 */
 
-QCollection::Item QGDictIterator::operator()()
+QPtrCollection::Item QGDictIterator::operator()()
 {
     if ( !dict ) {
 #if defined(QT_CHECK_NULL)
@@ -1169,7 +1169,7 @@ QCollection::Item QGDictIterator::operator()()
     }
     if ( !curNode )
 	return 0;
-    QCollection::Item d = curNode->getData();
+    QPtrCollection::Item d = curNode->getData();
     this->operator++();
     return d;
 }
@@ -1179,7 +1179,7 @@ QCollection::Item QGDictIterator::operator()()
   Moves to the next item (prefix).
 */
 
-QCollection::Item QGDictIterator::operator++()
+QPtrCollection::Item QGDictIterator::operator++()
 {
     if ( !dict ) {
 #if defined(QT_CHECK_NULL)
@@ -1210,7 +1210,7 @@ QCollection::Item QGDictIterator::operator++()
   Moves \e jumps positions forward.
 */
 
-QCollection::Item QGDictIterator::operator+=( uint jumps )
+QPtrCollection::Item QGDictIterator::operator+=( uint jumps )
 {
     while ( curNode && jumps-- )
 	operator++();

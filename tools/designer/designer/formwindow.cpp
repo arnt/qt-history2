@@ -405,7 +405,7 @@ void FormWindow::insertWidget()
 
 	InsertCommand *cmd = new InsertCommand( tr( "Insert %1" ).arg( w->name() ), this, w, r );
 
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	commands.append( mv );
 	commands.append( cmd );
 
@@ -1337,7 +1337,7 @@ void FormWindow::deleteWidgets()
 
 void FormWindow::editAdjustSize()
 {
-    QList<Command> commands;
+    QPtrList<Command> commands;
     QWidgetList widgets = selectedWidgets();
     if ( widgets.isEmpty() ) {
 	QRect oldr = geometry();
@@ -1955,7 +1955,7 @@ void FormWindow::breakLayout( QWidget *w )
     if ( w == this )
 	w = mainContainer();
     w = WidgetFactory::containerOfWidget( w );
-    QList<Command> commands;
+    QPtrList<Command> commands;
 
     while ( TRUE ) {
 	if ( !w || w == this )
@@ -2195,7 +2195,7 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 	    }
 	}
 	if ( !found ) {
-	    QList<QAction> al;
+	    QPtrList<QAction> al;
 	    QAction *a = 0;
 	    for ( a = actions.first(); a; a = actions.next() ) {
 		QObjectList *l = a->queryList( "QAction" );

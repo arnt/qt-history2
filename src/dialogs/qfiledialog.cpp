@@ -56,7 +56,7 @@
 #include "qbuttongroup.h"
 #include "qvector.h"
 #include "qregexp.h"
-#include "qstrlist.h"
+#include "qptrstrlist.h"
 #include "qtimer.h"
 #include "qvbox.h"
 #include "qhbox.h"
@@ -829,11 +829,11 @@ public:
 
     QVBoxLayout * topLevelLayout;
     QHBoxLayout *buttonLayout, *leftLayout, *rightLayout;
-    QList<QHBoxLayout> extraWidgetsLayouts;
-    QList<QLabel> extraLabels;
-    QList<QWidget> extraWidgets;
-    QList<QWidget> extraButtons;
-    QList<QButton> toolButtons;
+    QPtrList<QHBoxLayout> extraWidgetsLayouts;
+    QPtrList<QLabel> extraLabels;
+    QPtrList<QWidget> extraWidgets;
+    QPtrList<QWidget> extraButtons;
+    QPtrList<QButton> toolButtons;
 
     QWidgetStack * stack;
 
@@ -880,10 +880,10 @@ public:
 	QListViewItem * i;
     };
 
-    class UrlInfoList : public QList<QUrlInfo> {
+    class UrlInfoList : public QPtrList<QUrlInfo> {
     public:
 	UrlInfoList() { setAutoDelete( TRUE ); }
-	int compareItems( QCollection::Item n1, QCollection::Item n2 ) {
+	int compareItems( QPtrCollection::Item n1, QPtrCollection::Item n2 ) {
 	    if ( !n1 || !n2 )
 		return 0;
 
@@ -922,7 +922,7 @@ public:
     };
 
     UrlInfoList sortedList;
-    QList<File> pendingItems;
+    QPtrList<File> pendingItems;
 
     QFileListBox * moreFiles;
 
@@ -1227,7 +1227,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	return;
     }
 
-    QStrList l;
+    QPtrStrList l;
     QUrlDrag::decode( e, l );
 
     bool move = e->action() == QDropEvent::Move;
@@ -1949,10 +1949,10 @@ static QStringList makeFiltersList( const QString &filter )
   \brief The QFileDialog class provides a dialog that allows a user to select files and directories.
   \ingroup dialogs
 
-  The QFileDialog class enables a user to traverse their system in order to select one or many 
+  The QFileDialog class enables a user to traverse their system in order to select one or many
   files or a directory.
 
-  The easiest way to create a QFileDialog is to use the static functions.  On Windows, these static 
+  The easiest way to create a QFileDialog is to use the static functions.  On Windows, these static
   functions will call the native Windows file dialog and on Mac OS X, these static function will call
   the native Mac OS X file dialog.
 
@@ -1964,12 +1964,12 @@ static QStringList makeFiltersList( const QString &filter )
 					      "Select a file!" );
   \endcode
 
-  In the above example, a modal QFileDialog is created using a static function.  The startup directory 
-  is set to "/home".  The file filter is set to "Images (*.png *.xpm *.jpg)".  The parent of the file 
-  dialog is set to \e this and it is given the identification name - "open file dialog".  The caption 
+  In the above example, a modal QFileDialog is created using a static function.  The startup directory
+  is set to "/home".  The file filter is set to "Images (*.png *.xpm *.jpg)".  The parent of the file
+  dialog is set to \e this and it is given the identification name - "open file dialog".  The caption
   at the top of file dialog is set to "Select a file!".
 
-  You can create your own QFileDialog without having to use the static functions.  By calling setMode(), 
+  You can create your own QFileDialog without having to use the static functions.  By calling setMode(),
   you can set what can be returned by the QFileDialog.
 
   \code
@@ -1978,7 +1978,7 @@ static QStringList makeFiltersList( const QString &filter )
   \endcode
 
   In the above example, the mode of the file dialog is set to \e AnyFile, meaning that the user can select
-  any file, or even specify a file that doesn't exist.  This mode is useful for creating a "Save File As" 
+  any file, or even specify a file that doesn't exist.  This mode is useful for creating a "Save File As"
   file dialog.  You can get whatever mode the file dialog has been set to by calling mode().
 
   By calling setFilter(), then you can set the file filter that is used by the QFileDialog.
@@ -1989,11 +1989,11 @@ static QStringList makeFiltersList( const QString &filter )
   \endcode
 
 
-  In the above example, the filter is set to "Images (*.png *.xpm *.jpg)", this means that only files with 
-  the extension PNG, XPM or JPG files will be visible in the QFileDialog.  If you set more than one filter 
-  by using setFilters(), or by adding another one by using addFilter().  You can use setSelectedFilter() 
-  which will set the filter shown in the file dialog to the specified one.  To find out which 
-  filter was selected when the user selects a file you can call selectedFilter().  The signal 
+  In the above example, the filter is set to "Images (*.png *.xpm *.jpg)", this means that only files with
+  the extension PNG, XPM or JPG files will be visible in the QFileDialog.  If you set more than one filter
+  by using setFilters(), or by adding another one by using addFilter().  You can use setSelectedFilter()
+  which will set the filter shown in the file dialog to the specified one.  To find out which
+  filter was selected when the user selects a file you can call selectedFilter().  The signal
   filterSelected() will be emitted every time the user changes the filter in the file dialog.
 
   By calling setViewMode(), then you can set whether the user can see details of the files alongside the files
@@ -2016,23 +2016,23 @@ static QStringList makeFiltersList( const QString &filter )
   \endcode
 
   In the above example, a modal file dialog is created and shown.  If the user clicks on OK, then the file that
-  was selected by the user is put in the string \e fn.  
-  
+  was selected by the user is put in the string \e fn.
+
   If you are using ExistingFiles mode then you will need to use selectedFiles() which will return the selected
   files into a QStringList.
 
   <H3>Creating and using preview widgets</H3>
-    
+
   A preview widget is a widget that is placed inside your QFileDialog so that the user can see either the contents
   of the file, or information about the file.
 
-  \code 
+  \code
     class Preview : public QLabel, public QFilePreview
     {
     public:
-        Preview( QWidget *parent=0 ) : QLabel( parent ) {}
+	Preview( QWidget *parent=0 ) : QLabel( parent ) {}
 
-	void previewUrl( const QUrl &u ) 
+	void previewUrl( const QUrl &u )
 	{
 	    QString path = u.path();
 	    QPixmap pix( path );
@@ -2049,13 +2049,13 @@ static QStringList makeFiltersList( const QString &filter )
   widget will not work correctly.
 
   Inside the class we reimplement QFilePreview::previewUrl(), this is where we determine what happens when a file
-  is selected.  In the case above we only show a preview of the file if it is a valid pixmap.  
+  is selected.  In the case above we only show a preview of the file if it is a valid pixmap.
 
   Now, all we need to do is tell a file dialog that we have a preview widget that we want it to use.
 
   \code
     Preview* p = new Preview;
-    
+
     QFileDialog* fd = new QFileDialog( this );
     fd->setContentsPreviewEnabled( TRUE );
     fd->setContentsPreview( p, p );
@@ -2063,20 +2063,20 @@ static QStringList makeFiltersList( const QString &filter )
     fd->show();
   \endcode
 
-  The first line creates an instance of our preview widget.  We then create our file dialog and call 
-  setContentsPreviewEnabled( TRUE ), this allows the file dialog to preview the contents of the 
+  The first line creates an instance of our preview widget.  We then create our file dialog and call
+  setContentsPreviewEnabled( TRUE ), this allows the file dialog to preview the contents of the
   currently selected file.  We then call setContentsPreview(), make sure that you pass the preview
   widget twice.  Finally, before showing the file dialog, we call setPreviewMode() setting the mode
-  to \e Contents which will show the contents of the file that the user has selected.  
-  
-  If you create another preview widget that is used for showing information about a file. 
+  to \e Contents which will show the contents of the file that the user has selected.
+
+  If you create another preview widget that is used for showing information about a file.
   Create it in the same way as we have the contents preview widget and call setInfoPreviewEnabled(), and
   setInfoPreview().  Then the user will be able to switch between the two.
 
   For more information about creating a QFilePreview widget see QFilePreview.
 
   <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
-  
+
 */
 
 
@@ -2091,7 +2091,7 @@ static QStringList makeFiltersList( const QString &filter )
   \value DirectoryOnly  Returns the name of a directory and displays no files in the file views of the filedialog.
   \value ExistingFiles  Returns the names of zero or more existing files.
 
-  Using setMode() you can set this mode to the file dialog, if you use mode() then you can 
+  Using setMode() you can set this mode to the file dialog, if you use mode() then you can
   find out what the currently set mode is.
 */
 
@@ -2103,7 +2103,7 @@ static QStringList makeFiltersList( const QString &filter )
   \value Detail  Shows details about the file alongside the file in separate columns (e.g. size, type).
   \value List  Simple view which shows only all file names, plus icons.
 
-  Using setViewMode() you can set this mode to the file dialog, if you use viewMode() then you can 
+  Using setViewMode() you can set this mode to the file dialog, if you use viewMode() then you can
   find out what the currently set view mode is.
 */
 
@@ -2118,7 +2118,7 @@ static QStringList makeFiltersList( const QString &filter )
   \value Info  Besides the view with the files, a preview
   widget is shown which shows infos of the currently selected file.
 
-  Using setPreviewMode(), you can set this mode to the file dialog, if you use previewMode() 
+  Using setPreviewMode(), you can set this mode to the file dialog, if you use previewMode()
   then you can find out what the currently set preview mode is.
 */
 
@@ -2133,8 +2133,8 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
-  Constructs a file dialog with the parent, \a parent, and the name, 
-  \a name. If \a modal is TRUE then the file dialog is modal; 
+  Constructs a file dialog with the parent, \a parent, and the name,
+  \a name. If \a modal is TRUE then the file dialog is modal;
   otherwise it is non-modal.
 */
 
@@ -2150,14 +2150,14 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 
 
 /*!
-  Constructs a file dialog with the parent \a parent, the name \a name 
+  Constructs a file dialog with the parent \a parent, the name \a name
   If \a modal is TRUE then the file dialog is modal; otherwise it is
   non-modal.
 
-  If \a dirName is specified then it will start in this directory when 
-  shown.  If a file filter is specified at \a filter then this file filter 
+  If \a dirName is specified then it will start in this directory when
+  shown.  If a file filter is specified at \a filter then this file filter
   is set as the file filter in the file dialog.
-  
+
 */
 
 QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
@@ -2651,7 +2651,7 @@ QFileDialog::~QFileDialog()
   Returns the selected file name.
 
   If a file was selected, then the returned string contains the
-  absolute path name.  If no file was selected, then the returned 
+  absolute path name.  If no file was selected, then the returned
   string is an empty string.
 
   \sa QString::isEmpty(), selectedFiles(), selectedFilter()
@@ -2684,7 +2684,7 @@ QString QFileDialog::selectedFilter() const
 
 /*! \overload
 
-  Sets the current filter selected in the file dialog to the 
+  Sets the current filter selected in the file dialog to the
   \a n filter in the list.
 
   \sa filterSelected(), selectedFilter(), selectedFiles(), selectedFile()
@@ -2718,12 +2718,12 @@ void QFileDialog::setSelectedFilter( const QString& mask )
   If one or more files were selected, then the returned string list contains
   the files selected.  If no files were selected, then the returned string
   list is an empty list.
-    
+
   Note that if the file dialog is set to select a single file or directory,
-  the returned list contains a single file. When using these modes, it's 
+  the returned list contains a single file. When using these modes, it's
   easier to call selectedFile().
 
-  \sa selectedFile(), selectedFilter(), QValueList::isEmpty() 
+  \sa selectedFile(), selectedFilter(), QValueList::isEmpty()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -2810,7 +2810,7 @@ QString QFileDialog::dirPath() const
 // why don't we use "\\([^\\)]*\\)$" instead?
 extern const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
 
-/*!  
+/*!
 
   Sets the filter used in the file dialog to \a newFilter.
 
@@ -2848,7 +2848,7 @@ void QFileDialog::setFilter( const QString & newFilter )
 
 
 /*! \overload
-  Sets the directory specified at \a pathstr as the current directory in 
+  Sets the directory specified at \a pathstr as the current directory in
   the file dialog.
 
   \sa dir()
@@ -2944,7 +2944,7 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 }
 
 /*!
-  If \a s is set to TRUE, then hidden files are shown in the file dialog.  
+  If \a s is set to TRUE, then hidden files are shown in the file dialog.
   If \a s is set to FALSE, then hidden files are not shown in the file dialog.
 
   \sa showHiddenFiles()
@@ -2973,7 +2973,7 @@ bool QFileDialog::showHiddenFiles() const
 /*!
   Rereads the current directory shown in the file dialog.
 
-  The only time you will need to call this function if the contents of 
+  The only time you will need to call this function if the contents of
   the directory change and you wish to refresh the file dialog to reflect
   the change.
 
@@ -3033,8 +3033,8 @@ void QFileDialog::rereadDir()
 
 /*!
   This is a convience static function that will return an existing file as
-  selected by the user.  
-  
+  selected by the user.
+
   \code
     QString s = QFileDialog::getOpenFileName( "/home",
 					      "Images (*.png *.xpm *.jpg)",
@@ -3042,20 +3042,20 @@ void QFileDialog::rereadDir()
 					      "open file dialog"
 					      "Select a file!" );
   \endcode
-				
-    
+
+
   It creates a modal file dialog with the parent \a parent, and the name \a name.  If
   a parent is specified, then the dialog will be shown centered over the parent.
-  
+
   If a directory is specified at \a startWith then the file dialog will start in this
   directory.  If an existing file is specified at \a startWith then the file dialog starts
-  in the directory specified and the file name is selected.  
-  
-  If a filter is specified at \a filter, then this filter is applied to the directory and 
+  in the directory specified and the file name is selected.
+
+  If a filter is specified at \a filter, then this filter is applied to the directory and
   only files matching this file filter will be shown.
 
-  If a caption is specified at \a caption, then the caption is set to the text at \a caption.  
-  If a caption is not specified then a default caption will be used.  
+  If a caption is specified at \a caption, then the caption is set to the text at \a caption.
+  If a caption is not specified then a default caption will be used.
 
   Note: In the Windows version of Qt, this static function will use the native Windows file
   dialog and not a QFileDialog, unless the style of the application is set to something other
@@ -3135,30 +3135,30 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 }
 
 /*!
-  This is a convience static function that will return an existing or non-existing 
-  file as specified by the user.  
-  
+  This is a convience static function that will return an existing or non-existing
+  file as specified by the user.
+
   It creates a modal file dialog with the parent \a parent, and the name \a name.  If
   a parent is specified, then the dialog will be shown centered over the parent.
-  
+
   \code
     QStringList s = QFileDialog::getSaveFileName( "/home",
 						  "Images (*.png *.xpm *.jpg)",
-					          this,
-					          "open files dialog"
-					          "Select one or more files!" );
+						  this,
+						  "open files dialog"
+						  "Select one or more files!" );
   \endcode
 
-    
+
   If a directory is specified at \a startWith then the file dialog will start in this
   directory.  If an existing file is specified at \a startWith then the file dialog starts
-  in the directory specified and the file name is selected.  
-  
-  If a filter is specified at \a filter, then this filter is applied to the directory and 
+  in the directory specified and the file name is selected.
+
+  If a filter is specified at \a filter, then this filter is applied to the directory and
   only files matching this file filter will be shown.
 
-  If a caption is specified at \a caption, then the caption is set to the text at \a caption.  
-  If a caption is not specified then a default caption will be used.  
+  If a caption is specified at \a caption, then the caption is set to the text at \a caption.
+  If a caption is not specified then a default caption will be used.
 
   Note: In the Windows version of Qt, this static function will use the native Windows file
   dialog and not a QFileDialog, unless the style of the application is set to something other
@@ -3260,9 +3260,9 @@ void QFileDialog::okClicked()
 	    d->ignoreReturn = FALSE;
 	    return;
 	}
-        QUrlInfo f( d->url, nameEdit->text() );
-        if ( f.isDir() ) {
-            d->currentFileName = d->url;
+	QUrlInfo f( d->url, nameEdit->text() );
+	if ( f.isDir() ) {
+	    d->currentFileName = d->url;
 	    if ( d->currentFileName.right(1) != '/' )
 		d->currentFileName += '/';
 	    d->currentFileName += f.name();
@@ -3540,7 +3540,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 }
 
 
-/*! Updates the file name edit box to \a newItem in the file dialog when the cursor 
+/*! Updates the file name edit box to \a newItem in the file dialog when the cursor
     moves in the listview. */
 
 void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
@@ -3663,7 +3663,7 @@ void QFileDialog::fileNameEditDone()
 
 
 
-/*! This private slot reacts to double-clicks in the list view. The item that 
+/*! This private slot reacts to double-clicks in the list view. The item that
 was double-clicked is specified at \a newItem */
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
@@ -3994,8 +3994,8 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 
 /*!
   This is a convience static function that will return an existing directory as
-  selected by the user.  
-  
+  selected by the user.
+
   \code
     QString s = QFileDialog::getExistingDirectory( "/home",
 						   this,
@@ -4006,13 +4006,13 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 
   It creates a modal file dialog with the parent \a parent, and the name \a name.    If
   a parent is specified, then the dialog will be shown centered over the parent.
-  
-  The starting directory is set to the directory specified at \a dir and the caption 
-  is set to the text specified at \a caption.  If a caption is not specified then a 
-  default caption will be used.  
-  
-  If \a dirOnly is set to TRUE, then only directories will be shown in the file dialog; 
-  otherwise both directories and files will be shown.  
+
+  The starting directory is set to the directory specified at \a dir and the caption
+  is set to the text specified at \a caption.  If a caption is not specified then a
+  default caption will be used.
+
+  If \a dirOnly is set to TRUE, then only directories will be shown in the file dialog;
+  otherwise both directories and files will be shown.
 
   \sa getOpenFileName(), getOpenFileNames(), getSaveFileName()
 */
@@ -4090,7 +4090,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     return result;
 }
 
-/*!  
+/*!
 
   Sets the mode of the file dialog to the mode \a newMode.
 
@@ -4163,8 +4163,8 @@ void QFileDialog::done( int i )
 }
 
 /*!
-  Set the view mode of the file dialog to the preview mode \a m. 
-  
+  Set the view mode of the file dialog to the preview mode \a m.
+
   \sa setPreviewMode()
 */
 
@@ -4182,9 +4182,9 @@ void QFileDialog::setViewMode( ViewMode m )
 }
 
 /*!
-  Set the preview mode of the file dialog to the preview mode \a m. 
-  
-  If you set the mode to be a mode other than \e NoPreview then 
+  Set the preview mode of the file dialog to the preview mode \a m.
+
+  If you set the mode to be a mode other than \e NoPreview then
   you need to set the preview widget on the widget and also
   enable the relevant preview.
 
@@ -4238,8 +4238,8 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
     return NoPreview;
 }
 
-/*! 
-  \code 
+/*!
+  \code
     MyFileDialog::MyFileDialog( QWidget* parent, const char* name ) :
 	QFileDialog( parent, name )
     {
@@ -4250,18 +4250,18 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
 	addWidgets( label, lineedit, toolbutton );
     }
   \endcode
-  
-  Adds the specified widgets to the bottom of the file dialog.  The label \a l 
+
+  Adds the specified widgets to the bottom of the file dialog.  The label \a l
   is placed underneath the "file name" and the "file types" labels.  The widget
   \a w is placed underneath the file types combobox.  The button \a b is placed
   underneath the cancel pushbutton.
 
-  If you don't want to have one of the widgets to be added then just pass 0 
+  If you don't want to have one of the widgets to be added then just pass 0
   instead of a label, widget or pushbutton.
 
-  Everytime you call this function, a new row of widgets will be added to the 
+  Everytime you call this function, a new row of widgets will be added to the
   bottom of the file dialog.
-  
+
   \sa addToolButton(), addLeftWidget(), addRightWidget()
 */
 
@@ -4470,12 +4470,12 @@ const QPixmap * QFileIconProvider::pixmap( const QFileInfo & info )
     }
 }
 
-/*!  
-  Sets the QFileIconProvider used on the file dialog to the 
+/*!
+  Sets the QFileIconProvider used on the file dialog to the
   QFileIconProvider specified at \a provider.
 
   The default is that there is no QFileIconProvider and QFileDialog
-  just draws a folder icon next to each directory and nothing next 
+  just draws a folder icon next to each directory and nothing next
   to the files.
 
   \sa QFileIconProvider, iconProvider()
@@ -4487,9 +4487,9 @@ void QFileDialog::setIconProvider( QFileIconProvider * provider )
 }
 
 
-/*!  
+/*!
 
-  Returns a pointer to the icon provider currently set on the file dialog.  
+  Returns a pointer to the icon provider currently set on the file dialog.
   By default there is no icon provider, and this function returns 0.
 
   \sa setIconProvider(), QFileIconProvider
@@ -4836,13 +4836,13 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 }
 
 /*!
-  \code 
+  \code
     QString types("*.png;;*.xpm;;*.jpg");
     QFileDialog fd = new QFileDialog( this );
     fd->setFilters( types );
     fd->show();
   \endcode
-    
+
   Sets the filters used in the file dialog to \a filters.  You need to ensure that
   you separate each group of filters with \c ';;'.
 
@@ -4854,7 +4854,7 @@ void QFileDialog::setFilters( const QString &filters )
     setFilters( lst );
 }
 
-/*!  
+/*!
   \overload
 
   \a types must be a null-terminated list of strings.
@@ -4893,15 +4893,15 @@ void QFileDialog::setFilters( const QStringList & types )
 
 /*!
   Adds the filter \a filter to the list of filters and makes it the current one.
-  
-  \code 
+
+  \code
     QFileDialog* fd = new QFileDialog( this );
     fd->addFilter( "Images (*.png *.jpg *.xpm)" );
     fd->show();
   \endcode
 
-  In the above example, a file dialog is created, and the file filter - "Images 
-  (*.png *.jpg *.xpm)" is added and is set as the current filter.  The original 
+  In the above example, a file dialog is created, and the file filter - "Images
+  (*.png *.jpg *.xpm)" is added and is set as the current filter.  The original
   filter - "All Files (*)" is still available.
 
   \sa setFilter(), setFilters()
@@ -4946,31 +4946,31 @@ void QFileDialog::modeButtonsDestroyed()
 }
 
 
-/*!  
+/*!
   This is a convience static function that will return one or more existing files as
-  selected by the user.  
-  
+  selected by the user.
+
   \code
     QStringList s = QFileDialog::getOpenFileNames( "Images (*.png *.xpm *.jpg)",
-					           "/home",
-					           this,
-					           "open files dialog"
-					           "Select one or more files!" );
+						   "/home",
+						   this,
+						   "open files dialog"
+						   "Select one or more files!" );
   \endcode
 
-    
+
   It creates a modal file dialog with the parent \a parent, and the name \a name.  If
   a parent is specified, then the dialog will be shown centered over the parent.
-  
+
   If a directory is specified at \a dir then the file dialog will start in this
   directory.  If an existing file is specified at \a dir then the file dialog starts
-  in the directory specified and the file name is selected.  
-  
-  If a filter is specified at \a filter, then this filter is applied to the directory and 
+  in the directory specified and the file name is selected.
+
+  If a filter is specified at \a filter, then this filter is applied to the directory and
   only files matching this file filter will be shown.
 
-  If a caption is specified at \a caption, then the caption is set to the text at \a caption.  
-  If a caption is not specified then a default caption will be used.  
+  If a caption is specified at \a caption, then the caption is set to the text at \a caption.
+  If a caption is not specified then a default caption will be used.
 
   Note: In the Windows version of Qt, this static function will use the native Windows file
   dialog and not a QFileDialog, unless the style of the application is set to something other
@@ -5421,14 +5421,14 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
     updateGeometries();
 }
 
-/*!  
-  \code 
+/*!
+  \code
     class Preview : public QLabel, public QFilePreview
     {
     public:
-        Preview( QWidget *parent=0 ) : QLabel( parent ) {}
+	Preview( QWidget *parent=0 ) : QLabel( parent ) {}
 
-	void previewUrl( const QUrl &u ) 
+	void previewUrl( const QUrl &u )
 	{
 	    QString path = u.path();
 	    QPixmap pix( path );
@@ -5441,10 +5441,10 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
 
   [...]
 
-  int main( int argc, char** argv ) 
+  int main( int argc, char** argv )
   {
     Preview* p = new Preview;
-    
+
     QFileDialog* fd = new QFileDialog( this );
     fd->setInfoPreviewEnabled( TRUE );
     fd->setInfoPreview( p, p );
@@ -5457,7 +5457,7 @@ void QFileDialog::setContentsPreviewEnabled( bool contents )
   Sets the widget to be used for displaying information about the file at the widget
   \a w and a preview of that information at the QFilePreview \a preview.
 
-  Normally you would create a preview widget that derives from both QWidget and 
+  Normally you would create a preview widget that derives from both QWidget and
   QFilePreview, so you should pass the same widget twice.
 
   \sa setContentsPreview(), setInfoPreviewEnabled(), setPreviewMode()
@@ -5481,13 +5481,13 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 }
 
 /*!
-  \code 
+  \code
     class Preview : public QLabel, public QFilePreview
     {
     public:
-        Preview( QWidget *parent=0 ) : QLabel( parent ) {}
+	Preview( QWidget *parent=0 ) : QLabel( parent ) {}
 
-	void previewUrl( const QUrl &u ) 
+	void previewUrl( const QUrl &u )
 	{
 	    QString path = u.path();
 	    QPixmap pix( path );
@@ -5500,10 +5500,10 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
 
   [...]
 
-  int main( int argc, char** argv ) 
+  int main( int argc, char** argv )
   {
     Preview* p = new Preview;
-    
+
     QFileDialog* fd = new QFileDialog( this );
     fd->setContentsPreviewEnabled( TRUE );
     fd->setContentsPreview( p, p );
@@ -5516,7 +5516,7 @@ void QFileDialog::setInfoPreview( QWidget *w, QFilePreview *preview )
   Sets the widget to be used for displaying the contents of the file at the widget
   \a w and a preview of those contents at the QFilePreview \a preview.
 
-  Normally you would create a preview widget that derives from both QWidget and 
+  Normally you would create a preview widget that derives from both QWidget and
   QFilePreview, so you should pass the same widget twice.
 
   \sa setContentsPreviewEnabled(), setInfoPreview(), setPreviewMode()
@@ -5681,7 +5681,7 @@ void QFileDialog::doMimeTypeLookup()
 }
 
 /*!
-  If \a b is TRUE then all the files in the current directory are selected.  
+  If \a b is TRUE then all the files in the current directory are selected.
   If \a b is FALSE then all the files in the current directory are de-selected.
 */
 

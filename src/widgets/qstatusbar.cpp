@@ -38,7 +38,7 @@
 #include "qstatusbar.h"
 #ifndef QT_NO_STATUSBAR
 
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qtimer.h"
@@ -79,7 +79,7 @@
 
   \code
      connect( loader, SIGNAL(progressMessage(const QString&)),
-              statusBar(), SLOT(message(const QString&)) );
+	      statusBar(), SLOT(message(const QString&)) );
 
      statusBar()->message("Loading...");  // Initial message
      loader.loadStuff();                  // Emits progress messages
@@ -118,7 +118,7 @@ public:
 	bool p;
     };
 
-    QList<SBItem> items;
+    QPtrList<SBItem> items;
     QString tempItem;
 
     QBoxLayout * box;
@@ -126,7 +126,7 @@ public:
 
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip * resizer;
-#endif    
+#endif
 };
 
 
@@ -248,7 +248,7 @@ bool QStatusBar::isSizeGripEnabled() const
 {
 #ifdef QT_NO_SIZEGRIP
     return FALSE;
-#else    
+#else
     return !!d->resizer;
 #endif
 }
@@ -428,7 +428,7 @@ void QStatusBar::paintEvent( QPaintEvent * )
 	    if ( item->w->isVisible() ) {
 		if ( item->p && item->w->x()-1 < psx )
 		    psx = item->w->x()-1;
-		style().drawStatusBarSection( &p, item->w->x() - 1, item->w->y() - 1, 
+		style().drawStatusBarSection( &p, item->w->x() - 1, item->w->y() - 1,
 		    item->w->width()+2, item->w->height()+2, colorGroup(), item->p );
 	    }
 	item = d->items.next();
@@ -444,7 +444,7 @@ void QStatusBar::paintEvent( QPaintEvent * )
 void QStatusBar::resizeEvent( QResizeEvent * e )
 {
 #if 0
-    QStatusBarPrivate::SBItem* item;    
+    QStatusBarPrivate::SBItem* item;
     for ( item = d->items.first(); item; item = d->items.next() )
 	item->w->setMinimumWidth( 30 );
 

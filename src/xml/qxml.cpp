@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#90 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#91 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -39,7 +39,7 @@
 #include "qtextcodec.h"
 #include "qbuffer.h"
 #include "qregexp.h"
-#include "qstack.h"
+#include "qptrstack.h"
 #include "qmap.h"
 #include "qvaluestack.h"
 
@@ -333,7 +333,7 @@ public:
 	delete ns;
     }
 
-    QStack<QMap<QString, QString> > nsStack;
+    QPtrStack<QMap<QString, QString> > nsStack;
     QMap<QString, QString> *ns;
 };
 
@@ -1520,7 +1520,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
   QXmlContentHandler::skippedEntity() and not throught this function.
 
   To get the reporting of startEntity() and endEntity() with the
-  QXmlSimpleReader, you have to set the feature 
+  QXmlSimpleReader, you have to set the feature
   \e http://trolltech.com/xml/features/report-start-end-entity to TRUE (the
   default is FALSE).
 
@@ -1941,7 +1941,7 @@ private:
     void initIncrementalParsing()
     {
 	delete parseStack;
-	parseStack = new QStack<ParseState>;
+	parseStack = new QPtrStack<ParseState>;
 	parseStack->setAutoDelete( TRUE );
     }
 
@@ -2024,7 +2024,7 @@ private:
 	ParseFunction function;
 	int state;
     };
-    QStack<ParseState> *parseStack;
+    QPtrStack<ParseState> *parseStack;
 
     // friend declarations
     friend class QXmlSimpleReader;
@@ -2473,7 +2473,7 @@ bool QXmlSimpleReader::parse( const QXmlInputSource* input )
   input and the parseContinue() tries to read from that input souce. This means
   you should not delete the input source \a input until you don't call any
   further parseContinue().
-  
+
   If \a incremental is TRUE and the class was used before to do incremental
   parsing, the state of that parsing session is lost: this function will always
   start a new parsing session.

@@ -137,7 +137,7 @@ public:
 
     TemplateWizardInterface* templateWizardInterface( const QString& className );
     QUnknownInterface* designerInterface() const { return desInterface; }
-    QList<DesignerProject> projectList() const;
+    QPtrList<DesignerProject> projectList() const;
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
@@ -375,7 +375,7 @@ private:
     QInterfaceManager<InterpreterInterface> *interpreterPluginManager;
     QInterfaceManager<PreferenceInterface> *preferencePluginManager;
     QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
-    QList<SourceEditor> sourceEditors;
+    QPtrList<SourceEditor> sourceEditors;
     bool previewing;
     QUnknownInterface *desInterface;
     QStringList recentlyFiles;

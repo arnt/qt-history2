@@ -1440,7 +1440,7 @@
     QPixmap pix;
 
     QDict&lt;QAction&gt; actions;
-    QList&lt;QAction&gt; usedActions;
+    QPtrList&lt;QAction&gt; usedActions;
 
     getPixmap( "filenew", pix );
     QAction *fileNewAction = dfw-&gt;createAction( tr( "New" ), pix, tr( "&amp;New" ), CTRL + Key_N, 0, "fileNewAction" );

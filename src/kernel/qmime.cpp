@@ -177,7 +177,7 @@ public:
     QMap<QString, QString> extensions;
     QStringList path;
     QMimeSource* last;
-    QList<QMimeSourceFactory> factories;
+    QPtrList<QMimeSourceFactory> factories;
 };
 
 

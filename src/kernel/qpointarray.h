@@ -39,22 +39,22 @@
 #define QPOINTARRAY_H
 
 #ifndef QT_H
-#include "qarray.h"
+#include "qmemarray.h"
 #include "qpoint.h"
 #endif // QT_H
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QArray<QPoint>;
+template class Q_EXPORT QMemArray<QPoint>;
 #endif
 
-class Q_EXPORT QPointArray : public QArray<QPoint>
+class Q_EXPORT QPointArray : public QMemArray<QPoint>
 {
 public:
     QPointArray() {}
     ~QPointArray() {}
-    QPointArray( int size ) : QArray<QPoint>( size ) {}
-    QPointArray( const QPointArray &a ) : QArray<QPoint>( a ) {}
+    QPointArray( int size ) : QMemArray<QPoint>( size ) {}
+    QPointArray( const QPointArray &a ) : QMemArray<QPoint>( a ) {}
     QPointArray( const QRect &r, bool closed=FALSE );
     QPointArray( int nPoints, const QCOORD *points );
 

@@ -39,11 +39,11 @@
 #define QGVECTOR_H
 
 #ifndef QT_H
-#include "qcollection.h"
+#include "qptrcollection.h"
 #endif // QT_H
 
 
-class Q_EXPORT QGVector : public QCollection	// generic vector
+class Q_EXPORT QGVector : public QPtrCollection	// generic vector
 {
 friend class QGList;				// needed by QGList::toVector
 public:
@@ -61,7 +61,7 @@ protected:
 
     QGVector &operator=( const QGVector &v );	// assign from other vector
     bool operator==( const QGVector &v ) const;
-    
+
     Item	 *data()    const	{ return vec; }
     uint  size()    const	{ return len; }
     uint  count()   const	{ return numItems; }

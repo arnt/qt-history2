@@ -77,7 +77,7 @@ CustomWidgetEditor::CustomWidgetEditor( QWidget *parent, MainWindow *mw )
 
 void CustomWidgetEditor::setupDefinition()
 {
-    QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	QListBoxItem *i;
 	if ( w->pixmap )
@@ -376,9 +376,9 @@ void CustomWidgetEditor::checkWidgetName()
     if ( MetaDataBase::isWidgetNameUsed( w ) ) {
 	QString s = w->className;
 	w->className = oldName;
- 	QMessageBox::information( this, tr( "Renaming a Custom Widget" ),
- 				  tr( "The name '%1' is already use by another custom widget,\n"
- 				      "so it is not possible to rename it to this name." ).arg( s ) );
+	QMessageBox::information( this, tr( "Renaming a Custom Widget" ),
+				  tr( "The name '%1' is already use by another custom widget,\n"
+				      "so it is not possible to rename it to this name." ).arg( s ) );
 	if ( i != boxWidgets->item( boxWidgets->currentItem() ) ) {
 	    boxWidgets->setCurrentItem( i );
 	    qApp->processEvents();
@@ -679,7 +679,7 @@ void CustomWidgetEditor::saveDescription()
     ts << makeIndent2( indent ) << "<customwidgets>" << endl;
     indent++;
 
-    QList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
+    QPtrList<MetaDataBase::CustomWidget> *lst = MetaDataBase::customWidgets();
     for ( MetaDataBase::CustomWidget *w = lst->first(); w; w = lst->next() ) {
 	ts << makeIndent2( indent ) << "<customwidget>" << endl;
 	indent++;
@@ -700,7 +700,7 @@ void CustomWidgetEditor::saveDescription()
 	ts << makeIndent2( indent ) << "<verdata>" << (int)w->sizePolicy.verData() << "</verdata>" << endl;
 	indent--;
 	ts << makeIndent2( indent ) << "</sizepolicy>" << endl;
- 	ts << makeIndent2( indent ) << "<pixmap>" << endl;
+	ts << makeIndent2( indent ) << "<pixmap>" << endl;
 	indent++;
 	Resource::saveImageData( w->pixmap->convertToImage(), ts, indent );
 	indent--;
@@ -712,11 +712,11 @@ void CustomWidgetEditor::saveDescription()
 	if ( !w->lstSlots.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
 		ts << makeIndent2( indent ) << "<slot access=\"" << (*it).access << "\">" << entitize2( (*it).slot ) << "</slot>" << endl;
-	}	
+	}
 	if ( !w->lstProperties.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )
 		ts << makeIndent2( indent ) << "<property type=\"" << (*it).type << "\">" << entitize2( (*it).property ) << "</property>" << endl;
-	}	
+	}
 	indent--;
 	ts << makeIndent2( indent ) << "</customwidget>" << endl;
     }
@@ -748,7 +748,7 @@ void CustomWidgetEditor::loadDescription()
 
     while ( firstWidget.tagName() != "customwidgets" )
 	firstWidget = firstWidget.nextSibling().toElement();
-	
+
     Resource::loadCustomWidgets( firstWidget, 0 );
     boxWidgets->clear();
     setupDefinition();

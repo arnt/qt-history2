@@ -37,7 +37,7 @@
 #include "qsql_psql.h"
 
 #include <qregexp.h>
-#include <qlist.h>
+#include <qptrlist.h> // ###??
 #include <qdatetime.h>
 #include <qpointarray.h>
 #include <postgres.h>

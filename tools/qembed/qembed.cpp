@@ -21,7 +21,7 @@
 #include <qstring.h>
 #include <qfile.h>
 #include <qfileinfo.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qtextstream.h>
 #include <qdatetime.h>
 #include <qimage.h>
@@ -65,8 +65,8 @@ int main( int argc, char **argv )
     QTextStream out( &output );
 
 
-    QList<EmbedImage> list_image;
-    QList<Embed> list;
+    QPtrList<EmbedImage> list_image;
+    QPtrList<Embed> list;
     list.setAutoDelete( TRUE );
     list_image.setAutoDelete( TRUE );
 
@@ -185,12 +185,12 @@ int main( int argc, char **argv )
 	    "    QByteArray* ba = dict.find(name);\n"
 	    "    if ( !ba ) {\n"
 	    "        for (int i=0; embed_vec[i].data; i++) {\n"
-	    "    	if ( 0==strcmp(embed_vec[i].name, name) ) {\n"
-	    "    	    ba = new QByteArray;\n"
-	    "    	    ba->setRawData( (char*)embed_vec[i].data,\n"
-	    "    			    embed_vec[i].size );\n"
-	    "    	    break;\n"
-	    "    	}\n"
+	    "	if ( 0==strcmp(embed_vec[i].name, name) ) {\n"
+	    "	    ba = new QByteArray;\n"
+	    "	    ba->setRawData( (char*)embed_vec[i].data,\n"
+	    "			    embed_vec[i].size );\n"
+	    "	    break;\n"
+	    "	}\n"
 	    "        }\n"
 	    "        if ( !ba ) {\n"
 	    "            static QByteArray dummy;\n"
@@ -238,19 +238,19 @@ int main( int argc, char **argv )
 	    "    QImage* img = dict.find(name);\n"
 	    "    if ( !img ) {\n"
 	    "        for (int i=0; embed_image_vec[i].data; i++) {\n"
-	    "    	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
-	    "    	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
-	    "    			embed_image_vec[i].width,\n"
-	    "    			embed_image_vec[i].height,\n"
-	    "    			embed_image_vec[i].depth,\n"
-	    "    			(QRgb*)embed_image_vec[i].colorTable,\n"
-	    "    			embed_image_vec[i].numColors,\n"
-	    "    			QImage::BigEndian\n"
-	    "    		);\n"
-	    "    	    if ( embed_image_vec[i].alpha )\n"
-	    "    	        img->setAlphaBuffer(TRUE);\n"
-	    "    	    break;\n"
-	    "    	}\n"
+	    "	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
+	    "	    img = new QImage((uchar*)embed_image_vec[i].data,\n"
+	    "			embed_image_vec[i].width,\n"
+	    "			embed_image_vec[i].height,\n"
+	    "			embed_image_vec[i].depth,\n"
+	    "			(QRgb*)embed_image_vec[i].colorTable,\n"
+	    "			embed_image_vec[i].numColors,\n"
+	    "			QImage::BigEndian\n"
+	    "		);\n"
+	    "	    if ( embed_image_vec[i].alpha )\n"
+	    "	        img->setAlphaBuffer(TRUE);\n"
+	    "	    break;\n"
+	    "	}\n"
 	    "        }\n"
 	    "        if ( !img ) {\n"
 	    "            static QImage dummy;\n"

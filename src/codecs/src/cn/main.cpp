@@ -1,6 +1,6 @@
 #include <qtextcodecinterface.h>
 #include <qtextcodec.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 #include <qgbkcodec.h>
 #include "../../qfontcodecs_p.h"
@@ -26,7 +26,7 @@ public:
 
 
 private:
-    QList<QTextCodec> codecs;
+    QPtrList<QTextCodec> codecs;
 
     unsigned long ref;
 };
@@ -89,7 +89,7 @@ QTextCodec *CNTextCodecs::createForMib( int mib )
 {
     QTextCodec *codec = 0;
 
-    QListIterator<QTextCodec> it(codecs);
+    QPtrListIterator<QTextCodec> it(codecs);
     while ((codec = it.current())) {
 	++it;
 
@@ -123,7 +123,7 @@ QTextCodec *CNTextCodecs::createForName( const QString &name )
 {
     QTextCodec *codec = 0;
 
-    QListIterator<QTextCodec> it(codecs);
+    QPtrListIterator<QTextCodec> it(codecs);
     while ((codec = it.current())) {
 	++it;
 

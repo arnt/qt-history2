@@ -25,7 +25,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
-#include <qlist.h>
+#include <qptrlist.h>
 #include <qsizepolicy.h>
 #include <qsize.h>
 #include <qpixmap.h>
@@ -165,7 +165,7 @@ public:
 
     static bool addCustomWidget( CustomWidget *w );
     static void removeCustomWidget( CustomWidget *w );
-    static QList<CustomWidget> *customWidgets();
+    static QPtrList<CustomWidget> *customWidgets();
     static CustomWidget *customWidget( int id );
     static bool isWidgetNameUsed( CustomWidget *w );
     static bool hasCustomWidget( const QString &className );

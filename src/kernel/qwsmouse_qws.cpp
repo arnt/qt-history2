@@ -63,10 +63,10 @@
 #ifdef QT_QWS_IPAQ
 #define QT_QWS_IPAQ_RAW
 typedef struct {
-        unsigned short pressure;
-        unsigned short x;
-        unsigned short y;
-        unsigned short pad;
+	unsigned short pressure;
+	unsigned short x;
+	unsigned short y;
+	unsigned short pad;
 } TS_EVENT;
 #endif
 
@@ -309,12 +309,12 @@ private:
     void initSerial()
     {
 	int speed[4] = { B9600, B4800, B2400, B1200 };
- 
-        for (int n = 0; n < 4; n++) {
+
+	for (int n = 0; n < 4; n++) {
 	    setflags(CSTOPB | speed[n]);
 	    write(fd, "*q", 2);
 	    usleep(10000);
-        }
+	}
     }
 };
 
@@ -479,7 +479,7 @@ public:
 private:
     enum { max_dev=32 };
     QAutoMouseSubHandler *sub[max_dev];
-    QList<QSocketNotifier> notifiers;
+    QPtrList<QSocketNotifier> notifiers;
     int nsub;
     int retries;
 
@@ -733,7 +733,7 @@ void QWSMouseHandlerPrivate::handleMouseData()
 		break;
 	    }
 	    case Microsoft:
-	        if ( ((mb[0] & 0x20) >> 3) ) {
+		if ( ((mb[0] & 0x20) >> 3) ) {
 		    bstate |= Qt::LeftButton;
 		}
 		if ( ((mb[0] & 0x10) >> 4) ) {
@@ -1046,9 +1046,9 @@ QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev ) :
 	dev = "/dev/tpanel";
 
     if ((mouseFD = open( dev, O_RDONLY)) < 0) {
-        qFatal( "Cannot open %s (%s)", dev.latin1(), strerror(errno));
+	qFatal( "Cannot open %s (%s)", dev.latin1(), strerror(errno));
     } else {
-        sleep(1);
+	sleep(1);
     }
 
     struct scanparam s;
@@ -1141,9 +1141,9 @@ private:
     unsigned int numSamples;
     int mouseIdx;
     uchar mouseBuf[mouseBufSize];
-    
+
 private slots:
-    void readMouseData();   
+    void readMouseData();
 };
 
 
@@ -1156,7 +1156,7 @@ QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
 # else
     if ((mouseFD = open( "/dev/h3600_ts", O_RDONLY | O_NDELAY)) < 0) {
 # endif
-        qWarning( "Cannot open /dev/h3600_ts (%s)", strerror(errno));
+	qWarning( "Cannot open /dev/h3600_ts (%s)", strerror(errno));
 	return;
     }
 
@@ -1266,10 +1266,10 @@ QCustomTPanelHandlerPrivate::QCustomTPanelHandlerPrivate( MouseProtocol, QString
 {
 #ifdef QWS_CUSTOMTOUCHPANEL
     if ((mouseFD = open( "/dev/ts", O_RDONLY)) < 0) {
-        qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
+	qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
 	return;
     } else {
-        sleep(1);
+	sleep(1);
     }
 
     QSocketNotifier *mouseNotifier;
@@ -1315,7 +1315,7 @@ void QCustomTPanelHandlerPrivate::readMouseData()
 	q.setY(data.ypos);
 	mousePos=q;
 	if(data.status & 0x40) {
-          emit mouseChanged(mousePos,Qt::LeftButton);
+	  emit mouseChanged(mousePos,Qt::LeftButton);
 	} else {
 	  emit mouseChanged(mousePos,0);
 	}
@@ -1454,7 +1454,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 #ifdef QT_QWS_IPAQ
     handler=new QIpaqHandlerPrivate(mouseProtocol,mouseDev);
 #endif
-    
+
 #ifndef QWS_CUSTOMTOUCHPANEL
 #ifndef QT_QWS_IPAQ
     switch ( mouseProtocol ) {
@@ -1486,8 +1486,3 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 }
 
 #include "qwsmouse_qws.moc"
-
-
-
-
-

@@ -384,7 +384,7 @@ QString QDir::convertSeparators( const QString &pathName )
 	    n[i] = ':';
     }
     if(n.contains(':') && n.left(1) != ':')
-        n.prepend(':');
+	n.prepend(':');
 #endif
     return n;
 }
@@ -652,9 +652,9 @@ QString QDir::operator[]( int index ) const
 
   It is more efficient to use entryList().
 */
-QStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
+QPtrStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
 {
-    QStrList r;
+    QPtrStrList r;
     QStringList l = entryList(filterSpec,sortSpec);
     for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 	r.append( QFile::encodeName(*it) );
@@ -669,11 +669,11 @@ QStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
 
   It is more efficient to use entryList().
 */
-QStrList QDir::encodedEntryList( const QString &nameFilter,
+QPtrStrList QDir::encodedEntryList( const QString &nameFilter,
 			   int filterSpec,
 			   int sortSpec ) const
 {
-    QStrList r;
+    QPtrStrList r;
     QStringList l = entryList(nameFilter,filterSpec,sortSpec);
     for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 	r.append( QFile::encodeName(*it) );

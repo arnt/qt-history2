@@ -17,14 +17,14 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
     appScreen = 0;
 
-    QList<QRect> rs;
+    QPtrList<QRect> rs;
     rs.setAutoDelete(TRUE);
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g))
 	rs.append(new QRect(0, 0,(*g)->gdRect.right,(*g)->gdRect.bottom));
 
     int i = 0;
     rects.resize( screenCount = rs.count() );
-    for(QListIterator<QRect> it(rs); it.current(); ++it) 
+    for(QPtrListIterator<QRect> it(rs); it.current(); ++it)
 	rects[i++] = *(*it);
 }
 

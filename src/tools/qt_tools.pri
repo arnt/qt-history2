@@ -8,7 +8,7 @@ tools {
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
-		  $$TOOLS_H/qcollection.h \
+		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
@@ -28,7 +28,7 @@ tools {
 		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
-		  $$TOOLS_H/qlist.h \
+		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
@@ -63,7 +63,7 @@ tools {
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
-		  $$TOOLS_CPP/qcollection.cpp \
+		  $$TOOLS_CPP/qptrcollection.cpp \
 		  $$TOOLS_CPP/qcstring.cpp \
 		  $$TOOLS_CPP/qdatastream.cpp \
 		  $$TOOLS_CPP/qdatetime.cpp \

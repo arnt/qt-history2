@@ -40,7 +40,7 @@
 #define QCSTRING_H
 
 #ifndef QT_H
-#include "qarray.h"
+#include "qmemarray.h"
 #endif // QT_H
 
 #include <string.h>
@@ -130,9 +130,9 @@ Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
  *****************************************************************************/
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QArray<char>;
+template class Q_EXPORT QMemArray<char>;
 #endif
-typedef QArray<char> QByteArray;
+typedef QMemArray<char> QByteArray;
 
 
 /*****************************************************************************

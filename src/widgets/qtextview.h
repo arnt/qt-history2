@@ -42,7 +42,7 @@
 #include "qscrollview.h"
 #include "qstylesheet.h"
 #include "qpainter.h"
-#include "qvector.h"
+#include "qptrvector.h"
 #include "qvaluelist.h"
 #endif // QT_H
 
@@ -218,13 +218,13 @@ private slots:
 private:
     struct Q_EXPORT UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Alignment, ParagType };
-	
+
 	UndoRedoInfo( QTextDocument *dc );
 	~UndoRedoInfo();
 	void clear();
 	bool valid() const;
 
-    	QUndoRedoInfoPrivate *d;
+	QUndoRedoInfoPrivate *d;
 	int id;
 	int index;
 	int eid;
@@ -233,11 +233,11 @@ private:
 	int flags;
 	Type type;
 	QTextDocument *doc;
-	QArray<int> oldAligns;
+	QMemArray<int> oldAligns;
 	int newAlign;
 	bool list;
 	QStyleSheetItem::ListStyle listStyle;
-	QValueList< QVector<QStyleSheetItem> > oldStyles;
+	QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
 	QValueList<QStyleSheetItem::ListStyle> oldListStyles;
     };
 

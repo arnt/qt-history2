@@ -16,13 +16,13 @@
 #define BORDER_H
 
 #include <qlayout.h>
-#include <qlist.h>
+#include <qptrlist.h>
 
 class BorderWidgetItem : public QWidgetItem
 {
 public:
     BorderWidgetItem( QWidget *w )
-        : QWidgetItem( w )
+	: QWidgetItem( w )
     {}
 
     void setGeometry( const QRect &r )
@@ -34,43 +34,43 @@ class BorderLayout : public QLayout
 {
 public:
     enum Position {
-        West = 0,
-        North,
-        South,
-        East,
-        Center
+	West = 0,
+	North,
+	South,
+	East,
+	Center
     };
 
     struct BorderLayoutStruct
     {
-        BorderLayoutStruct( QLayoutItem *i, Position p ) {
-            item = i;
-            pos = p;
-        }
+	BorderLayoutStruct( QLayoutItem *i, Position p ) {
+	    item = i;
+	    pos = p;
+	}
 
-        QLayoutItem *item;
-        Position pos;
+	QLayoutItem *item;
+	Position pos;
     };
 
     enum SizeType {
-        Minimum = 0,
-        SizeHint
+	Minimum = 0,
+	SizeHint
     };
 
     BorderLayout( QWidget *parent, int border = 0, int autoBorder = -1,
-                  const char *name = 0 )
-        : QLayout( parent, border, autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 ),
-          sizeDirty( TRUE ), msizeDirty( TRUE )
+		  const char *name = 0 )
+	: QLayout( parent, border, autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 ),
+	  sizeDirty( TRUE ), msizeDirty( TRUE )
     {}
 
     BorderLayout( QLayout* parent, int autoBorder = -1, const char *name = 0 )
-        : QLayout( parent, autoBorder, name  ), cached( 0, 0 ), mcached( 0, 0 ),
-          sizeDirty( TRUE ), msizeDirty( TRUE )
+	: QLayout( parent, autoBorder, name  ), cached( 0, 0 ), mcached( 0, 0 ),
+	  sizeDirty( TRUE ), msizeDirty( TRUE )
     {}
 
     BorderLayout( int autoBorder = -1, const char *name = 0 )
-        : QLayout( autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 ),
-          sizeDirty( TRUE ), msizeDirty( TRUE )
+	: QLayout( autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 ),
+	  sizeDirty( TRUE ), msizeDirty( TRUE )
     {}
 
     ~BorderLayout();
@@ -96,7 +96,7 @@ private:
     void doLayout( const QRect &rect, bool testonly = FALSE );
     void calcSize( SizeType st );
 
-    QList<BorderLayoutStruct> list;
+    QPtrList<BorderLayoutStruct> list;
     QSize cached, mcached;
     bool sizeDirty, msizeDirty;
 

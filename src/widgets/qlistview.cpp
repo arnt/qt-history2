@@ -41,14 +41,14 @@
 #include "qheader.h"
 #include "qpainter.h"
 #include "qcursor.h"
-#include "qstack.h"
-#include "qlist.h"
+#include "qptrstack.h"
+#include "qptrlist.h"
 #include "qstrlist.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
 #include "qptrdict.h"
-#include "qvector.h"
+#include "qptrvector.h"
 #include "qiconset.h"
 #include "qcleanuphandler.h"
 #include "qpixmapcache.h"
@@ -166,7 +166,7 @@ struct QListViewPrivate
 
     // the list of drawables, and the range drawables covers entirely
     // (it may also include a few items above topPixel)
-    QList<DrawableItem> * drawables;
+    QPtrList<DrawableItem> * drawables;
     int topPixel;
     int bottomPixel;
 
@@ -183,7 +183,7 @@ struct QListViewPrivate
     struct Column {
 	QListView::WidthMode wmode;
     };
-    QVector<Column> column;
+    QPtrVector<Column> column;
 
     // sort column and order   #### may need to move to QHeader [subclass]
     int sortcolumn;
@@ -205,7 +205,7 @@ struct QListViewPrivate
     bool select;
 
     // holds a list of iterators
-    QList<QListViewItemIterator> *iterators;
+    QPtrList<QListViewItemIterator> *iterators;
     QListViewItem *pressedItem, *selectAnchor;
 
     QTimer *scrollTimer;
@@ -1044,8 +1044,8 @@ void QListViewItem::takeItem( QListViewItem * item )
 	    if ( c == item ) {
 		if ( item->nextSibling() )
 		    lv->d->focusItem = item->nextSibling();
- 		else if ( item->itemAbove() )
- 		    lv->d->focusItem = item->itemAbove();
+		else if ( item->itemAbove() )
+		    lv->d->focusItem = item->itemAbove();
 		else
 		    lv->d->focusItem = 0;
 		emit_changed = TRUE;
@@ -1282,7 +1282,7 @@ void QListViewItem::setOpen( bool o )
 
     if ( !configured ) {
 	QListViewItem * l = this;
-	QStack<QListViewItem> s;
+	QPtrStack<QListViewItem> s;
 	while( l ) {
 	    if ( l->open && l->childItem ) {
 		s.push( l->childItem );
@@ -1812,7 +1812,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     if ( !t.isEmpty() ) {
 	if ( ! (align & AlignTop | align & AlignBottom) )
-            align |= AlignVCenter;
+	    align |= AlignVCenter;
 	if ( !reverse )
 	    r += iconWidth;
 	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter, t );
@@ -1910,7 +1910,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    // needs a box
 	    p->setPen( cg.text() );
 	    p->drawRect( bx-4, linebot-4, 9, 9 );
-// 	    p->setPen( cg.text() ); // ### windows uses black
+//	    p->setPen( cg.text() ); // ### windows uses black
 	    if ( s == WindowsStyle ) {
 		// plus or minus
 		p->drawLine( bx - 2, linebot, bx + 2, linebot );
@@ -2515,7 +2515,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
     p->setFont( font() );
 
-    QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
+    QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
     QRect r;
     int fx = -1, x, fc = 0, lc = 0;
@@ -2622,8 +2622,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		r1.setRight( d->h->cellPos( d->h->mapToActual( 0 ) ) - 1 );
 		QRect r2( r );
 		r2.setLeft( xdepth - 1 );
- 		current->i->paintFocus( p, colorGroup(), r1 );
- 		current->i->paintFocus( p, colorGroup(), r2 );
+		current->i->paintFocus( p, colorGroup(), r1 );
+		current->i->paintFocus( p, colorGroup(), r2 );
 	    }
 	    p->restore();
 	}
@@ -2698,7 +2698,7 @@ void QListView::buildDrawableList() const
 {
     d->r->enforceSortOrder();
 
-    QStack<QListViewPrivate::Pending> stack;
+    QPtrStack<QListViewPrivate::Pending> stack;
     stack.push( new QListViewPrivate::Pending( ((int)d->rootIsExpandable)-1,
 					       0, d->r ) );
 
@@ -2718,9 +2718,9 @@ void QListView::buildDrawableList() const
     QListViewPrivate::Pending * cur;
 
     // used to work around lack of support for mutable
-    QList<QListViewPrivate::DrawableItem> * dl;
+    QPtrList<QListViewPrivate::DrawableItem> * dl;
 
-    dl = new QList<QListViewPrivate::DrawableItem>;
+    dl = new QPtrList<QListViewPrivate::DrawableItem>;
     dl->setAutoDelete( TRUE );
     if ( d->drawables )
 	delete ((QListView *)this)->d->drawables;
@@ -3094,7 +3094,7 @@ int QListView::columnWidth( int c ) const
 void QListView::setColumnWidthMode( int c, WidthMode mode )
 {
     if ( c < d->h->count() )
-         d->column[c]->wmode = mode;
+	 d->column[c]->wmode = mode;
 }
 
 
@@ -3106,9 +3106,9 @@ void QListView::setColumnWidthMode( int c, WidthMode mode )
 QListView::WidthMode QListView::columnWidthMode( int c ) const
 {
     if ( c < d->h->count() )
-        return d->column[c]->wmode;
+	return d->column[c]->wmode;
     else
-        return Manual;
+	return Manual;
 }
 
 
@@ -3800,7 +3800,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	int x1 = vp.x() +
 		 d->h->offset() -
 		 d->h->cellPos( d->h->mapToActual( 0 ) );
-	QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
+	QPtrListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 	while( it.current() && it.current()->i != i )
 	    ++it;
 
@@ -3991,7 +3991,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
     if ( d->selectionMode == Extended &&
 	 d->focusItem == d->pressedItem &&
 	 d->pressedSelected && d->focusItem &&
- 	 e->button() == LeftButton) {
+	 e->button() == LeftButton) {
 	bool block = signalsBlocked();
 	blockSignals( TRUE );
 	clearSelection();
@@ -4211,15 +4211,15 @@ void QListView::doAutoScroll()
 		// also (de)select the ones in between
 		QListViewItem * b = d->focusItem;
 		bool down = ( itemPos( c ) > itemPos( b ) );
-                if ( itemAt( QCursor::pos() ) ) {
-                    while( b && b != c ) {
-                        if ( b->isSelectable() )
-                            setSelected( b, d->select );
-                        b = down ? b->itemBelow() : b->itemAbove();
-                    }
-                }
-                if ( c->isSelectable() )
-                    setSelected( c, d->select );
+		if ( itemAt( QCursor::pos() ) ) {
+		    while( b && b != c ) {
+			if ( b->isSelectable() )
+			    setSelected( b, d->select );
+			b = down ? b->itemBelow() : b->itemAbove();
+		    }
+		}
+		if ( c->isSelectable() )
+		    setSelected( c, d->select );
 	    }
 	}
     }
@@ -4526,9 +4526,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
       if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
 	     treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() ||
 	     p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) {
-          ; // p is not not in root decoration
+	  ; // p is not not in root decoration
       else
-          ; // p is in the root decoration
+	  ; // p is in the root decoration
   }
   \endcode
 
@@ -4701,7 +4701,7 @@ void QListView::selectAll( bool select )
 	blockSignals( TRUE );
 	bool anything = FALSE;
 	QListViewItem * i = firstChild();
-	QStack<QListViewItem> s;
+	QPtrStack<QListViewItem> s;
 	while ( i ) {
 	    if ( i->childItem )
 		s.push( i->childItem );
@@ -5184,7 +5184,7 @@ void QListView::repaintItem( const QListViewItem * item ) const
 /* XPM */
 static const char * const def_item_xpm[] = {
 "16 16 4 1",
-" 	c None",
+"	c None",
 ".	c #000000000000",
 "X	c #FFFFFFFF0000",
 "o	c #C71BC30BC71B",
@@ -5896,7 +5896,7 @@ void QListView::showEvent( QShowEvent * )
 
 int QListViewItem::itemPos() const
 {
-    QStack<QListViewItem> s;
+    QPtrStack<QListViewItem> s;
     QListViewItem * i = (QListViewItem *)this;
     while( i ) {
 	s.push( i );
@@ -6063,12 +6063,12 @@ void QListView::startDrag()
   // ...
 
   // This function is called to get a list of the selected items of a list view
-  QList<QListViewItem> * getSelectedItems( QListView *lv ) {
+  QPtrList<QListViewItem> * getSelectedItems( QListView *lv ) {
     if ( !lv )
       return 0;
 
     // Create the list
-    QList<QListViewItem> *lst = new QList<QListViewItem>;
+    QPtrList<QListViewItem> *lst = new QPtrList<QListViewItem>;
     lst->setAutoDelete( FALSE );
 
     // Create an iterator and give the list view as argument
@@ -6352,7 +6352,7 @@ void QListViewItemIterator::addToListView()
 {
     if ( listView ) {
 	if ( !listView->d->iterators ) {
-	    listView->d->iterators = new QList<QListViewItemIterator>;
+	    listView->d->iterators = new QPtrList<QListViewItemIterator>;
 	    Q_CHECK_PTR( listView->d->iterators );
 	}
 	listView->d->iterators->append( this );
@@ -6526,12 +6526,12 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
 	return 0;
 
     if ( compare == CaseSensitive || compare == 0 )
-        compare |= ExactMatch;
+	compare |= ExactMatch;
 
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive ) )
-        comtxt = text.lower();
+	comtxt = text.lower();
 
     QListViewItem* item;
     if ( d->focusItem )
@@ -6542,60 +6542,59 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
     QListViewItemIterator it( item );
 
     if ( item ) {
-        for ( ; it.current(); ++it ) {
-            item = it.current();
+	for ( ; it.current(); ++it ) {
+	    item = it.current();
 	    if ( ! (compare & CaseSensitive) )
-                itmtxt = item->text( column ).lower();
+		itmtxt = item->text( column ).lower();
 	    else
 		itmtxt = item->text( column );
-	
-            if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt )
-                    return item;
-            }
-	
-            if ( compare & BeginsWith ) {
-                if ( itmtxt.startsWith( comtxt ) )
-                    return item;
-            }
-	
-            if ( compare & EndsWith ) {
-                if ( itmtxt.right( comtxt.length() ) == comtxt )
-                    return item;
-            }
-	
-            if ( compare & Contains ) {
-                if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-                    return item;
-            }
-        }
-	
+
+	    if ( compare & ExactMatch ) {
+		if ( itmtxt == comtxt )
+		    return item;
+	    }
+
+	    if ( compare & BeginsWith ) {
+		if ( itmtxt.startsWith( comtxt ) )
+		    return item;
+	    }
+
+	    if ( compare & EndsWith ) {
+		if ( itmtxt.right( comtxt.length() ) == comtxt )
+		    return item;
+	    }
+
+	    if ( compare & Contains ) {
+		if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
+		    return item;
+	    }
+	}
+
 	if ( d->focusItem && firstChild() ) {
 	    item = firstChild();
 	    QListViewItemIterator it( item );
-	
 	    for ( ; it.current() != d->focusItem; ++it ) {
 		item = it.current();
 		if ( ! (compare & CaseSensitive) )
 		    itmtxt = item->text( column ).lower();
 		else
 		    itmtxt = item->text( column );
-		
+
 		if ( compare & ExactMatch ) {
 		    if ( itmtxt == comtxt )
 			return item;
 		}
-		
+
 		if ( compare & BeginsWith ) {
 		    if ( itmtxt.startsWith( comtxt ) )
 			return item;
 		}
-		
+
 		if ( compare & EndsWith ) {
 		    if ( itmtxt.right( comtxt.length() ) == comtxt )
 			return item;
 		}
-		
+
 		if ( compare & Contains ) {
 		    if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
 			return item;
@@ -6606,4 +6605,3 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
     return 0;
 }
 #endif // QT_NO_LISTVIEW
-

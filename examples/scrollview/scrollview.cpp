@@ -25,7 +25,7 @@
 
 static const int style_id	= 0x1000;
 static const int lw_id		= 0x2000;
-static const int mlw_id	    	= 0x4000;
+static const int mlw_id		= 0x4000;
 static const int mw_id		= 0x8000;
 static const int max_lw		= 16;
 static const int max_mlw	= 5;

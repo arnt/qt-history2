@@ -157,12 +157,12 @@ struct QLineEditPrivate {
 	undoRedoInfo.type = t;
     }
 
-    bool readonly 			: 1;
-    bool cursorOn 			: 1;
-    bool inDoubleClick 		: 1;
-    bool mousePressed 		: 1;
-    bool dnd_primed 			: 1;
-    bool ed 			: 1;
+    bool readonly			: 1;
+    bool cursorOn			: 1;
+    bool inDoubleClick		: 1;
+    bool mousePressed		: 1;
+    bool dnd_primed			: 1;
+    bool ed			: 1;
     QLineEdit::EchoMode mode;
     int maxLen;
     int offset;
@@ -561,7 +561,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    home( e->state() & ShiftButton );
 	    break;
 	case Key_B:
-	    cursorLeft( e->state() & ShiftButton );
+	    cursorForward( e->state() & ShiftButton, -1 );
 	    break;
 #ifndef QT_NO_CLIPBOARD
 	case Key_C:
@@ -577,7 +577,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    end( e->state() & ShiftButton );
 	    break;
 	case Key_F:
-	    cursorRight( e->state() & ShiftButton );
+	    cursorForward( e->state() & ShiftButton, 1 );
 	    break;
 	case Key_H:
 	    if ( !d->readonly ) {
@@ -616,12 +616,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorWordBackward( e->state() & ShiftButton );
 	    break;
 	case Key_Z:
- 	    if ( !d->readonly )
- 		undo();
+	    if ( !d->readonly )
+		undo();
 	    break;
 	case Key_Y:
- 	    if ( !d->readonly )
- 		redo();
+	    if ( !d->readonly )
+		redo();
 	    break;
 	default:
 	    unknown = TRUE;
@@ -633,10 +633,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		d->selectionStart = d->cursor->index();
 	    break;
 	case Key_Left:
-	    cursorLeft( e->state() & ShiftButton );
+	    cursorForward( e->state() & ShiftButton, -1 );
 	    break;
 	case Key_Right:
-	    cursorRight( e->state() & ShiftButton );
+	    cursorForward( e->state() & ShiftButton, 1 );
 	    break;
 	case Key_Backspace:
 	    if ( !d->readonly ) {
@@ -669,8 +669,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 #endif
 	case Key_F14: // Undo key on Sun keyboards
- 	    if ( !d->readonly )
- 		undo();
+	    if ( !d->readonly )
+		undo();
 	    break;
 #ifndef QT_NO_CLIPBOARD
 	case Key_F16: // Copy key on Sun keyboards
@@ -941,7 +941,7 @@ void QLineEdit::doDrag()
     d->dnd_primed = FALSE;
     QTextDrag *tdo = new QTextDrag( markedText(), this );
     if ( tdo->drag() )
-        del();
+	del();
     setCursor( ibeamCursor );
     d->mousePressed = FALSE;
 }
@@ -1023,7 +1023,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 #ifndef QT_NO_CLIPBOARD
     if (QApplication::clipboard()->supportsSelection()) {
-     	QApplication::clipboard()->setSelectionMode(TRUE);
+	QApplication::clipboard()->setSelectionMode(TRUE);
 	copy();
 	QApplication::clipboard()->setSelectionMode(FALSE);
     }
@@ -1085,9 +1085,9 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
     else if ( r == d->id[ IdSelectAll ] )
 	selectAll();
     else if ( r == d->id[ IdUndo ] )
- 	undo();
+	undo();
     else if ( r == d->id[ IdRedo ] )
- 	redo();
+	redo();
 #ifndef QT_NO_CLIPBOARD
     else if ( r == d->id[ IdCut ] )
 	cut();
@@ -1123,7 +1123,7 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
 */
 void QLineEdit::cursorBackward( bool mark, int steps )
 {
-    cursorRight( mark, -steps );
+    cursorForward( mark, -steps );
 }
 
 /*!

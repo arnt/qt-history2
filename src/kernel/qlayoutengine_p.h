@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qlayoutengine_p.h#1 $
 **
-** Internal header file. 
+** Internal header file.
 **
 ** Created : 981027
 **
@@ -79,7 +79,7 @@ struct QLayoutStruct
 };
 
 
-void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
+void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		      int space, int spacer );
 
 

@@ -47,7 +47,8 @@
   
   QValueVector is a Qt implementation of an STL-like vector container.  It
   can be used in your application if the standard vector<> is not
-  available.  
+  available.  QValueVector is part of the <a href="qtl.html"> Qt Template
+  Library</a>.
 
   QValueVector<T> defines a template instance to create
   a vector of values that all have the class T. Please note that
@@ -116,7 +117,7 @@
 
 	vec[0] = Employee("Bill", 50000);
 	vec[1] = Employee("Steve",80000);
-	vec[3] = Employee("Ron",  60000);
+	vec[2] = Employee("Ron",  60000);
 
 	Employee joe( "Joe", 50000 );
 	vec.push_back( joe );
@@ -281,12 +282,7 @@
 
   QValueVector stores its elements in contiguous memory.  This means
   that you can use a QValueVector in any situation that requires an
-  array.  For example:
-
-\code
-	QValueVector<char> v;
-		
-\endcode
+  array.  
 
 */
 
@@ -315,8 +311,8 @@
   which reserves an initial amount of space for elements, use \c
   QValueVector(size_type n).  */
 
-/*! \fn QValueVector::QValueVector( const QValueVector<T>& l )
-  Constructs a copy of \e l.
+/*! \fn QValueVector::QValueVector( const QValueVector<T>& v )
+  Constructs a copy of \e v.
 
   This operation costs O(1) time because QValueVector is shared
   implicitly.
@@ -329,11 +325,6 @@
   element is initialized with the value of \a val.
 */
 
-/*! \fn QValueVector::QValueVector( size_type n )
-  Constructs a vector with \a n elements that are created by the
-  default constructor.
-*/
-
 /*! \fn QValueVector::~QValueVector()
   Destroys the vector, destroying all elements and freeing the memory.
   References to the values in the vector and all iterators of this
@@ -342,8 +333,8 @@
   tuned for performance, not error checking.
 */
 
-/*! \fn QValueVector<T>& QValueVector::operator= ( const QValueVector<T>& l )
-  Assigns \e l to this vector and returns a reference to this vector.
+/*! \fn QValueVector<T>& QValueVector::operator= ( const QValueVector<T>& v )
+  Assigns \e v to this vector and returns a reference to this vector.
 
   All iterators of the current vector become invalidated by this operation.
   The cost of such an assignment is O(1) since QValueVector is implicitly

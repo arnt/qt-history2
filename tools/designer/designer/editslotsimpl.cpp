@@ -30,7 +30,7 @@
 #include <qpushbutton.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <qstrlist.h>
+#include <qptrstrlist.h>
 #include <qmessagebox.h>
 #include <qlayout.h>
 #include <qlabel.h>
@@ -73,7 +73,7 @@ void EditSlots::okClicked()
     QString n = tr( "Add/Remove slots of '%1'" ).arg( formWindow->name() );
     QValueList<MetaDataBase::Slot>::Iterator sit;
     if ( !slotList.isEmpty() ) {
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	for ( sit = slotList.begin(); sit != slotList.end(); ++sit ) {
 	    commands.append( new RemoveSlotCommand( tr( "Remove slot" ),
 						    formWindow, (*sit).slot, (*sit).access,
@@ -83,11 +83,11 @@ void EditSlots::okClicked()
     }
 
     bool invalidSlots = FALSE;
-    QList<QListViewItem> invalidItems;
+    QPtrList<QListViewItem> invalidItems;
     if ( slotListView->firstChild() ) {
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	QListViewItemIterator it( slotListView );
-	QStrList lst;
+	QPtrStrList lst;
 	lst.append( "accept()" );
 	lst.append( "reject()" );
 	lst.append( "done(int)" );
@@ -115,7 +115,7 @@ void EditSlots::okClicked()
 						 slot.returnType ) );
 	    lst.append( slot.slot );
 	}
-	
+
 	if ( !commands.isEmpty() )
 	    addSlt = new MacroCommand( tr( "Add slots" ), formWindow, commands );
     }
@@ -141,7 +141,7 @@ void EditSlots::okClicked()
     }
 
     if ( rmSlt || addSlt ) {
-	QList<Command> commands;
+	QPtrList<Command> commands;
 	if ( rmSlt )
 	    commands.append( rmSlt );
 	if ( addSlt )

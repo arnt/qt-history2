@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 #include "qdragapp.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qintdict.h"
 #include "qpopupmenu.h"
 #include "qcolor.h"
@@ -55,7 +55,7 @@ class QDragger : public QObject
 public:
     QDragger();
     ~QDragger();
-    
+
     bool notify( QObject *, QEvent * ); // event filter
     void closeDropWindow( DropWindow * );
 public slots:
@@ -268,7 +268,7 @@ bool QDragger::dragEvent( QWidget *w, QMouseEvent *e )
 	    dragInfo.w  = w;
 	    QPoint p    = w->mapToGlobal(QPoint(0,0));
 	    w->reparent( 0, WType_Popup, p, TRUE );
-		
+
 	    return TRUE;
 	}
 	case QEvent::MouseButtonRelease:

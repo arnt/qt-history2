@@ -166,20 +166,20 @@ would be unacceptably slow.
 
 <h2>Explicitly Shared Classes</h2>
 
-All classes that are instances of the QArray template class are explicitly
+All classes that are instances of the QMemArray template class are explicitly
 shared:
 <ul>
 <li>\l QBitArray
 <li>\l QPointArray
 <li>\l QByteArray
-<li>Any other instantiation of \link QArray QArray\<type\>\endlink
+<li>Any other instantiation of \link QMemArray QMemArray\<type\>\endlink
 </ul>
 
 These classes have a detach() function that can be called if you want your
 object to get a private copy of the shared data.  They also have a copy()
 function that returns a deep copy with reference count 1 of an object.
 
-The same is true for \l QImage, which does not inherit QArray.  \l QMovie
+The same is true for \l QImage, which does not inherit QMemArray.  \l QMovie
 is also explicitly shared, but it does not support detach() and copy().
 
 

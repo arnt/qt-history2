@@ -51,42 +51,43 @@
   \ingroup tools
   \ingroup shared
 
-  It is used to store and manipulate strings that logically belong together.
-  Basically QStringList is a QValueList of QString objects. As opposed
-  to QStrList, which stores pointers to characters, QStringList deals
-  with real QString objects.  It is the class of choice whenever you
-  work with Unicode strings.
+  It is used to store and manipulate strings that logically belong
+  together.  Basically QStringList is a QValueList of QString
+  objects. As opposed to QStrList, which stores pointers to
+  characters, QStringList deals with real QString objects.  It is the
+  class of choice whenever you work with Unicode strings. QStringList
+  is part of the <a href="qtl.html"> Qt Template Library</a>.
 
   Like QString itself, QStringList objects are implicitly shared.
   Passing them around as value-parameters is both fast and safe.
 
   There are several approaches to add strings to a string list:
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp	
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
 
   \skipto QStringList substitutes
   \printline substitutes
-  \printline append 
-  \printline += 
-  \printline << 
+  \printline append
+  \printline +=
+  \printline <<
 
   To successively access the members of a QStringList use the provided
   Iterator:
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp	
+  \walkthrough fonts/simple-qfont-demo/viewer.cpp
 
-  \skipto QStringList substitutions 
+  \skipto QStringList substitutions
   \printline substitutes
   \skipto QStringList::Iterator
   \printline substitutions.begin
   \printline substitutions.end
   \printuntil }
 
-  (Code examples taken from \link simple-font-demo-example.html 
+  (Code examples taken from \link simple-font-demo-example.html
   examples/fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   Convenience methods such as sort(), split(), join() and grep() make
-  working with QStringLists easy. 
+  working with QStringLists easy.
 */
 
 /*!
@@ -112,7 +113,7 @@
   \walkthrough table/small-table-demo/main.cpp
   \skipto QStringList
   \printline QStringList
-  \printline comboEntries << 
+  \printline comboEntries <<
 
   (example code taken from \link small-table-demo-example.html
   table/small-table-demo/main.cpp\endlink)
@@ -308,11 +309,11 @@ Q_EXPORT QDataStream &operator<<( QDataStream & s, const QStringList& l )
 
 /*! Converts from a ASCII-QStrList \a ascii to a QStringList (Unicode).
 */
-QStringList QStringList::fromStrList(const QStrList& ascii)
+QStringList QStringList::fromStrList(const QPtrStrList& ascii)
 {
     QStringList res;
     const char * s;
-    for ( QStrListIterator it(ascii); (s=it.current()); ++it )
+    for ( QPtrStrListIterator it(ascii); (s=it.current()); ++it )
 	res << s;
     return res;
 }

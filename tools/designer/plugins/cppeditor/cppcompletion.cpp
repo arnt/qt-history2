@@ -1,4 +1,4 @@
- /**********************************************************************
+/**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -65,8 +65,8 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	}
     }
 
-    QStrList props = obj->metaObject()->propertyNames( TRUE );
-    for ( QListIterator<char> pit( props ); pit.current(); ++pit ) {
+    QPtrStrList props = obj->metaObject()->propertyNames( TRUE );
+    for ( QPtrListIterator<char> pit( props ); pit.current(); ++pit ) {
 	QString f( pit.current() );
 	QChar c = f[ 0 ];
 	f.remove( 0, 1 );
@@ -82,8 +82,8 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	    lst << ce;
     }
 
-    QStrList slts = obj->metaObject()->slotNames( TRUE );
-    for ( QListIterator<char> sit( slts ); sit.current(); ++sit ) {
+    QPtrStrList slts = obj->metaObject()->slotNames( TRUE );
+    for ( QPtrListIterator<char> sit( slts ); sit.current(); ++sit ) {
 	QString f( sit.current() );
 	f = f.left( f.find( "(" ) );
 	CompletionEntry c;
@@ -125,7 +125,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
 	    i = expr.findRev( "\t" );
 	else
 	    objName = ths->name();
-	
+
 	if ( i == -1 && expr[ 0 ] != ' ' && expr[ 0 ] != '\t' )
 	    objName = ths->name();
     }
@@ -171,8 +171,8 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
     if ( !obj )
 	return QValueList<QStringList>();
 
-    QStrList slts = obj->metaObject()->slotNames( TRUE );
-    for ( QListIterator<char> sit( slts ); sit.current(); ++sit ) {
+    QPtrStrList slts = obj->metaObject()->slotNames( TRUE );
+    for ( QPtrListIterator<char> sit( slts ); sit.current(); ++sit ) {
 	QString f( sit.current() );
 	f = f.left( f.find( "(" ) );
 	if ( f == func ) {

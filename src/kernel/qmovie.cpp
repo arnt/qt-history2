@@ -39,7 +39,7 @@
 
 #include "qtimer.h"
 #include "qpainter.h"
-#include "qlist.h"
+#include "qptrlist.h"
 #include "qbitmap.h"
 #include "qmovie.h"
 #include "qfile.h"

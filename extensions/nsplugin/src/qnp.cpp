@@ -206,7 +206,7 @@ void qt_np_remove_timer_setter(
 extern XtIntervalId qt_np_timerid;            // defined in qnpsupport.cpp
 extern bool qt_np_filters_installed[3];       // defined in qnpsupport.cpp
 extern void (*qt_np_leave_cb)
-              (XLeaveWindowEvent*);           // defined in qnpsupport.cpp
+	      (XLeaveWindowEvent*);           // defined in qnpsupport.cpp
 void qt_np_add_event_proc(
 	    ForeignEventProc fep );           // defined in qnpsupport.cpp
 void qt_np_remove_event_proc(
@@ -394,9 +394,9 @@ public:
 #endif
 
 private:
-    static QList<QNPWidget> npwidgets;
+    static QPtrList<QNPWidget> npwidgets;
 };
-QList<QNPWidget> PluginSDK_QApplication::npwidgets;
+QPtrList<QNPWidget> PluginSDK_QApplication::npwidgets;
 
 #ifdef Q_WS_WIN
 int PluginSDK_QApplication::argc=0;
@@ -460,11 +460,11 @@ NPP_GetValue(void * /*future*/, NPPVariable variable, void *value)
     if (!qNP) qNP = QNPlugin::create();
     NPError err = NPERR_NO_ERROR;
     if (variable == NPPVpluginNameString)
-        *((const char **)value) = qNP->getPluginNameString();
+	*((const char **)value) = qNP->getPluginNameString();
     else if (variable == NPPVpluginDescriptionString)
-        *((const char **)value) = qNP->getPluginDescriptionString();
+	*((const char **)value) = qNP->getPluginDescriptionString();
     else
-        err = NPERR_GENERIC_ERROR;
+	err = NPERR_GENERIC_ERROR;
 
     return err;
 }
@@ -571,14 +571,14 @@ NPP_New(NPMIMEType /*pluginType*/,
     _NPInstance* This;
 
     if (instance == NULL)
-        return NPERR_INVALID_INSTANCE_ERROR;
+	return NPERR_INVALID_INSTANCE_ERROR;
 
     instance->pdata = new _NPInstance;
 
     This = (_NPInstance*) instance->pdata;
 
     if (This == NULL)
-        return NPERR_OUT_OF_MEMORY_ERROR;
+	return NPERR_OUT_OF_MEMORY_ERROR;
 
     This->npp = instance;
 
@@ -616,7 +616,7 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     _NPInstance* This;
 
     if (instance == NULL)
-        return NPERR_INVALID_INSTANCE_ERROR;
+	return NPERR_INVALID_INSTANCE_ERROR;
 
     This = (_NPInstance*) instance->pdata;
 
@@ -640,8 +640,8 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 	delete [] This->argn;
 	delete [] This->argv;
 
-        delete This;
-        instance->pdata = NULL;
+	delete This;
+	instance->pdata = NULL;
 
 	instance_count--;
     }
@@ -658,7 +658,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     _NPInstance* This;
 
     if (instance == NULL)
-        return NPERR_INVALID_INSTANCE_ERROR;
+	return NPERR_INVALID_INSTANCE_ERROR;
 
     This = (_NPInstance*) instance->pdata;
 
@@ -757,15 +757,15 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
 extern "C" NPError
 NPP_NewStream(NPP instance,
-          NPMIMEType type,
-          NPStream *stream,
-          NPBool seekable,
-          uint16 *stype)
+	  NPMIMEType type,
+	  NPStream *stream,
+	  NPBool seekable,
+	  uint16 *stype)
 {
     _NPInstance* This;
 
     if (instance == NULL)
-        return NPERR_INVALID_INSTANCE_ERROR;
+	return NPERR_INVALID_INSTANCE_ERROR;
 
     This = (_NPInstance*) instance->pdata;
 
@@ -784,15 +784,15 @@ NPP_NewStream(NPP instance,
 
 
 int32 STREAMBUFSIZE = 0X0FFFFFFF; /* If we are reading from a file in NPAsFile
-                                   * mode so we can take any size stream in our
-                                   * write call (since we ignore it) */
+				   * mode so we can take any size stream in our
+				   * write call (since we ignore it) */
 
 extern "C" int32
 NPP_WriteReady(NPP instance, NPStream *stream)
 {
     _NPInstance* This;
     if (instance != NULL) {
-        This = (_NPInstance*) instance->pdata;
+	This = (_NPInstance*) instance->pdata;
     } else {
 	// Yikes, that's unusual!
 	return 0;
@@ -812,7 +812,7 @@ NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buffer)
 {
     if (instance != NULL)
     {
-        _NPInstance* This = (_NPInstance*) instance->pdata;
+	_NPInstance* This = (_NPInstance*) instance->pdata;
 
 	if (This) {
 	    return This->instance->write((QNPStream*)stream->pdata,
@@ -830,7 +830,7 @@ NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
     _NPInstance* This;
 
     if (instance == NULL)
-        return NPERR_INVALID_INSTANCE_ERROR;
+	return NPERR_INVALID_INSTANCE_ERROR;
 
     if (!qnps_no_call_back) {
 	This = (_NPInstance*) instance->pdata;
@@ -907,18 +907,18 @@ extern "C" void
 NPP_Print(NPP instance, NPPrint* printInfo)
 {
     if(printInfo == NULL)
-        return;
+	return;
 
     if (instance != NULL) {
-        _NPInstance* This = (_NPInstance*) instance->pdata;
+	_NPInstance* This = (_NPInstance*) instance->pdata;
 
-        if (printInfo->mode == NP_FULL) {
-            printInfo->print.fullPrint.pluginPrinted =
+	if (printInfo->mode == NP_FULL) {
+	    printInfo->print.fullPrint.pluginPrinted =
 		This->instance->printFullPage();
-        } else if (printInfo->mode == NP_EMBED) {
+	} else if (printInfo->mode == NP_EMBED) {
 #ifdef Q_WS_X11
-            void* platformPrint =
-                printInfo->print.embedPrint.platformPrint;
+	    void* platformPrint =
+		printInfo->print.embedPrint.platformPrint;
 	    FILE* outfile = ((NPPrintCallbackStruct*)platformPrint)->fp;
 	    if (ftell(outfile)) {
 		NPWindow* w =
@@ -933,40 +933,40 @@ NPP_Print(NPP instance, NPPrint* printInfo)
 	    }
 #endif
 #ifdef Q_WS_WIN
-            NPWindow* printWindow =
-                &(printInfo->print.embedPrint.window);
-            void* platformPrint =
-                printInfo->print.embedPrint.platformPrint;
+	    NPWindow* printWindow =
+		&(printInfo->print.embedPrint.window);
+	    void* platformPrint =
+		printInfo->print.embedPrint.platformPrint;
 	    // #### Nothing yet.
 #endif
-        }
+	}
     }
 }
 
 extern "C" void
 NPP_URLNotify(NPP instance,
-              const char* url,
-              NPReason reason,
-              void* notifyData)
+	      const char* url,
+	      NPReason reason,
+	      void* notifyData)
 {
     if (instance != NULL) {
-        QNPInstance::Reason r;
-        switch (reason) {
-        case NPRES_DONE:
-            r = QNPInstance::ReasonDone;
-            break;
-        case NPRES_USER_BREAK:
-            r = QNPInstance::ReasonBreak;
-            break;
-        case NPRES_NETWORK_ERR:
-            r = QNPInstance::ReasonError;
-            break;
-        default:
-            r = QNPInstance::ReasonUnknown;
-            break;
-        }
-        _NPInstance* This = (_NPInstance*) instance->pdata;
-        This->instance->notifyURL(url, r, notifyData);
+	QNPInstance::Reason r;
+	switch (reason) {
+	case NPRES_DONE:
+	    r = QNPInstance::ReasonDone;
+	    break;
+	case NPRES_USER_BREAK:
+	    r = QNPInstance::ReasonBreak;
+	    break;
+	case NPRES_NETWORK_ERR:
+	    r = QNPInstance::ReasonError;
+	    break;
+	default:
+	    r = QNPInstance::ReasonUnknown;
+	    break;
+	}
+	_NPInstance* This = (_NPInstance*) instance->pdata;
+	This->instance->notifyURL(url, r, notifyData);
     }
 }
 
@@ -1109,8 +1109,8 @@ void qt_XDestroyWindow( const QWidget* qw, Display *display, Window window )
 #ifdef Q_WS_WIN
 
 BOOL   WINAPI   DllMain (HANDLE hInst,
-                        ULONG ul_reason_for_call,
-                        LPVOID lpReserved)
+			ULONG ul_reason_for_call,
+			LPVOID lpReserved)
 {
     switch ( ul_reason_for_call ) {
 	case DLL_PROCESS_ATTACH:
@@ -1155,20 +1155,20 @@ class MyPluginWindow : public QNPWidget {
 public:
     MyPluginWindow()
     {
-        // Some widget that is normally used as a top-level widget
-        child = new MyIndependentlyDevelopedWidget();
+	// Some widget that is normally used as a top-level widget
+	child = new MyIndependentlyDevelopedWidget();
 
-        // Use the background color of the web page
-        child->setBackgroundColor( backgroundColor() );
+	// Use the background color of the web page
+	child->setBackgroundColor( backgroundColor() );
 
-        // Fill the plugin widget
-        child->setGeometry( 0, 0, width(), height() );
+	// Fill the plugin widget
+	child->setGeometry( 0, 0, width(), height() );
     }
 
     void resizeEvent(QResizeEvent*)
     {
-        // Fill the plugin widget
-        child->resize(size());
+	// Fill the plugin widget
+	child->resize(size());
     }
 };
 \endcode
@@ -1925,15 +1925,15 @@ void QNPlugin::getVersionInfo(int& plugin_major, int& plugin_minor,
 \code
     const char* getMIMEDescription() const
     {
-        return "image/x-png:png:PNG Image;"
-               "image/png:png:PNG Image;"
-               "image/x-portable-bitmap:pbm:PBM Image;"
-               "image/x-portable-graymap:pgm:PGM Image;"
-               "image/x-portable-pixmap:ppm:PPM Image;"
-               "image/bmp:bmp:BMP Image;"
-               "image/x-ms-bmp:bmp:BMP Image;"
-               "image/x-xpixmap:xpm:XPM Image;"
-               "image/xpm:xpm:XPM Image";
+	return "image/x-png:png:PNG Image;"
+	       "image/png:png:PNG Image;"
+	       "image/x-portable-bitmap:pbm:PBM Image;"
+	       "image/x-portable-graymap:pgm:PGM Image;"
+	       "image/x-portable-pixmap:ppm:PPM Image;"
+	       "image/bmp:bmp:BMP Image;"
+	       "image/x-ms-bmp:bmp:BMP Image;"
+	       "image/x-xpixmap:xpm:XPM Image;"
+	       "image/xpm:xpm:XPM Image";
     }
 \endcode
 */

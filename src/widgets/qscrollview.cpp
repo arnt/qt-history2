@@ -98,7 +98,7 @@ struct QSVChildRec {
 class QClipperWidget : public QWidget {
 public:
     QClipperWidget( QWidget * parent=0, const char * name=0, WFlags f=0 )
-        : QWidget ( parent,name,f) { blockFocus = FALSE; }
+	: QWidget ( parent,name,f) { blockFocus = FALSE; }
     bool focusNextPrevChild( bool next ) {
 	if ( !blockFocus )
 	    return QWidget::focusNextPrevChild( next );
@@ -170,7 +170,7 @@ struct QScrollViewData {
     }
     void hideOrShowAll(QScrollView* sv, bool isScroll = FALSE )
     {
-        if ( clipped_viewport ) {
+	if ( clipped_viewport ) {
 	    if ( clipped_viewport->x() <= 0
 		 && clipped_viewport->y() <= 0
 		 && clipped_viewport->width()+clipped_viewport->x() >=
@@ -236,7 +236,7 @@ struct QScrollViewData {
 	if ( policy == QScrollView::AutoOne ) {
 	    QSVChildRec* r = children.first();
 	    if (r)
-	        sv->setContentsPos(-r->child->x(),-r->child->y());
+		sv->setContentsPos(-r->child->x(),-r->child->y());
 	}
     }
     void autoResize(QScrollView* sv)
@@ -252,8 +252,8 @@ struct QScrollViewData {
 	if ( policy == QScrollView::AutoOne ) {
 	    QSVChildRec* r = children.first();
 	    if (r) {
-                QSize s = r->child->sizeHint();
-	        if ( s.isValid() )
+		QSize s = r->child->sizeHint();
+		if ( s.isValid() )
 		    r->child->resize(s);
 	    }
 	} else if ( policy == QScrollView::AutoOneFit ) {
@@ -261,7 +261,7 @@ struct QScrollViewData {
 	    if (r) {
 		QSize sh = r->child->sizeHint();
 		sh = sh.boundedTo( r->child->maximumSize() );
-	        sv->resizeContents( sh.width(), sh.height() );
+		sv->resizeContents( sh.width(), sh.height() );
 	    }
 	}
     }
@@ -283,7 +283,7 @@ struct QScrollViewData {
     QWidget	viewport;
     QClipperWidget*    clipped_viewport;
     int		flags;
-    QList<QSVChildRec>	children;
+    QPtrList<QSVChildRec>	children;
     QPtrDict<QSVChildRec>	childDict;
     QWidget*	corner;
     int		vx, vy, vwidth, vheight; // for drawContents-style usage
@@ -308,7 +308,7 @@ struct QScrollViewData {
     // cause two image scrolls, creating ugly flashing.
     //
     bool signal_choke;
-    
+
     // This variables indicates in updateScrollBars() that we are
     // in a resizeEvent() and thus don't want to flash scrollbars
     bool inresize;
@@ -543,7 +543,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 
     connect( &d->scrollbar_timer, SIGNAL( timeout() ),
 	     this, SLOT( updateScrollBars() ) );
-    
+
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     setLineWidth( style().defaultFrameWidth() );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -725,8 +725,8 @@ void QScrollView::updateScrollBars()
     if ( d->policy != AutoOne || d->anyVisibleChildren() ) {
 	// Do we definitely need the scrollbar?
 	needh = w-lmarg-rmarg < contentsWidth();
-  	if ( d->inresize )
- 	    needh  = !horizontalScrollBar()->isHidden();
+	if ( d->inresize )
+	    needh  = !horizontalScrollBar()->isHidden();
 	needv = h-tmarg-bmarg < contentsHeight();
 
 	// Do we intend to show the scrollbar?
@@ -767,7 +767,7 @@ void QScrollView::updateScrollBars()
 
     // Hide unneeded scrollbar, calculate viewport size
     if ( showh ) {
-        porth=h-hsbExt-tmarg-bmarg;
+	porth=h-hsbExt-tmarg-bmarg;
     } else {
 	if (!needh)
 	    d->hbar.setValue(0);
@@ -946,7 +946,7 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     updateScrollBars();
     d->inresize = inresize;
     d->scrollbar_timer.start( 0, TRUE );
-    
+
     d->hideOrShowAll(this);
 }
 
@@ -991,7 +991,7 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
 	if ( e->state() & AltButton ) {
 	    if ( horizontalScrollBar() )
 		QApplication::sendEvent( horizontalScrollBar(), e);
-	} else 	if (verticalScrollBar() ) {
+	} else	if (verticalScrollBar() ) {
 	    QApplication::sendEvent( verticalScrollBar(), e);
 	}
     }
@@ -1210,7 +1210,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	child->installEventFilter( this );
     } else if ( d->policy == AutoOne ) {
 	child->removeEventFilter( this ); //#### ?????
-        setResizePolicy( Manual );
+	setResizePolicy( Manual );
     }
     if ( child->parentWidget() != viewport() ) {
 	    child->reparent( viewport(), 0, QPoint(0,0), FALSE );
@@ -2433,12 +2433,12 @@ QSize QScrollView::sizeHint() const
 	QSVChildRec* r = d->children.first();
 	if (r)
 	{
-            QSize cs = r->child->sizeHint();
+	    QSize cs = r->child->sizeHint();
 	    if ( cs.isValid() )
-        	result += cs.boundedTo( r->child->maximumSize() );
+		result += cs.boundedTo( r->child->maximumSize() );
 	    else
-        	result += r->child->size();
-        }
+		result += r->child->size();
+	}
     } else {
 	result += QSize(contentsWidth(),contentsHeight());
     }

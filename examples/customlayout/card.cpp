@@ -15,8 +15,8 @@
 class CardLayoutIterator :public QGLayoutIterator
 {
 public:
-    CardLayoutIterator( QList<QLayoutItem> *l )
-        : idx( 0 ), list( l )  {}
+    CardLayoutIterator( QPtrList<QLayoutItem> *l )
+	: idx( 0 ), list( l )  {}
 
     QLayoutItem *current();
     QLayoutItem *next();
@@ -24,7 +24,7 @@ public:
 
 private:
     int idx;
-    QList<QLayoutItem> *list;
+    QPtrList<QLayoutItem> *list;
 };
 
 QLayoutItem *CardLayoutIterator::current()
@@ -63,9 +63,9 @@ void CardLayout::setGeometry( const QRect &rct )
 {
     QLayout::setGeometry( rct );
 
-    QListIterator<QLayoutItem> it( list );
+    QPtrListIterator<QLayoutItem> it( list );
     if ( it.count() == 0 )
-        return;
+	return;
 
     QLayoutItem *o;
 
@@ -75,11 +75,11 @@ void CardLayout::setGeometry( const QRect &rct )
     int h = rct.height() - ( list.count() - 1 ) * spacing();
 
     while ( ( o=it.current() ) != 0 ) {
-        ++it;
-        QRect geom( rct.x() + i * spacing(), rct.y() + i * spacing(),
-                    w, h  );
-        o->setGeometry(  geom  );
-        ++i;
+	++it;
+	QRect geom( rct.x() + i * spacing(), rct.y() + i * spacing(),
+		    w, h  );
+	o->setGeometry(  geom  );
+	++i;
     }
 }
 
@@ -88,12 +88,12 @@ QSize CardLayout::sizeHint() const
     QSize s(0,0);
     int n = list.count();
     if ( n > 0 )
-        s = QSize(100,70); //start with a nice default size
-    QListIterator<QLayoutItem> it(list);
+	s = QSize(100,70); //start with a nice default size
+    QPtrListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
-        ++it;
-        s = s.expandedTo( o->minimumSize() );
+	++it;
+	s = s.expandedTo( o->minimumSize() );
     }
     return s + n*QSize(spacing(),spacing());
 }
@@ -102,12 +102,11 @@ QSize CardLayout::minimumSize() const
 {
     QSize s(0,0);
     int n = list.count();
-    QListIterator<QLayoutItem> it(list);
+    QPtrListIterator<QLayoutItem> it(list);
     QLayoutItem *o;
     while ( (o=it.current()) != 0 ) {
-        ++it;
-        s = s.expandedTo( o->minimumSize() );
+	++it;
+	s = s.expandedTo( o->minimumSize() );
     }
     return s + n*QSize(spacing(),spacing());
 }
-

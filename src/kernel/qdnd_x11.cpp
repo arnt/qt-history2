@@ -492,9 +492,9 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
 
 	if (current_embedding_widget != w) {
 
- 	    last_enter_event.xany.window = extra->xDndProxy;
- 	    XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
- 			&last_enter_event );
+	    last_enter_event.xany.window = extra->xDndProxy;
+	    XSendEvent( qt_xdisplay(), extra->xDndProxy, FALSE, NoEventMask,
+			&last_enter_event );
 	    current_embedding_widget = w;
 	}
 
@@ -1105,9 +1105,9 @@ void QDragManager::move( const QPoint & globalPos )
 	Window targetW = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
 	if (targetW)
 	    target = targetW;
- 	if ( qt_xdnd_deco && (!target || target == qt_xdnd_deco->winId()) ) {
- 	    target = findRealWindow(globalPos,qt_xrootwin(),6);
- 	}
+	if ( qt_xdnd_deco && (!target || target == qt_xdnd_deco->winId()) ) {
+	    target = findRealWindow(globalPos,qt_xrootwin(),6);
+	}
     }
 
     int emask = NoEventMask;
@@ -1175,7 +1175,7 @@ void QDragManager::move( const QPoint & globalPos )
 	    // check for object shouldn't be necessary,
 	    // since a drag can't start without an object
 
-	    QArray<Atom> type;
+	    QMemArray<Atom> type;
 	    int flags = target_version << 24;
 	    const char* fmt;
 	    int nfmt=0;
@@ -1632,11 +1632,11 @@ void QDragManager::updatePixmap()
 	qt_xdnd_deco->setPixmap(pm);
 	qt_xdnd_deco->move(QCursor::pos()-pm_hot);
 	qt_xdnd_deco->repaint(FALSE);
-            //if ( willDrop ) {
+	    //if ( willDrop ) {
 	    qt_xdnd_deco->show();
-            //} else {
-            //    qt_xdnd_deco->hide();
-            //}
+	    //} else {
+	    //    qt_xdnd_deco->hide();
+	    //}
     }
 }
 

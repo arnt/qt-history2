@@ -677,7 +677,7 @@ void TrWindow::openFile( const QString& name )
 	    numFinished = 0;
 	    numNonobsolete = 0;
 	    numMessages = 0;
-	
+
 	    TML all = tor.messages();
 	    TML::Iterator it;
 	    QDict<ContextLVI> contexts( 1009 );
@@ -694,12 +694,12 @@ void TrWindow::openFile( const QString& name )
 		} else {
 		    MessageLVI * tmp = new MessageLVI( slv,
 					   (*it),
- 					   tor.toUnicode((*it).sourceText()),
- 					   tor.toUnicode((*it).comment()), c );
+					   tor.toUnicode((*it).sourceText()),
+					   tor.toUnicode((*it).comment()), c );
 		    tmp->setDanger( danger(tmp->sourceText(),
 					   tmp->translation()) &&
-		                           tmp->message().type() == MetaTranslatorMessage::Finished );
- 		    c->instantiateMessageItem( slv, tmp );
+					   tmp->message().type() == MetaTranslatorMessage::Finished );
+		    c->instantiateMessageItem( slv, tmp );
 
 		    if ( (*it).type() != MetaTranslatorMessage::Obsolete ) {
 			numNonobsolete++;
@@ -934,11 +934,11 @@ void TrWindow::findAgain()
 		case FindDialog::Comments:
 		    if( searchItem( ((ContextLVI *) j)->fullContext(), j, k))
 			return;
- 		    foundWhere  = 0;
+		    foundWhere  = 0;
 	    }
 	    k = k->nextSibling();
 	}
-	
+
 	j = j->nextSibling();
 	if ( j ) {
 	    setCurrentContextItem( j );
@@ -1235,8 +1235,8 @@ void TrWindow::showNewScope( QListViewItem *item )
     static ContextLVI * oldContext = 0;
 
     if( item != 0 ) {
-      	ContextLVI * c = (ContextLVI *) item;
-	bool upe = slv->isUpdatesEnabled();	
+	ContextLVI * c = (ContextLVI *) item;
+	bool upe = slv->isUpdatesEnabled();
 	slv->setUpdatesEnabled( FALSE );
 	slv->viewport()->setUpdatesEnabled( FALSE );
 	if ( oldContext != 0 ) {
@@ -1248,7 +1248,7 @@ void TrWindow::showNewScope( QListViewItem *item )
 	}
 	while ( c->messageItemsInList() )
 	    slv->insertItem( c->takeMessageItem( c->messageItemsInList() - 1) );
-	
+
 	slv->setUpdatesEnabled( upe );
 	if( upe )
 	    slv->triggerUpdate();
@@ -1266,7 +1266,7 @@ void TrWindow::showNewCurrent( QListViewItem *item )
     if ( messageIsShown ) {
 	me->showMessage( m->sourceText(), m->comment(), c->fullContext(),
 			 m->translation(), m->message().type(),
-			 getPhrases(m->sourceText()) );	
+			 getPhrases(m->sourceText()) );
 	if ( (m->message().type() != MetaTranslatorMessage::Finished) &&
 	     m->danger() )
 	    danger( m->sourceText(), m->translation(), TRUE );
@@ -1277,7 +1277,7 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	if ( item == 0 )
 	    me->showNothing();
 	else
- 	    me->showContext( c->fullContext(), c->finished() );
+	    me->showContext( c->fullContext(), c->finished() );
 	finishedAndNextAct->setEnabled( FALSE );
     }
     deleteAct->setEnabled( messageIsShown );
@@ -1319,8 +1319,8 @@ void TrWindow::updateFinished( bool finished )
 	    m->setFinished( finished );
 	    bool oldDanger = m->danger();
 	    m->setDanger( /*m->finished() &&*/
-	    		  danger(m->sourceText(), m->translation(),
-	    		 !oldDanger) );
+			  danger(m->sourceText(), m->translation(),
+			 !oldDanger) );
 	    if ( !oldDanger && m->danger() )
 		qApp->beep();
 	    tor.insert( m->message() );
@@ -1360,7 +1360,7 @@ void TrWindow::toggleFinished( QListViewItem *item, const QPoint& /* p */,
     if ( item != 0 && column == 0 ) {
 	MessageLVI *m = (MessageLVI *) item;
 	bool dngr = FALSE;
-	
+
 	if ( m->message().type() == MetaTranslatorMessage::Unfinished ) {
 	    dngr = danger( m->sourceText(), m->translation(), TRUE );
 	}
@@ -1395,7 +1395,7 @@ void TrWindow::nextUnfinished()
     if( (mItem == 0) && !(mItem = slv->firstChild()) ) {
 	if( (cItem == 0) && !(cItem = lv->firstChild()) ) {
 	    statusBar()->message( tr("No phrase to translate."), MessageMS );
- 	    qApp->beep();
+	    qApp->beep();
 	    return;
 	} else {
 	    showNewScope( cItem );
@@ -1490,7 +1490,7 @@ void TrWindow::prevUnfinished()
     if( (mItem == 0) && !(mItem = slv->firstChild()) ) {
 	if( (cItem == 0) && !(cItem = lv->firstChild()) ) {
 	    statusBar()->message( tr("No phrase to translate."), MessageMS );
- 	    qApp->beep();
+	    qApp->beep();
 	    return;
 	} else {
 	    showNewScope( cItem );
@@ -1558,7 +1558,7 @@ void TrWindow::prev()
     QListViewItem * cItem = lv->currentItem();  // context item
     QListViewItem * mItem = slv->currentItem(); // message item
     QListViewItem * tmp;
-	
+
     if ( !cItem ) {
 	cItem = lv->firstChild();
 	if ( !cItem ) return;
@@ -1668,8 +1668,8 @@ void TrWindow::setupImageDict()
 	pxOff = new QPixmap;
 	pxObsolete = new QPixmap;
 	pxDanger   = new QPixmap;
-	
-    	em = imageDict->find( QString("symbols/check_on.xpm") );
+
+	em = imageDict->find( QString("symbols/check_on.xpm") );
 	pxOn->loadFromData( em->data, em->size );
 	em = imageDict->find( QString("symbols/check_off.xpm") );
 	pxOff->loadFromData( em->data, em->size );
@@ -1754,7 +1754,7 @@ void TrWindow::setupMenuBar()
 	     SLOT(setupRecentFilesMenu()) );
     connect( recentFilesMenu, SIGNAL(activated( int )), this,
 	     SLOT(recentFileActivated( int )) );
-		
+
     filep->insertSeparator();
 
     exitAct = new Action( filep, tr("E&xit"), this, SLOT(exitApp()),
@@ -1863,7 +1863,7 @@ void TrWindow::setupMenuBar()
     saveAct->setWhatsThis( tr("Save changes made to this Qt translation "
 				"source file.") );
     saveAsAct->setWhatsThis( tr("Save changes made to this Qt translation"
-			        "source file into a new file.") );
+				"source file into a new file.") );
     releaseAct->setWhatsThis( tr("Create a Qt message file suitable for"
 				 " released applications"
 				 " from the current message file.") );
@@ -1922,7 +1922,7 @@ void TrWindow::setupMenuBar()
     nextUnfinishedAct->setWhatsThis( tr("Moves to the next unfinished item.") );
     prevUnfinishedAct->setWhatsThis( tr("Moves to the previous unfinished item.") );
     finishedAndNextAct->setWhatsThis( tr("Marks this item as finished and "
-	   			       "moves to the next unfinished item.") );
+				       "moves to the next unfinished item.") );
 
 }
 
@@ -2040,7 +2040,7 @@ void TrWindow::updateProgress()
 
 void TrWindow::updatePhraseDict()
 {
-    QListIterator<PhraseBook> pb = phraseBooks;
+    QPtrListIterator<PhraseBook> pb = phraseBooks;
     PhraseBook::Iterator p;
     PhraseBook *ent;
     phraseDict.clear();
@@ -2203,9 +2203,9 @@ void TrWindow::readConfig()
 //     QString fn = QDir::homeDirPath() + "/.linguistrc" + "tb2";
 //     QFile f( fn );
 //     if ( f.open( IO_ReadOnly ) ) {
-// 	QTextStream ts( &f );
-// 	ts >> *this;
-// 	f.close();
+//	QTextStream ts( &f );
+//	ts >> *this;
+//	f.close();
 //     }
 
 }
@@ -2249,9 +2249,9 @@ void TrWindow::writeConfig()
 //     QString fn = QDir::homeDirPath() + "/.linguistrc" + "tb2";
 //     QFile f( fn );
 //     if ( f.open( IO_WriteOnly ) ) {
-// 	QTextStream ts( &f );
-// 	ts << *this;
-// 	f.close();
+//	QTextStream ts( &f );
+//	ts << *this;
+//	f.close();
 //     }
 
 }

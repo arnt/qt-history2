@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qconnection.h"
-#include "qstrlist.h"
+#include "qptrstrlist.h"
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
@@ -54,7 +54,7 @@ struct QMetaData				// - member function meta data
 {						//   for signal and slots
     const char *name;				// - member name
     QMember ptr;				// - member "pointer"
-    const UMethod* method; 			// - detailed method description
+    const UMethod* method;			// - detailed method description
     enum Access { Private, Protected, Public };
     Access access;				// - access permission
 };
@@ -89,27 +89,27 @@ public:
 
     bool isSetType() const;
     bool isEnumType() const;
-    QStrList enumKeys() const;			// enumeration names
+    QPtrStrList enumKeys() const;			// enumeration names
 
     int keyToValue( const char* key ) const;	// enum and set conversion functions
     const char* valueToKey( int value ) const;
-    int keysToValue( const QStrList& keys ) const;
-    QStrList valueToKeys( int value ) const;
+    int keysToValue( const QPtrStrList& keys ) const;
+    QPtrStrList valueToKeys( int value ) const;
 
     bool stored( QObject* ) const;
     bool designable( QObject* ) const;
 
     bool reset( QObject* ) const;
 
-    const char* t; 			//internal
-    const char* n; 			//internal
-    int id; 				//internal
-    const QMetaProperty* p; 		//internal
-    const QMetaEnum *enumData; 	// internal
+    const char* t;			//internal
+    const char* n;			//internal
+    int id;				//internal
+    const QMetaProperty* p;		//internal
+    const QMetaEnum *enumData;	// internal
 
     enum Flags  {
 	Readable		= 0x00000001,
-	Writable 		= 0x00000002,
+	Writable		= 0x00000002,
 	EnumOrSet	= 0x00000004,
 	StdSet	             = 0x00000100
     };
@@ -161,8 +161,8 @@ public:
     const QMetaData	*slot( int index, bool super = FALSE ) const;
     const QMetaData	*signal( int index, bool super = FALSE ) const;
 
-    QStrList	slotNames( bool super = FALSE ) const;
-    QStrList	signalNames( bool super = FALSE ) const;
+    QPtrStrList	slotNames( bool super = FALSE ) const;
+    QPtrStrList	signalNames( bool super = FALSE ) const;
 
     int		slotOffset() const;
     int		signalOffset() const;
@@ -175,7 +175,7 @@ public:
 #ifndef QT_NO_PROPERTIES
     const QMetaProperty	*property( int index, bool super = FALSE ) const;
     int findProperty( const char *name, bool super = FALSE ) const;
-    QStrList		propertyNames( bool super = FALSE ) const;
+    QPtrStrList		propertyNames( bool super = FALSE ) const;
     int		numProperties( bool super = FALSE ) const;
 #endif
 

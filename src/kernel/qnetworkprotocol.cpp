@@ -43,7 +43,7 @@
 #include "qurloperator.h"
 #include "qtimer.h"
 #include "qmap.h"
-#include "qqueue.h"
+#include "qptrqueue.h"
 
 //#define QNETWORKPROTOCOL_DEBUG
 #define NETWORK_OP_DELAY 1000
@@ -56,12 +56,12 @@ class QNetworkProtocol::Private
 {
 public:
     QUrlOperator *url;
-    QQueue< QNetworkOperation > operationQueue;
+    QPtrQueue< QNetworkOperation > operationQueue;
     QNetworkOperation *opInProgress;
     QTimer *opStartTimer, *removeTimer;
     int removeInterval;
     bool autoDelete;
-    QList< QNetworkOperation > oldOps;
+    QPtrList< QNetworkOperation > oldOps;
 };
 
 // NOT REVISED

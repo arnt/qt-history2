@@ -175,7 +175,7 @@ QGVector::QGVector( uint size )			// create vectors with nullptrs
 */
 
 QGVector::QGVector( const QGVector &a )		// make copy of other vector
-    : QCollection( a )
+    : QPtrCollection( a )
 {
     len = a.len;
     numItems = a.numItems;
@@ -295,7 +295,7 @@ bool QGVector::remove( uint index )		// remove item at index
   \internal
 */
 
-QCollection::Item QGVector::take( uint index )		// take out item
+QPtrCollection::Item QGVector::take( uint index )		// take out item
 {
 #if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
@@ -358,7 +358,7 @@ bool QGVector::resize( uint newsize )		// resize array
 	    DELETE(vec);
 	    vec = 0;
 	    return FALSE;
-	}	
+	}
 	Item *newvec = NEW(Item,newsize);		// manual realloc
 	memcpy( newvec, vec, (len < newsize ? len : newsize)*sizeof(Item) );
 	DELETE(vec);
@@ -367,7 +367,7 @@ bool QGVector::resize( uint newsize )		// resize array
 	vec = (Item*)realloc( (char *)vec, newsize*sizeof(Item) );
 #endif
     } else {					// create new vector
- 	vec = NEW(Item,newsize);
+	vec = NEW(Item,newsize);
 	len = numItems = 0;
     }
     Q_CHECK_PTR( vec );
@@ -405,7 +405,7 @@ extern "C" {
 
 static int cmp_vec( const void *n1, const void *n2 )
 {
-    return sort_vec->compareItems( *((QCollection::Item*)n1), *((QCollection::Item*)n2) );
+    return sort_vec->compareItems( *((QPtrCollection::Item*)n1), *((QPtrCollection::Item*)n2) );
 }
 
 #if defined(Q_C_CALLBACKS)

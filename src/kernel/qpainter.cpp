@@ -38,7 +38,7 @@
 #include "qpainter.h"
 #include "qpainter_p.h"
 #include "qbitmap.h"
-#include "qstack.h"
+#include "qptrstack.h"
 #include "qdatastream.h"
 #include "qwidget.h"
 #include "qimage.h"
@@ -52,7 +52,7 @@
 #include <stdlib.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
-typedef QStack<QWMatrix> QWMatrixStack;
+typedef QPtrStack<QWMatrix> QWMatrixStack;
 #endif
 
 /*!
@@ -541,7 +541,7 @@ void QPainter::setf( uint b, bool v )
 struct QPState {				// painter state
     QFont	font;
     QPen	pen;
-    QPoint 	curPt;
+    QPoint	curPt;
     QBrush	brush;
     QColor	bgc;
     uchar	bgm;
@@ -566,7 +566,7 @@ struct QPState {				// painter state
 
 //TODO lose the worldmatrix stack
 
-typedef QStack<QPState> QPStateStack;
+typedef QPtrStack<QPState> QPStateStack;
 
 
 void QPainter::killPStack()
@@ -596,7 +596,7 @@ void QPainter::save()
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
-	pss = new QStack<QPState>;
+	pss = new QPtrStack<QPState>;
 	Q_CHECK_PTR( pss );
 	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
@@ -1251,7 +1251,7 @@ void QPainter::saveWorldMatrix()
 {
     QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
     if ( stack == 0 ) {
-	stack  = new QStack<QWMatrix>;
+	stack  = new QPtrStack<QWMatrix>;
 	Q_CHECK_PTR( stack );
 	stack->setAutoDelete( TRUE );
 	wm_stack = stack;
@@ -1989,9 +1989,9 @@ void QPainter::drawImage( int x, int y, const QImage & image,
     if ( !image.isNull() && gfx && !testf(ExtDev) )
 # endif
     {
-        if(sw<0)
+	if(sw<0)
 	    sw=image.width();
-        if(sh<0)
+	if(sh<0)
 	    sh=image.height();
 
 	QImage image2 = qt_screen->mapToDevice( image );
@@ -2364,7 +2364,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif
 	parag->setDocumentRect( rect );
- 	parag->setAlignment( QApplication::horizontalAlignment( tf ) );
+	parag->setAlignment( QApplication::horizontalAlignment( tf ) );
 	parag->invalidate( 0 );
 	parag->format();
     }
@@ -2391,7 +2391,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    xoff -= 2; // ### strange
 	yoff += r.y();
 	QColorGroup cg;
- 	painter->save();
+	painter->save();
 #if defined(QT_FORMAT_TEXT_DEBUG)
 	QRect parRect = parag->rect();
 	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
@@ -2405,10 +2405,10 @@ void qt_format_text( const QFont& font, const QRect &r,
 	} else {
 	    reg = rect;
 	}
-	
+
 	reg.translate( (int)painter->translationX(), (int)painter->translationY() );
 	painter->setClipRegion( reg );
-  	painter->translate( xoff, yoff);
+	painter->translate( xoff, yoff);
 	if(!(tf & QPainter::DontPrint))
 	    parag->paint( *painter, cg );
 	painter->restore();

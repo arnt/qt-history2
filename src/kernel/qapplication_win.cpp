@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#471 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#472 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -863,7 +863,7 @@ Qt::WindowsVersion QApplication::winVersion()
   QApplication cursor stack
  *****************************************************************************/
 
-typedef QList<QCursor> QCursorList;
+typedef QPtrList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
 
@@ -914,7 +914,7 @@ void qt_set_cursor( QWidget *w, const QCursor& /* c */)
     QWidget* cW = QWidget::find( curWin );
     if ( !cW || cW->topLevelWidget() != w->topLevelWidget() )
 	return;
-    
+
     SetCursor( cW->cursor().handle() );
 }
 
@@ -968,7 +968,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     if ( !w )
 	return 0;
     if ( !child && !w->isTopLevel() )
-        w = w->topLevelWidget();
+	w = w->topLevelWidget();
     return w;
 }
 
@@ -1795,7 +1795,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_IME_STARTCOMPOSITION:
 		{
-    		    QWidget *fw = qApp->focusWidget();
+		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QIMEvent e( QEvent::IMStart, QString::null, -1 );
 			result = QApplication::sendEvent( fw, &e );
@@ -1806,7 +1806,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_IME_ENDCOMPOSITION:
 		{
 		    QWidget *fw = qApp->focusWidget();
-		    qDebug("EndComposition: lparam=%x", lParam);	
+		    qDebug("EndComposition: lparam=%x", lParam);
 		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
 			result = QApplication::sendEvent( fw, &e );
@@ -1833,7 +1833,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			}
 			if ( buflen != -1 ) {
 			    if ( !imeComposition )
-    				imeComposition = new QString();
+				imeComposition = new QString();
 			    *imeComposition = imestring_to_unicode( buffer, buflen );
 			}
 			ImmReleaseContext( fw->winId(), imc );
@@ -3333,4 +3333,3 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	}
     }
 }
-
