@@ -23,8 +23,6 @@
 #include <qxml.h>
 #include <qptrlist.h>
 
-class QString;
-
 struct ContentItem {
     ContentItem()
 	: title( QString::null ), reference( QString::null ), depth( 0 ) {}
@@ -68,6 +66,11 @@ public:
     QPtrList<IndexItem> getIndexItems();
     QString getCategory() const;
     QString getDocumentationTitle() const;
+
+    // Since We don't want problems with documentation
+    // from version to version, this string stores the correct
+    // version string to save documents and categories.
+    static const QString DocumentKey;
 
 private:
     QString category, contentRef, indexRef, errorProt;

@@ -60,8 +60,8 @@ void MainWindow::init()
     // read geometry configuration
     QString keybase("/Qt Assistant/3.1/");
 
-    setupGoActions( settings.readListEntry( keybase + "AdditionalDocFiles" ),
-		    settings.readListEntry( keybase + "CategoriesSelected" ) );
+    setupGoActions( settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocFiles" ),
+		    settings.readListEntry( DocuParser::DocumentKey + "CategoriesSelected" ) );
     if ( !settings.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ) {
 	QRect r( pos(), size() );
 	r.setX( settings.readNumEntry( keybase + "GeometryX", r.x() ) );

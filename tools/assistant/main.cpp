@@ -163,10 +163,10 @@ bool EditDocs::addDocFile( const QString &file )
     QString title = handler.getDocumentationTitle();
     if ( title.isEmpty() )
 	title = fi.absFilePath();
-    addItemToList( "/Qt Assistant/3.1/AdditionalDocFiles", fi.absFilePath() );
-    addItemToList( "/Qt Assistant/3.1/AdditionalDocTitles", title );
-    addItemToList( "/Qt Assistant/3.1/CategoriesAvailable", handler.getCategory() );
-    addItemToList( "/Qt Assistant/3.1/CategoriesSelected", handler.getCategory() );
+    addItemToList( DocuParser::DocumentKey + "AdditionalDocFiles", fi.absFilePath() );
+    addItemToList( DocuParser::DocumentKey + "AdditionalDocTitles", title );
+    addItemToList( DocuParser::DocumentKey + "CategoriesAvailable", handler.getCategory() );
+    addItemToList( DocuParser::DocumentKey + "CategoriesSelected", handler.getCategory() );
 
     return TRUE;
 }
@@ -209,16 +209,16 @@ void EditDocs::initDocFiles()
     lst.append( path + "assistant.xml" );
     lst.append( path + "linguist.xml" );
     lst.append( path + "qmake.xml" );
-    settings.writeEntry( keybase + "AdditionalDocFiles", lst );
+    settings.writeEntry( DocuParser::DocumentKey + "AdditionalDocFiles", lst );
     lst.clear();
     lst << "Qt Reference Documentation" << "Qt Designer Manual";
     lst << "Qt Assistant Manual" << "Qt Linguist Manual" << "qmake User Guide";
-    settings.writeEntry( keybase + "AdditionalDocTitles", lst );
+    settings.writeEntry( DocuParser::DocumentKey + "AdditionalDocTitles", lst );
     lst.clear();
     lst << "qt" << "qt/reference" << "qt/designer" << "qt/assistant" << "qt/linguist" << "qt/qmake";
-    settings.writeEntry( keybase + "CategoriesAvailable", lst );
+    settings.writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", lst );
     lst.prepend( "all" );
-    settings.writeEntry( keybase + "CategoriesSelected", lst );
+    settings.writeEntry( DocuParser::DocumentKey + "CategoriesSelected", lst );
     settings.writeEntry( keybase + "FirstRun", FALSE );
     settings.writeEntry( keybase + "NewDoc", TRUE );
 }
@@ -294,10 +294,12 @@ int main( int argc, char ** argv )
     QString keybase("/Qt Assistant/3.1/");
     QSettings *config = new QSettings();
     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList oldSelected = config->readListEntry( keybase + "CategoriesSelectedOld" );
+    QStringList oldSelected = config->readListEntry( DocuParser::DocumentKey
+						     + "CategoriesSelectedOld" );
     if( !catlist.isEmpty() ) {
 	QStringList buf;
-	QStringList oldCatList = config->readListEntry( keybase + "CategoriesAvailable" );
+	QStringList oldCatList = config->readListEntry( DocuParser::DocumentKey
+							+ "CategoriesAvailable" );
 	for ( QStringList::iterator it1 = catlist.begin(); it1 != catlist.end(); ++it1 ) {
 	    for ( QStringList::Iterator it2 = oldCatList.begin(); it2 != oldCatList.end(); ++it2 ) {
 		if ( (*it2).startsWith( *it1 ) )
@@ -305,14 +307,16 @@ int main( int argc, char ** argv )
 	    }
 	}
 	if ( oldSelected.isEmpty() ) {
-	    QStringList selected = config->readListEntry( keybase + "CategoriesSelected" );
-	    config->writeEntry( keybase + "CategoriesSelectedOld", selected );
+	    QStringList selected = config->readListEntry( DocuParser::DocumentKey
+							  + "CategoriesSelected" );
+	    config->writeEntry( DocuParser::DocumentKey
+				+ "CategoriesSelectedOld", selected );
 	}
-	config->writeEntry( keybase + "CategoriesSelected", buf );
+	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", buf );
 	config->writeEntry( keybase + "NewDoc", TRUE );
     } else if ( !oldSelected.isEmpty() ) {
-	config->removeEntry( keybase + "CategoriesSelectedOld" );
-	config->writeEntry( keybase + "CategoriesSelected", oldSelected );
+	config->removeEntry( DocumentKey::DocumentKey + "CategoriesSelectedOld" );
+	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", oldSelected );
 	config->writeEntry( keybase + "NewDoc", TRUE );
     }
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );

@@ -252,7 +252,7 @@ bool HelpDialog::isValidCategory( QString category )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList list = settings.readListEntry( "/Qt Assistant/3.1/CategoriesSelected" );
+    QStringList list = settings.readListEntry( DocuParser::DocumentKey + "CategoriesSelected" );
     QStringList::iterator it = list.begin();
     for( ; it != list.end(); ++it ){
 	if( ((*it).lower() == category.lower()) || ( *it == "all" ) )
@@ -324,7 +324,9 @@ Q_UINT32 HelpDialog::getFileAges()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
+
+    QStringList addDocuFiles = settings.readListEntry( DocuParser::DocumentKey
+						       + "AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
 
     Q_UINT32 fileAges = 0;
@@ -341,7 +343,8 @@ void HelpDialog::buildKeywordDB()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList addDocuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
+    QStringList addDocuFiles = settings.readListEntry( DocuParser::DocumentKey +
+						       "AdditionalDocFiles" );
     QStringList::iterator i = addDocuFiles.begin();
 
     int steps = 0;
@@ -462,7 +465,8 @@ void HelpDialog::buildContentDict()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList docuFiles = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
+    QStringList docuFiles = settings.readListEntry( DocuParser::DocumentKey
+						    + "AdditionalDocFiles" );
 
     qApp->processEvents();
     Q_UINT32 fileAges = 0;
@@ -841,8 +845,10 @@ void HelpDialog::removeDocFile( const QString &fileName )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QStringList lst = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
-    QStringList titleLst = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocTitles" );
+    QString fileKey = DocuParser::DocumentKey + "AdditionalDocFiles";
+    QString titleKey = DocuParser::DocumentKey + "AdditionalDocTitles";
+    QStringList lst = settings.readListEntry( fileKey );
+    QStringList titleLst = settings.readListEntry( titleKey );
     QStringList::iterator it = titleLst.begin();
     QStringList::iterator i = lst.begin();
     for ( ; i != lst.end() && it != titleLst.end(); ++i, ++it ) {
@@ -852,8 +858,8 @@ void HelpDialog::removeDocFile( const QString &fileName )
 	    break;
 	}
     }
-    settings.writeEntry( "/Qt Assistant/3.1/AdditionalDocFiles", lst );
-    settings.writeEntry( "/Qt Assistant/3.1/AdditionalDocTitles" , titleLst );
+    settings.writeEntry( fileKey, lst );
+    settings.writeEntry( titleKey, titleLst );
 }
 
 void HelpDialog::setupFullTextIndex()

@@ -38,6 +38,8 @@ QDataStream &operator<<( QDataStream &s, const ContentItem &ci )
     return s;
 }
 
+const QString DocuParser::DocumentKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+
 DocuParser::DocuParser() : QXmlDefaultHandler()
 {
 }
