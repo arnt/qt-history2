@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#73 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#74 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#73 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#74 $")
 
 
 /*****************************************************************************
@@ -1212,7 +1212,7 @@ long QString::toLong( bool *ok ) const
 {
     char *p = data();
     long val=0;
-    const long max_mult = 214748364L;
+    const long max_mult = 214748364;
     bool is_ok = FALSE;
     int neg = 0;
     if ( !p )
@@ -1257,7 +1257,7 @@ ulong QString::toULong( bool *ok ) const
 {
     char *p = data();
     ulong val=0;
-    const ulong max_mult = 429496729L;
+    const ulong max_mult = 429496729;
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;

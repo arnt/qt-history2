@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#7 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -13,7 +13,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#7 $")
 
 
 /*----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ QPixmap *QPixmapCache::find( const char *key )
 bool QPixmapCache::insert( const char *key, QPixmap *pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
-	pm_cache = new QPMCache( 1024L*cache_limit, cache_size );
+	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
 	CHECK_PTR( pm_cache );
 	pm_cache->setAutoDelete( TRUE );
     }
@@ -119,7 +119,7 @@ void QPixmapCache::setCacheLimit( int n )
 {
     cache_limit = n;
     if ( pm_cache )
-	pm_cache->setMaxCost( 1024L*cache_limit );
+	pm_cache->setMaxCost( 1024*cache_limit );
 }
 
 
