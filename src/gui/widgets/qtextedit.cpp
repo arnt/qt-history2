@@ -1624,7 +1624,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
     if (d->trippleClickTimer.isActive()
         && ((ev->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
 
-        d->cursor.select(QTextCursor::LineUnderCursor);
+        d->cursor.movePosition(QTextCursor::StartOfBlock);
+        d->cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
 
         d->trippleClickTimer.stop();
     } else {
