@@ -23,5 +23,5 @@ SOURCES		= finddialog.cpp \
 		  ../shared/metatranslator.cpp
 INCLUDEPATH	= ../pics \
 		  ../shared
-DESTDIR	= $(QTDIR)/bin
+DESTDIR	= ../../../bin
 INCLUDEPATH	+= $(QTDIR)/src/kernel
