@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#98 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#99 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#99 $");
 
 
 /*****************************************************************************
@@ -456,9 +456,9 @@ QString::QString( const char *str )
   Constructs a string that is a deep copy of \e str, that is no more
   than \a maxlen bytes long including the '\0'-terminator.
 
-  eg.
+  Example:
   \code
-    QString hell("your",3); // Assigns "you" to hell.
+    QString str("helloworld",6); // Assigns "hello" to str.
   \endcode
 
   If \a str contains a 0 byte within the first \a maxlen bytes, the
@@ -470,11 +470,10 @@ QString::QString( const char *str )
 
 QString::QString( const char *str, uint maxlen )
 {
-    uint len = QMIN(maxlen,strlen(str));
+    uint len = QMIN(maxlen-1,strlen(str));
     duplicate( str, len+1 );
     data()[len] = 0;
 }
-
 
 /*!
   \fn QString &QString::operator=( const QString &s )
