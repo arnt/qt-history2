@@ -3,6 +3,7 @@
 
 #include <qstring.h>
 #include <qvaluelist.h>
+#include "dlldefs.h"
 
 class QTextCursor;
 
@@ -18,7 +19,7 @@ struct Paren
 
 typedef QValueList<Paren> ParenList;
 
-class ParenMatcher
+class CPP_EXPORT ParenMatcher
 {
 public:
     ParenMatcher();

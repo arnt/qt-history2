@@ -2,12 +2,13 @@
 #define VIEWMANAGER_H
 
 #include <qwidget.h>
+#include "dlldefs.h"
 
 class QChildEvent;
 class MarkerWidget;
 class QHBoxLayout;
 
-class ViewManager : public QWidget
+class CPP_EXPORT ViewManager : public QWidget
 {
     Q_OBJECT
 

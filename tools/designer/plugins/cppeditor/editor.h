@@ -1,12 +1,13 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include "qtextedit.h"
+#include <qtextedit.h>
+#include "dlldefs.h"
 
 class ParenMatcher;
 class EditorCompletion;
 
-class Editor : public QTextEdit
+class CPP_EXPORT Editor : public QTextEdit
 {
     Q_OBJECT
 

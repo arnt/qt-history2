@@ -4,6 +4,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qobject.h>
+#include "dlldefs.h"
 
 class QTextDocument;
 class Editor;
@@ -11,7 +12,7 @@ class QVBox;
 class QListBox;
 class QLabel;
 
-class EditorCompletion : public QObject
+class CPP_EXPORT EditorCompletion : public QObject
 {
     Q_OBJECT
 
