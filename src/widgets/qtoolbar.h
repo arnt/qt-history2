@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#6 $
 **
 ** Definition of QToolBar class
 **
@@ -39,10 +39,6 @@ public:
     Orientation orientation() const { return o; }
 
     void show();
-
-signals:
-    void useBigPixmaps( bool );
-    void useTextLabels( bool );
 
 protected:
     void paintEvent( QPaintEvent * );

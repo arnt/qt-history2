@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#13 $
 **
 ** Implementation of QToolBar class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#13 $");
 
 
 
@@ -35,20 +35,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#12 $");
 */
 
 
-/*! \fn void QToolBar::useBigPixmaps( bool );
-
-  This signal is emitted when items in teh toolbar need to set or
-  change their use-big-pixmaps setting. */
-
-
-/*! \fn void QToolBar::useTextLabels( bool )
-
-  This signal is emitted when items in the toolbar need to change
-  their use-text-label settings.
-*/
-
-
-/*!  Constructs an empty tool bar.
+/*!  Constructs an empty tool bar and 
 
 */
 
@@ -72,7 +59,6 @@ QToolBar::QToolBar( QWidget * parent, const char * name )
     d = 0;
     b = 0;
     o = Horizontal;
-    QToolTip::add( this, name );
 }
 
 
@@ -144,6 +130,7 @@ void QToolBar::setUpGM()
     while( (o=it.current()) != 0 ) {
 	++it;
 	if ( o->isWidgetType() ) {
+	    QWidget * w = (QWidget *)o;
 	    if ( !qstrcmp( "tool bar separator", o->name() ) &&
 		 !qstrcmp( "QFrame", o->className() ) ) {
 		QFrame * f = (QFrame *)o;
@@ -162,8 +149,16 @@ void QToolBar::setUpGM()
 		    else
 			f->setFrameStyle( QFrame::NoFrame );
 		}
+	    } else {
+		QSize s( w->sizeHint() );
+		if ( s.width() > 0 && s.height() > 0 )
+		    w->setMinimumSize( s );
+		else if ( s.width() > 0 )
+		    w->setMinimumWidth( s.width() );
+		else if ( s.height() > 0 )
+		    w->setMinimumHeight( s.width() );
 	    }
-	    b->addWidget( (QWidget *)o, 0 );
+	    b->addWidget( w, 0 );
 	}
     }
     b->activate();
