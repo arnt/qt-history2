@@ -69,7 +69,7 @@ public:
 #ifdef QT_COMPAT
     enum PrintRange { AllPages, Selection, PageRange };
     enum PrinterOption { PrintToFile, PrintSelection, PrintPageRange };
-#endif QT_COMPAT
+#endif // QT_COMPAT
 
     void setPrinterName(const QString &);
     QString printerName() const;
