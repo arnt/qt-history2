@@ -46,7 +46,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidge
 
 #warning "QFileDialog"
 #if 0
-    imagesave = new QFileDialog( this, 0, TRUE );
+    imagesave = new QFileDialog( this, 0, true );
 #endif
     rateDlg = 0;
     view = 0;
@@ -125,7 +125,7 @@ void QVFb::createActions()
     actions[AnimationAct] = newAction("&Animation...", "Ctrl+Alt+A", SLOT(toggleAnimation()));
     actions[CursorAct] = newAction("Show &Cursor", "Ctrl+Alt+U", SLOT(toggleCursor()));
     actions[CursorAct]->setCheckable(true);
-    enableCursor(TRUE);
+    enableCursor(true);
 
     actions[RefreshAct] = newAction("&Refresh rate...", "Ctrl+Alt+R", SLOT(changeRate()));
     actions[Zoom05Act] = newAction("Zoom scale &0.5", "Ctrl+Alt+0", SLOT(setZoomHalf()));
@@ -320,13 +320,13 @@ void QVFb::configure()
     QString skin;
     config->size_width->setValue(w);
     config->size_height->setValue(h);
-    config->size_custom->setChecked(TRUE); // unless changed by settings below
+    config->size_custom->setChecked(true); // unless changed by settings below
     config->size_240_320->setChecked(w==240&&h==320);
     config->size_320_240->setChecked(w==320&&h==240);
     config->size_640_480->setChecked(w==640&&h==480);
-    config->skin->setEditable(TRUE);
+    config->skin->setEditable(true);
     if (!currentSkin.isNull()) {
-        config->size_skin->setChecked(TRUE);
+        config->size_skin->setChecked(true);
         config->skin->setEditText(currentSkin);
     }
     config->touchScreen->setChecked(view->touchScreenEmulation());

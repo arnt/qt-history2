@@ -44,9 +44,9 @@ bool PreviewWidget::eventFilter(QObject *, QEvent *e)
     case QEvent::KeyRelease:
     case QEvent::Enter:
     case QEvent::Leave:
-        return TRUE; // ignore;
+        return true; // ignore;
     default:
         break;
     }
-    return FALSE;
+    return false;
 }

@@ -200,9 +200,9 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    else
 		out << "0, ";
 	    if ( e->alpha )
-		out << "TRUE, ";
+		out << "true, ";
 	    else
-		out << "FALSE, ";
+		out << "false, ";
 	    out << "\"" << e->name << "\" },\n";
             delete e;
 	}
@@ -241,7 +241,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "		);\n"
 #endif
 	    "	    if ( embed_image_vec[i].alpha )\n"
-	    "		img.setAlphaBuffer(TRUE);\n"
+	    "		img.setAlphaBuffer(true);\n"
 	    "	    return img;\n"
 	    "        }\n"
 	    "    }\n"

@@ -71,7 +71,7 @@ public:
     {
 	font = QFont(family,pointSize,weight,italic);
 #ifdef Q_WS_QWS
-	memorymanager->savePrerenderedFont((QMemoryManager::FontID)font.handle(),FALSE);
+	memorymanager->savePrerenderedFont((QMemoryManager::FontID)font.handle(),false);
 #endif
 	setHeight(QFontMetrics(font).lineSpacing());
 	repaint();

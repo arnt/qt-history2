@@ -111,7 +111,7 @@ static const char * const logo_xpm[] = {
 
 #define FIXED_LAYOUT
 
-static const char*back_xpm[]={
+static const char * back_xpm[]={
 "16 16 5 1",
 "# c #000000",
 "a c #ffffff",
@@ -135,7 +135,7 @@ static const char*back_xpm[]={
 "................",
 "......................"};
 
-static const char*forward_xpm[]={
+static const char * forward_xpm[]={
 "16 16 5 1",
 "# c #000000",
 "a c #ffffff",
@@ -169,9 +169,9 @@ public:
 	    CheckBox),
 	id(i)
     {
-	setOpen(TRUE);
+	setOpen(true);
 	label = text(0);
-	avl = TRUE;
+	avl = true;
     }
 
     // We reverse the logic
@@ -250,7 +250,7 @@ Main::Main()
 
     lv = new QListView(horizontal);
     lv->setSorting(-1);
-    lv->setRootIsDecorated(TRUE);
+    lv->setRootIsDecorated(true);
     lv->addColumn("ID");
 
     info = new Info(horizontal);
@@ -443,8 +443,8 @@ void Main::loadFeatures(const QString& filename)
     QString sec;
     QString lab;
     QString doc;
-    bool on = FALSE;
-    bool docmode = FALSE;
+    bool on = false;
+    bool docmode = false;
     QStringList deps;
 
     do {
@@ -455,7 +455,7 @@ void Main::loadFeatures(const QString& filename)
 	if ( on ) {
 	    if ( docmode ) {
 		if ( token[0] == "*/" )
-		    docmode = FALSE;
+		    docmode = false;
 		else if ( lab.isEmpty() )
 		    lab = line.stripWhiteSpace();
 		else
@@ -471,7 +471,7 @@ void Main::loadFeatures(const QString& filename)
 		doc = "";
 		lab = "";
 	    } else if ( token[0] == "/*!" ) {
-		docmode = TRUE;
+		docmode = true;
 	    } else if ( token[0] == "//" ) {
 		token.remove(token.begin());
 		sec = token.join(" ");
@@ -496,7 +496,7 @@ void Main::loadFeatures(const QString& filename)
 		qDebug("Cannot parse: %s",token.join(" ").ascii());
 	    }
 	} else if ( token[0] == "#include" ) {
-	    on = TRUE;
+	    on = true;
 	}
     } while (!s.atEnd());
 #endif
@@ -552,7 +552,7 @@ void Main::loadConfig(const QString& filename)
     QRegExp qt_no_xxx("QT_NO_[A-Z_0-9]*");
 
     for (QStringList::Iterator ch = choices.begin(); ch != choices.end(); ++ch) {
-	item[*ch]->setDefined(FALSE);
+	item[*ch]->setDefined(false);
     }
     do {
 	QString line = s.readLine();
@@ -560,7 +560,7 @@ void Main::loadConfig(const QString& filename)
 	if ( token[0] == "#define" ) {
 	    ChoiceItem* i = item[token[1]];
 	    if ( i )
-		i->setDefined(TRUE);
+		i->setDefined(true);
 	    else
 		qDebug("The item %s is not used by qfeatures.h", token[1].latin1());
 	}
@@ -579,14 +579,14 @@ void Main::updateAvailability(QListViewItem* i)
 	{
 	    ChoiceItem* d = item[*it];
 	    QStringList ddeps = dependencies[d->id];
-	    bool av = TRUE;
+	    bool av = true;
 	    for (QStringList::ConstIterator dit = ddeps.begin();
 		    av && dit != ddeps.end(); ++dit)
 	    {
 		ChoiceItem* dd = item[*dit];
 		if ( dd ) {
 		    if ( dd->isDefined() || !dd->isAvailable() )
-			av = FALSE;
+			av = false;
 		} else
 		    qDebug("%s ???",(*dit).latin1());
 	    }
@@ -645,7 +645,7 @@ void Main::selectId(const QString& id)
 {
     QListViewItem* it = item[id];
     if ( it ) {
-	lv->setSelected(it,TRUE);
+	lv->setSelected(it,true);
 	lv->ensureItemVisible(it);
     }
 }

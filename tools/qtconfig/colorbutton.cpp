@@ -22,9 +22,9 @@
 #include <qstyleoption.h>
 
 ColorButton::ColorButton(QWidget *parent)
-    : QAbstractButton(parent), mousepressed(FALSE)
+    : QAbstractButton(parent), mousepressed(false)
 {
-    setAcceptDrops(TRUE);
+    setAcceptDrops(true);
     col = Qt::black;
     connect(this, SIGNAL(clicked()), SLOT(changeColor()));
 }
@@ -33,7 +33,7 @@ ColorButton::ColorButton(QWidget *parent)
 ColorButton::ColorButton(const QColor &c, QWidget *parent)
     : QAbstractButton(parent)
 {
-    setAcceptDrops(TRUE);
+    setAcceptDrops(true);
     col = c;
     connect(this, SIGNAL(clicked()), SLOT(changeColor()));
 }
@@ -137,14 +137,14 @@ void ColorButton::dropEvent(QDropEvent *e)
 void ColorButton::mousePressEvent(QMouseEvent *e)
 {
     presspos = e->pos();
-    mousepressed = TRUE;
+    mousepressed = true;
     QAbstractButton::mousePressEvent(e);
 }
 
 
 void ColorButton::mouseReleaseEvent(QMouseEvent *e)
 {
-    mousepressed = FALSE;
+    mousepressed = false;
     QAbstractButton::mouseReleaseEvent(e);
 }
 
@@ -155,8 +155,8 @@ void ColorButton::mouseMoveEvent(QMouseEvent *e)
         return;
 
     if ((presspos - e->pos()).manhattanLength() > QApplication::startDragDistance()) {
-        mousepressed = FALSE;
-        setDown(FALSE);
+        mousepressed = false;
+        setDown(false);
 
         QColorDrag *cd = new QColorDrag(color(), this);
         cd->dragCopy();

@@ -112,10 +112,10 @@ private:
 
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
                     Qt::WFlags flags )
-    : QWidget( parent, flags ), emulateTouchscreen(FALSE), qwslock(NULL)
+    : QWidget( parent, flags ), emulateTouchscreen(false), qwslock(NULL)
 {
     displayid = display_id;
-    setMouseTracking( TRUE );
+    setMouseTracking( true );
     setFocusPolicy( Qt::StrongFocus );
     zm = 1;
     animation = 0;
@@ -204,7 +204,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 QVFbView::~QVFbView()
 {
     stopAnimation();
-    sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
+    sendKeyboardData( 0, 0, 0, true, false ); // magic die key
     delete qwslock;
     struct shmid_ds shm;
     shmdt( (char*)data );
@@ -495,7 +495,7 @@ void QVFbView::drawScreen()
     QPainter p(this);
     DisplayLock(); // Autolock display;
     QRect r( hdr->update );
-    hdr->dirty = FALSE;
+    hdr->dirty = false;
     hdr->update = QRect();
     // qDebug( "update %d, %d, %dx%d", r.y(), r.x(), r.width(), r.height() );
     r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
@@ -542,7 +542,7 @@ void QVFbView::setDirty( const QRect& r )
 {
     DisplayLock(); // Autolock display;
     hdr->update |= r;
-    hdr->dirty = TRUE;
+    hdr->dirty = true;
 }
 
 void QVFbView::mousePressEvent( QMouseEvent *e )
@@ -577,14 +577,14 @@ void QVFbView::keyPressEvent( QKeyEvent *e )
 {
     sendKeyboardData(e->text()[0].unicode(), e->key(),
                      e->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier),
-                     TRUE, e->isAutoRepeat());
+                     true, e->isAutoRepeat());
 }
 
 void QVFbView::keyReleaseEvent( QKeyEvent *e )
 {
     sendKeyboardData(/*#### e->ascii()*/0, e->key(),
                      e->modifiers() & (Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier),
-                     FALSE, e->isAutoRepeat());
+                     false, e->isAutoRepeat());
 }
 
 

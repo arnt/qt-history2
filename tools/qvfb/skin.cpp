@@ -62,7 +62,7 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget
     parent->show();
     parent->setMask( mask );
     parent->setFixedSize( skinImageUp->size() );
-    buttonPressed = FALSE;
+    buttonPressed = false;
     buttonIndex = 0;
 }
 
@@ -86,7 +86,7 @@ void Skin::paintEvent( QPaintEvent * )
 //  printf("read: -%s-\n", skinImageUp.latin1());
     if (skinImageUp)
 	p.drawPixmap( 0, 0, *skinImageUp );
-    if (buttonPressed == TRUE) {
+    if (buttonPressed == true) {
 	ButtonAreas *ba = &areas[buttonIndex];
 	if (skinImageDown)
 	    p.drawPixmap( ba->x1, ba->y1, *skinImageDown, ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1 );
@@ -99,14 +99,14 @@ void Skin::mousePressEvent( QMouseEvent *e )
     if (e->button() == Qt::RightButton) {
 	parent->createPopupMenu();
     } else {
-	buttonPressed = FALSE;
+	buttonPressed = false;
 
 	for (int i = 0; i < numberOfAreas; i++) {
 	    QPoint p1( areas[i].x1, areas[i].y1 );
 	    QPoint p2( areas[i].x2, areas[i].y2 );
 	    QRect r( p1, p2 );
 	    if ( r.contains( e->pos() ) ) {
-		buttonPressed = TRUE;
+		buttonPressed = true;
 		buttonIndex = i;
 		buttonCode = areas[buttonIndex].keyCode;
 		QKeyEvent keyEvent( QEvent::KeyPress, buttonCode, 0, 0 );
@@ -115,7 +115,7 @@ void Skin::mousePressEvent( QMouseEvent *e )
 //		Debug message to be sure we are clicking the right areas
 //		printf("%s clicked\n", areas[i].name);
 		ButtonAreas *ba = &areas[buttonIndex];
-		repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1); //#####, FALSE );
+		repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1); //#####, false );
 		continue;
 	    }
 	}
@@ -129,7 +129,7 @@ void Skin::mousePressEvent( QMouseEvent *e )
 
 void Skin::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( buttonPressed == FALSE ) {
+    if ( buttonPressed == false ) {
 	QPoint newpos =  e->globalPos() - clickPos;
 	parent->move( newpos );
     }
@@ -142,10 +142,8 @@ void Skin::mouseReleaseEvent( QMouseEvent * )
 	QKeyEvent keyEvent( QEvent::KeyRelease, buttonCode, 0, 0 );
 	if (view)
 	    view->skinKeyReleaseEvent( &keyEvent );
-	buttonPressed = FALSE;
+	buttonPressed = false;
 	ButtonAreas *ba = &areas[buttonIndex];
-	repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1); //######, FALSE );
+	repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1); //######, false );
     }
 }
-
-

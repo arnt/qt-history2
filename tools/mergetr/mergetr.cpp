@@ -23,10 +23,10 @@ bool isEmpty( const QString& line )
     int i = 0;
     while ( i < int(line.length()) ) {
 	if ( !line[i].isSpace() )
-	    return FALSE;
+	    return false;
 	i++;
     }
-    return TRUE;
+    return true;
 }
 	
 
@@ -50,7 +50,7 @@ QString extractContents( const QString& line )
 {
     QString contents;
     int pos = 0;
-    bool inStr = FALSE;
+    bool inStr = false;
     while ( pos < int(line.length())  ) {
 	if ( line[pos] == '"' ) {
 	    inStr = !inStr;

@@ -34,7 +34,6 @@
 #include <qstyle.h>
 #include <qevent.h>
 #include <q3valuelist.h>
-
 #include <qdebug.h>
 
 #include <stdlib.h>
@@ -191,7 +190,7 @@ MainWindow::MainWindow()
     : MainWindowBase(0, "main window"),
       editPalette(palette()), previewPalette(palette()), previewstyle(0)
 {
-    modified = TRUE;
+    modified = true;
 
     QStringList gstyles = QStyleFactory::keys();
     gstyles.sort();
@@ -355,7 +354,7 @@ MainWindow::MainWindow()
     sublistbox->clear();
     sublistbox->insertStringList(subs);
 
-    rtlExtensions->setChecked(settings.value("useRtlExtensions", FALSE).toBool());
+    rtlExtensions->setChecked(settings.value("useRtlExtensions", false).toBool());
 
 #ifdef Q_WS_X11
     inputStyle->setCurrentText(settings.value("XIMInputStyle", trUtf8("On The Spot")).toString());
@@ -364,13 +363,13 @@ MainWindow::MainWindow()
     inputStyleLabel->hide();
 #endif
 
-    fontembeddingcheckbox->setChecked(settings.value("embedFonts", TRUE).toBool());
+    fontembeddingcheckbox->setChecked(settings.value("embedFonts", true).toBool());
     fontpaths = settings.value("fontPath").toStringList();
     fontpathlistbox->insertStringList(fontpaths);
 
     settings.endGroup(); // Qt
 
-    setModified(FALSE);
+    setModified(false);
 }
 
 
@@ -485,7 +484,7 @@ void MainWindow::fileSave()
     QApplication::x11_apply_settings();
 #endif // Q_WS_X11
 
-    setModified(FALSE);
+    setModified(false);
     statusBar()->message("Saved changes.");
 }
 
@@ -543,7 +542,7 @@ void MainWindow::buildPalette()
 
     updateColorButtons();
 
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -675,7 +674,7 @@ void MainWindow::tunePalette()
 
     editPalette = pal;
     setPreviewPalette(editPalette);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -695,7 +694,7 @@ void MainWindow::styleSelected(const QString &stylename)
     delete previewstyle;
     previewstyle = style;
 
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -717,7 +716,7 @@ void MainWindow::buildFont()
                          stylecombo->currentText(),
                          psizecombo->currentText().toInt());
     samplelineedit->setFont(font);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -745,7 +744,7 @@ void MainWindow::removeSubstitute()
     sublistbox->setCurrentItem(item);
     QFont::removeSubstitution(familysubcombo->currentText());
     QFont::insertSubstitutions(familysubcombo->currentText(), subs);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -759,7 +758,7 @@ void MainWindow::addSubstitute()
         sublistbox->insertStringList(subs);
         QFont::removeSubstitution(familysubcombo->currentText());
         QFont::insertSubstitutions(familysubcombo->currentText(), subs);
-        setModified(TRUE);
+        setModified(true);
 
         return;
     }
@@ -772,7 +771,7 @@ void MainWindow::addSubstitute()
     sublistbox->setCurrentItem(item);
     QFont::removeSubstitution(familysubcombo->currentText());
     QFont::insertSubstitutions(familysubcombo->currentText(), subs);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -792,7 +791,7 @@ void MainWindow::downSubstitute()
     sublistbox->setCurrentItem(item + 1);
     QFont::removeSubstitution(familysubcombo->currentText());
     QFont::insertSubstitutions(familysubcombo->currentText(), subs);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -811,7 +810,7 @@ void MainWindow::upSubstitute()
     sublistbox->setCurrentItem(item - 1);
     QFont::removeSubstitution(familysubcombo->currentText());
     QFont::insertSubstitutions(familysubcombo->currentText(), subs);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -830,7 +829,7 @@ void MainWindow::removeLibpath()
         item = int(libpathlistbox->count()) - 1;
     libpathlistbox->setCurrentItem(item);
     QApplication::setLibraryPaths(paths);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -846,7 +845,7 @@ void MainWindow::addLibpath()
         libpathlistbox->clear();
         libpathlistbox->insertStringList(paths);
         QApplication::setLibraryPaths(paths);
-        setModified(TRUE);
+        setModified(true);
 
         return;
     }
@@ -859,7 +858,7 @@ void MainWindow::addLibpath()
     libpathlistbox->insertStringList(paths);
     libpathlistbox->setCurrentItem(item);
     QApplication::setLibraryPaths(paths);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -878,7 +877,7 @@ void MainWindow::downLibpath()
     libpathlistbox->insertStringList(paths);
     libpathlistbox->setCurrentItem(item + 1);
     QApplication::setLibraryPaths(paths);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -896,7 +895,7 @@ void MainWindow::upLibpath()
     libpathlistbox->insertStringList(paths);
     libpathlistbox->setCurrentItem(item - 1);
     QApplication::setLibraryPaths(paths);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -924,7 +923,7 @@ void MainWindow::removeFontpath()
     if (uint(item) > fontpathlistbox->count())
         item = int(fontpathlistbox->count()) - 1;
     fontpathlistbox->setCurrentItem(item);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -938,7 +937,7 @@ void MainWindow::addFontpath()
         fontpaths.append(fontpathlineedit->text());
         fontpathlistbox->clear();
         fontpathlistbox->insertStringList(fontpaths);
-        setModified(TRUE);
+        setModified(true);
 
         return;
     }
@@ -949,7 +948,7 @@ void MainWindow::addFontpath()
     fontpathlistbox->clear();
     fontpathlistbox->insertStringList(fontpaths);
     fontpathlistbox->setCurrentItem(item);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -966,7 +965,7 @@ void MainWindow::downFontpath()
     fontpathlistbox->clear();
     fontpathlistbox->insertStringList(fontpaths);
     fontpathlistbox->setCurrentItem(item + 1);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -982,7 +981,7 @@ void MainWindow::upFontpath()
     fontpathlistbox->clear();
     fontpathlistbox->insertStringList(fontpaths);
     fontpathlistbox->setCurrentItem(item - 1);
-    setModified(TRUE);
+    setModified(true);
 }
 
 
@@ -999,7 +998,7 @@ void MainWindow::browseFontpath()
 
 void MainWindow::somethingModified()
 {
-    setModified(TRUE);
+    setModified(true);
 }
 
 

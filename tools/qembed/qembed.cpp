@@ -55,15 +55,15 @@ int main( int argc, char **argv )
     }
 
     QFile output;
-    bool output_hdr = FALSE;
-    bool images = FALSE;
+    bool output_hdr = false;
+    bool images = false;
     output.open( IO_WriteOnly, stdout );
     QTextStream out( &output );
 
     QPtrList<EmbedImage> list_image;
     QPtrList<Embed> list;
-    list.setAutoDelete( TRUE );
-    list_image.setAutoDelete( TRUE );
+    list.setAutoDelete( true );
+    list_image.setAutoDelete( true );
 
     long l = rand();
     out << "#ifndef _QEMBED_" << l << endl;
@@ -93,7 +93,7 @@ int main( int argc, char **argv )
 	    if ( !images ) {
 		out << "#include <qimage.h>\n";
 		out << "#include <qdict.h>\n";
-		images = TRUE;
+		images = true;
 	    }
 	} else {
 	    QFile f( *it );
@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 		out << "\n};\n\n";
 	    }
 	    if ( !output_hdr ) {
-		output_hdr = TRUE;
+		output_hdr = true;
 		out << header;
 	    }
 	}
@@ -229,9 +229,9 @@ int main( int argc, char **argv )
 	    else
 		out << "0, ";
 	    if ( e->alpha )
-		out << "TRUE, ";
+		out << "true, ";
 	    else
-		out << "FALSE, ";
+		out << "false, ";
 	    out << "\"" << e->name << "\" },\n";
 	    e = list_image.next();
 	}
@@ -253,7 +253,7 @@ int main( int argc, char **argv )
 "			    embed_image_vec[i].numColors,\n"
 "			    QImage::BigEndian );\n"
 "		if ( embed_image_vec[i].alpha )\n"
-"		    img->setAlphaBuffer( TRUE );\n"
+"		    img->setAlphaBuffer( true );\n"
 "		dict.insert( name, img );\n"
 "		break;\n"
 "	    }\n"

@@ -73,8 +73,8 @@ void PaletteEditorAdvanced::paletteSelected(int p)
         groupEffect->setDisabled(checkBuildDisabled->isChecked());
     }
     else {
-        groupCentral->setEnabled(TRUE);
-        groupEffect->setEnabled(TRUE);
+        groupCentral->setEnabled(true);
+        groupEffect->setEnabled(true);
     }
     updateColorButtons();
 }
@@ -538,7 +538,7 @@ QPalette PaletteEditorAdvanced::getPalette( bool *ok, const QPalette &init,
                                             Qt::BackgroundMode mode, QWidget* parent,
                                             const char* name )
 {
-    PaletteEditorAdvanced* dlg = new PaletteEditorAdvanced( parent, name, TRUE );
+    PaletteEditorAdvanced* dlg = new PaletteEditorAdvanced( parent, name, true );
     dlg->setupBackgroundMode( mode );
 
     if ( init != QPalette() )
@@ -548,11 +548,11 @@ QPalette PaletteEditorAdvanced::getPalette( bool *ok, const QPalette &init,
     QPalette result = init;
     if ( resultCode == QDialog::Accepted ) {
         if ( ok )
-            *ok = TRUE;
+            *ok = true;
         result = dlg->pal();
     } else {
         if ( ok )
-            *ok = FALSE;
+            *ok = false;
     }
     delete dlg;
     return result;

@@ -21,7 +21,7 @@ class PaletteEditorAdvanced : public PaletteEditorAdvancedBase
     Q_OBJECT
 public:
     PaletteEditorAdvanced( QWidget * parent=0, const char * name=0,
-                           bool modal=FALSE, Qt::WFlags f=0 );
+                           bool modal=false, Qt::WFlags f=0 );
     ~PaletteEditorAdvanced();
 
     static QPalette getPalette( bool *ok, const QPalette &pal, Qt::BackgroundMode mode = Qt::PaletteBackground,
