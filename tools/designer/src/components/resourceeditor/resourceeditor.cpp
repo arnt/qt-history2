@@ -39,7 +39,7 @@ ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
             this, SLOT(updateActions()));
     connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(doEdit()));
-            
+
     updateTree();
 }
 
@@ -50,13 +50,13 @@ void ResourceEditor::updateTree()
     clear();
 
     AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
-    
+
     if (m_current_form != 0)
         disconnect(m_current_form, 0, this, 0);
     if (form != 0)
         connect(form, SIGNAL(fileNameChanged(const QString&)), this, SLOT(updateTree()));
     m_current_form = form;
-    
+
     if (form != 0) {
         QTreeWidgetItem *root = new QTreeWidgetItem(this);
         QString form_name = form->fileName();
@@ -69,9 +69,9 @@ void ResourceEditor::updateTree()
         foreach (QString res, res_list)
             addToTree(form->absolutePath(res));
         expandItem(root);
-        setCurrentItem(root);
+        // ### setCurrentItem(root);
     }
-    
+
     updateActions();
 }
 
@@ -82,7 +82,7 @@ QTreeWidgetItem *ResourceEditor::addToTree(const QString &path)
     AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return 0;
-    
+
     ResourceFile resource_file(path);
     if (!resource_file.load())
         return 0;
@@ -90,10 +90,10 @@ QTreeWidgetItem *ResourceEditor::addToTree(const QString &path)
     QTreeWidgetItem *root = topLevelItem(0);
     if (root == 0)
         return 0;
-        
+
     QTreeWidgetItem *ritem = new QTreeWidgetItem(root);
     ritem->setText(0, form->relativePath(path));
-        
+
     QStringList prefix_list = resource_file.prefixList();
     foreach (QString prefix, prefix_list) {
         QTreeWidgetItem *pitem = new QTreeWidgetItem(ritem);
@@ -156,7 +156,7 @@ void ResourceEditor::doDelete()
     AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return;
-    
+
     QTreeWidgetItem *item = currentItem();
     if (item == 0)
         return;
@@ -231,7 +231,7 @@ void ResourceEditor::addResource()
     QTreeWidgetItem *root = topLevelItem(0);
     if (root == 0)
         return;
-    
+
     QFileDialog file_dialog(this);
     file_dialog.setFilter(tr("Resource files (*.qrc)"));
     QString dir = form->absolutePath(QString());
@@ -240,7 +240,7 @@ void ResourceEditor::addResource()
     file_dialog.setDirectory(dir);
     if (!file_dialog.exec())
         return;
-        
+
     QStringList file_name_list = file_dialog.selectedFiles();
     if (file_name_list.isEmpty())
         return;
@@ -262,7 +262,7 @@ void ResourceEditor::addResource()
             return;
         }
     }
-    
+
     QTreeWidgetItem *new_item = addToTree(file_name);
     if (new_item == 0) {
         QMessageBox::warning(this, tr("Resource error"),
@@ -280,7 +280,7 @@ void ResourceEditor::editPrefix()
     AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return;
-    
+
     QTreeWidgetItem *item = currentItem();
     if (item == 0)
         return;
@@ -295,7 +295,7 @@ void ResourceEditor::editPrefix()
     prefix = ResourceFile::fixPrefix(prefix);
     if (prefix == item->text(0))
         return;
-        
+
     QString file_name = form->absolutePath(item->parent()->text(0));
 
     ResourceFile rf(file_name);
@@ -312,7 +312,7 @@ void ResourceEditor::editPrefix()
                                 QMessageBox::Ok, QMessageBox::NoButton);
         return;
     }
-    
+
     rf.changePrefix(item->text(0), prefix);
 
     if (!rf.save()) {
@@ -321,7 +321,7 @@ void ResourceEditor::editPrefix()
                                 QMessageBox::Ok, QMessageBox::NoButton);
         return;
     }
-    
+
     item->setText(0, prefix);
     fixItem(item);
 }
@@ -331,7 +331,7 @@ void ResourceEditor::addPrefix()
     AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
     if (form == 0)
         return;
-    
+
     QTreeWidgetItem *item = currentItem();
     if (item == 0)
         return;
@@ -359,7 +359,7 @@ void ResourceEditor::addPrefix()
                                 QMessageBox::Ok, QMessageBox::NoButton);
         return;
     }
-    
+
     rf.addPrefix(prefix);
 
     if (!rf.save()) {
@@ -368,7 +368,7 @@ void ResourceEditor::addPrefix()
                                 QMessageBox::Ok, QMessageBox::NoButton);
         return;
     }
-    
+
     QTreeWidgetItem *new_item = new QTreeWidgetItem(item);
     new_item->setText(0, prefix);
     fixItem(new_item);
@@ -411,7 +411,7 @@ void ResourceEditor::addFile()
     file_name_list = fixed_file_name_list;
     if (file_name_list.isEmpty())
         return;
-    
+
     foreach (QString file_name, file_name_list)
         rf.addFile(prefix, file_name);
 
@@ -437,7 +437,7 @@ void ResourceEditor::addFile()
 void ResourceEditor::mousePressEvent(QMouseEvent *e)
 {
     QTreeWidget::mousePressEvent(e);
-    
+
     if (e->button() == Qt::RightButton) {
         QTreeWidgetItem *item = itemAt(e->pos());
         ItemType type = classifyItem(item);
@@ -459,7 +459,7 @@ ResourceEditor::ItemType ResourceEditor::classifyItem(QTreeWidgetItem *item) con
         return PrefixItem;
     return FileItem;
 }
-    
+
 QMenu *ResourceEditor::createMenu(ItemType type)
 {
     QMenu *menu = new QMenu(this);
