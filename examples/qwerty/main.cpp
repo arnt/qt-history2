@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/main.cpp#2 $
+** $Id: //depot/qt/main/examples/qwerty/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -14,8 +14,6 @@
 
 int main( int argc, char **argv )
 {
-    //QApplication::setDesktopSettingsAware( FALSE );
-    //QApplication::setFont(QFont("Helvetica",12));
     QApplication a( argc, argv );
 
     int i;
@@ -26,7 +24,6 @@ int main( int argc, char **argv )
 	    e->load( argv[i] );
 	e->show();
     }
-    QObject::connect( &a, SIGNAL(lastWindowClosed()),
-		      &a, SLOT(quit()) );
+    a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();
 }
