@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#4 $
 **
 ** Implementation of MIME support
 **
@@ -27,8 +27,11 @@
   \class QMimeSource qmime.h
   \brief An abstract piece of formatted data.
 
-  \link QDragObject Drag-and-drop\endlink and \link QClipboard
-  clipboard\endlink use this abstraction.
+  \link dnd.html Drag-and-drop\endlink and
+  \link QClipboard clipboard\endlink use this abstraction.
+
+  \sa <a href="http://www.isi.edu/in-notes/iana/assignments/media-types/">
+	  IANA list of MIME media types</a>
 */
 
 
