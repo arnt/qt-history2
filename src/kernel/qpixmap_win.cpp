@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#89 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -300,13 +300,23 @@ int QPixmap::metric( int m ) const
 	    dc  = handle();
 	}
 	switch ( m ) {
+	    case QPaintDeviceMetrics::PdmDpiX:
+		val = GetDeviceCaps( dc, LOGPIXELSX );
+		break;
+	    case QPaintDeviceMetrics::PdmDpiY:
+		val = GetDeviceCaps( dc, LOGPIXELSY );
+		break;
 	    case QPaintDeviceMetrics::PdmWidthMM:
-		val = GetDeviceCaps( dc, HORZSIZE );
+		val = width()
+			* GetDeviceCaps( dc, HORZSIZE )
+			/ GetDeviceCaps( dc, HORZRES );
 		if ( spm )
 		    val = val * width() / spm->width();
 		break;
 	    case QPaintDeviceMetrics::PdmHeightMM:
-		val = GetDeviceCaps( dc, VERTSIZE );
+		val = height()
+			* GetDeviceCaps( dc, VERTSIZE )
+			/ GetDeviceCaps( dc, VERTRES );
 		if ( spm )
 		    val = val * height() / spm->height();
 		break;

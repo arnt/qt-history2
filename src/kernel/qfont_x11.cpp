@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#174 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -2042,5 +2042,25 @@ int qFontGetWeight( const QCString &weightString, bool adjustScore )
 	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
 
     return (int) QFont::Normal;
+}
+
+/*!
+  Returns the logical height of characters in the font if shown on
+  the screen.
+*/
+int QFont::pixelSize() const
+{
+    // #### needs scaling
+    return pointSize();
+}
+
+/*!
+  Sets the logical height of characters in the font if shown on
+  the screen.
+*/
+void QFont::setPixelSizeFloat( float pixelSize )
+{
+    // #### needs scaling
+    setPointSizeFloat( pixelSize );
 }
 

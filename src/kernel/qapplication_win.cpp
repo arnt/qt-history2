@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#314 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#315 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -312,21 +312,7 @@ static void qt_show_system_menu( QWidget* tlw)
 	    DefWindowProcA(tlw->winId(), WM_SYSCOMMAND, ret, 0);
 }
 
-static QFont LOGFONT_AorW_to_QFont(LOGFONT& lf)
-{
-    QString family =
-	qt_winver == Qt::WV_NT
-	    ? qt_winQString(lf.lfFaceName)
-	    : QString::fromLatin1((char*)lf.lfFaceName);
-    QFont qf(family);
-    if (lf.lfItalic)
-	qf.setItalic( TRUE );
-    if (lf.lfWeight != FW_DONTCARE)
-	qf.setWeight(lf.lfWeight*99/900);
-    // (Note: The lfHeight value is already mapped to 72dpi, no adj. required)
-    qf.setPointSize( QABS( lf.lfHeight ) );
-    return qf;
-}
+extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
 static void qt_set_windows_resources()
 {
@@ -339,16 +325,16 @@ static void qt_set_windows_resources()
 	ncm.cbSize = sizeof( ncm );
 	SystemParametersInfo( SPI_GETNONCLIENTMETRICS,
 			      sizeof( ncm ), &ncm, NULL);
-	menuFont = LOGFONT_AorW_to_QFont(ncm.lfMenuFont);
-	messageFont = LOGFONT_AorW_to_QFont(ncm.lfMessageFont);
+	menuFont = qt_LOGFONTtoQFont(ncm.lfMenuFont,TRUE);
+	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
     } else {
 	// A version
 	NONCLIENTMETRICSA ncm;
 	ncm.cbSize = sizeof( ncm );
 	SystemParametersInfoA( SPI_GETNONCLIENTMETRICS,
 			      sizeof( ncm ), &ncm, NULL);
-	menuFont = LOGFONT_AorW_to_QFont((LOGFONT&)ncm.lfMenuFont);
-	messageFont = LOGFONT_AorW_to_QFont((LOGFONT&)ncm.lfMessageFont);
+	menuFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMenuFont,TRUE);
+	messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,TRUE);
     }
 
     QApplication::setFont( menuFont, TRUE, "QPopupMenu");
@@ -500,24 +486,17 @@ void qt_init( int *argcptr, char **argv )
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
 	QString name;
 	int size=0;
+	QFont f("MS Sans Serif",8);
 	if ( qt_winver == Qt::WV_NT ) {
 	    LOGFONT lf;
-	    if ( GetObject( hfont, sizeof(lf), &lf ) ) {
-		name = qt_winQString(lf.lfFaceName);
-		size = abs(lf.lfHeight);
-	    }
+	    if ( GetObject( hfont, sizeof(lf), &lf ) )
+		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
 	} else {
 	    LOGFONTA lf;
-	    if ( GetObjectA( hfont, sizeof(lf), &lf ) ) {
-		name = QString::fromLocal8Bit(lf.lfFaceName);
-		size = abs(lf.lfHeight);
-	    }
+	    if ( GetObjectA( hfont, sizeof(lf), &lf ) )
+		f = qt_LOGFONTtoQFont((LOGFONT&)lf,TRUE);
 	}
-	if ( name.isNull() )
-	    name = "MS Sans Serif";
-	if ( size < 3 )
-	    size = 8;
-	QApplication::setFont( name, size );
+	QApplication::setFont( f );
     }
 
 #if defined(USE_HEARTBEAT)

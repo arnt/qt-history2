@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#69 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -367,6 +367,12 @@ int QPrinter::metric( int m ) const
 	    val = orient == Portrait ? heights[ s ] : widths[ s ];
 	    if ( !fullPage() )
 		val -= 2*margins().height();
+	    break;
+	case QPaintDeviceMetrics::PdmDpiX:
+	    val = 72;
+	    break;
+	case QPaintDeviceMetrics::PdmDpiY:
+	    val = 72;
 	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:
 	    val = metric( QPaintDeviceMetrics::PdmWidth );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#66 $
 **
 ** Implementation of QPicture class
 **
@@ -682,8 +682,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
   Use the QPaintDeviceMetrics class instead.
 
   A picture has the following hard coded values:
-  width=640, height=480. widthMM=236, heightMM=176, numcolors=16777216
-  and depth=24.
+  width=640, height=480, dpi = 72, numcolors=16777216 and depth=24.
 */
 
 int QPicture::metric( int m ) const
@@ -698,10 +697,16 @@ int QPicture::metric( int m ) const
 	    val = 480;
 	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = 236;
+	    val = 225;
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = 176;
+	    val = 169;
+	    break;
+	case QPaintDeviceMetrics::PdmDpiX:
+	    val = 72;
+	    break;
+	case QPaintDeviceMetrics::PdmDpiY:
+	    val = 72;
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
 	    val = 16777216;

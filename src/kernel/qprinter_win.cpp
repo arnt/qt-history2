@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#56 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -521,6 +521,12 @@ int QPrinter::metric( int m ) const
 	break;
     case QPaintDeviceMetrics::PdmHeight:
 	val = GetDeviceCaps( hdc, fullPage() ? PHYSICALHEIGHT : VERTRES );
+	break;
+    case QPaintDeviceMetrics::PdmDpiX:
+	val = GetDeviceCaps( hdc, LOGPIXELSX );
+	break;
+    case QPaintDeviceMetrics::PdmDpiY:
+	val = GetDeviceCaps( hdc, LOGPIXELSY );
 	break;
     case QPaintDeviceMetrics::PdmWidthMM:
 	if ( !fullPage() ) {

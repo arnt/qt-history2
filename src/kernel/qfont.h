@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#67 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#68 $
 **
 ** Definition of QFont class
 **
@@ -83,7 +83,12 @@ public:
     QString	family()	const;
     void	setFamily( const QString &);
     int		pointSize()	const;
+    float	pointSizeFloat()	const;
     void	setPointSize( int );
+    void	setPointSizeFloat( float );
+    int		pixelSize() const;
+    void	setPixelSize( int );
+    void	setPixelSizeFloat( float );
     int		weight()	const;
     void	setWeight( int );
     bool	bold()		const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#220 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#221 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1031,12 +1031,21 @@ int QWidget::metric( int m ) const
     } else {
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
-	    //###H: return widget mm width/height
+	case QPaintDeviceMetrics::PdmDpiX:
+	    val = GetDeviceCaps( gdc, LOGPIXELSX );
+	    break;
+	case QPaintDeviceMetrics::PdmDpiY:
+	    val = GetDeviceCaps( gdc, LOGPIXELSY );
+	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = GetDeviceCaps( gdc, HORZSIZE );
+	    val = crect.width()
+		    * GetDeviceCaps( gdc, HORZSIZE )
+	            / GetDeviceCaps( gdc, HORZRES );
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = GetDeviceCaps( gdc, VERTSIZE );
+	    val = crect.height()
+		    * GetDeviceCaps( gdc, VERTSIZE )
+	            / GetDeviceCaps( gdc, VERTRES );
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
 	    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )

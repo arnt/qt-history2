@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#117 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -45,6 +45,44 @@ static inline HFONT systemFont()
     return stock_sysfont;
 }
 
+QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool scale)
+{
+    QString family =
+	qt_winver == Qt::WV_NT
+	    ? qt_winQString(lf.lfFaceName)
+	    : QString::fromLatin1((char*)lf.lfFaceName);
+    QFont qf(family);
+    if (lf.lfItalic)
+	qf.setItalic( TRUE );
+    if (lf.lfWeight != FW_DONTCARE)
+	qf.setWeight(lf.lfWeight*99/900);
+    int lfh = QABS( lf.lfHeight );
+    if ( scale ) {
+	ASSERT(shared_dc);
+	qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
+    } else {
+	qf.setPointSize( lfh );
+    }
+    return qf;
+}
+
+/*!
+  Returns the logical height of characters in the font if shown on
+  the screen.
+*/
+int QFont::pixelSize() const
+{
+    return int((float)pointSizeFloat() * GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
+}
+
+/*!
+  Sets the logical height of characters in the font if shown on
+  the screen.
+*/
+void QFont::setPixelSizeFloat( float pixelSize )
+{
+    setPointSizeFloat( pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
+}
 
 /*****************************************************************************
   QFontInternal definition and implementation
@@ -350,7 +388,8 @@ void QFont::load() const
     if ( !d->fin->font() ) {			// font not loaded
 	if ( qt_winver == Qt::WV_NT )
 	    d->fin->hdc = GetDC(0);
-	d->fin->hfont = create( &d->fin->stockFont, 0 );
+	d->fin->hfont = create( &d->fin->stockFont, d->fin->dc() );
+	//d->fin->hfont = create( &d->fin->stockFont, 0 );
 	SelectObject( d->fin->dc(), d->fin->hfont );
 #ifdef UNICODE
 	if ( qt_winver == Qt::WV_NT ) {
@@ -433,14 +472,12 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
-    if ( hdc ) {
-	if ( !VxF )
-	    lf.lfHeight = -int((float)d->req.pointSize*
-			       GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
-	else
-	    lf.lfHeight = -(d->req.pointSize/10);
+    if ( hdc && !VxF ) {
+	lf.lfHeight = -int((float)d->req.pointSize*
+			   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
     } else {
-	lf.lfHeight = -(d->req.pointSize/10);
+	lf.lfHeight = -int((float)d->req.pointSize*
+			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#135 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -401,6 +401,44 @@ void QFont::setPointSize( int pointSize )
     }
 }
 
+/*!
+  Sets the point size to \a pointSize. The point size must be greater
+  than zero. The requested precision may not be achieved on all platforms.
+*/
+void QFont::setPointSizeFloat( float pointSize )
+{
+    if ( pointSize <= 0 ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
+#endif
+	return;
+    }
+    int ps = int(pointSize * 10.0 + 0.5);
+    if ( d->req.pointSize != ps ) {
+	detach();
+	d->req.pointSize = (short)ps;
+	d->req.dirty	 = TRUE;
+    }
+}
+
+/*!
+  Returns the height of characters in the font in points (1/72 inch).
+
+  \sa pointSize()
+*/
+float QFont::pointSizeFloat() const
+{
+    return float(d->req.pointSize)/10.0;
+}
+
+/*!
+  Sets the logical height of characters in the font if shown on
+  the screen.
+*/
+void QFont::setPixelSize( int pixelSize )
+{
+    setPointSizeFloat( float(pixelSize) );
+}
 
 
 /*!
