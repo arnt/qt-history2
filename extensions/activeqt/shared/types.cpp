@@ -202,6 +202,7 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 
     switch ( qvar.type() ) {
     case QVariant::String:
+    case QVariant::CString:
 	arg.vt = VT_BSTR;
 	arg.bstrVal = QStringToBSTR( qvar.toString() );
 	break;
@@ -325,11 +326,31 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
     switch ( arg.vt ) {
-    case VT_BSTR:
-	static_QUType_QString.set( obj, BSTRToQString( arg.bstrVal ) );
+    case VT_BSTR: 
+	{
+	    QString str = BSTRToQString( arg.bstrVal );
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && 
+		(QVariant::Type)*(int*)param->typeExtra == QVariant::CString )
+		static_QUType_varptr.set( obj, new QCString( str.local8Bit() ) );
+	    else
+		static_QUType_QString.set( obj, str );
+	}
 	break;
     case VT_BSTR|VT_BYREF:
-	static_QUType_QString.set( obj, BSTRToQString( *arg.pbstrVal ) );
+	{
+	    QString str = BSTRToQString( *arg.pbstrVal );
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) &&
+		(QVariant::Type)*(int*)param->typeExtra == QVariant::CString ) {
+		QCString *reference = (QCString*)static_QUType_varptr.get( obj );
+		if ( reference )
+		    *reference = str.local8Bit();
+		else
+		    reference = new QCString( str.local8Bit() );
+		static_QUType_varptr.set( obj, reference );
+	    } else {
+		static_QUType_QString.set( obj, str );
+	    }
+	}
 	break;
     case VT_BOOL:
 	static_QUType_bool.set( obj, arg.boolVal );
@@ -492,12 +513,14 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     }
 
     if ( !QUType::isEqual(  param->type, obj->type ) ) {
+	if ( !param->type->canConvertFrom( obj, obj->type ) ) {
 #ifndef QT_NO_DEBUG
-	if ( !param->type->canConvertFrom( obj, obj->type ) )
 	    qWarning( "Can't coerce VARIANT type to requested type (%s to %s)", obj->type->desc(), param->type->desc() );
-	else 
 #endif
+	    obj->type->clear( obj );
+	} else {
 	    param->type->convertFrom( obj, obj->type );
+	}
     }
 }
 
@@ -687,6 +710,9 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
     case QVariant::String:
 	static_QUType_QString.set( &obj, var.toString() );
 	break;
+    case QVariant::CString:
+	static_QUType_varptr.set( &obj, new QCString( var.toCString() ) );
+	break;
     case QVariant::Bool:
 	static_QUType_bool.set( &obj, var.toDouble() );
 	break;
@@ -867,6 +893,9 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		vart = value.type();
 
 	    switch( vart ) {
+	    case QVariant::CString:
+		value = *(QCString*)ptrvalue;
+		break;
 	    case QVariant::Color:
 		value = *(QColor*)ptrvalue;
 		break;
