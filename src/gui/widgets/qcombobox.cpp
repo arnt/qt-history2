@@ -1709,6 +1709,10 @@ bool QComboBox::event(QEvent *event)
     if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
         d->updateHoverControl(he->pos());
         break;
+    case QEvent::ShortcutOverride:
+        if (d->lineEdit)
+            return d->lineEdit->event(event);
+        break;
     default:
         break;
     }
