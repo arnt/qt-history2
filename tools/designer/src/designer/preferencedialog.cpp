@@ -60,7 +60,7 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     m_treeWidget->header()->hide();
     QTreeWidgetItem *root = new QTreeWidgetItem(m_treeWidget);
     root->setText(0, tr("Standard Preferences"));
-    m_treeWidget->setItemOpen(root, true);
+    m_treeWidget->setItemExpanded(root, true);
     connect(m_treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(changePane(QTreeWidgetItem *)));
     QTreeWidgetItem *item;
     for (int listIndex = 0; listIndex < m_preferences.size(); ++listIndex) {
@@ -85,7 +85,7 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     foreach (QVariant v, openItemList) {
         item = m_treeWidget->topLevelItem(v.toInt());
         if (item)
-            m_treeWidget->openItem(item);
+            m_treeWidget->expandItem(item);
     }
 
     QTreeWidgetItem *topLevelItem = m_treeWidget->topLevelItem(
@@ -93,7 +93,7 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     if (topLevelItem) {
         item = topLevelItem->child(settings.value("preferenceDialog/childIndex", 0).toInt());
         if (item) {
-            m_treeWidget->setSelected(item, true);
+            m_treeWidget->setItemSelected(item, true);
             m_treeWidget->setCurrentItem(item);
         }
     }
@@ -137,7 +137,7 @@ PreferenceDialog::~PreferenceDialog()
         item = m_treeWidget->topLevelItem(i);
         if (item == parentItem)
             settings.setValue("preferenceDialog/parentIndex", i);
-        if (m_treeWidget->isItemOpen(item))
+        if (m_treeWidget->isItemExpanded(item))
             list.append(i);
     }
     settings.setValue("preferenceDialog/openItems", list);

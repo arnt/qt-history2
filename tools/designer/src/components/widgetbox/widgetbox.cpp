@@ -665,7 +665,7 @@ WidgetBoxListViewChild::WidgetBoxListViewChild(WidgetCollectionModel *model, QWi
         if (cat_idx == -1)
             continue;
         QModelIndex idx = model->index(cat_idx, 0, QModelIndex());
-        open(idx);
+        expand(idx);
     }
 
     settings.endGroup();
@@ -679,7 +679,7 @@ WidgetBoxListViewChild::~WidgetBoxListViewChild()
     QStringList open_cat;
     for (int i = 0; i < m_model->categoryCount(); ++i) {
         QModelIndex idx = m_model->index(i, 0, QModelIndex());
-        if (isOpen(idx))
+        if (isExpanded(idx))
             open_cat.append(m_model->category(i).name());
     }
     settings.setValue("open categories", open_cat);
@@ -728,7 +728,7 @@ void WidgetBoxListView::handleMousePress(const QModelIndex &index)
         return;
     
     if (!m_model->parent(index).isValid()) {
-        m_list->setOpen(index, !m_list->isOpen(index));
+        m_list->setExpanded(index, !m_list->isExpanded(index));
         return;
     }
     

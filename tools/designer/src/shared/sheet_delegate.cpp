@@ -51,7 +51,7 @@ void SheetDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         branchOption.palette = option.palette;
         branchOption.state = QStyle::State_Children;
 
-        if (m_view->isOpen(index))
+        if (m_view->isExpanded(index))
             branchOption.state |= QStyle::State_Open;
 
         m_view->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, m_view);

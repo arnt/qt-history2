@@ -172,7 +172,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             }
         }
 
-        m_treeWidget->openItem(item);
+        m_treeWidget->expandItem(item);
     }
 
     m_treeWidget->horizontalScrollBar()->setValue(xoffset);

@@ -156,7 +156,7 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
         QListWidgetItem *item = new QListWidgetItem(m_slot_list);
         item->setText(sig);
         if (sig == selectedName)
-            m_slot_list->setSelected(item, true);
+            m_slot_list->setItemSelected(item, true);
     }
     
     if (m_slot_list->selectedItems().isEmpty())
@@ -198,7 +198,7 @@ void SignalSlotDialog::populateSignalList()
         QListWidgetItem *item = new QListWidgetItem(m_signal_list);
         item->setText(sig);
         if (!selectedName.isEmpty() && sig == selectedName) {
-            m_signal_list->setSelected(item, true);
+            m_signal_list->setItemSelected(item, true);
             found_selected = true;
         }
     }
@@ -314,8 +314,8 @@ void SignalSlotDialog::selectSignal(QListWidgetItem *item)
         m_slot_list->setEnabled(false);
         m_ok_button->setEnabled(false);
     } else {
-        m_signal_list->setSelected(item, true);
-        m_signal_list->ensureItemIsVisible(item);
+        m_signal_list->setItemSelected(item, true);
+        m_signal_list->scrollToItem(item);
         populateSlotList(item->text());
         m_slot_list->setEnabled(true);
         m_ok_button->setEnabled(!m_slot_list->selectedItems().isEmpty());
@@ -327,8 +327,8 @@ void SignalSlotDialog::selectSlot(QListWidgetItem *item)
     if (item == 0) {
         m_slot_list->clearSelection();
     } else {
-        m_slot_list->setSelected(item, true);
-        m_slot_list->ensureItemIsVisible(item);
+        m_slot_list->setItemSelected(item, true);
+        m_slot_list->scrollToItem(item);
     }
     m_ok_button->setEnabled(true);
 }

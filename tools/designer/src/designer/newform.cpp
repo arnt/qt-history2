@@ -57,7 +57,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
         item->setIcon(0, formPreviewIcon(formTemplateName));
     }
 
-    ui.treeWidget->setItemOpen(trolltech, true);
+    ui.treeWidget->setItemExpanded(trolltech, true);
 }
 
 NewForm::~NewForm()

@@ -88,7 +88,7 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
         int left = rect.width() - (indentation() + size) / 2 ;
         int top = rect.y() + (rect.height() - size) / 2;
         painter->drawLine(left + 2, top + 4, left + 6, top + 4);
-        if (!isOpen(index))
+        if (!isExpanded(index))
             painter->drawLine(left + 4, top + 2, left + 4, top + 6);
         QPen oldPen = painter->pen();
         painter->setPen(opt.palette.dark().color());

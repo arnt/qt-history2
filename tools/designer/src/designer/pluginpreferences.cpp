@@ -115,7 +115,7 @@ void PluginPreferenceWidget::populateTree()
     foreach (QString path, m_prefs->m_plugin_paths) {
         QTreeWidgetItem *path_item = new QTreeWidgetItem(m_tree);
         path_item->setText(0, path);
-        m_tree->setItemOpen(path_item, true);
+        m_tree->setItemExpanded(path_item, true);
         
         QStringList plugin_list = m_prefs->m_plugin_manager->findPlugins(path);
         
