@@ -245,10 +245,6 @@ bool QDragManager::eventFilter(QObject *, QEvent *)
     return false;
 }
 
-void QDragManager::updateMode(Qt::KeyboardModifiers)
-{
-}
-
 void QDragManager::updateCursor()
 {
 }

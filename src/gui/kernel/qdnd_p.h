@@ -78,9 +78,8 @@ private:
     Q_DISABLE_COPY(QDragManager)
 
     QDrag *object;
-#if !defined(Q_WS_WIN) && !defined(Q_WS_X11)
-    // #### get rid of me
-    void updateMode(Qt::KeyboardModifiers newstate);
+#if defined(Q_WS_QWS)
+    void updateMode(Qt::KeyboardModifiers newstate);  // #### get rid of me
 #endif
     void updateCursor();
 
