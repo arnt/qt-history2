@@ -2035,7 +2035,8 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
     if (funcdesc->invkind == INVOKE_FUNC && type == "HRESULT")
         type = 0;
 
-    for (int p = 1; p < names.count(); ++p) {
+    int p;
+    for (p = 1; p < names.count(); ++p) {
         // parameter
         QByteArray paramName = names.at(p);
         bool optional = p > (funcdesc->cParams - funcdesc->cParamsOpt);
@@ -2067,10 +2068,19 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
     }
 
     if (!prototype.isEmpty()) {
-        if (prototype.right(1) == ",")
-            prototype[prototype.length()-1] = ')';
-        else
+        if (prototype.right(1) == ",") {
+            if (funcdesc->invkind == INVOKE_PROPERTYPUT && p == funcdesc->cParams) {
+                TYPEDESC tdesc = funcdesc->lprgelemdescParam[p-1].tdesc;
+                QByteArray ptype = guessTypes(tdesc, typeinfo, function);
+                prototype += ptype;
+                prototype += ")";
+                parameters << "rhs";
+            } else {
+                prototype[prototype.length()-1] = ')';
+            }
+        } else {
             prototype += ")";
+        }
     }
 
     return prototype;
@@ -2137,25 +2147,35 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         case INVOKE_PROPERTYGET: // property
         case INVOKE_PROPERTYPUT:
             if (funcdesc->cParams - funcdesc->cParamsOpt <= 1) {
-                int flags = Readable;
-                if (funcdesc->invkind != INVOKE_PROPERTYGET)
-                    flags |= Writable;
-                if (!(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE))
-                    flags |= Designable;
-                if (!(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED))
-                    flags |= Scriptable;
-                if (funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT)
-                    flags |= RequestingEdit;
-                if (hasEnum(type))
-                    flags |= EnumOrFlag;
+                bool dontBreak = false;
+                // getter with non-default-parameters -> fall through to function handling
+                if (funcdesc->invkind == INVOKE_PROPERTYGET && parameters.count() && funcdesc->cParams - funcdesc->cParamsOpt) {
+                    dontBreak = true;
+                } else {
+                    int flags = Readable;
+                    if (funcdesc->invkind != INVOKE_PROPERTYGET)
+                        flags |= Writable;
+                    if (!(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE))
+                        flags |= Designable;
+                    if (!(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED))
+                        flags |= Scriptable;
+                    if (funcdesc->wFuncFlags & FUNCFLAG_FREQUESTEDIT)
+                        flags |= RequestingEdit;
+                    if (hasEnum(type))
+                        flags |= EnumOrFlag;
 
-                if (funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE && funcdesc->invkind == INVOKE_PROPERTYGET) {
-                    addChangedSignal(function, type, funcdesc->memid);
-                    flags |= Bindable;
+                    if (funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE && funcdesc->invkind == INVOKE_PROPERTYGET) {
+                        addChangedSignal(function, type, funcdesc->memid);
+                        flags |= Bindable;
+                    }
+                    addProperty(type, function, flags);
+
+                    // more parameters -> function handling
+                    if (funcdesc->invkind == INVOKE_PROPERTYGET && funcdesc->cParams)
+                        dontBreak = true;
                 }
-                addProperty(type, function, flags);
 
-                if (funcdesc->cParams < 1) {
+                if (!funcdesc->cParams) {
                     // don't generate slots for incomplete properties
                     if (type.isEmpty())
                         break;
@@ -2171,8 +2191,23 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                     }
                 } else if (funcdesc->invkind == INVOKE_PROPERTYPUT && hasProperty(function)) {
                     addSetterSlot(function);
+                    // more parameters -> function handling
+                    if (funcdesc->cParams > 1)
+                        dontBreak = true;
                 }
-                break;
+                if (!dontBreak)
+                    break;
+            }
+            if (funcdesc->invkind == INVOKE_PROPERTYPUT) {
+                QByteArray set;
+                if (isupper(prototype.at(0))) {
+                    set = "Set";
+                } else {
+                    set = "set";
+                    prototype[0] = toupper(prototype[0]);
+                }
+
+                prototype = set + prototype;
             }
             // FALL THROUGH to support multi-variat properties
         case INVOKE_FUNC: // method
