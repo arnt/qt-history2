@@ -609,9 +609,6 @@ void QWSDisplay::Data::init()
     // Allow some memory for the graphics driver too
 
     sharedRamSize -= qt_screen->sharedRamSize(sharedRam+sharedRamSize);
-#ifndef QT_NO_QWS_MULTIPROCESS
-    if(!csocket)
-#endif	
 
 #ifndef QT_NO_QWS_CURSOR
     mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize,
