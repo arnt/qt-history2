@@ -235,8 +235,8 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 /*!
   \relates QObject
 
-  Returns a pointer to the child named \a name that inherits \a type
-  of a \a parent.
+  Returns a pointer to the object named \a name that inherits \a type
+  and with a given \a parent.
 
   Returns 0 if there is no such child.
 
