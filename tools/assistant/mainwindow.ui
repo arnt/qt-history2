@@ -21,8 +21,11 @@
         <cstring>menubar</cstring>
     </property>
     <item text="&amp;File" name="fileMenu">
+        <action name="actionNewWindow"/>
+        <separator/>
         <action name="actionFilePrint"/>
         <separator/>
+        <action name="actionClose"/>
         <action name="actionFileExit"/>
     </item>
     <item text="&amp;Edit" name="editMenu">
@@ -290,6 +293,28 @@
             <string>&amp;Settings...</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>actionNewWindow</cstring>
+        </property>
+        <property name="text">
+            <string>New Window</string>
+        </property>
+        <property name="menuText">
+            <string>New Window...</string>
+        </property>
+        <property name="accel">
+            <number>4194382</number>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionClose</cstring>
+        </property>
+        <property name="text">
+            <string>Close</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -381,6 +406,18 @@
         <receiver>MainWindow</receiver>
         <slot>showSettingsDialog()</slot>
     </connection>
+    <connection>
+        <sender>actionNewWindow</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>newWindow()</slot>
+    </connection>
+    <connection>
+        <sender>actionClose</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>close()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="global" impldecl="in implementation">qtoolbutton.h</include>
@@ -408,9 +445,10 @@
     <include location="global" impldecl="in implementation">qlineedit.h</include>
     <include location="global" impldecl="in implementation">qsettings.h</include>
     <include location="global" impldecl="in implementation">qcheckbox.h</include>
-    <include location="local" impldecl="in declaration">finddialog.h</include>
-    <include location="global" impldecl="in declaration">qmap.h</include>
+    <include location="global" impldecl="in declaration">qlist.h</include>
     <include location="global" impldecl="in declaration">qguardedptr.h</include>
+    <include location="global" impldecl="in declaration">qmap.h</include>
+    <include location="local" impldecl="in declaration">finddialog.h</include>
     <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
 </includes>
 <forwards>
@@ -424,6 +462,7 @@
     <variable>HelpWindow *browser;</variable>
     <variable>HelpDialog *helpDock;</variable>
     <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
+    <variable>static QPtrList&lt;MainWindow&gt; *windows;</variable>
 </variables>
 <slots>
     <slot>init()</slot>
@@ -434,6 +473,7 @@
     <slot>goHome()</slot>
     <slot>showLinguistHelp()</slot>
     <slot>print()</slot>
+    <slot>updateBookmarkMenu()</slot>
     <slot>setupBookmarkMenu()</slot>
     <slot>showBookmark( int id )</slot>
     <slot>showDesignerHelp()</slot>
@@ -442,6 +482,7 @@
     <slot>setFamily( const QString &amp; f )</slot>
     <slot>showSettingsDialog()</slot>
     <slot>hide()</slot>
+    <slot>newWindow()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

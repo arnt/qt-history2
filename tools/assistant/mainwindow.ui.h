@@ -1,8 +1,13 @@
 #include <qtabwidget.h>
 #include <qaccel.h>
 
+QList<MainWindow> *MainWindow::windows = 0;
+
 void MainWindow::init()
 {
+    if ( !windows )
+	windows = new QList<MainWindow>;
+    windows->append( this );
     setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -101,6 +106,11 @@ void MainWindow::init()
 
 void MainWindow::destroy()
 {
+    windows->removeRef( this );
+    if ( windows->isEmpty() ) {
+	delete windows;
+	windows = 0;
+    }
     QString keybase("/Qt Assistant/3.0/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -205,6 +215,12 @@ void MainWindow::print()
     }
 }
 
+void MainWindow::updateBookmarkMenu()
+{
+    for ( MainWindow *mw = windows->first(); mw; mw = windows->next() )
+	mw->setupBookmarkMenu();
+}
+
 void MainWindow::setupBookmarkMenu()
 {
     bookmarkMenu->clear();
@@ -301,4 +317,10 @@ void MainWindow::hide()
     ts << *this;
     f.close();
     QMainWindow::hide();
+}
+
+
+void MainWindow::newWindow()
+{
+   (new MainWindow)->show();
 }

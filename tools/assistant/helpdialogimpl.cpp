@@ -468,7 +468,7 @@ void HelpDialog::addBookmark()
     i->setText( 0, title );
     i->setLink( QUrl( link ).fileName() );
     saveBookmarks();
-    help->setupBookmarkMenu();
+    help->updateBookmarkMenu();
 }
 
 void HelpDialog::removeBookmark()
@@ -478,7 +478,7 @@ void HelpDialog::removeBookmark()
 
     delete listBookmarks->currentItem();
     saveBookmarks();
-    help->setupBookmarkMenu();
+    help->updateBookmarkMenu();
 }
 
 void HelpDialog::insertBookmarks()
@@ -495,7 +495,7 @@ void HelpDialog::insertBookmarks()
 	i->setText( 0, ts.readLine() );
 	i->setLink( ts.readLine() );
     }
-    help->setupBookmarkMenu();
+    help->updateBookmarkMenu();
 }
 
 void HelpDialog::currentBookmarkChanged( QListViewItem * )

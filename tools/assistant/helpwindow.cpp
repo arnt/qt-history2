@@ -68,6 +68,8 @@ void HelpWindow::setSource( const QString &name )
 QPopupMenu *HelpWindow::createPopupMenu()
 {
     QPopupMenu *m = new QPopupMenu( this );
+    mw->actionNewWindow->addTo( m );
+    m->insertSeparator();
     mw->actionGoPrev->addTo( m );
     mw->actionGoNext->addTo( m );
     mw->actionGoHome->addTo( m );
