@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#20 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#20 $";
 #endif
 
 
@@ -95,8 +95,10 @@ void QMenuBar::menuStateChanged()
 void QMenuBar::menuInsPopup( QPopupMenu *popup )
 {
     popup->parentMenu = this;			// set parent menu
-    connect( popup, SIGNAL(activatedRedirect(int)), SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(selectedRedirect(int)),  SLOT(subSelected(int)) );
+    connect( popup, SIGNAL(activatedRedirect(int)),
+	     SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(highlightedRedirect(int)),
+	     SLOT(subHighlighted(int)) );
 }
 
 void QMenuBar::menuDelPopup( QPopupMenu *popup )
@@ -104,8 +106,8 @@ void QMenuBar::menuDelPopup( QPopupMenu *popup )
     popup->parentMenu = this;
     popup->disconnect( SIGNAL(activatedRedirect(int)), this,
 		       SLOT(subActivated(int)) );
-    popup->disconnect( SIGNAL(selectedRedirect(int)),  this,
-		       SLOT(subSelected(int)) );
+    popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
+		       SLOT(subHighlighted(int)) );
 }
 
 
@@ -124,9 +126,9 @@ void QMenuBar::subActivated( int id )
     emit activated( id );
 }
 
-void QMenuBar::subSelected( int id )
+void QMenuBar::subHighlighted( int id )
 {
-    emit selected( id );
+    emit highlighted( id );
 }
 
 
@@ -347,11 +349,11 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	return;
     }
     register QMenuItem *mi = mitems->at(item);
-    if ( item != actItem ) {			// new item activated
+    if ( item != actItem ) {			// new item highlighted
 	actItem = item;
 	repaint( FALSE );
 	if ( mi->id() >= 0 )
-	    emit activated( mi->id() );
+	    emit highlighted( mi->id() );
     }
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
@@ -392,7 +394,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    else				// normal connection
-		emit selected( mi->id() );
+		emit activated( mi->id() );
 	}
     }
 }
@@ -408,7 +410,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	repaint( FALSE );
 	hidePopups();
 	if ( mi->id() != -1 )
-	    emit activated( mi->id() );
+	    emit highlighted( mi->id() );
 	if ( mi->popup() )
 	    openActPopup();
     }
@@ -473,7 +475,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    }
 	    else {
 		if ( mi->id() >= 0 )
-		    emit activated( mi->id() );
+		    emit highlighted( mi->id() );
 	    }
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#15 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,9 +16,16 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#15 $";
 #endif
 
+
+/*!
+\class QMenuData qmenudta.h
+
+The QMenuData class is a base class for QMenuBar and QPopupMenu.
+QMenuData organizes a list of menu items.
+*/
 
 // ---------------------------------------------------------------------------
 // QMenuItem member functions
@@ -142,7 +149,7 @@ void QMenuData::removePopup( QPopupMenu *popup )
 	mi = mitems->next();
     }
     if ( mi )
-	removeItem( index );
+	removeItemAt( index );
 }
 
 void QMenuData::insertItem( const char *string, int id, int index )
@@ -167,13 +174,24 @@ void QMenuData::insertItem( const QImage &image, QPopupMenu *popup,
     insertAny( 0, (QImage*)&image, popup, id, index );
 }
 
+/*!
+Inserts a separator at position \e index.  The separator will become the last
+menu item if \e index is negative.
+*/
 void QMenuData::insertSeparator( int index )	// insert menu separator
 {
     insertAny( 0, 0, 0, -2, index );
 }
 
+/*!
+\fn void QMenuData::removeItem( int id )
+Removes the menu item which has the identifier \e id.
+*/
 
-void QMenuData::removeItem( int index )		// remove menu item
+/*!
+Removes the menu item at position \e index.
+*/
+void QMenuData::removeItemAt( int index )	// remove menu item
 {
     if ( index < 0 || index >= mitems->count() ) {
 #if defined(CHECK_RANGE)

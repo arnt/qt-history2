@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#11 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#12 $
 **
 ** Definition of QMenuData class
 **
@@ -82,7 +82,8 @@ public:
 
     void	insertSeparator( int index=-1 );
 
-    void	removeItem( int index );
+    void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
+    void	removeItemAt( int index );
 
     const char *string( int id ) const;		// get string of item id
     QImage     *image( int id ) const;		// get image of item id

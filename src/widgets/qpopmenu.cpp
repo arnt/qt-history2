@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#22 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#22 $";
 #endif
 
 
@@ -133,8 +133,10 @@ void QPopupMenu::menuStateChanged()
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
 {
     popup->parentMenu = this;			// set parent menu
-    connect( popup, SIGNAL(activatedRedirect(int)), SLOT(subActivated(int)) );
-    connect( popup, SIGNAL(selectedRedirect(int)),  SLOT(subSelected(int)) );
+    connect( popup, SIGNAL(activatedRedirect(int)),
+	     SLOT(subActivated(int)) );
+    connect( popup, SIGNAL(highlightedRedirect(int)),
+	     SLOT(subHighlighted(int)) );
 }
 
 void QPopupMenu::menuDelPopup( QPopupMenu *popup )
@@ -142,8 +144,8 @@ void QPopupMenu::menuDelPopup( QPopupMenu *popup )
     popup->parentMenu = 0;
     popup->disconnect( SIGNAL(activatedRedirect(int)), this,
 		       SLOT(subActivated(int)) );
-    popup->disconnect( SIGNAL(selectedRedirect(int)),  this,
-		       SLOT(subSelected(int)) );
+    popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
+		       SLOT(subHighlighted(int)) );
 }
 
 
@@ -178,22 +180,26 @@ void QPopupMenu::subActivated( int id )
     emit activatedRedirect( id );
 }
 
-void QPopupMenu::subSelected( int id )
+void QPopupMenu::subHighlighted( int id )
 {
-    emit selectedRedirect( id );
+    emit highlightedRedirect( id );
 }
 
 
 void QPopupMenu::actSig( int id )
 {
+    if ( receivers(SIGNAL(activated(int))) )
+	emit activated( id );
+    else
+	emit activatedRedirect( id );
 }
 
-void QPopupMenu::selSig( int id )
+void QPopupMenu::hilitSig( int id )
 {
-    if ( receivers(SIGNAL(selected(int))) )
-	emit selected( id );
+    if ( receivers(SIGNAL(highlighted(int))) )
+	emit highlighted( id );
     else
-	emit selectedRedirect( id );
+	emit highlightedRedirect( id );
 }
 
 
@@ -487,7 +493,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	actItem = item;
 	repaint( FALSE );
 	if ( mi->id() >= 0 )
-	    actSig( mi->id() );
+	    hilitSig( mi->id() );
     }
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
@@ -527,7 +533,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    else				// normal connection
-		selSig( mi->id() );
+		actSig( mi->id() );
 	}
     }
     else {
@@ -571,7 +577,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    updateCell( lastActItem, 0, FALSE );
 	updateCell( actItem, 0, FALSE );
 	if ( mi->id() >= 0 )			// valid identifier
-	    actSig( mi->id() );
+	    hilitSig( mi->id() );
     }
 }
 
@@ -618,7 +624,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		if ( mi->signal() )
 		    mi->signal()->activate();
 		else
-		    selSig( mi->id() );
+		    actSig( mi->id() );
 	    }
 	    break;
 
@@ -653,7 +659,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    int lastActItem = actItem;
 	    actItem = i;
 	    if ( mi->id() >= 0 )
-		actSig( mi->id() );
+		hilitSig( mi->id() );
 	    updateCell( lastActItem, 0, FALSE );
 	    updateCell( actItem, 0, FALSE );
 	}

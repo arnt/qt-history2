@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#10 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#11 $
 **
 ** Definition of QPopupMenu class
 **
@@ -34,9 +34,9 @@ public:
 
 signals:
     void	activated( int itemId );
-    void	selected( int itemId );
+    void	highlighted( int itemId );
     void	activatedRedirect( int itemId );// to parent menu
-    void	selectedRedirect( int itemId );	// to parent menu
+    void	highlightedRedirect( int itemId );
 
 protected:
     int		cellHeight( long );
@@ -52,7 +52,7 @@ protected:
 
 slots:
     void	subActivated( int itemId );
-    void	subSelected( int itemId );
+    void	subHighlighted( int itemId );
 
 private:
     void	menuContentsChanged();		// menu item inserted/removed
@@ -61,7 +61,7 @@ private:
     void	menuDelPopup( QPopupMenu * );	// menu popup item deleted
 
     void	actSig( int );
-    void	selSig( int );
+    void	hilitSig( int );
     void	setFirstItemActive();
     void	hideAllPopups();
     void	hidePopups();

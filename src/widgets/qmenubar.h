@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#6 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#7 $
 **
 ** Definition of QMenuBar class
 **
@@ -32,7 +32,7 @@ public:
 
 signals:
     void	activated( int itemId );
-    void	selected( int itemId );
+    void	highlighted( int itemId );
 
 protected:
     void	paintEvent( QPaintEvent * );
@@ -44,7 +44,7 @@ protected:
 
 slots:
     void	subActivated( int itemId );
-    void	subSelected( int itemId );
+    void	subHighlighted( int itemId );
 
 private:
     void	menuContentsChanged();		// menu item inserted/removed
