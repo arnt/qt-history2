@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#138 $
 **
 ** Implementation of QApplication class
 **
@@ -13,8 +13,7 @@
 #include "qobjcoll.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
-#include "qpalette.h"
-//#include "qmessagefile.h"
+
 
 /*!
   \class QApplication qapp.h
@@ -186,6 +185,11 @@ QApplication::QApplication( int &argc, char **argv )
 	warning( "QApplication: There should be only one application object" );
 #endif
     qApp = this;
+    static char *empty = "";
+    if ( argc == 0 || argv == 0 ) {
+	argc = 0;
+	argv = &empty;
+    }
     qt_init( &argc, argv );
     initialize( argc, argv );
 }
@@ -195,7 +199,7 @@ QApplication::QApplication( int &argc, char **argv )
 
 /*!
   Create an application, given an already open display.  This is
-  available only on X11
+  available only on X11.
 */
 
 QApplication::QApplication( Display* dpy )
