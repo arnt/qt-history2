@@ -249,10 +249,11 @@ public:
     static int lookupElement(const QString &element);
 protected:
     QTextHtmlParserNode *newNode(int parent);
-    void enableQt3WhitespacePreservationMode();
     QVector<QTextHtmlParserNode> nodes;
     QString txt;
     int pos, len;
+
+    bool textEditMode;
 
     void parse();
     void parseTag();

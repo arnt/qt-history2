@@ -516,6 +516,7 @@ void QTextHtmlParser::parse(const QString &text)
     txt = text;
     pos = 0;
     len = txt.length();
+    textEditMode = false;
     parse();
     //dumpHtml();
 }
@@ -634,10 +635,15 @@ void QTextHtmlParser::parse() {
             nodes.last().text += parseEntity();
         } else {
             if (c.isSpace() && c != QChar(QChar::Nbsp) && c != QChar::ParagraphSeparator) {
-                if (wsm == QTextHtmlParserNode::WhiteSpacePre) {
+                if (wsm == QTextHtmlParserNode::WhiteSpacePre
+                    || textEditMode) {
                     if (c == QLatin1Char('\n'))
                         c = QChar::LineSeparator;
                     else if (c == QLatin1Char('\r'))
+                        continue;
+
+                    if (textEditMode 
+                        && c == QChar::LineSeparator)
                         continue;
                 } else if (wsm != QTextHtmlParserNode::WhiteSpacePreWrap) { // non-pre mode: collapse whitespace except nbsp
                     while (pos < len && txt.at(pos).isSpace()
@@ -1113,7 +1119,7 @@ static QTextHtmlParserNode::WhiteSpaceMode stringToWhiteSpaceMode(const QString 
 
 void QTextHtmlParser::parseAttributes()
 {
-    // local state variable for qt3 whitespace mode
+    // local state variable for qt3 textedit mode
     bool seenQt3Richtext = false;
 
     QTextHtmlParserNode *node = &nodes.last();
@@ -1214,7 +1220,7 @@ void QTextHtmlParser::parseAttributes()
                 && value == QLatin1String("1")
                 && seenQt3Richtext) {
 
-                enableQt3WhitespacePreservationMode();
+                textEditMode = true;
             }
         }
 
@@ -1331,13 +1337,5 @@ void QTextHtmlParser::parseAttributes()
                 node->alignment = Qt::AlignJustify;
         }
     }
-}
-
-void QTextHtmlParser::enableQt3WhitespacePreservationMode()
-{
-    // ensure we use whitespace preservation mode all over the place,
-    // including for future nodes
-    for (int i = 0; i < nodes.count(); ++i)
-        nodes[i].wsm = QTextHtmlParserNode::WhiteSpacePreWrap;
 }
 
