@@ -4,13 +4,13 @@
 #include <qaction.h>
 #include <qpopupmenu.h>
 #include <qcheckbox.h>
+#include <qprocess.h>
 
 #include "helpdemo.h"
 
 HelpDemo::HelpDemo( QWidget *parent, const char *name )
     : HelpDemoBase( parent, name )
 {
-    checkOnlyExampleDoc->hide();
     leFileName->setText( "./doc/index.html" );
     assistant = new QAssistantClient( qInstallPathBins(), this );
     widgets.insert( (QWidget*)openQAButton, "./doc/manual.html#openqabutton" );
@@ -93,6 +93,47 @@ void HelpDemo::closeAssistant()
 	QMessageBox::information( this, "Help", "Qt Assistant is not open!" );
 }
 
+class ProcessListener : public QObject {
+    Q_OBJECT
+public:
+    ProcessListener( QProcess *pr ) : p( pr ) { }
+    ~ProcessListener() {
+	delete p;
+    }
+
+public slots:
+    void processExited() {
+	deleteLater();
+	QMessageBox::information( 0, "HelpDemo documentation installed",
+				  "The HelpDemo documentation was successfully installed" );
+    }
+
+private:
+    QProcess *p;
+};
+
+
+void HelpDemo::installExampleDocs()
+{
+
+    QStringList lst;
+    lst << "assistant"
+	<< "-addProfile"
+	<< "helpdemo.adp"
+	<< ".";
+
+    QProcess *proc = new QProcess( lst );
+
+    ProcessListener *l = new ProcessListener( proc );
+
+    QObject::connect( proc, SIGNAL( processExited() ), l, SLOT( processExited() ) );
+
+    if( !proc->start() ) {
+	delete l;
+	showAssistantErrors( "Failed to install documentation profile\n" );
+    }
+}
+
 void HelpDemo::displayPage()
 {
     assistant->showPage( leFileName->text() );
@@ -100,14 +141,20 @@ void HelpDemo::displayPage()
 
 void HelpDemo::showAssistantErrors( const QString &err )
 {
-    QString errorMsg = err;
     if ( err.startsWith( "Profile" ) ) {
-	errorMsg += "\n\n";
-	errorMsg += "First you have to install this profile. Quit\n";
-	errorMsg += "the application, and start Qt Assistant with:\n\n";
-	errorMsg += "assistant -addprofile helpdemo.adp /Help/Demo/Path\n\n";
-	errorMsg += "and restart this example. Have a look at the\n";
-	errorMsg += "example documentation for further information.\n";
+	QString errorMsg =
+	    "The documentation for the HelpDemo example has not yet\n"
+	    "been installed. Press the 'Install Example Documentation'\n"
+	    "button to install the documentation and retry.\n\n"
+	    "If you want to see how the installation of the documentation\n"
+	    "works, check out the HelpDemo::installExampleDocs()\n"
+	    "function in the file helpdemo.cpp";
+	QMessageBox::information( this, "Documentation not installed", errorMsg );
+	return;
     }
-    QMessageBox::critical( this, "Error", errorMsg );
+    QMessageBox::critical( this, "Assistant Error", err );
+
 }
+
+
+#include "helpdemo.moc"

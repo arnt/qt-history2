@@ -5,17 +5,45 @@
     </head>
     <body style="font-size:12pt;font-family:helvetica">
 	<p><h2>Help example</h2></p>
-	<p>This example demonstrates how to use Qt Assistant as help system
+	
+	<p>
+	This example demonstrates how to use Qt Assistant as help system
 	for your own application. You can control Qt Assistant either directly
-	using e.g. the open button or indirectly by pressing F1.</p>
-	<p>This example provides a context sensitive help, i.e. pressing F1 will
-	show the help for the item under the mouse cursor.</p>
-	<p>In order to run Qt Assistant properly you have to add a
-	profile for this example. Without a profile Qt Assistant will only
-	show the requested pages, but won't be adapted for this example
-	application.
+	using e.g. the open button or indirectly by pressing F1.
+	</p>
+
+	<p>
+	This example provides a context sensitive help, i.e. pressing F1 will
+	show the help for the item under the mouse cursor.
+	</p>
+	
+	<p>
+	In order to run Qt Assistant properly you have to install the
+	documentation profile for this example. Without the profile Qt
+	Assistant will run with the default profile, which contains the
+	documentation for Qt. It can still display arbitrary pages with
+	the <i>Display</i> button or using the context help (F1), but Qt
+	Assistant won't be customized for this example application.
+	</p>
+
+	<p>
+	Installing the documentation profile for this example is done
+	by pressing the 'Install example documentation' button in
+	the Help Example application. This will call the function
+	<code>HelpDemo::installExampleDocs()</code> in the
+	<code>helpdemo.cpp</code> file. This function shows how
+	assistant can be run with the <code>-addProfile</code> option
+	which will install the profile. If the user then checks the
+	<i>Run Qt Assistant customized for HelpExample</i> button, assistant will
+	be run with the option <code>-profile HelpExample</code> which
+	will tell Qt Assistant to display only the documentation specified
+	in that profile and to be customized according to the profile. 
+	At the enduser, the installation procedure will most likely
+	perform the installing of the profile and the application will
+	always call assistant with the <code>-profile</code> option.
+	</p>
+
 	<ul>
-	    <li><a href="setup.html">How to setup Qt Assistant</a></li>
 	    <li><a href="manual.html">How to use this example</a></li>
 	</ul>
     </body>
