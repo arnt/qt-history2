@@ -1205,7 +1205,6 @@ void QTabBar::makeVisible( QTab* tab  )
 	offset = tab->r.right() - d->leftB->x() + 1;
     }
 
-    QTab *t=0;
     for (int i=0; i<lstatic->size(); ++i)
 	lstatic->at(i)->r.moveBy( -offset, 0 );
 

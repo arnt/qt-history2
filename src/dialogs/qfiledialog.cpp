@@ -1376,7 +1376,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     else
 	dest = filedialog->d->url;
     QStringList lst;
-    for ( uint i = 0; i < l.count(); ++i ) {
+    for ( int i = 0; i < l.count(); ++i ) {
 	lst << l.at( i );
     }
 
