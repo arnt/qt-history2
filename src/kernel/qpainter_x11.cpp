@@ -2879,7 +2879,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 
     // find encoding boundaries
     for (i = 0; i < len; i++) {
-	tmp = QFontPrivate::scriptForChar(*uc++);
+	tmp = cfont.d->scriptForChar(*uc++);
 
 	// 2a. encoding boundary
 	if (tmp != currs) {

@@ -502,7 +502,8 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    return width( QComplexText::shapedCharacter( str, pos ) );
+    QChar ch = QComplexText::shapedCharacter( str, pos );
+    return (ch != 0) ? width(ch) : 0; 
 }
 
 int QFontMetrics::width( QChar ch ) const

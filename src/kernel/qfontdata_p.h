@@ -290,8 +290,6 @@ public:
     // value, lest you suffer firey death at the hand of qFatal().
 #define NSCRIPTSEGCSHACK 55
 
-    static Script scriptForChar(const QChar &c);
-
     static QFontCache *fontCache;
 
 
@@ -339,6 +337,8 @@ public:
     static int getFontWeight(const QCString &, bool = FALSE);
 
 #ifdef Q_WS_X11
+    Script scriptForChar(const QChar &c);
+    Script hanHack( const QChar & c );
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);

@@ -42,6 +42,8 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
 
+#if 0
+	// ### these fonts usually don't seem to have 0x3000 and the other ones
 	if ( ch.row() == 0) {
 	    if ( ch.cell() == ' ' )
 		ch = QChar( 0x3000 );
@@ -56,7 +58,8 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
 		ch = QChar( ch.cell()-' ', 255 );
 	}
-
+#endif
+	
 	ch = convJP->unicodeToJisx0208(ch.unicode());
 
 	if ( ! ch.isNull() ) {
@@ -115,12 +118,14 @@ QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
 	
+#if 0
 	if ( ch.row() == 0) {
 	    if ( ch.cell() == ' ' )
 		ch = QChar( 0x3000 );
 	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
 		ch = QChar( ch.cell()-' ', 255 );
 	}
+#endif
 	
 	ch = qt_UnicodeToKsc5601(ch.unicode());
 
@@ -193,12 +198,14 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
 	
+#if 0
 	if ( ch.row() == 0) {
 	    if ( ch.cell() == ' ' )
 		ch = QChar( 0x3000 );
 	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
 		ch = QChar( ch.cell()-' ', 255 );
 	}
+#endif
 	
 	ch = qt_UnicodeToGBK(ch.unicode());
 	
@@ -219,7 +226,7 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
 bool QFontGB2312Codec::canEncode( QChar ch ) const
 {
-    ch = qt_UnicodeToGBK( ch );
+    ch = qt_UnicodeToGBK( ch.unicode() );
     return ( ch.row() > 0xa0 && ch.cell() > 0xa0 );
 }
 
@@ -260,13 +267,14 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
 	
+#if 0
 	if ( ch.row() == 0) {
 	    if ( ch.cell() == ' ' )
 		ch = QChar( 0x3000 );
 	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
 		ch = QChar( ch.cell()-' ', 255 );
 	}
-	
+#endif
 	ch = QChar( qt_UnicodeToBig5(ch.unicode()) );
 
 	if ( ch.row() > 0xa0 && ch.cell() >= 0x40  ) {
@@ -284,7 +292,7 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
 bool QFontBig5Codec::canEncode( QChar ch ) const
 {
-    ch = qt_UnicodeToBig5( ch );
+    ch = qt_UnicodeToBig5( ch.unicode() );
     return ( ch.row() > 0xa0 && ch.cell() > 0xa0 );
 }
 
