@@ -153,6 +153,9 @@ void QGLColormap::detach_helper()
         x->cells = new QVector<QRgb>(256);
         *x->cells = *d->cells;
     }
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        cleanup(x);
 }
 
 /*!
