@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#326 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#327 $
 **
 ** Implementation of QListBox widget class
 **
@@ -106,6 +106,7 @@ public:
 
     bool ignoreMoves;
     bool differentDepths;
+    bool clearing;
 };
 
 
@@ -751,6 +752,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->updateTimer = new QTimer( this, "listbox update timer" );
     d->visibleTimer = new QTimer( this, "listbox visible timer" );
     d->differentDepths = FALSE;
+    d->clearing = FALSE;
     connect( d->updateTimer, SIGNAL(timeout()),
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
@@ -1242,6 +1244,7 @@ void QListBox::removeItem( int index )
 void QListBox::clear()
 {
     blockSignals( TRUE );
+    d->clearing = TRUE;
     d->current = 0;
     QListBoxItem * i = d->head;
     d->head = 0;
@@ -1264,6 +1267,7 @@ void QListBox::clear()
     clearSelection();
     blockSignals( FALSE );
     triggerUpdate( TRUE );
+    d->clearing = FALSE;
 }
 
 
@@ -3354,7 +3358,7 @@ QListBox * QListBoxItem::listBox() const
 */
 void QListBox::takeItem( const QListBoxItem * item)
 {
-    if ( !item )
+    if ( !item || d->clearing )
 	return;
     d->count--;
     if ( item->p && item->p->n == item )

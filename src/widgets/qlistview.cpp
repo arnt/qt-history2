@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#361 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#362 $
 **
 ** Implementation of QListView widget class
 **
@@ -178,6 +178,8 @@ struct QListViewPrivate
     QList<QListViewItemIterator> *iterators;
 
     QTimer *scrollTimer;
+
+    bool clearing;
 };
 
 
@@ -578,8 +580,8 @@ void QListViewItem::removeItem( QListViewItem * item )
     if ( !item )
 	return;
 
-    QListView * lv = listView();
-    if ( lv ) {
+    QListView *lv = listView();
+    if ( lv && !lv->d->clearing ) {
 
 	if ( lv->d->iterators ) {
 	    QListViewItemIterator *i = lv->d->iterators->first();
@@ -1670,7 +1672,8 @@ QListView::QListView( QWidget * parent, const char *name )
     d->iterators = 0;
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
-
+    d->clearing = FALSE;
+    
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -2090,6 +2093,7 @@ void QListView::insertItem( QListViewItem * i )
 void QListView::clear()
 {
     blockSignals( TRUE );
+    d->clearing = TRUE;
     clearSelection();
     if ( d->iterators ) {
 	QListViewItemIterator *i = d->iterators->first();
@@ -2127,6 +2131,7 @@ void QListView::clear()
     d->r->setSelectable( FALSE );
     blockSignals( FALSE );
     triggerUpdate();
+    d->clearing = FALSE;
 }
 
 /*!

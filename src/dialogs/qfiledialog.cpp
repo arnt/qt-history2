@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#358 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#359 $
 **
 ** Implementation of QFileDialog class
 **
@@ -100,7 +100,7 @@ static const char* open_xpm[]={
     "................"};
 
 /* XPM */
-static const char*link_xpm[]={
+static const char *link_dir_xpm[]={
     "15 15 10 1",
     "h c #808080",
     "g c #a0a0a0",
@@ -127,6 +127,35 @@ static const char*link_xpm[]={
     "#######dccchccd",
     ".dddddddddddddd",
     "..............."};
+
+/* XPM */
+static const char *link_file_xpm[]={
+    "13 15 10 1",
+    "h c #808080",
+    "g c #a0a0a0",
+    "d c #c3c3c3",
+    ". c #7f7f7f",
+    "c c #000000",
+    "b c #bfbfbf",
+    "f c #303030",
+    "e c #585858",
+    "a c #ffffff",
+    "# c None",
+    "..........###",
+    ".aaaaaaaab.##",
+    ".aaaaaaaaba.#",
+    ".aaaaaaaacccc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaadc",
+    ".aaaaaaaaaadc",
+    ".aaaacccccccc",
+    ".aaaacaaaaaac",
+    ".aaaacaeaeaac",
+    ".aaaacaefcfac",
+    ".aaaacaagchac",
+    ".ddddcaaahaac",
+    "ccccccccccccc"};                                                               
 
 /* XPM */
 static const char* file_xpm[]={
@@ -302,7 +331,8 @@ static QPixmap * multiColumnListViewIcon = 0;
 static QPixmap * cdToParentIcon = 0;
 static QPixmap * newFolderIcon = 0;
 static QPixmap * fifteenTransparentPixels = 0;
-static QPixmap * symLinkIcon = 0;
+static QPixmap * symLinkDirIcon = 0;
+static QPixmap * symLinkFileIcon = 0;
 static QPixmap * fileIcon = 0;
 static QString * workingDirectory = 0;
 static bool bShowHiddenFiles = FALSE;
@@ -333,8 +363,10 @@ static void cleanup() {
     previewContentsViewIcon = 0;
     delete previewInfoViewIcon;
     previewInfoViewIcon = 0;
-    delete symLinkIcon;
-    symLinkIcon = 0;
+    delete symLinkDirIcon;
+    symLinkDirIcon = 0;
+    delete symLinkFileIcon;
+    symLinkFileIcon = 0;
     delete fileIcon;
     fileIcon = 0;
 }
@@ -345,7 +377,8 @@ static void makeVariables() {
 	qAddPostRoutine( cleanup );
 	workingDirectory = new QString;
 	openFolderIcon = new QPixmap(open_xpm);
-	symLinkIcon = new QPixmap(link_xpm);
+	symLinkDirIcon = new QPixmap(link_dir_xpm);
+	symLinkFileIcon = new QPixmap(link_file_xpm);
 	fileIcon = new QPixmap(file_xpm);
 	closedFolderIcon = new QPixmap(closed_xpm);
 	detailViewIcon = new QPixmap(detailedview_xpm);
@@ -433,6 +466,38 @@ struct QFileDialogPrivate {
 	bool selectable;
     };
 
+    class UrlInfoList : public QList<QUrlInfo> {
+    public:
+	UrlInfoList() : QList() { setAutoDelete( TRUE ); }
+	int compareItems( QCollection::Item n1, QCollection::Item n2 ) {
+	    if ( !n1 || !n2 )
+		return 0;
+
+	    QUrlInfo *i1 = ( QUrlInfo *)n1;
+	    QUrlInfo *i2 = ( QUrlInfo *)n2;
+
+	    if ( i1->isDir() && !i2->isDir() )
+		return -1;
+	    if ( !i1->isDir() && i2->isDir() )
+		return 1;
+	    
+	    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
+		return 0;
+	    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
+		return 1;
+	    else if ( QUrlInfo::lessThan( *i1, *i2, sortFilesBy ) )
+		return -1;
+
+	    // can't happen...
+	    return 0;
+	}
+	QUrlInfo *operator[]( int i ) {
+	    return at( i );
+	}
+    };
+
+    UrlInfoList sortedList;
+    
     QFileListBox * moreFiles;
 
     QFileDialog::Mode mode;
@@ -1371,9 +1436,12 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 	return 0;
     else if ( fileIconProvider )
 	return fileIconProvider->pixmap( info );
-    else if ( info.isSymLink() )
-	return symLinkIcon;
-    else if ( info.isDir() )
+    else if ( info.isSymLink() ) {
+	if ( info.isFile() )
+	    return symLinkFileIcon;
+	else
+	    return symLinkDirIcon;
+    } else if ( info.isDir() )
 	return closedFolderIcon;
     else if ( info.isFile() )
 	return fileIcon;
@@ -3733,6 +3801,7 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	return;
 
     if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+	d->sortedList.clear();
 	d->moreFiles->clearSelection();
 	files->clearSelection();
 	d->moreFiles->clear();
@@ -3843,18 +3912,22 @@ void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 	 inf.name()[ 0 ] == QChar( '.' ) )
 	return;
 
-    QFileDialogPrivate::File * i = 0;
-    QFileDialogPrivate::MCItem *i2 = 0;
-    i = new QFileDialogPrivate::File( d, &inf, files );
-    i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+    if ( !d->url.isLocalFile() ) {
+	QFileDialogPrivate::File * i = 0;
+	QFileDialogPrivate::MCItem *i2 = 0;
+	i = new QFileDialogPrivate::File( d, &inf, files );
+	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 
-    if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
-	 d->mode == Directory ) {
-	i->setSelectable( FALSE );
-	i2->setSelectable( FALSE );
-    }
+	if ( ( d->mode == ExistingFiles && inf.isDir() ) ||
+	     d->mode == Directory ) {
+	    i->setSelectable( FALSE );
+	    i2->setSelectable( FALSE );
+	}
 	
-    i->i = i2;
+	i->i = i2;
+    }
+    
+    d->sortedList.append( new QUrlInfo( inf ) );
 }									
 
 void QFileDialog::removeEntry( QNetworkOperation *op )
@@ -3961,126 +4034,32 @@ void QFileDialog::setContentsPreviewWidget( QWidget *w )
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
-static int cmpInfo( const void *n1, const void *n2 )
-{
-    if ( !n1 || !n2 )
-	return 0;
-
-    QUrlInfo *i1 = ( QUrlInfo *)n1;
-    QUrlInfo *i2 = ( QUrlInfo *)n2;
-
-    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
-	return 0;
-    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
-	return 1;
-    else if ( QUrlInfo::lessThan( *i1, *i2, sortFilesBy ) )
-	return -1;
-
-    // can't happen...
-    return 0;
-}
-
 /*!
   Resorts the displayed directory
 */
 
 void QFileDialog::resortDir()
 {
-    int num = d->moreFiles->count();
-    int i = 0;
-
-    QUrlInfo *items = new QUrlInfo[ num ];
     QFileDialogPrivate::File *item = 0;
     QFileDialogPrivate::MCItem *item2 = 0;
 
-    QMap< QString, bool > selected;
-    QListViewItemIterator it( files );
-    for ( i = 0; it.current(); ++it ) {
-	items[ i ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
-	selected[ items[ i++ ].name() ] = it.current()->isSelected();
+    d->sortedList.sort();
+    
+    if ( files->childCount() > 0 || d->moreFiles->count() > 0 ) {
+	files->clear();
+	d->moreFiles->clear();
+	files->setSorting( -1 );
     }
-
-    qsort( items, num, sizeof( QUrlInfo ), cmpInfo );
-
-    files->clear();
-    d->moreFiles->clear();
-    files->setSorting( -1 );
-
-    if ( !sortAscending ) {
-	for ( i = num - 1; i >= 0; --i ) {
-	    if ( items[ i ].isDir() )
-		continue;
-	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
-	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
-	    item->i = item2;
-	    if ( selected[ items[ i ].name() ] ) {
-		files->setSelected( item, TRUE );
-		d->moreFiles->setSelected( item2, TRUE );
-		files->setCurrentItem( item );
-		d->moreFiles->setCurrentItem( item2 );
-	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ||
-		 d->mode == Directory ) {
-		item->setSelectable( FALSE );
-		item2->setSelectable( FALSE );
-	    }
-	}
-	for ( i = num - 1; i >= 0; --i ) {
-	    if ( !items[ i ].isDir() )
-		continue;
-	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
-	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
-	    item->i = item2;
-	    if ( selected[ items[ i ].name() ] ) {
-		files->setSelected( item, TRUE );
-		d->moreFiles->setSelected( item2, TRUE );
-		files->setCurrentItem( item );
-		d->moreFiles->setCurrentItem( item2 );
-	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ||
-		 d->mode == Directory ) {
-		item->setSelectable( FALSE );
-		item2->setSelectable( FALSE );
-	    }
-	}
-    } else {
-	for ( i = 0; i < num; ++i ) {
-	    if ( !items[ i ].isDir() )
-		continue;
-	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
-	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
-	    item->i = item2;
-	    if ( selected[ items[ i ].name() ] ) {
-		files->setSelected( item, TRUE );
-		d->moreFiles->setSelected( item2, TRUE );
-		files->setCurrentItem( item );
-		d->moreFiles->setCurrentItem( item2 );
-	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ||
-		 d->mode == Directory ) {
-		item->setSelectable( FALSE );
-		item2->setSelectable( FALSE );
-	    }
-	}
-	for ( i = 0; i < num; ++i ) {
-	    if ( items[ i ].isDir() )
-		continue;
-	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
-	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
-	    item->i = item2;
-	    if ( selected[ items[ i ].name() ] ) {
-		files->setSelected( item, TRUE );
-		d->moreFiles->setSelected( item2, TRUE );
-		files->setCurrentItem( item );
-		d->moreFiles->setCurrentItem( item2 );
-	    }
-	    if ( d->mode == ExistingFiles && item->info.isDir() ||
-		 d->mode == Directory ) {
-		item->setSelectable( FALSE );
-		item2->setSelectable( FALSE );
-	    }
+    
+    QUrlInfo *i = sortAscending ? d->sortedList.first() : d->sortedList.last();
+    for ( ; i; i = sortAscending ? d->sortedList.next() : d->sortedList.prev() ) {
+	item = new QFileDialogPrivate::File( d, i, files );
+	item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item, item2 );
+	item->i = item2;
+	if ( d->mode == ExistingFiles && item->info.isDir() ||
+	     d->mode == Directory ) {
+	    item->setSelectable( FALSE );
+	    item2->setSelectable( FALSE );
 	}
     }
-
-    delete [] items;
 }
