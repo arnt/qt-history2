@@ -193,7 +193,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     writeInstalls(t, "INSTALLS");
 
     // user defined targets
-    QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
     for(QStringList::Iterator sit = qut.begin(); sit != qut.end(); ++sit) {
 	QString targ = var((*sit) + ".target"),
 		 cmd = var((*sit) + ".commands"), deps;
@@ -249,7 +249,7 @@ QString
 Win32MakefileGenerator::findDependency(const QString &dep)
 {
     {
-	QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+	QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
 	for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
 	    QString targ = var((*it) + ".target");
 	    if(targ.isEmpty())
@@ -259,7 +259,7 @@ Win32MakefileGenerator::findDependency(const QString &dep)
 	}
     }
     {
-	QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+	QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
 	for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
 	    QString tmp_out = project->variables()[(*it) + ".output"].first();
 	    QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
@@ -519,7 +519,7 @@ void Win32MakefileGenerator::processRcFileVar()
 
 void Win32MakefileGenerator::processExtraWinCompilersVar()
 {
-    QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	if(tmp_out.isEmpty())

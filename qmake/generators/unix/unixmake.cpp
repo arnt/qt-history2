@@ -329,7 +329,7 @@ UnixMakefileGenerator::findDependency(const QString &dep)
 {
     QStringList::Iterator it;
     {
-	QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
+	QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
 	for(it = qut.begin(); it != qut.end(); ++it) {
 	    QString targ = var((*it) + ".target");
 	    if(targ.isEmpty())
@@ -339,7 +339,7 @@ UnixMakefileGenerator::findDependency(const QString &dep)
 	}
     }
     {
-	QStringList &quc = project->variables()["QMAKE_EXTRA_UNIX_COMPILERS"];
+	QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
 	for(it = quc.begin(); it != quc.end(); ++it) {
 	    QString tmp_out = project->variables()[(*it) + ".output"].first();
 	    QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");

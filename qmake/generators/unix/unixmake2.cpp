@@ -76,7 +76,7 @@ UnixMakefileGenerator::writeExtraVariables(QTextStream &t)
 {
     bool first = TRUE;
     QMap<QString, QStringList> &vars = project->variables();
-    QStringList &exports = project->variables()["QMAKE_EXTRA_UNIX_VARIABLES"];
+    QStringList &exports = project->variables()["QMAKE_EXTRA_VARIABLES"];
     for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
 	for(QStringList::Iterator exp_it = exports.begin(); exp_it != exports.end(); ++exp_it) {
 	    QRegExp rx((*exp_it), QString::CaseInsensitive, TRUE);
@@ -225,11 +225,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(do_incremental && !moc_incremental && !src_incremental)
 	do_incremental = FALSE;
-    if(!project->isEmpty("QMAKE_EXTRA_UNIX_COMPILERS")) {
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
 	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
 	target_deps += " $(OBJCOMP)";
 
-	QStringList &comps = project->variables()["QMAKE_EXTRA_UNIX_COMPILERS"];
+	QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
 	for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
 	    QStringList &vars = project->variables()[(*compit) + ".variables"];
 	    for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
@@ -263,7 +263,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
 
     // blasted includes
-    QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
+    QStringList &qeui = project->variables()["QMAKE_EXTRA_INCLUDES"];
     QStringList::Iterator it;
     for( it = qeui.begin(); it != qeui.end(); ++it)
 	t << "include " << (*it) << endl;
@@ -877,7 +877,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     // user defined targets
-    QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
     for(it = qut.begin(); it != qut.end(); ++it) {
 	QString targ = var((*it) + ".target"),
 		 cmd = var((*it) + ".commands"), deps;
@@ -896,7 +896,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << cmd << endl << endl;
     }
     // user defined compilers
-    QStringList &quc = project->variables()["QMAKE_EXTRA_UNIX_COMPILERS"];
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
@@ -955,7 +955,7 @@ void
 UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 {
     // blasted includes
-    QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
+    QStringList &qeui = project->variables()["QMAKE_EXTRA_INCLUDES"];
     for(QStringList::Iterator qeui_it = qeui.begin(); qeui_it != qeui.end(); ++qeui_it)
 	t << "include " << (*qeui_it) << endl;
     writeExtraVariables(t);
@@ -1107,7 +1107,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     writeInstalls(t, "INSTALLS");
 
     // user defined targets
-    QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
     for(QStringList::Iterator qut_it = qut.begin(); qut_it != qut.end(); ++qut_it) {
 	QString targ = var((*qut_it) + ".target"),
 		 cmd = var((*qut_it) + ".commands"), deps;
@@ -1327,7 +1327,7 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_RPATH") + rpath_destdir;
 	}
     }
-    QStringList &quc = project->variables()["QMAKE_EXTRA_UNIX_COMPILERS"];
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	if(tmp_out.isEmpty())

@@ -201,6 +201,10 @@ static QString varMap(const QString &x)
 	ret = "PRECOMPILED_SOURCE";
     else if(ret == "INCPATH")
 	ret = "INCLUDEPATH";
+    else if(ret == "QMAKE_EXTRA_WIN_COMPILERS" || ret == "QMAKE_EXTRA_UNIX_COMPILERS")
+	ret = "QMAKE_EXTRA_COMPILERS";
+    else if(ret == "QMAKE_EXTRA_WIN_TARGETS" || ret == "QMAKE_EXTRA_UNIX_TARGETS")
+	ret = "QMAKE_EXTRA_TARGETS";
     return ret;
 }
 

@@ -140,11 +140,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
 
     QString extraCompilerDeps;
-    if(!project->isEmpty("QMAKE_EXTRA_WIN_COMPILERS")) {
+    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
 	t << "OBJCOMP = " << varList("OBJCOMP") << endl;
 	extraCompilerDeps += " $(OBJCOMP) ";
 
-	QStringList &comps = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+	QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
 	for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
 	    QStringList &vars = project->variables()[(*compit) + ".variables"];
 	    for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
@@ -282,7 +282,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     // user defined targets
 
     QStringList::Iterator it;
-    QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
     for(it = qut.begin(); it != qut.end(); ++it) {
 	QString targ = var((*it) + ".target"),
 		 cmd = var((*it) + ".commands"), deps;
@@ -303,7 +303,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     }
     t << endl << endl;
 
-    QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
