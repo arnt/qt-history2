@@ -345,7 +345,7 @@ void TextEdit::filePrint()
             p.setFont(font);
             p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
                        view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
-            if (view.top()  >= layout->totalHeight())
+            if (view.top()  >= layout->rootFrameSize().height())
                 break;
             printer.newPage();
             page++;
