@@ -18,7 +18,7 @@
 **
 *****************************************************************************/
 
-#ifdef QWS_VFB
+#ifdef QFEATURE_QWS_VFB
 
 #include "qgfxraster_qws.h"
 
@@ -262,12 +262,12 @@ bool QVFbScreen::initCard()
 {
     if(d==8) {
 	screencols=256;
-#if defined(QWS_DEPTH_8GRAYSCALE)
+#if defined(QFEATURE_QWS_DEPTH_8GRAYSCALE)
 	// Build greyscale palette
 	for(int loopc=0;loopc<256;loopc++) {
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 	}
-#elif defined(QWS_DEPTH_8DIRECT)
+#elif defined(QFEATURE_QWS_DEPTH_8DIRECT)
 	for(int loopc=0;loopc<256;loopc++) {
 	    int a,b,c;
 	    a=((loopc & 0xe0) >> 5) << 5;
@@ -339,27 +339,27 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     QGfx* ret;
     if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
-#if QWS_DEPTH_16
+#if QFEATURE_QWS_DEPTH_16
     } else if(d==16) {
 	ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
-#if QWS_DEPTH_15
+#if QFEATURE_QWS_DEPTH_15
     } else if(d==15) {
 	ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
-#if QWS_DEPTH_8
+#if QFEATURE_QWS_DEPTH_8
     } else if(d==8) {
 	ret = new QGfxVFb<8,0>(bytes,w,h);
 #endif
-#if defined(QWS_DEPTH_8GRAYSCALE)
+#if defined(QFEATURE_QWS_DEPTH_8GRAYSCALE)
     } else if(d==8) {
 	ret = new QGfxVFb<8,0>(bytes,w,h);
 #endif
-#if defined(QWS_DEPTH_8DIRECT)
+#if defined(QFEATURE_QWS_DEPTH_8DIRECT)
     } else if(d==8) {
 	ret = new QGfxVFb<8,0>(bytes,w,h);
 #endif
-#if QWS_DEPTH_32
+#if QFEATURE_QWS_DEPTH_32
     } else if(d==32) {
 	ret = new QGfxVFb<32,0>(bytes,w,h);
 #endif
