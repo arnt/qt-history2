@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#34 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#34 $";
 #endif
 
 
@@ -162,9 +162,9 @@ void QPainter::save()				// save/push painter state
     }
     register QPState *ps = new QPState;
     CHECK_PTR( ps );
-    ps->font  = cfont.copy();
-    ps->pen   = cpen.copy();
-    ps->brush = cbrush.copy();
+    ps->font  = cfont;
+    ps->pen   = cpen;
+    ps->brush = cbrush;
     ps->bgc   = bg_col;
     ps->bgm   = bg_mode;
     ps->rop   = rop;
