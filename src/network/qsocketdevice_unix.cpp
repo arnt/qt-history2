@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#32 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#33 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -178,18 +178,9 @@
 
 #else // ### remove before 3.0
 
-// This approach is based on X/Open specifications:
-// 1) In case XPG5/SUSv2 is specified use socklen_t.
-// 2) In case XPG4v2/XNS4/SUS is specified use size_t unless
-//    POSIX.1g Draft 6.6 is specified (platform-dependant).
-// ### 3.0 I'm not checking for POSIX.1g Draft 6.6 yet
-// 3) Else fall back to int.
-// 4) I case of broken/exotic/non-conformant platforms test
-//    against the OS release.  As usual BSDs are tested
-//    separately because they don't follow X/Open rules.
-
 #include <unistd.h>
 #if defined(Q_OS_MACX)
+#  define SOCKLEN_T int
 #  define QT_SOCKSARG_INT
 #elif defined(BSD4_4)
 // int       - FreeBSD 1.0 through 3.5.1
@@ -200,28 +191,61 @@
 //             NetBSD  1.4 through 1.5
 // ### Brad, is there some way to distinguish BSDs which use int
 // ### and BSDs which use socklen_t? Or maybe this is not an issue
-// ### because those that use size_t are way too old?
+// ### because those that use int are way too old?
+#  define SOCKLEN_T socklen_t
 #  define QT_SOCKSARG_SOCKLEN_T
-#elif defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
-// XPG5 is supported
+#elif defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 500)
+// XPG5 interfaces
+#  define SOCKLEN_T socklen_t
 #  define QT_SOCKSARG_SOCKLEN_T
-#elif defined(_XOPEN_XPG4)
+#elif defined(__GLIBC__) && (__GLIBC__ >= 2)
+// We do not define XPG5 explicitly so the X/Open feature test macros
+// are not defined.  However the GNU C library does use XPG5 (not to
+// mention upcoming XPG6) interfaces.
+#  define SOCKLEN_T socklen_t
+#  define QT_SOCKSARG_SOCKLEN_T
+// XPG4v2 is complicated so we handle it on a platform by platform basis.
+// From Sun's "Notes on 64-bit Drivers and STREAMS - A White Paper":
+// 	Under UNIX95, the XNS4.2 definitions were only available under
+// 	a specific compilation environment through feature-test macros
+// 	specifically requesting them.
+// 	The standard environment provided the older Berkeley-style
+// 	prototypes.
+// NOTE1:
+// 	Which feature-test macros trigger the infamous size_t?
+// 	Is the last sentence true of Solaris only or are there
+// 	many vendors shipping implementations with default size_t?
+// 	QNX And UnixWare 7 use size_t by default for example.
+// NOTE2:
+// 	Could it be that some platforms have POSIX.1g Draft 6.6 (March 1997)
+// 	overload XPG4v2 thus requesting socklen_t?
+#elif defined(Q_OS_AIX)
+#  ifdef _AIX43
+// AIX 4.3.1 is SUSv2/XPG5 compliant so it should be caught by the
+// _XOPEN_VERSION test above anyway.
+#    define SOCKLEN_T socklen_t
+#    define QT_SOCKSARG_SOCKLEN_T
+#  elif _AIX42
+// AIX 4.2 is XPG4v2 compliant.
+#    define SOCKLEN_T size_t
+#    define QT_SOCKSARG_SIZE_T
+#  else
+// AIX 4.1 is XPG4 compliant so it should fall through anyway.
+#    define SOCKLEN_T int
+#    define QT_SOCKSARG_INT
+#  endif
+#elif defined(Q_OS_UNIXWARE7)
+// UnixWare 7 supports infamous XPG4v2 sockets.
+#  define SOCKLEN_T size_t
+#  define QT_SOCKSARG_SIZE_T
+#elif defined(Q_OS_QNX)
+// QNX supports infamous XPG4v2 sockets.
+#  define SOCKLEN_T size_t
 #  define QT_SOCKSARG_SIZE_T
 #else
 // fall through for POSIX, XPG3, XPG4
-#  define QT_SOCKSARG_INT
-#endif
-
-// Finally define SOCKLEN_T!
-
-#if defined(QT_SOCKSARG_SOCKLEN_T)
-// XPG5 or XPG4v2/POSIX.1g
-#  define SOCKLEN_T socklen_t
-#elif defined(QT_SOCKSARG_SIZE_T)
-// XPG4v2
-#  define SOCKLEN_T size_t
-#else
 #  define SOCKLEN_T int
+#  define QT_SOCKSARG_INT
 #endif
 
 // Now a few hacks that depend on SOCKLEN_T.

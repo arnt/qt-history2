@@ -118,11 +118,17 @@
 //    that are included afterwards import the correct interfaces.
 //    Now you may also test the availability of some specification.
 //    Important examples are:
+//    	_POSIX_THREADS defined    for IEEE Std 1003.1c (1995) / POSIX.1c
 //    	_XOPEN_XPG3    defined    for XPG3
 //    	_XOPEN_XPG4    defined    for XPG4
 //    	_XOPEN_UNIX    defined    for SUS/XPG4v2
 //    	_XOPEN_VERSION set to 500 for SUSv2/XPG5
-//    	_POSIX_THREADS defined    for IEEE Std 1003.1c (1995) / POSIX.1c
+//    Note that these macros never work as expected.  For example even
+//    though XPG5 style is used in the GNU C library, _XOPEN_VERSION is
+//    not defined to 500 unless you explicitly set _XOPEN_SOURCE to 500.
+//    On the other hand Irix defines _XOPEN_UNIX although we do not
+//    explicitly specify it but then uses good ol' Berkeley-style sockets.
+//    Do not blindly rely on them!
 //
 
 #if defined(__APPLE__) && defined(__GNUC__)
