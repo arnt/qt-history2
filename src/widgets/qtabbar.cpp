@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#90 $
 **
 ** Implementation of QTabBar class
 **
@@ -52,42 +52,6 @@ QTab::~QTab()
     delete iconset;
 }
 
-class QArrowButton : public QPushButton
-{
-public:
-    QArrowButton( Qt::ArrowType, QWidget *parent, const char *name=0 );
-    ~QArrowButton();
-protected:
-    void  drawButtonLabel( QPainter * );
-private:
-    Qt::ArrowType arrow;
-};
-
-QArrowButton::QArrowButton( Qt::ArrowType arrowType, QWidget *parent, const char *name )
-    : QPushButton( parent, name ), arrow( arrowType )
-{
-    setAutoRepeat( TRUE );
-}
-QArrowButton::~QArrowButton()
-{
-}
-
-void  QArrowButton::drawButtonLabel( QPainter * p)
-{
-    int x, y, w, h;
-    rect().rect( &x, &y, &w, &h );
-    if ( isDown() || isOn() ){
-	int sx = 0;
-	int sy = 0;
-	style().getButtonShift(sx, sy);
-	x+=sx;
-	y+=sy;
-    }
-    int fw = style().defaultFrameWidth();
-    x += fw;  y += fw;  w -= 2*fw;  h -= 2*fw;
-    style().drawArrow( p, arrow, isDown(), x, y, w, h, colorGroup(), isEnabled() );
-}
-
 // this struct can be expanded without breaking binary compatibility
 struct QTabPrivate {
     int id;
@@ -95,8 +59,8 @@ struct QTabPrivate {
     QTab * pressed;
     QAccel * a;
     QTabBar::Shape s;
-    QArrowButton* rightB;
-    QArrowButton* leftB;
+    QPushButton* rightB;
+    QPushButton* leftB;
     bool  scrolls;
 };
 
@@ -186,11 +150,11 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
     d->scrolls = FALSE;
-    d->leftB = new QArrowButton( LeftArrow, this );
+    d->leftB = new QPushButton( LeftArrow, this );
     d->leftB->setFocusPolicy( NoFocus );
     connect( d->leftB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->leftB->hide();
-    d->rightB = new QArrowButton( RightArrow, this );
+    d->rightB = new QPushButton( RightArrow, this );
     d->rightB->setFocusPolicy( NoFocus );
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
