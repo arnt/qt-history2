@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#8 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#9 $
 **
-** Definition of QButton class
+** Definition of QButton widget class
 **
 ** Author  : Haavard Nord
 ** Created : 940206
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -24,6 +24,7 @@ class QButton : public QWidget			// button class
     Q_OBJECT
 public:
     QButton( QWidget *parent=0, const char *name=0 );
+   ~QButton();
 
     const char *label()		const;		// get/set button text
     void setLabel( const char *label, bool resize=FALSE );

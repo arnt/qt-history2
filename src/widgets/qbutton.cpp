@@ -1,26 +1,28 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#12 $
 **
-** Implementation of QButton class
+** Implementation of QButton widget class
 **
 ** Author  : Haavard Nord
 ** Created : 940206
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
+#define	 QPixMapDict QDictM_QPixMap
+#include "qbutton.h"
+#include "qbttngrp.h"
+#include "qpainter.h"
 #include "qdict.h"
 #include "qpixmap.h"
-declare(QDictM,QPixMap);			// internal pixmap dict
-#define	 QPixMapDict QDictM(QPixMap)
-#include "qbutton.h"
-#include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#12 $";
 #endif
 
+
+declare(QDictM,QPixMap);			// internal pixmap dict
 
 QPixMapDict *QButton::pmdict = 0;		// pixmap dict
 long QButton::pmsize = 0;			// size of all pixmaps
@@ -33,6 +35,14 @@ QButton::QButton( QWidget *parent, const char *name ) : QWidget( parent, name )
     buttonDown = FALSE;				// button is up
     buttonOn = FALSE;				// button is off
     mlbDown = FALSE;				// mouse left button up
+    if ( parent && parent->inherits("QButtonGroup") )
+	((QButtonGroup*)parent)->insert( this );// insert into buttongrp parent
+}
+
+QButton::~QButton()
+{
+    if ( parent() && parent()->inherits("QButtonGroup") )
+	((QButtonGroup*)parent)->insert( this );// remove from buttongrp parent
 }
 
 
