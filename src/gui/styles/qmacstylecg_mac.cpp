@@ -105,85 +105,6 @@ static inline bool qt_mac_is_metal(QPainter *p)
     return qt_mac_is_metal(qt_abuse_painter_for_widget(p));
 }
 
-// Utility to get the track info for scroll bars and sliders. It is used a few times and
-// its worth not having to initalize all those items everytime. I have no idea why we
-// can't do this by value, but it makes the darkening of the slider's thumb thing not work
-// if we do. :-/
-static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl control,
-                                                    const QAbstractSlider *aslider,
-                                                    const QRect &rect = QRect(),
-                                                    const QPainter *p = 0)
-{
-    static HIThemeTrackDrawInfo tdi;
-    tdi.version = qt_mac_hitheme_version;
-    tdi.reserved = 0;
-    QAquaWidgetSize wsize = qt_aqua_size_constrain(aslider);
-    if (control == QStyle::CC_Slider) {
-        switch (wsize) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            tdi.kind = kThemeMediumSlider;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                tdi.kind = kThemeMiniSlider;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            tdi.kind = kThemeSmallSlider;
-            break;
-        }
-    } else if (control == QStyle::CC_ScrollBar) {
-        switch (wsize) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            tdi.kind = kThemeMediumScrollBar;
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3) && 0
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
-                tdi.kind = kThemeMiniScrollBar;
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            tdi.kind = kThemeSmallScrollBar;
-            break;
-        }
-    }
-    if (rect.isValid() && p)
-        tdi.bounds = *qt_glb_mac_rect(rect, p);
-    else
-        tdi.bounds = *qt_glb_mac_rect(aslider->rect());
-    tdi.min = aslider->minimum();
-    tdi.max = aslider->maximum();
-    tdi.value = aslider->sliderPosition();
-    tdi.attributes = kThemeTrackShowThumb;
-    if(control == QStyle::CC_Slider && QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR
-       && aslider->hasFocus())
-        tdi.attributes |= kThemeTrackHasFocus;
-    if(aslider->orientation() == Qt::Horizontal)
-        tdi.attributes |= kThemeTrackHorizontal;
-    if((control == QStyle::CC_Slider
-         && !(aslider->orientation() == Qt::Horizontal) == !aslider->invertedAppearance())
-        || (control == QStyle::CC_ScrollBar && aslider->invertedAppearance()))
-        tdi.attributes |= kThemeTrackRightToLeft;
-    tdi.enableState = aslider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
-    // That's about all we can do at this that is the same, time to split it up.
-    if (control == QStyle::CC_Slider) {
-        const QSlider *slider = static_cast<const QSlider *>(aslider);
-        if (slider->tickmarks() == QSlider::NoMarks || slider->tickmarks() == QSlider::Both)
-            tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
-        else if (slider->tickmarks() == QSlider::Above)
-            tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
-        else
-            tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
-    }
-    return &tdi;
-}
-
 static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *slider,
                           HIThemeTrackDrawInfo *tdi, const QWidget *needToRemoveMe)
 {
@@ -433,12 +354,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 {
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (pe) {
-    case PE_RubberBandMask:
-        p->fillRect(r, color1);
-        break;
-    case PE_RubberBand:
-        p->fillRect(r, pal.highlight());
-        break;
     case PE_CheckListController:
         break;
     case PE_CheckListExclusiveIndicator:
@@ -874,69 +789,6 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 {
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
-    case CC_Slider:
-    case CC_ScrollBar: {
-        const QAbstractSlider *slider = static_cast<const QAbstractSlider *>(w);
-        bool tracking = slider->hasTracking();
-        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider, r, p);
-        if(tds == kThemeStateInactive)
-            tdi.enableState = kThemeTrackInactive;
-        else if(tds == kThemeStateUnavailable)
-            tdi.enableState = kThemeTrackDisabled;
-        else
-            tdi.enableState = kThemeTrackActive;
-        if (control == CC_Slider) {
-            if (subActive == SC_SliderGroove)
-                tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
-            else if (subActive == SC_SliderHandle)
-                tdi.trackInfo.slider.pressState = kThemeThumbPressed;
-        } else {
-            if (subActive == SC_ScrollBarSubLine)
-                tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
-                                                     | kThemeLeftOutsideArrowPressed;
-            else if (subActive == SC_ScrollBarAddLine)
-                tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
-                                                     | kThemeRightOutsideArrowPressed;
-            else if (subActive == SC_ScrollBarAddPage)
-                tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-            else if (subActive == SC_ScrollBarSubPage)
-                tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-            else if (subActive == SC_ScrollBarSlider)
-                tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
-            tdi.trackInfo.scrollbar.viewsize = slider->pageStep();
-        }
-        HIRect macRect;
-        if (!tracking) {
-            // Small optimization, the same as querySubControlMetrics
-            QCFType<HIShapeRef> shape;
-            HIThemeGetTrackThumbShape(&tdi, &shape);
-            HIShapeGetBounds(shape, &macRect);
-            tdi.value = slider->value();
-        }
-        HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
-                         kHIThemeOrientationNormal);
-        if (sub & SC_SliderTickmarks) {
-	    int numTicks = (slider->maximum() - slider->minimum() + 1) / slider->pageStep();
-            if (control == QStyle::CC_Slider) {
-                const QSlider *s = static_cast<const QSlider *>(slider);
-                if(s->tickInterval())
-                    numTicks = s->width() / s->tickInterval();
-            }
-            if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
-                // They asked for both, so we'll give it to them.
-                tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
-                HIThemeDrawTrackTickMarks(&tdi, numTicks, static_cast<CGContextRef>(p->handle()),
-                                          kHIThemeOrientationNormal);
-                tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
-                HIThemeDrawTrackTickMarks(&tdi, numTicks, static_cast<CGContextRef>(p->handle()),
-                                          kHIThemeOrientationNormal);
-            } else {
-                HIThemeDrawTrackTickMarks(&tdi, numTicks, static_cast<CGContextRef>(p->handle()),
-                                          kHIThemeOrientationNormal);
-
-            }
-        }
-        break; }
     case CC_SpinWidget: {
         const QSpinWidget *sw = static_cast<const QSpinWidget *>(w);
         if (sub & SC_SpinWidgetFrame)
@@ -1287,40 +1139,6 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
 {
     QRect rect;
     switch (control) {
-    case CC_Slider: {
-        const QSlider *slider = static_cast<const QSlider *>(widget);
-        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider);
-        HIRect macRect;
-        switch (sc) {
-        case SC_SliderGroove:
-            HIThemeGetTrackBounds(&tdi, &macRect);
-            rect = qrectForHIRect(macRect);
-            break;
-        case SC_SliderHandle:
-            QCFType<HIShapeRef> shape;
-            HIThemeGetTrackThumbShape(&tdi, &shape);
-            HIShapeGetBounds(shape, &macRect);
-            rect = qrectForHIRect(macRect);
-            break;
-        }
-        break; }
-    case CC_ScrollBar: {
-        const QScrollBar *scrollbar = static_cast<const QScrollBar *>(widget);
-        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, scrollbar);
-        HIRect macRect;
-        switch (sc) {
-        case SC_ScrollBarGroove:
-            HIThemeGetTrackDragRect(&tdi, &macRect);
-            rect = qrectForHIRect(macRect);
-            break;
-        case SC_ScrollBarSlider:
-            QCFType<HIShapeRef> shape;
-            HIThemeGetTrackThumbShape(&tdi, &shape);
-            HIShapeGetBounds(shape, &macRect);
-            rect = qrectForHIRect(macRect);
-            break;
-        }
-        break; }
     case CC_SpinWidget: {
         const int spinner_w = 10,
                 spinner_h = 15;
@@ -1436,51 +1254,6 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
 {
     SubControl sc = SC_None;
     switch (control) {
-    case CC_Slider: {
-        const QSlider *slider = static_cast<const QSlider *>(widget);
-        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider);
-        ControlPartCode part;
-        HIPoint pt = {(float)pos.x(), (float)pos.y()};
-        if (HIThemeHitTestTrack(&tdi, &pt, &part)) {
-            if (part == kControlPageUpPart || part == kControlPageDownPart)
-                sc = SC_SliderGroove;
-            else // if (part == 129)
-                sc = SC_SliderHandle;
-        }
-        break; }
-    case CC_ScrollBar: {
-        const QScrollBar *scrollbar = static_cast<const QScrollBar *>(widget);
-        HIScrollBarTrackInfo sbi;
-        sbi.version = qt_mac_hitheme_version;
-        if(!qAquaActive (widget->palette()))
-            sbi.enableState = kThemeTrackInactive;
-        else if (!widget->isEnabled())
-            sbi.enableState = kThemeTrackDisabled;
-        else
-            sbi.enableState = kThemeTrackActive;
-        sbi.viewsize = scrollbar->pageStep();
-        HIPoint pt = {(float)pos.x(), (float)pos.y()};
-        HIRect macSBRect = *qt_glb_mac_rect(widget->rect());
-        ControlPartCode part;
-        if (HIThemeHitTestScrollBarArrows(&macSBRect, &sbi, scrollbar->orientation() == Horizontal,
-                                          &pt, 0, &part)) {
-            if (part == kControlUpButtonPart)
-                sc = SC_ScrollBarSubLine;
-            else if (part == kControlDownButtonPart)
-                sc = SC_ScrollBarAddLine;
-
-        } else {
-            HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, scrollbar);
-            if (HIThemeHitTestTrack(&tdi, &pt, &part)) {
-                if (part == kControlPageUpPart)
-                    sc = SC_ScrollBarSubPage;
-                else if (part == kControlPageDownPart)
-                    sc = SC_ScrollBarAddPage;
-                else
-                    sc = SC_ScrollBarSlider;
-            }
-        }
-        break; }
     default:
         sc = QCommonStyle::querySubControl(control, widget, pos, opt);
     }
@@ -1735,6 +1508,12 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         HIRect hirect = qt_hirectForQRect(opt->rect, p);
         HIThemeDrawButton(&hirect, &bi, static_cast<CGContextRef>(p->handle()),
                           kHIThemeOrientationNormal, 0);
+        break;
+    case PE_RubberBandMask:
+        p->fillRect(opt->rect, color1);
+        break;
+    case PE_RubberBand:
+        p->fillRect(opt->rect, opt->palette.highlight());
         break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);

@@ -486,56 +486,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
     case PE_WindowFrame:
         drawPrimitive(PE_Panel, p, r, pal, flags, opt);
         break;
-
-    case PE_RubberBandMask:
-    case PE_RubberBand: {
-        QPen oldPen = p->pen();
-        QBrush oldBrush = p->brush();
-        if(pe == PE_RubberBandMask)
-            p->setPen(QPen(color1, 5));
-        else
-            p->setPen(QPen(pal.foreground(), 5));
-        if((flags & Style_Rectangle))
-            p->setBrush(QBrush(NoBrush));
-        else if(pe == PE_RubberBandMask)
-            p->setBrush(QBrush(color1));
-        else
-            p->setBrush(QBrush(pal.foreground()));
-        p->drawRect(r);
-        p->setPen(oldPen);
-        p->setBrush(oldBrush);
-        break; }
-
-    case PE_TreeBranch: {
-        static QPixmap open(tree_branch_open_xpm);
-        static QPixmap closed(tree_branch_closed_xpm);
-        static const int decoration_size = 9;
-        int mid_h = r.x() + r.width() / 2;
-        int mid_v = r.y() + r.height() / 2;
-        int bef_h = mid_h;
-        int bef_v = mid_v;
-        int aft_h = mid_h;
-        int aft_v = mid_v;
-        if (flags & QStyle::Style_Children) {
-            int delta = decoration_size / 2;
-            bef_h -= delta;
-            bef_v -= delta;
-            aft_h += delta;
-            aft_v += delta;
-            p->drawPixmap(bef_h, bef_v, flags & QStyle::Style_Open ? open : closed);
-        }
-        if (flags & QStyle::Style_Item) {
-            if (QApplication::reverseLayout())
-                p->drawLine(r.left(), mid_v, bef_h, mid_v);
-            else
-                p->drawLine(aft_h, mid_v, r.right(), mid_v);
-        }
-        if (flags & QStyle::Style_Sibling)
-            p->drawLine(mid_h, aft_v, mid_h, r.bottom());
-        if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
-            p->drawLine(mid_h, r.y(), mid_h, bef_v);
-        break; }
-
     default:
         break;
     }
@@ -769,6 +719,53 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             }
         }
         break;
+    case PE_RubberBandMask:
+    case PE_RubberBand: {
+        QPen oldPen = p->pen();
+        QBrush oldBrush = p->brush();
+        if (pe == PE_RubberBandMask)
+            p->setPen(QPen(color1, 5));
+        else
+            p->setPen(QPen(opt->palette.foreground(), 5));
+        if (opt->state & Style_Rectangle)
+            p->setBrush(QBrush(NoBrush));
+        else if (pe == PE_RubberBandMask)
+            p->setBrush(QBrush(color1));
+        else
+            p->setBrush(QBrush(opt->palette.foreground()));
+        p->drawRect(opt->rect);
+        p->setPen(oldPen);
+        p->setBrush(oldBrush);
+        break; }
+    case PE_TreeBranch: {
+        static QPixmap open(tree_branch_open_xpm);
+        static QPixmap closed(tree_branch_closed_xpm);
+        static const int decoration_size = 9;
+        int mid_h = opt->rect.x() + opt->rect.width() / 2;
+        int mid_v = opt->rect.y() + opt->rect.height() / 2;
+        int bef_h = mid_h;
+        int bef_v = mid_v;
+        int aft_h = mid_h;
+        int aft_v = mid_v;
+        if (opt->state & Style_Children) {
+            int delta = decoration_size / 2;
+            bef_h -= delta;
+            bef_v -= delta;
+            aft_h += delta;
+            aft_v += delta;
+            p->drawPixmap(bef_h, bef_v, opt->state & Style_Open ? open : closed);
+        }
+        if (opt->state & Style_Item) {
+            if (QApplication::reverseLayout())
+                p->drawLine(opt->rect.left(), mid_v, bef_h, mid_v);
+            else
+                p->drawLine(aft_h, mid_v, opt->rect.right(), mid_v);
+        }
+        if (opt->state & Style_Sibling)
+            p->drawLine(mid_h, aft_v, mid_h, opt->rect.bottom());
+        if (opt->state & (Style_Open | Style_Children | Style_Item | Style_Sibling))
+            p->drawLine(mid_h, opt->rect.y(), mid_h, bef_v);
+        break; }
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }

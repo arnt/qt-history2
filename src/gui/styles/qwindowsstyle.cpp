@@ -634,41 +634,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         }
         break;
 
-    case PE_TreeBranch: {
-        static const int decoration_size = 9;
-        int mid_h = r.x() + r.width() / 2;
-        int mid_v = r.y() + r.height() / 2;
-        int bef_h = mid_h;
-        int bef_v = mid_v;
-        int aft_h = mid_h;
-        int aft_v = mid_v;
-        if (flags & QStyle::Style_Children) {
-            int delta = decoration_size / 2;
-            bef_h -= delta;
-            bef_v -= delta;
-            aft_h += delta;
-            aft_v += delta;
-            p->drawLine(bef_h + 2, bef_v + 4, bef_h + 6, bef_v + 4);
-            if (!(flags & QStyle::Style_Open))
-                p->drawLine(bef_h + 4, bef_v + 2, bef_h + 4, bef_v + 6);
-            QPen oldPen = p->pen();
-            p->setPen(pal.dark());
-            p->drawRect(bef_h, bef_v, decoration_size, decoration_size);
-            p->setPen(oldPen);
-        }
-        QBrush brush(pal.dark(), Qt::Dense4Pattern);
-        if (flags & QStyle::Style_Item) {
-            if (QApplication::reverseLayout())
-                p->fillRect(r.left(), mid_v, bef_h - r.left(), 1, brush);
-            else
-                p->fillRect(aft_h, mid_v, r.right() - aft_h + 1, 1, brush);
-        }
-        if (flags & QStyle::Style_Sibling)
-            p->fillRect(mid_h, aft_v, 1, r.bottom() - aft_v + 1, brush);
-        if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
-            p->fillRect(mid_h, r.y(), 1, bef_v - r.y(), brush);
-        break; }
-
     default:
         if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
             QPointArray a;
@@ -2294,6 +2259,42 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         }
         p->setPen(oldPen);
         break; }
+    case PE_TreeBranch: {
+        // This is _way_ too similar to the common style.
+        static const int decoration_size = 9;
+        int mid_h = opt->rect.x() + opt->rect.width() / 2;
+        int mid_v = opt->rect.y() + opt->rect.height() / 2;
+        int bef_h = mid_h;
+        int bef_v = mid_v;
+        int aft_h = mid_h;
+        int aft_v = mid_v;
+        if (opt->state & Style_Children) {
+            int delta = decoration_size / 2;
+            bef_h -= delta;
+            bef_v -= delta;
+            aft_h += delta;
+            aft_v += delta;
+            p->drawLine(bef_h + 2, bef_v + 4, bef_h + 6, bef_v + 4);
+            if (!(opt->state & Style_Open))
+                p->drawLine(bef_h + 4, bef_v + 2, bef_h + 4, bef_v + 6);
+            QPen oldPen = p->pen();
+            p->setPen(opt->palette.dark());
+            p->drawRect(bef_h, bef_v, decoration_size, decoration_size);
+            p->setPen(oldPen);
+        }
+        QBrush brush(opt->palette.dark(), Dense4Pattern);
+        if (opt->state & Style_Item) {
+            if (QApplication::reverseLayout())
+                p->fillRect(opt->rect.left(), mid_v, bef_h - opt->rect.left(), 1, brush);
+            else
+                p->fillRect(aft_h, mid_v, opt->rect.right() - aft_h + 1, 1, brush);
+        }
+        if (opt->state & Style_Sibling)
+            p->fillRect(mid_h, aft_v, 1, opt->rect.bottom() - aft_v + 1, brush);
+        if (opt->state & (Style_Open | Style_Children | Style_Item | Style_Sibling))
+            p->fillRect(mid_h, opt->rect.y(), 1, bef_v - opt->rect.y(), brush);
+        break; }
+
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }

@@ -660,12 +660,6 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
                             &info, NULL, NULL, NULL, 0);
         }
         break; }
-    case PE_RubberBandMask:
-        p->fillRect(r, color1);
-        break;
-    case PE_RubberBand:
-        p->fillRect(r, pal.highlight());
-        break;
     case PE_TreeBranch: {
         if(!(flags & Style_Children))
             break;
@@ -2532,6 +2526,12 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         static_cast<QMacStyleQDPainter *>(p)->setport();
         DrawThemeButton(qt_glb_mac_rect(opt->rect, p), kThemeDisclosureButton, &currentInfo,
                         0, 0, 0, 0);
+        break;
+    case PE_RubberBandMask:
+        p->fillRect(opt->rect, color1);
+        break;
+    case PE_RubberBand:
+        p->fillRect(opt->rect, opt->palette.highlight());
         break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);

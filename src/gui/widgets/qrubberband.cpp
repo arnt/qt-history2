@@ -12,12 +12,12 @@
 **
 ****************************************************************************/
 
-#include "qrubberband.h"
-#include "qpainter.h"
-#include "qstyle.h"
 #include "qbitmap.h"
 #include "qevent.h"
-#include "qtimer.h"
+#include "qpainter.h"
+#include "qrubberband.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
 #ifdef Q_WS_MAC
 # include "qt_mac.h"
 #endif
@@ -25,12 +25,25 @@
 #include <private/qwidget_p.h>
 class QRubberBandPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QRubberBand)
 public:
     QRect rect;
     QRubberBand::Shape shape;
+    Q4StyleOption getStyleOption() const;
 };
+
 #define d d_func()
 #define q q_func()
+Q4StyleOption QRubberBandPrivate::getStyleOption() const
+{
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.rect = rect;
+    opt.palette = q->palette();
+    opt.state = QStyle::Style_Default;
+    if (shape == QRubberBand::Rectangle)
+        opt.state |= QStyle::Style_Rectangle;
+    return opt;
+}
 
 /*!
    \class QRubberBand qrubberband.h
@@ -100,13 +113,10 @@ QRubberBand::~QRubberBand()
     The drawing is themed (using QStyle), but you can reimplement it
     to achieve custom effects.
 */
-void
-QRubberBand::drawRubberBandMask(QPainter *p)
+void QRubberBand::drawRubberBandMask(QPainter *p)
 {
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if(d->shape == Rectangle)
-        flags |= QStyle::Style_Rectangle;
-    style().drawPrimitive(QStyle::PE_RubberBandMask, p, d->rect, palette(), flags);
+    Q4StyleOption opt = d->getStyleOption();
+    style().drawPrimitive(QStyle::PE_RubberBandMask, &opt, p, this);
 }
 
 /*!
@@ -116,21 +126,17 @@ QRubberBand::drawRubberBandMask(QPainter *p)
     The drawing is themed (using QStyle), but you can reimplement it
     to achieve custom effects.
 */
-void
-QRubberBand::drawRubberBand(QPainter *p)
+void QRubberBand::drawRubberBand(QPainter *p)
 {
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if(d->shape == Rectangle)
-        flags |= QStyle::Style_Rectangle;
-    style().drawPrimitive(QStyle::PE_RubberBand, p, d->rect, palette(), flags);
+    Q4StyleOption opt = d->getStyleOption();
+    style().drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
 }
 
 /*!
   Returns the shape of this rubber band. The shape can only be set
   upon construction.
 */
-QRubberBand::Shape
-QRubberBand::shape() const
+QRubberBand::Shape QRubberBand::shape() const
 {
     return d->shape;
 }
@@ -138,8 +144,7 @@ QRubberBand::shape() const
 /*!
     \reimp
 */
-void
-QRubberBand::updateMask()
+void QRubberBand::updateMask()
 {
     QBitmap bm(width(), height(), true);
     QPainter p(&bm);
@@ -151,8 +156,7 @@ QRubberBand::updateMask()
 /*!
     \reimp
 */
-void
-QRubberBand::paintEvent(QPaintEvent *)
+void QRubberBand::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     drawRubberBand(&p);
@@ -161,8 +165,7 @@ QRubberBand::paintEvent(QPaintEvent *)
 /*!
     \reimp
 */
-void
-QRubberBand::changeEvent(QEvent *ev)
+void QRubberBand::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange && autoMask())
         updateMask();

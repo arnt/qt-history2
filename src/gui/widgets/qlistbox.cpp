@@ -19,16 +19,17 @@
 
 #include "qlistbox.h"
 #ifndef QT_NO_LISTBOX
+#include "qapplication.h"
 #include "qevent.h"
-#include "qvector.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qapplication.h"
-#include "qtimer.h"
+#include "qpopupmenu.h"
 #include "qstringlist.h"
 #include "qstyle.h"
-#include "qpopupmenu.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
+#include "qvector.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -4119,7 +4120,11 @@ void QListBox::drawRubber()
         return;
     QPainter p(viewport());
     // p.setRasterOp(NotROP); // ### fix - use qrubberband instead
-    style().drawPrimitive(QStyle::PE_RubberBand, &p, d->rubber->normalize(), palette());
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.rect = d->rubber->normalize();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Rectangle;
+    style().drawPrimitive(QStyle::PE_RubberBand, &opt, &p, this);
     p.end();
 }
 
