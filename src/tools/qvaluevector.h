@@ -107,7 +107,7 @@ private:
 
 };
 
-templace <class T>
+template <class T>
 Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( const QValueVectorPrivate<T>& x )
     : QShared()
 {
@@ -123,7 +123,7 @@ Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( const QValueVect
     }
 }
 
-templace <class T>
+template <class T>
 Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( size_t size )
 {
     if ( size > 0 ) {
@@ -137,7 +137,7 @@ Q_INLINE_TEMPLATES QValueVectorPrivate<T>::QValueVectorPrivate( size_t size )
     }
 }
 
-templace <class T>
+template <class T>
 Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, const T& x )
 {
     const size_t lastSize = size();
@@ -154,7 +154,7 @@ Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, const T& x 
     end = newStart + n;
 }
 
-templace <class T>
+template <class T>
 Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, size_t n, const T& x )
 {
     if ( size_t( end - finish ) >= n ) {
@@ -194,7 +194,7 @@ Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, size_t n, c
     }
 }
 
-templace <class T>
+template <class T>
 Q_INLINE_TEMPLATES void QValueVectorPrivate::reserve( size_t n )
 {
     const size_t lastSize = size();
@@ -204,7 +204,7 @@ Q_INLINE_TEMPLATES void QValueVectorPrivate::reserve( size_t n )
     end = start + n;
 }
 
-templace <class T>
+template <class T>
 Q_INLINE_TEMPLATES pointer QValueVectorPrivate::growAndCopy( size_t n, pointer s, pointer f )
 {
     pointer newStart = new T[n];
