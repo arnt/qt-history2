@@ -74,7 +74,7 @@
   </ul>
 
   You may use one of the following quantifiers to match a certain number of
-  occurrences of an atom <b><em>A</em></b>:
+  occurrences of an atom <b><em>A</em></b> (at most 999):
 
   <ul plain>
   <li><b><em>A</em>*</b> matches 0 or more occurrences of <b><em>A</em></b>
@@ -144,7 +144,7 @@
 
 static const int NumBadChars = 128;
 static const int NoOccurrence = INT_MAX;
-static const int InftyRep = 10000;
+static const int InftyRep = 1000;
 static const int EmptyCapture = INT_MAX;
 static const int EOS = -1;
 
@@ -161,6 +161,9 @@ static void mergeInto( QArray<int> *a, const QArray<int>& b )
     int bsize = b.size();
     if ( asize == 0 ) {
 	*a = b.copy();
+    } else if ( bsize == 1 && (*a)[asize - 1] < b[0] ) {
+	a->resize( asize + 1 );
+	(*a)[asize] = b[0];
     } else if ( bsize >= 1 ) {
 	int csize = asize + bsize;
 	QArray<int> c( csize );
@@ -182,7 +185,8 @@ static void mergeInto( QArray<int> *a, const QArray<int>& b )
 	    }
 	}
 	c.resize( csize );
-	memcpy( c.data() + k, b.data() + j, (bsize - j) * sizeof(int) );
+	if ( j != bsize )
+	    memcpy( c.data() + k, b.data() + j, (bsize - j) * sizeof(int) );
 	*a = c;
     }
 }
@@ -204,7 +208,7 @@ static void reunionInto( QMap<int, int> *a, const QMap<int, int>& b )
 */
 static int at( const QMap<int, int>& m, int k )
 {
-    return a.contains( k ) ? m[k] : 0;
+    return m.contains( k ) ? m[k] : 0;
 }
 
 /*
@@ -313,7 +317,7 @@ public:
 
     bool isValid() const { return valid; }
     bool caseSensitive() const { return cs; }
-    int numCaptures() const { return ncap; }
+    int numCaptures() const { return realncap; }
     QArray<int> match( const QString& str, int pos, bool minimal,
 		       bool oneTest );
     int matchedLength() const { return mmMatchedLen; }
@@ -409,6 +413,7 @@ private:
     QArray<Atom> f;
     int nf;
     int cf;
+    int realncap;
     int ncap;
     QVector<CharClass> cl;
     QVector<Lookahead> ahead;
@@ -445,7 +450,7 @@ private:
 #endif
 
     private:
-	void addAnchorsToEngine( const Box& to );
+	void addAnchorsToEngine( const Box& to ) const;
 
 	QRegExpEngine *eng;
 	QArray<int> ls;
@@ -472,6 +477,7 @@ private:
     void skipChars( int n );
 
     const QChar *yyIn;
+    int yyPos0;
     int yyPos;
     int yyLen;
     int yyCh;
@@ -516,9 +522,10 @@ private:
 };
 
 QRegExpEngine::QRegExpEngine( const QString& rx, bool caseSensitive )
+    : mmSleeping( 101 )
 {
     setup( caseSensitive );
-    valid = ( parse(rx.unicode(), rx.length()) == yyLen );
+    valid = ( parse(rx.unicode(), rx.length()) == (int) rx.length() );
 }
 
 QRegExpEngine::~QRegExpEngine()
@@ -534,7 +541,7 @@ QRegExpEngine::~QRegExpEngine()
 QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 				  bool oneTest )
 {
-    QArray<int> captured( 2 + 2 * ncap );
+    QArray<int> captured( 2 + 2 * realncap );
     mmIn = str.unicode();
     mmStartPos = pos;
     mmPos = pos;
@@ -614,7 +621,7 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 		captured.fill( 0 );
 		captured[0] = mmPos;
 		captured[1] = mmMatchedLen;
-		for ( int j = 0; j < ncap; j++ ) {
+		for ( int j = 0; j < realncap; j++ ) {
 		    int len = mmCapEnd[j] - mmCapBegin[j];
 		    if ( len > 0 ) {
 			captured[2 + 2 * j] = mmPos + mmCapBegin[j];
@@ -656,7 +663,7 @@ int QRegExpEngine::createState( int bref )
 {
     if ( bref > nbrefs ) {
 	nbrefs = bref;
-	if ( nbref > MaxBackRefs ) {
+	if ( nbrefs > MaxBackRefs ) {
 	    yyError = TRUE;
 	    return 0;
 	}
@@ -778,7 +785,7 @@ void QRegExpEngine::dump() const
 	    qDebug( "  %6d  %6d  %6d", i, f[i].parent, f[i].capture );
     }
     for ( i = 0; i < (int) aa.size(); i++ )
-	qDebug( "  Anchor alternation %d: %d %d", i, aa[i].a, aa[i].b );
+	qDebug( "  Anchor alternation 0x%x: 0x%x 0x%x", i, aa[i].a, aa[i].b );
 }
 #endif
 
@@ -826,14 +833,16 @@ int QRegExpEngine::startAtom( bool capture )
 
 void QRegExpEngine::finishAtom( int atom )
 {
-#if 0
+    cf = f[atom].parent;
+
+    /*
+      To save space, we remove needless atoms from the hierarchy.
+    */
     if ( nf > 1 && atom == nf - 1 && f[atom].capture < 0 ) {
 	nf--;
-	for ( int i = ns - 1; i >= 0 && s[i]->atom == cf; i-- )
-	    s[i]->atom = f[cf].parent;
+	for ( int i = ns - 1; i >= 0 && s[i]->atom == atom; i-- )
+	    s[i]->atom = f[atom].parent;
     }
-#endif
-    cf = f[atom].parent;
 }
 
 int QRegExpEngine::addLookahead( QRegExpEngine *eng, bool negative )
@@ -895,7 +904,7 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 	    if ( (a & (Anchor_FirstLookahead << j)) != 0 ) {
 		catchh = ( ahead[j]->eng->match(QString(mmIn + mmPos + i,
 							mmLen - mmPos - i),
-						i, TRUE, TRUE)[0] == 0 );
+						0, TRUE, TRUE)[0] == 0 );
 		if ( catchh == ahead[j]->neg )
 		    return FALSE;
 	    }
@@ -1069,7 +1078,7 @@ bool QRegExpEngine::testMatch( bool minimal )
 			*/
 
 			/*
-			  If we are reentering a atom, we empty all capture
+			  If we are re-entering a atom, we empty all capture
 			  zones inside it.
 			*/
 			if ( scur->reenter != 0 &&
@@ -1122,7 +1131,7 @@ bool QRegExpEngine::testMatch( bool minimal )
 			/*
 			  In any case, we now open the capture zones we are
 			  entering.  We work upwards from n until we reach p
-			  (the parent of the atom we reenter or the youngest
+			  (the parent of the atom we re-enter or the youngest
 			  common ancestor).
 			*/
 			while ( n > p ) {
@@ -1414,16 +1423,18 @@ void QRegExpEngine::Box::cat( const Box& b )
 	ranchors = b.ranchors;
 	rs = b.rs;
     }
-    if ( minl == 0 )
-	skipanchors = eng->anchorConcatenation( skipanchors, b.skipanchors );
-    else
-	skipanchors = 0;
+
     occ1.detach();
     for ( int i = 0; i < NumBadChars; i++ ) {
 	if ( occ1[i] == NoOccurrence && b.occ1[i] != NoOccurrence )
 	    occ1[i] = minl + b.occ1[i];
     }
     minl += b.minl;
+
+    if ( minl == 0 )
+	skipanchors = eng->anchorConcatenation( skipanchors, b.skipanchors );
+    else
+	skipanchors = 0;
 }
 
 void QRegExpEngine::Box::or( const Box& b )
@@ -1506,11 +1517,12 @@ void QRegExpEngine::Box::dump() const
 }
 #endif
 
-void QRegExpEngine::Box::addAnchorsToEngine( const Box& to )
+void QRegExpEngine::Box::addAnchorsToEngine( const Box& to ) const
 {
     for ( int i = to.ls.size() - 1; i >= 0; i-- ) {
 	for ( int j = rs.size() - 1; j >= 0; j-- ) {
-	    int a = at( ranchors, rs[j] ) | at( to.lanchors, to.ls[i] );
+	    int a = eng->anchorConcatenation( at(ranchors, rs[j]),
+					      at(to.lanchors, to.ls[i]) );
 	    eng->addAnchors( rs[j], to.ls[i], a );
 	}
     }
@@ -1597,7 +1609,7 @@ int QRegExpEngine::getEscape()
 	default:
 	    if ( prevCh >= '1' && prevCh <= '9' ) {
 		val = prevCh - '0';
-		if ( yyCh >= '0' && yyCh <= '9' ) {
+		while ( yyCh >= '0' && yyCh <= '9' ) {
 		    val = ( val *= 10 ) | ( yyCh - '0' );
 		    yyCh = getChar();
 		}
@@ -1617,7 +1629,7 @@ int QRegExpEngine::getRep( int def )
 	    rep = ( 10 * rep ) + ( yyCh - '0' );
 	    if ( rep >= InftyRep ) {
 		yyError = TRUE;
-		rep = InftyRep;
+		rep = def;
 	    }
 	    yyCh = getChar();
 	} while ( yyCh >= '0' && yyCh <= '9' );
@@ -1630,6 +1642,7 @@ int QRegExpEngine::getRep( int def )
 void QRegExpEngine::startTokenizer( const QChar *rx, int len )
 {
     yyIn = rx;
+    yyPos0 = 0;
     yyPos = 0;
     yyLen = len;
     yyCh = getChar();
@@ -1647,12 +1660,14 @@ int QRegExpEngine::getToken()
     int tok;
     int prevCh = yyCh;
 
+    yyPos0 = yyPos - 1;
     yyCharClass->clear();
     yyMinRep = 0;
     yyMaxRep = 0;
     yyCh = getChar();
     switch ( prevCh ) {
     case EOS:
+	yyPos0 = yyPos;
 	return Tok_Eos;
     case '$':
 	return Tok_Dollar;
@@ -1802,8 +1817,13 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
     box.cat( rightBox );
     delete yyCharClass;
     yyCharClass = 0;
+    realncap = 0;
     if ( yyError )
 	return -1;
+
+    realncap = ncap;
+    if ( nbrefs > ncap )
+	ncap = nbrefs;
 
     State *sinit = s[InitialState];
     caretAnchored = ( sinit->anchors != 0 );
@@ -1817,13 +1837,14 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
 	    }
 	}
     }
-    return yyPos;
+    return yyPos0;
 }
 
 QRegExpEngine::Box QRegExpEngine::parseAtom()
 {
     Box box( this );
     QRegExpEngine *eng = 0;
+    bool neg;
     int len;
 
     switch ( yyTok ) {
@@ -1835,13 +1856,14 @@ QRegExpEngine::Box QRegExpEngine::parseAtom()
 	break;
     case Tok_PosLookahead:
     case Tok_NegLookahead:
+	neg = ( yyTok == Tok_NegLookahead );
 	eng = new QRegExpEngine( cs );
-	len = eng->parse( yyIn + yyPos, yyLen - yyPos );
+	len = eng->parse( yyIn + yyPos - 1, yyLen - yyPos + 1 );
 	if ( len >= 0 )
 	    skipChars( len );
 	else
 	    yyError = TRUE;
-	box.catAnchor( addLookahead(eng, yyTok == Tok_NegLookahead) );
+	box.catAnchor( addLookahead(eng, neg) );
 	yyTok = getToken();
 	if ( yyTok != Tok_RightParen )
 	    yyError = TRUE;
@@ -1899,10 +1921,18 @@ QRegExpEngine::Box QRegExpEngine::parseFactor()
 	else if ( yyMaxRep == InftyRep )
 	    box.plus( atom );
 
+	if ( yyMinRep == 0 )
+	    box.opt();
+
 	yyMayCapture = FALSE;
 	int alpha = ( yyMinRep == 0 ) ? 0 : yyMinRep - 1;
 	int beta = ( yyMaxRep == InftyRep ) ? 0 : yyMaxRep - ( alpha + 1 );
+
+qDebug( "alpha = %d, beta = %d", alpha, beta );
+
 	for ( i = 0; i < beta; i++ ) {
+if ( i % 40 == 0 )
+qDebug( "beta %d", i );
 	    YYREDO();
 	    leftBox = parseAtom();
 	    leftBox.cat( rightBox );
@@ -1910,13 +1940,13 @@ QRegExpEngine::Box QRegExpEngine::parseFactor()
 	    rightBox = leftBox;
 	}
 	for ( i = 0; i < alpha; i++ ) {
+if ( i % 40 == 0 )
+qDebug( "alpha %d", i );
 	    YYREDO();
 	    leftBox = parseAtom();
 	    leftBox.cat( rightBox );
 	    rightBox = leftBox;
 	}
-	if ( yyMinRep == 0 )
-	    box.opt();
 	rightBox.cat( box );
 	box = rightBox;
 	yyTok = getToken();
@@ -2317,6 +2347,6 @@ void QRegExp::compile( bool caseSensitive )
 				 : priv->pattern, caseSensitive );
     priv->t = QString::null;
     priv->capturedCache.clear();
-    priv->detach();
+    priv->captured.detach();
     priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
 }

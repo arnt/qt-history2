@@ -38,7 +38,7 @@ public:
 
     int match( const QString& str, int start = 0 );
     int matchRev( const QString& str, int start /* ### = -1 */ );
-#if 1 // ### only for testing! 
+#if 1 // ### only for testing!
 #if QT_VERSION >= 255
 #error Remove me in Qt 3! I am m necessary for Qt 2 tests.
 #endif
