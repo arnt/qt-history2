@@ -15,10 +15,10 @@
 
 /* Modify the following to match your environment */
 #define DRIVER       "QPSQL7"  /* see the Qt SQL documentation for a list of available drivers */
-#define DATABASE     "simpledb" /* the name of your database */
-#define USER         "trond"   /* user name with appropriate rights */
-#define PASSWORD     "trond"   /* password for USER */
-#define HOST         "silverfish.troll.no" /* host on which the database is running */
+#define DATABASE     "" /* the name of your database */
+#define USER         ""   /* user name with appropriate rights */
+#define PASSWORD     ""   /* password for USER */
+#define HOST         "" /* host on which the database is running */
 
 class SimpleCursor : public QSqlCursor
 {
