@@ -859,6 +859,7 @@ extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver
 HRESULT DumpIDL( const QString &outfile, const QString &ver )
 #endif
 {
+    qAxIsServer = FALSE;
     QTextStream out;
     QString outpath = outfile.left( outfile.findRev( "\\" ) );
     QDir dir;
