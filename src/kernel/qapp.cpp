@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#61 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#60 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#61 $";
 #endif
 
 
@@ -185,6 +185,7 @@ QApplication::QApplication( int &argc, char **argv )
 
 QApplication::~QApplication()
 {
+    QWidget::destroyMapper();			// destroy widget mapper
     destroy_palettes();
     delete app_pal;
     app_pal = 0;
@@ -193,7 +194,6 @@ QApplication::~QApplication()
     delete app_cursor;
     app_cursor = 0;
     closing_down = TRUE;
-    QWidget::destroyMapper();			// destroy widget mapper
 #if defined(CHECK_MEMORY)
     bool prev_mc = memchkSetReporting( FALSE );    
     objectDict->remove( "QObject" );
