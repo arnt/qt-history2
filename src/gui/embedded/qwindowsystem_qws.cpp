@@ -819,7 +819,7 @@ void QWSServer::clientClosed()
     while (i < commandQueue.size()) {
         QWSCommandStruct *cs = commandQueue.at(i);
         if (cs->client == cl) {
-            commandQueue.remove(i);
+            commandQueue.removeAt(i);
             delete cs;
         } else {
             ++i;

@@ -852,7 +852,7 @@ void QWizard::removePage(QWidget * page)
     while(--i >= 0 && d->pages.at(i) && d->pages.at(i)->w != page) { }
     if (i < 0)
         return;
-    delete d->pages.take(i);
+    delete d->pages.takeAt(i);
     d->ws->removeWidget(page);
 
     if (cp == page) {

@@ -677,7 +677,7 @@ void QDockArea::moveDockWindow(QDockWindow *w, const QPoint &p, const QRect &r, 
                  && lineStarts.contains(dockWindows.at(dockWindowIndex + 1)))
                 || dockWindowIndex == dockWindows.count() - 1))
             wasAloneInLine = true;
-        dockWindow = dockWindows.take(dockWindowIndex);
+        dockWindow = dockWindows.takeAt(dockWindowIndex);
         if (!wasAloneInLine) { // only do the pre-layout if the widget isn't the only one in its line
             if (lineStarts.contains(dockWindow) && dockWindowIndex < dockWindows.count())
                 dockWindows.at(dockWindowIndex)->setNewLine(true);
@@ -882,7 +882,7 @@ void QDockArea::removeDockWindow(QDockWindow *w, bool makeFloating, bool swap, b
     if (i == -1)
         return;
     dockWindow = dockWindows.at(i);
-    dockWindows.remove(i);
+    dockWindows.removeAt(i);
     QList<QDockWindow *> lineStarts = layout->lineStarts();
     if (fixNewLines && lineStarts.contains(dockWindow) && i < dockWindows.count())
         dockWindows.at(i)->setNewLine(true);

@@ -492,7 +492,7 @@ void QTabBar::setTabEnabled(int id, bool enabled)
                     }
                     if (t->enabled) {
                         r = r.unite(t->r);
-                        d->l.append(d->l.take(i));
+                        d->l.append(d->l.takeAt(i));
                         emit selected(t->id);
                     }
                 }

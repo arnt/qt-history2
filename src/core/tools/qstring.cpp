@@ -5054,46 +5054,53 @@ QString QString::number(double n, char f, int prec)
     anywhere in the string, split() returns a single-element list
     containing this string.
 
+    If \a behavior is \c StripEmptyEntries, empty entries don't
+    appear in the result. By default, empty entries are kept.
+
     Example:
     \code
         QString str = "a,,b,c";
-        QStringList list = str.split(",");
-        // list: [ "a", "", "b", "c" ]
-    \endcode
+        QStringList list1 = str.split(",");
+        // list1: [ "a", "", "b", "c" ]
 
-    (If you want to discard empty entries, call
-    QStringList::remove(QString()) on the result.)
+        QStringList list2 = str.split(",", QString::StripEmptyEntries);
+        // list2: [ "a", "b", "c" ]
+    \endcode
 
     \sa QStringList::join(), section()
 */
-QStringList QString::split(const QString &sep) const
+QStringList QString::split(const QString &sep, EmptyEntriesBehavior behavior) const
 {
     QStringList list;
     int start = 0;
     int extra = 0;
     int end;
     while ((end = indexOf(sep, start + extra)) != -1) {
-        list.append(mid(start, end - start));
+        if (start != end || behavior == KeepEmptyEntries)
+            list.append(mid(start, end - start));
         start = end + sep.size();
         extra = (sep.size() == 0 ? 1 : 0);
     }
-    list.append(mid(start));
+    if (start != size() || behavior == KeepEmptyEntries)
+        list.append(mid(start));
     return list;
 }
 
 /*!
     \overload
 */
-QStringList QString::split(const QChar &sep) const
+QStringList QString::split(const QChar &sep, EmptyEntriesBehavior behavior) const
 {
     QStringList list;
     int start = 0;
     int end;
     while ((end = indexOf(sep, start)) != -1) {
-        list.append(mid(start, end - start));
+        if (start != end || behavior == KeepEmptyEntries)
+            list.append(mid(start, end - start));
         start = end + 1;
     }
-    list.append(mid(start));
+    if (start != size() || behavior == KeepEmptyEntries)
+        list.append(mid(start));
     return list;
 }
 
@@ -5139,7 +5146,7 @@ QStringList QString::split(const QChar &sep) const
 
     \sa QStringList::join(), section()
 */
-QStringList QString::split(const QRegExp &rx) const
+QStringList QString::split(const QRegExp &rx, EmptyEntriesBehavior behavior) const
 {
     QStringList list;
     int start = 0;
@@ -5147,11 +5154,13 @@ QStringList QString::split(const QRegExp &rx) const
     int end;
     while ((end = indexOf(rx, start + extra)) != -1) {
         int matchedLen = rx.matchedLength();
-        list.append(mid(start, end - start));
+        if (start != end || behavior == KeepEmptyEntries)
+            list.append(mid(start, end - start));
         start = end + matchedLen;
         extra = (matchedLen == 0) ? 1 : 0;
     }
-    list.append(mid(start));
+    if (start != size() || behavior == KeepEmptyEntries)
+        list.append(mid(start));
     return list;
 }
 #endif
@@ -5159,12 +5168,10 @@ QStringList QString::split(const QRegExp &rx) const
 struct ArgEscapeData
 {
     uint min_escape;            // lowest escape sequence number
-    uint occurrences;            // number of occurences of the lowest escape
-                                // sequence number
-    uint locale_occurrences; // number of occurences of the lowest escape
-                                // sequence number which contain 'L'
-    uint escape_len;            // total length of escape sequences which will
-                                // be replaced
+    uint occurrences;           // number of occurences of the lowest escape sequence number
+    uint locale_occurrences;    // number of occurences of the lowest escape sequence number that
+                                // contain 'L'
+    uint escape_len;            // total length of escape sequences which will be replaced
 };
 
 static ArgEscapeData findArgEscapes(const QString &s)

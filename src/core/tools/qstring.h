@@ -187,9 +187,11 @@ public:
     inline QString &remove(const QRegExp &rx)
     { return replace(rx, QString()); }
 #endif
-    QStringList split(const QString &sep) const;
-    QStringList split(const QChar &sep) const;
-    QStringList split(const QRegExp &sep) const;
+    enum EmptyEntriesBehavior { KeepEmptyEntries, StripEmptyEntries };
+
+    QStringList split(const QString &sep, EmptyEntriesBehavior behavior = KeepEmptyEntries) const;
+    QStringList split(const QChar &sep, EmptyEntriesBehavior behavior = KeepEmptyEntries) const;
+    QStringList split(const QRegExp &sep, EmptyEntriesBehavior behavior = KeepEmptyEntries) const;
 
     inline const char *ascii() const { return toAscii(); }
     inline const char *latin1() const { return toLatin1(); }

@@ -273,7 +273,7 @@ void QAquaAnimate::timerEvent(QTimerEvent *)
         while (i < d->progressBars.size()) {
             QProgressBar *pb = d->progressBars.at(i);
             if(!pb) {
-                d->progressBars.remove(i);
+                d->progressBars.removeAt(i);
             } else {
                 if(pb->totalSteps() == 0 || pb->progress() > 0
                    && pb->progress() < pb->totalSteps()) {

@@ -2065,7 +2065,7 @@ bool QRegExpEngine::matchHere()
         while (j < mmSleeping.count()) {
             if (mmSleeping[j][0] == i) {
                 zzZ = mmSleeping[j];
-                mmSleeping.remove(j);
+                mmSleeping.removeAt(j);
                 int next = zzZ[1];
                 const int *capBegin = zzZ.data() + 2;
                 const int *capEnd = zzZ.data() + 2 + ncap;

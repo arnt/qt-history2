@@ -163,7 +163,7 @@ void Generator::generateCode()
         if (cdef->enumDeclarations.contains(cdef->enumList.at(i).name))
             ++i;
         else
-            cdef->enumList.remove(i);
+            cdef->enumList.removeAt(i);
     }
 
     QByteArray qualifiedClassNameIdentifier = cdef->qualified;

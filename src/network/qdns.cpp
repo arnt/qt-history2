@@ -1052,7 +1052,7 @@ void QDnsManager::answer()
     QDnsAnswer answer(a, q);
     answer.parse();
     if (answer.ok) {
-        queries.take(i);
+        queries.takeAt(i);
         answer.notify();
         delete q;
     }
@@ -1085,7 +1085,7 @@ void QDnsManager::transmitQuery(int i)
         QDnsAnswer answer(q);
         answer.notify();
         // and then get rid of the query
-        queries.take(i);
+        queries.takeAt(i);
 #if defined(QDNS_DEBUG)
         qDebug("DNS Manager: giving up on query 0x%04x", q->id);
 #endif
@@ -1175,7 +1175,7 @@ void QDnsManager::transmitQuery(int i)
         QDnsAnswer answer(q);
         answer.notify();
         // and then get rid of the query
-        queries.take(i);
+        queries.takeAt(i);
 #if defined(QDNS_DEBUG)
         qDebug("DNS Manager: no DNS server found on query 0x%04x", q->id);
 #endif
@@ -1458,7 +1458,7 @@ void QDnsDomain::sweep(Q_UINT32 thisSweep)
              rr->t == QDns::None ||
              rr->deleteTime <= thisSweep ||
              rr->expireTime <= thisSweep) {
-            delete rrs.take(i);
+            delete rrs.takeAt(i);
         }
     }
 }

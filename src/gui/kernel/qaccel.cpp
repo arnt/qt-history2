@@ -693,7 +693,7 @@ void QAccel::removeItem(int id)
     for (int i = 0; i < d->aitems.size(); ++i) {
         register QAccelItem *item = d->aitems.at(i);
         if (item->id == id) {
-            delete d->aitems.take(i);
+            delete d->aitems.takeAt(i);
             return;
         }
     }

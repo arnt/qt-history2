@@ -213,7 +213,7 @@ bool QEventLoop::unregisterTimers(QObject *obj)
             else
                 KillTimer(0, t->id);
             timerDict->remove(t->id);
-            timerVec->remove(i);
+            timerVec->removeAt(i);
             delete t;
         }
     }

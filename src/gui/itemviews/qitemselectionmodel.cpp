@@ -110,7 +110,7 @@ void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
         for (int t = 0; t < count();) { // splitt each old range
             if (at(t).intersects(intersections.at(i))) {
                 split(at(t), intersections.at(i), this);
-                remove(t);
+                removeAt(t);
             } else {
                 ++t;
             }
@@ -119,7 +119,7 @@ void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
         for (int n = 0; (selectionCommand & QItemSelectionModel::Toggle) && n < newSelection.count();) {
             if (newSelection.at(n).intersects(intersections.at(i))) {
                 split(newSelection.at(n), intersections.at(i), &newSelection);
-                newSelection.remove(n);
+                newSelection.removeAt(n);
             } else {
                 ++n;
             }
@@ -425,8 +425,8 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
         advance = true;
         for (int s = 0; s < selected.count() && o < deselected.count();) {
             if (deselected.at(o) == selected.at(s)) {
-                deselected.remove(o);
-                selected.remove(s);
+                deselected.removeAt(o);
+                selected.removeAt(s);
                 advance = false;
             } else {
                 ++s;
@@ -451,7 +451,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
         for (int o = 0; o < deselected.count();) {
             if (deselected.at(o).intersects(intersections.at(i))) {
                 split(deselected.at(o), intersections.at(i), &deselected);
-                deselected.remove(o);
+                deselected.removeAt(o);
             } else {
                 ++o;
             }
@@ -460,7 +460,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
         for (int s = 0; s < selected.count();) {
             if (selected.at(s).intersects(intersections.at(i))) {
                 split(selected.at(s), intersections.at(i), &selected);
-                selected.remove(s);
+                selected.removeAt(s);
             } else {
                 ++s;
             }

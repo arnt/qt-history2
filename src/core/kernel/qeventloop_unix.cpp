@@ -218,7 +218,7 @@ bool QEventLoop::unregisterTimer(int id)
         register QTimerInfo *t = d->timerList->at(i);
         if (t->id == id) {
             d->timerBitVec->clearBit(id - 1);        // set timer inactive
-            d->timerList->remove(i);
+            d->timerList->removeAt(i);
             delete t;
             return true;
         }
@@ -240,7 +240,7 @@ bool QEventLoop::unregisterTimers(QObject *obj)
         if (t->obj == obj) {
             // object found
             d->timerBitVec->clearBit(t->id - 1);
-            d->timerList->remove(i);
+            d->timerList->removeAt(i);
             delete t;
 
             // move back one so that we don't skip the new current item
@@ -329,7 +329,7 @@ void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     FD_CLR(sockfd, fds);                        // clear fd bit
     FD_CLR(sockfd, sn->queue);
     d->sn_pending_list.removeAll(sn);                // remove from activation list
-    list.remove(i);                                  // remove notifier found above
+    list.removeAt(i);                                // remove notifier found above
     delete sn;
 
     if (d->sn_highest == sockfd) {                // find highest fd

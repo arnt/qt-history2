@@ -3214,7 +3214,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 widget->d->topData()->parentWinId = event->xreparent.parent;
                 int idx = X11->deferred_map.indexOf(widget);
                 if (idx != -1) {
-                    X11->deferred_map.remove(idx);
+                    X11->deferred_map.removeAt(idx);
                     XMapWindow(X11->display, widget->winId());
                 }
             }
@@ -5131,7 +5131,7 @@ bool QETWidget::translateScrollDoneEvent(const XEvent *event)
     for (int i = 0; i < X11->sip_list.size(); ++i) {
         const QX11Data::ScrollInProgress &sip = X11->sip_list.at(i);
         if (sip.id == id) {
-            X11->sip_list.remove(i);
+            X11->sip_list.removeAt(i);
             return true;
         }
     }

@@ -76,9 +76,9 @@ public:
     void prepend(const T &t);
     void insert(int i, const T &t);
     void replace(int i, const T &t);
-    void remove(int i);
+    void removeAt(int i);
     int removeAll(const T &t);
-    T take(int i);
+    T takeAt(int i);
     T takeFirst();
     T takeLast();
     void move(int from, int to);
@@ -184,6 +184,7 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
+    inline QT_COMPAT int remove(const T &t) { return removeAll(t); }
     inline QT_COMPAT int findIndex(const T& t) const { return indexOf(t); }
     inline QT_COMPAT iterator find(const T& t)
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
@@ -291,11 +292,11 @@ inline T &QList<T>::operator[](int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::operator[]", "index out of range");
   detach(); return ((Node*) p.at(i))->t(); }
 template <typename T>
-inline void QList<T>::remove(int i)
+inline void QList<T>::removeAt(int i)
 { if(i >= 0 && i < p.size()) { detach();
  node_destruct((Node*) p.at(i)); p.remove(i); } }
 template <typename T>
-inline T QList<T>::take(int i)
+inline T QList<T>::takeAt(int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::take", "index out of range");
  detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_destruct(n);
  p.remove(i); return t; }
@@ -431,7 +432,7 @@ Q_OUTOFLINE_TEMPLATE typename QList<T>::iterator QList<T>::erase(typename QList<
         node_destruct(n);
     int idx = first - begin();
     p.remove(idx, last - first);
-    return begin()+idx;
+    return begin() + idx;
 }
 
 template <typename T>

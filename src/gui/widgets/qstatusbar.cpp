@@ -238,7 +238,7 @@ void QStatusBar::removeWidget(QWidget* widget)
         if (!item)
             break;
         if (item->w == widget) {
-            d->items.remove(i);
+            d->items.removeAt(i);
             delete item;
             found = true;
             break;
@@ -532,7 +532,7 @@ bool QStatusBar::event(QEvent *e)
             if (!item)
                 break;
             if (item->w == ((QChildEvent*)e)->child()) {
-                d->items.remove(i);
+                d->items.removeAt(i);
                 delete item;
             }
         }

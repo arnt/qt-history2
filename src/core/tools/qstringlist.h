@@ -56,13 +56,6 @@ public:
     QStringList &replace(const QRegExp &rx, const QString &after);
 
 #ifdef QT_COMPAT
-    // necessary when QT_COMPAT is defined; otherwise the remove() overloads hide this one
-    inline void remove(int j) { QList<QString>::remove(j); }
-#endif
- 
-#ifdef QT_COMPAT
-    inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
-    inline QT_COMPAT int remove(const QString &t) { return removeAll(t); }
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
         { return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
     inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }
@@ -76,40 +69,30 @@ public:
 };
 
 #ifdef QT_COMPAT
-inline
-QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
+inline QStringList QStringList::split(const QString &sep, const QString &str,
+                                      bool allowEmptyEntries)
 {
-    QStringList s;
     if (str.isEmpty())
-        return s;
-    s = str.split(sep);
-    if (!allowEmptyEntries)
-        s.removeAll(QString());
-    return s;
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyEntries
+                                            : QString::StripEmptyEntries);
 }
 
-inline
-QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
+inline QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
 {
-    QStringList s;
     if (str.isEmpty())
-        return s;
-    s = str.split(sep);
-    if (!allowEmptyEntries)
-        s.removeAll(QString());
-    return s;
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyEntries
+                                            : QString::StripEmptyEntries);
 }
 
-inline
-QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
+inline QStringList QStringList::split(const QRegExp &sep, const QString &str,
+                                      bool allowEmptyEntries)
 {
-    QStringList s;
     if (str.isEmpty())
-        return s;
-    s = str.split(sep);
-    if (!allowEmptyEntries)
-        s.removeAll(QString());
-    return s;
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyEntries
+                                            : QString::StripEmptyEntries);
 }
 #endif
 
