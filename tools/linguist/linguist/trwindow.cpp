@@ -764,9 +764,6 @@ void TrWindow::print()
 {
     int pageNum = 0;
 
-
-    // ### Fix this! - printing is currently broken in 3.0!
-
     if ( printer.setup(this) ) {
 	printer.setDocName( filename );
 	statusBar()->message( tr("Printing...") );
