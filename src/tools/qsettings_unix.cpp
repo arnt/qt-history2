@@ -80,7 +80,7 @@
     int width = settings.readIntEntry( "/MyApplication/geometry/width", 640 );
     // ...
     \endcode
- 
+
     A typical usage pattern for application exit or 'save preferences':
     \code
     QSettings settings;
@@ -112,7 +112,7 @@
     \code
     QStringList subkeys = subkeyList( "/MyApplication/recent files" );
     \endcode
-    \c subkeys is empty. 
+    \c subkeys is empty.
 
     <b>Notes for Unix Applications</b>
 
@@ -132,7 +132,7 @@
 
     If you wish to use a different search path call insertSearchPath()
     as often as necessary to add your preferred paths. Call
-    removeSearchPath() to remove any unwanted paths. 
+    removeSearchPath() to remove any unwanted paths.
 */
 
 
@@ -412,12 +412,12 @@ QDateTime QSettingsPrivate::modificationTime()
 
 /*!
   Inserts \a path into the settings search path. The semantics of \a
-  path depends on the system \a s. 
+  path depends on the system \a s.
 
   When \a s is \e Windows and the execution environment is \e not
   Windows the function does nothing. Similarly when \a s is \e Unix and
   the execution environment is \e not Unix the function does nothing.
-  
+
   When \a s is \e Windows, and the execution environment is Windows, the
   search path list will be used as the first subfolder of the "Software"
   folder in the registry. For example:
@@ -447,7 +447,7 @@ QDateTime QSettingsPrivate::modificationTime()
   <li>$HOME/.qt/ - where $HOME is the user's home directory.
   </ul>
 
-  All insertions into the search path will go before $HOME/.qt/.  
+  All insertions into the search path will go before $HOME/.qt/.
   For example:
   \code
   QSettings settings;
@@ -526,7 +526,7 @@ QSettings::~QSettings()
 
 /*!
 
-    \internal 
+    \internal
 
   Writes all modifications to the settings to disk.  If any errors are
   encountered, this function returns FALSE, otherwise it will return TRUE.
@@ -765,7 +765,7 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     value.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned. 
+    returned; otherwise TRUE is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -782,7 +782,7 @@ bool QSettings::writeEntry(const QString &key, bool value)
     value.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned. 
+    returned; otherwise TRUE is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -799,7 +799,7 @@ bool QSettings::writeEntry(const QString &key, double value)
     value.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned. 
+    returned; otherwise TRUE is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -810,7 +810,7 @@ bool QSettings::writeEntry(const QString &key, int value)
 }
 
 
-/*! 
+/*!
     \internal
 
   Writes the entry specified by \a key with the string-literal \a value,
@@ -839,7 +839,7 @@ bool QSettings::writeEntry(const QString &key, const char *value)
     value will be an empty string.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned. 
+    returned; otherwise TRUE is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -903,7 +903,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
     string.
 
     If an error occurs the settings are left unchanged and FALSE is
-    returned; otherwise TRUE is returned. 
+    returned; otherwise TRUE is returned.
 
   \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
@@ -916,8 +916,8 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value,
 
 
 /*!
-  Removes the entry specified by \a key.  
-  
+  Removes the entry specified by \a key.
+
     Returns TRUE if the entry existed and was removed, FALSE otherwise.
 
   \sa readEntry(), writeEntry()

@@ -690,7 +690,7 @@ static bool seems_like_KDE_is_running = FALSE;
 
 
 // read the _QT_SETTINGS_CACHE_3 property and apply the settings to the application
-static bool qt_apply_settings()
+bool QApplication::x11_apply_settings()
 {
     if (! qt_std_pal)
 	qt_create_std_palette();
@@ -726,10 +726,8 @@ static bool qt_apply_settings()
 	}
 
 	QDataStream d(ts.buffer(), IO_ReadOnly);
-
-	QSettings settings;
 	QDateTime timestamp, settingsstamp;
-	settingsstamp = settings.lastModficationTime("/qt/font");
+	settingsstamp = settings()->lastModficationTime("/qt/font");
 	d >> timestamp;
 
 	if (settingsstamp.isValid() &&
@@ -1076,7 +1074,7 @@ static bool qt_apply_settings()
 
 	QBuffer stamp;
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
-	s << QApplication::settings()->lastModficationTime("/qt/font");
+	s << settings()->lastModficationTime("/qt/font");
 
 	XChangeProperty(appDpy, appRootWin, qt_settings_cache_stamp,
 			qt_settings_cache_stamp, 8, PropModeReplace,
@@ -1367,7 +1365,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     QCString resFont, resFG, resBG, resEF;
 
     if ( QApplication::desktopSettingsAware() &&
-	 (! qt_apply_settings() && ! qt_set_desktop_properties() ) ) {
+	 (! QApplication::x11_apply_settings() && ! qt_set_desktop_properties() ) ) {
 	int format;
 	ulong  nitems, after = 1;
 	QCString res;

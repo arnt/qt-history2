@@ -46,8 +46,6 @@ public:
 	Mac
     };
 
-    bool sync();
-
     bool	writeEntry( const QString &, bool );
     bool	writeEntry( const QString &, double );
     bool	writeEntry( const QString &, int );
@@ -59,14 +57,13 @@ public:
     QStringList subkeyList(const QString &) const;
 
     QStringList readListEntry( const QString &, const QChar & = ';', bool * = 0 );
-    QString	readEntry( const QString &, const QString &def = QString::null, bool * = 0 );
+    QString	readEntry( const QString &, const QString &def = QString::null,
+			   bool * = 0 );
     int		readNumEntry( const QString &, int def = 0, bool * = 0 );
     double	readDoubleEntry( const QString &, double def = 0, bool * = 0 );
     bool	readBoolEntry( const QString &, bool def = 0, bool * = 0 );
 
     bool	removeEntry( const QString & );
-
-    QDateTime	lastModficationTime( const QString & );
 
     void insertSearchPath( System, const QString & );
     void removeSearchPath( System, const QString & );
@@ -79,6 +76,10 @@ private:
     QSettings &operator=(const QSettings &);
 #endif
 
+    QDateTime lastModficationTime( const QString & );
+    bool sync();
+
+    friend class QApplication;
 };
 
 

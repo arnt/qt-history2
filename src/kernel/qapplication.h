@@ -248,6 +248,7 @@ public:
 #if defined(Q_WS_X11)
     static void create_xim();
     static void close_xim();
+    static bool x11_apply_settings();
 #endif
     void	     wakeUpGuiThread();
 #if defined(QT_THREAD_SUPPORT)
