@@ -57,7 +57,7 @@ main(int argc, char **argv)
 #endif
     QFile file(fileName);
     if(!file.open(QFile::ReadOnly)) {
-        fprintf(stderr, "Failure to open: %s\n", fileName.latin1());
+        fprintf(stderr, "Failure to open: %s\n", fileName.toLatin1().constData());
         return 1;
     }
     const QByteArray bytes = file.readAll();
@@ -100,7 +100,7 @@ main(int argc, char **argv)
                     else
                         file.prepend(res->name() + "/");
                 }
-                printf("%s\n", file.latin1());
+                printf("%s\n", file.toLatin1().constData());
             }
         }
     } else {
@@ -114,7 +114,7 @@ main(int argc, char **argv)
             if(resource->isContainer()) {
                 QList<QResource *> children = resource->children();
                 for(int i = 0; i < children.size(); i++) 
-                    printf("**Child: %s\n", children[i]->name().latin1());
+                    printf("**Child: %s\n", children[i]->name().toLatin1().constData());
                 continue;
             }
             const uint datalen = resource->size();
