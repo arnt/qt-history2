@@ -2,7 +2,7 @@ TEMPLATE    =	subdirs
 SUBDIRS     =	aclock \
 		addressbook \
 		application \
-		buttons_groups \
+		buttonsgroups \
 		checklists \
 		cursor \
 		customlayout \
