@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#105 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -499,1071 +499,1074 @@ static const char *ps_header[] = {
 // the next table is derived from a list provided by Adobe on its web
 // server.  the start of the header comment:
 //
-// Name:          Adobe Glyph List with Unicode Values
-// Table version: 1.1
-// Date:          24 November 1997
+// Name:          Adobe Glyph List
+// Table version: 1.2
+// Date:          22 Oct 1998
 //
-// This list relates Unicode values (UVs) to glyph names, and should be used
-// only as described in the document "Unicode and Glyph Names." The Unicode
-// Standard version 2.0 is used.
+// Description:
+//
+//   The Adobe Glyph List (AGL) list relates Unicode values (UVs) to glyph
+//   names, and should be used only as described in the document "Unicode and
+//   Glyph Names," at
+//   http://www.adobe.com/asn/developer/typeforum/unicodegn.html .
 
 
 static struct {
     Q_UINT16 u;
     const char * g;
 } unicodetoglyph[] = {
-/*
-  $ grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < glyphlist.txt | \
-    sed -e 's/;/, "/' -e 's/;.*$/" },/' -e 's/^/    { 0x/' | sort
-*/
-    { 0x0020, "space" },
-    { 0x0021, "exclam" },
-    { 0x0022, "quotedbl" },
-    { 0x0023, "numbersign" },
-    { 0x0024, "dollar" },
-    { 0x0025, "percent" },
-    { 0x0026, "ampersand" },
-    { 0x0027, "quotesingle" },
-    { 0x0028, "parenleft" },
-    { 0x0029, "parenright" },
-    { 0x002A, "asterisk" },
-    { 0x002B, "plus" },
-    { 0x002C, "comma" },
-    { 0x002D, "hyphen" },
-    { 0x002E, "period" },
-    { 0x002F, "slash" },
-    { 0x0030, "zero" },
-    { 0x0031, "one" },
-    { 0x0032, "two" },
-    { 0x0033, "three" },
-    { 0x0034, "four" },
-    { 0x0035, "five" },
-    { 0x0036, "six" },
-    { 0x0037, "seven" },
-    { 0x0038, "eight" },
-    { 0x0039, "nine" },
-    { 0x003A, "colon" },
-    { 0x003B, "semicolon" },
-    { 0x003C, "less" },
-    { 0x003D, "equal" },
-    { 0x003E, "greater" },
-    { 0x003F, "question" },
-    { 0x0040, "at" },
-    { 0x0041, "A" },
-    { 0x0042, "B" },
-    { 0x0043, "C" },
-    { 0x0044, "D" },
-    { 0x0045, "E" },
-    { 0x0046, "F" },
-    { 0x0047, "G" },
-    { 0x0048, "H" },
-    { 0x0049, "I" },
-    { 0x004A, "J" },
-    { 0x004B, "K" },
-    { 0x004C, "L" },
-    { 0x004D, "M" },
-    { 0x004E, "N" },
-    { 0x004F, "O" },
-    { 0x0050, "P" },
-    { 0x0051, "Q" },
-    { 0x0052, "R" },
-    { 0x0053, "S" },
-    { 0x0054, "T" },
-    { 0x0055, "U" },
-    { 0x0056, "V" },
-    { 0x0057, "W" },
-    { 0x0058, "X" },
-    { 0x0059, "Y" },
-    { 0x005A, "Z" },
-    { 0x005B, "bracketleft" },
-    { 0x005C, "backslash" },
-    { 0x005D, "bracketright" },
-    { 0x005E, "asciicircum" },
-    { 0x005F, "underscore" },
-    { 0x0060, "grave" },
-    { 0x0061, "a" },
-    { 0x0062, "b" },
-    { 0x0063, "c" },
-    { 0x0064, "d" },
-    { 0x0065, "e" },
-    { 0x0066, "f" },
-    { 0x0067, "g" },
-    { 0x0068, "h" },
-    { 0x0069, "i" },
-    { 0x006A, "j" },
-    { 0x006B, "k" },
-    { 0x006C, "l" },
-    { 0x006D, "m" },
-    { 0x006E, "n" },
-    { 0x006F, "o" },
-    { 0x0070, "p" },
-    { 0x0071, "q" },
-    { 0x0072, "r" },
-    { 0x0073, "s" },
-    { 0x0074, "t" },
-    { 0x0075, "u" },
-    { 0x0076, "v" },
-    { 0x0077, "w" },
-    { 0x0078, "x" },
-    { 0x0079, "y" },
-    { 0x007A, "z" },
-    { 0x007B, "braceleft" },
-    { 0x007C, "bar" },
-    { 0x007D, "braceright" },
-    { 0x007E, "asciitilde" },
-    { 0x00A0, "space" },
-    { 0x00A1, "exclamdown" },
-    { 0x00A2, "cent" },
-    { 0x00A3, "sterling" },
-    { 0x00A4, "currency" },
-    { 0x00A5, "yen" },
-    { 0x00A6, "brokenbar" },
-    { 0x00A7, "section" },
-    { 0x00A8, "dieresis" },
-    { 0x00A9, "copyright" },
-    { 0x00AA, "ordfeminine" },
-    { 0x00AB, "guillemotleft" },
-    { 0x00AC, "logicalnot" },
-    { 0x00AD, "hyphen" },
-    { 0x00AE, "registered" },
-    { 0x00AF, "macron" },
-    { 0x00B0, "degree" },
-    { 0x00B1, "plusminus" },
-    { 0x00B2, "twosuperior" },
-    { 0x00B3, "threesuperior" },
-    { 0x00B4, "acute" },
-    { 0x00B5, "mu" },
-    { 0x00B6, "paragraph" },
-    { 0x00B7, "periodcentered" },
-    { 0x00B8, "cedilla" },
-    { 0x00B9, "onesuperior" },
-    { 0x00BA, "ordmasculine" },
-    { 0x00BB, "guillemotright" },
-    { 0x00BC, "onequarter" },
-    { 0x00BD, "onehalf" },
-    { 0x00BE, "threequarters" },
-    { 0x00BF, "questiondown" },
-    { 0x00C0, "Agrave" },
-    { 0x00C1, "Aacute" },
-    { 0x00C2, "Acircumflex" },
-    { 0x00C3, "Atilde" },
-    { 0x00C4, "Adieresis" },
-    { 0x00C5, "Aring" },
-    { 0x00C6, "AE" },
-    { 0x00C7, "Ccedilla" },
-    { 0x00C8, "Egrave" },
-    { 0x00C9, "Eacute" },
-    { 0x00CA, "Ecircumflex" },
-    { 0x00CB, "Edieresis" },
-    { 0x00CC, "Igrave" },
-    { 0x00CD, "Iacute" },
-    { 0x00CE, "Icircumflex" },
-    { 0x00CF, "Idieresis" },
-    { 0x00D0, "Eth" },
-    { 0x00D1, "Ntilde" },
-    { 0x00D2, "Ograve" },
-    { 0x00D3, "Oacute" },
-    { 0x00D4, "Ocircumflex" },
-    { 0x00D5, "Otilde" },
-    { 0x00D6, "Odieresis" },
-    { 0x00D7, "multiply" },
-    { 0x00D8, "Oslash" },
-    { 0x00D9, "Ugrave" },
-    { 0x00DA, "Uacute" },
-    { 0x00DB, "Ucircumflex" },
-    { 0x00DC, "Udieresis" },
-    { 0x00DD, "Yacute" },
-    { 0x00DE, "Thorn" },
-    { 0x00DF, "germandbls" },
-    { 0x00E0, "agrave" },
-    { 0x00E1, "aacute" },
-    { 0x00E2, "acircumflex" },
-    { 0x00E3, "atilde" },
-    { 0x00E4, "adieresis" },
-    { 0x00E5, "aring" },
-    { 0x00E6, "ae" },
-    { 0x00E7, "ccedilla" },
-    { 0x00E8, "egrave" },
-    { 0x00E9, "eacute" },
-    { 0x00EA, "ecircumflex" },
-    { 0x00EB, "edieresis" },
-    { 0x00EC, "igrave" },
-    { 0x00ED, "iacute" },
-    { 0x00EE, "icircumflex" },
-    { 0x00EF, "idieresis" },
-    { 0x00F0, "eth" },
-    { 0x00F1, "ntilde" },
-    { 0x00F2, "ograve" },
-    { 0x00F3, "oacute" },
-    { 0x00F4, "ocircumflex" },
-    { 0x00F5, "otilde" },
-    { 0x00F6, "odieresis" },
-    { 0x00F7, "divide" },
-    { 0x00F8, "oslash" },
-    { 0x00F9, "ugrave" },
-    { 0x00FA, "uacute" },
-    { 0x00FB, "ucircumflex" },
-    { 0x00FC, "udieresis" },
-    { 0x00FD, "yacute" },
-    { 0x00FE, "thorn" },
-    { 0x00FF, "ydieresis" },
-    { 0x0100, "Amacron" },
-    { 0x0101, "amacron" },
-    { 0x0102, "Abreve" },
-    { 0x0103, "abreve" },
-    { 0x0104, "Aogonek" },
-    { 0x0105, "aogonek" },
-    { 0x0106, "Cacute" },
-    { 0x0107, "cacute" },
-    { 0x0108, "Ccircumflex" },
-    { 0x0109, "ccircumflex" },
-    { 0x010A, "Cdotaccent" },
-    { 0x010B, "cdotaccent" },
-    { 0x010C, "Ccaron" },
-    { 0x010D, "ccaron" },
-    { 0x010E, "Dcaron" },
-    { 0x010F, "dcaron" },
-    { 0x0110, "Dcroat" },
-    { 0x0111, "dcroat" },
-    { 0x0112, "Emacron" },
-    { 0x0113, "emacron" },
-    { 0x0114, "Ebreve" },
-    { 0x0115, "ebreve" },
-    { 0x0116, "Edotaccent" },
-    { 0x0117, "edotaccent" },
-    { 0x0118, "Eogonek" },
-    { 0x0119, "eogonek" },
-    { 0x011A, "Ecaron" },
-    { 0x011B, "ecaron" },
-    { 0x011C, "Gcircumflex" },
-    { 0x011D, "gcircumflex" },
-    { 0x011E, "Gbreve" },
-    { 0x011F, "gbreve" },
-    { 0x0120, "Gdotaccent" },
-    { 0x0121, "gdotaccent" },
-    { 0x0122, "Gcommaaccent" },
-    { 0x0123, "gcommaaccent" },
-    { 0x0124, "Hcircumflex" },
-    { 0x0125, "hcircumflex" },
-    { 0x0126, "Hbar" },
-    { 0x0127, "hbar" },
-    { 0x0128, "Itilde" },
-    { 0x0129, "itilde" },
-    { 0x012A, "Imacron" },
-    { 0x012B, "imacron" },
-    { 0x012C, "Ibreve" },
-    { 0x012D, "ibreve" },
-    { 0x012E, "Iogonek" },
-    { 0x012F, "iogonek" },
-    { 0x0130, "Idotaccent" },
-    { 0x0131, "dotlessi" },
-    { 0x0132, "IJ" },
-    { 0x0133, "ij" },
-    { 0x0134, "Jcircumflex" },
-    { 0x0135, "jcircumflex" },
-    { 0x0136, "Kcommaaccent" },
-    { 0x0137, "kcommaaccent" },
-    { 0x0138, "kgreenlandic" },
-    { 0x0139, "Lacute" },
-    { 0x013A, "lacute" },
-    { 0x013B, "Lcommaaccent" },
-    { 0x013C, "lcommaaccent" },
-    { 0x013D, "Lcaron" },
-    { 0x013E, "lcaron" },
-    { 0x013F, "Ldot" },
-    { 0x0140, "ldot" },
-    { 0x0141, "Lslash" },
-    { 0x0142, "lslash" },
-    { 0x0143, "Nacute" },
-    { 0x0144, "nacute" },
-    { 0x0145, "Ncommaaccent" },
-    { 0x0146, "ncommaaccent" },
-    { 0x0147, "Ncaron" },
-    { 0x0148, "ncaron" },
-    { 0x0149, "napostrophe" },
-    { 0x014A, "Eng" },
-    { 0x014B, "eng" },
-    { 0x014C, "Omacron" },
-    { 0x014D, "omacron" },
-    { 0x014E, "Obreve" },
-    { 0x014F, "obreve" },
-    { 0x0150, "Ohungarumlaut" },
-    { 0x0151, "ohungarumlaut" },
-    { 0x0152, "OE" },
-    { 0x0153, "oe" },
-    { 0x0154, "Racute" },
-    { 0x0155, "racute" },
-    { 0x0156, "Rcommaaccent" },
-    { 0x0157, "rcommaaccent" },
-    { 0x0158, "Rcaron" },
-    { 0x0159, "rcaron" },
-    { 0x015A, "Sacute" },
-    { 0x015B, "sacute" },
-    { 0x015C, "Scircumflex" },
-    { 0x015D, "scircumflex" },
-    { 0x015E, "Scommaaccent" },
-    { 0x015F, "scommaaccent" },
-    { 0x0160, "Scaron" },
-    { 0x0161, "scaron" },
-    { 0x0162, "Tcommaaccent" },
-    { 0x0163, "tcommaaccent" },
-    { 0x0164, "Tcaron" },
-    { 0x0165, "tcaron" },
-    { 0x0166, "Tbar" },
-    { 0x0167, "tbar" },
-    { 0x0168, "Utilde" },
-    { 0x0169, "utilde" },
-    { 0x016A, "Umacron" },
-    { 0x016B, "umacron" },
-    { 0x016C, "Ubreve" },
-    { 0x016D, "ubreve" },
-    { 0x016E, "Uring" },
-    { 0x016F, "uring" },
-    { 0x0170, "Uhungarumlaut" },
-    { 0x0171, "uhungarumlaut" },
-    { 0x0172, "Uogonek" },
-    { 0x0173, "uogonek" },
-    { 0x0174, "Wcircumflex" },
-    { 0x0175, "wcircumflex" },
-    { 0x0176, "Ycircumflex" },
-    { 0x0177, "ycircumflex" },
-    { 0x0178, "Ydieresis" },
-    { 0x0179, "Zacute" },
-    { 0x017A, "zacute" },
-    { 0x017B, "Zdotaccent" },
-    { 0x017C, "zdotaccent" },
-    { 0x017D, "Zcaron" },
-    { 0x017E, "zcaron" },
-    { 0x017F, "longs" },
-    { 0x0192, "florin" },
-    { 0x01A0, "Ohorn" },
-    { 0x01A1, "ohorn" },
-    { 0x01AF, "Uhorn" },
-    { 0x01B0, "uhorn" },
-    { 0x01E6, "Gcaron" },
-    { 0x01E7, "gcaron" },
-    { 0x01FA, "Aringacute" },
-    { 0x01FB, "aringacute" },
-    { 0x01FC, "AEacute" },
-    { 0x01FD, "aeacute" },
-    { 0x01FE, "Oslashacute" },
-    { 0x01FF, "oslashacute" },
-    { 0x02BC, "afii57929" },
-    { 0x02BD, "afii64937" },
-    { 0x02C6, "circumflex" },
-    { 0x02C7, "caron" },
-    { 0x02C9, "macron" },
-    { 0x02D8, "breve" },
-    { 0x02D9, "dotaccent" },
-    { 0x02DA, "ring" },
-    { 0x02DB, "ogonek" },
-    { 0x02DC, "tilde" },
-    { 0x02DD, "hungarumlaut" },
-    { 0x0300, "gravecomb" },
-    { 0x0301, "acutecomb" },
-    { 0x0303, "tildecomb" },
-    { 0x0309, "hookabovecomb" },
-    { 0x0323, "dotbelowcomb" },
-    { 0x0384, "tonos" },
-    { 0x0385, "dieresistonos" },
-    { 0x0386, "Alphatonos" },
-    { 0x0387, "anoteleia" },
-    { 0x0388, "Epsilontonos" },
-    { 0x0389, "Etatonos" },
-    { 0x038A, "Iotatonos" },
-    { 0x038C, "Omicrontonos" },
-    { 0x038E, "Upsilontonos" },
-    { 0x038F, "Omegatonos" },
-    { 0x0390, "iotadieresistonos" },
-    { 0x0391, "Alpha" },
-    { 0x0392, "Beta" },
-    { 0x0393, "Gamma" },
-    { 0x0394, "Delta" },
-    { 0x0395, "Epsilon" },
-    { 0x0396, "Zeta" },
-    { 0x0397, "Eta" },
-    { 0x0398, "Theta" },
-    { 0x0399, "Iota" },
-    { 0x039A, "Kappa" },
-    { 0x039B, "Lambda" },
-    { 0x039C, "Mu" },
-    { 0x039D, "Nu" },
-    { 0x039E, "Xi" },
-    { 0x039F, "Omicron" },
-    { 0x03A0, "Pi" },
-    { 0x03A1, "Rho" },
-    { 0x03A3, "Sigma" },
-    { 0x03A4, "Tau" },
-    { 0x03A5, "Upsilon" },
-    { 0x03A6, "Phi" },
-    { 0x03A7, "Chi" },
-    { 0x03A8, "Psi" },
-    { 0x03A9, "Omega" },
-    { 0x03AA, "Iotadieresis" },
-    { 0x03AB, "Upsilondieresis" },
-    { 0x03AC, "alphatonos" },
-    { 0x03AD, "epsilontonos" },
-    { 0x03AE, "etatonos" },
-    { 0x03AF, "iotatonos" },
-    { 0x03B0, "upsilondieresistonos" },
-    { 0x03B1, "alpha" },
-    { 0x03B2, "beta" },
-    { 0x03B3, "gamma" },
-    { 0x03B4, "delta" },
-    { 0x03B5, "epsilon" },
-    { 0x03B6, "zeta" },
-    { 0x03B7, "eta" },
-    { 0x03B8, "theta" },
-    { 0x03B9, "iota" },
-    { 0x03BA, "kappa" },
-    { 0x03BB, "lambda" },
-    { 0x03BC, "mu" },
-    { 0x03BD, "nu" },
-    { 0x03BE, "xi" },
-    { 0x03BF, "omicron" },
-    { 0x03C0, "pi" },
-    { 0x03C1, "rho" },
-    { 0x03C2, "sigma1" },
-    { 0x03C3, "sigma" },
-    { 0x03C4, "tau" },
-    { 0x03C5, "upsilon" },
-    { 0x03C6, "phi" },
-    { 0x03C7, "chi" },
-    { 0x03C8, "psi" },
-    { 0x03C9, "omega" },
-    { 0x03CA, "iotadieresis" },
-    { 0x03CB, "upsilondieresis" },
-    { 0x03CC, "omicrontonos" },
-    { 0x03CD, "upsilontonos" },
-    { 0x03CE, "omegatonos" },
-    { 0x03D1, "theta1" },
-    { 0x03D2, "Upsilon1" },
-    { 0x03D5, "phi1" },
-    { 0x03D6, "omega1" },
-    { 0x0401, "afii10023" },
-    { 0x0402, "afii10051" },
-    { 0x0403, "afii10052" },
-    { 0x0404, "afii10053" },
-    { 0x0405, "afii10054" },
-    { 0x0406, "afii10055" },
-    { 0x0407, "afii10056" },
-    { 0x0408, "afii10057" },
-    { 0x0409, "afii10058" },
-    { 0x040A, "afii10059" },
-    { 0x040B, "afii10060" },
-    { 0x040C, "afii10061" },
-    { 0x040E, "afii10062" },
-    { 0x040F, "afii10145" },
-    { 0x0410, "afii10017" },
-    { 0x0411, "afii10018" },
-    { 0x0412, "afii10019" },
-    { 0x0413, "afii10020" },
-    { 0x0414, "afii10021" },
-    { 0x0415, "afii10022" },
-    { 0x0416, "afii10024" },
-    { 0x0417, "afii10025" },
-    { 0x0418, "afii10026" },
-    { 0x0419, "afii10027" },
-    { 0x041A, "afii10028" },
-    { 0x041B, "afii10029" },
-    { 0x041C, "afii10030" },
-    { 0x041D, "afii10031" },
-    { 0x041E, "afii10032" },
-    { 0x041F, "afii10033" },
-    { 0x0420, "afii10034" },
-    { 0x0421, "afii10035" },
-    { 0x0422, "afii10036" },
-    { 0x0423, "afii10037" },
-    { 0x0424, "afii10038" },
-    { 0x0425, "afii10039" },
-    { 0x0426, "afii10040" },
-    { 0x0427, "afii10041" },
-    { 0x0428, "afii10042" },
-    { 0x0429, "afii10043" },
-    { 0x042A, "afii10044" },
-    { 0x042B, "afii10045" },
-    { 0x042C, "afii10046" },
-    { 0x042D, "afii10047" },
-    { 0x042E, "afii10048" },
-    { 0x042F, "afii10049" },
-    { 0x0430, "afii10065" },
-    { 0x0431, "afii10066" },
-    { 0x0432, "afii10067" },
-    { 0x0433, "afii10068" },
-    { 0x0434, "afii10069" },
-    { 0x0435, "afii10070" },
-    { 0x0436, "afii10072" },
-    { 0x0437, "afii10073" },
-    { 0x0438, "afii10074" },
-    { 0x0439, "afii10075" },
-    { 0x043A, "afii10076" },
-    { 0x043B, "afii10077" },
-    { 0x043C, "afii10078" },
-    { 0x043D, "afii10079" },
-    { 0x043E, "afii10080" },
-    { 0x043F, "afii10081" },
-    { 0x0440, "afii10082" },
-    { 0x0441, "afii10083" },
-    { 0x0442, "afii10084" },
-    { 0x0443, "afii10085" },
-    { 0x0444, "afii10086" },
-    { 0x0445, "afii10087" },
-    { 0x0446, "afii10088" },
-    { 0x0447, "afii10089" },
-    { 0x0448, "afii10090" },
-    { 0x0449, "afii10091" },
-    { 0x044A, "afii10092" },
-    { 0x044B, "afii10093" },
-    { 0x044C, "afii10094" },
-    { 0x044D, "afii10095" },
-    { 0x044E, "afii10096" },
-    { 0x044F, "afii10097" },
-    { 0x0451, "afii10071" },
-    { 0x0452, "afii10099" },
-    { 0x0453, "afii10100" },
-    { 0x0454, "afii10101" },
-    { 0x0455, "afii10102" },
-    { 0x0456, "afii10103" },
-    { 0x0457, "afii10104" },
-    { 0x0458, "afii10105" },
-    { 0x0459, "afii10106" },
-    { 0x045A, "afii10107" },
-    { 0x045B, "afii10108" },
-    { 0x045C, "afii10109" },
-    { 0x045E, "afii10110" },
-    { 0x045F, "afii10193" },
-    { 0x0462, "afii10146" },
-    { 0x0463, "afii10194" },
-    { 0x0472, "afii10147" },
-    { 0x0473, "afii10195" },
-    { 0x0474, "afii10148" },
-    { 0x0475, "afii10196" },
-    { 0x0490, "afii10050" },
-    { 0x0491, "afii10098" },
-    { 0x04D9, "afii10846" },
-    { 0x05B0, "afii57799" },
-    { 0x05B1, "afii57801" },
-    { 0x05B2, "afii57800" },
-    { 0x05B3, "afii57802" },
-    { 0x05B4, "afii57793" },
-    { 0x05B5, "afii57794" },
-    { 0x05B6, "afii57795" },
-    { 0x05B7, "afii57798" },
-    { 0x05B8, "afii57797" },
-    { 0x05B9, "afii57806" },
-    { 0x05BB, "afii57796" },
-    { 0x05BC, "afii57807" },
-    { 0x05BD, "afii57839" },
-    { 0x05BE, "afii57645" },
-    { 0x05BF, "afii57841" },
-    { 0x05C0, "afii57842" },
-    { 0x05C1, "afii57804" },
-    { 0x05C2, "afii57803" },
-    { 0x05C3, "afii57658" },
-    { 0x05D0, "afii57664" },
-    { 0x05D1, "afii57665" },
-    { 0x05D2, "afii57666" },
-    { 0x05D3, "afii57667" },
-    { 0x05D4, "afii57668" },
-    { 0x05D5, "afii57669" },
-    { 0x05D6, "afii57670" },
-    { 0x05D7, "afii57671" },
-    { 0x05D8, "afii57672" },
-    { 0x05D9, "afii57673" },
-    { 0x05DA, "afii57674" },
-    { 0x05DB, "afii57675" },
-    { 0x05DC, "afii57676" },
-    { 0x05DD, "afii57677" },
-    { 0x05DE, "afii57678" },
-    { 0x05DF, "afii57679" },
-    { 0x05E0, "afii57680" },
-    { 0x05E1, "afii57681" },
-    { 0x05E2, "afii57682" },
-    { 0x05E3, "afii57683" },
-    { 0x05E4, "afii57684" },
-    { 0x05E5, "afii57685" },
-    { 0x05E6, "afii57686" },
-    { 0x05E7, "afii57687" },
-    { 0x05E8, "afii57688" },
-    { 0x05E9, "afii57689" },
-    { 0x05EA, "afii57690" },
-    { 0x05F0, "afii57716" },
-    { 0x05F1, "afii57717" },
-    { 0x05F2, "afii57718" },
-    { 0x060C, "afii57388" },
-    { 0x061B, "afii57403" },
-    { 0x061F, "afii57407" },
-    { 0x0621, "afii57409" },
-    { 0x0622, "afii57410" },
-    { 0x0623, "afii57411" },
-    { 0x0624, "afii57412" },
-    { 0x0625, "afii57413" },
-    { 0x0626, "afii57414" },
-    { 0x0627, "afii57415" },
-    { 0x0628, "afii57416" },
-    { 0x0629, "afii57417" },
-    { 0x062A, "afii57418" },
-    { 0x062B, "afii57419" },
-    { 0x062C, "afii57420" },
-    { 0x062D, "afii57421" },
-    { 0x062E, "afii57422" },
-    { 0x062F, "afii57423" },
-    { 0x0630, "afii57424" },
-    { 0x0631, "afii57425" },
-    { 0x0632, "afii57426" },
-    { 0x0633, "afii57427" },
-    { 0x0634, "afii57428" },
-    { 0x0635, "afii57429" },
-    { 0x0636, "afii57430" },
-    { 0x0637, "afii57431" },
-    { 0x0638, "afii57432" },
-    { 0x0639, "afii57433" },
-    { 0x063A, "afii57434" },
-    { 0x0640, "afii57440" },
-    { 0x0641, "afii57441" },
-    { 0x0642, "afii57442" },
-    { 0x0643, "afii57443" },
-    { 0x0644, "afii57444" },
-    { 0x0645, "afii57445" },
-    { 0x0646, "afii57446" },
-    { 0x0647, "afii57470" },
-    { 0x0648, "afii57448" },
-    { 0x0649, "afii57449" },
-    { 0x064A, "afii57450" },
-    { 0x064B, "afii57451" },
-    { 0x064C, "afii57452" },
-    { 0x064D, "afii57453" },
-    { 0x064E, "afii57454" },
-    { 0x064F, "afii57455" },
-    { 0x0650, "afii57456" },
-    { 0x0651, "afii57457" },
-    { 0x0652, "afii57458" },
-    { 0x0660, "afii57392" },
-    { 0x0661, "afii57393" },
-    { 0x0662, "afii57394" },
-    { 0x0663, "afii57395" },
-    { 0x0664, "afii57396" },
-    { 0x0665, "afii57397" },
-    { 0x0666, "afii57398" },
-    { 0x0667, "afii57399" },
-    { 0x0668, "afii57400" },
-    { 0x0669, "afii57401" },
-    { 0x066A, "afii57381" },
-    { 0x066D, "afii63167" },
-    { 0x0679, "afii57511" },
-    { 0x067E, "afii57506" },
-    { 0x0686, "afii57507" },
-    { 0x0688, "afii57512" },
-    { 0x0691, "afii57513" },
-    { 0x0698, "afii57508" },
-    { 0x06A4, "afii57505" },
-    { 0x06AF, "afii57509" },
-    { 0x06BA, "afii57514" },
-    { 0x06D2, "afii57519" },
-    { 0x06D5, "afii57534" },
-    { 0x1E80, "Wgrave" },
-    { 0x1E81, "wgrave" },
-    { 0x1E82, "Wacute" },
-    { 0x1E83, "wacute" },
-    { 0x1E84, "Wdieresis" },
-    { 0x1E85, "wdieresis" },
-    { 0x1E9E, "Scedilla" },
-    { 0x1E9F, "scedilla" },
-    { 0x1EF2, "Ygrave" },
-    { 0x1EF3, "ygrave" },
-    { 0x200C, "afii61664" },
-    { 0x200D, "afii301" },
-    { 0x200E, "afii299" },
-    { 0x200F, "afii300" },
-    { 0x2012, "figuredash" },
-    { 0x2013, "endash" },
-    { 0x2014, "emdash" },
-    { 0x2015, "afii00208" },
-    { 0x2017, "underscoredbl" },
-    { 0x2018, "quoteleft" },
-    { 0x2019, "quoteright" },
-    { 0x201A, "quotesinglbase" },
-    { 0x201B, "quotereversed" },
-    { 0x201C, "quotedblleft" },
-    { 0x201D, "quotedblright" },
-    { 0x201E, "quotedblbase" },
-    { 0x2020, "dagger" },
-    { 0x2021, "daggerdbl" },
-    { 0x2022, "bullet" },
-    { 0x2024, "onedotenleader" },
-    { 0x2025, "twodotenleader" },
-    { 0x2026, "ellipsis" },
-    { 0x202C, "afii61573" },
-    { 0x202D, "afii61574" },
-    { 0x202E, "afii61575" },
-    { 0x2030, "perthousand" },
-    { 0x2032, "minute" },
-    { 0x2033, "second" },
-    { 0x2039, "guilsinglleft" },
-    { 0x203A, "guilsinglright" },
-    { 0x203C, "exclamdbl" },
-    { 0x2044, "fraction" },
-    { 0x2070, "zerosuperior" },
-    { 0x2074, "foursuperior" },
-    { 0x2075, "fivesuperior" },
-    { 0x2076, "sixsuperior" },
-    { 0x2077, "sevensuperior" },
-    { 0x2078, "eightsuperior" },
-    { 0x2079, "ninesuperior" },
-    { 0x207D, "parenleftsuperior" },
-    { 0x207E, "parenrightsuperior" },
-    { 0x207F, "nsuperior" },
-    { 0x2080, "zeroinferior" },
-    { 0x2081, "oneinferior" },
-    { 0x2082, "twoinferior" },
-    { 0x2083, "threeinferior" },
-    { 0x2084, "fourinferior" },
-    { 0x2085, "fiveinferior" },
-    { 0x2086, "sixinferior" },
-    { 0x2087, "seveninferior" },
-    { 0x2088, "eightinferior" },
-    { 0x2089, "nineinferior" },
-    { 0x208D, "parenleftinferior" },
-    { 0x208E, "parenrightinferior" },
-    { 0x20A1, "colonmonetary" },
-    { 0x20A3, "franc" },
-    { 0x20A4, "lira" },
-    { 0x20A7, "peseta" },
-    { 0x20AA, "afii57636" },
-    { 0x20AB, "dong" },
-    { 0x20AC, "Euro" },
-    { 0x2105, "afii61248" },
-    { 0x2111, "Ifraktur" },
-    { 0x2113, "afii61289" },
-    { 0x2116, "afii61352" },
-    { 0x2118, "weierstrass" },
-    { 0x211C, "Rfraktur" },
-    { 0x211E, "prescription" },
-    { 0x2122, "trademark" },
-    { 0x2126, "Omega" },
-    { 0x212E, "estimated" },
-    { 0x2135, "aleph" },
-    { 0x2153, "onethird" },
-    { 0x2154, "twothirds" },
-    { 0x215B, "oneeighth" },
-    { 0x215C, "threeeighths" },
-    { 0x215D, "fiveeighths" },
-    { 0x215E, "seveneighths" },
-    { 0x2190, "arrowleft" },
-    { 0x2191, "arrowup" },
-    { 0x2192, "arrowright" },
-    { 0x2193, "arrowdown" },
-    { 0x2194, "arrowboth" },
-    { 0x2195, "arrowupdn" },
-    { 0x21A8, "arrowupdnbse" },
-    { 0x21B5, "carriagereturn" },
-    { 0x21D0, "arrowdblleft" },
-    { 0x21D1, "arrowdblup" },
-    { 0x21D2, "arrowdblright" },
-    { 0x21D3, "arrowdbldown" },
-    { 0x21D4, "arrowdblboth" },
-    { 0x2200, "universal" },
-    { 0x2202, "partialdiff" },
-    { 0x2203, "existential" },
-    { 0x2205, "emptyset" },
-    { 0x2206, "Delta" },
-    { 0x2207, "gradient" },
-    { 0x2208, "element" },
-    { 0x2209, "notelement" },
-    { 0x220B, "suchthat" },
-    { 0x220F, "product" },
-    { 0x2211, "summation" },
-    { 0x2212, "minus" },
-    { 0x2215, "fraction" },
-    { 0x2217, "asteriskmath" },
-    { 0x2219, "periodcentered" },
-    { 0x221A, "radical" },
-    { 0x221D, "proportional" },
-    { 0x221E, "infinity" },
-    { 0x221F, "orthogonal" },
-    { 0x2220, "angle" },
-    { 0x2227, "logicaland" },
-    { 0x2228, "logicalor" },
-    { 0x2229, "intersection" },
-    { 0x222A, "union" },
-    { 0x222B, "integral" },
-    { 0x2234, "therefore" },
-    { 0x223C, "similar" },
-    { 0x2245, "congruent" },
-    { 0x2248, "approxequal" },
-    { 0x2260, "notequal" },
-    { 0x2261, "equivalence" },
-    { 0x2264, "lessequal" },
-    { 0x2265, "greaterequal" },
-    { 0x2282, "propersubset" },
-    { 0x2283, "propersuperset" },
-    { 0x2284, "notsubset" },
-    { 0x2286, "reflexsubset" },
-    { 0x2287, "reflexsuperset" },
-    { 0x2295, "circleplus" },
-    { 0x2297, "circlemultiply" },
-    { 0x22A5, "perpendicular" },
-    { 0x22C5, "dotmath" },
-    { 0x2302, "house" },
-    { 0x2310, "revlogicalnot" },
-    { 0x2320, "integraltp" },
-    { 0x2321, "integralbt" },
-    { 0x2329, "angleleft" },
-    { 0x232A, "angleright" },
-    { 0x2500, "SF100000" },
-    { 0x2502, "SF110000" },
-    { 0x250C, "SF010000" },
-    { 0x2510, "SF030000" },
-    { 0x2514, "SF020000" },
-    { 0x2518, "SF040000" },
-    { 0x251C, "SF080000" },
-    { 0x2524, "SF090000" },
-    { 0x252C, "SF060000" },
-    { 0x2534, "SF070000" },
-    { 0x253C, "SF050000" },
-    { 0x2550, "SF430000" },
-    { 0x2551, "SF240000" },
-    { 0x2552, "SF510000" },
-    { 0x2553, "SF520000" },
-    { 0x2554, "SF390000" },
-    { 0x2555, "SF220000" },
-    { 0x2556, "SF210000" },
-    { 0x2557, "SF250000" },
-    { 0x2558, "SF500000" },
-    { 0x2559, "SF490000" },
-    { 0x255A, "SF380000" },
-    { 0x255B, "SF280000" },
-    { 0x255C, "SF270000" },
-    { 0x255D, "SF260000" },
-    { 0x255E, "SF360000" },
-    { 0x255F, "SF370000" },
-    { 0x2560, "SF420000" },
-    { 0x2561, "SF190000" },
-    { 0x2562, "SF200000" },
-    { 0x2563, "SF230000" },
-    { 0x2564, "SF470000" },
-    { 0x2565, "SF480000" },
-    { 0x2566, "SF410000" },
-    { 0x2567, "SF450000" },
-    { 0x2568, "SF460000" },
-    { 0x2569, "SF400000" },
-    { 0x256A, "SF540000" },
-    { 0x256B, "SF530000" },
-    { 0x256C, "SF440000" },
-    { 0x2580, "upblock" },
-    { 0x2584, "dnblock" },
-    { 0x2588, "block" },
-    { 0x258C, "lfblock" },
-    { 0x2590, "rtblock" },
-    { 0x2591, "ltshade" },
-    { 0x2592, "shade" },
-    { 0x2593, "dkshade" },
-    { 0x25A0, "filledbox" },
-    { 0x25A1, "H22073" },
-    { 0x25AA, "H18543" },
-    { 0x25AB, "H18551" },
-    { 0x25AC, "filledrect" },
-    { 0x25B2, "triagup" },
-    { 0x25BA, "triagrt" },
-    { 0x25BC, "triagdn" },
-    { 0x25C4, "triaglf" },
-    { 0x25CA, "lozenge" },
-    { 0x25CB, "circle" },
-    { 0x25CF, "H18533" },
-    { 0x25D8, "invbullet" },
-    { 0x25D9, "invcircle" },
-    { 0x25E6, "openbullet" },
-    { 0x263A, "smileface" },
-    { 0x263B, "invsmileface" },
-    { 0x263C, "sun" },
-    { 0x2640, "female" },
-    { 0x2642, "male" },
-    { 0x2660, "spade" },
-    { 0x2663, "club" },
-    { 0x2665, "heart" },
-    { 0x2666, "diamond" },
-    { 0x266A, "musicalnote" },
-    { 0x266B, "musicalnotedbl" },
-    { 0xF6BF, "LL" },
-    { 0xF6C0, "ll" },
-    { 0xF6C1, "Scedilla" },
-    { 0xF6C2, "scedilla" },
-    { 0xF6C3, "commaaccent" },
-    { 0xF6C4, "afii10063" },
-    { 0xF6C5, "afii10064" },
-    { 0xF6C6, "afii10192" },
-    { 0xF6C7, "afii10831" },
-    { 0xF6C8, "afii10832" },
-    { 0xF6C9, "Acute" },
-    { 0xF6CA, "Caron" },
-    { 0xF6CB, "Dieresis" },
-    { 0xF6CC, "DieresisAcute" },
-    { 0xF6CD, "DieresisGrave" },
-    { 0xF6CE, "Grave" },
-    { 0xF6CF, "Hungarumlaut" },
-    { 0xF6D0, "Macron" },
-    { 0xF6D1, "cyrBreve" },
-    { 0xF6D2, "cyrFlex" },
-    { 0xF6D3, "dblGrave" },
-    { 0xF6D4, "cyrbreve" },
-    { 0xF6D5, "cyrflex" },
-    { 0xF6D6, "dblgrave" },
-    { 0xF6D7, "dieresisacute" },
-    { 0xF6D8, "dieresisgrave" },
-    { 0xF6D9, "copyrightserif" },
-    { 0xF6DA, "registerserif" },
-    { 0xF6DB, "trademarkserif" },
-    { 0xF6DC, "onefitted" },
-    { 0xF6DD, "rupiah" },
-    { 0xF6DE, "threequartersemdash" },
-    { 0xF6DF, "centinferior" },
-    { 0xF6E0, "centsuperior" },
-    { 0xF6E1, "commainferior" },
-    { 0xF6E2, "commasuperior" },
-    { 0xF6E3, "dollarinferior" },
-    { 0xF6E4, "dollarsuperior" },
-    { 0xF6E5, "hypheninferior" },
-    { 0xF6E6, "hyphensuperior" },
-    { 0xF6E7, "periodinferior" },
-    { 0xF6E8, "periodsuperior" },
-    { 0xF6E9, "asuperior" },
-    { 0xF6EA, "bsuperior" },
-    { 0xF6EB, "dsuperior" },
-    { 0xF6EC, "esuperior" },
-    { 0xF6ED, "isuperior" },
-    { 0xF6EE, "lsuperior" },
-    { 0xF6EF, "msuperior" },
-    { 0xF6F0, "osuperior" },
-    { 0xF6F1, "rsuperior" },
-    { 0xF6F2, "ssuperior" },
-    { 0xF6F3, "tsuperior" },
-    { 0xF6F4, "Brevesmall" },
-    { 0xF6F5, "Caronsmall" },
-    { 0xF6F6, "Circumflexsmall" },
-    { 0xF6F7, "Dotaccentsmall" },
-    { 0xF6F8, "Hungarumlautsmall" },
-    { 0xF6F9, "Lslashsmall" },
-    { 0xF6FA, "OEsmall" },
-    { 0xF6FB, "Ogoneksmall" },
-    { 0xF6FC, "Ringsmall" },
-    { 0xF6FD, "Scaronsmall" },
-    { 0xF6FE, "Tildesmall" },
-    { 0xF6FF, "Zcaronsmall" },
-    { 0xF721, "exclamsmall" },
-    { 0xF724, "dollaroldstyle" },
-    { 0xF726, "ampersandsmall" },
-    { 0xF730, "zerooldstyle" },
-    { 0xF731, "oneoldstyle" },
-    { 0xF732, "twooldstyle" },
-    { 0xF733, "threeoldstyle" },
-    { 0xF734, "fouroldstyle" },
-    { 0xF735, "fiveoldstyle" },
-    { 0xF736, "sixoldstyle" },
-    { 0xF737, "sevenoldstyle" },
-    { 0xF738, "eightoldstyle" },
-    { 0xF739, "nineoldstyle" },
-    { 0xF73F, "questionsmall" },
-    { 0xF760, "Gravesmall" },
-    { 0xF761, "Asmall" },
-    { 0xF762, "Bsmall" },
-    { 0xF763, "Csmall" },
-    { 0xF764, "Dsmall" },
-    { 0xF765, "Esmall" },
-    { 0xF766, "Fsmall" },
-    { 0xF767, "Gsmall" },
-    { 0xF768, "Hsmall" },
-    { 0xF769, "Ismall" },
-    { 0xF76A, "Jsmall" },
-    { 0xF76B, "Ksmall" },
-    { 0xF76C, "Lsmall" },
-    { 0xF76D, "Msmall" },
-    { 0xF76E, "Nsmall" },
-    { 0xF76F, "Osmall" },
-    { 0xF770, "Psmall" },
-    { 0xF771, "Qsmall" },
-    { 0xF772, "Rsmall" },
-    { 0xF773, "Ssmall" },
-    { 0xF774, "Tsmall" },
-    { 0xF775, "Usmall" },
-    { 0xF776, "Vsmall" },
-    { 0xF777, "Wsmall" },
-    { 0xF778, "Xsmall" },
-    { 0xF779, "Ysmall" },
-    { 0xF77A, "Zsmall" },
-    { 0xF7A1, "exclamdownsmall" },
-    { 0xF7A2, "centoldstyle" },
-    { 0xF7A8, "Dieresissmall" },
-    { 0xF7AF, "Macronsmall" },
-    { 0xF7B4, "Acutesmall" },
-    { 0xF7B8, "Cedillasmall" },
-    { 0xF7BF, "questiondownsmall" },
-    { 0xF7E0, "Agravesmall" },
-    { 0xF7E1, "Aacutesmall" },
-    { 0xF7E2, "Acircumflexsmall" },
-    { 0xF7E3, "Atildesmall" },
-    { 0xF7E4, "Adieresissmall" },
-    { 0xF7E5, "Aringsmall" },
-    { 0xF7E6, "AEsmall" },
-    { 0xF7E7, "Ccedillasmall" },
-    { 0xF7E8, "Egravesmall" },
-    { 0xF7E9, "Eacutesmall" },
-    { 0xF7EA, "Ecircumflexsmall" },
-    { 0xF7EB, "Edieresissmall" },
-    { 0xF7EC, "Igravesmall" },
-    { 0xF7ED, "Iacutesmall" },
-    { 0xF7EE, "Icircumflexsmall" },
-    { 0xF7EF, "Idieresissmall" },
-    { 0xF7F0, "Ethsmall" },
-    { 0xF7F1, "Ntildesmall" },
-    { 0xF7F2, "Ogravesmall" },
-    { 0xF7F3, "Oacutesmall" },
-    { 0xF7F4, "Ocircumflexsmall" },
-    { 0xF7F5, "Otildesmall" },
-    { 0xF7F6, "Odieresissmall" },
-    { 0xF7F8, "Oslashsmall" },
-    { 0xF7F9, "Ugravesmall" },
-    { 0xF7FA, "Uacutesmall" },
-    { 0xF7FB, "Ucircumflexsmall" },
-    { 0xF7FC, "Udieresissmall" },
-    { 0xF7FD, "Yacutesmall" },
-    { 0xF7FE, "Thornsmall" },
-    { 0xF7FF, "Ydieresissmall" },
-    { 0xF8E5, "radicalex" },
-    { 0xF8E6, "arrowvertex" },
-    { 0xF8E7, "arrowhorizex" },
-    { 0xF8E8, "registersans" },
-    { 0xF8E9, "copyrightsans" },
-    { 0xF8EA, "trademarksans" },
-    { 0xF8EB, "parenlefttp" },
-    { 0xF8EC, "parenleftex" },
-    { 0xF8ED, "parenleftbt" },
-    { 0xF8EE, "bracketlefttp" },
-    { 0xF8EF, "bracketleftex" },
-    { 0xF8F0, "bracketleftbt" },
-    { 0xF8F1, "bracelefttp" },
-    { 0xF8F2, "braceleftmid" },
-    { 0xF8F3, "braceleftbt" },
-    { 0xF8F4, "braceex" },
-    { 0xF8F5, "integralex" },
-    { 0xF8F6, "parenrighttp" },
-    { 0xF8F7, "parenrightex" },
-    { 0xF8F8, "parenrightbt" },
-    { 0xF8F9, "bracketrighttp" },
-    { 0xF8FA, "bracketrightex" },
-    { 0xF8FB, "bracketrightbt" },
-    { 0xF8FC, "bracerighttp" },
-    { 0xF8FD, "bracerightmid" },
-    { 0xF8FE, "bracerightbt" },
-    { 0xFB00, "ff" },
-    { 0xFB01, "fi" },
-    { 0xFB02, "fl" },
-    { 0xFB03, "ffi" },
-    { 0xFB04, "ffl" },
-    { 0xFB1F, "afii57705" },
-    { 0xFB2A, "afii57694" },
-    { 0xFB2B, "afii57695" },
-    { 0xFB35, "afii57723" },
-    { 0xFB4B, "afii57700" },
+    // grep '^[0-9A-F][0-9A-F][0-9A-F][0-9A-F];' < /tmp/glyphlist.txt | sed -e 's/;/, "/' -e 's-;-" },  // -' -e 's/^/    { 0x/' | sort
+    { 0x0020, "space" },  // SPACE
+    { 0x0021, "exclam" },  // EXCLAMATION MARK
+    { 0x0022, "quotedbl" },  // QUOTATION MARK
+    { 0x0023, "numbersign" },  // NUMBER SIGN
+    { 0x0024, "dollar" },  // DOLLAR SIGN
+    { 0x0025, "percent" },  // PERCENT SIGN
+    { 0x0026, "ampersand" },  // AMPERSAND
+    { 0x0027, "quotesingle" },  // APOSTROPHE
+    { 0x0028, "parenleft" },  // LEFT PARENTHESIS
+    { 0x0029, "parenright" },  // RIGHT PARENTHESIS
+    { 0x002A, "asterisk" },  // ASTERISK
+    { 0x002B, "plus" },  // PLUS SIGN
+    { 0x002C, "comma" },  // COMMA
+    { 0x002D, "hyphen" },  // HYPHEN-MINUS
+    { 0x002E, "period" },  // FULL STOP
+    { 0x002F, "slash" },  // SOLIDUS
+    { 0x0030, "zero" },  // DIGIT ZERO
+    { 0x0031, "one" },  // DIGIT ONE
+    { 0x0032, "two" },  // DIGIT TWO
+    { 0x0033, "three" },  // DIGIT THREE
+    { 0x0034, "four" },  // DIGIT FOUR
+    { 0x0035, "five" },  // DIGIT FIVE
+    { 0x0036, "six" },  // DIGIT SIX
+    { 0x0037, "seven" },  // DIGIT SEVEN
+    { 0x0038, "eight" },  // DIGIT EIGHT
+    { 0x0039, "nine" },  // DIGIT NINE
+    { 0x003A, "colon" },  // COLON
+    { 0x003B, "semicolon" },  // SEMICOLON
+    { 0x003C, "less" },  // LESS-THAN SIGN
+    { 0x003D, "equal" },  // EQUALS SIGN
+    { 0x003E, "greater" },  // GREATER-THAN SIGN
+    { 0x003F, "question" },  // QUESTION MARK
+    { 0x0040, "at" },  // COMMERCIAL AT
+    { 0x0041, "A" },  // LATIN CAPITAL LETTER A
+    { 0x0042, "B" },  // LATIN CAPITAL LETTER B
+    { 0x0043, "C" },  // LATIN CAPITAL LETTER C
+    { 0x0044, "D" },  // LATIN CAPITAL LETTER D
+    { 0x0045, "E" },  // LATIN CAPITAL LETTER E
+    { 0x0046, "F" },  // LATIN CAPITAL LETTER F
+    { 0x0047, "G" },  // LATIN CAPITAL LETTER G
+    { 0x0048, "H" },  // LATIN CAPITAL LETTER H
+    { 0x0049, "I" },  // LATIN CAPITAL LETTER I
+    { 0x004A, "J" },  // LATIN CAPITAL LETTER J
+    { 0x004B, "K" },  // LATIN CAPITAL LETTER K
+    { 0x004C, "L" },  // LATIN CAPITAL LETTER L
+    { 0x004D, "M" },  // LATIN CAPITAL LETTER M
+    { 0x004E, "N" },  // LATIN CAPITAL LETTER N
+    { 0x004F, "O" },  // LATIN CAPITAL LETTER O
+    { 0x0050, "P" },  // LATIN CAPITAL LETTER P
+    { 0x0051, "Q" },  // LATIN CAPITAL LETTER Q
+    { 0x0052, "R" },  // LATIN CAPITAL LETTER R
+    { 0x0053, "S" },  // LATIN CAPITAL LETTER S
+    { 0x0054, "T" },  // LATIN CAPITAL LETTER T
+    { 0x0055, "U" },  // LATIN CAPITAL LETTER U
+    { 0x0056, "V" },  // LATIN CAPITAL LETTER V
+    { 0x0057, "W" },  // LATIN CAPITAL LETTER W
+    { 0x0058, "X" },  // LATIN CAPITAL LETTER X
+    { 0x0059, "Y" },  // LATIN CAPITAL LETTER Y
+    { 0x005A, "Z" },  // LATIN CAPITAL LETTER Z
+    { 0x005B, "bracketleft" },  // LEFT SQUARE BRACKET
+    { 0x005C, "backslash" },  // REVERSE SOLIDUS
+    { 0x005D, "bracketright" },  // RIGHT SQUARE BRACKET
+    { 0x005E, "asciicircum" },  // CIRCUMFLEX ACCENT
+    { 0x005F, "underscore" },  // LOW LINE
+    { 0x0060, "grave" },  // GRAVE ACCENT
+    { 0x0061, "a" },  // LATIN SMALL LETTER A
+    { 0x0062, "b" },  // LATIN SMALL LETTER B
+    { 0x0063, "c" },  // LATIN SMALL LETTER C
+    { 0x0064, "d" },  // LATIN SMALL LETTER D
+    { 0x0065, "e" },  // LATIN SMALL LETTER E
+    { 0x0066, "f" },  // LATIN SMALL LETTER F
+    { 0x0067, "g" },  // LATIN SMALL LETTER G
+    { 0x0068, "h" },  // LATIN SMALL LETTER H
+    { 0x0069, "i" },  // LATIN SMALL LETTER I
+    { 0x006A, "j" },  // LATIN SMALL LETTER J
+    { 0x006B, "k" },  // LATIN SMALL LETTER K
+    { 0x006C, "l" },  // LATIN SMALL LETTER L
+    { 0x006D, "m" },  // LATIN SMALL LETTER M
+    { 0x006E, "n" },  // LATIN SMALL LETTER N
+    { 0x006F, "o" },  // LATIN SMALL LETTER O
+    { 0x0070, "p" },  // LATIN SMALL LETTER P
+    { 0x0071, "q" },  // LATIN SMALL LETTER Q
+    { 0x0072, "r" },  // LATIN SMALL LETTER R
+    { 0x0073, "s" },  // LATIN SMALL LETTER S
+    { 0x0074, "t" },  // LATIN SMALL LETTER T
+    { 0x0075, "u" },  // LATIN SMALL LETTER U
+    { 0x0076, "v" },  // LATIN SMALL LETTER V
+    { 0x0077, "w" },  // LATIN SMALL LETTER W
+    { 0x0078, "x" },  // LATIN SMALL LETTER X
+    { 0x0079, "y" },  // LATIN SMALL LETTER Y
+    { 0x007A, "z" },  // LATIN SMALL LETTER Z
+    { 0x007B, "braceleft" },  // LEFT CURLY BRACKET
+    { 0x007C, "bar" },  // VERTICAL LINE
+    { 0x007D, "braceright" },  // RIGHT CURLY BRACKET
+    { 0x007E, "asciitilde" },  // TILDE
+    { 0x00A0, "space" },  // NO-BREAK SPACE;Duplicate
+    { 0x00A1, "exclamdown" },  // INVERTED EXCLAMATION MARK
+    { 0x00A2, "cent" },  // CENT SIGN
+    { 0x00A3, "sterling" },  // POUND SIGN
+    { 0x00A4, "currency" },  // CURRENCY SIGN
+    { 0x00A5, "yen" },  // YEN SIGN
+    { 0x00A6, "brokenbar" },  // BROKEN BAR
+    { 0x00A7, "section" },  // SECTION SIGN
+    { 0x00A8, "dieresis" },  // DIAERESIS
+    { 0x00A9, "copyright" },  // COPYRIGHT SIGN
+    { 0x00AA, "ordfeminine" },  // FEMININE ORDINAL INDICATOR
+    { 0x00AB, "guillemotleft" },  // LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
+    { 0x00AC, "logicalnot" },  // NOT SIGN
+    { 0x00AD, "hyphen" },  // SOFT HYPHEN;Duplicate
+    { 0x00AE, "registered" },  // REGISTERED SIGN
+    { 0x00AF, "macron" },  // MACRON
+    { 0x00B0, "degree" },  // DEGREE SIGN
+    { 0x00B1, "plusminus" },  // PLUS-MINUS SIGN
+    { 0x00B2, "twosuperior" },  // SUPERSCRIPT TWO
+    { 0x00B3, "threesuperior" },  // SUPERSCRIPT THREE
+    { 0x00B4, "acute" },  // ACUTE ACCENT
+    { 0x00B5, "mu" },  // MICRO SIGN
+    { 0x00B6, "paragraph" },  // PILCROW SIGN
+    { 0x00B7, "periodcentered" },  // MIDDLE DOT
+    { 0x00B8, "cedilla" },  // CEDILLA
+    { 0x00B9, "onesuperior" },  // SUPERSCRIPT ONE
+    { 0x00BA, "ordmasculine" },  // MASCULINE ORDINAL INDICATOR
+    { 0x00BB, "guillemotright" },  // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+    { 0x00BC, "onequarter" },  // VULGAR FRACTION ONE QUARTER
+    { 0x00BD, "onehalf" },  // VULGAR FRACTION ONE HALF
+    { 0x00BE, "threequarters" },  // VULGAR FRACTION THREE QUARTERS
+    { 0x00BF, "questiondown" },  // INVERTED QUESTION MARK
+    { 0x00C0, "Agrave" },  // LATIN CAPITAL LETTER A WITH GRAVE
+    { 0x00C1, "Aacute" },  // LATIN CAPITAL LETTER A WITH ACUTE
+    { 0x00C2, "Acircumflex" },  // LATIN CAPITAL LETTER A WITH CIRCUMFLEX
+    { 0x00C3, "Atilde" },  // LATIN CAPITAL LETTER A WITH TILDE
+    { 0x00C4, "Adieresis" },  // LATIN CAPITAL LETTER A WITH DIAERESIS
+    { 0x00C5, "Aring" },  // LATIN CAPITAL LETTER A WITH RING ABOVE
+    { 0x00C6, "AE" },  // LATIN CAPITAL LETTER AE
+    { 0x00C7, "Ccedilla" },  // LATIN CAPITAL LETTER C WITH CEDILLA
+    { 0x00C8, "Egrave" },  // LATIN CAPITAL LETTER E WITH GRAVE
+    { 0x00C9, "Eacute" },  // LATIN CAPITAL LETTER E WITH ACUTE
+    { 0x00CA, "Ecircumflex" },  // LATIN CAPITAL LETTER E WITH CIRCUMFLEX
+    { 0x00CB, "Edieresis" },  // LATIN CAPITAL LETTER E WITH DIAERESIS
+    { 0x00CC, "Igrave" },  // LATIN CAPITAL LETTER I WITH GRAVE
+    { 0x00CD, "Iacute" },  // LATIN CAPITAL LETTER I WITH ACUTE
+    { 0x00CE, "Icircumflex" },  // LATIN CAPITAL LETTER I WITH CIRCUMFLEX
+    { 0x00CF, "Idieresis" },  // LATIN CAPITAL LETTER I WITH DIAERESIS
+    { 0x00D0, "Eth" },  // LATIN CAPITAL LETTER ETH
+    { 0x00D1, "Ntilde" },  // LATIN CAPITAL LETTER N WITH TILDE
+    { 0x00D2, "Ograve" },  // LATIN CAPITAL LETTER O WITH GRAVE
+    { 0x00D3, "Oacute" },  // LATIN CAPITAL LETTER O WITH ACUTE
+    { 0x00D4, "Ocircumflex" },  // LATIN CAPITAL LETTER O WITH CIRCUMFLEX
+    { 0x00D5, "Otilde" },  // LATIN CAPITAL LETTER O WITH TILDE
+    { 0x00D6, "Odieresis" },  // LATIN CAPITAL LETTER O WITH DIAERESIS
+    { 0x00D7, "multiply" },  // MULTIPLICATION SIGN
+    { 0x00D8, "Oslash" },  // LATIN CAPITAL LETTER O WITH STROKE
+    { 0x00D9, "Ugrave" },  // LATIN CAPITAL LETTER U WITH GRAVE
+    { 0x00DA, "Uacute" },  // LATIN CAPITAL LETTER U WITH ACUTE
+    { 0x00DB, "Ucircumflex" },  // LATIN CAPITAL LETTER U WITH CIRCUMFLEX
+    { 0x00DC, "Udieresis" },  // LATIN CAPITAL LETTER U WITH DIAERESIS
+    { 0x00DD, "Yacute" },  // LATIN CAPITAL LETTER Y WITH ACUTE
+    { 0x00DE, "Thorn" },  // LATIN CAPITAL LETTER THORN
+    { 0x00DF, "germandbls" },  // LATIN SMALL LETTER SHARP S
+    { 0x00E0, "agrave" },  // LATIN SMALL LETTER A WITH GRAVE
+    { 0x00E1, "aacute" },  // LATIN SMALL LETTER A WITH ACUTE
+    { 0x00E2, "acircumflex" },  // LATIN SMALL LETTER A WITH CIRCUMFLEX
+    { 0x00E3, "atilde" },  // LATIN SMALL LETTER A WITH TILDE
+    { 0x00E4, "adieresis" },  // LATIN SMALL LETTER A WITH DIAERESIS
+    { 0x00E5, "aring" },  // LATIN SMALL LETTER A WITH RING ABOVE
+    { 0x00E6, "ae" },  // LATIN SMALL LETTER AE
+    { 0x00E7, "ccedilla" },  // LATIN SMALL LETTER C WITH CEDILLA
+    { 0x00E8, "egrave" },  // LATIN SMALL LETTER E WITH GRAVE
+    { 0x00E9, "eacute" },  // LATIN SMALL LETTER E WITH ACUTE
+    { 0x00EA, "ecircumflex" },  // LATIN SMALL LETTER E WITH CIRCUMFLEX
+    { 0x00EB, "edieresis" },  // LATIN SMALL LETTER E WITH DIAERESIS
+    { 0x00EC, "igrave" },  // LATIN SMALL LETTER I WITH GRAVE
+    { 0x00ED, "iacute" },  // LATIN SMALL LETTER I WITH ACUTE
+    { 0x00EE, "icircumflex" },  // LATIN SMALL LETTER I WITH CIRCUMFLEX
+    { 0x00EF, "idieresis" },  // LATIN SMALL LETTER I WITH DIAERESIS
+    { 0x00F0, "eth" },  // LATIN SMALL LETTER ETH
+    { 0x00F1, "ntilde" },  // LATIN SMALL LETTER N WITH TILDE
+    { 0x00F2, "ograve" },  // LATIN SMALL LETTER O WITH GRAVE
+    { 0x00F3, "oacute" },  // LATIN SMALL LETTER O WITH ACUTE
+    { 0x00F4, "ocircumflex" },  // LATIN SMALL LETTER O WITH CIRCUMFLEX
+    { 0x00F5, "otilde" },  // LATIN SMALL LETTER O WITH TILDE
+    { 0x00F6, "odieresis" },  // LATIN SMALL LETTER O WITH DIAERESIS
+    { 0x00F7, "divide" },  // DIVISION SIGN
+    { 0x00F8, "oslash" },  // LATIN SMALL LETTER O WITH STROKE
+    { 0x00F9, "ugrave" },  // LATIN SMALL LETTER U WITH GRAVE
+    { 0x00FA, "uacute" },  // LATIN SMALL LETTER U WITH ACUTE
+    { 0x00FB, "ucircumflex" },  // LATIN SMALL LETTER U WITH CIRCUMFLEX
+    { 0x00FC, "udieresis" },  // LATIN SMALL LETTER U WITH DIAERESIS
+    { 0x00FD, "yacute" },  // LATIN SMALL LETTER Y WITH ACUTE
+    { 0x00FE, "thorn" },  // LATIN SMALL LETTER THORN
+    { 0x00FF, "ydieresis" },  // LATIN SMALL LETTER Y WITH DIAERESIS
+    { 0x0100, "Amacron" },  // LATIN CAPITAL LETTER A WITH MACRON
+    { 0x0101, "amacron" },  // LATIN SMALL LETTER A WITH MACRON
+    { 0x0102, "Abreve" },  // LATIN CAPITAL LETTER A WITH BREVE
+    { 0x0103, "abreve" },  // LATIN SMALL LETTER A WITH BREVE
+    { 0x0104, "Aogonek" },  // LATIN CAPITAL LETTER A WITH OGONEK
+    { 0x0105, "aogonek" },  // LATIN SMALL LETTER A WITH OGONEK
+    { 0x0106, "Cacute" },  // LATIN CAPITAL LETTER C WITH ACUTE
+    { 0x0107, "cacute" },  // LATIN SMALL LETTER C WITH ACUTE
+    { 0x0108, "Ccircumflex" },  // LATIN CAPITAL LETTER C WITH CIRCUMFLEX
+    { 0x0109, "ccircumflex" },  // LATIN SMALL LETTER C WITH CIRCUMFLEX
+    { 0x010A, "Cdotaccent" },  // LATIN CAPITAL LETTER C WITH DOT ABOVE
+    { 0x010B, "cdotaccent" },  // LATIN SMALL LETTER C WITH DOT ABOVE
+    { 0x010C, "Ccaron" },  // LATIN CAPITAL LETTER C WITH CARON
+    { 0x010D, "ccaron" },  // LATIN SMALL LETTER C WITH CARON
+    { 0x010E, "Dcaron" },  // LATIN CAPITAL LETTER D WITH CARON
+    { 0x010F, "dcaron" },  // LATIN SMALL LETTER D WITH CARON
+    { 0x0110, "Dcroat" },  // LATIN CAPITAL LETTER D WITH STROKE
+    { 0x0111, "dcroat" },  // LATIN SMALL LETTER D WITH STROKE
+    { 0x0112, "Emacron" },  // LATIN CAPITAL LETTER E WITH MACRON
+    { 0x0113, "emacron" },  // LATIN SMALL LETTER E WITH MACRON
+    { 0x0114, "Ebreve" },  // LATIN CAPITAL LETTER E WITH BREVE
+    { 0x0115, "ebreve" },  // LATIN SMALL LETTER E WITH BREVE
+    { 0x0116, "Edotaccent" },  // LATIN CAPITAL LETTER E WITH DOT ABOVE
+    { 0x0117, "edotaccent" },  // LATIN SMALL LETTER E WITH DOT ABOVE
+    { 0x0118, "Eogonek" },  // LATIN CAPITAL LETTER E WITH OGONEK
+    { 0x0119, "eogonek" },  // LATIN SMALL LETTER E WITH OGONEK
+    { 0x011A, "Ecaron" },  // LATIN CAPITAL LETTER E WITH CARON
+    { 0x011B, "ecaron" },  // LATIN SMALL LETTER E WITH CARON
+    { 0x011C, "Gcircumflex" },  // LATIN CAPITAL LETTER G WITH CIRCUMFLEX
+    { 0x011D, "gcircumflex" },  // LATIN SMALL LETTER G WITH CIRCUMFLEX
+    { 0x011E, "Gbreve" },  // LATIN CAPITAL LETTER G WITH BREVE
+    { 0x011F, "gbreve" },  // LATIN SMALL LETTER G WITH BREVE
+    { 0x0120, "Gdotaccent" },  // LATIN CAPITAL LETTER G WITH DOT ABOVE
+    { 0x0121, "gdotaccent" },  // LATIN SMALL LETTER G WITH DOT ABOVE
+    { 0x0122, "Gcommaaccent" },  // LATIN CAPITAL LETTER G WITH CEDILLA
+    { 0x0123, "gcommaaccent" },  // LATIN SMALL LETTER G WITH CEDILLA
+    { 0x0124, "Hcircumflex" },  // LATIN CAPITAL LETTER H WITH CIRCUMFLEX
+    { 0x0125, "hcircumflex" },  // LATIN SMALL LETTER H WITH CIRCUMFLEX
+    { 0x0126, "Hbar" },  // LATIN CAPITAL LETTER H WITH STROKE
+    { 0x0127, "hbar" },  // LATIN SMALL LETTER H WITH STROKE
+    { 0x0128, "Itilde" },  // LATIN CAPITAL LETTER I WITH TILDE
+    { 0x0129, "itilde" },  // LATIN SMALL LETTER I WITH TILDE
+    { 0x012A, "Imacron" },  // LATIN CAPITAL LETTER I WITH MACRON
+    { 0x012B, "imacron" },  // LATIN SMALL LETTER I WITH MACRON
+    { 0x012C, "Ibreve" },  // LATIN CAPITAL LETTER I WITH BREVE
+    { 0x012D, "ibreve" },  // LATIN SMALL LETTER I WITH BREVE
+    { 0x012E, "Iogonek" },  // LATIN CAPITAL LETTER I WITH OGONEK
+    { 0x012F, "iogonek" },  // LATIN SMALL LETTER I WITH OGONEK
+    { 0x0130, "Idotaccent" },  // LATIN CAPITAL LETTER I WITH DOT ABOVE
+    { 0x0131, "dotlessi" },  // LATIN SMALL LETTER DOTLESS I
+    { 0x0132, "IJ" },  // LATIN CAPITAL LIGATURE IJ
+    { 0x0133, "ij" },  // LATIN SMALL LIGATURE IJ
+    { 0x0134, "Jcircumflex" },  // LATIN CAPITAL LETTER J WITH CIRCUMFLEX
+    { 0x0135, "jcircumflex" },  // LATIN SMALL LETTER J WITH CIRCUMFLEX
+    { 0x0136, "Kcommaaccent" },  // LATIN CAPITAL LETTER K WITH CEDILLA
+    { 0x0137, "kcommaaccent" },  // LATIN SMALL LETTER K WITH CEDILLA
+    { 0x0138, "kgreenlandic" },  // LATIN SMALL LETTER KRA
+    { 0x0139, "Lacute" },  // LATIN CAPITAL LETTER L WITH ACUTE
+    { 0x013A, "lacute" },  // LATIN SMALL LETTER L WITH ACUTE
+    { 0x013B, "Lcommaaccent" },  // LATIN CAPITAL LETTER L WITH CEDILLA
+    { 0x013C, "lcommaaccent" },  // LATIN SMALL LETTER L WITH CEDILLA
+    { 0x013D, "Lcaron" },  // LATIN CAPITAL LETTER L WITH CARON
+    { 0x013E, "lcaron" },  // LATIN SMALL LETTER L WITH CARON
+    { 0x013F, "Ldot" },  // LATIN CAPITAL LETTER L WITH MIDDLE DOT
+    { 0x0140, "ldot" },  // LATIN SMALL LETTER L WITH MIDDLE DOT
+    { 0x0141, "Lslash" },  // LATIN CAPITAL LETTER L WITH STROKE
+    { 0x0142, "lslash" },  // LATIN SMALL LETTER L WITH STROKE
+    { 0x0143, "Nacute" },  // LATIN CAPITAL LETTER N WITH ACUTE
+    { 0x0144, "nacute" },  // LATIN SMALL LETTER N WITH ACUTE
+    { 0x0145, "Ncommaaccent" },  // LATIN CAPITAL LETTER N WITH CEDILLA
+    { 0x0146, "ncommaaccent" },  // LATIN SMALL LETTER N WITH CEDILLA
+    { 0x0147, "Ncaron" },  // LATIN CAPITAL LETTER N WITH CARON
+    { 0x0148, "ncaron" },  // LATIN SMALL LETTER N WITH CARON
+    { 0x0149, "napostrophe" },  // LATIN SMALL LETTER N PRECEDED BY APOSTROPHE
+    { 0x014A, "Eng" },  // LATIN CAPITAL LETTER ENG
+    { 0x014B, "eng" },  // LATIN SMALL LETTER ENG
+    { 0x014C, "Omacron" },  // LATIN CAPITAL LETTER O WITH MACRON
+    { 0x014D, "omacron" },  // LATIN SMALL LETTER O WITH MACRON
+    { 0x014E, "Obreve" },  // LATIN CAPITAL LETTER O WITH BREVE
+    { 0x014F, "obreve" },  // LATIN SMALL LETTER O WITH BREVE
+    { 0x0150, "Ohungarumlaut" },  // LATIN CAPITAL LETTER O WITH DOUBLE ACUTE
+    { 0x0151, "ohungarumlaut" },  // LATIN SMALL LETTER O WITH DOUBLE ACUTE
+    { 0x0152, "OE" },  // LATIN CAPITAL LIGATURE OE
+    { 0x0153, "oe" },  // LATIN SMALL LIGATURE OE
+    { 0x0154, "Racute" },  // LATIN CAPITAL LETTER R WITH ACUTE
+    { 0x0155, "racute" },  // LATIN SMALL LETTER R WITH ACUTE
+    { 0x0156, "Rcommaaccent" },  // LATIN CAPITAL LETTER R WITH CEDILLA
+    { 0x0157, "rcommaaccent" },  // LATIN SMALL LETTER R WITH CEDILLA
+    { 0x0158, "Rcaron" },  // LATIN CAPITAL LETTER R WITH CARON
+    { 0x0159, "rcaron" },  // LATIN SMALL LETTER R WITH CARON
+    { 0x015A, "Sacute" },  // LATIN CAPITAL LETTER S WITH ACUTE
+    { 0x015B, "sacute" },  // LATIN SMALL LETTER S WITH ACUTE
+    { 0x015C, "Scircumflex" },  // LATIN CAPITAL LETTER S WITH CIRCUMFLEX
+    { 0x015D, "scircumflex" },  // LATIN SMALL LETTER S WITH CIRCUMFLEX
+    { 0x015E, "Scedilla" },  // LATIN CAPITAL LETTER S WITH CEDILLA
+    { 0x015F, "scedilla" },  // LATIN SMALL LETTER S WITH CEDILLA
+    { 0x0160, "Scaron" },  // LATIN CAPITAL LETTER S WITH CARON
+    { 0x0161, "scaron" },  // LATIN SMALL LETTER S WITH CARON
+    { 0x0162, "Tcommaaccent" },  // LATIN CAPITAL LETTER T WITH CEDILLA
+    { 0x0163, "tcommaaccent" },  // LATIN SMALL LETTER T WITH CEDILLA
+    { 0x0164, "Tcaron" },  // LATIN CAPITAL LETTER T WITH CARON
+    { 0x0165, "tcaron" },  // LATIN SMALL LETTER T WITH CARON
+    { 0x0166, "Tbar" },  // LATIN CAPITAL LETTER T WITH STROKE
+    { 0x0167, "tbar" },  // LATIN SMALL LETTER T WITH STROKE
+    { 0x0168, "Utilde" },  // LATIN CAPITAL LETTER U WITH TILDE
+    { 0x0169, "utilde" },  // LATIN SMALL LETTER U WITH TILDE
+    { 0x016A, "Umacron" },  // LATIN CAPITAL LETTER U WITH MACRON
+    { 0x016B, "umacron" },  // LATIN SMALL LETTER U WITH MACRON
+    { 0x016C, "Ubreve" },  // LATIN CAPITAL LETTER U WITH BREVE
+    { 0x016D, "ubreve" },  // LATIN SMALL LETTER U WITH BREVE
+    { 0x016E, "Uring" },  // LATIN CAPITAL LETTER U WITH RING ABOVE
+    { 0x016F, "uring" },  // LATIN SMALL LETTER U WITH RING ABOVE
+    { 0x0170, "Uhungarumlaut" },  // LATIN CAPITAL LETTER U WITH DOUBLE ACUTE
+    { 0x0171, "uhungarumlaut" },  // LATIN SMALL LETTER U WITH DOUBLE ACUTE
+    { 0x0172, "Uogonek" },  // LATIN CAPITAL LETTER U WITH OGONEK
+    { 0x0173, "uogonek" },  // LATIN SMALL LETTER U WITH OGONEK
+    { 0x0174, "Wcircumflex" },  // LATIN CAPITAL LETTER W WITH CIRCUMFLEX
+    { 0x0175, "wcircumflex" },  // LATIN SMALL LETTER W WITH CIRCUMFLEX
+    { 0x0176, "Ycircumflex" },  // LATIN CAPITAL LETTER Y WITH CIRCUMFLEX
+    { 0x0177, "ycircumflex" },  // LATIN SMALL LETTER Y WITH CIRCUMFLEX
+    { 0x0178, "Ydieresis" },  // LATIN CAPITAL LETTER Y WITH DIAERESIS
+    { 0x0179, "Zacute" },  // LATIN CAPITAL LETTER Z WITH ACUTE
+    { 0x017A, "zacute" },  // LATIN SMALL LETTER Z WITH ACUTE
+    { 0x017B, "Zdotaccent" },  // LATIN CAPITAL LETTER Z WITH DOT ABOVE
+    { 0x017C, "zdotaccent" },  // LATIN SMALL LETTER Z WITH DOT ABOVE
+    { 0x017D, "Zcaron" },  // LATIN CAPITAL LETTER Z WITH CARON
+    { 0x017E, "zcaron" },  // LATIN SMALL LETTER Z WITH CARON
+    { 0x017F, "longs" },  // LATIN SMALL LETTER LONG S
+    { 0x0192, "florin" },  // LATIN SMALL LETTER F WITH HOOK
+    { 0x01A0, "Ohorn" },  // LATIN CAPITAL LETTER O WITH HORN
+    { 0x01A1, "ohorn" },  // LATIN SMALL LETTER O WITH HORN
+    { 0x01AF, "Uhorn" },  // LATIN CAPITAL LETTER U WITH HORN
+    { 0x01B0, "uhorn" },  // LATIN SMALL LETTER U WITH HORN
+    { 0x01E6, "Gcaron" },  // LATIN CAPITAL LETTER G WITH CARON
+    { 0x01E7, "gcaron" },  // LATIN SMALL LETTER G WITH CARON
+    { 0x01FA, "Aringacute" },  // LATIN CAPITAL LETTER A WITH RING ABOVE AND ACUTE
+    { 0x01FB, "aringacute" },  // LATIN SMALL LETTER A WITH RING ABOVE AND ACUTE
+    { 0x01FC, "AEacute" },  // LATIN CAPITAL LETTER AE WITH ACUTE
+    { 0x01FD, "aeacute" },  // LATIN SMALL LETTER AE WITH ACUTE
+    { 0x01FE, "Oslashacute" },  // LATIN CAPITAL LETTER O WITH STROKE AND ACUTE
+    { 0x01FF, "oslashacute" },  // LATIN SMALL LETTER O WITH STROKE AND ACUTE
+    { 0x0218, "Scommaaccent" },  // LATIN CAPITAL LETTER S WITH COMMA BELOW
+    { 0x0219, "scommaaccent" },  // LATIN SMALL LETTER S WITH COMMA BELOW
+    { 0x021A, "Tcommaaccent" },  // LATIN CAPITAL LETTER T WITH COMMA BELOW;Duplicate
+    { 0x021B, "tcommaaccent" },  // LATIN SMALL LETTER T WITH COMMA BELOW;Duplicate
+    { 0x02BC, "afii57929" },  // MODIFIER LETTER APOSTROPHE
+    { 0x02BD, "afii64937" },  // MODIFIER LETTER REVERSED COMMA
+    { 0x02C6, "circumflex" },  // MODIFIER LETTER CIRCUMFLEX ACCENT
+    { 0x02C7, "caron" },  // CARON
+    { 0x02C9, "macron" },  // MODIFIER LETTER MACRON;Duplicate
+    { 0x02D8, "breve" },  // BREVE
+    { 0x02D9, "dotaccent" },  // DOT ABOVE
+    { 0x02DA, "ring" },  // RING ABOVE
+    { 0x02DB, "ogonek" },  // OGONEK
+    { 0x02DC, "tilde" },  // SMALL TILDE
+    { 0x02DD, "hungarumlaut" },  // DOUBLE ACUTE ACCENT
+    { 0x0300, "gravecomb" },  // COMBINING GRAVE ACCENT
+    { 0x0301, "acutecomb" },  // COMBINING ACUTE ACCENT
+    { 0x0303, "tildecomb" },  // COMBINING TILDE
+    { 0x0309, "hookabovecomb" },  // COMBINING HOOK ABOVE
+    { 0x0323, "dotbelowcomb" },  // COMBINING DOT BELOW
+    { 0x0384, "tonos" },  // GREEK TONOS
+    { 0x0385, "dieresistonos" },  // GREEK DIALYTIKA TONOS
+    { 0x0386, "Alphatonos" },  // GREEK CAPITAL LETTER ALPHA WITH TONOS
+    { 0x0387, "anoteleia" },  // GREEK ANO TELEIA
+    { 0x0388, "Epsilontonos" },  // GREEK CAPITAL LETTER EPSILON WITH TONOS
+    { 0x0389, "Etatonos" },  // GREEK CAPITAL LETTER ETA WITH TONOS
+    { 0x038A, "Iotatonos" },  // GREEK CAPITAL LETTER IOTA WITH TONOS
+    { 0x038C, "Omicrontonos" },  // GREEK CAPITAL LETTER OMICRON WITH TONOS
+    { 0x038E, "Upsilontonos" },  // GREEK CAPITAL LETTER UPSILON WITH TONOS
+    { 0x038F, "Omegatonos" },  // GREEK CAPITAL LETTER OMEGA WITH TONOS
+    { 0x0390, "iotadieresistonos" },  // GREEK SMALL LETTER IOTA WITH DIALYTIKA AND TONOS
+    { 0x0391, "Alpha" },  // GREEK CAPITAL LETTER ALPHA
+    { 0x0392, "Beta" },  // GREEK CAPITAL LETTER BETA
+    { 0x0393, "Gamma" },  // GREEK CAPITAL LETTER GAMMA
+    { 0x0394, "Delta" },  // GREEK CAPITAL LETTER DELTA;Duplicate
+    { 0x0395, "Epsilon" },  // GREEK CAPITAL LETTER EPSILON
+    { 0x0396, "Zeta" },  // GREEK CAPITAL LETTER ZETA
+    { 0x0397, "Eta" },  // GREEK CAPITAL LETTER ETA
+    { 0x0398, "Theta" },  // GREEK CAPITAL LETTER THETA
+    { 0x0399, "Iota" },  // GREEK CAPITAL LETTER IOTA
+    { 0x039A, "Kappa" },  // GREEK CAPITAL LETTER KAPPA
+    { 0x039B, "Lambda" },  // GREEK CAPITAL LETTER LAMDA
+    { 0x039C, "Mu" },  // GREEK CAPITAL LETTER MU
+    { 0x039D, "Nu" },  // GREEK CAPITAL LETTER NU
+    { 0x039E, "Xi" },  // GREEK CAPITAL LETTER XI
+    { 0x039F, "Omicron" },  // GREEK CAPITAL LETTER OMICRON
+    { 0x03A0, "Pi" },  // GREEK CAPITAL LETTER PI
+    { 0x03A1, "Rho" },  // GREEK CAPITAL LETTER RHO
+    { 0x03A3, "Sigma" },  // GREEK CAPITAL LETTER SIGMA
+    { 0x03A4, "Tau" },  // GREEK CAPITAL LETTER TAU
+    { 0x03A5, "Upsilon" },  // GREEK CAPITAL LETTER UPSILON
+    { 0x03A6, "Phi" },  // GREEK CAPITAL LETTER PHI
+    { 0x03A7, "Chi" },  // GREEK CAPITAL LETTER CHI
+    { 0x03A8, "Psi" },  // GREEK CAPITAL LETTER PSI
+    { 0x03A9, "Omega" },  // GREEK CAPITAL LETTER OMEGA;Duplicate
+    { 0x03AA, "Iotadieresis" },  // GREEK CAPITAL LETTER IOTA WITH DIALYTIKA
+    { 0x03AB, "Upsilondieresis" },  // GREEK CAPITAL LETTER UPSILON WITH DIALYTIKA
+    { 0x03AC, "alphatonos" },  // GREEK SMALL LETTER ALPHA WITH TONOS
+    { 0x03AD, "epsilontonos" },  // GREEK SMALL LETTER EPSILON WITH TONOS
+    { 0x03AE, "etatonos" },  // GREEK SMALL LETTER ETA WITH TONOS
+    { 0x03AF, "iotatonos" },  // GREEK SMALL LETTER IOTA WITH TONOS
+    { 0x03B0, "upsilondieresistonos" },  // GREEK SMALL LETTER UPSILON WITH DIALYTIKA AND TONOS
+    { 0x03B1, "alpha" },  // GREEK SMALL LETTER ALPHA
+    { 0x03B2, "beta" },  // GREEK SMALL LETTER BETA
+    { 0x03B3, "gamma" },  // GREEK SMALL LETTER GAMMA
+    { 0x03B4, "delta" },  // GREEK SMALL LETTER DELTA
+    { 0x03B5, "epsilon" },  // GREEK SMALL LETTER EPSILON
+    { 0x03B6, "zeta" },  // GREEK SMALL LETTER ZETA
+    { 0x03B7, "eta" },  // GREEK SMALL LETTER ETA
+    { 0x03B8, "theta" },  // GREEK SMALL LETTER THETA
+    { 0x03B9, "iota" },  // GREEK SMALL LETTER IOTA
+    { 0x03BA, "kappa" },  // GREEK SMALL LETTER KAPPA
+    { 0x03BB, "lambda" },  // GREEK SMALL LETTER LAMDA
+    { 0x03BC, "mu" },  // GREEK SMALL LETTER MU;Duplicate
+    { 0x03BD, "nu" },  // GREEK SMALL LETTER NU
+    { 0x03BE, "xi" },  // GREEK SMALL LETTER XI
+    { 0x03BF, "omicron" },  // GREEK SMALL LETTER OMICRON
+    { 0x03C0, "pi" },  // GREEK SMALL LETTER PI
+    { 0x03C1, "rho" },  // GREEK SMALL LETTER RHO
+    { 0x03C2, "sigma1" },  // GREEK SMALL LETTER FINAL SIGMA
+    { 0x03C3, "sigma" },  // GREEK SMALL LETTER SIGMA
+    { 0x03C4, "tau" },  // GREEK SMALL LETTER TAU
+    { 0x03C5, "upsilon" },  // GREEK SMALL LETTER UPSILON
+    { 0x03C6, "phi" },  // GREEK SMALL LETTER PHI
+    { 0x03C7, "chi" },  // GREEK SMALL LETTER CHI
+    { 0x03C8, "psi" },  // GREEK SMALL LETTER PSI
+    { 0x03C9, "omega" },  // GREEK SMALL LETTER OMEGA
+    { 0x03CA, "iotadieresis" },  // GREEK SMALL LETTER IOTA WITH DIALYTIKA
+    { 0x03CB, "upsilondieresis" },  // GREEK SMALL LETTER UPSILON WITH DIALYTIKA
+    { 0x03CC, "omicrontonos" },  // GREEK SMALL LETTER OMICRON WITH TONOS
+    { 0x03CD, "upsilontonos" },  // GREEK SMALL LETTER UPSILON WITH TONOS
+    { 0x03CE, "omegatonos" },  // GREEK SMALL LETTER OMEGA WITH TONOS
+    { 0x03D1, "theta1" },  // GREEK THETA SYMBOL
+    { 0x03D2, "Upsilon1" },  // GREEK UPSILON WITH HOOK SYMBOL
+    { 0x03D5, "phi1" },  // GREEK PHI SYMBOL
+    { 0x03D6, "omega1" },  // GREEK PI SYMBOL
+    { 0x0401, "afii10023" },  // CYRILLIC CAPITAL LETTER IO
+    { 0x0402, "afii10051" },  // CYRILLIC CAPITAL LETTER DJE
+    { 0x0403, "afii10052" },  // CYRILLIC CAPITAL LETTER GJE
+    { 0x0404, "afii10053" },  // CYRILLIC CAPITAL LETTER UKRAINIAN IE
+    { 0x0405, "afii10054" },  // CYRILLIC CAPITAL LETTER DZE
+    { 0x0406, "afii10055" },  // CYRILLIC CAPITAL LETTER BYELORUSSIAN-UKRAINIAN I
+    { 0x0407, "afii10056" },  // CYRILLIC CAPITAL LETTER YI
+    { 0x0408, "afii10057" },  // CYRILLIC CAPITAL LETTER JE
+    { 0x0409, "afii10058" },  // CYRILLIC CAPITAL LETTER LJE
+    { 0x040A, "afii10059" },  // CYRILLIC CAPITAL LETTER NJE
+    { 0x040B, "afii10060" },  // CYRILLIC CAPITAL LETTER TSHE
+    { 0x040C, "afii10061" },  // CYRILLIC CAPITAL LETTER KJE
+    { 0x040E, "afii10062" },  // CYRILLIC CAPITAL LETTER SHORT U
+    { 0x040F, "afii10145" },  // CYRILLIC CAPITAL LETTER DZHE
+    { 0x0410, "afii10017" },  // CYRILLIC CAPITAL LETTER A
+    { 0x0411, "afii10018" },  // CYRILLIC CAPITAL LETTER BE
+    { 0x0412, "afii10019" },  // CYRILLIC CAPITAL LETTER VE
+    { 0x0413, "afii10020" },  // CYRILLIC CAPITAL LETTER GHE
+    { 0x0414, "afii10021" },  // CYRILLIC CAPITAL LETTER DE
+    { 0x0415, "afii10022" },  // CYRILLIC CAPITAL LETTER IE
+    { 0x0416, "afii10024" },  // CYRILLIC CAPITAL LETTER ZHE
+    { 0x0417, "afii10025" },  // CYRILLIC CAPITAL LETTER ZE
+    { 0x0418, "afii10026" },  // CYRILLIC CAPITAL LETTER I
+    { 0x0419, "afii10027" },  // CYRILLIC CAPITAL LETTER SHORT I
+    { 0x041A, "afii10028" },  // CYRILLIC CAPITAL LETTER KA
+    { 0x041B, "afii10029" },  // CYRILLIC CAPITAL LETTER EL
+    { 0x041C, "afii10030" },  // CYRILLIC CAPITAL LETTER EM
+    { 0x041D, "afii10031" },  // CYRILLIC CAPITAL LETTER EN
+    { 0x041E, "afii10032" },  // CYRILLIC CAPITAL LETTER O
+    { 0x041F, "afii10033" },  // CYRILLIC CAPITAL LETTER PE
+    { 0x0420, "afii10034" },  // CYRILLIC CAPITAL LETTER ER
+    { 0x0421, "afii10035" },  // CYRILLIC CAPITAL LETTER ES
+    { 0x0422, "afii10036" },  // CYRILLIC CAPITAL LETTER TE
+    { 0x0423, "afii10037" },  // CYRILLIC CAPITAL LETTER U
+    { 0x0424, "afii10038" },  // CYRILLIC CAPITAL LETTER EF
+    { 0x0425, "afii10039" },  // CYRILLIC CAPITAL LETTER HA
+    { 0x0426, "afii10040" },  // CYRILLIC CAPITAL LETTER TSE
+    { 0x0427, "afii10041" },  // CYRILLIC CAPITAL LETTER CHE
+    { 0x0428, "afii10042" },  // CYRILLIC CAPITAL LETTER SHA
+    { 0x0429, "afii10043" },  // CYRILLIC CAPITAL LETTER SHCHA
+    { 0x042A, "afii10044" },  // CYRILLIC CAPITAL LETTER HARD SIGN
+    { 0x042B, "afii10045" },  // CYRILLIC CAPITAL LETTER YERU
+    { 0x042C, "afii10046" },  // CYRILLIC CAPITAL LETTER SOFT SIGN
+    { 0x042D, "afii10047" },  // CYRILLIC CAPITAL LETTER E
+    { 0x042E, "afii10048" },  // CYRILLIC CAPITAL LETTER YU
+    { 0x042F, "afii10049" },  // CYRILLIC CAPITAL LETTER YA
+    { 0x0430, "afii10065" },  // CYRILLIC SMALL LETTER A
+    { 0x0431, "afii10066" },  // CYRILLIC SMALL LETTER BE
+    { 0x0432, "afii10067" },  // CYRILLIC SMALL LETTER VE
+    { 0x0433, "afii10068" },  // CYRILLIC SMALL LETTER GHE
+    { 0x0434, "afii10069" },  // CYRILLIC SMALL LETTER DE
+    { 0x0435, "afii10070" },  // CYRILLIC SMALL LETTER IE
+    { 0x0436, "afii10072" },  // CYRILLIC SMALL LETTER ZHE
+    { 0x0437, "afii10073" },  // CYRILLIC SMALL LETTER ZE
+    { 0x0438, "afii10074" },  // CYRILLIC SMALL LETTER I
+    { 0x0439, "afii10075" },  // CYRILLIC SMALL LETTER SHORT I
+    { 0x043A, "afii10076" },  // CYRILLIC SMALL LETTER KA
+    { 0x043B, "afii10077" },  // CYRILLIC SMALL LETTER EL
+    { 0x043C, "afii10078" },  // CYRILLIC SMALL LETTER EM
+    { 0x043D, "afii10079" },  // CYRILLIC SMALL LETTER EN
+    { 0x043E, "afii10080" },  // CYRILLIC SMALL LETTER O
+    { 0x043F, "afii10081" },  // CYRILLIC SMALL LETTER PE
+    { 0x0440, "afii10082" },  // CYRILLIC SMALL LETTER ER
+    { 0x0441, "afii10083" },  // CYRILLIC SMALL LETTER ES
+    { 0x0442, "afii10084" },  // CYRILLIC SMALL LETTER TE
+    { 0x0443, "afii10085" },  // CYRILLIC SMALL LETTER U
+    { 0x0444, "afii10086" },  // CYRILLIC SMALL LETTER EF
+    { 0x0445, "afii10087" },  // CYRILLIC SMALL LETTER HA
+    { 0x0446, "afii10088" },  // CYRILLIC SMALL LETTER TSE
+    { 0x0447, "afii10089" },  // CYRILLIC SMALL LETTER CHE
+    { 0x0448, "afii10090" },  // CYRILLIC SMALL LETTER SHA
+    { 0x0449, "afii10091" },  // CYRILLIC SMALL LETTER SHCHA
+    { 0x044A, "afii10092" },  // CYRILLIC SMALL LETTER HARD SIGN
+    { 0x044B, "afii10093" },  // CYRILLIC SMALL LETTER YERU
+    { 0x044C, "afii10094" },  // CYRILLIC SMALL LETTER SOFT SIGN
+    { 0x044D, "afii10095" },  // CYRILLIC SMALL LETTER E
+    { 0x044E, "afii10096" },  // CYRILLIC SMALL LETTER YU
+    { 0x044F, "afii10097" },  // CYRILLIC SMALL LETTER YA
+    { 0x0451, "afii10071" },  // CYRILLIC SMALL LETTER IO
+    { 0x0452, "afii10099" },  // CYRILLIC SMALL LETTER DJE
+    { 0x0453, "afii10100" },  // CYRILLIC SMALL LETTER GJE
+    { 0x0454, "afii10101" },  // CYRILLIC SMALL LETTER UKRAINIAN IE
+    { 0x0455, "afii10102" },  // CYRILLIC SMALL LETTER DZE
+    { 0x0456, "afii10103" },  // CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I
+    { 0x0457, "afii10104" },  // CYRILLIC SMALL LETTER YI
+    { 0x0458, "afii10105" },  // CYRILLIC SMALL LETTER JE
+    { 0x0459, "afii10106" },  // CYRILLIC SMALL LETTER LJE
+    { 0x045A, "afii10107" },  // CYRILLIC SMALL LETTER NJE
+    { 0x045B, "afii10108" },  // CYRILLIC SMALL LETTER TSHE
+    { 0x045C, "afii10109" },  // CYRILLIC SMALL LETTER KJE
+    { 0x045E, "afii10110" },  // CYRILLIC SMALL LETTER SHORT U
+    { 0x045F, "afii10193" },  // CYRILLIC SMALL LETTER DZHE
+    { 0x0462, "afii10146" },  // CYRILLIC CAPITAL LETTER YAT
+    { 0x0463, "afii10194" },  // CYRILLIC SMALL LETTER YAT
+    { 0x0472, "afii10147" },  // CYRILLIC CAPITAL LETTER FITA
+    { 0x0473, "afii10195" },  // CYRILLIC SMALL LETTER FITA
+    { 0x0474, "afii10148" },  // CYRILLIC CAPITAL LETTER IZHITSA
+    { 0x0475, "afii10196" },  // CYRILLIC SMALL LETTER IZHITSA
+    { 0x0490, "afii10050" },  // CYRILLIC CAPITAL LETTER GHE WITH UPTURN
+    { 0x0491, "afii10098" },  // CYRILLIC SMALL LETTER GHE WITH UPTURN
+    { 0x04D9, "afii10846" },  // CYRILLIC SMALL LETTER SCHWA
+    { 0x05B0, "afii57799" },  // HEBREW POINT SHEVA
+    { 0x05B1, "afii57801" },  // HEBREW POINT HATAF SEGOL
+    { 0x05B2, "afii57800" },  // HEBREW POINT HATAF PATAH
+    { 0x05B3, "afii57802" },  // HEBREW POINT HATAF QAMATS
+    { 0x05B4, "afii57793" },  // HEBREW POINT HIRIQ
+    { 0x05B5, "afii57794" },  // HEBREW POINT TSERE
+    { 0x05B6, "afii57795" },  // HEBREW POINT SEGOL
+    { 0x05B7, "afii57798" },  // HEBREW POINT PATAH
+    { 0x05B8, "afii57797" },  // HEBREW POINT QAMATS
+    { 0x05B9, "afii57806" },  // HEBREW POINT HOLAM
+    { 0x05BB, "afii57796" },  // HEBREW POINT QUBUTS
+    { 0x05BC, "afii57807" },  // HEBREW POINT DAGESH OR MAPIQ
+    { 0x05BD, "afii57839" },  // HEBREW POINT METEG
+    { 0x05BE, "afii57645" },  // HEBREW PUNCTUATION MAQAF
+    { 0x05BF, "afii57841" },  // HEBREW POINT RAFE
+    { 0x05C0, "afii57842" },  // HEBREW PUNCTUATION PASEQ
+    { 0x05C1, "afii57804" },  // HEBREW POINT SHIN DOT
+    { 0x05C2, "afii57803" },  // HEBREW POINT SIN DOT
+    { 0x05C3, "afii57658" },  // HEBREW PUNCTUATION SOF PASUQ
+    { 0x05D0, "afii57664" },  // HEBREW LETTER ALEF
+    { 0x05D1, "afii57665" },  // HEBREW LETTER BET
+    { 0x05D2, "afii57666" },  // HEBREW LETTER GIMEL
+    { 0x05D3, "afii57667" },  // HEBREW LETTER DALET
+    { 0x05D4, "afii57668" },  // HEBREW LETTER HE
+    { 0x05D5, "afii57669" },  // HEBREW LETTER VAV
+    { 0x05D6, "afii57670" },  // HEBREW LETTER ZAYIN
+    { 0x05D7, "afii57671" },  // HEBREW LETTER HET
+    { 0x05D8, "afii57672" },  // HEBREW LETTER TET
+    { 0x05D9, "afii57673" },  // HEBREW LETTER YOD
+    { 0x05DA, "afii57674" },  // HEBREW LETTER FINAL KAF
+    { 0x05DB, "afii57675" },  // HEBREW LETTER KAF
+    { 0x05DC, "afii57676" },  // HEBREW LETTER LAMED
+    { 0x05DD, "afii57677" },  // HEBREW LETTER FINAL MEM
+    { 0x05DE, "afii57678" },  // HEBREW LETTER MEM
+    { 0x05DF, "afii57679" },  // HEBREW LETTER FINAL NUN
+    { 0x05E0, "afii57680" },  // HEBREW LETTER NUN
+    { 0x05E1, "afii57681" },  // HEBREW LETTER SAMEKH
+    { 0x05E2, "afii57682" },  // HEBREW LETTER AYIN
+    { 0x05E3, "afii57683" },  // HEBREW LETTER FINAL PE
+    { 0x05E4, "afii57684" },  // HEBREW LETTER PE
+    { 0x05E5, "afii57685" },  // HEBREW LETTER FINAL TSADI
+    { 0x05E6, "afii57686" },  // HEBREW LETTER TSADI
+    { 0x05E7, "afii57687" },  // HEBREW LETTER QOF
+    { 0x05E8, "afii57688" },  // HEBREW LETTER RESH
+    { 0x05E9, "afii57689" },  // HEBREW LETTER SHIN
+    { 0x05EA, "afii57690" },  // HEBREW LETTER TAV
+    { 0x05F0, "afii57716" },  // HEBREW LIGATURE YIDDISH DOUBLE VAV
+    { 0x05F1, "afii57717" },  // HEBREW LIGATURE YIDDISH VAV YOD
+    { 0x05F2, "afii57718" },  // HEBREW LIGATURE YIDDISH DOUBLE YOD
+    { 0x060C, "afii57388" },  // ARABIC COMMA
+    { 0x061B, "afii57403" },  // ARABIC SEMICOLON
+    { 0x061F, "afii57407" },  // ARABIC QUESTION MARK
+    { 0x0621, "afii57409" },  // ARABIC LETTER HAMZA
+    { 0x0622, "afii57410" },  // ARABIC LETTER ALEF WITH MADDA ABOVE
+    { 0x0623, "afii57411" },  // ARABIC LETTER ALEF WITH HAMZA ABOVE
+    { 0x0624, "afii57412" },  // ARABIC LETTER WAW WITH HAMZA ABOVE
+    { 0x0625, "afii57413" },  // ARABIC LETTER ALEF WITH HAMZA BELOW
+    { 0x0626, "afii57414" },  // ARABIC LETTER YEH WITH HAMZA ABOVE
+    { 0x0627, "afii57415" },  // ARABIC LETTER ALEF
+    { 0x0628, "afii57416" },  // ARABIC LETTER BEH
+    { 0x0629, "afii57417" },  // ARABIC LETTER TEH MARBUTA
+    { 0x062A, "afii57418" },  // ARABIC LETTER TEH
+    { 0x062B, "afii57419" },  // ARABIC LETTER THEH
+    { 0x062C, "afii57420" },  // ARABIC LETTER JEEM
+    { 0x062D, "afii57421" },  // ARABIC LETTER HAH
+    { 0x062E, "afii57422" },  // ARABIC LETTER KHAH
+    { 0x062F, "afii57423" },  // ARABIC LETTER DAL
+    { 0x0630, "afii57424" },  // ARABIC LETTER THAL
+    { 0x0631, "afii57425" },  // ARABIC LETTER REH
+    { 0x0632, "afii57426" },  // ARABIC LETTER ZAIN
+    { 0x0633, "afii57427" },  // ARABIC LETTER SEEN
+    { 0x0634, "afii57428" },  // ARABIC LETTER SHEEN
+    { 0x0635, "afii57429" },  // ARABIC LETTER SAD
+    { 0x0636, "afii57430" },  // ARABIC LETTER DAD
+    { 0x0637, "afii57431" },  // ARABIC LETTER TAH
+    { 0x0638, "afii57432" },  // ARABIC LETTER ZAH
+    { 0x0639, "afii57433" },  // ARABIC LETTER AIN
+    { 0x063A, "afii57434" },  // ARABIC LETTER GHAIN
+    { 0x0640, "afii57440" },  // ARABIC TATWEEL
+    { 0x0641, "afii57441" },  // ARABIC LETTER FEH
+    { 0x0642, "afii57442" },  // ARABIC LETTER QAF
+    { 0x0643, "afii57443" },  // ARABIC LETTER KAF
+    { 0x0644, "afii57444" },  // ARABIC LETTER LAM
+    { 0x0645, "afii57445" },  // ARABIC LETTER MEEM
+    { 0x0646, "afii57446" },  // ARABIC LETTER NOON
+    { 0x0647, "afii57470" },  // ARABIC LETTER HEH
+    { 0x0648, "afii57448" },  // ARABIC LETTER WAW
+    { 0x0649, "afii57449" },  // ARABIC LETTER ALEF MAKSURA
+    { 0x064A, "afii57450" },  // ARABIC LETTER YEH
+    { 0x064B, "afii57451" },  // ARABIC FATHATAN
+    { 0x064C, "afii57452" },  // ARABIC DAMMATAN
+    { 0x064D, "afii57453" },  // ARABIC KASRATAN
+    { 0x064E, "afii57454" },  // ARABIC FATHA
+    { 0x064F, "afii57455" },  // ARABIC DAMMA
+    { 0x0650, "afii57456" },  // ARABIC KASRA
+    { 0x0651, "afii57457" },  // ARABIC SHADDA
+    { 0x0652, "afii57458" },  // ARABIC SUKUN
+    { 0x0660, "afii57392" },  // ARABIC-INDIC DIGIT ZERO
+    { 0x0661, "afii57393" },  // ARABIC-INDIC DIGIT ONE
+    { 0x0662, "afii57394" },  // ARABIC-INDIC DIGIT TWO
+    { 0x0663, "afii57395" },  // ARABIC-INDIC DIGIT THREE
+    { 0x0664, "afii57396" },  // ARABIC-INDIC DIGIT FOUR
+    { 0x0665, "afii57397" },  // ARABIC-INDIC DIGIT FIVE
+    { 0x0666, "afii57398" },  // ARABIC-INDIC DIGIT SIX
+    { 0x0667, "afii57399" },  // ARABIC-INDIC DIGIT SEVEN
+    { 0x0668, "afii57400" },  // ARABIC-INDIC DIGIT EIGHT
+    { 0x0669, "afii57401" },  // ARABIC-INDIC DIGIT NINE
+    { 0x066A, "afii57381" },  // ARABIC PERCENT SIGN
+    { 0x066D, "afii63167" },  // ARABIC FIVE POINTED STAR
+    { 0x0679, "afii57511" },  // ARABIC LETTER TTEH
+    { 0x067E, "afii57506" },  // ARABIC LETTER PEH
+    { 0x0686, "afii57507" },  // ARABIC LETTER TCHEH
+    { 0x0688, "afii57512" },  // ARABIC LETTER DDAL
+    { 0x0691, "afii57513" },  // ARABIC LETTER RREH
+    { 0x0698, "afii57508" },  // ARABIC LETTER JEH
+    { 0x06A4, "afii57505" },  // ARABIC LETTER VEH
+    { 0x06AF, "afii57509" },  // ARABIC LETTER GAF
+    { 0x06BA, "afii57514" },  // ARABIC LETTER NOON GHUNNA
+    { 0x06D2, "afii57519" },  // ARABIC LETTER YEH BARREE
+    { 0x06D5, "afii57534" },  // ARABIC LETTER AE
+    { 0x1E80, "Wgrave" },  // LATIN CAPITAL LETTER W WITH GRAVE
+    { 0x1E81, "wgrave" },  // LATIN SMALL LETTER W WITH GRAVE
+    { 0x1E82, "Wacute" },  // LATIN CAPITAL LETTER W WITH ACUTE
+    { 0x1E83, "wacute" },  // LATIN SMALL LETTER W WITH ACUTE
+    { 0x1E84, "Wdieresis" },  // LATIN CAPITAL LETTER W WITH DIAERESIS
+    { 0x1E85, "wdieresis" },  // LATIN SMALL LETTER W WITH DIAERESIS
+    { 0x1EF2, "Ygrave" },  // LATIN CAPITAL LETTER Y WITH GRAVE
+    { 0x1EF3, "ygrave" },  // LATIN SMALL LETTER Y WITH GRAVE
+    { 0x200C, "afii61664" },  // ZERO WIDTH NON-JOINER
+    { 0x200D, "afii301" },  // ZERO WIDTH JOINER
+    { 0x200E, "afii299" },  // LEFT-TO-RIGHT MARK
+    { 0x200F, "afii300" },  // RIGHT-TO-LEFT MARK
+    { 0x2012, "figuredash" },  // FIGURE DASH
+    { 0x2013, "endash" },  // EN DASH
+    { 0x2014, "emdash" },  // EM DASH
+    { 0x2015, "afii00208" },  // HORIZONTAL BAR
+    { 0x2017, "underscoredbl" },  // DOUBLE LOW LINE
+    { 0x2018, "quoteleft" },  // LEFT SINGLE QUOTATION MARK
+    { 0x2019, "quoteright" },  // RIGHT SINGLE QUOTATION MARK
+    { 0x201A, "quotesinglbase" },  // SINGLE LOW-9 QUOTATION MARK
+    { 0x201B, "quotereversed" },  // SINGLE HIGH-REVERSED-9 QUOTATION MARK
+    { 0x201C, "quotedblleft" },  // LEFT DOUBLE QUOTATION MARK
+    { 0x201D, "quotedblright" },  // RIGHT DOUBLE QUOTATION MARK
+    { 0x201E, "quotedblbase" },  // DOUBLE LOW-9 QUOTATION MARK
+    { 0x2020, "dagger" },  // DAGGER
+    { 0x2021, "daggerdbl" },  // DOUBLE DAGGER
+    { 0x2022, "bullet" },  // BULLET
+    { 0x2024, "onedotenleader" },  // ONE DOT LEADER
+    { 0x2025, "twodotenleader" },  // TWO DOT LEADER
+    { 0x2026, "ellipsis" },  // HORIZONTAL ELLIPSIS
+    { 0x202C, "afii61573" },  // POP DIRECTIONAL FORMATTING
+    { 0x202D, "afii61574" },  // LEFT-TO-RIGHT OVERRIDE
+    { 0x202E, "afii61575" },  // RIGHT-TO-LEFT OVERRIDE
+    { 0x2030, "perthousand" },  // PER MILLE SIGN
+    { 0x2032, "minute" },  // PRIME
+    { 0x2033, "second" },  // DOUBLE PRIME
+    { 0x2039, "guilsinglleft" },  // SINGLE LEFT-POINTING ANGLE QUOTATION MARK
+    { 0x203A, "guilsinglright" },  // SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
+    { 0x203C, "exclamdbl" },  // DOUBLE EXCLAMATION MARK
+    { 0x2044, "fraction" },  // FRACTION SLASH
+    { 0x2070, "zerosuperior" },  // SUPERSCRIPT ZERO
+    { 0x2074, "foursuperior" },  // SUPERSCRIPT FOUR
+    { 0x2075, "fivesuperior" },  // SUPERSCRIPT FIVE
+    { 0x2076, "sixsuperior" },  // SUPERSCRIPT SIX
+    { 0x2077, "sevensuperior" },  // SUPERSCRIPT SEVEN
+    { 0x2078, "eightsuperior" },  // SUPERSCRIPT EIGHT
+    { 0x2079, "ninesuperior" },  // SUPERSCRIPT NINE
+    { 0x207D, "parenleftsuperior" },  // SUPERSCRIPT LEFT PARENTHESIS
+    { 0x207E, "parenrightsuperior" },  // SUPERSCRIPT RIGHT PARENTHESIS
+    { 0x207F, "nsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER N
+    { 0x2080, "zeroinferior" },  // SUBSCRIPT ZERO
+    { 0x2081, "oneinferior" },  // SUBSCRIPT ONE
+    { 0x2082, "twoinferior" },  // SUBSCRIPT TWO
+    { 0x2083, "threeinferior" },  // SUBSCRIPT THREE
+    { 0x2084, "fourinferior" },  // SUBSCRIPT FOUR
+    { 0x2085, "fiveinferior" },  // SUBSCRIPT FIVE
+    { 0x2086, "sixinferior" },  // SUBSCRIPT SIX
+    { 0x2087, "seveninferior" },  // SUBSCRIPT SEVEN
+    { 0x2088, "eightinferior" },  // SUBSCRIPT EIGHT
+    { 0x2089, "nineinferior" },  // SUBSCRIPT NINE
+    { 0x208D, "parenleftinferior" },  // SUBSCRIPT LEFT PARENTHESIS
+    { 0x208E, "parenrightinferior" },  // SUBSCRIPT RIGHT PARENTHESIS
+    { 0x20A1, "colonmonetary" },  // COLON SIGN
+    { 0x20A3, "franc" },  // FRENCH FRANC SIGN
+    { 0x20A4, "lira" },  // LIRA SIGN
+    { 0x20A7, "peseta" },  // PESETA SIGN
+    { 0x20AA, "afii57636" },  // NEW SHEQEL SIGN
+    { 0x20AB, "dong" },  // DONG SIGN
+    { 0x20AC, "Euro" },  // EURO SIGN
+    { 0x2105, "afii61248" },  // CARE OF
+    { 0x2111, "Ifraktur" },  // BLACK-LETTER CAPITAL I
+    { 0x2113, "afii61289" },  // SCRIPT SMALL L
+    { 0x2116, "afii61352" },  // NUMERO SIGN
+    { 0x2118, "weierstrass" },  // SCRIPT CAPITAL P
+    { 0x211C, "Rfraktur" },  // BLACK-LETTER CAPITAL R
+    { 0x211E, "prescription" },  // PRESCRIPTION TAKE
+    { 0x2122, "trademark" },  // TRADE MARK SIGN
+    { 0x2126, "Omega" },  // OHM SIGN
+    { 0x212E, "estimated" },  // ESTIMATED SYMBOL
+    { 0x2135, "aleph" },  // ALEF SYMBOL
+    { 0x2153, "onethird" },  // VULGAR FRACTION ONE THIRD
+    { 0x2154, "twothirds" },  // VULGAR FRACTION TWO THIRDS
+    { 0x215B, "oneeighth" },  // VULGAR FRACTION ONE EIGHTH
+    { 0x215C, "threeeighths" },  // VULGAR FRACTION THREE EIGHTHS
+    { 0x215D, "fiveeighths" },  // VULGAR FRACTION FIVE EIGHTHS
+    { 0x215E, "seveneighths" },  // VULGAR FRACTION SEVEN EIGHTHS
+    { 0x2190, "arrowleft" },  // LEFTWARDS ARROW
+    { 0x2191, "arrowup" },  // UPWARDS ARROW
+    { 0x2192, "arrowright" },  // RIGHTWARDS ARROW
+    { 0x2193, "arrowdown" },  // DOWNWARDS ARROW
+    { 0x2194, "arrowboth" },  // LEFT RIGHT ARROW
+    { 0x2195, "arrowupdn" },  // UP DOWN ARROW
+    { 0x21A8, "arrowupdnbse" },  // UP DOWN ARROW WITH BASE
+    { 0x21B5, "carriagereturn" },  // DOWNWARDS ARROW WITH CORNER LEFTWARDS
+    { 0x21D0, "arrowdblleft" },  // LEFTWARDS DOUBLE ARROW
+    { 0x21D1, "arrowdblup" },  // UPWARDS DOUBLE ARROW
+    { 0x21D2, "arrowdblright" },  // RIGHTWARDS DOUBLE ARROW
+    { 0x21D3, "arrowdbldown" },  // DOWNWARDS DOUBLE ARROW
+    { 0x21D4, "arrowdblboth" },  // LEFT RIGHT DOUBLE ARROW
+    { 0x2200, "universal" },  // FOR ALL
+    { 0x2202, "partialdiff" },  // PARTIAL DIFFERENTIAL
+    { 0x2203, "existential" },  // THERE EXISTS
+    { 0x2205, "emptyset" },  // EMPTY SET
+    { 0x2206, "Delta" },  // INCREMENT
+    { 0x2207, "gradient" },  // NABLA
+    { 0x2208, "element" },  // ELEMENT OF
+    { 0x2209, "notelement" },  // NOT AN ELEMENT OF
+    { 0x220B, "suchthat" },  // CONTAINS AS MEMBER
+    { 0x220F, "product" },  // N-ARY PRODUCT
+    { 0x2211, "summation" },  // N-ARY SUMMATION
+    { 0x2212, "minus" },  // MINUS SIGN
+    { 0x2215, "fraction" },  // DIVISION SLASH;Duplicate
+    { 0x2217, "asteriskmath" },  // ASTERISK OPERATOR
+    { 0x2219, "periodcentered" },  // BULLET OPERATOR;Duplicate
+    { 0x221A, "radical" },  // SQUARE ROOT
+    { 0x221D, "proportional" },  // PROPORTIONAL TO
+    { 0x221E, "infinity" },  // INFINITY
+    { 0x221F, "orthogonal" },  // RIGHT ANGLE
+    { 0x2220, "angle" },  // ANGLE
+    { 0x2227, "logicaland" },  // LOGICAL AND
+    { 0x2228, "logicalor" },  // LOGICAL OR
+    { 0x2229, "intersection" },  // INTERSECTION
+    { 0x222A, "union" },  // UNION
+    { 0x222B, "integral" },  // INTEGRAL
+    { 0x2234, "therefore" },  // THEREFORE
+    { 0x223C, "similar" },  // TILDE OPERATOR
+    { 0x2245, "congruent" },  // APPROXIMATELY EQUAL TO
+    { 0x2248, "approxequal" },  // ALMOST EQUAL TO
+    { 0x2260, "notequal" },  // NOT EQUAL TO
+    { 0x2261, "equivalence" },  // IDENTICAL TO
+    { 0x2264, "lessequal" },  // LESS-THAN OR EQUAL TO
+    { 0x2265, "greaterequal" },  // GREATER-THAN OR EQUAL TO
+    { 0x2282, "propersubset" },  // SUBSET OF
+    { 0x2283, "propersuperset" },  // SUPERSET OF
+    { 0x2284, "notsubset" },  // NOT A SUBSET OF
+    { 0x2286, "reflexsubset" },  // SUBSET OF OR EQUAL TO
+    { 0x2287, "reflexsuperset" },  // SUPERSET OF OR EQUAL TO
+    { 0x2295, "circleplus" },  // CIRCLED PLUS
+    { 0x2297, "circlemultiply" },  // CIRCLED TIMES
+    { 0x22A5, "perpendicular" },  // UP TACK
+    { 0x22C5, "dotmath" },  // DOT OPERATOR
+    { 0x2302, "house" },  // HOUSE
+    { 0x2310, "revlogicalnot" },  // REVERSED NOT SIGN
+    { 0x2320, "integraltp" },  // TOP HALF INTEGRAL
+    { 0x2321, "integralbt" },  // BOTTOM HALF INTEGRAL
+    { 0x2329, "angleleft" },  // LEFT-POINTING ANGLE BRACKET
+    { 0x232A, "angleright" },  // RIGHT-POINTING ANGLE BRACKET
+    { 0x2500, "SF100000" },  // BOX DRAWINGS LIGHT HORIZONTAL
+    { 0x2502, "SF110000" },  // BOX DRAWINGS LIGHT VERTICAL
+    { 0x250C, "SF010000" },  // BOX DRAWINGS LIGHT DOWN AND RIGHT
+    { 0x2510, "SF030000" },  // BOX DRAWINGS LIGHT DOWN AND LEFT
+    { 0x2514, "SF020000" },  // BOX DRAWINGS LIGHT UP AND RIGHT
+    { 0x2518, "SF040000" },  // BOX DRAWINGS LIGHT UP AND LEFT
+    { 0x251C, "SF080000" },  // BOX DRAWINGS LIGHT VERTICAL AND RIGHT
+    { 0x2524, "SF090000" },  // BOX DRAWINGS LIGHT VERTICAL AND LEFT
+    { 0x252C, "SF060000" },  // BOX DRAWINGS LIGHT DOWN AND HORIZONTAL
+    { 0x2534, "SF070000" },  // BOX DRAWINGS LIGHT UP AND HORIZONTAL
+    { 0x253C, "SF050000" },  // BOX DRAWINGS LIGHT VERTICAL AND HORIZONTAL
+    { 0x2550, "SF430000" },  // BOX DRAWINGS DOUBLE HORIZONTAL
+    { 0x2551, "SF240000" },  // BOX DRAWINGS DOUBLE VERTICAL
+    { 0x2552, "SF510000" },  // BOX DRAWINGS DOWN SINGLE AND RIGHT DOUBLE
+    { 0x2553, "SF520000" },  // BOX DRAWINGS DOWN DOUBLE AND RIGHT SINGLE
+    { 0x2554, "SF390000" },  // BOX DRAWINGS DOUBLE DOWN AND RIGHT
+    { 0x2555, "SF220000" },  // BOX DRAWINGS DOWN SINGLE AND LEFT DOUBLE
+    { 0x2556, "SF210000" },  // BOX DRAWINGS DOWN DOUBLE AND LEFT SINGLE
+    { 0x2557, "SF250000" },  // BOX DRAWINGS DOUBLE DOWN AND LEFT
+    { 0x2558, "SF500000" },  // BOX DRAWINGS UP SINGLE AND RIGHT DOUBLE
+    { 0x2559, "SF490000" },  // BOX DRAWINGS UP DOUBLE AND RIGHT SINGLE
+    { 0x255A, "SF380000" },  // BOX DRAWINGS DOUBLE UP AND RIGHT
+    { 0x255B, "SF280000" },  // BOX DRAWINGS UP SINGLE AND LEFT DOUBLE
+    { 0x255C, "SF270000" },  // BOX DRAWINGS UP DOUBLE AND LEFT SINGLE
+    { 0x255D, "SF260000" },  // BOX DRAWINGS DOUBLE UP AND LEFT
+    { 0x255E, "SF360000" },  // BOX DRAWINGS VERTICAL SINGLE AND RIGHT DOUBLE
+    { 0x255F, "SF370000" },  // BOX DRAWINGS VERTICAL DOUBLE AND RIGHT SINGLE
+    { 0x2560, "SF420000" },  // BOX DRAWINGS DOUBLE VERTICAL AND RIGHT
+    { 0x2561, "SF190000" },  // BOX DRAWINGS VERTICAL SINGLE AND LEFT DOUBLE
+    { 0x2562, "SF200000" },  // BOX DRAWINGS VERTICAL DOUBLE AND LEFT SINGLE
+    { 0x2563, "SF230000" },  // BOX DRAWINGS DOUBLE VERTICAL AND LEFT
+    { 0x2564, "SF470000" },  // BOX DRAWINGS DOWN SINGLE AND HORIZONTAL DOUBLE
+    { 0x2565, "SF480000" },  // BOX DRAWINGS DOWN DOUBLE AND HORIZONTAL SINGLE
+    { 0x2566, "SF410000" },  // BOX DRAWINGS DOUBLE DOWN AND HORIZONTAL
+    { 0x2567, "SF450000" },  // BOX DRAWINGS UP SINGLE AND HORIZONTAL DOUBLE
+    { 0x2568, "SF460000" },  // BOX DRAWINGS UP DOUBLE AND HORIZONTAL SINGLE
+    { 0x2569, "SF400000" },  // BOX DRAWINGS DOUBLE UP AND HORIZONTAL
+    { 0x256A, "SF540000" },  // BOX DRAWINGS VERTICAL SINGLE AND HORIZONTAL DOUBLE
+    { 0x256B, "SF530000" },  // BOX DRAWINGS VERTICAL DOUBLE AND HORIZONTAL SINGLE
+    { 0x256C, "SF440000" },  // BOX DRAWINGS DOUBLE VERTICAL AND HORIZONTAL
+    { 0x2580, "upblock" },  // UPPER HALF BLOCK
+    { 0x2584, "dnblock" },  // LOWER HALF BLOCK
+    { 0x2588, "block" },  // FULL BLOCK
+    { 0x258C, "lfblock" },  // LEFT HALF BLOCK
+    { 0x2590, "rtblock" },  // RIGHT HALF BLOCK
+    { 0x2591, "ltshade" },  // LIGHT SHADE
+    { 0x2592, "shade" },  // MEDIUM SHADE
+    { 0x2593, "dkshade" },  // DARK SHADE
+    { 0x25A0, "filledbox" },  // BLACK SQUARE
+    { 0x25A1, "H22073" },  // WHITE SQUARE
+    { 0x25AA, "H18543" },  // BLACK SMALL SQUARE
+    { 0x25AB, "H18551" },  // WHITE SMALL SQUARE
+    { 0x25AC, "filledrect" },  // BLACK RECTANGLE
+    { 0x25B2, "triagup" },  // BLACK UP-POINTING TRIANGLE
+    { 0x25BA, "triagrt" },  // BLACK RIGHT-POINTING POINTER
+    { 0x25BC, "triagdn" },  // BLACK DOWN-POINTING TRIANGLE
+    { 0x25C4, "triaglf" },  // BLACK LEFT-POINTING POINTER
+    { 0x25CA, "lozenge" },  // LOZENGE
+    { 0x25CB, "circle" },  // WHITE CIRCLE
+    { 0x25CF, "H18533" },  // BLACK CIRCLE
+    { 0x25D8, "invbullet" },  // INVERSE BULLET
+    { 0x25D9, "invcircle" },  // INVERSE WHITE CIRCLE
+    { 0x25E6, "openbullet" },  // WHITE BULLET
+    { 0x263A, "smileface" },  // WHITE SMILING FACE
+    { 0x263B, "invsmileface" },  // BLACK SMILING FACE
+    { 0x263C, "sun" },  // WHITE SUN WITH RAYS
+    { 0x2640, "female" },  // FEMALE SIGN
+    { 0x2642, "male" },  // MALE SIGN
+    { 0x2660, "spade" },  // BLACK SPADE SUIT
+    { 0x2663, "club" },  // BLACK CLUB SUIT
+    { 0x2665, "heart" },  // BLACK HEART SUIT
+    { 0x2666, "diamond" },  // BLACK DIAMOND SUIT
+    { 0x266A, "musicalnote" },  // EIGHTH NOTE
+    { 0x266B, "musicalnotedbl" },  // BEAMED EIGHTH NOTES
+    { 0xF6BE, "dotlessj" },  // LATIN SMALL LETTER DOTLESS J
+    { 0xF6BF, "LL" },  // LATIN CAPITAL LETTER LL
+    { 0xF6C0, "ll" },  // LATIN SMALL LETTER LL
+    { 0xF6C1, "Scedilla" },  // LATIN CAPITAL LETTER S WITH CEDILLA;Duplicate
+    { 0xF6C2, "scedilla" },  // LATIN SMALL LETTER S WITH CEDILLA;Duplicate
+    { 0xF6C3, "commaaccent" },  // COMMA BELOW
+    { 0xF6C4, "afii10063" },  // CYRILLIC SMALL LETTER GHE VARIANT
+    { 0xF6C5, "afii10064" },  // CYRILLIC SMALL LETTER BE VARIANT
+    { 0xF6C6, "afii10192" },  // CYRILLIC SMALL LETTER DE VARIANT
+    { 0xF6C7, "afii10831" },  // CYRILLIC SMALL LETTER PE VARIANT
+    { 0xF6C8, "afii10832" },  // CYRILLIC SMALL LETTER TE VARIANT
+    { 0xF6C9, "Acute" },  // CAPITAL ACUTE ACCENT
+    { 0xF6CA, "Caron" },  // CAPITAL CARON
+    { 0xF6CB, "Dieresis" },  // CAPITAL DIAERESIS
+    { 0xF6CC, "DieresisAcute" },  // CAPITAL DIAERESIS ACUTE ACCENT
+    { 0xF6CD, "DieresisGrave" },  // CAPITAL DIAERESIS GRAVE ACCENT
+    { 0xF6CE, "Grave" },  // CAPITAL GRAVE ACCENT
+    { 0xF6CF, "Hungarumlaut" },  // CAPITAL DOUBLE ACUTE ACCENT
+    { 0xF6D0, "Macron" },  // CAPITAL MACRON
+    { 0xF6D1, "cyrBreve" },  // CAPITAL CYRILLIC BREVE
+    { 0xF6D2, "cyrFlex" },  // CAPITAL CYRILLIC CIRCUMFLEX
+    { 0xF6D3, "dblGrave" },  // CAPITAL DOUBLE GRAVE ACCENT
+    { 0xF6D4, "cyrbreve" },  // CYRILLIC BREVE
+    { 0xF6D5, "cyrflex" },  // CYRILLIC CIRCUMFLEX
+    { 0xF6D6, "dblgrave" },  // DOUBLE GRAVE ACCENT
+    { 0xF6D7, "dieresisacute" },  // DIAERESIS ACUTE ACCENT
+    { 0xF6D8, "dieresisgrave" },  // DIAERESIS GRAVE ACCENT
+    { 0xF6D9, "copyrightserif" },  // COPYRIGHT SIGN SERIF
+    { 0xF6DA, "registerserif" },  // REGISTERED SIGN SERIF
+    { 0xF6DB, "trademarkserif" },  // TRADE MARK SIGN SERIF
+    { 0xF6DC, "onefitted" },  // PROPORTIONAL DIGIT ONE
+    { 0xF6DD, "rupiah" },  // RUPIAH SIGN
+    { 0xF6DE, "threequartersemdash" },  // THREE QUARTERS EM DASH
+    { 0xF6DF, "centinferior" },  // SUBSCRIPT CENT SIGN
+    { 0xF6E0, "centsuperior" },  // SUPERSCRIPT CENT SIGN
+    { 0xF6E1, "commainferior" },  // SUBSCRIPT COMMA
+    { 0xF6E2, "commasuperior" },  // SUPERSCRIPT COMMA
+    { 0xF6E3, "dollarinferior" },  // SUBSCRIPT DOLLAR SIGN
+    { 0xF6E4, "dollarsuperior" },  // SUPERSCRIPT DOLLAR SIGN
+    { 0xF6E5, "hypheninferior" },  // SUBSCRIPT HYPHEN-MINUS
+    { 0xF6E6, "hyphensuperior" },  // SUPERSCRIPT HYPHEN-MINUS
+    { 0xF6E7, "periodinferior" },  // SUBSCRIPT FULL STOP
+    { 0xF6E8, "periodsuperior" },  // SUPERSCRIPT FULL STOP
+    { 0xF6E9, "asuperior" },  // SUPERSCRIPT LATIN SMALL LETTER A
+    { 0xF6EA, "bsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER B
+    { 0xF6EB, "dsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER D
+    { 0xF6EC, "esuperior" },  // SUPERSCRIPT LATIN SMALL LETTER E
+    { 0xF6ED, "isuperior" },  // SUPERSCRIPT LATIN SMALL LETTER I
+    { 0xF6EE, "lsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER L
+    { 0xF6EF, "msuperior" },  // SUPERSCRIPT LATIN SMALL LETTER M
+    { 0xF6F0, "osuperior" },  // SUPERSCRIPT LATIN SMALL LETTER O
+    { 0xF6F1, "rsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER R
+    { 0xF6F2, "ssuperior" },  // SUPERSCRIPT LATIN SMALL LETTER S
+    { 0xF6F3, "tsuperior" },  // SUPERSCRIPT LATIN SMALL LETTER T
+    { 0xF6F4, "Brevesmall" },  // SMALL CAPITAL BREVE
+    { 0xF6F5, "Caronsmall" },  // SMALL CAPITAL CARON
+    { 0xF6F6, "Circumflexsmall" },  // SMALL CAPITAL MODIFIER LETTER CIRCUMFLEX ACCENT
+    { 0xF6F7, "Dotaccentsmall" },  // SMALL CAPITAL DOT ABOVE
+    { 0xF6F8, "Hungarumlautsmall" },  // SMALL CAPITAL DOUBLE ACUTE ACCENT
+    { 0xF6F9, "Lslashsmall" },  // LATIN SMALL CAPITAL LETTER L WITH STROKE
+    { 0xF6FA, "OEsmall" },  // LATIN SMALL CAPITAL LIGATURE OE
+    { 0xF6FB, "Ogoneksmall" },  // SMALL CAPITAL OGONEK
+    { 0xF6FC, "Ringsmall" },  // SMALL CAPITAL RING ABOVE
+    { 0xF6FD, "Scaronsmall" },  // LATIN SMALL CAPITAL LETTER S WITH CARON
+    { 0xF6FE, "Tildesmall" },  // SMALL CAPITAL SMALL TILDE
+    { 0xF6FF, "Zcaronsmall" },  // LATIN SMALL CAPITAL LETTER Z WITH CARON
+    { 0xF721, "exclamsmall" },  // SMALL CAPITAL EXCLAMATION MARK
+    { 0xF724, "dollaroldstyle" },  // OLDSTYLE DOLLAR SIGN
+    { 0xF726, "ampersandsmall" },  // SMALL CAPITAL AMPERSAND
+    { 0xF730, "zerooldstyle" },  // OLDSTYLE DIGIT ZERO
+    { 0xF731, "oneoldstyle" },  // OLDSTYLE DIGIT ONE
+    { 0xF732, "twooldstyle" },  // OLDSTYLE DIGIT TWO
+    { 0xF733, "threeoldstyle" },  // OLDSTYLE DIGIT THREE
+    { 0xF734, "fouroldstyle" },  // OLDSTYLE DIGIT FOUR
+    { 0xF735, "fiveoldstyle" },  // OLDSTYLE DIGIT FIVE
+    { 0xF736, "sixoldstyle" },  // OLDSTYLE DIGIT SIX
+    { 0xF737, "sevenoldstyle" },  // OLDSTYLE DIGIT SEVEN
+    { 0xF738, "eightoldstyle" },  // OLDSTYLE DIGIT EIGHT
+    { 0xF739, "nineoldstyle" },  // OLDSTYLE DIGIT NINE
+    { 0xF73F, "questionsmall" },  // SMALL CAPITAL QUESTION MARK
+    { 0xF760, "Gravesmall" },  // SMALL CAPITAL GRAVE ACCENT
+    { 0xF761, "Asmall" },  // LATIN SMALL CAPITAL LETTER A
+    { 0xF762, "Bsmall" },  // LATIN SMALL CAPITAL LETTER B
+    { 0xF763, "Csmall" },  // LATIN SMALL CAPITAL LETTER C
+    { 0xF764, "Dsmall" },  // LATIN SMALL CAPITAL LETTER D
+    { 0xF765, "Esmall" },  // LATIN SMALL CAPITAL LETTER E
+    { 0xF766, "Fsmall" },  // LATIN SMALL CAPITAL LETTER F
+    { 0xF767, "Gsmall" },  // LATIN SMALL CAPITAL LETTER G
+    { 0xF768, "Hsmall" },  // LATIN SMALL CAPITAL LETTER H
+    { 0xF769, "Ismall" },  // LATIN SMALL CAPITAL LETTER I
+    { 0xF76A, "Jsmall" },  // LATIN SMALL CAPITAL LETTER J
+    { 0xF76B, "Ksmall" },  // LATIN SMALL CAPITAL LETTER K
+    { 0xF76C, "Lsmall" },  // LATIN SMALL CAPITAL LETTER L
+    { 0xF76D, "Msmall" },  // LATIN SMALL CAPITAL LETTER M
+    { 0xF76E, "Nsmall" },  // LATIN SMALL CAPITAL LETTER N
+    { 0xF76F, "Osmall" },  // LATIN SMALL CAPITAL LETTER O
+    { 0xF770, "Psmall" },  // LATIN SMALL CAPITAL LETTER P
+    { 0xF771, "Qsmall" },  // LATIN SMALL CAPITAL LETTER Q
+    { 0xF772, "Rsmall" },  // LATIN SMALL CAPITAL LETTER R
+    { 0xF773, "Ssmall" },  // LATIN SMALL CAPITAL LETTER S
+    { 0xF774, "Tsmall" },  // LATIN SMALL CAPITAL LETTER T
+    { 0xF775, "Usmall" },  // LATIN SMALL CAPITAL LETTER U
+    { 0xF776, "Vsmall" },  // LATIN SMALL CAPITAL LETTER V
+    { 0xF777, "Wsmall" },  // LATIN SMALL CAPITAL LETTER W
+    { 0xF778, "Xsmall" },  // LATIN SMALL CAPITAL LETTER X
+    { 0xF779, "Ysmall" },  // LATIN SMALL CAPITAL LETTER Y
+    { 0xF77A, "Zsmall" },  // LATIN SMALL CAPITAL LETTER Z
+    { 0xF7A1, "exclamdownsmall" },  // SMALL CAPITAL INVERTED EXCLAMATION MARK
+    { 0xF7A2, "centoldstyle" },  // OLDSTYLE CENT SIGN
+    { 0xF7A8, "Dieresissmall" },  // SMALL CAPITAL DIAERESIS
+    { 0xF7AF, "Macronsmall" },  // SMALL CAPITAL MACRON
+    { 0xF7B4, "Acutesmall" },  // SMALL CAPITAL ACUTE ACCENT
+    { 0xF7B8, "Cedillasmall" },  // SMALL CAPITAL CEDILLA
+    { 0xF7BF, "questiondownsmall" },  // SMALL CAPITAL INVERTED QUESTION MARK
+    { 0xF7E0, "Agravesmall" },  // LATIN SMALL CAPITAL LETTER A WITH GRAVE
+    { 0xF7E1, "Aacutesmall" },  // LATIN SMALL CAPITAL LETTER A WITH ACUTE
+    { 0xF7E2, "Acircumflexsmall" },  // LATIN SMALL CAPITAL LETTER A WITH CIRCUMFLEX
+    { 0xF7E3, "Atildesmall" },  // LATIN SMALL CAPITAL LETTER A WITH TILDE
+    { 0xF7E4, "Adieresissmall" },  // LATIN SMALL CAPITAL LETTER A WITH DIAERESIS
+    { 0xF7E5, "Aringsmall" },  // LATIN SMALL CAPITAL LETTER A WITH RING ABOVE
+    { 0xF7E6, "AEsmall" },  // LATIN SMALL CAPITAL LETTER AE
+    { 0xF7E7, "Ccedillasmall" },  // LATIN SMALL CAPITAL LETTER C WITH CEDILLA
+    { 0xF7E8, "Egravesmall" },  // LATIN SMALL CAPITAL LETTER E WITH GRAVE
+    { 0xF7E9, "Eacutesmall" },  // LATIN SMALL CAPITAL LETTER E WITH ACUTE
+    { 0xF7EA, "Ecircumflexsmall" },  // LATIN SMALL CAPITAL LETTER E WITH CIRCUMFLEX
+    { 0xF7EB, "Edieresissmall" },  // LATIN SMALL CAPITAL LETTER E WITH DIAERESIS
+    { 0xF7EC, "Igravesmall" },  // LATIN SMALL CAPITAL LETTER I WITH GRAVE
+    { 0xF7ED, "Iacutesmall" },  // LATIN SMALL CAPITAL LETTER I WITH ACUTE
+    { 0xF7EE, "Icircumflexsmall" },  // LATIN SMALL CAPITAL LETTER I WITH CIRCUMFLEX
+    { 0xF7EF, "Idieresissmall" },  // LATIN SMALL CAPITAL LETTER I WITH DIAERESIS
+    { 0xF7F0, "Ethsmall" },  // LATIN SMALL CAPITAL LETTER ETH
+    { 0xF7F1, "Ntildesmall" },  // LATIN SMALL CAPITAL LETTER N WITH TILDE
+    { 0xF7F2, "Ogravesmall" },  // LATIN SMALL CAPITAL LETTER O WITH GRAVE
+    { 0xF7F3, "Oacutesmall" },  // LATIN SMALL CAPITAL LETTER O WITH ACUTE
+    { 0xF7F4, "Ocircumflexsmall" },  // LATIN SMALL CAPITAL LETTER O WITH CIRCUMFLEX
+    { 0xF7F5, "Otildesmall" },  // LATIN SMALL CAPITAL LETTER O WITH TILDE
+    { 0xF7F6, "Odieresissmall" },  // LATIN SMALL CAPITAL LETTER O WITH DIAERESIS
+    { 0xF7F8, "Oslashsmall" },  // LATIN SMALL CAPITAL LETTER O WITH STROKE
+    { 0xF7F9, "Ugravesmall" },  // LATIN SMALL CAPITAL LETTER U WITH GRAVE
+    { 0xF7FA, "Uacutesmall" },  // LATIN SMALL CAPITAL LETTER U WITH ACUTE
+    { 0xF7FB, "Ucircumflexsmall" },  // LATIN SMALL CAPITAL LETTER U WITH CIRCUMFLEX
+    { 0xF7FC, "Udieresissmall" },  // LATIN SMALL CAPITAL LETTER U WITH DIAERESIS
+    { 0xF7FD, "Yacutesmall" },  // LATIN SMALL CAPITAL LETTER Y WITH ACUTE
+    { 0xF7FE, "Thornsmall" },  // LATIN SMALL CAPITAL LETTER THORN
+    { 0xF7FF, "Ydieresissmall" },  // LATIN SMALL CAPITAL LETTER Y WITH DIAERESIS
+    { 0xF8E5, "radicalex" },  // RADICAL EXTENDER
+    { 0xF8E6, "arrowvertex" },  // VERTICAL ARROW EXTENDER
+    { 0xF8E7, "arrowhorizex" },  // HORIZONTAL ARROW EXTENDER
+    { 0xF8E8, "registersans" },  // REGISTERED SIGN SANS SERIF
+    { 0xF8E9, "copyrightsans" },  // COPYRIGHT SIGN SANS SERIF
+    { 0xF8EA, "trademarksans" },  // TRADE MARK SIGN SANS SERIF
+    { 0xF8EB, "parenlefttp" },  // LEFT PAREN TOP
+    { 0xF8EC, "parenleftex" },  // LEFT PAREN EXTENDER
+    { 0xF8ED, "parenleftbt" },  // LEFT PAREN BOTTOM
+    { 0xF8EE, "bracketlefttp" },  // LEFT SQUARE BRACKET TOP
+    { 0xF8EF, "bracketleftex" },  // LEFT SQUARE BRACKET EXTENDER
+    { 0xF8F0, "bracketleftbt" },  // LEFT SQUARE BRACKET BOTTOM
+    { 0xF8F1, "bracelefttp" },  // LEFT CURLY BRACKET TOP
+    { 0xF8F2, "braceleftmid" },  // LEFT CURLY BRACKET MID
+    { 0xF8F3, "braceleftbt" },  // LEFT CURLY BRACKET BOTTOM
+    { 0xF8F4, "braceex" },  // CURLY BRACKET EXTENDER
+    { 0xF8F5, "integralex" },  // INTEGRAL EXTENDER
+    { 0xF8F6, "parenrighttp" },  // RIGHT PAREN TOP
+    { 0xF8F7, "parenrightex" },  // RIGHT PAREN EXTENDER
+    { 0xF8F8, "parenrightbt" },  // RIGHT PAREN BOTTOM
+    { 0xF8F9, "bracketrighttp" },  // RIGHT SQUARE BRACKET TOP
+    { 0xF8FA, "bracketrightex" },  // RIGHT SQUARE BRACKET EXTENDER
+    { 0xF8FB, "bracketrightbt" },  // RIGHT SQUARE BRACKET BOTTOM
+    { 0xF8FC, "bracerighttp" },  // RIGHT CURLY BRACKET TOP
+    { 0xF8FD, "bracerightmid" },  // RIGHT CURLY BRACKET MID
+    { 0xF8FE, "bracerightbt" },  // RIGHT CURLY BRACKET BOTTOM
+    { 0xFB00, "ff" },  // LATIN SMALL LIGATURE FF
+    { 0xFB01, "fi" },  // LATIN SMALL LIGATURE FI
+    { 0xFB02, "fl" },  // LATIN SMALL LIGATURE FL
+    { 0xFB03, "ffi" },  // LATIN SMALL LIGATURE FFI
+    { 0xFB04, "ffl" },  // LATIN SMALL LIGATURE FFL
+    { 0xFB1F, "afii57705" },  // HEBREW LIGATURE YIDDISH YOD YOD PATAH
+    { 0xFB2A, "afii57694" },  // HEBREW LETTER SHIN WITH SHIN DOT
+    { 0xFB2B, "afii57695" },  // HEBREW LETTER SHIN WITH SIN DOT
+    { 0xFB35, "afii57723" },  // HEBREW LETTER VAV WITH DAGESH
+    { 0xFB4B, "afii57700" },  // HEBREW LETTER VAV WITH HOLAM
     // end of stuff from glyphlist.txt
     { 0xFFFF, 0 }
 };
@@ -2272,7 +2275,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->firstClipOnPage  = TRUE;
 	d->boundingBox = QRect( 0, 0, -1, -1 );
 	fontsUsed = QString::fromLatin1("");
-	
+
 	stream << "%%Page: " << pageCount << ' ' << pageCount << endl
 	       << "QI\n";
 	return TRUE;
@@ -2428,7 +2431,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( p[1].pixmap->isNull() )
 	    break;
 	QPoint pnt = *(p[0].point);
-	QImage img;	
+	QImage img;
 	img = *(p[1].pixmap);
 	drawImage( paint, pnt, img );
 	break;
