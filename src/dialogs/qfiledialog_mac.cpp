@@ -121,24 +121,46 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     }
     return true;
 }
-static NavObjectFilterUPP mac_navUPP = NULL;
-static void cleanup_navUPP()
+
+//filter UPP stuff
+static NavObjectFilterUPP mac_navFilterUPP = NULL;
+static void cleanup_navFilterUPP()
 {
-    DisposeNavObjectFilterUPP(mac_navUPP);
-    mac_navUPP = NULL;
+    DisposeNavObjectFilterUPP(mac_navFilterUPP);
+    mac_navFilterUPP = NULL;
 }
-static const NavObjectFilterUPP make_navUPP()
+static const NavObjectFilterUPP make_navFilterUPP()
 {
-    if(mac_navUPP)
-	return mac_navUPP;
-    qAddPostRoutine( cleanup_navUPP );
-    return mac_navUPP = NewNavObjectFilterUPP(qt_mac_nav_filter);
+    if(mac_navFilterUPP)
+	return mac_navFilterUPP;
+    qAddPostRoutine( cleanup_navFilterUPP );
+    return mac_navFilterUPP = NewNavObjectFilterUPP(qt_mac_nav_filter);
 }
+//event UPP stuff
+static NavEventUPP mac_navProcUPP = NULL;
+static void cleanup_navProcUPP()
+{
+    DisposeNavEventUPP(mac_navProcUPP);
+    mac_navProcUPP = NULL;
+}
+static pascal void qt_mac_empty_proc(const NavEventCallbackMessage, NavCBRecPtr, NavCallBackUserData)
+{ /* Yes this is intentionally empty */ }
+static const NavEventUPP make_navProcUPP()
+{
+    if(mac_navProcUPP)
+	return mac_navProcUPP;
+    qAddPostRoutine( cleanup_navProcUPP );
+    return mac_navProcUPP = NewNavEventUPP(qt_mac_empty_proc);
+}
+
 
 const unsigned char * p_str(const char *, int len=-1);
 QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 				      const void *fullPath,
 				      FSSpec *spec);
+
+
+
 
 QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 					      QWidget *parent, const char* /*name*/,
@@ -148,21 +170,31 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
     OSErr err;
     QString tmpstr;
     QStringList retstrl;
-    static const int w = 450, h = 350;
+
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions( &options );
+    options.modality = kWindowModalityAppModal;
+    options.optionFlags |= kNavDontConfirmReplacement;
     if(multi) 
 	options.optionFlags |= 	kNavAllowMultipleFiles;
-    options.location.h = options.location.v = -1;
     if(!caption.isEmpty()) 
 	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
 							   caption.length());
+
+    static const int w = 450, h = 350;
+    options.location.h = options.location.v = -1;
     if(parent) {
 	parent = parent->topLevelWidget();
 	QString s = parent->caption();
 	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
 	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
 	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
+
+	QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));
+	if(options.location.h + w > r.right())
+	    options.location.h -= (options.location.h + w) - r.right() + 10;
+	if(options.location.v + h > r.bottom())
+	    options.location.v -= (options.location.v + h) - r.bottom() + 10;
     } else if(QWidget *p = qApp->mainWidget()) {
 	static int last_screen = -1;
 	int scr = QApplication::desktop()->screenNumber(p);
@@ -173,7 +205,6 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	}
     }
 
-    QPtrList<QRegExp> filts = makeFiltersList(filter);
     NavDialogRef dlg;
     if (directory) {
 	if(NavCreateChooseFolderDialog(&options, NULL, NULL, NULL, &dlg)) {
@@ -181,8 +212,10 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	    return retstrl;
 	}
     } else {
-	if(NavCreateGetFileDialog(&options, NULL, NULL, NULL, make_navUPP(), 
-				  (void *) (filts.isEmpty() ? NULL : &filts), &dlg)) {
+	QPtrList<QRegExp> filts = makeFiltersList(filter);
+	if(NavCreateGetFileDialog(&options, NULL, make_navProcUPP(), NULL, 
+				  make_navFilterUPP(), (void *) (filts.isEmpty() ? NULL : &filts), 
+				  &dlg)) {
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	    return retstrl;
 	}
@@ -256,7 +289,7 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
     NavDialogCreationOptions options;
     NavGetDefaultDialogCreationOptions( &options );
     static const int w = 450, h = 350;
-    options.optionFlags &= ~kNavDontConfirmReplacement;
+    options.optionFlags |= kNavDontConfirmReplacement;
     options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
     if(!caption.isEmpty())
@@ -269,6 +302,12 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
 	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
 	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
+
+	QRect r = QApplication::desktop()->screenGeometry(QApplication::desktop()->screenNumber(parent));
+	if(options.location.h + w > r.right())
+	    options.location.h -= (options.location.h + w) - r.right() + 10;
+	if(options.location.v + h > r.bottom())
+	    options.location.v -= (options.location.v + h) - r.bottom() + 10;
     } else if(QWidget *p = qApp->mainWidget()) {
 	static int last_screen = -1;
 	int scr = QApplication::desktop()->screenNumber(p);
@@ -280,7 +319,7 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
     }
 
     NavDialogRef dlg;
-    if(NavCreatePutFileDialog(&options, 'cute', kNavGenericSignature, NULL, NULL, &dlg)) {
+    if(NavCreatePutFileDialog(&options, 'cute', kNavGenericSignature, make_navProcUPP(), NULL, &dlg)) {
 	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	return retstr;
     }
