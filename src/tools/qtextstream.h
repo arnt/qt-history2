@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#42 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#43 $
 **
 ** Definition of QTextStream class
 **
@@ -30,11 +30,15 @@
 #include <stdio.h>
 #endif // QT_H
 class QTextCodec;
+class QTextDecoder;
 
 class Q_EXPORT QTextStream				// text stream class
 {
 public:
-    //    void	 setEncoding(Encoding);
+    enum Encoding { Locale, Latin1, Unicode, UnicodeReverse };
+    
+    void	setEncoding( Encoding );
+    void	setCodec( QTextCodec* );
     //    Encoding encoding() const { return cmode; }
 
     QTextStream();
@@ -130,15 +134,18 @@ private:
     bool	 fstrm;
     bool	 owndev;
     QTextCodec 	*mapper;
+    QTextDecoder 	*decoder;		//???
+    bool	latin1;
     bool 	swapUnicode;
-    bool	markerDone;
-    int		eat_ws();
-    void	ts_ungetc(int);
-    int	ts_getc();
+    bool	doUnicodeHeader;
+
+    QChar		eat_ws();
+    void	ts_ungetc( QChar );
+    QChar	ts_getc();
     void	ts_putc(int);
     void	ts_putc(QChar);
-    bool	ts_isspace(int c);
-    bool	ts_isdigit(int c);
+    bool	ts_isspace(QChar);
+    bool	ts_isdigit(QChar);
     ulong	input_bin();
     ulong	input_oct();
     ulong	input_dec();

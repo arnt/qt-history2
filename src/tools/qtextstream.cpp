@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#69 $
 **
 ** Implementation of QTextStream class
 **
@@ -22,6 +22,7 @@
 *****************************************************************************/
 
 #include "qtextstream.h"
+#include "qtextcodec.h"
 #include "qbuffer.h"
 #include "qfile.h"
 #include <stdio.h>
@@ -62,9 +63,11 @@
   <li> \c reset resets the QTextStream to its default mode (see reset()).
   </ul>
 
-  The QTextStream class reads and writes ASCII text and it is not
+  The QTextStream class reads and writes text and it is not
   appropriate for dealing with binary data (but QDataStream is).
 
+  Note that all 8-bit characters are interpreted as Latin1 characters.
+  
   \sa QDataStream
 */
 
@@ -146,6 +149,8 @@
 #define I_SIGN_MASK	0x0f00
 
 
+static const QChar QEOF = QChar((ushort)0xffff); //guaranteed not to be a character.
+
 const int QTextStream::basefield   = I_BASE_MASK;
 const int QTextStream::adjustfield = ( QTextStream::left |
 				       QTextStream::right |
@@ -153,19 +158,21 @@ const int QTextStream::adjustfield = ( QTextStream::left |
 const int QTextStream::floatfield  = ( QTextStream::scientific |
 				       QTextStream::fixed );
 
-int QTextStream::eat_ws()
+QChar QTextStream::eat_ws()
 {
-    int c;
-    do { c = ts_getc(); } while ( c != EOF && ts_isspace(c) );
+    QChar c;
+    do { c = ts_getc(); } while ( c != QEOF && ts_isspace(c) );
     return c;
 }
 
 void QTextStream::init()
 {
     dev = 0;					// no device set
-    fstrm = owndev = FALSE;    
+    fstrm = owndev = FALSE;
     mapper = 0;
-    markerDone = FALSE;
+    decoder = 0;
+    doUnicodeHeader = TRUE;		//default to autodetect
+    latin1 = TRUE; //### mapper = QTextCodec::local
     swapUnicode = FALSE; //######!QChar::networkOrdered;
 }
 
@@ -176,6 +183,7 @@ void QTextStream::init()
 QTextStream::QTextStream()
 {
     init();
+    setEncoding( Locale ); //###
     reset();
 }
 
@@ -186,6 +194,7 @@ QTextStream::QTextStream()
 QTextStream::QTextStream( QIODevice *d )
 {
     init();
+    setEncoding( Locale ); //###
     dev = d;					// set device
     reset();
 }
@@ -385,7 +394,7 @@ private:        // Disabled copy constructor and operator=
   \endcode
 
   ####Encoding??? Unicode, surely
-  
+
   Writing data to the text stream will modify the contents of the string.
   The string will be expanded when data is written beyond the end of the
   string.
@@ -397,7 +406,7 @@ QTextStream::QTextStream( QString& str, int filemode )
     dev = new QStringBuffer( str );
     ((QStringBuffer *)dev)->open( filemode );
     owndev = TRUE;
-    swapUnicode = FALSE; // ????????
+    setEncoding(Unicode);
     reset();
 }
 
@@ -433,8 +442,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
     dev = new QBuffer( a );
     ((QBuffer *)dev)->open( mode );
     owndev = TRUE;
-    //#######    cmode = Ascii;
-    // locale-specific 8-bit ????
+    setEncoding( Latin1 ); //### Locale???
     reset();
 }
 
@@ -453,10 +461,10 @@ QTextStream::QTextStream( QByteArray a, int mode )
 QTextStream::QTextStream( FILE *fh, int mode )
 {
     init();
+    setEncoding( Locale ); //###
     dev = new QFile;
     ((QFile *)dev)->open( mode, fh );
     fstrm = owndev = TRUE;
-    //default to Unicode
     reset();
 }
 
@@ -471,15 +479,6 @@ QTextStream::~QTextStream()
     if ( owndev )
 	delete dev;
 }
-
-/*
-###### 
-
-where do we put the "guess what encoding _this_ is" ?
-
-what API to use for setEncoding/setCodec?
-
-*/
 
 /*!
   \fn void QTextStream::eatWhiteSpace()
@@ -498,38 +497,59 @@ what API to use for setEncoding/setCodec?
 /*!
   Returns one character from the stream, or EOF.
 */
-int QTextStream::ts_getc()
+QChar QTextStream::ts_getc()
 {
-    // WARNING: some QTextStream functions call getch directly.
-
-    int r;
-
-    if ( mapper ) {
-	warning( "QTextStream::ts_getc() mapper not supported" );
-	r = 0;
-    } else {
+    QChar r;
+    //#####default mode detecting Unicode???
+    if ( doUnicodeHeader ) {
+	doUnicodeHeader = FALSE; //only at the top
 	int c1 = dev->getch();
 	if ( c1 == EOF )
-	    return EOF;
+	    return QEOF;
 	int c2 = dev->getch();
-
-	if ( !markerDone ) {
-	    markerDone = TRUE; //only check first word
-	    //###########hacking
-	    if ( c1 == 0xff && c2 == 0xfe ) {
-		swapUnicode  = TRUE;
-		return ts_getc(); //skip byteordermark
-	    } else if ( c1 == 0xfe && c2 == 0xff ) {
-		swapUnicode = FALSE;
-		return ts_getc(); //skip byteordermark
-	    } 
+	if ( c1 == 0xfe && c2 == 0xff ) {
+	    mapper = 0;
+	    latin1 = FALSE;
+	    swapUnicode = FALSE;
+	} else if ( c1 == 0xff && c2 == 0xfe ) {
+	    mapper = 0;
+	    latin1 = FALSE;
+	    swapUnicode = TRUE;
+	} else {
+	    if ( c2 != EOF )
+		dev->ungetch( c2 );
+	    dev->ungetch( c1 );
 	}
-	if ( swapUnicode )
-	    r = c1 | (c2 << 8);
-	else
-	    r = (c1 << 8) | c2;
     }
-    return r;    
+    if ( mapper ) {
+	if ( !decoder )
+	    decoder = mapper->makeDecoder();
+	QString s;
+	do {
+	    char b[1];
+	    int c = dev->getch();
+	    if ( c == EOF )
+		return QEOF;
+	    b[0] = c;
+	    s  = decoder->toUnicode( b, 1 );
+	} while ( s.isEmpty() );
+	r = s[0];
+    } else if ( latin1 ) {
+	int c = dev->getch();
+	if ( c == EOF )
+	    return QEOF;
+	r = (char)c;
+    } else { //Unicode
+	int c1 = dev->getch();
+	if ( c1 == EOF )
+	    return QEOF;
+	int c2 = dev->getch();
+	if ( swapUnicode )
+	    r = QChar( c1, c2 ); //c1 | (c2 << 8);
+	else
+	    r = QChar( c2, c1 ); //(c1 << 8) | c2;
+    }
+    return r;
 }
 
 
@@ -538,7 +558,30 @@ int QTextStream::ts_getc()
 */
 void QTextStream::ts_putc( QChar c )
 {
-    ts_putc( (c.row << 8)|c.cell );
+    if ( mapper ) {
+	int len = 1;
+	QString s = c;
+	char* b = mapper->fromUnicode( s, len );
+	dev->writeBlock( b, len );
+	delete[] b;
+    } else if ( latin1 ) {
+	if( c.row ) 
+	    dev->putch( '?' ); //######unknown character???
+	else
+	    dev->putch( c.cell ); 
+    } else {
+	if ( doUnicodeHeader ) {
+	    doUnicodeHeader = FALSE;
+	    ts_putc( QChar::byteOrderMark );
+	}
+	if ( QChar::networkOrdered ) { //#####
+	    dev->putch(c.row);
+	    dev->putch(c.cell);
+	} else {
+	    dev->putch(c.row);
+	    dev->putch(c.cell);
+	}
+    }
 }
 
 /*!
@@ -546,66 +589,148 @@ void QTextStream::ts_putc( QChar c )
 */
 void QTextStream::ts_putc(int ch)
 {
-    if ( mapper ) {
-	warning( "QTextStream::ts_putc() mapper not supported" );
-    } else {
-	if ( !markerDone ) {
-	    markerDone = TRUE;
-	    ts_putc( QChar::byteOrderMark );
-	}
-	if ( QChar::networkOrdered ) {
-	    dev->putch(ch>>8);
-	    dev->putch(ch&0xff);
-	} else {
-	    dev->putch(ch&0xff);
-	    dev->putch(ch>>8);
-	}
-    }
+    ts_putc(QChar((ushort)ch));
 }
 
-bool QTextStream::ts_isdigit(int ch)
+bool QTextStream::ts_isdigit(QChar c)
 {
 #if 0
     if ( cmode == Ascii )
 	return isdigit(ch);
     else // ######## see QString ucdigit()
-#endif
 	return isdigit(ch&0xff);
+#endif
+    return !c.row && isdigit(c.cell); //###
 }
 
-bool QTextStream::ts_isspace(int ch)
+bool QTextStream::ts_isspace( QChar c )
 {
-#if 0    
+#if 0
     if ( cmode == Ascii )
 	return isspace(ch);
     else // ######## see QString ucspace()
-#endif
 	return isspace(ch&0xff);
+#endif
+    return !c.row && isspace(c.cell); //#############################3
 }
 
-void QTextStream::ts_ungetc(int ch)
+void QTextStream::ts_ungetc( QChar c )
 {
     debug( "QTextStream::ts_ungetc" );
-#if 0    
-    switch (cmode) {
-     case Ascii:
-	dev->ungetch(ch);
-	break;
-     case UnicodeBigEndian:
+    if ( mapper ) {
+	warning( "QTextStream::ts_ungetc() mapper not supported" );
+    } else if ( latin1 ) {
+	dev->ungetch( c );
+    } else {
+	if ( swapUnicode ) {
 	// Reverse of put
-	dev->ungetch(ch&0xff);
-	dev->ungetch(ch>>8);
-	break;
-     case UnicodeLittleEndian:
+	    dev->ungetch(c.row);
+	    dev->ungetch( c.cell );
+	} else {
 	// Reverse of put
-	dev->ungetch(ch>>8);
-	dev->ungetch(ch&0xff);
+	    dev->ungetch(c.cell);
+	    dev->ungetch(c.row);
+	}
+    }
+}
+
+
+
+/*!
+  Reads \e len bytes from the stream into \e e s and returns a reference to
+  the stream.
+
+  The buffer \e s must be preallocated.
+
+  \note No Encoding is done by this function.
+
+  \warning The behaviour of this function is undefined unless the
+  stream's encoding is set to Unicode or Latin1.
+  
+  \sa QIODevice::readBlock()
+*/
+
+QTextStream &QTextStream::readRawBytes( char *s, uint len )
+{
+    dev->readBlock( s, len );
+    return *this;
+}
+
+/*!
+  Writes the \e len bytes from \e s to the stream and returns a reference to
+  the stream.
+
+  \note No Encoding is done by this function.
+
+  \sa QIODevice::writeBlock()
+*/
+
+QTextStream &QTextStream::writeRawBytes( const char* s, uint len )
+{
+    dev->writeBlock( s, len );
+    return *this;
+}
+
+
+QTextStream &QTextStream::writeBlock( const char* p, uint len )
+{
+#if 0
+    switch ( cmode ) {
+      case Ascii:
+	dev->writeBlock( p, len );
+	break;
+      case UnicodeBigEndian: {
+	    QChar *u = new QChar[len];
+	    for (uint i=0; i<len; i++)
+		u[i] = p[i];
+	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
+	    delete [] u;
+	}
+	break;
+      case UnicodeLittleEndian: {
+	    // ############ ...
+	}
+	break;
     }
 #endif
-	// Reverse of put
-	dev->ungetch(ch&0xff);
-	dev->ungetch(ch>>8);
 
+    //All Q1Strings and const char* are defined to be in Latin1
+    if ( !mapper && latin1 ) {
+	dev->writeBlock( p, len );
+    } else {
+	for (uint i=0; i<len; i++)
+	    ts_putc( p[i] ); 
+    }
+    return *this;
+}
+
+QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
+{
+    warning( "QTextStream::writeBlock" );
+#if 0
+    switch ( cmode ) {
+      case Ascii: {
+	    char *u = new char[len];
+	    for (uint i=0; i<len; i++)
+		u[i] = p[i];
+	    dev->writeBlock( (char*)u, len );
+	    delete [] u;
+	}
+	break;
+      case UnicodeBigEndian: {
+	    // ########## .......
+	}
+	break;
+      case UnicodeLittleEndian: {
+	    dev->writeBlock( (char*)p, len*sizeof(QChar) );
+	}
+	break;
+    }
+#endif
+    for (uint i=0; i<len; i++)
+	ts_putc( p[i] ); //###could be optimized for Unicode
+
+    return *this;
 }
 
 
@@ -694,21 +819,23 @@ QTextStream &QTextStream::operator>>( char &c )
 ulong QTextStream::input_bin()
 {
     ulong val = 0;
-    register int c = eat_ws();
+    QChar ch = eat_ws();
+    char c = ch;
     while ( c == '0' || c == '1' ) {
 	val <<= 1;
 	val += c - '0';
-	c = ts_getc();
+	c = ch = ts_getc();
     }
-    if ( c != EOF )
-	ts_ungetc( c );
+    if ( ch != QEOF )
+	ts_ungetc( ch );
     return val;
 }
 
 ulong QTextStream::input_oct()
 {
     ulong val = 0;
-    register int c = eat_ws();
+    QChar ch = eat_ws();
+    char c = ch;
     while ( c >= '0' && c <= '7' ) {
 	val <<= 3;
 	val += c - '0';
@@ -716,48 +843,51 @@ ulong QTextStream::input_oct()
     }
     if ( c == '8' || c == '9' ) {
 	while ( ts_isdigit(c) )
-	    c = ts_getc();
+	    c = ch = ts_getc();
     }
-    if ( c != EOF )
-	ts_ungetc( c );
+    if ( ch != QEOF )
+	ts_ungetc( ch );
     return val;
 }
 
 ulong QTextStream::input_dec()
 {
     ulong val = 0;
-    register int c = eat_ws();
+    QChar ch = eat_ws();
+    char c = ch;
     while ( ts_isdigit(c) ) {
 	val *= 10;
 	val += c - '0';
-	c = ts_getc();
+	c = ch = ts_getc();
     }
-    if ( c != EOF )
-	ts_ungetc( c );
+    if ( ch != QEOF )
+	ts_ungetc( ch );
     return val;
 }
 
 ulong QTextStream::input_hex()
 {
     ulong val = 0;
-    register int c = eat_ws();
+    QChar ch = eat_ws();
+    char c = ch;
     while ( isxdigit(c) ) {
 	val <<= 4;
 	if ( ts_isdigit(c) )
 	    val += c - '0';
 	else
 	    val += 10 + tolower(c) - 'a';
-	c = ts_getc();
+	c = ch = ts_getc();
     }
-    if ( c != EOF )
-	ts_ungetc( c );
+    if ( ch != QEOF )
+	ts_ungetc( ch );
     return val;
 }
 
 long QTextStream::input_int()
 {
     long val;
-    int c;
+    QChar ch;
+    char c;
     switch ( flags() & basefield ) {
 	case bin:
 	    val = (long)input_bin();
@@ -766,12 +896,12 @@ long QTextStream::input_int()
 	    val = (long)input_oct();
 	    break;
 	case dec:
-	    c = eat_ws();
-	    if ( c == EOF ) {
+	    c = ch = eat_ws();
+	    if ( ch == QEOF ) {
 		val = 0;
 	    } else {
 		if ( !(c == '-' || c == '+') )
-		    ts_ungetc( c );
+		    ts_ungetc( ch );
 		if ( c == '-' ) {
 		    ulong v = input_dec();
 		    if ( v ) {		// ensure that LONG_MIN can be read
@@ -790,16 +920,16 @@ long QTextStream::input_int()
 	    break;
 	default:
 	    val = 0;
-	    c = eat_ws();
+	    c = ch = eat_ws();
 	    if ( c == '0' ) {		// bin, oct or hex
-		c = ts_getc();
+		c = ch = ts_getc();
 		if ( tolower(c) == 'x' )
 		    val = (long)input_hex();
 		else if ( tolower(c) == 'b' )
 		    val = (long)input_bin();
 		else {			// octal
 		    if ( c >= '0' && c <= '7' ) {
-			ts_ungetc( c );
+			ts_ungetc( ch );
 			val = (long)input_oct();
 		    } else {
 			val = 0;
@@ -807,7 +937,7 @@ long QTextStream::input_int()
 		}
 	    }
 	    else if ( c >= '1' && c <= '9' ) {
-		ts_ungetc( c );
+		ts_ungetc( ch );
 		val = (long)input_dec();
 	    }
 	    else if ( c == '-' || c == '+' ) {
@@ -859,7 +989,7 @@ double QTextStream::input_double()
 
     char buf[256];
     int i = 0;
-    int c = eat_ws();
+    QChar c = eat_ws();
 
     while ( TRUE ) {
 
@@ -888,9 +1018,9 @@ double QTextStream::input_double()
 
 	if  ( state == 0 || state == Done || i > 250 ) {
 	    if ( i > 250 ) {			// ignore rest of digits
-		do { c = ts_getc(); } while ( c != EOF && ts_isdigit(c) );
+		do { c = ts_getc(); } while ( c != QEOF && ts_isdigit(c) );
 	    }
-	    if ( c != EOF )
+	    if ( c != QEOF )
 		ts_ungetc( c );
 	    buf[i] = '\0';
 	    char *end;
@@ -1019,10 +1149,10 @@ QTextStream &QTextStream::operator>>( char *s )
 {
     CHECK_STREAM_PRECOND
     int maxlen = width( 0 );
-    int c = eat_ws();
+    QChar c = eat_ws();
     if ( !maxlen )
 	maxlen = -1;
-    while ( c != EOF ) {
+    while ( c != QEOF ) {
 	if ( ts_isspace(c) || maxlen-- == 0 ) {
 	    ts_ungetc( c );
 	    break;
@@ -1043,15 +1173,14 @@ QTextStream &QTextStream::operator>>( QString &str )
 {
     CHECK_STREAM_PRECOND
     str="";
-    int	i = 0;
-    int	c = eat_ws();
+    QChar	c = eat_ws();
 
-    while ( c != EOF ) {
+    while ( c != QEOF ) {
 	if ( ts_isspace(c) ) {
 	    ts_ungetc( c );
 	    break;
 	}
-	str[i++] = (ushort)c;
+	str += c;
 	c = ts_getc();
     }
     return *this;
@@ -1069,9 +1198,9 @@ QTextStream &QTextStream::operator>>( Q1String &str )
     char      buffer[buflen];
     char     *s = buffer;
     int	      i = 0;
-    int	      c = eat_ws();
+    QChar	      c = eat_ws();
 
-    while ( c != EOF ) {
+    while ( c != QEOF ) {
 	if ( ts_isspace(c) ) {
 	    ts_ungetc( c );
 	    break;
@@ -1116,13 +1245,13 @@ QString QTextStream::readLine()
 #endif
     QString   result;
     int	      i = 0;
-    int	      c = ts_getc();
+    QChar	      c = ts_getc();
 
-    while ( c != EOF ) {
+    while ( c != QEOF ) {
 	if ( c == '\n' ) {
 	    break;
 	}
-	result[i++] = (ushort)c;
+	result += c;
 	c = ts_getc();
     }
     if ( i > 0 && result[i-1] == '\r' )
@@ -1444,96 +1573,6 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
 
 /*!
-  Reads \e len bytes from the stream into \e e s and returns a reference to
-  the stream.
-
-  The buffer \e s must be preallocated.
-
-  \note No Encoding is done by this function.
-
-  \sa QIODevice::readBlock()
-*/
-
-QTextStream &QTextStream::readRawBytes( char *s, uint len )
-{
-    dev->readBlock( s, len );
-    return *this;
-}
-
-/*!
-  Writes the \e len bytes from \e s to the stream and returns a reference to
-  the stream.
-
-  \note No Encoding is done by this function.
-
-  \sa QIODevice::writeBlock()
-*/
-
-QTextStream &QTextStream::writeRawBytes( const char* s, uint len )
-{
-    dev->writeBlock( s, len );
-    return *this;
-}
-
-
-QTextStream &QTextStream::writeBlock( const char* p, uint len )
-{
-#if 0
-    switch ( cmode ) {
-      case Ascii:
-	dev->writeBlock( p, len );
-	break;
-      case UnicodeBigEndian: {
-	    QChar *u = new QChar[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = p[i];
-	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
-	    delete [] u;
-	}
-	break;
-      case UnicodeLittleEndian: {
-	    // ############ ...
-	}
-	break;
-    }
-#endif
-    //#########
-    for (uint i=0; i<len; i++)
-	ts_putc( p[i] ); //####
-    
-    return *this;
-}
-
-QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
-{
-    warning( "QTextStream::writeBlock" );
-#if 0
-    switch ( cmode ) {
-      case Ascii: {
-	    char *u = new char[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = p[i];
-	    dev->writeBlock( (char*)u, len );
-	    delete [] u;
-	}
-	break;
-      case UnicodeBigEndian: {
-	    // ########## .......
-	}
-	break;
-      case UnicodeLittleEndian: {
-	    dev->writeBlock( (char*)p, len*sizeof(QChar) );
-	}
-	break;
-    }
-#endif
-    for (uint i=0; i<len; i++)
-	ts_putc( p[i] ); //####
-
-    return *this;
-}
-
-/*!
   \fn int QTextStream::flags() const
   Returns the current stream flags. The default value is 0.
 
@@ -1753,3 +1792,68 @@ QTextStream &reset( QTextStream &s )
   Constructs a stream to write to the file \a f.
 */
 
+
+
+/*!
+  Sets the encoding of this stream to \a e, where \a e is one of:
+  <ul>
+  <li> \c Locale Using local file format (Latin1 if locale is not set), but autodetecting Unicode
+  on input.
+  <li> \c Unicode Using  Unicode for input and output.
+  <li> \c Latin1  ISO-8859-1. Will not autodetect Unicode.
+  <li> \c UnicodeReverse Using reverse network order Unicode for input. You only need this when
+  reading Unicode data that does not start with the byte order marker. 
+  </ul>
+  
+  \note This function should be called before any data is read to/written from the stream.
+  \sa setCodec
+*/
+
+void QTextStream::setEncoding( Encoding e )
+{
+    switch ( e ) {
+    case Unicode:
+	mapper = 0;
+	latin1 = FALSE;
+	doUnicodeHeader = TRUE;
+	swapUnicode = FALSE; //###
+	break;
+    case UnicodeReverse:
+	mapper = 0;
+	latin1 = FALSE;
+	doUnicodeHeader = TRUE;
+	swapUnicode = TRUE; //###
+	break;
+    case Locale: {
+	char * lang = qstrdup( getenv( "LANG" ) ); //########QApplication::language();
+	latin1 = TRUE; //fallback to Latin 1
+	if ( lang )
+	    mapper = QTextCodec::codecForName( lang );
+	debug ( "mapper: %p, name: %s, MIBenum: %d", mapper, 
+		mapper?mapper->name():"(none)",
+		mapper?mapper->mib():-1 );
+	
+	doUnicodeHeader = TRUE;
+    }
+    break;
+    case Latin1:
+	mapper = 0;
+	doUnicodeHeader = FALSE;
+	latin1 = TRUE;
+	break;
+    }
+}
+
+
+/*!
+  Sets the codec for this stream to \a codec. Will not try to autodetect Unicode.
+  
+    \note This function should be called before any data is read to/written from the stream.
+    \sa setEncoding
+*/
+
+void QTextStream::setCodec( QTextCodec *codec )
+{
+    mapper = codec;
+    doUnicodeHeader = FALSE;
+}
