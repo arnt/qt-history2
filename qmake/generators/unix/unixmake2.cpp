@@ -1,13 +1,11 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of ________ class.
+** Implementation of UnixMakefileGenerator class.
 **
-** Created : 970521
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
-**
-** This file is part of the network module of the Qt GUI Toolkit.
+** This file is part of qmake.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
@@ -682,7 +680,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
 	if(!project->first("RC_FILE").isEmpty()) {
 	    QString dir = destdir + "../Resources/";
-	    t << dir << "application.icns:" << "\n\t"
+	    t << dir << "application.icns: " << var("RC_FILE") << "\n\t"
 	      << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
 	      << "@cp " << var("RC_FILE") << " " << dir << "application.icns" << endl;
 	}
