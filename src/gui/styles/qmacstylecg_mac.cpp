@@ -45,12 +45,16 @@ static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
-static inline HIThemeTrackDrawInfo getTrackDrawInfo(QStyle::ComplexControl control,
+// Utility to get the track info for scroll bars and sliders. It is used a few times and
+// its worth not having to initalize all those items everytime. I have no idea why we
+// can't do this by value, but it makes the darkening of the slider's thumb thing not work
+// if we do. :-/
+static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl control,
                                                     const QAbstractSlider *aslider,
                                                     const QRect &rect = QRect(),
                                                     const QPainter *p = 0)
 {
-    HIThemeTrackDrawInfo tdi;
+    static HIThemeTrackDrawInfo tdi;
     tdi.version = qt_mac_hitheme_version;
     tdi.reserved = 0;
     QAquaWidgetSize wsize = qt_aqua_size_constrain(aslider);
@@ -85,7 +89,7 @@ static inline HIThemeTrackDrawInfo getTrackDrawInfo(QStyle::ComplexControl contr
         else
             tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
     }
-    return tdi;
+    return &tdi;
 }
 
 //utility to figure out the size (from the painter)
@@ -155,11 +159,24 @@ void QMacStyleCG::polish(QWidget *w)
             d->animateButton(btn);
         }
     }
-    
+
+    QPixmap px(0, 0, 32);
+    if (w->testAttribute(QWidget::WA_MacMetalStyle)) {
+        px.resize(200, 200);
+        QPainter p(&px);
+        HIThemeBackgroundDrawInfo bginfo;
+        bginfo.version = qt_mac_hitheme_version;
+        bginfo.state = kThemeStateActive;
+        bginfo.kind = kThemeBackgroundMetal;
+        HIRect rect = CGRectMake(0, 0, px.width(), px.height());
+        HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(p.handle()),
+                              kHIThemeOrientationNormal);
+        p.end();
+    }
+
     QPopupMenu *pop = ::qt_cast<QPopupMenu *>(w);
     if (pop) {
-        QPalette pal = pop->palette();
-        QPixmap px(200, 200, 32);
+        px.resize(200, 200);
         QPainter p(&px);
         HIThemeMenuDrawInfo mtinfo;
         mtinfo.version = qt_mac_hitheme_version;
@@ -168,10 +185,17 @@ void QMacStyleCG::polish(QWidget *w)
         HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
                                   kHIThemeOrientationNormal);
         p.end();
-        QBrush background(black, px);
+    }
+
+    if (!px.isNull()) {
+        QPalette pal = w->palette();
+        QBrush background = pal.brush(QPalette::Active, QPalette::Background);
+        background.setPixmap(px);
         pal.setBrush(QPalette::Background, background);
+        background = pal.brush(QPalette::Active, QPalette::Button);
+        background.setPixmap(px);
         pal.setBrush(QPalette::Button, background);
-        pop->setPalette(pal);
+        w->setPalette(pal);
     }
     QWindowsStyle::polish(w);
 }
@@ -187,18 +211,6 @@ void QMacStyleCG::polish(QApplication *app)
     QPixmap px(200, 200, 32);
     QPainter p(&px);
     
-    // This gives us the metal look, of course.
-    /*
-    HIThemeBackgroundDrawInfo bginfo;
-    bginfo.version = qt_mac_hitheme_version;
-    bginfo.state = kThemeStateActive;
-    bginfo.kind = kThemeBackgroundMetal;
-    HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-    HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(p.handle()),
-                          kHIThemeOrientationNormal);
-     */
-    
-    // Believe it or not, we get the "older" style with this pixmap
     HIThemeMenuDrawInfo mtinfo;
     mtinfo.version = qt_mac_hitheme_version;
     mtinfo.menuType = kThemeMenuTypeHierarchical;
@@ -207,8 +219,11 @@ void QMacStyleCG::polish(QApplication *app)
                               kHIThemeOrientationNormal);
     
     p.end();
-    QBrush background(black, px);
+    QBrush background = pal.brush(QPalette::Active, QPalette::Background);
+    background.setPixmap(px);
     pal.setBrush(QPalette::Background, background);
+    background = pal.brush(QPalette::Active, QPalette::Button);
+    background.setPixmap(px);
     pal.setBrush(QPalette::Button, background);
     app->setPalette(pal);
 }
@@ -518,7 +533,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
     case CC_ScrollBar: {
         const QAbstractSlider *slider = static_cast<const QAbstractSlider *>(w);
         bool tracking = slider->hasTracking();
-        HIThemeTrackDrawInfo tdi = getTrackDrawInfo(control, slider, r, p);
+        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider, r, p);
         if (control == CC_Slider) {
             if (subActive == SC_SliderGroove)
                 tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
@@ -614,7 +629,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
     switch (control) {
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(widget);
-        HIThemeTrackDrawInfo tdi = getTrackDrawInfo(control, slider);
+        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider);
         HIRect macRect;
         switch (sc) {
         case SC_SliderGroove:
@@ -634,31 +649,21 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
         break; }
     case CC_ScrollBar : {
         const QScrollBar *scrollbar = static_cast<const QScrollBar *>(widget);
+        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, scrollbar);
         HIRect macRect;
         switch (sc) {
-        case SC_ScrollBarGroove: {
-            HIScrollBarTrackInfo sbi;
-            sbi.version = qt_mac_hitheme_version;
-            if(!qAquaActive (widget->palette()))
-                sbi.enableState = kThemeTrackInactive;
-            else if (!widget->isEnabled())
-                sbi.enableState = kThemeTrackDisabled;
-            else
-                sbi.enableState = kThemeTrackActive;
-            HIRect inBounds = *qt_glb_mac_rect(scrollbar->rect());
-            HIThemeGetScrollBarTrackRect(&inBounds, &sbi, scrollbar->orientation() == Horizontal,
-                                         &macRect);
+        case SC_ScrollBarGroove:
+            HIThemeGetTrackDragRect(&tdi, &macRect);
             rect = QRect(QPoint((int)macRect.origin.x, (int)macRect.origin.y),
                          QSize((int)macRect.size.width, (int)macRect.size.height));
-            break; }
-        case SC_ScrollBarSlider : {
-            HIThemeTrackDrawInfo tdi = getTrackDrawInfo(control, scrollbar);
+            break;
+        case SC_ScrollBarSlider :
             HIShapeRef shape;
             HIThemeGetTrackThumbShape(&tdi, &shape);
             HIShapeGetBounds(shape, &macRect);
             rect = QRect(QPoint((int)macRect.origin.x, (int)macRect.origin.y),
                          QSize((int)macRect.size.width, (int)macRect.size.height));
-            break; }
+            break;
         }
         break; }
     default:
@@ -697,7 +702,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
     switch (control) {
     case CC_Slider: {
         const QSlider *slider = static_cast<const QSlider *>(widget);
-        HIThemeTrackDrawInfo tdi = getTrackDrawInfo(control, slider);
+        HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, slider);
         ControlPartCode part;
         HIPoint pt = {(float)pos.x(), (float)pos.y()};
         if (HIThemeHitTestTrack(&tdi, &pt, &part)) {
@@ -717,6 +722,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
 	    sbi.enableState = kThemeTrackDisabled;
         else
             sbi.enableState = kThemeTrackActive;
+        sbi.viewsize = scrollbar->pageStep();
         HIPoint pt = {(float)pos.x(), (float)pos.y()};
         HIRect macSBRect = *qt_glb_mac_rect(widget->rect());
         ControlPartCode part;
@@ -728,8 +734,9 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
 		sc = SC_ScrollBarAddLine;
             
         } else {
-            HIThemeTrackDrawInfo tdi = getTrackDrawInfo(control, scrollbar);
+            HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, scrollbar);
             if (HIThemeHitTestTrack(&tdi, &pt, &part)) {
+                qDebug("part is %d", part);
                 if (part == kControlPageUpPart)
                     sc = SC_ScrollBarSubPage;
                 else if (part == kControlPageDownPart)
