@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#11 $
 **
 ** Implementation of QTabWidget class
 **
@@ -166,7 +166,7 @@ void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString 
     QTab * t = new QTab();
     CHECK_PTR( t );
     t->label = label;
-    t->iconset = new QIconSet(iconset);
+    t->iconset = new QIconSet( iconset );
     addTab( child, t );
 }
 
@@ -181,50 +181,67 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
     d->stack->addWidget( child, id );
-    d->tabs->setMinimumSize( d->tabs->sizeHint() );
+    setUpLayout();
+}
+
+
+/*!
+  Defines a new label for the tab of page \w
+ */
+void QTabWidget::changeTab( QWidget *w, const QString &label)
+{
+    
+    //#### accelerators
+    int id = d->stack->id( w );
+    if ( !id )
+	return;
+    QTab* t = d->tabs->tab( id );
+    if ( !t )
+	return;
+    t->label = label;
+    d->tabs->layoutTabs();
+    setUpLayout();
+}
+
+/*
+  Defines a new iconset and a new label for the tab of page \w
+ */
+void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
+{
+    //#### accelerators
+    int id = d->stack->id( w );
+    if ( !id )
+	return;
+    QTab* t = d->tabs->tab( id );
+    if ( !t )
+	return;
+    if ( t->iconset )
+	delete t->iconset;
+    t->label = label;
+    t->iconset = new QIconSet( iconset );
+    d->tabs->layoutTabs();
     setUpLayout();
 }
 
 /*!
-  Returns TRUE if the page with object name \a name is enabled, and
+  Returns TRUE if the page \a w is enabled, and
   false if it is disabled.
-
-  If \a name is 0 or not the name of any of the pages, isTabEnabled()
-  returns FALSE.
 
   \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabWidget::isTabEnabled( const QString & name) const
+bool QTabWidget::isTabEnabled( QWidget* w ) const
 {
-    if ( name.isEmpty() )
+    int id = d->stack->id( w );
+    if ( id )
+	return w->isEnabled();
+    else
 	return FALSE;
-
-    QObjectList * l
-	= ((QTabWidget *)this)->queryList( "QWidget", name, FALSE, TRUE );
-    bool r = FALSE;
-    if ( l && l->first() ) {
-	QWidget * w;
-	while( l->current() ) {
-	    while( l->current() && !l->current()->isWidgetType() )
-		l->next();
-	    w = (QWidget *)(l->current());
-	    if ( w && d->stack->id(w) ) {
-		r = w->isEnabled();
-		delete l;
-		return r;
-	    }
-	    l->next();
-	}
-    }
-    delete l;
-    return r;
 }
 
 /*!
-  Finds the page with object name \a name, enables/disables it
-  according to the value of \a enable, and redraws the page's tab
-  appropriately.
+  Enables/disables page \a w according to the value of \a enable, and
+  redraws the page's tab appropriately.
 
   QTabWidget uses QWidget::setEnabled() internally, rather than keep a
   separate flag.
@@ -233,37 +250,16 @@ bool QTabWidget::isTabEnabled( const QString & name) const
   visible already, QTabWidget will not hide it, and if all the pages
   are disabled, QTabWidget will show one of them.
 
-  The object name is used (rather than the tab label) because the tab
-  text may not be invariant in multi-language applications.
-
   \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabWidget::setTabEnabled( const QString & name, bool enable)
+void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 {
-    if ( name.isEmpty() )
-	return;
-    QObjectList * l
-	= ((QTabWidget *)this)->queryList( "QWidget", name, FALSE, TRUE );
-    if ( l && l->first() ) {
-	QWidget * w;
-	while( l->current() ) {
-	    while( l->current() && !l->current()->isWidgetType() )
-		l->next();
-	    w = (QWidget *)(l->current());
-	    if ( w ) {
-		int id = d->stack->id( w );
-		if ( id ) {
-		    w->setEnabled( enable );
-		    d->tabs->setTabEnabled( id, enable );
-		}
-		delete l;
-		return;
-	    }
-	    l->next();
-	}
+    int id = d->stack->id( w );
+    if ( id ) {
+	w->setEnabled( enable );
+	d->tabs->setTabEnabled( id, enable );
     }
-    delete l;
 }
 
 /*!  Ensures that \a w is shown.  This is useful mainly for accelerators.
@@ -275,10 +271,25 @@ void QTabWidget::setTabEnabled( const QString & name, bool enable)
 */
 void QTabWidget::showPage( QWidget * w)
 {
-    int i = d->stack->id( w );
-    if ( i >= 0 ) {
+    int id = d->stack->id( w );
+    if ( id ) {
 	d->stack->raiseWidget( w );
-	d->tabs->setCurrentTab( i );
+	d->tabs->setCurrentTab( id );
+    }
+}
+
+/*! Removes page \a w from this stack of widgets.  Does not 
+  delete \a w. 
+  \sa showPage(), \sa QWidgetStack::removeWidget()
+*/
+void QTabWidget::removePage( QWidget * w )
+{
+    int id = d->stack->id( w );
+    if ( id ) {
+	d->tabs->setTabEnabled( id, FALSE );
+	d->stack->removeWidget( w );
+	d->tabs->removeTab( d->tabs->tab(id) );
+	setUpLayout();
     }
 }
 
@@ -320,7 +331,6 @@ void QTabWidget::setTabBar( QTabBar* tb)
     d->tabs = tb;
     connect( d->tabs, SIGNAL(selected(int)),
 	     this,    SLOT(showTab(int)) );
-    d->tabs->setMinimumSize( d->tabs->sizeHint() );
     setUpLayout();
 }
 

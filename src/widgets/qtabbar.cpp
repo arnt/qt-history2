@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#63 $
 **
 ** Implementation of QTabBar class
 **
@@ -118,7 +118,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QTabPrivate;
-    d->id = 0;
+    d->id = 1;
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
@@ -152,39 +152,28 @@ QTabBar::~QTabBar()
 
 int QTabBar::addTab( QTab * newTab )
 {
-    const QFontMetrics & fm = fontMetrics();
-    QTab  *t = l->first();
-    int lw = fm.width( newTab->label );
-    int iw = 0;
-    int ih = 0;
-    if ( newTab->iconset != 0 ) {
-	iw = newTab->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
-	ih = newTab->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-    }
-    int h = QMAX( fm.height(), ih );
-
-    int hframe, vframe, overlap;
-    style().tabbarMetrics( this, hframe, vframe, overlap );
-
-    h += vframe;
-    if ( t ) {
-	QRect r( t->r );
-	while ( (t = l->next()) != 0 )
-	    r = r.unite( t->r );
-	newTab->r.setRect( r.right()-overlap, 0, lw + hframe + iw,
-			   QMAX( r.height(), h ) );
-    } else {
-	newTab->r.setRect( 0, 0, lw + hframe + iw, h );
-    }
 
     newTab->id = d->id++;
     l->append( newTab );
+    
+    layoutTabs();
 
     int p = QAccel::shortcutKey( newTab->label );
     if ( p )
 	d->a->insertItem( p, newTab->id );
 
     return newTab->id;
+}
+
+/*!
+  Removes \a tab from the tab control.
+*/
+void QTabBar::removeTab( QTab * tab )
+{
+    //#### accelerator labels??
+    l->remove( tab );
+    layoutTabs();
+    repaint();
 }
 
 
@@ -682,3 +671,38 @@ void QTabBar::setShape( Shape s )
     repaint();
 }
 
+
+
+/*!
+  Layout all existing tabs (i.e. setting their r attribute ) according
+  to their label and their iconset.
+ */
+void QTabBar::layoutTabs()
+{
+    if ( l->isEmpty() )
+	return;
+    
+    QTab* t = l->first();
+    QRect r( t->r );
+    while ( (t = l->next()) != 0 )
+	r = r.unite( t->r );
+
+    int hframe, vframe, overlap;
+    style().tabbarMetrics( this, hframe, vframe, overlap );
+    const QFontMetrics & fm = fontMetrics();
+    int x = 0;
+    for ( t = l->first(); t; t = l->next() ) {
+	int lw = fm.width( t->label );
+	int iw = 0;
+	int ih = 0;
+	if ( t->iconset != 0 ) {
+	    iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+	    ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+	}
+	int h = QMAX( fm.height(), ih );
+
+	h += vframe;
+	t->r.setRect( x, 0, lw + hframe + iw, QMAX(r.height(), h) );
+	x += t->r.width() - overlap;
+    }
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#23 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#24 $
 **
 ** Definition of QTabBar class
 **
@@ -67,6 +67,7 @@ public:
     void show();
 
     virtual int addTab( QTab * );
+    virtual void removeTab( QTab * );
 
     virtual void setTabEnabled( int, bool );
     bool isTabEnabled( int ) const;
@@ -78,6 +79,8 @@ public:
     int keyboardFocusTab() const;
 
     QTab * tab( int );
+
+    virtual void layoutTabs();
 
 public slots:
     virtual void setCurrentTab( int );

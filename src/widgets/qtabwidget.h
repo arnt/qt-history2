@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#6 $
 **
 ** Definition of QTabWidget class
 **
@@ -47,10 +47,13 @@ public:
     void addTab( QWidget *, const QString &);
     void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
     void addTab( QWidget *, QTab* );
-    bool isTabEnabled( const QString &) const;
-    void setTabEnabled( const QString &, bool );
+    void changeTab( QWidget *, const QString &);
+    void changeTab( QWidget *child, const QIconSet& iconset, const QString &label);
+    bool isTabEnabled(  QWidget * ) const;
+    void setTabEnabled( QWidget *, bool );
 
     void showPage( QWidget * );
+    void removePage( QWidget * );
     QString tabLabel( QWidget * );
 
     QWidget * currentPage() const;
