@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#108 $
+** $Id: //depot/qt/main/src/moc/moc.y#109 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1260,7 +1260,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
 		 num, list->at(), (const char*)className,(const char*)f->name);
     if ( list->count() )
-	fprintf( out, "    QMetaData *%s_tbl = new QMetaData[%d];\n",
+	fprintf( out, "    QMetaData *%s_tbl = new_metadata(%d);\n",
 		 functype, list->count() );
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
@@ -1276,7 +1276,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.42 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.43 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
