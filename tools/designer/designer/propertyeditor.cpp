@@ -3293,6 +3293,8 @@ void PropertyEditor::clear()
 
 void PropertyEditor::setup()
 {
+    if ( !formwindow || !wid )
+	return;
     listview->viewport()->setUpdatesEnabled( FALSE );
     listview->setupProperties();
     listview->viewport()->setUpdatesEnabled( TRUE );
