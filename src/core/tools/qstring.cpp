@@ -3017,29 +3017,34 @@ QByteArray QString::toUtf8() const
 }
 
 /*!
-    Returns a QString initialized with the Latin-1 string \a str.
+    Returns a QString initialized with the first \a size characters
+    of the Latin-1 string \a str.
+
+    If \a size is -1 (the default), it is taken to be qstrlen(\a
+    str).
 
     \inline sa latin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
 */
-QString QString::fromLatin1(const char *str)
+QString QString::fromLatin1(const char *str, int size)
 {
     Data *d;
     if (!str) {
         d = &shared_null;
         ++d->ref;
-    } else if (!*str) {
+    } else if (size == 0 || (!*str && size < 0)) {
         d = &shared_empty;
         ++d->ref;
     } else {
-        int len = strlen(str);
-        d = (Data*) qMalloc(sizeof(Data) + len * sizeof(QChar));
+        if (size < 0)
+            size = strlen(str);
+        d = static_cast<Data *>(qMalloc(sizeof(Data) + size * sizeof(QChar)));
         d->ref = 1;
-        d->alloc = d->size = len;
+        d->alloc = d->size = size;
         d->c = 0;
         d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
         d->data = d->array;
         ushort *i = d->data;
-        while(len--)
+        while (size--)
            *i++ = (uchar)*str++;
     }
     return QString(d);
@@ -3120,38 +3125,46 @@ QString qt_winMB2QString(const char* mb, int mblen)
 #endif // Q_OS_WIN32
 
 /*!
-    Returns a QString initialized with the 8-bit string \a str.
+    Returns a QString initialized with the first \a size characters
+    of the 8-bit string \a str.
+
+    If \a size is -1 (the default), it is taken to be qstrlen(\a
+    str).
 
     QTextCodec::codecForLocale() is used to perform the conversion
     from Unicode.
 
     \sa local8Bit(), fromAscii(), fromLatin1(), fromUtf8()
 */
-QString QString::fromLocal8Bit(const char *str)
+QString QString::fromLocal8Bit(const char *str, int size)
 {
     if (!str)
         return QString::null;
-#if defined(Q_OS_DARWIN)
-    return fromUtf8(str,strlen(str));
-#elif defined(Q_OS_WIN32)
-    int len = strlen(str);
-    if (len >= 0) {
-        QByteArray s(str,len+1);
-        return qt_winMB2QString(s);
+#if defined(Q_OS_WIN32)
+    if (size >= 0) {
+        QByteArray ba(str, size); // creates a '\0'-terminated deep copy
+        return qt_winMB2QString(ba);
+    } else {
+        return qt_winMB2QString(str);
     }
-    return qt_winMB2QString(str);
 #elif defined(Q_OS_UNIX)
 #  if !defined(QT_NO_TEXTCODEC)
+    if (size < 0)
+        size = strlen(str);
     QTextCodec *codec = QTextCodec::codecForLocale();
     if (codec)
-        return codec->toUnicode(str, strlen(str));
+        return codec->toUnicode(str, size);
 #  endif // !QT_NO_TEXTCODEC
 #endif
-    return fromLatin1(str);
+    return fromLatin1(str, size);
 }
 
 /*!
-    Returns a QString initialized with the 8-bit ASCII string \a str.
+    Returns a QString initialized with the first \a size characters
+    of the 8-bit ASCII string \a str.
+
+    If \a size is -1 (the default), it is taken to be qstrlen(\a
+    str).
 
     If a codec has been set using QTextCodec::setCodecForCStrings(),
     it is used to convert \a str to Unicode; otherwise this function
@@ -3159,39 +3172,46 @@ QString QString::fromLocal8Bit(const char *str)
 
     \sa ascii(), fromLatin1(), fromUtf8(), fromLocal8Bit()
 */
-QString QString::fromAscii(const char *str)
+QString QString::fromAscii(const char *str, int size)
 {
 #ifndef QT_NO_TEXTCODEC
     if (codecForCStrings) {
         if (!str)
             return QString::null;
-        if (!*str)
+        if (size == 0 || (!*str && size < 0))
             return QLatin1String("");
-        return codecForCStrings->toUnicode(str, strlen(str));
+        if (size < 0)
+            size = strlen(str);
+        return codecForCStrings->toUnicode(str, size);
     }
 #endif
-    return fromLatin1(str);
+    return fromLatin1(str, size);
 }
 
 /*!
-    Returns a QString initialized with the UTF-8 string \a str.
+    Returns a QString initialized with the first \a size characters
+    of the UTF-8 string \a str.
+
+    If \a size is -1 (the default), it is taken to be qstrlen(\a
+    str).
 
     \sa utf8(), fromAscii(), fromLatin1(), fromLocal8Bit()
 */
-QString QString::fromUtf8(const char *str)
+QString QString::fromUtf8(const char *str, int size)
 {
     if (!str)
         return QString::null;
+    if (size < 0)
+        size = strlen(str);
 
-    int len = strlen(str);
     QString result;
-    result.resize(len*2); // worst case
+    result.resize(size * 2); // worst case
     ushort *qch = result.d->data;
     uint uc = 0;
     int need = 0;
     int error = -1;
     uchar ch;
-    for (int i=0; i<len; i++) {
+    for (int i = 0; i < size; ++i) {
         ch = str[i];
         if (need) {
             if ((ch&0xc0) == 0x80) {
@@ -3243,9 +3263,9 @@ QString QString::fromUtf8(const char *str)
     }
     if (need) {
         // we have some invalid characters remaining we need to add to the string
-        for (int i = error; i < len; ++i) {
+        for (int i = error; i < size; ++i) {
             *qch++ = 0xdbff;
-            *qch++ = 0xde00 + ((uchar)str[i]);
+            *qch++ = 0xde00 + (uchar)str[i];
         }
     }
 
@@ -3254,22 +3274,26 @@ QString QString::fromUtf8(const char *str)
 }
 
 /*!
-    Returns a QString initialized with the zero-terminated Unicode
-    string \a unicode (ISO-10646-UTF-16 encoded). If \a unicode is 0,
-    an empty string is created.
+    Returns a QString initialized with the first \a size characters
+    of the Unicode string \a unicode (ISO-10646-UTF-16 encoded).
+
+    If \a size is -1 (the default), \a unicode must be terminated
+    with a 0.
 
     QString makes a deep copy of the Unicode data.
 
     \sa utf16(), setUtf16()
 */
-QString QString::fromUtf16(const ushort *unicode)
+QString QString::fromUtf16(const ushort *unicode, int size)
 {
     if (!unicode)
         return QString();
-    int length = 0;
-    while (unicode[length] != 0)
-        length++;
-    return QString((const QChar *)unicode, length);
+    if (size < 0) {
+        size = 0;
+        while (unicode[size] != 0)
+            ++size;
+    }
+    return QString((const QChar *)unicode, size);
 }
 
 /*!

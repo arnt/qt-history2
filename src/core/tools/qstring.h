@@ -202,11 +202,11 @@ public:
     QByteArray toUtf8() const;
     QByteArray toLocal8Bit() const;
 
-    static QString fromAscii(const char *);
-    static QString fromLatin1(const char *);
-    static QString fromUtf8(const char *);
-    static QString fromLocal8Bit(const char *);
-    static QString fromUtf16(const ushort *);
+    static QString fromAscii(const char *, int size = -1);
+    static QString fromLatin1(const char *, int size = -1);
+    static QString fromUtf8(const char *, int size = -1);
+    static QString fromLocal8Bit(const char *, int size = -1);
+    static QString fromUtf16(const ushort *, int size = -1);
 
     QString &setUnicode(const QChar *unicode, int size);
     inline QString &setUtf16(const ushort *utf16, int size)
@@ -355,58 +355,6 @@ public:
     inline QString &operator=(const Null &) { *this = QString(); return *this; }
     inline bool isNull() const { return d == &shared_null; }
 
-    inline static QString fromAscii(const char *str, int maxSize)
-    {
-        if (!str)
-            return QString::null;
-        int slen = qstrlen(str);
-        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
-        if (slen == len)
-            return fromAscii(str);
-        else
-            return fromAscii(QByteArray(str, len));
-    }
-    inline static QString fromLatin1(const char *str, int maxSize)
-    {
-        if (!str)
-            return QString::null;
-        int slen = qstrlen(str);
-        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
-        if (slen == len)
-            return fromLatin1(str);
-        else
-            return fromLatin1(QByteArray(str, len));
-    }
-    inline static QString fromUtf8(const char *str, int maxSize)
-    {
-        if (!str)
-            return QString::null;
-        int slen = qstrlen(str);
-        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
-        if (slen == len)
-            return fromUtf8(str);
-        else
-            return fromUtf8(QByteArray(str, len));
-    }
-    inline static QString fromLocal8Bit(const char *str, int maxSize)
-    {
-        if (!str)
-            return QString::null;
-        int slen = qstrlen(str);
-        int len = maxSize >= 0 && maxSize <= slen ? maxSize : slen;
-        if (slen == len)
-            return fromLocal8Bit(str);
-        else
-            return fromLocal8Bit(QByteArray(str, len));
-    }
-    inline static QString fromUcs2(const ushort *ucs2, int size = -1)
-    {
-        QString result = fromUtf16(ucs2);
-        if (size >= 0 && result.size() > size)
-            result.truncate(size);
-        return result;
-    }
-
 #ifdef QT_COMPAT
     inline QT_COMPAT void setLength(int nl) { resize(nl); }
     inline QT_COMPAT QString copy() const { return *this; }
@@ -458,6 +406,8 @@ public:
     inline QT_COMPAT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
     { return setUtf16(unicode_as_ushorts, size); }
     inline const QT_COMPAT ushort *ucs2() const { return utf16(); }
+    inline static QT_COMPAT QString fromUcs2(const ushort *unicode, int size = -1)
+    { return fromUtf16(unicode, size); }
     inline QT_COMPAT QString &setAscii(const char *str, int len = -1)
     { *this = fromAscii(str, len); return *this; }
     inline QT_COMPAT QString &setLatin1(const char *str, int len = -1)
