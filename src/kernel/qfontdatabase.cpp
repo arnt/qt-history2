@@ -1373,6 +1373,8 @@ static QString getCharSetName( QFont::CharSet cs )
 }
 
 /*!
+  Returns a string which gives a quite detailed describtion of the \a charSetName
+  which can be used e.g. for displaying in a dialog for the user.
  */
 
 QString QFontDatabase::verboseCharSetName( const QString &charSetName )
@@ -1383,10 +1385,6 @@ QString QFontDatabase::verboseCharSetName( const QString &charSetName )
     else
 	return charSetName;
 }
-
-/*!
-  Returns a string which describes the charset \a cs.
-*/
 
 static QString getCharSetSample( QFont::CharSet cs )
 {
@@ -1489,6 +1487,10 @@ static QString getCharSetSample( QFont::CharSet cs )
     return sample;
 }
 
+/*!
+  Returns some sample characters which are in the charser \a charSetName.
+*/
+
 QString QFontDatabase::charSetSample( const QString &charSetName )
 {
     QFont::CharSet cs = getCharSet( charSetName );
@@ -1499,7 +1501,8 @@ QString QFontDatabase::charSetSample( const QString &charSetName )
 
 
 /*!
-  Returns a string with describes the style of the font \a f.
+  Returns a string with describes the style of the font \a f. This is Something like
+  "Bold Italic".
 */
 
 QString QFontDatabase::styleString( const QFont &f )  // ### fttb
@@ -1600,7 +1603,9 @@ QFontDatabase::QFontDatabase()
 }
 
 /*!
-  Retrurns a list of names of all available font families.
+  Retrurns a list of names of all available font families in the current locale if
+  \a onlyForLocale is TRUE, otherwise really all available font families independent
+  of the current locale are returned.
 */
 
 QStringList QFontDatabase::families( bool onlyForLocale ) const
@@ -1629,8 +1634,11 @@ QStringList QFontDatabase::styles( const QString &family,
 }
 
 /*!
-  // #### TODO
-  
+  Returns whether the font which matches \a family, \a style and \a charSet is
+  a scaleable bitmap font. Scaling a bitmap font produces a bad, often hardly
+  readable result, as the pixels of the font are scaled. It's better to scale such
+  a font only to the available fixed sizes (which you can get with smoothSizes()).
+
   \sa isScalable(), isSmoothlyScalable()
 */
 
@@ -1653,7 +1661,9 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
 }
 
 /*!
-  // #### TODO
+  Returns whether the font which matches \a family, \a style and \a charSet is
+  a smoothly scaleable. If this function returns TRUE, it's save to scale this font
+  to every size as the result will always look good.
   
   \sa isScalable(), isBitmapScalable()
 */
@@ -1679,7 +1689,7 @@ bool  QFontDatabase::isSmoothlyScalable( const QString &family,
 /*!
   Returns TRUE if the font which matches the settings \a family, \a style and \a charSet
   is scaleable.
-  
+
   \sa isBitmapScalable(), isSmoothlyScalable()
 */
 
@@ -1711,7 +1721,7 @@ static QValueList<int> emptySizeList;
 /*!
   Returns a list of all availabe sizes of the font \a family in the
   style \a style and the char set \a charSet.
-  
+
   \sa smoothSizes(), standardSizes()
 */
 
@@ -1757,7 +1767,7 @@ QFont QFontDatabase::font( const QString family, const QString &style,
   Returns the point sizes of a font style that is guaranteed to look
   good. For non-scalable fonts and smoothly scalable fonts this function
   is equivalent to pointSizes().
-  
+
   \sa pointSizes(), standardSizes()
 */
 
@@ -1771,7 +1781,7 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 
 /*!
   Returns a list of standard fontsizes.
-  
+
   \sa smoothSizes(), pointSizes()
 */
 
@@ -1796,7 +1806,7 @@ bool QFontDatabase::italic( const QString &family,
 }
 
 /*!
-  Returns if the font witch mathes the settings \a family, \a style and
+  Returns if the font witch matches the settings \a family, \a style and
   \a charSet is bold or not.
 
   \sa italic(), weight()
@@ -1826,7 +1836,9 @@ int QFontDatabase::weight( const QString &family,
 }
 
 /*!
-  Returns a list of all char sets in which the font \a family is available.
+  Returns a list of all char sets in which the font \a family is available in the
+  current locale if \a onlyForLocale is TRUE, otherwise all charsets if \a family
+  independent of the locale are returned.
 */
 
 QStringList QFontDatabase::charSets( const QString &family,
