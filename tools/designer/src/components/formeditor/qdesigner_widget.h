@@ -194,6 +194,11 @@ public:
     virtual void setGeometry(const QRect &r)
     { widget()->setGeometry(r); }
 
+    QSize sizeHint() const { return const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->sizeHint(); }
+    QSize minimumSize() const {return const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->minimumSize(); }
+    QSize maximumSize() const { return  const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->maximumSize(); }
+    QSizePolicy::ExpandData expanding() const { return  const_cast<QLayoutWidgetItem*>(this)->widget()->layout()->expanding(); }
+
     void addTo(QLayout *layout);
     void removeFrom(QLayout *layout);
 };
