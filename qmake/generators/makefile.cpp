@@ -823,7 +823,7 @@ MakefileGenerator::init()
 			QString file = fileFixify((*val_it), QDir::currentDirPath(), Option::output_dir);
 			if(!QFile::exists(file)) {
 			    bool found = FALSE;
-			    if(QDir::isRelativePath(file)) {
+			    if(QDir::isRelativePath((*val_it))) {
 				if(vpath.isEmpty())
 				    vpath = v["VPATH_" + sources[x]] + v["VPATH"] +
 					    v["QMAKE_ABSOLUTE_SOURCE_PATH"] + v["DEPENDPATH"];
