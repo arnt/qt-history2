@@ -67,7 +67,7 @@
 #include "qptrlist.h"
 #include <qdrawutil.h>
 #include <qdropsite.h>
-#include "qvariant.h"
+#include "qkernelvariant.h"
 #include "qframe.h"
 #include "qjpunicode.h"
 #include <qeuckrcodec.h>

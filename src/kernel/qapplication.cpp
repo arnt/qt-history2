@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #include <qvariant.h>
-extern const QVariant::Handler qt_gui_variant_handler;
+extern const QKernelVariant::Handler qt_gui_variant_handler;
 
 #include "qapplication_p.h"
 #include "qwidget_p.h"

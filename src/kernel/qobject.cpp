@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qvariant.h"
+#include "qkernelvariant.h"
 #include "qeventloop.h"
 #include "qkernelapplication.h"
 #include "qkernelevent.h"
@@ -2011,7 +2011,7 @@ void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_
 
     \sa property(), metaObject()
 */
-bool QObject::setProperty(const char *name, const QVariant &value)
+bool QObject::setProperty(const char *name, const QKernelVariant &value)
 {
     const QMetaObject* meta = metaObject();
     if (!value.isValid() || !meta)
@@ -2035,13 +2035,13 @@ bool QObject::setProperty(const char *name, const QVariant &value)
     Information about all available properties is provided through the
     metaObject().
 
-    \sa setProperty(), QVariant::isValid(), metaObject()
+    \sa setProperty(), QKernelVariant::isValid(), metaObject()
 */
-QVariant QObject::property(const char *name) const
+QKernelVariant QObject::property(const char *name) const
 {
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
-	return QVariant();
+	return QKernelVariant();
 
     int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);

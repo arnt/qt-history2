@@ -178,7 +178,7 @@ kernel {
 		  $$KERNEL_CPP/qstylesheet.cpp \
 		  $$KERNEL_CPP/qtextengine.cpp \
 		  $$KERNEL_CPP/qtextlayout.cpp \
-		  $$KERNEL_CPP/qvariant_gui.cpp \
+		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qwidget.cpp 
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \

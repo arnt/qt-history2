@@ -29,7 +29,7 @@
 #define QT_TRANSLATE_NOOP(scope,x) (x)
 
 struct QMetaObject;
-class QVariant;
+class QKernelVariant;
 class QObjectPrivate;
 class QWidgetPrivate;
 #ifndef QT_NO_USERDATA
@@ -135,8 +135,8 @@ public:
     void dumpObjectInfo();
 
 #ifndef QT_NO_PROPERTIES
-    bool setProperty(const char *name, const QVariant &value);
-    QVariant property(const char *name) const;
+    bool setProperty(const char *name, const QKernelVariant &value);
+    QKernelVariant property(const char *name) const;
 #endif // QT_NO_PROPERTIES
 
 #ifndef QT_NO_USERDATA

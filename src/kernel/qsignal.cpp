@@ -188,7 +188,7 @@ void  QSignal::activate()
 /*!
     Sets the signal's parameter to \a value
 */
-void QSignal::setValue( const QVariant &value )
+void QSignal::setValue( const QKernelVariant &value )
 {
     val = value;
 }
@@ -196,11 +196,11 @@ void QSignal::setValue( const QVariant &value )
 /*!
     Returns the signal's parameter
 */
-QVariant QSignal::value() const
+QKernelVariant QSignal::value() const
 {
     return val;
 }
-/*! \fn void QSignal::signal( const QVariant & )
+/*! \fn void QSignal::signal( const QKernelVariant & )
     \internal
 */
 /*! \fn void QSignal::intSignal( int )

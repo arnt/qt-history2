@@ -16,7 +16,7 @@
 #define QSIGNAL_H
 
 #ifndef QT_H
-#include "qvariant.h"
+#include "qkernelvariant.h"
 #include "qobject.h"
 #endif // QT_H
 
@@ -44,18 +44,18 @@ public:
 #endif
 
 #ifndef QT_NO_VARIANT
-    void	setValue( const QVariant &value );
-    QVariant	value() const;
+    void	setValue( const QKernelVariant &value );
+    QKernelVariant	value() const;
 #endif
 signals:
 #ifndef QT_NO_VARIANT
-    void signal( const QVariant& );
+    void signal( const QKernelVariant& );
 #endif
     void intSignal( int );
 
 private:
 #ifndef QT_NO_VARIANT
-    QVariant val;
+    QKernelVariant val;
 #endif
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

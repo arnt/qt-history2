@@ -28,7 +28,7 @@ kernel {
 		  $$KERNEL_H/qlocalfs.h \
 		  $$KERNEL_H/qurloperator.h \
 		  $$KERNEL_H/qurlinfo.h \
-		  $$KERNEL_H/qvariant.h \
+		  $$KERNEL_H/qkernelvariant.h \
 		  $$KERNEL_P/qinternal_p.h \
 		  $$KERNEL_H/qgplugin.h \
 #		  $$KERNEL_H/qasyncio.h \
@@ -69,7 +69,7 @@ kernel {
 		  $$KERNEL_CPP/qlocalfs.cpp \
 		  $$KERNEL_CPP/qurloperator.cpp \
 		  $$KERNEL_CPP/qurlinfo.cpp \
-		  $$KERNEL_CPP/qvariant.cpp \
+		  $$KERNEL_CPP/qkernelvariant.cpp \
 		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qgplugin.cpp \
 #		  $$KERNEL_CPP/qasyncio.cpp \

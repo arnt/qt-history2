@@ -23,7 +23,7 @@
 #define Q_MOC_OUTPUT_REVISION 45
 #endif
 
-class QVariant;
+class QKernelVariant;
 
 class Q_KERNEL_EXPORT QMetaMember
 {
@@ -85,8 +85,8 @@ public:
     bool isEnumType() const;
     QMetaEnum enumerator() const;
 
-    QVariant read(const QObject *obj) const;
-    bool write(QObject *obj, const QVariant &value) const;
+    QKernelVariant read(const QObject *obj) const;
+    bool write(QObject *obj, const QKernelVariant &value) const;
     bool reset(QObject *obj) const;
 
     bool hasStdCppSet() const;
