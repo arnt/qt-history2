@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#3 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#4 $
 **
 ** Definition of keyboard codes
 **
@@ -73,7 +73,7 @@ const uint ALT   = 0x8000;
 #define Key_F23			0x1046
 #define Key_F24			0x1047
 
-#define Key_Space		0x20		// Latin-1 codes (7 bit)
+#define Key_Space		0x20		// 7 bit printable ASCII
 #define Key_Exclam		0x21
 #define Key_QuoteDbl		0x22
 #define Key_NumberSign		0x23
@@ -143,5 +143,103 @@ const uint ALT   = 0x8000;
 #define Key_BraceRight		0x7d
 #define Key_AsciiTilde		0x7e
 
+// Latin 1 codes adapted from X: keysymdef.h,v 1.21 94/08/28 16:17:06
+
+#define Key_nobreakspace        0x0a0
+#define Key_exclamdown          0x0a1
+#define Key_cent        	0x0a2
+#define Key_sterling            0x0a3
+#define Key_currency            0x0a4
+#define Key_yen                 0x0a5
+#define Key_brokenbar           0x0a6
+#define Key_section             0x0a7
+#define Key_diaeresis           0x0a8
+#define Key_copyright           0x0a9
+#define Key_ordfeminine         0x0aa
+#define Key_guillemotleft       0x0ab	/* left angle quotation mark */
+#define Key_notsign             0x0ac
+#define Key_hyphen              0x0ad
+#define Key_registered          0x0ae
+#define Key_macron              0x0af
+#define Key_degree              0x0b0
+#define Key_plusminus           0x0b1
+#define Key_twosuperior         0x0b2
+#define Key_threesuperior       0x0b3
+#define Key_acute               0x0b4
+#define Key_mu                  0x0b5
+#define Key_paragraph           0x0b6
+#define Key_periodcentered      0x0b7
+#define Key_cedilla             0x0b8
+#define Key_onesuperior         0x0b9
+#define Key_masculine           0x0ba
+#define Key_guillemotright      0x0bb	/* right angle quotation mark */
+#define Key_onequarter          0x0bc
+#define Key_onehalf             0x0bd
+#define Key_threequarters       0x0be
+#define Key_questiondown        0x0bf
+#define Key_Agrave              0x0c0
+#define Key_Aacute              0x0c1
+#define Key_Acircumflex         0x0c2
+#define Key_Atilde              0x0c3
+#define Key_Adiaeresis          0x0c4
+#define Key_Aring               0x0c5
+#define Key_AE                  0x0c6
+#define Key_Ccedilla            0x0c7
+#define Key_Egrave              0x0c8
+#define Key_Eacute              0x0c9
+#define Key_Ecircumflex         0x0ca
+#define Key_Ediaeresis          0x0cb
+#define Key_Igrave              0x0cc
+#define Key_Iacute              0x0cd
+#define Key_Icircumflex         0x0ce
+#define Key_Idiaeresis          0x0cf
+#define Key_ETH                 0x0d0
+#define Key_Ntilde              0x0d1
+#define Key_Ograve              0x0d2
+#define Key_Oacute              0x0d3
+#define Key_Ocircumflex         0x0d4
+#define Key_Otilde              0x0d5
+#define Key_Odiaeresis          0x0d6
+#define Key_multiply            0x0d7
+#define Key_Ooblique            0x0d8
+#define Key_Ugrave              0x0d9
+#define Key_Uacute              0x0da
+#define Key_Ucircumflex         0x0db
+#define Key_Udiaeresis          0x0dc
+#define Key_Yacute              0x0dd
+#define Key_THORN               0x0de
+#define Key_ssharp              0x0df
+#define Key_agrave              0x0e0
+#define Key_aacute              0x0e1
+#define Key_acircumflex         0x0e2
+#define Key_atilde              0x0e3
+#define Key_adiaeresis          0x0e4
+#define Key_aring               0x0e5
+#define Key_ae                  0x0e6
+#define Key_ccedilla            0x0e7
+#define Key_egrave              0x0e8
+#define Key_eacute              0x0e9
+#define Key_ecircumflex         0x0ea
+#define Key_ediaeresis          0x0eb
+#define Key_igrave              0x0ec
+#define Key_iacute              0x0ed
+#define Key_icircumflex         0x0ee
+#define Key_idiaeresis          0x0ef
+#define Key_eth                 0x0f0
+#define Key_ntilde              0x0f1
+#define Key_ograve              0x0f2
+#define Key_oacute              0x0f3
+#define Key_ocircumflex         0x0f4
+#define Key_otilde              0x0f5
+#define Key_odiaeresis          0x0f6
+#define Key_division            0x0f7
+#define Key_oslash              0x0f8
+#define Key_ugrave              0x0f9
+#define Key_uacute              0x0fa
+#define Key_ucircumflex         0x0fb
+#define Key_udiaeresis          0x0fc
+#define Key_yacute              0x0fd
+#define Key_thorn               0x0fe
+#define Key_ydiaeresis          0x0ff
 
 #endif // QKEYCODE_H
