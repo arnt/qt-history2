@@ -299,34 +299,38 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
                                        bool isActionGroup)
 {
-    QString name;
+    QString objectName;
     QString text;
 
     QListMutableIterator<DomProperty*> it(properties);
     while (it.hasNext()) {
-        DomProperty *p = it.next();
-        QString pname = p->attributeName();
+        DomProperty *prop = it.next();
+        QString name = prop->attributeName();
 
-        if (pname == QLatin1String("name")) {
-            name = p->elementCstring();
-            p->setAttributeName("objectName");
-        } else if (pname == QLatin1String("menuText")) {
-            text = p->elementString();
+        if (name == QLatin1String("name")) {
+            objectName = prop->elementCstring();
+            prop->setAttributeName("objectName");
+        } else if (name == QLatin1String("menuText")) {
+            text = prop->elementString();
             it.remove();
-            delete p;
-        } else if (pname == QLatin1String("text")) {
+            delete prop;
+        } else if (name == QLatin1String("text")) {
             if (text.isEmpty())
-                text = p->elementString();
+                text = prop->elementString();
             it.remove();
-            delete p;
-        } else if (pname == QLatin1String("iconSet")) {
-            p->setAttributeName("icon");
-        } else if (pname == QLatin1String("accel")) {
-            p->setAttributeName("shortcut");
-            p->setElementShortcut(p->elementString());
+            delete prop;
+        } else if (name == QLatin1String("iconSet")) {
+            prop->setAttributeName("icon");
+        } else if (name == QLatin1String("accel")) {
+            prop->setAttributeName("shortcut");
+            prop->setElementShortcut(prop->elementString());
+        } else if (!isActionGroup && name == QLatin1String("toggleAction")) {
+            prop->setAttributeName("checkable");
+        } else if (!isActionGroup && name == QLatin1String("on")) {
+            prop->setAttributeName("checked");
         } else {
-            fprintf(stderr, "property %s not supported\n", pname.latin1());
-            delete p;
+            fprintf(stderr, "property %s not supported\n", name.latin1());
+            delete prop;
             it.remove();
         }
     }
@@ -338,7 +342,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         properties.append(ptext);
     }
 
-    return name;
+    return objectName;
 }
 
 void Ui3Reader::fixActionGroup(DomActionGroup *g)
