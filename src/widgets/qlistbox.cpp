@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#205 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#206 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1433,7 +1433,7 @@ void QListBox::setSelected( int index, bool select )
 
 void QListBox::setSelected( QListBoxItem * item, bool select )
 {
-    if ( !item || item->s == select )
+    if ( !item || item->s == (uint)select )
 	return;
 
     if ( selectionMode() == Single && select &&
@@ -1727,11 +1727,12 @@ void QListBox::doLayout() const
 		    --rows;
 		}
 		tryGeometry( rows, (c+rows-1)/rows );
-		int nvh = viewportSize( QSize( d->columnPos[d->columnPos.size()-1],
-					       d->rowPos[d->rowPos.size()-1] ) ).height();
+		int nvh = viewportSize(
+			QSize( d->columnPos[(int)d->columnPos.size()-1],
+			       d->rowPos[(int)d->rowPos.size()-1] ) ).height();
 		if ( nvh < vh )
 		    vh = nvh;
-	    } while ( vh < d->rowPos[d->rowPos.size()-1] );
+	    } while ( vh < d->rowPos[(int)d->rowPos.size()-1] );
 	} else {
 	    tryGeometry( 1, 1 );
 	}
@@ -1762,17 +1763,17 @@ void QListBox::doLayout() const
 			columns++;
 			tryGeometry( (c+columns-1)/columns, columns );
 		    } while ( columns <= c &&
-			      d->columnPos[d->columnPos.size()-1] <= vw );
+			      d->columnPos[(int)d->columnPos.size()-1] <= vw );
 		    // and as the perceptive reader will understand, we Work
 		    // even Harder than we really have to...
 		    --columns;
 		}
 		tryGeometry( (c+columns-1)/columns, columns );
-		int nvw = viewportSize( QSize( d->columnPos[d->columnPos.size()-1],
-					       d->rowPos[d->rowPos.size()-1] ) ).width();
+		int nvw = viewportSize( QSize( d->columnPos[(int)d->columnPos.size()-1],
+					       d->rowPos[(int)d->rowPos.size()-1] ) ).width();
 		if ( nvw < vw )
 		    vw = nvw;
-	    } while ( vw < d->columnPos[d->columnPos.size()-1] );
+	    } while ( vw < d->columnPos[(int)d->columnPos.size()-1] );
 	} else {
 	    tryGeometry( 1, 1 );
 	}
@@ -2124,12 +2125,12 @@ void QListBox::refreshSlot()
     QRegion r;
     int x = contentsX();
     int y = contentsY();
-    uint col = 0;
-    uint row = 0;
-    uint top = row;
-    while( col < d->columnPos.size()-1 && d->columnPos[col+1] < x )
+    int col = 0;
+    int row = 0;
+    int top = row;
+    while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
 	col++;
-    while( top < d->rowPos.size()-1 && d->rowPos[top+1] < y )
+    while( top < (int)d->rowPos.size()-1 && d->rowPos[top+1] < y )
 	top++;
     QListBoxItem * i = item( col*numRows() );
 
@@ -2140,7 +2141,7 @@ void QListBox::refreshSlot()
 	    i = i->n;
 	    row++;
 	}
-	while ( i && (int)row < numRows() && d->rowPos[row] <
+	while ( i && row < numRows() && d->rowPos[row] <
 		y + viewport()->height() ) {
 	    if ( i->dirty )
 		r = r.unite( QRect( d->columnPos[col] - x, d->rowPos[row] - y,
@@ -2148,7 +2149,7 @@ void QListBox::refreshSlot()
 	    row++;
 	    i = i->n;
 	}
-	while ( i && row < (uint)numRows() )
+	while ( i && row < numRows() )
 	    i = i->n;
 	row = 0;
 	col++;
@@ -2176,12 +2177,12 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     int w = vp->width();
     int h = vp->height();
 
-    uint col = 0;
-    uint row = 0;
-    uint top = row;
-    while( col < d->columnPos.size()-1 && d->columnPos[col+1] < x )
+    int col = 0;
+    int row = 0;
+    int top = row;
+    while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
 	col++;
-    while( top < d->rowPos.size()-1 && d->rowPos[top+1] < y )
+    while( top < (int)d->rowPos.size()-1 && d->rowPos[top+1] < y )
 	top++;
     QListBoxItem * i = item( col*numRows() );
 
@@ -2223,7 +2224,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 	    i->dirty = FALSE;
 	    i = i->n;
 	}
-	while ( i && row < (uint)numRows() )
+	while ( i && row < numRows() )
 	    i = i->n;
 	row = 0;
 	col++;
@@ -2262,7 +2263,7 @@ int QListBox::columnAt( int x ) const
 {
     if ( !d->layoutDirty )
 	doLayout();
-    if ( x < 0 || x >= d->columnPos[d->columnPos.size()-1] )
+    if ( x < 0 || x >= d->columnPos[(int)d->columnPos.size()-1] )
 	return -1;
     int col = 0;
     while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
@@ -2281,7 +2282,7 @@ int QListBox::rowAt( int y ) const
 {
     if ( !d->layoutDirty )
 	doLayout();
-    if ( y < 0 || y >= d->rowPos[d->rowPos.size()-1] )
+    if ( y < 0 || y >= d->rowPos[(int)d->rowPos.size()-1] )
 	return -1;
     int row = 0;
     while( row < (int)d->rowPos.size()-1 && d->rowPos[row+1] < y )
