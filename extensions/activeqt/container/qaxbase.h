@@ -49,6 +49,8 @@ struct IUnknown;
 struct QUuid;
 class QAxEventSink;
 
+class QAxBasePrivate;
+
 class QAX_EXPORT QAxBase
 {
 #ifdef Q_QDOC
@@ -108,16 +110,13 @@ protected:
     virtual bool initialize( IUnknown** ptr ) = 0;
 
 private:
+    QAxBasePrivate *d;
+
     static QMetaObject *staticMetaObject() { return 0; }
     virtual QMetaObject *parentMetaObject() const = 0;
 
     IUnknown *ptr;
-    QAxEventSink *eventSink;
-    bool useEventSink :1;
-    bool useMetaObject:1;
-
     QString ctrl;
-    QMap<QCString, bool> *propWritable;
 };
 
 #ifndef QT_NO_DATASTREAM

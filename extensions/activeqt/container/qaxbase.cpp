@@ -75,9 +75,10 @@ static QMetaObject *tempMetaObj = 0;
 
 static QMetaObjectCleanUp cleanUp_QAxBase;
 
+
 /*
     \internal
-    \class QAxEventSink qaxobject.cpp
+    \class QAxEventSink qaxbase.cpp
 
     \brief The QAxEventSink class implements the event sink for all
 	   IConnectionPoints implemented in the COM object.
@@ -88,31 +89,25 @@ class QAxEventSink : public IDispatch,
 {
 public:
     QAxEventSink( QAxBase *com ) : combase( com ), ref( 1 ) {}
-    virtual ~QAxEventSink() {}
+    virtual ~QAxEventSink() 
+    {
+	Q_ASSERT( !connection.cpoint );
+    }
 
     // add a connection
-    void addConnection( IConnectionPoint *cpoint, IID iid ) 
+    void advise( IConnectionPoint *cpoint, IID iid ) 
     {
-	ULONG cookie;
-	Connection i1( 0, iid, 0 );
-	connections.append( i1 );
-	cpoint->Advise( (IUnknown*)(IDispatch*)this, &cookie );
-	connections.remove( i1 );
-	Connection i2( cpoint, iid, cookie );
-	connections.append( i2 );
-	cpoint->AddRef();
+	connection = Connection( cpoint, iid, 0 );
+	cpoint->Advise( (IUnknown*)(IDispatch*)this, &connection.cookie );
     }
     
     // disconnect from all connection points
     void unadvise()
     {
-	QValueListIterator<Connection> it = connections.begin();
-	while ( it != connections.end() ) {
-	    Connection connection = *it;
-	    ++it;
+	if ( connection.cpoint ) {
 	    connection.cpoint->Unadvise( connection.cookie );
 	    connection.cpoint->Release();
-	    connections.remove( connection );
+	    connection.cpoint = 0;
 	}
     }
 
@@ -158,7 +153,7 @@ public:
 	    *ppvObject = (IDispatch*)this;
 	else if ( riid == IID_IPropertyNotifySink )
 	    *ppvObject = (IPropertyNotifySink*)this;
-	else if ( connections.contains( Connection(0,riid,0) ) )
+	else if ( connection.iid == riid )
 	    *ppvObject = (IDispatch*)this;
 	else
 	    return E_NOINTERFACE;
@@ -351,10 +346,15 @@ public:
 private:
     struct Connection
     {
-	Connection() {}
+	Connection() 
+	    : cpoint( 0 ), iid( IID_NULL ), cookie( 0 )
+	{
+	}
 	Connection( IConnectionPoint *point, IID i, ULONG c ) 
 	    : cpoint( point ), iid(i), cookie(c) 
-	{}
+	{
+	    cpoint->AddRef();
+	}
 
 	IConnectionPoint *cpoint;
 	IID iid;
@@ -362,7 +362,7 @@ private:
 
 	bool operator==( const Connection &other ) const { return iid == other.iid; }
     };
-    QValueList<Connection> connections;
+    Connection connection;
     QMap<DISPID, QString> sigs;
     QMap<DISPID, QString> propsigs;
     QMap<DISPID, QString> props;
@@ -371,6 +371,31 @@ private:
     long ref;
 };
 
+
+/*
+    \internal
+    \class QAxBasePrivate qaxbase.cpp
+*/
+
+class QAxBasePrivate
+{
+public:
+    QAxBasePrivate()
+	: useEventSink( TRUE ), useMetaObject( TRUE ), propWritable( 0 )
+    {}
+
+    ~QAxBasePrivate()
+    {
+	delete propWritable;
+	propWritable = 0;
+    }
+
+    QDict<QAxEventSink> eventSink;
+    bool useEventSink :1;
+    bool useMetaObject:1;
+
+    QMap<QCString, bool> *propWritable;
+};
 
 
 /*!
@@ -471,8 +496,10 @@ private:
     use setControl() to instantiate a COM object.
 */
 QAxBase::QAxBase( IUnknown *iface )
-: ptr( iface ), eventSink( 0 ), useEventSink( TRUE ), useMetaObject( TRUE ), metaobj( 0 ), propWritable( 0 )
+: ptr( iface ), metaobj( 0 )
 {
+    d = new QAxBasePrivate();
+
     if ( ptr )
 	ptr->AddRef();
 }
@@ -486,8 +513,7 @@ QAxBase::~QAxBase()
 {
     clear();
 
-    delete propWritable;
-    propWritable = 0;
+    delete d;
 }
 
 /*!
@@ -567,7 +593,7 @@ QString QAxBase::control() const
 */
 void QAxBase::disableEventSink()
 {
-    useEventSink = FALSE;
+    d->useEventSink = FALSE;
 }
 
 /*!
@@ -583,8 +609,8 @@ void QAxBase::disableEventSink()
 */
 void QAxBase::disableMetaObject()
 {
-    useMetaObject = FALSE;
-    useEventSink  = FALSE;
+    d->useMetaObject = FALSE;
+    d->useEventSink  = FALSE;
 }
 
 /*!
@@ -596,12 +622,14 @@ void QAxBase::disableMetaObject()
 */
 void QAxBase::clear()
 {
-    if ( eventSink ) {
+    QDictIterator<QAxEventSink> it( d->eventSink );
+    while ( it.current() ) {
+	QAxEventSink *eventSink = it.current();
+	++it;
 	eventSink->unadvise();
 	eventSink->Release();
-	eventSink = 0;
     }
-
+    d->eventSink.clear();
     if ( ptr ) {
 	ptr->Release();
 	ptr = 0;
@@ -804,7 +832,7 @@ QMetaObject *QAxBase::metaObject() const
     };
 
     // return the default meta object if not yet initialized
-    if ( !ptr || !useMetaObject ) {
+    if ( !ptr || !d->useMetaObject ) {
 	if ( tempMetaObj )
 	    return tempMetaObj;
 
@@ -826,6 +854,7 @@ QMetaObject *QAxBase::metaObject() const
     QAxBase* that = (QAxBase*)this; // mutable
     QSettings iidnames;
     iidnames.insertSearchPath( QSettings::Windows, "/Classes" );
+    QUuid iid_propNotifySink( IID_IPropertyNotifySink );
 
     QDict<QUMethod> slotlist; // QUMethods deleted
     QDict<QUMethod> signallist; // QUMethods deleted
@@ -840,6 +869,29 @@ QMetaObject *QAxBase::metaObject() const
     // can use the classInfo "debugInfo" to get debug information about
     // what went wrong...
     QCString debugInfo;
+
+    // create class information
+    CComPtr<IProvideClassInfo> classinfo;
+    ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
+    if ( classinfo ) {
+	CComPtr<ITypeInfo> info;
+	classinfo->GetClassInfo( &info );
+	TYPEATTR *typeattr = 0;
+	if ( info )
+	    info->GetTypeAttr( &typeattr );
+
+	// UUID
+	if ( typeattr && !infolist.find( "CoClass" ) ) {
+	    QUuid uuid( typeattr->guid );
+	    QString uuidstr = uuid.toString().upper();
+	    uuidstr = iidnames.readEntry( "/CLSID/" + uuidstr + "/Default", uuidstr );
+	    infolist.insert( "CoClass", new QString( uuidstr ) );
+	    QString version( "%1.%1" );
+	    version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
+	    infolist.insert( "Version", new QString( version ) );
+	    info->ReleaseTypeAttr( typeattr );
+	}
+    }
 
     // create default signal and slots
     CComPtr<IDispatch> disp;
@@ -997,8 +1049,11 @@ QMetaObject *QAxBase::metaObject() const
 
 				if ( funcdesc->wFuncFlags & FUNCFLAG_FBINDABLE ) {
 				    prop->flags |= PropBindable;
-				    if ( !eventSink && useEventSink )
-					that->eventSink = new QAxEventSink( that );
+				    QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
+				    if ( !eventSink && d->useEventSink ) {
+					eventSink = new QAxEventSink( that );
+					d->eventSink.insert( iid_propNotifySink, eventSink );
+				    }
 				    // generate changed signal
 				    QString signalName = function + "Changed";
 				    QString signalParam = constRefify( ptype );
@@ -1210,8 +1265,11 @@ QMetaObject *QAxBase::metaObject() const
 
 			    if ( vardesc->wVarFlags & VARFLAG_FBINDABLE ) {
 				prop->flags |= PropBindable;
-				if ( !eventSink && useEventSink )
-				    that->eventSink = new QAxEventSink( that );
+				QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
+				if ( !eventSink && d->useEventSink ) {
+				    eventSink = new QAxEventSink( that );
+				    d->eventSink.insert( iid_propNotifySink, eventSink );
+				}
 				// generate changed signal
 				QString signalName = variableName + "Changed";
 				QString signalParam = constRefify( variableType );
@@ -1298,16 +1356,19 @@ QMetaObject *QAxBase::metaObject() const
 
     CComPtr<IConnectionPointContainer> cpoints;
     ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-    if ( cpoints && useEventSink ) {
-	CComPtr<IProvideClassInfo> classinfo;
-	cpoints->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
-
+    if ( classinfo && cpoints && d->useEventSink ) {
+	// Get type info and enumerator
+	CComPtr<ITypeInfo> info;
+	classinfo->GetClassInfo( &info );
 	CComPtr<IEnumConnectionPoints> epoints;
 	cpoints->EnumConnectionPoints( &epoints );
-	if ( epoints ) {
+	if ( info && epoints ) {
 	    ULONG c = 1;
 	    epoints->Reset();
-	    do {
+	    // get information about type
+	    TYPEATTR *typeattr;
+	    info->GetTypeAttr( &typeattr );
+	    if ( typeattr ) do {
 		CComPtr<IConnectionPoint> cpoint;
 		epoints->Next( c, &cpoint, &c );
 		if ( !c )
@@ -1315,175 +1376,161 @@ QMetaObject *QAxBase::metaObject() const
 
 		IID iid;
 		cpoint->GetConnectionInterface( &iid );
-		if ( !eventSink && useEventSink )
-		    that->eventSink = new QAxEventSink( that );
+		if ( iid == IID_IPropertyNotifySink ) {
+		    // test whether property notify sink has been created already, and advise on it
+		    QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
+		    if ( eventSink )
+			eventSink->advise( cpoint, iid );
+		    continue;
+		}
 
-		if ( classinfo ) {
-		    CComPtr<ITypeInfo> info;
-		    CComPtr<ITypeInfo> eventinfo;
-		    classinfo->GetClassInfo( &info );
-		    if ( info ) { // this is the type info of the component, not the event interface
-			// get information about type
-			TYPEATTR *typeattr;
-			info->GetTypeAttr( &typeattr );
-			if ( typeattr ) {
-			    // UUID
-			    if ( !infolist.find( "CoClass" ) ) {
-				QUuid uuid( typeattr->guid );
-				QString uuidstr = uuid.toString().upper();
-				uuidstr = iidnames.readEntry( "/CLSID/" + uuidstr + "/Default", uuidstr );
-				infolist.insert( "CoClass", new QString( uuidstr ) );
-				QString version( "%1.%1" );
-				version = version.arg( typeattr->wMajorVerNum ).arg( typeattr->wMinorVerNum );
-				infolist.insert( "Version", new QString( version ) );
+		CComPtr<ITypeInfo> eventinfo;
+		// test if one of the interfaces implemented is the one we're looking for
+		for ( int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl ) {
+		    // get the ITypeInfo for the interface
+		    HREFTYPE reftype;
+		    info->GetRefTypeOfImplType( impl, &reftype );
+		    CComPtr<ITypeInfo> eventtype;
+		    info->GetRefTypeInfo( reftype, &eventtype );
+		    if ( eventtype ) {
+			TYPEATTR *eventattr;
+			eventtype->GetTypeAttr( &eventattr );
+			// this is it
+			if ( eventattr && eventattr->typekind == TKIND_DISPATCH && eventattr->guid == iid ) {
+			    QUuid uuid( iid );
+			    QString uuidstr = uuid.toString().upper();
+			    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+			    static eventcount = 0;
+			    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
+			    eventinfo = eventtype;
+			}
+			eventtype->ReleaseTypeAttr( eventattr );
+		    }
+		}
+
+		// what about other event interfaces?
+		if ( eventinfo ) {
+		    QAxEventSink *eventSink = d->eventSink.find( QUuid(iid) );
+		    if ( !eventSink ) {
+			eventSink = new QAxEventSink( that );
+			d->eventSink.insert( QUuid(iid), eventSink );
+		    }
+		    eventSink->advise( cpoint, iid );
+
+		    TYPEATTR *eventattr;
+		    eventinfo->GetTypeAttr( &eventattr );
+		    // Number of functions
+		    ushort nEvents = eventattr ? eventattr->cFuncs : 0;
+
+		    // get information about all event functions
+		    for ( UINT fd = 0; fd < (UINT)nEvents; ++fd ) {
+			FUNCDESC *funcdesc;
+			eventinfo->GetFuncDesc( fd, &funcdesc );
+			if ( !funcdesc )
+			    break;
+			if ( funcdesc->invkind != INVOKE_FUNC ||
+			     funcdesc->funckind != FUNC_DISPATCH ) {
+			    info->ReleaseFuncDesc( funcdesc );
+			    continue;
+			}
+
+			// get return value
+			TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
+			QString returnType = typedescToQString( typedesc );
+
+			// get event function prototype
+			QString function;
+			QString prototype;
+			QStringList parameters;
+			QStringList paramTypes;
+
+			bool unsupported = FALSE;
+			BSTR bstrNames[256];
+			UINT maxNames = 255;
+			UINT maxNamesOut;
+			eventinfo->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
+			int p;
+			for ( p = 0; p < (int)maxNamesOut; ++ p ) {
+			    QString paramName = BSTRToQString( bstrNames[p] );
+			    SysFreeString( bstrNames[p] );
+
+			    // function name
+			    if ( !p ) {
+				function = paramName;
+				prototype = function + "(";
+				continue;
 			    }
 
-			    // test if one of the interfaces implemented is the one we're looking for
-			    for ( int impl = 0; impl < typeattr->cImplTypes; ++impl ) {
-				// get the ITypeInfo for the interface
-				HREFTYPE reftype;
-				info->GetRefTypeOfImplType( impl, &reftype );
-				CComPtr<ITypeInfo> eventtype;
-				info->GetRefTypeInfo( reftype, &eventtype );
-				if ( eventtype ) {
-				    TYPEATTR *eventattr;
-				    eventtype->GetTypeAttr( &eventattr );
-				    // this is it
-				    if ( eventattr && eventattr->guid == iid ) {
-					QUuid uuid( iid );
-					QString uuidstr = uuid.toString().upper();
-					uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-					static eventcount = 0;
-					infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
-					eventinfo = eventtype;
-					eventtype->ReleaseTypeAttr( eventattr );
-					break;
-				    }
-				    eventtype->ReleaseTypeAttr( eventattr );
-				}
-			    }
-			    info->ReleaseTypeAttr( typeattr );
+			    // parameter
+			    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
+			    
+			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
+			    QString ptype = typedescToQString( tdesc );
+			    ptype = guessTypes( ptype, function );
+			    unsupported = unsupported || UNSUPPORTED(ptype);
+			    if ( funcdesc->invkind == INVOKE_FUNC )
+				ptype = constRefify( ptype );
 
-			    // what about other event interfaces?
-			    if ( eventinfo ) {
-				if ( eventSink )
-				    eventSink->addConnection( cpoint, iid );
+			    paramTypes << ptype;
+			    parameters << paramName;
+			    prototype += ptype;
+			    if ( optional )
+				prototype += "=0";
+			    if ( p < funcdesc->cParams )
+				prototype += ",";
+			}
+			if ( !!prototype )
+			    prototype += ")";
 
-				TYPEATTR *eventattr;
-				eventinfo->GetTypeAttr( &eventattr );
-				// Number of functions
-				ushort nEvents = eventattr->cFuncs;
-
-				// get information about all event functions
-				for ( UINT fd = 0; fd < (UINT)nEvents; ++fd ) {
-				    FUNCDESC *funcdesc;
-				    eventinfo->GetFuncDesc( fd, &funcdesc );
-				    if ( !funcdesc )
-					break;
-				    if ( funcdesc->invkind != INVOKE_FUNC ||
-					 funcdesc->funckind != FUNC_DISPATCH ) {
-					info->ReleaseFuncDesc( funcdesc );
-					continue;
-				    }
-
-				    // get return value
-				    TYPEDESC typedesc = funcdesc->elemdescFunc.tdesc;
-				    QString returnType = typedescToQString( typedesc );
-
-				    // get event function prototype
-				    QString function;
-				    QString prototype;
-				    QStringList parameters;
-				    QStringList paramTypes;
-
-				    bool unsupported = FALSE;
-				    BSTR bstrNames[256];
-				    UINT maxNames = 255;
-				    UINT maxNamesOut;
-				    eventinfo->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
-				    int p;
-				    for ( p = 0; p < (int)maxNamesOut; ++ p ) {
-					QString paramName = BSTRToQString( bstrNames[p] );
-					SysFreeString( bstrNames[p] );
-
-					// function name
-					if ( !p ) {
-					    function = paramName;
-					    prototype = function + "(";
-					    continue;
-					}
-
-					// parameter
-					bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
-					
-					TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
-					QString ptype = typedescToQString( tdesc );
-					ptype = guessTypes( ptype, function );
-					unsupported = unsupported || UNSUPPORTED(ptype);
-					if ( funcdesc->invkind == INVOKE_FUNC )
-					    ptype = constRefify( ptype );
-
-					paramTypes << ptype;
-					parameters << paramName;
-					prototype += ptype;
-					if ( optional )
-					    prototype += "=0";
-					if ( p < funcdesc->cParams )
-					    prototype += ",";
-				    }
-				    if ( !!prototype )
-					prototype += ")";
-
-				    if ( unsupported ) {
+			if ( unsupported ) {
 #ifndef QT_NO_DEBUG
-					qWarning( "%s: Event has parameter of unsupported datatype.", function.latin1() );
+			    qWarning( "%s: Event has parameter of unsupported datatype.", function.latin1() );
 #endif
-					debugInfo += QString( "%1: Event has parameter of unsupported datatype.\n" ).arg( function );
-				    } else if ( !signallist.find( prototype ) ) {
-					QUMethod *signal = new QUMethod;
-					signal->name = new char[function.length()+1];
-					signal->name = qstrcpy( (char*)signal->name, function );
-					signal->count = parameters.count();
-					QUParameter *params = signal->count ? new QUParameter[signal->count] : 0;
-					for ( p = 0; p< signal->count; ++p ) {
-					    QString paramName = parameters[p];
-					    QString paramType = paramTypes[p];
-					    params[p].name = new char[paramName.length()+1];
-					    params[p].name = qstrcpy( (char*)params[p].name, paramName );
-					    params[p].inOut = 0;
-					    if ( funcdesc->lprgelemdescParam + p ) {
-						ushort inout = funcdesc->lprgelemdescParam[p].paramdesc.wParamFlags;
-						if ( inout & PARAMFLAG_FIN )
-						    params[p].inOut |= QUParameter::In;
-						if ( inout & PARAMFLAG_FOUT )
-						    params[p].inOut |= QUParameter::Out;
-					    }
+			    debugInfo += QString( "%1: Event has parameter of unsupported datatype.\n" ).arg( function );
+			} else if ( !signallist.find( prototype ) ) {
+			    QUMethod *signal = new QUMethod;
+			    signal->name = new char[function.length()+1];
+			    signal->name = qstrcpy( (char*)signal->name, function );
+			    signal->count = parameters.count();
+			    QUParameter *params = signal->count ? new QUParameter[signal->count] : 0;
+			    for ( p = 0; p< signal->count; ++p ) {
+				QString paramName = parameters[p];
+				QString paramType = paramTypes[p];
+				params[p].name = new char[paramName.length()+1];
+				params[p].name = qstrcpy( (char*)params[p].name, paramName );
+				params[p].inOut = 0;
+				if ( funcdesc->lprgelemdescParam + p ) {
+				    ushort inout = funcdesc->lprgelemdescParam[p].paramdesc.wParamFlags;
+				    if ( inout & PARAMFLAG_FIN )
+					params[p].inOut |= QUParameter::In;
+				    if ( inout & PARAMFLAG_FOUT )
+					params[p].inOut |= QUParameter::Out;
+				}
 
-					    QStringToQUType( paramType, params + p );
-					}
-					signal->parameters = params;
-					signallist.insert( prototype, signal );
-				    }
-				    if ( eventSink )
-					eventSink->addSignal( funcdesc->memid, prototype );
+				QStringToQUType( paramType, params + p );
+			    }
+			    signal->parameters = params;
+			    signallist.insert( prototype, signal );
+			}
+			if ( eventSink )
+			    eventSink->addSignal( funcdesc->memid, prototype );
 
 #if 0 // documentation in metaobject would be cool?
-				    // get function documentation
-				    BSTR bstrDocu;
-				    eventinfo->GetDocumentation( funcdesc->memid, 0, &bstrDocu, 0, 0 );
-				    QString strDocu = BSTRToQString( bstrDocu );
-				    if ( !!strDocu )
-					desc += "[" + strDocu + "]";
-				    desc += "\n";
-				    SysFreeString( bstrDocu );
+			// get function documentation
+			BSTR bstrDocu;
+			eventinfo->GetDocumentation( funcdesc->memid, 0, &bstrDocu, 0, 0 );
+			QString strDocu = BSTRToQString( bstrDocu );
+			if ( !!strDocu )
+			    desc += "[" + strDocu + "]";
+			desc += "\n";
+			SysFreeString( bstrDocu );
 #endif
-				    eventinfo->ReleaseFuncDesc( funcdesc );
-				}
-			    }
-			}
+			eventinfo->ReleaseFuncDesc( funcdesc );
 		    }
 		}
 	    } while ( c );
+	    if ( typeattr )
+		info->ReleaseTypeAttr( typeattr );
 	}
     }
 
@@ -2131,13 +2178,13 @@ void QAxBase::setPropertyBag( const PropertyBag &bag )
 */
 bool QAxBase::propertyWritable( const char *prop ) const
 {
-    if ( !propWritable )
+    if ( !d->propWritable )
 	return TRUE;
 
-    if ( !propWritable->contains( prop ) )
+    if ( !d->propWritable->contains( prop ) )
 	return TRUE;
     else
-	return (*propWritable)[prop];
+	return (*d->propWritable)[prop];
 }
 
 /*!
@@ -2153,10 +2200,10 @@ bool QAxBase::propertyWritable( const char *prop ) const
 */
 void QAxBase::setPropertyWritable( const char *prop, bool ok )
 {
-    if ( !propWritable )
-	propWritable = new QMap<QCString, bool>;
+    if ( !d->propWritable )
+	d->propWritable = new QMap<QCString, bool>;
 
-    (*propWritable)[prop] = ok;
+    (*d->propWritable)[prop] = ok;
 }
 
 /*!
