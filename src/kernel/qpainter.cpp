@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#62 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#61 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#62 $")
 
 
 /*!
@@ -245,29 +245,6 @@ void QPainter::restore()			// restore/pop painter state
   \sa fontMetrics(), isActive()
 */
 
-
-/*!
-  \fn const QFont &QPainter::font() const
-  Returns the current painter font.
-  \sa setFont(), QFont
-*/
-
-/*!
-  Sets a new painter font.
-
-  This font is used by all subsequent drawText() functions.
-  The text color is the same as the pen color.
-
-  \sa font(), drawText()
-*/
-
-void QPainter::setFont( const QFont &font )
-{
-    if ( cfont.d != font.d ) {
-	cfont = font;
-	updateFont();
-    }
-}
 
 /*!
   \fn const QPen &QPainter::pen() const
