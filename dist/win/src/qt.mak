@@ -42,124 +42,124 @@ CPP=cl.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir "qt.release"
+# PROP Intermediate_Dir "qt.release"
 # PROP Target_Dir ""
-OUTDIR=.\Release
-INTDIR=.\Release
+OUTDIR=.\qt.release
+INTDIR=.\qt.release
 
 ALL : "..\lib\qt.lib"
 
 CLEAN :
+	-@erase "$(INTDIR)\maccel.obj"
+	-@erase "$(INTDIR)\mapp.obj"
+	-@erase "$(INTDIR)\mbttngrp.obj"
+	-@erase "$(INTDIR)\mbutton.obj"
+	-@erase "$(INTDIR)\mchkbox.obj"
+	-@erase "$(INTDIR)\mclipbrd.obj"
+	-@erase "$(INTDIR)\mcombo.obj"
+	-@erase "$(INTDIR)\mdialog.obj"
+	-@erase "$(INTDIR)\mfiledlg.obj"
+	-@erase "$(INTDIR)\mframe.obj"
+	-@erase "$(INTDIR)\mgrpbox.obj"
+	-@erase "$(INTDIR)\mlabel.obj"
+	-@erase "$(INTDIR)\mlcdnum.obj"
+	-@erase "$(INTDIR)\mlined.obj"
+	-@erase "$(INTDIR)\mlistbox.obj"
+	-@erase "$(INTDIR)\mmenubar.obj"
+	-@erase "$(INTDIR)\mmsgbox.obj"
+	-@erase "$(INTDIR)\mpopmenu.obj"
+	-@erase "$(INTDIR)\mpushbt.obj"
+	-@erase "$(INTDIR)\mradiobt.obj"
+	-@erase "$(INTDIR)\mscrbar.obj"
+	-@erase "$(INTDIR)\msocknot.obj"
+	-@erase "$(INTDIR)\mtablevw.obj"
+	-@erase "$(INTDIR)\mtimer.obj"
+	-@erase "$(INTDIR)\mwidget.obj"
+	-@erase "$(INTDIR)\mwindow.obj"
+	-@erase "$(INTDIR)\qaccel.obj"
+	-@erase "$(INTDIR)\qapp.obj"
+	-@erase "$(INTDIR)\qapp_win.obj"
+	-@erase "$(INTDIR)\qbitarry.obj"
+	-@erase "$(INTDIR)\qbitmap.obj"
+	-@erase "$(INTDIR)\qbttngrp.obj"
+	-@erase "$(INTDIR)\qbuffer.obj"
+	-@erase "$(INTDIR)\qbutton.obj"
+	-@erase "$(INTDIR)\qchkbox.obj"
+	-@erase "$(INTDIR)\qclb_win.obj"
+	-@erase "$(INTDIR)\qclipbrd.obj"
+	-@erase "$(INTDIR)\qcol_win.obj"
+	-@erase "$(INTDIR)\qcollect.obj"
+	-@erase "$(INTDIR)\qcolor.obj"
+	-@erase "$(INTDIR)\qcombo.obj"
+	-@erase "$(INTDIR)\qconnect.obj"
+	-@erase "$(INTDIR)\qcur_win.obj"
+	-@erase "$(INTDIR)\qcursor.obj"
+	-@erase "$(INTDIR)\qdatetm.obj"
+	-@erase "$(INTDIR)\qdialog.obj"
+	-@erase "$(INTDIR)\qdir.obj"
+	-@erase "$(INTDIR)\qdrawutl.obj"
+	-@erase "$(INTDIR)\qdstream.obj"
+	-@erase "$(INTDIR)\qevent.obj"
+	-@erase "$(INTDIR)\qfile.obj"
+	-@erase "$(INTDIR)\qfiledlg.obj"
+	-@erase "$(INTDIR)\qfileinf.obj"
+	-@erase "$(INTDIR)\qfnt_win.obj"
+	-@erase "$(INTDIR)\qfont.obj"
+	-@erase "$(INTDIR)\qframe.obj"
+	-@erase "$(INTDIR)\qgarray.obj"
+	-@erase "$(INTDIR)\qgcache.obj"
+	-@erase "$(INTDIR)\qgdict.obj"
+	-@erase "$(INTDIR)\qglist.obj"
+	-@erase "$(INTDIR)\qglobal.obj"
+	-@erase "$(INTDIR)\qgrpbox.obj"
+	-@erase "$(INTDIR)\qgvector.obj"
+	-@erase "$(INTDIR)\qimage.obj"
+	-@erase "$(INTDIR)\qiodev.obj"
+	-@erase "$(INTDIR)\qlabel.obj"
+	-@erase "$(INTDIR)\qlcdnum.obj"
+	-@erase "$(INTDIR)\qlined.obj"
+	-@erase "$(INTDIR)\qlistbox.obj"
+	-@erase "$(INTDIR)\qmenubar.obj"
+	-@erase "$(INTDIR)\qmenudta.obj"
+	-@erase "$(INTDIR)\qmetaobj.obj"
+	-@erase "$(INTDIR)\qmsgbox.obj"
+	-@erase "$(INTDIR)\qobject.obj"
+	-@erase "$(INTDIR)\qpainter.obj"
+	-@erase "$(INTDIR)\qpalette.obj"
+	-@erase "$(INTDIR)\qpdevmet.obj"
+	-@erase "$(INTDIR)\qpic_win.obj"
+	-@erase "$(INTDIR)\qpicture.obj"
+	-@erase "$(INTDIR)\qpixmap.obj"
+	-@erase "$(INTDIR)\qpm_win.obj"
+	-@erase "$(INTDIR)\qpmcache.obj"
+	-@erase "$(INTDIR)\qpntarry.obj"
+	-@erase "$(INTDIR)\qpoint.obj"
+	-@erase "$(INTDIR)\qpopmenu.obj"
+	-@erase "$(INTDIR)\qprinter.obj"
+	-@erase "$(INTDIR)\qprn_win.obj"
+	-@erase "$(INTDIR)\qptd_win.obj"
+	-@erase "$(INTDIR)\qptr_win.obj"
+	-@erase "$(INTDIR)\qpushbt.obj"
+	-@erase "$(INTDIR)\qradiobt.obj"
+	-@erase "$(INTDIR)\qrangect.obj"
+	-@erase "$(INTDIR)\qrect.obj"
+	-@erase "$(INTDIR)\qregexp.obj"
+	-@erase "$(INTDIR)\qregion.obj"
+	-@erase "$(INTDIR)\qrgn_win.obj"
+	-@erase "$(INTDIR)\qscrbar.obj"
+	-@erase "$(INTDIR)\qsignal.obj"
+	-@erase "$(INTDIR)\qsize.obj"
+	-@erase "$(INTDIR)\qsocknot.obj"
+	-@erase "$(INTDIR)\qstring.obj"
+	-@erase "$(INTDIR)\qtablevw.obj"
+	-@erase "$(INTDIR)\qtimer.obj"
+	-@erase "$(INTDIR)\qtstream.obj"
+	-@erase "$(INTDIR)\qwid_win.obj"
+	-@erase "$(INTDIR)\qwidget.obj"
+	-@erase "$(INTDIR)\qwindow.obj"
+	-@erase "$(INTDIR)\qwmatrix.obj"
 	-@erase "..\lib\qt.lib"
-	-@erase ".\Release\maccel.obj"
-	-@erase ".\Release\mapp.obj"
-	-@erase ".\Release\mbttngrp.obj"
-	-@erase ".\Release\mbutton.obj"
-	-@erase ".\Release\mchkbox.obj"
-	-@erase ".\Release\mclipbrd.obj"
-	-@erase ".\Release\mcombo.obj"
-	-@erase ".\Release\mdialog.obj"
-	-@erase ".\Release\mfiledlg.obj"
-	-@erase ".\Release\mframe.obj"
-	-@erase ".\Release\mgrpbox.obj"
-	-@erase ".\Release\mlabel.obj"
-	-@erase ".\Release\mlcdnum.obj"
-	-@erase ".\Release\mlined.obj"
-	-@erase ".\Release\mlistbox.obj"
-	-@erase ".\Release\mmenubar.obj"
-	-@erase ".\Release\mmsgbox.obj"
-	-@erase ".\Release\mpopmenu.obj"
-	-@erase ".\Release\mpushbt.obj"
-	-@erase ".\Release\mradiobt.obj"
-	-@erase ".\Release\mscrbar.obj"
-	-@erase ".\Release\msocknot.obj"
-	-@erase ".\Release\mtablevw.obj"
-	-@erase ".\Release\mtimer.obj"
-	-@erase ".\Release\mwidget.obj"
-	-@erase ".\Release\mwindow.obj"
-	-@erase ".\Release\qaccel.obj"
-	-@erase ".\Release\qapp.obj"
-	-@erase ".\Release\qapp_win.obj"
-	-@erase ".\Release\qbitarry.obj"
-	-@erase ".\Release\qbitmap.obj"
-	-@erase ".\Release\qbttngrp.obj"
-	-@erase ".\Release\qbuffer.obj"
-	-@erase ".\Release\qbutton.obj"
-	-@erase ".\Release\qchkbox.obj"
-	-@erase ".\Release\qclb_win.obj"
-	-@erase ".\Release\qclipbrd.obj"
-	-@erase ".\Release\qcol_win.obj"
-	-@erase ".\Release\qcollect.obj"
-	-@erase ".\Release\qcolor.obj"
-	-@erase ".\Release\qcombo.obj"
-	-@erase ".\Release\qconnect.obj"
-	-@erase ".\Release\qcur_win.obj"
-	-@erase ".\Release\qcursor.obj"
-	-@erase ".\Release\qdatetm.obj"
-	-@erase ".\Release\qdialog.obj"
-	-@erase ".\Release\qdir.obj"
-	-@erase ".\Release\qdrawutl.obj"
-	-@erase ".\Release\qdstream.obj"
-	-@erase ".\Release\qevent.obj"
-	-@erase ".\Release\qfile.obj"
-	-@erase ".\Release\qfiledlg.obj"
-	-@erase ".\Release\qfileinf.obj"
-	-@erase ".\Release\qfnt_win.obj"
-	-@erase ".\Release\qfont.obj"
-	-@erase ".\Release\qframe.obj"
-	-@erase ".\Release\qgarray.obj"
-	-@erase ".\Release\qgcache.obj"
-	-@erase ".\Release\qgdict.obj"
-	-@erase ".\Release\qglist.obj"
-	-@erase ".\Release\qglobal.obj"
-	-@erase ".\Release\qgrpbox.obj"
-	-@erase ".\Release\qgvector.obj"
-	-@erase ".\Release\qimage.obj"
-	-@erase ".\Release\qiodev.obj"
-	-@erase ".\Release\qlabel.obj"
-	-@erase ".\Release\qlcdnum.obj"
-	-@erase ".\Release\qlined.obj"
-	-@erase ".\Release\qlistbox.obj"
-	-@erase ".\Release\qmenubar.obj"
-	-@erase ".\Release\qmenudta.obj"
-	-@erase ".\Release\qmetaobj.obj"
-	-@erase ".\Release\qmsgbox.obj"
-	-@erase ".\Release\qobject.obj"
-	-@erase ".\Release\qpainter.obj"
-	-@erase ".\Release\qpalette.obj"
-	-@erase ".\Release\qpdevmet.obj"
-	-@erase ".\Release\qpic_win.obj"
-	-@erase ".\Release\qpicture.obj"
-	-@erase ".\Release\qpixmap.obj"
-	-@erase ".\Release\qpm_win.obj"
-	-@erase ".\Release\qpmcache.obj"
-	-@erase ".\Release\qpntarry.obj"
-	-@erase ".\Release\qpoint.obj"
-	-@erase ".\Release\qpopmenu.obj"
-	-@erase ".\Release\qprinter.obj"
-	-@erase ".\Release\qprn_win.obj"
-	-@erase ".\Release\qptd_win.obj"
-	-@erase ".\Release\qptr_win.obj"
-	-@erase ".\Release\qpushbt.obj"
-	-@erase ".\Release\qradiobt.obj"
-	-@erase ".\Release\qrangect.obj"
-	-@erase ".\Release\qrect.obj"
-	-@erase ".\Release\qregexp.obj"
-	-@erase ".\Release\qregion.obj"
-	-@erase ".\Release\qrgn_win.obj"
-	-@erase ".\Release\qscrbar.obj"
-	-@erase ".\Release\qsignal.obj"
-	-@erase ".\Release\qsize.obj"
-	-@erase ".\Release\qsocknot.obj"
-	-@erase ".\Release\qstring.obj"
-	-@erase ".\Release\qtablevw.obj"
-	-@erase ".\Release\qtimer.obj"
-	-@erase ".\Release\qtstream.obj"
-	-@erase ".\Release\qwid_win.obj"
-	-@erase ".\Release\qwidget.obj"
-	-@erase ".\Release\qwindow.obj"
-	-@erase ".\Release\qwmatrix.obj"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -168,7 +168,7 @@ CLEAN :
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
  /Fp"$(INTDIR)/qt.pch" /YX /Fo"$(INTDIR)/" /c
-CPP_OBJS=.\Release/
+CPP_OBJS=.\qt.release/
 CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
@@ -181,114 +181,114 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"../lib/qt.lib"
 LIB32_FLAGS=/nologo /out:"../lib/qt.lib"
 LIB32_OBJS= \
-	".\Release\maccel.obj" \
-	".\Release\mapp.obj" \
-	".\Release\mbttngrp.obj" \
-	".\Release\mbutton.obj" \
-	".\Release\mchkbox.obj" \
-	".\Release\mclipbrd.obj" \
-	".\Release\mcombo.obj" \
-	".\Release\mdialog.obj" \
-	".\Release\mfiledlg.obj" \
-	".\Release\mframe.obj" \
-	".\Release\mgrpbox.obj" \
-	".\Release\mlabel.obj" \
-	".\Release\mlcdnum.obj" \
-	".\Release\mlined.obj" \
-	".\Release\mlistbox.obj" \
-	".\Release\mmenubar.obj" \
-	".\Release\mmsgbox.obj" \
-	".\Release\mpopmenu.obj" \
-	".\Release\mpushbt.obj" \
-	".\Release\mradiobt.obj" \
-	".\Release\mscrbar.obj" \
-	".\Release\msocknot.obj" \
-	".\Release\mtablevw.obj" \
-	".\Release\mtimer.obj" \
-	".\Release\mwidget.obj" \
-	".\Release\mwindow.obj" \
-	".\Release\qaccel.obj" \
-	".\Release\qapp.obj" \
-	".\Release\qapp_win.obj" \
-	".\Release\qbitarry.obj" \
-	".\Release\qbitmap.obj" \
-	".\Release\qbttngrp.obj" \
-	".\Release\qbuffer.obj" \
-	".\Release\qbutton.obj" \
-	".\Release\qchkbox.obj" \
-	".\Release\qclb_win.obj" \
-	".\Release\qclipbrd.obj" \
-	".\Release\qcol_win.obj" \
-	".\Release\qcollect.obj" \
-	".\Release\qcolor.obj" \
-	".\Release\qcombo.obj" \
-	".\Release\qconnect.obj" \
-	".\Release\qcur_win.obj" \
-	".\Release\qcursor.obj" \
-	".\Release\qdatetm.obj" \
-	".\Release\qdialog.obj" \
-	".\Release\qdir.obj" \
-	".\Release\qdrawutl.obj" \
-	".\Release\qdstream.obj" \
-	".\Release\qevent.obj" \
-	".\Release\qfile.obj" \
-	".\Release\qfiledlg.obj" \
-	".\Release\qfileinf.obj" \
-	".\Release\qfnt_win.obj" \
-	".\Release\qfont.obj" \
-	".\Release\qframe.obj" \
-	".\Release\qgarray.obj" \
-	".\Release\qgcache.obj" \
-	".\Release\qgdict.obj" \
-	".\Release\qglist.obj" \
-	".\Release\qglobal.obj" \
-	".\Release\qgrpbox.obj" \
-	".\Release\qgvector.obj" \
-	".\Release\qimage.obj" \
-	".\Release\qiodev.obj" \
-	".\Release\qlabel.obj" \
-	".\Release\qlcdnum.obj" \
-	".\Release\qlined.obj" \
-	".\Release\qlistbox.obj" \
-	".\Release\qmenubar.obj" \
-	".\Release\qmenudta.obj" \
-	".\Release\qmetaobj.obj" \
-	".\Release\qmsgbox.obj" \
-	".\Release\qobject.obj" \
-	".\Release\qpainter.obj" \
-	".\Release\qpalette.obj" \
-	".\Release\qpdevmet.obj" \
-	".\Release\qpic_win.obj" \
-	".\Release\qpicture.obj" \
-	".\Release\qpixmap.obj" \
-	".\Release\qpm_win.obj" \
-	".\Release\qpmcache.obj" \
-	".\Release\qpntarry.obj" \
-	".\Release\qpoint.obj" \
-	".\Release\qpopmenu.obj" \
-	".\Release\qprinter.obj" \
-	".\Release\qprn_win.obj" \
-	".\Release\qptd_win.obj" \
-	".\Release\qptr_win.obj" \
-	".\Release\qpushbt.obj" \
-	".\Release\qradiobt.obj" \
-	".\Release\qrangect.obj" \
-	".\Release\qrect.obj" \
-	".\Release\qregexp.obj" \
-	".\Release\qregion.obj" \
-	".\Release\qrgn_win.obj" \
-	".\Release\qscrbar.obj" \
-	".\Release\qsignal.obj" \
-	".\Release\qsize.obj" \
-	".\Release\qsocknot.obj" \
-	".\Release\qstring.obj" \
-	".\Release\qtablevw.obj" \
-	".\Release\qtimer.obj" \
-	".\Release\qtstream.obj" \
-	".\Release\qwid_win.obj" \
-	".\Release\qwidget.obj" \
-	".\Release\qwindow.obj" \
-	".\Release\qwmatrix.obj"
+	"$(INTDIR)\maccel.obj" \
+	"$(INTDIR)\mapp.obj" \
+	"$(INTDIR)\mbttngrp.obj" \
+	"$(INTDIR)\mbutton.obj" \
+	"$(INTDIR)\mchkbox.obj" \
+	"$(INTDIR)\mclipbrd.obj" \
+	"$(INTDIR)\mcombo.obj" \
+	"$(INTDIR)\mdialog.obj" \
+	"$(INTDIR)\mfiledlg.obj" \
+	"$(INTDIR)\mframe.obj" \
+	"$(INTDIR)\mgrpbox.obj" \
+	"$(INTDIR)\mlabel.obj" \
+	"$(INTDIR)\mlcdnum.obj" \
+	"$(INTDIR)\mlined.obj" \
+	"$(INTDIR)\mlistbox.obj" \
+	"$(INTDIR)\mmenubar.obj" \
+	"$(INTDIR)\mmsgbox.obj" \
+	"$(INTDIR)\mpopmenu.obj" \
+	"$(INTDIR)\mpushbt.obj" \
+	"$(INTDIR)\mradiobt.obj" \
+	"$(INTDIR)\mscrbar.obj" \
+	"$(INTDIR)\msocknot.obj" \
+	"$(INTDIR)\mtablevw.obj" \
+	"$(INTDIR)\mtimer.obj" \
+	"$(INTDIR)\mwidget.obj" \
+	"$(INTDIR)\mwindow.obj" \
+	"$(INTDIR)\qaccel.obj" \
+	"$(INTDIR)\qapp.obj" \
+	"$(INTDIR)\qapp_win.obj" \
+	"$(INTDIR)\qbitarry.obj" \
+	"$(INTDIR)\qbitmap.obj" \
+	"$(INTDIR)\qbttngrp.obj" \
+	"$(INTDIR)\qbuffer.obj" \
+	"$(INTDIR)\qbutton.obj" \
+	"$(INTDIR)\qchkbox.obj" \
+	"$(INTDIR)\qclb_win.obj" \
+	"$(INTDIR)\qclipbrd.obj" \
+	"$(INTDIR)\qcol_win.obj" \
+	"$(INTDIR)\qcollect.obj" \
+	"$(INTDIR)\qcolor.obj" \
+	"$(INTDIR)\qcombo.obj" \
+	"$(INTDIR)\qconnect.obj" \
+	"$(INTDIR)\qcur_win.obj" \
+	"$(INTDIR)\qcursor.obj" \
+	"$(INTDIR)\qdatetm.obj" \
+	"$(INTDIR)\qdialog.obj" \
+	"$(INTDIR)\qdir.obj" \
+	"$(INTDIR)\qdrawutl.obj" \
+	"$(INTDIR)\qdstream.obj" \
+	"$(INTDIR)\qevent.obj" \
+	"$(INTDIR)\qfile.obj" \
+	"$(INTDIR)\qfiledlg.obj" \
+	"$(INTDIR)\qfileinf.obj" \
+	"$(INTDIR)\qfnt_win.obj" \
+	"$(INTDIR)\qfont.obj" \
+	"$(INTDIR)\qframe.obj" \
+	"$(INTDIR)\qgarray.obj" \
+	"$(INTDIR)\qgcache.obj" \
+	"$(INTDIR)\qgdict.obj" \
+	"$(INTDIR)\qglist.obj" \
+	"$(INTDIR)\qglobal.obj" \
+	"$(INTDIR)\qgrpbox.obj" \
+	"$(INTDIR)\qgvector.obj" \
+	"$(INTDIR)\qimage.obj" \
+	"$(INTDIR)\qiodev.obj" \
+	"$(INTDIR)\qlabel.obj" \
+	"$(INTDIR)\qlcdnum.obj" \
+	"$(INTDIR)\qlined.obj" \
+	"$(INTDIR)\qlistbox.obj" \
+	"$(INTDIR)\qmenubar.obj" \
+	"$(INTDIR)\qmenudta.obj" \
+	"$(INTDIR)\qmetaobj.obj" \
+	"$(INTDIR)\qmsgbox.obj" \
+	"$(INTDIR)\qobject.obj" \
+	"$(INTDIR)\qpainter.obj" \
+	"$(INTDIR)\qpalette.obj" \
+	"$(INTDIR)\qpdevmet.obj" \
+	"$(INTDIR)\qpic_win.obj" \
+	"$(INTDIR)\qpicture.obj" \
+	"$(INTDIR)\qpixmap.obj" \
+	"$(INTDIR)\qpm_win.obj" \
+	"$(INTDIR)\qpmcache.obj" \
+	"$(INTDIR)\qpntarry.obj" \
+	"$(INTDIR)\qpoint.obj" \
+	"$(INTDIR)\qpopmenu.obj" \
+	"$(INTDIR)\qprinter.obj" \
+	"$(INTDIR)\qprn_win.obj" \
+	"$(INTDIR)\qptd_win.obj" \
+	"$(INTDIR)\qptr_win.obj" \
+	"$(INTDIR)\qpushbt.obj" \
+	"$(INTDIR)\qradiobt.obj" \
+	"$(INTDIR)\qrangect.obj" \
+	"$(INTDIR)\qrect.obj" \
+	"$(INTDIR)\qregexp.obj" \
+	"$(INTDIR)\qregion.obj" \
+	"$(INTDIR)\qrgn_win.obj" \
+	"$(INTDIR)\qscrbar.obj" \
+	"$(INTDIR)\qsignal.obj" \
+	"$(INTDIR)\qsize.obj" \
+	"$(INTDIR)\qsocknot.obj" \
+	"$(INTDIR)\qstring.obj" \
+	"$(INTDIR)\qtablevw.obj" \
+	"$(INTDIR)\qtimer.obj" \
+	"$(INTDIR)\qtstream.obj" \
+	"$(INTDIR)\qwid_win.obj" \
+	"$(INTDIR)\qwidget.obj" \
+	"$(INTDIR)\qwindow.obj" \
+	"$(INTDIR)\qwmatrix.obj"
 
 "..\lib\qt.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -304,124 +304,124 @@ LIB32_OBJS= \
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
-# PROP Intermediate_Dir "Debug"
+# PROP Output_Dir "qt.debug"
+# PROP Intermediate_Dir "qt.debug"
 # PROP Target_Dir ""
-OUTDIR=.\Debug
-INTDIR=.\Debug
+OUTDIR=.\qt.debug
+INTDIR=.\qt.debug
 
 ALL : "..\lib\qt.lib"
 
 CLEAN :
+	-@erase "$(INTDIR)\maccel.obj"
+	-@erase "$(INTDIR)\mapp.obj"
+	-@erase "$(INTDIR)\mbttngrp.obj"
+	-@erase "$(INTDIR)\mbutton.obj"
+	-@erase "$(INTDIR)\mchkbox.obj"
+	-@erase "$(INTDIR)\mclipbrd.obj"
+	-@erase "$(INTDIR)\mcombo.obj"
+	-@erase "$(INTDIR)\mdialog.obj"
+	-@erase "$(INTDIR)\mfiledlg.obj"
+	-@erase "$(INTDIR)\mframe.obj"
+	-@erase "$(INTDIR)\mgrpbox.obj"
+	-@erase "$(INTDIR)\mlabel.obj"
+	-@erase "$(INTDIR)\mlcdnum.obj"
+	-@erase "$(INTDIR)\mlined.obj"
+	-@erase "$(INTDIR)\mlistbox.obj"
+	-@erase "$(INTDIR)\mmenubar.obj"
+	-@erase "$(INTDIR)\mmsgbox.obj"
+	-@erase "$(INTDIR)\mpopmenu.obj"
+	-@erase "$(INTDIR)\mpushbt.obj"
+	-@erase "$(INTDIR)\mradiobt.obj"
+	-@erase "$(INTDIR)\mscrbar.obj"
+	-@erase "$(INTDIR)\msocknot.obj"
+	-@erase "$(INTDIR)\mtablevw.obj"
+	-@erase "$(INTDIR)\mtimer.obj"
+	-@erase "$(INTDIR)\mwidget.obj"
+	-@erase "$(INTDIR)\mwindow.obj"
+	-@erase "$(INTDIR)\qaccel.obj"
+	-@erase "$(INTDIR)\qapp.obj"
+	-@erase "$(INTDIR)\qapp_win.obj"
+	-@erase "$(INTDIR)\qbitarry.obj"
+	-@erase "$(INTDIR)\qbitmap.obj"
+	-@erase "$(INTDIR)\qbttngrp.obj"
+	-@erase "$(INTDIR)\qbuffer.obj"
+	-@erase "$(INTDIR)\qbutton.obj"
+	-@erase "$(INTDIR)\qchkbox.obj"
+	-@erase "$(INTDIR)\qclb_win.obj"
+	-@erase "$(INTDIR)\qclipbrd.obj"
+	-@erase "$(INTDIR)\qcol_win.obj"
+	-@erase "$(INTDIR)\qcollect.obj"
+	-@erase "$(INTDIR)\qcolor.obj"
+	-@erase "$(INTDIR)\qcombo.obj"
+	-@erase "$(INTDIR)\qconnect.obj"
+	-@erase "$(INTDIR)\qcur_win.obj"
+	-@erase "$(INTDIR)\qcursor.obj"
+	-@erase "$(INTDIR)\qdatetm.obj"
+	-@erase "$(INTDIR)\qdialog.obj"
+	-@erase "$(INTDIR)\qdir.obj"
+	-@erase "$(INTDIR)\qdrawutl.obj"
+	-@erase "$(INTDIR)\qdstream.obj"
+	-@erase "$(INTDIR)\qevent.obj"
+	-@erase "$(INTDIR)\qfile.obj"
+	-@erase "$(INTDIR)\qfiledlg.obj"
+	-@erase "$(INTDIR)\qfileinf.obj"
+	-@erase "$(INTDIR)\qfnt_win.obj"
+	-@erase "$(INTDIR)\qfont.obj"
+	-@erase "$(INTDIR)\qframe.obj"
+	-@erase "$(INTDIR)\qgarray.obj"
+	-@erase "$(INTDIR)\qgcache.obj"
+	-@erase "$(INTDIR)\qgdict.obj"
+	-@erase "$(INTDIR)\qglist.obj"
+	-@erase "$(INTDIR)\qglobal.obj"
+	-@erase "$(INTDIR)\qgrpbox.obj"
+	-@erase "$(INTDIR)\qgvector.obj"
+	-@erase "$(INTDIR)\qimage.obj"
+	-@erase "$(INTDIR)\qiodev.obj"
+	-@erase "$(INTDIR)\qlabel.obj"
+	-@erase "$(INTDIR)\qlcdnum.obj"
+	-@erase "$(INTDIR)\qlined.obj"
+	-@erase "$(INTDIR)\qlistbox.obj"
+	-@erase "$(INTDIR)\qmenubar.obj"
+	-@erase "$(INTDIR)\qmenudta.obj"
+	-@erase "$(INTDIR)\qmetaobj.obj"
+	-@erase "$(INTDIR)\qmsgbox.obj"
+	-@erase "$(INTDIR)\qobject.obj"
+	-@erase "$(INTDIR)\qpainter.obj"
+	-@erase "$(INTDIR)\qpalette.obj"
+	-@erase "$(INTDIR)\qpdevmet.obj"
+	-@erase "$(INTDIR)\qpic_win.obj"
+	-@erase "$(INTDIR)\qpicture.obj"
+	-@erase "$(INTDIR)\qpixmap.obj"
+	-@erase "$(INTDIR)\qpm_win.obj"
+	-@erase "$(INTDIR)\qpmcache.obj"
+	-@erase "$(INTDIR)\qpntarry.obj"
+	-@erase "$(INTDIR)\qpoint.obj"
+	-@erase "$(INTDIR)\qpopmenu.obj"
+	-@erase "$(INTDIR)\qprinter.obj"
+	-@erase "$(INTDIR)\qprn_win.obj"
+	-@erase "$(INTDIR)\qptd_win.obj"
+	-@erase "$(INTDIR)\qptr_win.obj"
+	-@erase "$(INTDIR)\qpushbt.obj"
+	-@erase "$(INTDIR)\qradiobt.obj"
+	-@erase "$(INTDIR)\qrangect.obj"
+	-@erase "$(INTDIR)\qrect.obj"
+	-@erase "$(INTDIR)\qregexp.obj"
+	-@erase "$(INTDIR)\qregion.obj"
+	-@erase "$(INTDIR)\qrgn_win.obj"
+	-@erase "$(INTDIR)\qscrbar.obj"
+	-@erase "$(INTDIR)\qsignal.obj"
+	-@erase "$(INTDIR)\qsize.obj"
+	-@erase "$(INTDIR)\qsocknot.obj"
+	-@erase "$(INTDIR)\qstring.obj"
+	-@erase "$(INTDIR)\qtablevw.obj"
+	-@erase "$(INTDIR)\qtimer.obj"
+	-@erase "$(INTDIR)\qtstream.obj"
+	-@erase "$(INTDIR)\qwid_win.obj"
+	-@erase "$(INTDIR)\qwidget.obj"
+	-@erase "$(INTDIR)\qwindow.obj"
+	-@erase "$(INTDIR)\qwmatrix.obj"
 	-@erase "..\lib\qt.lib"
-	-@erase ".\Debug\maccel.obj"
-	-@erase ".\Debug\mapp.obj"
-	-@erase ".\Debug\mbttngrp.obj"
-	-@erase ".\Debug\mbutton.obj"
-	-@erase ".\Debug\mchkbox.obj"
-	-@erase ".\Debug\mclipbrd.obj"
-	-@erase ".\Debug\mcombo.obj"
-	-@erase ".\Debug\mdialog.obj"
-	-@erase ".\Debug\mfiledlg.obj"
-	-@erase ".\Debug\mframe.obj"
-	-@erase ".\Debug\mgrpbox.obj"
-	-@erase ".\Debug\mlabel.obj"
-	-@erase ".\Debug\mlcdnum.obj"
-	-@erase ".\Debug\mlined.obj"
-	-@erase ".\Debug\mlistbox.obj"
-	-@erase ".\Debug\mmenubar.obj"
-	-@erase ".\Debug\mmsgbox.obj"
-	-@erase ".\Debug\mpopmenu.obj"
-	-@erase ".\Debug\mpushbt.obj"
-	-@erase ".\Debug\mradiobt.obj"
-	-@erase ".\Debug\mscrbar.obj"
-	-@erase ".\Debug\msocknot.obj"
-	-@erase ".\Debug\mtablevw.obj"
-	-@erase ".\Debug\mtimer.obj"
-	-@erase ".\Debug\mwidget.obj"
-	-@erase ".\Debug\mwindow.obj"
-	-@erase ".\Debug\qaccel.obj"
-	-@erase ".\Debug\qapp.obj"
-	-@erase ".\Debug\qapp_win.obj"
-	-@erase ".\Debug\qbitarry.obj"
-	-@erase ".\Debug\qbitmap.obj"
-	-@erase ".\Debug\qbttngrp.obj"
-	-@erase ".\Debug\qbuffer.obj"
-	-@erase ".\Debug\qbutton.obj"
-	-@erase ".\Debug\qchkbox.obj"
-	-@erase ".\Debug\qclb_win.obj"
-	-@erase ".\Debug\qclipbrd.obj"
-	-@erase ".\Debug\qcol_win.obj"
-	-@erase ".\Debug\qcollect.obj"
-	-@erase ".\Debug\qcolor.obj"
-	-@erase ".\Debug\qcombo.obj"
-	-@erase ".\Debug\qconnect.obj"
-	-@erase ".\Debug\qcur_win.obj"
-	-@erase ".\Debug\qcursor.obj"
-	-@erase ".\Debug\qdatetm.obj"
-	-@erase ".\Debug\qdialog.obj"
-	-@erase ".\Debug\qdir.obj"
-	-@erase ".\Debug\qdrawutl.obj"
-	-@erase ".\Debug\qdstream.obj"
-	-@erase ".\Debug\qevent.obj"
-	-@erase ".\Debug\qfile.obj"
-	-@erase ".\Debug\qfiledlg.obj"
-	-@erase ".\Debug\qfileinf.obj"
-	-@erase ".\Debug\qfnt_win.obj"
-	-@erase ".\Debug\qfont.obj"
-	-@erase ".\Debug\qframe.obj"
-	-@erase ".\Debug\qgarray.obj"
-	-@erase ".\Debug\qgcache.obj"
-	-@erase ".\Debug\qgdict.obj"
-	-@erase ".\Debug\qglist.obj"
-	-@erase ".\Debug\qglobal.obj"
-	-@erase ".\Debug\qgrpbox.obj"
-	-@erase ".\Debug\qgvector.obj"
-	-@erase ".\Debug\qimage.obj"
-	-@erase ".\Debug\qiodev.obj"
-	-@erase ".\Debug\qlabel.obj"
-	-@erase ".\Debug\qlcdnum.obj"
-	-@erase ".\Debug\qlined.obj"
-	-@erase ".\Debug\qlistbox.obj"
-	-@erase ".\Debug\qmenubar.obj"
-	-@erase ".\Debug\qmenudta.obj"
-	-@erase ".\Debug\qmetaobj.obj"
-	-@erase ".\Debug\qmsgbox.obj"
-	-@erase ".\Debug\qobject.obj"
-	-@erase ".\Debug\qpainter.obj"
-	-@erase ".\Debug\qpalette.obj"
-	-@erase ".\Debug\qpdevmet.obj"
-	-@erase ".\Debug\qpic_win.obj"
-	-@erase ".\Debug\qpicture.obj"
-	-@erase ".\Debug\qpixmap.obj"
-	-@erase ".\Debug\qpm_win.obj"
-	-@erase ".\Debug\qpmcache.obj"
-	-@erase ".\Debug\qpntarry.obj"
-	-@erase ".\Debug\qpoint.obj"
-	-@erase ".\Debug\qpopmenu.obj"
-	-@erase ".\Debug\qprinter.obj"
-	-@erase ".\Debug\qprn_win.obj"
-	-@erase ".\Debug\qptd_win.obj"
-	-@erase ".\Debug\qptr_win.obj"
-	-@erase ".\Debug\qpushbt.obj"
-	-@erase ".\Debug\qradiobt.obj"
-	-@erase ".\Debug\qrangect.obj"
-	-@erase ".\Debug\qrect.obj"
-	-@erase ".\Debug\qregexp.obj"
-	-@erase ".\Debug\qregion.obj"
-	-@erase ".\Debug\qrgn_win.obj"
-	-@erase ".\Debug\qscrbar.obj"
-	-@erase ".\Debug\qsignal.obj"
-	-@erase ".\Debug\qsize.obj"
-	-@erase ".\Debug\qsocknot.obj"
-	-@erase ".\Debug\qstring.obj"
-	-@erase ".\Debug\qtablevw.obj"
-	-@erase ".\Debug\qtimer.obj"
-	-@erase ".\Debug\qtstream.obj"
-	-@erase ".\Debug\qwid_win.obj"
-	-@erase ".\Debug\qwidget.obj"
-	-@erase ".\Debug\qwindow.obj"
-	-@erase ".\Debug\qwmatrix.obj"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -430,7 +430,7 @@ CLEAN :
 # ADD CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
 CPP_PROJ=/nologo /MLd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
  /Fp"$(INTDIR)/qt.pch" /YX /Fo"$(INTDIR)/" /c
-CPP_OBJS=.\Debug/
+CPP_OBJS=.\qt.debug/
 CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
@@ -443,114 +443,114 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"../lib/qt.lib"
 LIB32_FLAGS=/nologo /out:"../lib/qt.lib"
 LIB32_OBJS= \
-	".\Debug\maccel.obj" \
-	".\Debug\mapp.obj" \
-	".\Debug\mbttngrp.obj" \
-	".\Debug\mbutton.obj" \
-	".\Debug\mchkbox.obj" \
-	".\Debug\mclipbrd.obj" \
-	".\Debug\mcombo.obj" \
-	".\Debug\mdialog.obj" \
-	".\Debug\mfiledlg.obj" \
-	".\Debug\mframe.obj" \
-	".\Debug\mgrpbox.obj" \
-	".\Debug\mlabel.obj" \
-	".\Debug\mlcdnum.obj" \
-	".\Debug\mlined.obj" \
-	".\Debug\mlistbox.obj" \
-	".\Debug\mmenubar.obj" \
-	".\Debug\mmsgbox.obj" \
-	".\Debug\mpopmenu.obj" \
-	".\Debug\mpushbt.obj" \
-	".\Debug\mradiobt.obj" \
-	".\Debug\mscrbar.obj" \
-	".\Debug\msocknot.obj" \
-	".\Debug\mtablevw.obj" \
-	".\Debug\mtimer.obj" \
-	".\Debug\mwidget.obj" \
-	".\Debug\mwindow.obj" \
-	".\Debug\qaccel.obj" \
-	".\Debug\qapp.obj" \
-	".\Debug\qapp_win.obj" \
-	".\Debug\qbitarry.obj" \
-	".\Debug\qbitmap.obj" \
-	".\Debug\qbttngrp.obj" \
-	".\Debug\qbuffer.obj" \
-	".\Debug\qbutton.obj" \
-	".\Debug\qchkbox.obj" \
-	".\Debug\qclb_win.obj" \
-	".\Debug\qclipbrd.obj" \
-	".\Debug\qcol_win.obj" \
-	".\Debug\qcollect.obj" \
-	".\Debug\qcolor.obj" \
-	".\Debug\qcombo.obj" \
-	".\Debug\qconnect.obj" \
-	".\Debug\qcur_win.obj" \
-	".\Debug\qcursor.obj" \
-	".\Debug\qdatetm.obj" \
-	".\Debug\qdialog.obj" \
-	".\Debug\qdir.obj" \
-	".\Debug\qdrawutl.obj" \
-	".\Debug\qdstream.obj" \
-	".\Debug\qevent.obj" \
-	".\Debug\qfile.obj" \
-	".\Debug\qfiledlg.obj" \
-	".\Debug\qfileinf.obj" \
-	".\Debug\qfnt_win.obj" \
-	".\Debug\qfont.obj" \
-	".\Debug\qframe.obj" \
-	".\Debug\qgarray.obj" \
-	".\Debug\qgcache.obj" \
-	".\Debug\qgdict.obj" \
-	".\Debug\qglist.obj" \
-	".\Debug\qglobal.obj" \
-	".\Debug\qgrpbox.obj" \
-	".\Debug\qgvector.obj" \
-	".\Debug\qimage.obj" \
-	".\Debug\qiodev.obj" \
-	".\Debug\qlabel.obj" \
-	".\Debug\qlcdnum.obj" \
-	".\Debug\qlined.obj" \
-	".\Debug\qlistbox.obj" \
-	".\Debug\qmenubar.obj" \
-	".\Debug\qmenudta.obj" \
-	".\Debug\qmetaobj.obj" \
-	".\Debug\qmsgbox.obj" \
-	".\Debug\qobject.obj" \
-	".\Debug\qpainter.obj" \
-	".\Debug\qpalette.obj" \
-	".\Debug\qpdevmet.obj" \
-	".\Debug\qpic_win.obj" \
-	".\Debug\qpicture.obj" \
-	".\Debug\qpixmap.obj" \
-	".\Debug\qpm_win.obj" \
-	".\Debug\qpmcache.obj" \
-	".\Debug\qpntarry.obj" \
-	".\Debug\qpoint.obj" \
-	".\Debug\qpopmenu.obj" \
-	".\Debug\qprinter.obj" \
-	".\Debug\qprn_win.obj" \
-	".\Debug\qptd_win.obj" \
-	".\Debug\qptr_win.obj" \
-	".\Debug\qpushbt.obj" \
-	".\Debug\qradiobt.obj" \
-	".\Debug\qrangect.obj" \
-	".\Debug\qrect.obj" \
-	".\Debug\qregexp.obj" \
-	".\Debug\qregion.obj" \
-	".\Debug\qrgn_win.obj" \
-	".\Debug\qscrbar.obj" \
-	".\Debug\qsignal.obj" \
-	".\Debug\qsize.obj" \
-	".\Debug\qsocknot.obj" \
-	".\Debug\qstring.obj" \
-	".\Debug\qtablevw.obj" \
-	".\Debug\qtimer.obj" \
-	".\Debug\qtstream.obj" \
-	".\Debug\qwid_win.obj" \
-	".\Debug\qwidget.obj" \
-	".\Debug\qwindow.obj" \
-	".\Debug\qwmatrix.obj"
+	"$(INTDIR)\maccel.obj" \
+	"$(INTDIR)\mapp.obj" \
+	"$(INTDIR)\mbttngrp.obj" \
+	"$(INTDIR)\mbutton.obj" \
+	"$(INTDIR)\mchkbox.obj" \
+	"$(INTDIR)\mclipbrd.obj" \
+	"$(INTDIR)\mcombo.obj" \
+	"$(INTDIR)\mdialog.obj" \
+	"$(INTDIR)\mfiledlg.obj" \
+	"$(INTDIR)\mframe.obj" \
+	"$(INTDIR)\mgrpbox.obj" \
+	"$(INTDIR)\mlabel.obj" \
+	"$(INTDIR)\mlcdnum.obj" \
+	"$(INTDIR)\mlined.obj" \
+	"$(INTDIR)\mlistbox.obj" \
+	"$(INTDIR)\mmenubar.obj" \
+	"$(INTDIR)\mmsgbox.obj" \
+	"$(INTDIR)\mpopmenu.obj" \
+	"$(INTDIR)\mpushbt.obj" \
+	"$(INTDIR)\mradiobt.obj" \
+	"$(INTDIR)\mscrbar.obj" \
+	"$(INTDIR)\msocknot.obj" \
+	"$(INTDIR)\mtablevw.obj" \
+	"$(INTDIR)\mtimer.obj" \
+	"$(INTDIR)\mwidget.obj" \
+	"$(INTDIR)\mwindow.obj" \
+	"$(INTDIR)\qaccel.obj" \
+	"$(INTDIR)\qapp.obj" \
+	"$(INTDIR)\qapp_win.obj" \
+	"$(INTDIR)\qbitarry.obj" \
+	"$(INTDIR)\qbitmap.obj" \
+	"$(INTDIR)\qbttngrp.obj" \
+	"$(INTDIR)\qbuffer.obj" \
+	"$(INTDIR)\qbutton.obj" \
+	"$(INTDIR)\qchkbox.obj" \
+	"$(INTDIR)\qclb_win.obj" \
+	"$(INTDIR)\qclipbrd.obj" \
+	"$(INTDIR)\qcol_win.obj" \
+	"$(INTDIR)\qcollect.obj" \
+	"$(INTDIR)\qcolor.obj" \
+	"$(INTDIR)\qcombo.obj" \
+	"$(INTDIR)\qconnect.obj" \
+	"$(INTDIR)\qcur_win.obj" \
+	"$(INTDIR)\qcursor.obj" \
+	"$(INTDIR)\qdatetm.obj" \
+	"$(INTDIR)\qdialog.obj" \
+	"$(INTDIR)\qdir.obj" \
+	"$(INTDIR)\qdrawutl.obj" \
+	"$(INTDIR)\qdstream.obj" \
+	"$(INTDIR)\qevent.obj" \
+	"$(INTDIR)\qfile.obj" \
+	"$(INTDIR)\qfiledlg.obj" \
+	"$(INTDIR)\qfileinf.obj" \
+	"$(INTDIR)\qfnt_win.obj" \
+	"$(INTDIR)\qfont.obj" \
+	"$(INTDIR)\qframe.obj" \
+	"$(INTDIR)\qgarray.obj" \
+	"$(INTDIR)\qgcache.obj" \
+	"$(INTDIR)\qgdict.obj" \
+	"$(INTDIR)\qglist.obj" \
+	"$(INTDIR)\qglobal.obj" \
+	"$(INTDIR)\qgrpbox.obj" \
+	"$(INTDIR)\qgvector.obj" \
+	"$(INTDIR)\qimage.obj" \
+	"$(INTDIR)\qiodev.obj" \
+	"$(INTDIR)\qlabel.obj" \
+	"$(INTDIR)\qlcdnum.obj" \
+	"$(INTDIR)\qlined.obj" \
+	"$(INTDIR)\qlistbox.obj" \
+	"$(INTDIR)\qmenubar.obj" \
+	"$(INTDIR)\qmenudta.obj" \
+	"$(INTDIR)\qmetaobj.obj" \
+	"$(INTDIR)\qmsgbox.obj" \
+	"$(INTDIR)\qobject.obj" \
+	"$(INTDIR)\qpainter.obj" \
+	"$(INTDIR)\qpalette.obj" \
+	"$(INTDIR)\qpdevmet.obj" \
+	"$(INTDIR)\qpic_win.obj" \
+	"$(INTDIR)\qpicture.obj" \
+	"$(INTDIR)\qpixmap.obj" \
+	"$(INTDIR)\qpm_win.obj" \
+	"$(INTDIR)\qpmcache.obj" \
+	"$(INTDIR)\qpntarry.obj" \
+	"$(INTDIR)\qpoint.obj" \
+	"$(INTDIR)\qpopmenu.obj" \
+	"$(INTDIR)\qprinter.obj" \
+	"$(INTDIR)\qprn_win.obj" \
+	"$(INTDIR)\qptd_win.obj" \
+	"$(INTDIR)\qptr_win.obj" \
+	"$(INTDIR)\qpushbt.obj" \
+	"$(INTDIR)\qradiobt.obj" \
+	"$(INTDIR)\qrangect.obj" \
+	"$(INTDIR)\qrect.obj" \
+	"$(INTDIR)\qregexp.obj" \
+	"$(INTDIR)\qregion.obj" \
+	"$(INTDIR)\qrgn_win.obj" \
+	"$(INTDIR)\qscrbar.obj" \
+	"$(INTDIR)\qsignal.obj" \
+	"$(INTDIR)\qsize.obj" \
+	"$(INTDIR)\qsocknot.obj" \
+	"$(INTDIR)\qstring.obj" \
+	"$(INTDIR)\qtablevw.obj" \
+	"$(INTDIR)\qtimer.obj" \
+	"$(INTDIR)\qtstream.obj" \
+	"$(INTDIR)\qwid_win.obj" \
+	"$(INTDIR)\qwidget.obj" \
+	"$(INTDIR)\qwindow.obj" \
+	"$(INTDIR)\qwmatrix.obj"
 
 "..\lib\qt.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -611,21 +611,9 @@ DEP_CPP_QWMAT=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qwmatrix.obj" : $(SOURCE) $(DEP_CPP_QWMAT) "$(INTDIR)"
+"$(INTDIR)\qwmatrix.obj" : $(SOURCE) $(DEP_CPP_QWMAT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qwmatrix.obj" : $(SOURCE) $(DEP_CPP_QWMAT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -659,21 +647,9 @@ DEP_CPP_MAPP_=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mapp.obj" : $(SOURCE) $(DEP_CPP_MAPP_) "$(INTDIR)"
+"$(INTDIR)\mapp.obj" : $(SOURCE) $(DEP_CPP_MAPP_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mapp.obj" : $(SOURCE) $(DEP_CPP_MAPP_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -709,21 +685,9 @@ DEP_CPP_MBTTN=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mbttngrp.obj" : $(SOURCE) $(DEP_CPP_MBTTN) "$(INTDIR)"
+"$(INTDIR)\mbttngrp.obj" : $(SOURCE) $(DEP_CPP_MBTTN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mbttngrp.obj" : $(SOURCE) $(DEP_CPP_MBTTN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -760,21 +724,9 @@ DEP_CPP_MBUTT=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mbutton.obj" : $(SOURCE) $(DEP_CPP_MBUTT) "$(INTDIR)"
+"$(INTDIR)\mbutton.obj" : $(SOURCE) $(DEP_CPP_MBUTT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mbutton.obj" : $(SOURCE) $(DEP_CPP_MBUTT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -809,21 +761,9 @@ DEP_CPP_MCHKB=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mchkbox.obj" : $(SOURCE) $(DEP_CPP_MCHKB) "$(INTDIR)"
+"$(INTDIR)\mchkbox.obj" : $(SOURCE) $(DEP_CPP_MCHKB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mchkbox.obj" : $(SOURCE) $(DEP_CPP_MCHKB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -849,21 +789,9 @@ DEP_CPP_MCLIP=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mclipbrd.obj" : $(SOURCE) $(DEP_CPP_MCLIP) "$(INTDIR)"
+"$(INTDIR)\mclipbrd.obj" : $(SOURCE) $(DEP_CPP_MCLIP) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mclipbrd.obj" : $(SOURCE) $(DEP_CPP_MCLIP) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -897,21 +825,9 @@ DEP_CPP_MCOMB=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mcombo.obj" : $(SOURCE) $(DEP_CPP_MCOMB) "$(INTDIR)"
+"$(INTDIR)\mcombo.obj" : $(SOURCE) $(DEP_CPP_MCOMB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mcombo.obj" : $(SOURCE) $(DEP_CPP_MCOMB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -946,21 +862,9 @@ DEP_CPP_MDIAL=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mdialog.obj" : $(SOURCE) $(DEP_CPP_MDIAL) "$(INTDIR)"
+"$(INTDIR)\mdialog.obj" : $(SOURCE) $(DEP_CPP_MDIAL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mdialog.obj" : $(SOURCE) $(DEP_CPP_MDIAL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1006,21 +910,9 @@ DEP_CPP_MFILE=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mfiledlg.obj" : $(SOURCE) $(DEP_CPP_MFILE) "$(INTDIR)"
+"$(INTDIR)\mfiledlg.obj" : $(SOURCE) $(DEP_CPP_MFILE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mfiledlg.obj" : $(SOURCE) $(DEP_CPP_MFILE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1054,21 +946,9 @@ DEP_CPP_MFRAM=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mframe.obj" : $(SOURCE) $(DEP_CPP_MFRAM) "$(INTDIR)"
+"$(INTDIR)\mframe.obj" : $(SOURCE) $(DEP_CPP_MFRAM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mframe.obj" : $(SOURCE) $(DEP_CPP_MFRAM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1103,21 +983,9 @@ DEP_CPP_MGRPB=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mgrpbox.obj" : $(SOURCE) $(DEP_CPP_MGRPB) "$(INTDIR)"
+"$(INTDIR)\mgrpbox.obj" : $(SOURCE) $(DEP_CPP_MGRPB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mgrpbox.obj" : $(SOURCE) $(DEP_CPP_MGRPB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1152,21 +1020,9 @@ DEP_CPP_MLABE=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mlabel.obj" : $(SOURCE) $(DEP_CPP_MLABE) "$(INTDIR)"
+"$(INTDIR)\mlabel.obj" : $(SOURCE) $(DEP_CPP_MLABE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mlabel.obj" : $(SOURCE) $(DEP_CPP_MLABE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1202,21 +1058,9 @@ DEP_CPP_MLCDN=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mlcdnum.obj" : $(SOURCE) $(DEP_CPP_MLCDN) "$(INTDIR)"
+"$(INTDIR)\mlcdnum.obj" : $(SOURCE) $(DEP_CPP_MLCDN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mlcdnum.obj" : $(SOURCE) $(DEP_CPP_MLCDN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1250,21 +1094,9 @@ DEP_CPP_MLINE=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mlined.obj" : $(SOURCE) $(DEP_CPP_MLINE) "$(INTDIR)"
+"$(INTDIR)\mlined.obj" : $(SOURCE) $(DEP_CPP_MLINE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mlined.obj" : $(SOURCE) $(DEP_CPP_MLINE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1300,21 +1132,9 @@ DEP_CPP_MLIST=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mlistbox.obj" : $(SOURCE) $(DEP_CPP_MLIST) "$(INTDIR)"
+"$(INTDIR)\mlistbox.obj" : $(SOURCE) $(DEP_CPP_MLIST) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mlistbox.obj" : $(SOURCE) $(DEP_CPP_MLIST) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1357,21 +1177,9 @@ DEP_CPP_MMENU=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mmenubar.obj" : $(SOURCE) $(DEP_CPP_MMENU) "$(INTDIR)"
+"$(INTDIR)\mmenubar.obj" : $(SOURCE) $(DEP_CPP_MMENU) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mmenubar.obj" : $(SOURCE) $(DEP_CPP_MMENU) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1407,21 +1215,9 @@ DEP_CPP_MMSGB=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mmsgbox.obj" : $(SOURCE) $(DEP_CPP_MMSGB) "$(INTDIR)"
+"$(INTDIR)\mmsgbox.obj" : $(SOURCE) $(DEP_CPP_MMSGB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mmsgbox.obj" : $(SOURCE) $(DEP_CPP_MMSGB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1463,21 +1259,9 @@ DEP_CPP_MPOPM=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mpopmenu.obj" : $(SOURCE) $(DEP_CPP_MPOPM) "$(INTDIR)"
+"$(INTDIR)\mpopmenu.obj" : $(SOURCE) $(DEP_CPP_MPOPM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mpopmenu.obj" : $(SOURCE) $(DEP_CPP_MPOPM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1512,21 +1296,9 @@ DEP_CPP_MPUSH=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mpushbt.obj" : $(SOURCE) $(DEP_CPP_MPUSH) "$(INTDIR)"
+"$(INTDIR)\mpushbt.obj" : $(SOURCE) $(DEP_CPP_MPUSH) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mpushbt.obj" : $(SOURCE) $(DEP_CPP_MPUSH) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1561,21 +1333,9 @@ DEP_CPP_MRADI=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mradiobt.obj" : $(SOURCE) $(DEP_CPP_MRADI) "$(INTDIR)"
+"$(INTDIR)\mradiobt.obj" : $(SOURCE) $(DEP_CPP_MRADI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mradiobt.obj" : $(SOURCE) $(DEP_CPP_MRADI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1610,21 +1370,9 @@ DEP_CPP_MSCRB=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mscrbar.obj" : $(SOURCE) $(DEP_CPP_MSCRB) "$(INTDIR)"
+"$(INTDIR)\mscrbar.obj" : $(SOURCE) $(DEP_CPP_MSCRB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mscrbar.obj" : $(SOURCE) $(DEP_CPP_MSCRB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1650,21 +1398,9 @@ DEP_CPP_MSOCK=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\msocknot.obj" : $(SOURCE) $(DEP_CPP_MSOCK) "$(INTDIR)"
+"$(INTDIR)\msocknot.obj" : $(SOURCE) $(DEP_CPP_MSOCK) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\msocknot.obj" : $(SOURCE) $(DEP_CPP_MSOCK) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1699,21 +1435,9 @@ DEP_CPP_MTABL=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mtablevw.obj" : $(SOURCE) $(DEP_CPP_MTABL) "$(INTDIR)"
+"$(INTDIR)\mtablevw.obj" : $(SOURCE) $(DEP_CPP_MTABL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mtablevw.obj" : $(SOURCE) $(DEP_CPP_MTABL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1739,21 +1463,9 @@ DEP_CPP_MTIME=\
 	{$(INCLUDE)}"\qtimer.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mtimer.obj" : $(SOURCE) $(DEP_CPP_MTIME) "$(INTDIR)"
+"$(INTDIR)\mtimer.obj" : $(SOURCE) $(DEP_CPP_MTIME) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mtimer.obj" : $(SOURCE) $(DEP_CPP_MTIME) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1786,21 +1498,9 @@ DEP_CPP_MWIDG=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mwidget.obj" : $(SOURCE) $(DEP_CPP_MWIDG) "$(INTDIR)"
+"$(INTDIR)\mwidget.obj" : $(SOURCE) $(DEP_CPP_MWIDG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mwidget.obj" : $(SOURCE) $(DEP_CPP_MWIDG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1834,21 +1534,9 @@ DEP_CPP_MWIND=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\mwindow.obj" : $(SOURCE) $(DEP_CPP_MWIND) "$(INTDIR)"
+"$(INTDIR)\mwindow.obj" : $(SOURCE) $(DEP_CPP_MWIND) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\mwindow.obj" : $(SOURCE) $(DEP_CPP_MWIND) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1886,21 +1574,9 @@ DEP_CPP_QACCE=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qaccel.obj" : $(SOURCE) $(DEP_CPP_QACCE) "$(INTDIR)"
+"$(INTDIR)\qaccel.obj" : $(SOURCE) $(DEP_CPP_QACCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qaccel.obj" : $(SOURCE) $(DEP_CPP_QACCE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -1942,21 +1618,9 @@ DEP_CPP_QAPP_=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qapp.obj" : $(SOURCE) $(DEP_CPP_QAPP_) "$(INTDIR)"
+"$(INTDIR)\qapp.obj" : $(SOURCE) $(DEP_CPP_QAPP_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qapp.obj" : $(SOURCE) $(DEP_CPP_QAPP_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2006,21 +1670,9 @@ DEP_CPP_QAPP_W=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qapp_win.obj" : $(SOURCE) $(DEP_CPP_QAPP_W) "$(INTDIR)"
+"$(INTDIR)\qapp_win.obj" : $(SOURCE) $(DEP_CPP_QAPP_W) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qapp_win.obj" : $(SOURCE) $(DEP_CPP_QAPP_W) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2039,21 +1691,9 @@ DEP_CPP_QBITA=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qbitarry.obj" : $(SOURCE) $(DEP_CPP_QBITA) "$(INTDIR)"
+"$(INTDIR)\qbitarry.obj" : $(SOURCE) $(DEP_CPP_QBITA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qbitarry.obj" : $(SOURCE) $(DEP_CPP_QBITA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2079,21 +1719,9 @@ DEP_CPP_QBITM=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qbitmap.obj" : $(SOURCE) $(DEP_CPP_QBITM) "$(INTDIR)"
+"$(INTDIR)\qbitmap.obj" : $(SOURCE) $(DEP_CPP_QBITM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qbitmap.obj" : $(SOURCE) $(DEP_CPP_QBITM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2131,21 +1759,9 @@ DEP_CPP_QBTTN=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qbttngrp.obj" : $(SOURCE) $(DEP_CPP_QBTTN) "$(INTDIR)"
+"$(INTDIR)\qbttngrp.obj" : $(SOURCE) $(DEP_CPP_QBTTN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qbttngrp.obj" : $(SOURCE) $(DEP_CPP_QBTTN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2163,21 +1779,9 @@ DEP_CPP_QBUFF=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qbuffer.obj" : $(SOURCE) $(DEP_CPP_QBUFF) "$(INTDIR)"
+"$(INTDIR)\qbuffer.obj" : $(SOURCE) $(DEP_CPP_QBUFF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qbuffer.obj" : $(SOURCE) $(DEP_CPP_QBUFF) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2219,21 +1823,9 @@ DEP_CPP_QBUTT=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qbutton.obj" : $(SOURCE) $(DEP_CPP_QBUTT) "$(INTDIR)"
+"$(INTDIR)\qbutton.obj" : $(SOURCE) $(DEP_CPP_QBUTT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qbutton.obj" : $(SOURCE) $(DEP_CPP_QBUTT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2275,21 +1867,9 @@ DEP_CPP_QCHKB=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qchkbox.obj" : $(SOURCE) $(DEP_CPP_QCHKB) "$(INTDIR)"
+"$(INTDIR)\qchkbox.obj" : $(SOURCE) $(DEP_CPP_QCHKB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qchkbox.obj" : $(SOURCE) $(DEP_CPP_QCHKB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2324,21 +1904,9 @@ DEP_CPP_QCLB_=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qclb_win.obj" : $(SOURCE) $(DEP_CPP_QCLB_) "$(INTDIR)"
+"$(INTDIR)\qclb_win.obj" : $(SOURCE) $(DEP_CPP_QCLB_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qclb_win.obj" : $(SOURCE) $(DEP_CPP_QCLB_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2371,21 +1939,9 @@ DEP_CPP_QCLIP=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qclipbrd.obj" : $(SOURCE) $(DEP_CPP_QCLIP) "$(INTDIR)"
+"$(INTDIR)\qclipbrd.obj" : $(SOURCE) $(DEP_CPP_QCLIP) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qclipbrd.obj" : $(SOURCE) $(DEP_CPP_QCLIP) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2417,21 +1973,9 @@ DEP_CPP_QCOL_=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qcol_win.obj" : $(SOURCE) $(DEP_CPP_QCOL_) "$(INTDIR)"
+"$(INTDIR)\qcol_win.obj" : $(SOURCE) $(DEP_CPP_QCOL_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qcol_win.obj" : $(SOURCE) $(DEP_CPP_QCOL_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2443,21 +1987,9 @@ DEP_CPP_QCOLL=\
 	{$(INCLUDE)}"\qglobal.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qcollect.obj" : $(SOURCE) $(DEP_CPP_QCOLL) "$(INTDIR)"
+"$(INTDIR)\qcollect.obj" : $(SOURCE) $(DEP_CPP_QCOLL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qcollect.obj" : $(SOURCE) $(DEP_CPP_QCOLL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2478,21 +2010,9 @@ DEP_CPP_QCOLO=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qcolor.obj" : $(SOURCE) $(DEP_CPP_QCOLO) "$(INTDIR)"
+"$(INTDIR)\qcolor.obj" : $(SOURCE) $(DEP_CPP_QCOLO) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qcolor.obj" : $(SOURCE) $(DEP_CPP_QCOLO) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2545,21 +2065,9 @@ DEP_CPP_QCOMB=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qcombo.obj" : $(SOURCE) $(DEP_CPP_QCOMB) "$(INTDIR)"
+"$(INTDIR)\qcombo.obj" : $(SOURCE) $(DEP_CPP_QCOMB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qcombo.obj" : $(SOURCE) $(DEP_CPP_QCOMB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2583,21 +2091,9 @@ DEP_CPP_QCONN=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qconnect.obj" : $(SOURCE) $(DEP_CPP_QCONN) "$(INTDIR)"
+"$(INTDIR)\qconnect.obj" : $(SOURCE) $(DEP_CPP_QCONN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qconnect.obj" : $(SOURCE) $(DEP_CPP_QCONN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2634,21 +2130,9 @@ DEP_CPP_QCUR_=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qcur_win.obj" : $(SOURCE) $(DEP_CPP_QCUR_) "$(INTDIR)"
+"$(INTDIR)\qcur_win.obj" : $(SOURCE) $(DEP_CPP_QCUR_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qcur_win.obj" : $(SOURCE) $(DEP_CPP_QCUR_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2676,21 +2160,9 @@ DEP_CPP_QCURS=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qcursor.obj" : $(SOURCE) $(DEP_CPP_QCURS) "$(INTDIR)"
+"$(INTDIR)\qcursor.obj" : $(SOURCE) $(DEP_CPP_QCURS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qcursor.obj" : $(SOURCE) $(DEP_CPP_QCURS) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2709,21 +2181,9 @@ DEP_CPP_QDATE=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qdatetm.obj" : $(SOURCE) $(DEP_CPP_QDATE) "$(INTDIR)"
+"$(INTDIR)\qdatetm.obj" : $(SOURCE) $(DEP_CPP_QDATE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qdatetm.obj" : $(SOURCE) $(DEP_CPP_QDATE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2768,21 +2228,9 @@ DEP_CPP_QDIAL=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qdialog.obj" : $(SOURCE) $(DEP_CPP_QDIAL) "$(INTDIR)"
+"$(INTDIR)\qdialog.obj" : $(SOURCE) $(DEP_CPP_QDIAL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qdialog.obj" : $(SOURCE) $(DEP_CPP_QDIAL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2812,21 +2260,9 @@ DEP_CPP_QDIR_=\
 	{$(INCLUDE)}"\sys\types.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qdir.obj" : $(SOURCE) $(DEP_CPP_QDIR_) "$(INTDIR)"
+"$(INTDIR)\qdir.obj" : $(SOURCE) $(DEP_CPP_QDIR_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qdir.obj" : $(SOURCE) $(DEP_CPP_QDIR_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2860,21 +2296,9 @@ DEP_CPP_QDRAW=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qdrawutl.obj" : $(SOURCE) $(DEP_CPP_QDRAW) "$(INTDIR)"
+"$(INTDIR)\qdrawutl.obj" : $(SOURCE) $(DEP_CPP_QDRAW) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qdrawutl.obj" : $(SOURCE) $(DEP_CPP_QDRAW) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2894,21 +2318,9 @@ DEP_CPP_QDSTR=\
 	{$(INCLUDE)}"\sys\types.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qdstream.obj" : $(SOURCE) $(DEP_CPP_QDSTR) "$(INTDIR)"
+"$(INTDIR)\qdstream.obj" : $(SOURCE) $(DEP_CPP_QDSTR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qdstream.obj" : $(SOURCE) $(DEP_CPP_QDSTR) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2925,21 +2337,9 @@ DEP_CPP_QEVEN=\
 	{$(INCLUDE)}"\qsize.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qevent.obj" : $(SOURCE) $(DEP_CPP_QEVEN) "$(INTDIR)"
+"$(INTDIR)\qevent.obj" : $(SOURCE) $(DEP_CPP_QEVEN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qevent.obj" : $(SOURCE) $(DEP_CPP_QEVEN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -2960,21 +2360,9 @@ DEP_CPP_QFILE=\
 	{$(INCLUDE)}"\sys\types.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qfile.obj" : $(SOURCE) $(DEP_CPP_QFILE) "$(INTDIR)"
+"$(INTDIR)\qfile.obj" : $(SOURCE) $(DEP_CPP_QFILE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qfile.obj" : $(SOURCE) $(DEP_CPP_QFILE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3028,21 +2416,9 @@ DEP_CPP_QFILED=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qfiledlg.obj" : $(SOURCE) $(DEP_CPP_QFILED) "$(INTDIR)"
+"$(INTDIR)\qfiledlg.obj" : $(SOURCE) $(DEP_CPP_QFILED) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qfiledlg.obj" : $(SOURCE) $(DEP_CPP_QFILED) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3071,21 +2447,9 @@ DEP_CPP_QFILEI=\
 	{$(INCLUDE)}"\sys\types.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qfileinf.obj" : $(SOURCE) $(DEP_CPP_QFILEI) "$(INTDIR)"
+"$(INTDIR)\qfileinf.obj" : $(SOURCE) $(DEP_CPP_QFILEI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qfileinf.obj" : $(SOURCE) $(DEP_CPP_QFILEI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3123,21 +2487,9 @@ DEP_CPP_QFNT_=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qfnt_win.obj" : $(SOURCE) $(DEP_CPP_QFNT_) "$(INTDIR)"
+"$(INTDIR)\qfnt_win.obj" : $(SOURCE) $(DEP_CPP_QFNT_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qfnt_win.obj" : $(SOURCE) $(DEP_CPP_QFNT_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3183,21 +2535,9 @@ DEP_CPP_QFONT=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qfont.obj" : $(SOURCE) $(DEP_CPP_QFONT) "$(INTDIR)"
+"$(INTDIR)\qfont.obj" : $(SOURCE) $(DEP_CPP_QFONT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qfont.obj" : $(SOURCE) $(DEP_CPP_QFONT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3236,21 +2576,9 @@ DEP_CPP_QFRAM=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qframe.obj" : $(SOURCE) $(DEP_CPP_QFRAM) "$(INTDIR)"
+"$(INTDIR)\qframe.obj" : $(SOURCE) $(DEP_CPP_QFRAM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qframe.obj" : $(SOURCE) $(DEP_CPP_QFRAM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3266,21 +2594,9 @@ DEP_CPP_QGARR=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qgarray.obj" : $(SOURCE) $(DEP_CPP_QGARR) "$(INTDIR)"
+"$(INTDIR)\qgarray.obj" : $(SOURCE) $(DEP_CPP_QGARR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qgarray.obj" : $(SOURCE) $(DEP_CPP_QGARR) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3302,21 +2618,9 @@ DEP_CPP_QGCAC=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qgcache.obj" : $(SOURCE) $(DEP_CPP_QGCAC) "$(INTDIR)"
+"$(INTDIR)\qgcache.obj" : $(SOURCE) $(DEP_CPP_QGCAC) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qgcache.obj" : $(SOURCE) $(DEP_CPP_QGCAC) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3338,21 +2642,9 @@ DEP_CPP_QGDIC=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qgdict.obj" : $(SOURCE) $(DEP_CPP_QGDIC) "$(INTDIR)"
+"$(INTDIR)\qgdict.obj" : $(SOURCE) $(DEP_CPP_QGDIC) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qgdict.obj" : $(SOURCE) $(DEP_CPP_QGDIC) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3373,21 +2665,9 @@ DEP_CPP_QGLIS=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qglist.obj" : $(SOURCE) $(DEP_CPP_QGLIS) "$(INTDIR)"
+"$(INTDIR)\qglist.obj" : $(SOURCE) $(DEP_CPP_QGLIS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qglist.obj" : $(SOURCE) $(DEP_CPP_QGLIS) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3406,21 +2686,9 @@ DEP_CPP_QGLOB=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qglobal.obj" : $(SOURCE) $(DEP_CPP_QGLOB) "$(INTDIR)"
+"$(INTDIR)\qglobal.obj" : $(SOURCE) $(DEP_CPP_QGLOB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qglobal.obj" : $(SOURCE) $(DEP_CPP_QGLOB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3459,21 +2727,9 @@ DEP_CPP_QGRPB=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qgrpbox.obj" : $(SOURCE) $(DEP_CPP_QGRPB) "$(INTDIR)"
+"$(INTDIR)\qgrpbox.obj" : $(SOURCE) $(DEP_CPP_QGRPB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qgrpbox.obj" : $(SOURCE) $(DEP_CPP_QGRPB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3494,21 +2750,9 @@ DEP_CPP_QGVEC=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qgvector.obj" : $(SOURCE) $(DEP_CPP_QGVEC) "$(INTDIR)"
+"$(INTDIR)\qgvector.obj" : $(SOURCE) $(DEP_CPP_QGVEC) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qgvector.obj" : $(SOURCE) $(DEP_CPP_QGVEC) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3542,21 +2786,9 @@ DEP_CPP_QIMAG=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qimage.obj" : $(SOURCE) $(DEP_CPP_QIMAG) "$(INTDIR)"
+"$(INTDIR)\qimage.obj" : $(SOURCE) $(DEP_CPP_QIMAG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qimage.obj" : $(SOURCE) $(DEP_CPP_QIMAG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3568,21 +2800,9 @@ DEP_CPP_QIODE=\
 	{$(INCLUDE)}"\qiodev.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qiodev.obj" : $(SOURCE) $(DEP_CPP_QIODE) "$(INTDIR)"
+"$(INTDIR)\qiodev.obj" : $(SOURCE) $(DEP_CPP_QIODE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qiodev.obj" : $(SOURCE) $(DEP_CPP_QIODE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3622,21 +2842,9 @@ DEP_CPP_QLABE=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qlabel.obj" : $(SOURCE) $(DEP_CPP_QLABE) "$(INTDIR)"
+"$(INTDIR)\qlabel.obj" : $(SOURCE) $(DEP_CPP_QLABE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qlabel.obj" : $(SOURCE) $(DEP_CPP_QLABE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3676,21 +2884,9 @@ DEP_CPP_QLCDN=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qlcdnum.obj" : $(SOURCE) $(DEP_CPP_QLCDN) "$(INTDIR)"
+"$(INTDIR)\qlcdnum.obj" : $(SOURCE) $(DEP_CPP_QLCDN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qlcdnum.obj" : $(SOURCE) $(DEP_CPP_QLCDN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3733,21 +2929,9 @@ DEP_CPP_QLINE=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qlined.obj" : $(SOURCE) $(DEP_CPP_QLINE) "$(INTDIR)"
+"$(INTDIR)\qlined.obj" : $(SOURCE) $(DEP_CPP_QLINE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qlined.obj" : $(SOURCE) $(DEP_CPP_QLINE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3796,21 +2980,9 @@ DEP_CPP_QLIST=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qlistbox.obj" : $(SOURCE) $(DEP_CPP_QLIST) "$(INTDIR)"
+"$(INTDIR)\qlistbox.obj" : $(SOURCE) $(DEP_CPP_QLIST) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qlistbox.obj" : $(SOURCE) $(DEP_CPP_QLIST) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3861,21 +3033,9 @@ DEP_CPP_QMENU=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qmenubar.obj" : $(SOURCE) $(DEP_CPP_QMENU) "$(INTDIR)"
+"$(INTDIR)\qmenubar.obj" : $(SOURCE) $(DEP_CPP_QMENU) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qmenubar.obj" : $(SOURCE) $(DEP_CPP_QMENU) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3916,21 +3076,9 @@ DEP_CPP_QMENUD=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qmenudta.obj" : $(SOURCE) $(DEP_CPP_QMENUD) "$(INTDIR)"
+"$(INTDIR)\qmenudta.obj" : $(SOURCE) $(DEP_CPP_QMENUD) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qmenudta.obj" : $(SOURCE) $(DEP_CPP_QMENUD) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -3964,21 +3112,9 @@ DEP_CPP_QMETA=\
 	{$(INCLUDE)}"\qstrlist.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qmetaobj.obj" : $(SOURCE) $(DEP_CPP_QMETA) "$(INTDIR)"
+"$(INTDIR)\qmetaobj.obj" : $(SOURCE) $(DEP_CPP_QMETA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qmetaobj.obj" : $(SOURCE) $(DEP_CPP_QMETA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4016,21 +3152,9 @@ DEP_CPP_QMSGB=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qmsgbox.obj" : $(SOURCE) $(DEP_CPP_QMSGB) "$(INTDIR)"
+"$(INTDIR)\qmsgbox.obj" : $(SOURCE) $(DEP_CPP_QMSGB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qmsgbox.obj" : $(SOURCE) $(DEP_CPP_QMSGB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4062,21 +3186,9 @@ DEP_CPP_QOBJE=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qobject.obj" : $(SOURCE) $(DEP_CPP_QOBJE) "$(INTDIR)"
+"$(INTDIR)\qobject.obj" : $(SOURCE) $(DEP_CPP_QOBJE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qobject.obj" : $(SOURCE) $(DEP_CPP_QOBJE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4116,21 +3228,9 @@ DEP_CPP_QPAIN=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpainter.obj" : $(SOURCE) $(DEP_CPP_QPAIN) "$(INTDIR)"
+"$(INTDIR)\qpainter.obj" : $(SOURCE) $(DEP_CPP_QPAIN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpainter.obj" : $(SOURCE) $(DEP_CPP_QPAIN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4152,21 +3252,9 @@ DEP_CPP_QPALE=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpalette.obj" : $(SOURCE) $(DEP_CPP_QPALE) "$(INTDIR)"
+"$(INTDIR)\qpalette.obj" : $(SOURCE) $(DEP_CPP_QPALE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpalette.obj" : $(SOURCE) $(DEP_CPP_QPALE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4185,21 +3273,9 @@ DEP_CPP_QPDEV=\
 	{$(INCLUDE)}"\qsize.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpdevmet.obj" : $(SOURCE) $(DEP_CPP_QPDEV) "$(INTDIR)"
+"$(INTDIR)\qpdevmet.obj" : $(SOURCE) $(DEP_CPP_QPDEV) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpdevmet.obj" : $(SOURCE) $(DEP_CPP_QPDEV) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4224,21 +3300,9 @@ DEP_CPP_QPIC_=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpic_win.obj" : $(SOURCE) $(DEP_CPP_QPIC_) "$(INTDIR)"
+"$(INTDIR)\qpic_win.obj" : $(SOURCE) $(DEP_CPP_QPIC_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpic_win.obj" : $(SOURCE) $(DEP_CPP_QPIC_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4277,21 +3341,9 @@ DEP_CPP_QPICT=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpicture.obj" : $(SOURCE) $(DEP_CPP_QPICT) "$(INTDIR)"
+"$(INTDIR)\qpicture.obj" : $(SOURCE) $(DEP_CPP_QPICT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpicture.obj" : $(SOURCE) $(DEP_CPP_QPICT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4334,21 +3386,9 @@ DEP_CPP_QPIXM=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpixmap.obj" : $(SOURCE) $(DEP_CPP_QPIXM) "$(INTDIR)"
+"$(INTDIR)\qpixmap.obj" : $(SOURCE) $(DEP_CPP_QPIXM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpixmap.obj" : $(SOURCE) $(DEP_CPP_QPIXM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4386,21 +3426,9 @@ DEP_CPP_QPM_W=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpm_win.obj" : $(SOURCE) $(DEP_CPP_QPM_W) "$(INTDIR)"
+"$(INTDIR)\qpm_win.obj" : $(SOURCE) $(DEP_CPP_QPM_W) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpm_win.obj" : $(SOURCE) $(DEP_CPP_QPM_W) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4427,21 +3455,9 @@ DEP_CPP_QPMCA=\
 	{$(INCLUDE)}"\qsize.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpmcache.obj" : $(SOURCE) $(DEP_CPP_QPMCA) "$(INTDIR)"
+"$(INTDIR)\qpmcache.obj" : $(SOURCE) $(DEP_CPP_QPMCA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpmcache.obj" : $(SOURCE) $(DEP_CPP_QPMCA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4466,21 +3482,9 @@ DEP_CPP_QPNTA=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpntarry.obj" : $(SOURCE) $(DEP_CPP_QPNTA) "$(INTDIR)"
+"$(INTDIR)\qpntarry.obj" : $(SOURCE) $(DEP_CPP_QPNTA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpntarry.obj" : $(SOURCE) $(DEP_CPP_QPNTA) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4501,21 +3505,9 @@ DEP_CPP_QPOIN=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpoint.obj" : $(SOURCE) $(DEP_CPP_QPOIN) "$(INTDIR)"
+"$(INTDIR)\qpoint.obj" : $(SOURCE) $(DEP_CPP_QPOIN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpoint.obj" : $(SOURCE) $(DEP_CPP_QPOIN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4568,21 +3560,9 @@ DEP_CPP_QPOPM=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpopmenu.obj" : $(SOURCE) $(DEP_CPP_QPOPM) "$(INTDIR)"
+"$(INTDIR)\qpopmenu.obj" : $(SOURCE) $(DEP_CPP_QPOPM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpopmenu.obj" : $(SOURCE) $(DEP_CPP_QPOPM) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4605,21 +3585,9 @@ DEP_CPP_QPRIN=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qprinter.obj" : $(SOURCE) $(DEP_CPP_QPRIN) "$(INTDIR)"
+"$(INTDIR)\qprinter.obj" : $(SOURCE) $(DEP_CPP_QPRIN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qprinter.obj" : $(SOURCE) $(DEP_CPP_QPRIN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4659,21 +3627,9 @@ DEP_CPP_QPRN_=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qprn_win.obj" : $(SOURCE) $(DEP_CPP_QPRN_) "$(INTDIR)"
+"$(INTDIR)\qprn_win.obj" : $(SOURCE) $(DEP_CPP_QPRN_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qprn_win.obj" : $(SOURCE) $(DEP_CPP_QPRN_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4708,21 +3664,9 @@ DEP_CPP_QPTD_=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qptd_win.obj" : $(SOURCE) $(DEP_CPP_QPTD_) "$(INTDIR)"
+"$(INTDIR)\qptd_win.obj" : $(SOURCE) $(DEP_CPP_QPTD_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qptd_win.obj" : $(SOURCE) $(DEP_CPP_QPTD_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4770,21 +3714,9 @@ DEP_CPP_QPTR_=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qptr_win.obj" : $(SOURCE) $(DEP_CPP_QPTR_) "$(INTDIR)"
+"$(INTDIR)\qptr_win.obj" : $(SOURCE) $(DEP_CPP_QPTR_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qptr_win.obj" : $(SOURCE) $(DEP_CPP_QPTR_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4828,21 +3760,9 @@ DEP_CPP_QPUSH=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qpushbt.obj" : $(SOURCE) $(DEP_CPP_QPUSH) "$(INTDIR)"
+"$(INTDIR)\qpushbt.obj" : $(SOURCE) $(DEP_CPP_QPUSH) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qpushbt.obj" : $(SOURCE) $(DEP_CPP_QPUSH) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4886,21 +3806,9 @@ DEP_CPP_QRADI=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qradiobt.obj" : $(SOURCE) $(DEP_CPP_QRADI) "$(INTDIR)"
+"$(INTDIR)\qradiobt.obj" : $(SOURCE) $(DEP_CPP_QRADI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qradiobt.obj" : $(SOURCE) $(DEP_CPP_QRADI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4912,21 +3820,9 @@ DEP_CPP_QRANG=\
 	{$(INCLUDE)}"\qrangect.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qrangect.obj" : $(SOURCE) $(DEP_CPP_QRANG) "$(INTDIR)"
+"$(INTDIR)\qrangect.obj" : $(SOURCE) $(DEP_CPP_QRANG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qrangect.obj" : $(SOURCE) $(DEP_CPP_QRANG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4949,21 +3845,9 @@ DEP_CPP_QRECT=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qrect.obj" : $(SOURCE) $(DEP_CPP_QRECT) "$(INTDIR)"
+"$(INTDIR)\qrect.obj" : $(SOURCE) $(DEP_CPP_QRECT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qrect.obj" : $(SOURCE) $(DEP_CPP_QRECT) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -4980,21 +3864,9 @@ DEP_CPP_QREGE=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qregexp.obj" : $(SOURCE) $(DEP_CPP_QREGE) "$(INTDIR)"
+"$(INTDIR)\qregexp.obj" : $(SOURCE) $(DEP_CPP_QREGE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qregexp.obj" : $(SOURCE) $(DEP_CPP_QREGE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5020,21 +3892,9 @@ DEP_CPP_QREGI=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qregion.obj" : $(SOURCE) $(DEP_CPP_QREGI) "$(INTDIR)"
+"$(INTDIR)\qregion.obj" : $(SOURCE) $(DEP_CPP_QREGI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qregion.obj" : $(SOURCE) $(DEP_CPP_QREGI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5059,21 +3919,9 @@ DEP_CPP_QRGN_=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qrgn_win.obj" : $(SOURCE) $(DEP_CPP_QRGN_) "$(INTDIR)"
+"$(INTDIR)\qrgn_win.obj" : $(SOURCE) $(DEP_CPP_QRGN_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qrgn_win.obj" : $(SOURCE) $(DEP_CPP_QRGN_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5115,21 +3963,9 @@ DEP_CPP_QSCRB=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qscrbar.obj" : $(SOURCE) $(DEP_CPP_QSCRB) "$(INTDIR)"
+"$(INTDIR)\qscrbar.obj" : $(SOURCE) $(DEP_CPP_QSCRB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qscrbar.obj" : $(SOURCE) $(DEP_CPP_QSCRB) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5155,21 +3991,9 @@ DEP_CPP_QSIGN=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qsignal.obj" : $(SOURCE) $(DEP_CPP_QSIGN) "$(INTDIR)"
+"$(INTDIR)\qsignal.obj" : $(SOURCE) $(DEP_CPP_QSIGN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qsignal.obj" : $(SOURCE) $(DEP_CPP_QSIGN) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5191,21 +4015,9 @@ DEP_CPP_QSIZE=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qsize.obj" : $(SOURCE) $(DEP_CPP_QSIZE) "$(INTDIR)"
+"$(INTDIR)\qsize.obj" : $(SOURCE) $(DEP_CPP_QSIZE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qsize.obj" : $(SOURCE) $(DEP_CPP_QSIZE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5229,21 +4041,9 @@ DEP_CPP_QSOCK=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qsocknot.obj" : $(SOURCE) $(DEP_CPP_QSOCK) "$(INTDIR)"
+"$(INTDIR)\qsocknot.obj" : $(SOURCE) $(DEP_CPP_QSOCK) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qsocknot.obj" : $(SOURCE) $(DEP_CPP_QSOCK) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5261,21 +4061,9 @@ DEP_CPP_QSTRI=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qstring.obj" : $(SOURCE) $(DEP_CPP_QSTRI) "$(INTDIR)"
+"$(INTDIR)\qstring.obj" : $(SOURCE) $(DEP_CPP_QSTRI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qstring.obj" : $(SOURCE) $(DEP_CPP_QSTRI) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5317,21 +4105,9 @@ DEP_CPP_QTABL=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qtablevw.obj" : $(SOURCE) $(DEP_CPP_QTABL) "$(INTDIR)"
+"$(INTDIR)\qtablevw.obj" : $(SOURCE) $(DEP_CPP_QTABL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qtablevw.obj" : $(SOURCE) $(DEP_CPP_QTABL) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5355,21 +4131,9 @@ DEP_CPP_QTIME=\
 	{$(INCLUDE)}"\qtimer.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qtimer.obj" : $(SOURCE) $(DEP_CPP_QTIME) "$(INTDIR)"
+"$(INTDIR)\qtimer.obj" : $(SOURCE) $(DEP_CPP_QTIME) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qtimer.obj" : $(SOURCE) $(DEP_CPP_QTIME) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5389,21 +4153,9 @@ DEP_CPP_QTSTR=\
 	{$(INCLUDE)}"\qtstream.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qtstream.obj" : $(SOURCE) $(DEP_CPP_QTSTR) "$(INTDIR)"
+"$(INTDIR)\qtstream.obj" : $(SOURCE) $(DEP_CPP_QTSTR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qtstream.obj" : $(SOURCE) $(DEP_CPP_QTSTR) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5454,21 +4206,9 @@ DEP_CPP_QWID_=\
 	{$(INCLUDE)}"\qwmatrix.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qwid_win.obj" : $(SOURCE) $(DEP_CPP_QWID_) "$(INTDIR)"
+"$(INTDIR)\qwid_win.obj" : $(SOURCE) $(DEP_CPP_QWID_) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qwid_win.obj" : $(SOURCE) $(DEP_CPP_QWID_) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5512,21 +4252,9 @@ DEP_CPP_QWIDG=\
 	{$(INCLUDE)}"\qwidget.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qwidget.obj" : $(SOURCE) $(DEP_CPP_QWIDG) "$(INTDIR)"
+"$(INTDIR)\qwidget.obj" : $(SOURCE) $(DEP_CPP_QWIDG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qwidget.obj" : $(SOURCE) $(DEP_CPP_QWIDG) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5559,21 +4287,9 @@ DEP_CPP_QWIND=\
 	{$(INCLUDE)}"\qwindow.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\qwindow.obj" : $(SOURCE) $(DEP_CPP_QWIND) "$(INTDIR)"
+"$(INTDIR)\qwindow.obj" : $(SOURCE) $(DEP_CPP_QWIND) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\qwindow.obj" : $(SOURCE) $(DEP_CPP_QWIND) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 ################################################################################
@@ -5600,21 +4316,9 @@ DEP_CPP_MACCE=\
 	{$(INCLUDE)}"\qstring.h"\
 
 
-!IF  "$(CFG)" == "qt - Win32 Release"
-
-
-".\Release\maccel.obj" : $(SOURCE) $(DEP_CPP_MACCE) "$(INTDIR)"
+"$(INTDIR)\maccel.obj" : $(SOURCE) $(DEP_CPP_MACCE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
-
-!ELSEIF	 "$(CFG)" == "qt - Win32 Debug"
-
-
-".\Debug\maccel.obj" : $(SOURCE) $(DEP_CPP_MACCE) "$(INTDIR)"
-   $(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-!ENDIF
 
 # End Source File
 # End Target
