@@ -218,8 +218,6 @@ else
     exit 1
 fi
 
-# licensed modules depend on type of commercial license
-QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
 #QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"styles += windows mac\""  # Temporary until all the styles are ported over.
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
@@ -3139,6 +3137,7 @@ fi
 QTCONFIG=$outpath/.qt.config
 [ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
 cat >>$QTCONFIG.tmp <<EOF
+QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
 # replace .qt.config if it differs from the newly created temp file
