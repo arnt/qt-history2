@@ -136,7 +136,7 @@
     assertions, such as <b>^</b> and <b>$</b>, do not match any
     characters.
 
-    If you've seen regexps elsewhere they may have looked different from
+    If you've seen regexps elsewhere, they may have looked different from
     the ones above. This is because some sets of characters and some
     quantifiers are so common that they have special symbols to
     represent them. <b>[0-9]</b> can be replaced with the symbol
@@ -3758,7 +3758,7 @@ QStringList QRegExp::capturedTexts()
     is the text of the second, and so on.
 
     \target cap_in_a_loop
-    Some patterns may lead to a number of matches which cannot be
+    Some patterns may lead to a number of matches that cannot be
     determined in advance, for example:
 
     \code
