@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#39 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#39 $");
 
 
 /*!
@@ -163,20 +163,13 @@ uint QAccel::count() const
 
 
 /*!
-  Inserts an accelerator item with an item itentifier.
+  Inserts an accelerator item and returns the item's identifier.
 
   \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
   \arg \e id is the accelerator item id.
 
   If \e id is negative, then the item will be assigned a unique
   identifier.
-
-  The item is assigned the identifier \a id or an automatically
-  generated identifier.	 It works as follows: If \a id \>= 0, this
-  identifier is assigned.  If \a id == -1 (default), the identifier is
-  set equal to the number of accelerator items already inserted.
-  If \a id is any other negative integer, for instance -2, a unique
-  identifier (negative integer \<= -2) is generated.
 
   \code
     QAccel *a = new QAccel( myWindow );		// create accels for myWindow
@@ -190,35 +183,11 @@ uint QAccel::count() const
 
 int QAccel::insertItem( int key, int id )
 {
-    static int seq_no = -2;
     if ( id == -1 )
 	id = aitems->count();
-    else if ( id <= -2 )
-	id = seq_no--;
     aitems->insert( 0, new QAccelItem(key,id) );
     return id;
 }
-
-
-/*!
-  Inserts an accelerator item and connects it to an object/slot.
-  Returns a unique menu item identifier (negative integer \<= -2).
-
-  \arg \e key is a key code plus a combination of SHIFT, CTRL and ALT.
-
-  \code
-    QAccel *a = new QAccel( myWindow );
-    a->insertItem( Key_P + CTRL, myWindow, SLOT(print()) );
-  \endcode
-*/
-
-int QAccel::insertItem( int key, const QObject *receiver, const char *member )
-{
-    int id = insertItem( key, -2 );
-    connectItem( id, receiver, member );
-    return id;
-}
-
 
 /*!
   Removes the accelerator item with the identifier \e id.

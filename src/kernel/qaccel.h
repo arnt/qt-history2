@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#25 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#26 $
 **
 ** Definition of QAccel class
 **
@@ -32,7 +32,6 @@ public:
     uint	count() const;
 
     int		insertItem( int key, int id=-1 );
-    int		insertItem( int key, const QObject *receiver, const char *member );
     void	removeItem( int id );
     void	clear();
 
