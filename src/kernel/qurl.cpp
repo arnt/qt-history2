@@ -543,9 +543,9 @@ bool QUrl::parse( const QString& url )
     static uchar table[ 12 ][ 8 ] = {
      /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */
 	{ 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
-	{ 0,       Protocol,   0,          0,          Separator1, 0,          0,          0,         }, // Protocol
+	{ 0,       Protocol,   Protocol,   0,          Separator1, 0,          0,          0,         }, // Protocol
 	{ 0,       Path,       Path,       Separator2, 0,          0,          0,          0,         }, // Separator1
-	{ 0,       Path,       Path,          Separator3, 0,          0,          0,          0,         }, // Separator2
+	{ 0,       Path,       Path,       Separator3, 0,          0,          0,          0,         }, // Separator2
 	{ 0,       User,       User,       Separator3, Pass,       Host,       0,          0,         }, // Separator3
 	{ 0,       User,       User,       User,       Pass,       Host,       User,       User,      }, // User
 	{ 0,       Pass,       Pass,       Pass,       Pass,       Host,       Pass,       Pass,      }, // Pass
