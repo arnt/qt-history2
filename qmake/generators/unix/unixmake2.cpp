@@ -682,6 +682,45 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << endl;
 
+    t << "yaccclean:" << "\n";
+    if(!var("YACCSOURCES").isEmpty()) {
+	QStringList clean, &l = project->variables()["YACCSOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QFileInfo fi((*it));
+	    QString dir;
+	    if(fi.dirPath() != ".")
+		dir = fi.dirPath() + Option::dir_sep;
+	    dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
+	    if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
+		dir += Option::dir_sep;
+	    clean <<  dir + fi.baseName(TRUE) + Option::yacc_mod + Option::cpp_ext.first();
+	    clean << dir + fi.baseName(TRUE) + Option::yacc_mod + Option::h_ext.first();
+	}
+	if(!clean.isEmpty()) {
+	    t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
+	    clean_targets += " yaccclean";
+	}
+    }
+
+    t << "lexclean:" << "\n";
+    if(!var("LEXSOURCES").isEmpty()) {
+	QStringList clean, &l = project->variables()["LEXSOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QFileInfo fi((*it));
+	    QString dir;
+	    if(fi.dirPath() != ".")
+		dir = fi.dirPath() + Option::dir_sep;
+	    dir = fileFixify(dir, QDir::currentDirPath(), Option::output_dir);
+	    if(!dir.isEmpty() && dir.right(Option::dir_sep.length()) != Option::dir_sep)
+		dir += Option::dir_sep;
+	    clean <<  dir + fi.baseName(TRUE) + Option::lex_mod + Option::cpp_ext.first();
+	}
+	if(!clean.isEmpty()) {
+	    t << "\t-$(DEL_FILE) " << clean.join(" ") << "\n";
+	    clean_targets += " lexclean";
+	}
+    }
+
     if(do_incremental) {
 	t << "incrclean:" << "\n";
 	if(src_incremental)
@@ -853,7 +892,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     writeMakeQmake(t);
 
     if(project->isEmpty("SUBDIRS")) {
-	t << "all qmake_all distclean install uiclean mocclean clean: FORCE" << endl;
+	t << "all qmake_all distclean install uiclean mocclean lexclean yaccclean clean: FORCE" << endl;
     } else {
 	t << "all: $(SUBTARGETS)" << endl;
 	t << "qmake_all:";
@@ -871,7 +910,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
 	}
 	t << endl;
-	t << "clean uninstall install uiclean mocclean: qmake_all FORCE";
+	t << "clean uninstall install uiclean mocclean lexclean yaccclean: qmake_all FORCE";
 	for( it.toFirst(); it.current(); ++it) {
 	    t << "\n\t ( ";
 	    if(!(*it)->directory.isEmpty())
