@@ -426,23 +426,23 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	switch (tb_layout_info.at(k).at(0).where) {
 	case TOP:
 	    tb_sz = rest_sz[k];
-	    tb_rect[k].setBottom(tb_rect[k].top() + tb_sz.height());
+	    tb_rect[k].setBottom(tb_rect[k].top() + tb_sz.height() - QRect::rectangleMode());
 	    r.setTop(tb_rect[k].bottom() + QRect::rectangleMode());
 	    break;
 	case LEFT:
 	    tb_sz = rest_sz[k];
-	    tb_rect[k].setRight(tb_rect[k].x() + tb_sz.width());
+	    tb_rect[k].setRight(tb_rect[k].x() + tb_sz.width() - QRect::rectangleMode());
 	    r.setLeft(tb_rect[k].right() + QRect::rectangleMode());
 	    break;
 	case BOTTOM:
  	    tb_sz = bottom_sz.pop();
-	    tb_rect[k].setTop(tb_rect[k].bottom() - tb_sz.height());
+	    tb_rect[k].setTop(tb_rect[k].bottom() - tb_sz.height() + QRect::rectangleMode());
 	    bottom_rect.push(tb_rect[k]);
 	    r.setBottom(tb_rect[k].top() - QRect::rectangleMode());
 	    break;
 	case RIGHT:
  	    tb_sz = right_sz.pop();
-	    tb_rect[k].setLeft(tb_rect[k].right() - tb_sz.width());
+	    tb_rect[k].setLeft(tb_rect[k].right() - tb_sz.width() + QRect::rectangleMode());
 	    right_rect.push(tb_rect[k]);
 	    r.setRight(tb_rect[k].left() - QRect::rectangleMode());
 	    break;
