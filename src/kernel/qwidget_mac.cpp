@@ -1538,11 +1538,13 @@ void QWidget::showNormal()
 	if(topData()->fullscreen) {
 	    reparent(0, topData()->savedFlags, QPoint(0,0));
 	    setGeometry(topData()->normalGeometry);
-	} else {
+	} else if(isMaximized()) {
 	    Rect bounds;
 	    ZoomWindow((WindowPtr)hd, inZoomIn, FALSE);
 	    GetPortBounds(GetWindowPort((WindowPtr)hd), &bounds);
 	    qt_dirty_wndw_rgn("showNormal",this, &bounds);
+	} else {
+	    CollapseWindow((WindowPtr)hd, FALSE);
 	}
     }
     if(extra && extra->topextra)
