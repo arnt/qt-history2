@@ -2472,23 +2472,20 @@ bool QMultiLineEdit::inMark( int posx, int posy ) const
 void QMultiLineEdit::markWord( int posx, int posy )
 {
     QString& s = contents->at( posy )->s;
-    int lim = s.length();
+
     int i = posx - 1;
-
-    int startclass = i < 0 || i >= lim ? -1 : charClass( s[i] );
-
-    while ( i >= 0 && charClass(s[i]) == startclass )
+    while ( i >= 0 && s[i].isPrint() && !s[i].isSpace() )
 	i--;
     i++;
     markAnchorY = posy;
     markAnchorX = i;
 
-    i = posx;
-    while ( i < lim && charClass(s[i]) == startclass )
+    while ( s[i].isPrint() && !s[i].isSpace() )
 	i++;
     markDragX = i;
     markDragY = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
+
 #if defined(_WS_X11_)
     if ( echoMode() == Normal )
 	copy();
