@@ -2078,7 +2078,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_PALETTECHANGED:			// our window changed palette
 		if ( QColor::hPal() && (WId)wParam == widget->winId() )
 		    RETURN(0);			// otherwise: FALL THROUGH!
-		// FALL THROUGHf
+		// FALL THROUGH
 	    case WM_QUERYNEWPALETTE:		// realize own palette
 		if ( QColor::hPal() ) {
 		    HDC hdc = GetDC( widget->winId() );
@@ -2234,7 +2234,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			IAccessible *iface = qt_createWindowsAccessible( acc );
 			acc->release();
 			LRESULT res = LresultFromObject( IID_IAccessible, wParam, iface );  // ref == 2
-			face->Release(); // the client will release the object again, and then it will destroy itself
+			iface->Release(); // the client will release the object again, and then it will destroy itself
 
 			if ( res > 0 )
 			    RETURN(res);
