@@ -255,13 +255,17 @@ void generateXmlSubSections( QString indent, BinaryWriter& out,
 }
 
 void generateXmlSections( const XmlSection& rootSect, const QString& fileName,
-			  const QString& category )
+			  const QString& /* category */ )
 {
     BinaryWriter out( fileName );
+    QString icon = fileName;
+    icon.replace( ".xml", ".png" );
 
     out.puts( "<!DOCTYPE DCF>\n" );
-    out.puts( "<DCF ref=\"" + htmlProtect(rootSect.ref, FALSE, TRUE) +
-	      "\" category=\"" + htmlProtect(category, FALSE, TRUE) +
+    out.puts( "<DCF ref=\"" + htmlProtect(rootSect.ref, FALSE, TRUE) );
+    if ( icon != "qmake.png" )
+	out.puts( "\" icon=\"" + htmlProtect(icon, FALSE, TRUE) );
+    out.puts( "\" imagedir=\"../../gif"
 	      "\" title=\"" + htmlProtect(rootSect.title, FALSE, TRUE) +
 	      "\">\n" );
 
