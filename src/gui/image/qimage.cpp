@@ -3547,7 +3547,7 @@ static QString fbname(const QString &fileName) // get file basename (sort of)
         if ((i = s.lastIndexOf('\\')) >= 0)
             s = s.mid(i);
         QRegExp r(QLatin1String("[a-zA-Z][a-zA-Z0-9_]*"));
-        int p = r.search(s);
+        int p = r.indexIn(s);
         if (p == -1)
             s.truncate(0);
         else
@@ -4167,7 +4167,7 @@ QByteArray QImageIO::imageFormat(QIODevice *d)
         int bestMatch = -1;
         for (int i = 0; i < imageHandlers.size(); ++i) {
             QImageHandler *p = imageHandlers.at(i);
-            if (p->read_image && p->header.search(bufStr) != -1) {
+            if (p->read_image && p->header.indexIn(bufStr) != -1) {
                 // try match with header if a read function is available
                 if (p->header.matchedLength() > bestMatch) {
                     // keep looking for best match
@@ -5361,15 +5361,15 @@ static void read_xbm_image(QImageIO *iio)
     QString sbuf;
     sbuf = QString::fromLatin1(buf);
 
-    if (r1.search(sbuf) == 0 &&
-         r2.search(sbuf, r1.matchedLength()) == r1.matchedLength())
+    if (r1.indexIn(sbuf) == 0 &&
+         r2.indexIn(sbuf, r1.matchedLength()) == r1.matchedLength())
         w = atoi(&buf[r1.matchedLength()]);
 
     d->readLine(buf, buflen);                        // "#define .._height <num>"
     sbuf = QString::fromLatin1(buf);
 
-    if (r1.search(sbuf) == 0 &&
-         r2.search(sbuf, r1.matchedLength()) == r1.matchedLength())
+    if (r1.indexIn(sbuf) == 0 &&
+         r2.indexIn(sbuf, r1.matchedLength()) == r1.matchedLength())
         h = atoi(&buf[r1.matchedLength()]);
 
     if (w <= 0 || w > 32767 || h <= 0 || h > 32767)

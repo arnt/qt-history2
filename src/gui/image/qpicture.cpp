@@ -1493,9 +1493,9 @@ static QPictureHandler *get_picture_handler(const char *format)
 {                                                // get pointer to handler
     qt_init_picture_handlers();
     qt_init_picture_plugins();
-    for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-        if ((*it)->format == format)
-            return (*it);
+    for (int i = 0; i < pictureHandlers.size(); ++i) {
+        if (pictureHandlers.at(i)->format == format)
+            return pictureHandlers.at(i);
     }
     return 0;                                        // no such handler
 }
@@ -1560,9 +1560,8 @@ void QPictureIO::defineIOHandler(const char *format,
 {
     qt_init_picture_handlers();
     QPictureHandler *p;
-    p = new QPictureHandler(format, header, QByteArray(flags),
-                             readPicture, writePicture);
-    pictureHandlers.insert(0, p);
+    p = new QPictureHandler(format, header, QByteArray(flags), readPicture, writePicture);
+    pictureHandlers.prepend(p);
 }
 
 
@@ -1829,9 +1828,9 @@ QByteArray QPictureIO::pictureFormat(QIODevice *d)
     if (d->status() == IO_Ok && rdlen > 0) {
         buf[rdlen - 1] = '\0';
         QString bufStr = QString::fromLatin1(buf);
-        for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-            if ((*it)->header.search(bufStr) != -1) { // try match with headers
-                format = (*it)->format;
+	for (int i = 0; i < pictureHandlers.size(); ++i) {
+            if (pictureHandlers.at(i)->header.indexIn(bufStr) != -1) { // try match with headers
+                format = pictureHandlers.at(i)->format;
                 break;
             }
         }
@@ -1851,9 +1850,10 @@ QList<QByteArray> QPictureIO::inputFormats()
     qt_init_picture_handlers();
     qt_init_picture_plugins();
 
-    for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-        if ((*it)->read_picture && !(*it)->obsolete  && !result.contains((*it)->format))
-            result.append((*it)->format);
+    for (int i = 0; i < pictureHandlers.size(); ++i) {
+	QPictureHandler *p = pictureHandlers.at(i);
+        if (p->read_picture && !p->obsolete  && !result.contains(p->format))
+            result.append(p->format);
     }
     qHeapSort(result);
 
@@ -1870,9 +1870,10 @@ QList<QByteArray> QPictureIO::outputFormats()
     qt_init_picture_plugins();
 
     QList<QByteArray> result;
-    for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-        if ((*it)->write_picture && !(*it)->obsolete && !result.contains((*it)->format))
-            result.append((*it)->format);
+    for (int i = 0; i < pictureHandlers.size(); ++i) {
+	QPictureHandler *p = pictureHandlers.at(i);
+        if (p->write_picture && !p->obsolete && !result.contains(p->format))
+            result.append(p->format);
     }
     return result;
 }

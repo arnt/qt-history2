@@ -2874,7 +2874,7 @@ void QFileDialog::setSelectedFilter(int n)
     d->types->setCurrentItem(n);
     QString f = d->types->currentText();
     QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
-    int index = r.search(f);
+    int index = r.indexIn(f);
     if (index >= 0)
         f = r.cap(2);
     d->url.setNameFilter(f);
@@ -2895,7 +2895,7 @@ void QFileDialog::setSelectedFilter(const QString& mask)
             d->types->setCurrentItem(n);
             QString f = mask;
             QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
-            int index = r.search(f);
+            int index = r.indexIn(f);
             if (index >= 0)
                 f = r.cap(2);
             d->url.setNameFilter(f);
@@ -3047,7 +3047,7 @@ void QFileDialog::setFilter(const QString & newFilter)
         return;
     QString f = newFilter;
     QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
-    int index = r.search(f);
+    int index = r.indexIn(f);
     if (index >= 0)
         f = r.cap(2);
     d->url.setNameFilter(f);
@@ -5402,12 +5402,12 @@ void QFileDialog::addFilter(const QString &filter)
         return;
     QString f = filter;
     QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
-    int index = r.search(f);
+    int index = r.indexIn(f);
     if (index >= 0)
         f = r.cap(2);
     for (int i = 0; i < d->types->count(); ++i) {
         QString f2(d->types->text(i));
-        int index = r.search(f2);
+        int index = r.indexIn(f2);
         if (index >= 0)
             f2 = r.cap(1);
         if (f2 == f) {

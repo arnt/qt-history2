@@ -412,7 +412,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
     if (!ok) {
         // explicit exponent regexp
         QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?\\d*$"));
-        int eePos = expexpexp.search(input);
+        int eePos = expexpexp.indexIn(input);
         if (eePos > 0 && nume == 1) {
             QString mantissa = input.left(eePos);
             entered = mantissa.toDouble(&ok);
@@ -608,18 +608,18 @@ QRegExpValidator::~QRegExpValidator()
     is, word-character, digit, digit) then "A57" is \c Acceptable,
     "E5" is \c Intermediate and "+9" is \c Invalid.
 
-    \sa QRegExp::exactMatch() QRegExp::search()
+    \sa QRegExp::exactMatch()
 */
 
-QValidator::State QRegExpValidator::validate(QString& input, int& pos) const
+QValidator::State QRegExpValidator::validate(QString &input, int& pos) const
 {
     if (r.exactMatch(input)) {
         return Acceptable;
     } else {
-        if (((QRegExp&) r).matchedLength() == (int) input.length()) {
+        if (const_cast<QRegExp &>(r).matchedLength() == input.size()) {
             return Intermediate;
         } else {
-            pos = input.length();
+            pos = input.size();
             return Invalid;
         }
     }

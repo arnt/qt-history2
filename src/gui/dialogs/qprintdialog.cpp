@@ -1091,12 +1091,12 @@ QGroupBox * QPrintDialog::setupDestination()
             quality = 3;
         } else if (quality < 2 &&
                     (lvi->text(0) == QString::fromLatin1("ps") ||
-                      ps.search(lvi->text(2)) != -1)) {
+                     ps.indexIn(lvi->text(2)) != -1)) {
             d->printers->setCurrentItem((QListViewItem *)lvi);
             quality = 2;
         } else if (quality < 1 &&
                     (lvi->text(0) == QString::fromLatin1("lp") ||
-                      lp.search(lvi->text(2)) > -1)) {
+                     lp.indexIn(lvi->text(2)) > -1)) {
             d->printers->setCurrentItem((QListViewItem *)lvi);
             quality = 1;
         }

@@ -53,7 +53,7 @@ static qt_mac_filter_name *extractFilter(const QString& rawFilter)
     ret->filter = rawFilter;
     QString result = rawFilter;
     QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
-    int index = r.search(result);
+    int index = r.indexIn(result);
     if(index >= 0) {
         ret->description = r.cap(1).trimmed();
         result = r.cap(2);
