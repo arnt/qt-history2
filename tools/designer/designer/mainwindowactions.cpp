@@ -1865,7 +1865,7 @@ void MainWindow::editPreferences()
     dia->checkBoxWorkspace->setChecked( restoreConfig );
     dia->checkBoxTextLabels->setChecked( usesTextLabel() );
     dia->buttonColor->setColor( qworkspace->backgroundColor() );
-    QString pluginPaths = QApplication::libraryPaths().join(",");
+    QString pluginPaths = QApplication::libraryPaths().join("\n");
     dia->textEditPluginPaths->setText(pluginPaths);
     if ( qworkspace->backgroundPixmap() )
 	dia->buttonPixmap->setPixmap( *qworkspace->backgroundPixmap() );
@@ -1906,7 +1906,7 @@ void MainWindow::editPreferences()
 	setUsesTextLabel( dia->checkBoxTextLabels->isChecked() );
 	if (dia->textEditPluginPaths->isModified()) {
 	    pluginPaths = dia->textEditPluginPaths->text();
-	    QApplication::setLibraryPaths(QStringList::split(",", pluginPaths));
+	    QApplication::setLibraryPaths(QStringList::split("\n", pluginPaths));
 	    savePluginPaths = TRUE;
 	}
 
