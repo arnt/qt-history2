@@ -1031,7 +1031,11 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 		}
 		if ( numeric ) {
 #ifdef DEBUG_XBASE
-		    env->output() << "numeric value:'" << searchValue.latin1() << "'..." << flush;
+		    /* note: there is only one numeric search field */
+		    if ( (*data)[0].toList()[1] == LOCALSQL_NULL_TYPE )
+			env->output() << "scanning for NULL..." << flush;
+		    else
+			env->output() << "numeric value:'" << searchValue.latin1() << "'..." << flush;
 #endif
 		    rc = d->indexes[i]->FindKey( searchValue.toDouble() );
 		} else {
