@@ -487,6 +487,40 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     }
 }
 
+Q4StyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
+{
+    Q4StyleOptionMenuItem opt(0);
+    opt.palette = q->palette();
+    opt.state = QStyle::Style_Default;
+
+    if (q->isEnabled() && action->isEnabled()
+            && (!action->menu() || action->menu()->isEnabled()))
+        opt.state |= QStyle::Style_Enabled;
+    else
+        opt.palette.setCurrentColorGroup(QPalette::Disabled);
+
+    if (defaultAction == action)
+        opt.state |= QStyle::Style_ButtonDefault; //probably should be something else, pending new QStyle ###
+    if (currentAction && currentAction->action == action)
+        opt.state |= QStyle::Style_Active;
+    if (mouseDown)
+        opt.state |= QStyle::Style_Down;
+    opt.extras = Q4StyleOptionMenuItem::Normal;
+    if (checkable)
+        opt.extras |= Q4StyleOptionMenuItem::Checkmark;
+    if (action->menu())
+        opt.extras |= Q4StyleOptionMenuItem::HasMenu;
+    if (action->isSeparator())
+        opt.extras |= Q4StyleOptionMenuItem::Separator;
+    opt.icon = action->icon();
+    opt.text = action->text();
+    opt.tabWidth = tabWidth;
+    opt.maxIconWidth = maxIconWidth;
+    opt.checked = action->isChecked();
+    opt.menurect = q->rect();
+    return opt;
+}
+
 /*!
     \class QMenu qmenu.h
     \brief The QMenu class provides a menu widget for use in menu
@@ -1138,31 +1172,19 @@ void QMenu::paintEvent(QPaintEvent *e)
     const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
 
     //draw the items that need updating..
-    for(int i=0; i<(int)d->actionItems.count(); i++) {
+    for (int i = 0; i < d->actionItems.count(); ++i) {
         QMenuAction *action = d->actionItems.at(i);
         QRect adjustedActionRect = d->actionRect(action);
         if(!e->rect().intersects(adjustedActionRect))
            continue;
-
         //set the clip region to be extra safe (and adjust for the scrollers)
         QRegion adjustedActionReg(adjustedActionRect);
         emptyArea -= adjustedActionReg;
         p.setClipRegion(adjustedActionReg);
 
-        QPalette pal = palette();
-        QStyle::SFlags flags = QStyle::Style_Default;
-        if(isEnabled() && action->action->isEnabled() && (!action->action->menu() || action->action->menu()->isEnabled()))
-            flags |= QStyle::Style_Enabled;
-        else
-            pal.setCurrentColorGroup(QPalette::Disabled);
-        if(d->defaultAction == action->action)
-            flags |= QStyle::Style_ButtonDefault; //probably should be something else, pending new QStyle ###
-        if(d->currentAction == action)
-            flags |= QStyle::Style_Active;
-        if(d->mouseDown)
-            flags |= QStyle::Style_Down;
-        style().drawControl(QStyle::CE_MenuItem, &p, this, adjustedActionRect, pal, flags,
-                            QStyleOption(action->action, d->maxIconWidth, d->tabWidth));
+        Q4StyleOptionMenuItem opt = d->getStyleOption(action->action);
+        opt.rect = adjustedActionRect;
+        style().drawControl(QStyle::CE_MenuItem, &opt, &p, this);
     }
 
     //draw the scroller regions..
@@ -1788,7 +1810,7 @@ bool QMenu::setItemParameter(int id, int param)
 
 int QMenu::itemParameter(int id) const
 {
-    if(QAction *act = findActionForId(id)) 
+    if(QAction *act = findActionForId(id))
         return reinterpret_cast<QMenuItem*>(act)->signalValue();
     return id;
 }

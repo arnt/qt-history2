@@ -2696,11 +2696,166 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
 }
 
 void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
-                         const QWidget *w) const
+                                const QWidget *widget) const
 {
     switch (ce) {
+    case CE_MenuItem:
+        if (const Q4StyleOptionMenuItem *menuitem = qt_cast<Q4StyleOptionMenuItem *>(opt)) {
+            int tab = menuitem->tabWidth;
+            int maxpmw = menuitem->maxIconWidth;
+            bool dis = !(menuitem->state & Style_Enabled);
+            bool checkable = menuitem->extras & Q4StyleOptionMenuItem::Checkmark;
+            bool act = menuitem->state & Style_Active;
+
+            int x, y, w, h;
+            menuitem->rect.rect(&x, &y, &w, &h);
+
+            if (checkable) {
+                // space for the checkmarks
+                if (use2000style)
+                    maxpmw = qMax(maxpmw, 20);
+                else
+                    maxpmw = qMax(maxpmw, 12);
+            }
+
+            int checkcol = maxpmw;
+            if (menuitem->extras & Q4StyleOptionMenuItem::Separator) {
+                p->setPen(menuitem->palette.dark());
+                p->drawLine(x, y, x + w, y);
+                p->setPen(menuitem->palette.light());
+                p->drawLine(x, y + 1, x + w, y + 1);
+                return;
+            }
+
+            QBrush fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
+            p->fillRect(x, y, w, h, fill);
+
+            int xpos = x;
+            QRect vrect = visualRect(QRect(xpos, y, checkcol, h), menuitem->rect);
+            int xvis = vrect.x();
+            if (menuitem->checked) {
+                if (act && !dis) {
+                    qDrawShadePanel(p, xvis, y, checkcol, h,
+                                    menuitem->palette, true, 1,
+                                    &menuitem->palette.brush(QPalette::Button));
+                } else {
+                    QBrush fill(menuitem->palette.light(), Dense4Pattern);
+                    // set the brush origin for the hash pattern to the x/y coordinate
+                    // of the menu item's checkmark... this way, the check marks have
+                    // a consistent look
+                    QPoint origin = p->brushOrigin();
+                    p->setBrushOrigin(xvis, y);
+                    qDrawShadePanel(p, xvis, y, checkcol, h, menuitem->palette, true, 1, &fill);
+                    // restore the previous brush origin
+                    p->setBrushOrigin(origin);
+                }
+            } else if (!act) {
+                p->fillRect(xvis, y, checkcol , h, menuitem->palette.brush(QPalette::Button));
+            }
+
+            // On Windows Style, if we have a checkable item and an icon we
+            // draw the icon recessed to indicate an item is checked. If we
+            // have no icon, we draw a checkmark instead.
+            if (!menuitem->icon.isNull()) {
+                QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+                if (act && !dis)
+                    mode = QIconSet::Active;
+                QPixmap pixmap;
+                if(checkable && menuitem->checked)
+                    pixmap = menuitem->icon.pixmap(QIconSet::Small, mode, QIconSet::On);
+                else
+                    pixmap = menuitem->icon.pixmap(QIconSet::Small, mode);
+                int pixw = pixmap.width();
+                int pixh = pixmap.height();
+                if (act && !dis && !menuitem->checked)
+                    qDrawShadePanel(p, xvis, y, checkcol, h, menuitem->palette, false, 1,
+                                    &menuitem->palette.brush(QPalette::Button));
+                QRect pmr(0, 0, pixw, pixh);
+                pmr.moveCenter(vrect.center());
+                p->setPen(menuitem->palette.text());
+                p->drawPixmap(pmr.topLeft(), pixmap);
+
+                fill = menuitem->palette.brush(act ? QPalette::Highlight : QPalette::Button);
+                int xp = xpos + checkcol + 1;
+                p->fillRect(visualRect(QRect(xp, y, w - checkcol - 1, h), menuitem->rect), fill);
+            } else if (checkable && menuitem->checked) {
+                Q4StyleOptionMenuItem newMi = *menuitem;
+                newMi.state = Style_Default;
+                if (! dis)
+                    newMi.state |= Style_Enabled;
+                if (act)
+                    newMi.state |= Style_On;
+                int xp = xpos + windowsItemFrame;
+                newMi.rect = visualRect(QRect(xp, y + windowsItemFrame,
+                                        checkcol - 2 * windowsItemFrame, h - 2*windowsItemFrame),
+                                        menuitem->rect);
+                drawPrimitive(PE_CheckMark, &newMi, p, widget);
+            }
+            p->setPen(act ? menuitem->palette.highlightedText() : menuitem->palette.buttonText());
+
+            QColor discol;
+            if (dis) {
+                discol = menuitem->palette.text();
+                p->setPen(discol);
+            }
+
+            int xm = windowsItemFrame + checkcol + windowsItemHMargin;
+            xpos += xm;
+            vrect = visualRect(QRect(xpos, y + windowsItemVMargin, w - xm - tab + 1,
+                                     h - 2 * windowsItemVMargin), menuitem->rect);
+            xvis = vrect.x();
+            QString s = menuitem->text;
+            if (!s.isEmpty()) {                     // draw text
+                int t = s.indexOf('\t');
+                int text_flags = AlignVCenter | ShowPrefix | DontClip | SingleLine;
+                if (!styleHint(SH_UnderlineShortcut, widget))
+                    text_flags |= NoAccel;
+                text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+                if (t >= 0) {
+                    int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
+                    if (use2000style)
+                        xp -= 20;
+                    else
+                        xp -= windowsRightBorder;
+                    int xoff = visualRect(QRect(xp, y + windowsItemVMargin, tab,
+                                                h - 2 * windowsItemVMargin), menuitem->rect).x();
+                    if (dis && !act) {
+                        p->setPen(menuitem->palette.light());
+                        p->drawText(xoff + 1, y + windowsItemVMargin + 1, tab,
+                                    h - 2 * windowsItemVMargin, text_flags, s.mid(t + 1));
+                        p->setPen(discol);
+                    }
+                    p->drawText(xoff, y + windowsItemVMargin, tab, h - 2 * windowsItemVMargin,
+                                text_flags, s.mid(t + 1));
+                    s = s.left(t);
+                }
+                if (dis && !act) {
+                    p->setPen(menuitem->palette.light());
+                    p->drawText(xvis + 1, y + windowsItemVMargin + 1, w - xm - tab + 1,
+                                h - 2 * windowsItemVMargin, text_flags, s, t);
+                    p->setPen(discol);
+                }
+                p->drawText(xvis, y + windowsItemVMargin, w - xm - tab + 1,
+                            h - 2 * windowsItemVMargin, text_flags, s, t);
+            }
+            if (menuitem->extras & Q4StyleOptionMenuItem::HasMenu) {// draw sub menu arrow
+                int dim = (h - 2 * windowsItemFrame) / 2;
+                PrimitiveElement arrow;
+                arrow = QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight;
+                xpos = x + w - windowsArrowHMargin - windowsItemFrame - dim;
+                vrect = visualRect(QRect(xpos, y + h / 2 - dim / 2, dim, dim), menuitem->rect);
+                Q4StyleOptionMenuItem newMI = *menuitem;
+                newMI.rect = vrect;
+                newMI.state = dis ? Style_Default : Style_Enabled;
+                if (act)
+                    newMI.palette.setColor(QPalette::ButtonText, newMI.palette.highlightedText());
+                drawPrimitive(arrow, &newMI, p, widget);
+            }
+
+        }
+        break;
     default:
-        QCommonStyle::drawControl(ce, opt, p, w);
+        QCommonStyle::drawControl(ce, opt, p, widget);
     }
 }
 

@@ -712,6 +712,42 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             p->setPen(oldPen);
         }
         break;
+    case PE_CheckMark: {
+        const int markW = opt->rect.width() > 7 ? 7 : opt->rect.width();
+        const int markH = markW;
+        int posX = opt->rect.x() + (opt->rect.width() - markW)/2 + 1;
+        int posY = opt->rect.y() + (opt->rect.height() - markH)/2;
+
+        QPointArray a(markH * 2);
+        int i, xx, yy;
+        xx = posX;
+        yy = 3 + posY;
+        for (i = 0; i < markW / 2; ++i) {
+            a.setPoint(2 * i, xx, yy);
+            a.setPoint(2 * i + 1, xx, yy + 2);
+            ++xx;
+            ++yy;
+        }
+        yy -= 2;
+        for (; i < markH; ++i) {
+            a.setPoint(2 * i,   xx, yy);
+            a.setPoint(2 * i + 1, xx, yy + 2);
+            ++xx;
+            --yy;
+        }
+        if (!(opt->state & Style_Enabled) && !(opt->state & Style_On)) {
+            int pnt;
+            p->setPen(opt->palette.highlightedText());
+            QPoint offset(1, 1);
+            for (pnt = 0; pnt < a.size(); ++pnt)
+                a[pnt] += offset;
+            p->drawLineSegments(a);
+            for (pnt = 0; pnt < a.size(); ++pnt)
+                a[pnt] -= offset;
+        }
+        p->setPen(opt->palette.text());
+        p->drawLineSegments(a);
+        break; }
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
