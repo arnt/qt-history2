@@ -36,7 +36,7 @@
   \class QColorGroup qpalette.h
   \brief The QColorGroup class contains a group of widget colors.
 
-  \ingroup color
+  \ingroup appearance
   \ingroup drawing
 
   A color group contains a group of colors used by widgets for drawing
@@ -313,7 +313,7 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 
   \brief The QPalette class contains color groups for each widget state.
 
-  \ingroup color
+  \ingroup appearance
   \ingroup shared
   \ingroup drawing
 

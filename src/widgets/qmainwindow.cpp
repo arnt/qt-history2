@@ -136,7 +136,7 @@ public:
 	int oldIndex;
 	int extraOffset;
     };
-	
+
     typedef QList<ToolBar> ToolBarDock;
     enum InsertPos { Before, After, Above, Below, SameIndex };
 
@@ -463,10 +463,10 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    if ( t && t->extraOffset != -1 && t->extraOffset > e )
 		nx = t->extraOffset;
 	}
-	
+
 	if ( !t )
 	    break;
-	
+
 	e = nx + size_extend( sh, o );
 	lineExtend = QMAX( lineExtend, size_extend( sh, o, TRUE ) );
 	row.append( t );
@@ -740,7 +740,7 @@ protected:
 	if ( !d->hidden || d->hidden->isEmpty() )
 	    return;
 	mouseMoveEvent( e );
-	
+
 	if ( e->button() == RightButton && pressedHandle != -1 ) {
 	    QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
 	    QPopupMenu menu( this );
@@ -806,7 +806,7 @@ protected:
 	if ( old != -1 )
 	    repaint( TRUE );
     }
-	
+
     void mouseReleaseEvent( QMouseEvent *e ) {
 	pressed = FALSE;
 	if ( pressedHandle == -1 ) {
@@ -842,7 +842,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     if ( !parentWidget() )
 	return;
     QHideDock *dock = (QHideDock*)parentWidget();
-	
+
     if ( !dock->d->hidden || dock->d->hidden->isEmpty() )
 	return;
     QMainWindowPrivate::ToolBar *tb;
@@ -977,7 +977,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 	if ( !first && t->t != tb )
 	    first = t;
 	int pos = tb_pos( t->t, o, TRUE );
-	
+
 	if ( pos != oldPos ) {
 	    QRect r;
 	    if ( o == Qt::Horizontal ) {
@@ -1102,10 +1102,10 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 			last = t;
 			break;
 		    }
-			
+
 		    if ( !b && hadNl && me )
 			me->nl = TRUE;
-			
+
 		    if ( !b && last ) {
 			relative = last->t;
 			ipos = QMainWindowPrivate::Before;
@@ -1160,7 +1160,6 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   \brief The QMainWindow class provides a typical application window,
   with a menu bar, some tool bars and a status bar.
 
-  \ingroup realwidgets
   \ingroup application
 
   In addition, you need the large central widget, which you supply and
@@ -1216,7 +1215,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 
   The main window's menubar is static  by default. If you want a movable
   menubar, create a QMenuBar as stretchable widget inside its
-  own movable toolbar and restrict this toolbar to only live within the 
+  own movable toolbar and restrict this toolbar to only live within the
   Top or Bottom dock:
   \code
   QToolBar *tb = new QToolBar( this );
@@ -1227,7 +1226,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   setDockEnabled( tb, Left, FALSE );
   setDockEnabled( tb, Right, FALSE );
   \endcode
-  
+
   An application with multiple toolbars can choose to save the current
   toolbar layout in order to restore it in the next session. To do so,
   use getLocation() on each toolbar, store the data and restore the
@@ -1732,7 +1731,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 		    }
 		}
 	    }
-	
+
 	    if ( i > (int)dl->count() )
 		i = dl->count();
 	    dl->insert( i, ct );
@@ -1744,7 +1743,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    }
 	    if ( after && ct->nl ) {
 		ct->nl = FALSE;
-	    }		
+	    }
 	    if ( ipos == QMainWindowPrivate::Below ) {
 		dl->at( i )->nl = TRUE;
 		if ( (int)dl->count() > i + 1 ) {
@@ -1825,7 +1824,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 	dl = d->tornOff;
 	break;
     }
-	
+
     QMainWindowPrivate::ToolBarDock *dummy;
     QMainWindowPrivate::ToolBar *tt = d->findToolbar( toolBar, dummy );
     tt->extraOffset = extraOffset;
@@ -2426,7 +2425,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	}
 	emit startMovingToolbar( t );
 	d->inMovement = TRUE;
-	
+
 	// don't allow repaints of the central widget as this may be a problem for our rects
 	if ( d->mc ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
@@ -2434,7 +2433,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    else
 		d->mc->setUpdatesEnabled( FALSE );
 	}
-	
+
 	// create the painter for our rects
 	if ( !d->opaque ) {
 	    uint flags = getWFlags();
@@ -2445,7 +2444,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    d->rectPainter->setPen( QPen( color0, 2 ) );
 	    d->rectPainter->setRasterOp( NotROP );
 	}
-	
+
 	// init some stuff
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
@@ -2458,7 +2457,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->movedEnough = FALSE;
 	d->origDock = d->oldDock = dock;
 	d->cursorOffset = t->mapFromGlobal( e->globalPos() );
-	
+
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	if ( ( e->button() & RightButton ) ) {
@@ -2473,12 +2472,12 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		d->rectPainter->drawRect( d->oldPosRect );
 	    d->rectPainter->end();
 	}
-	
+
 	if ( !d->opaque ) {
 	    delete d->rectPainter;
 	    d->rectPainter = 0;
 	}
-	
+
 	// allow repaints in central widget again
 	if ( d->mc ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
@@ -2495,7 +2494,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		     isDockEnabled( t, dock ) ) {
 		    int ipos;
 		    QToolBar *relative;
-		    QPoint pos = mapFromGlobal( e->globalPos() );	
+		    QPoint pos = mapFromGlobal( e->globalPos() );
 		    QRect r, r2;
 		    findDockArea( pos, r, t, &r2 );
 		    if ( dock != d->origDock ) {
@@ -2509,10 +2508,10 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    if ( isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) )
 		moveToolBar( t, Hidden );
 	}
-	
+
 	emit endMovingToolbar( t );
 	d->inMovement = FALSE;
-	
+
 	return;
     } else if ( e->type() == QMouseEvent::MouseMove ) {
 	if ( ( e->state() & LeftButton ) != LeftButton )
@@ -2804,7 +2803,7 @@ void QMainWindow::rightMouseButtonMenu( const QPoint &p )
     }
     int lineUp1 = m.insertItem( tr( "Line Up Toolbars (compact)" ) );
     int lineUp2 = m.insertItem( tr( "Line Up Toolbars (normal)" ) );
-	
+
     int id = m.exec( p );
     if ( id == lineUp1 ) {
 	lineUpToolBars( FALSE );

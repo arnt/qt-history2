@@ -37,7 +37,7 @@
   \class QClipboard qclipboard.h
   \brief The QClipboard class provides access to the window systems clipboard.
 
-  \ingroup kernel
+  \ingroup environment
 
   The clipboard offers a simple mechanism to copy and paste data between
   applications.
@@ -63,12 +63,12 @@
     // Copy text into the clipboard
     cb->setText( "This text can be pasted by other programs" );
   \endcode
-  
+
   QClipboard features some convenience functions to access common data types.
   The methods setText() and text() allow to exchange unicode text easily over
   the clipboard, while setPixmap(), setImage() and pixmap(), image() allow
   to exchange QPixmap and QImage between applications.
-  
+
   The most flexible methods are data() and setData(). They allow to put
   a QMimeSource() on the clipboard or retrieve it from the clipboard.
   This does not only allow you to put all kind of data type on the clipboard.
@@ -78,7 +78,7 @@
   you can feature multiple formats at once. This functionality is provided by
   QMimeSource. The application which retrieves the data from the clipboard receives
   a QMimeSource, too, and can select one of the offered data types.
-  
+
   You can clear the clipboard by calling the method clear().
 */
 
@@ -146,7 +146,7 @@ QClipboard *QApplication::clipboard()
   Returns the clipboard text, or a
   \link QString::operator!() null string\endlink
   if the clipboard does not contain any text.
-  
+
   \sa setText() data()
 */
 
@@ -172,7 +172,7 @@ void QClipboard::setText( const QString &text )
   Returns the clipboard image, or a null image if the clipboard does not contain
   an image. In addition a null image may be returned if Qt does not
   understand the provided image format.
-  
+
   \sa setImage() pixmap() data()
 */
 
@@ -203,7 +203,7 @@ void QClipboard::setImage( const QImage &image )
 /*!
   Returns the clipboard pixmap, or null if the clipboard does not contain
   any pixmap. Note that this usually looses more information than image().
-  
+
   \sa setPixmap() image() data()
 */
 
@@ -218,7 +218,7 @@ QPixmap QClipboard::pixmap() const
   Copies \e pixmap into the clipboard.
   Note that this usually looses more information than setImage(),
   as the data may be converted to an image for transfer.
-  
+
   \sa pixmap() setImage() setData()
 */
 

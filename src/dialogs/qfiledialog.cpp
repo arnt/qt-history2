@@ -817,7 +817,7 @@ struct QFileDialogPrivate {
 	{ setup(); if ( !nextSibling() ) dlgp->last = this; }
 	~File()
 	{ if ( d->pendingItems.findRef( this ) ) d->pendingItems.removeRef( this ); }
-	
+
 	QString text( int column ) const;
 	const QPixmap * pixmap( int ) const;
 
@@ -3923,6 +3923,8 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 
   \brief The QFileIconProvider class provides icons for QFileDialog to
   use.
+  
+  \ingroup misc
 
   By default, QFileIconProvider is not used, but any application or
   library can subclass it, reimplement pixmap() to return a suitable
@@ -4083,7 +4085,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 	res = ExtractIconExA( (char*)"shell32.dll",
 			     0, 0, &si, 1 );
     }
-    
+
     if ( res != -1 ) {
 	defaultFile.resize( pixw, pixh );
 	initPixmap( defaultFile );
@@ -4104,7 +4106,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 	res = ExtractIconExA( (char*) "shell32.dll",
 			     2, 0, &si, 1 );
     }
-    
+
     if ( res != -1 ) {
 	defaultExe.resize( pixw, pixh );
 	initPixmap( defaultExe );
@@ -4134,7 +4136,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	it = cache.find( key );
 	if ( it != cache.end() )
 	    return &( *it );
-	
+
 	HKEY k, k2;
 	int r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
 			       ext.latin1(),
@@ -4185,7 +4187,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	} else {
 	    pix = defaultFile;
 	}
-	
+
 	cache[ key ] = pix;
 	return &pix;
     } else {
@@ -4200,7 +4202,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 				 -1,
 				 0, 0, 1 );
 	}
-	
+
 	if ( res == 0 ) {
 	    return &defaultExe;
 	} else {
@@ -4214,7 +4216,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 				     0, &si, 1 );
 	    }
 	}
-	
+
 	if ( res != -1 ) {
 	    pix.resize( pixw, pixh );
 	    initPixmap( pix );
@@ -4225,8 +4227,8 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	} else {
 	    pix = defaultExe;
 	}
-	
-	return &pix;	
+
+	return &pix;
     }
 
     // can't happen!
@@ -4991,14 +4993,14 @@ void QFileDialog::doMimeTypeLookup()
 	const QPixmap *p = iconProvider()->pixmap( fi );
 	if ( p && p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
 	    item->hasMimePixmap = TRUE;
-	
+
 	    // evil hack to avoid much too much repaints!
 	    qApp->processEvents();
 	    files->viewport()->setUpdatesEnabled( FALSE );
 	    item->setPixmap( 0, *p );
 	    qApp->processEvents();
 	    files->viewport()->setUpdatesEnabled( TRUE );
-	
+
 	    if ( files->isVisible() ) {
 		QRect ir( files->itemRect( item ) );
 		if ( ir != QRect( 0, 0, -1, -1 ) )

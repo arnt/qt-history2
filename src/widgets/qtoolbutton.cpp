@@ -60,7 +60,7 @@ public:
   \brief The QToolButton class provides a push button whose appearance
   has been tailored for use in a QToolBar.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   ### describe at least: setIconSet, setAutoRaise, setPopup, setPopupDelay, usesBigPixmaps, usesTextLabel
 
@@ -260,7 +260,7 @@ QSize QToolButton::sizeHint() const
 	w = fontMetrics().width( text() );
 	h = fontMetrics().height(); // boundingRect()?
     } else if ( usesBigPixmap() ) {
-	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Large, QIconSet::Normal);	
+	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Large, QIconSet::Normal);
 	w = pm.width();
 	h = pm.height();
 	if ( w < 32 )
@@ -269,7 +269,7 @@ QSize QToolButton::sizeHint() const
 	    h = 32;
     } else {
 	w = h = 16;
-	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Small, QIconSet::Normal);	
+	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Small, QIconSet::Normal);
 	w = pm.width();
 	h = pm.height();
 	if ( w < 16 )

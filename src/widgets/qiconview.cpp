@@ -375,6 +375,8 @@ void QIconDragItem::setData( const QByteArray &d )
   \class QIconDrag qiconview.h
 
   \brief The QIconDrag is the drag object which is used for moving items in the iconview
+ 
+  \ingroup draganddrop
 
   The QIconDrag is the drag object which is used for moving items in the
   iconview. The QIconDrag stores exact informations about the positions of
@@ -487,7 +489,7 @@ bool QIconDrag::decode( QMimeSource* e, QValueList<Item> &lst )
 	QRect ir, tr;
 	QByteArray d;
 	QStringList l = QStringList::split( "$@@$", s );
-	
+
 	int i = 0;
 	QStringList::Iterator it = l.begin();
 	for ( ; it != l.end(); ++it ) {
@@ -1629,6 +1631,8 @@ void QIconViewItem::calcTmpText()
   \class QIconView qiconview.h
   \brief The QIconView class
 
+  \ingroup advanced
+  
   The QIconView provides a widget which can contain lots of iconview items which can
   be selected, dragged and so on.
 
@@ -2114,7 +2118,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	    d->fullRedrawTimer->stop();
 	    // #### uncomment this ASA insertInGrid uses cached values and is efficient
 	    //insertInGrid( item );
-	
+
 	    d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
 	    d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
@@ -2167,7 +2171,7 @@ void QIconView::slotUpdate()
 	    h = QMAX( h, item->y() + item->height() );
 	    if ( d->arrangement == LeftToRight )
 		h = QMAX( h, y );
-	
+
 	    item = item->next;
 	}
 
@@ -2180,7 +2184,7 @@ void QIconView::slotUpdate()
 		item = item->prev;
 	    }
 	}
-	
+
 	w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
 	h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
 
@@ -2429,7 +2433,7 @@ void QIconView::doAutoScroll()
 			region = region.subtract( QRect( contentsToViewport( item->pos() ),
 							 item->size() ) );
 		    }
-	
+
 		    minx = QMIN( minx, item->x() - 1 );
 		    miny = QMIN( miny, item->y() - 1 );
 		    maxx = QMAX( maxx, item->x() + item->width() + 1 );
@@ -2525,7 +2529,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    drawBackground( p, r3 );
 	    remaining = remaining.subtract( r3 );
 	    p->restore();
-	
+
 	    QIconViewItem *item = c->items.first();
 	    for ( ; item; item = c->items.next() ) {
 		if ( item->rect().intersects( r ) && !item->dirty ) {
@@ -2591,7 +2595,7 @@ void QIconView::arrangeItemsInGrid( bool update )
 	h = QMAX( h, item->y() + item->height() );
 	if ( d->arrangement == LeftToRight )
 	    h = QMAX( h, y );
-	
+
 	if ( !item || !item->next )
 	    break;
 
@@ -2608,7 +2612,7 @@ void QIconView::arrangeItemsInGrid( bool update )
 	}
     }
     d->containerUpdateLocked = FALSE;
-	
+
     w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
     h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
 
@@ -2795,7 +2799,7 @@ void QIconView::selectAll( bool select )
 	    d->currentItem->setSelected( select );
 	return;
     }
-	
+
     bool b = signalsBlocked();
     blockSignals( TRUE );
     QIconViewItem *item = d->firstItem;
@@ -3834,7 +3838,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 	}
     } break;
-    case Key_Right: {	
+    case Key_Right: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	if ( d->arrangement == LeftToRight ) {
@@ -3938,7 +3942,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Down: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
-	
+
 	if ( d->arrangement == LeftToRight ) {
 	    item = d->firstItem;
 	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
@@ -3984,7 +3988,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Up: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
-	
+
 	if ( d->arrangement == LeftToRight ) {
 	    item = d->lastItem;
 	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
@@ -4174,7 +4178,7 @@ QDragObject *QIconView::dragObject()
 				 item->pixmapRect( FALSE ).y() - orig.y(),
 				 item->pixmapRect().width(), item->pixmapRect().height() ),
 			  QRect( item->textRect( FALSE ).x() - orig.x(),
-				 item->textRect( FALSE ).y() - orig.y(), 	
+				 item->textRect( FALSE ).y() - orig.y(),
 				 item->textRect().width(), item->textRect().height() ) );
 	}
     }
@@ -4238,14 +4242,14 @@ void QIconView::insertInGrid( QIconViewItem *item )
     } else {
 	QRegion r( QRect( 0, 0, QMAX( contentsWidth(), visibleWidth() ),
 			  QMAX( contentsHeight(), visibleHeight() ) ) );
-	
+
 	QIconViewItem *i = d->firstItem;
 	int y = -1;
 	for ( ; i; i = i->next ) {
 	    r = r.subtract( i->rect() );
 	    y = QMAX( y, i->y() + i->height() );
 	}
-	
+
 	QArray<QRect> rects = r.rects();
 	QArray<QRect>::Iterator it = rects.begin();
 	bool foundPlace = FALSE;
@@ -4263,12 +4267,12 @@ void QIconView::insertInGrid( QIconViewItem *item )
 		break;
 	    }
 	}
-	
+
 	if ( !foundPlace )
 	    item->move( d->spacing, y + d->spacing );
-	
+
 	resizeContents( QMAX( contentsWidth(), item->x() + item->width() ),
-			QMAX( contentsHeight(), item->y() + item->height() ) );	
+			QMAX( contentsHeight(), item->y() + item->height() ) );
 	item->dirty = FALSE;
     }
 }
@@ -4318,7 +4322,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	p.translate( -contentsX(), -contentsY() );
 	p.setRasterOp( NotROP );
 	p.setPen( QPen( color0 ) );
-	
+
 	QValueList<QIconDrag::Item>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
 	    QRect ir = (*it).item.pixmapRect();
@@ -4328,7 +4332,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	    style().drawFocusRect( &p, ir, colorGroup() );
 	    style().drawFocusRect( &p, tr, colorGroup() );
 	}
-	
+
 	p.end();
     } else if ( d->numDragItems > 0 ) {
 	QPainter p;
@@ -4340,7 +4344,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
 	    style().drawFocusRect( &p, r, colorGroup() );
 	}
-	
+
 	p.end();
     }
 }
@@ -4489,9 +4493,9 @@ void QIconView::findItemByName( const QString &text )
 QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 {
     QIconViewItem *end = 0;
-	
+
     if ( d->arrangement == LeftToRight ) {
-	
+
 	if ( d->rastX == -1 ) {
 	    // first calculate the row height
 	    int h = 0;
@@ -4516,10 +4520,10 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		}
 	    }
 	    end = item;
-	
+
 	    if ( d->rastY != -1 )
 		h = QMAX( h, d->rastY );
-	
+
 	    // now move the items
 	    item = begin;
 	    while ( TRUE ) {
@@ -4571,7 +4575,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		}
 	    }
 	    end = item;
-	
+
 	    if ( d->rastY != -1 )
 		h = QMAX( h, d->rastY );
 
@@ -4611,9 +4615,9 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 
 
     } else { // -------------------------------- SOUTH ------------------------------
-	
+
 	int x = y;
-	
+
 	{
 	    int w = 0;
 	    int y = 0;
@@ -4633,10 +4637,10 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		}
 	    }
 	    end = item;
-	
+
 	    if ( d->rastX != -1 )
 		w = QMAX( w, d->rastX );
-	
+
 	    // now move the items
 	    item = begin;
 	    while ( TRUE ) {
@@ -4661,7 +4665,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	}
 
 	y = x;
-    }	
+    }
 
     return end;
 }
@@ -4837,7 +4841,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	    contains = c->rect.contains( item->rect() );
 	    break;
 	}
-	
+
 	c = c->n;
 	if ( !c ) {
 	    appendItemContainer();

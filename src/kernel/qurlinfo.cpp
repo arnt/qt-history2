@@ -48,6 +48,8 @@ struct QUrlInfoPrivate
 // NOT REVISED
 /*!
   \class QUrlInfo qurlinfo.h
+  
+  \ingroup misc
 
   This class is just a container for storing information about a
   URLs. That's why all informations have to be passed in the

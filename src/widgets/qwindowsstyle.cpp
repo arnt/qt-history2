@@ -45,6 +45,7 @@
 /*!
   \class QWindowsStyle qwindowsstyle.h
   \brief Windows Look and Feel
+  \ingroup appearance
 
   This class implements the look and feel known from the Windows
   plattform. Naturally it is also Qt's default GUI style on Windows.
@@ -74,7 +75,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 {
     QBrush fill;
     if ( s == QButton::NoChange ) {
-	QBrush b = p->brush();	
+	QBrush b = p->brush();
 	QColor c = p->backgroundColor();
 	p->setBackgroundMode( TransparentMode );
 	p->setBackgroundColor( green );
@@ -247,7 +248,7 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QPen savePen = p->pen();			// save current pen
     if (down)
 	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-    if ( fill ) 
+    if ( fill )
 	p->fillRect( x, y, w, h, *fill );
     if (down)
 	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
@@ -526,7 +527,7 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	    p->setPen( tb->colorGroup().midlight() );
 	}
 	p->drawPoint( r.left(), r.bottom());
-	
+
 	p->setPen( tb->colorGroup().midlight() );
 	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
 	p->drawLine( r.left()+2, r.top()+1,
@@ -571,7 +572,7 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	p->setPen( tb->colorGroup().light() );
 	p->drawLine( r.left(), r.top(),
 		     r.left(), r.bottom() - 2 );
-	
+
     } else {
 	QCommonStyle::drawTab( p, tb, t, selected );
     }
@@ -704,7 +705,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     } else {
 	if ( (controls & SubPage && SubPage == activeControl) ||
 	     (controls  & AddPage && AddPage == activeControl) ) {
-	    QBrush b = p->brush();	
+	    QBrush b = p->brush();
 	    QColor c = p->backgroundColor();
 // 	    p->fillRect( AddPage == activeControl? addPageR : subPageR, g.fillDark() );
 	    p->setBackgroundColor( g.dark() );
@@ -1100,7 +1101,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuIte
 	return 10; // arbitrary
     else if ( mi->pixmap() )
 	w += mi->pixmap()->width();	// pixmap only
-	
+
     if ( !mi->text().isNull() ) {
 	if ( mi->text().find('\t') >= 0 )	// string contains tab
 	    w += motifTabSpacing;
@@ -1186,7 +1187,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
     } else if ( !act ) {
 	p->fillRect(x, y, checkcol , h,
 		    g.brush( QColorGroup::Button ));
-    }		
+    }
 
     if ( mi->iconSet() ) {		// draw iconset
 	QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
@@ -1204,7 +1205,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	pmr.moveCenter( cr.center() );
 	p->setPen( itemg.text() );
 	p->drawPixmap( pmr.topLeft(), pixmap );
-	
+
 	QBrush fill = act? g.brush( QColorGroup::Highlight ) :
 			      g.brush( QColorGroup::Button );
 	p->fillRect( x+checkcol + 1, y, w - checkcol - 1, h, fill);

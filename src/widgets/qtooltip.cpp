@@ -509,7 +509,6 @@ void QTipManager::hideTip()
   \brief The QToolTip class provides tool tips (sometimes called
   balloon help) for any widget or rectangular part of a widget.
 
-  \ingroup application
   \ingroup helpsystem
 
   The tip is a short, one-line text reminding the user of the widget's
@@ -912,6 +911,8 @@ void QToolTip::clear()
   \class QToolTipGroup qtooltip.h
 
   \brief The QToolTipGroup class collects tool tips into natural groups.
+  
+  \ingroup helpsystem
 
   Tool tips can display \e two texts, the one in the tip and
   optionally another one, typically in a status bar.  QToolTipGroup

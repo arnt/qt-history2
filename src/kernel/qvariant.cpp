@@ -42,6 +42,9 @@
 /*!
   \class QVariant qvariant.h
   \brief Acts like a union for the most common Qt data types.
+  
+  \ingroup objectmodel
+  \ingroup misc
 
   C++ forbids unions from including classes that
   have constructors and destructors since the compiler and the runtime

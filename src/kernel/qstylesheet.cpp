@@ -667,11 +667,11 @@ bool QStyleSheetItem::selfNesting() const
 
 /*!
   Sets the self nesting property for this style to \a nesting.
-  
+
   In order to support "dirty" HTML, paragraphs &lt;p&gt and list items
   &lt;li&gt are not self nesting. This means that starting a new
   paragraph or list item automatically closes the previous one.
-  
+
   \sa selfNesting()
  */
 void QStyleSheetItem::setSelfNesting( bool nesting )
@@ -691,6 +691,9 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 /*!
   \class QStyleSheet qstylesheet.h
   \brief A collection of styles for rich text rendering and a generator of tags.
+  
+  \ingroup drawing
+  \ingroup helpsystem
 
   By creating QStyleSheetItem objects for a style sheet, you build a
   definition of a set of tags.  This definition will be used by the
@@ -1037,7 +1040,7 @@ void QStyleSheet::init()
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
-     
+
      // tables
      style = new QStyleSheetItem( this, QString::fromLatin1("table") );
      style = new QStyleSheetItem( this, QString::fromLatin1("tr") );
@@ -1227,7 +1230,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
     if ( text.left(5) == "<!DOC" )
 	return TRUE;
     int open = 0;
-    while ( open < int(text.length()) && text[open] != '<' 
+    while ( open < int(text.length()) && text[open] != '<'
 	    && text[open] != '\n' && text[open] != '&')
 	++open;
     if ( text[open] == '&' ) {

@@ -33,7 +33,7 @@
   \class QSignal qsignal.h
   \brief The QSignal class can be used to send signals without parameters.
 
-  \ingroup kernel
+  \ingroup misc
 
   QSignal is a simple extension of QObject that can send plain signals
   without parameters.  If you want to send signals from a class that does

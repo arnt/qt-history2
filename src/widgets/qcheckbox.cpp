@@ -36,7 +36,7 @@
   \class QCheckBox qcheckbox.h
   \brief The QCheckBox widget provides a check box with a text label.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   QCheckBox and QRadioButton are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ
@@ -321,7 +321,7 @@ void QCheckBox::updateMask()
 	QSize sz = style().indicatorSize();
 	x = gs == MotifStyle ? 1 : 0;
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
-	
+
 	style().drawIndicatorMask(&p, x, y, sz.width(), sz.height(), state() );
 
 	sz = style().indicatorSize();

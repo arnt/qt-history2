@@ -105,7 +105,6 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
 
   \brief The QToolBar class provides a tool bar.
 
-  \ingroup realwidgets
   \ingroup application
 
   A toolbar is a panel that contains a set of controls, usually
@@ -444,7 +443,7 @@ void QToolBar::endMoving( QToolBar *tb )
 
   The default is FALSE.
 
-  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(), 
+  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(),
   setVerticalStretchable(), isVerticalStretchable()
 */
 
@@ -466,7 +465,7 @@ void QToolBar::setHorizontalStretchable( bool b )
 
   The default is FALSE.
 
-  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(), 
+  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(),
   setVerticalStretchable(), isHorizontalStretchable()
 */
 

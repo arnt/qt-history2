@@ -389,6 +389,7 @@ public:
   contain decorated windows, e.g. for MDI.
 
   \ingroup application
+  \ingroup organizers
 
   An MDI application has one main window with a menu bar.  The central
   widget of this window is a workspace.  The workspace itself contains

@@ -35,7 +35,6 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \class QSocketNotifier qsocketnotifier.h
   \brief The QSocketNotifer class provides support for socket callbacks.
 
-  \ingroup kernel
   \ingroup io
 
   This class makes it possible to write e.g. asynchronous TCP/IP

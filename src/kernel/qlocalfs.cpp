@@ -38,6 +38,8 @@
   \class QLocalFs qlocalfs.h
   \brief Implementation of a QNetworkProtocol which works
   on the local filesystem.
+  
+  \ingroup io
 
   This class is a subclass of QNetworkProtocol and works
   on the local filesystem. If you want to write a network
@@ -67,7 +69,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
     qDebug( "QLocalFs: operationListChildren" );
 #endif
     op->setState( StInProgress );
-	
+
     dir = QDir( url()->path() );
     dir.setNameFilter( url()->nameFilter() );
     dir.setMatchAllDirs( TRUE );
@@ -79,7 +81,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	emit finished( op );
 	return;
     }
-	
+
     const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden );
     if ( !filist ) {
 	QString msg = tr( "Could not read directory\n" + url()->path() );
@@ -89,7 +91,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	emit finished( op );
 	return;
     }
-	
+
     emit start( op );
     QFileInfoListIterator it( *filist );
     QFileInfo *fi;

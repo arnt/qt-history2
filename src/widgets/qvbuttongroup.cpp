@@ -32,7 +32,8 @@
   \brief The QVButtonGroup widget organizes QButton widgets in a group
   with one vertical column.
 
-  \ingroup realwidgets
+  \ingroup geomanagement
+  \ingroup organizers
 
   QVButtonGroup is a convenience class that offers a thin layer on top of
   QButtonGroup. Think of it as a QVBox that offers a frame with a title

@@ -161,7 +161,7 @@ public:
   \class QSplitter qsplitter.h
   \brief QSplitter implements a splitter widget.
 
-  \ingroup realwidgets
+  \ingroup organizers
 
   A splitter lets the user control the size of child widgets by
   dragging the boundary between the children. Any number of widgets

@@ -32,6 +32,7 @@
 /*!
   \class QMimeSource qmime.h
   \brief An abstract piece of formatted data.
+  \ingroup misc
 
   \link dnd.html Drag-and-drop\endlink and
   \link QClipboard clipboard\endlink use this abstraction.
@@ -114,6 +115,7 @@ public:
 /*!
   \class QMimeSourceFactory qmime.h
   \brief An extensible supply of MIME-typed data.
+  \ingroup environment
 
   A QMimeSourceFactory provides an abstract interface to a collection of
   information.  Each piece of information is represented by a QMimeSource

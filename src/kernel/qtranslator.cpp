@@ -250,8 +250,10 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
 
 // NOT REVISED
 /*! \class QTranslator qtranslator.h
-
+  
   \brief The QTranslator class provides internationalization support for text output.
+  
+  \ingroup environment
 
   The class is conceptually very simple: An object of this class
   contains a set of translations from the reference language to a

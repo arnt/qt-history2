@@ -42,7 +42,7 @@
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 
-  \ingroup realwidgets
+  \ingroup advanced
 
   The QMultiLineEdit widget provides multiple line text input and display.
   It is intended for moderate amounts of text. There are no arbitrary
@@ -1143,7 +1143,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 #if defined (_WS_WIN_)
 	case Key_Insert:
 	    copy();
-#endif	
+#endif
 	default:
 	    unknown++;
 	}
@@ -1200,7 +1200,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    else
 		unknown++;
 	    break;
-#endif	
+#endif
 	default:
 	    unknown++;
 	}
@@ -3649,7 +3649,7 @@ void QMultiLineEdit::processCmd( QMultiLineEditCommand* cmd, bool undo)
 	ins = !undo;
     else
 	return;
-	
+
     if ( ins ) {
 	int row, col;
 	offsetToPositionInternal( delcmd->mOffset, &row, &col );
@@ -3781,7 +3781,7 @@ void QMultiLineEdit::killLine()
 	    QString str = r->s.mid( cursorX, r->s.length() );
 	    addUndoCmd( new QDelTextCmd( offset, str ) );
 	}
-	
+
 	addUndoCmd( new QEndCommand );
 	killLineAux();
 	d->undo = TRUE;

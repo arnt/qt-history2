@@ -53,7 +53,7 @@ public:
   \class QLabel qlabel.h
   \brief The QLabel widget provides a static information display
 
-  \ingroup realwidgets
+  \ingroup basic
 
   QLabel is used for displaying information in the form of text or
   image to the user. No user interaction functionality is

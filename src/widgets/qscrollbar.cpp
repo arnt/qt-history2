@@ -36,7 +36,7 @@
 
   \brief The QScrollBar widget provides a vertical or horizontal scroll bar.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   A scroll bar allows the user to control a value within a
   program-definable range, and to give the user visible indication of

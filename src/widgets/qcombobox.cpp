@@ -44,7 +44,7 @@
   \class QComboBox qcombobox.h
   \brief The QComboBox widget is a combined button and popup list.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   A combo box may be defined as a selection widget which displays the
   current selection, and which can pop up a list of possible
@@ -234,7 +234,7 @@ struct QComboData
     int		completeAt;
     bool duplicatesEnabled;
     int fullHeight, currHeight;
-    
+
     QLineEdit * ed;  // /bin/ed rules!
     QTimer *showTimer;
 
@@ -411,7 +411,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->showTimer = new QTimer( this );
     connect( d->showTimer, SIGNAL( timeout() ),
 	     this, SLOT( showMore() ) );
-    
+
     setFocusPolicy( StrongFocus );
 
     if ( rw ) {
@@ -1439,7 +1439,7 @@ void QComboBox::popup()
 	d->listBox()->setCurrentItem( d->listBox()->item( d->current ) );
 	d->listBox()->blockSignals( FALSE );
 	d->listBox()->setAutoScrollBar( TRUE );
-#ifdef ANIMATED_COMBO	
+#ifdef ANIMATED_COMBO
 	d->fullHeight = d->listBox()->height();
 	d->currHeight = 0;
 	d->listBox()->resize( d->listBox()->width(), 0 );
@@ -1947,9 +1947,9 @@ QListBox * QComboBox::listBox() const
     return d && d->usingListBox() ? d->listBox() : 0;
 }
 
-/*! 
+/*!
   Returns the line editor, or 0 if there is no line editor currently.
-  
+
   Only editable listboxes have a line editor.
  */
 QLineEdit* QComboBox::lineEdit() const

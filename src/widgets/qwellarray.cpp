@@ -41,7 +41,7 @@ struct QWellArrayData {
 
   ....
 
-  \ingroup realwidgets
+  \ingroup advanced
 */
 
 QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )

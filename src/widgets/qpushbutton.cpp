@@ -40,7 +40,7 @@
   \class QPushButton qpushbutton.h
   \brief The QPushButton widget provides a command button.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   The push button, also referred to as command button, is perhaps the
   most central widget in any graphical user interface: Push it to
@@ -130,7 +130,7 @@
   isToggleButton, setDown, isDown, isOn, state, autoRepeat,
   isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
   clicked, toggled, state stateChanged
-  
+
   \sa QToolButton, QRadioButton QCheckBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */

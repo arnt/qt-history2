@@ -47,6 +47,7 @@
   representation with direct access to the pixel data.
 
   \ingroup images
+  \ingroup shared
 
   It is one of the two classes Qt provides for dealing with images,
   the other being QPixmap.  QImage is designed and optimized for I/O
@@ -2304,7 +2305,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 
     if (height() <= 1 || width() <= 1)
 	return result;
-    
+
     // Vertical mirror
     if (vertical) {
 	int bpl = result.bytesPerLine();
@@ -2319,7 +2320,7 @@ QImage QImage::mirror(bool horizontal, bool vertical) const
 	    }
 	}
     }
-    
+
     // Horizontal mirror
     if (horizontal) {
 	if (result.depth() == 32) {

@@ -52,7 +52,6 @@ public:
   \class QMenuBar qmenubar.h
   \brief The QMenuBar class provides a horizontal menu bar.
 
-  \ingroup realwidgets
   \ingroup application
 
   A menu bar consists of a list of submenu items, so-called pulldown
@@ -375,7 +374,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	if ( qApp && qApp->focusWidget() == this ) {
 	    return TRUE;
 	}
-	
+
 	return FALSE;
     }
 
@@ -806,7 +805,7 @@ void QMenuBar::drawContents( QPainter *p )
 		g = palette().normal();
 	    else
 		g = palette().disabled();
-		
+
 	    if ( gs == WindowsStyle || style().defaultFrameWidth() < 2) {
 		p->fillRect( r,palette().normal().brush( QColorGroup::Button ) );
 		if ( i == actItem && ( hasFocus() || hasmouse || popupvisible ) ) {
@@ -1048,7 +1047,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 {
     if ( i == actItem && (uint)show == popupvisible )
 	return;
-    
+
     QMenuItem* mi = 0;
     if ( i >= 0 )
 	mi = mitems->at( i );

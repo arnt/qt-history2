@@ -1571,7 +1571,7 @@ void QListViewPrivate::Root::setup()
 /*!
   \class QListView qlistview.h
   \brief The QListView class implements a list/tree view.
-  \ingroup realwidgets
+  \ingroup advanced
 
   It can display and control a hierarchy of multi-column items, and
   provides the ability to add new items at run-time, let the user

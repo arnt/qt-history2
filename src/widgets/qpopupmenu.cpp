@@ -90,7 +90,8 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   \class QPopupMenu qpopupmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
 
-  \ingroup realwidgets
+  \ingroup application
+  \ingroup basic
 
   A popup menu widget is a selection menu. It can be both, a pull-down
   menu in a menu bar or a standalone context menu.  Pull-down menus

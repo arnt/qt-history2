@@ -35,10 +35,9 @@
   \brief The QFrame class is the base class of widgets that can have a frame.
 
   \ingroup abstractwidgets
-  \ingroup realwidgets
 
   It draws a frame and calls a virtual function, drawContents(), to
-  fill in the frame.  This function is reimplemented by 
+  fill in the frame.  This function is reimplemented by
   subclasses.  There are also two other less useful functions,
   drawFrame() and frameChanged().
 
@@ -87,17 +86,17 @@
 */
 
 
-/*! \enum QFrame::Shape 
+/*! \enum QFrame::Shape
 
   This enum type defines the shapes of a QFrame's frame.  The
   currently defined shapes are: <ul>
-  
+
   <li> \c NoFrame - QFrame draws nothing
 
   <li> \c Box - QFrame draws a box around its contents
 
   <li> \c Panel - QFrame draws a panel such that the contents appear raised or sunken
-  
+
   <li> \c WinPanel - like \c Panel, but QFrame draws the 3D effects
   the way Microsoft Windows 95 (etc) does
 
@@ -127,13 +126,13 @@
 
   This enum typde defines the 3D effect used for QFrame's frame.  The
   currently defined effects are: <ul>
-  
+
   <li> \c Plain - the frame and contents appear level with the surroundings
   <li> \c Raised - the frame and contents appear raised
   <li> \c Sunken - the frame and contents appear sunken
 
   </ul>
-  
+
   Shadow interacts with QFrame::Shape, the lineWidth() and the
   midLineWidth().  The <a href="#picture">picture of the frames</a> in
   the class documentation may illustrate this better than words.

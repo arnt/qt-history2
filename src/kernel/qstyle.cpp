@@ -79,6 +79,8 @@ static void delete_d( const QStyle* foo )
 /*!
   \class QStyle qstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
+  
+  \ingroup appearance
 
   While it is not possible to fully enumerate the look of graphic elements
   and the feel of widgets in a GUI, a large number of elements are common
@@ -792,7 +794,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 		if ( highlight )
 		    p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
 		QPointArray a( 2 * ((w-6)/3) );
-		
+
 		int x = 3 + (w%3)/2;
 		p->setPen( dark );
 		p->drawLine( 1, 8, w-2, 8 );

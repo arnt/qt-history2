@@ -42,6 +42,7 @@
 /*!
   \class QPlatinumStyle qplatinumstyle.h
   \brief Platinum Look and Feel
+  \ingroup appearance
 
   This class implements the Platinum look and feel. It's an
   experimental class that tries to resemble a Macinosh-like GUI style
@@ -240,7 +241,7 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	 p->drawPoint(x+w-3, y+h-3);
 	 p->setPen(g.mid());
 	 p->drawPoint(x+w-4, y+h-4);
-	
+
 
      }
 
@@ -285,7 +286,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
     // small or non-square bevel buttons are drawn in a small style, others in a big style.
     if ( w * h < 1600 || QABS(w-h) > 10) {
 	// small buttons
-	
+
 	if (!sunken) {
 	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
 					     g.brush( QColorGroup::Button ));
@@ -337,7 +338,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
     }
     else {
 	// big ones
-	
+
 	if (!sunken) {
 	    p->fillRect(x+3, y+3, w-6, h-6,fill ? * fill :
 					    g.brush( QColorGroup::Button ));
@@ -441,7 +442,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
     else if ( btn->isOn() )
 	fill = QBrush( g.mid(), Dense4Pattern );
     else
-	fill = g.brush( QColorGroup::Button );	
+	fill = g.brush( QColorGroup::Button );
 
 //     if ( btn->isDefault() ) {
 // 	QPointArray a;
@@ -455,7 +456,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 // 	x2 -= 2;
 // 	y2 -= 2;
 //     }
-	
+
     // small or square buttons as well as toggle buttons are bevel buttons (what a heuristic....)
     if ( btn->isToggleButton()
 	 || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )
@@ -472,7 +473,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
  	    g2.setColor( QColorGroup::Button,  g.mid() );
 	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g2, FALSE, &fill );
 	}
-	
+
 	if ( btn->isDefault() || btn->autoDefault() ) {
 	    x1 += diw;
 	    y1 += diw;
@@ -483,7 +484,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 		    &fill );
     }
-	
+
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 }
@@ -493,7 +494,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
     bool on = btn->isDown() || btn->isOn();
-    QRect r = pushButtonContentsRect( btn );	
+    QRect r = pushButtonContentsRect( btn );
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
     if ( btn->isMenuButton() ) {
@@ -503,7 +504,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	int xx = x+w-dx-4;
 	int yy = y-3;
 	int hh = h+6;
-	
+
 	if ( !on ) {
 	    p->setPen( g.mid() );
 	    p->drawLine(xx, yy+2, xx, yy+hh-3);
@@ -518,7 +519,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 		   btn->isEnabled() );
 	w -= dx;
     }
-    
+
     if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
 	QIconSet::Mode mode = btn->isEnabled()
 			      ? QIconSet::Normal : QIconSet::Disabled;
@@ -531,7 +532,7 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 	x += pixw + 4;
 	w -= pixw + 4;
     }
-    
+
     drawItem( p, x, y, w, h,
 	      AlignCenter|ShowPrefix,
 	      btn->colorGroup(), btn->isEnabled(),
@@ -578,7 +579,7 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
 	 sliderLength = buttonDim; // macintosh
 
 	 */
-	
+
     sliderMax = sliderMin + maxLength - sliderLength;
 
 }
@@ -617,7 +618,7 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
 	p->setPen(g.button());
 	p->drawLine(x+1, y+h-2 ,x+w-1, y+h-2);
 	//p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
-	
+
 	p->setPen(g.shadow());
 	p->drawLine(x, y+h-1,x+w-1, y+h-1);
 	// p->drawLine(x+w-1, y, x+w-1, y+h-1);
@@ -886,7 +887,7 @@ void QPlatinumStyle::drawIndicator( QPainter* p,
 // 	p->drawLine( x+2, y+h/2-1, x+w/2-1, y+h-4);
 // 	p->drawLine(x+w/2-1, y+h-4, x+w, 0);
 // 	p->setPen( oldPen );
-	
+
 	int x1 = x;
 	int y1 = y;
 	if ( down ) {			// shift check mark
@@ -1237,31 +1238,31 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 // 	p->drawLine(x1, y1+1, x1, y2-mx+2);
 // 	p->drawLine(x2, y1+1, x2, y2-mx+2);
 
-	
+
 	p->drawLine(x1, y1+1, x1,y2-1);
 	p->drawLine( x2-my+2, y1, x2, y1+my-2);
 	p->drawLine( x2-my+2, y2, x2, y1+my+2);
 	p->drawLine(x2, y1+my-2, x2, y1+my+2);
 	p->drawLine(x1+1, y1, x2-my+2, y1);
 	p->drawLine(x1+1, y2, x2-my+2, y2);
-	
+
 	// light shadow
 	p->setPen(c3);
 	p->drawLine(x1+1, y1+2, x1+1,y2-2);
 	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
 	p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
-	
+
 	// dark shadow
 	p->setPen(c1);
 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
 	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
-	
-	
+
+
 	drawRiffles(p, x, y+2, w-3, h-4, g, TRUE);
     }
     else { // Horizontal
-	
+
 	// shadow border
 	p->setPen( c0 );
 	p->drawLine(x1+1,y1,x2-1,y1);
@@ -1270,12 +1271,12 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 	p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
 	p->drawLine(x1, y1+1, x1, y2-mx+2);
 	p->drawLine(x2, y1+1, x2, y2-mx+2);
-	
+
 	// light shadow
 	p->setPen(c3);
 	p->drawLine(x1+1, y1+1,x2-1, y1+1);
 	p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
-	
+
 	// dark shadow
 	p->setPen(c1);
 	p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
@@ -1313,20 +1314,20 @@ void QPlatinumStyle::drawSliderMask( QPainter *p,
 	p->drawLine(x2, y1+my-2, x2, y1+my+2);
 	p->drawLine(x1+1, y1, x2-my+2, y1);
 	p->drawLine(x1+1, y2, x2-my+2, y2);
-	
+
 	// light shadow
 	p->drawLine(x1+1, y1+2, x1+1,y2-2);
 	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
 	p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
-	
+
 	// dark shadow
 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
 	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
-	
+
     }
     else { // Horizontal
-	
+
 	// shadow border
 	p->drawLine(x1+1,y1,x2-1,y1);
 	p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
@@ -1334,11 +1335,11 @@ void QPlatinumStyle::drawSliderMask( QPainter *p,
 	p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
 	p->drawLine(x1, y1+1, x1, y2-mx+2);
 	p->drawLine(x2, y1+1, x2, y2-mx+2);
-	
+
 	// light shadow
 	p->drawLine(x1+1, y1+1,x2-1, y1+1);
 	p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
-	
+
 	// dark shadow
 	p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
 	p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1);

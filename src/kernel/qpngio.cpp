@@ -741,6 +741,7 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   \brief Incremental image decoder for PNG image format.
 
   \ingroup images
+  \ingroup io
 
   This subclass of QImageFormatType recognizes PNG
   format images, creating a QPNGFormat when required.  An instance

@@ -72,7 +72,7 @@ struct QTabPrivate {
   \brief The QTabBar class provides a tab bar, for use in e.g. tabbed
   dialogs.
 
-  \ingroup realwidgets
+  \ingroup advanced
 
   The class is quite simple; it draws the tabs in one of four shapes
   and emits a signal when one is selected.  It can be subclassed to
@@ -487,7 +487,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
 			QBrush( colorGroup().brush( QColorGroup::Background ) ));
 	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
 	}
-	
+
 	if ( !a.isEmpty() ) {
 	    p.setPen( colorGroup().light() );
 	    p.drawPolyline( a );
@@ -851,7 +851,7 @@ void QTabBar::scrollTabs()
 	if ( t->r.left() < d->leftB->x() )
 	    right = t;
     }
-	
+
     if ( sender() == d->leftB )
 	makeVisible( left );
     else  if ( sender() == d->rightB )
@@ -881,7 +881,7 @@ void QTabBar::makeVisible( QTab* tab  )
 
     d->leftB->setEnabled( offset != 0 );
     d->rightB->setEnabled( lstatic->last()->r.right() >= d->leftB->x() );
-	
+
 
     update();
 }

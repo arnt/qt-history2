@@ -37,7 +37,7 @@
 
   \brief The QTabWidget class provides a stack of tabbed widgets.
 
-  \ingroup realwidgets
+  \ingroup organizers
 
   A tabbed widget is one in which several "pages" are available, and
   the user selects which page to see and use by clicking on its tab,
@@ -492,7 +492,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	d->tabs->setGeometry( QMAX(0, lw-2), 0, t.width(), t.height() );
 	d->stack->setGeometry( 0, t.height()-lw, width(), height()-t.height()+lw );
     }
-	
+
     d->dirty = FALSE;
     if ( !onlyCheck )
 	update();

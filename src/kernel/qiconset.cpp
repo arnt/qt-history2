@@ -66,6 +66,7 @@ struct QIconSetPrivate: public QShared
   icons.
 
   \ingroup misc
+  \ingroup shared
 
   Once a QIconSet is fed some pixmaps,
   it can generate smaller, larger, active and disabled pixmaps.
@@ -196,7 +197,7 @@ QIconSet::~QIconSet()
 /*!
   \enum QIconSet::Size
 
-  This enum type describes the size for which a pixmap is intended to be 
+  This enum type describes the size for which a pixmap is intended to be
   provided.
   The currently defined sizes are:
 
@@ -210,7 +211,7 @@ QIconSet::~QIconSet()
   If a Small pixmap is not set by QIconSet::setPixmap(), then the
   Large pixmap may be automatically scaled to two-thirds of its size to
   generate the Small pixmap.  Conversely, a Small pixmap will be
-  automatically scaled up by 50% to create a Large pixmap if needed.  
+  automatically scaled up by 50% to create a Large pixmap if needed.
 
   \sa setPixmap() pixmap() QIconViewItem::setViewMode()
       QMainWindow::setUsesBigPixmaps()
@@ -219,7 +220,7 @@ QIconSet::~QIconSet()
 /*!
   \enum QIconSet::Mode
 
-  This enum type describes the mode for which a pixmap is intended to be 
+  This enum type describes the mode for which a pixmap is intended to be
   provided.
   The currently defined modes are:
 

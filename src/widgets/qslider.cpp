@@ -43,7 +43,7 @@ static int sliderStartVal = 0; //##### class member?
 /*!
   \class QSlider qslider.h
   \brief The QSlider widget provides a vertical or horizontal slider.
-  \ingroup realwidgets
+  \ingroup basic
 
   The slider is the classic widget for controlling a bounded value.
   It lets the user move a slider along a horizontal or vertical
@@ -490,7 +490,7 @@ void QSlider::paintEvent( QPaintEvent * )
     }
     if ( ticks & Above )
 	drawTicks( &p, g, 0, tickOffset - 2, interval );
-	
+
     if ( ticks & Below ) {
 	int avail = (orient == Horizontal) ? height() : width();
 	avail -= tickOffset + thickness();
@@ -555,7 +555,7 @@ void QSlider::updateMask()
 	}
 	if ( ticks & Above )
 	    drawTicks( &p, g, 0, tickOffset - 2, interval );
-	
+
 	if ( ticks & Below ) {
 	    int avail = (orient == Horizontal) ? height() : width();
 	    avail -= tickOffset + thickness();
@@ -704,7 +704,7 @@ void QSlider::moveSlider( int pos )
     default:
     case MotifStyle:
 	break;
-    }	
+    }
 
     if ( sliderPos != newPos )
 	reallyMoveSlider( newPos );
@@ -760,7 +760,7 @@ void QSlider::keyPressEvent( QKeyEvent *e )
 	    subtractLine();
 	break;
     case Key_Down:
-	if ( sloppy || orient == Vertical )	
+	if ( sloppy || orient == Vertical )
 	    addLine();
 	break;
     case Key_Prior:
@@ -1082,7 +1082,7 @@ int QSlider::maxValue() const
 /*!
   A convenience function which just calls
   setRange( i, maxValue() )
-  
+
   \sa setRange()
 */
 void QSlider::setMinValue( int i )
@@ -1093,7 +1093,7 @@ void QSlider::setMinValue( int i )
 /*!
   A convenience function which just calls
   setRange( minValue(), i )
-  
+
   \sa setRange()
 */
 void QSlider::setMaxValue( int i )

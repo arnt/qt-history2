@@ -58,6 +58,8 @@ struct QUrlOperatorPrivate
 
   \brief The QUrlOperator class provides common operations on URLs
   (get() and more).
+  
+  \ingroup misc
 
   This class operates on hirachical structures (like filesystems)
   using URLs. Its API allows do all common operations on it
@@ -555,7 +557,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 	QUrlOperator *u2 = new QUrlOperator( to );
 	QNetworkProtocol *pProt = QNetworkProtocol::getNetworkProtocol( u2->protocol() );
 	pProt->setUrl( u2 );
-	
+
 	connect( pProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
 		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
@@ -573,12 +575,12 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 	    ops.append( opRm );
 	    d->getOpRemoveOpMap.insert( (void*)opGet, opRm );
 	    gProt->setAutoDelete( FALSE );
-	}	
+	}
 
 #ifdef QURLOPERATOR_DEBUG
 	qDebug( "QUrlOperator: copy operation should start now..." );
 #endif
-	
+
 	return ops;
     } else {
 	delete gProt;
@@ -869,7 +871,7 @@ QUrlInfo QUrlOperator::info( const QString &entry ) const
 	 inf.setReadable( TRUE );
 	 return inf;
      }
-	
+
     return QUrlInfo();
 }
 

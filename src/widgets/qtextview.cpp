@@ -49,7 +49,7 @@
 /*!
   \class QTextView qtextview.h
   \brief A sophisticated single-page rich text viewer.
-  \ingroup realwidgets
+  \ingroup basic
   \ingroup helpsystem
 
   Unlike QSimpleRichText, which merely draws small pieces of rich

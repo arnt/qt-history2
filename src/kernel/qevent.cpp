@@ -34,8 +34,8 @@
   \brief The QEvent class is base class of all
   event classes. Event objects contain event parameters.
 
+  \ingroup environment
   \ingroup event
-  \ingroup kernel
 
   The   main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
@@ -49,7 +49,7 @@
   called. The function can be reimplemented in subclasses to customize
   event handling and add additional event types. QWidget::event() is
   a notable example. By default, events are dispatched to event handlers
-  like QObject::timerEvent() and QWidget::mouseMoveEvent(). 
+  like QObject::timerEvent() and QWidget::mouseMoveEvent().
   QObject::installEventFilter() allows an object to intercept events
   to another object.
 
@@ -161,7 +161,7 @@
   uses signals instead of events. It also provides one-shot timers.
 
   The event handler QObject::timerEvent() receives timer events.
-  
+
   \sa QTimer, QObject::timerEvent(), QObject::startTimer(),
   QObject::killTimer(), QObject::killTimers()
 */
@@ -200,7 +200,7 @@
   to the widget that receives the mouse event. If you move the widget
   as a result of the mouse event, use the global position returned by
   globalPos() to avoid a shaking motion.
-  
+
   The QWidget::setEnable() function can be used to enable or disable mouse
   and keyboard events for a widget.
 
@@ -225,7 +225,7 @@
   it should be 0 if \a type is \c MouseMove; and \a state is the ButtonState
   at the time of the event.
 
-  The globalPos() is initialized to QCursor::pos(), which may not be 
+  The globalPos() is initialized to QCursor::pos(), which may not be
   appropriate. Use the other constructor to specify the global position
   explicitely.
 */
@@ -244,7 +244,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   The \a type parameter must be \c QEvent::MouseButtonPress,
   \c QEvent::MouseButtonRelease,
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
-  
+
   The \a pos parameter specifies the position relative to the receiving widget;
   \a globalPos gives the position in absolute coordinates;
   \a button specifies the ButtonState of the button that caused the event,
@@ -256,10 +256,10 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn const QPoint &QMouseEvent::pos() const
   Returns the position of the mouse pointer, relative to the widget that
   received the event.
-  
+
   If you move the widget as a result of the mouse event, use the
   global position returned by globalPos() to avoid a shaking motion.
-  
+
   \sa x(), y(), globalPos()
 */
 
@@ -270,7 +270,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   time of the event. This is important on asynchronous window systems
   like X11: Whenever you move your widgets around in response to mouse
   evens, globalPos() can differ a lot from the current pointer
-  position QCursor::pos(), and from 
+  position QCursor::pos(), and from
   <code> QWidget::mapToGlobal( pos() ) </code>.
 
   \sa globalX(), globalY()
@@ -329,7 +329,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   This value is mainly interesting for \c QEvent::MouseMove, for the
   other cases, button() is more useful.
-  
+
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 
@@ -383,11 +383,11 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
   Constructs a wheel event object.
 
-  The globalPos() is initialized to QCursor::pos(), which may not be 
+  The globalPos() is initialized to QCursor::pos(), which may not be
   appropriate. Use the other constructor to specify the global position
   explicitely.
 
-  
+
   \sa pos(), delta(), state()
 */
 QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
@@ -425,10 +425,10 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
   \fn const QPoint &QWheelEvent::pos() const
   Returns the position of the mouse pointer, relative to the widget that
   received the event.
-  
+
   If you move your widgets around in response to mouse
   evens, use globalPos() instead of this function.
-  
+
   \sa x(), y(), globalPos()
 */
 
@@ -961,9 +961,9 @@ void QFocusEvent::resetReason()
 
   A \c ChildRemoved event is sent immediately, but a \c ChildInserted event
   is \e posted (with QApplication::postEvent())
-  
-  
-  
+
+
+
   The handler for these events is QObject::childEvent().
 */
 

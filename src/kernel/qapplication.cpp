@@ -49,7 +49,7 @@
   \class QApplication qapplication.h
   \brief The QApplication class manages the GUI application's control flow and main settings.
 
-  \ingroup kernel
+  \ingroup environment
 
   It contains the main event loop, where all events from the window
   system and other sources are processed and dispatched.  It also
@@ -1976,21 +1976,21 @@ void QApplication::removePostedEvent( QEvent *  event )
     }
 }
 
-/*!\internal 
-  
+/*!\internal
+
   Sets the active window as a reaction on a system event. Call this
   from the platform specific event handlers.
-  
+
   It sets the activeWindow() and focusWidget() attributes and sends
   proper WindowActivated/WindowDeactivated and FocusIn/FocusOut events
   to all appropriate widgets.
-  
+
   \sa activeWindow()
  */
 void QApplication::setActiveWindow( QWidget* act )
 {
     QWidget* window = act?act->topLevelWidget():0;
-    
+
     if ( active_window == window )
 	return;
 
@@ -2006,7 +2006,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	QCustomEvent e( QEvent::WindowActivated, 0 );
 	QApplication::sendEvent( active_window, &e );
     }
-    
+
     // then focus events
     QFocusEvent::setReason( QFocusEvent::ActiveWindow );
     if ( !active_window && focus_widget ) {
@@ -2299,7 +2299,7 @@ int QApplication::startDragDistance()
   \class QSessionManager qsessionmanager.h
   \brief The QSessionManager class provides access to the session manager.
 
-  \ingroup kernel
+  \ingroup environment
 
   The QSessionManager class provides access to the session manager
   during a \link session.html session management \endlink action.  In

@@ -356,6 +356,8 @@ static int scm(int a, int b)
 \class QCanvas qcanvas.h
 \brief A QCanvas is a 2D graphic area upon which QCanvasItem objects exist.
 
+\ingroup abstractwidgets
+
 A QCanvas contains any number of QCanvasItem subclassed objects and has
 any number of QCanvasView widgets observing some part of the canvas.
 
@@ -398,7 +400,7 @@ change of visibility, and destruction.
 
 <h3>Animation</h3>
 
-QCanvas has some built-in animation features. If you call QCanvasItem::setVelocity() 
+QCanvas has some built-in animation features. If you call QCanvasItem::setVelocity()
 on an item, it will move forward whenever advance() is call.  The advance() function
 also calls update(), so you only need to call one or the other. If no items
 have a velocity, then advance() is the same as update().
@@ -1196,7 +1198,7 @@ void QCanvas::setDoubleBuffering(bool y)
   top to bottom, with tile 0 in the top-left corner, tile 1 next
   to the right, and so on.
 
-  If the QCanvas is 
+  If the QCanvas is
   larger than the matrix of tiles,
   the entire matrix will be repeated as much as necessary to
   cover the area.  If it is smaller, tiles to

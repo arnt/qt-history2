@@ -42,6 +42,8 @@
 /*!
   \class QCDEStyle qcdestyle.h
   \brief CDE Look and Feel
+  
+  \ingroup appearance
 
   This style provides a slightly improved Motif look similar to some
   versions of the Common Desktop Environment (CDE). The main
@@ -98,7 +100,7 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
     if ( dim < 2 )				// too small arrow
 	return;
-    
+
     // adjust size and center (to fix rotation below)
     if ( w >  dim ) {
 	x += (w-dim)/2;

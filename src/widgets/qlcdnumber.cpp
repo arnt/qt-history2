@@ -34,7 +34,7 @@
 
   \brief The QLCDNumber widget displays a number with LCD-like digits.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   It can display a number in just about any size, in decimal,
   hexadecimal, octal or binary notation, and is easy to connect to

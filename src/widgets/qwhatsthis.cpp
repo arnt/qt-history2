@@ -44,7 +44,6 @@
   \brief The QWhatsThis class provides a simple description of any
   widget, e.g. answering the question "what's this?"
 
-  \ingroup application
   \ingroup helpsystem
 
   <i>What's This</i> help is part of an application's
@@ -368,7 +367,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    else if ( kev->key() == Key_Menu ||
 		      ( kev->key() == Key_F10 && kev->state() == ShiftButton ) )
 		return FALSE; // ignore these keys, they are used for context menus
-	    else if ( kev->state() == kev->stateAfter() && 
+	    else if ( kev->state() == kev->stateAfter() &&
 		      kev->key() != Key_Meta )  // not a modifier key
 		leaveWhatsThisMode();
 

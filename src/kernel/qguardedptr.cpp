@@ -31,7 +31,7 @@
   \class QGuardedPtr qguardedptr.h
   \brief The QGuardedPtr class is a template class that provides guarded pointers to QObjects
 
-  \ingroup kernel
+  \ingroup objectmodel
 
   A guarded pointer, QGuardedPtr\<<em>X</em>\>,
   behaves like a normal C++ pointer \e X*, except that

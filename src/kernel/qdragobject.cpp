@@ -440,7 +440,7 @@ QWidget * QDragObject::source()
 
   \brief The QDragObject encapsulates MIME-based information transfer.
 
-  \ingroup kernel
+  \ingroup draganddrop
 
   QDragObject is the base class for all data that needs to be transferred
   between and within applications, both for drag-and-drop and for the
@@ -529,7 +529,7 @@ void QTextDrag::setSubtype( const QCString & st)
   \brief The QTextDrag provides a drag-and-drop object for
 	      transferring plain and Unicode text.
 
-  \ingroup kernel
+  \ingroup draganddrop
 
   Plain text is single- or multi-line 8-bit text in the local encoding.
 
@@ -737,7 +737,7 @@ public:
   \brief The QImageDrag provides a drag-and-drop object for
   transferring images.
 
-  \ingroup kernel
+  \ingroup draganddrop
 
   Images are offered to the receiving application in multiple formats,
   determined by the \link QImage::outputFormats() output formats\endlink
@@ -1314,12 +1314,12 @@ QWidget* QDropEvent::source() const
   \brief The QColorDrag provides a drag-and-drop object for
 	      transferring colors.
 
-  \ingroup kernel
+  \ingroup draganddrop
 
   This class provides a drag object which can be used to transfere
   data about colors for drag-and-drop and over the clipboard. It's
   e.g. used in the QColorDialog.
-  
+
   For detailed information about drag-and-drop, see the QDragObject class.
 */
 

@@ -54,8 +54,7 @@ public:
   \brief The QWidgetStack class provides a stack of widgets, where the
   user can see only the top widget.
 
-  \ingroup realwidgets
-  \ingroup application
+  \ingroup organizers
 
   The application programmer can move any widget to the top of the
   stack at any time using the slot raiseWidget(), and add or remove

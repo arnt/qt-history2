@@ -33,7 +33,7 @@
 /*!
   \class QProgressBar qprogressbar.h
   \brief The QProgressBar widget provides a horizontal progress bar.
-  \ingroup realwidgets
+  \ingroup advanced
 
   A progress bar is used to give the user an indication of progress
   of an operation. To reassure them that the application has not crashed.

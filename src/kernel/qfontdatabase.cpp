@@ -502,23 +502,23 @@ const QtFontStyle *QtFontCharSet::style( const QString &s ) const
 }
 
 bool QtFontCharSet::isLocaleCharSet() const
-{			
+{
     return charSet() == QFont::charSetForLocale();
 }
 
 bool QtFontCharSet::isUnicode() const
-{			
+{
     return charSet() == QFont::Unicode;
 }
 
 bool QtFontCharSet::isBitmapScalable() const
-{			
+{
     refresh();
     return bitmapScalable;
 }
 
 bool QtFontCharSet::isSmoothlyScalable() const
-{			
+{
     refresh();
     return smoothlyScalable;
 }
@@ -577,7 +577,7 @@ void QtFontCharSet::refresh() const
 		    that->italicBoldStyle    = tmp;
 		    bestItalicBoldDiff = boldDiff;
 		}
-		
+
 	    }
 	} else if ( tmp->lesserItalic() ){
 	    if ( tmp->weight() < QFont::Normal ) {
@@ -591,7 +591,7 @@ void QtFontCharSet::refresh() const
 		    lesserItalicBoldStyle    = tmp;
 		    //bestLesserItalicBoldDiff = boldDiff; NOT USED
 		}
-		
+
 	    }
 	} else {
 	    if ( tmp->weight() < QFont::Normal ) {
@@ -605,7 +605,7 @@ void QtFontCharSet::refresh() const
 		    that->boldStyle    = tmp;
 		    bestBoldDiff = boldDiff;
 		}
-		
+
 	    }
 	}
     }
@@ -618,7 +618,7 @@ void QtFontCharSet::refresh() const
     else if ( bitmap )
 	that->bitmapScalable = TRUE;
     that->dirty    = FALSE;
-}	
+}
 
 const QStringList &QtFontFamily::charSets( bool onlyForLocale ) const
 {
@@ -661,13 +661,13 @@ const QtFontCharSet *QtFontFamily::charSet( const QString &n ) const
 }
 
 bool QtFontFamily::isBitmapScalable() const
-{			
+{
     refresh();
     return bitmapScalable;
 }
 
 bool QtFontFamily::isSmoothlyScalable() const
-{			
+{
     refresh();
     return smoothlyScalable;
 }
@@ -724,7 +724,7 @@ void QtFontFamily::refresh() const
 	that->smoothlyScalable = TRUE;
     else
 	that->bitmapScalable   = TRUE;
-}	
+}
 
 const QStringList &QtFontFoundry::families() const
 {
@@ -845,7 +845,7 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
 		    bitmapScalable = fam;
 		else
 		    nonScalable    = fam;
-	    }		
+	    }
 	}
 	if ( !result )
 	    result = bitmapScalable ? bitmapScalable : nonScalable;
@@ -1224,7 +1224,7 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 {
     if ( strcmp( registry, "iso8859" ) == 0 ) {
 	if ( encoding[0] != 0 && encoding[1] == 0 ) {
-	    switch( encoding[0] ) {	
+	    switch( encoding[0] ) {
 	    case '1': return QFont::ISO_8859_1;
 	    case '2': return QFont::ISO_8859_2;
 	    case '3': return QFont::ISO_8859_3;
@@ -1238,7 +1238,7 @@ static QFont::CharSet getCharSet( const char * registry, const char *encoding )
 	    }
 	} else if ( encoding[0] == '1' && encoding[1] != 0
 		    && encoding[2] == 0 ) {
-	    switch( encoding[0] ) {	
+	    switch( encoding[0] ) {
 	    case '0': return QFont::ISO_8859_10;
 	    case '1': return QFont::ISO_8859_11;
 	    case '2': return QFont::ISO_8859_12;
@@ -1512,12 +1512,12 @@ QString QFontDatabase::styleString( const QFont &f )  // ### fttb
     if ( f.weight() >= QFont::Bold ) {
 	if ( f.italic() )
 	    result = "Bold Italic";
-	else	
+	else
 	    result = "Bold";
     } else {
 	if ( f.italic() )
 	    result = "Italic";
-	else	
+	else
 	    result = "Normal";
     }
     return result;
@@ -1583,7 +1583,7 @@ static QStringList emptyList;
   \class QFontDatabase qfontdatabase.h
   \brief Class which can be used to get information about the
   available fonts
-  \ingroup fonts
+  \ingroup environment
 
   This class can be used to get information about the available
   fonts. With the 4 public members families(), pointSizes(), styles()

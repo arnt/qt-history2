@@ -31,19 +31,21 @@
   \class QSemiModal qsemimodal.h
   \brief The QSemiModal class is the base class of semi-modal dialog windows.
 
+  \ingroup abstractwidgets
   \ingroup dialogs
 
-  The semi-modal dialog window can disable events to other windows while
-  it is open.  To enable this, the QSemiModal must be constructed with
-  TRUE for the \e modal argument, which is FALSE by default, for consistency
-  with QDialog.
-  Such a QSemiModal is modal like QDialog, but it does not have
-  its own event loop and has no concept of a default button.
+  The semi-modal dialog window can disable events to other windows
+  while it is open.  To enable this, the QSemiModal must be
+  constructed with TRUE for the \e modal argument, which is FALSE by
+  default, for consistency with QDialog.  Such a QSemiModal is modal
+  like QDialog, but it does not have its own event loop. The flow of
+  control is still within your code and it is up to you to update the
+  semi-modal dialog (for example a progressbar) from time to time. 
 
-  Note that the parent widget has a different meaning for semi-modal
-  dialogs than for other types of widgets. A semi-modal dialog is
-  placed on top of the parent widget. The dialog is centered on the
-  screen if the parent widget is zero.
+  Note that the parent widget has a different meaning for dialogs than
+  for other types of widgets. A dialog is placed on top of the parent
+  widget. The dialog is centered on the screen if the parent widget is
+  zero.
 */
 
 

@@ -32,6 +32,8 @@
 /*!
   \class QSimpleRichText qsimplerichtext.h
   \brief A small displayable piece of rich text.
+  
+  \ingroup drawing
 
   This class encapsulates simple richt text usage where a string is
   interpretted as richt text and can be drawn. This is in particular
@@ -127,7 +129,7 @@ QSimpleRichText::~QSimpleRichText()
 
 /*!
   Sets the width of the document to \a w pixels.
-  
+
   \sa height(), adjustSize()
 */
 void QSimpleRichText::setWidth( int w)
@@ -138,7 +140,7 @@ void QSimpleRichText::setWidth( int w)
 /*!
   Sets the width of the document to \a w pixels, recalculating the layout
   as if it were to be drawn with \a p.
-  
+
   Passing a painter is useful when you intend to draw on devices other
   than the screen, like for example a QPrinter.
 
@@ -246,7 +248,7 @@ QString QSimpleRichText::context() const
   Returns the anchor at the requested position. The QPainter is needed for font size
   calculations. An empty string is returned if no anchor is specified for this certain
   position.
-  
+
   This function will be removed in 3.0
 */
 QString QSimpleRichText::anchor( QPainter*, const QPoint& pos )

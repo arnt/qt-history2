@@ -35,7 +35,7 @@
 
   \brief The QCursor class provides a mouse cursor with an arbitrary shape.
 
-  \ingroup kernel
+  \ingroup environment
   \ingroup shared
 
   This class is used for mainly two things; to create mouse cursors to be

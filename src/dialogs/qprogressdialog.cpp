@@ -81,7 +81,6 @@ struct QProgressData
   \class QProgressDialog qprogressdialog.h
   \brief Provides feedback on the progress of a slow operation.
   \ingroup dialogs
-  \ingroup realwidgets
 
   A progress dialog is used to give the user an indication of how long
   an operation is going to take to perform, and to reassure them that
@@ -329,7 +328,7 @@ void QProgressDialog::setLabel( QLabel *label )
 
 /*!
   Returns the labels text.
-  
+
   \sa setLabelText
 */
 

@@ -517,7 +517,7 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   \class QListBox qlistbox.h
   \brief The QListBox widget provides a list of selectable, read-only items.
 
-  \ingroup realwidgets
+  \ingroup advanced
 
   This is typically a single-column list where zero or one items
   are selected at once, but can also be used in many other ways.
@@ -1171,7 +1171,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 	QListBoxItem * i = d->head;
 	while ( i && i != after )
 	    i = i->n;
-	
+
 	if ( i ) {
 	    item->n = i->n;
 	    item->p = i;
@@ -2950,7 +2950,7 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
 	if ( d->columnPos[ col + 1 ] + contentsX() >=  p.x() + contentsX() )
 	    return i;
 	return 0;
-    }	
+    }
 }
 
 

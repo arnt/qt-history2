@@ -68,7 +68,7 @@ public:
 
   \brief The QDial widget provides a dial (or speedometer, or potentiometer) widget.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   Q dial is used when the user needs to control a value within a
   program-definable range, and the range either wraps around
@@ -250,7 +250,7 @@ void QDial::repaintScreen( const QRect *cr )
 	p.setClipRegion( reg );
 	resetClipping = TRUE;
     }
-	
+
     QRect br( calcDial() );
     p.setPen( NoPen );
     if ( style() == MotifStyle )

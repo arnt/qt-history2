@@ -39,7 +39,7 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
 {
     QWidget *p = w->parentWidget();
-    while ( !w->testWFlags(Qt::WType_TopLevel) && p && 
+    while ( !w->testWFlags(Qt::WType_TopLevel) && p &&
 	    ( !p->inherits("QWorkspace") || !p->inherits( "QFileDialog" ) ) ) {
 	w = p;
 	p = p->parentWidget();
@@ -62,8 +62,8 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
   \brief The QSizeGrip class provides corner-grip for resizeing a top level
 	    window.
 
-  \ingroup realwidgets
   \ingroup application
+  \ingroup basic
 
   This widget works like the standard Windows resize handle.  In the
   X11 version this resize handle generally works differently than the

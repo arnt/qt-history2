@@ -35,13 +35,14 @@
   \brief The QPixmapCache class provides an application-global cache for
   pixmaps.
 
-  \ingroup kernel
+  \ingroup environment
+  \ingroup drawing
 
   This class is a tool for optimized drawing with QPixmap.  You can
   use it to store temporary pixmaps that are expensive to generate,
   without using more storage space than cacheLimit(). Use insert() to
   insert pixmaps, find() to find them and clear() to empty the cache.
-  
+
   Here follows an example. QRadioButton has a non-trivial visual
   representation. In the function QRadioButton::drawButton(), we do
   not draw the radio button directly. Instead, we first check the
@@ -56,12 +57,12 @@
 
   QPixmapCache contains no member data, only static functions to access
   the global pixmap cache.  It creates an internal QCache for caching the
-  pixmaps. 
+  pixmaps.
 
   The cache associates a pixmap with a normal string (key).  If two
   pixmaps are inserted into the cache using equal keys, then the last
   pixmap will hide the first pixmap. The QDict and QCache classes do
-  exactly the same. 
+  exactly the same.
 
   The cache becomes full when the total size of all pixmaps in the
   cache exceeds cacheLimit().  The initial cache limit is 1024 KByte
@@ -212,7 +213,7 @@ bool QPixmapCache::find( const QString &key, QPixmap& pm )
 
   <strong>
     NOTE: \a pm must be allocated on the heap (using \c new).
-    
+
     If this function returns FALSE, you must delete \a pm yourself.
 
     If this function returns TRUE, do not use \a pm afterwards or

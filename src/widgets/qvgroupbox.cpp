@@ -32,7 +32,7 @@
   \brief The QVGroupBox widget organizes widgets in a group
   with one vertical column.
 
-  \ingroup realwidgets
+  \ingroup geomanagement
 
   QVGroupBox is a convenience class that offers a thin layer on top of
   QGroupBox. Think of it as a QVBox that offers a frame with a title.

@@ -45,6 +45,7 @@
 /*!
   \class QMotifStyle qmotifstyle.h
   \brief Motif Look and Feel
+  \ingroup appearance
 
   This class implements the Motif look and feel. It almost completely
   resembles the original Motif look as defined by the Open Group, but
@@ -281,7 +282,7 @@ QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 	y += (h-dim)/2;
 	h = dim;
     }
-	
+
     if ( dim > 3 ) {
 	if ( dim > 6 )
 	    bFill.resize( dim & 1 ? 3 : 4 );
@@ -470,7 +471,7 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
     else if ( btn->isOn() )
 	fill = QBrush( g.mid(), Dense4Pattern );
     else
-	fill = g.brush( QColorGroup::Button );	
+	fill = g.brush( QColorGroup::Button );
 
     if ( btn->isDefault() ) {
 	if ( diw == 0 ) {
@@ -488,10 +489,10 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	    qDrawShadePanel( p, btn->rect(), g, TRUE );
 	}
     }
-	
+
     drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 		&fill );
-	
+
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
 }
@@ -544,7 +545,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	p->drawLine( r.left()+2, r.top(),
 		     r.right() - 2, r.top() );
 	p->drawPoint( r.left(), r.bottom());
-	
+
 	if ( o ) {
 	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
 	    p->drawLine( r.left()+2, r.top()+1,
@@ -592,7 +593,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	p->setPen( tb->colorGroup().light() );
 	p->drawLine( r.left(), r.top(),
 		     r.left(), r.bottom() - 2 );
-	
+
     } else {
 	QCommonStyle::drawTab( p, tb, t, selected );
     }
@@ -719,7 +720,7 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 
     if ( controls & SubPage )
 	p->fillRect( subPageR, fill );
-	
+
     if ( controls & AddPage )
 	p->fillRect( addPageR, fill );
 
@@ -880,7 +881,7 @@ void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 	}
 	p->setPen( g.text() );
 	p->drawLineSegments( a );
-	
+
 	qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE,
 			 defaultFrameWidth());
     }
@@ -901,7 +902,7 @@ int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*
 	return 10; // arbitrary
     else if ( mi->pixmap() )
 	w += mi->pixmap()->width();	// pixmap only
-	
+
     if ( !mi->text().isNull() ) {
 	if ( mi->text().find('\t') >= 0 )	// string contains tab
 	    w += motifTabSpacing;
@@ -986,7 +987,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
     } else if ( !act ) {
 	p->fillRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
 		    g.brush( QColorGroup::Button ));
-    }		
+    }
 
     if ( mi->iconSet() ) {		// draw iconset
 	QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
@@ -1000,7 +1001,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 	pmr.moveCenter( cr.center() );
 	p->setPen( itemg.text() );
 	p->drawPixmap( pmr.topLeft(), pixmap );
-	
+
     } else  if ( checkable ) {	// just "checking"...
 	int mw = checkcol;
 	int mh = h - 2*motifItemFrame;

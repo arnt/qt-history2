@@ -40,7 +40,6 @@
   \brief The QStatusBar class provides a horizontal bar suitable for
   presenting status information.
 
-  \ingroup realwidgets
   \ingroup application
   \ingroup helpsystem
 
@@ -66,7 +65,7 @@
   until the next clear() or mesage(), and one which also has a time limit:
 
   \code
-     connect( loader, SIGNAL(progressMessage(const QString&)), 
+     connect( loader, SIGNAL(progressMessage(const QString&)),
               statusBar(), SLOT(message(const QString&)) );
 
      statusBar()->message("Loading...");  // Initial message

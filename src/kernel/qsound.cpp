@@ -84,6 +84,8 @@ public:
 /*!
   \class QSound qsound.h
   \brief Access to the platform audio facilities.
+  
+  \ingroup sound
 
   Qt provides the most commonly required audio operation in
   GUI applications: playing a sound file asynchronously

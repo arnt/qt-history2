@@ -42,8 +42,8 @@
 
   \brief The QFont class specifies a font used for drawing text.
 
-  \ingroup fonts
   \ingroup drawing
+  \ingroup appearance
 
   QFont, more precisely, is a collection of attributes of a font.
   When Qt needs to draw text, it will look up and load the closest

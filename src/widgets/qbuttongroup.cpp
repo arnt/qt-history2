@@ -36,7 +36,7 @@
   \class QButtonGroup qbuttongroup.h
   \brief The QButtonGroup widget organizes QButton widgets in a group.
 
-  \ingroup realwidgets
+  \ingroup organizers
 
   A button group widget makes it easier to deal with groups of
   buttons.  A button in a button group is associated with a unique

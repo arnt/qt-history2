@@ -45,6 +45,8 @@
   \class QCommonStyle qcommonstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
 
+  \ingroup appearance
+
   This abstract class implements some of the widget's look and feel
   that is common to all GUI styles provided and shipped as part of Qt.
 */
@@ -183,7 +185,7 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 	a.setPoint( 3, x++, y );
 	a.setPoint( 3, x++, y++ );
 	a.setPoint( 4, x, y );
-	
+
 	int i;
 	int right = t->r.width() - 1;
 	for ( i = 0; i < 5; i++ )

@@ -57,7 +57,7 @@ struct QHeaderData
 /*!
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
-  \ingroup realwidgets
+  \ingroup advanced
 
   This is a table heading of the type used in a list view. It gives
   the user the opportunity to resize and move the columns (or rows for
@@ -113,8 +113,8 @@ QHeader::~QHeader()
   \fn void QHeader::sectionClicked (int actual)
 
   This signal is emitted when a part of the header is clicked. \a
-  actual is the actual index of the clicked section.  
-  
+  actual is the actual index of the clicked section.
+
   In a list view, this signal would typically be connected to a slot
   which sorts the specified column.
 */
@@ -866,7 +866,7 @@ int QHeader::pSize( int i ) const
 /*!
   Returns the height of actual section \a i if orientation() is horizontal ,
   returns the width if vertical.
-  
+
 */
 int QHeader::pHeight( int i ) const
 {

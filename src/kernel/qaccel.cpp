@@ -36,13 +36,13 @@
   \class QAccel qaccel.h
   \brief The QAccel class handles keyboard accelerator and shortcut keys.
 
-  \ingroup kernel
+  \ingroup environment
 
   A keyboard accelerator triggers an action when a certain key
   combination is pressed. The accelerator handles all keyboard
   activity for all children of one top level widget, so it is not
   affected by the keyboard focus.
-  
+
   In most cases, you will not need to use this class directly. Use
   QMenuData::insertItem() or QMenuData::setAccel() to make
   accelerators for operations that are also available on menus.  Many
@@ -54,11 +54,11 @@
      QPopupMenu *fileMenu = new fileMenu( parent );
      fileMenu->insertItem( "Undo", parent, SLOT(undo()), CTRL+Key_Z );
   \endcode
-  
+
   A QAccel contains a list of accelerator items. The following
   functions manipulate the list: insertItem(), removeItem(), clear(),
-  key(), findKey(). 
-  
+  key(), findKey().
+
   Each accelerator item consists of an identifier and a keyboard code
   combined with modifiers (\c SHIFT, \c CTRL, \c ALT or \c
   UNICODE_ACCEL).  For example, <code>CTRL + Key_P</code> could be a
@@ -75,15 +75,15 @@
 
   Use setEnabled() to enable/disable all items in the accelerator,
   or setItemEnabled() to enable/disable individual items.
-  
+
   The function setWhatsThis() specifies the What's This text for an
   accelerator item.
-  
+
   A QAccel object handles key events to the QWidget::topLevelWidget()
   containing \a parent, and hence to any child widgets of that window.
   The accelerator will be deleted when \a parent is deleted, and will
   consume relevant key events until then.
-  
+
   Example:
   \code
      QAccel *a = new QAccel( myWindow );	// create accels for myWindow
@@ -168,7 +168,7 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 
 
 /*!
-  Constructs a QAccel object with parent \a parent and name \a name. The 
+  Constructs a QAccel object with parent \a parent and name \a name. The
   accelerator operates on \a parent.
 */
 
@@ -191,7 +191,7 @@ QAccel::QAccel( QWidget *parent, const char *name )
 /*!
   Constructs a QAccel object that operates on \a watch, but is a child of
   \a parent.
-  
+
   This constructor is not needed for normal application programming.
 */
 QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
@@ -675,7 +675,7 @@ int QAccel::stringToKey( const QString & s )
 
   To set Whats This help on a menu item (with or without an
   accelerator key) use QMenuData::setWhatsThis().
-  
+
   \sa whatsThis(), QWhatsThis::inWhatsThisMode(), QMenuData::setWhatsThis()
  */
 void QAccel::setWhatsThis( int id, const QString& text )

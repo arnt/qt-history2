@@ -41,6 +41,8 @@
 
   \brief The Qt class is a namespace for miscellaneous identifiers
   that need to be global-like.
+  
+  \ingroup misc
 
   Normally, you can ignore this class.  QObject and a few other
   classes inherit it, so that all the identifiers in the Qt namespace
@@ -64,7 +66,7 @@
   \brief The QObject class is the base class of all Qt objects that can
   deal with signals, slots and events.
 
-  \ingroup kernel
+  \ingroup objectmodelkernel
 
   Qt provides a very powerful mechanism for seamless object
   communication; \link metaobjects.html signal/slot
@@ -1855,7 +1857,7 @@ QMetaObject* QObject::staticMetaObject()
     enum_tbl[2].items[1].key = "RichText";
     enum_tbl[2].items[1].value = (int) Qt::RichText;
     enum_tbl[2].items[2].key = "AutoText";
-    enum_tbl[2].items[2].value = (int) Qt::AutoText;    
+    enum_tbl[2].items[2].value = (int) Qt::AutoText;
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1,

@@ -90,7 +90,7 @@ struct QLineEditPrivate {
 
   \brief The QLineEdit widget is a one-line text editor.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   A line edit allows the user to enter and edit a single line of
   plain text, with a useful collection of editing functions, including
@@ -519,7 +519,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 #if defined (_WS_WIN_)
 	case Key_Insert:
 	    copy();
-#endif	
+#endif
 	case Key_Z:
 	    if ( !d->readonly )
 		undoInternal();
@@ -558,7 +558,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    cut();
 		    break;
 		}
-#endif	
+#endif
 		d->ignoreUndoWithDel = ignoreUndoWithDel;
 		del();
 	    }
@@ -570,7 +570,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    else
 		unknown++;
 	    break;
-#endif	
+#endif
 	default:
 	    unknown++;
 	}
@@ -665,7 +665,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    p.drawText( x, y, before );
 	}
 	x += w;
-	
+
 	w = fm.width( marked );
 	if ( x < d->pm->width() && x + w >= 0 ) {
 	    p.fillRect( x, y-fm.ascent()-1, w, fm.height()+2,
@@ -674,14 +674,14 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    p.drawText( x, y, marked );
 	}
 	x += w;
-	
+
 	w = fm.width( after );
 	if ( x < d->pm->width() && x + w >= 0 ) {
 	    p.setPen( g.text() );
 	    p.drawText( x, y, after );
 	}
 	// ... x += w;
-	
+
 	p.setPen( g.foreground() );
 
 	d->cursorRepaintRect.setTop( y + (frame() ? 2 : 0) - fm.ascent() );
@@ -1808,7 +1808,7 @@ void QLineEdit::undoInternal()
 {
     if ( d->undoList.isEmpty() )
 	return;
-    d->undo = FALSE;	
+    d->undo = FALSE;
 
     d->redoList += QLineEditUndoItem(tbuf, cursorPos );
     setText( d->undoList.last().str );
@@ -1824,7 +1824,7 @@ void QLineEdit::redoInternal()
 {
     if ( d->redoList.isEmpty() )
 	return;
-    d->undo = FALSE;	
+    d->undo = FALSE;
     d->undoList += QLineEditUndoItem(tbuf, cursorPos );
     setText( d->redoList.last().str );
     setCursorPosition( d->redoList.last().pos );

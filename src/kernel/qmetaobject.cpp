@@ -41,6 +41,7 @@
   application programs.
 
   \internal
+  \ingroup objectmodel
 
   This class is not yet documented.  Our <a
   href="http://www.troll.no">home page</a> contains a pointer to the
@@ -132,7 +133,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     objectDict->insert( classname, this );	// insert into object dict
 
     superclass = objectDict->find( superclassname ); // get super class meta object
-						
+
 
     d = new QMetaObjectPrivate;
     reserved = 0;
@@ -179,7 +180,7 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
     objectDict->insert( classname, this );	// insert into object dict
 
     superclass = objectDict->find( superclassname ); // get super class meta object
-						
+
 }
 
 QMetaObject::~QMetaObject()
@@ -323,7 +324,7 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	case SIGNAL_CODE: dict = meta->signalDict; break;
 	default:	      return 0;		// should not happen
 	}
-	
+
 	if ( dict ) {
 	    QMetaData *d = dict->find(name);
 	    if ( d )
@@ -467,7 +468,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	}
 	super = super->superclass;
     }
-	
+
     if ( !prop->isValid() )
 	qDebug("Could not resolve property %s::%s. Property not available.", className(), prop->name() );
 }
@@ -604,7 +605,7 @@ bool QMetaProperty::stored( QObject* o ) const
     if ( store == 0 )
 	return TRUE;
 
-    typedef bool (QObject::*ProtoBool)() const;	
+    typedef bool (QObject::*ProtoBool)() const;
     ProtoBool m;
     m = *((ProtoBool*)&store);
 

@@ -49,7 +49,7 @@ struct QSpinBoxPrivate
   \brief The QSpinBox class provides a spin box widget, sometimes called
 	  up-down widget, little arrows widget or spin button.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   QSpinBox allows the user to choose a value, either by
   clicking the up/down buttons to increase/decrease the value

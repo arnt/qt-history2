@@ -38,7 +38,7 @@
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
-  \ingroup realwidgets
+  \ingroup organizers
 
   The intended use of a group box is to show that a number of widgets
   (i.e. child widgets) are logically related.  QPrintDialog is a good
@@ -133,7 +133,7 @@ void QGroupBox::setTextSpacer()
 	QFontMetrics fm = fontMetrics();
 	h = fm.height();
 	w = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
-    }		
+    }
     sp->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
 

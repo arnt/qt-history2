@@ -45,7 +45,7 @@
 /*!
   \class QTextBrowser qtextbrowser.h
   \brief A rich text  browser with simple navigation.
-  \ingroup realwidgets
+  \ingroup advanced
   \ingroup helpsystem
 
   This class is the same as the QTextView it inherits, with the
@@ -491,7 +491,7 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 	return;
 
     d->curmark = name;
-    
+
     QRichTextIterator it( richText() );
     do {
 	if ( it.format()->anchorName() == name ) {

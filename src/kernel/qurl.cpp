@@ -74,6 +74,8 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 
   \brief This class provides mainly an URL parser and
   simplifies working with URLs.
+  
+  \ingroup misc
 
   The QUrl class is provided for a easy working with URLs.
   It does all parsing, decoding, encoding and so on.
@@ -407,7 +409,7 @@ void QUrl::setQuery( const QString& txt )
 */
 
 QString QUrl::query() const
-{ 	
+{
     return d->queryEncoded;
 }
 
@@ -510,7 +512,7 @@ bool QUrl::parse( const QString& url )
     const int InputQuery= 7;
 
     static uchar table[ 12 ][ 8 ] = {
-     /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */ 	
+     /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */
 	{ 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
 	{ 0,       Protocol,   0,          0,          Separator1, 0,          0,          0,         }, // Protocol
 	{ 0,       Path,          Path,          Separator2, 0,          0,          0,          0,         }, // Separator1
@@ -544,7 +546,7 @@ bool QUrl::parse( const QString& url )
 	relPath = TRUE;
     } else { // some checking
 	table[ 0 ][ 1 ] = Protocol;
-	
+
 	// find the part between the protocol and the path as the meaning
 	// of that part is dependend on some chars
 	++cs;
@@ -554,9 +556,9 @@ bool QUrl::parse( const QString& url )
 	if ( slash == -1 )
 	    slash = url_.length() - 1;
 	QString tmp = url_.mid( cs, slash - cs + 1 );
-	
+
 	if ( !tmp.isEmpty() ) { // if this part exists
-	
+
 	    // look for the @ in this part
 	    int at = tmp.find( "@" );
 	    if ( at != -1 )
@@ -573,7 +575,7 @@ bool QUrl::parse( const QString& url )
 	    }
 	}
     }
-	
+
     int state = Init; // parse state
     int input; // input token
 
@@ -582,7 +584,7 @@ bool QUrl::parse( const QString& url )
     QString port;
 
     while ( TRUE ) {
-	
+
 	switch ( c ) {
 	case '?':
 	    input = InputQuery;
@@ -608,7 +610,7 @@ bool QUrl::parse( const QString& url )
 	}
 
     	state = table[ state ][ input ];
-	
+
 	switch ( state ) {
 	case Protocol:
 	    d->protocol += c;
@@ -637,12 +639,12 @@ bool QUrl::parse( const QString& url )
 	default:
 	    break;
 	}
-	
+
 	++i;
 	if ( i > (int)url_.length() - 1 || state == Done || state == 0 )
 	    break;
 	c = url_[ i ];
-	
+
     }
 
     if ( !port.isEmpty() ) {
@@ -655,7 +657,7 @@ bool QUrl::parse( const QString& url )
 	d->isValid = FALSE;
 	return FALSE;
     }
-	
+
 
     if ( d->protocol.isEmpty() )
 	d->protocol = oldProtocol;
@@ -685,7 +687,7 @@ bool QUrl::parse( const QString& url )
 
 #if defined(_OS_WIN32_)
     // hack for windows file://machine/path syntax
-    if ( d->protocol == "file" ) { 	
+    if ( d->protocol == "file" ) {
 	if ( url.left( 7 ) == "file://" &&
 	     ( d->path.length() < 8 || d->path[ 7 ] != '/' ) &&
 	     d->path[ 1 ] != '/' )

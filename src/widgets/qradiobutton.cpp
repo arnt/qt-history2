@@ -37,7 +37,7 @@
   \class QRadioButton qradiobutton.h
   \brief The QRadioButton widget provides a radio button with a text label.
 
-  \ingroup realwidgets
+  \ingroup basic
 
   QRadioButton and QCheckBox are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ
@@ -346,7 +346,7 @@ void QRadioButton::updateMask()
 			  pixmap(), text() );
 	x = 0;
 	y = (height() - lsz.height() + fm.height() - sz.height())/2;
-	
+
 	style().drawExclusiveIndicatorMask(&p, x, y, sz.width(), sz.height(), isOn() );
 
 	if ( hasFocus() ) {

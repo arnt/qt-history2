@@ -53,6 +53,8 @@ struct QNetworkProtocolPrivate
 
   \brief This is the base class for network protocols which provides
   a common API for network protocols.
+  
+  \ingroup io
 
   This is a baseclass which should be used for implementations
   of network protocols which can then be used in Qt (e.g.
@@ -741,7 +743,7 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 	    clearOperationQueue();
 	    emit finished( op );
 	}
-	
+
 	return;
     }
 
@@ -858,6 +860,8 @@ struct QNetworkOperationPrivate
 
   \brief This class is used to define operations for network
   protocols and return the state, arguments, etc.
+  
+  \ingroup io
 
   For each operation, which a network protocol should process
   such an object is created to describe the operation and the current

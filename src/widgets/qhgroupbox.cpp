@@ -32,7 +32,7 @@
   \brief The QHGroupBox widget organizes widgets in a group
   with one horizontal row.
 
-  \ingroup realwidgets
+  \ingroup geomanagement
 
   QHGroupBox is a convenience class that offers a thin layer on top of
   QGroupBox. Think of it as a QHBox that offers a frame with a title.

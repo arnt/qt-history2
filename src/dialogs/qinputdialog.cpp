@@ -49,6 +49,7 @@ public:
 /*!
   \class QInputDialog qinputdialog.h
   \brief A convenience dialog to get a simple input from the user
+  \ingroup dialogs
 
   The QInputDialog is a simple dialog which can be used if you
   need a simple input from the user. This can be text, a number or
@@ -56,11 +57,11 @@ public:
   what he/she should input.
 
   In this Qt version only the 4 static convenience functions
-  getText(), getInteger(), getDouble() and getInteger() of QInputDialog 
+  getText(), getInteger(), getDouble() and getInteger() of QInputDialog
   are available.
-  
+
   Use it like this:
-  
+
   \code
   bool ok = FALSE;
   QString text = QInputDialog::getText( tr( "Make an input" ), tr( "Please enter your name" ), QString::null, &ok, this );
@@ -355,7 +356,7 @@ int QInputDialog::getInteger( const QString &caption, const QString &label, int 
   \endcode
 */
 
-double QInputDialog::getDouble( const QString &caption, const QString &label, double num, 
+double QInputDialog::getDouble( const QString &caption, const QString &label, double num,
 				double from, double to, int decimals,
 				bool *ok, QWidget *parent, const char *name )
 {
@@ -404,7 +405,7 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
   \endcode
 */
 
-QString QInputDialog::getItem( const QString &caption, const QString &label, const QStringList &list, 
+QString QInputDialog::getItem( const QString &caption, const QString &label, const QStringList &list,
 			       int current, bool editable,
 			       bool *ok, QWidget *parent, const char *name )
 {
@@ -417,7 +418,7 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 	dlg->comboBox()->insertStringList( list );
 	dlg->comboBox()->setCurrentItem( current );
     }
-	
+
     bool ok_ = FALSE;
     QString result;
     ok_ = dlg->exec() == QDialog::Accepted;

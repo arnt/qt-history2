@@ -38,6 +38,7 @@ static QList<QWindowsMime> mimes;
 /*!
   \class QWindowsMime qmime.h
   \brief Maps open-standard MIME types with Window Clipboard formats.
+  \ingroup misc
 
   The drag-and-drop and clipboard facilities of Qt use the MIME standard.
   On X11, this maps trivially to the Xdnd protocol, but on Windows only
