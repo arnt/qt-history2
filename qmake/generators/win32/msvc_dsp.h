@@ -44,7 +44,6 @@
 class DspMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
-    void writeHeader(QTextStream &);	
     bool writeDspParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);
