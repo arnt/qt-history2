@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#45 $
 **
 ** Implementation of QPixmap class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#45 $")
 
 
 /*----------------------------------------------------------------------------
@@ -110,10 +110,14 @@ void QPixmap::detach()
 QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
+    QBitmap *mask = data->mask;
+    data->mask = 0;				// ignore mask when blt'ing
     if ( !tmp.isNull() )			// copy the bitmap
 	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
-    if ( data->mask )				// copy the mask
-	tmp.setMask( *data->mask );
+    if ( mask )	{				// copy the mask
+	data->mask = mask;
+	tmp.setMask( *mask );
+    }
     tmp.data->optim  = data->optim;		// copy optim flag
     tmp.data->bitmap = data->bitmap;		// copy bitmap flag
     return tmp;
@@ -205,6 +209,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 void QPixmap::setMask( const QBitmap &mask )
 {
+    detach();
     if ( mask.isNull() ) {			// reset the mask
 	delete data->mask;
 	data->mask = 0;
@@ -217,10 +222,8 @@ void QPixmap::setMask( const QBitmap &mask )
 #endif
 	return;
     }
-    if ( data->mask )				// mask was previously set
-	*data->mask = mask;
-    else					// new mask
-	data->mask = new QBitmap( mask );
+    delete data->mask;
+    data->mask = new QBitmap( mask );
 }
 
 
