@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#28 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#29 $
 **
 ** Definition of QTableView class
 **
@@ -161,7 +161,6 @@ private:
     short	xCellDelta, yCellDelta;
     short	cellH, cellW;
 
-    uint	obsoleteUpd		: 1;
     uint	eraseInPaint		: 1;
     uint	verSliding		: 1;
     uint	verSnappingOff		: 1;
