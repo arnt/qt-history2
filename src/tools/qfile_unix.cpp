@@ -371,7 +371,7 @@ bool QFile::open( int m, int f )
     ext_f = TRUE;
     QT_STATBUF st;
     QT_FSTAT( fd, &st );
-    ioIndex  = (int)QT_LSEEK(fd, 0, SEEK_CUR);
+    ioIndex  = (Offset)QT_LSEEK(fd, 0, SEEK_CUR);
     if ( (st.st_mode & QT_STAT_MASK) != QT_STAT_REG || f == 0 ) { // stdin is not seekable...
 	// non-seekable
 	setType( IO_Sequential );
@@ -453,8 +453,8 @@ bool QFile::at( Offset pos )
 	return FALSE;
     bool ok;
     if ( isRaw() ) {				// raw file
-	pos = (long int) QT_LSEEK( fd, pos, SEEK_SET );
-	ok = ( (long int) pos != -1 );
+	pos = (Offset)QT_LSEEK( fd, pos, SEEK_SET );
+	ok = ( (long int) pos != -1 );		// ### fix this bad hack!
     } else {					// buffered file
 	ok = ( fseek(fh, pos, SEEK_SET) == 0 );
     }
@@ -576,7 +576,7 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	    setStatus( IO_WriteError );
 	if ( !isSequentialAccess() ) {
 	    if ( isRaw() )				// recalc file position
-		ioIndex = (int)QT_LSEEK( fd, 0, SEEK_CUR );
+		ioIndex = (Offset)QT_LSEEK( fd, 0, SEEK_CUR );
 	    else
 		ioIndex = fseek( fh, 0, SEEK_CUR );
 	}
