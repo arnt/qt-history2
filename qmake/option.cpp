@@ -47,6 +47,7 @@ int Option::warn_level = WarnLogic;
 int Option::debug_level = 0;
 QFile Option::output;
 QString Option::output_dir;
+bool Option::recursive = true;
 QStringList Option::before_user_vars;
 QStringList Option::after_user_vars;
 QString Option::user_template;
@@ -66,7 +67,6 @@ QStringList Option::prop::properties;
 
 //QMAKE_GENERATE_PROJECT stuff
 bool Option::projfile::do_pwd = true;
-bool Option::projfile::do_recursive = true;
 QStringList Option::projfile::project_dirs;
 
 //QMAKE_GENERATE_MAKEFILE stuff
@@ -214,6 +214,10 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
                 Option::warn_level |= WarnLogic;
             } else if(opt == "Wnone") {
                 Option::warn_level = WarnNone;
+            } else if(opt == "r" || opt == "recursive") {
+                Option::recursive = true;
+            } else if(opt == "norecursive") {
+                Option::recursive = false;
             } else {
                 if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
                    Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
@@ -239,10 +243,6 @@ Option::internalParseCommandLine(int argc, char **argv, int skip)
                 } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
                     if(opt == "nopwd") {
                         Option::projfile::do_pwd = false;
-                    } else if(opt == "r") {
-                        Option::projfile::do_recursive = true;
-                    } else if(opt == "norecursive") {
-                        Option::projfile::do_recursive = false;
                     } else {
                         fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
                         return QMAKE_CMDLINE_SHOW_USAGE;

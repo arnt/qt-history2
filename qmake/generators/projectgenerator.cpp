@@ -78,7 +78,7 @@ ProjectGenerator::init()
                     add_depend = true;
                     if(dir.right(1) != Option::dir_sep)
                         dir += Option::dir_sep;
-                    if(Option::projfile::do_recursive) {
+                    if(Option::recursive) {
                         QDir d(dir);
                         d.setFilter(QDir::Dirs);
                         for(int i = 0; i < (int)d.count(); i++) {
@@ -106,7 +106,7 @@ ProjectGenerator::init()
                     dir = regex.left(s+1);
                     regex = regex.right(regex.length() - (s+1));
                 }
-                if(Option::projfile::do_recursive) {
+                if(Option::recursive) {
                     QDir d(dir);
                     d.setFilter(QDir::Dirs);
                     for(int i = 0; i < (int)d.count(); i++) {
@@ -160,7 +160,7 @@ ProjectGenerator::init()
                                 subdirs.append(nd);
                         }
                     }
-                    if(Option::projfile::do_recursive) {
+                    if(Option::recursive) {
                         QDir d(newdir);
                         d.setFilter(QDir::Dirs);
                         for(int i = 0; i < (int)d.count(); i++) {
@@ -200,7 +200,7 @@ ProjectGenerator::init()
                                 }
                             }
                         }
-                        if(Option::projfile::do_recursive && !dirs.contains(newdir))
+                        if(Option::recursive && !dirs.contains(newdir))
                             dirs.append(newdir);
                     }
                 }
