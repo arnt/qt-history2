@@ -1098,7 +1098,7 @@ static QCursorList *cursorStack = 0;
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
-    if (replace)
+    if (replace && !qApp->d->cursor_list.isEmpty())
 	qApp->d->cursor_list.replace(0, cursor);
     else
 	qApp->d->cursor_list.prepend(cursor);
