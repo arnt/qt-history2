@@ -21,10 +21,10 @@ SyntaxHighlighter_HTML::SyntaxHighlighter_HTML()
 {
     QFont f( qApp->font() );
 
-    addFormat( Standard, new QTextFormat( f, Qt::black ) );
-    addFormat( Keyword, new QTextFormat( f, Qt::darkRed ) );
-    addFormat( Attribute, new QTextFormat( f, Qt::darkGreen ) );
-    addFormat( AttribValue, new QTextFormat( f, Qt::darkYellow ) );
+    addFormat(Standard, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Text)));
+    addFormat(Keyword, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Midlight)));
+    addFormat(Attribute, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::Light)));
+    addFormat(AttribValue, new QTextFormat(f, qApp->palette().color(QPalette::Active, QColorGroup::BrightText)));
 }
 
 SyntaxHighlighter_HTML::~SyntaxHighlighter_HTML()
