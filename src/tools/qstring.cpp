@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#288 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#289 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10272,16 +10272,16 @@ QChar::Decomposition QLigature::tag()
 {
     if(current())
 	return (QChar::Decomposition) decomposition_map[current()];
-	
+
     return QChar::Canonical;
 }
 
 int QLigature::match(QString & str, unsigned int index)
 {
     unsigned int i=index;
-	
+
     if(!current()) return 0;
-	
+
     Q_UINT16 lig = current() + 2;
     Q_UINT16 ch;
 
@@ -10290,7 +10290,7 @@ int QLigature::match(QString & str, unsigned int index)
 	    return 0;
 	i++; lig++;
     }
-	
+
     if (!decomposition_map[lig])
     {
 	return i-index;
@@ -10322,15 +10322,15 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
     default:
 	break;
     }
-	
-	
+
+
     if (left && right)
 	return QChar::Medial;
     if (left)
 	return QChar::Initial;
     if (right)
 	return QChar::Final;
-	
+
     return QChar::Isolated;
 } // format()
 
@@ -10360,7 +10360,7 @@ void QString::compose()
     while (index < length())
     {
 	code = at(index);
-	
+
 	QLigature ligature(code);
 	ligature.first();
 	while(ligature.current())
@@ -10380,7 +10380,7 @@ void QString::compose()
 	    }
 	    ligature.next();
 	}
-	
+
 	index++;
     }
 }
@@ -10422,7 +10422,7 @@ QChar::Direction QString::basicDirection()
 	   (at(pos) != LRO) &&
 	   (at(pos).direction() > 1)) // not R and not L
 	pos++;
-	
+
     if ((at(pos).direction() == QChar::DirR) ||
 	(at(pos) == RLE) ||
 	(at(pos) == RLO))
@@ -10445,7 +10445,7 @@ static unsigned int reverse( QString &chars, unsigned char *level,
 	    c = reverse(chars, level, c, b);
 	c++;
     }
-	
+
     if (lev > 0) {
 	QChar temp;
 	unsigned int d = a, e = c-1;
@@ -10453,7 +10453,7 @@ static unsigned int reverse( QString &chars, unsigned char *level,
 	    temp = chars[(int)d];
 	    chars[(int)d] = chars[(int)e];
 	    chars[(int)e] = temp;
-			
+
 	    d++; e--;
 	}
     }
@@ -10466,7 +10466,7 @@ class QBidiState {
 public:
     unsigned char level;
     signed   char override;
-	
+
     QBidiState(unsigned char l, signed char o) : level(l), override(o) {};
 };
 
@@ -10514,7 +10514,7 @@ QString QString::visual(int index, int len)
 	   (at(pos) != LRO) &&
 	   (at(pos).direction() > 1)) // not R and not L
 	pos++;
-	
+
     if ((pos < length()) &&
 	    ((at(pos).direction() == QChar::DirR) ||
 	    (at(pos) == RLE) ||
@@ -10532,7 +10532,7 @@ QString QString::visual(int index, int len)
 
     // explicit override pass
     //unsigned int code_count = 0;
-	
+
     QStack<QBidiState> stack;
     stack.setAutoDelete(TRUE);
 
@@ -10540,7 +10540,7 @@ QString QString::visual(int index, int len)
     signed char      override = -1;
 
     for (pos = 0; pos < l; pos++) {
-		
+
 	if (at(pos) == RLE) {
 	    //code_count++;
 	    stack.push(new QBidiState(clevel, override));
@@ -10586,7 +10586,7 @@ QString QString::visual(int index, int len)
 	else
 	    dir[pos] = at(pos).direction();
     }
-	
+
     // weak type pass
     for (pos = 0; pos < l; pos++) {
 
@@ -10601,12 +10601,12 @@ QString QString::visual(int index, int len)
 		     is_arabic(at(i).unicode())) &&
 		   !(at(i).direction() == QChar::DirB))
 		i--;
-			
+
 	    if ((i >= 0) &&
 		((at(i).direction() == QChar::DirAN) ||
 		 is_arabic(at(i).unicode())))
 		dir[pos] = QChar::DirAN;
-			
+
 	    break;
 	case QChar::DirES:
 	case QChar::DirCS:
@@ -10615,7 +10615,7 @@ QString QString::visual(int index, int len)
 		dir[pos] = dir[pos-1];
 	    else
 		dir[pos] = QChar::DirON;
-			
+
 	    break;
 	case QChar::DirET:
 	    if (((pos > 0) && (dir[pos-1] == QChar::DirEN)) ||
@@ -10623,17 +10623,17 @@ QString QString::visual(int index, int len)
 		dir[pos] = QChar::DirEN;
 	    else
 		dir[pos] = QChar::DirON;
-			
+
 	    break;
 	default:
 	    break;
 	}
     }
-	
+
     // neutral type pass
     for (pos = 0; pos < l; pos++) {
 	  QChar::Direction left,right; // declaring l here shadowed previous l
-		
+
 	if (is_neutral(dir[pos])) {
 	    if (pos > 0)
 		left = dir[pos-1];
@@ -10641,15 +10641,15 @@ QString QString::visual(int index, int len)
 		left = (base == 0 ? QChar::DirL : QChar::DirR);
 
 	    int i = pos;
-			
+
 	    while ((i < (int)l-1) && is_neutral(dir[i+1]))
 		i++;
-			
+
 	    if (i < (int)l-1)
 		right = dir[i+1];
 	    else
 		right = (base == 0 ? QChar::DirL : QChar::DirR);
-			
+
 	    for (int j=pos; j <= i; j++) {
 		  int a = 1, b = 1;
 		  while ((a < 5) && (left != resolv[0][a]))
@@ -10660,16 +10660,16 @@ QString QString::visual(int index, int len)
 			dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
 		  else
 			dir[j] = resolv[a][b];
-		
+
 		  if (dir[j] == (QChar::Direction)(-1))
 			dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
 	    }
 	}
     }
-	
+
     // implicit level pass
     QChar::Direction prec = (base == 0 ? QChar::DirL : QChar::DirR);
-	
+
     for (pos = 0; pos < l; pos++) {
 	if (level[pos] % 2) {
 	    switch (dir[pos]) {
@@ -10700,10 +10700,10 @@ QString QString::visual(int index, int len)
 		break;
 	    }
 	}
-		
+
 	prec = dir[pos];
     }
-	
+
 	// now do the work!
 	QString ret(*this);
     reverse(ret, level, index, index+len);
@@ -10873,7 +10873,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   if it is unterminated (ie. contains NULs) 8-bit data, use QByteArray;
   if it is text, use QString.
 
-  \sa \link shclass.html Shared classes\endlink
+  \sa QChar \link shclass.html Shared classes\endlink
 */
 
 Q_EXPORT QStringData *QString::shared_null = 0;
@@ -13284,7 +13284,7 @@ QString &QString::setLatin1( const char *str, int len )
 	deref();
 	uint l;
 	QChar *uc = internalAsciiToUnicode(str,&l);
-	d = new QStringData(uc,l,l);	
+	d = new QStringData(uc,l,l);
     } else {
 	setUnicode( 0, len );			// resize but not copy
 	QChar *p = d->unicode;
