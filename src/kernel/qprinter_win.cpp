@@ -123,6 +123,7 @@ QPrinter::QPrinter( PrinterMode m )
     ncopies     = 1;
     appcolcopies  = FALSE;
     usercolcopies = TRUE;
+    res_set = FALSE;
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
     output_file = FALSE;
@@ -456,7 +457,7 @@ void QPrinter::readPdlg( void* pdv )
         }
     }
 
-    if ( d->printerMode != ScreenResolution )
+    if ( d->printerMode != ScreenResolution && !res_set )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
 
     if ( pd->hDevMode ) {
@@ -528,7 +529,7 @@ void QPrinter::readPdlgA( void* pdv )
         }
     }
 
-    if ( d->printerMode != ScreenResolution )
+    if ( d->printerMode != ScreenResolution && !res_set )
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
 
     if ( pd->hDevMode ) {

@@ -866,6 +866,7 @@ bool QPrinter::fullPage() const
 void QPrinter::setResolution( int dpi )
 {
     res = dpi;
+    res_set = TRUE;
 }
 
 

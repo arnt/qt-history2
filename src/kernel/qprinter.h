@@ -192,6 +192,7 @@ private:
     uint	to_edge : 1;
     uint	appcolcopies : 1;
     uint	usercolcopies : 1;
+    uint	res_set : 1;
     short       from_pg, to_pg;
     short       min_pg,  max_pg;
     short       ncopies;
