@@ -2038,6 +2038,17 @@ void QFontPrivate::computeLineWidth()
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFont::Script script)
 {
+    if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
+	x11data.fontstruct[script] == (QFontStruct *) -1) {
+	// make sure the pixel size is correct, so that we can draw the missing char
+	// boxes in the correct size...
+	if (request.pixelSize == -1) {
+	    actual.pointSize = request.pointSize;
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
+	}
+	return;
+    }
+
     if ( paintdevice &&
 	 (QPaintDeviceMetrics( paintdevice ).logicalDpiY() !=
 	  QPaintDevice::x11AppDpiY()) ) {
@@ -2056,17 +2067,6 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 		x11data.fontstruct[script]->scale = _pixelSize/((float) font.pixelSize);
 	    //qDebug("setting scale to %f requested pixel=%f got %d",
 	    // x11data.fontstruct[script]->scale, _pixelSize, font.pixelSize);
-	}
-	return;
-    }
-
-    if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
-	x11data.fontstruct[script] == (QFontStruct *) -1) {
-	// make sure the pixel size is correct, so that we can draw the missing char
-	// boxes in the correct size...
-	if (request.pixelSize == -1) {
-	    actual.pointSize = request.pointSize;
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice ) +.5);
 	}
 	return;
     }
