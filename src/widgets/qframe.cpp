@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#47 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#47 $");
 
 
 /*!
@@ -400,16 +400,17 @@ QSize QFrame::sizeHint() const
 void QFrame::paintEvent( QPaintEvent *event )
 {
     QPainter paint( this );
-    paint.setClipping( TRUE );
-    if ( !contentsRect().contains( event->rect() ) ) {
-	paint.save();
-	paint.setClipRect( event->rect() );
-	drawFrame( &paint );
-	if ( !event->rect().intersects( contentsRect() ) )
-	    return;
-	paint.restore();
+    if ( event ) {
+	if ( !contentsRect().contains( event->rect() ) ) {
+	    paint.save();
+	    paint.setClipRect( event->rect() );
+	    drawFrame( &paint );
+	    if ( !event->rect().intersects( contentsRect() ) )
+		return;
+	    paint.restore();
+	}
+	paint.setClipRect( event->rect().intersect( contentsRect() ) );
     }
-    paint.setClipRect( event->rect().intersect( contentsRect() ) );
     drawContents( &paint );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#11 $
 **
 **  Table header
 **
@@ -408,7 +408,9 @@ void QHeader::paintEvent( QPaintEvent *event )
 {
     QPainter p;
     p.begin( this );
-    p.setClipRect( event->rect() );
+
+    if ( event )
+	p.setClipRect( event->rect() );
 
     QColorGroup g = colorGroup();
     QRect r( 0, 0, width(), height() );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#28 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#28 $");
 
 
 /*!
@@ -137,7 +137,9 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     QPainter	paint;
 
     paint.begin( this );
-    paint.setClipRect( event->rect() );
+
+    if ( event )
+	paint.setClipRect( event->rect() );
 
     if ( len == 0 )				// no title
 	setFrameRect( QRect(0,0,0,0) );		//  then use client rect

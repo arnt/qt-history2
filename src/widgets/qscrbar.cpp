@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#81 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#81 $");
 
 
 /*!
@@ -394,7 +394,10 @@ void QScrollBar::paintEvent( QPaintEvent *event )
 {
     QPainter p;
     p.begin( this );
-    p.setClipRect( event->rect() );
+
+    if ( event )
+	p.setClipRect( event->rect() );
+
     qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
     if ( hasFocus() ) {
 	if ( style() != WindowsStyle ) {
