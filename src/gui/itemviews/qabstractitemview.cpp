@@ -249,7 +249,7 @@ void QAbstractItemViewPrivate::init()
     \overload
 
     Returns the model index of the item at point \a p.
-    
+
     In the base class this is a pure virtual function.
 */
 
@@ -272,12 +272,6 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when a mouse button is pressed. The item the
     mouse was pressed on is specified by \a index (which may be invalid if
     the mouse was not pressed on an item).
-
-    \omit
-    ###
-    The state of the mouse buttons
-    and keyboard modifiers are specified by \a button and \a modifiers.
-    \endomit
 */
 
 /*!
@@ -285,8 +279,7 @@ void QAbstractItemViewPrivate::init()
 
     This signal is emitted when a mouse button is clicked. The item the
     mouse was clicked on is specified by \a index (which may be invalid if
-    the mouse was not clicked on an item). The state of the mouse buttons
-    and keyboard modifiers are specified by \a button and \a modifiers.
+    the mouse was not clicked on an item).
 */
 
 /*!
@@ -294,9 +287,7 @@ void QAbstractItemViewPrivate::init()
 
     This signal is emitted when a mouse button is double-clicked. The
     item the mouse was double-clicked on is specified by \a index (which
-    may be invalid if the mouse was not double-clicked on an item). The
-    state of the mouse buttons and keyboard modifiers are specified by
-    \a button and \a modifiers.
+    may be invalid if the mouse was not double-clicked on an item).
 */
 
 /*!
