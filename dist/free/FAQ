@@ -92,8 +92,8 @@ Please note: the latest version of this and other FAQ lists are available at:
   10.Where can I find Qt? 
 
       The latest version of Qt can be downloaded from
-      http://www.trolltech.com or from ftp.trolltech.com, and a whole range of
-      ftp mirror sites around the world. Look for a mirror near you
+      http://www.trolltech.com or from ftp.trolltech.com, and a whole range
+      of ftp mirror sites around the world. Look for a mirror near you
       on the list available under http://www.trolltech.com/dl/ 
 
       We encourage all developers of free Qt software to upload
@@ -102,7 +102,8 @@ Please note: the latest version of this and other FAQ lists are available at:
   11.I want to port Qt to a new platform. What do I do? 
 
       If the new platform is POSIX-like and runs the X Window
-      System, it's simple. Read the file PORTING for details. 
+      System, you need to create a new directory in mkspecs and
+      adapt the qmake.conf and qplatformdefs.h files to your needs.
 
   12.Will Qt be available for [OS/2, Mac, Amiga]? 
 

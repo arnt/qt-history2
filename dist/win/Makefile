@@ -1,7 +1,6 @@
 # -*- makefile -*-
 #
 # Main Makefile for building the Qt library, examples and tutorial.
-# Read PORTING for instructions how to port Qt to a new platform.
 
 !IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
 FORCEDEP=FORCE

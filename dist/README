@@ -37,8 +37,8 @@ compatible with 'tmake'.
 To improve maintainability between different platforms, all specific
 platform #defines and #includes have been moved out of the Qt sources
 into a platform specific qplatformdefs.h file.  The files are located
-in qt/mkspec/<platform>-<compiler>/qplatformdefs.h. For this release,
-the following platforms have been tested:
+in mkspec/<platform>-<compiler>/qplatformdefs.h. For this release, the
+following platforms have been tested:
 
 win32-borland
 win32-msvc

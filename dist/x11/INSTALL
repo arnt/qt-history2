@@ -81,8 +81,9 @@ where you choose to install Qt.
 
 	make
 
-    If your platform or compiler is not supported, read PORTING.  If it is
-    supported but you have problems, see http://www.trolltech.com/platforms/
+    If your platform or compiler is not supported, please contact us at
+    qt-bugs@trolltech.com so that we can assist you.  If it is supported
+    but you have problems, see http://www.trolltech.com/platforms/
 
 
     At this point you have binaries created in $QTDIR (eg. $QTDIR/lib/
