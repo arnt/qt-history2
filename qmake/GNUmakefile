@@ -8,9 +8,9 @@ QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatast
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o
 vpath %.cpp $(QTDIR)/src/tools
 
-CFLAGS+=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include \
-	-I$(QTDIR)/src/tools -g -DQT_NO_CODECS -DUSE_GROSS_BIG_BUFFER_THING
-LFLAGS+=
+CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include \
+	-I$(QTDIR)/src/tools -DQT_NO_CODECS -DUSE_GROSS_BIG_BUFFER_THING
+LFLAGS=
 
 qmake: $(OBJS) $(QTOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
@@ -25,11 +25,28 @@ clean::
 distclean:: clean
 	rm -rf qmake .deps/
 
-%.o: %.c
+# don't use optimization for these
+makefile.o: makefile.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
 
-%.o: %.cpp
+unixmake.o: unixmake.cpp
 	$(CXX) -c -o $@ $(CFLAGS) $^
+
+borland_bmake.o: borland_bmake.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+msvc_nmake.o: msvc_nmake.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+msvc_dsp.o: msvc_dsp.cpp
+	$(CXX) -c -o $@ $(CFLAGS) $^
+
+#default rules
+%.o: %.c
+	$(CXX) -c -o $@ $(CFLAGS) -O2 $^
+
+%.o: %.cpp
+	$(CXX) -c -o $@ $(CFLAGS) -O2 $^
 
 %.dep: %.cpp
 	@$(CXX) -M $(CFLAGS) $(<) > .deps/$(@)
