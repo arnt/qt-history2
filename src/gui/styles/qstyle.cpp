@@ -575,7 +575,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i \l Style_FocusAtBorder
          \i Whether the focus is is at the border or inside the widget.
     \row \i{1,2} \l PE_IndicatorCheckBox \i{1,2} \l QStyleOptionButton
-          \i \l Sytle_NoChange \i Indicates a "tri-state" checkbox.
+          \i \l Style_NoChange \i Indicates a "tri-state" checkbox.
     \row \i \l Style_On \i Indicates the indicator is checked.
 
     \row \i \l PE_IndicatorRadioButton \i \l QStyleOptionButton
