@@ -289,7 +289,7 @@ if [ "$REL_VERSION" = "0.0.0" ]; then
 	REL_VERSION=$V
     fi
 fi
-BRANCH_DIGITS=`echo $REL_VERSION | sed "s,\.,,g" | sed "s,\([0-9]*\.?[0-9]*\.?[0-9]*\).*,\1,g"`
+BRANCH_DIGITS=`echo $REL_VERSION | sed "s,\.,,g" | sed "s,\([0-9]*[0-9]*[0-9]*\).*,\1,g"`
 [ -z "$BRANCH_DIGITS" ] && BRANCH_DIGITS="000"
 
 #get include files
@@ -379,14 +379,16 @@ if [ "$TYPE" = "auto" ]; then
     TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*-\(.*\)",\1,'`
 fi
 TYPE="-${TYPE}"
-VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
+if echo $REL_VERSION | grep $TYPE >/dev/null 2>&1; then
+    VERSION_STR="$REL_VERSION"
+else
+    VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
+fi
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
-echo "$VERSION_STR :: $BRANCH_DIGITS "
-cp ${TMP_FILE} foobar
 mv ${TMP_FILE} $qglobal
 if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
-    die "The qt version is ${REL_VERSION}${TYPE}, which confuses me terribly";
+    die "The qt version is ${VERSION_STR}, which confuses me terribly";
 fi
 
 #fix $Id
@@ -398,7 +400,7 @@ if [ "x$DO_ID" = "xyes" ]; then
 	    [ -x $a ] && execut=555
 
 	    mtime=`ls -l $a | awk '{ print $6,$7,$8 }'` #mtime is pretty bogus, but a quick hack..
-	    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${REL_VERSION}${TYPE}   edited $mtime"
+	    tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${VERSION_STR}   edited $mtime"
 	    sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >${TMP_FILE}
 	    rm -f $a
 	    mv ${TMP_FILE} $a
@@ -602,7 +604,7 @@ copy_platform_files() {
 	[ ! -d $final_dir ] && mkdir -p $final_dir
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
 	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_file" ]; then
-	    sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${TYPE}/g" \
+	    sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${VERSION_STR}/g" \
 		-e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
 		sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" ${TMP_FILE} >$o_dir/$o_file
