@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#9 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#10 $
 **
 ** Definition of QPoint class
 **
@@ -20,24 +20,24 @@ class QPoint					// point class
 {
 public:
     QPoint()	{}				// undefined init values
-    QPoint( int xpos, int ypos );		// set x=xpos, y=ypos
+    QPoint( int xpos, int ypos );
 
-    bool   isNull()	const	{ return xp==0 && yp==0; }
+    bool   isNull()	const;
 
-    int	   x()		const	{ return xp; }	// get x
-    int	   y()		const	{ return yp; }	// get y
-    void   setX( int x )	{ xp=(QCOORD)x;}// set x
-    void   setY( int y )	{ yp=(QCOORD)y;}// set y
+    int	   x()		const;
+    int	   y()		const;
+    void   setX( int x );
+    void   setY( int y );
 
-    QCOORD &rx()		{ return xp; }	// get reference to x
-    QCOORD &ry()		{ return yp; }	// get reference to y
+    QCOORD &rx();
+    QCOORD &ry();
 
-    QPoint &operator+=( const QPoint &p );	// add point
-    QPoint &operator-=( const QPoint &p );	// subtract point
-    QPoint &operator*=( int c );		// multiply with scalar
-    QPoint &operator*=( double c );		// multiply with scalar double
-    QPoint &operator/=( int c );		// divide by scalar
-    QPoint &operator/=( double c );		// divide by scalar double
+    QPoint &operator+=( const QPoint &p );
+    QPoint &operator-=( const QPoint &p );
+    QPoint &operator*=( int c );
+    QPoint &operator*=( double c );
+    QPoint &operator/=( int c );
+    QPoint &operator/=( double c );
 
     friend bool	  operator==( const QPoint &, const QPoint & );
     friend bool	  operator!=( const QPoint &, const QPoint & );
@@ -53,11 +53,11 @@ public:
 
 private:
 #if defined(_OS_MAC_)
-    QCOORD yp;					// y position
-    QCOORD xp;					// x position
+    QCOORD yp;
+    QCOORD xp;
 #else
-    QCOORD xp;					// x position
-    QCOORD yp;					// y position
+    QCOORD xp;
+    QCOORD yp;
 #endif
 };
 
@@ -70,8 +70,6 @@ QDataStream &operator<<( QDataStream &, const QPoint & );
 QDataStream &operator>>( QDataStream &, QPoint & );
 
 
-#if !(defined(QPOINT_C) || defined(DEBUG))
-
 // --------------------------------------------------------------------------
 // QPoint member functions
 //
@@ -79,6 +77,41 @@ QDataStream &operator>>( QDataStream &, QPoint & );
 inline QPoint::QPoint( int xpos, int ypos )
 {
     xp=(QCOORD)xpos; yp=(QCOORD)ypos;
+}
+
+inline bool QPoint::isNull() const
+{
+    return xp == 0 && yp == 0;
+}
+
+inline int QPoint::x() const
+{
+    return xp;
+}
+
+inline int QPoint::y() const
+{
+    return yp;
+}
+
+inline void QPoint::setX( int x )
+{
+    xp = (QCOORD)x;
+}
+
+inline void QPoint::setY( int y )
+{
+    yp = (QCOORD)y;
+}
+
+inline QCOORD &QPoint::rx()
+{
+    return xp;
+}
+
+inline QCOORD &QPoint::ry()
+{
+    return yp;
 }
 
 inline QPoint &QPoint::operator+=( const QPoint &p )
@@ -101,32 +134,22 @@ inline QPoint &QPoint::operator*=( double c )
     xp=(QCOORD)(xp*c); yp=(QCOORD)(yp*c); return *this;
 }
 
-inline QPoint &QPoint::operator/=( int c )
-{
-    xp/=(QCOORD)c; yp/=(QCOORD)c; return *this;
-}
-
-inline QPoint &QPoint::operator/=( double c )
-{
-    xp=(QCOORD)(xp/c); yp=(QCOORD)(yp/c); return *this;
-}
-
-inline bool operator==( const QPoint & p1, const QPoint & p2 )
+inline bool operator==( const QPoint &p1, const QPoint &p2 )
 {
     return p1.xp == p2.xp && p1.yp == p2.yp;
 }
 
-inline bool operator!=( const QPoint & p1, const QPoint & p2 )
+inline bool operator!=( const QPoint &p1, const QPoint &p2 )
 {
     return p1.xp != p2.xp || p1.yp != p2.yp;
 }
 
-inline QPoint operator+( const QPoint & p1, const QPoint & p2 )
+inline QPoint operator+( const QPoint &p1, const QPoint &p2 )
 {
     return QPoint( p1.xp+p2.xp, p1.yp+p2.yp );
 }
 
-inline QPoint operator-( const QPoint & p1, const QPoint & p2 )
+inline QPoint operator-( const QPoint &p1, const QPoint &p2 )
 {
     return QPoint( p1.xp-p2.xp, p1.yp-p2.yp );
 }
@@ -151,6 +174,29 @@ inline QPoint operator*( double c, const QPoint &p )
     return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
 
+inline QPoint operator-( const QPoint &p )
+{
+    return QPoint( -p.xp, -p.yp );
+}
+
+#if !(defined(QPOINT_C) || defined(DEBUG))
+
+//
+// These "dangerous" QPoint functions are inline if DEBUG is not defined.
+// The debug implementation in qpoint.cpp checks c and gives a warning
+// before dividing by zero.
+//
+
+inline QPoint &QPoint::operator/=( int c )
+{
+    xp/=(QCOORD)c; yp/=(QCOORD)c; return *this;
+}
+
+inline QPoint &QPoint::operator/=( double c )
+{
+    xp=(QCOORD)(xp/c); yp=(QCOORD)(yp/c); return *this;
+}
+
 inline QPoint operator/( const QPoint &p, int c )
 {
     return QPoint( p.xp/c, p.yp/c );
@@ -161,12 +207,8 @@ inline QPoint operator/( const QPoint &p, double c )
     return QPoint( (QCOORD)(p.xp/c), (QCOORD)(p.yp/c) );
 }
 
-inline QPoint operator-( const QPoint &p )
-{
-    return QPoint( -p.xp, -p.yp );
-}
 
-#endif // inline functions
+#endif // non-debug inline functions
 
 
 #endif // QPOINT_H
