@@ -310,23 +310,15 @@ public:
     reference at( size_type i, bool* ok = 0 )
     {
 	detach();
-	if ( ok ) {
-	    if ( i < size() )
-		*ok = TRUE;
-	    else
-		*ok = FALSE;
-	}
+	if ( ok )
+	    *ok = ( i < size() );
 	return *( begin() + i );
     }
 
     const_reference at( size_type i, bool* ok = 0 ) const
     {
-	if ( ok ) {
-	    if ( i < size() )
-		*ok = TRUE;
-	    else
-		*ok = FALSE;
-	}
+	if ( ok )
+	    *ok = ( i < size() );
 	return *( begin() + i );
     }
 
@@ -411,13 +403,13 @@ public:
 
     iterator insert( iterator pos, size_type n, const T& x )
     {
-		if ( n != 0 ) {
-		        size_type offset = pos - sh->start;
-			detach();
-			pos = begin() + offset;
-			sh->insert( pos, n, x );
-		}
-		return pos;
+	if ( n != 0 ) {
+	    size_type offset = pos - sh->start;
+	    detach();
+	    pos = begin() + offset;
+	    sh->insert( pos, n, x );
+	}
+	return pos;
     }
 
     void reserve( size_type n )
