@@ -194,6 +194,7 @@ public:
 	}
 	delete dockCloseActive;
 	delete dockCloseInactive;
+	dockCloseActive = dockCloseInactive = 0;
     }
 
     static bool getThemeResult( HRESULT res )
