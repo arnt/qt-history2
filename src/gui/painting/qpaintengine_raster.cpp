@@ -612,11 +612,21 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
         HDC hdc = device->getDC();
         Q_ASSERT(hdc);
 
-        // blt using paint event clip bounding rect
-        BitBlt(hdc,
-               d->deviceRect.x(), d->deviceRect.y(), d->deviceRect.width(), d->deviceRect.height(),
-               d->rasterBuffer->hdc(), 0, 0,
-               SRCCOPY);
+        QRegion sysClip = systemClip();
+        if (sysClip.isEmpty()) {
+            BitBlt(hdc, d->deviceRect.x(), d->deviceRect.y(),
+                   d->deviceRect.width(), d->deviceRect.height(),
+                   d->rasterBuffer->hdc(), 0, 0, SRCCOPY);
+        } else {
+            QVector<QRect> rects = sysClip.rects();
+            for (int i=0; i<rects.size(); ++i) {
+                QRect r = rects.at(i);
+                BitBlt(hdc,
+                       r.x(), r.y(), r.width(), r.height(),
+                       d->rasterBuffer->hdc(), r.x() - d->deviceRect.x(), r.y() - d->deviceRect.y(),
+                       SRCCOPY);
+            }
+        }
         device->releaseDC(hdc);
         return;
     } else {
