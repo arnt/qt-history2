@@ -5,7 +5,9 @@
 #include <qmap.h>
 
 #include <qapplication.h>
+#include <qguardedptr.h>
 #include "qapplicationinterfaces.h"
+
 
 class QHBox;
 class QScrollView;
@@ -14,6 +16,13 @@ class QActionPlugInManager;
 class QPopupMenu;
 class QToolBar;
 class QAction;
+
+class PlugMainWindowInterface : public QApplicationInterface
+{
+public:
+    void requestProperty( const QCString&, QVariant& );
+    void requestSetProperty( const QCString&, const QVariant& );
+};
 
 class PlugApplication : public QApplication
 {
@@ -25,6 +34,7 @@ public:
     }
 
     QApplicationInterface* requestApplicationInterface( const QCString& request );
+    QStrList queryInterfaceList() const;
 
 protected:
     PlugMainWindowInterface* mwIface;
@@ -46,8 +56,8 @@ protected:
 
     QPopupMenu* actionMenu;
     QPopupMenu* widgetMenu;
-    QPopupMenu* pluginMenu;
-    QToolBar* pluginTool;
+    QGuardedPtr<QPopupMenu> pluginMenu;
+    QGuardedPtr<QToolBar> pluginTool;
     QHBox *box;
     QScrollView *sv;
     QWidgetPlugInManager* widgetManager;
