@@ -24,7 +24,8 @@ class QPaintDevice;
 class QTextLayout;
 class QTextEngine;
 
-class QWin32PaintEngine : public QPaintEngine
+// ### Remove EXPORT once Q4Printer is integrated into main
+class Q_GUI_EXPORT QWin32PaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PaintEngine);
 public:
@@ -79,7 +80,7 @@ public:
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
 protected:
-    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target);
+    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, GCCaps caps);
 
 private:
     void drawPolyInternal( const QPointArray &a, bool close );

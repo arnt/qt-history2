@@ -41,10 +41,9 @@ static const short rasterOpCodes[] = {
     R2_NOTMERGEPEN	// NorROP
 };
 
-class QWin32PaintEnginePrivate : public QPaintEnginePrivate
+class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWin32PaintEngine);
-
 public:
     QWin32PaintEnginePrivate() :
 	hwnd(0),

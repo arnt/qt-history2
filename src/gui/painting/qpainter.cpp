@@ -959,11 +959,25 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     d->engine->drawCubicBezier(a, index);
 }
 
-void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
+void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
     if (!isActive() || pm.isNull())
 	return;
     d->engine->updateState(d->state);
+
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+    int sx = sr.x();
+    int sy = sr.y();
+    int sw = sr.width();
+    int sh = sr.height();
+
+    if (w < 0)
+	w = pm.width();
+    if (h < 0)
+	h = pm.height();
 
     if (sw < 0)
 	sw = pm.width() - sx;
@@ -991,7 +1005,12 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int s
     if (sw <= 0 || sh <= 0)
 	return;
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
+    if ((d->state->VxF || d->state->WxF)
+	&& !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
+
+	QPixmap source(sw, sh);
+	bitBlt(&source, 0, 0, &pm, sx, sy, sw, sh, CopyROP);
+
 	QWMatrix mat(d->state->matrix);
 	mat = QPixmap::trueMatrix(mat, sw, sh);
 	QPixmap pmx;
@@ -1023,53 +1042,8 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int s
 	return;
     }
 
-    d->engine->drawPixmap(QRect(x, y, sw, sh), pm, QRect(sx, sy, sw, sh));
+    d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh));
     return;
-}
-
-
-void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
-{
-    if (!isActive() || pm.isNull())
-	return;
-    d->engine->updateState(d->state);
-
-    QPixmap pixmap = pm;
-
-    if (!d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
-	int rw = r.width();
-	int rh = r.height();
-	int iw= pm.width();
-	int ih = pm.height();
-	if ( rw <= 0 || rh <= 0 || iw <= 0 || ih <= 0 )
-	    return;
-	bool scale = ( rw != iw || rh != ih );
-	float scaleX = (float)rw/(float)iw;
-	float scaleY = (float)rh/(float)ih;
-	bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
-
-	if ( scale ) {
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-# ifndef QT_NO_PIXMAP_TRANSFORMATION
-	    if ( smooth )
-# endif
-	    {
-		QImage i = pm.convertToImage();
-		pixmap = QPixmap( i.smoothScale( rw, rh ) );
-	    }
-# ifndef QT_NO_PIXMAP_TRANSFORMATION
-	    else
-# endif
-#endif
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-	    {
-		pixmap = pm.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) );
-	    }
-#endif
-	}
-    }
-    // ##### probably wrong with world transform!
-    drawPixmap(r.topLeft(), pixmap, pixmap.rect());
 }
 
 void QPainter::drawImage(int x, int y, const QImage &,

@@ -160,10 +160,14 @@ public:
     void drawPicture( const QPoint &, const QPicture & );
 #endif
 
-    void drawPixmap(int x, int y, const QPixmap &, int sx=0, int sy=0, int sw=-1, int sh=-1);
+    void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
+		    const QRect &sourceRect = QRect());
+    void drawPixmap(int x, int y, int w, int h, const QPixmap &,
+		    int sx=0, int sy=0, int sw=-1, int sh=-1);
+    void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1);
     void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr);
-    void drawPixmap(const QPoint &, const QPixmap &);
-    void drawPixmap(const QRect &, const QPixmap &);
+    void drawPixmap(const QPoint &p, const QPixmap &pm);
+
 
     void drawImage(int x, int y, const QImage &,
 		   int sx = 0, int sy = 0, int sw = -1, int sh = -1,
@@ -271,6 +275,7 @@ private:
     friend class QFontEngineXft;
 #elif defined( Q_WS_WIN )
     friend class QFontEngineWin;
+    friend class QWin32PaintEngine;
 #elif defined( Q_WS_QWS )
     friend class QWSManager;
     friend class QFontEngineBox;
@@ -350,14 +355,27 @@ inline void QPainter::setViewport(const QRect &r)
     setViewport(r.x(), r.y(), r.width(), r.height());
 }
 
+inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
+				 int sx, int sy, int sw, int sh)
+{
+    drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh));
+}
+
+inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
+{
+    drawPixmap(QRect(x, y, pm.width(), pm.height()), pm, QRect(sx, sy, sw, sh));
+}
+
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr)
 {
-    drawPixmap(p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height());
+    drawPixmap(QRect(p.x(), p.y(), pm.width(), pm.height()), pm, sr);
 }
 
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
 {
-    drawPixmap(p.x(), p.y(), pm, 0, 0, pm.width(), pm.height());
+    drawPixmap(QRect(p.x(), p.y(), pm.width(), pm.height()),
+	       pm,
+	       QRect(0, 0, pm.width(), pm.height()));
 }
 
 inline void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir)

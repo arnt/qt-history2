@@ -28,6 +28,8 @@
 #include "qpaintengine_win.h"
 #include "qpaintengine_win_p.h"
 
+#include <qdebug.h>
+
 #include <math.h>
 
 // #define NO_NATIVE_XFORM
@@ -268,15 +270,13 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen	release_obj
 #define release_brush	release_obj
 
-QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target)
+QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target,
+				     GCCaps caps)
     :
 #ifndef NO_NATIVE_XFORM
-      QPaintEngine(dptr, GCCaps(CoordTransform
-				| PenWidthTransform
-				| PixmapTransform
-				| UsesFontEngine))
+      QPaintEngine(dptr, caps)
 #else
-      QPaintEngine(dptr, GCCaps(UsesFontEngine))
+      QPaintEngine(dptr, caps)
 #endif
 
 {
@@ -895,13 +895,14 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32PaintEngine::drawPixmap( const QRect &r, const QPixmap &pixmap, const QRect &sr )
+void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 {
     if (!isActive())
 	return;
 
     QPixmap *pm	  = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
+
     HDC pm_dc;
     int pm_offset;
     if (pm->isMultiCellPixmap()) {
@@ -912,14 +913,47 @@ void QWin32PaintEngine::drawPixmap( const QRect &r, const QPixmap &pixmap, const
 	pm_offset = 0;
     }
 
-    if (mask)
-	MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
-		pm_dc, sr.x(), sr.y()+pm_offset,
-		mask->hbm(), sr.x(), sr.y()+pm_offset,
-		MAKEROP4(0x00aa0000, SRCCOPY));
-    else
-	BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
-	       pixmap.handle(), sr.x(), sr.y(), SRCCOPY);
+    bool stretch = r.width() != sr.width() || r.height() != sr.height();
+
+    if (mask) {
+	if (stretch) {
+	    QImage imageData(pixmap);
+	    QImage imask = imageData.createAlphaMask();
+	    QBitmap tmpbm = imask;
+	    QBitmap bm(sr.width(), sr.height());
+	    bitBlt(&bm, 0, 0, &tmpbm, sr.x(), sr.y(), sr.width(), sr.height());
+	    QWMatrix xform = QWMatrix(r.width()/(double)sr.width(), 0,
+				      0, r.height()/(double)sr.height(),
+				      0, 0 );
+	    bm = bm.xForm(xform);
+	    QRegion region(bm);
+ 	    region.translate(r.x(), r.y());
+
+	    if ( state->painter->hasClipping() )
+		region &= state->painter->clipRegion();
+	    state->painter->save();
+	    state->painter->setClipRegion( region );
+	    updateState(state);
+	    StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
+		       pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
+		       SRCCOPY);
+	    state->painter->restore();
+	} else {
+	    MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+		    pm_dc, sr.x(), sr.y()+pm_offset,
+		    mask->hbm(), sr.x(), sr.y()+pm_offset,
+		    MAKEROP4(0x00aa0000, SRCCOPY));
+	}
+    } else {
+	if (stretch)
+	    StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
+		       pixmap.handle(), sr.x(), sr.y(), sr.width(), sr.height(),
+		       SRCCOPY);
+	else
+	    BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+		   pixmap.handle(), sr.x(), sr.y(),
+		   SRCCOPY);
+    }
 }
 
 void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
@@ -985,7 +1019,6 @@ void QWin32PaintEngine::updatePen(QPainterState *state)
 	lb.lbColor = d->pColor;
 	lb.lbHatch = 0;
 	int pst = PS_GEOMETRIC | s;
-// 	qFatal( "not supported... yet.." );
 	switch (state->pen.capStyle()) {
 	    case SquareCap:
 		pst |= PS_ENDCAP_SQUARE;
@@ -1270,10 +1303,12 @@ void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 // 	if ( pdev == dirty_hack_paintDevice() )
 // 	rgn = rgn.intersect( *(QPainter::dirty_hack_paintRegion()) );
 
-// 	if (state->VxF || state->WxF) {
-// 	    qDebug(" --> Translate region...");
-// 	    rgn = state->worldMatrix * rgn;
-// 	}
+	if (state->VxF || state->WxF) {
+	    if (state->txop == QPainter::TxScale)
+		rgn.translate(state->worldMatrix.dx(), state->worldMatrix.dy());
+	    else
+		rgn = state->worldMatrix * rgn;
+	}
 
 	// Setting an empty region as clip region on Win just dmainisables clipping completely.
 	// To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
