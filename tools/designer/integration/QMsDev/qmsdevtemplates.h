@@ -42,12 +42,12 @@ const char main_cpp[] = {
 
 const char dialogbase_ui[] = {
 "<!DOCTYPE UI><UI>\n"
-"<class>$QMSDEVCLASSNAMEBase</class>\n"
+"<class>$QMSDEVCLASSNAME</class>\n"
 "<widget>\n"
 "\t<class>QDialog</class>\n"
 "\t<property>\n"
 "\t\t<name>name</name>\n"
-"\t\t<cstring>$QMSDEVCLASSNAMEBase</cstring>\n"
+"\t\t<cstring>$QMSDEVCLASSNAME</cstring>\n"
 "\t</property>\n"
 "\t<property>\n"
 "\t\t<name>geometry</name>\n"
@@ -208,13 +208,13 @@ const char dialogbase_ui[] = {
 "\t<connection>\n"
 "\t\t<sender>buttonOk</sender>\n"
 "\t\t<signal>clicked()</signal>\n"
-"\t\t<receiver>$QMSDEVCLASSNAMEBase</receiver>\n"
+"\t\t<receiver>$QMSDEVCLASSNAME</receiver>\n"
 "\t\t<slot>accept()</slot>\n"
 "\t</connection>\n"
 "\t<connection>\n"
 "\t\t<sender>buttonCancel</sender>\n"
 "\t\t<signal>clicked()</signal>\n"
-"\t\t<receiver>$QMSDEVCLASSNAMEBase</receiver>\n"
+"\t\t<receiver>$QMSDEVCLASSNAME</receiver>\n"
 "\t<slot>reject()</slot>\n"
 "\t</connection>\n"
 "</connections>\n"
@@ -223,9 +223,9 @@ const char dialogbase_ui[] = {
 };
 
 const char dialog_h[] = {
-"#include \"$QMSDEVCLASSHEADERbase.h\"\n"
+"#include \"$QMSDEVCLASSHEADER.h\"\n"
 "\n\n"
-"class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAMEBase\n"
+"class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAME\n"
 "{\n"
 "\tQ_OBJECT\n"
 "public:\n"
@@ -238,7 +238,7 @@ const char dialog_cpp[] = {
 "#include \"$QMSDEVCLASSHEADER.h\"\n"
 "\n\n"
 "$QMSDEVCLASSNAME::$QMSDEVCLASSNAME( QWidget* parent, const char* name, bool modal, WFlags f )\n"
-"\t: $QMSDEVCLASSNAMEBase( parent, name, modal, f )\n"
+"\t: $QMSDEVCLASSNAME( parent, name, modal, f )\n"
 "{\n"
 "\n"
 "\t// Add your code\n"
@@ -247,9 +247,9 @@ const char dialog_cpp[] = {
 };
 
 const char window_h[] = {
-    "#include \"$QMSDEVCLASSNAMEBase.h\"\n"
+    "#include \"$QMSDEVCLASSNAME.h\"\n"
     "\n\n"
-    "class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAMEBase\n"
+    "class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAME\n"
     "{\n"
     "\tQ_OBJECT\n"
     "public:\n"
@@ -262,7 +262,7 @@ const char window_cpp[] = {
     "#include \"$QMSDEVCLASSHEADER.h\"\n"
     "\n\n"
     "$QMSDEVCLASSNAME::$QMSDEVCLASSNAME( QWidget* parent, const char* name, WFlags f )\n"
-    "\t: $QMSDEVCLASSNAMEBase( parent, name, f )\n"
+    "\t: $QMSDEVCLASSNAME( parent, name, f )\n"
     "{\n"
     "\tsetCaption(\"$QMSDEVPROJECTNAME\");\n"
     "\n"
@@ -378,10 +378,10 @@ const char readme_txt[] = {
 
 const char mainwinbase_ui[] = {
     "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">\n"
-    "<class>$QMSDEVCLASSNAMEBase</class>\n"
+    "<class>$QMSDEVCLASSNAME</class>\n"
     "<widget class=\"QMainWindow\">\n"
     "\t<property name=\"name\">\n"
-    "\t\t<cstring>$QMSDEVCLASSNAMEBase</cstring>\n"
+    "\t\t<cstring>$QMSDEVCLASSNAME</cstring>\n"
     "\t</property>\n"
     "\t<property name=\"geometry\">\n"
     "\t\t<rect>\n"

@@ -1110,20 +1110,20 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 
 	if ( dialog.m_dialog ) {
 	    readme.Replace( "$QMSDEVUITYPE", "Dialog interface" );
-	    readme.Replace( "$QMSDEVFILELIST", classheader+"base.ui\n\tA dialog with basic buttons.\n"
+	    readme.Replace( "$QMSDEVFILELIST", classheader+".ui\n\tA dialog with basic buttons.\n"
 					       "\tUse the Qt GUI Designer change the layout.\n" );
-	    readme.Replace( "$QMSDEVQTFILELIST", classheader+"base.h\n"+classheader+"base.cpp\nmoc_"+
-						 classheader+"base.cpp\nmoc_"+classheader+".cpp\n" );
+	    readme.Replace( "$QMSDEVQTFILELIST", classheader+".h\n"+classheader+".cpp\nmoc_"+
+						 classheader+".cpp\nmoc_"+classheader+".cpp\n" );
 	} else if ( dialog.m_mdi ) {
 	    readme.Replace( "$QMSDEVUITYPE", "Multi Document interface (MDI)" );
 	    readme.Replace( "$QMSDEVFILELIST", "" );
 	    readme.Replace( "$QMSDEVQTFILELIST", "moc_"+classheader+".cpp\n" );
 	} else {
 	    readme.Replace( "$QMSDEVUITYPE", "Main Window interface" );
-	    readme.Replace( "$QMSDEVFILELIST", classheader+"base.ui\n\tA main window.\n"
+	    readme.Replace( "$QMSDEVFILELIST", classheader+".ui\n\tA main window.\n"
 					       "\tUse the Qt GUI Designer change the layout.\n" );
-	    readme.Replace( "$QMSDEVQTFILELIST", classheader+"base.h\n"+classheader+"base.cpp\nmoc_"+
-						 classheader+"base.cpp\nmoc_"+classheader+".cpp\n" );
+	    readme.Replace( "$QMSDEVQTFILELIST", classheader+".h\n"+classheader+".cpp\nmoc_"+
+						 classheader+".cpp\nmoc_"+classheader+".cpp\n" );
 	}
 
 	infoFile.WriteString( replaceTemplateStrings(readme, classheader, 
@@ -1131,7 +1131,7 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	infoFile.Close();
 
 	if ( dialog.m_dialog ) {
-	    CString uiFileName(dialog.m_name+"dialogbase.ui");
+	    CString uiFileName(dialog.m_name+"dialog.ui");
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic dialog UI...") );
 	    
 	    CStdioFile uiFile( baseDir + uiFileName, CFile::modeCreate | CFile::modeWrite );
@@ -1183,7 +1183,7 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding build steps...") );
 	    addMOC( pProject, hFileName);
 	} else {
-	    CString uiFileName(dialog.m_name+"mainwindowbase.ui");
+	    CString uiFileName(dialog.m_name+"mainwindow.ui");
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tcreating basic main window UI...") );
 	    
 	    CStdioFile uiFile( baseDir + uiFileName, CFile::modeCreate | CFile::modeWrite );
