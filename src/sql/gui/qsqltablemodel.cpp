@@ -899,6 +899,22 @@ bool QSqlTableModel::insertRows(int row, const QModelIndex &parent, int count)
     return true;
 }
 
+/*!
+    Convenience method that inserts the \a record after \a row.
+    If \a row is negative, the record will be appended to the end.
+    Calls insertRows() and setRecord() internally.
+
+    Returns true if the row could be inserted, otherwise false.
+ */
+bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
+{
+    if (row < 0)
+        row = rowCount();
+    if (!insertRows(row))
+        return false;
+    return setRecord(row, record);
+}
+
 /*! \reimp
  */
 int QSqlTableModel::rowCount() const

@@ -49,8 +49,6 @@ public:
     using QAbstractItemModel::setData;
 #endif
 
-    bool setRecord(int row, const QSqlRecord &record);
-
     QVariant headerData(int section, Qt::Orientation orientation, int role);
 
     bool isDirty(const QModelIndex &index) const;
@@ -71,10 +69,13 @@ public:
     virtual void setFilter(const QString &filter);
 
     int rowCount() const;
+
     bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
-
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
+
+    bool insertRecord(int row, const QSqlRecord &record);
+    bool setRecord(int row, const QSqlRecord &record);
 
 public slots:
     virtual bool submitChanges();
