@@ -306,7 +306,14 @@ bool QFile::at( Offset pos )
 	ioIndex = pos;
 #if defined(QT_CHECK_RANGE)
     else
+#if defined(QT_MAC_OSX) && (QT_VERSION-0 >= 400)
+#error "QIODevice::Offset should be printed using %llu instead of %lu"
+#elif defined(QT_LARGE_FILE_SUPPORT)
+	qWarning( "QFile::at: Cannot set file position %llu", pos );
+#else
 	qWarning( "QFile::at: Cannot set file position %lu", pos );
+#endif
+
 #endif
     return ok;
 }
