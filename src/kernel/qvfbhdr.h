@@ -36,8 +36,9 @@ struct QVFbHeader
 
 struct QVFbKeyData
 {
-    unsigned int unicode;
+    unsigned int keycode;
     unsigned int modifiers;
+    unsigned short int unicode;
     bool press;
     bool repeat;
 };

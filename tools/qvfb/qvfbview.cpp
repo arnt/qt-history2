@@ -314,7 +314,8 @@ void QVFbView::sendKeyboardData( int unicode, int keycode, int modifiers,
 				 bool press, bool repeat )
 {
     QVFbKeyData kd;
-    kd.unicode = unicode | (keycode << 16);
+    kd.unicode = unicode;
+    kd.keycode = keycode;
     kd.modifiers = modifiers;
     kd.press = press;
     kd.repeat = repeat;

@@ -166,12 +166,12 @@ void QVFbKeyboardHandler::readKeyboardData()
     int idx = 0;
     while ( kbdIdx - idx >= (int)sizeof( QVFbKeyData ) ) {
 	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
-	if ( kd->unicode == 0 && kd->modifiers == 0 && kd->press ) {
+	if ( kd->unicode == 0 && kd->keycode == 0 && kd->modifiers == 0 && kd->press ) {
 	    // magic exit key
 	    qWarning( "Instructed to quit by Virtual Keyboard" );
 	    qApp->quit();
 	}
-	QWSServer::sendKeyEvent( kd->unicode&0xffff, kd->unicode>>16,
+	QWSServer::sendKeyEvent( kd->unicode, kd->keycode,
 				 kd->modifiers, kd->press, kd->repeat );
 	idx += sizeof( QVFbKeyData );
     }

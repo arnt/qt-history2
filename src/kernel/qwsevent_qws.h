@@ -109,9 +109,9 @@ struct QWSKeyEvent: QWSEvent {
 	      (char*)&simpleData ) {}
     struct SimpleData {
 	int window;
-	ushort unicode;
-	ushort keycode;
+	uint keycode;
 	int modifiers;
+	ushort unicode;
 	uint is_press:1;
 	uint is_auto_repeat:1;
     } simpleData;
