@@ -19,7 +19,7 @@
 #include <qgenericheader.h>
 #include <qtabbar.h>
 #include <qcombobox.h>
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qlineedit.h>
 #include <private/qtitlebar_p.h>
 #include <qstyle.h>

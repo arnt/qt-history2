@@ -18,7 +18,7 @@
 #include <qapplication.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qgroupbox.h>
 #include <qlayout.h>
 #include <qpainter.h>
@@ -139,7 +139,7 @@ DemoViewer::DemoViewer(QWidget *parent)
     vbox->setSpacing(6);
     QGroupBox *categories = new QGroupBox("Categories", vbox);
     QBoxLayout *glayout = new QBoxLayout(QBoxLayout::TopToBottom, categories);
-    listView = new QGenericListView(categories);
+    listView = new QListView(categories);
     glayout->addWidget(listView);
 
     layout->addWidget(horSplit);

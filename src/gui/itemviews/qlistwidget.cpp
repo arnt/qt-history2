@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qlistwidget.h"
-#include <private/qgenericlistview_p.h>
+#include <private/qlistview_p.h>
 
 class QListModel : public QAbstractListModel
 {
@@ -212,11 +212,11 @@ void QListWidgetItem::setData(int role, const QVariant &value)
     values.append(Data(role, value));
 }
 
-class QListWidgetPrivate : public QGenericListViewPrivate
+class QListWidgetPrivate : public QListViewPrivate
 {
     Q_DECLARE_PUBLIC(QListWidget)
 public:
-    QListWidgetPrivate() : QGenericListViewPrivate() {}
+    QListWidgetPrivate() : QListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
 };
 
@@ -225,7 +225,7 @@ public:
 
 #ifdef QT_COMPAT
 QListWidget::QListWidget(QWidget *parent, const char* name)
-    : QGenericListView(*new QListWidgetPrivate(), parent)
+    : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
     setObjectName(name);
@@ -240,7 +240,7 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 */
 
 QListWidget::QListWidget(QWidget *parent)
-    : QGenericListView(*new QListWidgetPrivate(), parent)
+    : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
     model()->setParent(this);

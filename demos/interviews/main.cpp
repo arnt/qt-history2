@@ -1,7 +1,7 @@
 #include <qapplication.h>
 #include <qgenerictableview.h>
 #include <qgenerictreeview.h>
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qsplitter.h>
 #include "model.h"
 
@@ -21,13 +21,13 @@ int main(int argc, char *argv[])
     tree->setModel(data);
     tree->setSelectionModel(selections);
 
-    QGenericListView *list = new QGenericListView(&page);
+    QListView *list = new QListView(&page);
     list->setModel(data);
     list->setSelectionModel(selections);
-    list->setLayoutMode(QGenericListView::Batched);
-    list->setIconMode(QGenericListView::Large);
-    list->setMovement(QGenericListView::Free);
-    list->setFlow(QGenericListView::LeftToRight);
+    list->setLayoutMode(QListView::Batched);
+    list->setIconMode(QListView::Large);
+    list->setMovement(QListView::Free);
+    list->setFlow(QListView::LeftToRight);
     list->setWrapping(true);
     list->viewport()->setAcceptDrops(true);
 

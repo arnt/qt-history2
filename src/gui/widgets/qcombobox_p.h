@@ -15,7 +15,7 @@
 #define QCOMBOBOX_P_H
 
 #ifndef QT_H
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qbasictimer.h>
@@ -86,8 +86,8 @@ class ListViewContainer : public QFrame
     Q_OBJECT
 
 public:
-    ListViewContainer(QGenericListView *listView, QWidget *parent = 0);
-    QGenericListView *listView() const;
+    ListViewContainer(QListView *listView, QWidget *parent = 0);
+    QListView *listView() const;
     bool ignoreNextMousePress();
 
 public slots:
@@ -107,7 +107,7 @@ signals:
 
 private:
     bool ignoreMousePress;
-    QGenericListView *list;
+    QListView *list;
     Scroller *top;
     Scroller *bottom;
 };

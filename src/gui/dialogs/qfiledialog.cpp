@@ -16,7 +16,7 @@
 #include <qdirmodel.h>
 #include <qframe.h>
 #include <qgenericheader.h>
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qgenerictreeview.h>
 #include <qitemselectionmodel.h>
 #include <qlabel.h>
@@ -317,7 +317,7 @@ public:
 
     QDirModel *model;
     QItemSelectionModel *selections;
-    QGenericListView *lview;
+    QListView *lview;
     QGenericTreeView *tview;
     QFileDialog::ViewMode viewMode;
     QFileDialog::FileMode fileMode;
@@ -1340,7 +1340,7 @@ void QFileDialog::showHidden()
 void QFileDialogPrivate::setup(const QString &directory,
                                const QStringList &nameFilter,
                                QFileDialog::FileMode fileMode)
-{    
+{
     q->setSizeGripEnabled(true);
     QGridLayout *grid = new QGridLayout(q);
     grid->setMargin(11);
@@ -1356,8 +1356,8 @@ void QFileDialogPrivate::setup(const QString &directory,
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
 
     // views
-    lview = new QGenericListView(q);
-    
+    lview = new QListView(q);
+
     lview->setModel(model);
     lview->setSelectionModel(selections);
     lview->setSelectionMode(selMode);
@@ -1366,8 +1366,8 @@ void QFileDialogPrivate::setup(const QString &directory,
     lview->viewport()->setAcceptDrops(true);
     lview->setSpacing(2);
     lview->setWrapping(true);
-    lview->setResizeMode(QGenericListView::Adjust);
-    lview->setLayoutMode(QGenericListView::Batched);
+    lview->setResizeMode(QListView::Adjust);
+    lview->setLayoutMode(QListView::Batched);
     lview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);
     grid->addWidget(lview, 1, 0, 1, 6);
 

@@ -11,19 +11,19 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICLISTVIEW_H
-#define QGENERICLISTVIEW_H
+#ifndef QLISTVIEW_H
+#define QLISTVIEW_H
 
 #ifndef QT_H
 #include <qabstractitemview.h>
 #endif
 
-class QGenericListViewPrivate;
+class QListViewPrivate;
 
-class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
+class Q_GUI_EXPORT QListView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericListView)
+    Q_DECLARE_PRIVATE(QListView)
     Q_ENUMS(Movement Flow IconSize ResizeMode LayoutMode)
     Q_PROPERTY(Movement movement READ movement WRITE setMovement)
     Q_PROPERTY(Flow flow READ flow WRITE setFlow)
@@ -41,8 +41,8 @@ public:
     enum ResizeMode { Fixed, Adjust };
     enum LayoutMode { OnePass, Batched };
 
-    QGenericListView(QWidget *parent = 0);
-    ~QGenericListView();
+    QListView(QWidget *parent = 0);
+    ~QListView();
 
     void setModel(QAbstractItemModel *model);
 
@@ -77,7 +77,7 @@ public:
     void doItemsLayout();
 
 protected:
-    QGenericListView(QGenericListViewPrivate &, QWidget *parent = 0);
+    QListView(QListViewPrivate &, QWidget *parent = 0);
 
     void reset();
     void scrollContentsBy(int dx, int dy);

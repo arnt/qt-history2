@@ -17,7 +17,7 @@
 #include <qstyle.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qitemdelegate.h>
 #include <qmap.h>
 #include <qlayout.h>
@@ -31,7 +31,7 @@
     \internal
 */
 
-ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent)
+ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     : QFrame(parent), ignoreMousePress(false), list(listView), top(0), bottom(0)
 {
     // setup container
@@ -140,7 +140,7 @@ void ListViewContainer::setCurrentItem(const QModelIndex &index, int bstate)
 
   Returns the listview used for the combobox popup.
 */
-QGenericListView *ListViewContainer::listView() const
+QListView *ListViewContainer::listView() const
 {
     return list;
 }
@@ -455,7 +455,7 @@ QComboBox::QComboBox(QComboBoxPrivate &dd, QWidget *parent) :
 
 void QComboBoxPrivate::init()
 {
-    QGenericListView *l = new QGenericListView(0);
+    QListView *l = new QListView(0);
     d->model = l->model();
     container = new ListViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
@@ -1107,7 +1107,7 @@ void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
 
 */
 
-QGenericListView *QComboBox::listView() const
+QListView *QComboBox::listView() const
 {
     return d->container->listView();
 }

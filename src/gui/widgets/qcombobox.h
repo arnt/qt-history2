@@ -20,7 +20,7 @@
 #include <qabstractitemdelegate.h>
 #endif
 
-class QGenericListView;
+class QListView;
 class QLineEdit;
 class QComboBoxPrivate;
 
@@ -109,7 +109,7 @@ public:
     void setItemIcon(const QIconSet &icon, int row);
     void setItem(const QIconSet &icon, const QString &text, int row);
 
-    QGenericListView *listView() const;
+    QListView *listView() const;
 
     QSize sizeHint() const;
 

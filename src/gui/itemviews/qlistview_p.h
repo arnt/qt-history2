@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICLISTVIEW_P_H
-#define QGENERICLISTVIEW_P_H
+#ifndef QLISTVIEW_P_H
+#define QLISTVIEW_P_H
 
 #include <private/qabstractitemview_p.h>
 #include <qrubberband.h>
@@ -77,24 +77,24 @@ private:
     mutable QVector< QVector<int> > leafVector; // the leaves are just indices into the itemVector
 };
 
-class QGenericListViewItem
+class QListViewItem
 {
 public:
-    inline QGenericListViewItem()
+    inline QListViewItem()
         : x(-1), y(-1), w(-1), h(-1), indexHint(-1), visited(0xffff) {}
-    inline QGenericListViewItem(const QGenericListViewItem &other)
+    inline QListViewItem(const QListViewItem &other)
         : x(other.x), y(other.y), w(other.w), h(other.h),
           indexHint(other.indexHint), visited(other.visited) {}
-    inline QGenericListViewItem(QRect r, int i)
+    inline QListViewItem(QRect r, int i)
         : x(r.x()), y(r.y()), w(r.width()), h(r.height()),
           indexHint(i), visited(0xffff) {}
 
-    inline bool operator==(const QGenericListViewItem &other) const
+    inline bool operator==(const QListViewItem &other) const
     {
         return (x == other.x && y == other.y && w == other.w && h == other.h &&
                 indexHint == other.indexHint);
     }
-    inline bool operator!=(const QGenericListViewItem &other) const { return !(*this == other); }
+    inline bool operator!=(const QListViewItem &other) const { return !(*this == other); }
 
     inline QRect rect() { return QRect(x, y, w, h); }
     inline bool isValid() { return (x > -1) && (y > -1) && (w > -1) && (h > -1) && (indexHint > -1); }
@@ -105,12 +105,12 @@ public:
     uint visited : 16;
 };
 
-class QGenericListViewPrivate: public QAbstractItemViewPrivate
+class QListViewPrivate: public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericListView)
+    Q_DECLARE_PUBLIC(QListView)
 public:
-    QGenericListViewPrivate();
-    ~QGenericListViewPrivate() {}
+    QListViewPrivate();
+    ~QListViewPrivate() {}
 
     void init();
     void prepareItemsLayout();
@@ -120,10 +120,10 @@ public:
     void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
     QRect itemsRect(const QVector<QModelIndex> &indexes) const;
 
-    QGenericListViewItem indexToListViewItem(const QModelIndex &index) const;
-    inline QModelIndex listViewItemToIndex(const QGenericListViewItem item) const
+    QListViewItem indexToListViewItem(const QModelIndex &index) const;
+    inline QModelIndex listViewItemToIndex(const QListViewItem item) const
     { return q_func()->model()->index(itemIndex(item), 0, q_func()->root()); }
-    int itemIndex(const QGenericListViewItem item) const;
+    int itemIndex(const QListViewItem item) const;
     static void addLeaf(QVector<int> &leaf,
                         const QRect &area, uint visited, void *data);
     void createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
@@ -132,7 +132,7 @@ public:
                             const QRect &bounds, int spacing, int delta);
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing);
 
-    void insertItem(int index, QGenericListViewItem &item);
+    void insertItem(int index, QListViewItem &item);
     void removeItem(int index);
     void moveItem(int index, const QPoint &dest);
 
@@ -141,11 +141,11 @@ public:
     QPoint draggedItemsDelta() const;
     QRect draggedItemsRect() const;
 
-    QGenericListView::Flow flow;
-    QGenericListView::Movement movement;
-    QGenericListView::IconMode iconMode;
-    QGenericListView::ResizeMode resizeMode;
-    QGenericListView::LayoutMode layoutMode;
+    QListView::Flow flow;
+    QListView::Movement movement;
+    QListView::IconMode iconMode;
+    QListView::ResizeMode resizeMode;
+    QListView::LayoutMode layoutMode;
     bool wrap;
     int spacing;
     int layoutStart;
@@ -156,7 +156,7 @@ public:
     // used for intersecting set
     mutable QVector<QModelIndex> intersectVector;
     // used when items are movable
-    BinTree<QGenericListViewItem> tree;
+    BinTree<QListViewItem> tree;
     // used when items are static
     QVector<int> xposVector;
     QVector<int> yposVector;
@@ -169,4 +169,4 @@ public:
     QRubberBand *rubberBand;
 };
 
-#endif //QGENERICLISTVIEW_P_H
+#endif //QLISTVIEW_P_H

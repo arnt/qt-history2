@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qgenericlistview.h"
+#include "qlistview.h"
 #include <qabstractitemdelegate.h>
 #include <qapplication.h>
 #include <qdragobject.h>
@@ -21,7 +21,7 @@
 #include <qevent.h>
 #include <qscrollbar.h>
 #include <qrubberband.h>
-#include <private/qgenericlistview_p.h>
+#include <private/qlistview_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -249,20 +249,20 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 }
 
 /*!
-    \class QGenericListView qgenericlistview.h
+    \class QListView qlistview.h
 
-    \brief The QGenericListView class provides a default model/view
+    \brief The QListView class provides a default model/view
     implementation of a list, and of an icon view.
 
     \ingroup model-view
 
-    A QGenericListView presents items stored in a model, either as a simple
+    A QListView presents items stored in a model, either as a simple
     non-hierarchical list, or as a collection of icons. This class is used
     to provide lists and icon views that were previously provided by the
     \c QListBox and \c QIconView classes, but using the more flexible
     approach provided by Qt's model/view architecture.
 
-    QGenericListView implements the interfaces defined by the
+    QListView implements the interfaces defined by the
     QAbstractItemView class to allow it to display data provided by
     models derived from the QAbstractItemModel class.
 
@@ -288,7 +288,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-  \enum QGenericListView::Movement
+  \enum QListView::Movement
 
   \value Static The items cannot be moved by the user.
   \value Free The items can be moved freely by the user.
@@ -297,7 +297,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-  \enum QGenericListView::Flow
+  \enum QListView::Flow
 
   \value LeftToRight The items are laid out in the view from the left
   to the right.
@@ -306,7 +306,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-  \enum QGenericListView::IconMode
+  \enum QListView::IconMode
 
   \value Automatic The icon size is Small if \l isWrapping is
   true; otherwise the icon size is Large.
@@ -315,25 +315,25 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-  \enum QGenericListView::ResizeMode
+  \enum QListView::ResizeMode
 
   \value Fixed The items will only be laid out the first time the view is shown.
   \value Adjust The items will be laid out every time the view is resized.
 */
 
 /*!
-  \enum QGenericListView::LayoutMode
+  \enum QListView::LayoutMode
 
   \value Instant The items are laid out all at once.
   \value Batched The items are laid out in batches of 100 items.
 */
 
 /*!
-    Creates a new QGenericListView with the given \a parent to view a model.
+    Creates a new QListView with the given \a parent to view a model.
     Use setModel() to set the model.
 */
-QGenericListView::QGenericListView(QWidget *parent)
-    : QAbstractItemView(*new QGenericListViewPrivate, parent)
+QListView::QListView(QWidget *parent)
+    : QAbstractItemView(*new QListViewPrivate, parent)
 {
     d->init();
 }
@@ -341,7 +341,7 @@ QGenericListView::QGenericListView(QWidget *parent)
 /*!
   \internal
 */
-QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QWidget *parent)
+QListView::QListView(QListViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
     d->init();
@@ -350,21 +350,21 @@ QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QWidget *parent)
 /*!
   Destroys the view.
 */
-QGenericListView::~QGenericListView()
+QListView::~QListView()
 {
 }
 
 /*!
   \reimp
 */
-void QGenericListView::setModel(QAbstractItemModel *model)
+void QListView::setModel(QAbstractItemModel *model)
 {
     reset();
     QAbstractItemView::setModel(model);
 }
 
 /*!
-    \property QGenericListView::movement
+    \property QListView::movement
     \brief whether the items can be moved freely, are snapped to a
     grid, or cannot be moved at all.
 
@@ -380,20 +380,20 @@ void QGenericListView::setModel(QAbstractItemModel *model)
 
     \sa gridSize
 */
-void QGenericListView::setMovement(Movement movement)
+void QListView::setMovement(Movement movement)
 {
     d->movement = movement;
     if (isVisible())
         doItemsLayout();
 }
 
-QGenericListView::Movement QGenericListView::movement() const
+QListView::Movement QListView::movement() const
 {
     return d->movement;
 }
 
 /*!
-    \property QGenericListView::flow
+    \property QListView::flow
     \brief which direction the items layout should flow.
 
     If this property is \c LeftToRight, the items will be laid out left
@@ -405,20 +405,20 @@ QGenericListView::Movement QGenericListView::movement() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QGenericListView::setFlow(Flow flow)
+void QListView::setFlow(Flow flow)
 {
     d->flow = flow;
     if (isVisible())
         doItemsLayout();
 }
 
-QGenericListView::Flow QGenericListView::flow() const
+QListView::Flow QListView::flow() const
 {
     return d->flow;
 }
 
 /*!
-    \property QGenericListView::isWrapping
+    \property QListView::isWrapping
     \brief whether the items layout should wrap.
 
     This property holds whether the layout should wrap when there is
@@ -428,20 +428,20 @@ QGenericListView::Flow QGenericListView::flow() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QGenericListView::setWrapping(bool enable)
+void QListView::setWrapping(bool enable)
 {
     d->wrap = enable;
     if (isVisible())
         doItemsLayout();
 }
 
-bool QGenericListView::isWrapping() const
+bool QListView::isWrapping() const
 {
     return d->wrap;
 }
 
 /*!
-    \property QGenericListView::iconMode
+    \property QListView::iconMode
     \brief whether the items should be rendered as large or small items.
 
     If this property is \c Small (the default), the default delegate
@@ -455,38 +455,38 @@ bool QGenericListView::isWrapping() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QGenericListView::setIconMode(IconMode mode)
+void QListView::setIconMode(IconMode mode)
 {
     d->iconMode = mode;
     if (isVisible())
         doItemsLayout();
 }
 
-QGenericListView::IconMode QGenericListView::iconMode() const
+QListView::IconMode QListView::iconMode() const
 {
     return d->iconMode;
 }
 
 /*!
-    \property QGenericListView::resizeMode
+    \property QListView::resizeMode
     \brief whether the items are laid out again when the view is resized.
 
     If this property is \c Adjust, the items will be laid out again
     when the view is resized. If the value is \c Fixed, the items will
     not be laid out when the view is resized.
 */
-void QGenericListView::setResizeMode(ResizeMode mode)
+void QListView::setResizeMode(ResizeMode mode)
 {
     d->resizeMode = mode;
 }
 
-QGenericListView::ResizeMode QGenericListView::resizeMode() const
+QListView::ResizeMode QListView::resizeMode() const
 {
     return d->resizeMode;
 }
 
 /*!
-    \property QGenericListView::layoutMode
+    \property QListView::layoutMode
     \brief whether the layout of items should happen immediately or be delayed.
 
     This property holds the layout mode for the items. When the mode
@@ -496,18 +496,18 @@ QGenericListView::ResizeMode QGenericListView::resizeMode() const
     instantly view and interact with the visible items while the rest
     are being laid out.
 */
-void QGenericListView::setLayoutMode(LayoutMode mode)
+void QListView::setLayoutMode(LayoutMode mode)
 {
     d->layoutMode = mode;
 }
 
-QGenericListView::LayoutMode QGenericListView::layoutMode() const
+QListView::LayoutMode QListView::layoutMode() const
 {
     return d->layoutMode;
 }
 
 /*!
-    \property QGenericListView::spacing
+    \property QListView::spacing
     \brief the space between items in the layout
 
     This property is the size of the empty space between items in the
@@ -517,20 +517,20 @@ QGenericListView::LayoutMode QGenericListView::layoutMode() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QGenericListView::setSpacing(int space)
+void QListView::setSpacing(int space)
 {
     d->spacing = space;
     if (isVisible())
         doItemsLayout();
 }
 
-int QGenericListView::spacing() const
+int QListView::spacing() const
 {
     return d->spacing;
 }
 
 /*!
-    \property QGenericListView::gridSize
+    \property QListView::gridSize
     \brief the size of the layout grid
 
     This property is the size of the grid in which the items are laid
@@ -542,14 +542,14 @@ int QGenericListView::spacing() const
     Setting this property when the view is visible will cause the
     items to be laid out again.
 */
-void QGenericListView::setGridSize(const QSize &size)
+void QListView::setGridSize(const QSize &size)
 {
     d->gridSize = size;
     if (isVisible())
         doItemsLayout();
 }
 
-QSize QGenericListView::gridSize() const
+QSize QListView::gridSize() const
 {
     return d->gridSize;
 }
@@ -557,7 +557,7 @@ QSize QGenericListView::gridSize() const
 /*!
   \reimp
 */
-QRect QGenericListView::itemViewportRect(const QModelIndex &index) const
+QRect QListView::itemViewportRect(const QModelIndex &index) const
 {
     return d->mapToViewport(itemRect(index));
 }
@@ -565,7 +565,7 @@ QRect QGenericListView::itemViewportRect(const QModelIndex &index) const
 /*!
   \reimp
 */
-void QGenericListView::ensureItemVisible(const QModelIndex &item)
+void QListView::ensureItemVisible(const QModelIndex &item)
 {
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(item);
@@ -596,7 +596,7 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 /*!
   \internal
 */
-void QGenericListView::reset()
+void QListView::reset()
 {
     d->prepareItemsLayout();
     if (isVisible())
@@ -608,7 +608,7 @@ void QGenericListView::reset()
 
     Scroll the view contents by \a dx and \a dy.
 */
-void QGenericListView::scrollContentsBy(int dx, int dy)
+void QListView::scrollContentsBy(int dx, int dy)
 {
     verticalScrollBar()->repaint();
     horizontalScrollBar()->repaint();
@@ -627,7 +627,7 @@ void QGenericListView::scrollContentsBy(int dx, int dy)
     Resize the internal contents to \a width and \a height and set the
     scrollbar ranges accordingly.
 */
-void QGenericListView::resizeContents(int width, int height)
+void QListView::resizeContents(int width, int height)
 {
     d->contentsSize = QSize(width, height);
     horizontalScrollBar()->setRange(0, width - viewport()->width() - 1);
@@ -637,7 +637,7 @@ void QGenericListView::resizeContents(int width, int height)
 /*!
   \reimp
 */
-void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
+void QListView::rowsInserted(const QModelIndex &parent, int, int)
 {
     // FIXME: if the parent is above root() in the tree, nothing will happen
     if (parent == root() && isVisible())
@@ -647,7 +647,7 @@ void QGenericListView::rowsInserted(const QModelIndex &parent, int, int)
 /*!
   \reimp
 */
-void QGenericListView::rowsRemoved(const QModelIndex &parent, int, int)
+void QListView::rowsRemoved(const QModelIndex &parent, int, int)
 {
     // FIXME: if the parent is above root() in the tree, nothing will happen
     if (parent == root() && isVisible())
@@ -657,7 +657,7 @@ void QGenericListView::rowsRemoved(const QModelIndex &parent, int, int)
 /*!
   \reimp
 */
-void QGenericListView::mouseMoveEvent(QMouseEvent *e)
+void QListView::mouseMoveEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseMoveEvent(e);
     if (state() == QAbstractItemView::Selecting && d->selectionMode != SingleSelection) {
@@ -675,7 +675,7 @@ void QGenericListView::mouseMoveEvent(QMouseEvent *e)
 /*!
   \reimp
 */
-void QGenericListView::mouseReleaseEvent(QMouseEvent *e)
+void QListView::mouseReleaseEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseReleaseEvent(e);
     d->rubberBand->hide();
@@ -684,7 +684,7 @@ void QGenericListView::mouseReleaseEvent(QMouseEvent *e)
 /*!
   \reimp
 */
-void QGenericListView::timerEvent(QTimerEvent *e)
+void QListView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->layoutTimer) {
         killTimer(d->layoutTimer);
@@ -697,7 +697,7 @@ void QGenericListView::timerEvent(QTimerEvent *e)
 /*!
   \reimp
 */
-void QGenericListView::resizeEvent(QResizeEvent *e)
+void QListView::resizeEvent(QResizeEvent *e)
 {
     QAbstractItemView::resizeEvent(e);
     if (d->resizeMode == Adjust && d->layoutTimer == 0) {
@@ -711,7 +711,7 @@ void QGenericListView::resizeEvent(QResizeEvent *e)
 /*!
   \reimp
 */
-void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
+void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
     if (!model()->canDecode(e)) {
         e->ignore();
@@ -749,7 +749,7 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
 /*!
   \reimp
 */
-void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
+void QListView::dragLeaveEvent(QDragLeaveEvent *)
 {
     d->viewport->update(d->draggedItemsRect()); // erase the area
     d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
@@ -758,7 +758,7 @@ void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
 /*!
   \reimp
 */
-void QGenericListView::dropEvent(QDropEvent *e)
+void QListView::dropEvent(QDropEvent *e)
 {
     if (e->source() == this && d->movement != Static) {
         QPoint offset = QPoint(horizontalScrollBar()->value(),
@@ -784,7 +784,7 @@ void QGenericListView::dropEvent(QDropEvent *e)
 /*!
   \reimp
 */
-QDragObject *QGenericListView::dragObject()
+QDragObject *QListView::dragObject()
 {
     // This function does the same thing as in QAbstractItemView,
     //  plus adding viewitems to the draggedItems list. We need these items to draw the drag items
@@ -799,7 +799,7 @@ QDragObject *QGenericListView::dragObject()
 /*!
   \reimp
 */
-void QGenericListView::startDrag()
+void QListView::startDrag()
 {
     QAbstractItemView::startDrag();
     // clear dragged items
@@ -809,7 +809,7 @@ void QGenericListView::startDrag()
 /*!
   \reimp
 */
-bool QGenericListView::isDragEnabled(const QModelIndex &) const
+bool QListView::isDragEnabled(const QModelIndex &) const
 {
     return d->movement == Free;
 }
@@ -817,7 +817,7 @@ bool QGenericListView::isDragEnabled(const QModelIndex &) const
 /*!
   \reimp
 */
-QStyleOptionViewItem QGenericListView::viewOptions() const
+QStyleOptionViewItem QListView::viewOptions() const
 {
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
     if (d->iconMode == Automatic ? !d->wrap : d->iconMode == Small) {
@@ -835,7 +835,7 @@ QStyleOptionViewItem QGenericListView::viewOptions() const
 /*!
   \reimp
 */
-void QGenericListView::paintEvent(QPaintEvent *e)
+void QListView::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
 
@@ -877,7 +877,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
 /*!
   \reimp
 */
-QModelIndex QGenericListView::itemAt(int x, int y) const
+QModelIndex QListView::itemAt(int x, int y) const
 {
     QRect rect(x + horizontalScrollBar()->value(), y + verticalScrollBar()->value(), 1, 1);
     if (d->movement == Static)
@@ -894,7 +894,7 @@ QModelIndex QGenericListView::itemAt(int x, int y) const
 /*!
   \reimp
 */
-int QGenericListView::horizontalOffset() const
+int QListView::horizontalOffset() const
 {
     return horizontalScrollBar()->value();
 }
@@ -902,7 +902,7 @@ int QGenericListView::horizontalOffset() const
 /*!
   \reimp
 */
-int QGenericListView::verticalOffset() const
+int QListView::verticalOffset() const
 {
     return verticalScrollBar()->value();
 }
@@ -910,7 +910,7 @@ int QGenericListView::verticalOffset() const
 /*!
   \reimp
 */
-QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
+QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                          Qt::ButtonState)
 {
     QModelIndex current = currentItem();
@@ -1020,7 +1020,7 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
     Returns the rectangle of the item at position \a index in the
     model. The rectangle is in contents coordinates.
 */
-QRect QGenericListView::itemRect(const QModelIndex &index) const
+QRect QListView::itemRect(const QModelIndex &index) const
 {
     if (!index.isValid() || model()->parent(index) != root())
         return QRect();
@@ -1030,7 +1030,7 @@ QRect QGenericListView::itemRect(const QModelIndex &index) const
 /*!
   \reimp
 */
-void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     QRect crect(rect.left() + horizontalScrollBar()->value(),
                 rect.top() + verticalScrollBar()->value(),
@@ -1065,7 +1065,7 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
 /*!
   \reimp
 */
-QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const
+QRect QListView::selectionViewportRect(const QItemSelection &selection) const
 {
     if (selection.count() == 1 && selection.at(0).top() == selection.at(0).bottom()) {
         QModelIndex singleItem = model()->index(selection.at(0).top(),
@@ -1081,7 +1081,7 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
 
     Layout the items according to the flow and wrapping properties.
 */
-void QGenericListView::doItemsLayout()
+void QListView::doItemsLayout()
 {
     d->layoutStart = 0;
     d->layoutWraps = 0;
@@ -1105,7 +1105,7 @@ void QGenericListView::doItemsLayout()
 /*!
   \internal
 */
-bool QGenericListView::doItemsLayout(int delta)
+bool QListView::doItemsLayout(int delta)
 {
     int max = d->model->rowCount(root()) - 1;
     int first = d->layoutStart;
@@ -1141,7 +1141,7 @@ bool QGenericListView::doItemsLayout(int delta)
 /*!
   \internal
 */
-void QGenericListView::doItemsLayout(const QRect &bounds,
+void QListView::doItemsLayout(const QRect &bounds,
                                      const QModelIndex &first,
                                      const QModelIndex &last)
 {
@@ -1156,7 +1156,7 @@ void QGenericListView::doItemsLayout(const QRect &bounds,
 /*!
   \internal
 */
-void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
+void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 {
     int x = 0;
     int y = 0;
@@ -1177,8 +1177,8 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     QAbstractItemDelegate *delegate = itemDelegate();
     QAbstractItemModel *model = this->model();
 
-    if (d->movement == QGenericListView::Static && !wrap)
-        if (d->flow == QGenericListView::LeftToRight)
+    if (d->movement == QListView::Static && !wrap)
+        if (d->flow == QListView::LeftToRight)
              rect.setHeight(qMin(d->contentsSize.height(), rect.height()));
         else
             rect.setWidth(qMin(d->contentsSize.width(), rect.width()));
@@ -1236,7 +1236,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 /*!
   \internal
 */
-void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
+void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
 {
     int gw = d->gridSize.width() > 0 ? d->gridSize.width() : 0;
     int gh = d->gridSize.height() > 0 ? d->gridSize.height() : 0;
@@ -1249,7 +1249,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
         d->tree.reserve(d->model->rowCount(root()));
     } else {
         int p = first - 1;
-        const QGenericListViewItem item = d->tree.item(p);
+        const QListViewItem item = d->tree.item(p);
         x = item.x;
         y = item.y;
         if (d->flow == LeftToRight)
@@ -1262,7 +1262,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
     bool wrap = d->wrap;
     QRect rect(QPoint(0, 0), d->contentsSize);
     QModelIndex bottomRight = model()->index(0, 0, root());
-    QGenericListViewItem *item = 0;
+    QListViewItem *item = 0;
 
     if (d->flow == LeftToRight) {
         int w = bounds.width();
@@ -1317,18 +1317,18 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 
         // initialize tree
         // we have to get the bounding rect of the items before we can initialize the tree
-        BinTree<QGenericListViewItem>::Node::Type type =
-            BinTree<QGenericListViewItem>::Node::Both; // use 2D bsp by default
+        BinTree<QListViewItem>::Node::Type type =
+            BinTree<QListViewItem>::Node::Both; // use 2D bsp by default
         if (h / w >= 3)    // simple heuristics to get better bsp
-            type = BinTree<QGenericListViewItem>::Node::HorizontalPlane;
+            type = BinTree<QListViewItem>::Node::HorizontalPlane;
         else if (w / h >= 3)
-            type = BinTree<QGenericListViewItem>::Node::VerticalPlane;
+            type = BinTree<QListViewItem>::Node::VerticalPlane;
         d->tree.init(QRect(0, 0, w, h), type); // build tree for bounding rect (not contents rect)
     }
 
     // insert items in tree
     for (int i = insertFrom; i <= last; i++)
-        d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QGenericListViewItem>::insert,
+        d->tree.climbTree(d->tree.item(i).rect(), &BinTree<QListViewItem>::insert,
                           reinterpret_cast<void *>(i));
 
     QRect changedRect(topLeft, rect.bottomRight());
@@ -1339,7 +1339,7 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 /*!
   \internal
 */
-void QGenericListView::updateGeometries()
+void QListView::updateGeometries()
 {
     QModelIndex index = model()->index(0, 0, root());
     QStyleOptionViewItem option = viewOptions();
@@ -1358,13 +1358,13 @@ void QGenericListView::updateGeometries()
  * private object implementation
  */
 
-QGenericListViewPrivate::QGenericListViewPrivate()
+QListViewPrivate::QListViewPrivate()
     : QAbstractItemViewPrivate(),
-      flow(QGenericListView::TopToBottom),
-      movement(QGenericListView::Static),
-      iconMode(QGenericListView::Small),
-      resizeMode(QGenericListView::Fixed),
-      layoutMode(QGenericListView::OnePass),
+      flow(QListView::TopToBottom),
+      movement(QListView::Static),
+      iconMode(QListView::Small),
+      resizeMode(QListView::Fixed),
+      layoutMode(QListView::OnePass),
       wrap(false),
       spacing(0),
       layoutStart(0),
@@ -1373,20 +1373,20 @@ QGenericListViewPrivate::QGenericListViewPrivate()
       layoutTimer(0)
 {}
 
-void QGenericListViewPrivate::init()
+void QListViewPrivate::init()
 {
     rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
     rubberBand->hide();
     viewport->setAcceptDrops(true);
 }
 
-void QGenericListViewPrivate::prepareItemsLayout()
+void QListViewPrivate::prepareItemsLayout()
 {
     // initailization of data structs
     int rowCount = model->rowCount(q->root());
-    if (movement == QGenericListView::Static) {
+    if (movement == QListView::Static) {
         tree.destroy();
-        if (flow == QGenericListView::LeftToRight) {
+        if (flow == QListView::LeftToRight) {
             xposVector.resize(qMax(rowCount, 0));
             yposVector.clear();
         } else { // TopToBottom
@@ -1408,7 +1408,7 @@ void QGenericListViewPrivate::prepareItemsLayout()
   In this function, itemsize is counted from topleft to the start of the next item.
 */
 
-void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
+void QListViewPrivate::intersectingStaticSet(const QRect &area) const
 {
     intersectVector.clear();
     QAbstractItemModel *model = q->model();
@@ -1417,7 +1417,7 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
     QModelIndex root = q->root();
     int first, last, count, i, j;
     bool wraps = wrapVector.count() > 1;
-    if (flow == QGenericListView::LeftToRight) {
+    if (flow == QListView::LeftToRight) {
         if (yposVector.count() == 0)
             return;
         j = qBinarySearch<int>(yposVector, area.top(), 0, layoutWraps); // index to the first ypos
@@ -1454,14 +1454,14 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
     }
 }
 
-void QGenericListViewPrivate::intersectingDynamicSet(const QRect &area) const
+void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
 {
     intersectVector.clear();
-    QGenericListViewPrivate *that = const_cast<QGenericListViewPrivate*>(this);
-    that->tree.climbTree(area, &QGenericListViewPrivate::addLeaf, static_cast<void*>(that));
+    QListViewPrivate *that = const_cast<QListViewPrivate*>(this);
+    that->tree.climbTree(area, &QListViewPrivate::addLeaf, static_cast<void*>(that));
 }
 
-void QGenericListViewPrivate::createItems(int to)
+void QListViewPrivate::createItems(int to)
 {
     int count = tree.itemCount();
     QSize size;
@@ -1470,16 +1470,16 @@ void QGenericListViewPrivate::createItems(int to)
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
         size = delegate->sizeHint(fontMetrics, option, model, model->index(i, 0, root));
-        QGenericListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
+        QListViewItem item(QRect(0, 0, size.width(), size.height()), i); // default pos
         tree.appendItem(item);
     }
 }
 
-void QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
+void QListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
 {
     QStyleOptionViewItem option = q->viewOptions();
     QVector<QModelIndex>::const_iterator it = indexes.begin();
-    QGenericListViewItem item = indexToListViewItem(*it);
+    QListViewItem item = indexToListViewItem(*it);
     for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
         option.rect.setRect(item.x, item.y, item.w, item.h);
@@ -1487,10 +1487,10 @@ void QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelI
     }
 }
 
-QRect QGenericListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
+QRect QListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
 {
     QVector<QModelIndex>::const_iterator it = indexes.begin();
-    QGenericListViewItem item = indexToListViewItem(*it);
+    QListViewItem item = indexToListViewItem(*it);
     QRect rect(item.x, item.y, item.w, item.h);
     for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
@@ -1499,25 +1499,25 @@ QRect QGenericListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) co
     return rect;
 }
 
-QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIndex &index) const
+QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return QGenericListViewItem();
+        return QListViewItem();
 
-    if (movement != QGenericListView::Static)
+    if (movement != QListView::Static)
         if (index.row() < tree.itemCount())
             return tree.const_item(index.row());
         else
-            return QGenericListViewItem();
+            return QListViewItem();
 
     // movement == Static
-    if ((flow == QGenericListView::LeftToRight && index.row() >= xposVector.count()) ||
-        (flow == QGenericListView::TopToBottom && index.row() >= yposVector.count()))
-        return QGenericListViewItem();
+    if ((flow == QListView::LeftToRight && index.row() >= xposVector.count()) ||
+        (flow == QListView::TopToBottom && index.row() >= yposVector.count()))
+        return QListViewItem();
 
     int i = qBinarySearch<int>(wrapVector, index.row(), 0, layoutWraps);
     QPoint pos;
-    if (flow == QGenericListView::LeftToRight) {
+    if (flow == QListView::LeftToRight) {
         pos.setX(xposVector.at(index.row()));
         pos.setY(yposVector.at(i));
     } else { // TopToBottom
@@ -1527,13 +1527,13 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
 
     QStyleOptionViewItem option = q->viewOptions();
     QSize size = delegate->sizeHint(q->fontMetrics(), option, model, index);
-    return QGenericListViewItem(QRect(pos, size), index.row());
+    return QListViewItem(QRect(pos, size), index.row());
 }
 
-int QGenericListViewPrivate::itemIndex(const QGenericListViewItem item) const
+int QListViewPrivate::itemIndex(const QListViewItem item) const
 {
     int i = item.indexHint;
-    if (movement == QGenericListView::Static || i >= tree.itemCount() || tree.const_item(i) == item)
+    if (movement == QListView::Static || i >= tree.itemCount() || tree.const_item(i) == item)
         return i;
 
     int j = i;
@@ -1560,11 +1560,11 @@ int QGenericListViewPrivate::itemIndex(const QGenericListViewItem item) const
     return -1;
 }
 
-void QGenericListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
+void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
                                       uint visited, void *data)
 {
-    QGenericListViewItem *vi;
-    QGenericListViewPrivate *_this = static_cast<QGenericListViewPrivate *>(data);
+    QListViewItem *vi;
+    QListViewPrivate *_this = static_cast<QListViewPrivate *>(data);
     for (int i = 0; i < (int)leaf.count(); ++i) {
         int idx = leaf.at(i);
         if (idx < 0)
@@ -1577,7 +1577,7 @@ void QGenericListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
     }
 }
 
-void QGenericListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
+void QListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
                                               const QRect &bounds, int spacing, int delta)
 {
     x = bounds.left() + spacing;
@@ -1593,7 +1593,7 @@ void QGenericListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wrap
     dy = 0;
 }
 
-void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
+void QListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
                                                  const QRect &bounds, int spacing, int delta)
 {
     y = bounds.top() + spacing;
@@ -1609,42 +1609,42 @@ void QGenericListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &w
     dx = 0;
 }
 
-void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first,
+void QListViewPrivate::initStaticLayout(int &x, int &y, int first,
                                                const QRect &bounds, int spacing)
 {
     if (first == 0) {
         x = bounds.left() + spacing;
         xposVector.clear();
-        if (flow == QGenericListView::TopToBottom)
+        if (flow == QListView::TopToBottom)
             xposVector.push_back(x);
         y = bounds.top() + spacing;
         yposVector.clear();
-        if (flow == QGenericListView::LeftToRight)
+        if (flow == QListView::LeftToRight)
             yposVector.push_back(y);
         layoutWraps = 0;
         wrapVector.clear();
         wrapVector.push_back(0);
     } else if (wrap) {
-        if (flow == QGenericListView::LeftToRight) {
+        if (flow == QListView::LeftToRight) {
             x = xposVector.back();
             xposVector.pop_back();
         } else {
             x = xposVector.at(layoutWraps);
         }
-        if (flow == QGenericListView::TopToBottom) {
+        if (flow == QListView::TopToBottom) {
             y = yposVector.back();
             yposVector.pop_back();
         } else {
             y = yposVector.at(layoutWraps);
         }
     } else {
-        if (flow == QGenericListView::LeftToRight) {
+        if (flow == QListView::LeftToRight) {
             x = xposVector.back();
             xposVector.pop_back();
         } else {
             x = bounds.left() + spacing;
         }
-        if (flow == QGenericListView::TopToBottom) {
+        if (flow == QListView::TopToBottom) {
             y = yposVector.back();
             yposVector.pop_back();
         } else {
@@ -1653,20 +1653,20 @@ void QGenericListViewPrivate::initStaticLayout(int &x, int &y, int first,
     }
 }
 
-void QGenericListViewPrivate::insertItem(int index, QGenericListViewItem &item)
+void QListViewPrivate::insertItem(int index, QListViewItem &item)
 {
     tree.insertItem(item, item.rect(), index);
 }
 
-void QGenericListViewPrivate::removeItem(int index)
+void QListViewPrivate::removeItem(int index)
 {
     tree.removeItem(tree.item(index).rect(), index);
 }
 
-void QGenericListViewPrivate::moveItem(int index, const QPoint &dest)
+void QListViewPrivate::moveItem(int index, const QPoint &dest)
 {
     // does not impact on the bintree itself or the contents rect
-    QGenericListViewItem *item = tree.itemPtr(index);
+    QListViewItem *item = tree.itemPtr(index);
     QRect rect = item->rect();
     d->tree.moveItem(dest, rect, index);
 
@@ -1679,35 +1679,35 @@ void QGenericListViewPrivate::moveItem(int index, const QPoint &dest)
     q->resizeContents(w, h);
 }
 
-QPoint QGenericListViewPrivate::snapToGrid(const QPoint &pos) const
+QPoint QListViewPrivate::snapToGrid(const QPoint &pos) const
 {
     int x = pos.x() - (pos.x() % gridSize.width());
     int y = pos.y() - (pos.y() % gridSize.height());
     return QPoint(x, y);
 }
 
-QRect QGenericListViewPrivate::mapToViewport(const QRect &rect) const
+QRect QListViewPrivate::mapToViewport(const QRect &rect) const
 {
     QRect result(rect.left() - q->horizontalScrollBar()->value(),
                  rect.top() - q->verticalScrollBar()->value(),
                  rect.width(), rect.height());
     // If the listview is in "listbox-mode", the items are as wide as the viewport
-    if (!wrap && movement == QGenericListView::Static)
-        if (flow == QGenericListView::TopToBottom)
+    if (!wrap && movement == QListView::Static)
+        if (flow == QListView::TopToBottom)
             result.setWidth(qMax(rect.width(), viewport->width()));
         else
             result.setHeight(qMax(rect.height(), viewport->height()));
     return result;
 }
 
-QPoint QGenericListViewPrivate::draggedItemsDelta() const
+QPoint QListViewPrivate::draggedItemsDelta() const
 {
-    return (movement == QGenericListView::Snap
+    return (movement == QListView::Snap
             ? snapToGrid(draggedItemsPos) - snapToGrid(pressedPosition)
             : draggedItemsPos - pressedPosition);
 }
 
-QRect QGenericListViewPrivate::draggedItemsRect() const
+QRect QListViewPrivate::draggedItemsRect() const
 {
     QRect rect = itemsRect(draggedItems);
     rect.moveBy(draggedItemsDelta());

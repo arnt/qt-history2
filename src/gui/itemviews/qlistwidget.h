@@ -15,7 +15,7 @@
 #define QLISTWIDGET_H
 
 #ifndef QT_H
-#include <qgenericlistview.h>
+#include <qlistview.h>
 #include <qabstractitemmodel.h>
 #include <qiconset.h>
 #include <qstring.h>
@@ -65,7 +65,7 @@ private:
 
 class QListWidgetPrivate;
 
-class Q_GUI_EXPORT QListWidget : public QGenericListView
+class Q_GUI_EXPORT QListWidget : public QListView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QListWidget)
