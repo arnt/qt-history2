@@ -565,7 +565,7 @@ void QFont::setPointSize( int pointSize )
     if (d->request.pointSize == pointSize) return;
 
     detach();
-    d->request.pointSize = (short) pointSize;
+    d->request.pointSize = pointSize;
     d->request.pixelSize = -1;
     d->request.dirty = TRUE;
 }
@@ -591,7 +591,7 @@ void QFont::setPointSizeFloat( float pointSize )
     if (d->request.pointSize == ps) return;
 
     detach();
-    d->request.pointSize = (short) ps;
+    d->request.pointSize = (int) ps;
     d->request.pixelSize = -1;
     d->request.dirty = TRUE;
 }
