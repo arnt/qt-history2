@@ -46,6 +46,11 @@ win32 {
 		object/qprocess_win.cpp \
 		object/qeventloop_win.cpp \
 		object/qcoreapplication_win.cpp
+} 
+
+mac {
+       SOURCES += \
+                object/qcoreapplication_mac.cpp
 }
 
 unix {

@@ -38,7 +38,7 @@
 #undef truncate
 #endif
 
-#ifdef Q_WS_WIN
+#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
 extern const char *qAppFileName(); // Declared in qapplication_win.cpp
 #endif
 
@@ -1158,10 +1158,13 @@ static QString resolveSymlinks( const QString& path, int depth = 0 )
     directory, and you run the \c{demo} example, this function will
     return "C:/Trolltech/Qt/examples/demo".
 
-    \warning On Unix and Mac OS X, this function assumes that argv[0]
-    contains the file name of the executable (which it normally
-    does). It also assumes that the current directory hasn't been
-    changed by the application.
+    On Mac OS X this will point to the directory actually containing the
+    executable, which may be inside of an application bundle (if the
+    application is bundled).
+
+    \warning On Unix, this function assumes that argv[0] contains the file
+    name of the executable (which it normally does). It also assumes that
+    the current directory hasn't been changed by the application.
 
     \sa applicationFilePath()
 */
@@ -1177,16 +1180,15 @@ QString QCoreApplication::applicationDirPath()
     directory, and you run the \c{demo} example, this function will
     return "C:/Trolltech/Qt/examples/demo/demo.exe".
 
-    \warning On Unix and Mac OS X, this function assumes that argv[0]
-    contains the file name of the executable (which it normally
-    does). It also assumes that the current directory hasn't been
-    changed by the application.
+    \warning On Unix, this function assumes that argv[0] contains the file
+    name of the executable (which it normally does). It also assumes that
+    the current directory hasn't been changed by the application.
 
     \sa applicationDirPath()
 */
 QString QCoreApplication::applicationFilePath()
 {
-#ifdef Q_WS_WIN
+#if defined( Q_WS_WIN ) || defined(Q_WS_MAC)
     return QDir::cleanDirPath( QFile::decodeName( qAppFileName() ) );
 #else
     QString argv0 = QFile::decodeName( QByteArray(argv()[0]) );

@@ -111,7 +111,6 @@ extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 extern bool qt_tab_all_widgets; // from qapplication.cpp
-static char    *appName = 0;                        // application name
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
@@ -863,19 +862,6 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 		}
 	}
 	priv->argc = j;
-	// Set application name
-	{ // Set application name
-	    ProcessSerialNumber psn;
-	    if(GetCurrentProcess(&psn) == noErr) {
-		CFStringRef cfstr;
-		CopyProcessName(&psn, &cfstr);
-		appName = strdup(cfstring2qstring(cfstr).latin1());
-		CFRelease(cfstr);
-	    } else {
-		char *p = strrchr(argv[0], '/');
-		appName = strdup(p ? p + 1 : argv[0]);
-	    }
-	}
 
 	if(qt_is_gui_used && argv[0] && *argv[0] != '/')
 	    qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
@@ -901,8 +887,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 
     QMacMime::initialize();
 
-    if(appName)
-	qApp->setObjectName(appName);
+    qApp->setObjectName(qAppName());
     if(qt_is_gui_used) {
 	QColor::initialize();
 	QFont::initialize();
@@ -986,11 +971,6 @@ void qt_updated_rootinfo()
 bool qt_wstate_iconified(WId)
 {
     return false;
-}
-
-const char *qAppName()				// get application name
-{
-    return appName;
 }
 
 /*****************************************************************************
