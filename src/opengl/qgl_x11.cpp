@@ -1005,44 +1005,55 @@ void QGLWidget::setColormap( const QGLColormap & c )
     if ( !cmap.d )
 	return;
     
-    if ( !cmap.d->cmapHandle ) // already have an allocated cmap?
-	cmap.d->cmapHandle = XCreateColormap( x11Display(), tlw->winId(),
-				       (Visual *) tlw->x11Visual(), AllocAll );
-    
-    if ( qCanAllocColors( this ) ) {
- 	qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
-	// set the colormap for a window
-	XSetWindowColormap( x11Display(), tlw->winId(),
-			    (Colormap) cmap.d->cmapHandle );
-	
-	// tell the wm that this window has a special colormap
-	Window * cmw;
-	Window * cmwret;
-	int count;
-	if ( XGetWMColormapWindows( x11Display(), tlw->winId(), &cmwret,
-				    &count ) )
-	{
-	    cmw = new Window[count+1];
-	    memcpy( (char *) cmw, (char *) cmwret, sizeof(Window) * count );
-	    XFree( (char *) cmwret );
-	    int i;
-	    for ( i = 0; i < count; i++ ) {
-		if ( cmw[i] == winId() ) {
-		    break;
-		}
-	    }
-	    if ( i >= count )   // append new window only if not in the list
-		cmw[count++] = winId();
-	} else {
-	    count = 1;
-	    cmw = new Window[count];
-	    cmw[0] = winId();
-	}
-	XSetWMColormapWindows( x11Display(), tlw->winId(), cmw, count );
-	delete [] cmw;
-    } else
+    if ( !cmap.d->cmapHandle && !qCanAllocColors( this ) ) {
 	qWarning( "QGLWidget::setColormap: Cannot create a read/write "
 		  "colormap for this visual" );
+	return;
+    }
+    
+    // If the child GL widget is not of the same visual class as the
+    // toplevel widget we will get in trouble..
+    Window wid = tlw->winId();
+    Visual * vis = (Visual *) tlw->x11Visual();;
+    VisualID cvId = XVisualIDFromVisual( (Visual *) x11Visual() );
+    VisualID tvId = XVisualIDFromVisual( (Visual *) tlw->x11Visual() );
+    if ( cvId != tvId ) {
+	wid = winId();
+	vis = (Visual *) x11Visual();
+    }
+    
+    if ( !cmap.d->cmapHandle ) // allocate a cmap if necessary
+	cmap.d->cmapHandle = XCreateColormap( x11Display(), wid, vis,
+					      AllocAll );
+    
+    qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
+    XSetWindowColormap( x11Display(), wid, (Colormap) cmap.d->cmapHandle );
+	
+    // tell the wm that this window has a special colormap
+    Window * cmw;
+    Window * cmwret;
+    int count;
+    if ( XGetWMColormapWindows( x11Display(), tlw->winId(), &cmwret,
+				&count ) )
+    {
+	cmw = new Window[count+1];
+	memcpy( (char *) cmw, (char *) cmwret, sizeof(Window) * count );
+	XFree( (char *) cmwret );
+	int i;
+	for ( i = 0; i < count; i++ ) {
+	    if ( cmw[i] == winId() ) {
+		break;
+	    }
+	}
+	if ( i >= count )   // append new window only if not in the list
+	    cmw[count++] = winId();
+    } else {
+	count = 1;
+	cmw = new Window[count];
+	cmw[0] = winId();
+    }
+    XSetWMColormapWindows( x11Display(), tlw->winId(), cmw, count );
+    delete [] cmw;
 }
 
 /*! \internal 
@@ -1055,9 +1066,6 @@ void QGLWidget::cleanupColormaps()
 	return;
     
     if ( cmap.d->cmapHandle ) {
-	XSetWindowColormap( topLevelWidget()->x11Display(),
-			    topLevelWidget()->winId(),
-			    DefaultColormap( x11Display(), x11Screen() ) );
 	XFreeColormap( topLevelWidget()->x11Display(),
 		       (Colormap) cmap.d->cmapHandle );
 	cmap.d->cmapHandle = 0;
