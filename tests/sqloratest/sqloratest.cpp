@@ -25,17 +25,6 @@ void TestInsert()
 	database->commit();
 }
 
-void TestView()
-{
-    clock_t start = clock();
-    QSqlTable t = database->table("qsql_test");
-    clock_t finish = clock();
-    qDebug("Time to create table view:" + QString::number(((double)(finish - start) / CLOCKS_PER_SEC )));
-    QSqlFieldInfoList l = t.fields();
-    for (uint i=0; i<l.count(); ++i)
-	qDebug("Field:" + l[i].name + " type:" + QString::number(l[i].type) + " length:" + QString::number(l[i].length) + " prec:" + QString::number(l[i].precision) );
-}
-
 void TestSelect()
 {
     printf("Selecting records...\n");
@@ -140,7 +129,6 @@ int main()
     for ( uint i = 0; i < tables.count(); ++i )
 	qDebug( tables[i] );
 
-    TestView();
     TestInsert();
     TestSelect();
     TestDelete();
