@@ -1,7 +1,7 @@
 TEMPLATE        = app
 TARGET          = plasmatable
 
-QT              = core gui
+QT             += core gui
 
 HEADERS         = plasmamodel.h \
 		  plasmadelegate.h \
