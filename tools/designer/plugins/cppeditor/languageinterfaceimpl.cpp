@@ -21,6 +21,7 @@
 #include "languageinterfaceimpl.h"
 #include <qobject.h>
 #include <designerinterface.h>
+#include "yyreg.h"
 
 LanguageInterfaceImpl::LanguageInterfaceImpl()
     : ref( 0 )
@@ -63,6 +64,19 @@ public:
 
 void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function> *functionMap ) const
 {
+#if 0
+    QValueList<CppFunction> l;
+    extractCppFunctions( code, &l );
+    for ( QValueList<CppFunction>::Iterator it = l.begin(); it != l.end(); ++it ) {
+	Function func;
+	func.name = (*it).prototype();
+	func.name.remove( 0, func.name.find( "::" ) + 2 );
+	func.body = (*it).body();
+	functionMap->append( func );
+    }
+
+#else
+
     QString text( code );
     QString func;
     QString body;
@@ -125,6 +139,7 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	f.body = body;
 	functionMap->append( f );
     }
+#endif
 }
 
 QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func )

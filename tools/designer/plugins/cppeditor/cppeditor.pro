@@ -6,7 +6,8 @@ HEADERS		= cppeditor.h  \
 		  cppcompletion.h \
 		  editorinterfaceimpl.h \
 		  languageinterfaceimpl.h \
-		  preferenceinterfaceimpl.h
+		  preferenceinterfaceimpl.h \
+		  yyreg.h
 
 SOURCES		= cppeditor.cpp \
 		  syntaxhighliter_cpp.cpp \
@@ -15,7 +16,8 @@ SOURCES		= cppeditor.cpp \
 		  editorinterfaceimpl.cpp \
 		  languageinterfaceimpl.cpp \
 		  common.cpp \
-		  preferenceinterfaceimpl.cpp
+		  preferenceinterfaceimpl.cpp \
+		  yyreg.cpp
 		
 TARGET		= cppeditor
 DESTDIR		= $(QTDIR)/plugins/designer
