@@ -477,7 +477,8 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   \endlist
 
   Use QMessageBox::NoButton for the later parameters to have fewer than
-  three buttons in your message box.
+  three buttons in your message box. There has to be at least one button,
+  otherwise QMessageBox adds an Ok button.
 
   One of the buttons can be OR-ed with the \c QMessageBox::Default flag
   to make it the default button (clicked when Enter is pressed).
