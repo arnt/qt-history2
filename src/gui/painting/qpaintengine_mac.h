@@ -43,9 +43,9 @@ public:
     void drawLine(const QPoint &pt1, const QPoint &pt2);
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &p);
-    void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
+    void drawPoints(const QPointArray &pa);
     void drawEllipse(const QRect &r);
-    void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
+    void drawLineSegments(const QPointArray &);
     void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
 
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode);
@@ -96,8 +96,9 @@ public:
     void drawPath(const QPainterPath &path);
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &pt);
-    void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
+    void drawPoints(const QPointArray &pa);
     void drawEllipse(const QRect &r);
+    void drawLineSegments(const QPointArray &);
     void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
     void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, Qt::PixmapDrawingMode mode);

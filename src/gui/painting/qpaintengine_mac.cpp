@@ -332,7 +332,7 @@ QQuickDrawPaintEngine::drawPoint(const QPoint &pt)
 }
 
 void
-QQuickDrawPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+QQuickDrawPaintEngine::drawPoints(const QPointArray &pa)
 {
     Q_ASSERT(isActive());
 
@@ -341,8 +341,8 @@ QQuickDrawPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
         if(d->clip.paintable.isEmpty())
             return;
         setupQDPen();
-        for(int i=0; i<npoints; i++) {
-            MoveTo(pa[index+i].x()+d->offx, pa[index+i].y()+d->offy);
+        for(int i=0; i < pa.size(); i++) {
+            MoveTo(pa[i].x()+d->offx, pa[i].y()+d->offy);
             Line(0,1);
         }
     }
@@ -469,7 +469,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
 }
 
 void
-QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
+QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa)
 {
     Q_ASSERT(isActive());
 
@@ -478,7 +478,7 @@ QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nl
         return;
 
     setupQDPen();
-    for(int i = index, x1, x2, y1, y2; nlines; nlines--) {
+    for(int i = 0, x1, x2, y1, y2; i < pa.size(); ) {
         pa.point(i++, &x1, &y1);
         pa.point(i++, &x2, &y2);
         MoveTo(x1 + d->offx, y1 + d->offy);
@@ -1286,13 +1286,13 @@ QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa)
 {
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
-    for(int i=0; i<npoints; i++) {
-        float x = pa[index+i].x(), y = pa[index+i].y();
+    for(int i=0; i < pa.size(); i++) {
+        float x = pa[i].x(), y = pa[i].y();
         CGContextMoveToPoint(d->hd, x, y);
         CGContextAddLineToPoint(d->hd, x, y+1);
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
@@ -1336,6 +1336,22 @@ void QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill
                     | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     }
+}
+
+void
+QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa)
+{
+    Q_ASSERT(isActive());
+
+    qDebug("boink..");
+    CGContextBeginPath(d->hd);
+    for(int i = 0, x1, x2, y1, y2; i < pa.size(); ) {
+        pa.point(i++, &x1, &y1);
+        pa.point(i++, &x2, &y2);
+        CGContextMoveToPoint(d->hd, x1, y1);
+        CGContextAddLineToPoint(d->hd, x2, y2);
+    }
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
