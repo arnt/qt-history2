@@ -608,39 +608,9 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
     }
 
     // Fall back to path implementation for gradient and alpha brushes..
-    if (d->brushStyle == Qt::LinearGradientPattern ||
-        d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
-        QPainterPath p;
-        p.addEllipse(r);
-        drawPath(p);
-        return;
-    }
-
-    int w = r.width();
-    int h = r.height();
-
-    // ### Since we have a global double buffer we never know when the HDC has
-    // been in Advanced mode, so the assumption below does not make sence...
-    // It is highly likely that a transformation has been used on the double
-    // at some point in time though, so always subtract...
-    if (!d->advancedModeUsed) {
-        updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
-        updateMatrix(QMatrix(1, 0, 0, 1, 0, 0));
-    }
-
-    if (d->penStyle == Qt::NoPen) {
-        --w;
-        --h;
-    }
-
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->bColor);
-    if (w == 1 && h == 1)
-        drawPoint(QPointF(r.x(), r.y()));
-    else
-        Ellipse(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
-    if (d->nocolBrush)
-        SetTextColor(d->hdc, d->pColor);
+    QPainterPath p;
+    p.addEllipse(r);
+    drawPath(p);
 }
 
 void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
@@ -1287,7 +1257,6 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
                       qt_error_string().local8Bit());
         }
         d->advancedMode = true;
-        d->advancedModeUsed = true;
     } else {
         m.eM11 = m.eM22 = (float)1.0;
         m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
