@@ -481,8 +481,8 @@ QVariant::~QVariant()
 */
 QVariant::QVariant( const QVariant& p )
 {
-    d = new Private;
-    *this = p;
+    p.d->ref();
+    d = p.d;
 }
 
 #ifndef QT_NO_DATASTREAM
