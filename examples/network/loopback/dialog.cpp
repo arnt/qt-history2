@@ -22,8 +22,8 @@ Dialog::Dialog(QWidget *parent)
     connect(&tcpServer, SIGNAL(newConnection()),
             this, SLOT(acceptConnection()));
     connect(&tcpClient, SIGNAL(connected()), this, SLOT(startTransfer()));
-    connect(&tcpClient, SIGNAL(bytesWritten(Q_LONGLONG)),
-            this, SLOT(updateClientProgress(Q_LONGLONG)));
+    connect(&tcpClient, SIGNAL(bytesWritten(qint64)),
+            this, SLOT(updateClientProgress(qint64)));
     connect(&tcpClient, SIGNAL(error(SocketError)),
             this, SLOT(displayError(SocketError)));
 
@@ -101,7 +101,7 @@ void Dialog::updateServerProgress()
     }
 }
 
-void Dialog::updateClientProgress(qlonglong numBytes)
+void Dialog::updateClientProgress(qint64 numBytes)
 {
     bytesWritten += (int)numBytes;
     if (bytesToWrite > 0)
