@@ -43,6 +43,9 @@
 #include <qtextstream.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef Q_OS_UNIX
+# include <unistd.h>
+#endif
 
 int line_count;
 extern "C" void yyerror(const char *);
@@ -413,14 +416,34 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
     else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32") 
 	return TRUE;
-    else if(re.exactMatch(Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() - 
-						     (Option::mkfile::qmakespec.findRev(QDir::separator())+1)))) 
+
+
+    QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() - 
+						   (Option::mkfile::qmakespec.findRev(QDir::separator())+1));
+    if(re.exactMatch(spec)) 
 	return TRUE;
+#ifdef Q_OS_UNIX
+    else if(spec == "default") {
+	static char *buffer = NULL;
+	if(!buffer)
+	    buffer = (char *)malloc(1024);
+	int l = readlink(Option::mkfile::qmakespec, buffer, 1024);
+	if(l != -1) {
+	    buffer[l] = '\0';
+	    QString r = buffer;
+	    if(r.findRev('/') != -1)
+		r = r.mid(r.findRev('/') + 1);
+	    if(re.exactMatch(r))
+		return TRUE;
+	}
+    }
+#endif
+
 
     QStringList &configs = vars["CONFIG"];
     for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
 	if(re.exactMatch((*it))) 
-	   return TRUE;
+	    return TRUE;
     }
     return FALSE;
 }
