@@ -9,13 +9,17 @@ sam_version_map:shared {
        !isEmpty(QPRO_PWD) { 
            TARGET_MAP = lib$${TARGET}.symbols
            exists($$QPRO_PWD/$$TARGET_MAP)|contains(QT_PRODUCT, qt-internal) {
-               QMAKE_LFLAGS += -exported_symbols_list $$TARGET_MAP
-               TARGETDEPS += $$TARGET_MAP
+	       TARGET_MAP_IN = $${TARGET_MAP}.in
+               #QMAKE_LFLAGS += -exported_symbols_list $$TARGET_MAP
+               TARGETDEPS += $$TARGET_MAP_IN
                contains(QT_PRODUCT, qt-internal) {
-                   VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -format symbol_list -o $$TARGET_MAP $$QPRO_PWD $$QPRO_SYMBOLS
-                   VERSION_MAP.target = $$TARGET_MAP
-                   QMAKE_EXTRA_TARGETS += VERSION_MAP
-                   exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP.commands
+                   VERSION_MAP_in.target = $$TARGET_MAP_IN
+                   VERSION_MAP_in.commands = $(QTDIR)/util/scripts/exports.pl -format symbol_list -o $$TARGET_MAP_IN $$QPRO_PWD $$QPRO_SYMBOLS
+                   QMAKE_EXTRA_TARGETS += VERSION_MAP_in
+		   VERSION_MAP = $(QTDIR)/util/scripts/globalsyms.pl -o "$$TARGET_MAP" $$TARGET_MAP_IN $(DESTDIR)$(TARGET)
+		   QMAKE_POST_LINK += $$quote($$VERSION_MAP\n)
+		   exports.depends = $$TARGET_MAP_IN
+                   exports.commands = [ -w "$$TARGET_MAP" ] || p4 edit "$$TARGET_MAP"; $$VERSION_MAP
                    QMAKE_EXTRA_TARGETS += exports
                }
            }

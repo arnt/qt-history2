@@ -216,7 +216,7 @@ if("$EXPORT_FORMAT" eq "version-script") {
 	}
     }
     foreach (keys %GLOBALS) {
-	print OUTPUT "${_}\n";
+	print OUTPUT "${_}*\n";
     }
 } else {
     print "Uknown format: $EXPORT_FORMAT\n";
