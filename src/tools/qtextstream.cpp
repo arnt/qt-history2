@@ -1704,6 +1704,12 @@ QString QTextStream::readLine()
 	}
 
 	while ( c[pos] != QEOF && c[pos] != '\n' ) {
+	    if ( c[pos] == '\r' ) { // ( handle mac and dos )
+		QChar nextc =  ts_getc();
+		if ( nextc != '\n' )
+		    ts_ungetc( nextc );
+		break;
+	    }
 	    pos++;
 	    if ( pos >= buf_size ) {
 		result += QString( c, pos );
@@ -1713,10 +1719,6 @@ QString QTextStream::readLine()
 	}
 	result += QString( c, pos );
     }
-
-    int len = (int)result.length();
-    if ( len && result[len-1] == '\r' )
-	result.truncate(len-1); // (if there are two \r, let one stay)
 
     return result;
 }
@@ -1744,7 +1746,7 @@ QString QTextStream::read()
 
     for (;;) {
 	num = ts_getbuf(buf,bufsize);
-	// do a s/\r\n/\n
+	// convert dos (\r\n) and mac (\r) style eol to unix style (\n)
 	start = 0;
 	for ( i=0; i<num; i++ ) {
 	    if ( buf[i] == '\r' ) {
@@ -1761,7 +1763,7 @@ QString QTextStream::read()
 		if ( skipped_cr ) {
 		    if ( buf[i] != '\n' ) {
 			// Should not have skipped it
-			result += '\r';
+			result += '\n';
 		    }
 		    skipped_cr = FALSE;
 		}
