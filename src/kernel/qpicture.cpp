@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#27 $
 **
 ** Implementation of QPicture class
 **
@@ -18,47 +18,49 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#27 $";
 #endif
 
 
 /*!
-\class QPicture qpicture.h
-\brief The QPicture class is a paint device that records and replays QPainter
-commands.
+  \class QPicture qpicture.h
+  \brief The QPicture class is a paint device that records and replays QPainter
+  commands.
 
-A picture serializes painter commands to an IO device in a
-platform-independent format.  A picture created under Windows
-can be read on a Sun SPARC.
+  \ingroup paintdevice
 
-Pictures are called meta-files on some platforms.
+  A picture serializes painter commands to an IO device in a
+  platform-independent format.  A picture created under Windows
+  can be read on a Sun SPARC.
 
-Qt pictures use a proprietary binary format.  Unlike native picture (meta-file)
-formats on many window systems, Qt pictures have no limitations regarding
-the contents.  Everything that can be painted can also be stored in
-a picture (fonts, pixmaps, regions, transformed graphics etc.)
+  Pictures are called meta-files on some platforms.
 
-Example of how to record a picture:
-\code
-  QPicture  pic;
-  QPainter  p;
-  p.begin( &pic );				// paint in picture
-  p.drawEllipse( 10,20, 80,70 );		// draw an ellipse
-  p.end();					// painting done
-  pic.save( "drawing.pic" );			// save picture
-\endcode
+  Qt pictures use a proprietary binary format.  Unlike native picture
+  (meta-file) formats on many window systems, Qt pictures have no
+  limitations regarding the contents.  Everything that can be painted can
+  also be stored in a picture (fonts, pixmaps, regions, transformed
+  graphics etc.)
 
-Example of how to replay a picture:
-\code
-  QPicture  pic;
-  pic.load( "drawing.pic" );			// load picture
+  Example of how to record a picture:
+  \code
+    QPicture  pic;
+    QPainter  p;
+    p.begin( &pic );				// paint in picture
+    p.drawEllipse( 10,20, 80,70 );		// draw an ellipse
+    p.end();					// painting done
+    pic.save( "drawing.pic" );			// save picture
+  \endcode
 
-  QWidget   w;
-  QPainter  p;
-  p.begin( &w );				// paint in widget
-  p.drawPicture( pic );				// draw the picture
-  p.end();					// painting done
-\endcode */
+  Example of how to replay a picture:
+  \code
+    QPicture  pic;
+    pic.load( "drawing.pic" );			// load picture
+    QPainter  p;
+    p.begin( &myWidget );			// paint in myWidget
+    p.drawPicture( pic );			// draw the picture
+    p.end();					// painting done
+  \endcode
+*/
 
 
 static const char  *mfhdr_tag = "QPIC";		// header tag
@@ -67,22 +69,22 @@ static const UINT16 mfhdr_min = 0;		// minor version #
 
 
 /*!
-\fn QPicture::QPicture()
-Constructs an empty picture.
+  \fn QPicture::QPicture()
+  Constructs an empty picture.
 */
 
 /*!
-\fn QPicture::~QPicture()
-Destroys the picture.
+  \fn QPicture::~QPicture()
+  Destroys the picture.
 */
 
 
 /*!
-Loads a picture from the file specified by \e fileName and returns TRUE
-if successful.
+  Loads a picture from the file specified by \e fileName and returns TRUE
+  if successful, otherwise FALSE.
 */
 
-bool QPicture::load( const char *fileName )	// read from file
+bool QPicture::load( const char *fileName )
 {
     QByteArray a;
     QFile f( fileName );
@@ -97,11 +99,11 @@ bool QPicture::load( const char *fileName )	// read from file
 }
 
 /*!
-Saves a picture to the file specified by \e fileName and returns TRUE
-if successful.
+  Saves a picture to the file specified by \e fileName and returns TRUE
+  if successful, otherwise FALSE.
 */
 
-bool QPicture::save( const char *fileName )	// write to file
+bool QPicture::save( const char *fileName )
 {
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )
@@ -113,10 +115,10 @@ bool QPicture::save( const char *fileName )	// write to file
 
 
 /*!
-Replays the picture using \e painter and returns TRUE if successful, or
-FALSE if the internal picture data is inconsistent.
+  Replays the picture using \e painter and returns TRUE if successful, or
+  FALSE if the internal picture data is inconsistent.
 
-This function does exactly the same as QPainter::drawPicture().
+  This function does exactly the same as QPainter::drawPicture().
 */
 
 bool QPicture::play( QPainter *painter )
@@ -190,6 +192,12 @@ bool QPicture::play( QPainter *painter )
     return TRUE;				// no end-command
 }
 
+
+/*!
+  \internal
+  Iterates over the internal picture data and draws the picture using
+  \e painter.
+*/
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 {
@@ -402,10 +410,11 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 
 
 /*!
-Internal function that records painter commands.
+  \internal
+  Records painter commands and stores them in the pictb buffer.
 */
 
-bool QPicture::cmd( int c, QPDevCmdParam *p )
+bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 {
     QDataStream s;
     s.setDevice( &pictb );
@@ -564,9 +573,9 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 //
 
 /*!
-Replays the picture \e pic.
+  Replays the picture \e pic.
 
-This function does exactly the same as QPicture::play().
+  This function does exactly the same as QPicture::play().
 */
 
 void QPainter::drawPicture( const QPicture &pic )

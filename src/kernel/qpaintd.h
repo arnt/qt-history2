@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#28 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#29 $
 **
 ** Definition of QPaintDevice class
 **
@@ -69,7 +69,7 @@ protected:
     HANDLE   hd;				// handle to drawable
 #endif
 
-    virtual bool cmd( int, QPDevCmdParam * );
+    virtual bool cmd( int, QPainter *, QPDevCmdParam * );
     virtual long metric( int ) const;
 
     uint     devFlags;				// device flags

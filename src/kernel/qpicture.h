@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#8 $
 **
 ** Definition of QPicture class
 **
@@ -29,7 +29,7 @@ public:
     bool	save( const char *fileName );	// write to file
 
 protected:
-    bool	cmd( int, QPDevCmdParam * );
+    bool	cmd( int, QPainter *, QPDevCmdParam * );
 
 private:
     bool	exec( QPainter *, QDataStream &, long );

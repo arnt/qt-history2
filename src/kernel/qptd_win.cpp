@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#9 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#9 $";
 #endif
 
 
@@ -39,7 +39,7 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-bool QPaintDevice::cmd( int, QPDevCmdParam * )
+bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::cmd: Device has no command interface" );
