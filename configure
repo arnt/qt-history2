@@ -2746,11 +2746,11 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	EXTRA_CFLAGS="\$(QMAKE_CFLAGS)"
 	EXTRA_CXXFLAGS="\$(QMAKE_CXXFLAGS)"
 	EXTRA_LFLAGS="\$(QMAKE_LFLAGS)"
-	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
-	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX," >>$mkfile
-	grep "QMAKE_CFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-	grep "QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
-	grep "QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
+	grep "^QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
+	grep "^QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX," >>$mkfile
+	grep "^QMAKE_CFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
+	grep "^QMAKE_CXXFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS,\$(QMAKE_CFLAGS)," >>$mkfile
+	grep "^QMAKE_LFLAGS[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
 	if [ "$Products" = "qt-free" ]; then
             EXTRA_CFLAGS="$EXTRA_CFLAGS -DQMAKE_OPENSOURCE_EDITION"
             EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -DQMAKE_OPENSOURCE_EDITION"
@@ -2758,8 +2758,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    echo "include Makefile.commercial" >>$mkfile
         fi
 	if [ "$CFG_DEBUG" = "yes" ]; then
-            grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
-            grep "QMAKE_CXXFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG),"  >>$mkfile
+            grep "^QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >>$mkfile
+            grep "^QMAKE_CXXFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,\$\$QMAKE_CFLAGS_DEBUG,\$(QMAKE_CFLAGS_DEBUG),"  >>$mkfile
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
 	    EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS \$(QMAKE_CXXFLAGS_DEBUG)"
         fi
@@ -3178,7 +3178,7 @@ fi
 case "$COMPILER" in
 g++*)
     # GNU C++
-    QMAKE_CONF_COMPILER=`grep "QMAKE_CXX[^_A-Z0-9a-z]" $QMAKESPEC/qmake.conf | sed "s,.* *= *\(.*\)$,\1,"`
+    QMAKE_CONF_COMPILER=`grep "^QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,.* *= *\(.*\)$,\1,"`
     COMPILER_VERSION=`${QMAKE_CONF_COMPILER} --version 2>/dev/null`
     case "$COMPILER_VERSION" in
     *2.95.*)
