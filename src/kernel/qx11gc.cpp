@@ -487,7 +487,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 			 int x, int y, int w, int h,
 			 const QBrush &brush, int xoff, int yoff)
 {
-    Display *dpy = QPaintDevice::x11AppDisplay();
+    Display *dpy = QX11GC::x11AppDisplay();
     GC gc;
     void *penref = 0;
     ulong pixel = brush.color().pixel(screen);
@@ -606,9 +606,9 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //     return true;
 
     if ( isActive() ) {                         // already active painting
-        qWarning( "QX11GC::begin: Painter is already active."
-                  "\n\tYou must end() the painter before a second begin()" );
-        return false;
+//         qWarning( "QX11GC::begin: Painter is already active."
+//                   "\n\tYou must end() the painter before a second begin()" );
+	return true;
     }
     
     setActive(true);
@@ -1690,8 +1690,8 @@ void QX11GC::updateClipRegion(QPainterState *ps)
     //     crgn = rgn;
     // else
     //     crgn = xmat * rgn;
-     if (ps->VxF || ps->WxF)
-	 ps->clipRegion = ps->worldMatrix * ps->clipRegion;
+    if (ps->VxF || ps->WxF)
+	ps->clipRegion = ps->worldMatrix * ps->clipRegion;
     if (ps->clipEnabled) {
  	if (d->pdev == paintEventDevice && paintEventClipRegion)
  	    ps->clipRegion = ps->clipRegion.intersect(*paintEventClipRegion);
