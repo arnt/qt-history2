@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#71 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#71 $");
 
 
 /*!
@@ -174,7 +174,7 @@ void QMenuBar::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
     if ( isVisible() ) {
-	updateRects();
+	calculateRects();
 	repaint();
     }
 }
@@ -232,7 +232,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( object == parent() && event->type() == Event_Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	setGeometry( 0, y(), e->size().width(), height() );
-	updateRects();
+	calculateRects();
     }
     return FALSE;				// don't stop event
 }
@@ -413,7 +413,7 @@ void QMenuBar::show()
     }
     if ( w )
 	resize( w->width(), height() );
-    updateRects();
+    calculateRects();
     QWidget::show();
     raise();
 }
@@ -446,19 +446,30 @@ void QMenuBar::fontChange( const QFont & )
   Item geometry functions
  *****************************************************************************/
 
-void QMenuBar::updateRects()
+/*!
+  This function serves two different purposes.  If the parameter is negative,
+  it updates the irects member for the current width and resizes.  Otherwise,
+  it does the same calculations for the GIVEN width, and returns the height
+  to which it WOULD have resized.  A bit tricky, but both operations require
+  almost identical steps.
+*/
+int QMenuBar::calculateRects( int max_width )
 {
-    if ( !badSize )				// size was not changed
-	return;
-    delete [] irects;
-    if ( mitems->isEmpty() ) {
-	irects = 0;
-	return;
+    bool update = ( max_width < 0 );
+
+    if ( update ) {
+	if ( !badSize )				// size was not changed
+	    return 0;
+	delete [] irects;
+	if ( mitems->isEmpty() ) {
+	    irects = 0;
+	    return 0;
+	}
+	irects = new QRect[ mitems->count() ];	// create rectangle array
+	CHECK_PTR( irects );
+	max_width = width();
     }
-    irects = new QRect[ mitems->count() ];	// create rectangle array
-    CHECK_PTR( irects );
     QFontMetrics fm = fontMetrics();
-    int max_width = width();
     int max_height = 0;
     int nlitems = 0;				// number on items on cur line
     int gs = style();
@@ -480,32 +491,45 @@ void QMenuBar::updateRects()
 	} else if ( mi->isSeparator() ) {	// separator item
 	    separator = i;
 	}
-	if ( gs == MotifStyle && !mi->isSeparator() ) {
-	    w += 2*motifItemFrame;
-	    h += 2*motifItemFrame;
+	if ( !mi->isSeparator() ) {
+	    if ( gs == MotifStyle && !mi->isSeparator() ) {
+		w += 2*motifItemFrame;
+		h += 2*motifItemFrame;
+	    }
+	    if ( x + w + motifBarFrame > max_width && nlitems > 0 ) {
+		nlitems = 0;
+		x = motifBarFrame + motifBarHMargin;
+		y += h + motifBarHMargin;
+		separator = -1;
+	    }
+	    if ( y + h + 2*motifBarFrame > max_height )
+		max_height = y + h + 2*motifBarFrame;
 	}
-	if ( x + w + motifBarFrame > max_width && nlitems > 0 ) {
-	    nlitems = 0;
-	    x = motifBarFrame + motifBarHMargin;
-	    y += h + motifBarHMargin;
-	    separator = -1;
-	}
-	if ( y + h + 2*motifBarFrame > max_height )
-	    max_height = y + h + 2*motifBarFrame;
-	irects[i].setRect( x, y, w, h );
+	if ( update )
+	    irects[i].setRect( x, y, w, h );
 	x += w;
 	nlitems++;
 	i++;
     }
-    if ( separator >= 0 && style() == MotifStyle ) {
-	int moveBy = max_width - x;
-	while( --i > separator ) {
-	    irects[i].moveBy( moveBy, 0 );
+    if ( update ) {
+	if ( separator >= 0 && style() == MotifStyle ) {
+	    int moveBy = max_width - x;
+	    while( --i > separator ) {
+		irects[i].moveBy( moveBy, 0 );
+	    }
 	}
+	if ( max_height != height() )
+	    resize( max_width, max_height );
+	badSize = FALSE;
     }
-    if ( max_height != height() )
-	resize( max_width, max_height );
-    badSize = FALSE;
+    return max_height;
+}
+
+int QMenuBar::heightForWidth(int max_width) const
+{
+    // Okay to cast away const, as we are not updating.
+    if ( max_width < 0 ) max_width = 0;
+    return ((QMenuBar*)this)->calculateRects( max_width );
 }
 
 /*!
@@ -515,7 +539,7 @@ void QMenuBar::updateRects()
 
 QRect QMenuBar::itemRect( int index )
 {
-    updateRects();
+    calculateRects();
     return irects ? irects[index] : QRect(0,0,0,0);
 }
 
@@ -527,7 +551,7 @@ QRect QMenuBar::itemRect( int index )
 
 int QMenuBar::itemAtPos( const QPoint &pos )
 {
-    updateRects();
+    calculateRects();
     if ( !irects )
 	return -1;
     int i = 0;
@@ -766,7 +790,7 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
     if(oldSize == newSize) return;
   
     badSize = TRUE;
-    updateRects();
+    calculateRects();
 
 
 }

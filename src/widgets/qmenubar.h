@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#18 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#19 $
 **
 ** Definition of QMenuBar class
 **
@@ -29,6 +29,8 @@ public:
     void	hide();				// reimplemented hide
 
     bool	eventFilter( QObject *, QEvent * );
+
+    int		heightForWidth(int) const;
 
 signals:
     void	activated( int itemId );
@@ -62,7 +64,7 @@ private:
     void	openActPopup();
     void	hidePopups();
 
-    void	updateRects();
+    int		calculateRects( int max_width = -1 );
     int		itemAtPos( const QPoint & );
     QRect	itemRect( int item );
 
