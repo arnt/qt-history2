@@ -9,11 +9,9 @@
 
 #include <zlib/zlib.h>
 
-#include "filebuffer.h"
-
 QString makeCmd( "nmake" );
 
-#define BUFFERSIZE 65536
+#define BUFFERSIZE 128 * 1024
 /*
 ** Writes a file to the archive
 **
@@ -21,78 +19,45 @@ QString makeCmd( "nmake" );
 */
 void writeFile( QFileInfo* fi, QDataStream& outStream )
 {
-    QList<FileBuffer> zBuffer;
     QFile inFile( fi->absFilePath() );
-    unsigned char* inBuffer;
-    unsigned char* outBuffer;
+    QByteArray inBuffer;
+    QByteArray outBuffer( BUFFERSIZE );
     z_stream ztream;
-    int bytesRead,totalOut( 0 );
-    FileBuffer* tmpOut;
-    int deflateCode;
     bool continueCompressing;
 
     if( inFile.open( IO_ReadOnly ) ) {
-	if( inBuffer = (unsigned char*)malloc( BUFFERSIZE ) ) {
-	    if( outBuffer = (unsigned char*)malloc( BUFFERSIZE ) ) {
-	        printf( "Deflating %s... ", fi->absFilePath().latin1() );
-		ztream.next_out = outBuffer;
-		ztream.avail_out = BUFFERSIZE;
-		ztream.total_out = 0;
-		ztream.msg = NULL;
-		ztream.zalloc = (alloc_func)0;
-		ztream.zfree = (free_func)0;
-		ztream.opaque = (voidpf)0;
-		ztream.data_type = Z_BINARY;
-		deflateInit( &ztream, 9 );
-		while( ( bytesRead = inFile.readBlock( (char*)inBuffer, BUFFERSIZE ) ) > 0 ) {
-		    ztream.next_in = inBuffer;	// Reset the input buffer
-		    ztream.avail_in = bytesRead;
-		    if( bytesRead < BUFFERSIZE ) { // This was the rest of the data, so treat it as a special case
-			deflateCode = Z_OK;
-			while( deflateCode == Z_OK ) {
-			    deflateCode = deflate( &ztream, Z_FINISH );
-			    if( tmpOut = new FileBuffer( (char*)outBuffer, ztream.total_out ) )
-				zBuffer.append( tmpOut );
-			    totalOut += ztream.total_out;
-			    ztream.next_out = outBuffer;
-			    ztream.avail_out = BUFFERSIZE;
-			    ztream.total_out = 0;
-			}
-			totalOut += ztream.total_out;
-		    }
-		    else {
-			while( ztream.avail_in ) {	// Compress until we have no more input data
-			    continueCompressing = true;
-			    while( continueCompressing ) {
-				deflateCode = deflate( &ztream, Z_NO_FLUSH );
-				continueCompressing = ( deflateCode == Z_OK ) && ( ztream.avail_out == 0 );
+	if( inBuffer.resize( fi->size() ) ) {
+	    printf( "Deflating %s... ", fi->absFilePath().latin1() );
+	    ztream.next_in = (unsigned char*)inBuffer.data();
+	    ztream.avail_in = inBuffer.size();
+	    ztream.total_in = 0;
+	    ztream.next_out = (unsigned char*)outBuffer.data();
+	    ztream.avail_out = outBuffer.size();
+	    ztream.total_out = 0;
+	    ztream.msg = NULL;
+	    ztream.zalloc = (alloc_func)NULL;
+	    ztream.zfree = (free_func)NULL;
+	    ztream.opaque = (voidpf)NULL;
+	    ztream.data_type = Z_BINARY;
+	    deflateInit( &ztream, 9 );
+	    inFile.readBlock( inBuffer.data(), inBuffer.size() );
 
-				if( !ztream.avail_out ) { // Output buffer full => flush output to disk
-				    if( tmpOut = new FileBuffer( (char*)outBuffer, ztream.total_out ) )
-					zBuffer.append( tmpOut );
-				    totalOut += ztream.total_out;
-				    ztream.next_out = outBuffer;    // Reset the output buffer
-				    ztream.avail_out = BUFFERSIZE;
-				    ztream.total_out = 0;
-				}
-			    }
-			}	// No more input data, try to get some more.
-		    }
+	    continueCompressing = true;
+	    while( continueCompressing ) {
+		continueCompressing = ( deflate( &ztream, Z_FINISH ) == Z_OK );
+		if( !ztream.avail_out ) {
+		    if( !outBuffer.resize( outBuffer.size() + BUFFERSIZE ) )
+			qFatal( "Could not allocate compression buffer!" );
+		    ztream.next_out = (unsigned char*)&outBuffer.data()[ ztream.total_out ];
+		    ztream.avail_out = BUFFERSIZE;
 		}
-
-		printf( "done. %d => %d (%.1f%%)\n", ztream.total_in, totalOut, float( float( totalOut ) / float( ztream.total_in ) * 100 ) );
-		deflateEnd( &ztream );
-		// Now write the compressed data to the output
-		outStream << totalOut;
-		while( !zBuffer.isEmpty() ) {
-		    tmpOut = zBuffer.first();
-		    outStream.writeRawBytes( tmpOut->data(), tmpOut->size() );
-		    zBuffer.remove( tmpOut );
-		    delete tmpOut;
-		}
-		free( outBuffer );
 	    }
-	    free( inBuffer );
+
+	    printf( "done. %d => %d (%.1f%%)\n", ztream.total_in, ztream.total_out, float( float( ztream.total_out ) / float( ztream.total_in ) * 100 ) );
+	    deflateEnd( &ztream );
+	    // Now write the compressed data to the output
+	    outStream << ztream.total_out;
+	    outStream.writeRawBytes( outBuffer.data(), ztream.total_out );
 	}
 	inFile.close();
     }
@@ -154,6 +119,23 @@ void generateArchive( const QString arcName, QStringList dirNames )
     }
 }
 
+void generateFileArchive( const QString arcName, QStringList fileNames )
+{
+    QFile outFile( arcName );
+    QDataStream outStream;
+    QFileInfo fi;
+
+    if( outFile.open( IO_WriteOnly ) ) {
+	outStream.setDevice( &outFile );
+	for( QStringList::Iterator it = fileNames.begin(); it != fileNames.end(); ++it ) {
+	    QString srcName = *it;
+	    fi.setFile( srcName );
+	    outStream << fi.fileName().latin1();
+	    writeFile( &fi, outStream );
+	}
+    }
+}
+
 void copyFile( QString src, QString dst )
 {
     QFile inFile( src );
@@ -210,10 +192,44 @@ void buildInstaller( QString distname )
     qDebug( "Copied setup program" );
 }
 
+void buildConfigurator( void )
+{
+    QStringList args;
+    QProcess extproc;
+
+    args += QString( getenv( "QTDIR" ) ) + "\\bin\\qmake";
+    args += "CONFIG+=windows release";
+    args += QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\configurator.pro";
+    args += QString( "-o" );
+    args += QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\Makefile";
+    extproc.setWorkingDirectory( QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator" );
+    extproc.setArguments( args );
+    extproc.start();
+    while( extproc.isRunning() )
+	Sleep( 100 );
+    qDebug( "qmake is done" );
+    args.clear();
+    args += makeCmd;
+    args += QString( "clean" );
+    extproc.setArguments( args );
+    extproc.start();
+    while( extproc.isRunning() )
+	Sleep( 100 );
+    qDebug( "make clean is done" );
+    args.clear();
+    args += makeCmd;
+    extproc.setArguments( args );
+    extproc.start();
+    while( extproc.isRunning() )
+	Sleep( 100 );
+    qDebug( "make is done" );
+}
+
 int main( int argc, char** argv )
 {
     QDir distdir;
     QStringList dirList;
+    QStringList fileList;
     QString distname;
 
     if( ( argc < 2 ) || ( argc > 3 ) ) {
@@ -229,20 +245,26 @@ int main( int argc, char** argv )
     distdir.mkdir( distname );
 
     dirList << "dist\\win\\" << "src" << "include" << "mkspecs" << "plugins" << "qmake" << "tmake" << "tools";
-    generateArchive( distname + "\\qt.z", dirList );
+    generateArchive( distname + "\\qt.arq", dirList );
 
     dirList.clear();
     dirList << "doc" << "gif";
-    generateArchive( distname + "\\doc.z", dirList );
+    generateArchive( distname + "\\doc.arq", dirList );
 
     dirList.clear();
     dirList << "tutorial";
-    generateArchive( distname + "\\tutorial.z", dirList );
+    generateArchive( distname + "\\tutorial.arq", dirList );
 
     dirList.clear();
     dirList << "examples";
-    generateArchive( distname + "\\examples.z", dirList );
+    generateArchive( distname + "\\examples.arq", dirList );
 
     buildInstaller( argv[ 1 ] );
+    buildConfigurator();
+
+    fileList << QString( getenv( "QTDIR" ) ) + "\\dist\\commercial\\LICENSE";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\configurator.exe";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\INSTALL_DONE.TXT";
+    generateFileArchive( distname + "\\sys.arq", fileList );
     return 0;
 }

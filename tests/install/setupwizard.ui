@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>465</width>
-            <height>376</height>
+            <width>437</width>
+            <height>340</height>
         </rect>
     </property>
     <property name="caption">
@@ -21,6 +21,13 @@
     <property name="iconText">
         <string>Setup</string>
     </property>
+    <property name="titleFont">
+        <font>
+            <family>Arial</family>
+            <pointsize>12</pointsize>
+            <bold>1</bold>
+        </font>
+    </property>
     <widget class="QWidget">
         <property name="name">
             <cstring>introPage</cstring>
@@ -28,41 +35,62 @@
         <attribute name="title">
             <string>Introduction</string>
         </attribute>
-        <widget class="QLabel">
+        <grid>
             <property name="name">
-                <cstring>page1Pixmap</cstring>
+                <cstring>unnamed</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>210</width>
-                    <height>300</height>
-                </rect>
+            <property name="margin">
+                <number>11</number>
             </property>
-            <property name="pixmap">
-                <pixmap>image1</pixmap>
+            <property name="spacing">
+                <number>6</number>
             </property>
-            <property name="scaledContents">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="QTextView">
-            <property name="name">
-                <cstring>introText</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>220</x>
-                    <y>0</y>
-                    <width>230</width>
-                    <height>300</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Just some introduction text</string>
-            </property>
-        </widget>
+            <widget class="QLabel" row="0" column="0" rowspan="2" colspan="1">
+                <property name="name">
+                    <cstring>page1Pixmap</cstring>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QTextView" row="0" column="1" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>introText</cstring>
+                </property>
+                <property name="text">
+                    <string>Just some introduction text</string>
+                </property>
+            </widget>
+            <widget class="QPushButton" row="1" column="1">
+                <property name="name">
+                    <cstring>acceptButton</cstring>
+                </property>
+                <property name="font">
+                    <font>
+                        <bold>1</bold>
+                    </font>
+                </property>
+                <property name="text">
+                    <string>Accept license</string>
+                </property>
+            </widget>
+            <widget class="QPushButton" row="1" column="2">
+                <property name="name">
+                    <cstring>rejectButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Reject license</string>
+                </property>
+            </widget>
+        </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -71,218 +99,159 @@
         <attribute name="title">
             <string>Options</string>
         </attribute>
-        <widget class="QLabel">
+        <grid>
             <property name="name">
-                <cstring>page2Pixmap</cstring>
+                <cstring>unnamed</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>210</width>
-                    <height>300</height>
-                </rect>
+            <property name="margin">
+                <number>11</number>
             </property>
-            <property name="pixmap">
-                <pixmap>image1</pixmap>
+            <property name="spacing">
+                <number>6</number>
             </property>
-            <property name="scaledContents">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>optionsGroup</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>220</x>
-                    <y>0</y>
-                    <width>230</width>
-                    <height>140</height>
-                </rect>
-            </property>
-            <property name="title">
-                <string>Installation options</string>
-            </property>
-            <widget class="QLabel">
+            <widget class="QLabel" row="0" column="0" rowspan="2" colspan="1">
                 <property name="name">
-                    <cstring>pathLabel</cstring>
+                    <cstring>page2Pixmap</cstring>
                 </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>20</y>
-                        <width>100</width>
-                        <height>20</height>
-                    </rect>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
                 </property>
-                <property name="text">
-                    <string>Destination path</string>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
                 </property>
             </widget>
-            <widget class="QCheckBox">
+            <widget class="QGroupBox" row="0" column="1">
                 <property name="name">
-                    <cstring>installDocs</cstring>
+                    <cstring>optionsGroup</cstring>
                 </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>70</y>
-                        <width>140</width>
-                        <height>20</height>
-                    </rect>
+                <property name="title">
+                    <string>Installation options</string>
                 </property>
-                <property name="text">
-                    <string>Install documentation</string>
-                </property>
-                <property name="checked">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QCheckBox">
-                <property name="name">
-                    <cstring>installExamples</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>90</y>
-                        <width>110</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Install examples</string>
-                </property>
-                <property name="checked">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QCheckBox">
-                <property name="name">
-                    <cstring>installTutorials</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>110</y>
-                        <width>110</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Install tutorials</string>
-                </property>
-                <property name="checked">
-                    <bool>true</bool>
-                </property>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>pathLayout</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>40</y>
-                        <width>210</width>
-                        <height>30</height>
-                    </rect>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
+                <vbox>
                     <property name="margin">
-                        <number>0</number>
+                        <number>11</number>
                     </property>
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLineEdit">
+                    <widget class="QLabel">
                         <property name="name">
-                            <cstring>installPath</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QPushButton">
-                        <property name="name">
-                            <cstring>installPathButton</cstring>
+                            <cstring>pathLabel</cstring>
                         </property>
                         <property name="text">
-                            <string></string>
-                        </property>
-                        <property name="pixmap">
-                            <pixmap>image2</pixmap>
+                            <string>Destination path</string>
                         </property>
                     </widget>
-                </hbox>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>pathLayout</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>installPath</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>installPathButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image2</pixmap>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>installDocs</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Install documentation</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>installExamples</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Install examples</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>installTutorials</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Install tutorials</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
             </widget>
-        </widget>
-        <widget class="QButtonGroup">
-            <property name="name">
-                <cstring>sysGroup</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>220</x>
-                    <y>140</y>
-                    <width>230</width>
-                    <height>90</height>
-                </rect>
-            </property>
-            <property name="title">
-                <string>Integration options</string>
-            </property>
-            <widget class="QRadioButton">
+            <widget class="QButtonGroup" row="1" column="1">
                 <property name="name">
-                    <cstring>sysGcc</cstring>
+                    <cstring>sysGroup</cstring>
                 </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>60</y>
-                        <width>110</width>
-                        <height>20</height>
-                    </rect>
+                <property name="title">
+                    <string>Integration options</string>
                 </property>
-                <property name="text">
-                    <string>CygWin / GCC</string>
-                </property>
+                <vbox>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QRadioButton">
+                        <property name="name">
+                            <cstring>sysMsvc</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Microsoft Visual C++</string>
+                        </property>
+                    </widget>
+                    <widget class="QRadioButton">
+                        <property name="name">
+                            <cstring>sysBorland</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Borland C++</string>
+                        </property>
+                    </widget>
+                    <widget class="QRadioButton">
+                        <property name="name">
+                            <cstring>sysGcc</cstring>
+                        </property>
+                        <property name="text">
+                            <string>CygWin / GCC</string>
+                        </property>
+                    </widget>
+                </vbox>
             </widget>
-            <widget class="QRadioButton">
-                <property name="name">
-                    <cstring>sysBorland</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>40</y>
-                        <width>94</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Borland C++</string>
-                </property>
-            </widget>
-            <widget class="QRadioButton">
-                <property name="name">
-                    <cstring>sysMsvc</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>20</y>
-                        <width>140</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Microsoft Visual C++</string>
-                </property>
-            </widget>
-        </widget>
+        </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -291,378 +260,71 @@
         <attribute name="title">
             <string>Installing</string>
         </attribute>
-        <widget class="QLabel">
+        <hbox>
             <property name="name">
-                <cstring>page3Pixmap</cstring>
+                <cstring>unnamed</cstring>
             </property>
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>210</width>
-                    <height>300</height>
-                </rect>
+            <property name="margin">
+                <number>11</number>
             </property>
-            <property name="pixmap">
-                <pixmap>image1</pixmap>
-            </property>
-            <property name="scaledContents">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>currentGroup</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>220</x>
-                    <y>110</y>
-                    <width>230</width>
-                    <height>80</height>
-                </rect>
-            </property>
-            <property name="title">
-                <string>Current operation</string>
+            <property name="spacing">
+                <number>6</number>
             </property>
             <widget class="QLabel">
                 <property name="name">
-                    <cstring>currentLabel</cstring>
+                    <cstring>page3Pixmap</cstring>
                 </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>50</y>
-                        <width>210</width>
-                        <height>20</height>
-                    </rect>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
                 </property>
-                <property name="text">
-                    <string></string>
-                </property>
-            </widget>
-            <widget class="QProgressBar">
-                <property name="name">
-                    <cstring>operationProgress</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>10</x>
-                        <y>20</y>
-                        <width>210</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="progress">
-                    <number>0</number>
-                </property>
-                <property name="centerIndicator">
+                <property name="scaledContents">
                     <bool>false</bool>
                 </property>
-                <property name="indicatorFollowsStyle">
-                    <bool>true</bool>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
                 </property>
             </widget>
-        </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>progressGroup</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>220</x>
-                    <y>0</y>
-                    <width>230</width>
-                    <height>110</height>
-                </rect>
-            </property>
-            <property name="title">
-                <string>Progress</string>
-            </property>
-            <widget class="QLayoutWidget">
+            <widget class="QGroupBox">
                 <property name="name">
-                    <cstring>Layout9</cstring>
+                    <cstring>currentGroup</cstring>
                 </property>
-                <property name="geometry">
-                    <rect>
-                        <x>11</x>
-                        <y>80</y>
-                        <width>210</width>
-                        <height>22</height>
-                    </rect>
+                <property name="title">
+                    <string>Copying files</string>
                 </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
+                <vbox>
                     <property name="margin">
-                        <number>0</number>
+                        <number>11</number>
                     </property>
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel">
+                    <widget class="QProgressBar">
                         <property name="name">
-                            <cstring>compilePixmap</cstring>
+                            <cstring>operationProgress</cstring>
                         </property>
-                        <property name="pixmap">
-                            <pixmap>image3</pixmap>
+                        <property name="progress">
+                            <number>0</number>
                         </property>
-                        <property name="scaledContents">
+                        <property name="centerIndicator">
+                            <bool>false</bool>
+                        </property>
+                        <property name="indicatorFollowsStyle">
                             <bool>true</bool>
                         </property>
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
-                            <cstring>compileLabel</cstring>
+                            <cstring>filesDisplay</cstring>
                         </property>
                         <property name="text">
-                            <string>Compile Qt</string>
+                            <string></string>
                         </property>
                     </widget>
-                    <spacer>
-                        <property name="name" stdset="0">
-                            <cstring>Spacer2_3</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                </hbox>
+                </vbox>
             </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>Layout8</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>11</x>
-                        <y>60</y>
-                        <width>210</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>0</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>preparePixmap</cstring>
-                        </property>
-                        <property name="pixmap">
-                            <pixmap>image3</pixmap>
-                        </property>
-                        <property name="scaledContents">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>prepareLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Prepare the build</string>
-                        </property>
-                    </widget>
-                    <spacer>
-                        <property name="name" stdset="0">
-                            <cstring>Spacer2_2</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                </hbox>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>Layout7</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>11</x>
-                        <y>40</y>
-                        <width>210</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>0</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>configurePixmap</cstring>
-                        </property>
-                        <property name="pixmap">
-                            <pixmap>image3</pixmap>
-                        </property>
-                        <property name="scaledContents">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>configureLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Configure the build</string>
-                        </property>
-                    </widget>
-                    <spacer>
-                        <property name="name" stdset="0">
-                            <cstring>Spacer2</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                </hbox>
-            </widget>
-            <widget class="QLayoutWidget">
-                <property name="name">
-                    <cstring>Layout6</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>11</x>
-                        <y>20</y>
-                        <width>210</width>
-                        <height>22</height>
-                    </rect>
-                </property>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>0</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>copyPixmap</cstring>
-                        </property>
-                        <property name="pixmap">
-                            <pixmap>image3</pixmap>
-                        </property>
-                        <property name="scaledContents">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>copyLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Copy files</string>
-                        </property>
-                    </widget>
-                    <spacer>
-                        <property name="name" stdset="0">
-                            <cstring>Spacer1</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                </hbox>
-            </widget>
-        </widget>
-    </widget>
-    <widget class="QWidget">
-        <property name="name">
-            <cstring>finishPage</cstring>
-        </property>
-        <attribute name="title">
-            <string>Finished</string>
-        </attribute>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>page4Pixmap</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>210</width>
-                    <height>300</height>
-                </rect>
-            </property>
-            <property name="pixmap">
-                <pixmap>image1</pixmap>
-            </property>
-            <property name="scaledContents">
-                <bool>true</bool>
-            </property>
-        </widget>
-        <widget class="QTextView">
-            <property name="name">
-                <cstring>finishText</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>220</x>
-                    <y>0</y>
-                    <width>230</width>
-                    <height>300</height>
-                </rect>
-            </property>
-            <property name="text">
-                <string>Some text that will be shown after installation.</string>
-            </property>
-        </widget>
+        </hbox>
     </widget>
 </widget>
 <images>
@@ -674,9 +336,6 @@
     </image>
     <image name="image2">
         <data format="XPM.GZ" length="1115">789c8dd2496fda401407f03b9fc2821baa9a197b666cabca211b5959b2aa52d5c3ac812440c2e28444fdeef5fbdb4a8143548b837f6f98b7cc78a71dfd1c74a3f64e63bed08b918dec50cfa2b65b8ec7ab5fbf773f1a4daea2f22759c49bdf1acdef918d7ad389a7f7a3f2bdc538630c4b7d30618a59e22d2899e1317159914b8ebdd7a06281e7c471452eb823be7c32108760ca55cc8887a089f304a92ce89258a06e515349d4dd03bd4c53493cab9805a3886f157361d0c6ac666a50f7b2a6b7097152513b6b885760d0cc0a628fc899921952ddd5cc33a4da07b9900a23b4c0583885d5f78a796e90f900148249a4baa9a8a505cf4169b9d3440366229648b5028dd10e97d205ad8eab111660c8a5c1e168622c855618e11954e52af63e8126e71ae7dc2126491a72704a14cc71879ee7a072c6e3602fc0cc058f9e4f895218e752e203182c7319f19ea8844e0c6eff9198056b3d9a74c4f2948dc3802760eaacc775bf124d280ba1ab4074899701e77c0c061f020a8d88befce8027af660084940aa0131e0c1a7bef57c196bb55adad8ad98f3e17eb8151b3d3c3e8db7627e327d7ed98ce9d16cbe58fe8b15657efdfab67adfdb3f383caaff57748e4f4ecf66e717dd5eff736fd1195cceaecad0f55abe327853866e376a94dbebd0da6cc51d366ece5bf4ffe70cd6637f7e34fe023b4bf409</data>
-    </image>
-    <image name="image3">
-        <data format="XPM.GZ" length="469">789c8dcebd0ac2301007f03d4f71f4b622fd40d0417c04c5511087e492a2432d681d447c777397a6c4eae02584fc7f09b99439ec771bc84b75eb757f26a093be426eef6dfb381cd74f95d50bf07309753653590104dbeee2788f7e8f951447e24863d412e73c383a8e4d134f6d8854914413229774995462f86d883835d413f377b419517eefc1184d1fe6c558721107b34ca915689d130a182c10f74afac6b7641dfe175ba63616e33fc6f8d35e2bf50655035eed</data>
     </image>
 </images>
 <connections>
@@ -692,7 +351,33 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedSystem(int)</slot>
     </connection>
-    <slot access="public" language="C++">clickedSystem(int)</slot>
+    <connection>
+        <sender>rejectButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>acceptButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseAccepted()</slot>
+    </connection>
     <slot access="public" language="C++">clickedPath()</slot>
+    <slot access="public" language="C++">licenseAccepted()</slot>
+    <slot access="public" language="C++">clickedSystem(int)</slot>
 </connections>
+<tabstops>
+    <tabstop>introText</tabstop>
+    <tabstop>acceptButton</tabstop>
+    <tabstop>rejectButton</tabstop>
+    <tabstop>installPath</tabstop>
+    <tabstop>installPathButton</tabstop>
+    <tabstop>installDocs</tabstop>
+    <tabstop>installExamples</tabstop>
+    <tabstop>installTutorials</tabstop>
+    <tabstop>sysMsvc</tabstop>
+    <tabstop>sysBorland</tabstop>
+    <tabstop>sysGcc</tabstop>
+</tabstops>
 </UI>

@@ -1,6 +1,7 @@
 TEMPLATE = app
-HEADERS = filebuffer.h
-SOURCES = main.cpp filebuffer.cpp
+HEADERS = 
+SOURCES = main.cpp
 INTERFACES = 
 INCLUDEPATH = $(QTDIR)\src\3rdparty
 TARGET  = generate
+CONFIG += console

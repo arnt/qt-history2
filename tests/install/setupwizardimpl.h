@@ -9,11 +9,14 @@ public:
 
     virtual void clickedPath();
     virtual void clickedSystem( int );
+    virtual void licenseAccepted();
+    virtual void showPage( QWidget* );
 
-public slots:
-    virtual void changedPage( const QString& );
+protected:
+    virtual void customEvent( QCustomEvent* );
 private:
     int sysID;
+    QByteArray tmpPath;
 
     InstallThread installer;
 };
