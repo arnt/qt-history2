@@ -302,6 +302,7 @@
 #include <private/qwidgetinterface_p.h>
 #include <private/qwidgetresizehandler_p.h>
 #include <private/qlibrary_p.h>
+#include <private/qlock_p.h>
 #endif // Private headers
 
 
@@ -316,7 +317,6 @@
 #include <qfontfactorybdf_qws.h>
 #include <qgfxvoodoodefs_qws.h>
 #include <qgfxmatroxdefs_qws.h>
-#include <qlock_qws.h>
 #include <qcopchannel_qws.h>
 #include <qdirectpainter_qws.h>
 #include "qmemorymanager_qws.h"
