@@ -574,6 +574,19 @@ void ScriptEngineArabic::shape( ShapedItem *result )
 }
 
 
+void ScriptEngineArabic::position( ShapedItem *result )
+{
+    OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
+
+    if ( openType && openType->supportsScript( OpenTypeIface::Arabic ) ) {
+	openTypePosition( openType, result );
+	return;
+    }
+//     free( result->d->enginePrivate );
+//     result->d->enginePrivate = 0;
+    ScriptEngineBasic::position( result );
+}
+
 void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedItem *result )
 {
     ShapedItemPrivate *d = result->d;
@@ -610,4 +623,10 @@ void ScriptEngineArabic::openTypeShape( const OpenTypeIface *openType, ShapedIte
 
     if ( allocated )
 	free( featuresToApply );
+}
+
+
+void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, ShapedItem *result )
+{
+    ((OpenTypeIface *) openType)->applyGlyphPositioning( OpenTypeIface::Arabic, result );
 }

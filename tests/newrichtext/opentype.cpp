@@ -43,18 +43,18 @@ inline bool arabicFoundRequiredFeatures( int found_bits ) {
 }
 
 // these are the features that should get applied in all cases (if available in the font)
-static const short arabicGSUBorMask = 0x1e1;
+static const short arabicGSUBorMask = 0xf1e1;
 
 Features arabicGPOSFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'u', 'r', 's' ), 0x01 },
-    { FT_MAKE_TAG( 'k', 'e', 'r', 'n' ), 0x02 },
-    { FT_MAKE_TAG( 'm', 'a', 'r', 'k' ), 0x04 },
-    { FT_MAKE_TAG( 'm', 'k', 'm', 'k' ), 0x08 },
+    { FT_MAKE_TAG( 'c', 'u', 'r', 's' ), 0x1000 },
+    { FT_MAKE_TAG( 'k', 'e', 'r', 'n' ), 0x2000 },
+    { FT_MAKE_TAG( 'm', 'a', 'r', 'k' ), 0x4000 },
+    { FT_MAKE_TAG( 'm', 'k', 'm', 'k' ), 0x8000 },
     { 0,  0 }
 };
 
 
-bool OpenTypeIface::loadArabicGSUB( TTO_GSUB gsub, FT_ULong script)
+bool OpenTypeIface::loadArabicTables( FT_ULong script)
 {
     FT_Error error = TT_GSUB_Select_Script( gsub, script, &script_index );
     if ( error ) {
@@ -92,13 +92,6 @@ bool OpenTypeIface::loadArabicGSUB( TTO_GSUB gsub, FT_ULong script)
 	qDebug("found feature '%s' in GSUB table", featureString );
 	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
     }
-    qDebug("found_bits = %x",  (uint)found_bits );
-    if ( !arabicFoundRequiredFeatures( found_bits ) ) {
-	qDebug( "not all required features for arabic found!" );
-	TT_GSUB_Clear_Features( gsub );
-	return FALSE;
-    }
-
     if ( hasGPos ) {
 	FT_UShort script_index;
 	error = TT_GPOS_Select_Script( gpos, script, &script_index );
@@ -124,6 +117,10 @@ bool OpenTypeIface::loadArabicGSUB( TTO_GSUB gsub, FT_ULong script)
 		}
 		f++;
 	    }
+	    FT_UShort feature_index;
+	    TT_GPOS_Select_Feature( gpos, f->tag, script_index, 0xffff, &feature_index );
+	    TT_GPOS_Add_Feature( gpos, feature_index, f->bit );
+
 	    char featureString[5];
 	    tag_to_string( featureString, r->FeatureTag );
 	    qDebug("found feature '%s' in GPOS table", featureString );
@@ -131,6 +128,12 @@ bool OpenTypeIface::loadArabicGSUB( TTO_GSUB gsub, FT_ULong script)
 
 
     }
+    if ( !arabicFoundRequiredFeatures( found_bits ) ) {
+	qDebug( "not all required features for arabic found!" );
+	TT_GSUB_Clear_Features( gsub );
+	return FALSE;
+    }
+    qDebug("found_bits = %x",  (uint)found_bits );
 
     return TRUE;
 }
@@ -184,22 +187,19 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( script != Arabic )
 	return FALSE;
 
-    if ( loadArabicGSUB( gsub, script ) ) {
+    if ( loadArabicTables( script ) ) {
 	current_script = script;
 	return TRUE;
     }
     return FALSE;
 }
 
-
 void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
 {
-    FT_Error error;
-
     if ( script != current_script ) {
 	TT_GSUB_Clear_Features( gsub );
 
-	if ( script == Arabic && loadArabicGSUB( gsub, script ) )
+	if ( script == Arabic && loadArabicTables( script ) )
 	    current_script = script;
     }
 
@@ -227,7 +227,7 @@ void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 
     TT_GSUB_Apply_String (gsub, in, out);
 
-    if ( shaped->d->num_glyphs < out->length )
+    if ( shaped->d->num_glyphs < (int)out->length )
 	shaped->d->glyphs = ( GlyphIndex *) realloc( shaped->d->glyphs, out->length );
     shaped->d->num_glyphs = out->length;
 
@@ -243,5 +243,42 @@ void OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     }
 
     TT_GSUB_String_Done( in );
-    TT_GSUB_String_Done( out );
+
+    // we need to keep this one around for shaping
+    if ( hasGPos )
+	shaped->d->enginePrivate = (void *)out;
+    else
+	TT_GSUB_String_Done( out );
+}
+
+
+void OpenTypeIface::applyGlyphPositioning( unsigned int script, ShapedItem *shaped )
+{
+    if ( !hasGPos )
+	return;
+
+    if ( script != current_script ) {
+	TT_GSUB_Clear_Features( gsub );
+
+	if ( script == Arabic && loadArabicTables( script ) )
+	    current_script = script;
+    }
+
+    TTO_GSUB_String *in = (TTO_GSUB_String *)shaped->d->enginePrivate;
+    TTO_GPOS_Data *out = 0;
+
+    // ### is FT_LOAD_DEFAULT the right thing to do?
+    TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, (shaped->d->analysis.bidiLevel % 2) );
+
+    qDebug("positioned glyphs:" );
+    for ( int i = 0; i < shaped->d->num_glyphs; i++) {
+	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
+	       (int)(out[i].x_advance >> 6), (int)(out[i].y_advance >> 6 ),
+	       (int)(out[i].x_pos >> 6 ), (int)(out[i].y_pos >> 6),
+	       out[i].back, out[i].new_advance );
+    }
+
+    TT_GSUB_String_Done( in );
+    shaped->d->enginePrivate = 0;
+    free( out );
 }

@@ -19,18 +19,19 @@ public:
     bool supportsScript( unsigned int script );
 
     void applyGlyphSubstitutions( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply );
+    void applyGlyphPositioning( unsigned int script, ShapedItem *shaped );
 
 private:
-    bool loadArabicGSUB( TTO_GSUB gsub, FT_ULong script);
+    bool loadArabicTables( FT_ULong script);
 
 
     FT_Face face;
     TTO_GDEF gdef;
     TTO_GSUB gsub;
     TTO_GPOS gpos;
+    FT_UShort script_index;
     FT_ULong current_script;
     FT_ULong found_bits;
-    FT_UShort script_index;
     bool hasGDef : 1;
     bool hasGSub : 1;
     bool hasGPos : 1;

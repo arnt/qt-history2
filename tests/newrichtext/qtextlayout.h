@@ -21,6 +21,9 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 #include <qglobal.h>
 #include <qstring.h>
 #include <stdlib.h>
+
+#include <assert.h>
+
 class FontEngineIface;
 class QFont;
 class QString;
@@ -127,12 +130,13 @@ public:
     ShapedItemPrivate()
 	: num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), logClusters( 0 ),
 	  glyphAttributes( 0 ), fontEngine( 0 ),
-	  from( 0 ), length( 0 ) {}
+	  from( 0 ), length( 0 ), enginePrivate( 0 ) {}
     ~ShapedItemPrivate() {
 	free( glyphs );
 	free( offsets );
 	free( logClusters );
 	free( glyphAttributes );
+	assert( enginePrivate == 0 );
     }
     int num_glyphs;
     GlyphIndex * glyphs;
@@ -144,6 +148,7 @@ public:
     QString string;
     int from;
     int length;
+    void *enginePrivate;
 };
 
 class ShapedItem
