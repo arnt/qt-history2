@@ -21,6 +21,7 @@ public:
     void 	close();
     QSql 	createResult() const;
     QSqlFieldInfoList table( const QString& name) const;
+    QStringList         tables() const;        
 protected:
     bool    beginTransaction();
     bool    commitTransaction();

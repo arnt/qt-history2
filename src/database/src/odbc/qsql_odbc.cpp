@@ -305,6 +305,82 @@ QSqlFieldInfoList QODBCDriver::table( const QString& name ) const
     return view( "select * from " + name + " where (0=1);");
 }
 
+QStringList QODBCDriver::tables() const
+{
+    QStringList tl;
+    SQLHANDLE hStmt;
+    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
+				  d->hDbc,
+				  &hStmt );
+    if ( r != SQL_SUCCESS ) {
+	qSystemWarning( "Unable to list tables", d );	
+	return tl;
+    }
+    r = SQLSetStmtAttr( hStmt,
+                        SQL_ATTR_CURSOR_TYPE,
+                        (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+                        SQL_IS_UINTEGER );
+    r = SQLTables( hStmt,
+		   NULL,
+		   0,
+		   NULL,
+		   0,
+		   NULL,
+		   0,
+		   NULL,
+		   0);    
+#ifdef CHECK_RANGE
+    if ( r != SQL_SUCCESS )     
+	qSystemWarning( "Unable to list tables", d );
+#endif
+    int tableNameLen(0);
+    r = SQLGetInfo( d->hDbc,
+		    SQL_MAX_TABLE_NAME_LEN,
+		    &tableNameLen,
+		    sizeof(tableNameLen),
+		    NULL );
+    SQLCHAR* buf = new SQLCHAR[ tableNameLen ];    
+    r = SQLFetchScroll( hStmt,
+                        SQL_FETCH_NEXT,
+                        0);
+    while ( r == SQL_SUCCESS ) {
+	QString fieldVal;
+	SQLINTEGER lengthIndicator = 0;	    
+	while ( TRUE ) {
+	    r = SQLGetData( hStmt,
+			    3, // TABLE_NAME
+			    SQL_C_CHAR,
+			    (SQLPOINTER)buf,
+			    sizeof(buf),
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NO_TOTAL )
+		    fieldVal += QString( (char*)buf );  // keep going
+		else if ( lengthIndicator == SQL_NULL_DATA ) {
+		    fieldVal = QString::null;
+		    break;
+		} else {
+		    if ( r == SQL_SUCCESS ) {
+			fieldVal += QString( (char*)buf );
+			break;
+		    } else
+			fieldVal += QString( (char*)buf );
+		}
+	    } else {
+		fieldVal += QString::null;
+		break;
+	    }
+	}
+	tl.append( fieldVal );
+	r = SQLFetchScroll( hStmt,
+			    SQL_FETCH_NEXT,
+			    0);
+    }
+    delete buf;	
+    r = SQLFreeStmt( hStmt, SQL_CLOSE );
+    return tl;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 QODBCResultInfo::QODBCResultInfo( const QODBCPrivate* p )
@@ -380,13 +456,14 @@ QODBCResult::~QODBCResult()
 //	if ( r!= SQL_SUCCESS )
 //	    qSystemWarning( "Unable to free statement handle", d );
 //#endif
+	qDebug("freeing statement with SQL_CLOSE");
     	SQLRETURN r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
     	if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
 		qSystemWarning( "Unable to close statement", d );
 #endif
     	}
-
+	qDebug("done freeing statement with SQL_CLOSE");
     }
     delete d;
     if ( resultInfo )
