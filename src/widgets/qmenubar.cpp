@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#34 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#34 $";
 #endif
 
 /*! \class QMenuBar qmenubar.h
@@ -62,10 +62,12 @@ static const motifItemVMargin	= 8;		// menu item ver text margin
 //
 
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-	: QWidget( parent, name )
+	: QFrame( parent, name, 0, FALSE )
 {
     initMetaObject();
     isMenuBar = TRUE;
+    setFrameStyle( QFrame::Panel | QFrame::Raised );
+    setLineWidth( motifBarFrame );
     autoaccel = 0;
     irects = 0;
     if ( parent )				// filter parent events
@@ -118,6 +120,11 @@ void QMenuBar::menuDelPopup( QPopupMenu *popup )
 		       SLOT(subActivated(int)) );
     popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
 		       SLOT(subHighlighted(int)) );
+}
+
+void QMenuBar::frameChanged()
+{
+    menuContentsChanged();
 }
 
 
@@ -310,7 +317,6 @@ void QMenuBar::updateRects()
     QFontMetrics fm = fontMetrics();
     int max_width = width();
     int max_height = 0;
-//  int nlines = 1;				// number of lines
     int nlitems = 0;				// number on items on cur line
     int x = motifBarFrame + motifBarHMargin;
     int y = motifBarFrame + motifBarVMargin;
@@ -329,7 +335,6 @@ void QMenuBar::updateRects()
 	w += 2*motifItemFrame;
 	h += 2*motifItemFrame;
 	if ( x + w + motifBarFrame > max_width && nlitems > 0 ) {
-//	    nlines++;				// break line
 	    nlitems = 0;
 	    x = motifBarFrame + motifBarHMargin;
 	    y += h + motifBarHMargin;
@@ -373,20 +378,17 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 // Event handlers
 //
 
-void QMenuBar::paintEvent( QPaintEvent * )	// paint menu bar
+/*!
+Called from QFrame::paintEvent().
+*/
+
+void QMenuBar::drawContents( QPainter *p )	// draw menu bar
 {
-    register QPainter *p;
-    QPainter	 paint;
     QColorGroup	 g  = colorGroup();
     QFontMetrics fm = fontMetrics();
-    QSize	 sz = size();
+    int		 fw = frameWidth();
 
-    p = &paint;
-    p->begin( this );
-    p->drawShadePanel( rect(), g.light(), g.dark(), motifBarFrame );
-    p->setClipRect( motifBarFrame, motifBarFrame,
-		    sz.width()	- 2*motifBarFrame,
-		    sz.height() - 2*motifBarFrame );
+    p->setClipRect( fw, fw, width() - 2*fw, height() - 2*fw );
     updateRects();
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
@@ -409,9 +411,11 @@ void QMenuBar::paintEvent( QPaintEvent * )	// paint menu bar
 			 mi->string() );
 	}
     }
-    p->end();
 }
 
+/*!
+Handles mouse press events for the menu bar.
+*/
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
@@ -445,6 +449,10 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	hidePopups();
 }
 
+/*!
+Handles mouse release events for the menu bar.
+*/
+
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
     mouseBtDn = FALSE;				// mouse button up
@@ -473,6 +481,10 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
     }
 }
 
+/*!
+Handles mouse move events for the menu bar.
+*/
+
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
@@ -490,6 +502,9 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+/*!
+Handles key press events for the menu bar.
+*/
 
 void QMenuBar::keyPressEvent( QKeyEvent *e )
 {
@@ -555,6 +570,9 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
     }
 }
 
+/*!
+Handles resize events for the menu bar.
+*/
 
 void QMenuBar::resizeEvent( QResizeEvent * )
 {
