@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#545 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#546 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3975,6 +3975,23 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     clearWState(WState_ConfigPending);
 
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
+    int x = event->xconfigure.x;
+    int y = event->xconfigure.y;
+
+    if (event->xconfigure.send_event ||
+	( extra && extra->topextra && 
+	  ( extra->topextra->parentWinId == None || 
+	    extra->topextra->parentWinId == appRootWin ) ) ) {
+	// nothing to do, x and y is correct
+    } else {
+	Display *dpy = x11Display();
+	Window child;
+	// ### this slows down display of all top-level widgets, and most
+	// ### don't care about the result.  can it be avoided?
+	XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
+			       0, 0, &x, &y, &child );
+    }
+
 
     XEvent otherEvent;
     while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
@@ -3984,15 +4001,12 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    break;
 	newSize.setWidth( otherEvent.xconfigure.width );
 	newSize.setHeight( otherEvent.xconfigure.height );
+	if ( otherEvent.xconfigure.send_event ) {
+	    x = otherEvent.xconfigure.x;
+	    y = otherEvent.xconfigure.y;
+	}
     }
 
-    Display *dpy = x11Display();
-    Window child;
-    int	   x, y;
-    // ### this slows down display of all top-level widgets, and most
-    // ### don't care about the result.  can it be avoided?
-    XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
-			   0, 0, &x, &y, &child );
     QPoint newPos( x, y );
     QRect  r = geometry();
     if ( newSize != size() ) {			// size changed
