@@ -575,7 +575,8 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
 {
     bool inWhatsThisMode = QWhatsThis::inWhatsThisMode();
-    if (!action || !q->isEnabled() || (!inWhatsThisMode && !action->isEnabled()))
+    if (!action || !q->isEnabled() 
+        || (action_e == QAction::Trigger && !inWhatsThisMode && !action->isEnabled()))
         return;
 
     /* I have to save the caused stack here because it will be undone after popup execution (ie in the hide).
