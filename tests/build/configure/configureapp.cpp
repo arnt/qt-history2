@@ -38,6 +38,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "DSPFILES" ] = "yes";
     dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ] = "yes";
+    dictionary[ "LEAN" ] = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -153,6 +154,8 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "DSPFILES" ] = "no";
 	else if( (*args) == "-dsp" )
 	    dictionary[ "DSPFILES" ] = "yes";
+	else if( (*args) == "-lean" )
+	    dictionary[ "LEAN" ] = "yes";
 
 	// Scan to see if any specific modules and drivers are enabled or disabled
 	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -218,6 +221,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
+	cout << "-lean               Only process the Qt core projects." << endl;
+	cout << "                    (qt.pro, qtmain.pro)." << endl;
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
 	cout << "-L <libpath>        Add <libpath> to the library searchpath." << endl;
@@ -306,7 +311,7 @@ void ConfigureApp::generateCachefile()
 	    cacheStream << endl;
 	}
 	if( !qmakeLibs.isEmpty() ) {
-	    cacheStream << "LIBS=";
+	    cacheStream << "LIBPATH=";
 	    for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
 		cacheStream << (*libs);
 	    cacheStream << endl;
@@ -329,6 +334,18 @@ void ConfigureApp::generateCachefile()
 	}
 	cacheStream << "CONFIG=" << srcConfig.join( " " ) << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
+	if( !qmakeIncludes.isEmpty() ) {
+	    cacheStream << "INCLUDEPATH=";
+	    for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
+		cacheStream << (*incs);
+	    cacheStream << endl;
+	}
+	if( !qmakeLibs.isEmpty() ) {
+	    cacheStream << "LIBPATH=";
+	    for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
+		cacheStream << (*libs);
+	    cacheStream << endl;
+	}
 	cacheFile.close();
     }
 }
@@ -487,7 +504,19 @@ void ConfigureApp::generateMakefiles()
 {
     cout << "Creating makefiles in src..." << endl;
 
-    findProjects( qtDir );
+    if( dictionary[ "QMAKESPEC" ] != "win32-msvc" )
+	dictionary[ "DSPFILES" ] = "no";
+
+    if( dictionary[ "LEAN" ] == "yes" ) {
+	makeList += qtDir + "/src";
+	makeList += "qt.pro";
+	makeList += "Makefile";
+	makeList += qtDir + "/src";
+	makeList += "qtmain.pro";
+	makeList += "Makefile.main";
+    }
+    else
+	findProjects( qtDir );
 
     // Start the qmakes for the makelist.
     makeListIterator = makeList.begin();
