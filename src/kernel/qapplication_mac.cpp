@@ -1078,11 +1078,9 @@ bool QApplication::processNextEvent( bool canWait )
     activateNullTimers(); //try to send null timers..
 
     EventRef event;
-    OSStatus ret;
     do {
 	do {
-	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-	    if(ret != noErr)
+	    if( ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event ))
 		break;
 	    if((qt_is_gui_used && SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
 	       (!qt_is_gui_used && SendEventToApplication(event)))
@@ -1340,19 +1338,11 @@ bool QApplication::do_mouse_down( Point *pt )
     {
 	Rect limits;
 	SetRect( &limits, -2, 0, 0, 0 );
-
 	if( widget ) {
-	    int wstrut = 0, hstrut = 0;
-	    if(widget->fstrut_dirty)
-		widget->updateFrameStrut();
-	    if(QTLWExtra *tlextra = widget->topData()) {
-		wstrut = tlextra->fleft + tlextra->fright;
-		hstrut = tlextra->ftop + tlextra->fbottom;
-	    }
 	    if(QWExtra   *extra = widget->extraData()) 
-		SetRect( &limits, extra->minw+wstrut, extra->minh+hstrut,
-			 extra->maxw+wstrut < QWIDGETSIZE_MAX ? extra->maxw+wstrut : QWIDGETSIZE_MAX,
-			 extra->maxh+hstrut < QWIDGETSIZE_MAX ? extra->maxh+hstrut : QWIDGETSIZE_MAX);
+		SetRect( &limits, extra->minw, extra->minh,
+			 extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
+			 extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
 	}
 	int growWindowSize = GrowWindow( wp, *pt, limits.left == -2 ? NULL : &limits);
 	if( growWindowSize) {

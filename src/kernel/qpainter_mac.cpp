@@ -568,7 +568,7 @@ bool QPainter::end()				// end painting
 	QFontInfo::reset( this );
 
 #ifdef QMAC_NO_QUARTZ
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     if ( d->locked ) {
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
 	d->locked = FALSE;
@@ -1817,9 +1817,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    QFont dfont( cfont );
 	    QWMatrix mat2;
 	    if ( txop <= TxScale && pdev->devType() != QInternal::Printer ) {
-		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
-		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
-		dfont.setPointSize( newSize );
+		double newSize = m22() * cfont.pointSizeFloat();
+		newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
+		dfont.setPointSizeFloat( newSize );
 		QFontMetrics fm2( dfont );
 		QRect abbox = fm2.boundingRect( str, len );
 		aw = abbox.width();
@@ -1828,8 +1828,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		ty = -abbox.y();	// text position - off-by-one?
 		if ( aw == 0 || ah == 0 )
 		    return;
-		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
-		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
+		double rx = mat1.m11() * (double)bbox.width() / (double)aw;
+		double ry = mat1.m22() * (double)bbox.height() / (double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
 	    } else {
 		mat2 = QPixmap::trueMatrix( mat1, w, h );
@@ -1944,8 +1944,7 @@ inline void QPainter::initPaintDevice(bool) {
 	    d->clippedreg &= paintevents.current()->region();
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
-
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
 	if(!d->locked) {
 	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
 	    d->locked = TRUE;

@@ -462,6 +462,7 @@ public:
     ~QFontPrivate() { if( fin ) fin->deref(); }
     void macSetFont(QPaintDevice *);
     void drawText( int x, int y, QString s, int len );
+    void computeLineWidth();
     void load();
     QFontStruct *fin;
 #endif

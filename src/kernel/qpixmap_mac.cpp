@@ -15,7 +15,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
 #ifdef QMAC_NO_QUARTZ
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow, q;
@@ -38,7 +38,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	}
     }
     SwapMMUMode(&mode);
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
 #else //!QMAC_NO_QUARTZ
@@ -140,7 +140,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
 #ifdef QMAC_NO_QUARTZ
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
@@ -188,7 +188,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     }
     SwapMMUMode(&mode);
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
 #else //!QMAC_NO_QUARTZ
@@ -265,7 +265,7 @@ QImage QPixmap::convertToImage() const
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
 #ifdef QMAC_NO_QUARTZ
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
     QRgb q;
@@ -292,7 +292,7 @@ QImage QPixmap::convertToImage() const
     }
     SwapMMUMode(&mode);
 
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
 
@@ -357,7 +357,7 @@ QImage QPixmap::convertToImage() const
 	}
     }
 
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
     return *image;
@@ -365,28 +365,41 @@ QImage QPixmap::convertToImage() const
 
 void QPixmap::fill( const QColor &fillColor )
 {
+    if(!width() || !height())
+	return;
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
-	
-    Rect r;
-    RGBColor rc;
-    detach();					// detach other references
 
 #ifdef QMAC_NO_QUARTZ
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate(this); 
-#ifndef ONE_PIXEL_LOCK
+#ifndef QMAC_ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
-
-    rc.red=fillColor.red()*256;
-    rc.green=fillColor.green()*256;
-    rc.blue=fillColor.blue()*256;
-    RGBForeColor(&rc);
-    SetRect(&r,0,0,width(),height());
-    PaintRect(&r);
-
-#ifndef ONE_PIXEL_LOCK
+    detach();					// detach other references
+    if(depth() == 1 || depth() == 32) { //small optimization over QD
+	ulong *dptr = (ulong *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd));
+	int dbytes = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd))*height();
+	if(!dptr || !dbytes)
+	    qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
+	QRgb colr = qRgba(fillColor.red(),fillColor.green(), fillColor.blue(), 0);
+	if(depth() == 1 || !colr) {
+	    memset(dptr, colr ? 0xFF : 0x00, dbytes);
+	} else if(depth() == 32) {
+	    for(int i = 0; i < (int)(dbytes/sizeof(ulong)); i++)
+		*(dptr + i) = colr;
+	}
+    } else {
+	Rect r;
+	RGBColor rc;
+	rc.red=fillColor.red()*256;
+	rc.green=fillColor.green()*256;
+	rc.blue=fillColor.blue()*256;
+	RGBForeColor(&rc);
+	SetRect(&r,0,0,width(),height());
+	PaintRect(&r);
+    }
+#ifndef QMAC_ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
 #else //!QMAC_NO_QUARTZ
@@ -446,7 +459,7 @@ void QPixmap::deref()
 
         if ( hd && qApp ) {
 #ifdef QMAC_NO_QUARTZ
-#ifdef ONE_PIXEL_LOCK
+#ifdef QMAC_ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));
 #endif
 	    DisposeGWorld((GWorldPtr)hd);    
@@ -473,8 +486,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     uchar *sptr;				// data in original pixmap
     int	   sbpl;				// bytes per line in original
     int	   bpp;					// bits per pixel
-    bool   depth1 = depth() == 1;
-    int	   y;
 
     if ( isNull() )				// this is a null pixmap
 	return copy();
@@ -504,7 +515,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    pm.setMask( bm );
 	}
 	return pm;
-
     } else {					// rotation or shearing
 	QPointArray a( QRect(0,0,ws,hs) );
 	a = mat.map( a );
@@ -521,65 +531,59 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
 
-    QImage srcImg = convertToImage();
-    sptr=srcImg.scanLine(0);
-    sbpl=srcImg.bytesPerLine();
+#ifndef QMAC_ONE_PIXEL_LOCK
+    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+#endif
+    sptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd));
+    sbpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
     ws=width();
     hs=height();
 
-    QImage destImg( w, h, srcImg.depth(), srcImg.numColors(), srcImg.bitOrder() );
-    //FIXME: we don't want a static color here it belongs in image creation
-    if (destImg.depth() == 1) {
-	destImg.setNumColors( 2 );
-	destImg.setColor( 0, qRgba(255,255,255, 0) );
-	destImg.setColor( 1, qRgba(0,0,0, 0) );
-    }
-    dptr=destImg.scanLine(0);
-    dbpl=destImg.bytesPerLine();
-    bpp=destImg.depth();
-
+    QPixmap pm( w, h, depth(), optimization() );
+#ifndef QMAC_ONE_PIXEL_LOCK
+    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm.handle())));
+#endif
+    dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)pm.handle()));
+    dbpl = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)pm.handle()));
+    bpp = 32;
     dbytes = dbpl*h;
 
-    if ( depth1 )
+    if ( bpp == 1 ) 
 	memset( dptr, 0x00, dbytes );
-    else if ( bpp == 8 )
+    else if ( bpp == 8 ) 
 	memset( dptr, white.pixel(), dbytes );
-    else if ( bpp == 32 ) {
-	destImg.fill( 0x00FFFFFF );
-    } else
+    else if( bpp == 32) 
+	pm.fill(0x00FFFFFF);
+    else 
 	memset( dptr, 0xff, dbytes );
 
-    int	xbpl, p_inc;
-    if ( depth1 ) {
-	xbpl  = (w+7)/8;
-	p_inc = dbpl - xbpl;
-    } else {
-	xbpl  = (w*bpp)/8;
-	p_inc = dbpl - xbpl;
-    }
-
-    if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp, dptr, xbpl, p_inc, h, sptr, sbpl, ws, hs ) ){
+    char mode = true32b;
+    SwapMMUMode(&mode);
+    int	xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
+    if ( !qt_xForm_helper( mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp, 
+			   dptr, xbpl, dbpl - xbpl, h, sptr, sbpl, ws, hs ) ){
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
 #endif
 	QPixmap pm;
 	return pm;
     }
+    SwapMMUMode(&mode);
+#ifndef QMAC_ONE_PIXEL_LOCK
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)pm.handle()));    
+#endif
 
-    QPixmap pm( destImg.width(), destImg.height(), depth(), data->bitmap, NormalOptim );
-    pm.convertFromImage( destImg );
-    if ( depth1 ) {
+    if ( depth() == 1 ) {
 	if ( data->mask ) {
 	    if ( data->selfmask )               // pixmap == mask
 		pm.setMask( *((QBitmap*)(&pm)) );
 	    else
 		pm.setMask( data->mask->xForm(matrix) );
 	}
-    } else {
-	if ( data->mask )
-	    pm.setMask( data->mask->xForm(matrix) );
+    } else if ( data->mask ) {
+	pm.setMask( data->mask->xForm(matrix) );
     }
-
     return pm;
 }
 
@@ -642,7 +646,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	qDebug( "QPixmap::init Something went wrong");
 	Q_ASSERT(0);
     } else {
-#ifdef ONE_PIXEL_LOCK
+#ifdef QMAC_ONE_PIXEL_LOCK
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
 	data->w=w;

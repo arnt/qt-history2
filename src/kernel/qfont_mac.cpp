@@ -357,7 +357,9 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::lineWidth() const
 {
-    return 1;
+    // lazy computation of linewidth
+    d->computeLineWidth();
+    return d->lineWidth;
 }
 
 #undef FI
@@ -479,6 +481,26 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
     QMacSetFontInfo::setMacFont(this);
 }
 
+// Computes the line width (underline,strikeout)
+void QFontPrivate::computeLineWidth()
+{
+    int weight = actual.weight;
+    int pSize  = actual.pixelSize;
+
+    // ad hoc algorithm
+    int score = pSize * weight;
+    int nlw = ( score ) / 700;
+
+    // looks better with thicker line for small pointsizes
+    if ( nlw < 2 && score >= 1050 ) 
+	nlw = 2;
+    if ( nlw == 0 ) 
+	nlw = 1;
+
+    if (nlw > lineWidth) 
+	lineWidth = nlw;
+}
+
 void QFontPrivate::drawText( int x, int y, QString s, int len )
 {
     MoveTo(x, y);
@@ -486,19 +508,24 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 	len = s.length();
     uchar task = GIMME_DRAW;
     if(request.underline || request.strikeOut) 
-	task |= GIMME_WIDTH;
+	task |= GIMME_WIDTH; //I need the width for these..
     int w = do_text_task(this, s, 0, len, task);
-    if(task & GIMME_WIDTH) { //I need the width for these..
+    if(task & GIMME_WIDTH) { 
+	computeLineWidth();
 	if(request.underline) {
-	    MoveTo(x, y + 2);
-	    LineTo(x + w, y + 2);
+	    Rect r;
+	    SetRect(&r, x, (y + 2) - (lineWidth / 2), 
+		    x + w, (y + 2) + (lineWidth / 2));
+	    PaintRect( &r );
 	}
 	if(request.strikeOut) {
 	    int spos = fin->ascent() / 3;
 	    if(!spos)
 		spos = 1;
-	    MoveTo(x, y - spos);
-	    LineTo(x + w, y - spos);
+	    Rect r;
+	    SetRect(&r, x, (y - spos) - (lineWidth / 2), 
+		    x + w, (y - spos) + (lineWidth / 2));
+	    PaintRect( &r );
 	}
     } 
 }

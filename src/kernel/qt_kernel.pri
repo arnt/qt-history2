@@ -149,7 +149,7 @@ kernel {
 			  $$KERNEL_CPP/qsound_mac.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp
-             DEFINES += ONE_PIXEL_LOCK
+             DEFINES += QMAC_ONE_PIXEL_LOCK
         }
 
 	!mac:unix:SOURCES += $$KERNEL_CPP/qprinter_unix.cpp

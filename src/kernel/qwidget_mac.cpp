@@ -1259,7 +1259,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    SetRect(&r, x, y, x + w, y + h);
 	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
 	} else {
-	    if(isResize)
+	    if(isResize) 
 		SizeWindow((WindowPtr)hd, w, h, 1);
 	    if(isMove)
 		MoveWindow((WindowPtr)hd, x, y, 1);
@@ -1360,6 +1360,7 @@ void QWidget::setMinimumSize( int minw, int minh)
     createExtra();
     if ( extra->minw == minw && extra->minh == minh )
 	return;
+    //why is this off by 6 pixels (in the widgets example?!?)
     extra->minw = minw;
     extra->minh = minh;
     if ( minw > width() || minh > height() ) {
