@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#12 $
+** $Id: //depot/qt/main/src/tools/qdict.h#13 $
 **
 ** Definition of QDict template/macro class
 **
@@ -45,6 +45,8 @@ public:									      \
     bool  isEmpty() const		{ return QGDict::count() == 0; }      \
     void  insert( const char *k, const type *d )			      \
 					{ QGDict::look(k,(GCI)d,1); }	      \
+    void  replace( const char *k, const type *d )			      \
+					{ QGDict::look(k,(GCI)d,2); }	      \
     bool  remove( const char *k )	{ return QGDict::remove(k); }	      \
     type *take( const char *k )		{ return (type *)QGDict::take(k); }   \
     void  clear()			{ QGDict::clear(); }		      \
@@ -105,6 +107,8 @@ public:
     bool  isEmpty() const		{ return QGDict::count() == 0; }
     void  insert( const char *k, const type *d )
 					{ QGDict::look(k,(GCI)d,1); }
+    void  replace( const char *k, const type *d )
+					{ QGDict::look(k,(GCI)d,2); }
     bool  remove( const char *k )	{ return QGDict::remove(k); }
     type *take( const char *k )		{ return (type *)QGDict::take(k); }
     void  clear()			{ QGDict::clear(); }
