@@ -275,7 +275,7 @@ HRESULT WINAPI QAxScriptSite::OnStateChange(SCRIPTSTATE ssScriptState)
 /*
     \internal
     Returns the toplevel widget parent of this script, or
-    the application main widget if there is no widget parent.
+    the application' active window if there is no widget parent.
 */
 QWidget *QAxScriptSite::window() const
 {
@@ -289,7 +289,7 @@ QWidget *QAxScriptSite::window() const
     if (w)
         w = w->window();
     if (!w && qApp)
-        w = qApp->mainWidget();
+        w = qApp->activeWindow();
     
     return w;
 }
