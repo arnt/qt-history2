@@ -2251,6 +2251,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     case PM_SpinBoxFrameWidth:
     case PM_DefaultFrameWidth:
+	ret = 2;
+	break;
+
     case PM_MDIFrameWidth:
 	ret = 4;
 	break;
