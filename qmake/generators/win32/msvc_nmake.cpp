@@ -157,6 +157,11 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << endl;
 
     t << "####### Implicit rules" << endl << endl;
+    t << ".SUFFIXES: .c";
+    QStringList::Iterator cppit;
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	t << " " << (*cppit);
+    t << endl << endl;
     if(!project->isActiveConfig("no_batch")) {
 	QDict<void> source_directories;
 	source_directories.insert(".", (void*)1);
@@ -179,29 +184,19 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    }
 	}
 
-	t << ".SUFFIXES: .c";
-	QStringList::Iterator cppit;
-	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    t << " " << (*cppit);
-	t << endl << endl;
 	for(QDictIterator<void> it(source_directories); it.current(); ++it) {
 	    if(it.currentKey().isEmpty())
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}.obj::\n\t"
+		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
 		  << var("QMAKE_RUN_CXX_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << endl;
-	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}.obj::\n\t"
+	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
 	      << var("QMAKE_RUN_CC_IMP").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << endl;
 	}
     } else {
-	t << ".SUFFIXES: .c";
-	QStringList::Iterator cppit;
 	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    t << " " << (*cppit);
-	t << endl << endl;
-	for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    t << (*cppit) << ".obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-	t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+	    t << (*cppit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+	t << ".c" << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
     }
 
     t << "####### Build rules" << endl << endl;

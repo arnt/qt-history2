@@ -150,11 +150,14 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << endl;
 
     t << "####### Implicit rules" << endl << endl;
-    t << ".SUFFIXES: .cpp .cxx .cc .c" << endl << endl;
-    t << ".cpp.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cxx.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".cc.obj:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
-    t << ".c.obj:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+    t << ".SUFFIXES: .c";
+    QStringList::Iterator cppit;
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	t << " " << (*cppit);
+    t << endl << endl;
+    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
+	t << (*cppit) << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
+    t << ".c" << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << " $(TARGET)" << endl << endl;
