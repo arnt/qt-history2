@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#105 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#105 $");
 
 
 /*****************************************************************************
@@ -444,8 +444,7 @@ int QPixmap::metric( int m ) const
   has 8 bit depth.  If the pixmap has greater than 8 bit depth, the
   returned image has 32 bit depth.
 
-  \bug Does not support 2 or 4 bit display hardware. This function
-  needs to be tested on different types of X servers.
+  \bug Does not support 2 or 4 bit display hardware.
 
   \bug Alpha masks on monochrome images are ignored.
 
