@@ -529,10 +529,10 @@ void NETRootInfo::setCurrentDesktop(CARD32 desk) {
 
 void NETRootInfo::setDesktopName(CARD32 desk, const char *name) {
     // return immediately if the requested desk is out of range
-    if (desk >= p->number_of_desktops) return;
+    if (desk > p->number_of_desktops) return;
 
-    if (p->desktop_names[desk]) delete p->desktop_names[desk];
-    p->desktop_names[desk] = nstrdup(name);
+    if (p->desktop_names[desk - 1]) delete p->desktop_names[desk - 1];
+    p->desktop_names[desk - 1] = nstrdup(name);
 
     unsigned int i, proplen,
 	num = ((p->number_of_desktops < (unsigned) p->desktop_names.size()) ?
@@ -761,7 +761,7 @@ void NETRootInfo::setActiveWindow(Window win) {
 void NETRootInfo::setWorkArea(CARD32 desk, const NETRect &rect) {
     if (role != WindowManager) return;
 
-    p->workarea[desk] = rect;
+    p->workarea[desk - 1] = rect;
 
     CARD32 *wa = new CARD32[p->number_of_desktops * 4];
     unsigned int i, o;
@@ -1467,7 +1467,6 @@ void NETWinInfo::setKDEDockWinFor(Window win) {
 }
 
 
-
 void NETWinInfo::setKDEFrameStrut(NETStrut strut) {
     if (role != WindowManager) return;
     
@@ -1482,6 +1481,7 @@ void NETWinInfo::setKDEFrameStrut(NETStrut strut) {
     XChangeProperty(p->display, p->window, net_wm_kde_frame_strut, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) d, 4);
 }
+
 
 void NETWinInfo::kdeGeometry(NETRect& frame, NETRect& window) {
     Window unused;
@@ -1639,29 +1639,47 @@ void NETWinInfo::update(unsigned long dirty) {
     // we do this here because we *always* want to update WM_STATE
     dirty &= p->properties;
 
-    if (dirty & WMState)
+    if (dirty & WMState) {
+	printf("WMState dirty, updating\n");
+	
 	if (XGetWindowProperty(p->display, p->window, net_wm_state, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
-	    == Success)
+	    == Success) {
+	    printf("WMState retrieved\n");
+	    
 	    if (data_ret) {
-		if (type_ret == net_wm_state && format_ret == 32 &&
-		    nitems_ret == 1)
+		printf("WMState data good\n");
+		
+		if (type_ret == XA_CARDINAL && format_ret == 32 &&
+		    nitems_ret == 1) {
+		    printf("WMState format good, setting\n");
 		    p->state = *((CARD32 *) data_ret);
-
+		}
+		
 		XFree(data_ret);
 	    }
-
+	}
+    }
+    
     if (dirty & WMDesktop) {
+	printf("WMDesktop dirty, updating\n");
+	
 	p->desktop = 0;
 	if (XGetWindowProperty(p->display, p->window, net_wm_desktop, 0l, 1l,
 			       False, XA_CARDINAL, &type_ret,
 			       &format_ret, &nitems_ret,
 			       &unused, &data_ret)
-	    == Success)
+	    == Success) {
+	    printf("WMDesktop retrieved\n");
+	    
 	    if (data_ret) {
+		printf("WMDesktop data good\n");
+		
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 1) {
+		    printf("WMDesktop format good, setting\n");
+		    
 		    p->desktop = *((CARD32 *) data_ret) + 1;
 		    if ( p->desktop == 0 )
 			p->desktop = OnAllDesktops;
@@ -1669,6 +1687,7 @@ void NETWinInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
+	}
     }
 
     if (dirty & WMName)
