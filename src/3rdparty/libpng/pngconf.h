@@ -248,12 +248,6 @@
 #  endif /* __linux__ */
 #endif /* PNG_SETJMP_SUPPORTED */
 
-#if defined(_AIX) && defined(__xlC__)
-/* This prevents "AIX/xlC" from generating an "index(s,c)" macro in strings.h
- * that conflicts with libpng's png_color_16.index */
-#  undef __STR__
-#endif
-
 #ifdef BSD
 #  include <strings.h>
 #else

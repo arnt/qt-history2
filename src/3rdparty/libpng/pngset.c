@@ -531,9 +531,9 @@ png_set_iCCP(png_structp png_ptr, png_infop info_ptr,
    if (png_ptr == NULL || info_ptr == NULL || name == NULL || profile == NULL)
       return;
 
-   new_iccp_name = png_malloc(png_ptr, png_strlen(name)+1);
+   new_iccp_name = (png_charp)png_malloc(png_ptr, png_strlen(name)+1);
    png_strcpy(new_iccp_name, name);
-   new_iccp_profile = png_malloc(png_ptr, proflen);
+   new_iccp_profile = (png_charp)png_malloc(png_ptr, proflen);
    png_memcpy(new_iccp_profile, profile, (png_size_t)proflen);
 
    png_free_data(png_ptr, info_ptr, PNG_FREE_ICCP, 0);
@@ -735,7 +735,7 @@ png_set_tRNS(png_structp png_ptr, png_infop info_ptr,
 #ifdef PNG_FREE_ME_SUPPORTED
        png_free_data(png_ptr, info_ptr, PNG_FREE_TRNS, 0);
 #endif
-       png_ptr->trans = info_ptr->trans = png_malloc(png_ptr, num_trans);
+       png_ptr->trans = info_ptr->trans = (png_bytep)png_malloc(png_ptr, num_trans);
        png_memcpy(info_ptr->trans, trans, num_trans);
 #ifdef PNG_FREE_ME_SUPPORTED
        info_ptr->free_me |= PNG_FREE_TRNS;
@@ -899,7 +899,7 @@ png_set_keep_unknown_chunks(png_structp png_ptr, int keep, png_bytep
     if (chunk_list == NULL)
       return;
     old_num_chunks=png_ptr->num_chunk_list;
-    new_list=png_malloc(png_ptr,5*(num_chunks+old_num_chunks));
+    new_list=(png_bytep)png_malloc(png_ptr,5*(num_chunks+old_num_chunks));
     if(png_ptr->chunk_list != (png_bytep)NULL)
     {
        png_memcpy(new_list, png_ptr->chunk_list, 5*old_num_chunks);
