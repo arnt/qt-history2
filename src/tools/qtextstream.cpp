@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#80 $
 **
 ** Implementation of QTextStream class
 **
@@ -319,7 +319,7 @@ public:
 	}
 #endif
 	if ( (uint)index + len >= s.length()*2 ) {  // overflow
-	    s.setLength((index+len+1)/2);
+	    s.truncate((index+len+1)/2);
 	}
 	memcpy( ((char*)s.unicode())+index, p, len );
 	index += len;
@@ -1248,7 +1248,7 @@ QString QTextStream::readLine()
 	c = ts_getc();
     }
     if ( i > 0 && result[i-1] == '\r' )
-	result.setLength(i-1);			// if there are two \r, let one stay
+	result.truncate(i-1);			// if there are two \r, let one stay
     return result;
 }
 

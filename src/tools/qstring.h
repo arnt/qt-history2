@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#92 $
+** $Id: //depot/qt/main/src/tools/qstring.h#93 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -188,7 +188,6 @@ public:
     bool	isEmpty()	const;
     uint	length()	const;
     void	truncate( uint pos );
-    void	setLength( uint pos );
     void	resize( uint pos ); // OBS
     void	fill( QChar c, int len = -1 );
 
@@ -310,6 +309,7 @@ public:
 private:
     void deref();
     void real_detach();
+    void setLength( uint pos );
     void subat( uint );
     bool findArg(int& pos, int& len) const;
 
