@@ -189,8 +189,8 @@ QTextStream &operator<<( QTextStream &strm, const TPair &prop )
     return strm;
 }
 
-/* Be sure to always check that each enum is not set
-   to default before streaming it out. Defaults seem
+/* Be sure to check that each enum is not set to
+   default before streaming it out. Defaults seem
    to not be in the XML file.
 */
 QTextStream &operator<<( QTextStream &strm, const EPair &prop )
@@ -320,7 +320,492 @@ return strm;
 
 bool VCCLCompilerTool::parseOption( const char* option )
 {
-    return FALSE;
+    // skip index 0 ('/' or '-')
+    char first  = option[1]; 
+    char second = option[2];
+    char third  = option[3];
+    char fourth = option[4];
+
+    switch ( first ) {
+    case '?':
+    case 'h':
+	qWarning( "Generator: Option '/?', '/help': MSVC.NET projects do not support outputting help info" );
+	return FALSE;
+    case '@':
+	qWarning( "Generator: Option '/@': MSVC.NET projects do not support the use of a response file" );
+	return FALSE;
+    case 'l':
+	qWarning( "Generator: Option '/link': qmake generator does not support passing link options through the compiler tool" );
+	return FALSE;
+
+    case 'A':
+	if ( second != 'I' )
+	    return FALSE;
+	AdditionalUsingDirectories += option+2;
+	break;
+    case 'C':
+	KeepComments = _True;
+	break;
+    case 'D':
+	PreprocessorDefinitions += option+1;
+	break;
+    case 'E':
+	if ( second == 'H' ) {
+	    if ( third == 'a' || third == 'c' || third == 's' ) {
+		// ExceptionHandling must be false, or it will override
+		// with an /EHsc option
+		ExceptionHandling = _False;
+		AdditionalOptions += option;
+		break;
+	    }
+	    return FALSE;
+	}
+	GeneratePreprocessedFile = preprocessYes;
+	break;
+    case 'F':
+	if ( second <= '9' && second >= '0' ) {
+	    AdditionalOptions += option;
+	    break;
+	} else {
+	    switch ( second ) {
+	    case 'A':
+		if ( third == 'c' ) {
+		    AssemblerOutput = asmListingAsmMachine;
+		    if ( fourth == 's' )
+			AssemblerOutput = asmListingAsmMachineSrc;
+		} else if ( third == 's' ) {
+		    AssemblerOutput = asmListingAsmSrc;
+		} else {
+		    AssemblerOutput = asmListingAssemblyOnly;
+		}
+		break;
+	    case 'a':
+		AssemblerListingLocation = option+3;
+		break;
+	    case 'I':
+		ForcedIncludeFiles += option+3;
+		break;
+	    case 'R':
+		BrowseInformation = brAllInfo;
+		BrowseInformationFile = option+3;
+		break;
+	    case 'r':
+		BrowseInformation = brNoLocalSymbols;
+		BrowseInformationFile = option+3;
+		break;
+	    case 'U':
+		ForcedUsingFiles += option+3;
+		break;
+	    case 'd':
+		ProgramDataBaseFileName = option+3;
+		break;
+	    case 'e':
+		OutputFile = option+3;
+		break;
+	    case 'm':
+		AdditionalOptions += option;
+		break;
+	    case 'o':
+		ObjectFile = option+3;
+		break;
+	    case 'p':
+		PrecompiledHeaderFile = option+3;
+		break;
+	    case 'x':
+		ExpandAttributedSource = _True;
+		break;
+	    default:
+		return FALSE;
+	    }
+	}
+	break;
+    case 'G':
+	switch ( second ) {
+	case '3':
+	case '4':
+	    qWarning( "Option '/G3' and '/G4' were phased out in Visual C++ 5.0" );
+	    return FALSE;
+        case '5':
+	    OptimizeForProcessor = procOptimizePentium;
+	    break;
+	case '6':
+	case 'B':
+	    OptimizeForProcessor = procOptimizePentiumProAndAbove;
+	    break;
+	case 'A':
+	    OptimizeForWindowsApplication = _True;
+	    break;
+	case 'F':
+	    StringPooling = _True;
+	    break;
+	case 'H':
+	    AdditionalOptions += option;
+	    break;
+	case 'L':
+	    WholeProgramOptimization = _True;
+	    if ( third == '-' )
+		WholeProgramOptimization = _False;
+	    break;
+	case 'R':
+	    RuntimeTypeInfo = _True;
+	    if ( third == '-' )
+		RuntimeTypeInfo = _False;
+	    break;
+        case 'S':
+	    BufferSecurityCheck = _True;
+	    break;
+	case 'T':
+	    EnableFiberSafeOptimizations = _True;
+	    break;
+	case 'X':
+	case 'Z':
+	case 'e':
+	case 'h':
+	    AdditionalOptions += option;
+	    break;
+	case 'd':
+	    CallingConvention = callConventionCDecl;
+	    break;
+	case 'f':
+	    StringPooling = _True;
+	    AdditionalOptions += option;
+	    break;
+	case 'm':
+	    MinimalRebuild = _True;
+	    if ( third == '-' )
+		MinimalRebuild = _False;
+	    break;
+	case 'r':
+	    CallingConvention = callConventionFastCall;
+	    break;
+	case 's':
+	    // Warning: following [num] is not used,
+	    // were should we put it?
+	    BufferSecurityCheck = _True;
+	    break;
+	case 'y':
+	    EnableFunctionLevelLinking = _True;
+	    break;
+	case 'z':
+	    CallingConvention = callConventionStdCall;
+	    break;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 'H':
+	AdditionalOptions += option;
+	break;
+    case 'I':
+	AdditionalIncludeDirectories += option+2;
+	break;
+    case 'L':
+	if ( second == 'D' ) {
+	    AdditionalOptions += option;
+	    break;
+	}
+	return FALSE;
+    case 'M':
+	if ( second == 'D' ) {
+	    RuntimeLibrary = rtMultiThreadedDLL;
+	    if ( third == 'd' )
+		RuntimeLibrary = rtMultiThreadedDebugDLL;
+	    break;
+	} else if ( second == 'L' ) {
+	    RuntimeLibrary = rtSingleThreaded;
+	    if ( third == 'd' )
+		RuntimeLibrary = rtSingleThreadedDebug;
+	    break;
+	} else if ( second == 'T' ) {
+	    RuntimeLibrary = rtMultiThreaded;
+	    if ( third == 'd' )
+		RuntimeLibrary = rtMultiThreadedDebug;
+	    break;
+	}
+	return FALSE;
+    case 'O':
+	switch ( second ) {
+	case '1':
+	    Optimization = optimizeMinSpace;
+	    break;
+	case '2':
+	    Optimization = optimizeMaxSpeed;
+	    break;
+	case 'a':
+	    AdditionalOptions += option;
+	    break;
+	case 'b':
+	    if ( third == '0' )
+		InlineFunctionExpansion = expandDisable;
+	    else if ( third == '1' )
+		InlineFunctionExpansion = expandOnlyInline;
+	    else if ( third == '2' )
+		InlineFunctionExpansion = expandAnySuitable;
+	    else
+		return FALSE;
+	    break;
+	case 'd':
+	    Optimization = optimizeDisabled;
+	    break;
+	case 'g':
+	    GlobalOptimizations = _True;
+	    break;
+	case 'i':
+	    EnableIntrinsicFunctions = _True;
+	    break;
+	case 'p':
+	    ImproveFloatingPointConsistency = _True;
+	    if ( third == '-' )
+		ImproveFloatingPointConsistency = _False;
+	    break;
+	case 's':
+	    FavorSizeOrSpeed = favorSize;
+	    break;
+	case 't':
+	    FavorSizeOrSpeed = favorSpeed;
+	    break;
+	case 'w':
+	    AdditionalOptions += option;
+	    break;
+	case 'x':
+	    Optimization = optimizeFull;
+	    break;
+	case 'y':
+	    OmitFramePointers = _True;
+	    if ( third == '-' )
+		OmitFramePointers = _False;
+	    break;
+	default:
+	    return FALSE;
+	}
+    case 'P':
+	GeneratePreprocessedFile = preprocessYes;
+	break;
+    case 'Q':
+	if ( second == 'I' ) {
+	    AdditionalOptions += option;
+	    break;
+	}
+	return FALSE;
+    case 'R':
+	if ( second == 'T' && third == 'C' ) {
+	    if ( fourth == '1' )
+		BasicRuntimeChecks = runtimeBasicCheckAll;
+	    else if ( fourth == 'c' )
+		SmallerTypeCheck = _True;
+	    else if ( fourth == 's' )
+		BasicRuntimeChecks = runtimeCheckStackFrame;
+	    else if ( fourth == 'u' )
+		BasicRuntimeChecks = runtimeCheckUninitVariables;
+	    else
+		return FALSE;
+	}
+	break;
+    case 'T':
+	if ( second == 'C' ) {
+	    CompileAs = compileAsC;
+	} else if ( second == 'P' ) {
+	    CompileAs = compileAsCPlusPlus;
+	} else {
+	    qWarning( "Generator: Options '/Tp<filename>' and '/Tc<filename>' are not supported by qmake" );
+	    return FALSE;
+	}
+	break;
+    case 'U':
+	UndefinePreprocessorDefinitions += option+2;
+	break;
+    case 'V':
+	AdditionalOptions += option;
+	break;
+    case 'W':
+	switch ( second ) {
+	case 'a':
+	case '4':
+	    WarningLevel = warningLevel_4;
+	    break;
+	case '3':
+	    WarningLevel = warningLevel_3;
+	    break;
+	case '2':
+	    WarningLevel = warningLevel_2;
+	    break;
+	case '1':
+	    WarningLevel = warningLevel_1;
+	    break;
+	case '0':
+	    WarningLevel = warningLevel_0;
+	    break;
+	case 'L':
+	    AdditionalOptions += option;
+	    break;
+	case 'X':
+	    WarnAsError = _True;
+	    break;
+	case 'p':
+	    if ( third == '6' && fourth == '4' ) {
+		Detect64BitPortabilityProblems = _True;
+		break;
+	    }
+	    // Fallthrough
+	default:
+	    return FALSE;
+	}
+	break;
+    case 'X':
+	IgnoreStandardIncludePath = _True;
+	break;
+    case 'Y':
+	switch ( second ) {
+	case '\0':
+	case '-':
+	    AdditionalOptions += option;
+	    break;
+	case 'X':
+	    UsePrecompiledHeader = pchGenerateAuto;
+	    PrecompiledHeaderFile = option+3;
+	    break;
+	case 'c':
+	    UsePrecompiledHeader = pchCreateUsingSpecific;
+	    PrecompiledHeaderFile = option+3;
+	    break;
+	case 'd':
+	case 'l':
+	    AdditionalOptions =+ option;
+	    break;
+	case 'u':
+	    UsePrecompiledHeader = pchUseUsingSpecific;
+	    PrecompiledHeaderFile = option+3;
+	    break;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 'Z':
+	switch ( second ) {
+	case '7':
+	    DebugInformationFormat = debugOldStyleInfo;
+	    break;
+	case 'I':
+	    DebugInformationFormat = debugEditAndContinue;
+	    break;
+	case 'd':
+	    DebugInformationFormat = debugLineInfoOnly;
+	    break;
+	case 'i':
+	    DebugInformationFormat = debugEnabled;
+	    break;
+	case 'l':
+	    DebugInformationFormat = debugEditAndContinue;
+	    break;
+	case 'a':
+	    DisableLanguageExtensions = _True;
+	    break;
+	case 'e':
+	    DisableLanguageExtensions = _False;
+	    break;
+	case 'c':
+	    if ( third == ':' ) {
+		if ( fourth == 'f' )
+		    ForceConformanceInForLoopScope = _True;
+		else if ( fourth == 'w' )
+		    TreatWChar_tAsBuiltInType = _True;
+		else
+		    return FALSE;
+	    } else {
+		return FALSE;
+	    }
+	    break;
+	case 'g':
+	case 'm':
+	case 's':
+	    AdditionalOptions += option;
+	    break;
+	case 'p':
+	    switch ( third )
+	    {
+	    case '\0':
+	    case '1':
+		StructMemberAlignment = alignSingleByte;
+		if ( fourth == '6' )
+		    StructMemberAlignment = alignSixteenBytes;
+		break;
+	    case '2':
+		StructMemberAlignment = alignTwoBytes;
+		break;
+	    case '4':
+		StructMemberAlignment = alignFourBytes;
+		break;
+	    case '8':
+		StructMemberAlignment = alignEightBytes;
+		break;
+	    default:
+		return FALSE;
+	    }
+	    break;
+	default:
+	    return FALSE;
+	}
+	break;
+    case 'c':
+	if ( second == '\0' ) {
+	    CompileOnly = _True;
+	} else if ( second == 'l' ) {
+	    if ( *(option+5) == 'n' ) {
+		CompileAsManaged = managedAssembly;
+		TurnOffAssemblyGeneration = _True;
+	    } else {
+		CompileAsManaged = managedAssembly;
+	    }
+	} else {
+	    return FALSE;
+	}
+	break;
+    case 'd':
+	if ( second != 'r' )
+	    return FALSE;
+        CompileAsManaged = managedAssembly;
+	break;
+    case 'n':
+	if ( second == 'o' && third == 'B' && fourth == 'o' ) {
+	    AdditionalOptions += "/noBool";
+	    break;
+	}
+	if ( second == 'o' && third == 'l' && fourth == 'o' ) {
+	    SuppressStartupBanner = _True;
+	    break;
+	}
+	return FALSE;
+    case 's':
+	if ( second == 'h' && third == 'o' && fourth == 'w' ) {
+	    ShowIncludes = _True;
+	    break;
+	}
+	return FALSE;
+    case 'u':
+	UndefineAllPreprocessorDefinitions = _True;
+	break;
+    case 'v':
+	if ( second == 'd' || second == 'm' ) {
+	    AdditionalOptions += option;
+	    break;
+	}
+	return FALSE;
+    case 'w':
+	switch ( second ) {
+	case '\0':
+	    WarningLevel = warningLevel_0;
+	    break;
+	case 'd':
+	    DisableSpecificWarnings += option+3;
+	    break;
+	default:
+	    AdditionalOptions += option;
+	}
+	break;
+    default:
+	return FALSE;
+    }
+    return TRUE;
 }
 
 // VCLinkerTool -----------------------------------------------------
