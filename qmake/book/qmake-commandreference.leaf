@@ -480,7 +480,7 @@ See also \link #HEADERS HEADERS \endlink
 
 \section3 SUBDIRS
 
-This variable, when used with the 'subdir'
+This variable, when used with the 'subdirs'
 \link #TEMPLATE TEMPLATE \endlink contains the names of all subdirectories
 to look for a project file.
 
