@@ -1,8 +1,16 @@
-#include <qwidget.h>
-#include <qvalidator.h>
-#include <qstring.h>
-#include <qdatetime.h>
-#include <qlineedit.h>
+#ifndef QDATETIMEEDIT_H
+#define QDATETIMEEDIT_H
+
+#ifndef QT_H
+#include "qwidget.h"
+#include "qvalidator.h"
+#include "qstring.h"
+#include "qdatetime.h"
+#include "qlineedit.h"
+#endif // QT_H
+
+#ifndef QT_NO_SQL
+
 
 class NumEdit : public QLineEdit
 {
@@ -14,7 +22,7 @@ public:
 	setFrame( FALSE );
 	setAlignment( AlignRight );
     }
-    
+
     void setRange( int min, int max )
     {
 	QIntValidator * v = new QIntValidator( this );
@@ -30,11 +38,11 @@ class QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
 public:
-    QDateTimeEditBase( QWidget * parent = 0, const char * name = 0 );    
-    
+    QDateTimeEditBase( QWidget * parent = 0, const char * name = 0 );
+
 protected:
     bool eventFilter( QObject *, QEvent * );
-    
+
     NumEdit     * e[3];
     QLabel      * sep[2];
     QToolButton * up, * down;
@@ -46,7 +54,7 @@ protected slots:
 };
 
 
-class QDateEdit : public QDateTimeEditBase 
+class QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QDate date READ date WRITE setDate )
@@ -59,7 +67,7 @@ protected:
     void resizeEvent( QResizeEvent * );
 };
 
-class QTimeEdit : public QDateTimeEditBase 
+class QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QTime time READ time WRITE setTime )
@@ -71,3 +79,6 @@ public:
 protected:
     void resizeEvent( QResizeEvent * );
 };
+
+#endif
+#endif

@@ -1,19 +1,22 @@
 #include "qdatetimeedit.h"
-#include <qlayout.h>
-#include <qtoolbutton.h>
-#include <qpushbutton.h>
-#include <qapplication.h>
-#include <qframe.h>
-#include <qlabel.h>
+
+#ifndef QT_NO_SQL
+
+#include "qlayout.h"
+#include "qtoolbutton.h"
+#include "qpushbutton.h"
+#include "qapplication.h"
+#include "qframe.h"
+#include "qlabel.h"
 
 
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     : QWidget( parent, name )
-{    
+{
     e[0] = new NumEdit( this );
     e[1] = new NumEdit( this );
     e[2] = new NumEdit( this );
- 
+
     connect( e[0], SIGNAL( returnPressed() ), SLOT( moveFocus() ) );
     connect( e[1], SIGNAL( returnPressed() ), SLOT( moveFocus() ) );
     connect( e[2], SIGNAL( returnPressed() ), SLOT( moveFocus() ) );
@@ -24,28 +27,28 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     sep[0]->setBackgroundColor( e[0]->backgroundColor() );
     sep[1]->setBackgroundColor( e[0]->backgroundColor() );
     setBackgroundColor( e[0]->backgroundColor() );
-    
+
     up = new QToolButton( this );
     up->setText( "." );
     up->setAutoRepeat( TRUE );
     down = new QToolButton( this );
     down->setText( "." );
     down->setAutoRepeat( TRUE );
-    
+
     connect( up, SIGNAL( clicked() ), SLOT( increase() ) );
     connect( down, SIGNAL( clicked() ), SLOT( decrease() ) );
-    
+
     qApp->installEventFilter( this );
 }
 
 void QDateTimeEditBase::increase()
 {
     QWidget * f = focusWidget();
-    
+
     if( f->inherits("NumEdit") ){
 	NumEdit * e = (NumEdit *) f;
 	QIntValidator * v = (QIntValidator *) e->validator();
-	
+
 	int n = e->text().toInt();
 	n++;
 
@@ -53,7 +56,7 @@ void QDateTimeEditBase::increase()
 	    n = v->top();
 	else if( n < v->bottom() )
 	    n = v->bottom();
-	
+
 	e->setText( QString().setNum( n ) );
     }
 }
@@ -61,11 +64,11 @@ void QDateTimeEditBase::increase()
 void QDateTimeEditBase::decrease()
 {
     QWidget * f = focusWidget();
-    
+
     if( f->inherits("NumEdit") ){
 	NumEdit * e = (NumEdit *) f;
 	QIntValidator * v = (QIntValidator *) e->validator();
-	
+
 	int n = e->text().toInt();
 	n--;
 
@@ -73,7 +76,7 @@ void QDateTimeEditBase::decrease()
 	    n = v->top();
 	else if( n < v->bottom() )
 	    n = v->bottom();
-	
+
 	e->setText( QString().setNum( n ) );
     }
 }
@@ -111,7 +114,7 @@ bool QDateTimeEditBase::eventFilter( QObject *, QEvent * ev )
 }
 
 /*!
-  
+
   A small convenient editor for editing dates.
  */
 QDateEdit::QDateEdit( QWidget * parent, const char * name )
@@ -133,7 +136,7 @@ void QDateEdit::setDate( const QDate & d )
 
 QDate QDateEdit::date() const
 {
-    return QDate( e[0]->text().toInt(), e[1]->text().toInt(), 
+    return QDate( e[0]->text().toInt(), e[1]->text().toInt(),
 		  e[2]->text().toInt() );
 }
 
@@ -143,20 +146,20 @@ void QDateEdit::resizeEvent( QResizeEvent * )
     int h = height();
     int numSize  = fontMetrics().width( "xxxx" );
     int yearSize = fontMetrics().width( "xxxxxx" );
-        
+
     e[0]->resize( yearSize, h );
-    
+
     e[1]->resize( numSize, h );
     e[1]->move( e[0]->x() + e[0]->width() + msize, 0 );
-    
+
     e[2]->resize( numSize, h );
     e[2]->move( e[1]->x() + e[1]->width() + msize, 0 );
-        
+
     sep[0]->resize( msize, h );
     sep[1]->resize( msize, h );
     sep[0]->move( e[0]->x() + e[0]->width() + 1, -2 );
     sep[1]->move( e[1]->x() + e[1]->width() + 1, -2 );
- 
+
     up->resize( 15, h/2);
     down->resize( 15, h/2 );
 
@@ -165,7 +168,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 }
 
 /*!
-  
+
   A small convenient editor for editing time.
  */
 QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
@@ -187,7 +190,7 @@ void QTimeEdit::setTime( const QTime & t )
 
 QTime QTimeEdit::time() const
 {
-    return QTime( e[0]->text().toInt(), e[1]->text().toInt(), 
+    return QTime( e[0]->text().toInt(), e[1]->text().toInt(),
 		  e[2]->text().toInt() );
 }
 
@@ -197,24 +200,25 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     int h = height();
     int w;
 //    int numSize  = fontMetrics().width( "xxxx" );
-        
     w = (width() - up->width()) / 3;
     e[0]->resize( w - msize, h );
-    
+
     e[1]->resize( w - msize, h );
     e[1]->move( e[0]->x() + e[0]->width() + msize, 0 );
-    
+
     e[2]->resize( w, h);
     e[2]->move( e[1]->x() + e[1]->width() + msize, 0 );
-        
+
     sep[0]->resize( msize, h );
     sep[1]->resize( msize, h );
     sep[0]->move( e[0]->x() + e[0]->width() + 1, -2 );
     sep[1]->move( e[1]->x() + e[1]->width() + 1, -2 );
- 
+
     up->resize( 15, h/2 );
     down->resize( 15, h/2 );
 
     up->move( width() - 15, 0 );
     down->move( width() - 15, h/2 );
 }
+
+#endif
