@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>607</width>
-            <height>345</height>
+            <width>562</width>
+            <height>369</height>
         </rect>
     </property>
     <property name="caption">
@@ -26,6 +26,16 @@
             <number>6</number>
         </property>
         <widget class="QTable" row="0" column="0">
+            <column>
+                <property name="text">
+                    <string>1</string>
+                </property>
+            </column>
+            <row>
+                <property name="text">
+                    <string>1</string>
+                </property>
+            </row>
             <property name="name">
                 <cstring>table</cstring>
             </property>
@@ -127,11 +137,11 @@
         </widget>
         <widget class="QTabWidget" row="0" column="1">
             <property name="name">
-                <cstring>TabWidget2</cstring>
+                <cstring>TabWidget</cstring>
             </property>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>tab</cstring>
+                    <cstring>columns_tab</cstring>
                 </property>
                 <attribute name="title">
                     <string>Co&amp;lumns</string>
@@ -143,6 +153,44 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
+                    <widget class="QPushButton" row="1" column="1">
+                        <property name="name">
+                            <cstring>buttonNewColumn</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;New Column</string>
+                        </property>
+                    </widget>
+                    <spacer row="4" column="2">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QListBox" row="0" column="0" rowspan="6" colspan="1">
+                        <property name="name">
+                            <cstring>listColumns</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="2" column="1">
+                        <property name="name">
+                            <cstring>buttonDeleteColumn</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Delete Column</string>
+                        </property>
+                    </widget>
                     <spacer row="3" column="1">
                         <property name="name" stdset="0">
                             <cstring>Spacer2</cstring>
@@ -177,31 +225,6 @@
                             <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
-                    <widget class="QPushButton" row="1" column="1">
-                        <property name="name">
-                            <cstring>buttonNewColumn</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;New Column</string>
-                        </property>
-                    </widget>
-                    <spacer row="4" column="2">
-                        <property name="name" stdset="0">
-                            <cstring>Spacer3</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
                     <widget class="QPushButton" row="5" column="1">
                         <property name="name">
                             <cstring>buttonColumnDown</cstring>
@@ -219,41 +242,9 @@
                             <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
-                    <widget class="QLabel" row="6" column="0">
-                        <property name="name">
-                            <cstring>labelFields</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Connected to &amp;field:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>comboFields</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QPushButton" row="2" column="1">
-                        <property name="name">
-                            <cstring>buttonDeleteColumn</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Delete Column</string>
-                        </property>
-                    </widget>
-                    <widget class="QComboBox" row="6" column="1" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>comboFields</cstring>
-                        </property>
-                        <property name="editable">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QListBox" row="0" column="0" rowspan="6" colspan="1">
-                        <property name="name">
-                            <cstring>listColumns</cstring>
-                        </property>
-                    </widget>
                     <widget class="QLayoutWidget" row="0" column="1" rowspan="1" colspan="2">
                         <property name="name">
-                            <cstring>Layout7</cstring>
+                            <cstring>Layout9</cstring>
                         </property>
                         <grid>
                             <property name="margin">
@@ -262,18 +253,31 @@
                             <property name="spacing">
                                 <number>6</number>
                             </property>
-                            <widget class="QLabel" row="0" column="0">
+                            <widget class="QLabel" row="0" column="1">
+                                <property name="name">
+                                    <cstring>labelTableValue</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&lt;no table&gt;</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
                                 <property name="name">
                                     <cstring>TextLabel2</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Text:</string>
+                                    <string>&amp;Label:</string>
                                 </property>
                                 <property name="buddy" stdset="0">
                                     <cstring>editColumnText</cstring>
                                 </property>
                             </widget>
-                            <widget class="QLabel" row="1" column="0">
+                            <widget class="QLineEdit" row="1" column="1">
+                                <property name="name">
+                                    <cstring>editColumnText</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="3" column="0">
                                 <property name="name">
                                     <cstring>Label2</cstring>
                                 </property>
@@ -284,7 +288,18 @@
                                     <cstring>itemChoosePixmap</cstring>
                                 </property>
                             </widget>
-                            <widget class="QLayoutWidget" row="1" column="1">
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>labelFields</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Field:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>comboFields</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget" row="3" column="1">
                                 <property name="name">
                                     <cstring>Layout2</cstring>
                                 </property>
@@ -348,9 +363,20 @@
                                     </widget>
                                 </hbox>
                             </widget>
-                            <widget class="QLineEdit" row="0" column="1">
+                            <widget class="QComboBox" row="2" column="1">
                                 <property name="name">
-                                    <cstring>editColumnText</cstring>
+                                    <cstring>comboFields</cstring>
+                                </property>
+                                <property name="editable">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>labelTable</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Table:</string>
                                 </property>
                             </widget>
                         </grid>
@@ -359,7 +385,7 @@
             </widget>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>tab</cstring>
+                    <cstring>rows_tab</cstring>
                 </property>
                 <attribute name="title">
                     <string>&amp;Rows</string>
@@ -476,7 +502,7 @@
                                     <cstring>TextLabel2_3</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Text:</string>
+                                    <string>&amp;Label:</string>
                                 </property>
                                 <property name="buddy" stdset="0">
                                     <cstring>editRowText</cstring>
@@ -735,7 +761,7 @@
 </connections>
 <tabstops>
     <tabstop>table</tabstop>
-    <tabstop>TabWidget2</tabstop>
+    <tabstop>TabWidget</tabstop>
     <tabstop>listColumns</tabstop>
     <tabstop>editColumnText</tabstop>
     <tabstop>buttonNewColumn</tabstop>

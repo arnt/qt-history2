@@ -9,6 +9,7 @@
 #include "pixmapchooser.h"
 #include "command.h"
 #include <qvaluelist.h>
+#include <qtabwidget.h>
 #include "project.h"
 #include "metadatabase.h"
 
@@ -18,6 +19,15 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
     if ( !editTable->inherits( "QSqlTable" ) ) {
 	labelFields->hide();
 	comboFields->hide();
+	labelTable->hide();
+	labelTableValue->hide();
+    }
+    if ( editTable->inherits( "QSqlTable" ) ) {
+	// ## why does this behave weird?
+	//	TabWidget->removePage( rows_tab );
+	//	rows_tab->hide();
+	// ## do this in the meantime...
+	TabWidget->setTabEnabled( rows_tab, FALSE );
     }
 
     labelColumnPixmap->setText( "" );
@@ -31,6 +41,8 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	    fields += formWindow->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] );
 	    comboFields->insertStringList( fields );
 	}
+	if ( !lst[ 1 ].isEmpty() )
+	    labelTableValue->setText( lst[ 1 ] );
     }
 
     readFromTable();
@@ -97,13 +109,15 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
 	labelColumnPixmap->setText( "" );
     editColumnText->blockSignals( FALSE );
 
-    QString s = *fieldMap.find( listColumns->index( i ) );
-    if ( s.isEmpty() )
-	comboFields->setCurrentItem( 0 );
-    else if ( comboFields->listBox()->findItem( s ) )
-	comboFields->setCurrentItem( comboFields->listBox()->index( comboFields->listBox()->findItem( s ) ) );
-    else
-	comboFields->lineEdit()->setText( s );
+    if ( editTable->inherits( "QSqlTable" ) ) {
+	QString s = *fieldMap.find( listColumns->index( i ) );
+	if ( s.isEmpty() )
+	    comboFields->setCurrentItem( 0 );
+	else if ( comboFields->listBox()->findItem( s ) )
+	    comboFields->setCurrentItem( comboFields->listBox()->index( comboFields->listBox()->findItem( s ) ) );
+	else
+	    comboFields->lineEdit()->setText( s );
+    }
 }
 
 void TableEditor::currentFieldChanged( const QString &s )
@@ -161,6 +175,8 @@ void TableEditor::newColumnClicked()
     QListBoxItem *i = listColumns->item( listColumns->count() - 1 );
     listColumns->setCurrentItem( i );
     listColumns->setSelected( i, TRUE );
+    editColumnText->setFocus();
+    editColumnText->selectAll();
 }
 
 void TableEditor::newRowClicked()
