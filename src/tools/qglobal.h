@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#31 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#32 $ 
 **
 ** Global type declarations and definitions
 **
@@ -102,7 +102,7 @@
 // Some compilers don't support templates
 //
 
-#if defined(_CC_MPW_) || (defined(_CC_MSVC_) && _MSC_VER < 900) || defined(_CC_SUN_)
+#if defined(_CC_MPW_) || (defined(_CC_MSVC_) && _MSC_VER < 900)
 #define NO_TEMPLATECLASS
 #endif
 
