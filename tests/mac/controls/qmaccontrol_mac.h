@@ -49,6 +49,7 @@ public:
 
 protected:
     bool event(QEvent *);
+    void enabledChange(bool);
 
 private:
     static QMAC_PASCAL OSStatus ctrlEventProcessor(EventHandlerCallRef,  EventRef, void *);

@@ -153,6 +153,11 @@ QMacControl::setControl(ControlRef ctrl)
 	    show();
 	else
 	    hide();
+	//enabled state
+	if(IsControlEnabled(ctrl))
+	    setEnabled(TRUE);
+	else
+	    setEnabled(FALSE);
 
 	//setup a callback
 	if(!QMacControlPrivate::ctrlHandlerUPP) {
@@ -231,6 +236,18 @@ QMacControl::event(QEvent *e)
     return QWidget::event(e);
 }
 
+void
+QMacControl::enabledChange(bool b)
+{
+    QWidget::enabledChange(b);
+    if(!d->ctrl)
+	return;
+    if(b)
+	EnableControl(d->ctrl);
+    else
+	DisableControl(d->ctrl);
+}
+
 /* \internal */
 QMAC_PASCAL OSStatus
 QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
@@ -254,15 +271,17 @@ QMacControl::ctrlEventProcessor(EventHandlerCallRef er, EventRef event, void *da
 		once = FALSE;
 	    }
 	}
-#if 0
     case kEventClassMouse:
 	if(ekind == kEventMouseDown) {
+	    call_back = FALSE;
 	    Point where;
 	    GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 			      sizeof(where), NULL, &where);
-	    HandleControlClick(ctrl->d->ctrl, where, 0, NULL);
+	    QPoint p = ctrl->mapFromGlobal(QPoint(where.h, where.v));
+	    where.h = p.x();  where.v = p.y();
+	    TrackControl(ctrl->d->ctrl, where, NULL);
+	    ctrl->repaint();
 	}
-#endif
     }
     if(call_back)
 	return CallNextEventHandler(er, event);

@@ -17,8 +17,10 @@ main(int argc, char **argv)
     SetRect(&r, 0, 0, 50, 35);
     ControlRef button;
     CreatePushButtonControl((WindowPtr)window->handle(),  &r, 0, &button);
+#if 0
     Boolean t = true;
     SetControlData(button, 0, kControlPushButtonDefaultTag, sizeof(t), &t);
+#endif
     QMacControl qmc(window, button, "ButtonControl");
     qmc.setGeometry(50, 50, 200, 25);
     qmc.setCaption("Hello World");

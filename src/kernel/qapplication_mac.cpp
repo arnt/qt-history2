@@ -1097,8 +1097,9 @@ bool QApplication::processNextEvent( bool canWait )
 	do {
 	    if( ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event ))
 		break;
-	    if((qt_is_gui_used && SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
-	       (!qt_is_gui_used && SendEventToApplication(event)))
+	    if(!SendEventToEventTarget(event, GetEventDispatcherTarget()) ||
+	       (qt_is_gui_used && !SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
+	       (!qt_is_gui_used && !SendEventToApplication(event)))
 		nevents++;
 	    ReleaseEvent(event);
 	} while(GetNumEventsInQueue(GetMainEventQueue()));
