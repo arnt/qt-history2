@@ -820,13 +820,14 @@ QByteArray QProcess::readAllStandardError()
 
 /*!
     Starts the program \a program in a new process, passing the
-    command line arguments in \a arguments. QProcess will immediately
-    enter the Starting state. If the process starts successfully,
-    QProcess will emit started(); otherwise, error() will be emitted.
+    command line arguments in \a arguments. The openMode is set to \a
+    mode. QProcess will immediately enter the Starting state. If the
+    process starts successfully, QProcess will emit started();
+    otherwise, error() will be emitted.
 
     \sa pid(), started()
 */
-void QProcess::start(const QString &program, const QStringList &arguments)
+void QProcess::start(const QString &program, const QStringList &arguments, OpenMode mode)
 {
     Q_D(QProcess);
     if (d->processState != NotRunning) {
@@ -836,7 +837,7 @@ void QProcess::start(const QString &program, const QStringList &arguments)
 
     d->outputReadBuffer.clear();
     d->errorReadBuffer.clear();
-    setOpenMode(QIODevice::ReadWrite);
+    setOpenMode(mode);
 
     d->outputChannelClosing = false;
     d->standardOutputClosed = false;

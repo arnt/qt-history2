@@ -52,7 +52,7 @@ public:
     QProcess(QObject *parent = 0);
     virtual ~QProcess();
 
-    void start(const QString &program, const QStringList &arguments = QStringList());
+    void start(const QString &program, const QStringList &arguments = QStringList(), OpenMode mode = ReadWrite);
 
     ProcessChannel inputChannel() const;
     void setInputChannel(ProcessChannel channel);
