@@ -2,7 +2,7 @@
 #include "qtextdocumentlayout_p.h"
 #include <private/qtextformat_p.h>
 #include "qtextpiecetable_p.h"
-#include "qtextglobal.h"
+#include "qtextglobal_p.h"
 #include "qtextlistmanager_p.h"
 #include "qtexttablemanager_p.h"
 #include "qtexttable.h"

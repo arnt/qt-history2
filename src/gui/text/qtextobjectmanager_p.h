@@ -5,7 +5,7 @@
 #include <qhash.h>
 #include <private/qtextlayout_p.h>
 
-#include "qtextglobal.h"
+#include "qtextglobal_p.h"
 #endif // QT_H
 
 class QTextInlineObjectInterface;

@@ -12,7 +12,7 @@
 #include <private/qtextformat_p.h>
 #include <qsharedpointer.h>
 
-#include "qtextglobal.h"
+#include "qtextglobal_p.h"
 #endif // QT_H
 // #define QT_QMAP_DEBUG
 

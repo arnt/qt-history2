@@ -8,7 +8,7 @@
 #include <qstylesheet.h>
 
 #include "qtextdocument.h"
-#include "qtextglobal.h"
+#include "qtextglobal_p.h"
 #include <private/qtextformat_p.h>
 #include "qtextcursor.h"
 

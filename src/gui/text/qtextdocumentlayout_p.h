@@ -6,7 +6,7 @@
 #include "qtextpiecetable_p.h"
 #include <qtextformat.h>
 #include "qtextdocument.h"
-#include "qtextglobal.h"
+#include "qtextglobal_p.h"
 #include "qtextcursor.h"
 
 #include <private/qtextlayout_p.h>

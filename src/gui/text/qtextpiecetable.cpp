@@ -1,7 +1,6 @@
 #include <private/qtools_p.h>
 #include <qdebug.h>
 
-#include "qtextglobal.h"
 #include "qtextpiecetable_p.h"
 #include "qtextdocument.h"
 #include <qtextformat.h>
