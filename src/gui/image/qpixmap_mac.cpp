@@ -489,7 +489,7 @@ QPixmapData::macQDUpdateAlpha()
         drow = (int*)((char *)dptr + (yy * dbpr));
         srow = (int*)((char *)sptr + (yy * sbpr));
         for (int xx=0; xx < w; xx++) {
-            clr = 255 - (((*(srow + xx)) >> 24) & 0xFF);
+            clr = ~(((*(srow + xx)) >> 24) & 0xFF);
             *(drow + xx) = qRgba(clr, clr, clr, 0);
         }
     }
@@ -533,7 +533,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 
     //create destination
     QPixmap pm(w, h, depth());
-    pm.fill(0x00FFFFFF);
+    memset(pm.data->pixels, 0, pm.data->nbytes);
     const uchar *sptr = (uchar *)data->pixels;
     uchar *dptr = (uchar *)pm.data->pixels;
 
@@ -550,8 +550,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     }
 
     //update the alpha
-    pm.data->macSetHasAlpha(data->has_alpha);
-    pm.data->has_mask = data->has_mask;
+    pm.data->macSetHasAlpha(true);
     return pm;
 }
 
