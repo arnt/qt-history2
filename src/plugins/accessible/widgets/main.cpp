@@ -10,8 +10,10 @@
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
 #include <qvariant.h>
+#include <qaccessible.h>
+#include <q3toolbar.h>
 
-class AccessibleFactory : public QAccessiblePlugin, QAccessible
+class AccessibleFactory : public QAccessiblePlugin, public QAccessible
 {
 public:
     AccessibleFactory();

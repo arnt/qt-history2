@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET  += qtwidgets
 
 CONFIG  += qt dll plugin
+QT      += compat
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
 VERSION  = 1.0.0
 
