@@ -398,15 +398,29 @@ static QString varMap(const QString &x)
 
 static QStringList split_arg_list(QString params)
 {
-    QChar quote = 0;
+    int quote = 0;
     QStringList args;
 
+    static int symbols_init = false;
+    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA };
+    static int symbols[5];
+    if(!symbols_init) {
+        symbols_init = true;
+        symbols[LPAREN] = QChar('(').unicode();
+        symbols[RPAREN] = QChar(')').unicode();
+        symbols[SINGLEQUOTE] = QChar('\'').unicode();
+        symbols[DOUBLEQUOTE] = QChar('"').unicode();
+        symbols[COMMA] = QChar(',').unicode();
+    }
+
+    int unicode;
     const QChar *params_data = params.data();
     const int params_len = params.length();
     for(int x = 0, last = 0, parens = 0; x <= params_len; x++) {
+        unicode = (params_data+x)->unicode();
         if(x == params_len) {
             QString mid(params_data+last, x-last);
-            if(quote.unicode()) {
+            if(quote) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
                     mid = mid.mid(1, mid.length()-2);
                 quote = 0;
@@ -414,17 +428,17 @@ static QStringList split_arg_list(QString params)
             args << mid;
             break;
         }
-        if(*(params_data+x) == QLatin1Char(')')) {
+        if(unicode == symbols[LPAREN]) {
             parens--;
-        } else if(*(params_data+x) == QLatin1Char('(')) {
+        } else if(unicode == symbols[RPAREN]) {
             parens++;
-        } else if(quote.unicode() && *(params_data+x) == quote) {
+        } else if(quote && unicode == quote) {
             quote = 0;
-        } else if(!quote.unicode() && (*(params_data+x) == QLatin1Char('\'') || *(params_data+x) == QLatin1Char('"'))) {
-            quote = *(params_data+x);
-        } else if(!parens && !quote.unicode() && *(params_data+x) == QLatin1Char(',')) {
+        } else if(!quote && (unicode == symbols[SINGLEQUOTE] || unicode == symbols[DOUBLEQUOTE])) {
+            quote = unicode;
+        } else if(!parens && !quote && unicode == symbols[COMMA]) {
             QString mid = params.mid(last, x - last).trimmed();
-            if(quote.unicode()) {
+            if(quote) {
                 if(mid[0] == quote && mid[(int)mid.length()-1] == quote)
                     mid = mid.mid(1, mid.length()-2);
                 quote = 0;
@@ -442,25 +456,41 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
 {
     QString build;
     QStringList ret;
-    QStack<QChar> quote;
+    QStack<char> quote;
 
+    static int symbols_init = false;
+    enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, SLASH, SEMICOLON };
+    static int symbols[6];
+    if(!symbols_init) {
+        symbols_init = true;
+        symbols[LPAREN] = QChar('(').unicode();
+        symbols[RPAREN] = QChar(')').unicode();
+        symbols[SINGLEQUOTE] = QChar('\'').unicode();
+        symbols[DOUBLEQUOTE] = QChar('"').unicode();
+        symbols[SLASH] = QChar('\\').unicode();
+        symbols[SEMICOLON] = QChar(';').unicode();
+    }
+
+
+    int unicode;
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
     for(int x = 0, parens = 0; x < vals_len; x++) {
-        if(x != (int)vals.length()-1 && *(vals_data+x) == QLatin1Char('\\') &&
-           (vals.at(x+1) == QLatin1Char('\'') || vals.at(x+1) == QLatin1Char('"'))) {
+        unicode = (vals_data+x)->unicode();
+        if(x != (int)vals_len-1 && unicode == symbols[SLASH] &&
+           ((vals_data+(x+1))->unicode() == '\'' || (vals_data+(x+1))->unicode() == symbols[DOUBLEQUOTE])) {
             build += *(vals_data+(x++)); //get that 'escape'
-        } else if(!quote.isEmpty() && *(vals_data+x) == quote.top()) {
+        } else if(!quote.isEmpty() && unicode == quote.top()) {
             quote.pop();
-        } else if(*(vals_data+x) == QLatin1Char('\'') || *(vals_data+x) == QLatin1Char('"')) {
-            quote.push(*(vals_data+x));
-        } else if(*(vals_data+x) == QLatin1Char(')')) {
+        } else if(unicode == symbols[SINGLEQUOTE] || unicode == symbols[DOUBLEQUOTE]) {
+            quote.push(unicode);
+        } else if(unicode == symbols[RPAREN]) {
             --parens;
-        } else if(*(vals_data+x) == QLatin1Char('(')) {
+        } else if(unicode == symbols[LPAREN]) {
             ++parens;
         }
 
-        if(!parens && quote.isEmpty() && ((do_semicolon && *(vals_data+x) == QLatin1Char(';')) ||
+        if(!parens && quote.isEmpty() && ((do_semicolon && unicode == symbols[SEMICOLON]) ||
                                           *(vals_data+x) == Option::field_sep)) {
             ret << build;
             build = "";
