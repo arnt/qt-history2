@@ -566,8 +566,9 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
 
     QTextCursor firstHit;
 
+    QTextCursor c = hw->textCursor();
+    c.beginEditBlock();
     foreach (QString term, terms) {
-        QTextCursor c = hw->textCursor();
         c.movePosition(QTextCursor::Start);
         hw->setTextCursor(c);
 
@@ -587,6 +588,7 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
         firstHit.movePosition(QTextCursor::Start);
     }
     firstHit.clearSelection();
+    c.endEditBlock();
     hw->setTextCursor(firstHit);
 
     hw->blockScrolling(false);
