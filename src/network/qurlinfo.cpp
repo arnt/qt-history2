@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-#include "qurloperator.h"
+#include "qurl.h"
 #include "qdir.h"
 #include <limits.h>
 
@@ -100,37 +100,6 @@ public:
 QUrlInfo::QUrlInfo()
 {
     d = 0;
-}
-
-/*!
-    Constructs a QUrlInfo object with information about the file \a
-    file in the \a path. It tries to find the information about the \a
-    file in the QUrlOperator \a path.
-
-    If the information is not found, this constructor creates an
-    invalid QUrlInfo, i.e. isValid() returns false. You should always
-    check if the URL info is valid before relying on the return values
-    of any getter functions.
-
-    If \a file is empty, it defaults to the QUrlOperator \a path, i.e.
-    to the directory.
-
-    \sa isValid() QUrlOperator::info()
-*/
-
-QUrlInfo::QUrlInfo(const QUrlOperator &path, const QString &file)
-{
-    QString file_ = file;
-    if (file_.isEmpty())
-        file_ = ".";
-
-    QUrlInfo inf = path.info(file_);
-    if (inf.d) {
-        d = new QUrlInfoPrivate;
-        *d = *inf.d;
-    } else {
-        d = 0;
-    }
 }
 
 /*!

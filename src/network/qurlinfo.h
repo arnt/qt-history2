@@ -21,7 +21,6 @@
 #include "qiodevice.h"
 #endif // QT_H
 
-class QUrlOperator;
 class QUrl;
 class QUrlInfoPrivate;
 
@@ -34,7 +33,6 @@ public:
         ReadOther = 00004, WriteOther = 00002, ExeOther = 00001 };
 
     QUrlInfo();
-    QUrlInfo(const QUrlOperator &path, const QString &file);
     QUrlInfo(const QUrlInfo &ui);
     QUrlInfo(const QString &name, int permissions, const QString &owner,
               const QString &group, QIODevice::Offset size, const QDateTime &lastModified,
