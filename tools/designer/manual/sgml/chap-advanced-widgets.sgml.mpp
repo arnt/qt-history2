@@ -2,6 +2,40 @@
 <chapter>
 <title>Using Qt's Advanced Widgets</title>
 
+<sect1 id="sharedpixmaps">
+<title>Shared Pixmaps </title>
+<para>
+The first version of \qd kept static pixmaps (icons) in each form's
+<filename>.cpp</filename> file. This was inefficient if the same pixmaps
+were required in several different forms. \qd now creates a default
+file, <filename>images.cpp</filename>, in which it places a single copy
+of each pixmap used in the application.
+</para>
+<para>
+To add pixmaps to the application click <guimenuitem>Edit|Pixmap
+Collection</guimenuitem> to invoke the Choose a Pixmap dialog. Any
+pixmaps already in the project are shown in the icon view. You can add
+additional pixmaps by clicking <guibutton>Add</guibutton> which will pop
+up a file dialog through which you can choose a pixmap. 
+</para>
+<para>
+If you create a widget which has an iconSet or pixmap
+property you can click the ellipsis button next to the pixmap to invoke
+the Choose a Pixmap dialog through which you can select a pixmap for
+the widget. Some widgets can hold multiple pixmaps, for example a list
+box can hold both pixmaps and text. The list box's value editor can be
+used to add pixmaps as required. (This is described in <xref
+linkend="listbox"> "ListBox".)
+</para>
+<para>
+If you really want to store pixmaps in a particular form rather than in
+<filename>images.cpp</filename> you can do so: right click the form,
+then click <guimenuitem>Form Settings</guimenuitem>; click 'Save
+Inline', then click \ok.
+</para>
+</sect1>
+
+
 <sect1 id="listbox">
 <title>ListBox </title>
 <para>

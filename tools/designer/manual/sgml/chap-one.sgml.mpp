@@ -512,9 +512,22 @@ widgets have different value editors.
     <function>.cpp</function> files which can contain your own
     constructor, destructor, functions, slots, declarations and
     variables as your requirements dictate. (See <xref
-    linkend="subclassing"> "Subclassing" for more information.)
+    linkend="subclassing"> "Subclassing" for more information.) 
     </para>
     </sidebar>
+
+    <para>
+    In the example we've presented we've used \qd's layout tools to lay
+    out our widgets. We will use the layout tools again in the examples
+    presented in later chapters. If you want to use absolute
+    positioning, i.e. to place and size your widgets with exact pixel
+    sizes you can easily do so. To place a widget click it and drag it
+    to the desired position. To resize it, click it, and drag one of the
+    sizing handles (small blue squares) until the size is right. To stop
+    the widget from resizing when the window is resized change the
+    hSizeType and vSizeType (these are properties within the sizePolicy
+    property), to Fixed.
+    </para>
     </sect2>
 
     <sect2 id="previewing">

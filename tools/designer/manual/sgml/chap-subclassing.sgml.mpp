@@ -1,58 +1,94 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
-<title>Compiling &amp; Building Qt Applications</title>
+<title id="subclassingdynamicdialogs">
+Alternatives: Subclassing; Dynamic Dialogs</title>
 
-<sect1 id="creatingmaincpp">
-<title>Creating main.cpp </title>
+<sect1 id="turningdesignersuifilesintosourcecode">
+<title>Turning Designer's .ui files into Source Code </title>
 <para>
-
+\qd reads and writes \cmd[qmake] <filename>.pro</filename> files
+which are used to record the files used to build the application and
+from which Makefiles are generated. Designer also reads and writes
+<function>.ui</function> (user interface) files. These are XML files
+that record the widgets, layouts, source code and settings you've used
+for a form. Every <filename>.ui</filename> file is converted by
+\cmd[uic] (user interface compiler) into a C++ <filename>.h</filename>
+file and a C++ <filename>.cpp</filename> file. These C++ files are then
+read by \cmd[moc] (meta object compiler -- the tool that converts Qt's
+signals and slots into standard C++), and finally compiled by your
+compiler into a working application.
 </para>
-</sect1>
 
-<sect1 id="qmake">
-<title>qmake </title>
-
-    <sect2 id="addingvaluestotheprofile">
-    <title>Adding Values to the .pro File </title>
-    <para>
-
-    </para>
-
-    </sect2>
-
-    <sect2 id="generatingamakefile">
-    <title>Generating a Makefile </title>
-    <para>
-
-    </para>
-    </sect2>
-</sect1>
-
-
-<sect1 id="makingamprunningtheapplication">
-<title>Making &amp; Running the Application </title>
 <para>
-
+If you create applications wholly within \qd you need only create a
+<filename>main.cpp</filename> and add 
+<programlisting>
+SOURCES = main.cpp
+</programlisting>
+to your project's <filename>.pro</filename> file. You can then use
+\cmd[qmake] to generate the Makefile. Running \cmd[make] or \cmd[nmake]
+will then call \cmd[uic], \cmd[moc] and your compiler as necessary to
+build your application.
 </para>
+
+<para>
+If you use \qd to create your main window and dialogs, but also add
+other C++ files, or if you subclass any of your forms you will need to
+add these files to the <filename>.pro</filename> file so that they are
+compiled with the rest of your application's source files. Each
+<filename>.h</filename> file that you create separately from \qd should
+be added to the <literal>HEADERS</literal> line, and each
+<filename>.cpp</filename> file should be added to the
+<literal>SOURCES</literal> line, just as we've done for
+<filename>main.cpp</filename>. If you get undefined reference errors it
+is worth checking that you've added the names of all your header and
+implementation files to the <filename>.pro</filename> file.
+</para>
+
 </sect1>
 
-<sect1 id="subclassingtokeeptheguiseparate">
-<title>Subclassing to Keep the GUI Separate </title>
 
-    <sect2 id="creatingaformsubclass">
-    <title>Creating a Form Subclass </title>
-    <para>
+<sect1 id="subclassing">
+<title>Subclassing</title>
+<para>
+Adding slots directly in \qd is a useful technique suitable for most
+situations. But in some cases we want to use our own constructor or
+destructor rather than the supplied <function>init()</function> and
+<function>destroy()</function> functions. Also, for more complex
+applications, it may be easier to debug the code in separate files since
+the line numbers in error messages refer to the lines where our code
+appears in the generated code rather where they appear in \qd's code
+editor.
+</para>
 
-    </para>
-    </sect2>
+<sect2 id="creatingaformsubclass">
+<title>Creating a Form Subclass </title>
+<para>
+If we're going to subclass a form it may be helpful to use a naming
+convention for the form to help us see which files are generated from
+\qd's <filename>.ui</filename> files and which are hand coded. 
+</para>
+<para>
+For example, suppose we have an application with a dialog that we want
+to subclass. If we were writing the code directly in \qd we might call
+the dialog form 'SettingsDialog' and the <filename>.ui</filename>
+file, <filename>settingsdialog.ui</filename>. If we intend
+subclassing we suggest that you call the form 'SettingsDialogBase'
+and its <filename>.ui</filename> file,
+<filename>settingsdialogbase.ui</filename>. You would then call your
+subclass files <filename>settingsdialog.h</filename> and
+<filename>settingsdialog.cpp</filename>. The class name of the form
+would be 'SettingsDialogBase', and you would derive from this class
+calling your subclass 'SettingsDialog'. 
+</para>
+<para>
+Any subclass of a form should include the <literal>Q_OBJECT</literal>
+macro. Once you've created your subclass be sure to add the
+<filename>.h</filename> and the <filename>.cpp</filename> files to the
+<filename>.pro</filename> project file.
+</para>
+</sect2>
 
-    <sect2 id="updatingtheprofile">
-    <title>Updating the .pro File </title>
-    <para>
-
-    </para>
-    </sect2>
-</sect1>
 
 <sect1 id="creatingdynamicdialogsfromuifiles">
 <title>Creating Dynamic Dialogs from .ui Files </title>
