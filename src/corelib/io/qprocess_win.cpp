@@ -264,7 +264,7 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 static QString qt_create_commandline(const QString &program, const QStringList &arguments)
 {
     QString programName = program;
-    if (programName.contains(" ") && programName.startsWith("\"") && programName.endsWith("\""))
+    if (!programName.startsWith("\"") && !programName.endsWith("\"") && programName.contains(" "))
         programName = "\"" + programName + "\"";
     programName.replace("/", "\\");
 
