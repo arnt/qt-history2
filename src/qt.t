@@ -1,10 +1,10 @@
 #$ IncludeTemplate("lib.t");
 
 #$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libfreetype.a');
-#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libmng.a');
-#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libpng.a');
-#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libz.a');
-#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libjpeg.a');
+#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libmng.a') if Config("mng");
+#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libpng.a') if Config("png");
+#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libz.a') if Config("png");
+#$ Substitute('LIBS += '.$project{"OBJECTS_DIR"}.'/libjpeg.a') if Config("jpeg");
 
 #$ Substitute('tmp/qt.cpp: ../include/qt.h $$ALLHEADERS');
 	echo "#include <qt.h>" >tmp/qt.cpp
@@ -12,7 +12,15 @@
 	$(MOC) -o tmp/qt.cpp tmp/moc_qt.h
 	perl -pi -e 's/"moc_qt.h"/"qt.h"/' tmp/qt.cpp
 
-#$ Substitute('$$DESTDIR_TARGET: $$OBJECTS_DIR/libfreetype.a $$OBJECTS_DIR/libz.a $$OBJECTS_DIR/libpng.a $$OBJECTS_DIR/libmng.a $$OBJECTS_DIR/libjpeg.a');
+#{
+    $l = '$$OBJECTS_DIR/libfreetype.a';
+    $l .= ' $$OBJECTS_DIR/libz.a' if Config("png");
+    $l .= ' $$OBJECTS_DIR/libmng.a' if Config("mng");
+    $l .= ' $$OBJECTS_DIR/libpng.a' if Config("png");
+    $l .= ' $$OBJECTS_DIR/libjpeg.a' if Config("jpeg");
+    
+    Substitute('$$DESTDIR_TARGET: '.$l );
+#}
 
 #$ Substitute('$$OBJECTS_DIR/libfreetype.a:');
 #$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config$$DASHMIPS.mk OBJ_DIR=../../$$OBJECTS_DIR ../../$$OBJECTS_DIR/libfreetype.a');
