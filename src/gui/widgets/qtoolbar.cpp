@@ -73,7 +73,7 @@ void QToolBarPrivate::init()
     QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
                      handle, SLOT(setOrientation(Qt::Orientation)));
     layout->addWidget(handle);
-    handle->setShown(movable && (qobject_cast<QMainWindow *>(q->parentWidget()) != 0));
+    handle->setVisible(movable && (qobject_cast<QMainWindow *>(q->parentWidget()) != 0));
 
     extension = new QToolBarExtension(q);
     QObject::connect(q, SIGNAL(orientationChanged(Qt::Orientation)),
@@ -310,7 +310,7 @@ void QToolBar::setMovable(bool movable)
     if (!movable == !d->movable)
         return;
     d->movable = movable;
-    d->handle->setShown(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
+    d->handle->setVisible(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
     emit movableChanged(d->movable);
 }
 
@@ -612,7 +612,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 d->items.append(item);
                 qobject_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
-            item.widget->setShown(item.action->isVisible());
+            item.widget->setVisible(item.action->isVisible());
             break;
         }
 
@@ -623,7 +623,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                        "QToolBar::actionEvent", "internal error");
             const QToolBarItem &item = d->items.at(index);
             if (!item.hidden)
-                item.widget->setShown(item.action->isVisible());
+                item.widget->setVisible(item.action->isVisible());
 
             break;
         }
@@ -764,7 +764,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	    // considered when buttons in the toolbar are hidden
 	    extension_size = pick(orientation, d->extension->sizeHint());
 	} else {
-            w->setShown(d->items[i - 1].action->isVisible());
+            w->setVisible(d->items[i - 1].action->isVisible());
             d->items[i - 1].hidden = false;
             if (orientation == Qt::Horizontal)
                 max_item_extent = qMax(max_item_extent, w->sizeHint().height());
@@ -847,7 +847,7 @@ bool QToolBar::event(QEvent *event)
             d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
     case QEvent::ParentChange:
-        d->handle->setShown(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
+        d->handle->setVisible(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
         break;
     default:
         break;
