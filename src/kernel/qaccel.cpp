@@ -437,7 +437,6 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	     !lastitem->signal &&
 	     !(lastaccel->parent->receivers( "activatedAmbiguously(int)" )) )
 	    mainStatusBar->message( message, 2000 );
-	}
 #endif
 	lastaccel->activateAmbiguously( lastitem );
     } else { // start (or wrap) with the first matching
