@@ -34,6 +34,11 @@ Bugs
        - Feil når sletting/insetting utenfor synlig område (ikke oppdatering)
        - Feil markering av fokus når horisontal scrolling
        - Blinkende scrollbar ved resize (cellWidth).
+
+   QMenuBar tastatur-bugs:
+       - (Hogne har klaget)
+       - Bug i piltast-håndtering ved menu bar item uten meny.
+
 Funksjonalitet:
 ---------------
 
