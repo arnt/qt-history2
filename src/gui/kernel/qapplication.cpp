@@ -1872,7 +1872,7 @@ bool QApplication::event(QEvent *e)
         Q_ASSERT(te != 0);
         if (te->timerId() == qt_double_buffer_timer) {
             if (!QApplicationPrivate::active_window) {
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#if defined(Q_WS_X11)
                 extern void qt_discard_double_buffer();
                 qt_discard_double_buffer();
 #endif

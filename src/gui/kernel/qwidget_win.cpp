@@ -810,96 +810,6 @@ void QWidget::update(const QRect &r)
     }
 }
 
-struct QWinDoubleBuffer
-{
-    enum {
-        MaxWidth = SHRT_MAX,
-        MaxHeight = SHRT_MAX
-    };
-
-    HDC hdc;
-    HBITMAP hbm;
-    int width;
-    int height;
-};
-
-static QWinDoubleBuffer *qt_global_double_buffer = 0;
-static bool qt_global_double_buffer_active = false;
-
-static void qt_discard_double_buffer(QWinDoubleBuffer **db)
-{
-    if (!*db)
-        return;
-
-    DeleteDC((*db)->hdc);
-    DeleteObject((*db)->hbm);
-
-    delete *db;
-    *db = 0;
-}
-
-void qt_discard_double_buffer()
-{
-    qt_discard_double_buffer(&qt_global_double_buffer);
-}
-
-static QWinDoubleBuffer *qt_win_create_double_buffer(int width, int height)
-{
-    QWinDoubleBuffer *db = new QWinDoubleBuffer;
-    db->hdc = CreateCompatibleDC(qt_display_dc());
-    db->hbm = CreateCompatibleBitmap(qt_display_dc(), width, height);
-    db->width = width;
-    db->height = height;
-    Q_ASSERT(db->hdc);
-    Q_ASSERT(db->hbm);
-    bool success = SelectObject(db->hdc, db->hbm);
-    Q_ASSERT(success);
-    Q_UNUSED(success); // --release warning
-    SelectClipRgn(db->hdc, 0);
-    return db;
-}
-
-static void qt_win_get_double_buffer(QWinDoubleBuffer **db, int width, int height)
-{
-    // the db should consist of 128x128 chunks
-    width  = qMin(((width / 128) + 1) * 128, (int)QWinDoubleBuffer::MaxWidth);
-    height = qMin(((height / 128) + 1) * 128, (int)QWinDoubleBuffer::MaxHeight);
-
-    if (qt_global_double_buffer_active) {
-        *db = qt_win_create_double_buffer(width, height);
-        return;
-    }
-
-    qt_global_double_buffer_active = true;
-
-    if (qt_global_double_buffer) {
-        if (qt_global_double_buffer->width >= width
-            && qt_global_double_buffer->height >= height) {
-            *db = qt_global_double_buffer;
-            SelectClipRgn((*db)->hdc, 0);
-            return;
-        }
-
-        width  = qMax(qt_global_double_buffer->width,  width);
-        height = qMax(qt_global_double_buffer->height, height);
-
-        qt_discard_double_buffer(&qt_global_double_buffer);
-    }
-
-    qt_global_double_buffer = qt_win_create_double_buffer(width, height);
-    *db = qt_global_double_buffer;
-};
-
-static void qt_win_release_double_buffer(QWinDoubleBuffer **db)
-{
-    if (*db != qt_global_double_buffer)
-        qt_discard_double_buffer(db);
-    else
-        qt_global_double_buffer_active = false;
-}
-
-extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, int, QWidget *);
-
 void QWidget::repaint(const QRegion& rgn)
 {
     if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
@@ -916,50 +826,17 @@ void QWidget::repaint(const QRegion& rgn)
     QRect br = rgn.boundingRect();
     QRect brWS = d->mapToWS(br);
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
-    bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
-                          && !testAttribute(Qt::WA_NoSystemBackground)
-                          && br.width()  <= QWinDoubleBuffer::MaxWidth
-                          && br.height() <= QWinDoubleBuffer::MaxHeight
-                          && !QPainter::redirected(this));
 
 #ifdef QT_RASTER_PAINTENGINE
-    double_buffer = false;
     QRasterPaintEngine *rasterEngine = 0;
     if (paintEngine()->type() == QPaintEngine::Raster)
 	rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
 #endif
 
-    bool tmphdc = !d->hd;
-    if (tmphdc)
-        d->hd = GetDC(winId());
-    HDC old_dc = (HDC)d->hd;
-
-    QPoint redirectionOffset;
-
-    QWinDoubleBuffer *qDoubleBuffer = 0;
-    if (double_buffer) {
-        qt_win_get_double_buffer( &qDoubleBuffer, br.width(), br.height());
-        d->hd = qDoubleBuffer->hdc;
-        redirectionOffset = br.topLeft();
-    } else {
-        redirectionOffset = data->wrect.topLeft();
-    }
-
-    if (!redirectionOffset.isNull())
-        QPainter::setRedirected(this, this, redirectionOffset);
-
-    if (do_clipping) {
-        if (redirectionOffset.isNull()) {
-            qt_set_paintevent_clipping(this, rgn);
-        } else {
-            QRegion redirectedRegion(rgn);
-            redirectedRegion.translate(-redirectionOffset);
-            qt_set_paintevent_clipping(this, redirectedRegion);
-        }
-    }
+    qt_set_paintevent_clipping(this, rgn);
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(redirectionOffset, br);
+        d->composeBackground(QPoint(), br);
 
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
@@ -972,40 +849,6 @@ void QWidget::repaint(const QRegion& rgn)
     if (do_clipping)
         qt_clear_paintevent_clipping();
 
-    if (!redirectionOffset.isNull())
-        QPainter::restoreRedirected(this);
-
-
-
-    if (double_buffer) {
-        QVector<QRect> rects = rgn.rects();
-        for (int i=0; i<rects.size(); ++i) {
-            QRect rr = d->mapToWS(rects.at(i));
-            BitBlt(old_dc,
-                   rr.x(), rr.y(),
-                   rr.width(), rr.height(),
-                   (HDC)d->hd,
-                   rr.x()-brWS.x(), rr.y()-brWS.y(),
-                   SRCCOPY);
-        }
-
-        d->hd = old_dc;
-
-        qt_win_release_double_buffer(&qDoubleBuffer);
-
-        // Start timer to kill global double buffer.
-        if (!qApp->activeWindow()) {
-            extern int qt_double_buffer_timer;
-            if (qt_double_buffer_timer)
-                qApp->killTimer(qt_double_buffer_timer);
-            qt_double_buffer_timer = qApp->startTimer(500);
-        }
-    }
-
-    if (tmphdc) {
-        ReleaseDC(winId(), (HDC)d->hd);
-        d->hd = 0;
-    }
 
     setAttribute(Qt::WA_WState_InPaintEvent, false);
     if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
