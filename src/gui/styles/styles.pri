@@ -5,6 +5,7 @@ HEADERS += \
 	styles/qstylefactory.h \
 	styles/qstyleoption.h \
 	styles/qstyleplugin.h \
+	styles/qcommonstylepixmaps_p.h \
 	styles/qcommonstyle.h
 SOURCES += \
 	styles/qstyle.cpp \

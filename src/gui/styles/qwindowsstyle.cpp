@@ -980,29 +980,6 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
         return QPixmap((const char **)critical_xpm);
     case SP_MessageBoxQuestion:
         return QPixmap((const char **)question_xpm);
-    case SP_DirOpenIcon:
-        return QPixmap((const char **)dir_open_xpm);
-    case SP_DirClosedIcon:
-        return QPixmap((const char **)dir_closed_xpm);
-    case SP_DirLinkIcon:
-        return QPixmap((const char **)dir_link_xpm);
-    case SP_FileIcon:
-        return QPixmap((const char **)file_xpm);
-    case SP_FileLinkIcon:
-        return QPixmap((const char **)file_link_xpm);
-    case SP_DriveHDIcon:
-        return QPixmap((const char **)drive_hd_xpm);
-    case SP_DesktopIcon:
-        return QPixmap((const char **)desktop_xpm);
-    case SP_ComputerIcon:
-        return QPixmap((const char **)computer_xpm);
-    case SP_TrashIcon:
-        return QPixmap((const char **)trashcan_xpm);
-    case SP_DriveFDIcon:
-    case SP_DriveCDIcon:
-    case SP_DriveDVDIcon:
-    case SP_DriveNetIcon:
-        return QPixmap();
     case SP_ItemChecked:
         return QPixmap((const char **)checked_xpm);
     case SP_ItemUnchecked:

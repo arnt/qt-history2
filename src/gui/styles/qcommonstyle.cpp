@@ -27,6 +27,7 @@
 #include "qstyleoption.h"
 #include "qtabbar.h"
 #include "qtoolbutton.h"
+#include "private/qcommonstylepixmaps_p.h"
 
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
@@ -66,270 +67,6 @@ QCommonStyle::QCommonStyle()
 QCommonStyle::~QCommonStyle()
 { }
 
-
-static const char * const check_list_controller_xpm[] = {
-"16 16 4 1",
-"        c None",
-".        c #000000000000",
-"X        c #FFFFFFFF0000",
-"o        c #C71BC30BC71B",
-"                ",
-"                ",
-" ..........     ",
-" .XXXXXXXX.     ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" ..........oo   ",
-"   oooooooooo   ",
-"   oooooooooo   ",
-"                ",
-"                "};
-
-static const char * const tree_branch_open_xpm[] = {
-"9 9 2 1",
-"  c None",
-"# c #000000",
-"#########",
-"#       #",
-"# ##### #",
-"#  ###  #",
-"#  ###  #",
-"#   #   #",
-"#   #   #",
-"#       #",
-"#########"};
-
-static const char * const tree_branch_closed_xpm[] = {
-"9 9 2 1",
-"  c None",
-"# c #000000",
-"#########",
-"#       #",
-"# #     #",
-"# ###   #",
-"# ##### #",
-"# ###   #",
-"# #     #",
-"#       #",
-"#########"};
-
-static const char * const tb_extension_arrow_v_xpm[] = {
-    "5 8 3 1",
-    "            c None",
-    ".            c #000000",
-    "+            c none",
-    ".+++.",
-    "..+..",
-    "+...+",
-    "++.++",
-    ".+++.",
-    "..+..",
-    "+...+",
-    "++.++"
-};
-
-static const char * const tb_extension_arrow_h_xpm[] = {
-    "8 5 3 1",
-    "            c None",
-    ".            c #000000",
-    "+            c none",
-    "..++..++",
-    "+..++..+",
-    "++..++..",
-    "+..++..+",
-    "..++..++",
-};
-
-static const char * const filedialog_start_xpm[]={
-    "16 15 8 1",
-    "a c #cec6bd",
-    "# c #000000",
-    "e c #ffff00",
-    "b c #999999",
-    "f c #cccccc",
-    "d c #dcdcdc",
-    "c c #ffffff",
-    ". c None",
-    ".....######aaaaa",
-    "...bb#cccc##aaaa",
-    "..bcc#cccc#d#aaa",
-    ".bcef#cccc#dd#aa",
-    ".bcfe#cccc#####a",
-    ".bcef#ccccccccc#",
-    "bbbbbbbbbbbbccc#",
-    "bccccccccccbbcc#",
-    "bcefefefefee#bc#",
-    ".bcefefefefef#c#",
-    ".bcfefefefefe#c#",
-    "..bcfefefefeeb##",
-    "..bbbbbbbbbbbbb#",
-    "...#############",
-    "................"};
-
-static const char * const filedialog_end_xpm[]={
-    "16 15 9 1",
-    "d c #a0a0a0",
-    "c c #c3c3c3",
-    "# c #cec6bd",
-    ". c #000000",
-    "f c #ffff00",
-    "e c #999999",
-    "g c #cccccc",
-    "b c #ffffff",
-    "a c None",
-    "......####aaaaaa",
-    ".bbbb..###aaaaaa",
-    ".bbbb.c.##aaaaaa",
-    ".bbbb....ddeeeea",
-    ".bbbbbbb.bbbbbe.",
-    ".bbbbbbb.bcfgfe.",
-    "eeeeeeeeeeeeefe.",
-    "ebbbbbbbbbbeege.",
-    "ebfgfgfgfgff.ee.",
-    "aebfgfgfgfgfg.e.",
-    "aebgfgfgfgfgf.e.",
-    "aaebgfgfgfgffe..",
-    "aaeeeeeeeeeeeee.",
-    "aaa.............",
-    "aaaaaaaaaaaaaaaa"};
-
-static const char* const filedialog_toparent_xpm[]={
-    "15 13 3 1",
-    ". c None",
-    "* c #000000",
-    "a c #ffff99",
-    "..*****........",
-    ".*aaaaa*.......",
-    "***************",
-    "*aaaaaaaaaaaaa*",
-    "*aaaa*aaaaaaaa*",
-    "*aaa***aaaaaaa*",
-    "*aa*****aaaaaa*",
-    "*aaaa*aaaaaaaa*",
-    "*aaaa*aaaaaaaa*",
-    "*aaaa******aaa*",
-    "*aaaaaaaaaaaaa*",
-    "*aaaaaaaaaaaaa*",
-    "***************"};
-
-static const char* const filedialog_newfolder_xpm[] = {
-    "15 14 4 1",
-    "        c None",
-    ".        c #000000",
-    "+        c #FFFF00",
-    "@        c #FFFFFF",
-    "          .    ",
-    "               ",
-    "          .    ",
-    "       .     . ",
-    "  ....  . . .  ",
-    " .+@+@.  . .   ",
-    "..........  . .",
-    ".@+@+@+@+@..   ",
-    ".+@+@+@+@+. .  ",
-    ".@+@+@+@+@.  . ",
-    ".+@+@+@+@+.    ",
-    ".@+@+@+@+@.    ",
-    ".+@+@+@+@+.    ",
-    "...........    "};
-
-static const char* const filedialog_detailedview_xpm[]={
-    "14 11 3 1",
-    ". c None",
-    "* c #000000",
-    "a c #000099",
-    ".****.***.***.",
-    "..............",
-    "aaaaaaaaaaaaaa",
-    "..............",
-    ".****.***.***.",
-    "..............",
-    ".****.***.***.",
-    "..............",
-    ".****.***.***.",
-    "..............",
-    ".****.***.***."};
-
-static const char* const filedialog_previewinfoview_xpm[]={
-    "13 13 4 1",
-    ". c #00007f",
-    "a c black",
-    "# c #cec6bd",
-    "b c #000000",
-    "..#####aaaaaa",
-    ".#.#bb#a#####",
-    "...####a#bbb#",
-    "#######a#####",
-    "#######a#bb##",
-    "..#####a#####",
-    ".#.#bb#a#bbb#",
-    "...####a#####",
-    "#######a#bb##",
-    "#######a#####",
-    "..#####a#bbb#",
-    ".#.#bb#a#####",
-    "...####aaaaaa"};
-
-static const char* const filedialog_previewcontentsview_xpm[]={
-    "14 13 5 1",
-    ". c #00007f",
-    "a c black",
-    "c c #7f007f",
-    "# c #cec6bd",
-    "b c #000000",
-    "..#####aaaaaaa",
-    ".#.#bb#a#####a",
-    "...####a#ccc#a",
-    "#######a#ccc#a",
-    "#######a#####a",
-    "..#####a#bbb#a",
-    ".#.#bb#a#####a",
-    "...####a#bbb#a",
-    "#######a#####a",
-    "#######a#bbb#a",
-    "..#####a#####a",
-    ".#.#bb#a#####a",
-    "...####aaaaaaa"};
-
-static const char* const filedialog_mclistview_xpm[]={
-    "15 11 4 1",
-    "* c None",
-    "b c #000000",
-    ". c #000099",
-    "a c #ffffff",
-    "...*****...****",
-    ".a.*bbb*.a.*bbb",
-    "...*****...****",
-    "***************",
-    "...*****...****",
-    ".a.*bbb*.a.*bbb",
-    "...*****...****",
-    "***************",
-    "...*****...****",
-    ".a.*bbb*.a.*bbb",
-    "...*****...****"};
-
-static const char * const filedialog_back_xpm [] = {
-    "13 11 3 1",
-    "a c #00ffff",
-    "# c #000000",
-    ". c None",
-    ".....#.......",
-    "....##.......",
-    "...#a#.......",
-    "..#aa########",
-    ".#aaaaaaaaaa#",
-    "#aaaaaaaaaaa#",
-    ".#aaaaaaaaaa#",
-    "..#aa########",
-    "...#a#.......",
-    "....##.......",
-    ".....#......."};
 
 /*!
     \reimp
@@ -3124,6 +2861,29 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
         return QPixmap((const char **)filedialog_mclistview_xpm);
     case SP_FileDialogBack:
         return QPixmap((const char **)filedialog_back_xpm);
+    case SP_DriveFDIcon:
+    case SP_DriveHDIcon:
+    case SP_TrashIcon:
+    case SP_DriveNetIcon:
+        break; // Grab from Windows
+    case SP_DesktopIcon:
+        return QPixmap((const char **)commonstyle_desktop16_xpm);
+    case SP_ComputerIcon:
+        return QPixmap((const char **)commonstyle_computer16_xpm);
+    case SP_DriveCDIcon:
+        return QPixmap((const char **)commonstyle_cdr16_xpm);
+    case SP_DriveDVDIcon:
+        return QPixmap((const char **)commonstyle_dvd16_xpm);
+    case SP_DirOpenIcon:
+        return QPixmap((const char **)commonstyle_diropen16_xpm);
+    case SP_DirClosedIcon:
+        return QPixmap((const char **)commonstyle_dirclosed16_xpm);
+    case SP_DirLinkIcon:
+        return QPixmap((const char **)dir_link_xpm);
+    case SP_FileIcon:
+        return QPixmap((const char **)file_xpm);
+    case SP_FileLinkIcon:
+        return QPixmap((const char **)file_link_xpm);
     default:
         break;
     }
