@@ -2362,8 +2362,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     QSize sz = size();
     if ((w > 0) && (h > 0))
         sz = QSize(w, h);
-    QPixmap pm;
-    pm.resize(sz);
+    QPixmap pm(sz);
 
 #if defined(Q_WS_X11)
     // If we are using OpenGL widgets we HAVE to make sure that
@@ -2494,7 +2493,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
     if (format().rgba()) {
         res = QImage(w, h, 32);
         glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
-        if (QImage::systemByteOrder() == QImage::BigEndian) {
+        if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
             // OpenGL gives RGBA; Qt wants ARGB
             uint *p = (uint*)res.bits();
             uint *end = p + w*h;
@@ -2512,7 +2511,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
         }
         else {
             // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
-            res = res.swapRGB();
+            res = res.rgbSwapped();
         }
         res.setAlphaBuffer(withAlpha && format().alpha());
     }
@@ -2529,7 +2528,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
 #endif
     }
 
-    return res.mirror();
+    return res.mirrored();
 }
 
 
@@ -2674,9 +2673,9 @@ void QGLWidget::qglClearColor(const QColor& c) const
 QImage QGLWidget::convertToGLFormat(const QImage& img)
 {
     QImage res = img.convertDepth(32);
-    res = res.mirror();
+    res = res.mirrored();
 
-    if (QImage::systemByteOrder() == QImage::BigEndian) {
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         // Qt has ARGB; OpenGL wants RGBA
         for (int i=0; i < res.height(); i++) {
             uint *p = (uint*)res.scanLine(i);
@@ -2689,7 +2688,7 @@ QImage QGLWidget::convertToGLFormat(const QImage& img)
     }
     else {
         // Qt has ARGB; OpenGL wants ABGR (i.e. RGBA backwards)
-        res = res.swapRGB();
+        res = res.rgbSwapped();
     }
     return res;
 }
