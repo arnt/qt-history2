@@ -71,14 +71,17 @@ static QString debug_indent;
 
 static double scale_factor( double v )
 {
-    return v/96;
+    return v;
 }
 
-static bool is_printer( QPainter *p )
+static bool is_printer( QPainter * )
 {
+    return FALSE;
+#if 0
     if ( !p || !p->device() )
 	return FALSE;
     return p->device()->devType() == QInternal::Printer;
+#endif
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -5340,7 +5343,7 @@ QString QTextHorizontalLine::richText() const
 void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg )
 {
     QRect r( x, y, width, height);
-    if ( is_printer( p ) ) {
+    if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
 	QPen oldPen = p->pen();
 	p->setPen( QPen( cg.text(), height/8 ) );
 	p->drawLine( r.left()-1, y + height / 2, r.right() + 1, y + height / 2 );
@@ -5984,7 +5987,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 			 cell->geometry().width() + 2 * us_ib,
 			 cell->geometry().height() + 2 * us_ib );
 		int s = cellspacing;
-		if ( is_printer( p ) ) {
+		if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
 		    qDrawPlainRect( p, r, cg.text(), us_ib );
 		} else {
 		    p->fillRect( r.left()-s, r.top(), s, r.height(), cg.button() );
@@ -5998,7 +6001,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     }
     if ( border ) {
 	QRect r ( x, y, width, height );
-	if ( is_printer( p ) ) {
+	if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
 	    qDrawPlainRect( p, QRect(QMAX( 0, r.x()+1 ), QMAX( 0, r.y()+1 ), QMAX( r.width()-2, 0 ), QMAX( 0, r.height()-2 ) ), cg.text(), us_b );
 	} else {
 	    int s = border;
