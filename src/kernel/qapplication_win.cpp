@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#348 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#349 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -326,7 +326,7 @@ extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
 
-static unsigned int gui_thread=0;
+static unsigned int gui_thread_id = 0;
 
 static void qt_set_windows_resources()
 {
@@ -447,12 +447,10 @@ static void qt_set_windows_resources()
 void qt_init( int *argcptr, char **argv )
 {
     // Detect the Windows version
-    (void)QApplication::winVersion();
+    (void) QApplication::winVersion();
 
-    qDebug("Getting gui thread id");
-    gui_thread=GetCurrentThreadId();
-    qDebug("Value is %d",gui_thread);
-    
+    gui_thread_id = GetCurrentThreadId();
+
 #if defined(DEBUG)
     int argc = *argcptr;
     int i, j;
@@ -1284,8 +1282,7 @@ void QApplication::processEvents( int maxtime )
 
 void QApplication::wakeUpGuiThread()
 {
-    qDebug("Posting message to %d",gui_thread);
-    PostThreadMessage(gui_thread,WM_USER+666,0,0);
+    PostThreadMessage( gui_thread_id , WM_USER+999, 0, 0 );
 }
 
 
@@ -2831,14 +2828,14 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	// Ignore silly Windows move event to wild pos after iconify.
 	// (### check if this has been corrected with the other fixes in 2.0)
 	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) { //###not 32-bit safe
-	    QPoint newCPos( a, b );
-	    r.moveTopLeft( newCPos );
+	    QPoint newPos( a, b );
+	    r.moveTopLeft( newPos );
 	    setCRect( r );
 	    if ( isVisible() ) {
-		QMoveEvent e( pos(), oldPos ); //pos (including frame), not cpos
+		QMoveEvent e( newPos, oldPos );
 		QApplication::sendEvent( this, &e );
 	    } else {
-		QMoveEvent * e = new QMoveEvent( pos(), oldPos );
+		QMoveEvent * e = new QMoveEvent( newPos, oldPos );
 		QApplication::postEvent( this, e );
 	    }
 	}
