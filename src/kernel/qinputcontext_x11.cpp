@@ -58,14 +58,18 @@ extern XIMStyle	qt_xim_style;
    XFreeFontSet call, so we avoid creating and deletion of fontsets as
    much as possible
 */
-static XFontSet fontsetCache[4] = { 0,  0,  0,  0 };
+static XFontSet fontsetCache[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 static int fontsetRefCount = 0;
 
 static const char * const fontsetnames[] = {
-    "-*-fixed-medim-r-*-*-14-*",
-    "-*-fixed-medim-i-*-*-14-*",
-    "-*-fixed-bold-r-*-*-14-*",
-    "-*-fixed-bold-i-*-*-14-*"
+    "-*-fixed-medium-r-*-*-16-*",
+    "-*-fixed-medium-i-*-*-16-*",
+    "-*-fixed-bold-r-*-*-16-*",
+    "-*-fixed-bold-i-*-*-16-*",
+    "-*-fixed-medium-r-*-*-24-*",
+    "-*-fixed-medium-i-*-*-24-*",
+    "-*-fixed-bold-r-*-*-24-*",
+    "-*-fixed-bold-i-*-*-24-*"
 };
 
 static XFontSet getFontSet( const QFont &f )
@@ -75,6 +79,10 @@ static XFontSet getFontSet( const QFont &f )
 	i |= 1;
     if (f.bold())
 	i |= 2;
+
+    if ( f.pointSize() > 20 )
+	i += 4;
+
     if ( !fontsetCache[i] ) {
 	Display* dpy = QPaintDevice::x11AppDisplay();
 	int missCount;
@@ -83,7 +91,7 @@ static XFontSet getFontSet( const QFont &f )
 	if(missCount > 0)
 	    XFreeStringList(missList);
 	if ( !fontsetCache[i] ) {
-	    fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-14-*", &missList, &missCount, 0);
+	    fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-16-*", &missList, &missCount, 0);
 	    if(missCount > 0)
 		XFreeStringList(missList);
 	}
