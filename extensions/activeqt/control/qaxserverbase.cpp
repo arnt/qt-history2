@@ -32,6 +32,7 @@
 #include <qwhatsthis.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
+#include <qptrdict.h>
 
 #include "../shared/types.h"
 
@@ -297,7 +298,7 @@ private:
 */
 QAxServerBase::QAxServerBase( const QString &classname )
 : activeqt( 0 ), ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0), 
-  proplist2(0), propPageSite( 0 ), propPage( 0 ), m_hWndCD( m_hWnd )
+  proplist2(0), propPageSite( 0 ), propPage( 0 ), m_hWnd(0), m_hWndCD( m_hWnd )
 {
     m_bWindowOnly	= TRUE;
     m_bAutoSize		= TRUE;
@@ -488,11 +489,20 @@ bool QAxServerBase::internalCreate()
     return TRUE;
 }
 
+static QPtrDict<QAxServerBase> *ax_ServerMapper = 0;
+static QPtrDict<QAxServerBase> *axServerMapper()
+{
+    if ( !ax_ServerMapper ) {
+	ax_ServerMapper = new QPtrDict<QAxServerBase>;
+    }
+    return ax_ServerMapper;
+}
+
 /*!
     Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
     \a uMsg is handled as follows
     \list
-    \i WM_CREATE The QWidget is created
+    \i WM_CREATE The ActiveX control is created
     \i WM_DESTROY The QWidget is destroyed
     \i WM_SHOWWINDOW The QWidget is parented into the ActiveX window
     \i WM_PAINT The QWidget is updated
@@ -502,86 +512,158 @@ bool QAxServerBase::internalCreate()
     \i WM_MOUSEACTIVATE The ActiveX is activated
     \endlist
 
-    The semantics of \a wParam and \a lParam depend on the value of \a uMsg. 
-    \a lResult is always set to 0. \a dwMsgMapID specifies the message map and
-    must always be zero.
+    The semantics of \a wParam and \a lParam depend on the value of \a uMsg.
 */
-BOOL QAxServerBase::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID )
+LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    BOOL bHandled = TRUE;
-    lResult = 0;
-    switch(dwMsgMapID)
+    if ( uMsg == WM_CREATE ) {
+	CREATESTRUCT *cs = (CREATESTRUCT*)lParam;
+	QAxServerBase *that = (QAxServerBase*)cs->lpCreateParams;
+	axServerMapper()->insert( hWnd, that );
+	that->m_hWnd = hWnd;
+
+	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+    }
+
+    QAxServerBase *that = axServerMapper()->find( hWnd );
+    if ( !that )
+	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+
+    switch ( uMsg ) 
     {
-    case 0:
-	switch ( uMsg ) {
-	case WM_CREATE:
-	    internalCreate();
-	    break;
-
-	case WM_DESTROY:
-	    if ( activeqt ) {
-		delete activeqt;
-		activeqt = 0;
-	    }
- 	    break;
-
-	case WM_SHOWWINDOW:
-	    {
-		QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
-		if ( !axb || !axb->stayTopLevel() ) {
-		    ::SetParent( activeqt->winId(), m_hWnd );
-		    activeqt->raise();
-		    activeqt->move( 0, 0 );
-		}
-		if( wParam )
-		    activeqt->show();
-		else
-		    activeqt->hide();
-	    }
-	    break;
-
-	case WM_PAINT:
-	    activeqt->update();
-	    break;
-
-	case WM_SIZE:
-	    activeqt->resize( LOWORD(lParam), HIWORD(lParam) );
-	    break;
-
-	case WM_SETFOCUS:
-	    if (m_bInPlaceActive)
-	    {
-		DoVerb(OLEIVERB_UIACTIVATE, NULL, m_spClientSite, 0, m_hWndCD, &m_rcPos);
-		CComQIPtr<IOleControlSite, &IID_IOleControlSite> spSite(m_spClientSite);
-		if (m_bInPlaceActive && spSite != NULL)
-		    spSite->OnFocus(TRUE);
-	    }
-	    ::SendMessage( activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
-	    break;
-
-	case WM_KILLFOCUS:
-	    {
-		CComQIPtr<IOleControlSite, &IID_IOleControlSite> spSite(m_spClientSite);
-		if (m_bInPlaceActive && spSite != NULL && !::IsChild(m_hWndCD, ::GetFocus()))
-		    spSite->OnFocus(FALSE);
-	    }
-	    break;
-
-	case WM_MOUSEACTIVATE:
-	    DoVerb(OLEIVERB_UIACTIVATE, NULL, m_spClientSite, 0, m_hWndCD, &m_rcPos);
-	    break;
-
-	default:
-	    break;
+    case WM_NCDESTROY:
+	that->m_hWnd = 0;
+	axServerMapper()->take( hWnd );
+	if ( !axServerMapper()->count() ) {
+	    delete ax_ServerMapper;
+	    ax_ServerMapper = 0;
 	}
+	break;
+
+    case WM_DESTROY:
+	if ( that->activeqt ) {
+	    delete that->activeqt;
+	    that->activeqt = 0;
+	}
+	break;
+
+    case WM_SHOWWINDOW:
+	{
+	    QAxBindable *axb = (QAxBindable*)that->activeqt->qt_cast( "QAxBindable" );
+	    if ( !axb || !axb->stayTopLevel() ) {
+		::SetParent( that->activeqt->winId(), that->m_hWnd );
+		that->activeqt->raise();
+		that->activeqt->move( 0, 0 );
+	    }
+	    if( wParam )
+		that->activeqt->show();
+	    else
+		that->activeqt->hide();
+	}
+	break;
+
+    case WM_SIZE:
+	that->activeqt->resize( LOWORD(lParam), HIWORD(lParam) );
+	break;
+
+    case WM_SETFOCUS:
+	if (that->m_bInPlaceActive) {
+	    that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->m_rcPos);
+	    CComQIPtr<IOleControlSite, &IID_IOleControlSite> spSite(that->m_spClientSite);
+	    if ( that->m_bInPlaceActive && spSite  )
+		spSite->OnFocus(TRUE);
+	}
+	::SendMessage( that->activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
+	break;
+
+    case WM_KILLFOCUS:
+	{
+	    CComQIPtr<IOleControlSite, &IID_IOleControlSite> spSite(that->m_spClientSite);
+	    if ( that->m_bInPlaceActive && spSite && !::IsChild(that->m_hWndCD, ::GetFocus()) )
+		spSite->OnFocus(FALSE);
+	}
+	break;
+
+    case WM_MOUSEACTIVATE:
+	that->DoVerb(OLEIVERB_UIACTIVATE, NULL, that->m_spClientSite, 0, that->m_hWndCD, &that->m_rcPos);
 	break;
 
     default:
 	break;
     }
-    return FALSE;
+
+    return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
+/*!
+    Creates the window hosting the QWidget.
+*/
+HWND QAxServerBase::Create(HWND hWndParent, RECT& rcPos )
+{
+     // ##why not create the QWidget here?
+    static ATOM atom = 0;
+    ::EnterCriticalSection(&_Module.m_csWindowCreate);
+    if ( !atom ) {
+	HINSTANCE hInst = _Module.m_hInst;
+#ifdef UNICODE
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    WNDCLASSW wcTemp;
+	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	    wcTemp.cbClsExtra = 0;
+	    wcTemp.cbWndExtra = 0;
+	    wcTemp.hbrBackground = 0;
+	    wcTemp.hCursor = 0;
+	    wcTemp.hIcon = 0;
+	    wcTemp.hInstance = hInst;
+	    wcTemp.lpszClassName = L"QAxControl";
+	    wcTemp.lpszMenuName = 0;
+	    wcTemp.lpfnWndProc = StartWindowProc;
+
+	    atom = RegisterClassW( &wcTemp );
+	} else
+#endif
+	{
+	    WNDCLASSA wcTemp;
+	    wcTemp.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+	    wcTemp.cbClsExtra = 0;
+	    wcTemp.cbWndExtra = 0;
+	    wcTemp.hbrBackground = 0;
+	    wcTemp.hCursor = 0;
+	    wcTemp.hIcon = 0;
+	    wcTemp.hInstance = hInst;
+	    wcTemp.lpszClassName = "QAxControl";
+	    wcTemp.lpszMenuName = 0;
+	    wcTemp.lpfnWndProc = StartWindowProc;
+
+	    atom = RegisterClassA( &wcTemp );
+	}
+    }
+    ::LeaveCriticalSection(&_Module.m_csWindowCreate);
+    if ( !atom )
+	return 0;
+    
+    ATLASSERT(m_hWnd == NULL);
+
+    HWND hWnd = 0;
+#ifdef UNICODE
+    if ( qWinVersion() & Qt::WV_NT_based )
+	hWnd = ::CreateWindowW( (TCHAR*)MAKELONG(atom, 0), 0,
+	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 
+	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
+	    rcPos.bottom - rcPos.top, hWndParent, 0,
+	    _Module.GetModuleInstance(), this );
+    else
+#endif
+	hWnd = ::CreateWindowA( (char*)MAKELONG(atom, 0), 0,
+	    WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 
+	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
+	    rcPos.bottom - rcPos.top, hWndParent, 0,
+	    _Module.GetModuleInstance(), this );
+
+    ATLASSERT(m_hWnd == hWnd);
+
+    return hWnd;
+}
 
 /*!
     Creates mappings between DISPIDs and Qt signal/slot/property data.
@@ -1171,7 +1253,7 @@ HRESULT QAxServerBase::Draw( DWORD dwAspect, LONG lindex, void *pvAspect, DVTARG
 
     bool bDeleteDC = FALSE;
     if ( !hicTargetDev ) {
-	AtlCreateTargetDC(hdcDraw, ptd);
+//###	AtlCreateTargetDC(hdcDraw, ptd);
 	bDeleteDC = (hicTargetDev != hdcDraw);
     }
 
@@ -1740,7 +1822,7 @@ HRESULT QAxServerBase::internalActivate()
 		if (!::IsChild(m_hWndCD, ::GetFocus()))
 		    ::SetFocus(m_hWndCD);
 	    } else {
-		Create(hwndParent, rcPos); //###!
+		Create(hwndParent, rcPos);
 	    }
 	}
 	

@@ -52,7 +52,6 @@ public:
 
 extern CExeModule _Module;
 #include <atlcom.h>
-#include <atlwin.h>
 
 extern GUID IID_IAxServerBase;
 
@@ -71,8 +70,6 @@ class QAxServerBase :
     public QObject,
     public IAxServerBase,
     public IDispatch,
-    public CWindowImpl<QAxServerBase>,
-
     public IOleObject,
     public IOleControl,
 #ifdef QAX_VIEWOBJECTEX
@@ -95,6 +92,12 @@ public:
 
     ~QAxServerBase();
 
+// CWindowImpl
+    HWND Create(HWND hWndParent, RECT& rcPos );
+    
+    static LRESULT CALLBACK StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+// IUnknown
     unsigned long WINAPI AddRef()
     {
 	return ++ref;
@@ -109,7 +112,6 @@ public:
     }
     HRESULT WINAPI QueryInterface( REFIID iid, void **iface );
 
-    BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0);
 
 // IAxServerBase
     QObject *qObject()
@@ -309,6 +311,7 @@ private:
     unsigned m_bNegotiatedWnd	:1;
     short m_nFreezeEvents;
 
+    HWND m_hWnd;
     union {
 	HWND& m_hWndCD;
 	HWND* m_phWndCD;
