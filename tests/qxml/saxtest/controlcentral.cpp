@@ -3,6 +3,7 @@
 #include <qhbox.h>
 #include <qdatetime.h>
 #include <qxml.h>
+#include <qbuffer.h>
 
 #include "controlcentral.h"
 #include "xmlparser.h"
@@ -27,12 +28,17 @@ ControlCentral::ControlCentral() : QVBox()
     QPushButton *errorProt = new QPushButton( "Error Protocol", hbox );
     QPushButton *tree = new QPushButton( "Tree", hbox );
 
+    hbox= new QHBox( this );
+    incSteps = new QLineEdit( hbox );
+    QPushButton *iParse = new QPushButton( "Incremental Parse", hbox );
+
     quit = new QPushButton( "Quit", this );
 
     connect( source, SIGNAL(clicked()), this, SLOT(showSource()) );
     connect( parseProt, SIGNAL(clicked()), this, SLOT(showParseProtocol()) );
     connect( errorProt, SIGNAL(clicked()), this, SLOT(showErrorProtocol()) );
     connect( tree, SIGNAL(clicked()), this, SLOT(showTree()) );
+    connect( iParse, SIGNAL(clicked()), this, SLOT(incrementalParse()) );
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
     parseProtocolFile = new QFile( "parseProtocol" );
@@ -58,15 +64,14 @@ QSize ControlCentral::sizeHint() const
     return QSize( 500, 250 );
 }
 
-void ControlCentral::parse( const QString& filename )
+void ControlCentral::parse( const QString& filename, const QString& incrementalSteps )
 {
+    QString time;
+
     QFile file( filename );
     if ( !file.open(IO_ReadOnly) ) {
 	return;
     }
-
-    *parseProtocolTS << endl << "******** "
-	<< filename << " ********" << endl;
 
     QXmlSimpleReader parser;
     QXmlInputSource source( &file );
@@ -74,18 +79,23 @@ void ControlCentral::parse( const QString& filename )
     parser.setFeature( "http://xml.org/sax/features/namespaces", TRUE );
     parser.setFeature( "http://xml.org/sax/features/namespace-prefixes", TRUE );
     parser.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
-		 
-    QTime t;
-    t.start();
-    for ( int i=0; i<10; i++ ) {
-	parser.parse( source );
-    }
-    double ms = ((double)t.elapsed()) / 10;
-    QString time;
-    time.setNum( ms );
-    time += " ms";
 
-    file.reset();
+    if ( incrementalSteps.isNull() ) {
+	*parseProtocolTS << endl << "******** "
+	    << filename << " ********" << endl;
+		 
+	QTime t;
+	t.start();
+	for ( int i=0; i<10; i++ ) {
+	    parser.parse( source );
+	}
+	double ms = ((double)t.elapsed()) / 10;
+	time.setNum( ms );
+	time += " ms";
+
+	file.reset();
+    }
+
     QTextView* src = new QTextView();
     src->setTextFormat( PlainText );
     src->setText( source.data() );
@@ -124,10 +134,48 @@ void ControlCentral::parse( const QString& filename )
     parser.setDeclHandler( &hnd );
 
     QString errorStatus;
-    if ( parser.parse( source ) ) {
-	errorStatus = "Ok";
+    if ( incrementalSteps.isNull() ) {
+	if ( parser.parse( source ) ) {
+	    errorStatus = "Ok";
+	} else {
+	    errorStatus = "Error";
+	}
     } else {
-	errorStatus = "Error";
+	file.reset();
+	QByteArray rawData;
+	QStringList steps = QStringList::split( ",", incrementalSteps );
+
+	QStringList::Iterator it = steps.begin();
+	while ( it != steps.end() ) {
+	    int size = (*it).toInt();
+	    rawData.resize( size );
+	    file.readBlock( rawData.data(), size );
+#if 1
+	    rawData.resize( size + 1 );
+	    rawData[ size ] = 0;
+	    qDebug( rawData );
+	    rawData.resize( size - 1 );
+#endif
+	    QBuffer buf( rawData );
+	    QXmlInputSource source( &buf );
+	    if ( parser.parseContinue( source ) ) {
+		errorStatus = "Ok";
+	    } else {
+		errorStatus = "Error";
+		break;
+	    }
+	    ++it;
+	}
+#if 0
+	rawData = file.readAll();
+	QBuffer buf( rawData );
+	QXmlInputSource source( &buf );
+	if ( parser.parseContinue( source ) ) {
+	    errorStatus = "Ok";
+	} else {
+	    errorStatus = "Error";
+	}
+#endif
     }
 
     new XMLFileItem( lview, filename, errorStatus, time,
@@ -182,5 +230,13 @@ void ControlCentral::showTree()
     XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
     if ( fi != 0 ) {
 	fi->tree->show();
+    }
+}
+
+void ControlCentral::incrementalParse()
+{
+    XMLFileItem *fi = (XMLFileItem*)( lview->selectedItem() );
+    if ( fi != 0 ) {
+	parse( fi->text( 0 ), incSteps->text() );
     }
 }

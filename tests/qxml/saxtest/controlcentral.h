@@ -1,5 +1,6 @@
 #include <qvbox.h>
 #include <qpushbutton.h>
+#include <qlineedit.h>
 #include <qlistview.h>
 #include <qfiledialog.h>
 #include <qtextstream.h>
@@ -22,11 +23,13 @@ public slots:
     void showParseProtocol();
     void showErrorProtocol();
     void showTree();
+    void incrementalParse();
 
 private:
-    void parse( const QString& filename );
+    void parse( const QString& filename, const QString& incrementalSteps=QString::null );
 
     QListView* lview;
+    QLineEdit* incSteps;
     QPushButton* quit;
     QFile *parseProtocolFile;
     QTextStream *parseProtocolTS;
