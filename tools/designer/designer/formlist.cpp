@@ -116,6 +116,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     setHScrollBarMode( AlwaysOff );
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
+    setColumnWidthMode( 1, Manual );
 }
 
 void FormList::setProject( Project *pro )

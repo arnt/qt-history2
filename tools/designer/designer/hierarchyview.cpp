@@ -182,6 +182,7 @@ HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view, bool doConne
 		 this, SLOT( showRMBMenu( QListViewItem *, const QPoint & ) ) );
     }
     deselect = TRUE;
+    setColumnWidthMode( 1, Manual );
 }
 
 void HierarchyList::keyPressEvent( QKeyEvent *e )

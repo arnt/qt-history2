@@ -2219,6 +2219,7 @@ PropertyList::PropertyList( PropertyEditor *e )
 	     this, SLOT( toggleOpen( QListViewItem * ) ) );
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
+    setColumnWidthMode( 1, Manual );
 }
 
 void PropertyList::resizeEvent( QResizeEvent *e )
