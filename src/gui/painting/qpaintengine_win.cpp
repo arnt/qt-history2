@@ -379,6 +379,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         return true;
     }
 
+    gccaps = qt_decide_paintengine_features();
+
     d->forceGdiplus = false;
     d->forceGdi = false;
 
@@ -1572,6 +1574,10 @@ void QWin32PaintEngine::updateFont(const QFont &font)
 
 void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+#ifdef QT_DEBUG_DRAW
+    printf(" - QWin32PaintEngine::updateRenderHints(), %p\n", hints);
+#endif
+
     d->forceGdiplus |= (hints & QPainter::Antialiasing);
     if (d->tryGdiplus())
         d->gdiplusEngine->updateRenderHints(hints);
@@ -1843,6 +1849,11 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
     ExtSelectClipRgn(hdc, 0, RGN_COPY);
 
+    q->gccaps |= QPaintEngine::CoordTransform
+                 | QPaintEngine::PenWidthTransform
+                 | QPaintEngine::PixmapTransform
+                 | QPaintEngine::ClipTransform;
+
     Q_ASSERT(!gdiplusEngine);
     gdiplusEngine = new QGdiplusPaintEngine();
     gdiplusEngine->begin(pdev);
@@ -1862,7 +1873,6 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
 void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
 {
-
     XFORM m;
     if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
         m.eM11 = mtx.m11();
