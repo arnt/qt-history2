@@ -489,9 +489,13 @@ public:
     QString    &append( char );
     QString    &append( QChar );
     QString    &append( const QString & );
+    QString    &append( const QCString & );
+    QString    &append( const char * );
     QString    &prepend( char );
     QString    &prepend( QChar );
     QString    &prepend( const QString & );
+    QString    &prepend( const QCString & );
+    QString    &prepend( const char * );
     QString    &remove( uint index, uint len );
     QString    &remove( QChar c );
     QString    &remove( char c ) { return remove( QChar(c) ); }
@@ -511,6 +515,8 @@ public:
 #ifndef QT_NO_REGEXP
     QString    &replace( const QRegExp &, const QString & );
 #endif
+    QString    &replace( QChar, QChar );
+
     short       toShort( bool *ok=0, int base=10 )      const;
     ushort      toUShort( bool *ok=0, int base=10 )     const;
     int         toInt( bool *ok=0, int base=10 )        const;
@@ -538,6 +544,8 @@ public:
     void        setExpand( uint index, QChar c );
 
     QString    &operator+=( const QString &str );
+    QString    &operator+=( const QCString &str );
+    QString    &operator+=( const char *str );
     QString    &operator+=( QChar c );
     QString    &operator+=( char c );
 
@@ -561,10 +569,8 @@ public:
     const char* ascii() const { return latin1(); }
     const char* latin1() const;
     static QString fromLatin1(const char*, int len=-1);
-#ifndef QT_NO_TEXTCODEC
     QCString utf8() const;
     static QString fromUtf8(const char*, int len=-1);
-#endif
     QCString local8Bit() const;
     static QString fromLocal8Bit(const char*, int len=-1);
     bool operator!() const;
@@ -767,7 +773,16 @@ inline QString &QString::prepend( QChar c )
 inline QString &QString::prepend( char c )
 { return insert(0,c); }
 
+inline QString &QString::prepend( const QCString & s )
+{ return insert(0,s.data()); }
+
 inline QString &QString::append( const QString & s )
+{ return operator+=(s); }
+
+inline QString &QString::append( const QCString &s )
+{ return operator+=(s.data()); }
+
+inline QString &QString::append( const char * s )
 { return operator+=(s); }
 
 inline QString &QString::append( QChar c )
@@ -775,6 +790,9 @@ inline QString &QString::append( QChar c )
 
 inline QString &QString::append( char c )
 { return operator+=(c); }
+
+inline QString &QString::operator+=( const QCString &s )
+{ return operator+=(s.data()); }
 
 inline QString &QString::setNum( short n, int base )
 { return setNum((long)n, base); }
