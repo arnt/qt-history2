@@ -2,16 +2,18 @@
     \page qt4-network.html
     \title Qt 4: The Network Module
 
-    \tableofcontents
+    The newtork module in Qt 4 provides some new features, such as
+    support for internationalized domain names, better IPv6 support,
+    and better performance. And since Qt 4 allows us to break binary
+    compatibility with previous releases, we took this opportunity to
+    improve the class names and API to make them more intuitive to
+    use.
 
-        * internationalized domain names
-        * better IPv6 support
-        * better performance
+    \tableofcontents
 
     \section1 General Overview
 
-    The network module in Qt 4 isn't radically different from what it
-    was in Qt 3. Still, by upgrading to Qt 4, you get the following
+    Compared to Qt 3, the network module in Qt 4 brings the following
     benefits:
 
     \list
@@ -20,12 +22,13 @@
     \i  The entire network module is \l{reentrant}, making it
         possible to use them simultaneously from multiple threads.
     \i  It is now possible to send and receive UDP datagrams and to
-        use synchronous (i.e., blocking) sockets, without having to
+        use synchronous (i.e., blocking) sockets without having to
         use a low-level API (QSocketDevice in Qt 3).
     \i  QHostAddress and QDns support internationalized domain names
         (RFC 3492).
     \i  QUrl is more lightweight and fully supports the latest URI
         specification draft.
+    \i  UDP broadcasting is now supported.
     \endlist
 
     The Qt 4 network module provides fundamental classes for writing
@@ -72,11 +75,93 @@
     QDns, QUrl, and QUrlInfo. QHostAddress stores an IPv4 or IPv6
     address, QDns resolves host names into addresses, QUrl stores a
     URL, and QUrlInfo stores information about a resource pointed to
-    by a URL, such as the file size and modification date.
+    by a URL, such as the file size and modification date. (Because
+    QUrl is used by QTextBrowser, it is part of the QtGui library and
+    not of QtNetwork.)
 
     \section1 Example Code
 
-    ###
+    All the code snippets presented here are quoted from
+    self-contained, compilable examples located in Qt's \c
+    examples/network directory.
+
+    \section2 TCP Client
+
+    The first example illustrates how to write a TCP client using
+    QTcpSocket. The client talks to a fortune server that provides
+    fortune to the user. Here's how to set up the socket:
+
+    \quotefile network/fortuneclient/client.cpp
+    \skipto tcpSocket =
+    \printline tcpSocket =
+    \skipto connect(tcpSocket
+    \printline SLOT(readFortune())
+    \printline SLOT(displayError(int))
+
+    When the user requests a new fortune, the client establishes a
+    connection to the server:
+
+    \skipto tcpSocket->connectToHost(
+    \printuntil ;
+
+    When the server answers, the following code is executed to read
+    the data from the socket:
+
+    \skipto QDataStream in(tcpSocket)
+    \printuntil currentFortune = nextFortune
+
+    The server's answer starts with a \e size field (which we store
+    in \c blockSize), followed by \e size bytes of data. If the
+    client hasn't received all the data yet, it waits for the server
+    to send more.
+
+    An alternative approach is to use a blocking socket. The code can
+    then be concentrated in one function:
+
+    \quotefile network/blockingfortuneclient/thread.cpp
+    \skipto const int Timeout
+    \printuntil emit newFortune
+
+    \section2 TCP Server
+
+    The following code snippets illustrate how to write a TCP server
+    using QTcpServer and QTcpSocket. Here's how to set up a TCP
+    server:
+
+    \quotefile network/fortuneserver/server.cpp
+    \skipto tcpServer =
+    \printuntil }
+    \skipto connect(tcpServer
+    \printline connect(tcpServer
+
+    When a client tries to connect to the server, the following code
+    in the \c sendFortune() slot is executed:
+
+    \skipto QByteArray block;
+    \printuntil clientConnection->close()
+
+    \section2 UDP Senders and Receivers
+
+    Here's how to broadcast a UDP datagram:
+
+    \quotefile network/broadcastsender/sender.cpp
+    \skipto udpSocket = new QUdpSocket
+    \printline udpSocket
+    \skipto QByteArray datagram
+    \printuntil QHostAddress::Broadcast
+
+    Here's how to receive a UDP datagram:
+
+    \quotefile network/broadcastreceiver/receiver.cpp
+    \skipto udpSocket = new QUdpSocket
+    \printline udpSocket
+    \skipto connect(udpSocket
+    \printuntil );
+
+    Then in the \c processPendingDatagrams() slot:
+
+    \skipto hasPendingDatagrams
+    \printuntil }
 
     \section1 Comparison with Qt 3
 
@@ -90,7 +175,8 @@
     The QSocket class in Qt 3 has been renamed QTcpSocket. The new
     class is reentrant and supports blocking. It's also easier to
     handle closing than with Qt 3, where you had to connect to both
-    closed() and deferredClose().
+    the QSocket::connectionClosed() and the
+    QSocket::delayedCloseFinished() signals.
 
     The QServerSocket class in Qt 3 has been renamed QTcpServer. The
     API has changed quite a bit. While in Qt 3 it was necessary to
@@ -111,8 +197,8 @@
     datagrams, use QUdpSocket instead. If you used QSocketDevice
     because it supported blocking sockets, use QTcpSocket or
     QUdpSocket instead and call
-    \l{QAbstractSocket::setBlocking()}{setBlocking(true)}. If you
-    used QSocketDevice from a non-GUI thread because it was the only
+    \l{QAbstractSocket::setBlocking()}{setBlocking()}. If you used
+    QSocketDevice from a non-GUI thread because it was the only
     reentrant networking class in Qt 3, use QTcpSocket, QTcpServer,
     or QUdpSocket instead.
 

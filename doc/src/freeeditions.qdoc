@@ -70,22 +70,24 @@ to, software patents, commercial license agreements, copyrighted
 interface definitions or any sort of non-disclosure agreement. In
 these circumstances you must use a commercial edition of Qt.
 
-See the \link faq.html FAQ \endlink for answers to frequently
-asked questions on Qt Free Edition licensing and its implications.
+See the
+\l{http://www.trolltech.com/developer/faqs/license_gpl.html}{License
+FAQ} for answers to frequently asked questions on Qt Free Edition
+licensing and its implications.
 
 More information on Free and Open Source software is available online:
 
 \list
-\i GNU GPL \l http://www.gnu.org
-\i Open Source licensing \l http://www.opensource.org
+\i GNU GPL: \l http://www.gnu.org/
+\i Open Source licensing: \l http://www.opensource.org/
 \endlist
 
 Information about Qt Commercial License Agreements is available at
 \l http://www.trolltech.com/pricing.html or by email from 
-<a href="mailto:sales@trolltech.com">sales@trolltech.com</a>.
+\l{mailto:sales@trolltech.com}{sales@trolltech.com}.
 
 If you are in doubt what edition of Qt is right for your project,
 please contact
-<a href="mailto:info@trolltech.com">info@trolltech.com</a>.
+\l{mailto:info@trolltech.com}{info@trolltech.com}.
 
 */

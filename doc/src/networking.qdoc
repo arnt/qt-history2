@@ -150,42 +150,35 @@
     the time of day could choose UDP. If a datagram with the time of
     day is lost, the client can simply make another request.
 
-    The QUdpSocket class allows you to send and receive UDP datagrams.
-    It inherits QAbstractSocket, and it therefore shares QTcpSocket's
-    interface. The distinct difference is that QUdpSocket doesn't work
-    on a continuous stream of data; instead it works with datagrams.
-    In short, a datagram is a data packet of limited size (often
-    around 500 bytes), including the IP address and port of the
-    datagram's sender and receiver. No connection is required in order
-    to send or receive a datagram. The size of the datagram is limited
-    by the operating system. The final distinction between UDP and TCP
-    is that no guarantee is made that a datagram ever reaches its
-    destination. In the case of network congestion, datagrams are
-    often lost. For these reasons, QUdpSocket is most useful for
-    sending small units of data that can be safely re-requested if
-    missing.
+    The QUdpSocket class allows you to send and receive UDP
+    datagrams. It inherits QAbstractSocket, and it therefore shares
+    most of QTcpSocket's interface. The main difference is that
+    QUdpSocket transfers data as datagrams instead of as a continuous
+    stream of data. In short, a datagram is a data packet of limited
+    size (normally smaller than 512 bytes), containing the IP address
+    and port of the datagram's sender and receiver in addition to the
+    data being transferred.
 
-    QUdpSocket also supports broadcasting (although only for
-    IPv4). Broadcasting is very useful for implementing network
-    discovery protocols, such as finding which host on the network has
-    the most free harddisk space. One host broadcasts a datagram to
-    the network that all other hosts receive. Each host that receives
-    a request then sends a reply back to the sender with its current
-    amount of free disk space. The originator waits until it has
-    received replies from all hosts, and can then choose the server
-    with most free space to store data. To broadcast a datagram,
-    simply write it to QHostAddress::Broadcast.
+    QUdpSocket supports IPv4 broadcasting. Broadcasting is very
+    useful for implementing network discovery protocols, such as
+    finding which host on the network has the most free hard disk
+    space. One host broadcasts a datagram to the network that all
+    other hosts receive. Each host that receives a request then sends
+    a reply back to the sender with its current amount of free disk
+    space. The originator waits until it has received replies from
+    all hosts, and can then choose the server with most free space to
+    store data. To broadcast a datagram, simply send it to the
+    special address QHostAddress::Broadcast (127.0.0.1).
 
-    There is no QUdpServer class. Instead, QUdpSocket provides bind(),
-    which is used to prepare the socket for accepting incoming
-    datagrams, much like listen() is used on QTcpServer. Whenever one
-    or more datagrams arrive, readyRead() is emitted. readDatagram()
-    can then be called to receive the datagram, as well as the IP
-    address and port of the sender.
+    QUdpSocket::bind() prepares the socket for accepting incoming
+    datagrams, much like QTcpServer::listen() for TCP servers.
+    Whenever one or more datagrams arrive, QUdpSocket emits the
+    \l{QUdpSocket::readyRead()}{readyRead()} signal. Call
+    QUdpSocket::readDatagram() to read the datagram.
 
-    See examples/network/broadcastsender and
-    examples/network/broadcastreceiver for examples on how to use
-    QUdpSocket.
+    The network/broadcastsender and network/broadcastreceiver
+    examples show how to write a UDP sender and a UDP receiver using
+    Qt.
 
     \section1 Resolving Host Names with QDns
 

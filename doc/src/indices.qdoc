@@ -34,7 +34,7 @@ software from the CD; see also
 \l{commercialeditions.html}{Commercial Editions}.
 \endif
 \if defined(preview)
-\bold{Note:} This \link tech-preview.html Technology Preview
+\bold{Note:} This \link qt4-intro.html Technology Preview
 \endlink is not meant to be used in production code or even for
 application development.
 \endif
@@ -70,8 +70,8 @@ General
 </td>
 <td valign="top">
 <ul>
-<li><a href="tech-preview.html"><b><font size=+1>Introduction to the Technology Preview</font></b></a>
-<li><a href="getting-started.html">Getting Started with Qt 4</a>
+<li><a href="qt4-intro.html"><b><font size=+1>Introduction to the Technology Preview</font></b></a>
+<li><a href="qt4-getting-started.html">Getting Started with Qt 4</a>
 <li><a href="how-to-learn-qt.html">How to Learn Qt</a>
 <!-- not for the preview
 <li><a href="tutorial.html">Tutorial #1</a>, 
@@ -109,17 +109,16 @@ Overviews
 <li><a href="annotated.html">Annotated Classes</a>
 <li><a href="hierarchy.html">Inheritance Hierarchy</a>
 <li><a href="functions.html">All Functions (long)</a>
-<!-- <li><a href="headers.html">Header File Index</a> -->
-<li><a href="faq.html">FAQs</a>
+<li><a href="http://www.trolltech.com/developer/faqs/">FAQs</a>
 </ul>
 </td>
 <td valign="top">
 <ul>
-<li><a href="arthur-overview.html">Arthur: Paint Engine</a>
-<li><a href="interview-overview.html">Interview: Item View Classes</a>
-<li><a href="mainwindow-overview.html">Mainwindow: Main Window Classes</a>
-<li><a href="scribe-overview.html">Scribe: Text-Rendering Engine</a>
-<li><a href="tulip-overview.html">Tulip: Tool Classes</a>
+<li><a href="qt4-arthur.html">Arthur: Paint Engine</a>
+<li><a href="qt4-interview.html">Interview: Item View Classes</a>
+<li><a href="qt4-mainwindow.html">Mainwindow: Main Window Classes</a>
+<li><a href="qt4-scribe.html">Scribe: Text-Rendering Engine</a>
+<li><a href="qt4-tulip.html">Tulip: Tool Classes</a>
 </ul>
 </td>
 <td valign="top">

@@ -106,7 +106,7 @@
     \endlist
 
 
-    \section1 Examples
+    \section1 Example Code
 
     To illustrate how the Interview classes are used, we present two
     examples that show different aspects of the model/view
@@ -357,6 +357,6 @@
     \i Persistent index-based selections
     \endlist
 
-    \link tech-preview.html [Back to the Technology Preview page] \endlink
+    \link qt4-intro.html [Back to the Technology Preview page] \endlink
 
 */

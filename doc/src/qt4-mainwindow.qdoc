@@ -97,7 +97,7 @@ We are interested in feedback regarding the look and feel, API, and
 design of each of these classes.
 
 
-\section1 Examples
+\section1 Example Code
 
 Using \c QMainWindow is straightforward. Generally, we subclass \c
 QMainWindow and set up menus, tool bars, and dock windows inside
@@ -347,6 +347,6 @@ In the \c QToolBar class:
    QToolButton.
 \endlist
 
-\link tech-preview.html [Back to the Technology Preview page] \endlink
+\link qt4-intro.html [Back to the Technology Preview page] \endlink
 
 */
