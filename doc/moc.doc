@@ -244,7 +244,7 @@ file.  If both -i and -f are present, the last one wins.
 the property system. When using this option, enumeration values are no
 longer available as data-types for properties defined in your class or
 its subclasses. Use this option if the moc fails parsing your class
-definition and you are sure you do not want to use
+declaration and you are sure you do not want to use
 properties. Otherwise, use MOC_SKIP_BEGIN ... MOC_SKIP_END to work
 around the parsing problem (see below).
 <dt> -ldbg <dd> Write a flood of lex debug information on stdout.
