@@ -56,7 +56,11 @@ void ItemDelegate::paint(QPainter *painter,
                          const QStyleOptionViewItem &options,
                          const QModelIndex &index) const
 {
+#ifndef Q_WS_MAC
     QColor base = QApplication::palette().color(QPalette::Button);
+#else
+    QColor base = QColor(220, 220, 220);
+#endif
     QColor pen = QApplication::palette().color(QPalette::ButtonText);
 
     QColor g1 = base.light(120);
@@ -65,7 +69,11 @@ void ItemDelegate::paint(QPainter *painter,
     bool selected = (options.state & QStyle::State_Selected) != 0;
 
     if (selected) {
+#ifndef Q_WS_MAC
          base = QApplication::palette().color(QPalette::Highlight);
+#else
+         base = QColor(133, 133, 133);
+#endif
          pen = QApplication::palette().color(QPalette::HighlightedText);
 
         g2 = base.light();
