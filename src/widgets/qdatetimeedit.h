@@ -87,12 +87,7 @@ public:
     QDateEdit( const QDate& date, QWidget* parent=0,  const char* name=0 );
     ~QDateEdit();
 
-    enum Order {
-	DMY,
-	MDY,
-	YMD,
-	YDM
-    };
+    enum Order { DMY, MDY, YMD, YDM };
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -120,8 +115,8 @@ signals:
 
 protected:
     bool event( QEvent *e );
-    void timerEvent ( QTimerEvent * );
-    void resizeEvent ( QResizeEvent * );
+    void timerEvent( QTimerEvent * );
+    void resizeEvent( QResizeEvent * );
     void stepUp();
     void stepDown();
     QString sectionFormattedText( int sec );
@@ -129,7 +124,7 @@ protected:
     void removeFirstNumber( int sec );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
-    
+
     virtual void setYear( int year );
     virtual void setMonth( int month );
     virtual void setDay( int day );
@@ -146,7 +141,7 @@ private:
     QString sectionText( int sec ) const;
     QDateEditPrivate* d;
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QDateEdit( const QDateEdit & );
     QDateEdit &operator=( const QDateEdit & );
 #endif
@@ -204,8 +199,8 @@ signals:
 
 protected:
     bool event( QEvent *e );
-    void timerEvent ( QTimerEvent *e );
-    void resizeEvent ( QResizeEvent * );
+    void timerEvent( QTimerEvent *e );
+    void resizeEvent( QResizeEvent * );
     void stepUp();
     void stepDown();
     QString sectionFormattedText( int sec );
@@ -227,7 +222,7 @@ private:
     QString sectionText( int sec );
     QTimeEditPrivate* d;
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QTimeEdit( const QTimeEdit & );
     QTimeEdit &operator=( const QTimeEdit & );
 #endif
@@ -251,7 +246,7 @@ public:
     QSize minimumSizeHint() const;
 
 public slots:
-    virtual void  setDateTime( const QDateTime & dt );
+    virtual void setDateTime( const QDateTime & dt );
 
 public:
     QDateTime dateTime() const;
@@ -266,11 +261,13 @@ signals:
     void valueChanged( const QDateTime& datetime );
 
 protected:
+    // ### make init() private in Qt 4.0
     void init();
     void resizeEvent( QResizeEvent * );
-    void layoutEditors();
 
 protected slots:
+    // ### make these two functions private in Qt 4.0,
+    //     and merge them into one with no parameter
     void newValue( const QDate& d );
     void newValue( const QTime& t );
 
@@ -279,7 +276,7 @@ private:
     QTimeEdit* te;
     QDateTimeEditPrivate* d;
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QDateTimeEdit( const QDateTimeEdit & );
     QDateTimeEdit &operator=( const QDateTimeEdit & );
 #endif

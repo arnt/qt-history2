@@ -2029,7 +2029,7 @@ QString QTimeEdit::separator() const
 
 bool QTimeEdit::event( QEvent *e )
 {
-    if( e->type() == QEvent::FocusOut ) {
+    if ( e->type() == QEvent::FocusOut ) {
 	d->typing = FALSE;
 	if ( d->changed ) {
 	    emit valueChanged( time() );
@@ -2655,26 +2655,6 @@ QDateTimeEdit::~QDateTimeEdit()
 
 void QDateTimeEdit::resizeEvent( QResizeEvent * )
 {
-    layoutEditors();
-}
-
-/*! \reimp
-*/
-
-QSize QDateTimeEdit::minimumSizeHint() const
-{
-    QSize dsh = de->minimumSizeHint();
-    QSize tsh = te->minimumSizeHint();
-    return QSize( dsh.width() + tsh.width(),
-		  QMAX( dsh.height(), tsh.height() ) );
-}
-
-/*! \internal
-
-Moves and resizes the internal date and time editors.
-*/
-void QDateTimeEdit::layoutEditors()
-{
     int dw = de->sizeHint().width();
     int tw = te->sizeHint().width();
     int w = width();
@@ -2692,6 +2672,17 @@ void QDateTimeEdit::layoutEditors()
     te->setGeometry( dw, 0, tw, h );
 }
 
+/*! \reimp
+*/
+
+QSize QDateTimeEdit::minimumSizeHint() const
+{
+    QSize dsh = de->minimumSizeHint();
+    QSize tsh = te->minimumSizeHint();
+    return QSize( dsh.width() + tsh.width(),
+		  QMAX( dsh.height(), tsh.height() ) );
+}
+
 /*!  \internal
  */
 
@@ -2699,7 +2690,7 @@ void QDateTimeEdit::init()
 {
     d = new QDateTimeEditPrivate();
     de = new QDateEdit( this, "qt_datetime_dateedit" );
-    te = new QTimeEdit( this, "qt_datetime_timeedit"  );
+    te = new QTimeEdit( this, "qt_datetime_timeedit" );
     d->adv = FALSE;
     connect( de, SIGNAL( valueChanged( const QDate& ) ),
 	     this, SLOT( newValue( const QDate& ) ) );
@@ -2707,7 +2698,6 @@ void QDateTimeEdit::init()
 	     this, SLOT( newValue( const QTime& ) ) );
     setFocusProxy( de );
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
-    layoutEditors();
 }
 
 /*! \reimp
