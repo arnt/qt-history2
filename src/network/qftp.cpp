@@ -1806,7 +1806,10 @@ void QFtp::okButTryLater( int, const QCString & )
 	    dataSocket && dataSocket->isOpen() ) {
 	putToWrite = operationInProgress()->rawArg(1).size();
 	putWritten = 0;
-	dataSocket->writeBlock( operationInProgress()->rawArg(1), putToWrite );
+	if ( putToWrite == 0 )
+	    dataBytesWritten( 0 );
+	else
+	    dataSocket->writeBlock( operationInProgress()->rawArg(1), putToWrite );
     }
 }
 
