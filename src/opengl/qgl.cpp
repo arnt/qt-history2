@@ -1645,12 +1645,12 @@ void QGLWidget::qglClearColor( const QColor& c ) const
   QImage::bits() may be used with OpenGL. The following few lines are
   from the texture example. Most of the code is irrelevant, so we just
   quote the few lines we want:
-  
+
   \dontinclude texture/gltexobj.cpp
   \skipto tex1
   \printline tex1
   \printline gllogo.bmp
-  
+
   We create \e tex1 (and another variable) for OpenGL, and load a real
   image into \e buf.
 
@@ -1658,8 +1658,8 @@ void QGLWidget::qglClearColor( const QColor& c ) const
   \printline convertToGLFormat
 
   A few lines later, we convert \e buf into OpenGL format and store it
-  in \a tex1.
-  
+  in \e tex1.
+
   \skipto glTexImage2D
   \printline glTexImage2D
   \printline tex1.bits
