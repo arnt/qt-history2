@@ -163,6 +163,7 @@ public:
         QPen pen;
         QBrush brush;
         QRegion clip;
+        QMatrix matrix;
         struct {
             QPointF origin;
             Qt::BGMode mode;

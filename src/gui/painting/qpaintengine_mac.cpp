@@ -214,8 +214,9 @@ QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 }
 
 void
-QQuickDrawPaintEngine::updateMatrix(const QMatrix &)
+QQuickDrawPaintEngine::updateMatrix(const QMatrix &matrix)
 {
+    d->current.matrix = matrix;
 }
 
 void
@@ -238,7 +239,7 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation
     if(op == Qt::NoClip) {
         setClippedRegionInternal(0);
     } else {
-        QRegion clip = region;
+        QRegion clip = region * d->current.matrix;
         if(d->has_clipping) {
             if(op == Qt::IntersectClip)
                 clip = d->current.clip.intersect(clip);
@@ -1472,7 +1473,7 @@ QCoreGraphicsPaintEngine::handle() const
 }
 
 void
-QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, 
+QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 					  const QPointF &p)
 {
     Q_ASSERT(isActive());
