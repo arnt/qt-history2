@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#115 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#115 $");
 
 
 /*!
@@ -119,6 +119,7 @@ QPainter::QPainter()
     init();
 }
 
+
 /*!
   Constructs a painter that begins painting the paint device \a pd
   immediately.
@@ -155,6 +156,7 @@ QPainter::QPainter( const QPaintDevice *pd )
 {
     init();
     begin( pd );
+    flags |= CtorBegin;
 }
 
 
@@ -178,8 +180,8 @@ QPainter::QPainter( const QPaintDevice *pd,
   Destroys the painter.
 
   If you called begin() but not end(), the destructor outputs a warning
-  message.  If you used one of the constructors which takes a paint
-  device argument, there is no need to call end().
+  message.  Note that there is no need to call end() if you used one of
+  the constructors which takes a paint device argument.
 */
 
 QPainter::~QPainter()
