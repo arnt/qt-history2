@@ -925,7 +925,7 @@ whatever:		  IDENTIFIER
 
 
 class_head:		  class_key
-			  qualified_class_name	{ g->className = $2; 
+			  qualified_class_name	{ g->className = $2;
 						  if ( g->className == "QObject" )
 						     Q_OBJECTdetected = TRUE;
 						}
@@ -2739,7 +2739,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "#include <%sqvariant.h>\n", (const char*)g->qtPath );
 	g->hasVariantIncluded = TRUE;
     }
-    
+
     bool isQObject =  g->className == "QObject" ;
 
 
@@ -3153,7 +3153,8 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 
 	    if ( !it.current()->reset.isEmpty() )
-		flag_break |= 1 << (2+1);
+		fprintf( out, "\tcase 2: %s(); break;\n", it.current()->reset.data() );
+// 		flag_break |= 1 << (2+1);
 
 	    if ( it.current()->designable.isEmpty() )
 		flag_propagate |= 1 << (3+1);
