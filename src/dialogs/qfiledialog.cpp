@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#108 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#109 $
 **
 ** Implementation of QFileDialog class
 **
@@ -849,6 +849,8 @@ void QFileDialog::init()
 	     this, SLOT(cdUpClicked()) );
 
     d->modeButtons = new QButtonGroup( 0, "invisible group" );
+    connect( d->modeButtons, SIGNAL(destroyed()), 
+	     this, SLOT(modeButtonsDestroyed()) );
     d->modeButtons->setExclusive( TRUE );
     connect( d->modeButtons, SIGNAL(clicked(int)),
 	     d->stack, SLOT(raiseWidget(int)) );
@@ -1984,4 +1986,17 @@ void QFileDialog::setFilters( const QStrList & types )
     }
     d->types->setCurrentItem( 0 );
     setFilter( d->types->text( 0 ) );
+}
+
+
+/*!
+  Since modeButtons is a top-level widget, it may be destroyed by the
+  kernel at application exit time. Notice if this happens to
+  avoid double deletion.
+*/
+
+void QFileDialog::modeButtonsDestroyed()
+{
+    if ( d )
+	d->modeButtons = 0;
 }
