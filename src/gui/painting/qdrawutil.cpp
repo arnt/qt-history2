@@ -188,7 +188,6 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
     else
         p->setPen(pal.light().color());
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
-    QPolygon a;
 
     if (lineWidth == 1 && midLineWidth == 0) {// standard shade rectangle
         p->drawRect(x1, y1, w-2, h-2);
@@ -196,16 +195,20 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
             p->setPen(pal.light().color());
         else
             p->setPen(pal.dark().color());
-        a.setPoints(8, x1+1,y1+1, x2-2,y1+1, x1+1,y1+2, x1+1,y2-2,
-                     x1,y2, x2,y2,  x2,y1, x2,y2-1);
-        p->drawLineSegments(a);                // draw bottom/right lines
+        QLineF lines[4] = { QLineF(x1+1, y1+1, x2-2, y1+1),
+                            QLineF(x1+1, y1+2, x1+1, y2-2),
+                            QLineF(x1, y2, x2, y2),
+                            QLineF(x2,y1, x2,y2-1) };
+        p->drawLines(lines, 4);              // draw bottom/right lines
     } else {                                        // more complicated
         int m = lineWidth+midLineWidth;
         int i, j=0, k=m;
         for (i=0; i<lineWidth; i++) {                // draw top shadow
-            a.setPoints(8, x1+i, y2-i, x1+i, y1+i, x1+i, y1+i, x2-i, y1+i,
-                         x1+k, y2-k, x2-k, y2-k, x2-k, y2-k, x2-k, y1+k);
-            p->drawLineSegments(a);
+            QLineF lines[4] = { QLineF(x1+i, y2-i, x1+i, y1+i),
+                                QLineF(x1+i, y1+i, x2-i, y1+i),
+                                QLineF(x1+k, y2-k, x2-k, y2-k),
+                                QLineF(x2-k, y2-k, x2-k, y1+k) };
+            p->drawLines(lines, 4);
             k++;
         }
         p->setPen(pal.mid().color());
@@ -220,9 +223,11 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
             p->setPen(pal.dark().color());
         k = m;
         for (i=0; i<lineWidth; i++) {                // draw bottom shadow
-            a.setPoints(8, x1+1+i,y2-i, x2-i, y2-i, x2-i, y2-i, x2-i, y1+i+1,
-                         x1+k, y2-k, x1+k, y1+k, x1+k, y1+k, x2-k, y1+k);
-            p->drawLineSegments(a);
+            QLineF lines[4] = { QLineF(x1+1+i, y2-i, x2-i, y2-i),
+                                QLineF(x2-i, y2-i, x2-i, y1+i+1),
+                                QLineF(x1+k, y2-k, x1+k, y1+k),
+                                QLineF(x1+k, y1+k, x2-k, y1+k) };
+            p->drawLines(lines, 4);
             k++;
         }
     }
@@ -288,29 +293,26 @@ void qDrawShadePanel(QPainter *p, int x, int y, int w, int h,
             light = pal.midlight().color();
     }
     QPen oldPen = p->pen();                        // save pen
-    QPolygon a(4*lineWidth);
+    QVector<QLineF> lines(2 * lineWidth);
     if (sunken)
         p->setPen(shade);
     else
         p->setPen(light);
     int x1, y1, x2, y2;
     int i;
-    int n = 0;
     x1 = x;
     y1 = y2 = y;
     x2 = x+w-2;
     for (i=0; i<lineWidth; i++) {                // top shadow
-        a.setPoint(n++, x1, y1++);
-        a.setPoint(n++, x2--, y2++);
+        lines << QLineF(x1, y1++, x2--, y2++);
     }
     x2 = x1;
     y1 = y+h-2;
-    for (i=0; i<lineWidth; i++) {                // left shadow
-        a.setPoint(n++, x1++, y1);
-        a.setPoint(n++, x2++, y2--);
+    for (i=0; i<lineWidth; i++) {                // left shado
+        lines << QLineF(x1++, y1, x2++, y2--);
     }
-    p->drawLineSegments(a);
-    n = 0;
+    p->drawLines(lines);
+    lines.clear();
     if (sunken)
         p->setPen(light);
     else
@@ -319,17 +321,15 @@ void qDrawShadePanel(QPainter *p, int x, int y, int w, int h,
     y1 = y2 = y+h-1;
     x2 = x+w-1;
     for (i=0; i<lineWidth; i++) {                // bottom shadow
-        a.setPoint(n++, x1++, y1--);
-        a.setPoint(n++, x2, y2--);
+        lines << QLineF(x1++, y1--, x2, y2--);
     }
     x1 = x2;
     y1 = y;
     y2 = y+h-lineWidth-1;
     for (i=0; i<lineWidth; i++) {                // right shadow
-        a.setPoint(n++, x1--, y1++);
-        a.setPoint(n++, x2--, y2);
+        lines << QLineF(x1--, y1++, x2--, y2);
     }
-    p->drawLineSegments(a);
+    p->drawLines(lines);
     if (fill) {                                // fill with fill color
         QBrush oldBrush = p->brush();
         p->setPen(Qt::NoPen);
@@ -645,16 +645,19 @@ static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
     if (enabled) {
         a.translate(x+w/2, y+h/2);
         p->setPen(pal.foreground().color());
-        p->drawLineSegments(a, 0, 3);                // draw arrow
+        p->drawLine(a.at(0), a.at(1));
+        p->drawLine(a.at(2), a.at(2));
         p->drawPoint(a[6]);
     } else {
         a.translate(x+w/2+1, y+h/2+1);
         p->setPen(pal.light().color());
-        p->drawLineSegments(a, 0, 3);                // draw arrow
+        p->drawLine(a.at(0), a.at(1));
+        p->drawLine(a.at(2), a.at(2));
         p->drawPoint(a[6]);
         a.translate(-1, -1);
         p->setPen(pal.mid().color());
-        p->drawLineSegments(a, 0, 3);                // draw arrow
+        p->drawLine(a.at(0), a.at(1));
+        p->drawLine(a.at(2), a.at(2));
         p->drawPoint(a[6]);
     }
     p->setPen(savePen);                        // restore pen
@@ -784,11 +787,11 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     p->setBrush(Qt::NoBrush);                        // don't fill
 
     p->setPen(CLEFT);
-    p->drawLineSegments(bLeft);
+    p->drawLines(bLeft);
     p->setPen(CTOP);
-    p->drawLineSegments(bTop);
+    p->drawLines(bTop);
     p->setPen(CBOT);
-    p->drawLineSegments(bBot);
+    p->drawLines(bBot);
 
 #ifndef QT_NO_TRANSFORMATIONS
     p->setWorldMatrix(wxm);
