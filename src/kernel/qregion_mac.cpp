@@ -264,9 +264,7 @@ QRegion::QRegion(const QRegion &r)
 static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 {
     QImage image = bitmap.convertToImage();
-
     RgnHandle region = qt_mac_get_rgn(), rr;
-
 #define AddSpan \
 	{ \
     	   Rect rect; \
@@ -275,29 +273,27 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
     	   OpenRgn(); \
 	   FrameRect(&rect); \
 	   CloseRgn(rr); \
-	   UnionRgn( rr, region, region ); \
+	   UnionRgn(rr, region, region); \
 	   DisposeRgn(rr); \
 	}
 
+    int x, y;
     const int zero=0;
     bool little = image.bitOrder() == QImage::LittleEndian;
-
-    int x, y;
-    for (y=0; y<image.height(); y++) {
+    for(y=0; y<image.height(); y++) {
 	uchar *line = image.scanLine(y);
 	int w = image.width();
 	uchar all=zero;
 	int prev1 = -1;
-	for (x=0; x<w; ) {
+	for(x=0; x<w; ) {
 	    uchar byte = line[x/8];
-	    if ( x>w-8 || byte!=all ) {
-		if ( little ) {
-		    for ( int b=8; b>0 && x<w; b-- ) {
-			if ( !(byte&0x01) == !all ) {
-			    // More of the same
+	    if(x>w-8 || byte!=all) {
+		if(little) {
+		    for (int b=8; b>0 && x<w; b--) {
+			if(!(byte&0x01) == !all) { 			    // More of the same
 			} else {
 			    // A change.
-			    if ( all!=zero ) {
+			    if (all != zero) {
 				AddSpan
 				all = zero;
 			    } else {
@@ -309,11 +305,9 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 			x++;
 		    }
 		} else {
-		    for ( int b=8; b>0 && x<w; b-- ) {
-			if ( !(byte&0x80) == !all ) {
-			    // More of the same
-			} else {
-			    // A change.
+		    for(int b=8; b>0 && x<w; b--) {
+			if(!(byte&0x80) == !all) { 			    // More of the same
+			} else { 			    // A change.
 			    if ( all!=zero ) {
 				AddSpan
 				all = zero;
@@ -330,7 +324,7 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 		x+=8;
 	    }
 	}
-	if ( all != zero ) {
+	if(all != zero) {
 	    AddSpan
 	}
     }
@@ -345,7 +339,7 @@ QRegion::QRegion(const QBitmap &bm)
     data->is_rect = FALSE;
 #if 0 //this should work, but didn't
     data->rgn = qt_mac_get_rgn();
-    BitMapToRegion(data->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
+    BitMapToRegion(data->rgn, GetPortBitMapForCopyBits((GWorldPtr)bm.handle()));
 #else
     data->rgn = qt_mac_bitmapToRegion(bm);
 #endif
