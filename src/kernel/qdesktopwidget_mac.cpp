@@ -16,15 +16,15 @@ public:
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
     appScreen = 0;
-
     QPtrList<QRect> rs;
     rs.setAutoDelete(TRUE);
-    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g))
-	rs.append(new QRect(0, 0,(*g)->gdRect.right,(*g)->gdRect.bottom));
-
+    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) 
+	rs.append(new QRect((*g)->gdRect.left,    (*g)->gdRect.top,
+			    (*g)->gdRect.right -  (*g)->gdRect.left,
+			    (*g)->gdRect.bottom - (*g)->gdRect.top));
     int i = 0;
     rects.resize( screenCount = rs.count() );
-    for(QPtrListIterator<QRect> it(rs); it.current(); ++it)
+    for(QPtrListIterator<QRect> it(rs); it.current(); ++it) 
 	rects[i++] = *(*it);
 }
 
@@ -64,7 +64,6 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
     if ( screen < 0 || screen >= d->screenCount )
 	screen = d->appScreen;
-
     return d->rects[ screen ];
 }
 
@@ -78,7 +77,6 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 
     int maxSize = -1;
     int maxScreen = -1;
-
     for ( int i = 0; i < d->screenCount; ++i ) {
 	QRect sect = d->rects[i].intersect( frame );
 	int size = sect.width() * sect.height();
