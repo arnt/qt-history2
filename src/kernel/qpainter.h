@@ -265,7 +265,7 @@ private:
     friend class QWSManager;
 #elif defined( Q_WS_MAC )
     friend class QFontEngineMac;
-    friend class QMacStylePainter;
+    friend class QMacStyleQDPainter;
 #endif
 };
 

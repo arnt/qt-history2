@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMACSTYLE_MAC_H
-#define QMACSTYLE_MAC_H
+#ifndef QMACSTYLEQD_MAC_H
+#define QMACSTYLEQD_MAC_H
 
 #ifndef QT_H
 #include "qwindowsstyle.h"
@@ -29,12 +29,14 @@ class QPalette;
 #define Q_GUI_EXPORT_STYLE_MAC Q_GUI_EXPORT
 #endif
 
-class Q_GUI_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
+class QMacStyleQDPrivate;
+
+class Q_GUI_EXPORT_STYLE_MAC QMacStyleQD : public QWindowsStyle
 {
     Q_OBJECT
 public:
-    QMacStyle( );
-    virtual ~QMacStyle();
+    QMacStyleQD( );
+    virtual ~QMacStyleQD();
 
     void polish( QWidget * w );
     void unPolish( QWidget * w );
@@ -90,14 +92,6 @@ public:
 			    const QSize &contentsSize,
 			    const QStyleOption& = QStyleOption::Default ) const;
 
-    enum FocusRectPolicy { FocusEnabled, FocusDisabled, FocusDefault };
-    static void setFocusRectPolicy( QWidget *w, FocusRectPolicy policy);
-    static FocusRectPolicy focusRectPolicy( QWidget *w );
-
-    enum WidgetSizePolicy { SizeSmall, SizeLarge, SizeNone, SizeDefault };
-    static void setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy);
-    static WidgetSizePolicy widgetSizePolicy( QWidget *w );
-
     QPixmap stylePixmap( StylePixmap sp,
 			 const QWidget *widget = 0,
 			 const QStyleOption& = QStyleOption::Default ) const;
@@ -107,17 +101,14 @@ public:
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMacStyle( const QMacStyle & );
-    QMacStyle& operator=( const QMacStyle & );
+    QMacStyleQD( const QMacStyleQD & );
+    QMacStyleQD& operator=( const QMacStyleQD & );
 #endif
 
 protected:
-    QStyle *correctStyle(QPainter *);
-    QStyle *correctStyle(QPaintDevice *);
-    QStyle *qd_style;
-    QStyle *cg_style;
+    QMacStyleQDPrivate *d;
 };
 
 #endif // Q_WS_MAC
 
-#endif // QMACSTYLE_H
+#endif // QMACSTYLEQD_H
