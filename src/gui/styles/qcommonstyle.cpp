@@ -1070,12 +1070,10 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
             const QPixmap pixmap = button->icon.pixmap(QIconSet::Automatic, iconMode, iconState);
 
-            QStyleOption tool(0);
-            tool.palette = button->palette;
-            if (button->state & (Style_Down | Style_On | Style_Raised)) {
-                tool.rect = button->rect;
-                tool.state = button->state;
-                drawPrimitive(PE_ButtonTool, &tool, p, widget);
+            if (button->state & Style_Down) {
+                qDrawShadePanel(p, cr, button->palette, true);
+            } else if (button->state & (Style_MouseOver | Style_Open)) {
+                qDrawShadePanel(p, cr, button->palette, false);
             }
 
             const QRect ir(cr.topLeft() + QPoint(3, 3), QSize(pixmap.width(), cr.height() - 6));
