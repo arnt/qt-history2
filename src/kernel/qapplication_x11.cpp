@@ -3769,7 +3769,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 #if defined (QT_TABLET_SUPPORT)
     // Right now I'm only caring about the valuator (MOTION) events, so I'll
     // check them and let the rest go through as mouse events...
-    if ( event->type == xinput_motion ) {
+    if ( event->type == xinput_motion ||
+	 event->type == xinput_button_release ||
+	 event->type == xinput_button_press ) {
 	widget->translateXinputEvent( event );
 	return 0;
     }
@@ -5007,7 +5009,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 bool QETWidget::translateXinputEvent( const XEvent *ev )
 {
     // Wacom has put defines in their wacom.h file so it would be quite wise
-    // to use them, need to think of a decent way of getting rid of not using
+    // to use them, need to think of a decent way of not using
     // it when it doesn't exist...
     XDeviceState *s;
     XInputClass *iClass;
@@ -5015,26 +5017,50 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
     QWidget *w = this;
     QPoint global,
 	curr;
-    int j,
-	pressure = 0,
-	xTilt = 0,
-	yTilt = 0,
-	deviceType = QTabletEvent::NoDevice;
+    int j;
+    static int pressure = 0;
+    static int xTilt = 0,
+	       yTilt = 0;
+    int deviceType = QTabletEvent::NoDevice;
     QPair<int, int> tId;
     XDevice *dev;
-    XDeviceMotionEvent *motion;
+    XDeviceMotionEvent *motion = 0;
+    XDeviceButtonEvent *button = 0;
+    QEvent::Type t;
 
-    motion = (XDeviceMotionEvent*)ev;
+    if ( ev->type == xinput_motion ) {
+	motion = (XDeviceMotionEvent*)ev;
+	t = QEvent::TabletMove;
+	curr = QPoint( motion->x, motion->y );
+    } else {
+	if ( ev->type == xinput_button_press ) {
+	    t = QEvent::TabletPress;
+        } else {
+	    t = QEvent::TabletRelease;
+	}
+	button = (XDeviceButtonEvent*)ev;
+	curr = QPoint( button->x, button->y );
+    }
 #if defined(Q_OS_IRIX)
     // default...
     dev = devStylus;
 #else
-    if ( motion->deviceid == devStylus->device_id ) {
-	dev = devStylus;
-	deviceType = QTabletEvent::Stylus;
-    } else if ( motion->deviceid == devEraser->device_id ) {
-	dev = devEraser;
-	deviceType = QTabletEvent::Eraser;
+    if ( ev->type == xinput_motion ) {
+	if ( motion->deviceid == devStylus->device_id ) {
+	    dev = devStylus;
+	    deviceType = QTabletEvent::Stylus;
+	} else if ( motion->deviceid == devEraser->device_id ) {
+	    dev = devEraser;
+	    deviceType = QTabletEvent::Eraser;
+	}
+    } else {
+	if ( button->deviceid == devStylus->device_id ) {
+	    dev = devStylus;
+	    deviceType = QTabletEvent::Stylus;
+	} else if ( button->deviceid == devEraser->device_id ) {
+	    dev = devEraser;
+	    deviceType = QTabletEvent::Eraser;
+	}
     }
 #endif
 
@@ -5049,67 +5075,72 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 	else
 	    scaleFactor = PRESSURE_LEVELS / max_pressure;
     }
-    // Heh, we got an event from the stylus, but on Irix the event doesn't
-    // give us all the information we need (some of the values are horibbly
-    // wrong ),  It is slightly better to query the device state and get the
-    // real state of the valuators...
+#if defined (Q_OS_IRIX)
     s = XQueryDeviceState( appDpy, dev );
     if ( s == NULL )
-	return FALSE;
+        return FALSE;
     iClass = s->data;
     for ( j = 0; j < s->num_classes; j++ ) {
-	if ( iClass->c_class == ValuatorClass ) {
-	    vs = (XValuatorState *)iClass;
-	    // figure out what device we have, based on bitmasking...
-#if defined (Q_OS_IRIX)
-	    if ( vs->valuators[WAC_TRANSDUCER_I]
-		 & WAC_TRANSDUCER_PROX_MSK ) {
-		switch ( vs->valuators[WAC_TRANSDUCER_I]
-			 & WAC_TRANSDUCER_MSK ) {
-		case WAC_PUCK_ID:
-		    deviceType = QTabletEvent::Puck;
-		    break;
-		case WAC_STYLUS_ID:
-		    deviceType = QTabletEvent::Stylus;
-		    break;
-		case WAC_ERASER_ID:
-		    deviceType = QTabletEvent::Eraser;
-		    break;
-		}
-		// Get a Unique Id for the device, Wacom gives us this ability
- 		tId.first = vs->valuators[WAC_TRANSDUCER_I] & WAC_TRANSDUCER_ID_MSK;
-		tId.second = vs->valuators[WAC_SERIAL_NUM_I];
-	    } else
-		deviceType = QTabletEvent::NoDevice;
-	    // apparently Wacom needs a cast for the +/- values to make sense
-	    xTilt = short(vs->valuators[WAC_XTILT_I]);
-	    yTilt = short(vs->valuators[WAC_YTILT_I]);
-	    if ( max_pressure > PRESSURE_LEVELS )
-		pressure = vs->valuators[WAC_PRESSURE_I] / scaleFactor;
-	    else
-		pressure = vs->valuators[WAC_PRESSURE_I] * scaleFactor;
-	    // why not use the high res values for global?
+        if ( iClass->c_class == ValuatorClass ) {
+            vs = (XValuatorState *)iClass;
+            // figure out what device we have, based on bitmasking...
+            if ( vs->valuators[WAC_TRANSDUCER_I]
+                 & WAC_TRANSDUCER_PROX_MSK ) {
+                switch ( vs->valuators[WAC_TRANSDUCER_I]
+                         & WAC_TRANSDUCER_MSK ) {
+                case WAC_PUCK_ID:
+                    deviceType = QTabletEvent::Puck;
+                    break;
+                case WAC_STYLUS_ID:
+                    deviceType = QTabletEvent::Stylus;
+                    break;
+                case WAC_ERASER_ID:
+                    deviceType = QTabletEvent::Eraser;
+                    break;
+                }
+                // Get a Unique Id for the device, Wacom gives us this ability
+                tId.first = vs->valuators[WAC_TRANSDUCER_I] & WAC_TRANSDUCER_ID_MSK;
+                tId.second = vs->valuators[WAC_SERIAL_NUM_I];
+            } else
+                deviceType = QTabletEvent::NoDevice;
+            // apparently Wacom needs a cast for the +/- values to make sense
+            xTilt = short(vs->valuators[WAC_XTILT_I]);
+            yTilt = short(vs->valuators[WAC_YTILT_I]);
+            if ( max_pressure > PRESSURE_LEVELS )
+                pressure = vs->valuators[WAC_PRESSURE_I] / scaleFactor;
+            else
+                pressure = vs->valuators[WAC_PRESSURE_I] * scaleFactor;
 	    global = QPoint( vs->valuators[WAC_XCOORD_I],
-			     vs->valuators[WAC_YCOORD_I] );
-#else
-	    xTilt = short(vs->valuators[3]);
-	    yTilt = short(vs->valuators[4]);
-	    if ( max_pressure > PRESSURE_LEVELS )
-		pressure = vs->valuators[2] / scaleFactor;
-	    else
-		pressure = vs->valuators[2] * scaleFactor;
-	    global = QPoint( vs->valuators[0], vs->valuators[1] );
-	    // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
-	    tId.first = tId.second = -1;
-#endif
+                             vs->valuators[WAC_YCOORD_I] );
+	    break;
 	}
 	iClass = (XInputClass*)((char*)iClass + iClass->length);
     }
-    curr = QPoint( motion->x, motion->y );
-
-    QTabletEvent e( curr, global, deviceType, pressure, xTilt, yTilt, tId );
-    QApplication::sendSpontaneousEvent( w, &e );
     XFreeDeviceState( s );
+#else
+    if ( motion ) {
+	xTilt = short(motion->axis_data[3]);
+	yTilt = short(motion->axis_data[4]);
+	if ( max_pressure > PRESSURE_LEVELS )
+	    pressure = motion->axis_data[2] / scaleFactor;
+	else
+	    pressure = motion->axis_data[2] * scaleFactor;
+	global = QPoint( motion->axis_data[0], motion->axis_data[1] );
+    } else {
+	xTilt = short(button->axis_data[3]);
+	yTilt = short(button->axis_data[4]);
+	if ( max_pressure > PRESSURE_LEVELS )
+	    pressure = button->axis_data[2]  / scaleFactor;
+	else
+	    pressure = button->axis_data[2] * scaleFactor;
+	global = QPoint( button->axis_data[0], button->axis_data[1] );
+    }
+    // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
+    tId.first = tId.second = -1;
+#endif
+
+    QTabletEvent e( t, curr, global, deviceType, pressure, xTilt, yTilt, tId );
+    QApplication::sendSpontaneousEvent( w, &e );
     return TRUE;
 }
 #endif

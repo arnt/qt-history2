@@ -119,11 +119,13 @@ public:
 	IMCompose = 84,				// input method composition
 	IMEnd = 85,				// input method composition end
 	Accessibility = 86,			// accessibility information is requested
-	Tablet = 87,				// Wacom Tablet Event
+	TabletMove = 87,			// Wacom Tablet Event
 	LocaleChange = 88,			// the system locale changed
 	LanguageChange = 89,			// the application language changed
 	LayoutDirectionChange = 90,		// the layout direction changed
 	Style = 91,                             // internal style event
+	TabletPress = 92,                       // Tablet Press
+	TabletRelease = 93,                     // Tablet Release
 	User = 1000,				// first user event id
 	MaxUser  = 65535                        // last user event id
     };
@@ -221,14 +223,11 @@ class Q_EXPORT QTabletEvent : public QEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
-    QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, 
-                  int yTilt, const QPair<int,int> &uId )
-	: QEvent( Tablet ), mPos( pos ), mDev( device ), mPress( pressure ),
-	  mXT( xTilt ), mYT( yTilt ), mType( uId.first ), mPhy( uId.second )
-    {}
+    QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, int device,
+		  int pressure, int xTilt, int yTilt, const QPair<int,int> &uId );
     QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device,
 		  int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
-	: QEvent( Tablet ), mPos( pos ), mGPos( globalPos ), mDev( device ),
+	: QEvent( TabletMove ), mPos( pos ), mGPos( globalPos ), mDev( device ),
 	  mPress( pressure ), mXT( xTilt ), mYT( yTilt ), mType( uId.first ),
 	  mPhy( uId.second )
     {}
@@ -256,7 +255,7 @@ protected:
         mType,
 	mPhy;
     bool mbAcc;
-    
+
 };
 
 class Q_EXPORT QKeyEvent : public QEvent
@@ -265,7 +264,7 @@ public:
     QKeyEvent( Type type, int key, int ascii, int state,
 		const QString& text=QString::null, bool autorep=FALSE, ushort count=1 )
 	: QEvent(type), txt(text), k((ushort)key), s((ushort)state),
-	    a((uchar)ascii), accpt(TRUE), autor(autorep), c(count) 
+	    a((uchar)ascii), accpt(TRUE), autor(autorep), c(count)
     {
 	if ( key >= Key_Back && key <= Key_MediaLast )
 	    accpt = FALSE;

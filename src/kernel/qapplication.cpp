@@ -2188,7 +2188,9 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 	}
 	break;
-    case QEvent::Tablet:
+    case QEvent::TabletMove:
+    case QEvent::TabletPress:
+    case QEvent::TabletRelease:
 	{
 	    QWidget *w = (QWidget*)receiver;
 	    QTabletEvent* tablet = (QTabletEvent*)e;

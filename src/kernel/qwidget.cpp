@@ -827,7 +827,7 @@ QWidget::~QWidget()
 	}
     }
     --instanceCounter;
-    
+
     if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
 	if (qApp)
@@ -4168,7 +4168,9 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    break;
 #endif
-        case QEvent::Tablet:
+        case QEvent::TabletMove:
+        case QEvent::TabletPress:
+        case QEvent::TabletRelease:
 	    tabletEvent( (QTabletEvent*)e );
 	    if ( ! ((QTabletEvent*)e)->isAccepted() )
 		return FALSE;

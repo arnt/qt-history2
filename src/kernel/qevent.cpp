@@ -1672,22 +1672,38 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
+  \fn QTabletEvent::QTabletEvent( Type t, const QPoint &pos,
+                                  const QPoint &globalPos, int device,
+                                  int pressure, int xTilt, int yTilt,
+				  const QPair<int,int> &uId )
+  Construct a tablet event of type \a t.  The position of when the event occurred is given
+  int \a pos and \a globalPos.  \a Device contains the \link TabletDevice device type\endlink,
+  \a pressure contains the pressure exerted on the \a device, \a xTilt and \a yTilt contain
+  \a device's degree of tilt from the X and Y axis respectively.  The \a uId contains an
+  event id.
 
-  Constructs a tablet event object.
+  On Irix, \a globalPos will contain the high-resolution coordinates received from the
+  tablet device driver, instead of from the windowing system.
 
-  The globalPos() is initialized to QCursor::pos(), i.e. \a pos, which is
-  usually (but not always) correct.  Use the other constructor if you need
-  to specify the global position explicitly.  \a device contains the
-  \link TabletDevice device type\endlink, \a pressure contains the
-  pressure exerted on the \a device, \a xTilt and \a yTilt contain the
-  \a device's degrees of tilt from the X and Y axis respectively. The
-  \a uId contains an event id.
-
-  \sa pos(), device(), pressure(), xTilt(), yTilt()
+  \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
 */
 
+QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, int device,
+			    int pressure, int xTilt, int yTilt,
+			    const QPair<int, int> &uId )
+    : QEvent( t ),
+      mPos( pos ),
+      mGPos( globalPos ),
+      mDev( device ),
+      mPress( pressure ),
+      mXT( xTilt ),
+      mYT( yTilt ),
+      mType( uId.first ),
+      mPhy( uId.second )
+{}
+
 /*!
+  \obsolete
   \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
 
   Constructs a tablet event object.  The position when the event
@@ -2035,10 +2051,10 @@ QCustomEvent::QCustomEvent( int type )
 
 
   Call this function to indicate whether the event provided data which
-  your widget processed. Set \a y to TRUE (the default) if your widget 
-  could process the data, otherwise set \a y to FALSE. To get the data, 
-  use encodedData(), or preferably, the decode() methods of existing 
-  QDragObject subclasses, such as QTextDrag::decode(), or your own 
+  your widget processed. Set \a y to TRUE (the default) if your widget
+  could process the data, otherwise set \a y to FALSE. To get the data,
+  use encodedData(), or preferably, the decode() methods of existing
+  QDragObject subclasses, such as QTextDrag::decode(), or your own
   subclasses.
 
   \warning To accept or reject the drop, don't call this function,
