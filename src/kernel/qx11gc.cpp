@@ -515,14 +515,10 @@ void QX11GC::cleanup()
 bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     d->pdev = const_cast<QPaintDevice *>(pdev);
-//     d->hd = d->pdev->handle(); // because of double buffering the hd might change
-//     updatePen(ps);
-//     updateBrush(ps);
-//     return true;
 
     if ( isActive() ) {                         // already active painting
-//         qWarning( "QX11GC::begin: Painter is already active."
-//                   "\n\tYou must end() the painter before a second begin()" );
+        qWarning( "QX11GC::begin: Painter is already active."
+                  "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
 
@@ -530,22 +526,9 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
     QPixmap::x11SetDefaultScreen(x11Screen());
 
-//     const QWidget *copyMe = 0;
-//     if ((d->pdev = const_cast<QPaintDevice*>(redirected(d->pdev, &redirection_offset)))) {
-// 	if ( d->pdev->devType() == QInternal::Widget )
-// 	    copyMe = static_cast<const QWidget *>(pdev); // copy widget settings
-//     } else {
-// 	d->pdev = const_cast<QPaintDevice*>(pdev);
-//     }
-
-
 //     bool reinit = flags != IsStartingUp;        // 2nd or 3rd etc. time called
-//     flags = IsActive | DirtyFont;               // init flags
-//     int dt = d->pdev->devType();                   // get the device type
+    assignf(IsActive | DirtyFont);
 
-//     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
-//         setf(ExtDev);
-//     else
     if (d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
 	static_cast<QPixmap *>(d->pdev)->detach();             // will modify it
 
@@ -560,7 +543,6 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     }
 
 //     pdev->painters++;                           // also tell paint device
-//     bro = curPt = QPoint( 0, 0 );
 //     if ( reinit ) {
 //         d->bg_mode = TransparentMode;              // default background mode
 //         d->rop = CopyROP;                          // default ROP
@@ -889,10 +871,10 @@ void QX11GC::updatePen(QPainterState *state)
 		       s, cp, jn);
 }
 
-void QX11GC::updateBrush(QPainterState *state)
+void QX11GC::updateBrush(QPainterState *ps)
 {
-    d->cbrush = state->brush;
-    d->bg_brush = state->bgBrush;
+    d->cbrush = ps->brush;
+    d->bg_brush = ps->bgBrush;
 
     static const uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
     static const uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };

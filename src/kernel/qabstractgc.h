@@ -79,6 +79,7 @@ public:
     inline bool testf( uint b ) const { return (d_ptr->flags&b)!=0; }
     inline void setf( uint b ) { d_ptr->flags |= b; }
     inline void clearf( uint b ) { d_ptr->flags &= (uint)(~b); }
+    inline void assignf( uint b ) { d_ptr->flags = (uint) b; }
     inline void fix_neg_rect( int *x, int *y, int *w, int *h );
     inline bool hasClipping() const { return testf(ClipOn); }
 
