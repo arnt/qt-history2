@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#210 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#211 $
 **
 ** Implementation of QFileDialog class
 **
@@ -236,6 +236,8 @@ static void makeVariables() {
 }
 
 struct QFileDialogPrivate {
+    ~QFileDialogPrivate();
+
     bool geometryDirty;
     QComboBox * paths;
     QComboBox * types;
@@ -1339,11 +1341,11 @@ void QFileDialog::rereadDir()
         if ( fi->fileName() != QString::fromLatin1(".") &&
              ( !cwd.isRoot() ||
                fi->fileName() != QString::fromLatin1("..") ) ) {
-            QFileDialogPrivate::File * i 
+            QFileDialogPrivate::File * i
 		= new QFileDialogPrivate::File( d, fi, files );
             if ( mode() == ExistingFiles && fi->isDir() )
                 i->setSelectable( FALSE );
-            QFileDialogPrivate::MCItem *i2 
+            QFileDialogPrivate::MCItem *i2
 		= new QFileDialogPrivate::MCItem( d->moreFiles, i );
             if ( mode() == ExistingFiles && fi->isDir() )
                 i2->setSelectable( FALSE );
