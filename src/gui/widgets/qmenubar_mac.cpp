@@ -680,7 +680,7 @@ void QMenuBar::macCreateNativeMenubar()
 	mac_eaten_menubar = true;
 	if(!mac_d)
 	    mac_d = new MacPrivate;
-    } else if(p && (!menubars || !menubars.find(topLevelWidget())) &&
+    } else if(p && (menubars.isEmpty() || !menubars.find(topLevelWidget())) &&
               (((p->isDialog() || ::qt_cast<QMainWindow *>(p)) && p->isTopLevel())
                || ::qt_cast<QToolBar *>(p) || topLevelWidget() == qApp->mainWidget()
                || !qApp->mainWidget())) {

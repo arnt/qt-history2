@@ -261,7 +261,7 @@ static void parseEtcLpPrinters( QListView * printers )
 {
     QDir lp( QString::fromLatin1("/etc/lp/printers") );
     QFileInfoList dirs = lp.entryInfoList();
-    if ( !dirs )
+    if ( dirs.isEmpty() )
 	return;
 
     QString tmp;
@@ -600,7 +600,7 @@ static void parseEtcLpMember( QListView * printers )
     if ( !lp.exists() )
 	return;
     QFileInfoList dirs = lp.entryInfoList();
-    if ( !dirs )
+    if ( dirs.isEmpty() )
 	return;
 
     QString tmp;
@@ -624,7 +624,7 @@ static void parseSpoolInterface( QListView * printers )
     if ( !lp.exists() )
 	return;
     QFileInfoList files = lp.entryInfoList();
-    if( !files )
+    if( files.isEmpty() )
 	return;
 
     for (int i = 0; i < files.size(); ++i) {
