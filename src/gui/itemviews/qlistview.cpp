@@ -902,46 +902,46 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     QModelIndex current = currentIndex();
     QRect rect = itemRect(current);
     QSize contents = d->contentsSize;
-    QPoint pos = rect.topLeft();
+    QPoint pos = rect.center();
     d->intersectVector.clear();
 
     switch (cursorAction) {
     case MoveLeft:
         while (d->intersectVector.isEmpty()) {
-            rect.translate(-rect.width() - 1, 0);
+            rect.translate(-rect.width(), 0);
             if (rect.right() <= 0)
                 return current;
             if (rect.left() < 0)
                 rect.setLeft(0);
             d->intersectingSet(rect);
-//             // don't get current in this set
-//             int idx = d->intersectVector.indexOf(current);
-//             if (idx > -1)
-//                 d->intersectVector.remove(idx);
+            // don't get current in this set
+            int idx = d->intersectVector.indexOf(current);
+            if (idx > -1)
+                d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveRight:
         while (d->intersectVector.isEmpty()) {
-            rect.translate(rect.width() + 1, 0);
+            rect.translate(rect.width(), 0);
             if (rect.left() >= contents.width())
                 return current;
             if (rect.right() > contents.width())
                 rect.setRight(contents.width());
             d->intersectingSet(rect);
-//             // don't get current in this set
-//             int idx = d->intersectVector.indexOf(current);
-//             if (idx > -1)
-//                 d->intersectVector.remove(idx);
+             // don't get current in this set
+             int idx = d->intersectVector.indexOf(current);
+             if (idx > -1)
+                 d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MovePageUp:
         rect.moveTop(rect.top() - d->viewport->height());
         if (rect.top() < rect.height())
-            rect.moveTop(rect.height() - 1);
+            rect.moveTop(rect.height());
     case MovePrevious:
     case MoveUp:
         while (d->intersectVector.isEmpty()) {
-            rect.translate(0, -rect.height() - 1);
+            rect.translate(0, -rect.height());
             if (rect.bottom() <= 0)
                 return current;
             if (rect.top() < 0)
@@ -952,11 +952,11 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MovePageDown:
         rect.moveTop(rect.top() + d->viewport->height());
         if (rect.bottom() > contents.height() - rect.height())
-            rect.moveBottom(contents.height() - rect.height() - 1);
+            rect.moveBottom(contents.height() - rect.height());
     case MoveNext:
     case MoveDown:
         while (d->intersectVector.isEmpty()) {
-            rect.translate(0, rect.height() + 1);
+            rect.translate(0, rect.height());
             if (rect.top() >= contents.height())
                 return current;
             if (rect.bottom() > contents.height())
