@@ -35,9 +35,9 @@
 **
 **********************************************************************/
 
-#include "qdrawutil.h"
 #ifndef QT_NO_DRAWUTIL
 #include "qbitmap.h"
+#include "qdrawutil.h"
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qpainter.h"

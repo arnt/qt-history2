@@ -39,9 +39,6 @@
 #define QNAMESPACE_H
 
 #ifndef QT_H
-#ifdef _WS_WIN_
-#include "qt_windows.h"
-#endif
 #include "qglobal.h"
 #endif // QT_H
 
@@ -647,7 +644,7 @@ public:
     typedef int WId;
 #endif
 #if defined(_WS_WIN_)
-    typedef HWND  WId;
+    typedef HWND WId;
     typedef void *HANDLE;
 #endif
 #if defined(_WS_X11_)
