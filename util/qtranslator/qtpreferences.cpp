@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtpreferences.cpp#2 $
+** $Id: //depot/qt/main/util/qtranslator/qtpreferences.cpp#3 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -37,7 +37,7 @@ QTPreferences::Traslation::Traslation()
 
 QTPreferences::QTPreferences()
     : sources(), projectFile( QString::null),
-      projectConfig( 0L )
+      projectConfig( 0 )
 {
 }
 

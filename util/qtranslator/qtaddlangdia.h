@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtaddlangdia.h#1 $
+** $Id: //depot/qt/main/util/qtranslator/qtaddlangdia.h#2 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -27,22 +27,22 @@ class QComboBox;
 class QTAddLangDia : public QDialog
 {
     Q_OBJECT
-    
+
 public:
-    QTAddLangDia( QWidget *parent, const char *name = 0L );
-    
+    QTAddLangDia( QWidget *parent, const char *name = 0 );
+
 protected:
     void resizeEvent( QResizeEvent *e );
-    
+
     QVBox *back;
     QComboBox *langCombo;
-    
+
 protected slots:
     void slotOK();
-    
+
 signals:
     void newLangChosen( const QString &lang );
-    
+
 };
 
 #endif

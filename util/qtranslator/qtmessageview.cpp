@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmessageview.cpp#2 $
+** $Id: //depot/qt/main/util/qtranslator/qtmessageview.cpp#3 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -145,7 +145,7 @@ void QTMessageView::startEdit( int x )
 void QTMessageView::stopEdit()
 {
     editBox->hide();
-    viewport()->setFocusProxy( 0L );
+    viewport()->setFocusProxy( 0 );
     editCol = -1;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#4 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.h#5 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -55,7 +55,7 @@ protected:
 
     QTPreferences *preferences;
     bool save;
-    
+
 protected slots:
     void fileNew();
     void fileOpen();
@@ -74,7 +74,7 @@ protected slots:
     QString getMessageID( QTextStream &t, QString &line );
     QString getMessageID( QTextStream &t, QString &line, QStringList &out );
     QString getMessageStr( QTextStream &t, QString &line );
-    QString parseItem( QTextStream &t, QString &line, QString type, QStringList *lst = 0L );
+    QString parseItem( QTextStream &t, QString &line, QString type, QStringList *lst = 0 );
 
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#7 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#8 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -37,8 +37,8 @@
  ****************************************************************************/
 
 QTMainWindow::QTMainWindow( const char *name )
-    : QMainWindow( 0L, name ), splitter( 0L ),
-      oldCurrent( 0L ), preferences( new QTPreferences ),
+    : QMainWindow( 0, name ), splitter( 0L ),
+      oldCurrent( 0 ), preferences( new QTPreferences ),
       save( FALSE )
 {
     setupMenu();
@@ -169,7 +169,7 @@ void QTMainWindow::fillScopeList()
 
     f.close();
 
-    oldCurrent = 0L;
+    oldCurrent = 0;
     scopes->setCurrentItem( scopes->firstChild() );
     scopes->setSelected( scopes->firstChild(), TRUE );
 }
