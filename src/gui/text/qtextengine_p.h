@@ -35,6 +35,7 @@
 #include <qpaintengine.h>
 #include "qtextobject.h"
 #include "qtextoption.h"
+#include "qtextdocument_p.h"
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP
@@ -197,8 +198,8 @@ struct QScriptItem
     inline QScriptItem() : position(0), isSpace(false), isTab(false),
                            isObject(false),
                            num_glyphs(0), descent(-1), ascent(-1), width(-1),
-                           glyph_data_offset(0),
-                           format(-1) { }
+                           glyph_data_offset(0)
+        { }
 
     int position;
     QScriptAnalysis analysis;
@@ -210,7 +211,6 @@ struct QScriptItem
     qReal ascent;
     qReal width;
     int glyph_data_offset;
-    int format;
     qReal height() const { return ascent + descent; }
 };
 
@@ -251,10 +251,6 @@ public:
     ~QTextEngine();
 
     void setText(const QString &str);
-    void setFormatCollection(const QTextFormatCollection *fmts) {
-        formats = fmts;
-    }
-    void setDocumentLayout(QAbstractTextDocumentLayout *layout) { docLayout = layout; }
 
     enum Mode {
         WidthOnly = 0x07
@@ -274,9 +270,7 @@ public:
 
     const QCharAttributes *attributes();
 
-    void setFormat(int from, int length, int format);
     void setBoundary(int strPos);
-
     void shape(int item) const;
 
     void justify(const QScriptLine &si);
@@ -317,13 +311,25 @@ public:
     void setFormatsFromDocument();
     void invalidate();
     void validate();
+    inline QTextFormatCollection *formats() const {
+        return block.docHandle()->formatCollection();
+    }
+    inline QAbstractTextDocumentLayout *docLayout() const {
+        return block.docHandle()->document()->documentLayout();
+    }
+    inline int formatIndex(const QScriptItem *si) const {
+        QTextDocumentPrivate *p = block.docHandle();
+        if (!p)
+            return -1;
+        QTextDocumentPrivate::FragmentIterator it = p->find(block.position() + si->position);
+        return it.value()->format;
+    }
 
-    mutable QScriptItemArray items;
     mutable QScriptLineArray lines;
 
     QString string;
     QFontPrivate *fnt;
-    const QTextFormatCollection *formats;
+    QTextBlock block;
 
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
@@ -335,13 +341,13 @@ public:
     QTextOption option;
 
     QPalette *pal;
-    QAbstractTextDocumentLayout *docLayout;
-    QTextBlock block;
 
+    mutable QScriptItemArray items;
     int allocated;
     void **memory;
     int num_glyphs;
     mutable int used;
+
     qReal minWidth;
     qReal maxWidth;
     QRectF boundingRect;
@@ -349,6 +355,14 @@ public:
 
     int cursorPos;
     int *underlinePositions;
+
+
+    struct Preedit {
+        int position;
+        QString text;
+        QList<QInputMethodEvent::Attribute> attributes;
+    };
+    Preedit *preedit;
 private:
     void shapeText(int item) const;
 };

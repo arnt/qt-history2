@@ -20,6 +20,7 @@
 #include "QtCore/qvector.h"
 #include "QtGui/qcolor.h"
 #include "QtCore/qobject.h"
+#include "QtGui/qevent.h"
 
 class QTextEngine;
 class QFont;
@@ -97,6 +98,11 @@ public:
         UseTextColor
     };
     void setPalette(const QPalette &, PaletteFlags f = None);
+
+    void setPreeditArea(int position, const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes);
+    bool hasPreeditArea() const;
+    int preeditAreaPosition() const;
+    QString preeditAreaText() const;
 
     enum LayoutModeFlags {
         MultiLine = 0,

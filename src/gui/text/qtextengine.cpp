@@ -845,8 +845,6 @@ static void init(QTextEngine *e)
         resolveUsp10();
 #endif
 
-    e->formats = 0;
-
     e->direction = QChar::DirON;
     e->haveCharAttributes = false;
     e->widthOnly = false;
@@ -854,7 +852,6 @@ static void init(QTextEngine *e)
     e->itemization_mode = 0;
 
     e->pal = 0;
-    e->docLayout = 0;
 
     e->allocated = 0;
     e->memory = 0;
@@ -866,6 +863,7 @@ static void init(QTextEngine *e)
     e->cursorPos = -1;
     e->underlinePositions = 0;
     e->invalid = true;
+    e->preedit = 0;
 }
 
 QTextEngine::QTextEngine()
@@ -950,22 +948,6 @@ const QCharAttributes *QTextEngine::attributes()
     return (QCharAttributes *) memory;
 }
 
-void QTextEngine::setFormat(int from, int length, int format)
-{
-    if (from >= string.length())
-        return;
-
-    setBoundary(from+length);
-    setBoundary(from);
-
-    int item = findItem(from);
-    while (item < items.size() && items[item].position < from+length) {
-        QScriptItem &si = items[item];
-        si.format = format;
-        ++item;
-    }
-}
-
 void QTextEngine::setBoundary(int strPos)
 {
     if (strPos <= 0 || strPos >= string.length())
@@ -985,10 +967,10 @@ void QTextEngine::setBoundary(int strPos)
 void QTextEngine::shape(int item) const
 {
     if (items[item].isObject) {
-        if (docLayout && formats) {
-            QTextFormat format = formats->format(items[item].format);
+        if (block.docHandle()) {
+            QTextFormat format = formats()->format(formatIndex(&items[item]));
             // ##### const cast
-            docLayout->setSize(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
+            docLayout()->setSize(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
         }
     } else {
         shapeText(item);
@@ -1050,7 +1032,7 @@ void QTextEngine::itemize()
     if ((itemization_mode & QTextEngine::WidthOnly) == WidthOnly)
         widthOnly = true;
 
-    if (docLayout)
+    if (block.docHandle())
         setFormatsFromDocument();
 }
 
@@ -1168,14 +1150,12 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 QFont QTextEngine::font(const QScriptItem &si) const
 {
     QFontPrivate *fp = fnt;
-    if (formats) {
-        Q_ASSERT(formats);
-        QTextFormat f = formats->format(si.format);
+    if (block.docHandle()) {
+        QTextFormat f = formats()->format(formatIndex(&si));
         Q_ASSERT(f.isCharFormat());
         QTextCharFormat chf = f.toCharFormat();
         QFont fnt = chf.font();
-        if (docLayout)
-            fnt = fnt.resolve(docLayout->defaultFont());
+        fnt = fnt.resolve(docLayout()->defaultFont());
 
         if (chf.verticalAlignment() != QTextCharFormat::AlignNormal)
             fnt.setPointSize((fnt.pointSize() * 2) / 3);
@@ -1417,8 +1397,7 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
         e = eng->fnt->engineForScript(QFont::Latin);
     } else {
         f = eng->block.charFormat().font();
-        if (eng->docLayout)
-            f = f.resolve(eng->docLayout->defaultFont());
+        f = f.resolve(eng->docLayout()->defaultFont());
         e = f.d->engineForScript(QFont::Latin);
     }
 
@@ -1455,37 +1434,25 @@ void QTextEngine::invalidate()
 
 void QTextEngine::validate()
 {
-    if (invalid && docLayout)
+    if (invalid && block.docHandle())
         string = block.text();
     invalid = false;
 }
 
 void QTextEngine::setFormatsFromDocument()
 {
-    int lastTextPosition = 0;
-    int textLength = 0;
+    int position = 0;
 
     const QTextDocumentPrivate *p = block.docHandle();
     QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
     QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
-    int lastFormatIdx = it.value()->format;
+    int format = it.value()->format;
 
     for (; it != end; ++it) {
         const QTextFragmentData * const frag = it.value();
-
-        const int formatIndex = frag->format;
-        if (formatIndex != lastFormatIdx) {
-            Q_ASSERT(lastFormatIdx != -1);
-            setFormat(lastTextPosition, textLength, lastFormatIdx);
-
-            lastFormatIdx = formatIndex;
-            lastTextPosition += textLength;
-            textLength = 0;
-        }
-
-        textLength += frag->size;
+        if (format != frag->format)
+            setBoundary(position);
+        format = frag->format;
+        position += frag->size;
     }
-
-    Q_ASSERT(lastFormatIdx != -1);
-    setFormat(lastTextPosition, textLength, lastFormatIdx);
 }

@@ -24,6 +24,7 @@
 #include "qtextcursor_p.h"
 #include "qtextdocumentlayout_p.h"
 #include "qtexttable.h"
+#include "qtextengine_p.h"
 
 #include <stdlib.h>
 #include <new>
@@ -80,6 +81,12 @@
     is stored in the text object itself.
 
 */
+
+void QTextBlockData::invalidate() const
+{
+    if (layout)
+        layout->engine()->invalidate();
+}
 
 #define d d_func()
 #define q q_func()

@@ -32,7 +32,6 @@
 #include <private/qobject_p.h>
 #include "qfragmentmap_p.h"
 #include "qtextlayout.h"
-#include "qtextengine_p.h"
 #include "qtextformat_p.h"
 #include "qtextdocument.h"
 #include "qtextobject.h"
@@ -75,8 +74,7 @@ class QTextBlockData : public QFragment
 public:
     inline void initialize()
     { layout = 0; }
-    inline void invalidate() const
-        { if (layout) layout->engine()->invalidate(); }
+    void invalidate() const;
     inline void free()
     { delete layout; }
 

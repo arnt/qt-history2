@@ -174,7 +174,7 @@ int QTextInlineObject::at() const
 */
 int QTextInlineObject::formatIndex() const
 {
-    return eng->items[itm].format;
+    return eng->formatIndex(&eng->items[itm]);
 }
 
 /*!
@@ -182,9 +182,9 @@ int QTextInlineObject::formatIndex() const
 */
 QTextFormat QTextInlineObject::format() const
 {
-    if (!eng->formats)
+    if (!eng->block.docHandle())
         return QTextFormat();
-    return eng->formats->format(eng->items[itm].format);
+    return eng->formats()->format(eng->formatIndex(&eng->items[itm]));
 }
 
 /*!
@@ -348,13 +348,6 @@ QTextLayout::QTextLayout(const QTextBlock &block)
 {
     d = new QTextEngine();
     d->block = block;
-
-    const QTextDocumentPrivate *p = block.docHandle();
-
-    d->formats = p->formatCollection();
-    // creates it on-demand if necessary
-    d->docLayout = p->document()->documentLayout();
-    Q_ASSERT(d->docLayout);
 }
 
 /*!
@@ -440,6 +433,35 @@ void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
     else
         *d->pal = p;
     d->textColorFromPalette = (f & UseTextColor);
+}
+
+
+void QTextLayout::setPreeditArea(int position, const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes)
+{
+    if (preeditText.isEmpty()) {
+        delete d->preedit;
+        d->preedit = 0;
+        return;
+    }
+    QTextEngine::Preedit *p = new QTextEngine::Preedit;
+    p->position = position;
+    p->text = preeditText;
+    p->attributes = attributes;
+}
+
+bool QTextLayout::hasPreeditArea() const
+{
+    return d->preedit;
+}
+
+int QTextLayout::preeditAreaPosition() const
+{
+    return d->preedit ? d->preedit->position : -1;
+}
+
+QString QTextLayout::preeditAreaText() const
+{
+    return d->preedit ? d->preedit->text : QString();
 }
 
 /*!
@@ -982,9 +1004,9 @@ void QTextLine::layout_helper(int maxGlyphs)
             eng->shape(item);
 
         if (current.isObject) {
-            QTextFormat format = eng->formats->format(eng->items[item].format);
-            if (eng->docLayout)
-                eng->docLayout->layoutObject(QTextInlineObject(item, eng), format);
+            QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->items[item]));
+            if (eng->block.docHandle())
+                eng->docLayout()->layoutObject(QTextInlineObject(item, eng), format);
             if (line.length && !(eng->option.wrapMode() & QTextOption::ManualWrap)) {
                 if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
                     goto found;
@@ -1286,9 +1308,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                 QRectF rect(x, y - line.ascent, si.width, line.height());
                 drawSelection(p, eng->pal, selections[s].type(), rect);
             }
-            if (eng->docLayout && eng->formats) {
-                QTextFormat format = eng->formats->format(si.format);
-                eng->docLayout->drawObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
+            if (eng->block.docHandle()) {
+                QTextFormat format = eng->formats()->format(eng->formatIndex(&si));
+                eng->docLayout()->drawObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
                                            QTextInlineObject(item, eng), format, selType);
             }
             p->restore();
@@ -1314,8 +1336,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
 
         qReal itemBaseLine = y;
 
-        if (eng->formats) {
-            QTextFormat fmt = eng->formats->format(si.format);
+        if (eng->block.docHandle()) {
+            QTextFormat fmt = eng->formats()->format(eng->formatIndex(&si));
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
             QColor c = chf.textColor();
