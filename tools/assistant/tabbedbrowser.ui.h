@@ -126,6 +126,7 @@ void TabbedBrowser::init()
     mimeSourceFactory->setExtensionType("png", "image/png" );
     mimeSourceFactory->setExtensionType("jpg", "image/jpeg" );
     mimeSourceFactory->setExtensionType("jpeg", "image/jpeg" );
+    setMimePath( Config::configuration()->mimePaths() );
 
     connect( tab, SIGNAL( currentChanged( QWidget* ) ),
 	     this, SLOT( transferFocus() ) );

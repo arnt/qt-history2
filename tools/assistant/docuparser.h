@@ -15,6 +15,10 @@
 
 #include <qxml.h>
 #include <qptrlist.h>
+#include <qmap.h>
+
+class Profile;
+
 #include <qvaluelist.h>
 
 struct ContentItem {
@@ -38,44 +42,91 @@ struct IndexItem {
     QString reference;
 };
 
-enum States{
-    StateInit,
-    StateContent,
-    StateSect,
-    StateKeyword
-};
+
 
 class DocuParser : public QXmlDefaultHandler
 {
 public:
-    DocuParser();
+    enum ParserVersion { Qt310, Qt320 };
+    // Since We don't want problems with documentation
+    // from version to version, this string stores the correct
+    // version string to save documents.
+    static const QString DocumentKey;
+
+    static DocuParser *createParser( const QString &fileName );
+
+    virtual bool parse( QFile *file );
+    
+    QValueList<ContentItem> getContentItems();
+    QPtrList<IndexItem> getIndexItems();
+
+    QString errorProtocol() const;
+    QString contentsURL() const { return conURL; }
+
+    virtual ParserVersion parserVersion() const = 0;
+    virtual void addTo( Profile *p ) = 0;
+
+    QString fileName() const { return fname; }
+    void setFileName( const QString &file ) { fname = file; }
+
+protected:
+    QString absolutify( const QString &input ) const;
+    
+    QString contentRef, indexRef, errorProt, conURL;
+    QString docTitle, title, iconName;
+    QValueList<ContentItem> contentList;
+    QPtrList<IndexItem> indexList;
+    QString fname;
+};
+
+
+class DocuParser310 : public DocuParser
+{
+public:
+    enum States{ StateInit, StateContent, StateSect, StateKeyword };
+    
     bool startDocument();
     bool startElement( const QString&, const QString&, const QString& ,
                        const QXmlAttributes& );
     bool endElement( const QString&, const QString&, const QString& );
     bool characters( const QString & );
     bool fatalError( const QXmlParseException& exception );
-    QString errorProtocol() const;
-    QString contentsURL() const { return conURL; }
 
-    QValueList<ContentItem> getContentItems();
-    QPtrList<IndexItem> getIndexItems();
-    QString getImageDir() const;
-    QString getDocumentationTitle() const;
-    QString getIconName() const;
-
-    // Since We don't want problems with documentation
-    // from version to version, this string stores the correct
-    // version string to save documents.
-    static const QString DocumentKey;
-
+    virtual ParserVersion parserVersion() const { return Qt310; }
+    virtual void addTo( Profile *p );
+    
 private:
-    QString imageDir, contentRef, indexRef, errorProt, conURL;
-    QString docTitle, title, iconName;
-    int depth;
     States state;
-    QValueList<ContentItem> contentList;
-    QPtrList<IndexItem> indexList;
+    int depth;
 };
 
+
+class DocuParser320 : public DocuParser
+{
+public:
+    enum States { StateInit, StateDocRoot, StateProfile, StateProperty,
+		  StateContent, StateSect, StateKeyword };
+
+    DocuParser320();    
+    
+    bool startDocument();
+    bool startElement( const QString&, const QString&, const QString& ,
+                       const QXmlAttributes& );
+    bool endElement( const QString&, const QString&, const QString& );
+    bool characters( const QString & );
+    bool fatalError( const QXmlParseException& exception );
+
+    virtual ParserVersion parserVersion() const { return Qt320; }
+    virtual void addTo( Profile *p );
+    Profile *profile() const { return prof; }    
+
+private:
+    
+    States state;
+    int depth;
+    int docfileCounter;
+    QString propertyValue;
+    QString propertyName;
+    Profile *prof;
+};
 #endif //DOCUPARSER_H

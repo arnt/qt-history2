@@ -129,7 +129,6 @@ void MainWindow::setup()
     setupBookmarkMenu();
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
     helpDock->tabWidget->setCurrentPage( config->sideBarPage() );
-    tabs->setMimePath( config->mimePaths() );
 
     setObjectsEnabled( TRUE );
     actionGoPrevious->setEnabled( FALSE );
@@ -139,7 +138,7 @@ void MainWindow::setup()
 void MainWindow::setupGoActions()
 {
     Config *config = Config::configuration();
-    QStringList docFiles = config->docFiles();
+    QStringList titles = config->docTitles();   
     QAction *action = 0;
 
     static bool separatorInserted = FALSE;
@@ -155,11 +154,10 @@ void MainWindow::setupGoActions()
 
     int addCount = 0;
 
-    QStringList::ConstIterator it = docFiles.begin();
-    for ( ; it != docFiles.end(); ++it ) {
-	QString cur = *it;
-	QString title = config->docTitle( cur );
-	QPixmap pix = config->docIcon( cur );
+    QStringList::ConstIterator it = titles.begin();
+    for ( ; it != titles.end(); ++it ) {
+	QString title = *it;
+	QPixmap pix = config->docIcon( title );	
 	if( !pix.isNull() ) {
 	    if( !separatorInserted ) {
 		goMenu->insertSeparator();
@@ -169,7 +167,7 @@ void MainWindow::setupGoActions()
 	    action->addTo( goMenu );
 	    action->addTo( goActionToolbar );
 	    goActions->append( action );
-	    goActionDocFiles->insert( action, cur );
+	    goActionDocFiles->insert( action, config->indexPage( title ) );
 	    connect( action, SIGNAL( activated() ),
 		     this, SLOT( showGoActionLink() ) );
 	    ++addCount;
@@ -427,9 +425,6 @@ void MainWindow::showSettingsDialog( int page )
 {
     if ( !settingsDia ){
 	settingsDia = new SettingsDialog( this );
-	connect( settingsDia, SIGNAL( profileChanged() ), helpDock, SLOT( showProfile() ) );
-	connect( settingsDia, SIGNAL( profileChanged() ), this, SLOT( updateProfileSettings() ) );
-	connect( settingsDia, SIGNAL( profileChanged() ), this, SLOT( updateBookmarkMenu() ) );
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->insertStringList( fonts.families() );
@@ -438,7 +433,6 @@ void MainWindow::showSettingsDialog( int page )
     settingsDia->fixedfontCombo->lineEdit()->setText( tabs->styleSheet()->item( "pre" )->fontFamily() );
     settingsDia->linkUnderlineCB->setChecked( tabs->linkUnderline() );
     settingsDia->colorButton->setPaletteBackgroundColor( tabs->palette().color( QPalette::Active, QColorGroup::Link ) );
-    settingsDia->setCurrentProfile();
     if ( page != -1 )
 	settingsDia->settingsTab->setCurrentPage( page );
 
@@ -572,8 +566,8 @@ void MainWindow::showGoActionLink()
 	return;
 
     QAction *action = (QAction*) origin;
-    QString docfile = *( goActionDocFiles->find( action ) );
-    showLink( helpDock->docHomePage( docfile ) );
+    QString docfile = *( goActionDocFiles->find( action ) );    
+    showLink( docfile );
 }
 
 void MainWindow::showAssistantHelp()

@@ -229,38 +229,6 @@ void HelpDialog::lastWinClosed()
     lwClosed = TRUE;
 }
 
-void HelpDialog::showProfile()
-{
-    if ( Config::configuration()->needsNewDoc() ) {
-	removeOldCacheFiles();
-	Config::configuration()->saveProfile( Config::configuration()->profile(), FALSE );
-    }
-
-    contentList.clear();
-    indexDone = FALSE;
-    titleMapDone = FALSE;
-    contentsInserted = FALSE;
-    bookmarksInserted = FALSE;
-    if ( fullTextIndex ) {
-	delete fullTextIndex;
-	fullTextIndex = 0;
-    }
-    help->browsers()->setMimePath( Config::configuration()->mimePaths() );
-    setupTitleMap();
-
-    if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( insertContents() ) );
-    }
-    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
-    }
-    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Bookmarks" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( insertBookmarks() ) );
-    }
-    else if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Search" ) ) ) {
-	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
-    }
-}
 
 void HelpDialog::removeOldCacheFiles()
 {
@@ -281,6 +249,7 @@ void HelpDialog::removeOldCacheFiles()
 	}
     }
 }
+
 
 void HelpDialog::loadIndexFile()
 {
@@ -376,7 +345,6 @@ void HelpDialog::buildKeywordDB()
     QValueList<IndexKeyword> lst;
     Q_UINT32 fileAges = 0;
     for( i = addDocuFiles.begin(); i != addDocuFiles.end(); i++ ){
-	DocuParser handler;
 	QFile file( *i );
 	if ( !file.exists() ) {
 	    QMessageBox::warning( this, tr( "Warning" ),
@@ -385,28 +353,24 @@ void HelpDialog::buildKeywordDB()
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
-	QXmlInputSource source( file );
-	QXmlSimpleReader reader;
-	reader.setContentHandler( &handler );
-	reader.setErrorHandler( &handler );
-	bool ok = reader.parse( source );
+	DocuParser *handler = DocuParser::createParser( *i );
+	bool ok = handler->parse( &file );
 	file.close();
 	if( !ok ){
 	    QString msg = QString( "In file %1:\n%2" )
 			  .arg( QFileInfo( file ).absFilePath() )
-			  .arg( handler.errorProtocol() );
+			  .arg( handler->errorProtocol() );
 	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
+	    delete handler;
 	    continue;
 	}
 
-	QFileInfo finfo( *i );
-	QString dir = finfo.dirPath( TRUE ) + "/";
-	QPtrList<IndexItem> indLst = handler.getIndexItems();
+	QPtrList<IndexItem> indLst = handler->getIndexItems();
 	QPtrListIterator<IndexItem> it( indLst );
 	IndexItem *indItem;
 	int counter = 0;
 	while ( ( indItem = it.current() ) != 0 ) {
-	    QFileInfo fi( dir + indItem->reference );
+	    QFileInfo fi( indItem->reference );
 	    lst.append( IndexKeyword( indItem->keyword, fi.absFilePath() ) );
 	    if ( progressPrepare )
 		progressPrepare->setProgress( progressPrepare->progress() +
@@ -420,6 +384,7 @@ void HelpDialog::buildKeywordDB()
 	    }
 	    ++it;
 	}
+	delete handler;
     }
     if ( !lst.isEmpty() )
 	qHeapSort( lst );
@@ -437,9 +402,10 @@ void HelpDialog::setupTitleMap()
 {
     if ( titleMapDone )
 	return;
-    if ( Config::configuration()->needsNewDoc() ) {
+    if ( Config::configuration()->docRebuild() ) {
 	removeOldCacheFiles();
-	Config::configuration()->saveProfile( Config::configuration()->profile(), FALSE );
+	Config::configuration()->setDocRebuild( FALSE );
+	Config::configuration()->saveProfile( Config::configuration()->profile() );
     }
     if ( contentList.isEmpty() )
 	getAllContents();
@@ -450,10 +416,8 @@ void HelpDialog::setupTitleMap()
     for ( ; lstIt.current(); ++lstIt ) {
 	QValueList<ContentItem> &lst = *(lstIt.current());
 	QValueListConstIterator<ContentItem> it;
-	QFileInfo finfo( lstIt.currentKey() );
-	QString dir = finfo.dirPath( TRUE ) + "/";
 	for ( it = lst.begin(); it != lst.end(); ++it ) {
-	    QFileInfo link( dir + (*it).reference.simplifyWhiteSpace() );
+	    QFileInfo link( (*it).reference.simplifyWhiteSpace() );
 	    titleMap[ link.absFilePath() ] = (*it).title.stripWhiteSpace();
 	}
     }
@@ -462,7 +426,7 @@ void HelpDialog::setupTitleMap()
 
 void HelpDialog::getAllContents()
 {
-    QFile contentFile( cacheFilesPath + "/contentdb." + Config::configuration()->profileName() );
+    QFile contentFile( cacheFilesPath + "contentdb." + Config::configuration()->profileName() );
     contentList.clear();
     if ( !contentFile.open( IO_ReadOnly ) ) {
 	buildContentDict();
@@ -495,7 +459,6 @@ void HelpDialog::buildContentDict()
 
     Q_UINT32 fileAges = 0;
     for( QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++ ) {
-	DocuParser handler;
 	QFile file( *it );
 	if ( !file.exists() ) {
 	    QMessageBox::warning( this, tr( "Warning" ),
@@ -504,18 +467,22 @@ void HelpDialog::buildContentDict()
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
-	QXmlInputSource source( file );
-	QXmlSimpleReader reader;
-	reader.setContentHandler( &handler );
-	reader.setErrorHandler( &handler );
-	bool ok = reader.parse( source );
+	DocuParser *handler = DocuParser::createParser( *it );
+	if( !handler ) {
+	    QMessageBox::warning( this, tr( "Warning" ),
+	    tr( "Documentation file %1 is not compatible!\n"
+	        "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
+	    continue;
+	}
+	bool ok = handler->parse( &file );
 	file.close();
-	if( ok ){
-	    contentList.insert( *it, new QValueList<ContentItem>( handler.getContentItems() ) );
+	if( ok ) {
+	    contentList.insert( *it, new QValueList<ContentItem>( handler->getContentItems() ) );
+	    delete handler;
 	} else {
 	    QString msg = QString( "In file %1:\n%2" )
 			  .arg( QFileInfo( file ).absFilePath() )
-			  .arg( handler.errorProtocol() );
+			  .arg( handler->errorProtocol() );
 	    QMessageBox::critical( this, tr( "Parse Error" ), tr( msg ) );
 	    continue;
 	}
@@ -532,15 +499,6 @@ void HelpDialog::buildContentDict()
 	}
 	contentOut.close();
     }
-}
-
-QString HelpDialog::docHomePage( const QString &doc )
-{
-    QFileInfo fi( doc );
-    QValueList<ContentItem> &lst = *(contentList[doc]);
-    if ( !contentList[doc] || lst.first().reference.isEmpty() )
-	return fi.dirPath( TRUE ) + "/index.html";
-    return fi.dirPath( TRUE ) + "/" + lst.first().reference;
 }
 
 void HelpDialog::currentTabChanged( const QString &s )
@@ -724,7 +682,7 @@ void HelpDialog::insertBookmarks()
 	return;
     bookmarksInserted = TRUE;
     listBookmarks->clear();
-    QFile f( cacheFilesPath + "/bookmarks." + Config::configuration()->profileName() );
+    QFile f( cacheFilesPath + "bookmarks." + Config::configuration()->profileName() );
     if ( !f.open( IO_ReadOnly ) )
 	return;
     QTextStream ts( &f );
@@ -755,7 +713,7 @@ void HelpDialog::showBookmarkTopic()
 
 void HelpDialog::saveBookmarks()
 {
-    QFile f( cacheFilesPath + "/bookmarks." + Config::configuration()->profileName() );
+    QFile f( cacheFilesPath + "bookmarks." + Config::configuration()->profileName() );
     if ( !f.open( IO_WriteOnly ) )
 	return;
     QTextStream ts( &f );
@@ -784,15 +742,9 @@ void HelpDialog::insertContents()
 
     listContents->setSorting( -1 );
 
-    QPtrList<ContentItem> lst;
     QDictIterator<ContentList> lstIt( contentList );
     for ( ; lstIt.current(); ++lstIt ) {
-	QFileInfo fi( lstIt.currentKey() );
-	QString dir = fi.dirPath() + "/";
-
 	HelpNavigationContentsItem *newEntry;
-	newEntry = new HelpNavigationContentsItem( listContents, 0 );
-	newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.png" ) );
 
 	HelpNavigationContentsItem *contentEntry;
 	QPtrStack<HelpNavigationContentsItem> stack;
@@ -810,8 +762,10 @@ void HelpDialog::insertContents()
 	for( it = lst.begin(); it != lst.end(); ++it ){
 	    ContentItem item = *it;
 	    if( item.depth == 0 ){
+		newEntry = new HelpNavigationContentsItem( listContents, 0 );
+		newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.png" ) );	
 		newEntry->setText( 0, item.title );
-		newEntry->setLink( dir + item.reference );
+		newEntry->setLink( item.reference );
 		stack.push( newEntry );
 		depth = 1;
 		root = TRUE;
@@ -825,7 +779,7 @@ void HelpDialog::insertContents()
 		    contentEntry = new HelpNavigationContentsItem( stack.top(), lastItem[ depth ] );
 		    lastItem[ depth ] = contentEntry;
 		    contentEntry->setText( 0, item.title );
-		    contentEntry->setLink( dir + item.reference );
+		    contentEntry->setLink( item.reference );
 		}
 		else if( item.depth < depth ) {
 		    stack.pop();
@@ -905,13 +859,13 @@ void HelpDialog::setupFullTextIndex()
 
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index( documentList, QDir::homeDirPath() ); // ### Is this correct ?
-    fullTextIndex->setDictionaryFile( cacheFilesPath + "/indexdb.dict." + pname );
-    fullTextIndex->setDocListFile( cacheFilesPath + "/indexdb.doc." + pname );
+    fullTextIndex->setDictionaryFile( cacheFilesPath + "indexdb.dict." + pname );
+    fullTextIndex->setDocListFile( cacheFilesPath + "indexdb.doc." + pname );
     processEvents();
 
     connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
 	     this, SLOT( setIndexingProgress( int ) ) );
-    QFile f( cacheFilesPath + "/indexdb.dict." + pname );
+    QFile f( cacheFilesPath + "indexdb.dict." + pname );
     if ( !f.exists() ) {
 	help->statusBar()->clear();
 	setCursor( waitCursor );

@@ -76,7 +76,6 @@ public:
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
-    QString docHomePage( const QString &doc );
 
 protected slots:
     void showTopic( int, QListBoxItem *, const QPoint & );
@@ -87,7 +86,6 @@ protected slots:
     void setupFullTextIndex();
     void currentTabChanged( const QString &s );
     void currentIndexChanged( QListBoxItem *i );
-    void showProfile();
     void showTopic();
     void searchInIndex( const QString &s );
     void addBookmark();

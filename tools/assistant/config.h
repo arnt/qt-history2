@@ -26,33 +26,30 @@ class Config
 {
 public:
 
-    Config( const QString &name );
     Config();
 
-    void load( const QString &name );
+    void load();
     void save();
     Profile *profile() const { return profil; }
     QString profileName() const { return profil->props["name"]; }
-    bool setCurrentProfile( const QString &name );
-    bool startedWithProfile() const;
     bool validProfileName() const;
     void hideSideBar( bool b );
     bool sideBarHidden() const;
     QStringList mimePaths();
 
     // From profile, read only
+    QStringList docFiles() const;
+    QStringList docTitles() const;
+    QString indexPage( const QString &title ) const;
+    QString docImageDir( const QString &title ) const;
+    QPixmap docIcon( const QString &title ) const;
+
     QStringList profiles() const;
     QString title() const;
     QString aboutApplicationMenuText() const;
-    QString aboutURL() const;
-    QStringList docFiles() const;
-    QString docTitle( const QString & ) const;
-    QString docImageDir( const QString & ) const;
-    QString basePath() const;
-    QPixmap docIcon( const QString & ) const;
+    QString aboutURL() const;        
     QPixmap applicationIcon() const;
-    bool needsNewDoc() const;
-
+    
     // From QSettings, read / write
     QString webBrowser() const { return webBrows; }
     void setWebBrowser( const QString &cmd ) { webBrows = cmd; }
@@ -93,16 +90,16 @@ public:
     QString mainWindowLayout() const { return mainWinLayout; }
     void setMainWindowLayout( const QString &layout ) { mainWinLayout = layout; }
 
-    QString assistantDocPath() const { return assDocPath; }
-    void setAssistantDocPath( const QString & adp ) { assDocPath = adp; }
+    QString assistantDocPath() const;
 
-    void saveProfile( Profile *profile, bool changed = FALSE );
-    Profile* loadProfile( const QString &name );
-    void reloadProfiles();
+    bool docRebuild() const { return rebuildDocs; }
+    void setDocRebuild( bool rb ) { rebuildDocs = rb; }
+
+    void saveProfile( Profile *profile );
+    void loadDefaultProfile();
 
     static Config *configuration();
-    static bool addProfile( const QString &profileFileName, const QString &path );
-    static void removeProfile( const QString &name );
+    static Config *loadConfig(const QString &profileFileName);
 
 private:
     Config( const Config &c );
@@ -122,15 +119,13 @@ private:
     QString linkCol;
     QString src;
     QString mainWinLayout;
-    QString assDocPath;
     QRect geom;
     int sideBar;
     int fontSiz;
     bool maximized;
     bool linkUnder;
-    bool startWithProfile;
-    bool profileNameValid;
     bool hideSidebar;
+    bool rebuildDocs;
 };
 
 #endif

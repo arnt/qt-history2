@@ -64,10 +64,15 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     error() is emitted.
 
     This class is not included in the Qt library itself. To use it you
-    must link against \c libqassistantclient.so (Unix) or \c
+    must link against \c libqassistantclient.a (Unix) or \c
     qassistantclient.lib (Windows), which is built into \c INSTALL/lib
     if you built the Qt tools (\c INSTALL is the directory where Qt is
-    installed).
+    installed). If you use qmake, then you can simply add the following
+    line to your pro file:
+
+    \code
+	LIBS += -lqassistantclient
+    \endcode
 
     See also "Adding Documentation to Qt Assistant" in the \link
     assistant.book Qt Assistant manual\endlink.
@@ -177,6 +182,10 @@ void QAssistantClient::openAssistant()
     proc->clearArguments();
     proc->addArgument( assistantCommand );
     proc->addArgument( "-server" );
+    if( !pageBuffer.isEmpty() ) {
+        proc->addArgument( "-file" );
+        proc->addArgument( pageBuffer );
+    }
 
     QAssistantClientPrivate *d = data( this );
     if( d ) {
@@ -236,6 +245,7 @@ void QAssistantClient::showPage( const QString &page )
     if ( !opened ) {
 	pageBuffer = page;
 	openAssistant();
+	pageBuffer = QString::null;	
 	return;
     }
     QTextStream os( socket );

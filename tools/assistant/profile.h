@@ -17,41 +17,43 @@
 #include <qstringlist.h>
 #include <qmap.h>
 
-class ProfileHandler;
+class DocuParser;
 
 class Profile
 {
-    friend class ProfileHandler;
-    friend class Config;
-    friend class ProfileDialog;
-
 public:
+    enum ProfileType { DefaultProfile, UserProfile };    
+    
+    Profile();
+    
     inline bool isValid() const;
 
-    inline void addDocFile( const QString &docfile );
-    inline void addDocFileIcon( const QString docfile, const QString &icon );
-    inline void addDocFileTitle( const QString docfile, const QString &title );
-    inline void addDocFileImageDir( const QString docfile, const QString &imgDir );
+    inline void addDCF( const QString &docfile );
+    inline void addDCFIcon( const QString title, const QString &icon );
+    inline void addDCFIndexPage( const QString title, const QString &indexPage );
+    inline void addDCFImageDir( const QString title, const QString &imgDir );
+    inline void addDCFTitle( const QString &dcf, const QString &title );
     inline void addProperty( const QString &name, const QString &value );
+    inline bool hasDocFile( const QString &docFile );
     void removeDocFileEntry( const QString &title );
 
-    static Profile* createProfile( const QString &file );
+    inline ProfileType profileType() const { return type; }
+    inline void setProfileType( ProfileType t ) { type = t; }
+
+    inline DocuParser *docuParser() const { return dparser; }
+    inline void setDocuParser( DocuParser *dp ) { dparser = dp; }
+    
     static Profile* createDefaultProfile();
     static QString makeRelativePath( const QString &base, const QString &path );
 
-private:
-    Profile();
-    Profile( const Profile *p );
-    bool load( const QString &name );
-    void save( const QString &name );
-
-private:
     int valid:1;
-    bool changed;
+    ProfileType type;
+    DocuParser *dparser;
     QMap<QString,QString> props;
     QMap<QString,QString> icons;
-    QMap<QString,QString> titles;
+    QMap<QString,QString> indexPages;
     QMap<QString,QString> imageDirs;
+    QMap<QString,QString> dcfTitles;
     QStringList docs;
 };
 
@@ -61,24 +63,32 @@ inline bool Profile::isValid() const
     return valid;
 }
 
-inline void Profile::addDocFile( const QString &docfile )
+inline void Profile::addDCFTitle( const QString &dcf, const QString &title )
 {
-    docs << docfile;
+    dcfTitles[title] = dcf;
+    if( docs.contains( dcf ) == 0 )
+	docs << dcf;
 }
 
-inline void Profile::addDocFileIcon( const QString docfile,
+inline void Profile::addDCF( const QString &docfile )
+{
+    if( !docs.contains( docfile ) == 0 )
+	docs << docfile;
+}
+
+inline void Profile::addDCFIcon( const QString docfile,
 				     const QString &icon )
 {
     icons[docfile] = icon;
 }
 
-inline void Profile::addDocFileTitle( const QString docfile,
-				      const QString &title )
+inline void Profile::addDCFIndexPage( const QString title,
+				      const QString &indexPage )
 {
-    titles[docfile] = title;
+    indexPages[title] = indexPage;
 }
 
-inline void Profile::addDocFileImageDir( const QString docfile,
+inline void Profile::addDCFImageDir( const QString docfile,
 				     const QString &imgDir )
 {
     imageDirs[docfile] = imgDir;
@@ -88,6 +98,11 @@ inline void Profile::addProperty( const QString &name,
 				  const QString &value )
 {
     props[name] = value;
+}
+
+inline bool Profile::hasDocFile( const QString &name )
+{
+    return docs.contains( name ) > 0;    
 }
 
 #endif

@@ -34,7 +34,7 @@
             <x>0</x>
             <y>0</y>
             <width>389</width>
-            <height>247</height>
+            <height>253</height>
         </rect>
     </property>
     <property name="caption">
@@ -391,95 +391,6 @@
                     </widget>
                 </grid>
             </widget>
-            <widget class="QWidget">
-                <property name="name">
-                    <cstring>tab</cstring>
-                </property>
-                <attribute name="title">
-                    <string>Pro&amp;files</string>
-                </attribute>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <widget class="QListView">
-                        <column>
-                            <property name="text">
-                                <string>Available Profiles</string>
-                            </property>
-                            <property name="clickable">
-                                <bool>true</bool>
-                            </property>
-                            <property name="resizable">
-                                <bool>true</bool>
-                            </property>
-                        </column>
-                        <property name="name">
-                            <cstring>profileView</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout9</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>buttonAdd</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Add...</string>
-                                </property>
-                                <property name="accel">
-                                    <string>Alt+A</string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>buttonModify</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Modify</string>
-                                </property>
-                                <property name="accel">
-                                    <string>Alt+M</string>
-                                </property>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer10_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>21</width>
-                                        <height>31</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>buttonDelete</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Delete</string>
-                                </property>
-                                <property name="accel">
-                                    <string>Alt+D</string>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
-                </hbox>
-            </widget>
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -537,12 +448,6 @@
 </widget>
 <connections>
     <connection>
-        <sender>colorButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialogBase</receiver>
-        <slot>selectColor()</slot>
-    </connection>
-    <connection>
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>SettingsDialogBase</receiver>
@@ -555,22 +460,10 @@
         <slot>reject()</slot>
     </connection>
     <connection>
-        <sender>buttonAdd</sender>
+        <sender>colorButton</sender>
         <signal>clicked()</signal>
         <receiver>SettingsDialogBase</receiver>
-        <slot>addProfile()</slot>
-    </connection>
-    <connection>
-        <sender>buttonDelete</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialogBase</receiver>
-        <slot>removeProfile()</slot>
-    </connection>
-    <connection>
-        <sender>buttonModify</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialogBase</receiver>
-        <slot>modifyProfile()</slot>
+        <slot>selectColor()</slot>
     </connection>
     <connection>
         <sender>buttonBrowse</sender>
@@ -579,16 +472,16 @@
         <slot>browseWebApp()</slot>
     </connection>
     <connection>
-        <sender>buttonPDF</sender>
-        <signal>clicked()</signal>
-        <receiver>SettingsDialogBase</receiver>
-        <slot>browsePDFApplication()</slot>
-    </connection>
-    <connection>
         <sender>buttonHome</sender>
         <signal>clicked()</signal>
         <receiver>SettingsDialogBase</receiver>
         <slot>browseHomepage()</slot>
+    </connection>
+    <connection>
+        <sender>buttonPDF</sender>
+        <signal>clicked()</signal>
+        <receiver>SettingsDialogBase</receiver>
+        <slot>browsePDFApplication()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -603,21 +496,14 @@
     <tabstop>buttonHome</tabstop>
     <tabstop>pdfApp</tabstop>
     <tabstop>buttonPDF</tabstop>
-    <tabstop>profileView</tabstop>
-    <tabstop>buttonAdd</tabstop>
-    <tabstop>buttonModify</tabstop>
-    <tabstop>buttonDelete</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
 <slots>
     <slot>selectColor()</slot>
-    <slot>addProfile()</slot>
-    <slot>removeProfile()</slot>
     <slot>browseWebApp()</slot>
     <slot>browsePDFApplication()</slot>
     <slot>browseHomepage()</slot>
-    <slot>modifyProfile()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

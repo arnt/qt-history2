@@ -6,8 +6,7 @@ SOURCES	+= main.cpp \
 	settingsdialogimpl.cpp \
 	index.cpp \
         profile.cpp \
-        config.cpp \
-	profiledialogimpl.cpp
+        config.cpp
 
 HEADERS	+= helpwindow.h \
 	topicchooserimpl.h \
@@ -16,8 +15,7 @@ HEADERS	+= helpwindow.h \
 	settingsdialogimpl.h \
 	index.h \
         profile.h \
-        config.h \
-	profiledialogimpl.h
+        config.h 
 
 TARGET	= assistant
 
@@ -49,8 +47,7 @@ FORMS	= mainwindow.ui \
 	finddialog.ui \
 	helpdialog.ui \
 	settingsdialog.ui \
-	tabbedbrowser.ui \
-	profiledialog.ui
+	tabbedbrowser.ui
 IMAGES	= images/editcopy.png \
 	images/find.png \
 	images/home.png \

@@ -153,59 +153,64 @@ int main( int argc, char ** argv )
 		INDEX_CHECK( "Missing file argument!" );
 		i++;
 		file = argv[i];
-	    } else if ( QString( argv[i] ).lower() == "-assistanthelppath" ) {
-		INDEX_CHECK( "Missing path of assisntant help files!" );
-		aDocPath = argv[++i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
-	    } else if ( QString( argv[i] ).lower() == "-addprofile" ) {
-		INDEX_CHECK( "Missing profile argument!" );
-		QString path = "";
-		i++;
-		if( i+1 < argc )
-		    path = QString( argv[i+1] );
-		if ( !Config::addProfile( QString( argv[i] ), path ) )
-		    exit( 1 );
-		exit( 0 );                            
-	    } else if ( QString( argv[i] ).lower() == "-removeprofile" ) {
-		INDEX_CHECK( "Missing profile argument!" );
-		Config *config = new Config( argv[i+1] );
-		config->removeProfile( argv[i+1] );
-//  		Config::configuration()->removeProfile( argv[i] );
-		return 0;
-	    } else if ( QString( argv[i] ).lower() == "-installqtdoc" ) {
-		if ( !Config::addProfile( "default", QString::null ) )
-		    exit( 1 );
-		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-profile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		profileName = argv[++i];
+	    } else if ( QString( argv[i] ).lower() == "-addcontentfile" ) {
+		INDEX_CHECK( "Missing content file!" );
+		Config *c = Config::loadConfig( QString::null );
+		QFileInfo file( argv[i+1] );
+		if( !file.exists() ) {
+		    fprintf( stderr, "Could not locate content file: '%s'\n",
+			     file.absFilePath().latin1() );
+		    fflush( stderr );
+		    return 1;
+		}
+		DocuParser *parser = DocuParser::createParser( file.absFilePath() );
+		if( parser ) {
+		    QFile f( argv[i+1] );
+		    if( !parser->parse( &f ) ) {
+			fprintf( stderr, "Failed to parse file: '%s'\n, ",
+				 file.absFilePath().latin1() );
+			fflush( stderr );
+			return 1;
+		    }
+		    parser->addTo( c->profile() );
+		    c->setDocRebuild( TRUE );
+		    c->save();
+		} 
+		return 0;
+	    } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
+		INDEX_CHECK( "Missing content file!" );
+		Config *c = Config::loadConfig( QString::null );
+		QFileInfo file( argv[i+1] );
+		if( !file.exists() ) {
+		    fprintf( stderr, "Could not locate content file: '%s'\n",
+			     file.absFilePath().latin1() );
+		    fflush( stderr );
+		    return 1;
+		}
+		Profile *profile = c->profile();
+		profile->removeDocFileEntry( file.absFilePath() );
+		c->setDocRebuild( TRUE );
+		c->save();
+		return 0;
 	    } else if ( QString( argv[i] ).lower() == "-hidesidebar" ) {
 		hideSidebar = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		QString helpText( "Usage: assistant [option]\n"
 				  "Options:\n"
 				  " -file Filename             assistant opens the specified file\n"
-				  //" -disableFirstRun         assistant will not try to register defaults.\n"
 				  " -server                    reads commands from a socket after\n"
 				  "                            assistant has started\n"
-				  " -profile Name              starts assistant and displays the\n"
-				  "                            profile Name.\n"
-				  " -addProfile File [Path]    adds the profile defined in File.\n"
-				  "                            Specify the location of the content\n"
-				  "                            files via Path. Otherwise, the base\n"
-				  "                            path of the profile is taken.\n"
-				  "                            For further informations have a look\n"
-				  "                            at the assistant online help.\n"
-				  " -removeProfile File        Removes the specified profile from the\n"
-				  "                            system.\n"
-				  " -installQtDoc              installs the Qt profile. This option is\n"
-				  "                            only necessary if assistants first installed\n"
-				  "                            profile was another than the Qt one.\n"
-				  "                            If assistant is run the first time without\n"
-				  "                            any argument this is called by default.\n"
-				  " -assistantHelpPath [Path]  location of the help files for how to use\n"
-				  "                            Qt Assistant.\n"
+				  " -profile fileName          starts assistant and displays the\n"
+				  "                            profile specified in the file fileName.\n"
+				  " -addContentFile file       adds the content file 'file' to the set of\n"
+				  "                            documentation available by default\n"
+				  " -removeContentFile file    removes the content file 'file' from the\n"
+				  "                            documentation available by default\n"
 				  " -hideSidebar               assistant will hide the sidebar.\n"
 				  " -help                      shows this help.");
 #ifdef Q_WS_WIN
@@ -238,8 +243,8 @@ int main( int argc, char ** argv )
     qtTranslator.load( QString("qt_") + QTextCodec::locale(), resourceDir );
     a.installTranslator( &qtTranslator );
 
-    Config *conf = new Config( profileName );
-    if ( !conf->validProfileName() ) {
+    Config *conf = Config::loadConfig( profileName );
+    if ( !conf ) {
 	fprintf( stderr, "Profile '%s' does not exist!\n", profileName.latin1() );
 	fflush( stderr );
 	return -1;
@@ -248,10 +253,6 @@ int main( int argc, char ** argv )
     bool max = conf->isMaximized();
     QString link = conf->source();
     conf->hideSideBar( hideSidebar );
-
-    if( !aDocPath.isNull() ) {
-	conf->setAssistantDocPath( aDocPath );
-    }
 
     QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant" );
 
@@ -268,12 +269,10 @@ int main( int argc, char ** argv )
     else
 	mw->show();
 
-    if ( !server ) {
-	if ( !file.isEmpty() )
-	    mw->showLink( file );
-	else if ( file.isEmpty() )
-	    mw->showLink( link );
-    }
+    if ( !file.isEmpty() )
+	mw->showLink( file );
+    else if ( file.isEmpty() )
+	mw->showLink( link );
 
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 

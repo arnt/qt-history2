@@ -12,6 +12,7 @@
 
 #include "config.h"
 #include "profile.h"
+#include "docuparser.h"
 
 #include <qapplication.h>
 #include <qfont.h>
@@ -25,75 +26,52 @@
 
 static Config *static_configuration = 0;
 
-Config::Config( const QString &name )
-    : startWithProfile( FALSE ), profileNameValid( TRUE ), hideSidebar( FALSE )
+Config::Config()
+    : hideSidebar( FALSE ), profil( 0 )
 {
     if( !static_configuration ) {
 	static_configuration = this;
-    } else {
-	qWarning( "Can only have one instance of Config at a time!" );
+    } else { 
+	qWarning( "Multiple configurations not allowed!" );
     }
-
-    load( name );
 }
 
-Config::Config()
-    : startWithProfile( FALSE ), profileNameValid( TRUE ), hideSidebar( FALSE )
-{
-    profil = new Profile();
-}
-
-bool Config::addProfile( const QString &profileFileName, const QString &path )
+Config *Config::loadConfig(const QString &profileFileName)
 {
     Config *config = new Config();
-    if ( profileFileName == "default" ) {
+    
+    if (profileFileName.isEmpty()) { // no profile
 	config->profil = Profile::createDefaultProfile();
-	config->saveProfile( config->profil, TRUE );
-	return TRUE;
+	config->load();
+	config->loadDefaultProfile();	
+	return config;
     }
-    if ( !config->profil->load( profileFileName ) )
-	return FALSE;
-    Profile *p = config->profil;
-    QString docPath = path;
-    if ( docPath.isEmpty() )
-	docPath = p->props["basepath"];
-    QFileInfo fi( profileFileName );
-    if ( docPath.isEmpty() )
-	docPath = fi.dirPath( TRUE );
-
-    QStringList lst;
-    lst << "applicationicon" << "abouturl" << "startpage";
-    QStringList::ConstIterator pit = lst.begin();
-    for ( ; pit != lst.end(); ++pit ) {
-	if ( !p->props[*pit].isEmpty() ) {
-	    QFileInfo fi( p->props[*pit] );
-	    if ( fi.isRelative() ) {
-		QDir d( docPath + "/" + fi.dirPath() );
-		p->props[*pit] = d.absPath() + "/" + fi.fileName();
-	    }
-	}
+    
+    QFile file(profileFileName);
+    if (!file.exists()) {
+	qWarning( "File does not exist: " + profileFileName );
+	return 0;
     }
-
-    QStringList::Iterator it = p->docs.begin();
-    for ( ; it != p->docs.end(); ++it ) {
-	QFileInfo dfi( *it );
-	QString icon = p->icons[*it];
-	QString dir = p->imageDirs[*it];
-	QString title = p->titles[*it];
-	p->icons.erase( *it );
-	p->imageDirs.erase( *it );
-	p->titles.erase( *it );
-	QDir d( docPath + "/" + dfi.dirPath() );
-	(*it) = d.absPath() + "/" + dfi.fileName();
-	if ( icon.isEmpty() )
-	    p->icons[*it] = icon;
-	else
-	    p->icons[*it] = d.absPath() + "/" + icon;
-	p->imageDirs[*it] = dir;
-	p->titles[*it] = title;
+    DocuParser *parser = DocuParser::createParser( profileFileName );
+    if (!parser) {
+	qWarning( "Failed to create parser for file: " + profileFileName );
+	return 0;
     }
-    config->saveProfile( p, TRUE );
-    return TRUE;
+    if (parser->parserVersion() < DocuParser::Qt320) {
+	qWarning( "File does not contain profile information" );
+	return 0;	
+    }
+    DocuParser320 *profileParser = static_cast<DocuParser320*>(parser);
+    parser->parse(&file);
+    config->profil = profileParser->profile();
+    if (!config->profil) {	
+	qWarning( "Config::loadConfig(), no profile in: " + profileFileName );
+	return 0;
+    }
+    config->profil->setProfileType(Profile::UserProfile);
+    config->profil->setDocuParser(profileParser);
+    config->load();
+    return config;
 }
 
 Config *Config::configuration()
@@ -102,33 +80,13 @@ Config *Config::configuration()
     return static_configuration;
 }
 
-void Config::load( const QString &name )
+void Config::load()
 {
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    const QString profkey = key + "Profile/" + profil->props["name"] + "/";
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-
-    QString profName = name;
-    if ( !profName.isEmpty() ) {
-	settings.readBoolEntry( key + "Profile/" + profName, FALSE, &profileNameValid );
-	if ( !profileNameValid )
-	    return;
-	startWithProfile = TRUE;
-    }
-
-    if ( profName.isEmpty() ) {
-	profil = Profile::createDefaultProfile();
-	saveProfile( profil, TRUE );
-    } else {
-	profil = loadProfile( profName );
-	if ( !profil ) {
-	    profil = Profile::createDefaultProfile();
-	    saveProfile( profil, TRUE );
-	}
-    }
-
-    const QString profkey = key + "Profile/" + profName + "/";
 
     webBrows = settings.readEntry( key + "Webbrowser" );
     home = settings.readEntry( profkey + "Homepage" );
@@ -144,23 +102,15 @@ void Config::load( const QString &name )
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readEntry( profkey + "Source" );
-    sideBar = settings.readNumEntry( key + "SideBarPage" );
+    sideBar = settings.readNumEntry( key + "SideBarPage" );    
     geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
 		  settings.readNumEntry( key + "GeometryY", 0 ),
-		  settings.readNumEntry( key + "GeometryWidth", -1 ),
-		  settings.readNumEntry( key + "GeometryHeight", -1 ) );
+		  settings.readNumEntry( key + "GeometryWidth", 800 ),
+		  settings.readNumEntry( key + "GeometryHeight", 600 ) );
     maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
     mainWinLayout = settings.readEntry( key + "MainwindowLayout" );
-    assDocPath = settings.readEntry( key + "assistantDocPath", qInstallPathDocs() + QString( "/html" ) );
+    rebuildDocs = settings.readBoolEntry( key + "RebuildDocDB", TRUE );
 
-    profileNames = settings.entryList( key + "Profile" );
-}
-
-void Config::reloadProfiles()
-{
-    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     profileNames = settings.entryList( key + "Profile" );
 }
 
@@ -194,121 +144,122 @@ void Config::saveSettings()
     settings.writeEntry( key + "GeometryMaximized", maximized );
     if ( !hideSidebar )
 	settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
-    settings.writeEntry( key + "assistantDocPath", assDocPath );
+    settings.writeEntry( key + "RebuildDocDB", rebuildDocs );
 }
 
-Profile* Config::loadProfile( const QString &name )
+#ifdef ASSISTANT_DEBUG
+static void dumpmap( const QMap<QString,QString> &m, const QString &header )
 {
-    Profile *profile = new Profile();
+    qDebug( header );
+    QMap<QString,QString>::ConstIterator it = m.begin();
+    while (it != m.end()) {
+	qDebug( "  " + it.key() + ":\t\t" + *it );
+	++it;
+    }
+}
+#endif
 
+void Config::loadDefaultProfile()
+{
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile";
-    const QString profKey = key + "/" + name + "/";
+    const QString profKey = key + "/default/";
 
-    QStringList profileLst = settings.entryList( key );
-
-    bool found = FALSE;
-    QStringList::ConstIterator it = profileLst.begin();
-    for ( ; it != profileLst.end(); ++it ) {
-	if ( *it == name ) {
-	    found = TRUE;
-	    break;
-	}
+    if( settings.entryList( key + "/default" ).count() == 0 ) {
+	return;
     }
-    if ( !found )
-	return 0;
 
-    profile->props["name"] = name;
-    profile->changed = settings.readBoolEntry( profKey );
-    profile->props["applicationicon"] = settings.readEntry( profKey + "AppIcon" );
-    profile->props["aboutmenutext"] = settings.readEntry( profKey + "AboutMenuText" );
-    profile->props["abouturl"] = settings.readEntry( profKey + "AboutUrl" );
-    profile->props["title"] = settings.readEntry( profKey + "Title" );
-    profile->props["basepath"] = settings.readEntry( profKey + "BasePath" );
-    profile->props["startpage"] = settings.readEntry( profKey + "StartPage" );
-    profile->docs = settings.readListEntry( profKey + "DocFiles" );
+    // Override the defaults with settings in registry.
+    profil->icons.clear();
+    profil->indexPages.clear();
+    profil->imageDirs.clear();
+    profil->docs.clear();
+    profil->dcfTitles.clear();
+    
+    QStringList titles = settings.readListEntry( profKey + "Titles" );
     QStringList iconLst = settings.readListEntry( profKey + "DocIcons" );
-    QStringList titleLst = settings.readListEntry( profKey + "DocTitles" );
+    QStringList indexLst = settings.readListEntry( profKey + "IndexPages" );
     QStringList imgDirLst = settings.readListEntry( profKey + "ImageDirs" );
+    QStringList dcfs = settings.readListEntry( profKey + "DocFiles" );
 
-    it = profile->docs.begin();
-    QStringList::ConstIterator iconIt = iconLst.begin();
-    QStringList::ConstIterator titleIt = titleLst.begin();
-    QStringList::ConstIterator imageIt = imgDirLst.begin();
-    for( ; it != profile->docs.end() && iconIt != iconLst.end()
-	&& titleIt != titleLst.end() && imageIt != imgDirLst.end();
-	++it, ++iconIt, ++titleIt, ++imageIt )
+    QStringList::ConstIterator it = titles.begin();
+    QValueListConstIterator<QString> iconIt = iconLst.begin();
+    QValueListConstIterator<QString> indexIt = indexLst.begin();
+    QValueListConstIterator<QString> imageIt = imgDirLst.begin();
+    QValueListConstIterator<QString> dcfIt = dcfs.begin();
+    for( ; it != titles.end();
+	++it, ++iconIt, ++indexIt, ++imageIt, ++dcfIt )
     {
-	profile->icons[*it] = *iconIt;
-	profile->titles[*it] = *titleIt;
-	profile->imageDirs[*it] = *imageIt;
+	profil->addDCFIcon( *it, *iconIt );       
+	profil->addDCFIndexPage( *it, *indexIt );
+	profil->addDCFImageDir( *it, *imageIt );
+	profil->addDCFTitle( *dcfIt, *it );
     }
-
-    return profile;
+#if ASSISTANT_DEBUG
+    dumpmap( profil->icons, "Icons" );
+    dumpmap( profil->indexPages, "IndexPages" );
+    dumpmap( profil->imageDirs, "ImageDirs" );
+    dumpmap( profil->dcfTitles, "dcfTitles" );
+    qDebug( "Docfiles: \n  " + profil->docs.join( "\n  " ) );
+#endif
 }
 
-void Config::saveProfile( Profile *profile, bool changed )
+void Config::saveProfile( Profile *profile )
 {
+    if (profil->profileType() == Profile::UserProfile)
+	return;
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
     const QString profKey = key + "Profile/" + profile->props["name"] + "/";
-    settings.writeEntry( profKey, changed );
-    settings.writeEntry( profKey + "AppIcon", profile->props["applicationicon"] );
-    settings.writeEntry( profKey + "AboutMenuText", profile->props["aboutmenutext"] );
-    settings.writeEntry( profKey + "AboutUrl", profile->props["abouturl"] );
-    settings.writeEntry( profKey + "Title", profile->props["title"] );
-    settings.writeEntry( profKey + "BasePath", profile->props["basepath"] );
-    settings.writeEntry( profKey + "StartPage", profile->props["startpage"] );
 
-    QStringList titles, icons, imgDirs;
-    QStringList::ConstIterator it = profile->docs.begin();
-    for ( ; it != profile->docs.end(); ++it ) {
-	titles << profile->titles[*it];
+    QStringList indexes, icons, imgDirs, dcfs;
+    QValueList<QString> titles = profile->dcfTitles.keys();
+    QValueListConstIterator<QString> it = titles.begin();
+    for ( ; it != titles.end(); ++it ) {
+	indexes << profile->indexPages[*it];
 	icons << profile->icons[*it];
 	imgDirs << profile->imageDirs[*it];
+	dcfs << profile->dcfTitles[*it];	
     }
-    settings.writeEntry( profKey + "DocFiles", profile->docs );
-    settings.writeEntry( profKey + "DocTitles", titles );
+ 
+    settings.writeEntry( profKey + "Titles", titles );
+    settings.writeEntry( profKey + "DocFiles", dcfs );
+    settings.writeEntry( profKey + "IndexPages", indexes );
     settings.writeEntry( profKey + "DocIcons", icons );
     settings.writeEntry( profKey + "ImageDirs", imgDirs );
-}
 
-void Config::removeProfile( const QString &name )
-{
-    QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile/" + name;
-    QStringList entries = settings.entryList( profKey );
-    for( QStringList::ConstIterator it = entries.begin(); it != entries.end(); ++it ) {
-       	settings.removeEntry( profKey + "/" + *it );
-    }
-    settings.removeEntry( profKey );
-}
-
-bool Config::setCurrentProfile( const QString &name )
-{
-    Profile *oldProf = profil;
-    profil = loadProfile( name );
-    if ( !profil ) {
-	profil = oldProf;
-	return FALSE;
-    }
-    delete oldProf;
-    oldProf = 0;
-    return TRUE;
+#if ASSISTANT_DEBUG
+    qDebug( "Titles:\n  - " + ( (QStringList*) &titles )->join( "\n  - " ) );
+    qDebug( "Docfiles:\n  - " + dcfs.join( "\n  - " ) );
+    qDebug( "IndexPages:\n  - " + indexes.join( "\n  - " ) );
+    qDebug( "DocIcons:\n  - " + icons.join( "\n  - " ) );
+    qDebug( "ImageDirs:\n  - " + imgDirs.join( "\n  - " ) );
+#endif
 }
 
 QStringList Config::mimePaths()
 {
-    QStringList lst;
-    QStringList::ConstIterator it = profil->docs.begin();
-    for ( ; it != profil->docs.end(); ++it ) {
-	QFileInfo fi( *it );
-	lst << fi.dirPath( TRUE );
-	QDir dir( fi.dirPath( TRUE ) + "/" + profil->imageDirs[*it] );
-	lst << dir.path();
+    static QStringList lst;
+
+    if( lst.count() > 0 )
+	return lst;
+    
+    for (QMap<QString,QString>::ConstIterator it = profil->dcfTitles.begin();
+	 it != profil->dcfTitles.end(); ++it ) {
+
+	// Mime source for .dcf file path
+	QFileInfo info( *it ); 
+	QString dcfPath = info.dirPath(TRUE);
+	if (lst.contains(dcfPath) == 0)
+	    lst << dcfPath;
+	
+	// Image dir for .dcf 	
+	QString imgDir = QDir::convertSeparators( dcfPath + QDir::separator()
+						  + profil->imageDirs[it.key()] );
+	if (lst.contains(imgDir) == 0)
+	    lst << imgDir;
     }
     return lst;
 }
@@ -348,9 +299,12 @@ QStringList Config::docFiles() const
     return profil->docs;
 }
 
-QPixmap Config::docIcon( const QString &docfile ) const
+QPixmap Config::docIcon( const QString &title ) const
 {
-    return QPixmap::fromMimeSource( profil->icons[docfile] );
+    // ### To allow qdoc generated dcf files to reference the doc icons from qmake_image_col
+    if (!QFile::exists(profil->icons[title]))
+	return QPixmap::fromMimeSource( QFileInfo(profil->icons[title]).fileName() );
+    return QPixmap::fromMimeSource( profil->icons[title] );
 }
 
 QPixmap Config::applicationIcon() const
@@ -358,9 +312,9 @@ QPixmap Config::applicationIcon() const
     return QPixmap::fromMimeSource( profil->props["applicationicon"] );
 }
 
-QString Config::docTitle( const QString &docfile ) const
+QStringList Config::docTitles() const
 {
-    return profil->titles[docfile];
+    return *( (QStringList*) &(profil->indexPages.keys()) );
 }
 
 QString Config::docImageDir( const QString &docfile ) const
@@ -368,24 +322,10 @@ QString Config::docImageDir( const QString &docfile ) const
     return profil->imageDirs[docfile];
 }
 
-QString Config::basePath() const
+QString Config::indexPage( const QString &title ) const
 {
-    return profil->props["basepath"];
-}
-
-bool Config::needsNewDoc() const
-{
-    return profil->changed;
-}
-
-bool Config::startedWithProfile() const
-{
-    return startWithProfile;
-}
-
-bool Config::validProfileName() const
-{
-    return profileNameValid;
+    return profil->indexPages
+	[title];    
 }
 
 void Config::hideSideBar( bool b )
@@ -396,4 +336,11 @@ void Config::hideSideBar( bool b )
 bool Config::sideBarHidden() const
 {
     return hideSidebar;
+}
+
+QString Config::assistantDocPath() const
+{
+    return profil->props["assistantdocs"].isEmpty()
+	? QString( qInstallPathDocs() ) + "/html"
+	: profil->props["assistantdocs"];
 }

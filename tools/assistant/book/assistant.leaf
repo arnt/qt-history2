@@ -88,22 +88,27 @@ present the relevant page. You can bookmark pages of particular
 interest and you can click the \Toolbutton Previous and \Toolbutton
 Next toolbar buttons to navigate within the pages you've visited. 
 
-Although \QA can be used just like a web browser to navigate through the
-Qt documentation set, \QA offers a powerful means of navigation that
-web browsers don't provide. \QA uses an intelligent algorithm to index
-all the pages in the documentation sets that it presents so that you
-can search for particular words and phrases.
+Although \QA can be used just like a web browser to navigate through
+the Qt documentation set, \QA offers a powerful means of navigation
+that web browsers don't provide. \QA uses an intelligent algorithm to
+index all the pages in the documentation sets that it presents so that
+you can search for particular words and phrases. \QA also provides
+full text searching for finding specific words in documentation.
+Documents with the highest occurrences of the word you are looking for
+appear first and every occurrence of the word within the documentation
+is highlighted. 
 
-To perform a search, click the \Toolbutton Index tab on the Sidebar
+To perform an index search, click the \Toolbutton Index tab on the Sidebar
 (or click \Key Ctrl+I). In the 'Look For' line edit enter a word, e.g.
 'homedirpath'. As you type, words are found and highlighted in a list
 beneath the line edit. If the highlighted text matches what you're
 looking for, double click it, (or press \Key Enter) and the
 documentation window will display the relevant page. You rarely have
-to type in the whole word before \QA finds a match.
+to type in the whole word before \QA finds a match. Note that for some
+words there may be more than one possible page that is relevant. 
 
-For some words there may be more than one possible page that is
-relevant. For example, enter 'setenabled' in the 'Look For' line edit.
+\omit
+For example, enter 'setenabled' in the 'Look For' line edit.
 As you type, words are found and highlighted in the list beneath the
 line edit, as before. Once the highlighted text matches what you're
 looking for, double click it, (or press \Key Enter). In the case of
@@ -112,6 +117,13 @@ a dialog pops up listing the possible choices. Click the choice you're
 interested in (or move to it using the \Key Up and \Key Down arrow
 keys and press \Key Enter). The relevant page will display in the
 documentation window. 
+\endomit
+
+\QA can be customized by creating profiles, a collection of
+documentation. Profiles can be created for your own use, or for an
+application you will distribute. With profiles, you can select which
+documentation you want the end user of your application to be able to
+view.
 
 \chapter Qt Assistant in More Detail
 
@@ -176,6 +188,9 @@ option is \Menu{File|Print} and the keyboard shortcut is \Key{Ctrl+P}.
 option is \Menu{View|Zoom in} and the keyboard shortcut is \Key{Ctrl++}.
 \i \Toolbutton{Zoom out} decreases the font size. The menu
 option is \Menu{View|Zoom out} and the keyboard shortcut is \Key{Ctrl+-}.
+\i \Toolbutton{What's This?} provides a description of a \QA feature.
+The menu option is \Menu{Help|What's This?} and the keyboard shortcut
+is \Key{Shift+F1}.
 \endlist
 
 The remaining toolbar buttons are bookmarks and will vary depending on
@@ -212,9 +227,9 @@ Toolbar.
 \section2 The Go Menu
 
 \list
-\i \Menu{Go|Previous} display the previous page.
-\i \Menu{Go|Next} display the next page.
-\i \Menu{Go|home} go to the home page.
+\i \Menu{Go|Previous} displays the previous page.
+\i \Menu{Go|Next} displays the next page.
+\i \Menu{Go|home} goes to the home page.
 \endlist
 This menu also has additional items; these are pre-defined bookmarks
 that vary depending on your configuration.
@@ -222,7 +237,7 @@ that vary depending on your configuration.
 \section2 The Bookmarks Menu
 
 \list
-\i \Menu{Bookmarks|Add} add the current page to the list of bookmarks.
+\i \Menu{Bookmarks|Add} adds the current page to the list of bookmarks.
 \endlist
 This menu may have additional items, i.e. any bookmarks that you have
 already made. If you want to delete a bookmark go to the Bookmarks tab
