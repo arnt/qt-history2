@@ -974,3 +974,19 @@ QString QSqlQuery::executedQuery() const
 
     Use previous() instead.
 */
+
+/*!
+    Returns the object ID of the most recent inserted row if the
+    database supports it.
+    An invalid QVariant will be returned if the query did not
+    insert any value or if the database does not report the id back.
+    If more than one row was touched by the insert, the behavior is
+    undefined.
+
+    \sa QSqlDriver::hasFeature()
+*/
+QVariant QSqlQuery::lastInsertId() const
+{
+    return d->sqlResult->lastInsertId();
+}
+

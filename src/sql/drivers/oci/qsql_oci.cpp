@@ -225,7 +225,7 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                   sizeof(int),
                                   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
-            break;
+                break;
             case QVariant::Double:
                 r = OCIBindByPos(sql, &hbnd, err,
                                   i + 1,
@@ -233,10 +233,22 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                   sizeof(double),
                                   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
-            break;
+                break;
+            case QVariant::UserType:
+                if (qVariantCanConvert<QOCIRowIdPointer>(val) && !isOutValue(i)) {
+                    const QOCIRowIdPointer rptr = qVariantValue<QOCIRowIdPointer>(val);
+                    r = OCIBindByPos(sql, &hbnd, err,
+                                     i + 1,
+                                     &const_cast<OCIRowid *>(rptr->id),
+                                     -1,
+                                     SQLT_RDD, (dvoid *) indPtr, (ub2 *) 0, (ub2 *) 0,
+                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                    break;
+                }
+                // fall through
             case QVariant::String:
             default: {
-                QString s = values.at(i).toString();
+                QString s = val.toString();
                 if (isBinaryValue(i)) {
                     r = OCIBindByPos(sql, &hbnd, err,
                                      i + 1,

@@ -77,6 +77,7 @@ public:
     QVariant boundValue(int pos) const;
     QMap<QString, QVariant> boundValues() const;
     QString executedQuery() const;
+    QVariant lastInsertId() const;
 
 private:
     QSqlQueryPrivate* d;
