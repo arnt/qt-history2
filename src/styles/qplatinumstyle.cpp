@@ -607,10 +607,9 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QColorGroup myCG = cg;
 	    // shows a drawing error, comment for now...
-	    //	    QBrush fill;
-	    //	    fill = QBrush( myCG.mid(), Dense4Pattern );
-	    //	    myCG.setBrush( QColorGroup::Mid, fill );
-	    QPen oldPen = p->pen();
+// 	    QBrush fill = QBrush( myCG.mid(), Dense4Pattern );
+// 	    myCG.setBrush( QColorGroup::Mid, fill );
+ 	    QPen oldPen = p->pen();
 	    if ( r.width() < 3 || r.height() < 3 ) {
 		p->fillRect( r, myCG.brush(QColorGroup::Mid) );
 		p->setPen( myCG.shadow() );
@@ -619,13 +618,13 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    } else {
 		if ( flags & Style_Horizontal ) {
 		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 2,
-				 r.height() - 4, myCG.brush(QColorGroup::Mid) );
-		    // 	// the dark side
+				 r.height() - 4,
+				 myCG.brush(QColorGroup::Mid) );
+		    // the dark side
 		    p->setPen( myCG.dark().dark() );
 		    p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
-		    p->setPen( myCG.shadow()); p->drawLine( r.x(), r.y(), r.x(),
-						          r.y()
-							  + r.height() - 1 );
+		    p->setPen( myCG.shadow());
+		    p->drawLine( r.x(), r.y(), r.x(), r.y() + r.height() - 1 );
 
 		    p->setPen( myCG.mid().dark());
 		    p->drawLine( r.x() + 1, r.y() + 1, r.x() + r.width() - 1,
@@ -639,19 +638,15 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawLine( r.x() + 1, r.y() + r.height() - 2,
 				 r.x() + r.width() - 1,
 				 r.y() + r.height() - 2 );
-		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
-				 r.x() + r.width() - 2,
-				 r.y() + r.height() - 2 );		
 		    p->setPen( myCG.shadow());
 		    p->drawLine( r.x(), r.y() + r.height() - 1,
 				 r.x() + r.width() - 1,
 				 r.y() + r.height() - 1 );
-		    p->drawLine( r.x() + r.width() - 1, r.y(),
-				 r.x() + r.width() - 1,
-				 r.y() + r.height() - 1 );
+
 		} else {
 		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4,
-				 r.height() - 2, myCG.brush(QColorGroup::Mid) );
+				 r.height() - 2,
+				 myCG.brush(QColorGroup::Mid) );
 		
 		    // the dark side
 		    p->setPen( myCG.dark().dark() );
@@ -667,17 +662,11 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		
 		    // the bright side!		
 		    p->setPen( myCG.button() );
-		    p->drawLine( r.x() + 1, r.y() + r.height() - 2,
-				 r.x() + r.width() - 2,
-				 r.y() + r.height() - 2 );
 		    p->drawLine( r.x() + r.width() - 2, r.y() + 1,
 				 r.x() + r.width() - 2,
 				 r.y() + r.height() - 1 );
 		
 		    p->setPen( myCG.shadow() );
-		    p->drawLine( r.x(), r.y() + r.height() - 1,
-				 r.x() + r.width() - 1,
-				 r.y() + r.height() - 1 );
 		    p->drawLine( r.x() + r.width() - 1, r.y(),
 				 r.x() + r.width() - 1,
 				 r.y() + r.height() - 1 );
@@ -712,7 +701,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 }
 
-/*!reimp
+/*!\reimp
  */
 void QPlatinumStyle::drawControl( ControlElement element,
 				  QPainter *p,
@@ -1254,6 +1243,8 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	break;
     }
 }
+
+
 
 /*!\reimp
  */
