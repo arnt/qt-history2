@@ -131,6 +131,7 @@ bool QFile::open( int m )
 	return FALSE;
     }
     bool ok = TRUE;
+    STATBUF st;
     if ( isRaw() ) {				// raw file I/O
 	int oflags = OPEN_RDONLY;
 	if ( isReadable() && isWritable() )
@@ -162,14 +163,7 @@ bool QFile::open( int m )
 	fd = OPEN( QFile::encodeName(fn), oflags, 0666 );
 
 	if ( fd != -1 ) {			// open successful
-	    STATBUF st;
-	    FSTAT( fd, &st );
-	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
-		ok = FALSE;
-	    } else {
-		length = (int)st.st_size;
-		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
-	    }
+	    FSTAT( fd, &st ); // get the stat for later usage
 	} else {
 	    ok = FALSE;
 	}
@@ -213,20 +207,34 @@ bool QFile::open( int m )
 	    }
 	}
 	if ( fh ) {
-	    STATBUF st;
-	    FSTAT( FILENO(fh), &st );
-	    if ( (st.st_mode&STAT_MASK) == STAT_DIR ) {
-		ok = FALSE;
-	    } else {
-		length = (int)st.st_size;
-		ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
-	    }
+	    FSTAT( FILENO(fh), &st ); // get the stat for later usage
 	} else {
 	    ok = FALSE;
 	}
     }
     if ( ok ) {
 	setState( IO_Open );
+	// on successful open the file stat was got; now test what type
+	// of file we have
+	if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
+	    // non-seekable
+	    setType( IO_Sequential );
+	    length = INT_MAX;
+	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	} else {
+	    length = (int)st.st_size;
+	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    if ( length == 0 ) {
+		// try if you can read from it (if you can, it's a sequential
+		// device; e.g. a file in the /proc filesystem)
+		int c = getch();
+		if ( c != -1 ) {
+		    ungetch(c);
+		    setType( IO_Sequential );
+		    length = INT_MAX;
+		}
+	    }
+	}
     } else {
 	init();
 	if ( errno == EMFILE )			// no more file handles/descrs
@@ -286,6 +294,16 @@ bool QFile::open( int m, FILE *f )
 	length = INT_MAX;
     } else {
 	length = (int)st.st_size;
+	if ( length == 0 ) {
+	    // try if you can read from it (if you can, it's a sequential
+	    // device; e.g. a file in the /proc filesystem)
+	    int c = getch();
+	    if ( c != -1 ) {
+		ungetch(c);
+		setType( IO_Sequential );
+		length = INT_MAX;
+	    }
+	}
     }
     return TRUE;
 }
@@ -326,6 +344,16 @@ bool QFile::open( int m, int f )
 	length = INT_MAX;
     } else {
 	length = (int)st.st_size;
+	if ( length == 0 ) {
+	    // try if you can read from it (if you can, it's a sequential
+	    // device; e.g. a file in the /proc filesystem)
+	    int c = getch();
+	    if ( c != -1 ) {
+		ungetch(c);
+		setType( IO_Sequential );
+		length = INT_MAX;
+	    }
+	}
     }
     return TRUE;
 }
