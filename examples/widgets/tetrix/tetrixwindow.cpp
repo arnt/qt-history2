@@ -14,8 +14,11 @@ TetrixWindow::TetrixWindow()
     board->setNextPieceLabel(nextPieceLabel);
 
     scoreLcd = new QLCDNumber(5, this);
+    scoreLcd->setSegmentStyle(QLCDNumber::Filled);
     levelLcd = new QLCDNumber(2, this);
+    levelLcd->setSegmentStyle(QLCDNumber::Filled);
     linesLcd = new QLCDNumber(5, this);
+    linesLcd->setSegmentStyle(QLCDNumber::Filled);
 
     quitButton  = new QPushButton(tr("&Quit"),this);
     quitButton->setFocusPolicy(Qt::NoFocus);

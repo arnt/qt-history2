@@ -189,7 +189,7 @@ void TetrixBoard::removeFullLines()
 {
     int numFullLines = 0;
 
-    for (int i = 0; i < BoardHeight; ++i) {
+    for (int i = BoardHeight - 1; i >= 0; --i) {
         bool lineIsFull = true;
 
         for (int j = 0; j < BoardWidth; ++j) {

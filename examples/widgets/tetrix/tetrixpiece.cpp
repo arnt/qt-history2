@@ -4,7 +4,8 @@
 
 void TetrixPiece::setRandomShape()
 {
-    setShape(TetrixShape(qRand() % 7 + 1));
+    int random = QTime::currentTime().msec();
+    setShape(TetrixShape(random % 7 + 1));
 }
 
 void TetrixPiece::setShape(TetrixShape shape)
