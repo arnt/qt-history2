@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#24 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#24 $";
 #endif
 
 
@@ -122,6 +122,7 @@ void QPopupMenu::updateItem( int id )		// update popup menu item
 void QPopupMenu::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
+    updateAccel( 0 );      // Yuck ###
     if ( isVisible() ) {
 	updateSize();
 	repaint();
@@ -152,8 +153,8 @@ void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 }
 
 
-void QPopupMenu::popup( const QPoint &pos )	// open popup menu at pos
-{
+void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
+{						      // open popup menu at pos
     if ( mitems->count() == 0 )			// oops, empty
 	insertSeparator();			// Save Our Souls
     if ( badSize )
@@ -163,6 +164,8 @@ void QPopupMenu::popup( const QPoint &pos )	// open popup menu at pos
     int sh = desktop->height();			// screen height
     int x  = pos.x();
     int y  = pos.y();
+    if ( indexAtPoint > 0 )                     // don't subtract when < 0
+        y -= itemPos( indexAtPoint );           // (would subtract 2 pixels!)
     int w  = width();
     int h  = height();
     if ( x+w > sw )				// the complete widget must
@@ -291,6 +294,12 @@ int QPopupMenu::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
     return r;
 }
 
+int QPopupMenu::itemPos( int index )		// get y coord for item
+{
+    int y = rowYPos( index );		        // ask table for position
+    return y < 0 ? 0 : y;			// return 0 if not visible 
+}
+
 
 void QPopupMenu::updateSize()			// update popup size params
 {
@@ -308,9 +317,9 @@ void QPopupMenu::updateSize()			// update popup size params
 	    hasSubMenu = TRUE;
 	if ( mi->isSeparator() )
 	    height += motifSepHeight;
-	else if ( mi->image() ) {
-	    height += mi->image()->height() + 2*motifItemFrame;
-	    w = mi->image()->width();
+	else if ( mi->pixMap() ) {
+	    height += mi->pixMap()->height() + 2*motifItemFrame;
+	    w = mi->pixMap()->width();
 	}
 	else if ( mi->string() ) {
 	    height += cellh;
@@ -461,6 +470,10 @@ void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
+    if ( !parent && !autoaccel )
+        return;
+//    if ( autoaccel )              yuck todo ###
+//	autoaccel->clear();
     while ( (mi=it.current()) ) {
 	++it;
 	if ( mi->key() ) {
@@ -475,7 +488,6 @@ void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 		    autoaccel->disable();
 	    }
 	    long k = mi->key();
-	    autoaccel->removeItem( mi->id() );
 	    autoaccel->insertItem( k, mi->id() );
 	    if ( mi->string() ) {
 		QString s = mi->string();
@@ -553,8 +565,8 @@ int QPopupMenu::cellHeight( long row )
     int h = 0;					// default cell height
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
-    else if ( mi->image() )			// image height
-	h = mi->image()->height() + 2*motifItemFrame;
+    else if ( mi->pixMap() )			// pixMap height
+	h = mi->pixMap()->height() + 2*motifItemFrame;
     else {					// text height
         QFontMetrics fm = fontMetrics();
 	h = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
@@ -591,13 +603,13 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	p->drawShadePanel( 0, 0, cellw, cellh, g.background(), g.background(),
 			   motifItemFrame );
     p->setPen( g.text() );
-    if ( mi->image() ) {			// draw image
-	QImage *image = mi->image();
-	if ( image->depth() == 1 )
+    if ( mi->pixMap() ) {			// draw pixMap
+	QPixMap *pixMap = mi->pixMap();
+	if ( pixMap->depth() == 1 )
 	    p->setBackgroundMode( OpaqueMode );
 	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
-		       *image );
-	if ( image->depth() == 1 )
+		       *pixMap );
+	if ( pixMap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
     }
     else if ( mi->string() ) {			// draw text

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#13 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#14 $
 **
 ** Definition of QMenuData class
 **
@@ -21,7 +21,7 @@ class QPopupMenu;
 #if defined(INCLUDE_MENUITEM_DEF)
 
 #include "qstring.h"
-#include "qimage.h"
+#include "qpixmap.h"
 #include "qsignal.h"
 
 class QMenuItem					// internal menu item class
@@ -33,7 +33,7 @@ public:
 
     int		id()	      const { return ident; }
     const char *string()      const { return string_data; }
-    QImage     *image()       const { return image_data; }
+    QPixMap    *pixMap()      const { return pixMap_data; }
     QPopupMenu *popup()	      const { return popup_menu; }
     long	key()	      const { return accel_key; }
     QSignal    *signal()      const { return signal_data; }
@@ -46,7 +46,7 @@ public:
 private:
     int		ident;				// item identifier
     QString	string_data;			// item text
-    QImage     *image_data;			// item image
+    QPixMap    *pixMap_data;			// item pixMap
     QPopupMenu *popup_menu;			// item popup menu
     long	accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
@@ -63,7 +63,7 @@ typedef declare(QListIteratorM,QMenuItem) QMenuItemListIt;
 
 class QMenuItem;
 class QMenuItemList;
-class QImage;
+class QPixMap;
 
 #endif
 
@@ -80,8 +80,8 @@ public:
     void	insertItem( const char *string, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
-    void	insertItem( const QImage &image, int id=-1, int index=-1 );
-    void	insertItem( const QImage &image, QPopupMenu *popup,
+    void	insertItem( const QPixMap &pixMap, int id=-1, int index=-1 );
+    void	insertItem( const QPixMap &pixMap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
     void	insertSeparator( int index=-1 );
@@ -93,9 +93,9 @@ public:
     void	setAccel( long key, int id );	// set accelerator key
 
     const char *string( int id ) const;		// get string of item id
-    QImage     *image( int id )  const;		// get image of item id
+    QPixMap    *pixMap( int id )  const;	// get pixMap of item id
     void	changeItem( const char *string, int id );
-    void	changeItem( const QImage &image, int id );
+    void	changeItem( const QPixMap &pixMap, int id );
 
     bool	isItemDisabled( int id ) const;
     bool	isItemEnabled( int id )	 const	{ return !isItemDisabled(id); }
@@ -112,6 +112,7 @@ public:
 
     int		indexOf( int id ) const;	// get index of specified item
     int		idAt( int index ) const;	// get id of item at index
+    void        setId( int index, int id );     // set id of item at index
 
     bool	connectItem( int id,		// connect item to method
 			     const QObject *receiver, const char *member );
@@ -119,6 +120,9 @@ public:
 				const QObject *receiver, const char *member );
 
     QMenuItem  *findItem( int id ) const;
+
+    int         count() const;
+    void        clear();         // count() and clear() EE 26/4-95 ###
 
 protected:
     int		   actItem;			// active menu item
@@ -134,7 +138,7 @@ protected:
     virtual void   menuDelPopup( QPopupMenu * );
 
 private:
-    void	insertAny( const char *, QImage *, QPopupMenu *, int, int );
+    void	insertAny( const char *, QPixMap *, QPopupMenu *, int, int );
     void	removePopup( QPopupMenu * );
 };
 
