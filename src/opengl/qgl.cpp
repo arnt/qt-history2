@@ -812,6 +812,25 @@ bool operator!=(const QGLFormat& a, const QGLFormat& b)
   QGLContext implementation
  *****************************************************************************/
 
+void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
+{
+    glFormat = reqFormat = format;
+    valid = false;
+    q->setDevice(dev);
+#if defined(Q_WS_X11)
+    gpm = 0;
+#endif
+#if defined(Q_WS_WIN)
+    dc = 0;
+    win = 0;
+    pixelFormatId = 0;
+    cmap = 0;
+#endif
+    crWin = false;
+    initDone = false;
+    sharing = false;
+}
+
 QGLContext* QGLContext::currentCtx = 0;
 
 // returns the highest number closest to v, which is a power of 2
@@ -943,7 +962,8 @@ struct DDSFormat {
 
 QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 {
-    init(device, format);
+    d_ptr = new QGLContextPrivate(this);
+    d->init(device, format);
 }
 
 /*!
@@ -952,7 +972,8 @@ QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
 */
 QGLContext::QGLContext(const QGLFormat &format)
 {
-    init(0, format);
+    d_ptr = new QGLContextPrivate(this);
+    d->init(0, format);
 }
 
 /*!
@@ -1312,26 +1333,6 @@ void QGLContext::setDevice(QPaintDevice *pDev)
                         && d->paintDevice->devType() != QInternal::Pixmap)) {
         qWarning("QGLContext: Unsupported paint device type");
     }
-}
-
-void QGLContext::init(QPaintDevice *dev, const QGLFormat &format)
-{
-    d_ptr = new QGLContextPrivate(this);
-    d->glFormat = d->reqFormat = format;
-    d->valid = false;
-    setDevice(dev);
-#if defined(Q_WS_X11)
-    d->gpm = 0;
-#endif
-#if defined(Q_WS_WIN)
-    d->dc = 0;
-    d->win = 0;
-    d->pixelFormatId = 0;
-    d->cmap = 0;
-#endif
-    d->crWin = false;
-    d->initDone = false;
-    d->sharing = false;
 }
 
 /*!
@@ -1776,7 +1777,7 @@ QGLWidget::QGLWidget(QWidget *parent, const char *name,
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
-    init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
+    d->init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
 }
 
 
@@ -1817,7 +1818,7 @@ QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
-    init(new QGLContext(format, this), shareWidget);
+    d->init(new QGLContext(format, this), shareWidget);
 }
 
 /*!
@@ -1853,7 +1854,7 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
         setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_NoSystemBackground);
-    init(context, shareWidget);
+    d->init(context, shareWidget);
 }
 
 /*!
@@ -1877,7 +1878,7 @@ QGLWidget::~QGLWidget()
     if (doRelease)
         glXReleaseBuffersMESA(x11Display(), winId());
 #endif
-    cleanupColormaps();
+    d->cleanupColormaps();
 }
 
 /*!
@@ -2354,7 +2355,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
 
     bool success = true;
 
-    if (useContext && isValid() && renderCxPm(&pm))
+    if (useContext && isValid() && d->renderCxPm(&pm))
         return pm;
 
     QGLFormat fmt = d->glcx->requestedFormat();

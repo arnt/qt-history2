@@ -606,9 +606,13 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
         delete oldcx;
 }
 
-bool QGLWidget::renderCxPm(QPixmap*)
+bool QGLWidgetPrivate::renderCxPm(QPixmap*)
 {
     return false;
+}
+
+void QGLWidgetPrivate::cleanupColormaps()
+{
 }
 
 const QGLColormap & QGLWidget::colormap() const
@@ -617,10 +621,6 @@ const QGLColormap & QGLWidget::colormap() const
 }
 
 void QGLWidget::setColormap(const QGLColormap &)
-{
-}
-
-void QGLWidget::cleanupColormaps()
 {
 }
 

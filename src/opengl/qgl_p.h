@@ -44,6 +44,10 @@ public:
     QGLWidgetPrivate() : QWidgetPrivate() {}
     ~QGLWidgetPrivate() {}
 
+    void init(QGLContext *context, const QGLWidget* shareWidget);
+    bool renderCxPm(QPixmap *pixmap);
+    void cleanupColormaps();
+
     QGLContext *glcx;
     bool autoSwap;
 
@@ -69,6 +73,7 @@ public:
     QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLint format, int key);
+    void init(QPaintDevice *dev, const QGLFormat &format);
 
 #if defined(Q_WS_WIN)
     HGLRC rc;

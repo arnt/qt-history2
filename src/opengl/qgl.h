@@ -214,7 +214,6 @@ protected:
     static QGLContext* currentCtx;
 
 private:
-    void init(QPaintDevice *dev, const QGLFormat &format);
     QGLContextPrivate* d_ptr;
 
     friend class QGLWidget;
@@ -308,9 +307,6 @@ protected:
 
 private:
     int displayListBase(const QFont & fnt, int listBase);
-    void cleanupColormaps();
-    void init(QGLContext *context, const QGLWidget* shareWidget);
-    bool renderCxPm(QPixmap *pixmap);
 
 private:
     Q_DISABLE_COPY(QGLWidget)

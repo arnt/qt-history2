@@ -668,7 +668,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
     if (d->glFormat.alpha())
         p->cAlphaBits = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
     if (d->glFormat.accum())
-        p->cAccumBits = d->glFormat.accumBufferSize() == 1 ? p->cColorBits + p->cAlphaBits 
+        p->cAccumBits = d->glFormat.accumBufferSize() == 1 ? p->cColorBits + p->cAlphaBits
 			                                   : d->glFormat.accumBufferSize()*4;
     if (d->glFormat.stencil())
         p->cStencilBits = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
@@ -1028,11 +1028,22 @@ void QGLWidget::setContext(QGLContext *context,
 }
 
 
-bool QGLWidget::renderCxPm(QPixmap*)
+bool QGLWidgetPrivate::renderCxPm(QPixmap*)
 {
     return false;
 }
 
+void QGLWidgetPrivate::cleanupColormaps()
+{
+    if (cmap.handle()) {
+        HDC hdc = GetDC(q->winId());
+        SelectPalette(hdc, (HPALETTE) GetStockObject(DEFAULT_PALETTE), false);
+        DeleteObject((HPALETTE) cmap.handle());
+        ReleaseDC(q->winId(), hdc);
+        cmap.setHandle(0);
+    }
+    return;
+}
 
 const QGLColormap & QGLWidget::colormap() const
 {
@@ -1089,15 +1100,3 @@ void QGLWidget::setColormap(const QGLColormap & c)
     }
 }
 
-void QGLWidget::cleanupColormaps()
-{
-    if (d->cmap.handle()) {
-        HDC hdc = GetDC(winId());
-        SelectPalette(hdc, (HPALETTE) GetStockObject(DEFAULT_PALETTE),
-                       false);
-        DeleteObject((HPALETTE) d->cmap.handle());
-        ReleaseDC(winId(), hdc);
-        d->cmap.setHandle(0);
-    }
-    return;
-}

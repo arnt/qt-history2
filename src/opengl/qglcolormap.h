@@ -56,6 +56,7 @@ private:
     void detach_helper();
 
     friend class QGLWidget;
+    friend class QGLWidgetPrivate;
 };
 
 inline void QGLColormap::detach()
