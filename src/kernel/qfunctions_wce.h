@@ -179,7 +179,7 @@ UINT qt_GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntri
 #define STARTF_USESTDHANDLES	1
 #define CREATE_NO_WINDOW	2
 #define DETACHED_PROCESS	3
-#define CF_HDROP		4
+#define CF_HDROP		15
 
 void abort();
 void *_expand(void* pvMemBlock, size_t iSize);
