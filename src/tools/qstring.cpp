@@ -397,8 +397,8 @@ static uint computeNewMax( uint len )
 /*!
     \fn bool QChar::isNull() const
 
-    Returns TRUE if the character is the Unicode character 0x0000,
-    i.e. ASCII NUL; otherwise returns FALSE.
+    Returns TRUE if the character is the Unicode character 0x0000
+    (ASCII NUL); otherwise returns FALSE.
 */
 
 /*!
@@ -604,7 +604,8 @@ const QString &QChar::decomposition() const
 
     QString s;
     Q_UINT16 c;
-    while((c = QUnicodeTables::decomposition_map[pos++]) != 0) s += QChar(c);
+    while ( (c = QUnicodeTables::decomposition_map[pos++]) != 0 )
+	s += QChar( c );
     // ### In 4.0, return s, and not shared_decomp.  shared_decomp
     // prevents this function from being reentrant.
     shared_decomp = s;
@@ -1019,7 +1020,7 @@ void QString::compose()
 	//printf("\n\nligature for 0x%x:\n", code.unicode());
 	QLigature ligature(code);
 	ligature.first();
-	while(ligature.current()) {
+	while ( ligature.current() ) {
 	    if ((len = ligature.match(*this, index)) != 0) {
 		head = ligature.head();
 		unsigned short code = head.unicode();
@@ -1561,12 +1562,12 @@ QString &QString::operator=( const QString &s )
 /*!
     \overload
 
-    Assigns a deep copy of \a cs, interpreted as a classic C string,
-    to this string and returns a reference to this string.
+    Assigns a deep copy of \a cstr, interpreted as a classic C
+    string, to this string. Returns a reference to this string.
 */
-QString &QString::operator=( const QCString& cs )
+QString &QString::operator=( const QCString& cstr )
 {
-    return setAscii(cs);
+    return setAscii( cstr );
 }
 
 
@@ -1595,7 +1596,7 @@ QString &QString::operator=( const char *str )
     \code
 	QString a;          // a.unicode() == 0, a.length() == 0
 	a.isNull();         // TRUE, because a.unicode() == 0
-	a.isEmpty();        // TRUE
+	a.isEmpty();        // TRUE, because a.length() == 0
     \endcode
 
     \sa isEmpty(), length()
@@ -1654,14 +1655,9 @@ void QString::truncate( uint newLen )
     string, and sets the length of the string to \a newLen. Any new
     space allocated contains arbitrary data.
 
-    If \a newLen is 0, then the string becomes empty, unless the
-    string is null, in which case it remains null.
-
-    If it is not possible to allocate enough memory, the string
-    remains unchanged.
-
     This function always detaches the string from other references to
-    the same data.
+    the same data. If \a newLen is 0, then the string becomes empty
+    (but non-null).
 
     This function is useful for code that needs to build up a long
     string and wants to avoid repeated reallocation. In this example,
@@ -1680,6 +1676,9 @@ void QString::truncate( uint newLen )
     If \a newLen is an underestimate, the worst that will happen is
     that the loop will slow down.
 
+    If it is not possible to allocate enough memory, the string
+    remains unchanged.
+
     \sa truncate(), isNull(), isEmpty(), length()
 */
 
@@ -1692,8 +1691,7 @@ void QString::setLength( uint newLen )
 	QChar* nd = QT_ALLOC_QCHAR_VEC( newMax );
 	if ( nd ) {
 	    uint len = QMIN( d->len, newLen );
-	    if ( d->unicode )
-		memcpy( nd, d->unicode, sizeof(QChar)*len );
+	    memcpy( nd, d->unicode, sizeof(QChar) * len );
 	    deref();
 	    d = new QStringData( nd, newLen, newMax );
 	}
@@ -2151,8 +2149,8 @@ QString& QString::fill( QChar c, int len )
     last character; if -2, at the next to last character and so on.
     (See findRev() for searching backwards.)
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     Returns the position of \a c or -1 if \a c could not be found.
 */
@@ -2201,12 +2199,12 @@ static void bm_init_skiptable( const QString &pattern, uint *skiptable, bool cs 
     }
     const QChar *uc = pattern.unicode();
     if ( cs ) {
-	while( l-- ) {
+	while ( l-- ) {
 	    skiptable[ uc->cell() ] = l;
 	    uc++;
 	}
     } else {
-	while( l-- ) {
+	while ( l-- ) {
 	    skiptable[ ::lower( *uc ).cell() ] = l;
 	    uc++;
 	}
@@ -2227,11 +2225,11 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
     register const QChar *current = uc + index + pl_minus_one;
     const QChar *end = uc + l;
     if ( cs ) {
-	while( current < end ) {
+	while ( current < end ) {
 	    uint skip = skiptable[ current->cell() ];
 	    if ( !skip ) {
 		// possible match
-		while( skip < pl ) {
+		while ( skip < pl ) {
 		    if ( *(current - skip ) != puc[pl_minus_one-skip] )
 			break;
 		    skip++;
@@ -2249,11 +2247,11 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
 	    current += skip;
 	}
     } else {
-	while( current < end ) {
+	while ( current < end ) {
 	    uint skip = skiptable[ ::lower( *current ).cell() ];
 	    if ( !skip ) {
 		// possible match
-		while( skip < pl ) {
+		while ( skip < pl ) {
 		    if ( ::lower( *(current - skip) ) != ::lower( puc[pl_minus_one-skip] ) )
 			break;
 		    skip++;
@@ -2288,8 +2286,8 @@ static int bm_find( const QString &str, int index, const QString &pattern, uint 
     last character, if it is -2, at the next to last character and so
     on. (See findRev() for searching backwards.)
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     Returns the position of \a str or -1 if \a str could not be found.
 */
@@ -2391,8 +2389,8 @@ int QString::find( const QString& str, int index, bool cs ) const
 
     Returns the position of \a c or -1 if \a c could not be found.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     \code
 	QString string( "bananas" );
@@ -2430,8 +2428,8 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
     Returns the position of \a str or -1 if \a str could not be found.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     \code
     QString string("bananas");
@@ -2617,7 +2615,7 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
     //find start
     int n = length(), sep_len = _sep.length();
     const QChar *begin = start < 0 ? uc + n : uc;
-    while(start) {
+    while ( start ) {
 	match = FALSE;
 	int c = 0;
 	for(const QChar *tmp = start < 0 ? begin - sep_len : begin;
@@ -2689,7 +2687,7 @@ QString QString::section( const QString &sep, int start, int end, int flags ) co
     } else {
 	end++;
 	last_match = TRUE;
-	while(end) {
+	while ( end ) {
 	    match = FALSE;
 	    int c = 0;
 	    for(const QChar *tmp = end < 0 ? last - sep_len : last;
@@ -2803,7 +2801,7 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
     l.setAutoDelete(TRUE);
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
 
-    while( ( m = sep.search( *this, m ) ) != -1 ) {
+    while ( ( m = sep.search( *this, m ) ) != -1 ) {
 	l.append(new section_chunk(last_len, QString(uc + last_m, m - last_m)));
 	last_m = m;
 	last_len = sep.matchedLength();
@@ -2862,12 +2860,13 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
     Returns the number of times the character \a c occurs in the
     string.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     \code
     QString string( "Trolltech and Qt" );
-    int i = string.contains( 't', FALSE );  // i == 3
+    int n = string.contains( 't', FALSE );
+    // n == 3
     \endcode
 */
 
@@ -2898,8 +2897,8 @@ int QString::contains( QChar c, bool cs ) const
 
     Returns the number of times the string \a str occurs in the string.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 */
 int QString::contains( const char* str, bool cs ) const
 {
@@ -2919,8 +2918,8 @@ int QString::contains( const char* str, bool cs ) const
 
     Find character \a c starting from position \a index.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 */
 
 /*!
@@ -2931,8 +2930,8 @@ int QString::contains( const char* str, bool cs ) const
     Find character \a c starting from position \a index and working
     backwards.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 */
 
 /*!
@@ -2940,8 +2939,8 @@ int QString::contains( const char* str, bool cs ) const
 
     Returns the number of times \a str occurs in the string.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
-    search is case insensitive.
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     This function counts overlapping strings, so in the example below,
     there are two instances of "ana" in "bananas".
@@ -2963,7 +2962,7 @@ int QString::contains( const QString &str, bool cs ) const
     bm_init_skiptable( str, skiptable, cs );
     int i = -1;
     // use boyer-moore for the ultimate speed experience
-    while ( ( i = bm_find( *this, i+1, str, skiptable, cs ) ) != -1 )
+    while ( ( i = bm_find( *this, i + 1, str, skiptable, cs ) ) != -1 )
 	count++;
     return count;
 }
@@ -3160,14 +3159,23 @@ QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
 
 QString QString::lower() const
 {
-    QString s(*this);
-    int l=length();
+    QString s( *this );
+    int l = length();
     if ( l ) {
-	s.real_detach(); // could do this only when we find a change
-	register QChar *p=s.d->unicode;
+	register QChar *p = s.d->unicode;
 	if ( p ) {
-	    while ( l-- ) {
-		*p = ::lower( *p );
+	    while ( l ) {
+		if ( *p != ::lower(*p) ) {
+		    s.real_detach();
+		    p = s.d->unicode + ( p - d->unicode );
+		    while ( l ) {
+			*p = ::lower( *p );
+			l--;
+			p++;
+		    }
+		    break;
+		}
+		l--;
 		p++;
 	    }
 	}
@@ -3188,14 +3196,23 @@ QString QString::lower() const
 
 QString QString::upper() const
 {
-    QString s(*this);
-    int l=length();
+    QString s( *this );
+    int l = length();
     if ( l ) {
-	s.real_detach(); // could do this only when we find a change
-	register QChar *p=s.d->unicode;
+	register QChar *p = s.d->unicode;
 	if ( p ) {
-	    while ( l-- ) {
-		*p = ::upper( *p );
+	    while ( l ) {
+		if ( *p != ::upper(*p) ) {
+		    s.real_detach();
+		    p = s.d->unicode + ( p - d->unicode );
+		    while ( l ) {
+			*p = ::upper( *p );
+			l--;
+			p++;
+		    }
+		    break;
+		}
+		l--;
 		p++;
 	    }
 	}
@@ -3524,35 +3541,48 @@ QString &QString::remove( QChar c )
     Removes every occurrence of \a str in the string. Returns a
     reference to the string.
 
-    This is the same as replace(\a str, "").
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
+
+    This is the same as replace(\a str, "", \a cs).
 */
-QString &QString::remove( const QString & str )
+QString &QString::remove( const QString & str, bool cs )
 {
-    int index = 0;
-    if ( !str.isEmpty() ) {
-	while ( (index = find(str, index)) != -1 )
+    if ( str.isEmpty() ) {
+	if ( isNull() )
+	    real_detach();
+    } else {
+	int index = 0;
+	while ( (index = find(str, index, cs)) != -1 )
 	    remove( index, str.length() );
     }
     return *this;
 }
 
+QString &QString::remove( const QString & str )
+{
+    return remove( str, TRUE );
+}
+
 /*! \overload
 
-  Replaces every occurrence of \a c1 with the char \a c2.
-  Returns a reference to the string.
+    Replaces every occurrence of \a c1 with the char \a c2. Returns a
+    reference to the string.
 */
 QString &QString::replace( QChar c1, QChar c2 )
 {
-     real_detach();
-     uint i = 0;
-     while ( i < d->len ) {
-	  if ( d->unicode[i] == c1 )
-	       d->unicode[i] = c2;
-	  i++;
-     }
-     return *this;
-}
+    if ( isEmpty() )
+	return *this;
 
+    real_detach();
+    uint i = 0;
+    while ( i < d->len ) {
+	if ( d->unicode[i] == c1 )
+	    d->unicode[i] = c2;
+	i++;
+    }
+    return *this;
+}
 
 #ifndef QT_NO_REGEXP_CAPTURE
 
@@ -3575,10 +3605,13 @@ QString &QString::remove( const QRegExp & rx )
 
     Removes every occurrence of \a str in the string. Returns a
     reference to the string.
+
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 */
 QString &QString::remove( const char *str )
 {
-    return remove( QString::fromLatin1(str) );
+    return remove( QString::fromAscii(str), TRUE );
 }
 
 /*!
@@ -3654,6 +3687,9 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     Replaces every occurrence of the character \a c in the string
     with \a after. Returns a reference to the string.
 
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
+
     Example:
     \code
     QString s = "a,b,c";
@@ -3661,22 +3697,33 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     // s == "a or b or c"
     \endcode
 */
+QString &QString::replace( QChar c, const QString & after, bool cs )
+{
+    return replace( QString( c ), after, cs );
+}
+
 QString &QString::replace( QChar c, const QString & after )
 {
-    return replace( QString( c ), after );
+    return replace( QString( c ), after, TRUE );
 }
 
 /*! \overload
-    \fn QString &QString::replace( char c, const QString & after )
+    \fn QString &QString::replace( char c, const QString & after, bool cs )
 
     Replaces every occurrence of the character \a c in the string
     with \a after. Returns a reference to the string.
+
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 */
 
 /*! \overload
 
     Replaces every occurrence of the string \a before in the string
     with the string \a after. Returns a reference to the string.
+
+    If \a cs is TRUE (the default), the search is case sensitive;
+    otherwise the search is case insensitive.
 
     Example:
     \code
@@ -3685,24 +3732,30 @@ QString &QString::replace( QChar c, const QString & after )
     // s == "English is English"
     \endcode
 */
-QString &QString::replace( const QString & before, const QString & after )
+QString &QString::replace( const QString & before, const QString & after,
+			   bool cs )
 {
-    if ( before == after || isNull() )
-	return *this;
+    if ( isEmpty() ) {
+	if ( !before.isEmpty() )
+	    return *this;
+    } else {
+	if ( cs && before == after )
+	    return *this;
+    }
 
     real_detach();
 
     int index = 0;
     uint skiptable[256];
-    bm_init_skiptable( before, skiptable, TRUE );
+    bm_init_skiptable( before, skiptable, cs );
     const int bl = before.length();
     const int al = after.length();
 
     if ( bl == al ) {
 	if ( bl ) {
 	    const QChar *auc = after.unicode();
-	    while( (index = bm_find(*this, index, before, skiptable, TRUE) ) != -1 ) {
-		memcpy( d->unicode+index, auc, al*sizeof(QChar) );
+	    while ( (index = bm_find(*this, index, before, skiptable, cs) ) != -1 ) {
+		memcpy( d->unicode + index, auc, al * sizeof(QChar) );
 		index += bl;
 	    }
 	}
@@ -3711,7 +3764,7 @@ QString &QString::replace( const QString & before, const QString & after )
 	uint to = 0;
 	uint movestart = 0;
 	uint num = 0;
-	while( (index = bm_find(*this, index, before, skiptable, TRUE) ) != -1 ) {
+	while ( (index = bm_find(*this, index, before, skiptable, cs)) != -1 ) {
 	    if ( num ) {
 		int msize = index - movestart;
 		if ( msize > 0 ) {
@@ -3738,11 +3791,11 @@ QString &QString::replace( const QString & before, const QString & after )
     } else {
 	// the most complex case. We don't want to loose performance by doing repeated
 	// copies and reallocs of the string.
-	while( index != -1 ) {
+	while ( index != -1 ) {
 	    uint indices[4096];
 	    uint pos = 0;
-	    while( pos < 4095 ) {
-		index = bm_find(*this, index, before, skiptable, TRUE);
+	    while ( pos < 4095 ) {
+		index = bm_find( *this, index, before, skiptable, cs );
 		if ( index == -1 )
 		    break;
 		indices[pos++] = index;
@@ -3764,7 +3817,7 @@ QString &QString::replace( const QString & before, const QString & after )
 	    if ( newlen > d->len )
 		setLength( newlen );
 
-	    while( pos ) {
+	    while ( pos ) {
 		pos--;
 		int movestart = indices[pos] + bl;
 		int insertstart = indices[pos] + pos*(al-bl);
@@ -3778,11 +3831,16 @@ QString &QString::replace( const QString & before, const QString & after )
     return *this;
 }
 
+QString &QString::replace( const QString & before, const QString & after )
+{
+    return replace( before, after, TRUE );
+}
+
 #ifndef QT_NO_REGEXP_CAPTURE
 /*! \overload
 
-  Replaces every occurrence of the regexp \a rx in the string with \a str.
-  Returns a reference to the string. For example:
+  Replaces every occurrence of the regexp \a rx in the string with
+  \a after. Returns a reference to the string. For example:
   \code
     QString s = "banana";
     s.replace( QRegExp("an"), "" );
@@ -3791,7 +3849,7 @@ QString &QString::replace( const QString & before, const QString & after )
 
   For regexps containing \link qregexp.html#capturing-text capturing
   parentheses \endlink, occurrences of <b>\\1</b>, <b>\\2</b>, ...,
-  in \a str are replaced with \a{rx}.cap(1), cap(2), ...
+  in \a after are replaced with \a{rx}.cap(1), cap(2), ...
 
   \code
     QString t = "A <i>bon mot</i>.";
@@ -3802,24 +3860,25 @@ QString &QString::replace( const QString & before, const QString & after )
   \sa find(), findRev(), QRegExp::cap()
 */
 
-QString &QString::replace( const QRegExp &rx, const QString &str )
+QString &QString::replace( const QRegExp &rx, const QString &after )
 {
-    if ( isNull() )
+    QRegExp rx2 = rx;
+
+    if ( isEmpty() && rx2.search(*this) == -1 )
 	return *this;
 
     real_detach();
 
-    QRegExp rx2 = rx;
     int index = 0;
     int numCaptures = rx2.numCaptures();
-    int al = str.length();
+    int al = after.length();
     QRegExp::CaretMode caretMode = QRegExp::CaretAtZero;
 
     if ( numCaptures > 0 ) {
 	if ( numCaptures > 9 )
 	    numCaptures = 9;
 
-	const QChar *uc = str.unicode();
+	const QChar *uc = after.unicode();
 	int numBackRefs = 0;
 
 	for ( int i = 0; i < al - 1; i++ ) {
@@ -3831,8 +3890,8 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	}
 
 	/*
-	  This is the harder case where we have back-references. We
-	  don't try to optimize it.
+	  This is the harder case where we have back-references.
+	  We don't try to optimize it.
 	*/
 	if ( numBackRefs > 0 ) {
 	    int *capturePositions = new int[numBackRefs];
@@ -3855,20 +3914,19 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 		if ( index == -1 )
 		    break;
 
-		QString str2 = str;
+		QString after2 = after;
 		for ( j = numBackRefs - 1; j >= 0; j-- )
-		    str2.replace( capturePositions[j], 2,
-				  rx2.cap(captureNumbers[j]) );
+		    after2.replace( capturePositions[j], 2,
+				    rx2.cap(captureNumbers[j]) );
 
-		replace( index, rx2.matchedLength(), str2 );
-		index += str2.length();
+		replace( index, rx2.matchedLength(), after2 );
+		index += after2.length();
 
 		if ( rx2.matchedLength() == 0 ) {
 		    // avoid infinite loop on 0-length matches (e.g., [a-z]*)
 		    index++;
-		} else if ( index == 0 ) {
-		    caretMode = QRegExp::CaretWontMatch;
 		}
+		caretMode = QRegExp::CaretWontMatch;
 	    }
 	    delete[] capturePositions;
 	    delete[] captureNumbers;
@@ -3888,7 +3946,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 
 	uint pos = 0;
 	int adjust = 0;
-	while( pos < 2047 ) {
+	while ( pos < 2047 ) {
 	    index = rx2.search( *this, index, caretMode );
 	    if ( index == -1 )
 		break;
@@ -3914,12 +3972,12 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	QChar *uc = newuc;
 	int copystart = 0;
 	uint i = 0;
-	while( i < pos ) {
+	while ( i < pos ) {
 	    int copyend = replacements[i].pos;
 	    int size = copyend - copystart;
-	    memcpy( uc, d->unicode + copystart, size*sizeof(QChar) );
+	    memcpy( uc, d->unicode + copystart, size * sizeof(QChar) );
 	    uc += size;
-	    memcpy( uc, str.unicode(), al*sizeof( QChar ) );
+	    memcpy( uc, after.unicode(), al * sizeof(QChar) );
 	    uc += al;
 	    copystart = copyend + replacements[i].length;
 	    i++;
@@ -4703,7 +4761,7 @@ QString& QString::operator+=( const char *str )
 	if ( len2 ) {
 	    setLength(len1+len2);
 	    uint i = 0;
-	    while( i < len2 ) {
+	    while ( i < len2 ) {
 		d->unicode[len1+i] = str[i];
 		i++;
 	    }
@@ -5117,7 +5175,7 @@ QString QString::fromUcs2( const unsigned short *str )
 	return QString::null;
     } else {
 	int length = 0;
-	while( str[length] != 0 )
+	while ( str[length] != 0 )
 	    length++;
 	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
 	memcpy( uc, str, length*sizeof(QChar) );
@@ -5340,7 +5398,7 @@ void QString::checkSimpleText() const
 {
     QChar *p = d->unicode;
     QChar *end = p + d->len;
-    while( p < end ) {
+    while ( p < end ) {
 	ushort uc = p->unicode();
 	// sort out regions of complex text formatting
 	if ( uc > 0x058f && ( uc < 0x1100 || uc > 0xfb0f ) ) {
@@ -5362,7 +5420,7 @@ bool QString::isRightToLeft() const
 {
     int len = length();
     QChar *p = d->unicode;
-    while( len-- ) {
+    while ( len-- ) {
 	switch( ::direction( *p ) )
 	{
 	case QChar::DirL:
@@ -6022,7 +6080,7 @@ bool QString::endsWith( const QString& s ) const
 /*! \fn void QString::detach()
   If the string does not share its data with another QString instance,
   nothing happens; otherwise the function creates a new, unique copy of
-  this string. This function is called whenever the map is modified. The
+  this string. This function is called whenever the string is modified. The
   implicit sharing mechanism is implemented this way.
 */
 

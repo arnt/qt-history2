@@ -518,24 +518,46 @@ public:
     QString    &prepend( const std::string& );
 #endif
     QString    &remove( uint index, uint len );
-    QString    &remove( QChar c );
-    QString    &remove( char c ) { return remove( QChar(c) ); }
+#if defined(Q_QDOC)
+    QString    &remove( const QString & str, bool cs = TRUE );
+#else
+    // ### Qt 4.0: merge these two into one, and remove Q_QDOC hack
     QString    &remove( const QString & );
-#ifndef QT_NO_REGEXP
-    QString    &remove( const QRegExp & );
+    QString    &remove( const QString &, bool cs );
 #endif
+    QString    &remove( QChar c );
+    QString    &remove( char c );
 #ifndef QT_NO_CAST_ASCII
     QString    &remove( const char * );
+#endif
+#ifndef QT_NO_REGEXP
+    QString    &remove( const QRegExp & );
 #endif
     QString    &replace( uint index, uint len, const QString & );
     QString    &replace( uint index, uint len, const QChar*, uint clen );
     QString    &replace( uint index, uint len, QChar );
     QString    &replace( uint index, uint len, char c )
     { return replace( index, len, QChar(c) ); }
+#if defined(Q_QDOC)
+    QString    &replace( QChar c, const QString & after, bool cs = TRUE );
+    QString    &replace( char c, const QString & after, bool cs = TRUE );
+    QString    &replace( const QString & before, const QString & after,
+			 bool cs = TRUE );
+#else
+    // ### Qt 4.0: merge these two into one, and remove Q_QDOC hack
     QString    &replace( QChar c, const QString & );
+    QString    &replace( QChar c, const QString &, bool );
+
+    // ### Qt 4.0: merge these two into one, and remove Q_QDOC hack
     QString    &replace( char c, const QString & after )
-    { return replace( QChar(c), after ); }
+    { return replace( QChar(c), after, TRUE ); }
+    QString    &replace( char c, const QString & after, bool cs )
+    { return replace( QChar(c), after, cs ); }
+
+    // ### Qt 4.0: merge these two into one, and remove Q_QDOC hack
     QString    &replace( const QString &, const QString & );
+    QString    &replace( const QString &, const QString &, bool );
+#endif
 #ifndef QT_NO_REGEXP_CAPTURE
     QString    &replace( const QRegExp &, const QString & );
 #endif
@@ -886,7 +908,7 @@ inline QString QString::arg(ushort a, int fieldwidth, int base) const
 inline int QString::find( char c, int index, bool cs ) const
 { return find(QChar(c), index, cs); }
 
-inline int QString::findRev( char c, int index, bool cs) const
+inline int QString::findRev( char c, int index, bool cs ) const
 { return findRev( QChar(c), index, cs ); }
 
 #ifndef QT_NO_CAST_ASCII
