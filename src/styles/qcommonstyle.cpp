@@ -125,7 +125,10 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 			      ? QIconSet::Normal : QIconSet::Disabled;
 	if ( mode == QIconSet::Normal && btn->hasFocus() )
 	    mode = QIconSet::Active;
-	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
+	QIconSet::State state = QIconSet::Off;
+	if ( btn->isToggleButton() && btn->isOn() )
+	    state = QIconSet::On;
+	QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode, state );
 	int pixw = pixmap.width();
 	int pixh = pixmap.height();
 	p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );

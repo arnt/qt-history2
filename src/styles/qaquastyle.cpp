@@ -10228,7 +10228,10 @@ void QAquaStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
                               ? QIconSet::Normal : QIconSet::Disabled;
         if ( mode == QIconSet::Normal && btn->hasFocus() )
             mode = QIconSet::Active;
-        QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode );
+	QIconSet::State state = QIconSet::Off;
+	if ( btn->isToggleButton() && btn->isOn() )
+	    state = QIconSet::On;
+        QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode, state );
         int pixw = pixmap.width();
         int pixh = pixmap.height();
         p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
@@ -11160,7 +11163,7 @@ void QAquaStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h,
 void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 			   int flags, const QColorGroup &g, bool enabled,
 			   const QPixmap *pixmap, const QString& text,
-			   int len=-1, const QColor* penColor = 0 )
+			   int len, const QColor* penColor )
 {
     flags |= NoAccel;
     QWindowsStyle::drawItem( p, x, y, w, h, flags, g, enabled, pixmap, text, len,
