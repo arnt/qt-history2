@@ -301,7 +301,7 @@ QQuickDrawGC::drawRect(const QRect &r)
 	return;
 
     Rect rect;
-    SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx, r.bottom()+d->offy);
+    SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
     if(d->current.brush.style() != NoBrush) {
 	setupQDBrush();
 	if(d->current.brush.style() == SolidPattern) {
@@ -421,7 +421,7 @@ QQuickDrawGC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 	return;
 
     Rect rect;
-    SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx, r.bottom()+d->offy);
+    SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
     if(d->current.brush.style() == SolidPattern) {
 	setupQDBrush();
 	PaintRoundRect(&rect, r.width()*xRnd/100, r.height()*yRnd/100);
@@ -509,7 +509,7 @@ QQuickDrawGC::drawEllipse(const QRect &r)
 	return;
 
     Rect mac_r;
-    SetRect(&mac_r, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx, r.bottom()+d->offy);
+    SetRect(&mac_r, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
     if(d->current.brush.style() != NoBrush) {
 	setupQDBrush();
 	if(d->current.brush.style() == SolidPattern) {
@@ -971,7 +971,7 @@ void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 	    QDAddRegionToDirtyRegion(ptr, rgn);
 	} else {
 	    QRect qr = d->clip.paintable.boundingRect();
-	    Rect mr; SetRect(&mr, qr.x(), qr.y(), qr.right(), qr.bottom());
+	    Rect mr; SetRect(&mr, qr.x(), qr.y(), qr.right()+1, qr.bottom()+1);
 	    QDAddRectToDirtyRegion(ptr, &mr);
 	}
 	d->clip.dirty = false;

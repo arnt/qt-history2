@@ -289,9 +289,9 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
     }
 
     Rect srcr;
-    SetRect(&srcr,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
+    SetRect(&srcr,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx+1,sy+sh+srcoffy+1);
     Rect dstr;
-    SetRect(&dstr,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
+    SetRect(&dstr,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx+1,dy+dh+dstoffy+1);
     if(srcmask && !imask) {
 	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
 	if(copymode == srcCopy && srcmask->depth() > 1)
@@ -299,7 +299,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	if(dst->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
 	    QPixmap tmppix(dw, dh, srcdepth);
 	    Rect pixr;
-	    SetRect(&pixr, 0, 0, dw, dh);
+	    SetRect(&pixr, 0, 0, dw+1, dh+1);
 	    const BitMap *pixbits = GetPortBitMapForCopyBits((GWorldPtr)tmppix.handle());
 	    {
 		QMacSavedPortInfo pi(&tmppix);
@@ -435,7 +435,7 @@ void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QPoint &of
 	    QRect qrect = rgn.boundingRect();
 	    qrect.moveBy(offp);
 #endif
-	    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right(), qrect.bottom());
+	    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right()+1, qrect.bottom()+1);
 	    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
 	}
 	QVector<QRect> rects = rgn.rects();
