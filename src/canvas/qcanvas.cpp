@@ -2780,7 +2780,7 @@ QCanvasPixmapArray::QCanvasPixmapArray()
 
 QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
 					int fc )
-: img( 0 )
+: framecount( 0 ), img( 0 )
 {
     readPixmaps(datafilenamepattern,fc);
 }
