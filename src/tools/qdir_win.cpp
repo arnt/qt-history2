@@ -276,12 +276,12 @@ QString QDir::currentDirPath()
 
     if ( qt_winunicode ) {
 	TCHAR currentName[PATH_MAX];
-	if ( ::_tgetcwd(currentName,PATH_MAX) >= 0 ) {
+	if ( ::_tgetcwd(currentName,PATH_MAX) != 0 ) {
 	    result = qt_winQString(currentName);
 	}
     } else {
 	char currentName[PATH_MAX];
-	if ( QT_GETCWD(currentName,PATH_MAX) >= 0 ) {
+	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
 	    result = QString::fromLatin1(currentName);
 	}
     }
