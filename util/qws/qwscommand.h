@@ -40,7 +40,7 @@ static void qws_write_command( QSocket *socket, int type,
 	socket->writeBlock( rawData, rawLen );
 }
 
-static bool qws_read_command( QSocket *socket, char *simpleData, int &simpleLen,
+static bool qws_read_command( QSocket *socket, char *&simpleData, int &simpleLen,
 			      char *&rawData, int &rawLen,
 			      int &bytesRead )
 {
@@ -81,10 +81,10 @@ struct QWSCommand
 {
     // ctor - dtor
     QWSCommand( int t, int len, char *ptr ) : type( t ),
-	simpleLen( len ), rawLen( -1 ), rawData( 0 ),
-	simpleDataPtr( ptr ), bytesRead( 0 ) {}
-    ~QWSCommand() { delete rawData; }
-
+	simpleLen( len ), rawLen( -1 ), simpleDataPtr( ptr ), 
+	rawDataPtr( 0 ), bytesRead( 0 ) {}
+    virtual ~QWSCommand() { delete rawDataPtr; }
+    
     enum Type {
 	Unknown = 0,
 	Create,
@@ -99,20 +99,33 @@ struct QWSCommand
     int type;
     int simpleLen;
     int rawLen;
-    char *rawData;
 
     // functions
     void write( QSocket *s ) {
-	qws_write_command( s, type, simpleDataPtr, simpleLen, rawData, rawLen );
+	qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
     }
     bool read( QSocket *s ) {
 	bool b = qws_read_command( s, simpleDataPtr, simpleLen,
-				 rawData, rawLen, bytesRead );
+				 rawDataPtr, rawLen, bytesRead );
+	setData( rawDataPtr, rawLen, FALSE );
 	return b;
     }
 	
+    virtual void setData( char *data, int len, bool allocateMem = TRUE ) {
+	if ( !data && !len ) {
+	    rawDataPtr = 0;
+	    rawLen = 0;
+	    return;
+	}
+	if ( allocateMem )
+	    rawDataPtr = new char[ len ];
+	memcpy( rawDataPtr, data, len );
+	rawLen = len;
+    }
+    
     // temp variables
     char *simpleDataPtr;
+    char *rawDataPtr;
     int bytesRead;
 
 };
@@ -126,26 +139,30 @@ struct QWSCommand
 struct QWSCreateCommand : public QWSCommand
 {
     QWSCreateCommand() :
-	QWSCommand( QWSCommand::Create, sizeof( simpleData ), (char*)&simpleData ) {}
-
-    struct SimpleData {
-    } simpleData;
+	QWSCommand( QWSCommand::Create, 0, 0 ) {}
 
 };
 
 struct QWSRegionCommand : public QWSCommand
 {
     QWSRegionCommand() :
-	QWSCommand( QWSCommand::Region, sizeof( simpleData ), (char*)&simpleData ) {}
+	QWSCommand( QWSCommand::Region, sizeof( simpleData ), 
+		    (char*)&simpleData ) {}
+
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSCommand::setData( d, len, allocateMem );
+	rectangles = (Rectangle*)rawDataPtr;
+    }
 
     struct SimpleData {
 	int windowid;
 	int nrectangles;
     } simpleData;
 
-    struct {
+    struct Rectangle {
         int x, y, width, height;
     } *rectangles;
+
 };
 
 struct QWSAddPropertyCommand : public QWSCommand
@@ -162,12 +179,19 @@ struct QWSAddPropertyCommand : public QWSCommand
 struct QWSSetPropertyCommand : public QWSCommand
 {
     QWSSetPropertyCommand() :
-	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), (char*)&simpleData ) {}
+	QWSCommand( QWSCommand::SetProperty, sizeof( simpleData ), 
+		    (char*)&simpleData ) { data = 0; }
 
+    void setData( char *d, int len, bool allocateMem = TRUE ) {
+	QWSCommand::setData( d, len, allocateMem );
+	data = rawDataPtr;
+    }
+        
     struct SimpleData {
 	int windowid, property, mode;
     } simpleData;
 
+    char *data;
 };
 
 struct QWSRemovePropertyCommand : public QWSCommand

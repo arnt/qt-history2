@@ -23,45 +23,6 @@
 
 #include "../../extensions/network/src/qsocket.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
-/********************************************************************
- *
- * Helper functions
- *
- ********************************************************************/
-
-static char *int_to_hex( int i )
-{
-    char *s = new char[ 8 ];
-    sprintf( s, "%08X", i );
-    return s;
-}
-
-static ushort hex_ushort_to_int( ushort c )
-{
-    if ( c >= 'A' && c <= 'F')
-	return c - 'A' + 10;
-    if ( c >= 'a' && c <= 'f')
-	return c - 'a' + 10;
-    if ( c >= '0' && c <= '9')
-	return c - '0';
-    return 0;
-}
-
-static int hex_to_int( char *array )
-{
-    return ( 16 * 16 * 16 * 16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 0 ] ) +
-	     16 * 16 * 16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 1 ] ) +
-	     16 * 16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 2 ] ) + 
-	     16 * 16 * 16 * 16 * hex_ushort_to_int( array[ 3 ] ) +
-	     16 * 16 * 16 * hex_ushort_to_int( array[ 4 ] ) +
-	     16 * 16 * hex_ushort_to_int( array[ 5 ] ) +
-	     16 * hex_ushort_to_int( array[ 6 ] ) +
-	     hex_ushort_to_int( array[ 7 ] ) );
-}
-
 /********************************************************************
  *
  * Convinient socket functions
@@ -70,11 +31,11 @@ static int hex_to_int( char *array )
 
 static int qws_read_uint( QSocket *socket )
 {
-    if ( !socket || socket->bytesAvailable()<sizeof(int) )
+    if ( !socket || (uint)socket->bytesAvailable() < sizeof( int ) )
 	return -1;
 
     int i;
-    socket->readBlock( (char*)&i, sizeof(i) );
+    socket->readBlock( (char*)&i, sizeof( i ) );
 
     return i;
 }
@@ -84,7 +45,7 @@ static void qws_write_uint( QSocket *socket, int i )
     if ( !socket )
 	return;
 
-    socket->writeBlock( (char*)&i, sizeof(i) );
+    socket->writeBlock( (char*)&i, sizeof( i ) );
 }
 
 #endif

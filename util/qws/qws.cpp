@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#13 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#14 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -182,7 +182,7 @@ void QWSServer::doClient()
 	    invokeRemoveProperty( (QWSRemovePropertyCommand*)command );
 	    break;
 	}
-    
+
 	delete command;
 
 	// Try for some more...
@@ -212,9 +212,15 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
     client->writeBlock( (char*)&event, sizeof(event) );
 }
 
-void QWSServer::invokeRegion( QWSRegionCommand *, QWSClient *client )
+void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 {
     qDebug( "QWSServer::invokeRegion" );
+    QWSRegionCommand::Rectangle *rects = 
+	(QWSRegionCommand::Rectangle*)cmd->rectangles;
+    for ( unsigned int i = 0; i < cmd->simpleData.nrectangles; ++i ) {
+	QWSRegionCommand::Rectangle r = rects[ i ];
+	qDebug( "    rect: %d %d %d %d", r.x, r.y, r.width, r.height );
+    }
     /* XXX
     QWSRegionEvent event;
     event.type = QWSEvent::Region;
@@ -237,9 +243,9 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 {
     qDebug( "QWSServer::invokeSetProperty %d %d %d %s",
 	    cmd->simpleData.windowid, cmd->simpleData.property,
-	    cmd->simpleData.mode, cmd->rawData );
+	    cmd->simpleData.mode, cmd->data );
     QCString ba( cmd->rawLen );
-    ba = cmd->rawData;
+    ba = cmd->data;
     if ( properties()->setProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    cmd->simpleData.mode,
