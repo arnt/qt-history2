@@ -1424,14 +1424,20 @@ void Configure::findProjects( const QString& dirName )
 	int makeListNumber;
 	ProjectType qmakeTemplate;
 
+        static QString qtSourceDir;
+        if (qtSourceDir.isEmpty()) {
+            qtSourceDir = QDir(dictionary["QT_SOURCE_TREE"]).absFilePath("src");
+            qtSourceDir.replace("\\", "/");
+        }
 	const QFileInfoList &list = dir.entryInfoList();
 	for(int i = 0; i < list.size(); ++i) {
 	    const QFileInfo &fi = list.at(i);
 	    if( fi.fileName()[ 0 ] != '.' && fi.fileName() != "qmake.pro" ) {
 		entryName = dirName + "/" + fi.fileName();
 		if(fi.isDir()) {
-		    if (fi.absFilePath() != QDir(dictionary["QT_SOURCE_TREE"]).filePath("src"))
+		    if (fi.absFilePath() != qtSourceDir) {
 			findProjects( entryName );
+                    }
 		} else {
 		    if( fi.fileName().right( 4 ) == ".pro" ) {
 			qmakeTemplate = projectType( fi.absFilePath() );
