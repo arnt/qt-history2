@@ -15,7 +15,7 @@ class QStyle;
 Q_GUID( IID_QStyleInterface, 
 0xfc1b6ebe, 0x53c, 0x49c1, 0xa4, 0x83, 0xc3, 0x77, 0x73, 0x9a, 0xb9, 0xa5);
 
-interface Q_EXPORT QStyleInterface : public QUnknownInterface
+struct Q_EXPORT QStyleInterface : public QUnknownInterface
 {
     virtual QStringList featureList() const = 0; 
     virtual QStyle* create( const QString& style ) = 0;

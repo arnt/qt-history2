@@ -51,7 +51,7 @@ Q_GUID( IID_QSqlDriverInterface,
 
 class QSqlDriver;
 
-interface Q_EXPORT QSqlDriverInterface : public QUnknownInterface
+struct Q_EXPORT QSqlDriverInterface : public QUnknownInterface
 {
     virtual QStringList featureList() const = 0;
     virtual QSqlDriver* create( const QString& name ) = 0;

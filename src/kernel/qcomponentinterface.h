@@ -8,18 +8,14 @@
 
 #ifndef QT_NO_COMPONENT
 
-#ifndef interface
-#define interface struct
-#endif
-
-interface Q_EXPORT QUnknownInterface
+struct Q_EXPORT QUnknownInterface
 {
     virtual QUnknownInterface* queryInterface( const QGuid& ) = 0;
     virtual unsigned long addRef() = 0;
     virtual unsigned long release() = 0;
 };
 
-interface Q_EXPORT QComponentInterface : public QUnknownInterface
+struct Q_EXPORT QComponentInterface : public QUnknownInterface
 {
     virtual QString name() const = 0;
     virtual QString description() const = 0;
