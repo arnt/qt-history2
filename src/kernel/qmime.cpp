@@ -177,7 +177,7 @@ QMimeSourceFactory::QMimeSourceFactory() :
     setExtensionType("htm", "text/html;charset=iso8859-1");
     setExtensionType("html", "text/html;charset=iso8859-1");
     setExtensionType("txt", "text/plain");
-    setExtensionType("xpm", "image/x-xpm");
+    setExtensionType("xpm", "image/xpm");
     setExtensionType("jpg", "image/jpeg");
     setExtensionType("jpeg", "image/jpeg");
     setExtensionType("png", "image/png");
