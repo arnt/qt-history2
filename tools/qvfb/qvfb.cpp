@@ -44,10 +44,6 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidge
     QPixmap pix(":/res/images/logo.png");
     setWindowIcon( pix );
 
-#warning "QFileDialog"
-#if 0
-    imagesave = new QFileDialog( this, 0, true );
-#endif
     rateDlg = 0;
     view = 0;
     scroller = 0;
@@ -237,12 +233,9 @@ void QVFb::setZoom4()
 void QVFb::saveImage()
 {
     QImage img = view->image();
-#warning "QFileDialog"
-#if 0
-    QString filename = imagesave->getSaveFileName("snapshot.png", "*.png", this, "", "Save Image");
-    if ( !!filename )
+    QString filename = QFileDialog::getSaveFileName(this, "Save image", "snapshot.png", "Portable Network Graphics (*.png)");
+    if (!filename.isEmpty())
         img.save(filename,"PNG");
-#endif
 }
 
 void QVFb::toggleAnimation()
@@ -250,9 +243,8 @@ void QVFb::toggleAnimation()
     if ( view->animating() ) {
         view->stopAnimation();
     } else {
-#warning "QFileDialog"
 #if 0
-        QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation");
+        QString filename = QFileDialog::getSaveFileName(this, "Save animation", "animation.mng", "*.mng");
         if ( !filename ) {
             view->stopAnimation();
         } else {

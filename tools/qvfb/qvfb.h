@@ -17,7 +17,6 @@ class QVFbView;
 class QVFbRateDialog;
 class QPopupMenu;
 class QMenu;
-class QFileDialog;
 class QAction;
 class Config;
 class QWidgetView;
@@ -63,7 +62,6 @@ private:
     QWidgetView *scroller;
     Skin *skin;
     QVFbRateDialog *rateDlg;
-    QFileDialog* imagesave;
     Config* config;
     QString currentSkin;
 

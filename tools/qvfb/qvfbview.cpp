@@ -596,7 +596,7 @@ QImage QVFbView::image() const
     return r;
 }
 
-void QVFbView::startAnimation( const QString& filename )
+void QVFbView::startAnimation( const QString& /*filename*/ )
 {
 #ifndef NO_QVFB_ANIMATION
     delete animation;
@@ -610,8 +610,10 @@ void QVFbView::startAnimation( const QString& filename )
 
 void QVFbView::stopAnimation()
 {
+#ifndef NO_QVFB_ANIMATION
     delete animation;
     animation = 0;
+#endif
 }
 
 void QVFbView::setTouchscreenEmulation( bool b )
