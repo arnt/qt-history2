@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#20 $
 **
-** Definition of a buttom customized for tool bar use
+** Definition of QToolButton class
 **
 ** Created : 979899
 **
@@ -47,17 +47,17 @@
 
 #ifndef QT_NO_TOOLBUTTON
 
-
 class QToolButtonPrivate;
 class QToolBar;
 class QCommonStyle;
 
-class Q_EXPORT QToolButton: public QButton
+class Q_EXPORT QToolButton : public QButton
 {
     Q_OBJECT
 
-    Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet )
-    Q_PROPERTY( QIconSet offIconSet READ offIconSet WRITE setOffIconSet )
+    Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
+    Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet DESIGNABLE false STORED false )
+    Q_PROPERTY( QIconSet offIconSet READ offIconSet WRITE setOffIconSet DESIGNABLE false STORED false )
     Q_PROPERTY( bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap )
     Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
     Q_PROPERTY( QString textLabel READ textLabel WRITE setTextLabel )
@@ -82,8 +82,10 @@ public:
     void setOffIconSet( const QIconSet& );
     QIconSet onIconSet() const;
     QIconSet offIconSet( ) const;
-    virtual void setIconSet( const QIconSet &, bool on = FALSE );
-    QIconSet iconSet( bool on = FALSE) const;
+    virtual void setIconSet( const QIconSet & );
+    void setIconSet( const QIconSet &, bool on );
+    QIconSet iconSet() const;
+    QIconSet iconSet( bool on ) const;
 
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
@@ -126,6 +128,7 @@ private slots:
 
 private:
     void init();
+    bool isOnAndNoOnPixmap();
 
     QPixmap bp;
     int bpID;
@@ -134,12 +137,12 @@ private:
 
     QString tl;
 
-    QToolButtonPrivate * d;
-    QIconSet * s, *son;
+    QToolButtonPrivate *d;
+    QIconSet *s;
 
-    uint utl	    : 1;
-    uint ubp	    : 1;
-    uint hasArrow   : 1;
+    uint utl : 1;
+    uint ubp : 1;
+    uint hasArrow : 1;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -156,7 +156,7 @@ public:
   \code
   void YourWidget::drawIcon( QPainter* p, QPoint pos )
   {
-      p->drawPixmap( pos, icons->pixmap(isEnabled(), QIconSet::Small) );
+      p->drawPixmap( pos, icons->pixmap(QIconSet::Small, isEnabled()) );
   }
   \endcode
 
@@ -167,10 +167,10 @@ public:
   can be toggled, the On mode might be used to draw a different icon.
 
   \sa QPixmap QLabel QToolButton QPopupMenu
-	QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
-  <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label</a>
-  <a href="http://cgl.microsoft.com/clipgallerylive/cgl30/eula.asp?nInterface=0">Microsoft
-  Icon Gallery.</a>
+      QIconViewItem::setViewMode() QMainWindow::setUsesBigPixmaps()
+      \link guibooks.html#fowler GUI Design Handbook: Iconic Label \endlink
+      \link http://cgl.microsoft.com/clipgallerylive/cgl30/eula.asp?nInterface=0
+	    Microsoft Icon Gallery \endlink
 */
 
 
@@ -222,8 +222,8 @@ public:
   This enum describes the state for which a pixmap is intended to be provided.
   The \e state can be:
 
-  \value Off - the pixmap to be displayed when the widget is in an Off state
-  \value On - the pixmap to be displayed when the widget is in an On state
+  \value Off  the pixmap to be displayed when the widget is in an "off" state
+  \value On  the pixmap to be displayed when the widget is in an "on" state
 
   \sa setPixmap() pixmap()
 */
@@ -300,7 +300,7 @@ QIconSet::~QIconSet()
 QIconSet &QIconSet::operator=( const QIconSet &other )
 {
     if ( other.d ) {
-	other.d->ref();				// beware of other = other
+	other.d->ref();
 	if ( d->deref() )
 	    delete d;
 	d = other.d;
@@ -314,19 +314,22 @@ QIconSet &QIconSet::operator=( const QIconSet &other )
 }
 
 /*!
-  Returns TRUE if the icon set is empty. Currently, a QIconSet
-  is never empty (although it may contain null pixmaps).
+  Returns TRUE if the icon set is empty.
+  
+  \bug Currently, a QIconSet is never empty (although it may contain
+       null pixmaps).
 */
 bool QIconSet::isNull() const
 {
-    return ( d == 0 );
+    return ( d == 0 ); // ###
 }
 
 /*!
   Sets this icon set to provide \a pm for the Normal pixmap,
   assuming it to be of \a size.
 
-  This is equivalent to assigning QIconSet(pm,size) to this icon set.
+  This is equivalent to assigning QIconSet(\a pm, \a size) to this
+  icon set.
 */
 void QIconSet::reset( const QPixmap & pm, Size size )
 {
@@ -378,22 +381,22 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	case Active:
 	    if ( state == Off ) {
 		if ( !d->largeActive.pm )
-		    d->largeActive.pm = new QPixmap();
+		    d->largeActive.pm = new QPixmap;
 		*d->largeActive.pm = pm;
 	    } else {
 		if ( !d->on_largeActive.pm )
-		    d->on_largeActive.pm = new QPixmap();
+		    d->on_largeActive.pm = new QPixmap;
 		*d->on_largeActive.pm = pm;
 	    }
 	    break;
 	case Disabled:
 	    if ( state == Off ) {
 		if ( !d->largeDisabled.pm )
-		    d->largeDisabled.pm = new QPixmap();
+		    d->largeDisabled.pm = new QPixmap;
 		*d->largeDisabled.pm = pm;
 	    } else {
 		if ( !d->on_largeDisabled.pm )
-		    d->on_largeDisabled.pm = new QPixmap();
+		    d->on_largeDisabled.pm = new QPixmap;
 		*d->on_largeDisabled.pm = pm;
 	    }
 	    break;
@@ -401,11 +404,11 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	default:
 	    if ( state == Off ) {
 		if ( !d->vlarge.pm )
-		    d->vlarge.pm = new QPixmap();
+		    d->vlarge.pm = new QPixmap;
 		*d->vlarge.pm = pm;
 	    } else {
 		if ( !d->on_vlarge.pm )
-		    d->on_vlarge.pm = new QPixmap();
+		    d->on_vlarge.pm = new QPixmap;
 		*d->on_vlarge.pm = pm;
 	    }
 	    break;
@@ -415,22 +418,22 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	case Active:
 	    if ( state == Off ) {
 		if ( !d->smallActive.pm )
-		    d->smallActive.pm = new QPixmap();
+		    d->smallActive.pm = new QPixmap;
 		*d->smallActive.pm = pm;
 	    } else {
 		if ( !d->on_smallActive.pm )
-		    d->on_smallActive.pm = new QPixmap();
+		    d->on_smallActive.pm = new QPixmap;
 		*d->on_smallActive.pm = pm;
 	    }
 	    break;
 	case Disabled:
 	    if ( state == Off ) {
 		if ( !d->smallDisabled.pm )
-		    d->smallDisabled.pm = new QPixmap();
+		    d->smallDisabled.pm = new QPixmap;
 		*d->smallDisabled.pm = pm;
 	    } else {
 		if ( !d->on_smallDisabled.pm )
-		    d->on_smallDisabled.pm = new QPixmap();
+		    d->on_smallDisabled.pm = new QPixmap;
 		*d->on_smallDisabled.pm = pm;
 	    }
 	    break;
@@ -438,11 +441,11 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	default:
 	    if ( state == Off ) {
 		if ( !d->vsmall.pm )
-		    d->vsmall.pm = new QPixmap();
+		    d->vsmall.pm = new QPixmap;
 		*d->vsmall.pm = pm;
 	    } else {
 		if ( !d->on_vsmall.pm )
-		    d->on_vsmall.pm = new QPixmap();
+		    d->on_vsmall.pm = new QPixmap;
 		*d->on_vsmall.pm = pm;
 	    }
 	    break;
@@ -510,7 +513,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		break;
 	    case Active:
 		if ( !p->largeActive.pm ) {
-		    p->largeActive.pm = new QPixmap( pixmap( Large, Normal ) );
+		    p->largeActive.pm = new QPixmap( pixmap(Large, Normal) );
 		    p->largeActive.generated = TRUE;
 		}
 		pm = p->largeActive.pm;
@@ -521,11 +524,12 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    if ( ( !p->vlarge.pm || p->vlarge.generated ) && !p->smallDisabled.generated &&
 			 p->smallDisabled.pm && !p->smallDisabled.pm->isNull() ) {
 			// if there's a hand-drawn disabled small image,
-			// but the normal big one is NULL or generated, use the
+			// but the normal big one is null or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->smallDisabled.pm->convertToImage();
 			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
 			p->largeDisabled.pm = new QPixmap;
+			p->largeDisabled.generated = TRUE;
 			p->largeDisabled.pm->convertFromImage( i );
 			if ( !p->largeDisabled.pm->mask() ) {
 			    i = i.createHeuristicMask();
@@ -543,8 +547,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			    }
 			}
 			p->largeDisabled.pm
-			    = new QPixmap( p->vlarge.pm->width()+1,
-					   p->vlarge.pm->height()+1);
+			    = new QPixmap( p->vlarge.pm->width() + 1,
+					   p->vlarge.pm->height() + 1 );
 			QColorGroup dis( QApplication::palette().disabled() );
 			p->largeDisabled.pm->fill( dis.background() );
 			QPainter painter( p->largeDisabled.pm );
@@ -590,7 +594,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		break;
 	    case Active:
 		if ( !p->smallActive.pm ) {
-		    p->smallActive.pm = new QPixmap( pixmap( Small, Normal ) );
+		    p->smallActive.pm = new QPixmap( pixmap(Small, Normal) );
 		    p->smallActive.generated = TRUE;
 		}
 		pm = p->smallActive.pm;
@@ -606,6 +610,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			i = p->largeDisabled.pm->convertToImage();
 			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
 			p->smallDisabled.pm = new QPixmap;
+			p->smallDisabled.generated = TRUE;
 			p->smallDisabled.pm->convertFromImage( i );
 			if ( !p->smallDisabled.pm->mask() ) {
 			    i = i.createHeuristicMask();
@@ -623,8 +628,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			    }
 			}
 			p->smallDisabled.pm
-			    = new QPixmap( p->vsmall.pm->width()+1,
-					   p->vsmall.pm->height()+1);
+			    = new QPixmap( p->vsmall.pm->width() + 1,
+					   p->vsmall.pm->height() + 1);
 			QColorGroup dis( QApplication::palette().disabled() );
 			p->smallDisabled.pm->fill( dis.background() );
 			QPainter painter( p->smallDisabled.pm );
@@ -658,7 +663,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->on_vlarge.pm ) {
 		    QPixmap *fallback = 0;
 		    if ( !(fallback = p->on_vsmall.pm ) ) {
-			pm = p->on_vlarge.pm = new QPixmap( pixmap( Large, Normal, Off ) );
+			pm = p->on_vlarge.pm = new QPixmap( pixmap(Large, Normal, Off) );
 			p->on_vlarge.generated = TRUE;
 			break;
 		    }
@@ -679,7 +684,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		break;
 	    case Active:
 		if ( !p->on_largeActive.pm ) {
-		    p->on_largeActive.pm = new QPixmap( pixmap( Large, Normal, On ) );
+		    p->on_largeActive.pm = new QPixmap( pixmap(Large, Normal, On) );
 		    p->on_largeActive.generated = TRUE;
 		}
 		pm = p->on_largeActive.pm;
@@ -705,6 +710,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			if ( mustScale )
 			    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
 			p->on_largeDisabled.pm = new QPixmap;
+			p->on_largeDisabled.generated = TRUE;
 			p->on_largeDisabled.pm->convertFromImage( i );
 			if ( !p->on_largeDisabled.pm->mask() ) {
 			    i = i.createHeuristicMask();
@@ -722,8 +728,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			    }
 			}
 			p->on_largeDisabled.pm
-			    = new QPixmap( p->on_vlarge.pm->width()+1,
-					   p->on_vlarge.pm->height()+1);
+			    = new QPixmap( p->on_vlarge.pm->width() + 1,
+					   p->on_vlarge.pm->height() + 1);
 			QColorGroup dis( QApplication::palette().disabled() );
 			p->on_largeDisabled.pm->fill( dis.background() );
 			QPainter painter( p->on_largeDisabled.pm );
@@ -754,8 +760,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->on_vsmall.pm ) {
 		    QPixmap *fallback = 0;
 		    if ( !( fallback = p->on_vlarge.pm ) ) {
-			pm = p->on_vsmall.pm = new QPixmap( pixmap( Small, Normal, Off ) );
-			p->on_vsmall.generated =TRUE;
+			pm = p->on_vsmall.pm = new QPixmap( pixmap(Small, Normal, Off) );
+			p->on_vsmall.generated = TRUE;
 			break;
 		    }
 		    Q_ASSERT( fallback );
@@ -775,7 +781,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		break;
 	    case Active:
 		if ( !p->on_smallActive.pm ) {
-		    p->on_smallActive.pm = new QPixmap( pixmap( Small, Normal, On ) );
+		    p->on_smallActive.pm = new QPixmap( pixmap(Small, Normal, On) );
 		    p->on_smallActive.generated = TRUE;
 		}
 		pm = p->on_smallActive.pm;
@@ -801,6 +807,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			if ( mustScale )
 			    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
 			p->on_smallDisabled.pm = new QPixmap;
+			p->on_smallDisabled.generated = TRUE;
 			p->on_smallDisabled.pm->convertFromImage( i );
 			if ( !p->on_smallDisabled.pm->mask() ) {
 			    i = i.createHeuristicMask();
@@ -818,8 +825,8 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			    }
 			}
 			p->on_smallDisabled.pm
-			    = new QPixmap( p->on_vsmall.pm->width()+1,
-					   p->on_vsmall.pm->height()+1);
+			    = new QPixmap( p->on_vsmall.pm->width() + 1,
+					   p->on_vsmall.pm->height() + 1);
 			QColorGroup dis( QApplication::palette().disabled() );
 			p->on_smallDisabled.pm->fill( dis.background() );
 			QPainter painter( p->on_smallDisabled.pm );
@@ -863,14 +870,13 @@ QPixmap QIconSet::pixmap( Size size, bool enabled, State state ) const
 
 
 /*!
-  Returns TRUE if the variant with \a size, \a mode and \a state was
-  automatically generated, and FALSE if it was not. This is mainly
-  useful for development purposes.
+  Returns TRUE if the variant with \a size, \a mode and \a state have
+  been generated, and FALSE if they have not.
 */
 bool QIconSet::isGenerated( Size size, Mode mode, State state ) const
 {
     if ( !d )
-	return FALSE;
+	return TRUE;
 
     if ( state == Off ) {
 	if ( size == Large ) {

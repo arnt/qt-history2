@@ -179,7 +179,6 @@ void QToolButton::init()
     hasArrow = FALSE;
 
     s = 0;
-    son = 0;
 
     setFocusPolicy( NoFocus );
     setBackgroundMode( PaletteButton);
@@ -270,7 +269,7 @@ QSize QToolButton::sizeHint() const
 	w = fontMetrics().width( text() );
 	h = fontMetrics().height(); // boundingRect()?
     } else if ( usesBigPixmap() ) {
-	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Large, QIconSet::Normal);
+	QPixmap pm = iconSet().pixmap( QIconSet::Large, QIconSet::Normal );
 	w = pm.width();
 	h = pm.height();
 	if ( w < 32 )
@@ -279,7 +278,7 @@ QSize QToolButton::sizeHint() const
 	    h = 32;
     } else {
 	w = h = 16;
-	QPixmap pm = iconSet(TRUE).pixmap(QIconSet::Small, QIconSet::Normal);
+	QPixmap pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
 	w = pm.width();
 	h = pm.height();
 #ifndef Q_WS_QWS // shouldn't be on any platform...
@@ -400,8 +399,9 @@ void QToolButton::drawButton( QPainter * p )
 
     const QColorGroup &g = colorGroup();
 
-    if ( uses3D() || ( isOn() && !son ) || isDown() ) {
-        style().drawToolButton( p, x, y, w, h, g, isOn(), isDown(), isEnabled(), autoRaise() );
+    if ( uses3D() || isDown() || isOnAndNoOnPixmap() ) {
+        style().drawToolButton( p, x, y, w, h, g, isOn(), isDown(), isEnabled(),
+				autoRaise() );
     } else if ( parentWidget() && parentWidget()->backgroundPixmap() &&
               !parentWidget()->backgroundPixmap()->isNull() ) {
         p->drawTiledPixmap( 0, 0, width(), height(),
@@ -413,14 +413,15 @@ void QToolButton::drawButton( QPainter * p )
     if ( d->popup && !d->delay ) {
 	if ( uses3D() )
 	    style().drawDropDownButton( p, w, y, miw, h, g, 
-		    d->instantPopup || isDown() || isOn(), isEnabled(), autoRaise() );
-	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(), w+2, y+4, 
-		miw-4, h-8, g, isEnabled() );
+					d->instantPopup || isDown() || isOn(),
+					isEnabled(), autoRaise() );
+	style().drawArrow( p, DownArrow, d->instantPopup || isDown() || isOn(),
+			   w + 2, y + 4, miw - 4, h - 8, g, isEnabled() );
     }
 
     if ( hasFocus() && !focusProxy() ) {
 	if ( style() == WindowsStyle ) {
-	    p->drawWinFocusRect( 3, 3, width()-6, height()-6,
+	    p->drawWinFocusRect( 3, 3, width() - 6, height() - 6,
 				 colorGroup().background() );
 	} else {
 	    p->setPen( black );
@@ -437,17 +438,21 @@ void QToolButton::drawButtonLabel( QPainter * p )
     int sx = 0;
     int sy = 0;
     int x, y, w, h;
-    if ( d->popup && !d->delay ) 
-	style().toolButtonRect(0, 0, width() - style().menuButtonIndicatorWidth( height() ), height() ).rect( &x, &y, &w, &h );
+    if ( d->popup && !d->delay )
+	style().toolButtonRect( 0, 0,
+		width() - style().menuButtonIndicatorWidth(height()), height() )
+	       .rect( &x, &y, &w, &h );
     else
-	style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
-    if (isDown() || (isOn()&&!son) ) {
-	style().getButtonShift(sx, sy);
-	x+=sx;
-	y+=sy;
+	style().toolButtonRect( 0, 0, width(), height() )
+	       .rect( &x, &y, &w, &h );
+    if ( isDown() || isOnAndNoOnPixmap() ) {
+	style().getButtonShift( sx, sy );
+	x += sx;
+	y += sy;
     }
     if ( hasArrow ) {
-	style().drawArrow( p, d->arrow, isDown(), x, y, w, h, colorGroup(), isEnabled() );
+	style().drawArrow( p, d->arrow, isDown(), x, y, w, h, colorGroup(),
+			   isEnabled() );
 	return;
     }
 
@@ -460,21 +465,17 @@ void QToolButton::drawButtonLabel( QPainter * p )
 			  0, text(), text().length(), &btnText );
     } else {
 	QPixmap pm;
-	if ( usesBigPixmap() ) {
-	    if ( !isEnabled() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Disabled, isOn() ? QIconSet::On : QIconSet::Off );
-	    else if ( uses3D() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Active, isOn() ? QIconSet::On : QIconSet::Off );
-	    else
-		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Normal, isOn() ? QIconSet::On : QIconSet::Off );
-	} else {
-	    if ( !isEnabled() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Disabled, isOn() ? QIconSet::On : QIconSet::Off );
-	    else if ( uses3D() )
-		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Active, isOn() ? QIconSet::On : QIconSet::Off );
-	    else
-		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Normal, isOn() ? QIconSet::On : QIconSet::Off );
-	}
+	QIconSet::Size size = usesBigPixmap() ? QIconSet::Large
+			      : QIconSet::Small;
+	QIconSet::State state = isOn() ? QIconSet::On : QIconSet::Off;
+	QIconSet::Mode mode;
+	if ( !isEnabled() )
+	    mode = QIconSet::Disabled;
+	else if ( uses3D() )
+	    mode = QIconSet::Active;
+	else
+	    mode = QIconSet::Normal;
+	pm = iconSet().pixmap( size, mode, state );
 
 	if ( usesTextLabel() ) {
 	    int fh = fontMetrics().height();
@@ -604,86 +605,92 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
 }
 
+QIconSet QToolButton::onIconSet() const
+{
+    return iconSet();
+}
+
+QIconSet QToolButton::offIconSet( ) const
+{
+    return iconSet();
+}
+
 /*!
   \property QToolButton::onIconSet
-  \brief the icon set that is used when the button is in an on-state.
+  \brief the icon set that is used when the button is in an "on" state
 
-  \sa setIconSet()
+  \obsolete
+
+  Since Qt 3.0, QIconSet contains both the On and Off icons. There is
+  now an \l iconSet property that replaces both \l onIconSet and
+  \l offIconSet.
+
+  For ease of porting, this property is a synonym for \l iconSet. You
+  probably want to go over your application code and use the QIconSet
+  On/Off mechanism.
+
+  \sa iconSet QIconSet::State
 */
 void QToolButton::setOnIconSet( const QIconSet& set )
 {
-    setIconSet( set, TRUE );
-}
-
-QIconSet QToolButton::onIconSet() const
-{
-    return iconSet( TRUE );
+    setIconSet( set );
 }
 
 /*!
   \property QToolButton::offIconSet
-  \brief the icon set that is used when the button is in an off-state.
+  \brief the icon set that is used when the button is in an "off" state
 
-  \sa setIconSet()
+  \obsolete
+
+  Since Qt 3.0, QIconSet contains both the On and Off icons. There is
+  now an \l iconSet property that replaces both \l onIconSet and
+  \l offIconSet.
+
+  For ease of porting, this property is a synonym for \l iconSet. You
+  probably want to go over your application code and use the QIconSet
+  On/Off mechanism.
+
+  \sa iconSet QIconSet::State
 */
-QIconSet QToolButton::offIconSet( ) const
-{
-    return iconSet( FALSE );
-}
-
 void QToolButton::setOffIconSet( const QIconSet& set )
 {
-    setIconSet( set, FALSE );
+    setIconSet( set );
 }
 
+/*! \property QToolButton::iconSet
+    \brief the icon set providing the icon shown on the button
 
-
-/*!  Sets this tool button to display the icons in \a set
-  (setPixmap() is effectively a wrapper for this function).
-
-  For toggle buttons it is possible to set an extra icon set with \a
-  on equals TRUE, which will be used exclusively for the on-state.
-
-  QToolButton makes a copy of \a set, so you must delete \a set
-  yourself.
-
-  \sa iconSet() QIconSet, setToggleButton(), isOn()
+  \sa pixmap(), setToggleButton(), isOn()
 */
-
-void QToolButton::setIconSet( const QIconSet & set, bool on )
+void QToolButton::setIconSet( const QIconSet & set )
 {
-    if ( !on ) {
-	if ( s )
-	    delete s;
-	s = new QIconSet( set );
-    } else {
-	if ( son )
-	    delete son;
-	son = new QIconSet( set );
-    }
+    if ( s )
+	delete s;
+    s = new QIconSet( set );
     if ( isVisible() )
 	update();
 }
 
+/*! \overload
+    \obsolete
 
-/*!  Returns a copy of the icon set in use.  If no icon set has been
-  set, iconSet() creates one from the pixmap().
+  Since Qt 3.0, QIconSet contains both the On and Off icons.
 
-  If the button doesn't have a pixmap either, iconSet()'s return value
-  is meaningless.
+  For ease of porting, this function ignores the \a on parameter and
+  sets the \l iconSet property. If you relied on the \a on parameter,
+  you probably want to update your code to use the QIconSet On/Off
+  mechanism.
 
-  If \a on equals TRUE, the special icon set for the on-state of the
-  button is returned.
-
-  \sa setIconSet() QIconSet
+  \sa iconSet QIconSet::State
 */
-
-QIconSet QToolButton::iconSet( bool on ) const
+void QToolButton::setIconSet( const QIconSet & set, bool /* on */ )
 {
-    QToolButton * that = (QToolButton *)this;
+    setIconSet( set );
+}
 
-    if ( on && that->son )
-	return *that->son;
+QIconSet QToolButton::iconSet() const
+{
+    QToolButton *that = (QToolButton *) this;
 
     if ( pixmap() && (!that->s || (that->s->pixmap().serialNumber() !=
 	pixmap()->serialNumber())) ) {
@@ -695,11 +702,25 @@ QIconSet QToolButton::iconSet( bool on ) const
     if ( that->s )
 	return *that->s;
 
-    QPixmap tmp1;
-    QIconSet tmp2( tmp1, QIconSet::Small );
-    return tmp2;
+    QPixmap dummy_pm;
+    QIconSet dummy_set( dummy_pm, QIconSet::Small );
+    return dummy_set;
 }
 
+/*! \overload
+    \obsolete
+
+  Since Qt 3.0, QIconSet contains both the On and Off icons.
+
+  For ease of porting, this function ignores the \a on parameter and
+  returns the \l iconSet property. If you relied on the \a on
+  parameter, you probably want to update your code to use the QIconSet
+  On/Off mechanism.
+*/
+QIconSet QToolButton::iconSet( bool /* on */ ) const
+{
+    return iconSet();
+}
 
 /*!
   Associates the popup menu \a popup with this tool button.
@@ -823,5 +844,20 @@ void QToolButton::setAutoRaise( bool enable )
 bool QToolButton::autoRaise() const
 {
     return d->autoraise;
+}
+
+/*!
+  Returns TRUE if the button is on and the "on" pixmap is the same as
+  the "off" pixmap, otherwise returns FALSE.
+
+  We don't really compare the pixmaps, not even their serial numbers,
+  but we do check whether the "on" component is generated or not.
+*/
+bool QToolButton::isOnAndNoOnPixmap()
+{
+    return isOn() &&
+	   ( s == 0 ||
+	    (s->isGenerated(QIconSet::Small, QIconSet::Normal, QIconSet::On) &&
+	     s->isGenerated(QIconSet::Large, QIconSet::Normal, QIconSet::On)) );
 }
 #endif
