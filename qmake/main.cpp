@@ -96,6 +96,21 @@ main(int argc, char **argv)
 	    continue;
 	}
 
+	/* open make file */
+	if(!(Option::output.state() & IO_Open)) {
+	    if(Option::output.name() == "-") {
+		Option::output.setName("");
+		Option::output.open(IO_WriteOnly | IO_Translate, stdout);
+	    } else {
+		if(QDir::isRelativePath(Option::output.name()))
+		    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
+		if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
+		    fprintf(stderr, "Failure to open file: %s\n", Option::output.name().latin1());
+		    return 666;
+		}
+	    }
+	}
+
 	/* dump make file */
 	bool made = FALSE;
 	QString gen = proj.variables()["MAKEFILE_GENERATOR"].first();

@@ -103,15 +103,7 @@ Option::parseCommandLine(int argc, char **argv)
 	    } else if(opt == "t" || opt == "template") {
 		Option::user_template = argv[++x];
 	    } else if(opt == "o" || opt == "output") {
-		QString var = argv[++x];
-		if(var == "-")
-		    continue;
-
-		Option::output.setName(var);
-		if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
-		    fprintf(stderr, "Failure to open file: %s\n", var.latin1());
-		    return FALSE;
-		}
+		Option::output.setName(argv[++x]);
 	    } else if(opt == "unix") {
 		Option::mode = UNIX_MODE;
 	    } else if(opt == "win32") {
@@ -133,8 +125,6 @@ Option::parseCommandLine(int argc, char **argv)
 	    }
 	}
     }
-    if(!(Option::output.state() & IO_Open))
-	Option::output.open(IO_WriteOnly | IO_Translate, stdout);
     if(Option::cachefile.isNull() || Option::cachefile.isEmpty())
 	Option::cachefile = ".qmake.cache";
 
