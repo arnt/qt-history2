@@ -3348,6 +3348,7 @@ void EventList::renamed( QListViewItem *i )
 			      editor->formWindow()->project()->language(), TRUE );
 	    cmd->execute();
 	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	    editor->formWindow()->formFile()->setModified( TRUE );
 	}
     }
 }
@@ -3365,6 +3366,7 @@ void EventList::save( QListViewItem *p )
 	if ( MetaDataBase::setEventFunctions( editor->widget(), formWindow,
 					      formWindow->project()->language(), p->text( 0 ), lst ) )
 	    editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	    editor->formWindow()->formFile()->setModified( TRUE );
     }
 }
 
