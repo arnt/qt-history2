@@ -221,6 +221,7 @@ fi
 
 #QMAKE_VARS="$QMAKE_VARS \"styles += windows motif mac platinum sgi cde motifplus\""
 QMAKE_VARS="$QMAKE_VARS \"styles += windows mac\""  # Temporary until all the styles are ported over.
+QMAKE_VARS="$QMAKE_VARS \"decorations += default windows kde kde2 beos hydro\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
 
 
@@ -262,6 +263,9 @@ CFG_SQL_AVAILABLE=
 CFG_SQL_AUTODETECTED=
 CFG_GFX_AVAILABLE=
 CFG_STYLE_AVAILABLE=
+CFG_DECORATION_AVAILABLE=
+CFG_DECORATION_ON=
+CFG_DECORATION_PLUGIN=
 CFG_TABLET=auto
 CFG_XKB=auto
 CFG_NIS=auto
@@ -304,7 +308,7 @@ QT_INSTALL_SYSCONF=
 
 
 #-------------------------------------------------------------------------------
-# check SQL drivers and styles available in this package
+# check SQL drivers, styles and decorations available in this package
 #-------------------------------------------------------------------------------
 
 CFG_SQL_AVAILABLE=`find $relpath/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
@@ -314,6 +318,11 @@ CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
 CFG_STYLE_AVAILABLE=`find $relpath/src/plugins/styles/* -prune -type d -exec basename {} \;`
 # normalize whitespace
 CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`
+
+CFG_DECORATION_AVAILABLE=`find $relpath/src/plugins/decorations/* -prune -type d -exec basename {} \;`
+# normalize whitespace
+CFG_DECORATION_AVAILABLE=`echo $CFG_DECORATION_AVAILABLE`
+CFG_DECORATION_ON=`echo $CFG_DECORATION_AVAILABLE`
 
 #-------------------------------------------------------------------------------
 # parse command line arguments
@@ -868,7 +877,7 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    imgfmt-*|style-*|sql-*|gfx-*|kbd-*|mouse-*)
+    imgfmt-*|style-*|sql-*|gfx-*|decoration-*|kbd-*|mouse-*)
 	# if Qt style options were used, $VAL can be "no", "qt", or "plugin"
 	# if autoconf style options were used, $VAL can be "yes" or "no"
 	[ "$VAL" = "yes" ] && VAL=qt
@@ -900,6 +909,14 @@ while [ "$#" -gt 0 ]; do
 			break
 		    fi
 		done
+	    elif [ "$VAR" = "decoration" ]; then
+		ERROR=yes
+		for d in $CFG_DECORATION_AVAILABLE; do
+		    if [ "$VAL" = "$d" ]; then
+			ERROR=no
+			break
+		    fi
+		done
 	    elif [ "$VAR" = "sql" ]; then
 		ERROR=yes
 		for d in $CFG_SQL_AVAILABLE; do
@@ -911,7 +928,8 @@ while [ "$#" -gt 0 ]; do
 	    fi
 	    if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
 		if [ "$OPT" = "plugin" ]; then
-		    [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
+		    [ "$VAR" = "style" -o  "$VAR" = "decoration" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
+		    [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"` && CFG_DECORATION_PLUGIN="$CFG_DECORATION_PLUGIN ${VAL}"
 		    VAR="${VAR}-${OPT}"
 		else
 		    if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
@@ -926,6 +944,7 @@ while [ "$#" -gt 0 ]; do
 		else
 		    IN_VAR="${VAR}"
 		fi
+	        [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"`
 		QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
 	    fi
 	fi
@@ -2273,6 +2292,15 @@ Qt/Embedded only:
 			 depths, from:  4, 8, 16, 24, and 32.
 			 (8bpp is required by the VGA16 driver)
 
+    -qt-decoration-<style> ....Enable a decoration <style> in the Qt Library,
+                               by default all available decorations are on.
+    -plugin-decoration-<style> Enable decoration <style> as a plugin to be
+                               linked to at run time.
+    -no-decoration-<style> ....Disable decoration <style> entirely.
+
+                               Possible values for <style>:
+                               [ $CFG_DECORATION_AVAILABLE ]
+
     -qt-gfx-<driver> ... Enable a graphics <driver> in the Qt Library.
     -plugin-gfx-<driver> Enable graphics <driver> as a plugin to be
                          linked to at run time.
@@ -3242,6 +3270,35 @@ else
 fi
 done
 
+if [ "$PLATFORM_QWS" = "yes" ]; then
+## find excluded decorations and add this to $QCONFIG_FLAGS
+
+VDECORATION=no
+VNO=no
+for QMVAR in $QMAKE_VARS; do
+
+STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
+
+if [ "$VDECORATION" = "yes" ]; then
+	if [ "$VNO" = "yes" ]; then
+		NODECORATION=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
+		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DECORATION_$NODECORATION"
+		VDECORATION=no
+		VNO=no
+    	else
+		if [ "$STRIPPED" = "-=" ]; then
+			VNO=yes
+		else
+			VDECORATION=no
+		fi
+	fi
+else
+	if [ "$STRIPPED" = "decoration" ]; then
+		VDECORATION=yes
+	fi
+fi
+done
+fi
 
 if [ -n "$QCONFIG_FLAGS" ]; then
     for cfg in $QCONFIG_FLAGS; do
@@ -3437,6 +3494,11 @@ fi
 echo "zlib support ........ $CFG_ZLIB"
 if [ "$PLATFORM_QWS" = "yes" ]; then
     echo "Embedded support .... $CFG_EMBEDDED"
+    # Normalize the decoration output first
+    CFG_DECORATION_ON=`echo ${CFG_DECORATION_ON}`
+    CFG_DECORATION_PLUGIN=`echo ${CFG_DECORATION_PLUGIN}`
+    echo "Decorations (qt) .... $CFG_DECORATION_ON"
+    echo "Decorations (plugin)  $CFG_DECORATION_PLUGIN"
 else
     echo "OpenGL support ...... $CFG_OPENGL"
 fi
