@@ -604,16 +604,16 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
         mode_t perms = 0;
         {
             struct stat s;
-            stat(f.local8Bit().constData(), &s);
+            stat(f.toLocal8Bit().constData(), &s);
             if(!(s.st_mode & S_IWUSR)) {
                 perms = s.st_mode;
-                chmod(f.latin1(), perms | S_IWUSR);
+                chmod(f.toLatin1().constData(), perms | S_IWUSR);
             }
         }
-        FILE *o = fopen(f.latin1(), "a");
+        FILE *o = fopen(f.toLatin1().constData(), "a");
         if(!o)
             return false;
-        if(FSPathMakeRef((const UInt8 *)f.latin1(), &fref, NULL) == noErr) {
+        if(FSPathMakeRef((const UInt8 *)f.toLatin1().constData(), &fref, NULL) == noErr) {
             if(FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL) == noErr)
                 FSpCreateResFile(&fileSpec, 'CUTE', 'TEXT', smSystemScript);
             else
@@ -622,7 +622,7 @@ MetrowerksMakefileGenerator::createFork(const QString &f)
             qDebug("bogus %d", __LINE__);
         fclose(o);
         if(perms)
-            chmod(f.latin1(), perms);
+            chmod(f.toLatin1().constData(), perms);
     }
 #else
     Q_UNUSED(f)
