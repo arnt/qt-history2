@@ -2046,13 +2046,22 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 	d->colIndex.clear();
 	if ( d->fld.count() ) {
 	    QSqlField* field = 0;
-	    for ( uint i = 0; i < d->fld.count(); ++i ) {
-		field = cur->field( d->fld[ i ] );
-		if ( field && ( cur->isGenerated( field->name() ) ||
+	    int i;
+	    int fpos = -1;
+	    for ( i = 0; i < (int)d->fld.count(); ++i ) {
+		if ( cur->field( i ) && cur->field( i )->name() == d->fld[ i ] )
+		    // if there is a field with the desired name on the desired position
+		    // then we take that
+		    fpos = i;
+		else
+		    // otherwise we take the first field that matches the desired name
+		    fpos = cur->position( d->fld[ i ] );
+		field = cur->field( fpos );
+		if ( field && ( cur->isGenerated( fpos ) ||
 				cur->isCalculated( field->name() ) ) )
 		{
 		    setNumCols( numCols() + 1 );
-		    d->colIndex.append( cur->position( field->name() ) );
+		    d->colIndex.append( fpos );
 		    setColumnReadOnly( numCols()-1, field->isReadOnly() || isColumnReadOnly( numCols()-1 ) );
 		    QHeader* h = horizontalHeader();
 		    QString label = d->fldLabel[ i ];
