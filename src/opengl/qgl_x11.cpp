@@ -322,10 +322,12 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    shareContext = 0;
     }
 
-    // sharing between rgba and color-index will give wrong colors
-    // Also, if one context is doing direct rendering and the other renders
-    // via the X server things will go terribly wrong.
-    if ( shareContext && (format().rgba() != shareContext->format().rgba()) )
+    // 1. Sharing between rgba and color-index will give wrong colors.
+    // 2. Contexts cannot be shared btw. direct/non-direct renderers.
+    // 3. Pixmaps cannot share contexts that are set up for direct rendering.
+    if ( shareContext && (format().rgba() != shareContext->format().rgba() ||
+			  (deviceIsPixmap() && 
+			   glXIsDirect( disp, (GLXContext)shareContext->cx ))))
 	shareContext = 0;
 
     cx = 0;

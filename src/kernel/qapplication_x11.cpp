@@ -1726,12 +1726,14 @@ void qt_init_internal( int *argcptr, char **argv,
 	    }
 
 #if defined( QT_MODULE_OPENGL )
-	    // If we are using OpenGL widgets we HAVE to make sure that
-	    // the default visual is GL enabled, otherwise it will wreck
-	    // havock when e.g trying to render to GLXPixmaps via QPixmap.
-	    // This is because QPixmap is always created with a
-	    // QPaintDevice that uses x_appvisual per default.
-	    int useGL;
+	    // If we are using OpenGL widgets we HAVE to make sure
+	    // that the default visual is GL enabled, otherwise it
+	    // will wreck havock when e.g trying to render to
+	    // GLXPixmaps via QPixmap. This is because QPixmap is
+	    // always created with a QPaintDevice that uses
+	    // x_appvisual per default. Preferably, use a visual that
+            // has depth and stencil buffers.
+
 	    int nvis;
 	    XVisualInfo * vi;
 	    XVisualInfo visInfo;
@@ -1741,8 +1743,10 @@ void qt_init_internal( int *argcptr, char **argv,
 	    vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
 				 &visInfo, &nvis );
 	    if ( vi ) {
+		int useGL, depthSize; 
 		glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
-		if ( !useGL ) {
+		glXGetConfig( appDpy, vi, GLX_DEPTH_SIZE, &depthSize );
+		if ( !useGL || !depthSize ) {
 		    // We have to find another visual that is GL capable
 		    int i;
 		    XVisualInfo * visuals;
@@ -1756,8 +1760,11 @@ void qt_init_internal( int *argcptr, char **argv,
 					      &nvis );
 		    if ( visuals ) {
 			for ( i = 0; i < nvis; i++ ) {
-			    glXGetConfig( appDpy, &visuals[i], GLX_USE_GL, &useGL );
-			    if ( useGL ) {
+			    glXGetConfig( appDpy, &visuals[i], GLX_USE_GL,
+					  &useGL );
+			    glXGetConfig( appDpy, &visuals[i], GLX_DEPTH_SIZE,
+					  &depthSize );
+			    if ( useGL && depthSize ) {
 				vis = visuals[i].visual;
 				QPaintDevice::x_appdefvisual = FALSE;
 				QPaintDevice::x_appdefvisual_arr[appScreen] = FALSE;
