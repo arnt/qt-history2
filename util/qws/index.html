@@ -115,6 +115,18 @@ The possible events are:
 
 <h2>Commands from Clients</h2>
 
+All commands have this basic structure:
+
+<pre>
+struct QWSCommand {
+  int type;
+  int rawLen;
+  struct CommandSpecific {
+    ...
+  } simpleData;
+}
+</pre>
+
 During processing, clients may send the following commands.
 
 <dl>
