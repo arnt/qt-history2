@@ -96,7 +96,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const c
 
     QWidgetFactory *widgetFactory = new QWidgetFactory;
     widgetFactory->toplevel = 0;
-    
+
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
     while ( firstWidget.tagName() != "widget" )
@@ -257,10 +257,6 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     // no success
     return 0;
-}
-
-void QWidgetFactory::loadTabOrder( const QDomElement &e )
-{
 }
 
 QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout )
@@ -776,7 +772,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e )
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
-	    
+	
 	    QObject *sender = 0, *receiver = 0;
 	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
@@ -790,7 +786,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e )
 		sender = l->first();
 		delete l;
 	    }
-	    
+	
 	    if ( qstrcmp( conn.receiver->name(), toplevel->name() ) == 0 ) {
 		receiver = toplevel;
 	    } else {
@@ -821,6 +817,28 @@ void QWidgetFactory::loadConnections( const QDomElement &e )
 	    QObject::connect( sender, s, receiver, s2 );
 	} else if ( n.tagName() == "slot" ) {
 	    qWarning( "custom slots are not supported by QWidgetFactory" );
+	}
+	n = n.nextSibling().toElement();
+    }
+}
+
+void QWidgetFactory::loadTabOrder( const QDomElement &e )
+{
+    QWidget *last = 0;
+    QDomElement n = e.firstChild().toElement();
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "tabstop" ) {
+	    QString name = n.firstChild().toText().data();
+	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
+	    if ( l ) {
+		if ( l->first() ) {
+		    QWidget *w = (QWidget*)l->first();
+		    if ( last )
+			toplevel->setTabOrder( last, w );
+		    last = w;
+		}
+		delete l;
+	    }
 	}
 	n = n.nextSibling().toElement();
     }
