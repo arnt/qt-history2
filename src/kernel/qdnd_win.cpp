@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#62 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -20,6 +20,7 @@
 
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qlabel.h" // ######### debug
 #include "qwidget.h"
 #include "qdragobject.h"
 #include "qimage.h"
@@ -929,6 +930,8 @@ dropeffect_none:
     return FALSE;
 }
 
+extern HBITMAP qt_createIconMask( const QBitmap &bitmap );
+
 void QDragManager::updatePixmap()
 {
     if ( object ) {
@@ -957,8 +960,7 @@ void QDragManager::updatePixmap()
 		int w = x2-x1+1;
 		int h = y2-y1+1;
 
-		if ( qt_winver == WV_32s || qt_winver == WV_95 ) {
-		    // ###hanord: What about Windows 98?
+		if ( qt_winver != WV_NT ) {
 		    // Limited cursor size
 		    int reqw = GetSystemMetrics(SM_CXCURSOR);
 		    int reqh = GetSystemMetrics(SM_CYCURSOR);
@@ -967,9 +969,10 @@ void QDragManager::updatePixmap()
 			pm_hot.setX(pm_hot.x()-w+reqw);
 		    }
 		    if ( reqh < h ) {
-			// Not tall enough - move objectpm right
+			// Not tall enough - move objectpm down
 			pm_hot.setY(pm_hot.y()-h+reqh);
 		    }
+		    // Always use system cursor size
 		    w = reqw;
 		    h = reqh;
 		}
@@ -1004,13 +1007,15 @@ void QDragManager::updatePixmap()
 		    }
 		}
 
+		HBITMAP im = qt_createIconMask(maskbits);
 		ICONINFO ii;
 		ii.fIcon     = FALSE;
 		ii.xHotspot  = QMAX(0,pm_hot.x());
 		ii.yHotspot  = QMAX(0,pm_hot.y());
-		ii.hbmMask   = maskbits.hbm();
+		ii.hbmMask   = im;
 		ii.hbmColor  = colorbits.hbm();
 		cursor[cnum] = CreateIconIndirect(&ii);
+		DeleteObject( im );
 	    }
 	}
     }
