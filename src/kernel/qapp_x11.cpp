@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#87 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#86 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#87 $";
 #endif
 
 
@@ -113,7 +113,11 @@ public:
 
 #if defined(_OS_SUN_)
 #define SIG_HANDLER SIG_PF
+#if defined(__SVR4)
+extern "C" int gettimeofday( struct timeval *, void * );
+#else
 extern "C" int gettimeofday( struct timeval * );
+#endif
 #else
 #define SIG_HANDLER __sighandler_t
 #endif
