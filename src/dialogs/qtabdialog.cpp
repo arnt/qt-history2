@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#84 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#85 $
 **
 ** Implementation of QTabDialog class
 **
@@ -586,18 +586,15 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
 
 
 /*!
-  Adds an Apply button  to the dialog.  The button's text is set to \e
+  Add an Apply button to the dialog.  The button's text is set to \e
   text.
 
-  When the Apply button is clicked, the applyButtonPressed() signal is emitted,
-  and the current settings in the dialog box should be applied to
-  the application. As opposed to the OK button, the dialog does not close.
+  The Apply button should apply the current settings in the dialog box
+  to the application, while keeping the dialog visible.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  When Apply is clicked, the applyButtonPressed() signal is emitted.
 
-  \sa setApplyButton() setCancelButton() defaultButtonPressed()
+  \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
 void QTabDialog::setApplyButton( const QString &text )
 {
