@@ -1336,7 +1336,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	dy = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, this);
     }
 
-    QRect r( fr.x() + QH_MARGIN + dx, fr.y() + 2 + dx, fr.width() - 6, fr.height() - 4 );
+    QRect r( fr.x() + QH_MARGIN + dx, fr.y() + 2 + dy, fr.width() - 6, fr.height() - 4 );
 
     int pw = 0;
     if ( d->iconsets[section] ) {
