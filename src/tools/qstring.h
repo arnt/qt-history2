@@ -69,7 +69,7 @@ public:
     QChar( char c );
     QChar( uchar c );
     QChar( uchar c, uchar r );
-    QChar( const QChar& c );
+    QChar( const QChar& c ); // ### remove in 4.0 to allow compiler optimization
     QChar( ushort rc );
     QChar( short rc );
     QChar( uint rc );
