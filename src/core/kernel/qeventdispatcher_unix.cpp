@@ -289,8 +289,8 @@ int QEventDispatcherUNIXPrivate::doSelect(QEventLoop::ProcessEventsFlags flags, 
 #if defined(QT_DEBUG)
     if (dangerCount > 16)
         qDebug("QObject: %d timers now exist for object %s::%s",
-                dangerCount, ti->obj->metaObject()->className(),
-                ti->obj->objectName().local8Bit());
+               dangerCount, ti->obj->metaObject()->className(),
+               ti->obj->objectName().local8Bit());
 #endif
 }
 
@@ -407,22 +407,21 @@ bool QEventDispatcherUNIX::unregisterTimer(int id)
     Q_D(QEventDispatcherUNIX);
     if (!d->timerList || id <= 0 ||
         id > (int)d->timerBitVec->size() || !d->timerBitVec->testBit(id-1)) {
-        qDebug("QEventDispatcherUNIX::unregisterTimer(): %d is not not a valid timer", id);
-        return false;                                // not init'd or invalid timer
+        // not initialized or invalid timer
+        return false;
     }
-
+    // set timer inactive
     for (int i = 0; i < d->timerList->size(); ++i) {
         register QTimerInfo *t = d->timerList->at(i);
         if (t->id == id) {
-            d->timerBitVec->clearBit(id - 1);        // set timer inactive
+            d->timerBitVec->clearBit(id - 1);
             d->timerList->removeAt(i);
             delete t;
             return true;
         }
     }
-
-    qDebug("QEventDispatcherUNIX::unregisterTimer(): %d not found", id);
-    return false; // id not found
+    // id not found
+    return false;
 }
 
 /*!
