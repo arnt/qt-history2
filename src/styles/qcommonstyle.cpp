@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#46 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#47 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -54,6 +54,8 @@
 #include "qrangecontrol.h"
 #include "qgroupbox.h"
 #include "qlistview.h"
+#include "qcheckbox.h"
+#include "qradiobutton.h"
 #include "qbitmap.h"
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
@@ -553,6 +555,28 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->restore();
 	break; }
 
+    case PO_Indicator: {
+	// make sure the indicator is square
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
+
+	if (flags & PStyle_NoChange) {
+	    p->setPen(cg.foreground());
+	    p->fillRect(ir, cg.brush(QColorGroup::Button));
+	    p->drawLine(ir.topLeft(), ir.bottomRight());
+	} else
+	    qDrawShadePanel(p, ir.x(), ir.y(), ir.width(), ir.height(),
+			    cg, flags & (PStyle_Sunken | PStyle_On), 1,
+			    &cg.brush(QColorGroup::Button));
+	break; }
+
     default:
 	break;
     }
@@ -581,10 +605,6 @@ void QCommonStyle::drawControl( ControlElement element,
 	    flags |= PStyle_Sunken;
 
 	drawPrimitive(PO_ButtonCommand, p, r, cg, flags, data);
-
-	if (button->hasFocus())
-	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-			  cg, flags, data);
 	break; }
 
     case CE_PushButtonLabel: {
@@ -629,10 +649,54 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	drawItem(p, ir, AlignCenter | ShowPrefix, cg,
 		 flags & PStyle_Enabled, button->pixmap(), button->text());
+
+	if (button->hasFocus())
+	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
+			  cg, flags, data);
 	break; }
 
     case CE_PushButtonMask:
 	drawPrimitive(PO_ButtonCommand, p, r, cg, PStyle_Default, data);
+	break;
+
+    case CE_CheckBox: {
+	QCheckBox *checkbox = (QCheckBox *) widget;
+
+	PFlags flags = PStyle_Default;
+	if (checkbox->isEnabled())
+	    flags |= PStyle_Enabled;
+	if (checkbox->isDown())
+	    flags |= PStyle_Sunken;
+	if (checkbox->state() == QButton::On)
+	    flags |= PStyle_On;
+	else if (checkbox->state() == QButton::Off)
+	    flags |= PStyle_Off;
+	else if (checkbox->state() == QButton::NoChange)
+	    flags |= PStyle_NoChange;
+
+	drawPrimitive(PO_Indicator, p, r, cg, flags, data);
+	break; }
+
+    case CE_CheckBoxLabel: {
+	QCheckBox *checkbox = (QCheckBox *) widget;
+
+	PFlags flags = PStyle_Default;
+	if (checkbox->isEnabled())
+	    flags |= PStyle_Enabled;
+
+	drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
+		 flags & PStyle_Enabled, checkbox->pixmap(), checkbox->text());
+
+	if (checkbox->hasFocus())
+	    drawPrimitive(PO_FocusRect, p, subRect(SR_CheckBoxFocusRect, widget),
+			  cg, flags, data);
+	break; }
+
+    case CE_CheckBoxMask:
+	drawPrimitive(PO_Indicator, p, r, cg, PStyle_Default, data);
+	break;
+
+    default:
 	break;
     }
 }
@@ -671,8 +735,35 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 		     wrect.bottom() - dfw2 + 1);
 	break; }
 
+    case SR_CheckBoxIndicator:
+	rect.setRect(0, 0, 13, QMAX(13, wrect.height()));
+	break;
+
+    case SR_CheckBoxContents: {
+	QCheckBox *checkbox = (QCheckBox *) widget;
+	QRect ir = subRect(SR_CheckBoxIndicator, widget);
+	rect.setRect(ir.right() + 10, wrect.y(),
+		     wrect.width() - ir.width() - 10, wrect.height());
+	break; }
+
+    case SR_CheckBoxFocusRect: {
+	QCheckBox *checkbox = (QCheckBox *) widget;
+	QRect ir = subRect(SR_CheckBoxIndicator, widget);
+
+	QPainter p(checkbox);
+	rect = itemRect(&p, wrect, AlignAuto | AlignVCenter | ShowPrefix,
+			checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
+
+	rect.moveBy(ir.right() + 10, 0);
+	rect.setLeft( rect.left() - 3 );
+	rect.setRight( rect.right() + 2 );
+	rect.setTop( rect.top() - 2 );
+	rect.setBottom( rect.bottom() + 2);
+	rect = rect.intersect(wrect);
+	break; }
+
     default:
-	rect = QCommonStyle::subRect(r, widget);
+	rect = wrect;
 	break;
     }
 
@@ -980,6 +1071,14 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	}
 
 	sz = QSize(w, h);
+	break; }
+
+    case CT_CheckBox: {
+	QCheckBox *checkbox = (QCheckBox *) widget;
+	QSize indicator = indicatorSize();
+
+	sz = contentsSize +
+	     QSize(indicator.width() + (checkbox->text().isEmpty() ? 0 : 10), 4);
 	break; }
 
     default:

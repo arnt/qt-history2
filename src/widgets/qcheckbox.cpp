@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#156 $
 **
 ** Implementation of QCheckBox class
 **
@@ -162,20 +162,12 @@ QSize QCheckBox::sizeHint() const
     // Any more complex, and we will use style().itemRect()
     // NB: QCheckBox::sizeHint() is similar
     constPolish();
-    QSize sz;
-    if (pixmap()) {
-	sz = pixmap()->size();
-    } else {
-	sz = fontMetrics().size( ShowPrefix, text() );
-    }
-    GUIStyle gs = style().guiStyle();
-    QSize bmsz = style().indicatorSize();
-    if ( sz.height() < bmsz.height() )
-	sz.setHeight( bmsz.height() );
 
-    return sz + QSize( bmsz.width() + (style()==MotifStyle ? 1 : 0)
-	+ (text().isEmpty() ? 0 : 4 + extraWidth(gs)),
-	4 ).expandedTo( QApplication::globalStrut() );
+    QPainter p(this);
+    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, isEnabled(),
+				pixmap(), text()).size();
+
+    return style().sizeFromContents(QStyle::CT_CheckBox, this, sz);
 }
 
 
@@ -184,83 +176,93 @@ QSize QCheckBox::sizeHint() const
 
 void QCheckBox::drawButton( QPainter *paint )
 {
-    QPainter	*p = paint;
-    GUIStyle	 gs = style().guiStyle();
-    const QColorGroup & g = colorGroup();
-    int		 x, y;
 
-    QFontMetrics fm = fontMetrics();
-    QSize lsz = fm.size(ShowPrefix, text());
-    QSize sz = style().indicatorSize();
-    x = gs == MotifStyle ? 1 : 0;
-    if( QApplication::reverseLayout() )
-	x = width() - x -sz.width();
-    if ( text().isEmpty() )
-	x += 1;
-    y = (height() - lsz.height() + fm.height() - sz.height())/2;
+    style().drawControl(QStyle::CE_CheckBox, paint, this,
+			style().subRect(QStyle::SR_CheckBoxIndicator, this),
+			colorGroup());
+    drawButtonLabel( paint );
 
-#ifndef QT_NO_TEXTSTREAM
-#define SAVE_CHECKBOX_PIXMAPS
-#endif
+    /*
+      QPainter	*p = paint;
 
-#if defined(SAVE_CHECKBOX_PIXMAPS)
-    QString pmkey;				// pixmap key
-    int kf = 0;
-    if ( isDown() )
-	kf |= 1;
-    if ( isEnabled() )
-	kf |= 2;
-    if ( hasFocus() )
-	kf |= 4;				// active vs. normal colorgroup
-    if( topLevelWidget() != qApp->activeWindow())
-	kf |= 8;
+      GUIStyle	 gs = style().guiStyle();
+      const QColorGroup & g = colorGroup();
+      int		 x, y;
 
-    kf |= state() << 4;
-    QTextOStream os(&pmkey);
-    os << "$qt_check_" << style().className() << "_"
-			 << palette().serialNumber() << "_" << kf;
-    QPixmap *pm = QPixmapCache::find( pmkey );
-    if ( pm ) {					// pixmap exists
-	p->drawPixmap( x, y, *pm );
-	drawButtonLabel( p );
-	return;
-    }
-    bool use_pm = TRUE;
-    QPainter pmpaint;
-    int wx = 0, wy = 0;
-    if ( use_pm ) {
-	pm = new QPixmap( sz );			// create new pixmap
-	Q_CHECK_PTR( pm );
-	pm->fill( g.background() );
-	pmpaint.begin( pm );
-	p = &pmpaint;				// draw in pixmap
-	wx=x;  wy=y;				// save x,y coords
-	x = y = 0;
-	p->setBackgroundColor( g.background() );
-    }
-#endif
+      QFontMetrics fm = fontMetrics();
+      QSize lsz = fm.size(ShowPrefix, text());
+      QSize sz = style().indicatorSize();
+      x = gs == MotifStyle ? 1 : 0;
+      if( QApplication::reverseLayout() )
+      x = width() - x -sz.width();
+      if ( text().isEmpty() )
+      x += 1;
+      y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
-    style().drawIndicator(p, x, y, sz.width(), sz.height(), colorGroup(), state(), isDown(), isEnabled());
 
-#if defined(SAVE_CHECKBOX_PIXMAPS)
-    if ( use_pm ) {
-	pmpaint.end();
-	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
-	    QBitmap bm( pm->size() );
-	    bm.fill( color0 );
-	    pmpaint.begin( &bm );
-	    style().drawIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
-	    pmpaint.end();
-	    pm->setMask( bm );
-	}
-	p = paint;				// draw in default device
-	p->drawPixmap( wx, wy, *pm );
-	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
-	    delete pm;
-    }
-#endif
+      #ifndef QT_NO_TEXTSTREAM
+      #define SAVE_CHECKBOX_PIXMAPS
+      #endif
 
-    drawButtonLabel( p );
+      #if defined(SAVE_CHECKBOX_PIXMAPS)
+      QString pmkey;				// pixmap key
+      int kf = 0;
+      if ( isDown() )
+      kf |= 1;
+      if ( isEnabled() )
+      kf |= 2;
+      if ( hasFocus() )
+      kf |= 4;				// active vs. normal colorgroup
+      if( topLevelWidget() != qApp->activeWindow())
+      kf |= 8;
+
+      kf |= state() << 4;
+      QTextOStream os(&pmkey);
+      os << "$qt_check_" << style().className() << "_"
+      << palette().serialNumber() << "_" << kf;
+      QPixmap *pm = QPixmapCache::find( pmkey );
+      if ( pm ) {					// pixmap exists
+      p->drawPixmap( x, y, *pm );
+      drawButtonLabel( p );
+      return;
+      }
+      bool use_pm = TRUE;
+      QPainter pmpaint;
+      int wx = 0, wy = 0;
+      if ( use_pm ) {
+      pm = new QPixmap( sz );			// create new pixmap
+      Q_CHECK_PTR( pm );
+      pm->fill( g.background() );
+      pmpaint.begin( pm );
+      p = &pmpaint;				// draw in pixmap
+      wx=x;  wy=y;				// save x,y coords
+      x = y = 0;
+      p->setBackgroundColor( g.background() );
+      }
+      #endif
+    */
+
+    // style().drawIndicator(p, x, y, sz.width(), sz.height(), colorGroup(), state(), isDown(), isEnabled());
+
+    /*
+      #if defined(SAVE_CHECKBOX_PIXMAPS)
+      if ( use_pm ) {
+      pmpaint.end();
+      if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
+      QBitmap bm( pm->size() );
+      bm.fill( color0 );
+      pmpaint.begin( &bm );
+      style().drawIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
+      pmpaint.end();
+      pm->setMask( bm );
+      }
+      p = paint;				// draw in default device
+      p->drawPixmap( wx, wy, *pm );
+      if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
+      delete pm;
+      }
+      #endif
+    */
 }
 
 
@@ -268,43 +270,49 @@ void QCheckBox::drawButton( QPainter *paint )
 */
 void QCheckBox::drawButtonLabel( QPainter *p )
 {
-    int x, y, w, h;
-    GUIStyle gs = style().guiStyle();
-    QSize sz = style().indicatorSize();
-    y = 0;
-    x = sz.width() + extraWidth( gs ); //###
-    w = width() - x;
-    if ( QApplication::reverseLayout() )
-	x = 0;
-    h = height();
+    style().drawControl(QStyle::CE_CheckBoxLabel, p, this,
+			style().subRect(QStyle::SR_CheckBoxContents, this),
+			colorGroup());
 
-    style().drawItem( p, x, y, w, h,
-		      AlignAuto|AlignVCenter|ShowPrefix,
-		      colorGroup(), isEnabled(),
-		      pixmap(), text() );
+    /*
+      int x, y, w, h;
+      GUIStyle gs = style().guiStyle();
+      QSize sz = style().indicatorSize();
+      y = 0;
+      x = sz.width() + extraWidth( gs ); //###
+      w = width() - x;
+      if ( QApplication::reverseLayout() )
+      x = 0;
+      h = height();
 
-    if ( hasFocus() ) {
-	QRect br = style().itemRect( p, x, y, w, h,
-				   AlignAuto|AlignVCenter|ShowPrefix,
-				   isEnabled(),
-				   pixmap(), text() );
-	br.setLeft( br.left()-3 );
-	br.setRight( br.right()+2 );
-	br.setTop( br.top()-2 );
-	br.setBottom( br.bottom()+2);
-	br = br.intersect( QRect(0,0,width(),height()) );
+      style().drawItem( p, x, y, w, h,
+      AlignAuto|AlignVCenter|ShowPrefix,
+      colorGroup(), isEnabled(),
+      pixmap(), text() );
 
-	if ( !text().isEmpty() )
-	    style().drawFocusRect(p, br, colorGroup());
-	else {
-	    br.setRight( br.left() );
-	    br.setLeft( br.left()-16 );
-	    br.setTop( br.top() );
-	    br.setBottom( br.bottom() );
-	    style().drawFocusRect( p, br, colorGroup() );
-	}
+      if ( hasFocus() ) {
+      QRect br = style().itemRect( p, x, y, w, h,
+      AlignAuto|AlignVCenter|ShowPrefix,
+      isEnabled(),
+      pixmap(), text() );
+      br.setLeft( br.left()-3 );
+      br.setRight( br.right()+2 );
+      br.setTop( br.top()-2 );
+      br.setBottom( br.bottom()+2);
+      br = br.intersect( QRect(0,0,width(),height()) );
 
-    }
+      if ( !text().isEmpty() )
+      style().drawFocusRect(p, br, colorGroup());
+      else {
+      br.setRight( br.left() );
+      br.setLeft( br.left()-16 );
+      br.setTop( br.top() );
+      br.setBottom( br.bottom() );
+      style().drawFocusRect( p, br, colorGroup() );
+      }
+
+      }
+    */
 }
 
 /*!

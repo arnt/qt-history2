@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#98 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#99 $
 **
 ** Definition of QStyle class
 **
@@ -111,15 +111,17 @@ public:
 	PO_SpinWidgetUp,
 	PO_SpinWidgetDown,
 	PO_SpinWidgetPlus,
-	PO_SpinWidgetMinus
+	PO_SpinWidgetMinus,
+
+	PO_Indicator,
+	PO_IndicatorMask
 
 	/*
 	  PO_Panel,
 	  PO_PanelPopup,
 	  PO_PanelMenu,
 	  PO_PanelToolbar,
-	  PO_Indicator,
-	  PO_IndicatorMask,
+
 	  PO_ExclusiveIndicator,
 	  PO_ExclusiveIndicatorMask,
 	  PO_CheckMark,
@@ -158,7 +160,11 @@ public:
     enum ControlElement{
 	CE_PushButton,
 	CE_PushButtonLabel,
-	CE_PushButtonMask
+	CE_PushButtonMask,
+
+	CE_CheckBox,
+	CE_CheckBoxLabel,
+	CE_CheckBoxMask
 
 	/*
 	  CE_Tab,
@@ -186,7 +192,11 @@ public:
 
     enum SubRect {
 	SR_PushButtonContents,
-	SR_PushButtonFocusRect
+	SR_PushButtonFocusRect,
+
+	SR_CheckBoxIndicator,
+	SR_CheckBoxContents,
+	SR_CheckBoxFocusRect
 
 	/*
 	  SR_DefaultFrameContents,
@@ -307,7 +317,8 @@ public:
 
 
     enum ContentsType {
-	CT_PushButton
+	CT_PushButton,
+	CT_CheckBox
     };
 
     virtual QSize sizeFromContents( ContentsType contents,
@@ -552,12 +563,12 @@ public:
     virtual int spinBoxFrameWidth() const = 0;
 
     // spin widget
-//     virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
-// 				       const QColorGroup &g, QSpinWidget* sw,
-// 				       bool downbtn, bool enabled, bool down ) = 0;
-//     virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
-// 				       const QColorGroup &g, QSpinWidget* sw,
-// 				       bool downbtn, bool enabled, bool down ) = 0;
+    //     virtual void drawSpinWidgetButton( QPainter *p, int x, int y, int w, int h,
+    // 				       const QColorGroup &g, QSpinWidget* sw,
+    // 				       bool downbtn, bool enabled, bool down ) = 0;
+    //     virtual void drawSpinWidgetSymbol( QPainter *p, int x, int y, int w, int h,
+    // 				       const QColorGroup &g, QSpinWidget* sw,
+    // 				       bool downbtn, bool enabled, bool down ) = 0;
 
     // groupbox
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;

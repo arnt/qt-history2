@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#20 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#21 $
 **
 ** Definition of Windows-like style class
 **
@@ -130,10 +130,6 @@ public:
     void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
 			     const QBrush *fill = 0 );
-
-    QSize indicatorSize() const;
-    void drawIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
-                        int s, bool down = FALSE, bool enabled = TRUE );
 
     QSize exclusiveIndicatorSize() const;
     void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#55 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#56 $
 **
 ** Implementation of Windows-like style class
 **
@@ -137,6 +137,65 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawWinFocusRect(r);
 	break;
 
+    case PO_Indicator: {
+#ifndef QT_NO_BUTTON
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
+
+	QBrush fill;
+	if (flags & PStyle_NoChange) {
+	    QBrush b = p->brush();
+	    QColor c = p->backgroundColor();
+	    p->setBackgroundMode( TransparentMode );
+	    p->setBackgroundColor( green );
+	    fill = QBrush(cg.base(), Dense4Pattern);
+	    p->setBackgroundColor( c );
+	    p->setBrush( b );
+	} else if (flags & PStyle_Sunken)
+	    fill = cg.brush( QColorGroup::Button );
+	else if (flags & PStyle_Enabled)
+	    fill = cg.brush( QColorGroup::Base );
+	else
+	    fill = cg.brush( QColorGroup::Background );
+
+	qDrawWinPanel( p, ir, cg, TRUE, &fill );
+	if (! (flags & PStyle_Off)) {
+	    QPointArray a( 7*2 );
+	    int i, xx, yy;
+	    xx = ir.x() + 3;
+	    yy = ir.y() + 5;
+
+	    for ( i=0; i<3; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy++;
+	    }
+
+	    yy -= 2;
+	    for ( i=3; i<7; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy--;
+	    }
+
+	    if (flags & PStyle_NoChange)
+		p->setPen( cg.dark() );
+	    else
+		p->setPen( cg.text() );
+
+	    p->drawLineSegments( a );
+	}
+#endif
+
+	break; }
+
     default:
 	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
 	    QPointArray a;
@@ -169,7 +228,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	    if ( flags & PStyle_Sunken )
 		p->translate( pixelMetric( PM_ButtonShiftHorizontal, 0 ),
 			      pixelMetric( PM_ButtonShiftVertical ) );
-	    
+
 	    if ( flags & PStyle_Enabled ) {
 		a.translate( r.x() + r.width() / 2, r.y() + r.height() / 2 );
 		p->setPen( cg.buttonText() );
@@ -232,10 +291,6 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    p->drawRect(br);
 	} else
 	    drawPrimitive(PO_ButtonCommand, p, br, cg, flags);
-
-	if (button->hasFocus())
-	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-			  cg, flags);
 	break; }
 
     default:
@@ -299,54 +354,6 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
     }
 
     return sz;
-}
-
-
-/*! \reimp */
-
-void QWindowsStyle::drawIndicator( QPainter* p,
-                                   int x, int y, int w, int h, const QColorGroup &g,
-                                   int s, bool down, bool enabled )
-{
-#ifndef QT_NO_BUTTON
-    QBrush fill;
-    if ( s == QButton::NoChange ) {
-        QBrush b = p->brush();
-        QColor c = p->backgroundColor();
-        p->setBackgroundMode( TransparentMode );
-        p->setBackgroundColor( green );
-        fill = QBrush(g.base(), Dense4Pattern);
-        p->setBackgroundColor( c );
-        p->setBrush( b );
-    } else if ( down )
-        fill = g.brush( QColorGroup::Button );
-    else
-        fill = g.brush( enabled ? QColorGroup::Base : QColorGroup::Background );
-    qDrawWinPanel( p, x, y, w, h, g, TRUE, &fill );
-    if ( s != QButton::Off ) {
-        QPointArray a( 7*2 );
-        int i, xx, yy;
-        xx = x+3;
-        yy = y+5;
-        for ( i=0; i<3; i++ ) {
-            a.setPoint( 2*i,   xx, yy );
-            a.setPoint( 2*i+1, xx, yy+2 );
-            xx++; yy++;
-        }
-        yy -= 2;
-        for ( i=3; i<7; i++ ) {
-            a.setPoint( 2*i,   xx, yy );
-            a.setPoint( 2*i+1, xx, yy+2 );
-            xx++; yy--;
-        }
-        if ( s == QButton::NoChange ) {
-            p->setPen( g.dark() );
-        } else {
-            p->setPen( g.text() );
-        }
-        p->drawLineSegments( a );
-    }
-#endif
 }
 
 
@@ -440,14 +447,6 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     }
     p->setPen( savePen );                       // restore pen
 
-}
-
-/*! \reimp */
-
-QSize
-QWindowsStyle::indicatorSize() const
-{
-    return QSize(13,13);
 }
 
 
@@ -1917,9 +1916,9 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	qDrawWinPanel( p, r, cg, TRUE ); //cstyle == Sunken );
 	break;
 
-    case SC_ComboBoxArrow: {	
+    case SC_ComboBoxArrow: {
 	PFlags flags = PStyle_Default;
-	
+
 	qDrawWinPanel( p, r, cg, TRUE, w->isEnabled() ?
 		       &cg.brush( QColorGroup::Base ):
 		       &cg.brush( QColorGroup::Background ) );
@@ -1937,20 +1936,20 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	QRect ra( ar.x()+2, ar.y()+2, ar.width()-4, ar.width()-4 );
 	if ( w->isEnabled() )
 	    flags |= PStyle_Enabled;
-	
+
 	if ( subActive & PStyle_Sunken ) {
 	    flags |= PStyle_Sunken;
 	}
 	drawPrimitive( PO_ArrowDown, p, ra, cg, flags );
 	break; }
-	
+
     case SC_ComboBoxEditField: {
 	QComboBox * cb = (QComboBox *) w;
-	QRect re = querySubControlMetrics( CC_ComboBox, w, 
+	QRect re = querySubControlMetrics( CC_ComboBox, w,
 					   SC_ComboBoxEditField );
 	if ( cb->hasFocus() && !cb->editable() )
 	    p->fillRect( re.x(), re.y(), re.width(), re.height(),
-			 cg.brush( QColorGroup::Highlight ) );	
+			 cg.brush( QColorGroup::Highlight ) );
 
 	if ( cb->hasFocus() ) {
 	    p->setPen( cg.highlightedText() );
@@ -1959,18 +1958,18 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 	    p->setPen( cg.text() );
 	    p->setBackgroundColor( cg.background() );
 	}
-	
+
         break; }
-	
+
     case SC_ComboBoxFocusRect: {
 	QComboBox * cb = (QComboBox *) w;
 	if ( cb->hasFocus() && !cb->editable() ) {
-	    QRect re = querySubControlMetrics( CC_ComboBox, w, 
+	    QRect re = querySubControlMetrics( CC_ComboBox, w,
 					       SC_ComboBoxFocusRect );
 	    drawPrimitive(PO_FocusRect, p, re, cg );
 	}
 	break;}
-	
+
     default:
 	break;
     }

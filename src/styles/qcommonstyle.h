@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#19 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#20 $
 **
 ** Definition of QCommonStyle class
 **
@@ -73,8 +73,11 @@ public:
     void drawScrollBarControls( QPainter*,  const QScrollBar*,
 				int , uint ,
 				uint  )  { }
-    ScrollControl scrollBarPointOver( const QScrollBar*,
-				      int , const QPoint& ) { return NoScroll; }
+    ScrollControl scrollBarPointOver( const QScrollBar *,
+				      int , const QPoint & ) { return NoScroll; }
+    QSize indicatorSize() const { return QSize(); }
+    void drawIndicator( QPainter *, int, int, int, int, const QColorGroup &,
+			int, bool = FALSE, bool = TRUE ) { }
     // ### 8<
 
     virtual void drawPrimitive( PrimitiveOperation op,
