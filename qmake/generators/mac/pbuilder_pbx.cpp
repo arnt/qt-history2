@@ -786,10 +786,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             sht << "#!/bin/sh" << endl;
             //copy the actual target
             sht << "OUT_TARG=\"" << targ << "\"\n"
-                << "[-z \"$BUILD_ROOT\"] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
-            sht << "[\"$OUT_TARG\" = \""
-                << (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\"] || "
-                << "[\"$OUT_TARG\" = \"" << targ << "\"] || "
+                << "[ -z \"$BUILD_ROOT\" ] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
+            sht << "[ \"$OUT_TARG\" = \""
+                << (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || "
+                << "[ \"$OUT_TARG\" = \"" << targ << "\" ] || "
                 << "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << endl;
             //rename as a framework
             if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))

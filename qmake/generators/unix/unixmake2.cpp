@@ -1069,7 +1069,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
         for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
             t << "\n\t (";
             if(!(*it)->directory.isEmpty())
-                t << "[-d " << (*it)->directory << "] && cd " << (*it)->directory << " ; ";
+                t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
             t << "grep \"^qmake_all:\" " << (*it)->makefile
               << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << ";) || true";
         }
@@ -1079,7 +1079,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
         for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
             t << "\n\t (";
             if(!(*it)->directory.isEmpty())
-                t << "[-d " << (*it)->directory << "] && cd " << (*it)->directory << " ; ";
+                t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
             t << "$(MAKE) -f " << (*it)->makefile << " $@" << ";) || true";
         }
         t << endl;
@@ -1087,7 +1087,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
         for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
             t << "\n\t (";
             if(!(*it)->directory.isEmpty())
-                t << "[-d " << (*it)->directory << "] && cd " << (*it)->directory << " ; ";
+                t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
             t << "$(MAKE) -f " << (*it)->makefile << " uninstall" << ";) || true";
         }
         t << endl;
@@ -1095,7 +1095,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
         for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
             t << "\n\t (";
             if(!(*it)->directory.isEmpty())
-                t << "[-d " << (*it)->directory << "] && cd " << (*it)->directory << " ; ";
+                t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
             t << "$(MAKE) -f " << (*it)->makefile << " install" << ";) || true";
         }
         t << endl;
@@ -1103,7 +1103,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
         for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
             t << "\n\t (";
             if(!(*it)->directory.isEmpty())
-                t << "[-d " << (*it)->directory << "] && cd " << (*it)->directory << " ; ";
+                t << "[ -d " << (*it)->directory << " ] && cd " << (*it)->directory << " ; ";
             t << "$(MAKE) -f " << (*it)->makefile << " $@; $(DEL_FILE) " << (*it)->makefile << ";) || true";
         }
         t << endl << endl;
