@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#179 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#180 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -301,9 +301,7 @@ QString::QString( const QString &s ) :
 }
 
 /*!
-  \obsolete
-
-  This function is \e strongly deprecated.
+  Private function.
 
   Constructs a string with preallocated space for \a size - 1 characters.
 

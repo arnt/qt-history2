@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#70 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -758,24 +758,40 @@ QCollection::Item QGDictIterator::operator+=( uint jumps )
 }
 
 
+/*!
+  \internal
+  QString version of remove.
+*/
 bool QGDict::remove( QString key )
 {
     QCString kutf8 = key.utf8();
     return remove( kutf8.data() );
 }
 
+/*!
+  \internal
+  QString version of removeItem.
+*/
 bool QGDict::removeItem( QString key, Item item )
 {
     QCString kutf8 = key.utf8();
     return removeItem( kutf8.data(), item );
 }
 
+/*!
+  \internal
+  QString version of take.
+*/
 QCollection::Item QGDict::take( QString key )
 {
     QCString kutf8 = key.utf8();
     return take( kutf8.data() );
 }
 
+/*!
+  \internal
+  QString version of look.
+*/
 QCollection::Item QGDict::look( QString key, Item g, int op )
 {
     QCString kutf8 = key.utf8();
@@ -792,6 +808,9 @@ QCollection::Item QGDict::look( QString key, Item g, int op )
     }
 }
 
+/*!
+  Returns the current key.
+*/
 QString QGDictIterator::getKey() const
 {
     if ( curNode ) {

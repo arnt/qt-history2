@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#16 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#17 $
 **
 ** Implementation of something useful.
 **
@@ -259,6 +259,10 @@ void QWizard::finish()
 
 }
 
+/*!
+  \fn void QWizard::helpClicked()
+  This signal is emitted when the user clicks on the help button.
+*/
 
 /*!  This slot either makes the wizard help you, if it can.  The only
 way it knows is to emit the helpClicked() signal, and perhaps the

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#27 $
 **
 ** Implementation of QML classes
 **
@@ -382,7 +382,7 @@ void QMLStyle::setWhiteSpaceMode(WhiteSpaceMode m)
 
   \sa setMargin()
  */
-int QMLStyle::margin(QMLStyle::Margin m) const
+int QMLStyle::margin(Margin m) const
 {
     return d->margin[m];
 }
@@ -394,7 +394,7 @@ int QMLStyle::margin(QMLStyle::Margin m) const
 
   \sa border()
  */
-void QMLStyle::setMargin(QMLStyle::Margin m, int v)
+void QMLStyle::setMargin(Margin m, int v)
 {
     if (m == MarginAll ) {
 	d->margin[0] = v;
@@ -451,7 +451,7 @@ QMLStyle::ListStyle QMLStyle::listStyle() const
 
   \sa listStyle()
  */
-void QMLStyle::setListStyle( QMLStyle::ListStyle s)
+void QMLStyle::setListStyle(ListStyle s)
 {
     d->list=s;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#208 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#209 $
 **
 ** Definition of QWidget class
 **
@@ -288,8 +288,8 @@ public:
 				
 public:
     QWidget *		parentWidget() const;
-    bool		testWState( uint n ) const;
-    bool		testWFlags( uint n ) const;
+    bool		testWState( WFlags n ) const;
+    bool		testWFlags( WFlags n ) const;
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
@@ -351,9 +351,9 @@ protected:
     uint	 getWState() const;
     virtual void setWState( uint );
     void	 clearWState( uint n );
-    uint	 getWFlags() const;
-    virtual void setWFlags( uint );
-    void	 clearWFlags( uint n );
+    WFlags	 getWFlags() const;
+    virtual void setWFlags( WFlags );
+    void	 clearWFlags( WFlags n );
 
     virtual void setFRect( const QRect & );
     virtual void setCRect( const QRect & );
@@ -577,7 +577,7 @@ inline QWidgetMapper *QWidget::wmapper()
 inline Qt::WFlags QWidget::getWState() const
 { return widget_state; }
 
-inline void QWidget::setWState( WFlags f )
+inline void QWidget::setWState( uint f )
 { widget_state |= f; }
 
 inline void QWidget::clearWState( WFlags f )

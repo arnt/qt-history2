@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#40 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -161,24 +161,33 @@ QColorGroup::~QColorGroup()
 }
 
 /*!
-  Returns the color that has been set for this color role.
+  Returns the color that has been set for color role \a r.
+  \sa brush()
  */
-
 const QColor &QColorGroup::color( ColorRole r ) const
 {
     return br[r].color();
 }
 
+/*!
+  Returns the brush that has been set for color role \a r.
+*/
 const QBrush &QColorGroup::brush( ColorRole r ) const
 {
     return br[r];
 }
 
+/*!
+  Sets the color of the brush used for color role \a r to \a c.
+*/
 void QColorGroup::setColor( ColorRole r, const QColor &c )
 {
     br[r].setColor( c );
 }
 
+/*!
+  Sets the brush used for color role \a r to \a b.
+*/
 void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 {
     br[r] = b;
@@ -583,11 +592,18 @@ QPalette &QPalette::operator=( const QPalette &p )
 }
 
 
+/*!
+  Returns the color in \a gr used for color role \a r.
+  \sa brush()
+*/
 const QColor &QPalette::color( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
     return directBrush( gr, r ).color();
 }
 
+/*!
+  Returns the brush in \a gr used for color role \a r.
+*/
 const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
     return directBrush( gr, r );
@@ -600,6 +616,9 @@ void QPalette::setColor(ColorGroup gr,QColorGroup::ColorRole r,const QColor &c)
     directBrush( gr, r ).setColor( c );
 }
 
+/*!
+  Sets the brush in \a gr used for color role \a r to \a b.
+*/
 void QPalette::setBrush(ColorGroup gr,QColorGroup::ColorRole r,const QBrush &b)
 {
     detach();
@@ -607,6 +626,9 @@ void QPalette::setBrush(ColorGroup gr,QColorGroup::ColorRole r,const QBrush &b)
     directBrush( gr, r ) = b;
 }
 
+/*!
+  Sets the color of the brush in \a gr used for color role \a r to \a c.
+*/
 void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
 {
     detach();
@@ -616,6 +638,10 @@ void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
     directBrush( Active,   r ).setColor( c );
 }
 
+/*!
+  Sets the brush in all color groups (Normal, Disabled, and Active)
+  that is used for color role \a r to \a b.
+*/
 void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
 {
     detach();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#50 $
 **
 ** Implementation of QTextCodec class
 **
@@ -602,7 +602,7 @@ QTextDecoder::~QTextDecoder()
 }
 
 /*!
-  \fn QString toUnicode(const char* chars, int len)
+  \fn QString QTextDecoder::toUnicode(const char* chars, int len)
 
   Converts the first \a len bytes at \a chars to Unicode, returning the
   result.

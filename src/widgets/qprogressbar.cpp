@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#34 $
 **
 ** Implementation of QProgressBar class
 **
@@ -196,7 +196,7 @@ QSizePolicy QProgressBar::sizePolicy() const
       setIndicatorFollowsStyle(), setIndicator()
 */
 
-/*
+/*!
   If set to TRUE (the default) the progress bar always shows the indicator
   text at the center of the progress bar, regardless of the GUI style
   currently set.  If set to FALSE the progress bar always shows the
@@ -218,7 +218,7 @@ void QProgressBar::setCenterIndicator( bool on )
 }
 
 /*!
-  \fn bool QProgressBar::indicatorFollowsStyle const
+  \fn bool QProgressBar::indicatorFollowsStyle() const
 
   Returns whether the display of the indicator string should follow the
   GUI style or not.
