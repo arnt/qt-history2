@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#23 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -68,15 +68,19 @@ public:
 	pipeStdout[1] = 0;
 	pipeStderr[0] = 0;
 	pipeStderr[1] = 0;
+	exitValuesCalculated = FALSE;
 
 	lookup = new QTimer( proc );
 	qApp->connect( lookup, SIGNAL(timeout()),
 		proc, SLOT(timeout()) );
-
-	exitValuesCalculated = FALSE;
     }
 
     ~QProcessPrivate()
+    {
+	cleanup();
+    }
+
+    void cleanup()
     {
 	while ( !stdinBuf.isEmpty() ) {
 	    delete stdinBuf.dequeue();
@@ -87,6 +91,19 @@ public:
 	    CloseHandle( pipeStdout[0] );
 	if( pipeStderr[0] != 0 )
 	    CloseHandle( pipeStderr[0] );
+    }
+
+    void reset()
+    {
+	cleanup();
+	stdinBufRead = 0;
+	pipeStdin[0] = 0;
+	pipeStdin[1] = 0;
+	pipeStdout[0] = 0;
+	pipeStdout[1] = 0;
+	pipeStderr[0] = 0;
+	pipeStderr[1] = 0;
+	exitValuesCalculated = FALSE;
     }
 
     QQueue<QByteArray> stdinBuf;
@@ -117,8 +134,7 @@ void QProcess::init()
 
 void QProcess::reset()
 {
-    delete d;
-    d = new QProcessPrivate( this );
+    d->reset();
     exitStat = 0;
     exitNormal = FALSE;
     bufStdout.resize( 0 );
@@ -364,10 +380,13 @@ void QProcess::timeout()
 	socketRead( 2 ); // try stderr
     }
 
+qDebug( "bla" );
     // stop timer if process is not running also emit processExited() signal
     if ( !isRunning() ) {
+qDebug( "fnord" );
 	d->lookup->stop();
 	if ( notifyOnExit ) {
+qDebug( "snafu" );
 	    emit processExited();
 	}
     }
