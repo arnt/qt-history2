@@ -319,7 +319,7 @@ void QVariantPrivate::clear()
     out << v;                 // Writes a type tag and an int to out
     v = QVariant("hello");    // The variant now contains a QCString
     v = QVariant(tr("hello"));// The variant now contains a QString
-    int y = v.toInt();        // x = 0 since v cannot be converted to an int
+    int y = v.toInt();        // y = 0 since v cannot be converted to an int
     QString s = v.toString(); // s = tr("hello")  (see QObject::tr())
     out << v;                 // Writes a type tag and a QString to out
     ...
