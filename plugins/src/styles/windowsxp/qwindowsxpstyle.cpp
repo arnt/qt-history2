@@ -717,7 +717,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
 	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
 		     flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
-		     &cg.buttonText());
+		     flags & Style_Active ? &cg.highlightedText() : &cg.buttonText());
 	}
 	return;
 

@@ -2004,9 +2004,12 @@ void qt_init_internal( int *argcptr, char **argv,
 	XDevice *dev;
 	XEventClass *ev_class;
 	int curr_event_count;
+
+#if !defined(Q_OS_IRIX)
 	// XFree86 divides a stylus and eraser into 2 devices, so we must do for both...
 	const char XFREENAMESTYLUS[] = "stylus";
 	const char XFREENAMEERASER[] = "eraser";
+#endif
 
 	devices = XListInputDevices( appDpy, &ndev);
 	if ( devices == NULL ) {
