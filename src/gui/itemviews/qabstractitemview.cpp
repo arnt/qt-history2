@@ -100,13 +100,14 @@ void QAbstractItemViewPrivate::init()
 
     \ingroup model-view
 
-    QAbstractItemView class is the base class for every standard view that
-    uses a QAbstractItemModel. It provides a standard interface for
-    interoperating with models through the signals and slots mechanism,
-    enabling subclasses to be kept up-to-date with changes to their models.
-    This class provides standard support for keyboard and mouse navigation,
-    viewport scrolling, item editing, and can interact with selection models
-    selection handling.
+    QAbstractItemView class is the base class for every standard view
+    that uses a QAbstractItemModel. QAbstractItemView is an abstract
+    class and cannot itself be instantiated. It provides a standard
+    interface for interoperating with models through the signals and
+    slots mechanism, enabling subclasses to be kept up-to-date with
+    changes to their models.  This class provides standard support for
+    keyboard and mouse navigation, viewport scrolling, item editing,
+    and selections.
 
     The view classes that inherit QAbstractItemView only need
     to implement their own view-specific functionality, such as
@@ -149,42 +150,61 @@ void QAbstractItemViewPrivate::init()
 /*!
     \enum QAbstractItemView::SelectionMode
 
-    \value NoSelection
-    \value SingleSelection
-    \value MultiSelection
-    \value ExtendedSelection
+    \value NoSelection       No selections possible.
+    \value SingleSelection   At most only one item is selected.
+    \value MultiSelection    Multiple items can be selected with basic interactions.
+    \value ExtendedSelection Multiple items can be selected with complex interactions.
 */
 
 /*!
     \enum QAbstractItemView::SelectionBehavior
 
-    \value SelectItems
-    \value SelectRows
-    \value SelectColumns
+    \value SelectItems   Selecting single items.
+    \value SelectRows    Selecting only rows.
+    \value SelectColumns Selecting only columns.
 */
 
 /*!
-    \enum QAbstractItemView::CursorAction
+  \enum QAbstractItemView::BeginEditAction
 
-    \value MoveUp
-    \value MoveDown
-    \value MoveLeft
-    \value MoveRight
-    \value MoveHome
-    \value MoveEnd
-    \value MovePageUp
-    \value MovePageDown
+  This enum describes actions which will initiate item editing.
+
+  \value NeverEdit       No editing possible.
+  \value CurrentChanged  Editing start whenever current item changes.
+  \value DoubleClicked   Editing starts when an item is double clicked.
+  \value SelectedClicked Editing starts when clicking on an already selected item.
+  \value EditKeyPressed  Editing starts when an edit key has been pressed over an item.
+  \value AnyKeyPressed   Editing starts when any key is pressed over an item.
+  \value AlwaysEdit      Editing starts for all above actions.
+*/
+
+/*!
+  \enum QAbstractItemView::CursorAction
+
+  This enum describes the different ways to navigate between items, \sa moveCursor().
+
+  \value MoveUp       Move to the item above the current.
+  \value MoveDown     Move to the item below the current.
+  \value MoveLeft     Move to the item left of the current.
+  \value MoveRight    Move to the item right of the current.
+  \value MoveHome     Move to the top-left corner item.
+  \value MoveEnd      Move to the bottom-right corner item.
+  \value MovePageUp   Move one page up above the current.
+  \value MovePageDown Move one page down below the current.
 */
 
 /*!
     \enum QAbstractItemView::State
 
-    \value NoState
-    \value DraggingState
-    \value SelectingState
-    \value EditingState
-    \value OpeningState
-    \value ClosingState
+    Describes the different states the view can be in. This is usually
+    only interesting when reimlpementing your own view.
+
+    \value NoState        The is the default state.
+    \value DraggingState  The user is dragging items.
+    \value SelectingState The user is selecting items.
+    \value EditingState   The user is editing an item.
+    \value OpeningState   The user is opening a branch of items.
+    \value ClosingState   The user is closing a branch of items.
 */
 
 /*!
@@ -823,6 +843,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     if (d->state == EditingState && d->editors.contains(persistent))
         return;
 
+    bool itemWasSelected = selectionModel()->isSelected(index);
     QPoint offset(horizontalOffset(), verticalOffset());
     d->pressedItem = QPersistentModelIndex(index, model());
     d->pressedState = e->state();
@@ -838,7 +859,8 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     setSelection(rect.normalize(), command);
 
     emit pressed(index, e->button());
-    edit(index, SelectedClicked, e);
+    if (e->button() & Qt::LeftButton && itemWasSelected && selectionModel()->isSelected(index))
+        edit(index, SelectedClicked, e);
 }
 
 /*!
