@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#104 $
 **
 ** Implementation of QScrollBar class
 **
@@ -591,15 +591,22 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	int sliderMin, sliderMax;
 	PRIV->sliderMinMax( &sliderMin, &sliderMax );
 	QRect r = rect();
-	if ( orientation() == Horizontal )
-	    r.setRect( r.x() - 20, r.y() - 40, r.width() + 40, r.height() + 80 );
+	int m = style().maximumSliderDragDistance();
+	if ( m >= 0 ) {
+	    if ( orientation() == Horizontal )
+		r.setRect( r.x() - m, r.y() - 2*m, r.width() + 2*m, r.height() + 4*m );
+	    else
+		r.setRect( r.x() - 2*m, r.y() - m, r.width() + 4*m, r.height() + 2*m );
+	    if ( style() == WindowsStyle && !r.contains( e->pos() ) )
+		newSliderPos = sliderStartPos;
+	    else
+		newSliderPos = (HORIZONTAL ? e->pos().x() :
+				e->pos().y()) -clickOffset;
+	}
 	else
-	    r.setRect( r.x() - 40, r.y() - 20, r.width() + 80, r.height() + 40 );
-	if ( style() == WindowsStyle && !r.contains( e->pos() ) )
-	    newSliderPos = sliderStartPos;
-        else
 	    newSliderPos = (HORIZONTAL ? e->pos().x() :
-			                 e->pos().y()) -clickOffset;
+			    e->pos().y()) -clickOffset;
+	
 	if ( newSliderPos < sliderMin )
 	    newSliderPos = sliderMin;
 	else if ( newSliderPos > sliderMax )
@@ -672,7 +679,7 @@ void QScrollBar_Private::sliderMinMax( int *sliderMin, int *sliderMax) const
 void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
 				  int *sliderLength ) const
 {
-    
+
     style().scrollbarMetrics( this, sliderMin, sliderMax, sliderLength);
     return;
 
@@ -798,10 +805,10 @@ void QScrollBar_Private::drawControls( uint controls,
 void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 				       QPainter *p ) const
 {
-    
+
     style().drawScrollbarControls(p, this, sliderStart(), controls, activeControl);
     return;
-    
+
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = colorGroup();

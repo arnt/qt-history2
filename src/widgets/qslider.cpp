@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#63 $
 **
 ** Implementation of QSlider class
 **
@@ -29,8 +29,6 @@
 #include "qbitmap.h"
 
 static const int motifBorder = 2;
-static const int motifLength = 30;
-static const int winLength = 9; // Must be odd
 static const int thresholdTime = 500;
 static const int repeatTime    = 100;
 
@@ -224,13 +222,13 @@ int QSlider::available() const
     int a;
     switch ( style() ) {
     case WindowsStyle:
-	a = (orient == Horizontal) ? width() - winLength
-	    : height() - winLength;
+	a = (orient == Horizontal) ? width() - style().sliderLength()
+	    : height() - style().sliderLength();
 	break;
     default:
     case MotifStyle:
-	a = (orient == Horizontal) ? width() -motifLength - 2*motifBorder
-	    : height() - motifLength - 2*motifBorder;
+	a = (orient == Horizontal) ? width() -style().sliderLength() - 2*motifBorder
+	    : height() - style().sliderLength() - 2*motifBorder;
 	break;
     }
     return a;
@@ -337,147 +335,22 @@ QRect QSlider::sliderRect() const
     case WindowsStyle:
 	if (orient == Horizontal )
 	    r.setRect( sliderPos, tickOffset,
-		       winLength, thickness()  );
+		       style().sliderLength(), thickness()  );
 	else
 	    r.setRect ( tickOffset, sliderPos,
-			thickness(), winLength  );
+			thickness(), style().sliderLength()  );
 	break;
     default:
     case MotifStyle:
 	if (orient == Horizontal )
 	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder,
-			motifLength, thickness() - 2 * motifBorder );
+			style().sliderLength(), thickness() - 2 * motifBorder );
 	else
 	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder,
-			thickness() - 2 * motifBorder, motifLength );
+			thickness() - 2 * motifBorder, style().sliderLength() );
 	break;
     }
     return r;
-}
-enum SlDir {SlUp,SlDown,SlLeft,SlRight};
-
-static void drawWinPointedSlider( QPainter *p,
-				  const QRect r,
-				  const QColorGroup &g,
-				  SlDir dir)
-{
-    // 3333330
-    // 3444410
-    // 3422210
-    // 3422210
-    // 3422210
-    // 3422210
-    // *34210*
-    // **340**
-    // ***0***
-
-    const QColor c0 = g.foreground();
-    const QColor c1 = g.dark();
-    //    const QColor c2 = g.button();
-    const QColor c3 = g.midlight();
-    const QColor c4 = g.light();
-
-    int x1 = r.left();
-    int x2 = r.right();
-    int y1 = r.top();
-    int y2 = r.bottom();
-
-
-    QBrush oldBrush = p->brush();
-    p->setBrush( g.fillButton() );
-    p->setPen( NoPen );
-    p->drawRect( r );
-    p->setBrush( oldBrush );
-
-
-    switch ( dir ) {
-    case SlUp:
-	y1 = y1 + r.width()/2;
-	break;
-    case SlDown:
-	y2 = y2 - r.width()/2;
-	break;
-    case SlLeft:
-	x1 = x1 + r.height()/2;
-	break;
-    case SlRight:
-	x2 = x2 - r.height()/2;
-	break;
-    }
-
-    if ( dir != SlUp ) {
-	p->setPen( c4 );
-	p->drawLine( x1, y1, x2, y1 );
-	p->setPen( c3 );
-	p->drawLine( x1, y1+1, x2, y1+1 );
-    }
-    if ( dir != SlLeft ) {
-	p->setPen( c3 );
-	p->drawLine( x1+1, y1+1, x1+1, y2 );
-	p->setPen( c4 );
-	p->drawLine( x1, y1, x1, y2 );
-    }
-    if ( dir != SlRight ) {
-	p->setPen( c0 );
-	p->drawLine( x2, y1, x2, y2 );
-	p->setPen( c1 );
-	p->drawLine( x2-1, y1+1, x2-1, y2-1 );
-    }
-    if ( dir != SlDown ) {
-	p->setPen( c0 );
-	p->drawLine( x1, y2, x2, y2 );
-	p->setPen( c1 );
-	p->drawLine( x1+1, y2-1, x2-1, y2-1 );
-    }
-
-    int d;
-    switch ( dir ) {
-	case SlUp:
-	    p->setPen( c4 );
-	    d =  (r.width() + 1) / 2 - 1;
-	    p->drawLine( x1, y1, x1+d, y1-d);
-	    p->setPen( c0 );
-	    d = r.width() - d - 1;
-	    p->drawLine( x2, y1, x2-d, y1-d);
-	    p->setPen( c1 );
-	    d--;
-	    p->drawLine( x2-1, y1, x2-1-d, y1-d);
-	    break;
-	case SlDown:
-	    p->setPen( c4 );
-	    d =  (r.width() + 1) / 2 - 1;
-	    p->drawLine( x1, y2, x1+d, y2+d);
-	    p->setPen( c0 );
-	    d = r.width() - d - 1;
-	    p->drawLine( x2, y2, x2-d, y2+d);
-	    p->setPen( c1 );
-	    d--;
-	    p->drawLine( x2-1, y2, x2-1-d, y2+d);
-	    break;
-	case SlLeft:
-	    p->setPen( c4 );
-	    d =  (r.height() + 1) / 2 - 1;
-	    p->drawLine( x1, y1, x1-d, y1+d);
-	    p->setPen( c0 );
-	    d = r.height() - d - 1;
-	    p->drawLine( x1, y2, x1-d, y2-d);
-	    p->setPen( c1 );
-	    d--;
-	    p->drawLine( x1, y2-1, x1-d, y2-1-d);
-	    break;
-	case SlRight:
-	    p->setPen( c4 );
-	    d =  (r.height() + 1) / 2 - 1;
-	    p->drawLine( x2, y1, x2+d, y1+d);
-	    p->setPen( c0 );
-	    d = r.height() - d - 1;
-	    p->drawLine( x2, y2, x2+d, y2-d);
-	    p->setPen( c1 );
-	    d--;
-	    p->drawLine( x2, y2-1, x2+d, y2-1-d);
-	    break;
-    }
-
 }
 
 
@@ -503,10 +376,10 @@ void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
 	if ( ticks == NoMarks || ticks == Both ) {
 	    qDrawWinButton( p, r, g, FALSE, &fill );
 	} else {
-	    SlDir d = ( orient == Horizontal ) ?
-		      (ticks == Above) ? SlUp : SlDown
-		    : (ticks == Left) ? SlLeft : SlRight;
-	    drawWinPointedSlider( p, r, g, d );
+	    QStyle::SliderDirection d = ( orient == Horizontal ) ?
+		      (ticks == Above) ? QStyle::SlUp : QStyle::SlDown
+		    : (ticks == Left) ? QStyle::SlLeft : QStyle::SlRight;
+	    style().drawSlider( p, r.x(), r.y(), r.width(), r.height(), g, d );
 	}
 	break;
     default:
@@ -607,9 +480,9 @@ void QSlider::paintEvent( QPaintEvent *e )
 	{
 	    int mid = tickOffset + thickness()/2;
 	    if ( ticks & Above )
-		mid += winLength / 8;
+		mid += style().sliderLength() / 8;
 	    if ( ticks & Below )
-		mid -= winLength / 8;
+		mid -= style().sliderLength() / 8;
 	    drawWinGroove( &p, g, mid );
 	}
 	paintSlider( &p, g, sliderR );
@@ -683,9 +556,9 @@ void QSlider::updateMask()
 	    {
 		int mid = tickOffset + thickness()/2;
 		if ( ticks & Above )
-		    mid += winLength / 8;
+		    mid += style().sliderLength() / 8;
 		if ( ticks & Below )
-		    mid -= winLength / 8;
+		    mid -= style().sliderLength() / 8;
 		drawWinGroove( &p, g, mid );
 	    }
 	    paintSlider( &p, g, sliderR );
@@ -789,15 +662,18 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
     if ( style() == WindowsStyle ) {
 	QRect r = rect();
-	if ( orientation() == Horizontal )
-	    r.setRect( r.x() - 20, r.y() - 30,
-		       r.width() + 40, r.height() + 60 );
-	else
-	    r.setRect( r.x() - 30, r.y() - 20,
-		       r.width() + 60, r.height() + 40 );
-	if ( !r.contains( e->pos() ) ) {
-	    moveSlider( positionFromValue( sliderStartVal) );
-	    return;
+	int m = style().maximumSliderDragDistance();
+	if ( m >= 0 ) {
+	    if ( orientation() == Horizontal )
+		r.setRect( r.x() - m, r.y() - 2*m/3,
+			   r.width() + 2*m, r.height() + 3*m );
+	    else
+		r.setRect( r.x() - 2*m/3, r.y() - m,
+			   r.width() + 3*m, r.height() + 2*m );
+	    if ( !r.contains( e->pos() ) ) {
+		moveSlider( positionFromValue( sliderStartVal) );
+		return;
+	    }
 	}
     }
 
@@ -850,7 +726,7 @@ void QSlider::focusInEvent( QFocusEvent * )
 
 void QSlider::focusOutEvent( QFocusEvent * )
 {
-    repaint( FALSE );
+    repaint( TRUE );
     if ( autoMask() )
 	updateMask();
 }
@@ -968,10 +844,10 @@ int QSlider::slideLength() const
 {
     switch ( style() ) {
     case WindowsStyle:
-	return winLength;
+	return style().sliderLength();
     default:
     case MotifStyle:
-	return motifLength;
+	return style().sliderLength();
     }
 }
 
@@ -1047,7 +923,7 @@ QSize QSlider::sizeHint() const
     if ( ticks & Below )
 	thick += tickSpace;
     if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
-	thick += winLength / 4;	    // pointed slider
+	thick += style().sliderLength() / 4;	    // pointed slider
     if ( orient == Horizontal )
 	return QSize( length, thick );
     else
@@ -1076,7 +952,7 @@ int QSlider::thickness() const
 
     int thick = 6;	// Magic constant to get 5 + 16 + 5
     if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks ) {
-	thick += winLength / 4;
+	thick += style().sliderLength() / 4;
     }
     space -= thick;
     //### the two sides may be unequal in size

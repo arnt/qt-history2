@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#149 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -907,16 +907,12 @@ void QComboBox::resizeEvent( QResizeEvent *e )
 {
     int xw = QMAX(0,width()-e->oldSize().width());
     if ( d->ed ) {
-	QRect r = style().buttonRect( 0, 0, width(), height() );
-	if ( style() == WindowsStyle ) {
-	    d->ed->setGeometry( r.x()+2, r.y()+2, r.width() - 2 - 2 - 16, r.height() - 2 - 2 );
-	} else {
-	    d->ed->setGeometry( r.x()+3, r.y()+3, r.width() - 3 - 3 - 21, r.height() - 3 - 3 );
-	}
+	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
     }
     if ( style() == WindowsStyle ) {
 	updateResizedBorder( e, 2 );
-	update( 20-xw, 2, width()-20+xw, height()-4 );
+	int w = width()-style().comboButtonRect(0,0,width(), height()).right() + 3;
+	update( w-xw, 0, width()-w+xw, height() );
     } else {
 	updateResizedBorder( e, 3 );
 	update( 2, 2, width()-4, height()-4 );
@@ -1040,22 +1036,31 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	QColor bg = isEnabled() ? g.base() : g.button();
 	QString str = d->listBox->text( d->current );
 
-	QBrush fill = isEnabled() ? g.fillBase() : g.fillBase();
-	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
+// 	QBrush fill = isEnabled() ? g.fillBase() : g.fillBackground();
+	//	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
+	
+	style().drawComboButton(&p, 0, 0, width(), height(), g, d->arrowDown);
 
+	if (d->ed) {
+	    QRect r( d->ed->geometry() );
+	    r.setRect( r.left()-1, r.top()-1, r.width()+2, r.height()+2 );
+	    qDrawShadePanel( &p, r, g, TRUE, d->ed ? 1 : 2, isEnabled()?&g.fillBase():&g.fillButton());
+	}
 	QRect arrowR = arrowRect();
-	qDrawWinPanel(&p, arrowR, g, d->arrowDown );
-	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown,
-		    arrowR.x() + 2, arrowR.y() + 2,
-		    arrowR.width() - 4, arrowR.height() - 4, g );
+// 	qDrawWinPanel(&p, arrowR, g, d->arrowDown );
+// 	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown,
+// 		    arrowR.x() + 2, arrowR.y() + 2,
+// 		    arrowR.width() - 4, arrowR.height() - 4, g );
 
 	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(),
 		     height() - 4 - 4 );
 
-	if ( hasFocus() ) {
-	    QBrush fill( QApplication::winStyleHighlightColor() );
-	    p.fillRect( textR.x()-1, textR.y(),
-			textR.width(), textR.height(), fill );
+	if ( hasFocus()) {
+	    if (!d->ed) {
+		QBrush fill( QApplication::winStyleHighlightColor() );
+		p.fillRect( textR.x()-1, textR.y(),
+			    textR.width(), textR.height(), fill );
+	    }
 	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,
 				textR.width()+2, textR.height()+2, backgroundColor() );
 	}

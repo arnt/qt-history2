@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#9 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#10 $
 **
 ** Definition of QStyle class
 **
@@ -95,14 +95,25 @@ public:
 
     // "radio button"
     virtual QSize exclusiveIndicatorSize() const;
-    virtual void drawExclusiveIndicator( QPainter* /*translated*/,
+    virtual void drawExclusiveIndicator( QPainter* p, int x, int y, int w, int h, 
 		    const QColorGroup &g, bool on, bool down = FALSE, bool enabled = TRUE );
+    virtual void drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
 
     // "check box"
     virtual QSize indicatorSize() const;
     virtual void drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g,
 				bool on, bool down = FALSE, bool enabled = TRUE );
     virtual void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
+    
+    // "combo box"
+    virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
+				  const QColorGroup &g, bool sunken = FALSE,
+				  bool enabled = TRUE, 
+				  const QBrush *fill = 0 );
+    virtual QRect comboButtonRect( int x, int y, int w, int h);
+
+    virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h);
+    
 
     // focus
     virtual void drawFocusRect( QPainter*,
@@ -122,6 +133,18 @@ public:
     virtual void scrollbarMetrics( const QScrollBar*, int *, int *, int * ) = 0;
     virtual void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl ) = 0;
 
+    // sliders
+    enum SliderDirection {SlUp,SlDown,SlLeft,SlRight};
+    virtual int sliderLength() const = 0;
+    virtual void drawSlider( QPainter *p,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     SliderDirection dir) = 0;
+    virtual void drawSliderMask( QPainter *p,
+				 int x, int y, int w, int h,
+				 SliderDirection dir);
+
+    virtual int maximumSliderDragDistance() const;
 
 };
 
@@ -147,10 +170,28 @@ public:
     void drawIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
 			bool on, bool down = FALSE, bool enabled = TRUE );
 
+    QSize exclusiveIndicatorSize() const;
+    void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
+				 bool on, bool down = FALSE, bool enabled = TRUE );
+
+
+    void drawComboButton( QPainter *p, int x, int y, int w, int h,
+			  const QColorGroup &g, bool sunken = FALSE,
+			  bool enabled = TRUE, 
+			  const QBrush *fill = 0 );
+    QRect comboButtonRect( int x, int y, int w, int h);
 
     void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
+
+    int sliderLength() const;
+    void drawSlider( QPainter *p,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     SliderDirection dir);
+
+    int maximumSliderDragDistance() const;
 
 protected:
     void drawWinShades( QPainter *p,
@@ -184,9 +225,18 @@ public:
 			bool on, bool down = FALSE, bool enabled = TRUE );
 
 
+    QSize exclusiveIndicatorSize() const;
+    void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
+				 bool on, bool down = FALSE, bool enabled = TRUE );
+
     void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
+    int sliderLength() const;
+    void drawSlider( QPainter *p,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     SliderDirection dir);
 
 //     void initialize( QApplication*);
 //     void polish( QWidget* );
@@ -214,6 +264,24 @@ public:
 			bool on, bool down = FALSE, bool enabled = TRUE );
     void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
 
+    QSize exclusiveIndicatorSize() const;
+    void drawExclusiveIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
+				 bool on, bool down = FALSE, bool enabled = TRUE );
+
+    void drawComboButton( QPainter *p, int x, int y, int w, int h,
+			  const QColorGroup &g, bool sunken = FALSE,
+			  bool enabled = TRUE, 
+			  const QBrush *fill = 0 );
+    QRect comboButtonRect( int x, int y, int w, int h);
+    
+    int sliderLength() const;
+    void drawSlider( QPainter *p,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     SliderDirection dir);
+
+    int maximumSliderDragDistance() const;
+
     void initialize( QApplication*);
     //     void polish( QWidget* );
 
@@ -221,6 +289,8 @@ protected:
     void drawScrollbarBackground( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool horizontal, const QBrush* fill = 0);
     QColor mixedColor(const QColor &, const QColor &);
+    void drawRiffles( QPainter* p,  int x, int y, int w, int h, 
+		      const QColorGroup &g, bool horizontal );
 };
 
 

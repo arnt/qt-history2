@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.h#34 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.h#35 $
 **
 ** Definition of QRadioButton class
 **
@@ -51,7 +51,6 @@ protected:
     void    updateMask();
 
 private:
-    void    drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& cg, int x, int y, int w, int h );
     void    init();
     uint    noHit : 1;
 
