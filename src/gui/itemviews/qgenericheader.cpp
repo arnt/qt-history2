@@ -421,7 +421,8 @@ void QGenericHeader::resizeSections()
     int secSize;
     int stretchSecs = 0;
     int stretchSize = orientation() == Horizontal ? contentsWidth() : contentsHeight();
-    QVector<int> section_sizes;
+    // FIXME: use int[] instead
+    QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
     QGenericHeaderPrivate::HeaderSection *secs = d->sections.data();
     for (int i = 0; i < count; ++i) {
@@ -434,7 +435,7 @@ void QGenericHeader::resizeSections()
 	    secSize = sectionSize(secs[i].section);
 	else //if (mode == QGenericHeader::Content)
 	    secSize = sectionSizeHint(secs[i].section); // warning: slow!
-	section_sizes.push_back(secSize);
+	section_sizes.append(secSize);
 	stretchSize -= secSize;
     }
     int position = 0;
@@ -446,7 +447,7 @@ void QGenericHeader::resizeSections()
 	    position += stretchSectionSize;
 	} else {
 	    position += section_sizes.front();
-	    section_sizes.pop_front();
+	    section_sizes.removeFirst();
 	}
     }
     secs[count].position = position;
