@@ -1152,13 +1152,13 @@ void VcprojGenerator::initOld()
 	    if (project->variables()["MSVCPROJ_TARGETDIRREL"].count())
 		executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\";
 	    executable += project->variables()["TARGET"].first();
-	    project->variables()["MSVCPROJ_COPY_DLL_REL"].append(regcmd.arg(executable).arg(executable).arg(executable));
+	    project->variables()["MSVCPROJ_COPY_DLL_REL"].append(regcmd.arg(executable));
 
 	    executable = "";
 	    if (project->variables()["MSVCPROJ_TARGETDIRDEB"].count())
 		executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\";
 	    executable += project->variables()["TARGET"].first();
-	    project->variables()["MSVCPROJ_COPY_DLL_DBG"].append(regcmd.arg(executable).arg(executable).arg(executable));
+	    project->variables()["MSVCPROJ_COPY_DLL_DBG"].append(regcmd.arg(executable));
 	} else {
 	    QString regcmd = "# Begin Special Build Tool\n"
 			    "TargetPath=" + targetfilename + "\n"
@@ -1175,13 +1175,13 @@ void VcprojGenerator::initOld()
 	    if (project->variables()["MSVCPROJ_TARGETDIRREL"].count())
 		executable = project->variables()["MSVCPROJ_TARGETDIRREL"].first() + "\\";
 	    executable += project->variables()["TARGET"].first();
-	    project->variables()["MSVCPROJ_REGSVR_REL"].append(regcmd.arg(executable).arg(executable).arg(executable));
+	    project->variables()["MSVCPROJ_REGSVR_REL"].append(regcmd.arg(executable));
 
 	    executable = "";
 	    if (project->variables()["MSVCPROJ_TARGETDIRDEB"].count())
 		executable = project->variables()["MSVCPROJ_TARGETDIRDEB"].first() + "\\";
 	    executable += project->variables()["TARGET"].first();
-	    project->variables()["MSVCPROJ_REGSVR_DBG"].append(regcmd.arg(executable).arg(executable).arg(executable));
+	    project->variables()["MSVCPROJ_REGSVR_DBG"].append(regcmd.arg(executable));
 	}
     }
 
