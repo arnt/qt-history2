@@ -130,8 +130,8 @@ sub parseclassfile {
     s/\s*<hr>\s*//gs;
 
     # links, headers, widow/orphan hack
-    s-.PP\n.*?<a href=#details>More...</a>--s;
-    s-<a href=.*?members.html>List of all member functions.</a>--;
+    s-.PP\n.*?<a href="#details">More...</a>--s;
+    s-<a href=.*?members.html.>List of all member functions.</a>--;
     s-<a.*?>(.*?)</a>-$1-gs;
     s-\s*<h1\b.*?>\s*(.*?)Class Reference</h1.*?>-\n.SH SYNOPSIS-gs;
     s-\s*<h2>Detailed Description</h2.*?>(\s*\.PP)?-\n.SH DESCRIPTION\n.PP\n-gs;
