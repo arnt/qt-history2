@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#23 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#23 $";
 #endif
 
 
@@ -142,7 +142,7 @@ bool QWidget::create()				// create widget
 				 CWBitGravity,
 				 &v );
     }
-    setMouseMoveEvents( FALSE );		// events only when button down
+    setMouseTracking( FALSE );			// also sets event mask
     gc = qXAllocGC( fnt.fontId(), bg_col.pixel(),
 		    fg_col.pixel(), !testFlag(WPaintUnclipped) );
     if ( testFlag(WPaintUnclipped) )		// paint direct on device
@@ -214,17 +214,17 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 }
 
 
-bool QWidget::setMouseMoveEvents( bool onOff )
+bool QWidget::setMouseTracking( bool enable )
 {
-    bool v = testFlag( WGetMouseMove );
-    ulong mm;
-    if ( onOff ) {
-	mm = PointerMotionMask;
-	setFlag( WGetMouseMove );
+    bool v = testFlag( WMouseTracking );
+    ulong m;
+    if ( enable ) {
+	m = PointerMotionMask;
+	setFlag( WMouseTracking );
     }
     else {
-	mm = 0;
-	clearFlag( WGetMouseMove );
+	m = 0;
+	clearFlag( WMouseTracking );
     }
     if ( testFlag(WType_Desktop) ) {		// desktop widget?
 	if ( testFlag(WPaintDesktop) )		// get desktop paint events
@@ -232,7 +232,7 @@ bool QWidget::setMouseMoveEvents( bool onOff )
     }
     else
 	XSelectInput( dpy, ident,		// specify events
-		      mm | stdWidgetEventMask );
+		      m | stdWidgetEventMask );
     return v;
 }
 
@@ -291,6 +291,39 @@ void QWidget::setCursor( const QCursor &c )	// set cursor
 }
 
 
+void QWidget::grabMouse()
+{
+    if ( !testFlag(WState_MGrab) ) {
+	setFlag( WState_MGrab );
+	XGrabPointer( dpy, ident, TRUE,
+		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
+		      EnterWindowMask | LeaveWindowMask,
+		      GrabModeAsync, GrabModeAsync,
+		      None, None, CurrentTime );
+    }
+}
+
+void QWidget::grabMouse( const QCursor &cursor )
+{
+    if ( !testFlag(WState_MGrab) ) {
+	setFlag( WState_MGrab );
+	XGrabPointer( dpy, ident, TRUE,
+		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
+		      EnterWindowMask | LeaveWindowMask,
+		      GrabModeAsync, GrabModeAsync,
+		      None, cursor.cursor, CurrentTime );
+    }
+}
+
+void QWidget::releaseMouse()
+{
+    if ( testFlag(WState_MGrab) ) {
+	clearFlag( WState_MGrab );
+	XUngrabPointer( dpy, CurrentTime );
+    }
+}
+
+
 void QWidget::grabKeyboard()
 {
     if ( !testFlag(WState_KGrab) ) {
@@ -305,27 +338,6 @@ void QWidget::releaseKeyboard()
     if ( testFlag(WState_KGrab) ) {
 	clearFlag( WState_KGrab );
 	XUngrabKeyboard( dpy, CurrentTime );
-    }
-}
-
-
-void QWidget::grabMouse( bool exclusive )
-{
-    if ( !testFlag(WState_MGrab) ) {
-	setFlag( WState_MGrab );
-	XGrabPointer( dpy, ident, TRUE,
-		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
-		      EnterWindowMask | LeaveWindowMask,
-		      GrabModeAsync, GrabModeAsync,
-		      None, None, CurrentTime );
-    }
-}
-
-void QWidget::releaseMouse()
-{
-    if ( testFlag(WState_MGrab) ) {
-	clearFlag( WState_MGrab );
-	XUngrabPointer( dpy, CurrentTime );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#15 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#15 $";
 #endif
 
 
@@ -230,13 +230,13 @@ void QWidget::disable()				// disable events
 
 
 #if !defined(_WS_X11_)
-bool QWidget::setMouseMoveEvents( bool onOff )
+bool QWidget::setMouseTracking( bool enable )
 {
-    bool v = testFlag( WEtc_MouMove );
+    bool v = testFlag( WMouseTracking );
     if ( onOff )
-	setFlag( WEtc_MouMove );
+	setFlag( WMouseTracking );
     else
-	clearFlag( WEtc_MouMove );
+	clearFlag( WMouseTracking );
     return v;
 }
 #endif // _WS_X11_
