@@ -201,9 +201,9 @@ QCoreVariant QPSQLResult::data(int i)
         return d->isUtf8 ? QString::fromUtf8(val) : QString::fromLocal8Bit(val);
     case QCoreVariant::LongLong:
         if (val[0] == '-')
-            return QString::fromLatin1(val).toULongLong();
-        else
             return QString::fromLatin1(val).toLongLong();
+        else
+            return QString::fromLatin1(val).toULongLong();
     case QCoreVariant::Int:
         return atoi(val);
     case QCoreVariant::Double:
