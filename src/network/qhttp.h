@@ -163,6 +163,7 @@ public:
     };
 
     int setHost(const QString &hostname, Q_UINT16 port=80);
+    int setSocket(QSocket *socket);
 
     int get(const QString& path, QIODevice* to=0);
     int post(const QString& path, QIODevice* data, QIODevice* to=0 );
@@ -228,9 +229,11 @@ private:
     void init();
     void setState(int);
     void closeConn();
+    void setSock(QSocket *socket);
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
+    friend class QHttpSetSocketRequest;
     friend class QHttpCloseRequest;
     friend class QHttpPGHRequest;
 };

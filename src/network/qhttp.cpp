@@ -27,6 +27,7 @@
 #include "private/qinternal_p.h"
 #include "qcoreevent.h"
 #include "private/qspinlock_p.h"
+#include "qurl.h"
 
 //#define QHTTP_DEBUG
 
@@ -58,12 +59,22 @@ private:
 class QHttpPrivate
 {
 public:
-    QHttpPrivate()
-        : state(QHttp::Unconnected), error(QHttp::NoError), port(0), toDevice(0), postDevice(0),
-          bytesDone(0), chunkedSize(-1), idleTimer(0) { }
-    ~QHttpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
+    inline QHttpPrivate() : socket(0), state(QHttp::Unconnected),
+                            error(QHttp::NoError), port(0), toDevice(0),
+                            postDevice(0), bytesDone(0), chunkedSize(-1),
+                            idleTimer(0)
+    {
+    }
 
-    QSocket socket;
+    inline ~QHttpPrivate()
+    {
+        while (!pending.isEmpty())
+            delete pending.takeFirst();
+
+        delete socket;
+    }
+
+    QSocket *socket;
     QList<QHttpRequest *> pending;
 
     QHttp::State state;
@@ -155,6 +166,7 @@ private:
 
 void QHttpNormalRequest::start(QHttp *http)
 {
+    if (!http->d->socket) http->setSock(0);
     http->d->header = header;
 
     if (is_ba) {
@@ -267,6 +279,35 @@ void QHttpSetHostRequest::start(QHttp *http)
 {
     http->d->hostname = hostname;
     http->d->port = port;
+    http->finishedWithSuccess();
+}
+
+/****************************************************
+ *
+ * QHttpSetSocketRequest
+ *
+ ****************************************************/
+
+class QHttpSetSocketRequest : public QHttpRequest
+{
+public:
+    QHttpSetSocketRequest(QSocket *s) : socket(s)
+    { }
+
+    void start(QHttp *);
+
+    QIODevice* sourceDevice()
+    { return 0; }
+    QIODevice* destinationDevice()
+    { return 0; }
+
+private:
+    QSocket *socket;
+};
+
+void QHttpSetSocketRequest::start(QHttp *http)
+{
+    http->setSock(socket);
     http->finishedWithSuccess();
 }
 
@@ -1183,20 +1224,6 @@ void QHttp::init()
 {
     d = new QHttpPrivate;
     d->errorString = tr("Unknown error");
-
-    connect(&d->socket, SIGNAL(connected()),
-            this, SLOT(slotConnected()));
-    connect(&d->socket, SIGNAL(connectionClosed()),
-            this, SLOT(slotClosed()));
-    connect(&d->socket, SIGNAL(delayedCloseFinished()),
-            this, SLOT(slotClosed()));
-    connect(&d->socket, SIGNAL(readyRead()),
-            this, SLOT(slotReadyRead()));
-    connect(&d->socket, SIGNAL(error(int)),
-            this, SLOT(slotError(int)));
-    connect(&d->socket, SIGNAL(bytesWritten(int)),
-            this, SLOT(slotBytesWritten(int)));
-
     d->idleTimer = startTimer(0);
 }
 
@@ -1386,7 +1413,7 @@ void QHttp::abort()
 
     finishedWithError(tr("Request aborted"), Aborted);
     clearPendingRequests();
-    d->socket.clearPendingData();
+    d->socket->clearPendingData();
     closeConn();
 }
 
@@ -1553,6 +1580,16 @@ void QHttp::clearPendingRequests()
 int QHttp::setHost(const QString &hostname, Q_UINT16 port)
 {
     return addRequest(new QHttpSetHostRequest(hostname, port));
+}
+
+/*!
+    Replaces the internal QSocket that QHttp uses to connect with. By
+    default, QHttp assigns a socket automatically, but using this
+    function a specialized version of QSocket is used instead.
+*/
+int QHttp::setSocket(QSocket *socket)
+{
+    return addRequest(new QHttpSetSocketRequest(socket));
 }
 
 /*!
@@ -1778,9 +1815,9 @@ void QHttp::sendRequest()
 
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if (d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection) {
+    if (d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connection) {
         setState(QHttp::Connecting);
-        d->socket.connectToHost(d->hostname, d->port);
+        d->socket->connectToHost(d->hostname, d->port);
     } else {
         slotConnected();
     }
@@ -1849,7 +1886,7 @@ void QHttp::slotConnected()
 
     QString str = d->header.toString();
     d->bytesTotal = str.length();
-    d->socket.writeBlock(str.latin1(), d->bytesTotal);
+    d->socket->writeBlock(str.latin1(), d->bytesTotal);
 #if defined(QHTTP_DEBUG)
     qDebug("QHttp: write request header:\n---{\n%s}---", str.latin1());
 #endif
@@ -1858,7 +1895,7 @@ void QHttp::slotConnected()
         d->bytesTotal += d->postDevice->size();
     } else {
         d->bytesTotal += d->buffer.size();
-        d->socket.writeBlock(d->buffer, d->buffer.size());
+        d->socket->writeBlock(d->buffer, d->buffer.size());
         d->buffer = QByteArray(); // save memory
     }
 }
@@ -1873,7 +1910,7 @@ void QHttp::slotError(int err)
                 finishedWithError(tr("Connection refused"), ConnectionRefused);
                 break;
             case QSocket::ErrHostNotFound:
-                finishedWithError(tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound);
+                finishedWithError(tr("Host %1 not found").arg(d->socket->peerName()), HostNotFound);
                 break;
             default:
                 finishedWithError(tr("HTTP request failed"), UnknownError);
@@ -1892,7 +1929,7 @@ void QHttp::slotBytesWritten(int written)
     if (!d->postDevice)
         return;
 
-    if (d->socket.bytesToWrite() == 0) {
+    if (d->socket->bytesToWrite() == 0) {
         int max = qMin(4096, d->postDevice->size() - d->postDevice->at());
         QByteArray arr;
         arr.resize(max);
@@ -1907,7 +1944,7 @@ void QHttp::slotBytesWritten(int written)
             d->postDevice = 0;
         }
 
-        d->socket.writeBlock(arr, max);
+        d->socket->writeBlock(arr, max);
     }
 }
 
@@ -1925,8 +1962,8 @@ void QHttp::slotReadyRead()
     while (d->readHeader) {
         bool end = false;
         QString tmp;
-        while (!end && d->socket.canReadLine()) {
-            tmp = d->socket.readLine();
+        while (!end && d->socket->canReadLine()) {
+            tmp = d->socket->readLine();
             if (tmp == "\r\n" || tmp == "\n")
                 end = true;
             else
@@ -1970,16 +2007,16 @@ void QHttp::slotReadyRead()
         if (currentRequest().method() == "HEAD") {
             everythingRead = true;
         } else {
-            Q_ULONG n = d->socket.bytesAvailable();
+            Q_ULONG n = d->socket->bytesAvailable();
             QByteArray *arr = 0;
             if (d->chunkedSize != -1) {
                 // transfer-encoding is chunked
                 for (;;) {
                     // get chunk size
                     if (d->chunkedSize == 0) {
-                        if (!d->socket.canReadLine())
+                        if (!d->socket->canReadLine())
                             break;
-                        QString sizeString = d->socket.readLine();
+                        QString sizeString = d->socket->readLine();
                         int tPos = sizeString.indexOf(';');
                         if (tPos != -1)
                             sizeString.truncate(tPos);
@@ -1995,8 +2032,8 @@ void QHttp::slotReadyRead()
                     }
 
                     // read trailer
-                    while (d->chunkedSize == -2 && d->socket.canReadLine()) {
-                        QString read = d->socket.readLine();
+                    while (d->chunkedSize == -2 && d->socket->canReadLine()) {
+                        QString read = d->socket->readLine();
                         if (read == "\r\n" || read == "\n")
                             d->chunkedSize = -1;
                     }
@@ -2007,7 +2044,7 @@ void QHttp::slotReadyRead()
 
                     // make sure that you can read the terminating CRLF,
                     // otherwise wait until next time...
-                    n = d->socket.bytesAvailable();
+                    n = d->socket->bytesAvailable();
                     if (n == 0)
                         break;
                     if ((Q_LONG)n == d->chunkedSize || (Q_LONG)n == d->chunkedSize+1) {
@@ -2022,7 +2059,7 @@ void QHttp::slotReadyRead()
                         arr = new QByteArray;
                     uint oldArrSize = arr->size();
                     arr->resize(oldArrSize + toRead);
-                    Q_LONG read = d->socket.readBlock(arr->data()+oldArrSize, toRead);
+                    Q_LONG read = d->socket->readBlock(arr->data()+oldArrSize, toRead);
                     arr->resize(oldArrSize + read);
 
                     d->chunkedSize -= read;
@@ -2030,7 +2067,7 @@ void QHttp::slotReadyRead()
                     if (d->chunkedSize == 0 && n - read >= 2) {
                         // read terminating CRLF
                         char tmp[2];
-                        d->socket.readBlock(tmp, 2);
+                        d->socket->readBlock(tmp, 2);
                         if (tmp[0] != '\r' || tmp[1] != '\n') {
                             finishedWithError(tr("Invalid HTTP chunked body"), WrongContentLength);
                             closeConn();
@@ -2043,14 +2080,14 @@ void QHttp::slotReadyRead()
                 if (n > 0) {
                     arr = new QByteArray;
                     arr->resize(n);
-                    Q_LONG read = d->socket.readBlock(arr->data(), n);
+                    Q_LONG read = d->socket->readBlock(arr->data(), n);
                     arr->resize(read);
                 }
                 if (d->bytesDone + bytesAvailable() + n == d->response.contentLength())
                     everythingRead = true;
             } else if (n > 0) {
                 // workaround for VC++ bug
-                QByteArray temp = d->socket.readAll();
+                QByteArray temp = d->socket->readAll();
                 arr = new QByteArray(temp);
             }
 
@@ -2173,18 +2210,35 @@ void QHttp::closeConn()
     setState(Closing);
 
     // Already closed ?
-    if (!d->socket.isOpen()) {
+    if (!d->socket || !d->socket->isOpen()) {
         d->idleTimer = startTimer(0);
     } else {
         // Close now.
-        d->socket.close();
+        d->socket->close();
 
         // Did close succeed immediately ?
-        if (d->socket.state() == QSocket::Idle) {
+        if (d->socket->state() == QSocket::Idle) {
             // Prepare to emit the requestFinished() signal.
             d->idleTimer = startTimer(0);
         }
     }
+}
+
+void QHttp::setSock(QSocket *socket)
+{
+    // disconnect all existing signals
+    if (d->socket) d->socket->disconnect();
+
+    // use the new QSocket socket, or create one if socket is 0.
+    d->socket = socket ? socket : new QSocket();
+
+    // connect all signals
+    connect(d->socket, SIGNAL(connected()), this, SLOT(slotConnected()));
+    connect(d->socket, SIGNAL(connectionClosed()), this, SLOT(slotClosed()));
+    connect(d->socket, SIGNAL(delayedCloseFinished()), this, SLOT(slotClosed()));
+    connect(d->socket, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
+    connect(d->socket, SIGNAL(error(int)), this, SLOT(slotError(int)));
+    connect(d->socket, SIGNAL(bytesWritten(int)), this, SLOT(slotBytesWritten(int)));
 }
 
 #endif
