@@ -486,6 +486,7 @@ bool Q3ToolBar::event(QEvent * e)
                                      child, SLOT(setUsesTextLabel(bool)));
                     button->setUsesTextLabel(mw->usesTextLabel());
                 }
+                button->setAutoRaise(true);
             }
             if (isVisible()) {
                 // toolbar compatibility: we auto show widgets that
