@@ -125,7 +125,10 @@ struct XPThemeData
     
     bool isValid()
     {
-        return use_xp && partId && stateId && handle();
+	bool ret = use_xp && partId && stateId && !!name && handle();
+	if ( !ret && ( use_xp && partId && stateId && !!name ) )
+	    qWarning( "XPThemeData::isValid: Invalid theme data" );
+	return ret;
     }
     
     RECT rect()
@@ -486,8 +489,22 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	stateId = 1;
 	break;
 	
-    case CE_PopupMenuItem:
     case CE_MenuBarItem:
+	/*
+	name = L"MENU";
+	partId = MP_MENUBARITEM;
+	stateId = MS_NORMAL;
+	*/
+	break;
+
+    case CE_PopupMenuItem:
+	/*
+	name = L"POPUPMENU";
+	partId = MP_MENUBARITEM;
+	stateId = MS_NORMAL;
+	*/
+	break;
+
     default:
 	break;
     }
@@ -913,7 +930,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    XPThemeData theme( w, L"WINDOW" );
 	    if ( sub & SC_TitleBarLabel ) {
 		theme.rec = titlebar->rect();
-		partId = WP_CAPTION;
+		partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SMALLCAPTION : WP_CAPTION;
 		if ( !titlebar->isEnabled() )
 		    stateId = CS_DISABLED;
 		else if ( !titlebar->isActive() )
@@ -933,7 +950,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    if ( titlebar->window() ) {
 		if ( sub & SC_TitleBarSysMenu ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarSysMenu );
-		    partId = WP_MDISYSBUTTON;
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SYSBUTTON : WP_MDISYSBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = SBS_DISABLED;
 		    else if ( subActive == SC_TitleBarSysMenu )
@@ -946,7 +963,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 		if ( sub & SC_TitleBarMinButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMinButton );
-		    partId = WP_MDIMINBUTTON;
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_MINBUTTON : WP_MDIMINBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = MINBS_DISABLED;
 		    else if ( subActive == SC_TitleBarMinButton )
@@ -959,7 +976,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 		if ( sub & SC_TitleBarMaxButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMaxButton );
-		    partId = WP_MAXBUTTON;
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_MAXBUTTON : WP_MAXBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = MAXBS_DISABLED;
 		    else if ( subActive == SC_TitleBarMinButton )
@@ -972,7 +989,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 		if ( sub & SC_TitleBarCloseButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton );
-		    partId = WP_MDICLOSEBUTTON;
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SMALLCLOSEBUTTON : WP_MDICLOSEBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = CBS_DISABLED;
 		    else if ( subActive == SC_TitleBarMinButton )
@@ -985,7 +1002,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 		if ( sub & SC_TitleBarNormalButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarNormalButton );
-		    partId = WP_MDIRESTOREBUTTON;
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_RESTOREBUTTON : WP_MDIRESTOREBUTTON;
 		    if ( !w->isEnabled() )
 			stateId = RBS_DISABLED;
 		    else if ( subActive == SC_TitleBarMinButton )
@@ -1003,7 +1020,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	}
 	break;
-	
+
     case CC_ListView:
     default:
 	QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, data );
