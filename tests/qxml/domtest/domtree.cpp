@@ -178,12 +178,30 @@ QString DomTreeItem::contentString()
 		if ( entities.length() > 0 ) {
 		    s += "<ul>";
 		    for ( uint i=0; i< entities.length(); i++ ) {
+			QDomEntity entity = entities.item(i).toEntity();
 			s += "<li>";
-			s += entities.item(i).toEntity().notationName();
-			s += "<b>Public:<b> ";
-			s += entities.item(i).toEntity().publicId();
-			s += "<b>System:<b> ";
-			s += entities.item(i).toEntity().systemId();
+			s += "<b>Name:</b> ";
+			s += entity.nodeName();
+			s += "<br/>";
+			bool lineBreak = FALSE;
+			if ( !entity.publicId().isNull() ) {
+			    s += "<b>Public ID:</b> ";
+			    s += entity.publicId();
+			    lineBreak = TRUE;
+			}
+			if ( !entity.systemId().isNull() ) {
+			    if ( lineBreak )
+				s += "<br/>";
+			    s += "<b>System ID:</b> ";
+			    s += entity.systemId();
+			    lineBreak = TRUE;
+			}
+			if ( !entity.notationName().isNull() ) {
+			    if ( lineBreak )
+				s += "<br/>";
+			    s += "<b>Notation Name:</b> ";
+			    s += entity.notationName();
+			}
 		    }
 		    s += "</ul>";
 		}
