@@ -1013,7 +1013,8 @@ void QDialog::setSizeGripEnabled(bool enabled)
     if ( !enabled != !d->resizer ) {
 	if ( enabled ) {
 	    d->resizer = new QSizeGrip( this, "QDialog::resizer" );
-	    d->resizer->adjustSize();
+	    // adjustSize() processes all events, which is suboptimal 
+	    d->resizer->resize( d->resizer->sizeHint() );
 	    if ( QApplication::reverseLayout() )
 		d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
 	    else
