@@ -304,8 +304,9 @@ void QFontPrivate::initFontInfo()
     if ( actual.pointSize == -1 ) {
 	if ( paintdevice )
 	    actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
-	else 
-	    actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps( GetDC( 0 ), LOGPIXELSY );
+	else {
+	    actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps( fin->dc(), LOGPIXELSY );
+	}
     } else if ( actual.pixelSize == -1 ) {
 	if ( paintdevice )
 	    actual.pixelSize = actual.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720;
@@ -347,7 +348,7 @@ void QFontPrivate::load()
 	if ( paintdevice )
 	    fin->hdc = paintdevice->handle();
 	else if ( qt_winver & Qt::WV_NT_based )
-	    fin->hdc = GetDC(0);
+	    fin->hdc = GetDC( 0 );
 	fin->hfont = create( &fin->stockFont, fin->hdc );
 	HGDIOBJ obj = SelectObject( fin->dc(), fin->hfont );
 #ifndef QT_NO_DEBUG
