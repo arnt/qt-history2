@@ -470,34 +470,4 @@ int QVector<T>::count(const T &t) const
 
 Q_DECLARE_ITERATOR(QVector)
 
-
-#ifndef QT_NO_DATASTREAM
-class QDataStream;
-
-template<typename T>
-QDataStream& operator>>( QDataStream& s, QVector<T>& v )
-{
-    v.clear();
-    Q_UINT32 c;
-    s >> c;
-    v.resize( c );
-    for( Q_UINT32 i = 0; i < c; ++i ) {
-	T t;
-	s >> t;
-	v[i] = t;
-    }
-    return s;
-}
-
-template<typename T>
-QDataStream& operator<<( QDataStream& s, const QVector<T>& v )
-{
-    s << (Q_UINT32)v.size();
-    const T* it = v.begin();
-    for( ; it != v.end(); ++it )
-	s << *it;
-    return s;
-}
-#endif // QT_NO_DATASTREAM
-
 #endif // QVECTOR_H

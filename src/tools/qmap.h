@@ -569,37 +569,6 @@ Q_OUTOFLINE_TEMPLATE QMap<Key,T> &QMap<Key,T>::operator=(const std::map<Key,T> &
 }
 #endif
 
-#ifndef QT_NO_DATASTREAM
-template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
-{
-    map.clear();
-    Q_UINT32 n;
-    in >> n;
-    for (Q_UINT32 i = 0; i < n; ++i) {
-	Key key;
-        T value;
-	in >> key >> value;
-	map.insert(key, value);
-	if (in.atEnd())
-	    break;
-    }
-    return in;
-}
-
-template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
-{
-    out << (Q_UINT32)map.size();
-    typename QMap<Key, T>::ConstIterator it = map.begin();
-    while (it != map.end()) {
-	out << it.key() << it.value();
-        ++it;
-    }
-    return out;
-}
-#endif
-
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)
 
 #endif // QMAP_H

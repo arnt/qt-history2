@@ -638,36 +638,6 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::Node * &QHash<Key, T>::node_find(co
     return *node;
 }
 
-#ifndef QT_NO_DATASTREAM
-template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
-{
-    hash.clear();
-    Q_UINT32 n;
-    in >> n;
-    for (Q_UINT32 i = 0; i < n; ++i) {
-	Key k;
-        T t;
-	in >> k >> t;
-	hash.insert(k, t);
-	if (in.atEnd())
-	    break;
-    }
-    return in;
-}
-
-template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
-{
-    out << (Q_UINT32)hash.size();
-    typename QHash<Key, T>::ConstIterator it = hash.begin();
-    while (it != hash.end()) {
-	out << it.key() << it.data();
-        ++it;
-    }
-    return out;
-}
-#endif
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)
 

@@ -21,6 +21,9 @@
 
 template<typename T> class QList;
 template<typename T> class QLinkedList;
+template<typename T> class QVector;
+template<class Key, class T> class QHash;
+template<class Key, class T> class QMap;
 
 #ifndef QT_NO_DATASTREAM
 class Q_CORE_EXPORT QDataStream				// data stream class
@@ -218,6 +221,90 @@ QDataStream& operator<<( QDataStream& s, const QLinkedList<T>& l )
 	s << *it;
     return s;
 }
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
+{
+    hash.clear();
+    Q_UINT32 n;
+    in >> n;
+    for (Q_UINT32 i = 0; i < n; ++i) {
+	Key k;
+        T t;
+	in >> k >> t;
+	hash.insert(k, t);
+	if (in.atEnd())
+	    break;
+    }
+    return in;
+}
+
+template<typename T>
+QDataStream& operator>>( QDataStream& s, QVector<T>& v )
+{
+    v.clear();
+    Q_UINT32 c;
+    s >> c;
+    v.resize( c );
+    for( Q_UINT32 i = 0; i < c; ++i ) {
+	T t;
+	s >> t;
+	v[i] = t;
+    }
+    return s;
+}
+
+template<typename T>
+QDataStream& operator<<( QDataStream& s, const QVector<T>& v )
+{
+    s << (Q_UINT32)v.size();
+    const T* it = v.begin();
+    for( ; it != v.end(); ++it )
+	s << *it;
+    return s;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
+{
+    out << (Q_UINT32)hash.size();
+    typename QHash<Key, T>::ConstIterator it = hash.begin();
+    while (it != hash.end()) {
+	out << it.key() << it.data();
+        ++it;
+    }
+    return out;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
+{
+    map.clear();
+    Q_UINT32 n;
+    in >> n;
+    for (Q_UINT32 i = 0; i < n; ++i) {
+	Key key;
+        T value;
+	in >> key >> value;
+	map.insert(key, value);
+	if (in.atEnd())
+	    break;
+    }
+    return in;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
+{
+    out << (Q_UINT32)map.size();
+    typename QMap<Key, T>::ConstIterator it = map.begin();
+    while (it != map.end()) {
+	out << it.key() << it.value();
+        ++it;
+    }
+    return out;
+}
+
 
 #endif // QT_NO_DATASTREAM
 #endif // QDATASTREAM_H
