@@ -69,6 +69,8 @@ public:
 
     void ensureVisible(int documentPosition);
 
+    QRect cursorUpdateRect() const;
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;

@@ -580,6 +580,14 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
     d->vbar->setValue(y);
 }
 
+QRect QTextEditPrivate::cursorUpdateRect() const
+{
+    QTextFrame *frame = d->cursor.currentFrame();
+    QRect r = d->cursor.block().layout()->rect();
+    r.moveBy(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
+    return r;
+}
+
 /*!
     \class QTextEdit
     \brief The QTextEdit class provides a widget that is used to edit and display
@@ -1207,14 +1215,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
             d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
                             != 0);
 
-        QTextFrame *frame = d->cursor.currentFrame();
-
-        QRect r = d->cursor.block().layout()->rect();
-
-        r.moveBy(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
-        r.moveBy(-d->hbar->value(), -d->vbar->value());
-
-        d->viewport->update(r);
+        d->update(d->cursorUpdateRect());
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
