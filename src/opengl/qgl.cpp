@@ -2013,9 +2013,11 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
     if ( !d || !glcx ) { // this can't happen unless we run out of mem
 	return 0;
     }
-    
-    if ( d->displayListCache.find( fnt.key() ) != d->displayListCache.end() ) {
-	base = d->displayListCache[ fnt.key() ];
+
+    bool regenerate = glcx->deviceIsPixmap();
+    QString key = fnt.key() + QString::number( regenerate );
+    if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
+	base = d->displayListCache[ key ];
     } else {
 	int maxBase = listBase - 256;
 	QMapIterator<QString,int> it;
@@ -2026,7 +2028,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 	}
 	maxBase += 256;
 	glcx->generateFontDisplayLists( fnt, maxBase );
-	d->displayListCache[ fnt.key() ] = maxBase;
+	d->displayListCache[ key ] = maxBase;
 	base = maxBase;
     }
     return base;
