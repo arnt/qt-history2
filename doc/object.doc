@@ -448,7 +448,7 @@ contain:
 	  // custom event handling here
 	  return TRUE;
       }
-      QWidget::event( e );
+      return QWidget::event( e );
   }
 \endcode
 
