@@ -552,7 +552,6 @@ void QSqlRecord::detach()
     qAtomicDetach(d);
 }
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 {
@@ -562,7 +561,6 @@ QDebug operator<<(QDebug dbg, const QSqlRecord &r)
                       << r.field(i);
     return dbg.space();
 }
-#endif
 #endif
 
 /*!
