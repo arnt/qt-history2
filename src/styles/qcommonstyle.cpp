@@ -1062,9 +1062,9 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_CheckBoxIndicator:
 	{
-	    int h = pixelMetric( PM_IndicatorHeight );
+	    int h = pixelMetric( PM_IndicatorHeight, widget );
 	    rect.setRect(0, ( wrect.height() - h ) / 2,
-			 pixelMetric( PM_IndicatorWidth ), h );
+			 pixelMetric( PM_IndicatorWidth, widget ), h );
 	    break;
 	}
 
@@ -1104,9 +1104,9 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_RadioButtonIndicator:
 	{
-	    int h = pixelMetric( PM_ExclusiveIndicatorHeight );
+	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
 	    rect.setRect(0, ( wrect.height() - h ) / 2,
-			 pixelMetric( PM_ExclusiveIndicatorWidth ), h );
+			 pixelMetric( PM_ExclusiveIndicatorWidth, widget ), h );
 	    break;
 	}
 
@@ -1467,7 +1467,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		p->save();
 		if( down )
-		    p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
+		    p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+				  pixelMetric(PM_ButtonShiftVertical, widget) );
 		drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		p->restore();
 	    }
@@ -1483,7 +1484,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+				      pixelMetric(PM_ButtonShiftVertical, widget) );
     		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
 		}
@@ -1503,7 +1505,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+				      pixelMetric(PM_ButtonShiftVertical, widget) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
 		}
@@ -1517,7 +1520,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				  down ? Style_Down : Style_Raised);
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+				      pixelMetric(PM_ButtonShiftVertical, widget) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
 		}
@@ -1531,7 +1535,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				  down ? Style_Down : Style_Raised);
 		    p->save();
 		    if( down )
-			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal, widget), 
+				      pixelMetric(PM_ButtonShiftVertical, widget) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 		    p->restore();
 		}
