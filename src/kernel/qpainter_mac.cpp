@@ -178,11 +178,11 @@ void QPainter::updatePen()
     int	ps = cpen.style();
     Pattern pat;
     switch ( ps ) {
-	case DashLine:
+	case DotLine:
 	case DashDotLine:
 	case DashDotDotLine:
 	    qDebug( "Penstyle not implemented %s - %d", __FILE__, __LINE__ );
-	case DotLine:
+	case DashLine:
 	    GetQDGlobalsGray( &pat );
 	    break;
 	default:
@@ -1368,7 +1368,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	return;
 
     updateBrush();
-    updatePen();
 
     if ( testf(DirtyFont) ) 
 	updateFont();
@@ -1484,11 +1483,13 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	    warning("Fontsets only apply to mapped encodings");
 	else {
 	    MoveTo(x+offx,y+offy);
+	    updatePen();
 	    DrawString(p_str(mapped));
 	}
     } else {
 	if ( !mapped.isNull() ) {
 	    MoveTo(x+offx,y+offy);
+	    updatePen();
 	    DrawString(p_str(mapped));
 	} else {
 	    // Unicode font
@@ -1501,6 +1502,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 #endif
 
 	    MoveTo(x+offx,y+offy);
+	    updatePen();
 	    DrawString(p_str((char *)v.unicode()));
 	}
     }
