@@ -534,12 +534,12 @@ void qSystemWarning(const char *msg, ...)
 */
 
 /*!
-    \macro void Q_ASSERT_X(bool test, const char *msg)
+    \macro void Q_ASSERT_X(bool test, const char *where, const char *what)
 
     \relates QApplication
 
-    Prints the message \a msg together with the source file name and
-    line number if \a test is false.
+    Prints the message \a what together with the location \a where,
+    the source file name and line number if \a test is false.
 
     This is really a macro defined in \c qglobal.h.
 
@@ -557,7 +557,7 @@ void qSystemWarning(const char *msg, ...)
 
         int divide(int a, int b)
         {
-            Q_ASSERT_X(b != 0, "division by zero");                        // this is line 9
+            Q_ASSERT_X(b != 0, "divide", "division by zero");   // this is line 9
             return a/b;
         }
     \endcode
@@ -565,7 +565,7 @@ void qSystemWarning(const char *msg, ...)
     If \c b is zero, the Q_ASSERT_X statement will output the following
     message using the qFatal() function:
     \code
-    ASSERT failure: "division by zero" in file div.cpp, line 9
+    ASSERT failure in divide: "division by zero", file div.cpp, line 9
     \endcode
 
     \sa Q_ASSERT(), qFatal(), \link debug.html Debugging\endlink

@@ -87,9 +87,10 @@ Three important macros are:
 \i \link ::Q_ASSERT() Q_ASSERT(b)\endlink where b is a boolean
 expression, writes the warning: "ASSERT: 'b"' in file file.cpp, line
 234" and exits if b is false.
-\i \link ::Q_ASSERT_X() Q_ASSERT_X(b, msg)\endlink where b is a
-boolean expression and msg a message, writes the warning: "ASSERT
-failure: 'msg' in file file.cpp, line 234" and exits if b is false.
+\i \link ::Q_ASSERT_X() Q_ASSERT_X(b, where, what)\endlink where b is a
+boolean expression, where a location and  what a message, 
+writes the warning: "ASSERTfailure in where: 'what', file file.cpp, line 234" 
+and exits if b is false.
 \i \link ::Q_CHECK_PTR() Q_CHECK_PTR(p)\endlink where p is a pointer.
 Writes the warning "In file file.cpp, line 234: Out of memory" and
 exits if p is 0.
