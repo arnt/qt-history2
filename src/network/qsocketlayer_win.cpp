@@ -556,7 +556,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
     qt_socket_setPortAndAddress(socketDescriptor, &sockAddrIPv4, &sockAddrIPv6, port, address, &sockAddrPtr, &sockAddrSize);
 
 
-    int bindResult = bind(socketDescriptor, sockAddrPtr, sockAddrSize);
+    int bindResult = ::bind(socketDescriptor, sockAddrPtr, sockAddrSize);
     if (bindResult == SOCKET_ERROR) {
         WS_ERROR_DEBUG
         switch (WSAGetLastError()) {
@@ -569,6 +569,9 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
             break;
         case WSAEACCES:
             setError(Qt::SocketAccessError, "The address is protected");
+            break;
+        case WSAEADDRNOTAVAIL:
+            setError(Qt::SocketAddressNotAvailableError, "The address is not available");
             break;
         default:
             break;

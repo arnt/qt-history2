@@ -22,6 +22,7 @@ namespace Qt {
         DatagramTooLargeError,
         NetworkError,
         AddressInUseError,
+        SocketAddressNotAvailableError,
         UnsupportedSocketOperationError,
         UnknownSocketError = -1
     };
