@@ -245,7 +245,7 @@ The widget will get an event with \link QEvent::type() type \endlink
 \c LayoutHint when the layout needs to be recalculated. Reimplement
 QWidget::event() to be notified of \c LayoutHint events.
 
-\section1 
+\section1 Layout Issues
 
 The use of rich text in a label widget can introduce some problems to
 the layout of its parent widget. Problems occur due to the way rich text
@@ -253,7 +253,9 @@ is handled by Qt's layout managers when the label is word wrapped.
 In certain cases the parent layout is put into QLayout::FreeResize mode,
 meaning that it will not adapt the layout of its contents to fit inside
 small sized windows, or even prevent the user from making the
-window too small to be usable.
+window too small to be usable. This can be overcome by subclassing
+the problematic widgets, and implementing suitable sizeHint() and
+minimumSizeHint() functions.
 
 */
 
