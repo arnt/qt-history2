@@ -651,7 +651,7 @@ void QPainter::killPStack()
 /*!
   Saves the current painter state (pushes the state onto a stack).  A
   save() must be followed by a corresponding restore().  end() unwinds
-  the stack().
+  the stack.
 
   \sa restore()
 */
