@@ -46,6 +46,7 @@
  *****************************************************************************/
 //#define DEBUG_WINDOW_RGNS
 //#define DEBUG_WINDOW_CREATE
+//#define DEBUG_WIDGET_PAINT
 
 /*****************************************************************************
   QWidget globals
@@ -387,17 +388,20 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 if(old_qdref)
                     widget->d->hd = old_qdref;
 
-#if 0
-                qDebug("asked to draw %p [%s::%s] %p (%p)", hiview, widget->metaObject()->className(), widget->objectName().local8Bit(),
-                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1), widget->hd);
+#ifdef DEBUG_WIDGET_PAINT
+                qDebug("asked to draw %p [%s::%s] %p", hiview, widget->metaObject()->className(), 
+                       widget->objectName().local8Bit(),
+                       (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1));
                 QVector<QRect> region_rects = qrgn.rects();
                 qDebug("Region! %d", region_rects.count());
                 for(int i = 0; i < region_rects.count(); i++)
-                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), region_rects[i].width(), region_rects[i].height());
+                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), 
+                           region_rects[i].width(), region_rects[i].height());
                 region_rects = widget->d->clp.rects();
                 qDebug("Widget Region! %d", region_rects.count());
                 for(int i = 0; i < region_rects.count(); i++)
-                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), region_rects[i].width(), region_rects[i].height());
+                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), 
+                           region_rects[i].width(), region_rects[i].height());
 #endif
                 if((widget->data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {  //process the actual paint event.
                     if(widget->testWState(Qt::WState_InPaintEvent))
