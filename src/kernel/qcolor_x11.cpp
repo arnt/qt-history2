@@ -366,7 +366,7 @@ uint QColor::alloc()
 	d.d8.pix = c->pix;			// use same pixel value
 	if ( c->context != current_alloc_context ) {
 	    c->context = 0;			// convert to default context
-	    g_our_alloc[d.d8.pix] = TRUE;		// reuse without XAllocColor
+	    g_our_alloc[d.d8.pix] = TRUE;	// reuse without XAllocColor
 	}
 	return d.d8.pix;
     }
@@ -393,7 +393,7 @@ uint QColor::alloc()
 	    d.d8.pix = (uint)col.pixel;
 	    d.d8.invalid = FALSE;
 	    d.d8.dirty = FALSE;
-	    g_carr[d.d8.pix] = col;			// update color array
+	    g_carr[d.d8.pix] = col;		// update color array
 	    if ( current_alloc_context == 0 )
 		g_our_alloc[d.d8.pix] = TRUE;	// reuse without XAllocColor
 
