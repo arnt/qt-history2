@@ -36,16 +36,16 @@ SYSCONF_LFLAGS_SHOBJ	= #$ Expand('TMAKE_LFLAGS_SHLIB');
 SYSCONF_MOC		= $(QTDIR)/bin/moc
 
 # Linking shared libraries
-#   - Build the $(TARGET) library, eg. lib$(TARGET).so.0.0
+#   - Build the $(TARGET) library, eg. lib$(TARGET).so.2.0.1
 #   - Place target in $(DESTDIR) - which has a trailing /
-#   - Usually needs to incorporate $(VER_MAJ) and $(VER_MIN)
+#   - Usually needs to incorporate $(VER_MAJ), $(VER_MIN) and $(VER_PATCH)
 #
 SYSCONF_LINK_SHLIB	= #$ Expand('TMAKE_LINK_SHLIB');
 SYSCONF_LINK_TARGET_SHARED	= #${
     if ( Project('TMAKE_HPUX_SHLIB') ) {
 	$text .= 'lib$(TARGET).sl';
     } else {
-	$text .= 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
+	$text .= 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN).$(VER_PATCH)';
     }
 #$}
 SYSCONF_LINK_LIB_SHARED	= #${
@@ -72,10 +72,11 @@ SYSCONF_LINK_LIB_SHARED	= #${
 	    $text .= " \\\n\t\t\t\t";
 	    $text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
 		    . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
-		    . ' rm -f lib$(TARGET).so'
-			. ' lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
+		    . ' rm -f lib$(TARGET).so lib$(TARGET).so.$(VER_MAJ)'
+			. ' lib$(TARGET).so.$(VER_MAJ).$(VER_MIN);' . " \\\n\t\t\t\t"
 		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
-		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ)';
+		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
+		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
 	}
     }
 #$}

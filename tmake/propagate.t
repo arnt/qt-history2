@@ -73,11 +73,11 @@
     StdInit();
 
     $project{"DESTDIR"} = FixPath($project{"DESTDIR"});
-    $project{"VERSION"} || ($project{"VERSION"} = "1.0");
-    $project{"VER_MAJ"} = $project{"VERSION"};
-    $project{"VER_MAJ"} =~ s/\.\d+$//;
-    $project{"VER_MIN"} = $project{"VERSION"};
-    $project{"VER_MIN"} =~ s/^\d+\.//;
+    $project{"VERSION"} || ($project{"VERSION"} = "1.0.0");
+    ($project{"VER_MAJ"},
+     $project{"VER_MIN"},
+     $project{"VER_PATCH"}) = $project{"VERSION"} =~ /(\d+)\.(\d+)(?:\.(\d+))?/;
+    $project{"VER_PATCH"} = 0 if !$project{"VER_PATCH"};
     if ( Config("dll") ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_SHOBJ)' );
 	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_SHOBJ)' );
@@ -114,6 +114,7 @@ MOC	=	$(SYSCONF_MOC)
 DESTDIR = #$ Expand("DESTDIR");
 VER_MAJ = #$ Expand("VER_MAJ");
 VER_MIN = #$ Expand("VER_MIN");
+VER_PATCH = #$ Expand("VER_PATCH");
 TARGET	= #$ Expand("TARGET");
 TARGET1 = lib$(TARGET).so.$(VER_MAJ)
 
