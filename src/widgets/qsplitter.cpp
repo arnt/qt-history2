@@ -775,14 +775,10 @@ void QSplitter::doResize()
 		a[i].empty = FALSE;
 
 		if ( mode == Stretch ) {
-		    /*
-		      We divide per 8 to avoid problems caused by
-		      limitations in the layout engine code. You can
-		      still run into problems if you set an abnormally
-		      high stretch value in the QSizePolicy or if you
-		      use a 5120 x 4096 monitor.
-		    */
-		    a[i].stretch = stretch * ( 1 + s->sizer / 8 );
+		    if ( s->sizer > 1 )
+			stretch *= s->sizer;
+		    // ad-hoc work-around for layout engine limitation
+		    a[i].stretch = QMIN( stretch, 8192 );
 		    a[i].sizeHint = a[i].minimumSize;
 		} else if ( mode == KeepSize ) {
 		    a[i].sizeHint = s->sizer;
