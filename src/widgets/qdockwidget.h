@@ -67,7 +67,7 @@ public:
     QSize minimumSizeHint() const;
 
     void dock();
-    void undock();
+    void undock( QWidget *w = 0 );
     void removeFromDock();
 
 signals:

@@ -247,7 +247,7 @@ void QDockWidgetHandle::mousePressEvent( QMouseEvent *e )
 
 void QDockWidgetHandle::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed )
+    if ( !mousePressed || e->pos() == offset )
 	return;
     dockWidget->handleMove( e->globalPos() - offset, e->globalPos() );
 }
@@ -258,8 +258,16 @@ void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent *e )
 	return;
     dockWidget->endRectDraw();
     mousePressed = FALSE;
-    if ( !hadDblClick )
+    if ( offset == e->pos() ) { 
+	if ( dockWidget->area() && dockWidget->area()->parentWidget() &&
+	     dockWidget->area()->parentWidget()->inherits( "QMainWindow" ) ) {
+	    QMainWindow *mw = (QMainWindow*)dockWidget->area()->parentWidget();
+	    if ( mw->isDockEnabled( dockWidget, Qt::Minimized ) )
+		mw->moveDockWidget( dockWidget, Qt::Minimized );
+	}
+    } else if ( !hadDblClick ) {
 	dockWidget->updatePosition( e->globalPos() );
+    }
 }
 
 void QDockWidgetHandle::resizeEvent( QResizeEvent * )
@@ -824,9 +832,9 @@ void QDockWidget::dock()
     qWarning( "QDockWidget::dock() not implemented yet!" );
 }
 
-void QDockWidget::undock()
+void QDockWidget::undock( QWidget *w )
 {
-    if ( place() == OutsideDock )
+    if ( place() == OutsideDock && !w )
 	return;
 
     QPoint p( 50, 50 );
@@ -847,7 +855,13 @@ void QDockWidget::undock()
     emit orientationChanged( orientation() );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
     adjustSize();
-    show();
+    if ( !w ) {
+	show();
+    } else {
+	reparent( w, 0, QPoint( 0, 0 ), FALSE );
+	setGeometry( -10, -10, 1, 1 );
+	show();
+    }
 }
 
 void QDockWidget::removeFromDock()

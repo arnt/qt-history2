@@ -216,6 +216,208 @@ QLayoutIterator QMainWindowLayout::iterator()
 
 
 /*
+  QHideToolTip and QHideDock - minimized dock
+*/
+
+class QHideToolTip : public QToolTip
+{
+public:
+    QHideToolTip( QWidget *parent ) : QToolTip( parent ) {}
+
+    void maybeTip( const QPoint &pos );
+};
+
+
+class QHideDock : public QWidget
+{
+public:
+    QHideDock( QMainWindow *parent ) : QWidget( parent, "qt_hide_dock" ) {
+	hide();
+	setFixedHeight( style().toolBarHandleExtent() );
+	pressedHandle = -1;
+	pressed = FALSE;
+	setMouseTracking( TRUE );
+	win = parent;
+	tip = new QHideToolTip( this );
+    }
+    ~QHideDock() { delete tip; }
+
+protected:
+    void paintEvent( QPaintEvent *e ) {
+	if ( !children() || children()->isEmpty() )
+	    return;
+	QPainter p( this );
+	p.setClipRegion( e->rect() );
+	p.fillRect( e->rect(), colorGroup().brush( QColorGroup::Background ) );
+	int x = 0;
+	int i = -1;
+	QObjectListIt it( *children() );
+	QObject *o;
+	while ( ( o = it.current() ) ) {
+	    ++it;
+	    ++i;
+	    if ( !o->inherits( "QDockWidget" ) )
+		continue;
+	    if ( !( (QDockWidget*)o )->isVisible() )
+		continue;
+	    style().drawToolBarHandle( &p, QRect( x, 0, 30, 10 ), Qt::Vertical,
+				       i == pressedHandle, colorGroup(), TRUE );
+	    x += 30;
+	}
+    }
+
+    void mousePressEvent( QMouseEvent *e ) {
+	pressed = TRUE;
+	if ( !children() || children()->isEmpty() )
+	    return;
+	mouseMoveEvent( e );
+	pressedHandle = -1;
+	
+	if ( e->button() == RightButton && win->isDockMenuEnabled() ) {
+	    qDebug( "todo: hidedock menu" );
+	} else {
+	    mouseMoveEvent( e );
+	}
+    }
+
+    void mouseMoveEvent( QMouseEvent *e ) {
+	if ( !children() || children()->isEmpty() )
+	    return;
+	if ( !pressed )
+	    return;
+	int x = 0;
+	int i = -1;
+	if ( e->y() >= 0 && e->y() <= height() ) {
+	    QObjectListIt it( *children() );
+	    QObject *o;
+	    while ( ( o = it.current() ) ) {
+		++it;
+		++i;
+		if ( !o->inherits( "QDockWidget" ) )
+		    continue;
+		if ( !( (QDockWidget*)o )->isVisible() )
+		    continue;
+		if ( e->x() >= x && e->x() <= x + 30 ) {
+		    int old = pressedHandle;
+		    pressedHandle = i;
+		    if ( pressedHandle != old )
+			repaint( TRUE );
+		    return;
+		}
+		x += 30;
+	    }
+	}
+	int old = pressedHandle;
+	pressedHandle = -1;
+	if ( old != -1 )
+	    repaint( TRUE );
+    }
+
+    void mouseReleaseEvent( QMouseEvent *e ) {
+	pressed = FALSE;
+	if ( pressedHandle == -1 )
+	    return;
+	if ( !children() || children()->isEmpty() )
+	    return;
+	if ( e->button() == LeftButton ) {
+	    if ( e->y() >= 0 && e->y() <= height() ) {
+		QObject *o = ( (QObjectList*)children() )->at( pressedHandle );
+		if ( o && o->inherits( "QDockWidget" ) ) {
+		    QDockWidget *dw = (QDockWidget*)o;
+		    dw->show();
+		    dw->doDock();
+		}
+	    }
+	}
+	pressedHandle = -1;
+	repaint( FALSE );
+    }
+
+    void childEvent( QChildEvent *e ) {
+	QWidget::childEvent( e );
+	if ( e->type() == QEvent::ChildInserted )
+	    e->child()->installEventFilter( this );
+	else
+	    e->child()->removeEventFilter( this );
+	updateState();
+    }
+
+    bool eventFilter( QObject *o, QEvent *e ) {
+	if ( o == this || !o->isWidgetType() )
+	    return QWidget::eventFilter( o, e );
+	if ( e->type() == QEvent::Hide || 
+	     e->type() == QEvent::Show )
+	    updateState();
+	return QWidget::eventFilter( o, e );
+    }
+    
+    void updateState() {
+	bool visible = TRUE;
+	if ( !children() || children()->isEmpty() ) {
+	    visible = FALSE;
+	} else {
+	    QObjectListIt it( *children() );
+	    QObject *o;
+	    while ( ( o = it.current() ) ) {
+		++it;
+		if ( !o->inherits( "QDockWidget" ) )
+		    continue;
+		if ( !( (QDockWidget*)o )->isVisible() )
+		    continue;
+		visible = TRUE;
+		break;
+	    }
+	}
+	
+	if ( visible )
+	    show();
+	else
+	    hide();	
+	win->triggerLayout( FALSE );
+	update();
+    }
+
+private:
+    QMainWindow *win;
+    int pressedHandle;
+    bool pressed;
+    QHideToolTip *tip;
+
+    friend class QHideToolTip;
+
+};
+
+void QHideToolTip::maybeTip( const QPoint &pos )
+{
+    if ( !parentWidget() )
+	return;
+    QHideDock *dock = (QHideDock*)parentWidget();
+
+    if ( dock->children()->isEmpty() )
+	return;
+    QObjectListIt it( *dock->children() );
+    QObject *o;
+    int x = 0;
+    while ( ( o = it.current() ) ) {
+	++it;
+	if ( !o->inherits( "QDockWidget" ) )
+	    continue;
+	if ( !( (QDockWidget*)o )->isVisible() )
+	    continue;
+	if ( pos.x() >= x && pos.x() <= x + 30 ) {
+	    QDockWidget *dw = (QDockWidget*)o;
+	    if ( !dw->caption().isEmpty() )
+		tip( QRect( x, 0, 30, dock->height() ), dw->caption() );
+	    return;
+	}
+	x += 30;
+    }
+}
+
+
+
+
+/*
  QMainWindowPrivate - private variables of QMainWindow
 */
 
@@ -264,7 +466,8 @@ public:
     QMap<Qt::Dock, bool> docks;
     QStringList disabledDocks;
     bool dockMenu;
-
+    QHideDock *hideDock;
+    
     QPopupMenu *rmbMenu;
 
 };
@@ -395,6 +598,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d->rightDock = new QDockArea( Vertical, QDockArea::Reverse, this, "qt_right_dock" );
     connect( d->rightDock, SIGNAL( rightButtonPressed( const QPoint & ) ),
 	     this, SLOT( showDockMenu( const QPoint & ) ) );
+    d->hideDock = new QHideDock( this );
 }
 
 
@@ -688,25 +892,29 @@ void QMainWindow::addDockWidget( QDockWidget * toolBar, const QString &label,
 
 void QMainWindow::moveDockWidget( QDockWidget * toolBar, Dock edge )
 {
-    toolBar->removeFromDock();
     switch ( edge ) {
     case Top:
+	toolBar->removeFromDock();
 	d->topDock->addDockWidget( toolBar );
 	break;
     case Bottom:
+	toolBar->removeFromDock();
 	d->bottomDock->addDockWidget( toolBar );
 	break;
     case Right:
+	toolBar->removeFromDock();
 	d->rightDock->addDockWidget( toolBar );
 	break;
     case Left:
+	toolBar->removeFromDock();
 	d->leftDock->addDockWidget( toolBar );
 	break;
     case TornOff:
+	toolBar->removeFromDock();
 	toolBar->undock();
 	break;
     case Minimized:
-	qDebug( "todo Minimize" );
+	toolBar->undock( d->hideDock );
 	break;
     case Unmanaged:
 	break;
@@ -726,25 +934,29 @@ void QMainWindow::moveDockWidget( QDockWidget * toolBar, Dock edge, bool nl, int
 {
     toolBar->setNewLine( nl );
     toolBar->setOffset( extraOffset );
-    toolBar->removeFromDock();
     switch ( edge ) {
     case Top:
+	toolBar->removeFromDock();
 	d->topDock->addDockWidget( toolBar, index );
 	break;
     case Bottom:
+	toolBar->removeFromDock();
 	d->bottomDock->addDockWidget( toolBar, index );
 	break;
     case Right:
+	toolBar->removeFromDock();
 	d->rightDock->addDockWidget( toolBar, index );
 	break;
     case Left:
+	toolBar->removeFromDock();
 	d->leftDock->addDockWidget( toolBar, index );
 	break;
     case TornOff:
+	toolBar->removeFromDock();
 	toolBar->undock();
 	break;
     case Minimized:
-	qDebug( "todo Minimize" );
+	toolBar->undock( d->hideDock );
 	break;
     case Unmanaged:
 	break;
@@ -801,7 +1013,9 @@ void QMainWindow::setUpLayout()
     }
 #endif
 
-    if ( !d->topDock->isEmpty() && style() == WindowsStyle )
+    d->tll->addWidget( d->hideDock );
+    
+    if ( style() == WindowsStyle )
 	d->tll->addSpacing( d->movable ? 1  : 2 );
     d->tll->addWidget( d->topDock );
 
@@ -1178,8 +1392,12 @@ bool QMainWindow::getLocation( QDockWidget *tb, Dock &dock, int &index, bool &nl
 	dock = Left;
     else if ( d->rightDock->hasDockWidget( tb, &index ) )
 	dock = Right;
-    else
+    else if ( tb->parentWidget() == d->hideDock ) {
 	index = 0;
+	dock = Minimized;
+    } else {
+	index = 0;
+    }
     nl = tb->newLine();
     extraOffset = tb->offset();
     return TRUE;
@@ -1214,17 +1432,26 @@ QList<QDockWidget> QMainWindow::dockWidgets( Dock dock ) const
 	return d->leftDock->dockWidgetList();
     case Right:
 	return d->rightDock->dockWidgetList();
-    case TornOff:
-	{
-	    for ( QDockWidget *w = d->dockWidgets.first(); w; w = d->dockWidgets.last() ) {
-		if ( !w->area() && w->place() == QDockWidget::OutsideDock )
-		    lst.append( w );
+    case TornOff: {
+	for ( QDockWidget *w = d->dockWidgets.first(); w; w = d->dockWidgets.last() ) {
+	    if ( !w->area() && w->place() == QDockWidget::OutsideDock )
+		lst.append( w );
+	}
+    }
+    return lst;
+    case Minimized: {
+	if ( d->hideDock->children() ) {
+	    QObjectListIt it( *d->hideDock->children() );
+	    QObject *o;
+	    while ( ( o = it.current() ) ) {
+		++it;
+		if ( !o->inherits( "QDockWidget" ) )
+		    continue;
+		lst.append( (QDockWidget*)o );
 	    }
 	}
-	return lst;
-    case Minimized:
-	qWarning( "todo minimized" );
-	break;
+    }
+    return lst;
     default:
 	break;
     }
@@ -1364,7 +1591,7 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
     if ( !id2Widget.isEmpty() )
 	d->rmbMenu->insertSeparator();
     int lineup = -2;
-    
+
     if ( dockWidgetsMovable() )
 	lineup = d->rmbMenu->insertItem( tr( "Line up" ) );
     int config = d->rmbMenu->insertItem( tr( "Customize..." ) );
