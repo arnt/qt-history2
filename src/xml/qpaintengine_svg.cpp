@@ -529,7 +529,7 @@ void QSVGPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int tex
 	e.setAttribute("x", x);
     if (y)
 	e.setAttribute("y", y);
-    e.appendChild(d->doc.createTextNode(QString(*ti.chars)));
+    e.appendChild(d->doc.createTextNode(QString(ti.chars, ti.num_chars)));
 }
 
 /*!
