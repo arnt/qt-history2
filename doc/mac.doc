@@ -192,14 +192,6 @@ in popupmenus that are not in the Mac native menubar.
 
 \endlist
 
-\section2 File Dialog
-
-The static functions of QFileDialog use Mac OS X's Navigation Services.
-Navigation Services takes care of saving the location to look for saving and
-opening files (storing this in $HOME/Library/Preferences/\e {appname}.plist).
-There appears to be no way to programmically set them.  Therefore, the
-"startWith" variable is ignored by these functions.
-
 \section2 Unsupported Native Widgets
 
 Qt/Mac currently has no support for sheets, drawers, or the chooser
