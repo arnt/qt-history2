@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#53 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#53 $";
 #endif
 
 
@@ -116,10 +116,10 @@ public:
 
 
 // --------------------------------------------------------------------------
-// main() - initializes X and calls user's startup function qMain()
+// qt_init() - initializes Qt for X-Windows
 //
 
-int main( int argc, char **argv )
+void qt_init( int argc, char **argv )
 {
     int i;
 #if defined(DEBUG)
@@ -219,7 +219,6 @@ int main( int argc, char **argv )
     if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 	fatal( "%s: cannot connect to X server %s", appName,
 	       XDisplayName(appDpyName) );
-	return 1;
     }
 
     app_Xfd = XConnectionNumber( appDpy );	// set X network socket
@@ -259,13 +258,11 @@ int main( int argc, char **argv )
 	QPalette pal( cg, cg, cg );
 	QApplication::setPalette( pal );
     }
+}
 
-  // Call user-provided main routine
 
-    int returnCode = qMain( argc, argv );
-
-  // Cleanup
-
+void qt_cleanup()
+{
     cleanupPostedEvents();			// remove list of posted events
     if ( postRList ) {
 	VFPTR f = (VFPTR)postRList->first();
@@ -277,9 +274,7 @@ int main( int argc, char **argv )
 	delete postRList;
     }
     delete preRList;
-    if ( qApp )
-	delete qApp;
-    QApplication::cleanup();
+
     QPixMap::cleanup();
     QCursor::cleanup();
     QFont::cleanup();
@@ -300,7 +295,6 @@ int main( int argc, char **argv )
     if ( appMemChk )
 	memchkStop();				// finish memory checking
 #endif
-    return returnCode;
 }
 
 

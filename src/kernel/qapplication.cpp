@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#18 $
 **
 ** Implementation of QApplication class
 **
@@ -17,9 +17,12 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#18 $";
 #endif
 
+
+void qt_init( int, char ** );			// defined in qapp_???.cpp
+void qt_cleanup();
 
 QApplication *qApp = 0;				// global application object
 QWidget *QApplication::main_widget = 0;		// main application widget
@@ -61,12 +64,13 @@ static void destroy_palettes()
 }
 
 
-QApplication::QApplication()
+QApplication::QApplication( int argc, char **argv )
 {
 #if defined(CHECK_STATE)
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
 #endif
+    qt_init( argc, argv );
     quit_now = FALSE;
     quit_code = 0;
     qApp = this;
@@ -89,17 +93,9 @@ QApplication::~QApplication()
 	delete appCursor;
     qApp = 0;
     closing_down = TRUE;
-}
-
-
-void QApplication::cleanup()			// cleanup application
-{
-    if ( !qApp ) {				// only if qApp deleted
-	if ( main_widget )
-	    delete main_widget;
-	QWidget::destroyMapper();		// destroy widget mapper
-	delete objectDict;			// delete object dictionary
-    }
+    QWidget::destroyMapper();			// destroy widget mapper
+    delete objectDict;
+    qt_cleanup();
 }
 
 

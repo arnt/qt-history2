@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#22 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#23 $
 **
 ** Definition of QApplication class
 **
@@ -16,7 +16,6 @@
 #include "qwidget.h"
 
 
-extern int qMain( int, char ** );		// user-supplied main function
 extern QApplication *qApp;			// global application object
 
 
@@ -24,7 +23,7 @@ class QApplication				// application class
 {
 friend class QWidget;
 public:
-    QApplication();
+    QApplication( int argc, char **argv );
     virtual ~QApplication();
 
     static GUIStyle style();
@@ -59,8 +58,6 @@ public:
 
     static void	    flushX();			// flush X output buffer
     static void	    syncX();			// syncronize with X server
-
-    static void	    cleanup();			// cleanup application
 
 protected:
     static QWidget *main_widget;		// main application widget
