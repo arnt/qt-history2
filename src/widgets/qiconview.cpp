@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#151 $
 **
 ** Definition of QIconView widget class
 **
@@ -992,7 +992,7 @@ void QIconViewItem::setSelected( bool s, bool cb )
 {
     if ( view->selectionMode() != QIconView::NoSelection &&
 	 selectable && s != selected ) {
-	if ( !s )
+	if ( !s ) 
 	    selected = FALSE;
 	else {
 	    if ( view->d->selectionMode == QIconView::Single && view->d->currentItem )
@@ -1698,8 +1698,8 @@ void QIconViewItem::calcTmpText()
   The normal way to insert some items is to create QIconViewItems
   and pass the iconview as parent. But using insertItem(), items
   can be inserted manually too. The QIconView offers basic methodes
-  similar to the QListView and QListBox, like QIconView::removeItem(), 
-  QIconView::clearSelection(), QIconView::setSelected(), 
+  similar to the QListView and QListBox, like QIconView::removeItem(),
+  QIconView::clearSelection(), QIconView::setSelected(),
   QIconView::setCurrentItem(), QIconView::currentItem() and much more.
 
   As the internal structure to store the iconview items is linear, no
@@ -1732,7 +1732,7 @@ void QIconViewItem::calcTmpText()
   and not directly QIconDragItem.
   So you implement MyIconDrag which contains a list of MyIconDragItems. See
   the documentation of QIconDrag and QIconDragItem for more information.
-  
+
   Finally, you need to overload QIconView::dragObject(). This method is called
   by QIconView to get the drag object when starting a drag. In this method
   you have to create and return an instance of MyIconDrag which contains a list of
@@ -1749,11 +1749,11 @@ void QIconViewItem::calcTmpText()
   documentation of QIconView::initDragEnter().
 
   Finally you should connect to the QIconView::dropped() signal, which is
-  emitted when a drag is dropped onto the viewport of the iconview. 
+  emitted when a drag is dropped onto the viewport of the iconview.
   If it's allowed to drop onto iconview items, you should reimplement
-  QIconViewItem::dropped() in your iconview item subclass, as this method 
+  QIconViewItem::dropped() in your iconview item subclass, as this method
   is called when a drag is dropped onto an iconview item.
-  
+
   For an example implementation of all the Drag'n'Drop stuff look at the
   qfileiconview example (QtFileIconView::QtFileIconView())
 
@@ -1762,11 +1762,11 @@ void QIconViewItem::calcTmpText()
   items in a dragobject. All this complexity is only needed for drawing the drag
   shapes of the dragged items. If you don't need or want the QIconView to
   draw drag shapes of the dragged items during a drag, you don't need to
-  implement all this comlexity. In this case you only need for starting a 
-  drag to reimplement QIconView::dragObject() and return a dragobject there 
+  implement all this comlexity. In this case you only need for starting a
+  drag to reimplement QIconView::dragObject() and return a dragobject there
   which contains the data which should be dragged. And for entering drags
   you don't need to do anything special then.
-  
+
   Finally, see also QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
       QIconViewItem::acceptDrop() and QIconViewItem::dropped()
 */
@@ -2149,13 +2149,27 @@ void QIconView::slotUpdate()
 
 	    w = QMAX( w, item->x() + item->width() );
 	    h = QMAX( h, item->y() + item->height() );
-	
+	    
 	    item = item->next;
 	}
 
+	if ( d->alignMode == South ) {
+	    item = d->lastItem;
+	    int x = item->x();
+	    while ( item && item->x() >= x ) {
+		w = QMAX( w, item->x() + item->width() );
+		h = QMAX( h, item->y() + item->height() );
+		item = item->prev;
+	    }
+	}
+	
 	w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
 	h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
 
+	if ( d->alignMode == South )
+	    w += d->spacing;
+	else
+	    h += d->spacing;
 	resizeContents( QMAX( contentsWidth(), w ),
 			QMAX( contentsHeight(), h ) );
     }
@@ -4066,8 +4080,8 @@ void QIconView::drawDragShapes( const QPoint &pos )
 
   There are three possibilities:
   <ul>
-  <li>Knowing the drag very well: The drag ca nbe decoded and it contains 
-  all coordinates of the drag shapes. If this is the case, call 
+  <li>Knowing the drag very well: The drag ca nbe decoded and it contains
+  all coordinates of the drag shapes. If this is the case, call
   QIconView::setDragObjectIsKnown() and specify as argument \a e.
   <li>Knowing the drag, but not very well: The drag contains which can
   be decoded. So the number of items in the drag is known, but no
@@ -4079,7 +4093,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
   </ul>
 
   See the qfileiconview example for a demonstration of using this method.
-  
+
   \sa QFileIconView::initDragEnter(), QIconView::setDragObjectIsKnown(),
   QIconView::setNumDragItems()
 */
