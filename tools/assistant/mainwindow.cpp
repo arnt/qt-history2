@@ -19,9 +19,8 @@
 #include <qpaintdevicemetrics.h>
 #include <qfontdatabase.h>
 
-#if 0 // ### enable me
 #include <qprinter.h>
-#endif
+#include <qprintdialog.h>
 
 QList<MainWindow*> MainWindow::windows;
 
@@ -301,10 +300,11 @@ void MainWindow::on_actionGoHome_triggered()
 
 void MainWindow::on_actionFilePrint_triggered()
 {
-#if 0 // ### enable me
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
-    if (printer.setup(this)) {
+
+    QPrintDialog dlg(&printer, this);
+    if (dlg.exec()) {
         QPainter p;
         if (!p.begin(&printer))
             return;
@@ -343,7 +343,6 @@ void MainWindow::on_actionFilePrint_triggered()
         qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
         qApp->restoreOverrideCursor();
     }
-#endif
 }
 
 void MainWindow::updateBookmarkMenu()
