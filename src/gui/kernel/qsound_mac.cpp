@@ -63,12 +63,14 @@ private:
     static QList<QAuServerMacCleanupHandler*> cleanups;
     static void movieEnd(QTCallBack, long data) {
         QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
-        if((--iteration->loops) <= 0) {
-            delete iteration;
-            return;
+        if(iteration->loops != -1) { //forever
+            if((--iteration->loops) <= 0) {
+                delete iteration;
+                return;
+            }
+            if(iteration->qsound)
+                iteration->qsound_server->decLoop(iteration->qsound);
         }
-        if(iteration->qsound)
-            iteration->qsound_server->decLoop(iteration->qsound);
         GoToBeginningOfMovie(iteration->movie);
         CallMeWhen(iteration->callback, movieCallbackProc, (long)iteration, triggerAtStop, 0, 0);
         StartMovie(iteration->movie); //play it again Sam..
@@ -89,16 +91,14 @@ public:
     QAuServerMacCleanupHandler(int l, Movie m) : qsound_server(0), qsound(0) { init(l, m); }
     ~QAuServerMacCleanupHandler() {
         cleanups.removeAll(this);
-#if 0
         if(callback) {
             CancelCallBack(callback);
             DisposeCallBack(callback);
         }
         if(movie) {
             StopMovie(movie);
-            DisposeMovie(movie);
+//            DisposeMovie(movie);
         }
-#endif
     }
     static void cleanup() {
         while(cleanups.size())
