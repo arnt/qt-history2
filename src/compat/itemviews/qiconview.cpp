@@ -120,7 +120,7 @@ static void createSelectionPixmap(const QPalette &cg)
     qiv_cleanup_pixmap.add(&qiv_selection);
     qiv_selection->fill(Qt::color0);
     qiv_selection->setMask(m);
-    qiv_selection->fill(cg.highlight());
+    qiv_selection->fill(cg.highlight().color());
 }
 #endif
 
@@ -1930,9 +1930,9 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
     p->save();
 
     if (isSelected()) {
-        p->setPen(cg.highlightedText());
+        p->setPen(cg.highlightedText().color());
     } else {
-        p->setPen(cg.text());
+        p->setPen(cg.text().color());
     }
 
     calcTmpText();
@@ -1941,12 +1941,12 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
     if (picture()) {
         QPicture *pic = picture();
         if (isSelected()) {
-            p->fillRect(pixmapRect(false), QBrush(cg.highlight(), Qt::Dense4Pattern));
+            p->fillRect(pixmapRect(false), QBrush(cg.highlight().color(), Qt::Dense4Pattern));
         }
         p->drawPicture(x()-pic->boundingRect().x(), y()-pic->boundingRect().y(), *pic);
         if (isSelected()) {
             p->fillRect(textRect(false), cg.highlight());
-            p->setPen(QPen(cg.highlightedText()));
+            p->setPen(QPen(cg.highlightedText().color()));
         } else if (view->d->itemTextBrush != QBrush(Qt::NoBrush))
             p->fillRect(textRect(false), view->d->itemTextBrush);
 
@@ -2007,7 +2007,7 @@ void QIconViewItem::paintItem(QPainter *p, const QPalette &cg)
     p->save();
     if (isSelected()) {
         p->fillRect(textRect(false), cg.highlight());
-        p->setPen(QPen(cg.highlightedText()));
+        p->setPen(QPen(cg.highlightedText().color()));
     } else if (view->d->itemTextBrush != QBrush(Qt::NoBrush))
         p->fillRect(textRect(false), view->d->itemTextBrush);
 
@@ -2037,16 +2037,16 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     opt.palette = cg;
     if (isSelected()) {
         opt.state = QStyle::Style_FocusAtBorder;
-        opt.backgroundColor = cg.highlight();
+        opt.backgroundColor = cg.highlight().color();
     } else {
         opt.state = QStyle::Style_None;
-        opt.backgroundColor = cg.base();
+        opt.backgroundColor = cg.base().color();
     }
     view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
 
     if (this != view->d->currentItem) {
         opt.rect = pixmapRect(false);
-        opt.backgroundColor = cg.base();
+        opt.backgroundColor = cg.base().color();
         opt.state = QStyle::Style_None;
         view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
     }
@@ -5469,7 +5469,7 @@ void QIconView::drawDragShapes(const QPoint &pos)
     QStyleOptionFocusRect opt;
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    opt.backgroundColor = palette().base();
+    opt.backgroundColor = palette().base().color();
     if (d->isIconDrag) {
         QLinkedList<QIconDragDataItem>::Iterator it = d->iconDragData.begin();
         for (; it != d->iconDragData.end(); ++it) {

@@ -717,9 +717,9 @@ void QTableItem::paint(QPainter *p, const QPalette &pal,
     }
 
     if (selected)
-        p->setPen(pal.highlightedText());
+        p->setPen(pal.highlightedText().color());
     else
-        p->setPen(pal.text());
+        p->setPen(pal.text().color());
     p->drawText(x + 2, 0, w - x - 4, h,
                  wordwrap ? (alignment() | Qt::WordBreak) : alignment(), text());
 }
@@ -1243,7 +1243,7 @@ void QComboTableItem::paint(QPainter *p, const QPalette &pal,
     QPalette pal2(pal);
     if (selected) {
         pal2.setBrush(QPalette::Base, pal.brush(QPalette::Highlight));
-        pal2.setColor(QPalette::Text, pal.highlightedText());
+        pal2.setColor(QPalette::Text, pal.highlightedText().color());
     }
 
     QStyle::SFlags flags = QStyle::Style_None;
@@ -1531,9 +1531,9 @@ void QCheckTableItem::paint(QPainter *p, const QPalette &pal,
     int x = sz.width() + 6;
     w = w - x;
     if (selected)
-        p->setPen(pal.highlightedText());
+        p->setPen(pal.highlightedText().color());
     else
-        p->setPen(pal.text());
+        p->setPen(pal.text().color());
     p->drawText(x, 0, w, h, wordWrap() ? (alignment() | Qt::WordBreak) : alignment(), text());
 }
 
@@ -2847,11 +2847,11 @@ void QTable::paintCell(QPainter *p, int row, int col,
         int gridColor =	style().styleHint(QStyle::SH_Table_GridLineColor, 0, this);
         if (gridColor != -1) {
             if (palette() != pal)
-                p->setPen(pal.mid());
+                p->setPen(pal.mid().color());
             else
                 p->setPen((QRgb)gridColor);
         } else {
-            p->setPen(pal.mid());
+            p->setPen(pal.mid().color());
         }
         p->drawLine(x2, 0, x2, y2);
         p->drawLine(0, y2, x2, y2);
@@ -2883,10 +2883,10 @@ void QTable::paintFocus(QPainter *p, const QRect &cr)
         opt.palette = palette();
         if (isSelected(curRow, curCol, false)) {
             opt.state = QStyle::Style_FocusAtBorder;
-            opt.backgroundColor = palette().highlight();
+            opt.backgroundColor = palette().highlight().color();
         } else {
             opt.state = QStyle::Style_None;
-            opt.backgroundColor = palette().base();
+            opt.backgroundColor = palette().base().color();
         }
         style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
@@ -6451,7 +6451,7 @@ QTableHeader::SectionState QTableHeader::sectionState(int s) const
 void QTableHeader::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
-    p.setPen(palette().buttonText());
+    p.setPen(palette().buttonText().color());
     int pos = orientation() == Qt::Horizontal
                      ? e->rect().left()
                      : e->rect().top();

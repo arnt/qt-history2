@@ -3167,8 +3167,8 @@ void Q3TextDocument::draw(QPainter *p, const QRect &rect, const QPalette &pal,
     QPainter * oldPainter = Q3TextFormat::painter();
     Q3TextFormat::setPainter(p);
 
-    if (formatCollection()->defaultFormat()->color() != pal.text())
-        setDefaultFormat(formatCollection()->defaultFormat()->font(), pal.text());
+    if (formatCollection()->defaultFormat()->color() != pal.text().color())
+        setDefaultFormat(formatCollection()->defaultFormat()->font(), pal.text().color());
 
     Q3TextParagraph *parag = firstParagraph();
     while (parag) {
@@ -3243,8 +3243,8 @@ Q3TextParagraph *Q3TextDocument::draw(QPainter *p, int cx, int cy, int cw, int c
 
     QPainter * oldPainter = Q3TextFormat::painter();
     Q3TextFormat::setPainter(p);
-    if (formatCollection()->defaultFormat()->color() != pal.text())
-        setDefaultFormat(formatCollection()->defaultFormat()->font(), pal.text());
+    if (formatCollection()->defaultFormat()->color() != pal.text().color())
+        setDefaultFormat(formatCollection()->defaultFormat()->font(), pal.text().color());
 
     if (cx < 0 && cy < 0) {
         cx = 0;
@@ -4736,7 +4736,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
     if (!plainText || hasdoc && format->color() != document()->formatCollection()->defaultFormat()->color())
         painter.setPen(QPen(format->color()));
     else
-        painter.setPen(pal.text());
+        painter.setPen(pal.text().color());
     painter.setFont(format->font());
 
     if (hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty()) {
@@ -6696,7 +6696,7 @@ static void qrt_createSelectionPixmap(const QPalette &pal)
     }
     p.end();
     qrt_selection->setMask(m);
-    qrt_selection->fill(pal.highlight());
+    qrt_selection->fill(pal.highlight().color());
 }
 #endif
 
@@ -6773,7 +6773,7 @@ void QTextHorizontalLine::draw(QPainter* p, int x, int y, int , int , int , int 
     if (is_printer(p) || !shade) {
         QPen oldPen = p->pen();
         if (!color.isValid())
-            p->setPen(QPen(pal.text(), is_printer(p) ? height/8 : qMax(2, height/4)));
+            p->setPen(QPen(pal.text().color(), is_printer(p) ? height/8 : qMax(2, height/4)));
         else
             p->setPen(QPen(color, is_printer(p) ? height/8 : qMax(2, height/4)));
         p->drawLine(r.left()-1, y + height / 2, r.right() + 1, y + height / 2);
@@ -7724,7 +7724,7 @@ void Q3TextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch
                     QPen oldPen = p->pen();
                     QRect r2 = r;
                     r2.addCoords(innerborder/2, innerborder/2, -innerborder/2, -innerborder/2);
-                    p->setPen(QPen(pal.text(), innerborder));
+                    p->setPen(QPen(pal.text().color(), innerborder));
                     p->drawRect(r2);
                     p->setPen(oldPen);
                 } else {
@@ -7746,7 +7746,7 @@ void Q3TextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch
             QRect r2 = r;
             r2.addCoords(border/2, border/2, -border/2, -border/2);
             QPen oldPen = p->pen();
-            p->setPen(QPen(pal.text(), border));
+            p->setPen(QPen(pal.text().color(), border));
             p->drawRect(r2);
             p->setPen(oldPen);
         } else {

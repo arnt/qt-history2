@@ -86,7 +86,7 @@
     QStyleSheet::mightBeRichText() for details.
 
     \quotefile snippets/whatsthis/whatsthis.cpp
-    \skipto newAct = 
+    \skipto newAct =
     \printuntil setWhatsThis
 
     An alternative way to enter "What's this?" mode is to use the
@@ -294,15 +294,15 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     if (drawShadow)
         r.addCoords(0, 0, -shadowWidth, -shadowWidth);
     QPainter p(this);
-    p.setPen(palette().foreground());
+    p.setPen(palette().foreground().color());
     p.drawRect(r);
-    p.setPen(palette().mid());
+    p.setPen(palette().mid().color());
     p.setBrush(palette().brush(QPalette::Background));
     int w = r.width();
     int h = r.height();
     p.drawRect(1, 1, w-2, h-2);
     if (drawShadow) {
-        p.setPen(palette().shadow());
+        p.setPen(palette().shadow().color());
         p.drawPoint(w + 5, 6);
         p.drawLine(w + 3, 6, w + 5, 8);
         p.drawLine(w + 1, 6, w + 5, 10);
@@ -314,7 +314,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
         for(; i > 0 ; i -= 2)
             p.drawLine(6, h + 6 - i, i + 5, h + 5);
     }
-    p.setPen(palette().foreground());
+    p.setPen(palette().foreground().color());
     r.addCoords(hMargin, vMargin, -hMargin, -vMargin);
 
 #ifndef QT_NO_RICHTEXT

@@ -67,7 +67,7 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
     if (sunken)
         p->setPen(pal.color(QPalette::Dark));
     else
-        p->setPen(pal.light());
+        p->setPen(pal.light().color());
     QPointArray a;
     int i;
     if (y1 == y2) {                                // horizontal line
@@ -85,15 +85,15 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
             p->drawPolyline(a);
         }
         if (midLineWidth > 0) {
-            p->setPen(pal.mid());
+            p->setPen(pal.mid().color());
             for (i=0; i<midLineWidth; i++)        // draw lines in the middle
                 p->drawLine(x1+lineWidth, y+lineWidth+i,
                              x2-lineWidth, y+lineWidth+i);
         }
         if (sunken)
-            p->setPen(pal.light());
+            p->setPen(pal.light().color());
         else
-            p->setPen(pal.dark());
+            p->setPen(pal.dark().color());
         for (i=0; i<lineWidth; i++) {                // draw bottom shadow
             a.setPoints(3, x1+i, y+tlw-i-1,
                          x2-i, y+tlw-i-1,
@@ -116,14 +116,14 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
             p->drawPolyline(a);
         }
         if (midLineWidth > 0) {
-            p->setPen(pal.mid());
+            p->setPen(pal.mid().color());
             for (i=0; i<midLineWidth; i++)        // draw lines in the middle
                 p->drawLine(x+lineWidth+i, y1+lineWidth, x+lineWidth+i, y2);
         }
         if (sunken)
-            p->setPen(pal.light());
+            p->setPen(pal.light().color());
         else
-            p->setPen(pal.dark());
+            p->setPen(pal.dark().color());
         for (i=0; i<lineWidth; i++) {                // draw right shadow
             a.setPoints(3, x+lineWidth, y2-i,
                          x+tlw-i-1, y2-i,
@@ -185,18 +185,18 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
     }
     QPen oldPen = p->pen();
     if (sunken)
-        p->setPen(pal.dark());
+        p->setPen(pal.dark().color());
     else
-        p->setPen(pal.light());
+        p->setPen(pal.light().color());
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
     QPointArray a;
 
     if (lineWidth == 1 && midLineWidth == 0) {// standard shade rectangle
         p->drawRect(x1, y1, w-1, h-1);
         if (sunken)
-            p->setPen(pal.light());
+            p->setPen(pal.light().color());
         else
-            p->setPen(pal.dark());
+            p->setPen(pal.dark().color());
         a.setPoints(8, x1+1,y1+1, x2-2,y1+1, x1+1,y1+2, x1+1,y2-2,
                      x1,y2, x2,y2,  x2,y1, x2,y2-1);
         p->drawLineSegments(a);                // draw bottom/right lines
@@ -209,16 +209,16 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
             p->drawLineSegments(a);
             k++;
         }
-        p->setPen(pal.mid());
+        p->setPen(pal.mid().color());
         j = lineWidth*2;
         for (i=0; i<midLineWidth; i++) {        // draw lines in the middle
             p->drawRect(x1+lineWidth+i, y1+lineWidth+i, w-j, h-j);
             j += 2;
         }
         if (sunken)
-            p->setPen(pal.light());
+            p->setPen(pal.light().color());
         else
-            p->setPen(pal.dark());
+            p->setPen(pal.dark().color());
         k = m;
         for (i=0; i<lineWidth; i++) {                // draw bottom shadow
             a.setPoints(8, x1+1+i,y2-i, x2-i, y2-i, x2-i, y2-i, x2-i, y1+i+1,
@@ -280,13 +280,13 @@ void qDrawShadePanel(QPainter *p, int x, int y, int w, int h,
     if (!(w > 0 && h > 0 && lineWidth >= 0)) {
         qWarning("qDrawShadePanel() Invalid parameters.");
     }
-    QColor shade = pal.dark();
-    QColor light = pal.light();
+    QColor shade = pal.dark().color();
+    QColor light = pal.light().color();
     if (fill) {
         if (fill->color() == shade)
-            shade = pal.shadow();
+            shade = pal.shadow().color();
         if (fill->color() == light)
-            light = pal.midlight();
+            light = pal.midlight().color();
     }
     QPen oldPen = p->pen();                        // save pen
     QPointArray a(4*lineWidth);
@@ -425,10 +425,12 @@ void qDrawWinButton(QPainter *p, int x, int y, int w, int h,
 {
     if (sunken)
         qDrawWinShades(p, x, y, w, h,
-                       pal.shadow(), pal.light(), pal.dark(), pal.button(), fill);
+                       pal.shadow().color(), pal.light().color(), pal.dark().color(),
+                       pal.button().color(), fill);
     else
         qDrawWinShades(p, x, y, w, h,
-                       pal.light(), pal.shadow(), pal.button(), pal.dark(), fill);
+                       pal.light().color(), pal.shadow().color(), pal.button().color(),
+                       pal.dark().color(), fill);
 }
 
 /*!
@@ -466,10 +468,12 @@ void qDrawWinPanel(QPainter *p, int x, int y, int w, int h,
 {
     if (sunken)
         qDrawWinShades(p, x, y, w, h,
-                        pal.dark(), pal.light(), pal.shadow(), pal.midlight(), fill);
+                        pal.dark().color(), pal.light().color(), pal.shadow().color(),
+                       pal.midlight().color(), fill);
     else
         qDrawWinShades(p, x, y, w, h,
-                        pal.light(), pal.shadow(), pal.midlight(), pal.dark(), fill);
+                       pal.light().color(), pal.shadow().color(), pal.midlight().color(),
+                       pal.dark().color(), fill);
 }
 
 
@@ -607,9 +611,9 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
 #endif
             }
             if (gs == Qt::WindowsStyle) {
-                p->setPen(pal.light());
+                p->setPen(pal.light().color());
                 p->drawPixmap(x+1, y+1, pm);
-                p->setPen(pal.text());
+                p->setPen(pal.text().color());
             }
         }
         p->drawPixmap(x, y, pm);
@@ -617,9 +621,9 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
             p->setClipping(false);
     } else if (!text.isNull()) {
         if (gs == Qt::WindowsStyle && !enabled) {
-            p->setPen(pal.light());
+            p->setPen(pal.light().color());
             p->drawText(x+1, y+1, w, h, flags, text, len);
-            p->setPen(pal.text());
+            p->setPen(pal.text().color());
         }
         p->drawText(x, y, w, h, flags, text, len);
     }
@@ -744,16 +748,16 @@ static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
         p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if (enabled) {
         a.translate(x+w/2, y+h/2);
-        p->setPen(pal.foreground());
+        p->setPen(pal.foreground().color());
         p->drawLineSegments(a, 0, 3);                // draw arrow
         p->drawPoint(a[6]);
     } else {
         a.translate(x+w/2+1, y+h/2+1);
-        p->setPen(pal.light());
+        p->setPen(pal.light().color());
         p->drawLineSegments(a, 0, 3);                // draw arrow
         p->drawPoint(a[6]);
         a.translate(-1, -1);
-        p->setPen(pal.mid());
+        p->setPen(pal.mid().color());
         p->drawLineSegments(a, 0, 3);                // draw arrow
         p->drawPoint(a[6]);
     }

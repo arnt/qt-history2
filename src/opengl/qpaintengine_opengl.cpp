@@ -79,7 +79,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     dgl->setAutoBufferSwap(false);
     setActive(true);
     dgl->makeCurrent();
-    dgl->qglClearColor(dgl->palette().brush(QPalette::Background));
+    dgl->qglClearColor(dgl->palette().brush(QPalette::Background).color());
     glClear(GL_COLOR_BUFFER_BIT);
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
@@ -667,7 +667,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 {
     if (pm.depth() == 1) {
 	QPixmap tpx(pm.size());
-	tpx.fill(d->bgbrush);
+	tpx.fill(d->bgbrush.color());
 	QPainter p(&tpx);
 	p.setPen(d->cpen);
 	p.drawPixmap(0, 0, pm);

@@ -5548,7 +5548,7 @@ void Q3TextEdit::changeEvent(QEvent *ev)
         if (ev->type() == QEvent::ApplicationPaletteChange || ev->type() == QEvent::PaletteChange
             || ev->type() == QEvent::EnabledChange) {
             Q3TextFormat *f = doc->formatCollection()->defaultFormat();
-            f->setColor(palette().text());
+            f->setColor(palette().text().color());
             updateContents();
         }
     }
@@ -6583,7 +6583,7 @@ void Q3TextEdit::optimDrawContents(QPainter * p, int clipx, int clipy,
     // get the current text color from the current format
     td->selectAll(Q3TextDocument::Standard);
     Q3TextFormat f;
-    f.setColor(palette().text());
+    f.setColor(palette().text().color());
     f.setFont(QScrollView::font());
     td->setFormat(Q3TextDocument::Standard, &f,
                    Q3TextFormat::Color | Q3TextFormat::Font);

@@ -2069,12 +2069,12 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
         p->fillRect(r - marg, 0, width - r + marg, height(),
                      pal.brush(QPalette::Highlight));
         if (enabled || !lv)
-            p->setPen(pal.highlightedText());
+            p->setPen(pal.highlightedText().color());
         else if (!enabled && lv)
             p->setPen(lv->palette().color(QPalette::Disabled, QPalette::HighlightedText));
     } else {
         if (enabled || !lv)
-            p->setPen(pal.text());
+            p->setPen(pal.text().color());
         else if (!enabled && lv)
             p->setPen(lv->palette().color(QPalette::Disabled, QPalette::Text));
     }
@@ -2193,10 +2193,10 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
         opt.palette = pal;
         if (isSelected()) {
             opt.state = QStyle::Style_FocusAtBorder;
-            opt.backgroundColor = pal.highlight();
+            opt.backgroundColor = pal.highlight().color();
         } else {
             opt.state = QStyle::Style_None;
-            opt.backgroundColor = pal.base();
+            opt.backgroundColor = pal.base().color();
         }
         lv->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, lv);
     }
@@ -6586,7 +6586,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
 
     // Draw text ----------------------------------------------------
     p->translate(r, 0);
-    p->setPen(QPen(pal.text()));
+    p->setPen(QPen(pal.text().color()));
     Q3ListViewItem::paintCell(p, pal, column, width - r, align);
 }
 

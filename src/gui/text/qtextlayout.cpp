@@ -777,8 +777,8 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
     QColor text;
     switch(type) {
     case QTextLayout::Highlight:
-        bg = pal->highlight();
-        text = pal->highlightedText();
+        bg = pal->highlight().color();
+        text = pal->highlightedText().color();
         break;
     case QTextLayout::ImText:
         int h1, s1, v1, h2, s2, v2;
@@ -787,8 +787,8 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
         bg.setHsv(h1, s1, (v1 + v2) / 2);
         break;
     case QTextLayout::ImSelection:
-        bg = pal->text();
-        text = pal->background();
+        bg = pal->text().color();
+        text = pal->background().color();
         break;
     case QTextLayout::NoSelection:
         Q_ASSERT(false); // should never happen.

@@ -3556,7 +3556,7 @@ void QListBox::viewportPaintEvent(QPaintEvent * e)
     QListBoxItem * i = item(col*numRows() + row);
 
     const QPalette &pal = palette();
-    p.setPen(pal.text());
+    p.setPen(pal.text().color());
     p.setBackground(palette().brush(backgroundRole()).color());
     while (i && (int)col < numColumns() && d->columnPos[col] < x + w) {
         int cw = d->columnPos[col+1] - d->columnPos[col];
@@ -3837,17 +3837,17 @@ void QListBox::paintCell(QPainter * p, int row, int col)
     if (i->s) {
         if (i->custom_highlight) {
             p->fillRect(0, 0, cw, ch, pal.brush(viewport()->foregroundRole()));
-            p->setPen(pal.highlightedText());
+            p->setPen(pal.highlightedText().color());
             p->setBackground(pal.highlight());
         } else if (numColumns()  == 1) {
             p->fillRect(0, 0, cw, ch, pal.brush(QPalette::Highlight));
-            p->setPen(pal.highlightedText());
+            p->setPen(pal.highlightedText().color());
             p->setBackground(pal.highlight());
         } else {
             int iw = i->width(this);
             p->fillRect(0, 0, iw, ch, pal.brush(QPalette::Highlight));
             p->fillRect(iw, 0, cw - iw + 1, ch, viewport()->palette().brush(viewport()->backgroundRole()));
-            p->setPen(pal.highlightedText());
+            p->setPen(pal.highlightedText().color());
             p->setBackground(pal.highlight());
         }
     } else {
@@ -3864,9 +3864,9 @@ void QListBox::paintCell(QPainter * p, int row, int col)
         opt.palette = pal;
         opt.state = QStyle::Style_FocusAtBorder;
         if (i->isSelected())
-            opt.backgroundColor = pal.highlight();
+            opt.backgroundColor = pal.highlight().color();
         else
-            opt.backgroundColor = pal.base();
+            opt.backgroundColor = pal.base().color();
         style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
 

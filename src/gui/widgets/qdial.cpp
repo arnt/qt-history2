@@ -123,14 +123,14 @@ void QDialPrivate::repaintScreen(const QRect &cr)
     // draw notches
     if (showNotches) {
         calcLines();
-        p.setPen(pal.foreground());
+        p.setPen(pal.foreground().color());
         p.drawLineSegments(lines);
     }
 
     // calculate and paint arrow
-    p.setPen(QPen(pal.dark()));
+    p.setPen(QPen(pal.dark().color()));
     p.drawArc(te, 60 * 16, 180 * 16);
-    p.setPen(QPen(pal.light()));
+    p.setPen(QPen(pal.light().color()));
     p.drawArc(te, 240 * 16, 180 * 16);
 
     double a;
@@ -149,27 +149,27 @@ void QDialPrivate::repaintScreen(const QRect &cr)
 
     // that's still a hack...
     if (a <= 0 || a > 200) {
-        p.setPen(pal.light());
+        p.setPen(pal.light().color());
         p.drawLine(arrow[2], arrow[0]);
         p.drawLine(arrow[1], arrow[2]);
-        p.setPen(pal.dark());
+        p.setPen(pal.dark().color());
         p.drawLine(arrow[0], arrow[1]);
     } else if (a > 0 && a < 45) {
-        p.setPen(pal.light());
+        p.setPen(pal.light().color());
         p.drawLine(arrow[2], arrow[0]);
-        p.setPen(pal.dark());
+        p.setPen(pal.dark().color());
         p.drawLine(arrow[1], arrow[2]);
         p.drawLine(arrow[0], arrow[1]);
     } else if (a >= 45 && a < 135) {
-        p.setPen(pal.dark());
+        p.setPen(pal.dark().color());
         p.drawLine(arrow[2], arrow[0]);
         p.drawLine(arrow[1], arrow[2]);
-        p.setPen(pal.light());
+        p.setPen(pal.light().color());
         p.drawLine(arrow[0], arrow[1]);
     } else if (a >= 135 && a < 200) {
-        p.setPen(pal.dark());
+        p.setPen(pal.dark().color());
         p.drawLine(arrow[2], arrow[0]);
-        p.setPen(pal.light());
+        p.setPen(pal.light().color());
         p.drawLine(arrow[0], arrow[1]);
         p.drawLine(arrow[1], arrow[2]);
     }
@@ -189,7 +189,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
         p.end();
         p.begin(q);
         p.save();
-        p.setPen(QPen(pal.background()));
+        p.setPen(QPen(pal.background().color()));
         p.setBrush(Qt::NoBrush);
         p.drawRect(br);
         p.restore();

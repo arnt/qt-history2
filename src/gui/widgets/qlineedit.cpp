@@ -1755,7 +1755,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
 
     // draw text, selections and cursors
-    p.setPen(pal.text());
+    p.setPen(pal.text().color());
     bool supressCursor = d->readOnly;
     int textflags = 0;
     if (font().underline())

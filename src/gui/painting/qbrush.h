@@ -55,9 +55,6 @@ public:
     inline QPoint gradientStart() const;
     inline QPoint gradientStop() const;
 
-    inline operator const QColor&() const;
-    inline operator const QPixmap*() const;
-
     bool operator==(const QBrush &b) const;
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
 
@@ -94,14 +91,14 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QBrush &);
 
 struct QBrushData
 {
-    QAtomic     ref;
-    Qt::BrushStyle  style;
-    QColor      color;
+    QAtomic ref;
+    Qt::BrushStyle style;
+    QColor color;
 };
 
 struct QTexturedBrushData : public QBrushData
 {
-    QPixmap     *pixmap;
+    QPixmap *pixmap;
 };
 
 struct QLinGradBrushData : public QBrushData
@@ -113,9 +110,6 @@ struct QLinGradBrushData : public QBrushData
 
 inline Qt::BrushStyle QBrush::style() const { return d->style; }
 inline const QColor &QBrush::color() const { return d->color; }
-
-inline QBrush::operator const QColor&() const { return d->color; }
-inline QBrush::operator const QPixmap*() const { return pixmap(); }
 
 inline void QBrush::detach(Qt::BrushStyle newStyle) { if (newStyle != d->style || d->ref != 1) detach_helper(newStyle); }
 

@@ -635,7 +635,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     if (selection.type() == QTextLayout::Highlight
         && (selection.from() + selection.length() > 0)
         && (selection.from() < 1)) {
-        painter->setPen(context.palette.highlightedText());
+        painter->setPen(context.palette.highlightedText().color());
 
         painter->fillRect(r, context.palette.highlight());
     } else {

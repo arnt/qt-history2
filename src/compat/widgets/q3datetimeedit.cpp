@@ -289,9 +289,9 @@ public:
 
         /* color all QDATETIMEEDIT_HIDDEN_CHAR chars to background color */
         Q3TextFormat *fb = parag->formatCollection()->format(p.font(),
-                                                             pal.base());
+                                                             pal.base().color());
         Q3TextFormat *nf = parag->formatCollection()->format(p.font(),
-                                                             pal.text());
+                                                             pal.text().color());
         for (int i = 0; i < txt.length(); ++i) {
             parag->setFormat(i, 1, nf);
             if (inSectionSelection(i))

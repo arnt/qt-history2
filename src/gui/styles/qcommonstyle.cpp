@@ -160,7 +160,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_Indicator:
         if (opt->state & Style_NoChange) {
-            p->setPen(opt->palette.foreground());
+            p->setPen(opt->palette.foreground().color());
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
             p->drawRect(opt->rect);
             p->drawLine(opt->rect.topLeft(), opt->rect.bottomRight());
@@ -175,7 +175,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_ExclusiveIndicator: {
         QRect ir = opt->rect;
-        p->setPen(opt->palette.dark());
+        p->setPen(opt->palette.dark().color());
         p->drawArc(opt->rect, 0, 5760);
         if (opt->state & (Style_Sunken | Style_On)) {
             ir.addCoords(2, 2, -2, -2);
@@ -200,7 +200,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 else
                     p->setPen(Qt::white);
             } else {
-                p->setPen(opt->palette.foreground());
+                p->setPen(opt->palette.foreground().color());
             }
             if (opt->state & Style_FocusAtBorder)
                 p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
@@ -235,7 +235,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
         if (!(opt->state & Style_Enabled) && !(opt->state & Style_On)) {
             int pnt;
-            p->setPen(opt->palette.highlightedText());
+            p->setPen(opt->palette.highlightedText().color());
             QPoint offset(1, 1);
             for (pnt = 0; pnt < a.size(); ++pnt)
                 a[pnt] += offset;
@@ -243,7 +243,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             for (pnt = 0; pnt < a.size(); ++pnt)
                 a[pnt] -= offset;
         }
-        p->setPen(opt->palette.text());
+        p->setPen(opt->palette.text().color());
         p->drawLineSegments(a);
         break; }
     case PE_MenuFrame:
@@ -287,7 +287,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             //QPointArray a;
 
             if (lv->state & Style_Enabled)
-                p->setPen(lv->palette.text());
+                p->setPen(lv->palette.text().color());
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text)));
             QPointArray a(QCOORDARRLEN(pts1), pts1);
@@ -332,7 +332,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
              marg = lv->itemMargin;
 
             if (lv->state & Style_Enabled)
-                p->setPen(QPen(lv->palette.text(), 2));
+                p->setPen(QPen(lv->palette.text().color(), 2));
             else
                 p->setPen(QPen(lv->viewportPalette.color(QPalette::Disabled, QPalette::Text), 2));
             if (opt->state & Style_Selected && !lv->rootIsDecorated
@@ -340,7 +340,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->fillRect(0, 0, x + marg + w + 4, item.height,
                             lv->palette.brush(QPalette::Highlight));
                 if (item.state & Style_Enabled)
-                    p->setPen(QPen(lv->palette.highlightedText(), 2));
+                    p->setPen(QPen(lv->palette.highlightedText().color(), 2));
             }
 
             if (lv->state & Style_NoChange)
@@ -444,22 +444,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         if (QApplication::reverseLayout()) {
             sx = x + sw;
             for (int i = 0; i < 4; ++i) {
-                p->setPen(QPen(opt->palette.light(), 1));
+                p->setPen(QPen(opt->palette.light().color(), 1));
                 p->drawLine(x, sy - 1 , sx + 1,  sw);
-                p->setPen(QPen(opt->palette.dark(), 1));
+                p->setPen(QPen(opt->palette.dark().color(), 1));
                 p->drawLine(x, sy, sx, sw);
-                p->setPen(QPen(opt->palette.dark(), 1));
+                p->setPen(QPen(opt->palette.dark().color(), 1));
                 p->drawLine(x, sy + 1, sx - 1,  sw);
                 sx -= s;
                 sy += s;
             }
         } else {
             for (int i = 0; i < 4; ++i) {
-                p->setPen(QPen(opt->palette.light(), 1));
+                p->setPen(QPen(opt->palette.light().color(), 1));
                 p->drawLine(sx - 1, sw, sw,  sy - 1);
-                p->setPen(QPen(opt->palette.dark(), 1));
+                p->setPen(QPen(opt->palette.dark().color(), 1));
                 p->drawLine(sx, sw, sw,  sy);
-                p->setPen(QPen(opt->palette.dark(), 1));
+                p->setPen(QPen(opt->palette.dark().color(), 1));
                 p->drawLine(sx + 1, sw, sw,  sy + 1);
                 sx += s;
                 sy += s;
@@ -478,22 +478,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         QPen oldPen = p->pen();
         if (opt->state & Style_Down) {
             QPointArray pa(3);
-            p->setPen(opt->palette.light());
+            p->setPen(opt->palette.light().color());
             p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
                         opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
-            p->setPen(opt->palette.dark());
+            p->setPen(opt->palette.dark().color());
             pa.setPoint(0, opt->rect.x() + opt->rect.width() / 2, opt->rect.height());
             pa.setPoint(1, opt->rect.x(), opt->rect.y());
             pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
             p->drawPolyline(pa);
         } else {
             QPointArray pa(3);
-            p->setPen(opt->palette.light());
+            p->setPen(opt->palette.light().color());
             pa.setPoint(0, opt->rect.x(), opt->rect.height());
             pa.setPoint(1, opt->rect.x() + opt->rect.width(), opt->rect.height());
             pa.setPoint(2, opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
             p->drawPolyline(pa);
-            p->setPen(opt->palette.dark());
+            p->setPen(opt->palette.dark().color());
             p->drawLine(opt->rect.x(), opt->rect.height(), opt->rect.x() + opt->rect.width() / 2, opt->rect.y());
         }
         p->setPen(oldPen);
@@ -518,7 +518,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                                lwidth, mlwidth);
             else
                 qDrawPlainRect(p, frame->rect.x(), frame->rect.y(), frame->rect.width(),
-                               frame->rect.height(), frame->palette.foreground(), lwidth);
+                               frame->rect.height(), frame->palette.foreground().color(), lwidth);
         }
         break;
     case PE_PanelDockWindow:
@@ -578,7 +578,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                        r.height() - fw*2);
 
             p->fillRect(br, sb->palette.brush(QPalette::Button));
-            QPen pen(sb->palette.buttonText());
+            QPen pen(sb->palette.buttonText().color());
             if (sb->rect.height() > 30)
                 pen.setWidth((int)(sb->rect.height() / 20));
 
@@ -640,7 +640,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             }
             p->save();
             p->translate(sx + bsx, sy + bsy);
-            p->setPen(sb->palette.buttonText());
+            p->setPen(sb->palette.buttonText().color());
             p->setBrush(sb->palette.buttonText());
             p->drawPolygon(a);
             p->restore();
@@ -765,11 +765,11 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Highlight));
         else
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
-        p->setPen(QPen(opt->palette.dark(), 1, Qt::DashLine));
+        p->setPen(QPen(opt->palette.dark().color(), 1, Qt::DashLine));
         p->drawLine(opt->rect.x() + 2, opt->rect.y() + opt->rect.height() / 2 - 1,
                     opt->rect.x() + opt->rect.width() - 4,
                     opt->rect.y() + opt->rect.height() / 2 - 1);
-        p->setPen(QPen(opt->palette.light(), 1, Qt::DashLine));
+        p->setPen(QPen(opt->palette.light().color(), 1, Qt::DashLine));
         p->drawLine(opt->rect.x() + 2, opt->rect.y() + opt->rect.height() / 2,
                     opt->rect.x() + opt->rect.width() - 4, opt->rect.y() + opt->rect.height() / 2);
         break;
@@ -793,7 +793,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         break;
     case CE_ProgressBarLabel:
         if (const QStyleOptionProgressBar *pb = qt_cast<const QStyleOptionProgressBar *>(opt)) {
-            QColor penColor = pb->palette.highlightedText();
+            QColor penColor = pb->palette.highlightedText().color();
             QColor *pColor = 0;
             if (pb->features & QStyleOptionProgressBar::CenterIndicator
                 && !(pb->features & QStyleOptionProgressBar::IndicatorFollowsStyle)
@@ -819,7 +819,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 if (x > w)
                     x = 2 * w - x;
                 x = reverse ? pb->rect.right() - x : x + pb->rect.x();
-                p->setPen(QPen(pal2.highlight(), 4));
+                p->setPen(QPen(pal2.highlight().color(), 4));
                 p->drawLine(x, pb->rect.y() + 1, x, pb->rect.height() - fw);
             } else {
                 const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, pb, widget);
@@ -931,7 +931,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 arrowOpt.state = tb->state;
                 drawPrimitive(pe, &arrowOpt, p, widget);
             } else {
-                QColor btext = tb->palette.foreground();
+                QColor btext = tb->palette.foreground().color();
 
                 if (tb->icon.isNull() && !tb->text.isEmpty()
                         && !(tb->features & QStyleOptionToolButton::TextLabel)) {
@@ -1011,7 +1011,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
             p->setPen(tb->palette.mid().color().dark(150));
             p->drawPolygon(a);
-            p->setPen(tb->palette.light());
+            p->setPen(tb->palette.light().color());
             p->drawLine(0, 2, tb->rect.width() - d, 2);
             p->drawLine(tb->rect.width() - d - 1, 2, tb->rect.width() - 21, tb->rect.height() - 1);
             p->drawLine(tb->rect.width() - 20, tb->rect.height() - 1,
@@ -1052,7 +1052,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                     p->setBrush(tab->palette.base());
                 else
                     p->setBrush(tab->palette.background());
-                p->setPen(tab->palette.foreground());
+                p->setPen(tab->palette.foreground().color());
                 p->drawPolygon(a);
                 p->setPen(oldPen);
                 p->setBrush(oldBrush);
@@ -1413,7 +1413,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     interval = 1;
                 int fudge = len / 2;
                 int pos;
-                p->setPen(slider->palette.foreground());
+                p->setPen(slider->palette.foreground().color());
                 int v = slider->minimum;
                 while (v <= slider->maximum + 1) {
                     pos = QStyle::positionFromValue(slider->minimum, slider->maximum + 1,
@@ -1657,8 +1657,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
             QRect ir;
             if (opt->subControls & SC_TitleBarLabel) {
-                QColor left = tb->palette.highlight();
-                QColor right = tb->palette.base();
+                QColor left = tb->palette.highlight().color();
+                QColor right = tb->palette.base().color();
 
                 if (left != right) {
                     double rS = left.red();
@@ -1684,7 +1684,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
                                                        widget), widget);
 
-                p->setPen(tb->palette.highlightedText());
+                p->setPen(tb->palette.highlightedText().color());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
                             Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
             }

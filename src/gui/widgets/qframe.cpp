@@ -489,7 +489,7 @@ void QFrame::drawFrame(QPainter *p)
     switch (frameShape) {
     case Box:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground().color(), lw);
         else
             qDrawShadeRect(p, opt.rect, opt.palette, frameShadow == Sunken, lw, mlw);
         break;
@@ -497,21 +497,21 @@ void QFrame::drawFrame(QPainter *p)
 
     case StyledPanel:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground().color(), lw);
         else
             style().drawPrimitive(QStyle::PE_Panel, &opt, p, this);
         break;
 
     case Panel:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground().color(), lw);
         else
             qDrawShadePanel(p, opt.rect, opt.palette, frameShadow == Sunken, lw);
         break;
 
     case WinPanel:
         if (frameShadow == Plain)
-            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
+            qDrawPlainRect(p, opt.rect, opt.palette.foreground().color(), lw);
         else
             qDrawWinPanel(p, opt.rect, opt.palette, frameShadow == Sunken);
         break;
@@ -526,7 +526,7 @@ void QFrame::drawFrame(QPainter *p)
         }
         if (frameShadow == Plain) {
             QPen oldPen = p->pen();
-            p->setPen(QPen(opt.palette.foreground(), lw));
+            p->setPen(QPen(opt.palette.foreground().color(), lw));
             p->drawLine(p1, p2);
             p->setPen(oldPen);
         } else {

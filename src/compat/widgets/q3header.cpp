@@ -1565,7 +1565,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
 void Q3Header::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
-    p.setPen(palette().buttonText());
+    p.setPen(palette().buttonText().color());
     int pos = orient == Qt::Horizontal ? e->rect().left() : e->rect().top();
     int id = mapToIndex(sectionAt(pos + offset()));
     if (id < 0) {

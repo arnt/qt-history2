@@ -410,9 +410,9 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     painter->setPen(penColor ? *penColor : pal.foreground().color());
     if (!text.isEmpty()) {
         if (!enabled && styleHint(SH_EtchDisabledText)) {
-            painter->setPen(pal.light());
+            painter->setPen(pal.light().color());
             painter->drawText(x+1, y+1, w, h, alignment, text, len);
-            painter->setPen(pal.text());
+            painter->setPen(pal.text().color());
         }
         painter->drawText(x, y, w, h, alignment, text, len);
     }

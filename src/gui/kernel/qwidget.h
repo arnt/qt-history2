@@ -911,7 +911,7 @@ inline void QWidget::setPaletteForegroundColor(const QColor &c)
 inline const QBrush& QWidget::backgroundBrush() const { return palette().brush(backgroundRole()); }
 inline void QWidget::setBackgroundPixmap(const QPixmap &pm)
 { QPalette p = palette(); p.setBrush(backgroundRole(), QBrush(pm)); setPalette(p); }
-inline const QPixmap *QWidget::backgroundPixmap() const { return palette().brush(backgroundRole()).pixmap(); }
+inline const QPixmap *QWidget::backgroundPixmap() const { return 0; }
 inline void QWidget::setBackgroundColor(const QColor &c)
 { QPalette p = palette(); p.setColor(backgroundRole(), c); setPalette(p); }
 inline const QColor & QWidget::backgroundColor() const { return palette().color(backgroundRole()); }
@@ -919,7 +919,7 @@ inline const QColor &QWidget::foregroundColor() const { return palette().color(f
 inline const QColor &QWidget::eraseColor() const { return palette().color(backgroundRole()); }
 inline void QWidget::setEraseColor(const QColor &c)
 { QPalette p = palette(); p.setColor(backgroundRole(), c); setPalette(p); }
-inline const QPixmap *QWidget::erasePixmap() const { return palette().brush(backgroundRole()).pixmap(); }
+inline const QPixmap *QWidget::erasePixmap() const { return 0; }
 inline void QWidget::setErasePixmap(const QPixmap &pm)
 { QPalette p = palette(); p.setBrush(backgroundRole(), QBrush(pm)); setPalette(p); }
 inline const QColor &QWidget::paletteForegroundColor() const { return palette().color(foregroundRole());}
@@ -927,7 +927,7 @@ inline const QColor &QWidget::paletteBackgroundColor() const { return palette().
 inline void QWidget::setPaletteBackgroundColor(const QColor &c)
 { QPalette p = palette(); p.setColor(backgroundRole(), c); setPalette(p); }
 inline const QPixmap *QWidget::paletteBackgroundPixmap() const
-{ return palette().brush(backgroundRole()).pixmap(); }
+{ return 0; }
 inline void QWidget::setPaletteBackgroundPixmap(const QPixmap &pm)
 { QPalette p = palette(); p.setBrush(backgroundRole(), QBrush(pm)); setPalette(p); }
 #else

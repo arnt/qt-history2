@@ -786,7 +786,7 @@ void QLabel::paintEvent(QPaintEvent *)
         opt.init(this);
         if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {
             context.palette = palette();
-            context.palette.setColor(QPalette::Text, context.palette.light());
+            context.palette.setColor(QPalette::Text, context.palette.light().color());
             QRect r = cr;
             r.moveBy(-cr.x()-1, -cr.y()-yo-1);
             paint.save();

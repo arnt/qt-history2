@@ -1702,7 +1702,7 @@ void QDataTable::paintCell(QPainter * p, int row, int col, const QRect & cr,
     if (!sqlCursor())
         return;
 
-    p->setPen(selected ? pal.highlightedText() : pal.text());
+    p->setPen(selected ? pal.highlightedText().color() : pal.text().color());
     if (d->dat.mode() != QSql::None) {
         if (row == d->editRow && d->editBuffer) {
             paintField(p, d->editBuffer->field(indexOf(col)), cr,

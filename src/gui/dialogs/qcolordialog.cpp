@@ -732,7 +732,7 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
     p.drawPixmap(1, coff, *pix);
     const QPalette &g = palette();
     qDrawShadePanel(&p, r, g, true);
-    p.setPen(g.foreground());
+    p.setPen(g.foreground().color());
     p.setBrush(g.foreground());
     QPointArray a;
     int y = val2y(val);

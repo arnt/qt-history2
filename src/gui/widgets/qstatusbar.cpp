@@ -487,7 +487,7 @@ void QStatusBar::paintEvent(QPaintEvent *)
             }
     }
     if (haveMessage) {
-        p.setPen(palette().foreground());
+        p.setPen(palette().foreground().color());
         p.drawText(6, 0, psx, height(), Qt::AlignVCenter | Qt::TextSingleLine, d->tempItem);
     }
 }

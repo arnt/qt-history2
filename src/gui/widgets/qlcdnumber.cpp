@@ -853,8 +853,8 @@ void QLCDNumber::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
         darkColor  = lightColor;
         fgColor    = lightColor;
     } else {
-        lightColor = pal.light();
-        darkColor  = pal.dark();
+        lightColor = pal.light().color();
+        darkColor  = pal.dark().color();
         fgColor    = pal.color(foregroundRole());
     }
 
