@@ -339,8 +339,8 @@ void write_jpeg_image(QImageIO* iio)
 	    bool ok = false;
 	    int iq = QString::fromLatin1( iio->parameters() ).toInt( &ok );
 	    if ( ok ) {
-		if ( iq >= 0) {
-		    if ( iq > 100) {
+		if ( iq >= 0 ) {
+		    if ( iq > 100 ) {
 #if defined(CHECK_RANGE)
 			qWarning( "JPEG: Quality %d out of range", iq );
 #endif
