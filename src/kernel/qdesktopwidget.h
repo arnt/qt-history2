@@ -29,7 +29,7 @@ public:
     const QRect& screenGeometry( int screen = -1 ) const;
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *createAccessibilityInterface()
+    QAccessibleInterface *accessibleInterface()
     {
 	return 0;
     }

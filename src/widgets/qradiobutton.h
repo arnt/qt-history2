@@ -67,7 +67,7 @@ protected:
 
     void    updateMask();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *createAccessibilityInterface();
+    QAccessibleInterface *accessibleInterface();
 #endif
 
 private:

@@ -877,7 +877,7 @@ bool QToolButton::isOnAndNoOnPixmap()
   toolbutton provides a popup menu, or a drop down button when this toolbutton has
   a drop down section.
 */
-QAccessibleInterface *QToolButton::createAccessibilityInterface()
+QAccessibleInterface *QToolButton::accessibleInterface()
 {
     if ( !d->popup )
 	return new QAccessibleButton( this, QAccessible::PushButton );

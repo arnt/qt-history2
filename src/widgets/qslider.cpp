@@ -1097,7 +1097,7 @@ int QSlider::value() const
 /*! 
   \reimp
 */
-QAccessibleInterface *QSlider::createAccessibilityInterface()
+QAccessibleInterface *QSlider::accessibleInterface()
 {
     return new QAccessibleRangeControl( this, QAccessible::Slider );
 }

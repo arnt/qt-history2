@@ -70,7 +70,7 @@ protected:
     void    drawButtonLabel( QPainter * );
     void    updateMask();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *createAccessibilityInterface();
+    QAccessibleInterface *accessibleInterface();
 #endif
 
 private:	// Disabled copy constructor and operator=

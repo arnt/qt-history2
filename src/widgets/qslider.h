@@ -123,7 +123,7 @@ protected:
     void styleChange( QStyle& );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *createAccessibilityInterface();
+    QAccessibleInterface *accessibleInterface();
 #endif
 
     void	valueChange();
