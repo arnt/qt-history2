@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#36 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#36 $");
 
 
 /*!
@@ -655,19 +655,27 @@ QTextStream &QTextStream::operator>>( QString &s )
 /*!
   Reads a line from the stream and returns a reference to the stream.
 
-  The returned string does not contain any trailing newline or
-  carriage return.
+  The returned string does not contain any trailing newline or carriage
+  return. Note that this is different from QIODevice::readLine(), which
+  does not strip the newline at the end of the line.
+
+  \sa QIODevice::readLine()
 */
 
 QString QTextStream::readLine()
 {
-    CHECK_STREAM_PRECOND;
+#if defined(CHECK_STATE)
+    if ( !dev ) {
+	warning( "QTextStream: No device" );
+	QString nullString;
+	return nullString;
+    }
+#endif
     QString s( 64 );
     int i = 0;
-    int c = eat_ws( dev );
+    int c = dev->getch();
     while ( c != EOF ) {
 	if ( c == '\n' ) {
-	    dev->ungetch( c );
 	    break;
 	}
 	s[i++] = c;
@@ -676,8 +684,7 @@ QString QTextStream::readLine()
 	c = dev->getch();
     }
     if ( i > 0 && s[i-1] == '\r' )
-	s[--i] = '\0'; // if there are two \r, let one stay
-
+	i--;				// if there are two \r, let one stay
     s.truncate(i);
     return s;
 }
