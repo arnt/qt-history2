@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#84 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#84 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1546,5 +1546,6 @@ void QListBox::setMaxItemWidth( int len )
 {
     ASSERT( qlb_maxLenDict );
     qlb_maxLenDict->remove( (long)this );
-    qlb_maxLenDict->insert( (long)this, (int*)len );
+    if ( len )
+	qlb_maxLenDict->insert( (long)this, (int*)len );
 }

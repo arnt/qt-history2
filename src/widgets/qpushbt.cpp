@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#76 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#76 $");
 
 
 /*!
@@ -226,8 +226,8 @@ QSize QPushButton::sizeHint() const
 	QRect br = fm.boundingRect( text() );
 	w = br.width()	+ 6;
 	h = fm.height() + 6;
-	w += w/8 + 16;
-	h += h/8 + 8;
+	w += h/8 + 10;
+	h += h/8 + 4;
     }
     return QSize( w, h );
 }

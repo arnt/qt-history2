@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#64 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#64 $");
 
 
 /*!
@@ -83,17 +83,29 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
     move( 0, 0 );
-    switch ( style() ) {
-	case WindowsStyle:
-	    setFrameStyle( QFrame::NoFrame );
-	    setMouseTracking( TRUE );
-	    break;
-	case MotifStyle:
-	    setFrameStyle( QFrame::Panel | QFrame::Raised );
-	    setLineWidth( motifBarFrame );
-	    break;
-	default:
-	    break;
+    QFontMetrics fm = fontMetrics();
+    int gs = style();
+    int h;
+    if ( gs == WindowsStyle ) {
+	h = 2 + fm.height() + motifItemVMargin + 2*motifBarFrame;
+    } else {
+	h =  motifBarFrame + motifBarVMargin + fm.height() 
+	     + motifItemVMargin + 2*motifBarFrame + 2*motifItemFrame;
+    }
+
+    resize( width(), h );
+
+    switch ( gs ) {
+    case WindowsStyle:
+	setFrameStyle( QFrame::NoFrame );
+	setMouseTracking( TRUE );
+	break;
+    case MotifStyle:
+	setFrameStyle( QFrame::Panel | QFrame::Raised );
+	setLineWidth( motifBarFrame );
+	break;
+    default:
+	break;
     }
 }
 
