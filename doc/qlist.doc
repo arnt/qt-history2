@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.4 1997/06/25 16:57:18 warwick Exp $
+** $Id: qlist.doc,v 2.5 1997/06/26 19:38:44 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -120,7 +120,7 @@
 
 /*!
   \fn QList::QList( const QList<type> &list )
-  Constructs copy of \e list.
+  Constructs a copy of \e list.
 
   Each item in \e list is \link append() appended\endlink to this list.
   Only the pointers are copied (shallow copy).
@@ -855,8 +855,21 @@
 
   \ingroup predefcollection
 
-  This class is a QList\<char*\> instance.
-  It can make deep copies of the strings that are inserted.
+  This class is a QList\<char\> instance (a list of char*).
+
+  QStrList can make deep or shallow copies of the strings that are inserted.
+
+  A deep copy means to allocate space for the string and then copy the string
+  data into it.  A shallow copy is just a copy of the pointer value and not
+  the string data.
+
+  The disadvantage with shallow copies is that since a pointer can only
+  be deleted once, the program must put all strings in a central place and 
+  know when it is safe to delete them (i.e. when the strings are no longer
+  referenced by other parts of the program).  This can make the program
+  more complex.  The advantage of shallow copies is that shallow copies
+  consume far less memory than deep copies.  It is also much faster
+  to copy a pointer (typically 4 or 8 bytes) than to copy string data.
 
   The virtual compareItems() function is reimplemented and does a
   case sensitive string comparision.
@@ -873,15 +886,26 @@
 */
 
 /*!
-  \fn QStrList::QStrList( const QStrList& original )
-  Constructs a list of strings from another list.
-  Will deep copy if original list uses deep copies, otherwise will
-  shallow copy (only the pointers).
+  \fn QStrList::QStrList( const QStrList &list )
+  Constructs a copy of \e list.
+
+  If \e list has deep copies, this list will also get deep copies.
+  Only the pointers are copied (shallow copy) if the other list does not
+  use deep copies.
 */
 
 /*!
   \fn QStrList::~QStrList()
   Destroys the list.  All strings are removed.
+*/
+
+/*!
+  \fn QStrList &QStrList::operator=( const QStrList &list )
+  Assigns \e list to this list and returns a reference to this list.
+
+  If \e list has deep copies, this list will also get deep copies.
+  Only the pointers are copied (shallow copy) if the other list does not
+  use deep copies.
 */
 
 
@@ -897,8 +921,8 @@ case insensitive compare.
   \ingroup predefcollection
 
   This class is a QList\<char\> instance (a list of char*).
-  It can make deep copies of the strings that are inserted.
 
+  QStrIList is similar to QStrList except that it is case insensitive.
   The virtual compareItems() function is reimplemented and does a
   case insensitive string comparision.
   The inSort() function will insert strings in a sorted order.
@@ -931,6 +955,6 @@ case insensitive compare.
 
   \ingroup predefiterators
 
-  This class is a QListIterator\<char*\> instance.
+  This class is a QListIterator\<char\> instance.
   It can traverse the strings in the QStrList and QStrIList classes.
 */
