@@ -1360,14 +1360,14 @@ bool QODBCDriver::open( const QString & db,
     
     // Create the connection string
     QString connQStr;
-    // support the "DRIVER={SQL SERVER};SERVER=blah;" syntax
+    // support the "DRIVER={SQL SERVER};SERVER=blah" syntax
     if ( db.contains(".dsn") )
 	connQStr = "FILEDSN=" + db;
     else if ( db.contains( "DRIVER" ) || db.contains( "SERVER" ) )
 	connQStr = db;
     else
 	connQStr = "DSN=" + db;
-    connQStr += ";UID=" + user + ";PWD=" + password + ";";
+    connQStr += ";UID=" + user + ";PWD=" + password;
     SQLSMALLINT cb;
     SQLTCHAR connOut[1024];
     r = SQLDriverConnect( d->hDbc,
