@@ -42,7 +42,7 @@ struct Q_EXPORT QUuid
     {
 	memcpy( this, &uuid, sizeof(QUuid) );
     }
-    
+
     // Implementented in qcomponentinterface.cpp
     QUuid( const QString & );
     QString toString() const;
@@ -64,7 +64,7 @@ struct Q_EXPORT QUuid
 	return !( *this == uuid );
     }
 
-    // On Windows we have a type GUID that is used by the platform API, so we 
+    // On Windows we have a type GUID that is used by the platform API, so we
     // provide convenience operators to cast from and to this type.
     QUuid( const GUID &guid )
     {
@@ -79,17 +79,17 @@ struct Q_EXPORT QUuid
     }
 
     operator GUID() const
-    { 
+    {
 	GUID guid = { data1, data2, data3, { data4[0], data4[1], data4[2], data4[3], data4[4], data4[5], data4[6], data4[7] } };
 	return guid;
     }
 
-    operator==( const GUID &guid ) const
+    bool operator==( const GUID &guid ) const
     {
 	return !memcmp( this, &guid, sizeof(QUuid) );
     }
 
-    operator!=( const GUID &guid ) const
+    bool operator!=( const GUID &guid ) const
     {
 	return !( *this == guid );
     }
