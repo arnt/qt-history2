@@ -564,7 +564,7 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
 
 */
 
-QStringList QSqlRecord::toStringList( const QString& prefix = QString::null ) const
+QStringList QSqlRecord::toStringList( const QString& prefix ) const
 {
     QStringList s;
     for ( uint i = 0; i < count(); ++i ) {
