@@ -3464,6 +3464,32 @@ QString MainWindow::whatsThisFrom( const QString &key )
 
 Project *MainWindow::setSingleProject( const QString &lang, const QString &projectName )
 {
+    if ( eProject ) {
+	Project *pro = eProject;
+	pro->save();
+	QWidgetList windows = qWorkspace()->windowList();
+	qWorkspace()->blockSignals( TRUE );
+	QWidgetListIt wit( windows );
+	while ( wit.current() ) {
+	    QWidget *w = wit.current();
+	    ++wit;
+	    if ( w->inherits( "FormWindow" ) ) {
+		if ( ( (FormWindow*)w )->project() == pro ) {
+		    if ( ( (FormWindow*)w )->formFile()->editor() )
+			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+		    ( (FormWindow*)w )->formFile()->close();
+		}
+	    } else if ( w->inherits( "SourceEditor" ) ) {
+		( (SourceEditor*)w )->close();
+	    }
+	}
+	hierarchyView->clear();
+	windows = qWorkspace()->windowList();
+	qWorkspace()->blockSignals( FALSE );
+	currentProject = 0;
+	updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
+    }
+
     singleProject = TRUE;
     projects.clear();
     QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );

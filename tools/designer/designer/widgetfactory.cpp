@@ -1132,7 +1132,8 @@ const char* WidgetFactory::classNameOf( QObject* o )
 
 void WidgetFactory::initChangedProperties( QObject *o )
 {
-    if ( MainWindow::self->currProject()->fakeFormFor( o ) )
+    if ( MainWindow::self->currProject() &&
+	 MainWindow::self->currProject()->fakeFormFor( o ) )
 	return;
     MetaDataBase::setPropertyChanged( o, "name", TRUE );
     if ( !o->inherits( "QDesignerToolBar" ) && !o->inherits( "QDesignerMenuBar" ) )
