@@ -66,6 +66,7 @@ public:
     bool	save( const QString &fileName, const char *format = 0 );
 
     QRect boundingRect() const;
+    void setBoundingRect( const QRect &r );
 
     QPicture& operator= (const QPicture&);
 

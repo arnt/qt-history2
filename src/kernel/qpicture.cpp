@@ -335,6 +335,18 @@ QRect QPicture::boundingRect() const
 }
 
 /*!
+  Sets the picture's bounding rectangle to \a r. The automatically
+  calculated value is overriden.
+*/
+
+void QPicture::setBoundingRect( const QRect &r )
+{
+    if ( !d->formatOk )
+        d->checkFormat();
+    d->brect = r;
+}
+
+/*!
   Replays the picture using \a painter, and returns TRUE if successful or
   FALSE if the internal picture data is inconsistent.
 
