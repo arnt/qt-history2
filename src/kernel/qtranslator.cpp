@@ -201,119 +201,131 @@ public:
 };
 
 
-/*! \class QTranslator
+/*!
+    \class QTranslator
 
-  \brief The QTranslator class provides internationalization support for text
-  output.
+    \brief The QTranslator class provides internationalization support for text
+    output.
 
-  \ingroup i18n
-  \ingroup environment
-  \mainclass
+    \ingroup i18n
+    \ingroup environment
+    \mainclass
 
-  An object of this class contains a set of QTranslatorMessage
-  objects, each of which specifies a translation from a source
-  language to a target language.  QTranslator provides functions to
-  look up such translations, add new ones, remove them, load and save them,
-  etc.
+    An object of this class contains a set of QTranslatorMessage
+    objects, each of which specifies a translation from a source
+    language to a target language. QTranslator provides functions to
+    look up translations, add new ones, remove them, load and save
+    them, etc.
 
-  The most common use of QTranslator is expected to be loading a
-  translator file made using \link linguist-manual.book Qt
-  Linguist\endlink, installing it using
-  QApplication::installTranslator(), and using it via QObject::tr(),
-  like this:
+    The most common use of QTranslator is to: load a translator file
+    created with \link linguist-manual.book Qt Linguist\endlink,
+    install it using QApplication::installTranslator(), and use it via
+    QObject::tr(). For example:
 
-  \code
-  int main( int argc, char ** argv )
-  {
-      QApplication app( argc, argv );
+    \code
+    int main( int argc, char ** argv )
+    {
+	QApplication app( argc, argv );
 
-      QTranslator translator( 0 );
-      translator.load( "french.qm", "." );
-      app.installTranslator( &translator );
+	QTranslator translator( 0 );
+	translator.load( "french.qm", "." );
+	app.installTranslator( &translator );
 
-      MyWidget m;
-      app.setMainWidget( &m );
-      m.show();
+	MyWidget m;
+	app.setMainWidget( &m );
+	m.show();
 
-      return app.exec();
-  }
-  \endcode
+	return app.exec();
+    }
+    \endcode
 
-  Most applications will never need to do anything else with this
-  class.  However, applications that work on translator files need the
-  other functions in this class.
+    Most applications will never need to do anything else with this
+    class. The other functions provided by this class are useful for
+    applications that work on translator files.
 
-  It is possible to do lookup using findMessage() (as tr() and
-  QApplication::translate() do) and contains(), insert a new
-  translation message using insert(), and remove it using remove().
+    We call a translation a "messsage". For this reason, translation
+    files are sometimes referred to as "message files".
 
-  Because end-user programs and translation tools have rather different
-  requirements, QTranslator can use stripped translator files in a way
-  that uses a minimum of memory and provides very little functionality
-  other than findMessage().
+    It is possible to lookup a translation using findMessage() (as
+    tr() and QApplication::translate() do) and contains(), to insert a
+    new translation messsage using insert(), and to remove one using
+    remove().
 
-  Thus, load() may not load enough information to make anything more
-  than findMessage() work.  save() has an argument indicating whether
-  to save just this minimum of information or to save everything.
+    Translation tools often need more information than the bare source
+    text and translation, for example, context information to help
+    the translator. But end-user programs that are using translations
+    usually only need lookup. To cater for these different needs,
+    QTranslator can use stripped translator files that use the minimum
+    of memory and which support little more functionality than
+    findMessage().
 
-  "Everything" means that for each translation item the following
-  information is kept:
+    Thus, load() may not load enough information to make anything more
+    than findMessage() work. save() has an argument indicating
+    whether to save just this minimum of information or to save
+    everything.
 
-  \list
-   \i The \e {translated text} - the return value from tr().
-   \i The input key:
+    "Everything" means that for each translation item the following
+    information is kept:
+
     \list
-     \i The \e {source text} - usually the argument to tr().
-     \i The \e context - usually the class name for the tr() caller.
-     \i The \e comment - a comment that helps disambiguate different uses
-	of the same text in the same context.
+    \i The \e {translated text} - the return value from tr().
+    \i The input key:
+	\list
+	\i The \e {source text} - usually the argument to tr().
+	\i The \e context - usually the class name for the tr() caller.
+	\i The \e comment - a comment that helps disambiguate different uses
+	   of the same text in the same context.
+	\endlist
     \endlist
-  \endlist
 
-  The minimum for each item is just the information necessary for
-  findMessage() to return the right text.  This may include the source,
-  context and comment, but usually it is just a hash value and the
-  translated text.
+    The minimum for each item is just the information necessary for
+    findMessage() to return the right text. This may include the
+    source, context and comment, but usually it is just a hash value
+    and the translated text.
 
-  For example, the "Cancel" in a dialog might have "Anuluj" when the
-  program runs in Polish (in this case the source text would be
-  "Cancel"). The context would (normally) be the dialog's class name;
-  there would normally be no comment, and the translated text would be
-  "Anuluj".
+    For example, the "Cancel" in a dialog might have "Anuluj" when the
+    program runs in Polish (in this case the source text would be
+    "Cancel"). The context would (normally) be the dialog's class
+    name; there would normally be no comment, and the translated text
+    would be "Anuluj".
 
-  But it's not always so simple. The Spanish version of a printer
-  dialog with settings for two-sided printing and binding would
-  probably require both "Activado" and "Activada" as translations for
-  "Enabled".  In this case the source text would be "Enabled" in both
-  cases and the context would be the dialog's class name, but the two
-  items would have disambiguating comments such as "two-sided
-  printing" for one and "binding" for the other.  The comment enables
-  the translator to choose the appropriate gender for the Spanish
-  version, and enables Qt to distinguish between translations.
+    But it's not always so simple. The Spanish version of a printer
+    dialog with settings for two-sided printing and binding would
+    probably require both "Activado" and "Activada" as translations
+    for "Enabled". In this case the source text would be "Enabled" in
+    both cases, and the context would be the dialog's class name, but
+    the two items would have disambiguating comments such as
+    "two-sided printing" for one and "binding" for the other. The
+    comment enables the translator to choose the appropriate gender
+    for the Spanish version, and enables Qt to distinguish between
+    translations.
 
-  Note that when QTranslator loads a stripped file, most functions do
-  not work.  The functions that do work with stripped files are
-  explicitly documented as such.
+    Note that when QTranslator loads a stripped file, most functions
+    do not work. The functions that do work with stripped files are
+    explicitly documented as such.
 
-  \sa QTranslatorMessage QApplication::installTranslator()
-  QApplication::removeTranslator() QObject::tr() QApplication::translate()
+    \sa QTranslatorMessage QApplication::installTranslator()
+    QApplication::removeTranslator() QObject::tr() QApplication::translate()
 */
 
-/*! \enum QTranslator::SaveMode
-  This enum type defines how QTranslator can write translation files.
-  There are two modes:
+/*!
+    \enum QTranslator::SaveMode
 
-  \value Everything  files are saved with all contents
-  \value Stripped  files are saved with just what's needed for end-users
+    This enum type defines how QTranslator writes translation
+    files. There are two modes:
 
-  Note that when QTranslator loads a stripped file, most functions do
-  not work.  The functions that do work with stripped files are
-  explicitly documented as such.
+    \value Everything  files are saved with all available information
+    \value Stripped  files are saved with just enough information for
+	end-user applications
+
+    Note that when QTranslator loads a stripped file, most functions do
+    not work. The functions that do work with stripped files are
+    explicitly documented as such.
 */
 
 /*!
     Constructs an empty message file object that is not connected to
-    any file. The object has parent \a parent and name \a name.
+    any file. The object is called \a name with parent \a parent.
 */
 
 QTranslator::QTranslator( QObject * parent, const char * name )
@@ -323,7 +335,8 @@ QTranslator::QTranslator( QObject * parent, const char * name )
 }
 
 
-/*!  Destroys the object and frees any allocated resources.
+/*!
+    Destroys the object and frees any allocated resources.
 */
 
 QTranslator::~QTranslator()
@@ -337,35 +350,39 @@ QTranslator::~QTranslator()
 
 extern bool qt_detectRTLLanguage();
 
-/*!  Loads \a filename, which may be an absolute file name or relative
-  to \a directory.  The previous contents of this translator object is
-  discarded.
+/*!
+    Loads \a filename, which may be an absolute file name or relative
+    to \a directory. The previous contents of this translator object
+    is discarded.
 
-  If the full file name does not exist, other file names
-  are tried in the following order:
+    If the full file name does not exist, other file names are tried
+    in the following order:
 
-  \list 1
-   \i File name with \a suffix appended (".qm" if the suffix is QString::null).
-   \i File name with text after a character in \a search_delimiters stripped
-      ("_." is the default for \a search_delimiters if it is QString::null).
-   \i File name stripped and \a suffix appended.
-   \i File name stripped further, etc.
-  \endlist
+    \list 1
+    \i File name with \a suffix appended (".qm" if the \a suffix is
+       QString::null).
+    \i File name with text after a character in \a search_delimiters
+       stripped ("_." is the default for \a search_delimiters if it is
+       QString::null).
+    \i File name stripped and \a suffix appended.
+    \i File name stripped further, etc.
+    \endlist
 
-  For example, an application running in the fr_CA locale
-  (French-speaking Canada) might call load("foo.fr_ca", "/opt/foolib"),
-  which would then try to open these files:
+    For example, an application running in the fr_CA locale
+    (French-speaking Canada) might call load("foo.fr_ca",
+    "/opt/foolib"). load() would then try to open the first existing
+    readable file from this list:
 
-  \list 1
-   \i /opt/foolib/foo.fr_ca
-   \i /opt/foolib/foo.fr_ca.qm
-   \i /opt/foolib/foo.fr
-   \i /opt/foolib/foo.fr.qm
-   \i /opt/foolib/foo
-   \i /opt/foolib/foo.qm
-  \endlist
+    \list 1
+    \i /opt/foolib/foo.fr_ca
+    \i /opt/foolib/foo.fr_ca.qm
+    \i /opt/foolib/foo.fr
+    \i /opt/foolib/foo.fr.qm
+    \i /opt/foolib/foo
+    \i /opt/foolib/foo.qm
+    \endlist
 
-  \sa save()
+    \sa save()
 */
 
 bool QTranslator::load( const QString & filename, const QString & directory,
@@ -543,13 +560,14 @@ bool QTranslator::do_load( const uchar *data, int len )
 
 #ifndef QT_NO_TRANSLATION_BUILDER
 
-/*!  Saves this message file to \a filename, overwriting the previous
-  contents of \a filename.  If \a mode is \c Everything (the
-  default), all the information is preserved.  If \a mode is \c Stripped,
-  any information that is not necessary for findMessage() is stripped
-  away.
+/*!
+    Saves this message file to \a filename, overwriting the previous
+    contents of \a filename. If \a mode is \c Everything (the
+    default), all the information is preserved. If \a mode is \c
+    Stripped, any information that is not necessary for findMessage()
+    is stripped away.
 
-  \sa load()
+    \sa load()
 */
 
 bool QTranslator::save( const QString & filename, SaveMode mode )
@@ -587,9 +605,10 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 
 #endif
 
-/*!  Empties this translator of all contents.
+/*!
+    Empties this translator of all contents.
 
-  This function works with stripped translator files.
+    This function works with stripped translator files.
 */
 
 void QTranslator::clear()
@@ -645,13 +664,14 @@ void QTranslator::clear()
 
 #ifndef QT_NO_TRANSLATION_BUILDER
 
-/*! Converts this message file to the compact format used to store
-  message files on disk.
+/*!
+    Converts this message file to the compact format used to store
+    message files on disk.
 
-  You should never need to call this directly; save() and other functions call
-  it as necessary. \a mode is for internal use.
+    You should never need to call this directly; save() and other
+    functions call it as necessary. \a mode is for internal use.
 
-  \sa save() unsqueeze()
+    \sa save() unsqueeze()
 */
 
 void QTranslator::squeeze( SaveMode mode )
@@ -791,13 +811,14 @@ void QTranslator::squeeze( SaveMode mode )
 }
 
 
-/*!  Converts this message file into an easily modifiable data structure, less
-  compact than the format used in the files.
+/*!
+    Converts this message file into an easily modifiable data
+    structure, less compact than the format used in the files.
 
-  You should never need to call this function; it is called by insert() and
-  friends as necessary.
+    You should never need to call this function; it is called by
+    insert() and friends as necessary.
 
-  \sa squeeze()
+    \sa squeeze()
 */
 
 void QTranslator::unsqueeze()
@@ -819,12 +840,13 @@ void QTranslator::unsqueeze()
 }
 
 
-/*!  Returns TRUE if this message file contains a message with the key
-  (\a context, \a sourceText, \a comment); otherwise returns FALSE.
+/*!
+    Returns TRUE if this message file contains a message with the key
+    (\a context, \a sourceText, \a comment); otherwise returns FALSE.
 
-  This function works with stripped translator files.
+    This function works with stripped translator files.
 
-  (This is is a one-liner that calls findMessage().)
+    (This is is a one-liner that calls findMessage().)
 */
 
 bool QTranslator::contains( const char* context, const char* sourceText,
@@ -834,12 +856,13 @@ bool QTranslator::contains( const char* context, const char* sourceText,
 }
 
 
-/*!  Inserts \a message into this message file.
+/*!
+    Inserts \a message into this message file.
 
-  This function does \e not work with stripped translator files.  It
-  may seem to, but that is not dependable.
+    This function does \e not work with stripped translator files. It
+    may appear to, but that is not dependable.
 
-  \sa remove()
+    \sa remove()
 */
 
 void QTranslator::insert( const QTranslatorMessage& message )
@@ -856,11 +879,12 @@ void QTranslator::insert( const QTranslatorMessage& message )
   \obsolete
 */
 
-/*!  Removes \a message from this translator.
+/*!
+    Removes \a message from this translator.
 
-  This function works with stripped translator files.
+    This function works with stripped translator files.
 
-  \sa insert()
+    \sa insert()
 */
 
 void QTranslator::remove( const QTranslatorMessage& message )
@@ -1016,14 +1040,15 @@ bool QTranslator::isEmpty() const
 
 #ifndef QT_NO_TRANSLATION_BUILDER
 
-/*!  Returns a list of the messages in the translator.  This function is
-  rather slow; because it is seldom called, it's optimized for simplicity and
-  small size, not speed.
+/*!
+    Returns a list of the messages in the translator. This function is
+    rather slow. Because it is seldom called, it's optimized for
+    simplicity and small size, rather than speed.
 
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, like this:
-  \code
-    QValueList<QTranslatorMessage> list = translator.messages();
+    If you want to iterate over the list, you should iterate over a
+    copy, e.g.
+    \code
+    QValueList<QTranslatorMessage> list = myTranslator.messages();
     QValueList<QTranslatorMessage>::Iterator it = list.begin();
     while ( it != list.end() ) {
 	process_message( *it );
@@ -1040,36 +1065,38 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 
 #endif
 
-/*! \class QTranslatorMessage qtranslator.h
+/*!
+    \class QTranslatorMessage qtranslator.h
 
-  \preliminary
+    \preliminary
 
-  \brief The QTranslatorMessage class contains a translator message and its
-  properties.
+    \brief The QTranslatorMessage class contains a translator message and its
+    properties.
 
-  \ingroup i18n
-  \ingroup environment
+    \ingroup i18n
+    \ingroup environment
 
-  This class is of no interest to most applications, just for
-  translation tools such as
-  \link linguist-manual.book Qt Linguist\endlink. It is
-  provided simply to make the API complete and regular.
+    This class is of no interest to most applications. It is useful
+    for translation tools such as \link linguist-manual.book Qt
+    Linguist\endlink. It is provided simply to make the API complete
+    and regular.
 
-  For a QTranslator object, a lookup key is a triple (\e context, \e
-  {source text}, \e comment) that uniquely identifies a message.  An
-  extended key is a quadruple (\e hash, \e context, \e {source
-  text}, \e comment), where \e hash is computed from the source text
-  and the comment.  Unless you plan to read and write messages
-  yourself, you need not worry about the hash value.
+    For a QTranslator object, a lookup key is a triple (\e context, \e
+    {source text}, \e comment) that uniquely identifies a message. An
+    extended key is a quadruple (\e hash, \e context, \e {source
+    text}, \e comment), where \e hash is computed from the source text
+    and the comment. Unless you plan to read and write messages
+    yourself, you need not worry about the hash value.
 
-  QTranslatorMessage stores this triple or quadruple and the relevant
-  translation if there is any.
+    QTranslatorMessage stores this triple or quadruple and the relevant
+    translation if there is any.
 
-  \sa QTranslator
+    \sa QTranslator
 */
 
-/*!  Constructs a translator message with the extended key (0, 0, 0, 0) and
-  QString::null as translation.
+/*!
+    Constructs a translator message with the extended key (0, 0, 0, 0)
+    and QString::null as translation.
 */
 
 QTranslatorMessage::QTranslatorMessage()
@@ -1078,9 +1105,10 @@ QTranslatorMessage::QTranslatorMessage()
 }
 
 
-/*!  Constructs an translator message with the extended key
-  (\e h, \a context, \a sourceText, \a comment), where \e h is computed from
-  \a sourceText and \a comment, and possibly with a \a translation.
+/*!
+    Constructs an translator message with the extended key (\e h, \a
+    context, \a sourceText, \a comment), where \e h is computed from
+    \a sourceText and \a comment, and possibly with a \a translation.
 */
 
 QTranslatorMessage::QTranslatorMessage( const char * context,
@@ -1100,11 +1128,12 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
 }
 
 
-/*!  Constructs a translator message read from a \a stream.  The resulting
-  message may have any combination of content.
+/*!
+    Constructs a translator message read from the \a stream. The
+    resulting message may have any combination of content.
 
-  \sa QTranslator::save()
- */
+    \sa QTranslator::save()
+*/
 
 QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
     : cx( 0 ), st( 0 ), cm( 0 )
@@ -1162,7 +1191,8 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 }
 
 
-/*!  Constructs a copy of translator message \a m.
+/*!
+    Constructs a copy of translator message \a m.
 */
 
 QTranslatorMessage::QTranslatorMessage( const QTranslatorMessage & m )
@@ -1172,8 +1202,9 @@ QTranslatorMessage::QTranslatorMessage( const QTranslatorMessage & m )
 }
 
 
-/*!  Assigns message \a m to this translator message and returns a
- reference to this translator message.
+/*!
+    Assigns message \a m to this translator message and returns a
+    reference to this translator message.
 */
 
 QTranslatorMessage & QTranslatorMessage::operator=(
@@ -1188,67 +1219,75 @@ QTranslatorMessage & QTranslatorMessage::operator=(
 }
 
 
-/*! \fn uint QTranslatorMessage::hash() const
+/*!
+    \fn uint QTranslatorMessage::hash() const
 
-  Returns the hash value used internally to represent the lookup key.  This
-  value is zero only if this translator message was constructed from a stream
-  containing invalid data.
+    Returns the hash value used internally to represent the lookup
+    key. This value is zero only if this translator message was
+    constructed from a stream containing invalid data.
 
-  The hashing function is unspecified, but it will remain unchanged in future
-  versions of Qt.
-*/
-
-/*! \fn const char *QTranslatorMessage::context() const
-
-  Returns the context for this message (e.g. "MyDialog").
-*/
-
-/*! \fn const char *QTranslatorMessage::sourceText() const
-
-  Returns the source text of this message (e.g. "&Save").
-*/
-
-/*! \fn const char *QTranslatorMessage::comment() const
-
-  Returns the comment for this message (e.g. "File|Save").
-*/
-
-/*! \fn void QTranslatorMessage::setTranslation( const QString & translation )
-
-  Sets the translation of the source text to \a translation.
-
-  \sa translation()
-*/
-
-/*! \fn QString QTranslatorMessage::translation() const
-
-  Returns the translation of the source text (e.g., "&Sauvegarder").
-
-  \sa setTranslation()
-*/
-
-/*! \enum QTranslatorMessage::Prefix
-
-  Let (\e h, \e c, \e s, \e m) be the extended key.  The possible prefixes are
-
-  \value NoPrefix  no prefix
-  \value Hash  only (\e h)
-  \value HashContext  only (\e h, \e c)
-  \value HashContextSourceText  only (\e h, \e c, \e s)
-  \value HashContextSourceTextComment  the whole extended key, (\e h, \e c,
-       \e s, \e m)
-
-  \sa write() commonPrefix()
+    The hashing function is unspecified, but it will remain unchanged
+    in future versions of Qt.
 */
 
 /*!
-    Writes this translator message to the \a stream.  If \a strip is
+    \fn const char *QTranslatorMessage::context() const
+
+    Returns the context for this message (e.g. "MyDialog").
+*/
+
+/*!
+    \fn const char *QTranslatorMessage::sourceText() const
+
+    Returns the source text of this message (e.g. "&Save").
+*/
+
+/*!
+    \fn const char *QTranslatorMessage::comment() const
+
+    Returns the comment for this message (e.g. "File|Save").
+*/
+
+/*!
+    \fn void QTranslatorMessage::setTranslation( const QString & translation )
+
+    Sets the translation of the source text to \a translation.
+
+    \sa translation()
+*/
+
+/*!
+    \fn QString QTranslatorMessage::translation() const
+
+    Returns the translation of the source text (e.g., "&Sauvegarder").
+
+    \sa setTranslation()
+*/
+
+/*!
+    \enum QTranslatorMessage::Prefix
+
+    Let (\e h, \e c, \e s, \e m) be the extended key. The possible
+    prefixes are
+
+    \value NoPrefix  no prefix
+    \value Hash  only (\e h)
+    \value HashContext  only (\e h, \e c)
+    \value HashContextSourceText  only (\e h, \e c, \e s)
+    \value HashContextSourceTextComment  the whole extended key, (\e
+	h, \e c, \e s, \e m)
+
+    \sa write() commonPrefix()
+*/
+
+/*!
+    Writes this translator message to the \a stream. If \a strip is
     FALSE (the default), all the information in the message is
-    written.  If \a strip is TRUE, only the part of the extended key
+    written. If \a strip is TRUE, only the part of the extended key
     specified by \a prefix is written with the translation (\c
     HashContextSourceTextComment by default).
 
-  \sa commonPrefix()
+    \sa commonPrefix()
 */
 
 void QTranslatorMessage::write( QDataStream & stream, bool strip,
@@ -1293,14 +1332,16 @@ void QTranslatorMessage::write( QDataStream & stream, bool strip,
 }
 
 
-/*!  Returns the widest lookup prefix that is common to this translator message
-  and message \a m.
+/*!
+    Returns the widest lookup prefix that is common to this translator
+    message and to message \a m.
 
-  For example, if the extended key is for this message is (42, "PrintDialog",
-  "Yes", "Print?") and that for \a m is (42, "PrintDialog", "No", "Print?"),
-  this function returns \c HashContext.
+    For example, if the extended key is for this message is (71,
+    "PrintDialog", "Yes", "Print?") and that for \a m is (71,
+    "PrintDialog", "No", "Print?"), this function returns \c
+    HashContext.
 
-  \sa write()
+    \sa write()
 */
 
 QTranslatorMessage::Prefix QTranslatorMessage::commonPrefix(
@@ -1318,8 +1359,9 @@ QTranslatorMessage::Prefix QTranslatorMessage::commonPrefix(
 }
 
 
-/*!  Returns TRUE if the extended key of this object is equal to that of \a m;
-  otherwise returns FALSE.
+/*!
+ Returns TRUE if the extended key of this object is equal to that of
+ \a m; otherwise returns FALSE.
 */
 
 bool QTranslatorMessage::operator==( const QTranslatorMessage& m ) const
@@ -1328,15 +1370,18 @@ bool QTranslatorMessage::operator==( const QTranslatorMessage& m ) const
 }
 
 
-/*! \fn bool QTranslatorMessage::operator!=( const QTranslatorMessage& m ) const
+/*!
+    \fn bool QTranslatorMessage::operator!=( const QTranslatorMessage& m ) const
 
-  Returns TRUE if the extended key of this object is different from that of
-  \a m; otherwise returns FALSE.
+    Returns TRUE if the extended key of this object is different from
+    that of \a m; otherwise returns FALSE.
 */
 
 
-/*!  Returns TRUE if the extended key of this object is lexicographically before
-  than that of \a m; otherwise returns FALSE.
+/*!
+    Returns TRUE if the extended key of this object is
+    lexicographically before than that of \a m; otherwise returns
+    FALSE.
 */
 
 bool QTranslatorMessage::operator<( const QTranslatorMessage& m ) const
@@ -1347,22 +1392,27 @@ bool QTranslatorMessage::operator<( const QTranslatorMessage& m ) const
 }
 
 
-/*! \fn bool QTranslatorMessage::operator<=( const QTranslatorMessage& m ) const
+/*!
+    \fn bool QTranslatorMessage::operator<=( const QTranslatorMessage& m ) const
 
-  Returns TRUE if the extended key of this object is lexicographically before
-  that of \a m or if they are equal; otherwise returns FALSE.
+    Returns TRUE if the extended key of this object is
+    lexicographically before that of \a m or if they are equal;
+    otherwise returns FALSE.
 */
 
-/*! \fn bool QTranslatorMessage::operator>( const QTranslatorMessage& m ) const
+/*!
+    \fn bool QTranslatorMessage::operator>( const QTranslatorMessage& m ) const
 
-  Returns TRUE if the extended key of this object is lexicographically after
-  that of \a m; otherwise returns FALSE.
+    Returns TRUE if the extended key of this object is
+    lexicographically after that of \a m; otherwise returns FALSE.
 */
 
-/*! \fn bool QTranslatorMessage::operator>=( const QTranslatorMessage& m ) const
+/*!
+    \fn bool QTranslatorMessage::operator>=( const QTranslatorMessage& m ) const
 
-  Returns TRUE if the extended key of this object is lexicographically after
-  that of \a m or if they are equal; otherwise returns FALSE.
+    Returns TRUE if the extended key of this object is
+    lexicographically after that of \a m or if they are equal;
+    otherwise returns FALSE.
 */
 
 #endif // QT_NO_TRANSLATION
