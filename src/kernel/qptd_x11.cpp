@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#37 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#37 $";
 #endif
 
 
@@ -93,7 +93,7 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
-#if defined(CHECK_STATE)
+#if 0
     if ( !qt_xdisplay() )			// this is a static object
 	warning( "QPaintDevice: Static (local) paint device objects do not "
 		 "release window system resources" );
