@@ -1778,9 +1778,9 @@ void QObject::cleanupEventFilter()
 
 /*! \overload
 
-  Returns a translated version of \a text in context QObject and with
-  no comment, or \a text if there is no appropriate translated
-  version.  All QObject subclasses which use the Q_OBJECT macro have a
+  Returns a translated version of \a text or \a text itself if there is
+  no appropriate translated version.  The translation context is
+  QObject. All QObject subclasses which use the Q_OBJECT macro have a
   reimplementation of this function which uses the relevant class name
   as context.
 
@@ -1796,11 +1796,11 @@ QString QObject::tr( const char *text )
 }
 
 /*!
-  Returns a translated version of \a text in context QObject and and
-  with \a comment, or \a text if there is no appropriate translated
-  version.  All QObject subclasses which use the Q_OBJECT macro have a
-  reimplementation of this function which uses the relevant class name
-  as context.
+  Returns a translated version of \a text or \a text itself if there is
+  no appropriate translated version.  The translation context is
+  QObject with \a comment. All QObject subclasses which use the Q_OBJECT
+  macro have a reimplementation of this function which uses the relevant
+  class name as context.
 
   \sa QApplication::translate()
 */
