@@ -345,6 +345,7 @@ bool QWin32PaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bo
     SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
     SetBkMode(d->hdc, state->bgMode == TransparentMode ? TRANSPARENT : OPAQUE);
     SetROP2(d->hdc, rasterOpCodes[state->rasterOp]);
+    SetTextColor(d->hdc, COLOR_VALUE(state->pen.color()));
     return true;
 }
 
