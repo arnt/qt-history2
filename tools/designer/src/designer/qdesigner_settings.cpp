@@ -90,15 +90,15 @@ void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
     setValue(QLatin1String("geometry"), QRect(w->pos(), w->size()));
     setValue(QLatin1String("visible"), w->isVisible());
     endGroup();
-
 }
 
 void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
                                           const QRect &fallBack) const
 {
 //    beginGroup();
+    int screen = value(key + QLatin1String("/screen"), 0).toInt();
     QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
-    if (g.intersect(QApplication::desktop()->availableGeometry()).isEmpty())
+    if (g.intersect(QApplication::desktop()->availableGeometry(screen)).isEmpty())
         g = fallBack;
     w->resize(g.size());
     w->move(g.topLeft());

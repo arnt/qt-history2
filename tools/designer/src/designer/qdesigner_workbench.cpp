@@ -425,7 +425,7 @@ QRect QDesignerWorkbench::availableGeometry() const
     if (m_workspace)
         return m_workspace->geometry();
 
-    return qDesigner->desktop()->geometry();
+    return qDesigner->desktop()->availableGeometry(0);
 }
 
 int QDesignerWorkbench::marginHint() const
