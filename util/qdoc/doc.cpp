@@ -1223,7 +1223,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    no++;
 	    ++f;
 	}
-	yyOut += QString( "</hr>" );
+	yyOut += QString( "</ol>\n</hr>" );
     }
 
     // add a "see also" for the groups
