@@ -583,6 +583,25 @@ void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString &
     }
 }
 
+void MetaDataBase::removeSlot( QObject *o, const QString &slot )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
+	Slot s = *it;
+	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
+	    r->slotList.remove( it );
+	    break;
+	}
+    }
+}
+
 QValueList<MetaDataBase::Slot> MetaDataBase::slotList( QObject *o )
 {
     setupDataBase();

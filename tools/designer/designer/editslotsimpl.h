@@ -34,6 +34,9 @@ class EditSlots : public EditSlotsBase
 public:
     EditSlots( QWidget *parent, FormWindow *fw );
 
+    void setCurrentSlot( const QString &slot );
+    static void removeSlotFromCode( const QString &slot, FormWindow *formWindow );
+
 protected slots:
     void okClicked();
     void slotAdd();
@@ -44,7 +47,6 @@ protected slots:
     void currentTypeChanged( const QString &type );
 
 private:
-    void removeSlotFromCode( const QString &slot );
 
 private:
     FormWindow *formWindow;

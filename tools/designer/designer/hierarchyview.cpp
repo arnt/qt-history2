@@ -29,6 +29,7 @@
 #include "project.h"
 #include "sourceeditor.h"
 #include "propertyeditor.h"
+#include "editslotsimpl.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -662,10 +663,37 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	return;
     if ( i->text( 0 ) == tr( "Functions" ) )
 	return;
-    if ( i->text( 0 ) == tr( "protected" ) || i->parent() && i->parent()->text( 0 ) == "protected" ) // ### should we be able to add functions here as well?
+
+    if ( i->text( 0 ) == tr( "protected" ) || i->text( 0 ) == tr( "public" ) ) {
+	
 	return;
-    if ( i->text( 0 ) == tr( "public" ) || i->parent() && i->parent()->text( 0 ) == "public"  ) // ### should we be able to add functions here as well?
+    }
+
+    if ( i->parent() && i->parent()->text( 0 ) == "protected" ||
+	 i->parent() && i->parent()->text( 0 ) == "public"  ) {
+	QPopupMenu menu;
+	const int PROPS = 1;
+	const int EDIT = 2;
+	const int REMOVE = 3;
+	menu.insertItem( tr( "Properties..." ), PROPS );
+	menu.insertItem( tr( "Goto Implementation" ), EDIT );
+	menu.insertItem( tr( "Delete" ), REMOVE );
+	int res = menu.exec( pos );
+	if ( res == PROPS ) {
+	    EditSlots dlg( this, formWindow );
+	    dlg.setCurrentSlot( MetaDataBase::normalizeSlot( i->text( 0 ) ) );
+	    dlg.exec();
+	} else if ( res == EDIT ) {
+	    formWindow->mainWindow()->editFunction( i->text( 0 ) );
+	} else if ( res == REMOVE ) {
+	    MetaDataBase::removeSlot( formWindow, i->text( 0 ) );
+	    EditSlots::removeSlotFromCode( i->text( 0 ), formWindow );
+	    formWindow->mainWindow()->objectHierarchy()->updateFunctionList();
+	    MainWindow::self->slotsChanged();
+	}
 	return;
+    }
+
     QPopupMenu menu;
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;

@@ -147,7 +147,7 @@ void EditSlots::okClicked()
     }
 
     for ( QStringList::Iterator rsit = removedSlots.begin(); rsit != removedSlots.end(); ++rsit )
-	removeSlotFromCode( *rsit );
+	removeSlotFromCode( *rsit, formWindow );
 
     if ( rmSlt || addSlt ) {
 	QPtrList<Command> commands;
@@ -245,7 +245,7 @@ void EditSlots::currentTypeChanged( const QString &type )
     slotListView->currentItem()->setText( 3, type );
 }
 
-void EditSlots::removeSlotFromCode( const QString &slot )
+void EditSlots::removeSlotFromCode( const QString &slot, FormWindow *formWindow )
 {
     QString code = MetaDataBase::formCode( formWindow );
     if ( code.isEmpty() )
@@ -287,4 +287,19 @@ void EditSlots::removeSlotFromCode( const QString &slot )
 	    MetaDataBase::setFormCode( formWindow, code );
 	}
     }
+}
+
+void EditSlots::setCurrentSlot( const QString &slot )
+{
+    QListViewItemIterator it( slotListView );
+    while ( it.current() ) {
+	if ( MetaDataBase::normalizeSlot( it.current()->text( 0 ) ) == slot ) {
+	    slotListView->setCurrentItem( it.current() );
+	    slotListView->setSelected( it.current(), TRUE );
+	    currentItemChanged( it.current() );
+	    return;
+	}
+	++it;
+    }
+		
 }

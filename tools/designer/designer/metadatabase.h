@@ -156,6 +156,7 @@ public:
 
     static void addSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType );
     static void removeSlot( QObject *o, const QCString &slot, const QString &access, const QString &language, const QString &returnType );
+    static void removeSlot( QObject *o, const QString &slot );
     static QValueList<Slot> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
     static bool hasSlot( QObject *o, const QCString &slot );
