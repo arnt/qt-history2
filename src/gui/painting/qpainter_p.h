@@ -157,4 +157,6 @@ public:
     QPaintEngine *engine;
 };
 
+QString qt_generate_brush_key(const QBrush &brush);
+
 #endif // QPAINTER_P_H

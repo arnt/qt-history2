@@ -63,6 +63,42 @@ template <class From, class To> QVector<To> qt_convert_points(const From *points
 }
 
 
+QString qt_generate_brush_key(const QRectF &bounds, const QBrush &brush)
+{
+    Qt::BrushStyle style = brush.style();
+    QString key = QString("qt_gradient-%1%2%3%4%5")
+                  .arg(bounds.x())
+                  .arg(bounds.y())
+                  .arg(bounds.width())
+                  .arg(bounds.height())
+                  .arg(style);
+    if (style == Qt::LinearGradientPattern) {
+        const QLinearGradient *gr = static_cast<const QLinearGradient *>(brush.gradient());
+        key += QString("%1%2%3%4").arg(gr->start().x())
+               .arg(gr->start().y())
+               .arg(gr->finalStop().x())
+               .arg(gr->finalStop().x());
+    } else if (style == Qt::RadialGradientPattern) {
+        const QRadialGradient *gr = static_cast<const QRadialGradient *>(brush.gradient());
+        key += QString("%1%2%3%4%5").arg(gr->center().x())
+               .arg(gr->center().y())
+               .arg(gr->focalPoint().x())
+               .arg(gr->focalPoint().y())
+               .arg(gr->radius());
+    } else {
+        const QConicalGradient *gr = static_cast<const QConicalGradient *>(brush.gradient());
+        key += QString("%1%2%3").arg(gr->center().x())
+               .arg(gr->center().y())
+               .arg(gr->angle());
+    }
+
+    QGradientStops stops = brush.gradient()->stops();
+    for (int i = 0; i < stops.size(); ++i)
+        key += QString("%1%2").arg(stops.at(i).first).arg(stops.at(i).second.rgba());
+
+    return key;
+}
+
 /*
   Fallback implementation of fill linear gradient. Sets a clipregion matching the shape to
   fill and calls qt_fill_linear_gradient (lots of drawlines) for the region in question
@@ -79,9 +115,26 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
              || state->brush.style() == Qt::ConicalGradientPattern);
 
     bool xform = state->txop > TxTranslate;
-
     QRectF pathBounds = path.boundingRect();
     QRect bounds;
+
+    QString key = qt_generate_brush_key(pathBounds, state->brush);
+
+    if (QPixmap *pixmap = QPixmapCache::find(key)) {
+        QRect bounds;
+        q->save();
+        if (xform) {
+            bounds = pathBounds.toRect();
+        } else {
+            bounds = state->matrix.mapRect(pathBounds).toRect();
+            q->resetMatrix();
+        }
+        q->drawPixmap(QRectF(bounds.topLeft(), pixmap->size()),
+                      *pixmap,
+                      QRectF(0, 0, pixmap->width(), pixmap->height()));
+        q->restore();
+        return;
+    }
 
     // ### We need to cache this as a pixmap later on.
     QImage image;
@@ -116,8 +169,8 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
     } else {
         // Non xform or translate case. We allocate a pixmap the size
         // of the bounds and that.
-        q->resetMatrix();
         bounds = state->matrix.mapRect(pathBounds).toRect();
+        q->resetMatrix();
         image = QImage(bounds.size(), 32);
         if (!state->brush.isOpaque()) {
             image.fill(0x00000000);
@@ -128,9 +181,13 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
         p.fillRect(bounds, state->brush);
     }
 
-    q->drawImage(QRectF(bounds.topLeft(), image.size()),
-                       image,
-                       QRectF(0, 0, image.width(), image.height()));
+    QPixmap pixmap;
+    pixmap.fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
+    QPixmapCache::insert(key, pixmap);
+
+    q->drawPixmap(QRectF(bounds.topLeft(), pixmap.size()),
+                  pixmap,
+                  QRectF(0, 0, pixmap.width(), pixmap.height()));
     q->restore();
 }
 
