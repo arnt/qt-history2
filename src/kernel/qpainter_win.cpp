@@ -2087,7 +2087,12 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 }
 
 
-void QPainter::drawText( int x, int y, const QString &str, int /*pos*/, int len )
+void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
+{
+    drawText( x, y, str.mid(pos, len) );
+}
+
+void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if ( !isActive() )
 	return;
