@@ -31,7 +31,9 @@ public:
     const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;
-    enum Attributes { Compatability = 0x08, Cloned = 0x10, Scriptable = 0x20, NoConnect = 0x40 };
+    enum MemberType { Signal, Slot, Method };
+    MemberType memberType() const;
+    enum Attributes { Compatibility = 0x1, Cloned = 0x2, Scriptable = 0x4 };
     int attributes() const;
 
 private:

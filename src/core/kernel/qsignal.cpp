@@ -219,24 +219,17 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
         sig[sig.size() - 1] = ')';
     sig.append('\0');
 
-    QMetaObject::Call call = QMetaObject::InvokeSlot;
-    int idx = obj->metaObject()->indexOfSlot(sig.constData());
+    int idx = obj->metaObject()->indexOfMember(sig.constData());
     if (idx < 0) {
         QByteArray norm = QMetaObject::normalizedSignature(sig.constData());
-        idx = obj->metaObject()->indexOfSlot(norm.constData());
-        if (idx < 0) {
-            call = QMetaObject::EmitSignal;
-            idx = obj->metaObject()->indexOfSignal(norm.constData());
-        }
+        idx = obj->metaObject()->indexOfMember(norm.constData());
     }
     if (idx < 0)
         return false;
 
     // check return type
     if (ret.data()) {
-        const char *retType = call == QMetaObject::InvokeSlot
-                              ? obj->metaObject()->slot(idx).typeName()
-                              : obj->metaObject()->signal(idx).typeName();
+        const char *retType = obj->metaObject()->member(idx).typeName();
         if (qstrcmp(ret.name(), retType) != 0)
             return false;
     }
@@ -249,7 +242,7 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
     }
 
     if (type != Qt::QueuedConnection) {
-        return obj->qt_metacall(call, idx, param) < 0;
+        return obj->qt_metacall(QMetaObject::InvokeMetaMember, idx, param) < 0;
     } else {
         if (ret.data()) {
             qWarning("qInvokeMetaMember: Unable to invoke methods with return values in queued "
@@ -273,9 +266,7 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
             }
         }
 
-        QCoreApplication::postEvent(obj,
-               new QMetaCallEvent(call == QMetaObject::InvokeSlot ? QEvent::InvokeSlot
-                                  : QEvent::EmitSignal, idx, obj, nargs, types, args));
+        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, obj, nargs, types, args));
     }
     return true;
 }

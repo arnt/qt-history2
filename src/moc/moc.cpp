@@ -383,8 +383,10 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
         while (lookup() == IDENTIFIER) {
             if (def->type == "QT_MOC_COMPAT" || def->type == "QT_COMPAT")
                 def->isCompat = true;
+            else if (def->type == "Q_INVOKABLE")
+                def->isInvokable = true;
             else if (def->type == "Q_SCRIPTABLE")
-                def->isScriptable = true;
+                def->isInvokable = def->isScriptable = true;
             else {
                 if (!def->tag.isEmpty())
                     def->tag += ' ';
@@ -419,7 +421,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
 }
 
 // like parseFunction, but never aborts with an error
-bool Moc::parsePublicFunction(FunctionDef *def)
+bool Moc::parseMaybeFunction(FunctionDef *def)
 {
     def->type = parseType();
     if (def->type.isEmpty())
@@ -432,8 +434,10 @@ bool Moc::parsePublicFunction(FunctionDef *def)
         while (lookup() == IDENTIFIER) {
             if (def->type == "QT_MOC_COMPAT" || def->type == "QT_COMPAT")
                 def->isCompat = true;
+            else if (def->type == "Q_INVOKABLE")
+                def->isInvokable = true;
             else if (def->type == "Q_SCRIPTABLE")
-                def->isScriptable = true;
+                def->isInvokable = def->isScriptable = true;
             else {
                 if (!def->tag.isEmpty())
                     def->tag += ' ';
@@ -561,17 +565,16 @@ void Moc::parse()
                         def.enumList += enumDef;
                 } break;
                 default:
-                    if (access == FunctionDef::Public) {
-                        FunctionDef funcDef;
-                        funcDef.noConnect = true;
-                        int rewind = index;
-                        if (parsePublicFunction(&funcDef)) {
+                    FunctionDef funcDef;
+                    funcDef.access = access;
+                    int rewind = index;
+                    if (parseMaybeFunction(&funcDef)) {
+                        if (access == FunctionDef::Public)
                             def.publicList += funcDef;
-                            if (funcDef.isScriptable)
-                                def.slotList += funcDef;
-                        } else {
-                            index = rewind;
-                        }
+                        if (funcDef.isInvokable)
+                            def.methodList += funcDef;
+                    } else {
+                        index = rewind;
                     }
                 }
             }

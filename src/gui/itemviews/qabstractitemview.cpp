@@ -552,7 +552,7 @@ void QAbstractItemView::reset()
 {
     setRoot(QModelIndex::Null); // does a relayout
 }
-        
+
 /*!
     Sets the ``root'' item to the item at \a index.
 
@@ -1804,7 +1804,7 @@ void QAbstractItemViewPrivate::doDelayedItemsLayout()
 {
     if (!layoutPosted) {
         int slot = q->metaObject()->indexOfSlot("doItemsLayout()");
-        QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot, slot, q));
+        QApplication::postEvent(q, new QMetaCallEvent(slot, q));
         layoutPosted = true;
     }
 }

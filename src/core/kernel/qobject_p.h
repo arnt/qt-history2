@@ -115,7 +115,7 @@ public:
 class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
-    QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0,
+    QMetaCallEvent(int id, const QObject *sender = 0, int nargs = 0,
                    int *types = 0, void **args = 0);
     ~QMetaCallEvent();
 

@@ -23,7 +23,7 @@ class QString;
 class QByteArray;
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 48
+#define Q_MOC_OUTPUT_REVISION 49
 #endif
 
 // The following macros are our "extensions" to C++
@@ -46,8 +46,9 @@ class QByteArray;
 #define Q_FLAGS(x)
 #ifdef QT_COMPAT
 # define Q_SETS(x)
-#define Q_SCRIPTABLE
 #endif
+#define Q_SCRIPTABLE
+#define Q_INVOKABLE
 
 #ifndef QT_NO_TRANSLATION
 # ifndef QT_NO_TEXTCODEC
@@ -95,6 +96,8 @@ private:
 #define Q_OBJECT Q_OBJECT
  /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT_FAKE
+#define Q_SCRIPTABLE Q_SCRIPTABLE
+#define Q_INVOKABLE Q_INVOKABLE
 #endif
 
 // macro for naming members
@@ -140,26 +143,24 @@ struct Q_CORE_EXPORT QMetaObject
     QString trUtf8(const char *s, const char *c) const;
 #endif // QT_NO_TRANSLATION
 
-    int slotOffset() const;
-    int signalOffset() const;
+    int memberOffset() const;
     int enumeratorOffset() const;
     int propertyOffset() const;
     int classInfoOffset() const;
 
-    int slotCount() const;
-    int signalCount() const;
+    int memberCount() const;
     int enumeratorCount() const;
     int propertyCount() const;
     int classInfoCount() const;
 
-    int indexOfSlot(const char *slot) const;
+    int indexOfMember(const char *member) const;
     int indexOfSignal(const char *signal) const;
+    int indexOfSlot(const char *slot) const;
     int indexOfEnumerator(const char *name) const;
     int indexOfProperty(const char *name) const;
     int indexOfClassInfo(const char *name) const;
 
-    QMetaMember slot(int index) const;
-    QMetaMember signal(int index) const;
+    QMetaMember member(int index) const;
     QMetaEnum enumerator(int index) const;
     QMetaProperty property(int index) const;
     QMetaClassInfo classInfo(int index) const;
@@ -168,16 +169,12 @@ struct Q_CORE_EXPORT QMetaObject
     static QByteArray normalizedSignature(const char *member);
 
     // internal index-based connect
-    static bool connect(const QObject *sender,
-                        int signal_index,
-                        const QObject *receiver,
-                        int membcode, int member_index,
+    static bool connect(const QObject *sender, int signal_index,
+                        const QObject *receiver, int member_index,
                         int type = 0, int *types = 0);
     // internal index-based disconnect
-    static bool disconnect(const QObject *sender,
-                           int signal_index,
-                           const QObject *receiver,
-                           int membcode, int member_index);
+    static bool disconnect(const QObject *sender, int signal_index,
+                           const QObject *receiver, int member_index);
     // internal slot-name based connect
     static void connectSlotsByName(QObject *o);
 
@@ -190,8 +187,7 @@ struct Q_CORE_EXPORT QMetaObject
     static void changeGuard(QObject **ptr, QObject *o);
 
     enum Call {
-        InvokeSlot = QSLOT_CODE,
-        EmitSignal = QSIGNAL_CODE,
+        InvokeMetaMember,
         ReadProperty,
         WriteProperty,
         ResetProperty,

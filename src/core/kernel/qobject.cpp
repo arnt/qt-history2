@@ -92,9 +92,9 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 
 /*! \internal
  */
-QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
+QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender,
                                int nargs, int *types, void **args)
-    :QEvent(type), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
+    :QEvent(MetaCall), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
 { }
 
 /*! \internal
@@ -595,8 +595,7 @@ bool QObject::event(QEvent *e)
         delete this;
         return true;
 
-    case QEvent::InvokeSlot:
-    case QEvent::EmitSignal: {
+    case QEvent::MetaCall: {
         QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
         QObjectPrivate::Senders *senders = d->senders;
         bool was_active;
@@ -605,16 +604,10 @@ bool QObject::event(QEvent *e)
             sender = QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()),
                                                       &was_active);
 #if defined(QT_NO_EXCEPTIONS)
-        qt_metacall((e->type() == QEvent::InvokeSlot
-                     ? QMetaObject::InvokeSlot
-                     : QMetaObject::EmitSignal),
-                    mce->id(), mce->args());
+        qt_metacall(QMetaObject::InvokeMetaMember, mce->id(), mce->args());
 #else
         try {
-            qt_metacall((e->type() == QEvent::InvokeSlot
-                         ? QMetaObject::InvokeSlot
-                         : QMetaObject::EmitSignal),
-                        mce->id(), mce->args());
+            qt_metacall(QMetaObject::InvokeMetaMember, mce->id(), mce->args());
         } catch (...) {
             if (senders)
                 QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
@@ -1940,12 +1933,6 @@ bool QObject::connect(const QObject *sender, const char *signal,
         }
     }
 
-    // filter NoSlot slots from Q_SCRIPTABLE
-    if (membcode == QSLOT_CODE
-        && member_index >= 0
-        && (rmeta->slot(member_index).attributes() & QMetaMember::NoConnect))
-        member_index = -1;
-
     if (member_index < 0) {
 #ifndef QT_NO_DEBUG
         err_member_notfound(membcode, receiver, member, "connect");
@@ -1969,20 +1956,20 @@ bool QObject::connect(const QObject *sender, const char *signal,
 
 #ifndef QT_NO_DEBUG
     {
-        QMetaMember smember = smeta->signal(signal_index), rmember;
+        QMetaMember smember = smeta->member(signal_index), rmember;
         switch (membcode) {
         case QSLOT_CODE:
-            rmember = rmeta->slot(member_index);
+            rmember = rmeta->member(member_index);
             break;
         case QSIGNAL_CODE:
-            rmember = rmeta->signal(member_index);
+            rmember = rmeta->member(member_index);
             break;
         }
         if (warnCompat) {
-            if(smember.attributes() & QMetaMember::Compatability) {
-                if (!(rmember.attributes() & QMetaMember::Compatability))
+            if(smember.attributes() & QMetaMember::Compatibility) {
+                if (!(rmember.attributes() & QMetaMember::Compatibility))
                     qWarning("Object::connect: Connecting from COMPAT signal (%s::%s).", smeta->className(), signal);
-            } else if(rmember.attributes() & QMetaMember::Compatability && membcode != QSIGNAL_CODE) {
+            } else if(rmember.attributes() & QMetaMember::Compatibility && membcode != QSIGNAL_CODE) {
                 qWarning("Object::connect: Connecting from %s::%s to COMPAT slot (%s::%s).",
                          smeta->className(), signal, rmeta->className(), member);
             }
@@ -1997,7 +1984,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
         }
     }
 #endif
-    QMetaObject::connect(sender, signal_index, receiver, membcode, member_index, type, types);
+    QMetaObject::connect(sender, signal_index, receiver, member_index, type, types);
     const_cast<QObject*>(sender)->connectNotify(signal - 1);
     return true;
 }
@@ -2122,40 +2109,23 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
         int signal_index = -1;
         if (signal) {
             signal_index = smeta->indexOfSignal(signal);
-            if (signal_index < smeta->signalOffset())
+            if (signal_index < smeta->memberOffset())
                 continue;
             signal_found = true;
         }
 
         if (!member) {
-            res |= QMetaObject::disconnect(sender,
-                                          signal_index,
-                                          receiver,
-                                          -1, -1);
+            res |= QMetaObject::disconnect(sender, signal_index, receiver, -1);
         } else {
             const QMetaObject *rmeta = receiver->metaObject();
             do {
-                int member_index = -1;
-                switch (membcode) {
-                case QSLOT_CODE:
-                    member_index = rmeta->indexOfSlot(member);
-                    if (member_index >= 0)
-                        while (member_index < rmeta->slotOffset())
+                int member_index = rmeta->indexOfMember(member);
+                if (member_index >= 0)
+                    while (member_index < rmeta->memberOffset())
                             rmeta = rmeta->superClass();
-                    break;
-                case QSIGNAL_CODE:
-                    member_index = rmeta->indexOfSignal(member);
-                    if (member_index >= 0)
-                        while (member_index < rmeta->signalOffset())
-                            rmeta = rmeta->superClass();
-                    break;
-                }
                 if (member_index < 0)
                     break;
-                res |= QMetaObject::disconnect(sender,
-                                              signal_index,
-                                              receiver,
-                                              membcode, member_index);
+                res |= QMetaObject::disconnect(sender, signal_index, receiver, member_index);
                 member_found = true;
             } while ((rmeta = rmeta->superClass()));
         }
@@ -2241,16 +2211,11 @@ void QObject::disconnectNotify(const char *)
   connections.
 */
 bool QMetaObject::connect(const QObject *sender, int signal_index,
-                          const QObject *receiver,
-                          int membcode, int member_index,
-                          int type, int *types)
+                          const QObject *receiver, int member_index, int type, int *types)
 {
-    if (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE)
-        return false;
-
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
-    s->d->addConnection(signal_index, r, (member_index<<1)+membcode-1, type, types);
+    s->d->addConnection(signal_index, r, member_index, type, types);
     r->d->refSender(s);
     return true;
 }
@@ -2259,11 +2224,9 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
 /*!\internal
  */
 bool QMetaObject::disconnect(const QObject *sender, int signal_index,
-                             const QObject *receiver, int membcode, int member_index)
+                             const QObject *receiver, int member_index)
 {
-    if (!sender || !sender->d->connections
-         || (member_index >= 0
-              && (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE)))
+    if (!sender || !sender->d->connections)
         return false;
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
@@ -2276,7 +2239,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
             && (signal_index < 0 || signal_index == c.signal)
             && (r == 0 || (c.receiver == r
                            && (member_index < 0
-                               || (member_index<<1)+membcode-1 == c.member)))) {
+                               || member_index == c.member)))) {
             c.receiver->d->derefSender(s);
             c.receiver = 0;
             s->d->connections->dirty = true;
@@ -2299,8 +2262,8 @@ void QMetaObject::connectSlotsByName(QObject *o)
     const QMetaObject *mo = o->metaObject();
     Q_ASSERT(mo);
     const QObjectList list(o->findChildren(QString()));
-    for (int i = 0; i < mo->slotCount(); ++i) {
-        const char *sig = mo->slot(i).signature();
+    for (int i = 0; i < mo->memberCount(); ++i) {
+        const char *sig = mo->member(i).signature();
         Q_ASSERT(sig);
         if (sig[0] != 'o' || sig[1] != 'n' || sig[2] != '_')
             continue;
@@ -2329,7 +2292,7 @@ void QMetaObject::connectSlotsByName(QObject *o)
 static void queued_activate(QObject *obj, QObjectPrivate::Connections::Connection *c, void **argv)
 {
     if (!c->types && c->types != &DIRECT_CONNECTION_ONLY) {
-        QMetaMember m = obj->metaObject()->signal(c->signal);
+        QMetaMember m = obj->metaObject()->member(c->signal);
         c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
         if (!c->types) // cannot queue arguments
             c->types = &DIRECT_CONNECTION_ONLY;
@@ -2345,11 +2308,7 @@ static void queued_activate(QObject *obj, QObjectPrivate::Connections::Connectio
     for (int n = 1; n < nargs; ++n)
         args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
     QCoreApplication::postEvent(c->receiver,
-                                new QMetaCallEvent((c->member & 1)
-                                                   ? QEvent::EmitSignal
-                                                   : QEvent::InvokeSlot,
-                                                   c->member >> 1, obj,
-                                                   nargs, types, args));
+                                new QMetaCallEvent(c->member, obj, nargs, types, args));
 }
 
 /*!\internal
@@ -2391,10 +2350,10 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
         bool was_senders_active;
         QObject *sender = QObjectPrivate::setCurrentSender(senders, obj, &was_senders_active);
 #if defined(QT_NO_EXCEPTIONS)
-        c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+        c->receiver->qt_metacall(InvokeMetaMember, c->member, argv);
 #else
         try {
-            c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+            c->receiver->qt_metacall(InvokeMetaMember, c->member, argv);
         } catch (...) {
             QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
             connections->lock.acquire();
@@ -2417,7 +2376,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
  */
 void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_index, void **argv)
 {
-    activate(obj, m->signalOffset() + local_signal_index, argv);
+    activate(obj, m->memberOffset() + local_signal_index, argv);
 }
 
 /*****************************************************************************

@@ -36,14 +36,16 @@ enum ProperyFlags  {
     Editable = 0x00040000,
     ResolveEditable = 0x00080000
 };
-enum MethodFlags {
-    AccessPrivate = 0x01,
+enum MemberFlags {
+    AccessPrivate = 0x00,
+    AccessProtected = 0x01,
     AccessPublic = 0x02,
-    AccessProtected = 0x04,
-    Compatability = 0x08,
-    Cloned = 0x10,
-    MethodScriptable = 0x20,
-    NoConnect = 0x40
+    MemberSignal = 0x04,
+    MemberSlot = 0x08,
+    MemberMethod = 0x0c,
+    MemberCompatibility = 0x10,
+    MemberCloned = 0x20,
+    MemberScriptable = 0x40,
 };
 
 /*
@@ -192,17 +194,17 @@ void Generator::generateCode()
     QByteArray qualifiedClassNameIdentifier = cdef->qualified;
     qualifiedClassNameIdentifier.replace(':', '_');
 
-    int index = 12;
+    int index = 10;
     fprintf(out, "static const uint qt_meta_data_%s[] = {\n", qualifiedClassNameIdentifier.constData());
     fprintf(out, "\n // content:\n");
     fprintf(out, "    %4d,       // revision\n", 1);
     fprintf(out, "    %4d,       // classname\n", strreg(cdef->qualified));
     fprintf(out, "    %4d, %4d, // classinfo\n", cdef->classInfoList.count(), cdef->classInfoList.count() ? index : 0);
     index += cdef->classInfoList.count() * 2;
-    fprintf(out, "    %4d, %4d, // signals\n", cdef->signalList.count(), cdef->signalList.count() ? index : 0);
-    index += cdef->signalList.count() * 5;
-    fprintf(out, "    %4d, %4d, // slots\n", cdef->slotList.count(), cdef->slotList.count() ? index : 0);
-    index += cdef->slotList.count() * 5;
+
+    int memberCount = cdef->signalList.count() + cdef->slotList.count() + cdef->methodList.count();
+    fprintf(out, "    %4d, %4d, // members\n", memberCount, memberCount ? index : 0);
+    index += memberCount * 5;
     fprintf(out, "    %4d, %4d, // properties\n", cdef->propertyList.count(), cdef->propertyList.count() ? index : 0);
     index += cdef->propertyList.count() * 3;
     fprintf(out, "    %4d, %4d, // enums/sets\n", cdef->enumList.count(), cdef->enumList.count() ? index : 0);
@@ -216,12 +218,17 @@ void Generator::generateCode()
 //
 // Build signals array
 //
-    generateFunctions(cdef->signalList, "signal");
+    generateFunctions(cdef->signalList, "signal", MemberSignal);
 
 //
 // Build slots array
 //
-    generateFunctions(cdef->slotList, "slot");
+    generateFunctions(cdef->slotList, "slot", MemberSlot);
+
+//
+// Build method array
+//
+    generateFunctions(cdef->methodList, "method", MemberMethod);
 
 //
 // Build property array
@@ -339,7 +346,7 @@ void Generator::generateClassInfos()
     }
 }
 
-void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype)
+void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype, int type)
 {
     if (list.isEmpty())
         return;
@@ -362,7 +369,13 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
         }
         sig += ')';
 
-        char flags = 0;
+        char flags = type;
+        if (f.access == FunctionDef::Private)
+            flags |= AccessPrivate;
+        else if (f.access == FunctionDef::Public)
+            flags |= AccessPublic;
+        else if (f.access == FunctionDef::Protected)
+            flags |= AccessProtected;
         if (f.access == FunctionDef::Private)
             flags |= AccessPrivate;
         else if (f.access == FunctionDef::Public)
@@ -370,13 +383,11 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
         else if (f.access == FunctionDef::Protected)
             flags |= AccessProtected;
         if (f.isCompat)
-            flags |= Compatability;
+            flags |= MemberCompatibility;
         if (f.wasCloned)
-            flags |= Cloned;
+            flags |= MemberCloned;
         if (f.isScriptable)
-            flags |= MethodScriptable;
-        if (f.noConnect)
-            flags |= NoConnect;
+            flags |= MemberScriptable;
         fprintf(out, "    %4d, %4d, %4d, %4d, 0x%02x,\n", strreg(sig),
                 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), flags);
     }
@@ -520,13 +531,18 @@ void Generator::generateMetacall()
     fprintf(out, "    ");
 
     bool needElse = false;
-    if (cdef->slotList.size()) {
+    QList<FunctionDef> memberList;
+    memberList += cdef->signalList;
+    memberList += cdef->slotList;
+    memberList += cdef->methodList;
+
+    if (memberList.size()) {
         needElse = true;
-        fprintf(out, "if (_c == QMetaObject::InvokeSlot) {\n");
+        fprintf(out, "if (_c == QMetaObject::InvokeMetaMember) {\n");
         fprintf(out, "        switch (_id) {\n");
-        for (int slotindex = 0; slotindex < cdef->slotList.size(); ++slotindex) {
-            const FunctionDef &f = cdef->slotList.at(slotindex);
-            fprintf(out, "        case %d: ", slotindex);
+        for (int memberindex = 0; memberindex < memberList.size(); ++memberindex) {
+            const FunctionDef &f = memberList.at(memberindex);
+            fprintf(out, "        case %d: ", memberindex);
             if (f.normalizedType.size())
                 fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
             if (f.inPrivateClass.size())
@@ -548,37 +564,7 @@ void Generator::generateMetacall()
         fprintf(out,
                  "        }\n"
                  "        _id -= %d;\n"
-                 "    }", cdef->slotList.count());
-    }
-    if (cdef->signalList.size()) {
-        if (needElse)
-            fprintf(out, " else ");
-        needElse = true;
-        fprintf(out, "if (_c == QMetaObject::EmitSignal) {\n");
-        fprintf(out, "        switch (_id) {\n");
-        for (int signalindex = 0; signalindex < cdef->signalList.size(); ++signalindex) {
-            const FunctionDef &f = cdef->signalList.at(signalindex);
-            fprintf(out, "        case %d: ", signalindex);
-            if (f.normalizedType.size())
-                fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
-            fprintf(out, "%s(", f.name.constData());
-            int offset = 1;
-            for (int j = 0; j < f.arguments.size(); ++j) {
-                const ArgumentDef &a = f.arguments.at(j);
-                if (j)
-                    fprintf(out, ",");
-                fprintf(out, "*(%s*)_a[%d]", noRef(a.normalizedType).constData(), offset++);
-            }
-            fprintf(out, ");");
-            if (f.normalizedType.size())
-                fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
-                        noRef(f.normalizedType).constData());
-            fprintf(out, " break;\n");
-        }
-        fprintf(out,
-                 "        }\n"
-                 "        _id -= %d;\n"
-                 "    }", cdef->signalList.count());
+                 "    }", memberList.count());
     }
 
     if (cdef->propertyList.size()) {
@@ -758,7 +744,7 @@ void Generator::generateMetacall()
         fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:
-    if (cdef->slotList.size() || cdef->signalList.size() || cdef->propertyList.size())
+    if (memberList.size() || cdef->propertyList.size())
         fprintf(out, "\n    ");
     fprintf(out,"return _id;\n}\n");
 }

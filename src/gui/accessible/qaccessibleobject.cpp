@@ -42,16 +42,16 @@ QList<QByteArray> QAccessibleObjectPrivate::actionList() const
     QByteArray defaultAction = QMetaObject::normalizedSignature(
         mo->classInfo(mo->indexOfClassInfo("DefaultSlot")).value());
 
-    for (int i = 0; i < mo->slotCount(); ++i) {
-        const QMetaMember slot = mo->slot(i);
-        if (slot.access() != QMetaMember::Public)
+    for (int i = 0; i < mo->memberCount(); ++i) {
+        const QMetaMember member = mo->member(i);
+        if (member.memberType() != QMetaMember::Slot && member.access() != QMetaMember::Public)
             continue;
 
-        if (!qstrcmp(slot.tag(), "QACCESSIBLE_SLOT")) {
-            if (slot.signature() == defaultAction)
+        if (!qstrcmp(member.tag(), "QACCESSIBLE_SLOT")) {
+            if (member.signature() == defaultAction)
                 actionList.prepend(defaultAction);
             else
-                actionList << slot.signature();
+                actionList << member.signature();
         }
     }
 

@@ -43,19 +43,18 @@
     \list
     \i className() returns the name of a class.
     \i superClass() returns the super-class's meta object.
-    \i slotCount(), slot(), signalCount(), and signal() provide information
-       about a class's signals and slots.
+    \i memberCount(), member() provide information
+       about a class's meta members (signals, slots and methods).
     \i enumeratorCount() and enumerator() provide information about
        a class's enumerators.
     \i propertyCount() and property() provide information about a
        class's properties.
     \endlist
 
-    The index functions indexOfSlot(), indexOfSignal(),
-    indexOfEnumerator(), and indexOfProperty() map names of member
-    functions, enumerators, or properties to indices in the meta
-    object. For example, Qt uses indexOfSignal() and indexOfSlot()
-    internally when you connect a signal to a slot.
+    The index functions indexOfMember(), indexOfEnumerator(), and
+    indexOfProperty() map names of member functions, enumerators, or
+    properties to indices in the meta object. For example, Qt uses
+    indexOfMember() internally when you connect a signal to a slot.
 
     Classes can also have a list of name--value pairs of additional
     \link QMetaClassInfo class information\endlink. The number of
@@ -115,14 +114,19 @@ enum ProperyFlags  {
 };
 
 enum MethodFlags  {
-    AccessPrivate = 0x01,
+    AccessPrivate = 0x00,
+    AccessProtected = 0x01,
     AccessPublic = 0x02,
-    AccessProtected = 0x04,
-    AccessMask = 0x07, //mask
-    Compatability = QMetaMember::Compatability,
-    Cloned = QMetaMember::Cloned,
-    MethodScriptable = QMetaMember::Scriptable,
-    NoConnect = QMetaMember::NoConnect
+    AccessMask = 0x03, //mask
+
+    MemberSignal = 0x04,
+    MemberSlot = 0x08,
+    MemberMethod = 0x0c,
+    MemberTypeMask = 0x0c,
+
+    MemberCompatibility = 0x10,
+    MemberCloned = 0x20,
+    MemberScriptable = 0x40
 };
 
 struct QMetaObjectPrivate
@@ -130,8 +134,7 @@ struct QMetaObjectPrivate
     int revision;
     int className;
     int classInfoCount, classInfoData;
-    int signalCount, signalData;
-    int slotCount, slotData;
+    int memberCount, memberData;
     int propertyCount, propertyData;
     int enumeratorCount, enumeratorData;
 };
@@ -203,38 +206,22 @@ QString QMetaObject::trUtf8(const char *s, const char *c) const
 
 
 /*!
-    Returns the slot offset for this class; i.e. the index position of
-    this class's first slot. The offset is the sum of all the slots in
+    Returns the member offset for this class; i.e. the index position of
+    this class's first member. The offset is the sum of all the members in
     the class's super-classes (which is always positive since QObject
-    has the deleteLater() slot).
+    has the deleteLater() slot and a destroyed() signal).
  */
-int QMetaObject::slotOffset() const
+int QMetaObject::memberOffset() const
 {
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-        offset += priv(m->d.data)->slotCount;
+        offset += priv(m->d.data)->memberCount;
         m = m->d.superdata;
     }
     return offset;
 }
 
-/*!
-    Returns the signal offset for this class; i.e. the index position
-    of this class's first signal. The offset is the sum of all the
-    signals in the class's super-classes (which is always positive
-    since QObject has the slots destroyed() and destroyed(QObject*)).
- */
-int QMetaObject::signalOffset() const
-{
-    int offset = 0;
-    const QMetaObject *m = d.superdata;
-    while (m) {
-        offset += priv(m->d.data)->signalCount;
-        m = m->d.superdata;
-    }
-    return offset;
-}
 
 /*!
     Returns the enumerator offset for this class; i.e. the index
@@ -294,28 +281,12 @@ int QMetaObject::classInfoOffset() const
 
     \sa slot()
 */
-int QMetaObject::slotCount() const
+int QMetaObject::memberCount() const
 {
-    int n = priv(d.data)->slotCount;
+    int n = priv(d.data)->memberCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-        n += priv(m->d.data)->slotCount;
-        m = m->d.superdata;
-    }
-    return n;
-}
-
-/*!
-    Returns the number of signals in this class.
-
-    \sa signal()
-*/
-int QMetaObject::signalCount() const
-{
-    int n = priv(d.data)->signalCount;
-    const QMetaObject *m = d.superdata;
-    while (m) {
-        n += priv(m->d.data)->signalCount;
+        n += priv(m->d.data)->memberCount;
         m = m->d.superdata;
     }
     return n;
@@ -368,19 +339,19 @@ int QMetaObject::classInfoCount() const
 }
 
 /*!
-    Finds \a slot and returns its index; otherwise returns -1.
+    Finds \a member and returns its index; otherwise returns -1.
 
-    \sa slot(), slotCount()
+    \sa member(), memberCount()
 */
-int QMetaObject::indexOfSlot(const char *slot) const
+int QMetaObject::indexOfMember(const char *member) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-        for (i = priv(m->d.data)->slotCount-1; i >= 0; --i)
-            if (strcmp(slot, m->d.stringdata
-                       + m->d.data[priv(m->d.data)->slotData + 5*i]) == 0) {
-                i += m->slotOffset();
+        for (i = priv(m->d.data)->memberCount-1; i >= 0; --i)
+            if (strcmp(member, m->d.stringdata
+                       + m->d.data[priv(m->d.data)->memberData + 5*i]) == 0) {
+                i += m->memberOffset();
                 break;
             }
         m = m->d.superdata;
@@ -391,24 +362,25 @@ int QMetaObject::indexOfSlot(const char *slot) const
 /*!
     Finds \a signal and returns its index; otherwise returns -1.
 
-    \sa signal(), signalCount()
+    \sa indexOfMember(), member(), memberCount()
 */
 int QMetaObject::indexOfSignal(const char *signal) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-        for (i = priv(m->d.data)->signalCount-1; i >= 0; --i)
-            if (strcmp(signal, m->d.stringdata
-                       + m->d.data[priv(m->d.data)->signalData + 5*i]) == 0) {
-                i += m->signalOffset();
+        for (i = priv(m->d.data)->memberCount-1; i >= 0; --i)
+            if ((m->d.data[priv(m->d.data)->memberData + 5*i + 4] & MemberTypeMask) == MemberSignal
+                && strcmp(signal, m->d.stringdata
+                          + m->d.data[priv(m->d.data)->memberData + 5*i]) == 0) {
+                i += m->memberOffset();
                 break;
             }
         m = m->d.superdata;
     }
 #ifndef QT_NO_DEBUG
     if (i >= 0 && m->d.superdata) {
-        int conflict = m->d.superdata->indexOfSignal(signal);
+        int conflict = m->d.superdata->indexOfMember(signal);
         if (conflict >= 0)
             qWarning("QMetaObject::indexOfSignal:%s: Conflict with %s::%s",
                       m->d.stringdata, m->d.superdata->d.stringdata, signal);
@@ -416,6 +388,29 @@ int QMetaObject::indexOfSignal(const char *signal) const
 #endif
     return i;
 }
+
+/*!
+    Finds \a slot and returns its index; otherwise returns -1.
+
+    \sa indexOfMember(), member(), memberCount()
+*/
+int QMetaObject::indexOfSlot(const char *slot) const
+{
+    int i = -1;
+    const QMetaObject *m = this;
+    while (m && i < 0) {
+        for (i = priv(m->d.data)->memberCount-1; i >= 0; --i)
+            if ((m->d.data[priv(m->d.data)->memberData + 5*i + 4] & MemberTypeMask) == MemberSlot
+                && strcmp(slot, m->d.stringdata
+                       + m->d.data[priv(m->d.data)->memberData + 5*i]) == 0) {
+                i += m->memberOffset();
+                break;
+            }
+        m = m->d.superdata;
+    }
+    return i;
+}
+
 
 
 /*!
@@ -496,45 +491,22 @@ int QMetaObject::indexOfClassInfo(const char *name) const
 }
 
 /*!
-    Returns the meta data for the slot with the given \a index.
-
-    \sa indexOfSlot()
+    Returns the meta data for the member with the given \a index.
 */
-QMetaMember QMetaObject::slot(int index) const
+QMetaMember QMetaObject::member(int index) const
 {
     int i = index;
-    i -= slotOffset();
+    i -= memberOffset();
     if (i < 0 && d.superdata)
-        return d.superdata->slot(index);
+        return d.superdata->member(index);
 
     QMetaMember result;
-    if (i >= 0 && i <= priv(d.data)->slotCount) {
+    if (i >= 0 && i <= priv(d.data)->memberCount) {
         result.mobj = this;
-        result.handle = priv(d.data)->slotData + 5*i;
+        result.handle = priv(d.data)->memberData + 5*i;
     }
     return result;
 }
-
-/*!
-    Returns the meta data for the signal with the given \a index.
-
-    \sa indexOfSignal()
-*/
-QMetaMember QMetaObject::signal(int index) const
-{
-    int i = index;
-    i -= signalOffset();
-    if (i < 0 && d.superdata)
-        return d.superdata->signal(index);
-
-    QMetaMember result;
-    if (i >= 0 && i <= priv(d.data)->signalCount) {
-        result.mobj = this;
-        result.handle = priv(d.data)->signalData + 5*i;
-    }
-    return result;
-}
-
 
 /*!
     Returns the meta data for the enumerator with the given \a index.
@@ -828,13 +800,14 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
 /*!
     \class QMetaMember qmetaobject.h
 
-    \brief The QMetaMember class provides meta data about a signal or
-    slot member function.
+    \brief The QMetaMember class provides meta data about a member
+    function.
 
     \ingroup objectmodel
 
-    A QMetaMember has a signature(), a list of parameters(), a
-    return typeName(), a tag(), and an access() specifier.
+    A QMetaMember has a memberType(), a signature(), a list of
+    parameters(), a return typeName(), a tag(), and an access()
+    specifier.
 */
 
 /*!
@@ -897,11 +870,11 @@ int QMetaMember::attributes() const
 {
     if (!mobj)
         return false;
-    return mobj->d.data[handle + 4] & ~AccessMask;
+    return (QMetaMember::MemberType)((mobj->d.data[handle + 4])>>4);
 }
 
 /*!
-    Returns the access specification of this member: private,
+  Returns the access specification of this member: private,
     protected, or public. Signals are always protected.
 */
 
@@ -909,17 +882,18 @@ QMetaMember::Access QMetaMember::access() const
 {
     if (!mobj)
         return Private;
-    switch(mobj->d.data[handle + 4] & AccessMask) {
-    case AccessPublic:
-        return Public;
-    case AccessPrivate:
-        return Private;
-    case AccessProtected:
-        return Protected;
-    default:
-        break;
-    }
-    return Private;
+    return (QMetaMember::Access)(mobj->d.data[handle + 4] & AccessMask);
+}
+
+/*!
+    Returns the type of this member: Signal, Slot, or Method.
+*/
+
+QMetaMember::MemberType QMetaMember::memberType() const
+{
+    if (!mobj)
+        return QMetaMember::Method;
+    return (QMetaMember::MemberType)((mobj->d.data[handle + 4] & MemberTypeMask)>>3);
 }
 
 /*!
