@@ -1,120 +1,99 @@
-#!/bin/sh
-USAGE='
+#!/usr/bin/perl
+$USAGE='
  Examine differences between two Qt versions.
 
  Usage:  qtlibdiff $QTOLDDIR $QTDIR
    directories must contain include/ and lib/ of Qt release.
-'
+';
 
-if [ $# != 2 ]
-then
-    echo >&2 "$USAGE"
-    exit 1
-fi
+die "$USAGE" if $#ARGV != 1;
 
-OLD=$1
-NEW=$2
-OLDLIB=$(echo $OLD/lib/libqt.so.?)
-NEWLIB=$(echo $NEW/lib/libqt.so.?)
-T1=/tmp/qtlibdiff$$-1
-T2=/tmp/qtlibdiff$$-2
-T3=/tmp/qtlibdiff$$-3
+$OLD=$ARGV[0];
+$NEW=$ARGV[1];
+$OLDLIB="$OLD/lib/libqt.so";
+$NEWLIB="$NEW/lib/libqt.so";
 
-nm --size-sort $OLDLIB | sort +2 >$T1
-nm --size-sort $NEWLIB | sort +2 >$T2
+open OUT, "| c++filt";
 
-gawk ' 
-/^[^ ]* [A-Z] / {  # Have to do it this way --extern-only seems to break nm
-    size[ARGIND $3]=$1
+open OSYMS, "nm --size-sort $OLDLIB | sort +2 |";
+while (<OSYMS>) {
+    ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(\S+)/;
+    $osize{$symbol} = $size if $type =~ /[A-Z]/;
 }
-END {
-    for ( sym in size ) {
-	symbol = substr( sym, 2 )
 
-	if ( sym ~ /2/ ) {
-	    if ( ! size["1" symbol] ) {
-		# New symbols check
-		print symbol >"new.out"
-	    } else if ( match(symbol,/^className__C[0-9]*/) ) {
-		classname = substr(symbol, RLENGTH+1)
-		print classname >"qobjects.out"
-	    } else if ( match(symbol,/__C[0-9][0-9]*/) ) {
-		range = substr(symbol, RSTART+3, RLENGTH-3)
-		classname = substr(symbol, RSTART+RLENGTH, range)
-		print classname >"classes.out"
-	    } else if ( symbol ~ /^_vt\./ && size["1" symbol] > size["2" symbol]) {
-		# Virtual table size check
-		print "WARNING: " symbol " size reduced from " size["1" symbol] " to " size["2" symbol]
-	    } else if ( symbol !~ /__/ && symbol !~ /\./ && size["1" symbol] != size["2" symbol]) {
-		# Non-C++-member-function symbol size check
-		print "WARNING: " sym " size changed from " size["1" symbol] " to " size["2" symbol]
+open NSYMS, "nm --size-sort $NEWLIB | sort +2 |";
+while (<NSYMS>) {
+    ($size,$type,$symbol) = $_ =~ /(\S+)\s+(\S+)\s+(\S+)/;
+    $nsize{$symbol} = $size if $type =~ /[A-Z]/;
+}
+
+for $symbol ( keys %osize ) {
+    if ( defined($nsize{$symbol}) ) {
+# print "OK: $symbol\n";
+	if ( $symbol =~ /^_vt\.\d+([^\.]*)/ ) {
+	    $classname = $1;
+	    if ( $nsize{$symbol} ne $osize{$symbol} ) {
+		print OUT "WARNING: Virtual table of $classname:".
+		      "  $osize{$symbol} -> $nsize{$symbol}\n";
 	    }
-	} else {
-	    if ( ! size["2" symbol] ) {
-		print "WARNING: " symbol " removed"
+	    $classes{$classname}=1;
+	} elsif ( $symbol =~ /^__(\d+)([^\.]*)/ ) {
+	    $classname = substr $2, 0, $1;
+	    $classes{$classname}=1;
+	}
+    } else {
+	push @gone, $symbol;
+	print OUT "REMOVED: $symbol\n";
+    }
+}
+for $symbol ( keys %nsize ) {
+    print OUT "NEW: $symbol\n" if !defined($osize{$symbol});
+}
+
+sub sizes
+{
+    my ($dir) = @_;
+    my (%objectsize);
+
+    open CPP, ">/tmp/t$$.cpp";
+    print CPP "#define INCLUDE_MENUITEM_DEF\n";
+
+    open HEADERS, "/bin/ls $dir/include ".q{| grep -v -e 'qmutex.h' -e 'qgl.h' | grep '\.h$' |};
+    while (<HEADERS>) {
+	chomp;
+	$h = $_;
+	open HEADER, "<$dir/include/$h";
+	while (<HEADER>) {
+	    if ( /class\s+Q_EXPORT\s+([^\s:;{]+)[^;]*$/ ) {
+		next if $1 =~ /[a-z][TM]$/;
+		next if $1 eq "QSignalDictIt";
+		next if $1 eq "QSignalDict";
+		$pubclasses{$1}=1;
 	    }
 	}
+	print CPP "#include \"$h\"\n";
     }
-}
-' $T1 $T2 | c++filt
 
-function classsizes
-{
-    /bin/ls $1/include | grep -v -e 'qmutex.h' -e 'qgl.h' | grep '\.h$' >incs.out
-    cat incs.out | (cd $1/include; xargs sed -n -e 's/^class \(Q_EXPORT \)?\(Q[A-Za-z0-9_]*[A-LN-Za-z0-9_]\)[^A-Za-z0-9_;][^;]*$/\1/p') >pubclasses.out
-    echo '#define INCLUDE_MENUITEM_DEF' >$T3.cpp
-    sed -e 's/.*/#include "&"/' incs.out >>$T3.cpp
-    cat >>$T3.cpp << EOF
-    main()
-    {
-	$(sed -e 's/.*/printf("& %d\\n",sizeof(&));/' pubclasses.out)
+    print CPP "main() {\n";
+    for $class ( keys %pubclasses ) {
+	print CPP qq{  printf("$class %d\\n",sizeof($class));\n}
     }
-EOF
-    rm -f ./a.out
-    gcc $T3.cpp -I$1/include -L$1/lib -lqt
-    ./a.out
-    rm -f ./a.out pubclasses.out
-}
-
-classsizes $OLD | sort -u >$T1
-classsizes $NEW | sort -u >$T2
-
-gawk ' 
-{
-    size[ARGIND $1]=$2
-}
-END {
-    for ( cls in size ) {
-	class = substr( cls, 2 )
-
-	if ( cls ~ /2/ ) {
-	    if ( ! size["1" class] ) {
-		# New class check
-		print class >"newclasses.out"
-	    } else if ( size["1" class] != size["2" class]) {
-		# Non-C++-member-function class size check
-		print "WARNING: sizeof(" class ") changed from " size["1" class] " to " size["2" class]
-	    } else {
-		#print "OK: sizeof(" class ") unchanged from " size["1" class] " to " size["2" class]
-	    }
-	} else {
-	    if ( ! size["2" class] ) {
-		print "WARNING: " class " removed"
-	    }
-	}
+    print CPP "}\n";
+    close CPP;
+    system("gcc /tmp/t$$.cpp -I$dir/include -L$dir/lib -lqt");
+    open SIZES, "./a.out |";
+    while (<SIZES>) {
+	($class,$size) = $_ =~ /(\S+) (\S+)/;
+	$objectsize{$class}=$size;
     }
+    return %objectsize;
 }
-' $T1 $T2 | sort
 
+%old = sizes $OLD;
+%new = sizes $NEW;
 
+for $c ( keys %old ) {
+    print OUT "OBJECTSIZE: $c $old{$c} -> $new{$c}\n" if $old{$c} ne $new{$c};
+}
 
-# Finally, the reports...
-
-echo
-echo "New symbols:"
-echo
-cat new.out | c++filt | grep -v -e '\.' -e "::_" | sort -u
-echo
-echo
-
-rm /tmp/qtlibdiff$$-*
+close OUT;
