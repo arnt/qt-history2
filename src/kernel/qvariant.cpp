@@ -1029,7 +1029,10 @@ void QVariant::load( QDataStream& s )
 
     switch( t ) {
     case Invalid:
-	d->typ = t;
+	{
+	    d->typ = t;
+	    d->is_null = TRUE;
+	}
 	break;
 #ifndef QT_NO_TEMPLATE_VARIANT
     case Map:
@@ -1037,6 +1040,7 @@ void QVariant::load( QDataStream& s )
 	    QMap<QString,QVariant>* x = new QMap<QString,QVariant>;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case List:
@@ -1044,6 +1048,7 @@ void QVariant::load( QDataStream& s )
 	    QValueList<QVariant>* x = new QValueList<QVariant>;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
 #endif
@@ -1053,6 +1058,7 @@ void QVariant::load( QDataStream& s )
 	    QCursor* x = new QCursor;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 #endif
 	}
 	break;
@@ -1099,6 +1105,7 @@ void QVariant::load( QDataStream& s )
 	    QStringList* x = new QStringList;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
 #endif // QT_NO_STRINGLIST
@@ -1107,6 +1114,7 @@ void QVariant::load( QDataStream& s )
 	    QFont* x = new QFont;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case Pixmap:
@@ -1132,6 +1140,7 @@ void QVariant::load( QDataStream& s )
 	    QBrush* x = new QBrush;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case Rect:
@@ -1160,6 +1169,7 @@ void QVariant::load( QDataStream& s )
 	    QColor* x = new QColor;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
 #ifndef QT_NO_PALETTE
@@ -1168,6 +1178,7 @@ void QVariant::load( QDataStream& s )
 	    QPalette* x = new QPalette;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case ColorGroup:
@@ -1175,6 +1186,7 @@ void QVariant::load( QDataStream& s )
 	    QColorGroup* x = new QColorGroup;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
 #endif
@@ -1192,6 +1204,7 @@ void QVariant::load( QDataStream& s )
 	    int x;
 	    s >> x;
 	    d->value.i = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case UInt:
@@ -1199,6 +1212,7 @@ void QVariant::load( QDataStream& s )
 	    uint x;
 	    s >> x;
 	    d->value.u = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case Bool:
@@ -1206,6 +1220,7 @@ void QVariant::load( QDataStream& s )
 	    Q_INT8 x;
 	    s >> x;
 	    d->value.b = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case Double:
@@ -1213,6 +1228,7 @@ void QVariant::load( QDataStream& s )
 	    double x;
 	    s >> x;
 	    d->value.d = x;
+	    d->is_null = FALSE;
 	}
 	break;
     case SizePolicy:
@@ -1223,6 +1239,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = new QSizePolicy( (QSizePolicy::SizeType)h,
 					    (QSizePolicy::SizeType)v,
 					    (bool) hfw);
+	    d->is_null = FALSE;
 	}
 	break;
     case Date:
@@ -1266,6 +1283,7 @@ void QVariant::load( QDataStream& s )
 	    QKeySequence* x = new QKeySequence;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
 #endif // QT_NO_ACCEL
@@ -1274,6 +1292,7 @@ void QVariant::load( QDataStream& s )
 	    QPen* x = new QPen;
 	    s >> *x;
 	    d->value.ptr = x;
+	    d->is_null = FALSE;
 	}
 	break;
     }
