@@ -60,13 +60,28 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
+    if(s == "}") {
+	if(Option::debug_level >= 1)
+	    printf("Project Parser: %s:%d : Leaving block %d\n", file.latin1(), line_count, scope_block);
+	scope_block--;
+	return TRUE;
+    }
+    else if(!(scope_flag & (0x01 << scope_block))) {
+	for(int i = s.contains('{'); i; i--)
+	    scope_flag &= ~(0x01 << (++scope_block));	    
+	if(Option::debug_level >= 1)
+	    printf("Project Parser: %s:%d : Ignored due to block being false.\n", file.latin1(), line_count);
+	return TRUE;
+    }
+
     QString scope, var, op;
     QStringList val;
 #define SKIP_WS(d) while(*d && (*d == ' ' || *d == '\t')) d++
     const char *d = s.latin1();
     SKIP_WS(d);
+    bool scope_failed = FALSE;
     while(*d && *d != '+' && *d != '-' && *d != '=') {
-	if(*d == ':') {
+	if(*d == ':' || *d == '{') {
 	    scope = var.stripWhiteSpace();
 	    var = "";
 
@@ -81,7 +96,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		    QCString error;
 		    error.sprintf("Function missing right paren: %s", scope.latin1());
 		    yyerror(error);
-		    return FALSE;
+		    return FALSE; 
 		}
 		QString func = scope.left(lparen);
 		QStringList args = QStringList::split(',', scope.mid(lparen+1, rparen - lparen - 1));
@@ -93,16 +108,28 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
 	    if(invert_test)
 		test = !test;
-	    if(!test) {
+	    if(!test && !scope_failed) {
 		if(Option::debug_level)
 		    printf("Project Parser: %s:%d : Test (%s) failed.\n", file.latin1(), line_count,
 			   scope.latin1());
-		return TRUE;
+		scope_failed = TRUE;
+	    }
+	    if(*d == '{') {/* scoping block */
+		if(!scope_failed)
+		    scope_flag |= (0x01 << (++scope_block));
+		else
+		    scope_flag &= ~(0x01 << (++scope_block));
+
+		if(Option::debug_level >= 1)
+		    printf("Project Parser: %s:%d : Entering block %d (%d).\n", file.latin1(), line_count, 
+			   scope_block, !scope_failed);
 	    }
 	}
 	else var += *d;
 	d++;
     }
+    if(scope_failed)
+	return TRUE; /* oh well */
     if(!*d)
 	return var.isEmpty(); /* allow just a scope */
 
@@ -112,6 +139,11 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
+    if(vals.right(1) == "}") {
+	scope_block--;
+	vals.truncate(vals.length()-1);
+    }
+
     int rep, rep_len;
     QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
     while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
@@ -150,6 +182,10 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 bool
 QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 {
+    /* scope blocks start at true */
+    scope_flag = 0x01;
+    scope_block = 0;
+
     bool ret;
     QFile qfile(file);
     if ( (ret = qfile.open(IO_ReadOnly)) ) {

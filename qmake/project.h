@@ -43,6 +43,8 @@
 
 class QMakeProject
 {
+    int scope_block, scope_flag;
+
     QString pfile, cfile;
     QMap<QString, QStringList> vars, base_vars, cache;
     bool read(const char *file, QMap<QString, QStringList> &place);
