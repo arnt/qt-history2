@@ -26,7 +26,6 @@
 SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
     : QItemDelegate(parent)
 {
-    spinBox = 0;
 }
 
 /*!
@@ -39,32 +38,16 @@ SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
     no editor widget was created.
 */
 
-QWidget *SpinBoxDelegate::editor(QWidget *parent,
+QWidget *SpinBoxDelegate::createEditor(QWidget *parent,
     const QStyleOptionViewItem & /* option */,
-    const QModelIndex & /* index */)
+    const QModelIndex & /* index */) const
 {
-    if (spinBox)
-        emit closeEditor(spinBox);
+    QSpinBox *editor = new QSpinBox(parent);
+    editor->setMinimum(0);
+    editor->setMaximum(100);
+    editor->installEventFilter(const_cast<SpinBoxDelegate*>(this));
 
-    spinBox = new QSpinBox(parent);
-    spinBox->setMinimum(0);
-    spinBox->setMaximum(100);
-    spinBox->installEventFilter(this);
-
-    return spinBox;
-}
-
-/*!
-    Releases the editor. This involves writing the contents of the editor
-    widget to the model before destroying it.
-*/
-
-void SpinBoxDelegate::releaseEditor(QWidget *editor, const QModelIndex &index)
-{
-    if (editor == spinBox) {
-        QItemDelegate::releaseEditor(editor, index);
-        spinBox = 0;
-    }
+    return editor;
 }
 
 /*!
@@ -75,12 +58,10 @@ void SpinBoxDelegate::releaseEditor(QWidget *editor, const QModelIndex &index)
 void SpinBoxDelegate::setEditorData(QWidget *editor,
                                     const QModelIndex &index) const
 {
-    if (editor != spinBox)
-        return;
-
     int value = index.model()->data(index,
         QAbstractItemModel::DisplayRole).toInt();
 
+    QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
     spinBox->setValue(value);
 }
 
@@ -91,9 +72,7 @@ void SpinBoxDelegate::setEditorData(QWidget *editor,
 void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                    const QModelIndex &index) const
 {
-    if (editor != spinBox)
-        return;
-
+    QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
     spinBox->interpretText();
     int value = spinBox->value();
 

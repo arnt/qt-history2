@@ -27,19 +27,15 @@ class SpinBoxDelegate : public QItemDelegate
 public:
     SpinBoxDelegate(QObject *parent = 0);
 
-    QWidget *editor(QWidget *parent, const QStyleOptionViewItem &option,
-                    const QModelIndex &index);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const;
 
-    void releaseEditor(QWidget *editor, const QModelIndex &index);
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
     void setModelData(QWidget *editor, QAbstractItemModel *model,
                       const QModelIndex &index) const;
 
     void updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const;
-
-private:
-    QSpinBox *spinBox;
 };
 
 #endif
