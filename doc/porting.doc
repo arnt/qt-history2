@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.67 1999/09/17 16:06:15 paul Exp $
+** $Id: porting.doc,v 1.68 1999/09/24 16:25:16 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -636,8 +636,8 @@ that need to be changed.
 <h4>\code QLabel::setMargin()\endcode</h4>
 <p>
 \code QLabel::setMargin()\endcode and\code QLabel::margin()\endcode
-have been renamed to \code QLabel::setIndent()\endcode and 
-\code QLabel::indent()\endcode, respectively. This was done to avoid 
+have been renamed to \code QLabel::setIndent()\endcode and
+\code QLabel::indent()\endcode, respectively. This was done to avoid
 collision with QFrame::setMargin(), which is now virtual.
 
 <h4>\code QLabel::setMovie()\endcode</h4>
@@ -959,6 +959,9 @@ QPopupMenus are also reusable in 2.0. They may occur in different
 locations within one menu structure or be used as both a menubar
 drop-down and as a context popup-menu.  This should make it possible to
 significantly simplify many applications.
+
+Last but not least, QPopupMenu no longer inherits QTableView. Instead,
+it directly inherits QFrame.
 
 <h3><a name=QValidator>QValidator (QLineEdit, QComboBox, QSpinBox) </a></h3>
 
