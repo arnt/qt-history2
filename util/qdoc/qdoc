@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#106 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#107 $
 #
 # this is a massive hack, written very quickly
 #
@@ -847,7 +847,7 @@ sub readfiles {
 	    }
 	    $_;
 	@egsx;
-	$h =~ s@(\n#include\s+[\<\x22])([\w\.]+)([\>\x22])@
+	$h =~ s@(\n\x023include\s+[\<\x22])([\w\.]+)([\>\x22])@
 	    if (defined($headerfiles{$2})) {
 		sprintf("%s<a href=\"%s\">%s</a>%s", $1, $headerfiles{$2}, $2, $3);
 	    } else {
@@ -901,7 +901,7 @@ remains with Troll Tech.
 	    $h =~ s@<a href=\"?$_\"?>@<a name=\"$a\"></a><a href=\"$_\">@s;
 	}
 
-	$h =~ s@(\n#include\s+\&lt;)([\w\.]+)(\&gt;)@
+	$h =~ s@(\n\x23include\s+\&lt;)([\w\.]+)(\&gt;)@
 	    if (defined($headerfiles{$2})) {
 		sprintf("%s<a href=\"%s\">%s</a>%s", 
 			$1, $headerfiles{$2}, $2, $3);
