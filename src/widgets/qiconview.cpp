@@ -139,7 +139,8 @@ struct QIconViewPrivate
     QBrush itemTextBrush;
     bool drawAllBack;
     QRegion clipRegion;
-
+    QPoint dragStartPos;
+    
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -3376,6 +3377,7 @@ bool QIconView::wordWrapIconText() const
 
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
+    d->dragStartPos = e->pos();
     QIconViewItem *item = findItem( e->pos() );
     emit mouseButtonPressed( e->button(), item, e->globalPos() );
     emit pressed( item );
@@ -3569,8 +3571,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
 	    d->startDrag = TRUE;
-	}
-	else {
+	} else if ( QABS( d->dragStartPos.x() - e->x() ) > 4 || QABS( d->dragStartPos.y() - e->y() ) > 4 ) {
 	    d->mousePressed = FALSE;
 	    d->cleared = FALSE;
 	    startDrag();
@@ -4136,7 +4137,7 @@ QDragObject *QIconView::dragObject()
 
 void QIconView::startDrag()
 {
-    QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+    QPoint orig = d->dragStartPos;//viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
     d->dragStart = QPoint( orig.x() - d->currentItem->x(),
 			   orig.y() - d->currentItem->y() );
 
