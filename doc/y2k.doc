@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: y2k.doc,v 2.1 1998/02/04 18:44:37 agulbra Exp $
+** $Id: y2k.doc,v 2.2 1998/02/04 18:56:54 agulbra Exp $
 **
 ** Qt will crash and burn on Feb 32, 2000.  Not.
 **
@@ -41,14 +41,15 @@ not deal with years or leap days at all.
 All date/time calculation and storage in Qt uses number of days,
 seconds or milliseconds, and is thus Year 2000 Compliant.
 
-This applies the above four classes and to \l QFileDialog (which can
-sort files by time/date), \l QFileInfo (which operates on file
-times/dates) and \l QApplication (which does various internal
+This applies to the above four classes and also to \l QFileDialog
+(which can sort files by time/date), \l QFileInfo (which operates on
+file times/dates) and \l QApplication (which does various internal
 housekeeping tasks).
 
 The conversion to <tt>year/month/date</tt> format in QDate (and
-QDateTime) has been verified to be correct for all of January 1, 2000,
-February 28 and 29, 2000, March 1, 2000 and January 1, 2001.
+QDateTime) has been verified to be correct for all of December 31,
+1999, January 1, 2000, February 28 and 29, 2000, March 1, 2000,
+January 1, 2001 and March 1, 2001.
 
 Qt has been verified to be robust in case of time/date errors (such as
 time warps) in the underlying operating system.
@@ -58,4 +59,4 @@ time warps) in the underlying operating system.
 It is of course impossible for Troll Tech to ensure that both of the
 window systems and all of the operating systems on which Qt runs are
 Year 2000 Compliant.  However, Qt does not use any APIs that are known
-to have Year 2000-related bugs, or seem at risk to have any.  */
+to have any Year 2000-related bugs, or seem at risk to have any.  */
