@@ -1523,7 +1523,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    if (window_state_change) {
 		QEvent e(QEvent::WindowStateChange);
-		QApplication::sendSpontaneousEvent(this, &e);
+		qt_sendSpontaneousEvent(widget, &e);
 	    }
 #endif
 
@@ -1551,9 +1551,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    widget->setWState(Qt::WState_Maximized);
 		}
 
-		if (window_state_change) {
+		if (window_state_changed) {
 		    QEvent e(QEvent::WindowStateChange);
-		    QApplication::sendSpontaneousEvent(this, &e);
+		    qt_sendSpontaneousEvent(widget, &e);
 		}
 	    }
 	    result = FALSE;
