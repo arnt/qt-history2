@@ -291,12 +291,12 @@ P4Submit::P4Submit( const QString &filename )
 
 bool P4Submit::execute()
 {
-    SubmitDialog *dialog = new SubmitDialog( qApp->mainWidget(), 0, TRUE );
+    SubmitDialog dialog( qApp->mainWidget(), 0, TRUE );
 
     QDictIterator<P4Info> it( *P4Info::files() );
     while ( it.current() ) {
 	if ( it.current()->controlled && it.current()->action != P4Info::None ) {
-	    QCheckListItem* item = new QCheckListItem( dialog->fileList, it.currentKey(), QCheckListItem::CheckBox );
+	    QCheckListItem* item = new QCheckListItem( dialog.fileList, it.currentKey(), QCheckListItem::CheckBox );
 	    item->setText( 1, it.current()->depotFile );
 	    switch ( it.current()->action ) {
 	    case P4Info::Edit:
@@ -314,12 +314,12 @@ bool P4Submit::execute()
 	}	
 	++it;
     }
-    dialog->description->setText( "<enter description here>" );
+    dialog.description->setText( "<enter description here>" );
 
-    if ( dialog->exec() != QDialog::Accepted )
+    if ( dialog.exec() != QDialog::Accepted )
 	return FALSE;
 
-    QString description = dialog->description->text().replace( QRegExp("\\n"), "\n\t" );
+    QString description = dialog.description->text().replace( QRegExp("\\n"), "\n\t" );
 
     QString buffer = "Change:\tnew\n\n";
     buffer += "Client:\t" + *P4Info::clientName + "\n\n";
@@ -330,7 +330,7 @@ bool P4Submit::execute()
     buffer += "Files:\n";
 
     bool haveFile = FALSE;
-    QListViewItemIterator lvit( dialog->fileList );
+    QListViewItemIterator lvit( dialog.fileList );
     while ( lvit.current() ) {
 	QCheckListItem* item = (QCheckListItem*)lvit.current();
 	++lvit;
