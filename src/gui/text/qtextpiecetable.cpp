@@ -405,6 +405,7 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt)
         QTextPieceTable::block(blockIt)->invalidate();
 
+    documentChange(pos, length);
     emit contentsChanged();
 
     endEditBlock();
@@ -685,6 +686,7 @@ void QTextPieceTable::endEditBlock()
 
 void QTextPieceTable::documentChange(int from, int length)
 {
+//     qDebug("QTextPieceTable::documentChange: from=%d,length=%d", from, length);
     if (docChangeFrom < 0) {
         docChangeFrom = from;
         docChangeOldLength = length;
@@ -701,6 +703,7 @@ void QTextPieceTable::documentChange(int from, int length)
 
 void QTextPieceTable::adjustDocumentChanges(int from, int addedOrRemoved)
 {
+//     qDebug("QTextPieceTable::adjustDocumentChanges: from=%d,addedOrRemoved=%d", from, addedOrRemoved);
     if (docChangeFrom < 0) {
         docChangeFrom = from;
         if (addedOrRemoved > 0) {
