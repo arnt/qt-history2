@@ -360,8 +360,8 @@ QRegion QRegion::unite( const QRegion &r ) const
     if(data->is_null || r.data->is_null ) 
 	return (!data->is_null ? this : &r)->copy();
 
-    if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect, TRUE))
-	return QRegion(data->rect);
+    if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect))
+	return copy();
 
     if(data->is_rect) 
 	((QRegion *)this)->rectifyRegion();
