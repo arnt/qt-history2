@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#17 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#18 $
 **
 ** Definition of QPopupMenu class
 **
@@ -57,10 +57,10 @@ private slots:
     void	accelDestroyed();
 
 private:
-    void	menuContentsChanged();		// menu item inserted/removed
-    void	menuStateChanged();		// menu item state changed
-    void	menuInsPopup( QPopupMenu * );	// menu popup item inserted
-    void	menuDelPopup( QPopupMenu * );	// menu popup item deleted
+    void	menuContentsChanged();
+    void	menuStateChanged();
+    void	menuInsPopup( QPopupMenu * );
+    void	menuDelPopup( QPopupMenu * );
     void	frameChanged();
 
     void	actSig( int );
