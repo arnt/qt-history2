@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.7 1995/08/25 08:27:01 agulbra Exp $
+** $Id: misc.doc,v 1.8 1995/11/23 07:19:16 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.7 1995/08/25 08:27:01 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.8 1995/11/23 07:19:16 agulbra Exp $";
 #endif
 
 /*! \page license.html
@@ -102,7 +102,7 @@ applications.
 <p>
 
 It is ftp'able from sunsite.unc.edu in /pub/Linux/Incoming, hopefully
-soon /pub/Linux/devel/c++, and from ftp.nvg.unit.no in /pub/linux/qt.
+soon /pub/Linux/devel/lang/c++, and from ftp.nvg.unit.no in /pub/linux/qt.
 
 <p>
 
@@ -288,11 +288,10 @@ Here is this week's top eleven Qt questions:
        The commercial versions of Qt will include the source code. <p>
 <li>Q: What other versions of Qt exist/are planned? <p>
     A: We're working on versions for several other version of Unix, Windows
-       and OS/2.  The other versions are not as complete as the linux version
-       yet. <p>
+       and OS/2. <p>
+       The other versions will not be priced for the private market.
 <li>Q: When will v1.0 be released? <p>
-    A: We plan to release 1.0 for linux on November 1st.  Other
-       platforms will follow. <p>
+    A: We plan to release 1.0 for linux in the first quarter of 1996. <p>
 <li>Q: Will v1.0 include... <p>
     A: v1.0 will not include resources or an interactive GUI designer.  It
        will include postscript output, geometry management and much more
@@ -304,7 +303,7 @@ Here is this week's top eleven Qt questions:
        projects.  The first line of code was written in 1992. <p>
        Most of our income comes from a contract with a beta customer;
        we develop code based on Qt for the Norwegian division of a small
-       American company called AT&T. <p>
+       company called AT&T. <p>
 <li>Q: Can I use Qt's classes without writing a graphical user interface? <p>
     A: Quite a few of the classes can be used independently of the user
        interface.  See <a href=tools.html>utility classes,</a>  There are
@@ -315,15 +314,12 @@ Here is this week's top eleven Qt questions:
        2.7.0; all work. <p>
        If you use gcc 2.6, binutils 2.5.2.6 is recommended.  If you use
        gcc 2.7, binutils 2.5.2l.17 or later is recommended. <p>
-       The a.out library in Qt 0.91b will only work with
-       gcc 2.6/binutils 2.5.2.6; we will provide an a.out library for
-       gcc 2.7/binutils 2.5.2l.17 on request. <p>
 <li>Q: Where can I find Qt? <p>
     A: The latest version of Qt can be downloaded from <a
         href=ftp://ftp.nvg.unit.no/pub/linux/qt>ftp.nvg.unit.no in
 	/pub/linux/qt</a> or (less often updated) from <a
-	href=ftp://sunsite.unc.edu/pub/Linux/devel/c++>sunsite.unc.edu
-	in /pub/Linux/devel/c++	(or /pub/Linux/Incoming).</a>
+	href=ftp://sunsite.unc.edu/pub/Linux/devel/lang/c++>sunsite.unc.edu
+	in /pub/Linux/devel/lang/c++	(or /pub/Linux/Incoming).</a>
 </ol>
 */
 
