@@ -357,6 +357,9 @@ NmakeMakefileGenerator::init()
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
     }
+    if(!project->isActiveConfig("incremental")) 
+	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
+
     if ( !project->variables()["RC_FILE"].isEmpty()) {
 	if ( !project->variables()["RES_FILE"].isEmpty()) {
 	    fprintf(stderr, "Both .rc and .res file specified.\n");

@@ -459,6 +459,10 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I "," /I ","") +
 						   " /I " + Option::mkfile::qmakespec);
+
+    if(!project->isActiveConfig("incremental")) 
+	project->variables()["MSVCDSP_LIBS"].append(QString("/incremental:no"));
+
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
     } else {
