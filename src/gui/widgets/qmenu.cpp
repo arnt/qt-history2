@@ -84,14 +84,15 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
               vmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q);
 
     //for compatability now - will have to refactor this away..
-    tabWidth = maxIconWidth = 0;
+    QMenuPrivate *that = const_cast<QMenuPrivate *>(this);
+    that->tabWidth = that->maxIconWidth = 0;
     for(int i = 0; i < items.count(); i++) {
         QAction *action = items.at(i);
         if(!action->isVisible())
             continue;
         QIconSet is = action->icon();
         if(!is.isNull())
-            maxIconWidth = qMax(maxIconWidth, (uint)is.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4);
+            that->maxIconWidth = qMax(maxIconWidth, (uint)is.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4);
     }
 
     //calculate size
@@ -110,7 +111,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             QString s = action->menuText();
             int t = s.indexOf('\t');
             if(t != -1) {
-                tabWidth = qMax((int)tabWidth, fm.width(s.mid(t+1)));
+                that->tabWidth = qMax((int)tabWidth, fm.width(s.mid(t+1)));
                 s = s.left(t);
             }
             int w = fm.width(s);
@@ -365,10 +366,10 @@ void QMenuPrivate::scrollMenu(uint dir)
     //finally update the scroller status
     scroll->scrollFlags = QMenuScroller::ScrollNone;
     if(scroll->scrollOffset) //easy and cheap one
-        scroll->scrollFlags |= QMenuScroller::ScrollUp;
+        scroll->scrollFlags = scroll->scrollFlags | QMenuScroller::ScrollUp;
     for(int i = 0; i < actionItems.count(); i++) {
         if(actionItems[i]->rect.bottom() > q->height()-scroll->scrollOffset) {
-            scroll->scrollFlags |= QMenuScroller::ScrollDown;
+            scroll->scrollFlags = scroll->scrollFlags | QMenuScroller::ScrollDown;
             break;
         }
     }
@@ -1002,7 +1003,8 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             if(action->action == atAction) {
                 int newY = pos.y()-above_height;
                 if(d->scroll && newY < desktopFrame) {
-                    d->scroll->scrollFlags |= QMenuPrivate::QMenuScroller::ScrollUp;
+                    d->scroll->scrollFlags = d->scroll->scrollFlags
+                                             | QMenuPrivate::QMenuScroller::ScrollUp;
                     d->scroll->scrollOffset = newY;
                     newY = desktopFrame;
                 }
@@ -1021,7 +1023,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
         }
     }
     if(d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
-        d->scroll->scrollFlags |= QMenuPrivate::QMenuScroller::ScrollDown;
+        d->scroll->scrollFlags = d->scroll->scrollFlags | QMenuPrivate::QMenuScroller::ScrollDown;
         size.setHeight(screen.height()-desktopFrame-pos.y());
     }
 
