@@ -59,6 +59,8 @@ void IntroScreen::paintEvent(QPaintEvent *)
     int blockHeight = textLayout->sizeUsed().height();
     int ypos = (-animationStep % blockHeight);
 
+    p.setClipRegion(textRect);
+
     p.translate(textRect.x(), ypos);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
