@@ -430,12 +430,13 @@ void QSocket::tryConnecting()
 /*!
     \fn void QSocket::readyRead()
 
-    This signal is emitted when there is incoming data to be read.
+    This signal is emitted every time there is new incoming data.
 
-    This signal is emitted every time there is new incoming data. Bear
-    in mind that new incoming data is only reported once; i.e. if you
-    do not read all the data when you get this signal you may lose
-    data if more data is received in the meantime.
+    Bear in mind that new incoming data is only reported once; if you do not
+    read all the data, this class buffers the data and you can read it later,
+    but no signal is emitted unless new data arrives. A good practice is to
+    read all data in the slot connected to this signal unless you are sure that
+    you need to receive more data to be able to process it.
 
     \sa readBlock(), readLine(), bytesAvailable()
 */
