@@ -39,6 +39,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
     Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString menuText READ menuText WRITE setMenuText)
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
@@ -75,28 +76,31 @@ public:
 
     void setActionGroup(QActionGroup *group);
     QActionGroup *actionGroup() const;
-    void setIcon(const QIconSet&);
+    void setIcon(const QIconSet&icon);
     QIconSet icon() const;
 
-    void setText(const QString&);
+    void setText(const QString &text);
     QString text() const;
 
-    void setToolTip(const QString&);
+    void setMenuText(const QString &text);
+    QString menuText() const;
+
+    void setToolTip(const QString &tip);
     QString toolTip() const;
 
-    void setStatusTip(const QString&);
+    void setStatusTip(const QString &statusTip);
     QString statusTip() const;
 
-    void setWhatsThis(const QString&);
+    void setWhatsThis(const QString &what);
     QString whatsThis() const;
 
-    void setMenu(QMenu *);
+    void setMenu(QMenu *menu);
     QMenu *menu() const;
 
     void setSeparator(bool b);
     bool isSeparator() const;
 
-    void setShortcut(const QKeySequence &key);
+    void setShortcut(const QKeySequence &shortcut);
     QKeySequence shortcut() const;
 
     void setCheckable(bool);
@@ -120,8 +124,6 @@ public:
     inline QT_COMPAT QIconSet iconSet() const { return icon(); }
     inline QT_COMPAT bool addTo(QWidget *w) { w->addAction(this); return true; }
     inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
-    inline QT_COMPAT void setMenuText(const QString &s) { setText(s); }
-    inline QT_COMPAT QString menuText() { return text(); }
     inline QT_COMPAT void setAccel(const QKeySequence &shortcut) { setShortcut(shortcut); }
     inline QT_COMPAT QKeySequence accel() const { return shortcut(); }
 #endif

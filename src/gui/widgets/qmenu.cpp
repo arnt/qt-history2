@@ -107,7 +107,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         if(action->isSeparator()) {
             sz = QSize(2, 2);
         } else {
-            QString s = action->text();
+            QString s = action->menuText();
             int t = s.indexOf('\t');
             if(t != -1) {
                 tabWidth = qMax((int)tabWidth, fm.width(s.mid(t+1)));
@@ -1479,7 +1479,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 QChar c = e->text()[0].toUpper();
                 for(int i = 0; i < d->actionItems.size(); ++i) {
                     register QMenuAction *act = d->actionItems.at(i);
-                    QString s = act->action->text();
+                    QString s = act->action->menuText();
                     if(!s.isEmpty()) {
                         int ampersand = s.indexOf('&');
                         if(ampersand >= 0) {

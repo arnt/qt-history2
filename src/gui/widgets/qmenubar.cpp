@@ -65,7 +65,7 @@ void QMenuBarPrivate::updateActions()
         shortcuts = new QAccel(q);
         QObject::connect(shortcuts, SIGNAL(activated(int)), q, SLOT(internalShortcutActivated(int)));
         for(int i = 0; i < actionItems.count(); i++) {
-            QKeySequence key = QAccel::shortcutKey(actionItems.at(i)->action->text());
+            QKeySequence key = QAccel::shortcutKey(actionItems.at(i)->action->menuText());
             if(!key.isEmpty())
                 shortcuts->insertItem(key);
         }

@@ -465,6 +465,35 @@ QString QAction::text() const
 }
 
 /*!
+    \property QAction::menuText
+    \brief the action's menu text
+
+    If the action is added to a menu the menu option will consist of
+    the icon (if there is one), the menu text and the accelerator (if
+    there is one). If the menu text is not explicitly set in the
+    constructor or by using setMenuText() the action's description
+    text will be used as the menu text. There is no default menu text.
+
+    \sa text
+*/
+void QAction::setMenuText(const QString &text)
+{
+    d->menuText = text;
+    d->sendDataChanged();
+}
+
+QString QAction::menuText() const
+{
+    QString ret = d->menuText;
+    if(ret.isEmpty()) {
+        ret = d->text;
+        ret.replace('&', "&&");
+    }
+    return ret;
+}
+
+
+/*!
     \property QAction::toolTip
     \brief the action's tool tip
 
