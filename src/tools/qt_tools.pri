@@ -14,6 +14,7 @@ tools {
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
+		  $$TOOLS_H/qdeepcopy.h \
 		  $$TOOLS_H/qdict.h \
 		  $$TOOLS_H/qdir.h \
 		  $$TOOLS_P/qdir_p.h \
@@ -63,7 +64,6 @@ tools {
 		  $$TOOLS_P/qucom_p.h \
 		  $$TOOLS_H/quuid.h
 
-
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
 	 	  $$TOOLS_CPP/qfile_win.cpp \
 		  $$TOOLS_CPP/qfileinfo_win.cpp \
@@ -98,6 +98,7 @@ tools {
 		  $$TOOLS_CPP/qcstring.cpp \
 		  $$TOOLS_CPP/qdatastream.cpp \
 		  $$TOOLS_CPP/qdatetime.cpp \
+		  $$TOOLS_CPP/qdeepcopy.cpp \
 		  $$TOOLS_CPP/qdir.cpp \
 		  $$TOOLS_CPP/qfile.cpp \
 		  $$TOOLS_CPP/qfileinfo.cpp \

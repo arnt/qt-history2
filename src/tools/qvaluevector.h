@@ -392,7 +392,7 @@ public:
 
     iterator insert( iterator pos, const T& x );
     iterator insert( iterator pos, size_type n, const T& x );
-    
+
     void reserve( size_type n )
     {
 	if ( capacity() < n ) {
@@ -463,6 +463,9 @@ protected:
     }
     void detachInternal();
     QValueVectorPrivate<T>* sh;
+
+private:
+    friend class QDeepCopy;
 };
 
 template <class T>

@@ -546,9 +546,11 @@ protected:
      * Variables
      */
     QValueListPrivate<T>* sh;
-    
+
 private:
     void detachInternal();
+
+    friend class QDeepCopy;
 };
 
 template <class T>

@@ -743,6 +743,8 @@ protected:
     Priv* sh;
 private:
     void detachInternal();
+
+    friend class QDeepCopy;
 };
 
 template<class Key, class T>

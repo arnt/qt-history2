@@ -608,6 +608,7 @@ public:
     bool simpleText() const { if ( d->dirty ) checkSimpleText(); return (bool)d->simpletext; }
     bool isRightToLeft() const;
 
+
 private:
     QString( int size, bool /* dummy */ );	// allocate size incl. \0
 
@@ -629,6 +630,10 @@ private:
     friend class QConstString;
     friend class QTextStream;
     QString( QStringData* dd, bool /* dummy */ ) : d(dd) { }
+
+    // needed for QDeepCopy
+    void detach();
+    friend class QDeepCopy;
 };
 
 class Q_EXPORT QCharRef {
@@ -731,6 +736,10 @@ inline QString::~QString()
 	    d->deleteSelf();
     }
 }
+
+// needed for QDeepCopy
+inline void QString::detach()
+{ real_detach(); }
 
 inline QString QString::section( QChar sep, int start, int end, int flags ) const
 { return section(QString(sep), start, end, flags); }
