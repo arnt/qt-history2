@@ -259,7 +259,8 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 {
     QString dirName = name;
     if(recurse == QDir::Recursive) {
-        dirName = QDir::cleanPath(dirName);
+        dirName = QDir::convertSeparators(QDir::cleanPath(dirName));
+        // We spefically search for / so \ would break it..
         for(int oldslash = -1, slash=0; slash != -1; oldslash = slash) {
             slash = dirName.indexOf(QDir::separator(), oldslash+1);
             if(slash == -1) {
@@ -274,15 +275,17 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
                     if(QT_TSTAT((TCHAR*)chunk.utf16(), (QT_STATBUF4TSTAT*)&st) != -1) {
                         if((st.st_mode & S_IFMT) != S_IFDIR)
                             return false;
-                    } else if(::_wmkdir((TCHAR*)chunk.utf16()) != 0) {
+                    } else if(::_wmkdir((TCHAR*)chunk.utf16()) == -1) {
+                        if (errno != EEXIST)
                             return false;
                     }
                 } , {
                     if(QT_STAT(QFSFileEnginePrivate::win95Name(chunk), &st) != -1) {
                         if((st.st_mode & S_IFMT) != S_IFDIR) {
                             return false;
-                        } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) != 0)
-                            return false;
+                        } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) == -1)
+                            if (errno != EEXIST)
+                                return false;
                     }
                 });
             }
@@ -290,9 +293,9 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
         return true;
     }
     QT_WA({
-        return ::_wmkdir((TCHAR*)dirName.utf16()) == 0;
+        return ::_wmkdir((TCHAR*)QDir::convertSeparators(dirName).utf16()) != -1;
     }, {
-        return _mkdir(QFSFileEnginePrivate::win95Name(dirName)) == 0;
+        return _mkdir(QFSFileEnginePrivate::win95Name(dirName)) != -1;
     });
 }
 
@@ -301,24 +304,24 @@ QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 {
     QString dirName = name;
     if(recurse == QDir::Recursive) {
-        dirName = QDir::cleanPath(dirName);
+        dirName = QDir::convertSeparators(QDir::cleanPath(dirName));
         for(int oldslash = 0, slash=dirName.length(); slash > 0; oldslash = slash) {
             QString chunk = dirName.left(slash);
+            if (chunk.length() == 2 && chunk.at(0).isLetter() && chunk.at(1) == QLatin1Char(':'))
+                break;
             QT_STATBUF st;
-
-
             QT_WA({
                 if(QT_TSTAT((TCHAR*)chunk.utf16(), (QT_STATBUF4TSTAT*)&st) != -1) {
                     if((st.st_mode & S_IFMT) != S_IFDIR)
                         return false;
-                } else if(::_wrmdir((TCHAR*)chunk.utf16()) != 0) {
-                    return oldslash != 0;
+                    else if(::_wrmdir((TCHAR*)chunk.utf16()) == -1)
+                        return oldslash != 0;
                 }
             } , {
                 if(QT_STAT(QFSFileEnginePrivate::win95Name(chunk), &st) != -1) {
                     if((st.st_mode & S_IFMT) != S_IFDIR) {
                         return false;
-                    } else if(_rmdir(QFSFileEnginePrivate::win95Name(chunk)) != 0)
+                    } else if(_rmdir(QFSFileEnginePrivate::win95Name(chunk)) == -1)
                         return oldslash != 0;
                 }
             });
@@ -327,9 +330,9 @@ QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
         return true;
     }
     QT_WA({
-        return ::_wrmdir((TCHAR*)dirName.utf16()) == 0;
+        return ::_wrmdir((TCHAR*)QDir::convertSeparators(dirName).utf16()) != -1;
     } , {
-        return _rmdir(QFSFileEnginePrivate::win95Name(dirName)) == 0;
+        return _rmdir(QFSFileEnginePrivate::win95Name(dirName)) != -1;
     });
 }
 
