@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#16 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#17 $
 **
 ** Implementation of QFontDialog
 **
@@ -102,7 +102,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleEdit = new QLineEdit( this, "font style I" );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
-    d->styleList->setFocusPolicy( NoFocus ); 
+    d->styleList->setFocusPolicy( NoFocus );
     d->styleList->setAutoScrollBar( FALSE );
     d->styleList->setScrollBar( TRUE );
     d->styleAccel
@@ -458,7 +458,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 	return FALSE;
 
 
-    if ( e->type() == Event_KeyPress ) {
+    if ( e->type() == QEvent::KeyPress ) {
     QListBox * lb = 0;
     QLineEdit * le = 0;
 
@@ -474,7 +474,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 	} else {
 	    return FALSE;
 	}
-    
+
 	QKeyEvent * k = (QKeyEvent *)e;
 	if ( k->key() == Key_Up ||
 	     k->key() == Key_Down ||
@@ -486,14 +486,14 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 		le->selectAll();
 	    return TRUE;
 	}
-    } else if ( e->type() == Event_FocusIn && style() == WindowsStyle ) {
+    } else if ( e->type() == QEvent::FocusIn && style() == WindowsStyle ) {
 	if ( o == d->familyEdit )
 	    d->familyEdit->selectAll();
 	else if ( o == d->styleEdit )
 	    d->styleEdit->selectAll();
 	else if ( o == d->sizeEdit )
 	    d->sizeEdit->selectAll();
-    } else if ( e->type() == Event_MouseButtonPress ) {
+    } else if ( e->type() == QEvent::MouseButtonPress ) {
 	if ( o == d->familyList )
 	    d->familyEdit->setFocus();
 	else if ( o == d->styleList )
