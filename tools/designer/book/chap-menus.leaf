@@ -1,6 +1,6 @@
-\chapter Menu Options
+\chapter Menu Options and Functions
 
-\section1 Menu Options and Functions
+\section1 Introduction
 
 \QD provides menu options that perform the actions that are needed to
 create applications. Most menu options have additional options such as
@@ -13,9 +13,9 @@ within the reference manual which will explain the dialogs and buttons
 in detail.
 
 \img menufile.png
-\caption file
+\caption The File Menu
 
-\section2 The File Menu
+\section1 The File Menu
 
 This menu is invoked with \Key Alt+F, and provides the following
 options:
@@ -70,7 +70,7 @@ message box appears.
 
 See also the \l{The File Toolbar buttons}.
 
-\section2 The Edit Menu
+\section1 The Edit Menu
 
 This menu is invoked with \Key Alt+E, and provides the following
 options:
@@ -125,7 +125,7 @@ Settings Dialog}.
 
 See also the \l{The Edit Toolbar buttons}.
 
-\section2 The Project Menu
+\section1 The Project Menu
 
 This menu is invoked with \Key Alt+O, and provides the following
 options:
@@ -151,7 +151,7 @@ invoke the \l{Edit Database Connections Dialog}.
 
 See also the \l{The Project Toolbar buttons}.
 
-\section2 The Search Menu
+\section1 The Search Menu
 
 This menu is invoked with \Key Alt+S, and provides the following
 options:
@@ -179,7 +179,7 @@ in the file.
 
 See also the \l{The Search Toolbar buttons}.
 
-\section2 The Tools Menu
+\section1 The Tools Menu
 
 This menu is invoked with \Key Alt+T, and provides the following
 options:
@@ -196,7 +196,7 @@ and drag the pink rubber band to the widget (or form) that you want to
 connect to; then release the mouse button and the \l{Edit Connections
 Dialog} will appear. 
 
-\i \Menu {Tools|Tab Order} Click this menu option (or press \F4) to
+\i \Menu {Tools|Tab Order} Click this menu option (or press \Key F4) to
 set the tab order for all the widgets on the form that can accept
 keyboard focus. Choose this option and blue circles with numbers on
 them appear next to the widgets. Click the widget that you want to be
@@ -312,7 +312,7 @@ Widgets.
 
 See also the \l{The Tools Toolbar buttons}.
 
-\section2 The Layout Menu 
+\section1 The Layout Menu 
 
 This menu is invoked with \Key Alt+L, and provides the following
 options:
@@ -348,7 +348,7 @@ tab of the \l{Object Explorer} window.
 
 \i \Menu {Layout|Lay Out Vertically (in Splitter)} Click this menu
 option to lay out the selected widgets or layouts one above the other
-with a splitter between each widget or layout. Use \KeyShift+Click to
+with a splitter between each widget or layout. Use \Key{Shift+Click} to
 select each widget or layout, and then choose this menu option to
 group them vertically. Note that for complex widgets it is sometimes
 easiest to select widgets and layouts by clicking them in the Widgets
@@ -363,7 +363,7 @@ to widgets that take up too much space on the form. The spacer consumes extra sp
 
 See also the \l{The Layout Toolbar buttons}.
 
-\section2 The Preview Menu 
+\section1 The Preview Menu \Key Alt+P
 
 This menu is invoked with \Key Alt+P, and provides the following
 options:
@@ -392,7 +392,7 @@ form in SGI style.
 
 \endlist
 
-\section2 The Window Menu
+\section1 The Window Menu
 
 This menu is invoked with \Key Alt+W, and provides the following
 options:
@@ -512,7 +512,7 @@ form or file from the list.
 
 \endlist
 
-\section2 The Help Menu
+\section1 The Help Menu
 
 This menu is invoked with \Key Alt+H, and provides the following
 options:
