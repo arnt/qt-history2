@@ -4,7 +4,6 @@ kernel {
 	KERNEL_P	= kernel
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
-		  $$KERNEL_H/qaccessible.h \
 		  $$KERNEL_H/qucom.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
@@ -96,8 +95,7 @@ kernel {
 		  $$KERNEL_H/qsimplerichtext.h
 
 
-	win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp \
-		  $$KERNEL_CPP/qapplication_win.cpp \
+	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
 		  $$KERNEL_CPP/qclipboard_win.cpp \
 		  $$KERNEL_CPP/qcolor_win.cpp \
 		  $$KERNEL_CPP/qcursor_win.cpp \
@@ -160,7 +158,6 @@ kernel {
 		    $$KERNEL_CPP/qthread_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
-		  $$KERNEL_CPP/qaccessible.cpp \
 		  $$KERNEL_CPP/qucom.cpp \
 		  $$KERNEL_CPP/qaccel.cpp \
 		  $$KERNEL_CPP/qapplication.cpp \
