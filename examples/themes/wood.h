@@ -69,23 +69,16 @@ public:
 
 
 
-    void drawButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool sunken = FALSE,
-			     const QBrush *fill = 0 );
-    QRect buttonRect( int x, int y, int w, int h) const;
-    void drawButtonMask( QPainter *p, int x, int y, int w, int h);
-    QRect comboButtonRect( int x, int y, int w, int h) const;
-    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
-    void drawComboButton( QPainter *p, int x, int y, int w, int h,
-				    const QColorGroup &g,
-				    bool /* sunken */,
-				    bool editable,
-				    bool /*enabled */,
-				    const QBrush *fb );
+    //    QRect comboButtonRect( int x, int y, int w, int h) const;
+    //    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
+    //void drawComboButton( QPainter *p, int x, int y, int w, int h,
+    //				    const QColorGroup &g,
+    //				    bool /* sunken */,
+    //				    bool editable,
+    //				    bool /*enabled */,
+    //				    const QBrush *fb );
 
 
-    void drawPushButton( QPushButton* btn, QPainter *p);
-    void drawPushButtonLabel( QPushButton* btn, QPainter *p);
     //    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
 private:

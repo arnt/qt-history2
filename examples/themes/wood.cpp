@@ -741,6 +741,13 @@ static const char *button_xpm[] = {
 ".rb..g.e#s.YaPbV#z.wbnbV.wbn#Dbn.OaP.4.y.4#N.K.K#T#t.U.Q#z.w#F#YazanaNan.bap#Ga0az#0#P#b#KbR.Z#aaz#ibK#h#u.wbC#B#b.1bebs#B#D#baLbcbA.k#P#G#E#S#2.K.8bAbL.Tbw.6.K#G#0.wbVbVbV#s#s.e.Oba.K.4aT.k.0"
 };
 
+static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
+			   QCOORD w, QCOORD h, QCOORD d );
+
+static inline int buttonthickness( int d );
+
+static QRegion roundRectRegion( const QRect& g, int r );
+
 NorwegianWoodStyle::NorwegianWoodStyle() : QWindowsStyle()
 {
 }
@@ -902,7 +909,52 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 					const QColorGroup &cg,
 					SFlags flags ) const
 {
-    QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+    int x, y, w, h;
+    r.rect( &x, &y, &w, &h );
+    switch ( pe ) {
+    case PE_ButtonCommand:
+	{
+	    int d = QMIN( w, h ) / 2;
+	    int b = buttonthickness( d );
+	    
+	    QRegion internR = roundRectRegion( QRect(x + b, y + b,
+						       w - 2 * b,
+						       h - 2 * b),
+					       d - b );
+	    QPen oldPen = p->pen();
+	    
+	    QBrush brush( flags & Style_Sunken ? cg.brush(QColorGroup::Mid) :
+			  cg.brush(QColorGroup::Button) );
+	    p->setClipRegion( internR );
+	    p->fillRect( r, brush );
+	    
+	    int e = QMIN( w, h ) / 2;
+	    QPoint p2( x + w - 1 - e, y + e );
+	    QPoint p3( x + e, y + h - 1 - e );
+	    
+	    QPointArray a;
+	    a.setPoints( 5, x,y, x+w-1, y, p2.x(),p2.y(), p3.x(),p3.y(), x, y+h-1 );
+	    p->setClipRegion( QRegion(a) - internR );
+	    
+	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.dark(), *sunkenDark) 
+			                     : cg.brush(QColorGroup::Light)) );
+
+	    a.setPoint( 0, x + w - 1, y + w - 1 );
+	    p->setClipRegion( QRegion( a ) - internR );
+	    
+	    p->fillRect( r, (flags & Style_Sunken ? QBrush( cg.light(), *sunkenLight) : cg.brush( QColorGroup::Dark ) ) );
+	    
+	    p->setClipRegion( internR );
+	    p->setClipping( FALSE );
+	    p->setPen( cg.foreground() );
+	    drawroundrect( p, x, y, w, h, d );
+	    p->setPen( oldPen );
+	    break;
+	}
+    default:
+	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
+	break;
+    }
 }
 
 void NorwegianWoodStyle::drawControl( ControlElement element,
@@ -912,7 +964,102 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 				      const QColorGroup &cg,
 				      SFlags how, void **data ) const
 {
-    QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+    switch( element ) {
+    case CE_PushButton:
+	{
+	    const QPushButton *btn;
+	    btn = ( const QPushButton * )widget;
+
+	    SFlags flags = Style_Default;
+	    if ( btn->isOn() )
+		flags |= Style_On;
+	    if ( btn->isDown() )
+		flags |= Style_Down;
+	    if ( btn->isOn() || btn->isDown() )
+		flags |= Style_Sunken;
+
+	    int x1, y1, x2, y2;
+	    r.coords( &x1, &y1, &x2, &y2 );
+	    
+	    p->setPen( cg.foreground() );
+	    p->setBrush( QBrush( cg.button(), NoBrush ) );
+	    
+	    QBrush fill;
+	    if ( btn->isDown() )
+		fill = cg.brush( QColorGroup::Mid );
+	    else if ( btn->isOn() )
+		fill = QBrush( cg.mid(), Dense4Pattern );
+	    else
+		fill = cg.brush( QColorGroup::Button );
+	    
+	    if ( btn->isDefault() ) {
+		x1 += 2;
+		y1 += 2;
+		x2 -= 2;
+		y2 -= 2;
+	    }
+		
+	    drawPrimitive( PE_ButtonCommand, p, 
+			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1), 
+			   cg, flags );
+	    
+	    if ( btn->isDefault() ) {
+		QPen pen( Qt::black, 4 );
+		pen.setCapStyle( Qt::RoundCap );
+		pen.setJoinStyle( Qt::RoundJoin );
+		p->setPen( pen );
+		drawroundrect( p, x1 - 1, y1 - 1, x2 - x1 + 3, y2 - y1 + 3, 8 );
+	    }
+	    
+	    if ( btn->isMenuButton() ) {
+		int dx = ( y1 - y2 - 4 ) / 3;
+		
+		// reset the flags
+		flags = Style_Default;
+		if ( btn->isEnabled() )
+		    flags |= Style_Enabled;		
+		drawPrimitive( PE_ArrowDown, p, 
+			       QRect( x2 - dx, dx, y1, y2 - y1), cg, flags );
+	    }
+	    
+	    if ( p->brush().style() != NoBrush )
+		p->setBrush( NoBrush );
+	    break;
+	}
+    case CE_PushButtonLabel:
+	{
+	    const QPushButton *btn;
+	    btn = (const QPushButton*)widget;
+	    int x, y, w, h;
+	    r.rect( &x, &y, &w, &h );
+
+	    int x1, y1, x2, y2;
+	    r.coords( &x1, &y1, &x2, &y2 );
+	    int dx = 0;
+	    int dy = 0;
+	    if ( btn->isMenuButton() )
+		dx = ( y2 - y1 ) / 3;
+	    if ( dx || dy )
+		p->translate( dx, dy );
+	    
+	    x += 2;
+	    y += 2;
+	    w -= 4;
+	    h -= 4;
+	    drawItem( p, QRect( x, y, w, h ),
+		      AlignCenter | ShowPrefix,
+		      cg, btn->isEnabled(),
+		      btn->pixmap(), btn->text(), -1,
+		      (btn->isDown() || btn->isOn()) ? &cg.brightText() 
+		      : &cg.buttonText() );
+	    if ( dx || dy )
+		p->translate( -dx, -dy );
+	    break;
+	}
+    default:
+	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
+	break;
+    }
 }
 
 void NorwegianWoodStyle::drawControlMask( ControlElement element,
@@ -921,7 +1068,19 @@ void NorwegianWoodStyle::drawControlMask( ControlElement element,
 					  const QRect &r,
 					  void **data = 0 ) const
 {
-    QWindowsStyle::drawControlMask( element, p, widget, r, data );
+    switch( element ) {
+    case CE_PushButton:
+	{
+	    int d = QMIN( r.width(), r.height() ) / 2;
+	    p->setPen( color1 );
+	    p->setBrush( color1 );
+	    drawroundrect( p, r.x(), r.y(), r.width(), r.height(), d );
+	    break;
+	}
+    default:
+	QWindowsStyle::drawControlMask( element, p, widget, r, data );
+	break;
+    }
 }
 
 void NorwegianWoodStyle::drawComplexControl( ComplexControl control,
@@ -952,9 +1111,34 @@ int NorwegianWoodStyle::pixelMetric( PixelMetric metric,
     return QWindowsStyle::pixelMetric( metric, widget );
 }
 
-QRect NorwegianWoodStyle::subRect( SubRect r, const QWidget * widget ) const
+QRect NorwegianWoodStyle::subRect( SubRect sr, const QWidget * widget ) const
 {
-    return QWindowsStyle::subRect( r, widget );
+    QRect r;
+    switch ( sr ) {
+    case SR_PushButtonContents:
+	{
+	    const QPushButton *btn;
+	    btn = (const QPushButton*)widget;
+	    r = btn->rect();
+	    int d = QMIN( r.width(), r.height() ) / 2;
+	    int b = buttonthickness( d );
+	    
+	    d -= b;
+	    b++;
+	    
+	    if ( r.width() < r.height() )
+		r.setRect( r.x() + b, r.y() + d,
+			   r.width() - 2 * b, r.height() - 2 * d );
+	    else
+		r.setRect( r.x() + d, r.y() + b,
+			   r.width() - 2 * d, r.height() - 2 * b );
+	    break;
+	}
+    default:
+	r = QWindowsStyle::subRect( sr, widget );
+	break;
+    }
+    return r;
 }
 
 static void drawroundrect( QPainter *p, QCOORD x, QCOORD y,
@@ -1026,7 +1210,7 @@ static void get_combo_parameters( const QRect &r,
     ax = r.x() + r.width() - ew +(ew-awh)/2;
 }
 
-
+/*
 QRect NorwegianWoodStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     QRect r = buttonRect( x, y, w, h );
@@ -1043,9 +1227,9 @@ QRect NorwegianWoodStyle::comboButtonFocusRect( int x, int y, int w, int h) cons
 
 void NorwegianWoodStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				    const QColorGroup &g,
-				    bool /* sunken */,
+					  bool, // sunken,
 				    bool editable,
-				    bool /*enabled */,
+				    bool, // enabled,
 				    const QBrush *fb )
 {
     QBrush fill = fb ? *fb : g.brush( QColorGroup::Button );
@@ -1070,7 +1254,7 @@ void NorwegianWoodStyle::drawComboButton( QPainter *p, int x, int y, int w, int 
 	qDrawShadePanel( p, r, g, TRUE, 1, &fill );
     }
 }
-
+*/
 
 static inline int buttonthickness( int d )
 { return  d > 20 ? 5 : ( d < 10 ? 2: 3 ); }
@@ -1165,169 +1349,3 @@ void NorwegianWoodStyle::drawScrollBarControls( QPainter* p, const QScrollBar* s
 }
 */
 
-/*!
-  Reimplementation from QStyle
- */
-void NorwegianWoodStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool sunken, const QBrush* fill)
-{
-    int d = QMIN(w,h)/2;
-
-    int b = buttonthickness( d );
-
-    QRegion internR = roundRectRegion( QRect(x+b, y+b, w-2*b, h-2*b), d-b );
-    //    qDrawShadePanel( p, x, y, w, h, g, sunken, 5);
-    QPen oldPen = p->pen();
-
-    QBrush brush( fill ? *fill : (sunken ? g.brush( QColorGroup::Mid ) :
-                                          g.brush( QColorGroup::Button )));
-    p->setClipRegion( internR );
-    p->fillRect( x, y, w, h, brush );
-
-
-    int e = QMIN( w, h )/2;
-
-    QPoint p2(x+w-1-e,y+e);
-    QPoint p3(x+e, y+h-1-e);
-
-    QPointArray a;
-    a.setPoints( 5, x,y, x+w-1, y, p2.x(),p2.y(), p3.x(),p3.y(), x, y+h-1 );
-
-    p->setClipRegion( QRegion( a )- internR );
-
-    p->fillRect( x,y,w,h, (sunken ? QBrush( g.dark(), *sunkenDark )
-			   : g.brush( QColorGroup::Light ) ));
-
-
-    a.setPoint( 0, x+w-1, y+w-1 );
-    p->setClipRegion( QRegion( a ) - internR );
-
-    p->fillRect( x,y,w,h, (sunken ? QBrush( g.light(), *sunkenLight )
-			   : g.brush( QColorGroup::Dark )));
-
-    /*
-    QBrush oldBrush = p->brush();
-
-    p->setPen( NoPen );
-    p->setBrush( fill ? *fill : (sunken ? g.brush( QColorGroup::Mid ) :
-                                          g.brush( QColorGroup::Button )));
-    drawroundrect( p, x+3, y+3, w-6, h-6, 5 );
-    p->setBrush( oldBrush );
-    */
-        p->setClipRegion( internR );
-    p->setClipping( FALSE );
-    p->setPen( g.foreground() );
-    drawroundrect( p, x, y, w, h, d );
-    p->setPen( oldPen );
-}
-
-/*!
-  Reimplementation from QStyle
- */
-/*
-void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
-{
-    QColorGroup g = btn->colorGroup();
-    int x1, y1, x2, y2;
-
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-
-    p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.button(),NoBrush) );
-
-    QBrush fill;
-    if ( btn->isDown() )
-	fill = g.brush( QColorGroup::Mid );
-    else if ( btn->isOn() )
-	fill = QBrush( g.mid(), Dense4Pattern );
-    else
-	fill = g.brush( QColorGroup::Button );	
-
-    if ( btn->isDefault() ) {
-	x1 += 2;
-	y1 += 2;
-	x2 -= 2;
-	y2 -= 2;
-    }
-	
-    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill);
-
-    if ( btn->isDefault() ) {
-	QPen pen( Qt::black, 4 );
-	pen.setCapStyle( Qt::RoundCap );
-	pen.setJoinStyle( Qt::RoundJoin );
-	p->setPen( pen );
-	drawroundrect( p, x1-1, y1-1, x2-x1+3, y2-y1+3, 8 );
-    }
-
-
-    if ( btn->isMenuButton() ) {
-	int dx = (y1-y2-4)/3;
-	drawArrow( p, DownArrow, FALSE,
-		   x2 - dx, dx, y1, y2 - y1,
-		   g, btn->isEnabled() );
-    }
-
-    if ( p->brush().style() != NoBrush )
-	p->setBrush( NoBrush );
-
-}
- */
-
-/*!
-  Reimplementation from QStyle
- */
-void NorwegianWoodStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
-{
-    QRect r = btn->rect();
-    int x, y, w, h;
-    r.rect( &x, &y, &w, &h );
-
-    int x1, y1, x2, y2;
-    btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    int dx = 0;
-    int dy = 0;
-    if ( btn->isMenuButton() )
-	dx = (y2-y1) / 3;
-    if ( dx || dy )
-	p->translate( dx, dy );
-
-    x += 2;  y += 2;  w -= 4;  h -= 4;
-    QColorGroup g = btn->colorGroup();
-    drawItem( p, QRect(x, y, w, h),
-	      AlignCenter|ShowPrefix,
-	      g, btn->isEnabled(),
-	      btn->pixmap(), btn->text(), -1,
-	      (btn->isDown() || btn->isOn())?&btn->colorGroup().brightText():&btn->colorGroup().buttonText());
-
-    if ( dx || dy )
-	p->translate( -dx, -dy );
-}
-
-/*!
-  Reimplementation from QStyle
-
-  \sa QStyle
-  */
-QRect NorwegianWoodStyle::buttonRect( int x, int y, int w, int h) const
-{
-    int d = QMIN(w,h)/2;
-    int b = buttonthickness( d );
-
-    d -= b;
-    b++;
-
-    if ( w<h )
-	return QRect(x+b, y+d, w-2*b, h-2*d);
-    else
-	return QRect(x+d, y+b, w-2*d, h-2*b);
-}
-
-/*!
-  Reimplementation from QStyle
- */
-void NorwegianWoodStyle::drawButtonMask( QPainter *p, int x, int y, int w, int h)
-{
-    int d = QMIN(w,h)/2;
-    drawroundrect( p, x, y, w, h, d );
-}
