@@ -80,14 +80,15 @@ class MyString : public QString
 public:
     MyString() {}
     MyString( const QString& other )
-	: QString( other ) {
-	int from = other.find( "\"" );
-	int to = other.findRev( "\"" );
-	if ( from != -1 && to != -1 )
-	    key = other.mid( from+1, to-from-1 ).lower();
-	else
-	    key = other.lower();
-	// original string as 2nd sort criteria
+	: QString( other ), key( other )
+    {
+	// "Chapter 1" becomes "chapter01"; "Chapter 12" becomes
+	// "chapter102", which is wrong but good enough
+	key.replace( QRegExp("(?=\\b[0-9]\\b)"), "0" );
+	key.replace( QRegExp("\\W"), "" );
+	key = key.lower();
+
+	// use original string as second sort criterion
 	key += QChar::null + other;
     }
     QString key;
@@ -265,7 +266,7 @@ void HelpDialog::loadIndexFile()
 	int to = s.findRev( "\"" );
 	if ( to == -1 )
 	    continue;
-	QString link = s.mid( to + 2, 0xFFFFFF );
+	QString link = s.mid( to + 2 );
 	s = s.mid( from + 1, to - from - 1 );
 
 	if ( s.isEmpty() )
@@ -321,7 +322,7 @@ void HelpDialog::setupTitleMap()
 	    if ( pipe == -1 )
 		continue;
 	    QString title = s.left( pipe - 1 );
-	    QString link = s.mid( pipe + 1, 0xFFFFFF );
+	    QString link = s.mid( pipe + 1 );
 	    link = link.simplifyWhiteSpace();
 	    titleMap[ link ] = title.stripWhiteSpace();
 	}
@@ -534,7 +535,7 @@ void HelpDialog::insertContents()
     listContents->setSorting( -1 );
     HelpNavigationContentsItem *qtDocu, *handbook, *linguistDocu, *assistantDocu;
     qtDocu = new HelpNavigationContentsItem( listContents, 0 );
-    qtDocu->setText( 0, tr( "Qt Class Documentation" ) );
+    qtDocu->setText( 0, tr( "Qt Reference Documentation" ) );
     qtDocu->setLink( "index.html" );
     qtDocu->setPixmap( 0, *bookPixmap );
     handbook = new HelpNavigationContentsItem( listContents, 0 );
@@ -570,6 +571,11 @@ void HelpDialog::insertContents()
 	s = s.stripWhiteSpace();
 	int i = s.find( " - " );
 	if ( i == -1 ) {
+	    if ( lastGroup ) {
+		lastItem = lastGroup;
+		lastGroup = 0;
+	    }
+
 	    QListViewItem *oldLast = lastItem;
 	    lastItem = new HelpNavigationContentsItem( qtDocu, lastItem );
 	    QString txt = s;
@@ -579,7 +585,7 @@ void HelpDialog::insertContents()
 		title = txt;
 	    } else {
 		title = txt.left( i );
-		link = txt.mid( i + 3, 0xFFFFFF );
+		link = txt.mid( i + 3 );
 		if ( oldLast && oldLast->text( 0 ).contains( title ) ) {
 		    QString s2 = link;
 		    i = s2.find( '.' );
@@ -600,14 +606,14 @@ void HelpDialog::insertContents()
 		lastItem->setText( 0, preMinus );
 		lastGroup = lastItem;
 	    }
-	    QString txt = s.mid( i + 3, 0xFFFFFF );
+	    QString txt = s.mid( i + 3 );
 	    QString title, link;
 	    i = txt.find( " | " );
 	    if ( i == -1 ) {
 		title = txt;
 	    } else {
 		title = txt.left( i );
-		link = txt.mid( i + 3, 0xFFFFFF );
+		link = txt.mid( i + 3 );
 		if ( lastItem && title == lastItem->text( 0 ) ) {
 		    QString s2 = link;
 		    i = s2.find( '.' );
