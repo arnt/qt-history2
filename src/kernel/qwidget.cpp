@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#477 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#478 $
 **
 ** Implementation of QWidget class
 **
@@ -2344,7 +2344,7 @@ void QWidget::setFocus()
 	focusProxy()->setFocus();
 	return;
     }
-
+    
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
@@ -2855,7 +2855,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
   This enum type defines the various policies a widget can have with
   respect to acquiring keyboard focus.
-  
+
   The \e policy can be:
   <ul>
   <li> \c QWidget::TabFocus, the widget accepts focus by tabbing.
@@ -3208,6 +3208,7 @@ void QWidget::polish()
 	if ( !parentObj )
 	    qApp->noteTopLevel(this);
 	qApp->polish( this );
+	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     }
 }
 
@@ -3412,6 +3413,10 @@ void QWidget::adjustSize()
 
 QSize QWidget::sizeHint() const
 {
+    if ( !testWState(WState_Polished) ) {
+	QWidget* that = (QWidget*) this;
+	that->polish();
+    }
     if ( layout() )
 	return layout()->totalSizeHint();
     return QSize( -1, -1 );
