@@ -35,7 +35,7 @@
 
 #include "qmouse_qws.h"
 
-#ifdef QT_QWS_YOPY
+#ifndef QT_NO_QWS_MOUSE_YOPY
 
 // YOPY touch panel support based on changes contributed by Ron Victorelli
 // (victorrj at icubed.com) to Custom TP driver.

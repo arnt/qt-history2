@@ -35,7 +35,7 @@
 
 #include "qmouse_qws.h"
 
-#ifdef QT_QWS_CASSIOPEIA
+#ifndef QT_NO_QWS_MOUSE_VR41
 
 class QWSVr41xxMouseHandlerPrivate;
 

@@ -35,7 +35,7 @@
 
 #include "qmouse_qws.h"
 
-#if !defined(QT_QWS_MOUSE_LINUXTP)
+#ifndef QT_NO_QWS_MOUSE_LINUXTP
 
 class QWSLinuxTPMouseHandlerPrivate;
 

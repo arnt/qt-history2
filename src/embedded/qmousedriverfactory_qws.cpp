@@ -108,15 +108,15 @@ QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString 
     if ( driver == "qnx" || driver.isEmpty() )
 	return new QWSQnxMouseHandler( key, device );
 #endif
-#if !defined(QT_QWS_MOUSE_LINUXTP)
+#ifndef QT_NO_QWS_MOUSE_LINUXTP
     if ( driver == "linuxtp" || driver.isEmpty() )
 	return new QWSLinuxTPMouseHandler( key, device );
 #endif
-#if !defined(QT_QWS_MOUSE_YOPY)
+#ifndef QT_NO_QWS_MOUSE_YOPY
     if ( driver == "yopy" || driver.isEmpty() )
 	return new QWSYopyMouseHandler( key, device );
 #endif
-#if !defined(QT_QWS_MOUSE_VR41)
+#ifndef QT_NO_QWS_MOUSE_VR41
     if ( driver == "vr41xx" || driver.isEmpty() )
 	return new QWSVr41xxMouseHandler( key, device );
 #endif
@@ -162,15 +162,15 @@ QStringList QMouseDriverFactory::keys()
     if ( !list.contains( "Qnx" ) )
 	list << "Qnx";
 #endif
-#if defined(QT_QWS_SHARP) || defined(QT_QWS_IPAQ)
+#ifndef QT_NO_QWS_MOUSE_LINUXTP
     if ( !list.contains( "LinuxTP" ) )
 	list << "LinuxTP";
 #endif
-#ifdef QT_QWS_YOPY
+#ifndef QT_NO_QWS_MOUSE_YOPY
     if ( !list.contains( "Yopy" ) )
 	list << "Yopy";
 #endif
-#ifdef QT_QWS_CASSIOPEIA
+#ifndef QT_NO_QWS_MOUSE_VR41
     if ( !list.contains( "VR41xx" ) )
 	list << "VR41xx";
 #endif
