@@ -41,11 +41,11 @@ QIODevicePrivate::~QIODevicePrivate()
     An I/O device represents a medium that one can read bytes from
     and/or write bytes to. The QIODevice class is the abstract
     superclass of all such devices; classes such as QFile, QBuffer and
-    QSocket inherit QIODevice and implement virtual functions such as
+    QSocket inherit QIODevice, and implement virtual functions such as
     write() appropriately.
 
     Although applications sometimes use QIODevice directly, it is
-    usually better to use QTextStream and QDataStream, which provide
+    usually better to use QTextStream and QDataStream which provide
     stream operations on any QIODevice subclass. QTextStream provides
     text-oriented stream functionality (for human-readable ASCII
     files, for example), whereas QDataStream deals with binary data in
@@ -61,7 +61,7 @@ QIODevicePrivate::~QIODevicePrivate()
     the mode argument.
 
     \i  close() closes the device and tidies up (e.g. flushes buffered
-    data)
+    data).
 
     \i  readBlock() reads a block of data from the device.
 
@@ -129,17 +129,17 @@ QIODevicePrivate::~QIODevicePrivate()
     application in the call to open().)
 
     \i  Permissions. Some files cannot be written. For example,
-    isReadable(), isWritable() and isReadWrite() tell the application
+    isReadable(), isWritable(), and isReadWrite() tell the application
     whether it can read from and write to a given device. (This can
     often be set by the application in the call to open().)
 
-    \i  Finally, isOpen() returns true if the device is open, i.e.
+    \i  Finally, isOpen() returns true if the device is open; i.e.
     after an open() call.
 
     \endlist
 
     QIODevice provides a QIOEngine which has the responsibility of
-    doing actual read, writes, file information.
+    doing actual reads and writes, and providing file information.
 
     \sa QDataStream, QTextStream, QIOEngine
 */
@@ -149,9 +149,9 @@ QIODevicePrivate::~QIODevicePrivate()
 
     \internal
 
-    \value Direct
-    \value Sequential
-    \value Combined (Direct and Sequential)
+    \value Direct      The device supports random access.
+    \value Sequential  The device must be accessed sequentially.
+    \value Combined    The device supports both Direct and Sequential access.
     \omitvalue TypeMask
 */
 
@@ -160,19 +160,20 @@ QIODevicePrivate::~QIODevicePrivate()
 
     \internal
 
-    \value Raw unbuffered
-    \value Async asynchronous
+    \value Raw   Unbuffered
+    \value Async Asynchronous
 */
 
 /*!
     \enum QIODevice::OpenModes
 
-    \value ReadOnly
-    \value WriteOnly
-    \value ReadWrite
-    \value Append
-    \value Truncate
-    \value Translate translate line ending conventions
+    \value ReadOnly     The device can only be read from.
+    \value WriteOnly    The device can only be written to.
+    \value ReadWrite    The device can be both read from and written to.
+    \value Append       Data written to the device is appended to the end of
+                        existing data.
+    \value Truncate     
+    \value Translate    Translate line ending conventions.
     \omitvalue ModeMask
 */
 
@@ -206,7 +207,7 @@ QIODevicePrivate::~QIODevicePrivate()
 /*!
     \enum QIODevice::Offset
 
-    The offset within the device.
+    The offset (device position) within the device.
 */
 
 
@@ -242,7 +243,7 @@ QIODevice::~QIODevice()
 /*!
     Returns the current I/O device flags setting.
 
-    Flags consists of mode flags and state flags.
+    The flags value is a logical OR of the mode flags and state flags.
 
     \sa mode(), state()
 */
@@ -255,19 +256,17 @@ int QIODevice::flags() const
 /*!
     \fn int QIODevice::mode() const
 
-    Returns bits OR'ed together that specify the current operation
-    mode.
+    Returns a value specifying the current operation mode. This is a
+    selection of mode flags, combined using the logical OR operator.
 
-    These are the flags that were given to the open() function.
-
-    The flags are \c QIODevice::ReadOnly, \c QIODevice::WriteOnly, \c QIODevice::ReadWrite,
-    \c QIODevice::Append, \c QIODevice::Truncate and \c QIODevice::Translate.
+    \sa OpenModes
 */
 
 /*!
     \fn int QIODevice::state() const
 
-    Returns bits OR'ed together that specify the current state.
+    Returns a value specifying the current state. This is a selection
+    of state values, combined using the bitwise OR operator.
 
     The flags are: \c QIODevice::Open.
 
@@ -278,8 +277,7 @@ int QIODevice::flags() const
     \fn bool QIODevice::isDirectAccess() const
 
     Returns true if the I/O device is a direct access device;
-    otherwise returns false, i.e. if the device is a sequential access
-    device.
+    returns false if the device is a sequential access device.
 
     \sa isSequentialAccess()
 */
@@ -288,8 +286,7 @@ int QIODevice::flags() const
     \fn bool QIODevice::isSequentialAccess() const
 
     Returns true if the device is a sequential access device;
-    otherwise returns false, i.e. if the device is a direct access
-    device.
+    returns false if the device is a direct access device.
 
     Operations involving size() and seek(int) are not valid on
     sequential devices.
@@ -309,8 +306,8 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isBuffered() const
 
-    Returns true if the I/O device is a buffered device; otherwise
-    returns false, i.e. the device is a raw device.
+    Returns true if the I/O device is a buffered device; returns false if
+    the device is a raw device.
 
     \sa isRaw()
 */
@@ -319,7 +316,7 @@ int QIODevice::flags() const
     \fn bool QIODevice::isRaw() const
 
     Returns true if the device is a raw device; otherwise returns
-    false, i.e. if the device is a buffered device.
+    false if the device is a buffered device.
 
     \sa isBuffered()
 */
@@ -328,7 +325,7 @@ int QIODevice::flags() const
     \fn bool QIODevice::isSynchronous() const
 
     Returns true if the I/O device is a synchronous device; otherwise
-    returns false, i.e. the device is an asynchronous device.
+    returns false.
 
     \sa isAsynchronous()
 */
@@ -336,8 +333,8 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isAsynchronous() const
 
-    Returns true if the device is an asynchronous device; otherwise
-    returns false, i.e. if the device is a synchronous device.
+    Returns true if the device is an asynchronous device; returns false if
+    the device is a synchronous device.
 
     This mode is currently not in use.
 
@@ -347,7 +344,7 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isTranslated() const
 
-    Returns true if the I/O device translates carriage-return and
+    Returns true if the I/O device translates carriage return and
     linefeed characters; otherwise returns false.
 
     A QFile is translated if it is opened with the \c QIODevice::Translate
@@ -357,8 +354,8 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isReadable() const
 
-    Returns true if the I/O device was opened using \c QIODevice::ReadOnly or
-    \c QIODevice::ReadWrite mode; otherwise returns false.
+    Returns true if the I/O device was opened in \c QIODevice::ReadOnly
+    or \c QIODevice::ReadWrite mode; otherwise returns false.
 
     \sa isWritable(), isReadWrite()
 */
@@ -366,8 +363,8 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isWritable() const
 
-    Returns true if the I/O device was opened using \c QIODevice::WriteOnly or
-    \c QIODevice::ReadWrite mode; otherwise returns false.
+    Returns true if the I/O device was opened in \c QIODevice::WriteOnly
+    or \c QIODevice::ReadWrite mode; otherwise returns false.
 
     \sa isReadable(), isReadWrite()
 */
@@ -375,7 +372,7 @@ int QIODevice::flags() const
 /*!
     \fn bool QIODevice::isReadWrite() const
 
-    Returns true if the I/O device was opened using \c QIODevice::ReadWrite
+    Returns true if the I/O device was opened in \c QIODevice::ReadWrite
     mode; otherwise returns false.
 
     \sa isReadable(), isWritable()
@@ -403,10 +400,6 @@ int QIODevice::flags() const
 /*!
     Returns the I/O device status.
 
-    The I/O device status returns an error code. If open() returns
-    false or readBlock() or writeBlock() return -1, this function can
-    be called to find out the reason why the operation failed.
-
     \keyword QIODevice::Ok
     \keyword QIODevice::ReadError
     \keyword QIODevice::WriteError
@@ -416,6 +409,10 @@ int QIODevice::flags() const
     \keyword QIODevice::AbortError
     \keyword QIODevice::TimeOutError
     \keyword QIODevice::UnspecifiedError
+
+    The I/O device status returns an error code. For example, if open()
+    returns false, or a read/write operation returns -1, this function can
+    be called to find out the reason why the operation failed.
 
     The status codes are:
     \table
@@ -451,8 +448,11 @@ void QIODevice::resetStatus()
 }
 
 /*!
-    Used by subclasses to set the device flags to \a f; see \c
-    OpenModes.
+    \fn void QIODevice::setFlags(int flags)
+
+    Used by subclasses to set the device \a flags.
+
+    \sa OpenModes
 */
 void QIODevice::setFlags(int f)
 {
@@ -529,11 +529,11 @@ void QIODevice::setStatus(int status, int errNum)
 }
 
 /*!
-    Opens the I/O device using the specified \a mode. Returns true if
+    Opens the I/O device in the specified \a mode. Returns true if
     the device was successfully opened; otherwise returns false.
 
-    The mode parameter \a mode must be an OR'ed combination of the
-    following flags.
+    The mode parameter \a mode must be selection of the following flags,
+    combined using the bitwise OR operator:
     \table
     \header \i Mode flags \i Meaning
     \row \i \c QIODevice::Raw \i specifies raw (unbuffered) file access.
@@ -543,7 +543,7 @@ void QIODevice::setStatus(int status, int errNum)
     \row \i \c QIODevice::Append \i sets the file index to the end of the file.
     \row \i \c QIODevice::Truncate \i truncates the file.
     \row \i \c QIODevice::Translate \i enables carriage returns and linefeed
-    translation for text files under MS-DOS, Windows and Macintosh. On
+    translation for text files under MS-DOS, Windows, and Mac OS X. On
     Unix systems this flag has no effect. Use with caution as it will
     also transform every linefeed written to the file into a CRLF
     pair. This is likely to corrupt your file if you write write
@@ -611,7 +611,7 @@ QIODevice::close()
 
 
 /*!
-    Flushes an open I/O device.
+    Flushes the open I/O device.
 */
 void
 QIODevice::flush()
@@ -652,12 +652,12 @@ QIODevice::at() const
 }
 
 /*!
-    Sets the I/O device position to \a pos.  Returns true if the
-    position was successfully set, i.e. \a pos is within range and the
-    seek was successful; otherwise returns false.
+    Sets the I/O device position to the \a offset given. Returns true if the
+    position was successfully set (the \a offset is within range and the
+    seek was successful); otherwise returns false.
 
-    If the device is sequential, \a offset is treated as relative to
-    the current position.
+    If the device is sequential, the \a offset is relative to the current
+    position.
 
     \sa size()
 */
@@ -681,8 +681,8 @@ QIODevice::seek(QIODevice::Offset offset)
 }
 
 /*!
-    Returns true if the I/O device position is
-    at the end of the input; otherwise returns false.
+    Returns true if the I/O device position is at the end of the input;
+    otherwise returns false.
 
     \sa at() size()
 */
@@ -700,26 +700,26 @@ QIODevice::atEnd() const
 /*!
     \fn bool QIODevice::reset()
 
-    Sets the device index position to 0.
+    Sets the device position to 0.
 
     \sa at() seek()
 */
 
 
 /*!
-    \fn Q_LONG QIODevice::readBlock(char *data, Q_LONG maxlen)
+    \fn Q_LONG QIODevice::readBlock(char *data, Q_LONG maximum)
 
-    Reads at most \a maxlen bytes from the I/O device into \a data and
-    returns the number of bytes actually read.
+    Reads a number of characters from the I/O device into \a data. At most,
+    the \a maximum number of characters will be read.
 
-    This function should return -1 if a fatal error occurs and should
-    return 0 if there are no bytes to read.
+    Returns -1 if a fatal error occurs, or 0 if there are no bytes to read.
 
     The device must be opened for reading, and \a data must not be 0.
 
     This virtual function must be reimplemented by all subclasses.
 
     \sa writeBlock() isOpen() isReadable()
+
 */
 
 Q_LONG
@@ -766,8 +766,12 @@ QByteArray QIODevice::readAll()
 }
 
 /*!
-    Writes \a len bytes from \a data to the I/O device and returns the
-    number of bytes actually written.
+    \fn Q_LONG QIODevice::writeBlock(const char *data, Q_LONG maximum)
+
+    Writes a number of characters from \a data to the I/O device. At most,
+    the \a maximum of characters will be written. If successful,
+    the number of characters written is returned; otherwise EOF is
+    returned.
 
     This function should return -1 if a fatal error occurs.
 
@@ -801,7 +805,7 @@ QIODevice::writeBlock(const char *data, Q_LONG len)
 }
 
 /*!
-    \fn Q_LONG QIODevice::writeBlock(const QByteArray& data)
+    \fn Q_LONG QIODevice::writeBlock(const QByteArray &data)
     \overload
 
     This convenience function is the same as calling writeBlock(
@@ -809,12 +813,27 @@ QIODevice::writeBlock(const char *data, Q_LONG len)
 */
 
 /*!
-    Reads a line of text, (or up to \a maxlen bytes if a newline isn't
-    encountered) plus a terminating '\0' into \a data. If there is a
-    newline at the end if the line, it is not stripped.
+    \fn Q_LONG QIODevice::readLine(char *data, Q_LONG maximum)
 
-    Returns the number of bytes read including the terminating '\0',
-    or -1 if an error occurred.
+    Reads a single line (ending with \\n) from the device into \a data.
+    At most, the \a maximum number of bytes will be read. If there is a
+    newline at the end if the line, it is not stripped. A terminating
+    '\0' is appended to the characters read into \a data.
+
+    Returns the number of bytes read, including the terminating '\0';
+    returns -1 if an error occurred.
+
+    To ensure that your \a data buffer is large enough to contain the
+    \a maximum number of characters read from the device, pass a value
+    that is one character less than the size of your buffer.
+
+    For example, a buffer that is 1024 characters in length will be
+    filled if the following call returns the maximum number of characters
+    specified:
+
+    \code
+        device->readLine(data, 1023);
+    \endcode
 
     This virtual function can be reimplemented much more efficiently
     by the most subclasses.
@@ -840,9 +859,9 @@ Q_LONG QIODevice::readLine(char *data, Q_LONG maxlen)
 
 
 /*!
-    Reads a single byte/character from the I/O device.
+    Reads a single character from the I/O device.
 
-    Returns the byte/character read, or -1 if the end of the I/O
+    Returns the character read, or -1 if the end of the I/O
     device has been reached.
 
     \sa putch(), ungetch()
@@ -864,9 +883,11 @@ QIODevice::getch()
 
 
 /*!
-    Writes the character \a ch to the I/O device.
+    \fn int QIODevice::putch(int character)
 
-    Returns \a ch, or -1 if an error occurred.
+    Writes the \a character to the I/O device.
+
+    Returns the \a character, or -1 if an error occurred.
 
     \sa getch(), ungetch()
 */
@@ -887,7 +908,9 @@ QIODevice::putch(int ch)
 
 
 /*!
-    Puts the character \a ch back into the I/O device and decrements
+    \fn int QIODevice::ungetch(int character)
+
+    Puts the \a character back into the I/O device, and decrements
     the index position if it is not zero.
 
     This function is normally called to "undo" a getch() operation.
@@ -975,7 +998,7 @@ QString QIODevice::errorString() const
 /*!
     \fn QIOEngine *QIODevice::ioEngine() const
 
-    Returns the QIOEngine that operates on the QIODevice backing data. 
+    Returns the QIOEngine that operates on the QIODevice backing store. 
 
     \sa QIOEngine
 */
