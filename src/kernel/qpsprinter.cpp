@@ -5586,10 +5586,9 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	if ( hasMask ) {
 	    out = ::compress( img.createAlphaMask(), TRUE );
 	    size = (width+7)/8*height;
-	    pageStream << "/mask " << size << " string d\n"
-		       << "mask uc\n";
+	    pageStream << "/mask " << size << " string uc\n";
 	    ps_r7( pageStream, out, out.size() );
-	    pageStream << "pop\n";
+	    pageStream << "d\n";
 	}
 
 	if ( img.depth() == 1 ) {
@@ -5604,12 +5603,11 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
         }
 
 	out = ::compress( img, gray );
-	pageStream << "/sl " << size << " string d\n"
-		   << "sl uc\n";
+	pageStream << "/sl " << size << " string uc\n";
 	ps_r7( pageStream, out, out.size() );
-	pageStream << "pop\n"
-		   << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}"
-		   << bits << (hasMask ? "{mask}" : "false ")
+	pageStream << "d\n"
+		   << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]sl "
+		   << bits << (hasMask ? "mask " : "false ")
 		   << x << ' ' << y << " di\n";
     }
 }
