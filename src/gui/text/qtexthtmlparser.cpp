@@ -545,7 +545,7 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
     QTextHtmlParserNode *node = &nodes.last();
     // create new new, or reuse the last one
     if (nodes.count() == 1 || node->tag.size()
-        || (node->text.size() && node->text != QLatin1String("\n"))) {
+        || (node->text.size() && node->text != QLatin1String(" "))) {
         nodes.resize(nodes.size() + 1);
         node = &nodes.last();
     } else {
