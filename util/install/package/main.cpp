@@ -39,13 +39,15 @@ static int usage(const char *argv0, const char *un=NULL) {
 
     fprintf(stderr, "\nThe following options are not for packaging and can't be\n" );
     fprintf(stderr, "combined with the options above or any other option:\n\n" );
-    fprintf(stderr, " -unpack file  : Unpack the archive file to the current directory\n");
-    fprintf(stderr, " -getdesc file : Print the description text of the archive file\n");
+    fprintf(stderr, " -unpack file        : Unpack the archive file to the current directory\n");
+    fprintf(stderr, " -getdesc file       : Print the description text of the archive file\n");
 #if defined(Q_OS_WIN32)
-    fprintf(stderr, " -res file1 file2: Add the archive file1 as the binary resource\n");
-    fprintf(stderr, "                 QT_ARQ to the excutable file2\n");
-    fprintf(stderr, " -getres file  : Get the binary resource QT_ARQ from the executable\n" );
-    fprintf(stderr, "                 file and store it under qt.arq\n");
+    fprintf(stderr, " -res file1 file2    : Add the archive file1 as the binary resource\n");
+    fprintf(stderr, "                       QT_ARQ to the excutable file2\n");
+    fprintf(stderr, " -getres file        : Get the binary resource QT_ARQ from the executable\n" );
+    fprintf(stderr, "                       file and store it under qt.arq\n");
+    fprintf(stderr, " -license file1 file2: Add the license file1 as the binary resource\n");
+    fprintf(stderr, "                       LICENSE to the excutable file2\n");
 #endif
     return 665;
 }
@@ -97,6 +99,7 @@ int main( int argc, char** argv )
 #if defined(Q_OS_WIN32)
     QString arq, exe;
     bool doRes = FALSE;
+    bool doLicense = FALSE;
     bool getRes = FALSE;
 #endif
     QStringList files;
@@ -159,6 +162,13 @@ int main( int argc, char** argv )
 	    getRes = TRUE;
 	    if ( ++i < argc )
 		exe = argv[i];
+	//license (Windows only)
+	} else if(!strcmp(argv[i], "-license")) {
+	    doLicense = TRUE;
+	    if ( ++i < argc )
+		arq = argv[i];
+	    if ( ++i < argc )
+		exe = argv[i];
 #endif
 	//files
 	} else if(*(argv[i]) != '-') {
@@ -169,12 +179,16 @@ int main( int argc, char** argv )
 	}
     }
 #if defined(Q_OS_WIN32)
-    if ( doRes ) {
+    if ( doRes || doLicense ) {
 	if ( arq.isEmpty() || exe.isEmpty() )
 	    return usage(argv[0], argv[i]); 
 	QFile fArq( arq );
 	if ( !fArq.open( IO_ReadOnly ) ) {
-	    fprintf(stderr, "Could not open archive %s", arq.latin1() );
+	    if ( doRes ) {
+		fprintf(stderr, "Could not open archive %s", arq.latin1() );
+	    } else {
+		fprintf(stderr, "Could not open license %s", arq.latin1() );
+	    }
 	    return -1;
 	}
 	QByteArray ba = fArq.readAll();
@@ -185,7 +199,13 @@ int main( int argc, char** argv )
 	    qSystemWarning( "" );
 	    return -1;
 	}
-	if ( !UpdateResourceA(hExe,RT_RCDATA,"QT_ARQ",0,ba.data(),ba.count()) ) {
+	QString resName;
+	if ( doRes ) {
+	    resName = "QT_ARQ";
+	} else {
+	    resName = "LICENSE";
+	}
+	if ( !UpdateResourceA(hExe,RT_RCDATA,resName.latin1(),0,ba.data(),ba.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
 	    fprintf(stderr, "Could not update executable %s\n", exe.latin1() );
 	    qSystemWarning( "" );
