@@ -8,10 +8,4 @@ TEMPLATE = app
 HEADERS += editwidget.h
 
 SOURCES += test.cpp editwidget.cpp
-CONFIG += qt warn_on debug  thread create_prl link_prl
-OBJECTS_DIR=.obj/debug-shared-mt
-MOC_DIR=.moc/debug-shared-mt
-
-DEFINES += NEW_FONT
-
-INCLUDEPATH += ../../src/3rdparty/opentype
+CONFIG += qt debug 
