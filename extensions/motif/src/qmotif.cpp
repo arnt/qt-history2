@@ -174,11 +174,13 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     if (xt_grab) {
 	if (event->type == XFocusIn && event->xfocus.mode == NotifyWhileGrabbed) {
-	    GDEBUG("Xt: grab moved to window 0x%lx", event->xany.window);
+	    GDEBUG("Xt: grab moved to window 0x%lx (detail %d)",
+		   event->xany.window, event->xfocus.detail);
 	    xt_grab_focus_window = event->xany.window;
 	} else {
 	    if (event->type == XFocusOut && event->xfocus.mode == NotifyUngrab) {
-		GDEBUG("Xt: grab ended for 0x%lx", event->xany.window);
+		GDEBUG("Xt: grab ended for 0x%lx (detail %d)",
+		       event->xany.window, event->xfocus.detail);
 		xt_grab = FALSE;
 		xt_grab_focus_window = None;
 	    } else if (event->type == DestroyNotify
@@ -194,8 +196,11 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     QWidgetMapper::Iterator it = mapper->find(event->xany.window);
     QWidget *widget = it == mapper->end() ? 0 : *it;
     if ( !widget && QWidget::find( event->xany.window) == 0 ) {
-	if (!xt_grab && (event->type == XFocusIn && event->xfocus.mode == NotifyGrab)) {
-	    GDEBUG("Xt: grab started for 0x%lx", event->xany.window);
+	if (!xt_grab && (event->type == XFocusIn
+			 && (event->xfocus.mode == NotifyGrab
+			     || event->xfocus.mode == NotifyWhileGrabbed))) {
+            GDEBUG("Xt: grab started for 0x%lx (detail %d)",
+                   event->xany.window, event->xfocus.detail);
 	    xt_grab = TRUE;
 	    xt_grab_focus_window = event->xany.window;
 	}
