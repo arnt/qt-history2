@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#2 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#3 $
 **
 ** Implementation of QImagePaintDevice32 class
 **
@@ -25,21 +25,96 @@
  
 #include "qpaintdevicemetrics.h"
 #include "qimagepaintdevice.h"
+#include "qpainter.h"
 #include "qpointarray.h"
 #include "qregion.h"
-#include "qfont.h"
+#include "qfontmetrics.h"
 #include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <X11/Xlib.h>
+#include <X11/extensions/xf86dga.h>
+
+static void closedga()
+{
+    Display* dis = QPaintDevice::x11AppDisplay();
+    XF86DGADirectVideo(dis, DefaultScreen(dis), 0);
+    XUngrabPointer(dis, CurrentTime);
+    XUngrabKeyboard(dis, CurrentTime);
+}
+
+QImagePaintDevice32::QImagePaintDevice32(Mode m) :
+    QPaintDevice( QInternal::System | QInternal::ExternalDevice )
+{
+    ASSERT(m==XFreeDGA);
+    int MajorVersion, MinorVersion;
+    int EventBase, ErrorBase;
+    Display* dis = x11AppDisplay();
+    if (!XF86DGAQueryVersion( dis, &MajorVersion, &MinorVersion ))
+	qFatal("Unable to query video extension version");
+    if (!XF86DGAQueryExtension( dis,  &EventBase, &ErrorBase))
+	qFatal("Unable to query video extension information");
+    const int MINMAJOR = 0;
+    const int MINMINOR = 0;
+    if (MajorVersion < MINMAJOR || (MajorVersion == MINMAJOR && MinorVersion < MINMINOR))
+	qFatal("Xserver is running an old XFree86-DGA version"
+                " (%d.%d)\nMinimum required version is %d.%d",
+		MajorVersion, MinorVersion, MINMAJOR, MINMINOR);
+    if (MajorVersion < 1) {
+        int flags;
+        XF86DGAQueryDirectVideo(dis, DefaultScreen(dis), &flags);
+        if (!(flags & XF86DGADirectPresent))
+            qFatal("Xserver driver doesn't support DirectVideo");
+    }
+
+    XGrabKeyboard(dis, DefaultRootWindow(dis), True, GrabModeAsync,
+                 GrabModeAsync,  CurrentTime);
+    XGrabPointer(dis, DefaultRootWindow(dis), True,
+                 PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+                 GrabModeAsync, GrabModeAsync, None,  None, CurrentTime);
+
+    char *addr;
+    int width, bank, ram;
+    int bpp = 32;
+    XF86DGAGetVideo(dis, DefaultScreen(dis), &addr, &width, &bank, &ram);
+
+    XF86DGADirectVideo(dis, DefaultScreen(dis),
+                           XF86DGADirectGraphics);
+
+#ifndef __EMX__
+    /* Give up root privs */
+    setuid(getuid());
+#endif
+
+    XF86DGASetViewPort(dis, DefaultScreen(dis), 0, 0);
+
+    qAddPostRoutine( closedga );
+
+    img = QImage( (uchar*)addr, width, 1200/*bank/width*8/bpp*/, bpp, 0, 0,
+		QImage::BigEndian );
+
+    init();
+}
 
 QImagePaintDevice32::QImagePaintDevice32(int w, int h) :
     QPaintDevice( QInternal::System | QInternal::ExternalDevice ),
-    img(w,h,32),
-    rgb((QRgb**)img.jumpTable())
+    img(w,h,32)
 {
+    init();
+}
+
+void QImagePaintDevice32::init()
+{
+    rgb = (QRgb**)img.jumpTable();
     renderer = 0;
-    cliprect = new QRect[1];
+    cliprect = cliprect1 = new QRect[1];
     cliprect[0] = img.rect();
-    ncliprect = 1;
+    ncliprect = ncliprect1 = 1;
+    ocliprect = 0;
+    oncliprect = 0;
     clipcursor = 0;
+    clipon = 0;
 }
 
 QImagePaintDevice32::~QImagePaintDevice32()
@@ -48,7 +123,7 @@ QImagePaintDevice32::~QImagePaintDevice32()
 }
 
 
-bool QImagePaintDevice32::cmd( int c, QPainter *, QPDevCmdParam *p )
+bool QImagePaintDevice32::cmd( int c, QPainter *painter, QPDevCmdParam *p )
 {
     if ( c ==  PdcBegin ) {
 	return TRUE;
@@ -112,9 +187,12 @@ bool QImagePaintDevice32::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    drawText(*p[0].point, *p[1].str);
 	    break;
 
-	case PdcDrawText2Formatted:
-	    drawTextFormatted(*p[0].rect, p[1].ival, *p[2].str);
-	    break;
+	case PdcDrawText2Formatted: {
+	    QFontMetrics fm(font);
+	    qt_format_text( fm,
+		p[0].rect->x(), p[0].rect->y(), p[0].rect->width(), p[0].rect->height(),
+		p[1].ival, *p[2].str, p[2].str->length(), 0, 0, 0, 0, 0, painter );
+	    } break;
 
 	case PdcDrawPixmap:
 	    drawPixmap(*p[0].point, *p[1].pixmap);
@@ -235,8 +313,9 @@ inline bool QRect::contains( const QPoint &p, bool proper ) const
 
 bool QImagePaintDevice32::find(QPoint p)
 {
-    if ( cliprect[clipcursor].contains(p) )
+    if ( cliprect[clipcursor].contains(p) ) {
 	return TRUE;
+    }
 
     // binary search
     int a=0;
@@ -255,7 +334,7 @@ bool QImagePaintDevice32::find(QPoint p)
     }
     clipcursor = a;
     bool y = cliprect[clipcursor].contains(p);
-    if (!y && clipcursor) clipcursor--;
+    if (!y && clipcursor) clipcursor--; // HACK: want rect BEFORE p
     return y;
 }
 
@@ -386,7 +465,7 @@ void QImagePaintDevice32::drawRect(const QRect& r)
 		cx1 = cr.right();
 	    }
 	    if ( plot )
-		line[x] = fg;
+		line[x] = br;
 	    x++;
 	}
 	y++;
@@ -1315,9 +1394,10 @@ void QImagePaintDevice32::drawPolygon(const QPointArray& pa, int winding)
 /***** END OF X11-based CODE *****/
 
 
-void QImagePaintDevice32::drawPixmap(QPoint, QPixmap)
+void QImagePaintDevice32::drawPixmap(QPoint p, QPixmap pm)
 {
-    // XXX
+    QImage t = pm.convertToImage();
+    drawImage( p, t );
 }
 
 void QImagePaintDevice32::drawImage(QPoint p, const QImage& im)
@@ -1403,8 +1483,6 @@ void QImagePaintDevice32::drawImage(QPoint p,
     }
 
     // Now assume both are the same depth.
-
-    // Now assume both are 32-bit or 8-bit with compatible palettes.
 
     // "Easy"
 
@@ -1557,13 +1635,13 @@ void QImagePaintDevice32::setPen(const QPen& p)
 {
     pen = p;
     fg = p.color().rgb();
-    // XXX
+    // XXX line style, width
 }
 
-void QImagePaintDevice32::setBrush(const QBrush& br)
+void QImagePaintDevice32::setBrush(const QBrush& b)
 {
-    brush = br;
-    // XXX
+    brush = b;
+    br = b.color().rgb();
 }
 
 void QImagePaintDevice32::setTabStops(int)
@@ -1583,43 +1661,56 @@ void QImagePaintDevice32::setUnit(int)
 
 void QImagePaintDevice32::setVXform(int)
 {
-    // XXX
+    // XXX perhaps only support translation at first,
+    // XXX or move some of the QPainter code that does the work on X11.
 }
 
 void QImagePaintDevice32::setWXform(int)
 {
-    // XXX
+    // see setVXform()
 }
 
-void QImagePaintDevice32::setClip(int)
+void QImagePaintDevice32::setClip(int i)
 {
-    // XXX
+    // XXX see setClipRegion()
+    if ( i == clipon )
+	return;
+    if ( i ) {
+	cliprect = ocliprect;
+	ncliprect = oncliprect;
+    } else {
+	cliprect = cliprect1;
+	ncliprect = ncliprect1;
+    }
+    clipon = i;
+    clipcursor = 0;
 }
 
 void QImagePaintDevice32::setWindow(const QRect&)
 {
-    // XXX
+    // see setVXform()
 }
 
 void QImagePaintDevice32::setViewport(const QRect&)
 {
-    // XXX
+    // see setVXform()
 }
 
 void QImagePaintDevice32::setMatrix(const QWMatrix&, int)
 {
-    // XXX
+    // see setVXform()
 }
 
 void QImagePaintDevice32::setClipRegion(const QRegion& rgn)
 {
     QArray<QRect> a = rgn.rects();
-    delete cliprect;
-    cliprect = new QRect[a.size()];
+    delete [] ocliprect;
+    cliprect = ocliprect = new QRect[a.size()];
     for (int i=0; i<(int)a.size(); i++)
-	cliprect[i]=a[i];
-    ncliprect = a.size();
+	ocliprect[i]=a[i];
+    ncliprect = oncliprect = a.size();
     clipcursor = 0;
+    clipon = 1;
 }
 
 
@@ -1735,7 +1826,7 @@ void QImagePaintDevice32::blit( int x, int y, const char* data, int w, int h )
 
 void QImagePaintDevice32::blit( const QPoint& p, const QTMap* tm )
 {
-    blit( p.x()+tm->offset().x(), p.y()+tm->offset().y(),
+    blit( p.x()+tm->offset().x(), p.y()+tm->offset().y()-tm->height(),
 	tm->data(), tm->width(), tm->height() );
 }
 
@@ -1749,18 +1840,20 @@ void QImagePaintDevice32::drawText(QPoint p, const QString& s)
     }
 }
 
-void QImagePaintDevice32::drawTextFormatted(const QRect&, int, const QString&)
-{
-    // XXX use qt_format_text
-}
-
 void QImagePaintDevice32::setFont( const QFont& f )
 {
+    font = f;
     delete renderer; // XXX no caching yet
     renderer = qt_font_renderer_ttf(f);
+
     // XXX try other renderers...
+
     if ( !renderer ) {
-	qFatal("No fonts available (trying to load %s)", f.family().latin1());
+	qWarning("No fonts available (trying to load %s)\n"
+	    "Tried TTF fonts only.", f.family().latin1());
+	renderer = qt_font_renderer_ttf(QFont("TIMES",f.pointSize()));
+	if ( !renderer )
+	    qFatal("No TIMES last-resort font!");
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice_ttf.cpp#1 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice_ttf.cpp#2 $
 **
 ** Implementation of QImagePaintDevice32 class
 **
@@ -34,7 +34,12 @@
 #include <stdlib.h>
 #include <freetype.h>
 
-#define FONTPATH "/usr/X11/lib/X11/fonts/ttfonts/"
+static char* fontdir[] = {
+    "/usr/X11/lib/X11/fonts/ttfonts/",
+    "./",
+    0
+};
+
 #define CACHE_SIZE 200000 // bytes
 
 
@@ -60,19 +65,21 @@ public:
 	#undef CEILING
 	w = (xMax - xMin) / 64;
 	h = (yMax - yMin) / 64;
-	off = (QPoint(xMin, yMin)
-		- QPoint(gmetrics.bearingX, gmetrics.bearingY))/64;
+	off = (QPoint(xMin, -yMin))/64;
 	adv = QPoint(gmetrics.advance,0); // nb. TT_Big_Glyph_Metrics
 	TT_Translate_Outline( (TT_Outline*)&outline, -xMin, -yMin );
+
+	//qDebug("  w=%d h=%d bearingX=%ld bearingY=%ld %d..%dH %d..%dV",
+	//	w,h,gmetrics.bearingX,gmetrics.bearingY,xMin,xMax,yMin,yMax);
+	w = (w + 3) & -4;
 
 	TT_Raster_Map bitmap;
 	bitmap.rows   = h;
 	bitmap.width  = w;
-	//bitmap.cols   = (pixel_width + 7) & -8;
 	bitmap.cols   = w;
 	bitmap.size   = bitmap.rows * bitmap.cols;
 	bitmap.bitmap = buffer = new char[w*h];
-	memset( buffer, 0, w*h );
+	memset( buffer, 0, bitmap.cols*h );
 	TT_Get_Outline_Pixmap( engine, (TT_Outline*)&outline, &bitmap );
 	//TT_Get_Outline_Bitmap( engine, (TT_Outline*)&outline, &bitmap );
     }
@@ -106,15 +113,18 @@ public:
 	    CHKERR(TT_Set_Raster_Gray_Palette(engine, palette));
 	}
 
-	QString path = FONTPATH;
-	path += f.family().lower();
-	path += ".ttf";
+	for (int i=0; fontdir[i]; i++) {
+	    QString path = fontdir[i];
+	    path += f.family();
+	    path += ".ttf";
 
-	if ( QFile::exists(path) ) {
-	    return new QFontRendererTTF( (TT_Text*)path.latin1(), f.pointSizeFloat() );
-	} else {
-	    return 0;
+	    if ( QFile::exists(path) ) {
+		return new QFontRendererTTF( (TT_Text*)path.latin1(), f.pointSizeFloat() );
+	    } else if ( QFile::exists(path.lower()) ) {
+		return new QFontRendererTTF( (TT_Text*)path.lower().latin1(), f.pointSizeFloat() );
+	    }
 	}
+	return 0;
     }
 
     static void cleanup()
@@ -138,6 +148,7 @@ public:
 	    TT_Glyph_Metrics gmetrics;
 	    TT_Get_Glyph_Metrics( glyph, &gmetrics );
 
+	    //qDebug("Character '%c' (U%04d)",ch.latin1(),ch.unicode());
 	    result = new QTMapTTF(engine,gmetrics,outline);
 	    qtmap_cache->insert(key,result,result->storageCost());
 	}

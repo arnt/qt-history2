@@ -3,34 +3,64 @@
 #include <qpainter.h>
 #include <qdatetime.h>
 #include <stdlib.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
-class Main : public QWidget {
+
+class Image {
 public:
-    Main() :
-	qipd(640,480)
+    Image(bool fullscreen)
     {
-	resize(qipd.image().size());
-	painter.begin(&qipd);
-	clip = rect();
+	if (fullscreen) {
+	    qipd = new QImagePaintDevice32(QImagePaintDevice32::XFreeDGA);
+	    widget = 0;
+	} else {
+	    qipd = new QImagePaintDevice32(640,480);
+	    widget = new QWidget;
+	    widget->resize(qipd->image().width(),qipd->image().height());
+	    qApp->setMainWidget(widget);
+	    widget->show();
+	}
+
+	painter.begin(qipd);
+	clip = QRect(0,0,qipd->image().width(),qipd->image().height());
 	mode = 'I';
 	painter.setClipRegion(clip);
 	QImage bg("bg.png");
 	painter.drawImage(0,0,bg);
+	QString help =
+	    "Q = Quit\n\n"
+	    "L = Lines\n"
+	    "R = Rectangles\n"
+	    "P = Polygons\n"
+	    "I = Images (1,2,3 changes image)\n"
+	    "T = Text (1,2,3 changes font)";
+	QRect r = painter.boundingRect(0,0,0,0,0,help);
+	r.moveBy(50,50);
+	painter.fillRect(r,Qt::white);
+	painter.drawText(r,0,help);
+	drawme = QImage("pngtest.png").convertDepth(32);
+	showImage();
     }
 
-    ~Main()
+    ~Image()
     {
 	painter.end();
+	delete qipd;
     }
 
-    void keyPressEvent(QKeyEvent* e)
+    void doAscii(char ascii)
     {
 	char shape=0;
 
-	switch ( e->ascii() ) {
+
+	switch ( ascii ) {
+	  case 'q':
+	    qApp->exit();
+	    break;
 	  case 'c':
 	    for ( int i=0; i<100; i++ ) {
-		QRect rnd(rand()%width(),rand()%height(),rand()%50,rand()%50);
+		QRect rnd(rand()%qipd->image().width(),rand()%qipd->image().height(),rand()%50,rand()%50);
 		clip -= rnd;
 	    }
 	    painter.setClipRegion(clip);
@@ -40,65 +70,66 @@ public:
 	  case 'p':
 	  case 't':
 	  case 'i':
-	    shape = e->ascii();
+	    shape = ascii;
 	    break;
 	  case 'S':
 	  case 'I':
 	  case 'P':
-	    mode = e->ascii();
+	    mode = ascii;
 	    break;
 	  case '1':
 	    font = QFont("Helvetica",12);
+	    drawme = QImage("pngtest.png").convertDepth(32);
 	    break;
 	  case '2':
-	    font = QFont("babelfish",12);
+	    font = QFont("Verdana",12);
+	    drawme = QImage("trans1.png").convertDepth(32);
 	    break;
 	  case '3':
-	    font = QFont("babelfish",36);
+	    font = QFont("Verdana",72);
+	    drawme = QImage("bg.png").convertDepth(32);
 	    break;
 	}
 
 	if ( mode && shape ) {
-	    QImage im("pngtest.png");
-
 	    QPainter *ptr=0;
 
-	    QPixmap pm(width(),height());
+	    QPixmap pm(qipd->image().size());
 	    QPainter ppm(&pm);
 	    if ( mode == 'P' ) {
-		ppm.setBrush(cyan);
+		ppm.setBrush(Qt::cyan);
 		ppm.setClipRegion(clip);
 		ptr = &ppm;
 	    }
 
-	    QPainter px11(this);
+	    QPainter px11(widget);
 	    if ( mode == 'S' ) {
-		px11.setBrush(yellow);
+		px11.setBrush(Qt::yellow);
 		px11.setClipRegion(clip);
 		ptr = &px11;
 	    }
 
-	    painter.setPen(magenta);
+	    painter.setPen(Qt::magenta);
 	    if ( mode == 'I' ) {
 		ptr = &painter;
 	    }
 
 	    if ( shape=='l' || shape=='t' ) {
-		painter.setPen(magenta);
-		px11.setPen(yellow);
-		ppm.setPen(cyan);
+		painter.setPen(Qt::magenta);
+		px11.setPen(Qt::yellow);
+		ppm.setPen(Qt::cyan);
 	    } else {
-		painter.setPen(white);
-		px11.setPen(NoPen);
-		ppm.setPen(NoPen);
-		px11.setBrush(blue);
+		painter.setPen(Qt::white);
+		px11.setPen(Qt::NoPen);
+		ppm.setPen(Qt::NoPen);
+		px11.setBrush(Qt::blue);
 	    }
 
 	    QPointArray poly(50);
 	    srand(1234);
 	    if ( shape == 'p' )
 		for (int p=0; p<50; p++) {
-		    poly[p] = QPoint(rand()%width()/2,rand()%height()/2);
+		    poly[p] = QPoint(rand()%qipd->image().width()/2,rand()%qipd->image().height()/2);
 		}
 	    else if ( shape == 't' )
 		ptr->setFont(font);
@@ -106,10 +137,15 @@ public:
 	    QTime t;
 	    t.start();
 	    int x=0,y=0;
-	    int w=width(),h=height();
+	    int w=qipd->image().width(),h=qipd->image().height();
 	    int n=shape == 'l' ? 5000 : 500;
-	    int pix=0;
+	    long pix=0;
 	    for (int i=0; i<n; i++) {
+		if ( n < 2000 || i%16==0 ) {
+		    QColor c(rand()%256,rand()%256,rand()%256);
+		    ptr->setBrush(c);
+		    ptr->setPen(c);
+		}
 		if ( shape=='r' ) {
 		    int rw = (12345*i) % 100 + 20;
 		    int rh = (12345+i) % 100 + 20;
@@ -127,7 +163,6 @@ public:
 		    y += 2345+i;
 		    x %= w;
 		    y %= h;
-		    pix += 10000; // bogus
 		} else if ( shape=='l' ) {
 		    ptr->lineTo(x,y);
 		    int ox=x,oy=y;
@@ -138,62 +173,46 @@ public:
 		    pix+=QMAX(QABS(ox-x),QABS(oy-y));
 		} else if ( shape=='t' ) {
 		    ptr->drawText(x,y,"Hello World");
+		    ptr->drawText(0,0,"Top");
+		    ptr->drawText(0,479,"Bottomy");
 		    x += 12345*i;
 		    y += 2345+i;
 		    x %= w;
 		    y %= h;
-		    pix+=500; // bogus
 		} else if ( shape=='i' ) {
-		    ptr->drawImage(x,y,im);
+		    ptr->drawImage(x,y,drawme);
 		    x += 12345*i;
 		    y += 2345+i;
 		    x %= w;
 		    y %= h;
-		    pix+=im.width()*im.height();
+		    pix+=drawme.width()*drawme.height();
 		}
 	    }
 	    qApp->syncX();
 	    int el = t.elapsed();
-	    qDebug("%s%c: %dms for %d %c's (%d pixels/second)",
+	    qDebug("%s%c: %dms for %d %c's (%ld pixels/second)",
 #ifdef DEBUG
 		"Unoptimized: ",
 #else
 		"",
 #endif
-		mode, el,n,shape, el ? pix/el*1000 : 9999999);
-	    repaint(FALSE);
+		mode, el,n,shape, long(el ? pix/el*1000 : 9999999));
+	    showImage();
+	}
+    }
+    void showImage()
+    {
+	if ( widget ) {
+	    QPixmap b;
+	    b.convertFromImage(qipd->image());
+	    widget->setBackgroundPixmap(b);
 	}
     }
 
-    void mousePressEvent(QMouseEvent* e)
-    {
-	op = e->pos();
-	painter.moveTo(e->pos());
-	if (e->button()==LeftButton)
-	    painter.setPen(red);
-	else if (e->button()==MidButton)
-	    painter.setPen(green);
-	else
-	    painter.setPen(blue);
-    }
-
-    void mouseReleaseEvent(QMouseEvent* e)
-    {
-	//painter.lineTo(e->pos());
-	painter.drawRect(QRect(op,e->pos()));
-	repaint(FALSE);
-    }
-
-    void paintEvent(QPaintEvent*)
-    {
-	QPainter p(this);
-	//p.fillRect(rect(),blue);
-	//p.setClipRegion(clip);
-	p.drawImage(0,0,qipd.image());
-    }
-
 private:
-    QImagePaintDevice32 qipd;
+    QImagePaintDevice32* qipd;
+    QImage drawme;
+    QWidget* widget;
     QPainter painter;
     QRegion clip;
     QPoint op;
@@ -201,11 +220,32 @@ private:
     QFont font;
 };
 
+Image* gi;
+class MyQApplication : public QApplication {
+public:
+    MyQApplication(int& argc, char** argv) :
+	QApplication(argc,argv)
+    {
+    }
+
+    bool x11EventFilter( XEvent* e )
+    {
+	if ( e->type == 2 ) {
+	    char buf[3];
+	    KeySym ks = 0;
+	    XLookupString(&e->xkey, buf, 2, &ks, NULL);
+	    gi->doAscii(buf[0]);
+	    return TRUE;
+	} else {
+	    return QApplication::x11EventFilter(e);
+	}
+    } 
+};
+
 main(int argc, char** argv)
 {
-    QApplication app(argc,argv);
-    Main m;
-    app.setMainWidget(&m);
-    m.show();
+    MyQApplication app(argc,argv);
+    Image i(argc > 1);
+    gi = &i;
     return app.exec();
 }

@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-LIBS		= -lttf
+LIBS		= -lttf -lXxf86dga
 HEADERS		= qimagepaintdevice.h
 SOURCES		= ipd.cpp \
 		  qimagepaintdevice.cpp \

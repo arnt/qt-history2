@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#2 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#3 $
 **
 ** Definition of QImagePaintDevice classes
 **
@@ -29,6 +29,7 @@
 #ifndef QT_H
 #include "qimage.h"
 #include "qpaintdevice.h"
+#include "qfont.h"
 #include "qpen.h"
 #include "qbrush.h"
 #endif
@@ -84,6 +85,9 @@ extern QFontRenderer* qt_font_renderer_ttf(const QFont& f);
 class Q_EXPORT QImagePaintDevice32 : public QPaintDevice
 {
 public:
+    enum Mode { XFreeDGA };
+    QImagePaintDevice32(Mode);
+
     QImagePaintDevice32(int width, int height);
     virtual ~QImagePaintDevice32();
 
@@ -110,7 +114,6 @@ private:
     void drawQuadBezier(const QPointArray& pa);
     void drawPolygon(const QPointArray& pa, int i);
     void drawText(QPoint p, const QString& s);
-    void drawTextFormatted(const QRect& r, int i, const QString& s);
     void drawPixmap(QPoint p, QPixmap pm);
     void drawImage(QPoint p, const QImage& im);
     void drawImage(QPoint p, const QImage& src, int sx, int sy,
@@ -135,16 +138,29 @@ private:
     void setClipRegion(const QRegion& rgn);
 
 private:
+    void init();
     QImage img;
     QRgb** rgb;
     QPen pen; QRgb fg/*redundant*/;
-    QBrush brush;
+    QFont font;
+    QBrush brush; QRgb br/*redundant*/;
     QPoint cursor;
     QPoint brushorg;
     //QArray<QRect> cliprect;
+
+    // Current clip
     QRect* cliprect;
     int ncliprect;
+    // Full-image clip
+    QRect* cliprect1;
+    int ncliprect1;
+    // User-set clip
+    QRect* ocliprect;
+    int oncliprect;
+
+    bool clipon;
     int clipcursor;
+
     bool find(QPoint);
     void findOutside(int x, int y, QRect& cr);
 
