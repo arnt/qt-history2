@@ -9,7 +9,9 @@
 
 ******************************************************************/
 
+#if defined (_MSC_VER)
 #include <qglobal.h>
+#endif
 
 #include <time.h>
 #include <stdlib.h>
