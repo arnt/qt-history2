@@ -78,7 +78,7 @@ class QGLContextPrivate
 public:
     explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
-    GLuint bindTexture(const QImage &image, GLint format, int key);
+    GLuint bindTexture(const QImage &image, GLenum target, GLint format, int key);
     void init(QPaintDevice *dev, const QGLFormat &format);
 
 #if defined(Q_WS_WIN)
@@ -110,8 +110,9 @@ public:
 class QGLExtensions {
 public:
     enum Extension {
-	TextureRectangle 	= 0x01,
-	SampleBuffers 		= 0x02
+	TextureRectangle 	= 0x00000001,
+	SampleBuffers 		= 0x00000002,
+	GenerateMipmap 		= 0x00000004
     };
     Q_DECLARE_FLAGS(Extensions, Extension);
     

@@ -15,6 +15,7 @@
 #include "qapplication.h"
 #include "qbrush.h"
 #include "qgl.h"
+#include <private/qgl_p.h>
 #include "qmap.h"
 #include <private/qpaintengine_opengl_p.h>
 #include "qpen.h"
@@ -102,7 +103,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glOrtho(0, dgl->width(), dgl->height(), 0, -999999, 999999);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glTranslatef(0.375, 0.375, 0.0);
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
 
@@ -694,10 +694,13 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 	drawPixmap(r, tpx, sr, blend);
 	return;
     }
+    GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
+		    ? GL_TEXTURE_RECTANGLE_NV 
+		    : GL_TEXTURE_2D;
     dgl->makeCurrent();
-    dgl->bindTexture(pm);
+    dgl->bindTexture(pm, target);
 
-    drawTextureRect(pm.width(), pm.height(), r, sr);
+    drawTextureRect(pm.width(), pm.height(), r, sr, target);
 }
 
 void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &,
@@ -726,10 +729,17 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glRotated(180.0, 0.0, 0.0, 1.0);
     glBegin(GL_QUADS);
     {
-        glTexCoord2d(0.0, 0.0); glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
-        glTexCoord2d(tc_w, 0.0); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
-        glTexCoord2d(tc_w, tc_h); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
-        glTexCoord2d(0.0, tc_h); glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
+	glTexCoord2d(0.0, 0.0);
+	glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
+	
+	glTexCoord2d(tc_w, 0.0);
+	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+	
+	glTexCoord2d(tc_w, tc_h);
+	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+	
+	glTexCoord2d(0.0, tc_h);
+	glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
     glEnd();
     glPopMatrix();
@@ -741,34 +751,54 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
 void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
                                    Qt::ImageConversionFlags)
 {
+    GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
+		    ? GL_TEXTURE_RECTANGLE_NV 
+		    : GL_TEXTURE_2D;
     dgl->makeCurrent();
-    dgl->bindTexture(image);
-    drawTextureRect(image.width(), image.height(), r, sr);
+    dgl->bindTexture(image, target);
+    drawTextureRect(image.width(), image.height(), r, sr, target);
 }
 
-void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRectF &r, const QRectF &sr)
+void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRectF &r,
+					 const QRectF &sr, GLenum target)
 {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushAttrib(GL_CURRENT_BIT);
     glColor4f(1.0, 1.0, 1.0, 1.0);
-    glEnable(GL_TEXTURE_2D);
+    glEnable(target);
     glEnable(GL_BLEND);
 
     glBegin(GL_QUADS);
     {
-        qreal x1 = sr.x() / tx_width;
-        qreal x2 = x1 + sr.width() / tx_width;
-        qreal y1 = sr.y() / tx_height;
-        qreal y2 = y1 + sr.height() / tx_height;
-        glTexCoord2d(qToDouble(x1), qToDouble(y2)); glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
-        glTexCoord2d(qToDouble(x2), qToDouble(y2)); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
-        glTexCoord2d(qToDouble(x2), qToDouble(y1)); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
-        glTexCoord2d(qToDouble(x1), qToDouble(y1)); glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
+	qreal x1, x2, y1, y2;
+	if (target == GL_TEXTURE_2D) {
+	    x1 = sr.x() / tx_width;
+	    x2 = x1 + sr.width() / tx_width;
+	    y1 = sr.y() / tx_height;
+	    y2 = y1 + sr.height() / tx_height;
+	} else {
+	    x1 = sr.x();
+	    x2 = sr.width();
+	    y1 = sr.y();
+	    y2 = sr.height();
+	}
+	
+        glTexCoord2d(qToDouble(x1), qToDouble(y2)); 
+	glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
+	
+        glTexCoord2d(qToDouble(x2), qToDouble(y2)); 
+	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+	
+        glTexCoord2d(qToDouble(x2), qToDouble(y1));
+	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+	
+        glTexCoord2d(qToDouble(x1), qToDouble(y1));
+	glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
     glEnd();
 
-    glDisable(GL_TEXTURE_2D);
+    glDisable(target);
     glPopAttrib();
 }
 

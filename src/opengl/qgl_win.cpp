@@ -1347,6 +1347,8 @@ void QGLExtensions::init()
 	QGLExtensions::glExtensions |= QGLExtensions::TextureRectangle;
     if (extensions.contains("multisample"))
 	QGLExtensions::glExtensions |= QGLExtensions::SampleBuffers;
+    if (extensions.contains("generate_mipmap"))
+	QGLExtensions::glExtensions |= QGLExtensions::GenerateMipmap;
     
     wglMakeCurrent(dmy_pdc, 0);
     wglDeleteContext(dmy_rc);

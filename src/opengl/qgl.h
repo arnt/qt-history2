@@ -175,8 +175,10 @@ public:
     virtual void doneCurrent();
     virtual void swapBuffers() const;
 
-    GLuint bindTexture(const QImage &image, GLint format = GL_RGBA8);
-    GLuint bindTexture(const QPixmap &pixmap, GLint format = GL_RGBA8);
+    GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
+		       GLint format = GL_RGBA8);
+    GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
+		       GLint format = GL_RGBA8);
     GLuint bindTexture(const QString &fileName);
 
     void deleteTexture(GLuint tx_id);
@@ -290,8 +292,10 @@ public:
                      const QFont & fnt = QFont(), int listBase = 2000);
     QPaintEngine *paintEngine() const;
 
-    GLuint bindTexture(const QImage &image, GLint format = GL_RGBA8);
-    GLuint bindTexture(const QPixmap &pixmap, GLint format = GL_RGBA8);
+    GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D,
+		       GLint format = GL_RGBA8);
+    GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D,
+		       GLint format = GL_RGBA8);
     GLuint bindTexture(const QString &fileName);
     void deleteTexture(GLuint tx_id);
 
