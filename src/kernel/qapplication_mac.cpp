@@ -297,8 +297,13 @@ void qt_mac_update_os_settings()
 {
     if(!qApp)
 	return;
-    if(!QApplication::startingUp())
-	qApp->style().polish(qApp);
+    if(!QApplication::startingUp()) {
+        static bool needToPolish = TRUE;
+        if (needToPolish) {
+            qApp->style().polish(qApp);
+            needToPolish = FALSE;
+        }
+    }
     { //focus mode
 	/* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.2.3 */
 	bool ok;
@@ -411,7 +416,7 @@ void qt_mac_update_os_settings()
 	struct {
 	    const char *qt_class;
 	    ThemeBrush active, inactive;
-	} mac_widget_colours[] = {
+	} mac_widget_colors[] = {
 	    { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
 	    { "QButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
 	    { "QHeader", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
@@ -427,15 +432,15 @@ void qt_mac_update_os_settings()
 	QColor qc;
 	RGBColor c;
 	QPalette apppal = QApplication::palette();
-	for(int i = 0; mac_widget_colours[i].qt_class; i++) {
+	for(int i = 0; mac_widget_colors[i].qt_class; i++) {
 	    QPalette pal = apppal;
-	    if(!GetThemeTextColor(mac_widget_colours[i].active, 32, true, &c)) {
+	    if(!GetThemeTextColor(mac_widget_colors[i].active, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 		pal.setColor(QPalette::Active, QPalette::Text, qc);
 		pal.setColor(QPalette::Active, QPalette::Foreground, qc);
 		pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
 	    }
-	    if(!GetThemeTextColor(mac_widget_colours[i].inactive, 32, true, &c)) {
+	    if(!GetThemeTextColor(mac_widget_colors[i].inactive, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 		pal.setColor(QPalette::Inactive, QPalette::Text, qc);
 		pal.setColor(QPalette::Disabled, QPalette::Text, qc);
@@ -444,7 +449,7 @@ void qt_mac_update_os_settings()
 		pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
 		pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
 	    }
-	    if(!strcmp(mac_widget_colours[i].qt_class, "QPopupMenu")) { //special
+            if(!strcmp(mac_widget_colors[i].qt_class, "QPopupMenu")) {
 		GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
 		pal.setBrush(QPalette::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
@@ -452,8 +457,8 @@ void qt_mac_update_os_settings()
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QPalette::Disabled, QPalette::Text,
 			     QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") ||
-		      !strcmp(mac_widget_colours[i].qt_class, "QHeader")) { //special
+	    } else if(!strcmp(mac_widget_colors[i].qt_class, "QButton") ||
+		      !strcmp(mac_widget_colors[i].qt_class, "QHeader")) { //special
 		pal.setColor(QPalette::Disabled, QPalette::ButtonText,
 			     pal.color(QPalette::Disabled, QPalette::Text));
 		pal.setColor(QPalette::Inactive, QPalette::ButtonText,
@@ -465,14 +470,14 @@ void qt_mac_update_os_settings()
 	    extern QHash<QString, QPalette> *app_palettes; //qapplication.cpp
 	    if(app_palettes) {
 		QHash<QString, QPalette>::ConstIterator it =
-			app_palettes->find(mac_widget_colours[i].qt_class);
+			app_palettes->find(mac_widget_colors[i].qt_class);
 		if (it != app_palettes->constEnd())
 		    set_palette = (pal != *it);
 	    }
 	    if(set_palette && pal != apppal) {
-		QApplication::setPalette(pal, mac_widget_colours[i].qt_class);
+		QApplication::setPalette(pal, mac_widget_colors[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
-		qt_mac_debug_palette(pal, apppal, QString("Palette for ") + mac_widget_colours[i].qt_class);
+		qt_mac_debug_palette(pal, apppal, QString("Palette for ") + mac_widget_colors[i].qt_class);
 #endif
 	    }
 	}
