@@ -30,6 +30,7 @@ class QLayout;
 class QListView;
 class QListViewItem;
 class QMenuBar;
+class QPopupMenu;
 class QTable;
 class QWidget;
 class QWidgetFactoryPrivate;
