@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#58 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -592,8 +592,13 @@ int QFontMetrics::minRightBearing() const
 	    mr = int(fmr-0.9999);
 	    delete [] abc;
 	}
+#ifdef NO_WORKAROND_FOR_FONT_PROBLEM
 	def->lbearing = ml;
 	def->rbearing = mr;
+#else
+        def->lbearing = QABS(ml) > 10 ? 0 : ml;
+        def->rbearing = QABS(mr) > 10 ? 0 : mr;
+#end
     }
 
     return def->rbearing;
