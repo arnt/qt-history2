@@ -220,7 +220,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             if (inLink) {
 	        if ( link.isEmpty() ) {
                     if (showBrokenLinks)
-                        out() << "</b>";
+                        out() << "</i>";
 	        } else {
 		    out() << "</a>";
 	        }
@@ -282,20 +282,62 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::LegaleseRight:
 	break;
     case Atom::Link:
-        if (atom->string().endsWith(".html")
-		|| atom->string().startsWith("file:")
-		|| atom->string().startsWith("http:")
-		|| atom->string().startsWith("https:")
-                || atom->string().startsWith("ftp:")
-		|| atom->string().startsWith("mailto:"))
+        link.clear();
+        if (atom->string().contains(":") &&
+		(atom->string().startsWith("file:")
+		 || atom->string().startsWith("http:")
+		 || atom->string().startsWith("https:")
+                 || atom->string().startsWith("ftp:")
+		 || atom->string().startsWith("mailto:"))) {
             link = atom->string();
-        else
-            link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
+        } else {
+            QStringList path;
+            if (atom->string().contains('#')) {
+                path = atom->string().split('#');
+            } else {
+                path.append(atom->string());
+            }
+
+            const Node *node = 0;
+            Atom *atom = 0;
+
+            QString first = path.first().trimmed();
+            if (first.isEmpty()) {
+                node = relative;
+            } else if (first.endsWith(".html")) {
+                node = tre->root()->findNode(first, Node::Fake);
+            } else {
+                node = marker->resolveTarget(first, tre, relative);
+                if (!node)
+                    node = tre->findFakeNodeByTitle(first);
+                if (!node)
+                    node = tre->findUnambiguousTarget(first, atom);
+            }
+
+            if (node) {
+                path.removeFirst();
+            } else {
+                node = relative;
+            }
+
+            while (!path.isEmpty()) {
+                atom = tre->findTarget(path.first(), node);
+                if (atom == 0)
+                    break;
+                path.removeFirst();
+            }
+
+            if (path.isEmpty()) {
+                link = linkForNode(node, relative);
+                if (atom)
+                    link += "#" + refForAtom(atom, node);
+            }
+        }
 
 	if ( link.isEmpty() ) {
             if (showBrokenLinks)
-                out() << "<b>";
-            relative->location().warning(tr("Cannot link to '%1'").arg(atom->string()));
+                out() << "<i>";
+            relative->doc().location().warning(tr("Cannot link to '%1'").arg(atom->string()));
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
@@ -307,7 +349,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 			    relative );
 	if ( link.isEmpty() ) {
             if (showBrokenLinks)
-                out() << "<b>";
+                out() << "<i>";
 	} else {
 	    out() << "<a href=\"" << link << "\">";
 	}
@@ -439,6 +481,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	out() << atom->string();
 	break;
     case Atom::SectionLeft:
+#if 0
 	{
 	    int nextLevel = atom->string().toInt();
             if (sectionNumber.size() < nextLevel) {
@@ -453,6 +496,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             }
             out() << "<a name=\"sec-" << sectionNumber.join("-") << "\"></a>\n";
         }
+#else
+        out() << "<a name=\"" << Doc::canonicalTitle(Text::sectionHeading(atom).toString())
+              << "\"></a>\n";
+#endif
 	break;
     case Atom::SectionRight:
 	break;
@@ -566,7 +613,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         }
 	break;
     case Atom::Target:
-        out() << "<a name=\"" << protect(atom->string()) << "\"></a>";
+        out() << "<a name=\"" << protect(Doc::canonicalTitle(atom->string())) << "\"></a>";
 	break;
     case Atom::UnhandledFormat:
 	out() << "<font color=\"red\"><b>&lt;Missing HTML&gt;</b></font>";
@@ -955,14 +1002,15 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
             sectionNumber.last() = QString::number(sectionNumber.last().toInt() + 1);
 	}
 	int numAtoms;
-	Text headingText = sectionHeading(atom);
+	Text headingText = Text::sectionHeading(atom);
 
         if (sectionNumber.size() == 1 && columnSize > toc.size() / numColumns) {
             out() << "</ul></td>" << tdTag << "<ul>\n";
             columnSize = 0;
         }
 	out() << "<li>";
-        out() << "<a href=\"" << nodeName << "#sec-" << sectionNumber.join("-") << "\">";
+        out() << "<a href=\"" << nodeName << "#" << Doc::canonicalTitle(headingText.toString())
+              << "\">";
 	generateAtomList(headingText.firstAtom(), node, marker, true, numAtoms);
         out() << "</a></li>\n";
 
@@ -1003,7 +1051,7 @@ void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
 	if ( bar.next.begin() != 0 ) {
 	    out() << "[<a href=\"" << fileBase( node, bar.next )
 		  << ".html\">Next: ";
-	    generateText( sectionHeading(bar.next.begin()), node, marker );
+	    generateText( Text::sectionHeading(bar.next.begin()), node, marker );
 	    out() << "</a>]\n";
 	}
 	out() << "</p>\n";
@@ -1469,7 +1517,7 @@ void HtmlGenerator::generateLink(const Atom *atom, const Node * /* relative */, 
 	out() << protect( atom->string().left(k) );
 	if ( link.isEmpty() ) {
             if (showBrokenLinks)
-                out() << "</b>";
+                out() << "</i>";
 	} else {
 	    out() << "</a>";
 	}
@@ -1738,6 +1786,17 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
         link += ref;
     }
     return link;
+}
+
+QString HtmlGenerator::refForAtom(Atom *atom, const Node *node)
+{
+    if (atom->type() == Atom::SectionLeft) {
+        return Doc::canonicalTitle(Text::sectionHeading(atom).toString());
+    } else if (atom->type() == Atom::Target) {
+        return Doc::canonicalTitle(atom->string());
+    } else {
+        return QString();
+    }
 }
 
 void HtmlGenerator::generateFullName(const Node *apparentNode, const Node *relative,

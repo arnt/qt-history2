@@ -70,7 +70,6 @@ protected:
     QString indent( int level, const QString& markedCode );
     QString plainCode( const QString& markedCode );
     QString typeString( const Node *node );
-    Text sectionHeading( const Atom *sectionBegin );
     QString imageFileName( const Location& location, const QString& fileBase );
     void setImageFileExtensions( const QStringList& extensions );
     void unknownAtom( const Atom *atom );

@@ -33,6 +33,7 @@ public:
     void resolveInheritance();
     void resolveProperties();
     void resolveGroups();
+    void resolveTargets();
     void fixInheritance();
     void setVersion(const QString &version) { vers = version; }
     NamespaceNode *root() { return &roo; }
@@ -45,6 +46,9 @@ public:
                                          int findFlags = 0) const;
     const FunctionNode *findFunctionNode(const QStringList &parentPath, const FunctionNode *clone,
                                          const Node *relative = 0, int findFlags = 0) const;
+    const FakeNode *findFakeNodeByTitle(const QString &title) const;
+    const Node *findUnambiguousTarget(const QString &target, Atom *&atom) const;
+    Atom *findTarget(const QString &target, const Node *node) const;
     const NamespaceNode *root() const { return &roo; }
 
 private:

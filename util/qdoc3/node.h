@@ -42,7 +42,7 @@ public:
     InnerNode *parent() const { return par; }
     InnerNode *relates() const { return rel; }
     const QString& name() const { return nam; }
-    QMap<LinkTypes,QPair<QString,QString> > links() const { return linkMap; }
+    QMap<LinkTypes, QPair<QString,QString> > links() const { return linkMap; }
     const QString moduleName() const;
 
     Access access() const { return acc; }

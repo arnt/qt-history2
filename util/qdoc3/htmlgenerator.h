@@ -88,6 +88,7 @@ private:
 #endif
     QString refForNode( const Node *node );
     QString linkForNode( const Node *node, const Node *relative );
+    QString refForAtom(Atom *atom, const Node *node);
     void findAllClasses(const InnerNode *node);
     void findAllFunctions(const InnerNode *node);
     void findAllLegaleseTexts(const InnerNode *node);

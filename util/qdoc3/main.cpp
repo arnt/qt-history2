@@ -145,6 +145,7 @@ static void processQdocconfFile(const QString &fileName)
     }
     codeParser->doneParsingSourceFiles( tree );
     tree->resolveGroups();
+    tree->resolveTargets();
 
     QSet<QString>::ConstIterator of = outputFormats.begin();
     while ( of != outputFormats.end() ) {

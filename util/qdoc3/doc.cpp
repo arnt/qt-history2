@@ -145,6 +145,8 @@ public:
     Doc::SectioningUnit granularity;
     Doc::SectioningUnit sectioningUnit; // ###
     QList<Atom *> tableOfContents;
+    QList<Atom *> keywords;
+    QList<Atom *> targets;
 
     DocPrivateExtra()
 	: granularity( Doc::Part ) { }
@@ -238,7 +240,7 @@ private:
 				   const QString& str );
     void checkExpiry( const QString& date );
     void insertBaseName(const QString &baseName);
-    void insertTarget( const QString& target );
+    void insertTarget( const QString& target, bool keyword);
     void include( const QString& fileName );
     void startFormat( const QString& format, int command );
     bool openCommand( int command );
@@ -612,8 +614,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        startFormat( ATOM_FORMATTING_INDEX, command );
 		        break;
 		    case CMD_KEYWORD:
-		        x = getRestOfLine();
-		        insertTarget( x );
+		        insertTarget(getRestOfLine(), true);
 		        break;
 		    case CMD_L:
 		        enterPara();
@@ -849,7 +850,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        append(Atom::TableOfContents, x);
 		        break;
 		    case CMD_TARGET:
-		        insertTarget( getArgument() );
+		        insertTarget(getRestOfLine(), false);
 		        break;
 		    case CMD_TT:
 		        startFormat( ATOM_FORMATTING_TELETYPE, command );
@@ -1163,14 +1164,19 @@ void DocParser::insertBaseName(const QString &baseName)
     }
 }
 
-void DocParser::insertTarget( const QString& target )
+void DocParser::insertTarget(const QString &target, bool keyword)
 {
-    if ( targetMap.contains(target) ) {
+    if (targetMap.contains(target)) {
 	location().warning( tr("Duplicate target name '%1'").arg(target) );
 	targetMap[target].warning( tr("(The previous occurrence is here)") );
     } else {
-	targetMap.insert( target, location() );
-	append( Atom::Target, target );
+	targetMap.insert(target, location());
+	append(Atom::Target, target);
+        priv->constructExtra();
+        if (keyword)
+            priv->extra->keywords.append(priv->text.lastAtom());
+        else
+            priv->extra->targets.append(priv->text.lastAtom());
     }
 }
 
@@ -2183,13 +2189,35 @@ const QList<Text> &Doc::alsoList() const
 
 bool Doc::hasTableOfContents() const
 {
-    return priv->extra && !priv->extra->tableOfContents.isEmpty();
+    return priv && priv->extra && !priv->extra->tableOfContents.isEmpty();
+}
+
+bool Doc::hasKeywords() const
+{
+    return priv && priv->extra && !priv->extra->keywords.isEmpty();
+}
+
+bool Doc::hasTargets() const
+{
+    return priv && priv->extra && !priv->extra->targets.isEmpty();
 }
 
 const QList<Atom *> &Doc::tableOfContents() const
 {
     priv->constructExtra();
     return priv->extra->tableOfContents;
+}
+
+const QList<Atom *> &Doc::keywords() const
+{
+    priv->constructExtra();
+    return priv->extra->keywords;
+}
+
+const QList<Atom *> &Doc::targets() const
+{
+    priv->constructExtra();
+    return priv->extra->targets;
 }
 
 void Doc::initialize( const Config& config )
@@ -2360,4 +2388,11 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
     CodeMarker *marker = CodeMarker::markerForFileName(fileName);
     quoter.quoteFromFile(userFriendlyFilePath, code, marker->markedUpCode(code, 0, dirPath));
     return marker;
+}
+
+QString Doc::canonicalTitle(const QString &title)
+{
+    QString result = title.toLower().simplified();
+    result.replace(' ', '-');
+    return result;
 }

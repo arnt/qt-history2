@@ -33,6 +33,7 @@ public:
     void dump() const;
 
     static Text subText( const Atom *begin, const Atom *end = 0 );
+    static Text sectionHeading(const Atom *sectionBegin);
     static int compare(const Text &text1, const Text &text2);
 
 private:

@@ -46,7 +46,11 @@ public:
     QStringList metaCommandArgs( const QString& metaCommand ) const;
     const QList<Text> &alsoList() const;
     bool hasTableOfContents() const;
+    bool hasKeywords() const;
+    bool hasTargets() const;
     const QList<Atom *> &tableOfContents() const;
+    const QList<Atom *> &keywords() const;
+    const QList<Atom *> &targets() const;
 
     static void initialize( const Config &config );
     static void terminate();
@@ -54,6 +58,7 @@ public:
     static void trimCStyleComment( Location& location, QString& str );
     static CodeMarker *quoteFromFile(const Location &location, Quoter &quoter,
                                      const QString &fileName);
+    static QString canonicalTitle(const QString &title);
 
 private:
     DocPrivate *priv;

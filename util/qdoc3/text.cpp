@@ -122,6 +122,25 @@ Text Text::subText( Atom::Type left, Atom::Type right ) const
     return subText( begin, end );
 }
 
+Text Text::sectionHeading(const Atom *sectionLeft)
+{
+    if ( sectionLeft != 0 ) {
+	const Atom *begin = sectionLeft;
+	while ( begin != 0 && begin->type() != Atom::SectionHeadingLeft )
+	    begin = begin->next();
+	if ( begin != 0 )
+	    begin = begin->next();
+
+	const Atom *end = begin;
+	while ( end != 0 && end->type() != Atom::SectionHeadingRight )
+	    end = end->next();
+
+	if ( end != 0 )
+	    return subText( begin, end );
+    }
+    return Text();
+}
+
 void Text::dump() const
 {
     const Atom *atom = firstAtom();

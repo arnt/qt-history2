@@ -489,25 +489,6 @@ QString Generator::typeString( const Node *node )
     }
 }
 
-Text Generator::sectionHeading( const Atom *sectionLeft )
-{
-    if ( sectionLeft != 0 ) {
-	const Atom *begin = sectionLeft;
-	while ( begin != 0 && begin->type() != Atom::SectionHeadingLeft )
-	    begin = begin->next();
-	if ( begin != 0 )
-	    begin = begin->next();
-
-	const Atom *end = begin;
-	while ( end != 0 && end->type() != Atom::SectionHeadingRight )
-	    end = end->next();
-
-	if ( end != 0 )
-	    return Text::subText( begin, end );
-    }
-    return Text();
-}
-
 QString Generator::imageFileName( const Location& location,
 				  const QString& fileBase )
 {

@@ -5,6 +5,7 @@
 #include <QtCore>
 
 #include "node.h"
+#include "text.h"
 #include "tree.h"
 
 struct InheritanceBound
@@ -21,15 +22,26 @@ struct InheritanceBound
 	  dataTypeWithTemplateArgs(dataTypeWithTemplateArgs0) { }
 };
 
+struct Target
+{
+    Node *node;
+    Atom *atom;
+};
+
 typedef QMap<PropertyNode::FunctionRole, QString> RoleMap;
 typedef QMap<PropertyNode *, RoleMap> PropertyMap;
+typedef QMultiMap<QString, Node *> GroupMap;
+typedef QMultiHash<QString, FakeNode *> FakeNodeHash;
+typedef QMultiHash<QString, Target> TargetHash;
 
 class TreePrivate
 {
 public:
     QMap<ClassNode *, QList<InheritanceBound> > unresolvedInheritanceMap;
     PropertyMap unresolvedPropertyMap;
-    QMultiMap<QString, Node *> groupMap;
+    GroupMap groupMap;
+    FakeNodeHash fakeNodesByTitle;
+    TargetHash targetHash;
 };
 
 Tree::Tree()
@@ -168,6 +180,58 @@ const FunctionNode *Tree::findFunctionNode(const QStringList &parentPath, const 
     }
 }
 
+static const int NumSuffixes = 3;
+static const char * const suffixes[NumSuffixes] = { "", "s", "es" };
+
+const FakeNode *Tree::findFakeNodeByTitle(const QString &title) const
+{
+    for (int pass = 0; pass < NumSuffixes; ++pass) {
+        FakeNodeHash::const_iterator i =
+                priv->fakeNodesByTitle.find(Doc::canonicalTitle(title + suffixes[pass]));
+        if (i != priv->fakeNodesByTitle.constEnd()) {
+            FakeNodeHash::const_iterator j = i;
+            ++j;
+            if (j == priv->fakeNodesByTitle.constEnd() || j.key() != i.key())
+                return i.value();
+        }
+    }
+    return 0;
+}
+
+const Node *Tree::findUnambiguousTarget(const QString &target, Atom *&atom) const
+{
+    for (int pass = 0; pass < NumSuffixes; ++pass) {
+        TargetHash::const_iterator i =
+                priv->targetHash.find(Doc::canonicalTitle(target + suffixes[pass]));
+        if (i != priv->targetHash.constEnd()) {
+            TargetHash::const_iterator j = i;
+            ++j;
+            if (j == priv->targetHash.constEnd() || j.key() != i.key()) {
+                atom = i.value().atom;
+                return i.value().node;
+            }
+        }
+    }
+    return 0;
+}
+
+Atom *Tree::findTarget(const QString &target, const Node *node) const
+{
+    for (int pass = 0; pass < NumSuffixes; ++pass) {
+        QString key = Doc::canonicalTitle(target + suffixes[pass]);
+        TargetHash::const_iterator i = priv->targetHash.find(key);
+
+        if (i != priv->targetHash.constEnd()) {
+            do {
+                if (i.value().node == node)
+                    return i.value().atom;
+                ++i;
+            } while (i != priv->targetHash.constEnd() && i.key() == key);
+        }
+    }
+    return 0;
+}
+
 void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
 			 const QStringList &basePath,
 			 const QString &dataTypeWithTemplateArgs )
@@ -277,7 +341,7 @@ void Tree::resolveInheritance(int pass, ClassNode *classe)
 
 void Tree::resolveGroups()
 {
-    QMultiMap<QString, Node *>::const_iterator i;
+    GroupMap::const_iterator i;
     QString prevGroup;
     for (i = priv->groupMap.constBegin(); i != priv->groupMap.constEnd(); ++i) {
         FakeNode *fake = static_cast<FakeNode *>(findNode(QStringList(i.key()), Node::Fake));
@@ -292,6 +356,51 @@ void Tree::resolveGroups()
     }
 
     priv->groupMap.clear();
+}
+
+void Tree::resolveTargets()
+{
+    // need recursion
+
+    foreach (Node *child, roo.childNodes()) {
+        if (child->type() == Node::Fake) {
+            FakeNode *node = static_cast<FakeNode *>(child);
+            priv->fakeNodesByTitle.insert(Doc::canonicalTitle(node->title()), node);
+        }
+
+        if (child->doc().hasTableOfContents()) {
+            const QList<Atom *> &toc = child->doc().tableOfContents();
+            Target target;
+            target.node = child;
+
+            for (int i = 0; i < toc.size(); ++i) {
+                target.atom = toc.at(i);
+                QString title = Text::sectionHeading(target.atom).toString();
+                if (!title.isEmpty())
+                    priv->targetHash.insert(Doc::canonicalTitle(title), target);
+            }
+        }
+        if (child->doc().hasKeywords()) {
+            const QList<Atom *> &keywords = child->doc().keywords();
+            Target target;
+            target.node = child;
+
+            for (int i = 0; i < keywords.size(); ++i) {
+                target.atom = keywords.at(i);
+                priv->targetHash.insert(Doc::canonicalTitle(target.atom->string()), target);
+            }
+        }
+        if (child->doc().hasTargets()) {
+            const QList<Atom *> &toc = child->doc().targets();
+            Target target;
+            target.node = child;
+
+            for (int i = 0; i < toc.size(); ++i) {
+                target.atom = toc.at(i);
+                priv->targetHash.insert(Doc::canonicalTitle(target.atom->string()), target);
+            }
+        }
+    }
 }
 
 void Tree::fixInheritance()
