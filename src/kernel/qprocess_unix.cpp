@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#50 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -71,7 +71,7 @@
 #undef SIGNAL_HACK
 #endif
 
-#if defined(Q_OS_OSF) || defined(Q_OS_MACX)
+#if defined(Q_OS_MACX)
 // these platforms work one way
 #define SIGNAL_HACK
 #elif defined(Q_CC_GNU) && ( defined(Q_OS_IRIX) || defined(Q_OS_SUN) )
