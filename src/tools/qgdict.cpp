@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#83 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#84 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -151,8 +151,6 @@ QDataStream& QGDict::read( QDataStream &s, QCollection::Item &item )
 /*!
   Writes a collection/dictionary item to the stream \e s and returns a
   reference to the stream.
-
-  The default implementation does nothing.
 
   \sa read()
 */

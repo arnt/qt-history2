@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#109 $
 **
 ** Implementation of QScrollView class
 **
@@ -368,7 +368,7 @@ covered up by the viewport, clipper, or scrollbars.
 
   This enum type is used to control QScrollView's reaction to resize
   events.  There are three possible settings:<ul>
-  
+
   <li> \c Default - QScrollView selects one of the other settings
   automatically when it has to.  At the time of writing, QScrollView
   changs to \c Manual if you resize the contents with
@@ -1041,8 +1041,6 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
   This event handler is called whenever the QScrollView receives a
   mousePressEvent() - the press position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsMousePressEvent( QMouseEvent* )
 {
@@ -1052,8 +1050,6 @@ void QScrollView::contentsMousePressEvent( QMouseEvent* )
   This event handler is called whenever the QScrollView receives a
   mouseReleaseEvent() - the release position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsMouseReleaseEvent( QMouseEvent* )
 {
@@ -1063,8 +1059,6 @@ void QScrollView::contentsMouseReleaseEvent( QMouseEvent* )
   This event handler is called whenever the QScrollView receives a
   mouseDoubleClickEvent() - the click position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* )
 {
@@ -1074,8 +1068,6 @@ void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* )
   This event handler is called whenever the QScrollView receives a
   mouseMoveEvent() - the mouse position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
 {
@@ -1085,8 +1077,6 @@ void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
   This event handler is called whenever the QScrollView receives a
   dragEnterEvent() - the drag position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsDragEnterEvent( QDragEnterEvent * )
 {
@@ -1096,8 +1086,6 @@ void QScrollView::contentsDragEnterEvent( QDragEnterEvent * )
   This event handler is called whenever the QScrollView receives a
   dragMoveEvent() - the drag position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsDragMoveEvent( QDragMoveEvent * )
 {
@@ -1107,8 +1095,6 @@ void QScrollView::contentsDragMoveEvent( QDragMoveEvent * )
   This event handler is called whenever the QScrollView receives a
   dragLeaveEvent() - the drag position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
@@ -1118,8 +1104,6 @@ void QScrollView::contentsDragLeaveEvent( QDragLeaveEvent * )
   This event handler is called whenever the QScrollView receives a
   dropEvent() - the drop position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsDropEvent( QDropEvent * )
 {
@@ -1129,8 +1113,6 @@ void QScrollView::contentsDropEvent( QDropEvent * )
   This event handler is called whenever the QScrollView receives a
   wheelEvent() - the mouse position is translated to be a
   point on the contents.
-
-  The default implementation does nothing.
 */
 void QScrollView::contentsWheelEvent( QWheelEvent * )
 {
@@ -1747,8 +1729,6 @@ void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int 
 
   The clip rectangle and translation of the painter \a p is already set
   appropriately.
-
-  The default implementation does nothing.
 */
 void QScrollView::drawContents(QPainter*, int, int, int, int)
 {

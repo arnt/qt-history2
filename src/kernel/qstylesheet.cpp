@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#17 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -1132,9 +1132,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
   if tags are not closed properly.
 
   \a msg is the error message.
-
-  The default implementation does nothing.
- */
+*/
 void QStyleSheet::error( const QString& ) const
 {
 }
@@ -1143,10 +1141,10 @@ void QStyleSheet::error( const QString& ) const
 /*!
   Scales the font \a font to the appropriate physical point size
   corresponding to the logical font size \a logicalSize.
-  
+
   When calling this function, \a font has a point size corresponding to
   the logical font size 3.
-  
+
   Typical logical font sizes range from 1 to 7, with 1 being the smallest.
 
   \sa logicalFontSize(), logicalFontSizeStep(), QFont::setPointSize()

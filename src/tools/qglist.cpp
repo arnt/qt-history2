@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#58 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -132,8 +132,6 @@ QDataStream &QGList::read( QDataStream &s, QCollection::Item &item )
 /*!
   Writes a collection/list item to the stream \e s and returns a reference
   to the stream.
-
-  The default implementation does nothing.
 
   \sa read()
 */

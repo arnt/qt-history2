@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#205 $
 **
 ** Implementation of QObject class
 **
@@ -683,8 +683,6 @@ bool QObject::event( QEvent *e )
   This event handler can be reimplemented in a subclass to receive
   timer events for the object.
 
-  The default implementation does nothing.
-
   QTimer provides a higher-level interface to the timer functionality,
   and also more general information about timers.
 
@@ -701,8 +699,6 @@ void QObject::timerEvent( QTimerEvent * )
   child events.
 
   Child events are sent to objects when children are inserted or removed.
-
-  The default implementation does nothing.
 
   \sa event(), QChildEvent
 */

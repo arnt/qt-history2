@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#121 $
 **
 ** Implementation of QTableView class
 **
@@ -1245,8 +1245,6 @@ void QTableView::verSbSlidingDone( )
   is started. It can be reimplemented by subclasses that want to
   to set up the painter in a special way and that do not want to
   do so for each cell.
-
-  The default implementation does nothing.
 */
 
 void QTableView::setupPainter( QPainter * )

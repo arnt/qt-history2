@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#60 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -156,8 +156,6 @@ QLayoutItem::~QLayoutItem()
 
 /*!
   Invalidates any cached information in this layout item.
-
-  The default implementation does nothing.
 */
 
 void QLayoutItem::invalidate()
@@ -1464,7 +1462,7 @@ QGLayoutIterator::~QGLayoutIterator()
 
 /*! \fn QLayoutItem *QLayoutIterator::takeCurrent()
   Removes the current child item from the layout without deleting it
-  and moves the iterator to the next item. Returns the removed item, or 
+  and moves the iterator to the next item. Returns the removed item, or
   0 if there was no item to be removed. This iterator will still be
   valid, but any other iterator over the same layout may become
   invalid.

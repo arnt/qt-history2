@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#145 $
 **
 ** Implementation of QButton widget class
 **
@@ -649,7 +649,7 @@ void QButton::drawButton( QPainter * )
 }
 
 /*!
-  Draws the button text or pixmap.  The default implementation does nothing.
+  Draws the button text or pixmap.
 
   This virtual function is reimplemented by subclasses to draw real buttons.
 */

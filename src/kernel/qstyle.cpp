@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#40 $
 **
 ** Implementation of QStyle class
 **
@@ -108,8 +108,6 @@ QStyle::~QStyle()
   things too much, as new QStyle sub-classes will be expected to work
   reasonably with all current \e and \e future widgets.
 
-  The default implementation does nothing.
-
   \sa unPolish(QWidget*)
 */
 void QStyle::polish( QWidget*)
@@ -124,8 +122,6 @@ void QStyle::polish( QWidget*)
   style has to un-polish its settings before the new style can polish
   them again.
 
-  The default implementation does nothing.
-
   \sa polish(QWidget*)
 */
 void QStyle::unPolish( QWidget*)
@@ -136,8 +132,6 @@ void QStyle::unPolish( QWidget*)
 /*!
   Late initialization of the QApplication object.
 
-  The default implementation does nothing.
-
   \sa unPolish
  */
 void QStyle::polish( QApplication*)
@@ -146,8 +140,6 @@ void QStyle::polish( QApplication*)
 
 /*!
   Redo the application polish
-
-  The default implementation does nothing.
 
   \sa polish
  */
@@ -159,8 +151,6 @@ void QStyle::unPolish( QApplication*)
   The style may have certain requirements for color palettes.  In this
   function it has the chance to change the palette according to these
   requirements.
-
-  The default implementation does nothing.
 
   \sa unPolish, QPalette, QApplication::setPalette()
  */
