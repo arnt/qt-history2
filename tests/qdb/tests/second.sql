@@ -21,6 +21,6 @@
 --    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --
 
-select name, id
+select name, length(name)
 from authors
 where id = 1 or id = 2;

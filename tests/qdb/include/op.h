@@ -459,7 +459,7 @@ public:
     int exec( LocalSQLEnvironment* env )
     {
 	QString str = env->stack()->pop().toString();
-	env->stack()->push( str.length() );
+	env->stack()->push( (double) str.length() );
 	return 1;
     }
 };

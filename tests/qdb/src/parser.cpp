@@ -888,9 +888,21 @@ void Parser::emitWhereLoop( const QVariant& cond,
     int tableId = yyActiveTableIds[level];
     int lastLevel = (int) yyActiveTableIds.count() - 1;
     bool saving = !selectColumns.isEmpty();
+    bool allColumnsAreSimple = TRUE;
 
- // ### all columns must be simple
-    bool needLoop = ( cond.isValid() || lastLevel > 0 );
+    QValueList<QVariant>::ConstIterator c = selectColumns.begin();
+    while ( c != selectColumns.end() ) {
+	if ( (*c).type() == QVariant::List ) {
+	    int node = (*c).toList()[0].toInt();
+	    if ( node != Node_Field ) {
+		allColumnsAreSimple = FALSE;
+		break;
+	    }
+	}
+	++c;
+    }
+
+    bool needLoop = ( !allColumnsAreSimple || cond.isValid() || lastLevel > 0 );
 
     QValueList<QVariant> constantsForLevel;
     if ( yyActiveTableIds.count() == 1 ) {
@@ -1298,7 +1310,7 @@ QVariant Parser::matchPrimaryExpr()
 	    right.asList().append( matchAggregateArgument() );
 	    yyNumAggregateOccs++;
 	} else {
-	    matchFunctionArguments( 3, &right.asList() );
+	    matchFunctionArguments( n, &right.asList() );
 	}
     }
 
