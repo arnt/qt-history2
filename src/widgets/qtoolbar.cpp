@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#52 $
 **
 ** Implementation of QToolBar class
 **
@@ -93,13 +93,18 @@ QToolBar::QToolBar( const QString &label,
     sw = 0;
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
-    parent->addToolBar( this, label, dock, newLine );
+    if ( parent )
+	parent->addToolBar( this, label, dock, newLine );
+#if defined(CHECK_NULL)
+    else
+	qWarning( "QToolBar::QToolBar main window cannot be 0." );
+#endif    
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
 }
 
 
-/*!  Constructs an empty horizontal tool bar which is a parent of \a
+/*!  Constructs an empty horizontal tool bar with a parent of \a
   parent and managed by \a mainWindow.  The \a label and \a newLine
   are passed straight to QMainWindow::addToolBar().  \a name is the
   object name and \a f is the widget flags.
@@ -118,7 +123,12 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     mw = mainWindow;
     sw = 0;
     o = Horizontal;
-    mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+    if ( mainWindow )
+	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+#if defined(CHECK_NULL)
+    else
+	qWarning( "QToolBar::QToolBar main window cannot be 0." );
+#endif    
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
 }
@@ -136,7 +146,12 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
     o = Horizontal;
     sw = 0;
     mw = parent;
-    parent->addToolBar( this, QString::null, QMainWindow::Top );
+    if ( parent )
+	parent->addToolBar( this, QString::null, QMainWindow::Top );
+#if defined(CHECK_NULL)
+    else
+	qWarning( "QToolBar::QToolBar main window cannot be 0." );
+#endif    
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
 }
