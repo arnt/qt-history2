@@ -581,8 +581,8 @@ void QString::fromWCharArray(const wchar_t *a, int l)
     } else {
         resize(l*2); // worst case
         QChar *uc = data();
-        for (uint i = 0; i < s.length(); ++i) {
-            uint u = s[i];
+        for (int i = 0; i < l; ++i) {
+            uint u = a[i];
             if (u > 0xffff) {
                 // decompose into a surrogate pair
                 u -= 0x10000;
