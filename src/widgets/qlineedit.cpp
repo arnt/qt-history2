@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#22 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#22 $";
 #endif
 
 /*!
@@ -102,6 +102,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     cursorOn	= TRUE;
     inTextFocus = FALSE;
     t		= "";
+    setAcceptFocus( TRUE );
 }
 
 /*! Cleans up when a QLineEdit dies. */
@@ -338,10 +339,13 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 			 width() - LEFT_MARGIN - RIGHT_MARGIN );
     cursorOn = TRUE;
     startTimer( blinkTime );
+    paint();
+#if 0
     if ( !inTextFocus )
         focusInEvent( 0 );   // will call paint()
     else
         paint();
+#endif
 }
 
 /*! Repaints the line editor as needed.  If the line editor is in
