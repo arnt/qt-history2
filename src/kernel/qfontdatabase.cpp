@@ -753,7 +753,8 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 		if ( ! encoding ||
 		     ! scripts_for_xlfd_encoding[encoding->encoding][script] ) {
 		    // find the first encoding that supports the requested script
-		    for ( int x = 0; ! encoding && x < size->count; ++x ) {
+		    encoding = 0;
+		    for (int x = 0; !encoding && x < size->count; ++x ) {
 			const int enc = size->encodings[x].encoding;
 			if ( scripts_for_xlfd_encoding[enc][script] ) {
 			    encoding = &size->encodings[x];
