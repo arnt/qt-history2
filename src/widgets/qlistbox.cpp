@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#282 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#283 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1063,7 +1063,7 @@ index is out of bounds. \sa index()
 QListBoxItem *QListBox::item( int index ) const
 {
     QListBoxItem * i = d->head;
-    while ( i && index ) {
+    while ( i && index > 0 ) {
 	index--;
 	i = i->n;
     }

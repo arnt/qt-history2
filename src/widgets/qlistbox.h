@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#95 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#96 $
 **
 ** Definition of QListBox widget class
 **
@@ -76,6 +76,7 @@ public:
     int numItemsVisible() const;
 
     int currentItem() const;
+    QString currentText() const { return text(currentItem()); }
     virtual void setCurrentItem( int index );
     virtual void setCurrentItem( QListBoxItem * );
     void centerCurrentItem() { ensureCurrentVisible(); }
