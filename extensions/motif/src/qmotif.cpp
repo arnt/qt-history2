@@ -82,8 +82,10 @@ static XEvent* last_xevent = 0;
 bool QMotif::redeliverEvent( XEvent *event )
 {
     // redeliver the event to Xt, NOT through Qt
-    if ( static_d->dispatchers[ event->type ]( event ) )
+    if ( static_d->dispatchers[ event->type ]( event ) ) {
+	// qDebug( "Xt: redelivered event" );
 	return TRUE;
+    }
     return FALSE;
 };
 
@@ -158,18 +160,20 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    w = XtParent( w );
 	}
 
-	if ( qMotif &&
-	     ( event->type == XKeyPress || event->type == XKeyRelease ) )  {
-	    // remap key events
-	    event->xany.window = qMotif->winId();
-	}
+ 	if ( qMotif && ( event->type == XKeyPress ||
+			 event->type == XKeyRelease ) )  {
+	    // remap key events to keep accelerators working
+ 	    event->xany.window = qMotif->winId();
+ 	}
 
 	if ( w ) {
-	    if ( !grabbed && ( event->type == XFocusIn &&
+	    if ( !grabbed && ( event->type        == XFocusIn &&
 			       event->xfocus.mode == NotifyGrab ) ) {
+		// qDebug( "Xt: grab started" );
 		grabbed = TRUE;
-	    } else if ( grabbed && ( event->type == XFocusOut &&
+	    } else if ( grabbed && ( event->type        == XFocusOut &&
 				     event->xfocus.mode == NotifyUngrab ) ) {
+		// qDebug( "Xt: grab ended" );
 		grabbed = FALSE;
 	    }
 	}
@@ -215,40 +219,75 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     qmotif_keep_alive();
 
-    if ( delivered )
+    if ( delivered ) {
+	// qDebug( "Qt: delivered event" );
 	return True;
+    }
 
-    if ( QApplication::activePopupWidget() )
-	// we get all events through the popup grabs.  discard the event
-	return True;
+    // discard user input events when we have an active popup widget
+    if ( QApplication::activePopupWidget() ) {
+	switch ( event->type ) {
+	case ButtonPress:			// disallow mouse/key events
+	case ButtonRelease:
+	case MotionNotify:
+	case XKeyPress:
+	case XKeyRelease:
+	case EnterNotify:
+	case LeaveNotify:
+	case ClientMessage:
+	    // qDebug( "Qt: active popup - discarding event" );
+	    return True;
+
+	default:
+	    break;
+	}
+    }
 
     if ( QApplication::activeModalWidget() ) {
 	if ( qMotif ) {
 	    // send event through Qt modality handling...
-	    if ( !qt_try_modal(qMotif, event) )
+	    if ( !qt_try_modal( qMotif, event ) ) {
+		// qDebug( "Qt: active modal widget discarded event" );
 		return True;
-	} else {
-	    // event is destined for an Xt widget, but since Qt has an
-	    // active modal widget, we stop here...
-	    switch ( event->type ) {
-	    case ButtonPress:			// disallow mouse/key events
-	    case ButtonRelease:
-	    case MotionNotify:
-	    case XKeyPress:
-	    case XKeyRelease:
-	    case EnterNotify:
-	    case LeaveNotify:
-	    case ClientMessage:
-		return True;
-	    default:
-		break;
+	    }
+	} else if ( !grabbed ) {
+	    // we could have a pure Xt shell as a child of the active
+	    // modal widget
+	    QWidget *qw = 0;
+	    Widget xw = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
+					  event->xany.window );
+	    while ( xw && !( qw = mapper->find( XtWindow( xw ) ) ) )
+		xw = XtParent( xw );
+
+	    while ( qw && qw != QApplication::activeModalWidget() )
+		qw = qw->parentWidget();
+
+	    if ( !qw ) {
+		// event is destined for an Xt widget, but since Qt has an
+		// active modal widget, we stop here...
+		switch ( event->type ) {
+		case ButtonPress:			// disallow mouse/key events
+		case ButtonRelease:
+		case MotionNotify:
+		case XKeyPress:
+		case XKeyRelease:
+		case EnterNotify:
+		case LeaveNotify:
+		case ClientMessage:
+		    // qDebug( "Qt: active modal widget discarded unknown event" );
+		    return True;
+		default:
+		    break;
+		}
 	    }
 	}
     }
 
-    if ( static_d->dispatchers[ event->type ]( event ) )
+    if ( static_d->dispatchers[ event->type ]( event ) ) {
+	// qDebug( "Xt: delivered event" );
 	// Xt handled the event.
 	return True;
+    }
 
     return False;
 }
