@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#13 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#13 $";
 #endif
 
 
@@ -76,7 +76,7 @@ void QPixmap::resize( int w, int h )
 	*this = pm;
     }
     else					// create new pixmap
-	*this = QPixmap( w, h, isBitmap() ? 1 : -1 );
+	*this = QPixmap( w, h, data->bitmap ? 1 : -1 );
 }
 
 
