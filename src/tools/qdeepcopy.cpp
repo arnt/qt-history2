@@ -73,7 +73,7 @@
     QString s5 = s2;
     \endcode
 
-    In the example below, \c s1, \c s2 and \s5 share data, and \c s3
+    In the example below, \c s1, \c s2 and \c s5 share data, and \c s3
     and \c s4 share data.
     \code
     // s1, s2 and s5 share the same data, s3 and s4 share the same data
