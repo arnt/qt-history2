@@ -235,9 +235,6 @@ public:
     bool isCustomItem( int index ) const;
     QTextCustomItem* customItemAt( int index ) const;
 
-    void setBold( int index, bool b );
-    bool bold( int index ) const;
-
     QTextFormatCollection* formats; // make private
 
 private:

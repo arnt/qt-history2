@@ -1188,8 +1188,6 @@ void QTextParagraph::init()
 {
     id = qt_text_paragraph_id++;
 
-    formats->registerFormat( format );
-
     child = next = prev = 0;
     height = y = 0;
     dirty = TRUE;
@@ -1213,7 +1211,6 @@ void QTextParagraph::init()
 
 QTextParagraph::~QTextParagraph()
 {
-    formats->unregisterFormat( format );
     while ( child ) {
 	QTextParagraph* tmp = child;
 	child = child->next;
@@ -1338,25 +1335,6 @@ QString& QTextRichString::getCharAt( int index )
 {
     items[index].width = -1;
     return items[index].c;
-}
-
-void QTextRichString::setBold( int index, bool b )
-{
-     if ( bold( index ) == b )
- 	return ;
-     QTextCharFormat* oldfmt = items[index].format;
-     QFont f = oldfmt->font();
-     QColor c = oldfmt->color();
-     f.setBold( b );
-     QTextCharFormat newfmt( f, c );
-     formats->unregisterFormat( *oldfmt );
-     items[index].format =formats->registerFormat( newfmt );
-     items[index].width = -1;
-}
-
-bool QTextRichString::bold( int index ) const
-{
-    return items[index].format->font().bold();
 }
 
 void QTextRichString::setLength( int l )
