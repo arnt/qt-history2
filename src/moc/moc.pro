@@ -3,8 +3,6 @@ CONFIG = console release qtinc yacc lex_included yacc_no_name_mangle
 DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
 		  QT_NO_STL QT_NO_COMPRESS
 win32:DEFINES  += QT_NODLL
-LEXSOURCES	= moc.l
-YACCSOURCES	= moc.y
 INCLUDEPATH	+= $$QT_SOURCE_TREE/include ../tools .
 DEPENDPATH	+= $$QT_SOURCE_TREE/include ../tools .
 LIBS		=
@@ -34,6 +32,10 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qgcache.cpp      \
 		  ../codecs/qtextcodec.cpp \
 		  ../codecs/qutfcodec.cpp
+
+internal:LEXSOURCES  = moc.l
+internal:YACCSOURCES = moc.y
+!internal:SOURCES   += moc_yacc.cpp
 
 unix:SOURCES	+= ../tools/qfile_unix.cpp ../tools/qdir_unix.cpp ../tools/qfileinfo_unix.cpp
 win32:SOURCES	+= ../tools/qfile_win.cpp ../tools/qdir_win.cpp ../tools/qfileinfo_win.cpp
