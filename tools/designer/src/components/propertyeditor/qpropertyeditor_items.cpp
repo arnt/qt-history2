@@ -365,7 +365,6 @@ QWidget *IntProperty::createEditor(QWidget *parent, const QObject *target, const
 {
     QSpinBox *spinBox = new QSpinBox(parent);
     QObject::connect(spinBox, SIGNAL(valueChanged(int)), target, receiver);
-    spinBox->setFrame(false);
     spinBox->setSpecialValueText(m_specialValue);
     spinBox->setRange(m_low, m_hi);
     return spinBox;
