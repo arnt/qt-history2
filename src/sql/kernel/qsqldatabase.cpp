@@ -473,6 +473,14 @@ bool QSqlDatabase::contains(const QString& connectionName)
 }
 
 /*!
+    Returns a list containing the names of all connections
+ */
+QStringList QSqlDatabase::connectionNames()
+{
+    return QSqlDatabasePrivate::dbDict().keys();
+}
+
+/*!
     \overload
 
     Creates a QSqlDatabase connection that uses the driver referred to

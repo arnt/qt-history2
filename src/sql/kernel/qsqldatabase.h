@@ -111,6 +111,7 @@ public:
     static void removeDatabase(const QString& connectionName);
     static bool contains(const QString& connectionName = QLatin1String(defaultConnection));
     static QStringList drivers();
+    static QStringList connectionNames();
     static void registerSqlDriver(const QString& name, QSqlDriverCreatorBase* creator);
     static bool isDriverAvailable(const QString& name);
 
