@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#7 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#8 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -154,9 +154,9 @@ Item getItem( QTextStream &str, QString &s )
 	    s = str.readLine().stripWhiteSpace();
 	}
     }
-    qDebug( "getItem: %s -> %s U:%s S:%s",
-    	     i.msgid.ascii(), i.msgstr.ascii(),
-    	     i.usercomments.ascii(), i.systemcomments.ascii() );
+    //qDebug( "getItem: %s -> %s U:%s S:%s",
+    //	       i.msgid.ascii(), i.msgstr.ascii(),
+    //	       i.usercomments.ascii(), i.systemcomments.ascii() );
 
     return i;
 }
