@@ -119,9 +119,10 @@ QUrlInfo::QUrlInfo()
 }
 
 /*!
-  Creates a QUrlInfo object with information about the file \ a file
-  in the \a path. As a QUrlOperator stores all information about all
-  its childern, this information can be used by the QUrlInfo.
+  Creates a QUrlInfo object with information about the file \a file
+  in the \a path. This constructor tries to find the infos about
+  \a file, which should be stored in the QUrlOperator \a path.
+  If this is not the case, an empty QUrlInfo object is created.
 */
 
 QUrlInfo::QUrlInfo( const QUrlOperator &path, const QString &file )
@@ -235,7 +236,7 @@ void QUrlInfo::setPermissions( int p )
 }
 
 /*!
-  Sets the last mofification date of the URL to \a dt.
+  Sets the last modification date of the URL to \a dt.
 */
 
 void QUrlInfo::setLastModified( const QDateTime &dt )
@@ -253,7 +254,7 @@ QUrlInfo::~QUrlInfo()
 }
 
 /*!
-  Assings the values of \a ui to this QUrlInfo.
+  Assings the values of \a ui to this QUrlInfo object.
 */
 
 QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
@@ -353,7 +354,7 @@ bool QUrlInfo::isSymLink() const
 }
 
 /*!
-  Returns TRUE, if the URL is writeable, else FALSE.
+  Returns TRUE, if the URL is writable, else FALSE.
 */
 
 bool QUrlInfo::isWritable() const
@@ -382,7 +383,7 @@ bool QUrlInfo::isExecutable() const
 /*!
   Returns TRUE if \a u1 is greater than \a u2, else FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
-  to be one of  QDir::Name, QDir::Time and QDir::Size.
+  to be one of QDir::Name, QDir::Time and QDir::Size.
 */
 
 bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -410,7 +411,7 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 /*!
   Returns TRUE if \a u1 is less than \a u2, else FALSE. The objects
   are compared by the value, which is specified by \a sortBy. This has
-  to be one of  QDir::Name, QDir::Time and QDir::Size.
+  to be one of QDir::Name, QDir::Time and QDir::Size.
 */
 
 bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
