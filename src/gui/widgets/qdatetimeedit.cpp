@@ -528,12 +528,8 @@ QDateTimeEdit::Section QDateTimeEdit::currentSection() const
 void QDateTimeEdit::setCurrentSection(Section section)
 {
     const QDateTimeEditPrivate::Section s = (QDateTimeEditPrivate::Section)section;
-    switch (s) {
-    case QDateTimeEditPrivate::FirstSection: d->edit->setCursorPosition(0); break;
-    case QDateTimeEditPrivate::LastSection: d->edit->setCursorPosition(d->edit->text().size()); break;
-    case QDateTimeEditPrivate::NoSection: break;
-    default: d->edit->setCursorPosition(d->sectionNode((QDateTimeEditPrivate::Section)section).pos);
-    }
+    if (s != QDateTimeEditPrivate::NoSection)
+        d->edit->setCursorPosition(d->sectionNode((QDateTimeEditPrivate::Section)section).pos);
 }
 
 /*!
