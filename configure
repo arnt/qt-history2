@@ -2850,7 +2850,9 @@ else
 fi
 
 # enable opengl
-if [ "$CFG_OPENGL" = "yes" ]; then
+if [ "$CFG_OPENGL" = "no" ]; then
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_OPENGL"
+else
     QT_CONFIG="$QT_CONFIG opengl"
 fi
 
