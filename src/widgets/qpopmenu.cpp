@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#42 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#42 $";
 #endif
 
 
@@ -107,7 +107,7 @@ static const motifTabSpacing	= 12;		// space between text and tab
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
-	: QTableWidget( parent, name, WType_Popup )
+	: QTableWidget( 0, name, WType_Popup )
 {
     initMetaObject();
     isPopup = TRUE;
