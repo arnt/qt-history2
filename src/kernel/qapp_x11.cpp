@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#58 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#57 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#58 $";
 #endif
 
 
@@ -91,7 +91,7 @@ static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
 
-static bool	doModal( QWidget *, XEvent * );	// defined below
+static bool	qt_try_modal( QWidget *, XEvent * );
 
 void		qResetColorAvailFlag();		// defined in qcolor.cpp
 
@@ -676,7 +676,7 @@ int QApplication::enter_loop()			// local event loop
 		continue;
 
 	    if ( app_do_modal )			// modal event handling
-		if ( !doModal(widget, &event) )
+		if ( !qt_try_modal(widget, &event) )
 		    continue;
 
 	    switch ( event.type ) {
@@ -820,48 +820,22 @@ bool QApplication::x11EventFilter( XEvent * )	// X11 event filter
 //	    QWidget *widget	A modal widget
 //
 
-typedef declare(QListM,QWidgetList) QWLList;	// list of widget lists
-typedef declare(QListIteratorM,QWidgetList) QWLListIt;
+static QWidgetList *modal_stack = 0;		// stack of modal widgets
 
-static QWidgetList *app_modals = 0;		// list of app-modal widgets
-static QWLList     *modal_list = 0;		// list of modal lists
+
+bool qt_modal_state()				// application in modal state?
+{
+    return app_do_modal;
+}
 
 
 void qt_enter_modal( QWidget *widget )		// enter modal state
 {
-    QWidget *parent = widget->parentWidget();
-    if ( !parent ) {				// no parent: app modal
-	if ( !app_modals ) {			// create modal widget stack
-	    app_modals = new QWidgetList;
-	    CHECK_PTR( app_modals );
-	}
-	app_modals->insert( widget );
+    if ( !modal_stack ) {			// create modal stack
+	modal_stack = new QWidgetList;
+	CHECK_PTR( modal_stack );
     }
-    else {					// has parent: relative modal
-	if ( !modal_list ) {
-	    modal_list = new QWLList;
-	    CHECK_PTR( modal_list );
-	    modal_list->setAutoDelete( TRUE );
-	}
-	QWidgetList *wl = 0;
-	bool create_new_list = TRUE;
-	if ( parent->testFlag(WType_Modal) ) {	// has modal parent
-	    wl = modal_list->first();
-	    while ( wl ) {			// scan all lists
-		if ( wl->findRef(parent) >= 0 ) {
-		    create_new_list = FALSE;
-		    break;
-		}
-		wl = modal_list->next();
-	    }
-	}
-	if ( create_new_list ) {
-	    wl = new QWidgetList;
-	    CHECK_PTR( wl );
-	    modal_list->insert( wl );
-	}
-	wl->insert( widget );
-    }
+    modal_stack->insert( widget );
     app_do_modal = TRUE;
     qApp->enter_loop();
 }
@@ -869,49 +843,22 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 
 void qt_leave_modal( QWidget *widget )		// leave modal state
 {
-    bool found = FALSE;
-    if ( app_modals ) {				// widget in app-modal list?
-	if ( app_modals->findRef(widget) >= 0 ) {
-	    found = TRUE;
-	    app_modals->remove();
-	    if ( app_modals->isEmpty() ) {	// no more app-modal widgets
-		delete app_modals;
-		app_modals = 0;
-	    }
+    if ( modal_stack && modal_stack->findRef(widget) >= 0 ) {
+	modal_stack->remove();
+	if ( modal_stack->isEmpty() ) {
+	    delete modal_stack;
+	    modal_stack = 0;
 	}
-    }
-    if ( !found && modal_list ) {		// relatively modal?
-	QWLListIt    it( *modal_list );
-	QWidgetList *wl;
-	while ( (wl=it.current()) ) {		// scan all lists
-	    ++it;
-	    if ( wl->findRef(widget) >= 0 ) {
-		found = TRUE;
-		wl->remove();
-		if ( wl->isEmpty() ) {
-		    ASSERT( modal_list->findRef( wl ) >= 0 );
-		    modal_list->remove();
-		}
-		break;
-	    }
-	}
-	if ( modal_list->isEmpty() ) {
-	    delete modal_list;
-	    modal_list = 0;
-	}
-    }
-    debug( "qt_leave_modal %x %d", widget,found );
-    if ( found )
 	qApp->exit_loop();
-    app_do_modal = !(app_modals == 0 && modal_list == 0);
+    }
+    app_do_modal = modal_stack != 0;
 }
 
 
-static bool doModal( QWidget *widget, XEvent *event )
+static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
-    bool block_event  = FALSE;
-    bool expose_event = FALSE;
-
+    bool     block_event  = FALSE;
+    bool     expose_event = FALSE;;
     QWidget *modal = 0;
 
     switch ( event->type ) {
@@ -928,55 +875,28 @@ static bool doModal( QWidget *widget, XEvent *event )
 	    break;
     }
 
-    if ( !widget->testFlag(WType_Modal) ) {	// widget is not modal
-	while ( TRUE ) {			// find an overlapped parent
+    if ( widget->testFlag(WType_Modal) )	// widget is modal
+	modal = widget;
+    else {					// widget is not modal
+	while ( TRUE ) {			// find overlapped parent...
 	    if ( widget->testFlag(WType_Overlap) )
 		break;
 	    widget = widget->parentWidget();
 	    if ( !widget )
 		break;
 	}
-	if ( widget->testFlag(WType_Modal) )	// overlapped parent is modal
-	    modal = widget;
+	if ( widget && widget->testFlag(WType_Modal) )
+	    modal = widget;			// ...that is modal
     }
-    else					// widget is modal
-	modal = widget;
 
-    if ( app_modals ) {				// application-modal
-	if ( modal == app_modals->getFirst() )
-	    block_event = expose_event = FALSE;
-	if ( (block_event || expose_event) )	// force raise
-	    XRaiseWindow( appDpy, app_modals->getFirst()->id() );
-    }
-    else if ( block_event ) {			// relative-modal
-	bool found = FALSE;
-	ASSERT( modal_list );
-	QWLListIt    it( *modal_list );
-	QWidgetList *wl;
-	while ( (wl=it.current()) ) {
-	    ++it;
-	    if ( modal ) {
-		if ( modal == wl->getFirst() ) {
-		    found = TRUE;
-		    break;
-		}
-	    }
-	    else {
-		QWidget *m = wl->first();
-		ASSERT( m );
-		while ( m && !found ) {
-		    if ( m->parentWidget() == widget )
-			found = TRUE;
-		    else
-			m = wl->next();
-		}
-	    }
-	    if ( found )
-		break;
-	}
-	if ( !found )
-	    block_event = FALSE;
-    }
+    ASSERT( modal_stack && modal_stack->getFirst() );
+    QWidget *top = modal_stack->getFirst();
+
+    if ( modal == top )				// don't block event
+	return TRUE;
+
+    if ( top->parentWidget() == 0 && (block_event || expose_event) )
+	XRaiseWindow( appDpy, top->id() );	// raise app-modal widget
 
     return !block_event;
 }
