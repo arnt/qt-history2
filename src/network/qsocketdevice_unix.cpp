@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#48 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#49 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -514,7 +514,7 @@ int QSocketDevice::bytesAvailable() const
 	return -1;
     // gives shorter than true amounts on Unix domain sockets.
     int nbytes = 0;
-    if ( ::ioctl(fd, QT_NREAD, (char*)&nbytes) < 0 )
+    if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
 	return -1;
     return nbytes;
 }

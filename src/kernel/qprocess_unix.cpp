@@ -301,14 +301,14 @@ void QProcessManager::sigchldHnd( int fd )
 #endif
 		// read pending data
 		int nbytes = 0;
-		if ( ::ioctl(proc->socketStdout, QT_NREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+		if ( ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStdout );
 		}
 		nbytes = 0;
-		if ( ::ioctl(proc->socketStderr, QT_NREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+		if ( ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
 #endif

@@ -2,17 +2,25 @@
 #define QPLATFORMDEFS_H
 
 // Get Qt defines/settings
+
 #include "qglobal.h"
 
+// Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
+
+// make <sys/ioctl.h> include <sys/filio.h> to #define FIONREAD
+#ifndef BSD_COMP
+#  define BSD_COMP
+#endif                                                                          
 
 #include <unistd.h>
 #include <sys/types.h>
-// We are hot - unistd.h should have turned on all the specific
-// APIs we requested
+
+
+// We are hot - unistd.h should have turned on the specific APIs we requested
 
 
 #ifdef QT_THREAD_SUPPORT
-#  include <pthread.h>
+#include <pthread.h>
 #endif
 
 
@@ -79,8 +87,6 @@
 #else
 #  define QT_SOCKLEN_T size_t
 #endif
-
-#define QT_NREAD	I_NREAD
 
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }

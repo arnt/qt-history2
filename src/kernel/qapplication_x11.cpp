@@ -3023,7 +3023,7 @@ void QApplication::wakeUpGuiThread()
 #  if defined(Q_OS_UNIX)
     char c = 0;
     int nbytes;
-    if ( ::ioctl(qt_thread_pipe[0], QT_NREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+    if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
 #  endif

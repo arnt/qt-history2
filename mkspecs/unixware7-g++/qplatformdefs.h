@@ -15,9 +15,10 @@
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
 
+
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
-#endif // QT_THREAD_SUPPORT
+#endif
 
 
 #include <ctype.h>
@@ -79,8 +80,6 @@
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 #define QT_SOCKLEN_T	size_t
-
-#define QT_NREAD	FIONREAD
 
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }

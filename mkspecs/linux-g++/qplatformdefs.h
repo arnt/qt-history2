@@ -5,16 +5,13 @@
 
 #include "qglobal.h"
 
-
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
-#ifdef QT_THREAD_SUPPORT
-// POSIX thread interfaces must be explictly specified in glibc 2.0
-#define _GNU_SOURCE
-#endif // QT_THREAD_SUPPORT
-
-// some systems need this to include the XOPEN stuff
-#define _GNU_SOURCE
+// specify POSIX thread interfaces explictly in glibc 2.0
+// some systems need this to include the X/Open stuff
+#ifndef _GNU_SOURCE
+#  define _GNU_SOURCE
+#endif
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -22,9 +19,10 @@
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
 
+
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
-#endif // QT_THREAD_SUPPORT
+#endif
 
 
 #include <ctype.h>
@@ -83,8 +81,6 @@
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 #define QT_SOCKLEN_T	socklen_t
-
-#define QT_NREAD	FIONREAD
 
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }

@@ -2,21 +2,20 @@
 #define QPLATFORMDEFS_H
 
 // Get Qt defines/settings
+
 #include "qglobal.h"
 
-
-// Set any POSIX/XOPEN defines at the top of this file to turn on
-// specific APIs
+// Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 #include <unistd.h>
 
 
-// We are hot - unistd.h should have turned on all the specific
-// APIs we requested
+// We are hot - unistd.h should have turned on the specific APIs we requested
+
 
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
-#endif // QT_THREAD_SUPPORT
+#endif
 
 
 #include <ctype.h>
@@ -61,7 +60,6 @@
 #define QT_SIGNAL_IGNORE	(void (*)())1
 
 #define QT_SOCKLEN_T	int
-#define QT_NREAD	FIONREAD
 
 
 #endif // QPLATFORMDEFS_H

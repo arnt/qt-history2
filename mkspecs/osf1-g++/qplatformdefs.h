@@ -2,17 +2,20 @@
 #define QPLATFORMDEFS_H
 
 // Get Qt defines/settings
+
 #include "qglobal.h"
 
+// Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 #include <unistd.h>
 #include <sys/types.h>
-// We are hot - unistd.h should have turned on all the specific
-// APIs we requested
+
+
+// We are hot - unistd.h should have turned on all the specific APIs we requested
 
 
 #ifdef QT_THREAD_SUPPORT
-#  include <pthread.h>
+#include <pthread.h>
 #endif
 
 
@@ -84,8 +87,6 @@ extern "C" int usleep(useconds_t);
 #else
 #  define QT_SOCKLEN_T int
 #endif
-
-#define QT_NREAD	I_NREAD
 
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }

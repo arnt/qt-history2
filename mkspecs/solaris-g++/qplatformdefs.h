@@ -2,26 +2,26 @@
 #define QPLATFORMDEFS_H
 
 // Get Qt defines/settings
-#include "qglobal.h"
 
+#include "qglobal.h"
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 // make <sys/ioctl.h> include <sys/filio.h> to #define FIONREAD
 #ifndef BSD_COMP
-#define BSD_COMP
+#  define BSD_COMP
 #endif                                                                          
-
 
 #include <unistd.h>
 #include <sys/types.h>
-// We are hot - unistd.h should have turned on all the specific
-// APIs we requested
+
+
+// We are hot - unistd.h should have turned on the specific APIs we requested
 
 
 #ifdef QT_THREAD_SUPPORT
 #include <thread.h>
-#endif // QT_THREAD_SUPPORT
+#endif
 
 
 #include <ctype.h>
@@ -102,8 +102,6 @@ extern "C" int usleep(useconds_t);
 // Solaris 2.5.1.
 #define QT_SOCKLEN_T int
 #endif
-
-#define QT_NREAD FIONREAD
 
 inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }
