@@ -77,6 +77,9 @@ struct BidiControl {
     inline QChar::Direction basicDirection() {
 	return (ctx[0].level ? QChar::DirR : QChar:: DirL );
     }
+    inline uchar baseLevel() {
+	return ctx[0].level;
+    }
     inline QChar::Direction direction() {
 	return (ctx[cCtx].level ? QChar::DirR : QChar:: DirL );
     }
@@ -160,23 +163,22 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     for ( int i = start+1; i <= stop; i++ ) {
 
 	QFont::Script s = (QFont::Script)scriptForChar( text[i].unicode() );
-	if ( s != script && ::category( text[i].unicode() ) != QChar::Mark_NonSpacing ) {
-	    QScriptItem item;
+	unsigned short uc = text[i].unicode();
+	if (uc == '\t' || uc == 0xfffcU ) {
+	    s = QFont::NoScript;
+	    item.position = i;
+	    item.analysis.script = QFont::Latin;
+	    item.analysis.bidiLevel = uc == '\t' ? control.baseLevel() : level;
+	    items.append( item );
+
+	    script = s;
+	    start = i+1;
+	} else if ( s != script && ::category( uc ) != QChar::Mark_NonSpacing ) {
 	    item.position = i;
 	    item.analysis.script = s;
 	    item.analysis.bidiLevel = level;
-	    item.analysis.override = control.override();
-	    item.analysis.reserved = 0;
-	    item.x = 0;
-	    item.y = 0;
-	    item.baselineAdjustment = 0;
-	    item.width = -1;
-	    item.ascent = -1;
-	    item.descent = -1;
-	    item.shaped = 0;
-	    item.fontEngine = 0;
-
 	    items.append( item );
+
 	    script = s;
 	    start = i+1;
 	}
