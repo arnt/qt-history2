@@ -122,7 +122,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qxml.h \
 		  $$KERNEL_H/qurlinfo.h \
 		  $$KERNEL_H/qurl.h \
-		  $$KERNEL_H/qnetprotocol.h \
+		  $$KERNEL_H/qnetworkprotocol.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
@@ -353,7 +353,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qxml.cpp \
 		  kernel/qurl.cpp \
 		  kernel/qurlinfo.cpp \
-		  kernel/qnetprotocol.cpp \
+		  kernel/qnetworkprotocol.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcdestyle.cpp \
