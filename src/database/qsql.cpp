@@ -157,6 +157,8 @@ bool QSql::setQuery ( const QString& query )
     d->sqlResult->setQuery( query.stripWhiteSpace() );
     if ( !driver()->isOpen() || driver()->isOpenError() )
 	return FALSE;
+    if ( query.isNull() || query.length() == 0 )
+	return FALSE;
     return d->sqlResult->reset( query );
 }
 
