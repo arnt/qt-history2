@@ -2246,6 +2246,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    in_mkfile="${mkfile}.unix"
 	fi
 	in_mkfile="$relpath/qmake/$in_mkfile"
+	[ -f "$in_mkfile" ] || continue
 	mkfile="$outpath/qmake/$mkfile"
 
 	[ "$Edition" = "troll" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $mkfile
