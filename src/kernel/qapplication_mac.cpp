@@ -152,66 +152,12 @@ QCString p2qstring(const unsigned char *); //qglobal.cpp
 static bool qt_closed_popup = FALSE;
 static EventRef qt_replay_event = NULL;
 
-//Input Method stuff
-class QMacInputMethod {
-    bool composing;
-    QWidget *widget;
-    TSMDocumentID id;
-public:
-    QMacInputMethod() : composing(FALSE), widget(NULL), id(0) { }
-    ~QMacInputMethod() { endCompose(); }
-
-    QWidget *getWidget() const { return composing ? widget : NULL; }
-    void endCompose(bool fix=TRUE);
-    void startCompose(QWidget *);
-};
-void QMacInputMethod::endCompose(bool fix)
-{
-    if(!composing)
-	return;
-    if(widget && fix) {
-	FixTSMDocument(id); //finish what they were doing
-	QIMEvent event(QEvent::IMEnd, QString::null, -1);
-	QApplication::sendSpontaneousEvent(widget, &event);
-    }
-    widget = NULL;
-
-    if(id) {
-	DeleteTSMDocument(id);
-	DeactivateTSMDocument(id);
-	id = 0;
-    }
-}
-void QMacInputMethod::startCompose(QWidget *w)
-{
-    if(composing && w == widget)
-	return;
-    endCompose();
-    composing = TRUE;
-    widget = w;
-    OSType doc = kTextService;
-    OSErr err = NewTSMDocument(1, &doc, &id, (long int)w);
-    if(err != noErr) {
-	qDebug("%s:%d %d", __FILE__, __LINE__, err);
-    } else {
-	UseInputWindow(id, true); //inline
-	err = ActivateTSMDocument(id);
-	if(err != noErr)
-	    qDebug("%s:%d %d", __FILE__, __LINE__, err);
-	else
-	    qDebug("all systems go..");
-    }
-}
-static QMacInputMethod qt_app_im;
-
 void qt_mac_destroy_widget(QWidget *w)
 {
     if(qt_button_down == w)
 	qt_button_down = NULL;
     if(qt_mouseover == w)
 	qt_mouseover = NULL;
-    if(w == qt_app_im.getWidget())
-	qt_app_im.endCompose(FALSE);
 }
 
 static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
@@ -1973,34 +1919,33 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     }
     case kEventClassTextInput:
-	if(!(widget=focus_widget))
-	    return 1; //no use to me!
-	if(ekind == kEventTextInputUnicodeForKeyEvent) {
+	if(!(widget=focus_widget)) { //no use to me!
+	    handled_event = FALSE;
+	} else if(ekind == kEventTextInputUnicodeForKeyEvent) {
 	    bool send_back_event = FALSE;
 	    EventRef key_ev;
 	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
-	    UInt32 keyc;
-	    GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
-	    if(!keyc) {
-		send_back_event = TRUE;
-	    } else {
+	    char keyc;
+	    GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(keyc), NULL, &keyc);
+	    if(keyc == -126) {
 		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
 		QApplication::sendSpontaneousEvent(widget, &imstart);
 		if(!imstart.isAccepted()) //doesn't want the event
 		    send_back_event = TRUE;
-		UniChar unicode;
-		GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL,
-				  sizeof(unicode), NULL, &unicode);
-		QString text = QChar(unicode);
+
+		UInt32 unilen;
+		GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
+				  NULL, 0, &unilen, NULL);
+		UniChar *unicode = (UniChar*)NewPtr(unilen);
+		GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
+				  NULL, unilen, NULL, unicode);
+		QString text((QChar*)unicode, unilen / 2);
+		DisposePtr((char*)unicode);
 		QIMEvent imend(QEvent::IMEnd, text, 1);
 		QApplication::sendSpontaneousEvent(widget, &imend);
-	    }
-	    if(send_back_event) {
-		qDebug("sent back %d", keyc);
-		return globalEventProcessor(er, key_ev, data);
 	    } else {
-		qDebug("kept %d", keyc);
+		handled_event = FALSE;
 	    }
 	} else if(ekind == kEventTextInputUpdateActiveInputArea) {
 	    qDebug("2");
@@ -2010,6 +1955,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
 
     case kEventClassKeyboard: {
+	if(!CallNextEventHandler(er, event)) {
+	    handled_event = TRUE;
+	    break;
+	}
+
 	UInt32 modif;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
@@ -2068,22 +2018,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 	    if(key_event) {
-		if((modifiers & Qt::ControlButton) && mychar == Key_Space) { //eat it
-		    if(etype == QEvent::KeyPress) {
-			QIMEvent event(QEvent::IMStart, QString::null, -1);
-			QApplication::sendSpontaneousEvent(widget, &event);
-			if(event.isAccepted())
-			    qt_app_im.startCompose(widget);
-		    }
-		} else {
-		    if(modifiers & (Qt::ControlButton | Qt::AltButton)) {
-			mystr = QString();
-			chr = 0;
-		    } 
-		    QKeyEvent ke(etype,mychar, chr, modifiers,
-				 mystr, ekind == kEventRawKeyRepeat, mystr.length());
-		    QApplication::sendSpontaneousEvent(widget,&ke);
-		}
+		if(modifiers & (Qt::ControlButton | Qt::AltButton)) {
+		    mystr = QString();
+		    chr = 0;
+		} 
+		QKeyEvent ke(etype,mychar, chr, modifiers,
+			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
+		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	} else {
 	    handled_event = FALSE;
