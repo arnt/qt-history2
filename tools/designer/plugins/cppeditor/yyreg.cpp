@@ -208,7 +208,7 @@ static int getToken()
 	    case HASH( 's', 6 ):
 		CHECK( "signed" );
 		return Tok_signed;
-	    case 'u':
+	    case HASH( 'u', 8 ):
 		CHECK( "unsigned" );
 		return Tok_unsigned;
 	    }
@@ -474,6 +474,12 @@ static void prependToType( QString *type, const QString& prefix )
     type->prepend( prefix );
 }
 
+static bool isModifier( int tok )
+{
+    return ( tok == Tok_signed || tok == Tok_unsigned ||
+	     tok == Tok_short || tok == Tok_long );
+}
+
 /*
   Parses a data type (backwards as usual) and returns a textual
   representation of it.
@@ -493,7 +499,7 @@ static QString matchDataType()
       Alpha::Beta::Gamma::...::Omega.
     */
     for ( ;; ) {
-	bool virgin = TRUE;
+	bool modifierMet = FALSE;
 
 	prependToType( &type, matchTemplateAngles() );
 
@@ -502,13 +508,11 @@ static QString matchDataType()
 	      People may write 'const unsigned short' or
 	      'short unsigned const' or any other permutation.
 	    */
-	    while ( yyTok == Tok_const || yyTok == Tok_signed ||
-		    yyTok == Tok_unsigned || yyTok == Tok_short ||
-		    yyTok == Tok_long ) {
+	    while ( yyTok == Tok_const || isModifier(yyTok) ) {
 		prependToType( &type, yyLex );
 		yyTok = getToken();
 		if ( yyTok != Tok_const )
-		    virgin = FALSE;
+		    modifierMet = TRUE;
 	    }
 
 	    if ( yyTok == Tok_Tilde ) {
@@ -517,7 +521,7 @@ static QString matchDataType()
 	    }
 	}
 
-	if ( virgin ) {
+	if ( !modifierMet ) {
 	    if ( yyTok == Tok_Ellipsis || yyTok == Tok_Ident ||
 		 yyTok == Tok_char || yyTok == Tok_int ||
 		 yyTok == Tok_double ) {
@@ -532,7 +536,7 @@ static QString matchDataType()
 	    yyTok = getToken();
 	}
 
-	while ( yyTok == Tok_const ) {
+	while ( yyTok == Tok_const || isModifier(yyTok) ) {
 	    prependToType( &type, yyLex );
 	    yyTok = getToken();
 	}
