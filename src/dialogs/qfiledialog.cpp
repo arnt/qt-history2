@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#317 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#318 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1275,29 +1275,26 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    return d->special;
 	}
     case 3: {
-	QDateTime epoch;
- 	epoch.setTime_t( 0 );
 	char a[256];
-	struct tm * t2 = new tm;
+	struct tm t2;
 	QDate d = info.lastModified().date();
 	QTime t = info.lastModified().time();
-	t2->tm_sec = t.second();
-	t2->tm_min = t.minute();
-	t2->tm_hour = t.hour();
-	t2->tm_mday = d.day();
-	t2->tm_mon = d.month() - 1;
-	t2->tm_year = d.year();
-	t2->tm_wday = d.dayOfWeek();
-	t2->tm_yday = d.dayOfYear();
-	t2->tm_isdst = -1;
+	t2.tm_sec = t.second();
+	t2.tm_min = t.minute();
+	t2.tm_hour = t.hour();
+	t2.tm_mday = d.day();
+	t2.tm_mon = d.month() - 1;
+	t2.tm_year = d.year();
+	t2.tm_wday = d.dayOfWeek();
+	t2.tm_yday = d.dayOfYear();
+	t2.tm_isdst = -1;
 	// use a static const char here, so that egcs will not see
 	// the formatting string and give an incorrect warning.
 	QString res;
-	if ( strftime( a, 255, egcsWorkaround, t2 ) > 0 )
+	if ( strftime( a, 255, egcsWorkaround, &t2 ) > 0 )
 	    res = QString::fromLatin1(a);
 	else
-	    QString::fromLatin1("????");
-	delete t2;
+	    res = QString::fromLatin1("????");
 	return res;
     }
     case 4:
