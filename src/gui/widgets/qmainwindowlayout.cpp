@@ -168,9 +168,10 @@ QWidget *QMainWindowLayout::centralWidget() const
 void QMainWindowLayout::setCentralWidget(QWidget *cw)
 {
     addChildWidget(cw);
-    Q_ASSERT(!layout_info[CENTER].item);
+    delete layout_info[CENTER].item;
     layout_info[CENTER].item = new QWidgetItem(cw);
     layout_info[CENTER].size = QSize();
+    invalidate();
 }
 
 QDockWindowLayout *QMainWindowLayout::layoutForArea(Qt::DockWindowArea area)
@@ -208,7 +209,7 @@ void QMainWindowLayout::add(QToolBar *toolbar, Qt::ToolBarArea area, bool linebr
 
 void QMainWindowLayout::add(QToolBar *toolbar, int where, bool linebreak, const QPoint &offset)
 {
-    Q_ASSERT(toolbar->parentWidget() == parentWidget());
+    addChildWidget(toolbar);
 
     removeToolBarInfo(toolbar);
 

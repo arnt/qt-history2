@@ -193,13 +193,7 @@ QWidget *QMainWindow::centralWidget() const
     \sa centralWidget()
 */
 void QMainWindow::setCentralWidget(QWidget *widget)
-{
-    Q_ASSERT_X(widget != 0,
-	       "QMainWindow::setCentralWidget()", "parameter cannot be zero");
-    Q_ASSERT_X(!d->layout->centralWidget(),
-	       "QMainWindow::setCentralWidget()", "central widget already set");
-    d->layout->setCentralWidget(widget);
-}
+{ d->layout->setCentralWidget(widget); }
 
 /*!
     Sets the given dock window \a area to occupy the specified \a
