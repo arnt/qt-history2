@@ -41,9 +41,71 @@
 #define QT_DEBUG_COMPONENT 1
 
 #ifndef QT_H
-#include "qstring.h" // char*->QString conversion
+#include "qobject.h"
 #include "qtimer.h"
+#include "qwindowdefs.h"
 #endif // QT_H
+
+class QLibrary::QLibraryPrivate : public QObject
+{
+    Q_OBJECT
+
+public:
+    QLibraryPrivate( QLibrary *lib )
+	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), library( lib ), unloadTimer( 0 )
+    {}
+
+    void startTimer()
+    {
+	unloadTimer = new QTimer( this );
+	connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
+	unloadTimer->start( 5000, FALSE );
+    }
+
+    void killTimer()
+    {
+	delete unloadTimer;
+	unloadTimer = 0;
+    }
+
+#ifdef Q_WS_WIN
+    HINSTANCE pHnd;
+#else
+    void *pHnd;
+#endif
+
+public slots:
+    void tryUnload() 
+    {
+	if ( library->policy() == Manual )
+	    return;
+
+	QLibraryInterface *lIface = (QLibraryInterface*)library->queryInterface( IID_QLibraryInterface );
+	if ( !lIface )
+	    return;
+
+	if ( !lIface->canUnload() ) {
+	    lIface->release();
+	    return;
+	}
+
+	lIface->release();
+
+    #if QT_DEBUG_COMPONENT == 1
+	if ( library->unload() )
+	    qDebug( "%s has been automatically unloaded", library->library().latin1() );
+    #else
+	library()->unload();
+    #endif
+    }
+
+private:
+
+    QLibrary *library;
+    QTimer *unloadTimer;
+};
+
+#include "qlibrary.moc"
 
 #ifdef Q_OS_WIN32
 // Windows
@@ -320,8 +382,9 @@ static void* qt_resolve_symbol( void* handle, const char* f )
   \sa setPolicy(), load()
 */
 QLibrary::QLibrary( const QString& filename, Policy pol )
-    : QObject( 0, filename.latin1() ), pHnd( 0 ), libfile( filename ), libPol( pol ), entry( 0 ), unloadTimer( 0 )
+    : libfile( filename ), libPol( pol ), entry( 0 )
 {
+    d = new QLibraryPrivate( this );
     if ( pol == Immediately )
 	load();
 }
@@ -334,13 +397,11 @@ QLibrary::QLibrary( const QString& filename, Policy pol )
 */
 QLibrary::~QLibrary()
 {
-    if ( libPol == Manual )
-	return;
-
-    if (!unload() ) {
+    if ( libPol == Manual && !unload() ) {
 	entry->release();
 	entry = 0;
     }
+    delete d;
 }
 
 /*!
@@ -362,16 +423,16 @@ QUnknownInterface* QLibrary::load()
     if ( libfile.isEmpty() )
 	return 0;
 
-    if ( !pHnd )
-	pHnd = qt_load_library( libfile );
+    if ( !d->pHnd )
+	d->pHnd = qt_load_library( libfile );
 
-    if ( pHnd && !entry ) {
+    if ( d->pHnd && !entry ) {
 #if QT_DEBUG_COMPONENT == 2
 	qDebug( "%s has been loaded.", libfile.latin1() );
 #endif
 	typedef QUnknownInterface* (*QtLoadInfoProc)();
 	QtLoadInfoProc infoProc;
-	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
+	infoProc = (QtLoadInfoProc) qt_resolve_symbol( d->pHnd, "qt_load_interface" );
 #if QT_DEBUG_COMPONENT == 2
 	if ( !infoProc )
 	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
@@ -392,12 +453,9 @@ QUnknownInterface* QLibrary::load()
 		    return 0;
 		}
 
-		delete unloadTimer;
-		if ( libPol != Manual ) {
-		    unloadTimer = new QTimer( this );
-		    connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
-		    unloadTimer->start( 5000, FALSE );
-		}
+		d->killTimer();
+		if ( libPol != Manual )
+		    d->startTimer();
 	    }
 	}
 #if QT_DEBUG_COMPONTENT == 2
@@ -444,7 +502,7 @@ bool QLibrary::isLoaded() const
 */
 bool QLibrary::unload( bool force )
 {
-    if ( !pHnd || !entry )
+    if ( !d->pHnd || !entry )
 	return TRUE;
 
     QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
@@ -473,12 +531,11 @@ bool QLibrary::unload( bool force )
 	    return FALSE;
 	}
     }
-    delete unloadTimer;
-    unloadTimer = 0;
+    d->killTimer();
 
     entry = 0;
 
-    if ( !qt_free_library( pHnd ) )
+    if ( !qt_free_library( d->pHnd ) )
     {
 #if QT_DEBUG_COMPONENT == 2
 
@@ -491,7 +548,7 @@ bool QLibrary::unload( bool force )
     qDebug( "%s has been unloaded.", libfile.latin1() );
 #endif
 
-    pHnd = 0;
+    d->pHnd = 0;
     return TRUE;
 }
 
@@ -551,32 +608,6 @@ QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
 	iface = entry->queryInterface( request );
 
     return iface;
-}
-
-/*!
-  \internal
-*/
-void QLibrary::tryUnload()
-{
-    if ( !entry || libPol == Manual )
-	return;
-    QLibraryInterface *lIface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
-    if ( !lIface )
-	return;
-
-    if ( !lIface->canUnload() ) {
-	lIface->release();
-	return;
-    }
-
-    lIface->release();
-
-#if QT_DEBUG_COMPONENT == 1
-    if ( unload() )
-	qDebug( "%s has been automatically unloaded", libfile.latin1() );
-#else
-    unload();
-#endif
 }
 
 #endif // QT_NO_COMPONENT

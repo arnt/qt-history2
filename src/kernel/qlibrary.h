@@ -39,8 +39,7 @@
 #define QLIBRARY_H
 
 #ifndef QT_H
-#include "qwindowdefs.h"
-#include "qobject.h"
+#include "qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPONENT
@@ -48,10 +47,8 @@
 struct QUnknownInterface;
 struct QUuid;
 
-class Q_EXPORT QLibrary : public QObject
+class Q_EXPORT QLibrary
 {
-    Q_OBJECT
-
 public:
     enum Policy
     {
@@ -75,18 +72,12 @@ public:
     QUnknownInterface *queryInterface( const QUuid& );
 
 private:
-#ifdef Q_WS_WIN
-    HINSTANCE pHnd;
-#else
-    void *pHnd;
-#endif
+    class QLibraryPrivate;
+    QLibraryPrivate *d;
+
     QString libfile;
     Policy libPol;
     QUnknownInterface *entry;
-    QTimer *unloadTimer;
-
-private slots:
-    void tryUnload();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
