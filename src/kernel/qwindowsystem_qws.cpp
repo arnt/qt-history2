@@ -1355,6 +1355,7 @@ void QWSServer::paintBackground( QRegion r )
 	gfx->setClipRegion( r );
 	QRect br( r.boundingRect() );
 	if ( bgImage.isNull() ) {
+	    /*
 	    uint col = 0x20b050;
 	    if (qt_screen->depth() == 16) {
 		//### manual color allocation
@@ -1368,8 +1369,11 @@ void QWSServer::paintBackground( QRegion r )
 		g=g << 5;
 		col = r | g | b;
 	    }
-	    gfx->setPen(QPen::NoPen);
 	    gfx->setBrush(QBrush(QColor(col, col)));
+	    */
+	    QColor col(0x20, 0xb0, 0x50);
+	    gfx->setBrush(QBrush(col));
+	    gfx->setPen(QPen::NoPen);
 	    gfx->drawRect( br.x(), br.y(), br.width(), br.height() );
 	} else {
 	    gfx->setSource( &bgImage );
