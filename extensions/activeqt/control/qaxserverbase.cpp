@@ -100,6 +100,7 @@ class QAxServerBase :
     public IOleInPlaceActiveObject,
     public IProvideClassInfo2,
     public IConnectionPointContainer,
+    public IPersistStreamInit,
     public IPersistStorage,
     public IPersistPropertyBag
 {
@@ -240,14 +241,19 @@ public:
 	return S_OK;
     }
 
-// IPersistPropertyBag
+// IPersistStreamInit
     STDMETHOD(InitNew)(VOID);
+    STDMETHOD(IsDirty)();
+    STDMETHOD(Load)(IStream *pStm);
+    STDMETHOD(Save)(IStream *pStm, BOOL fClearDirty);
+    STDMETHOD(GetSizeMax)(ULARGE_INTEGER *pcbSize);
+
+// IPersistPropertyBag
     STDMETHOD(Load)(IPropertyBag *, IErrorLog *);
     STDMETHOD(Save)(IPropertyBag *, BOOL, BOOL);
 
 // IPersistStorage
     STDMETHOD(InitNew)(IStorage *pStg );
-    STDMETHOD(IsDirty)(VOID);
     STDMETHOD(Load)(IStorage *pStg );
     STDMETHOD(Save)(IStorage *pStg, BOOL fSameAsLoad );
     STDMETHOD(SaveCompleted)( IStorage *pStgNew );
@@ -883,6 +889,8 @@ HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
 	    *iface = (IProvideClassInfo*)this;
 	else if ( iid == IID_IProvideClassInfo2)
 	    *iface = (IProvideClassInfo2*)this;
+	else if ( iid == IID_IPersistStreamInit )
+	    *iface = (IPersistStreamInit*)this;
 	else if ( iid == IID_IPersistStorage )
 	    *iface = (IPersistStorage*)this;
 	else if ( iid == IID_IPersistPropertyBag)
@@ -2085,6 +2093,162 @@ HRESULT WINAPI QAxServerBase::FindConnectionPoint( REFIID iid, IConnectionPoint 
     return CONNECT_E_NOCONNECTION;
 }
 
+//**** IPersistStream
+/*
+    \reimp
+
+    See documentation of IPersistStorage::IsDirty.
+*/
+HRESULT WINAPI QAxServerBase::IsDirty()
+{
+    return dirtyflag ? S_OK : S_FALSE;
+}
+
+HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
+{
+    STATSTG stat;
+    HRESULT hres = pStm->Stat( &stat, STATFLAG_NONAME );
+    QByteArray qtarray;
+    if ( hres != S_OK ) {
+    } else {
+	ULONG read;
+	if ( stat.cbSize.HighPart )
+	    return S_FALSE;
+	qtarray.resize( stat.cbSize.LowPart );
+	pStm->Read( qtarray.data(), stat.cbSize.LowPart, &read );
+    }
+
+    readMetaData();
+
+    QBuffer qtbuffer( qtarray );
+    qtbuffer.open( IO_ReadOnly | IO_Translate );
+    QDataStream qtstream( &qtbuffer );
+    while ( !qtbuffer.atEnd() ) {
+	QCString property;
+	QVariant value;
+	qtstream >> property;
+	qtstream >> value;
+
+	qt.object->setProperty( property, value );
+    }
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::Save( IStream *pStm, BOOL clearDirty )
+{
+    QBuffer qtbuffer;
+    qtbuffer.open( IO_WriteOnly | IO_Translate );
+    QDataStream qtstream( &qtbuffer );
+    
+    readMetaData();
+
+    const QMetaObject *mo = qt.object->metaObject();
+
+    for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
+	if ( !proplist2->contains( prop ) )
+	    continue;
+	QCString property = mo->property( prop, TRUE )->name();
+	QVariant qvar = qt.object->property( property );
+	if ( qvar.isValid() ) {
+	    qtstream << property;
+	    qtstream << qvar;
+	}
+    }
+
+    qtbuffer.close();
+    QByteArray qtarray = qtbuffer.buffer();
+    ULONG written = 0;
+    char *data = qtarray.data();
+    ULARGE_INTEGER newsize;
+    newsize.HighPart = 0;
+    newsize.LowPart = qtarray.size();
+    pStm->SetSize( newsize );
+    pStm->Write( data, qtarray.size(), &written );
+    pStm->Commit( STGC_ONLYIFCURRENT );
+    
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::GetSizeMax( ULARGE_INTEGER *pcbSize )
+{
+    readMetaData();
+
+    const QMetaObject *mo = qt.object->metaObject();
+
+    int np = mo->numProperties( TRUE );
+    pcbSize->HighPart = 0;
+    pcbSize->LowPart = np * 50;
+
+    return S_OK;
+}
+
+//**** IPersistStorage
+
+HRESULT WINAPI QAxServerBase::InitNew(IStorage *pStg )
+{
+    if ( initNewCalled )
+	return CO_E_ALREADYINITIALIZED;
+
+    dirtyflag = FALSE;
+    initNewCalled = TRUE;
+
+    m_spStorage = pStg;
+    if ( m_spStorage )
+	m_spStorage->AddRef();
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::Load(IStorage *pStg )
+{
+    if ( InitNew( pStg ) != S_OK )
+	return CO_E_ALREADYINITIALIZED;
+
+    IStream *spStream = 0;
+    HRESULT hres = pStg->OpenStream( L"SomeStreamName", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream );
+    if ( !spStream )
+	return E_FAIL;
+
+    Load( spStream );
+
+    spStream->Release();
+
+    updateGeometry();
+
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::Save(IStorage *pStg, BOOL fSameAsLoad )
+{
+    IStream *spStream = 0;
+    HRESULT hres = pStg->CreateStream( L"SomeStreamName", STGM_CREATE | STGM_WRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &spStream );
+    if ( !spStream )
+	return E_FAIL;
+
+    Save( spStream, TRUE );
+
+    spStream->Release();
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::SaveCompleted( IStorage *pStgNew )
+{
+    if ( pStgNew ) {
+	if ( m_spStorage )
+	    m_spStorage->Release();
+	m_spStorage = pStgNew;
+	m_spStorage->AddRef();
+    }
+    return S_OK;
+}
+
+HRESULT WINAPI QAxServerBase::HandsOffStorage()
+{
+    if ( m_spStorage ) m_spStorage->Release();
+    m_spStorage = 0;
+
+    return S_OK;
+}
+
 //**** IPersistPropertyBag
 /*
     Initialize the properties of the Qt widget.
@@ -2096,10 +2260,6 @@ HRESULT WINAPI QAxServerBase::InitNew()
 
     dirtyflag = FALSE;
     initNewCalled = TRUE;
-    const QMetaObject *mo = qt.object->metaObject();
-    for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
-	// set property to default value...
-    }
     return S_OK;
 }
 
@@ -2108,15 +2268,15 @@ HRESULT WINAPI QAxServerBase::InitNew()
 */
 HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 {
-    if ( initNewCalled )
-	return E_UNEXPECTED;
     if ( !bag )
 	return E_POINTER;
+
+    if ( InitNew() != S_OK )
+	return E_UNEXPECTED;
 
     if ( !proplist2 )
 	readMetaData();
 
-    dirtyflag = FALSE;
     bool error = FALSE;
     const QMetaObject *mo = qt.object->metaObject();
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
@@ -2143,7 +2303,7 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 /*
     Save the properties of the Qt widget into the \a bag.
 */
-HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL /*saveAll*/ )
+HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL /*saveAll*/ )
 {
     if ( !bag )
 	return E_POINTER;
@@ -2151,7 +2311,8 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL
     if ( !proplist2 )
 	readMetaData();
 
-    dirtyflag = FALSE;
+    if ( clearDirty )
+	dirtyflag = FALSE;
     bool error = FALSE;
     const QMetaObject *mo = qt.object->metaObject();
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
@@ -2169,137 +2330,6 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL
     }
     return /*error ? E_FAIL :*/ S_OK;
 }
-
-//**** IPersistStorage
-/*
-    \reimp
-
-    See documentation of IPersistStorage::IsDirty.
-*/
-HRESULT WINAPI QAxServerBase::IsDirty()
-{
-    return dirtyflag ? S_OK : S_FALSE;
-}
-
-HRESULT WINAPI QAxServerBase::InitNew(IStorage *pStg )
-{
-    if ( initNewCalled )
-	return CO_E_ALREADYINITIALIZED;
-
-    dirtyflag = FALSE;
-    initNewCalled = TRUE;
-
-    m_spStorage = pStg;
-    if ( m_spStorage )
-	m_spStorage->AddRef();
-    return S_OK;
-}
-
-HRESULT WINAPI QAxServerBase::Load(IStorage *pStg )
-{
-    if ( initNewCalled )
-	return CO_E_ALREADYINITIALIZED;
-
-    IStream *spStream = 0;
-    HRESULT hres = pStg->OpenStream( L"SomeStreamName", 0, STGM_READ | STGM_SHARE_EXCLUSIVE, 0, &spStream );
-    if ( !spStream )
-	return E_FAIL;
-
-    STATSTG stat;
-    hres = spStream->Stat( &stat, STATFLAG_NONAME );
-    QByteArray qtarray;
-    if ( hres != S_OK ) {
-    } else {
-	ULONG read;
-	if ( stat.cbSize.HighPart )
-	    return S_FALSE;
-	qtarray.resize( stat.cbSize.LowPart );
-	spStream->Read( qtarray.data(), stat.cbSize.LowPart, &read );
-    }
-
-    readMetaData();
-
-    QBuffer qtbuffer( qtarray );
-    qtbuffer.open( IO_ReadOnly | IO_Translate );
-    QDataStream qtstream( &qtbuffer );
-    while ( !qtbuffer.atEnd() ) {
-	QCString property;
-	QVariant value;
-	qtstream >> property;
-	qtstream >> value;
-
-	qt.object->setProperty( property, value );
-    }
-
-    spStream->Release();
-
-    dirtyflag = FALSE;
-    initNewCalled = TRUE;
-
-    m_spStorage = pStg;
-    if ( m_spStorage )
-	m_spStorage->AddRef();
-
-    updateGeometry();
-
-    return S_OK;
-}
-
-HRESULT WINAPI QAxServerBase::Save(IStorage *pStg, BOOL fSameAsLoad )
-{
-    IStream *spStream = 0;
-    HRESULT hres = pStg->CreateStream( L"SomeStreamName", STGM_CREATE | STGM_WRITE | STGM_SHARE_EXCLUSIVE, 0, 0, &spStream );
-    if ( !spStream )
-	return E_FAIL;
-
-    QBuffer qtbuffer;
-    qtbuffer.open( IO_WriteOnly | IO_Translate );
-    QDataStream qtstream( &qtbuffer );
-    
-    readMetaData();
-
-    const QMetaObject *mo = qt.object->metaObject();
-    for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
-	if ( !proplist2->contains( prop ) )
-	    continue;
-	QCString property = mo->property( prop, TRUE )->name();
-	QVariant qvar = qt.object->property( property );
-	if ( qvar.isValid() ) {
-	    qtstream << property;
-	    qtstream << qvar;
-	}
-    }
-
-    qtbuffer.close();
-    QByteArray qtarray = qtbuffer.buffer();
-    ULONG written = 0;
-    char *data = qtarray.data();
-    spStream->Write( data, qtarray.size(), &written );
-    spStream->Commit( STGC_DEFAULT );
-
-    spStream->Release();
-    return S_OK;
-}
-
-HRESULT WINAPI QAxServerBase::SaveCompleted( IStorage *pStgNew )
-{
-    if ( pStgNew ) {
-	if ( m_spStorage )
-	    m_spStorage->Release();
-	m_spStorage = pStgNew;
-	m_spStorage->AddRef();
-    }
-    return S_OK;
-}
-
-HRESULT WINAPI QAxServerBase::HandsOffStorage()
-{
-    if ( m_spStorage ) m_spStorage->Release();
-    m_spStorage = 0;
-
-    return S_OK;
-}
-
 
 //**** IViewObject
 class HackPainter : public QPainter
