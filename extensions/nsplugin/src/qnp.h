@@ -151,7 +151,7 @@ protected:
     QNPInstance();
 
 private:
-    friend QNPStream;
+    friend class QNPStream;
     _NPInstance* pi;
 };
 
