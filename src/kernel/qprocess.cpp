@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#25 $
 **
 ** Implementation of QProcess class
 **
@@ -112,6 +112,8 @@
   that all data is available when the slot is called. On the other hand, you
   must wait until the process has finished before doing any processing. Which
   approach is best, depends highly on the requirements of your application.
+
+  \sa QSocket
 */
 
 /*!
@@ -222,7 +224,9 @@ bool QProcess::normalExit() const
 }
 
 /*!
-  Returns the exit status of the process.
+  Returns the exit status of the process. This function returns immediately and
+  does not wait until the process is finished. In the case that the process is
+  running, this function returns 0.
 
   If normalExit() is FALSE, this function returns 0. So you should check the
   return value of normalExit() before relying on this value.
@@ -243,6 +247,9 @@ int QProcess::exitStatus() const
   Reads the data that the process has written to standard output. When new data was
   written to standard output, the class emits the signal readyReadStdout().
 
+  If there is no data to read, this function returns a QByteArray of size 0: it
+  does not wait until there is something to read.
+
   \sa readyReadStdout() readStderr() writeToStdin()
 */
 QByteArray QProcess::readStdout()
@@ -255,6 +262,9 @@ QByteArray QProcess::readStdout()
 /*!
   Reads the data that the process has written to standard error. When new data was
   written to standard error, the class emits the signal readyReadStderr().
+
+  If there is no data to read, this function returns a QByteArray of size 0: it
+  does not wait until there is something to read.
 
   \sa readyReadStderr() readStdout() writeToStdin()
 */
@@ -282,7 +292,9 @@ QByteArray QProcess::readStderr()
   You can call this function when a process that was started with this instance
   still runs. In this case, it closes standard input of that process and it
   deletes pending data - you loose all control over that process, but the
-  process is not terminated.
+  process is not terminated. This applies also if the process could not be
+  started. (On operating systems that have zombie processes, Qt will also
+  wait() on the old process.)
 
   \sa start()
 */
@@ -300,7 +312,7 @@ bool QProcess::launch( const QByteArray& buf )
 
 /*! \overload
 
-  The data \a buf is written to standard input with writeToStdin(); so this
+  The data \a buf is written to standard input with writeToStdin(): so this
   function writes the QString::local8Bit() representation of the string.
 */
 bool QProcess::launch( const QString& buf )
@@ -316,7 +328,7 @@ bool QProcess::launch( const QString& buf )
 }
 
 /*!
-  This slot is used by the launch() functions to close standard input.
+  This private slot is used by the launch() functions to close standard input.
 */
 void QProcess::closeStdinLaunch()
 {
@@ -347,15 +359,16 @@ void QProcess::closeStdinLaunch()
 
   This signal is emitted when the process has exited.
 
-  \sa isRunning() normalExit() exitStatus()
+  \sa isRunning() normalExit() exitStatus() start() launch()
 */
 /*!
   \fn void QProcess::wroteToStdin()
 
   This signal is emitted if the data send to standard input (via
   writeToStdin()) was actually written to the process. This does not
-  imply that the process really read the data, but it is now safe to
-  close standard input without loosing pending data.
+  imply that the process really read the data, since this class only detects
+  when it was able to write the data to the operating system. But it is now
+  safe to close standard input without loosing pending data.
 
   \sa writeToStdin() closeStdin()
 */
@@ -363,8 +376,8 @@ void QProcess::closeStdinLaunch()
 
 /*! \overload
 
-  The string \a buf is handled as a text. So what is written to standard input
-  is the QString::local8Bit() representation.
+  The string \a buf is handled as a text: what is written to standard input is
+  the QString::local8Bit() representation.
 */
 void QProcess::writeToStdin( const QString& buf )
 {

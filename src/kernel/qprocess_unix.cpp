@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#48 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -467,7 +467,7 @@ void qt_C_sigchldHnd( int )
  *
  **********************************************************************/
 /*!
-  Basic initialization
+  This private class does basic initialization.
 */
 void QProcess::init()
 {
@@ -477,8 +477,8 @@ void QProcess::init()
 }
 
 /*!
-  Reset the process variables, etc. so that it can be used for another process
-  to start.
+  This private class resets the process variables, etc. so that it can be used
+  for another process to start.
 */
 void QProcess::reset()
 {
@@ -519,9 +519,9 @@ QProcess::~QProcess()
   You can call this function even when there already is a running
   process in this object. In this case, QProcess closes standard input
   of the old process and deletes pending data, i.e., you loose all
-  control over that process, but the process is not terminated. (On
-  operating systems that have zombie processes, Qt will also wait() on
-  the old process.)
+  control over that process, but the process is not terminated. This applies
+  also if the process could not be started. (On operating systems that have
+  zombie processes, Qt will also wait() on the old process.)
 
   \sa launch() closeStdin()
 */
@@ -668,7 +668,9 @@ error:
   be sure that the process really terminates, you must use kill()
   instead.
 
-  When the process really exited, the signal processExited() is emitted.
+  The function returns immediately: it does not wait until the process has
+  finished. When the process really exited, the signal processExited() is
+  emitted.
 
   \sa kill() processExited()
 */
@@ -683,7 +685,9 @@ void QProcess::hangUp() const
   process will not be able to do cleanup. hangUp() is the saver way to do it,
   but processes might ignore a hangUp().
 
-  When the process really exited, the signal processExited() is emitted.
+  The function returns immediately: it does not wait until the process has
+  finished. When the process really exited, the signal processExited() is
+  emitted.
 
   \sa hangUp() processExited()
 */
@@ -731,9 +735,13 @@ bool QProcess::isRunning() const
 
 /*!
   Writes the data \a buf to the standard input of the process. The process may
-  or may not read this data. If the data was written to the process, the signal
-  wroteToStdin() is emitted. This does not mean that the process really read the
-  data.
+  or may not read this data.
+
+  This function returns immediately; the QProcess class might write the data at
+  a later point (you have to enter the event loop for that). When all the data
+  is written to the process, the signal wroteToStdin() is emitted. This does
+  not mean that the process really read the data, since this class only detects
+  when it was able to write the data to the operating system.
 
   \sa wroteToStdin() closeStdin() readStdout() readStderr()
 */
@@ -753,6 +761,8 @@ void QProcess::writeToStdin( const QByteArray& buf )
 
   This function also deletes pending data that is not written to standard input
   yet.
+
+  \sa wroteToStdin()
 */
 void QProcess::closeStdin()
 {
@@ -776,7 +786,8 @@ void QProcess::closeStdin()
 
 
 /*
-  The process has outputted data to either standard output or standard error.
+  This private slot is called when the process has outputted data to either
+  standard output or standard error.
 */
 void QProcess::socketRead( int fd )
 {
@@ -851,7 +862,8 @@ void QProcess::socketRead( int fd )
 
 
 /*
-  The process tries to read data from standard input.
+  This private slot is called when the process tries to read data from standard
+  input.
 */
 void QProcess::socketWrite( int fd )
 {
@@ -879,7 +891,8 @@ void QProcess::socketWrite( int fd )
 }
 
 /*
-  Only used under Windows (but moc does not know about #if defined()).
+  This private slot is only used under Windows (but moc does not know about #if
+  defined()).
 */
 void QProcess::timeout()
 {
@@ -887,8 +900,8 @@ void QProcess::timeout()
 
 
 /*
-  Used by connectNotify() and disconnectNotify() to change the value of
-  ioRedirection (and related behaviour)
+  This private function is used by connectNotify() and disconnectNotify() to
+  change the value of ioRedirection (and related behaviour)
 */
 void QProcess::setIoRedirection( bool value )
 {
@@ -906,7 +919,8 @@ void QProcess::setIoRedirection( bool value )
     }
 }
 
-/* This private function is used by connectNotify() and
+/*
+  This private function is used by connectNotify() and
   disconnectNotify() to change the value of notifyOnExit (and related
   behaviour)
 */
@@ -916,8 +930,8 @@ void QProcess::setNotifyOnExit( bool value )
 }
 
 /*
-  Used by connectNotify() and disconnectNotify() to change the value of
-  wroteToStdinConnected (and related behaviour)
+  This private function is used by connectNotify() and disconnectNotify() to
+  change the value of wroteToStdinConnected (and related behaviour)
 */
 void QProcess::setWroteStdinConnected( bool value )
 {
