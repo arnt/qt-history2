@@ -180,7 +180,7 @@ public:
             }
             return sl;
         }
-    
+
     mutable QDirNode root;
     bool resolveSymlinks;
     bool readOnly;
@@ -1019,7 +1019,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 
 void QDirModelPrivate::init()
 {
-    filters = QDir::All;
+    filters = QDir::TypeMask;
     sort = QDir::Name;
     nameFilters << "*";
     root.parent = 0;
@@ -1066,7 +1066,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
             info = entryInfoList(parent->info.filePath());
         }
     }
-    
+
     QVector<QDirNode> nodes(info.count());
     for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
