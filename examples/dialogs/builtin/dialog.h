@@ -21,6 +21,11 @@ private slots:
     void setOpenFileName();
     void setOpenFileNames();
     void setSaveFileName();
+    void criticalMessage();
+    void informationMessage();
+    void questionMessage();
+    void warningMessage();
+    void errorMessage();
 
 private:
     QLabel *integerLabel;
@@ -33,6 +38,12 @@ private:
     QLabel *openFileNameLabel;
     QLabel *openFileNamesLabel;
     QLabel *saveFileNameLabel;
+    QLabel *criticalLabel;
+    QLabel *informationLabel;
+    QLabel *questionLabel;
+    QLabel *warningLabel;
+    QLabel *errorLabel;
+    QErrorMessage *errorMessageDialog;
 
     QString openFilesPath;
 };
