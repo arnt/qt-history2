@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#66 $
 **
 ** Implementation of QTabBar class
 **
@@ -118,12 +118,13 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QTabPrivate;
-    d->id = 1;
+    d->id = 0;
     d->focus = 0;
     d->a = new QAccel( this, "tab accelerators" );
     d->s = RoundedAbove;
     l = new QList<QTab>;
-    l->setAutoDelete( TRUE );
+    lstatic = new QList<QTab>;
+    lstatic->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
 
     connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
@@ -155,7 +156,8 @@ int QTabBar::addTab( QTab * newTab )
 
     newTab->id = d->id++;
     l->append( newTab );
-    
+    lstatic->append( newTab );
+
     layoutTabs();
 
     int p = QAccel::shortcutKey( newTab->label );
@@ -172,6 +174,7 @@ void QTabBar::removeTab( QTab * tab )
 {
     //#### accelerator labels??
     l->remove( tab );
+    lstatic->remove( tab );
     layoutTabs();
     repaint();
 }
@@ -679,17 +682,17 @@ void QTabBar::layoutTabs()
 {
     if ( l->isEmpty() )
 	return;
-    
-    QTab* t = l->first();
+
+    QTab* t = lstatic->first();
     QRect r( t->r );
-    while ( (t = l->next()) != 0 )
+    while ( (t = lstatic->next()) != 0 )
 	r = r.unite( t->r );
 
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
     const QFontMetrics & fm = fontMetrics();
     int x = 0;
-    for ( t = l->first(); t; t = l->next() ) {
+    for ( t = lstatic->first(); t; t = lstatic->next() ) {
 	int lw = fm.width( t->label );
 	int iw = 0;
 	int ih = 0;

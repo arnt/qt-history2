@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#26 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#27 $
 **
 ** Definition of QTabBar class
 **
@@ -106,6 +106,7 @@ protected:
 
 private:
     QList<QTab> * l;
+    QList<QTab> * lstatic;
     QTabPrivate * d;
 
 };
