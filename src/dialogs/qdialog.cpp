@@ -64,20 +64,23 @@
   \ingroup abstractwidgets
   \mainclass
 
-  A dialog window is a top-level window mostly used for short-term tasks
-  and brief communications with the user. QDialogs may be modal or
-  modeless. QDialogs can have \link #default default buttons\endlink,
-  support \link #extensibility extensibility\endlink and may provide a
-  \link #return return value\endlink. QDialogs can have a QSizeGrip in
-  their lower-right corner, using setSizeGripEnabled().
+  A dialog window is a top-level window mostly used for short-term
+  tasks and brief communications with the user. QDialogs may be modal
+  or modeless. QDialogs support \link #extensibility
+  extensibility\endlink and can provide a \link #return return
+  value\endlink. They can have \link #default default buttons\endlink.
+  QDialogs can also have a QSizeGrip in their lower-right corner,
+  using setSizeGripEnabled().
 
-    Note that QDialog uses the parent widget slightly differently from
-    other classes in Qt.  A dialog is always a top-level widget, but if
-    it has a parent, its default location is centered on top of the
-    parent. It will also share the parent's taskbar entry, for example.
+  Note that QDialog uses the parent widget slightly differently from
+  other classes in Qt. A dialog is always a top-level widget, but if
+  it has a parent, its default location is centered on top of the
+  parent. It will also share the parent's taskbar entry.
 
   There are three kinds of dialog that are useful:
-    \list 1
+
+  \list 1
+
   \i A <b>modal</b> dialog is a dialog that blocks input to other visible
   windows in the same application: users must finish interacting
   with the dialog and close it before they can access any other window
@@ -93,7 +96,7 @@
   done() slot, passing it \c Accepted or \c Rejected.
 
   \i A <b>non-modal</b> dialog is a dialog that operates independently of
-  other windows in the same application.  Find and replace dialogs in
+  other windows in the same application. Find and replace dialogs in
   word-processors are often modeless to allow the user to interact with
   both the application's main window and the dialog. Call show() to
   display a non-modal dialog. show() returns immediately so the flow of
@@ -101,19 +104,23 @@
   call show() and come to the end of the function in which show() is
   called with control returning to the main event loop.
 
-  \i <a name="semimodal">A "<b>semi-modal</b>" dialog is a modal dialog
-  that returns control to the caller immediately. Semi-modal dialogs do
-  not have their own event loop, so you will need to call
-  QApplication::processEvents() periodically to give the semi-modal
-  dialog the opportunity to process its events. A progress dialog
-  (e.g. QProgressDialog) is an example, where you only want the user to
-  be able to interact with the progress dialog, e.g. to cancel a long
-  running operation, but need to actually carry out the operation.
-  Semi-modal dialogs are displayed by setting the modal flag to TRUE and
-  calling the \l show() function.
+  \i
+  \target semimodal
+  A "<b>semi-modal</b>" dialog is a modal dialog that returns control
+  to the caller immediately. Semi-modal dialogs do not have their own
+  event loop, so you will need to call QApplication::processEvents()
+  periodically to give the semi-modal dialog the opportunity to
+  process its events. A progress dialog (e.g. QProgressDialog) is an
+  example, where you only want the user to be able to interact with
+  the progress dialog, e.g. to cancel a long running operation, but
+  need to actually carry out the operation. Semi-modal dialogs are
+  displayed by setting the modal flag to TRUE and calling the \l
+  show() function.
   \endlist
 
-    <a name="default"><b>Default button</b><br>
+  \target default
+  \section1 Default button
+
   A dialog's "default" button is the button that's pressed when the user
   presses Enter or Return. This button is used to signify that the user
   accepts the dialog's settings and wishes to close the dialog. Use
@@ -121,7 +128,9 @@
   QPushButton::autoDefault() to set and control the dialog's default
   button.
 
-    <a name="extensibility"><b>Extensibility</b><br>
+  \target extensibility
+  \section1 Extensibility
+
   Extensibility is the ability to show the dialog in two ways: a partial
   dialog that shows the most commonly used options, and a full dialog
   that shows all the options. Typically an extensible dialog
@@ -130,40 +139,42 @@
   appear. Extensibility is controlled with setExtension(),
   setOrientation() and showExtension().
 
-    <a name="return"><b>Return value (modal dialogs)</b><br>
-    Modal dialogs are often used in situations where a return value is
-    required; for example to indicate whether the user pressed OK or
-    Cancel. A dialog can be closed by calling the accept() or the
-    reject() slots, and exec() will return \c Accepted or \c Rejected as
-    appropriate. After the exec() call has returned the result is
-    available from result(). Note that if the WDestructiveClose flag
-    is set, then when accept() returns the dialog is deleted.
+  \target return
+  \section1 Return value (modal dialogs)
 
+  Modal dialogs are often used in situations where a return value is
+  required; for example to indicate whether the user pressed "OK" or
+  "Cancel". A dialog can be closed by calling the accept() or the
+  reject() slots, and exec() will return \c Accepted or \c Rejected as
+  appropriate. After the exec() call has returned the result is
+  available from result(). Note that if the \c WDestructiveClose flag
+  is set, then when accept() returns the dialog is deleted.
 
-    <a name="examples"><b>Examples</b><br>
+  \target examples
+  \section1 Examples
 
-    A modal dialog.
+  A modal dialog.
 
-    \quotefile network/networkprotocol/view.cpp
-    \skipto QFileDialog *dlg
-    \printuntil return
+  \quotefile network/networkprotocol/view.cpp
+  \skipto QFileDialog *dlg
+  \printuntil return
 
-    A modeless dialog. After the show() call, control returns to the main
-    event loop.
-    \quotefile life/main.cpp
-    \skipto argv
-    \printuntil QApplication
-    \skipto scale
-    \printline
-    \skipto LifeDialog
-    \printuntil show
-    \skipto exec
-    \printuntil }
+  A modeless dialog. After the show() call, control returns to the main
+  event loop.
+  \quotefile life/main.cpp
+  \skipto argv
+  \printuntil QApplication
+  \skipto scale
+  \printline
+  \skipto LifeDialog
+  \printuntil show
+  \skipto exec
+  \printuntil }
 
-    See the \l QProgressDialog documentation for an example of a
-    semi-modal dialog.
+  See the \l QProgressDialog documentation for an example of a
+  semi-modal dialog.
 
-    \sa QTabDialog QWidget QProgressDialog
+  \sa QTabDialog QWidget QProgressDialog
   \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
 */
 
@@ -181,7 +192,7 @@
   \brief whether the size grip is enabled
 
   A QSizeGrip is placed in the bottom right corner of the dialog when this
-  property is enabled.  By default, the size grip is disabled.
+  property is enabled. By default, the size grip is disabled.
 */
 
 class QDialogPrivate : public Qt
@@ -213,12 +224,12 @@ public:
   If \a modal is FALSE (the default), the dialog is modeless and should
   be displayed with show(). If \a modal is TRUE and the dialog is
   displayed with exec(), the dialog is modal, i.e. blocks input to other
-  windows. If \a modal is TRUE and the dialog is displayed using show(), the
-  dialog is semi-modal.
+  windows in this application. If \a modal is TRUE and the dialog is
+  displayed using show(), the dialog is semi-modal.
 
   The widget flags \a f are passed on to the QWidget constructor.
 
-  If, for example, you don't want a What's this button in the titlebar
+  If, for example, you don't want a What's This button in the titlebar
   of the dialog, pass WStyle_Customize | WStyle_NormalBorder |
   WStyle_Title | WStyle_SysMenu in \a f.
 
@@ -375,7 +386,7 @@ void QDialog::done( int r )
     setResult( r );
 
     // We cannot use close() here, as close() calls closeEvent() calls
-    // reject() calls close().  But we can at least keep the
+    // reject() calls close(). But we can at least keep the
     // mainWidget() and WDestructiveClose semantics. There should not
     // be much of a difference whether the users types Alt-F4 or
     // Escape. Without that, destructive-close dialogs were more or
@@ -437,9 +448,9 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
 /*! \reimp */
 void QDialog::keyPressEvent( QKeyEvent *e )
 {
-    //   Calls reject() if Escape is pressed.  Simulates a button
-    //   click for the default button if Enter is pressed.  Move focus
-    //   for the arrow keys.  Ignore the rest.
+    //   Calls reject() if Escape is pressed. Simulates a button
+    //   click for the default button if Enter is pressed. Move focus
+    //   for the arrow keys. Ignore the rest.
     if ( e->state() == 0 || ( e->state() & Keypad && e->key() == Key_Enter ) ) {
 	switch ( e->key() ) {
 	case Key_Enter:

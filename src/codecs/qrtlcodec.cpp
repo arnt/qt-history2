@@ -369,8 +369,9 @@ static QChar::Direction findBasicDirection(QString str)
   In contrast to this, Unicode defines characters to be in logical
   order (the order you would read the string). This codec tries to
   convert visually ordered Hebrew (8859-8) to Unicode. This might not
-  always work perfectly, because reversing the bidi algorithm that
-  transforms from logical to visual order is non-trivial.
+  always work perfectly, because reversing the bidi (bi-directional)
+  algorithm that transforms from logical to visual order is
+  non-trivial.
 
   Transformation from Unicode to visual Hebrew (8859-8) is done using
   the bidi algorithm in Qt, and will produce correct results, so long

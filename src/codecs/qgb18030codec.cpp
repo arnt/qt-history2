@@ -34,10 +34,10 @@
 /*! \class QGb18030Codec qgb18030codec.h
   \ingroup i18n
 
-  \brief This class provides conversion to and from the Chinese
+  \brief The QGb18030Codec class provides conversion to and from the Chinese
   GB18030/GBK/GB2312 encoding.
 
-      Last updated: November 26, 2001
+      \omit Last updated: November 26, 2001 \endomit
 
   GBK, formally the Chinese Internal Code Specification, is a commonly
   used extension of GB 2312-80.  Microsoft Windows uses it under the
@@ -50,12 +50,15 @@
 
   Special thanks to charset gurus Markus Scherer (IBM),
   Dirk Meyer (Adobe Systems) and Ken Lunde (Adobe Systems) for publishing
-  excellent GB 18030-200 summary and specifications on the Internet.
-  Some must-read documents are: <ul>
-    <li><a href="ftp://ftp.oreilly.com/pub/examples/nutshell/cjkv/pdf/GB18030_Summary.pdf">
-    <li><a href="http://oss.software.ibm.com/cvs/icu/~checkout~/charset/source/gb18030/gb18030.html">
-    <li><a href="http://oss.software.ibm.com/cvs/icu/~checkout~/charset/data/xml/gb-18030-2000.xml">
-  </ul>
+  an excellent GB 18030-200 summary and specification on the Internet.
+  Some must-read documents are:
+  \list
+    \i
+    \l{ftp://ftp.oreilly.com/pub/examples/nutshell/cjkv/pdf/GB18030_Summary.pdf}
+    \i \l{http://oss.software.ibm.com/cvs/icu/~checkout~/charset/source/gb18030/gb18030.html}
+    \i
+    \l{http://oss.software.ibm.com/cvs/icu/~checkout~/charset/data/xml/gb-18030-2000.xml}
+  \endlist
 
   The GBK codec was contributed to Qt by
   Justin Yu \<justiny@turbolinux.com.cn\> and
@@ -73,7 +76,7 @@
   while merging contributions from James Su, Justin Yu and Sean Chen.
   A copy of the source Perl script is available at:
 
-      <a href="http://people.debian.org/~foka/gb18030/gen-qgb18030codec.pl">
+      \l{http://people.debian.org/~foka/gb18030/gen-qgb18030codec.pl}
 
   The copyright notice for their code follows:
 
@@ -85,13 +88,14 @@
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
-  are met:<ol>
-  <li> Redistributions of source code must retain the above copyright
+  are met:
+  \list 1
+  \i Redistributions of source code must retain the above copyright
        notice, this list of conditions and the following disclaimer.
-  <li> Redistributions in binary form must reproduce the above copyright
+  \i Redistributions in binary form must reproduce the above copyright
        notice, this list of conditions and the following disclaimer in the
        documentation and/or other materials provided with the distribution.
-  </ol>
+  \endlist
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -390,7 +394,7 @@ QTextDecoder* QGb18030Codec::makeDecoder() const
   name code page 936.
 
   The GBK encoding has been superceded by the GB18030 encoding and
-  GB18030 is compatible to GBK. For this reason the QGbkCodec class is 
+  GB18030 is compatible to GBK. For this reason the QGbkCodec class is
   implemented in terms of the GB18030 codec and uses it for conversion from
   and to Unicode.
 
@@ -797,7 +801,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+0438 */	0xA7DA,	0xA7DB,	0xA7DC,	0xA7DD,	0xA7DE,	0xA7DF,	0xA7E0,	0xA7E1,
   /* U+0440 */	0xA7E2,	0xA7E3,	0xA7E4,	0xA7E5,	0xA7E6,	0xA7E7,	0xA7E8,	0xA7E9,
   /* U+0448 */	0xA7EA,	0xA7EB,	0xA7EC,	0xA7ED,	0xA7EE,	0xA7EF,	0xA7F0,	0xA7F1,
-  /* U+0450 */	0x0519,	0xA7D7,	
+  /* U+0450 */	0x0519,	0xA7D7,
   /* Contiguous area: U+2010 .. U+2642 */
   /* U+2010 */	0xA95C,	0x0A42,	0x0A43,	0xA843,	0xA1AA,	0xA844,	0xA1AC,	0x0A44,
   /* U+2018 */	0xA1AE,	0xA1AF,	0x0A45,	0x0A46,	0xA1B0,	0xA1B1,	0x0A47,	0x0A48,
@@ -997,7 +1001,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+2628 */	0x1254,	0x1255,	0x1256,	0x1257,	0x1258,	0x1259,	0x1260,	0x1261,
   /* U+2630 */	0x1262,	0x1263,	0x1264,	0x1265,	0x1266,	0x1267,	0x1268,	0x1269,
   /* U+2638 */	0x1270,	0x1271,	0x1272,	0x1273,	0x1274,	0x1275,	0x1276,	0x1277,
-  /* U+2640 */	0xA1E2,	0x1278,	0xA1E1,	
+  /* U+2640 */	0xA1E2,	0x1278,	0xA1E1,
   /* Contiguous area: U+2E81 .. U+361A */
   /* U+2E81 */		0xFE50,	0x1FC9,	0x1FD0,	0xFE54,	0x1FD1,	0x1FD2,	0x1FD3,
   /* U+2E88 */	0xFE57,	0x1FD4,	0x1FD5,	0xFE58,	0xFE5D,	0x1FD6,	0x1FD7,	0x1FD8,
@@ -1242,7 +1246,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+3600 */	0x3228,	0x3229,	0x3230,	0x3231,	0x3232,	0x3233,	0x3234,	0x3235,
   /* U+3608 */	0x3236,	0x3237,	0x3238,	0x3239,	0x3240,	0x3241,	0xFE5C,	0x3242,
   /* U+3610 */	0x3243,	0x3244,	0x3245,	0x3246,	0x3247,	0x3248,	0x3249,	0x3250,
-  /* U+3618 */	0x3251,	0x3252,	0xFE5B,	
+  /* U+3618 */	0x3251,	0x3252,	0xFE5B,
   /* Contiguous area: U+3918 .. U+3CE0 */
   /* U+3918 */	0xFE60,	0x3718,	0x3719,	0x3720,	0x3721,	0x3722,	0x3723,	0x3724,
   /* U+3920 */	0x3725,	0x3726,	0x3727,	0x3728,	0x3729,	0x3730,	0x3731,	0x3732,
@@ -1365,7 +1369,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+3CC8 */	0x3D14,	0x3D15,	0x3D16,	0x3D17,	0x3D18,	0x3D19,	0x3D20,	0x3D21,
   /* U+3CD0 */	0x3D22,	0x3D23,	0x3D24,	0x3D25,	0x3D26,	0x3D27,	0x3D28,	0x3D29,
   /* U+3CD8 */	0x3D30,	0x3D31,	0x3D32,	0x3D33,	0x3D34,	0x3D35,	0x3D36,	0x3D37,
-  /* U+3CE0 */	0xFE6A,	
+  /* U+3CE0 */	0xFE6A,
   /* Contiguous area: U+4056 .. U+415F */
   /* U+4056 */							0xFE6F,	0x42E3,
   /* U+4058 */	0x42E4,	0x42E5,	0x42E6,	0x42E7,	0x42E8,	0x42E9,	0x42F0,	0x42F1,
@@ -1454,7 +1458,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+44B8 */	0x49F9,	0x4A00,	0x4A01,	0x4A02,	0x4A03,	0x4A04,	0x4A05,	0x4A06,
   /* U+44C0 */	0x4A07,	0x4A08,	0x4A09,	0x4A10,	0x4A11,	0x4A12,	0x4A13,	0x4A14,
   /* U+44C8 */	0x4A15,	0x4A16,	0x4A17,	0x4A18,	0x4A19,	0x4A20,	0x4A21,	0x4A22,
-  /* U+44D0 */	0x4A23,	0x4A24,	0x4A25,	0x4A26,	0x4A27,	0x4A28,	0xFE7B,	
+  /* U+44D0 */	0x4A23,	0x4A24,	0x4A25,	0x4A26,	0x4A27,	0x4A28,	0xFE7B,
   /* Contiguous area: U+464C .. U+478D */
   /* U+464C */					0xFE7D,	0x4C82,	0x4C83,	0x4C84,
   /* U+4650 */	0x4C85,	0x4C86,	0x4C87,	0x4C88,	0x4C89,	0x4C90,	0x4C91,	0x4C92,
@@ -1496,7 +1500,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+4770 */	0x4E50,	0x4E51,	0x4E52,	0x4E53,	0x4E54,	0x4E55,	0x4E56,	0x4E57,
   /* U+4778 */	0x4E58,	0x4E59,	0x4E60,	0x4E61,	0xFE82,	0x4E62,	0x4E63,	0x4E64,
   /* U+4780 */	0x4E65,	0x4E66,	0x4E67,	0x4E68,	0x4E69,	0x4E70,	0x4E71,	0x4E72,
-  /* U+4788 */	0x4E73,	0x4E74,	0x4E75,	0x4E76,	0x4E77,	0xFE83,	
+  /* U+4788 */	0x4E73,	0x4E74,	0x4E75,	0x4E76,	0x4E77,	0xFE83,
   /* Contiguous area: U+4947 .. U+49B7 */
   /* U+4947 */								0xFE85,
   /* U+4948 */	0x5159,	0x5160,	0x5161,	0x5162,	0x5163,	0x5164,	0x5165,	0x5166,
@@ -4176,7 +4180,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+9F88 */	0xF6B8,	0xF6B9,	0xF6BA,	0xC8A3,	0xF6BB,	0xFD88,	0xFD89,	0xFD8A,
   /* U+9F90 */	0xFD8B,	0xFD8C,	0xFD8D,	0xFD8E,	0xFD8F,	0xFD90,	0xFD91,	0xFD92,
   /* U+9F98 */	0xFD93,	0xC1FA,	0xB9A8,	0xEDE8,	0xFD94,	0xFD95,	0xFD96,	0xB9EA,
-  /* U+9FA0 */	0xD9DF,	0xFD97,	0xFD98,	0xFD99,	0xFD9A,	0xFD9B,	
+  /* U+9FA0 */	0xD9DF,	0xFD97,	0xFD98,	0xFD99,	0xFD9A,	0xFD9B,
   /* Contiguous area: U+E766 .. U+E864 */
   /* U+E766 */							0xA2AB,	0xA2AC,
   /* U+E768 */	0xA2AD,	0xA2AE,	0xA2AF,	0xA2B0,	0x6469,	0xA2E4,	0xA2EF,	0xA2F0,
@@ -4210,7 +4214,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+E848 */	0x64C4,	0x64C5,	0x64C6,	0x64C7,	0x64C8,	0x64C9,	0x64D0,	0x64D1,
   /* U+E850 */	0x64D2,	0x64D3,	0x64D4,	0x64D5,	0xFE90,	0xFE91,	0x64D6,	0x64D7,
   /* U+E858 */	0x64D8,	0x64D9,	0x64E0,	0x64E1,	0x64E2,	0x64E3,	0x64E4,	0x64E5,
-  /* U+E860 */	0x64E6,	0x64E7,	0x64E8,	0x64E9,	0xFEA0,	
+  /* U+E860 */	0x64E6,	0x64E7,	0x64E8,	0x64E9,	0xFEA0,
   /* Contiguous area: U+F92C .. U+FA29 */
   /* U+F92C */					0xFD9C,	0x7045,	0x7046,	0x7047,
   /* U+F930 */	0x7048,	0x7049,	0x7050,	0x7051,	0x7052,	0x7053,	0x7054,	0x7055,
@@ -4244,7 +4248,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+FA10 */	0x71A4,	0xFE44,	0x71A5,	0xFE45,	0xFE46,	0x71A6,	0x71A7,	0x71A8,
   /* U+FA18 */	0xFE47,	0x71A9,	0x71B0,	0x71B1,	0x71B2,	0x71B3,	0x71B4,	0xFE48,
   /* U+FA20 */	0xFE49,	0xFE4A,	0x71B5,	0xFE4B,	0xFE4C,	0x71B6,	0x71B7,	0xFE4D,
-  /* U+FA28 */	0xFE4E,	0xFE4F,	
+  /* U+FA28 */	0xFE4E,	0xFE4F,
   /* Contiguous area: U+FE30 .. U+FFE5 */
   /* U+FE30 */	0xA955,	0xA6F2,	0x7848,	0xA6F4,	0xA6F5,	0xA6E0,	0xA6E1,	0xA6F0,
   /* U+FE38 */	0xA6F1,	0xA6E2,	0xA6E3,	0xA6EE,	0xA6EF,	0xA6E6,	0xA6E7,	0xA6E4,
@@ -4300,7 +4304,7 @@ static Q_UINT16 const ucs_to_gb18030[28839] = {
   /* U+FFC8 */	0x79F0,	0x79F1,	0x79F2,	0x79F3,	0x79F4,	0x79F5,	0x79F6,	0x79F7,
   /* U+FFD0 */	0x79F8,	0x79F9,	0x7A00,	0x7A01,	0x7A02,	0x7A03,	0x7A04,	0x7A05,
   /* U+FFD8 */	0x7A06,	0x7A07,	0x7A08,	0x7A09,	0x7A10,	0x7A11,	0x7A12,	0x7A13,
-  /* U+FFE0 */	0xA1E9,	0xA1EA,	0xA956,	0xA3FE,	0xA957,	0xA3A4,	
+  /* U+FFE0 */	0xA1E9,	0xA1EA,	0xA956,	0xA3FE,	0xA957,	0xA3A4,
 };
 
 static Q_UINT16 const gb18030_2byte_to_ucs[22046] = {
@@ -7781,7 +7785,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+81 37 A7 30 */	0x262E,	0x262F,	0x2630,	0x2631,	0x2632,
   /* GB+81 37 A7 35 */	0x2633,	0x2634,	0x2635,	0x2636,	0x2637,
   /* GB+81 37 A8 30 */	0x2638,	0x2639,	0x263A,	0x263B,	0x263C,
-  /* GB+81 37 A8 35 */	0x263D,	0x263E,	0x263F,	0x2641,	
+  /* GB+81 37 A8 35 */	0x263D,	0x263E,	0x263F,	0x2641,
   /* Contiguous area: GB+81 38 FD 39 .. GB+82 30 A6 32 */
   /* GB+81 38 FD 39 */					0x2E82,
   /* GB+81 38 FE 30 */	0x2E83,	0x2E85,	0x2E86,	0x2E87,	0x2E89,
@@ -8112,7 +8116,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 30 A4 35 */	0x3607,	0x3608,	0x3609,	0x360A,	0x360B,
   /* GB+82 30 A5 30 */	0x360C,	0x360D,	0x360F,	0x3610,	0x3611,
   /* GB+82 30 A5 35 */	0x3612,	0x3613,	0x3614,	0x3615,	0x3616,
-  /* GB+82 30 A6 30 */	0x3617,	0x3618,	0x3619,	
+  /* GB+82 30 A6 30 */	0x3617,	0x3618,	0x3619,
   /* Contiguous area: GB+82 30 F2 38 .. GB+82 31 D4 37 */
   /* GB+82 30 F2 38 */				0x3919,	0x391A,
   /* GB+82 30 F3 30 */	0x391B,	0x391C,	0x391D,	0x391E,	0x391F,
@@ -8306,7 +8310,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 31 D3 30 */	0x3CCE,	0x3CCF,	0x3CD0,	0x3CD1,	0x3CD2,
   /* GB+82 31 D3 35 */	0x3CD3,	0x3CD4,	0x3CD5,	0x3CD6,	0x3CD7,
   /* GB+82 31 D4 30 */	0x3CD8,	0x3CD9,	0x3CDA,	0x3CDB,	0x3CDC,
-  /* GB+82 31 D4 35 */	0x3CDD,	0x3CDE,	0x3CDF,	
+  /* GB+82 31 D4 35 */	0x3CDD,	0x3CDE,	0x3CDF,
   /* Contiguous area: GB+82 32 AF 33 .. GB+82 32 C9 36 */
   /* GB+82 32 AF 33 */				0x4057,	0x4058,
   /* GB+82 32 AF 35 */	0x4059,	0x405A,	0x405B,	0x405C,	0x405D,
@@ -8361,7 +8365,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 32 C8 30 */	0x414E,	0x414F,	0x4150,	0x4151,	0x4152,
   /* GB+82 32 C8 35 */	0x4153,	0x4154,	0x4155,	0x4156,	0x4157,
   /* GB+82 32 C9 30 */	0x4158,	0x4159,	0x415A,	0x415B,	0x415C,
-  /* GB+82 32 C9 35 */	0x415D,	0x415E,	
+  /* GB+82 32 C9 35 */	0x415D,	0x415E,
   /* Contiguous area: GB+82 32 F8 38 .. GB+82 33 A3 38 */
   /* GB+82 32 F8 38 */				0x4338,	0x4339,
   /* GB+82 32 F9 30 */	0x433A,	0x433B,	0x433C,	0x433D,	0x433E,
@@ -8445,7 +8449,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 33 A2 30 */	0x44C3,	0x44C4,	0x44C5,	0x44C6,	0x44C7,
   /* GB+82 33 A2 35 */	0x44C8,	0x44C9,	0x44CA,	0x44CB,	0x44CC,
   /* GB+82 33 A3 30 */	0x44CD,	0x44CE,	0x44CF,	0x44D0,	0x44D1,
-  /* GB+82 33 A3 35 */	0x44D2,	0x44D3,	0x44D4,	0x44D5,	
+  /* GB+82 33 A3 35 */	0x44D2,	0x44D3,	0x44D4,	0x44D5,
   /* Contiguous area: GB+82 33 C9 32 .. GB+82 33 E8 37 */
   /* GB+82 33 C9 32 */			0x464D,	0x464E,	0x464F,
   /* GB+82 33 C9 35 */	0x4650,	0x4651,	0x4652,	0x4653,	0x4654,
@@ -8510,7 +8514,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 33 E7 30 */	0x477A,	0x477B,	0x477D,	0x477E,	0x477F,
   /* GB+82 33 E7 35 */	0x4780,	0x4781,	0x4782,	0x4783,	0x4784,
   /* GB+82 33 E8 30 */	0x4785,	0x4786,	0x4787,	0x4788,	0x4789,
-  /* GB+82 33 E8 35 */	0x478A,	0x478B,	0x478C,	
+  /* GB+82 33 E8 35 */	0x478A,	0x478B,	0x478C,
   /* Contiguous area: GB+82 34 96 39 .. GB+82 34 A1 30 */
   /* GB+82 34 96 39 */					0x4948,
   /* GB+82 34 97 30 */	0x4949,	0x494A,	0x494B,	0x494C,	0x494D,
@@ -8533,7 +8537,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 34 9F 35 */	0x49A6,	0x49A7,	0x49A8,	0x49A9,	0x49AA,
   /* GB+82 34 A0 30 */	0x49AB,	0x49AC,	0x49AD,	0x49AE,	0x49AF,
   /* GB+82 34 A0 35 */	0x49B0,	0x49B1,	0x49B2,	0x49B3,	0x49B4,
-  /* GB+82 34 A1 30 */	0x49B5,	
+  /* GB+82 34 A1 30 */	0x49B5,
   /* Contiguous area: GB+82 34 E7 34 .. GB+82 35 8F 32 */
   /* GB+82 34 E7 34 */					0x4C78,
   /* GB+82 34 E7 35 */	0x4C79,	0x4C7A,	0x4C7B,	0x4C7C,	0x4C7D,
@@ -8611,7 +8615,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+82 35 8D 35 */	0x4DEE,	0x4DEF,	0x4DF0,	0x4DF1,	0x4DF2,
   /* GB+82 35 8E 30 */	0x4DF3,	0x4DF4,	0x4DF5,	0x4DF6,	0x4DF7,
   /* GB+82 35 8E 35 */	0x4DF8,	0x4DF9,	0x4DFA,	0x4DFB,	0x4DFC,
-  /* GB+82 35 8F 30 */	0x4DFD,	0x4DFE,	0x4DFF,	
+  /* GB+82 35 8F 30 */	0x4DFD,	0x4DFE,	0x4DFF,
   /* Contiguous area: GB+83 36 C7 39 .. GB+83 36 CF 39 */
   /* GB+83 36 C7 39 */					0xE76C,
   /* GB+83 36 C8 30 */	0xE7C8,	0xE7E7,	0xE7E8,	0xE7E9,	0xE7EA,
@@ -8677,7 +8681,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+84 30 9B 30 */	0xFA08,	0xFA09,	0xFA0A,	0xFA0B,	0xFA10,
   /* GB+84 30 9B 35 */	0xFA12,	0xFA15,	0xFA16,	0xFA17,	0xFA19,
   /* GB+84 30 9C 30 */	0xFA1A,	0xFA1B,	0xFA1C,	0xFA1D,	0xFA1E,
-  /* GB+84 30 9C 35 */	0xFA22,	0xFA25,	0xFA26,	
+  /* GB+84 30 9C 35 */	0xFA22,	0xFA25,	0xFA26,
   /* Contiguous area: GB+84 31 85 38 .. GB+84 31 A2 33 */
   /* GB+84 31 85 38 */				0xFE32,	0xFE45,
   /* GB+84 31 86 30 */	0xFE46,	0xFE47,	0xFE48,	0xFE53,	0xFE58,
@@ -8736,7 +8740,7 @@ static Q_UINT16 const gb18030_4byte_to_ucs[6793] = {
   /* GB+84 31 A0 35 */	0xFFCD,	0xFFCE,	0xFFCF,	0xFFD0,	0xFFD1,
   /* GB+84 31 A1 30 */	0xFFD2,	0xFFD3,	0xFFD4,	0xFFD5,	0xFFD6,
   /* GB+84 31 A1 35 */	0xFFD7,	0xFFD8,	0xFFD9,	0xFFDA,	0xFFDB,
-  /* GB+84 31 A2 30 */	0xFFDC,	0xFFDD,	0xFFDE,	0xFFDF,	
+  /* GB+84 31 A2 30 */	0xFFDC,	0xFFDD,	0xFFDE,	0xFFDF,
 };
 
 static inline uint gb4lin_to_gb(uint gb4lin) {
@@ -8774,7 +8778,7 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
 		// Use the mapping table
 		uint i;
 
-		i = (first - 0x81) * 190 + (second - 0x40) 
+		i = (first - 0x81) * 190 + (second - 0x40)
 					 - ((second >= 0x80) ? 1 : 0);
 
 		if (InRange(first, 0xA1, 0xA7))

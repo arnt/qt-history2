@@ -41,13 +41,13 @@
   TSCII, formally the Tamil Standard Code Information Interchange
   specification, is a commonly used charset for Tamils. The
   official page for the standard is at
-  <a href="http://www.tamil.net/tscii/">http://www.tamil.net/tscii/</a>
+  \link http://www.tamil.net/tscii/ http://www.tamil.net/tscii/\endlink
 
   This codec uses the mapping table found at
-  <a href="http://www.geocities.com/Athens/5180/tsciiset.html">
-  http://www.geocities.com/Athens/5180/tsciiset.html.</a> Unfortunately Tamil
-  uses composed Unicode. This might cause some trouble if you are using
-  Unicode fonts instead of TSCII fonts.
+  \link http://www.geocities.com/Athens/5180/tsciiset.html
+  http://www.geocities.com/Athens/5180/tsciiset.html\endlink.
+  Tamil uses composed Unicode which might cause some
+  problems if you are using Unicode fonts instead of TSCII fonts.
 
   The TSCII codec was contributed to Qt by Hans Petter Bieker
   \<bieker@kde.org\>.  The copyright notice for his code follows:
@@ -58,13 +58,14 @@
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
-  are met:<ol>
-  <li> Redistributions of source code must retain the above copyright
+  are met:
+  \list 1
+  \i Redistributions of source code must retain the above copyright
 	notice, this list of conditions and the following disclaimer.
-  <li> Redistributions in binary form must reproduce the above copyright
+  \i Redistributions in binary form must reproduce the above copyright
 	notice, this list of conditions and the following disclaimer in the
 	documentation and/or other materials provided with the distribution.
-  </ol>
+  \endlist
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE

@@ -3323,10 +3323,9 @@ void QCanvasSprite::draw(QPainter& painter)
     this view, i.e. the bounding rectangle of the view in canvas coordinates.
 
   \code
-    QRect canvasRect;
     QRect rc = QRect( myCanvasView->contentsX(), myCanvasView->contentsY(),
                       myCanvasView->visibleWidth(), myCanvasView->visibleHeight() );
-    canvasRect = myCanvasView->inverseWorldMatrix().mapRect(rc);
+    QRect canvasRect = myCanvasView->inverseWorldMatrix().mapRect(rc);
   \endcode
 
   \sa QWMatrix QPainter::setWorldMatrix()
@@ -4140,12 +4139,13 @@ void QCanvasSpline::recalcPoly()
     QCanvasPolygon::setPoints(p);
 }
 
-// ### not 100% IMO. Lars
 /*!
   \fn QPointArray QCanvasPolygonalItem::areaPoints() const
 
-  Returns the points bounding the shape. Note that the returned
-  points are \e outside the object, not touching it.
+  This function must be reimplemented by subclasses. It \e must return
+  the points bounding (i.e. outside and not touching) the shape or
+  drawing errors will occur.
+
 */
 
 /*!
@@ -4865,10 +4865,6 @@ void QCanvasText::removeFromChunks()
 
 /*!
 Returns 0 (QCanvasItem::Rtti_Item).
-
-Although often frowned upon by purists, Run Time
-Type Identification is very useful in these classes as it allows
-a QCanvas to be an efficient indexed storage mechanism.
 
 Make your derived classes return their own values for rtti(), so that you
 can distinguish between objects returned by QCanvas::at(). You should

@@ -337,7 +337,7 @@ void QWellArray::focusInEvent( QFocusEvent* )
 
 /*!
   Sets the size of the well array to be \a rows cells by \a cols.
-  Resets any brush info set by setCellBrush().
+  Resets any brush information set by setCellBrush().
  */
 void QWellArray::dimensionChange( int, int )
 {
@@ -1407,10 +1407,10 @@ void QColorDialogPrivate::addCustom()
   instance, you might use this in a drawing program to allow the user
   to set the brush color.
 
-  This version of Qt provides only modal color dialogs. The static
+  This version of Qt only provides modal color dialogs. The static
   getColor() function shows the dialog and allows the user to specify
-  a color, whereas getRgba() does the same but allows the user to
-  specify a color with an alpha channel (transparency) value.
+  a color. The getRgba() function does the same but also allows the
+  user to specify a color with an alpha channel (transparency) value.
 
   The user can store customCount() different custom colors. The custom
   colors are shared by all color dialogs, and remembered during the
@@ -1420,9 +1420,9 @@ void QColorDialogPrivate::addCustom()
   <img src=qcolordlg-w.png>
 */
 
-/*!  Constructs a default color dialog with parent \a parent called \a
- name. If \a modal is TRUE the dialog will be modal. Use setColor() for
- setting an initial value.
+/*!  Constructs a default color dialog with parent \a parent and called \a
+ name. If \a modal is TRUE the dialog will be modal. Use setColor() to
+ set an initial value.
 
   \sa getColor()
 */
@@ -1483,11 +1483,12 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
 
 /*!
   Pops up a modal color dialog to allow the user to choose a color and
-  an alpha channel value. The color+alpha is initially set to \a
-  initial. The dialog is a child of \a parent and called \a name.
+  an alpha channel (transparency) value. The color+alpha is initially
+  set to \a initial. The dialog is a child of \a parent and called \a
+  name.
 
-  If \a ok is non-null, \c *ok is set to TRUE if the user clicked OK,
-  and FALSE if the user clicked Cancel.
+  If \a ok is non-null, \e *\a ok is set to TRUE if the user clicked OK,
+  and to FALSE if the user clicked Cancel.
 
   If the user clicks Cancel, the \a initial value is returned.
 */
@@ -1562,7 +1563,7 @@ void QColorDialog::setColor( const QColor& c )
 
 
 /*!
-  Sets the initial alpha channel value to \a a, and show the alpha channel
+  Sets the initial alpha channel value to \a a, and shows the alpha channel
   entry box.
 */
 

@@ -139,6 +139,7 @@ QPointArray::QPointArray( const QRect &r, bool closed )
 }
 
 /*!
+  \internal
   Constructs a point array with \a nPoints points, taken from the
   \a points array.
 
@@ -232,6 +233,7 @@ void QPointArray::setPoint( uint index, int x, int y )
 }
 
 /*!
+  \internal
   Resizes the array to \a nPoints and sets the points in the array to
   the values taken from \a points.
 
@@ -301,7 +303,8 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty, ... )
 }
 
 /*! \overload
-    Copies \a nPoints points from the \a points coord array into
+  \internal
+  Copies \a nPoints points from the \a points coord array into
   this point array, and resizes the point array if
   \c{index+nPoints} exceeds the size of the array.
 
@@ -352,7 +355,7 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
   The points are given as a sequence of integers, starting with \a
   firstx then \a firsty, and so on.
 
-  \sa resize(), setPoints()
+  \sa resize()
 */
 
 bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
