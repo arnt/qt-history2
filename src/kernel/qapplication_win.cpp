@@ -3265,15 +3265,15 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    d->createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		// being "hidden"
-		setMinimized();
+		setWState(WState_Minimized);
 		if ( isVisible() ) {
 		    QHideEvent e;
 		    QApplication::sendSpontaneousEvent( this, &e );
 		    hideChildren( TRUE );
 		}
-	    } else if ( isMinimized() ) {
+	    } else if (testWState(WState_Minimized)) {
 		// being shown
-		setMinimized(FALSE);
+		clearWState(WState_Minimized);
 		showChildren( TRUE );
 		QShowEvent e;
 		QApplication::sendSpontaneousEvent( this, &e );
