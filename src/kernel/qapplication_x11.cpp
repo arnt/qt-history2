@@ -227,13 +227,13 @@ const int XKeyRelease = KeyRelease;
   Internal variables and functions
  *****************************************************************************/
 
-static char    *appName;			// application name
-static char    *appFont		= 0;		// application font
-static char    *appBGCol	= 0;		// application bg color
-static char    *appFGCol	= 0;		// application fg color
-static char    *appBTNCol	= 0;		// application btn color
-static char    *mwGeometry	= 0;		// main widget geometry
-static char    *mwTitle		= 0;		// main widget title
+static const char *appName;			// application name
+static const char *appFont	= 0;		// application font
+static const char *appBGCol	= 0;		// application bg color
+static const char *appFGCol	= 0;		// application fg color
+static const char *appBTNCol	= 0;		// application btn color
+static const char *mwGeometry	= 0;		// main widget geometry
+static const char *mwTitle	= 0;		// main widget title
 //Ming-Che 10/10
 static char    *ximServer	= 0;		// XIM Server will connect to
 static bool	mwIconic	= FALSE;	// main widget iconified
@@ -659,13 +659,13 @@ static bool qt_set_desktop_properties()
     int format;
     ulong  nitems, after = 1;
     long offset = 0;
-    const char *data;
+    uchar *data;
 
     int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
 				FALSE, AnyPropertyType, &type, &format, &nitems,
-				&after,  (unsigned char**)&data );
+				&after, &data );
     if ( data )
-	XFree(  (unsigned char*)data );
+	XFree( (char *)data );
     if ( e != Success || !nitems )
 	return FALSE;
 
@@ -674,13 +674,13 @@ static bool qt_set_desktop_properties()
     while (after > 0) {
 	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
 			    offset, 1024, FALSE, AnyPropertyType,
-			    &type, &format, &nitems, &after, (unsigned char**) &data );
+			    &type, &format, &nitems, &after, &data );
 	if (format == 8) {
-	    properties.writeBlock(data, nitems);
+	    properties.writeBlock( (char*)data, nitems );
 	    offset += nitems / 4;
 	}
 
-	XFree( (unsigned char *) data );
+	XFree( (char *)data );
     }
 
     QDataStream d( properties.buffer(), IO_ReadOnly );
@@ -720,15 +720,15 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	Atom type = None;
 
 	while (after > 0) {
-	    char *data;
+	    uchar *data;
 	    XGetWindowProperty( appDpy, appRootWin, qt_resource_manager,
 				offset, 8192, FALSE, AnyPropertyType,
 				&type, &format, &nitems, &after,
-				(unsigned char**) &data );
-	    res += data;
+				&data );
+	    res += (char*)data;
 	    offset += 2048; // offset is in 32bit quantities... 8192/4 == 2048
 	    if ( data )
-		XFree(data);
+		XFree( (char *)data );
 	}
 
 	QCString key, value;
@@ -999,6 +999,10 @@ void QApplication::create_xim()
 #endif
 }
 
+// ### This should be static but it isn't because of the friend declaration
+// ### in qpaintdevice.h which then should have a static too but can't have
+// ### it because "storage class specifiers invalid in friend function
+// ### declarations" :-) Ideas anyone?
 void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
     if ( display ) {
@@ -1016,7 +1020,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     } else {
 	// Qt controls everything (default)
 
-	char *p;
+	const char *p;
 	int argc = *argcptr;
 	int j;
 
@@ -1311,7 +1315,7 @@ void QApplication::x11_initialize_style()
     Atom type;
     int format;
     unsigned long length, after;
-    unsigned char *data;
+    uchar *data;
     if ( app_style )
 	return;
     if ( !seems_like_KDE_is_running ) {
@@ -1321,7 +1325,7 @@ void QApplication::x11_initialize_style()
 	     && length ) {
 	    seems_like_KDE_is_running = TRUE;
 	    if ( data )
-		XFree( data );
+		XFree( (char *)data );
 	}
     }
     if ( !seems_like_KDE_is_running ) {
@@ -1331,7 +1335,7 @@ void QApplication::x11_initialize_style()
 	     && length ) {
 	    seems_like_KDE_is_running = TRUE; // KDE1, to be precise
 	    if ( data )
-		XFree( data );
+		XFree( (char *)data );
 	}
     }
     if ( seems_like_KDE_is_running ) {
@@ -1347,7 +1351,7 @@ void QApplication::x11_initialize_style()
 	    app_style = new QMotifPlusStyle( TRUE ); // default to MotifPlus with hovering
 #endif
 	    if ( data )
-		XFree( data );
+		XFree( (char *)data );
 	}
     }
 }
@@ -1431,7 +1435,7 @@ void qt_save_rootinfo()				// save new root info
     Atom type;
     int format;
     unsigned long length, after;
-    unsigned char *data;
+    uchar *data;
 
     if ( qt_xsetroot_id ) {			// kill old pixmap
 	if ( XGetWindowProperty( appDpy, appRootWin, qt_xsetroot_id, 0, 1,
@@ -1460,7 +1464,7 @@ bool qt_wstate_iconified( WId winid )
     Atom type;
     int format;
     unsigned long length, after;
-    unsigned char *data;
+    uchar *data;
     int r = XGetWindowProperty( appDpy, winid, qt_wm_state, 0, 2,
 				 FALSE, AnyPropertyType, &type, &format,
 				 &length, &after, &data );
@@ -1586,7 +1590,7 @@ void clean_post_routines(void *obj, unsigned long len, const char *name) {
 // </HACK>
 
 
-char *qAppName()				// get application name
+const char *qAppName()				// get application name
 {
     return appName;
 }
@@ -1715,11 +1719,11 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
 			  0, 0, app_argv, app_argc, 0, 0, 0 );
 	if ( mwTitle )
-	    XStoreName( main_widget->x11Display(), main_widget->winId(), mwTitle );
+	    XStoreName( main_widget->x11Display(), main_widget->winId(), (char*)mwTitle );
 	if ( mwGeometry ) {			// parse geometry
 	    int x, y;
 	    int w, h;
-	    int m = XParseGeometry( mwGeometry, &x, &y, (uint*)&w, (uint*)&h );
+	    int m = XParseGeometry( (char*)mwGeometry, &x, &y, (uint*)&w, (uint*)&h );
 	    QSize minSize = main_widget->minimumSize();
 	    QSize maxSize = main_widget->maximumSize();
 	    if ( (m & XValue) == 0 )
@@ -5111,9 +5115,8 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
     cb.shutdown_cancelled.callback = sm_shutdownCancelledCallback;
     cb.shutdown_cancelled.client_data = (SmPointer) this;
 
-    char* session_manager = getenv("SESSION_MANAGER");
-
     // avoid showing a warning message below
+    const char* session_manager = getenv("SESSION_MANAGER");
     if ( !session_manager || !session_manager[0] )
 	return;
 
@@ -5125,8 +5128,7 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
 				       &cb,
 				       prevId,
 				       &myId,
-				       255,
-				       cerror );
+				       256, cerror );
 
     d->sessionId = QString::fromLatin1( myId );
     ::free( myId ); // it was allocated by C

@@ -167,13 +167,13 @@ extern "C" void dumpmem(const char* m)
 
 class QWSDisplay;
 
-static char    *appName;			// application name
-static char    *appFont		= 0;		// application font
-static char    *appBGCol	= 0;		// application bg color
-static char    *appFGCol	= 0;		// application fg color
-static char    *appBTNCol	= 0;		// application btn color
-static char    *mwGeometry	= 0;		// main widget geometry
-static char    *mwTitle		= 0;		// main widget title
+static const char *appName;			// application name
+static const char *appFont	= 0;		// application font
+static const char *appBGCol	= 0;		// application bg color
+static const char *appFGCol	= 0;		// application fg color
+static const char *appBTNCol	= 0;		// application btn color
+static const char *mwGeometry	= 0;		// main widget geometry
+static const char *mwTitle	= 0;		// main widget title
 //static bool	mwIconic	= FALSE;	// main widget iconified
 
 static bool	app_do_modal	= FALSE;	// modal mode
@@ -899,8 +899,6 @@ static void qt_set_qws_resources()
 	QApplication::setFont( QFont(appFont) );
 
     if ( appBGCol || appBTNCol || appFGCol ) {
-
-
     	QColor btn;
 	QColor bg;
 	QColor fg;
@@ -1008,7 +1006,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     //qws_shared_memory = getenv("QWS_NOSHARED") == 0;
 
     int flags = 0;
-    char *p;
+    const char *p;
     int argc = *argcptr;
     int j;
 
@@ -1173,7 +1171,7 @@ void qAddPostRoutine( Q_CleanUpFunction p )
 }
 
 
-char *qAppName()				// get application name
+const char *qAppName()				// get application name
 {
     return appName;
 }

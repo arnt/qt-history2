@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#401 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#402 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -240,7 +240,7 @@ static void set_winapp_name()
     if ( !already_set ) {
 	already_set = TRUE;
 	GetModuleFileNameA( 0, appName, sizeof(appName) );
-	char *p = strrchr( appName, '\\' );	// skip path
+	const char *p = strrchr( appName, '\\' );	// skip path
 	if ( p )
 	    memmove( appName, p+1, qstrlen(p) );
 	int l = qstrlen( appName );
@@ -683,7 +683,7 @@ Q_EXPORT void qAddPostRoutine( Q_CleanUpFunction p )
 }
 
 
-Q_EXPORT char *qAppName()			// get application name
+Q_EXPORT const char *qAppName()			// get application name
 {
     return appName;
 }

@@ -591,10 +591,10 @@ void QApplication::construct( int &argc, char **argv, Type type )
 
     qt_is_gui_used = (type != Tty);
     init_precmdline();
-    static char *empty = (char*)"";
+    static const char *empty = "";
     if ( argc == 0 || argv == 0 ) {
 	argc = 0;
-	argv = &empty;
+	argv = (char **)&empty; // ouch! careful with QApplication::argv()!
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );

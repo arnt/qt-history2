@@ -147,7 +147,7 @@ const QCOORD QCOORD_MIN = -QCOORD_MAX - 1;
 
 typedef unsigned int QRgb;			// RGB triplet
 
-Q_EXPORT char *qAppName();			// get application name
+Q_EXPORT const char *qAppName();		// get application name
 
 
 // Misc functions

@@ -392,10 +392,15 @@ inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 #ifdef QT_NO_TRANSLATION
 // Simple versions
 inline QString QApplication::translate( const char *, const char *key ) const
-{ return key; }
+{
+    return key;
+}
+
 inline QString	QApplication::translate( const char *, const char *key,
 			    const char * ) const
-{ return key; }
+{
+    return key;
+}
 #endif
 
 #endif // QAPPLICATION_H
