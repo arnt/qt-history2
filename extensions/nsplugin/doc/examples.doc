@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.7 1999/06/07 10:55:41 warwick Exp $
+** $Id: examples.doc,v 1.8 1999/06/16 20:04:47 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.7 1999/06/07 10:55:41 warwick Exp $";
+static char ident[] = "$Id: examples.doc,v 1.8 1999/06/16 20:04:47 agulbra Exp $";
 #endif
 
 
@@ -53,8 +53,7 @@ static char ident[] = "$Id: examples.doc,v 1.7 1999/06/07 10:55:41 warwick Exp $
 
 <br clear>
 With the simplicity and cross-platform nature of Qt-based plugins,
-pages like
-<a href=http://www.netcraft.com/survey/>Netcraft's
+pages like <a href="http://www.netcraft.com/survey/">Netcraft's
 Server Graphs</a> can be provided much more efficiently for both
 the service provider and consumer.  Data need not be converted
 to an image at the server.
@@ -106,10 +105,10 @@ This plugin supports transparency and scaling of the image, just like
 GIFs in most WWW browsers.
 
 <br>
-<EMBED align=middle src=test.png WIDTH=182 HEIGHT=138> 
-<EMBED align=middle src=test.png WIDTH=137 HEIGHT=104> 
-<EMBED align=middle src=test.png WIDTH=91 HEIGHT=69> 
-<EMBED align=middle src=test.png WIDTH=46 HEIGHT=35> 
+<EMBED align=middle src=test.png WIDTH=182 HEIGHT=138>
+<EMBED align=middle src=test.png WIDTH=137 HEIGHT=104>
+<EMBED align=middle src=test.png WIDTH=91 HEIGHT=69>
+<EMBED align=middle src=test.png WIDTH=46 HEIGHT=35>
 */
 
 /*! \base64 test.png
