@@ -55,7 +55,7 @@ QString size_type_to_string( QSizePolicy::SizeType t )
 	return "Expanding";
     if ( t == QSizePolicy::Ignored )
 	return "Ignored";
-    return 0;
+    return QString();
 }
 
 QSizePolicy::SizeType int_to_size_type( int i )

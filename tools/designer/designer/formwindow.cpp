@@ -1909,7 +1909,7 @@ void FormWindow::checkAccels()
 					       tr( "Accelerator '%1' is used %2 times."
 						   ).arg( it.key().upper() ).arg( (*it).count() ),
 					       tr( "&Select" ),
-					       tr( "&Cancel" ), 0, 2 ) ) {
+					       tr( "&Cancel" ), QString::null, 2 ) ) {
 	    case 0: // select
 		clearSelection( FALSE );
 		for ( wid = (*it).first(); wid; wid = (*it).next() )

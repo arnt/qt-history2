@@ -164,7 +164,7 @@ bool DatabaseConnection::open( bool suppressDialog )
 					  + QString( "[" + conn->lastError().driverText() + "\n" +
 						     conn->lastError().databaseText() + "]\n" ),
 					  QApplication::tr( "&OK" ),
-					  QApplication::tr( "&Cancel" ), 0, 0, 1 ) ) {
+					  QApplication::tr( "&Cancel" ), QString::null, 0, 1 ) ) {
 	    case 0: // OK or Enter
 		continue;
 	    case 1: // Cancel or Escape
