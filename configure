@@ -77,7 +77,8 @@ then
     done
 
     # symlink the mkspecs directory
-    [ -f "$outpath/mkspecs" ] || ln -s $relpath/mkspecs $outpath/mkspecs
+    rm -f $outpath/mkspecs
+    ln -s $relpath/mkspecs $outpath/mkspecs
 
     # symlink the linguist/doc directory (to make the assistant happy)
     if [ ! -d $outpath/tools ]
