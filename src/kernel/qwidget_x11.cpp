@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#9 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#9 $";
 #endif
 
 
@@ -31,6 +31,17 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#8 $";
 //
 
 extern Atom q_wm_delete_window;			// defined in qapp_x11.cpp
+
+const ulong stdWidgetEventMask =		// X event mask
+	KeyPressMask | KeyReleaseMask |
+	ButtonPressMask | ButtonReleaseMask |
+	KeymapStateMask |
+	ButtonMotionMask |
+	EnterWindowMask | LeaveWindowMask |
+	FocusChangeMask |
+	ExposureMask |
+	StructureNotifyMask |
+	SubstructureRedirectMask;
 
 bool QWidget::create()				// create widget
 {
@@ -104,6 +115,8 @@ bool QWidget::create()				// create widget
 
 bool QWidget::destroy()				// destroy widget
 {
+    if ( this == activeWidget )
+	activeWidget = 0;
     if ( testFlag( WState_Created ) ) {
 	clearFlag( WState_Created );
 	if ( children() ) {
@@ -137,17 +150,7 @@ bool QWidget::setMouseMoveEvents( bool onOff )
 	clearFlag( WEtc_MouseMove );
     }
     XSelectInput( dpy, ident,			// specify events
-		  mm|
-		  KeyPressMask|KeyReleaseMask|
-		  ButtonPressMask|ButtonReleaseMask|
-		  KeymapStateMask|
-		  ButtonMotionMask|
-		  EnterWindowMask|LeaveWindowMask|
-		  FocusChangeMask|
-		  ExposureMask|
-		  StructureNotifyMask|
-		  SubstructureRedirectMask
-		);
+		  mm | stdWidgetEventMask );
     return v;
 }
 
@@ -208,11 +211,80 @@ void QWidget::setCursor( const QCursor &c )	// set cursor
 }
 
 
-bool QWidget::update()				// update widget
+void QWidget::grabKeyboard()
+{
+    if ( !testFlag(WState_KGrab) ) {
+	setFlag( WState_KGrab );
+	XGrabKeyboard( dpy, ident, TRUE, GrabModeAsync, GrabModeAsync,
+		       CurrentTime );
+    }
+}
+
+void QWidget::releaseKeyboard()
+{
+    if ( testFlag(WState_KGrab) ) {
+	clearFlag( WState_KGrab );
+	XUngrabKeyboard( dpy, CurrentTime );
+    }
+}
+
+
+void QWidget::grabMouse( bool exclusive )
+{
+    if ( !testFlag(WState_MGrab) ) {
+	setFlag( WState_MGrab );
+	XGrabPointer( dpy, ident, TRUE, 0,
+		      GrabModeAsync, GrabModeAsync,
+		      None, None, CurrentTime );
+    }
+}
+
+void QWidget::releaseMouse()
+{
+    if ( testFlag(WState_MGrab) ) {
+	clearFlag( WState_MGrab );
+	XUngrabPointer( dpy, CurrentTime );
+    }
+}
+
+
+void QWidget::setFocus()			// set keyboard focus
+{
+    if ( activeWidget == this ) {		// is active widget
+	if ( !testFlag(WState_FocusA) ) {
+	    QEvent evt( Event_FocusOut );
+	    if ( SEND_EVENT( this, &evt ) )
+		setFlag( (WState_FocusA | WState_FocusP) );
+	}
+	return;
+    }
+    else if ( activeWidget ) {			// send focus-out
+	activeWidget->clearFlag( WState_FocusA );
+	if ( activeWidget->parent && activeWidget->parent == parent )
+	    activeWidget->clearFlag( WState_FocusP );
+	QEvent evt( Event_FocusOut );
+	SEND_EVENT( activeWidget, &evt );
+    }
+    setFlag( WState_FocusA );
+    activeWidget = this;
+}
+
+QWidget *QWidget::widgetInFocus()		// get focus widget
+{
+    return activeWidget;
+}
+
+
+void QWidget::update()				// update widget
 {
     XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
-    return TRUE;
 }
+
+void QWidget::update( int x, int y, int w, int h )
+{						// update part of widget
+    XClearArea( dpy, ident, x, y, w, h, TRUE );
+}
+
 
 void QWidget::show()				// show widget
 {
@@ -420,13 +492,26 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 	h += dy;
     }
     XCopyArea( dpy, ident, ident, gc, x1, y1, w, h, x2, y2 );
+    if ( children() ) {				// scroll children
+	QPoint pd( dx, dy );
+	QObjectListIt it(*children());
+	register QObject *object;
+	while ( it ) {				// move all children
+	    object = it.current();
+	    if ( object->isWidgetType() ) {
+		QWidget *w = (QWidget *)object;
+		w->move( w->clientGeometry().topLeft()+pd );
+	    }
+	    ++it;
+	}
+    }
     if ( dx ) {
 	x1 = x2 == 0 ? w : 0;
-	XClearArea( dpy, ident, x1, 0, sz.width()-w, sz.height(), FALSE );
+	XClearArea( dpy, ident, x1, 0, sz.width()-w, sz.height(), TRUE );
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
-	XClearArea( dpy, ident, 0, y1, sz.width(), sz.height()-h, FALSE );
+	XClearArea( dpy, ident, 0, y1, sz.width(), sz.height()-h, TRUE );
     }
 }
 
