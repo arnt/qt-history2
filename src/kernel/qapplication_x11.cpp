@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#193 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #define select		_qt_hide_select
+#define gettimeofday	_qt_hide_gettimeofday
 #include "qapp.h"
 #include "qwidget.h"
 #include "qobjcoll.h"
@@ -18,11 +19,9 @@
 #include "qpmcache.h"
 #include "qdatetm.h"
 #if defined(_OS_WIN32_)
-#define HANDLE dummy
+#define HANDLE		_qt_hide_handle
 #include <winsock.h>
 #undef	HANDLE
-#else
-#define gettimeofday	_qt__hide_gettimeofday
 #endif
 #include <stdlib.h>
 #include <ctype.h>
@@ -39,8 +38,8 @@
 #include <unistd.h>
 #endif
 
-#if defined(_OS_IRIX_)
-#include <bstring.h>	// bzero
+#if defined(_OS_IRIX_) || defined(_OS_AIX_)
+#include <bstring.h>				// bzero
 #endif
 
 #undef gettimeofday
@@ -48,7 +47,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#192 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#193 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -98,12 +97,12 @@ static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
-static QWidgetList *modal_stack = 0;		// stack of modal widgets
+static QWidgetList *modal_stack  = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets = 0;		// list of popup widgets
+static QWidget     *popupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
 static bool	    popupFilter( QWidget * );
-static QWidget     *widgetWithButtonFocus = 0;
 
 typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
@@ -883,9 +882,9 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
 	    ((QPEvent*)pe->event)->clearPostedFlag();
 	    postedEvents->remove();
 	    pe = postedEvents->current();
-	}
-	else
+	} else {
 	    pe = postedEvents->next();
+	}
     }
 }
 
@@ -1765,8 +1764,7 @@ static inline void getTime( timeval &t )	// get time of day
 	if ( t.tv_sec > 0 ) {
 	    t.tv_usec += 1000000;
 	    t.tv_sec--;
-	}
-	else {
+	} else {
 	    t.tv_usec = 0;
 	    break;
 	}
@@ -1907,7 +1905,7 @@ int qStartTimer( int interval, QObject *obj )
     return id;
 }
 
-bool qKillTimer( int id )			// kill timer with id
+bool qKillTimer( int id )
 {
     register TimerInfo *t;
     if ( !timerList || id <= 0 || id > MaxTimers || !testTimerBit(id) )
@@ -1923,7 +1921,7 @@ bool qKillTimer( int id )			// kill timer with id
 	return FALSE;
 }
 
-bool qKillTimer( QObject *obj )			// kill timers for obj
+bool qKillTimer( QObject *obj )
 {
     register TimerInfo *t;
     if ( !timerList )				// not initialized
@@ -1934,9 +1932,9 @@ bool qKillTimer( QObject *obj )			// kill timers for obj
 	    clearTimerBit( t->id );
 	    timerList->remove();
 	    t = timerList->current();
-	}
-	else
+	} else {
 	    t = timerList->next();
+	}
     }
     return TRUE;
 }
@@ -2035,7 +2033,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     if ( type == 0 )				// don't send event
 	return FALSE;
 
-    if ( popupWidgets ) {			// oops, in popup mode
+    if ( popupWidgets ) {			// in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
@@ -2044,28 +2042,25 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
 	}
 
-	QWidget * popupChild = findChildWidget( popup, pos );
+	QWidget *popupChild = findChildWidget( popup, pos );
 	bool releaseAfter = FALSE;
 	switch ( type ) {
-	case Event_MouseButtonPress:
-	    widgetWithButtonFocus = popupChild;
-	    break;
-	case Event_MouseButtonDblClick:
-	    widgetWithButtonFocus = popupChild;
-	    break;
-	case Event_MouseButtonRelease:
-	    releaseAfter = TRUE;
-	    break;
-	default:
-	    // nothing for mouse move
-	    break;
+	    case Event_MouseButtonPress:
+	    case Event_MouseButtonDblClick:
+		popupButtonFocus = popupChild;
+		break;
+	    case Event_MouseButtonRelease:
+		releaseAfter = TRUE;
+		break;
+	    default:
+		break;				// nothing for mouse move
 	}
 
-	if ( widgetWithButtonFocus ) {
-	    QMouseEvent e( type, widgetWithButtonFocus->mapFromGlobal( popup->mapToGlobal( pos ) ), button, state );
-	    QApplication::sendEvent( widgetWithButtonFocus, &e );
+	if ( popupButtonFocus ) {
+	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal( popup->mapToGlobal( pos ) ), button, state );
+	    QApplication::sendEvent( popupButtonFocus, &e );
 	    if ( releaseAfter )
-		widgetWithButtonFocus = 0;
+		popupButtonFocus = 0;
 	} else {
 	    QMouseEvent e( type, pos, button, state );
 	    QApplication::sendEvent( popup, &e );
@@ -2174,21 +2169,20 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes
-    if ( key < 256 )
+    if ( key < 256 ) {
 	code = isprint(key) ? toupper(key) : 0; // upper-case key, if known
-    else
-    if ( key >= XK_F1 && key <= XK_F24 )	// function keys
-	code = Key_F1 + ((int)key - XK_F1);	// assumes contiguous codes!
-    else
-    if ( key >= XK_KP_0 && key <= XK_KP_9 )	// numeric keypad keys
-	code = Key_0 + ((int)key - XK_KP_0);	// assumes contiguous codes!
-    else {
+    } else if ( key >= XK_F1 && key <= XK_F24 ) {
+	code = Key_F1 + ((int)key - XK_F1);	// function keys
+    } else if ( key >= XK_KP_0 && key <= XK_KP_9){
+	code = Key_0 + ((int)key - XK_KP_0);	// numeric keypad keys
+    } else {
 	int i = 0;				// any other keys
-	while ( KeyTbl[i] && code == -1 ) {
-	    if ( key == KeyTbl[i] )
+	while ( KeyTbl[i] ) {
+	    if ( key == KeyTbl[i] ) {
 		code = KeyTbl[i+1];
-	    else
-		i += 2;
+		break;
+	    }
+	    i += 2;
 	}
 	if ( code == Key_Tab && (state & ShiftButton) == ShiftButton ) {
 	    code = Key_Backtab;
@@ -2212,7 +2206,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 #endif
     QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
-    if ( popupWidgets ) {			// oops, in popup mode
+    if ( popupWidgets ) {			// in popup mode
 	QWidget *popup = popupWidgets->last();
 	QApplication::sendEvent( popup, &e );	// send event to popup instead
 	if ( popupWidgets ) {			// still in popup mode
