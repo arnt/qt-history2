@@ -1,30 +1,16 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 
+#define QT_ACTIVEX_IMPL
 #include "ax1.h"
 #include "ax2.h"
 
-#include "tmp/iid_i.c"
-
-class QActiveQtFactory : public QActiveQtFactoryInterface 
+class ActiveQtFactory : public QActiveQtFactory
 {
 public:
-    QActiveQtFactory() {}
-    Q_REFCOUNT
-	QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface )
-    {
-	*iface = 0;
-	if ( iid == IID_QUnknown )
-	    *iface = this;
-	else if ( iid == IID_QFeatureList )
-	    *iface = this;
-	else if ( iid == IID_QActiveQtFactory )
-	    *iface = this;
-	else
-	    return QE_NOINTERFACE;
-	addRef();
-	return QS_OK;
-    }
+    ActiveQtFactory( const QUuid &lib, const QUuid &app )
+	: QActiveQtFactory( lib, app )
+    {}
     QStringList featureList() const
     {
 	QStringList list;
@@ -36,7 +22,7 @@ public:
     {
 	if ( QUuid(key) == CLSID_QAxWidget1 )
 	    return new QAxWidget1( parent, name );
-	else if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( QUuid(key) == CLSID_QAxWidget2 )
 	    return new QAxWidget2( parent, name );
 	return 0;
     }
@@ -44,7 +30,7 @@ public:
     {
 	if ( QUuid(key) == CLSID_QAxWidget1 )
 	    return QAxWidget1::staticMetaObject();
-	else if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( QUuid(key) == CLSID_QAxWidget2 )
 	    return QAxWidget2::staticMetaObject();
 	return 0;
     }
@@ -52,32 +38,21 @@ public:
     {
 	if ( QUuid(key) == CLSID_QAxWidget1 )
 	    return IID_IQAxWidget1;
-	else if ( QUuid(key) == CLSID_QAxWidget2 )
+	if ( QUuid(key) == CLSID_QAxWidget2 )
 	    return IID_IQAxWidget2;
 	return QUuid();
     }
     QUuid eventsID( const QString &key ) const
     {
 	if ( QUuid(key) == CLSID_QAxWidget1 )
-	    return DIID_IQAxWidget1Events;
-	else if ( QUuid(key) == CLSID_QAxWidget2 )
-	    return DIID_IQAxWidget2Events;
+	    return IID_IQAxWidget1Events;
+	if ( QUuid(key) == CLSID_QAxWidget2 )
+	    return IID_IQAxWidget2Events;
 	return QUuid();
-    }
-    QUuid typeLibID() const
-    {
-	return LIBID_multipleaxLib;
-    }
-    QUuid appID() const
-    {
-	return QUuid( "{05828915-AD1C-47ab-AB96-D6AD1E25F0E2}" );
     }
 };
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( QActiveQtFactory )
-}
+Q_EXPORT_ACTIVEX( ActiveQtFactory, IID_QAxWidget1Lib, IID_QAxWidget1App )
 
 int main( int argc, char **argv )
 {

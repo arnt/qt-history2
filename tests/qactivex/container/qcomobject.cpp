@@ -342,8 +342,6 @@ private:
 
     \brief The QComBase class is an abstract class that provides an API to initalize and access a COM object.
 
-    \extension QActiveX
-
     QComBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
     QComObject and QActiveX. This class however provides the API to access the COM object directly through 
     its IUnknown implementation. If the COM object implements the IDispatch interface, the properties, 
@@ -910,8 +908,10 @@ QMetaObject *QComBase::metaObject() const
 				} else {
 				    prototype = set + prototype;
 				}
-				parameters.append( pname );
-				paramTypes.append( constRefify(ptype) );
+				if ( !!ptype ) {
+				    parameters.append( pname );
+				    paramTypes.append( constRefify(ptype) );
+				}
 				if ( slotlist.find( prototype ) )
 				    break;
 			    }
@@ -1951,8 +1951,6 @@ void QComBase::setPropertyWritable( const char *prop, bool ok )
 /*!
     \class QComObject qcomobject.h
     \brief The QComObject class provides a QObject that wraps a COM object.
-
-    \extension QActiveX
 
     A QComObject can be instantiated as an empty object, with the name of the COM object
     it should wrap, or with a pointer to the IUnknown that represents an existing COM object.

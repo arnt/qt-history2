@@ -5,7 +5,7 @@
 #include <qlineedit.h>
 #include <quuid.h>
 #include <qmessagebox.h>
-#define QT_ACTIVEXIMPL
+#define QT_ACTIVEX_DEFAULT
 #include <qactiveqt.h>
 
 class QSimpleAX : public QWidget, public QActiveQt
@@ -95,12 +95,23 @@ QT_ACTIVEX(QSimpleAX,
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
+    QWidget *w = 0;
 
-    if ( !( argc>1 && !qstrcmp(argv[2],"-activex") ) ) {
-	QSimpleAX w;
-	app.setMainWidget( &w );
-	w.show();
+    bool isActiveX = FALSE;
+    for ( int arg = 0; arg < argc; ++arg ) {
+	if ( !qstrcmp(argv[arg], "-activex") ) {
+	    isActiveX = TRUE;
+	    break;
+	}
+    }
+    if ( !isActiveX ) {
+	w = new QSimpleAX();
+	app.setMainWidget( w );
+	w->show();
     }
 
-    return app.exec();
+    int res = app.exec();
+    delete w;
+
+    return res;
 }

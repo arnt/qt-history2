@@ -158,8 +158,6 @@ static OLE_COLOR QColorToOLEColor( const QColor &col )
     \class QActiveX qactivex.h
     \brief The QActiveX class is a QWidget that wraps an ActiveX control.
 
-    \extension QActiveX
-
     A QActiveX can be instantiated as an empty object or with the name of the ActiveX control
     it should wrap.The properties, methods and events of the ActiveX control become available as Qt properties, 
     slots and signals. The baseclass QComBase provides also an API to access the ActiveX directly 

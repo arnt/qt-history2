@@ -9,16 +9,255 @@
 QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 
 /*!
-    \class QActiveQt qactiveqt.h
-    \brief The QActiveQt class is the base class of all ActiveX controls written with Qt.
+    \class QActiveQtFactoryInterface qactiveqt.h
+    \brief The QActiveQtFactoryInterface class is an interface for the creation of ActiveX components.
 
-    \extension QActiveX
+    Implement this interface once in your ActiveX server to provide information about the components
+    this server can create. The interface inherits the QFeatureListInterface and works key-based. A
+    key in this interface is the class identifier of the ActiveX object in the textual format
+    {01234567-89AB-CDEF-0123-456789ABCDEF}.
+
+    To instantiate and export your implementation of the factory interface, use the Q_EXPORT_COMPONENT
+    and Q_CREATE_INSTANCE macros:
+
+    \code
+    class MyActiveQtFactory : public QActiveQtFactoryInterface
+    {
+	...
+    };
+
+    Q_EXPORT_COMPONENT()
+    {
+	Q_CREATE_INSTANCE( MyActiveQtFactory )
+    }
+    \endcode
+
+    The QActiveQtFactory class provide a convenient implementation of this interface.
 */
 
 /*!
-    Constructs an empty QActiveQt object with parent \a parent and the name \a name,
-    using the widget flags \ f.
-    \a parent, \a name and \a f are propagated to the QWidget constructor.
+    \fn QWidget *QActiveQtFactoryInterface::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
+
+    Reimplement this function to return a new widget for \a key. Propagate \a parent and \a name to the
+    QWidget constructor. Return 0 if this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QMetaObject *QActiveQtFactoryInterface::metaObject( const QString &key ) const
+
+    Reimplement this function to return the QMetaObject for \a key. Use the QObject::staticMetaObject() for that.
+    The class implementing the ActiveX control has to use the Q_OBJECT macro to generate meta object information.
+    Return 0 if this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactoryInterface::interfaceID( const QString &key ) const
+
+    Reimplement this function to return the interface identifier for \a key, or an empty QUuid if
+    this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactoryInterface::eventsID( const QString &key ) const
+
+    Reimplement this function to return the identifier of the event interface for \a key, or an empty QUuid if
+    this factory doesn't support the value of \a key.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactoryInterface::typeLibID() const
+
+    Reimplement this function to return the type library identifier for this ActiveX server.
+*/
+
+/*!
+    \fn QUuid QActiveQtFactoryInterface::appID() const
+
+    Reimplement this function to return the application identifier for this ActiveX server.
+*/
+
+
+/*!
+    \class QActiveQtFactory qactiveqt.h
+    \brief The QActiveQtFactory class provides a default implementation of the QActiveQtFactoryInterface.
+
+    Derive your ActiveX factory from this class rather than QActiveQtFactoryInterface for convenience, and
+    use the Q_EXPORT_ACTIVEX macro to instantiate and export it:
+
+    \code
+    class MyActiveQtFactory : public QActiveQtFactory
+    {
+	...
+    };
+
+    Q_EXPORT_ACTIVEX( MyActiveQtFactory,		      // factory class
+		    "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+		    "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+		    )
+    \endcode
+
+    If your ActiveX server supports only a single ActiveX control, you can use a default factory implementation instead
+    of implementing the factory on your own. To do that, #define QT_ACTIVEX_DEFAULT in the implementation file for the 
+    control before #include'ing the header file declaring the class. The ActiveX control class has to inherit QActiveQt:
+
+    In the header file:
+    \code
+    #include <qactiveqt.h>
+    #include <qwidget.h>
+
+    class TheActiveX : public QWidget, public QActiveQt
+    {
+        Q_OBJECT
+    public:
+	TheActiveX( QWidget *parent, const char *name );
+	...
+    };
+
+    QT_ACTIVEX( TheActiveX, <clsid>, <iid>, <diid>, <libid>, <appid> )
+    \endcode
+
+    In the implementation file:
+    \code
+    #define QT_ACTIVEX_DEFAULT
+    #include "theactivex.h"
+
+    TheActiveX::TheActiveX( QWidget *parent, const char *name )
+    : QWidget( parent, name )
+    {
+    ...
+    }
+    \endcode
+
+    If you implement your own factory, #define QT_ACTIVEX_IMPL before including the declaration files of the ActiveX
+    controls your factory support:
+
+    \code
+    #define QT_ACTIVEX_IMPL
+    #include "activex1.h"
+    #include "activex2.h"
+
+    // Factory implementation
+    \endcode
+
+    You can then use the values passed to the QT_ACTIVEX macro in the factory implementation:
+
+    \code
+    QStringList ActiveQtFactory::featureList() const
+    {
+	QStringList list;
+	list << QUuid( CLSID_ActiveX1 );
+	list << QUuid( CLSID_ActiveX2 );
+	...
+	return list;
+    }
+
+    QWidget *ActiveQtFactory::create( const QString &key, QWidget *parent, const char *name )
+    {
+	if ( QUuid(key) == CLSID_ActiveX1 )
+	    return new ActiveX1( parent, name );
+	...
+	return 0;
+    }
+    
+    ...
+
+    QUuid ActiveQtFactory::interfaceID( const QString &key ) const
+    {
+	if ( QUuid(key) == CLSID_ActiveX1 )
+	    return IID_IActiveX1;
+	...
+	return QUuid();
+    }
+
+    QUuid ActiveQtFactory::eventsID( const QString &key ) const
+    {
+	if ( QUuid(key) == CLSID_ActiveX1 )
+	    return IID_IActiveX1Events;
+	...
+	return QUuid();
+    }
+    \endcode
+
+    The values of all IID_<class>Lib and IID_<class>App are supposed to be equal, so you can use
+    any of them in the Q_EXPORT_ACTIVEX macro.
+*/
+
+/*!
+    Constructs a QActiveQtFactory object that returns \a libid and \a appid
+    in the implementation of the respective interface functions.
+*/
+
+QActiveQtFactory::QActiveQtFactory( const QUuid &libid, const QUuid &appid )
+    : typelib( libid ), app( appid )
+{
+}
+
+/*!
+    \internal
+*/
+QRESULT QActiveQtFactory::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+{
+    *iface = 0;
+    if ( iid == IID_QUnknown )
+	*iface = this;
+    else if ( iid == IID_QFeatureList )
+	*iface = this;
+    else if ( iid == IID_QActiveQtFactory )
+	*iface = this;
+    else
+	return QE_NOINTERFACE;
+    addRef();
+    return QS_OK;
+}
+
+/*!
+    \reimp
+*/
+QUuid QActiveQtFactory::typeLibID() const
+{
+    return typelib;
+}
+
+/*!
+    \reimp
+*/
+QUuid QActiveQtFactory::appID() const
+{
+    return app;
+}
+
+
+/*!
+    \class QActiveQt qactiveqt.h
+    \brief The QActiveQt class provides an interface between the Qt widget and the ActiveX control.
+
+    When implementing ActiveX controls with Qt, inherit your control class from both QWidget (directly or
+    indirectly) and this class. The meta object compiler requires you to inherit first from QWidget.
+
+    \code
+    class MyActiveX : public QWidget, public QActiveQt
+    {
+	Q_OBJECT
+    public:
+	MyActiveX( QWidget *parent = 0, const char *name = 0 );
+	...
+    };
+    \endcode
+
+    If you use the IDC to generate an interface definition from your class declaration, use the QT_ACTIVEX 
+    macro to declare the class and the identifiers of the interfaces implemented by your class:
+
+    QT_ACTIVEX( MyActiveX,				    // class
+		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // class ID
+		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // interface ID
+		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // event interface ID
+		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // type library ID
+		"{01234567-89AB-CDEF-0123-456789ABCDEF}"    // application ID
+	      )
+*/
+
+/*!
+    Constructs an empty QActiveQt object.
 */
 QActiveQt::QActiveQt()
     :activex(0)
@@ -331,7 +570,6 @@ private:
 QActiveQtBase::QActiveQtBase( IID QAxClass )
 : initNewCalled(FALSE), dirtyflag( FALSE ), activeqt( 0 ), ref( 0 ),
   IID_QAxClass( QAxClass ), slotlist(0), signallist(0),proplist(0), proplist2(0)
-
 {
     _Module.Lock();
     if ( !typeInfoHolderList ) {
@@ -352,7 +590,7 @@ QActiveQtBase::QActiveQtBase( IID QAxClass )
     typeInfoHolderList->append( _tih );
 
     _tih2 = new CComTypeInfoHolder();
-    _tih2->m_pguid = &IID_QAxClass;
+    _tih2->m_pguid = new GUID( QAxClass );
     _tih2->m_plibid = new GUID( _Module.factory()->typeLibID() );
     _tih2->m_wMajor = 1;
     _tih2->m_wMinor = 0;

@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#define QT_ACTIVEXIMPL
+#define QT_ACTIVEX_DEFAULT
 #include "qtetrix.h"
 #include <qapplication.h>
 #include <qlabel.h>

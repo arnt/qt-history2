@@ -119,8 +119,7 @@ public:
     {
 	const QString clsid = QUuid(classID).toString();
 	QActiveQtBase *activeqt = new QActiveQtBase( classID );
-	activeqt->QueryInterface( iid, ppObject );
-	return S_OK;
+	return activeqt->QueryInterface( iid, ppObject );
     }
     HRESULT WINAPI LockServer( BOOL fLock )
     {
@@ -223,7 +222,7 @@ static HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/Interface/" + ifaceID + "/TypeLib/.", libID );
 	    settings.writeEntry( "/Interface/" + ifaceID + "/TypeLib/Version", "1.0" );
 	    
-	    settings.writeEntry( "/Interface/" + eventID + "/.", "_I" + className + "Events" );
+	    settings.writeEntry( "/Interface/" + eventID + "/.", "I" + className + "Events" );
 	    settings.writeEntry( "/Interface/" + eventID + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + eventID + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + eventID + "/TypeLib/.", libID );
@@ -379,6 +378,17 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    Sleep(dwPause); //wait for any threads to finish
 
 	    _Module.Term();
+	    if ( QActiveQtBase::typeInfoHolderList ) {
+		QPtrListIterator<CComTypeInfoHolder> it( *QActiveQtBase::typeInfoHolderList );
+		while ( it.current() ) {
+		    CComTypeInfoHolder *pth = it.current();
+		    delete (GUID*)pth->m_pguid;
+		    pth->m_pguid = 0;
+		    delete (GUID*)pth->m_plibid;
+		    pth->m_plibid = 0;
+		    ++it;
+		}
+	    }
 	    delete QActiveQtBase::typeInfoHolderList;
 	    QActiveQtBase::typeInfoHolderList = 0;
 

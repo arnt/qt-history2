@@ -3,6 +3,7 @@
 #include <qstringlist.h>
 #include <qregexp.h>
 #include <qmap.h>
+#include <qdir.h>
 
 static const int ntypes = 32;
 static const char* const type_map[ntypes][2] =
@@ -461,6 +462,9 @@ int main( int argc, char **argv )
 
     filebase = output;
     filebase = filebase.left( filebase.findRev( "." ) );
+
+    QDir dir(".");
+    dir.mkdir( "tmp", FALSE );
 
     if ( !!resource ) {
 	QFile file( resource );
