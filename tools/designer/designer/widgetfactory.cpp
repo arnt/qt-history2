@@ -1424,10 +1424,11 @@ QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, M
 
 QVariant WidgetFactory::property( QObject *w, const char *name )
 {
-    QVariant v = w->property( name );
-    if ( v.isValid() )
-	return v;
-    return MetaDataBase::fakeProperty( w, name );
+    int id = w->metaObject()->findProperty( name, TRUE );
+    const QMetaProperty* p = w->metaObject()->property( id, TRUE );
+    if ( !p || !p->isValid() )
+	return MetaDataBase::fakeProperty( w, name );
+    return w->property( name );
 }
 
 void QDesignerLabel::updateBuddy()
