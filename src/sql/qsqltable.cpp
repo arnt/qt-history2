@@ -460,6 +460,8 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 	return;
     }
     if ( e->button() == RightButton && d->mode == QSqlTable::None ) {
+	if ( isReadOnly() )
+	    return;
 	enum {
 	    IdInsert,
 	    IdUpdate,
@@ -470,9 +472,9 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
 	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );
 	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
-	popup->setItemEnabled( id[ IdInsert ], !isReadOnly() && d->cursor->canInsert() );
-	popup->setItemEnabled( id[ IdUpdate ], !isReadOnly() && currentRow()>-1 && d->cursor->canUpdate() );
-	popup->setItemEnabled( id[ IdDelete ], !isReadOnly() && currentRow()>-1 && d->cursor->canDelete() );
+	popup->setItemEnabled( id[ IdInsert ], d->cursor->canInsert() );
+	popup->setItemEnabled( id[ IdUpdate ], currentRow()>-1 && d->cursor->canUpdate() );
+	popup->setItemEnabled( id[ IdDelete ], currentRow()>-1 && d->cursor->canDelete() );
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 	if ( r == id[ IdInsert ] )
