@@ -7,7 +7,7 @@ include Makefile
 CFLAGS		= -O2
 CDBGFLAGS	= -g
 CSTATICFLAGS	=
-CSHAREDFLAGS	= -fPIC
+CSHAREDFLAGS	= -fpic
 CC		= CC
 
 sun:	sunshared
