@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -283,8 +283,11 @@ bool QFile::open( int m, int f )
     return TRUE;
 }
 
-Q_ULONG QFile::size() const
+QIODevice::Offset QFile::size() const
 {
+#if defined(QT_LARGE_FILE)
+#error "large file support not yet implemented!"
+#else
     QT_STATBUF st;
     if ( isOpen() ) {
 	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
@@ -296,10 +299,14 @@ Q_ULONG QFile::size() const
 	}
     }
     return st.st_size;
+#endif
 }
 
-bool QFile::at( Q_ULONG pos )
+bool QFile::at( Offset pos )
 {
+#if defined(QT_LARGE_FILE)
+#error "large file support not yet implemented!"
+#else
     if ( !isOpen() ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QFile::at: File is not open" );
@@ -320,6 +327,7 @@ bool QFile::at( Q_ULONG pos )
 	qWarning( "QFile::at: Cannot set file position %d", pos );
 #endif
     return okay;
+#endif
 }
 
 Q_LONG QFile::readBlock( char *p, Q_ULONG len )

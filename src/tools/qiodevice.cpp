@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QIODevice class
 **
 ** Created : 940913
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -512,8 +512,8 @@ QIODevice::Offset QIODevice::at() const
 bool QIODevice::at( Offset pos )
 {
 #if defined(QT_CHECK_RANGE)
-    if ( (uint)pos > size() ) {
-	qWarning( "QIODevice::at: Index %ld out of range", pos );
+    if ( pos > size() ) {
+	qWarning( "QIODevice::at: Index out of range" );
 	return FALSE;
     }
 #endif

@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -93,7 +93,7 @@ public:
     bool	 at( Offset );
     bool	 atEnd() const;
 
-    Q_ULONG	 bytesAvailable() const;
+    Q_ULONG	 bytesAvailable() const; // ### QIODevice::Offset instead?
     Q_ULONG	 waitForMore( int msecs ) const;
     Q_ULONG	 bytesToWrite() const;
 
