@@ -251,6 +251,7 @@ QSqlCursor::QSqlCursor( const QSqlCursor & other )
     d->srt = other.d->srt;
     d->ftr = other.d->ftr;
     d->priIndx = other.d->priIndx;
+    d->infoBuffer = other.d->infoBuffer;
     setMode( other.mode() );
 }
 
@@ -278,6 +279,7 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
     d->srt = other.d->srt;
     d->ftr = other.d->ftr;
     d->priIndx = other.d->priIndx;
+    d->infoBuffer = other.d->infoBuffer;
     setMode( other.mode() );
     return *this;
 }
