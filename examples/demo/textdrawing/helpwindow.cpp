@@ -248,7 +248,7 @@ void HelpWindow::print()
         QString file;
         QStringList::Iterator it = filePaths.begin();
         for ( ; it != filePaths.end(); ++it ) {
-            file = QUrl( *it, QUrl( browser->source() ).path() ).path();
+            file = QUrl(*it).resolved(QUrl(browser->source()).path()).path();
             if ( QFile::exists( file ) )
                 break;
             else
