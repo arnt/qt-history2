@@ -72,8 +72,8 @@
         If you want Qt::AlignLeft to always mean "left" and
         Qt::AlignRight to always mean "right", combine the flag with
         Qt::AlignAbsolute.
-    \value AlignLeading  Synonyn for Qt::AlignLeft.
-    \value AlignTrailing  Synonyn for Qt::AlignRight.
+    \value AlignLeading  Synonym for Qt::AlignLeft.
+    \value AlignTrailing  Synonym for Qt::AlignRight.
 
     Masks:
 
