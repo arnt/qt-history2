@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#9 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,9 +14,29 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#9 $";
 #endif
 
+/*! \class QFrame qframe.h
+
+  \brief This class provides decorative borders and border-like effects.
+
+  Here are the types of borders QFrame knows about: <dl compact>
+  <dt>NoFrame <dd> No visible frame, but the frame will still be as
+  wide as you tell it to be (See setFrameWidth()).
+  <dt>Box<dd> The frame is a simple box, as wide as setFrameWidth()
+  specifies.
+  <dt>Panel <dd> I'm sure hanord will fill this in.
+  <dt> HLine <dd>
+  <dt> VLine <dd>
+  <dt> MType <dd>
+  <dt> Plain <dd>
+  <dt> Raised <dd>
+  <dt> Sunken <dd>
+  <dt> MStyle <dd>
+  </dl> */
+
+/*! Creates a frame with frame style NoFrame, 1 pixel frame width, and */
 
 QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
 {
@@ -27,6 +47,8 @@ QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
     mwidth = 0;
 }
 
+/*! Returns the geometry of the rectangle inside the border. \sa
+  QRect, setFrameWidth(), setMidLineWidth().  */
 
 QRect QFrame::contentsRect() const
 {
