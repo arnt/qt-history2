@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#238 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#239 $
 **
 ** Implementation of QListBox widget class
 **
@@ -298,7 +298,7 @@ const QPixmap *QListBoxItem::pixmap() const
 /*!
   Constructs a list box item in listbox \a listtbox showing the text \a text.
 */
-QListBoxText::QListBoxText( QListBox* listbox, const QString & text=QString::null )
+QListBoxText::QListBoxText( QListBox *listbox, const QString &text )
     :QListBoxItem( listbox )
 {
     setText( text );
