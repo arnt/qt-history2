@@ -1440,6 +1440,8 @@ void QTextEdit::viewportResizeEvent( QResizeEvent *e )
 	doResize();
 }
 
+static bool blockEnsureCursorVisible = FALSE;
+
 /*!
   Ensures that the cursor is visible by scrolling the text edit if
   necessary.
@@ -1449,6 +1451,8 @@ void QTextEdit::viewportResizeEvent( QResizeEvent *e )
 
 void QTextEdit::ensureCursorVisible()
 {
+    if ( blockEnsureCursorVisible )
+	return;
     lastFormatted = cursor->parag();
     formatMore();
     QTextStringChar *chr = cursor->parag()->at( cursor->index() );
@@ -3417,11 +3421,16 @@ void QTextEdit::append( const QString &text )
     if ( f == PlainText ) {
 	QTextCursor oldc( *cursor );
 	ensureFormatted( doc->lastParag() );
+	bool scrollToEnd = contentsY() >= contentsHeight() - visibleHeight();
+	if ( !scrollToEnd )
+	    blockEnsureCursorVisible = TRUE;
 	cursor->gotoEnd();
 	if ( cursor->index() > 0 )
 	    cursor->splitAndInsertEmptyParag();
 	insert( text, FALSE, TRUE );
 	*cursor = oldc;
+	if ( !scrollToEnd )
+	    blockEnsureCursorVisible = FALSE;
     } else if ( f == RichText ) {
 	doc->setRichTextInternal( text );
 	repaintChanged();
