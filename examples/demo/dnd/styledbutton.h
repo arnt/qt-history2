@@ -19,7 +19,7 @@
 class QColor;
 class QBrush;
 
-class StyledButton : public QButton
+class StyledButton : public QAbstractButton
 {
     Q_OBJECT
 
