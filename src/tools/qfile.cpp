@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#25 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -356,18 +356,30 @@ bool QFile::open( int m, int f )		// open file, using file descr
 }
 
 /*----------------------------------------------------------------------------
-  Closes an open file.	The file will be closed even if it was opened with
-  an existing file handle or file descriptor.
+  Closes an open file.
+
+  The file will be closed even if it was opened with an existing file handle
+  or a file descriptor and it is not stdin, stdout or stderr.
+
+  \sa open(), flush()
  ----------------------------------------------------------------------------*/
 
 void QFile::close()				// close file
 {
     if ( !isOpen() )				// file is not open
 	return;
-    if ( fh )					// buffered file
-	fclose( fh );
-    else					// raw file
-	CLOSE( fd );
+    if ( fh ) {					// buffered file
+	if ( fh == stdin || fh == stdout || fh == stderr )
+	    fflush( fh );			// cannot close
+	else
+	    fclose( fh );
+    }
+    else {					// raw file
+	if ( fd == 0 || fd == 1 || fd == 2 )	// stdin, out and error
+	    ;					// cannot close
+	else
+	    CLOSE( fd );
+    }
     init();					// restore internal state
 }
 
