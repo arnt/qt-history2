@@ -1187,20 +1187,25 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
     case PE_DockWindowResizeHandle: {
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light());
+        const int extra = QRect::rectangleMode() == QRect::InclusiveRectangles ? 0 : 1;
         if (opt->state & Style_Horizontal) {
-            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.y());
+            p->drawLine(opt->rect.left(),          opt->rect.top(),
+                        opt->rect.right() - extra, opt->rect.top());
             p->setPen(opt->palette.dark());
-            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
-                        opt->rect.bottom() - 1);
+            p->drawLine(opt->rect.left(),          opt->rect.bottom() - 1 - extra,
+                        opt->rect.right() - extra, opt->rect.bottom() - 1 - extra);
             p->setPen(opt->palette.shadow());
-            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
+            p->drawLine(opt->rect.left(),          opt->rect.bottom() - extra,
+                        opt->rect.right() - extra, opt->rect.bottom() - extra);
         } else {
-            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
+            p->drawLine(opt->rect.left(), opt->rect.top(),
+                        opt->rect.left(), opt->rect.bottom() - extra);
             p->setPen(opt->palette.dark());
-            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
-                        opt->rect.height());
+            p->drawLine(opt->rect.right() - 1 - extra, opt->rect.top(),
+                        opt->rect.right() - 1 - extra, opt->rect.bottom() - extra);
             p->setPen(opt->palette.shadow());
-            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
+            p->drawLine(opt->rect.right() - extra, opt->rect.top(),
+                        opt->rect.right() - extra, opt->rect.bottom() - extra);
         }
         p->setPen(oldPen);
         break; }
