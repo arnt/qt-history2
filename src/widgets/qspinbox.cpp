@@ -60,9 +60,45 @@ public:
     uint selreq 	: 1;
 };
 
+class QSpinBoxValidator : public QIntValidator
+{
+public:
+    QSpinBoxValidator( QSpinBox *sb, const char *name )
+	: QIntValidator( sb, name ), spinBox( sb ) { }
+
+    virtual State validate( QString& str, int& pos ) const;
+
+private:
+    QSpinBox *spinBox;
+};
+
+QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
+{
+    QString pref = spinBox->prefix();
+    QString suff = spinBox->suffix();
+    uint overhead = pref.length() + suff.length();
+
+    ((QIntValidator *) this)->setRange( spinBox->minValue(),
+					spinBox->maxValue() );
+    if ( overhead == 0 ) {
+	return QIntValidator::validate( str, pos );
+    } else {
+	if ( str.length() >= overhead && str.startsWith(pref) &&
+	     str.endsWith(suff) ) {
+	    QString core = str.mid( pref.length(), str.length() - overhead );
+	    int corePos = pos - pref.length();
+	    State coreState = QIntValidator::validate( core, corePos );
+	    pos += pref.length();
+	    str.replace( pref.length(), str.length() - overhead, core );
+	    return coreState;
+	} else {
+	    return Invalid;
+	}
+    }
+}
 
 /*!
-  \class QSpinBox qspinbox.h
+  \class QSpinBox
 
   \brief The QSpinBox class provides a spin box widget (spin button).
 
@@ -204,7 +240,7 @@ void QSpinBox::initSpinBox()
     edited = FALSE;
     d->selreq = FALSE;
 
-    validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
+    validate = new QSpinBoxValidator( this, "validator" );
     vi = new QLineEdit( this, "qt_spinbox_edit" );
     d->controls->setEditWidget( vi );
     vi->setValidator( validate );
