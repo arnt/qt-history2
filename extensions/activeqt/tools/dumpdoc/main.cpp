@@ -1,11 +1,11 @@
 #include <qaxobject.h>
 #include <qfile.h>
 #include <qtextstream.h>
-#include <qcoreapplication.h>
+#include <qt_windows.h>
 
 int main(int argc, char **argv)
 {
-    QCoreApplication app(argc, argv);
+    CoInitialize(0);
 
     enum State {
         Default = 0,
