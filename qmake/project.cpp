@@ -1750,22 +1750,41 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 else
                     replacement = replacement.toLower();
             } else if(val.toLower() == "files") {
-                if(arg_list.count() != 1) {
+                if(arg_list.count() != 1 && arg_list.count() != 2) {
                     fprintf(stderr, "%s:%d files(pattern) requires one argument\n",
                             parser.file.latin1(), parser.line_no);
                 } else {
-                    QString dir, regex = arg_list[0];
-                    regex = Option::fixPathToLocalOS(regex);
-                    regex.replace("\"", "");
-                    if(regex.lastIndexOf(QDir::separator()) != -1) {
-                        dir = regex.left(regex.lastIndexOf(QDir::separator()) + 1);
-                        regex = regex.right(regex.length() - dir.length());
+                    bool recursive = false;
+                    if(arg_list.count() == 2) 
+                        recursive = (arg_list[1].toLower() == "true" || arg_list[1].toInt());
+                    QStringList dirs;
+                    QString r = Option::fixPathToLocalOS(arg_list[0]).replace("\"", "");
+                    int slash = r.lastIndexOf(QDir::separator());
+                    if(slash != -1) {
+                        dirs.append(r.left(slash));
+                        r = r.mid(slash+1);
+                    } else {
+                        dirs.append(QDir::currentDirPath());
                     }
-                    QDir d(dir, regex);
-                    for(int i = 0; i < (int)d.count(); i++) {
-                        if(!replacement.isEmpty())
-                            replacement += Option::field_sep;
-                        replacement += dir + d[i];
+                    const QRegExp regex(r, QString::CaseSensitive, QRegExp::Wildcard);
+                    for(QStringList::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+                        QString dir = *it;
+                        if(!dir.endsWith(Option::dir_sep))
+                           dir += "/";
+                        QDir qdir(dir);
+                        for(int i = 0; i < (int)qdir.count(); ++i) {
+                            if(qdir[i] == "." || qdir[i] == "..")
+                                continue;
+                            QString fname = dir + qdir[i];
+                            if(QFileInfo(fname).isDir()) {
+                                if(recursive)
+                                    dirs.append(fname);
+                            } else if(regex.exactMatch(fname)) {
+                                if(!replacement.isEmpty())
+                                    replacement += Option::field_sep;
+                                replacement += fname;
+                            }
+                        }
                     }
                 }
             } else if(val.toLower() == "prompt") {
