@@ -77,6 +77,8 @@ public:
 	FormatReference
     };
 
+    QTextFormat();
+
     Q_EXPLICIT QTextFormat(int type, int inheritedType = -1);
 
     Q_EXPLICIT QTextFormat(const QTextFormatPrivate &priv);
@@ -86,6 +88,8 @@ public:
     ~QTextFormat();
 
     void merge(const QTextFormat &other);
+
+    bool isValid() const { return type() != -1; }
 
     int type() const;
     int inheritedType() const;

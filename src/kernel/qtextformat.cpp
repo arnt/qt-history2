@@ -199,6 +199,11 @@ bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
     return true;
 }
 
+QTextFormat::QTextFormat()
+    : d(new QTextFormatPrivate(-1, -1))
+{
+}
+
 QTextFormat::QTextFormat(int type, int inheritedType)
     : d(new QTextFormatPrivate(type, inheritedType))
 {
