@@ -13,5 +13,8 @@ int main( int argc, char** argv )
 	app->setMainWidget( w );
 
 	app->exec();
+
+	w->stopProcesses();
+
 	return 0;
 }

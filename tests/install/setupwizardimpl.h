@@ -28,7 +28,6 @@ private:
     QProcess configure;
     QProcess make;
     QProcess integrator;
-    QProcess env;
     QCheckListItem* debugMode;
     QCheckListItem* buildType;
     QCheckListItem* threadModel;
@@ -59,7 +58,7 @@ private:
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );
 #else
-    void copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel = false );
+    bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel = false );
 #endif
     bool createDir( const QString& fullPath );
     int totalRead;
@@ -86,4 +85,6 @@ private:
 
     QFile fileLog;
     QFile outputLog;
+public:
+    void stopProcesses();
 };

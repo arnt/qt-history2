@@ -9,6 +9,7 @@ public:
     static bool recordUninstall( QString displayName, QString cmdString );
     static bool removeUninstall( QString displayName );
     static QString getTempPath();
+    static QString getLastError();
 
     enum {
 	LocalEnv = 1,

@@ -232,3 +232,8 @@ QString QEnvironment::getTempPath()
 
     return tmpPath;
 }
+
+QString QEnvironment::getLastError()
+{
+    return strerror( errno );
+}

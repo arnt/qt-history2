@@ -43,6 +43,16 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #endif
 }
 
+void SetupWizardImpl::stopProcesses()
+{
+    if( configure.isRunning() )
+	configure.hangUp();
+    if( make.isRunning() )
+	make.hangUp();
+    if( integrator.isRunning() )
+	integrator.hangUp();
+}
+
 void SetupWizardImpl::clickedPath()
 {
     QFileDialog dlg;
@@ -210,73 +220,77 @@ void SetupWizardImpl::integratorDone()
     QString dirName, examplesName, tutorialsName;
     bool common( folderGroups->currentItem() == 1 );
 
-    logOutput( QString::null, true );
-    setNextEnabled( buildPage, true );
+    if( !integrator.normalExit() )
+	logOutput( "The integration process failed.\n", true );
+    else {
+        logOutput( QString::null, true );
+	setNextEnabled( buildPage, true );
     
-    /*
-    ** We still have some more items to do in order to finish all the
-    ** integration stuff.
-    */
-    switch( sysID ) {
-    case MSVC:
-	{
-	    QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+	/*
+	** We still have some more items to do in order to finish all the
+	** integration stuff.
+	*/
+	switch( sysID ) {
+	case MSVC:
+	    {
+		QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
 
-	    if( autoexp.open( IO_ReadOnly ) ) { // First try to open the file to search for existing installations
-		QTextStream instream( &autoexp );
-		QString existingAutoexp;
+		if( autoexp.open( IO_ReadOnly ) ) { // First try to open the file to search for existing installations
+		    QTextStream instream( &autoexp );
+		    QString existingAutoexp;
 
-		instream >> existingAutoexp;
-		if( existingAutoexp.find( "; Trolltech Qt" ) == -1 ) {
-		    autoexp.close();
-		    if( autoexp.open( IO_Append ) ) { // Reopen the file to append our autoexp additions
-			QTextStream outstream( &autoexp );
-			outstream << "; Trolltech Qt\nQString=<d->unicode,su> len=<d->len,u>\n";
+		    instream >> existingAutoexp;
+		    if( existingAutoexp.find( "; Trolltech Qt" ) == -1 ) {
+			autoexp.close();
+			if( autoexp.open( IO_Append ) ) { // Reopen the file to append our autoexp additions
+			    QTextStream outstream( &autoexp );
+			    outstream << "; Trolltech Qt\nQString=<d->unicode,su> len=<d->len,u>\n";
+			}
 		    }
+		    if( autoexp.isOpen() )
+			autoexp.close();
 		}
-		if( autoexp.isOpen() )
-		    autoexp.close();
 	    }
+	    break;
 	}
-	break;
+	/*
+	** Set up our icon folder and populate it with shortcuts.
+	** Then move to the next page.
+	*/
+	dirName = shell.createFolder( folderPath->text(), common );
+	shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
+	shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
+	shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
+	shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
+	if( int( qWinVersion() ) & int( WV_DOS_based ) )
+	    shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
+
+	if( installTutorials->isChecked() ) {
+	    tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
+	    installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
+	}
+	if( installExamples->isChecked() ) {
+	    examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
+	    installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
+	}
+	/*
+	** Then record the installation in the registry, and set up the uninstallation
+	*/
+	QStringList uninstaller;
+	uninstaller << shell.windowsFolderName + "\\quninstall.exe";
+	uninstaller << installPath->text();
+
+	if( common )
+	    uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+	else
+	    uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
+
+	uninstaller << DISTVER;
+
+	QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
+
+	setNextEnabled( buildPage, true );
     }
-    /*
-    ** Set up our icon folder and populate it with shortcuts.
-    ** Then move to the next page.
-    */
-    dirName = shell.createFolder( folderPath->text(), common );
-    shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
-    shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
-    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
-    shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
-    if( int( qWinVersion() ) & int( WV_DOS_based ) )
-	shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
-
-    if( installTutorials->isChecked() ) {
-	tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
-	installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
-    }
-    if( installExamples->isChecked() ) {
-	examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
-	installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
-    }
-    /*
-    ** Then record the installation in the registry, and set up the uninstallation
-    */
-    QStringList uninstaller;
-    uninstaller << shell.windowsFolderName + "\\quninstall.exe";
-    uninstaller << installPath->text();
-
-    if( common )
-	uninstaller << ( QString( "\"" ) + shell.commonProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
-    else
-	uninstaller << ( QString( "\"" ) + shell.localProgramsFolderName + QString( "\\" ) + folderPath->text() + QString( "\"" ) );
-
-    uninstaller << DISTVER;
-
-    QEnvironment::recordUninstall( QString( "Qt " ) + DISTVER, uninstaller.join( " " ) );
-
-    setNextEnabled( buildPage, true );
 }
 
 void SetupWizardImpl::makeDone()
@@ -284,19 +298,23 @@ void SetupWizardImpl::makeDone()
     QStringList args;
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 
-    if( sysID != MSVC )
-	integratorDone();
+    if( !make.normalExit() )
+	logOutput( "The build process failed.\n" );
     else {
-	connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
-	connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
-	connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorError() ) );
+	if( sysID != MSVC )
+	    integratorDone();
+	else {
+	    connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
+	    connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
+	    connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorError() ) );
 
-	args << "nmake";
+	    args << "nmake";
 
-	integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
-	integrator.setArguments( args );
-	if( !integrator.start() )
-	    logOutput( "Could not start integrator process" );
+	    integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
+	    integrator.setArguments( args );
+	    if( !integrator.start() )
+		logOutput( "Could not start integrator process" );
+	}
     }
 }
 
@@ -305,17 +323,21 @@ void SetupWizardImpl::configDone()
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
     QStringList args;
 
-    connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
-    connect( &make, SIGNAL( readyReadStdout() ), this, SLOT( readMakeOutput() ) );
-    connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
+    if( !configure.normalExit() )
+	logOutput( "The configure process failed.\n" );
+    else {
+	connect( &make, SIGNAL( processExited() ), this, SLOT( makeDone() ) );
+	connect( &make, SIGNAL( readyReadStdout() ), this, SLOT( readMakeOutput() ) );
+	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 
-    args << makeCmds[ sysID ];
+	args << makeCmds[ sysID ];
 
-    make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
-    make.setArguments( args );
+	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
+	make.setArguments( args );
 
-    if( !make.start() )
-	logOutput( "Could not start make process" );
+	if( !make.start() )
+	    logOutput( "Could not start make process" );
+    }
 }
 
 void SetupWizardImpl::saveSettings()
@@ -435,6 +457,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    lib.prepend( msVCDir + "\\MFC\\LIB" );
 	    QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
 	}
+	qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
 	if( sysID == 0 )
 	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
@@ -544,6 +567,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	int totalSize( 0 );
 	QFileInfo fi;
 	totalRead = 0;
+	bool copySuccessful( true );
 
 	if( !filesCopied ) {
 #if defined (USE_ARCHIVES)
@@ -591,8 +615,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-	    operationProgress->setTotalSteps( 3500 );
-	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
+	    operationProgress->setTotalSteps( 3600 );
+	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
 	    QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
@@ -612,10 +636,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	
 #endif
 	    createDir( installPath->text() + "\\plugins\\designer" );
-	    filesCopied = true;
-	    logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
+	    filesCopied = copySuccessful;
+	    if( copySuccessful )
+		logFiles( "All files have been copied,\nThis log has been saved to the installation directory.\n", true );
+	    else
+		logFiles( "One or more errors occurred during file copying,\nplease review the log and try to amend the situation.\n", true );
 	}
-	setNextEnabled( progressPage, true );
+	setNextEnabled( progressPage, copySuccessful );
     }
     else if( newPage == buildPage ) {
 	QStringList args;
@@ -751,14 +778,14 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
 {
     if( !fileLog.isOpen() ) {
 	fileLog.setName( installPath->text() + "\\install.log" );
-	if( !fileLog.open( IO_WriteOnly ) )
+	if( !fileLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
     QTextStream outstream( &fileLog );
 
     filesDisplay->append( entry + "\n" );
 //    filesDisplay->setText( filesDisplay->text() + entry );
-    outstream << entry;
+    outstream << entry + "\n";
 
     if( close )
 	fileLog.close();
@@ -769,13 +796,13 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
     QTextStream outstream;
     if( !outputLog.isOpen() ) {
 	outputLog.setName( installPath->text() + "\\buildlog.txt" );
-	if( !outputLog.open( IO_WriteOnly ) )
+	if( !outputLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
     outstream.setDevice( &outputLog );
 
     outputDisplay->append( entry + "\n" );
-    outstream << entry;
+    outstream << entry + "\n";
 
     if( close )
 	outputLog.close();
@@ -894,38 +921,33 @@ void SetupWizardImpl::readArchive( const QString& arcname, const QString& instal
     }
 }
 #else
-void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
+bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel )
 {
     QDir dir( sourcePath );
     const QFileInfoList* list = dir.entryInfoList();
     QFileInfoListIterator it( *list );
     QFileInfo* fi;
+    bool doCopy;
 
     while( ( fi = it.current() ) ) {
 	if( fi->fileName()[ 0 ] != '.' ) {
 	    QString entryName = sourcePath + QDir::separator() + fi->fileName();
 	    QString targetName = destPath + QDir::separator() + fi->fileName();
+	    doCopy = true;
 	    if( fi->isDir() ) {
 		if( !dir.exists( targetName ) )
 		    createDir( targetName );
 		if( topLevel ) {
 		    if( fi->fileName() == "doc" )
-			if( installDocs->isChecked() )
-			    copyFiles( entryName, targetName );
-			else
-			    continue;
+			doCopy = installDocs->isChecked();
 		    else if( fi->fileName() == "tutorial" )
-			if ( installTutorials->isChecked() )
-			    copyFiles( entryName, targetName );
-			else
-			    continue;
+			doCopy = installTutorials->isChecked();
 		    else if( fi->fileName() == "examples" )
-			if( installExamples->isChecked() )
-			    copyFiles( entryName, targetName );
-			else
-			    continue;
+			doCopy = installExamples->isChecked();
 		}
-		copyFiles( entryName, targetName );
+		if( doCopy )
+		    if( !copyFiles( entryName, targetName ) )
+			return false;
 	    }
 	    else {
 		if( app ) {
@@ -947,11 +969,24 @@ void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 			}
 			outFile.close();
 		    }
+		    else {
+			QString error = QEnvironment::getLastError();
+			logFiles( QString( "   ERROR: " ) + error + "\n" );
+			if( QMessageBox::warning( this, "File output error", targetName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
+			    return false;
+		    }
 		    inFile.close();
+		}
+		else {
+		    QString error = QEnvironment::getLastError();
+		    logFiles( QString( "   ERROR: " ) + error + "\n" );
+		    if( QMessageBox::warning( this, "File input error", entryName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
+			return false;
 		}
 	    }
 	}
 	++it;
     }
+    return true;
 }
 #endif
