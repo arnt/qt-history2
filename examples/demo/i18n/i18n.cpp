@@ -218,8 +218,10 @@ void I18nDemo::wrapperDead()
 {
     Wrapper *w = (Wrapper *) sender();
 
-    if (w == lastwrapper)
+    if (w == lastwrapper) {
 	qApp->removeTranslator(&w->translator);
+	lastwrapper = 0;
+    }
 
     windowMenu->removeItem(w->id);
 }
