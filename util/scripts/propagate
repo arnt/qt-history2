@@ -8,8 +8,12 @@ if [ '!' -f ${QTDIR}/.test.$$ ];
 then
     echo
     echo
-    echo '   $QTDIR must be set to $PWD ('`pwd`')'
-    echo '   Please read INSTALL'
+    echo '   The environment variable $QTDIR is not set correctly. It is currently'
+    echo '   set to "'`echo $QTDIR`'", but it should be set to "'`pwd`'".'
+    echo
+    echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
+    echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
+    echo '   will need to log out and log in again to make the setting effective.'
     echo
     echo
     exit 1
@@ -20,7 +24,7 @@ if [ -z "$1" -o '!' -f "$1" ];
 then
     echo
     echo
-    echo '   An error occured.  This is an error message'
+    echo '   An internal error occurred, Qt cannot be built.'
     echo
     echo
     exit 2
@@ -31,20 +35,15 @@ QTDIR='$(QTDIR)'
 for a in `find . -name Makefile.in -print | sort` ; do
     N=`dirname $a`/Makefile
     M=${N}.in
-    sed -ne '1,/##* BEGIN/ p' < $M > $N
-    cat >> $N <<EOF
-#
-#   This section was automatically generated from
-#      `pwd`/Makefile for building on
-#      ${PLATFORM} on `date`
-#
+    cat > $N <<EOF
+#############################################################################
+# Automatically generated from $M
+# Build options from $1
+#############################################################################
 
-`cat $1`
-
-####### End of automatically generated section
 EOF
-    sed -ne '/##* END/,$ p' < $M >> $N
-    echo '  created' $N
+    cat .buildopts $1 $M >> $N
+    echo '  Created' $N
 done
 
 touch variables
