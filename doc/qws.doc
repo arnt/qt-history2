@@ -343,7 +343,7 @@ and no master process is running.  If you do not have a working Linux
 framebuffer you can use the
 <a href="qvfb-qws.html">Qt/Embedded virtual framebuffer</a>.
 <p>
-Change to a Linux console and select an example to run, e.g. examples/compact.
+Change to a Linux console and select an example to run, e.g. examples/widgets.
 Make sure $QTDIR is set to the directory where you installed Qt/Embedded
 and add the $QTDIR/lib directory to $LD_LIBRARY_PATH, e.g.:
 <pre>
@@ -352,10 +352,10 @@ export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 </pre>
 Run the application with the <i>-qws</i> option:
 <pre>
-cd $QTDIR/examples/compact
-./compact -qws
+cd $QTDIR/examples/widgets
+./widgets -qws
 </pre>
-You should see the compact example appear.  If your mouse doesn't work
+You should see the widgets example appear.  If your mouse doesn't work
 correctly you need to specify the type of mouse to use.
 You can exit the master application at any time using ctrl+alt+backspace.
 <p>
