@@ -165,6 +165,8 @@ public:
         ApplicationDeactivated = 122,           // application has been changed to inactive
 
         QueryWhatsThis = 123,           // query what's this widget help
+        EnterWhatsThisMode = 124,
+        LeaveWhatsThisMode = 125,
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

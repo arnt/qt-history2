@@ -139,8 +139,11 @@
     \value ToolBarSwitch The toolbar button is toggled on Mac.
     \value ToolTip
     \value UpdateRequest The widget should be repainted.
-    \value WhatsThis
-    \value WhatsThisClicked
+    \value WhatsThis The widget should reveal What'sThis help
+    \value WhatsThisClicked A link in a widget's What's This help was clicked
+    \value QueryWhatsThis The widget should accept the event if it has What's This help
+    \value EnterWhatsThisMode Send to toplevel widgets when the application enters What's This mode
+    \value LeaveWhatsThisMode Send to toplevel widgets when the application leaves What's This mode
     \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
     \value WindowActivate  Window was activated.
     \value WindowBlocked

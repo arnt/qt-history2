@@ -368,7 +368,18 @@ class QWhatsThisPrivate : public QObject
     QPointer<QToolButton> button;
 #endif
     static void say(QWidget *, const QString &, int x = 0, int y = 0);
+    static void notifyToplevels(QEvent *e);
 };
+
+void QWhatsThisPrivate::notifyToplevels(QEvent *e)
+{
+    QWidgetMapper *mapper = QWidget::wmapper();
+    for (QWidgetMapper::ConstIterator it = mapper->constBegin(); it != mapper->constEnd(); ++it) {
+        register QWidget *w = *it;
+        if (w->isTopLevel())
+            QApplication::sendEvent(w, e);
+    }
+}
 
 QWhatsThisPrivate *QWhatsThisPrivate::instance = 0;
 
@@ -566,14 +577,19 @@ QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
     the user (e.g. by them clicking or pressing Esc), or
     programmatically by calling leaveWhatsThisMode().
 
-    \sa inWhatsThisMode()
+    When entering "What's this?" mode, a QEvent of type
+    Qt::EnterWhatsThisMode is sent to all toplevel widgets.
+
+    \sa inWhatsThisMode() leaveWhatsThisMode()
 */
 void QWhatsThis::enterWhatsThisMode()
 {
     if (QWhatsThisPrivate::instance)
         return;
     (void) new QWhatsThisPrivate;
-}
+    QEvent e(QEvent::EnterWhatsThisMode);
+    QWhatsThisPrivate::notifyToplevels(&e);
+ }
 
 /*!
     Returns true if the user interface is in "What's this?" mode;
@@ -590,11 +606,16 @@ bool QWhatsThis::inWhatsThisMode()
     If the user interface is in "What's this?" mode, this function
     switches back to normal mode; otherwise it does nothing.
 
+    When leaving "What's this?" mode, a QEvent of type
+    Qt::EnterWhatsThisMode is sent to all toplevel widgets.
+
     \sa enterWhatsThisMode() inWhatsThisMode()
 */
 void QWhatsThis::leaveWhatsThisMode()
 {
     delete QWhatsThisPrivate::instance;
+    QEvent e(QEvent::LeaveWhatsThisMode);
+    QWhatsThisPrivate::notifyToplevels(&e);
 }
 
 void QWhatsThisPrivate::say(QWidget * widget, const QString &text, int x, int y)
