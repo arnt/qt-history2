@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,7 +18,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#5 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#6 $")
 
 
 /*----------------------------------------------------------------------------
@@ -191,11 +191,6 @@ void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
  ----------------------------------------------------------------------------*/
 
 
-static inline int d2i_round( float d )
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
-}
-
 /*----------------------------------------------------------------------------
   Transforms \e (x,y) to \e (*tx,*ty), using the formulae:
 
@@ -222,8 +217,8 @@ void QWMatrix::map( float x, float y, float *tx, float *ty ) const
 
 void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 {
-    *tx = d2i_round(_m11*x + _m21*y + _dx);
-    *ty = d2i_round(_m12*x + _m22*y + _dy);
+    *tx = qRound(_m11*x + _m21*y + _dx);
+    *ty = qRound(_m12*x + _m22*y + _dy);
 }
 
 /*----------------------------------------------------------------------------
@@ -232,8 +227,8 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 QPoint QWMatrix::map( const QPoint &p ) const
 {
-    return QPoint( d2i_round(_m11*p.x() + _m21*p.y() + _dx),
-		   d2i_round(_m12*p.y() + _m22*p.y() + _dy) );
+    return QPoint( qRound(_m11*p.x() + _m21*p.y() + _dx),
+		   qRound(_m12*p.y() + _m22*p.y() + _dy) );
 }
 
 /*----------------------------------------------------------------------------

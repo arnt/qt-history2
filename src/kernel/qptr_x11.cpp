@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#145 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#144 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#145 $")
 
 
 // --------------------------------------------------------------------------
@@ -1040,11 +1040,6 @@ void QPainter::setBrushOrigin( int x, int y )
 }
 
 
-static inline int d2i_round( double d )
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
-}
-
 void QPainter::updateXForm()			// update xform params
 {
     QWMatrix m;
@@ -1056,20 +1051,20 @@ void QPainter::updateXForm()			// update xform params
     }
     else
 	m = wxmat;
-    wm11 = d2i_round((double)m.m11()*65536.0);
-    wm12 = d2i_round((double)m.m12()*65536.0);
-    wm21 = d2i_round((double)m.m21()*65536.0);
-    wm22 = d2i_round((double)m.m22()*65536.0);
-    wdx	 = d2i_round((double)m.dx() *65536.0);
-    wdy	 = d2i_round((double)m.dy() *65536.0);
+    wm11 = qRound((double)m.m11()*65536.0);
+    wm12 = qRound((double)m.m12()*65536.0);
+    wm21 = qRound((double)m.m21()*65536.0);
+    wm22 = qRound((double)m.m22()*65536.0);
+    wdx	 = qRound((double)m.dx() *65536.0);
+    wdy	 = qRound((double)m.dy() *65536.0);
     bool invertible;
     m = m.invert( &invertible );		// invert matrix
-    im11 = d2i_round((double)m.m11()*65536.0);
-    im12 = d2i_round((double)m.m12()*65536.0);
-    im21 = d2i_round((double)m.m21()*65536.0);
-    im22 = d2i_round((double)m.m22()*65536.0);
-    idx	 = d2i_round((double)m.dx() *65536.0);
-    idy	 = d2i_round((double)m.dy() *65536.0);
+    im11 = qRound((double)m.m11()*65536.0);
+    im12 = qRound((double)m.m12()*65536.0);
+    im21 = qRound((double)m.m21()*65536.0);
+    im22 = qRound((double)m.m22()*65536.0);
+    idx	 = qRound((double)m.dx() *65536.0);
+    idy	 = qRound((double)m.dy() *65536.0);
 }
 
 
@@ -1844,12 +1839,12 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	double yc = (double)y+h2;
 	double ra1 = Q_PI/2880.0*a;		// convert a,alen to radians
 	double ra2 = ra1 + Q_PI/2880.0*alen;
-	int xic = d2i_round(xc);
-	int yic = d2i_round(yc);
+	int xic = qRound(xc);
+	int yic = qRound(yc);
 	XDrawLine( dpy, hd, gc, xic, yic,
-		   d2i_round(xc + qcos(ra1)*w2), d2i_round(yc - qsin(ra1)*h2));
+		   qRound(xc + qcos(ra1)*w2), qRound(yc - qsin(ra1)*h2));
 	XDrawLine( dpy, hd, gc, xic, yic,
-		   d2i_round(xc + qcos(ra2)*w2), d2i_round(yc - qsin(ra2)*h2));
+		   qRound(xc + qcos(ra2)*w2), qRound(yc - qsin(ra2)*h2));
 	XDrawArc( dpy, hd, gc, x, y, w, h, a*4, alen*4 );
     }
 }
@@ -1923,8 +1918,8 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	double ra1 = Q_PI/2880.0*a;		// convert a,alen to radians
 	double ra2 = ra1 + Q_PI/2880.0*alen;
 	XDrawLine( dpy, hd, gc,
-		   d2i_round(xc + qcos(ra1)*w2), d2i_round(yc - qsin(ra1)*h2),
-		   d2i_round(xc + qcos(ra2)*w2), d2i_round(yc - qsin(ra2)*h2));
+		   qRound(xc + qcos(ra1)*w2), qRound(yc - qsin(ra1)*h2),
+		   qRound(xc + qcos(ra2)*w2), qRound(yc - qsin(ra2)*h2));
 	XDrawArc( dpy, hd, gc, x, y, w, h, a*4, alen*4 );
     }
     XSetArcMode( dpy, gc_brush, ArcPieSlice );
@@ -2399,7 +2394,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    mat1.map( fx,fy, &nfx,&nfy );
 	    float tfx=tx, tfy=ty, dx, dy;
 	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
-	    x = d2i_round(nfx-dx);  y = d2i_round(nfy-dy);
+	    x = qRound(nfx-dx);
+	    y = qRound(nfy-dy);
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(5);
 		int m, n;

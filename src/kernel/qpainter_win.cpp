@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#24 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,17 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#23 $")
-
-
-// --------------------------------------------------------------------------
-// QPainter internal functions
-//
-
-static inline int d2i_round( double d )
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
-}
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#24 $")
 
 
 // --------------------------------------------------------------------------
@@ -849,20 +839,20 @@ void QPainter::updateXForm()
     }
     else
 	m = wxmat;
-    wm11 = d2i_round((double)m.m11()*65536.0);
-    wm12 = d2i_round((double)m.m12()*65536.0);
-    wm21 = d2i_round((double)m.m21()*65536.0);
-    wm22 = d2i_round((double)m.m22()*65536.0);
-    wdx	 = d2i_round((double)m.dx() *65536.0);
-    wdy	 = d2i_round((double)m.dy() *65536.0);
+    wm11 = qRound((double)m.m11()*65536.0);
+    wm12 = qRound((double)m.m12()*65536.0);
+    wm21 = qRound((double)m.m21()*65536.0);
+    wm22 = qRound((double)m.m22()*65536.0);
+    wdx	 = qRound((double)m.dx() *65536.0);
+    wdy	 = qRound((double)m.dy() *65536.0);
     bool invertible;
     m = m.invert( &invertible );		// invert matrix
-    im11 = d2i_round((double)m.m11()*65536.0);
-    im12 = d2i_round((double)m.m12()*65536.0);
-    im21 = d2i_round((double)m.m21()*65536.0);
-    im22 = d2i_round((double)m.m22()*65536.0);
-    idx	 = d2i_round((double)m.dx() *65536.0);
-    idy	 = d2i_round((double)m.dy() *65536.0);
+    im11 = qRound((double)m.m11()*65536.0);
+    im12 = qRound((double)m.m12()*65536.0);
+    im21 = qRound((double)m.m21()*65536.0);
+    im22 = qRound((double)m.m22()*65536.0);
+    idx	 = qRound((double)m.dx() *65536.0);
+    idy	 = qRound((double)m.dy() *65536.0);
 
 #else
 
@@ -1444,10 +1434,10 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     double h2 = 0.5*h;
     float r = (float)(w2+h2);
     Arc( hdc, x, y, x+w, y+h,
-	 d2i_round(w2 + (cos(ra1)*r) + x),
-	 d2i_round(h2 - (sin(ra1)*r) + y),
-	 d2i_round(w2 + (cos(ra2)*r) + x),
-	 d2i_round(h2 - (sin(ra2)*r) + y) );
+	 qRound(w2 + (cos(ra1)*r) + x),
+	 qRound(h2 - (sin(ra1)*r) + y),
+	 qRound(w2 + (cos(ra2)*r) + x),
+	 qRound(h2 - (sin(ra2)*r) + y) );
 }
 
 
@@ -1477,10 +1467,10 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     if ( nocolBrush )
 	SetTextColor( hdc, cbrush.color().pixel() );
     Pie( hdc, x, y, x+w, y+h,
-	 d2i_round(w2 + (cos(ra1)*r) + x),
-	 d2i_round(h2 - (sin(ra1)*r) + y),
-	 d2i_round(w2 + (cos(ra2)*r) + x),
-	 d2i_round(h2 - (sin(ra2)*r) + y) );
+	 qRound(w2 + (cos(ra1)*r) + x),
+	 qRound(h2 - (sin(ra1)*r) + y),
+	 qRound(w2 + (cos(ra2)*r) + x),
+	 qRound(h2 - (sin(ra2)*r) + y) );
     if ( nocolBrush )
 	SetTextColor( hdc, cpen.color().pixel() );
 }
@@ -1512,10 +1502,10 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
     if ( nocolBrush )
 	SetTextColor( hdc, cbrush.color().pixel() );
     Chord( hdc, x, y, x+w, y+h,
-	   d2i_round(w2 + (cos(ra1)*r) + x),
-	   d2i_round(h2 - (sin(ra1)*r) + y),
-	   d2i_round(w2 + (cos(ra2)*r) + x),
-	   d2i_round(h2 - (sin(ra2)*r) + y) );
+	   qRound(w2 + (cos(ra1)*r) + x),
+	   qRound(h2 - (sin(ra1)*r) + y),
+	   qRound(w2 + (cos(ra2)*r) + x),
+	   qRound(h2 - (sin(ra2)*r) + y) );
     if ( nocolBrush )
 	SetTextColor( hdc, cpen.color().pixel() );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#13 $
 **
 ** Implementation of QColor class for Windows
 **
@@ -14,7 +14,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#13 $")
 
 
 // --------------------------------------------------------------------------
@@ -22,11 +22,6 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#12 $")
 //
 
 HANDLE QColor::hpal = 0;			// application global palette
-
-static inline int d2i_round( double d )
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
-}
 
 
 // --------------------------------------------------------------------------
@@ -88,9 +83,9 @@ void QColor::initialize()			// called from startup routines
     for ( r=max_r-1; r>=0; r-- ) {
 	for ( g=max_g-1; g>=0; g-- ) {
 	    for ( b=max_b-1; b>=0; b-- ) {
-		logPal->palPalEntry[i].peRed   = d2i_round(r_div * 255 * r);
-		logPal->palPalEntry[i].peGreen = d2i_round(g_div * 255 * g);
-		logPal->palPalEntry[i].peBlue  = d2i_round(b_div * 255 * b);
+		logPal->palPalEntry[i].peRed   = qRound(r_div * 255 * r);
+		logPal->palPalEntry[i].peGreen = qRound(g_div * 255 * g);
+		logPal->palPalEntry[i].peBlue  = qRound(b_div * 255 * b);
 		logPal->palPalEntry[i].peFlags = PC_NOCOLLAPSE;
 		i++;
 	    }
@@ -186,12 +181,14 @@ void QColor::setRgb( int r, int g, int b )	// set RGB value
 {
     rgbVal = QRGB(r,g,b);
     if ( hpal ) {
-	int ri = d2i_round( 5.0*r/255.0 );
-	int gi = d2i_round( 5.0*g/255.0 );
-	int bi = d2i_round( 5.0*b/255.0 );
-	int javelda = GetNearestPaletteIndex(hpal,rgbVal);
+#if 0
+	int ri = qRound( 5.0*r/255.0 );
+	int gi = qRound( 5.0*g/255.0 );
+	int bi = qRound( 5.0*b/255.0 );
 	pix = PALETTEINDEX( ri*6*6 + gi *6 + bi );
-//	pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
+#else
+	pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
+#endif
     }
     else
 	pix = rgbVal;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#49 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#49 $")
 
 
 /*
@@ -970,12 +970,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-static inline int d2i_round( double d )		// double -> int, rounded
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
-}
-
-
 /*!
   Transforms the pixmap using \e matrix, and returns the transformed
   pixmap.
@@ -1067,8 +1061,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	w = r.width();
     }
     else {					// no rotation/shearing
-	h = d2i_round( mat.m22()*hs );
-	w = d2i_round( mat.m11()*ws );
+	h = qRound( mat.m22()*hs );
+	w = qRound( mat.m11()*ws );
 	h = QABS( h );
 	w = QABS( w );
     }
@@ -1133,12 +1127,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     debug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
 
-    int m11 = d2i_round((double)mat.m11()*65536.0);
-    int m12 = d2i_round((double)mat.m12()*65536.0);
-    int m21 = d2i_round((double)mat.m21()*65536.0);
-    int m22 = d2i_round((double)mat.m22()*65536.0);
-    int dx  = d2i_round((double)mat.dx() *65536.0);
-    int dy  = d2i_round((double)mat.dy() *65536.0);
+    int m11 = qRound((double)mat.m11()*65536.0);
+    int m12 = qRound((double)mat.m12()*65536.0);
+    int m21 = qRound((double)mat.m21()*65536.0);
+    int m22 = qRound((double)mat.m22()*65536.0);
+    int dx  = qRound((double)mat.dx() *65536.0);
+    int dy  = qRound((double)mat.dy() *65536.0);
 #if 0
     dx += (dx > 0) ? 32767 : -32768;		// gives error when scaling
     dy += (dy > 0) ? 32767 : -32768;

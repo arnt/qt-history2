@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#20 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#20 $")
 
 
 // --------------------------------------------------------------------------
@@ -239,11 +239,6 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     return;
 }
 
-
-static inline int d2i_round( double d )
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
-}
 
 #if 1	/* bresenham */
 void QPointArray::makeEllipse( int xx, int yy, int w, int h )
