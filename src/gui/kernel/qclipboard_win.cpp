@@ -435,7 +435,7 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
                     UINT cf = c->cf(j);
                     if (c->canConvert(mime,cf) /*&& qt_CF_HDROP_valid(mime, cf, src) ####### */) {
 #ifndef Q_OS_TEMP
-                        if (qApp && qApp->eventLoop()->loopLevel())
+                        if (qApp && !(qApp->startingUp() || qApp->closingDown()))
                             SetClipboardData(cf, 0); // 0 == ask me later
                         else // write now if we can't process data requests
 #endif

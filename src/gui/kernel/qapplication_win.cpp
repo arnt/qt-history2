@@ -14,6 +14,7 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
+#include "qeventdispatcher_win.h"
 #include "qeventloop.h"
 #include "qclipboard.h"
 #include "qcursor.h"
@@ -859,6 +860,8 @@ static void unregWinClasses()
     hash->clear();
 }
 
+void QApplicationPrivate::createEventDispatcher()
+{ QCoreApplicationPrivate::createEventDispatcher(); }
 
 /*****************************************************************************
   Platform specific QApplication members
@@ -1101,9 +1104,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     if (!qApp)                                // unstable app state
         goto do_default;
 
+#if 0
     // make sure we update widgets also when the user resizes
     if (inLoop && qApp->loopLevel())
         qApp->sendPostedEvents(0, QEvent::Paint);
+#endif
 
     inLoop = true;
 
@@ -1133,9 +1138,11 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     QT_NC_WNDPROC
 #endif
 
-    if (QEventLoop::instance()) {
+    if (QAbstractEventDispatcher::instance()) {
+        QEventDispatcherWin32 *eventDispatcher =
+            qt_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance());
         res = 0;
-        if (QEventLoop::instance()->winEventFilter(&msg, &res))                // send through app filter
+        if (eventDispatcher->winEventFilter(&msg, &res))                // send through app filter
             RETURN(res);
     }
 
@@ -1724,7 +1731,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
         case WM_GETOBJECT:
             {
                 // Ignoring all requests while starting up
-                if (qApp->startingUp() || !qApp->loopLevel() || (DWORD)lParam != OBJID_CLIENT) {
+                if (qApp->startingUp() || qApp->closingDown() || (DWORD)lParam != OBJID_CLIENT) {
                     result = false;
                     break;
                 }
