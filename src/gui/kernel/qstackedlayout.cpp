@@ -197,30 +197,29 @@ void QStackedLayout::setCurrentIndex(int index)
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
 
-    Q_ASSERT(parentWidget());
-
-    QWidget * fw = parentWidget()->window()->focusWidget();
-    if (prev->isAncestorOf(fw)) { // focus was on old page
-        // look for the best focus widget we can find
-        if (QWidget *nfw = next->focusWidget())
-            nfw->setFocus();
-        else {
-            // second best == first child widget in the focus chain
-            QWidget *i = fw;
-            while ((i = i->nextInFocusChain()) != fw) {
-                if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
-                    && !i->focusProxy() && i->isVisibleTo(next) && i->isEnabled()
-                    && next->isAncestorOf(i)) {
-                    i->setFocus();
-                    break;
+    if (parentWidget()) {
+        QWidget * fw = parentWidget()->window()->focusWidget();
+        if (prev->isAncestorOf(fw)) { // focus was on old page
+            // look for the best focus widget we can find
+            if (QWidget *nfw = next->focusWidget())
+                nfw->setFocus();
+            else {
+                // second best == first child widget in the focus chain
+                QWidget *i = fw;
+                while ((i = i->nextInFocusChain()) != fw) {
+                    if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
+                        && !i->focusProxy() && i->isVisibleTo(next) && i->isEnabled()
+                        && next->isAncestorOf(i)) {
+                        i->setFocus();
+                        break;
+                    }
                 }
+                // third best == incoming widget
+                if (i == fw )
+                    next->setFocus();
             }
-            // third best == incoming widget
-            if (i == fw )
-                next->setFocus();
         }
     }
-
     if (prev)
         prev->hide();
 }
