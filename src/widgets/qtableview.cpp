@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#41 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#41 $");
 
 
 const int sbDim = 16;
@@ -467,7 +467,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	}
     } else {
 	int xn=0, xcd, col = 0;
-	while ( col < nCols && x > xn+(xcd=cellWidth(col)) ) {
+	while ( col < nCols && x >= xn+(xcd=cellWidth(col)) ) {
 	    xn += xcd;
 	    col++;
 	}
@@ -492,12 +492,12 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
 	yCellDelta  = (short)(y % cellH);
     } else {
 	int yn=0, yrd, row=0;
-	while ( row < nRows && y > yn+(yrd=cellHeight(row)) ) {
+	while ( row < nRows && y >= yn+(yrd=cellHeight(row)) ) {
 	    yn += yrd;
 	    row++;
 	}
 	yCellOffs = row;
-	if ( testTableFlags(Tbl_snapToHGrid) ) {
+	if ( testTableFlags(Tbl_snapToVGrid) ) {
 	    yCellDelta = 0;
 	    y = yn;
 	} else {
