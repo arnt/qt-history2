@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#63 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#63 $");
 
 
 /*!
@@ -40,10 +40,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#62 $");
 
 static const int motifBarFrame		= 2;	// menu bar frame width
 static const int motifBarHMargin	= 2;	// menu bar hor margin to item
-static const int motifBarVMargin	= 2;	// menu bar ver margin to item
+static const int motifBarVMargin	= 1;	// menu bar ver margin to item
 static const int motifItemFrame		= 2;	// menu item frame width
-static const int motifItemHMargin	= 8;	// menu item hor text margin
-static const int motifItemVMargin	= 8;	// menu item ver text margin
+static const int motifItemHMargin	= 6;	// menu item hor text margin
+static const int motifItemVMargin	= 4;	// menu item ver text margin
 
 /*
 
@@ -423,20 +423,22 @@ void QMenuBar::updateRects()
     int x = motifBarFrame + motifBarHMargin;
     int y = motifBarFrame + motifBarVMargin;
     int i = 0;
+    int separator = -1;
     if ( gs == WindowsStyle )	// !!!hanord
 	x = y = 2;
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
-	int w, h;
+	int w=0, h=0;
 	if ( mi->pixmap() ) {			// pixmap item
 	    w = mi->pixmap()->width();
 	    h = mi->pixmap()->height();
-	}
-	else {					// text item
+	} else if ( mi->text() ) {		// text item
 	    w = fm.width(mi->text()) + 2*motifItemHMargin;
 	    h = fm.height() + motifItemVMargin;
+	} else if ( mi->isSeparator() ) {	// separator item
+	    separator = i;
 	}
-	if ( gs == MotifStyle ) {
+	if ( gs == MotifStyle && !mi->isSeparator() ) {
 	    w += 2*motifItemFrame;
 	    h += 2*motifItemFrame;
 	}
@@ -444,6 +446,7 @@ void QMenuBar::updateRects()
 	    nlitems = 0;
 	    x = motifBarFrame + motifBarHMargin;
 	    y += h + motifBarHMargin;
+	    separator = -1;
 	}
 	if ( y + h + 2*motifBarFrame > max_height )
 	    max_height = y + h + 2*motifBarFrame;
@@ -451,6 +454,12 @@ void QMenuBar::updateRects()
 	x += w;
 	nlitems++;
 	i++;
+    }
+    if ( separator >= 0 && style() == MotifStyle ) {
+	int moveBy = max_width - x;
+	while( --i > separator ) {
+	    irects[i].moveBy( moveBy, 0 );
+	}
     }
     if ( max_height != height() )
 	resize( max_width, max_height );
@@ -512,9 +521,9 @@ void QMenuBar::drawContents( QPainter *p )
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
-	if ( gs == WindowsStyle )
+	if ( gs == WindowsStyle ) {
 	    p->fillRect( r, i == actItem ? darkBlue : g.background() );
-	else if ( gs == MotifStyle ) {
+	} else { // MotifStyle
 	    if ( i == actItem )				// active item frame
 		qDrawShadePanel( p, r, g, FALSE, motifItemFrame );
 	    else					// incognito frame
@@ -535,6 +544,8 @@ void QMenuBar::drawContents( QPainter *p )
 	    }
 	    p->drawText( r, AlignCenter | ShowPrefix | DontClip,
 			 mi->text() );
+	} else {
+	    // separator or whatever
 	}
     }
 }

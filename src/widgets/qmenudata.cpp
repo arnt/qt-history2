@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#48 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#48 $");
 
 
 /*!
@@ -385,6 +385,12 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 /*!
   Inserts a separator at position \e index.
   The separator becomes the last menu item if \e index is negative.
+
+  In a popup menu, a separator is rendered as a horizontal line.  In a
+  Motif menubar, a separator is spacing, so the rest of the items
+  (just "Help", normally) are drawn right-justified.  In a Windows
+  menubar, all separator are ignored (to comply with the Windows style
+  guide).
 */
 
 void QMenuData::insertSeparator( int index )
