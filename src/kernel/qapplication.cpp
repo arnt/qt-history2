@@ -2293,7 +2293,7 @@ void QApplication::processOneEvent()
 */
 QEventLoop *QApplication::eventLoop()
 {
-    if ( !eventloop && qApp &&  !is_app_closing )
+    if ( !eventloop && !is_app_closing )
 	(void) new QEventLoop( qApp, "default event loop" );
     return eventloop;
 }

@@ -162,7 +162,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
     sockfd = socket;
     sntype = type;
     snenabled = TRUE;
-    qApp->eventLoop()->registerSocketNotifier( this );
+    QApplication::eventLoop()->registerSocketNotifier( this );
 }
 
 /*!
@@ -246,7 +246,7 @@ void QSocketNotifier::setEnabled( bool enable )
 	return;
     snenabled = enable;
 
-    QEventLoop *eventloop = qApp->eventLoop();
+    QEventLoop *eventloop = QApplication::eventLoop();
     if ( ! eventloop ) // perhaps application is shutting down
 	return;
 
