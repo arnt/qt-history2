@@ -419,7 +419,7 @@ int QDate::weekNumber( int *yearNumber ) const
 	doy,
 	currYear;
 
-    if ( !isValid() ) 
+    if ( !isValid() )
 	return 0;
 
     currYear = year();
@@ -427,16 +427,15 @@ int QDate::weekNumber( int *yearNumber ) const
     dow = dayOfWeek();
     doy = dayOfYear();
 
-    // find the Jan1Weekday;
-    if ( doy <= ( 8 - jan1WeekDay) && jan1WeekDay > 4 ) {
+    // find the jan1WeekDay;
+    if ( doy <= (8 - jan1WeekDay) && jan1WeekDay > 4 ) {
 	yearNum = currYear - 1;
 	if ( jan1WeekDay == 5 || (jan1WeekDay == 6 && QDate::leapYear(yearNum)) )
 	    weekNum = 53;
 	else
 	    weekNum = 52;
-    } else
+    } else {
 	yearNum = currYear;
-    if ( yearNum == currYear ) {
 	int totalDays = 365;
 	if ( QDate::leapYear(yearNum) )
 	    totalDays++;
