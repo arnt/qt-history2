@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#1 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#2 $
 **
-** Definition of something or other
+** Definition of Qt namespace (as class for compiler compatibility)
 **
-** Created : 979899
+** Created : 980927
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -23,7 +23,7 @@ class QColor;
 #if defined(QT_MAYBE_CONST)
 #error "what happened?  I am dazed and confused."
 #elif defined(_CC_MSC_)
-#define QT_MAYBE_CONST 
+#define QT_MAYBE_CONST
 #else
 #define QT_MAYBE_CONST const
 #endif
