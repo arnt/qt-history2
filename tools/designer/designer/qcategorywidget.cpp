@@ -38,7 +38,7 @@ void QCategoryWidget::buttonClicked()
 {
     QToolButton *tb = (QToolButton*)sender();
     QWidget *page = pages.find( tb );
-    if ( !page )
+    if ( !page || currentPage == page )
 	return;
     if ( currentPage )
 	currentPage->hide();
