@@ -15,7 +15,8 @@
 #define QANIMATIONWRITER_H
 
 #include <qimage.h>
-
+#define NO_QVFB_ANIMATION
+#ifndef NO_QVFB_ANIMATION
 class QAnimationWriterData;
 
 class QAnimationWriter
@@ -36,4 +37,5 @@ private:
     QAnimationWriterData* d;
 };
 
+#endif
 #endif

@@ -339,15 +339,17 @@ void QVFbView::timeout()
 {
     DisplayLock(); // Autolock display;
     if ( animation ) {
-            QRect r( hdr->update );
-            r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
-            if ( r.isEmpty() ) {
+#ifndef NO_QVFB_ANIMATION
+        QRect r( hdr->update );
+        r = r.intersect( QRect(0, 0, hdr->width, hdr->height ) );
+        if ( r.isEmpty() ) {
                 animation->appendBlankFrame();
             } else {
                 int l;
                 QImage img = getBuffer( r, l );
                 animation->appendFrame(img,QPoint(r.x(),r.y()));
             }
+#endif
     }
 
     if ( hdr->dirty ) {
@@ -567,12 +569,14 @@ QImage QVFbView::image() const
 
 void QVFbView::startAnimation( const QString& filename )
 {
+#ifndef NO_QVFB_ANIMATION
     delete animation;
     animation = new QAnimationWriter(filename,"MNG");
     animation->setFrameRate(refreshRate);
     animation->appendFrame(QImage(data + hdr->dataoffset,
                 hdr->width, hdr->height, hdr->depth, hdr->clut,
                 256, QImage::LittleEndian));
+#endif
 }
 
 void QVFbView::stopAnimation()

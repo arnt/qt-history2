@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qanimationwriter.h"
-
+#ifndef NO_QVFB_ANIMATION
 #define QT_CLEAN_NAMESPACE
 #include <qfile.h>
 #include <qstring.h>
@@ -393,3 +393,4 @@ void QAnimationWriter::appendBlankFrame()
     i.fill(0);
     d->composeImage(i,QPoint(0,0));
 }
+#endif
