@@ -1794,33 +1794,30 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		    return;
 		}
 	    }
-	    if ( bg_mode == OpaqueMode ) {      // opaque fill
-		int fx = x;
-		int fy = y - fm.ascent();
-		int fw = fm.width(str,len);
-		int fh = fm.ascent() + fm.descent();
-		int m, n;
-		QPointArray a(5);
-		mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
-		a.setPoint( 4, m, n );
-		mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
-		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-		mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
-		QBrush oldBrush = cbrush;
-		setBrush( backgroundColor() );
-		updateBrush();
-		setBrush( oldBrush );
-	    }
 	    if ( empty )
 		return;
+	    //create a pixmap
+	    QPixmap pm(wx_bm->width(), wx_bm->height());;
+	    if ( bg_mode != OpaqueMode ) {
+		QPainter paint(&pm);
+		paint.fillRect(0, 0, pm.width(), pm.height(), cpen.color());
+		pm.setMask(*wx_bm);
+	    } else {
+		//This is untested code, I need to find a test case, FIXME --Sam
+		pm = *wx_bm;
+		QBitmap bm( pm.width(), pm.height(), TRUE );
+		bm.fill(color1);
+		bm = bm.xForm(mat2);
+		pm.setMask(bm);
+	    }
+	    //draw it
 	    double fx=x, fy=y, nfx, nfy;
 	    mat1.map( fx,fy, &nfx,&nfy );
 	    double tfx=tx, tfy=ty, dx, dy;
 	    mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    unclippedBitBlt(pdev, x, y, wx_bm, 0, 0, wx_bm->width(),
-			    wx_bm->height(), CopyROP, TRUE );
+	    unclippedBitBlt(pdev, x, y, &pm, 0, 0, -1, -1, CopyROP, FALSE );
 #ifndef QMAC_NO_CACHE_TEXT_XFORM
 	    if(create_new_bm)
 		ins_text_bitmap( bm_key, wx_bm );
