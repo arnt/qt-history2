@@ -49,7 +49,7 @@
 */
 QPaintDeviceMetrics::QPaintDeviceMetrics(const QPaintDevice *pd)
 {
-    pdev = (QPaintDevice *)pd;
+    pdev = pd;
 }
 
 

@@ -47,7 +47,7 @@ public:
     int          depth()        const        { return pdev->metric(PdmDepth); }
 
 private:
-    QPaintDevice *pdev;
+    const QPaintDevice *pdev;
 };
 
 
