@@ -2356,7 +2356,7 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
         inputMask = maskFields;
     } else {
         inputMask = maskFields.left(delimiter);
-        blank = (delimiter + 1 < maskFields.length()) ? maskFields[delimiter + 1] : ' ';
+        blank = (delimiter + 1 < maskFields.length()) ? maskFields[delimiter + 1] : QChar(' ');
     }
 
     // calculate maxLength / maskData length

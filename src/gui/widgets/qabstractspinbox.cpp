@@ -973,7 +973,7 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
     if (tracking) {
         QString tmp = t;
         QValidator::State state;
-        const QVariant v = d->mapTextToValue(&tmp, &state); // Already validated
+        const QVariant v = d->mapTextToValue(&tmp, (QValidator::State*)&state); // Already validated
         if (v != value && state == QValidator::Acceptable) {
             if (tmp != t) {
                 const bool wasBlocked = edit->blockSignals(true);
@@ -1455,9 +1455,9 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QVari
 
     QValidator::State state;
     if (val) {
-        *val = mapTextToValue(input, &state);
+        *val = mapTextToValue(input, (QValidator::State *)&state);
     } else {
-        mapTextToValue(input, &state);
+        mapTextToValue(input, (QValidator::State *)&state);
     }
 
 //    qDebug() << "input:" << *input << "prefix:" << prefix << "suffix:" << suffix << "state:" << state;

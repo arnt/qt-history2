@@ -1375,7 +1375,7 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
         val = getDigit(v, s);
     } else {
         QValidator::State state;
-        val = sectionValue(s, &str, &state);
+        val = sectionValue(s, &str, (QValidator::State*)&state);
         if (state == QValidator::Invalid) {
             return value;
         }
@@ -2029,7 +2029,7 @@ QVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *stat
     for (int i=0; state != QValidator::Invalid && i<sections.size(); ++i) {
 	const Section s = sections.at(i).section;
 	QValidator::State tmpstate;
-        int num = sectionValue(s, text, &tmpstate);
+        int num = sectionValue(s, text, (QValidator::State*)&tmpstate);
         // Apple's GCC 3.3 and GCC 4.0 CVS flags a warning on qMin,
         // so code by hand to remove the warning.
         state = state < tmpstate ? state : tmpstate;
@@ -2287,7 +2287,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QVari
     }
 
     QValidator::State state;
-    QVariant tmp = mapTextToValue(input, &state);
+    QVariant tmp = mapTextToValue(input, (QValidator::State*)&state);
     if (val)
         *val = tmp;
     QDTEDEBUG("'%s' => '%s' (%s)", input->toLatin1().constData(), tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());

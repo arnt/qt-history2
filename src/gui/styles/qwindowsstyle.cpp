@@ -1938,7 +1938,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 p->setBrush(QBrush(opt->palette.shadow().color(), Qt::Dense4Pattern));
             } else {
                 QPixmap pm = opt->palette.brush(QPalette::Light).texture();
-                br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+                br = !pm.isNull() ? QBrush(pm) : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
                 p->setBrush(br);
             }
             p->drawRect(opt->rect);
@@ -1948,7 +1948,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
     case CE_ScrollBarSlider:
         if (!(opt->state & State_Enabled)) {
             QPixmap pm = opt->palette.brush(QPalette::Light).texture();
-            QBrush br = !pm.isNull() ? pm : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+            QBrush br = !pm.isNull() ? QBrush(pm) : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
             p->setPen(Qt::NoPen);
             p->setBrush(br);
             p->setBackgroundMode(Qt::OpaqueMode);

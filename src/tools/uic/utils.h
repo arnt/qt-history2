@@ -24,7 +24,7 @@ inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }
 
 inline QString toString(const DomString *str)
-{ return str ? str->text() : QString::null; }
+{ return str ? str->text() : QString(); }
 
 inline QString fixString(const QString &str, bool encode=false)
 {

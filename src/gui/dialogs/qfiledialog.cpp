@@ -1785,7 +1785,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     }
 #endif
     // create a qt dialog
-    args.caption = caption.isEmpty() ? "Open" : caption;
+    args.caption = caption.isEmpty() ? QString::fromLatin1("Open") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
     dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
@@ -1885,7 +1885,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     }
 #endif
     // create a qt dialog
-    args.caption = caption.isEmpty() ? "Save As" : caption;
+    args.caption = caption.isEmpty() ? QString::fromLatin1("Save As") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
     dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
@@ -1972,7 +1972,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     }
 #endif
     // create a qt dialog
-    args.caption = caption.isEmpty() ? "Find Directory" : caption;
+    args.caption = caption.isEmpty() ? QString::fromLatin1("Find Directory") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
     dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
@@ -2077,7 +2077,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     }
 #endif
     // create a qt dialog
-    args.caption = caption.isEmpty() ? "Open" : caption;
+    args.caption = caption.isEmpty() ? QString::fromLatin1("Open") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
     dlg->setResolveSymlinks(!(options & DontResolveSymlinks));

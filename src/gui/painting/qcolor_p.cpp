@@ -76,7 +76,7 @@ bool qt_get_hex_rgb(const char *name, QRgb *rgb)
 #ifdef rgb
 #  undef rgb
 #endif
-#define rgb(r,g,b) (0xff000000 | r << 16 |  g << 8 | b)
+#define rgb(r,g,b) (0xff000000 | (r << 16) |  (g << 8) | b)
 
 static const struct RGBData {
     const char *name;

@@ -371,7 +371,7 @@ void QFtpDTP::writeData()
     } else if (data.dev) {
         callWriteData = false;
         const qint64 blockSize = 16*1024;
-        char buf[blockSize];
+        char buf[16*1024];
         while (!data.dev->atEnd() && socket->bytesToWrite() == 0) {
             qint64 read = data.dev->read(buf, blockSize);
 #if defined(QFTPDTP_DEBUG)
