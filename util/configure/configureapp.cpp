@@ -773,8 +773,8 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "-enable-*            Enable the specified module" << endl;
 	cout << "-disable-*           Disable the specified module" << endl;
 	cout << "                     where module is one of" << endl;
-	for (int i=0; i<modules.size(); ++i)
-	    cout << "                         " << qPrintable(modules.at(i)) << endl;
+	for (int j=0; j<modules.size(); ++j)
+	    cout << "                         " << qPrintable(modules.at(j)) << endl;
 	cout << endl;
 
 	cout << "-qt-sql-*            Build the specified Sql driver into Qt" << endl;
