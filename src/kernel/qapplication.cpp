@@ -2060,6 +2060,10 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		res = internalNotify( receiver, e );
 	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
 		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
+	    if ( res )
+		key->accept();
+	    else
+		key->ignore();
 	}
     break;
     case QEvent::KeyPress:
@@ -2222,7 +2226,7 @@ bool QApplication::event( QEvent *e )
 	QCloseEvent *ce = (QCloseEvent*)e;
 	ce->accept();
 	closeAllWindows();
-	
+
 	QWidgetList *list = topLevelWidgets();
 	for(QWidget *w = list->first(); w; w = list->next()) {
 	    if ( !w->isHidden() && !w->isDesktop() && !w->isPopup() &&
@@ -2233,7 +2237,7 @@ bool QApplication::event( QEvent *e )
 	}
 	if(ce->isAccepted())
 	    return TRUE;
-    } 
+    }
     return QObject::event(e);
 }
 
@@ -2282,7 +2286,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	    consumed = TRUE;
 	    goto done;
 	}
-    } 
+    }
     consumed = receiver->event( e );
  done:
     e->spont = FALSE;
