@@ -32,27 +32,29 @@ SYSCONF_MOC		= #$ Expand('TMAKE_MOC');
 #   - Usually needs to incorporate $(VER_MAJ) and $(VER_MIN)
 #
 SYSCONF_LINK_SHLIB	= #$ Expand('TMAKE_LINK_SHLIB');
-SYSCONF_LINK_LIB_SHARED	= #${
+SYSCONF_LINK_TARGET_SHARED	= #{
     if ( Project('TMAKE_HPUX_SHLIB') ) {
-	$targ = 'lib$(TARGET).sl';
+	$text .= 'lib$(TARGET).sl';
     } else {
-	$targ = 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
+	$text .= 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
     }
+#}
+SYSCONF_LINK_LIB_SHARED	= #${
     if ( Project('TMAKE_HPUX_SHLIB') ) {
 	$text .= ' $(SYSCONF_LINK_SHLIB) '
 		       . Project('TMAKE_LFLAGS_SHLIB') . ' '
 		       . ( Project('TMAKE_LFLAGS_SONAME')
 			     ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).sl'
 			     : '' )
-		       . ' $(LFLAGS) -o '.$targ.' $(OBJECTS) '
+		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED) $(OBJECTS) '
 		       . ' $(OBJMOC) $(LIBS);'
-		 . ' mv '.$targ.' $(DESTDIR);'
+		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);'
 		 . ' cd $(DESTDIR);'
 		 . ' rm -f lib$(TARGET).sl';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
 	    $text .= ' $(SYSCONF_LINK_SHLIB)'
-			. ' $(LFLAGS) -o '.$targ.''
+			. ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)'
 			. ' `lorder /usr/lib/c++rt0.o $(OBJECTS) $(OBJMOC)'
 			    . ' | tsort` $(LIBS); ';
 	} else {
@@ -61,16 +63,16 @@ SYSCONF_LINK_LIB_SHARED	= #${
 			. ( Project('TMAKE_LFLAGS_SONAME')
 			     ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).so.$(VER_MAJ)'
 			     : '' ) . " \\\n\t\t\t\t"
-			. '     $(LFLAGS) -o '.$targ.'' . " \\\n\t\t\t\t"
+			. '     $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
 			. '     $(OBJECTS) $(OBJMOC) $(LIBS);';
 	}
 	$text .= " \\\n\t\t\t\t";
-	$text .= ' mv '.$targ.' $(DESTDIR);' . " \\\n\t\t\t\t"
+	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
 		. ' cd $(DESTDIR);' . " \\\n\t\t\t\t"
 		. ' rm -f lib$(TARGET).so'
 		    . ' lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
-		. ' ln -s '.$targ.' lib$(TARGET).so;' . " \\\n\t\t\t\t"
-		. ' ln -s '.$targ.' lib$(TARGET).so.$(VER_MAJ)';
+		. ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
+		. ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so.$(VER_MAJ)';
     }
 #$}
 
@@ -80,20 +82,19 @@ SYSCONF_LINK_LIB_SHARED	= #${
 #
 SYSCONF_AR		= #$ Expand('TMAKE_AR');
 SYSCONF_LINK_LIB_STATIC	= #${
-	$targ = 'lib$(TARGET).a';
         if ( $project{"TMAKE_AR_CMD"} ) {
             $project{"TMAKE_AR_CMD"} =~ s/\$\(TARGETA\)/\$(DESTDIR)$targ/g;
         } else {
             $project{"TMAKE_AR_CMD"} =
-                '$(SYSCONF_AR) $(DESTDIR)'.$targ.' $(OBJECTS) $(OBJMOC)';
+                '$(SYSCONF_AR) $(DESTDIR)$(SYSCONF_LINK_LIB_STATIC) $(OBJECTS) $(OBJMOC)';
         }
-	$text .= 'rm -f $(DESTDIR)'.$targ.'; ';
+	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_LIB_STATIC); ';
 	if ( $project{"TMAKE_AR_CMD"} ) {
 	    $text .= " \\\n\t\t\t\t";
 	    Expand("TMAKE_AR_CMD");
 	}
 	if ( $project{"TMAKE_RANLIB"} ) {
 	    $text .= " \\\n\t\t\t\t";
-	    ExpandGlue("TMAKE_RANLIB","",""," \$(DESTDIR)'.$targ.'");
+	    ExpandGlue("TMAKE_RANLIB","",""," \$(DESTDIR)$(SYSCONF_LINK_LIB_STATIC)");
 	}
 #$}

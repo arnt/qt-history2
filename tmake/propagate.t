@@ -136,19 +136,33 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 
 ####### Build rules
 
-all: #$ ExpandGlue("ALL_DEPS",""," "," "); $text .= '$(DESTDIR)$(SYSCONF_LINK_TARGET)';
-
-$(DESTDIR)$(SYSCONF_LINK_TARGET): $(OBJECTS) $(OBJMOC) #$ Expand("TARGETDEPS");
-	#${
-	    if ( Project('TEMPLATE') eq "lib" ) {
-		if ( Config('staticlib') ) {
-		    $text .= '$(SYSCONF_LINK_LIB_STATIC)';
-		} else {
-		    $text .= '$(SYSCONF_LINK_LIB)';
-		}
+#${
+	if ( Project('TEMPLATE') eq "lib" ) {
+	    if ( Config('staticlib') ) {
+		$targ = '$(SYSCONF_LINK_TARGET_STATIC)';
 	    } else {
-		$text .= '$(SYSCONF_LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
+		$targ='$(SYSCONF_LINK_TARGET)';
 	    }
+	} else {
+	    $targ = '$(TARGET)';
+	}
+
+	$text .= 'all: ';
+       	ExpandGlue("ALL_DEPS",""," "," ");
+	$text .= '$(DESTDIR)' . $targ . "\n";
+
+	$text .= '$(DESTDIR)' . $targ . ': $(OBJECTS) $(OBJMOC) ';
+	Expand("TARGETDEPS");
+
+	if ( Project('TEMPLATE') eq "lib" ) {
+	    if ( Config('staticlib') ) {
+		$text .= '$(SYSCONF_LINK_LIB_STATIC)';
+	    } else {
+		$text .= '$(SYSCONF_LINK_LIB)';
+	    }
+	} else {
+	    $text .= '$(SYSCONF_LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
+	}
 #$}
 
 moc: $(SRCMOC)
