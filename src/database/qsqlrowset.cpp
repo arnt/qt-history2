@@ -215,21 +215,30 @@ QVariant& QSqlRowset::operator[]( const QString& name )
     return QSqlFieldList::operator[]( name );
 }
 
-QVariant& QSqlRowset::value( int i )
+QVariant QSqlRowset::value( int i )
 {
     sync();
     return QSqlFieldList::value( i );
 }
 
-QVariant& QSqlRowset::value( const QString& name )
+QVariant QSqlRowset::value( const QString& name )
 {
     sync();
     return QSqlFieldList::value( name );
 }
 
-QVariant QSqlRowset::calculateField( uint fieldNumber )
+void QSqlRowset::setValue( int i, const QVariant& value )
 {
-    Q_UNUSED( fieldNumber );
+    QSqlFieldList::operator[]( i ) = value ;
+}
+
+void QSqlRowset::setValue( const QString& name, const QVariant& value )
+{
+    QSqlFieldList::operator[]( name ) = value ;
+}
+
+QVariant QSqlRowset::calculateField( uint )
+{
     return QVariant();
 }
 
@@ -238,11 +247,11 @@ void QSqlRowset::sync()
     if ( lastAt != at() ) {
 	lastAt = at();
 	uint i = 0;
-	for ( i = 0; i < count(); ++i ){
+	for ( ; i < count(); ++i ){
 	    if ( field(i).isCalculated() )
-		value(i) = calculateField( i );
+		setValue( i, calculateField( i ) );
 	    else
-		value(i) = QSql::operator[](i);
+		setValue( i, QSql::value(i) );
 	}
     }
 }

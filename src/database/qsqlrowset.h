@@ -23,33 +23,35 @@ public:
     QSqlRowset( const QString & name = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlRowset( const QSqlRowset & s );
     ~QSqlRowset();
-    QSqlRowset& operator=( const QSqlRowset & s );
+    QSqlRowset&       operator=( const QSqlRowset & s );
 
-    QVariant& operator[]( int i );
-    QVariant& operator[]( const QString& name );
-    QVariant& value( int i );
-    QVariant& value( const QString& name );
+    QVariant&         operator[]( int i );
+    QVariant&         operator[]( const QString& name );
+    QVariant          value( int i );
+    QVariant          value( const QString& name );
+    void              setValue( int i, const QVariant& value );
+    void              setValue( const QString& name, const QVariant& value );
 
-    bool select();
-    bool select( const QSqlIndex& sort );
-    bool select( const QSqlIndex & filter, const QSqlIndex & sort );
-    bool select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
-    QSqlIndex sort() const { return srt; }
-    void    setName( const QString& name );
-    QString name() const { return nm; }
+    bool              select();
+    bool              select( const QSqlIndex& sort );
+    bool              select( const QSqlIndex & filter, const QSqlIndex & sort );
+    bool              select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
+    QSqlIndex         sort() const { return srt; }
+    void              setName( const QString& name );
+    QString           name() const { return nm; }
 
 protected:
-    QSqlFieldList & operator=( const QSqlFieldList & list );
-    bool query( const QString & str );
-    QString fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
-    QVariant calculateField( uint fieldNumber );
+    QSqlFieldList &   operator=( const QSqlFieldList & list );
+    bool              query( const QString & str );
+    QString           fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
+    QVariant          calculateField( uint fieldNumber );
 
 private:
-    QSqlFieldList   fields() const;     //hide
-    void      sync();
-    int       lastAt;
-    QString   nm;
-    QSqlIndex srt;
+    QSqlFieldList     fields() const;     //hide
+    void              sync();
+    int               lastAt;
+    QString           nm;
+    QSqlIndex         srt;
 };
 
 #endif // QT_NO_SQL
