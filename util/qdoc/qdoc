@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#209 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#210 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1688,10 +1688,12 @@ sub printclass {
 			   (?:private\b\s*?)|
 			   (?:protected\b\s*?)|
 			   (?:public\b\s*?)|
+			   (?:qproperties\b\s*?)|
 			   (?:signals\b\s*?)|
 			   (?:slots\b\s*?))+):\s*//sx);
 	next if (/^\s*friend\b/);
 	$mode =~ s/slots/Slots/;
+	$mode =~ s/Qp/P/;
 	if (/((^)|([^\(]*\b))static\b/) {
 	    s/(\s*)static\s*/$1/;
 	    $m{"Static ".$mode} .= $_ . ";";
@@ -1702,7 +1704,7 @@ sub printclass {
 
     $m{'Important Inherited'} = $importants{$url};
 
-    foreach $mode ('Public', 'Public Slots', 'Signals',
+    foreach $mode ('Public', 'Public Slots', 'Signals', 'Properties',
 		   'Static Public', 'Important Inherited', 'Protected',
 		   'Protected Slots', 'Static Protected',
 		   'Private', 'Private Slots', 'Static Private') {
