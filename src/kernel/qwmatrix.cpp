@@ -97,9 +97,9 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
   by performing the same operation on the \link QWMatrix::invert()
   inverted matrix\endlink.
 
-  The elements \e dx and \e dy specify horisontal and vertical
-  translation.	The elements \e m11 and \e m22 specify horisontal and
-  vertical scaling.  The elements \e m12 and \e m21 specify horisontal
+  The elements \e dx and \e dy specify horizontal and vertical
+  translation.	The elements \e m11 and \e m22 specify horizontal and
+  vertical scaling.  The elements \e m12 and \e m21 specify horizontal
   and vertical shearing.
 
   The identity matrix has \e m11 and \e m22 set to 1, all others set
