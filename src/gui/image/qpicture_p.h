@@ -9,6 +9,10 @@
 
 class QPaintEngine;
 
+extern const char  *mfhdr_tag;
+extern const Q_UINT16 mfhdr_maj;
+extern const Q_UINT16 mfhdr_min;
+
 class QPaintCommands
 {
 public:
@@ -38,6 +42,7 @@ public:
 	PdcDrawTextItem = 21,
 	PdcDrawLast = PdcDrawTextItem,
 	PdcDrawPoints = 22,
+	PdcDrawWinFocusRect = 23,
 
 	// no painting commands below PdcDrawLast.
 

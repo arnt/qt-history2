@@ -75,9 +75,9 @@
 
 */
 
-static const char  *mfhdr_tag = "QPIC";		// header tag
-static const Q_UINT16 mfhdr_maj = 6;		// major version #
-static const Q_UINT16 mfhdr_min = 0;		// minor version #
+const char  *mfhdr_tag = "QPIC"; // header tag
+const Q_UINT16 mfhdr_maj = 6; // major version #
+const Q_UINT16 mfhdr_min = 0; // minor version #
 
 #define d d_func()
 #define q q_func()
@@ -488,6 +488,10 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	    case PdcDrawRoundRect:
 		s >> r >> i1_16 >> i2_16;
 		painter->drawRoundRect( r, i1_16, i2_16 );
+		break;
+	    case PdcDrawWinFocusRect:
+		s >> r >> color;
+		painter->drawWinFocusRect( r, color );
 		break;
 	    case PdcDrawEllipse:
 		s >> r;
