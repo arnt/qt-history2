@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#221 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#222 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#221 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#222 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1127,6 +1127,8 @@ void QWidget::move( int x, int y )
 	return;
     QPoint p(x,y);
     QPoint oldp = pos();
+    if ( oldp == p )
+	return;
     QRect  r = frect;
     r.moveTopLeft( p );
     setFRect( r );
@@ -1262,9 +1264,11 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
-    QPoint oldp = frameGeometry().topLeft();
+    QPoint oldp = pos();
     QSize  olds = size();
     QRect  r( x, y, w, h );
+    if ( r.topLeft() == oldp && r.size() == olds )
+	return;
     setCRect( r );
     if ( !isVisible() ) {
 	deferMove( oldp );

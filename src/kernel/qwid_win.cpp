@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#92 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#92 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -697,10 +697,12 @@ void qWinRequestConfig( WId, int, int, int, int, int );
 
 void QWidget::move( int x, int y )
 {
+    QPoint oldp( pos() );
+    if ( oldp.x() == x && oldp.y() == y )
+	return;	
     if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
     } else {
-	QPoint oldp( pos() );
 	setFRect( QRect(x,y,frect.width(),frect.height()) );
 	if ( !isVisible() ) {
 	    deferMove( oldp );
@@ -767,11 +769,13 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
+    QPoint oldp( pos() );
+    QSize  olds( size() );
+    if ( oldp.x()==x && oldp.y()==y && olds.width()==w && olds.height()==h )
+	return;
     if ( testWFlags(WConfigPending) ) {		// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
-	QPoint oldp( pos() );
-	QSize  olds( size() );
 	w += frect.width()  - crect.width();
 	h += frect.height() - crect.height();
 	setFRect( QRect(x,y,w,h) );
