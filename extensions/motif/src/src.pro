@@ -5,7 +5,7 @@ TARGET = qmotif
 DESTINCDIR = ../../../include
 DESTDIR = ../../../lib
 VERSION = 0.0.0
-LIBS += -lXm
+LIBS += -lXm -lXt
 
 contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     HEADERS = qmotifdialog.h qmotifwidget.h qmotif.h
