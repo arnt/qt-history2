@@ -540,7 +540,7 @@ bool Config::needImage( const Location& loc, const QString& fileName,
 	*width = size.first;
     if ( height != 0 )
 	*height = size.second;
-    return TRUE;
+    return size.first > 0 && size.second > 0;
 }
 
 QString Config::unalias( const Location& loc, const QString& alias,
