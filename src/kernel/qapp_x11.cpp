@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#269 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#270 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -79,7 +79,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#269 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#270 $");
 
 
 /*****************************************************************************
@@ -1410,9 +1410,10 @@ static int sn_activate()
  *****************************************************************************/
 
 /*!
-  Enters the main event loop and waits until quit() is called or
+  Enters the main event loop and waits until exit() is called or
   the \link setMainWidget() main widget\endlink is destroyed.
-  Returns the value that was specified to quit().
+  Returns the value that was specified to exit(), which is 0 if
+  exit() is called via quit().
 
   It is necessary to call this function to start event handling.
   The main event loop receives \link QWidget::event() events\endlink from
@@ -1422,7 +1423,7 @@ static int sn_activate()
   As a special case, modal widgets like QMessageBox can be used before
   calling exec(), because modal widget have a local event loop.
 
-  \sa quit(), processEvents(), setMainWidget()
+  \sa quit(), exit(), processEvents(), setMainWidget()
 */
 
 int QApplication::exec()
