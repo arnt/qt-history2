@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#146 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -413,10 +413,6 @@ void QWidget::setBackgroundColor( const QColor &color )
 
 static int allow_null_pixmaps = 0;
 
-void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
-{
-    setBackgroundModeDirect( FixedPixmap );
-}
 
 void QWidget::setBackgroundPixmapDirect( const QPixmap &pixmap )
 {
