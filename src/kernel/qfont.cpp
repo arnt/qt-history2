@@ -1376,7 +1376,7 @@ QString QFont::toString() const
 {
     QStringList l;
     l.append(family());
-    l.append(QString::number(pointSize()));
+    l.append(QString::number(pointSizeFloat()));
     l.append(QString::number(pixelSize()));
     l.append(QString::number((int)styleHint()));
     l.append(QString::number(weight()));
@@ -1411,7 +1411,7 @@ bool QFont::fromString(const QString &descrip)
     }
 
     setFamily(l[0]);
-    setPointSize(l[1].toInt());
+    setPointSizeFloat(l[1].toDouble());
     if ( count == 9 ) {
 	setStyleHint((StyleHint) l[2].toInt());
 	setWeight(l[3].toInt());
