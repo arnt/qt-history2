@@ -490,6 +490,8 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     will be allocated (and destructed later).
 
     The endianness is specified by \a bitOrder.
+
+    \warning This constructor is only available on Qt/Embedded.
 */
 QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		int bpl, QRgb* colortable, int numColors,
