@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#372 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#373 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3682,6 +3682,27 @@ void QFileDialog::addFilter( const QString &filter )
 {
     if ( filter.isEmpty() )
 	return;
+    
+    QString f( filter );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
+    int len;
+    int index = r.match( f, 0, &len );
+    if ( index >= 0 )
+	f = f.mid( index + 1, len - 2 );
+    for ( int i = 0; i < d->types->count(); ++i ) {
+	QString f2( d->types->text( i ) );
+	QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
+	int len;
+	int index = r.match( f2, 0, &len );
+	if ( index >= 0 )
+	    f2 = f2.mid( index + 1, len - 2 );
+	if ( f2 == f ) {
+	    d->types->setCurrentItem( i );
+	    setFilter( f2 );
+	    return;
+	}
+    }
+	
     d->types->insertItem( filter );
     d->types->setCurrentItem( d->types->count() - 1 );
     setFilter( d->types->text( d->types->count() - 1 ) );
@@ -3883,7 +3904,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    d->progressDia->setProgress( 0 );
 	    d->progressDia->reset();
 	    d->progressDia->show();
-	}	    
+	}	
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
 	if ( d->progressDia )
@@ -3910,7 +3931,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 		
     if ( d->progressDia->totalSteps() != bytesTotal )
 	d->progressDia->setTotalSteps( bytesTotal );
-    
+
     if ( op->operation() == QNetworkProtocol::OpGet )
 	d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg1() ) );
     else if ( op->operation() == QNetworkProtocol::OpPut )
