@@ -10,9 +10,9 @@
 
 #include <qapplication.h>
 #include <qtable.h>
+#include <qimage.h>
 #include <qpixmap.h>
 #include <qstringlist.h>
-#include <qwmatrix.h>
 
 // Qt logo: static const char *qtlogo_xpm[]
 #include "qtlogo.xpm"
@@ -29,14 +29,8 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );			
 
     QTable table( numRows, numCols );
-    QPixmap pix( qtlogo_xpm );
-
-    double factor = (double) table.rowHeight( 3 ) / pix.height();
-    
-    QWMatrix wm;
-    wm.scale( factor, factor );
-    pix = pix.xForm( wm );
-
+    QImage img( qtlogo_xpm );
+    QPixmap pix = img.scaleHeight( table.rowHeight(3) );
     table.setPixmap( 3, 2, pix );
     table.setText( 3, 2, "A Pixmap" );
 

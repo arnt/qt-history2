@@ -52,12 +52,12 @@ The third cell in the fourth row contains a pixmap and a string.
 
 \walkthrough table/small-table-demo/main.cpp
 \skipto include
-\printuntil qwmatrix.h
+\printuntil qstringlist.h
 
 All we need to implement this are five classes: \l QApplication
-(overall it's a GUI program), \l QTable for the spreadsheet, \l QPixmap
-for the icon to show, \l QStringList to store the combo box items, and 
-\l QWMatrix to scale the pixmap so that it fits nicely into the cell.
+(overall it's a GUI program), \l QTable for the spreadsheet, \l QImage to
+load and scale the icon, \l QPixmap for the icon to show and \l QStringList
+to store the combo box items.
 
 \skipto qtlogo.xpm
 \printline qtlogo.xpm
@@ -79,45 +79,23 @@ In the main program the first thing for us to do is to create
 
 Then we create a \e table widget of the defined size.
 
+\printline img
+
+Next we load the pixmap we want to show. We use a QImage for this purpose
+since we have to scale it first so that it will fit into the table cell.
+Such an operation should always be done in QImage because this is more
+efficient: a QPixmap is stored by the windowing system and if you do the
+transformation on the QPixmap, Qt has to get it first, then do the
+transformation and put the transformed pixmap back again.
+
 \printline pix
 
-Next we use the pixmap array that \e qtlogo_xpm points to 
-and create the \l QPixmap object to be shown in the
-cell that is made up by the third column and the fourth row.
-
-\printline factor
-
-Our pixmap does not neccessarily fit right into a cell.
-The limiting \e factor is the height of the fourth row.
-Therefore we compute the ratio of the row height and the
-icon height. This is the scaling factor for the pixmap. 
-
-Note that both, \l QTable::rowHeight() and \l QPixmap::height()
-return integer values. To talk them into participating in a floating point 
-division we have to cast at least one of them. Furthermore it is
-important to keep in mind that row and column numbering in QTable
-starts with zero so that the fourth row is denoted by 3.
-
-\printline wm;
-
-2D transformations in Qt are stored in a so called \e{world matrix}.
-To record the transformation to be applied to the pixmap we use the 
-\l QWMatrix \e wm.
-
-\printline scale
-
-To let the pixmap fit into a fourth row cell we have to scale
-its height by \e factor. As we want to retain the proportions of the 
-(square) icon
-we scale its width, too. This transformation we store in the 
-\e wm world matrix.
-
-\printline xForm
-
-The \l QPixmap::xForm() function applies transformations stored
-in a world matrix to a copy of \e pix. As we don't need the
-untransformed icon any longer we overwrite \e pix with the transformed
-pixmap data.
+Then we scale it that it will fit into the cell. We want to put it into the
+fourth row, so the limiting factor is the height of the row (keep in mind
+that row and column numbering in QTable start with zero so that the fourth
+row is denoted by 3). We assign the resulting QImage to a QPixmap. This
+puts the pixmap to the windowing system, so that we can use it finally for
+displaying purposes.
 
 \printline table.setPixmap
 
