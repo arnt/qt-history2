@@ -1260,7 +1260,8 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
     if ( !config->autoHrefs() )
 	return;
 
-    QString t( "(?:<pre>.*</pre>|(?:Qmagicwordthatyoushouldavoid" );
+    QString t( "(?:<(?:a[ \n\t]+[^>]*|pre)>.*</(?:a|pre)>|"
+	       "(?:Qmagicwordthatyoushouldavoid" );
     QMap<QString, QString>::ConstIterator s = keywordLinks.begin();
     while ( s != keywordLinks.end() ) {
 	if ( s == keywordLinks.end() )
@@ -2071,9 +2072,9 @@ QString Doc::finalHtml() const
 	int k = 0;
 	while ( (k = megaRegExp->search(yyOut, k)) != -1 ) {
 	    /*
-	      Make sure we didn't match a '<pre>...</pre>' thingy,
-	      but rather skip over it. (See the construction of
-	      megaRegExp.)
+	      Make sure we didn't match a '<pre>...</pre>' or
+	      '<a>...</a>' thingy, but rather skip over it. (See the
+	      construction of megaRegExp.)
 	    */
 	    if ( yyOut[k + 1] != QChar('<') ) {
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();
