@@ -54,7 +54,7 @@ typedef long long QuadByte;
 
 #define NASTY
 
-//#define QWS_EXPERIMENTAL_FASTPATH
+#define QWS_EXPERIMENTAL_FASTPATH
 
 #define QGfxRaster_Generic 0
 
@@ -95,7 +95,7 @@ static inline int match(QRgb a,QRgb b)
 {
     int ret;
 
-#if defined(QWS_DEPTH_8)
+#if defined(QWS_DEPTH_8) || defined(QWS_DEPTH_8DIRECT)
     int h1,s1,v1;
     int h2,s2,v2;
     /*
