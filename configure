@@ -864,7 +864,11 @@ else
 fi
 
 # Create the .qmake.cache file
-cat > .qmake.cache <<EOF
+[ -f .qmake.cache ] && rm -f .qmake.cache
+for a in $QMAKE_ARGS; do
+    echo $a | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache
+done
+cat >>.qmake.cache <<EOF
 CONFIG = $QMAKE_CONFIG
 MKSPEC = $XPLATFORM
 EOF
