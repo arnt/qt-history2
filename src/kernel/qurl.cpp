@@ -279,14 +279,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
     if ( !urlTmp.isValid() ) {
 	urlTmp.reset();
     }
-    if ( !isRelativeUrl( rel ) ) {
-	if ( rel[ 0 ] == QChar( '/' ) ) {
-	    *this = urlTmp;
-	    setEncodedPathAndQuery( rel );
-	} else {
-	    *this = rel;
-	}
-    } else {
+    if ( isRelativeUrl( rel ) ) {
 	if ( rel[ 0 ] == '#' ) {
 	    *this = urlTmp;
 	    rel.remove( 0, 1 );
@@ -300,7 +293,12 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 	    decode( rel );
 	    *this = urlTmp;
 	    setRef( QString::null );
-	    if ( !checkSlash || d->cleanPath[ (int)path().length() - 1 ] == '/' ) {
+	    if ( checkSlash && d->cleanPath[(int)path().length()-1] != '/' ) {
+		if ( isRelativeUrl( path() ) )
+		    setEncodedPathAndQuery( rel );
+		else
+		    setFileName( rel );
+	    } else {
 		QString p = urlTmp.path();
 		if ( p.isEmpty() )
 		    p = "/";
@@ -309,12 +307,14 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
 		p += rel;
 		d->path = p;
 		d->cleanPathDirty = TRUE;
-	    } else {
-		if ( isRelativeUrl( path() ) )
-		    setEncodedPathAndQuery( rel );
-		else
-		    setFileName( rel );
 	    }
+	}
+    } else {
+	if ( rel[ 0 ] == QChar( '/' ) ) {
+	    *this = urlTmp;
+	    setEncodedPathAndQuery( rel );
+	} else {
+	    *this = rel;
 	}
     }
 }
@@ -943,14 +943,17 @@ void QUrl::setFileName( const QString& name )
     while ( fn[ 0 ] == '/' )
 	fn.remove( 0, 1 );
 
-    QString p = path().isEmpty() ?
-		QString( "/" ) : path();
-    if ( !path().isEmpty() ) {
+    QString p;
+    if ( path().isEmpty() ) {
+	p = "/";
+    } else {
+	p = path();
 	int slash = p.findRev( QChar( '/' ) );
 	if ( slash == -1 ) {
 	    p = "/";
-    } else if ( p[ (int)p.length() - 1 ] != '/' )
-	p.truncate( slash + 1 );
+	} else if ( p[ (int)p.length() - 1 ] != '/' ) {
+	    p.truncate( slash + 1 );
+	}
     }
 
     p += fn;
