@@ -2207,6 +2207,8 @@ QByteArray QString::toUtf8() const
     if (!d->cache || d->encoding != Data::Utf8) {
 	if (!d->c)
 	    new (&d->c) QByteArray;
+	else
+	    ba->clear();
 	d->cache = true;
 	d->encoding = Data::Utf8;
 	if (d->size) {
