@@ -1029,7 +1029,7 @@ ExecutePPM(VidStream *vid_stream)
       ++cp;
     else
       cp = inputName;
-    strcpy(mungedInputName, cp);
+    qstrcpy(mungedInputName, cp);
     cp = strrchr(mungedInputName, '.');
     if (cp != NULL)
 	*cp = '\0';
