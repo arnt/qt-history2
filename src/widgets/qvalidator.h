@@ -1,9 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#7 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#8 $
 **
-** Definition of 
+** Definition of validator classes.
 **
-** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
+** Created : 970610
+**
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 ****************************************************************************/
 
@@ -71,4 +73,5 @@ private:
     int d;
 };
 
-#endif
+
+#endif // QVALIDATOR_H

@@ -1,7 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#9 $
 **
-** C++ file skeleton
+** Implementation of validator classes.
+**
+** Created : 970610
 **
 ** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
@@ -12,10 +14,11 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#9 $");
 
 
-/*!  \class QValidator qvalidator.h
+/*!
+  \class QValidator qvalidator.h
 
   \brief The QValidator class provides ways to validate an input text.
 
@@ -36,7 +39,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#8 $");
   QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
 */
 
-/*!  Sets up the internal data structures used by the validator.  At
+/*!
+  Sets up the internal data structures used by the validator.  At
   the moment there aren't any.
 */
 
@@ -46,7 +50,8 @@ QValidator::QValidator( QWidget * parent, const char * name )
 }
 
 
-/*!  Deletes the validator and frees any storage and other resources
+/*!
+  Deletes the validator and frees any storage and other resources
   used.
 */
 
@@ -55,7 +60,8 @@ QValidator::~QValidator()
 }
 
 
-/*! \fn QValidator::State QValidator::isValid( const char * input )
+/*!
+  \fn QValidator::State QValidator::isValid( const char * input )
 
   This pure virtual function returns \c Invalid if \a input is valid
   according to this validator's rules, \c Valid if it is likely that a
@@ -65,7 +71,8 @@ QValidator::~QValidator()
 */
 
 
-/*!  Attempts to change \a to be valid according to this validator's
+/*!
+  Attempts to change \a to be valid according to this validator's
   rules.  Need not result in a valid string - callers of this function
   must re-test afterwards.  The default does nothing.
 
@@ -93,7 +100,8 @@ void QValidator::fixup( QString & input )
 }
 
 
-/*! \class QIntValidator qvalidator.h
+/*!
+  \class QIntValidator qvalidator.h
 
   \brief The QIntValidator class provides range checking of integers.
 
@@ -104,7 +112,8 @@ void QValidator::fixup( QString & input )
 */
 
 
-/*!  Creates a validator object which accepts all integers.
+/*!
+  Creates a validator object which accepts all integers.
 */
 
 QIntValidator::QIntValidator( QWidget * parent, const char * name )
@@ -115,7 +124,8 @@ QIntValidator::QIntValidator( QWidget * parent, const char * name )
 }
 
 
-/*!  Creates a validator object which accepts all integers from \a
+/*!
+  Creates a validator object which accepts all integers from \a
   bottom up to and including \a top.
 */
 
@@ -128,7 +138,8 @@ QIntValidator::QIntValidator( int bottom, int top,
 }
 
 
-/*!  Deletes the validator and frees up any storage used.
+/*!
+  Deletes the validator and frees up any storage used.
 */
 
 QIntValidator::~QIntValidator()
@@ -137,7 +148,8 @@ QIntValidator::~QIntValidator()
 }
 
 
-/*!  Returns \a Acceptable if \a input contains a number in the legal
+/*!
+  Returns \a Acceptable if \a input contains a number in the legal
   range, \a Valid if it contains another integer, and \a Invalid if \a
   input is not an integer.
 */
@@ -156,7 +168,8 @@ QValidator::State QIntValidator::isValid( const char * input )
 }
 
 
-/*!  Sets the validator to accept only number from \a bottom up to an
+/*!
+  Sets the validator to accept only number from \a bottom up to an
   including \a top.
 */
 
@@ -167,16 +180,17 @@ void QIntValidator::setRange( int bottom, int top )
 }
 
 
-/*! \fn int QIntValidator::bottom() const
+/*!
+  \fn int QIntValidator::bottom() const
 
   Returns the lowest valid number according to this validator.
 
   \sa top() setRange()
-
 */
 
 
-/*! \fn int QIntValidator::top() const
+/*!
+  \fn int QIntValidator::top() const
 
   Returns the highest valid number according to this validator.
 
@@ -184,7 +198,8 @@ void QIntValidator::setRange( int bottom, int top )
 */
 
 
-/*! \class QDoubleValidator qvalidator.h
+/*!
+  \class QDoubleValidator qvalidator.h
 
   \brief The QDoubleValidator class provides range checking of integers.
 
@@ -195,7 +210,8 @@ void QIntValidator::setRange( int bottom, int top )
   \sa QIntValidator
 */
 
-/*!  Creates a validator object which accepts all double from 2.7182818
+/*!
+  Creates a validator object which accepts all double from 2.7182818
   to 3.1415926 (please, no bug reports) with at most seven digits after
   the decimal point.
 
@@ -212,7 +228,8 @@ QDoubleValidator::QDoubleValidator( QWidget * parent, const char * name )
 }
 
 
-/*!  Creates a validator object which accepts all doubles from \a
+/*!
+  Creates a validator object which accepts all doubles from \a
   bottom up to and including \a top with at most \a decimals digits
   after the decimal point.
 */
@@ -227,7 +244,8 @@ QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
 }
 
 
-/*!  Deletes the validator and frees any storage and other resources
+/*!
+  Deletes the validator and frees any storage and other resources
   used.
 */
 
@@ -237,7 +255,8 @@ QDoubleValidator::~QDoubleValidator()
 }
 
 
-/*!  Returns \a Acceptable if \a input contains a number in the legal
+/*!
+  Returns \a Acceptable if \a input contains a number in the legal
   range and format, \a Valid if it contains another, and \a Invalid if
   \a input is not a number.
 */
@@ -257,7 +276,8 @@ QValidator::State QDoubleValidator::isValid( const char * input )
 }
 
 
-/*!  Sets the validator to accept numbers from \a bottom up to and
+/*!
+  Sets the validator to accept numbers from \a bottom up to and
   including \a top with at most \a decimals digits after the decimal
   point.
 */
@@ -270,16 +290,17 @@ void QDoubleValidator::setRange( double bottom, double top, int decimals )
 }
 
 
-/*! \fn double QDoubleValidator::bottom() const
+/*!
+  \fn double QDoubleValidator::bottom() const
 
   Returns the lowest valid number according to this validator.
 
   \sa top() decimals() setRange()
-
 */
 
 
-/*! \fn double QDoubleValidator::top() const
+/*!
+  \fn double QDoubleValidator::top() const
 
   Returns the highest valid number according to this validator.
 
@@ -287,7 +308,8 @@ void QDoubleValidator::setRange( double bottom, double top, int decimals )
 */
 
 
-/*! \fn int QDoubleValidator::decimals() const
+/*!
+  \fn int QDoubleValidator::decimals() const
 
   Returns the largest number of digits a valid number can have after
   its decimal point.
