@@ -58,8 +58,8 @@
 */
 
 /*!
-    Constructs a SQL driver plugin. This is invoked automatically by
-    the \c Q_EXPORT_PLUGIN macro.
+    Constructs a SQL driver plugin and sets the parent to \parent.
+    This is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 
 QSqlDriverPlugin::QSqlDriverPlugin(QObject *parent)
