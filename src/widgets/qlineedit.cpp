@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#88 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#88 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -264,7 +264,7 @@ void QLineEdit::deselect()
 
 const char *QLineEdit::text() const
 {
-    return tbuf.data();
+    return tbuf;
 }
 
 /*!
@@ -574,6 +574,11 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 	if ( w < 0 && i != cursorPos )
 	    i++;
 	offset = i;
+    } else if ( offset ) {
+	int i = showLastPartOffset( tbuf.data(), fontMetrics(),
+				    width() - (frame() ? 8 : 4) );
+	if ( i < offset )
+	    offset = i;
     }
     repaint( !hasFocus() );
 }
@@ -931,14 +936,14 @@ void QLineEdit::del()
 	if ( cursorPos < offset )
 	    offset = cursorPos;
 	repaint( !hasFocus() );
-	emit textChanged( tbuf.data() );
+	emit textChanged( tbuf );
     } else if ( cursorPos != (int)strlen(tbuf) ) {
 	test.remove( cursorPos, 1 );
 	if ( v && !v->isValid( test ) && v->isValid( tbuf ) )
 	    return;
 	tbuf = test;
 	repaint( !hasFocus() );
-	emit textChanged( tbuf.data() );
+	emit textChanged( tbuf );
     }
 }
 
