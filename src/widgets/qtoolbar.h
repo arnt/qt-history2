@@ -53,6 +53,7 @@ class Q_EXPORT QToolBar: public QDockWindow
 {
     Q_OBJECT
     Q_PROPERTY( QString label READ label WRITE setLabel )
+    Q_PROPERTY( bool toggleButtonExclusive READ isToggleButtonExclusive WRITE setToggleButtonExclusive )
 
 public:
     QToolBar( const QString &label,
@@ -85,12 +86,16 @@ public:
     void setOrientation( Orientation o );
     void setMinimumSize( int minw, int minh );
 
+    void setToggleButtonExclusive( bool exclusive );
+    bool isToggleButtonExclusive() const;
+
 protected:
     void resizeEvent( QResizeEvent *e );
     void styleChange( QStyle & );
 
 private slots:
     void createPopup();
+    void updateToggleButtons( bool on );
 
 private:
     void init();
