@@ -54,9 +54,9 @@
 #include <X11/Xatom.h>
 #include <X11/Xmu/StdCmap.h>
 
-// POSIX Large File Support on broken compilers redefines truncate -> truncate64
+// POSIX Large File Support redefines truncate -> truncate64
 #if defined(truncate)
-#undef truncate
+# undef truncate
 #endif
 
 

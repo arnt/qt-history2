@@ -5,7 +5,7 @@
 **
 ** Created : 991122
 **
-** Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1999-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -36,6 +36,12 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
+
 #include "qdns.h"
 
 #ifndef QT_NO_DNS

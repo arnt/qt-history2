@@ -42,6 +42,11 @@
 # undef open
 #endif
 
+// POSIX Large File Support on broken compilers redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
+
 #include "qpsprinter_p.h"
 
 #ifndef QT_NO_PRINTER

@@ -5,7 +5,7 @@
 **
 ** Created : 941121
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -39,7 +39,14 @@
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#undef connect
+#if defined(connect)
+# undef connect
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
 
 #include "qlistbox.h"
 #ifndef QT_NO_LISTBOX

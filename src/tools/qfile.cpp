@@ -37,9 +37,14 @@
 
 #include "qplatformdefs.h"
 
-// POSIX Large File Support on broken compilers redefines open -> open64
+// POSIX Large File Support redefines open -> open64
 #if defined(open)
 # undef open
+#endif
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
 #endif
 
 #include "qfile.h"

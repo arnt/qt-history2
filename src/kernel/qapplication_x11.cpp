@@ -47,6 +47,11 @@
 # undef connect
 #endif
 
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
+
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qcolor_p.h"

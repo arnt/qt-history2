@@ -36,6 +36,12 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
+
+// POSIX Large File Support redefines truncate -> truncate64
+#if defined(truncate)
+# undef truncate
+#endif
+
 #include "qtranslator.h"
 
 #ifndef QT_NO_TRANSLATION
