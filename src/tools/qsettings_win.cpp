@@ -303,6 +303,7 @@ HKEY QSettingsSysPrivate::readKeyHelper( HKEY root, const QString &folder, const
 	} );
     }
     if ( res != ERROR_SUCCESS ) {
+	RegCloseKey( handle );
 	size = 0;
 	handle = 0;
     }
