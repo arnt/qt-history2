@@ -75,11 +75,11 @@ void QSimpleRichTextData::adjustSize() {
     int w = mw;
     doc->doLayout( 0,w );
     if ( doc->widthUsed() != 0 ) {
-	w = int_sqrt( (5*doc->height() ) / (3*doc->widthUsed() ) );
+	w = int_sqrt( 5 * doc->height() * doc->widthUsed() / 3 );
 	doc->doLayout( 0, QMIN( w, mw) );
 
 	if ( w*3 < 5*doc->height() ) {
-	    w = int_sqrt(6*doc->height() / (3*doc->widthUsed()) );
+	    w = int_sqrt( 2 * doc->height() * doc->widthUsed() );
 	    doc->doLayout( 0,QMIN(w, mw ) );
 	}
     }
