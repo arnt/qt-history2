@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#28 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -214,7 +214,7 @@ bool QProcess::start()
 	};
 	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
 	success = CreateProcess( 0, commandLine,
-		0, 0, TRUE, DETACHED_PROCESS, 0,
+		0, 0, TRUE, CREATE_NO_WINDOW, 0,
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, &d->pid );
 	delete[] commandLine;
