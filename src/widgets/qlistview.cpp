@@ -3168,6 +3168,9 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 		    currentItem()->cancelRename();
 		    return TRUE;
 		}
+	    } else if ( e->type() == QEvent::FocusOut ) {
+		currentItem()->cancelRename();
+		return TRUE;
 	    }
 	}
     }
