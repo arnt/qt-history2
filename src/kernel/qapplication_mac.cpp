@@ -86,6 +86,7 @@
 
 static Qt::ButtonState mouse_button_state = Qt::NoButton;
 static char    *appName;                        // application name
+static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 
@@ -378,6 +379,9 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   \sa setOverrideCursor(), restoreOverrideCursor()
 */
 
+typedef QList<QCursor> QCursorList;
+static QCursorList *cursorStack = 0;
+
 /*!
   Sets the application override cursor to \a cursor.
 
@@ -409,8 +413,17 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   \sa overrideCursor(), restoreOverrideCursor(), QWidget::setCursor()
 */
 
-void QApplication::setOverrideCursor( const QCursor &, bool )
+void QApplication::setOverrideCursor( const QCursor &cursor, bool replace)
 {
+    if ( !cursorStack ) {
+	cursorStack = new QCursorList;
+	CHECK_PTR( cursorStack );
+	cursorStack->setAutoDelete( TRUE );
+    }
+    app_cursor = new QCursor(cursor);
+    if ( replace )
+	cursorStack->removeLast();
+    cursorStack->append( app_cursor );
 }
 
 /*!
@@ -425,6 +438,14 @@ void QApplication::setOverrideCursor( const QCursor &, bool )
 
 void QApplication::restoreOverrideCursor()
 {
+    if ( !cursorStack )				// no cursor stack
+	return;
+    cursorStack->removeLast();
+    if(cursorStack->isEmpty()) {
+	app_cursor = NULL;
+	delete cursorStack;
+	cursorStack = NULL;
+    }
 }
 
 #endif
@@ -1363,11 +1384,18 @@ int QApplication::macProcessEvent(MSG * m)
 		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 		}
 		if ( widget ) {
+		    //set the cursor up
+		    Cursor *n = NULL;
 		    if(widget->extra && widget->extra->curs) 
-			SetCursor((Cursor *)widget->extra->curs->handle());
-		    else
-			SetCursor((Cursor *)arrowCursor.handle());
+			n = (Cursor *)widget->extra->curs->handle();
+		    else if(cursorStack)
+			n = (Cursor *)app_cursor->handle();
+		    if(!n)
+			n = (Cursor *)arrowCursor.handle(); //I give up..
+		    if(currentCursor != n) 
+			SetCursor(currentCursor = n);
 
+		    //ship the event
 		    if(mouse_button_state != Qt::NoButton
 		       || widget->hasMouseTracking() || hasGlobalMouseTracking()) {
 			QPoint p( er->where.h, er->where.v );
