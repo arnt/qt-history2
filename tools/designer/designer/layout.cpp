@@ -799,9 +799,9 @@ void GridLayout::doLayout()
 	    if ( needReparent && w->parent() != layoutBase )
 		w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
 	    if ( rs * cs == 1 ) {
-		layout->addWidget( w, r, c, qt_cast<Spacer*>(w) ? ( (Spacer*)w )->alignment() : 0 );
+		layout->addWidget( w, r, c, qt_cast<Spacer*>(w) ? ( (Spacer*)w )->alignment() : Alignment(0) );
 	    } else {
-		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, qt_cast<Spacer*>(w) ? ( (Spacer*)w )->alignment() : 0 );
+		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, qt_cast<Spacer*>(w) ? ( (Spacer*)w )->alignment() : Alignment(0) );
 	    }
 	    if ( qt_cast<QLayoutWidget*>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
@@ -989,7 +989,7 @@ Spacer::SizeType Spacer::sizeType() const
     return (SizeType)sizePolicy().horData();
 }
 
-int Spacer::alignment() const
+Qt::Alignment Spacer::alignment() const
 {
     if ( orient == Vertical )
 	return AlignHCenter;
@@ -1045,14 +1045,14 @@ void Spacer::setOrientation( Qt::Orientation o )
 }
 
 
-void QDesignerGridLayout::addWidget( QWidget *w, int row, int col, int align_ )
+void QDesignerGridLayout::addWidget( QWidget *w, int row, int col, Alignment align_ )
 {
     items.insert( w, Item(row, col, 1, 1) );
     QGridLayout::addWidget( w, row, col, align_ );
 }
 
 void QDesignerGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
-					      int fromCol, int toCol, int align_ )
+					      int fromCol, int toCol, Alignment align_ )
 {
     items.insert( w, Item(fromRow, fromCol, toRow - fromRow + 1, toCol - fromCol +1) );
     QGridLayout::addMultiCellWidget( w, fromRow, toRow, fromCol, toCol, align_ );

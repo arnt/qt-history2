@@ -114,7 +114,7 @@ public:
 
     QListBoxItem *item( int index ) const;
     int index( const QListBoxItem * ) const;
-    QListBoxItem *findItem( const QString &text, ComparisonFlags compare = BeginsWith ) const;
+    QListBoxItem *findItem( const QString &text, StringComparison compare = BeginsWith ) const;
 
     void triggerUpdate( bool doLayout );
 

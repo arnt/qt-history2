@@ -129,7 +129,7 @@ public:
     QSize sizeHint() const;
     void setSizeType( SizeType t );
     SizeType sizeType() const;
-    int alignment() const;
+    Alignment alignment() const;
     Orientation orientation() const;
     void setOrientation( Orientation o );
     void setInteraciveMode( bool b ) { interactive = b; };
@@ -151,9 +151,9 @@ public:
     QDesignerGridLayout( QWidget *parent ) : QGridLayout( parent ){};
     QDesignerGridLayout( QLayout *parentLayout ) : QGridLayout( parentLayout ){};
 
-    void addWidget( QWidget *, int row, int col, int align = 0 );
+    void addWidget( QWidget *, int row, int col, Alignment align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
-			       int fromCol, int toCol, int align = 0 );
+			       int fromCol, int toCol, Alignment align = 0 );
 
     struct Item
     {

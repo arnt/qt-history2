@@ -379,7 +379,7 @@ void QMultiLineEdit::setAlignment( Alignment flag )
 
 Qt::Alignment QMultiLineEdit::alignment() const
 {
-    return document()->firstParagraph()->alignment();
+    return QFlag(document()->firstParagraph()->alignment());
 }
 
 

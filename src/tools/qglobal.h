@@ -1320,56 +1320,65 @@ inline T qt_cast(const QObject *object)
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
-class QFlagInternal
+
+class Q_KERNEL_EXPORT QFlag
 {
     int i;
 public:
-    inline QFlagInternal(int i) : i(i) {}
+    inline QFlag(int i) : i(i) {}
     inline operator int() const { return i; }
 };
+
+
+#define Q_NO_TYPESAFE_FLAGS
+
+#ifndef Q_NO_TYPESAFE_FLAGS
 
 template<typename Enum>
 class QFlags
 {
     typedef void *Zero;
-    int u;
+    int i;
 public:
-    inline QFlags(const QFlags &f) : u(f.u) {}
-    inline QFlags(Enum f) : u(f) {}
-    inline QFlags(Zero * = 0) : u(0u) {}
-    inline QFlags(QFlagInternal i) : u(i) {}
+    typedef Enum enum_type;
+    inline QFlags(const QFlags &f) : i(f.i) {}
+    inline QFlags(Enum f) : i(f) {}
+    inline QFlags(Zero * = 0) : i(0) {}
+    inline QFlags(QFlag f) : i(f) {}
 
-    inline QFlags &operator=(const QFlags &f) { u = f.u; return *this; }
-    inline QFlags &operator&=(uint mask) {  u &= mask; return *this; }
-    inline QFlags &operator&=(QFlags f) {  u &= f.u; return *this; }
-    inline QFlags &operator&=(Enum f) {  u &= f; return *this; }
-    inline QFlags &operator|=(QFlags f) {  u |= f.u; return *this; }
-    inline QFlags &operator|=(Enum f) {  u |= f; return *this; }
+    inline QFlags &operator=(const QFlags &f) { i = f.i; return *this; }
+    inline QFlags &operator&=(int mask) {  i &= mask; return *this; }
+    inline QFlags &operator|=(QFlags f) {  i |= f.i; return *this; }
+    inline QFlags &operator|=(Enum f) {  i |= f; return *this; }
 
-    inline operator QFlagInternal() const { return u; }
-    inline operator Zero*() const { return reinterpret_cast<Zero*>(u ? 0x1:0x0); }
+    inline operator int() const { return i;}
 
-    inline QFlags operator|(QFlags f) const { QFlags wf; wf.u = u|f.u; return wf; }
-    inline QFlags operator|(Enum f) const { QFlags wf; wf.u = u|f; return wf; }
-    inline QFlags operator&(uint mask) const { QFlags wf; wf.u = u&mask; return wf; }
-    inline QFlags operator&(QFlags f) const { QFlags wf; wf.u = u&f.u; return wf; }
-    inline QFlags operator&(Enum f) const { QFlags wf; wf.u = u&f; return wf; }
-    inline QFlags operator~() const { QFlags wf; wf.u = ~u; return wf; }
+    inline QFlags operator|(QFlags f) const { QFlags g; g.i = i | f.i; return g; }
+    inline QFlags operator|(Enum f) const { QFlags g; g.i = i | f; return g; }
+    inline int operator|(int f) const { return i | f; }
+    inline QFlags operator&(int mask) const { QFlags g; g.i = i & mask; return g; }
+    inline QFlags operator~() const { QFlags g; g.i = ~i; return g; }
 
-    inline bool operator!() const { return !u; }
-    inline bool operator==(QFlags f) const { return u == f.u; }
-    inline bool operator!=(QFlags f) const { return u != f.u; }
-    inline bool operator==(Enum f) const { return u == (int)f; }
-    inline bool operator!=(Enum f) const { return u != (int)f; }
-    inline bool operator==(Zero *) const { return u == 0; }
-    inline bool operator!=(Zero *) const { return u != 0; }
+    inline bool operator!() const { return !i; }
 };
 
-#define Q_DECLARE_OPERATORS_FOR_FLAGS(Enum) \
-inline QFlags<Enum> operator|(Enum f1, Enum f2 ) \
-{ return QFlags<Enum>(f1) | f2; } \
-inline QFlags<Enum> operator|(Enum f1, QFlags<Enum> f2 ) \
+#define Q_DECLARE_FLAGS(Flags, Enum)\
+typedef QFlags<Enum> Flags;
+#define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags) \
+inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, Flags::enum_type f2 ) \
+{ return QFlags<Flags::enum_type>(f1) | f2; } \
+inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, QFlags<Flags::enum_type> f2 ) \
+{ return f2 | f1; } \
+inline int operator|(int f1, QFlags<Flags::enum_type> f2 ) \
 { return f2 | f1; }
+
+#else // Q_NO_TYPESAFE_FLAGS
+
+#define Q_DECLARE_FLAGS(Flags, Enum)\
+typedef int Flags;
+#define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags)
+
+#endif // Q_NO_TYPESAFE_FLAGS
 
 #endif // __cplusplus
 

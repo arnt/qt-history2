@@ -113,7 +113,7 @@ class Q_GUI_EXPORT QTextEdit : public QScrollView
 
     Q_OBJECT
     Q_ENUMS( WordWrap WrapPolicy )
-    Q_SETS( AutoFormatting )
+    Q_FLAGS( AutoFormattingFlags )
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
@@ -132,7 +132,7 @@ class Q_GUI_EXPORT QTextEdit : public QScrollView
     Q_PROPERTY( bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled )
     Q_PROPERTY( int tabStopWidth READ tabStopWidth WRITE setTabStopWidth )
     Q_PROPERTY( bool tabChangesFocus READ tabChangesFocus WRITE setTabChangesFocus )
-    Q_PROPERTY( AutoFormatting autoFormatting READ autoFormatting WRITE setAutoFormatting )
+    Q_PROPERTY( AutoFormattingFlags autoFormatting READ autoFormatting WRITE setAutoFormatting )
 
 public:
     enum WordWrap {
@@ -149,11 +149,13 @@ public:
 	AtWordOrDocumentBoundary
     };
 
-    enum AutoFormatting {
+    enum AutoFormattingFlags {
 	AutoNone = 0,
 	AutoBulletList = 0x00000001,
 	AutoAll = 0xffffffff
     };
+
+    Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlags);
 
     enum KeyboardAction {
 	ActionBackspace,
@@ -275,8 +277,8 @@ public:
     bool eventFilter( QObject *o, QEvent *e );
     bool tabChangesFocus() const;
 
-    void setAutoFormatting( QFlags<AutoFormatting> );
-    QFlags<AutoFormatting> autoFormatting() const;
+    void setAutoFormatting( AutoFormatting );
+    AutoFormatting autoFormatting() const;
 
 public slots:
     void setEnabled( bool );

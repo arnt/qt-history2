@@ -565,7 +565,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
     MetaDataBase::addEntry( widget );
 
     QLayout *l = 0;
-    int align = 0;
+    Alignment align = 0;
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );

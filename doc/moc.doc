@@ -88,8 +88,8 @@ function \c setPriority().
 \endcode
 
 Properties can be modified in subclasses with the Q_OVERRIDE
-macro. The Q_SETS macro declares enums that are to be used as
-sets, i.e. OR'ed together. Another macro, Q_CLASSINFO, can be used to
+macro. The Q_FLAGS macro declares enums that are to be used as
+flags, i.e. OR'ed together. Another macro, Q_CLASSINFO, can be used to
 attach additional name/value-pairs to the class' meta object:
 
 \code

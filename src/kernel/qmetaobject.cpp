@@ -67,7 +67,7 @@ enum ProperyFlags  {
     Readable		= 0x00000001,
     Writable		= 0x00000002,
     Resetable		= 0x00000004,
-    EnumOrSet		= 0x00000008,
+    EnumOrFlag		= 0x00000008,
     StdCppSet		= 0x00000100,
     Override		= 0x00000200,
     Designable		= 0x00001000,
@@ -525,7 +525,7 @@ QMetaProperty QMetaObject::property(int index) const
  	    if (qstrcmp(result.type(), type)) // type missmatch, no override
  		::memset(&result, 0, sizeof(QMetaProperty));
 	}
-	if (flags & EnumOrSet) {
+	if (flags & EnumOrFlag) {
 	    result.menum = enumerator(indexOfEnumerator(type));
 	}
 	if (flags & Readable) {
@@ -842,8 +842,9 @@ QMetaMember::Access QMetaMember::access() const
     \ingroup objectmodel
 
     Use name() for the enumerator's name and keys() to get a list of
-    all keys. The function isSet() returns whether the enumerator is
-    meant to be a set, meaning its values can be OR-ed together.
+    all keys. The function isFlag() returns whether the enumerator is
+    meant to be used as flags, meaning its values can be OR-ed
+    together.
 
     The conversion functions keyToValue(), valueToKey(), keysToValue()
     and valueToKeys() allow conversion between the integer
@@ -915,12 +916,12 @@ int QMetaEnum::value(int index) const
 
 
 /*!
-    Returns true if this enumerator is is used as set, i.e. the
+    Returns true if this enumerator is is used as flags, i.e. the
     enumeration values can be OR-ed together; otherwise returns false.
 
     \sa keysToValue(), valueToKeys()
 */
-bool QMetaEnum::isSet() const
+bool QMetaEnum::isFlag() const
 {
     return mobj && mobj->d.data[handle + 1];
 }
@@ -930,7 +931,7 @@ bool QMetaEnum::isSet() const
 
     For set types, use keysToValue().
 
-    \sa valueToKey(), isSet(), keysToValue()
+    \sa valueToKey(), isFlag(), keysToValue()
 */
 int QMetaEnum::keyToValue(const char *key) const
 {
@@ -949,7 +950,7 @@ int QMetaEnum::keyToValue(const char *key) const
 
     For set types, use valueToKeys().
 
-    \sa valueToKey(), isSetType(), valueToKeys()
+    \sa valueToKey(), isFlagType(), valueToKeys()
 */
 const char* QMetaEnum::valueToKey(int value) const
 {
@@ -967,7 +968,7 @@ const char* QMetaEnum::valueToKey(int value) const
     Converts the list of '|'-separated keys \a keys to their combined
     (OR-ed) integer value.
 
-    \sa isSet(), valueToKey(), keysToValue()
+    \sa isFlag(), valueToKey(), keysToValue()
 */
 int QMetaEnum::keysToValue(const char *keys) const
 {
@@ -996,7 +997,7 @@ int QMetaEnum::keysToValue(const char *keys) const
 /*!
     Converts the set value \a value to a list of '|'-separated keys.
 
-    \sa isSet(), valueToKey(), valueToKeys()
+    \sa isFlag(), valueToKey(), valueToKeys()
 */
 QByteArray QMetaEnum::valueToKeys(int value) const
 {
@@ -1030,7 +1031,7 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     isReadable(), isWritable(), isDesignable(), isScriptable(),
     isStored() or isEditable() .
 
-    The functions isSetType(), isEnumType() and enumerator() provide
+    The functions isFlagType(), isEnumType() and enumerator() provide
     further information about a property's type.
 
     Actual property values are set and received with read(), write(),
@@ -1077,23 +1078,23 @@ const char *QMetaProperty::type() const
 
 /*!
     Returns true if the property's type is an enumeration value that
-    is used as set, i.e. if the enumeration values can be OR-ed
+    is used as flags, i.e. if the enumeration values can be OR-ed
     together; otherwise returns false. A set type is implicitly also
     an enum type.
 
     \sa isEnumType(), enumerator()
 */
 
-bool QMetaProperty::isSetType() const
+bool QMetaProperty::isFlagType() const
 {
-    return isEnumType() && menum.isSet();
+    return isEnumType() && menum.isFlag();
 }
 
 /*!
     Returns true if the property's type is an enumeration value;
     otherwise returns false.
 
-    \sa enumerator(), isSetType()
+    \sa enumerator(), isFlagType()
 */
 bool QMetaProperty::isEnumType() const
 {
@@ -1101,7 +1102,7 @@ bool QMetaProperty::isEnumType() const
 	return 0;
     int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
     int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-    return (flags & EnumOrSet) && menum.name();
+    return (flags & EnumOrFlag) && menum.name();
 }
 
 /*!
@@ -1176,7 +1177,7 @@ bool QMetaProperty::write(QObject *obj, const QKernelVariant &value) const
     QKernelVariant v = value;
     if (isEnumType()) {
 	if (v.type() == QKernelVariant::String || v.type() == QKernelVariant::CString) {
-	    if ( isSetType() )
+	    if ( isFlagType() )
 		v = QKernelVariant(menum.keysToValue(value.toCString()));
 	    else
 		v = QKernelVariant(menum.keyToValue(value.toCString()));
@@ -1239,7 +1240,7 @@ bool QMetaProperty::isWritable() const
 	return false;
     int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
     int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-    return !(flags & EnumOrSet) || menum.name();
+    return !(flags & EnumOrFlag) || menum.name();
 }
 
 

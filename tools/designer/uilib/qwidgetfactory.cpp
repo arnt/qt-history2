@@ -1734,7 +1734,7 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout,
 	widget = ((QToolBox*)widget)->currentItem();
 
     QLayout *l = 0;
-    int align = 0;
+    Qt::Alignment align = 0;
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
 	QGroupBox *gb = (QGroupBox*)widget;
 	gb->setColumnLayout( 0, Qt::Vertical );
@@ -1806,7 +1806,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 		    obj->metaObject()->property( offset );
 		if ( metaProp.isReadable() && metaProp.isEnumType() ) {
 		    QCString key = value.toCString();
-		    if ( metaProp.isSetType() )
+		    if ( metaProp.isFlagType() )
 			value = QVariant( metaProp.enumerator().keysToValue(key) );
 		    else
 			value = QVariant( metaProp.enumerator().keyToValue(key) );

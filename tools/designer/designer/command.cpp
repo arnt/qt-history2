@@ -593,7 +593,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	return;
     }
 
-    if ( p.isSetType() ) {
+    if ( p.isFlagType() ) {
 	p.write( widget, p.enumerator().keysToValue( currentItemText ) );
     } else if ( p.isEnumType() ) {
 	p.write( widget, p.enumerator().keyToValue( currentItemText ) );

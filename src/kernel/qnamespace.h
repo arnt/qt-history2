@@ -24,7 +24,7 @@ class Q_KERNEL_EXPORT Qt {
 #ifdef Q_MOC_RUN
     Q_OBJECT
     Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat )
-    Q_SETS( Alignment )
+    Q_FLAGS( AlignmentFlags )
 #endif
 public:
     // documented in qcolor.cpp
@@ -97,14 +97,15 @@ public:
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
 
-#ifdef Q_MOC_RUN
-    enum Alignment { // public text alignment without masks
-	AlignAuto, AlignLeft, AlignRight, AlignHCenter, AlignJustify,
-	AlignTop, AlignBottom, AlignVCenter, AlignCenter
+    Q_DECLARE_FLAGS(Alignment, AlignmentFlags);
+
+    enum LineBreakMode {
+	NoLineBreak,
+	SmartLineBreak,
+	AtLineBoundary,
+	AtWordBoundary,
+	AtCharacterBoundary
     };
-#else
-    typedef int Alignment;
-#endif
 
     // documented in qpainter.cpp
     enum TextFlags {
@@ -154,7 +155,8 @@ public:
 	WState_Exposed		= 0x00400000,
 	WState_Reserved2	= 0x00800000 // was HasMouse
     };
-    typedef QFlags<WidgetState> WState;
+
+    Q_DECLARE_FLAGS(WState, WidgetState);
 
     // Widget flags2; documented in qwidget.cpp
 
@@ -231,7 +233,7 @@ public:
 #endif
     };
 
-    typedef QFlags<WindowFlags> WFlags;
+    Q_DECLARE_FLAGS(WFlags, WindowFlags);
 
     enum WindowState {
 	WindowMinimized = 0x00000001,
@@ -872,14 +874,15 @@ public:
 #endif
 
     // Documented in qstring.cpp
-    enum StringComparisonMode {
+    enum StringComparisonFlags {
         CaseSensitive   = 0x00001, // 0 0001
         BeginsWith      = 0x00002, // 0 0010
         EndsWith        = 0x00004, // 0 0100
         Contains        = 0x00008, // 0 1000
         ExactMatch      = 0x00010  // 1 0000
     };
-    typedef QFlags<StringComparisonMode> ComparisonFlags;
+
+    Q_DECLARE_FLAGS(StringComparison, StringComparisonFlags);
 
     // Documented in qtabwidget.cpp
     enum Corner {
@@ -908,9 +911,10 @@ public:
 #endif
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WidgetState);
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags);
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparisonMode);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparison);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 
 class Q_KERNEL_EXPORT QInternal {
 public:

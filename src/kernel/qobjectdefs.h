@@ -26,16 +26,19 @@ class QMetaType;
 // They are used, strictly speaking, only by the moc.
 
 #ifndef QT_MOC_CPP
-#define slots
-#define signals protected
+# define slots
+# define signals protected
 #ifndef QT_NO_EMIT
-#define emit
+# define emit
 #endif
 #define Q_CLASSINFO( name, value )
 #define Q_PROPERTY( text )
 #define Q_OVERRIDE( text )
 #define Q_ENUMS( x )
-#define Q_SETS( x )
+#define Q_FLAGS( x )
+#ifndef QT_NO_COMPAT
+# define Q_SETS( x )
+#endif
 
 #ifndef QT_NO_TRANSLATION
 # ifndef QT_NO_TEXTCODEC
@@ -74,7 +77,10 @@ private:
 #define Q_PROPERTY( text ) Q_PROPERTY( text )
 #define Q_OVERRIDE( text ) Q_OVERRIDE( text )
 #define Q_ENUMS( x ) Q_ENUMS( x )
-#define Q_SETS( x ) Q_SETS( x )
+#define Q_FLAGS( x ) Q_FLAGS( x )
+#ifndef QT_NO_COMPAT
+# define Q_SETS( x ) Q_SETS( x )
+#endif
  /* tmake ignore Q_OBJECT */
 #define Q_OBJECT Q_OBJECT
  /* tmake ignore Q_OBJECT */

@@ -98,7 +98,7 @@ public:
     int maxLogLines;
     int logOffset;
 #endif
-    QFlags<QTextEdit::AutoFormatting> autoFormatting;
+    QTextEdit::AutoFormatting autoFormatting;
 };
 
 #ifndef QT_NO_MIME
@@ -545,7 +545,7 @@ static bool block_set_alignment = FALSE;
 */
 
 /*!
-    \enum QTextEdit::AutoFormatting
+    \enum QTextEdit::AutoFormattingFlags
 
     \value AutoNone Do not perform any automatic formatting
     \value AutoBulletList Only automatically format bulletted lists
@@ -7117,19 +7117,19 @@ void QTextEdit::optimCheckLimit( const QString& str )
     \brief the enabled set of auto formatting features
 
     The value can be any combination of the values in the \c
-    AutoFormatting enum.  The default is \c AutoAll. Choose \c AutoNone
+    AutoFormattingFlags enum.  The default is \c AutoAll. Choose \c AutoNone
     to disable all automatic formatting.
 
     Currently, the only automatic formatting feature provided is \c
     AutoBulletList; future versions of Qt may offer more.
 */
 
-void QTextEdit::setAutoFormatting( QFlags<AutoFormatting> features )
+void QTextEdit::setAutoFormatting( AutoFormatting features )
 {
     d->autoFormatting = features;
 }
 
-QFlags<QTextEdit::AutoFormatting> QTextEdit::autoFormatting() const
+QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
 {
     return d->autoFormatting;
 }

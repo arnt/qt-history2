@@ -2791,7 +2791,7 @@ void QIconView::changeEvent( QEvent *ev )
 	*d->fm = QFontMetrics( font() );
 	d->minLeftBearing = d->fm->minLeftBearing();
 	d->minRightBearing = d->fm->minRightBearing();
-	
+
 	QIconViewItem *item = d->firstItem;
 	for ( ; item; item = item->next ) {
 	    item->wordWrapDirty = TRUE;
@@ -3649,10 +3649,10 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
     Returns a pointer to the first item whose text begins with \a
     text, or 0 if no such item could be found. Use the \a compare flag
     to control the comparison behaviour. (See \l
-    {Qt::StringComparisonMode}.)
+    {Qt::StringComparisonFlags}.)
 */
 
-QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare ) const
+QIconViewItem *QIconView::findItem( const QString &text, StringComparison compare ) const
 {
     if ( !d->firstItem )
 	return 0;

@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QDateTimeEditBase : public QWidget
 public:
     QDateTimeEditBase( QWidget* parent=0, const char* name=0 )
 	: QWidget( parent, name ) {}
-    
+
     virtual bool setFocusSection( int sec ) = 0;
     virtual QString sectionFormattedText( int sec ) = 0;
     virtual void addNumber( int sec, int num ) = 0;
@@ -100,7 +100,7 @@ protected:
     void stepDown();
     QString sectionFormattedText( int sec );
     void addNumber( int sec, int num );
-    
+
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
 
@@ -111,7 +111,7 @@ protected:
     virtual bool outOfRange( int y, int m, int d ) const;
 
 protected slots:
-    void updateButtons();    
+    void updateButtons();
 
 private:
     void init();
@@ -131,7 +131,7 @@ class QTimeEditPrivate;
 class Q_GUI_EXPORT QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
-    Q_SETS( Display )
+    Q_FLAGS( Display )
     Q_PROPERTY( QTime time READ time WRITE setTime )
     Q_PROPERTY( bool autoAdvance READ autoAdvance WRITE setAutoAdvance )
     Q_PROPERTY( QTime maxValue READ maxValue WRITE setMaxValue )
@@ -189,12 +189,12 @@ protected:
     void addNumber( int sec, int num );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
-    
+
     virtual bool outOfRange( int h, int m, int s ) const;
     virtual void setHour( int h );
     virtual void setMinute( int m );
     virtual void setSecond( int s );
-    
+
 protected slots:
     void updateButtons();
 

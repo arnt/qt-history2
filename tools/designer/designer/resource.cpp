@@ -887,8 +887,8 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
 	}
-	delete tmpl;
-    } else if ( ws = ::qt_cast<QDesignerWidgetStack*>(obj) ) {
+//	delete tmpl;
+    } else if ( (ws = ::qt_cast<QDesignerWidgetStack*>(obj)) ) {
 	for ( int i = 0; i < ws->count(); ++i ) {
 	    QWidget *w = ws->page( i );
 	    if ( !w )
@@ -1419,7 +1419,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    continue;
 	if ( qstrcmp( p.name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
-	if ( !p.isSetType() && !p.isEnumType() && !w->property( p.name() ).isValid() )
+	if ( !p.isFlagType() && !p.isEnumType() && !w->property( p.name() ).isValid() )
 	    continue;
 	ts << makeIndent( indent ) << "<property";
 	ts << " name=\"" << p.name() << "\"";
@@ -1429,7 +1429,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	indent++;
 	if ( strcmp( p.name(), "resizeMode" ) == 0 && w->inherits( "QLayout" ) ) {
 	    saveProperty( w, p.name(), "", QVariant::String, ts, indent );
-	} else if ( p.isSetType() ) {
+	} else if ( p.isFlagType() ) {
 	    saveSetProperty( w, p.name(), QVariant::nameToType( p.type() ), ts, indent );
 	} else if ( p.isEnumType() ) {
 	    saveEnumProperty( w, p.name(), QVariant::nameToType( p.type() ), ts, indent );
@@ -2174,7 +2174,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	if ( p.enumerator().valueToKey( vi ) != key )
 	    return; // ignore invalid properties
 	v = QVariant( vi );
-    } else if ( e.tagName() == "set" && p && p.isSetType() ) {
+    } else if ( e.tagName() == "set" && p && p.isFlagType() ) {
 	QString keys( v.toString() );
 	int vi = p.enumerator().keysToValue( keys );
 	v = QVariant( vi );

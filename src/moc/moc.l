@@ -125,7 +125,8 @@ STRING		{ALMOSTSTRING}\"
 <QT_DEF>"Q_PROPERTY"		{ X; return Q_PROPERTY; }
 <QT_DEF>"Q_OVERRIDE"		{ X; return Q_OVERRIDE; }
 <QT_DEF>"Q_ENUMS"		{ X; return Q_ENUMS; }
-<QT_DEF>"Q_SETS"		{ X; return Q_SETS; }
+<QT_DEF>"Q_FLAGS"		{ X; return Q_FLAGS; }
+<QT_DEF>"Q_SETS"		{ X; return Q_FLAGS; }
 
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
@@ -147,7 +148,8 @@ STRING		{ALMOSTSTRING}\"
 <IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
 <IN_CLASS>"Q_OVERRIDE"		{ X;if( classPLevel == 1 ) return Q_OVERRIDE; }
 <IN_CLASS>"Q_ENUMS"		{ X;if( classPLevel == 1 ) return Q_ENUMS; }
-<IN_CLASS>"Q_SETS"		{ X;if( classPLevel == 1 ) return Q_SETS; }
+<IN_CLASS>"Q_FLAGS"		{ X;if( classPLevel == 1 ) return Q_FLAGS; }
+<IN_CLASS>"Q_SETS"		{ X;if( classPLevel == 1 ) return Q_FLAGS; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)

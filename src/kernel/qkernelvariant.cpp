@@ -1206,6 +1206,8 @@ static const char* const type_map[ntypes] =
     "QPalette",
 #ifndef QT_NO_COMPAT
     "QColorGroup",
+#else
+    "",
 #endif
     "QIconSet",
     "QPoint",

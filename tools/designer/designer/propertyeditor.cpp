@@ -3046,7 +3046,7 @@ void PropertyList::setupProperties()
 	if ( ( p.isDesignable(w) ||
 	       isPropertyObject && p.isDesignable( ( (PropertyObject*)w )->widgetList().first() ) ) &&
 	     ( !isPropertyObject || qstrcmp( p.name(), "name" ) != 0 ) ) {
-	    if ( p.isSetType() ) {
+	    if ( p.isFlagType() ) {
 		if ( QString( p.name() ) == "alignment" ) {
 		    QStringList lst;
 		    lst << p.enumerator().valueToKey( AlignAuto )
@@ -3103,7 +3103,7 @@ void PropertyList::setupProperties()
 		    continue;
 	    }
 	}
-	if ( item && !p.isSetType() ) {
+	if ( item && !p.isFlagType() ) {
 	    if ( valueSet.findIndex( item->name() ) == -1 ) {
 		setPropertyValue( item );
 		valueSet << item->name();
@@ -3599,7 +3599,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	}
 	return;
     }
-    if ( p.isSetType() )
+    if ( p.isFlagType() )
 	( (PropertyEnumItem*)i )->setCurrentValues( p.enumerator().valueToKeys( editor->widget()->property( i->name() ).toInt() ) );
     else if ( p.isEnumType() )
 	( (PropertyListItem*)i )->setCurrentItem( p.enumerator().valueToKey( editor->widget()->property( i->name() ).toInt() ) );

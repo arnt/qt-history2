@@ -310,7 +310,7 @@ public:
     SelectionMode selectionMode() const;
 
     QIconViewItem *findItem( const QPoint &pos ) const;
-    QIconViewItem *findItem( const QString &text, ComparisonFlags compare = BeginsWith ) const;
+    QIconViewItem *findItem( const QString &text, StringComparison = BeginsWith ) const;
     virtual void selectAll( bool select );
     virtual void clearSelection();
     virtual void invertSelection();

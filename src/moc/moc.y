@@ -214,22 +214,21 @@ static QByteArray normalizeType(const char *s)
 
 
 bool isEnumType(const char* type);
-bool isSetType(const char* type);
+bool isFlagType(const char* type);
 int enumIndex(const char* type);
 bool isVariantType(const char* type);
 int qvariant_nameToType(const char* name);
 
 /*
-  Attention!
-  This table is copied from qvariant.cpp. If you change
-  one, change both.
+  Attention!  This table is copied from qkernalvariant.cpp. If you
+  change one, change both.
 */
-static const int ntypes = 34;
+static const int ntypes = 35;
 static const char* const type_map[ntypes] =
 {
     0,
-    "QMap<QString,QVariant>",
-    "QValueList<QVariant>",
+    "QMap<QString,QKernelVariant>",
+    "QList<QKernelVariant>",
     "QString",
     "QStringList",
     "QFont",
@@ -239,7 +238,11 @@ static const char* const type_map[ntypes] =
     "QSize",
     "QColor",
     "QPalette",
+#ifndef QT_NO_COMPAT
     "QColorGroup",
+#else
+    "",
+#endif
     "QIconSet",
     "QPoint",
     "QImage",
@@ -247,6 +250,7 @@ static const char* const type_map[ntypes] =
     "uint",
     "bool",
     "double",
+    "",
     "QPointArray",
     "QRegion",
     "QBitmap",
@@ -533,7 +537,7 @@ bool	   Q_OBJECTdetected;		// TRUE if current class
 					//  contains the Q_OBJECT macro
 bool	   Q_PROPERTYdetected;		// TRUE if current class
 					//  contains at least one Q_PROPERTY,
-					//  Q_OVERRIDE, Q_SETS or Q_ENUMS macro
+					//  Q_OVERRIDE, Q_FLAGS or Q_ENUMS macro
 bool	   tmpPropOverride;		// current property override setting
 
 int	   tmpYYStart;			// Used to store the lexers current mode
@@ -549,7 +553,7 @@ enum ProperyFlags  {
     Readable		= 0x00000001,
     Writable		= 0x00000002,
     Resetable		= 0x00000004,
-    EnumOrSet		= 0x00000008,
+    EnumOrFlag		= 0x00000008,
     StdCppSet		= 0x00000100,
     Override		= 0x00000200,
     Designable		= 0x00001000,
@@ -629,7 +633,7 @@ enum ProperyFlags  {
 %token			Q_OVERRIDE
 %token			Q_CLASSINFO
 %token			Q_ENUMS
-%token			Q_SETS
+%token			Q_FLAGS
 
 %token			READ
 %token			WRITE
@@ -1158,7 +1162,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 						BEGIN tmpYYStart;
 					   }
 			  opt_property_candidates
-			| Q_SETS { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
+			| Q_FLAGS { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
 			  '(' qt_sets ')' {
 						Q_PROPERTYdetected = TRUE;
 						BEGIN tmpYYStart;
@@ -1494,7 +1498,7 @@ qt_enums:		  /* empty */ { }
 			;
 
 qt_sets:		  /* empty */ { }
-			| IDENTIFIER qt_sets { g->qtSets.append($1); }
+			| IDENTIFIER qt_sets { g->qtFlags.append($1); }
 			;
 
 %%
@@ -1561,7 +1565,7 @@ class parser_reg {
     bool propOverride;				// Wether OVERRIDE was detected
 
     QStrList qtEnums;				// Used to store the contents of Q_ENUMS
-    QStrList qtSets;				// Used to store the contents of Q_SETS
+    QStrList qtFlags;				// Used to store the contents of Q_FLAGS
 
 };
 FILE  *out;					// output file
@@ -1948,7 +1952,7 @@ void initClass()				 // prepare for new class
     g->funcs.clear();
     g->props.clear();
     g->infos.clear();
-    g->qtSets.clear();
+    g->qtFlags.clear();
     g->qtEnums.clear();
     g->strings.clear();
     g->multipleSuperClasses.clear();
@@ -2433,7 +2437,7 @@ void generateMetacall()
 			    (const char *)p->type,
 			    (const char *)p->read);
 		else
-		    fprintf(out, "        case %d: *(int*)_v = (QFlagInternal)%s(); break;\n",
+		    fprintf(out, "        case %d: *(int*)_v = QFlag(%s()); break;\n",
 			    propindex,
 			    (const char *)p->read);
 	    }
@@ -2454,8 +2458,8 @@ void generateMetacall()
 		++propindex;
 		if (p->write.isEmpty())
 		    continue;
-		if (isSetType(p->type)) {
-		    fprintf(out, "        case %d: %s(QFlagInternal(*(int*)_v)); break;\n",
+		if (isFlagType(p->type)) {
+		    fprintf(out, "        case %d: %s(QFlag(*(int*)_v)); break;\n",
 			    propindex,
 			    (const char *)p->write );
 		} else {
@@ -2643,12 +2647,12 @@ int enumIndex(const char* type)
 
 bool isEnumType(const char* type)
 {
-    return g->qtEnums.contains(type) || g->qtSets.contains(type);
+    return g->qtEnums.contains(type) || g->qtFlags.contains(type);
 }
 
-bool isSetType(const char* type)
+bool isFlagType(const char* type)
 {
-    return g->qtSets.contains(type);
+    return g->qtFlags.contains(type);
 }
 
 bool isPropertyType(const char* type)
@@ -2745,7 +2749,7 @@ void generateProps()
 
 	int flags = Invalid;
 	if (!isVariantType(it.current()->type)) {
-	    flags |= EnumOrSet;
+	    flags |= EnumOrFlag;
 	} else {
 	    flags |= qvariant_nameToType(it.current()->type) << 24;
 	}
@@ -3053,11 +3057,11 @@ void addEnum()
 	}
     }
 
-    // Only look at types mentioned  in Q_ENUMS and Q_SETS
-    if (g->qtEnums.contains(tmpEnum->name) || g->qtSets.contains(tmpEnum->name))
+    // Only look at types mentioned  in Q_ENUMS and Q_FLAGS
+    if (g->qtEnums.contains(tmpEnum->name) || g->qtFlags.contains(tmpEnum->name))
     {
 	g->enums.append(tmpEnum);
-	if (g->qtSets.contains(tmpEnum->name))
+	if (g->qtFlags.contains(tmpEnum->name))
 	    tmpEnum->set = TRUE;
 	else
 	    tmpEnum->set = FALSE;

@@ -525,7 +525,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	if ( m < 0 && hextra ) // no indent, but we do have a frame
 	    m = xw / 2 - margin();
 	if ( m >= 0 ) {
-	    int horizAlign = QApplication::horizontalAlignment( align );
+	    int horizAlign = QApplication::horizontalAlignment( QFlag(align) );
 	    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
 		hextra += m;
 	    if ( (align & AlignTop) || (align & AlignBottom ) )
@@ -671,7 +671,7 @@ void QLabel::drawContents( QPainter *p )
 	if ( m < 0 && frameWidth() ) // no indent, but we do have a frame
 	    m = fontMetrics().width('x') / 2 - margin();
 	if ( m > 0 ) {
-	    int hAlign = QApplication::horizontalAlignment( align );
+	    int hAlign = QApplication::horizontalAlignment( QFlag(align) );
 	    if ( hAlign & AlignLeft )
 		cr.setLeft( cr.left() + m );
 	    if ( hAlign & AlignRight )
