@@ -2713,6 +2713,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    break;
 	}
 #endif
+    case CT_SpinBox:
+	sz.setWidth(qMin(sz.height(), (int)sz.width() * 0.2));
+	break;
 
     case CT_MenuBar:
     case CT_Menu:
