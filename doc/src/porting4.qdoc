@@ -1597,6 +1597,12 @@
     QFileDialog virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
+    \section1 QFocusData
+
+    The QFocusData class is not available in Qt 4. Some of its
+    functionality is available via the QWidget::nextInFocusChain()
+    and QWidget::focusNextPrevChild() functions.
+
     \section1 QFrame
 
     The QFrame class has been made more lightweight in Qt 4, by
