@@ -285,39 +285,34 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     QMap<int, int> formatIndexMap = formatCollectionState().insertIntoOtherCollection(formats);
 
     QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
-    bool isLocalInsertion = destPieceTable == pieceTable;
 
     Q_FOREACH(const Fragment &f, fragments) {
 
         int mappedFormatIdx = formatIndexMap.value(f.format, -1);
 
-        if (isLocalInsertion) {
-            cursor.d->insertDirect(f.originalPosition, f.size, mappedFormatIdx);
-        } else {
-            QConstString text(localBuffer.constData() + f.position, f.size);
+        QConstString text(localBuffer.constData() + f.position, f.size);
 
-            int blockFormatIdx = formats->indexForFormat(cursor.blockFormat());
+        int blockFormatIdx = formats->indexForFormat(cursor.blockFormat());
 
-            int formatIdx;
-            if (f.format == -1)
-                formatIdx = formats->indexForFormat(cursor.charFormat());
-            else
-                formatIdx = mappedFormatIdx;
+        int formatIdx;
+        if (f.format == -1)
+            formatIdx = formats->indexForFormat(cursor.charFormat());
+        else
+            formatIdx = mappedFormatIdx;
 
-            if (formats->format(formatIdx).isBlockFormat())
-                blockFormatIdx = formatIdx;
+        if (formats->format(formatIdx).isBlockFormat())
+            blockFormatIdx = formatIdx;
 
-            int pos = cursor.position();
-            QStringList blocks = text.split(QTextParagraphSeparator);
-            for (int i = 0; i < blocks.size(); ++i) {
-                if (i > 0) {
-                    destPieceTable->insertBlock(pos, blockFormatIdx, destPieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
-                    ++pos;
-                }
-                const QString &txt = blocks.at(i);
-                destPieceTable->insert(pos, txt, formatIdx);
-                pos += txt.length();
+        int pos = cursor.position();
+        QStringList blocks = text.split(QTextParagraphSeparator);
+        for (int i = 0; i < blocks.size(); ++i) {
+            if (i > 0) {
+                destPieceTable->insertBlock(pos, blockFormatIdx, destPieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+                ++pos;
             }
+            const QString &txt = blocks.at(i);
+            destPieceTable->insert(pos, txt, formatIdx);
+            pos += txt.length();
         }
     }
 }

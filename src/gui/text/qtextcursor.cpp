@@ -80,38 +80,6 @@ void QTextCursorPrivate::setX()
         x = line.cursorToX(pos);
 }
 
-void QTextCursorPrivate::insertDirect(int strPos, int strLength, int formatIdx)
-{
-    const QString &buffer = pieceTable->buffer();
-
-    QTextCharFormat format = pieceTable->formatCollection()->charFormat(formatIdx);
-
-    QTextBlockFormat blockFmt = block().blockFormat();
-    if (format.isBlockFormat())
-        blockFmt = format.toBlockFormat();
-
-    const int endPos = strPos + strLength;
-    int pos = strPos;
-    int strStart = pos;
-
-    while (pos < endPos) {
-        if (buffer[pos] == QTextParagraphSeparator) {
-            if (strStart != pos)
-                pieceTable->insert(position, strStart, pos - strStart, formatIdx);
-
-            insertBlock(blockFmt);
-
-            ++pos;
-            strStart = pos;
-            continue;
-        }
-        ++pos;
-    }
-
-    if (strStart != pos)
-        pieceTable->insert(position, strStart, endPos - strStart, formatIdx);
-}
-
 void QTextCursorPrivate::remove()
 {
     if (anchor == position)
