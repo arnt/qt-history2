@@ -46,10 +46,8 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
 
     QList<QRegExp> ret;
     QStringList filts = QStringList::split( sep, f);
-    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) {
-	qDebug("::%s::", extractFilter((*it)).latin1());
+    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) 
 	ret.append(new QRegExp(extractFilter((*it)), TRUE, TRUE));
-    }
     return ret;
 }
 
@@ -78,7 +76,6 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 		strncpy((char *)tmp, (const char *)str+1, str[0]);
 		tmp[str[0]] = '\0';
 		
-		qDebug("%s", tmp);
 		for (QListIterator<QRegExp> it(*filt); it.current(); ++it ) {
 		    if(it.current()->exactMatch( tmp ))
 			return true;
