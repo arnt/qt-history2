@@ -1172,8 +1172,10 @@ void QScrollView::wheelEvent( QWheelEvent *e )
 */
 void QScrollView::contextMenuEvent( QContextMenuEvent *e )
 {
-    if ( e->reason() != QContextMenuEvent::Keyboard )
+    if ( e->reason() != QContextMenuEvent::Keyboard ) {
+	e->ignore();
         return;
+    }
 
     QContextMenuEvent ce( e->reason(), viewport()->mapFromGlobal( e->globalPos() ),
                           e->globalPos(), e->state() );
