@@ -308,6 +308,12 @@ public:
 
     void updateHeaderStates();
 
+    bool isRowHidden(int row) const;
+    bool isColumnHidden(int col) const;
+    bool isColumnStretchable(int col) const;
+    bool isRowStretchable(int row) const;
+    bool dragEnabled() const;
+
 public slots:
     virtual void setNumRows(int r);
     virtual void setNumCols(int r);
@@ -316,8 +322,6 @@ public slots:
     virtual void hideColumn(int col);
     virtual void showRow(int row);
     virtual void showColumn(int col);
-    bool isRowHidden(int row) const;
-    bool isColumnHidden(int col) const;
 
     virtual void setColumnWidth(int col, int w);
     virtual void setRowHeight(int row, int h);
@@ -327,8 +331,6 @@ public slots:
 
     virtual void setColumnStretchable(int col, bool stretch);
     virtual void setRowStretchable(int row, bool stretch);
-    bool isColumnStretchable(int col) const;
-    bool isRowStretchable(int row) const;
     virtual void setSorting(bool b);
     virtual void swapRows(int row1, int row2, bool swapHeader = false);
     virtual void swapColumns(int col1, int col2, bool swapHeader = false);
@@ -346,7 +348,6 @@ public slots:
     virtual void setColumnReadOnly(int col, bool ro);
 
     virtual void setDragEnabled(bool b);
-    bool dragEnabled() const;
 
     virtual void insertRows(int row, int count = 1);
     virtual void insertColumns(int col, int count = 1);
