@@ -4497,7 +4497,7 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
                 ThemeButtonDrawInfo bdi = { kThemeStateActive, kThemeButtonOff,
                                             kThemeAdornmentNone };
                 GetThemeButtonContentBounds(&macRect, kThemePopupButton, &bdi, &outRect);
-                ret.setRect(outRect.left, outRect.top, outRect.right - outRect.left,
+                ret.setRect(outRect.left, outRect.top - 1, outRect.right - outRect.left,
                             outRect.bottom - outRect.top);
             } else {
                 ret = q->QWindowsStyle::subControlRect(cc, opt, sc, widget);
