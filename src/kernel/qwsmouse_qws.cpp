@@ -274,7 +274,6 @@ QMouseHandlerPrivate::QMouseHandlerPrivate( MouseProtocol protocol,
 		break;
 
 	    case IntelliMouse: {
-		    qDebug("Init intellimouse");
 		    ps2 = true;
 		    const unsigned char init[] = { 243, 200, 243, 100, 243, 80 };
 		    write(mouseFD,"",1);
@@ -368,7 +367,6 @@ QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev)
     if ((mouseFD = open( dev, O_RDONLY)) < 0) {
         qFatal( "Cannot open %s (%s)", dev.latin1(), strerror(errno));
     } else {
-        qDebug("Opened panel %d",mouseFD);
         sleep(1);
     }
 
