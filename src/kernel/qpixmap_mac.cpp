@@ -112,8 +112,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
     if(image.depth()==1) {
-	if(image.bitOrder()==QImage::BigEndian) 
-	    image=image.convertBitOrder(QImage::LittleEndian);
 	image.setColor( 0, qRgba(255,255,255, 0) );
 	image.setColor( 1, qRgba(0,0,0, 0) );
     }
@@ -126,7 +124,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	// same size etc., use the existing pixmap
 	detach();
 	if(!hd)
-	    init( img.width(), img.height(), 32, isQBitmap(), DefaultOptim);
+	    init( w, h, 32, isQBitmap(), DefaultOptim);
 	if(!hd)
 	    return FALSE;
 
@@ -156,18 +154,19 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int sdpt = image.depth();
     unsigned short sbpr = image.bytesPerLine();
     uchar *sptr = image.bits(), *srow;
+    QImage::Endian sord = image.bitOrder();
 
     char mode = true32b;
     SwapMMUMode(&mode);
-    for(int yy=0;yy<image.height();yy++) {
+    for(int yy=0;yy<h;yy++) {
  	drow = (long *)((char *)dptr + (yy * dbpr));
 	srow = sptr + (yy * sbpr);
-	for(int xx=0;xx<image.width();xx++) {
+	for(int xx=0;xx<w;xx++) {
 	    switch(sdpt) {
 	    case 1:
 	    {
 		char one_bit = *(srow + (xx / 8));
-		if(image.bitOrder()==QImage::BigEndian)
+		if(sord==QImage::BigEndian)
 		    one_bit = one_bit >> (7 - (xx % 8));
 		else
 		    one_bit = one_bit >> (xx % 8);
