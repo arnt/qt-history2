@@ -801,7 +801,10 @@ void QWidget::repaint(const QRegion& rgn)
             w = parents.pop();
             for (;;) {
                 if (w->testAttribute(Qt::WA_ContentsPropagated)) {
-                    QPainter::setRedirected(w, this, offset);
+                    if (double_buffer)
+                        QPainter::setRedirected(w, qDoubleBuffer->hd, offset+redirectionOffset);
+                    else
+                        QPainter::setRedirected(w, this, offset);
                     QRect rr = rect();
                     rr.moveBy(offset);
                     QPaintEvent e(rr);
