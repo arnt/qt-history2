@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#68 $
 **
 ** Implementation of QDir class
 **
@@ -678,6 +678,12 @@ QString QDir::operator[]( int index ) const
 
   Returns 0 if the directory is unreadable or does not exist.
 
+  The returned pointer is a const pointer to a QStrList. The list is
+  owned by the QDir object and will be reused on the next call to
+  entryList() for the same QDir instance. If you want to keep the
+  entries of the list after a subsequent call to this function you will
+  need to copy them.
+
   \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
@@ -696,6 +702,12 @@ const QStrList *QDir::entryList( int filterSpec, int sortSpec ) const
 
   The the filter and sorting specifications can be overridden using the
   \e nameFilter, \e filterSpec and \e sortSpec arguments.
+
+  The returned pointer is a const pointer to a QStrList. The list is
+  owned by the QDir object and will be reused on the next call to
+  entryList() for the same QDir instance. If you want to keep the
+  entries of the list after a subsequent call to this function you will
+  need to copy them.
 
   Returns 0 if the directory is unreadable or does not exist.
 
@@ -726,8 +738,11 @@ const QStrList *QDir::entryList( const QString &nameFilter,
 
   Returns 0 if the directory is unreadable or does not exist.
 
-  Note that ownership of the returned list remains with the QDir, and
-  only exists for as long as the QDir exists.
+  The returned pointer is a const pointer to a QFileInfoList. The list is
+  owned by the QDir object and will be reused on the next call to
+  entryInfoList() for the same QDir instance. If you want to keep the
+  entries of the list after a subsequent call to this function you will
+  need to copy them.
 
   \sa entryList(), setNameFilter(), setSorting(), setFilter()
 */
@@ -749,6 +764,12 @@ const QFileInfoList *QDir::entryInfoList( int filterSpec, int sortSpec ) const
   \e nameFilter, \e filterSpec and \e sortSpec arguments.
 
   Returns 0 if the directory is unreadable or does not exist.
+
+  The returned pointer is a const pointer to a QFileInfoList. The list is
+  owned by the QDir object and will be reused on the next call to
+  entryInfoList() for the same QDir instance. If you want to keep the
+  entries of the list after a subsequent call to this function you will
+  need to copy them.
 
   \sa entryList(), setNameFilter(), setSorting(), setFilter()
 */
