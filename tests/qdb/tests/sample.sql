@@ -49,66 +49,68 @@ create index alltypesindex_1 on alltypes ( n1, n2 );
 create index alltypesindex_2 on alltypes ( c1 ); 
 create index alltypesindex_3 on alltypes ( d1 ); 
 
-insert into alltypes values( 1, 12, 'csdfsdf', 'more', '2001-01-11');
-insert into alltypes values( 2, 22, 'csdfsdf', 'more', '2002-01-21');
-insert into alltypes values( 3, 32, 'xsdfsdf', 'more', '2003-01-12');
-insert into alltypes values( 4, 42, 'csdfsdf', 'more', '2004-01-14');
-insert into alltypes values( 5, 52, 'csdfsdf', 'more', '2005-01-15');
-insert into alltypes values( 6, 62, 'xsdfsdf', 'more', '2006-01-16');
-insert into alltypes values( 7, 72, 'swdfsdf', 'more', '2007-02-17');
-insert into alltypes values( 8, 82, 'sdsddfsdf', 'more', '2000-01-01');
+insert into alltypes values( 1, 12, 'non-latin1: ικλε ”™', 'more', '2001-01-11'); insert
+into alltypes values( 2, 22, 'csdfsdf', 'more', '2002-01-21'); insert
+into alltypes values( 3, 32, 'xsdfsdf', 'more', '2003-01-12'); insert
+into alltypes values( 4, 42, 'csdfsdf', 'more', '2004-01-14'); insert
+into alltypes values( 5, 52, 'csdfsdf', 'more', '2005-01-15'); insert
+into alltypes values( 6, 62, 'xsdfsdf', 'more', '2006-01-16'); insert
+into alltypes values( 7, 72, 'swdfsdf', 'more', '2007-02-17'); insert
+into alltypes values( 8, 82, 'sdsddfsdf', 'more', '2000-01-01');
 insert into alltypes values( 9, 92, 'sfdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 10, 32, 'dsddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 21, 32, 'fsdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 22, 32, 'dsdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 23, 32, 'dsdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 24, 32, 'gsdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 25, 32, 'sdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 26, 32, 'sfdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 27, 32, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 28, 32, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 29, 32, 'sdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 210, 32, 'scdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 31, 24, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 32, 24, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 33, 24, 'sdcfsdf', 'more', '2000-01-01');
-insert into alltypes values( 34, 24, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 35, 24, 'sdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 36, 24, 'sdfcsdf', 'more', '2000-01-01');
-insert into alltypes values( 37, 24, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 38, 24, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 39, 24, 'sdfvsdf', 'more', '2000-01-01');
-insert into alltypes values( 310, 24, 'sbdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 41, 52, 'sdgfsdf', 'more', '2000-01-01');
-insert into alltypes values( 42, 52, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 43, 52, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 44, 52, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 45, 52, 'sddfsdf', 'more', '2000-01-01');
-insert into alltypes values( 46, 52, 'sdgfsdf', 'more', '2000-01-01');
-insert into alltypes values( 47, 52, 'sdgfsdf', 'more', '2000-01-01');
-insert into alltypes values( 48, 52, 'sdgfsdf', 'more', '2000-01-01');
-insert into alltypes values( 49, 52, 'sdfgsdf', 'more', '2000-01-01');
-insert into alltypes values( 410, 52, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 51, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 52, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 53, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 54, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 55, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 56, 62, 'sdfsfdf', 'more', '2000-01-01');
-insert into alltypes values( 57, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 58, 62, 'sdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 59, 62, 'sfdfsdf', 'more', '2000-01-01');
-insert into alltypes values( 510, 62, 'sdfdfgsdf', 'more', '2000-01-01');
-insert into alltypes values( 61, 72, 'sdfdfgsdf', 'more', '2000-01-01');
-insert into alltypes values( 62, 72, 'sdfdfgsdf', 'more', '2000-01-01');
-insert into alltypes values( 63, 72, 'sdfdfsdf', 'more', '2000-01-01');
+insert into alltypes values( 10, 32, 'dsddfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 21, 32, 'fsdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 22, 32, 'dsdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 23, 32, 'dsdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 24, 32, 'gsdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 25, 32, 'sdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 26, 32, 'sfdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 27, 32, 'sddfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 28, 32, 'sddfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 29, 32, 'sdfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 210, 32, 'scdfsdf',
+'more', '2000-01-01'); insert into alltypes values( 31, 24, 'sdffsdf',
+'more', '2000-01-01'); insert into alltypes values( 32, 24, 'sdffsdf',
+'more', '2000-01-01'); insert into alltypes values( 33, 24, 'sdcfsdf',
+'more', '2000-01-01'); insert into alltypes values( 34, 24, 'sddfsdf',
+'more', '2000-01-01'); insert into alltypes values( 35, 24, 'sdfsdf',
+'more', '2000-01-01'); insert into alltypes values( 36, 24, 'sdfcsdf',
+'more', '2000-01-01'); insert into alltypes values( 37, 24, 'sdffsdf',
+'more', '2000-01-01'); insert into alltypes values( 38, 24, 'sdffsdf',
+'more', '2000-01-01'); insert into alltypes values( 39, 24, 'sdfvsdf',
+'more', '2000-01-01'); insert into alltypes values( 310, 24,
+'sbdfsdf', 'more', '2000-01-01'); insert into alltypes values( 41, 52,
+'sdgfsdf', 'more', '2000-01-01'); insert into alltypes values( 42, 52,
+'sddfsdf', 'more', '2000-01-01'); insert into alltypes values( 43, 52,
+'sddfsdf', 'more', '2000-01-01'); insert into alltypes values( 44, 52,
+'sddfsdf', 'more', '2000-01-01'); insert into alltypes values( 45, 52,
+'sddfsdf', 'more', '2000-01-01'); insert into alltypes values( 46, 52,
+'sdgfsdf', 'more', '2000-01-01'); insert into alltypes values( 47, 52,
+'sdgfsdf', 'more', '2000-01-01'); insert into alltypes values( 48, 52,
+'sdgfsdf', 'more', '2000-01-01'); insert into alltypes values( 49, 52,
+'sdfgsdf', 'more', '2000-01-01'); insert into alltypes values( 410,
+52, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 51,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 52,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 53,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 54,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 55,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 56,
+62, 'sdfsfdf', 'more', '2000-01-01'); insert into alltypes values( 57,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 58,
+62, 'sdffsdf', 'more', '2000-01-01'); insert into alltypes values( 59,
+62, 'sfdfsdf', 'more', '2000-01-01'); insert into alltypes values(
+510, 62, 'sdfdfgsdf', 'more', '2000-01-01'); insert into alltypes
+values( 61, 72, 'sdfdfgsdf', 'more', '2000-01-01'); insert into
+alltypes values( 62, 72, 'sdfdfgsdf', 'more', '2000-01-01'); insert
+into alltypes values( 63, 72, 'sdfdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 64, 72, 'sdfsddf', 'more', '2000-01-01');
-insert into alltypes values( 65, 72, 'sdrtfsdf', 'more', '2000-01-01');
-insert into alltypes values( 66, 72, 'sdrfsdf', 'more', '2000-01-01');
-insert into alltypes values( 67, 72, 'sdfssdfsdfdf', 'more', '2000-01-01');
-insert into alltypes values( 68, 72, 'sdfsdsdfsdff', 'more', '2000-01-01');
-insert into alltypes values( 69, 72, 'sdsdffsdf', 'more', '2000-01-01');
-insert into alltypes values( 610, 72, 'sdfssdfsdfdf', 'more', '2000-01-01');
+insert into alltypes values( 65, 72, 'sdrtfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 66, 72, 'sdrfsdf', 'more',
+'2000-01-01'); insert into alltypes values( 67, 72, 'sdfssdfsdfdf',
+'more', '2000-01-01'); insert into alltypes values( 68, 72,
+'sdfsdsdfsdff', 'more', '2000-01-01'); insert into alltypes values(
+69, 72, 'sdsdffsdf', 'more', '2000-01-01'); insert into alltypes
+values( 610, 72, 'sdfssdfsdfdf', 'more', '2000-01-01');
 
 insert into alltypes values( 91, 12, 'csdfsdf', 'more', '2000-01-01');
 insert into alltypes values( 92, 22, 'csdfsdf', 'more', '2000-01-01');
