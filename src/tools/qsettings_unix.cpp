@@ -629,7 +629,7 @@ bool QSettings::sync()
 	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
 
 	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
-		(di.isDir() && di.isWritable())) {
+		(! fi.exists() && di.isDir() && di.isWritable())) {
 		file.setName(fi.filePath());
 		break;
 	    }
