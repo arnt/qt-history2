@@ -673,7 +673,7 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
 {
     QByteArray output;
     QFile qfile;
-    qfile.open(IO_ReadOnly, file);
+    qfile.open(IO_ReadOnly|IO_Translate, file);
     QByteArray input = qfile.readAll();
     if (input.isEmpty())
         return output;
