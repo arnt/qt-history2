@@ -38,6 +38,7 @@
 #include <private/qsqlextension_p.h>
 
 #include <qpointarray.h>
+#include <qrect.h>
 #include <qsqlrecord.h>
 #include <qregexp.h>
 #include <qdatetime.h>
@@ -1034,7 +1035,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		r = nullText();
 	    }
 	case QVariant::String:
-	case QVariant::CString: {
+	{
 	    switch ( field->value().type() ) {
 		case QVariant::Rect: {
 		    QRect rec = field->value().toRect();
