@@ -149,4 +149,9 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRegion &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRegion &);
 #endif
 
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QRegion &);
+#endif
+
+
 #endif // QREGION_H

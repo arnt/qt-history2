@@ -266,6 +266,18 @@ QDataStream &operator>>(QDataStream &s, QRegion &r)
 }
 #endif //QT_NO_DATASTREAM
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug s, const QRegion &r)
+{
+    QVector<QRect> rects = r.rects();
+    s.nospace() << "QRegion(size=" << rects.size() << ")" << endl;
+    for (int i=0; i<rects.size(); ++i)
+        s << " - " << rects.at(i) << endl;
+    return s;
+}
+#endif
+
+
 // These are not inline - they can be implemented better on some platforms
 //  (eg. Windows at least provides 3-variable operations).  For now, simple.
 
