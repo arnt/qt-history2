@@ -3750,7 +3750,7 @@ void MainWindow::setupActionManager()
 
 	if ( !( menu = (QPopupMenu*)child( grp.latin1(), "QPopupMenu" ) ) ) {
 	    menu = new QPopupMenu( this, grp.latin1() );
-	    menubar->insertItem( tr( grp ), menu );
+	    menuBar()->insertItem( tr( grp ), menu );
 	}
 	if ( !( tb = (QToolBar*)child( grp.latin1(), "QToolBar" ) ) ) {
 #if defined(HAVE_KDE)
@@ -3843,7 +3843,6 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 
 void MainWindow::setupPluginManagers()
 {
-    setupActionManager();
     editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir, "*.dll; *.so" );
     MetaDataBase::setEditor( !editorPluginManager->libraryList().isEmpty() );
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
