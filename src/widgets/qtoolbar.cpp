@@ -41,7 +41,7 @@ class QToolBarPrivate
 public:
     QToolBarPrivate() :moving(FALSE), stretch(QToolBar::NoStretch) {}
     bool moving;
-    
+
     QToolBar::StretchMode stretch;
 };
 
@@ -78,7 +78,7 @@ void QToolBarSeparator::setOrientation( Orientation o )
 {
     orient = o;
     if ( style() == WindowsStyle ) {
-	if ( orientation() == Vertical ) 
+	if ( orientation() == Vertical )
 	    setFrameStyle( HLine + Sunken );
 	else
 	    setFrameStyle( VLine + Sunken );
@@ -162,7 +162,7 @@ QToolBar::QToolBar( const QString &label,
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
     init();
-        
+
     if ( parent )
 	parent->addToolBar( this, label, dock, newLine );
 }
@@ -185,7 +185,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     mw = mainWindow;
     o = Horizontal;
     init();
-    
+
     if ( mainWindow )
 	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
 }
@@ -221,7 +221,7 @@ void QToolBar::init()
 			style() == WindowsStyle ? 2 : 1, 0 );
     b->setAutoAdd( TRUE );
     b->addSpacing( 9 );
-    
+
     if ( mw ) {
 	connect( mw, SIGNAL( startMovingToolbar( QToolBar * ) ),
 		 this, SLOT( startMoving( QToolBar * ) ) );
@@ -337,7 +337,7 @@ void QToolBar::setStretchableWidget( QWidget * w )
 {
     sw = w;
     b->setStretchFactor( w, 1 );
-    
+
     if ( !stretchable() )
 	setStretchMode( Stretchable );
 }
@@ -443,12 +443,23 @@ void QToolBar::endMoving( QToolBar *tb )
 
 void QToolBar::setStretchMode( StretchMode mode )
 {
-    
+
     if ( d->stretch != mode ) {
 	d->stretch = mode;
 	if ( mw )
 	    mw->triggerLayout(FALSE);
     }
+}
+
+/*!
+  Returns the stretch mode of this toolbar.
+  
+  \sa setStretchMode(), stretchable()
+*/
+
+QToolBar::StretchMode QToolBar::stretchMode() const
+{
+    return d->stretch;
 }
 
 /*!

@@ -142,9 +142,9 @@ public:
 	ToolBar( QToolBar * tb, bool n=FALSE )
 	    : t(tb), nl(n), oldDock( QMainWindow::Top ), oldIndex( 0 )  {}
 	QToolBar * t;
-	bool stretchable() const 
+	bool stretchable() const
 	    { return t->orientation() == Qt::Horizontal && t->stretchable(); }
-	bool fullwidth() const 
+	bool fullwidth() const
 	    { return t->orientation() == Qt::Horizontal && t->fullwidth(); }
 	bool nl;
 	QValueList<int> disabledDocks;
@@ -1185,7 +1185,8 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl || tmp->t->stretchable() ) && !t->t->stretchable() )
+			if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) && 
+			     t->t->stretchMode() != QToolBar::FullWidth )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1194,7 +1195,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->y() > tmp->t->y() || t->t->stretchable() ) {
+		if ( !t || t->nl || t->t->y() > tmp->t->y() || t->t->stretchMode() == QToolBar::FullWidth ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1207,7 +1208,8 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	    t = maybe;
 	    dock->findRef( maybe );
 	    tmp = dock->next();
-	    if ( ( !tmp || tmp->nl || tmp->t->stretchable() ) && !t->t->stretchable() )
+	    if ( ( !tmp || tmp->nl || tmp->t->stretchMode() == QToolBar::FullWidth ) && 
+		 t->t->stretchMode() != QToolBar::FullWidth )
 		ipos = QMainWindowPrivate::TotalAfter;
 	    else
 		ipos = QMainWindowPrivate::After;
@@ -1615,7 +1617,8 @@ void QMainWindow::triggerLayout( bool deleteLayout )
     d->timer->start( 0, TRUE );
 }
 
-static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock, const QPoint &pos,
+static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow *mw, 
+				    QMainWindow::ToolBarDock dock, const QPoint &pos,
 				    const QRect &areaRect, QToolBar *tb, int &ipos, QToolBar *&covering  )
 {
     // find the container where the needed toolbar is
@@ -1664,6 +1667,15 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
     covering = 0;
 
     // calc width and height of the tb depending on the orientation it _would_ have
+    if ( o == Qt::Horizontal ) {
+	if ( ipos == QMainWindowPrivate::TotalAfter &&
+	     t->t->x() + t->t->width() + 10 > mw->width() )
+	    ipos = QMainWindowPrivate::After;
+    } else {
+	if ( ipos == QMainWindowPrivate::TotalAfter &&
+	     t->t->y() + t->t->height() + 10 > mw->height() )
+	    ipos = QMainWindowPrivate::After;
+    }
     int w = o == tb->orientation() ? tb->width() : tb->height();
     int h = o != tb->orientation() ? tb->width() : tb->height();
     if ( o == Qt::Horizontal ) {
@@ -1830,52 +1842,52 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     // find the one with higher priority (that's depending on the original position)
     if ( leftTop.contains( pos ) ) {
 	if ( tb->orientation() == Vertical && !hasTop ) {
-	    rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
+	    rect = findRectInDockingArea( d, this, Left, pos, leftArea, tb, ipos, covering );
 	    return Left;
 	}
-	rect = findRectInDockingArea( d, Top, pos, topArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Top, pos, topArea, tb, ipos, covering );
 	return Top;
     }
     if ( leftBottom.contains( pos ) ) {
 	if ( tb->orientation() == Vertical && !hasBottom ) {
-	    rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
+	    rect = findRectInDockingArea( d, this, Left, pos, leftArea, tb, ipos, covering );
 	    return Left;
 	}
-	rect = findRectInDockingArea( d, Bottom, pos, bottomArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Bottom, pos, bottomArea, tb, ipos, covering );
 	return Bottom;
     }
     if ( rightTop.contains( pos ) ) {
 	if ( tb->orientation() == Vertical && !hasTop ) {
-	    rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
+	    rect = findRectInDockingArea( d, this, Right, pos, rightArea, tb, ipos, covering );
 	    return Right;
 	}
-	rect = findRectInDockingArea( d, Top, pos, topArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Top, pos, topArea, tb, ipos, covering );
 	return Top;
     }
     if ( rightBottom.contains( pos ) ) {
 	if ( tb->orientation() == Vertical && !hasBottom ) {
-	    rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
+	    rect = findRectInDockingArea( d, this, Right, pos, rightArea, tb, ipos, covering );
 	    return Right;
 	}
-	rect = findRectInDockingArea( d, Bottom, pos, bottomArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Bottom, pos, bottomArea, tb, ipos, covering );
 	return Bottom;
     }
 
     // if the mouse is not in an intersection, it's easy....
     if ( leftArea.contains( pos ) ) {
-	rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Left, pos, leftArea, tb, ipos, covering );
 	return Left;
     }
     if ( topArea.contains( pos ) ) {
-	rect = findRectInDockingArea( d, Top, pos, topArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Top, pos, topArea, tb, ipos, covering );
 	return Top;
     }
     if ( rightArea.contains( pos ) ) {
-	rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Right, pos, rightArea, tb, ipos, covering );
 	return Right;
     }
     if ( bottomArea.contains( pos ) ) {
-	rect = findRectInDockingArea( d, Bottom, pos, bottomArea, tb, ipos, covering );
+	rect = findRectInDockingArea( d, this, Bottom, pos, bottomArea, tb, ipos, covering );
 	return Bottom;
     }
 
