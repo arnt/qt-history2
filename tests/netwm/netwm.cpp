@@ -778,6 +778,24 @@ void NETRootInfo::setVirtualRoots(Window *wins, int num) {
 }
 
 
+void NETRootInfo::closeWindowRequest(Window win) {
+    XEvent e;
+
+    e.xclient.type = ClientMessage;
+    e.xclient.message_type = net_close_window;
+    e.xclient.display = p->display;
+    e.xclient.window = p->root;
+    e.xclient.format = 32;
+    e.xclient.data.l[0] = win;
+    e.xclient.data.l[1] = 0l;
+    e.xclient.data.l[2] = 0l;
+    e.xclient.data.l[3] = 0l;
+    e.xclient.data.l[4] = 0l;
+
+    XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
+}
+
+
 // assignment operator
 
 const NETRootInfo &NETRootInfo::operator=(const NETRootInfo &nri) {
@@ -833,7 +851,7 @@ unsigned long NETRootInfo::event(XEvent *e) {
 		       e->xclient.data.l[1],
 		       e->xclient.data.l[2]);
 	} else if (e->xclient.message_type == net_close_window) {
-	    closeWindow(e->xclient.window);
+	    closeWindow(e->xclient.data.l[0]);
 	}
     }
 
