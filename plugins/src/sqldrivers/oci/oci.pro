@@ -18,10 +18,8 @@ win32 {
 unix {
 	OBJECTS_DIR	= .obj
 
-	!contains( LIBS, .*clntsh.* ) {
+	!contains( LIBS, .*clnts.* ) {
 	    LIBS	*= -lclntsh
-	}
-	!contains( LIBS, .*wtc.* ) {
 	    LIBS	*= -lwtc8
 	}
 }
