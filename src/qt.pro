@@ -35,7 +35,6 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
 		  $$KERNEL_H/qclipboard.h \
-		  $$KERNEL_H/qcodemapper.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
@@ -44,7 +43,6 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qdrawutil.h \
 		  $$KERNEL_H/qdropsite.h \
 		  $$KERNEL_H/qevent.h \
-		  $$KERNEL_H/qeucmapper.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_H/qfontdata.h \
@@ -53,7 +51,6 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
-		  $$KERNEL_H/qkoi8mapper.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_H/qlayoutengine.h \
 		  $$KERNEL_H/qmessagefile.h \
@@ -99,11 +96,13 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
+		  $$TOOLS_H/qtextcodec.h \
 		  $$TOOLS_H/qcollection.h \
+		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
 		  $$TOOLS_H/qdict.h \
 		  $$TOOLS_H/qdir.h \
-		  $$TOOLS_H/qdatastream.h \
+		  $$TOOLS_H/qeuccodec.h \
 		  $$TOOLS_H/qfile.h \
 		  $$TOOLS_H/qfiledefs.h \
 		  $$TOOLS_H/qfileinfo.h \
@@ -117,6 +116,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
+		  $$TOOLS_H/qkoi8codec.h \
 		  $$TOOLS_H/qlist.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
@@ -209,10 +209,12 @@ unix:SOURCES   += dialogs/qprintdialog.cpp \
 SOURCES		+= \
 		  tools/qbitarray.cpp \
 		  tools/qbuffer.cpp \
+		  tools/qtextcodec.cpp \
 		  tools/qcollection.cpp \
+		  tools/qdatastream.cpp \
 		  tools/qdatetime.cpp \
 		  tools/qdir.cpp \
-		  tools/qdatastream.cpp \
+		  tools/qeuccodec.cpp \
 		  tools/qfile.cpp \
 		  tools/qfileinfo.cpp \
 		  tools/qgarray.cpp \
@@ -222,6 +224,7 @@ SOURCES		+= \
 		  tools/qglobal.cpp \
 		  tools/qgvector.cpp \
 		  tools/qiodevice.cpp \
+		  tools/qkoi8codec.cpp \
 		  tools/qregexp.cpp \
 		  tools/qstring.cpp \
 		  tools/qtextstream.cpp \
@@ -232,7 +235,6 @@ SOURCES		+= \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \
 		  kernel/qclipboard.cpp \
-		  kernel/qcodemapper.cpp \
 		  kernel/qcolor.cpp \
 		  kernel/qconnection.cpp \
 		  kernel/qcursor.cpp \
@@ -241,12 +243,10 @@ SOURCES		+= \
 		  kernel/qdrawutil.cpp \
 		  kernel/qdropsite.cpp \
 		  kernel/qevent.cpp \
-		  kernel/qeucmapper.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
-		  kernel/qkoi8mapper.cpp \
 		  kernel/qlayout.cpp \
 		  kernel/qlayoutengine.cpp \
 		  kernel/qmessagefile.cpp \

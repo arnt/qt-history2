@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#122 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -26,7 +26,7 @@
 #include "qfontdata.h"
 #include "qcache.h"
 #include "qdict.h"
-#include "qcodemapper.h"
+#include "qtextcodec.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -104,7 +104,7 @@ public:
     const QFontDef *spec()  const;
     int		    lineWidth() const;
     void	    reset();
-    const QCodeMapper *mapper() const { return cmapper; }
+    const QTextCodec *mapper() const { return cmapper; }
 private:
     QFontInternal( const QString & );
     void computeLineWidth();
@@ -115,7 +115,7 @@ private:
     QFontDef	    s;
     int		    lw;
     int		    xres;
-    QCodeMapper	   *cmapper;
+    QTextCodec	   *cmapper;
     friend void QFont::load(HANDLE) const;
     friend void QFont::initFontInfo() const;
 };
@@ -484,13 +484,13 @@ void QFont::initFontInfo() const
 	encoding += tokens[CharsetRegistry];
 	encoding += '-';
 	encoding += tokens[CharsetEncoding];
-	f->cmapper = QCodeMapper::mapperForName(encoding);
+	f->cmapper = QTextCodec::codecForName(encoding);
     } else if ( PRIV->needsSet() ) {
 	static const char* enc[Set_N-Set_1+1] =
 		{ "eucJP","eucKO","TACTIS","eucCN","eucTW" };
 	QString encoding;
 	encoding += enc[charSet()-Set_1];
-	f->cmapper = QCodeMapper::mapperForName(encoding);
+	f->cmapper = QTextCodec::codecForName(encoding);
     } else {
 	f->cmapper = 0;
     }
@@ -1100,7 +1100,7 @@ void *QFontMetrics::fontSet() const
     }
 }
 
-const QCodeMapper *QFontMetrics::mapper() const
+const QTextCodec *QFontMetrics::mapper() const
 {
     if ( type() == FontInternal ) {
 	return u.f->mapper();
@@ -1214,7 +1214,7 @@ bool QFontMetrics::inFont(QChar ch) const
 }
 
 static
-XCharStruct* charStr(const QCodeMapper* mapper, XFontStruct *f, QChar ch)
+XCharStruct* charStr(const QTextCodec* mapper, XFontStruct *f, QChar ch)
 {
     // Optimized - inFont() is merged in here.
 
@@ -1253,7 +1253,7 @@ XCharStruct* charStr(const QCodeMapper* mapper, XFontStruct *f, QChar ch)
 }
 
 static
-void getExt(QString str, int len, XRectangle& ink, XRectangle& logical, XFontSet set, const QCodeMapper* m)
+void getExt(QString str, int len, XRectangle& ink, XRectangle& logical, XFontSet set, const QTextCodec* m)
 {
     // Callers to this / this needs to be optimized.
 
@@ -1472,7 +1472,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     XFontStruct *f = FS;
     if ( f ) {
-	const QCodeMapper* m = mapper();
+	const QTextCodec* m = mapper();
 	if ( m ) {
 	    char* s = m->fromUnicode(str,len);
 	    int r = printerAdjusted(XTextWidth( f, s, len ));
@@ -1536,7 +1536,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     }
 
     if ( f ) {
-	const QCodeMapper *m = mapper();
+	const QTextCodec *m = mapper();
 	if ( m ) {
 	    char* s = m->fromUnicode(str,len);
 	    XTextExtents( f, s, len, &direction, &ascent, &descent, &overall );
@@ -1840,7 +1840,7 @@ static int getWeight( const QString &weightString, bool adjustScore )
     return (int) QFont::Normal;
 }
 
-const QCodeMapper* QFontData::mapper() const
+const QTextCodec* QFontData::mapper() const
 {
     return fin ? fin->mapper() : 0;
 }

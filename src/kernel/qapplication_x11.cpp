@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#369 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#370 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qkeycode.h"
-#include "qcodemapper.h"
+#include "qtextcodec.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -208,7 +208,7 @@ static XIMStyle xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
 static XFontSet xim_fixed_fontset;
 #endif
-static QCodeMapper * input_mapper = 0;
+static QTextCodec * input_mapper = 0;
 
 timeval        *qt_wait_timer();
 int	        qt_activate_timers();
@@ -845,7 +845,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	}
 	if ( xim ) {
 	    const char* locale = XLocaleOfIM(xim);
-	    input_mapper = QCodeMapper::mapperForName(locale);
+	    input_mapper = QTextCodec::codecForName(locale);
 	}
     }
 
@@ -853,7 +853,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 #endif
     {
 	const char* locale = setlocale( LC_CTYPE, 0 );
-	input_mapper = QCodeMapper::mapperForName(locale);
+	input_mapper = QTextCodec::codecForName(locale);
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#119 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#120 $
 **
 ** Definition of QPainter class
 **
@@ -42,7 +42,7 @@
 struct QWinFont;
 #endif
 
-class QCodeMapper;
+class QTextCodec;
 
 
 class Q_EXPORT QPainter : public Qt

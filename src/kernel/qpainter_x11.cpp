@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#266 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#267 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -29,7 +29,7 @@
 #include "qlist.h"
 #include "qintdict.h"
 #include "qfontdata.h"
-#include "qcodemapper.h"
+#include "qtextcodec.h"
 #include <ctype.h>
 #include <stdlib.h>
 #define	 GC GC_QQQ
@@ -2544,7 +2544,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 
     char* mapped = 0;
 
-    const QCodeMapper* mapper = cfont.d->mapper();
+    const QTextCodec* mapper = cfont.d->mapper();
     if ( mapper ) {
 	// translate from Unicode to font charset encoding here
 //debug("Drawing text with mapper %s",mapper->name());
