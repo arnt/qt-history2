@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.9 1997/11/15 22:16:20 agulbra Exp $
+** $Id: indices.doc,v 2.10 1998/01/29 10:49:14 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.9 1997/11/15 22:16:20 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 2.10 1998/01/29 10:49:14 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -108,6 +108,10 @@ your@email.address" (without the quotes) to
 The tool classes are general-purpose classes that may be used
 independently of the GUI classes.
 
+<p>
+
+In particular, these classes do not depend on QApplication at all, and
+so can be used in server programs.
 */
 
 /*! \defgroup fonts.html
