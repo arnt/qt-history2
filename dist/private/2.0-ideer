@@ -34,3 +34,7 @@ QLineEdit QLineEdit QLineEdit QLineEdit QLineEdit
 Alle set*() virtual, slik at subklasser kan sørge for sine invarianter
 
 
+ENGLISH THINGS
+--------------
+
+Re-arrange all data members to minimize object size.
