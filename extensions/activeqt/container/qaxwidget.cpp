@@ -276,7 +276,7 @@ private:
 
     DWORD m_dwOleObject;
     HWND m_menuOwner;
-    CONTROLINFO controlInfo;
+    CONTROLINFO control_info;
 
     QSize sizehint;
 
@@ -314,23 +314,16 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
 		hwnd = ::GetParent( hwnd );
 	    }
-	    if ( ax && msg->hwnd != ax->winId() ) {
+	    // ### ugl-hack for MS Office Spreadsheet
+	    if ( ax && msg->hwnd != ax->winId() && ax->control() != "{0002E510-0000-0000-C000-000000000046}" ) {
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
 		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
 		    if ( host ) {
-			if ( ignoreNext ) {
-			    QAxHostWindow *site = host->clientSite();
-			    bool eaten = FALSE;
-			    // give the control a chance, otherwise propagate to Qt
-			    if ( site && site->inPlaceObject() )
-				eaten = !site->inPlaceObject()->TranslateAccelerator( msg );
-			    if ( !eaten )
-				SendMessage( host->winId(), message, msg->wParam, msg->lParam );
-			    else
-				ignoreNext = TRUE;
-			} else {
-			    ignoreNext = FALSE;
-			}
+			QAxHostWindow *site = host->clientSite();
+			// give the control a chance.
+			// The control will call our TranslateAccelerator if it doesn't want the message
+			if ( site && site->inPlaceObject() )
+			    site->inPlaceObject()->TranslateAccelerator( msg );
 		    }
 		} else {
 		    for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
@@ -368,7 +361,7 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, bool bInited )
     inPlaceModelessEnabled = TRUE;
     m_dwOleObject = 0;
     m_menuOwner = 0;
-    memset(&controlInfo, 0, sizeof(controlInfo));
+    memset(&control_info, 0, sizeof(control_info));
 
     statusBar = 0;
     menuBar = 0;
@@ -442,8 +435,8 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, bool bInited )
 	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_FORECOLOR );
 	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_FONT );
 
-	    controlInfo.cb = sizeof(controlInfo);
-	    m_spOleControl->GetControlInfo( &controlInfo );
+	    control_info.cb = sizeof(control_info);
+	    m_spOleControl->GetControlInfo( &control_info );
 	}
 
 	BSTR userType;
@@ -656,7 +649,7 @@ HRESULT WINAPI QAxHostWindow::RequestNewObjectLayout()
 HRESULT WINAPI QAxHostWindow::OnControlInfoChanged()
 {
     if ( m_spOleControl )
-	m_spOleControl->GetControlInfo( &controlInfo );
+	m_spOleControl->GetControlInfo( &control_info );
 
     return S_OK;
 }
@@ -680,14 +673,15 @@ HRESULT WINAPI QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* 
     return S_OK;
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAcceleratorA(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+HRESULT WINAPI QAxHostWindow::TranslateAcceleratorA(LPMSG lpMsg, DWORD grfModifiers)
 {
-    return S_FALSE;
+    return TranslateAcceleratorW( lpMsg, grfModifiers );
 }
 
-HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+HRESULT WINAPI QAxHostWindow::TranslateAcceleratorW(LPMSG lpMsg, DWORD grfModifiers)
 {
-    return S_FALSE;
+    SendMessage( hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam );
+    return S_OK;
 }
 
 HRESULT WINAPI QAxHostWindow::OnFocus( BOOL /*bGotFocus*/ )
@@ -1276,17 +1270,6 @@ void QAxHostWidget::focusOutEvent( QFocusEvent *e )
 
 bool QAxHostWidget::focusNextPrevChild( bool next )
 {
-    if ( axhost && axhost->m_spInPlaceActiveObject ) {
-	MSG msg;
-	msg.hwnd = winId();
-	msg.message = WM_KEYDOWN;
-	msg.wParam = VK_TAB;
-	msg.lParam = 1;
-
-	if ( axhost->m_spInPlaceActiveObject->TranslateAccelerator( &msg ) == S_OK )
-	    return TRUE;
-    }
-
     return QWidget::focusNextPrevChild( next );
 }
 
