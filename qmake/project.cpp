@@ -87,12 +87,12 @@ bool QMakeProject::FunctionBlock::exec(QMakeProject *p, const QStringList &args)
 {
     QList<QStringList> va;
     for(int i = 0; i < args.count(); i++) {
-        va.append(p->variables()[QString::number(i)]);
-        p->variables()[QString::number(i)] = args[i];
+        va.append(p->variables()[QString::number(i+1)]);
+        p->variables()[QString::number(i+1)] = args[i];
     }
     bool ret = QMakeProject::ParsableBlock::eval(p);
     for(int i = 0; i < va.count(); i++) 
-        p->variables()[QString::number(i)] = va[i];
+        p->variables()[QString::number(i+1)] = va[i];
     return ret;
 }
 
