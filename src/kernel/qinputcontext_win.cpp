@@ -123,7 +123,7 @@ public:
 static IActiveIMMApp *aimm = 0;
 static IActiveIMMMessagePumpOwner *aimmpump = 0;
 static QString *imeComposition = 0;
-static int	imePosition    = 0;
+static int	imePosition    = -1;
 
 void QInputContext::init()
 {
@@ -184,39 +184,86 @@ static void notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dwValue )
 	ImmNotifyIME( imc, dwAction, dwIndex, dwValue );
 }
 
-static QString getCompositionString( HIMC imc, DWORD dwindex, int *pos = 0 )
+static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD dBufLen, bool *unicode = 0 )
 {
-    char buffer[256];
-    LONG buflen = -1;
-    bool unicode = TRUE;
-
+    LONG len = 0;
+    if ( unicode ) 
+	*unicode = TRUE;
 #ifdef Q_OS_TEMP
-    buflen = ImmGetCompositionString( imc, dwindex, &buffer, 255 );
+    buflen = ImmGetCompositionString( himc, dwIndex, lpbuf, dBufLen );
 #else
     if ( aimm )
-	aimm->GetCompositionStringW( imc, dwindex, 255, &buflen, &buffer );
+	aimm->GetCompositionStringW( himc, dwIndex, dBufLen, &len, lpbuf );
 #ifdef UNICODE
     else if ( qt_winver != Qt::WV_95 )
-	buflen = ImmGetCompositionStringW( imc, dwindex, &buffer, 255 );
+	len = ImmGetCompositionStringW( himc, dwIndex, lpbuf, dBufLen );
 #endif
     else {
-	buflen = ImmGetCompositionStringA( imc, dwindex, &buffer, 255 );
-	unicode = FALSE;
+	len = ImmGetCompositionStringA( himc, dwIndex, lpbuf, dBufLen );
+	if ( unicode ) 
+	    *unicode = FALSE;
     }
 #endif
+    return len;
+}
 
-    if ( pos )
-	*pos = (buflen & 0xffff);
+static int getCursorPosition( HIMC himc )
+{
+    return getCompositionString( himc, GCS_CURSORPOS, 0, 0 );
+}
 
-    if ( buflen <= 0 )
+static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selLength = 0 )
+{
+    static char *buffer = 0;
+    static int buflen = 0;
+
+    int len = getCompositionString( himc, dwindex, 0, 0 ) + 1;
+    if ( !buffer || len > buflen ) {
+	delete [] buffer;
+	buflen = QMIN( len, 256 );
+	buffer = new char[ buflen ];
+    }
+
+    bool unicode = TRUE;
+    len = getCompositionString( himc, dwindex, buffer, buflen, &unicode );
+
+    if ( selStart ) {
+	static char *attrbuffer = 0;
+	static int attrbuflen = 0;
+	int attrlen = getCompositionString( himc, dwindex, 0, 0 ) + 1;
+	if ( !attrbuffer || attrlen> attrbuflen ) {
+	    delete [] attrbuffer;
+	    attrbuflen = QMIN( attrlen, 256 );
+	    attrbuffer = new char[ attrbuflen ];
+	}
+	attrlen = getCompositionString( himc, GCS_COMPATTR, attrbuffer, attrbuflen );
+	if ( unicode ) {
+	    // rather simple, we just use every second char in the attr array
+	    *selStart = attrlen+1;
+	    *selLength = -1;
+	    for ( int i = 0; i < attrlen; i++ ) {
+		if ( attrbuffer[i] & ATTR_TARGET_CONVERTED ) {
+		    *selStart = QMIN( *selStart, i );
+		    *selLength = QMAX( *selLength, i );
+		}
+	    }
+	    *selLength = QMAX(0, *selLength - *selStart + 1);
+	} else {
+	    // ### TODO: Make it work on Win95/Asian edition
+	    *selStart = 0;
+	    *selLength = 0;
+	}
+    }
+
+    if ( len <= 0 )
 	return QString::null;
     if ( unicode ) {
-	return QString( (QChar *)buffer, buflen/sizeof(QChar) );
+	return QString( (QChar *)buffer, len/sizeof(QChar) );
     } else {
-	buffer[buflen] = 0;
-	WCHAR *wc = new WCHAR[buflen+1];
+	buffer[len] = 0;
+	WCHAR *wc = new WCHAR[len+1];
 	int l = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-	    buffer, buflen, wc, buflen+1);
+	    buffer, len, wc, len+1);
 	QString res = QString( (QChar *)wc, l );
 	delete [] wc;
 	return res;
@@ -323,37 +370,34 @@ bool QInputContext::endComposition( QWidget *fw )
     if ( !fw ) {
 	fw = qApp->focusWidget();
 	if ( fw && imePosition != -1 ) {
-	    QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
+	    QIMEvent e( QEvent::IMEnd, QString::null, -1 );
 	    result = qt_sendSpontaneousEvent( fw, &e );
-	    *imeComposition = QString::null;
-	    imePosition = -2;
 	}
-    } else {
-	if ( !imeComposition || imeComposition->isNull() )
-	    return TRUE;
-#ifdef Q_IME_DEBUG
-	qDebug("   sending im end event");
-#endif
-
-	QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
+    } else if ( imeComposition && !imeComposition->isNull() ) {
+	QIMEvent e( QEvent::IMEnd, QString::null, -1 );
 	QApplication::sendEvent( fw, &e );
-	*imeComposition = QString::null;
-	imePosition = -1;
-
     
 	HIMC imc = getContext( fw->winId() );
 	notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
 	releaseContext( fw->winId(), imc );
     }
+    *imeComposition = QString::null;
+    imePosition = -1;
+
     return result;
 }
 
 bool QInputContext::startComposition()
 {
-    bool result = TRUE;
 #ifdef Q_IME_DEBUG
     qDebug("startComposition" );
 #endif
+
+    if ( !imeComposition )
+	imeComposition = new QString();
+
+    bool result = TRUE;
+
     QWidget *fw = qApp->focusWidget();
     if ( fw ) {
 	QIMEvent e( QEvent::IMStart, QString::null, -1 );
@@ -365,42 +409,54 @@ bool QInputContext::startComposition()
 
 bool QInputContext::composition( LPARAM lParam )
 {
-    bool result = TRUE;
 #ifdef Q_IME_DEBUG
-    qDebug("composition, lParam=%x", lParam);
+    QString str;
+    if ( lParam & GCS_RESULTSTR )
+	str += "RESULTSTR ";
+    if ( lParam & GCS_COMPSTR )
+	str += "COMPSTR ";
+    if ( lParam & GCS_COMPATTR )
+	str += "COMPATTR ";
+    if ( lParam & GCS_CURSORPOS )
+	str += "CURSORPOS ";
+    if ( lParam & GCS_COMPCLAUSE )
+	str += "COMPCLAUSE ";
+    qDebug( "composition, lParam=%s", str.latin1() );
 #endif
+
+    bool result = TRUE;
+
     QWidget *fw = qApp->focusWidget();
-    if ( fw && imePosition != -2 ) {
+    if ( fw ) {
 	if ( imePosition == -1 ) {
 	    // need to send a start event
-    	    QIMEvent e( QEvent::IMStart, QString::null, -1 );
-	    result = qt_sendSpontaneousEvent( fw, &e );
-	    imePosition = 0;
+	    startComposition();
 	}
-	HIMC imc = getContext( fw->winId() ); // Should we store it?
-	if ( !imeComposition )
-	    imeComposition = new QString();
+
+	HIMC imc = getContext( fw->winId() );
 	if (lParam & GCS_RESULTSTR ) {
-	    *imeComposition = getCompositionString( imc, GCS_RESULTSTR );
+	    // a fixed result, return the converted string
+	    *imeComposition = getString( imc, GCS_RESULTSTR );
 	    imePosition = -1;
-	} else if ( lParam & GCS_COMPSTR ) {
-	    *imeComposition = getCompositionString( imc, GCS_COMPSTR );
-	}
-	if ( imePosition != -1 ) {
-	    if ( lParam & GCS_CURSORPOS ) {
-		getCompositionString( imc, GCS_CURSORPOS, &imePosition );
-	    } else if ( lParam & CS_NOMOVECARET ) {
-		imePosition = imeComposition->length();
-	    }
-	}
-#ifdef Q_IME_DEBUG
-	qDebug("imecomposition: cursor pos at %d", imePosition );
-#endif
-	releaseContext( fw->winId(), imc );
-	QIMEvent e( (lParam & GCS_RESULTSTR ? QEvent::IMEnd : QEvent::IMCompose), *imeComposition, imePosition );
-	if (lParam & GCS_RESULTSTR )
+	    QIMEvent e( QEvent::IMEnd, *imeComposition, imePosition );
 	    *imeComposition = QString::null;
-	result = qt_sendSpontaneousEvent( fw, &e );
+	    result = qt_sendSpontaneousEvent( fw, &e );
+	} else if ( lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS) ) {
+	    // some intermediate composition result
+	    int selStart, selLength;
+	    *imeComposition = getString( imc, GCS_COMPSTR, &selStart, &selLength );
+	    imePosition = getCursorPosition( imc );
+
+	    if ( selLength != 0 )
+		imePosition = selStart;
+
+#ifdef Q_IME_DEBUG
+	    qDebug("imecomposition: cursor pos at %d, str=%x", imePosition, str[0].unicode() );
+#endif
+	    QIMComposeEvent e( QEvent::IMCompose, *imeComposition, imePosition, selLength );
+	    result = qt_sendSpontaneousEvent( fw, &e );
+	}
+        releaseContext( fw->winId(), imc );
     }
     return result;
 }
