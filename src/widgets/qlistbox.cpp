@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#9 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#9 $";
 #endif
 
 #include "qstring.h"
@@ -539,7 +539,7 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-    setCellWidth( clientWidth() );
+    setCellWidth( width() );
     QTableWidget::resizeEvent( e );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#11 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#11 $";
 #endif
 
 
@@ -395,13 +395,12 @@ void QLCDNumber::drawString( const char *s, QPainter &p,
     QPoint  pos;
 
     int digitSpace = smallPoint ? 2 : 1;
-    int xSegLen	   = clientWidth()*5/
-			 (ndigits*(5 + digitSpace) + digitSpace);
-    int ySegLen	   = clientHeight()*5/12;
+    int xSegLen	   = width()*5/(ndigits*(5 + digitSpace) + digitSpace);
+    int ySegLen	   = height()*5/12;
     int segLen	   = ySegLen > xSegLen ? xSegLen : ySegLen;
     int xAdvance   = segLen*( 5 + digitSpace )/5;
-    int xOffset	   = ( clientWidth() - ndigits*xAdvance + segLen/5 )/2;
-    int yOffset	   = ( clientHeight() - segLen*2 )/2;
+    int xOffset	   = ( width() - ndigits*xAdvance + segLen/5 )/2;
+    int yOffset	   = ( height() - segLen*2 )/2;
 
     for ( int i=0;  i<ndigits; i++ ) {
 	pos = QPoint( xOffset + xAdvance*i, yOffset );

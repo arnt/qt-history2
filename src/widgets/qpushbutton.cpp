@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#18 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#18 $";
 #endif
 
 
@@ -61,7 +61,7 @@ static void resizeDefButton( QPushButton *b )
 	wx = -wx;
 	hx = -hx;
     }
-    QRect r = b->geometry();
+    QRect r = b->clientRect();
     b->QWidget::setGeometry( r.x()-wx/2, r.y()-hx/2,
 			     r.width()+wx, r.height()+hx );
 }
@@ -166,7 +166,7 @@ void QPushButton::drawButton( QPainter *paint )
     QColor	fillcol = backgroundColor();
     int 	x1, y1, x2, y2;
 
-    clientRect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
     QPen pen( black );
     QBrush brush( fillcol, NoBrush );
 
@@ -324,7 +324,7 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	    dt = gs == WindowsStyle ? 2 : 0;
 	    break;
     }
-    QRect r = clientRect();
+    QRect r = rect();
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
     if ( isDown() || isOn() ) {			// shift text

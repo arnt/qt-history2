@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#14 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#14 $";
 #endif
 
 
@@ -94,7 +94,7 @@ void QButton::setOnOffButton( bool onOff )	// set to on/off button
 
 bool QButton::hitButton( const QPoint &pos ) const
 {
-    return clientRect().contains( pos );
+    return rect().contains( pos );
 }
 
 void QButton::drawButton( QPainter * )

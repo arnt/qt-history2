@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#3 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#4 $
 **
 ** Definition of QFrame widget class
 **
@@ -62,7 +62,7 @@ private:
 
 inline QRect QFrame::frameRect() const
 {
-    return frect.isNull() ? clientRect() : frect;
+    return frect.isNull() ? rect() : frect;
 }
 
 

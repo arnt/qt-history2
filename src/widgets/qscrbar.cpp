@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#16 $
 **
 ** Implementation of QScrollBar class
 **
@@ -12,11 +12,10 @@
 
 #include "qscrbar.h"
 #include "qpainter.h"
-#include "qpntarry.h"
-#include "qwmatrix.h"
+#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#16 $";
 #endif
 
 
@@ -90,8 +89,7 @@ void QScrollBar::init()
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
-    setForegroundColor( lightGray );
-    setBackgroundColor( foregroundColor().dark(112) );
+    setBackgroundColor( colorGroup().dark() );
 }
 
 
@@ -152,7 +150,7 @@ void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p;
     p.begin( this );
-    p.drawShadePanel( clientRect(), foregroundColor().dark(),
+    p.drawShadePanel( rect(), foregroundColor().dark(),
 		      foregroundColor().light() );
     PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
 			pressedControl, p );
@@ -237,10 +235,10 @@ QRect QScrollBar::sliderRect() const
 
     if ( HORIZONTAL )
         return QRect( sliderStart(), BORDER, 
-                      sliderLength, clientHeight() - BORDER*2 );
+                      sliderLength, height() - BORDER*2 );
     else
         return QRect( BORDER, sliderStart(),
-                      clientWidth() - BORDER*2, sliderLength );
+                      width() - BORDER*2, sliderLength );
 }
 
 void QScrollBar::positionSliderFromValue()
@@ -270,11 +268,11 @@ void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
 {
     int buttonDim, maxLength;
 
-    int length = HORIZONTAL ? clientWidth()  : clientHeight();
-    int width = HORIZONTAL ? clientHeight() : clientWidth();
+    int length = HORIZONTAL ? width()  : height();
+    int extent = HORIZONTAL ? height() : width();
 
-    if ( length > ( width - BORDER*2 - 1 )*2 + BORDER*2 + SLIDER_MIN )
-	buttonDim = width - BORDER*2;
+    if ( length > ( extent - BORDER*2 - 1 )*2 + BORDER*2 + SLIDER_MIN )
+	buttonDim = extent - BORDER*2;
     else
 	buttonDim = ( length - BORDER*2 - SLIDER_MIN )/2 - 1;
 
@@ -299,7 +297,7 @@ void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
 
 ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
 {
-    if ( !clientRect().contains( p ) )
+    if ( !rect().contains( p ) )
 	return NONE;
     int sliderMin, sliderMax, sliderLength, pos;
     metrics( &sliderMin, &sliderMax, &sliderLength );
@@ -381,12 +379,12 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
-    QColor shadowC = foregroundColor().dark();
-    QColor lightC  = foregroundColor().light();
-    QColor upC	   = foregroundColor();
+    QColorGroup g  = colorGroup();
+    QColor shadowC = g.dark();
+    QColor lightC  = g.light();
+    QColor upC	   = g.medium();
     QColor downC   = backgroundColor();
 
-    int i;
     int sliderMin, sliderMax, sliderLength;
     metrics( &sliderMin, &sliderMax, &sliderLength );
 
@@ -397,15 +395,15 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     QRect subPageR;
     QRect sliderR;
     int addX, addY, subX, subY;
-    int length = HORIZONTAL ? clientWidth()  : clientHeight();
-    int width  = HORIZONTAL ? clientHeight() : clientWidth();
+    int length = HORIZONTAL ? width()  : height();
+    int extent = HORIZONTAL ? height() : width();
 
     if ( HORIZONTAL ) {
-	subY = addY = ( width - dimB ) / 2;
+	subY = addY = ( extent - dimB ) / 2;
 	subX = BORDER;
 	addX = length - dimB - BORDER;
     } else {
-	subX = addX = ( width - dimB ) / 2;
+	subX = addX = ( extent - dimB ) / 2;
 	subY = BORDER;
 	addY = length - dimB - BORDER;
     }
@@ -414,7 +412,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     addB.setRect( addX,addY,dimB,dimB );
 
     int sliderEnd = sliderStart() + sliderLength;
-    int sliderW = width - BORDER*2;
+    int sliderW = extent - BORDER*2;
     if ( HORIZONTAL ) {
 	subPageR.setRect( subB.right() + 1, BORDER,
 			  sliderStart() - subB.right() - 1 , sliderW );
@@ -453,9 +451,8 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    if ( controls & ADD_PAGE )
 		p.fillRect( addPageR, backgroundColor() );
 	    if ( controls & SLIDER )
-		p.drawShadePanel( sliderR, foregroundColor().light(),
-				  foregroundColor().dark(), 2,
-				  foregroundColor(), TRUE );
+		p.drawShadePanel( sliderR, lightC, shadowC, 2,
+				  upC, TRUE );
 	    break;
 	}
     }
@@ -473,7 +470,7 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
-    QWorldMatrix matrix;			// xform matrix
+    Q2DMatrix   matrix;				// xform matrix
     bool vertical = style == MotifUpArrow || style == MotifDownArrow;
     bool horizontal = !vertical;
     int  dim = w < h ? w : h;

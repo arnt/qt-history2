@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#17 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#17 $";
 #endif
 
 
@@ -161,12 +161,12 @@ void QPopupMenu::popup( const QPoint &pos )	// open popup menu at pos
     if ( badSize )
 	updateSize();
     QWidget *desktop = QApplication::desktop();
-    int sw = desktop->clientSize().width();	// screen width
-    int sh = desktop->clientSize().height();	// screen height
-    int x = pos.x();
-    int y = pos.y();
-    int w = clientSize().width();
-    int h = clientSize().height();
+    int sw = desktop->width();			// screen width
+    int sh = desktop->height();			// screen height
+    int x  = pos.x();
+    int y  = pos.y();
+    int w  = width();
+    int h  = height();
     if ( x+w > sw )				// the complete widget must
 	x = sw - w;				//   be visible
     if ( y+h > sh )
@@ -367,7 +367,7 @@ int QPopupMenu::cellHeight( long row )
 
 int QPopupMenu::cellWidth( long col )
 {
-    return clientSize().width() - 2*motifPopupFrame;
+    return width() - 2*motifPopupFrame;
 }
 
 
@@ -445,7 +445,7 @@ void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
 {
     QPainter paint;
     paint.begin( this );			// draw the popup frame
-    QRect r = clientRect();
+    QRect r = rect();
     switch ( style() ) {
 	case MacStyle:
 	    paint.drawShadePanel( r, black, black, macPopupFrame );
@@ -464,7 +464,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( !clientRect().contains( e->pos() ) && !tryMenuBar( e ) ) {
+	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) ) {
 	    hide();
 	    byeMenuBar();
 	}
@@ -499,7 +499,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( !clientRect().contains( e->pos() ) && tryMenuBar( e ) )
+	if ( !rect().contains( e->pos() ) && tryMenuBar( e ) )
 	    return;
     }
     actItem = item;
@@ -534,7 +534,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    if ( lastActItem >= 0 )
 		updateCell( lastActItem, 0, FALSE );
 	}
-	if ( !clientRect().contains( e->pos() ) && !tryMenuBar( e ) )
+	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
 	    hidePopups();
     }
     else {					// mouse on valid item
@@ -656,7 +656,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )	// open sub menu
 	return;
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( popup ) {				// it is a popup
-	QPoint pos( clientSize().width() - motifArrowHMargin,
+	QPoint pos( width() - motifArrowHMargin,
 		    motifPopupFrame + motifArrowVMargin );
 	for ( int i=0; i<actItem; i++ )
 	    pos.ry() += cellHeight( i );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#14 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#14 $";
 #endif
 
 
@@ -118,7 +118,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
     if ( object == parent() && event->type() == Event_Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
-	resize( e->size().width(), clientSize().height() );
+	resize( e->size().width(), height() );
     }
     return FALSE;				// don't stop event
 }
@@ -138,7 +138,7 @@ void QMenuBar::subSelected( int id )
 bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
 {
     QPoint pos = mapFromGlobal( popup->mapToGlobal( e->pos() ) );
-    if ( !clientRect().contains( pos ) )	// outside
+    if ( !rect().contains( pos ) )		// outside
 	return FALSE;
     int item = itemAtPos( pos );
     if ( item == -1 && (e->type() == Event_MouseButtonPress ||
@@ -176,8 +176,8 @@ void QMenuBar::openActPopup()			// open active popup menu
 	if ( popup->badSize )
 	    popup->updateSize();
 	pos = mapToGlobal(pos);
-	int sh = QApplication::desktop()->clientSize().height();
-	int ph = popup->clientSize().height();
+	int sh = QApplication::desktop()->height();
+	int ph = popup->height();
 	if ( pos.y() + ph > sh ) {
 	    pos = mapToGlobal( r.topLeft() );
 	    pos.ry() -= ph;
@@ -208,7 +208,7 @@ void QMenuBar::setFont( const QFont &font )
 void QMenuBar::show()
 {
     if ( parentWidget() )
-	resize( parentWidget()->clientSize().width(), clientSize().height() );
+	resize( parentWidget()->width(), height() );
     QWidget::show();
     raise();
 }
@@ -237,11 +237,10 @@ void QMenuBar::updateRects()
     irects = new QRect[ mitems->count() ];	// create rectangle array
     CHECK_PTR( irects );
     QFontMetrics fm = fontMetrics();
-    int max_width = clientSize().width();
+    int max_width = width();
     int max_height = 0;
     int nlines = 1;				// number of lines
     int nlitems = 0;				// number on items on cur line
-    int wline = 0;				// width of line
     int x = motifBarFrame + motifBarHMargin;
     int y = motifBarFrame + motifBarVMargin;
     int i = 0;
@@ -271,7 +270,7 @@ void QMenuBar::updateRects()
 	nlitems++;
 	i++;
     }
-    if ( max_height != clientSize().height() )
+    if ( max_height != height() )
 	resize( max_width, max_height );
     badSize = FALSE;
 }
@@ -310,10 +309,10 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
     QPixMap  *pm = 0;
     register QPainter *p = &paint;
     QFontMetrics fm = fontMetrics();
-    QSize sz = clientSize();
+    QSize sz = size();
     p->begin( this );
     
-    p->drawShadePanel( clientRect(), lightColor, darkColor, motifBarFrame );
+    p->drawShadePanel( rect(), lightColor, darkColor, motifBarFrame );
     p->setClipRect( motifBarFrame, motifBarFrame,
 		    sz.width()  - 2*motifBarFrame,
 		    sz.height() - 2*motifBarFrame );

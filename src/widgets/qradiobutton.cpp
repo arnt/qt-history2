@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#13 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#13 $";
 #endif
 
 
@@ -80,14 +80,14 @@ void QRadioButton::resizeFitLabel()
 
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
-    return noHit ? FALSE : clientRect().contains( pos );
+    return noHit ? FALSE : rect().contains( pos );
 }
 
 void QRadioButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
     GUIStyle gs = style();
-    QSize sz = clientSize();
+    QSize sz = size();
     QFontMetrics fm = fontMetrics();
     int x=0, y, w, h;
     getSizeOfBitMap( gs, &w, &h );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#13 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#13 $";
 #endif
 
 
@@ -199,7 +199,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
         return;
     inTextFocus = TRUE;
 //    debug( "IN focus" );
-    pm = new QPixMap( clientSize().width(), clientSize().height());
+    pm = new QPixMap( width(), height() );
     CHECK_PTR( pm );
     startTimer( blinkTime );
     cursorOn = TRUE;
@@ -250,7 +250,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     cursorPos = offset +
 	xPosToCursorPos( &t[ offset ], fontMetrics(),
 			 e->pos().x() - LEFT_MARGIN,
-			 clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN );
+			 width() - LEFT_MARGIN - RIGHT_MARGIN );
     if ( !inTextFocus )
         focusInEvent( 0 );   // will call paint()
     else
@@ -268,9 +268,9 @@ void QLineEdit::paint( bool frame )
 	p.begin( this );
 	if ( !frame )
 	    p.eraseRect( LEFT_MARGIN, TOP_MARGIN,
-			 clientWidth()	- LEFT_MARGIN - RIGHT_MARGIN,
-			 clientHeight() - TOP_MARGIN  - BOTTOM_MARGIN );
-	paintText( &p, clientSize(), frame );
+			 width()  - LEFT_MARGIN - RIGHT_MARGIN,
+			 height() - TOP_MARGIN  - BOTTOM_MARGIN );
+	paintText( &p, size(), frame );
 	p.end();
     }
 }
@@ -282,7 +282,7 @@ void QLineEdit::pixmapPaint()
 
     p.begin( pm );
     p.setFont( fontRef() );
-    p.fillRect( clientRect(), backgroundColor() );
+    p.fillRect( rect(), backgroundColor() );
     paintText( &p, pm->size() , TRUE );
     p.end();
     bitBlt( this, 0, 0, pm, 0, 0, -1, -1 );
@@ -356,7 +356,7 @@ bool QLineEdit::cursorRight()
 	killTimers();
 	cursorOn = TRUE;
 	cursorPos++;
-	int surplusWidth = clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN
+	int surplusWidth = width() - LEFT_MARGIN - RIGHT_MARGIN
 			   - fm.width( &t[ offset ], cursorPos - offset);
 	if ( surplusWidth < 0 ) {
 	    while ( surplusWidth < 0 && offset < cursorPos - 1 ) {
@@ -402,7 +402,7 @@ bool QLineEdit::end()
 {
     if ( cursorPos != strlen(t) ) {
 	offset += showLastPartOffset( &t[offset], fontMetrics(),
-		      clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN );
+		      width() - LEFT_MARGIN - RIGHT_MARGIN );
 	cursorPos = strlen( t );
 	return TRUE;
     }
