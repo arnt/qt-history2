@@ -56,46 +56,47 @@
  *
  ****************************************************/
 
-/*!
-  \class QHttpHeader qhttp.h
+/*
+    \class QHttpHeader qhttp.h
+    \brief The QHttpHeader class contains header information for HTTP.
+
     \ingroup io
-  \brief The QHttpHeader class contains header information for HTTP.
+    \module network
 
-  \module network
+    In most cases you should use the more specialized derivatives of
+    this class, QHttpReplyHeader and QHttpRequestHeader, rather than
+    directly using QHttpHeader.
 
-  This class is the common part of the more special QHttpResponseHeader and
-  QHttpRequestHeader classes. Probably, you will instantiate one of the more
-  special classes rather than this one.
+    QHttpHeader provides the header fields. A HTTP header field
+    consists (according to RFC 1945) of a name followed immediately by
+    a colon, a single space, and the field value. Field names are
+    case-insensitive. A typical header field looks like this:
+    \code
+    content-type: text/html
+    \endcode
 
-  It provides to the header fields. A HTTP header field consists (according to
-  RFC 1945) of a name followed immediately by a colon, a single space, and the
-  field value. Field names are case-insensitive. A typical header field looks
-  like:
-  \code
-  content-type: text/html
-  \endcode
+    In the API the header field name is called the "key" and the
+    content is called the "value". You can get and set a header field's value
+    by using its key with value() and setValue(), e.g.
+    \code
+    header.setValue( "content-type", "text/html" );
+    QString contentType = header.value( "content-type" );
+    \endcode
 
-  The header field name is called "key" and the content "value" in the API. You
-  can set the above header field with:
-  \code
-  header.setValue( "content-type", "text/html" );
-  \endcode
+    Some fields are so common that getters and setters are provided
+    for them as a convenient alternative to using value() and
+    setValue(), e.g. contentLength(), contentType(), connection(),
+    setContentLength(), setContentType() and setConnection().
 
-  Since content-type is a very common header field, there is a shortcut for it.
-  So the above can also be written as:
-  \code
-  header.setContentType( "text/html" );
-  \endcode
+    Each header key has a \e single value associated with it. If you
+    set the value for a key which already exists the previous value
+    will be discarded.
 
-  Please note that it is only possible to have at most one header field for the
-  same key. If you try to set the value for a key which already exists, the old
-  value is overwritten.
-
-  \sa QHttpRequestHeader QHttpResponseHeader
+    \sa QHttpRequestHeader QHttpReplyHeader
 */
 
 /*!
-  Constructs an empty HTTP header.
+    Constructs an empty HTTP header.
 */
 QHttpHeader::QHttpHeader()
     : m_bValid( TRUE )
@@ -103,7 +104,7 @@ QHttpHeader::QHttpHeader()
 }
 
 /*!
-  Constructs a copy of \a header.
+    Constructs a copy of \a header.
 */
 QHttpHeader::QHttpHeader( const QHttpHeader& header )
     : m_bValid( header.m_bValid )
@@ -112,10 +113,12 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
 }
 
 /*!
-  Constructs a HTTP header for \a str.
+    Constructs a HTTP header for \a str.
 
-  This constructor parses the string \a str for header fields and adds this
-  information.
+    This constructor parses the string \a str for header fields and
+    adds this information.
+
+    \sa parse()
 */
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
@@ -124,14 +127,14 @@ QHttpHeader::QHttpHeader( const QString& str )
 }
 
 /*!
-  Destructor.
+    Destructor.
 */
 QHttpHeader::~QHttpHeader()
 {
 }
 
 /*!
-  Assigns \a h and returns a reference to this http header.
+    Assigns \a h and returns a reference to this http header.
 */
 QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 {
@@ -141,9 +144,9 @@ QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 }
 
 /*!
-  Returns TRUE if the HTTP header is valid, otherwise FALSE.
+    Returns TRUE if the HTTP header is valid; otherwise returns FALSE.
 
-  A QHttpHeader is invalid if it was created by parsing a malformed string.
+    A QHttpHeader is invalid if it was created by parsing a malformed string.
 */
 bool QHttpHeader::isValid() const
 {
@@ -151,10 +154,11 @@ bool QHttpHeader::isValid() const
 }
 
 /*!
-  Parses the HTTP header string \a str for header fields and add the
-  information.
+    Parses the HTTP header string \a str for header fields and adds
+    the keys/values if finds. If the string is not parsed successfully
+    the QHttpHeader becomes \link isValid() invalid\endlink.
 
-  \sa toString() read()
+    \sa toString() read()
 */
 void QHttpHeader::parse( const QString& str )
 {
@@ -192,10 +196,10 @@ void QHttpHeader::parse( const QString& str )
 }
 
 /*!
-  Reads a HTTP header from the text stream \a stream and returns a reference to
-  the stream.
+    Reads a HTTP header from the text stream \a stream and returns a
+    reference to the stream.
 
-  \sa write() toString() parse()
+    \sa write() toString() parse()
 */
 QTextStream& QHttpHeader::read( QTextStream& stream )
 {
@@ -225,11 +229,10 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
 }
 
 /*!
-  Looks up if the HTTP header contains an entry with the key \a key. If such an
-  entry exists, this function returns the value of the entry; otherwise an
-  empty string is returned.
+    Returns the value for the entry with the given \a key. If no entry
+    has this \a key, an empty string is returned.
 
-  \sa setValue() removeValue() hasKey() keys()
+    \sa setValue() removeValue() hasKey() keys()
 */
 QString QHttpHeader::value( const QString& key ) const
 {
@@ -237,9 +240,9 @@ QString QHttpHeader::value( const QString& key ) const
 }
 
 /*!
-  Looks up all keys in the HTTP header and returns a list of them.
+    Returns a list of the keys in the HTTP header.
 
-  \sa hasKey()
+    \sa hasKey()
 */
 QStringList QHttpHeader::keys() const
 {
@@ -253,10 +256,10 @@ QStringList QHttpHeader::keys() const
 }
 
 /*!
-  Returns TRUE, if the HTTP header contains an entry with the key \a key,
-  otherwise FALSE.
+    Returns TRUE, if the HTTP header has an entry with the given \a
+    key; otherwise returns FALSE.
 
-  \sa value() setValue() keys()
+    \sa value() setValue() keys()
 */
 bool QHttpHeader::hasKey( const QString& key ) const
 {
@@ -264,12 +267,14 @@ bool QHttpHeader::hasKey( const QString& key ) const
 }
 
 /*!
-  Sets the value of the entry \a key to \a value.
+    Sets the value of the entry with the \a key to \a value.
 
-  If an entry with the key \a key already existed, the previous value will be
-  replaced. If no such entry existed, e new one will be added to HTTP header.
+    If no entry with \a key exists, a new entry with the given \a key
+    and \a value is created. If an entry with the \a key already
+    exists, its value is discarded and replaced with the given \a
+    value.
 
-  \sa value() hasKey() removeValue()
+    \sa value() hasKey() removeValue()
 */
 void QHttpHeader::setValue( const QString& key, const QString& value )
 {
@@ -277,9 +282,9 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 }
 
 /*!
-  Removes the entry with the key \a key from the HTTP header.
+    Removes the entry with the key \a key from the HTTP header.
 
-  \sa value() setValue()
+    \sa value() setValue()
 */
 void QHttpHeader::removeValue( const QString& key )
 {
@@ -287,10 +292,12 @@ void QHttpHeader::removeValue( const QString& key )
 }
 
 /*!
-  Parses the single HTTP header line \a line and adds the information. The
-  linenumber is \a number.
+    Parses the single HTTP header line \a line which has the format
+    key, colon, space, value, and adds key/value to the headers. The
+    linenumber is \a number. Returns TRUE if the line was successfully
+    parsed and the key/value added; otherwise returns FALSE.
 
-  \sa parse()
+    \sa parse()
 */
 bool QHttpHeader::parseLine( const QString& line, int )
 {
@@ -304,9 +311,9 @@ bool QHttpHeader::parseLine( const QString& line, int )
 }
 
 /*!
-  Returns a string representation of the HTTP header.
+    Returns a string representation of the HTTP header.
 
-  \sa write()
+    \sa write()
 */
 QString QHttpHeader::toString() const
 {
@@ -320,10 +327,10 @@ QString QHttpHeader::toString() const
 }
 
 /*!
-  Writes a string representation of the HTTP header to the text stream \a
-  stream and returns a reference to the stream.
+    Writes a string representation of the HTTP header to the text
+    stream \a stream and returns a reference to the stream.
 
-  \sa read() toString()
+    \sa read() toString()
 */
 QTextStream& QHttpHeader::write( QTextStream& stream ) const
 {
@@ -408,25 +415,35 @@ void QHttpHeader::setContentType( const QString& type )
  ****************************************************/
 
 /*!
-  \class QHttpResponseHeader qhttp.h
+    \class QHttpResponseHeader qhttp.h
+
+    \brief The QHttpResponseHeader class contains response header information for HTTP.
+
     \ingroup io
-  \brief The QHttpResponseHeader class contains response header information for HTTP.
+    \module network
 
-  \module network
+    This class is used in the QHttpClient class to report the header
+    information that the client received from the server.
 
-  This class is used in the QHttpClient class to report the header information
-  that the client received from the server.
+    This class is also used in the QHttpConnection class to send HTTP
+    replies from a server to a client.
 
-  HTTP replies have a status code that indicates the status of the response. This
-  code is a 3-digit integer result code (for details please refer to RFC 1945).
-  In addition to the status code, you can also specify a human-readable text
-  that describes the reason for the code ("reason phrase"). This class provides
-  means to set and query the status code and the reason phrase.
+    HTTP responses have a status code that indicates the status of the
+    response. This code is a 3-digit integer result code (for details
+    please refer to RFC 1945). In addition to the status code, you can
+    also specify a human-readable text that describes the reason for
+    the code ("reason phrase"). This class allows you to set and get
+    the status code and the reason phrase.
 
-  Since this is a subclass of QHttpHeader, all functions in this class are also
-  available, especially setValue() and value().
+    The code, reason and protocol version can be set in the
+    constructor or later with setReply(). The values can be obtained
+    from statusCode(), reasonPhrase() and version().
 
-  \sa QHttpRequestHeader QHttpClient
+    This class is a QHttpHeader subclass so that class's functions,
+    e.g. \link QHttpHeader::setValue() setValue()\endlink, \link
+    QHttpHeader::value() value()\endlink, etc. are also available.
+
+    \sa QHttpRequestHeader QHttpClient
 */
 
 /*!
@@ -446,7 +463,7 @@ QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int ver
 }
 
 /*!
-  Constructs a copy of \a header.
+    Constructs a copy of \a header.
 */
 QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
     : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
@@ -464,8 +481,8 @@ QHttpResponseHeader::QHttpResponseHeader( const QString& str )
 }
 
 /*!
-  Sets the status code to \a code, the reason phrase to \a text and the
-  protocol-version to \a version.
+    Sets the status code to \a code, the reason phrase to \a text and
+    the protocol-version to \a version.
 
   \sa statusCode() reasonPhrase() version()
 */
@@ -550,29 +567,39 @@ QString QHttpResponseHeader::toString() const
  *
  ****************************************************/
 
-/*!
-  \class QHttpRequestHeader qhttp.h
+/*
+    \class QHttpRequestHeader qhttp.h
+    \brief The QHttpRequestHeader class contains request header information for
+    HTTP.
+
     \ingroup io
-  \brief The QHttpRequestHeader class contains request header information for
-  HTTP.
+    \module network
 
-  \module network
+    This class is used in the QHttpClient class to report the header
+    information if the client requests something from the server.
 
-  This class is used in the QHttpClient class to report the header information
-  if the client requests something from the server.
+    This class is also used in the QHttpConnection class to receive
+    HTTP requests by a server.
 
-  HTTP requests have a method which describes the action of the request. The
-  most common requests are "GET" and "POST". In addition to the method the
-  header also includes a request-URI to specify the location for the method.
+    HTTP requests have a method which describes the request's action.
+    The most common requests are "GET" and "POST". In addition to the
+    request method the header also includes a request-URI to specify
+    the location for the method to use.
 
-  Since this is a subclass of QHttpHeader, all functions in this class are also
-  available, especially setValue() and value().
+    The method, request-URI and protocol-version can be set using a
+    constructor or later using setRequest(). The values can be
+    obtained using method(), path() and version().
 
-  \sa QHttpResponseHeader QHttpClient
+    This class is a QHttpHeader subclass so that class's functions,
+    e.g. \link QHttpHeader::setValue() setValue()\endlink, \link
+    QHttpHeader::value() value()\endlink, etc. are also available.
+
+
+    \sa QHttpResponseHeader QHttpClient
 */
 
 /*!
-  Constructs an empty HTTP request header.
+    Constructs an empty HTTP request header.
 */
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
@@ -580,8 +607,8 @@ QHttpRequestHeader::QHttpRequestHeader()
 }
 
 /*!
-  Constructs a HTTP request header for the method \a method, the request-URI
-  \a path and the protocol-version \a version.
+    Constructs a HTTP request header for the method \a method, the
+    request-URI \a path and the protocol-version \a version.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int version )
     : QHttpHeader(), m_method( method ), m_path( path ), m_version( version )
@@ -589,7 +616,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& pa
 }
 
 /*!
-  Constructs a copy of \a header.
+    Constructs a copy of \a header.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     : QHttpHeader( header ), m_method( header.m_method ), m_path( header.m_path ), m_version( header.m_version )
@@ -597,7 +624,7 @@ QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
 }
 
 /*!
-  Constructs a HTTP request header from the string \a str.
+    Constructs a HTTP request header from the string \a str.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QString& str )
     : QHttpHeader()
@@ -606,10 +633,10 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
 }
 
 /*!
-  This function sets the request method to \a method, the request-URI to \a
-  path and the protocol-version to \a version.
+    This function sets the request method to \a method, the
+    request-URI to \a path and the protocol-version to \a version.
 
-  \sa method() path() version()
+    \sa method() path() version()
 */
 void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int version )
 {
@@ -619,9 +646,9 @@ void QHttpRequestHeader::setRequest( const QString& method, const QString& path,
 }
 
 /*!
-  Returns the method of the HTTP request header.
+    Returns the method of the HTTP request header.
 
-  \sa path() version() setRequest()
+    \sa path() version() setRequest()
 */
 QString QHttpRequestHeader::method() const
 {
@@ -629,9 +656,9 @@ QString QHttpRequestHeader::method() const
 }
 
 /*!
-  Returns the request-URI of the HTTP request header.
+    Returns the request-URI of the HTTP request header.
 
-  \sa method() version() setRequest()
+    \sa method() version() setRequest()
 */
 QString QHttpRequestHeader::path() const
 {
@@ -639,9 +666,9 @@ QString QHttpRequestHeader::path() const
 }
 
 /*!
-  Returns the protocol-version of the HTTP request header.
+    Returns the protocol-version of the HTTP request header.
 
-  \sa method() path() setRequest()
+    \sa method() path() setRequest()
 */
 int QHttpRequestHeader::version()
 {
@@ -687,8 +714,8 @@ QString QHttpRequestHeader::toString() const
 
 #if 0
 /*!
-  Reads a HTTP request header from the text stream \a stream and stores it in
-  \a header and returns a refernce to the stream.
+    Reads a HTTP request header from the text stream \a stream and
+    stores it in \a header and returns a refernce to the stream.
 */
 QTextStream& operator>>( QTextStream& stream, QHttpRequestHeader& header )
 {
@@ -696,8 +723,8 @@ QTextStream& operator>>( QTextStream& stream, QHttpRequestHeader& header )
 }
 
 /*!
-  Writes the HTTP request header \a header to the stream \a stream and returns
-  a reference to the stream.
+    Writes the HTTP request header \a header to the stream \a stream
+    and returns a reference to the stream.
 */
 QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 {
@@ -711,40 +738,42 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
  *
  ****************************************************/
 
-/*!
-  \class QHttpClient qhttp.h
+/*
+    \class QHttpClient qhttp.h
+    \brief The QHttpClient class provides the client side of HTTP.
+
     \ingroup io
-  \brief The QHttpClient class provides the client side of HTTP.
+    \module network
 
-  \module network
+    This class provides the functionality required to send HTTP
+    requests to an HTTP server and to receive replies from the server.
+    It provides full control over the request header and full access
+    to the reply header.
 
-  This class provides all means to send HTTP requests to a HTTP server and
-  receive the answer from the server. You have full control over the request
-  header and full access to the response header.
+    Note that the QHttp class provides a much easier API for fetching
+    single URIs (it provides the QUrlOperator interface for HTTP) and
+    is more suitable for simple requirements.
 
-  If you want to fetch only single HTML sites, please look at the QHttp class;
-  it provides an easier to use interface to this functionality (it provides the
-  QUrlOperator interface for HTTP).
-
-  Since the QHttpClient class gives you full control over the header, you also
-  have to set the up the header by yourself. The following example
-  demonstrates, how to request the main HTML side from the Trolltech homepage
-  (i.e. the URL http://www.trolltech.com/index.html):
-
-  \code
+    To make an HTTP request you must set up suitable HTTP headers. The
+    following example demonstrates, how to request the main HTML page
+    from the Trolltech home page (i.e. the URL
+    http://www.trolltech.com/index.html):
+    \code
     QHttpClient client;
     QHttpRequestHeader header( "GET", "/index.html" );
     client.request( "www.trolltech.com", 80, header );
-  \endcode
+    \endcode
+    \omit WE SHOULD SHOW A CONNECTION\endomit
 
-  This makes only the request. If a part of the response arrived, the signal
-  responseChunk() is emitted. After the last chunk was reported like this, the
-  signal finished() is emitted. This allows you to process the document as far
-  as possible, without waiting for the complete transmission to be finished.
+    This only makes the request. If a part of the reply arrived, the
+    signal replyChunk() is emitted. After the last chunk is reported,
+    the finished() signal is emitted. This allows you to process the
+    document as chunks are received, without having to wait for the
+    complete transmission to be finished.
 
-  If you require to receive the whole document before you can do anything, take
-  also a look at the signal response(). This signal is emitted when the whole
-  document was received.
+    If you need to receive the complete document before continuing,
+    you might prefer to connect to the reply() signal which is emitted
+    when the entire document is received.
 */
 
 /*!
@@ -815,8 +844,8 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 */
 
 /*!
-  Constructs a HTTP client. The parameters \a parent and \a name are passed to
-  the QObject constructor.
+    Constructs a HTTP client. The parameters \a parent and \a name are
+    passed on to the QObject constructor.
 */
 QHttpClient::QHttpClient( QObject* parent, const char* name )
     : QObject( parent, name ), m_state( QHttpClient::Idle ), m_idleTimer( 0 ),
@@ -836,7 +865,7 @@ QHttpClient::QHttpClient( QObject* parent, const char* name )
 }
 
 /*!
-  Destructor. If there is an open connection, it is closed.
+    Destructor. If there is an open connection, it is closed.
 */
 QHttpClient::~QHttpClient()
 {
@@ -844,9 +873,9 @@ QHttpClient::~QHttpClient()
 }
 
 /*!
-  Closes the connection. This will abort a running request.
+    Closes the connection. This will abort a running request.
 
-  Do not call request() in response to this signal. Instead wait for finished().
+    Do not call request() in response to this signal. Instead wait for finished().
 */
 void QHttpClient::close()
 {
@@ -895,14 +924,15 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 }
 
 /*!
-  Sends a request to the server \a hostname at port \a port. Use the \a header
-  as the HTTP request header. You have to take care that the \a header is set
-  up appropriate for your request.  \a data is a char array of size \a size;
-  it is used as the content data of the HTTP request.
+    Sends a request to the server \a hostname at port \a port. Use the
+    \a header as the HTTP request header. You are responsible for
+    setting up a \a header that is appropriate appropriate for your
+    request. \a data is a char array of size \a size; it is used as
+    the content data of the HTTP request.
 
-  Call this function after the client was created or after the finished()
-  signal was emitted. On other occasions the function returns FALSE to indicate
-  that it cannot issue an request currently.
+    Call this function after the client was created or after the
+    finished() signal is emitted. Returns TRUE if it is able to make
+    the request (i.e. no request is pending); otherwise returns FALSE.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size )
 {
@@ -931,15 +961,18 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
     return TRUE;
 }
 
-/*!  \overload
-  Sends a request to the server \a hostname at port \a port. Use the \a header
-  as the HTTP request header. You have to take care that the \a header is set
-  up appropriate for your request.  The content data is read from \a device
-  (the device must be opened for reading).
+/*!
+    \overload
 
-  Call this function after the client was created or after the finished()
-  signal was emitted.  On other occasions the function returns FALSE to
-  indicate that it can not issue an request currently.
+    Sends a request to the server \a hostname at port \a port. Use the
+    \a header as the HTTP request header. You are responsible for
+    setting up a \a header that is appropriate appropriate for your
+    request. The content data is read from \a device (the device must
+    be opened for reading).
+
+    Call this function after the client was created or after the
+    finished() signal is emitted. Returns TRUE if it is able to make
+    the request (i.e. no request is pending); otherwise returns FALSE.
 */
 bool QHttpClient::request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device )
 {
@@ -973,7 +1006,7 @@ bool QHttpClient::request( const QString& hostname, int port, const QHttpRequest
 }
 
 /*!
-  Some cleanup if the connection got closed.
+    Some cleanup if the connection got closed.
 */
 void QHttpClient::slotClosed()
 {
@@ -1198,28 +1231,27 @@ void QHttpClient::slotReadyRead()
 /*!
   \enum QHttpClient::State
 
-  This enum is used to specify the state the client is in. The
-  possible values are:
+    This enum is used to specify the state the client is in.
 
-  \value Closed The connection was just closed, but still one can not
-  make new requests using this client. Better wait for Idle.
+    \value Closed The connection was just closed, but is still not
+    ready to accept new requests. (Wait until the client is Idle.)
 
-  \value Connecting A request was issued and the client is looking up
-  IP addresses or connecting to the remote host.
+    \value Connecting A request was issued and the client is looking up
+    IP addresses or connecting to the remote host.
 
-  \value Sending  The client is sending its request to the server.
+    \value Sending  The client is sending its request to the server.
 
-  \value Reading The client has sent its request and is reading the
-  servers response.
+    \value Reading The client has sent its request and is reading the
+    server's response.
 
-  \value Alive The connection to the host is open. It is possible to
-  make new requests.
+    \value Alive The connection to the host is open. It is possible to
+    make new requests.
 
-  \value Idle There is no open connection. It is possible to make new
-  requests.
+    \value Idle There is no open connection. It is possible to make new
+    requests.
 */
 /*!
-  Returns the state of the HTTP client.
+    Returns the state of the HTTP client.
 */
 QHttpClient::State QHttpClient::state() const
 {
@@ -1252,17 +1284,18 @@ void QHttpClient::killIdleTimer()
 }
 
 /*!
-  Sets the device of the HTTP client to \a d.
+    Sets the device of the HTTP client to \a d.
 
-  If a device is set, then all data read by the QHttpClient - but not the HTTP
-  headers - are written to this device.
+    If a device is set, then all data read by the QHttpClient (but not
+    the HTTP headers) are written to this device.
 
-  The device must be opened for writing.
+    The device must be opened for writing.
 
-  Setting the device to 0 means that subsequently read data will be read into
-  memory. By default QHttpClient reads into memory.
+    Setting the device to 0 means that subsequently read data will be
+    read into memory. By default QHttpClient reads into memory.
 
-  Setting a device makes sense when downloading very big chunks of data.
+    Setting a device makes sense when downloading very big chunks of
+    data.
 */
 void QHttpClient::setDevice( QIODevice* d )
 {
@@ -1284,7 +1317,7 @@ void QHttpClient::setDevice( QIODevice* d )
 }
 
 /*!
-  Returns the device of the HTTP client.
+    Returns the device of the HTTP client.
 */
 QIODevice* QHttpClient::device() const
 {
@@ -1298,39 +1331,40 @@ QIODevice* QHttpClient::device() const
  *
  ****************************************************/
 /*!
-  \class QHttp qhttp.h
+    \class QHttp qhttp.h
+    \brief The QHttp class provides an implementation of the HTTP protocol.
+
     \ingroup io
-  \brief The QHttp class provides an implementation of the HTTP protocol.
+    \module network
 
-  \module network
+    This class is derived from QNetworkProtocol and can be used with
+    QUrlOperator. In practice this class is used through a
+    QUrlOperator rather than directly, for example:
+    \code
+    QUrlOperator op( "http://www.trolltech.com" );
+    op.get( "index.html" );
+    \endcode
 
-  This class is derived from QNetworkProtocol and can be
-  used with QUrlOperator. In practice this class is used through a
-  QUrlOperator rather than directly, for example:
-  \code
-  QUrlOperator op( "http://www.trolltech.com" );
-  op.get( "index.html" );
-  \endcode
+    Note: this code will only work if the QHttp class is registered;
+    to register the class, you must call qInitNetworkProtocols()
+    before using a QUrlOperator with HTTP.
 
-  Note: this code will only work if the QHttp class is registered; to
-  register the class, you must call qInitNetworkProtocols() before
-  using a QUrlOperator with HTTP.
+    QHttp only supports the operations operationGet() and
+    operationPut(), i.e. QUrlOperator::get() and QUrlOperator::put(),
+    if you use it with a QUrlOperator. More control and flexibility is
+    available from the QHttpClient class.
 
-  QHttp only supports the operations operationGet() and operationPut(), i.e.
-  QUrlOperator::get() and QUrlOperator::put(), if you use it with a
-  QUrlOperator.
+    If you really need to use QHttp directly, don't forget to set the
+    QUrlOperator on which it operates using setUrl().
 
-  If you really need to use QHttp directly, don't forget to set the
-  QUrlOperator on which it operates using setUrl().
-
-  \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
+    \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
 /*!
-  Constructs a QHttp object. Usually there is no need to use QHttp directly,
-  since it is more convenient to use it through a QUrlOperator. If you want to
-  use it directly, you must set the QUrlOperator on which it operates using
-  setUrl().
+    Constructs a QHttp object. Usually there is no need to use QHttp
+    directly, since it is more convenient to use it through a
+    QUrlOperator. If you want to use it directly, you must set the
+    QUrlOperator on which it operates using setUrl().
 */
 QHttp::QHttp()
 {
@@ -1352,7 +1386,7 @@ QHttp::QHttp()
 }
 
 /*!
-  Destroys the QHttp object.
+    Destroys the QHttp object.
 */
 QHttp::~QHttp()
 {
