@@ -480,8 +480,8 @@ MakefileGenerator::init()
             if(QMakeSourceFileInfo::included(moc))
                 srcmoc += moc;
             else if(moc.endsWith(Option::cpp_moc_ext))
-                warn_msg(WarnLogic, "File %s considered mocable but will not be linked into TARGET!",
-                         mocables[i].latin1());
+                warn_msg(WarnLogic, "File %s[%s] considered mocable but will not be linked into TARGET!",
+                         mocables[i].latin1(), moc.latin1());
             else
                 hdrmoc += moc;
         }
@@ -1247,9 +1247,6 @@ MakefileGenerator::createMocFileName(const QString &file)
         ret += Option::cpp_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_moc_ext;
     else
         ret += Option::h_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::h_moc_ext;
-
-    if(!ret.isNull())
-        ret = Option::fixPathToTargetOS(fileFixify(ret, QDir::currentPath(), Option::output_dir));
     return ret;
 }
 
@@ -1960,8 +1957,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
         file = ".";
     if(!quote.isNull())
         file = quote + file + quote;
-    debug_msg(3, "Fixed %s :: to :: %s (%d) [%s::%s]", orig_file.latin1(), file.latin1(), depth,
-              in_d.latin1(), out_d.latin1());
+    debug_msg(3, "Fixed %s :: to :: %s (%d) [%s::%s] [%s::%s]", orig_file.latin1(), file.latin1(), depth,
+              in_d.latin1(), out_d.latin1(), QDir::currentPath().latin1(), Option::output_dir.latin1());
     ((MakefileGenerator*)this)->fileFixed.insert(key, file);
     return file;
 }
@@ -2004,7 +2001,7 @@ MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
     return mocfile;
 }
 
-QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &file)
+QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLocalFileName &file)
 {
     QMakeLocalFileName ret;
     if(!project->isEmpty("SKIP_DEPENDS")) {
@@ -2013,7 +2010,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
         for(QStringList::Iterator it = nodeplist.begin();
             it != nodeplist.end(); ++it) {
             QRegExp regx((*it));
-            if(regx.indexIn(file.local()) != -1) {
+            if(regx.indexIn(dep.local()) != -1) {
                 found = true;
                 break;
             }
@@ -2022,7 +2019,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             return ret;
     }
 
-    ret = QMakeSourceFileInfo::findFileForDep(file);
+    ret = QMakeSourceFileInfo::findFileForDep(dep, file);
     if(!ret.isNull())
         return ret;
 
@@ -2031,16 +2028,38 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
     //reliable these will be, most likely when problems arise turn it off
     //and see if they go away..
     if(Option::mkfile::do_dep_heuristics) {
-        if(depHeuristics.contains(file.real()))
-            return depHeuristics[file.real()];
+        if(depHeuristics.contains(dep.real()))
+            return depHeuristics[dep.real()];
 
+        if(Option::output_dir != QDir::currentPath() 
+           && QDir::isRelativePath(dep.real())) { //is it from the shadow tree
+            QList<QMakeLocalFileName> depdirs = QMakeSourceFileInfo::dependencyPaths();
+            depdirs.prepend(QFileInfo(file.real()).absoluteDir().path());
+            QString pwd = QDir::currentPath();
+            if(pwd.at(pwd.length()-1) != '/')
+                pwd += '/';
+            for(int i = 0; i < depdirs.count(); i++) {
+                QString dir = depdirs.at(i).real();
+                if(!QDir::isRelativePath(dir) && dir.startsWith(pwd))
+                    dir = dir.mid(pwd.length());
+                if(QDir::isRelativePath(dir)) {
+                    if(!dir.endsWith(Option::dir_sep))
+                        dir += Option::dir_sep;
+                    QString shadow = fileFixify(dir + dep.local(), pwd, Option::output_dir);
+                    if(QFile::exists(shadow)) {
+                        ret = QMakeLocalFileName(shadow);
+                        goto found_dep_from_heuristic;
+                    }
+                }
+            }
+        }
         { //is it form an EXTRA_TARGET
             QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
             for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
                 QString targ = var((*it) + ".target");
                 if(targ.isEmpty())
                     targ = (*it);
-                if(targ.endsWith(file.real())) {
+                if(targ.endsWith(dep.real())) {
                     ret = QMakeLocalFileName(targ);
                     goto found_dep_from_heuristic;
                 }
@@ -2057,7 +2076,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                     QStringList &inputs = project->variables()[(*it2)];
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
-                        if(out == file.real() || out.endsWith("/" + file.real())) {
+                        if(out == dep.real() || out.endsWith("/" + dep.real())) {
                             ret = QMakeLocalFileName(out);
                             goto found_dep_from_heuristic;
                         }
@@ -2066,7 +2085,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             }
         }
         { //is it a file from a .ui?
-            QString inc_file = file.real().section(Option::dir_sep, -1);
+            QString inc_file = dep.real().section(Option::dir_sep, -1);
             int extn = inc_file.lastIndexOf('.');
             if(extn != -1 &&
                (inc_file.right(inc_file.length()-extn) == Option::cpp_ext.first() ||
@@ -2093,8 +2112,8 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             }
             if(project->isActiveConfig("lex_included")) { //is this the lex file?
                 QString rhs = Option::lex_mod + Option::cpp_ext.first();
-                if(file.real().endsWith(rhs)) {
-                    QString lhs = file.real().left(file.real().length() - rhs.length()) + Option::lex_ext;
+                if(dep.real().endsWith(rhs)) {
+                    QString lhs = dep.real().left(dep.real().length() - rhs.length()) + Option::lex_ext;
                     QStringList ll = project->variables()["LEXSOURCES"];
                     for(QStringList::Iterator it = ll.begin(); it != ll.end(); ++it) {
                         QString s = (*it), d;
@@ -2106,7 +2125,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                         if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
                             d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
                         if(s == lhs) {
-                            QString ret_name = d + file.real();
+                            QString ret_name = d + dep.real();
                             ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
                             ret = QMakeLocalFileName(ret_name);
                             goto found_dep_from_heuristic;
@@ -2116,8 +2135,8 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             }
             { //is it from a .y?
                 QString rhs = Option::yacc_mod + Option::h_ext.first();
-                if(file.real().endsWith(rhs)) {
-                    QString lhs = file.local().left(file.local().length() - rhs.length()) + Option::yacc_ext;
+                if(dep.real().endsWith(rhs)) {
+                    QString lhs = dep.local().left(dep.local().length() - rhs.length()) + Option::yacc_ext;
                     QStringList yl = project->variables()["YACCSOURCES"];
                     for(QStringList::Iterator it = yl.begin(); it != yl.end(); ++it) {
                         QString s = (*it), d;
@@ -2129,7 +2148,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                         if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
                             d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
                         if(s == lhs) {
-                            QString ret_name = d + file.local();
+                            QString ret_name = d + dep.local();
                             ret_name = fileFixify(ret_name, QDir::currentPath(), Option::output_dir);
                             ret = QMakeLocalFileName(ret_name);
                             goto found_dep_from_heuristic;
@@ -2138,13 +2157,13 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                 }
             }
             if(mocAware() &&                    //is it a moc file?
-               (file.local().endsWith(Option::cpp_ext.first()) || file.local().endsWith(Option::cpp_moc_ext))
-               || ((Option::cpp_ext.first() != Option::h_moc_ext) && file.local().endsWith(Option::h_moc_ext))) {
+               (dep.local().endsWith(Option::cpp_ext.first()) || dep.local().endsWith(Option::cpp_moc_ext))
+               || ((Option::cpp_ext.first() != Option::h_moc_ext) && dep.local().endsWith(Option::h_moc_ext))) {
                 QStringList &l = project->variables()["MOCABLES"];
                 for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
                     const QString moc = createMocFileName((*it));
                     QString fixed_moc = Option::fixPathToTargetOS(moc);
-                    if(fixed_moc.section(Option::dir_sep, -(file.local().count('/')+1)) == file.local()) {
+                    if(fixed_moc.section(Option::dir_sep, -(dep.local().count('/')+1)) == dep.local()) {
                         QString ret_name = fileFixify(moc, QDir::currentPath(), Option::output_dir);
                         ret = QMakeLocalFileName(ret_name);
                         goto found_dep_from_heuristic;
@@ -2153,7 +2172,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
             }
         }
     found_dep_from_heuristic:
-        depHeuristics.insert(file.real(), ret);
+        depHeuristics.insert(dep.real(), ret);
     }
     return ret;
 }

@@ -62,7 +62,7 @@ protected:
 
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &);
-    QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
+    QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
     QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
     QMakeProject *project;
 

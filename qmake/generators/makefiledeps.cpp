@@ -290,7 +290,8 @@ QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName 
     return f;
 }
 
-QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &/*file*/)
+QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &/*dep*/, 
+                                                       const QMakeLocalFileName &/*file*/)
 {
     return QMakeLocalFileName();
 }
@@ -498,8 +499,9 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     }
                 }
                 if(!exists) { //heuristic lookup
-                    lfn = findFileForDep(QMakeLocalFileName(inc));
-                    exists = !lfn.isNull();
+                    lfn = findFileForDep(QMakeLocalFileName(inc), file->file);
+                    if((exists = !lfn.isNull()))
+                        lfn = fixPathForFile(lfn);
                 }
             } else {
                 exists = QFile::exists(lfn.real());

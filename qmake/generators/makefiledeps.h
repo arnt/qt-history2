@@ -50,13 +50,16 @@ private:
 
 protected:
     virtual QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &);
-    virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
+    virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &, const QMakeLocalFileName &);
     virtual QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
 public:
     QMakeSourceFileInfo();
     virtual ~QMakeSourceFileInfo();
+
+    QList<QMakeLocalFileName> dependencyPaths() const { return depdirs; }
     void setDependencyPaths(const QList<QMakeLocalFileName> &);
+
     enum SourceFileSeek { SEEK_DEPS=0x01, SEEK_MOCS=0x02, ADD_MOC=0x04 };
     void addSourceFiles(const QStringList &, uchar, bool uifile=false);
 
