@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#7 $
 **
 ** Implementation of QPointArray class
 **
@@ -22,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#7 $";
 #endif
 
 
@@ -30,12 +30,16 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#6 $";
 // QPointArray class
 //
 
-QPointArray::QPointArray( const QRect &r )
+QPointArray::QPointArray( const QRect &r, bool closed )
 {
     setPoints( 4, r.left(),  r.top(),
 	          r.right(), r.top(),
 	       	  r.right(), r.bottom(),
 	          r.left(),  r.bottom() );
+    if ( closed ) {
+	resize( 5 );
+	setPoint( 4, r.left(), r.top() );
+    }
 }
 
 QPointArray::QPointArray( int nPoints, const QCOOT *points )
