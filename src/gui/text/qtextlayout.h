@@ -171,12 +171,9 @@ public:
     inline qreal cursorToX(int cursorPos, Edge edge = Leading) const { return cursorToX(&cursorPos, edge); }
     int xToCursor(qreal x, CursorPosition = CursorBetweenCharacters) const;
 
-    // ###################
-    // make line width infinite by default
-//     void setLineWidth(qreal width);
-//     void setNumColumns(int columns);
-    void layout(qreal width);
-    void layoutFixedColumnWidth(int numColumns);
+    void setLineWidth(qreal width);
+    void setNumColumns(int columns);
+
     void setPosition(const QPointF &pos);
 
     int textStart() const;

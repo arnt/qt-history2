@@ -247,7 +247,7 @@ struct QScriptLine
     qreal width;
     qreal textWidth;
     int from;
-    uint length : 30;
+    int length : 30;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
     qreal height() const { return ascent + descent + 1.; }
@@ -353,9 +353,10 @@ public:
         mutable QScriptItemArray items;
         int allocated;
         void **memory;
-        int num_glyphs : 31;
-        bool hasBidi;
+        int num_glyphs;
         mutable int used;
+        uint hasBidi : 1;
+        uint inLayout : 1;
         bool haveCharAttributes;
         QString string;
     };

@@ -3510,10 +3510,9 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     option.setTextDirection(d->state->layoutDirection);
     layout.setTextOption(option);
 
-    engine->itemize();
-
+    layout.beginLayout();
     QTextLine line = layout.createLine();
-    line.layout(0x01000000);
+    layout.endLayout();
     const QScriptLine &sl = engine->lines[0];
     line.draw(this, QPointF(p.x(), p.y() - sl.ascent));
 }
@@ -4765,7 +4764,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
             if (!l.isValid())
                 break;
 
-            l.layout(lineWidth);
+            l.setLineWidth(lineWidth);
             height += leading;
             l.setPosition(QPointF(0., height));
             height += l.ascent() + l.descent();

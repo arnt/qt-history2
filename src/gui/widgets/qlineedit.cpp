@@ -2167,9 +2167,8 @@ void QLineEditPrivate::updateTextLayout()
 
     textLayout.beginLayout();
     QTextLine l = textLayout.createLine();
-    l.layout(0x100000);
-    ascent = qRound(l.ascent());
     textLayout.endLayout();
+    ascent = qRound(l.ascent());
 }
 
 int QLineEditPrivate::xToPosInternal(int x, QTextLine::CursorPosition betweenOrOn) const

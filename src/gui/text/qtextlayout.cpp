@@ -529,8 +529,15 @@ bool QTextLayout::cacheEnabled() const
 */
 void QTextLayout::beginLayout()
 {
+#ifndef QT_NO_DEBUG
+    if (d->layoutData && d->layoutData->inLayout) {
+        qWarning("QTextLayout::beginLayout() called while doing layout");
+        return;
+    }
+#endif
     d->invalidate();
     d->itemize();
+    d->layoutData->inLayout = true;
 }
 
 /*!
@@ -538,6 +545,17 @@ void QTextLayout::beginLayout()
 */
 void QTextLayout::endLayout()
 {
+#ifndef QT_NO_DEBUG
+    if (!d->layoutData || !d->layoutData->inLayout) {
+        qWarning("QTextLayout::endLayout() called without beginLayout()");
+        return;
+    }
+#endif
+    int l = d->lines.size();
+    if (l && d->lines.at(l-1).length < 0) {
+        QTextLine(l-1, d).setNumColumns(INT_MAX);
+    }
+    d->layoutData->inLayout = false;
     if (!d->cacheGlyphs)
         d->freeMemory();
 }
@@ -643,14 +661,23 @@ bool QTextLayout::isValidCursorPosition(int pos) const
 */
 QTextLine QTextLayout::createLine()
 {
+#ifndef QT_NO_DEBUG
+    if (!d->layoutData || !d->layoutData->inLayout) {
+        qWarning("QTextLayout::createLine() called without layouting");
+        return QTextLine();
+    }
+#endif
     int l = d->lines.size();
+    if (l && d->lines.at(l-1).length < 0) {
+        QTextLine(l-1, d).setNumColumns(INT_MAX);
+    }
     int from = l > 0 ? d->lines.at(l-1).from + d->lines.at(l-1).length : 0;
     if (l && from >= d->layoutData->string.length())
         return QTextLine();
 
     QScriptLine line;
     line.from = from;
-    line.length = 0;
+    line.length = -1;
     line.justified = false;
     line.gridfitted = false;
 
@@ -1011,7 +1038,7 @@ qreal QTextLine::naturalTextWidth() const
     it's starting position with as many characters as will fit into
     the line.
 */
-void QTextLine::layout(qreal width)
+void QTextLine::setLineWidth(qreal width)
 {
     QScriptLine &line = eng->lines[i];
     line.width = width;
@@ -1024,7 +1051,7 @@ void QTextLine::layout(qreal width)
     Lays out the line. The line is filled from it's starting position
     with as many characters as are specified by \a numColumns.
 */
-void QTextLine::layoutFixedColumnWidth(int numColumns)
+void QTextLine::setNumColumns(int numColumns)
 {
     QScriptLine &line = eng->lines[i];
     line.width = qreal(INT_MAX/256);

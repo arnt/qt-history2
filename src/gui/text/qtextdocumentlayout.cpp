@@ -1315,9 +1315,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
 
             if (d->fixedColumnWidth != -1)
-                line.layoutFixedColumnWidth(d->fixedColumnWidth);
+                line.setNumColumns(d->fixedColumnWidth);
             else
-                line.layout(right - left);
+                line.setLineWidth(right - left);
 
 //        qDebug() << "layoutBlock; layouting line with width" << right - left << "->textWidth" << line.textWidth();
             floatMargins(layoutStruct->y, layoutStruct, &left, &right);
@@ -1327,13 +1327,13 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
             if (d->fixedColumnWidth == -1 && line.naturalTextWidth() > right-left) {
                 // float has been added in the meantime, redo
                 layoutStruct->pendingFloats.clear();
-                line.layout(right-left);
+                line.setLineWidth(right-left);
                 if (line.naturalTextWidth() > right-left) {
                     layoutStruct->pendingFloats.clear();
                     // lines min width more than what we have
                     layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.naturalTextWidth()));
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
-                    line.layout(qMax<qreal>(line.naturalTextWidth(), right-left));
+                    line.setLineWidth(qMax<qreal>(line.naturalTextWidth(), right-left));
                 }
             }
 

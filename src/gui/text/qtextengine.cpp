@@ -1310,8 +1310,9 @@ QTextEngine::LayoutData::LayoutData()
     memory = 0;
     allocated = 0;
     num_glyphs = 0;
-    hasBidi = false;
     used = 0;
+    hasBidi = false;
+    inLayout = false;
     haveCharAttributes = false;
 }
 
