@@ -228,7 +228,7 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 {
     QTime started = QTime::currentTime();
     QTime now = started;
-    bool flushed = false;
+    bool flushed = FALSE;
     do {
 	if ( XCheckTypedWindowEvent(dpy,win,type,event) )
 	    return TRUE;
@@ -240,7 +240,7 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 	//XSync( dpy, FALSE );			// toss a ball while we wait
 	if(!flushed) {
 	    XFlush( dpy );
-	    flushed = true;
+	    flushed = TRUE;
 	}
 	// sleep a bit, so we don't use up CPU cycles all the time.
 	struct timeval _usleep_tv;
@@ -648,7 +648,7 @@ bool QClipboard::event( QEvent *e )
 		    }
 		}
 
-		XSendEvent( dpy, req->requestor, False, 0, &evt );
+		XSendEvent( dpy, req->requestor, FALSE, 0, &evt );
 		if ( !nmulti )
 		    break;
 	    }
