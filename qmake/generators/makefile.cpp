@@ -495,18 +495,40 @@ MakefileGenerator::initOutPaths()
 		path = Option::fixPathToTargetOS(path);
 
 		QDir d;
-		if ( !QDir::isRelativePath( path ) )
-		    d.cd( path.left( 2 ) );
-		if(path.left(1) == Option::dir_sep)
+		if(path.left(1) == Option::dir_sep) {
 		    d.cd(Option::dir_sep);
-
-		QStringList subs = QStringList::split(Option::dir_sep, path);
-		for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
-		    if(!d.cd(*subit)) {
-			d.mkdir((*subit));
-			d.cd((*subit));
+		    path = path.right( path.length() - 1 );
+		}
+#ifdef Q_WS_WIN
+		bool driveExists = TRUE;
+		if ( !QDir::isRelativePath( path ) ) {
+		    if ( QFile::exists( path.left( 3 ) ) ) {
+			d.cd( path.left( 3 ) );
+			path = path.right( path.length() - 3 );
+		    } else {
+			warn_msg(WarnLogic, "%s: Cannot access drive '%s' (%s)", dirs[x].latin1(), 
+			    path.left( 3 ).latin1(), path.latin1() );
+			driveExists = FALSE;
 		    }
 		}
+		if ( driveExists ) {
+#endif
+		    QStringList subs = QStringList::split(Option::dir_sep, path);
+		    for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
+			if(!d.cd(*subit)) {
+			    d.mkdir((*subit));
+			    if ( d.exists( (*subit) ) )
+				d.cd((*subit));
+			    else {
+				warn_msg(WarnLogic, "%s: Cannot access directory '%s' (%s)", dirs[x].latin1(), 
+				    (*subit).latin1(), path.latin1() );
+				break;
+			    }
+			}
+		    }
+#ifdef Q_WS_WIN
+		}
+#endif
 	    }
 	}
 	QDir::current().cd( currentDir );
