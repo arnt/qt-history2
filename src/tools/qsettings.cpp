@@ -960,7 +960,7 @@ bool QSettings::sync()
 	// determine filename
 	QSettingsHeading hd(*it);
 	QSettingsHeading::Iterator hdit = hd.begin();
-	QFile file;
+	QString filename;
 
 	QStringList::Iterator pit = d->searchPaths.begin();
 	if ( !d->globalScope )
@@ -972,14 +972,14 @@ bool QSettings::sync()
 
 	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
 		(! fi.exists() && di.isDir() && di.isWritable())) {
-		file.setName(fi.filePath());
+		filename = fi.filePath();
 		break;
 	    }
 	}
 
 	++it;
 
-	if ( file.name().isEmpty() ) {
+	if ( filename.isEmpty() ) {
 
 #ifdef QT_CHECK_STATE
 	    qWarning("QSettings::sync: filename is null/empty");
@@ -989,8 +989,9 @@ bool QSettings::sync()
 	    continue;
 	}
 
-	HANDLE lockfd = openlock( file.name(), Q_LOCKWRITE );
+	HANDLE lockfd = openlock( filename, Q_LOCKWRITE );
 
+	QFile file( filename + ".tmp" );
 	if (! file.open(IO_WriteOnly)) {
 
 #ifdef QT_CHECK_STATE
@@ -1042,6 +1043,20 @@ bool QSettings::sync()
 	}
 
 	file.close();
+
+	if ( success &&
+	     ! QFileInfo( file ).dir( TRUE ).rename( file.name(), filename, TRUE ) ) {
+
+#ifdef QT_CHECK_STATE
+	    qWarning( "QSettings::sync: error writing file '%s'",
+		      QFile::encodeName( filename ).data() );
+#endif // QT_CHECK_STATE
+
+	    success = FALSE;
+	}
+
+	// remove temporary file
+	file.remove();
 
 	closelock( lockfd );
     }
