@@ -304,24 +304,30 @@ protected:
 
 
 template <typename T>
-void qVariantDeleteHelper(void *t)
+void qVariantDeleteHelper(T *t)
 {
-    delete static_cast<T *>(t);
+    delete t;
 }
 
 template <typename T>
-void *qVariantCopyHelper(const void *t)
+void *qVariantCopyHelper(const T *t)
 {
     if (!t)
         return 0;
-    return new T(*static_cast<const T *>(t));
+    return new T(*static_cast<const T*>(t));
 }
 
 template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
 {
-    QCoreVariant::UserData data((void*)(&t), typeName,
-                                qVariantDeleteHelper<T>, qVariantCopyHelper<T>);
+    typedef void*(*CopyPtr)(const T*);
+    CopyPtr cptr = qVariantCopyHelper<T>;
+    typedef void(*DeletePtr)(T*);
+    DeletePtr dptr = qVariantDeleteHelper<T>;
+
+    QCoreVariant::UserData data((T*)&t, typeName,
+        (QCoreVariant::UserData::Destructor)dptr,
+        (QCoreVariant::UserData::CopyConstructor)cptr);
     v = QCoreVariant(data);
 }
 
