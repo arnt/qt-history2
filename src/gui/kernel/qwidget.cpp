@@ -6231,7 +6231,7 @@ QString QWidget::whatsThis() const
   \enum Qt::ShortcutContext
   \value OnFocusWidget Shortcut triggers only when widget has focus.
   \value OnActiveWindow Shortcut triggers when the widget is a logical
-  sub widget of the active top-level window.
+  subwidget of the active top-level window.
   \value OnApplication Shortcut triggers when application is active.
 */
 
