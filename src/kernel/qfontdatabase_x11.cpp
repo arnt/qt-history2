@@ -954,9 +954,11 @@ void QFontDatabase::createDatabase()
 //     */
      loadXlfds( 0, -1 ); // full load
 
+#ifndef QT_NO_XFTFREETYPE
     for ( int i = 0; i < db->count; i++ ) {
 	checkXftCoverage( db->families[i] );
     }
+#endif
 
 #ifdef QFONTDATABASE_DEBUG
     qDebug("QFontDatabase: xft coverage check: %d ms",  t.elapsed() );
