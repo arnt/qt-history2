@@ -887,8 +887,6 @@ void QFontDatabase::createDatabase()
 	    QString foundryName = tokens[QFontPrivate::Foundry];
 	    QtFontFoundry *foundry = db->foundryDict.find( foundryName );
 	    if ( !foundry ) {
-		// qDebug( "New font foundry [%s]", foundryName.latin1() );
-
 		foundry = new QtFontFoundry( foundryName );
 		Q_CHECK_PTR(foundry);
 		db->addFoundry( foundry );
@@ -898,9 +896,6 @@ void QFontDatabase::createDatabase()
 	    QString familyName = tokens[QFontPrivate::Family];
 	    QtFontFamily *family = foundry->familyDict.find( familyName );
 	    if ( !family ) {
-		// qDebug( "New font family [%s][%s]", familyName.latin1(),
-		// foundryName.latin1());
-
 		family = new QtFontFamily( foundry, familyName );
 		Q_CHECK_PTR(family);
 		foundry->addFamily( family );
@@ -912,9 +907,6 @@ void QFontDatabase::createDatabase()
 	    QString styleName = getStyleName( tokens, &italic, &lesserItalic );
 	    QtFontStyle *style = family->styleDict.find( styleName );
 	    if ( !style ) {
-		// qDebug( "New style[%s] for [%s][%s]", styleName.latin1(),
-		// familyName.latin1(), foundryName.latin1() );
-
 		style = new QtFontStyle( family, styleName );
 		Q_CHECK_PTR( style );
 		style->ital         = italic;
@@ -925,22 +917,16 @@ void QFontDatabase::createDatabase()
 	    }
 
 	    if ( QFontPrivate::isScalable(tokens) ) {
-		if ( QFontPrivate::isSmoothlyScalable( tokens ) ) {
+		if ( QFontPrivate::isSmoothlyScalable( tokens ) )
 		    style->setSmoothlyScalable();
-		    // qDebug( "Smooth [%s][%s][%s]", styleName.latin1(),
-		    // familyName.latin1(), tokens[QFontPrivate::Family] );
-		} else {
+		else
 		    style->setBitmapScalable();
-		    // qDebug( "Scalable [%s][%s][%s]", styleName.latin1(),
-		    // familyName.latin1(), tokens[QFontPrivate::Family] );
-		}
 	    } else {
 		QCString ps = tokens[QFontPrivate::PointSize];
 		int pSize = ps.toInt()/10;
 
-		if ( pSize != 0 ) {
+		if ( pSize != 0 )
 		    style->addPointSize( pSize );
-		}
 	    }
 
 	    if (QFontPrivate::isFixedPitch(tokens))
