@@ -55,15 +55,15 @@
 
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
-	frame(TRUE), readonly( FALSE ), 
+	frame(TRUE), readonly( FALSE ),
 	cursorOn( FALSE ), inDoubleClick( FALSE ),
-	mousePressed( FALSE ), 
+	mousePressed( FALSE ),
 	dnd_primed( FALSE ), ed( FALSE ),
 	mode(QLineEdit::Normal),
 	maxLen( 32767), offset( 0 ),
 	selectionStart( 0 ),
 	validator( 0 ),
-	pm(0), 
+	pm(0),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dndTimer( l, "DnD Timer" )
 #if 0
@@ -84,7 +84,7 @@ struct QLineEditPrivate {
 	delete parag;
 	delete cursor;
 	delete pm;
-    }    
+    }
     void getTextObjects( QTextParag **p, QTextCursor **c )
     {
 	if ( mode == QLineEdit::Password ) {
@@ -105,7 +105,7 @@ struct QLineEditPrivate {
 	    cursor->setIndex( (*c)->index() );
 	    delete *p;
 	    delete *c;
-	} 
+	}
     }
     QString displayText() const
     {
@@ -139,12 +139,12 @@ struct QLineEditPrivate {
     const QValidator * validator;
     QPixmap *pm;
     QTimer blinkTimer;
-    
+
     QTextParag *parag;
     QTextCursor *cursor;
     QPoint dnd_startpos;
     QTimer dndTimer;
-#if 0    
+#if 0
     QTimer dragTimer;
     QRect cursorRepaintRect;
     bool offsetDirty;
@@ -688,15 +688,15 @@ void QLineEdit::paintEvent( QPaintEvent * )
     yoff += fw;
     p.translate( xoff, yoff );
     if ( d->mode != NoEcho )
-	parag->paint( p, colorGroup(), d->cursorOn ? cursor : 0, TRUE );
+	parag->paint( p, colorGroup(), d->cursorOn && !d->readonly ? cursor : 0, TRUE );
     if ( frame() ) {
 	p.translate( -xoff, -yoff );
 	style().drawPanel( &p, 0, 0, width(), height(), colorGroup(),
 			   TRUE, style().defaultFrameWidth() );
     }
     p.end();
-    
-    bitBlt( this, 0, 0, d->pm );                                                  
+
+    bitBlt( this, 0, 0, d->pm );
     if ( d->mode == Password ) {
 	delete parag;
 	delete cursor;
@@ -915,7 +915,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	copy();
 	QApplication::clipboard()->setSelectionMode(FALSE);
     }
-    
+
     if ( !d->readonly && e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
 	    QApplication::clipboard()->setSelectionMode(TRUE);
@@ -1048,7 +1048,7 @@ void QLineEdit::home( bool mark )
     d->cursor->gotoHome();
     if( mark )
 	updateSelection();
-    else 
+    else
 	deselect();
     repaint();
 }
@@ -1065,7 +1065,7 @@ void QLineEdit::end( bool mark )
     d->cursor->gotoEnd();
     if( mark )
 	updateSelection();
-    else 
+    else
 	deselect();
     repaint();
 }
@@ -1284,7 +1284,7 @@ QSize QLineEdit::sizeHint() const
     int w = fm.width( 'x' ) * 17; // "some"
     if ( frame() ) {
 	h += 8;
-	if ( style() == WindowsStyle && h < 22 ) 
+	if ( style() == WindowsStyle && h < 22 )
 	    h = 22;
 	return QSize( w + 8, h ).expandedTo( QApplication::globalStrut() );
     } else {
@@ -1456,7 +1456,7 @@ void QLineEdit::insert( const QString &newText )
 	return;
 
     d->ed = TRUE;
-    
+
     for ( int i=0; i<(int)t.length(); i++ )
 	if ( t[i] < ' ' )  // unprintable/linefeed becomes space
 	    t[i] = ' ';
@@ -1482,7 +1482,7 @@ void QLineEdit::insert( const QString &newText )
 
 
 /*!  Repaints all characters from \a from to \a to.  If cursorPos is
-  between from and to, ensures that cursorPos is visible.  
+  between from and to, ensures that cursorPos is visible.
 
   Obsolete and provided for backwards compatibilty only.
 */
@@ -1602,7 +1602,7 @@ void QLineEdit::cursorWordForward( bool mark )
     d->cursor->gotoWordRight();
     if( mark )
 	updateSelection();
-    else 
+    else
 	deselect();
     repaint( FALSE );
 }
@@ -1618,7 +1618,7 @@ void QLineEdit::cursorWordBackward( bool mark )
     d->cursor->gotoWordLeft();
     if( mark )
 	updateSelection();
-    else 
+    else
 	deselect();
     repaint( FALSE );
 }
@@ -1640,7 +1640,8 @@ void QLineEdit::updateOffset()
     int textWidth = d->parag->rect().width();
     int w = width();
     int fw = 0;
-    if ( frame() ) fw = style().defaultFrameWidth();
+    if ( frame() ) 
+	fw = style().defaultFrameWidth();
     w -= 2*fw + 4;
     int cursorPos = d->cursor->x();
 
