@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.3 1997/08/06 15:03:12 hanord Exp $
+** $Id: moc.doc,v 2.4 1997/08/19 19:14:45 agulbra Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -249,6 +249,22 @@ fix this problem.  Here is an illegal example:
 \endcode
 <p>
 A #define without arguments works.
+
+<h3>Nested classes are not supported</h3>
+
+Here's an example:
+
+\code
+    class A {
+	Q_OBJECT
+    public:
+        class B {
+	[....]
+        };
+    };
+\endcode
+
+This bug will be fixed in a future release of Qt.
 
 <h3>Constructors can not be used in signals or slots sections</h3>
 

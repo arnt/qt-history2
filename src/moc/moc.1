@@ -1,6 +1,6 @@
 .TH moc 1 "4 July 1996" "Troll Tech AS" \" -*- nroff -*-
 .\"
-.\" $Id: //depot/qt/main/src/moc/moc.1#11 $
+.\" $Id: //depot/qt/main/src/moc/moc.1#12 $
 .\"
 .\" Copyright 1992-1995 Troll Tech AS.  All rights reserved.
 .\" 
@@ -337,7 +337,7 @@ function which is overloaded?
 - All the functions are upgraded.
 .IP
 - That is not legal C++.
-.\" Good idea, but look in the SEE ALSO section... "
+.\" Good idea, but look in the SEE ALSO section...
 .SS "Type macros can not be used for signal and slot arguments"
 This is regrettable, but the
 .B moc
@@ -369,6 +369,26 @@ signals:
 .PP
 A #define without arguments works.
 .in -5
+.SS "Nested classes are not supported"
+Here's an example:
+.PP
+.in +5
+    class A {
+.br
+        Q_OBJECT
+.br
+    public:
+.br
+        class B {
+.br
+        [....]
+.br
+        };
+.br
+    };
+.in -5
+.PP
+This bug will be fixed in a future release of Qt.
 .SS "Constructors can not be used in signals or slots sections"
 It is a mystery to me why anyone would put a constructor on either the
 .B signals
