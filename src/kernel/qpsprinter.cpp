@@ -4235,8 +4235,8 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 	  glyph += 2;
       } else {                    /* The tt spec. does not clearly indicate */
                                 /* whether these values are signed or not. */
-	  arg1 = *(glyph++);
-	  arg2 = *(glyph++);
+	  arg1 = (char)*(glyph++);
+	  arg2 = (char)*(glyph++);
       }
 
       if(flags & WE_HAVE_A_SCALE) {
@@ -4264,8 +4264,8 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 
       /* Debugging */
 #ifdef DEBUG_TRUETYPE
-      fprintf(stderr,"% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
-	      (int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
+      s << "% flags=" << flags << ", arg1=" << arg1 << ", arg2=" << arg2 << ", xscale=" << xscale << ", yscale=" << yscale <<
+	  ", scale01=" << scale01 << ", scale10=" << scale10 << endl; 
 #endif
 
 
