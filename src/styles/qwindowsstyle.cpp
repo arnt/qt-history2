@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#41 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#42 $
 **
 ** Implementation of Windows-like style class
 **
@@ -886,6 +886,8 @@ int QWindowsStyle::sliderLength() const
     return 11;
 }
 
+enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
+
 /*!\reimp
  */
 void QWindowsStyle::drawSlider( QPainter *p,
@@ -928,8 +930,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
         return;
     }
 
-
-    enum  { SlUp, SlDown, SlLeft, SlRight } dir;
+    SliderDir dir;
 
     if ( orient == Horizontal )
         if ( tickAbove )
