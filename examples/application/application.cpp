@@ -223,8 +223,10 @@ void ApplicationWindow::print()
     if ( printer->setup(this) ) {		// printer dialog
 	statusBar()->message( "Printing..." );
 	QPainter p;
-	if( !p.begin( printer ) )               // paint on printer
+	if( !p.begin( printer ) ) {               // paint on printer
+	    statusBar()->message( "Printing aborted", 2000 );
 	    return;
+	}
 
 	p.setFont( e->font() );
 	int yPos	= 0;			// y-position for each line

@@ -239,6 +239,8 @@ void HelpWindow::print()
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
+	if( !p.isActive() ) // starting printing failed
+	    return;
 	QPaintDeviceMetrics metrics(p.device());
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
