@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#177 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#178 $
 #
 # this is a massive hack, written very quickly
 #
@@ -425,7 +425,13 @@ sub processdocs {
 	    {
 	    $classes{$1.".html"} .= $class;
 	    "\n";
-	}
+	    }
+	/egsx;
+	$doc =~ s/\s*\\extension\s+([^\\\s]*)/
+	    {
+	     $extension{$url} = $1;
+	    "\n";
+	    }
 	/egsx;
 	$capt{$url} = $1 
 	    if ($doc =~ s/\s*\\capt\s+(.*?)
@@ -1568,7 +1574,7 @@ sub printclass {
 
     $file = $url;
     $file =~ s/#.*//;
-    open(O, "> $outputdir/$file") 
+    open( O, "> $outputdir/$file") 
 		|| die "can't open $outputdir/$file for writing,";
 
     $documented{$url}++;
@@ -1610,6 +1616,12 @@ sub printclass {
     my ($i, $family);
     if (defined($brief{$url})) {
 	print O "<p>\n", $brief{$url}, "\n";
+	if ( defined( $extension{$url} ) ) {
+#	    print O "Part of the <a href=\"",
+#	    $extension{$url} . "\">" , $extension{$url},
+#	    "</a> extension.\n";
+	    print O "Part of the <b>", $extension{$url}, "</b> extension.\n";
+	}
 	print O "<a href=\"#details\">More...</a>\n"
 	    if ($doc{$url} ne "");
     }
@@ -1845,7 +1857,15 @@ sub printclass {
     }
 
     if ($brief{$url} =~ /\S/s) {
-	print O "<hr><h2><a name=\"details\"></a>Detailed Description</h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+	print O "<hr><h2><a name=\"details\"></a>Detailed Description</h2>\n";
+	if ( defined( $extension{$url} ) ) {
+#	    print O "This class is part of the <a href=\"",
+#	    $extension{$url} . "\">" , $extension{$url},
+#	    "</a> extension.\n";
+	    print O "This class is part of the <b>", $extension{$url};
+	    print O "</b> extension.\nIt is not in the main library.\n<p>\n";
+	}
+	print O $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
     } else {
 	print O "<hr><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
     }
@@ -1904,6 +1924,7 @@ sub printclass {
     }
 
     print O $tail;
+
     close(O);
 }
 
@@ -1936,8 +1957,12 @@ sub classlist {
     $result = "<ul>\n";
     foreach $url ( sort keys %type ) {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
+	    $ex = "";
+	    if ( defined( $extension{ $url } ) ) {
+		$ex = " <b>($extension{$url})</b> ";
+	    }
 	    $result = join( "", $result, "<li><a href=\"", $url, "\">",
-			   $name{$url}, "</a>\n" );
+			   $name{$url}, "</a>", $ex, "\n" );
 	}
     }
     $result .= "</ul>";
@@ -1951,9 +1976,13 @@ sub annotatedclasslist {
     $result = $pre;
     foreach $url ( sort keys %type ) {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
+	    $ex = "";
+	    if ( defined( $extension{ $url } ) ) {
+		$ex = " (<b>$extension{$url}</b> extension) ";
+	    }
 	    $result = join( "", $result,  "$preline<strong><a href=\"",
 			   $url, "\">", $name{$url}, "</a></strong>$sep",
-			   $capt{$url}, "$postline" )
+			   $capt{$url}, $ex, "$postline" )
 		if ( $capt{$url} =~ /\S/ );
 	}
     }
