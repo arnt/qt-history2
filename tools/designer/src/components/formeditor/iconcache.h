@@ -21,8 +21,10 @@ class ResourceCache
 {
 public:
     Item keyToItem(const QString &path, const QString &resourcePath = QString());
-    QString itemToFilePath(const Item &item);
-    QString itemToQrcPath(const Item &item);
+    QString itemToFilePath(const Item &item) const;
+    QString itemToQrcPath(const Item &item) const;
+
+    QList<Item> itemList() const;
     
 private:    
     typedef QPair<QString, QString> Key;
@@ -68,7 +70,7 @@ Item ResourceCache<Item>::keyToItem(const QString &filePath, const QString &qrcP
 }
 
 template <typename Item>
-QString ResourceCache<Item>::itemToFilePath(const Item &item)
+QString ResourceCache<Item>::itemToFilePath(const Item &item) const
 {
     typename SerialToKeyMap::const_iterator it = m_serial_to_key.find(item.serialNumber());
     if (it != m_serial_to_key.end())
@@ -77,12 +79,18 @@ QString ResourceCache<Item>::itemToFilePath(const Item &item)
 }
 
 template <typename Item>
-QString ResourceCache<Item>::itemToQrcPath(const Item &item)
+QString ResourceCache<Item>::itemToQrcPath(const Item &item) const
 {
     typename SerialToKeyMap::const_iterator it = m_serial_to_key.find(item.serialNumber());
     if (it != m_serial_to_key.end())
         return (*it).second;
     return QString();
+}
+
+template <typename Item>
+QList<Item> ResourceCache<Item>::itemList() const
+{
+    return m_key_to_item.values();
 }
 
 class QT_FORMEDITOR_EXPORT IconCache : public AbstractIconCache
@@ -93,17 +101,22 @@ public:
         : AbstractIconCache(parent) {}
     virtual QIcon nameToIcon(const QString &path, const QString &resourcePath = QString())
         { return m_icon_cache.keyToItem(path, resourcePath); }
-    virtual QString iconToFilePath(const QIcon &pm)
+    virtual QString iconToFilePath(const QIcon &pm) const
         { return m_icon_cache.itemToFilePath(pm); }
-    virtual QString iconToQrcPath(const QIcon &pm)
+    virtual QString iconToQrcPath(const QIcon &pm) const
         { return m_icon_cache.itemToQrcPath(pm); }
     virtual QPixmap nameToPixmap(const QString &path, const QString &resourcePath = QString())
         { return m_pixmap_cache.keyToItem(path, resourcePath); }
-    virtual QString pixmapToFilePath(const QPixmap &pm)
+    virtual QString pixmapToFilePath(const QPixmap &pm) const
         { return m_pixmap_cache.itemToFilePath(pm); }
-    virtual QString pixmapToQrcPath(const QPixmap &pm)
+    virtual QString pixmapToQrcPath(const QPixmap &pm) const
         { return m_pixmap_cache.itemToQrcPath(pm); }
-    
+
+    QList<QPixmap> pixmapList() const
+        { return m_pixmap_cache.itemList(); }
+    QList<QIcon> iconList() const
+        { return m_icon_cache.itemList(); }
+          
 private:
     ResourceCache<QIcon> m_icon_cache;
     ResourceCache<QPixmap> m_pixmap_cache;

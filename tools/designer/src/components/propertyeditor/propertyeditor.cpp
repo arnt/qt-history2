@@ -20,6 +20,7 @@
 #include <container.h>
 #include <abstracticoncache.h>
 #include <abstractformwindowmanager.h>
+#include <iconloader.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QMetaObject>
@@ -92,22 +93,26 @@ public:
     void setPixmap(const QPixmap &pm);
     QIcon icon() const { return m_mode == Icon ? m_icon : QIcon(); }
     QPixmap pixmap() const { return m_mode == Pixmap ? m_pixmap : QPixmap(); }
-
+    
 signals:
     void iconChanged(const QIcon &pm);
     void pixmapChanged(const QPixmap &pm);
 
-public slots:
+private slots:
     void showDialog();
+    void comboActivated(int idx);
 
 private:
     void init();
+    void populateCombo();
+    int indexOfIcon(const QIcon &icon);
+    int indexOfPixmap(const QPixmap &pixmap);
 
     enum Mode { Icon, Pixmap };
     Mode m_mode;
 
     AbstractFormEditor *m_core;
-    QLabel *m_label;
+    QComboBox *m_combo;
     QToolButton *m_button;
     QIcon m_icon;
     QPixmap m_pixmap;
@@ -120,15 +125,101 @@ GraphicsPropertyEditor::~GraphicsPropertyEditor()
 void GraphicsPropertyEditor::init()
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setMargin(2);
+    layout->setMargin(0);
+    layout->setSpacing(0);
 
-    m_label = new QLabel(tr("<no icon>"), this);
-    layout->addWidget(m_label);
-    layout->addStretch();
+    m_combo = new QComboBox(this);
+    m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    m_combo->setEditable(false);
+    layout->addWidget(m_combo);
     m_button = new QToolButton(this);
-    m_button->setText(tr("Change..."));
+    m_button->setIcon(createIconSet(QLatin1String("fileopen.png")));
     layout->addWidget(m_button);
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
+    connect(m_combo, SIGNAL(activated(int)), this, SLOT(comboActivated(int)));
+
+    populateCombo();
+}
+
+void GraphicsPropertyEditor::comboActivated(int idx)
+{
+    if (m_mode == Icon) {
+        setIcon(qvariant_cast<QIcon>(m_combo->itemData(idx)));
+    } else {
+        setPixmap(qvariant_cast<QPixmap>(m_combo->itemData(idx)));
+    }
+}
+
+int GraphicsPropertyEditor::indexOfIcon(const QIcon &icon)
+{
+    if (m_mode == Pixmap)
+        return -1;
+        
+    if (icon.isNull())
+        return 0;
+        
+    for (int i = 1; i < m_combo->count(); ++i) {
+        if (qvariant_cast<QIcon>(m_combo->itemData(i)).serialNumber() == icon.serialNumber())
+            return i;
+    }
+
+    populateCombo();
+
+    for (int i = 1; i < m_combo->count(); ++i) {
+        if (qvariant_cast<QIcon>(m_combo->itemData(i)).serialNumber() == icon.serialNumber())
+            return i;
+    }
+
+    return -1;
+}
+
+int GraphicsPropertyEditor::indexOfPixmap(const QPixmap &pixmap)
+{
+    if (m_mode == Icon)
+        return -1;
+    
+    if (pixmap.isNull())
+        return 0;
+        
+    for (int i = 1; i < m_combo->count(); ++i) {
+        if (qvariant_cast<QPixmap>(m_combo->itemData(i)).serialNumber() == pixmap.serialNumber())
+            return i;
+    }
+
+    populateCombo();
+
+    for (int i = 1; i < m_combo->count(); ++i) {
+        if (qvariant_cast<QPixmap>(m_combo->itemData(i)).serialNumber() == pixmap.serialNumber())
+            return i;
+    }
+
+    return -1;
+}
+
+void GraphicsPropertyEditor::populateCombo()
+{
+    m_combo->clear();
+    
+    AbstractIconCache *cache = m_core->iconCache();
+    if (m_mode == Icon) {
+        m_combo->addItem(tr("<no icon>"));
+        QList<QIcon> icon_list = cache->iconList();
+        foreach (QIcon icon, icon_list) {
+            m_combo->addItem(icon, QFileInfo(cache->iconToFilePath(icon)).fileName(),
+                                QVariant(icon));
+        }
+    } else {
+        m_combo->addItem(tr("<no pixmap>"));
+        QList<QPixmap> pixmap_list = cache->pixmapList();
+        foreach (QPixmap pixmap, pixmap_list) {
+            m_combo->addItem(QIcon(pixmap),
+                                QFileInfo(cache->pixmapToFilePath(pixmap)).fileName(),
+                                QVariant(pixmap));
+        }
+    }
+    m_combo->blockSignals(true);
+    m_combo->setCurrentIndex(0);
+    m_combo->blockSignals(false);
 }
 
 GraphicsPropertyEditor::GraphicsPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
@@ -201,12 +292,10 @@ void GraphicsPropertyEditor::setIcon(const QIcon &pm)
 
     m_icon = pm;
 
-    if (m_icon.isNull()) {
-        m_label->setText(tr("<no icon>"));
-    } else {
-        QString path = m_core->iconCache()->iconToFilePath(pm);
-        m_label->setText(QFileInfo(path).fileName());
-    }
+    m_combo->blockSignals(true);
+    m_combo->setCurrentIndex(indexOfIcon(m_icon));
+    m_combo->blockSignals(false);
+    
     emit iconChanged(m_icon);
 }
 
@@ -222,12 +311,10 @@ void GraphicsPropertyEditor::setPixmap(const QPixmap &pm)
 
     m_pixmap = pm;
 
-    if (m_pixmap.isNull()) {
-        m_label->setText(tr("<no icon>"));
-    } else {
-        QString path = m_core->iconCache()->pixmapToFilePath(pm);
-        m_label->setText(QFileInfo(path).fileName());
-    }
+    m_combo->blockSignals(true);
+    m_combo->setCurrentIndex(indexOfPixmap(m_pixmap));
+    m_combo->blockSignals(false);
+    
     emit pixmapChanged(m_pixmap);
 }
 
