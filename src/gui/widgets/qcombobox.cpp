@@ -19,6 +19,7 @@
 #include <qdesktopwidget.h>
 #include <qlistview.h>
 #include <qitemdelegate.h>
+#include <qstandarditemmodel.h>
 #include <qmap.h>
 #include <qevent.h>
 #include <qlayout.h>
@@ -307,13 +308,14 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 */
 
 /*!
-    Constructs a combobox with the given \a parent, using the default model.
+    Constructs a combobox with the given \a parent, using the default
+    model QStandardItemModel.
 */
 QComboBox::QComboBox(QWidget *parent) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     d->init();
-    setModel(new ComboModel());
+    setModel(new QStandardItemModel(0, 1, this));
 }
 
 #ifdef QT_COMPAT
@@ -325,7 +327,7 @@ QComboBox::QComboBox(QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     d->init();
-    setModel(new ComboModel());
+    setModel(new QStandardItemModel(0, 1, this));
     setObjectName(name);
 }
 
@@ -337,7 +339,7 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
     d->init();
-    setModel(new ComboModel());
+    setModel(new QStandardItemModel(0, 1, this));
     setEditable(rw);
     setObjectName(name);
 }
