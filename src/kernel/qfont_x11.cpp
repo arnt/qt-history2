@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#118 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -128,7 +128,7 @@ inline QFontInternal::QFontInternal( const QString &name )
 
 inline bool QFontInternal::dirty() const
 {
-    return f == 0;
+    return f == 0 && set == 0;
 }
 
 inline const char *QFontInternal::name() const
