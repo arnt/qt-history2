@@ -7,7 +7,6 @@
 *****************************************************************************/
 
 #include "mainwindow.h"
-#include "connectionitems.h"
 #include "formwindow.h"
 #include "editslotsimpl.h"
 
