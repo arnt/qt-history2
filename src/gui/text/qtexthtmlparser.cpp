@@ -511,6 +511,7 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
 
     format.setFontItalic(fontItalic);
     format.setFontUnderline(fontUnderline);
+    format.setFontOverline(fontOverline);
     format.setFontStrikeOut(fontStrikeOut);
     format.setFontFixedPitch(fontFixedPitch);
     if (fontFamily.size())
