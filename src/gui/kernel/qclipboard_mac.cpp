@@ -59,7 +59,7 @@ class QClipboardWatcher : public QMimeData {
 public:
     QClipboardWatcher();
     QStringList formats() const;
-    QVariant retrieveData(const QString &format, QVariant::Type type) const;
+    QCoreVariant retrieveData(const QString &format, QCoreVariant::Type type) const;
 };
 
 class QClipboardData
@@ -150,7 +150,7 @@ QStringList QClipboardWatcher::formats() const
     return sl;
 }
 
-QVariant QClipboardWatcher::retrieveData(const QString &format, QVariant::Type) const
+QCoreVariant QClipboardWatcher::retrieveData(const QString &format, QCoreVariant::Type) const
 {
     Size flavorsize=0;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_CLIP;

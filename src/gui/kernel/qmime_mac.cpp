@@ -579,7 +579,7 @@ QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const QString &m
         QImage img = px.toImage();
         QImageIO iio(&iod, mime.mid(6).toUpper().toLatin1());
         iio.setImage(img);
-        if(iio.write())
+        if(iio.save())
             iod.close();
     }
     DisposeHandle((Handle)pic);

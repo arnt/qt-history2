@@ -217,7 +217,7 @@ bool QDropData::hasFormat(const QString &mime) const
     return false;
 }
 
-QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
+QCoreVariant QDropData::retrieveData(const QString &mime, QCoreVariant::Type type) const
 {
     Size flavorsize=0;
     QVariant ret;
@@ -253,9 +253,9 @@ QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
             }
             if(!arrs.isEmpty()) {
                 QByteArray mime_data = c->convertToMime(arrs, mime, flav);
-                if(type == QVariant::String) 
+                if(type == QVariant::String)
                     ret = QString::fromUtf8(mime_data);
-                else 
+                else
                     ret = mime_data;
                 break;
             }
