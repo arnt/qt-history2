@@ -1540,7 +1540,8 @@ void Q4MenuBar::mouseReleaseEvent(QMouseEvent *e)
     d->mouseDown = false;
     QMenuAction *action = d->actionAt(e->pos());
     if((d->closePopupMode && action == d->currentAction) || !action || !action->action->menu()) {
-	d->activateAction(action->action, QAction::Trigger);
+	if(action)
+	    d->activateAction(action->action, QAction::Trigger);
 	d->setCurrentAction(action, false);
     }
     d->closePopupMode = 0;
