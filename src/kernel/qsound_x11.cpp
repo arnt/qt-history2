@@ -30,20 +30,33 @@
 
 static AuServer *nas=0;
 
+static AuBool eventPred(AuServer *, AuEvent *e, AuPointer p)
+{
+    if (e && (e->type == AuEventTypeElementNotify)) {
+	if (e->auelementnotify.flow == *((AuFlowID *)p))
+	    return TRUE;
+    }
+    return FALSE;
+}
+
 class QAuBucketNAS : public QAuBucket {
 public:
-    QAuBucketNAS(AuBucketID b, AuFlowID f) : id(b), flow(f) { }
-
+    QAuBucketNAS(AuBucketID b, AuFlowID f = 0) : id(b), flow(f), stopped(FALSE) { }
     ~QAuBucketNAS()
     {
 	if ( nas ) {
-            AuDestroyFlow(nas, flow, NULL);
+	    AuSync(nas, FALSE);
 	    AuDestroyBucket(nas, id, NULL);
+
+	    AuEvent ev;
+	    while (AuScanEvents(nas, AuEventsQueuedAfterFlush, TRUE, eventPred, &flow, &ev))
+		;
         }
     }
 
     AuBucketID id;
     AuFlowID flow;
+    bool     stopped;
 };
 
 class QAuServerNAS : public QAuServer {
@@ -78,6 +91,7 @@ QAuServerNAS::QAuServerNAS(QObject* parent) :
 {
     nas = AuOpenServer(NULL, 0, NULL, 0, NULL, NULL);
     if (nas) {
+	AuSetCloseDownMode(nas, AuCloseDownDestroy, NULL);
 	// Ask Qt for async messages...
 	sn=new QSocketNotifier(AuServerConnectionNumber(nas),
 		QSocketNotifier::Read);
@@ -139,7 +153,7 @@ void QAuServerNAS::setDone(QSound* s)
 {
     if (nas) {
         decLoop(s);
-        if (s->loopsRemaining()) {
+        if (s->loopsRemaining() && !bucket(s)->stopped) {
             play(s);
         } else {
             inprogress->remove(s);
@@ -150,6 +164,7 @@ void QAuServerNAS::setDone(QSound* s)
 void QAuServerNAS::play(QSound* s)
 {
     if (nas) {
+	bucket(s)->stopped = FALSE;
 	if ( !inprogress )
 	    inprogress = new AuServerHash;
 	inprogress->insert(s,this);
@@ -168,6 +183,7 @@ void QAuServerNAS::play(QSound* s)
 void QAuServerNAS::stop(QSound* s)
 {
     if (nas) {
+	bucket(s)->stopped = TRUE;
         AuStopFlow(nas, bucket(s)->flow, NULL);
         AuFlush(nas);
 	dataReceived();
@@ -185,8 +201,7 @@ void QAuServerNAS::init(QSound* s)
         AuBucketID b_id =
             AuSoundCreateBucketFromFile(nas, s->fileName(),
                                         0 /*AuAccessAllMasks*/, NULL, NULL);
-        AuFlowID f_id = AuCreateFlow(nas, NULL);
-	setBucket(s, new QAuBucketNAS(b_id, f_id));
+	setBucket(s, new QAuBucketNAS(b_id));
     }
 }
 
