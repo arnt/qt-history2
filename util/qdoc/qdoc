@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#186 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#187 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2353,6 +2353,8 @@ sub functionindex {
 		    $a = $b;
 		    $result = join("", $result, "\n<li>", &html($b), ":\n" );
 		} else {
+		    $result .= ", <a href=\"http://www.kbuxton.com/discordia/fnord.html\">fnord</a>"
+		      if ( $a eq "operator=" && $c eq "QGDictIterator" );
 		    $result = join( "", $result, ",\n" );
 		}
 		$result = join("", $result, "<a href=\"", $anchor{$_},
@@ -2364,53 +2366,6 @@ sub functionindex {
     $result;
 }
 
-sub functionlist {
-    local( $a, $b, $c, $p );
-
-    open(O, "> $outputdir/functions.html") || die "can't open functions.html";
-    print O $doctype, "
-<html>
-<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Member Function Index</title>", $style, "
-</head>
-<body bgcolor=\"#ffffff\">\n", $postheader, "
-<h1 align=center>", $module, " Member Function Index</h1><br clear=\"all\">
-
-Here is a list of all of the documented member functions in the ", $module, "
-API with links to the class documentation for each function.
-
-<p>
-
-<ul plain>";
-
-    $a = "sex";
-
-    foreach ( sort byfunction keys %anchor ) {
-	if ( $type{$anchor{$_}} eq "fn" && $documented{$anchor{$_}} &&
-	     $name{$anchor{$_}} eq $_ ) {
-	    $b = $_;
-	    $b =~ s/.*:://;
-	    next if ( $b eq "_cast" || $b =~ /^~/ );
-	    $c = $_;
-	    $c =~ s/::.*//;
-	    next if ( $b eq $c );
-	    if ( $c eq "" ) {
-		print O "\n<li><a href=\"",$anchor{$_},"\">",&html($b),"</a>";
-	    } else {
-		if ( $a ne $b ) {
-		    $a = $b;
-		    print O "\n<li>", &html($b), ": ";
-		} else {
-		    print O ", <a href=\"http://www.subgenius.com\">fnord</a>"
-		        if ( $b eq "operator=" && $c eq "QGDictIterator" );
-		    print O ", ";
-		}
-		print O "<a href=\"", $anchor{$_}, "\">", $c, "</a>";
-	    }
-	}
-    }
-    print O "\n</ul>\n", $address;
-    close O;
-}
 
 
 
