@@ -137,7 +137,9 @@ public:
 	PO_ScrollBarSubPage,
 	PO_ScrollBarSlider,
 	PO_ScrollBarFirst,
-	PO_ScrollBarLast
+	PO_ScrollBarLast,
+
+	PO_ProgressBarChunk
     };
 
     enum PrimitiveOperationFlags {
@@ -185,7 +187,8 @@ public:
 	CE_TabBarTab,
 	CE_TabBarLabel,
 
-	CE_ProgressBar,
+	CE_ProgressBarGroove,
+	CE_ProgressBarContents,
 	CE_ProgressBarLabel,
 
 	CE_PopupMenuItem,
@@ -231,6 +234,7 @@ public:
 
 	SR_DockWindowHandleRect,
 
+	SR_ProgressBarGroove,
 	SR_ProgressBarContents,
 	SR_ProgressBarLabel
 

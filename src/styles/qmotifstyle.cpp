@@ -636,6 +636,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	drawPrimitive(PO_ButtonBevel, p, r, cg, PStyle_Enabled | PStyle_Raised);
 	break;
 
+    case PO_ProgressBarChunk:
+	p->fillRect( r.x(), r.y() + 2, r.width() - 2,
+	    r.height() - 4, cg.brush(QColorGroup::Highlight));
+	break;
+
     default:
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
@@ -816,52 +821,10 @@ void QMotifStyle::drawControl( ControlElement element,
 	    break;
 	}
 
-	case CE_ProgressBar:
-	{
-	    QProgressBar *progressbar = (QProgressBar *) widget;
+    case CE_ProgressBarGroove:
+	qDrawShadePanel(p, r, cg, TRUE, 2);
+	break;
 
-	    qDrawShadePanel(p, r, cg, TRUE, 2);
-
-	    bool reverse = QApplication::reverseLayout();
-	    if ( !progressbar->totalSteps() ) {
-		// draw busy indicator
-		int w = r.width();
-		int x = progressbar->progress() % (w * 2);
-		if (x > w)
-		    x = 2 * w - x;
-		x = reverse ? r.right() - x : x + r.x();
-		p->setPen( QPen(cg.highlight(), 4) );
-		p->drawLine(x, r.y() + 1, x, r.height() - 2);
-	    } else {
-		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
-		int u = (r.width() - 4) / unit_width;
-		int p_v = progressbar->progress();
-		int t_s = progressbar->totalSteps();
-
-		if ( u > 0 && p_v >= INT_MAX / u && t_s >= u ) {
-		    // scale down to something usable.
-		    p_v /= u;
-		    t_s /= u;
-		}
-
-		int nu = ( u * p_v + t_s / 2 ) / t_s;
-		if (nu * unit_width > r.width() - 4)
-		    nu--;
-
-		// Draw nu units out of a possible u of unit_width width, each
-		// a rectangle bordered by background color, all in a sunken panel
-		// with a percentage text display at the end.
-		int x = 0;
-		int x0 = reverse ? r.right() - unit_width : r.x() + 2;
-		for (int i=0; i<nu; i++) {
-		    p->fillRect(x0 + x, r.y() + 2, unit_width - 2,
-				r.height() - 4, cg.brush(QColorGroup::Highlight));
-		    x += reverse ? -unit_width: unit_width;
-		}
-	    }
-
-	    break;
-	}
     case CE_ProgressBarLabel:
 	{
 	    QProgressBar * pb = (QProgressBar *) widget;
@@ -1750,6 +1713,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	}
 
     case SR_ProgressBarContents:
+    case SR_ProgressBarGroove:
 	rect = widget->rect();
 	break;
 

@@ -449,6 +449,11 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	}
 	break; }
 
+    case PO_ProgressBarChunk:
+	p->fillRect( r.x(), r.y() + 3, r.width() -2, r.height() - 6,
+	    cg.brush(QColorGroup::Highlight));
+	break;
+
     default:
 	break;
     }
@@ -673,14 +678,16 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 
-    case CE_ProgressBar:
-	{
-	    QProgressBar *progressbar = (QProgressBar *) widget;
+    case CE_ProgressBarGroove:
+	qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
+	break;
 
-	    qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
+    case CE_ProgressBarContents:
+	{
+	    QProgressBar *progressbar = (QProgressBar*)widget;
 
 	    bool reverse = QApplication::reverseLayout();
-	    if (! progressbar->totalSteps()) {
+	    if ( !progressbar->totalSteps() ) {
 		// draw busy indicator
 		int w = r.width();
 		int x = progressbar->progress() % (w * 2);
@@ -709,24 +716,24 @@ void QCommonStyle::drawControl( ControlElement element,
 		// a rectangle bordered by background color, all in a sunken panel
 		// with a percentage text display at the end.
 		int x = 0;
-		int x0 = reverse ? r.right() - unit_width : r.x() + 3;
+		int x0 = reverse ? r.right() - unit_width : r.x() + 2;
 		for (int i=0; i<nu; i++) {
-		    p->fillRect(x0 + x, r.y() + 3, unit_width - 2, r.height() - 6,
-				cg.brush(QColorGroup::Highlight));
-		    x += reverse ? -unit_width : unit_width;
+		    drawPrimitive( PO_ProgressBarChunk, p, 
+				   QRect( x0+x, r.y(), unit_width, r.height() ), 
+				   cg, PStyle_Default, data );
+		    x += reverse ? -unit_width: unit_width;
 		}
 	    }
-
-	    break;
 	}
+	break;
 
     case CE_ProgressBarLabel:
 	{
 	    QProgressBar *progressbar = (QProgressBar *) widget;
 	    drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
 		     progressbar->progressString());
-	    break;
 	}
+	break;
 
     case CE_MenuBarItem:
 	{
@@ -898,12 +905,15 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	}
 	break; }
 
-    case SR_ProgressBarContents: {
-	QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
-	int textw = fm.width("100%") + 6;
-	rect.setCoords(wrect.left(), wrect.top(),
-		       wrect.right() - textw, wrect.bottom());
-	break; }
+    case SR_ProgressBarGroove: 
+    case SR_ProgressBarContents:
+	{
+	    QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
+	    int textw = fm.width("100%") + 6;
+	    rect.setCoords(wrect.left(), wrect.top(),
+			   wrect.right() - textw, wrect.bottom());
+	}
+	break;
 
     case SR_ProgressBarLabel: {
 	QFontMetrics fm( ( widget ? widget->fontMetrics() : QApplication::fontMetrics() ) );
