@@ -35,29 +35,29 @@
 **
 **********************************************************************/
 
-// Most of the code here was originally written by Serika Kurusugawa
-// a.k.a. Junji Takagi, and is include in Qt with the author's permission,
+// Most of the code here was originally written by Serika Kurusugawa,
+// a.k.a. Junji Takagi, and is included in Qt with the author's permission
 // and the grateful thanks of the Trolltech team.
 
 /*! \class QJisCodec qjiscodec.h
 
-  \brief Provides conversion to and from JIS character sets
+  \brief The QJisCodec class provides conversion to and from JIS character sets.
 
   The QJisCodec class subclasses QTextCodec to provide support for JIS
   X 0201 Latin, JIS X 0201 Kana, JIS X 0208 and JIS X 0212.
 
-  The environment variable \c UNICODEMAP_JP can be used to fine-tune how
-  QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
+  The environment variable \c UNICODEMAP_JP can be used to fine-tune the way
+  QJpUnicodeConv, QEucJpCodec, QJisCodec, and QSjisCodec do their work.
   The QJpUnicodeConv documentation describes how to use this variable.
 
-  It was largely written by Serika Kurusugawa a.k.a. Junji Takagi, and
-  is included in Qt with the author's permission, and the grateful
+  It was largely written by Serika Kurusugawa, a.k.a. Junji Takagi, and
+  is included in Qt with the author's permission and the grateful
   thanks of the Trolltech team. Here is the copyright statement for
   that code:
 
   \mustquote
 
-  Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
+  Copyright (c) 1999 Serika Kurusugawa. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -69,9 +69,9 @@
      documentation and/or other materials provided with the distribution.
   </ol>
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS", AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE,
   ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
   FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
   DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS

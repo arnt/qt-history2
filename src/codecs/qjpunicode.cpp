@@ -40,19 +40,22 @@
   \brief The QJpUnicodeConv class provides implementation support for
   QJisCodec, QSjisCodec, and QEucJpCodec.
 
-  The environment variable \c UNICODEMAP_JP can be used to fine-tune how
-  QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
+  You should not need to use this class directly; the codecs mentioned
+  above provide much more useful APIs.
+
+  The environment variable \c UNICODEMAP_JP can be used to fine-tune the
+  way QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
   The mapping names are as for the Japanese XML working group's <a
-  href="http://www.y-adagio.com/public/standards/tr_xml_jpf/toc.htm">
-  XML Japanese Profile</a>, as it names and explains all the widely
-  used mappings. Here are brief descriptions, written by Serika
-  Kurusugawa: <ul>
+  href="http://www.y-adagio.com/public/standards/tr_xml_jpf/toc.htm"> XML
+  Japanese Profile</a>, because it names and explains all the widely used
+  mappings. Here are brief descriptions, written by Serika Kurusugawa:
+  <ul>
 
-  <li> "unicode-0.9" or "unicode-0201" for Unicode style. This assume
+  <li> "unicode-0.9" or "unicode-0201" for Unicode style. This assumes
   JISX0201 for 0x00-0x7f. (0.9 is a table version of jisx02xx mapping
-  used for Uniocde spec version 1.1)
+  used for Uniocde spec version 1.1.)
 
-  <li> "unicode-ascii" This assume US-ASCII for 0x00-0x7f, and some
+  <li> "unicode-ascii" This assumes US-ASCII for 0x00-0x7f; some
   chars (JISX0208 0x2140 and JISX0212 0x2237) are different from
   Unicode 1.1 to avoid conflict.
 
@@ -71,26 +74,26 @@
   0x2141, 0x2142, 0x215d, 0x2171, 0x2172) are different from Unicode
   1.1.
 
-  <li> "jdk1.1.7" for Sun's JDK style Same as Unicode 1.1, except that
+  <li> "jdk1.1.7" for Sun's JDK style. Same as Unicode 1.1, except that
   JIS 0x2140 is mapped to UFF3C. Either ASCII or JISX0201 can be used
   for 0x00-0x7f.
 
   </ul> In addition, QJpUnicodeConv supports some extensions:
   "nec-vdc", "ibm-vdc" or "udc".
 
-  For example, if you want to use Unicode style conversion, but with
+  For example, if you want to use Unicode style conversion but with
   NEC's extension, set \c UNICODEMAP_JP to
   <nobr><code>unicode-0.9, nec-vdc</code>.</nobr> (You will probably
   need to quote that in the shell command.)
 
-  Most of the code here was originally written by Serika Kurusugawa
-  a.k.a. Junji Takagi, and is includes in Qt with the author's
-  permission, and the grateful thanks of the Trolltech team. Here is
+  Most of the code here was originally written by Serika Kurusugawa,
+  a.k.a. Junji Takagi, and is included in Qt with the author's
+  permission and the grateful thanks of the Trolltech team. Here is
   the copyright statement for that code:
 
   \mustquote
 
-  Copyright (c) 1999 Serika Kurusugawa, All rights reserved.
+  Copyright (c) 1999 Serika Kurusugawa. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -102,7 +105,7 @@
      documentation and/or other materials provided with the distribution.
   </ol>
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS".
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
   ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE

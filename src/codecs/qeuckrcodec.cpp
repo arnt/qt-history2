@@ -37,19 +37,20 @@
 
 /*! \class QEucKrCodec qeuckrcodec.h
 
-  \brief Provides conversion to and from EUC-KR character sets
+  \brief The QEucKrCodec class Provides conversion to and from EUC-KR character sets.
 
   The QEucKrCodec class subclasses QTextCodec to provide support for
-  EUC-JP, the main legacy encoding for UNIX machines in Korea
+  EUC-JP, the main legacy encoding for UNIX machines in Korea.
 
-  It was largely written by Mizi Research Inc.; here is the copyright
-  statement for the code as it was at the point of contribution.
+  It was largely written by Mizi Research Inc. Here is the copyright
+  statement for the code as it was at the point of contribution
   (Trolltech's subsequent modifications are covered by the usual
   copyright for Qt.)
 
+
   \mustquote
 
-  Copyright (c) 1999-2000 Mizi Research Inc., All rights reserved.
+  Copyright (c) 1999 Mizi Research Inc. All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -61,7 +62,7 @@
      documentation and/or other materials provided with the distribution.
   </ol>
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND
   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
   ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
