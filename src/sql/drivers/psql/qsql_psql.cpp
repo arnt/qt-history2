@@ -406,6 +406,16 @@ int QPSQLResult::numRowsAffected()
     return QString::fromLatin1(PQcmdTuples(d->result)).toInt();
 }
 
+QCoreVariant QPSQLResult::lastInsertId() const
+{
+    if (isActive()) {
+        Oid id = PQoidValue(d->result);
+        if (id != InvalidOid)
+            return QCoreVariant(id);
+    }
+    return QCoreVariant();
+}
+
 QSqlRecord QPSQLResult::record() const
 {
     QSqlRecord info;
@@ -527,8 +537,8 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
 {
     switch (f) {
     case Transactions:
-        return true;
     case QuerySize:
+    case LastInsertId:
         return true;
     case BLOB:
         return d->pro >= QPSQLDriver::Version71;

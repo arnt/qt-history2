@@ -93,6 +93,7 @@ protected:
     virtual int size() = 0;
     virtual int numRowsAffected() = 0;
     virtual QSqlRecord record() const;
+    virtual QCoreVariant lastInsertId() const;
 
 private:
     QSqlResultPrivate* d;

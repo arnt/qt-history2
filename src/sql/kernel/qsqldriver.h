@@ -33,7 +33,7 @@ class Q_SQL_EXPORT QSqlDriver : public QObject
 
 public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
-                         NamedPlaceholders, PositionalPlaceholders };
+                         NamedPlaceholders, PositionalPlaceholders, LastInsertId };
 
     enum StatementType { WhereStatement, SelectStatement, UpdateStatement,
                          InsertStatement, DeleteStatement };

@@ -38,6 +38,7 @@ protected:
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
+    QCoreVariant lastInsertId() const;
     QSqlRecord record() const;
 
 private:

@@ -49,11 +49,7 @@ protected:
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
-
-    bool poll();
-    int pollDescriptor() const;
-    bool resetAsync(const QString &sqlquery);
-    void cancelAsync();
+    QCoreVariant lastInsertId() const;
 
 private:
     QPSQLResultPrivate *d;

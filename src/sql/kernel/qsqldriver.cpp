@@ -149,6 +149,7 @@ bool QSqlDriver::isOpenError() const
     \value PreparedQueries  Whether the driver supports prepared query execution.
     \value NamedPlaceholders  Whether the driver supports the use of named placeholders.
     \value PositionalPlaceholders  Whether the driver supports the use of positional placeholders.
+    \value LastInsertId  Whether the driver supports returning the Id of the last touched row.
 
     More information about supported features can be found in the
     \l{sql-driver.html}{Qt SQL driver} documentation.

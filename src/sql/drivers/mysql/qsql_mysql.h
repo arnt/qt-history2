@@ -53,6 +53,7 @@ protected:
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
+    QCoreVariant lastInsertId();
     QSqlRecord record() const;
 
 #if MYSQL_VERSION_ID >= 40108

@@ -244,6 +244,16 @@ int QSQLiteResult::numRowsAffected()
     return sqlite3_changes(d->access);
 }
 
+QCoreVariant QSQLiteResult::lastInsertId() const
+{
+    if (isActive()) {
+        Q_LONGLONG id = sqlite3_last_insert_rowid(d->access);
+        if (id)
+            return id;
+    }
+    return QCoreVariant();
+}
+
 QSqlRecord QSQLiteResult::record() const
 {
     if (!isActive() || !isSelect())
@@ -279,6 +289,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     switch (f) {
     case Transactions:
     case Unicode:
+    case LastInsertId:
         return true;
 //    case BLOB:
 //    default:

@@ -550,6 +550,25 @@ int QMYSQLResult::numRowsAffected()
     return d->rowsAffected;
 }
 
+QCoreVariant QMYSQLResult::lastInsertId()
+{
+    if (!isActive())
+        return QCoreVariant();
+
+    if (d->preparedQuerys) {
+#if MYSQL_VERSION_ID >= 40108
+        Q_ULONGLONG id = mysql_stmt_insert_id(d->stmt);
+        if (id)
+            return QCoreVariant(id);
+#endif
+    } else {
+        Q_ULONGLONG id = mysql_insert_id(d->mysql);
+        if (id)
+            return QCoreVariant(id);
+    }
+    return QCoreVariant();
+}
+
 QSqlRecord QMYSQLResult::record() const
 {
     QSqlRecord info;
@@ -871,8 +890,8 @@ bool QMYSQLDriver::hasFeature(DriverFeature f) const
 #endif
         return false;
     case QuerySize:
-        return true;
     case BLOB:
+    case LastInsertId:
         return true;
     case Unicode:
         return false;
