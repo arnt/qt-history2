@@ -65,8 +65,8 @@ tools {
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp
 
-        mac:!embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
-	mac:exists($$TOOLS_CPP/qlibrary_mac.cpp):SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp
+        mac:!x11:!embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
+	mac:exists(qlibrary_mac.cpp):SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
 	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
