@@ -107,7 +107,7 @@ bool usage(const char *a0)
 	    "\t               In this mode qmake interprets files as files to\n"
 	    "\t               be built,\n"
 	    "\t               defaults to *.cpp; *.l; *.y; *.ui\n"
-	    "\t-makefile      Put qmake into makefile generation mode (assumed)\n"
+	    "\t-makefile      Put qmake into makefile generation mode (default)\n"
 	    "\t               In this mode qmake interprets files project files to\n"
 	    "\t               be built, if skipped qmake will try to find a project\n"
 	    "\t               file in your current working directory\n"
