@@ -4,31 +4,32 @@
 
 include Makefile
 
-CFLAGS		= -O2
-CDBGFLAGS	= -g
+CFLAGS		= -O2 -pto
+CDBGFLAGS	= -g -pto
 CSTATICFLAGS	=
 CSHAREDFLAGS	= -pic
 CC		= CC
+MAKE		= gmake
 
 sun:	sunshared
 
 sunstatic:
-	make lib "CC=$(CC)" "CFLAGS=$(CFLAGS) $(CSTATICFLAGS)" "OBJDIR=obj/static"
+	${MAKE} lib "CC=$(CC)" "CFLAGS=$(CFLAGS) $(CSTATICFLAGS)" "OBJDIR=obj/static"
 	/bin/rm -f $(STATICTARGET)
 	ar q $(STATICTARGET) obj/static/*/*.o
 
 sunstaticdbg:
-	make lib "CC=$(CC)" "CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)" "OBJDIR=obj/staticdbg"
+	${MAKE} lib "CC=$(CC)" "CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)" "OBJDIR=obj/staticdbg"
 	/bin/rm -f $(STATICTARGET)
 	ar q $(STATICTARGET) obj/staticdbg/*/*.o
 
 sunshared:
-	make lib "CC=$(CC)" "CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shared"
+	${MAKE} lib "CC=$(CC)" "CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shared"
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lc
 
 sunshareddbg:
-	make lib "CC=$(CC)" "CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shareddbg"
+	${MAKE} lib "CC=$(CC)" "CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shareddbg"
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lc
 
