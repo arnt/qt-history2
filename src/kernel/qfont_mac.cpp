@@ -242,9 +242,9 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
     free(buf);
     return ret;
 }
-static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task)
+static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar task, bool no_optim=FALSE)
 {
-    if(c.row() || (c.cell() & (1 << 7)))
+    if(!no_optim || c.row() || (c.cell() & (1 << 7)))
 	return do_text_task(d, QString(c), 0, 1, task, TRUE);
     QMacSetFontInfo fi(d);
     int ret = 0; //latin1 optimization

@@ -376,6 +376,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     dirtyClippedRegion(TRUE);
 
     QCursor oldcurs;
+    QPoint oldposinwindow(posInWindow(this));
     bool setcurs=testWState(WState_OwnCursor);
     if ( setcurs ) {
 	oldcurs = cursor();
@@ -393,7 +394,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
 	if(!isTopLevel() && oldp->isWidgetType()) 
-	    InvalWindowRect((WindowPtr)old_winid, mac_rect(posInWindow(this), geometry().size()));
+	    InvalWindowRect((WindowPtr)old_winid, mac_rect(oldposinwindow, geometry().size()));
     }
 
     if ( old_winid && own_id && isTopLevel() ) {
