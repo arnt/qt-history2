@@ -234,6 +234,8 @@ main(int argc, char** argv)
     TEST(a.find(QRegExp("G"),14),14);
 
     TEST(a.findRev('G'),14)
+    TEST(a.findRev('G',-4),10)
+    TEST(a.findRev('G',-5),6)
     TEST(a.findRev('G',14),14)
     TEST(a.findRev('G',13),11)
     TEST(a.findRev('B'),1)
