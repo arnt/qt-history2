@@ -69,7 +69,7 @@ public:
 };
 
 QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
-    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
+    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WResizeNoErase | WRepaintNoErase )
 {
     (void) new QTitleBarTip( this );
     window = w;
