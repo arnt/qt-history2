@@ -249,6 +249,8 @@ int QFontMetrics::lineWidth() const
     return d->engineData->lineWidth;
 }
 
+#undef FI
+#define FI (painter ? (painter->pfont ? painter->pfont->d : painter->cfont.d) : d)
 
 int QFontMetrics::leading() const
 {

@@ -46,6 +46,9 @@
 #include "qapplication.h"
 #include "qcleanuphandler.h"
 #include "qstringlist.h"
+#ifdef Q_WS_MAC
+#include "qpaintdevicemetrics.h"
+#endif
 
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
@@ -2540,10 +2543,6 @@ void QFontCache::timerEvent( QTimerEvent * )
 	    engineDataCache.remove( rem );
 	}
     }
-
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "  CLEAN engine:" );
-#endif // QFONTCACHE_DEBUG
 
     // clean out the engine cache just enough to get below our new max cost
     uint current_cost;
