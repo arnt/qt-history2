@@ -38,6 +38,8 @@
 
 static QWidget *last_target = 0;
 
+class QDragMime;
+
 class Q3DragObjectPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(Q3DragObject)
