@@ -219,12 +219,14 @@ public:
 #endif
 
     QTextDocumentLayoutPrivate()
-        : fixedColumnWidth(-1)
+        : blockTextFlags(0), wordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere),
+          fixedColumnWidth(-1)
     { }
 
     bool pagedLayout;
 
     int blockTextFlags;
+    QTextOption::WrapMode wordWrapMode;
 #ifdef LAYOUT_DEBUG
     mutable QString debug_indent;
 #endif
@@ -1322,7 +1324,11 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     option.setTextDirection(dir);
     if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
         option.setWrapMode(QTextOption::ManualWrap);
+    else
+        option.setWrapMode(d->wordWrapMode);
     tl->setTextOption(option);
+
+    const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
@@ -1373,6 +1379,12 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
             if (d->fixedColumnWidth == -1 && line.naturalTextWidth() > right-left) {
                 // float has been added in the meantime, redo
                 layoutStruct->pendingFloats.clear();
+
+                if (haveWordOrAnyWrapMode) {
+                    option.setWrapMode(QTextOption::WrapAnywhere);
+                    tl->setTextOption(option);
+                }
+
                 line.setLineWidth(right-left);
                 if (line.naturalTextWidth() > right-left) {
                     layoutStruct->pendingFloats.clear();
@@ -1380,6 +1392,11 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
                     layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.naturalTextWidth()));
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
                     line.setLineWidth(qMax<qreal>(line.naturalTextWidth(), right-left));
+                }
+
+                if (haveWordOrAnyWrapMode) {
+                    option.setWrapMode(QTextOption::WordWrap);
+                    tl->setTextOption(option);
                 }
             }
 
@@ -1674,6 +1691,18 @@ int QTextDocumentLayout::blockTextFlags() const
 {
     Q_D(const QTextDocumentLayout);
     return d->blockTextFlags;
+}
+
+void QTextDocumentLayout::setWordWrapMode(QTextOption::WrapMode mode)
+{
+    Q_D(QTextDocumentLayout);
+    d->wordWrapMode = mode;
+}
+
+QTextOption::WrapMode QTextDocumentLayout::wordWrapMode() const
+{
+    Q_D(const QTextDocumentLayout);
+    return d->wordWrapMode;
 }
 
 void QTextDocumentLayout::setFixedColumnWidth(int width)

@@ -26,6 +26,7 @@
 //
 
 #include <qabstracttextdocumentlayout.h>
+#include <QtGui/qtextoption.h>
 
 class QTextListFormat;
 
@@ -52,6 +53,8 @@ public:
     // flags passed to QTextLayout objects of blocks
     void setBlockTextFlags(int flags);
     int blockTextFlags() const;
+    void setWordWrapMode(QTextOption::WrapMode mode);
+    QTextOption::WrapMode wordWrapMode() const;
 
     // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
     void setFixedColumnWidth(int width);

@@ -308,7 +308,7 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
     transText->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     transText->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     transText->setAutoFormatting(QTextEdit::AutoNone);
-    transText->setWordWrap(QTextEdit::WidgetWidth);
+    transText->setLineWrapMode(QTextEdit::WidgetWidth);
     p = transText->palette();
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     transText->setPalette(p);

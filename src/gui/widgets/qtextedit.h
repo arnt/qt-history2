@@ -16,6 +16,7 @@
 
 #include <QtGui/qabstractscrollarea.h>
 #include <QtGui/qtextdocument.h>
+#include <QtGui/qtextoption.h>
 
 #ifdef QT3_SUPPORT
 #include <QtGui/qtextcursor.h>
@@ -43,11 +44,11 @@ class Q_GUI_EXPORT QTextEdit : public QAbstractScrollArea
     Q_PROPERTY(bool tabChangesFocus READ tabChangesFocus WRITE setTabChangesFocus)
     Q_PROPERTY(QString documentTitle READ documentTitle WRITE setDocumentTitle)
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
-    Q_PROPERTY(WordWrap wordWrap READ wordWrap WRITE setWordWrap)
-    Q_PROPERTY(int wrapColumnOrWidth READ wrapColumnOrWidth WRITE setWrapColumnOrWidth)
+    Q_PROPERTY(LineWrapMode lineWrapMode READ lineWrapMode WRITE setLineWrapMode)
+    Q_PROPERTY(int lineWrapColumnOrWidth READ lineWrapColumnOrWidth WRITE setLineWrapColumnOrWidth)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 public:
-    enum WordWrap {
+    enum LineWrapMode {
         NoWrap,
         WidgetWidth,
         FixedPixelWidth,
@@ -125,11 +126,14 @@ public:
     inline void setUndoRedoEnabled(bool enable)
     { document()->setUndoRedoEnabled(enable); }
 
-    WordWrap wordWrap() const;
-    void setWordWrap(WordWrap wrap);
+    LineWrapMode lineWrapMode() const;
+    void setLineWrapMode(LineWrapMode mode);
 
-    int wrapColumnOrWidth() const;
-    void setWrapColumnOrWidth(int w);
+    int lineWrapColumnOrWidth() const;
+    void setLineWrapColumnOrWidth(int w);
+
+    QTextOption::WrapMode wordWrapMode() const;
+    void setWordWrapMode(QTextOption::WrapMode policy);
 
     bool find(const QString &exp, QTextDocument::FindFlags options = 0);
 

@@ -840,7 +840,7 @@ void QTextEditPrivate::extendLinewiseSelection(int suggestedNewPosition)
 */
 
 /*!
-    \enum QTextEdit::WordWrap
+    \enum QTextEdit::LineWrapMode
 
     \value NoWrap
     \value WidgetWidth
@@ -1576,20 +1576,20 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
 
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
-        if (d->wordWrap == NoWrap)
+        if (d->lineWrap == NoWrap)
             tlayout->setBlockTextFlags(tlayout->blockTextFlags() | Qt::TextSingleLine);
         else
             tlayout->setBlockTextFlags(tlayout->blockTextFlags() & ~Qt::TextSingleLine);
 
-        if (d->wordWrap == FixedColumnWidth)
-            tlayout->setFixedColumnWidth(d->wrapColumnOrWidth);
+        if (d->lineWrap == FixedColumnWidth)
+            tlayout->setFixedColumnWidth(d->lineWrapColumnOrWidth);
         else
             tlayout->setFixedColumnWidth(-1);
     }
 
     int width = d->viewport->width();
-    if (d->wordWrap == FixedPixelWidth)
-        width = d->wrapColumnOrWidth;
+    if (d->lineWrap == FixedPixelWidth)
+        width = d->lineWrapColumnOrWidth;
 
     const QSize lastUsedSize = layout->documentSize().toSize();
 
@@ -2491,8 +2491,8 @@ void QTextEdit::setTabChangesFocus(bool b)
 */
 
 /*!
-    \property QTextEdit::wordWrap
-    \brief the word wrap mode
+    \property QTextEdit::lineWrap
+    \brief the line wrap mode
 
     The default mode is \c WidgetWidth which causes words to be
     wrapped at the right edge of the text edit. Wrapping occurs at
@@ -2501,26 +2501,26 @@ void QTextEdit::setTabChangesFocus(bool b)
     \c FixedPixelWidth or \c FixedColumnWidth you should also call
     setWrapColumnOrWidth() with the width you want.
 
-    \sa WordWrap, wrapColumnOrWidth, wrapPolicy,
+    \sa LineWrap, lineWrapColumnOrWidth
 */
 
-QTextEdit::WordWrap QTextEdit::wordWrap() const
+QTextEdit::LineWrapMode QTextEdit::lineWrapMode() const
 {
     Q_D(const QTextEdit);
-    return d->wordWrap;
+    return d->lineWrap;
 }
 
-void QTextEdit::setWordWrap(WordWrap wrap)
+void QTextEdit::setLineWrapMode(LineWrapMode wrap)
 {
     Q_D(QTextEdit);
-    if (d->wordWrap == wrap)
+    if (d->lineWrap == wrap)
         return;
-    d->wordWrap = wrap;
+    d->lineWrap = wrap;
     resizeEvent(0);
 }
 
 /*!
-    \property QTextEdit::wrapColumnOrWidth
+    \property QTextEdit::lineWrapColumnOrWidth
     \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
 
     If the wrap mode is \c FixedPixelWidth, the value is the number of
@@ -2532,17 +2532,32 @@ void QTextEdit::setWordWrap(WordWrap wrap)
     \sa wordWrap
 */
 
-int QTextEdit::wrapColumnOrWidth() const
+int QTextEdit::lineWrapColumnOrWidth() const
 {
     Q_D(const QTextEdit);
-    return d->wrapColumnOrWidth;
+    return d->lineWrapColumnOrWidth;
 }
 
-void QTextEdit::setWrapColumnOrWidth(int w)
+void QTextEdit::setLineWrapColumnOrWidth(int w)
 {
     Q_D(QTextEdit);
-    d->wrapColumnOrWidth = w;
+    d->lineWrapColumnOrWidth = w;
     resizeEvent(0);
+}
+
+QTextOption::WrapMode QTextEdit::wordWrapMode() const
+{
+    Q_D(const QTextEdit);
+    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
+        return layout->wordWrapMode();
+    return QTextOption::WordWrap;
+}
+
+void QTextEdit::setWordWrapMode(QTextOption::WrapMode mode)
+{
+    Q_D(QTextEdit);
+    if (QTextDocumentLayout *layout = qobject_cast<QTextDocumentLayout *>(d->doc->documentLayout()))
+        layout->setWordWrapMode(mode);
 }
 
 /*!

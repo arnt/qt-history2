@@ -42,7 +42,7 @@ public:
         : doc(0), cursorOn(false),
 	  readOnly(false),
           autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
-          mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
+          mousePressed(false), mightStartDrag(false), lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
           preferRichText(false)
     {}
@@ -124,8 +124,8 @@ public:
     QPoint dragStartPos;
     QBasicTimer dragStartTimer;
 
-    QTextEdit::WordWrap wordWrap;
-    int wrapColumnOrWidth;
+    QTextEdit::LineWrapMode lineWrap;
+    int lineWrapColumnOrWidth;
 
     bool lastSelectionState;
 
