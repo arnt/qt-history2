@@ -1,5 +1,6 @@
 CONFIG -= static
 contains(TEMPLATE, ".*lib"): {
+    CONFIG += dll
     CONFIG -= staticlib
     win32:QMAKE_LFLAGS += $$QMAKE_LFLAGS_DLL
 }
