@@ -13,15 +13,57 @@
   and QAxBindable::propertyChanged(), and the use of the default
   QAxFactory through the QAXFACTORY_DEFAULT macro.
 
+  \quotefile simple/main.cpp
+
+  The Qt implementation of the ActiveX for this example is
+  \skipto class QSimpleAX
+  \printto #include
+
+  The control is exported using the default QAxFactory
+  \skipto QAXFACTORY
+  \printto int main
+
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
   \c examples/simple.
 
   The \link demo-simple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
+  The following HTML code is used on the demonstration page to instantiate
+  the object.
+  \code
+  <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
+      <PARAM NAME="text" VALUE="ActiveQt!">
+      <PARAM NAME="value" VALUE="0">
+      [Object not available! Did you forget to build and register the server?]
+  </object>
+  \endcode
 
-  <hr>
+  A second ActiveX control - the standard Calendar Control - is instantiated
+ 
+  \code
+  <object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
+  [Standard Calendar control not available!]
+      <PARAM NAME="day" VALUE="1">
+  </object>
+  \endcode
 
+  A simple HTML form is connected to the ActiveQt's about() slot.
+  \code
+  <FORM>
+      <INPUT TYPE="BUTTON" VALUE="Reset" onClick="aboutSimple()">
+  </FORM>
+  \endcode
+
+  The \c aboutSimple() function is implemented using JavaScript
+  <SCRIPT LANGUAGE=JavaScript>
+  function resetSimple()
+  {
+      QSimpleAX.about();
+  }
+  </SCRIPT>
+
+  Events from the ActiveX controls are handled using Visual Basic Script
   \code
   <SCRIPT LANGUAGE=VBScript>
   Sub Calendar_Click()
@@ -37,31 +79,6 @@
   End Sub
   </SCRIPT>
 
-  <SCRIPT LANGUAGE=JavaScript>
-  function resetSimple()
-  {
-      QSimpleAX.value = 1;
-  }
-  </SCRIPT>
-
-  <object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
-  [Standard Calendar control not available!]
-      <PARAM NAME="day" VALUE="1">
-  </object>
-
-  <FORM>
-      <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
-  </FORM>
-
-  <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
-      <PARAM NAME="text" VALUE="ActiveQt!">
-      <PARAM NAME="value" VALUE="1">
-      [Object not available! Did you forget to build and register the server?]
-  </object>
-
-  <FORM>
-      <INPUT TYPE="BUTTON" VALUE="Reset" onClick="resetSimple()">
-  </FORM>
   \endcode  
 */
 
@@ -85,11 +102,21 @@ End Sub
 </SCRIPT>
 
 <SCRIPT LANGUAGE=JavaScript>
-function resetSimple()
+function aboutSimple()
 {
-    QSimpleAX.value = 1;
+    QSimpleAX.about();
 }
 </SCRIPT>
+
+<object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
+    <PARAM NAME="text" VALUE="ActiveQt!">
+    <PARAM NAME="value" VALUE="1">
+[Object not available! Did you forget to build and register the server?]
+</object>
+
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="Reset" onClick="aboutSimple()">
+</FORM>
 
 <object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
 [Standard Calendar control not available!]
@@ -99,17 +126,5 @@ function resetSimple()
 <FORM>
     <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
 </FORM>
-
-<object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669">
-    <PARAM NAME="text" VALUE="ActiveQt!">
-    <PARAM NAME="value" VALUE="1">
-[Object not available! Did you forget to build and register the server?]
-</object>
-
-<FORM>
-    <INPUT TYPE="BUTTON" VALUE="Reset" onClick="resetSimple()">
-</FORM>
-
-And <a href="main.cpp">here</a> is ALL the code...
 \endraw
 */
