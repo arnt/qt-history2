@@ -11,6 +11,10 @@
 **
 ****************************************************************************/
 
+#if defined Q_OS_WIN32
+#   include <winsock2.h>
+#endif
+
 #include "qdns.h"
 #include "qdns_p.h"
 
@@ -362,9 +366,12 @@ QString QDnsHostInfo::errorString() const
 */
 QString QDns::getHostName()
 {
+#if defined Q_OS_WIN32
+    QSocketLayer bust; // makes sure WSAStartup was callled
+#endif
     char hostName[512];
     if (gethostname(hostName, sizeof(hostName)) == -1)
         return QString::null;
     hostName[sizeof(hostName) - 1] = '\0';
-    return QString(hostName);
+    return QString::fromLocal8Bit(hostName);
 }
