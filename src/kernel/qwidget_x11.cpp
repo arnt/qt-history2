@@ -525,6 +525,10 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 		qt_XDestroyWindow( this, x11Display(), winid );
 	}
 	setWinId( 0 );
+
+	extern void qPRCleanup( QWidget *widget ); // from qapplication_x11.cpp
+	if ( testWState(WState_Reparented) )
+	    qPRCleanup(this);
     }
 }
 

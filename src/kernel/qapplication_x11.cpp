@@ -2851,23 +2851,25 @@ void qPRCreate( const QWidget *widget, Window oldwin )
     w->setWState( Qt::WState_Reparented );	// set reparented flag
 }
 
-void qPRCleanup( QETWidget *widget )
+void qPRCleanup( QWidget *widget )
 {
-    if ( !(wPRmapper && widget->testWState(Qt::WState_Reparented)) )
+    QETWidget *etw = (QETWidget *)widget;
+    if ( !(wPRmapper && etw->testWState(Qt::WState_Reparented)) )
 	return;					// not a reparented widget
     QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
-	if ( w == widget ) {			// found widget
-	    widget->clearWState( Qt::WState_Reparented ); // clear flag
-	    wPRmapper->remove( it.currentKey());// old window no longer needed
-	    if ( wPRmapper->count() == 0 ) {	// became empty
+	int key = it.currentKey();
+	++it;
+	if ( w == etw ) {                       // found widget
+	    etw->clearWState( Qt::WState_Reparented ); // clear flag
+	    wPRmapper->remove( key );// old window no longer needed
+ 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
 		wPRmapper = 0;
+		return;
 	    }
-	    return;
 	}
-	++it;
     }
 }
 
