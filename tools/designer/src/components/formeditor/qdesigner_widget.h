@@ -100,6 +100,7 @@ public:
 //
     int findItemAt(int row, int column);
 
+    static int findItemAt(QGridLayout *, int row, int column);
     static void createEmptyCells(QGridLayout *&gridLayout);
 
     void computeGridLayout(QHash<QLayoutItem*, QRect> *layout);

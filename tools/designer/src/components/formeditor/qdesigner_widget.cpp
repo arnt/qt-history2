@@ -633,7 +633,14 @@ void QLayoutSupport::insertWidget(QWidget *widget)
 
 int QLayoutSupport::findItemAt(int at_row, int at_column)
 {
-    QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
+    if (QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout()))
+        return findItemAt(gridLayout, at_row, at_column);
+
+    return -1;
+}
+
+int QLayoutSupport::findItemAt(QGridLayout *gridLayout, int at_row, int at_column)
+{
     Q_ASSERT(gridLayout);
 
     int index = 0;
@@ -642,7 +649,7 @@ int QLayoutSupport::findItemAt(int at_row, int at_column)
         gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);
 
         if (at_row >= row && at_row < (row + rowspan)
-                && at_column >= column && at_column < (column + colspan))
+            && at_column >= column && at_column < (column + colspan))
             return index;
 
         ++index;
@@ -706,8 +713,9 @@ void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
         const QPair<int, int> &cell = it.key();
         QLayoutItem *item = it.value();
 
-        if (!item || !item->widget())
+        if (!item || !item->widget() && findItemAt(gridLayout, cell.first, cell.second) == -1) {
             gridLayout->addItem(new QSpacerItem(20, 20), cell.first, cell.second);
+        }
     }
 }
 
