@@ -289,7 +289,7 @@ Click File|Save, then OK.
 Click the TextLabel tool in the Toolbox, then click of the form, on
 the left hand side. Change this label's name property to colorLabel,
 and delete the text in the text property. Click the pixmap property's
-ellipsis button and choose the editraise.xpm image. Change the
+ellipsis button and choose the editraise.png image. Change the
 scaledContents property to true and set the minimumSize property's
 width and sub-property to 80.
 

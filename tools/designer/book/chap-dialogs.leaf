@@ -127,7 +127,7 @@ chosen. Click the TextLabel tool in the Toolbox, then click on the
 left hand side of the form. Change the label's \Property{name}
 property to "colorLabel", and delete the text in the \Property{text}
 property. Click the \Property{pixmap} property's ellipsis button and
-choose the "editraise.xpm" image. Change the \Property{minimumSize}
+choose the "editraise.png" image. Change the \Property{minimumSize}
 property's \Property{width} sub-property to 80, and set the
 \Property{scaledContents} property to True.
 
