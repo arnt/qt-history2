@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#75 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#76 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -538,12 +538,17 @@ static void deleteGlobalPrintDialog()
     globalPrintDialog = 0;
 }
 
-/*! \class QPrintDialog qprintdialog.h
+/* \internal
+
+  \class QPrintDialog qprintdialog.h
 
   \brief The QPrintDialog class provides a dialog for specifying
   print-out details.
 
   \ingroup dialogs
+
+  \warning This class is not present on all platforms; use
+  QPrinter::setup() instead for portability.
 
   It encompasses both the sort of details needed for doing a simple
   print-out and some print configuration setup.
