@@ -328,8 +328,6 @@ while [ -n "$1" ]; do
     -qt-*|-system-*|-no-*)
 	VAR=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
 	VAL=`echo $1 | sed "s,^-\([^-]*\)-.*,\1,"`
-	echo "VAR=$VAR"
-	echo "VAL=$VAL"
 	;;
     #Options that cannot be generalized
     -embedded) 	
