@@ -1070,6 +1070,36 @@ bool QProcess::isRunning() const
 }
 
 /*!
+    Returns TRUE if it's possible to read an entire line of text from
+    standard output at this time; otherwise returns FALSE.
+
+    \sa readLineStdout() canReadLineStderr()
+*/
+bool QProcess::canReadLineStdout() const
+{
+    if ( !d->proc || !d->proc->socketStdout )
+	return d->bufStdout.size() != 0;
+
+    QProcess *that = (QProcess*)this;
+    return that->d->bufStdout.scanNewline( 0 );
+}
+
+/*!
+    Returns TRUE if it's possible to read an entire line of text from
+    standard error at this time; otherwise returns FALSE.
+
+    \sa readLineStderr() canReadLineStdout()
+*/
+bool QProcess::canReadLineStderr() const
+{
+    if ( !d->proc || !d->proc->socketStderr )
+	return d->bufStderr.size() != 0;
+
+    QProcess *that = (QProcess*)this;
+    return that->d->bufStderr.scanNewline( 0 );
+}
+
+/*!
     Writes the data \a buf to the process's standard input. The
     process may or may not read this data.
 

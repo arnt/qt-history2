@@ -429,6 +429,18 @@ bool QProcess::isRunning() const
     }
 }
 
+bool QProcess::canReadLineStdout() const
+{
+    QProcess *that = (QProcess*)this;
+    return that->d->bufStdout.scanNewline( 0 );
+}
+
+bool QProcess::canReadLineStderr() const
+{
+    QProcess *that = (QProcess*)this;
+    return that->d->bufStderr.scanNewline( 0 );
+}
+
 void QProcess::writeToStdin( const QByteArray& buf )
 {
     d->stdinBuf.enqueue( new QByteArray(buf) );

@@ -466,30 +466,6 @@ QByteArray QProcess::readStderr()
 }
 
 /*!
-    Returns TRUE if it's possible to read an entire line of text from
-    standard output at this time; otherwise returns FALSE.
-
-    \sa readLineStdout() canReadLineStderr()
-*/
-bool QProcess::canReadLineStdout() const
-{
-    QProcess *that = (QProcess*)this;
-    return that->membufStdout()->scanNewline( 0 );
-}
-
-/*!
-    Returns TRUE if it's possible to read an entire line of text from
-    standard error at this time; otherwise returns FALSE.
-
-    \sa readLineStderr() canReadLineStdout()
-*/
-bool QProcess::canReadLineStderr() const
-{
-    QProcess *that = (QProcess*)this;
-    return that->membufStderr()->scanNewline( 0 );
-}
-
-/*!
     Reads a line of text from standard output, excluding any trailing
     newline or carriage return characters, and returns it. Returns
     QString::null if canReadLineStdout() returns FALSE.
