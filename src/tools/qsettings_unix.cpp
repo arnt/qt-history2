@@ -327,9 +327,10 @@ QDateTime QSettingsPrivate::modificationTime()
 
 
 /*!
-  Inserts \a path into the settings search path.  
+  Inserts \a path into the settings search path. The semantic of \a path depends
+  on the system \a s:
       
-  Under \e Unix, the search path list will be used when trying to determine a 
+  When \a s is \e Unix, the search path list will be used when trying to determine a 
   suitable filename for reading and writing settings files. By default, there 
   are two entries in the search path:
 
@@ -344,9 +345,9 @@ QDateTime QSettingsPrivate::modificationTime()
   example:
 
   \code
-  ...
-  QSettings::insertSearchPath("/opt/mysoft/share/cfg");
-  QSettings::insertSearchPath("/opt/mysoft/share/myapp/cfg");
+  QSettings settings;
+  settings.insertSearchPath("/opt/mysoft/share/cfg");
+  settings.insertSearchPath("/opt/mysoft/share/myapp/cfg");
   ...
   \endcode
 
@@ -359,10 +360,26 @@ QDateTime QSettingsPrivate::modificationTime()
   <li><i>\<home\></i>/.qt
   </ul>
 
-  Under \e Windows, 
+  When \a s is \e Windows, the search path list will be used as the first subfolder
+  of the "Software" folder in the registry. For example:
+
+  \code
+  QSettings settings;
+  settings.insertSearchPath( QSettings::Windows, "/FooSoft" );
+
+  settings.writeEntry( "/MyProgram/TipOfDay", TRUE );
+  \endcode
+
+  will try to write the entry "TipOfDay" into the registry folders
+  HKEY_LOCAL_MACHINE/Software/FooSoft/MyProgram
+  HKEY_LOCAL_MACHINE/Software/MyProgram
+  HKEY_CURRENT_USER/Software/FooSoft/MyProgram
+  HKEY_CURRENT_USER/Software/MyProgram
 */
-void QSettings::insertSearchPath(const QString &path)
+void QSettings::insertSearchPath( System s, const QString &path)
 {
+    if ( s != Unix )
+	return;
     initSearchPaths();
 
     QStringList::Iterator it = searchPaths->find(searchPaths->last());
@@ -373,13 +390,16 @@ void QSettings::insertSearchPath(const QString &path)
 
 
 /*!
-  Removes all occurrences or \a path from the settings search path.  Note
-  that the two default search paths cannot be removed.
+  Removes all occurrences or \a path from the settings search path for \a s.
+  Note that the default search paths cannot be removed.
 
   \sa insertSearchPath()
 */
-void QSettings::removeSearchPath(const QString &path)
+void QSettings::removeSearchPath( System s, const QString &path)
 {
+    if ( s != Unix )
+	return;
+
     initSearchPaths();
 
     if (path == searchPaths->first() || path == searchPaths->last())
