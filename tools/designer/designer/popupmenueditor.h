@@ -106,6 +106,7 @@ public:
     int find( PopupMenuEditor * menu );
     int count();
     PopupMenuEditorItem * at( int index );
+    PopupMenuEditorItem * at( QPoint pos ) { return itemAt( pos.y() ); }
     void exchange( int a, int b );
 
     void cut( int index );

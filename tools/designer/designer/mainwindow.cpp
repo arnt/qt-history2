@@ -108,6 +108,7 @@
 #include <qtooltip.h>
 #include <qsizegrip.h>
 #include <qtextview.h>
+#include <qdesktopwidget.h>
 #include <qassistantclient.h>
 #include <stdlib.h>
 
@@ -240,7 +241,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     lastPressWidget = 0;
     qApp->installEventFilter( this );
 
-    QSize as( qApp->desktop()->size() );
+    QSize as;//( qApp->desktop()->size() );// FIXME: invalid use of undefined type `class QDesktopWidget'
     as -= QSize( 30, 30 );
     resize( QSize( 1200, 1000 ).boundedTo( as ) );
 
@@ -608,12 +609,12 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 	if ( style )
 	    w->setStyle( style );
 
-	QObjectList *l = w->queryList( "QWidget" );
-	for ( QObject *o = l->first(); o; o = l->next() ) {
+	QObjectList l = w->queryList( "QWidget" );
+	QObjectList::iterator it = l.begin();
+	for ( ; it != l.end(); ++it ) {
 	    if ( style )
-		( (QWidget*)o )->setStyle( style );
+		( (QWidget*)*it )->setStyle( style );
 	}
-	delete l;
 
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
 	((MainWindow*)w )->setWFlags( WDestructiveClose );
@@ -757,7 +758,7 @@ void MainWindow::helpContents()
 
     if ( propertyEditor->widget() && !showClassDocu ) {
 	if ( !propertyEditor->currentProperty().isEmpty() ) {
-	    QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
+	    const QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
 	    QString s;
 	    QString cp = propertyEditor->currentProperty();
 	    if ( cp == "layoutMargin" ) {
@@ -887,7 +888,7 @@ void MainWindow::showProperties( QObject *o )
 	if ( fw->numSelectedWidgets() > 1 ) {
 	    QWidgetList wl = fw->selectedWidgets();
 	    if ( wl.first() != w ) {
-		wl.removeRef( w );
+		wl.remove( w );
 		wl.insert( 0, w );
 	    }
 	    propertyEditor->setWidget( new PropertyObject( wl ), fw );
@@ -1251,7 +1252,7 @@ FormWindow *MainWindow::formWindow()
 	if ( ::qt_cast<FormWindow*>(qworkspace->activeWindow()) )
 	    fw = (FormWindow*)qworkspace->activeWindow();
 	else if ( lastActiveFormWindow &&
-		    qworkspace->windowList().find( lastActiveFormWindow ) != -1)
+		    qworkspace->windowList().indexOf( lastActiveFormWindow ) != -1)
 	    fw = lastActiveFormWindow;
 	return fw;
     }
@@ -1543,41 +1544,39 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
 
 void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w )
 {
-    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
-    if ( text && qstrcmp( text->type(), "QString") != 0 )
-	text = 0;
-    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
-    if ( title && qstrcmp( title->type(), "QString") != 0 )
-	title = 0;
-    const QMetaProperty* pagetitle =
-	w->metaObject()->property( w->metaObject()->findProperty( "pageTitle", TRUE ), TRUE );
-    if ( pagetitle && qstrcmp( pagetitle->type(), "QString") != 0 )
-	pagetitle = 0;
-    const QMetaProperty* pixmap =
-	w->metaObject()->property( w->metaObject()->findProperty( "pixmap", TRUE ), TRUE );
-    if ( pixmap && qstrcmp( pixmap->type(), "QPixmap") != 0 )
-	pixmap = 0;
+    QMetaProperty text = w->metaObject()->property(w->metaObject()->indexOfProperty("text" ));
+    if ( qstrcmp( text.type(), "QString") != 0 )
+	text = QMetaProperty();
+    QMetaProperty title = w->metaObject()->property(w->metaObject()->indexOfProperty("title"));
+    if ( qstrcmp( title.type(), "QString") != 0 )
+	title = QMetaProperty();
+    QMetaProperty pagetitle = w->metaObject()->property(w->metaObject()->indexOfProperty("pageTitle"));
+    if ( qstrcmp( pagetitle.type(), "QString") != 0 )
+	pagetitle = QMetaProperty();
+    QMetaProperty pixmap = w->metaObject()->property(w->metaObject()->indexOfProperty( "pixmap"));
+    if ( qstrcmp( pixmap.type(), "QPixmap") != 0 )
+	pixmap = QMetaProperty();
 
-    if ( text && text->designable(w) ||
-	 title && title->designable(w) ||
-	 pagetitle && pagetitle->designable(w) ||
-	 pixmap && pixmap->designable(w) ) {
+    if ( text.isDesignable(w) ||
+	 title.isDesignable(w) ||
+	 pagetitle.isDesignable(w) ||
+	 pixmap.isDesignable(w) ) {
 	int id = 0;
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator(0);
-	if ( pixmap && pixmap->designable(w) ) {
+	if ( pixmap.isDesignable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Choose Pixmap..."), -1, 0) );
 	    props.insert( "pixmap", id );
 	}
-	if ( text && text->designable(w) && !::qt_cast<QTextEdit*>(w) ) {
+	if ( text.isDesignable(w) && !::qt_cast<QTextEdit*>(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Text..."), -1, 0) );
 	    props.insert( "text", id );
 	}
-	if ( title && title->designable(w) ) {
+	if ( title.isDesignable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Title..."), -1, 0) );
 	    props.insert( "title", id );
 	}
-	if ( pagetitle && pagetitle->designable(w) ) {
+	if ( pagetitle.isDesignable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Page Title..."), -1, 0) );
 	    props.insert( "pagetitle", id );
 	}
@@ -1724,8 +1723,8 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    if ( oldDoWrap != doWrap ) {
 		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
 		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
-								  "wordwrap", QVariant( oldDoWrap, 0 ),
-								  QVariant( doWrap, 0 ), QString::null, QString::null );
+								  "wordwrap", QVariant( oldDoWrap ),
+								  QVariant( doWrap ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
 		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
@@ -1767,7 +1766,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    MetaDataBase::setPropertyChanged( w, "pageTitle", TRUE );
 	}
     } else if ( id == props[ "pixmap" ] ) {
-	QPixmap oldPix = w->property( "pixmap" ).toPixmap();
+	QPixmap oldPix = QVariant(w->property( "pixmap" )).toPixmap();
 	QPixmap pix = qChoosePixmap( this, formWindow(), oldPix );
 	if ( !pix.isNull() ) {
 	    QString pn( tr( "Set the 'pixmap' of '%2'" ).arg( w->name() ) );
@@ -2023,7 +2022,8 @@ void MainWindow::selectionChanged()
     if ( selectedWidgets > 1 ) {
 	int unlaidout = 0;
 	int laidout = 0;
-	for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+	for (int i = 0; i < widgets.size(); ++i) {
+	    QWidget *w = widgets.at(i);
 	    if ( !w->parentWidget() || WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout )
 		unlaidout++;
 	    else
@@ -2271,18 +2271,8 @@ void MainWindow::readConfig()
 		break;
 	    }
 	}
-	// We know that the oldSettingsKey() will return 3.1
-	if ( keybase == DesignerApplication::oldSettingsKey() ) {
-	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
-	    if ( recentlyFiles.count() == 1 && recentlyFiles[0].isNull() )
-		recentlyFiles.clear();
-	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
-	    if ( recentlyProjects.count() == 1 && recentlyProjects[0].isNull() )
-		recentlyProjects.clear();
-	} else {
-	    recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
-	    recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
-	}
+	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles" );
+	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects" );
 
 	backPix = config.readBoolEntry( keybase + "Background/UsePixmap", TRUE ) | readPreviousConfig;
 	if ( backPix ) {
@@ -2329,11 +2319,11 @@ void MainWindow::readConfig()
 	w->includePolicy = (MetaDataBase::CustomWidget::IncludePolicy)l[ 2 ].toInt();
 	w->sizeHint.setWidth( l[ 3 ].toInt() );
 	w->sizeHint.setHeight( l[ 4 ].toInt() );
-	uint c = 5;
+	int c = 5;
 	if ( l.count() > c ) {
-	    int numSignals = l[ c ].toInt();
+	    int signalCount = l[ c ].toInt();
 	    c++;
-	    for ( int i = 0; i < numSignals; ++i, c++ )
+	    for ( int i = 0; i < signalCount; ++i, ++c )
 		w->lstSignals.append( fixArgs2( l[ c ] ).latin1() );
 	}
 	if ( l.count() > c ) {
@@ -2461,15 +2451,13 @@ void MainWindow::closeEvent( QCloseEvent *e )
     }
 
     QWidgetList windows = qWorkspace()->windowList();
-    QWidgetListIt wit( windows );
-    while ( wit.current() ) {
-	QWidget *w = wit.current();
-	++wit;
-	if ( ::qt_cast<FormWindow*>(w) ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
+	if ( ::qt_cast<FormWindow*>(w) ) {	    
 	    if ( ( (FormWindow*)w )->formFile()->editor() )
-		windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+		windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 	    if ( ( (FormWindow*)w )->formFile()->formWindow() )
-		windows.removeRef( ( (FormWindow*)w )->formFile()->formWindow() );
+		windows.remove( ( (FormWindow*)w )->formFile()->formWindow() );
 	    if ( !( (FormWindow*)w )->formFile()->close() ) {
 		e->ignore();
 		return;
@@ -2482,8 +2470,8 @@ void MainWindow::closeEvent( QCloseEvent *e )
 	}
 	w->close();
     }
-
-    QMapConstIterator<QAction*, Project*> it = projects.begin();
+    
+    QMap<QAction*, Project*>::ConstIterator it = projects.begin();
     while( it != projects.end() ) {
 	Project *pro = it.data();
 	++it;
@@ -2593,9 +2581,9 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	return TRUE;
     }
 
-    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
-    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
-    if ( text && text->designable(w) ) {
+    QMetaProperty text = w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
+    QMetaProperty title = w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
+    if ( text.isDesignable(w) ) {
 	bool ok = FALSE;
 	bool oldDoWrap = FALSE;
 	if ( ::qt_cast<QLabel*>(w) ) {
@@ -2618,8 +2606,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	    if ( oldDoWrap != doWrap ) {
 		QString pn( tr( "Set 'wordwrap' of '%1'" ).arg( w->name() ) );
 		SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
-								  "wordwrap", QVariant( oldDoWrap, 0 ),
-								  QVariant( doWrap, 0 ), QString::null, QString::null );
+								  "wordwrap", QVariant( oldDoWrap ),
+								  QVariant( doWrap ), QString::null, QString::null );
 		cmd->execute();
 		formWindow()->commandHistory()->addCommand( cmd );
 		MetaDataBase::setPropertyChanged( w, "wordwrap", TRUE );
@@ -2635,7 +2623,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	}
 	return TRUE;
     }
-    if ( title && title->designable(w) ) {
+    if ( title.isDesignable(w) ) {
 	bool ok = FALSE;
 	QString text;
 	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
@@ -2721,7 +2709,8 @@ void MainWindow::rebuildCommonWidgetsToolBoxPage()
 bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( ::qt_cast<FormWindow*>(w) ) {
 	    if ( ( (FormWindow*)w )->isCustomWidgetUsed( wid ) )
 		return TRUE;
@@ -2736,7 +2725,8 @@ void MainWindow::setGrid( const QPoint &p )
 	return;
     grd = p;
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( !::qt_cast<FormWindow*>(w) )
 	    continue;
 	( (FormWindow*)w )->mainContainer()->update();
@@ -2749,7 +2739,8 @@ void MainWindow::setShowGrid( bool b )
 	return;
     sGrid = b;
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( !::qt_cast<FormWindow*>(w) )
 	    continue;
 	( (FormWindow*)w )->mainContainer()->update();
@@ -2972,7 +2963,7 @@ void MainWindow::setupRecentlyProjectsMenu()
 QPtrList<DesignerProject> MainWindow::projectList() const
 {
     QPtrList<DesignerProject> list;
-    QMapConstIterator<QAction*, Project*> it = projects.begin();
+    QMap<QAction*, Project*>::ConstIterator it = projects.begin();
 
     while( it != projects.end() ) {
 	Project *p = it.data();
@@ -3032,15 +3023,15 @@ void MainWindow::setCurrentProjectByFilename( const QString& proFilename )
 void MainWindow::recentlyFilesMenuActivated( int id )
 {
     if ( id != -1 ) {
-	if ( !QFile::exists( *recentlyFiles.at( id ) ) ) {
+	if ( !QFile::exists( recentlyFiles.at( id ) ) ) {
 	    QMessageBox::warning( this, tr( "Open File" ),
 				  tr( "Could not open '%1'. File does not exist." ).
-				  arg( *recentlyFiles.at( id ) ) );
+				  arg( recentlyFiles.at( id ) ) );
 	    recentlyFiles.remove( recentlyFiles.at( id ) );
 	    return;
 	}
-	fileOpen( "", "", *recentlyFiles.at( id ) );
-	QString fn( *recentlyFiles.at( id ) );
+	fileOpen( "", "", recentlyFiles.at( id ) );
+	QString fn( recentlyFiles.at( id ) );
 	addRecentlyOpened( fn, recentlyFiles );
     }
 }
@@ -3048,15 +3039,15 @@ void MainWindow::recentlyFilesMenuActivated( int id )
 void MainWindow::recentlyProjectsMenuActivated( int id )
 {
     if ( id != -1 ) {
-	if ( !QFile::exists( *recentlyProjects.at( id ) ) ) {
+	if ( !QFile::exists( recentlyProjects.at( id ) ) ) {
 	    QMessageBox::warning( this, tr( "Open Project" ),
 				  tr( "Could not open '%1'. File does not exist." ).
-				  arg( *recentlyProjects.at( id ) ) );
+				  arg( recentlyProjects.at( id ) ) );
 	    recentlyProjects.remove( recentlyProjects.at( id ) );
 	    return;
 	}
-	openProject( *recentlyProjects.at( id ) );
-	QString fn( *recentlyProjects.at( id ) );
+	openProject( recentlyProjects.at( id ) );
+	QString fn( recentlyProjects.at( id ) );
 	addRecentlyOpened( fn, recentlyProjects );
     }
 }
@@ -3265,21 +3256,22 @@ void MainWindow::finishedRun()
 void MainWindow::enableAll( bool enable )
 {
     menuBar()->setEnabled( enable );
-    QObjectList *l = queryList( "QDockWindow" );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
+    QObjectList l = queryList( "QDockWindow" );
+    for (int i = 0; i < l.size(); ++i ) {
+	QObject *o = l.at(i);
 	if ( o == wspace->parentWidget() ||
 	     o == oWindow->parentWidget() ||
 	     o == hierarchyView->parentWidget() )
 	    continue;
 	( (QWidget*)o )->setEnabled( enable );
     }
-    delete l;
 }
 
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
     QWidgetList windows = qworkspace->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	FormWindow *fw = 0;
 	SourceEditor *se = 0;
 	SourceFile *sf = 0;
@@ -3414,7 +3406,8 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 QObject *MainWindow::findRealObject( QObject *o )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( ::qt_cast<FormWindow*>(w) && QString( w->name() ) == QString( o->name() ) )
 	    return w;
 	else if ( ::qt_cast<SourceEditor*>(w) && ( (SourceEditor*)w )->formWindow() &&
@@ -3467,7 +3460,8 @@ void MainWindow::breakPointsChanged()
 
     e->saveBreakPoints();
 
-    for ( QObject *o = debuggingForms.first(); o; o = debuggingForms.next() ) {
+    for (int i = 0; i < debuggingForms.size(); ++i ) {
+	QObject *o = debuggingForms.at(i);
 	if ( qstrcmp( o->name(), e->object()->name() ) == 0 ) {
 	    iiface->setBreakPoints( o, MetaDataBase::breakPoints( e->object() ) );
 	    break;
@@ -3604,14 +3598,12 @@ void MainWindow::setSingleProject( Project *pro )
 	pro->save();
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	QWidgetListIt wit( windows );
-	while ( wit.current() ) {
-	    QWidget *w = wit.current();
-	    ++wit;
+	for (int i = 0; i < windows.size(); ++i) {
+	    QWidget *w = windows.at(i);
 	    if ( ::qt_cast<FormWindow*>(w) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
 		    if ( ( (FormWindow*)w )->formFile()->editor() )
-			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+			windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 		    ( (FormWindow*)w )->formFile()->close();
 		}
 	    } else if ( ::qt_cast<SourceEditor*>(w) ) {

@@ -992,7 +992,8 @@ void MainWindow::setupHelpActions()
     connect( actionHelpRegister, SIGNAL( activated() ), this, SLOT( helpRegister() ) );
 #endif
 
-    actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( whatsthis_image, whatsthis_image ),
+    actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( QPixmap(whatsthis_image),
+								     QPixmap(whatsthis_image) ),
 				       tr("What's This?"), SHIFT + Key_F1, this, 0 );
     actionHelpWhatsThis->setStatusTip( tr("\"What's This?\" context sensitive help") );
     actionHelpWhatsThis->setWhatsThis( whatsThisFrom( "Help|What's This?" ) );
@@ -1125,14 +1126,12 @@ void MainWindow::fileCloseProject()
 
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	QWidgetListIt wit( windows );
-	while ( wit.current() ) {
-	    QWidget *w = wit.current();
-	    ++wit;
+	for (int i = 0; i < windows.size(); ++i) {
+	    QWidget *w = windows.at(i);
 	    if ( ::qt_cast<FormWindow*>(w) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
 		    if ( ( (FormWindow*)w )->formFile()->editor() )
-			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+			windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 		    if ( !( (FormWindow*)w )->formFile()->close() )
 			return;
 		}
@@ -1144,7 +1143,7 @@ void MainWindow::fileCloseProject()
 	hierarchyView->clear();
 	windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( FALSE );
-	actionGroupProjects->removeChild( a );
+	a->setParent(0);
 	projects.remove( a );
 	delete a;
 	currentProject = 0;
@@ -1153,7 +1152,8 @@ void MainWindow::fileCloseProject()
 	    statusBar()->message( "Selected project '" + tr( currentProject->projectName() + "'") );
 	}
 	if ( !windows.isEmpty() ) {
-	    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	    for (int i = 0; i < windows.size(); ++i) {
+		QWidget *w = windows.at(i);
 		if ( !::qt_cast<FormWindow*>(w) )
 		    continue;
 		w->setFocus();
@@ -1682,7 +1682,8 @@ void MainWindow::editBreakLayout()
 	return;
     } else {
 	QWidgetList widgets = formWindow()->selectedWidgets();
-	for ( w = widgets.first(); w; w = widgets.next() ) {
+	for (int i = 0; i < widgets.size(); ++i) {
+	    QWidget *w = widgets.at(i);
 	    if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout ||
 		 w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout )
 		break;

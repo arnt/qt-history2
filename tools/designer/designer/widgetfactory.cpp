@@ -68,7 +68,6 @@
 #include <qtabbar.h>
 #include <qlistbox.h>
 #include <qlistview.h>
-#include <qobjectlist.h>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qdial.h>
@@ -492,14 +491,15 @@ QMap< int, QStringList > *changedProperties = 0;
 void WidgetFactory::saveDefaultProperties( QObject *w, int id )
 {
     QMap< QString, QVariant> propMap;
-    QStrList lst = w->metaObject()->propertyNames( TRUE );
-    for ( uint i = 0; i < lst.count(); ++i ) {
-	QVariant var = w->property( lst.at( i ) );
-	if ( !var.isValid() && qstrcmp( "pixmap", lst.at( i ) ) == 0 )
+    int numProps = w->metaObject()->propertyCount();
+    for ( int i = 0; i < numProps; ++i ) {
+	QMetaProperty p = w->metaObject()->property(i);
+	QVariant var = w->property( p.name() );
+	if ( !var.isValid() && qstrcmp( "pixmap", p.name() ) == 0 )
 	    var = QVariant( QPixmap() );
-	else if ( !var.isValid() && qstrcmp( "iconSet", lst.at( i ) ) == 0 )
+	else if ( !var.isValid() && qstrcmp( "iconSet", p.name() ) == 0 )
 	    var = QVariant( QIconSet() );
-	propMap.replace( lst.at( i ), var );
+	propMap.replace( p.name(), var );
     }
     defaultProperties->replace( id, propMap );
 }
@@ -1021,10 +1021,9 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
     QLayout *lay = w->layout();
 
     if ( ::qt_cast<QGroupBox*>(w) ) {
-	QObjectList *l = lay->queryList( "QLayout" );
-	if ( l && l->first() )
-	    lay = (QLayout*)l->first();
-	delete l;
+	QObjectList l = lay->queryList( "QLayout" );
+	if ( l.size() )
+	    lay = (QLayout*)l.first();
     }
     layout = lay;
 
@@ -1451,35 +1450,32 @@ bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )
 
 bool WidgetFactory::resetProperty( QObject *w, const QString &propName )
 {
-    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->
-							findProperty( propName, TRUE ), TRUE );
+    QMetaProperty p = w->metaObject()->property( w->metaObject()->indexOfProperty( propName ) );
     if (!p )
 	return FALSE;
-    return p->reset( w );
+    return p.reset( w );
 }
 
 QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 {
     if ( propName == "wordwrap" ) {
 	int v = defaultValue( w, "alignment" ).toInt();
-	return QVariant( ( v & WordBreak ) == WordBreak, 0 );
+	return QVariant( ( v & WordBreak ) == WordBreak );
     } else if ( propName == "toolTip" || propName == "whatsThis" ) {
 	return QVariant( QString::fromLatin1( "" ) );
     } else if ( w->inherits( "CustomWidget" ) ) {
 	return QVariant();
     } else if ( propName == "frameworkCode" ) {
-	return QVariant( TRUE, 0 );
+	return QVariant( TRUE );
     } else if ( propName == "layoutMargin" || propName == "layoutSpacing" ) {
 	return QVariant( -1 );
     }
-
-    return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
+    return defaultProperties->value(WidgetDatabase::idFromClassName(classNameOf(w))).value(propName);
 }
 
 QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 {
-    const QMetaProperty *p = w->metaObject()->
-			     property( w->metaObject()->findProperty( propName, TRUE ), TRUE );
+    const QMetaProperty p = w->metaObject()->property( w->metaObject()->indexOfProperty( propName ) );
     if ( !p ) {
 	int v = defaultValue( w, "alignment" ).toInt();
 	if ( propName == "hAlign" ) {
@@ -1506,7 +1502,7 @@ QString WidgetFactory::defaultCurrentItem( QObject *w, const QString &propName )
 	return QString::null;
 
     }
-    return p->valueToKey( defaultValue( w, propName ).toInt() );
+    return p.enumerator().valueToKey( defaultValue( w, propName ).toInt() );
 }
 
 QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, MetaDataBase::CustomWidget *w )
@@ -1518,9 +1514,8 @@ QWidget *WidgetFactory::createCustomWidget( QWidget *parent, const char *name, M
 
 QVariant WidgetFactory::property( QObject *w, const char *name )
 {
-    int id = w->metaObject()->findProperty( name, TRUE );
-    const QMetaProperty* p = w->metaObject()->property( id, TRUE );
-    if ( !p || !p->isValid() )
+    QMetaProperty p = w->metaObject()->property( w->metaObject()->indexOfProperty( name ) );
+    if ( !p )
 	return MetaDataBase::fakeProperty( w, name );
     return w->property( name );
 }
@@ -1531,14 +1526,9 @@ void QDesignerLabel::updateBuddy()
     if ( myBuddy.isEmpty() )
 	return;
 
-    QObjectList *l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
-    if ( !l || !l->first() ) {
-	delete l;
-	return;
-    }
-
-    QLabel::setBuddy( (QWidget*)l->first() );
-    delete l;
+    QObjectList l = topLevelWidget()->queryList( "QWidget", myBuddy, FALSE, TRUE );
+    if (l.size())
+	QLabel::setBuddy( (QWidget*)l.first() );
 }
 
 
@@ -1588,7 +1578,8 @@ bool QLayoutWidget::event( QEvent *e )
 */
 void QLayoutWidget::updateSizePolicy()
 {
-    if ( !children() || children()->count() == 0 ) {
+    QObjectList l = children();
+    if (!l.size()) {
 	sp = QWidget::sizePolicy();
 	return;
     }
@@ -1619,17 +1610,14 @@ void QLayoutWidget::updateSizePolicy()
 		parentLayout = 0;
 	}
 
-	QObjectListIt it( *children() );
-	QObject *o;
-
 	if ( ::qt_cast<QVBoxLayout*>(layout()) ) {
 	    if ( ::qt_cast<QHBoxLayout*>(parentLayout) )
 		vt = QSizePolicy::Minimum;
 	    else
 		vt = QSizePolicy::Fixed;
 
-	    while ( ( o = it.current() ) ) {
-		++it;
+	    for (int i = 0; i < l.size(); ++i) {
+		QObject *o = l.at(i);
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1649,8 +1637,8 @@ void QLayoutWidget::updateSizePolicy()
 	    else
 		ht = QSizePolicy::Fixed;
 
-	    while ( ( o = it.current() ) ) {
-		++it;
+	    for (int i = 0; i < l.size(); ++i) {
+		QObject *o = l.at(i);
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1674,8 +1662,8 @@ void QLayoutWidget::updateSizePolicy()
 		    vt = QSizePolicy::Minimum;
 	    }
 
-	    while ( ( o = it.current() ) ) {
-		++it;
+	    for (int i = 0; i < l.size(); ++i) {
+                QObject *o = l.at(i);
 		if ( !o->isWidgetType() || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 		    continue;
 		QWidget *w = (QWidget*)o;
@@ -1708,8 +1696,8 @@ void CustomWidget::paintEvent( QPaintEvent *e )
 	( (FormWindow*)parentWidget() )->paintGrid( this, e );
     } else {
 	QPainter p( this );
-	p.fillRect( rect(), colorGroup().dark() );
-	p.setPen( colorGroup().light() );
+	p.fillRect( rect(), palette().dark() );
+	p.setPen( palette().light() );
 	p.drawText( 2, 2, width() - 4, height() - 4, Qt::AlignAuto | Qt::AlignTop, cusw->className );
 	p.drawPixmap( ( width() - cusw->pixmap->width() ) / 2,
 		      ( height() - cusw->pixmap->height() ) / 2,
