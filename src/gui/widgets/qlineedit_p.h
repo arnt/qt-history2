@@ -60,7 +60,6 @@ public:
     int maxLength;
     int hscroll;
     int lastCursorPos;
-    QChar passwordChar; // obsolete
 
     enum { UndoAct, RedoAct, CutAct, CopyAct, PasteAct, ClearAct, SelectAllAct, NCountActs };
     QAction *actions[NCountActs];

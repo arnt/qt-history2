@@ -324,7 +324,7 @@ QString QLineEdit::displayText() const
         return QString::fromLatin1("");
     QString res = d->text;
     if (d->echoMode == Password)
-        res.fill(passwordChar());
+        res.fill(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter, this));
     return (res.isNull() ? QString::fromLatin1("") : res);
 }
 
@@ -1921,32 +1921,6 @@ void QLineEdit::changeEvent(QEvent *ev)
         d->updateTextLayout();
     }
     QWidget::changeEvent(ev);
-}
-
-
-/*!
-    \internal
-
-    Sets the password character to \a c.
-
-    \sa passwordChar()
-*/
-
-void QLineEdit::setPasswordChar(QChar c)
-{
-    d->passwordChar = c;
-}
-
-/*!
-    \internal
-
-    Returns the password character.
-
-    \sa setPasswordChar()
-*/
-QChar QLineEdit::passwordChar() const
-{
-    return (d->passwordChar.isNull() ? QChar(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter, this)) : d->passwordChar);
 }
 
 void QLineEditPrivate::clipboardChanged()

@@ -179,8 +179,6 @@ public:
     QT_COMPAT int characterAt(int, QChar*) const;
     QT_COMPAT bool getSelection(int *, int *);
 #endif
-    void setPasswordChar(QChar c); // internal obsolete
-    QChar passwordChar() const; // obsolete internal
 
 private:
     Q_PRIVATE_SLOT(d, void clipboardChanged())
