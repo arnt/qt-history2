@@ -1330,8 +1330,6 @@ QStringList QApplication::libraryPaths()
 	else if ( QFile::exists( QString(QT_INSTALL_PREFIX) + "/plugins" ) )
 	    app_libpaths->append( QString(QT_INSTALL_PREFIX) + "/plugins" );
 #endif // QT_INSTALL_PREFIX
-	if ( QFile::exists( "./plugins" ) )
-	    app_libpaths->append( "./plugins" );
     }
     return *app_libpaths;
 }
