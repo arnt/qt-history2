@@ -5243,25 +5243,42 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
 QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTextString *text, QTextLineStart *line,
 							QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
+    bool endsWithSpace = FALSE;
+    // ignore white space at the end of the line.
+    if ( lastChar->whiteSpace ) {
+	--lastChar;
+	endsWithSpace = TRUE;
+    }
+
     int start = (startChar - &text->at(0));
     int last = (lastChar - &text->at(0) );
 
-    QBidiControl *control = new QBidiControl( line->context(), line->status );
-    QString str;
-    str.setUnicode( 0, last - start + 1 );
-    // fill string with logically ordered chars.
-    QTextStringChar *ch = startChar;
-    QChar *qch = (QChar *)str.unicode();
-    while ( ch <= lastChar ) {
-	*qch = ch->c;
-	qch++;
-	ch++;
-    }
+    int length = lastChar - startChar + 1;
+
+
     int x = startChar->x;
 
-    QPtrList<QTextRun> *runs;
-    runs = QComplexText::bidiReorderLine(control, str, 0, last - start + 1,
-					 (text->isRightToLeft() ? QChar::DirR : QChar::DirL) );
+    unsigned char _levels[256];
+    int _visual[256];
+
+    unsigned char *levels = _levels;
+    int *visual = _visual;
+
+    if ( length > 255 ) {
+	levels = (unsigned char *)malloc( length*sizeof( unsigned char ) );
+	visual = (int *)malloc( length*sizeof( int ) );
+    }
+
+    //qDebug("bidiReorderLine: length=%d (%d-%d)", length, start, last );
+
+    QTextStringChar *ch = startChar;
+    unsigned char *l = levels;
+    while ( ch <= lastChar ) {
+	//qDebug( "  level: %d", ch->bidiLevel );
+	*(l++) = (ch++)->bidiLevel;
+    }
+
+    QTextEngine::bidiReorder( length, levels, visual );
 
     // now construct the reordered string out of the runs...
 
@@ -5290,79 +5307,41 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 		numSpaces++;
 	}
     }
+
     int toAdd = 0;
-    bool first = TRUE;
-    QTextRun *r = runs->first();
-    int xmax = -0xffffff;
-    while ( r ) {
-	if(r->level %2) {
-	    // odd level, need to reverse the string
-	    int pos = r->stop + start;
-	    while(pos >= r->start + start) {
-		QTextStringChar &ch = text->at(pos);
-		if( numSpaces && !first && (ch.whiteSpace || ch.wordStop) ) {
-		    int s = space / numSpaces;
-		    toAdd += s;
-		    space -= s;
-		    numSpaces--;
-		} else if ( first ) {
-		    first = FALSE;
-		    if ( ch.c == ' ' )
-			x -= ch.format()->width( ' ' );
-		}
-		ch.x = x + toAdd;
-		ch.rightToLeft = TRUE;
-		int ww = 0;
-		if ( ch.c.unicode() >= 32 || ch.c == '\t' || ch.c == '\n' || ch.isCustom() ) {
-		    ww = text->width( pos );
-		} else {
-		    ww = ch.format()->width( ' ' );
-		}
-		if ( xmax < x + toAdd + ww ) xmax = x + toAdd + ww;
-		x += ww;
-		pos--;
-	    }
-	} else {
-	    int pos = r->start + start;
-	    while(pos <= r->stop + start) {
-		QTextStringChar* c = &text->at(pos);
-		if( numSpaces && !first && (c->whiteSpace || c->wordStop) ) {
-		    int s = space / numSpaces;
-		    toAdd += s;
-		    space -= s;
-		    numSpaces--;
-		} else if ( first ) {
-		    first = FALSE;
-		    if ( c->c == ' ' )
-			x -= c->format()->width( ' ' );
-		}
-		c->x = x + toAdd;
-		c->rightToLeft = FALSE;
-		int ww = 0;
-		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom() ) {
-		    ww = text->width( pos );
-		} else {
-		    ww = c->format()->width( ' ' );
-		}
-		if ( xmax < x + toAdd + ww ) xmax = x + toAdd + ww;
-		x += ww;
-		pos++;
-	    }
+    for ( int i = 0; i < length; i++ ) {
+	QTextStringChar *ch = startChar + visual[i];
+	if( numSpaces && (ch->whiteSpace || ch->wordStop) ) {
+	    int s = space / numSpaces;
+	    toAdd += s;
+	    space -= s;
+	    numSpaces--;
 	}
-	r = runs->next();
+ 	ch->x = x + toAdd;
+	//qDebug("visual: %d (%p) placed at %d rightToLeft=%d", visual[i], ch, x +toAdd, ch->rightToLeft  );
+	int ww = 0;
+	if ( ch->c.unicode() >= 32 || ch->c == '\t' || ch->c == '\n' || ch->isCustom() ) {
+	    ww = text->width( start+visual[i] );
+	} else {
+	    ww = ch->format()->width( ' ' );
+	}
+	x += ww;
+    }
+    if ( endsWithSpace ) {
+	int sw = ch->format()->width( ' ' );
+	(lastChar+1)->x = lastChar->x + (lastChar->rightToLeft ? -sw : sw );
     }
 
-    line->w = xmax + 10;
-    QTextLineStart *ls = new QTextLineStart( control->context, control->status );
-    delete control;
-    delete runs;
-    return ls;
+    line->w = x + toAdd;
+
+    if ( length > 255 ) {
+	free( levels );
+	free( visual );
+    }
+
+    return new QTextLineStart;
 }
 #endif
-
-static inline bool isAsian( uchar row ) {
-    return( row > 0x2d && row < 0xfb || row == 0x11 );
-}
 
 
 void QTextFormatter::insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls )
@@ -5435,6 +5414,9 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag,
 					int start, const QMap<int, QTextLineStart*> & )
 {
+    // make sure bidi information is correct.
+    (void )parag->string()->isBidi();
+
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     int left = doc ? parag->leftMargin() + doc->leftMargin() : 0;
@@ -5469,7 +5451,6 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag
 	if ( c )
 	    lastChr = c->c;
 	c = &parag->string()->at( i );
-	c->rightToLeft = FALSE;
 	// ### the lines below should not be needed
 	if ( painter )
 	    c->format()->setPainter( painter );
@@ -5569,6 +5550,9 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 				      int start, const QMap<int, QTextLineStart*> & )
 {
+    // make sure bidi information is correct.
+    (void )parag->string()->isBidi();
+
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
@@ -5625,7 +5609,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	if ( painter )
 	    c->format()->setPainter( painter );
 	c = &string->at( i );
-	c->rightToLeft = FALSE;
 	if ( i > 0 && (x > curLeft || ww == 0) || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
 	} else {
