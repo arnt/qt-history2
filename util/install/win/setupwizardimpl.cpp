@@ -982,14 +982,16 @@ void SetupWizardImpl::configDone()
 #if !(defined(Q_OS_MACX) && (defined(EVAL) || defined(EDU)))
 	args << "sub-src";
 	args << "sub-plugins";
-	if ( optionsPage->installTools->isChecked() )
-	    args << "sub-tools";
-	if ( optionsPage->installTutorials->isChecked() )
-	    args << "sub-tutorial";
-	if ( optionsPage->installExamples->isChecked() )
-	    args << "sub-examples";
-	if ( optionsPage->installExtensions->isChecked() )
-	    args << "sub-extensions";
+	if ( optionsPage ) {
+	    if ( optionsPage->installTools->isChecked() )
+		args << "sub-tools";
+	    if ( optionsPage->installTutorials->isChecked() )
+		args << "sub-tutorial";
+	    if ( optionsPage->installExamples->isChecked() )
+		args << "sub-examples";
+	    if ( optionsPage->installExtensions->isChecked() )
+		args << "sub-extensions";
+	}
 #endif
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
