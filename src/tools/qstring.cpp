@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#428 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#429 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12361,7 +12361,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \class QString qstring.h
 
   \brief The QString class provides an abstraction of Unicode text and
-	  the classic C null-terminated char array (<var>char*</var>).
+	  the classic C null-terminated char array (char *).
 
   \ingroup tools
   \ingroup shared
@@ -12369,27 +12369,27 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   QString uses \link shclass.html implicit sharing\endlink, which makes it
   very efficient and easy to use.
 
-  In all of the QString methods that take <var>const char*</var> parameters,
-  the <var>const char*</var> is interpreted as a classic C-style
-  0-terminated ASCII string. It is legal for the <var>const
-  char*</var> parameter to be 0. If the <var>const char*</var> is not
-  0-terminated, then the results are undefined.  Functions that
+  In all of the QString methods that take \c {const char *} parameters,
+  the \c {const char *} is interpreted as a classic C-style
+  0-terminated ASCII string. It is legal for the \c {const
+  char *} parameter to be 0. If the \c {const char *} is not
+  0-terminated, the results are undefined.  Functions that
   copy classic C strings into a QString will not copy the terminating
-  0-character. The QChar array of the QString (as returned by
-  unicode()) is not terminated by a null.
+  0 character. The QChar array of the QString (as returned by
+  unicode()) is generally not terminated by a null.
 
   A QString that has not been assigned to anything is \e null, i.e., both
   the length and data pointer is 0. A QString that references the empty
   string ("", a single '\0' char) is \e empty.  Both null and empty
-  QStrings are legal parameters to the methods. Assigning <var>const char
-  * 0</var> to QString gives a null QString.
+  QStrings are legal parameters to the methods. Assigning \c {(const char
+  *)0} to QString gives a null QString.
 
-  Note that if you find that you are mixing usage of QCString, QString,
-  and QByteArray, this causes lots of unnecessary copying and might
-  indicate that the true nature of the data you are dealing with is
-  uncertain.  If the data is NUL-terminated 8-bit data, use QCString;
-  if it is unterminated (i.e., contains NULs) 8-bit data, use QByteArray;
-  if it is text, use QString.
+  Note that if you find that you are mixing usage of \l QCString, \l
+  QString, and \l QByteArray, this causes lots of unnecessary copying
+  and might indicate that the true nature of the data you are dealing
+  with is uncertain.  If the data is 0-terminated 8-bit data, use \l
+  QCString; if it is unterminated (i.e., contains 0s) 8-bit data, use
+  \l QByteArray; if it is text, use \l QString.
 
   <b>Note for C programmers</b>
 
@@ -12412,7 +12412,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     The variable, result, is an auto variable allocated on the stack.
     When return is called, because we're returning by value, The copy
     constructor is called and a copy of the string is returned. (No
-    actual copying takes place because of the implicit sharing, see
+    actual copying takes place thanks to the implicit sharing, see
     below.)
 
     Throughout Qt's source code you will encounter QString usages like this:
@@ -12430,37 +12430,30 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     incrementing a reference count. QString operates on a copy-on-write
     basis, only copying if an instance is actually changed.
 
-  \sa QChar
+  \sa QChar QCString QByteArray QConstString
 */
 
 /*!
   \enum Qt::StringComparisonMode
 
   This enum type is used to set the string comparison mode when searching
-  for an item.  This is currently implemented in QListBox, QListView and
+  for an item.  This is implemented in QListBox, QListView and
   QIconView.
 
   \value CaseSensitive The search is set to be case sensitive.
-  \value BeginsWith The search is set to check if the search string is at
-  the beginning of the string.
-  \value Contains The search is set to check if the search string is
-  contained inside the string.
-  \value EndsWith The search is set to check if the search string is at the
-   end of the string.
   \value ExactMatch The search is set to check if the search string
   matches the string exactly.
+  \value BeginsWith The search is set to check if the search string is at
+  the beginning of the string.
+  \value EndsWith The search is set to check if the search string is at the
+   end of the string.
+  \value Contains The search is set to check if the search string is
+  contained inside the string.
 
-  You can use one or more of these flags, it will check each option (if set)
-  individually in the following order:
-
-  <ul>
-  <li> ExactMatch
-  <li> BeginsWith
-  <li> EndsWith
-  <li> Contains
-  </ul>
-
-
+  You can use one or more of these flags (other than \c
+  CaseSensitive), it will individually check the options in the
+  following order: \c ExactMatch, \c BeginsWith, \c EndsWith, \c
+  Contains.
 */
 Q_EXPORT QStringData *QString::shared_null = 0;
 QT_STATIC_CONST_IMPL QString QString::null;
@@ -12528,8 +12521,8 @@ QString::QString( QChar ch )
 }
 
 /*!
-  Constructs an implicitly shared copy of \a s.  This is very fast, O(1), since reference
-  counting is used.
+  Constructs an implicitly shared copy of \a s.  This is
+  instantaneous, since reference counting is used.
 */
 QString::QString( const QString &s ) :
     d(s.d)
@@ -13236,7 +13229,7 @@ QString& QString::fill( QChar c, int len )
 
   \obsolete
 
-  In Qt 2.0 and later, all calls to this function are redundant. Just
+  In Qt 2.0 and later, all calls to this function are needless. Just
   remove them.
 */
 
@@ -13245,10 +13238,10 @@ QString& QString::fill( QChar c, int len )
   Finds the first occurrence of the character \a c, starting at
   position \a index. If \a index is -1, the search starts at the
   last character; if -2, at the next to last character and so on.  (See
-  findRev() for searching from the end of the string).
+  findRev() for searching backwards.)
 
-  If \a cs is TRUE, then the search is case-sensitive.  If \a cs is FALSE,
-  then the search is case-insensitive.
+  If \a cs is TRUE, then the search is case sensitive.  If \a cs is FALSE,
+  then the search is case insensitive.
 
   Returns the position of \a c or -1 if \a c could not be found.
 */
@@ -13280,9 +13273,9 @@ int QString::find( QChar c, int index, bool cs ) const
   Finds the first occurrence of the string \a str, starting at position
   \a index. If \a index is -1, the search starts at the last character, if
   it is -2, at the next to last character and so on.  (See
-  findRev() for searching from the end of the string).
+  findRev() for searching backwards.)
 
-  The search is case-sensitive if \a cs is TRUE or case-insensitive if
+  The search is case sensitive if \a cs is TRUE or case insensitive if
   \a cs is FALSE.
 
   Returns the position of \a str or -1 if \a str could not be found.
@@ -13353,13 +13346,13 @@ int QString::find( const QString& str, int index, bool cs ) const
 /*!
   \fn int QString::findRev( const char* str, int index ) const
 
-  Equivalent to findRev(QString(str), index).
+  Equivalent to findRev(QString(\a str), \a index).
 */
 
 /*! \fn int QString::find( const char* str, int index ) const
   \overload
 
-  Equivalent to find(QString(str), index).
+  Equivalent to find(QString(\a str), \a index).
 */
 
 /*! \overload
@@ -13376,8 +13369,8 @@ int QString::find( const QString& str, int index, bool cs ) const
 
   Returns the position of \a c or -1 if \a c could not be found.
 
-  If \a cs is TRUE then the search is case-sensitive.  If \a cs is
-  FALSE then the search is case-insensitive.
+  If \a cs is TRUE then the search is case sensitive.  If \a cs is
+  FALSE then the search is case insensitive.
 
 */
 
@@ -13401,8 +13394,8 @@ int QString::findRev( QChar c, int index, bool cs ) const
 
   Returns the position of \a str or -1 if \a str could not be found.
 
-  If \a cs is TRUE then the search is case-sensitive.  If \a cs is
-  FALSE then the search is case-insensitive.
+  If \a cs is TRUE then the search is case sensitive.  If \a cs is
+  FALSE then the search is case insensitive.
 */
 
 int QString::findRev( const QString& str, int index, bool cs ) const
@@ -13471,8 +13464,8 @@ int QString::findRev( const QString& str, int index, bool cs ) const
 
   Returns the number of times the character \a c occurs in the string.
 
-  If \a cs is TRUE then the match is case-sensitive.  If \a cs is FALSE, then the
-  match is case-insensitive.
+  If \a cs is TRUE then the match is case sensitive.  If \a cs is FALSE, then the
+  match is case insensitive.
 */
 
 int QString::contains( QChar c, bool cs ) const
@@ -13501,8 +13494,8 @@ int QString::contains( QChar c, bool cs ) const
 
   Returns the number of times the string \a str occurs in the string.
 
-  If \a cs is TRUE then the match is case-sensitive.  If \a cs is FALSE, then the
-  match is case-insensitive.
+  If \a cs is TRUE then the match is case sensitive.  If \a cs is FALSE, then the
+  match is case insensitive.
 */
 int QString::contains( const char* str, bool cs ) const
 {
@@ -13527,7 +13520,7 @@ int QString::contains( const char* str, bool cs ) const
 
   Returns the number of times \a str occurs in the string.
 
-  The match is case-sensitive if \a cs is TRUE or case-insensitive if \e
+  The match is case sensitive if \a cs is TRUE or case insensitive if \e
   cs if FALSE.
 
   This function counts overlapping strings, so in the example below, there are two
@@ -13983,7 +13976,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 
   Inserts \a s at the beginning of the string and returns a reference to the string.
 
-  Equivalent to insert(0, s).
+  Equivalent to insert(0, \a s).
 
   \sa insert()
 */
@@ -13993,7 +13986,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 
   Inserts \a ch at the beginning of the string and returns a reference to the string.
 
-  Equivalent to insert(0, ch).
+  Equivalent to insert(0, \a ch).
 
   \sa insert()
  */
@@ -14003,7 +13996,7 @@ QString &QString::insert( uint index, QChar c ) // insert char
 
   Inserts \a ch at the beginning of the string and returns a reference to the string.
 
-  Equivalent to insert(0, ch).
+  Equivalent to insert(0, \a ch).
 
   \sa insert()
  */
@@ -14110,13 +14103,13 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
   starting at
   position \a index. If \a index is -1, the search starts at the last
   character; if -2, at the next to last character and so on.  (See
-  findRev() for searching from the end of the string).
+  findRev() for searching backwards.)
 
-  Returns the position of the first occurrence of \a rx or -1 if \a rx was not found.
+  Returns the position of the first occurrence of \a rx or -1 if
+  \a rx was not found.
 
-  This function does not set QRegExp::matchedLength(),
-  QRegExp::capturedTexts() and friends. Use QRegExp::search() if you need to access
-  both references.
+  Unlike QRegExp::search(), this function does not set
+  QRegExp::matchedLength(), QRegExp::capturedTexts() and friends.
 
   \sa findRev() replace() contains()
 */
@@ -14129,15 +14122,15 @@ int QString::find( const QRegExp &rx, int index ) const
 /*! \overload
 
   \code
-    QString string("bananas");
+    QString string( "bananas" );
     int i = string.findRev( QRegExp("an") );      // i == 3
   \endcode
 
   Finds the first occurrence of the regexp \a rx, starting at
   position \a index and searching backwards. If the index is -1,
   the search starts at the last character, if it is -2, at the next
-  to last character and so on.  (See findRev() for searching from
-  the end of the string.)
+  to last character and so on.  (See findRev() for searching
+  backwards.)
 
   Returns the position of \a rx or -1 if \a rx could not be found.
 
@@ -14776,8 +14769,8 @@ void QString::setExpand( uint index, QChar c )
   Appends \a str to the string and returns a reference to the result.
 
 \code
-   string = "Test";
-   string = string.append("ing");    // string == "Testing"
+    string = "Test";
+    string.append( "ing" );        // string == "Testing"
 \endcode
 
   Equivalent to operator+=().
@@ -14787,6 +14780,7 @@ void QString::setExpand( uint index, QChar c )
   \overload
 
   Appends character \a ch to the string and returns a reference to the result.
+
   Equivalent to operator+=().
  */
 
@@ -14794,6 +14788,7 @@ void QString::setExpand( uint index, QChar c )
   \overload
 
   Appends character \a ch to the string and returns a reference to the result.
+
   Equivalent to operator+=().
  */
 
@@ -15066,7 +15061,10 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 
 /*!
   \fn QChar QString::constref(uint i) const
-  Equivalent to at(i), this returns the QChar at \a i by value.
+
+  Returns the QChar at index \a i by value.
+
+  Equivalent to at(\a i).
 
   \sa ref()
 */
@@ -15451,7 +15449,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
   Note that a null string is not equal to a nonnull empty string.
 
-  Equivalent to compare( s1, s2 ) != 0.
+  Equivalent to compare(\a s1, \a s2) != 0.
 
   \sa QString::similarityWith()
 */
@@ -15463,7 +15461,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
   Note that a null string is not equal to an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) == 0.
+  Equivalent to compare(\a s1, \a s2) == 0.
 */
 
 /*! \fn bool operator==( const char *s1, const QString &s2 )
@@ -15473,7 +15471,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
   Note that a null string is not equal to an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) == 0.
+  Equivalent to compare(\a s1, \a s2) == 0.
 */
 
 /*!
@@ -15482,7 +15480,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
   Note that a null string is not equal to an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) != 0.
+  Equivalent to compare(\a s1, \a s2) != 0.
 */
 
 /*! \fn bool operator!=( const QString &s1, const char *s2 )
@@ -15492,7 +15490,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
   Note that a null string is not equal to an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) != 0.
+  Equivalent to compare(\a s1, \a s2) != 0.
 */
 
 /*! \fn bool operator!=( const char *s1, const QString &s2 )
@@ -15502,17 +15500,17 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
   Note that a null string is not equal to an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) != 0.
+  Equivalent to compare(\a s1, \a s2) != 0.
 */
 
 /*!
   \fn bool operator<( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) < 0.
+  Equivalent to compare(\a s1, \a s2) \< 0.
 */
 
 /*! \fn bool operator<( const char *s1, const QString &s2 )
@@ -15520,10 +15518,10 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) < 0.
+  Equivalent to compare(\a s1, \a s2) \< 0.
 
 */
 
@@ -15531,10 +15529,10 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator<=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) <= 0.
+  Equivalent to compare(\a s1,\a s2) \<= 0.
 
 */
 
@@ -15543,20 +15541,20 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) <= 0.
+  Equivalent to compare(\a s1, \a s2) \<= 0.
 */
 
 /*!
   \fn bool operator>( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) > 0.
+  Equivalent to compare(\a s1, \a s2) \> 0.
 */
 
 /*! \fn bool operator>( const char *s1, const QString &s2 )
@@ -15564,20 +15562,20 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) > 0.
+  Equivalent to compare(\a s1, \a s2) \> 0.
 */
 
 /*!
   \fn bool operator>=( const QString &s1, const char *s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) >= 0.
+  Equivalent to compare(\a s1, \a s2) \>= 0.
 */
 
 /*! \fn bool operator>=( const char *s1, const QString &s2 )
@@ -15585,10 +15583,10 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
-  The comparison is case-sensitive.  Note that a null string is not equal to
+  The comparison is case sensitive.  Note that a null string is not equal to
   an empty string which is nonnull.
 
-  Equivalent to compare( s1, s2 ) >= 0.
+  Equivalent to compare(\a s1, \a s2) \>= 0.
 */
 
 /*!
@@ -15597,7 +15595,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns a string which is the result of concatenating the string \a s1
   and the string \a s2.
 
-  Equivalent to s1.append( s2 ).
+  Equivalent to \a {s1}.append(\a s2).
 */
 
 /*! \fn const QString operator+( const QString &s1, const char *s2 )
@@ -15607,7 +15605,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns a string which is the result of concatenating the string \a s1 and
   character \a s2.
 
-  Equivalent to s1.append( s2 ).
+  Equivalent to \a {s1}.append(\a s2).
 */
 
 /*! \fn const QString operator+( const char *s1, const QString &s2 )
@@ -15626,7 +15624,7 @@ bool operator>=( const char *s1, const QString &s2 )
   Returns a string which is the result of concatenating the string \a s and
   character \a c.
 
-  Equivalent to s.append( c ).
+  Equivalent to \a {s}.append(\a c).
 */
 
 /*! \fn const QString operator+( char c, const QString &s )
@@ -15637,7 +15635,7 @@ bool operator>=( const char *s1, const QString &s2 )
   string \a s.
 
 
-  Equivalent to s.prepend( c ).
+  Equivalent to \a {s}.prepend(\a c).
 */
 
 

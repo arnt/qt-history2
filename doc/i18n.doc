@@ -37,6 +37,8 @@
 
 \title Internationalization with Qt
 
+\keyword internationalization
+
 Internationalization of software is the process of allowing the
 software to be used efficiently by all people of the world. This
 means adapting to user and locality preferences such as language,
@@ -320,6 +322,8 @@ use the QTextCodec::loadCharmapFile() function to build a data-driven
 codec; this has a memory and speed penalty, especially with
 dynamically loaded libraries. For details of writing your own
 QTextCodec, see the mail QTextCodec class documentation.
+
+\keyword localization
 
 \section2 Localize
 
