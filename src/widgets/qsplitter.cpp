@@ -867,8 +867,7 @@ void QSplitter::doResize()
 		if ( mode == Stretch ) {
 		    if ( s->getSizer(orient) > 1 )
 			stretch *= s->getSizer( orient );
-		    // QMIN(): ad hoc work-around for layout engine limitation
-		    a[i].stretch = QMIN( stretch, 8192 );
+		    a[i].stretch = stretch;
 		    a[i].sizeHint = a[i].minimumSize;
 		} else if ( mode == KeepSize ) {
 		    a[i].sizeHint = s->getSizer( orient );

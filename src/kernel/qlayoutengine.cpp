@@ -19,9 +19,10 @@
 
 #ifndef QT_NO_LAYOUT
 
-static inline int toFixed( int i ) { return i * 256; }
-static inline int fRound( int i ) {
-    return ( i % 256 < 128 ) ? i / 256 : 1 + i / 256;
+typedef Q_LLONG Fixed;
+static inline Fixed toFixed(int i) { return (Fixed)i * 256; }
+static inline int fRound(Fixed i) {
+    return (i % 256 < 128) ? i / 256 : 1 + i / 256;
 }
 
 /*
@@ -42,7 +43,6 @@ static inline int fRound( int i ) {
 Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer )
 {
-    typedef int fixed;
     int cHint = 0;
     int cMin = 0;
     int cMax = 0;
@@ -97,8 +97,8 @@ Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 	bool finished = n == 0;
 	while ( !finished ) {
 	    finished = TRUE;
-	    fixed fp_over = toFixed( overdraft );
-	    fixed fp_w = 0;
+	    Fixed fp_over = toFixed( overdraft );
+	    Fixed fp_w = 0;
 
 	    for ( i = start; i < start+count; i++ ) {
 		if ( chain[i].done )
@@ -152,8 +152,8 @@ Q_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
 	int surplus, deficit;
 	do {
 	    surplus = deficit = 0;
-	    fixed fp_space = toFixed( space_left );
-	    fixed fp_w = 0;
+	    Fixed fp_space = toFixed( space_left );
+	    Fixed fp_w = 0;
 	    for ( i = start; i < start+count; i++ ) {
 		if ( chain[i].done )
 		    continue;
