@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 {
     // parse command line
     if(!Option::init(argc, argv))
-        return 666;
+        return 0;
 
     QDir sunworkshop42workaround = QDir::current();
     QString oldpwd = sunworkshop42workaround.currentPath();
