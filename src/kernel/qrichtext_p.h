@@ -1273,7 +1273,10 @@ public:
     QColor *backgroundColor() const { return bgcol; }
     void clearBackgroundColor();
 
-    bool isLineBreak() const { return is_br; }
+    bool isLineBreak() const { return isBr; }
+    
+    void setMovedDown( bool b ) { movedDown = b; }
+    bool wasMovedDown() const { return movedDown; }
 
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -1289,16 +1292,17 @@ private:
     QRect r;
     QTextParag *p, *n;
     QTextDocument *doc;
-    bool changed : 1;
-    bool firstFormat : 1;
-    bool firstPProcess : 1;
-    bool needPreProcess : 1;
-    bool fullWidth : 1;
-    bool newLinesAllowed : 1;
-    bool lastInFrame : 1;
-    bool visible : 1;
-    bool breakable : 1;
-    bool is_br : 1;
+    uint changed : 1;
+    uint firstFormat : 1;
+    uint firstPProcess : 1;
+    uint needPreProcess : 1;
+    uint fullWidth : 1;
+    uint newLinesAllowed : 1;
+    uint lastInFrame : 1;
+    uint visible : 1;
+    uint breakable : 1;
+    uint isBr : 1;
+    uint movedDown : 1;
     QMap<int, QTextParagSelection> selections;
     int state, id;
     QTextString *str;

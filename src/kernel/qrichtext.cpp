@@ -1595,7 +1595,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    emptyTag = TRUE;
 		    hasNewPar = FALSE;
 		    NEWPAR;
-		    curpar->is_br = TRUE;
+		    curpar->isBr = TRUE;
 		}  else if ( tagname == "hr" ) {
 		    emptyTag = TRUE;
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
@@ -3361,7 +3361,8 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 {
     bgcol = 0;
     breakable = TRUE;
-    is_br = FALSE;
+    isBr = FALSE;
+    movedDown = FALSE;
     visible = TRUE;
     list_val = -1;
     newLinesAllowed = FALSE;
@@ -3588,6 +3589,12 @@ void QTextParag::format( int start, bool doMove )
     r.setWidth( documentWidth() );
     if ( p )
 	p->lastInFrame = FALSE;
+
+    movedDown = FALSE;
+    bool formattedAgain = FALSE;
+
+ formatAgain:
+    
     if ( doc ) {
 	for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() ) {
 	    i->ypos = r.y();
@@ -3632,8 +3639,13 @@ void QTextParag::format( int start, bool doMove )
 	r.setHeight( 0 );
 
     // do page breaks if required
-    if ( doc && doc->isPageBreakEnabled() )
-	(void) doc->formatter()->formatVertically(  doc, this );
+    if ( doc && doc->isPageBreakEnabled() ) {
+        int shift = doc->formatter()->formatVertically( doc, this );
+        if ( shift && !formattedAgain ) {
+            formattedAgain = TRUE;
+            goto formatAgain;
+        }
+    }
 
     if ( n && doMove && n->invalid == -1 && r.y() + r.height() != n->r.y() ) {
 	int dy = ( r.y() + r.height() ) - n->r.y();
@@ -4853,9 +4865,13 @@ int QTextFormatter::formatVertically( QTextDocument* doc, QTextParag* parag )
 	    c->customItem()->pageBreak( parag->rect().y() + ls->y + ls->baseLine - h, doc->flow() );
 	    int delta = c->customItem()->height - h;
 	    ls->h += delta;
+	    if ( delta )
+		parag->setMovedDown( TRUE );
 	} else {
 	    int shift = doc->flow()->adjustFlow( parag->rect().y() + ls->y, ls->w, ls->h );
 	    ls->y += shift;
+	    if ( shift )
+		parag->setMovedDown( TRUE );
 	}
 	h = ls->y + ls->h;
     }
@@ -7197,7 +7213,7 @@ int QTextTableCell::horizontalAlignmentOffset() const
 {
     return parent->cellpadding;
 }
- 
+
 int QTextTableCell::verticalAlignmentOffset() const
 {
     if ( (align & Qt::AlignVCenter ) == Qt::AlignVCenter )
@@ -7233,8 +7249,8 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
     if ( richtext->parent()->tmpCursor )
 	c = richtext->parent()->tmpCursor;
     if ( cx >= 0 && cy >= 0 )
-	richtext->draw( painter(), cx - ( x + horizontalAlignmentOffset() + geom.x() ), 
-			cy - ( y + geom.y() + verticalAlignmentOffset() ), 
+	richtext->draw( painter(), cx - ( x + horizontalAlignmentOffset() + geom.x() ),
+			cy - ( y + geom.y() + verticalAlignmentOffset() ),
 			cw, ch, g, FALSE, (c != 0), c );
     else
 	richtext->draw( painter(), -1, -1, -1, -1, g, FALSE, (c != 0), c );
