@@ -1,6 +1,9 @@
 #include "drop.h"
+#include <qsplitter.h>
 #include <qpainter.h>
 #include <qapplication.h>
+#include <qdragobject.h>
+
 
 Drop::Drop(QWidget* parent, const char* name) :
     QLabel(parent, name)
@@ -8,11 +11,6 @@ Drop::Drop(QWidget* parent, const char* name) :
     setText( "empty" );
     setAcceptDrops( TRUE );
 }
-
-void Drop::bang()
-{
-}
-
 
 void Drop::mouseMoveEvent( QMouseEvent *e )
 {
@@ -23,7 +21,6 @@ void Drop::mouseMoveEvent( QMouseEvent *e )
 
 void Drop::mouseReleaseEvent( QMouseEvent *) 
 {
-    active = 0;
     setMouseTracking( FALSE );
     setText( "mouseRelease" );
 }
@@ -64,7 +61,6 @@ void Drop::dragLeaveEvent( QDragLeaveEvent * )
 
 void Drop::dropEvent( QDropEvent * e )
 {
-    active = TRUE;
     setMouseTracking( TRUE );
     QString s;
     s.sprintf( "Drop at (%d,%d)", e->pos().x(), e->pos().y() );
@@ -73,6 +69,17 @@ void Drop::dropEvent( QDropEvent * e )
 
 
 
+
+Drag::Drag( QWidget *parent, const char * name )
+    : QLabel( "Drag\nSource",parent, name )
+{
+}
+
+void Drag::mousePressEvent( QMouseEvent * /*e*/ )
+{
+    QDragObject *d = new QTextDrag( "Hi there!", this );
+    d->dragCopy();
+}
 
 
 
@@ -83,9 +90,12 @@ main(int argc, char** argv)
     QApplication app(argc, argv);
     QApplication::setFont( QFont("Helvetica") );
 
-    Drop m;
+    
+    QSplitter m;
+    Drag drag( &m );
+    Drop drop( &m );
     m.show();
-    m.resize( 300,200 );
+    m.resize( 350,200 );
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 
     return app.exec();
