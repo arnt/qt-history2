@@ -34,7 +34,7 @@ INTERFACES	= dialogs/folderdlg.ui \
 		  pages/winintropage.ui
 
 TARGET		= install
-DESTDIR		= ../../../bin
+DESTDIR		= ../../../dist/win
 INCLUDEPATH	+= $$QT_SOURCE_TREE/src/3rdparty $$QT_SOURCE_TREE/util/install/archive
 
 win32:RC_FILE	= install.rc
