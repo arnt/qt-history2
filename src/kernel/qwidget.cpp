@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#12 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#12 $";
 #endif
 
 
@@ -154,11 +154,11 @@ void QWidget::destroyMapper()			// destroy widget mapper
     QIntDictIteratorM(QWidget) it( *((QIntDictM(QWidget)*)tmp) );
     w = it.current();
     while ( w ) {				// remove child widgets first
-	if ( w->parentObj ) {
-	    tmp->remove( w->id() );
-	    w = it.current();
+	if ( w->parentObj ) {			// widget has a parent
+	    tmp->remove( w->id() );		//   then remove from dict
+	    w = it.current();			// w will be next widget
 	}
-	else
+	else					// skip parentless widgets now
 	    w = ++it;
     }
     w = it.toFirst();

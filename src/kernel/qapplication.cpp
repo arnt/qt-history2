@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#3 $
 **
 ** Implementation of QApplication class
 **
 ** Author  : Haavard Nord
 ** Created : 931107
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#3 $";
 #endif
 
 
