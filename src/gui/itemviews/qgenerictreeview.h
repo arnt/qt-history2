@@ -37,9 +37,6 @@ public:
     int indentation() const;
     void setIndentation(int i);
 
-    int editColumn() const;
-    void setEditColumn(int column);
-
     bool showRootDecoration() const;
     void setShowRootDecoration(bool show);
 

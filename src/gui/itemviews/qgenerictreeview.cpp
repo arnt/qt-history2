@@ -162,26 +162,6 @@ void QGenericTreeView::setIndentation(int i)
 }
 
 /*!
-  Returns the column that is currently being edited.
-
-  \sa setEditColumn()
-*/
-
-int QGenericTreeView::editColumn() const
-{
-    return d->editColumn;
-}
-
-/*!
-  Sets the \a column that is currently being edited.
-*/
-
-void QGenericTreeView::setEditColumn(int column)
-{
-    d->editColumn = column;
-}
-
-/*!
   Returns true if root items are displayed with controls for opening and
   closing them; otherwise returns false.
 
@@ -577,10 +557,10 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
   Returns the model index of the item at point \a(x, y).
 */
 
-QModelIndex QGenericTreeView::itemAt(int, int y) const
+QModelIndex QGenericTreeView::itemAt(int x, int y) const
 {
     QModelIndex mi = d->modelIndex(d->item(y));
-    return model()->sibling(mi.row(), d->editColumn, mi);
+    return model()->sibling(mi.row(), d->header->sectionAt(x), mi);
 }
 
 /*!
@@ -1279,9 +1259,6 @@ QModelIndex QGenericTreeViewPrivate::modelIndex(int i) const
 {
     if (i < 0 || i >= items.count())
         return q->root();
-    QModelIndex index = items.at(i).index;
-    if (index.column() != editColumn)
-        return index = q->model()->sibling(index.row(), editColumn, index);
     return items.at(i).index;
 }
 

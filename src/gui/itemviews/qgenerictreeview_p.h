@@ -19,7 +19,7 @@ class QGenericTreeViewPrivate: public QAbstractItemViewPrivate
 public:
 
     QGenericTreeViewPrivate()
-        : QAbstractItemViewPrivate(), header(0), indent(20), editColumn(0), itemHeight(-1) { }
+        : QAbstractItemViewPrivate(), header(0), indent(20), itemHeight(-1) { }
 
     ~QGenericTreeViewPrivate() {}
 
@@ -48,7 +48,6 @@ public:
 
     QGenericHeader *header;
     int indent;
-    int editColumn;
 
     QVector<QGenericTreeViewItem> items;
     int itemHeight; // this is just a number; contentsHeight() / numItems
