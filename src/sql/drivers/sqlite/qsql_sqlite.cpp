@@ -282,6 +282,8 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
 //    case BLOB:
 //    default:
         return false;
+    default:
+        break;
     }
     return false;
 }
