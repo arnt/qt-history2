@@ -5,15 +5,85 @@ QLinkedListData QLinkedListData::shared_null = {
 };
 
 /*! \class QLinkedList
-    \brief The 
+    \brief The QLinkedList class is a template class that provides linked lists.
 
-    ###
+    \ingroup qtl
+    \ingroup tools
+    \ingroup shared
+    \mainclass
+    \reentrant
 
-	* doesn't provide at(), operator[](), no index-based API
-        * have to use iterators
-	* find an item: use an iterator
+    QLinkedList\<T\> is one of Qt's generic \l{container classes}. It
+    stores a list of values and provides iterator-based access as
+    well as \l{constant time} insertions and removals.
 
-	* can use end() as a position
+    QList\<T\>, QLinkedList\<T\>, and QVector\<T\> provide similar
+    functionality. Here's an overview:
+
+    \list
+    \i For most purposes, QList is the right class to use. Its
+       index-based API is more convenient than QLinkedList's
+       iterator-based API, and it is usually faster than
+       QVector because of the way it stores its items in
+       memory.
+    \i If you need a real linked list, with guarantees of \l{constant
+       time} insertions in the middle of the list and iterators to
+       items rather than indexes, use QLinkedList.
+    \i If you want the items to occupy adjacent memory positions,
+       use QVector.
+    \endlist
+
+    Here's an example of a QLinkedList that stores integers and a
+    QLinkedList that stores QTime values:
+
+    \code
+	QLinkedList<int> integerList;
+        QLinkedList<QTime> timeList;
+    \endcode
+
+    QLinkedList stores a list of items. The default constructor
+    creates an empty list. To insert items into the list, you can use
+    operator<<():
+
+    \code
+	QLinkedList<QString> list;
+        list << "one" << "two" << "three";
+        // list: [ "one", "two", "three" ]
+    \endcode
+
+    If you want to get the first or last item in a linked list, use
+    first() or last(). If you want to remove an item from either end
+    of the list, use removeFirst() or removeLast(). If you want to
+    remove all occurrences of a given value in the list, use
+    remove().
+
+    A common requirement is to remove the first or last item in the
+    list and do something with it. For this, QLinkedList provides
+    takeFirst() and takeLast(). Here's a loop that removes the items
+    from a list one at a time and calls \c delete on them:
+    \code
+	QLinkedList<QWidget *> list;
+        ...
+        while (!list.isEmpty())
+	    delete list.takeFirst();
+    \endcode
+
+    QLinkedList's value type must be an \l{assignable data type}.
+    This covers most data types that are commonly used, but the
+    compiler won't let you, for example, store a QWidget as a value;
+    instead, store a QWidget *. A few functions have additional
+    requirements; for example, remove() and contains() expect the
+    value type to support \c operator==(). These requirements are
+    documented on a per-function basis.
+
+    If you want to insert, modify, or remove items in the middle of
+    the list, you must use an iterator. QLinkedList provides both
+    \l{Java-style iterators} (QLinkedListIterator and
+    QLinkedListMutableIterator) and \l{STL-style iterators}
+    (QLinkedList::const_iterator and QLinkedList::iterator). See the
+    documentation for these classes for details.
+
+    \sa QListIterator, QListMutableIterator, QList, QVector
 */
 
 /*! \fn QLinkedList::QLinkedList()
@@ -328,16 +398,34 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa removeFirst(), erase()
 */
 
+/*! \fn T QLinkedList::takeFirst()
+
+    Removes the first item in the list and returns it.
+
+    This is the same as takeAt(0).
+
+    \sa takeLast(), takeAt(), removeFirst()
+*/
+
+/*! \fn T QLinkedList::takeLast()
+
+    Removes the last item in the list and returns it.
+
+    This is the same as takeAt(size() - 1).
+
+    \sa takeFirst(), takeAt(), removeLast()
+*/
+
 /*! \fn void QLinkedList::push_back(const T &t)
 
     This function is provided for STL compatibility. It is equivalent
-    to append().
+    to append(\a t).
 */
 
 /*! \fn void QLinkedList::push_front(const T &t)
 
     This function is provided for STL compatibility. It is equivalent
-    to prepend().
+    to prepend(\a t).
 */
 
 /*! \fn T& QLinkedList::front()
@@ -655,8 +743,59 @@ QLinkedListData QLinkedListData::shared_null = {
 */
 
 /*! \class QLinkedList::const_iterator
+    \brief The QLinkedList::const_iterator class provides an STL-style non-const iterator for QLinkedList.
 
-    ###
+    QLinkedList provides both \l{STL-style iterators} and
+    \l{Java-style iterators}. The STL-style iterators are more
+    low-level and more cumbersome to use; on the other hand, they are
+    slightly faster and, for developers who already know STL, have
+    the advantage of familiarity.
+
+    QLinkedList::const_iterator allows you to iterate over a
+    QLinkedList. If you want modify the QLinkedList as you iterate
+    over it, you must use QLinkedList::const_iterator instead. It is
+    generally good practice to use QLinkedList::const_iterator on a
+    non-const QLinkedList as well, unless you need to change the
+    QLinkedList through the iterator. Const iterators are slightly
+    faster, and can improve code readability.
+
+    The default QLinkedList::const_iterator constructor creates an
+    uninitialized iterator. You must initialize it using a function
+    like QLinkedList::constBegin(), QLinkedList::constEnd(), or
+    QLinkedList::insert() before you can start iterating. Here's a
+    typical loop that prints all the items stored in a list:
+
+    \code
+	QLinkedList<QString> list;
+        list.append("January");
+        list.append("February");
+        ...
+        list.append("December");
+
+        QLinkedList<QString, int>::const_iterator i;
+        for (i = list.constBegin(); i != list.constEnd(); ++i)
+	    cout << *i << endl;
+    \endcode
+
+    STL-style iterators can be used as arguments to \l{generic
+    algorithms}. For example, here's how to find an item in the list
+    using the qFind() algorithm:
+
+    \code
+	QLinkedList<QString> list;
+        ...
+	QLinkedList<QString>::iterator it = qFind(list.constBegin(),
+						  list.constEnd(), "Joel");
+	if (it != list.constEnd())
+	    cout << "Found Joel" << endl;
+    \endcode
+
+    Multiple iterators can be used on the same list. If you add items
+    to the list, existing iterators will remain valid. If you remove
+    items from the list, iterators that point to the removed items
+    will become dangling iterators.
+
+    \sa QLinkedList::iterator, QLinkedListIterator
 */
 
 /*! \fn QLinkedList::const_iterator::const_iterator()

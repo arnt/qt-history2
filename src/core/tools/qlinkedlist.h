@@ -54,7 +54,8 @@ public:
 
     void append(const T &);
     void prepend(const T &);
-
+    T takeFirst();
+    T takeLast();
     int remove(const T &t);
     bool contains(const T &t) const;
     int count(const T &t) const;
@@ -300,6 +301,22 @@ int QLinkedList<T>::remove(const T &t)
     }
     d->size-=c;
     return c;
+}
+
+template <typename T>
+inline T QLinkedList<T>::takeFirst()
+{
+    T t = first();
+    removeFirst();
+    return t;
+}
+
+template <typename T>
+inline T QLinkedList<T>::takeLast()
+{
+    T t = last();
+    removeLast();
+    return t;
 }
 
 template <typename T>
