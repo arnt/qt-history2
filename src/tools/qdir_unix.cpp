@@ -86,22 +86,22 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
     QString name = dirName;
     if (dirName[dirName.length() - 1] == "/")
 	name = dirName.left( dirName.length() - 1 );
-    return QT_MKDIR( QFile::encodeName(filePath(name,acceptAbsPath)), 0777 )
+    return ::mkdir( QFile::encodeName(filePath(name,acceptAbsPath)), 0777 )
 	== 0;
 #else
-    return QT_MKDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 )
+    return ::mkdir( QFile::encodeName(filePath(dirName,acceptAbsPath)), 0777 )
 	== 0;
 #endif
 }
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return QT_RMDIR( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
+    return ::rmdir( QFile::encodeName(filePath(dirName,acceptAbsPath)) ) == 0;
 }
 
 bool QDir::isReadable() const
 {
-    return QT_ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
+    return ::access( QFile::encodeName(dPath), R_OK | X_OK ) == 0;
 }
 
 bool QDir::isRoot() const
@@ -135,8 +135,13 @@ QString QDir::currentDirPath()
 {
     QString result;
 
-    QT_STATBUF st;
-    if ( QT_STAT( ".", &st ) == 0 ) {
+#if defined(QT_LARGE_FILE_SUPPORT)
+    struct stat64 st;
+    if ( ::stat64( ".", &st ) == 0 ) {
+#else
+    struct stat st;
+    if ( ::stat( ".", &st ) == 0 ) {
+#endif
 	char currentName[PATH_MAX+1];
 	if ( ::getcwd( currentName, PATH_MAX ) != 0 )
 	    result = QFile::decodeName(currentName);
