@@ -1290,6 +1290,7 @@ int QApplication::macProcessEvent(MSG * m)
 		Point pp2 = er->where;
 		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 	    }
+	    qt_button_down = widget;
 	    if ( widget ) {
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
@@ -1308,6 +1309,7 @@ int QApplication::macProcessEvent(MSG * m)
 		Point pp2 = er->where;
 		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 	    }
+	    qt_button_down = NULL;
 	    if ( widget ) {
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(widget->mapFromGlobal( p ));
@@ -1352,7 +1354,10 @@ int QApplication::macProcessEvent(MSG * m)
 	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
 	    short part = FindWindow( er->where, &wp );
 	    if( part == inContent ) {
-		if( mac_mouse_grabber ) {
+		if(qt_button_down) {
+		    widget = qt_button_down;
+		}
+		else if( mac_mouse_grabber ) {
 		    widget = mac_mouse_grabber;
 		} else {
 		    Point pp2 = er->where;
