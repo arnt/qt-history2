@@ -98,6 +98,7 @@ protected:
 private:
     friend class QWSServer;
     friend class QFontEngine;
+    friend class QDirectPainter;
 
 private:
     Q_DISABLE_COPY(QWSPaintEngine)

@@ -14,4 +14,17 @@
 #ifndef QPAINTENGINE_QWS_P_H
 #define QPAINTENGINE_QWS_P_H
 
+#include <private/qpaintengine_p.h>
+
+class QGfx;
+
+class QWSPaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QWSPaintEngine)
+public:
+    QWSPaintEnginePrivate() :gfx(0), clipChildren(true) {}
+    QGfx *gfx;
+    bool clipChildren;
+};
+
 #endif

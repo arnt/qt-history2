@@ -18,9 +18,11 @@
 
 #ifdef Q_WS_QWS
 
-#define QT_NO_DIRECTPAINTER
+//#define QT_NO_DIRECTPAINTER
 
 #ifndef QT_NO_DIRECTPAINTER
+class QDirectPainterPrivate;
+
 class Q_GUI_EXPORT QDirectPainter : public QPainter {
 public:
     QDirectPainter(QWidget*);
@@ -46,8 +48,7 @@ public:
     void setAreaChanged(const QRect&);
 
 private:
-    class Private;
-    Private* d;
+    QDirectPainterPrivate *d;
 };
 
 #endif

@@ -17,6 +17,7 @@
 #ifndef QT_NO_DIRECTPAINTER
 #include <qgfxraster_qws.h>
 #include <qpaintengine_qws.h>
+#include <private/qpaintengine_qws_p.h>
 
 // gain access to some internal QGfx functionality you'll need.
 class QDirectPainterGfx : public QGfxRasterBase {
@@ -33,9 +34,9 @@ public:
 
 void * QDirectPainterGfx::gfxdata = 0;
 
-class QDirectPainter::Private {
+class QDirectPainterPrivate {
 public:
-    Private()
+    QDirectPainterPrivate()
     {
         paintOk = true;
         image = 0;
@@ -112,9 +113,9 @@ public:
 QDirectPainter::QDirectPainter(QWidget* w) :
     QPainter(w)
 {
-    d = new Private;
-    QWSPaintEngine *qp = (QWSPaintEngine*)device()->paintEngine();
-    d->gfx = (QDirectPainterGfx*)qp->gfx();
+    d = new QDirectPainterPrivate;
+    QWSPaintEngine *qp = static_cast<QWSPaintEngine*>(device()->paintEngine());
+    d->gfx = static_cast<QDirectPainterGfx*>(qp->d_func()->gfx);
     d->offset = w->mapToGlobal(QPoint(0,0));
     d->w = w->width();
     d->h = w->height();

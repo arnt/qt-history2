@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qpaintengine_qws.h"
+#include "qpaintengine_qws_p.h"
 #include "qpainter_p.h"
 #include <private/qfontengine_p.h>
 #include "qwsdisplay_qws.h"
@@ -25,7 +26,6 @@
 #include "qscreen_qws.h"
 #include "qregion.h"
 #include "qbitmap.h"
-#include <private/qpaintengine_p.h>
 
 #include <qmemorymanager_qws.h>
 
@@ -91,15 +91,6 @@ void qt_draw_background(QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int 
 }
 // ########
 
-
-class QWSPaintEnginePrivate : public QPaintEnginePrivate
-{
-    Q_DECLARE_PUBLIC(QWSPaintEngine)
-public:
-    QWSPaintEnginePrivate() :gfx(0), clipChildren(true) {}
-    QGfx *gfx;
-    bool clipChildren;
-};
 
 #define d d_func()
 #define q q_func()
