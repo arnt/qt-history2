@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#16 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#16 $";
 #endif
 
 
@@ -115,8 +115,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 
 QPopupMenu::~QPopupMenu()
 {
-    if ( parentMenu )				// remove from parent menu
-	parentMenu->removePopup( this );
+    if ( parentMenu )
+	parentMenu->removePopup( this );	// remove from parent menu
 }
 
 
