@@ -3104,10 +3104,12 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 {
     errorLine--; // ######
     QValueList<int> l;
-    l << errorLine;
+    l << errorLine + 1;
     QStringList l2;
     l2 << errorMessage;
-    oWindow->setErrorMessages( l2, l, TRUE, QStringList(), QObjectList() );
+    QObjectList ol;
+    ol.append( o );
+    oWindow->setErrorMessages( l2, l, TRUE, QStringList(), ol );
     showSourceLine( o, errorLine, Error );
     emit runtimeError( errorMessage );
 }

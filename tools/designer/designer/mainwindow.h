@@ -85,6 +85,8 @@ class MainWindow : public QMainWindow
 #undef QMainWindow
 
 public:
+    enum LineMode { Error, Step, StackFrame };
+
     MainWindow( bool asClient, bool single = FALSE );
     ~MainWindow();
 
@@ -172,6 +174,8 @@ public:
 
     Project *setSingleProject( const QString &lang, const QString &projectName );
     bool singleProjectMode() const { return singleProject; }
+
+    void showSourceLine( QObject *o, int line, LineMode lm );
 
 public slots:
     void showProperties( QObject *w );
@@ -333,8 +337,6 @@ private:
     void openProject( const QString &fn );
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
-    enum LineMode { Error, Step, StackFrame };
-    void showSourceLine( QObject *o, int line, LineMode lm );
     QWidget *findRealForm( QWidget *w );
 
     QString whatsThisFrom( const QString &key );

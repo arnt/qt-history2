@@ -23,6 +23,9 @@ public:
 
     void setRead( bool b ) { read = b; repaint(); }
 
+    QObject *location() const { return object; }
+    int line() const { return text( 2 ).toInt(); }
+
 private:
     QObject *object;
     Type type;

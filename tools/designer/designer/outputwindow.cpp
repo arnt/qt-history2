@@ -1,6 +1,7 @@
 #include "outputwindow.h"
 #include "designerappiface.h"
 #include "metadatabase.h"
+#include "mainwindow.h"
 
 #include <qlistview.h>
 #include <qtextedit.h>
@@ -33,9 +34,9 @@ OutputWindow::~OutputWindow()
 void OutputWindow::setupError()
 {
     errorView = new QListView( this, "OutputWindow::errorView" );
-    connect( errorView, SIGNAL( selectionChanged( QListViewItem* ) ),
-	     this, SLOT( currentErrorChanged( QListViewItem* ) ) );
     connect( errorView, SIGNAL( currentChanged( QListViewItem* ) ),
+	     this, SLOT( currentErrorChanged( QListViewItem* ) ) );
+    connect( errorView, SIGNAL( clicked( QListViewItem* ) ),
 	     this, SLOT( currentErrorChanged( QListViewItem* ) ) );
 
     if ( MetaDataBase::languages().count() > 1 )
@@ -125,7 +126,9 @@ void OutputWindow::currentErrorChanged( QListViewItem *i )
 {
     if ( !i )
 	return;
-    ( (ErrorItem*)i )->setRead( TRUE );
+    ErrorItem *ei = (ErrorItem*)i;
+    ei->setRead( TRUE );
+    MainWindow::self->showSourceLine( ei->location(), ei->line() - 1, MainWindow::Error );
 }
 
 
@@ -142,7 +145,11 @@ ErrorItem::ErrorItem( QListView *parent, QListViewItem *after, const QString &me
     setText( 2, QString::number( line ) );
     setText( 3, locationString );
     object = locationObject;
-    read = FALSE;
+    read = !after;
+    if ( !after ) {
+	parent->setSelected( this, TRUE );
+	parent->setCurrentItem( this );
+    }
 }
 
 void ErrorItem::paintCell( QPainter *p, const QColorGroup & cg,
