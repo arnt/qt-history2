@@ -27,6 +27,7 @@
 #include <qlayout.h>
 #include <qtextview.h>
 #include <qpushbutton.h>
+#include <qsplitter.h>
 
 #include <windows.h>
 #include <GL/gl.h>
@@ -42,11 +43,12 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
     infotext = new QString("GLTest:\n");
     viewlist = new QStringList();
     
+    QSplitter *sp = new QSplitter( Qt::Vertical, this, "splitter" );
     QVBoxLayout *layout = new QVBoxLayout(this);
-    infoView = new QTextView( this, "infoView" );
-    layout->addWidget( infoView, 7 );
+    infoView = new QTextView( sp, "infoView" );
+    layout->addWidget( sp );
  
-    infoList = new QListView( this, "infoList" );
+    infoList = new QListView( sp, "infoList" );
     infoList->addColumn( trUtf8( "Nr", "" ) );
     infoList->addColumn( trUtf8( "Colorbits", "" ) );
     infoList->addColumn( trUtf8( "Draw to", "" ) );
@@ -71,9 +73,9 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
     infoList->addColumn( trUtf8( "MS bufs", "" ) );
     infoList->setSelectionMode( QListView::Extended );
     infoList->setAllColumnsShowFocus( TRUE );
-    layout->addWidget( infoList, 10 );
+//     layout->addWidget( infoList, 10 );
     
-    QHBoxLayout *buttonLayout = new QHBoxLayout( this );
+    QHBoxLayout *buttonLayout = new QHBoxLayout( 0 );
     layout->addLayout( buttonLayout );
     buttonLayout->addStretch();
     
@@ -186,7 +188,9 @@ void GLInfo::VisualInfo(HDC hDC)
 	str.sprintf("0x%02x %d ", i, pfd.cColorBits);
 		
 	//printf("%2d ", pfd.cColorBits);
-	if(pfd.dwFlags & PFD_DRAW_TO_WINDOW)
+	if(pfd.dwFlags & PFD_DRAW_TO_WINDOW && pfd.dwFlags & PFD_DRAW_TO_BITMAP )
+	    str.sprintf("%swin/bmp ", (const char*)str);
+	else if(pfd.dwFlags & PFD_DRAW_TO_WINDOW )
 	    str.sprintf("%swindow ", (const char*)str);
 	else if(pfd.dwFlags & PFD_DRAW_TO_BITMAP) 
 	    str.sprintf("%sbitmap ", (const char*)str);

@@ -22,7 +22,7 @@ class QPopupMenu;
 class QWorkspace;
 class QCheckBox;
 
-
+class GLInfo;
 class MDIWindow: public QWidget
 {
     Q_OBJECT
@@ -65,6 +65,7 @@ private:
     QPrinter *printer;
     QWorkspace* ws;
     QPopupMenu* windowsMenu;
+    GLInfo * glInfo;
 };
 
 

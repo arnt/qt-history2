@@ -51,6 +51,7 @@ public:
 protected:
     int angle;
     void timerEvent( QTimerEvent * ) {
+	angle += 3;
 	update(); // updates the widget every 40 ms
     }	
     void initializeGL() { 
@@ -70,7 +71,6 @@ protected:
  	glLoadIdentity();
  	glTranslatef( 0.0, 0.0, -6.0 );
  	glRotatef( angle, 1.0, 1.0, 0.0 ); // rotate around the x and y axis
-	angle += 3;
 	glBegin( GL_TRIANGLES ); { // draw a tetrahedron
   	    glColor3f( 1.0, 0.0, 0.0 ); glVertex3f( -2.0, -2.0, 0.0 );
   	    glColor3f( 0.0, 1.0, 0.0 ); glVertex3f( -2.0, 2.0, 0.0 );
@@ -95,6 +95,7 @@ protected:
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
+    glInfo = 0;
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
 
@@ -124,6 +125,7 @@ ApplicationWindow::ApplicationWindow()
 
 ApplicationWindow::~ApplicationWindow()
 {
+    delete glInfo;
 }
 
 
@@ -138,10 +140,13 @@ MDIWindow* ApplicationWindow::newDoc( const QGLFormat &f )
 
 void ApplicationWindow::info()
 {
-    GLInfo *info = new GLInfo( this );
-    info->exec();
-    delete info;
-    
+    if ( glInfo ) {
+	glInfo->show();
+    } else {
+	glInfo = new GLInfo( this );
+	glInfo->resize( 640, 480 );
+	glInfo->show();
+    }
 }
 
 
