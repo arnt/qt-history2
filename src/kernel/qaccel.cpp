@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#77 $
 **
 ** Implementation of QAccel class
 **
@@ -494,7 +494,7 @@ QString QAccel::keyToString( int k )
     if ( (k & SHIFT) == SHIFT ) {
 	if ( !s.isEmpty() )
 	    s += tr( "+" );
-	s = tr( "Shift" );
+	s += tr( "Shift" );
     }
     k &= ~(SHIFT | CTRL | ALT);
     QString p;
