@@ -23,6 +23,10 @@ unix {
 	    LIBS	*= -lwtc8
 	}
 }
+macx {
+        LIBS -= -lwtc8
+        QMAKE_LFLAGS += -Wl,-flat_namespace,-U,_environ
+}
 
 REQUIRES	= sql
 
