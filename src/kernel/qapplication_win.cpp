@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#73 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -12,6 +12,7 @@
 #include "qapp.h"
 #include "qwidget.h"
 #include "qwidcoll.h"
+#include "qobjcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
 #include "qdatetm.h"
@@ -25,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#73 $");
 
 
 /*****************************************************************************
@@ -41,8 +42,6 @@ static HWND	curWin	  = 0;			// current window
 static HANDLE	displayDC = 0;			// display device context
 static QWidget *desktopWidget	= 0;		// desktop window widget
 
-// static HWND	autoCapture	= 0;		// Qt auto-capture window
-
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
@@ -52,7 +51,12 @@ static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets= 0;		// list of popup widgets
+static QWidget     *popupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
+
+static HANDLE	autoCaptureWnd = 0;
+static void	setAutoCapture( HANDLE );	// automatic capturing
+static void	releaseAutoCapture();
 
 typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
@@ -275,7 +279,6 @@ void qt_cleanup()
 static void msgHandler( QtMsgType, const char *str )
 {
     OutputDebugString( str );
-    OutputDebugString( "\n" );
 }
 
 
@@ -423,12 +426,33 @@ void QApplication::restoreOverrideCursor()
   Routines to find a Qt widget from a screen position
  *****************************************************************************/
 
+static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
+{
+    if ( p->children() ) {
+	QWidget *w;
+	QObjectListIt it( *p->children() );
+	it.toLast();
+	while ( it.current() ) {
+	    if ( it.current()->isWidgetType() ) {
+		w = (QWidget*)it.current();
+		if ( w->isVisible() && w->geometry().contains(pos) ) {
+		    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
+		    return c ? c : w;
+		}
+	    }
+	    --it;
+	}
+    }
+    return 0;
+}
+
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
     POINT    p;
     HANDLE   win;
     QWidget *w;
-    p.x = x;  p.y = y;
+    p.x = x;
+    p.y = y;
     win = WindowFromPoint( p );
     if ( !win )
 	return 0;
@@ -521,9 +545,9 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
 	    ((QPEvent*)pe->event)->clearPostedFlag();
 	    postedEvents->remove();
 	    pe = postedEvents->current();
-	}
-	else
+	} else {
 	    pe = postedEvents->next();
+	}
     }
 }
 
@@ -591,8 +615,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
-	    else
-	    if ( r->req == 1 )
+	    else if ( r->req == 1 )
 		w->resize( r->w, r->h );
 	    else
 		w->setGeometry( r->x, r->y, r->w, r->h );
@@ -765,6 +788,8 @@ bool QApplication::processNextEvent( bool canWait )
 	if ( translateKeyCode(msg.wParam) == 0 ) {
 	    TranslateMessage( &msg );		// translate to WM_CHAR
 	    return TRUE;
+	} else {
+	    debug( "couln't translate key code" );
 	}
     }
     DispatchMessage( &msg );			// send to WndProc
@@ -1093,6 +1118,7 @@ void qt_enter_modal( QWidget *widget )
 	modal_stack = new QWidgetList;
 	CHECK_PTR( modal_stack );
     }
+    releaseAutoCapture();
     modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
     qApp->enter_loop();
@@ -1128,7 +1154,10 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
     bool block_event = FALSE;
     int	 type  = msg->message;
 
-    if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
+    if ( type == WM_NCHITTEST ) {
+	block_event = TRUE;
+	QApplication::beep();
+    } else if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
 	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) ) {
 	block_event = TRUE;
     }
@@ -1159,7 +1188,7 @@ void qt_open_popup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ) {
-	SetCapture( popup->winId() );		// grab mouse/keyboard
+	setAutoCapture( popup->winId() );	// grab mouse/keyboard
 	popup->grabKeyboard();
     }
 }
@@ -1174,7 +1203,7 @@ void qt_close_popup( QWidget *popup )
 	delete popupWidgets;
 	popupWidgets = 0;
 	if ( !qt_nograb() ) {			// grabbing not disabled
-	    ReleaseCapture();
+	    releaseAutoCapture();
 	    popup->releaseKeyboard();
 	}
     }
@@ -1309,7 +1338,7 @@ static void cleanupTimers()			// remove pending timers
 // Main timer functions for starting and killing timers
 //
 
-int qStartTimer( int interval, QObject *obj )	// start timer
+int qStartTimer( int interval, QObject *obj )
 {
     register TimerInfo *t;
     if ( !timerVec )				// initialize timer data
@@ -1340,7 +1369,7 @@ int qStartTimer( int interval, QObject *obj )	// start timer
     return ind + 1;				// return index in vector
 }
 
-bool qKillTimer( int ind )			// kill timer with id
+bool qKillTimer( int ind )
 {
     if ( !timerVec || ind <= 0 || ind > MaxTimers )
 	return FALSE;
@@ -1356,7 +1385,7 @@ bool qKillTimer( int ind )			// kill timer with id
     return TRUE;
 }
 
-bool qKillTimer( QObject *obj )			// kill timer(s) for obj
+bool qKillTimer( QObject *obj )
 {
     if ( !timerVec )
 	return FALSE;
@@ -1379,6 +1408,27 @@ bool qKillTimer( QObject *obj )			// kill timer(s) for obj
 /*****************************************************************************
   Event translation; translates Windows events to Qt events
  *****************************************************************************/
+
+//
+// Auto-capturing for mouse press and mouse release
+//
+
+static void setAutoCapture( HANDLE h )
+{
+    if ( autoCaptureWnd )
+	releaseAutoCapture();
+    autoCaptureWnd = h;
+    SetCapture( h );
+}
+
+static void releaseAutoCapture()
+{
+    if ( autoCaptureWnd ) {
+	ReleaseCapture();
+	autoCaptureWnd = 0;
+    }
+}
+
 
 //
 // Mouse event translation
@@ -1422,7 +1472,6 @@ extern QCursor *qt_grab_cursor();
 
 bool QETWidget::translateMouseEvent( const MSG &msg )
 {
-    static bool	  capture = FALSE;
     static QPoint pos;
     int	   type;				// event parameters
     int	   button;
@@ -1456,7 +1505,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    QEvent enter( Event_Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
-	if ( (state == 0 || !capture) && !testWFlags(WState_TrackMouse) )
+	if ( !(state && autoCaptureWnd) && !testWFlags(WState_TrackMouse) )
 	    return TRUE;			// no button
 	POINT curPos;
 	GetCursorPos( &curPos );		// compress mouse move
@@ -1469,7 +1518,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.rx() = LOWORD(msg.lParam);		// get position
 	pos.ry() = HIWORD(msg.lParam);
     }
-    if ( popupWidgets ) {			// oops, in popup mode
+
+    if ( popupWidgets ) {			// in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
 	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
@@ -1477,23 +1527,38 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    else				// send to last popup
 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
 	}
-	QMouseEvent e( type, pos, button, state );
-	QApplication::sendEvent( popup, &e );
-    }
-    else {
+	QWidget *popupChild = findChildWidget( popup, pos );
+	bool releaseAfter = FALSE;
+	switch ( type ) {
+	    case Event_MouseButtonPress:
+	    case Event_MouseButtonDblClick:
+		popupButtonFocus = popupChild;
+		break;
+	    case Event_MouseButtonRelease:
+		releaseAfter = TRUE;
+		break;
+	    default:
+		break;				// nothing for mouse move
+	}
+
+	if ( popupButtonFocus ) {
+	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal( popup->mapToGlobal( pos ) ), button, state );
+	    QApplication::sendEvent( popupButtonFocus, &e );
+	    if ( releaseAfter )
+		popupButtonFocus = 0;
+	} else {
+	    QMouseEvent e( type, pos, button, state );
+	    QApplication::sendEvent( popup, &e );
+	}
+    } else {					// not popup mode
 	int bs = state & (LeftButton | RightButton | MidButton);
 	if ( (type == Event_MouseButtonPress ||
 	      type == Event_MouseButtonDblClick) && bs == button ) {
-	    if ( QWidget::mouseGrabber() == 0 ) {
-		SetCapture( winId() );
-		capture = TRUE;
-	    }
-	}
-	else if ( type == Event_MouseButtonRelease && bs == 0 ) {
-	    if ( QWidget::mouseGrabber() == 0 ) {
-		ReleaseCapture();
-		capture = FALSE;
-	    }
+	    if ( QWidget::mouseGrabber() == 0 )
+		setAutoCapture( winId() );
+	} else if ( type == Event_MouseButtonRelease && bs == 0 ) {
+	    if ( QWidget::mouseGrabber() == 0 )
+		releaseAutoCapture();
 	}
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( this, &e );	// send event
@@ -1558,18 +1623,19 @@ static ushort KeyTbl[] = {			// keyboard mapping table
 static int translateKeyCode( int key )		// get Key_... code
 {
     int code;
-    if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') )
+    if ( (key >= 'A' && key <= 'Z') || (key >= '0' && key <= '9') ) {
 	code = 0;				// wait for WM_CHAR instead
-    else if ( key >= VK_F1 && key <= VK_F24 )	// function keys
-	code = Key_F1 + (key - VK_F1);		// assumes contiguous codes!
-    else {
+    } else if ( key >= VK_F1 && key <= VK_F24 ) {
+	code = Key_F1 + (key - VK_F1);		// function keys
+    } else {
 	int i = 0;				// any other keys
 	code = 0;
-	while ( KeyTbl[i] && code == 0 ) {
-	    if ( key == (int)KeyTbl[i] )
+	while ( KeyTbl[i] ) {
+	    if ( key == (int)KeyTbl[i] ) {
 		code = KeyTbl[i+1];
-	    else
-		i += 2;
+		break;
+	    }
+	    i += 2;
 	}
     }
     return code;
@@ -1581,7 +1647,10 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     int code;
     int ascii = 0;
     int state = 0;
+    bool syskey = FALSE;
 
+    if ( msg.message == WM_SYSKEYDOWN )
+	syskey = TRUE;
     if ( GetKeyState(VK_SHIFT) < 0 )
 	state |= ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
@@ -1601,7 +1670,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     } else {
 	code = translateKeyCode( msg.wParam );
 	if ( code == 0 )
-	    return FALSE;			// virtual key not found
+	    code = ascii = msg.wParam;
 	type = msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ?
 	       Event_KeyPress : Event_KeyRelease;
     }
