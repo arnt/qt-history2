@@ -77,7 +77,7 @@ QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
 
 #ifdef QT_COMPAT
 QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(parent, name, f)
+    : QFrame(parent, f)
 {
     int nCols, nRows;
     if (orient == Qt::Horizontal) {
@@ -87,13 +87,17 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Q
         nCols = -1;
         nRows = n;
     }
-    lay = new QGridLayout(this, nRows, nCols, 0, 0, name);
+    setObjectName(name);
+    lay = new QGridLayout(this, nRows, nCols, 0, 0);
+    lay->setObjectName(name);
 }
 
 QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(parent, name, f)
+    : QFrame(parent, f)
 {
-    lay = new QGridLayout(this, -1, n, 0, 0, name);
+    setObjectName(name);
+    lay = new QGridLayout(this, -1, n, 0, 0);
+    lay->setObjectName(name);
 }
 #endif
 
