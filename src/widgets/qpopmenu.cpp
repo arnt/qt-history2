@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#28 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#28 $";
 #endif
 
 
@@ -64,8 +64,9 @@ static const motifArrowHMargin	= 6;		// arrow horizontal margin
 static const motifArrowVMargin	= 2;		// arrow horizontal margin
 static const motifTabSpacing	= 12;		// space between text and tab
 
-static char sizePopupFrame[] =
+/* static char sizePopupFrame[] =
     { macPopupFrame, winPopupFrame, pmPopupFrame, motifPopupFrame };
+*/   // commented out 7/5-95 EE ###
 
 /*
 
@@ -95,15 +96,13 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     isPopup = TRUE;
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
-    setClipCellPainting( FALSE );		// don't clip when painting tbl
-    setTopMargin( motifPopupFrame );		// reserve space for frame
-    setBottomMargin( motifPopupFrame );
-    setLeftMargin( motifPopupFrame );
-    setRightMargin( motifPopupFrame );
-    autoaccel = 0;
+    clearTableFlags( Tbl_clipCellPainting );	// don't clip when painting tbl
+    setMargins( motifPopupFrame, motifPopupFrame,
+                motifPopupFrame, motifPopupFrame ); // reserve space for frame
+    autoaccel     = 0;
     accelDisabled = FALSE;
-    popupActive = -1;
-    tabMark = 0;    
+    popupActive   = -1;
+    tabMark       = 0;
 }
 
 QPopupMenu::~QPopupMenu()
@@ -296,8 +295,11 @@ int QPopupMenu::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 
 int QPopupMenu::itemPos( int index )		// get y coord for item
 {
-    int y = rowYPos( index );		        // ask table for position
-    return y < 0 ? 0 : y;			// return 0 if not visible 
+    int y;
+    if ( rowYPos( index, &y ) )		        // ask table for position
+        return y;
+    else
+        return 0;				// return 0 if not visible 
 }
 
 
@@ -668,6 +670,8 @@ void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
 	case MotifStyle:
 	    paint.drawShadePanel( r, g.light(), g.dark(), motifPopupFrame );
 	    break;
+        default:
+            break;
     }
     paint.end();
     QTableWidget::paintEvent( e );		// will draw the menu items

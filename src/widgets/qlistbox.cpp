@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#14 $
 **
 ** Implementation of QListBox widget class
 **
@@ -15,9 +15,10 @@
 #include "qpainter.h"
 #include "qstrlist.h"
 #include "qkeycode.h"
+#include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#14 $";
 #endif
 
 #include "qstring.h"
@@ -42,10 +43,16 @@ class QLBItemList : public QListM(QLBItem)	// internal class
 
 int QLBItemList::compareItems( GCI i1, GCI i2)
 {
-    if ( ((QLBItem*) i1)->type & LBI_String & ((QLBItem*) i2)->type )
-	return strcmp(((QLBItem*) i1)->string,((QLBItem*) i2)->string);
-    else
-	return 1;
+    QLBItem * lbi1 = (QLBItem*) i1;
+    QLBItem * lbi2 = (QLBItem*) i2;
+
+    if ( lbi1->type == LBI_String && lbi2->type == LBI_String )
+	return strcmp( lbi1->string, lbi2->string );
+    if ( lbi1->type == LBI_String )
+        return 1;   // A string is greater than an unknown
+    if ( lbi2->type == LBI_String )
+        return -1;  // An unknown is less than a string
+    return 0;       // An unknown equals an unknown
 }
 
 static inline bool checkInsertIndex( const char *method, int count, int *index)
@@ -86,13 +93,12 @@ QListBox::QListBox( QWidget *parent, const char *name )
     ownerDrawn	  = FALSE;
     itemList	  = new QLBItemList;
     CHECK_PTR( itemList );
-    debug( "==========> ITEMLIST %x", itemList );
-    setCellWidth( 100 );			// setup table params
-    setCellHeight( 16 );
+    setCellWidth( 0 );			// setup table params
+    QFontMetrics fm( font() );
+    setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
-    setAutoVerScrollBar( TRUE );
-    setClipCellPainting( FALSE );
-    setCutCellsVer( TRUE );
+    setTableFlags( Tbl_smoothVScrolling ); 
+    clearTableFlags( Tbl_clipCellPainting );
 }
 
 QListBox::~QListBox()
@@ -163,7 +169,7 @@ void QListBox::insertStrList( const QStrList *l, int index )
     QStrListIterator iter( *l );
     const char *tmp;
     for( iter.toLast() ; (tmp=iter.current()) ; --iter )
-	insertAny( tmp, 0, 0, index );
+	insertAny( tmp, 0, 0, index, FALSE );
     updateNumRows();
     if ( autoUpdate() && itemVisible( index ) ) {
 	update(); // Optimize drawing ( only the ones after index )
@@ -180,7 +186,7 @@ void QListBox::insertStrList( const char **strs, int numStrings, int index )
 #endif
 
     for( int i = numStrings - 1 ; i >= 0 ; i-- )
-	insertAny( strs[i], 0, 0, index );
+	insertAny( strs[i], 0, 0, index, FALSE );
     updateNumRows();
     if ( autoUpdate() && itemVisible( index ) ) {
 	update(); // Optimize drawing ( only the ones after index )
@@ -195,25 +201,28 @@ void QListBox::insertItem( const char *string, int index )
     CHECK_PTR( string );
 #endif
     insertAny( string, 0, 0, index );
-    updateNumRows();
+    updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible( index ) ) {
-	update(); // Optimize drawing ( only the ones after index )
+	update(); // Optimize drawing ( only the ones after index ) ###
     }
 }
 
-void QListBox::insertItem( const QBitmap *bitmap, int index )
+void QListBox::insertItem( const QPixmap *pixmap, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
 #if defined(CHECK_NULL)
-    CHECK_PTR( bitmap );
+    CHECK_PTR( pixmap );
 #endif
     if ( stringsOnly ) {
 	stringsOnly = FALSE;
-	setCellHeight( 0 );   // tsk, tsk, tsk,	  ###
+	setCellHeight( 0 );
     }
-    insertAny( 0, bitmap, 0, index );
-    updateNumRows();
+    insertAny( 0, pixmap, 0, index );
+    int w = pixmap->width() + 6;
+    if ( w > cellWidth() )
+        setCellWidth( w );
+    updateNumRows( FALSE );
     if ( autoUpdate() && itemVisible( index ) ) {
 	update(); // Optimize drawing ( only the ones after index )
     }
@@ -226,7 +235,11 @@ void QListBox::inSort( const char *string )
     CHECK_PTR( string );
 #endif
     itemList->inSort( newAny( string, 0 ) );
-    updateNumRows();
+    QFontMetrics fm( font() );
+    int w = fm.width( string ) + 6;
+    if ( w > cellWidth() )
+        setCellWidth( w );
+    updateNumRows( FALSE );
     if ( autoUpdate() ) {
 	update(); // Optimize drawing ( find index )
     }
@@ -240,11 +253,15 @@ void QListBox::removeItem( int index )
     bool updt = autoUpdate() && itemVisible( index );
 
     QLBItem *tmp = itemList->take( index );
+    QFontMetrics fm( font() );
+    int w = internalItemWidth( tmp, fm );
+    if ( w == cellWidth() )
+        updateCellWidth();
     if ( copyStrings && tmp->type == LBI_String )
 	delete [] (char*)tmp->string;
     delete tmp;
     if ( updt )
-	update(); // Optimize this zucker!
+	update(); // Optimize this zucker!   ###
 }
 
 const char *QListBox::string( int index ) const
@@ -255,12 +272,12 @@ const char *QListBox::string( int index ) const
     return tmp->type == LBI_String ? tmp->string : 0;
 }
 
-QBitmap *QListBox::bitmap( int index ) const
+QPixmap *QListBox::pixmap( int index ) const
 {
-    if ( !checkIndex( "bitmap", count(), index ) )
+    if ( !checkIndex( "pixmap", count(), index ) )
 	return 0;
     QLBItem *tmp = itemList->at( index );
-    return tmp->type == LBI_Bitmap ? tmp->bitmap : 0;
+    return tmp->type == LBI_Pixmap ? tmp->pixmap : 0;
 }
 
 void QListBox::changeItem( const char *string, int index )
@@ -270,11 +287,11 @@ void QListBox::changeItem( const char *string, int index )
     changeAny( string, 0, 0, index );
 }
 
-void QListBox::changeItem( const QBitmap *bitmap, int index )
+void QListBox::changeItem( const QPixmap *pixmap, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    changeAny( 0, bitmap, 0, index );
+    changeAny( 0, pixmap, 0, index );
 }
 
 void QListBox::clear()
@@ -316,7 +333,7 @@ void QListBox::centerCurrentItem()
 
 int QListBox::numItemsVisible()
 {
-    return maxRowVisible() - topCell() + 1;
+    return lastRowVisible() - topCell() + 1;
 }
 
 void QListBox::setUserItems( bool b )
@@ -357,23 +374,24 @@ void QListBox::insertItem( const QLBItem *lbi, int index )
     CHECK_PTR( lbi );
 #endif
     insertAny( 0, 0, lbi, index );
-    updateNumRows();
+    updateNumRows( FALSE );
     if ( autoUpdate() )
 	update();
 }
 
+/*
 void QListBox::inSort( const QLBItem *lbi )
 {
 #if defined(CHECK_NULL)
     CHECK_PTR( lbi );
 #endif
     itemList->inSort( lbi );
-    updateNumRows();
+//###    updateNumRows( FALSE );
     if ( autoUpdate() ) {
 	update(); // Optimize drawing ( find index )
     }
 }
-
+*/
 
 void QListBox::changeItem( const QLBItem *lbi, int index )
 {
@@ -392,15 +410,50 @@ QLBItem *QListBox::item( int index ) const
     return itemList->at( index );
 }
 
-int QListBox::cellHeight( long )
+int QListBox::cellHeight( long l )
 {
-    return 16; //###
+    if ( stringsOnly ) {
+        QFontMetrics fm( font() );
+        return fm.lineSpacing() + 1;
+    }
+    QLBItem *tmp = item( l );
+    if ( tmp ) {
+        switch( tmp->type ) {
+  	    case LBI_String: {
+                QFontMetrics fm( font() );
+                return fm.lineSpacing() + 1;
+	    }
+	    case LBI_Pixmap: {
+                if ( tmp->pixmap )
+                    return tmp->pixmap->height();
+                else
+                    return 0;
+	    }
+            default:
+                return itemHeight( tmp );
+	}
+    } else {
+        return 0;
+    }
 }
 
 int QListBox::cellWidth( long l )
 {
-    return QTableWidget::cellWidth( l );
-//    return 16; //###
+    return QTableWidget::cellWidth();  // cellWidth is always constant
+}
+
+int QListBox::itemHeight( QLBItem *lbi )
+{
+    warning("QListBox::itemHeight: You must reimplement itemHeight() when you"
+            " use item types different from LBI_String and LBI_Pixmap");
+    return 0;
+}
+
+int QListBox::itemWidth( QLBItem *lbi )
+{
+    warning("QListBox::itemWidth: You must reimplement itemWidth() when you"
+            " use item types different from LBI_String and LBI_Pixmap");
+    return 0;
 }
 
 void QListBox::keyPressEvent( QKeyEvent *e )
@@ -416,7 +469,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	case Key_Down:
 	    if ( currentItem() < count() - 1 ) {
 		setCurrentItem( currentItem() + 1 );
-		if ( currentItem() == maxRowVisible() + 1 )
+		if ( currentItem() == lastRowVisible() + 1 )
 		    setTopItem( topItem() + 1 );
 	    } 
 	    break;
@@ -438,8 +491,6 @@ void QListBox::setCurrentItem( int index )
     if ( !checkIndex( "setCurrentItem", count(), index ) )
 	return;
 
-    debug( "Current = %i", index );
-
     int oldCurrent = current;
     current	   = index;
     updateItem( oldCurrent );
@@ -459,42 +510,37 @@ bool QListBox::itemVisible( int index )
 
 void QListBox::paintCell( QPainter *p, long row, long column )
 {
-    debug("Painting %i, current = %i", row, current );
     QFontMetrics fm = fontMetrics();
 
-    if ( column )
-	debug( "QListBox::paintCell: Column = %i!", column );
+#if defined( DEBUG )
+//    if ( column )
+//	debug( "QListBox::paintCell: Column = %i!", column );
+#endif
 
     if ( ownerDrawn ) {
-	debug( "ownerdrawn" );
 	paintItem( p, row );
 	return;
     }
 
-    char *tmp;
     QLBItem *lbi = itemList->at( row );
     if ( !lbi )
 	return;
-    if ( lbi->type == LBI_Bitmap ) {
-	return;		// ###
+    if ( lbi->type != LBI_String && lbi->type != LBI_Pixmap ) {
+        warning( "QListBox::paintCell: illegal item type (%i) in"
+                 " non-ownerdrawn list box." );
+        return;
     }
-    ASSERT( (lbi->type & LBI_String) != 0 );
-    debug( "=====================> %d (%d) %x", lbi->type, itemList->count(),
-	   itemList);
-    tmp = (char*) lbi->string;
-
-    if ( !tmp )
-	return;
-
-    debug( "printing '%s'", tmp );
     QColorGroup g = colorGroup();
     if ( current == row ) {
 	p->fillRect( 0, 0, cellWidth( column ), cellHeight( row ), g.text() );
 	p->pen().setColor( g.background() );
-    }
-    else
+    } else {
 	p->pen().setColor( g.text() );
-    p->drawText( 2, cellHeight( row ) - 2 - fm.descent(), tmp );
+    }
+    if ( lbi->type == LBI_String )
+        p->drawText( 3, cellHeight( row ) - fm.descent() - 1, lbi->string );
+    if ( lbi->type == LBI_Pixmap )
+        p->drawPixmap( 3, 2, *lbi->pixmap );
 }
 
 
@@ -520,7 +566,9 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 	} else {
 	    if ( !doAutoScroll )
 		return;
-	    if ( e->pos().y() < topMargin() )
+            int topMargin;
+            margins( 0, &topMargin, 0, 0 );
+	    if ( e->pos().y() < topMargin )
 		scrollDown = FALSE;
 	    else
 		scrollDown = TRUE;
@@ -552,7 +600,7 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-    setCellWidth( width() );
+//    setCellWidth( width() );
     QTableWidget::resizeEvent( e );
 }
 
@@ -561,7 +609,7 @@ void QListBox::timerEvent( QTimerEvent *e )
     if ( scrollDown ) {
 	if ( topItem() != maxRowOffset() ) {
 	    setTopItem( topItem() + 1 );
-	    setCurrentItem( maxRowVisible() );
+	    setCurrentItem( lastRowVisible() );
 	}
     } else {
 	if ( topItem() != 0 ) {
@@ -587,7 +635,7 @@ void QListBox::clearList()
     setAutoUpdate( a );
 }
 
-QLBItem *QListBox::newAny( const char *s, const QBitmap *bm )
+QLBItem *QListBox::newAny( const char *s, const QPixmap *bm )
 {
 #if defined(DEBUG)
     if ( !s && !bm )
@@ -601,14 +649,15 @@ QLBItem *QListBox::newAny( const char *s, const QBitmap *bm )
 	    tmp->string = s;
 	tmp->type = LBI_String;
     } else {
-	tmp->bitmap = (QBitmap *)bm;
-	tmp->type   = LBI_Bitmap;
+	tmp->pixmap = (QPixmap *)bm;
+	tmp->type   = LBI_Pixmap;
     }
     return tmp;
 }
 
-void QListBox::insertAny( const char *s, const QBitmap *bm, 
-			  const QLBItem *lbi, int index )
+void QListBox::insertAny( const char *s, const QPixmap *bm, 
+			  const QLBItem *lbi, int index,
+                          bool updateCellWidth  )
 {
 #if defined(DEBUG)
     if ( index > count() )
@@ -619,9 +668,15 @@ void QListBox::insertAny( const char *s, const QBitmap *bm,
     if ( !lbi )
 	lbi = newAny( s, bm );
     itemList->insert( index, lbi );
+    QFontMetrics fm( font() );
+    if ( updateCellWidth ) {
+        int w = internalItemWidth( lbi, fm );
+        if ( w > cellWidth() )
+            setCellWidth( w );
+    }
 }
 
-void QListBox::changeAny( const char *s, const QBitmap *bm, 
+void QListBox::changeAny( const char *s, const QPixmap *bm, 
 			  const QLBItem *lbi, int index )
 {
 #if defined(DEBUG)
@@ -632,21 +687,62 @@ void QListBox::changeAny( const char *s, const QBitmap *bm,
 #endif
 
     QLBItem *tmp = itemList->take( index );
+    QFontMetrics fm( font() );
+    int w = internalItemWidth( tmp, fm );
+    if ( w == cellWidth() )
+        updateCellWidth();
     if ( copyStrings && tmp->type == LBI_String )
 	delete [] (char*)tmp->string;
     deleteItem( tmp );
     insertAny( s, bm, lbi, index );
 }
 
-void QListBox::updateNumRows()
+void QListBox::updateNumRows( bool updateWidth )
 {
     bool autoU = autoUpdate();
     if ( autoU )
 	setAutoUpdate( FALSE );
     setNumRows( itemList->count() );
-    if ( autoU ) {
-	setAutoUpdate( TRUE );
+    if ( updateWidth ) 
+        updateCellWidth();
+    if ( autoU )
+        setAutoUpdate( TRUE );
+}
+
+void QListBox::updateCellWidth()
+{
+    QLBItem *tmp = itemList->first();
+    QFontMetrics fm( font() );
+    int maxW = 0;
+    int w;
+    while ( tmp ) {
+	w = internalItemWidth( tmp, fm );
+	if ( w > maxW )
+	    maxW = w;
+	tmp = itemList->next();
     }
+    setCellWidth( maxW );    
+}
+
+int QListBox::internalItemWidth( const QLBItem      *lbi,
+                                 const QFontMetrics &fm ) const
+{
+    int w;
+    switch( lbi->type ) {
+        case LBI_String:
+	    w = fm.width( lbi->string ) + 6;
+	    break;
+        case LBI_Pixmap:
+	    if ( lbi->pixmap )
+		w = lbi->pixmap->width();
+            else
+		w = 0;
+	    break;
+        default:
+	    w = ((QListBox*)this)->itemWidth( (QLBItem*) lbi );
+	    break;
+    }
+    return w;
 }
 
 void QListBox::init()

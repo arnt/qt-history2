@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#7 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#8 $
 **
 ** Definition of QListBox widget class
 **
@@ -16,27 +16,27 @@
 #include "qtablew.h"
 
 
-#define LBI_String	0x8000
-#define LBI_Bitmap	2
+#define LBI_String      1
+#define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
-class QBitmap;
+class QPixmap;
 
 struct QLBItem {				// list box item
     QLBItem(){}
-    QLBItem( QBitmap	*bm )  { bitmap=bm; type=LBI_Bitmap; }
+    QLBItem( QPixmap	*bm )  { pixmap=bm; type=LBI_Pixmap; }
     QLBItem( const char *s  )  { string=s;  type=LBI_String; }
-    int type;	 
+    int type;
     union {
-	QBitmap	   *bitmap;
+	QPixmap	   *pixmap;
 	const char *string;
 	void	   *data;
     };
 };
 
-
 class QStrList;
 class QLBItemList;
+class QFontMetrics;
 
 class QListBox : public QTableWidget		// list box class
 {
@@ -52,15 +52,15 @@ public:
     void	 insertStrList( const char**, int numStrings, int index=-1 );
 
     void	 insertItem( const char *string, int index=-1 );
-    void	 insertItem( const QBitmap *bitmap, int index=-1 );
+    void	 insertItem( const QPixmap *pixmap, int index=-1 );
     void	 inSort( const char *string );
     void	 removeItem( int index );
 
     const char	*string( int index ) const;	// get string at index
-    QBitmap	*bitmap( int index ) const;	// get bitmap at index
+    QPixmap	*pixmap( int index ) const;	// get pixmap at index
 
     void	 changeItem( const char *string, int index );
-    void	 changeItem( const QBitmap *bitmap, int index );
+    void	 changeItem( const QPixmap *pixmap, int index );
     void	 clear();
     void	 setStringCopy( bool );
     bool	 stringCopy();
@@ -79,11 +79,17 @@ public:
     void	 setAutoScroll( bool );		// scroll on drag
     void	 setAutoScrollBar( bool );
     void	 setScrollBar( bool );
+    void         setAutoBottomScrollBar( bool );
+    void         setBottomScrollBar( bool );
+    void         setSmoothScrolling( bool );
 
     bool	 dragSelect() const;	
     bool	 autoScroll() const;
     bool	 autoScrollBar() const;
+    bool         autoBottomScrollBar() const;
+    bool         bottomScrollBar() const;
     bool	 scrollBar() const;
+    bool         smoothScrolling() const;
 
     void	 centerCurrentItem();
     int		 numItemsVisible();
@@ -93,6 +99,9 @@ signals:
     void	 selected( int index );
 
 protected:    
+    virtual int itemWidth( QLBItem * );
+    virtual int itemHeight( QLBItem * );
+
     void	 setUserItems( bool );
     bool	 userItems();
 
@@ -101,13 +110,15 @@ protected:
 
     virtual void paintItem( QPainter *, int index );
     void	 insertItem( const QLBItem*, int index=-1 );
-    void	 inSort( const QLBItem * );
+//    void	 inSort( const QLBItem * );
     void	 changeItem( const QLBItem*, int index );
     QLBItem	*item( int index ) const;
     bool	 itemVisible( int index );
 
     int		 cellHeight( long );
     int		 cellWidth( long );
+    int		 cellHeight(){return QTableWidget::cellHeight();} //why,
+    int		 cellWidth(){return QTableWidget::cellHeight();} //Bjarne, why?
     void	 paintCell( QPainter *, long row, long col );
 
     void	 mousePressEvent( QMouseEvent * );
@@ -117,19 +128,23 @@ protected:
     void	 resizeEvent( QResizeEvent * );
     void	 timerEvent( QTimerEvent * );
     void	 keyPressEvent( QKeyEvent *e );
+    void         setFont( QFont &f );
 
     int		 findItem( int yPos ) const;
-    int		 itemYPos( int index ) const;
+    bool	 itemYPos( int index, int *yPos ) const;
     void	 updateItem( int index, bool clear = TRUE );
     void	 clearList();	 
-
+    void         updateCellWidth();
 private:
-    QLBItem	*newAny( const char *, const QBitmap * );
-    void	 insertAny( const char *, const QBitmap *, 
+    QLBItem	*newAny( const char *, const QPixmap * );
+    void	 insertAny( const char *, const QPixmap *, 
+			    const QLBItem *, int,
+                            bool updateCellWidth = TRUE );
+    void	 changeAny( const char *, const QPixmap *, 
 			    const QLBItem *, int );
-    void	 changeAny( const char *, const QBitmap *, 
-			    const QLBItem *, int );
-    void	 updateNumRows();
+    void	 updateNumRows( bool updateWidth = TRUE );
+    int          internalItemWidth( const QLBItem *,
+                                    const QFontMetrics & ) const;
     void	 init();
 
     uint   doDrag	  : 1;
@@ -173,22 +188,52 @@ inline void QListBox::setAutoScroll( bool b )
 
 inline bool QListBox::autoScrollBar() const
 {
-    return autoVerScrollBar();
+    return testFlag( Tbl_autoVScrollBar );
 }
 
 inline void QListBox::setAutoScrollBar( bool b )
 {
-    setAutoVerScrollBar( b );
+    setFlag( Tbl_autoVScrollBar );
 }
 
 inline bool QListBox::scrollBar() const
 {
-    return verScrollBar();
+    return testFlag( Tbl_vScrollBar );
 }
 
 inline void QListBox::setScrollBar( bool b )
 {
-    setVerScrollBar( b );
+    setFlag( Tbl_vScrollBar );
+}
+
+inline bool QListBox::autoBottomScrollBar() const
+{
+    return testFlag( Tbl_autoHScrollBar );
+}
+
+inline void QListBox::setAutoBottomScrollBar( bool b )
+{
+    setFlag( Tbl_autoHScrollBar );
+}
+
+inline bool QListBox::bottomScrollBar() const
+{
+    return testFlag( Tbl_hScrollBar );
+}
+
+inline void QListBox::setBottomScrollBar( bool b )
+{
+    setFlag( Tbl_hScrollBar );
+}
+
+inline bool QListBox::smoothScrolling() const
+{
+    return testFlag( Tbl_smoothVScrolling );
+}
+
+inline void QListBox::setSmoothScrolling( bool b )
+{
+    setFlag( Tbl_smoothVScrolling );
 }
 
 inline int QListBox::currentItem() const
@@ -201,9 +246,10 @@ inline int QListBox::findItem( int yPos ) const
     return findRow( yPos );
 }
 
-inline int QListBox::itemYPos( int index ) const
+inline bool QListBox::itemYPos( int index, int *yPos ) const
 {
-    return rowYPos( index );
+    
+    return rowYPos( index, yPos );
 }
 
 inline void QListBox::updateItem( int index, bool clear )
