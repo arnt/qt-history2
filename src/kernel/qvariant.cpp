@@ -2991,54 +2991,38 @@ bool QVariant::isNull() const
 	{
 	case QVariant::Bitmap:
 	    return ((QBitmap*) d->value.ptr)->isNull();
-    	    break;
 	case QVariant::Region:
 	    return ((QRegion*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::PointArray:
 	    return ((QPointArray*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::String:
 	    return ((QString*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::CString:
 	    return ((QCString*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Pixmap:
 	    return ((QPixmap*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Image:
 	    return ((QImage*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Point:
 	    return ((QPoint*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Rect:
 	    return ((QRect*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Size:
 	    return ((QSize*) d->value.ptr)->isNull();
-	    break;
 #ifndef QT_NO_ICONSET
 	case QVariant::IconSet:
 	    return ((QIconSet*) d->value.ptr)->isNull();
-	    break;
 #endif
 	case QVariant::Date:
 	    return ((QDate*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Time:
 	    return ((QTime*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::DateTime:
 	    return ((QDateTime*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::ByteArray:
 	    return ((QByteArray*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::BitArray:
 	    return ((QBitArray*) d->value.ptr)->isNull();
-	    break;
 	case QVariant::Cursor:
 #ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
