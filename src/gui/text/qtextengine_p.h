@@ -315,13 +315,7 @@ public:
     inline QAbstractTextDocumentLayout *docLayout() const {
         return block.docHandle()->document()->documentLayout();
     }
-    inline int formatIndex(const QScriptItem *si) const {
-        QTextDocumentPrivate *p = block.docHandle();
-        if (!p)
-            return -1;
-        QTextDocumentPrivate::FragmentIterator it = p->find(block.position() + si->position);
-        return it.value()->format;
-    }
+    int formatIndex(const QScriptItem *si) const;
 
     mutable QScriptLineArray lines;
 

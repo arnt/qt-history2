@@ -1406,9 +1406,26 @@ void QTextEngine::freeMemory()
     }
 }
 
+int QTextEngine::formatIndex(const QScriptItem *si) const
+{
+    QTextDocumentPrivate *p = block.docHandle();
+    if (!p)
+        return -1;
+    int pos = si->position;
+    if (specialData && si->position >= specialData->preeditPosition) {
+        if (si->position < specialData->preeditPosition + specialData->preeditText.length())
+            pos = specialData->preeditPosition;
+        else
+            pos -= specialData->preeditText.length();
+    }
+    QTextDocumentPrivate::FragmentIterator it = p->find(block.position() + pos);
+    return it.value()->format;
+}
+
 void QTextEngine::addRequiredBoundaries() const
 {
     int position = 0;
+    SpecialData *s = specialData;
 
     const QTextDocumentPrivate *p = block.docHandle();
     if (p) {
@@ -1417,6 +1434,10 @@ void QTextEngine::addRequiredBoundaries() const
         int format = it.value()->format;
 
         for (; it != end; ++it) {
+            if (s && position >= s->preeditPosition) {
+                position += s->preeditText.length();
+                s = 0;
+            }
             const QTextFragmentData * const frag = it.value();
             if (format != frag->format)
                 setBoundary(position);

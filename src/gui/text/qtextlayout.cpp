@@ -1374,12 +1374,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
         QTextItem gf;
         if (si.analysis.bidiLevel %2)
             gf.flags |= QTextItem::RightToLeft;
-        if (f.d->underline)
-            gf.flags |= QTextItem::Underline;
-        if (f.d->overline)
-            gf.flags |= QTextItem::Overline;
-        if (f.d->strikeOut)
-            gf.flags |= QTextItem::StrikeOut;
         gf.ascent = si.ascent;
         gf.descent = si.descent;
         gf.num_glyphs = ge - gs;
@@ -1416,6 +1410,12 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
         }
 
         gf.fontEngine = f.d->engineForScript((QFont::Script)si.analysis.script);
+        if (f.d->underline)
+            gf.flags |= QTextItem::Underline;
+        if (f.d->overline)
+            gf.flags |= QTextItem::Overline;
+        if (f.d->strikeOut)
+            gf.flags |= QTextItem::StrikeOut;
         Q_ASSERT(gf.fontEngine);
 
         if (eng->underlinePositions) {
