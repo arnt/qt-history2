@@ -412,9 +412,8 @@ void qt_mac_update_os_settings()
         }
         QApplicationPrivate::setSystemPalette(pal);
 #ifdef DEBUG_PLATFORM_SETTINGS
-            qt_mac_debug_palette(pal, QApplication::palette(), "Global Palette");
+        qt_mac_debug_palette(pal, QApplication::palette(), "Global Palette");
 #endif
-        }
     }
     if(!qt_app_has_font) {
         //setup the global font
