@@ -59,9 +59,9 @@ public:
     const QBrush &brush(ColorGroup cg, ColorRole cr) const;
     inline void setColor(ColorGroup cg, ColorRole cr, const QColor &color)
     { setBrush(cg, cr, QBrush(color)); }
-    inline const void setColor(ColorRole cr, const QColor &color)
+    inline void setColor(ColorRole cr, const QColor &color)
      { setColor(All, cr, color); }
-    inline const void setBrush(ColorRole cr, const QBrush &brush)
+    inline void setBrush(ColorRole cr, const QBrush &brush)
      { setBrush(All, cr, brush); }
     void setBrush(ColorGroup cg, ColorRole cr, const QBrush &brush);
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
