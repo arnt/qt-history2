@@ -86,16 +86,19 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     QTextEditString::Char *chr = 0;
     QSize s( doc->firstParag()->rect().size() );
 
+    p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(), 
+		 colorGroup().color( QColorGroup::Base ) );
+    
     if ( !doubleBuffer ) {
 	doubleBuffer = bufferPixmap( s );
 	if ( painter.isActive() )
 	    painter.end();
 	painter.begin( doubleBuffer );
     }
-    
+
     if ( !painter.isActive() )
 	painter.begin( doubleBuffer );
-    
+
     while ( parag ) {
 	lastFormatted = parag;
 	if ( !parag->isValid() )
@@ -249,7 +252,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
 	
 	if ( curx != -1 )
-	    painter.fillRect( QRect( curx, cury, 2, curh ), blue );
+	    painter.fillRect( QRect( curx, cury, 2, curh ), black );
 	
 	p->drawPixmap( parag->rect().topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), s ) );
 	if ( parag->rect().x() + parag->rect().width() < contentsX() + contentsWidth() )
@@ -258,6 +261,12 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 			 parag->rect().height(), colorGroup().brush( QColorGroup::Base ) );
 	parag = parag->next();
     }
+    
+    parag = doc->lastParag();
+    if ( parag->rect().y() + parag->rect().height() - contentsY() < visibleHeight() )
+	p->fillRect( 0, parag->rect().y() + parag->rect().height(), contentsWidth(), 
+		     visibleHeight() - ( parag->rect().y() + parag->rect().height() ),
+		     colorGroup().brush( QColorGroup::Base ) );
 }
 
 void QTextEdit::keyPressEvent( QKeyEvent *e )
@@ -635,7 +644,7 @@ void QTextEdit::drawCursor( bool visible )
 	    painter.end();
 	painter.begin( doubleBuffer );
     }
-    
+
     if ( !painter.isActive() )
 	painter.begin( doubleBuffer );
 
@@ -647,7 +656,7 @@ void QTextEdit::drawCursor( bool visible )
     int bl = 0;
     int cw = chr->format->width( chr->c );
     h = cursor->parag()->lineHeightOfChar( cursor->index(), &bl, &y );
-    
+
     bool fill = TRUE;
     if ( cursor->parag()->hasSelection( QTextEditDocument::Standard ) ) {
 	if ( cursor->parag()->selectionStart( QTextEditDocument::Standard ) <= cursor->index() &&
@@ -658,7 +667,7 @@ void QTextEdit::drawCursor( bool visible )
 	    fill = FALSE;
 	}
     }
-    
+
     if ( fill )
 	painter.fillRect( chr->x, y, cw, h,
 			  colorGroup().color( QColorGroup::Base ) );
@@ -669,7 +678,7 @@ void QTextEdit::drawCursor( bool visible )
     if ( visible ) {
 	int x = chr->x;
 	int w = 2;
-	painter.fillRect( QRect( x, y, w, h ), blue );
+	painter.fillRect( QRect( x, y, w, h ), black );
     }
 	
     p.drawPixmap( cursor->parag()->rect().topLeft() + QPoint( chr->x, y ), *doubleBuffer,
