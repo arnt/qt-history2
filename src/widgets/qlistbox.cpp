@@ -2436,6 +2436,7 @@ void QListBox::clearSelection()
     selectAll( FALSE );
 }
 
+
 /*!
   If \a select is TRUE, all items get selected, else all get unselected.
   This works only in the selection modes Multi and Extended. In
@@ -3793,6 +3794,17 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 	emit selectionChanged();
     viewport()->repaint( pr, TRUE );
 }
+
+
+/*!
+  Returns whether the user is selecting items using a rubber rectangle.
+*/
+
+bool QListBox::isRubberSelection() const
+{
+    return d->rubber != 0;
+}
+
 
 /*!
   Returns the item which comes after this in the
