@@ -55,7 +55,7 @@ public:
 	    w( widget ), t( title ), back( 0 ),
 	    backEnabled( TRUE ), nextEnabled( TRUE ), finishEnabled( FALSE ),
 	    helpEnabled( TRUE ),
-	    isLast( FALSE ), appropriate( TRUE )
+	    appropriate( TRUE )
 	{}
 	QWidget * w;
 	QString t;
@@ -64,7 +64,6 @@ public:
 	bool nextEnabled;
 	bool finishEnabled;
 	bool helpEnabled;
-	bool isLast;
 	bool appropriate;
     };
 
@@ -311,25 +310,19 @@ void QWizard::setHelpEnabled( bool enable )
 }
 
 
-/*
-
+/*!
+  \obsolete
 */
-
-void QWizard::setFinish( QWidget * w, bool isLast )
+void QWizard::setFinish( QWidget *, bool )
 {
-    QWizardPrivate::Page * p = d->page( w );
-    if ( !p )
-	return;
-
-    p->isLast = isLast;
-    updateButtons();
+    // Didn't do anything.
 }
 
 
-/*
-
+/*!
+  Enables or disables the "Back" button for pages \a w in the wizard.
+  By default, all pages have this button.
 */
-
 void QWizard::setBackEnabled( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
@@ -341,10 +334,10 @@ void QWizard::setBackEnabled( QWidget * w, bool enable )
 }
 
 
-/*
-
+/*!
+  Enables or disables the "Next" button for pages \a w in the wizard.
+  By default, all pages have this button.
 */
-
 void QWizard::setNextEnabled( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
@@ -356,10 +349,10 @@ void QWizard::setNextEnabled( QWidget * w, bool enable )
 }
 
 
-/*
-
+/*!
+  Enables or disables the "Finish" button for pages \a w in the wizard.
+  By default, \e no pages have this button.
 */
-
 void QWizard::setFinishEnabled( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
@@ -371,10 +364,10 @@ void QWizard::setFinishEnabled( QWidget * w, bool enable )
 }
 
 
-/*
-
+/*!
+  Enables or disables the "Help" button for pages \a w in the wizard.
+  By default, all pages have this button.
 */
-
 void QWizard::setHelpEnabled( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
@@ -406,10 +399,12 @@ bool QWizard::appropriate( QWidget * w ) const
 }
 
 
-/*
+/*!
+  Sets whether it is appropriate for \a w to be displayed in the
+  current context of the wizard.
 
+  \sa appropriate()
 */
-
 void QWizard::setAppropriate( QWidget * w, bool enable )
 {
     QWizardPrivate::Page * p = d->page( w );
