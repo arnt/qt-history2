@@ -4473,7 +4473,8 @@ static GFX_INLINE
 
   Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
-  endianness.
+  endianness. \a linestep is the bitmap's linestep in bytes, \a
+  rev is true if this is being used for a reverse blt.
 
   \a astat returns the bit number within the byte
   \a ahold holds the \c monobitval which is the byte pre-shifted
@@ -4978,10 +4979,10 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 /*!
   \class QScreen qgfx_qws.h
   \ingroup qws
-  \brief The QScreen class and its descendants manage the framebuffer and 
+  \brief The QScreen class and its descendants manage the framebuffer and
   palette.
-  
-  QScreens act as factories for the screen cursor and QGfx's. QLinuxFbScreen 
+
+  QScreens act as factories for the screen cursor and QGfx's. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
   There can only be one screen in a Qt/Embedded application.
 */
