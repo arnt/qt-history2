@@ -23,7 +23,7 @@ class QTimer;
 
 class QEventLoopPrivate;
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
 # include <windows.h>
 #endif
 class Q_CORE_EXPORT QEventLoop : public QObject
@@ -75,7 +75,7 @@ public:
     typedef bool(*ProcessEventHandler)(void *message);
     typedef bool(*EventFilter)(void *message, long *result);
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     virtual void winProcessEvent(void *message);
     virtual bool winEventFilter(void *message, long *result);
 #endif
@@ -99,7 +99,7 @@ private:
     friend class QApplication;
     friend class QCoreApplication;
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     friend Q_CORE_EXPORT bool qt_dispatch_timer(uint timerId, MSG *msg);
     friend bool qt_dispatch_socketnotifier(MSG *msg);
 #endif
