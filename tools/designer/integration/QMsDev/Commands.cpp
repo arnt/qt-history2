@@ -412,7 +412,7 @@ void CCommands::addUIC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 	CComPtr<IConfiguration> pConfig;
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
 	CComBSTR command = uiccommand+"$(InputPath) -o $(InputDir)\\$(InputName).h\n" +
-			   uiccommand+"$(InputPath) -i $(InputDir)\\$(InputName).h -o $(InputDir)\\$(InputName).cpp\n" + 
+			   uiccommand+"$(InputPath) -i $(InputName).h -o $(InputDir)\\$(InputName).cpp\n" + 
 			   moccommand+"$(InputDir)\\$(InputName).h -o $(InputDir)\\moc_$(InputName).cpp";
 	CComBSTR output = "$(InputDir)\\$(InputName).h\n$(InputDir)\\$(InputName).cpp\n$(InputDir)\\moc_$(InputName).cpp";
 	VERIFY_OK(pConfig->AddCustomBuildStepToFile(CComBSTR(uiFile), command, output, CComBSTR("UICing "+file+"..."), CComVariant(VARIANT_FALSE)));
