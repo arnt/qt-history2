@@ -712,7 +712,8 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
 		if (m1 == m2)
 		    break;
 
-                float intersect;
+                // ### intersect is not calculated correctly when optimized with -O2 (gcc)
+                volatile float intersect;
                 if (qIsInf(b1))
                     intersect = (1.f / m2) * aet.at(i).p1.x() + b2;
                 else if (qIsInf(b2))
