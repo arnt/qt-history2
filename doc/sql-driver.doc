@@ -16,7 +16,23 @@
 
 \title SQL Module - Drivers
 
-\tableofcontents
+\list
+\i \link #Introduction Introduction\endlink
+\i \link #building Building the drivers using configure\endlink
+\i \link #buildingmanually Building the plugins manually\endlink
+    \list
+    \i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
+    \i \link #QIBASE QIBASE\endlink - Borland Interbase Driver
+    \i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
+    \i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8 and 9
+    \i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
+    \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
+    \i \link #QSQLITE QSQLITE\endlink - SQLite Driver
+    \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
+    \endlist
+\i \link #troubleshooting Troubleshooting\endlink
+\i \link #development How to write your own database driver\endlink
+\endlist
 
 \target Introduction
 \section1 Introduction
@@ -37,19 +53,20 @@ communication with the DBMS.
 
 The drivers shipped with Qt are:
 \list
+\i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
+\i \link #QIBASE QIBASE\endlink - Borland Interbase Driver
 \i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
 \i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8 and 9
 \i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
 \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
-\i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
-\i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
 \i \link #QSQLITE QSQLITE\endlink - SQLite Driver
-\i \link #QIBASE QIBASE\endlink - Borland Interbase Driver
+\i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
 
 Note that not all of the plugins are shipped with the Qt Free Edition
 due to license incompatibilities with the GPL.
 
+\target building
 \section1 Building the drivers using configure
 
 The Qt configure script automatically detects the available client
@@ -64,7 +81,7 @@ Auto-Detected on this system: [ mysql psql ]
 Note that on Windows, the configure script doesn't do any
 auto-detection.
 
-Note that configure cannot detect the neccessary libraries and include
+The configure script cannot detect the neccessary libraries and include
 files if they are not in the standard paths, so it may be necessary to
 specify these paths using the "-I" and "-L" switches. For example, if
 your MySQL include files are installed in \c /usr/local/mysql (or in
@@ -72,7 +89,7 @@ your MySQL include files are installed in \c /usr/local/mysql (or in
 configure: \c -I/usr/local/mysql (or \c{-I C:\mysql\include} for
 Windows).
 
-Note that on Windows the -I parameter doesn't allow spaces in
+On Windows the -I parameter doesn't accept spaces in
 filenames, so use the 8.3 name instead, i.e. use \c{C:\progra~1\mysql}
 instead of \c{C:\program files\mysql}.
 
@@ -81,6 +98,7 @@ statically into your Qt library or \c{-plugin-sql-<driver>} to build
 the driver as a plugin. Look at the sections that follow for
 additional information about required libraries.
 
+\target buildingmanually
 \section1 Building the plugins manually
 
 \target QMYSQL3
@@ -482,21 +500,22 @@ SQLite is an in-process database, meaning that it is not necessary
 to have a database server. SQLite operates on a single file, which has
 to be set as database name when opening a connection. If the file does
 not exist, SQLite will try to create it. SQLite also supports in-memory
-databases, simply pass ":memory:" as database name.
+databases, simply pass ":memory:" as the database name.
 
-Please note that SQLite has some restrictions regarding multiple users /
+SQLite has some restrictions regarding multiple users and
 multiple transactions. If you try to read/write on a resource from different
 transactions, your application might freeze until one transaction commits
 or rolls back.
 
-You can find information about SQLite on \l http://www.sqlite.org
+You can find information about SQLite on \l{http://www.sqlite.org}.
 
-SQLite is shipped as third party library within Qt, it can be built by passing
-the following parameters to the configure script: \c{-plugin-sql-sqlite} (as plugin) or
-\c{-qt-sql-sqlite} (linked directly into the library).
+SQLite is shipped as third party library within Qt. It can be built by
+passing the following parameters to the configure script:
+\c{-plugin-sql-sqlite} (as plugin) or \c{-qt-sql-sqlite} (linked
+directly into the Qt library).
 
-In case you don't want to use the sqlite library shipped with Qt, you can override
-it by building the plugin manually (replace $SQLITE by the directory where SQLite
+If you don't want to use the SQLite library shipped with Qt, you can
+build it manually (replace \c $SQLITE by the directory where SQLite
 resides):
 
 \code
@@ -512,20 +531,21 @@ make
 
 \section3 General information
 
-The Qt Interbase plugin makes it possible to access Interbase (and Firebird)
-databases. Interbase can either be used as a client/server or without a server
-operating on local files. The database file has to exist before a connection can
-be established.
+The Qt Interbase plugin makes it possible to access the Interbase and
+Firebird databases. Interbase can either be used as a client/server or
+without a server operating on local files. The database file must
+exist before a connection can be established.
 
-Note that interbase requires you to specify the full path to the database file,
-no matter whether it is stored locally or on another server. 
+Note that Interbase requires you to specify the full path to the
+database file, no matter whether it is stored locally or on another
+server. 
 
 \code
     myDatabase->setHostName("MyServer");
     myDatabase->setDatabaseName("C:\\test.gdb");
 \endcode
 
-You need the Interbase / Firebird development headers and libraries
+You need the Interbase/Firebird development headers and libraries
 to build this plugin.
 
 Due to the GPL, users of the Qt Free Edition are not allowed to link
@@ -557,7 +577,7 @@ nmake
 If you are not using a Microsoft compiler, replace \c nmake
 with \c make in the statement above.
 
-Note that \c{C:\interbase\bin} has to be in the PATH.
+Note that \c{C:\interbase\bin} must be in the PATH.
 
 \target troubleshooting
 \section1 Troubleshooting
