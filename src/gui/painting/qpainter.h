@@ -43,6 +43,8 @@ class QWMatrix;
 
 class Q_GUI_EXPORT QPainter
 {
+    Q_DECLARE_PRIVATE(QPainter)
+
 public:
     enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
@@ -274,7 +276,7 @@ private:
     double idx() const;
     double idy() const;
 
-    QPainterPrivate *data;
+    QPainterPrivate *d_ptr;
 
     friend class QFontEngine;
     friend class QFontEngineBox;

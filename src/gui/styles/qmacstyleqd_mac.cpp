@@ -42,10 +42,10 @@ public:
 void QMacStyleQDPainter::setport()
 {
     QQuickDrawPaintEngine *mpe = NULL;
-    if(data->engine && (data->engine->type() == QPaintEngine::QuickDraw || data->engine->type() == QPaintEngine::CoreGraphics))
-        mpe = static_cast<QQuickDrawPaintEngine *>(data->engine);
+    if(d_ptr->engine && (d_ptr->engine->type() == QPaintEngine::QuickDraw || d_ptr->engine->type() == QPaintEngine::CoreGraphics))
+        mpe = static_cast<QQuickDrawPaintEngine *>(d_ptr->engine);
     if(mpe) {
-        mpe->updateState(data->state);
+        mpe->updateState(d_ptr->state);
         if(mpe->type() == QPaintEngine::QuickDraw) {
             mpe->setupQDPort(true);
         } else {
