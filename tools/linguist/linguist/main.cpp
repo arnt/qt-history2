@@ -54,8 +54,19 @@ int main( int argc, char **argv )
      if ( showSplash )
  	timer.start( 1000, TRUE );
 
+    QString   keybase("/Qt Linguist/3.1/");
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
+    QRect r( QApplication::desktop()->screenGeometry() );
+    r.setX( config.readNumEntry( keybase + "Geometry/MainwindowX", r.x() ) );
+    r.setY( config.readNumEntry( keybase + "Geometry/MainwindowY", r.y() ) );
+    r.setWidth( config.readNumEntry( keybase + "Geometry/MainwindowWidth", r.width() ) );
+    r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight", r.height() ) );
+
     QLabel *splash = 0;
-    QRect screen = QApplication::desktop()->screenGeometry();
+    int nscreen = QApplication::desktop()->screenNumber( r.center() ); 
+    QRect screen = QApplication::desktop()->screenGeometry( nscreen );
     if ( showSplash ) {
 	splash = new QLabel( 0, "splash", Qt::WDestructiveClose |
 			     Qt::WStyle_Customize | Qt::WStyle_NoBorder |
@@ -78,9 +89,6 @@ int main( int argc, char **argv )
     if ( app.argc() > 1 )
 	tw->openFile( QString(app.argv()[app.argc() - 1]) );
 
-    QString   keybase("/Qt Linguist/3.1/");
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     if ( config.readBoolEntry( keybase + "Geometry/MainwindowMaximized", FALSE ) )     
 	tw->showMaximized();
     else

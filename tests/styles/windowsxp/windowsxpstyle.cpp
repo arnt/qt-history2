@@ -71,6 +71,8 @@ public:
 		use_xp  = FALSE;
 		delete limboWidget;
 		limboWidget = 0;
+		delete tabbody;
+		tabbody = 0;
 	    }
 	}
     }
@@ -96,6 +98,8 @@ public:
 	return limboWidget->winId();
     }
     
+    const QPixmap *tabBody( QWidget *widget );
+
     // hot-widget stuff
 
     const QWidget *hotWidget;
@@ -108,10 +112,12 @@ public:
 
 private:
     static QWidget *limboWidget;
+    static QPixmap *tabbody;
 };
 
 const QWidget *QWindowsXPStylePrivate::currentWidget = 0;
 QWidget *QWindowsXPStylePrivate::limboWidget = 0;
+QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 
 struct XPThemeData
 {
@@ -188,7 +194,7 @@ struct XPThemeData
 	if ( sId )
 	    stateId = sId;
 
-	DrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	ulong res = DrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
     }
 
     int partId;
@@ -202,6 +208,23 @@ private:
     HTHEME htheme;
 };
 
+const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
+{
+    if ( !tabbody ) {
+	tabbody = new QPixmap( 1, 1 );
+	QPainter painter( tabbody );
+	XPThemeData theme( widget, &painter, L"TAB", TABP_BODY, 0 );
+	SIZE sz;
+	GetThemePartSize( theme.handle(), painter.handle(), TABP_BODY, 0, 0, TS_TRUE, &sz );
+	painter.end();
+	tabbody->resize( sz.cx, sz.cy );
+	painter.begin( tabbody );
+	theme.rec = QRect( 0, 0, sz.cx, sz.cy );
+	theme.drawBackground();
+	painter.end();
+    }
+    return tabbody;
+}
 
 
 QWindowsXPStyle::QWindowsXPStyle()
@@ -260,6 +283,10 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QSlider" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
+    } else if ( widget->inherits( "QWidgetStack" ) &&
+		widget->parentWidget() &&
+		widget->parentWidget()->inherits( "QTabWidget" ) ) {
+	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
     }
 
     updateRegion( widget );
@@ -388,7 +415,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 
 	break;
     case PE_IndicatorMask:
-        break;
+	p->fillRect( r, color1 );
+	return;
 
     case PE_ExclusiveIndicator:
 	name = L"BUTTON";
@@ -407,7 +435,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
 
     case PE_ExclusiveIndicatorMask:
-	break;
+	p->fillRect( r, color1 );
+	return;
 
     case PE_Panel:
 	break;
@@ -920,7 +949,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.drawBackground( partId, stateId );
 	    }
 	    if ( maxedOut ) {
-		theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddPage, opt );
+		theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarSlider, opt );
+		theme.rec = theme.rec.unite( querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarSubPage, opt ) );
+		theme.rec = theme.rec.unite( querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddPage, opt ) );
 		partId = bar->orientation() == Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
 		stateId = SCRBS_DISABLED;
     
@@ -1163,9 +1194,11 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			    stateId = TS_NORMAL;
 
 			theme.drawBackground( partId, stateId );
-
 		    } else {
-			drawPrimitive( PE_ButtonTool, p, theme.rec, cg, bflags, opt );
+			if ( !w->parentWidget() || !w->parentWidget()->inherits( "QToolBar" ) )
+			    drawPrimitive( PE_ButtonBevel, p, theme.rec, cg, bflags, opt );
+			else
+			    drawPrimitive( PE_ButtonTool, p, theme.rec, cg, bflags, opt );
 		    }
 		} else if ( tb->parentWidget() &&
 			  tb->parentWidget()->backgroundPixmap() &&
@@ -1299,131 +1332,144 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     case CC_ListView:
 #ifndef QT_NO_LISTVIEW
 	{
-	    QColor listViewGray( 128, 128, 128 );
-	    if (opt.isDefault())
-		break;
+	    if ( sub & SC_ListView ) {
+		const QListView *lv = (const QListView*)w;
+		QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
+		if ( !lv->showSortIndicator() )
+		    break;
 
-	    QListViewItem *item = opt.listViewItem(),
-			 *child = item->firstChild();
-
-	    int linetop = 0, linebot = 0, y = r.y();
-	    // each branch needs at most two lines, ie. four end points
-	    int dotoffset = (item->itemPos() + item->height() - y) %2;
-	    QPointArray dotlines( item->childCount() * 4 );
-	    int c = 0;
-
-	    // skip the stuff above the exposed rectangle
-	    while ( child && y + child->height() <= 0 ) {
-		y += child->totalHeight();
-		child = child->nextSibling();
+		int sort = opt.isDefault() ? 0 : opt.lineWidth(); //### hackydiho; use sortColumn() in 3.1
+		if ( sort < 0 )
+		    break;
 	    }
+	    if ( sub & ( SC_ListViewBranch | SC_ListViewExpand ) ) {
+		QColor listViewGray( 128, 128, 128 );
+		if (opt.isDefault())
+		    break;
 
-	    int bx = 6;
+		QListViewItem *item = opt.listViewItem(),
+			     *child = item->firstChild();
 
-	    XPThemeData theme( w, p, L"TREEVIEW" );
+		int linetop = 0, linebot = 0, y = r.y();
+		// each branch needs at most two lines, ie. four end points
+		int dotoffset = (item->itemPos() + item->height() - y) %2;
+		QPointArray dotlines( item->childCount() * 4 );
+		int c = 0;
 
-	    // paint stuff in the magical area
-	    while ( child && y < r.height() ) {
-		linebot = y + child->height()/2;
-		if ( (child->isExpandable() || child->childCount()) &&
-		     (child->height() > 0) ) {
-		    theme.rec = QRect( bx-4 + (int)p->translationX(), linebot-4+(int)p->translationY(), 9, 9 );
-		    theme.drawBackground( TVP_GLYPH, child->isOpen() ? GLPS_OPENED : GLPS_CLOSED );
-		    // dotlinery
-		    p->setPen( listViewGray );
+		// skip the stuff above the exposed rectangle
+		while ( child && y + child->height() <= 0 ) {
+		    y += child->totalHeight();
+		    child = child->nextSibling();
+		}
+
+		int bx = 6;
+
+		XPThemeData theme( w, p, L"TREEVIEW" );
+
+		// paint stuff in the magical area
+		while ( child && y < r.height() ) {
+		    linebot = y + child->height()/2;
+		    if ( (child->isExpandable() || child->childCount()) &&
+			 (child->height() > 0) ) {
+			theme.rec = QRect( bx-4 + (int)p->translationX(), linebot-4+(int)p->translationY(), 9, 9 );
+			theme.drawBackground( TVP_GLYPH, child->isOpen() ? GLPS_OPENED : GLPS_CLOSED );
+			// dotlinery
+			p->setPen( listViewGray );
+			dotlines[c++] = QPoint( bx, linetop );
+			dotlines[c++] = QPoint( bx, linebot - 5 );
+			dotlines[c++] = QPoint( bx + 5, linebot );
+			dotlines[c++] = QPoint( r.width(), linebot );
+			linetop = linebot + 5;
+		    } else {
+			// just dotlinery
+			dotlines[c++] = QPoint( bx+1, linebot );
+			dotlines[c++] = QPoint( r.width(), linebot );
+		    }
+
+		    y += child->totalHeight();
+		    child = child->nextSibling();
+		}
+
+		if ( child ) // there's a child, so move linebot to edge of rectangle
+		    linebot = r.height();
+
+		if ( linetop < linebot ) {
 		    dotlines[c++] = QPoint( bx, linetop );
-		    dotlines[c++] = QPoint( bx, linebot - 5 );
-		    dotlines[c++] = QPoint( bx + 5, linebot );
-		    dotlines[c++] = QPoint( r.width(), linebot );
-		    linetop = linebot + 5;
-		} else {
-		    // just dotlinery
-		    dotlines[c++] = QPoint( bx+1, linebot );
-		    dotlines[c++] = QPoint( r.width(), linebot );
+		    dotlines[c++] = QPoint( bx, linebot );
 		}
 
-		y += child->totalHeight();
-		child = child->nextSibling();
-	    }
+		p->setPen( cg.dark() );
 
-	    if ( child ) // there's a child, so move linebot to edge of rectangle
-		linebot = r.height();
+		static QBitmap *verticalLine = 0, *horizontalLine = 0;
+		static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+		if ( !verticalLine ) {
+		    // make 128*1 and 1*128 bitmaps that can be used for
+		    // drawing the right sort of lines.
+		    verticalLine = new QBitmap( 1, 129, TRUE );
+		    horizontalLine = new QBitmap( 128, 1, TRUE );
+		    QPointArray a( 64 );
+		    QPainter p;
+		    p.begin( verticalLine );
+		    int i;
+		    for( i=0; i<64; i++ )
+			a.setPoint( i, 0, i*2+1 );
+		    p.setPen( color1 );
+		    p.drawPoints( a );
+		    p.end();
+		    QApplication::flushX();
+		    verticalLine->setMask( *verticalLine );
+		    p.begin( horizontalLine );
+		    for( i=0; i<64; i++ )
+			a.setPoint( i, i*2+1, 0 );
+		    p.setPen( color1 );
+		    p.drawPoints( a );
+		    p.end();
+		    QApplication::flushX();
+		    horizontalLine->setMask( *horizontalLine );
+		    qlv_cleanup_bitmap.add( &verticalLine );
+		    qlv_cleanup_bitmap.add( &horizontalLine );
+		}
 
-	    if ( linetop < linebot ) {
-		dotlines[c++] = QPoint( bx, linetop );
-		dotlines[c++] = QPoint( bx, linebot );
-	    }
+		int line; // index into dotlines
+		for( line = 0; line < c; line += 2 ) {
+		    // assumptions here: lines are horizontal or vertical.
+		    // lines always start with the numerically lowest
+		    // coordinate.
 
-	    p->setPen( cg.dark() );
-
-	    static QBitmap *verticalLine = 0, *horizontalLine = 0;
-	    static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
-	    if ( !verticalLine ) {
-		// make 128*1 and 1*128 bitmaps that can be used for
-		// drawing the right sort of lines.
-		verticalLine = new QBitmap( 1, 129, TRUE );
-		horizontalLine = new QBitmap( 128, 1, TRUE );
-		QPointArray a( 64 );
-		QPainter p;
-		p.begin( verticalLine );
-		int i;
-		for( i=0; i<64; i++ )
-		    a.setPoint( i, 0, i*2+1 );
-		p.setPen( color1 );
-		p.drawPoints( a );
-		p.end();
-		QApplication::flushX();
-		verticalLine->setMask( *verticalLine );
-		p.begin( horizontalLine );
-		for( i=0; i<64; i++ )
-		    a.setPoint( i, i*2+1, 0 );
-		p.setPen( color1 );
-		p.drawPoints( a );
-		p.end();
-		QApplication::flushX();
-		horizontalLine->setMask( *horizontalLine );
-		qlv_cleanup_bitmap.add( &verticalLine );
-		qlv_cleanup_bitmap.add( &horizontalLine );
-	    }
-
-	    int line; // index into dotlines
-	    for( line = 0; line < c; line += 2 ) {
-		// assumptions here: lines are horizontal or vertical.
-		// lines always start with the numerically lowest
-		// coordinate.
-
-		// point ... relevant coordinate of current point
-		// end ..... same coordinate of the end of the current line
-		// other ... the other coordinate of the current point/line
-		if ( dotlines[line].y() == dotlines[line+1].y() ) {
-		    int end = dotlines[line+1].x();
-		    int point = dotlines[line].x();
-		    int other = dotlines[line].y();
-		    while( point < end ) {
-			int i = 128;
-			if ( i+point > end )
-			    i = end-point;
-			p->drawPixmap( point, other, *horizontalLine,
-				       0, 0, i, 1 );
-			point += i;
-		    }
-		} else {
-		    int end = dotlines[line+1].y();
-		    int point = dotlines[line].y();
-		    int other = dotlines[line].x();
-		    int pixmapoffset = ((point & 1) != dotoffset ) ? 1 : 0;
-		    while( point < end ) {
-			int i = 128;
-			if ( i+point > end )
-			    i = end-point;
-			p->drawPixmap( other, point, *verticalLine,
-				       0, pixmapoffset, 1, i );
-			point += i;
+		    // point ... relevant coordinate of current point
+		    // end ..... same coordinate of the end of the current line
+		    // other ... the other coordinate of the current point/line
+		    if ( dotlines[line].y() == dotlines[line+1].y() ) {
+			int end = dotlines[line+1].x();
+			int point = dotlines[line].x();
+			int other = dotlines[line].y();
+			while( point < end ) {
+			    int i = 128;
+			    if ( i+point > end )
+				i = end-point;
+			    p->drawPixmap( point, other, *horizontalLine,
+					   0, 0, i, 1 );
+			    point += i;
+			}
+		    } else {
+			int end = dotlines[line+1].y();
+			int point = dotlines[line].y();
+			int other = dotlines[line].x();
+			int pixmapoffset = ((point & 1) != dotoffset ) ? 1 : 0;
+			while( point < end ) {
+			    int i = 128;
+			    if ( i+point > end )
+				i = end-point;
+			    p->drawPixmap( other, point, *verticalLine,
+					   0, pixmapoffset, 1, i );
+			    point += i;
+			}
 		    }
 		}
+		
 	    }
-	    break;
 	}
+	break;
 #endif //QT_NO_LISTVIEW
 
     default:
@@ -1536,6 +1582,9 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 
     case PM_TabBarBaseOverlap:
 	return -2;
+
+    case PM_TabBarBaseHeight:
+	return -1;
 
     default:
 	break;	
