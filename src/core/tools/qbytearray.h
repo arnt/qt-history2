@@ -279,7 +279,7 @@ public:
 #endif
 
 private:
-    operator QNoImplicitIntegralCast() const;
+    operator QNoImplicitBoolCast() const;
     struct Data {
         QAtomic ref;
         int alloc, size;

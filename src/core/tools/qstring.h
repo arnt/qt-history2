@@ -308,7 +308,7 @@ public:
 #ifndef QT_NO_CAST_TO_ASCII
     inline operator const char *() const { return ascii(); }
 private:
-    operator QNoImplicitIntegralCast() const;
+    operator QNoImplicitBoolCast() const;
 public:
 #endif
 

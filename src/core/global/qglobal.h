@@ -634,7 +634,7 @@ typedef unsigned long long Q_UINT64;// 64 bit unsigned
 typedef Q_INT64 Q_LLONG;            // signed long long
 typedef Q_UINT64 Q_ULLONG;          // unsigned long long
 
-typedef int QNoImplicitIntegralCast;
+typedef int QNoImplicitBoolCast;
 
 //
 // Warnings and errors when using deprecated methods
@@ -661,7 +661,7 @@ typedef int QNoImplicitIntegralCast;
 #  if defined(Q_MOC_RUN)
 #    define QT_COMPAT_CONSTRUCTOR QT_COMPAT_CONSTRUCTOR
 #  elif defined(Q_NO_COMPAT_CONSTRUCTORS)
-#    define QT_COMPAT_CONSTRUCTOR explicit 
+#    define QT_COMPAT_CONSTRUCTOR explicit
 #  else
 #    define QT_COMPAT_CONSTRUCTOR explicit QT_COMPAT
 #  endif
