@@ -531,12 +531,10 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
     */
     if ( expr.type() == QVariant::List ) {
 	QValueList<QVariant>::ConstIterator v = expr.listBegin();
-
 	int tok = (*v).toInt();
 	qdb::Op *op = 0;
 	int driver;
 	QString field;
-
 
 	switch ( tok ) {
 	case Tok_Name:
@@ -592,6 +590,38 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	yyProg->append( new Push(expr) );
     }
 }
+
+#if 0
+QStringList Parser::conjunctiveForm( const QVariant& expr )
+{
+#if notyet
+    if ( expr.type() != QVariant::List )
+	return QStringList();
+
+    QValueList<QVariant>::ConstIterator v = expr.listBegin();
+    int tok = (*v).toInt();
+
+    switch ( tok ) {
+    case Tok_and:
+	return isInConjunctiveForm( *++v ) && isInConjunctiveForm( *++v );
+    case Tok_Equal:
+	++v;
+	if ( (*v).type() != QVariant::List ||
+	     (*(*v).listBegin()).toInt() != Tok_Name )
+	    return QStringList();
+
+	++v;
+	if ( (*v).type() == QVariant::List )
+	    return QStringList();
+    default:
+	return QStringList();
+    }
+#else
+    Q_UNUSED( expr );
+    return QStringList();
+#endif
+}
+#endif
 
 void Parser::matchOrInsert( int target, const QString& targetStr )
 {
@@ -946,24 +976,29 @@ QVariant Parser::matchSearchCondition()
 
 void Parser::matchOptWhereClause()
 {
-    bool whereClausePresent = ( yyTok == Tok_where );
+    QVariant clause;
 
-    if ( whereClausePresent )
+    if ( yyTok == Tok_where ) {
 	yyTok = getToken();
+	clause = matchSearchCondition();
+    }
 
-    int nextRecord = yyNextLabel--;
-    int markRecord = yyNextLabel--;
-    int endRecords = yyNextLabel--;
+    if ( /* isInConjunctiveForm(clause) */ 0 ) {
+	///
+    } else {
+	int nextRecord = yyNextLabel--;
+	int markRecord = yyNextLabel--;
+	int endRecords = yyNextLabel--;
 
-    yyProg->appendLabel( nextRecord );
-    yyProg->append( new Next(0, endRecords) );
-    if ( whereClausePresent )
-	emitExpr( matchSearchCondition(), markRecord, nextRecord );
-    yyProg->appendLabel( markRecord );
-    yyProg->append( new Mark(0) );
-    yyProg->append( new Goto(nextRecord) );
-    yyProg->appendLabel( endRecords );
-    // yyProg->append( new Noop );
+	yyProg->appendLabel( nextRecord );
+	yyProg->append( new Next(0, endRecords) );
+	emitExpr( clause, markRecord, nextRecord );
+	yyProg->appendLabel( markRecord );
+	yyProg->append( new Mark(0) );
+	yyProg->append( new Goto(nextRecord) );
+	yyProg->appendLabel( endRecords );
+	// yyProg->append( new Noop );
+    }
 }
 
 void Parser::matchCommitStatement()
@@ -1328,6 +1363,7 @@ void Parser::matchUpdateStatement()
 	yyProg->append( new Update(0) );
 	++as;
     }
+    yyProg->append( new MakeList(assignments.count()) );
     yyProg->append( new Goto(nextMarkedRecord) );
     yyProg->appendLabel( endRecords );
     yyProg->append( new Close(0) );
