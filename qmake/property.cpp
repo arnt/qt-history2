@@ -29,12 +29,12 @@ bool QMakeProperty::initSettings()
 QString
 QMakeProperty::keyBase() const
 {
-    return "/QMake/3.1/";
+    return "/QMake/properties/" + QString(qmake_version()) + "/";
 }
 
 
 QString
-QMakeProperty::value(const QString &v)
+QMakeProperty::value(const QString &v, bool just_check)
 {
     if(v == "QT_INSTALL_PREFIX") {
 #ifdef QT_INSTALL_PREFIX
@@ -54,6 +54,21 @@ QMakeProperty::value(const QString &v)
     if(initSettings()) {
 	bool ok;
 	QString ret = sett->readEntry(keyBase() + v, QString::null, &ok);
+	if(!ok) {
+	    QStringList subs = sett->subkeyList("/QMake/properties/");
+	    subs.sort();
+	    for(QStringList::Iterator it = subs.begin(); it != subs.end(); it++) {
+		if((*it).isEmpty())
+		    continue;
+		ret = sett->readEntry("/QMake/properties/" + (*it) + "/" + v, QString::null, &ok);
+		if(ok) {
+		    if(!just_check)
+			debug_msg(1, "Fell back from %s -> %s for '%s'.", qmake_version(),
+				  (*it).latin1(), v.latin1());
+		    return ret;
+		}
+	    }
+	}
 	return ok ? ret : QString::null;
     }
     return QString::null;
@@ -63,7 +78,7 @@ bool
 QMakeProperty::hasValue(const QString &v)
 {
     if(initSettings())
-	return !value(v).isNull();
+	return !value(v, TRUE).isNull();
     return FALSE;
 }
 
@@ -79,10 +94,26 @@ QMakeProperty::exec()
 {
     bool ret = TRUE;
     if(Option::qmake_mode == Option::QMAKE_QUERY_PROPERTY) {
+	if(Option::prop::properties.isEmpty() && initSettings()) {
+	    QStringList subs = sett->subkeyList("/QMake/properties/");
+	    subs.sort();
+	    for(QStringList::Iterator it = subs.begin(); it != subs.end(); it++) {
+		if((*it).isEmpty())
+		    continue;
+		QStringList keys = sett->entryList("/QMake/properties/" + (*it));
+		for(QStringList::Iterator it2 = keys.begin(); it2 != keys.end(); it2++) {
+		    QString ret = sett->readEntry("/QMake/properties/" + (*it) + "/" + (*it2));
+		    if((*it) != qmake_version())
+			fprintf(stdout, "%s/", (*it).latin1());
+		    fprintf(stdout, "%s:%s\n", (*it2).latin1(), ret.latin1());
+		}
+	    }
+	    return TRUE;
+	}
 	for(QStringList::Iterator it = Option::prop::properties.begin(); 
 	    it != Option::prop::properties.end(); it++) {
 	    if(Option::prop::properties.count() > 1)
-		fprintf(stdout, "%s: ", (*it).latin1());
+		fprintf(stdout, "%s:", (*it).latin1());
 	    if(!hasValue((*it))) {
 		ret = FALSE;
 		fprintf(stdout, "**Unknown**\n");
