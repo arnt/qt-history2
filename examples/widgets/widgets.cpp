@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#9 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -669,7 +669,7 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
 
 void WidgetView::open()
 {
-    QFileDialog::getOpenFileName( );
+    QFileDialog::getOpenFileName( QString::null, "Textfiles (*.txt)", this );
 }
 
 
