@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#51 $
 **
 ** Implementation of QRect class
 **
@@ -594,11 +594,17 @@ bool QRect::contains( const QRect &r, bool proper ) const
 	return r.x1 >= x1 && r.x2 <= x2 && r.y1 >= y1 && r.y2 <= y2;
 }
 
+/*!
+  Unites this rectangle with \a r.
+*/
 QRect& QRect::operator|=(const QRect &r)
 {
     return *this = *this | r;
 }
 
+/*!
+  Intersects this rectangle with \a r.
+*/
 QRect& QRect::operator&=(const QRect &r)
 {
     return *this = *this & r;
