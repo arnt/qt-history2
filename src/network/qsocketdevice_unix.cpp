@@ -183,8 +183,8 @@ void QSocketDevice::close()
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::close: Closed socket %x", fd );
 #endif
-    fetchConnectionParameters();
     fd = -1;
+    fetchConnectionParameters();
 }
 
 
