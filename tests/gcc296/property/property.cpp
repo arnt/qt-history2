@@ -85,7 +85,7 @@ int X::pasta() const
 
 // -------------------------
 
-#include "property_test.moc"
+#include "property.moc"
 
 
 // -------------------------

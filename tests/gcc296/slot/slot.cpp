@@ -125,7 +125,7 @@ void X::xslot6()
 
 // -------------------------
 
-#include "slot_test.moc"
+#include "slot.moc"
 
 
 // -------------------------
