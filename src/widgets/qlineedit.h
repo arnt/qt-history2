@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#39 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#40 $
 **
 ** Definition of QLineEdit widget class
 **
 ** Created : 941011
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

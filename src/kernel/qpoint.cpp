@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#24 $
 **
 ** Implementation of QPoint class
 **
 ** Created : 931028
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qpoint.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#24 $");
 
 
 /*!

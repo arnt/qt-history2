@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#13 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#14 $
 **
 ** Definition of QFileInfo class
 **
 ** Created : 950628
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

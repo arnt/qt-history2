@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#12 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#13 $
 **
 ** Definition of layout classes
 **
 ** Created : 960416
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#40 $
 **
 ** Implementation of QGArray class
 **
 ** Created : 930906
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The internal array is normally allocated with malloc(), deallocated with
@@ -26,7 +26,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#40 $");
 
 
 #define USE_MALLOC				// comment to use new/delete

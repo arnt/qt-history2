@@ -1,17 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#16 $
 **
 ** Implementation of base class for all collection classes
 **
 ** Created : 920820
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#16 $");
 
 
 /*!

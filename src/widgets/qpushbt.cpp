@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#94 $
 **
 ** Implementation of QPushButton class
 **
 ** Created : 940221
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#94 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#56 $
 **
 ** Implementation of QPixmap class for Win32
 **
 ** Created : 940501
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#56 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp

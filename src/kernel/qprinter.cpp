@@ -1,17 +1,17 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#28 $
 **
 ** Implementation of QPrinter class
 **
 ** Created : 941003
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#28 $");
 
 
 /*!

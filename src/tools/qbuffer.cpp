@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#35 $
 **
 ** Implementation of QBuffer class
 **
 ** Created : 930812
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#35 $");
 
 
 /*!

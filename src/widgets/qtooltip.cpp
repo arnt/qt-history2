@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#37 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -12,7 +12,7 @@
 #include "qptrdict.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#37 $");
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.31 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.32 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

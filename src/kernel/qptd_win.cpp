@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#32 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
 ** Created : 940801
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -25,7 +25,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_win.cpp#32 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )

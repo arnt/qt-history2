@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcach.h#10 $
+** $Id: //depot/qt/main/src/tools/qintcach.h#11 $
 **
 ** Definition of QIntCache template/macro class
 **
 ** Created : 950209
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#90 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#91 $
 **
 ** Global type declarations and definitions
 **
 ** Created : 920529
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

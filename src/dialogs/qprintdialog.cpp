@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#15 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#16 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
 ** Created : 950829
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#16 $");
 
 
 //

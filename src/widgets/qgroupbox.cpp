@@ -1,18 +1,18 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#26 $
 **
 ** Implementation of QGroupBox widget class
 **
 ** Created : 950203
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#26 $");
 
 
 /*!

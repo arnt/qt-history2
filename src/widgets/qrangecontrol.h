@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#12 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#13 $
 **
 ** Definition of QRangeControl class
 **
 ** Created : 940427
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

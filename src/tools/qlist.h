@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#19 $
+** $Id: //depot/qt/main/src/tools/qlist.h#20 $
 **
 ** Definition of QList template/macro class
 **
 ** Created : 920701
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

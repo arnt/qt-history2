@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#30 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
 ** Created : 950208
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#30 $");
 
 
 /*!

@@ -1,17 +1,17 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qconnect.cpp#16 $
 **
 ** Implementation of QConnection class
 **
 ** Created : 930417
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qconnect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qconnect.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qconnect.cpp#16 $");
 
 
 /*!

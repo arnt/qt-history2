@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#11 $
 **
 ** Implementation of QColor class for OS/2 PM
 **
 ** Created : 940712
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#11 $");
 
 
 /*****************************************************************************

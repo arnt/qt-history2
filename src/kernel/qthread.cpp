@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qthread.cpp#5 $
 **
 ** Implementation of QThread class
 **
 ** Created : 961223
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

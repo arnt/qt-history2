@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#94 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#95 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
 **
 ** Created : 920722
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#95 $");
 
 
 /*****************************************************************************

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#74 $
 **
 ** Implementation of QPainter class for Win32
 **
 ** Created : 940112
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#74 $");
 
 
 /*

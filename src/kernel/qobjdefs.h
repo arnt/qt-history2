@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#21 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#22 $
 **
 ** Macros and definitions related to QObject
 **
 ** Created : 930419
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains ugly macros and definitions that are necessary to make

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#42 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
 ** Created : 920624
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#42 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#14 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#15 $
 **
 ** Definition of QSize class
 **
 ** Created : 931028
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#57 $
 **
 ** Implementation of QLabel widget class
 **
 ** Created : 941215
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#57 $");
 
 
 #if QT_VERSION == 200

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.h#18 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.h#19 $
 **
 ** Definition of QRadioButton class
 **
 ** Created : 940222
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

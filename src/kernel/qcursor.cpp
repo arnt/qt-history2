@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#19 $
 **
 ** Implementation of QCursor class
 **
 ** Created : 940220
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#19 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#27 $
 **
 ** Definition of QPointArray class
 **
 ** Created : 940213
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#12 $
 **
 ** Implementation of QPicture class for Win32
 **
 ** Created : 940802
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#12 $");
 
 
 QPicture::QPicture()

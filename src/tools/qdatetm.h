@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#24 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#25 $
 **
 ** Definition of date and time classes
 **
 ** Created : 940124
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

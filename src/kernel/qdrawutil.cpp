@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#20 $
 **
 ** Implementation of draw utilities
 **
 ** Created : 950920
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#20 $");
 
 
 /*!

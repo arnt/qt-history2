@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.h#8 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.h#9 $
 **
 ** Definition of QMetaObject class
 **
 ** Created : 930419
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

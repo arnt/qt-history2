@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#17 $
 **
 ** Implementation of QWMatrix class
 **
 ** Created : 941020
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#17 $");
 
 
 /*!

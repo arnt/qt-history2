@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#17 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#18 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
 ** Created : 920730
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The QStrList class provides a list of strings (i.e., char *).

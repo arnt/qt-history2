@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#124 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#125 $
 **
 ** Definition of QWidget class
 **
 ** Created : 931029
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

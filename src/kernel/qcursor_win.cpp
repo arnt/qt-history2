@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#21 $
 **
 ** Implementation of QCursor class for Win32
 **
 ** Created : 940219
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#21 $");
 
 
 /*****************************************************************************

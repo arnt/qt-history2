@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#80 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
 ** Created : 931205
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#80 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );

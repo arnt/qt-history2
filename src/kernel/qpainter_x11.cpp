@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#217 $
 **
 ** Implementation of QPainter class for X11
 **
 ** Created : 940112
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#216 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#217 $");
 
 
 /*****************************************************************************

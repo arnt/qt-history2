@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#79 $
 **
 ** Implementation of QScrollBar class
 **
 ** Created : 940427
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#79 $");
 
 
 /*!

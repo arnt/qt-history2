@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#14 $
 **
 ** Implementation of QClipboard class for X11
 **
 ** Created : 960430
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#14 $");
 
 
 /*****************************************************************************

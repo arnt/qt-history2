@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#18 $
+** $Id: //depot/qt/main/src/tools/qarray.h#19 $
 **
 ** Definition of QArray template/macro class
 **
 ** Created : 930906
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

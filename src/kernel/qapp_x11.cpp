@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#242 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#243 $
 **
 ** Implementation of X11 startup routines and event handling
 **
 ** Created : 931029
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#242 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#243 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4

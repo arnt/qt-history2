@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#11 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#12 $
 **
 ** Definition of QSocketNotifier class
 **
 ** Created : 951114
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

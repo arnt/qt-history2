@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#38 $
 **
 ** Implementation of QDir class
 **
 ** Created : 950427
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -27,7 +27,7 @@
 #include <ctype.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#38 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)

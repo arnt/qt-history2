@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#21 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#22 $
 **
 ** Definition of QTabDialog class
 **
 ** Created : 960825
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#103 $
 **
 ** Implementation of QPopupMenu class
 **
 ** Created : 941128
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#103 $");
 
 
 // Motif style parameters

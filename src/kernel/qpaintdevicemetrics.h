@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#9 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.h#10 $
 **
 ** Definition of QPaintDeviceMetrics class
 **
 ** Created : 941109
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

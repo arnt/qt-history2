@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.h#9 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.h#10 $
 **
 ** Definition of draw utilities
 **
 ** Created : 950920
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

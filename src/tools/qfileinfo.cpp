@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#31 $
 **
 ** Implementation of QFileInfo class
 **
 ** Created : 950628
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -28,7 +28,7 @@
 extern "C" int readlink( const char *, void *, uint );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#31 $");
 
 
 #if defined(_OS_FATFS_)

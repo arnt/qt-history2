@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#22 $
 **
 ** Implementation of QRegion class for Win32
 **
 ** Created : 940801
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#22 $");
 
 
 static QRegion *empty_region = 0;

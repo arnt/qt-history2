@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#45 $
 **
 ** Implementation of QLCDNumber class
 **
 ** Created : 940518
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#45 $");
 
 
 /*!

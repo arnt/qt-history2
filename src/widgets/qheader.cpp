@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#9 $
 **
 **  Table header
 **
 **  Created:  961105
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 #include "qheader.h"

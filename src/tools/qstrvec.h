@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#10 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#11 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
 ** Created : 931203
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The QStrVector class provides a vector of strings (i.e., char *).

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#9 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#10 $
 **
 ** Definition of QRegExp class
 **
 ** Created : 950126
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

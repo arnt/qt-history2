@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#54 $
 **
 ** Implementation of date and time classes
 **
 ** Created : 940124
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#54 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914

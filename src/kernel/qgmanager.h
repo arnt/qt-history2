@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#4 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#5 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
 ** Created : 960406
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

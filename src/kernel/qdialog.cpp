@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#41 $
 **
 ** Implementation of QDialog class
 **
 ** Created : 950502
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#41 $");
 
 
 /*!

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#7 $
 **
 ** C++ file skeleton
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -12,7 +12,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#7 $");
 
 
 /*!  \class QValidator qvalidator.h

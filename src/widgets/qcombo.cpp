@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#98 $
 **
 ** Implementation of QComboBox widget class
 **
 ** Created : 940426
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#98 $");
 
 
 /*!

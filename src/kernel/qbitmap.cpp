@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#30 $
 **
 ** Implementation of QBitmap class
 **
 ** Created : 941020
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#30 $");
 
 
 /*!

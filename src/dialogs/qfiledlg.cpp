@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#36 $
 **
 ** Implementation of QFileDialog class
 **
 ** Created : 950429
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#36 $");
 
 
 /*!

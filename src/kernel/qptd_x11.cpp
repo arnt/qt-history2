@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#74 $
 **
 ** Implementation of QPaintDevice class for X11
 **
 ** Created : 940721
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#74 $");
 
 
 /*!

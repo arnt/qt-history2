@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#17 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#18 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
 ** Created : 920529
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#41 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#42 $
 **
 ** Definition of QComboBox class
 **
 ** Created : 950426
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

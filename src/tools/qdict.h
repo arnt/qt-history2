@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#17 $
+** $Id: //depot/qt/main/src/tools/qdict.h#18 $
 **
 ** Definition of QDict template/macro class
 **
 ** Created : 920821
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

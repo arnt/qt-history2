@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#10 $
+** $Id: //depot/qt/main/src/tools/qvector.h#11 $
 **
 ** Definition of QVector template/macro class
 **
 ** Created : 930907
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

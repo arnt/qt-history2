@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_os2.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qptd_os2.cpp#10 $
 **
 ** Implementation of QPaintDevice class for OS/2 PM
 **
 ** Created : 940802
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_os2.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_os2.cpp#10 $");
 
 
 QPaintDevice::QPaintDevice()

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#6 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#7 $
 **
 ** Definition of QClipboard class
 **
 ** Created : 960430
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

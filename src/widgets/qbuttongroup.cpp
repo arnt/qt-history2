@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#34 $
 **
 ** Implementation of QButtonGroup class
 **
 ** Created : 950130
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#34 $");
 
 
 /*!

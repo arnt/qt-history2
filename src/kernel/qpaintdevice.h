@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#46 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#47 $
 **
 ** Definition of QPaintDevice class
 **
 ** Created : 940721
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

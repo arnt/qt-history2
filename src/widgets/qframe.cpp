@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#44 $
 **
 ** Implementation of QFrame widget class
 **
 ** Created : 950201
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#44 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#15 $
 **
 ** Implementation of QSocketNotifier class
 **
 ** Created : 951114
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

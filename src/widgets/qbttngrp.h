@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.h#15 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.h#16 $
 **
 ** Definition of QButtonGroup class
 **
 ** Created : 950130
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

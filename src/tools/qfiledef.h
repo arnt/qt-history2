@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#21 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#22 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -10,7 +10,7 @@
 **
 ** Created : 930812
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

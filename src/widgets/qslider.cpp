@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#41 $
 **
 ** Implementation of QSlider class
 **
 ** Created : 961019
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#41 $");
 
 
 static const int motifBorder = 2;

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#15 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#16 $
 **
 ** Definition of QPoint class
 **
 ** Created : 931028
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

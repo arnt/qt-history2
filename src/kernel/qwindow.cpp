@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#10 $
 **
 ** Implementation of QWindow class
 **
 ** Created : 931211
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qwindow.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#10 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#27 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#28 $
 **
 ** Definition of QRegion class
 **
 ** Created : 940514
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

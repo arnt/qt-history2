@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#11 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#12 $
 **
 ** Definition of keyboard codes
 **
 ** Created : 931030
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

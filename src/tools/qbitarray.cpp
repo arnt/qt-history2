@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#38 $
 **
 ** Implementation of QBitArray class
 **
 ** Created : 940118
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#38 $");
 
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))

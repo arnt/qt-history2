@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#26 $
 **
 ** Implementation of QMetaObject class
 **
 ** Created : 930419
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#26 $");
 
 
 /* not documented

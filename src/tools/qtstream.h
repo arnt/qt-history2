@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#21 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#22 $
 **
 ** Definition of QTextStream class
 **
 ** Created : 940922
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

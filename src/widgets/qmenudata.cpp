@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#50 $
 **
 ** Implementation of QMenuData class
 **
 ** Created : 941128
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#50 $");
 
 
 /*!

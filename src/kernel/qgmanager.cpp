@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#18 $
 **
 ** Implementation of QGGeometry class
 **
 ** Created : 960406
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#18 $");
 
 
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#77 $
 **
 ** Implementation of QButton widget class
 **
 ** Created : 940206
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#77 $");
 
 
 static const int autoRepeatDelay  = 300;

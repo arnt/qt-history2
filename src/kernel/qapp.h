@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#68 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#69 $
 **
 ** Definition of QApplication class
 **
 ** Created : 931107
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmutex.h#1 $
+** $Id: //depot/qt/main/src/kernel/qmutex.h#2 $
 **
 ** Definition of QMutex class
 **
 ** Created : 961223
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

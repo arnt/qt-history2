@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#75 $
 **
 ** Implementation of QPixmap class
 **
 ** Created : 950301
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#75 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#35 $
 **
 ** Implementation of QColor class for Win32
 **
 ** Created : 940112
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#35 $");
 
 
 /*****************************************************************************

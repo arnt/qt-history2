@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#62 $
 **
 ** Implementation of QColor class
 **
 ** Created : 940112
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#62 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#132 $
 **
 ** Implementation of QObject class
 **
 ** Created : 930418
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#131 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#132 $");
 
 
 /*!

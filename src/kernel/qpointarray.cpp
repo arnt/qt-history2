@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#47 $
 **
 ** Implementation of QPointArray class
 **
 ** Created : 940213
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#47 $");
 
 /*!
   \class QPointVal qpntarry.h

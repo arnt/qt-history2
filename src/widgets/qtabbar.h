@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#6 $
 **
 ** Definition of QTabBar class
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

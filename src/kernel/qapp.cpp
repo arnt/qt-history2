@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#108 $
 **
 ** Implementation of QApplication class
 **
 ** Created : 931107
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#108 $");
 
 
 /*!

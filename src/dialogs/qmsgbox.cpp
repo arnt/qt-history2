@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#41 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#42 $
 **
 ** Implementation of QMessageBox class
 **
 ** Created : 950503
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#42 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 

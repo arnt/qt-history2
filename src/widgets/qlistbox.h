@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#50 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#51 $
 **
 ** Definition of QListBox widget class
 **
 ** Created : 941121
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

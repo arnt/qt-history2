@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#22 $
 **
 ** Implementation of QGVector class
 **
 ** Created : 930907
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The internal array is normally allocated with malloc(), deallocated with
@@ -28,7 +28,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#22 $");
 
 
 #define USE_MALLOC				// comment to use new/delete

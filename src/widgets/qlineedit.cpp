@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#90 $
 **
 ** Implementation of QLineEdit widget class
 **
 ** Created : 941011
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#90 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#9 $
 **
 ** Implementation of QFont and QFontMetrics classes for OS/2 PM
 **
 ** Created : 940712
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#9 $");
 
 
 void QFont::initialize()			// called from startup routines

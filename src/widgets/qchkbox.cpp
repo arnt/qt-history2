@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#62 $
 **
 ** Implementation of QCheckBox class
 **
 ** Created : 940222
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#62 $");
 
 
 /*!

@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#29 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#30 $
 **
 ** Definition of QMultiLineEdit widget class
 **
 ** Created : 961005
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#78 $
 **
 ** Implementation of QMenuBar class
 **
 ** Created : 941209
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#78 $");
 
 
 /*!

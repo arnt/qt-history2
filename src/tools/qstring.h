@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#49 $
+** $Id: //depot/qt/main/src/tools/qstring.h#50 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
 **
 ** Created : 920609
 **
-** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#19 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#20 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

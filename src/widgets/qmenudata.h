@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#41 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#42 $
 **
 ** Definition of QMenuData class
 **
 ** Created : 941128
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

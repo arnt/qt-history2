@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#28 $
 **
 ** Implementation of QPrinter class for X11
 **
 ** Created : 950810
 **
-** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#28 $");
 
 
 /*****************************************************************************

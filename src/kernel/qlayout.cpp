@@ -1,18 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#23 $
 **
 ** Implementation of layout classes
 **
 ** Created : 960416
 **
-** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#23 $");
 
 
 /*!

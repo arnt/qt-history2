@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#27 $
 **
 ** Implementation of QTimer class
 **
 ** Created : 931111
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,7 @@
 #include "qsignal.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#27 $");
 
 
 /*!

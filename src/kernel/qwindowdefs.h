@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#97 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#98 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
 **
 ** Created : 931029
 **
-** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
