@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#12 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#12 $";
 #endif
 
 
@@ -454,7 +454,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    if ( controls & ADD_PAGE )
 		p.fillRect( addPageR, backgroundColor() );
 	    if ( controls & SLIDER ) {
-                QBrush brush( backgroundColor() );
+                QBrush brush( foregroundColor() );
                 p.setBrush( brush );
 		p.drawShadePanel( sliderR, foregroundColor().light(),
 				       foregroundColor().dark(), 2, 2, TRUE );
