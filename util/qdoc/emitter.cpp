@@ -208,7 +208,6 @@ void DocEmitter::start()
 
     if ( config->lint() )
 	lint();
-    warnAboutOmitted();
 }
 
 void DocEmitter::addGroup( DefgroupDoc *doc )
