@@ -1,11 +1,14 @@
 /*! \class QVarLengthArray
     \brief The QVarLengthArray class provides a low-level variable-length array.
 
+    \ingroup tools
+    \reentrant
+
     The C++ language doesn't support variable-length arrays on the stack.
     For example, the following code won't compile:
 
     \code
-	int factorial(int n)
+	int myfunc(int n)
         {
 	    int table[n + 1];
             ...
@@ -17,7 +20,7 @@
     \c{new}):
 
     \code
-	int factorial(int n)
+	int myfunc(int n)
         {
 	    int *table = new int[n + 1];
             ...
@@ -34,7 +37,7 @@
 
     Example:
     \code
-	int factorial(int n)
+	int myfunc(int n)
 	{
 	    QVarLengthArray<int, 512> array(n + 1);
             ...
@@ -125,29 +128,45 @@
     \sa size()
 */
 
-/*! \fn void QVarLengthArray::reserve(int size)
-
-    Asks QVarLengthArray to allocate memory for at least \a size
-    elements. If you know in advance how large the array can get, you
-    can call this function and if you call resize() often, you are
-    likely to get better performance. If \a size is an underestimate,
-    the worst that will happen is that the QVarLengthArray will be a
-    bit slower.
-
-    If you want to change the size of the array, call resize().
-
-    \sa capacity()
-*/
-
 /*! \fn int QVarLengthArray::capacity() const
 
     Returns the maximum number of elements that can be stored in the
     array without forcing a reallocation.
 
-    If you want to know how many items are currently in the array,
-    call size().
+    The sole purpose of this function is to provide a means of fine
+    tuning QVarLengthArray's memory usage. In general, you will rarely ever
+    need to call this function. If you want to know how many items are
+    in the array, call size().
 
-    \sa reserve()
+    \sa reserve(), squeeze()
+*/
+
+/*! \fn void QVarLengthArray::reserve(int size)
+
+    Attempts to allocate memory for at least \a size elements. If you
+    know in advance how large the array can get, you can call this
+    function and if you call resize() often, you are likely to get
+    better performance. If \a size is an underestimate, the worst
+    that will happen is that the QVarLengthArray will be a bit
+    slower.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QVarLengthArray's memory usage. In general, you will
+    rarely ever need to call this function. If you want to change the
+    size of the array, call resize().
+
+    \sa squeeze(), capacity()
+*/
+
+/*! \fn void QVarLengthArray::squeeze()
+
+    Releases any memory not required to store the items.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QVarLengthArray's memory usage. In general, you will
+    rarely ever need to call this function. 
+
+    \sa reserve(), capacity()
 */
 
 /*! \fn T &QVarLengthArray::operator[](int i)
@@ -160,7 +179,7 @@
     \sa data()
 */
 
-/*! \fn const T &QVarLengthArray::operator[](int i)
+/*! \fn const T &QVarLengthArray::operator[](int i) const
 
     \overload
 */

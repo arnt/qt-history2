@@ -10,11 +10,21 @@
 
     QCache\<Key, T\> defines a cache that store objects of type T
     associated with keys of type Key. For example, here's the
-    definition of a cache that stores objects of type MyDataStructure
+    definition of a cache that stores objects of type Employee
     associated with an integer key:
 
     \code
-	QCache<int, MyDataStructure> cache;
+	QCache<int, Employee> cache;
+    \endcode
+
+    Here's how to insert an object in the cache:
+
+    \code
+	Employee *employee = new Employee;
+        employee->setId(37);
+        employee->setName("Richard Schmit");
+
+	cache.insert(employee->id(), employee);
     \endcode
 
     The advantage of using QCache over some other key-based data
@@ -51,7 +61,7 @@
     \sa QHash, QMap
 */
 
-/*! \fn QCache::QCache(int maxCost)
+/*! \fn QCache::QCache(int maxCost = 100)
 
     Constructs a cache whose contents will never have a total cost
     greater than \a maxCost.

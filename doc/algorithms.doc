@@ -1,30 +1,12 @@
-/*! \header qalgorithm.h
+/*! \page algorithms.html
 
     \title Generic Algorithms
 
     Qt provides a number of global template functions in \c
     <qalgorithm.h> that work on containers and perform well-know
-    algorithms:
-
-    \list
-    \i qCopy()
-    \i qCopyBackward()
-    \i qEqual()
-    \i qFill()
-    \i qFind()
-    \i qCount()
-    \i qSwap()
-    \i qDeleteAll()
-    \i qBinaryFind()
-    \i qUpperBound()
-    \i qLowerBound()
-    \i qBubbleSort()
-    \i qHeapSort()
-    \endlist
-
-    You can use these algorithms with any \l {container class} that
-    provides STL-style iterators, including QList, QLinkedList,
-    QVector, QMap, and QHash.
+    algorithms. You can use these algorithms with any \l {container
+    class} that provides STL-style iterators, including Qt's QList,
+    QLinkedList, QVector, QMap, and QHash classes.
 
     These functions are inspired from the functions available in the
     STL \c <algorithm> header. Most of them have a direct STL
@@ -33,19 +15,22 @@
 
     If STL is available on all your target platforms, you can use the
     STL algorithms instead of their Qt counterparts. One reason why
-    you might want to use the this is that STL provides more
-    algorithms than Qt. Qt concentrates on the basic, most important
-    ones, but doesn't attempt beyond that to duplicate functionality
-    that is already provided by the C++ standard.
-    
+    you might want to use the this is that STL provides dozens and
+    dozens of algorithms. Qt concentrates on the basic, most
+    important ones, but doesn't attempt beyond that to duplicate
+    functionality that is already provided by the C++ standard.
+
+    \section1 Overview
+
     Most algorithms take \l {STL-style iterators} as parameters. The
     algorithms are generic in the sense that they aren't bound to a
     specific iterator class; you can use them with any iterators that
     meet a certain set of requirements.
 
-    Let's take the qFill() algorithm as an example. QList has no
-    fill() function that can be used to fill a list with a certain
-    value. If you need that functionality, you can use qFill():
+    Let's take the qFill() algorithm as an example. Unlike QVector,
+    QList has no fill() function that can be used to fill a list with
+    a certain value. If you need that functionality, you can use
+    qFill():
 
     \code
 	QList<QString> list;
@@ -65,16 +50,12 @@
         // list: [ "eleven", "six", "six" ]
     \endcode
 
-    If you are unfamiliar STL-style iterators, make sure to read the
-    \link containers.html#stl-iterators STL-style iterator overview
-    \endlink.
-
     The various algorithms have different requirements on the
     iterators they accept. For example, qFill() accepts two \l {input
     iterators}, the lowest requirement for an iterator type. The
     requirement are specified for every algorithm. If an iterator of
     the wrong type is passed (for example, QList::ConstIterator is
-    passed as an \i {output iterator}), you will always get a
+    passed as an \l{output iterator}), you will always get a
     compiler error, although not necessary a highly readable one.
 
     Some algorithms have special requirements on the value type
@@ -100,16 +81,10 @@
 	QChar resolveEntity(const QString &entity)
         {
 	    static const QLatin1String name_table[] = {
-	        "AElig",
-                "Aacute",
-                ...
-                "zwnj"
+	        "AElig", "Aacute", ..., "zwnj"
             };
             static const Q_UINT16 value_table[] = {
-	        0x0061,
-                0x00c1,
-                ...
-                0x200c
+	        0x0061, 0x00c1, ..., 0x200c
             };
             int N = sizeof(name_table) / sizeof(name_table[0]);
 
@@ -126,13 +101,13 @@
     This kind of code is for advanced users only; for most
     applications, a QMap- or QHash-based approach would work just as
     well:
-    
+
     \code
 	QChar resolveEntity(const QString &entity)
         {
 	    static QMap<QString, int> entityMap;
 
-	    if (entityMap.isEmpty()) {
+	    if (!entityMap) {
 		entityMap.insert("AElig", 0x0061);
 		entityMap.insert("Aacute", 0x00c1);
                 ...
@@ -141,6 +116,74 @@
             return QChar(entityMap.value(entity));
         }
     \endcode
+
+    \section1 Types of Iterators
+
+    The algorithms have certain requirements on the iterator type
+    they accept. The requirements on the iterator types are specified
+    for each function. The compiler will produce an error if a
+    requirement isn't met.
+
+    \section2 Input Iterators
+
+    An \e{input iterator} is an iterator that can be used for reading
+    data sequentially from a container. It must provide the following
+    operators: \c{==} and \c{!=} for comparing two iterators, unary
+    \c{*} for retrieving the value stored in the item, and \c{++} for
+    advancing to the next item.
+
+    The Qt containers' iterator types (const and non-const) are all
+    input iterators.
+
+    \section2 Output Iterators
+
+    An \e{output iterator} is an iterator that can be used for
+    writing data sequentially to a container or to some output
+    stream. It must provide the following operators: unary \c{*} for
+    writing a value (i.e., \c{*it = val}) and \c{++} for advancing to
+    the next item.
+
+    The Qt containers' non-const iterator types are all output
+    iterators.
+
+    \section2 Forward Iterators
+
+    A \e{forward iterator} is an iterator that meets the requirements
+    of both input iterators and output iterators.
+
+    The Qt containers' non-const iterator types are all output
+    iterators.
+
+    \section2 Bidirectional Iterators
+
+    A \e{bidirectional iterator} is an iterator that meets the
+    requirements of forward iterators but that in addition supports
+    \c{--} for iterating backward.
+
+    The Qt containers' non-const iterator types are all output
+    iterators.
+
+    \section2 Random Access Iterators
+
+    The last category, \e{random access iterators}, is the most
+    powerful type of iterator. It supports all the requirements of a
+    bidirectional iterator, and supports the following operations:
+
+    \table
+    \row \i \c{i += n} \i advances iterator \c i by \c n positions
+    \row \i \c{i -= n} \i moves iterator \c i back by \c n positions
+    \row \i \c{i + n} or \c{n + i} \i returns the iterator for the item \c
+       n positions ahead of iterator \c i
+    \row \i \c{i - n} \i returns the iterator for the item \c n positions behind of iterator \c i
+    \row \i \c{i - j} \i returns the number of items between iterators \c i and \c j
+    \row \i \c{i[n]} \i same as \c{*(i + n)}
+    \row \i \c{i < j} \i returns true if iterator \c j lies ahead of iterator \c i
+    \endtable
+
+    QList, QLinkedList, and QVector's non-const iterator types are
+    random access iterators.
+
+    \sa {container classes}
 */
 
 /*! \fn template <class InputIterator, class OutputIterator> \
@@ -197,8 +240,8 @@
 	bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
 
     Compares the items in the range [begin1, end1) with the items in
-    the range [begin2, ...). Returns \true if all the items compare
-    equal, \false otherwise.
+    the range [begin2, ...). Returns true if all the items compare
+    equal, false otherwise.
 
     Example:
     \code
