@@ -14,7 +14,7 @@ then
     echo
     echo
     echo '   The environment variable $QTDIR is not set correctly. It is currently'
-    echo '   set to "'`echo $QTDIR`'", but it should be set this directory,'
+    echo '   set to "'$QTDIR'", but it should be set to this directory,'
     echo '   which is "'`pwd`'".'
     echo
     echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
@@ -39,7 +39,9 @@ GIF=no
 SM=no
 ZLIB=yes
 LIBPNG=yes
-LINKFLAGS=""
+I_FLAGS=
+L_FLAGS=
+l_FLAGS=
 
 # Parse the arguments, setting things to "yes" or "no".
 
@@ -90,8 +92,26 @@ while [ -n "$1" ]; do
    -v)
        VERBOSE=yes
         ;;
-   -lflags)
-       shift; LINKFLAGS="$LINKFLAGS $1"
+   -I?*)
+	I_FLAGS="$I_FLAGS $1"
+	;;
+   -L?*)
+	L_FLAGS="$L_FLAGS $1"
+	;;
+   -l?*)
+	l_FLAGS="$l_FLAGS $1"
+	;;
+   -I)
+	shift
+	I_FLAGS="$I_FLAGS $1"
+	;;
+   -L)
+	shift
+	L_FLAGS="$L_FLAGS $1"
+	;;
+   -l)
+	shift
+	l_FLAGS="$l_FLAGS $1"
 	;;
    *)
        echo $1: unknown argument
@@ -110,6 +130,7 @@ if [ "$HELP" = "yes" ]; then
    cat <<EOF
 Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
         [-qt-zlib] [-system-zlib] [qt-libpng] [-system-libpng] \\
+        [-Istring] [-lstring] [-Lstring] \\
 
 The defaults (*) are usually acceptable.  Here is a short explanation of
 each option:
@@ -135,7 +156,9 @@ each option:
     -platform target ... See the PLATFORMS file for a list of supported
                          operating systems and compilers.
 
-    -lflags string ..... Add string to the linker options. 
+    -Istring ........... Add an explicit include path.
+    -Lstring ........... Add an explicit library path.
+    -lstring ........... Add an explicit library.
 
 EOF
    [ "x$ERROR" = "xyes" ] && exit 1
@@ -314,13 +337,15 @@ QT_ZLIB=""
 [ "x$LIBPNG" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
 [ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -lz"
 [ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
+QT_LIBS="$QT_LIBS $L_FLAGS$l_FLAGS"
 
 
 # Create the .buildopts file
 
 cat > .buildopts <<EOF
-QT_CXXFLAGS_OPT =$QT_CXX
-QT_LIBS_OPT	=$LINKFLAGS$QT_LIBS
+QT_CXXFLAGS_OPT =$QT_CXX $I_FLAGS
+QT_CFLAGS_OPT   =$I_FLAGS
+QT_LIBS_OPT	=$QT_LIBS
 QT_PNG_OBJ      =$QT_PNG
 QT_ZLIB_OBJ	=$QT_ZLIB
 
@@ -334,8 +359,8 @@ QTDIR='$(QTDIR)'
 
 echo
 echo "Build type:    $TARGET"
-echo "Compile flags: $QT_CXX"
-echo "Link flags:    $LINKFLAGS$QT_LIBS"
+echo "Compile flags: $QT_CXX $I_FLAGS"
+echo "Link flags:    $QT_LIBS"
 echo "GIF supports:  $GIF"
 echo
 echo Creating makefiles...
