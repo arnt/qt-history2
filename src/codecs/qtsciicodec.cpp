@@ -201,7 +201,7 @@ int QTsciiCodec::heuristicContentMatch(const char* chars, int len) const
     return score;
 }
 
-static int UnToTsLast = 124; // 125 items -- so the last will be 124
+static const int UnToTsLast = 124; // 125 items -- so the last will be 124
 static const ushort UnToTs [][4] = {
     // *Sorted* list of TSCII maping for unicode chars
     //FIRST  SECOND  THIRD   TSCII
