@@ -1,8 +1,0 @@
-!rtti:load(rtti_off)
-!exceptions:load(exceptions_off)
-!stl:load(stl_off)
-!warn_off:load(warn_on)
-!release:load(debug)
-!console:load(windows)
-!incremental:load(incremental_off, true)
-!thread:load(thread_off)

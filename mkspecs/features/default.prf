@@ -1,0 +1,2 @@
+CONFIG = warn_on debug $$CONFIG
+

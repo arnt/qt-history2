@@ -48,7 +48,15 @@ class QMakeProject
     void reset();
     QMap<QString, QStringList> vars, base_vars, cache;
     bool parse(const QString &text, QMap<QString, QStringList> &place);
-    bool doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
+
+    enum IncludeStatus {
+        IncludeSuccess,
+        IncludeFeatureAlreadyLoaded,
+        IncludeFailure,
+        IncludeNoExist,
+        IncludeParseFailure
+    };
+    IncludeStatus doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
                           const QString &seek_var=QString::null);
     bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
     bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);

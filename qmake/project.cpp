@@ -869,25 +869,18 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadFeatures) {
-        QStringList configs = vars["CONFIG"], processed;
+        debug_msg(1, "Processing CONFIG features: %s", vars["CONFIG"].join("::").latin1());
+        doProjectInclude("default", true, vars); //find the default CONFIG line
         while(1) {
-            debug_msg(1, "Processing CONFIG features");
-            for(QStringList::ConstIterator it = configs.begin(); it != configs.end(); ++it) {
-                doProjectInclude((*it), true, vars);
-                processed.append((*it));
+            const QStringList &configs = vars["CONFIG"];
+            int i = configs.size()-1;
+            for( ; i >= 0; i--) {
+                if(doProjectInclude(configs[i], true, vars) == IncludeSuccess)
+                    break;
             }
-            /* Process the CONFIG again to see if anything has been added (presumably by the feature files)
-               We cannot handle them being removed, but we want to process those that are added! */
-            configs.clear();
-            QStringList new_configs = vars["CONFIG"];
-            for(QStringList::ConstIterator it = new_configs.begin(); it != new_configs.end(); ++it) {
-                if(processed.indexOf((*it)) == -1)
-                    configs.append((*it));
-            }
-            if(configs.isEmpty())
+            if(i == -1)
                 break;
         }
-        doProjectInclude("feature_default", true, vars); //final to do the last setup
     }
 
     /* now let the user override the template from an option.. */
@@ -1012,7 +1005,7 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
    1) features/(unix|win32|macx)
    2) features
 */
-bool
+QMakeProject::IncludeStatus
 QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
                                const QString &seek_var)
 {
@@ -1122,11 +1115,10 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                 }
             }
             if(!found)
-                return false;
+                return IncludeNoExist;
             if(vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].indexOf(file) != -1)
-                return true;
+                return IncludeFeatureAlreadyLoaded;
             vars["QMAKE_INTERNAL_INCLUDED_FEATURES"].append(file);
-
         }
     }
     if(QDir::isRelativePath(file)) {
@@ -1146,6 +1138,8 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
             }
         }
     }
+    if(!QFile::exists(file))
+        return IncludeNoExist;
 
     if(Option::mkfile::do_preprocess) //nice to see this first..
         fprintf(stderr, "#switching file %s(%s) - %s:%d\n", feature ? "load" : "include", file.latin1(),
@@ -1158,21 +1152,21 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     if(di != -1) {
         if(!QDir::setCurrent(file.left(file.lastIndexOf(Option::dir_sep)))) {
             fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
-            return false;
+            return IncludeFailure;
         }
         file = file.right(file.length() - di - 1);
     }
     parser_info pi = parser;
     QStack<ScopeBlock> sc = scope_blocks;
-    bool r = false;
+    bool parsed = false;
     if(!seek_var.isNull()) {
         QMap<QString, QStringList> tmp;
-        if((r = read(file.latin1(), tmp)))
+        if((parsed = read(file.latin1(), tmp)))
             place[seek_var] += tmp[seek_var];
     } else {
-        r = read(file.latin1(), place);
+        parsed = read(file.latin1(), place);
     }
-    if(r)
+    if(parsed)
         vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
     else
         warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
@@ -1180,7 +1174,9 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     parser = pi;
     scope_blocks = sc;
     QDir::setCurrent(oldpwd);
-    return r;
+    if(!parsed)
+        return IncludeParseFailure;
+    return IncludeSuccess;
 }
 
 bool
@@ -1359,7 +1355,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         QString file = args.first();
         file = Option::fixPathToLocalOS(file);
         file.replace("\"", "");
-        bool ret = doProjectInclude(file, !include_statement, place, seek_var);
+        bool ret = (doProjectInclude(file, !include_statement, place, seek_var) >= IncludeFailure);
         if(!ret && !ignore_error) {
             printf("Project LOAD(): Feature %s cannot be found.\n", file.latin1());
             if (!ignore_error)
@@ -1605,7 +1601,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     file.replace("\"", "");
 
                     QMap<QString, QStringList> tmp;
-                    if(doProjectInclude(file, false, tmp, seek_var))
+                    if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess)
                         replacement = tmp[seek_var].join(QString(Option::field_sep));
                 }
             } else if(val.toLower() == "eval") {

@@ -1,0 +1,1 @@
+CONFIG = rtti_off exceptions_off stl_off warn_on debug windows incremental_off thread_off $$CONFIG

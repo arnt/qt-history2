@@ -1,3 +1,4 @@
+CONFIG -= console
 !console {
    dll {
      QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS_DLL

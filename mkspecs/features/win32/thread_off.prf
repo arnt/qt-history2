@@ -1,1 +1,2 @@
+CONFIG -= thread
 QMAKE_LIBS += $$QMAKE_LIBS_RT
