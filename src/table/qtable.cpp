@@ -1313,8 +1313,11 @@ int QCheckTableItem::rtti() const
     verticalHeader() and horizontalHeader() respectively. The vertical
     header is displayed within the table's left margin whose width is
     set with setLeftMargin(). The horizontal header is displayed within
-    the table's top margin whose height is set with setTopMargin(). The
-    table's grid can be switched off with setShowGrid().
+    the table's top margin whose height is set with setTopMargin().
+    The table's grid can be switched off with setShowGrid(). If you
+    want to hide a vertical header call hide(), and call setTopMargin(
+    0 ) so that the area the header would have occupied is reduced to
+    zero size.
 
     Header labels are indexed via their section numbers.  Note that the
     default behavior of QHeader regarding section numbers is overriden for

@@ -1,64 +1,3 @@
-\omit
-### Transactions seem to be missing.###
-
-Databases
----------
-
-
- * cross-platform database drivers (extensible)
-	* drivers for X, Y, Z, LocalSQL and ODBC
-	* connect to any number of databases simultaneously with
-	  different drivers
-
-\section1 Executing SQL Statements
-
- * QSqlQuery
-	* execute queries
-	       * create table, both DDL and DML
-	       * select ... and iterate over result set [example]
-	       * INSERT, UPDATE, DELETE [example of one]
- * QSqlCursor
- 	* simpler for C++ programmers
-	* calculated fields, both for real calculations (e.g.
-	  totals) and for foreign keys
-
-\section1 Data-aware Widgets
-
- * QDataTable
-	* editor factory: it's a number, gimme a spinbox (or whatever)
-	* specific optimizations to deal with large data sets
-	* if the database is capable of reporting query sizes, then you
-	  get proportional scroll bars right away
- * Other widgets
-	* QDataBrowser: QSqlForm with buttons and connections ready made
-	* QDataView: same, but read only
- * QDataTable, QDataBrowser: get update and delete for free with
-   pop-up and keyboard. no insert because unique key generation, easy
-   to add by implementing one slot
-
- * QSqlForm: use a property map to bind arbitrary widgets to fields
-   (vs. QLineEditDB or MyOwnWidgetDB)
-
- * can manipulate the data retrieved before it is displayed (QSqlForm?) by
-   slots
- * can manipulate the data before storing it back by slots
-
- * fully integrated with Qt Designer
-	* live preview (if desired) browse, delete and update records
-
-\section1 Relating Data Visually
-
- * handle foreign keys (resolving Jasmin Blanchette to 123 and vice versa)
-	* straightforward
- * present and manipulate master-detail relationships
-	* easy using the Qt classes
-	* signal and slots
- * handle drill-down
-	* easy using the Qt classes
-\endomit
-
-
-
 \chapter Databases
 
   \index Microsoft SQL Server
@@ -71,11 +10,12 @@ Databases
   \index Sybase
   \index TDS
 
-The Qt SQL module provides a cross-platform interface for accessing
-SQL databases. Qt 3.0 includes drivers for Oracle, PostgreSQL,
-Microsoft SQL Server, Sybase Adaptive Server, MySQL and ODBC, which
-can be used on any platform to access any number of databases
-simultaneously.
+The Qt SQL module provides a cross-platform API (application
+programmer interface) for accessing SQL databases. Qt 3.0 includes
+native drivers for Oracle, PostgreSQL, Microsoft SQL Server, Sybase
+Adaptive Server, MySQL and ODBC. The drivers work on all supported
+platforms and programs can access multiple databases using multiple
+drivers simultaneously.
 
 \section1 Executing SQL Commands
 
@@ -84,75 +24,128 @@ simultaneously.
   \index queries
   \index SELECT
 
-The \Class QSqlQuery class provides a low-level interface for
-executing a DML or DDL SQL command and for navigating the result set.
+The \Class QSqlQuery class can be used to directly execute SQL DDL and
+DML statements. The \Class QSqlQuery class is also used to navigate
+the result sets produced by \c SELECT statements.
 
-Here's a query followed by navigation in the result set using \Func
-QSqlQuery::next():
+In the example below a query is executed, and the result set navigated
+using the \Func QSqlQuery::next() function:
 \code
-    QSqlQuery query( "SELECT id, surname FROM staff;" );
+    QSqlQuery query( "SELECT id, surname FROM staff" );
     while ( query.next() ) {
-	qDebug( "id: " + query.value(0).toString() );
-	qDebug( "surname: " + query.value(1).toString() );
+	cout << "id: " 
+	     << query.value(0).toInt() 
+	     << " surname: "  
+	     << query.value(1).toString() << endl;
     }
 \endcode
+Field values are indexed in the order they appear in the \c SELECT
+statement. \Class QSqlQuery also provides the first(), prev(), last()
+and seek() navigation functions.
 
   \index DELETE
   \index INSERT
   \index UPDATE
 
-\c INSERT, \c UPDATE and \c DELETE are straight-forward:
+\c INSERT, \c UPDATE and \c DELETE are equally straightforward:
 \code
-    QSqlQuery query( "UPDATE staff SET salary=60000"
-		     " WHERE id=1155;" );
-    bool success = ( query.numRowsAffected() == 1 );
+    QSqlQuery query( "UPDATE staff SET salary = salary * 1.10"
+		     " WHERE id > 1155 AND id < 8155" );
+    if ( query.isActive ) {
+	cout << "Pay rise given to " 
+	     << query.numRowsAffected() 
+	     << " staff" << endl;
+    }
 \endcode
 
   \index tables
   \index views
 
-The \Class QSqlCursor provides a high-level interface to browsing and
-editing records in SQL tables or views without the need to write SQL.
-It supports calculated fields through reimplementing \Func
-QSqlCursor::calculate(). Calculated fields are useful both for real
-calculations (e.g. totals) and for converting foreign keys.
+For programmers who are not comfortable writing raw SQL, the \Class
+QSqlCursor class provides a high-level interface for browsing and
+editing records in SQL tables or views without the need to write SQL
+statements. For example:
+\code
+    QSqlCursor cur( "staff" );
+    while ( cur.next() ) {
+	cout << "id: " 
+	     << cur.value("id").toInt() 
+	     << " surname: " 
+	     << cur.value("surname").toString() << endl;
+    }
+\endcode
+
+\Class QSqlCursor also supports the ordering and filtering that are
+achieved using \c{ORDER BY} and \c WHERE clauses in the SQL statements
+used by \Class QSqlQuery.
+
+Calculated fields are useful both for real calculations (e.g.
+calculating totals) and for performing foreign key lookups, (e.g. to
+display names rather than codes). Calculated fields can be created by
+subclassing \Class QSqlCursor, adding additional \Class{QSqlField}s
+with their calculated property set to TRUE, and by reimplementing
+QSqlCursor::calculateField().
+
+Database drivers can be asked about the features they support,
+including whether they support query size reporting and transations.
+The \Func transaction(), \Func commit() and \Func rollback() functions
+can be used if the underlying database supports transactions.
 
 \section1 Data-aware Widgets
 
 \Class QDataTable is a \Class QTable that displays records from a
 result set using a \Class QSqlCursor. \Class QDataTable, like \Class
-QTable, supports inline edition, and the programmer can choose the
-editor widget for each field. \Class QDataTable contains specific
-optimizations to deal with large data sets. If the database is
-capable of reporting query sizes, proportional scroll bars are shown
-right away.
+QTable, supports in-place editing.  Programmers can force users to
+confirm all or selected changes (e.g. deletions) by setting
+\Class{QDataTable}'s confirmation properties. The editor widget chosen
+for each type of data depends on the data type. For example, a \Class
+QLineEdit is used for \c CHAR fields, whereas a \Class QSpinBox is
+used for \c INTEGER fields. The programmer can override the defaults
+by creating a property map for the table which matches fields
+(columns) to the editor widget type the programmer prefers. 
 
-Qt also includes \Class QDataBrowser and \Class QDataView to display
-one record at a time. They provide buttons for navigating through the
-records. \Class QDataView is read only.
+Records can be updated and deleted without writing any code.
+Insertions require some code since most database designs expect new
+records to be created with a unique key. This can easily be achieved
+by generating the key in a slot which is connected to the \Func
+QDataTable::beforeInsert() signal.
 
-Both editable widgets (\Class QDataTable and \Class QDataBrowser)
-provide \e updates and \e deletes with a pop-up menu or a keyboard
-shortcut without any application code. \e Inserts are easy to support
-by implementing one slot and by connecting it to the \Func
-primeInsert() signal.
+\Class QDataTable uses intelligent buffering to make the loading of
+large result sets fast, while keeping the user interface responsive.
+For databases that are capable of reporting query sizes, the scroll
+bar slider is displayed proportionally immediately.
 
-Developers can create their own user interfaces for displaying
-database records. The \Class QSqlForm class binds individual widgets
-to fields in the database to make the user interface data aware.
-Standard widgets (e.g. \Class QLineEdit, \Class QSpinBox) and custom
-widgets can be bound to fields. By implementing slots, developers can
-manipulate the data retrieved from the database before it is shown,
-and can manipulate it before it is stored back in the database.
+Qt also includes \Class QDataBrowser and \Class QDataView which are
+used to display records as forms, typically with one or perhaps just a
+few records shown at a time. These classes provide buttons with
+ready-made connections for navigating through the records. \Class
+QDataView is used for read only data. \Class QDataBrowser is used for
+editing, and can provide ready-made insert, update and delete buttons.
 
-Qt's data-aware widgets are fully integrated with \l {Qt Designer}.
-\l {Qt Designer} offers live previews if desired, where it is
-possible to browse, delete and update records.
+Both editable widgets, \Class QDataTable and \Class QDataBrowser, have
+both a popup context menu and keyboard shortcuts for editing records.
 
-\section1 Relating Data Visually
+Programmers can manipulate data retrieved from the database before it
+is displayed, e.g. by implementing a slot and connecting it to the
+\Func primeInsert() and \Func primeUpdate() signals. Data can also be
+manipulated or actions logged just before changes are written back to
+the database, for example, converting a foreign key's display text
+into its id by implementing a slot connected to \Func beforeInsert(),
+\Func beforeUpdate() and \Func beforeDelete().
 
-Handling foreing keys is straightforward using the same mechanism as
-for calculated fields.
+Developers can create their own forms for displaying database records.
+Unlike older toolkits which duplicate their widgets with data-aware
+versions, any Qt widget (including custom widgets) can be made
+data-aware. All that is necessary is to include the widget in a \Class
+QSqlForm and set up a property map to relate the relevant database
+field to the widget that will present and edit the field's data.
 
-Master-detail relationships and drill-downs are easy to present and
-manipulate using Qt, thanks to Qt's \l {signals and slots} mechanism.
+Master-detail relationships are easily set up by filtering the detail
+form or table's cursor by the master form or table's current record.
+Drill-down is also easy to achieve, for example, by associating a
+button, menu item or keyboard shortcut with a drill-down form that is
+invoked with the current record's key as a parameter.
+
+Qt's SQL module is fully integrated with \l {Qt Designer}. \l {Qt
+Designer} can preview database forms and tables using live data if
+desired, allowing programmers to browse, delete and update records.
