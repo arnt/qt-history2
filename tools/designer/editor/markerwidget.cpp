@@ -428,7 +428,7 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 		toggleBreakPoint = m.insertItem( tr( "Clear Breakpoint\tF9" ) );
 	    else
 		toggleBreakPoint = m.insertItem( tr( "Set Breakpoint\tF9" ) );
-	    editBreakpoints = m.insertItem( tr( "Edit Breakpoints..." ) );
+// 	    editBreakpoints = m.insertItem( tr( "Edit Breakpoints..." ) );
 	    m.insertSeparator();
 	    break;
 	}
