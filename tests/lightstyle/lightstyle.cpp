@@ -455,22 +455,26 @@ void LightStyle::drawPanel(QPainter *p, int x, int y, int w, int h,
 
 void LightStyle::drawIndicator(QPainter *p, int x, int y ,int w, int h,
                                const QColorGroup &g, int state,
-                               bool, bool)
+                               bool down, bool)
 {
-    drawButton(p, x, y, w, h, g, TRUE, &g.brush(QColorGroup::Base));
-
-    if (state == QButton::Off)
-	return;
+    drawButton(p, x, y, w, h, g, TRUE,
+	       &g.brush(down ? QColorGroup::Mid : QColorGroup::Base));
 
     p->save();
 
-    p->setPen(state == QButton::NoChange ? g.dark() : g.foreground());
-    p->drawLine(x + 4, y + 3, x + w - 4, y + h - 5);
-    p->drawLine(x + 3, y + 3, x + w - 4, y + h - 4);
-    p->drawLine(x + 3, y + 4, x + w - 5, y + h - 4);
-    p->drawLine(x + 3, y + h - 5, x + w - 5, y + 3);
-    p->drawLine(x + 3, y + h - 4, x + w - 4, y + 3);
-    p->drawLine(x + 4, y + h - 4, x + w - 4, y + 4);
+    p->setPen(g.foreground());
+    if (state == QButton::NoChange) {
+	p->drawLine(x + 3, y + h / 2, x + w - 4, y + h / 2);
+	p->drawLine(x + 3, y + 1 + h / 2, x + w - 4, y + 1 + h / 2);
+	p->drawLine(x + 3, y - 1 + h / 2, x + w - 4, y - 1 + h / 2);
+    } else if (state == QButton::On) {
+	p->drawLine(x + 4, y + 3, x + w - 4, y + h - 5);
+	p->drawLine(x + 3, y + 3, x + w - 4, y + h - 4);
+	p->drawLine(x + 3, y + 4, x + w - 5, y + h - 4);
+	p->drawLine(x + 3, y + h - 5, x + w - 5, y + 3);
+	p->drawLine(x + 3, y + h - 4, x + w - 4, y + 3);
+	p->drawLine(x + 4, y + h - 4, x + w - 4, y + 4);
+    }
 
     p->restore();
 }
@@ -478,7 +482,7 @@ void LightStyle::drawIndicator(QPainter *p, int x, int y ,int w, int h,
 
 void LightStyle::drawExclusiveIndicator(QPainter *p, int x, int y, int w, int h,
 					const QColorGroup &g, bool on,
-					bool, bool)
+					bool down, bool)
 {
     p->save();
 
@@ -491,8 +495,8 @@ void LightStyle::drawExclusiveIndicator(QPainter *p, int x, int y, int w, int h,
     p->setPen(g.light());
     p->drawArc(x + 1, y + 1, w - 2, h - 2, 235*16, 180*16);
 
-    p->setPen(g.base());
-    p->setBrush(g.base());
+    p->setPen(down ? g.mid() : g.base());
+    p->setBrush(down ? g.mid() : g.base());
     p->drawEllipse(x + 2, y + 2, w - 4, h - 4);
 
     if (on) {
