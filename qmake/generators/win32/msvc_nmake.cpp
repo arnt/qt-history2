@@ -200,7 +200,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	    }
 	}
 
-	for(QHash<QString, void*>::Iterator it(source_directories.begin()); it.value(); ++it) {
+	for(QHash<QString, void*>::Iterator it(source_directories.begin()); it != source_directories.end(); ++it) {
 	    if(it.key().isEmpty())
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
