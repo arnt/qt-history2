@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#57 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#58 $
 **
 ** Definition of QFont class
 **
@@ -102,7 +102,11 @@ public:
     bool	operator!=( const QFont & ) const;
     bool	isCopyOf( const QFont & ) const;
 
-    HFONT	handle( HDC=0 ) const;
+#if defined(_WS_WIN_)
+    HFONT	handle() const;
+#elif defined(_WS_X11_)
+    HANDLE	handle() const;
+#endif
 
     QString	rawName() const;
 
@@ -135,7 +139,7 @@ private:
     void	init();
     void	detach();
     void	initFontInfo() const;
-    void	load( HDC=0 ) const;
+    void	load() const;
 #if defined(_WS_WIN_)
     HFONT	create( bool *, HDC=0 ) const;
     void       *textMetric() const;

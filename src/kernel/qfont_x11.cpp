@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#134 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -113,7 +113,7 @@ private:
     int		    lw;
     int		    xres;
     QTextCodec	   *cmapper;
-    friend void QFont::load(HANDLE) const;
+    friend void QFont::load() const;
     friend void QFont::initFontInfo() const;
 };
 
@@ -320,7 +320,7 @@ QFont::QFont( Internal )
   access.  <em>Using this function is not portable.</em>
 */
 
-HANDLE QFont::handle( HANDLE ) const
+HANDLE QFont::handle() const
 {
     static Font last = 0;
     if ( DIRTY_FONT ) {
@@ -574,7 +574,7 @@ inline int maxIndex(XFontStruct *f)
   Loads the font.
 */
 
-void QFont::load( HANDLE ) const
+void QFont::load() const
 {
     if ( !fontCache )				// not initialized
 	return;

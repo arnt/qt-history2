@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#82 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -77,7 +77,7 @@ private:
     } tm;
     QFontDef	s;
     int		lw;
-    friend void QFont::load(HDC) const;
+    friend void QFont::load() const;
     friend void QFont::initFontInfo() const;
 };
 
@@ -257,11 +257,11 @@ QFont::QFont( Internal )
 #define DIRTY_FONT (d->req.dirty || d->fin->dirty())
 
 
-HFONT QFont::handle( HDC output_hdc ) const
+HFONT QFont::handle() const
 {
     static HFONT last = 0;
     if ( DIRTY_FONT ) {
-	load( output_hdc );
+	load();
     } else {
 	if ( d->fin->font() != last )
 	    fontCache->find( d->fin->key() );
@@ -324,7 +324,7 @@ void QFont::initFontInfo() const
 }
 
 
-void QFont::load( HDC ) const
+void QFont::load() const
 {
     if ( !fontCache )				// not initialized
 	return;
