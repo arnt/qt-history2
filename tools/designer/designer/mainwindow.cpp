@@ -1308,7 +1308,7 @@ void MainWindow::fileOpen()
 
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    QInterfaceManager<FilterInterface> manager( IID_FilterInterface, dir );
+    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, dir );
     {
 	QString filename;
 	QStringList filterlist;
@@ -1338,7 +1338,7 @@ void MainWindow::fileOpen()
 		    }
 		}
 
-		FilterInterface* iface = manager.queryInterface( filter );
+		ImportFilterInterface* iface = manager.queryInterface( filter );
 		if ( !iface ) {
 		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
 		    return;
