@@ -106,8 +106,11 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
         break;
     case Node::Enum:
 	{
-	    // X or x occur in 0X32 or 0x32
-	    QRegExp letterRegExp( "[A-WYZa-wyz]" );
+	    /*
+	      The letters A to F and X (upper- and lower-case) can
+	      appear in a hexadecimal constant (e.g. 0x3F).
+	    */
+	    QRegExp letterRegExp( "[G-WYZg-wyz_]" );
 	    const EnumNode *enume = (const EnumNode *) node;
 
 	    synopsis = name;
