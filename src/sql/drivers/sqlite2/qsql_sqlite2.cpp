@@ -95,7 +95,7 @@ void QSQLite2ResultPrivate::cleanup()
     currentMachine = 0;
     skippedStatus = false;
     skipRow = false;
-    q->setAt(QSql::BeforeFirst);
+    q->setAt(QSql::BeforeFirstRow);
     q->setActive(false);
     q->cleanup();
 }
@@ -182,14 +182,14 @@ bool QSQLite2ResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int 
         if (rInf.isEmpty())
             // must be first call.
             init(cnames, colNum);
-        q->setAt(QSql::AfterLast);
+        q->setAt(QSql::AfterLastRow);
         return false;
     case SQLITE_ERROR:
     case SQLITE_MISUSE:
     default:
         // something wrong, don't get col info, but still return false
         finalize(); // finalize to get the error message.
-        q->setAt(QSql::AfterLast);
+        q->setAt(QSql::AfterLastRow);
         return false;
     }
     return false;
