@@ -4104,10 +4104,6 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
 
     if ( d->infoPreviewWidget ) {
 	d->preview->removeWidget( d->infoPreviewWidget );
-
-	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
-		    d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
-
 	delete d->infoPreviewWidget;
     }
     d->infoPreviewWidget = w;
@@ -4136,10 +4132,6 @@ void QFileDialog::setContentsPreviewWidget( QWidget *w )
 
     if ( d->contentsPreviewWidget ) {
 	d->preview->removeWidget( d->contentsPreviewWidget );
-
-	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
-		    d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
-	
 	delete d->contentsPreviewWidget;
     }
     d->contentsPreviewWidget = w;
