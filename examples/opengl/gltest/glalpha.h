@@ -10,7 +10,7 @@
 
 /****************************************************************************
 **
-** This is a simple QGLWidget displaying an openGL wireframe box
+** This is a simple QGLWidget displaying an openGL alpha 
 **
 ****************************************************************************/
 
@@ -26,19 +26,19 @@ class GLAlpha : public GLControlWidget
 public:
 
     GLAlpha( QWidget* parent = 0, const char* name = 0, WFlags f = 0, 
-	   QGLFormat form = QGLFormat::defaultFormat() );
+	   QGLFormat form = QGLFormat ( AlphaChannel ) );
     ~GLAlpha();
 
 protected:
-
+    void                mousePressEvent( QMouseEvent * );
     void		initializeGL();
     void		paintGL();
     void		resizeGL( int w, int h );
 
-    virtual GLuint 	makeObject();
-
 private:
-    GLuint object;
+    int leftFirst;
+    void drawLeftTriangle(void);
+    void drawRightTriangle(void);
 };
 
 

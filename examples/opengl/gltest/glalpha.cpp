@@ -10,9 +10,9 @@
 
 /****************************************************************************
 **
-** This is a simple QGLWidget displaying an openGL wireframe box
+** This is a simple QGLWidget displaying an openGL alpha
 **
-** The OpenGL code is mostly borrowed from Brian Pauls "spin" example
+** The OpenGL code is mostly borrowed from Brian Pauls "alpha" example
 ** in the Mesa distribution
 **
 ****************************************************************************/
@@ -33,7 +33,7 @@ GLAlpha::GLAlpha( QWidget* parent, const char* name, WFlags f, QGLFormat form )
     setAnimationDelay( -1 );
     xRot = yRot = zRot = 0.0;		// default object rotation
     scale = 1.25;			// default object scale
-    object = 0;
+    leftFirst = GL_TRUE;
 }
 
 
@@ -44,7 +44,6 @@ GLAlpha::GLAlpha( QWidget* parent, const char* name, WFlags f, QGLFormat form )
 GLAlpha::~GLAlpha()
 {
     makeCurrent();
-    glDeleteLists( object, 1 );
 }
 
 
@@ -55,11 +54,18 @@ GLAlpha::~GLAlpha()
 
 void GLAlpha::paintGL()
 {
-    glClear( GL_COLOR_BUFFER_BIT );
-
-    glLoadIdentity();
-    transform();
-    glCallList( object );
+    glClear(GL_COLOR_BUFFER_BIT);
+ 
+    if (leftFirst) {
+        drawLeftTriangle();
+        drawRightTriangle();
+    }
+    else {
+        drawRightTriangle();
+        drawLeftTriangle();
+    }
+    
+    glFlush();
 }
 
 
@@ -69,9 +75,10 @@ void GLAlpha::paintGL()
 
 void GLAlpha::initializeGL()
 {
-    qglClearColor( black ); 		// Let OpenGL clear to black
-    object = makeObject();		// Generate an OpenGL display list
-    glShadeModel( GL_FLAT );
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glShadeModel (GL_FLAT);
+    glClearColor (0.0, 0.0, 0.0, 0.0);
 }
 
 
@@ -82,52 +89,44 @@ void GLAlpha::initializeGL()
 
 void GLAlpha::resizeGL( int w, int h )
 {
-    glViewport( 0, 0, (GLint)w, (GLint)h );
-    glMatrixMode( GL_PROJECTION );
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum( -1.0, 1.0, -1.0, 1.0, 5.0, 15.0 );
-    glMatrixMode( GL_MODELVIEW );
+    if (w <= h)
+        gluOrtho2D (0.0, 1.0, 0.0, 1.0*(GLfloat)h/(GLfloat)w);
+    else
+        gluOrtho2D (0.0, 1.0*(GLfloat)w/(GLfloat)h, 0.0, 1.0);
 }
 
-
-/*!
-  Generate an OpenGL display list for the object to be shown, i.e. the box
-*/
-
-GLuint GLAlpha::makeObject()
-{	
-    GLuint list;
-
-    list = glGenLists( 1 );
-
-    glNewList( list, GL_COMPILE );
-
-    qglColor( white );		      // Shorthand for glColor3f or glIndex
-
-    glLineWidth( 2.0 );
-
-    glBegin( GL_LINE_LOOP );
-    glVertex3f(  1.0,  0.5, -0.4 );
-    glVertex3f(  1.0, -0.5, -0.4 );
-    glVertex3f( -1.0, -0.5, -0.4 );
-    glVertex3f( -1.0,  0.5, -0.4 );
+void GLAlpha::drawLeftTriangle(void)
+{
+    /* draw yellow triangle on LHS of screen */
+ 
+    glBegin (GL_TRIANGLES);
+    glColor4f(1.0, 1.0, 0.0, 0.75);
+    glVertex3f(0.1, 0.9, 0.0);
+    glVertex3f(0.1, 0.1, 0.0);
+    glVertex3f(0.7, 0.5, 0.0);
     glEnd();
+}
 
-    glBegin( GL_LINE_LOOP );
-    glVertex3f(  1.0,  0.5, 0.4 );
-    glVertex3f(  1.0, -0.5, 0.4 );
-    glVertex3f( -1.0, -0.5, 0.4 );
-    glVertex3f( -1.0,  0.5, 0.4 );
+void GLAlpha::drawRightTriangle(void)
+{
+    /* draw cyan triangle on RHS of screen */
+ 
+    glBegin (GL_TRIANGLES);
+    glColor4f(0.0, 1.0, 1.0, 0.75);
+    glVertex3f(0.9, 0.9, 0.0);
+    glVertex3f(0.3, 0.5, 0.0);
+    glVertex3f(0.9, 0.1, 0.0);
     glEnd();
+}
 
-    glBegin( GL_LINES );
-    glVertex3f(  1.0,  0.5, -0.4 );   glVertex3f(  1.0,  0.5, 0.4 );
-    glVertex3f(  1.0, -0.5, -0.4 );   glVertex3f(  1.0, -0.5, 0.4 );
-    glVertex3f( -1.0, -0.5, -0.4 );   glVertex3f( -1.0, -0.5, 0.4 );
-    glVertex3f( -1.0,  0.5, -0.4 );   glVertex3f( -1.0,  0.5, 0.4 );
-    glEnd();
-
-    glEndList();
-
-    return list;
+void GLAlpha::mousePressEvent( QMouseEvent * )
+{
+    if( leftFirst )
+        leftFirst = GL_FALSE;
+    else
+        leftFirst = GL_TRUE;
+    updateGL();
 }

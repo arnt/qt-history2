@@ -1,7 +1,8 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>GLTest</class>
-<include location="local" impldecl="in implementation">glalpha.h</include>
+<include location="local" impldecl="in implementation">gldouble.h</include>
 <include location="local" impldecl="in implementation">glstencil.h</include>
+<include location="local" impldecl="in implementation">glalpha.h</include>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
@@ -12,7 +13,7 @@
             <x>0</x>
             <y>0</y>
             <width>448</width>
-            <height>463</height>
+            <height>451</height>
         </rect>
     </property>
     <property name="caption">
@@ -40,7 +41,7 @@
                     <cstring>Widget8</cstring>
                 </property>
                 <attribute name="title">
-                    <string>Tab</string>
+                    <string>Info</string>
                 </attribute>
             </widget>
             <widget class="QWidget">
@@ -209,6 +210,89 @@
                     </widget>
                 </hbox>
             </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Double Buffering</string>
+                </attribute>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="GLDouble">
+                        <property name="name">
+                            <cstring>MyCustomWidget1</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>290</width>
+                                <height>240</height>
+                            </size>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>Layout4</cstring>
+                        </property>
+                        <vbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>Spacer4</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>doubleButton</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Disable Double</string>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
+                </hbox>
+            </widget>
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -296,7 +380,7 @@
         <header location="global"></header>
         <sizehint>
             <width>0</width>
-            <height>0</height>
+            <height>30</height>
         </sizehint>
         <container>0</container>
         <sizepolicy>
@@ -304,6 +388,14 @@
             <verdata>0</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
+        <signal>0</signal>
+        <signal>GLStencil</signal>
+        <signal>0</signal>
+        <signal>3</signal>
+        <signal>-1</signal>
+        <slot access="GLStencil">0</slot>
+        <slot access="-1">0</slot>
+        <slot access="GLStencil">3</slot>
         <slot access="0">3</slot>
         <slot access="0">GLStencil</slot>
         <slot access="3">-1</slot>
@@ -334,11 +426,45 @@
         <slot access="0">-1</slot>
         <slot access="0">GLStencil</slot>
         <slot access="0">-1</slot>
-        <property type="0">3</property>
+        <slot access="GLStencil">0</slot>
+        <slot access="-1">0</slot>
+        <slot access="GLStencil">3</slot>
+        <slot access="0">3</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">3</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="3">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">GLStencil</slot>
+        <slot access="0">-1</slot>
         <property type="0">GLStencil</property>
         <property type="3">-1</property>
         <property type="0">GLStencil</property>
-        <property type="0">-1</property>
+        <property type="0">3</property>
+        <property type="0">GLStencil</property>
+        <property type="3">-1</property>
         <property type="GLStencil"></property>
         <property type="-1">0</property>
     </customwidget>
@@ -347,7 +473,7 @@
         <header location="global"></header>
         <sizehint>
             <width>0</width>
-            <height>0</height>
+            <height>30</height>
         </sizehint>
         <container>0</container>
         <sizepolicy>
@@ -355,6 +481,14 @@
             <verdata>0</verdata>
         </sizepolicy>
         <pixmap>image0</pixmap>
+        <signal>0</signal>
+        <signal>GLAlpha</signal>
+        <signal>1</signal>
+        <signal>3</signal>
+        <signal>-1</signal>
+        <slot access="GLAlpha">0</slot>
+        <slot access="-1">1</slot>
+        <slot access="GLAlpha">3</slot>
         <slot access="0">3</slot>
         <slot access="1">GLAlpha</slot>
         <slot access="3">-1</slot>
@@ -385,13 +519,66 @@
         <slot access="0">-1</slot>
         <slot access="1">GLAlpha</slot>
         <slot access="0">-1</slot>
-        <property type="0">3</property>
+        <slot access="GLAlpha">0</slot>
+        <slot access="-1">1</slot>
+        <slot access="GLAlpha">3</slot>
+        <slot access="0">3</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="0">3</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="3">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
+        <slot access="1">GLAlpha</slot>
+        <slot access="0">-1</slot>
         <property type="1">GLAlpha</property>
         <property type="3">-1</property>
         <property type="1">GLAlpha</property>
-        <property type="0">-1</property>
+        <property type="0">3</property>
+        <property type="1">GLAlpha</property>
+        <property type="3">-1</property>
         <property type="GLAlpha"></property>
         <property type="-1">1</property>
+    </customwidget>
+    <customwidget>
+        <class>GLDouble</class>
+        <header location="global"></header>
+        <sizehint>
+            <width>-1</width>
+            <height>0</height>
+        </sizehint>
+        <container>0</container>
+        <sizepolicy>
+            <hordata>5</hordata>
+            <verdata>0</verdata>
+        </sizepolicy>
+        <pixmap>image0</pixmap>
+        <property type="0">3</property>
+        <property type="0">GLDouble</property>
+        <property type="3">-1</property>
+        <property type="GLDouble"></property>
+        <property type="-1">0</property>
     </customwidget>
 </customwidgets>
 <images>
