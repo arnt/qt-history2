@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#19 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -20,8 +20,7 @@
 
 #include <ctype.h>
 
-/*!
-  \class QMultiLineEdit qmlined.h
+/*! \class QMultiLineEdit qmlined.h
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 
@@ -111,19 +110,18 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     blinkTimer     = 0;
 }
 
-/*!
-  \fn int QMultiLineEdit::numLines()
+/*! \fn int QMultiLineEdit::numLines()
 
   Returns the number of lines in the editor.
-  */
+*/
 
-/*!
-  \fn bool QMultiLineEdit::atEnd() const
+/*! \fn bool QMultiLineEdit::atEnd() const
+
   Returns TRUE if the cursor is placed at the end of the text.
-  */
+*/
 
-/*!
-  \fn bool QMultiLineEdit::atBeginning() const
+/*! \fn bool QMultiLineEdit::atBeginning() const
+
   Returns TRUE if the cursor is placed at the beginning of the text.
 */
 
@@ -131,27 +129,27 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 /*!
   \fn int QMultiLineEdit::lineLength( int row ) const
   Returns the number of characters at line number \a row.
-  */
-/*!
-  \fn QString *QMultiLineEdit::getString( int row ) const
+*/
+
+/*! \fn QString *QMultiLineEdit::getString( int row ) const
+
   Returns a pointer to the text at line \a row.
-  */
+*/
 
-/*!
-  \fn void QMultiLineEdit::textChanged()
+/*! \fn void QMultiLineEdit::textChanged()
+
   This signal should be emitted when the text is changed (not implemented)
-  */
+*/
 
 
-
-/*!
-  \fn bool QMultiLineEdit::isReadOnly()
+/*! \fn bool QMultiLineEdit::isReadOnly()
 
   Returns FALSE if this multi line edit accepts text input. 
   Scrolling and cursor movements are accepted in any case.
 
   \sa setReadOnly() QWidget::isEnabled()
- */
+*/
+
 
 /*!
   If \a on is FALSE, this multi line edit accepts text input.
@@ -162,11 +160,9 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
 void QMultiLineEdit::setReadOnly( bool on ) 
 { 
-    readOnly = on; 
-    if ( on ) {
-	setCursor( arrowCursor );
-    } else {
-	setCursor( ibeamCursor );
+    if ( readOnly != on ) {
+	readOnly = on; 
+	setCursor( on ? arrowCursor : ibeamCursor );
     }
 }
 
@@ -215,7 +211,7 @@ static QPixmap *getCacheBuffer( QSize sz )
 
 /*!
   Implements the basic drawing logic.
- */
+*/
 void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 {
     QColorGroup	 g    = colorGroup();
@@ -324,6 +320,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     painter->drawPixmap( updateR.left(), updateR.top(), *buffer );
 }
 
+
 /*!
   Returns the width in pixels of the string \a s.
 */
@@ -333,6 +330,7 @@ int QMultiLineEdit::textWidth( QString *s )
     int w = fontMetrics().width( *s );
     return w + 2 * BORDER;
 }
+
 
 /*!
   Returns the width in pixels of the text at line \a row.
@@ -350,6 +348,7 @@ int QMultiLineEdit::textWidth( int row )
     return textWidth( s );
 }
 
+
 /*!
   Starts the cursor blinking.
 */
@@ -363,6 +362,7 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
     updateCell( cursorY, 0, FALSE );
 }
 
+
 /*!
   stops the cursor blinking.
 */
@@ -372,6 +372,7 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
     killTimer( blinkTimer );
     blinkTimer = 0;
 }
+
 
 /*!
   Cursor blinking
@@ -393,6 +394,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent *t )
     }
 }
 
+
 /*!
   Returns TRUE if there is marked text.
 */
@@ -402,9 +404,11 @@ bool QMultiLineEdit::hasMarkedText() const
     return markIsOn;
 }
 
+
 /*!
   Returns a copy of the marked text.
- */
+*/
+
 QString QMultiLineEdit::markedText() const
 {
     if ( !markIsOn )
@@ -454,6 +458,7 @@ QString QMultiLineEdit::markedText() const
     }
 }
 
+
 /*!
   Returns the text at line number \a row, or 0 if row is invalid.
 */
@@ -467,9 +472,10 @@ const char * QMultiLineEdit::textLine( int line ) const
 	return 0;
 }
 
+
 /*!
   Returns a copy of the whole text. If the multi line edit contains no
-  text the emty string is returned.
+  text the empty string is returned.
 */
 
 QString QMultiLineEdit::text() const
@@ -484,6 +490,7 @@ QString QMultiLineEdit::text() const
     }
     return tmp;
 }
+
 
 /*!
   Selects all text (unimplemented)
@@ -503,6 +510,7 @@ void QMultiLineEdit::setText( const char *s )
     clear();
     insert( s );
 }
+
 
 /*!
   The key press event handler converts a key press to some line editor
@@ -679,9 +687,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
 }
+
+
 /*!
   Moves the cursor one page up.
- */
+*/
+
 void QMultiLineEdit::pageDown()
 {
     int delta = cursorY - topCell();
@@ -706,9 +717,11 @@ void QMultiLineEdit::pageDown()
     updateCell( oldY, 0, FALSE );
 }
 
+
 /*!
   Moves the cursor one page down.
- */
+*/
+
 void QMultiLineEdit::pageUp()
 {
     int delta = cursorY - topCell();
@@ -818,7 +831,7 @@ void QMultiLineEdit::remove( int row )
 
 /*!
   Inserts \a c at the current cursor position.
- */
+*/
 
 void QMultiLineEdit::insertChar( char c )
 {
@@ -843,7 +856,7 @@ void QMultiLineEdit::insertChar( char c )
 
 /*!
   Makes a line break at the current cursor position.
- */
+*/
 
 void QMultiLineEdit::newLine()
 {
@@ -863,7 +876,7 @@ void QMultiLineEdit::newLine()
 
 /*!
   Deletes text from the current cursor position to the end of the line.
- */
+*/
 
 void QMultiLineEdit::killLine()
 {
@@ -1032,7 +1045,7 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 
 /*!
   Turns off marked text
- */
+*/
 void QMultiLineEdit::turnMarkOff()
 {
     if ( markIsOn ) {
@@ -1255,7 +1268,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 
 /*!
   Handles mouse move events.
- */
+*/
 void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
     if ( readOnly || !dragMarking )
@@ -1280,7 +1293,7 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 /*!
   Handles mouse release events.
- */
+*/
 void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 {
     dragScrolling = FALSE;
@@ -1294,7 +1307,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 
 /*!
   Handles double click events.
- */
+*/
 
 void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -1304,7 +1317,7 @@ void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 
 /*!
   Returns TRUE if line \a row is invisible or partially invisible.
- */
+*/
 
 bool QMultiLineEdit::partiallyInvisible( int row )
 {
