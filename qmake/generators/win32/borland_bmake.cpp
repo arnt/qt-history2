@@ -163,7 +163,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	t << "\n\t" << "$(LINK) @&&|" << "\n\t"
 	  << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";
     } else {
-	t << "\n\tdel $(TARGET)"
+	t << "\n\t-del $(TARGET)"
 	  << "\n\t" << "$(LIB) $(TARGET) @&&|" << " \n+"
 	  << project->variables()["OBJECTS"].join(" \\\n+") << " \\\n+"
 	  << project->variables()["OBJMOC"].join(" \\\n+");
