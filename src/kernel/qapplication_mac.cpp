@@ -1102,7 +1102,7 @@ bool QApplication::processNextEvent( bool canWait )
     EventRef event;
     do {
 	do {
-	    if( ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event ))
+	    if( ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event ) )
 		break;
 	    if((qt_is_gui_used && !SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
 	       (!qt_is_gui_used && !SendEventToApplication(event)))
@@ -1119,10 +1119,8 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-    if(canWait && !zero_timer_count) {
-	EventRef event;
-	ReceiveNextEvent( 0, 0, kEventDurationForever, FALSE, &event );
-    }
+    if(canWait && !zero_timer_count)
+	RunApplicationEventLoop();
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
@@ -1311,15 +1309,15 @@ bool QApplication::do_mouse_down( Point *pt )
 
     bool in_widget = FALSE;
     switch( windowPart ) {
-    case 15:
+    case inStructure:
     case inDesk:
 	break;
     case inGoAway:
 	if(TrackBox( (WindowPtr)widget->handle(), *pt, windowPart)) 
 	    widget->close();
 	break;
-    case 13: { //hide toolbars thing
-	if(widget) {
+    case inToolbarButton: { //hide toolbars thing
+	if(TrackBox( (WindowPtr)widget->handle(), *pt, windowPart)) {
 	    if(const QObjectList *chldrn = widget->children()) {
 		int h = 0;
 		for(QObjectListIt it(*chldrn); it.current(); ++it) {
@@ -1544,6 +1542,8 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
+    QuitApplicationEventLoop();
+    
     QApplication *app = (QApplication *)data;
     if ( app->macEventFilter( event ) ) //someone else ate it
 	return noErr; 
@@ -1645,33 +1645,35 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 //#warning "need to implement sockets on mac9"
 #endif
 	} else if(ekind == kEventQtRequestContext) {
-	    request_context_pending = FALSE;
-	    //figure out which widget to send it to
-	    QPoint where = QCursor::pos();
-	    QWidget *widget = NULL;
-	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
-			      sizeof(widget), NULL, &widget);
-	    if(!widget) {
-		if( qt_button_down )
-		    widget = qt_button_down;
-		else
-		    widget = QApplication::widgetAt( where.x(), where.y(), true );
-	    }
-	    if ( widget ) {
-		QPoint plocal(widget->mapFromGlobal( where ));
-		QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
-		QApplication::sendEvent( widget, &qme );
-		if(qme.isAccepted()) { //once this happens the events before are pitched
-		    if(qt_button_down && mouse_button_state) {
-			QMouseEvent qme( QEvent::MouseButtonRelease, plocal, where, 
-					 mouse_button_state, mouse_button_state );
-			QApplication::sendSpontaneousEvent( qt_button_down, &qme );
-		    }
-		    qt_button_down = NULL;
-		    mouse_button_state = 0;
-		} 
-	    } else {
-		handled_event = FALSE;
+	    if(request_context_pending) {
+		request_context_pending = FALSE;
+		//figure out which widget to send it to
+		QPoint where = QCursor::pos();
+		QWidget *widget = NULL;
+		GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
+				  sizeof(widget), NULL, &widget);
+		if(!widget) {
+		    if( qt_button_down )
+			widget = qt_button_down;
+		    else
+			widget = QApplication::widgetAt( where.x(), where.y(), true );
+		}
+		if ( widget ) {
+		    QPoint plocal(widget->mapFromGlobal( where ));
+		    QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
+		    QApplication::sendEvent( widget, &qme );
+		    if(qme.isAccepted()) { //once this happens the events before are pitched
+			if(qt_button_down && mouse_button_state) {
+			    QMouseEvent qme( QEvent::MouseButtonRelease, plocal, where, 
+					     mouse_button_state, mouse_button_state );
+			    QApplication::sendSpontaneousEvent( qt_button_down, &qme );
+			}
+			qt_button_down = NULL;
+			mouse_button_state = 0;
+		    } 
+		} else {
+		    handled_event = FALSE;
+		}
 	    }
 	} else if(ekind == kEventQtRequestTimer) {
 	    if(!timerList)
@@ -1924,7 +1926,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			QWheelEvent qwe2( focus_widget->mapFromGlobal( p ), p, 
 					  wheel_delta, state | keys );
 			QApplication::sendSpontaneousEvent( focus_widget, &qwe2 );
-		    }
+	    }
 		} else {
 #ifdef QMAC_SPEAK_TO_ME
 		    if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
@@ -2223,6 +2225,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, 
 			      NULL, sizeof(idx), NULL, &idx);
 	    QMenuBar::activate(mr, idx, TRUE);
+	} else {
+	    handled_event = FALSE;
 	}
 #else
 	handled_event = FALSE;

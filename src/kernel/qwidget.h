@@ -446,8 +446,8 @@ public:
 #if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
     uint clippedSerial(bool do_children=TRUE);
-#ifdef QMAC_NO_QUARTZ
-    void macCGClippedContext(bool do_children=TRUE);
+#ifndef QMAC_NO_QUARTZ
+    CGContextRef macCGContext(bool clipped=TRUE) const;
 #endif
     bool macDropEnabled;
 #endif

@@ -338,15 +338,13 @@ int QPaintDevice::resolution() const
 }
 
 #ifndef QMAC_NO_QUARTZ
-CGContextRef QPaintDevice::macCGContext() const
+CGContextRef QPaintDevice::macCGContext(bool) const
 {
+#if 0
     QPaintDevice *that = (QPaintDevice *)this;
-    if(!that->ctx) {
-	if(devType() == QInternal::Widget)
-	    CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), &that->ctx);
-	else if(devType() == QInternal::QPixmap || devType() == QInternal::Printer))
-	    CreateCGContextForPort((GWorldPtr)handle(), &that->ctx);
-    }
-    return that->ctx;
+    if(!that->ctx) 
+	CreateCGContextForPort((GWorldPtr)hd, &that->ctx);
+#endif
+    return ctx;
 }
 #endif

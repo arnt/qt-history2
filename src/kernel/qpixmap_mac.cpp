@@ -446,6 +446,11 @@ void QPixmap::deref()
 #endif
 	    DisposeGWorld((GWorldPtr)hd);    
         }
+#ifndef QMAC_NO_QUARTZ
+	if(ctx)
+	    CGContextRelease(ctx);
+	ctx = NULL;
+#endif
         delete data;
 	data = NULL;
     }

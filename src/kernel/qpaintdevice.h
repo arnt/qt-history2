@@ -238,7 +238,7 @@ protected:
     friend class QPaintDeviceMetrics;
 #if defined(Q_WS_MAC)
 #ifndef QMAC_NO_QUARTZ
-    virtual CGContextRef macCGContext() const;
+    virtual CGContextRef macCGContext(bool clipped=TRUE) const;
 #endif
     friend Q_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
 						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool );
