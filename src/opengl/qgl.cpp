@@ -869,7 +869,9 @@ void QGLContext::init( QPaintDevice *dev )
     pixelFormatId = 0;
     cmap = 0;
 #endif
+#ifdef Q_WS_MAC
     d->oldR = QRect(1, 1, 1, 1);
+#endif
     d->crWin = FALSE;
     d->initDone = FALSE;
     d->sharing = FALSE;
