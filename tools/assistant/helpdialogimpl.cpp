@@ -875,7 +875,7 @@ void HelpDialog::setupFullTextIndex()
     if ( !f.exists() || newFullTextIndex ) {
 	help->statusBar()->clear();
 	setCursor( waitCursor );
-	labelPrepare->setText( tr( "indexing files..." ) );
+	labelPrepare->setText( tr( "Indexing files..." ) );
 	progressPrepare->setTotalSteps( 100 );
 	progressPrepare->reset();
 	progressPrepare->show();
@@ -890,10 +890,10 @@ void HelpDialog::setupFullTextIndex()
 	showInitDoneMessage();
     } else {
 	setCursor( waitCursor );
-	help->statusBar()->message( tr( "reading dictionary..." ) );
+	help->statusBar()->message( tr( "Reading dictionary..." ) );
 	qApp->processEvents();
 	fullTextIndex->readDict();
-	help->statusBar()->message( tr( "done." ), 3000 );
+	help->statusBar()->message( tr( "Done." ), 3000 );
 	setCursor( arrowCursor );
     }
 }

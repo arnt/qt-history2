@@ -207,7 +207,7 @@ void MainWindow::setObjectsEnabled( bool b )
 	qApp->restoreOverrideCursor();
     } else {
 	qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
-	statusBar()->message( tr( "initializing Qt Assistant..." ) );
+	statusBar()->message( tr( "Initializing Qt Assistant..." ) );
     }
     QObjectList *l = queryList( "QAction" );
     QObject *obj;
