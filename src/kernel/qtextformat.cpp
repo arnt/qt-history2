@@ -484,15 +484,18 @@ int QTextFormatCollection::createReferenceIndex(const QTextFormat &format)
     return referenceToIndex(ref);
 }
 
-void QTextFormatCollection::updateReferenceIndex(int index, const QTextFormat &newFormat)
+QTextFormat QTextFormatCollection::updateReferenceIndex(int index, const QTextFormat &newFormat)
 {
     int ref = indexToReference(index);
     if (ref == -1)
-	return;
+	return QTextFormat();
 
+    int oldIdx = formatReferences[ref];
     formatReferences[ref] = indexForFormat(newFormat);
 
     Q_ASSERT(referenceToIndex(ref) == index);
+
+    return format(oldIdx);
 }
 
 QTextFormat QTextFormatCollection::format(int idx, int defaultFormatType) const

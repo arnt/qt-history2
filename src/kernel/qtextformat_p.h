@@ -8,7 +8,7 @@ class Q_GUI_EXPORT QTextFormatCollection
 {
 public:
     int createReferenceIndex(const QTextFormat &newFormat);
-    void updateReferenceIndex(int index, const QTextFormat &newFormat);
+    QTextFormat updateReferenceIndex(int index, const QTextFormat &newFormat);
 
     int indexForFormat(const QTextFormat &f) const;
 
