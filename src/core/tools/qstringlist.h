@@ -34,7 +34,7 @@ class QStringList : public QList<QString>
 {
 public:
     inline QStringList() { }
-    inline Q_EXPLICIT QStringList(const QString &i) { append(i); }
+    inline explicit QStringList(const QString &i) { append(i); }
     inline QStringList(const QStringList &l) : QList<QString>(l) { }
     inline QStringList(const QList<QString> &l) : QList<QString>(l) { }
 

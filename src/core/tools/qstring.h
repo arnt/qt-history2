@@ -347,7 +347,7 @@ public:
     inline void push_front(const QString &s) { prepend(s); }
 
 #ifndef QT_NO_STL
-    inline Q_EXPLICIT QString(const std::string &s);
+    inline explicit QString(const std::string &s);
     inline std::string toStdString() const;
 #endif
 

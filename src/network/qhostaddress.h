@@ -45,7 +45,7 @@ public:
     QHostAddress(Q_UINT32 ip4Addr);
     QHostAddress(Q_UINT8 *ip6Addr);
     QHostAddress(const Q_IPV6ADDR &ip6Addr);
-    Q_EXPLICIT QHostAddress(const QString &address);
+    explicit QHostAddress(const QString &address);
     QHostAddress(const QHostAddress &copy);
     QHostAddress(SpecialAddress address);
     ~QHostAddress();

@@ -42,7 +42,7 @@ public:
 
     inline QTextLength() : lengthType(VariableLength), fixedValueOrPercentage(0) {}
 
-    inline Q_EXPLICIT QTextLength(Type type, int value)
+    inline explicit QTextLength(Type type, int value)
         : lengthType(type), fixedValueOrPercentage(value) {}
 
     inline Type type() const { return lengthType; }
@@ -163,7 +163,7 @@ public:
 
     QTextFormat();
 
-    Q_EXPLICIT QTextFormat(int type);
+    explicit QTextFormat(int type);
 
     QTextFormat(const QTextFormat &rhs);
     QTextFormat &operator=(const QTextFormat &rhs);

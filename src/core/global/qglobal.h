@@ -546,17 +546,6 @@ typedef const char *pcchar;
 
 
 //
-// Use the "explicit" keyword on platforms that support it.
-//
-
-#if !defined(Q_NO_EXPLICIT_KEYWORD)
-#  define Q_EXPLICIT explicit
-#else
-#  define Q_EXPLICIT
-#endif
-
-
-//
 // Workaround for static const members on MSVC++.
 //
 

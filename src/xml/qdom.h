@@ -258,8 +258,8 @@ class Q_XML_EXPORT QDomDocument : public QDomNode
 {
 public:
     QDomDocument();
-    Q_EXPLICIT QDomDocument(const QString& name);
-    Q_EXPLICIT QDomDocument(const QDomDocumentType& doctype);
+    explicit QDomDocument(const QString& name);
+    explicit QDomDocument(const QDomDocumentType& doctype);
     QDomDocument(const QDomDocument& x);
     QDomDocument& operator= (const QDomDocument&);
     ~QDomDocument();
