@@ -156,7 +156,7 @@ QPixmap *QPixmapCache::find(const QString &key)
 {
     if (!pm_cache)
         return 0;
-    return pm_cache->find(key);
+    return pm_cache->object(key);
 }
 
 
@@ -180,7 +180,7 @@ bool QPixmapCache::find(const QString &key, QPixmap& pm)
 {
     if (!pm_cache)
         return false;
-    QPixmap *ptr = pm_cache->find(key);
+    QPixmap *ptr = pm_cache->object(key);
     if (ptr)
         pm = *ptr;
     return ptr != 0;
