@@ -3,7 +3,8 @@
 
 #include <qabstractitemdelegate.h>
 #include <qstring.h>
-#include <qiconset.h>
+#include <qpixmap.h>
+#include <qvariant.h>
 
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
@@ -26,12 +27,10 @@ public:
 
 protected:
     void drawText(QPainter *painter, const QItemOptions &options, const QRect &rect, const QString &text) const;
-    void drawIcon(QPainter *painter, const QItemOptions &options, const QRect &rect, const QIconSet &icons) const;
+    void drawPixmap(QPainter *painter, const QItemOptions &options, const QRect &rect, const QPixmap &pixmap) const;
     void drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const;
-
     void doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const;
-    QSize textSize(const QFontMetrics &fontMetrics, const QItemOptions &options, const QString &text) const;
-    QSize iconSize(const QItemOptions &options, const QIconSet &icons) const;
+    QPixmap decoration(const QItemOptions &options, const QVariant &variant) const;
 };
 
 #endif

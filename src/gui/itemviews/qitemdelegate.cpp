@@ -10,9 +10,56 @@
 
 static const int border = 0;
 
+static const char * const unchecked_xpm[] = {
+"16 16 4 1",
+"        c None",
+".        c #000000000000",
+"X        c #FFFFFFFFFFFF",
+"o        c #C71BC30BC71B",
+"                ",
+"                ",
+" ..........     ",
+" .XXXXXXXX.     ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" ..........oo   ",
+"   oooooooooo   ",
+"   oooooooooo   ",
+"                ",
+"                "};
+
+static const char * const checked_xpm[] = {
+"16 16 4 1",
+"        c None",
+".        c #000000000000",
+"X        c #FFFFFFFFFFFF",
+"o        c #C71BC30BC71B",
+"                ",
+"                ",
+" ..........     ",
+" .XXXXXXXX.     ",
+" .XXXXXXoX.oo   ",
+" .XoXXXo.X.oo   ",
+" .X.oXo..X.oo   ",
+" .X..o..oX.oo   ",
+" .Xo...oXX.oo   ",
+" .XXo.oXXX.oo   ",
+" .XXXoXXXX.oo   ",
+" ..........oo   ",
+"   oooooooooo   ",
+"   oooooooooo   ",
+"                ",
+"                "};
+
 QItemDelegate::QItemDelegate(QAbstractItemModel *model, QObject *parent)
     : QAbstractItemDelegate(model, parent)
 {
+
 }
 
 QItemDelegate::~QItemDelegate()
@@ -21,10 +68,6 @@ QItemDelegate::~QItemDelegate()
 
 void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const
 {
-    static QPoint pt(0, 0);
-
-    QIconSet icons = model()->data(item, QAbstractItemModel::Decoration).toIconSet();
-    QString text = model()->data(item, QAbstractItemModel::Display).toString();
 #if 0
     static unsigned char r = 0;
     static unsigned char g = 0;
@@ -35,11 +78,18 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const 
     b += 10;
     painter->drawRect(options.itemRect);
 #endif
+    
+    static QPoint pt(0, 0);
+    static QSize sz(border << 1, border << 1);
+    QVariant variant = model()->data(item, QAbstractItemModel::Decoration);
+    QPixmap pixmap = decoration(options, variant);
+    QString text = model()->data(item, QAbstractItemModel::Display).toString();
 #if 1
-    QRect iconRect(pt, iconSize(options, icons));
-    QRect textRect(pt, textSize(painter->fontMetrics(), options, text));
-    doLayout(options, &iconRect, &textRect, false);
-    drawIcon(painter, options, iconRect, icons);
+    QRect pixmapRect = pixmap.rect();
+    QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
+    doLayout(options, &pixmapRect, &textRect, false);
+    
+    drawPixmap(painter, options, pixmapRect, pixmap);
     drawText(painter, options, textRect, text);
     drawFocus(painter, options, textRect);
 #endif
@@ -50,15 +100,16 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
 {
     static QPoint pt(0, 0);
     static QSize sz(border << 1, border << 1);
-    
+
+    QVariant variant = model()->data(item, QAbstractItemModel::Decoration);
+    QPixmap pixmap = decoration(options, variant);
     QString text = model()->data(item, QAbstractItemModel::Display).toString();
-    QIconSet icons = model()->data(item, QAbstractItemModel::Decoration).toIconSet();
     
-    QRect iconRect(pt, iconSize(options, icons));
-    QRect textRect(pt, textSize(fontMetrics, options, text) + sz);
-    doLayout(options, &iconRect, &textRect, true);
+    QRect pixmapRect = pixmap.rect();
+    QRect textRect(pt, fontMetrics.size(0, text) + sz);
+    doLayout(options, &pixmapRect, &textRect, true);
     
-    return iconRect.unite(textRect).size();
+    return pixmapRect.unite(textRect).size();
 }
 
 QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
@@ -106,11 +157,11 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &op
 {
     static QPoint pt(0, 0);
     if (editor) {
-        QIconSet icons = model()->data(item, QAbstractItemModel::Decoration).toIconSet();
+        QPixmap pixmap = decoration(options, model()->data(item, QAbstractItemModel::Decoration));
         QString text = model()->data(item, QAbstractItemModel::Display).toString();
-        QRect iconRect(pt, iconSize(options, icons));
-        QRect textRect(pt, textSize(editor->fontMetrics(), options, text));
-        doLayout(options, &iconRect, &textRect, false);
+        QRect pixmapRect = pixmap.rect();
+        QRect textRect(pt, editor->fontMetrics().size(0, text));
+        doLayout(options, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
 }
@@ -125,30 +176,22 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     } else {
         painter->setPen(options.palette.text());
     }
-    // reduce the rect to create a border
-//     painter->drawText(QRect(rect.x() + border, rect.y(), rect.width() - (border << 1), rect.height()),
-//                       options.textAlignment, text);
     QString display;
     if (painter->fontMetrics().width(text) > rect.width())
         painter->drawText(rect, options.textAlignment,
-                          ellipsisText(painter->fontMetrics(), rect.width(), options.textAlignment, text));
+                          ellipsisText(painter->fontMetrics(), rect.width(),
+                                       options.textAlignment, text));
     else
         painter->drawText(rect, options.textAlignment, text);
     painter->setPen(old);
 }
 
-void QItemDelegate::drawIcon(QPainter *painter, const QItemOptions &options, const QRect &rect,
-                              const QIconSet &icons) const
+void QItemDelegate::drawPixmap(QPainter *painter, const QItemOptions &options,
+                               const QRect &rect, const QPixmap &pixmap) const
 {
-    if (options.selected)
-        if (options.smallItem)
-            painter->fillRect(rect, options.palette.highlight());
-        else
-            painter->fillRect(rect, QBrush(options.palette.highlight(), QBrush::Dense4Pattern));
-    QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: active == focus ?
-    QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
-    QIconSet::State state = options.open ? QIconSet::On : QIconSet::Off;
-    painter->drawPixmap(rect.topLeft(), icons.pixmap(size, mode, state));
+    if (options.selected && !options.smallItem)
+        painter->fillRect(rect, QBrush(options.palette.highlight(), QBrush::Dense4Pattern));
+    painter->drawPixmap(rect.topLeft(), pixmap);
 }
 
 void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, const QRect &rect) const
@@ -157,31 +200,31 @@ void QItemDelegate::drawFocus(QPainter *painter, const QItemOptions &options, co
         QApplication::style().drawPrimitive(QStyle::PE_FocusRect, painter, rect, options.palette);
 }
 
-void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect *textRect, bool hint) const
+void QItemDelegate::doLayout(const QItemOptions &options, QRect *pixmapRect, QRect *textRect, bool hint) const
 {
-    if (iconRect && textRect) {
+    if (pixmapRect && textRect) {
         int x = options.itemRect.left();
         int y = options.itemRect.top();
         if (options.iconAlignment & Qt::AlignTop) {
-            int width = hint ? qMax(textRect->width(), iconRect->width()) : options.itemRect.width();
-            QRect topRect(x, y, width, iconRect->height());
-            QRect bottomRect(x, y + iconRect->height(), width, textRect->height());
-            iconRect->moveCenter(topRect.center());
+            int width = hint ? qMax(textRect->width(), pixmapRect->width()) : options.itemRect.width();
+            QRect topRect(x, y, width, pixmapRect->height());
+            QRect bottomRect(x, y + pixmapRect->height(), width, textRect->height());
+            pixmapRect->moveCenter(topRect.center());
             textRect->setRect(bottomRect.x(), bottomRect.y(), bottomRect.width(), bottomRect.height());
             return;
         }
-        int height = hint ? qMax(textRect->height(), iconRect->height()) : options.itemRect.height();
+        int height = hint ? qMax(textRect->height(), pixmapRect->height()) : options.itemRect.height();
         bool alignAuto = (options.iconAlignment & Qt::AlignHorizontal_Mask) == Qt::AlignAuto;
         bool reverse = QApplication::reverseLayout() && alignAuto;
         if (reverse || (options.iconAlignment & Qt::AlignRight)) {
-            int w = hint ? textRect->width() : options.itemRect.width() - iconRect->width();
+            int w = hint ? textRect->width() : options.itemRect.width() - pixmapRect->width();
             textRect->setRect(x, y, w, height);
-            iconRect->moveCenter(QRect(x + w, y, iconRect->width(), height).center());
+            pixmapRect->moveCenter(QRect(x + w, y, pixmapRect->width(), height).center());
             return;
         } else {
-            QRect leftRect(x, y, iconRect->width(), height);
+            QRect leftRect(x, y, pixmapRect->width(), height);
             QRect rightRect(x + leftRect.width(), y, textRect->width(), height);
-            iconRect->moveCenter(leftRect.center());
+            pixmapRect->moveCenter(leftRect.center());
             int w = hint ? rightRect.width() : options.itemRect.width() - leftRect.width();
             textRect->setRect(rightRect.x(), y, w, height);
             return;
@@ -189,15 +232,20 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect
     }
 }
 
-QSize QItemDelegate::textSize(const QFontMetrics &fontMetrics, const QItemOptions &, const QString &text) const
+QPixmap QItemDelegate::decoration(const QItemOptions &options, const QVariant &variant) const
 {
-    return fontMetrics.size(0, text); // FIXME: use flags
-}
+    switch (variant.type()) {
+    case QVariant::IconSet:
+        return variant.toIconSet().pixmap(options.smallItem ? QIconSet::Small : QIconSet::Large,
+                                          options.disabled ? QIconSet::Disabled : QIconSet::Normal,
+                                          options.open ? QIconSet::On : QIconSet::Off);
+    case QVariant::Bool: {
+        static QPixmap checked(checked_xpm);
+        static QPixmap unchecked(unchecked_xpm);
+        return variant.toBool() ? checked : unchecked; }
 
-QSize QItemDelegate::iconSize(const QItemOptions &options, const QIconSet &icons) const
-{
-    QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: open
-    QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
-    QIconSet::State state = options.selected ? QIconSet::On : QIconSet::Off;
-    return icons.pixmap(size, mode, state).size();
+    default:
+        break;
+    }
+    return variant.toPixmap();
 }
