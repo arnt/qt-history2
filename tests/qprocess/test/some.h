@@ -3,6 +3,7 @@
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qprocess.h>
+#include <qtextview.h>
 
 
 class Some : public QObject
@@ -34,6 +35,9 @@ signals:
 private:
     QVBox main;
     QVBox info;
+    int protocolReadStdout;
+    int protocolReadStderr;
+    QTextView protocol;
     QLabel *isRunningInfo;
     QLabel *normalExitInfo;
     QLabel *exitStatusInfo;
@@ -56,6 +60,7 @@ public slots:
     void startProcess0();
     void startProcess1();
     void startProcess2();
+    void startProcess3();
     void launchProcess0();
     void launchProcess1();
     void launchProcess2();

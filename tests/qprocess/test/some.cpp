@@ -15,7 +15,7 @@ static QLabel *out;
 static QLabel *err;
 
 Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int com )
-	: QObject( p )
+    : QObject( p )//, protocol( QString("Protocol\n\n"), 0 )
 {
     proc = new QProcess( this );
     switch ( com ) {
@@ -37,6 +37,11 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 	proc->addArgument( "p4" );
 	proc->addArgument( "help" );
 	proc->addArgument( "commands" );
+	hideAfterExit = FALSE;
+	break;
+    case 3:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "-much" );
 	hideAfterExit = FALSE;
 	break;
     default:
@@ -120,6 +125,10 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 	}
     }
     main.show();
+
+    protocolReadStdout = 0;
+    protocolReadStderr = 0;
+    protocol.show();
 }
 
 void Some::writeMuch()
@@ -167,6 +176,11 @@ void Some::showInfo()
 
 void Some::procExited()
 {
+    protocol.setText( protocol.text() +
+	    QString(
+		"total read on stdout: %1 bytes\n"
+		"total read on stderr: %2 bytes\n"
+		).arg( protocolReadStdout).arg( protocolReadStderr) );
     showInfo();
     if ( hideAfterExit )
 	main.hide();
@@ -196,7 +210,11 @@ void Some::readyReadStdout()
 {
     QString s;
     proc->readStdout( s );
-    out->setText( s );
+    out->setText( s.mid( 0, 1000 ) );
+
+    protocol.setText( protocol.text() +
+	    QString( "read on stdout: %1 bytes\n" ).arg( s.length() ) );
+    protocolReadStdout += s.length();
 }
 
 void Some::connectStderr( bool enable )
@@ -218,17 +236,26 @@ void Some::readyReadStderr()
 {
     QString s;
     proc->readStderr( s );
-    err->setText( s );
+    err->setText( s.mid( 0, 1000 ) );
+
+    protocol.setText( protocol.text() +
+	    QString( "read on stderr: %1 bytes\n" ).arg( s.length() ) );
+    protocolReadStderr += s.length();
 }
 
 void Some::connectExit( bool enable )
 {
-    if ( enable )
-	QObject::connect( proc, SIGNAL(processExited()),
-		this, SLOT(procExited()) );
-    else
+    static bool connected = FALSE;
+    if ( enable ) {
+	if ( !connected )
+	    QObject::connect( proc, SIGNAL(processExited()),
+		    this, SLOT(procExited()) );
+	connected = TRUE;
+    } else {
 	QObject::disconnect( proc, SIGNAL(processExited()),
 		this, SLOT(procExited()) );
+	connected = FALSE;
+    }
 }
 
 
@@ -249,6 +276,11 @@ void SomeFactory::startProcess1()
 void SomeFactory::startProcess2()
 {
     new Some( parent, TRUE, cStdout, cStderr, cExit, 2 );
+}
+
+void SomeFactory::startProcess3()
+{
+    new Some( parent, TRUE, cStdout, cStderr, cExit, 3 );
 }
 
 void SomeFactory::launchProcess0()

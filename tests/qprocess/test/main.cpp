@@ -27,6 +27,18 @@ int main( int argc, char **argv )
 	    a.setMainWidget( &gc );
 	    gc.show();
 	    return a.exec();
+	} else if ( QString( "-much" ) == argv[1] ) {
+	    {
+		const char mod = 59;
+		for ( int i=0; i<100000; i++ ) {
+		    char j = i % mod;
+		    if ( j == mod-1 ) {
+			cout << endl;
+		    } else {
+			cout << (char)( 'A' + j );
+		    }
+		}
+	    }
 	}
     } else {
 	QApplication a( argc, argv );
@@ -44,6 +56,9 @@ int main( int argc, char **argv )
 	newProcess = new QPushButton( "Start Process (p4)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
 		&factory, SLOT(startProcess2()) );
+	newProcess = new QPushButton( "Start Process (much)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(startProcess3()) );
 	// launch process
 	newProcess = new QPushButton( "Launch Process (cat)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
