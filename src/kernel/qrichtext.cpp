@@ -235,25 +235,73 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
     return &cursor;
 }
 
-QTextFormatCommand::QTextFormatCommand( QTextDocument *d, int selId, QTextFormat *f, int flgs )
-    : QTextCommand( d ), selection( selId ),  flags( flgs )
+QTextFormatCommand::QTextFormatCommand( QTextDocument *d, int sid, int sidx, int eid, int eidx,
+					const QArray<QTextStringChar> &old, QTextFormat *f, int fl )
+    : QTextCommand( d ), startId( sid ), startIndex( sidx ), endId( eid ), endIndex( eidx ), format( f ), oldFormats( old ), flags( fl )
 {
-    format = d->formatCollection()->format( f );
+    format->addRef();
+    for ( int j = 0; j < (int)oldFormats.size(); ++j ) {
+	if ( oldFormats[ j ].format() )
+	    oldFormats[ j ].format()->addRef();
+    }
 }
 
 QTextFormatCommand::~QTextFormatCommand()
 {
     format->removeRef();
+    for ( int j = 0; j < (int)oldFormats.size(); ++j ) {
+	if ( oldFormats[ j ].format() )
+	    oldFormats[ j ].format()->removeRef();
+    }
 }
 
 QTextCursor *QTextFormatCommand::execute( QTextCursor *c )
 {
-    doc->setFormat( selection, format, flags );
+    QTextParag *sp = doc->paragAt( startId );
+    QTextParag *ep = doc->paragAt( endId );
+    if ( !sp || !ep )
+	return c;
+
+    QTextCursor start( doc );
+    start.setParag( sp );
+    start.setIndex( startIndex );
+    QTextCursor end( doc );
+    end.setParag( ep );
+    end.setIndex( endId );
+
+    doc->setSelectionStart( QTextDocument::Temp, &start );
+    doc->setSelectionEnd( QTextDocument::Temp, &end );
+    doc->setFormat( QTextDocument::Temp, format, flags );
+    doc->removeSelection( QTextDocument::Temp );
+    *c = end;
     return c;
 }
 
 QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
 {
+    QTextParag *sp = doc->paragAt( startId );
+    QTextParag *ep = doc->paragAt( endId );
+    if ( !sp || !ep )
+	return 0;
+
+    int idx = startIndex;
+    int fIndex = 0;
+    while ( TRUE ) {
+	if ( oldFormats.at( fIndex ).c == '\n' )
+	    fIndex++;
+	if ( oldFormats.at( fIndex ).format() )
+	    sp->setFormat( idx, 1, oldFormats.at( fIndex ).format() );
+	idx++;
+	fIndex++;
+	if ( fIndex >= (int)oldFormats.size() )
+	    break;
+	if ( idx >= sp->length() ) {
+	    if ( sp == ep )
+		break;
+	    sp = sp->next();
+	}
+    }
+
     return c;
 }
 

@@ -635,6 +635,48 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
     emit textChanged();
 }
 
+void QTextView::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text )
+{
+    c2.restoreState();
+    c1.restoreState();
+    if ( c1.parag() == c2.parag() ) {
+	for ( int i = c1.index(); i < c2.index(); ++i ) {
+	    if ( c1.parag()->at( i )->format() ) {
+		c1.parag()->at( i )->format()->addRef();
+		text.at( oldLen + i - c1.index() ).setFormat( c1.parag()->at( i )->format() );
+	    }
+	}
+    } else {
+	int lastIndex = oldLen;
+	int i;
+	for ( i = c1.index(); i < c1.parag()->length(); ++i ) {
+	    if ( c1.parag()->at( i )->format() ) {
+		c1.parag()->at( i )->format()->addRef();
+		text.at( lastIndex ).setFormat( c1.parag()->at( i )->format() );
+		lastIndex++;
+	    }
+	}
+	lastIndex++;
+	QTextParag *p = c1.parag()->next();
+	while ( p && p != c2.parag() ) {
+	    for ( int i = 0; i < p->length(); ++i ) {
+		if ( p->at( i )->format() ) {
+		    p->at( i )->format()->addRef();
+		    text.at( i + lastIndex ).setFormat( p->at( i )->format() );
+		}
+	    }
+	    lastIndex += p->length() + 1;
+	    p = p->next();
+	}
+	for ( i = 0; i < c2.index(); ++i ) {
+	    if ( c2.parag()->at( i )->format() ) {
+		c2.parag()->at( i )->format()->addRef();
+		text.at( i + lastIndex ).setFormat( c2.parag()->at( i )->format() );
+	    }
+	}
+    }
+}
+
 void QTextView::removeSelectedText()
 {
     if ( isReadOnly() )
@@ -648,48 +690,9 @@ void QTextView::removeSelectedText()
     }
     int oldLen = undoRedoInfo.d->text.length();
     undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
-
     QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
     QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
-    c2.restoreState();
-    c1.restoreState();
-    if ( c1.parag() == c2.parag() ) {
-	for ( int i = c1.index(); i < c2.index(); ++i ) {
-	    if ( c1.parag()->at( i )->format() ) {
-		c1.parag()->at( i )->format()->addRef();
-		undoRedoInfo.d->text.at( oldLen + i - c1.index() ).setFormat( c1.parag()->at( i )->format() );
-	    }
-	}
-    } else {
-	int lastIndex = oldLen;
-	int i;
-	for ( i = c1.index(); i < c1.parag()->length(); ++i ) {
-	    if ( c1.parag()->at( i )->format() ) {
-		c1.parag()->at( i )->format()->addRef();
-		undoRedoInfo.d->text.at( lastIndex ).setFormat( c1.parag()->at( i )->format() );
-		lastIndex++;
-	    }
-	}
-	lastIndex++;
-	QTextParag *p = c1.parag()->next();
-	while ( p && p != c2.parag() ) {
-	    for ( int i = 0; i < p->length(); ++i ) {
-		if ( p->at( i )->format() ) {
-		    p->at( i )->format()->addRef();
-		    undoRedoInfo.d->text.at( i + lastIndex ).setFormat( p->at( i )->format() );
-		}
-	    }
-	    lastIndex += p->length() + 1;
-	    p = p->next();
-	}
-	for ( i = 0; i < c2.index(); ++i ) {
-	    if ( c2.parag()->at( i )->format() ) {
-		c2.parag()->at( i )->format()->addRef();
-		undoRedoInfo.d->text.at( i + lastIndex ).setFormat( c2.parag()->at( i )->format() );
-	    }
-	}
-    }
-
+    readFormats( c1, c2, oldLen, undoRedoInfo.d->text );
     doc->removeSelectedText( QTextDocument::Standard, cursor );
     ensureCursorVisible();
     lastFormatted = cursor->parag();
@@ -1435,7 +1438,26 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	drawCursor( FALSE );
+	QTextString str;
+	str = doc->selectedText( QTextDocument::Standard );
+	QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
+	QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
+	readFormats( c1, c2, 0, str );
 	doc->setFormat( QTextDocument::Standard, f, flags );
+	undoRedoInfo.clear();
+	emitUndoAvailable( doc->commands()->isUndoAvailable() );
+	emitRedoAvailable( doc->commands()->isRedoAvailable() );
+	undoRedoInfo.type = UndoRedoInfo::Format;
+	undoRedoInfo.id = c1.parag()->paragId();
+	undoRedoInfo.index = c1.index();
+	undoRedoInfo.eid = c2.parag()->paragId();
+	undoRedoInfo.eindex = c2.index();
+	undoRedoInfo.d->text = str;
+	undoRedoInfo.format = f;
+	undoRedoInfo.flags = flags;
+	undoRedoInfo.clear();
+	emitUndoAvailable( doc->commands()->isUndoAvailable() );
+	emitRedoAvailable( doc->commands()->isRedoAvailable() );
 	repaintChanged();
 	formatMore();
 	drawCursor( TRUE );
@@ -1972,6 +1994,8 @@ void QTextView::UndoRedoInfo::clear()
     if ( valid() ) {
 	if ( type == Insert || type == Return )
 	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData() ) );
+	else if ( type == Format )
+	    doc->addCommand( new QTextFormatCommand( doc, id, index, eid, eindex, d->text.rawData(), format, flags ) );
 	else if ( type != Invalid )
 	    doc->addCommand( new QTextDeleteCommand( doc, id, index, d->text.rawData() ) );
     }

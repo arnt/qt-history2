@@ -961,7 +961,7 @@ public:
 class Q_EXPORT QTextFormatCommand : public QTextCommand
 {
 public:
-    QTextFormatCommand( QTextDocument *d, int selId, QTextFormat *f, int flags );
+    QTextFormatCommand( QTextDocument *d, int sid, int sidx, int eid, int eidx, const QArray<QTextStringChar> &old, QTextFormat *f, int fl );
     ~QTextFormatCommand();
     Commands type() const { return Format; }
 
@@ -969,8 +969,9 @@ public:
     virtual QTextCursor *unexecute( QTextCursor *c );
 
 protected:
-    int selection;
+    int startId, startIndex, endId, endIndex;
     QTextFormat *format;
+    QArray<QTextStringChar> oldFormats;
     int flags;
 
 };

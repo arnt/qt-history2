@@ -200,7 +200,7 @@ private slots:
 
 private:
     struct Q_EXPORT UndoRedoInfo {
-	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected };
+	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format };
 	
 	UndoRedoInfo( QTextDocument *dc );
 	~UndoRedoInfo();
@@ -210,6 +210,10 @@ private:
     	QUndoRedoInfoPrivate *d;
 	int id;
 	int index;
+	int eid;
+	int eindex;
+	QTextFormat *format;
+	int flags;
 	Type type;
 	QTextDocument *doc;
     };
@@ -305,6 +309,7 @@ private: // these are functions which actually do editing stuff, but
     void doKeyboardAction( KeyboardActionPrivate action );
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
     void save( const QString &fn = QString::null );
+    void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text );
 
 private:
     QTextDocument *doc;
