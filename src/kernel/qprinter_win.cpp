@@ -600,6 +600,11 @@ bool QPrinter::setup( QWidget *parent )
 		readPdlgA( &pd );
 	}
     }
+
+    SetMapMode(hdc, MM_ANISOTROPIC); 
+    SetWindowExtEx(hdc, res, res, NULL); 
+    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL); 
+
     return result;
 }
 
@@ -833,15 +838,21 @@ int QPrinter::metric( int m ) const
     int val;
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
-	val = GetDeviceCaps( hdc, fullPage() ? PHYSICALWIDTH : HORZRES );
+	val = res * GetDeviceCaps( hdc, fullPage() ? PHYSICALWIDTH : HORZRES ) / GetDeviceCaps( hdc, LOGPIXELSX ); 
 	break;
     case QPaintDeviceMetrics::PdmHeight:
-	val = GetDeviceCaps( hdc, fullPage() ? PHYSICALHEIGHT : VERTRES );
+	val = res * GetDeviceCaps( hdc, fullPage() ? PHYSICALHEIGHT : VERTRES ) / GetDeviceCaps( hdc, LOGPIXELSY );
 	break;
     case QPaintDeviceMetrics::PdmDpiX:
-	val = GetDeviceCaps( hdc, LOGPIXELSX );
+	val = res; 
 	break;
     case QPaintDeviceMetrics::PdmDpiY:
+	val = res; 
+	break;
+    case QPaintDeviceMetrics::PdmPhysicalDpiX:
+	val = GetDeviceCaps( hdc, LOGPIXELSX );
+	break;
+    case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	val = GetDeviceCaps( hdc, LOGPIXELSY );
 	break;
     case QPaintDeviceMetrics::PdmWidthMM:
@@ -882,8 +893,8 @@ QSize QPrinter::margins() const
 {
     if ( handle() == 0 )			// not ready
 	return QSize( 0, 0 );
-    return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ),
-		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) );
+    return QSize( GetDeviceCaps( handle(), PHYSICALOFFSETX ) * res / GetDeviceCaps( hdc, LOGPIXELSX ),
+		  GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
 
 #endif // QT_NO_PRINTER

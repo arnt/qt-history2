@@ -83,8 +83,6 @@ static HFONT  stock_sysfont;
 static QHDCObj stock_dummy;
 static void  *stock_ptr = (void *)&stock_dummy;
 
-
-
 /* paintevent magic to provide Windows semantics on Windows ;)
  */
 static QRegion* paintEventClipRegion = 0;
@@ -825,6 +823,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     else
 	SelectClipRgn( hdc, 0 );
     setf(DirtyFont);
+
     return TRUE;
 }
 
@@ -2107,7 +2106,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     if ( testf(DirtyFont) )
 	updateFont();
-    bool force_bitmap = rop != CopyROP;
+    bool force_bitmap = FALSE;//rop != CopyROP;
     if ( force_bitmap ) {
 #ifdef UNICODE
 	if ( qt_winver & WV_NT_based ) {
@@ -2121,10 +2120,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[2];
+	    QPDevCmdParam param[3];
 	    QPoint p( x, y );
 	    param[0].point = &p;
 	    param[1].str = &shaped;
+	    param[2].ival = QFont::NoScript;
 	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
 		return;
 	}
@@ -2183,7 +2183,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		    }
 		}
 		paint.setFont( pmFont );
-		paint.drawText( tx, ty, str, 0, len, dir );
+		paint.drawText( tx, ty, str, pos, len, dir );
 		paint.end();
 		if ( txop >= TxScale )
 		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
@@ -2271,10 +2271,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     }
 
 
+    //const TCHAR *tc = (const TCHAR *) qt_winTchar( shaped, FALSE );
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     cfont.d->textWidth( hdc, shaped, 0, len, cache );
     if ( rop == CopyROP ) {
-		cfont.d->drawText( hdc, x, y, cache );
+	cfont.d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
     } else {
 	// Doesn't work for non-TrueType fonts, but we dealt with those

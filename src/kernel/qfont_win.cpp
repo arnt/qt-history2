@@ -392,8 +392,16 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
 
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
-    if ( hdc && !VxF ) {
-	lf.lfHeight = -int((float)request.pointSize*
+// ### fix compatibility mode when printing!!!
+    if ( hdc ) {//&& !VxF ) {
+	SIZE size;
+	float sx = 1.;
+	if ( GetWindowExtEx( hdc, &size ) ) {
+	    sx = size.cy;
+	    GetViewportExtEx( hdc, &size );
+	    sx /= size.cy;
+	}
+	lf.lfHeight = -int((float)request.pointSize* sx *
 			   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
     } else {
 	lf.lfHeight = -int((float)request.pointSize*
@@ -411,6 +419,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
     lf.lfStrikeOut	= request.strikeOut;
 
 #if 0
+    // #### add a hook to the script for the locale
     /*
 	We use DEFAULT_CHARSET as much as possible, so that
 	we get good Unicode-capable fonts on international

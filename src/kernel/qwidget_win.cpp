@@ -1178,9 +1178,11 @@ int QWidget::metric( int m ) const
 	HDC gdc = GetDC( 0 );
 	switch ( m ) {
 	case QPaintDeviceMetrics::PdmDpiX:
+	case QPaintDeviceMetrics::PdmPhysicalDpiX:
 	    val = GetDeviceCaps( gdc, LOGPIXELSX );
 	    break;
 	case QPaintDeviceMetrics::PdmDpiY:
+	case QPaintDeviceMetrics::PdmPhysicalDpiY:
 	    val = GetDeviceCaps( gdc, LOGPIXELSY );
 	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:

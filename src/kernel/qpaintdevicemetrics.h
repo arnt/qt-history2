@@ -56,7 +56,9 @@ public:
 	PdmNumColors,
 	PdmDepth,
 	PdmDpiX,
-	PdmDpiY
+	PdmDpiY,
+	PdmPhysicalDpiX,
+	PdmPhysicalDpiY
     };
 
     int	  width()	const	{ return (int)pdev->metric(PdmWidth); }
@@ -65,6 +67,8 @@ public:
     int	  heightMM()	const	{ return (int)pdev->metric(PdmHeightMM); }
     int	  logicalDpiX()	const	{ return (int)pdev->metric(PdmDpiX); }
     int	  logicalDpiY()	const	{ return (int)pdev->metric(PdmDpiY); }
+    int	  physicalDpiX()const	{ return (int)pdev->metric(PdmPhysicalDpiX); }
+    int	  physicalDpiY()const	{ return (int)pdev->metric(PdmPhysicalDpiY); }
     int	  numColors()	const	{ return (int)pdev->metric(PdmNumColors); }
     int	  depth()	const	{ return (int)pdev->metric(PdmDepth); }
 

@@ -276,9 +276,9 @@ void TextEdit::filePrint()
 #ifndef QT_NO_PRINTER
     QPrinter printer;
     printer.setFullPage(TRUE);
+    QPaintDeviceMetrics screen( this );
+    printer.setResolution( screen.logicalDpiY() );
     if ( printer.setup( this ) ) {
-	QPaintDeviceMetrics screen( this );
-	printer.setResolution( screen.logicalDpiY() );
 	QPainter p( &printer );
 	QPaintDeviceMetrics metrics( p.device() );
 	int dpix = metrics.logicalDpiX();
