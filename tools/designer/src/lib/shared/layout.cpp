@@ -276,18 +276,15 @@ void Layout::undoLayout()
         QWidget *parentWidget = w->parentWidget();
         AbstractFormEditor *core = formWindow->core();
         ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
-        if (!deco)
-            deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
 
         if (deco)
             deco->removeWidget(w);
 
-
         w->setParent(container);
         w->setGeometry(rc);
 
-        if(showIt)
-           w->show();
+        if (showIt)
+            w->show();
     }
 
     LayoutInfo::deleteLayout(formWindow->core(), layoutBase);

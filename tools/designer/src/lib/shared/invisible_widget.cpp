@@ -14,8 +14,9 @@
 #include "invisible_widget.h"
 
 InvisibleWidget::InvisibleWidget(QWidget *parent)
-    : QWidget(parent)
+    : QWidget()
 {
     setAttribute(Qt::WA_NoChildEventsForParent);
+    setParent(parent);
 }
 

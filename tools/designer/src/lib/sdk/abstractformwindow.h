@@ -81,6 +81,8 @@ public:
 
     virtual void editWidgets() = 0;
 
+    virtual void simplifySelection(QList<QWidget*> *widgets) const = 0;
+
     // notifications
     virtual void emitSelectionChanged() = 0;
 
@@ -90,7 +92,7 @@ public:
 
     virtual QString relativePath(const QString &abs_path) const = 0;
     virtual QString absolutePath(const QString &rel_path) const = 0;
-    
+
 public slots:
     virtual void manageWidget(QWidget *widget) = 0;
     virtual void unmanageWidget(QWidget *widget) = 0;

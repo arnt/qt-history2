@@ -117,6 +117,8 @@ public:
     virtual QPoint grid() const { return m_grid; }
     virtual void setGrid(const QPoint &grid) { m_grid = grid; }
 
+    virtual void simplifySelection(QList<QWidget*> *sel) const;
+
     virtual QWidget *mainContainer() const;
     void setMainContainer(QWidget *mainContainer);
     bool isMainContainer(const QWidget *w) const;
@@ -141,7 +143,6 @@ public:
     void updateChildSelections(QWidget *w);
     void raiseChildSelections(QWidget *w);
     void raiseSelection(QWidget *w);
-    void simplifySelection(QList<QWidget*> *sel);
     void hideSelection(QWidget *w);
 
     inline QList<QWidget *> widgets() const { return m_widgets; }

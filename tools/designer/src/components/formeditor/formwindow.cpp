@@ -1614,7 +1614,7 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
     return container;
 }
 
-void FormWindow::simplifySelection(QList<QWidget*> *sel)
+void FormWindow::simplifySelection(QList<QWidget*> *sel) const
 {
     QMutableListIterator<QWidget*> it(*sel);
     while (it.hasNext()) {

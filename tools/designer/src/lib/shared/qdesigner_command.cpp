@@ -596,6 +596,7 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
 {
     m_parentWidget = parentWidget;
     m_widgets = widgets;
+    formWindow()->simplifySelection(&m_widgets);
     QPoint grid = formWindow()->grid();
     QSize sz(qMax(5, grid.x()), qMax(5, grid.y()));
 
