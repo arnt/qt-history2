@@ -16,7 +16,7 @@
 #include <qpainter.h>
 #include <qspinbox.h>
 
-static QPixmap genIcon(const QString &string, const QColor &color = QColor(Qt::black))
+static QPixmap genIcon(const QString &string, const QColor &color)
 {
     QFont font;
     font.setBold(true);
@@ -49,7 +49,7 @@ static QPixmap genIcon(const QString &string, const QColor &color = QColor(Qt::b
     return pixmap;
 }
 
-static QPixmap genIcon(int number, const QColor &color = QColor(Qt::black))
+static QPixmap genIcon(int number, const QColor &color)
 { return genIcon(QString::number(number), color); }
 
 ToolBar::ToolBar(QMainWindow *parent)
@@ -75,7 +75,7 @@ ToolBar::ToolBar(QMainWindow *parent)
     six->setCheckable(true);
     QAction *seven = addAction(genIcon(7, QColor(80, 80, 0)), "Seven");
     seven->setCheckable(true);
-    QAction *eight = addAction(genIcon(8), "Eight");
+    QAction *eight = addAction(genIcon(8, Qt::black), "Eight");
     eight->setCheckable(true);
 
     showHideAction = new QAction(this);
