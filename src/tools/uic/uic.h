@@ -38,11 +38,9 @@ public:
     ~Uic();
 
     bool write(QIODevice *in);
-
-private:
-    // write
     bool write(DomUI *ui);
 
+private:
     // copyright header
     void writeCopyrightHeader(DomUI *ui);
 

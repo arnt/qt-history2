@@ -19,6 +19,7 @@
 #include <qstringlist.h>
 
 class QTextStream;
+class DomUI;
 class DomWidget;
 class DomSpacer;
 class DomLayout;
@@ -34,6 +35,7 @@ public:
 
     // tools
     bool uic(const QString &fileName, QTextStream *output = 0);
+    bool uic(const QString &fileName, DomUI *ui, QTextStream *output = 0);
 
     // configuration
     inline QTextStream &output() const { return *m_output; }

@@ -173,6 +173,7 @@ void TreeWalker::accept(DomProperty *property)
         case DomProperty::DateTime:
         case DomProperty::Unknown:
         case DomProperty::StringList:
+        case DomProperty::Shortcut:
             break;
     }
 }

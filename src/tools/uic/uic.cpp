@@ -88,17 +88,7 @@ bool Uic::write(QIODevice *in)
         ui->read(root);
     }
 
-    if (option.copyrightHeader)
-        writeCopyrightHeader(ui);
-
-    if (option.headerProtection)
-        writeHeaderProtectionStart();
-
     bool rtn = write(ui);
-
-    if (option.headerProtection)
-        writeHeaderProtectionEnd();
-
     delete ui;
 
     return rtn;
@@ -108,6 +98,12 @@ bool Uic::write(DomUI *ui)
 {
     if (!ui || !ui->elementWidget())
         return false;
+
+    if (option.copyrightHeader)
+        writeCopyrightHeader(ui);
+
+    if (option.headerProtection)
+        writeHeaderProtectionStart();
 
     WriteIncludes(driver).accept(ui);
 
@@ -121,6 +117,9 @@ bool Uic::write(DomUI *ui)
 
     if (option.generateNamespace)
         output << "}\n\n";
+
+    if (option.headerProtection)
+        writeHeaderProtectionEnd();
 
     return true;
 }

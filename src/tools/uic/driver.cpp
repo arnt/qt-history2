@@ -146,6 +146,31 @@ QString Driver::headerFileName(const QString &fileName)
     return info.baseName().toUpper() + "_H";
 }
 
+bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)
+{
+    m_option.inputFile = fileName;
+
+    QTextStream *oldOutput = m_output;
+    bool deleteOutput = false;
+
+    if (out) {
+        m_output = out;
+    } else {
+        m_output = new QTextStream(stdout, IO_WriteOnly);
+        deleteOutput = true;
+    }
+
+    Uic tool(this);
+    bool rtn = tool.write(ui);
+
+    if (deleteOutput)
+        delete m_output;
+
+    m_output = oldOutput;
+
+    return rtn;
+}
+
 bool Driver::uic(const QString &fileName, QTextStream *out)
 {
     QFile f;
