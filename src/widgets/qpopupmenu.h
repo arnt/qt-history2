@@ -126,7 +126,7 @@ private:
     bool	tryMenuBar( QMouseEvent * );
     void	byeMenuBar();
 
-    void	updateSize();
+    QSize	updateSize(bool =TRUE);
     void	updateRow( int row );
 #ifndef QT_NO_ACCEL
     void	updateAccel( QWidget * );
@@ -142,6 +142,7 @@ private:
     uint mac_dirty_popup : 1;
 #endif
 
+    QSize calcSize;
     int popupActive;
     int tab;
     uint accelDisabled : 1;

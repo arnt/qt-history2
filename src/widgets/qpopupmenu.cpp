@@ -976,194 +976,206 @@ QRect QPopupMenu::itemGeometry( int index )
   of the items.
 */
 
-void QPopupMenu::updateSize()
+QSize QPopupMenu::updateSize(bool do_resize)
 {
     ensurePolished();
     if ( count() == 0 ) {
-	setFixedSize( 50, 8 );
+	QSize ret = QSize( 50, 8 );
+	if(do_resize)
+	    setFixedSize( ret );
 	badSize = TRUE;
-	return;
+	return ret;
     }
+
+    if(badSize) {
 #ifndef QT_NO_ACCEL
-    updateAccel( 0 );
+	updateAccel( 0 );
 #endif
-    int height = 0;
-    int max_width = 0, max_height = 0;
-    QFontMetrics fm = fontMetrics();
-    register QMenuItem *mi;
-    maxPMWidth = 0;
-    int maxWidgetWidth = 0;
-    tab = 0;
+	int height = 0;
+	int max_width = 0, max_height = 0;
+	QFontMetrics fm = fontMetrics();
+	register QMenuItem *mi;
+	maxPMWidth = 0;
+	int maxWidgetWidth = 0;
+	tab = 0;
 
-    bool hasWidgetItems = FALSE;
-
-    for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
-	mi = it.current();
-	QWidget *miw = mi->widget();
-	if (miw) {
-	    if ( miw->parentWidget() != this )
-		miw->reparent( this, QPoint(0,0), TRUE );
-	    // widget items musn't propgate mouse events
-	    ((QPopupMenu*)miw)->setWFlags(WNoMousePropagation);
-	}
-	if ( mi->custom() )
-	    mi->custom()->setFont( font() );
-	if ( mi->iconSet() != 0)
-	    maxPMWidth = qMax( maxPMWidth,
-			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
-    }
-
-    int dh = QApplication::desktop()->height();
-    ncols = 1;
-    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
-	height += style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this) * 2;
-
-    for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
-	mi = it2.current();
-	if ( !mi->isVisible() ) {
-	    continue;
-	}
-	int w = 0;
-	int itemHeight = QPopupMenu::itemHeight( mi );
-
-	if ( mi->widget() ) {
-	    hasWidgetItems = TRUE;
-	    QSize s( mi->widget()->sizeHint() );
-	    s = s.expandedTo( mi->widget()->minimumSize() );
-	    mi->widget()->resize( s );
-	    if ( s.width()  > maxWidgetWidth )
-		maxWidgetWidth = s.width();
-	    itemHeight = s.height();
-	} else {
-	    if( ! mi->isSeparator() ) {
-		if ( mi->custom() ) {
-		    if ( mi->custom()->fullSpan() ) {
-			maxWidgetWidth = qMax( maxWidgetWidth,
-					       mi->custom()->sizeHint().width() );
-		    } else {
-			QSize s ( mi->custom()->sizeHint() );
-			w += s.width();
-		    }
-		}
-
-		w += maxPMWidth;
-
-		if (! mi->text().isNull()) {
-		    QString s = mi->text();
-		    int t;
-		    // ##### search for similar places and replace by regular fm.width( ... , Qt::AlignLeft, .... )
-		    if ( (t = s.find('\t')) >= 0 ) { // string contains tab
-			w += fm.width( s, t );
-			w -= s.count('&') * fm.width('&');
-			w += s.count("&&") * fm.width('&');
-			int tw = fm.width( s.mid(t + 1) );
-			if ( tw > tab)
-			    tab = tw;
-		    } else {
-			w += fm.width( s );
-			w -= s.count('&') * fm.width('&');
-			w += s.count("&&") * fm.width('&');
-		    }
-		} else if (mi->pixmap())
-		    w += mi->pixmap()->width();
-	    } else {
-		if ( mi->custom() ) {
-		    QSize s ( mi->custom()->sizeHint() );
-		    w += s.width();
-		} else {
-		    w = itemHeight = 2;
-		}
+	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
+	    mi = it.current();
+	    QWidget *miw = mi->widget();
+	    if (miw) {
+		if ( miw->parentWidget() != this )
+		    miw->reparent( this, QPoint(0,0), TRUE );
+		// widget items musn't propgate mouse events
+		((QPopupMenu*)miw)->setWFlags(WNoMousePropagation);
 	    }
-
-	    QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-						QSize(w, itemHeight),
-						QStyleOption(mi,maxPMWidth));
-
-	    w = sz.width();
-	    itemHeight = sz.height();
-
-	    if ( mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
-		 !mi->isSeparator() && !mi->widget() && !mi->custom() )
-		qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
-			  name( "unnamed" ) );
+	    if ( mi->custom() )
+		mi->custom()->setFont( font() );
+	    if ( mi->iconSet() != 0)
+		maxPMWidth = qMax( maxPMWidth,
+				   mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
 	}
-	height += itemHeight;
-	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
-	    if(d->scroll.scrollable && d->scroll.scrollableSize) {
-		int scrheight = 0;
-		if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp)
-		    scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-		if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown)
-		    scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
-		if(height >= d->scroll.scrollableSize - scrheight) {
-		    height = d->scroll.scrollableSize - scrheight;
-		    break;
-		}
-	    }
-	} else if( height + 2*frameWidth() >= dh ) {
-	    ncols++;
-	    max_height = qMax(max_height, height - itemHeight);
-	    height = 0;
-	}
-	if ( w > max_width )
-	    max_width = w;
-    }
-    if( ncols == 1 && !max_height )
-	max_height = height;
-
-    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
-	setMouseTracking(TRUE);
-
-    if ( tab )
-	tab -= fontMetrics().minRightBearing();
-    else
-	max_width -= fontMetrics().minRightBearing();
-
-    if ( max_width + tab < maxWidgetWidth )
-	max_width = maxWidgetWidth - tab;
-
-    if ( ncols == 1 )
-	setMaximumSize( qMax( minimumWidth(), max_width + tab + 2*frameWidth() ),
-		      qMax( minimumHeight() , height + 2*frameWidth() ) );
-    else
-	setMaximumSize( qMax( minimumWidth(),
-			      (ncols*(max_width + tab)) + 2*frameWidth() ),
-			qMax( minimumHeight(), qMin( max_height + 2*frameWidth() + 1, dh ) ) );
-    resize( maximumSize() );
-    badSize = FALSE;
-
-    if ( hasWidgetItems ) {
-	// Position the widget items. It could be done in drawContents
-	// but this way we get less flicker.
-	QMenuItemListIt it(*mitems);
-	QMenuItem *mi;
-	QSize sz;
-	int x = contentsRect().x();
-	int y = contentsRect().y();
-	int itemw = contentsRect().width() / ncols;
-	while ( (mi=it.current()) ) {
-	    ++it;
+	
+	int dh = QApplication::desktop()->height();
+	ncols = 1;
+	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
+	    height += style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this) * 2;
+	
+	for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
+	    mi = it2.current();
 	    if ( !mi->isVisible() )
 		continue;
+	    int w = 0;
+	    int itemHeight = QPopupMenu::itemHeight( mi );
 
-	    int itemh = itemHeight( mi );
+	    if ( mi->widget() ) {
+		QSize s( mi->widget()->sizeHint() );
+		s = s.expandedTo( mi->widget()->minimumSize() );
+		mi->widget()->resize( s );
+		if ( s.width()  > maxWidgetWidth )
+		    maxWidgetWidth = s.width();
+		itemHeight = s.height();
+	    } else {
+		if( ! mi->isSeparator() ) {
+		    if ( mi->custom() ) {
+			if ( mi->custom()->fullSpan() ) {
+			    maxWidgetWidth = qMax( maxWidgetWidth,
+						   mi->custom()->sizeHint().width() );
+			} else {
+			    QSize s ( mi->custom()->sizeHint() );
+			    w += s.width();
+			}
+		    }
+		    
+		    w += maxPMWidth;
 
-	    sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
-					  QSize(0, itemh),
-					  QStyleOption(mi,maxPMWidth));
-	    sz = sz.expandedTo(QSize(itemw, sz.height()));
-	    itemw = sz.width();
-	    itemh = sz.height();
+		    if (! mi->text().isNull()) {
+			QString s = mi->text();
+			int t;
+			// ##### search for similar places and replace by regular fm.width( ... , Qt::AlignLeft, .... )
+			if ( (t = s.find('\t')) >= 0 ) { // string contains tab
+			    w += fm.width( s, t );
+			    w -= s.count('&') * fm.width('&');
+			    w += s.count("&&") * fm.width('&');
+			    int tw = fm.width( s.mid(t + 1) );
+			    if ( tw > tab)
+				tab = tw;
+			} else {
+			    w += fm.width( s );
+			    w -= s.count('&') * fm.width('&');
+			    w += s.count("&&") * fm.width('&');
+			}
+		    } else if (mi->pixmap())
+			w += mi->pixmap()->width();
+		} else {
+		    if ( mi->custom() ) {
+			QSize s ( mi->custom()->sizeHint() );
+			w += s.width();
+		    } else {
+			w = itemHeight = 2;
+		    }
+		}
+		
+		QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+						    QSize(w, itemHeight),
+						    QStyleOption(mi,maxPMWidth));
 
-	    if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
-		y = contentsRect().y();
-		x +=itemw;
+		w = sz.width();
+		itemHeight = sz.height();
+
+		if ( mi->text().isNull() && !mi->pixmap() && !mi->iconSet() &&
+		     !mi->isSeparator() && !mi->widget() && !mi->custom() )
+		    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
+			      name( "unnamed" ) );
 	    }
-	    if ( mi->widget() )
-		mi->widget()->setGeometry( x, y, itemw, mi->widget()->height() );
-	    y += itemh;
+	    height += itemHeight;
+	    if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this)) {
+		if(d->scroll.scrollable && d->scroll.scrollableSize) {
+		    int scrheight = 0;
+		    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollUp)
+			scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
+		    if(d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown)
+			scrheight += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
+		    if(height >= d->scroll.scrollableSize - scrheight) {
+			height = d->scroll.scrollableSize - scrheight;
+			break;
+		    }
+		}
+	    } else if( height + 2*frameWidth() >= dh ) {
+		ncols++;
+		max_height = qMax(max_height, height - itemHeight);
+		height = 0;
+	    }
+	    if ( w > max_width )
+		max_width = w;
+	}
+	if( ncols == 1 && !max_height )
+	    max_height = height;
+	
+	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
+	    setMouseTracking(TRUE);
+	
+	if ( tab )
+	    tab -= fontMetrics().minRightBearing();
+	else
+	    max_width -= fontMetrics().minRightBearing();
+	
+	if ( max_width + tab < maxWidgetWidth )
+	    max_width = maxWidgetWidth - tab;
+
+	if ( ncols == 1 )
+	    calcSize = QSize( qMax( minimumWidth(), max_width + tab + 2*frameWidth() ),
+			      qMax( minimumHeight() , height + 2*frameWidth() ) );
+	else
+	    calcSize = QSize( qMax( minimumWidth(),
+				    (ncols*(max_width + tab)) + 2*frameWidth() ),
+			      qMax( minimumHeight(), qMin( max_height + 2*frameWidth() + 1, dh ) ) );
+	badSize = FALSE;
+    }
+    if(do_resize) {
+	setMaximumSize( calcSize );
+	resize( maximumSize() );
+
+	bool hasWidgetItems = FALSE;
+	for(QMenuItemListIt it(*mitems); it.current(); ++it) {
+	    if((*it)->widget()) {
+		hasWidgetItems = TRUE;
+		break;
+	    }
+	}
+	if ( hasWidgetItems ) {
+	    // Position the widget items. It could be done in drawContents
+	    // but this way we get less flicker.
+	    QMenuItemListIt it(*mitems);
+	    QMenuItem *mi;
+	    QSize sz;
+	    int x = contentsRect().x();
+	    int y = contentsRect().y();
+	    int itemw = contentsRect().width() / ncols;
+	    while ( (mi=it.current()) ) {
+		++it;
+		if ( !mi->isVisible() )
+		    continue;
+
+		int itemh = itemHeight( mi );
+
+		sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+					      QSize(0, itemh),
+					      QStyleOption(mi,maxPMWidth));
+		sz = sz.expandedTo(QSize(itemw, sz.height()));
+		itemw = sz.width();
+		itemh = sz.height();
+		
+		if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
+		    y = contentsRect().y();
+		    x +=itemw;
+		}
+		if ( mi->widget() )
+		    mi->widget()->setGeometry( x, y, itemw, mi->widget()->height() );
+		y += itemh;
+	    }
 	}
     }
+    return calcSize;
 }
 
 
@@ -2478,11 +2490,9 @@ void QPopupMenu::setActiveItem( int i )
 QSize QPopupMenu::sizeHint() const
 {
     constPolish();
-    if ( badSize ) {
-	QPopupMenu* that = (QPopupMenu*) this;
-	that->updateSize();
-    }
-    return size().expandedTo( QApplication::globalStrut() );
+    QPopupMenu* that = (QPopupMenu*) this;
+    //We do not need a resize here, just the sizeHint..
+    return that->updateSize(FALSE).expandedTo( QApplication::globalStrut() );
 }
 
 
