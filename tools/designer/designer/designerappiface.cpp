@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "formwindow.h"
 #include "formlist.h"
+#include "propertyeditor.h"
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qstatusbar.h>
@@ -20,7 +21,7 @@ DesignerApplicationInterface::DesignerApplicationInterface()
 
 QString DesignerApplicationInterface::interfaceID() const
 { 
-    return "DesignerApplicationInterface";
+    return createID( QApplicationInterface::interfaceID(), "DesignerApplicationInterface" );
 }
 
 /*
@@ -32,22 +33,12 @@ DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw
     new DesignerStatusBarInterfaceImpl( ((QMainWindow*)component())->statusBar(), this );
 }
 
-QString DesignerMainWindowInterfaceImpl::interfaceID() const
-{ 
-    return "DesignerMainWindowInterface";
-}
-
 /*
  * DesignerStatusBarInterface
 */
 DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent )
     : DesignerStatusBarInterface( sb, parent, "DesignerStatusBarInterfaceImpl" )
 {
-}
-
-QString DesignerStatusBarInterfaceImpl::interfaceID() const
-{ 
-    return "DesignerStatusBarInterface";
 }
 
 bool DesignerStatusBarInterfaceImpl::requestSetProperty( const QCString &p, const QVariant &v )
@@ -71,21 +62,23 @@ DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl, QUnk
     : DesignerFormListInterface( fl, parent, "DesignerFormListInterfaceImpl" )
 {
     new DesignerActiveFormWindowInterfaceImpl( fl, this );
+    listIterator = 0;
 }
 
-QList<DesignerFormWindowInterface>* DesignerFormListInterfaceImpl::queryFormInterfaceList()
+bool DesignerFormListInterfaceImpl::ref()
 {
-    QList<DesignerFormWindowInterface>* list = new QList<DesignerFormWindowInterface>();
-    list->setAutoDelete( TRUE );
+    delete listIterator;
+    listIterator = new QListViewItemIterator( (FormList*)component() );
 
-    QListViewItemIterator it( (FormList*)component() );
-    while ( it.current() ) {
-	FormListItem* item = (FormListItem*)it.current();
-	++it;
-	list->append( new DesignerFormWindowInterface( item->formWindow(), this ) );
-    }
+    return DesignerFormListInterface::ref();
+}
 
-    return list;
+bool DesignerFormListInterfaceImpl::release()
+{
+    delete listIterator;
+    listIterator = 0;
+
+    return DesignerFormListInterface::release();
 }
 
 QString DesignerFormListInterfaceImpl::text( DesignerFormWindowInterface *form, int col ) const
@@ -144,42 +137,114 @@ void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form
     }
 }
 
+DesignerFormWindowInterface *DesignerFormListInterfaceImpl::current()
+{
+    FormListItem *item = (FormListItem*)listIterator->current();
+   
+    return item ? new DesignerFormWindowInterfaceImpl( item->formWindow(), this ) : 0;
+}
 
+DesignerFormWindowInterface *DesignerFormListInterfaceImpl::next()
+{
+    ++(*listIterator);
+
+    return current();
+}
+
+DesignerFormWindowInterface *DesignerFormListInterfaceImpl::prev()
+{
+    --(*listIterator);
+
+    return current();
+}
+
+/*
+ * DesignerFormWindowInterface
+*/
+
+DesignerFormWindowInterfaceImpl::DesignerFormWindowInterfaceImpl( FormWindow *fw, QUnknownInterface *parent, const char *name )
+    : DesignerFormWindowInterface( fw, parent, name )
+{
+    MainWindow *mw = (MainWindow*)qApp->mainWidget();
+    PropertyEditor *pe = mw->propertyeditor();
+
+    new DesignerWidgetListInterfaceImpl( fw, this );
+    new DesignerActiveWidgetInterfaceImpl( pe, this );
+}
+
+bool DesignerFormWindowInterfaceImpl::ref()
+{
+    if ( component() )
+	return DesignerFormWindowInterface::ref();
+
+    return FALSE;
+}
 
 /*
  * DesignerActiveFormWindowInterface
 */
-DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl ( FormList* fl, QUnknownInterface *parent )
-    : DesignerActiveFormWindowInterface( fl, parent, "DesignerActiveFormWindowInterfaceImpl" ), formWindow( 0 )
+DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl( FormList *fl, QUnknownInterface *parent, const char *name )
+: DesignerFormWindowInterfaceImpl( 0, parent, name ), formList( fl ), lastForm( 0 )
 {
-    connect( component(), SIGNAL( selectionChanged() ),
-	     this, SLOT( reconnect() ) );
 }
 
-QString DesignerActiveFormWindowInterfaceImpl::interfaceID() const
-{ 
-    return "DesignerActiveFormWindowInterface"; 
-}
-
-QVariant DesignerActiveFormWindowInterfaceImpl ::requestProperty( const QCString& p )
+bool DesignerActiveFormWindowInterfaceImpl::ref()
 {
-    FormListItem* fli = (FormListItem*)((FormList*)component())->currentItem();
-    if ( !fli )
-	return QVariant();
+    // update the internal component object each time this interface is used
+    reconnect();
 
-    return fli->formWindow()->property( p );
+    return DesignerFormWindowInterfaceImpl::ref();
 }
 
-bool DesignerActiveFormWindowInterfaceImpl ::requestSetProperty( const QCString& p, const QVariant& v )
+void DesignerActiveFormWindowInterfaceImpl::reconnect()
 {
-    FormListItem* fli = (FormListItem*)((FormList*)component())->currentItem();
-    if ( !fli )
-	return FALSE;
+    FormListItem* fli = (FormListItem*)formList->currentItem();
+    FormWindow *newForm = fli ? fli->formWindow() : 0;
+    if ( newForm == lastForm )
+	return;
 
-    return fli->formWindow()->setProperty( p, v );
+    for ( QValueList<ConnectSignal>::Iterator cit1 = signalList.begin(); cit1 != signalList.end(); ++cit1 ) {
+	if ( lastForm && (*cit1).target )
+	    QObject::disconnect( lastForm, (*cit1).signal, (*cit1).target, (*cit1).slot );
+	if ( newForm && (*cit1).target )
+	    QObject::connect( lastForm, (*cit1).signal, (*cit1).target, (*cit1).slot );
+    }
+    for ( QValueList<ConnectSlot>::Iterator cit2 = slotList.begin(); cit2 != slotList.end(); ++cit2 ) {
+	if ( lastForm && (*cit2).sender )
+	    QObject::disconnect( (*cit2).sender, (*cit2).signal, lastForm, (*cit2).slot );
+	if ( newForm && (*cit2).sender )
+	    QObject::connect( (*cit2).sender, (*cit2).signal, lastForm, (*cit2).slot );
+    }
+    QObjectListIt eit( filterObjects );
+    while ( eit ) {
+	if ( lastForm )
+	    lastForm->removeEventFilter( *eit );
+	if ( newForm )
+	    newForm->installEventFilter( *eit );
+	++eit;
+    }
+
+    lastForm = newForm;
+    setComponent( newForm );
+
+    DesignerWidgetListInterfaceImpl *iface = (DesignerWidgetListInterfaceImpl*)QUnknownInterface::child( "*DesignerWidgetListInterface" );
+    if ( !iface )
+	return;
+
+    iface->setComponent( newForm );
 }
 
-bool DesignerActiveFormWindowInterfaceImpl ::requestConnect( const char* signal, QObject* target, const char* slot )
+QVariant DesignerActiveFormWindowInterfaceImpl::requestProperty( const QCString& p )
+{
+    return DesignerFormWindowInterfaceImpl::requestProperty( p );
+}
+
+bool DesignerActiveFormWindowInterfaceImpl::requestSetProperty( const QCString& p, const QVariant& v )
+{
+    return DesignerFormWindowInterfaceImpl::requestSetProperty( p, v );
+}
+
+bool DesignerActiveFormWindowInterfaceImpl::requestConnect( const char* signal, QObject* target, const char* slot )
 {
     ConnectSignal c;
     c.signal = qstrdup(signal);
@@ -189,7 +254,7 @@ bool DesignerActiveFormWindowInterfaceImpl ::requestConnect( const char* signal,
     return TRUE;
 }
 
-bool DesignerActiveFormWindowInterfaceImpl ::requestConnect( QObject *sender, const char* signal, const char* slot )
+bool DesignerActiveFormWindowInterfaceImpl::requestConnect( QObject *sender, const char* signal, const char* slot )
 {
     ConnectSlot c;
     c.signal = qstrdup(signal);
@@ -199,48 +264,90 @@ bool DesignerActiveFormWindowInterfaceImpl ::requestConnect( QObject *sender, co
     return TRUE;
 }
 
-bool DesignerActiveFormWindowInterfaceImpl ::requestEvents( QObject* f )
+bool DesignerActiveFormWindowInterfaceImpl::requestEvents( QObject* o )
 {
-    filterObjects.append( f );
-    FormListItem* item = (FormListItem*)((FormList*)component())->currentItem();
-    if ( !item )
-	return TRUE;
+    filterObjects.append( o );
 
-    formWindow = item->formWindow();
-    if ( formWindow )
-	formWindow->installEventFilter( f );
+    if ( lastForm )
+	lastForm->installEventFilter( o );
 
     return TRUE;
 }
 
-void DesignerActiveFormWindowInterfaceImpl ::reconnect()
+/*
+ * DesignerWidgetListInterface implementation
+ */
+DesignerWidgetListInterfaceImpl::DesignerWidgetListInterfaceImpl( FormWindow *fw, QUnknownInterface *parent )
+: DesignerWidgetListInterface( fw, parent ), dictIterator( 0 )
 {
-    FormWindow *oldFormWindow = formWindow;
-    FormListItem* item = (FormListItem*)((FormList*)component())->currentItem();
-    formWindow = item ? item->formWindow() : 0;
+}
 
-    {
-	for ( QValueList<ConnectSignal>::Iterator cit1 = signalList.begin(); cit1 != signalList.end(); ++cit1 ) {
-	    if ( oldFormWindow && (*cit1).target )
-		disconnect( oldFormWindow, (*cit1).signal, (*cit1).target, (*cit1).slot );
-	    if ( formWindow && (*cit1).target )
-		connect( formWindow, (*cit1).signal, (*cit1).target, (*cit1).slot );
-	}
-    }
-    {
-	for ( QValueList<ConnectSlot>::Iterator cit2 = slotList.begin(); cit2 != slotList.end(); ++cit2 ) {
-	    if ( oldFormWindow && (*cit2).sender )
-		disconnect( (*cit2).sender, (*cit2).signal, oldFormWindow, (*cit2).slot );
-	    if ( formWindow && (*cit2).sender )
-		connect( (*cit2).sender, (*cit2).signal, formWindow, (*cit2).slot );
-	}
-    }
-    QObjectListIt eit( filterObjects );
-    while ( eit ) {
-	if ( oldFormWindow )
-	    oldFormWindow->removeEventFilter( *eit );
-	if ( formWindow )
-	    formWindow->installEventFilter( *eit );
-	++eit;
-    }
+bool DesignerWidgetListInterfaceImpl::ref()
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return FALSE;
+
+    delete dictIterator;
+    if ( fw )
+	dictIterator = new QPtrDictIterator<QWidget>( *fw->widgets() );
+
+    return DesignerWidgetListInterface::ref();
+}
+
+bool DesignerWidgetListInterfaceImpl::release()
+{
+    delete dictIterator;
+    dictIterator = 0;
+
+    return DesignerWidgetListInterface::release();
+}
+
+DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::toFirst()
+{
+    dictIterator->toFirst();
+
+    return current();
+}
+
+DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::current()
+{
+    QWidget *w = dictIterator->current();
+    return w ? new DesignerWidgetInterface( w, this ) : 0;
+}
+
+DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::next()
+{
+    ++(*dictIterator);
+
+    return current();
+}
+
+/*
+ * DesignerWidgetInterface implementation
+ */
+DesignerWidgetInterfaceImpl::DesignerWidgetInterfaceImpl( QWidget *w, QUnknownInterface *parent )
+: DesignerWidgetInterface( w, parent )
+{
+}
+
+/*
+ * DesignerActiveWidgetInterface implementation
+ */
+DesignerActiveWidgetInterfaceImpl::DesignerActiveWidgetInterfaceImpl( PropertyEditor *pe, QUnknownInterface *parent )
+: DesignerWidgetInterfaceImpl( 0, parent ), propertyEditor( pe )
+{
+}
+
+bool DesignerActiveWidgetInterfaceImpl::ref()
+{
+    if ( !propertyEditor )
+	return FALSE;
+    QWidget *w = propertyEditor->widget();
+    setComponent( w );
+
+    if ( !w )
+	return FALSE;
+
+    return DesignerWidgetInterfaceImpl::ref();
 }
