@@ -27,13 +27,13 @@ DesignerServer::DesignerServer(QObject *parent)
     m_server->listen(QHostAddress::LocalHost, 0);
     if (m_server->isListening())
     {
-        connect(m_server, SIGNAL(newConnection()), 
+        connect(m_server, SIGNAL(newConnection()),
             this, SLOT(handleNewConnection()));
     }
 }
 
-Q_UINT16 DesignerServer::serverPort() const
-{ 
+quint16 DesignerServer::serverPort() const
+{
     return m_server ? m_server->serverPort() : 0;
 }
 

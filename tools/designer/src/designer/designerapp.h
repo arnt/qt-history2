@@ -24,7 +24,7 @@ class DesignerServer : public QObject
 public:
     DesignerServer(QObject* parent);
     static void sendOpenRequest(int port, const QStringList &files);
-    Q_UINT16 serverPort() const;
+    quint16 serverPort() const;
 private slots:
     void handleNewConnection();
     void readFromClient();
