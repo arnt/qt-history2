@@ -304,6 +304,7 @@ mkdir -p "$DISTDIR/qt/doc/man/man3"
 # and do the moc.1 hack here
 mkdir -p "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/src/moc/moc.1" "$DISTDIR/qt/doc/man/man1"
+mv "$DISTDIR/qt/tools/designer/uic/uic.1" "$DISTDIR/qt/doc/man/man1"
 cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
 cp $DISTDIR/qt/tools/designer/manual/figures/*.png $DISTDIR/qt/doc/html/designer/figures
 cp $DISTDIR/qt/tools/designer/manual/arrows/*.png $DISTDIR/qt/doc/html/designer/arrows
