@@ -2438,8 +2438,8 @@ void QFileDialog::init()
 	     this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
     connect( files, SIGNAL(returnPressed(QListViewItem *)),
 	     this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
-    connect( files, SIGNAL(rightButtonPressed(QListViewItem *,
-					      const QPoint &, int)),
+    connect( files, SIGNAL(contextMenuRequested(QListViewItem *,
+						const QPoint &, int)),
 	     this, SLOT(popupContextMenu(QListViewItem *,
 					 const QPoint &, int)) );
 
@@ -2456,7 +2456,7 @@ void QFileDialog::init()
 	     this, SLOT( listBoxSelectionChanged() ) );
     connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
       this, SLOT(updateFileNameEdit(QListBoxItem *)) );
-    connect( d->moreFiles, SIGNAL( rightButtonPressed( QListBoxItem *, const QPoint & ) ),
+    connect( d->moreFiles, SIGNAL( contextMenuRequested( QListBoxItem *, const QPoint & ) ),
 	     this, SLOT( popupContextMenu( QListBoxItem *, const QPoint & ) ) );
 
     d->moreFiles->installEventFilter( this );
