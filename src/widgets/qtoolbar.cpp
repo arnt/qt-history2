@@ -39,10 +39,9 @@
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() :moving(FALSE), stretch(QToolBar::NoStretch) {}
+    QToolBarPrivate() : moving( FALSE ), stretchable( FALSE ) {}
     bool moving;
-
-    QToolBar::StretchMode stretch;
+    bool stretchable;
 };
 
 
@@ -132,7 +131,7 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
   tool bar and word-wrapped as necessary.
 
   Usually, a toolbar gets just the space it needs. However, with
-  setStretchMode() or setStretchableWidget() you can advise the main
+  setStretchable() or setStretchableWidget() you can advise the main
   window to expand the toolbar horizontally to fill all available width.
 
   The tool bar arranges its buttons either horizontally or vertically
@@ -324,13 +323,13 @@ QMainWindow * QToolBar::mainWindow()
 
 /*!
   Sets \a w to be expanded if this toolbar is requested to stretch
-  (because QMainWindow right-justifies the dock it's in or stretchable()
+  (because QMainWindow right-justifies the dock it's in or isStretchable()
   of this toolbar is TRUE).
 
   If you call setStretchableWidget() and the toolbar is not stretchable
-  yet, setStretchMode(  ) is called.
+  yet, setStretchable(  ) is called.
 
-  \sa QMainWindow::setRightJustification(), setStretchMode()
+  \sa QMainWindow::setRightJustification(), setStretchable()
 */
 
 void QToolBar::setStretchableWidget( QWidget * w )
@@ -338,8 +337,8 @@ void QToolBar::setStretchableWidget( QWidget * w )
     sw = w;
     b->setStretchFactor( w, 1 );
 
-    if ( !stretchable() )
-	setStretchMode( Stretchable );
+    if ( !isStretchable() )
+	setStretchable( TRUE );
 }
 
 
@@ -438,31 +437,20 @@ void QToolBar::endMoving( QToolBar *tb )
 
   The default is FALSE.
 
-  \sa QMainWindow::setRightJustification(), stretchable()
+  \sa QMainWindow::setRightJustification(), isStretchable()
 */
 
-void QToolBar::setStretchMode( StretchMode mode )
+void QToolBar::setStretchable( bool b )
 {
 
-    if ( d->stretch != mode ) {
-	d->stretch = mode;
+    if ( d->stretchable != b ) {
+	d->stretchable = b;
 	if ( mw )
-	    mw->triggerLayout(FALSE);
+	    mw->triggerLayout( FALSE );
     }
 }
 
 /*!
-  Returns the stretch mode of this toolbar.
-  
-  \sa setStretchMode(), stretchable()
-*/
-
-QToolBar::StretchMode QToolBar::stretchMode() const
-{
-    return d->stretch;
-}
-
-/*!
   Returns whether the toolbar is stretchable or not.
 
   A stretchable toolbar fills all available width in a toolbar dock. A
@@ -471,25 +459,10 @@ QToolBar::StretchMode QToolBar::stretchMode() const
   \sa setStretchable()
 */
 
-bool QToolBar::stretchable() const
+bool QToolBar::isStretchable() const
 {
-    return d->stretch != NoStretch;
+    return d->stretchable;
 }
-
-/*
-  Returns whether the toolbar is stretchable or not.
-
-  A stretchable toolbar fills all available width in a toolbar dock. A
-  non-stretchable toolbar usually gets just the space it needs.
-
-  \sa setStretchable()
-*/
-
-bool QToolBar::fullwidth() const
-{
-    return d->stretch == FullWidth;
-}
-
 
 
 /*!

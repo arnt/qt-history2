@@ -246,7 +246,6 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 			       this, SLOT(print2()), fileTools3, "print file2" );
 
 	addToolBar( fileTools3, "Toolbar 3", Top, nl );
-	fileTools3->setStretchMode( QToolBar::FullWidth );
 	return fileTools3;
     } else if ( name == "file4 operations" ) {
 	QToolBar* fileTools4 = new QToolBar( this, "file4 operations" );

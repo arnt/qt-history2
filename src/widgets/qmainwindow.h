@@ -106,8 +106,7 @@ protected:
     void childEvent( QChildEvent * );
     bool event( QEvent * );
     void styleChange( QStyle& );
-    ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb,
-			      int &ipos, QToolBar *&covering );
+    ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb, QRect *dockRect = 0 );
     void moveToolBar( QToolBar *, ToolBarDock, QToolBar *relative, int ipos );
 
 private:

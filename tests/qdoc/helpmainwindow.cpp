@@ -270,7 +270,6 @@ HelpMainWindow::HelpMainWindow()
     b = new QToolButton( QPixmap( pix_print ), tr( "Print" ), "", this,
 			 SLOT( slotFilePrint() ), tb );
     tb->setStretchableWidget( new QWidget( tb ) );
-    tb->setStretchMode( QToolBar::FullWidth );
     setUsesTextLabel( TRUE );
 
     navigation->setViewMode( HelpNavigation::Index );
