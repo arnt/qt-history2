@@ -409,7 +409,7 @@ QSettingsPrivate::QSettingsPrivate()
 #define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"
 
     defPath = QT_INSTALL_PREFIX;
-    defpath += QSETTINGS_DEFAULT_PATH_SUFFIX;
+    defPath += QSETTINGS_DEFAULT_PATH_SUFFIX;
 #endif
     QDir dir(appSettings);
     if (! dir.exists()) {
