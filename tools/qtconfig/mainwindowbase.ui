@@ -16,7 +16,7 @@
         <string>Qt Configuration</string>
     </property>
     <property name="icon">
-        <pixmap>logo.png</pixmap>
+        <pixmap>appicon.png</pixmap>
     </property>
     <hbox>
         <property name="name">
