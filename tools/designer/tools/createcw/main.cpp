@@ -89,7 +89,7 @@ static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 	ts << makeIndent( indent ) << "<height>" << w.w->sizeHint().height() << "</height>" << endl;
 	indent--;
 	ts << makeIndent( indent ) << "</sizehint>" << endl;
-	ts << makeIndent( indent ) << "<container>" << w.w->inherits( "QGroupBox" ) << "</container>" << endl;
+	ts << makeIndent( indent ) << "<container>" << ( w.w->inherits( "QGroupBox" ) || w.w->inherits( "QWidgetStack" ) ) << "</container>" << endl;
 	ts << makeIndent( indent ) << "<sizepolicy>" << endl;
 	indent++;
 	ts << makeIndent( indent ) << "<hordata>" << (int)w.w->sizePolicy().horData() << "</hordata>" << endl;
