@@ -5457,9 +5457,13 @@ void QWidget::reparent( QWidget *parent)
 */
 
 #ifdef Q_OS_TEMP
-#define SHFS_HIDETASKBAR            0x0002
-#define SHFS_HIDESIPBUTTON          0x0008
-extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+# if UNDER_CE < 310
+#  include <aygshell.h>
+# else
+#  define SHFS_HIDETASKBAR            0x0002
+#  define SHFS_HIDESIPBUTTON          0x0008
+   extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+# endif
 #endif
 
 void QWidget::showFullScreen()

@@ -901,9 +901,13 @@ void QWidget::hideWindow()
 
 
 #ifdef Q_OS_TEMP
-#define SHFS_SHOWTASKBAR            0x0001
-#define SHFS_SHOWSIPBUTTON          0x0004
-extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+# if UNDER_CE < 310
+#  include <aygshell.h>
+# else
+#  define SHFS_SHOWTASKBAR            0x0001
+#  define SHFS_SHOWSIPBUTTON          0x0004
+   extern "C" BOOL __cdecl SHFullScreen(HWND hwndRequester, DWORD dwState);
+# endif
 #endif
 
 void QWidget::showMinimized()
