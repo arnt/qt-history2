@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#63 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#63 $")
 
 
 /*****************************************************************************
@@ -641,7 +641,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     }
     else {					// can be both
 	bool conv8 = FALSE;
-	if ( mode = Color )			// native depth wanted
+	if ( mode == Color )			// native depth wanted
 	    conv8 = d == 1;
 	else if ( d == 1 && image.numColors() == 2 ) {
 	    ulong c0 = image.color(0);		// mode==Auto: convert to best
