@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#207 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#208 $
 **
 ** Implementation of QFileDialog class
 **
@@ -816,6 +816,20 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
   <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
 
   \sa QPrintDialog
+*/
+
+
+/*! \enum QFileDialog::Mode
+
+  This enum type is used to set and read QFileDialog's operating mode.
+  The defined values are: <ul>
+
+  <li> \c AnyFile - Return the name of any file, whether existing or not.
+  <li> \c ExistingFile - Return the name of a single, existing, file.
+  <li> \c Directory - Return the name of a directory.
+  <li> \c ExistingFiles - Return the names of zero or more existing files.
+
+  </ul>
 */
 
 

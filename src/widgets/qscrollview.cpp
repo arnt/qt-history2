@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#108 $
 **
 ** Implementation of QScrollView class
 **
@@ -329,44 +329,58 @@ addChild():
     QLabel* child3 = new QLabel("CHILD", sv->viewport());
     sv->addChild(child3);
 \endcode
-Here, the QScrollView has 4 children - the clipper() (\e not the viewport()
-this time),
-the verticalScrollBar(), the horizontalScrollBar(), and
-a small cornerWidget().  The clipper() has 1 child - the viewport().
-The viewport() has the three labels as child widgets.
-When the view is scrolled,
-the viewport() is moved, and its children move with it as
-child widgets normally do.
+
+Here, the QScrollView has 4 children - the clipper() (\e not the
+viewport() this time), the verticalScrollBar(), the
+horizontalScrollBar(), and a small cornerWidget().  The clipper() has
+1 child - the viewport().  The viewport() has the three labels as
+child widgets.  When the view is scrolled, the viewport() is moved,
+and its children move with it as child widgets normally do.
+
 </dl>
 
-Normally you will use the first or third method if you want any
-child widgets in the view.
+Normally you will use the first or third method if you want any child
+widgets in the view.
 
 Note that the widget you see in the scrolled area is the viewport()
-widget, not the
-QScrollView itself.  So, to turn mouse tracking on for example, use
-viewport()->setMouseTracking(TRUE).
+widget, not the QScrollView itself.  So, to turn mouse tracking on for
+example, use viewport()->setMouseTracking(TRUE).
 
-To enable drag-and-drop, you would setAcceptDrops(TRUE) on
-the QScrollView (since drag-and-drop events propagate to the parent),
-but to work out what logical position in the view, you would need
-to map the drop co-ordinate from being relative to the QScrollView
-to being relative to the contents - use the function
-mapToContents() for this.
+To enable drag-and-drop, you would setAcceptDrops(TRUE) on the
+QScrollView (since drag-and-drop events propagate to the parent), but
+to work out what logical position in the view, you would need to map
+the drop co-ordinate from being relative to the QScrollView to being
+relative to the contents - use the function mapToContents() for this.
 
 To handle mouse events on the scrolling area, subclass scrollview as
 you would subclass other widgets, but rather than overriding
-mousePressEvent(), override viewportMousePressEvent() instead (if
-you override mousePressEvent() you'll only get called when part of
-the QScrollView is clicked - and
-the only such part
-is the "corner" (if you don't set a cornerWidget())
-and the frame, everything else being covered up by the viewport,
-clipper, or scrollbars.
+mousePressEvent(), override viewportMousePressEvent() instead (if you
+override mousePressEvent() you'll only get called when part of the
+QScrollView is clicked - and the only such part is the "corner" (if
+you don't set a cornerWidget()) and the frame, everything else being
+covered up by the viewport, clipper, or scrollbars.
 
 <img src=qscrollview-m.png> <img src=qscrollview-w.png>
 */
 
+
+/*! \enum QScrollView::ResizePolicy
+
+  This enum type is used to control QScrollView's reaction to resize
+  events.  There are three possible settings:<ul>
+  
+  <li> \c Default - QScrollView selects one of the other settings
+  automatically when it has to.  At the time of writing, QScrollView
+  changs to \c Manual if you resize the contents with
+  resizeContents(), and to \c AutoOne if a child is added.
+
+  <li> \c Manual - the view stays the size set by resizeContents().
+
+  <li> \c AutoOne - if there is only only child widget, the view stays
+  the size of that widget.  Otherwise, the behaviour is undefined.
+
+  </ul>
+*/
 
 /*!
 Constructs a QScrollView.
@@ -829,17 +843,7 @@ void QScrollView::setCornerWidget(QWidget* corner)
 /*!
   Sets the resize policy to \a r.
 
-  \define QScrollView::ResizePolicy
-
-  The policies are:
-  <ul>
-   <li> \c Default is the initial value.  It converts to \c Manual if
-	    the view is resized with resizeContents(), or to \c AutoOne
-	    if a child is added.
-   <li> \c Manual means the view stays the size set by resizeContents().
-   <li> \c AutoOne means that if there is only only child widget, the
-	    view stays the size of that widget.
-  </ul>
+  \sa resizePolicy() ResizePolicy
 */
 void QScrollView::setResizePolicy( ResizePolicy r )
 {
@@ -848,6 +852,8 @@ void QScrollView::setResizePolicy( ResizePolicy r )
 
 /*!
   Returns the currently set ResizePolicy.
+
+  \sa setResizePolicy() ResizePolicy
 */
 QScrollView::ResizePolicy QScrollView::resizePolicy() const
 {

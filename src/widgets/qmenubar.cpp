@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#154 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#155 $
 **
 ** Implementation of QMenuBar class
 **
@@ -49,6 +49,21 @@
   \sa QPopupMenu
   <a href="guibooks.html#fowler">GUI Design Handbook: Menu Bar</a>
 */
+
+
+/*! \enum QMenuBar::Separator
+  
+  This enum type is used to decide whether QMenuBar should draw a
+  separator line at its bottom.  The possible values are: <ul>
+  
+  <li> \c Never - in many applications, there already is a separator,
+  and two looks stupid.
+
+  <li> \c InWindowsStyle - in some other applications, a separator
+  looks good in Windows style but not else.
+
+  </ul>
+ */
 
 /*!
   \fn void QMenuBar::activated( int id )
@@ -165,9 +180,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
 
 
-/*!
-\reimp
-*/
+/*! \reimp */
 
 void QMenuBar::styleChange( QStyle& old )
 {
@@ -702,6 +715,8 @@ int QMenuBar::itemAtPos( const QPoint &pos )
   QMenuBar::Never, or QMenuBar::InWindowsStyle.
 
   The default is QMenuBar::Never.
+  
+  \sa Separator separator()
 */
 void QMenuBar::setSeparator( Separator when )
 {
@@ -709,7 +724,9 @@ void QMenuBar::setSeparator( Separator when )
 }
 
 /*!
-  Returns the currently set \link setSeparator() separator usage\endlink.
+  Returns the currently set Separator usage.
+  
+  \sa Separator setSeparator()
 */
 QMenuBar::Separator QMenuBar::separator() const
 {
