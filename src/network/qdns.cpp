@@ -1555,12 +1555,15 @@ QDns::QDns( const QHostAddress & address, RecordType rr )
 QDns::~QDns()
 {
     uint q = 0;
-    QDnsManager * m = QDnsManager::manager();
-    while( q < m->queries.size() ) {
-	QDnsQuery * query=m->queries[q];
-	if ( query && query->dns )
-	    (void)query->dns->take( (void*) this );
-	q++;
+    if ( globalManager ) {
+	QDnsManager * m = globalManager;
+	while( q < m->queries.size() ) {
+		QDnsQuery * query=m->queries[q];
+	    if ( query && query->dns )
+		    (void)query->dns->take( (void*) this );
+		q++;
+	}
+
     }
 
     delete d;
