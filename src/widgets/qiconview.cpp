@@ -672,7 +672,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 
 QIconViewItem::QIconViewItem( QIconView *parent )
     : view( parent ), itemText(), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), renameBox( 0 )
 {
     init();
@@ -685,7 +685,7 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
     : view( parent ), itemText(), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), renameBox( 0 )
 {
     init( after );
@@ -698,7 +698,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
     : view( parent ), itemText( text ), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), renameBox( 0 )
 {
     init( 0 );
@@ -712,7 +712,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 			      const QString &text )
     : view( parent ), itemText( text ), itemIcon( unknown_icon ),
-      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), renameBox( 0 )
 {
     init( after );
@@ -726,7 +726,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
 			      const QPixmap &icon )
     : view( parent ), itemText( text ), itemIcon( new QPixmap( icon ) ),
-      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), renameBox( 0 )
 {
     init( 0 );
@@ -740,7 +740,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QPixmap &icon )
     : view( parent ), itemText( text ), itemIcon( new QPixmap( icon ) ),
-      prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
+      prev( 0 ), next( 0 ), allow_rename( FALSE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), renameBox( 0 )
 {
     init( after );

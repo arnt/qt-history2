@@ -54,8 +54,10 @@ int main( int argc, char **argv )
     QIconView qiconview;
     qiconview.setSelectionMode( QIconView::Extended );
 
-    for ( unsigned int i = 0; i < 3000; i++ )
-        ( void )new QIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
+    for ( unsigned int i = 0; i < 3000; i++ ) {
+	QIconViewItem *item = new QIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
+	item->setRenameEnabled( TRUE );
+    }
 
     qiconview.setCaption( "Iconview" );
 
