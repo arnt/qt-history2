@@ -6,7 +6,7 @@ This chapter describes and explains every \QD dialog.
 
 \section1 The File Dialogs
 
-\img qd-filenew.png
+\img qd-filenew2.png
 \caption New File Dialog
 
 \target dialog-file-new
@@ -564,9 +564,9 @@ the dialog.
 \img qd-configmainfile.png
 \caption Configure Main-File Dialog
 
-Click File|New|C++ Main-File to invoke the \l{Configure
-Main-File} dialog. Use this dialog to automatically generate a \File
-main.cpp file which invokes your main form.
+Click File|New|C++ Main-File to invoke the \Dialog {Configure
+Main-File} dialog. Use this dialog to configure the main file and its
+forms.
 
 To change the default file name, type it in the 'Filename' line edit.
 Choose the form to use as the application's main form from the line
