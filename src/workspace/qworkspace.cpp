@@ -897,10 +897,15 @@ void QWorkspace::showEvent( QShowEvent *e )
 	for(QPtrListIterator<QDockWindow> dw_it(d->dockwindows); (*dw_it); ++dw_it) 
 	    handleUndock((*dw_it));
 
-	QWidget *w = new QWidget(NULL, "QDoesNotExist", WStyle_Customize | WStyle_NoBorder);
+	QWidget *w = new QWidget(NULL, "QDoesNotExist", 
+				 WType_Dialog | WStyle_Customize | WStyle_NoBorder);
 	QDesktopWidget *dw = QApplication::desktop();
-	w->setGeometry(dw->screenGeometry(dw->screenNumber(topLevelWidget())));
-	topLevelWidget()->reparent(w, QPoint(0, 0));
+	w->setGeometry(dw->availableGeometry(dw->screenNumber(o)));
+	o->reparent(w, QPoint(0, 0));
+	if(o->inherits("QMainWindow")) {
+	    if(QMenuBar *mb = ((QMainWindow *)o)->menuBar()) 
+		mb->reparent(w, QPoint(0, 0));
+	}
 	reparent(w, QPoint(0,0));
 	setGeometry(0, 0, w->width(), w->height());
     }

@@ -778,6 +778,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     }
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
     if(QObjectList *menus = queryList("QMenuBar")) {
+	if(inherits("QMenuBar"))
+	    menus->prepend(this);
 	QObjectListIt menuit( *menus );
 	for ( QMenuBar *mb; (mb=(QMenuBar *)menuit.current()); ++menuit ) {
 	    int was_eaten = mb->mac_eaten_menubar;
@@ -1035,12 +1037,14 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    if(!isVisible() || !isTopLevel() || isPopup() || isDesktop() || testWFlags( WStyle_Tool ))
+    QWidget *tlw = topLevelWidget();
+    if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isPopup() || tlw->isDesktop() 
+       || tlw->testWFlags( WStyle_Tool ))
 	return;
-    if(IsWindowActive((WindowPtr)hd))
-	ActivateWindow((WindowPtr)hd, true);
+    if(IsWindowActive((WindowPtr)tlw->handle()))
+	ActivateWindow((WindowPtr)tlw->handle(), true);
     else
-	SelectWindow((WindowPtr)hd);
+	SelectWindow((WindowPtr)tlw->handle());
 }
 
 void QWidget::update()

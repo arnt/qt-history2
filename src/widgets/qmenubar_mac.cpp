@@ -441,10 +441,12 @@ void QMenuBar::macUpdateMenuBar()
 	    break;
 	}
     }
+    if(!w) //last ditch effort
+	w = qApp->mainWidget();
     static bool first = TRUE;
     if(w) {
 	QMenuBar *mb = menubars->find((int)w);
-	while(!mb && !w->testWFlags(WShowModal) && w->parentWidget()) 
+	while(w && !mb && !w->testWFlags(WShowModal)) 
 	    mb = menubars->find((int)(w = w->parentWidget()));
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar)))
