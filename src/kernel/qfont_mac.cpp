@@ -305,7 +305,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
         values[arr] = &boldBool;
         arr++;
 	if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	    qDebug("Qt: internal: %d, WH0A %d: arr_guess underflow %d", __LINE__, arr);
+	    qDebug("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
 
 	//create style
 	QATSUStyle *st = new QATSUStyle;
