@@ -457,7 +457,7 @@ QTextCursor *QTextParagTypeCommand::unexecute( QTextCursor *c )
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextCursor::QTextCursor( QTextDocument *d )
-    : doc( d ), idx( 0 ), tmpIndex( -1 ), ox( 0 ), oy( 0 ), 
+    : doc( d ), idx( 0 ), tmpIndex( -1 ), ox( 0 ), oy( 0 ),
       nested( FALSE), valid( TRUE )
 {
     string = doc ? doc->firstParag() : 0;
@@ -4728,7 +4728,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		startX = chr->x;
 		bw = cw;
 	    } else {
-#ifndef QT_NO_TEXTCUSTOMITEM
 		if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline ) {
 		    chr->customItem()->draw( &painter, chr->x, cy, clipx - r.x(), clipy - r.y(), clipw, cliph, cg,
 					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] > i );
@@ -4747,7 +4746,6 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    startX = chr->x + string()->width( i );
 		    bw = 0;
 		}
-#endif
 	    }
 	} else {
 	    if ( chr->c != '\n' && chr->c != QChar_linesep ) {
