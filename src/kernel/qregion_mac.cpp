@@ -302,7 +302,7 @@ QRegion QRegion::copy() const
 	CopyRgn(d->rgn, x->rgn);
     }
     QRegionData *old = qAtomicSetPtr(&r.d, x);
-    if(--old->ref) 
+    if(!--old->ref) 
 	cleanUp(old);
     return r;
 }

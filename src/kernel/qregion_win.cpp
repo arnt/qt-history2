@@ -187,7 +187,7 @@ void QRegion::cleanUp(QRegion::QRegionData *x)
 
 QRegion::~QRegion()
 {
-    if (--d->ref)
+    if (!--d->ref)
 	cleanUp(d);
 }
 
@@ -196,7 +196,7 @@ QRegion &QRegion::operator=( const QRegion &r )
     QRegionData *x = r.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
-    if (--x->ref)
+    if (!--x->ref)
 	cleanUp(x);
     return *this;
 }
@@ -212,7 +212,7 @@ QRegion QRegion::copy() const
 	CombineRgn(x->rgn, d->rgn, 0, RGN_COPY);
     }
     x = qAtomicSetPtr(&r.d, x);
-    if (--x->ref)
+    if (!--x->ref)
 	cleanUp(x);
     return r;
 }
