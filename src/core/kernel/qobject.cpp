@@ -865,6 +865,39 @@ void QObject::killTimer(int id)
     if (eventloop) eventloop->unregisterTimer(id);
 }
 
+
+/*!
+    \fn QObject *QObject::parent() const
+
+    Returns a pointer to the parent object.
+
+    \sa children()
+*/
+
+/*! \fn const QObjectList &QObject::children() const
+
+    Returns a list of child objects, or 0 if this object has no
+    children.
+
+    The QObjectList class is defined in the \c qobjectlist.h header
+    file.
+
+    The first child added is the \link QList::first() first\endlink
+    object in the list and the last child added is the \link
+    QList::last() last\endlink object in the list, i.e. new
+    children are appended at the end.
+
+    Note that the list order changes when QWidget children are \link
+    QWidget::raise() raised\endlink or \link QWidget::lower()
+    lowered.\endlink A widget that is raised becomes the last object
+    in the list, and a widget that is lowered becomes the first object
+    in the list.
+
+    \sa child(), queryList(), parent(), setParent()
+*/
+
+
+#ifdef QT_COMPAT
 static void objSearch(QObjectList &result,
                        const QObjectList &list,
                        const char  *inheritsClass,
@@ -899,38 +932,6 @@ static void objSearch(QObjectList &result,
     }
 }
 
-/*!
-    \fn QObject *QObject::parent() const
-
-    Returns a pointer to the parent object.
-
-    \sa children()
-*/
-
-/*! \fn const QObjectList &QObject::children() const
-
-    Returns a list of child objects, or 0 if this object has no
-    children.
-
-    The QObjectList class is defined in the \c qobjectlist.h header
-    file.
-
-    The first child added is the \link QList::first() first\endlink
-    object in the list and the last child added is the \link
-    QList::last() last\endlink object in the list, i.e. new
-    children are appended at the end.
-
-    Note that the list order changes when QWidget children are \link
-    QWidget::raise() raised\endlink or \link QWidget::lower()
-    lowered.\endlink A widget that is raised becomes the last object
-    in the list, and a widget that is lowered becomes the first object
-    in the list.
-
-    \sa child(), queryList(), parent(), setParent()
-*/
-
-
-#ifdef QT_COMPAT
 /*!
     Searches the children and optionally grandchildren of this object,
     and returns a list of those objects that are named or that match
