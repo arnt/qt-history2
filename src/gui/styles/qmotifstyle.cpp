@@ -2579,6 +2579,10 @@ int QMotifStyle::styleHint(StyleHint hint,
         ret = 2;
         break;
 
+    case SH_MenuBar_DismissOnSecondClick:
+        ret = 0;
+        break;
+
     default:
         ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
         break;

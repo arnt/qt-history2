@@ -1462,6 +1462,11 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SH_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.
 
+    \value SH_MenuBar_DismissOnSecondClick A boolean indicating if a menu in
+     the menubar should be dismissed when it is clicked on a second time. (Example:
+     Clicking and releasing on the File Menu in a menubar and then
+     immediately clicking on the File Menu again.)
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

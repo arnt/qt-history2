@@ -656,8 +656,11 @@ public:
         // FocusPolicy - The default focus policy for a button.
         SH_Button_FocusPolicy,
 
-        // The border of the selection square
+        // int - The border of the selection square
         SH_ColorDialog_SelectedColorBorder,
+
+        // bool - Whether or not to dismiss the menubar on a second click or not
+        SH_MenuBar_DismissOnSecondClick,
 
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000

@@ -2648,6 +2648,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = 0;
         break;
 
+    case SH_MenuBar_DismissOnSecondClick:
+        ret = 1;
+        break;
+
     default:
         ret = 0;
         break;
