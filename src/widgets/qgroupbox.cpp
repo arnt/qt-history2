@@ -284,7 +284,9 @@ void QGroupBox::setTitle( const QString &title )
 void QGroupBox::setAlignment( int alignment )
 {
     align = alignment;
+#ifndef QT_NO_CHECKBOX
     updateCheckBoxGeometry();
+#endif
     update();
 }
 
@@ -293,9 +295,11 @@ void QGroupBox::setAlignment( int alignment )
 void QGroupBox::resizeEvent( QResizeEvent *e )
 {
     QFrame::resizeEvent(e);
+#ifndef QT_NO_CHECKBOX
     if ( align & AlignRight || align & AlignCenter ||
 	 ( QApplication::reverseLayout() && !(align & AlignLeft) ) )
 	updateCheckBoxGeometry();
+#endif
     calculateFrame();
 }
 
@@ -786,9 +790,9 @@ void QGroupBox::setFlat( bool b )
     checkbox, and isCheckable() controls whether the checkbox is
     checked or not.
 */
+#ifndef QT_NO_CHECKBOX
 void QGroupBox::setCheckable( bool b )
 {
-#ifndef QT_NO_CHECKBOX
     if ( (d->checkbox != 0) == b )
 	return;
 
@@ -812,13 +816,16 @@ void QGroupBox::setCheckable( bool b )
     calculateFrame();
     setTextSpacer();
     update();
-#endif
 }
-
+#endif //QT_NO_CHECKBOX
 
 bool QGroupBox::isCheckable() const
 {
+#ifndef QT_NO_CHECKBOX
     return ( d->checkbox != 0 );
+#else
+    return FALSE;
+#endif
 }
 
 
@@ -830,6 +837,7 @@ bool QGroupBox::isChecked() const
     return FALSE;
 #endif
 }
+
 
 /*!
     \fn void QGroupBox::toggled( bool on )
@@ -848,13 +856,13 @@ bool QGroupBox::isChecked() const
     are enabled. If the checkbox is unchecked the children are
     disabled.
 */
+#ifndef QT_NO_CHECKBOX
 void QGroupBox::setChecked( bool b )
 {
-#ifndef QT_NO_CHECKBOX
     if ( d->checkbox )
 	d->checkbox->setChecked( b );
-#endif
 }
+#endif
 
 /*
   sets all children of the group box except the qt_groupbox_checkbox
@@ -907,9 +915,9 @@ void QGroupBox::changeEvent( QEvent *ev )
 /*
   recalculates and sets the checkbox setGeometry
 */
+#ifndef QT_NO_CHECKBOX
 void QGroupBox::updateCheckBoxGeometry()
 {
-#ifndef QT_NO_CHECKBOX
     if ( d->checkbox ) {
 	QSize cbSize = d->checkbox->sizeHint();
 	QRect cbRect( 0, 0, cbSize.width(), cbSize.height() );
@@ -933,8 +941,8 @@ void QGroupBox::updateCheckBoxGeometry()
 
 	d->checkbox->setGeometry( cbRect );
     }
-#endif
 }
+#endif //QT_NO_CHECKBOX
 
 
-#endif
+#endif //QT_NO_GROUPBOX

@@ -1226,7 +1226,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    beginsWithRa = (properties & HasReph) && ((len > 2) && *uc == ra && *(uc+1) == halant);
 
 	    if (beginsWithRa && form(*(uc+2)) == Control)
-		beginsWithRa = false;
+		beginsWithRa = FALSE;
 
 	    base = (beginsWithRa ? 2 : 0);
 	    IDEBUG("    length = %d, beginsWithRa = %d, base=%d", len, beginsWithRa, base );

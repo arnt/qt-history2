@@ -620,6 +620,8 @@ void QTipManager::setWakeUpDelay ( int i )
     widget's or rectangle's function. It is drawn immediately below
     the region in a distinctive black-on-yellow combination.
 
+    The tip can be any Rich-Text formatted string.
+
     QToolTipGroup provides a way for tool tips to display another text
     elsewhere (most often in a \link QStatusBar status bar\endlink).
 

@@ -1952,7 +1952,7 @@ void QLineEdit::drawContents( QPainter *p )
 	QPoint to(from.x(), qMin(lineRect.bottom(), contentsRect().bottom()));
 	p->drawLine( from, to );
 	if ( hasRightToLeft ) {
-	    bool rtl = ci.isValid() ? ci.isRightToLeft() : true;
+	    bool rtl = ci.isValid() ? ci.isRightToLeft() : TRUE;
 	    to = from + QPoint( (rtl ? -2 : 2), 2 );
 	    p->drawLine( from, to );
 	    from.ry() += 4;

@@ -584,6 +584,7 @@ void QToolBar::createPopup()
 	QWidget *w = (QWidget*)obj;
 	if ( qt_cast<QComboBox*>(w) )
 	    j = 1;
+#endif
 	hide = FALSE;
 	QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
 	if ( orientation() == Horizontal ) {

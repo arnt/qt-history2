@@ -26,9 +26,11 @@
 
 static int menuBarHeightForWidth( QMenuBar *menubar, int w )
 {
+#ifndef QT_NO_MENUBAR
     if ( menubar && !menubar->isHidden() && !menubar->isTopLevel() )
 	return menubar->heightForWidth( qMax(w, menubar->minimumWidth()) );
     else
+#endif
 	return 0;
 }
 

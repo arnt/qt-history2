@@ -789,16 +789,20 @@ void QMenuBar::show()
     calculateRects();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    //If all elements are invisible no reason for me to be visible either
-    bool all_hidden = TRUE;
-    if(irects) {
-	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
-	    all_hidden = irects[i].isEmpty();
-    }
-    if(all_hidden)
-	QWidget::hide();
-    else
+    if(mac_eaten_menubar) {
+	//If all elements are invisible no reason for me to be visible either
+	bool all_hidden = TRUE;
+	if(irects) {
+	    for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
+		all_hidden = irects[i].isEmpty();
+	}
+	if(all_hidden)
+	    QWidget::hide();
+	else
+	    QWidget::show();
+    } else {
 	QWidget::show();
+    }
 #else
     QWidget::show();
 #endif

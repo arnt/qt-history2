@@ -82,6 +82,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     orient = Portrait;
     page_size = A4;
     page_order = FirstPageFirst;
+    paper_source = OnlyOne;
     color_mode = GrayScale;
     ncopies = 1;
     from_pg = to_pg = min_pg = max_pg = 0;

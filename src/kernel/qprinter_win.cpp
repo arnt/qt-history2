@@ -220,6 +220,7 @@ QPrinter::QPrinter( PrinterMode m )
     state       = PST_IDLE;
     output_file = FALSE;
     to_edge     = FALSE;
+    paper_source = OnlyOne;
     viewOffsetDone = FALSE;
     painter     = 0;
     doc_name = "document1";
