@@ -59,6 +59,7 @@ public:
 
     QString filePath() const;
     QString absoluteFilePath() const;
+    QString canonicalFilePath() const;
     QString fileName() const;
     QString baseName() const;
     QString completeBaseName() const;
