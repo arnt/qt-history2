@@ -94,7 +94,7 @@
   \sa remove()
 */
 
-/*! \fn uint QQueue::count()
+/*! \fn uint QQueue::count() const
   Returns the number of items in the queue.
 
   \sa isEmpty()
