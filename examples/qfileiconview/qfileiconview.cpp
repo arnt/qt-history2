@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#22 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#23 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -268,7 +268,7 @@ void QtFileIconDragItem::makeKey()
  *
  *****************************************************************************/
 
-QtFileIconDrag::QtFileIconDrag( QWidget * dragSource, const char* name = 0 )
+QtFileIconDrag::QtFileIconDrag( QWidget * dragSource, const char* name )
     : QIconDrag( dragSource, name )
 {
 }
