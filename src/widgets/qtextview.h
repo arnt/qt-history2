@@ -156,13 +156,10 @@ public slots:
     virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
 
     virtual void setTextFormat( Qt::TextFormat f );
-    virtual void setText( const QString &txt, const QString &context = QString::null ) { setText( txt, context, FALSE ); }
-    virtual void setText( const QString &txt, const QString &context, bool tabify );
+    virtual void setText( const QString &txt, const QString &context = QString::null );
 
-    virtual void load( const QString &fn ) { load( fn, FALSE ); }
-    virtual void load( const QString &fn, bool tabify );
-    virtual void save( bool untabify = FALSE ) { save( QString::null, untabify ); }
-    virtual void save( const QString &fn, bool untabify = FALSE  );
+    virtual void load( const QString &fn );
+    virtual void save( const QString &fn = QString::null );
 
     virtual void setCursorPosition( int parag, int index );
     virtual void setSelection( int parag_from, int index_from,

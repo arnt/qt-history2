@@ -1190,10 +1190,10 @@ QString QTextView::text( int parag, bool formatted ) const
     return doc->text( parag, formatted );
 }
 
-void QTextView::setText( const QString &txt, const QString &context, bool tabify )
+void QTextView::setText( const QString &txt, const QString &context )
 {
     lastFormatted = 0;
-    doc->setText( txt, context, tabify );
+    doc->setText( txt, context );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
@@ -1206,10 +1206,10 @@ QString QTextView::fileName() const
     return doc->fileName();
 }
 
-void QTextView::load( const QString &fn, bool tabify )
+void QTextView::load( const QString &fn )
 {
     resizeContents( 0, 0 );
-    doc->load( fn, tabify );
+    doc->load( fn );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
@@ -1217,9 +1217,9 @@ void QTextView::load( const QString &fn, bool tabify )
     doResize();
 }
 
-void QTextView::save( const QString &fn, bool untabify )
+void QTextView::save( const QString &fn )
 {
-    doc->save( fn, untabify );
+    doc->save( fn );
 }
 
 bool QTextView::find( const QString &expr, bool cs, bool wo, bool forward,

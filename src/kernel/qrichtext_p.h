@@ -292,14 +292,14 @@ public:
     ~QTextDocument();
     QTextDocument *parent() const { return par; }
 
-    void setText( const QString &text, const QString &context, bool tabify = FALSE );
-    void load( const QString &fn, bool tabify = FALSE );
+    void setText( const QString &text, const QString &context );
+    void load( const QString &fn );
     QMap<QString, QString> attributes() const { return attribs; }
     void setAttributes( const QMap<QString, QString> &attr ) { attribs = attr; }
 
-    void save( const QString &fn = QString::null, bool untabify = FALSE );
+    void save( const QString &fn = QString::null );
     QString fileName() const;
-    QString text( bool untabify = FALSE ) const;
+    QString text() const;
     QString text( int parag, bool formatted ) const;
 
     int x() const;
@@ -399,10 +399,10 @@ public:
     QTextTableCell *tableCell() const { return tc; }
     void setTableCell( QTextTableCell *c ) { tc = c; }
 
-    void setPlainText( const QString &text, bool tabify = FALSE );
+    void setPlainText( const QString &text );
     void setRichText( const QString &text, const QString &context );
     QString richText( QTextParag *p = 0, bool formatted = FALSE ) const;
-    QString plainText( QTextParag *p = 0, bool formatted = FALSE, bool untabify = FALSE ) const;
+    QString plainText( QTextParag *p = 0, bool formatted = FALSE ) const;
 
     bool focusNextPrevChild( bool next );
 

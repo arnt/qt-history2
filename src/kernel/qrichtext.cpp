@@ -967,7 +967,7 @@ bool QTextDocument::setMinimumWidth( int w, QTextParag *p )
     return TRUE;
 }
 
-void QTextDocument::setPlainText( const QString &text, bool tabify )
+void QTextDocument::setPlainText( const QString &text )
 {
     clear();
     preferRichText = FALSE;
@@ -981,27 +981,6 @@ void QTextDocument::setPlainText( const QString &text, bool tabify )
 	    fParag = lParag;
 	s = *it;
 	if ( !s.isEmpty() ) {
-	    QChar c;
-	    int i = 0;
-	    int spaces = 0;
-	    if ( tabify ) {
-		for ( ; i < (int)s.length(); ++i ) {
-		    c = s[ i ];
-		    if ( c != ' ' && c != '\t' )
-			break;
-		    if ( c == '\t' ) {
-			spaces = 0;
-			s.replace( i, 1, "\t\t" );
-			++i;
-		    } else if ( c == ' ' )
-			++spaces;
-		    if ( spaces == 4 ) {
-			s.replace( i  - 3, 4, "\t" );
-			i-= 2;
-			spaces = 0;
-		    }
-		}
-	    }
 	    if ( s.right( 1 ) != " " )
 		s += " ";
 	    lParag->append( s );
@@ -1200,7 +1179,7 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
     }
 }
 
-void QTextDocument::load( const QString &fn, bool tabify )
+void QTextDocument::load( const QString &fn )
 {
     filename = fn;
     QFile file( fn );
@@ -1208,10 +1187,10 @@ void QTextDocument::load( const QString &fn, bool tabify )
     QTextStream ts( &file );
     QString txt = ts.read();
     file.close();
-    setText( txt, fn, tabify );
+    setText( txt, fn );
 }
 
-void QTextDocument::setText( const QString &text, const QString &context, bool tabify )
+void QTextDocument::setText( const QString &text, const QString &context )
 {
     focusIndicator.parag = 0;
     removeSelection( Standard );
@@ -1219,27 +1198,10 @@ void QTextDocument::setText( const QString &text, const QString &context, bool t
 	 txtFormat == Qt::RichText )
 	setRichText( text, context );
     else
-	setPlainText( text, tabify );
+	setPlainText( text );
 }
 
-static void do_untabify( QString &s )
-{
-    int numTabs = 0;
-    int i = 0;
-    while ( s[ i++ ] == '\t' )
-	numTabs++;
-    if ( !numTabs )
-	return;
-
-    int realTabs = ( numTabs / 2 ) * 2;
-    if ( realTabs != numTabs )
-	s = s.replace( numTabs - 1, 1, "    " );
-    QString tabs;
-    tabs.fill( '\t', realTabs / 2 );
-    s = s.replace( 0, realTabs, tabs );
-}
-
-QString QTextDocument::plainText( QTextParag *p, bool formatted, bool untabify ) const
+QString QTextDocument::plainText( QTextParag *p, bool formatted ) const
 {
     if ( !p ) {
 	QString buffer;
@@ -1247,8 +1209,6 @@ QString QTextDocument::plainText( QTextParag *p, bool formatted, bool untabify )
 	QTextParag *p = fParag;
 	while ( p ) {
 	    s = p->string()->toString();
-	    if ( untabify )
-		do_untabify( s );
 	    s += "\n";
 	    buffer += s;
 	    p = p->next();
@@ -1345,13 +1305,13 @@ QString QTextDocument::richText( QTextParag *p, bool formatted ) const
     }
 }
 
-QString QTextDocument::text( bool untabify ) const
+QString QTextDocument::text() const
 {
     if ( plainText().simplifyWhiteSpace().isEmpty() )
 	return QString::null;
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
 	return richText();
-    return plainText( 0, FALSE, untabify );
+    return plainText( 0, FALSE );
 }
 
 QString QTextDocument::text( int parag, bool formatted ) const
@@ -1375,7 +1335,7 @@ void QTextDocument::invalidate()
     }
 }
 
-void QTextDocument::save( const QString &fn, bool untabify )
+void QTextDocument::save( const QString &fn )
 {
     if ( !fn.isEmpty() )
 	filename = fn;
@@ -1383,7 +1343,7 @@ void QTextDocument::save( const QString &fn, bool untabify )
 	QFile file( filename );
 	if ( file.open( IO_WriteOnly ) ) {
 	    QTextStream ts( &file );
-	    ts << text( untabify );;
+	    ts << text();
 	    file.close();
 	} else {
 	    qWarning( "couldn't open file %s", filename.latin1() );
