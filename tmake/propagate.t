@@ -102,6 +102,7 @@ build_error:
 
 CXX	=	$(SYSCONF_CXX)
 CXXFLAGS=	#$ Expand("TMAKE_CXXFLAGS"); ExpandGlue("DEFINES","-D"," -D","");
+INCPATH =	#$ ExpandGlue("INCPATH","-I"," -I","");
 LFLAGS	=	#$ Expand("TMAKE_LFLAGS");
 LIBS	=	#$ Expand("TMAKE_LIBS");
 MOC	=	$(SYSCONF_MOC)
