@@ -174,12 +174,27 @@ public:
     void readDevmode(HGLOBAL globalDevmode);
     void readDevnames(HGLOBAL globalDevnames);
 
+    inline DEVMODEW *devModeW() const { return (DEVMODEW*) devMode; }
+    inline DEVMODEA *devModeA() const { return (DEVMODEA*) devMode; }
+
+    inline PRINTER_INFO_2W *pInfoW() { return (PRINTER_INFO_2W*) pInfo; };
+    inline PRINTER_INFO_2A *pInfoA() { return (PRINTER_INFO_2A*) pInfo; };
+
+    inline bool resetDC() {
+        QT_WA( {
+            hdc = ResetDCW(hdc, devModeW());
+        }, {
+            hdc = ResetDCA(hdc, devModeA());
+        } );
+        return hdc != 0;
+    }
+
     // Windows GDI printer references.
     HANDLE hPrinter;
 
     HGLOBAL globalDevMode;
-    DEVMODE *devMode;
-    PRINTER_INFO_2 *pInfo;
+    void *devMode;
+    void *pInfo;
 
     QPrinter::PrinterMode mode;
 

@@ -64,6 +64,11 @@ QPrintDialog::~QPrintDialog()
 
 int QPrintDialog::exec()
 {
+    if (!d->ep->devMode) {
+        qWarning("QPrintDialog::exec(), printer not initialized");
+        return false;
+    }
+
     QWidget *parent = parentWidget();
     if (parent)
         parent = parent->topLevelWidget();
@@ -80,7 +85,6 @@ int QPrintDialog::exec()
     memset(&pd, 0, sizeof(PRINTDLG));
     pd.lStructSize = sizeof(PRINTDLG);
 
-    Q_ASSERT(d->ep->devMode);
     pd.hDevMode = d->ep->devMode;
 
     HGLOBAL *tempDevNames = d->ep->createDevNames();
@@ -116,7 +120,11 @@ int QPrintDialog::exec()
     pd.hwndOwner = parent ? parent->winId() : 0;
     pd.nFromPage = qMax(d->fromPage, d->minPage);
     pd.nToPage   = qMin(d->toPage, d->maxPage);
-    pd.nCopies   = d->ep->devMode->dmCopies;
+    QT_WA( {
+        pd.nCopies = d->ep->devModeW()->dmCopies;
+    }, {
+        pd.nCopies = d->ep->devModeA()->dmCopies;
+    } );
 
     bool result = PrintDlg(&pd);
     if (result && pd.hDC == 0)
