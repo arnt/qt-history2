@@ -1296,18 +1296,17 @@ void QTextEditParag::format( int start, bool doMove )
     }
 
     if ( y != r.height() )
-	r.setHeight( y ); 
-    
+	r.setHeight( y );
+
     if ( n && doMove && n->invalid == -1 && r.y() + r.height() != n->r.y() ) {
 	int dy = ( r.y() + r.height() ) - n->r.y();
 	QTextEditParag *s = n;
-	qDebug( "move" );
 	while ( s ) {
 	    s->move( dy );
 	    s = s->n;
 	}
     }
-    
+
     firstFormat = FALSE;
     changed = TRUE;
     invalid = -1;
