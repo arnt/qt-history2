@@ -184,8 +184,7 @@ void QTextDocumentLayout::recreateAllBlocks()
 	(*it)->layoutDirty = true;
 
 	// check if we are at a table
-	int fmtIdx = (*pieceTable()->find(it.key()))->format;
-	QTextBlockFormat fmt = pieceTable()->formatCollection()->blockFormat(fmtIdx);
+	QTextBlockFormat fmt = it.blockFormat();
 	if (fmt.tableFormatIndex() != -1) {
 	    it = layoutTable(it, &pos);
 	} else {
@@ -198,9 +197,7 @@ void QTextDocumentLayout::recreateAllBlocks()
 
 QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::BlockIterator it, QPoint *pos)
 {
-    int fmtIdx = (*pieceTable()->find(it.key()))->format;
-    QTextBlockFormat fmt = pieceTable()->formatCollection()->blockFormat(fmtIdx);
-    int tableIdx = fmt.tableFormatIndex();
+    const int tableIdx = it.blockFormat().tableFormatIndex();
 //     qDebug() << "layoutCell at" << it.key() << "tableIdx" << tableIdx;
 
     (*it)->layoutDirty = true;
@@ -213,8 +210,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::
 	(*it)->layoutDirty = true;
 
 	// check if we are at a table
-	int fmtIdx = (*pieceTable()->find(it.key()))->format;
-	QTextBlockFormat fmt = pieceTable()->formatCollection()->blockFormat(fmtIdx);
+	QTextBlockFormat fmt = it.blockFormat();
 	int ti = fmt.tableFormatIndex();
 	if (ti == tableIdx) {
 // 	    qDebug() << "end layoutCell";
@@ -233,9 +229,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutCell(QTextPieceTable::
 
 QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable::BlockIterator it, QPoint *pos)
 {
-    int fmtIdx = (*pieceTable()->find(it.key()))->format;
-    QTextBlockFormat fmt = pieceTable()->formatCollection()->blockFormat(fmtIdx);
-    int tableIdx = fmt.tableFormatIndex();
+    const int tableIdx = it.blockFormat().tableFormatIndex();
     Q_ASSERT(tableIdx != -1);
 
     QTextTableFormat format = pieceTable()->formatCollection()->tableFormat(tableIdx);
@@ -254,8 +248,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
     for (int i = 0; i < rows; ++i) {
 	int rowHeight = 0;
 	for (int j = 0; j < cols; ++j) {
-	    int fmtIdx = (*pieceTable()->find(it.key()))->format;
-	    QTextBlockFormat fmt = pieceTable()->formatCollection()->blockFormat(fmtIdx);
+	    QTextBlockFormat fmt = it.blockFormat();
 	    int ti = fmt.tableFormatIndex();
 	    Q_ASSERT(ti == tableIdx);
 	    Q_ASSERT(!fmt.tableCellEndOfRow());
@@ -267,8 +260,7 @@ QTextPieceTable::BlockIterator QTextDocumentLayout::layoutTable(QTextPieceTable:
 	    rowHeight = qMax(rowHeight, QFontMetrics(fmt.font()).height());
 // 	    qDebug() << "rowHeight" << rowHeight;
 	}
-	int fmtIdx = (*pieceTable()->find(it.key()))->format;
-	QTextBlockFormat fmt = pieceTable()->formatCollection()->blockFormat(fmtIdx);
+	QTextBlockFormat fmt = it.blockFormat();
 	int ti = fmt.tableFormatIndex();
 	Q_ASSERT(ti == tableIdx);
 	Q_ASSERT(fmt.tableCellEndOfRow());
