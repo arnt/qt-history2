@@ -6327,10 +6327,20 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 
 bool QTableHeader::doSelection( QMouseEvent *e )
 {
-    if ( isRowSelection( table->selectionMode() )
-	    && orientation() != Vertical )
-	return TRUE;
     int p = real_pos( e->pos(), orientation() ) + offset();
+
+    if ( isRowSelection( table->selectionMode() ) ) {
+	if ( orientation() == Horizontal )
+	    return TRUE;
+	if ( table->selectionMode() == QTable::SingleRow ) {
+	    int secAt = sectionAt( p );
+	    if ( secAt == -1 )
+		return TRUE;
+	    table->setCurrentCell( secAt, table->currentColumn() );
+	    return TRUE;
+	}
+    }
+
     if ( startPos == -1 ) {
 	int secAt = sectionAt( p );
 	if ( ( e->state() & ControlButton ) != ControlButton &&
