@@ -112,5 +112,11 @@ embedded {
 			   $$KERNEL_CPP/qwsmouse_qnx.cpp \
 			   $$KERNEL_CPP/qwsgfx_qnx6.cpp
 	}
+	qnx4 {
+	    HEADERS += $$KERNEL_H/qwsmouse_qnx4.h \
+			$$KERNEL_H/qwskeyboard_qnx4.h
+	}
+
+
 }
 
