@@ -232,6 +232,10 @@ bool QProcess::start( QStringList *env )
 	if ( !CloseHandle( tmpStderr ) )
 	    return FALSE;
     }
+    if ( comms & DupStderr ) {
+	CloseHandle( d->pipeStderr[1] );
+	d->pipeStderr[1] = d->pipeStdout[1];
+    }
 #endif
 
     // construct the arguments for CreateProcess()
