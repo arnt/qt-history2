@@ -29,8 +29,7 @@ inline char encodeDigit(uint digit)
 
 const char *QPunycodeCodec::name() const
 {
-    static const char codecName[] = "Punycode";
-    return codecName;
+    return "Punycode";
 }
 
 int QPunycodeCodec::mibEnum() const
