@@ -13,10 +13,12 @@ public:
     ~QGuardedCleanUpHandler()
     {
 	QListIterator<QGuardedPtr<Type> > it( cleanUpObjects );
+	it.toLast();
 	while ( it.current() ) {
 	    QGuardedPtr<Type>* guard = it.current();
-	    ++it;
+	    --it;
 	    delete (Type*)*guard;
+	    delete guard;
 	}
     }
 
@@ -48,9 +50,10 @@ public:
     ~QCleanUpHandler()
     {
 	QListIterator<Type> it( cleanUpObjects );
+	it.toLast();
 	while ( it.current() ) {
 	    Type* object = it.current();
-	    ++it;
+	    --it;
 	    delete object;
 	}
     }
@@ -63,14 +66,7 @@ public:
 
     bool isClean()
     {
-	QListIterator<Type> it( cleanUpObjects );
-	while ( it.current() ) {
-	    Type* object = it.current();
-	    ++it;
-	    if ( object )
-		return FALSE;
-	}
-	return TRUE;
+	return cleanUpObject.isEmpty();
     }
 
 private:
