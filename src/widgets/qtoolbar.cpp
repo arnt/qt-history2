@@ -349,9 +349,11 @@ bool QToolBar::event( QEvent * e )
 }
 
 
-/*!  Sets the label of this tool bar to \a label.  The label is not
-  currently used; it will be used in a forthcoming tool bar
-  configuration dialog.
+/*!  Sets the label of this tool bar to \a label. 
+
+Whenever a user drags the toolbar and drops it elsewhere
+on the desktop, the toolbar becomes a window on its own with
+\a label as caption.
 
 \sa label()
 */
@@ -374,9 +376,8 @@ QString QToolBar::label() const
 }
 
 
-/*!
-  Clears the toolbar, deleting all childwidgets.
- */
+/*!  Clears the toolbar, deleting all childwidgets.  */
+
 void QToolBar::clear()
 {
     if ( !children() )
@@ -391,9 +392,7 @@ void QToolBar::clear()
     }
 }
 
-/*!
-  \reimp
-*/
+/*!  \reimp */
 
 QSize QToolBar::minimumSize() const
 {
