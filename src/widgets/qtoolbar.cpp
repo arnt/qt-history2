@@ -353,13 +353,8 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 void QToolBar::init()
 {
     d = new QToolBarPrivate;
-    d->extension = new QToolBarExtensionWidget( this );
-    d->extension->hide();
-    d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
-    connect( d->extensionPopup, SIGNAL( aboutToShow() ),
-	     this, SLOT( createPopup() ) );
-    d->extension->button()->setPopup( d->extensionPopup );
-    d->extension->button()->setPopupDelay( -1 );
+    d->extension = 0;
+    d->extensionPopup = 0;
     sw = 0;
 
     setBackgroundRole( QPalette::Button);
@@ -384,7 +379,8 @@ QToolBar::~QToolBar()
 void QToolBar::setOrientation( Orientation o )
 {
     QDockWindow::setOrientation( o );
-    d->extension->setOrientation( o );
+    if (d->extension)
+	d->extension->setOrientation( o );
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
 	QToolBarSeparator* w = qt_cast<QToolBarSeparator*>(childs.at(i));
@@ -558,6 +554,18 @@ QSize QToolBar::minimumSizeHint() const
 
 void QToolBar::createPopup()
 {
+    if (!d->extensionPopup) {
+	d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
+	connect( d->extensionPopup, SIGNAL( aboutToShow() ), this, SLOT( createPopup() ) );
+    }
+
+    if (!d->extension) {
+	d->extension = new QToolBarExtensionWidget( this );
+	d->extension->setOrientation(orientation());
+	d->extension->button()->setPopup( d->extensionPopup );
+	d->extension->button()->setPopupDelay( -1 );
+    }
+
     d->extensionPopup->clear();
     d->extensionSubMenues.clear();
 
@@ -683,10 +691,16 @@ void QToolBar::checkForExtension( const QSize &sz )
 	    d->extension->show();
 	    d->extension->raise();
 	} else {
-	    d->extension->hide();
+	    delete d->extension;
+	    d->extension = 0;
+	    delete d->extensionPopup;
+	    d->extensionPopup = 0;
 	}
     } else {
-	d->extension->hide();
+	delete d->extension;
+	d->extension = 0;
+	delete d->extensionPopup;
+	d->extensionPopup = 0;
     }
 }
 
