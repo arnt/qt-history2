@@ -315,6 +315,9 @@ UnixMakefileGenerator::init()
 QString
 UnixMakefileGenerator::defaultInstall(const QString &t)
 {
+    QString ret, destdir=project->first("DESTDIR");
+    if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
+	destdir += Option::dir_sep;
     QString target="$(TARGET)";
     QStringList links;
     if(t == "target") {
@@ -327,6 +330,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		links << "$(TARGET0)";
 	    }else
 		links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
+	    target = Option::fixPathToTargetOS(destdir + target, FALSE);
 	} else {
 	    target = "$(TARGETA)";
 	}
@@ -336,10 +340,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
 
-    QString ret, destdir=project->first("DESTDIR");
-    if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
-	destdir += Option::dir_sep;
-    ret = QString("$(COPY) ") + Option::fixPathToTargetOS(destdir + target, FALSE) + " " + targetdir;
+    ret = QString("$(COPY) ") + target + " " + targetdir;
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
