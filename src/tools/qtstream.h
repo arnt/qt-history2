@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#2 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#3 $
 **
 ** Definition of QTextStream class
 **
@@ -14,6 +14,7 @@
 #define QTSTREAM_H
 
 #include "qiodev.h"
+#include <stdio.h>
 
 
 class QTextStream				// text stream class
@@ -21,11 +22,14 @@ class QTextStream				// text stream class
 public:
     QTextStream();
     QTextStream( QIODevice * );
+    QTextStream( FILE * );
     virtual ~QTextStream();
 
     QIODevice 	*device() const;		// get current stream device
     void	 setDevice( QIODevice * );	// set stream device
     void	 unsetDevice();			// set NULL stream device
+
+    bool	 eos() const;			// end of stream data?
 
     QTextStream &operator>>( char & );
     QTextStream &operator>>( signed short & );
@@ -94,6 +98,8 @@ private:
     int		 fwidth;			// field width
     int		 fillchar;			// fill char
     int		 fprec;				// float precision
+    bool	 fstrm;				// using file stream (cheat flag)
+    bool	 owndev;			// self-created device
 };
 
 typedef QTextStream QTS;
@@ -106,11 +112,8 @@ typedef QTextStream QTS;
 inline QIODevice *QTextStream::device() const
 { return dev; }
 
-inline void QTextStream::setDevice(QIODevice *d )
-{ dev = d; }
-
-inline void QTextStream::unsetDevice()
-{ dev = 0; }
+inline bool QTextStream::eos() const
+{ return dev ? dev->atEnd() : TRUE; }
 
 inline long QTextStream::flags() const
 { return fflags; }

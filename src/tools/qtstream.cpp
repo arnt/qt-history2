@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#4 $
 **
 ** Implementation of QTextStream class
 **
@@ -11,13 +11,14 @@
 *****************************************************************************/
 
 #include "qtstream.h"
+#include "qfile.h"
 #include "qstring.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#4 $";
 #endif
 
 
@@ -58,17 +59,29 @@ const long QTS::floatfield  = QTS::scientific | QTS::fixed;
 QTextStream::QTextStream()
 {
     dev = 0;					// no device set
+    fstrm = owndev = FALSE;
+    reset();
+}
+
+QTextStream::QTextStream( FILE *fh )
+{
+    dev = new QFile;
+    ((QFile *)dev)->open( IO_ReadWrite, fh );
+    fstrm = owndev = TRUE;
     reset();
 }
 
 QTextStream::QTextStream( QIODevice *d )
 {
     dev = d;					// set device
+    fstrm = owndev = FALSE;
     reset();
 }
 
 QTextStream::~QTextStream()
 {
+    if ( owndev )
+	delete dev;
 }
 
 
@@ -78,6 +91,21 @@ void QTextStream::reset()
     fwidth = 0;
     fillchar = ' ';
     fprec = 6;
+}
+
+
+void QTextStream::setDevice( QIODevice *d )
+{
+    if ( owndev ) {
+	delete dev;
+	owndev = 0;
+    }
+    dev = d;   
+}
+
+void QTextStream::unsetDevice()
+{
+    setDevice( 0 );
 }
 
 
