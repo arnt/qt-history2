@@ -117,6 +117,7 @@ static const char * const unknown_xpm[] = {
 static QPixmap *unknown_icon = 0;
 static QPixmap *qiv_buffer_pixmap = 0;
 static QPixmap *qiv_selection = 0;
+static bool optimize_layout = FALSE;
 
 static QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
@@ -877,6 +878,7 @@ void QIconViewItem::init( QIconViewItem *after
 	itemKey = itemText;
 	dirty = TRUE;
 	wordWrapDirty = TRUE;
+	itemRect = QRect( -1, -1, 0, 0 );
 	calcRect();
 	view->insertItem( this, after );
     }
@@ -2733,11 +2735,9 @@ void QIconView::slotUpdate()
 	int y = d->spacing;
 	QIconViewItem *item = d->firstItem;
 	int w = 0, h = 0;
-	bool changedLayout = FALSE;
 	while ( item ) {
 	    bool changed;
 	    QIconViewItem *next = makeRowLayout( item, y, changed );
-	    changedLayout = changed || changedLayout;
 	    if ( !next || !next->next )
 		break;
 
@@ -2752,9 +2752,6 @@ void QIconView::slotUpdate()
 	    item = item->next;
 	}
 
-	if ( !changedLayout )
-	    return;
-	
 	if ( d->lastItem && d->arrangement == TopToBottom ) {
 	    item = d->lastItem;
 	    int x = item->x();
@@ -3228,9 +3225,6 @@ void QIconView::arrangeItemsInGrid( bool update )
 	item = item->next;
     }
 
-    if ( !changedLayout )
-	return;
-
     if ( d->lastItem && d->arrangement == TopToBottom ) {
 	item = d->lastItem;
 	int x = item->x();
@@ -3264,13 +3258,11 @@ void QIconView::arrangeItemsInGrid( bool update )
     viewport()->setUpdatesEnabled( TRUE );
     d->dirty = FALSE;
     rebuildContainers();
-    if ( update )
+    if ( update && ( !optimize_layout || changedLayout ) )
 	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
 
-// ### ### why two seeming overloads? neither seem to call each other...
-
-/*! \overload
+/*!
 
   This variant uses \a grid instead of (gridX(),gridY()).  If \a grid
   is invalid (see QSize::isValid()), arrangeItemsInGrid() calculates a
@@ -3420,28 +3412,28 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
 		itmtxt = item->text();
             
             if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt ) 
+                if ( itmtxt == comtxt )
                     return item;
             }
-            
+
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-            
+
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-            
+
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
             }
         }
-        
+
         item = d->firstItem;
-        
+
         for ( ; item && item != d->currentItem; item = item->next ) {
             if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text().lower();
@@ -3449,20 +3441,20 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
 		itmtxt = item->text();
 	    
             if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt ) 
+                if ( itmtxt == comtxt )
                     return item;
             }
-            
+
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-            
+
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-            
+
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
@@ -4577,7 +4569,9 @@ void QIconView::resizeEvent( QResizeEvent* e )
 {
     QScrollView::resizeEvent( e );
     if ( d->resizeMode == Adjust ) {
+	optimize_layout = TRUE;
 	adjustItems();
+	optimize_layout = FALSE;
 #if 0 // no need for timer delay anymore
 	d->oldSize = e->oldSize();
 	if ( d->adjustTimer->isActive() )
@@ -5870,21 +5864,21 @@ void QIconView::drawContents( QPainter * )
 
 #ifndef QT_NO_ACCESSIBILITY
 /*! \reimp */
-QString QIconView::stateDescription() const 
-{ 
-    return currentItem() ? tr("selected item: %1").arg( currentItem()->text() ) : QString::null; 
+QString QIconView::stateDescription() const
+{
+    return currentItem() ? tr("selected item: %1").arg( currentItem()->text() ) : QString::null;
 }
 
 /*! \reimp */
-QString QIconView::typeDescription() const 
-{ 
-    return tr("icon view"); 
+QString QIconView::typeDescription() const
+{
+    return tr("icon view");
 }
 
 /*! \reimp */
-QString QIconView::useDescription() const 
-{ 
-    return tr("To select item, use cursor keys."); 
+QString QIconView::useDescription() const
+{
+    return tr("To select item, use cursor keys.");
 }
 #endif
 
