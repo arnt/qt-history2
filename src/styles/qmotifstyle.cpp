@@ -237,13 +237,35 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 #endif
 	break; }
     case PO_ExclusiveIndicator: {
-	p->setBrush( Qt::color1 );
-	p->setPen( Qt::color1 );
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+	static QCOORD inner_pts[] =         // used for filling diamond
+	    { 2,6, 6,2, 10,6, 6,10 };
+	static QCOORD top_pts[] =           // top (^) of diamond
+	    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
+	static QCOORD bottom_pts[] =                // bottom (V) of diamond
+	    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
 	
-	QPointArray a;
-	a.setPoints( 4, 0, 6, 6, 0, 12, 6, 6, 12 );
+	bool on = flags & PStyle_On;
+	bool down = flags & PStyle_Sunken;
+	bool showUp = !(down ^ on );
+	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
+	p->eraseRect( r );
+	p->setPen( NoPen );
+	p->setBrush( showUp ? cg.brush( QColorGroup::Button ) :
+		              cg.brush( QColorGroup::Mid ) );
 	a.translate( r.x(), r.y() );
 	p->drawPolygon( a );
+	p->setPen( showUp ? cg.light() : cg.dark() );
+	p->setBrush( NoBrush );
+	a.setPoints( QCOORDARRLEN(top_pts), top_pts );
+	a.translate( r.x(), r.y() );
+	p->drawPolyline( a );
+	p->setPen( showUp ? cg.dark() : cg.light() );
+	a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
+	a.translate( r.x(), r.y() );
+	p->drawPolyline( a );
+	
+
 	break; }
     case PO_MenuBarItem: {
 	if ( flags & PStyle_On )  // active item
@@ -486,7 +508,6 @@ void QMotifStyle::drawControl( ControlElement element,
 	void **sdata = (void **)data;
 	const int motifOffset = 10;
 	int sw;
- 	const QSplitter *split;	
 	sw = pixelMetric( PM_SplitterWidth );
 	if ( !data )
 	    return;
@@ -718,7 +739,7 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 				 CFlags flags,
 				 SCFlags subActive, void *data ) const
 {
-    switch( subCtrl ) {    
+    switch( subCtrl ) {
     case SC_SliderGroove: {
 	QSlider * sl = (QSlider *) widget;
 
@@ -748,12 +769,12 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 
 	p->setPen( cg.shadow() );
 	if ( sl->orientation() == Horizontal ) {
-	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1, 
+	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1,
 			     &cg.brush( QColorGroup::Mid ) );
 	    sl->erase( 0, 0, sl->width(), tickOffset );
 	    sl->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
 	} else {
-	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1, 
+	    qDrawShadePanel( p, x, y, wi, he, cg, TRUE, 1,
 			     &cg.brush( QColorGroup::Mid ) );
 	    sl->erase( 0, 0,  tickOffset, sl->height() );
 	    sl->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
@@ -839,10 +860,10 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	QSlider * sl = (QSlider *) widget;
 	if ( sl->orientation() == Horizontal )
 	    ret = sl->width() - pixelMetric( PM_SliderLength, sl ) - 4;
-	else 
+	else
 	    ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 4;
 	break; }
-    
+
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
 // 	QScrollBar *sb = (QScrollBar*) widget;
@@ -935,7 +956,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
 	    break;
 	case SC_SpinWidgetFrame:
-	    rect.setRect( widget->x(), widget->y(), 
+	    rect.setRect( widget->x(), widget->y(),
 			  widget->width() - bs.width(), widget->height() );
 	default:
 	    break;
@@ -957,12 +978,12 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		sliderPos = *((int *) sdata[0]);
 
 	    if ( sl->orientation() == Horizontal )
-		rect.setRect( sliderPos + motifBorder, 
-			      tickOffset + motifBorder, len, 
+		rect.setRect( sliderPos + motifBorder,
+			      tickOffset + motifBorder, len,
 			      thickness - 2*motifBorder );
 	    else
-		rect.setRect( tickOffset + motifBorder, 
-			      sliderPos + motifBorder, 
+		rect.setRect( tickOffset + motifBorder,
+			      sliderPos + motifBorder,
 			      thickness - 2*motifBorder, len );
 	    break; }
 	
@@ -992,7 +1013,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 {
     QRect rect;
-    
+
     switch ( r ) {
     case SR_SliderFocusRect:
 	rect = QCommonStyle::subRect( r, widget );
@@ -1002,7 +1023,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
     default:
 	rect = QCommonStyle::subRect( r, widget );
     }
-    
+
     return rect;
 }
 
