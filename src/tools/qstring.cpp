@@ -4527,7 +4527,9 @@ void QString::updateProperties() const
     guarantee that \a unicode will not be deleted or modified.
 */
 
-QConstString::QConstString(const QChar *unicode, int length) : QString(new QString::Data) {
+QConstString::QConstString(const QChar *unicode, int length)
+    : QString((Data *)qMalloc(sizeof(Data)))
+{
     d->ref = 1;
     d->alloc = d->size = length;
     d->c = 0;
