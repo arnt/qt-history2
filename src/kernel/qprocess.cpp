@@ -42,6 +42,9 @@
 #include "qprocess.h"
 
 
+//#define QPROCESS_DEBUG
+
+
 /*!
   \class QProcess qprocess.h
 
@@ -59,7 +62,8 @@
   Constructs a QProcess.
 */
 QProcess::QProcess( QObject *parent, const char *name )
-    : QObject( parent, name )
+    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
+    wroteStdinConnected( FALSE )
 {
     init();
 }
@@ -71,7 +75,8 @@ QProcess::QProcess( QObject *parent, const char *name )
   process.
 */
 QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
-    : QObject( parent, name )
+    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
+    wroteStdinConnected( FALSE )
 {
     init();
     addArgument( arg0 );
@@ -86,7 +91,8 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
   process.
 */
 QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
-    : QObject( parent, name )
+    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
+    wroteStdinConnected( FALSE )
 {
     init();
     setArguments( args );
@@ -194,4 +200,83 @@ void QProcess::dataStdin( const QString& buf )
     QByteArray bbuf;
     bbuf.duplicate( buf.latin1(), buf.length() );
     dataStdin( bbuf );
+}
+
+
+/*
+ * Under Windows the implementation is not so nice: it is not that easy to
+ * detect, when one of the signals should be emitted; therefore there are some
+ * timers that query the information.
+ * To keep it a little efficient, use the timers only when they are needed.
+ * They are needed, if you are interested in the signals. So use
+ * connectNotify() and disconnectNotify() to keep track of your interest.
+ */
+/*!  \reimpl
+*/
+void QProcess::connectNotify( const char * signal )
+{
+#if defined(QPROCESS_DEBUG)
+    qDebug( "QProcess::connectNotify(): signal %s has been connected", signal );
+#endif
+    if ( !ioRedirection )
+	if ( qstrcmp( signal, SIGNAL(dataStdout(const QString&)) )==0 ||
+		qstrcmp( signal, SIGNAL(dataStdout(const QByteArray&)) )==0 ||
+		qstrcmp( signal, SIGNAL(dataStderr(const QString&)) )==0 ||
+		qstrcmp( signal, SIGNAL(dataStderr(const QByteArray& buf)) )==0
+	   ) {
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcess::connectNotify(): set ioRedirection to TRUE" );
+#endif
+	    // ### do something
+	    ioRedirection = TRUE;
+	    return;
+	}
+    if ( !notifyOnExit && qstrcmp( signal, SIGNAL(processExited()) )==0 ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::connectNotify(): set notifyOnExit to TRUE" );
+#endif
+	// ### do something
+	notifyOnExit = TRUE;
+	return;
+    }
+    if ( !wroteStdinConnected && qstrcmp( signal, SIGNAL(wroteStdin()) )==0 ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::connectNotify(): set wroteStdinConnected to TRUE" );
+#endif
+	// ### do something
+	wroteStdinConnected = TRUE;
+	return;
+    }
+}
+
+/*!  \reimpl
+*/
+void QProcess::disconnectNotify( const char * )
+{
+    if ( ioRedirection &&
+	    receivers( SIGNAL(dataStdout(const QString&)) ) ==0 &&
+	    receivers( SIGNAL(dataStdout(const QByteArray&)) ) ==0 &&
+	    receivers( SIGNAL(dataStderr(const QString&)) ) ==0 &&
+	    receivers( SIGNAL(dataStderr(const QByteArray& buf)) ) ==0
+	    ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::disconnectNotify(): set ioRedirection to FALSE" );
+#endif
+	// ### do something
+	ioRedirection = FALSE;
+    }
+    if ( notifyOnExit && receivers( SIGNAL(processExited()) ) == 0 ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::disconnectNotify(): set notifyOnExit to FALSE" );
+#endif
+	// ### do something
+	notifyOnExit = FALSE;
+    }
+    if ( wroteStdinConnected && receivers( SIGNAL(wroteStdin()) ) == 0 ) {
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::disconnectNotify(): set wroteStdinConnected to FALSE" );
+#endif
+	// ### do something
+	wroteStdinConnected = FALSE;
+    }
 }

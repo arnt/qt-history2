@@ -88,6 +88,10 @@ public slots:
     void dataStdin( const QString& buf );
     void closeStdin();
 
+public:
+    void connectNotify( const char * signal );
+    void disconnectNotify( const char * signal );
+
 private:
     QProcessPrivate *d;
 
@@ -96,6 +100,9 @@ private:
 
     int  exitStat;	// exit status
     bool exitNormal;	// normal exit?
+    bool ioRedirection;
+    bool notifyOnExit;
+    bool wroteStdinConnected;
 
 private:
     void init();

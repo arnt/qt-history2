@@ -170,7 +170,8 @@ public:
 		proc->socketRead( proc->d->socketStdout[0] );
 		proc->socketRead( proc->d->socketStderr[0] );
 
-		emit proc->processExited();
+		if ( proc->notifyOnExit )
+		    emit proc->processExited();
 		// the slot might have deleted the last process...
 		if ( !proclist )
 		    return;
@@ -241,6 +242,27 @@ QProcess::~QProcess()
 
 /*!
   Starts the program.
+
+  Returns TRUE on success, otherwise FALSE.
+*/
+/*
+  If \a ioRedirection is TRUE, the signals dataStdout() and dataStdin() are
+  emitted when the program wrote data to stdout resp. stderr. If \a
+  ioRedirection is FALSE, all output of the program is ignored. If you are not
+  interested in these signals, you should use FALSE for \a ioRedirection, since
+  the processing might be more efficient in this case (depending on the
+  operating system).
+
+  ### should writing to stdin be allowed? At the moment it isn't really
+  allowed. It will probably make no sense to close stdin automatically?
+
+  ### what should happen with the output? To the console (if any) or ignored?
+
+  If \a notifyOnExit is TRUE, the signal processExited() is emitted when the
+  program terminated. If \a notifyOnExit is FALSE, the signal is never emitted.
+  If you are not interested in this signal, you should use FALSE for \a
+  notifyOnExit since the processing might be more efficient in this case
+  (depending on the operating system).
 
   Returns TRUE on success, otherwise FALSE.
 */
@@ -339,9 +361,11 @@ bool QProcess::start()
 	    this, SLOT(socketRead(int)) );
     connect( d->notifierStderr, SIGNAL(activated(int)),
 	    this, SLOT(socketRead(int)) );
-    d->notifierStdin->setEnabled( TRUE );
-    d->notifierStdout->setEnabled( TRUE );
-    d->notifierStderr->setEnabled( TRUE );
+    if ( ioRedirection ) {
+	d->notifierStdin->setEnabled( TRUE );
+	d->notifierStdout->setEnabled( TRUE );
+	d->notifierStderr->setEnabled( TRUE );
+    }
 
     // cleanup and return
     delete[] arglistQ;
