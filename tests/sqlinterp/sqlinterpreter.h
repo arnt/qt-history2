@@ -191,7 +191,21 @@ public:
     }
 };
 
-/*
+/* Pushes the variant P1 onto the stack.  If P2 or P3 is specified,
+  they are also pushed onto the stack (in that order).  Example:
+
+  Push( 99 )
+  Push( 1, "dave", "trolltech" )
+  Push( "oslo", "norway" )
+
+  After these ops, the stack will look like this:
+
+  norway (top of stack)
+  oslo
+  trolltech
+  dave
+  1
+  99
 */
 
 class Push : public Label
@@ -219,9 +233,8 @@ public:
 };
 
 
-/* Pop the top two elements from the stack, add them together,
-** and push the result back onto the stack.  If either element
-** is a string then it is first converted to a double
+/* Pop the top two elements from the stack, add them together, and
+   push the result (which is of type double) back onto the stack.
 */
 class Add : public Label
 {
@@ -242,12 +255,9 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack, subtract the
-** first (what was on top of the stack) from the second (the
-** next on stack)
-** and push the result back onto the stack.  If either element
-** is a string then it is first converted to a double
+/* Pop the top two elements from the stack, subtract the first (what
+ was on top of the stack) from the second (the next on stack) and push
+ the result (which is of type double) back onto the stack.
 */
 class Subtract : public Label
 {
@@ -268,10 +278,8 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack, multiply them together,
-** and push the result back onto the stack.  If either element
-** is a string then it is first converted to a double
+/* Pop the top two elements from the stack, multiply them together,
+ and push the result (which is of type double) back onto the stack.
 */
 class Multiply : public Label
 {
@@ -292,13 +300,10 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack, divide the
-** first (what was on top of the stack) from the second (the
-** next on stack)
-** and push the result back onto the stack.  If either element
-** is a string then it is first converted to a double Division by
-** zero returns NULL.
+/* Pop the top two elements from the stack, divide the first (what was
+ on top of the stack) from the second (the next on stack) and push the
+ result (which is of type double) back onto the stack.  Division
+ by zero puts an invalid variant back on the stack.
 */
 class Divide : public Label
 {
@@ -322,9 +327,8 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack.  If they are equal, then
-** jump to instruction P1.  Otherwise, continue to the next instruction.
+/* Pop the top two elements from the stack.  If they are equal, then
+ jump to instruction P1.  Otherwise, continue to the next instruction.
 */
 class Eq : public Label
 {
@@ -350,9 +354,9 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack.  If they are not equal, then
-** jump to instruction P1.  Otherwise, continue to the next instruction.
+/* Pop the top two elements from the stack.  If they are not equal,
+ then jump to instruction P1.  Otherwise, continue to the next
+ instruction.
 */
 class Ne : public Label
 {
@@ -378,11 +382,10 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack.  If second element (the
-** next on stack) is less than the first (the top of stack), then
-** jump to instruction P1.  Otherwise, continue to the next instruction.
-** In other words, jump if NOS<TOS.
+/* Pop the top two elements from the stack.  If second element (the
+ next on stack) is less than the first (the top of stack), then jump
+ to instruction P1.  Otherwise, continue to the next instruction.  In
+ other words, jump if NOS<TOS.
 */
 class Lt : public Label
 {
@@ -408,10 +411,9 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack.  If second element (the
-** next on stack) is less than or equal to the first (the top of stack),
-** then jump to instruction P1. In other words, jump if NOS<=TOS.
+/* Pop the top two elements from the stack.  If second element (the
+ next on stack) is less than or equal to the first (the top of stack),
+ then jump to instruction P1. In other words, jump if NOS<=TOS.
 */
 class Le : public Label
 {
@@ -438,10 +440,9 @@ public:
 };
 
 
-/*
-** Pop the top two elements from the stack.  If second element (the
-** next on stack) is greater than the first (the top of stack),
-** then jump to instruction P1. In other words, jump if NOS>TOS.
+/* Pop the top two elements from the stack.  If second element (the
+ next on stack) is greater than the first (the top of stack), then
+ jump to instruction P1. In other words, jump if NOS>TOS.
 */
 class Gt : public Label
 {
@@ -467,10 +468,10 @@ public:
     }
 };
 
-/*
-** Pop the top two elements from the stack.  If second element (the next
-** on stack) is greater than or equal to the first (the top of stack),
-** then jump to instruction P1. In other words, jump if NOS>=TOS.
+/* Pop the top two elements from the stack.  If second element (the
+ next on stack) is greater than or equal to the first (the top of
+ stack), then jump to instruction P1. In other words, jump if
+ NOS>=TOS.
 */
 class Ge : public Label
 {
@@ -496,10 +497,27 @@ public:
     }
 };
 
-/* Pop 'num' values off the stack and push a list of them back on to
-** the top of the stack.  The top of the stack becomes the last
-** element of the list, and the 'num'-th element becomes the first
-** element of the list.
+/* Pop the first 'num' values off the stack and push a list of them
+ back on to the top of the stack.  The top of the stack becomes the
+ last element of the list, and the 'num'-th element becomes the first
+ element of the list.  For example, if the stack looks like this:
+
+ 5 (top of stack )
+ dave
+ trolltech
+ 99
+ blarg
+
+ The following instruction:
+
+ PushList ( 3 )
+
+ will transform the stack into this:
+
+ list: trolltech, dave, 5 (top of stack )
+ 99
+ blarg
+
 */
 
 class PushList : public Label
@@ -524,22 +542,22 @@ public:
 };
 
 /* Pop top of stack (which should be a 'list', see 'PushList') and
-** create a file with name 'name'.  The list should be of the form:
-**
-** QValueList<QVariant> field;
-** QValueList<field> list;
-**
-** where 'field' is a value list of variants in the following order:
-**
-** list element 0: name of field
-** list element 1: type of field
+ create a file with name 'name'.  The list should be of the form:
+
+ QValueList<QVariant> field;
+ QValueList<field> list;
+
+ where 'field' is a value list of variants in the following order:
+
+ list element 0: name of field (string)
+ list element 1: type of field (an int corresponding to a QVariant::Type)
 */
 
 class Create : public Label
 {
 public:
     Create( const QVariant& name,
-		const QString& label = QString::null )
+	    const QString& label = QString::null )
 	: Label( name, label ) {}
     QString name() const { return "Create"; }
     int exec( Interpreter::Environment* env )
@@ -567,7 +585,8 @@ public:
     }
 };
 
-/*
+/* Opens the file 'name'.  The file will be identified by 'id' which
+can be used later to refer to the file.
 */
 
 class Open : public Label
@@ -589,14 +608,14 @@ public:
     }
 };
 
-/*
+/* Closes the file specified by 'id'.
 */
 
 class Close : public Label
 {
 public:
     Close( const QVariant& id,
-	    const QString& label = QString::null )
+	   const QString& label = QString::null )
 	: Label( id, label ) {}
     QString name() const { return "Close"; }
     int exec( Interpreter::Environment* env )
@@ -611,8 +630,10 @@ public:
 };
 
 
-/* Pop the top of the stack (which must be a 'list') and insert it into
-   the file identified by 'id'
+/* Pop the top of the stack (which must be a 'list', see PushList) and
+   insert it into the file identified by 'id'.  The values of the list
+   must corespond in number and type to the file they are being
+   inserted to.  The file must be open.
 */
 class Insert : public Label
 {
@@ -644,7 +665,8 @@ public:
     }
 };
 
-/*
+/* Marks the current record of the file identified by 'id'.  The file
+must be open and positioned on a valid record.
 */
 
 class Mark : public Label
@@ -665,7 +687,8 @@ public:
     }
 };
 
-/*
+/*  Deletes all record from the file identified by 'id' which have
+been previously marked by Mark. All marks are cleared after this op.
 */
 
 class DeleteMarked : public Label
@@ -686,7 +709,13 @@ public:
     }
 };
 
-/*
+/*  Pops the top of the stack (which must be a 'list', see PushList)
+and updates all record from the file identified by 'id' which have
+been previously marked by Mark.  The marked records are updated only
+with the fields specified by the list.  The file must be open. The
+list must be a list of fields (see the docs of Create). The 'type'
+element of eac field will also be used as the value when updating the
+file fields.  All marks are cleared after this op.
 */
 
 class UpdateMarked : public Label
@@ -730,7 +759,8 @@ public:
 
 
 /* Go to next record of file identified by 'id'.  On failure goto P2.
- */
+ The file must be open.
+*/
 
 class Next : public Label
 {
@@ -757,7 +787,7 @@ public:
     }
 };
 
-/* Go to the instruction at P1
+/* Go to the instruction at P1.
 */
 
 class Goto : public Label
@@ -778,7 +808,8 @@ public:
 };
 
 /* Push the field number P2 from the file identified by 'id' on to the
- top of the stack
+ top of the stack The file must be open and positioned on a valid
+ record.
 */
 
 class PushField : public Label
@@ -806,7 +837,8 @@ public:
     }
 };
 
-/*
+/* Pops the top of the stack (which must be a 'list', see PushList)
+and appends it to the internal result set (see CreateResult).
 */
 
 class SaveResult : public Label
@@ -827,7 +859,13 @@ public:
     }
 };
 
-/*
+/*  Pops the top of the stack (which must be a 'list', see PushList)
+and creates a 'result set'.  The result set is an internal memory area
+which can be added to (see SaveResult) and later retrieved (see
+Environment::result()).  The 'result set' forms the fundamental
+mechanism for selecting data from a file.  The list must be of the
+form which identifies fields (see the docs for Create), since both a
+field name and type are required to define a 'result set'.
 */
 
 class CreateResult : public Label
@@ -859,7 +897,9 @@ public:
     }
 };
 
-/*
+/* Resets the internal marked-record iterator to the beginning (see
+Mark).  Marked records can then be sequentially retrieved using
+NextMarked.
 */
 
 class RewindMarked : public Label
@@ -881,8 +921,9 @@ public:
 };
 
 
-/* Go to next marked record of file identified by 'id'.  On failure goto P2.
- */
+/* Go to next marked record of the file identified by 'id'.  On
+ failure goto P2.  The file must be open.
+*/
 
 class NextMarked : public Label
 {
@@ -911,9 +952,12 @@ public:
 };
 
 
-/* Pop the top of the stack (which must be a 'list') and use it to
-   update the current record buffer of the file identified by 'id'
+/* Pop the top of the stack (which must be a 'list', see PushList) and
+   use it to update all fields of the current record buffer of the
+   file identified by 'id'.  The list must correspond in number and
+   type to the fields in the file.  The file must be open.
 */
+
 class Update : public Label
 {
 public:
@@ -947,22 +991,23 @@ public:
     }
 };
 
-/* Pop the top of the stack (which must be a 'list') and use it to
-   'range scan' the record buffer of the file identified by 'id'.  A
-   'range scan' tries to match every record in the file where the
-   fields corresponding to the 'list' fields match the values of the
-   correspondind list fields.  This can be optimised by drivers who
-   use indexes, and therefore speed up the common cases such as:
+/* Pop the top of the stack (which must be a 'list', see PushList) and
+   use it to 'range scan' the record buffer of the file identified by
+   'id'.  A 'range scan' tries to match every record in the file where
+   the fields corresponding to the 'list' fields match the values of
+   the corresponding list fields.  This can be optimised by drivers
+   who use indexes, and therefore speed up the common cases such as:
 
    select field from table where id = 1;
    update table set field="blah" where id = 1;
    delete from table where id = 1;
 
    In the above examples, 'table' can be range scanned based on the
-   'id' field.  If the driver uses an index on the 'id' field for
+   'id' field.  If the driver uses an index on the 'id' field of
    'table, it can optimize the search.
 
-   All records that match the 'range scan' will be 'marked'.
+   All records that match the 'range scan' will be 'marked'.  The file
+   must be open.
 */
 class RangeScan : public Label
 {
@@ -1003,7 +1048,9 @@ public:
     }
 };
 
-/*
+/*  Pop the top of the stack (which must be a list, see PushList) and
+use it as a description of fields.  Creates an index on the file
+identified by 'id'.  The file must be open.
 */
 
 class CreateIndex : public Label
@@ -1046,7 +1093,8 @@ public:
     }
 };
 
-/*
+/*  Drops (deletes) the file identified by 'id'.  If the file contains
+any indexes, they are also dropped (deleted).
 */
 
 class Drop : public Label
@@ -1068,7 +1116,10 @@ public:
     }
 };
 
-/*
+/* Pop the top of the stack (which must be a list, see PushList) and
+use it as a list of fields (see Create) with which to sort the current
+'result set' (see CreateResult).
+//## more: we should allow ASC/DESC sorting somehow
 */
 
 class Sort : public Label
