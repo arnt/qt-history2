@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#6 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#6 $";
 #endif
 
 
@@ -100,8 +100,19 @@ void QMenuData::insertAny( const char *string, QBitMap *bitmap,
 	mi->string_data = string;
 	mi->bitmap_data = bitmap;
 	mi->popup_menu = popup;
-	if ( popup )
+	if ( popup ) {
 	    menuInsPopup( popup );
+	    QPopupMenu *p = (QPopupMenu*)this;
+	    while ( p && p != popup )
+		p = (QPopupMenu*)p->parentMenu;
+	    if ( p ) {
+#if defined(CHECK_STATE)
+		warning( "QMenuData::insertItem: Circular popup menu ignored");
+#endif
+		delete mi;
+		return;
+	    }
+	}
     }
     mitems->insert( index, mi );
     menuContentsChanged();			// menu data changed
