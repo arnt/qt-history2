@@ -683,6 +683,9 @@ bool QAbstractItemView::event(QEvent *e)
         if (!statustip.isEmpty())
             setStatusTip(statustip);
         return true; }
+    case QEvent::ActivationChange:
+        d->viewport->update();
+        break;
     default:
         break;
     }
@@ -899,13 +902,9 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
     QViewport::focusOutEvent(e);
-    if (qApp->activeWindow()) {
-        QModelIndex index = currentItem();
-        if (index.isValid())
-            d->viewport->update(itemViewportRect(index));
-    } else {
-        d->viewport->update(); // update all selections
-    }
+    QModelIndex index = currentItem();
+    if (index.isValid())
+        d->viewport->update(itemViewportRect(index));
 }
 
 /*!
