@@ -41,10 +41,22 @@ SOURCES += \
 	painting/qmatrix.cpp
 
 win32 {
+	DEFINES += _STANDALONE_ QT_RASTER_PAINTENGINE
+	SOURCES += 					\
+	 	painting/qpaintengine_raster.cpp	\
+		painting/qdrawhelper.cpp 		\
+		painting/qblackraster.c			\
+		painting/qgrayraster.c
+
+	HEADERS += 					\
+		painting/qpaintengine_raster_p.h 	\
+		painting/qrasterdefs_p.h		\
+		painting/qgrayraster_p.h		\
+		painting/qblackraster_p.h
+
 	HEADERS += \
 		painting/qpaintengine_win_p.h \
 		painting/qprintengine_win_p.h
-
 
  	SOURCES += \
 		painting/qcolormap_win.cpp \
@@ -52,6 +64,7 @@ win32 {
 		painting/qpaintengine_win.cpp \
 		painting/qprintengine_win.cpp \
 		painting/qregion_win.cpp
+
 	!win32-borland:LIBS += -lmsimg32
 }
 

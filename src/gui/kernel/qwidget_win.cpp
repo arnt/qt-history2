@@ -33,7 +33,7 @@
 #include <qdebug.h>
 
 #ifdef QT_RASTER_PAINTENGINE
-#include "qpaintengine_raster_p.h"
+#include "private/qpaintengine_raster_p.h"
 #endif
 
 typedef BOOL    (WINAPI *PtrSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);

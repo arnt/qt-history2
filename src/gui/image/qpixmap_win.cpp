@@ -22,7 +22,7 @@
 #include <limits.h>
 
 #ifdef QT_RASTER_PAINTENGINE
-#include "qpaintengine_raster_p.h"
+#include "private/qpaintengine_raster_p.h"
 #else
 #include <private/qpaintengine_win_p.h>
 #endif
