@@ -73,7 +73,7 @@ bool DatabaseConnection::refreshCatalog()
 	return TRUE;
     if ( !open() )
 	return FALSE;
-    tbls = conn->tables();
+    tbls = conn->tables( QSql::TableType( QSql::Tables | QSql::Views ) );
     flds.clear();
     for ( QStringList::Iterator it = tbls.begin(); it != tbls.end(); ++it ) {
 	QSqlRecord fil = conn->record( *it );
