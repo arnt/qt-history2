@@ -1354,6 +1354,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		    a = d->focus.count()-1;
 		QWorkspaceChild* c = d->focus.at( a );
 		if ( !c || c == o ) {
+		    if ( c && c->iconw && d->icons.contains( c->iconw->parentWidget() ) )
+			break;
 		    activateWindow( 0 );
 		    break;
 		}
@@ -2110,7 +2112,7 @@ QWorkspaceChild::~QWorkspaceChild()
     QWorkspace *workspace = qt_cast<QWorkspace*>(parentWidget());
     if ( workspace ) {
 	if ( workspace->d->active == this )
-	    workspace->d->active = 0;
+	    workspace->activateWindow(0);
 	if ( workspace->d->maxWindow == this ) {
 	    workspace->hideMaximizeControls();
 	    workspace->d->maxWindow = 0;
@@ -2126,7 +2128,7 @@ bool QWorkspaceChild::event( QEvent *e )
 	    if(windowWidget()) {
 		if(!windowWidget()->close()) {
 		    if(((QWorkspace*) parentWidget() )->d->active == this)
-			((QWorkspace*) parentWidget() )->d->active = 0;
+			((QWorkspace*) parentWidget() )->activateWindow(0);
 		    return TRUE;
 		}
 	    }
