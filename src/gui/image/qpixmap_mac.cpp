@@ -818,7 +818,7 @@ QPaintEngine *QPixmap::engine() const
 {
     if (!data->paintEngine) {
 #if defined( USE_CORE_GRAPHICS )
-	data->paintEngine = new QCoreGraphicsPaintEngine(this);
+	data->paintEngine = new QCoreGraphicsPaintEngine(const_cast<QPixmap *>(this));
 #else
 	data->paintEngine = new QQuickDrawPaintEngine(this);
 #endif

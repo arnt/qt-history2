@@ -71,7 +71,7 @@ static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl cont
     tdi.max = aslider->maximum();
     tdi.value = aslider->sliderPosition();
     tdi.attributes = kThemeTrackShowThumb;
-    if(control == QStyle::CC_Slider && QSysInfo::MacintoshVersion >= Qt::MV_JAGUAR && aslider->hasFocus())
+    if(control == QStyle::CC_Slider && QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR && aslider->hasFocus())
         tdi.attributes |= kThemeTrackHasFocus;
     if(aslider->orientation() == Qt::Horizontal)
         tdi.attributes |= kThemeTrackHorizontal;
@@ -339,7 +339,9 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 	}
 	break; }
     case PE_FocusRect:
-	break;     //This is not used because of the QAquaFocusWidget thingie.
+        //HIThemeDrawFocusRect(qt_glb_mac_rect(r, p), true, static_cast<CGContextRef>(p->handle()),
+        //                     kHIThemeOrientationNormal);
+	break;
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:
