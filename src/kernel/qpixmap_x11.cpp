@@ -661,6 +661,8 @@ QImage QPixmap::convertToImage() const
 		memcpy( alpha.scanLine(y), src, bpl );
 		src += axi->bytes_per_line;
 	    }
+
+	    qSafeXDestroyImage( axi );
 	}
     } else if (msk) {
 	image.setAlphaBuffer( TRUE );
@@ -1015,13 +1017,21 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    Q_CHECK_PTR( tmp_bits );
 	    bits = (char *)tmp_bits;
 	    uchar *p, *b, *end;
-	    int y;
+	    int y, count;
 	    if ( image.bitOrder() == QImage::BigEndian ) {
 		const uchar *f = qt_get_bitflip_array();
 		b = tmp_bits;
 		for ( y=0; y<h; y++ ) {
 		    p = image.scanLine( y );
 		    end = p + bpl;
+		    count = bpl;
+		    while ( count > 4 ) {
+			*b++ = f[*p++];
+			*b++ = f[*p++];
+			*b++ = f[*p++];
+			*b++ = f[*p++];
+			count -= 4;
+		    }
 		    while ( p < end )
 			*b++ = f[*p++];
 		}

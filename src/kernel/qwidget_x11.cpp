@@ -113,9 +113,12 @@ extern bool qt_net_supports(Atom);
 extern unsigned long *qt_net_virtual_root_list;
 
 #if defined (QT_TABLET_SUPPORT)
-extern XDevice *dev;
-extern XEventClass event_list[7];
-extern int curr_xinput_events;
+extern XDevice *devStylus;
+extern XDevice *devEraser;
+extern XEventClass event_list_stylus[7];
+extern XEventClass event_list_eraser[7];
+extern int curr_events_stylus;
+extern int curr_events_eraser;
 #endif
 
 const uint stdWidgetEventMask =			// X event mask
@@ -1011,9 +1014,13 @@ void QWidget::setMouseTracking( bool enable )
 	XSelectInput( x11Display(), winId(),
 		      m | stdWidgetEventMask );
 #if defined (QT_TABLET_SUPPORT)
-	if ( dev != NULL ) {
-	    XSelectExtensionEvent( x11Display(), winId(), event_list,
-				   curr_xinput_events );
+ 	if ( devStylus != NULL ) {
+ 	    XSelectExtensionEvent( x11Display(), winId(), event_list_stylus,
+ 				   curr_events_stylus );
+ 	}
+	if ( devEraser != NULL ) {
+	    XSelectExtensionEvent( x11Display(), winId(), event_list_eraser,
+				   curr_events_eraser );
 	}
 #endif
     }
