@@ -77,7 +77,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-    bool do_incremental = project->isActiveConfig("incremental") && !project->variables()["QMAKE_INCREMENTAL"].isEmpty() && 
+    bool do_incremental = project->isActiveConfig("incremental") && !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
 			 (!project->variables()["QMAKE_APP_FLAG"].isEmpty() || !project->isActiveConfig("staticlib"));
 
     t << "####### Compiler, tools and options" << endl << endl;
@@ -122,7 +122,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    break;
 		}
 	    }
-	    if(!increment) 
+	    if(!increment)
 		t << "\\\n\t\t" << (*objit);
 	}
 	if(incrs_out.count() == objs.count()) { //we just switched places, no real incrementals to be done!
@@ -189,7 +189,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
-	    
+
 	    //incremental target
 	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
 	    if(!destdir.isEmpty())
@@ -223,7 +223,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString incr_target = var("QMAKE_ORIG_TARGET").replace("." + s_ext, "_incremental").replace(QRegExp("^lib"), "");
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
-	    
+
 	    //incremental target
 	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
 	    if(!destdir.isEmpty())
@@ -234,7 +234,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "$(LINK) " << incr_lflags << " -o " << incr_target_dir << " $(OBJECTS) $(OBJMOC)" << endl;
 	    //real target
 	    QString cmd = var("QMAKE_LINK_SHLIB_CMD").replace(QRegExp("\\$\\(OBJECTS\\) \\$\\(OBJMOC\\)"), "$(INCREMENTAL_OBJECTS) ");
-	    if(!destdir.isEmpty()) 
+	    if(!destdir.isEmpty())
 		cmd += " -L" + destdir;
 	    cmd += " -l" + incr_target;
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].clear();
@@ -288,8 +288,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" <<
 		var("TARGETDEPS") << "\n\t"
 	      << "-rm -f $(TARGETA) " << "\n\t"
-	      << var("QMAKE_AR_CMD") << "\n\t" 
-	      << varGlue("QMAKE_RANLIB",""," "," $(TARGETA)") 
+	      << var("QMAKE_AR_CMD") << "\n\t"
+	      << varGlue("QMAKE_RANLIB",""," "," $(TARGETA)")
 	      << endl << endl;
 	}
     } else {
@@ -301,7 +301,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
 	t << "-rm -f $(TARGET)" << "\n\t"
 	  << var("QMAKE_AR_CMD") << "\n\t"
-	  << varGlue("QMAKE_RANLIB",""," "," $(TARGET)") 
+	  << varGlue("QMAKE_RANLIB",""," "," $(TARGET)")
 	  << endl << endl;
     }
 
@@ -314,6 +314,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     fixEnvVariables(target);
     fixEnvVariables(moc);
     if(target != moc) {
+	if ( project->variables()["QMAKE_MOC_SRC"].isEmpty() )
+	    project->variables()["QMAKE_MOC_SRC"].append( "" );
 	QString mocsrcd = project->variables()["QMAKE_MOC_SRC"].first();
 	if(mocsrcd.isEmpty())
 	    mocsrcd = "$(QTDIR)/src/moc";
@@ -334,9 +336,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 #endif
 
-    t << "mocclean:" << "\n\t" 
-      << "-rm -f $(OBJMOC)" << "\n\t" 
-      << "-rm -f $(SRCMOC)" 
+    t << "mocclean:" << "\n\t"
+      << "-rm -f $(OBJMOC)" << "\n\t"
+      << "-rm -f $(SRCMOC)"
       << endl << endl;
 
     t << "clean: mocclean" << "\n\t"
@@ -460,6 +462,7 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "so" );
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
+
     bool extern_libs = !project->isActiveConfig("dll")  || (project->variables()["TARGET"].first() == "qt" ||
 							    project->variables()["TARGET"].first() == "qte" ||
 							    project->variables()["TARGET"].first() == "qt-mt");
@@ -506,7 +509,7 @@ UnixMakefileGenerator::init()
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
 	if ( !project->variables()["QMAKE_CFLAGS_THREAD"].isEmpty())
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
-        if( !project->variables()["QMAKE_CXXFLAGS_THREAD"].isEmpty())
+	if( !project->variables()["QMAKE_CXXFLAGS_THREAD"].isEmpty())
 	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
@@ -526,17 +529,18 @@ UnixMakefileGenerator::init()
 		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 								  project->variables()["QMAKE_LIBDIR_QT"].first());
 	    if (project->isActiveConfig("thread") && !project->variables()["QMAKE_LIBS_QT_THREAD"].isEmpty()) {
-	        project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
 	    } else {
-	        project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	    }
 	}
     }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
-	if(!project->variables()["QMAKE_LIBDIR_OPENGL"].isEmpty())
+	if(!project->variables()["QMAKE_LIBDIR_OPENGL"].isEmpty()) {
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 							      project->variables()["QMAKE_LIBDIR_OPENGL"].first());
+	}
 	if ( (project->variables()["TARGET"].first() == "qt") ||
 	     (project->variables()["TARGET"].first() == "qte") ||
 	     (project->variables()["TARGET"].first() == "qt-mt") ) {
@@ -552,9 +556,10 @@ UnixMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     }
     if ( project->isActiveConfig("x11lib") ) {
-	if(!project->variables()["QMAKE_LIBDIR_X11"].isEmpty())
+	if(!project->variables()["QMAKE_LIBDIR_X11"].isEmpty()) {
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 							      project->variables()["QMAKE_LIBDIR_X11"].first());
+	}
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
     }
     if ( project->isActiveConfig("moc") ) {
@@ -624,7 +629,7 @@ UnixMakefileGenerator::init()
 	} else {
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
 	}
-        if( project->isActiveConfig("plugin") ) {
+	if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
 							project->variables()["TARGET"].first() + "." +
 							project->variables()[
@@ -670,12 +675,12 @@ UnixMakefileGenerator::init()
 							project->variables()["VER_MIN"].first() +  "." +
 							project->variables()["VER_PAT"].first());
 	    project->variables()["TARGET"] = project->variables()["TARGET_x.y.z"];
-        }
+	}
 	project->variables()["QMAKE_LN_SHLIB"].append("-ln -s");
 	project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
-	if ( !project->variables()["DESTDIR"].isEmpty() ) 
+	if ( !project->variables()["DESTDIR"].isEmpty() )
 	    project->variables()["DESTDIR_TARGET"].first().prepend(project->variables()["DESTDIR"].first());
-	if(!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty())
+	if(!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty() && !project->variables()["TARGET_x"].isEmpty() )
 	    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->variables()["TARGET_x"].first();
 	if(project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
@@ -697,7 +702,6 @@ UnixMakefileGenerator::init()
 	QString destdir = project->variables()["DESTDIR"].first();
 	if(!destdir.isEmpty() && !project->variables()["QMAKE_RPATH"].isEmpty())
 	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_RPATH"].first() + destdir;
-
     }
 }
 
@@ -714,7 +718,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 
 	} else if(!project->isActiveConfig("staticlib")) {
 	    if(project->isActiveConfig("plugin")) {
-		
+
 	    } else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
 		links << "$(TARGET0)";
 	    }else
@@ -723,7 +727,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    target = "$(TARGETA)";
 	}
     }
-    
+
     QString targetdir = Option::fixPathToTargetOS(project->variables()["target.path"].first(), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;

@@ -494,13 +494,13 @@ MakefileGenerator::init()
     init_already = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
-
     { //paths
+	if ( v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty() )
+	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].append( "" );
 	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	asp = Option::fixPathToTargetOS(asp);
 	if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
 	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();
-
 	QString currentDir = QDir::currentDirPath();
 	QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
 	for(int x = 0; dirs[x] != QString::null; x++) {
@@ -890,7 +890,7 @@ MakefileGenerator::createObjectList(const QString &var)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	QString dirName;
-	if ( dir.isEmpty() ) 
+	if ( dir.isEmpty() )
 	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
 	else
 	    dirName = dir;
@@ -948,6 +948,8 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	args += "QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + "\"";
     fileFixify(pfile);
 
+    if ( project->variables()["QMAKE_QMAKE"].isEmpty() )
+	project->variables()["QMAKE_QMAKE"].append( "" );
     QString qmake_path = project->variables()["QMAKE_QMAKE"].first();
     if(qmake_path.isEmpty())
 	qmake_path = "qmake"; //hope its in your path
@@ -1019,7 +1021,7 @@ MakefileGenerator::fileFixify(QString &file) const
     return TRUE;
 }
 
-QString 
+QString
 MakefileGenerator::cleanFilePath(const QString &file) const
 {
     QString ret = Option::fixPathToTargetOS(file);
