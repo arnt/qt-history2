@@ -100,7 +100,11 @@ bool QLibraryPrivate::load_sys()
     QString attempt;
     for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
-            attempt = path + prefixes[prefix] + name + suffixes[suffix];
+            if (!prefixes.at(prefix).isEmpty() && name.startsWith(prefixes.at(prefix)))
+                continue;
+            if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
+                continue;
+            attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
             pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
