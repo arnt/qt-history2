@@ -7784,7 +7784,7 @@ QListViewItem *QListView::findItem( const QString& text, int column,
     if ( !(compare & CaseSensitive) )
 	comtxt = comtxt.lower();
 
-    QListViewItemIterator it( d->focusItem );
+    QListViewItemIterator it( d->focusItem ? d->focusItem : firstChild() );
     QListViewItem *sentinel = 0;
     QListViewItem *item;
     QListViewItem *beginsWithItem = 0;
@@ -7808,10 +7808,8 @@ QListViewItem *QListView::findItem( const QString& text, int column,
 	    ++it;
 	}
 
-	if ( !d->focusItem )
-	    break;
 	it = QListViewItemIterator( firstChild() );
-	sentinel = d->focusItem;
+	sentinel = d->focusItem ? d->focusItem : firstChild();
     }
 
     // Obey the priorities
