@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstack.h#1 $
+** $Id: //depot/qt/main/src/tools/qstack.h#2 $
 **
 ** Definition of QStack template/macro class
 **
@@ -40,7 +40,8 @@ public:									      \
    ~QStackM(type)()			{ clear(); }			      \
     QStackM(type) &operator=(const QStackM(type) &s)			      \
 			{ return (QStackM(type)&)QGList::operator=(s); }      \
-    void  autoDelete( bool del )	{ QCollection::autoDelete(del); }     \
+    bool  autoDelete() const		{ return QCollection::autoDelete(); } \
+    void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }  \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
     bool  push( const type *d )		{ return QGList::insert(GCI(d)); }    \
@@ -72,7 +73,8 @@ public:
    ~QStackT()				{ clear(); }
     QStackT<type> &operator=(const QStackT<type> &s)
 			{ return (QStackT<type>&)QGList::operator=(s); }
-    void  autoDelete( bool del )	{ QCollection::autoDelete(del); }
+    bool  autoDelete() const		{ return QCollection::autoDelete(); }
+    void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
     bool  push( const type *d )		{ return QGList::insert(GCI(d)); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#1 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#2 $
 **
 ** Definition of QQueue template/macro class
 **
@@ -40,7 +40,8 @@ public:									      \
    ~QQueueM(type)()			{ clear(); }			      \
     QQueueM(type)& operator=(const QQueueM(type) &q)			      \
 			{ return (QQueueM(type)&)QGList::operator=(q); }      \
-    void  autoDelete( bool del )	{ QCollection::autoDelete(del); }     \
+    bool  autoDelete() const		{ return QCollection::autoDelete(); } \
+    void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }  \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
     bool  enqueue( const type *d )	{ return QGList::append(GCI(d)); }    \
@@ -72,7 +73,8 @@ public:
    ~QQueueT()				{ clear(); }
     QQueueT<type>& operator=(const QQueueT<type> &q)
 			{ return (QQueueT<type>&)QGList::operator=(q); }
-    void  autoDelete( bool del )	{ QCollection::autoDelete(del); }
+    bool  autoDelete() const		{ return QCollection::autoDelete(); }
+    void  setAutoDelete( bool del )	{ QCollection::setAutoDelete(del); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
     bool  enqueue( const type *d )	{ return QGList::append(GCI(d)); }
