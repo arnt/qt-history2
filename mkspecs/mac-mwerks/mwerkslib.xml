@@ -685,14 +685,14 @@
                 <SETTING><NAME>MWPEF_collapsereloads</NAME><VALUE>0</VALUE></SETTING>
 
                 <!-- Settings for "PPC Project" panel -->
-                <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>Application</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>Library</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filecreator</NAME><VALUE>1061109567</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>1095782476</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_size</NAME><VALUE>3000</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_minsize</NAME><VALUE>3000</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_stacksize</NAME><VALUE>128</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_flags</NAME><VALUE>22720</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>1061109567</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_size</NAME><VALUE>0</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_minsize</NAME><VALUE>0</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_stacksize</NAME><VALUE>0</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_flags</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_symfilename</NAME><VALUE></VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_rsrcname</NAME><VALUE></VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_rsrcheader</NAME><VALUE>Native</VALUE></SETTING>
@@ -798,23 +798,13 @@
                 <SETTING><NAME>MWProject_X86_importlib</NAME><VALUE></VALUE></SETTING>
             </SETTINGLIST>
             <FILELIST>
-                <FILE>
-                    <PATHTYPE>Name</PATHTYPE>
-                    <PATH>$$TARGET.mocs</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                    <FILEKIND>Text</FILEKIND>
-                    <FILEFLAGS></FILEFLAGS>
-                </FILE>
+                $$CODEWARRIOR_MOCS
                 $$CODEWARRIOR_LIBRARIES
                 $$CODEWARRIOR_SOURCES
                 $$CODEWARRIOR_HEADERS
             </FILELIST>
             <LINKORDER>
-                <FILEREF>
-                    <PATHTYPE>Name</PATHTYPE>
-                    <PATH>$$TARGET.mocs</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                </FILEREF>
+                $$CODEWARRIOR_MOCS_LINKORDER
                 $$CODEWARRIOR_LIBRARIES_LINKORDER
                 $$CODEWARRIOR_SOURCES_LINKORDER
                 $$CODEWARRIOR_HEADERS_LINKORDER
@@ -827,12 +817,7 @@
     </TARGETORDER>
 
     <GROUPLIST>
-        <FILEREF>
-            <TARGETNAME>$$TARGET</TARGETNAME>
-            <PATHTYPE>Name</PATHTYPE>
-            <PATH>$$TARGET.mocs</PATH>
-            <PATHFORMAT>MacOS</PATHFORMAT>
-        </FILEREF>
+        $$CODEWARRIOR_MOCS_GROUP
         <GROUP><NAME>Libraries</NAME>
             $$CODEWARRIOR_LIBRARIES_GROUP
         </GROUP>

@@ -798,23 +798,13 @@
                 <SETTING><NAME>MWProject_X86_importlib</NAME><VALUE></VALUE></SETTING>
             </SETTINGLIST>
             <FILELIST>
-                <FILE>
-                    <PATHTYPE>Name</PATHTYPE>
-                    <PATH>$$TARGET.mocs</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                    <FILEKIND>Text</FILEKIND>
-                    <FILEFLAGS></FILEFLAGS>
-                </FILE>
+                $$CODEWARRIOR_MOCS
                 $$CODEWARRIOR_LIBRARIES
                 $$CODEWARRIOR_SOURCES
                 $$CODEWARRIOR_HEADERS
             </FILELIST>
             <LINKORDER>
-                <FILEREF>
-                    <PATHTYPE>Name</PATHTYPE>
-                    <PATH>$$TARGET.mocs</PATH>
-                    <PATHFORMAT>MacOS</PATHFORMAT>
-                </FILEREF>
+                $$CODEWARRIOR_MOCS_LINKORDER
                 $$CODEWARRIOR_LIBRARIES_LINKORDER
                 $$CODEWARRIOR_SOURCES_LINKORDER
                 $$CODEWARRIOR_HEADERS_LINKORDER
@@ -827,12 +817,7 @@
     </TARGETORDER>
 
     <GROUPLIST>
-        <FILEREF>
-            <TARGETNAME>$$TARGET</TARGETNAME>
-            <PATHTYPE>Name</PATHTYPE>
-            <PATH>$$TARGET.mocs</PATH>
-            <PATHFORMAT>MacOS</PATHFORMAT>
-        </FILEREF>
+        $$CODEWARRIOR_MOCS_GROUP
         <GROUP><NAME>Libraries</NAME>
             $$CODEWARRIOR_LIBRARIES_GROUP
         </GROUP>

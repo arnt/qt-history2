@@ -203,8 +203,8 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
     file.close();
 
-    if(mocAware()) { //generate the $$TARGET.mocs file
-	QString mocs = Option::output_dir + Option::dir_sep + project->variables()["TARGET"].first() + ".mocs";
+    if(mocAware()) { 
+	QString mocs = Option::output_dir + Option::dir_sep + project->variables()["TARGET_STEM"].first() + ".mocs";
 	QFile mocfile(mocs);
 	if(!mocfile.open(IO_WriteOnly)) {
 	    fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.latin1());
@@ -230,6 +230,7 @@ MetrowerksMakefileGenerator::init()
 {
     if(init_flag)
 	return;
+    Option::mkfile::do_deps = FALSE; //not necesary since mw doesn't care!
     QStringList::Iterator it;
     init_flag = TRUE;
 
@@ -243,11 +244,16 @@ MetrowerksMakefileGenerator::init()
     QStringList &configs = project->variables()["CONFIG"];
     if(project->isActiveConfig("qt")) {
 	if(configs.findIndex("moc")) configs.append("moc");
-	project->variables()["LIBS"].append("$(QTDIR)/lib/libqt.lib");
+	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
+		(project->first("TARGET") == "qt-mt") ) ) {
+	    project->variables()["LIBS"] += project->variables()["QMAKE_LIBS_QT"];
+	}
     }
 
-    if ( project->isActiveConfig("moc") ) 
+    if ( project->isActiveConfig("moc") ) {
+	project->variables()["MOCS"].append(project->variables()["TARGET"].first() + ".mocs");
 	setMocAware(TRUE);
+    }
     MakefileGenerator::init();
 
     //let metrowerks find the files
@@ -304,6 +310,10 @@ MetrowerksMakefileGenerator::init()
 	    project->variables()["LIBRARIES"].append(lib);
 	}
     }
+
+    project->variables()["TARGET_STEM"] = project->variables()["TARGET"];
+    if(project->first("TEMPLATE") == "lib") 
+	project->variables()["TARGET"].first() =  "lib" + project->first("TARGET") + ".lib";
 }
 
 
