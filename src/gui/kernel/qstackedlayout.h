@@ -41,7 +41,7 @@ public:
     void setCurrentIndex(int);
 
     // abstract virtual functions:
-   void addItem(QLayoutItem *item);
+    void addItem(QLayoutItem *item);
     QSize sizeHint() const;
     QSize minimumSize() const;
     QLayoutItem *itemAt(int) const;
@@ -50,15 +50,12 @@ public:
 
 signals:
     void widgetRemoved(int index);
+
 private:
 #if defined(Q_DISABLE_COPY)
     QStackedLayout(const QStackedLayout &);
     QStackedLayout &operator=(const QStackedLayout &);
 #endif
-
 };
-
-
-
 
 #endif

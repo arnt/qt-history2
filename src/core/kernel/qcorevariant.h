@@ -42,7 +42,7 @@ class Q_CORE_EXPORT QCoreVariant
         Map = 1,
         List = 2,
         String = 3,
-        StringList =4,
+        StringList = 4,
         Font = 5,
         Pixmap = 6,
         Brush = 7,
@@ -66,17 +66,17 @@ class Q_CORE_EXPORT QCoreVariant
         Time = 27,
         DateTime = 28,
         ByteArray = 29,
-        CString = ByteArray,
         BitArray = 30,
         KeySequence = 31,
         Pen = 32,
         LongLong = 33,
         ULongLong = 34,
         UserType = 35,
-        LastType = 0xffffffff // need this so that gcc >= 3.4 really allocates 32 bits for Type
+        LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT_COMPAT
-        ,ColorGroup = 12,
-        IconSet = Icon
+        , ColorGroup = 12,
+        IconSet = Icon,
+        CString = ByteArray
 #endif
     };
 

@@ -1000,20 +1000,14 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
 
 /*!
     \fn QColorGroup QPalette::active() const
-
-    Use createColorGroup(Active) instead.
 */
 
 /*!
     \fn QColorGroup QPalette::disabled() const
-
-    Use createColorGroup(Disabled) instead.
 */
 
 /*!
     \fn QColorGroup QPalette::inactive() const
-
-    Use createColorGroup(Inactive) instead.
 */
 
 /*!
@@ -1034,5 +1028,87 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     Use setColorGroup(Inactive, colorGroup) instead.
 */
 
+/*! \class QColorGroup
+    \compat
+*/
+
+/*! \fn QColorGroup::QColorGroup()
+
+*/
+
+/*! \fn QColorGroup::QColorGroup(const QBrush &foreground, const QBrush &button, \
+                                 const QBrush &light, const QBrush &dark, const QBrush &mid, \
+                                 const QBrush &text, const QBrush &bright_text,
+                                 const QBrush &base, const QBrush &background)
+*/
+
+/*! \fn QColorGroup::QColorGroup(const QColor &foreground, const QColor &background, \
+                                 const QColor &light, const QColor &dark, const QColor &mid, \
+                                 const QColor &text, const QColor &base)
+*/
+
+/*! \fn QColorGroup::QColorGroup(const QColorGroup &cg)
+*/
+
+/*! \fn QColorGroup::QColorGroup(const QPalette &pal)
+*/
+
+/*! \fn const QColor &QColorGroup::foreground() const
+*/
+
+/*! \fn const QColor &QColorGroup::button() const
+*/
+
+/*! \fn const QColor &QColorGroup::light() const
+*/
+
+/*! \fn const QColor &QColorGroup::dark() const
+*/
+
+/*! \fn const QColor &QColorGroup::mid() const
+*/
+
+/*! \fn const QColor &QColorGroup::text() const
+*/
+
+/*! \fn const QColor &QColorGroup::base() const
+*/
+
+/*! \fn const QColor &QColorGroup::background() const
+*/
+
+/*! \fn const QColor &QColorGroup::midlight() const
+*/
+
+/*! \fn const QColor &QColorGroup::brightText() const
+*/
+
+/*! \fn const QColor &QColorGroup::buttonText() const
+*/
+
+/*! \fn const QColor &QColorGroup::shadow() const
+*/
+
+/*! \fn const QColor &QColorGroup::highlight() const
+*/
+
+/*! \fn const QColor &QColorGroup::highlightedText() const
+*/
+
+/*! \fn const QColor &QColorGroup::link() const
+*/
+
+/*! \fn const QColor &QColorGroup::linkVisited() const
+*/
+
+/*! \fn QDataStream &operator<<(QDataStream &ds, const QColorGroup &cg)
+    \relates QColorGroup
+    \compat
+*/
+
+/*! \fn QDataStream &operator>>(QDataStream &ds, QColorGroup &cg)
+    \relates QColorGroup
+    \compat
+*/
 
 #endif // QT_NO_PALETTE
