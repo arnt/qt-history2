@@ -837,7 +837,10 @@ MakefileGenerator::writePrlFile(QTextStream &t)
     int slsh = target.findRev(Option::dir_sep);
     if(slsh != -1)
 	target = target.right(target.length() - slsh - 1);
-    t << "QMAKE_PRL_BUILD_DIR = " << Option::output_dir << endl;
+    QString bdir = Option::output_dir;
+    if(bdir.isEmpty())
+	bdir = QDir::currentDirPath();
+    t << "QMAKE_PRL_BUILD_DIR = " << bdir << endl;
     if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
 	t << "QMAKE_PRL_SOURCE_DIR = " << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
     t << "QMAKE_PRL_TARGET = " << target << endl;
@@ -1559,10 +1562,14 @@ MakefileGenerator::specdir()
 #include "msvc_dsp.h"
 #include "metrowerks_xml.h"
 #include "pbuilder_pbx.h"
+#include "projectgenerator.h"
 
 MakefileGenerator *
 MakefileGenerator::create(QMakeProject *proj)
 {
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
+	return new ProjectGenerator(proj);
+
     MakefileGenerator *mkfile = NULL;
     QString gen = proj->first("MAKEFILE_GENERATOR");
     if(gen.isEmpty()) {

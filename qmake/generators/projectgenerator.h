@@ -51,6 +51,7 @@ protected:
 public:
     ProjectGenerator(QMakeProject *p);
     ~ProjectGenerator();
+    virtual QString defaultMakefile() const;
 };
 
 inline ProjectGenerator::~ProjectGenerator()

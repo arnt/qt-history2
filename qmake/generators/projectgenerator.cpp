@@ -399,3 +399,13 @@ ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
 	join = join.replace(QRegExp("\\\\"), "/");
     return ret + join + "\n";
 }
+
+QString
+ProjectGenerator::defaultMakefile() const
+{
+    QString dir = QDir::currentDirPath();
+    int s = dir.findRev('/');
+    if(s != -1)
+	dir = dir.right(dir.length() - (s + 1));
+    return dir + ".pro";
+}
