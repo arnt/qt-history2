@@ -2249,16 +2249,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		{ optionKeyBit, MAP_KEY(Qt::Key_Super_L) },
 		{ rightOptionKeyBit, MAP_KEY(Qt::Key_Super_R) },
 		{ alphaLockBit, MAP_KEY(Qt::Key_CapsLock) },
-		{ kEventKeyModifierNumLockMask, MAP_KEY(Qt::Key_NumLock) },
+		{ kEventKeyModifierNumLockBit, MAP_KEY(Qt::Key_NumLock) },
 		{   0, MAP_KEY(0) } };
-	    for(int i = cmdKeyBit; i <= rightControlKeyBit; i++) {
+	    for(int i = 0; i <= 32; i++) { //just check each bit
 		if(!(changed_modifiers & (1 << i)))
 		    continue;
 		QEvent::Type etype = QEvent::KeyPress;
 		if(last_modifiers & (1 << i))
 		    etype = QEvent::KeyRelease;
 		int key = 0;
-		for(int x = 0; key_modif_syms[x].mac_code; x++) {
+		for(uint x = 0; key_modif_syms[x].mac_code; x++) {
 		    if(key_modif_syms[x].mac_code == i) {
 #ifdef DEBUG_KEY_MAPS
 			qDebug("got modifier changed: %s", key_modif_syms[x].desc);
