@@ -24,32 +24,53 @@ Qt Designer
 Qt Assistant
 ========================================
 
- - Add a context menu with common commands.
+ - Added a context menu with common commands.
 
- - Allow multiple windows to be opened and add the common shortcut that
+ - Allow multiple windows to be opened and added the common shortcut that
    Shift+Click on a link opens the link in a new window.
 
 
 Qt Functions
 ========================================
 
+QApplication
+------------
+
+ - The default directory for plugins does no longer include "./plugins" due
+   to security issues. If your application needs this, please add "./plugins"
+   to the library search path with QApplication::addLibraryPath().
+
+QColor
+-----
+
+ - X11 only: better heuristic to decide if you use black or white when a
+   color could not be allocated.
+
 QComboBox
 ---------
 
- - Add a new function to be able to set a custom line edit.
+ - Added a new function to be able to set a custom line edit.
 
 New function:
 	virtual void setLineEdit( QLineEdit *edit );
 
+QCursor
+-------
+
+ - Windows only: Added a constructor that takes a platform specific handle.
+
+New function:
+	QCursor( HCURSOR ); (Windows only)
+
 QDom
 ----
 
- - Fix an infinite loop in QDomDocument::toString().
+ - Fixed an infinite loop in QDomDocument::toString().
 
 QIconView
 ---------
 
- - Add a function to find out whether an item in a view is currently being
+ - Added a function to find out whether an item in a view is currently being
    renamed.
 
 New function:
@@ -58,8 +79,8 @@ New function:
 QListView
 ---------
 
- - Add a function to find out whether an item in a view is currently being
-   renamed.
+ - Added a function to find out whether an item in a view is currently
+   being renamed.
 
 New function:
 	bool isRenaming() const;
@@ -68,7 +89,8 @@ QObject
 -------
 
  - The slot deferredDelete() was renamed to deleteLate() to be more
-   intuitive.
+   intuitive. Code that used deferredDelete() has to be adjusted for the
+   new name.
 
 New function:
 	void deleteLater();
@@ -77,7 +99,7 @@ QPixmap
 -------
 
  - X11 with render extension only: better support for alpha blending
-   (QPixmap::xForm() keeps now the alpha channel information, tiling
+   (QPixmap::xForm() keeps now the alpha channel information and tiling
    pixmaps with alpha channel works now).
 
 QPrinter
@@ -89,13 +111,14 @@ QStyle
 ------
 
  - Added a base value (CC_CustomBase) for custom defined primitives,
-   controls, etc. this allows custom widgets to use the new style engine.
+   controls, etc. -- this allows custom widgets to use the new style
+   engine.
 
 QTextEdit
 ---------
 
  - New function to pass the position to the createPopupMenu() function for
-   improved flexibility
+   improved flexibility.
 
 New function:
 	virtual QPopupMenu *createPopupMenu( const QPoint& pos );
@@ -103,7 +126,7 @@ New function:
 QUrlInfo
 --------
 
- - Add the concept of invalid QUrlInfo objects. This is useful in
+ - Added the concept of invalid QUrlInfo objects. This is useful in
    conjunction with QUrlOperator::info().
 
 New function:
