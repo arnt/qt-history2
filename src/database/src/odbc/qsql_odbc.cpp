@@ -2,6 +2,7 @@
 
 #if defined (_OS_WIN32_)
 #include <qt_windows.h>
+#include <qapplication.h>
 #endif
 #include <qdatetime.h>
 
@@ -215,15 +216,41 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-    r =  SQLColumns( hStmt,
-		     NULL,
-		     0,
-		     NULL,
-		     0,
-		     (SQLCHAR*)tablename.local8Bit().data(),
-		     tablename.length(),
-		     (SQLCHAR*)fieldname.local8Bit().data(),
-		     fieldname.length() );
+#ifdef(_WS_WIN_)
+#if defined(UNICODE)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r =  SQLColumns( hStmt,
+			 NULL,
+			 0,
+			 NULL,
+			 0,
+			 (TCHAR*)qt_winTchar( tablename, TRUE ),
+			 tablename.length(),
+			 (TCHAR*)qt_winTchar( fieldname, TRUE ),
+			 fieldname.length() );
+    else 
+#endif
+	r =  SQLColumnsA( hStmt,
+			 NULL,
+			 0,
+			 NULL,
+			 0,
+			 (SQLCHAR*)tablename.local8Bit().data(),
+			 tablename.length(),
+			 (SQLCHAR*)fieldname.local8Bit().data(),
+			 fieldname.length() );
+#else
+	r =  SQLColumns( hStmt,
+			 NULL,
+			 0,
+			 NULL,
+			 0,
+			 (SQLCHAR*)tablename.local8Bit().data(),
+			 tablename.length(),
+			 (SQLCHAR*)fieldname.local8Bit().data(),
+			 fieldname.length() );
+#endif
+
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSystemWarning( "qMakeField: Unable to execute column list", d );
