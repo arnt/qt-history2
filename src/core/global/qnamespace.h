@@ -84,8 +84,12 @@ public:
 
     // documented in qlistview.cpp
     enum SortOrder {
-        Ascending,
-        Descending
+        AscendingOrder,
+        DescendingOrder
+#ifndef QT_COMPAT
+        ,Ascending = AscendingOrder,
+        Descending = DescendingOrder
+#endif
     };
 
     // Text formatting flags for QPainter::drawText and QLabel
@@ -359,12 +363,6 @@ public:
     };
 #endif
 
-    // documented in qkeysequence.cpp
-    enum SequenceMatch {
-        NoMatch,
-        PartialMatch,
-        Identical
-    };
 
     // documented in qevent.cpp
     enum Modifier {                // shortcut modifiers
@@ -977,10 +975,16 @@ public:
 
     // Documented in qtabwidget.cpp
     enum Corner {
-        TopLeft     = 0x00000,
-        TopRight    = 0x00001,
-        BottomLeft  = 0x00002,
-        BottomRight = 0x00003
+        TopLeftCorner     = 0x00000,
+        TopRightCorner    = 0x00001,
+        BottomLeftCorner  = 0x00002,
+        BottomRightCorner = 0x00003
+#ifdef QT_COMPAT
+        ,TopLeft = TopLeftCorner,
+        TopRight = TopRightCorner,
+        BottomLeft = BottomLeftCorner,
+        BottomRight = BottomRightCorner
+#endif
     };
 
     // Documented in qnamespace.doc
@@ -992,9 +996,9 @@ public:
 
     // Documented in qwidget.cpp
     enum ShortcutContext {
-        OnFocusWidget,
-        OnActiveWindow,
-        OnApplication
+        ShortcutOnFocusWidget,
+        ShortcutOnActiveWindow,
+        ShortcutOnApplication
     };
 
     // "handle" type for system objects. Documented as \internal in

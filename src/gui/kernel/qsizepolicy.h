@@ -27,13 +27,15 @@ private:
     enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
            MayGrow = 1, ExpMask = 2, MayShrink = 4 };
 public:
-    enum SizeType { Fixed = 0,
+    enum SizeTypeFlags { Fixed = 0,
                     Minimum = MayGrow,
                     Maximum = MayShrink,
                     Preferred = MayGrow | MayShrink,
                     MinimumExpanding = MayGrow | ExpMask,
                     Expanding = MayGrow | MayShrink | ExpMask,
                     Ignored = ExpMask /* magic value */ };
+
+    Q_DECLARE_FLAGS(SizeType, SizeTypeFlags);
 
     enum ExpandData { NoDirection = 0,
                       Horizontally = 1,
@@ -87,6 +89,8 @@ private:
 
     Q_UINT32 data;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QSizePolicy::SizeType);
 
 inline QSizePolicy::QSizePolicy(SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw)
     : data(hor | (ver<<HSize) | (hfw ? (Q_UINT32)(1<<2*HSize) : 0)) {

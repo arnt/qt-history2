@@ -5459,7 +5459,7 @@ void QTable::sortColumn(int col, bool ascending, bool wholeRows)
     }
     setUpdatesEnabled(updatesEnabled);
     if (topHeader)
-        topHeader->setSortIndicator(col, ascending ? Qt::Ascending : Qt::Descending);
+        topHeader->setSortIndicator(col, ascending ? Qt::AscendingOrder : Qt::DescendingOrder);
 
     if (!wholeRows)
         repaintContents(columnPos(col), contentsY(),

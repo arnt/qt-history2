@@ -27,7 +27,7 @@ class QSqlTableModelPrivate: public QSqlModelPrivate
 public:
     QSqlTableModelPrivate()
         : editIndex(-1), insertIndex(-1), sortColumn(-1),
-          sortOrder(Qt::Ascending),
+          sortOrder(Qt::AscendingOrder),
           strategy(QSqlTableModel::OnFieldChange) {}
     void clear();
     QString whereClause() const;
@@ -72,7 +72,7 @@ void QSqlTableModelPrivate::clear()
 {
     editIndex = -1;
     sortColumn = -1;
-    sortOrder = Qt::Ascending;
+    sortOrder = Qt::AscendingOrder;
     tableName = QString();
     editQuery.clear();
     editBuffer.clear();
@@ -501,7 +501,7 @@ QString QSqlTableModel::orderByStatement() const
     if (!f.isValid())
         return s;
     s.append("ORDER BY ").append(f.name());
-    s += d->sortOrder == Qt::Ascending ? " ASC" : " DESC";
+    s += d->sortOrder == Qt::AscendingOrder ? " ASC" : " DESC";
     return s;
 }
 

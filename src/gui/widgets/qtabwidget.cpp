@@ -91,10 +91,10 @@
 /*!
   \enum Qt::Corner
   This enum type specifies a corner in a rectangle:
-  \value TopLeft top left corner
-  \value TopRight top right corner
-  \value BottomLeft bottom left corner
-  \value BottomRight bottom right corner
+  \value TopLeftCorner top left corner
+  \value TopRightCorner top right corner
+  \value BottomLeftCorner bottom left corner
+  \value BottomRightCorner bottom right corner
 */
 
 /*!

@@ -535,12 +535,12 @@ QString QKeySequence::encodeString(int key)
 }
 
 /*!
-    Matches the sequence with \a seq. Returns \c Qt::Identical if
-    successful, \c Qt::PartialMatch if \a seq matches incompletely,
-    and \c Qt::NoMatch if the sequences have nothing in common.
-    Returns \c Qt::NoMatch if \a seq is shorter.
+    Matches the sequence with \a seq. Returns \c ExactMatch if
+    successful, \c PartialMatch if \a seq matches incompletely,
+    and \c NoMatch if the sequences have nothing in common.
+    Returns \c NoMatch if \a seq is shorter.
 */
-Qt::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
+QKeySequence::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
 {
     uint userN = count(),
           seqN = seq.count();
@@ -548,9 +548,9 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
     if (userN > seqN)
         return NoMatch;
 
-    // If equal in length, we have a potential Identical sequence,
+    // If equal in length, we have a potential ExactMatch sequence,
     // else we already know it can only be partial.
-    SequenceMatch match = (userN == seqN ? Identical : PartialMatch);
+    SequenceMatch match = (userN == seqN ? ExactMatch : PartialMatch);
 
     for (uint i = 0; i < userN; ++i) {
         int userKey = (*this)[i],
@@ -659,7 +659,7 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     return false;
 }
 
-/*!     
+/*!
     \fn bool QKeySequence::operator> (const QKeySequence &other) const
 
     Returns true if this key sequence is larger than the \a other key
@@ -668,7 +668,7 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     \sa operator==() operator!=() operator<() operator<=() operator>=()
 */
 
-/*! 
+/*!
     \fn bool QKeySequence::operator<= (const QKeySequence &other) const
 
     Returns true if this key sequence is smaller or equal to the
@@ -677,7 +677,7 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     \sa operator==() operator!=() operator<() operator>() operator>=()
 */
 
-/*!     
+/*!
     \fn bool QKeySequence::operator>= (const QKeySequence &other) const
 
     Returns true if this key sequence is larger or equal to the

@@ -46,7 +46,14 @@ public:
 
     uint count() const;
     bool isEmpty() const;
-    Qt::SequenceMatch matches(const QKeySequence &seq) const;
+
+    enum SequenceMatch {
+        NoMatch,
+        PartialMatch,
+        ExactMatch
+    };
+
+    SequenceMatch matches(const QKeySequence &seq) const;
     static QKeySequence mnemonic(const QString &text);
 
     operator QString() const;
@@ -54,7 +61,7 @@ public:
     int operator[](uint i) const;
     QKeySequence &operator=(const QKeySequence &other);
     bool operator==(const QKeySequence &other) const;
-    inline bool operator!= (const QKeySequence &other) const 
+    inline bool operator!= (const QKeySequence &other) const
     { return !(*this == other); }
     bool operator< (const QKeySequence &ks) const;
     inline bool operator> (const QKeySequence &other) const

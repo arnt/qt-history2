@@ -56,14 +56,14 @@ class QShortcutPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QShortcut)
 public:
-    QShortcutPrivate() : sc_context(OnActiveWindow), sc_enabled(true), sc_id(0) {}
+    QShortcutPrivate() : sc_context(ShortcutOnActiveWindow), sc_enabled(true), sc_id(0) {}
     QKeySequence sc_sequence;
     ShortcutContext sc_context;
     bool sc_enabled;
     int sc_id;
     QString sc_whatsthis;
 
-    void redoGrab() 
+    void redoGrab()
     {
         QWidget *parent = q->parentWidget();
         if (!parent)

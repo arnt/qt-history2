@@ -1669,7 +1669,7 @@ int QHeader::sortIndicatorSection() const
 
 Qt::SortOrder QHeader::sortIndicatorOrder() const
 {
-    return d->sortDirection ? Ascending : Descending;
+    return d->sortDirection ? AscendingOrder : DescendingOrder;
 }
 
 /*!

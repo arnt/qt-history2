@@ -23,7 +23,7 @@
 struct QShortcutEntry
 {
     QShortcutEntry()
-        : keyseq(0), context(Qt::OnActiveWindow), enabled(false), id(0), owner(0)
+        : keyseq(0), context(Qt::ShortcutOnActiveWindow), enabled(false), id(0), owner(0)
     {}
 
     QShortcutEntry(const QWidget *w, const QKeySequence &k, Qt::ShortcutContext c, int i)
@@ -63,7 +63,7 @@ class QShortcutMapPrivate
 
 public:
     QShortcutMapPrivate(QShortcutMap* parent)
-        : q_ptr(parent), currentId(0), ambigCount(0), currentState(Qt::NoMatch)
+        : q_ptr(parent), currentId(0), ambigCount(0), currentState(QKeySequence::NoMatch)
     { identicals.reserve(10); }
     QShortcutMap *q_ptr;                        // Private's parent
 
@@ -71,7 +71,7 @@ public:
 
     int currentId;                              // Global shortcut ID number
     int ambigCount;                             // Index of last enabled ambiguous dispatch
-    Qt::SequenceMatch currentState;
+    QKeySequence::SequenceMatch currentState;
     QKeySequence currentSequence;               // Sequence for the current state
     QKeySequence prevSequence;                  // Sequence for the previous identical match
     QVector<const QShortcutEntry*> identicals;  // Last identical matches
@@ -200,14 +200,14 @@ int QShortcutMap::setShortcutEnabled(const QWidget *owner, int id, bool enable,
 */
 void QShortcutMap::resetState()
 {
-    d->currentState = Qt::NoMatch;
+    d->currentState = QKeySequence::NoMatch;
     clearSequence(d->currentSequence);
 }
 
 /*! \internal
     Returns the current state of the statemachine
 */
-Qt::SequenceMatch QShortcutMap::state()
+QKeySequence::SequenceMatch QShortcutMap::state()
 {
     return d->currentState;
 }
@@ -220,7 +220,7 @@ Qt::SequenceMatch QShortcutMap::state()
 */
 bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
 {
-    if (d->currentState == Qt::NoMatch) {
+    if (d->currentState == QKeySequence::NoMatch) {
         ushort orgType = e->t;
         e->t = QEvent::ShortcutOverride;
         e->ignore();
@@ -229,41 +229,41 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
         if (e->isAccepted())
             return false;
     }
-    Qt::SequenceMatch result = nextState(e);
+    QKeySequence::SequenceMatch result = nextState(e);
     switch(result) {
-    case Qt::NoMatch:
+    case QKeySequence::NoMatch:
         return e->isAccepted();
-    case Qt::Identical:
+    case QKeySequence::ExactMatch:
         dispatchEvent();
         resetState();
     default:
 	break;
     }
-    // If nextState is Qt::Identical && identicals.count == 0
+    // If nextState is QKeySequence::ExactMatch && identicals.count == 0
     // we've only found disabled shortcuts
-    return d->identicals.count() > 0 || result == Qt::PartialMatch;
+    return d->identicals.count() > 0 || result == QKeySequence::PartialMatch;
 }
 
 /*! \internal
     Returns the next state of the statemachine
-    If return value is SequenceMatch::Identical, then a call to matches()
+    If return value is SequenceMatch::ExactMatch, then a call to matches()
     will return a QObjects* list of all matching objects for the last matching
     sequence.
 */
-Qt::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
+QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 {
     // Modifiers can NOT be shortcuts...
     if (e->key() >= Qt::Key_Shift &&
         e->key() <= Qt::Key_Alt)
         return d->currentState;
 
-    Qt::SequenceMatch result = Qt::NoMatch;
+    QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
 
     // We start fresh each time..
     d->identicals.resize(0);
 
     result = find(e);
-    if (result == Qt::NoMatch
+    if (result == QKeySequence::NoMatch
         && e->state() & Qt::ShiftButton) {
         // If Shift + Key_BackTab, also try Shift + Key_Tab
         if (e->key() == Qt::Key_BackTab) {
@@ -271,18 +271,18 @@ Qt::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
             result = find(&pe);
         }
         // If still no result, try removing the Shift modifier
-        if (result == Qt::NoMatch) {
+        if (result == QKeySequence::NoMatch) {
             QKeyEvent pe = QKeyEvent(e->type(), e->key(), e->state()&~Qt::ShiftButton, e->text());
             result = find(&pe);
         }
     }
 
     // Should we eat this key press?
-    if (d->currentState == Qt::PartialMatch
-        || (d->currentState == Qt::Identical && d->identicals.count()))
+    if (d->currentState == QKeySequence::PartialMatch
+        || (d->currentState == QKeySequence::ExactMatch && d->identicals.count()))
         e->accept();
     // Does the new state require us to clean up?
-    if (result == Qt::NoMatch)
+    if (result == QKeySequence::NoMatch)
         clearSequence(d->currentSequence);
     d->currentState = result;
 
@@ -299,10 +299,10 @@ Qt::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
     which can be access through matches().
     \sa matches
 */
-Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
+QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
 {
     if (!d->sequences.count())
-        return Qt::NoMatch;
+        return QKeySequence::NoMatch;
 
     static QShortcutEntry newEntry;
     createNewSequence(e, newEntry.keyseq);
@@ -311,7 +311,7 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     if (newEntry.keyseq == d->currentSequence) {
         Q_ASSERT_X(e->key() != Qt::Key_unknown || e->text().length(),
                    "QShortcutMap::find", "New sequence to find identical to previous");
-        return Qt::NoMatch;
+        return QKeySequence::NoMatch;
     }
 
     // Looking for new identicals, scrap old
@@ -323,18 +323,18 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     QList<QShortcutEntry>::ConstIterator itEnd = d->sequences.constEnd();
     bool partialFound = false;
     bool identicalDisabledFound = false;
-    Qt::SequenceMatch result = Qt::NoMatch;
+    QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
     do {
         if (it == itEnd)
             break;
         result = newEntry.keyseq.matches((*it).keyseq);
         if (correctContext(*it)) {
-            if (result == Qt::Identical) {
+            if (result == QKeySequence::ExactMatch) {
                 if ((*it).enabled)
                     d->identicals.append(&*it);
                 else
                     identicalDisabledFound = true;
-            } else if (result == Qt::PartialMatch) {
+            } else if (result == QKeySequence::PartialMatch) {
                 // We don't need partials, if we have identicals
                 if (d->identicals.size())
                     break;
@@ -344,19 +344,19 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
             }
         }
         ++it;
-    } while (result != Qt::NoMatch);
+    } while (result != QKeySequence::NoMatch);
 
     if (d->identicals.size()) {
-        result = Qt::Identical;
+        result = QKeySequence::ExactMatch;
     } else if (partialFound) {
-        result = Qt::PartialMatch;
+        result = QKeySequence::PartialMatch;
     } else if (identicalDisabledFound) {
-        result = Qt::Identical;
+        result = QKeySequence::ExactMatch;
     } else {
         clearSequence(d->currentSequence);
-        result = Qt::NoMatch;
+        result = QKeySequence::NoMatch;
     }
-    if (result != Qt::NoMatch)
+    if (result != QKeySequence::NoMatch)
         d->currentSequence = newEntry.keyseq;
     return result;
 }
@@ -413,7 +413,7 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     wtlw = wtlw->topLevelWidget();
 
     switch (item.context) {
-    case Qt::OnActiveWindow:
+    case Qt::ShortcutOnActiveWindow:
         {
 #ifndef QT_NO_MAINWINDOW
             /* if we live in a floating dock window, keep our parent's
@@ -442,9 +442,9 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
             }
 #endif
         }
-    case Qt::OnApplication:
+    case Qt::ShortcutOnApplication:
         return true;
-    case Qt::OnFocusWidget:
+    case Qt::ShortcutOnFocusWidget:
         return qApp->focusWidget() == item.owner;
     }
     return true;
@@ -481,7 +481,7 @@ QVector<const QShortcutEntry*> QShortcutMap::matches() const
 void QShortcutMap::dispatchEvent()
 {
     if (!d->identicals.size()
-        || d->currentState != Qt::Identical)
+        || d->currentState != QKeySequence::ExactMatch)
         return;
 
     if (d->prevSequence != d->currentSequence) {

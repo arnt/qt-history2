@@ -161,18 +161,18 @@ public:
 
 private:
     QAccelManager()
-        : currentState(Qt::NoMatch), clash(-1), metaComposeUnicode(false),composedUnicode(0)
+        : currentState(QKeySequence::NoMatch), clash(-1), metaComposeUnicode(false),composedUnicode(0)
         { setFuncPtr(); self_ptr = this; }
     ~QAccelManager() { self_ptr = 0; }
     void setFuncPtr();
 
     bool correctSubWindow(QWidget *w, QAccelPrivate* priv);
-    SequenceMatch match(QKeyEvent* e, QAccelItem* item, QKeySequence& temp);
+    QKeySequence::SequenceMatch match(QKeyEvent* e, QAccelItem* item, QKeySequence& temp);
     int translateModifiers(ButtonState state);
 
     QList<QAccelPrivate *> accels;
     static QAccelManager* self_ptr;
-    Qt::SequenceMatch currentState;
+    QKeySequence::SequenceMatch currentState;
     QKeySequence intermediate;
     int clash;
     bool metaComposeUnicode;
@@ -264,9 +264,9 @@ inline int QAccelManager::translateModifiers(ButtonState state)
     PartialMatch or NoMatch, and fills \a temp with the
     resulting key sequence.
 */
-Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySequence& temp)
+QKeySequence::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySequence& temp)
 {
-    SequenceMatch result = Qt::NoMatch;
+    QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
     int index = intermediate.count();
     temp = intermediate;
 
@@ -283,17 +283,17 @@ Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySeque
             key &= ~SHIFT;
 
             temp.setKey(key, index);
-            if (Qt::NoMatch != (result = temp.matches(item->key)))
+            if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
             if (e->state() & ShiftButton)
                 key |= SHIFT;
             key = Key_Tab | (key & MODIFIER_MASK);
             temp.setKey(key, index);
-            if (Qt::NoMatch != (result = temp.matches(item->key)))
+            if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
         } else {
             temp.setKey(key, index);
-            if (Qt::NoMatch != (result = temp.matches(item->key)))
+            if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
         }
 
@@ -301,7 +301,7 @@ Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySeque
             if (e->state() & ShiftButton)
                 key |= SHIFT;
             temp.setKey(key, index);
-            if (Qt::NoMatch != (result = temp.matches(item->key)))
+            if (QKeySequence::NoMatch != (result = temp.matches(item->key)))
                 return result;
         }
     }
@@ -314,7 +314,7 @@ Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySeque
 
 bool QAccelManager::tryAccelEvent(QWidget* w, QKeyEvent* e)
 {
-    if (Qt::NoMatch == currentState) {
+    if (QKeySequence::NoMatch == currentState) {
         e->t = QEvent::AccelOverride;
         e->ignore();
         QApplication::sendSpontaneousEvent(w, e);
@@ -394,7 +394,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
          e->key() <= Key_Alt)
          return false;
 
-    SequenceMatch result = Qt::NoMatch;
+    QKeySequence::SequenceMatch result = QKeySequence::NoMatch;
     QKeySequence tocheck, partial;
     QAccelPrivate* accel = 0;
     QAccelItem* item = 0;
@@ -422,7 +422,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
                         item = accel->aitems.at(j);
                         qDebug("        Item: %s", ((QString)item->key).latin1());
                         result = match(&pe, item, tocheck);
-                        if (Qt::Identical == result) {
+                        if (QKeySequence::ExactMatch == result) {
                             if (item->enabled) {
                                 if (!firstaccel) {
                                     firstaccel = accel;
@@ -438,7 +438,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
                                 identicalDisabled = true;
                             }
                         }
-                        if (item->enabled && Qt::PartialMatch == result) {
+                        if (item->enabled && QKeySequence::PartialMatch == result) {
                             partial = tocheck;
                             matchFound = true;
                         }
@@ -447,7 +447,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
                     for (int j = accel->aitems.size(); j > 0;) {
                         --j;
                         item = accel->aitems.at(j);
-                        if (Qt::Identical == match(&pe, item, tocheck))
+                        if (QKeySequence::ExactMatch == match(&pe, item, tocheck))
                             identicalDisabled = true;
                     }
                 }
@@ -460,11 +460,11 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     mainStatusBar = (QStatusBar*) w->topLevelWidget()->child(0, "QStatusBar");
 #endif
     if (n < 0) { // no match found
-        currentState = partial.count() ? PartialMatch : NoMatch;
+        currentState = partial.count() ? QKeySequence::PartialMatch : QKeySequence::NoMatch;
 #ifndef QT_NO_STATUSBAR
         // Only display message if we are, or were, in a partial match
-        if (mainStatusBar && (PartialMatch == currentState || intermediate.count())) {
-            if (currentState == Qt::PartialMatch) {
+        if (mainStatusBar && (QKeySequence::PartialMatch == currentState || intermediate.count())) {
+            if (currentState == QKeySequence::PartialMatch) {
                 mainStatusBar->message((QString)partial + ", ...", 0);
             } else if (!identicalDisabled) {
                 QString message = QAccel::tr("%1, %2 not defined").
@@ -479,7 +479,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
         }
 #endif
 
-        bool eatKey = (PartialMatch == currentState || intermediate.count());
+        bool eatKey = (QKeySequence::PartialMatch == currentState || intermediate.count());
         intermediate = partial;
         if (eatKey)
             e->accept();
@@ -487,10 +487,10 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     } else if (n == 0) { // found exactly one match
         clash = -1; // reset
 #ifndef QT_NO_STATUSBAR
-        if (currentState == Qt::PartialMatch && mainStatusBar)
+        if (currentState == QKeySequence::PartialMatch && mainStatusBar)
                 mainStatusBar->clear();
 #endif
-        currentState = Qt::NoMatch; // Free sequence keylock
+        currentState = QKeySequence::NoMatch; // Free sequence keylock
         intermediate = QKeySequence();
         lastaccel->activate(lastitem);
         qDebug("activate(lastitem)");
@@ -507,7 +507,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     QString message = QAccel::tr("Ambiguous \"%1\" not handled").arg((QString)tocheck);
     if (clash >= 0 && n > clash) { // pick next  match
         intermediate = QKeySequence();
-        currentState = Qt::NoMatch; // Free sequence keylock
+        currentState = QKeySequence::NoMatch; // Free sequence keylock
         clash++;
 #ifndef QT_NO_STATUSBAR
         if (mainStatusBar &&
@@ -519,7 +519,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
         qDebug("activateAmbiguously(lastitem)");
     } else { // start (or wrap) with the first matching
         intermediate = QKeySequence();
-        currentState = Qt::NoMatch; // Free sequence keylock
+        currentState = QKeySequence::NoMatch; // Free sequence keylock
         clash = 0;
 #ifndef QT_NO_STATUSBAR
         if (mainStatusBar &&

@@ -18,7 +18,7 @@ public:
     QGenericHeaderPrivate()
         : state(NoState),
           offset(0),
-          sortIndicatorOrder(Qt::Ascending),
+          sortIndicatorOrder(Qt::AscendingOrder),
           sortIndicatorSection(-1),
           movableSections(false),
           clickableSections(false),
@@ -274,7 +274,7 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
             opt.rect.setRect(x + secSize - border * 2 - (h / 2), y + 5, h / 2, h - border * 2);
         else
             opt.rect.setRect(x + 5, y + secSize - h, h / 2, h - border * 2);
-        arrowFlags |= (sortIndicatorOrder() == Qt::Ascending ? QStyle::Style_Down : QStyle::Style_Up);
+        arrowFlags |= (sortIndicatorOrder() == Qt::AscendingOrder ? QStyle::Style_Down : QStyle::Style_Up);
         opt.state = arrowFlags;
         style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
     }

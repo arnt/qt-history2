@@ -686,10 +686,10 @@ void QFileDialog::headerClicked(int section)
     }
     QGenericHeader *header = d->tview->header();
     SortOrder order = (header->sortIndicatorSection() == section
-                       && header->sortIndicatorOrder() == Descending)
-                      ? Ascending : Descending;
+                       && header->sortIndicatorOrder() == DescendingOrder)
+                      ? AscendingOrder : DescendingOrder;
     bool sortByName = (spec & QDir::SortByMask) == QDir::Name;
-    bool reverse = (order == Ascending ? sortByName : !sortByName);
+    bool reverse = (order == AscendingOrder ? sortByName : !sortByName);
     if (reverse) {
         spec |= QDir::Reversed;
         spec |= QDir::DirsLast;
@@ -778,7 +778,7 @@ void QFileDialogPrivate::setup()
     tview->setShowRootDecoration(false);
     tview->header()->setResizeMode(QGenericHeader::Custom);
     tview->header()->setResizeMode(QGenericHeader::Stretch, 0);
-    tview->header()->setSortIndicator(0, Qt::Descending);
+    tview->header()->setSortIndicator(0, Qt::DescendingOrder);
     tview->hide();
     tview->setStartEditActions(QAbstractItemDelegate::EditKeyPressed);
     grid->addWidget(tview, 1, 0, 1, 6);

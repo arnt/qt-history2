@@ -97,7 +97,7 @@ public:
 
     void         setSortIndicator(int section, bool ascending = true); // obsolete, do not use
     inline void setSortIndicator(int section, SortOrder order)
-        { setSortIndicator(section, (order == Ascending)); }
+        { setSortIndicator(section, (order == AscendingOrder)); }
     int                sortIndicatorSection() const;
     SortOrder        sortIndicatorOrder() const;
 

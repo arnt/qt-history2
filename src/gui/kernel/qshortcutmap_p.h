@@ -24,8 +24,8 @@ public:
     int setShortcutEnabled(const QWidget *owner, int id, bool enable, const QKeySequence &key = QKeySequence());
 
     void resetState();
-    Qt::SequenceMatch nextState(QKeyEvent *e);
-    Qt::SequenceMatch state();
+    QKeySequence::SequenceMatch nextState(QKeyEvent *e);
+    QKeySequence::SequenceMatch state();
     void dispatchEvent();
     bool tryShortcutEvent(QWidget *w, QKeyEvent *e);
 
@@ -36,7 +36,7 @@ public:
 private:
     QShortcutMapPrivate *d_ptr;
 
-    Qt::SequenceMatch find(QKeyEvent *e);
+    QKeySequence::SequenceMatch find(QKeyEvent *e);
     QVector<const QShortcutEntry *> matches() const;
     void createNewSequence(QKeyEvent *e, QKeySequence &seq);
     void clearSequence(QKeySequence &seq);
