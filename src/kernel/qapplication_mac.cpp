@@ -1418,6 +1418,10 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	if(h)
 	    widget->resize(widget->width(), widget->height() - h);
 	break; }
+    case inProxyIcon: {
+	QEvent e(QEvent::IconDrag);
+	QApplication::sendSpontaneousEvent(widget, &e);
+	break; }
     case inDrag: {
 	{
 	    QMacBlockingFunction block;
@@ -1471,10 +1475,6 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inZoomOut:
 	widget->setWindowState(WindowMaximized);
 	break;
-    case inProxyIcon: {
-	QEvent e(QEvent::IconDrag);
-	QApplication::sendSpontaneousEvent(widget, &e);
-	break; }
     default:
 	qDebug("Qt: internal: Unhandled case in mouse_down.. %d", windowPart);
 	break;
