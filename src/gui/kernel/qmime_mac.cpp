@@ -303,13 +303,13 @@ void loadMimeRegistry(QFile &file, QMap<QString, int> &registry, int &max)
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
     if(!library_file.isOpen()) {
-        if(!openMimeRegistry(true, IO_ReadWrite, library_file)) {
+        if(!openMimeRegistry(true, QIODevice::ReadWrite, library_file)) {
             QFile global;
             if(openMimeRegistry(true, QIODevice::ReadOnly, global)) {
                 ::loadMimeRegistry(global, mime_registry, current_max);
                 global.close();
             }
-            if(!openMimeRegistry(false, IO_ReadWrite, library_file)) {
+            if(!openMimeRegistry(false, QIODevice::ReadWrite, library_file)) {
                 qWarning("Failure to open mime resources %s -- %s", library_file.fileName().latin1(),
                          library_file.errorString().latin1());
                 return FALSE;

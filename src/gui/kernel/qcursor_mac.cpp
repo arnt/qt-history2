@@ -254,7 +254,8 @@ void QCursor::setPos(int x, int y)
        ideally this would not really need to be faked --Sam
     */
     if(QWidget *grb = QWidget::mouseGrabber()) {
-        QMouseEvent me(QMouseEvent::MouseMove, QPoint(x, y), 0, 0);
+        QMouseEvent me(QMouseEvent::MouseMove, QPoint(x, y), Qt::NoButton,
+                       QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(grb, &me);
     }
 }

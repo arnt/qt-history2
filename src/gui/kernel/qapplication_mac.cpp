@@ -914,7 +914,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
         }
         priv->argc = j;
 
-        if(qt_is_gui_used && argv[0] && *argv[0] != '/' && qMacVersion() < Qt::MV_PANTHER)
+        if(qt_is_gui_used && argv[0] && *argv[0] != '/' && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
             qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
                      "In order to dispatch events correctly Mac OS X may "
                      "require applications to be run with the *full* path to the "
@@ -1114,14 +1114,14 @@ struct mac_enum_mapper
 
 //modifiers
 static mac_enum_mapper modifier_symbols[] = {
-    { shiftKey, MAP_MAC_ENUM(Qt::ShiftButton) },
-    { rightShiftKeyBit, MAP_MAC_ENUM(Qt::ShiftButton) },
-    { controlKey, MAP_MAC_ENUM(Qt::MetaButton) },
-    { rightControlKey, MAP_MAC_ENUM(Qt::MetaButton) },
-    { cmdKey, MAP_MAC_ENUM(Qt::ControlButton) },
-    { optionKey, MAP_MAC_ENUM(Qt::AltButton) },
-    { rightOptionKey, MAP_MAC_ENUM(Qt::AltButton) },
-    { kEventKeyModifierNumLockMask, MAP_MAC_ENUM(Qt::Keypad) },
+    { shiftKey, MAP_MAC_ENUM(Qt::ShiftModifier) },
+    { rightShiftKeyBit, MAP_MAC_ENUM(Qt::ShiftModifier) },
+    { controlKey, MAP_MAC_ENUM(Qt::MetaModifier) },
+    { rightControlKey, MAP_MAC_ENUM(Qt::MetaModifier) },
+    { cmdKey, MAP_MAC_ENUM(Qt::ControlModifier) },
+    { optionKey, MAP_MAC_ENUM(Qt::AltModifier) },
+    { rightOptionKey, MAP_MAC_ENUM(Qt::AltModifier) },
+    { kEventKeyModifierNumLockMask, MAP_MAC_ENUM(Qt::KeypadModifier) },
     { 0, MAP_MAC_ENUM(0) }
 };
 static Qt::KeyboardModifiers get_modifiers(int keys, bool from_mouse=false)
@@ -1346,7 +1346,7 @@ static int get_key(int modif, int key, int scan)
     for(int i = 0; keyboard_symbols[i].qt_code; i++) {
         if(keyboard_symbols[i].mac_code == key) {
             /* To work like Qt/X11 we issue Backtab when Shift + Tab are pressed */
-            if(keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftButton)) {
+            if(keyboard_symbols[i].qt_code == Qt::Key_Tab && (modif & Qt::ShiftModifier)) {
 #ifdef DEBUG_KEY_MAPS
                 qDebug("%d: got key: Qt::Key_Backtab", __LINE__);
 #endif
@@ -1649,7 +1649,7 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 {
     if(flags != QEventLoop::AllEvents) {
         UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
-        if(flags & QEventLoop::ExcludeUserInput) {
+        if(flags & QEventLoop::ExcludeUserInputEvents) {
             switch(eclass) {
             case kEventClassQt:
                 if(ekind == kEventQtRequestContext)
@@ -1757,7 +1757,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
                 if(widget) {
                     QPoint plocal(widget->mapFromGlobal(where));
-                    QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where, 0);
+                    QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where);
                     QApplication::sendEvent(widget, &qme);
                     if(qme.isAccepted()) { //once this happens the events before are pitched
                         qt_button_down = 0;
@@ -2059,7 +2059,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             } else {
 #ifdef QMAC_SPEAK_TO_ME
-                if(etype == QMouseEvent::MouseButtonDblClick && (modifiers & Qt::AltButton)) {
+                if(etype == QMouseEvent::MouseButtonDblClick && (modifiers & Qt::AltModifier)) {
                     QVariant v = widget->property("text");
                     if(!v.isValid()) v = widget->property("caption");
                     if(v.isValid()) {
@@ -2074,7 +2074,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 Qt::MouseButton buttonToSend = button;
                 static bool lastButtonTranslated = false;
                 if(ekind == kEventMouseDown &&
-                   button == Qt::LeftButton && (modifiers & Qt::MetaButton)) {
+                   button == Qt::LeftButton && (modifiers & Qt::MetaModifier)) {
                     buttonToSend = Qt::RightButton;
                     lastButtonTranslated = true;
                 } else if(ekind == kEventMouseUp && lastButtonTranslated) {
@@ -2086,7 +2086,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             if(ekind == kEventMouseDown &&
                ((button == Qt::RightButton) ||
-                (button == Qt::LeftButton && (modifiers & Qt::MetaButton))))
+                (button == Qt::LeftButton && (modifiers & Qt::MetaModifier))))
                 qt_event_request_context();
 
 #ifdef DEBUG_MOUSE_MAPS
@@ -2265,23 +2265,23 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //map it into qt keys
         QString asString;
         int asChar=get_key(modifiers, translatedChar, keycode);
-        if(modifiers & (Qt::AltButton | Qt::ControlButton)) {
+        if(modifiers & (Qt::AltModifier | Qt::ControlModifier)) {
             if(translatedChar & (1 << 7)) //high ascii
                 translatedChar = 0;
         } else {          //now get the real ascii value
             UInt32 tmp_mod = 0L;
             static UInt32 tmp_state = 0L;
-            if(modifiers & Qt::ShiftButton)
+            if(modifiers & Qt::ShiftModifier)
                 tmp_mod |= shiftKey;
-            if(modifiers & Qt::MetaButton)
+            if(modifiers & Qt::MetaModifier)
                 tmp_mod |= controlKey;
-            if(modifiers & Qt::ControlButton)
+            if(modifiers & Qt::ControlModifier)
                 tmp_mod |= cmdKey;
             if(GetCurrentEventKeyModifiers() & alphaLock) //no Qt mapper
                 tmp_mod |= alphaLock;
-            if(modifiers & Qt::AltButton)
+            if(modifiers & Qt::AltModifier)
                 tmp_mod |= optionKey;
-            if(modifiers & Qt::Keypad)
+            if(modifiers & Qt::KeypadModifier)
                 tmp_mod |= kEventKeyModifierNumLockMask;
             translatedChar = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
                                           tmp_mod | keycode, &tmp_state);
@@ -2368,7 +2368,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 #endif
                 /* This is actually wrong - but unfortunatly it is the best that can be
                    done for now because of the Control/Meta mapping problems */
-                if(modifiers & (Qt::ControlButton | Qt::MetaButton)) {
+                if(modifiers & (Qt::ControlModifier | Qt::MetaModifier)) {
                     translatedChar = 0;
                     asString = "";
                 }

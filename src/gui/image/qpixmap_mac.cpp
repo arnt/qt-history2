@@ -508,8 +508,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
             return *this;                        // identity matrix
         h = qRound(mat.m22()*hs);
         w = qRound(mat.m11()*ws);
-        h = QABS(h);
-        w = QABS(w);
+        h = qAbs(h);
+        w = qAbs(w);
     } else {                                        // rotation or shearing
         QPointArray a(QRect(0,0,ws+1,hs+1));
         a = mat.map(a);

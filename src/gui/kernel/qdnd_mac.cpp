@@ -557,7 +557,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
                 }
             }
         } else {
-            pix = QImage(default_pm);
+            pix = QPixmap(default_pm);
             hotspot = QPoint(default_pm_hotx, default_pm_hoty);
         }
     } else {

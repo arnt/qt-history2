@@ -1283,12 +1283,6 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 void
 QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 {
-#if 0
-    QRegion clipRegion(p.toFillPolygon().toPointArray(),
-                       p.fillRule() == Qt::WindingFill);
-    updateClipRegion(clipRegion, op);
-#endif
-
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
         clearf(ClipOn);
@@ -1298,8 +1292,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
         if(!testf(ClipOn))
             op = Qt::ReplaceClip;
         setf(ClipOn);
-        QRegion clipRegion(p.toFillPolygon().toPointArray(),
-                           p.fillRule() == Qt::WindingFill);
+        QRegion clipRegion(p.toFillPolygon().toPointArray(), p.fillRule());
         if(op == Qt::ReplaceClip) {
             d->current.clip = clipRegion;
             d->setClip(0);
