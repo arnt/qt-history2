@@ -81,6 +81,9 @@ public:
 
     void setEdited( bool );
     bool edited() const;
+    
+    bool hasMarkedText() const;
+    QString markedText() const;
 
     void cursorWordForward( bool mark );
     void cursorWordBackward( bool mark );
@@ -96,16 +99,13 @@ public:
 
     int maxLines() const { return QWIDGETSIZE_MAX; }
     void setMaxLines( int ) {}
-    
+
 public slots:
     virtual void setReadOnly( bool );
 
     void deselect() { selectAll( FALSE ); }
 
 protected:
-    bool hasMarkedText() const;
-    QString markedText() const;
-
     QPoint	cursorPoint() const;
 
 protected:
