@@ -77,7 +77,9 @@ class Q_CORE_EXPORT QCoreVariant
         Pen = 32,
         LongLong = 33,
         ULongLong = 34,
-        UserType = 35
+        UserType = 35,
+
+        LastType = 0xffffffff // need this so that gcc >= 3.4 really allocates 32 bits for Type
     };
 
     inline QCoreVariant();
