@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#3 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -17,7 +17,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#3 $";
 #endif
 
 
@@ -77,11 +77,8 @@ bool QWidget::create()				// create widget
 	if ( testFlag(WStyle_Maximize) )
 	    wflags |= FCF_MAXBUTTON;
     }
-    if ( testFlag(WStyle_Title) ) {
-	title = text();
-	if ( !title )
-	    title = qAppName();
-    }
+    if ( testFlag(WStyle_Title) )
+	title = qAppName();
 
     HWND frame_win;
     if ( overlap ) {				// create overlapped widget
