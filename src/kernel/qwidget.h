@@ -373,7 +373,7 @@ public:
     virtual QSize	sizeHint() const;
     virtual QSize	minimumSizeHint() const;
     virtual QSizePolicy	sizePolicy() const;
-    void 		setSizePolicy( QSizePolicy );
+    virtual void		setSizePolicy( QSizePolicy );
     virtual int heightForWidth(int) const;
 
     virtual void  	adjustSize();
@@ -417,7 +417,7 @@ public:
 
     enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin };
 
-    void setBackgroundOrigin( BackgroundOrigin );
+    virtual void setBackgroundOrigin( BackgroundOrigin );
     BackgroundOrigin backgroundOrigin() const;
 
 
