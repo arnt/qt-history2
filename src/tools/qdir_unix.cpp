@@ -136,7 +136,7 @@ QString QDir::currentDirPath()
 
     QT_STATBUF st;
     if ( QT_STAT( ".", &st ) == 0 ) {
-	char currentName[PATH_MAX];
+	char currentName[PATH_MAX+1];
 	if ( QT_GETCWD( currentName, PATH_MAX ) != 0 )
 	    result = QFile::decodeName(currentName);
 #if defined(QT_DEBUG)

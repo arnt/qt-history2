@@ -1962,7 +1962,7 @@ QCString combinePath( const char *infile, const char *outfile )
 
     if(b.left(3) == "../") {
 	QCString cdir;
-	char currentName[PATH_MAX];
+	char currentName[PATH_MAX+1];
 	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
 	    cdir = QString::fromLatin1(currentName);
 	    replace(cdir.data(),'\\','/');
