@@ -9,7 +9,7 @@
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, NormalOptim );
     if ( w <= 0 || h <= 0 )                     // create null pixmap
         return;
 
@@ -175,7 +175,7 @@ QImage QPixmap::convertToImage() const
 	    GetCPixel(loopc,loopc2,&r);
 	    q=qRgb(r.red/256,r.green/256,r.blue/256);
 	    if(ncols) {
-		image->setPixel(loopc,loopc2,get_index(image,q));
+		image->setPixel(loopc,loopc2,get_index(&image,q));
 	    } else {
 		image->setPixel(loopc,loopc2,q);
 	    }
@@ -191,13 +191,14 @@ QImage QPixmap::convertToImage() const
 
 
     for ( int i=0; i<ncols; i++ ) {             // copy color table
-	image->setColor( i, qRgb(0,
+	image.setColor( i, qRgb(0,
 				0,
 				0));
     }
 
-    return *image;
-    
+    QImage * flippy=new QImage();
+    *flippy=image;
+    return *flippy;
 }
 
 void QPixmap::fill( const QColor &fillColor )
@@ -291,13 +292,13 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     static int serial = 0;
     
     data = new QPixmapData;
+    CHECK_PTR( data );
+    memset( data, 0, sizeof(QPixmapData) );
     data->count=1;
     data->uninit=TRUE;
-    data->bitmap=FALSE;
+    data->bitmap=bitmap;
     data->ser_no=++serial;
     data->optim=optim;
-    data->selfmask=FALSE;
-    data->mask=0;
     
     if(d<1) {
 	d=defaultDepth();
