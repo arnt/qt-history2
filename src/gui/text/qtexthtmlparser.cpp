@@ -443,8 +443,8 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(Qt::AlignAuto), verticalAlignment(QTextCharFormat::AlignNormal),
-      listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0), 
-      tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), 
+      listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
+      tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
       cssListIndent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
@@ -857,7 +857,7 @@ void QTextHtmlParser::resolveParent()
     if (node->isBlock)
         while (p
                && !at(p).isBlock
-               && !at(p).id == Html_font) {
+               && at(p).id != Html_font) {
             p = at(p).parent;
         }
 
