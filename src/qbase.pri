@@ -53,7 +53,7 @@ win32 {
     #sure the same version is used
     QT_LIBS_OVERRIDE = $$VERSION
     QT_LIBS_OVERRIDE ~= s/\.//g
-    for(lib, $$list(qtcore qtgui qtnetwork qtxml qtopengl qtsql qt3compat)) {
+    for(lib, $$list(qtcore qtgui qtnetwork qtxml qtopengl qtsql qt3support)) {
         eval(QMAKE_$${upper($$lib)}_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
 	eval(QMAKE_$${upper($$lib)}D_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
     }
