@@ -40,7 +40,7 @@ sub-tools: sub-plugins $(FORCEDEP)
 symlinks: .qmake.cache
 #	syncqt
 
-sub-src: .qmake.cache $(FORCEDEP)
+sub-src: src-qmake .qmake.cache $(FORCEDEP)
 	cd src
 	$(MAKE)
 	$(MAKE) -f Makefile.main
