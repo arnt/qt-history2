@@ -100,7 +100,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
   painter's coordinate transformation system.  See \link coordsys.html
   The Coordinate System \endlink for an explanation of this, or a
   paragraph below for a quick overview of the functions.
-  
+
   <li> clipping() is whether the painter clips at all. (The paint
   device clips, too.)  If the painter clips, it clips to clipRegion().
 
@@ -108,7 +108,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
   lineTo().
 
   </ul>
-  
+
   Note that some of these settings mirror settings in some paint
   devices, e.g. QWidget::font(). QPainter::begin() (or the QPainter
   constructor) copies these attributes from the paint device, changing
@@ -117,20 +117,20 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   save() saves all of these settings on an internal stack, restore()
   pops them back.
-  
+
   The core functionality of QPainter is drawing, and there are
   functions to draw most primitives: drawPoint(), drawPoints(),
   drawLine(), drawRect(), drawWinFocusRect(), drawRoundRect(),
   drawEllipse(), drawArc(), drawPie(), drawChord(),
   drawLineSegments(), drawPolyline(), drawPolygon(), and
   drawQuadBezier().
-  
+
   There are functions to draw pixmaps/images, namely drawPixmap(),
   drawImage() and drawTiledPixmap().  drawPixmap() and drawImage()
   produce the same result, except that drawPixmap() is faster
   on-screen and drawImage() faster and sometimes better on QPrinter
   and QPicture.
-  
+
   Text drawing is done using drawText(), and when you need
   fine-grained positioning, boundingRect() tells you where a given
   drawText() command would draw.
@@ -145,7 +145,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
   coordinate transformation.  See \link coordsys.html The Coordinate
   System \endlink for a more general overview and a walkthrough of a
   simple example.
-  
+
   The most common functions used are scale(), rotate(), translate()
   and shear(), all of which operate on the worldMatrix().
   setWorldMatrix() can replace or add to the currently set matrix().
@@ -171,10 +171,10 @@ typedef QStack<QWMatrix> QWMatrixStack;
   widgets, and most printers clip away an area near the edges of the
   paper.  This additional clipping is \e not reflected by the return
   value of clipRegion() or hasClipping().
-  
+
   Finally, QPainter includes some little-used functions that are very
   handy the few times you need them.
-  
+
   isActive() indicates whether the painter is active.  begin() (and
   the most usual constructor) makes it active.  end() (and the
   destructor) deactivates it.  If the painter is active, device()
@@ -365,16 +365,18 @@ QPainter::QPainter()
   used only once. The constructor calls begin() for you and the QPainter
   destructor automatically calls end().
 
-  Example using begin() and end():
+  Here's an example using begin() and end():
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
-	QPainter p( this );
+	QPainter p;
+	p.begin( this );
 	p.drawLine( ... );	// drawing code
+	p.end();
     }
   \endcode
 
-  Example using this constructor:
+  The same example using this constructor:
   \code
     void MyWidget::paintEvent( QPaintEvent * )
     {
@@ -1130,7 +1132,7 @@ const QWMatrix &QPainter::worldMatrix() const
   setWorldXForm(FALSE).  (The identity matrix is the matrix where
   QWMatrix::m11() and QWMatrix::m22() are 1.0 and the rest are 0.0.)
 
-  
+
   World transformations are applied after the view transformations
   (i.e. \link setWindow window\endlink and \link setViewport viewport\endlink).
 
