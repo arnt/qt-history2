@@ -68,10 +68,14 @@ fi
 if [ "$XCURSOR" = "yes" ]; then
     XCURSOR_MAJOR=`grep XCURSOR_MAJOR $XCURSOR_H | head -1 | awk '{ print \$3 }'`
     XCURSOR_MINOR=`grep XCURSOR_MINOR $XCURSOR_H | head -1 | awk '{ print \$3 }'`
-    if [ -z "$XCURSOR_MAJOR" -o -z "$XCURSOR_MINOR" ] || [ "$XCURSOR_MAJOR" != "1" -a "$XCURSOR_MINOR" != "0" ]; then
+    if [ -z "$XCURSOR_MAJOR" -o -z "$XCURSOR_MINOR" ]; then
         XCURSOR=no
 	[ "$VERBOSE" = "yes" ] && \
-	    echo "  Found Xcursor version $XCURSOR_MAJOR.$XCURSOR_MINOR, version 1.0 or higher required."
+	    echo "  Could not find Xcursor version."
+    elif [ "$XCURSOR_MAJOR" != "1" -o "$XCURSOR_MINOR" != "0" ]; then
+        XCURSOR=no
+	[ "$VERBOSE" = "yes" ] && \
+	    echo "  Found Xcursor version $XCURSOR_MAJOR.$XCURSOR_MINOR, version 1.0 required."
     fi
 fi
 
