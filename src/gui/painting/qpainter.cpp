@@ -1246,6 +1246,9 @@ QRegion QPainter::clipRegion() const
     QRegion region;
     bool lastWasNothing = true;
 
+    if (!d->txinv)
+        const_cast<QPainter *>(this)->d->updateInvMatrix();
+
     for (int i=0; i<d->state->clipInfo.size(); ++i) {
         const QPainterClipInfo &info = d->state->clipInfo.at(i);
         QRegion other;
@@ -1269,6 +1272,7 @@ QRegion QPainter::clipRegion() const
                 region = info.region * matrix;
             break;
         }
+
         case QPainterClipInfo::PathClip: {
             QMatrix matrix = (d->invMatrix * info.matrix);
             if (lastWasNothing) {
@@ -1345,7 +1349,7 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
     d->state->tmpClipOp = op;
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
         d->state->clipInfo.clear();
-    d->state->clipInfo << QPainterClipInfo(r, op, d->state->matrix);
+    d->state->clipInfo << QPainterClipInfo(r, op, d->state->worldMatrix);
     d->engine->setDirty(QPaintEngine::DirtyClip);
     d->engine->updateState(d->state);
 }
@@ -1653,7 +1657,7 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
     d->state->tmpClipOp = op;
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
         d->state->clipInfo.clear();
-    d->state->clipInfo << QPainterClipInfo(path, op, d->state->matrix);
+    d->state->clipInfo << QPainterClipInfo(path, op, d->state->worldMatrix);
     d->engine->setDirty(QPaintEngine::DirtyClipPath);
     d->engine->updateState(d->state);
 }
