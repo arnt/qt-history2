@@ -48,7 +48,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qt_x11.h"
 
-
+#include <math.h>
 
 // REVISED: arnt
 
