@@ -622,21 +622,16 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
 void QTabBar::paintEvent( QPaintEvent * e )
 {
-    QSharedDoubleBuffer buffer( this );
+    QSharedDoubleBuffer buffer( this, e->rect() );
 
-    if ( backgroundMode() == X11ParentRelative ) {
-	erase();
-    } else {
-	buffer.painter()->setBrushOrigin( rect().bottomLeft() );
-	buffer.painter()->fillRect( 0, 0, width(), height(),
-		    QBrush( colorGroup().brush( QColorGroup::Background ) ));
-    }
-
+    buffer.painter()->setBrushOrigin( rect().bottomLeft() );
+    buffer.painter()->fillRect( 0, 0, width(), height(),
+				QBrush( colorGroup().brush( QColorGroup::Background ) ));
     QTab * t;
     t = l->first();
     do {
 	QTab * n = l->next();
-	if ( t && t->r.intersects( e->rect() ) )
+	if ( t && t->r.intersects( e->rect() ) ) 
 	    paint( buffer.painter(), t, n == 0 );
 	t = n;
     } while ( t != 0 );
@@ -720,10 +715,19 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 
 void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->state() != LeftButton ) {
 	e->ignore();
-    if(d->pressed)
-	repaint(d->pressed->rect(), FALSE);
+	return;
+    }
+    if(style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ) == QEvent::MouseButtonRelease) {
+	QTab *t = selectTab( e->pos() );
+	if(t != d->pressed) {
+	    if(d->pressed) 
+		repaint(d->pressed->rect(), FALSE);
+	    if((d->pressed = t))
+		repaint(t->rect(), FALSE);
+	} 
+    }
 }
 
 /*!\reimp

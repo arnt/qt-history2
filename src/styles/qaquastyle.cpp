@@ -306,7 +306,7 @@ void QAquaStyle::polish( QApplication* app )
                   QColor( 148,148,148 ));
 
     pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
+    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, highlightColor.light() );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
 
     pal.setColor( QColorGroup::HighlightedText, Qt::black);
@@ -1944,6 +1944,7 @@ void QAquaStyle::appearanceChanged()
 		highlightColor = qc;
 		QPalette pal = qApp->palette();
 		pal.setColor( QPalette::Active, QColorGroup::Highlight, highlightColor );
+		pal.setColor( QPalette::Inactive, QColorGroup::Highlight, highlightColor.light() );
 		qApp->setPalette( pal, TRUE );
 	    }
 	} else {
