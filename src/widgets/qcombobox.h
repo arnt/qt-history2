@@ -67,7 +67,7 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( bool autoCompletion READ autoCompletion WRITE setAutoCompletion )
     Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
 
-    public:
+public:
     QComboBox( QWidget *parent=0, const char *name=0 );
     QComboBox( bool rw, QWidget *parent=0, const char *name=0 );
     ~QComboBox();
@@ -84,7 +84,6 @@ class Q_EXPORT QComboBox : public QWidget
     void	insertItem( const QPixmap &pixmap, const QString &text, int index=-1 );
 
     void	removeItem( int index );
-    void	clear();
 
     QString currentText() const;
     QString text( int index ) const;
@@ -139,6 +138,7 @@ class Q_EXPORT QComboBox : public QWidget
     virtual void popup();
 
 public slots:
+    void	clear();
     void	clearValidator();
     void	clearEdit();
     virtual void setEditText( const QString &);
