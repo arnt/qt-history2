@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#25 $
 **
 ** Implementation of QTextCodec class
 **
@@ -356,7 +356,7 @@ QTextCodec* QTextCodec::codecForName(const char* hint)
 
 /*!
   Searches all installed QTextCodec objects, returning the one
-  which most recognizes the given content.  May return NULL.
+  which most recognizes the given content.  May return 0.
 
   \sa heuristicContentMatch()
 */
@@ -364,7 +364,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 {
     setup();
     QListIterator<QTextCodec> i(*all);
-    QTextCodec* result;
+    QTextCodec* result = 0;
     int best=0;
     for ( QTextCodec* cursor; (cursor=i); ++i ) {
 	int s = cursor->heuristicContentMatch(chars,len);
@@ -1232,9 +1232,9 @@ int QSimpleTextCodec::heuristicContentMatch(const char* chars, int len) const
 {
     if ( len<1 || !chars )
 	return -1;
-    int i=0;
+    int i = 0;
     const uchar * c = (const unsigned char *)chars;
-    int r;
+    int r = 0;
     while( i<len && c && *c ) {
 	if ( *c >= 128 &&
 	     unicodevalues[forwardIndex].values[(*c)-128] == 0xfffd )
