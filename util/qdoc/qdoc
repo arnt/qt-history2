@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#70 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#71 $
 #
 # this is a massive hack, written very quickly
 #
@@ -63,7 +63,7 @@
 sub html {
     local($_) = @_;
 
-    s/\&/&amp;/gs;
+    s/&/&amp;/gs;
     s/</&lt;/gs;
     s/>/&gt;/gs;
 
@@ -280,7 +280,7 @@ sub processdocs {
 	$doc =~ s/^\s*\n//s;
 	$doc =~ s/>\.\n$/>\n/s;
 
-	$doc =~ s-\s*\n\s*\n\s*-\n<p>-gs;
+	$doc =~ s-\s*\n\s*\n(?:\s|(?:<p>))*-\n<p>-gs;
 	$doc =~ s/<linebreak>//gs;
 
 	undef %word;
@@ -1073,6 +1073,7 @@ sub printclass {
 	$family = "<h2>Related Functions</h2>\n(Note that these are not member functions.)\n<ul>";
 	foreach ( split( /\s+/, $relations{$name{$url}} ) ) {
 	    $name = $_;
+	    $documented{$_}++;
 	    $name =~ s/^[^\#]*\#//;
 	    $header = $def{$_};
 	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
@@ -1170,6 +1171,7 @@ sub printclass {
 	    s/^\s+//;
 	    s/\s+$//;
 	    s/\s+/ /g;
+	    s/\)\s*:\s*[A-Q].*/\)/;
 	    if (/^\s*(?:\}\s*)?((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
 								  )
 		((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
@@ -1481,40 +1483,13 @@ problem, and we'll fix it before 1.0.
 
 
 
-sub makepsindex {
-    local($f, $c);
-
-    foreach ( sort keys %anchor ) {
-	if ( $type{$anchor{$_}} eq "class" ) {
-	    $f = join("\n", $f, 
-		      ("\nhttp://www.troll.no/qt/" . $anchor{$_}),
-		      "[1]",
-		      "[1]",
-		      ("[Qt Toolkit - " . $_ . " Class Reference]"),
-		      ("[" . $outputdir . "/" . $anchor{$_} . "]"));
-	    $c++;
-	}
-    }
-
-    open(O, "> /tmp/htps.ndx");
-    print O "\# No of image URLs\n",
-    0,
-    "\n\#\n\#\n\# [End of image list]\n\#\n\# No of URLs\n",
-    $c, 
-    "\n\# If the filename tag is missing url will be discarded",
-    $f, "\n\#\n\# [EOF]\n";
-    close(O);
-}
-
-
-
 
 
 umask 0111;
 $cfile = "VOLD";
 $maxerr = 20;
 #$debug = 1;
-# $internal = 1;
+#$internal = 1;
 
 $outputdir = "/local/qt/doc/html";
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
@@ -1566,10 +1541,12 @@ if ($#ARGV > 4 || $#ARGV < 0) {
     &memberlists();
 }
 
-foreach $c ( keys %doc ) {
-    print $def{$c}, "is undocumented\n"
-	if ($type{$c} eq "class" && !defined($documented{$c}));
-}
+#foreach $c ( keys %doc ) {
+#    print "unreferenced: ", $def{$c}, "\n"
+#	if (!defined($documented{$c}) && 
+#	    ($doc{$c} =~ /\S/) && 
+#	    ($def{$c} =~ /\S/));
+#}
 
 print "Documented ", $countdoc, " member functions, left out ",
     $errmsg, " undocumented member functions and ", 
