@@ -20,7 +20,7 @@ class QTableModel : public QAbstractTableModel
 {
     friend class QTableWidget;
 public:
-    QTableModel(int rows = 0, int columns = 0, QTableWidget *parent = 0);
+    QTableModel(int rows, int columns, QTableWidget *parent);
     ~QTableModel();
 
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
@@ -39,8 +39,8 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
     
-    virtual void setRowCount(int rows);
-    virtual void setColumnCount(int columns);
+    void setRowCount(int rows);
+    void setColumnCount(int columns);
 
     int rowCount() const;
     int columnCount() const;
@@ -368,7 +368,7 @@ void QTableWidget::setColumnCount(int columns)
 /*!
     Returns the item for the given \a row and \a column.
 
-    \sa setItem() text() icon()
+    \sa setItem()
 */
 QTableWidgetItem *QTableWidget::item(int row, int column) const
 {
@@ -378,7 +378,7 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
 /*!
     Sets the item for the given \a row and \a column to \a item.
 
-    \sa item() setText() setIcon()
+    \sa item()
 */
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {

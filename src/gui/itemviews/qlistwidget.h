@@ -45,7 +45,7 @@ public:
     QListWidget(QWidget *parent = 0);
     ~QListWidget();
 
-    QListWidgetItem *itemAt(int row) const;
+    QListWidgetItem *item(int row) const;
     void insertItem(int row, QListWidgetItem *item);
     void appendItem(QListWidgetItem *item);
     QListWidgetItem *takeItem(int row);

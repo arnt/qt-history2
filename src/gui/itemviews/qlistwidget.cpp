@@ -321,7 +321,7 @@ QListWidget::~QListWidget()
     \sa text() icon() setItem()
 */
 
-QListWidgetItem *QListWidget::itemAt(int row) const
+QListWidgetItem *QListWidget::item(int row) const
 {
     return d->model()->at(row);
 }
