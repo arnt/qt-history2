@@ -807,7 +807,7 @@ void QTreeView::doItemsLayout()
     QModelIndex parent = rootIndex();
     if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
         QModelIndex index = model()->index(0, 0, parent);
-        d->itemHeight = itemDelegate()->sizeHint(option, index).height();
+        d->itemHeight = indexRowSizeHint(index);
         d->layout(-1);
         d->reexpandChildren(parent);
     }
@@ -1227,24 +1227,20 @@ int QTreeView::sizeHintForColumn(int column) const
 }
 
 /*!
-  Returns the size hint for the \a column's width.
+  Returns the size hint for the row indicated by \a index.
 
-  \sa QWidget::sizeHint
+  \sa sizeHintForColumn()
 */
-int QTreeView::indexRowSizeHint(const QModelIndex &left) const
+int QTreeView::indexRowSizeHint(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (d->viewItems.count() <= 0 || d->header->count() <= 0)
+    if (!index.isValid() || d->header->count() <= 0)
         return 0;
 
-    QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    int width = viewport()->width();
-    int height = 0;
     // FIXME: use visible indexes that we later convert them to logical indexes.
     // If the sections have moved, we end up checking too many or too few
     int start = d->header->visualIndexAt(0);
-    int end = d->header->visualIndexAt(width);
+    int end = d->header->visualIndexAt(viewport()->width());
 
     if (isRightToLeft()) {
         start = (start == -1 ? d->header->count() - 1 : start);
@@ -1253,6 +1249,7 @@ int QTreeView::indexRowSizeHint(const QModelIndex &left) const
         start = (start == -1 ? 0 : start);
         end = (end == -1 ? d->header->count() - 1 : end);
     }
+
     start = d->header->logicalIndex(start);
     end = d->header->logicalIndex(end);
 
@@ -1260,10 +1257,13 @@ int QTreeView::indexRowSizeHint(const QModelIndex &left) const
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    QModelIndex parent = left.parent();
+    int height = 0;
+    QStyleOptionViewItem option = viewOptions();
+    QAbstractItemDelegate *delegate = itemDelegate();
+    QModelIndex parent = index.parent();
     for (int column = start; column <= end; ++column) {
-        QModelIndex index = d->model->index(left.row(), column, parent);
-        height = qMax(height, delegate->sizeHint(option, index).height());
+        QModelIndex idx = d->model->index(index.row(), column, parent);
+        height = qMax(height, delegate->sizeHint(option, idx).height());
     }
 
     return height;
