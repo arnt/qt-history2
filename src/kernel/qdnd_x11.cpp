@@ -545,6 +545,8 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe, bool /*passive*/ )
 	for ( ; j<qt_xdnd_max_type && j < (int)n; j++ ) {
 	    qt_xdnd_types[j] = data[j];
 	}
+	if ( data )
+	    XFree( (uchar*)data );
     } else {
 	// get the types from the message
 	int i;
