@@ -1468,8 +1468,8 @@ void QPixmap::convertToAlphaPixmap()
 
 #ifndef Q_OS_TEMP
     GetDIBits( qt_display_dc(), DATA_HBM, 0, height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS );
-    char *p = pm.data->realAlphaBits + 3;
-    char *pe = p + bmh->biSizeImage;
+    uchar *p = pm.data->realAlphaBits + 3;
+    uchar *pe = p + bmh->biSizeImage;
     while ( p < pe ) {
 	*p = 0xff;
 	p += 4;
