@@ -480,7 +480,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         x++);
                     break;
                 } else if(qmake_endOfLine(*(buffer+x+keyword_len))) {
-                    x += keyword_len;
+                    x += keyword_len-1;
                     keyword_len = 0;
                     break;
                 }
