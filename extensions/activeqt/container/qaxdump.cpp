@@ -45,6 +45,41 @@ static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
     return docu;
 }
 
+static QString namedPrototype(const QString &signature, const QString &names)
+{
+    if (names.isEmpty()) {
+        QString prototype(signature);
+        prototype.replace(',', ", ");
+        return prototype;
+    }
+
+    QString prototype(signature.left(signature.indexOf('(') + 1));
+
+    QString sigTypes(signature);
+    sigTypes = sigTypes.mid(prototype.length());
+    sigTypes.truncate(sigTypes.length() - 1);
+
+    QString paramNames(names);
+
+    while (!paramNames.isEmpty()) {
+        QString paramName = paramNames.left(paramNames.indexOf(','));
+        if (paramName.isEmpty())
+            paramName = paramNames;
+        paramNames = paramNames.mid(paramName.length() + 1);
+        QString sigType = sigTypes.left(sigTypes.indexOf(','));
+        if (sigType.isEmpty())
+            sigType = sigTypes;
+        sigTypes = sigTypes.mid(sigType.length() + 1);
+
+        prototype += sigType + " " + paramName;
+        if (!paramNames.isEmpty())
+            prototype += ", ";
+    }
+    prototype += ")";
+
+    return prototype;
+}
+
 static QString toType(const QString &t)
 {
     QString type = t;
@@ -118,41 +153,14 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	    QString returntype(slot.type());
             if (returntype.isEmpty())
                 returntype = "void";
-            QString signature(slot.signature());
-            QString paramNames = slot.parameters();
-            if (!paramNames.isEmpty()) {
-                QString sigTypes(signature);
-                signature = signature.left(signature.indexOf('(') + 1);
-                sigTypes = sigTypes.mid(signature.length());
-                sigTypes.truncate(sigTypes.length() - 1);
-                while (!paramNames.isEmpty()) {
-                    QString paramName = paramNames.left(paramNames.indexOf(','));
-                    if (paramName.isEmpty())
-                        paramName = paramNames;
-                    paramNames = paramNames.mid(paramName.length() + 1);
-                    QString sigType = sigTypes.left(sigTypes.indexOf(','));
-                    if (sigType.isEmpty())
-                        sigType = sigTypes;
-                    sigTypes = sigTypes.mid(sigType.length() + 1);
-
-                    signature += sigType + " " + paramName;
-                    if (!paramNames.isEmpty())
-                        signature += ", ";
-                }
-                signature += ")";
-            } else {
-                signature = slot.signature();
-            }
-
-            QString slotsig = slot.signature();
-	    int iname = slotsig.indexOf('(');
-	    QString name = slotsig.left(iname);
-	    QString params = signature.mid(iname);
-            QString rettype = returntype;
-	    stream << "<li>" << rettype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
-
-            params = slotsig.mid(iname);
-	    QString detail = "<h3><a name=" + name + "></a>" + rettype + " " + signature + "<tt> [slot]</tt></h3>\n";
+            QString prototype = namedPrototype(slot.signature(), slot.parameters());
+            QString signature = slot.signature();
+	    QString name = signature.left(signature.indexOf('('));
+	    QString params = prototype.mid(name.length());
+	    stream << "<li>" << returntype << " <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
+            
+            params = signature.mid(name.length());
+	    QString detail = "<h3><a name=" + name + "></a>" + returntype + " " + prototype + "<tt> [slot]</tt></h3>\n";
 	    detail += docuFromName(typeInfo, name);
 	    detail += "<p>Connect a signal to this slot:<pre>\n";
 	    detail += "\tQObject::connect(sender, SIGNAL(someSignal" + params + "), object, SLOT(" + name + params + "));";
@@ -165,15 +173,15 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
                     detail += "\tQVariantList params = ...\n";
                 detail += "\t";
                 QString functionToCall = "dynamicCall";
-                if (rettype == "IDispatch*" || rettype == "IUnknown*") {
+                if (returntype == "IDispatch*" || returntype == "IUnknown*") {
                     functionToCall = "querySubObject(";
-                    rettype = "QAxObject *";
+                    returntype = "QAxObject *";
                 }
-                if (!rettype.isEmpty() && rettype != "void")
-                    detail += rettype + " result = ";
+                if (returntype != "void")
+                    detail += returntype + " result = ";
                 detail += "object->" + functionToCall + "(\"" + name + params + "\")";
-                if (!rettype.isEmpty() && rettype != "void" && rettype != "QAxObject *")
-                    detail += "." + toType(rettype);
+                if (returntype != "void" && returntype != "QAxObject *" && returntype != "QVariant")
+                    detail += "." + toType(returntype);
 	        detail += ";</pre>\n";
 	    } else {
 		detail += "<p>This function has parameters of unsupported types and cannot be called directly.";
@@ -200,14 +208,14 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	for (int isignal = mo->signalOffset(); isignal < signalCount; ++isignal) {
 	    const QMetaMember signal = mo->signal(isignal);
 
+            QString prototype = namedPrototype(signal.signature(), signal.parameters());
 	    QString signature = signal.signature();
-            signature.replace(',', ", ");
-	    int iname = signature.indexOf('(');
-	    QString name = signature.left(iname);
-	    QString params = signature.mid(iname);
-
+	    QString name = signature.left(signature.indexOf('('));
+	    QString params = prototype.mid(name.length());
 	    stream << "<li>void <a href=\"#" << name << "\"><b>" << name << "</b></a>" << params << ";</li>" << endl;
-	    QString detail = "<h3><a name=" + name + "></a>void " + signature + "<tt> [signal]</tt></h3>\n";
+
+            params = signature.mid(name.length());
+	    QString detail = "<h3><a name=" + name + "></a>void " + prototype + "<tt> [signal]</tt></h3>\n";
             if (typeLib) {
                 interCount = 0;
                 do {
