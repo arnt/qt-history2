@@ -99,6 +99,10 @@ Q_CORE_EXPORT uint qGlobalPostedEventsCount()
 
 QCoreApplication *QCoreApplication::self = 0;
 
+#ifdef Q_OS_UNIX
+Qt::HANDLE qt_application_thread_id = 0;
+#endif
+
 // thread data for the main() thread
 Q_GLOBAL_STATIC(QThreadData, mainData)
 
@@ -112,6 +116,9 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     }
     QCoreApplication::is_app_closing = false;
 
+#ifdef Q_OS_UNIX
+    qt_application_thread_id = QThread::currentThread();
+#endif
     QThreadData::setCurrent(mainData());
 }
 

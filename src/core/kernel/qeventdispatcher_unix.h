@@ -30,12 +30,6 @@ public:
     void interrupt();
     void flush();
 
-#if 0
-    void watchUnixSignal(int signal, bool);
-signals:
-    void unixSignal(int);
-#endif
-
 protected:
     QEventDispatcherUNIX(QEventDispatcherUNIXPrivate &, QObject *parent);
 

@@ -79,6 +79,9 @@ struct QTimerInfo {
 
 QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
 {
+    extern Qt::HANDLE qt_application_thread_id;
+    mainThread = (QThread::currentThread() == qt_application_thread_id);
+
     // initialize the common parts of the event loop
     pipe(thread_pipe);
     fcntl(thread_pipe[0], F_SETFD, FD_CLOEXEC);
@@ -298,7 +301,6 @@ bool QEventDispatcherUNIX::unregisterTimers(QObject *obj)
     return true;
 }
 
-#if 0
 /*****************************************************************************
  UNIX signal handling
  *****************************************************************************/
@@ -311,29 +313,6 @@ static void signalHandler(int sig)
     signals_fired[sig] = 1;
     signal_received = 1;
 }
-
-void QEventDispatcherUNIX::watchUnixSignal(int sig, bool watch)
-{
-    if (sig < NSIG) {
-        struct sigaction sa;
-        sigemptyset(&(sa.sa_mask));
-        sa.sa_flags = 0;
-        sa.sa_handler = watch ? signalHandler : SIG_DFL;
-        sigaction(sig, &sa, 0);
-    }
-}
-
-
-void QEventDispatcherUNIXPrivate::handleSignals()
-{
-    for (int i=0; i < NSIG; ++i) {
-        if (signals_fired[i]) {
-            signals_fired[i]=0;
-            emit q->unixSignal(i);
-        }
-    }
-}
-#endif
 
 /*****************************************************************************
  Socket notifier type
@@ -556,50 +535,80 @@ int QEventDispatcherUNIX::activateSocketNotifiers()
     return n_act;
 }
 
-int QEventDispatcherUNIXPrivate::eventloopSelect(uint flags, timeval *t)
+bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
+    Q_D(QEventDispatcherUNIX);
+
+    int nevents = 0;
+
+    QCoreApplication::sendPostedEvents();
+
+    QThreadData *data = QThreadData::current();
+    const bool canWait = (data->postEventList.size() == 0
+                          && !d->interrupt
+                          && (flags & QEventLoop::WaitForMoreEvents));
+
+    if (canWait)
+        emit aboutToBlock();
+
+    if (d->interrupt) {
+        d->interrupt = false;
+        return false;
+    }
+
+    // return the maximum time we can wait for an event.
+    timeval *tm = 0;
+    timeval wait_tm = { 0l, 0l };
+    if (!(flags & 0x08)) {                        // 0x08 == ExcludeTimers for X11 only
+        if (d->timerWait(wait_tm))
+            tm = &wait_tm;
+
+        if (!canWait) {
+            if (!tm) tm = &wait_tm;
+
+            // no time to wait
+            tm->tv_sec  = 0l;
+            tm->tv_usec = 0l;
+        }
+    }
+
     // Process timers and socket notifiers - the common UNIX stuff
     int highest = 0;
-    FD_ZERO(&sn_vec[0].select_fds);
-    FD_ZERO(&sn_vec[1].select_fds);
-    FD_ZERO(&sn_vec[2].select_fds);
-    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && (sn_highest >= 0)) {
+    FD_ZERO(&d->sn_vec[0].select_fds);
+    FD_ZERO(&d->sn_vec[1].select_fds);
+    FD_ZERO(&d->sn_vec[2].select_fds);
+    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && (d->sn_highest >= 0)) {
         // return the highest fd we can wait for input on
-        if (!sn_vec[0].list.isEmpty())
-            sn_vec[0].select_fds = sn_vec[0].enabled_fds;
-        if (!sn_vec[1].list.isEmpty())
-            sn_vec[1].select_fds = sn_vec[1].enabled_fds;
-        if (!sn_vec[2].list.isEmpty())
-            sn_vec[2].select_fds = sn_vec[2].enabled_fds;
-        highest = sn_highest;
+        if (!d->sn_vec[0].list.isEmpty())
+            d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
+        if (!d->sn_vec[1].list.isEmpty())
+            d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
+        if (!d->sn_vec[2].list.isEmpty())
+            d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
+        highest = d->sn_highest;
     }
 
-#if 0
-#ifdef Q_WS_X11
-    if (xfd != -1) {
-        // select for events on the event socket - only on X11
-        FD_SET(xfd, &sn_vec[0].select_fds);
-        highest = qMax(highest, xfd);
-    }
-#endif
-#endif
-
-    FD_SET(thread_pipe[0], &sn_vec[0].select_fds);
-    highest = qMax(highest, thread_pipe[0]);
+    FD_SET(d->thread_pipe[0], &d->sn_vec[0].select_fds);
+    highest = qMax(highest, d->thread_pipe[0]);
 
     int nsel;
     do {
-#if 0
-        while (signal_received) {
-            signal_received=0;
-            d->handleSignals();
+        if (d->mainThread) {
+            while (signal_received) {
+                signal_received = 0;
+                for (int i = 0; i < NSIG; ++i) {
+                    if (signals_fired[i]) {
+                        signals_fired[i] = 0;
+                        emit QCoreApplication::instance()->unixSignal(i);
+                    }
+                }
+            }
         }
-#endif
-        nsel = q_func()->select(highest + 1,
-                                &sn_vec[0].select_fds,
-                                &sn_vec[1].select_fds,
-                                &sn_vec[2].select_fds,
-                                t);
+        nsel = select(highest + 1,
+                      &d->sn_vec[0].select_fds,
+                      &d->sn_vec[1].select_fds,
+                      &d->sn_vec[2].select_fds,
+                      tm);
     } while (nsel == -1 && (errno == EINTR || errno == EAGAIN));
 
     if (nsel == -1) {
@@ -611,7 +620,7 @@ int QEventDispatcherUNIXPrivate::eventloopSelect(uint flags, timeval *t)
             tm.tv_sec = tm.tv_usec = 0l;
 
             for (int type = 0; type < 3; ++type) {
-                QList<QSockNot *> &list = sn_vec[type].list;
+                QList<QSockNot *> &list = d->sn_vec[type].list;
                 if (list.size() == 0)
                     continue;
 
@@ -654,66 +663,26 @@ int QEventDispatcherUNIXPrivate::eventloopSelect(uint flags, timeval *t)
 
     // some other thread woke us up... consume the data on the thread pipe so that
     // select doesn't immediately return next time
-    if (nsel > 0 && FD_ISSET(thread_pipe[0], &sn_vec[0].select_fds)) {
+    if (nsel > 0 && FD_ISSET(d->thread_pipe[0], &d->sn_vec[0].select_fds)) {
         char c;
-        ::read(thread_pipe[0], &c, 1);
+        ::read(d->thread_pipe[0], &c, 1);
     }
 
     // activate socket notifiers
     Q_Q(QEventDispatcherUNIX);
-    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && nsel > 0 && sn_highest >= 0) {
+    if (! (flags & QEventLoop::ExcludeSocketNotifiers) && nsel > 0 && d->sn_highest >= 0) {
         // if select says data is ready on any socket, then set the socket notifier
         // to pending
         for (int i=0; i<3; i++) {
-            QList<QSockNot *> &list = sn_vec[i].list;
+            QList<QSockNot *> &list = d->sn_vec[i].list;
             for (int j = 0; j < list.size(); ++j) {
                 QSockNot *sn = list.at(j);
-                if (FD_ISSET(sn->fd, &sn_vec[i].select_fds))
-                    q->setSocketNotifierPending(sn->obj);
+                if (FD_ISSET(sn->fd, &d->sn_vec[i].select_fds))
+                    setSocketNotifierPending(sn->obj);
             }
         }
     }
-    return q->activateSocketNotifiers();
-}
-
-bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
-{
-    Q_D(QEventDispatcherUNIX);
-
-    int nevents = 0;
-
-    QCoreApplication::sendPostedEvents();
-
-    QThreadData *data = QThreadData::current();
-    const bool canWait = (data->postEventList.size() == 0
-                          && !d->interrupt
-                          && (flags & QEventLoop::WaitForMoreEvents));
-
-    if (canWait)
-        emit aboutToBlock();
-
-    if (d->interrupt) {
-        d->interrupt = false;
-        return false;
-    }
-
-    // return the maximum time we can wait for an event.
-    timeval *tm = 0;
-    timeval wait_tm = { 0l, 0l };
-    if (!(flags & 0x08)) {                        // 0x08 == ExcludeTimers for X11 only
-        if (d->timerWait(wait_tm))
-            tm = &wait_tm;
-
-        if (!canWait) {
-            if (!tm) tm = &wait_tm;
-
-            // no time to wait
-            tm->tv_sec  = 0l;
-            tm->tv_usec = 0l;
-        }
-    }
-
-    nevents += d->eventloopSelect(flags, tm);
+    nevents += activateSocketNotifiers();
 
     if (d->interrupt) {
         d->interrupt = false;
@@ -773,3 +742,17 @@ void QEventDispatcherUNIX::interrupt()
 
 void QEventDispatcherUNIX::flush()
 { }
+
+
+
+
+void QCoreApplication::watchUnixSignal(int sig, bool watch)
+{
+    if (sig < NSIG) {
+        struct sigaction sa;
+        sigemptyset(&(sa.sa_mask));
+        sa.sa_flags = 0;
+        sa.sa_handler = watch ? signalHandler : SIG_DFL;
+        sigaction(sig, &sa, 0);
+    }
+}

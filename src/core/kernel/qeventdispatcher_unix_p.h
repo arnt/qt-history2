@@ -39,11 +39,7 @@ public:
     QEventDispatcherUNIXPrivate();
     ~QEventDispatcherUNIXPrivate();
 
-#if 0
-    void handleSignals();
-#endif
-
-    int eventloopSelect(uint, timeval *);
+    bool mainThread;
     int thread_pipe[2];
 
     // watch if time is turned back

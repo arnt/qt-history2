@@ -117,11 +117,16 @@ public:
     virtual bool winEventFilter(MSG *message, long *result);
 #endif
 
+#ifdef Q_OS_UNIX
+    static void watchUnixSignal(int signal, bool watch);
+#endif
+
 public slots:
     void quit();
 
 signals:
     void aboutToQuit();
+    void unixSignal(int);
 
 protected:
     bool event(QEvent *);
@@ -140,7 +145,7 @@ private:
     static QCoreApplication *self;
 
     friend class QEvent;
-    friend class QGuiEventLoop;
+    friend class QEventDispatcherUNIX;
     friend class QApplication;
     friend class QApplicationPrivate;
     friend class QETWidget;
