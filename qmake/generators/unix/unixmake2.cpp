@@ -76,7 +76,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
 	t << "QMAKE    = "	<< (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-	t << "all clean:" << "\n\t"
+	t << "all clean install distclean mocables uninstall uicables:" << "\n\t"
 	  << "@echo \"Some of the required modules ("
 	  << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
 	  << "@echo \"Skipped.\"" << endl << endl;
