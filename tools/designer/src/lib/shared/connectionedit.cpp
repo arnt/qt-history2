@@ -830,7 +830,7 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     if (m_tmp_con != 0)
         paintConnection(&p, m_tmp_con, &heavy_highlight_set, &light_highlight_set);
 
-    if (m_widget_under_mouse != 0)
+    if (!m_widget_under_mouse.isNull())
         heavy_highlight_set.insert(m_widget_under_mouse, m_widget_under_mouse);
 
     QColor c = m_active_color;
@@ -893,7 +893,7 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
             } else {
                 if (!(e->modifiers() & Qt::ShiftModifier)) {
                     selectNone();
-                    if (m_widget_under_mouse != 0)
+                    if (!m_widget_under_mouse.isNull())
                         m_start_connection_on_drag = true;
                 }
             }
@@ -926,7 +926,7 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 
     switch (state()) {
         case Connecting:
-            if (m_widget_under_mouse == 0) {
+            if (!m_widget_under_mouse.isNull()) {
                 m_tmp_con->update();
                 delete m_tmp_con;
                 m_tmp_con = 0;
@@ -952,10 +952,10 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
     if (w == m_bg_widget)
         w = 0;
     if (w != m_widget_under_mouse) {
-        if (m_widget_under_mouse != 0)
+        if (!m_widget_under_mouse.isNull())
             update(widgetRect(m_widget_under_mouse));
         m_widget_under_mouse = w;
-        if (m_widget_under_mouse != 0)
+        if (!m_widget_under_mouse.isNull())
             update(widgetRect(m_widget_under_mouse));
     }
 
@@ -981,7 +981,7 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
         case Editing:
             if ((e->buttons() & Qt::LeftButton)
                     && m_start_connection_on_drag
-                    && m_widget_under_mouse != 0) {
+                    && !m_widget_under_mouse.isNull()) {
                 m_start_connection_on_drag = false;
                 startConnection(m_widget_under_mouse, e->pos());
                 setCursor(Qt::CrossCursor);

@@ -81,7 +81,7 @@ QList<QAction*> ListWidgetTaskMenu::taskActions() const
 
 void ListWidgetTaskMenu::editItems()
 {
-    Q_ASSERT(m_editor == 0);
+    Q_ASSERT(m_editor.isNull());
 
     if (AbstractFormWindow *formWindow = AbstractFormWindow::findFormWindow(listWidget())) {
         m_editor = new ListWidgetEditor(listWidget());

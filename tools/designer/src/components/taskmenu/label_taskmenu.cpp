@@ -68,7 +68,7 @@ bool LabelTaskMenu::eventFilter(QObject *object, QEvent *event)
 void LabelTaskMenu::editText()
 {
     m_formWindow = AbstractFormWindow::findFormWindow(m_label);
-    if (m_formWindow != 0) {
+    if (!m_formWindow.isNull()) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_label->parentWidget() != 0);
 

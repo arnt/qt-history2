@@ -48,7 +48,7 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     connect(m_promoteToCustomWidgetAction, SIGNAL(triggered()), this, SLOT(promoteToCustomWidget()));
 
     QString demote_string = tr("Demote from Custom Widget");
-    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
+    if (const QDesignerPromotedWidget *promoted = qobject_cast<const QDesignerPromotedWidget*>(widget))
         demote_string = tr("Demote to ") + promoted->item()->extends();
     m_demoteFromCustomWidgetAction = new QAction(demote_string, this);
     connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()),
@@ -80,11 +80,11 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
 
     actions.append(m_changeObjectNameAction);
 
-    if (qobject_cast<QMainWindow*>(formWindow->mainContainer()) != 0) {
+    if (qobject_cast<const QMainWindow*>(formWindow->mainContainer()) != 0) {
         actions.append(m_createDockWidgetAction);
     }
 
-    if (qobject_cast<QDesignerPromotedWidget*>(m_widget) == 0)
+    if (qobject_cast<const QDesignerPromotedWidget*>(m_widget) == 0)
         actions.append(m_promoteToCustomWidgetAction);
     else
         actions.append(m_demoteFromCustomWidgetAction);

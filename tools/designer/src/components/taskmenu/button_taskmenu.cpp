@@ -68,7 +68,7 @@ bool ButtonTaskMenu::eventFilter(QObject *object, QEvent *event)
 void ButtonTaskMenu::editText()
 {
     m_formWindow = AbstractFormWindow::findFormWindow(m_button);
-    if (m_formWindow != 0) {
+    if (!m_formWindow.isNull()) {
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_button->parentWidget() != 0);
 
