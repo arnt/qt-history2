@@ -490,6 +490,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
         ww = vw = pm->width();                  // default view size
         wh = vh = pm->height();
     } 
+    initPaintDevice(TRUE); //second time to have unclipped take effect
 
     if ( testf(ExtDev) ) {               // external device
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
@@ -621,7 +622,7 @@ void QPainter::setRasterOp( RasterOp r )
 	return;
     }
     if(ropCodes[r] == 666) {
-	qWarning("Woops, we don't have that rasterop, FIXME!!");
+	//qWarning("Woops, we don't have that rasterop, FIXME!!");
 	r = XorROP;
     }
     rop = r;
