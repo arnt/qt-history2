@@ -107,9 +107,9 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item)
 }
 
 void ConnectionWidget::on_tree_doubleClicked(QTreeWidgetItem *item, int column,
-                                             Qt::ButtonState button)
+                                             const QMouseEvent *event)
 {
-    if (button == Qt::LeftButton && column == 0)
+    if (event->button() == Qt::LeftButton && column == 0)
         itemActivated(item);
 }
 

@@ -35,7 +35,7 @@ signals:
 
 public slots:
     void refresh();
-    void on_tree_doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button);
+    void on_tree_doubleClicked(QTreeWidgetItem *item, int column, const QMouseEvent *);
     void on_tree_returnPressed(QTreeWidgetItem *item, int column);
     void on_tree_aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem *item, int column);
 
