@@ -121,6 +121,7 @@ static QPaintDeviceDict *pdev_dict = 0;
   QPixmap::grabWidget() or QPixmap::grapWindow().
 */
 
+//FIXME: Implement this
 void QPainter::redirect( QPaintDevice *, QPaintDevice * )
 {
 }
@@ -185,7 +186,6 @@ void QPainter::updateFont()
     setf(NoCache);
     if ( penRef )
         updatePen();                            // force a non-cached GC
-    //    Qt::HANDLE h = cfont.handle();
     cfont.macSetFont(pdev);
 }
 
@@ -502,6 +502,7 @@ void QPainter::flush()
   \sa backgroundColor() setBackgroundMode() BackgroundMode
 */
 
+//FIXME: Implement this
 void QPainter::setBackgroundColor( const QColor & )
 {
 }
@@ -519,6 +520,7 @@ void QPainter::setBackgroundColor( const QColor & )
 
   \sa backgroundMode(), setBackgroundColor() */
 
+//FIXME: Implement this
 void QPainter::setBackgroundMode( BGMode )
 {
 }
@@ -528,6 +530,7 @@ void QPainter::setBackgroundMode( BGMode )
   \sa rasterOp()
 */
 
+//FIXME: Implement this
 void QPainter::setRasterOp( RasterOp )
 {
 }
@@ -544,6 +547,7 @@ void QPainter::setRasterOp( RasterOp )
   \sa brushOrigin()
 */
 
+//FIXME: Implement this
 void QPainter::setBrushOrigin( int, int )
 {
 }
@@ -555,6 +559,7 @@ void QPainter::setBrushOrigin( int, int )
   \sa hasClipping(), setClipRect(), setClipRegion()
 */
 
+// FIXME: Implement this
 void QPainter::setClipping( bool )
 {
 }
@@ -564,6 +569,7 @@ void QPainter::setClipping( bool )
   \overload void QPainter::setClipRect( const QRect &r )
 */
 
+// FIXME: Implement this
 void QPainter::setClipRect( const QRect & )
 {
 }
@@ -578,6 +584,7 @@ void QPainter::setClipRect( const QRect & )
   \sa setClipRect(), clipRegion(), setClipping()
 */
 
+// FIXME: Implement this
 void QPainter::setClipRegion( const QRegion & )
 {
 }
@@ -647,6 +654,7 @@ void QPainter::drawPoint( int x, int y )
   npoints points are drawn.
 */
 
+// FIXME: Implement this
 void QPainter::drawPoints( const QPointArray&, int, int )
 {
 }
@@ -828,25 +836,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 }
 
 
-/*!
-  \internal
-*/
-
-#ifdef _WS_X11_
-void QPainter::drawWinFocusRect( int, int, int, int,
-				 bool, const QColor & )
-{
-}
-#endif
-
 /*! \overload void QPainter::drawRoundRect( int x, int y, int w, int h )
-
-  As the main version of the function, but with the roundness
-  arguments fixed at 25.
-*/
-
-
-/*! \overload void QPainter::drawRoundRect( const QRect & )
 
   As the main version of the function, but with the roundness
   arguments fixed at 25.
@@ -1144,6 +1134,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
   \sa drawArc(), drawPie()
 */
 
+// FIXME: Implement this
 void QPainter::drawChord( int, int, int, int, int, int )
 {
 }
@@ -1161,8 +1152,49 @@ void QPainter::drawChord( int, int, int, int, int, int )
   \sa drawPolyline(), drawPolygon(), QPen
 */
 
-void QPainter::drawLineSegments( const QPointArray &, int, int )
+
+// FIXME: Support dash lines?
+void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {
+    if ( nlines < 0 )
+        nlines = a.size()/2 - index/2;
+    if ( index + nlines*2 > (int)a.size() )
+        nlines = (a.size() - index)/2;
+    if ( !isActive() || nlines < 1 || index < 0 )
+        return;
+    QPointArray pa = a;
+    if ( testf( ExtDev|VxF|WxF ) ) {
+        if ( testf( ExtDev ) ) {
+            if ( nlines != (int)pa.size()/2 ) {
+                pa = QPointArray( nlines*2 );
+                for ( int i=0; i<nlines*2; i++ )
+                    pa.setPoint( i, a.point(index+i) );
+                index = 0;
+            }
+            QPDevCmdParam param[1];
+            param[0].ptarr = (QPointArray*)&pa;
+            if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) /*|| !hdc*/)
+                return;
+        }
+        if ( txop != TxNone ) {
+            pa = xForm( a, index, nlines*2 );
+            if ( pa.size() != a.size() ) {
+                index  = 0;
+                nlines = pa.size()/2;
+            }
+        }
+    }
+
+    int  x1, y1, x2, y2;
+    uint i = index;
+
+    updatePen();
+    while ( nlines-- ) {
+        pa.point( i++, &x1, &y1 );
+        pa.point( i++, &x2, &y2 );
+        MoveTo(x1 + offx, y1 + offy);
+        LineTo(x2 + offx, y2 + offy);
+    }
 }
 
 
@@ -1176,8 +1208,61 @@ void QPainter::drawLineSegments( const QPointArray &, int, int )
   \sa drawLineSegments(), drawPolygon(), QPen
 */
 
-void QPainter::drawPolyline( const QPointArray &, int, int )
+void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 {
+    if ( npoints < 0 )
+        npoints = a.size() - index;
+    if ( index + npoints > (int)a.size() )
+        npoints = a.size() - index;
+    if ( !isActive() || npoints < 2 || index < 0 )
+        return;
+    QPointArray pa = a;
+    if ( testf( ExtDev|VxF|WxF ) ) {
+        if ( testf( ExtDev ) ) {
+            if ( npoints != (int)pa.size() ) {
+                pa = QPointArray( npoints );
+                for ( int i=0; i<npoints; i++ )
+                    pa.setPoint( i, a.point(index+i) );
+                index = 0;
+            }
+            QPDevCmdParam param[1];
+            param[0].ptarr = (QPointArray*)&pa;
+            if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param) /*|| !hdc*/ )
+                return;
+        }
+        if ( txop != TxNone ) {
+            pa = xForm( a, index, npoints );
+            if ( pa.size() != a.size() ) {
+		index   = 0;
+                npoints = pa.size();
+            }
+        }
+    }
+    int x1, y1, x2, y2, xsave, ysave;
+    pa.point( index+npoints-2, &x1, &y1 );      // last line segment
+    pa.point( index+npoints-1, &x2, &y2 );
+    xsave = x2; ysave = y2;
+    bool plot_pixel = FALSE;
+    if ( x1 == x2 ) {                           // vertical
+        if ( y1 < y2 )
+            y2++;
+        else
+            y2--;
+    } else if ( y1 == y2 ) {                    // horizontal
+        if ( x1 < x2 )
+            x2++;
+        else
+            x2--;
+    } else {
+        plot_pixel = cpen.style() == SolidLine; // plot last pixel
+    }
+    int loopc;
+    updateBrush();
+    updatePen();
+    MoveTo(pa[0].x() + offx, pa[0].y() + offy );
+    for( loopc = 1; loopc < (int)pa.size(); loopc++ ) {
+	LineTo( pa[loopc].x() + offx ,pa[loopc].y() + offy );
+    }
 }
 
 
@@ -1242,6 +1327,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
   there aren't enough control points.
 */
 
+// FIXME: Implement this
 void QPainter::drawQuadBezier( const QPointArray &, int )
 {
 }
