@@ -6,5 +6,4 @@ TEMPLATE = app
 DEPENDPATH += /home/trond/src/qt/main/tests/qlogview/
 
 # Input
-HEADERS += qlogview.h
-SOURCES += main.cpp qlogview.cpp
+SOURCES += main.cpp
