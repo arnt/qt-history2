@@ -2455,6 +2455,16 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress && !d->inMovement ) {
+	if ( t->orientation() == Horizontal ) {
+	    if ( e->x() > 10 )
+		return;
+	}
+	
+	if ( t->orientation() == Vertical ) {
+	    if ( e->y() > 10 )
+		return;
+	}
+	
 	if ( ( e->button() & RightButton ) ) {
 	    if ( !isDockMenuEnabled() )
 		return;
@@ -2526,7 +2536,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->cursorOffset = t->mapFromGlobal( e->globalPos() );
 
 	return;
-    } else if ( e->type() == QEvent::MouseButtonRelease ) {
+    } else if ( e->type() == QEvent::MouseButtonRelease && d->inMovement ) {
 	if ( ( e->button() & RightButton ) ) {
 	    return;
 	}
@@ -2606,7 +2616,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	return;
     } else if ( e->type() == QMouseEvent::MouseMove ) {
-	if ( ( e->state() & LeftButton ) != LeftButton )
+	if ( ( e->state() & LeftButton ) != LeftButton || !d->inMovement )
 	    return;
     }
 
