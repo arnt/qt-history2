@@ -2,7 +2,7 @@
 
 #include "../interfaces/printinterface.h"
 
-void main()
+int main()
 {
     QInterfacePtr<PrintInterface> iface;
 
@@ -13,4 +13,6 @@ void main()
 
     if ( QComponentFactory::createInstance( "Qt.Example2", IID_Print, (QUnknownInterface**)&iface ) == QS_OK )
 	iface->sayHello();
+
+    return 0;
 }
