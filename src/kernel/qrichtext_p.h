@@ -733,6 +733,9 @@ public:
     void setTabArray( int *a );
     void setTabStops( int tw );
 
+    void setPainter( QPainter *p );
+    QPainter *painter() const { return pntr; }
+    
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -772,7 +775,8 @@ private:
     int *tabArray;
     int tabStopWidth;
     void *eData;
-
+    QPainter *pntr;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

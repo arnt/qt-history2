@@ -1800,11 +1800,17 @@ void QTextDocument::doLayout( QPainter *p, int w )
     QTextParag *parag = fParag;
     while ( parag ) {
 	parag->invalidate( 0 );
+	parag->setPainter( p );
 	parag->format();
 	parag = parag->next();
     }
     if ( !par )
 	fCollection->setPainter( 0 );
+    parag = fParag;
+    while ( parag ) {
+	parag->setPainter( 0 );
+	parag = parag->next();
+    }
 }
 
 QPixmap *QTextDocument::bufferPixmap( const QSize &s )
@@ -2234,7 +2240,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     : invalid( -1 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), tc( 0 ),
       numCustomItems( 0 ), fCollection( 0 ), pFormatter( 0 ),
-      tabArray( 0 ), tabStopWidth( 0 ), eData( 0 )
+      tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
     defFormat = formatCollection()->defaultFormat();
     if ( !doc )
@@ -2723,7 +2729,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    startX = chr->x + chr->width();
 		    bw = 0;
 		} else {
-		    chr->customItem()->resize( 0, chr->customItem()->width );
+		    chr->customItem()->resize( pntr, chr->customItem()->width );
 		    buffer = QString::null;
 		    lastFormat = chr->format();
 		    lastY = cy;
@@ -3014,6 +3020,15 @@ int QTextParag::nextTab( int x )
 	return tabStopWidth * ( d + 1 );
     }
     return -1;
+}
+
+void QTextParag::setPainter( QPainter *p )
+{
+    pntr = p;
+    for ( int i = 0; i < length(); ++i ) {
+	if ( at( i )->isCustom )
+	    at( i )->customItem()->adjustToPainter( p );
+    }
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3749,7 +3764,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    if ( doc )
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
-	    c->customItem()->resize( 0, dw );
+	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
 	    w = dw;
@@ -3868,7 +3883,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
 	    lineStart = formatLine( string, lineStart, firstChar, c-1, align, w - x );
-	    c->customItem()->resize( 0, dw );
+	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
 	    curLeft = x;
@@ -4014,12 +4029,17 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 
+#if 0 // #### disabled, because if this format is not in the
+ // formatcollection, it doesn't get the painter through
+ // QTextFormatCollection::setPainter() which breaks printing on
+ // windows
     if ( f->isAnchor() ) {
 	lastFormat = new QTextFormat( *f );
 	lastFormat->collection = 0;
 	return lastFormat;
     }
-
+#endif
+    
     QTextFormat *fm = cKey.find( f->key() );
     if ( fm ) {
 #ifdef DEBUG_COLLECTION
@@ -5062,7 +5082,7 @@ void QTextTable::adjustToPainter( QPainter* p)
 	cell->adjustToPainter();
 
     width = 0;
-    painter = 0;
+    painter = p;
 }
 
 void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
@@ -5125,7 +5145,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     if ( border ) {
 	QRect r ( x, y, width, height );
 	if ( p->device()->devType() == QInternal::Printer ) {
-	    qDrawPlainRect( p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), cg.text(), border );
+	    qDrawPlainRect( p, QRect(QMAX( 0, r.x()+1 ), QMAX( 0, r.y()+1 ), QMAX( r.width()-2, 0 ), QMAX( 0, r.height()-2 ) ), cg.text(), border );
 	} else {
 	    int s = border;
 	    p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
@@ -5513,6 +5533,8 @@ void QTextTableCell::adjustToPainter()
     maxw = richtext->widthUsed() + 6;
     richtext->doLayout( painter(), 0 );
     minw = richtext->widthUsed();
+    cached_sizehint = -1;
+    cached_width = -1;
 }
 
 QPainter* QTextTableCell::painter() const
