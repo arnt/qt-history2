@@ -13,6 +13,7 @@ dialogs {
 		  $$DIALOGS_H/qwizard.h \
 		  $$DIALOGS_H/qinputdialog.h
 
+        macx:SOURCES  += $$DIALOGS_CPP/qfiledialog_mac.cpp
 	win32:SOURCES += $$DIALOGS_CPP/qfiledialog_win.cpp
 	unix:SOURCES += $$DIALOGS_CPP/qprintdialog.cpp
 	unix:HEADERS   += $$DIALOGS_H/qprintdialog.h 

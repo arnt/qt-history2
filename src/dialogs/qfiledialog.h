@@ -297,6 +297,26 @@ private:
 					    const char* name = 0,
 					    const QString& caption = QString::null);
 #endif
+#if defined(Q_WS_MAC)
+    static QString macGetOpenFileName( const QString &initialSelection,
+				       const QString &filter,
+				       QString* workingDirectory,
+				       QWidget *parent = 0,
+				       const char* name = 0,
+				       const QString& caption = QString::null);
+    static QString macGetSaveFileName( const QString &initialSelection,
+				       const QString &filter,
+				       QString* workingDirectory,
+				       QWidget *parent = 0,
+				       const char* name = 0,
+				       const QString& caption = QString::null);
+    static QStringList macGetOpenFileNames( const QString &filter,
+					    QString* workingDirectory,
+					    QWidget *parent = 0,
+					    const char* name = 0,
+					    const QString& caption = QString::null);
+#endif
+
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
