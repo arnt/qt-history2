@@ -1059,8 +1059,10 @@ UnixMakefileGenerator::libtoolFileName()
     if(dot != -1)
         ret = ret.left(dot);
     ret += Option::libtool_ext;
-    if(!project->isEmpty("DESTDIR"))
+    if(!project->isEmpty("DESTDIR")) {
         ret.prepend(var("DESTDIR"));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentDirPath(), Option::output_dir));
+    }
     return ret;
 }
 
@@ -1072,7 +1074,7 @@ UnixMakefileGenerator::writeLibtoolFile()
     if(slsh != -1)
         lname = lname.right(lname.length() - slsh - 1);
     QFile ft(fname);
-    if(!ft.open(IO_WriteOnly))
+    if(!ft.open(IO_WriteOnly)) 
         return;
     project->variables()["ALL_DEPS"].append(fname);
 
@@ -1148,7 +1150,7 @@ UnixMakefileGenerator::pkgConfigFileName()
     ret += Option::pkgcfg_ext;
     if(!project->isEmpty("DESTDIR")) {
         ret.prepend(var("DESTDIR"));
-        ret = Option::fixPathToLocalOS(fileFixify(ret,QDir::currentDirPath(), Option::output_dir));
+        ret = Option::fixPathToLocalOS(fileFixify(ret, QDir::currentDirPath(), Option::output_dir));
     }
     return ret;
 }
