@@ -1,26 +1,60 @@
 CONFIG = console release
 DEFINES = QT_NODLL QT_NO_CODECS QT_LITE_COMPONENT QT_NO_STL
-HEADERS	 = configureapp.h
-HEADERS	+= $(QTDIR)/src/tools/qdir.h $(QTDIR)/src/tools/qstring.h $(QTDIR)/src/tools/qfileinfo.h
-HEADERS += $(QTDIR)/src/tools/qfile.h $(QTDIR)/src/tools/qiodevice.h $(QTDIR)/src/tools/qregexp.h
-HEADERS += $(QTDIR)/src/tools/qgcache.h $(QTDIR)/src/tools/qbitarray.h $(QTDIR)/src/tools/qgdict.h
-HEADERS += $(QTDIR)/src/tools/qgvector.h $(QTDIR)/src/tools/qdatastream.h $(QTDIR)/src/tools/qglist.h
-HEADERS += $(QTDIR)/src/tools/qgarray.h $(QTDIR)/src/tools/qglobal.h $(QTDIR)/src/tools/qptrcollection.h
-HEADERS += $(QTDIR)/src/tools/qbuffer.h $(QTDIR)/src/tools/qstringlist.h $(QTDIR)/src/tools/qcstring.h
-HEADERS += $(QTDIR)/src/tools/qtextstream.h $(QTDIR)/src/tools/qdatetime.h $(QTDIR)/src/codecs/qtextcodec.h
-HEADERS += $(QTDIR)/src/tools/qmap.h $(QTDIR)/src/tools/qlibrary.h
+HEADERS	 = configureapp.h \
+           $$QT_SOURCE_TREE/src/tools/qdir.h \
+           $$QT_SOURCE_TREE/src/tools/qstring.h \
+           $$QT_SOURCE_TREE/src/tools/qfileinfo.h \
+           $$QT_SOURCE_TREE/src/tools/qfile.h \
+           $$QT_SOURCE_TREE/src/tools/qiodevice.h \
+           $$QT_SOURCE_TREE/src/tools/qregexp.h \
+           $$QT_SOURCE_TREE/src/tools/qgcache.h \
+           $$QT_SOURCE_TREE/src/tools/qbitarray.h \
+           $$QT_SOURCE_TREE/src/tools/qgdict.h \
+           $$QT_SOURCE_TREE/src/tools/qgvector.h \
+           $$QT_SOURCE_TREE/src/tools/qdatastream.h \ 
+           $$QT_SOURCE_TREE/src/tools/qglist.h \
+           $$QT_SOURCE_TREE/src/tools/qgarray.h \ 
+           $$QT_SOURCE_TREE/src/tools/qglobal.h \ 
+           $$QT_SOURCE_TREE/src/tools/qptrcollection.h \
+           $$QT_SOURCE_TREE/src/tools/qbuffer.h \
+           $$QT_SOURCE_TREE/src/tools/qstringlist.h \
+           $$QT_SOURCE_TREE/src/tools/qcstring.h \
+           $$QT_SOURCE_TREE/src/tools/qtextstream.h \
+           $$QT_SOURCE_TREE/src/tools/qdatetime.h \
+           $$QT_SOURCE_TREE/src/codecs/qtextcodec.h \
+           $$QT_SOURCE_TREE/src/tools/qmap.h \
+           $$QT_SOURCE_TREE/src/tools/qlibrary.h
 
-SOURCES	 = main.cpp configureapp.cpp
-SOURCES	+= $(QTDIR)/src/tools/qdir.cpp $(QTDIR)/src/tools/qdir_win.cpp $(QTDIR)/src/tools/qstring.cpp
-SOURCES += $(QTDIR)/src/tools/qfileinfo.cpp $(QTDIR)/src/tools/qfileinfo_win.cpp $(QTDIR)/src/tools/qfile.cpp
-SOURCES += $(QTDIR)/src/tools/qfile_win.cpp $(QTDIR)/src/tools/qiodevice.cpp $(QTDIR)/src/tools/qregexp.cpp
-SOURCES += $(QTDIR)/src/tools/qgcache.cpp $(QTDIR)/src/tools/qbitarray.cpp $(QTDIR)/src/tools/qgdict.cpp
-SOURCES += $(QTDIR)/src/tools/qgvector.cpp $(QTDIR)/src/tools/qdatastream.cpp $(QTDIR)/src/tools/qglist.cpp
-SOURCES += $(QTDIR)/src/tools/qgarray.cpp $(QTDIR)/src/tools/qglobal.cpp $(QTDIR)/src/tools/qptrcollection.cpp
-SOURCES += $(QTDIR)/src/tools/qbuffer.cpp $(QTDIR)/src/tools/qstringlist.cpp $(QTDIR)/src/tools/qcstring.cpp
-SOURCES += $(QTDIR)/src/tools/qtextstream.cpp $(QTDIR)/src/tools/qdatetime.cpp $(QTDIR)/src/codecs/qtextcodec.cpp
-SOURCES += $(QTDIR)/src/tools/qmap.cpp $(QTDIR)/src/tools/qlibrary.cpp $(QTDIR)/src/tools/qlibrary_win.cpp
-INCLUDEPATH = $(QTDIR)/include/ $(QTDIR)/src/tools/
+SOURCES	 = main.cpp configureapp.cpp \
+           $$QT_SOURCE_TREE/src/tools/qdir.cpp \
+           $$QT_SOURCE_TREE/src/tools/qdir_win.cpp \
+           $$QT_SOURCE_TREE/src/tools/qstring.cpp \
+           $$QT_SOURCE_TREE/src/tools/qfileinfo.cpp \
+           $$QT_SOURCE_TREE/src/tools/qfileinfo_win.cpp \
+           $$QT_SOURCE_TREE/src/tools/qfile.cpp \
+           $$QT_SOURCE_TREE/src/tools/qfile_win.cpp \
+           $$QT_SOURCE_TREE/src/tools/qiodevice.cpp \
+           $$QT_SOURCE_TREE/src/tools/qregexp.cpp \
+           $$QT_SOURCE_TREE/src/tools/qgcache.cpp \
+           $$QT_SOURCE_TREE/src/tools/qbitarray.cpp \
+           $$QT_SOURCE_TREE/src/tools/qgdict.cpp \
+           $$QT_SOURCE_TREE/src/tools/qgvector.cpp \
+           $$QT_SOURCE_TREE/src/tools/qdatastream.cpp \
+           $$QT_SOURCE_TREE/src/tools/qglist.cpp \
+           $$QT_SOURCE_TREE/src/tools/qgarray.cpp \
+           $$QT_SOURCE_TREE/src/tools/qglobal.cpp \
+           $$QT_SOURCE_TREE/src/tools/qptrcollection.cpp \
+           $$QT_SOURCE_TREE/src/tools/qbuffer.cpp \
+           $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
+           $$QT_SOURCE_TREE/src/tools/qcstring.cpp \
+           $$QT_SOURCE_TREE/src/tools/qtextstream.cpp \
+           $$QT_SOURCE_TREE/src/tools/qdatetime.cpp \
+           $$QT_SOURCE_TREE/src/codecs/qtextcodec.cpp \
+           $$QT_SOURCE_TREE/src/tools/qmap.cpp \
+           $$QT_SOURCE_TREE/src/tools/qlibrary.cpp \
+           $$QT_SOURCE_TREE/src/tools/qlibrary_win.cpp
+
+INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/tools/
 INTERFACES=
 TARGET=configure
 DESTDIR=../../dist/win/bin

@@ -7,5 +7,5 @@ SOURCES = main.cpp unpackdlgimpl.cpp licensedlgimpl.cpp
 INTERFACES += unpackdlg.ui licensedlg.ui
 INCLUDEPATH += ../archive ../keygen
 CONFIG += qt
-unix:LIBS += -L$(QTDIR)/util/install/archive -larq
+unix:LIBS += -L$$QT_BUILD_TREE/util/install/archive -larq
 

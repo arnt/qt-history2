@@ -35,7 +35,7 @@ INTERFACES	= dialogs/folderdlg.ui \
 
 TARGET		= install
 DESTDIR		= ../../../bin
-INCLUDEPATH	+= $(QTDIR)/src/3rdparty $(QTDIR)/util/install/archive
+INCLUDEPATH	+= $$QT_SOURCE_TREE/src/3rdparty $$QT_SOURCE_TREE/util/install/archive
 
 win32:RC_FILE	= install.rc
 
@@ -53,7 +53,7 @@ win32:RC_FILE	= install.rc
 CONFIG += edu
 
 
-unix:LIBS		+= -L$(QTDIR)/util/install/archive -larq
+unix:LIBS		+= -L$$QT_BUILD_TREE/util/install/archive -larq
 win32:LIBS		+= ../archive/arq.lib
 INCLUDEPATH		+= ../keygen
 

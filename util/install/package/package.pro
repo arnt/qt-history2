@@ -1,10 +1,10 @@
 TEMPLATE = app
 SOURCES = main.cpp
-INCLUDEPATH += ../archive $(QTDIR)/include ../keygen
+INCLUDEPATH += ../archive $$QT_SOURCE_TREE/include ../keygen
 CONFIG += qt console
 TARGET  = package
 win32:DESTDIR = ../../../bin
-unix:LIBS += -L$(QTDIR)/util/install/archive -larq
+unix:LIBS += -L$$QT_BUILD_TREE/util/install/archive -larq
 win32:LIBS += ../archive/arq.lib
 DEFINES -= UNICODE
 
