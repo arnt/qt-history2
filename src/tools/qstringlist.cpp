@@ -36,15 +36,13 @@
   \ingroup tools
   \ingroup shared
 
-  This class is a list of QString objects. Like QValueList it is
-  value based unlike QList. In contrast to QStrList it deals with
-  real QString objects instead of character pointers. That makes
-  QStringList the class of choice if you have to deal with unicode
-  strings.
+  QStringList is basically a QValueList of QString objects. As opposed
+  to QStrList, that stores pointers to characters, QStringList deals
+  with real QString objects.  It is the class of choice whenever you
+  work with unicode strings.
 
-  Like QString itself, a QStringList provides implicit
-  share. Therefore string lists can be passed around
-  as value-parameters both fast and safe.
+  Like QString itself, QStringList objects are implicit shared.
+  Passing them around as value-parameters is both fast and safe.
 
   Example:
   \code
@@ -64,9 +62,8 @@
 	}
   \endcode
 
-  There are also convenient static methods available, which make
-  working with QStringLists easy, like multiple split() and grep()
-  methods.
+  Convenience methods such as sort(), split(), join() and grep() make
+  working with QStringList easy.
 */
 
 /*
@@ -100,8 +97,11 @@
 
 /*!
   Sorts the list of strings in ascending order.
-  The sorting algorithm used is HeapSort which operates
-  in O(n*logn).
+  
+  Sorting is very fast. It uses the Qt Template Library's
+  efficient HeapSort implementation that operates in O(n*log n).
+  
+  \sa qHeapSort()
 */
 void QStringList::sort()
 {
@@ -207,25 +207,24 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str, bool all
 }
 
 /*!
-  Returns a stringlist containing all strings in the list
-  which contain the regular expression \a expr.
+  Returns a list of all strings containing the substring \a str.
 
   If \a cs is TRUE, the grep is done case sensitively, else not.
 */
 
-QStringList QStringList::grep( const QString &expr, bool cs ) const
+QStringList QStringList::grep( const QString &str, bool cs ) const
 {
     QStringList res;
     for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
-	if ( (*it).contains( expr, cs ) )
+	if ( (*it).contains( str, cs ) )
 	    res << *it;
 
     return res;
 }
 
 /*!
-  Returns a stringlist containing all strings in the list
-  which contain the regular expression \a expr.
+  Returns a list of all strings containing a substring that matches
+  the regular expression \a expr.
 */
 
 QStringList QStringList::grep( const QRegExp &expr ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#18 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#19 $
 **
 ** Definition of QStringList class
 **
@@ -54,7 +54,7 @@ public:
     static QStringList split(  const QRegExp &sep, const QString &str, bool allowEmptyEntries = FALSE );
     QString join( const QString &sep ) const;
 
-    QStringList grep( const QString &expr, bool cs = TRUE ) const;
+    QStringList grep( const QString &str, bool cs = TRUE ) const;
     QStringList grep( const QRegExp &expr ) const;
 };
 
