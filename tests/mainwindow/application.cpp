@@ -60,11 +60,13 @@ ApplicationWindow::ApplicationWindow()
     QMap< QString, int > docks;
     QMap< QString, int > indices;
     QMap< QString, int > nls;
+    int w = 450, h = 600;
     if ( tbconfig ) {
 	QDataStream s( &f );
 	s >> docks;
 	s >> indices;
 	s >> nls;
+	s >> w >> h;
     }
 
     QString toolBars[] = {
@@ -147,7 +149,7 @@ ApplicationWindow::ApplicationWindow()
     // Start:
 
     statusBar()->message( "Ready", 2000 );
-    resize( 450, 600 );
+    resize( w, h );
 }
 
 QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
@@ -273,6 +275,7 @@ ApplicationWindow::~ApplicationWindow()
     s << docks;
     s << indices;
     s << nls;
+    s << width() << height();
 }
 
 
