@@ -7,6 +7,11 @@
 class QLineEdit;
 class QPushButton;
 
+#ifdef FILECHOOSER_IS_WIDGET
+#undef QT_WIDGET_PLUGIN_EXPORT
+#define QT_WIDGET_PLUGIN_EXPORT
+#endif
+
 class QT_WIDGET_PLUGIN_EXPORT FileChooser : public QWidget
 {
     Q_OBJECT

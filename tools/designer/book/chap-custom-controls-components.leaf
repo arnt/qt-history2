@@ -255,6 +255,15 @@ We have two recommendations that you should consider when creating a
 	the \File qwidget.h header file. We also forward declare the two
 	classes that our widget will be built from.
 
+\skipto #ifdef FILECHOOSER_IS_WIDGET
+\printuntil #endif
+
+	We check if FILECHOOSER_IS_WIDGET is defined, as this means that we are
+	trying to build our widget as a standalone widget for the test harness
+	later on and not as a plugin.  This serves to make sure that the 
+	QT_WIDGET_PLUGIN_EXPORT macro is set to nothing when the widget is not
+	built as a plugin.	
+
 \skipto class FileChooser
 \printto public
 

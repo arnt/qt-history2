@@ -5,3 +5,4 @@ TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= filechooser.db
 LANGUAGE	= C++
+DEFINES += FILECHOOSER_IS_WIDGET
