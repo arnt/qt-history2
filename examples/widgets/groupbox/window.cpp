@@ -67,8 +67,8 @@ QGroupBox *Window::createNonExclusiveGroup()
     checkBox2->setChecked(true);
     QCheckBox *tristateBox = new QCheckBox(tr("Tri-&state button"), groupBox);
     tristateBox->setTristate(true);
-    tristateBox->setState(QCheckBox::NoChange);
-    
+    tristateBox->setCheckState(Qt::PartiallyChecked);
+
     QVBoxLayout *vbox = new QVBoxLayout(groupBox);
     vbox->addWidget(checkBox1);
     vbox->addWidget(checkBox2);
