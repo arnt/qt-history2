@@ -13,13 +13,19 @@ QSqlConnection::QSqlConnection( QObject* parent, const char* name )
     dbDict.setAutoDelete( TRUE );
 }
 
-/*! Destroys the object and frees any allocated resources.
+/*! 
+  Destroys the object and frees any allocated resources.  All open
+  databases are closed.
 
 */
 
 QSqlConnection::~QSqlConnection()
 {
-    
+    QDictIterator< QSqlDatabase > it( dbDict );
+    while ( it.current() ) {
+	it.current()->close();
+	++it;
+    }
 }
 
 /*!
@@ -35,16 +41,20 @@ QSqlConnection* QSqlConnection::instance()
     return sqlConnection;
 }
 
-/*! 
-  Returns a pointer to the database with name \a name.  If \name
-  does not exist, 0 is returned.
-
+/*!
+  Returns a pointer to the database with name \a name.  If the database was not previously
+  opened, it is opened now.  If \name does not exist in the list of managed database,
+  0 is returned.
+  
 */
 
 QSqlDatabase* QSqlConnection::database( const QString& name )
 {
     QSqlConnection* sqlConnection = instance();
-    return sqlConnection->dbDict.find( name );
+    QSqlDatabase* db = sqlConnection->dbDict.find( name );
+    if ( db && !db->isOpen() )
+	db->open();
+    return db;
 }
 
 
@@ -53,9 +63,9 @@ QSqlDatabase* QSqlConnection::database( const QString& name )
   Adds a database to the SQL connection manager.  The database is
   referred to by \name.  A pointer to the newly added database is
   returned.
-  
+
   \sa QSqlDatabase database()
-  
+
 */
 
 QSqlDatabase* QSqlConnection::addDatabase( const QString& type,
@@ -86,3 +96,4 @@ void QSqlConnection::removeDatabase( const QString& name )
 }
 
 #endif // QT_NO_SQL
+
