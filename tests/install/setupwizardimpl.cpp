@@ -399,6 +399,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    fi.setFile( "build.arq" );
 	    if( fi.exists() )
 		totalSize += fi.size();
+	    
+	    fi.setFile( "uninstall.arq" );
+	    if( fi.exists() )
+		totalSize += fi.size();
 
 	    if( installDocs->isChecked() ) {
 		fi.setFile( "doc.arq" );
@@ -422,6 +426,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	    filesDisplay->append( "Starting copy process\n" );
 	    readArchive( "build.arq", installPath->text() );
+	    readArchive( "uninstall.arq", shell.windowsFolderName );
 
 	    readArchive( "qt.arq", installPath->text() );
 	    if( installDocs->isChecked() )
@@ -672,6 +677,7 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 	    }
 	    else
 	    {
+		QDateTime timeStamp;
 		QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "\\" ) + entryName );
 		totalOut = 0;
 		outFile.setName( fileName );
@@ -687,6 +693,9 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
 			filesToCompile++;
 
+		    // Get timestamp from the archive
+		    inStream >> timeStamp;
+//		    qDebug( "%s", timeStamp.toString().latin1() );
 		    outStream.setDevice( &outFile );
 		    inStream >> entryLength;
 		    totalRead += sizeof( entryLength );
