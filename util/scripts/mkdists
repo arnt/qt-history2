@@ -11,6 +11,9 @@
 #
 # Options:
 #	-nodoc	Don't generate documentation
+#	-nowin	Don't generate Windows
+#	-nox11	Don't generate X11
+#	-noqws	Don't generate Qt/Embedded
 #
 
 use File::Find;
@@ -22,16 +25,22 @@ $/ = undef;
 # option parsing.
 
 $doc = 1;
+$version = 0;
 
-if ( $ARGV[0] eq "-nodoc" ) {
-    $doc = undef;
-    print "Will not generate documentation.\n";
-    shift;
+for $a ( @ARGV ) {
+    if ( $a eq "-nodoc" ) {
+	$doc = undef;
+	print "Will not generate documentation.\n";
+    } elsif ( $a =~ /^-no(x11|qws|win)$/ ) {
+	$notplatform{$1}=1;
+	print "Will not generate \u$1\U platform.\n";
+    } else {
+	$version = $1;
+    }
 }
 
 # okay, figure out what version of Qt to look at, and make a directory
 
-$version = $ARGV[0] || 0;
 if ( $version =~ /(.*)\.\d+/ ) {
     $branch = $1;
 } else {
@@ -306,12 +315,15 @@ $ENV{"PATH"}="$ENV{TMAKEDIR}/bin:$ENV{PATH}";
 
 # copy the tree to new platform-specific trees
 
-for $platform ( "x11", "windows" ) {
+for $platform ( "x11", "windows", "qws" ) {
+    next if $notplatform{$platform};
     print "Making $distdir/$platform\n";
     mkdir "$distdir/$platform", 0777;
-    $newdir = "$distdir/$platform/qt";
-    $newdir = "$distdir/$platform/qt-$version$type"
-      if ( $platform eq "x11" );
+    if ( $platform eq "win" ) {
+	$newdir = "$distdir/$platform/qt";
+    } else {
+	$newdir = "$distdir/$platform/qt-$version$type"
+    }
     mkdir $newdir, 0777;
     $files = 0;
     sub populate {
@@ -337,263 +349,275 @@ for $platform ( "x11", "windows" ) {
     }
 }
 
-# X11 stuff.
+# X11 and QWS stuff.
 
-print "Processing X11 ($distdir/x11)\n";
+for $platform ( "x11", "qws" ) {
+    next if $notplatform{$platform};
 
-$qtdir = "$distdir/x11/qt-$version$type";
+    print "Processing \u$platform\U ($distdir/$platform)\n";
 
-$ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
-$ENV{ "QTDIR" } = $qtdir;
+    $qtdir = "$distdir/$platform/qt-$version$type";
 
-sub justx11files {
-    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_x11.cpp$/ && !/_unix.cpp$/ ) ||
-		   ( /qt_[a-z]*.h$/ && !/^qt_x11.h$/ ) );
+    $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
+    $ENV{ "QTDIR" } = $qtdir;
+
+    sub justunixfiles {
+	unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
+		       ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
+    }
+    find( \&justunixfiles, $qtdir );
+
+    # copy the dist things into a supplemental directory
+    mkdir "$distdir/$platform-free/", 0777;
+    mkdir "$distdir/$platform-free/qt-$version$type", 0777;
+    mkdir "$distdir/$platform-pro/", 0777;
+    mkdir "$distdir/$platform-pro/qt-$version$type", 0777;
+
+    opendir( D, "$distdir/qt/dist/commercial" );
+    foreach ( readdir( D ) ) {
+	&copy_version( "$distdir/qt/dist/commercial/$_",
+		       "$distdir/$platform-pro/qt-$version$type/$_" );
+    }
+    closedir( D );
+
+    opendir( D, "$distdir/qt/dist/free" );
+    foreach ( readdir( D ) ) {
+	&copy_version( "$distdir/qt/dist/free/$_",
+		       "$distdir/$platform-free/qt-$version$type/$_" );
+    }
+    closedir( D );
+
+    opendir( D, "$distdir/qt/dist/$platform" );
+    foreach ( readdir( D ) ) {
+	&copy_version( "$distdir/qt/dist/$platform/$_",
+		       "$distdir/$platform-free/qt-$version$type/$_" );
+	&copy_version( "$distdir/qt/dist/$platform/$_",
+		       "$distdir/$platform-pro/qt-$version$type/$_" );
+    }
+    closedir( D );
+
+    link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
+
+    # move the doc back
+
+    mkdir "$qtdir/doc", 0777;
+    rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
+    rename( "$qtdir/src/doc/man", "$qtdir/doc/man" );
+
+    # Generate makefiles
+
+    open( I, "$qtdir/util/scripts/makeunixmake -v 2>&1 |" )
+      || die "could not run makeunixmake, stopped";
+    $_ = <I>; # what do we do with it? nothing for now...
+    close I;
+
+    # copy the templates into configs, and lose tmake
+    opendir( D, "$qtdir/tmake" );
+    foreach ( readdir( D ) ) {
+	move( $_, "$qtdir/configs" ) if ( /\.t$/ &&
+					  $_ ne "propagate.t" &&
+					  $_ ne "subdirs.t" );
+    }
+    closedir( D );
+    rmrf( "$qtdir/tmake" );
+    rmrf( "$qtdir/makefiles" );
+
+    # make symlinks
+
+    mkdir "$qtdir/include", 0777;
+    foreach $fullname ( @includefiles ) {
+	$_ = $fullname;
+	s-.*/--;
+	symlink( "../$fullname", "$qtdir/include/$_" );
+    }
+
+    # lose util well and truly
+
+    &rmrf( "$qtdir/util" );
+
+    # lose empty directories
+
+    &prune( "qtdir" );
+
+    # tar up the two supplementals
+
+    chdir( "$distdir/$platform-free" );
+    system( "tar cf ../qt-$platform-$version$type.tar ." );
+    chdir( "$distdir/$platform-pro" );
+    system( "tar cf ../qt-$platform-$version$type-commercial.tar ." );
+
+    # then run tar for real, on the x11 tree.
+    chdir( "$distdir/$platform" );
+    open( "TAR1$platform", "tar rf ../qt-$platform-$version$type.tar . |" );
+    open( "TAR2$platform", "tar rf ../qt-$platform-$version$type-commercial.tar . |" );
+    # those will run in the background, accessing the same files at the
+    # same time, mostly.  later, we'll compress.
+
 }
-find( \&justx11files, $qtdir );
-
-# copy the dist things into a supplemental directory
-mkdir "$distdir/x-free/", 0777;
-mkdir "$distdir/x-free/qt-$version$type", 0777;
-mkdir "$distdir/x-pro/", 0777;
-mkdir "$distdir/x-pro/qt-$version$type", 0777;
-
-opendir( D, "$distdir/qt/dist/commercial" );
-foreach ( readdir( D ) ) {
-    &copy_version( "$distdir/qt/dist/commercial/$_",
-		   "$distdir/x-pro/qt-$version$type/$_" );
-}
-closedir( D );
-
-opendir( D, "$distdir/qt/dist/free" );
-foreach ( readdir( D ) ) {
-    &copy_version( "$distdir/qt/dist/free/$_",
-		   "$distdir/x-free/qt-$version$type/$_" );
-}
-closedir( D );
-
-opendir( D, "$distdir/qt/dist/x11" );
-foreach ( readdir( D ) ) {
-    &copy_version( "$distdir/qt/dist/x11/$_",
-		   "$distdir/x-free/qt-$version$type/$_" );
-    &copy_version( "$distdir/qt/dist/x11/$_",
-		   "$distdir/x-pro/qt-$version$type/$_" );
-}
-closedir( D );
-
-link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
-
-# move the doc back
-
-mkdir "$qtdir/doc", 0777;
-rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
-rename( "$qtdir/src/doc/man", "$qtdir/doc/man" );
-
-# Generate makefiles
-
-open( I, "$qtdir/util/scripts/makeunixmake -v 2>&1 |" )
-  || die "could not run makeunixmake, stopped";
-$_ = <I>; # what do we do with it? nothing for now...
-close I;
-
-# copy the templates into configs, and lose tmake
-opendir( D, "$qtdir/tmake" );
-foreach ( readdir( D ) ) {
-    move( $_, "$qtdir/configs" ) if ( /\.t$/ &&
-				      $_ ne "propagate.t" &&
-				      $_ ne "subdirs.t" );
-}
-closedir( D );
-rmrf( "$qtdir/tmake" );
-rmrf( "$qtdir/makefiles" );
-
-# make symlinks
-
-mkdir "$qtdir/include", 0777;
-foreach $fullname ( @includefiles ) {
-    $_ = $fullname;
-    s-.*/--;
-    symlink( "../$fullname", "$qtdir/include/$_" );
-}
-
-# lose util well and truly
-
-&rmrf( "$qtdir/util" );
-
-# lose empty directories
-
-&prune( "qtdir" );
-
-# tar up the two supplementals
-
-chdir( "$distdir/x-free" );
-system( "tar cf ../qt-x11-$version$type.tar ." );
-chdir( "$distdir/x-pro" );
-system( "tar cf ../qt-x11-$version$type-commercial.tar ." );
-
-# then run tar for real, on the x11 tree.
-chdir( "$distdir/x11" );
-open( TAR1, "tar rf ../qt-x11-$version$type.tar . |" );
-open( TAR2, "tar rf ../qt-x11-$version$type-commercial.tar . |" );
-# those will run in the background, accessing the same files at the
-# same time, mostly.  later, we'll compress.
 
 # windows stuff
 
-print "Processing Windows ($distdir/x11)\n";
+if (!$notplatform{win}) {
+    print "Processing Windows ($distdir/windows)\n";
 
-$qtdir = "$distdir/windows/qt";
-$ENV{ "QTDIR" } = $qtdir;
+    $qtdir = "$distdir/windows/qt";
+    $ENV{ "QTDIR" } = $qtdir;
 
-sub justwinfiles {
-    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_win.cpp$/ ) ||
-		   ( /^qt_[a-z]*.h$/ && !/^qt_windows.h$/ ) );
-}
-find( \&justwinfiles, $qtdir );
+    sub justwinfiles {
+	unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_win.cpp$/ ) ||
+		       ( /^qt_[a-z]*.h$/ && !/^qt_windows.h$/ ) );
+    }
+    find( \&justwinfiles, $qtdir );
 
-# move the files into include
+    # move the files into include
 
-mkdir "$qtdir/include", 0777 unless ( -d "$qtdir/include" );
-foreach $fullname ( @includefiles ) {
-    $_ = $fullname;
-    s-.*/--;
-    move( "$qtdir/$fullname", "$qtdir/include/$_" );
-}
+    mkdir "$qtdir/include", 0777 unless ( -d "$qtdir/include" );
+    foreach $fullname ( @includefiles ) {
+	$_ = $fullname;
+	s-.*/--;
+	move( "$qtdir/$fullname", "$qtdir/include/$_" );
+    }
 
-# delete the xt estension
+    # delete the xt estension
 
-&rmrf( "$qtdir/extensions/xt" );
+    &rmrf( "$qtdir/extensions/xt" );
 
-# Generate makefiles
+    # Generate makefiles
 
-mkdir "$qtdir/lib",0777 unless ( -d "$qtdir/lib" );
-mkdir "$qtdir/mkfiles",0777 unless ( -d "$qtdir/mkfiles" );
+    mkdir "$qtdir/lib",0777 unless ( -d "$qtdir/lib" );
+    mkdir "$qtdir/mkfiles",0777 unless ( -d "$qtdir/mkfiles" );
 
-$ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
+    $ENV{ "TMAKEPATH" } = $ENV{"TMAKEDIR" } . "/lib/linux-g++";
 
-mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
-#foreach $buildtype ( "" ) {
-#    foreach $compiler ( "msvc" ) {
-foreach $buildtype ( "", "-dll" ) {
-    foreach $compiler ( "borland", "msvc" ) {
-	print "  Building $compiler$buildtype Makefiles\n";
-	open( O, "> $qtdir/lib/qt$version_digits.lib" ) || die;
-	close O;
-	copy( "$distdir/qt/src/Makefile.win32-dll", "$qtdir/src/Makefile" )
-	  if ( $buildtype eq "-dll" );
-	$ENV{"TMAKEPATH"} = $ENV{"TMAKEDIR"} . "/lib/win32-$compiler";
-	open( I, "$qtdir/util/scripts/buildmakefiles -win32 $buildtype 2>&1|" )
-	  || die "could not run buildmakefiles, stopped";
-	$_ = <I>;
-	close I;
+    mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
+    #foreach $buildtype ( "" ) {
+    #    foreach $compiler ( "msvc" ) {
+    #}}
+    foreach $buildtype ( "", "-dll" ) {
+	foreach $compiler ( "borland", "msvc" ) {
+	    print "  Building $compiler$buildtype Makefiles\n";
+	    open( O, "> $qtdir/lib/qt$version_digits.lib" ) || die;
+	    close O;
+	    copy( "$distdir/qt/src/Makefile.win32-dll", "$qtdir/src/Makefile" )
+	      if ( $buildtype eq "-dll" );
+	    $ENV{"TMAKEPATH"} = $ENV{"TMAKEDIR"} . "/lib/win32-$compiler";
+	    open( I, "$qtdir/util/scripts/buildmakefiles -win32 $buildtype 2>&1|" )
+	      || die "could not run buildmakefiles, stopped";
+	    $_ = <I>;
+	    close I;
 
-	chdir $qtdir;
-	open( I, "find . -name Makefile -o -name \"qt*.mak\" | xargs zip -rml9 $qtdir/mkfiles/$compiler$buildtype.zip |" )
-	  || die "could not run zip, stopped";
-	$_ = <I>;
-	close I;
+	    chdir $qtdir;
+	    open( I, "find . -name Makefile -o -name \"qt*.mak\" | xargs zip -rml9 $qtdir/mkfiles/$compiler$buildtype.zip |" )
+	      || die "could not run zip, stopped";
+	    $_ = <I>;
+	    close I;
 
-	foreach ( "lib/qt$version_digits.lib", "src/Makefile", "src/qtdll.mak",
-		  "src/qtmain.mak", "src/Makefile.win32-dll" ) {
-	    unlink $_ if ( -f $_ );
+	    foreach ( "lib/qt$version_digits.lib", "src/Makefile", "src/qtdll.mak",
+		      "src/qtmain.mak", "src/Makefile.win32-dll" ) {
+		unlink $_ if ( -f $_ );
+	    }
 	}
     }
-}
 
-# copy Windows dist/* stuff
+    # copy Windows dist/* stuff
 
-opendir( D, "$distdir/qt/dist/commercial" );
-foreach ( readdir( D ) ) {
-    &copy_version( "$distdir/qt/dist/commercial/$_", "$qtdir/$_" );
-}
-closedir( D );
-
-opendir( D, "$distdir/qt/dist/win/" );
-foreach ( readdir( D ) ) {
-    &copy_version( "$distdir/qt/dist/win/$_", "$qtdir/$_" );
-}
-closedir( D );
-
-mkdir "$qtdir/bin", 0777 unless( -d "$qtdir/bin" );
-opendir( D, "$distdir/qt/dist/win/bin" );
-foreach ( readdir( D ) ) {
-    copy( "$distdir/qt/dist/win/bin/$_", "$qtdir/bin/$_" );
-}
-closedir( D );
-
-# lose the man pages and util
-
-&rmrf( "$qtdir/src/doc/man" );
-&rmrf( "$qtdir/util" );
-&rmrf( "$qtdir/tmake" );
-unlink( "$qtdir/src/qtinternal.pro" );
-
-# move the doc from doc/html/* to doc/*
-
-mkdir "$qtdir/doc", 0777;
-rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
-
-# make a lib/dummy
-mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
-open( O, "> $qtdir/lib/README" ) || die;
-print O "If this directory is empty, you forgot to build the Qt library\n";
-close O;
-
-# install one set of makefiles, and zip up the thing
-
-open( I, "unzip -aq -d $qtdir $qtdir/mkfiles/msvc.zip |" )
-  || die "could not unzip msvc makefiles, stopped";
-$_ = <I>;
-close I;
-
-print "unzip said:\n$_\n" if ( defined( $_ ) && $_ ne "" );
-
-# lose empty directories
-
-&prune( "qtdir" );
-
-@binaryfiles = undef;
-@textfiles = undef;
-
-sub addfile {
-    my $s = $_;
-    $s =~ s/.*\.//;
-    my $f = "$File::Find::dir/$_";
-    $f =~ s@^$qtdir/@qt/@;
-    if ( $s eq "dll" || $s eq "gif" || $s eq "png" || $s eq "jpg" ||
-	 $s eq "bmp" || $s eq "any" || $s eq "pic" || $s eq "ppm" || 
-	 $s eq "exe" || $s eq "zip" || $s eq "qm" ) {
-	push @binaryfiles, "$f";
-	#print "$f is binary\n";
-    } else {
-	push @textfiles, "$f";
+    opendir( D, "$distdir/qt/dist/commercial" );
+    foreach ( readdir( D ) ) {
+	&copy_version( "$distdir/qt/dist/commercial/$_", "$qtdir/$_" );
     }
+    closedir( D );
+
+    opendir( D, "$distdir/qt/dist/win/" );
+    foreach ( readdir( D ) ) {
+	&copy_version( "$distdir/qt/dist/win/$_", "$qtdir/$_" );
+    }
+    closedir( D );
+
+    mkdir "$qtdir/bin", 0777 unless( -d "$qtdir/bin" );
+    opendir( D, "$distdir/qt/dist/win/bin" );
+    foreach ( readdir( D ) ) {
+	copy( "$distdir/qt/dist/win/bin/$_", "$qtdir/bin/$_" );
+    }
+    closedir( D );
+
+    # lose the man pages and util
+
+    &rmrf( "$qtdir/src/doc/man" );
+    &rmrf( "$qtdir/util" );
+    &rmrf( "$qtdir/tmake" );
+    unlink( "$qtdir/src/qtinternal.pro" );
+
+    # move the doc from doc/html/* to doc/*
+
+    mkdir "$qtdir/doc", 0777;
+    rename( "$qtdir/src/doc/html", "$qtdir/doc/html" );
+
+    # make a lib/dummy
+    mkdir "$qtdir/lib", 0777 unless( -d "$qtdir/lib" );
+    open( O, "> $qtdir/lib/README" ) || die;
+    print O "If this directory is empty, you forgot to build the Qt library\n";
+    close O;
+
+    # install one set of makefiles, and zip up the thing
+
+    open( I, "unzip -aq -d $qtdir $qtdir/mkfiles/msvc.zip |" )
+      || die "could not unzip msvc makefiles, stopped";
+    $_ = <I>;
+    close I;
+
+    print "unzip said:\n$_\n" if ( defined( $_ ) && $_ ne "" );
+
+    # lose empty directories
+
+    &prune( "qtdir" );
+
+    @binaryfiles = undef;
+    @textfiles = undef;
+
+    sub addfile {
+	my $s = $_;
+	$s =~ s/.*\.//;
+	my $f = "$File::Find::dir/$_";
+	$f =~ s@^$qtdir/@qt/@;
+	if ( $s eq "dll" || $s eq "gif" || $s eq "png" || $s eq "jpg" ||
+	     $s eq "bmp" || $s eq "any" || $s eq "pic" || $s eq "ppm" || 
+	     $s eq "exe" || $s eq "zip" || $s eq "qm" ) {
+	    push @binaryfiles, "$f";
+	    #print "$f is binary\n";
+	} else {
+	    push @textfiles, "$f";
+	}
+    }
+
+    find( \&addfile, $qtdir );
+
+    chdir( "$distdir/windows" );
+    open( O, "| zip -r9q@ $distdir/qtwin$version_digits$type.zip" )
+      || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
+    foreach $_ ( @binaryfiles ) {
+	print O "$_\n" if ( defined( $_ ) && -f $_ );
+    }
+    close O;
+    open( O, "| zip -r9ql@ $distdir/qtwin$version_digits$type.zip" )
+      || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
+    foreach $_ ( @textfiles ) {
+	print O "$_\n" if ( defined( $_ ) && -f $_ );
+    }
+    close O;
 }
 
-find( \&addfile, $qtdir );
-
-chdir( "$distdir/windows" );
-open( O, "| zip -r9q@ $distdir/qtwin$version_digits$type.zip" )
-  || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
-foreach $_ ( @binaryfiles ) {
-    print O "$_\n" if ( defined( $_ ) && -f $_ );
-}
-close O;
-open( O, "| zip -r9ql@ $distdir/qtwin$version_digits$type.zip" )
-  || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
-foreach $_ ( @textfiles ) {
-    print O "$_\n" if ( defined( $_ ) && -f $_ );
-}
-close O;
-
-# back to x11 - close the tars, and compress the results after the
+# back to unix - close the tars, and compress the results after the
 # thing is done
 
-close TAR1;
-close TAR2;
+for $platform ( "x11", "qws" ) {
+    next if $notplatform{$platform};
 
-system( "gzip -9 $distdir/qt-x11-$version$type.tar" );
-system( "gzip -9 $distdir/qt-x11-$version$type-commercial.tar" );
+    close "TAR1$platform";
+    close "TAR2$platform";
+
+    system( "gzip -9 $distdir/qt-$platform-$version$type.tar" );
+    system( "gzip -9 $distdir/qt-$platform-$version$type-commercial.tar" );
+}
 
 
 sub rmrfhelper {
