@@ -80,6 +80,7 @@ public:
 
     inline void abortLookup(int id)
     {
+        QMutexLocker locker(&mutex);
         for (int i = 0; i < queries.size(); ++i) {
             QHostInfoResult *result = queries.at(i)->object;
             if (result->lookupId == id) {
