@@ -61,7 +61,7 @@ struct QWidgetPrivate;
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
-    Q_ENUMS( BackgroundMode FocusPolicy BackgroundOrigin )
+    Q_ENUMS( BackgroundMode FocusPolicy )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
     Q_PROPERTY( bool isDialog READ isDialog )
     Q_PROPERTY( bool isModal READ isModal )
@@ -90,7 +90,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QSize sizeIncrement READ sizeIncrement WRITE setSizeIncrement )
     Q_PROPERTY( QSize baseSize READ baseSize WRITE setBaseSize )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
-    Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( QFont font READ font WRITE setFont RESET unsetFont )
 #ifndef QT_NO_CURSOR
     Q_PROPERTY( QCursor cursor READ cursor WRITE setCursor RESET unsetCursor )
@@ -347,10 +346,6 @@ public:
     bool close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
-#ifndef QT_NO_COMPAT
-    bool		isVisibleToTLW() const; // obsolete
-    QRect		visibleRect() const; // obsolete
-#endif
     bool 		isHidden() const;
     bool 		isShown() const;
     bool		isMinimized() const;
@@ -374,18 +369,6 @@ public:
 
     void reparent(QWidget *parent, WFlags f);
     void reparent(QWidget *parent);
-
-#ifndef QT_NO_COMPAT
-    void iconify() { showMinimized(); }
-    void constPolish() const { ensurePolished(); }
-    void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
-    { reparent(parent, f); move(p); if (showIt) show(); }
-    void reparent( QWidget *parent, const QPoint &p, bool showIt=false )
-    { reparent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
-    void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
-    { reparent(parent, f, p, showIt); }
-    bool hasMouse() const { return underMouse(); }
-#endif
 
     void		erase();
     void		erase( int x, int y, int w, int h );
@@ -414,12 +397,6 @@ public:
 
     void setAutoMask(bool);
     bool		autoMask() const;
-
-    enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
-
-    void setBackgroundOrigin( BackgroundOrigin );
-    BackgroundOrigin backgroundOrigin() const;
-    QPoint backgroundOffset() const;
 
     // whats this help
     virtual bool customWhatsThis() const;
@@ -559,41 +536,6 @@ protected:
     virtual void macWidgetChangedWindow();
 #endif
 
-#ifndef QT_NO_COMPAT
-public:
-#ifndef QT_NO_CURSOR
-    bool		ownCursor() const { return testAttribute(WA_SetCursor); }
-#endif
-    bool		ownFont() const  { return testAttribute(WA_SetFont); }
-    bool		ownPalette() const  { return testAttribute(WA_SetPalette); }
-    BackgroundMode	backgroundMode() const;
-    void setBackgroundMode( BackgroundMode );
-    void 		setBackgroundMode( BackgroundMode, BackgroundMode );
-    const QColor &	eraseColor() const;
-    void setEraseColor( const QColor & );
-    const QColor &	foregroundColor() const;
-    const QPixmap *	erasePixmap() const;
-    void setErasePixmap( const QPixmap & );
-    const QColor &	paletteForegroundColor() const;
-    void		setPaletteForegroundColor( const QColor & );
-    const QColor &	paletteBackgroundColor() const;
-    void setPaletteBackgroundColor( const QColor & );
-    const QPixmap *	paletteBackgroundPixmap() const;
-    void setPaletteBackgroundPixmap( const QPixmap & );
-    const QBrush&	backgroundBrush() const;
-    const QColor &backgroundColor() const;
-    void setBackgroundColor( const QColor & );
-    const QPixmap *backgroundPixmap() const;
-    void setBackgroundPixmap( const QPixmap & );
-    QColorGroup colorGroup() const;
-    QWidget *parentWidget( bool sameWindow ) const;
-    inline void setKeyCompression(bool b) { setAttribute(WA_KeyCompression, b); }
-    inline void setFont( const QFont &f, bool ) { setFont( f ); }
-#ifndef QT_NO_PALETTE
-    inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
-#endif
-#endif
-
 protected:
     explicit QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f);
 private:
@@ -699,14 +641,57 @@ private:	// Disabled copy constructor and operator=
 #endif
 
     Q_DECL_PRIVATE( QWidget );
+
+#ifndef QT_NO_COMPAT
+public:
+    bool isVisibleToTLW() const; // obsolete
+    QRect visibleRect() const; // obsolete
+    void iconify() { showMinimized(); }
+    void constPolish() const { ensurePolished(); }
+    void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
+    { reparent(parent, f); move(p); if (showIt) show(); }
+    void reparent( QWidget *parent, const QPoint &p, bool showIt=false )
+    { reparent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
+    void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
+    { reparent(parent, f, p, showIt); }
+    bool hasMouse() const { return underMouse(); }
+#ifndef QT_NO_CURSOR
+    bool ownCursor() const { return testAttribute(WA_SetCursor); }
+#endif
+    bool ownFont() const  { return testAttribute(WA_SetFont); }
+    bool ownPalette() const  { return testAttribute(WA_SetPalette); }
+    BackgroundMode backgroundMode() const;
+    void setBackgroundMode( BackgroundMode );
+    void setBackgroundMode( BackgroundMode, BackgroundMode );
+    const QColor &eraseColor() const;
+    void setEraseColor( const QColor & );
+    const QColor &foregroundColor() const;
+    const QPixmap *erasePixmap() const;
+    void setErasePixmap( const QPixmap & );
+    const QColor &paletteForegroundColor() const;
+    void setPaletteForegroundColor( const QColor & );
+    const QColor &paletteBackgroundColor() const;
+    void setPaletteBackgroundColor( const QColor & );
+    const QPixmap *paletteBackgroundPixmap() const;
+    void setPaletteBackgroundPixmap( const QPixmap & );
+    const QBrush& backgroundBrush() const;
+    const QColor &backgroundColor() const;
+    void setBackgroundColor( const QColor & );
+    const QPixmap *backgroundPixmap() const;
+    void setBackgroundPixmap( const QPixmap & );
+    QColorGroup colorGroup() const;
+    QWidget *parentWidget( bool sameWindow ) const;
+    inline void setKeyCompression(bool b) { setAttribute(WA_KeyCompression, b); }
+    inline void setFont( const QFont &f, bool ) { setFont( f ); }
+    inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
+    enum BackgroundOrigin { WidgetOrigin, ParentOrigin, WindowOrigin, AncestorOrigin };
+    void setBackgroundOrigin( BackgroundOrigin );
+    BackgroundOrigin backgroundOrigin() const;
+    QPoint backgroundOffset() const;
+#endif
 };
 
 typedef QPointer<QWidget> QWidgetPointer;
-
-#ifndef QT_NO_COMPAT
-inline void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode)
-{ setBackgroundMode(m); }
-#endif
 
 inline Qt::WState QWidget::testWState( WState s ) const
 { return (widget_state & s); }
@@ -825,18 +810,6 @@ inline bool QWidget::close()
 inline bool QWidget::isVisible() const
 { return testWState(WState_Visible); }
 
-#ifndef QT_NO_PALETTE
-#ifndef QT_NO_COMPAT
-inline QColorGroup QWidget::colorGroup() const //obsolete
-{ return QColorGroup(palette()); }
-#endif
-#endif
-
-#ifndef QT_NO_COMPAT
-inline bool QWidget::isVisibleToTLW() const // obsolete
-{ return isVisible(); }
-#endif
-
 inline bool QWidget::isHidden() const
 { return testWState(WState_Hidden); }
 
@@ -851,15 +824,6 @@ inline void QWidget::resize( const QSize &s )
 
 inline void QWidget::setGeometry( const QRect &r )
 { setGeometry( r.left(), r.top(), r.width(), r.height() ); }
-
-#ifndef QT_NO_COMPAT
-inline QWidget *QWidget::parentWidget( bool sameWindow ) const
-{
-    if ( sameWindow )
-	return isTopLevel() ? 0 : (QWidget *)QObject::parent();
-    return (QWidget *)QObject::parent();
-}
-#endif
 
 inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }
@@ -897,12 +861,24 @@ inline bool QWidget::isInputMethodEnabled() const
 
 inline bool QWidget::testAttribute(WidgetAttribute attribute) const
 {
-    if (attribute <= int(8*sizeof(uint)))
+    if (attribute < int(8*sizeof(uint)))
 	return widget_attributes & (1<<attribute);
     return testAttribute_helper(attribute);
 }
 
 #ifndef QT_NO_COMPAT
+inline QColorGroup QWidget::colorGroup() const //obsolete
+{ return QColorGroup(palette()); }
+inline bool QWidget::isVisibleToTLW() const // obsolete
+{ return isVisible(); }
+inline QWidget *QWidget::parentWidget( bool sameWindow ) const
+{
+    if ( sameWindow )
+	return isTopLevel() ? 0 : (QWidget *)QObject::parent();
+    return (QWidget *)QObject::parent();
+}
+inline void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode)
+{ setBackgroundMode(m); }
 inline void QWidget::setPaletteForegroundColor(const QColor &c)
 { QPalette pal = palette(); pal.setColor(foregroundRole(), c); setPalette(pal); }
 inline const QBrush& QWidget::backgroundBrush() const { return palette().brush(backgroundRole()); }

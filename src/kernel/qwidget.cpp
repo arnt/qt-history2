@@ -1009,9 +1009,12 @@ void QWidgetPrivate::deleteExtra()
   Returns true if the foreground is inherited; otherwise returns
   false.
 
-  A widget does not inherit its parents foreground if setPalette() or
-  setForegroundRole() was called, unless the WA_ForegroundInherited
-  attribute is set explicitely.
+  A widget does not inherit its parent's foreground if
+  setForegroundRole() or setBackgroundRole() was called, or a brush is
+  defined for the foreground role.
+
+  If the WA_ForegroundInherited attribute is set, a widget always
+  inherits its parent's foreground.
 */
 
 bool QWidgetPrivate::isForegroundInherited() const
@@ -1028,9 +1031,12 @@ bool QWidgetPrivate::isForegroundInherited() const
   Returns true if the background is inherited; otherwise returns
   false.
 
-  A widget does not inherit its parents background if setPalette() or
-  setBackgroundRole() was called, unless the WA_BackgroundInherited
-  attribute is set explicitely.
+  A widget does not inherit its parent's background if
+  setBackgroundRole() was called, or a brush is defined for the
+  background role.
+
+  If the WA_BackgroundInherited attribute is set, a widget always
+  inherits its parent's background.
 */
 
 bool QWidgetPrivate::isBackgroundInherited() const
@@ -1373,6 +1379,7 @@ void QWidget::setEnabled_helper(bool enable)
 {
     if (enable && !isTopLevel() && parentWidget() && !parentWidget()->isEnabled())
 	return; // nothing we can do
+
     if (enable != testAttribute(WA_Disabled))
 	return; // nothing to do
 
@@ -4775,7 +4782,7 @@ void QWidget::setAutoMask( bool enable )
     }
 }
 
-/*!
+/*! \obsolete
     \enum QWidget::BackgroundOrigin
 
     This enum defines the origin used to draw a widget's background
@@ -4788,7 +4795,8 @@ void QWidget::setAutoMask( bool enable )
     \value AncestorOrigin  same origin as the parent uses.
 */
 
-/*!
+#ifndef QT_NO_COMPAT
+/*! \obsolete
     \property QWidget::backgroundOrigin
     \brief the origin of the widget's background
 
@@ -4817,6 +4825,7 @@ void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
     d->extra->bg_origin = origin;
     update();
 }
+#endif
 
 /*!
     This function can be reimplemented in a subclass to support
@@ -4829,6 +4838,8 @@ void QWidget::updateMask()
 {
 }
 
+
+#ifndef QT_NO_COMPAT
 /*!
   \internal
   Returns the offset of the widget from the backgroundOrigin.
@@ -4875,6 +4886,7 @@ QPoint QWidget::backgroundOffset() const
     // fall back
     return QPoint(0,0);
 }
+#endif
 
 /*!
     Returns the layout engine that manages the geometry of this
@@ -5447,7 +5459,7 @@ void QWidget::drawText(const QPoint &p, const QString &str)
  */
 void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 {
-    if (attribute <= int(8*sizeof(uint))) {
+    if (attribute < int(8*sizeof(uint))) {
 	if (b)
 	    widget_attributes |= (1<<attribute);
 	else
