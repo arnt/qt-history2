@@ -205,9 +205,11 @@ QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QVector<Holder>;
 
 
 // ### Begin attempt to make 4.0 compile on MSVC 6.0
-#if defined(Q_DEFINED_QSQLINDEX) && !defined(Q_EXPORTED_QSQLINDEX_TEMPLATES)
-#define Q_EXPORTED_QSQLINDEX_TEMPLATES
-QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QList<bool>;
+#if defined(Q_DEFINED_QLIST) && !defined(Q_EXPORTED_QLIST_TEMPLATES)
+#define Q_EXPORTED_QLIST_TEMPLATES
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<bool>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<int>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<uint>;
 #endif
 
 #if defined(Q_DEFINED_QOBJECTLIST) && !defined(Q_EXPORTED_QOBJECTLISTCLEANUPHANDLER_TEMPLATES)

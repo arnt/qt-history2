@@ -33,7 +33,7 @@
 
 #ifndef QT_NO_SQL
 
-#define Q_DEFINED_QSQLINDEX
+#define Q_DEFINED_QLIST
 #include "qwinexport.h"
 
 class QSqlCursor;
