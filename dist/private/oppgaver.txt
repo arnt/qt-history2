@@ -70,7 +70,10 @@ Ferdigstilling:
 
     Font metrics & info direkte av QFont.
 
-    Windows porting (mest kritisk: rotert tekst)
+    Windows porting
+	- Rotert tekst
+	- Bruk color RGB verdi i painter hvis device == printer (fargekube)
+	- Fargekube bug (når paletten endres har vi et problem)
 
     Clipboard
 
