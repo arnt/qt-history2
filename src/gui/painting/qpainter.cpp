@@ -1041,6 +1041,7 @@ bool QPainter::begin(QPaintDevice *pd)
     // Ensure fresh painter state
     d->state->init(d->state->painter);
 
+    QPaintDevice *originalDevice = pd;
     QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
 
     if (rpd) {
@@ -1076,9 +1077,6 @@ bool QPainter::begin(QPaintDevice *pd)
                          "result of a paintEvent");
                 return false;
             }
-            d->state->deviceFont = d->state->font = widget->font();
-            d->state->pen = widget->palette().color(widget->foregroundRole());
-            d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
             d->state->ww = d->state->vw = widget->width();
             d->state->wh = d->state->vh = widget->height();
             break;
@@ -1100,6 +1098,15 @@ bool QPainter::begin(QPaintDevice *pd)
             d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
             d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);
         }
+    }
+
+    // Copy painter properties from original paint device,
+    // required for QPixmap::grabWidget()
+    if (originalDevice->devType() == QInternal::Widget) {
+        QWidget *widget = static_cast<QWidget *>(originalDevice);
+        d->state->deviceFont = widget->font();
+        d->state->pen = widget->palette().color(widget->foregroundRole());
+        d->state->bgBrush = widget->palette().brush(widget->backgroundRole());
     }
 
     // make sure we have a font compatible with the paintdevice
