@@ -1,4 +1,4 @@
-#ifndef  QVECTOR_H
+#ifndef QVECTOR_H
 #define QVECTOR_H
 
 #ifndef QT_H
@@ -82,18 +82,18 @@ public:
     int count(const T &t) const;
 
     // stl style
-    typedef T* Iterator;
-    typedef const T* ConstIterator;
-    inline Iterator begin() { detach(); return d->array; }
-    inline ConstIterator begin() const { return d->array; }
-    inline ConstIterator constBegin() const { return d->array; }
-    inline Iterator end() { detach(); return d->array + d->size; }
-    inline ConstIterator end() const { return d->array + d->size; }
-    inline ConstIterator constEnd() const { return d->array + d->size; }
-    Iterator insert( Iterator before, int n, const T& x );
-    inline Iterator insert( Iterator before, const T& x ) { return insert(before, 1, x); }
-    Iterator erase( Iterator first, Iterator last );
-    inline Iterator erase( Iterator pos ) { return erase(pos, pos+1); }
+    typedef T* iterator;
+    typedef const T* const_iterator;
+    inline iterator begin() { detach(); return d->array; }
+    inline const_iterator begin() const { return d->array; }
+    inline const_iterator constBegin() const { return d->array; }
+    inline iterator end() { detach(); return d->array + d->size; }
+    inline const_iterator end() const { return d->array + d->size; }
+    inline const_iterator constEnd() const { return d->array + d->size; }
+    iterator insert( iterator before, int n, const T& x );
+    inline iterator insert( iterator before, const T& x ) { return insert(before, 1, x); }
+    iterator erase( iterator begin, iterator end );
+    inline iterator erase( iterator pos ) { return erase(pos, pos+1); }
 
     // more Qt
     inline int count() const { return d->size; }
@@ -116,8 +116,8 @@ public:
 #else
     typedef int difference_type;
 #endif
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
+    typedef iterator Iterator;
+    typedef const_iterator ConstIterator;
     typedef int size_type;
     inline void push_back(const T &t) { append(t); }
     inline void push_front(const T &t) { prepend(t); }
@@ -219,6 +219,8 @@ QVector<T>::QVector(int size)
 	T* i = d->array + d->size;
 	while (i != b)
 	    new (--i) T;
+    } else {
+	qMemSet(d->array, 0, size * sizeof(T));
     }
 }
 
@@ -291,9 +293,9 @@ void QVector<T>::realloc(int size, int alloc)
 	    while (i != b)
 		new (--i) T(*--j);
 	}
-    } else if (QTypeInfo<T>::isPointer && size > d->size) {
+    } else if (size > d->size) {
 	// initialize newly allocated memory to 0
-	qMemSet(x.d->array + d->size, 0, (size-d->size)*sizeof(T));
+	qMemSet(x.d->array + d->size, 0, (size - d->size) * sizeof(T));
     }
     x.d->size = size;
     x.d->alloc = alloc;
@@ -334,7 +336,7 @@ void QVector<T>::append(const T &t)
 
 
 template <typename T>
-typename QVector<T>::Iterator QVector<T>::insert( Iterator before, size_type n, const T& t )
+typename QVector<T>::iterator QVector<T>::insert( iterator before, size_type n, const T& t )
 {
     int p = before - d->array;
     if ( n != 0 ) {
@@ -367,10 +369,10 @@ typename QVector<T>::Iterator QVector<T>::insert( Iterator before, size_type n, 
 }
 
 template <typename T>
-typename QVector<T>::Iterator QVector<T>::erase( Iterator first, Iterator last )
+typename QVector<T>::iterator QVector<T>::erase( iterator begin, iterator end )
 {
-    int f = first - d->array;
-    int l = last - d->array;
+    int f = begin - d->array;
+    int l = end - d->array;
     int n = l - f;
     detach();
     if (QTypeInfo<T>::isComplex) {
