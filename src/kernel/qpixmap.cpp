@@ -351,11 +351,11 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 {
 #if defined(Q_WS_X11)
     int old = x11SetDefaultScreen( x11Screen() );
-#endif    
+#endif
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
 #if defined(Q_WS_X11)
     x11SetDefaultScreen( old );
-#endif    
+#endif
     if ( !pm.isNull() ) {			// copy the bitmap
 #if defined(Q_WS_X11)
 	pm.copyX11Data( this );
@@ -389,7 +389,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	      pixmap.data->bitmap, pixmap.data->optim );
 #else	
 	init( pixmap.width(), pixmap.height(), pixmap.depth(),
-	      pixmap.data->bitmap, pixmap.data->optim, pixmap.x11Screen() );
+	      pixmap.data->bitmap, pixmap.data->optim /*, pixmap.x11Screen()*/ ); // ##### Matthias, did you forget to submit some multi-head stuff???
 #endif	
 	data->uninit = FALSE;
 	if ( !isNull() ) {
