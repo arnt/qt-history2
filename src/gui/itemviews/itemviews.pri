@@ -7,16 +7,16 @@ HEADERS += \
 	itemviews/qgenericlistview.h \
 	itemviews/qgenericlistview_p.h \
 	itemviews/qgenerictableview.h \
+	itemviews/qgenerictableview_p.h \
 	itemviews/qgenerictreeview.h \
+	itemviews/qgenerictreeview_p.h \
 	itemviews/qabstractitemdelegate.h \
 	itemviews/qitemdelegate.h \
 	itemviews/qitemselectionmodel.h \
 	itemviews/qitemselectionmodel_p.h \
 	itemviews/qabstractitemmodel.h \
 	itemviews/qlistview_.h \
-	itemviews/qtablemodel.h \
 	itemviews/qtableview.h \
-	itemviews/qtreemodel.h \
 	itemviews/qtreeview.h
 
 SOURCES += \
@@ -30,7 +30,5 @@ SOURCES += \
 	itemviews/qitemselectionmodel.cpp \
 	itemviews/qabstractitemmodel.cpp \
 	itemviews/qlistview_.cpp \
-	itemviews/qtablemodel.cpp \
 	itemviews/qtableview.cpp \
-	itemviews/qtreemodel.cpp \
 	itemviews/qtreeview.cpp

@@ -46,6 +46,8 @@ public:
 
     bool eventFilter(QObject *object, QEvent *event);
 
+//    virtual QRect estimatedContentsRect() const = 0;
+    
     // FIXME: duplicates QScrollView API
     virtual int contentsX() const = 0;
     virtual int contentsY() const = 0;
@@ -106,8 +108,6 @@ protected:
     virtual bool supportsDragAndDrop() const;
     virtual QDragObject *dragObject();
     virtual void startDrag();
-
-//    QRect dragRect() const;
 
     void setRoot(const QModelIndex &item);
     QModelIndex root() const;

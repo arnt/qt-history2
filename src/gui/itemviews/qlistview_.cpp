@@ -34,7 +34,7 @@ QListModel::QListModel(QObject *parent)
 QListView_Item QListModel::item(int row) const
 {
     if (row >= 0 && row < (int)lst.count())
-	return lst[row];
+	return lst.at(row);
     else
 	return QListView_Item(); // FIXME we need invalid?
 }
@@ -59,7 +59,7 @@ QVariant QListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
 	return QVariant();
-    return lst[index.row()].data(role);
+    return lst.at(index.row()).data(role);
 }
 
 void QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
@@ -87,14 +87,14 @@ bool QListModel::isSelectable(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
 	return false;
-    return lst[index.row()].isSelectable();
+    return lst.at(index.row()).isSelectable();
 }
 
 bool QListModel::isEditable(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
 	return false;
-    return lst[index.row()].isEditable();
+    return lst.at(index.row()).isEditable();
 }
 
 void QListModel::append(const QListView_Item &item)
@@ -121,7 +121,7 @@ bool QListView_Item::operator ==(const QListView_Item &other) const
 
 QVariant QListView_Item::data(int role) const
 {
-    for (int i=0; i<values.count(); ++i) {
+    for (int i = 0; i < values.count(); ++i) {
 	if (values.at(i).role == role)
 	    return values.at(i).value;
     }
@@ -130,14 +130,13 @@ QVariant QListView_Item::data(int role) const
 
 void QListView_Item::setData(int role, const QVariant &value)
 {
-    for (int i=0; i<values.count(); ++i) {
+    for (int i = 0; i < values.count(); ++i) {
 	if (values.at(i).role == role) {
 	    values[i].value = value;
 	    return;
 	}
     }
     values.append(Data(role, value));
-    return;
 }
 
 class QListView_Private : public QGenericListViewPrivate
@@ -155,6 +154,7 @@ QListView_::QListView_(QWidget *parent)
     : QGenericListView(*new QListView_Private(), new QListModel(), parent)
 {
     model()->setParent(this);
+    setSpacing(0);
 }
 
 QListView_::~QListView_()

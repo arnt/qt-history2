@@ -18,16 +18,17 @@ public:
 
     inline QString text() const { return data(QAbstractItemModel::Display).toString(); }
     inline QIconSet iconSet() const { return data(QAbstractItemModel::Decoration).toIconSet(); }
+
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
 
     inline void setText(const QString &text) { setData(QAbstractItemModel::Display, text); }
     inline void setIconSet(const QIconSet &iconSet) { setData(QAbstractItemModel::Display, iconSet); }
+
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
     bool operator ==(const QListView_Item &other) const;
-
     inline bool operator !=(const QListView_Item &other) const { return !operator==(other); }
 
     QVariant data(int role) const;
@@ -35,14 +36,13 @@ public:
 
 private:
     struct Data {
-	int role;
-	QVariant value;
-    public:
 	Data() {}
 	Data(int r, QVariant v) {
 	    role = r;
 	    value = v;
 	}
+	int role;
+	QVariant value;
     };
 
     QVector<Data> values;
@@ -71,4 +71,4 @@ public:
     void appendItem(const QListView_Item &item);
 };
 
-#endif // QLISTVIEW_H
+#endif

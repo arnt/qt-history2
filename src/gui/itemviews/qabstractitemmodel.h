@@ -48,11 +48,11 @@ class Q_GUI_EXPORT QAbstractItemModel : public QObject
 public:
     enum Role {
 	Display = 0,
-	ToolTip = 1,
-	StatusTip = 2,
-	WhatsThis = 3,
-	Decoration = 4,
-	Edit = 5,
+	Decoration = 1,
+	Edit = 2,
+	ToolTip = 3,
+	StatusTip = 4,
+	WhatsThis = 5,
 	User = 32
     };
 

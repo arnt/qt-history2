@@ -55,6 +55,7 @@ protected slots:
     void columnCountChanged(int oldCount, int newCount);
 
 protected:
+    QGenericTableView(QGenericTableViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
     
     virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;

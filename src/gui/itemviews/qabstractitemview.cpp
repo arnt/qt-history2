@@ -672,7 +672,7 @@ void QAbstractItemView::fetchMore()
 void QAbstractItemView::updateItem(const QModelIndex &item)
 {
     if (!isVisible())
-	return;
+ 	return;
     QRect rect = itemViewportRect(item);
     if (rect.isValid())
     	d->viewport->update(itemViewportRect(item));
@@ -716,11 +716,6 @@ void QAbstractItemView::startDrag()
 // 	emit moved();
     obj->drag();
 }
-
-// QRect QAbstractItemView::dragRect() const
-// {
-//     return d->dragRect;
-// }
 
 void QAbstractItemView::setRoot(const QModelIndex &item)
 {

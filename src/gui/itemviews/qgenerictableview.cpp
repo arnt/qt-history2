@@ -6,9 +6,10 @@
 #include <qstyle.h>
 #include <qsize.h>
 #include <qscrollbar.h>
-#include <private/qobject_p.h>
+#include <private/qgenerictableview_p.h>
 
-#include <private/qabstractitemview_p.h>
+#define d d_func()
+#define q q_func()
 
 /*!
   \class QGenericTableView qgenerictableview.h
@@ -19,23 +20,17 @@
   on a QAbstractItemModel.
 */
 
-class QGenericTableViewPrivate : public QAbstractItemViewPrivate
-{
-    Q_DECLARE_PUBLIC(QGenericTableView);
-public:
-    QGenericTableViewPrivate()
-	: showGrid(true), topHeader(0), leftHeader(0) {}
-
-    bool showGrid;
-    QGenericHeader *topHeader, *leftHeader;
-    QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
-};
-
-#define d d_func()
-#define q q_func()
-
 QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
+{
+    setLeftHeader(new QGenericHeader(model, Vertical, this));
+    d->leftHeader->setClickable(true);
+    setTopHeader(new QGenericHeader(model, Horizontal, this));
+    d->topHeader->setClickable(true);
+}
+
+QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
+    : QAbstractItemView(dd, model, parent)
 {
     setLeftHeader(new QGenericHeader(model, Vertical, this));
     d->leftHeader->setClickable(true);
