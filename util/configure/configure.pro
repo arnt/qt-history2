@@ -1,5 +1,5 @@
 CONFIG = console release
-DEFINES = QT_NODLL QT_NO_CODECS QT_LITE_COMPONENT
+DEFINES = QT_NODLL QT_NO_CODECS QT_LITE_COMPONENT QT_NO_STL
 HEADERS	 = configureapp.h
 HEADERS	+= $(QTDIR)/src/tools/qdir.h $(QTDIR)/src/tools/qstring.h $(QTDIR)/src/tools/qfileinfo.h
 HEADERS += $(QTDIR)/src/tools/qfile.h $(QTDIR)/src/tools/qiodevice.h $(QTDIR)/src/tools/qregexp.h
@@ -9,6 +9,7 @@ HEADERS += $(QTDIR)/src/tools/qgarray.h $(QTDIR)/src/tools/qglobal.h $(QTDIR)/sr
 HEADERS += $(QTDIR)/src/tools/qbuffer.h $(QTDIR)/src/tools/qstringlist.h $(QTDIR)/src/tools/qcstring.h
 HEADERS += $(QTDIR)/src/tools/qtextstream.h $(QTDIR)/src/tools/qdatetime.h $(QTDIR)/src/codecs/qtextcodec.h
 HEADERS += $(QTDIR)/src/tools/qmap.h
+
 SOURCES	 = main.cpp configureapp.cpp
 SOURCES	+= $(QTDIR)/src/tools/qdir.cpp $(QTDIR)/src/tools/qdir_win.cpp $(QTDIR)/src/tools/qstring.cpp
 SOURCES += $(QTDIR)/src/tools/qfileinfo.cpp $(QTDIR)/src/tools/qfileinfo_win.cpp $(QTDIR)/src/tools/qfile.cpp
