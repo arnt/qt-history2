@@ -689,7 +689,6 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         p->fillRect(opt->rect, Qt::color1);
         break;
     case PE_RubberBand: {
-                            qDebug() << opt->palette.color(QPalette::Disabled, QPalette::Highlight);
         p->fillRect(opt->rect, opt->palette.brush(QPalette::Disabled, QPalette::Highlight));
         break; }
     case PE_SizeGrip: {
