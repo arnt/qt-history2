@@ -14,8 +14,8 @@
 #ifndef QIMAGEWRITER_H
 #define QIMAGEWRITER_H
 
-#include <qbytearray.h>
-#include <qlist.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qlist.h>
 
 class QIODevice;
 class QImage;
