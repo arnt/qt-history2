@@ -778,6 +778,45 @@ int QAbstractItemView::selectionCommand(ButtonState state,
         }
     }
 
+    if (selectionMode() == Multi) {
+        // NoUpdate on Key movement and Ctrl
+        if (type == QEvent::KeyPress &&
+            (key == Key_Down ||
+             key == Key_Up ||
+             key == Key_Left ||
+             key == Key_Right ||
+             key == Key_Home ||
+             key == Key_End ||
+             key == Key_PageUp ||
+             key == Key_PageDown))
+            return QItemSelectionModel::NoUpdate;
+
+        // Select/Deselect on Space
+        if (type == QEvent::KeyPress && item.isValid() && key == Key_Space) {
+            if (d->selectionModel->isSelected(item))
+                return QItemSelectionModel::Deselect | behavior;
+            else
+                return QItemSelectionModel::Select | behavior;
+        }
+
+        // Select/Deselect on MouseButtonPress
+        if (type == QEvent::MouseButtonPress && item.isValid()) {
+            if (d->selectionModel->isSelected(item))
+                return QItemSelectionModel::Deselect | behavior;
+            else
+                return QItemSelectionModel::Select | behavior;
+        }
+
+        // Select/Deselect on MouseMove
+        if (type == QEvent::MouseMove && item.isValid()) {
+            if (d->selectionModel->isSelected(item))
+                return QItemSelectionModel::Deselect | behavior;
+            else
+                return QItemSelectionModel::Select | behavior;
+        }
+        return QItemSelectionModel::NoUpdate;
+    }
+
     // Toggle on MouseMove
     if (type == QEvent::MouseMove && state & ControlButton)
         return QItemSelectionModel::ToggleCurrent | behavior;
