@@ -252,6 +252,11 @@ HCURSOR QCursor::handle() const
     return data->hcurs;
 }
 
+QCursor::QCursor( HCURSOR handle )
+{
+    data = new QCursorData;
+    data->hcurs = handle;
+}
 
 QPoint QCursor::pos()
 {

@@ -290,6 +290,12 @@ Qt::HANDLE QCursor::handle() const
     return (Qt::HANDLE)data->id;
 }
 
+QCursor::QCursor( HANDLE handle )
+{
+    data = new QCursorData;
+    data->hcurs = handle;
+}
+
 QPoint QCursor::pos()
 {
     Point p;
