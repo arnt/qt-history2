@@ -18,6 +18,7 @@
 #include "qatomic.h"
 
 #include <string.h>
+#include <stdarg.h>
 
 // POSIX defines truncate to truncate64
 #ifdef truncate
@@ -45,6 +46,10 @@ inline int qstrncmp(const char *str1, const char *str2, uint len)
 }
 Q_CORE_EXPORT int qstricmp(const char *, const char *);
 Q_CORE_EXPORT int qstrnicmp(const char *, const char *, uint len);
+
+// implemented in qvsnprintf.cpp
+Q_CORE_EXPORT int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap);
+Q_CORE_EXPORT int qsnprintf(char *str, size_t n, const char *fmt, ...);
 
 #ifdef QT_COMPAT
 inline QT_COMPAT void *qmemmove(void *dst, const void *src, uint len)

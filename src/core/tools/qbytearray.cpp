@@ -251,7 +251,6 @@ int qstrnicmp(const char *str1, const char *str2, uint len)
     return 0;
 }
 
-
 // the CRC table below is created by the following piece of code
 #if 0
 static void createCRC16Table()                        // build CRC16 lookup table

@@ -50,7 +50,8 @@ SOURCES += \
 	tools/qstringlist.cpp \
 	tools/qstringmatcher.cpp \
 	tools/qunicodetables.cpp \
-	tools/qvector.cpp
+	tools/qvector.cpp \
+        tools/qvsnprintf.cpp
 
 
 #zlib support
