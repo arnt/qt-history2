@@ -795,8 +795,11 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
                             int l = 0;
                             for(int i = 0; i < read_in; i++) {
                                 if(buff[i] == '\n' || buff[i] == ' ') {
-                                    deps += " " + QString::fromLatin1(buff+l, (i - l) + 1);
+                                    char old = buff[i + 1];
+                                    buff[i + 1] = '\0';
+                                    deps += " " + QString::fromLatin1(buff + l);
                                     l = i;
+                                    buff[i + 1] = old;
                                 }
                             }
                         }
