@@ -171,7 +171,8 @@ QWSManager::~QWSManager()
     delete d->closeBtn;
     delete d->minimizeBtn;
     delete d->maximizeBtn;
-
+    if (d->managed == QWSManagerPrivate::active)
+        QWSManagerPrivate::active = 0;
 }
 
 QWidget *QWSManager::widget()
