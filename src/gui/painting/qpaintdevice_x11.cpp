@@ -133,7 +133,7 @@ QPaintDevice::~QPaintDevice()
     can't be obtained.
 */
 
-Drawable qt_x11Handle(const QPaintDevice *pd)
+Drawable Q_GUI_EXPORT qt_x11Handle(const QPaintDevice *pd)
 {
     Q_ASSERT(pd);
     if (pd->devType() == QInternal::Widget)
@@ -147,7 +147,7 @@ Drawable qt_x11Handle(const QPaintDevice *pd)
     Returns the QX11Info structure for the \a pd paint device. 0 is
     returned if it can't be obtained.
 */
-const QX11Info *qt_x11Info(const QPaintDevice *pd)
+const Q_GUI_EXPORT QX11Info *qt_x11Info(const QPaintDevice *pd)
 {
     Q_ASSERT(pd);
     if (pd->devType() == QInternal::Widget)

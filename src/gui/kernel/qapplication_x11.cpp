@@ -232,7 +232,7 @@ static const char * x11_atomnames = {
     "XmTRANSFER_FAILURE\0"
 };
 
-QX11Data *qt_x11Data = 0;
+Q_GUI_EXPORT QX11Data *qt_x11Data = 0;
 
 
 

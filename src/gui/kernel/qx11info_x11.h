@@ -23,7 +23,7 @@ class QX11InfoPrivate;
 
 typedef struct _XDisplay Display;
 
-class QX11Info
+class Q_GUI_EXPORT QX11Info
 {
 public:
     QX11Info();

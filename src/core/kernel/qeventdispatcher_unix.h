@@ -7,7 +7,7 @@
 
 class QEventDispatcherUNIXPrivate;
 
-class QEventDispatcherUNIX : public QAbstractEventDispatcher
+class Q_CORE_EXPORT QEventDispatcherUNIX : public QAbstractEventDispatcher
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QEventDispatcherUNIX)

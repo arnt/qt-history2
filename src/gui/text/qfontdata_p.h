@@ -121,7 +121,7 @@ public:
 };
 
 
-class QFontPrivate
+class Q_GUI_EXPORT QFontPrivate
 {
 public:
     static QFont::Script defaultScript;
