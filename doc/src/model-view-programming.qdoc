@@ -1259,7 +1259,72 @@ items.
 
     \section1 QListWidget
 
+    Single level lists of items are typically displayed using a \c QListWidget
+    and a number of \c{QListWidgetItem}s. A list widget is constructed in the
+    same way as any other widget:
+
+    \quotefile snippets/qlistwidget/mainwindow.h
+    \skipto QListWidget *
+    \printuntil QListWidget *
+
+    List items can be added directly to the list widget when they are
+    constructed:
+
+    \quotefile snippets/qlistwidget/mainwindow.cpp
+    \skipto new QListWidgetItem(tr("Sycamore"
+    \printuntil new QListWidgetItem(tr("Mahogany"
+
+    They can also be constructed without a parent list widget and added to
+    a list at some later time:
+
+    \skipto QListWidgetItem *newItem
+    \printuntil newItem->setText(
+    \skipto listWidget->insertItem
+    \printuntil listWidget->insertItem
+
+    Each item in a list can display a text label and an icon. The colors
+    and font used to render the text can be changed to provide a customized
+    appearance for items. Support for tooltips, status tips, and "What's
+    This?" help is easily configured to ensure that the list is properly
+    integrated into the application.
+
+    Lists of items can be sorted according to 
+
+    \section1 QHeaderWidget
+
+    Headers for the more sophisticated item-based widgets are provided by the
+    \c QHeaderWidget class. This class is not needed for the \c QListWidget
+    because it does not display a header.
+
+    Headers are divided into sections, each of which is occupied by a
+    \c QHeaderWidgetItem that provides a label. Depending on the orientation
+    of the header, each \c QHeaderWidgetItem corresponds to a column label
+    (for horizontal headers) or a row label (for vertical headers).
+
     \section1 QTreeWidget
+
+    Trees or hierarchical lists of items are provided by the \c QTreeWidget
+    \c QTreeWidgetItem classes. Tree widgets present 
+
+    Before items can be added to the tree widget, the number of columns must
+    be set. For example, we could define two columns
+
+    \skipto treeWidget->setColumnCount
+    \printuntil treeWidget->setColumnCount
+
+    The tree can have a header that contains a section for each column in
+    the widget. It is easiest to set up the labels for each section by
+    supplying a list of strings. For example, a :
+
+    \printuntil treeWidget->setHeaderLabels
+    Each column can have a label.
+
+    Top-level items in the tree widget are constructed with the tree widget as
+    their parent widget, and can be :
+
+    \skipto QTreeWidgetItem *
+    \printuntil 
+
 
     \section1 QTableWidget
 
