@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QButton widget class
 **
@@ -45,7 +45,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qpushbutton.h"
-#include "qcleanuphandler.h"
+#include "qguardedptr.h"
 #include "../kernel/qinternal_p.h"
 #include <ctype.h>
 
