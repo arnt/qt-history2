@@ -154,9 +154,15 @@ bool QArchive::setDirectory( const QString& dirName )
     return FALSE;
 }
 
-bool QArchive::writeDir( const QString& dirName, bool includeLastComponent, QString localPath )
+bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, const QString &localPath1 )
 {
     if( arcFile.isOpen() ) {
+	QString localPath = localPath1, dirName = dirName1;
+	if(localPath.right(1) == "/")
+	    localPath.truncate(localPath.length()-1);
+	if(dirName.right(1) == "/")
+	    dirName.truncate(dirName.length()-1);
+
 	QFileInfo fi( dirName );
 
 	if( includeLastComponent ) 
@@ -166,9 +172,6 @@ bool QArchive::writeDir( const QString& dirName, bool includeLastComponent, QStr
 	QFileInfoListIterator dirIter( *dirEntries );
 	QDataStream outStream( &arcFile );
 	QFileInfo* pFi;
-
-	if(localPath.right(1) == "/")
-	    localPath.truncate(localPath.length()-1);
 
 	dirIter.toLast();
 	while( ( pFi = dirIter.current() ) ) {

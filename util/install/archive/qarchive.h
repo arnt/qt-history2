@@ -19,7 +19,8 @@ public:
 
     bool writeFile( const QString& fileName, const QString& localPath = QString::null );
     bool writeFileList( const QStringList fileList );
-    bool writeDir( const QString& dirName, bool includeLastComponent = false, QString localPath = QString::null );
+    bool writeDir( const QString& dirName, bool includeLastComponent = false, 
+		   const QString& localPath = QString::null );
     bool writeDirList( const QStringList dirList, bool includeLastComponent = true );
 
     bool readArchive( QString outpath );

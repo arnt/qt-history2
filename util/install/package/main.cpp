@@ -52,7 +52,7 @@ int main( int argc, char** argv )
 		continue;
 	    }
 	    if(f.isDir()) 
-		archive.writeDir( (*it), true, (*it) );
+		archive.writeDir( (*it), TRUE, (*it) );
 	    else
 		archive.writeFile( (*it), (*it) );
 	}
