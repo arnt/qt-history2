@@ -2005,7 +2005,7 @@ void QFontPrivate::computeLineWidth()
 // fill the actual fontdef with data from the loaded font
 void QFontPrivate::initFontInfo(QFont::Script script)
 {
-    if ( paintdevice ) {
+    if ( paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != QPaintDevice::x11AppDpiY() ) {
 	// we have a printer font
 	actual = request;
 	float _pointSize = pointSize( actual, paintdevice );
