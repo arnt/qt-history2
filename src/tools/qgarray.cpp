@@ -242,7 +242,13 @@ bool QGArray::resize( uint newsize, Optimization optim )
 	) // nothing to do
 	return TRUE;
     if ( newsize == 0 ) {			// remove array
-	duplicate( 0, 0 );
+	if ( shd->data )
+	    DELETE(shd->data);
+	shd->data = 0;
+	shd->len = 0;
+#ifdef QT_QGARRAY_SPEED_OPTIM
+	shd->maxl = 0;
+#endif
 	return TRUE;
     }
 
