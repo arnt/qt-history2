@@ -362,9 +362,10 @@ Administrator Guide, Chapter 5.
 
 \section3 BLOB support
 
-Binary Large Objects can be fetched but not inserted. Use the
-PostgreSQL command \c lo_import to insert binary data into the
-database.
+Binary Large Objects are supported through the \c BYTEA field type in
+PostgreSQL versions >= 7.1. Fields of type \c OID can be read, but not
+written. Use the PostgreSQL command \c lo_import to insert binary data
+into \c OID fields.
 
 \section3 How to build the plugin on Unix/Linux
 
