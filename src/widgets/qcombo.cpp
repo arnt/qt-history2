@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#19 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#19 $";
 #endif
 
 /*!
@@ -143,6 +143,36 @@ int QComboBox::count() const
   Sets the contents of the combo box to the list of strings \e list.
 */
 
+void QComboBox::setStrList( const QStrList *list )
+{
+    clear();
+    insertStrList( list, 0 );
+}
+
+/*!
+  Sets the contents of the combo box to the array of strings \e strs.
+
+  The \e numStrings argument is the number of strings.
+  If \e numStrings is -1 (default), the \e strs array must be
+  terminated with 0.
+
+  Example:
+  \code
+    static const char *items[] = { "red", "green", "blue", 0 };
+    combo->insertStrList( items );
+  \endcode
+*/
+
+void QComboBox::setStrList( const char **strings, int numStrings )
+{
+    clear();
+    insertStrList( strings, numStrings, 0 );
+}
+
+/*!
+  Inserts the list of strings at the index \e index in the combo box.
+*/
+
 void QComboBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
@@ -164,7 +194,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 }
 
 /*!
-  Sets the contents of the combo box to the array of strings \e strs.
+  Inserts the array of strings at the index \e index in the combo box.
 
   The \e numStrings argument is the number of strings.
   If \e numStrings is -1 (default), the \e strs array must be

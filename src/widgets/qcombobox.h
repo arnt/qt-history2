@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#9 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#10 $
 **
 ** Definition of QComboBox class
 **
@@ -28,6 +28,9 @@ public:
    ~QComboBox();
 
     int		count() const;
+
+    void	setStrList( const QStrList * );
+    void	setStrList( const char**, int numStrings=-1 );
 
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char**, int numStrings=-1, int index=-1);
