@@ -389,8 +389,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
 	if(!isTopLevel() && oldp->isWidgetType()) 
-	    InvalWindowRect((WindowPtr)((QWidget *)oldp)->hd, 
-			    mac_rect(posInWindow(this), geometry().size()));
+	    InvalWindowRect((WindowPtr)((QWidget *)oldp)->hd, mac_rect(posInWindow(this), geometry().size()));
     }
 
     if ( old_winid && own_id && isTopLevel() ) {
@@ -693,6 +692,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
     repaint(QRegion(r), erase); //general function..
 }
 
+#include <qradiobutton.h>
 void QWidget::repaint( const QRegion &reg , bool erase )
 {
     if ( !testWState(WState_BlockUpdates) && isVisible() ) {
@@ -710,8 +710,9 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QPoint p(posInWindow(this));
 	QRegion clean(reg);
 	clean.translate(p.x(), p.y());
+	clean &= clippedRegion();
 	ValidWindowRgn((WindowPtr)hd, (RgnHandle)clean.handle());
-	
+
 #if 0
 	QDFlushPortBuffer(GetWindowPort((WindowPtr)handle()), NULL);
 #endif
@@ -724,11 +725,10 @@ void QWidget::showWindow()
     if ( isTopLevel() ) {
 #ifdef Q_WS_MACX
 	//handle transition
-	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) {
+	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
-	}
 #endif
 
 	//now actually show it
@@ -955,58 +955,46 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if(isMove || isResize) {
-	if(!isVisible()) {
-	    if ( isMove )
-		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
-	    if ( isResize )
-		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
-	} else {
-	    //send the move event..
-	    if ( isMove ) {
-		QMoveEvent e( pos(), oldp );
-		QApplication::sendEvent( this, &e );
+	if ( isMove )
+	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
+	if ( isResize )
+	    QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
+
+	if(isVisible() && !isTopLevel()) {//make sure everything is painted right..
+	    QRegion bltregion;
+	    QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
+	    QPoint tp(posInWindow(parent));
+	    int px = tp.x(), py = tp.y();
+
+	    if( isMove && !isResize && !oldregion.isEmpty() ) {
+		//save the window state, and do the grunt work
+		int ow = olds.width(), oh = olds.height();
+		QMacSavedPortInfo saveportstate(this);
+		::RGBColor f;
+		f.red = f.green = f.blue = 0;
+		RGBForeColor( &f );
+		f.red = f.green = f.blue = ~0;
+		RGBBackColor( &f );
+
+		//calculate new and old rectangles
+		int nx = px + x, ny = py + y;
+		Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
+		int ox = px + oldp.x(), oy = py + oldp.y();
+		Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
+
+		//setup the old clipped region..
+		bltregion = oldregion;
+		bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		bltregion &= clippedRegion(FALSE);
+		SetClip((RgnHandle)bltregion.handle());
+
+		//now do the blt
+		BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+		CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
 	    }
-	    //send the resize event..
-	    if ( isResize ) {
-		QResizeEvent e( size(), olds );
-		QApplication::sendEvent( this, &e );
-	    }
-	    if(!isTopLevel()) {//make sure everything is painted right..
-		QRegion bltregion;
-		QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
-		QPoint tp(posInWindow(parent));
-		int px = tp.x(), py = tp.y();
-
-		if( isMove && !isResize && !oldregion.isEmpty() ) {
-		    //save the window state, and do the grunt work
-		    int ow = olds.width(), oh = olds.height();
-		    QMacSavedPortInfo saveportstate(this);
-		    ::RGBColor f;
-		    f.red = f.green = f.blue = 0;
-		    RGBForeColor( &f );
-		    f.red = f.green = f.blue = ~0;
-		    RGBBackColor( &f );
-
-		    //calculate new and old rectangles
-		    int nx = px + x, ny = py + y;
-		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
-		    int ox = px + oldp.x(), oy = py + oldp.y();
-		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-
-		    //setup the old clipped region..
-		    bltregion = oldregion;
-		    bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		    bltregion &= clippedRegion(FALSE);
-		    SetClip((RgnHandle)bltregion.handle());
-
-		    //now do the blt
-		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
-		}
-		//finally issue "expose" events if necesary
-		QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
-		InvalWindowRgn((WindowPtr)handle(), (RgnHandle)upd.handle());
-	    }
+	    //finally issue "expose" events if necesary
+	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
+	    InvalWindowRgn((WindowPtr)handle(), (RgnHandle)upd.handle());
 	}
     }
 }
@@ -1121,10 +1109,10 @@ void QWidget::erase( const QRegion& reg )
     } else {
 	p.fillRect(rr, bg_col);
     }
-    p.end();
 #if 0
-    QDFlushPortBuffer(GetWindowPort((WindowPtr)handle()), NULL);
+    p.flush();
 #endif
+    p.end();
 }
 
 
