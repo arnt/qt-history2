@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#66 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#66 $");
 
 
 const int Unsorted = 32767;
@@ -2865,7 +2865,7 @@ bool QListView::isOpen( QListViewItem * item ) const
 
 void QListView::setRootIsDecorated( bool enable )
 {
-    if ( enable != (int) d->rootIsExpandable ) {
+    if ( enable != (bool)d->rootIsExpandable ) {
 	d->rootIsExpandable = enable;
 	if ( isVisible() )
 	    triggerUpdate();
