@@ -463,8 +463,8 @@
     parameter is crucial to keep their profile specific settings
     apart. The property name is \c name
 
-    \i Title - This property is used to specify a caption for \QA. The
-    property name is \c title
+    \i Title - This property is used to specify a window title for \QA.
+    The property name is \c title
 
     \i Application Icon - This property describes an icon that will be used
     as \QA application icon. The location of the icon is relative to the
