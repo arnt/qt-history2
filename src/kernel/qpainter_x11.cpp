@@ -553,6 +553,10 @@ void QPainter::setFont( const QFont &font )
     }
 }
 
+void QPainter::updateXForm()
+{
+
+}
 
 void QPainter::updateFont()
 {

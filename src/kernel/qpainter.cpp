@@ -579,6 +579,7 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, boo
 	copyFrom(copyAttributes);
 	updateBrush();
 	updatePen();
+	updateXForm();
 	return TRUE;
     }
     return FALSE;
@@ -1124,7 +1125,7 @@ void QPainter::setViewXForm( bool enable )
 	param[0].ival = enable;
 	pdev->cmd( QPaintDevice::PdcSetVXform, this, param );
     }
-    updateXForm();
+    mergeXForms();
 }
 
 /*!
@@ -1179,7 +1180,7 @@ void QPainter::setWindow( int x, int y, int w, int h )
 	pdev->cmd( QPaintDevice::PdcSetWindow, this, param );
     }
     if ( testf(VxF) )
-	updateXForm();
+	mergeXForms();
     else
 	setViewXForm( TRUE );
 }
@@ -1227,7 +1228,7 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	pdev->cmd( QPaintDevice::PdcSetViewport, this, param );
     }
     if ( testf(VxF) )
-	updateXForm();
+	mergeXForms();
     else
 	setViewXForm( TRUE );
 }
@@ -1254,7 +1255,7 @@ void QPainter::setWorldXForm( bool enable )
 	param[0].ival = enable;
 	pdev->cmd( QPaintDevice::PdcSetWXform, this, param );
     }
-    updateXForm();
+    mergeXForms();
 }
 
 /*!
@@ -1348,7 +1349,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
     else if ( !testf(WxF) )
 	setWorldXForm( TRUE );
     else
-	updateXForm();
+	mergeXForms();
 }
 
 /*! \obsolete
@@ -1495,7 +1496,7 @@ void QPainter::resetXForm()
   Updates an internal integer transformation matrix.
 */
 
-void QPainter::updateXForm()
+void QPainter::mergeXForms()
 {
     QWMatrix m;
     if ( testf(VxF) ) {
@@ -1535,6 +1536,7 @@ void QPainter::updateXForm()
 	txop |= TxTranslate;
 	setf(WxF, true);
     }
+    updateXForm();
 }
 
 

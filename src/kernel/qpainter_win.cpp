@@ -358,6 +358,10 @@ void QPainter::updateFont()
     delete temp;
 }
 
+void QPainter::updateXForm()
+{
+
+}
 
 void QPainter::updatePen()
 {
