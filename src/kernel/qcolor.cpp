@@ -575,10 +575,10 @@ void QColor::setRgb( int r, int g, int b )
 void QColor::setRgb( QRgb rgb )
 {
     if ( lazy_alloc || !color_init ) {
-	rgbVal = (rgb & 0x00ffffff) | RGB_DIRTY;// alloc later
+	rgbVal = (rgb & RGB_MASK) | RGB_DIRTY;// alloc later
 	pix = 0;
     } else {
-	rgbVal = (rgb & 0x00ffffff);
+	rgbVal = (rgb & RGB_MASK);
 	alloc();				// alloc now
     }
 }

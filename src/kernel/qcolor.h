@@ -171,9 +171,9 @@ inline bool QColor::operator==( const QColor &c ) const
 {
     return isValid()==c.isValid() &&
 	((((rgbVal | c.rgbVal) & RGB_DIRECT) == 0 &&
-	    (rgbVal & 0x00ffffff) == (c.rgbVal & 0x00ffffff)) ||
+	    (rgbVal & RGB_MASK) == (c.rgbVal & RGB_MASK)) ||
 	   ((rgbVal & c.rgbVal & RGB_DIRECT) != 0 &&
-	    (rgbVal & 0x00ffffff) == (c.rgbVal & 0x00ffffff) && pix == c.pix));
+	    (rgbVal & RGB_MASK) == (c.rgbVal & RGB_MASK) && pix == c.pix));
 }
 
 inline bool QColor::operator!=( const QColor &c ) const
