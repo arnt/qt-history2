@@ -124,10 +124,17 @@ static void qt_create_pipe(int *pipe)
         ::close(pipe[0]);
     if (pipe[1] != -1)
         ::close(pipe[1]);
+#ifdef Q_OS_IRIX
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, pipe) == -1) {
+        qWarning("QProcessPrivate::createPipe(%p) failed: %s",
+                 pipe, strerror(errno));
+    }
+#else
     if (::pipe(pipe) != 0) {
         qWarning("QProcessPrivate::createPipe(%p) failed: %s",
                  pipe, strerror(errno));
     }
+#endif
 }
 
 void QProcessPrivate::destroyPipe(int *pipe)
