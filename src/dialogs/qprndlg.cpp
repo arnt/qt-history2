@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#7 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -20,7 +20,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#7 $";
 #endif
 
 
@@ -44,7 +44,7 @@ static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#6 $";
     delete list;							\
 }
 
-QObject *find_child( QObject *parent, const char *objname )
+static QObject *find_child( QObject *parent, const char *objname )
 {
     const QObjectList *list = parent->children();
     if ( list ) {
