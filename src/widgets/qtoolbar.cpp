@@ -208,51 +208,47 @@ QSize QToolBarSeparator::sizeHint() const
   \ingroup application
 
   A toolbar is a panel that contains a set of controls, usually
-  represented by small icons.  Its purpose is to provide quick access
-  to frequently used commands or options.
+  represented by small icons.  It's purpose is to provide quick access
+  to frequently used commands or options. Within a main window, the
+  user can drag toolbars freely around and hide them with a click on
+  the toolbar handle.
 
   A QToolBar is a special QDockWindow, and so provides also all
-  functionality of a QDockWindow. This means a toolbar can be dragged
-  around in a mainwindow and also undocked/docked from/into it.
-
-  To use QToolBar, you simply create a QToolBar as child of a
+  functionality of a QDockWindow. For example, within a QMainWindow the
+  user can drag tool bars freely around.
+  
+  To use QToolBar you simply create a QToolBar as child of a
   QMainWindow, create a number of QToolButton widgets (or other
   widgets) in left to right (or top to bottom) order, call
-  addSeparator() when you want a separator, and that's all.
+  addSeparator() when you want a separator - that's all.
 
   The application/application.cpp example does precisely this.
 
-  You may use any kind of widget within a toolbar, with QToolButton
-  and QComboBox being the two most common ones.
+  You may use any kind of widget within a tool bar, with QToolButton
+  and QComboBox being the two most common.
 
   As QDockWindows, QToolBars live in QDockAreas. A QMainWindow already
-  contains four QDockAreas, one on each edge. So normally you create a
-  QToolBar as child of a QMainWindow, an then it is managed in the
-  QDockAreas of this mainwindow, or can be made floating by undocking it.
+  contains four QDockAreas, one on each edge. When you create a QToolBar
+  as child of a QMainWindow, QMainWindow locates it in one of the dock
+  areas.
 
-  When docked, the QToolBars are together with other QDockWindows
-  arranged in rows or columns in one of the mainwindow's
-  QDockAreas. Fur further details about that see the QDockArea
-  documentation.
+  The main window can be resized to a smaller size than a tool bar would
+  need to show all items. If this happens, QToolbar shows a little arrow
+  button at its right or bottom end. Clicking on on that button pops up a
+  menu that shows the "overflowing" items.
 
-  The main window can be resized to a smaller size than a toolbar
-  would need to show all items. If this happens QToolbar shows a
-  little arrow button at the right or bottom end. When clicking on
-  that button, a popup menu is opened which shows all items of the
-  toolbar which are outside the visible area of the mainwindow.
-
-  Usually, a toolbar gets just the space it needs. However, with
+  Usually a toolbar gets just the space it needs. However, with
   setHorizontalStretchable()/setVerticalStretchable() or
   setStretchableWidget() you can advise the main window to expand
-  the toolbar to fill all available width in the specified orientation.
+  the tool bar to fill all available width in the specified orientation.
 
-  The tool bar arranges its buttons either horizontally or vertically
-  (see orientation() for details). Generally, QDockArea will set the
-  orientation correctly for you. The toolbar (to be precise
-  QDockWindow) emits a signal orientationChanged() each time the
-  orientation changes, in case some child widgets need adjustments.
+  The tool bar arranges its buttons either horizontally or vertically (see
+  orientation() for details). Generally, QDockArea will set the
+  orientation correctly for you, and in case anyone needs readjustment,
+  the orientationChanged() signal is emitted every time the orientation
+  changes.
 
-  To remove all items from a toolbar, you can use the clear() method.
+  You can use the clear() method to remove all items from a tool bar.
 
   \sa QToolButton QMainWindow
   <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
@@ -260,9 +256,9 @@ QSize QToolBarSeparator::sizeHint() const
 */
 
 
-/*!  Constructs an empty tool bar which is a child of \a parent and
-  managed by \a parent, initially in \a dock, labelled \a and starting
-  a new line in the dock if \a newLine is TRUE.  \a name is the object
+/*!  Constructs an empty tool bar that is a child of \a parent and
+  managed by \a parent, initially in \a dock, labeled \a and starting
+  a newline in the dock if \a newLine is TRUE.  \a name is the object
   name, as usual.
 */
 
@@ -285,7 +281,7 @@ QToolBar::QToolBar( const QString &label,
   object name and \a f is the widget flags.
 
   This is the constructor to use if you want to create torn-off
-  toolbars, or toolbars in the status bar.
+  tool bars or tool bars in the status bar.
 */
 
 QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
@@ -357,7 +353,7 @@ void QToolBar::setOrientation( Orientation o )
     d->extension->setOrientation( o );
 }
 
-/*!  Adds a separator to the end of the toolbar. */
+/*!  Adds a separator to the end of the tool bar. */
 
 void QToolBar::addSeparator()
 {
@@ -395,13 +391,13 @@ QMainWindow * QToolBar::mainWindow()
 }
 
 
-/*!  Sets \a w to be expanded if this toolbar is requested to stretch
-  (because QMainWindow right-justifies the dock it's in or
-  isVerticalStretchable() or isHorizontalStretchable() of this toolbar
-  is TRUE).
+/*! Sets \a w to be expanded if this tool bar is requested to stretch
+  (because QMainWindow right-justifies the dock it's in, or
+  isVerticalStretchable() or isHorizontalStretchable() if this tool bar is
+  TRUE).
 
-  If you call setStretchableWidget() and the toolbar is not
-  stretchable yet, setStretchable( ) is called.
+  If you call setStretchableWidget() and the tool bar is not yet
+  stretchable, setStretchable( ) is called.
 
   \sa QMainWindow::setRightJustification(), setVerticalStretchable(),
   setHorizontalStretchable()
@@ -469,7 +465,7 @@ QString QToolBar::label() const
 }
 
 
-/*!  Clears the toolbar, deleting all childwidgets.  */
+/*! Clears the tool bar, deleting all child widgets. */
 
 void QToolBar::clear()
 {
@@ -651,7 +647,7 @@ are so similar that you can't differentiate among them.  These toolbars are
 often a poor attempt at a "common visual language".
 
 6.  Use any de facto standard icons of your platform (for windows use the
-cut, copy, and paste icons provided in dev kits rather than designing your
+cut, copy and paste icons provided in dev kits rather than designing your
 own).
 
 7.  Avoid putting a highly destructive toolbar button (delete database) by a

@@ -62,13 +62,13 @@
 
 /*!
   \class QTextView qtextview.h
-  \brief A sophisticated single-page rich text viewer.
+  \brief The QTextView class provides a sophisticated, single-page rich text viewer.
   \ingroup basic
   \ingroup helpsystem
 
   Unlike QSimpleRichText, which merely draws small pieces of rich
-  text, a QTextView is a real widget, with scrollbars when necessary,
-  for showing large text documents.
+  text, a QTextView is a real widget with scroll bars, when necessary,
+  to show large text documents.
 
   The rendering style and available tags are defined by a
   styleSheet(). Currently, a small XML/CSS1 subset including embedded
@@ -78,26 +78,23 @@
 
   Using QTextView is quite similar to QLabel. It's mainly a call to
   setText() to set the contents. Setting the background color is
-  slightly different from other widgets, since a text view is a
+  slightly different from other widgets, because a text view is a
   scrollable widget that naturally provides a scrolling
   background. You can specify the paper background with
   setPaper(). QTextView supports both plain color and complex pixmap
   backgrounds.
 
   Note that we do not intend to add a full-featured web browser widget
-  to Qt (since that would easily double Qt's size and only few
+  to Qt (because that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
-  support in Qt is supposed to provide a fast, portable and sufficient
+  support in Qt is supposed to provide a fast, portable and efficient
   way to add reasonable online help facilities to applications. We
   will, however, extend it to some degree in future versions of Qt.
 
-  For even more, like hypertext capabilities, see QTextBrowser.
+  For more, including hypertext capabilities, see QTextBrowser.
 
-  The richtext engine, which is used by QTextView, privides also the
-  possibility to edit the document in WYSIWYG (what you see is what
-  you get). QTextView itself is read-only. If you need an editor
-  widget, which also supports richtext editing, use QTextEdit, which
-  is derived from QTextView.
+  The richtext engine that is used by QTextView also provides the
+  possibility to edit the document using QTextEdit.
 */
 
 /*!  \fn void QTextView::copyAvailable (bool yes)
