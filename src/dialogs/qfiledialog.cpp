@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#180 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#181 $
 **
 ** Implementation of QFileDialog class
 **
@@ -382,12 +382,20 @@ void QFileListBox::rename()
         if ( file.isEmpty() )
             file = filedialog->dirPath() + "/" + item( currentItem() )->text();
 
-        QDir dir( filedialog->dirPath() );
-        dir.rename( file, lined->text() );
+        QString oldfile( filedialog->dirPath() + "/" + lined->text() );
+        
+        if ( oldfile != file ) {
+            QDir dir( filedialog->dirPath() );
+            if ( QFile::exists( oldfile ) || !dir.rename( file, lined->text() ) ) {
+                QMessageBox::critical( filedialog, tr( "ERROR: Renaming file" ),
+                                       tr( "Couldn't rename this file. Maybe a file\n"
+                                           "with the same already exists." ) );
+                return;
+            }
 
-        filedialog->rereadDir();
+            filedialog->rereadDir();
+        }
     }
-
     cancelRename();
 }
 
@@ -471,12 +479,20 @@ void QFileListView::rename()
         if ( file.isEmpty() )
             file = filedialog->dirPath() + "/" + currentItem()->text( 0 );
 
-        QDir dir( filedialog->dirPath() );
-        dir.rename( file, lined->text() );
+        QString oldfile( filedialog->dirPath() + "/" + lined->text() );
+        
+        if ( oldfile != file ) {
+            QDir dir( filedialog->dirPath() );
+            if ( QFile::exists( oldfile ) || !dir.rename( file, lined->text() ) ) {
+                QMessageBox::critical( filedialog, tr( "ERROR: Renaming file" ),
+                                       tr( "Couldn't rename this file. Maybe a file\n"
+                                           "with the same already exists." ) );
+                return;
+            }
 
-        filedialog->rereadDir();
+            filedialog->rereadDir();
+        }
     }
-
     cancelRename();
     renaming = TRUE;
 }
