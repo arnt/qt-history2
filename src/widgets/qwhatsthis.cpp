@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#58 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -288,6 +288,8 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     }
     delete dict;
     delete cursor;
+    delete whatsThat;
+
     // and finally lose wt
     wt = 0;
 }
@@ -697,7 +699,6 @@ QWhatsThis::QWhatsThis( QWidget * widget)
 
 QWhatsThis::~QWhatsThis()
 {
-    delete whatsThat;
 }
 
 
