@@ -568,7 +568,7 @@ typedef void (*png_progressive_row_ptr) PNGARG((png_structp, png_bytep,
    png_uint_32, int));
 #endif /* PNG_PROGRESSIVE_READ_SUPPORTED */
 #if defined(PNG_USER_CHUNK_SUPPORTED)
-typedef void (*png_user_chunk_ptr) PNGARG((png_structp, png_infop,
+typedef int (*png_user_chunk_ptr) PNGARG((png_structp, png_infop,
    png_bytep, png_uint_32));
 #endif
 

@@ -1756,12 +1756,13 @@ calling:
 
 Your callback should have parameters as follows:
 
-    void user_chunk_fn(png_structp png_ptr, png_infop info_ptr,
+    int user_chunk_fn(png_structp png_ptr, png_infop info_ptr,
 	png_bytep data, png_uint_32 length);
 
 This function will be called for any chunks which libpng does not
 recognize (excluding unrecognized critical chunks, which indicate an
-invalid PNG stream).  Before designing new chunks, read the PNG
+invalid PNG stream).  It should return 1 if the chunk was recognized by
+the handler, else 0.  Before designing new chunks, read the PNG
 specification, and have a first level of understanding of how it works. 
 Pay particular attention to the sections that describe chunk names, and
 look at how other chunks were designed, so you can do things similarly.  
