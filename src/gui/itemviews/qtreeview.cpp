@@ -400,6 +400,7 @@ void QTreeView::close(const QModelIndex &index)
     int i = d->viewIndex(index);
     if (i > -1) { // is visible
         d->close(i);
+        updateGeometries();
         viewport()->update();
     } else {
         i = d->openedIndexes.indexOf(index);
