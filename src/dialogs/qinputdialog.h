@@ -29,13 +29,13 @@
 #ifndef QT_H
 #include <qdialog.h>
 #include <qstring.h>
+#include <qlineedit.h>
 #endif // QT_H
 
 #if QT_FEATURE_INPUTDIALOG
 
 class QInputDialogPrivate;
 
-class QLineEdit;
 class QSpinBox;
 class QComboBox;
 
@@ -63,7 +63,10 @@ private:
 
 public:
     static QString getText( const QString &caption, const QString &label, const QString &text = QString::null,
-			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 ); // ### merge with below in 3.0
+    static QString getText( const QString &caption, const QString &label, QLineEdit::EchoMode echo,  //### make default Normal in 3.0
+			    const QString &text = QString::null, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+
     static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647,
 			   int to = 2147483647,
 			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );

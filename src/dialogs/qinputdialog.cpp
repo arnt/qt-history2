@@ -270,9 +270,22 @@ QInputDialog::~QInputDialog()
 QString QInputDialog::getText( const QString &caption, const QString &label, const QString &text,
 			      bool *ok, QWidget *parent, const char *name )
 {
+    return getText( caption, label, QLineEdit::Normal, text, ok, parent, name );
+}
+
+/*!
+  Like above, but accepts an a \a mode which the line edit will use to display text.
+
+  \sa getText()
+*/
+
+QString QInputDialog::getText( const QString &caption, const QString &label, QLineEdit::EchoMode mode,
+			      const QString &text, bool *ok, QWidget *parent, const char *name )
+{
     QInputDialog *dlg = new QInputDialog( label, parent, name, TRUE, LineEdit );
     dlg->setCaption( caption );
     dlg->lineEdit()->setText( text );
+    dlg->lineEdit()->setEchoMode( mode );
     if ( !text.isEmpty() )
 	dlg->lineEdit()->selectAll();
 
