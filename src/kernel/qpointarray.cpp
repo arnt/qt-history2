@@ -656,11 +656,11 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 
   The returned array has sufficient resolution for use as pixels.
 */
-void QPointArray::makeEllipse( int xx, int yy, int w, int h )
+void QPointArray::makeEllipse( int x, int y, int w, int h )
 {						// midpoint, 1/4 ellipse
 #if !defined(QT_OLD_MAKEELLIPSE) && !defined(QT_NO_TRANSFORMATIONS)
     QWMatrix unit;
-    makeArc(xx,yy,w,h,0,360*16,unit);
+    makeArc(x,y,w,h,0,360*16,unit);
     return;
 #else
     if ( w <= 0 || h <= 0 ) {
@@ -670,63 +670,63 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 	}
 	if ( w < 0 ) {				// negative width
 	    w = -w;
-	    xx -= w;
+	    x -= w;
 	}
 	if ( h < 0 ) {				// negative height
 	    h = -h;
-	    yy -= h;
+	    y -= h;
 	}
     }
-    int s = (w+h+2)/2;				// max size of x,y array
+    int s = (w+h+2)/2;				// max size of xx,yy array
     int *px = new int[s];			// 1/4th of ellipse
     int *py = new int[s];
-    int x, y, i=0;
+    int xx, yy, i=0;
     double d1, d2;
     double a2=(w/2)*(w/2),  b2=(h/2)*(h/2);
-    x = 0;
-    y = int(h/2);
+    xx = 0;
+    yy = int(h/2);
     d1 = b2 - a2*(h/2) + 0.25*a2;
-    px[i] = x;
-    py[i] = y;
+    px[i] = xx;
+    py[i] = yy;
     i++;
-    while ( a2*(y-0.5) > b2*(x+0.5) ) {		// region 1
+    while ( a2*(yy-0.5) > b2*(xx+0.5) ) {		// region 1
 	if ( d1 < 0 ) {
-	    d1 = d1 + b2*(3.0+2*x);
-	    x++;
+	    d1 = d1 + b2*(3.0+2*xx);
+	    xx++;
 	} else {
-	    d1 = d1 + b2*(3.0+2*x) + 2.0*a2*(1-y);
-	    x++;
-	    y--;
+	    d1 = d1 + b2*(3.0+2*xx) + 2.0*a2*(1-yy);
+	    xx++;
+	    yy--;
 	}
-	px[i] = x;
-	py[i] = y;
+	px[i] = xx;
+	py[i] = yy;
 	i++;
     }
-    d2 = b2*(x+0.5)*(x+0.5) + a2*(y-1)*(y-1) - a2*b2;
-    while ( y > 0 ) {				// region 2
+    d2 = b2*(xx+0.5)*(xx+0.5) + a2*(yy-1)*(yy-1) - a2*b2;
+    while ( yy > 0 ) {				// region 2
 	if ( d2 < 0 ) {
-	    d2 = d2 + 2.0*b2*(x+1) + a2*(3-2*y);
-	    x++;
-	    y--;
+	    d2 = d2 + 2.0*b2*(xx+1) + a2*(3-2*yy);
+	    xx++;
+	    yy--;
 	} else {
-	    d2 = d2 + a2*(3-2*y);
-	    y--;
+	    d2 = d2 + a2*(3-2*yy);
+	    yy--;
 	}
-	px[i] = x;
-	py[i] = y;
+	px[i] = xx;
+	py[i] = yy;
 	i++;
     }
     s = i;
     resize( 4*s );				// make full point array
-    xx += w/2;
-    yy += h/2;
+    x += w/2;
+    y += h/2;
     for ( i=0; i<s; i++ ) {			// mirror
-	x = px[i];
-	y = py[i];
-	setPoint( s-i-1, xx+x, yy-y );
-	setPoint( s+i, xx-x, yy-y );
-	setPoint( 3*s-i-1, xx-x, yy+y );
-	setPoint( 3*s+i, xx+x, yy+y );
+	xx = px[i];
+	yy = py[i];
+	setPoint( s-i-1, x+xx, y-yy );
+	setPoint( s+i, x-xx, y-yy );
+	setPoint( 3*s-i-1, x-xx, y+yy );
+	setPoint( 3*s+i, x+xx, y+yy );
     }
     delete[] px;
     delete[] py;

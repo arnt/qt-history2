@@ -2070,7 +2070,7 @@ void QTextView::setText( const QString &text, const QString &context )
 
   The value may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the text view autodetects the format from \a txt.
+  i.e. the text view autodetects the format of the text.
 
   \sa textFormat
 */
@@ -2899,9 +2899,9 @@ QTextView::WordWrap QTextView::wordWrap() const
   \property QTextView::wrapColumnOrWidth
   \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
 
-  If the wrap mode is \c FixedPixelWidth, the \a value is the number
+  If the wrap mode is \c FixedPixelWidth, the value is the number
   of pixels from the left edge of the text view at which text should
-  be wrapped. If the wrap mode is \c FixedColumnWidth, the \a value is
+  be wrapped. If the wrap mode is \c FixedColumnWidth, the value is
   the column number (in character columns) from the left edge of the
   text view at which text should be wrapped.
 
@@ -2947,8 +2947,8 @@ int QTextView::wrapColumnOrWidth() const
   \property QTextView::wrapPolicy
   \brief the word wrap policy, at whitespace or anywhere
 
-  Defines where text can be wrapped when word wrap mode is not \a
-  NoWrap. The choices are \c AtWhiteSpace (the default) and \c
+  Defines where text can be wrapped when word wrap mode is not 
+  \c NoWrap. The choices are \c AtWhiteSpace (the default) and \c
   Anywhere.
 
   \sa wordWrap

@@ -996,7 +996,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 
 /*!
   \class QStoredDrag qdragobject.h
-  \brief Simple stored-value drag object for arbitrary MIME data.
+  \brief The QStoredDrag class provides a simple stored-value drag object for arbitrary MIME data.
 
   When a block of data has only one representation, you can use
   a QStoredDrag to hold it.
@@ -1068,7 +1068,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 
 /*!
   \class QUriDrag qdragobject.h
-  \brief Provides for drag-and-drop of a list of URI references.
+  \brief The QUriDrag class provides a drag object for a list of URI references.
 
   URIs are a useful way to refer to files that may be distributed
   across multiple machines.  A URI will often refer to

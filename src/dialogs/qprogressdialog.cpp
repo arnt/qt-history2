@@ -234,11 +234,11 @@ QProgressBar *QProgressDialog::bar() const
     <li>The total number of steps is 100.
   </ul>
 
-  \a parent, \a name, \a modal, and \a f are sent to the
-  QDialog::QDialog() constructor. Note that if \a modal is FALSE
-  (the default), you will need to have an event loop proceeding for
-  any redrawing of the dialog to occur.  If it is TRUE, the dialog
-  ensures that events are processed when needed.
+  The top level parent of \a creator becomes the parent of the dialog.
+  \a name, \a modal, and \a f are sent to the QDialog::QDialog() constructor. 
+  Note that if \a modal is FALSE (the default), you will need to have an 
+  event loop proceeding for any redrawing of the dialog to occur.  If it is TRUE, 
+  the dialog ensures that events are processed when needed.
 
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setTotalSteps()

@@ -537,13 +537,13 @@ QString QWizard::title( QWidget * page ) const
 /*!  Sets the title for page \a page to \a title.
 */
 
-void QWizard::setTitle( QWidget *page, const QString &t )
+void QWizard::setTitle( QWidget *page, const QString &title )
 {
     Private::Page * p = d->page( page );
     if ( p )
-	p->t = t;
+	p->t = title;
     if ( page == currentPage() )
-	d->title->setText( t );
+	d->title->setText( title );
 }
 
 /*!

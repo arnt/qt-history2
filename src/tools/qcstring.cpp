@@ -83,18 +83,18 @@ void *qmemmove( void *dst, const void *src, uint len )
 
   Returns a duplicate string.
 
-  Allocates space for a copy of \a str (using \c new), copies it, and returns
+  Allocates space for a copy of \a src (using \c new), copies it, and returns
   a pointer to the copy.
   If \a src is null, it immediately returns 0.
 */
 
-char *qstrdup( const char *str )
+char *qstrdup( const char *src )
 {
-    if ( !str )
+    if ( !src )
 	return 0;
-    char *dst = new char[strlen(str)+1];
+    char *dst = new char[strlen(src)+1];
     Q_CHECK_PTR( dst );
-    return strcpy( dst, str );
+    return strcpy( dst, src );
 }
 
 /*!
@@ -102,7 +102,7 @@ char *qstrdup( const char *str )
 
   A safe strncpy() function.
 
-  Copies all characters up to \a len bytes from \a str into \a dst and returns
+  Copies all characters up to \a len bytes from \a src into \a dst and returns
   a pointer to \a dst.	Guarantees that \a dst is '\0'-terminated.
   If \a src is null, it immediately returns 0.
 
@@ -600,7 +600,7 @@ bool QCString::resize( uint len )
   limit.
 
   Giving user-supplied arguments to sprintf() is begging for trouble.
-  Sooner or later someone \a will paste a 3000-character line into
+  Sooner or later someone \c will paste a 3000-character line into
   your application.
 */
 
@@ -1252,9 +1252,9 @@ QCString &QCString::remove( uint index, uint len )
 
 /*!
   Replaces \a len characters starting at position \a index from the
-  string with \a s, and returns a reference to the string.
+  string with \a str, and returns a reference to the string.
 
-  If \a index is too big, nothing is deleted and \a s is inserted at the
+  If \a index is too big, nothing is deleted and \a str is inserted at the
   end of the string.  If \a index is valid, but \a len is too large, \a
   str replaces the rest of the string.
 
@@ -1266,10 +1266,10 @@ QCString &QCString::remove( uint index, uint len )
   \sa insert(), remove()
 */
 
-QCString &QCString::replace( uint index, uint len, const char *s )
+QCString &QCString::replace( uint index, uint len, const char *str )
 {
     remove( index, len );
-    insert( index, s );
+    insert( index, str );
     return *this;
 }
 

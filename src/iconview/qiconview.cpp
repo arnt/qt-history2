@@ -694,7 +694,7 @@ void QIconDragData::setTextRect( const QRect &r )
 
 /*!
   \class QIconViewItem qiconview.h
-  \brief A QIconViewItem encapsulates a single item in a QIconView.
+  \brief The QIconViewItem class is a single item in a QIconView.
   \module iconview
 
   A QIconViewItem contains an icon, a string and optionally a sort key,
@@ -3398,9 +3398,8 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 /*!
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
-
-  If \a cs is FALSE (the default) then the search is case-insensitive.  If
-  \a cs is TRUE, then the search is case-sensitive.
+  The \a compare flag customizes the comparison of the items in the view 
+  with \a text.
 */
 
 QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare ) const

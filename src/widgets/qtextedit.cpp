@@ -625,7 +625,7 @@
 /*! \fn void QTextEdit::moveCursor( MoveDirection direction, bool shift, bool control )
 
   Moves the text cursor in \a direction. As this is normally
-  used by some key event handler, the state of the \a Shift and \a Ctrl
+  used by some key event handler, the state of the \c Shift and \c Ctrl
   keys will influence how the cursor moves. For example, \e{Left Arrow}
   moves one character left, but \e{Ctrl+Left Arrow} moves one word left.
 */

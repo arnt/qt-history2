@@ -53,7 +53,7 @@ public:
 // NOT REVISED
 /*!
   \class QSimpleRichText qsimplerichtext.h
-  \brief A small displayable piece of rich text.
+  \brief The QSimpleRichText class provides a small displayable piece of rich text.
 
   \ingroup drawing
 
@@ -98,9 +98,8 @@ public:
   the absolute path. See QMimeSourceFactory::makeAbsolute() for
   details.
 
-  Finally, \a s is an optional style sheet. If it is 0, the default
+  Finally, \a sheet is an optional style sheet. If it is 0, the default
   style sheet will be used (see QStyleSheet::defaultSheet() ).
-
 */
 
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,

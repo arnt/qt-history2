@@ -73,7 +73,7 @@ static QMotifPlusStylePrivate * singleton = 0;
 
 /*!
   \class QMotifPlusStyle qmotifplusstyle.h
-  \brief More sophisticated Motif-ish look and feel
+  \brief The QMotifPlusStyle class provides a more sophisticated Motif-ish look and feel
   \ingroup appearance
 
  This class implements a Motif-ish look and feel with more
