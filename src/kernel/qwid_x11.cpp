@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#8 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#8 $";
 #endif
 
 
@@ -106,6 +106,16 @@ bool QWidget::destroy()				// destroy widget
 {
     if ( testFlag( WState_Created ) ) {
 	clearFlag( WState_Created );
+	if ( children() ) {
+	    QObjectListIt it(*children());
+	    register QObject *object;
+	    while ( it ) {			// destroy all widget children
+		object = it.current();
+		if ( object->isWidgetType() )
+		    ((QWidget*)object)->destroy();
+		++it;
+	    }
+	}
 	XFreeGC( dpy, gc );			// free graphics context
 	XDestroyWindow( dpy, ident );
 	set_id( 0 );
@@ -204,43 +214,40 @@ bool QWidget::update()				// update widget
     return TRUE;
 }
 
-bool QWidget::show()				// show widget
+void QWidget::show()				// show widget
 {
     if ( testFlag( WState_Visible ) )
-	return FALSE;
+	return;
     if ( children() ) {
 	QObjectListIt it(*children());
+	register QObject *object;
 	while ( it ) {				// show all widget children
-	    QObject *object = it.current();
+	    object = it.current();
 	    if ( object->isWidgetType() )
 		((QWidget*)object)->show();
 	    ++it;
-	}	
+	}
     }
     XMapWindow( dpy, ident );
     setFlag( WState_Visible );
-    return TRUE;
 }
 
-bool QWidget::hide()				// hide widget
+void QWidget::hide()				// hide widget
 {
     if ( !testFlag( WState_Visible ) )
-	return FALSE;
+	return;
     XUnmapWindow( dpy, ident );
     clearFlag( WState_Visible );
-    return TRUE;
 }
 
-bool QWidget::raise()				// raise widget
+void QWidget::raise()				// raise widget
 {
     XRaiseWindow( dpy, ident );
-    return TRUE;
 }
 
-bool QWidget::lower()				// lower widget
+void QWidget::lower()				// lower widget
 {
     XLowerWindow( dpy, ident );
-    return TRUE;
 }
 
 
@@ -272,12 +279,12 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
     XSetNormalHints( dpy, ident, s );
 }
 
-bool QWidget::move( int x, int y )		// move widget
+void QWidget::move( int x, int y )		// move widget
 {
     QPoint p(x,y);
     QRect r = ncrect;
     if ( r.topLeft() == p )			// same position
-	return FALSE;
+	return;
     qXRequestConfig( this );
     r.setTopLeft( p );
     setNCRect( r );
@@ -291,10 +298,9 @@ bool QWidget::move( int x, int y )		// move widget
     XMoveWindow( dpy, ident, x, y );
     QMoveEvent evt( r.topLeft() );
     SEND_EVENT( this, &evt );			// send move event
-    return TRUE;
 }
 
-bool QWidget::resize( int w, int h )		// resize widget
+void QWidget::resize( int w, int h )		// resize widget
 {
     if ( w < 1 )				// invalid size
 	w = 1;
@@ -303,7 +309,7 @@ bool QWidget::resize( int w, int h )		// resize widget
     QRect r = rect;
     QSize s(w,h);
     if ( r.size() == s )			// same size
-	return FALSE;
+	return;
     qXRequestConfig( this );
     r.setSize( s );
     setRect( r );
@@ -317,35 +323,33 @@ bool QWidget::resize( int w, int h )		// resize widget
     XResizeWindow( dpy, ident, w, h );
     QResizeEvent evt( s );
     SEND_EVENT( this, &evt );			// send resize event
-    return TRUE;
 }
 
-bool QWidget::changeGeometry( int x, int y, int w, int h )
+void QWidget::changeGeometry( int x, int y, int w, int h )
 {						// move and resize widget
     if ( w < 1 )				// invalid size
 	w = 1;
     if ( h < 1 )
 	h = 1;
     QRect  r( x, y, w, h );
-    if ( r == ncrect )
-	return FALSE;
+    if ( r == rect )
+	return;
     qXRequestConfig( this );
-    setNCRect( r );				// ZE BIGK WESTJON!!!!
+    setRect( r );
     if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize;
 	size_hints.x = x;
 	size_hints.y = y;
-	size_hints.width = rect.width();
-	size_hints.height = rect.height();
+	size_hints.width = w;
+	size_hints.height = h;
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
-    XMoveResizeWindow( dpy, ident, x, y, rect.width(), rect.height() );
+    XMoveResizeWindow( dpy, ident, x, y, w, h );
     QResizeEvent evt1( r.size() );
     SEND_EVENT( this, &evt1 );			// send resize event
     QMoveEvent evt2( r.topLeft() );
     SEND_EVENT( this, &evt2 );			// send move event
-    return TRUE;
 }
 
 
@@ -386,13 +390,12 @@ void QWidget::setSizeIncrement( int w, int h )
 }
 
 
-bool QWidget::erase()				// erase widget contents
+void QWidget::erase()				// erase widget contents
 {
     XClearArea( dpy, ident, 0, 0, 0, 0, FALSE );
-    return TRUE;
 }
 
-bool QWidget::scroll( int dx, int dy )		// scroll widget contents
+void QWidget::scroll( int dx, int dy )		// scroll widget contents
 {
     QSize sz = clientSize();
     int x1, y1, x2, y2, w=sz.width(), h=sz.height();
@@ -425,15 +428,13 @@ bool QWidget::scroll( int dx, int dy )		// scroll widget contents
 	y1 = y2 == 0 ? h : 0;
 	XClearArea( dpy, ident, 0, y1, sz.width(), sz.height()-h, FALSE );
     }
-    return TRUE;
 }
 
 
-bool QWidget::drawText( int x, int y, const char *str )
+void QWidget::drawText( int x, int y, const char *str )
 {						// draw text in widget
     if ( testFlag( WState_Visible ) )
 	XDrawString( dpy, ident, gc, x, y, str, strlen(str));
-    return TRUE;
 }
 
 
