@@ -83,7 +83,7 @@ static const MouseData mouseData[] = {
 class MouseHandlerPrivate : public MouseHandler {
     Q_OBJECT
 public:
-    MouseHandlerPrivate( MouseProtocol protocol, QString mouseDev );
+    MouseHandlerPrivate( MouseProtocol protocol, QString mouseDev=QString::null );
     ~MouseHandlerPrivate();
 
 private:
@@ -495,6 +495,8 @@ public:
     QVFbMouseHandlerPrivate(MouseProtocol, QString dev);
     ~QVFbMouseHandlerPrivate();
 
+    bool isOpen() const { return mouseFD > 0; }
+
 private:
     int mouseFD;
     int mouseIdx;
@@ -505,6 +507,7 @@ private slots:
 
 QVFbMouseHandlerPrivate::QVFbMouseHandlerPrivate( MouseProtocol, QString mouseDev )
 {
+    mouseFD = -1;
 #if QT_FEATURE_QWS_VFB
     if ( mouseDev.isEmpty() )
 	mouseDev = QT_VFB_MOUSE_PIPE;
@@ -607,6 +610,11 @@ MouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	
 	case QVFBMouse:
 	    handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
+	    if ( !((QVFbMouseHandlerPrivate *)handler)->isOpen() ) {
+		qWarning( "Cannot open virtual mouse - using MouseMan" );
+		delete handler;
+		handler = new MouseHandlerPrivate( MouseMan );
+	    }
 	    break;
 	
 	case TPanel:

@@ -3900,6 +3900,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 extern "C" QScreen * qt_get_screen(char *,unsigned char *)
 {
     if ( !qt_screen ) {
+	const char *term = getenv( "TERM" );
+	if ( QString( term ) == "xterm" ) {
+	    qFatal( "$TERM=xterm - To continue would corrupt X11 - aborting" );
+	}
 	qt_screen=new QScreen();
 	qt_screen->connect();
     }
