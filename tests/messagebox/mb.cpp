@@ -9,6 +9,9 @@ int main( int argc, char **argv )
 
     QMessageBox::information(0,"Info caption","info text\nmore stuff",
 			     "Bt1", "Bt2", "Bt3", 2, 1 );
+    QMessageBox::information(0,"Info caption","info text\nmore stuff",
+			     QMessageBox::YesAll, QMessageBox::NoAll,
+			     QMessageBox::Cancel );
     QMessageBox::warning(0,"Warning caption","warning text\nmore stuff",
 			     "wBt1", "wBt2", "wBt3", 0, 2 );
     QMessageBox::critical(0,"Critical caption","info text\nmore stuff",
