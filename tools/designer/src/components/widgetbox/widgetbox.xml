@@ -243,12 +243,6 @@
             <property name="currentIndex" >
                 <number>0</number>
             </property>
-            <property name="frameShadow" >
-                <enum>QFrame::Plain</enum>
-            </property>
-            <property name="frameShape" >
-                <enum>QFrame::Box</enum>
-            </property>
             <property name="objectName">
                 <string notr="true">toolBox</string>
             </property>
@@ -265,9 +259,6 @@
         </widget>
 
         <widget class="QTabWidget" name="Tab Widget" icon="widgets/tabwidget.png">
-            <property name="tabPosition" >
-                <enum>QTabWidget::Top</enum>
-            </property>
             <property name="geometry">
                 <rect>
                     <x>0</x>
@@ -275,9 +266,6 @@
                     <width>120</width>
                     <height>80</height>
                 </rect>
-            </property>
-            <property name="tabShape" >
-                <enum>QTabWidget::Rounded</enum>
             </property>
             <property name="objectName">
                 <string notr="true">tabWidget</string>
@@ -334,9 +322,6 @@
     <category name="Input Widgets">
 
         <widget class="QDateTimeEdit" name="Date/Time Edit" icon="widgets/datetimeedit.png">
-            <property name="buttonSymbols" >
-                <enum>QAbstractSpinBox::UpDownArrows</enum>
-            </property>
             <property name="geometry" >
                 <rect>
                     <x>0</x>
@@ -351,9 +336,6 @@
         </widget>
 
         <widget class="QSpinBox" name="Spin Box" icon="widgets/spinbox.png">
-            <property name="buttonSymbols" >
-                <enum>QAbstractSpinBox::UpDownArrows</enum>
-            </property>
             <property name="geometry" >
                 <rect>
                     <x>119</x>
@@ -382,9 +364,6 @@
         </widget>
 
         <widget class="QLineEdit" name="Line Edit" icon="widgets/lineedit.png">
-            <property name="echoMode" >
-                <enum>QLineEdit::Normal</enum>
-            </property>
             <property name="geometry" >
                 <rect>
                     <x>0</x>
@@ -393,29 +372,14 @@
                     <height>20</height>
                 </rect>
             </property>
-            <property name="text" >
-                <string>line text</string>
-            </property>
             <property name="objectName">
                 <string notr="true">lineEdit</string>
             </property>
         </widget>
 
         <widget class="QTextEdit" name="Text Edit" icon="widgets/textedit.png">
-            <property name="verticalScrollBarPolicy" >
-                <enum>Qt::ScrollBarAsNeeded</enum>
-            </property>
-            <property name="horizontalScrollBarPolicy" >
-                <enum>Qt::ScrollBarAsNeeded</enum>
-            </property>
-            <property name="frameShadow" >
-                <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="wordWrap" >
-                <enum>QTextEdit::WidgetWidth</enum>
-            </property>
-            <property name="autoFormatting" >
-                <enum>QTextEdit::AutoAll</enum>
+            <property name="objectName">
+                <string notr="true">textEdit</string>
             </property>
             <property name="geometry" >
                 <rect>
@@ -425,18 +389,9 @@
                     <height>64</height>
                 </rect>
             </property>
-            <property name="frameShape" >
-                <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="objectName">
-                <string notr="true">textEdit</string>
-            </property>
         </widget>
 
         <widget class="QDial" name="Dial" icon="widgets/dial.png" >
-            <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-            </property>
             <property name="geometry" >
                 <rect>
                     <x>110</x>
@@ -506,17 +461,8 @@
     <category name="Display Widgets">
 
         <widget class="QLabel" name="Label" icon="widgets/label.png">
-            <property name="frameShadow" >
-                <enum>QFrame::Plain</enum>
-            </property>
-            <property name="frameShape" >
-                <enum>QFrame::NoFrame</enum>
-            </property>
             <property name="text">
                 <string>TextLabel</string>
-            </property>
-            <property name="textFormat" >
-                <enum>Qt::AutoText</enum>
             </property>
             <property name="objectName">
                 <string notr="true">label</string>
@@ -524,18 +470,6 @@
         </widget>
 
         <widget class="QLCDNumber" name="LCD Number" icon="widgets/lcdnumber.png">
-            <property name="mode" >
-                <enum>QLCDNumber::Dec</enum>
-            </property>
-            <property name="frameShadow" >
-                <enum>QFrame::Raised</enum>
-            </property>
-            <property name="segmentStyle" >
-                <enum>QLCDNumber::Outline</enum>
-            </property>
-            <property name="frameShape" >
-                <enum>QFrame::Box</enum>
-            </property>
             <property name="objectName">
                 <string notr="true">lcdNumber</string>
             </property>
