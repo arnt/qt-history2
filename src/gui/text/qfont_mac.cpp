@@ -32,28 +32,26 @@ QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 int qt_mac_pixelsize(const QFontDef &def, int dpi)
 {
     float ret;
-    if(def.pixelSize == -1) {
+    if(def.pixelSize == -1) 
         ret = def.pointSize *  dpi / 720.;
-    } else {
+    else 
         ret = def.pixelSize;
-    }
     return qRound(ret);
 }
 int qt_mac_pointsize(const QFontDef &def, int dpi)
 {
     float ret;
-    if(def.pointSize == -1) {
+    if(def.pointSize == -1) 
         ret = def.pixelSize * 720. / float(dpi);
-    } else {
+    else 
         ret = def.pointSize;
-    }
     return qRound(ret);
 }
 
 /* Qt platform dependent functions */
 int QFontMetrics::width(QChar c) const
 {
-    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    QFontEngine *engine = d->engineForScript((QFont::Script)fscript);
     Q_ASSERT(engine != 0);
     Q_ASSERT(engine->type() == QFontEngine::Mac);
     return ((QFontEngineMac*) engine)->doTextTask(&c, 0, 1, 1,
@@ -103,7 +101,7 @@ void QFont::cleanup()
     delete QFontCache::instance;
 }
 
-// Return a font family ID
+// Returns an ATSFontRef
 Qt::HANDLE QFont::handle() const
 {
     if (! d->engineData)
@@ -140,40 +138,6 @@ void QFontPrivate::load(QFont::Script script)
     // set it to the actual pointsize, so QFontInfo will do the right thing
     req.pointSize = qRound(qt_mac_pointsize(request, dpi));
 
-#if 0
-    /* It is unclear why this method doesn't work (findFont) so rather than fight any longer I will
-       submit this, and come back to visit what is actually going wrong (something about doTextTask not
-       doing the correct thing) */
-    QStringList family_list;     // list of families to try
-    if(!req.family.isEmpty()) {
-        family_list = req.family.split(',');
-
-        // append the substitute list for each family in family_list
-        QStringList subs_list;
-        for(QStringList::ConstIterator it = family_list.begin(); it != family_list.end(); ++it)
-            subs_list += QFont::substitutes(*it);
-        family_list += subs_list;
-    }
-    family_list << QString::null;     // 0 family means find the first font matching the specified script
-
-    //find the best font
-    QFontEngine *engine = 0;
-    for (int i < 0; i < family_list.size(); ++i) {
-        req.family = family_list.at(i);
-        engine = QFontDatabase::findFont(script, this, req);
-        if (engine) {
-            if (engine->type() != QFontEngine::Box)
-                break;
-            if (!req.family.isEmpty())
-                engine = 0;
-            continue;
-        }
-    }
-    if (engine) { //done
-        ++engine->ref;
-        engineData->engine = engine;
-    }
-#else
     QFontEngineMac *engine = 0;
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
         Q_ASSERT(e->type() == QFontEngine::Mac);
@@ -231,7 +195,6 @@ void QFontPrivate::load(QFont::Script script)
         }
     }
     QFontCache::instance->insertEngine(key, engine);
-#endif
 }
 
 void QFont::initialize()
