@@ -80,7 +80,7 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    QPtrList<QWidget> seenAlt;
+    QList<const QWidget *> seenAlt;
     bool alt_down;
 };
 
@@ -153,8 +153,8 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	break;
     case QEvent::Close:
 	// Reset widget when closing
-	seenAlt.removeRef(widget);
-	seenAlt.removeRef(widget->topLevelWidget());
+	seenAlt.remove(widget);
+	seenAlt.remove(widget->topLevelWidget());
 	break;
     default:
 	break;
