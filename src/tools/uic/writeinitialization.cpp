@@ -270,18 +270,6 @@ void WriteInitialization::accept(DomSpacer *node)
     TreeWalker::accept(node);
 }
 
-QHash<QString, DomProperty *> WriteInitialization::propertyMap(const QList<DomProperty *> &properties)
-{
-    QHash<QString, DomProperty *> map;
-
-    for (int i=0; i<properties.size(); ++i) {
-        DomProperty *p = properties.at(i);
-        map.insert(p->attributeName(), p);
-    }
-
-    return map;
-}
-
 void WriteInitialization::accept(DomLayoutItem *node)
 {
     TreeWalker::accept(node);

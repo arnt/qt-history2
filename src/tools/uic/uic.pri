@@ -14,6 +14,7 @@ HEADERS += $$PWD/uic.h \
            $$PWD/writeinitialization.h \
            $$PWD/writeiconinitialization.h \
            $$PWD/writeicondata.h \
+           $$PWD/databaseinfo.h \
            $$PWD/blockingprocess.h
 
 SOURCES += $$PWD/uic.cpp \
@@ -26,4 +27,5 @@ SOURCES += $$PWD/uic.cpp \
            $$PWD/writeinitialization.cpp \
            $$PWD/writeiconinitialization.cpp \
            $$PWD/writeicondata.cpp \
+           $$PWD/databaseinfo.cpp \
            $$PWD/blockingprocess.cpp

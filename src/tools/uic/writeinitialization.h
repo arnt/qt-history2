@@ -61,7 +61,6 @@ struct WriteInitialization : public TreeWalker
     void accept(DomLayoutDefault *node);
 
 private:
-    static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
     static QString domColor2QString(DomColor *c);
 
     QString pixCall(const QString &pix) const;

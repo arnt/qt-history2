@@ -14,6 +14,10 @@
 #define UTILS_H
 
 #include <qstring.h>
+#include <qlist.h>
+#include <qhash.h>
+
+class DomProperty;
 
 inline bool toBool(const QString &str)
 { return str.toLower() == QLatin1String("true"); }
@@ -36,5 +40,18 @@ inline QString fixString(const QString &str, bool encode=false)
 
     return "\"" + s + "\"";
 }
+
+inline QHash<QString, DomProperty *> propertyMap(const QList<DomProperty *> &properties)
+{
+    QHash<QString, DomProperty *> map;
+
+    for (int i=0; i<properties.size(); ++i) {
+        DomProperty *p = properties.at(i);
+        map.insert(p->attributeName(), p);
+    }
+
+    return map;
+}
+
 
 #endif
