@@ -669,6 +669,7 @@ void QLayout::init()
     autoNewChild = FALSE;
     frozen = FALSE;
     activated = FALSE;
+    marginImpl = FALSE;
     extraData = 0;
     menubar = 0;
 }
@@ -798,7 +799,11 @@ QLayout::QLayout( int space, const char *name )
 /*!
   Sets the outside border of the layout to \a border.
 
-  \sa margin() setSpacing()
+  For some layout classes, this function only has an effect on
+  top-level layouts; QBoxLayout and QGridLayout support margins for
+  child layouts.
+
+  \sa margin() setSpacing() supportsMargin()
  */
 
 void QLayout::setMargin( int border )
@@ -956,12 +961,13 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	int mbh = 0;
 	if ( menubar && !menubar->testWState(WState_ForceHide) )
 	    mbh = menubar->heightForWidth( r->size().width() );
-	if ( activated )
-	    setGeometry( QRect( outsideBorder, mbh + outsideBorder,
-				r->size().width() - 2*outsideBorder,
-				r->size().height() - mbh - 2*outsideBorder ) );
-	else
+	if ( activated ) {
+	    int b = marginImpl ? 0 : outsideBorder;
+	    setGeometry( QRect( b, mbh + b, r->size().width() - 2*b,
+				r->size().height() - mbh - 2*b ) );
+	} else {
 	    activate();
+	}
 	break;
     }
     case QEvent::ChildRemoved: {
@@ -1017,7 +1023,7 @@ int QLayout::totalHeightForWidth( int w ) const
 	    mw->polish();
 	}
     }
-    int b = topLevel ? 2*outsideBorder : 0;
+    int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
     int h = heightForWidth( w - b ) + b;
     if ( menubar )
 	h += menubar->heightForWidth( w );
@@ -1037,7 +1043,7 @@ QSize QLayout::totalMinimumSize() const
 	    mw->polish();
 	}
     }
-    int b = topLevel ? 2*outsideBorder : 0;
+    int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
 
     QSize s = minimumSize();
     int h = b;
@@ -1061,7 +1067,7 @@ QSize QLayout::totalSizeHint() const
 	    mw->polish();
 	}
     }
-    int b = topLevel ? 2*outsideBorder : 0;
+    int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
 
     QSize s = sizeHint();
     int h = b;
@@ -1084,7 +1090,7 @@ QSize QLayout::totalMaximumSize() const
 	    mw->polish();
 	}
     }
-    int b = topLevel ? 2*outsideBorder : 0;
+    int b = (topLevel && !marginImpl) ? 2*outsideBorder : 0;
 
     QSize s = maximumSize();
     int h = b;
@@ -1274,6 +1280,10 @@ bool QLayout::activate()
     // Paul: If adding stuff to a QLayout for a widget causes
     // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
     // unnecessary in that case too.
+    invalidateRecursive( this );
+    if ( !topLevel )
+	return FALSE;
+    
     QWidget *mainW = mainWidget();
     if ( !mainW ) {
 #if defined( CHECK_NULL )
@@ -1285,12 +1295,12 @@ bool QLayout::activate()
 	return FALSE;
     }
     activated = TRUE;
-    invalidateRecursive( this );
     QSize s = mainWidget()->size();
     int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
-    setGeometry( QRect( outsideBorder, mbh + outsideBorder,
-			s.width() - 2*outsideBorder,
-			s.height() - mbh - 2*outsideBorder ) );
+    int b = marginImpl ? 0 : outsideBorder;
+    setGeometry( QRect( b, mbh + b,
+			s.width() - 2*b,
+			s.height() - mbh - 2*b ) );
     if ( frozen )
 	mainWidget()->setFixedSize( totalSizeHint() ); //### will trigger resize
     else if ( autoMinimum )
@@ -1674,3 +1684,31 @@ void QLayout::setAutoAdd( bool b )
 }
 
 
+
+/*!
+  \fn  bool QLayout::supportsMargin() const
+  
+  Returns TRUE if this layout supports setMargin() on non-toplevel
+  layouts.
+  
+  \sa setMargin()
+*/
+
+
+/*!
+  Sets the value returned by supportsMargin(). If \a b is TRUE,
+  margin() handling is implemented by the subclass. If \a b is
+  FALSE (the default) QLayout will add margin() around top-level
+  layouts.
+  
+  If \a b is TRUE, margin handling needs to be implemented in
+  setGeometry(), maximumSize(), minimumSize(), sizeHint() and
+  heightForWidth().
+  
+  \sa supportsMargin()
+*/
+
+void QLayout::setSupportsMargin( bool b )
+{
+    marginImpl = b;
+}

@@ -409,22 +409,25 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 
 
 /*
+  Modify total maximum (max) and total expansion (exp)
+  when adding boxmax/boxexp.
+  
   Expansive boxes win over non-expansive boxes.
 */
 static inline void maxExpCalc( QCOORD & max, bool &exp,
 			       QCOORD boxmax, bool boxexp )
 {
-    if ( exp )
+    if ( exp ) {
 	if ( boxexp )
 	    max = QMAX( max, boxmax );
 	else
 	    ; //nothing
-    else
+    } else {
 	if ( boxexp )
 	    max = boxmax;
 	else
 	    max = QMIN( max, boxmax );
-
+    }
     exp = exp || boxexp;
 }
 
@@ -956,7 +959,7 @@ int QGridLayout::numCols() const
 
 QSize QGridLayout::sizeHint() const
 {
-    return array->sizeHint( spacing() );
+    return array->sizeHint( spacing() ) + QSize(2*margin(),2*margin());
 }
 /*!
   Returns the minimum size needed by this grid.
@@ -964,7 +967,7 @@ QSize QGridLayout::sizeHint() const
 
 QSize QGridLayout::minimumSize() const
 {
-    return array->minimumSize( spacing() );
+    return array->minimumSize( spacing() ) + QSize(2*margin(),2*margin());
 }
 /*!
   Returns the maximum size needed by this grid.
@@ -972,7 +975,8 @@ QSize QGridLayout::minimumSize() const
 
 QSize QGridLayout::maximumSize() const
 {
-    return  array->maximumSize( spacing() );
+    return  array->maximumSize( spacing() ) + QSize(2*margin(),2*margin())
+	.boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
 }
 
 
@@ -994,7 +998,9 @@ bool QGridLayout::hasHeightForWidth() const
 
 int QGridLayout::heightForWidth( int w ) const
 {
-    return ((QGridLayout*)this)->array->heightForWidth( w, spacing() );
+    QGridLayout *that = ((QGridLayout*)this);
+    return that->array->heightForWidth( w - 2*margin(), spacing() )
+	+ 2*margin();
 
 }
 
@@ -1015,13 +1021,15 @@ bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
 }
 
 /*!
-  Resizes managed widgets within the rectangle \a s.
+  Resizes managed widgets within the rectangle \a r.
  */
-void QGridLayout::setGeometry( const QRect &s )
+void QGridLayout::setGeometry( const QRect &r )
 {
-    if ( array->isDirty() || s != geometry() ) {
-    QLayout::setGeometry( s );
-    array->distribute( s, spacing() );
+    if ( array->isDirty() || r != geometry() ) {
+	QLayout::setGeometry( r );
+	QRect s( r.x()+margin(), r.y()+margin(), 
+		 r.width()-2*margin(), r.height()-2*margin() );
+	array->distribute( s, spacing() );
     }
 }
 
@@ -1059,6 +1067,7 @@ void QGridLayout::expand( int nRows, int nCols )
 
 void QGridLayout::init( int nRows, int nCols )
 {
+    setSupportsMargin( TRUE );
     array = new QLayoutArray( nRows, nCols );
 }
 
@@ -1510,6 +1519,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 {
     data = new QBoxLayoutData;
     dir = d;
+    setSupportsMargin( TRUE );
 }
 
 
@@ -1526,6 +1536,7 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
 {
     data = new QBoxLayoutData;
     dir = d;
+    setSupportsMargin( TRUE );
 }
 
 
@@ -1543,6 +1554,7 @@ QBoxLayout::QBoxLayout( Direction d,
 {
     data = new QBoxLayoutData;
     dir = d;
+    setSupportsMargin( TRUE );
 }
 
 /*!
@@ -1564,7 +1576,7 @@ QSize QBoxLayout::sizeHint() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    return data->sizeHint;
+    return data->sizeHint + QSize(2*margin(),2*margin());
 }
 /*!
   Returns the minimum size needed by this box.
@@ -1576,7 +1588,7 @@ QSize QBoxLayout::minimumSize() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    return data->minSize;
+    return data->minSize + QSize(2*margin(),2*margin());
 }
 /*!
   Returns the maximum size needed by this box.
@@ -1588,7 +1600,8 @@ QSize QBoxLayout::maximumSize() const
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    return data->maxSize;
+    return (data->maxSize + QSize(2*margin(),2*margin()))
+	.boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
 }
 
 
@@ -1614,13 +1627,14 @@ bool QBoxLayout::hasHeightForWidth() const
 
 int QBoxLayout::heightForWidth( int w ) const
 {
+    w -= 2*margin();
     if ( data->dirty || w != data->hfwWidth ) {
 	QBoxLayout *that = (QBoxLayout*)this;
 	if ( data->dirty )
 	    that->setupGeom();
 	return that->calcHfw( w );
     }
-    return data->hfwHeight;
+    return data->hfwHeight + 2*margin();
 }
 
 /*!
@@ -1659,14 +1673,17 @@ QSizePolicy::ExpandData QBoxLayout::expanding() const
 }
 
 /*!
-  Resizes managed widgets within the rectangle \a s.
+  Resizes managed widgets within the rectangle \a r.
  */
-void QBoxLayout::setGeometry( const QRect &s )
+void QBoxLayout::setGeometry( const QRect &r )
 {
-    if ( !data->geomArray || s != geometry() ) {
-	QLayout::setGeometry( s );
+    if ( !data->geomArray || r != geometry() ) {
+	QLayout::setGeometry( r );
 	if ( !data->geomArray )
 	    setupGeom();
+	QRect s( r.x()+margin(), r.y()+margin(), 
+		 r.width()-2*margin(), r.height()-2*margin() );
+
 	QArray<QLayoutStruct> a = *data->geomArray;
 	int pos = horz(dir) ? s.x() : s.y();
 	int space = horz(dir) ? s.width() : s.height();
@@ -2083,8 +2100,8 @@ void QBoxLayout::setupGeom()
     if ( !data->dirty )
 	return;
 
-    int maxw = QWIDGETSIZE_MAX;
-    int maxh = QWIDGETSIZE_MAX;
+    int maxw = horz(dir) ? 0 : QWIDGETSIZE_MAX;
+    int maxh = horz(dir) ? QWIDGETSIZE_MAX : 0;
     int minw = 0;
     int minh = 0;
     int hintw = 0;

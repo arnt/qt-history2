@@ -207,11 +207,14 @@ public:
     QSize totalSizeHint() const;
     QLayout *layout();
 
+    bool supportsMargin() const { return marginImpl; }
+
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );
     void deleteAllItems();
 
+    void setSupportsMargin( bool );
 private:
     void setWidgetLayout( QWidget *, QLayout * );
     void init();
@@ -222,6 +225,7 @@ private:
     uint autoNewChild : 1;
     uint frozen : 1;
     uint activated : 1;
+    uint marginImpl : 1;
     QRect rect;
     QLayoutData *extraData;
     QMenuBar *menubar;
