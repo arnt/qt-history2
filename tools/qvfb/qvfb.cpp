@@ -101,7 +101,8 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 
 QAction *QVFb::newAction(const char *menuName, const char *shortkey, const char *slot)
 {
-    QAction *result = new QAction(menuName, QKeySequence(shortkey), this);
+    QAction *result = new QAction(menuName, this);
+    result->setShortcut(QKeySequence(shortkey));
     connect(result, SIGNAL(triggered()), slot);
     return result;
 }
