@@ -1,18 +1,18 @@
-This is Qt version 3.0.2, the cross-platform C++ GUI toolkit.
+This is Qt version 3.0.3, the cross-platform C++ GUI toolkit.
 
 Qt 3 contains many new features, improvements and extensions. It also
 includes a significantly improved Qt Designer, and introduces Qt
-Linguist, Qt Assistant and a new multi-platform build tool,
-'qmake'. In addition to the traditional Qt platforms- Linux, Unix and
-the various flavors of MS-Windows, Qt 3 for the first time also
-introduces a native port to Mac OS X.
+Linguist, Qt Assistant and a new multi-platform build tool, 'qmake'.
+In addition to the traditional Qt platforms, Linux, Unix and the
+various flavors of MS-Windows, Qt 3 introduces a native port to 
+Mac OS X.
 
-Detailed information about the modifications and new features for Qt 3
-is included in the Online Reference Documentation.
+Detailed information about the changes and new features for Qt 3 is
+included in the Online Reference Documentation.
 
 Due to our recently increased development team, we have been able
 to realize far more of your requests in this release. Qt 3 is a great
-step towards realizing our vision of an ideal cross-platform
+step towards achieving our vision of an ideal cross-platform
 development tool.
 
 The Qt version 3.x series is not binary compatible with the 2.x
@@ -27,7 +27,7 @@ complete, so it is possible that you'll discover issues that are not
 yet covered in the documentation.
 
 The most visible change for long term Qt users is the reworked build
-system. On MS-Windows, run qt-win-commercial-3.0.2.exe; on Unix and
+system. On MS-Windows, run qt-win-commercial-3.0.3.exe; on Unix and
 Mac OS X, unpack the package and run ./configure. Compiling and
 installing Qt uses a new utility 'qmake' which we recommend for
 writing Qt­based applications. 'qmake' is the successor of our free
@@ -65,15 +65,15 @@ openunix-g++
 macx-g++
 macx-pbuilder
 
-If you want to try and use Qt 3 on an unsupported version of Unix, please
+If you want to use Qt 3 on an unsupported version of Unix, please
 contact us at qt-bugs@trolltech.com so that we can assist you.
 
 
 How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
-ftp.trolltech.com. To get better download times, use ftpsearch and
-search for qt-x11-free-3.0.2.tar.gz to find it on a mirror ftp site
+ftp.trolltech.com. For faster download times, use ftpsearch and
+search for qt-x11-free-3.0.3.tar.gz to find it on a mirror ftp site
 near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
