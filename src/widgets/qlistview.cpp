@@ -1298,7 +1298,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
 	// if the column width changed and this item was not painted since this change
 	if ( ci && ci->width != width || ci->text != t ) {
-	    QFontMetrics fm( lv->fontMetrics() );
+	    QFontMetrics fm( p->fontMetrics() );
 	    ci->width = width;
 	    ci->truncated = FALSE;
 	    // if we have to do the ellipsis thingy calc the truncated text
