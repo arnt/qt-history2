@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#4 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#5 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -7,7 +7,7 @@
 ** Author  : Haavard Nord
 ** Created : 931029
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -33,6 +33,8 @@ class QFont;
 class QPen;
 class QBrush;
 class QPixMap;
+class QBitMap;
+class QWXFMatrix;
 
 
 // Window system setting
@@ -144,6 +146,16 @@ bool  qKillTimer( QObject *obj );
 void  qAddCleanupRoutine( void (*)() );
 
 
+// GUI styles
+
+enum GUIStyle {
+    MacStyle,
+    WindowsStyle,
+    PMStyle,
+    MotifStyle
+};
+
+
 // Widget flags
 
 typedef ulong WFlags;
@@ -171,11 +183,19 @@ typedef ulong WFlags;
 
 #define WWin_AltCreate	0x00010000		// widget flags for Windows
 #define WWin_AltClass	0x00020000
-#define WWin_Config	0x00040000
-
-#define WX11_OddWM	0x00010000		// widget flags for X11
 
 #define WEtc_MouMove	0x01000000		// misc widget flags
+#define WEtc_InConfig	0x02000000
+
+
+// Extra Widget data
+
+struct QWExtra {
+    GUIStyle guistyle;				// GUI Style
+    short  minw, minh;				// minimum size
+    short  maxw, maxh;				// maximum size
+    short  incw, inch;				// size increments
+};
 
 
 // Raster operations
@@ -189,16 +209,6 @@ enum RasterOp					// raster op/transfer mode
 
 enum TextAlignment				// text alignment
     { AlignLeft=0x0, AlignRight, AlignTop, AlignBottom, AlignCenter };
-
-
-// GUI styles
-
-enum GuiStyle {
-    MacStyle,
-    WindowsStyle,
-    PMStyle,
-    MotifStyle
-};
 
 
 #endif // QWINDEFS_H
