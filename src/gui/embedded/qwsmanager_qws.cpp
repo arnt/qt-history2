@@ -106,46 +106,86 @@ QWSDecoration *QWSManager::newDefaultDecoration()
 }
 
 
-QWidget *QWSManager::active = 0;
-QPoint QWSManager::mousePos;
+class QWSManagerPrivate : public QObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QWSManager)
+public:
+    QWSManagerPrivate();
+
+    QWSDecoration::Region activeRegion;
+    QWidget *managed;
+    QPopupMenu *popup;
+//    QRect normalSize; // ???
+    QWSButton *menuBtn;
+    QWSButton *closeBtn;
+    QWSButton *minimizeBtn;
+    QWSButton *maximizeBtn;
+
+    int dx;
+    int dy;
+//    int skipCount; // ???
+
+    static QWidget *active;
+    static QPoint mousePos;
+};
+QWidget *QWSManagerPrivate::active = 0;
+QPoint QWSManagerPrivate::mousePos;
+
+QWSManagerPrivate::QWSManagerPrivate()
+    : QObjectPrivate(), activeRegion(QWSDecoration::None), managed(0), popup(0), menuBtn(0),
+      closeBtn(0), minimizeBtn(0), maximizeBtn(0), dx(0), dy(0)
+{
+}
+
+#define d d_func()
+#define q q_func()
+
 
 QWSManager::QWSManager(QWidget *w)
-    : activeRegion(QWSDecoration::None), managed(w), popup(0)
+    : QObject(*new QWSManagerPrivate, (QObject*)0)
 {
-    dx = 0;
-    dy = 0;
-
-    menuBtn = new QWSButton(this, QWSDecoration::Menu);
-    closeBtn = new QWSButton(this, QWSDecoration::Close);
-    minimizeBtn = new QWSButton(this, QWSDecoration::Minimize);
-    maximizeBtn = new QWSButton(this, QWSDecoration::Maximize, true);
+    d->managed = w;
+    d->menuBtn = new QWSButton(this, QWSDecoration::Menu);
+    d->closeBtn = new QWSButton(this, QWSDecoration::Close);
+    d->minimizeBtn = new QWSButton(this, QWSDecoration::Minimize);
+    d->maximizeBtn = new QWSButton(this, QWSDecoration::Maximize, true);
 }
 
 QWSManager::~QWSManager()
 {
 #ifndef QT_NO_POPUPMENU
-    if (popup)
-        delete popup;
+    if (d->popup)
+        delete d->popup;
 #endif
-    delete menuBtn;
-    delete closeBtn;
-    delete minimizeBtn;
-    delete maximizeBtn;
+    delete d->menuBtn;
+    delete d->closeBtn;
+    delete d->minimizeBtn;
+    delete d->maximizeBtn;
 
+}
+
+QWidget *QWSManager::widget()
+{
+    return d->managed;
+}
+
+QWidget *QWSManager::grabbedMouse()
+{
+    return QWSManagerPrivate::active;
 }
 
 QRegion QWSManager::region()
 {
-    return QApplication::qwsDecoration().region(managed, managed->geometry());
+    return QApplication::qwsDecoration().region(d->managed, d->managed->geometry());
 }
 
 QWSDecoration::Region QWSManager::pointInRegion(const QPoint &p)
 {
     QWSDecoration &dec = QApplication::qwsDecoration();
-    QRect rect(managed->geometry());
+    QRect rect(d->managed->geometry());
 
     for (int i = QWSDecoration::LastRegion; i >= QWSDecoration::Title; i--) {
-        if (dec.region(managed, rect, (QWSDecoration::Region)i).contains(p))
+        if (dec.region(d->managed, rect, (QWSDecoration::Region)i).contains(p))
             return (QWSDecoration::Region)i;
     }
 
@@ -189,36 +229,36 @@ bool QWSManager::event(QEvent *e)
 void QWSManager::mousePressEvent(QMouseEvent *e)
 {
 
-    mousePos = e->globalPos();
-    dx = 0;
-    dy = 0;
-    activeRegion = pointInRegion(mousePos);
-    switch (activeRegion) {
+    d->mousePos = e->globalPos();
+    d->dx = 0;
+    d->dy = 0;
+    d->activeRegion = pointInRegion(d->mousePos);
+    switch (d->activeRegion) {
     case QWSDecoration::Menu:
-        menu(managed->geometry().topLeft());
+        menu(d->managed->geometry().topLeft());
         break;
     case QWSDecoration::Close:
-        setClicked(closeBtn, true);
+        setClicked(d->closeBtn, true);
         break;
     case QWSDecoration::Minimize:
-        setClicked(minimizeBtn, true);
+        setClicked(d->minimizeBtn, true);
         break;
     case QWSDecoration::Maximize:
-        setClicked(maximizeBtn, true);
+        setClicked(d->maximizeBtn, true);
         break;
     default:
         break;
     }
-    if (activeRegion != QWSDecoration::None &&
-         activeRegion != QWSDecoration::Menu) {
-        active = managed;
-        managed->grabMouse();
+    if (d->activeRegion != QWSDecoration::None &&
+         d->activeRegion != QWSDecoration::Menu) {
+        d->active = d->managed;
+        d->managed->grabMouse();
     }
-    if (activeRegion != QWSDecoration::None &&
-         activeRegion != QWSDecoration::Close &&
-         activeRegion != QWSDecoration::Minimize &&
-         activeRegion != QWSDecoration::Menu) {
-        managed->raise();
+    if (d->activeRegion != QWSDecoration::None &&
+         d->activeRegion != QWSDecoration::Close &&
+         d->activeRegion != QWSDecoration::Minimize &&
+         d->activeRegion != QWSDecoration::Menu) {
+        d->managed->raise();
     }
     if (e->button() == Qt::RightButton) {
         menu(e->globalPos());
@@ -227,37 +267,37 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 
 void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 {
-    managed->releaseMouse();
+    d->managed->releaseMouse();
     if (e->button() == Qt::LeftButton) {
         handleMove();
-        mousePos = e->globalPos();
+        d->mousePos = e->globalPos();
         QWSDecoration::Region rgn = pointInRegion(e->globalPos());
-        QWSDecoration::Region activatedRegion = activeRegion;
-        activeRegion = QWSDecoration::None;
-        active = 0;
+        QWSDecoration::Region activatedRegion = d->activeRegion;
+        d->activeRegion = QWSDecoration::None;
+        d->active = 0;
         switch (activatedRegion) {
             case QWSDecoration::Close:
-                setClicked(closeBtn, false);
+                setClicked(d->closeBtn, false);
                 if (rgn == QWSDecoration::Close) {
                     close();
                     return;
                 }
                 break;
             case QWSDecoration::Minimize:
-                setClicked(minimizeBtn, false);
+                setClicked(d->minimizeBtn, false);
                 if (rgn == QWSDecoration::Minimize)
                     minimize();
                 break;
             case QWSDecoration::Maximize:
-                setClicked(maximizeBtn, false);
+                setClicked(d->maximizeBtn, false);
                 if (rgn == QWSDecoration::Maximize)
                     toggleMaximize();
                 break;
             default:
                 break;
         }
-    } else if (activeRegion == QWSDecoration::None) {
-        active = 0;
+    } else if (d->activeRegion == QWSDecoration::None) {
+        d->active = 0;
     }
 }
 
@@ -272,14 +312,14 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    if (activeRegion == QWSDecoration::None)
+    if (d->activeRegion == QWSDecoration::None)
     {
         if (!QWidget::mouseGrabber()) {
             QWSDecoration::Region r = pointInRegion(e->globalPos());
-            qwsd->selectCursor(managed, shape[r]);
+            qwsd->selectCursor(d->managed, shape[r]);
         }
     } else
-        qwsd->selectCursor(managed, shape[activeRegion]);
+        qwsd->selectCursor(d->managed, shape[d->activeRegion]);
 #endif //QT_NO_CURSOR
     // resize/move regions
 
@@ -297,117 +337,117 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
             g.setY(qt_maxWindowRect.bottom());
     }
 
-    dx = g.x() - mousePos.x();
-    dy = g.y() - mousePos.y();
+    d->dx = g.x() - d->mousePos.x();
+    d->dy = g.y() - d->mousePos.y();
 
     handleMove();
 
     // button regions
     QWSDecoration::Region r = pointInRegion(e->globalPos());
-    setMouseOver(menuBtn, r == QWSDecoration::Menu);
-    setMouseOver(closeBtn, r == QWSDecoration::Close);
-    setMouseOver(minimizeBtn, r == QWSDecoration::Minimize);
-    setMouseOver(maximizeBtn, r == QWSDecoration::Maximize);
+    setMouseOver(d->menuBtn, r == QWSDecoration::Menu);
+    setMouseOver(d->closeBtn, r == QWSDecoration::Close);
+    setMouseOver(d->minimizeBtn, r == QWSDecoration::Minimize);
+    setMouseOver(d->maximizeBtn, r == QWSDecoration::Maximize);
 }
 
 void QWSManager::handleMove()
 {
-    if (!dx && !dy)
+    if (!d->dx && !d->dy)
         return;
 
-    int x = managed->geometry().x();
-    int y = managed->geometry().y();
-    int w = managed->width();
-    int h = managed->height();
+    int x = d->managed->geometry().x();
+    int y = d->managed->geometry().y();
+    int w = d->managed->width();
+    int h = d->managed->height();
 
-    QRect geom(managed->geometry());
+    QRect geom(d->managed->geometry());
 
-    switch (activeRegion) {
+    switch (d->activeRegion) {
         case QWSDecoration::Title:
-            geom = QRect(x + dx, y + dy, w, h);
+            geom = QRect(x + d->dx, y + d->dy, w, h);
             break;
         case QWSDecoration::Top:
-            geom = QRect(x, y + dy, w, h - dy);
+            geom = QRect(x, y + d->dy, w, h - d->dy);
             break;
         case QWSDecoration::Bottom:
-            geom = QRect(x, y, w, h + dy);
+            geom = QRect(x, y, w, h + d->dy);
             break;
         case QWSDecoration::Left:
-            geom = QRect(x + dx, y, w - dx, h);
+            geom = QRect(x + d->dx, y, w - d->dx, h);
             break;
         case QWSDecoration::Right:
-            geom = QRect(x, y, w + dx, h);
+            geom = QRect(x, y, w + d->dx, h);
             break;
         case QWSDecoration::TopRight:
-            geom = QRect(x, y + dy, w + dx, h - dy);
+            geom = QRect(x, y + d->dy, w + d->dx, h - d->dy);
             break;
         case QWSDecoration::TopLeft:
-            geom = QRect(x + dx, y + dy, w - dx, h - dy);
+            geom = QRect(x + d->dx, y + d->dy, w - d->dx, h - d->dy);
             break;
         case QWSDecoration::BottomLeft:
-            geom = QRect(x + dx, y, w - dx, h + dy);
+            geom = QRect(x + d->dx, y, w - d->dx, h + d->dy);
             break;
         case QWSDecoration::BottomRight:
-            geom = QRect(x, y, w + dx, h + dy);
+            geom = QRect(x, y, w + d->dx, h + d->dy);
             break;
         default:
             return;
     }
 
-    if (geom.width() >= managed->minimumWidth()
-            && geom.width() <= managed->maximumWidth()) {
-        mousePos.setX(mousePos.x() + dx);
-    } else if (geom.width() < managed->minimumWidth()) {
+    if (geom.width() >= d->managed->minimumWidth()
+            && geom.width() <= d->managed->maximumWidth()) {
+        d->mousePos.setX(d->mousePos.x() + d->dx);
+    } else if (geom.width() < d->managed->minimumWidth()) {
         if (x != geom.x()) {
-            geom.setX(x+(w-managed->minimumWidth()));
-            mousePos.setX(geom.x());
+            geom.setX(x+(w-d->managed->minimumWidth()));
+            d->mousePos.setX(geom.x());
         } else {
-            mousePos.setX(x+managed->minimumWidth());
+            d->mousePos.setX(x+d->managed->minimumWidth());
         }
-        geom.setWidth(managed->minimumWidth());
+        geom.setWidth(d->managed->minimumWidth());
     } else {
         geom.setX(x);
         geom.setWidth(w);
     }
-    if (geom.height() >= managed->minimumHeight()
-            && geom.height() <= managed->maximumHeight()) {
-        mousePos.setY(mousePos.y() + dy);
-    } else if (geom.height() < managed->minimumHeight()) {
+    if (geom.height() >= d->managed->minimumHeight()
+            && geom.height() <= d->managed->maximumHeight()) {
+        d->mousePos.setY(d->mousePos.y() + d->dy);
+    } else if (geom.height() < d->managed->minimumHeight()) {
         if (y != geom.y()) {
-            geom.setY(y+(h-managed->minimumHeight()));
-            mousePos.setY(mousePos.y()+(geom.y()-y));
+            geom.setY(y+(h-d->managed->minimumHeight()));
+            d->mousePos.setY(d->mousePos.y()+(geom.y()-y));
         } else {
-            mousePos.setY(y+managed->minimumHeight());
+            d->mousePos.setY(y+d->managed->minimumHeight());
         }
-        geom.setHeight(managed->minimumHeight());
+        geom.setHeight(d->managed->minimumHeight());
     } else {
         geom.setY(y);
         geom.setHeight(h);
     }
 
-    if (geom != managed->geometry()) {
+    if (geom != d->managed->geometry()) {
         QApplication::sendPostedEvents();
-        managed->setGeometry(geom);
+        d->managed->setGeometry(geom);
     }
 
-    dx = 0;
-    dy = 0;
+    d->dx = 0;
+    d->dy = 0;
 }
 
 void QWSManager::paintEvent(QPaintEvent *)
 {
-    if (!managed->isVisible())
+    if (!d->managed->isVisible())
         return;
     QWSDecoration &dec = QApplication::qwsDecoration();
-    if (managed->testWState(Qt::WState_InPaintEvent))
+    if (d->managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
-    managed->setWState(Qt::WState_InPaintEvent);
-    QPainter painter(managed);
+    d->managed->setWState(Qt::WState_InPaintEvent);
+    QPainter painter(d->managed);
 
     // Adjust our widget region to contain the window
     // manager decoration instead of the widget itself.
-    QRegion r = managed->d->topData()->decor_allocated_region;
-    int rgnIdx = managed->data->alloc_region_index;
+    QRegion r = d->managed->d->topData()->decor_allocated_region;
+    int rgnIdx = d->managed->data->alloc_region_index;
 
     QGfx *gfx = static_cast<QWSPaintEngine *>(painter.d->engine)->gfx();
     if (rgnIdx >= 0) {
@@ -415,7 +455,7 @@ void QWSManager::paintEvent(QPaintEvent *)
         bool changed = false;
         QWSDisplay::grab();
         const int *rgnRev = qt_fbdpy->regionManager()->revision(rgnIdx);
-        if (managed->data->alloc_region_revision != *rgnRev) {
+        if (d->managed->data->alloc_region_revision != *rgnRev) {
              newRegion = qt_fbdpy->regionManager()->region(rgnIdx);
              changed = true;
         }
@@ -427,35 +467,35 @@ void QWSManager::paintEvent(QPaintEvent *)
     }
     gfx->setWidgetDeviceRegion(r);
 
-    painter.setClipRegion(dec.region(managed, managed->rect()));
-    dec.paint(&painter, managed);
-    painter.setClipRegion(dec.region(managed, managed->rect()));
-    dec.paintButton(&painter, managed, QWSDecoration::Menu, menuBtn->state());
-    dec.paintButton(&painter, managed, QWSDecoration::Close, closeBtn->state());
-    dec.paintButton(&painter, managed, QWSDecoration::Minimize, minimizeBtn->state());
-    dec.paintButton(&painter, managed, QWSDecoration::Maximize, maximizeBtn->state());
-    managed->clearWState(Qt::WState_InPaintEvent);
+    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    dec.paint(&painter, d->managed);
+    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    dec.paintButton(&painter, d->managed, QWSDecoration::Menu, d->menuBtn->state());
+    dec.paintButton(&painter, d->managed, QWSDecoration::Close, d->closeBtn->state());
+    dec.paintButton(&painter, d->managed, QWSDecoration::Minimize, d->minimizeBtn->state());
+    dec.paintButton(&painter, d->managed, QWSDecoration::Maximize, d->maximizeBtn->state());
+    d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
 void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_POPUPMENU
-    if (!popup) {
-        popup = QApplication::qwsDecoration().menu(managed, managed->pos());
+    if (!d->popup) {
+        d->popup = QApplication::qwsDecoration().menu(d->managed, d->managed->pos());
 
         // Add Style menu
         QPopupMenu *styleMenu = new QPopupMenu();
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
             styleMenu->insertItem(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()), WMStyleList[i].WMStyleType);
         styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
-//        popup->insertSeparator();
-//        popup->insertItem(tr("Style"), styleMenu);
+//        d->popup->insertSeparator();
+//        d->popup->insertItem(tr("Style"), styleMenu);
 
-        connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
+        connect(d->popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
     }
-    popup->setItemEnabled(QWSDecoration::Maximize, !managed->isMaximized());
-    popup->setItemEnabled(QWSDecoration::Normalize, managed->isMaximized());
-    popup->popup(pos);
+    d->popup->setItemEnabled(QWSDecoration::Maximize, !d->managed->isMaximized());
+    d->popup->setItemEnabled(QWSDecoration::Normalize, d->managed->isMaximized());
+    d->popup->popup(pos);
 #endif
 }
 
@@ -477,9 +517,9 @@ void QWSManager::styleMenuActivated(int id)
     }
 
     // Force a repaint of the WM regions
-    const QSize s = managed->size();
-    managed->resize(s.width() + 1, s.height());
-    managed->resize(s.width(), s.height());
+    const QSize s = d->managed->size();
+    d->managed->resize(s.width() + 1, s.height());
+    d->managed->resize(s.width(), s.height());
 }
 
 void QWSManager::menuActivated(int id)
@@ -496,16 +536,16 @@ void QWSManager::menuActivated(int id)
             toggleMaximize();
             break;
         case QWSDecoration::Title:
-            mousePos = QCursor::pos();
-            activeRegion = QWSDecoration::Title;
-            active = managed;
-            managed->grabMouse();
+            d->mousePos = QCursor::pos();
+            d->activeRegion = QWSDecoration::Title;
+            d->active = d->managed;
+            d->managed->grabMouse();
             break;
         case QWSDecoration::BottomRight:
-            mousePos = QCursor::pos();
-            activeRegion = QWSDecoration::BottomRight;
-            active = managed;
-            managed->grabMouse();
+            d->mousePos = QCursor::pos();
+            d->activeRegion = QWSDecoration::BottomRight;
+            d->active = d->managed;
+            d->managed->grabMouse();
             break;
         default:
             break;
@@ -514,30 +554,30 @@ void QWSManager::menuActivated(int id)
 
 void QWSManager::close()
 {
-    active = 0;
-    QApplication::qwsDecoration().close(managed);
+    d->active = 0;
+    QApplication::qwsDecoration().close(d->managed);
 }
 
 void QWSManager::minimize()
 {
-    QApplication::qwsDecoration().minimize(managed);
+    QApplication::qwsDecoration().minimize(d->managed);
 }
 
 
 void QWSManager::maximize()
 {
-    QApplication::qwsDecoration().maximize(managed);
-    setOn(maximizeBtn,true);
+    QApplication::qwsDecoration().maximize(d->managed);
+    setOn(d->maximizeBtn,true);
 }
 
 void QWSManager::toggleMaximize()
 {
-    if (!managed->isMaximized()) {
-        managed->showMaximized();
-        setOn(maximizeBtn,true);
+    if (!d->managed->isMaximized()) {
+        d->managed->showMaximized();
+        setOn(d->maximizeBtn,true);
     } else {
-        managed->showNormal();
-        setOn(maximizeBtn,false);
+        d->managed->showNormal();
+        setOn(d->maximizeBtn,false);
     }
 }
 
@@ -559,18 +599,18 @@ void QWSManager::setOn(QWSButton *b, bool o)
 
 void QWSManager::repaintButton(QWSButton *b)
 {
-    if (!managed->isVisible())
+    if (!d->managed->isVisible())
         return;
     QWSDecoration &dec = QApplication::qwsDecoration();
-    if (managed->testWState(Qt::WState_InPaintEvent))
+    if (d->managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::repaintButton() recursive paint event detected");
-    managed->setWState(Qt::WState_InPaintEvent);
+    d->managed->setWState(Qt::WState_InPaintEvent);
     //### This isn't really inside a paint event
     //optimization instead of calling paintEvent()
-    QPainter painter(managed);
-    painter.setClipRegion(dec.region(managed, managed->rect()));
-    dec.paintButton(&painter, managed, b->type(), b->state());
-    managed->clearWState(Qt::WState_InPaintEvent);
+    QPainter painter(d->managed);
+    painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    dec.paintButton(&painter, d->managed, b->type(), b->state());
+    d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
 /*

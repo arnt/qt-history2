@@ -30,12 +30,12 @@ class QPopupMenu;
 class QRegion;
 class QMouseEvent;
 class QWSButton;
-class QWSManager;
+class QWSManagerPrivate;
 
 class QWSManager : public QObject
 {
     Q_OBJECT
-
+    Q_DECLARE_PRIVATE(QWSManager)
 public:
     QWSManager(QWidget *);
     ~QWSManager();
@@ -43,10 +43,10 @@ public:
     static QWSDecoration *newDefaultDecoration();
 
     QRegion region();
-    QWidget *widget() { return managed; }
+    QWidget *widget();
     void maximize();
 
-    static QWidget *grabbedMouse() { return active; }
+    static QWidget *grabbedMouse();
 
 protected slots:
     void menuActivated(int);
@@ -67,22 +67,6 @@ protected:
     void close();
     void minimize();
     void toggleMaximize();
-
-    QWSDecoration::Region activeRegion;
-    QWidget *managed;
-    QPopupMenu *popup;
-    QRect   normalSize;
-    QWSButton *menuBtn;
-    QWSButton *closeBtn;
-    QWSButton *minimizeBtn;
-    QWSButton *maximizeBtn;
-
-    int dx;
-    int dy;
-    int skipCount;
-
-    static QWidget *active;
-    static QPoint mousePos;
 
 private:
     void setMouseOver(QWSButton *, bool);
