@@ -409,7 +409,7 @@ void QAbstractSlider::setSliderPosition(int position)
         return;
     d->position = position;
     if (!d->blocktracking)
-        update();
+        repaint();
     emit sliderMoved(position);
     if (d->tracking && !d->blocktracking)
         triggerAction(SliderMove);
