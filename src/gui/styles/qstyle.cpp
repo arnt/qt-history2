@@ -212,7 +212,8 @@
     drawing asymmetric elements to make sure that they also look
     correct in a mirrored layout. An easy way to test your styles is
     to run applications with the \c -reverse command-line option or
-    to call QApplication::setReverseLayout() in your main().
+    to call QApplication::setLayoutDirection() in your \c main()
+    function.
 
     The actual reverse layout is performed automatically when
     possible. However, for the sake of flexibility, the translation

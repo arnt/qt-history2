@@ -8,12 +8,12 @@ ImageModel::ImageModel(const QImage &image, QObject *parent)
     modelImage = QImage(image);
 }
 
-int ImageModel::rowCount(const QModelIndex &/*parent*/) const
+int ImageModel::rowCount(const QModelIndex & /* parent */) const
 {
     return modelImage.height();
 }
 
-int ImageModel::columnCount(const QModelIndex &/*parent*/) const
+int ImageModel::columnCount(const QModelIndex & /* parent */) const
 {
     return modelImage.width();
 }

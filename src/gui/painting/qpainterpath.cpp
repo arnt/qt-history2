@@ -413,7 +413,7 @@ void QPainterSubpath::removeBrokenSegments()
     The main advantage of painter paths over normal drawing
     operations is that complex shapes only need to be created once,
     but they can be drawn many times using only calls to
-    \l QPainter::drawPath().
+    QPainter::drawPath().
 
     Building blocks can be joined in closed subpaths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
@@ -485,7 +485,7 @@ void QPainterSubpath::removeBrokenSegments()
     from the \a font supplied. The subpaths are positioned so that the left
     end of the text's baseline lies at the point specified by (\a x, \a y).
 
-    \sa QPainter::drawText
+    \sa QPainter::drawText()
 */
 
 /*!
@@ -508,8 +508,8 @@ void QPainterSubpath::removeBrokenSegments()
 */
 
 /*!
- Constructs a new empty QPainterPath.
- */
+    Constructs a new empty QPainterPath.
+*/
 QPainterPath::QPainterPath()
     : d_ptr(new QPainterPathPrivate(this))
 {
@@ -714,24 +714,30 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 
     \overload
 
-    The arc's lies within the rectangle given by the point (\a{x}, \a{y}),
-    \a width and \a height, beginning at \a startAngle and extending
-    \a sweepLength degrees anti-clockwise.
-    Angles are specified in degrees. This function connects the current point
-    to the starting point of the arc if they are not already connected.
+    The arc's lies within the rectangle given by the point (\a{x},
+    \a{y}), \a width and \a height, beginning at \a startAngle and
+    extending \a sweepLength degrees counter-clockwise. Angles are
+    specified in degrees. Clockwise arcs can be specified using
+    negative angles.
 
-    \sa QPainter::drawArc
+    This function connects the current point to the starting point of
+    the arc if they are not already connected.
+
+    \sa QPainter::drawArc()
 */
 
 /*!
     \fn void QPainterPath::arcTo(const QRectF &rectangle, qreal startAngle, qreal sweepLength)
 
     Creates an arc that occupies the given \a rectangle, beginning at
-    \a startAngle and extending \a sweepLength degrees anti-clockwise.
-    Angles are specified in degrees. This function connects the current point
-    to the starting point of the arc if they are not already connected.
+    \a startAngle and extending \a sweepLength degrees counter-clockwise.
+    Angles are specified in degrees. Clockwise arcs can be specified using
+    negative angles.
 
-    \sa QPainter::drawArc
+    This function connects the current point to the starting point of
+    the arc if they are not already connected.
+
+    \sa QPainter::drawArc()
 */
 void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength)
 {
@@ -911,7 +917,7 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
 
     \img qpainterpath-addtext.png
 
-    \sa QPainter::drawText
+    \sa QPainter::drawText()
 */
 void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &text)
 {

@@ -39,26 +39,22 @@
     example, using QPainter::setMatrix().
 
     Example (draw on a paint device):
+
     \code
-    void MyWidget::paintEvent(QPaintEvent *)
-    {
-        QPainter p;                     // our painter
-        p.begin(this);                  // start painting the widget
-        p.setPen(red);                  // red outline
-        p.setBrush(yellow);             // yellow fill
-        p.drawEllipse(10, 20, 100,100); // 100x100 ellipse at position (10, 20)
-        p.end();                        // painting done
-    }
+        void MyWidget::paintEvent(QPaintEvent *)
+        {
+            QPainter painter;
+            painter.begin(this);
+            painter.setPen(Qt::red);
+            painter.setBrush(Qt::yellow);
+            painter.drawEllipse(10, 20, 100, 100);
+            painter.end();
+        }
     \endcode
 
     The bit block transfer is an extremely useful operation for
     copying pixels from one paint device to another (or to itself). It
     is implemented as the global function bitBlt().
-
-    Example (scroll widget contents 10 pixels to the right):
-    \code
-    bitBlt(myWidget, 10, 0, myWidget);
-    \endcode
 
     \warning Qt requires that a QApplication object exists before
     any paint devices can be created. Paint devices access window
@@ -131,6 +127,13 @@ QPaintDevice::~QPaintDevice()
     this device; otherwise returns false.
 
     \sa QPainter::isActive()
+*/
+
+/*!
+    \fn QPaintEngine *QPaintDevice::paintEngine() const
+
+    Returns a pointer to the paint engine used for drawing on the
+    device.
 */
 
 /*! \internal

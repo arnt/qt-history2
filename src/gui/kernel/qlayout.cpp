@@ -2337,15 +2337,6 @@ bool QBoxLayout::setStretchFactor(QLayout *l, int stretch)
     return false;
 }
 
-
-/*!
-    \fn void QBoxLayout::setAlignment(Qt::Alignment alignment)
-
-    \overload
-
-    Sets the alignment for the box layout to be \a alignment.
-*/
-
 /*!
     Sets the alignment for widget \a w to \a alignment and returns
     true if \a w is found in this layout (not including child
@@ -2454,9 +2445,9 @@ QBoxLayout::Direction QBoxLayout::direction() const
 
     The simplest use of the class is like this:
     \code
-        QHBoxLayout * l = new QHBoxLayout(widget);
-        l->addWidget(existingChildOfWidget);
-        l->addWidget(anotherChildOfWidget);
+        QHBoxLayout *layout = new QHBoxLayout(widget);
+        layout->addWidget(existingChildOfWidget);
+        layout->addWidget(anotherChildOfWidget);
     \endcode
 
     \img qhboxlayout.png QHBox
@@ -2573,9 +2564,9 @@ QHBoxLayout::~QHBoxLayout()
 
     The simplest use of the class is like this:
     \code
-        QBoxLayout * l = new QVBoxLayout(widget);
-        l->addWidget(aWidget);
-        l->addWidget(anotherWidget);
+        QVBoxLayout *layout = new QVBoxLayout(widget);
+        layout->addWidget(aWidget);
+        layout->addWidget(anotherWidget);
     \endcode
 
     \img qvboxlayout.png QVBox

@@ -63,26 +63,25 @@ void ComplexWizard::switchPage(WizardPage *oldPage)
     if (oldPage) {
         oldPage->hide();
         mainLayout->removeWidget(oldPage);
-        disconnect(oldPage, SIGNAL(completeStateChanged()), this, SLOT(completeStateChanged()));
+        disconnect(oldPage, SIGNAL(completeStateChanged()),
+                   this, SLOT(completeStateChanged()));
     }
 
     WizardPage *newPage = history.last();
     mainLayout->insertWidget(0, newPage);
     newPage->show();
     newPage->setFocus();
-    connect(newPage, SIGNAL(completeStateChanged()), this, SLOT(completeStateChanged()));
-
-    bool isLastPage = newPage->isLastPage();
+    connect(newPage, SIGNAL(completeStateChanged()),
+            this, SLOT(completeStateChanged()));
 
     backButton->setEnabled(history.size() != 1);
-    nextButton->setEnabled(!isLastPage);
-    finishButton->setEnabled(isLastPage);
-    if (isLastPage) {
+    if (newPage->isLastPage()) {
+        nextButton->setEnabled(false);
         finishButton->setDefault(true);
     } else {
         nextButton->setDefault(true);
+        finishButton->setEnabled(false);
     }
-
     completeStateChanged();
 }
 

@@ -137,7 +137,6 @@ public:
 #endif
     ~QBoxLayout();
 
-
     Direction direction() const;
     void setDirection(Direction);
 
@@ -150,15 +149,18 @@ public:
 
     void insertSpacing(int index, int size);
     void insertStretch(int index, int stretch = 0);
-    void insertWidget(int index, QWidget *widget, int stretch = 0,
-                       Qt::Alignment alignment = 0);
+    void insertWidget(int index, QWidget *widget, int stretch = 0, Qt::Alignment alignment = 0);
     void insertLayout(int index, QLayout *layout, int stretch = 0);
 
     bool setStretchFactor(QWidget *w, int stretch);
     bool setStretchFactor(QLayout *l, int stretch);
     bool setAlignment(QWidget *w, Qt::Alignment alignment);
     bool setAlignment(QLayout *l, Qt::Alignment alignment);
+#ifdef Q_NO_USING_KEYWORD
     inline void setAlignment(Qt::Alignment alignment) { QLayoutItem::setAlignment(alignment); }
+#else
+    using QLayoutItem::setAlignment;
+#endif
 
     QSize sizeHint() const;
     QSize minimumSize() const;

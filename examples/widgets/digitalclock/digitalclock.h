@@ -6,6 +6,7 @@
 class DigitalClock : public QLCDNumber
 {
     Q_OBJECT
+
 public:
     DigitalClock(QWidget *parent = 0);
 

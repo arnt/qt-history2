@@ -2489,6 +2489,18 @@ int QApplication::startDragDistance()
     return drag_distance;
 }
 
+/*!
+    \fn void QApplication::setReverseLayout(bool reverse)
+
+    Use setLayoutDirection() instead.
+*/
+
+/*!
+    \fn void QApplication::reverseLayout()
+
+    Use layoutDirection() instead.
+*/
+
 /*!\property QApplication::layoutDirection
 
    \brief the default layout direction for this application
