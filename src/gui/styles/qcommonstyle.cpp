@@ -1681,26 +1681,13 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QColor left = tb->palette.highlight().color();
                 QColor right = tb->palette.base().color();
 
+                QBrush fillBrush(left);
                 if (left != right) {
-                    double rS = left.red();
-                    double gS = left.green();
-                    double bS = left.blue();
-
-                    const double rD = double(right.red() - rS) / tb->rect.width();
-                    const double gD = double(right.green() - gS) / tb->rect.width();
-                    const double bD = double(right.blue() - bS) / tb->rect.width();
-
-                    const int w = tb->rect.width();
-                    for (int sx = 0; sx < w; ++sx) {
-                        rS+=rD;
-                        gS+=gD;
-                        bS+=bD;
-                        p->setPen(QColor(int(rS), int(gS), int(bS)));
-                        p->drawLine(sx, 0, sx, tb->rect.height());
-                    }
-                } else {
-                    p->fillRect(opt->rect, left);
+                    QPoint p1(tb->rect.x(), tb->rect.height()/2);
+                    QPoint p2(tb->rect.right(), tb->rect.height()/2);
+                    fillBrush = QBrush(p1, left, p2, right);
                 }
+                p->fillRect(opt->rect, fillBrush);
 
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
                                                        widget), widget);
