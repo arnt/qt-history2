@@ -1228,6 +1228,20 @@ bool QAxHostWidget::event( QEvent *e )
 	    axhost->m_spOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos );
 	}
 	break;
+    case QEvent::WindowBlocked:
+	if (IsWindowEnabled(winId())) {
+	    EnableWindow(winId(), FALSE);
+	    if (axhost->m_spInPlaceActiveObject)
+		axhost->m_spInPlaceActiveObject->EnableModeless(FALSE);
+	}
+	break;
+    case QEvent::WindowUnblocked:
+	if (!IsWindowEnabled(winId())) {
+	    EnableWindow(winId(), TRUE);
+	    if (axhost->m_spInPlaceActiveObject)
+		axhost->m_spInPlaceActiveObject->EnableModeless(TRUE);
+	}
+	break;
     default:
         break;
     }
