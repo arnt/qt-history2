@@ -183,9 +183,9 @@ private:
 class QWorkspacePrivate {
 public:
     QWorkspaceChild* active;
-    QPtrList<QWorkspaceChild> windows;
-    QPtrList<QWorkspaceChild> focus;
-    QPtrList<QWidget> icons;
+    QList<QWorkspaceChild *> windows;
+    QList<QWorkspaceChild *> focus;
+    QList<QWidget *> icons;
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
     QGuardedPtr<QFrame> maxcontrols;
@@ -401,8 +401,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	updateWorkspace();
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
-	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
-	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
+	    d->windows.remove( (QWorkspaceChild*)e->child() );
+	    d->focus.remove( (QWorkspaceChild*)e->child() );
 	    if (d->maxWindow == e->child())
 		d->maxWindow = 0;
 	    updateWorkspace();
@@ -444,9 +444,9 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 
     d->active = 0;
     // First deactivate all other workspace clients
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-     	QWorkspaceChild* c = it.current();
+    QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
+    while (it != d->windows.end()) {
+     	QWorkspaceChild* c = *it;
 	++it;
 	if (c->windowWidget() == w)
 	    d->active = c;
@@ -487,8 +487,8 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     d->active->internalRaise();
 
     if ( change_focus ) {
-	if ( d->focus.find( d->active ) >=0 ) {
-	    d->focus.removeRef( d->active );
+	if ( d->focus.findIndex(d->active) >=0 ) {
+	    d->focus.remove( d->active );
 	    d->focus.append( d->active );
 	}
     }
@@ -507,12 +507,12 @@ QWidget* QWorkspace::activeWindow() const
 }
 
 
-void QWorkspace::place( QWidget* w)
+void QWorkspace::place(QWidget *w)
 {
-    QPtrList<QWidget> widgets;
-    for(QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it)
-	if ((*it) != w)
-	    widgets.append((*it));
+    QList<QWidget *> widgets;
+    for (QList<QWorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it)
+	if (*it != w)
+	    widgets.append(*it);
 
     int overlap, minOverlap = 0;
     int possible;
@@ -536,9 +536,9 @@ void QWorkspace::place( QWidget* w)
 	    r1.setRect(x, y, w->width(), w->height());
 
 	    QWidget *l;
-	    QPtrListIterator<QWidget> it( widgets );
-	    while ( it.current () ) {
-		l = it.current();
+	    QList<QWidget *>::Iterator it(widgets.begin());
+	    while ( it != widgets.end() ) {
+		l = *it;
 		++it;
 
 		if ( d->maxWindow == l )
@@ -577,9 +577,9 @@ void QWorkspace::place( QWidget* w)
 	    if ( possible - w->width() > x) possible -= w->width();
 
 	    QWidget *l;
-	    QPtrListIterator<QWidget> it( widgets );
-	    while ( it.current () ) {
-		l = it.current();
+	    QList<QWidget *>::Iterator it(widgets.begin());
+	    while ( it != widgets.end() ) {
+		l = *it;
 		++it;
 		if ( d->maxWindow == l )
 		    r2 = d->maxRestore;
@@ -605,9 +605,9 @@ void QWorkspace::place( QWidget* w)
 	    if ( possible - w->height() > y ) possible -= w->height();
 
 	    QWidget *l;
-	    QPtrListIterator<QWidget> it( widgets );
-	    while ( it.current () ) {
-		l = it.current();
+	    QList<QWidget *>::Iterator it(widgets.begin());
+	    while (it != widgets.end()) {
+		l = *it;
 		++it;
 		if ( d->maxWindow == l )
 		    r2 = d->maxRestore;
@@ -644,9 +644,9 @@ void QWorkspace::insertIcon( QWidget* w )
     int x = 0;
     int y = cr.height() - w->height();
 
-    QPtrListIterator<QWidget> it( d->icons );
-    while ( it.current () ) {
-	QWidget* i = it.current();
+    QList<QWidget *>::Iterator it(d->icons.begin());
+    while (it != d->icons.end()) {
+	QWidget* i = *it;
 	++it;
 	if ( x > 0 && x + i->width() > cr.width() ){
 	    x = 0;
@@ -686,9 +686,9 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 
     QRect cr = updateWorkspace();
 
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	QWorkspaceChild* c = it.current();
+    QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
+    while (it != d->windows.end()) {
+	QWorkspaceChild* c = *it;
 	++it;
 	if ( c->windowWidget() && !c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    continue;
@@ -752,8 +752,8 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	    inCaptionChange = FALSE;
 	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) )
 		hideMaximizeControls();
-	    for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
-		QWorkspaceChild* c = it.current();
+	    for (QList<QWorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
+		QWorkspaceChild* c = *it;
 		if ( c->titlebar )
 		    c->titlebar->setMovable( TRUE );
 		c->widgetResizeHandler->setActive( TRUE );
@@ -811,8 +811,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 
 	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	    hideMaximizeControls();
-	for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
-	    QWorkspaceChild* c = it.current();
+	for (QList<QWorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
+	    QWorkspaceChild* c = *it;
 	    if ( c->titlebar )
 		c->titlebar->setMovable( TRUE );
 	    if ( c->childWidget && c->childWidget->minimumSize() != c->childWidget->maximumSize() )
@@ -892,9 +892,9 @@ void QWorkspace::showWindow( QWidget* w )
 
 QWorkspaceChild* QWorkspace::findChild( QWidget* w )
 {
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	QWorkspaceChild* c = it.current();
+    QList<QWorkspaceChild *>::Iterator it( d->windows.begin() );
+    while (it != d->windows.end()) {
+	QWorkspaceChild* c = *it;
 	++it;
 	if (c->windowWidget() == w)
 	    return c;
@@ -920,9 +920,9 @@ QWidgetList QWorkspace::windowList( WindowOrder order ) const
 		windows.append(c->windowWidget());
 	}
     } else {
-	QPtrListIterator<QWorkspaceChild> it( d->windows );
-	while (it.current()) {
-	    QWorkspaceChild* c = it.current();
+	QList<QWorkspaceChild *>::Iterator it( d->windows.begin() );
+	while (it != d->windows.end()) {
+	    QWorkspaceChild* c = *it;
 	    ++it;
 	    if ( c->windowWidget() )
 		windows.append( c->windowWidget() );
@@ -971,7 +971,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 	if ( !o->isA( "QWorkspaceChild" ) )
 	    break;
 	if ( d->active == o ) {
-	    int a = d->focus.find( d->active );
+	    int a = d->focus.findIndex(d->active);
 	    for ( ;; ) {
 		if ( --a < 0 )
 		    a = d->focus.count()-1;
@@ -988,7 +988,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 		}
 	    }
 	}
-	d->focus.removeRef( (QWorkspaceChild*)o );
+	d->focus.remove((QWorkspaceChild*)o);
 	if ( d->maxWindow == o && d->maxWindow->isHidden() ) {
 	    d->maxWindow->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
@@ -1015,7 +1015,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 	}
 	break;
     case QEvent::ShowToParent:
-	if ( o->isA("QWorkspaceChild") && !d->focus.containsRef( (QWorkspaceChild*)o ) )
+	if ( o->isA("QWorkspaceChild") && !d->focus.contains((QWorkspaceChild*)o) )
 	    d->focus.append( (QWorkspaceChild*)o );
 	updateWorkspace();
 	break;
@@ -1042,9 +1042,9 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e )
     case QEvent::Close:
 	if ( o == topLevelWidget() )
 	{
-	    QPtrListIterator<QWorkspaceChild> it( d->windows );
-	    while ( it.current () ) {
-		QWorkspaceChild* c = it.current();
+	    QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
+	    while (it != d->windows.end()) {
+		QWorkspaceChild* c = *it;
 		++it;
 		if ( c->shademode )
 		    c->showShaded();
@@ -1212,9 +1212,9 @@ void QWorkspace::closeActiveWindow()
 void QWorkspace::closeAllWindows()
 {
     bool did_close = TRUE;
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    QWorkspaceChild *c = 0;
-    while ( ( c = it.current() ) && did_close ) {
+    QList<QWorkspaceChild *>::Iterator it( d->windows.begin() );
+    while (it != d->windows.begin() && did_close) {
+	QWorkspaceChild *c = *it;
 	++it;
 	if ( c->windowWidget() )
 	    did_close = c->windowWidget()->close();
@@ -1369,7 +1369,7 @@ void QWorkspace::activateNextWindow()
 	return;
     }
 
-    int a = d->focus.find( d->active ) + 1;
+    int a = d->focus.findIndex( d->active ) + 1;
 
     a = a % d->focus.count();
 
@@ -1402,7 +1402,7 @@ void QWorkspace::activatePrevWindow()
 	return;
     }
 
-    int a = d->focus.find( d->active ) - 1;
+    int a = d->focus.findIndex( d->active ) - 1;
     if ( a < 0 )
 	a = d->focus.count()-1;
 
@@ -1450,23 +1450,28 @@ void QWorkspace::cascade()
     const int yoffset = 20;
 
     // make a list of all relevant mdi clients
-    QPtrList<QWorkspaceChild> widgets;
+    QList<QWorkspaceChild *> widgets;
+    QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
     QWorkspaceChild* wc = 0;
-    for ( wc = d->windows.first(); wc; wc = d->windows.next() )
+    for (it = d->windows.begin(); it != d->windows.end(); ++it) {
+	wc = *it;
 	if ( wc->iconw )
 	    normalizeWindow( wc->windowWidget() );
-    for ( wc = d->focus.first(); wc; wc = d->focus.next() )
+    }
+    for (it = d->focus.begin(); it != d->focus.end(); ++it ) {
+	wc = *it;
 	if ( wc->windowWidget()->isVisibleTo( this ) && !wc->windowWidget()->testWFlags( WStyle_Tool ) )
 	    widgets.append( wc );
+    }
 
     int x = 0;
     int y = 0;
 
     setUpdatesEnabled( FALSE );
-    QPtrListIterator<QWorkspaceChild> it( widgets );
+    it = widgets.begin();
     int children = d->windows.count() - 1;
-    while ( it.current () ) {
-	QWorkspaceChild *child = it.current();
+    while (it != widgets.end()) {
+	QWorkspaceChild *child = *it;
 	++it;
 	child->setUpdatesEnabled( FALSE );
 	bool hasSizeHint = FALSE;
@@ -1527,9 +1532,9 @@ void QWorkspace::tile()
     int n = 0;
     QWorkspaceChild* c;
 
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	c = it.current();
+    QList<QWorkspaceChild *>::Iterator it( d->windows.begin() );
+    while (it != d->windows.end()) {
+	c = *it;
 	++it;
 	if ( !c->windowWidget()->isHidden() &&
 	     !c->windowWidget()->testWFlags( WStyle_StaysOnTop ) &&
@@ -1553,9 +1558,9 @@ void QWorkspace::tile()
     int w = width() / cols;
     int h = height() / rows;
 
-    it.toFirst();
-    while ( it.current () ) {
-	c = it.current();
+    it = d->windows.begin();
+    while (it != d->windows.end()) {
+	c = *it;
 	++it;
 	if ( c->windowWidget()->isHidden() || c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    continue;
@@ -1820,7 +1825,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     switch ( e->type() ) {
     case QEvent::ShowToParent:
-	if ( ((QWorkspace*)parentWidget())->d->focus.find( this ) < 0 )
+	if ( ((QWorkspace*)parentWidget())->d->focus.findIndex( this ) < 0 )
 	    ((QWorkspace*)parentWidget())->d->focus.append( this );
 	if ( windowWidget() && windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
 	    internalRaise();
@@ -2246,9 +2251,9 @@ void QWorkspaceChild::internalRaise()
 	return;
     }
 
-    QPtrListIterator<QWorkspaceChild> it( ((QWorkspace*)parent())->d->windows );
-    while ( it.current () ) {
-     	QWorkspaceChild* c = it.current();
+    QList<QWorkspaceChild *>::Iterator it( ((QWorkspace*)parent())->d->windows.begin() );
+    while (it != ((QWorkspace*)parent())->d->windows.end()) {
+     	QWorkspaceChild* c = *it;
 	++it;
 	if ( c->windowWidget() &&
 	    !c->windowWidget()->isHidden() &&
@@ -2323,9 +2328,9 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 	d->corner = 0;
     }
 
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	QWorkspaceChild *child = it.current();
+    QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
+    while (it != d->windows.end()) {
+	QWorkspaceChild *child = *it;
 	++it;
 	child->widgetResizeHandler->setSizeProtection( !enable );
     }
@@ -2346,9 +2351,9 @@ QRect QWorkspace::updateWorkspace()
 	    d->maxWindow->raise();
 
 	QRect r( 0, 0, 0, 0 );
-	QPtrListIterator<QWorkspaceChild> it( d->windows );
-	while ( it.current () ) {
-	    QWorkspaceChild *child = it.current();
+	QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
+	while (it != d->windows.end()) {
+	    QWorkspaceChild *child = *it;
 	    ++it;
 	    if ( !child->isHidden() )
 		r = r.unite( child->geometry() );
@@ -2406,9 +2411,9 @@ QRect QWorkspace::updateWorkspace()
 	cr.setRect( 0, 0, width() - vsbExt, height() - hsbExt );
     }
 
-    QPtrListIterator<QWidget> ii( d->icons );
-    while ( ii.current() ) {
-	QWorkspaceChild* w = (QWorkspaceChild*)ii.current();
+    QList<QWidget *>::Iterator ii(d->icons.begin());
+    while (ii != d->icons.end()) {
+	QWorkspaceChild* w = (QWorkspaceChild*) *ii;
 	++ii;
 	int x = w->x();
 	int y = w->y();
@@ -2436,9 +2441,9 @@ void QWorkspace::scrollBarChanged()
     d->yoffset = d->vbar->value();
     d->xoffset = d->hbar->value();
 
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	QWorkspaceChild *child = it.current();
+    QList<QWorkspaceChild *>::Iterator it(d->windows.begin());
+    while (it != d->windows.end()) {
+	QWorkspaceChild *child = *it;
 	++it;
 	// we do not use move() due to the reimplementation in QWorkspaceChild
 	child->setGeometry( child->x() + hor, child->y() + ver, child->width(), child->height() );

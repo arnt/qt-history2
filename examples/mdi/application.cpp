@@ -288,7 +288,7 @@ void ApplicationWindow::closeEvent( QCloseEvent *e )
 }
 
 MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
-    : QMainWindow( parent, name, wflags )
+    : QMainWindow( parent, name, (WFlags)wflags )
 {
     mmovie = 0;
     medit = new QMultiLineEdit( this );
