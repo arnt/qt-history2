@@ -318,7 +318,7 @@ QMakeProject::read(QString project, QString pwd)
 	/* parse mkspec */
 	if(Option::qmakepath.isNull() || Option::qmakepath.isEmpty()) {
 	    if(!getenv("QMAKEPATH")) {
-		fprintf(stderr, "QMAKEPATH: has not been set, so mkspec cannot be deduced.\n");
+		fprintf(stderr, "QMAKEPATH has not been set, so configuration cannot be deduced.\n");
 		return FALSE;
 	    }
 	    Option::qmakepath = getenv("QMAKEPATH");
