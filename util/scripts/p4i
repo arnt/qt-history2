@@ -116,6 +116,7 @@ $targetBranch{"qtest-main"} = "stable";
 $targetBranch{"qtest-stable"} = "main";
 $targetBranch{"support-stable"} = "main";
 $targetBranch{"support-main"} = "stable";
+$targetBranch{"autotests-3"} = "main";
 
 $product = $pathComponents[3];
 $fromBranch = $pathComponents[4];
