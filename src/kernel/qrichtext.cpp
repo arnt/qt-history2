@@ -6736,6 +6736,7 @@ QTextImage::~QTextImage()
 	    }
 	}
     }
+    delete reg;
 }
 
 QString QTextImage::richText() const
