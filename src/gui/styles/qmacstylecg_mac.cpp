@@ -1516,7 +1516,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const QStyleO
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             ControlPartCode part;
-            HIPoint pos = { (float)pt.x(), (float)pt.y() };
+            HIPoint pos = CGPointMake(pt.x(), pt.y());
             if (HIThemeHitTestTrack(&tdi, &pos, &part)) {
                 if (part == kControlPageUpPart || part == kControlPageDownPart)
                     sc = SC_SliderGroove;
@@ -1536,7 +1536,7 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const QStyleO
             else
                 sbi.enableState = kThemeTrackActive;
             sbi.viewsize = sb->pageStep;
-            HIPoint pos = {(float)pt.x(), (float)pt.y()};
+            HIPoint pos = CGPointMake(pt.x(), pt.y());
             HIRect macSBRect = qt_hirectForQRect(sb->rect);
             ControlPartCode part;
             if (HIThemeHitTestScrollBarArrows(&macSBRect, &sbi, sb->orientation == Qt::Horizontal,
@@ -1560,6 +1560,50 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl cc, const QStyleO
             }
         }
         break;
+/*
+    I don't know why, but we only get kWindowContentRgn here, which isn't what we want at all.
+    It would be very nice if this would work.
+    case CC_TitleBar:
+        if (const QStyleOptionTitleBar *tbar = qt_cast<const QStyleOptionTitleBar *>(opt)) {
+            HIThemeWindowDrawInfo wdi;
+            memset(&wdi, 0, sizeof(wdi));
+            wdi.version = qt_mac_hitheme_version;
+            wdi.state = kThemeStateActive;
+            wdi.windowType = QtWinType;
+            wdi.titleWidth = tbar->rect.width();
+            wdi.titleHeight = tbar->rect.height();
+            if (tbar->titleBarState)
+                wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                                  | kThemeWindowHasCollapseBox;
+            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
+                wdi.attributes |= kThemeWindowHasCloseBox;
+            QRect tmpRect = tbar->rect;
+            tmpRect.setHeight(tmpRect.height() + 100);
+            HIRect hirect = qt_hirectForQRect(tmpRect);
+            WindowRegionCode hit;
+            HIPoint hipt = CGPointMake(pt.x(), pt.y());
+            if (HIThemeGetWindowRegionHit(&hirect, &wdi, &hipt, &hit)) {
+                switch (hit) {
+                case kWindowCloseBoxRgn:
+                    sc = SC_TitleBarCloseButton;
+                    break;
+                case kWindowCollapseBoxRgn:
+                    sc = SC_TitleBarMinButton;
+                    break;
+                case kWindowZoomBoxRgn:
+                    sc = SC_TitleBarMaxButton;
+                    break;
+                case kWindowTitleTextRgn:
+                    sc = SC_TitleBarLabel;
+                    break;
+                default:
+                    qDebug("got something else %d", hit);
+                    break;
+                }
+            }
+        }
+        break;
+*/
     default:
         sc = QWindowsStyle::querySubControl(cc, opt, pt, widget);
     }

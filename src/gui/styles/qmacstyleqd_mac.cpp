@@ -1931,6 +1931,47 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl cc, const QStyleO
 
         }
         break;
+/*
+    I don't know why, but we only get kWindowContentRgn here, which isn't what we want at all.
+    It would be very nice if this would work.
+    case CC_TitleBar:
+        if (const QStyleOptionTitleBar *tbar = qt_cast<const QStyleOptionTitleBar *>(opt)) {
+            ThemeWindowMetrics twm;
+            memset(&twm, 0, sizeof(twm));
+            twm.metricSize = sizeof(twm);
+            twm.titleWidth = tbar->rect.width();
+            twm.titleHeight = tbar->rect.height();
+            ThemeWindowAttributes twa = kThemeWindowHasTitleText;
+            if (tbar->titleBarState)
+                twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
+                       | kThemeWindowHasCollapseBox;
+            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
+                twa |= kThemeWindowHasCloseBox;
+            WindowRegionCode hit;
+            Point macpt = { (short)pt.y(), (short)pt.x() };
+            if (GetThemeWindowRegionHit(macWinType, qt_glb_mac_rect(tbar->rect), kThemeStateActive,
+                                        &twm, twa, macpt, &hit)) {
+                switch (hit) {
+                case kWindowCloseBoxRgn:
+                    sc = SC_TitleBarCloseButton;
+                    break;
+                case kWindowCollapseBoxRgn:
+                    sc = SC_TitleBarMinButton;
+                    break;
+                case kWindowZoomBoxRgn:
+                    sc = SC_TitleBarMaxButton;
+                    break;
+                case kWindowTitleTextRgn:
+                    sc = SC_TitleBarLabel;
+                    break;
+                default:
+                    qDebug("got something else %d", hit);
+                    break;
+                }
+            }
+        }
+        break;
+*/
     default:
         sc = QWindowsStyle::querySubControl(cc, opt, pt, widget);
     }
