@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#13 $
+** $Id: //depot/qt/main/src/tools/qglist.h#14 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -17,10 +17,10 @@
 
 
 // --------------------------------------------------------------------------
-// Qdnode class (internal doubly linked list node)
+// QLNode class (internal doubly linked list node)
 //
 
-class Qdnode
+class QLNode
 {
 friend class QGList;
 friend class QGListIterator;
@@ -28,9 +28,9 @@ public:
     GCI	    getData()	{ return data; }
 private:
     GCI	    data;
-    Qdnode *prev;
-    Qdnode *next;
-    Qdnode( GCI d )	{ data = d; }
+    QLNode *prev;
+    QLNode *next;
+    QLNode( GCI d )	{ data = d; }
 };
 
 
@@ -43,7 +43,7 @@ class QGList : public QCollection		// doubly linked generic list
 friend class QGListIterator;
 friend class QGVector;				// needed by QGVector::toList
 public:
-    uint  count() const	 { return numNodes; }	// return number of nodes
+    uint  count() const;			// return number of nodes
 
     QDataStream &read( QDataStream & );		// read list from stream
     QDataStream &write( QDataStream & ) const;	// write list to stream
@@ -58,11 +58,12 @@ protected:
     void  inSort( GCI );			// add item sorted in list
     void  append( GCI );			// add item at end of list
     bool  insertAt( uint index, GCI );		// add item at i'th position
-    bool  removeNode( Qdnode * );		// remove one item
+    bool  removeNode( QLNode * );		// remove one item
     bool  remove( GCI = 0 );			// remove one item (0=current)
     bool  removeFirst();			// remove first item
     bool  removeLast();				// remove last item
     bool  removeAt( uint index );		// remove item at i'th position
+    GCI	  takeNode( QLNode * );			// take out current node
     GCI	  take();				// take out current item
     GCI	  takeAt( uint index );			// take out item at i'th pos
     GCI	  takeFirst();				// take out first item
@@ -77,8 +78,8 @@ protected:
     uint  contains( GCI );			// get number of equal matches
 
     GCI	  at( uint index );			// access item at i'th pos
-    uint  at() const	  { return curIndex; }	// get current index
-    Qdnode *currentNode() { return curNode;  }	// get current node
+    uint  at() const;				// get current index
+    QLNode *currentNode() const;		// get current node
 
     GCI	  get() const;				// get current item
 
@@ -99,17 +100,22 @@ protected:
 private:
     void  prepend( GCI );			// add item at start of list
 
-    Qdnode *firstNode;				// first node
-    Qdnode *lastNode;				// last node
-    Qdnode *curNode;				// current node
+    QLNode *firstNode;				// first node
+    QLNode *lastNode;				// last node
+    QLNode *curNode;				// current node
     uint    curIndex;				// current index
     uint    numNodes;				// number of nodes
     QGList *iterators;				// list of iterators
 
-    Qdnode *locate( uint );			// get node at i'th pos
-    Qdnode *unlink();				// unlink node
+    QLNode *locate( uint );			// get node at i'th pos
+    QLNode *unlink();				// unlink node
 };
 
+
+inline uint QGList::count() const
+{
+    return numNodes;
+}
 
 inline bool QGList::removeFirst()
 {
@@ -123,10 +129,20 @@ inline bool QGList::removeLast()
     return remove();
 }
 
+inline uint QGList::at() const
+{
+    return curIndex;
+}
+
 inline GCI QGList::at( uint index )
 {
-    Qdnode *n = locate( index );
+    QLNode *n = locate( index );
     return n ? n->data : 0;
+}
+
+inline QLNode *QGList::currentNode() const
+{
+    return curNode;
 }
 
 inline GCI QGList::get() const
@@ -180,7 +196,7 @@ protected:
     QGList *list;				// reference to list
 
 private:
-    Qdnode  *curNode;				// current node in list
+    QLNode  *curNode;				// current node in list
 };
 
 
