@@ -30,7 +30,15 @@
 
 #include <ocidl.h>
 #include <olectl.h>
- 
+#include <docobj.h>
+
+// #define QAX_DEBUG
+
+#ifdef QAX_DEBUG
+#define AX_DEBUG(x) qDebug(#x);
+#else
+#define AX_DEBUG(x);
+#endif
 
 #include "../shared/types.h"
 
@@ -148,13 +156,17 @@ class QAxClientSite : public IDispatch,
                     public IOleControlSite,
                     public IOleInPlaceSiteWindowless,
                     public IOleInPlaceFrame,
+                    public IOleDocumentSite,
                     public IAdviseSink
 {
     friend class QAxHostWidget;
     friend class QAxWidget;
 public:
-    QAxClientSite(QAxWidget *c, bool inited);
+    QAxClientSite(QAxWidget *c);
     virtual ~QAxClientSite();
+
+    bool activateObject(bool initialized);
+
     void releaseAll();
     void deactivate();
     QWidget *hostWidget() const
@@ -300,6 +312,9 @@ public:
     STDMETHOD(SetBorderSpace(LPCBORDERWIDTHS pborderwidths));
     STDMETHOD(SetActiveObject(IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName));
     
+    // IOleDocumentSite
+    STDMETHOD(ActivateMe(IOleDocumentView *pViewToActivate));
+
     // IAdviseSink
     STDMETHOD_(void, OnDataChange)(FORMATETC* /*pFormatetc*/, STGMEDIUM* /*pStgmed*/)
     {
@@ -347,6 +362,7 @@ private:
     IOleControl *m_spOleControl;
     IOleInPlaceObjectWindowless *m_spInPlaceObject;
     IOleInPlaceActiveObject *m_spInPlaceActiveObject;
+    IOleDocumentView *m_spActiveView;
     
     QAxAggregated *aggregatedObject;
 
@@ -385,7 +401,7 @@ bool axc_FilterProc(void *m)
                 QAxHostWidget *host = qFindChild<QAxHostWidget*>(ax);
                 QAxClientSite *site = host ? host->clientSite() : 0;
                 if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
-                        site->inPlaceObject()->TranslateAccelerator(msg);
+                    site->inPlaceObject()->TranslateAccelerator(msg);
             } else {
                 int i;
                 for (i = 0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3)
@@ -412,10 +428,9 @@ bool axc_FilterProc(void *m)
     return false;
 }
 
-QAxClientSite::QAxClientSite(QAxWidget *c, bool bInited)
+QAxClientSite::QAxClientSite(QAxWidget *c)
 : ref(1), widget(c)
 {
-    host = new QAxHostWidget(widget, this);
     aggregatedObject = widget->createAggregate();
     if (aggregatedObject) {
 	aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
@@ -426,6 +441,7 @@ QAxClientSite::QAxClientSite(QAxWidget *c, bool bInited)
     m_spOleControl = 0;
     m_spInPlaceObject = 0;
     m_spInPlaceActiveObject = 0;
+    m_spActiveView = 0;
 
     inPlaceObjectWindowless = false;
     inPlaceModelessEnabled = true;
@@ -434,29 +450,60 @@ QAxClientSite::QAxClientSite(QAxWidget *c, bool bInited)
     memset(&control_info, 0, sizeof(control_info));
     
     menuBar = 0;
-    
+}
+
+bool QAxClientSite::activateObject(bool initialized)
+{
+    host = new QAxHostWidget(widget, this);
+
     HRESULT hr = S_OK;
-    
     m_spOleObject = 0;
     widget->queryInterface(IID_IOleObject, (void**)&m_spOleObject);
     if (m_spOleObject) {
         DWORD dwMiscStatus = 0;
         m_spOleObject->GetMiscStatus(DVASPECT_CONTENT, &dwMiscStatus);
-        if(dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST)
-            m_spOleObject->SetClientSite(this);
-        
-        if (!bInited) {
-            IPersistStreamInit *spPSI = 0;
-            m_spOleObject->QueryInterface(IID_IPersistStreamInit, (void**)&spPSI);
-            if (spPSI) {
-                spPSI->InitNew();
-                spPSI->Release();
+
+        IOleDocument *document = 0;
+        m_spOleObject->QueryInterface(IID_IOleDocument, (void**)&document);
+        if (document) {
+            // activate as document server
+            IStorage *storage = 0;
+            ILockBytes * bytes = 0;
+            HRESULT hres = ::CreateILockBytesOnHGlobal(0, TRUE, &bytes);
+            hres = ::StgCreateDocfileOnILockBytes(bytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
+
+            IPersistStorage *persistStorage = 0;
+            document->QueryInterface(IID_IPersistStorage, (void**)&persistStorage);
+            if (persistStorage) {
+                persistStorage->InitNew(storage);
+                persistStorage->Release();
             }
-        }
-        
-        if(!(dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST))
+
+            storage->Release();
+            bytes->Release();
+
             m_spOleObject->SetClientSite(this);
+            OleRun(m_spOleObject);
+
+            document->Release();
+        } else {
+            // activate as control
+            if(dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST)
+                m_spOleObject->SetClientSite(this);
         
+            if (!initialized) {
+                IPersistStreamInit *spPSI = 0;
+                m_spOleObject->QueryInterface(IID_IPersistStreamInit, (void**)&spPSI);
+                if (spPSI) {
+                    spPSI->InitNew();
+                    spPSI->Release();
+                }
+            }
+        
+            if(!(dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST))
+                m_spOleObject->SetClientSite(this);
+        }
+
         IViewObject *spViewObject = 0;
         m_spOleObject->QueryInterface(IID_IViewObject, (void**) &spViewObject);
         
@@ -493,8 +540,7 @@ QAxClientSite::QAxClientSite(QAxWidget *c, bool bInited)
             host->setFocusPolicy(Qt::NoFocus);
         }
         
-        RECT rcPos = { host->x(), host->y(), 
-            host->x()+sizehint.width(), host->y()+sizehint.height() };
+        RECT rcPos = { host->x(), host->y(), host->x()+sizehint.width(), host->y()+sizehint.height() };
         
         hr = m_spOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*)this, 0, host->winId(), &rcPos);
         
@@ -512,13 +558,16 @@ QAxClientSite::QAxClientSite(QAxWidget *c, bool bInited)
         m_spOleObject->GetUserType(USERCLASSTYPE_SHORT, &userType);
         widget->setWindowTitle(BSTRToQString(userType));
         CoTaskMemFree(userType);
+    } else {
+        IObjectWithSite *spSite;
+        widget->queryInterface(IID_IObjectWithSite, (void**)&spSite);
+        if (spSite) {
+            spSite->SetSite((IUnknown*)(IDispatch*)this);
+            spSite->Release();
+        }
     }
-    IObjectWithSite *spSite;
-    widget->queryInterface(IID_IObjectWithSite, (void**)&spSite);
-    if (spSite) {
-        spSite->SetSite((IUnknown*)(IDispatch*)this);
-        spSite->Release();
-    }
+
+    return true;
 }
 
 QAxClientSite::~QAxClientSite()
@@ -600,6 +649,8 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
             *iface = (IOleInPlaceFrame*)this;
         else if (iid == IID_IOleInPlaceUIWindow)
             *iface = (IOleInPlaceUIWindow*)this;
+        else if (iid == IID_IOleDocumentSite)
+            *iface = (IOleDocumentSite*)this;
         else if (iid == IID_IAdviseSink)
             *iface = (IAdviseSink*)this;
     }
@@ -806,6 +857,7 @@ HRESULT WINAPI QAxClientSite::CanInPlaceActivate()
 
 HRESULT WINAPI QAxClientSite::OnInPlaceActivate()
 {
+    AX_DEBUG(QAxClientSite::OnInPlaceActivate);
     OleLockRunning(m_spOleObject, true, false);
     if (!m_spInPlaceObject) {
 /* ### disabled for now
@@ -824,6 +876,7 @@ HRESULT WINAPI QAxClientSite::OnInPlaceActivate()
 
 HRESULT WINAPI QAxClientSite::OnUIActivate()
 {
+    AX_DEBUG(QAxClientSite::OnUIActivate);
     return S_OK;
 }
 
@@ -854,11 +907,13 @@ HRESULT WINAPI QAxClientSite::Scroll(SIZE /*scrollExtant*/)
 
 HRESULT WINAPI QAxClientSite::OnUIDeactivate(BOOL)
 {
+    AX_DEBUG(QAxClientSite::OnUIDeactivate);
     return S_OK;
 }
 
 HRESULT WINAPI QAxClientSite::OnInPlaceDeactivate()
 {
+    AX_DEBUG(QAxClientSite::OnInPlaceDeactivate);
     if (m_spInPlaceObject)
         m_spInPlaceObject->Release();
     m_spInPlaceObject = 0;
@@ -1073,7 +1128,7 @@ HRESULT WINAPI QAxClientSite::SetMenu(HMENU hmenuShared, HOLEMENU /*holemenu*/, 
 	}
 	if (count) {
 	    const QMetaObject *mbmo = menuBar->metaObject();
-	    int index = mbmo->indexOfSignal("activated(QAction*)");
+	    int index = mbmo->indexOfSignal("triggered(QAction*)");
 	    Q_ASSERT(index != -1);
 	    menuBar->disconnect(SIGNAL(activated(int)), host);
             QMetaObject::connect(menuBar, index, host, QSIGNAL_CODE, index);
@@ -1169,6 +1224,8 @@ HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
 
 HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName)
 {
+    AX_DEBUG(QAxClientSite::SetActiveObject);
+
     if (pszObjName)
         widget->setWindowTitle(BSTRToQString((BSTR)pszObjName));
     
@@ -1178,6 +1235,43 @@ HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
     m_spInPlaceActiveObject = pActiveObject;
     if (m_spInPlaceActiveObject) m_spInPlaceActiveObject->AddRef();
     
+    return S_OK;
+}
+
+//**** IOleDocumentSite
+HRESULT WINAPI QAxClientSite::ActivateMe(IOleDocumentView *pViewToActivate)
+{
+    AX_DEBUG(QAxClientSite::ActivateMe);
+
+    if (m_spActiveView)
+        m_spActiveView->Release();
+    m_spActiveView = 0;
+
+    if (!pViewToActivate) {
+        IOleDocument *document = 0;
+        m_spOleObject->QueryInterface(IID_IOleDocument, (void**)&document);
+        if (!document)
+            return E_FAIL;
+
+        document->CreateView(this, 0, 0, &pViewToActivate);
+
+        document->Release();
+        if (!pViewToActivate)
+            return E_OUTOFMEMORY;
+    } else {
+        pViewToActivate->SetInPlaceSite(this);
+    }
+
+    m_spActiveView = pViewToActivate;
+    m_spActiveView->AddRef();
+
+    m_spActiveView->UIActivate(TRUE);
+
+    RECT rect;
+    GetClientRect(widget->winId(), &rect);
+    m_spActiveView->SetRect(&rect);
+    m_spActiveView->Show(TRUE);
+
     return S_OK;
 }
 
@@ -1198,6 +1292,8 @@ QSize QAxClientSite::minimumSizeHint() const
 
 void QAxClientSite::windowActivationChange()
 {
+    AX_DEBUG(QAxClientSite::windowActivationChange);
+
     if (m_spInPlaceActiveObject) {
         QWidget *modal = QApplication::activeModalWidget();
         if (modal && inPlaceModelessEnabled) {
@@ -1242,7 +1338,15 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
     if (!axhost)
         return;
     
-    
+    // document server - talk to view?
+    if (axhost->m_spActiveView) {
+        RECT rect;
+        GetClientRect(winId(), &rect);
+        axhost->m_spActiveView->SetRect(&rect);
+
+        return;
+    }
+
     SIZEL hmSize;
     hmSize.cx = MAP_PIX_TO_LOGHIM(width(), logicalDpiX());
     hmSize.cy = MAP_PIX_TO_LOGHIM(height(), logicalDpiY());
@@ -1271,13 +1375,19 @@ bool QAxHostWidget::winEvent(MSG *msg)
 
 bool QAxHostWidget::event(QEvent *e)
 {
+    return QWidget::event(e);
+
     switch (e->type()) {
     case QEvent::Timer:
         if (axhost && ((QTimerEvent*)e)->timerId() == setFocusTimer) {
             killTimer(setFocusTimer);
             setFocusTimer = 0;
-            RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
-            axhost->m_spOleObject->DoVerb(OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos);
+            if (axhost->m_spActiveView) {
+                axhost->m_spActiveView->UIActivate(TRUE);
+            } else {
+                RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
+                axhost->m_spOleObject->DoVerb(OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos);
+            }
         }
         break;
     case QEvent::WindowBlocked:
@@ -1446,7 +1556,7 @@ bool QAxWidget::initialize(IUnknown **ptr)
 {
     if (!QAxBase::initialize(ptr))
         return false;
-    
+
     HRESULT hres = S_OK; // assume that control is not initialized
     return createHostWindow(hres == S_FALSE);
 }
@@ -1468,8 +1578,9 @@ bool QAxWidget::createHostWindow(bool initialized)
     QApplication::sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
-    container = new QAxClientSite(this, initialized);
-    
+    container = new QAxClientSite(this);
+    container->activateObject(initialized);
+
     if (!filter_ref)
         previous_filter = QAbstractEventDispatcher::instance()->setEventFilter(axc_FilterProc);
     ++filter_ref;
