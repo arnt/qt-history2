@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfd/fontdisplayer.cpp#1 $
+** $Id: //depot/qt/main/examples/qfd/fontdisplayer.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -18,7 +18,7 @@
 
 
 FontRowTable::FontRowTable( QWidget* parent, const char* name ) :
-    QFrame(parent,name,WResizeNoErase )
+    QFrame(parent,name)
 {
     setBackgroundMode(PaletteBase);
     setFrameStyle(Panel|Sunken);
@@ -37,14 +37,6 @@ QSize FontRowTable::cellSize() const
     return QSize( fm.maxWidth(), fm.lineSpacing()+1 );
 }
 
-void FontRowTable::resizeEvent( QResizeEvent* e )
-{
-    QSize c1((width()-15)/16,(height()-15)/16);
-    QSize c2((e->oldSize().width()-15)/16,(e->oldSize().height()-15)/16);
-    if ( c1 != c2 )
-	repaint();
-}
-
 void FontRowTable::paintEvent( QPaintEvent* e )
 {
     QFrame::paintEvent(e);
@@ -55,9 +47,6 @@ void FontRowTable::paintEvent( QPaintEvent* e )
     int ml = frameWidth()+margin() + 1 + QMAX(0,-fm.minLeftBearing());
     int mt = frameWidth()+margin();
     QSize cell((width()-15-ml)/16,(height()-15-mt)/16);
-    //QSize cell=cellSize();
-    //cell.setWidth((width()-cell.width()+1)/16);
-    //cell.setHeight((height()-cell.height()+1)/16);
 
     if ( !cell.width() || !cell.height() )
 	return;

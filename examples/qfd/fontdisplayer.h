@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfd/fontdisplayer.h#1 $
+** $Id: //depot/qt/main/examples/qfd/fontdisplayer.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -32,7 +32,6 @@ public slots:
 
 protected:
     QSize cellSize() const;
-    void resizeEvent( QResizeEvent* );
     void paintEvent( QPaintEvent* );
 private:
     int row;
