@@ -6,6 +6,7 @@
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
 
+echo Writing ${QTDIR}/Makefile
 exec > Makefile
 
 cat <<EOF

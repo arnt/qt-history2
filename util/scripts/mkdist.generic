@@ -39,7 +39,7 @@ curdir=`/bin/pwd`
 echo >&2
 echo "Creating a new Qt distribution:" >&2
 
-if [ "${disttype}" = "free" -o "${disttype}" = "beta" -o "${disttype}" = "commercial" -o "${disttype}" = "trial" ]; then
+if [ "${disttype}" = "free" -o "${disttype}" = "commercial" -o "${disttype}" = "trial" ]; then
   goodparam1=yes
   echo "  Distribution type... " ${disttype} >&2
 fi
@@ -81,12 +81,6 @@ VERSION=`grep "#define.*QT_VERSION" ${DISTDIR}/qt/src/tools/qglobal.cpp | fmt -1
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
-if [ "$disttype" != "beta" ]; then
-  echo "Removing beta code..." >&2
-  cd ${DISTDIR}/qt/src
-  for d in `make showdirs`; do cd $d ; rm -fv `make showbeta`; cd .. ; done
-fi
-
 QTDIR=${DISTDIR}/qt
 export QTDIR
 
@@ -121,7 +115,7 @@ cd ${DISTDIR}/qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
-if [ "${disttype}" = "free" -o "${disttype}" = "beta" ]; then
+if [ "${disttype}" = "free" ]; then
   echo "Adding non-commercial banner in .h and .cpp files.." >&2
   cd ${DISTDIR}/qt/src
   ${curdir}/fixcopyright ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
@@ -152,16 +146,9 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt
-  find . -name '*.mak' -o -name 'qtwin.*' | xargs rm -f
-  echo "Creating arch directory" >&2
-  cd ${DISTDIR}/qt/src
-  if [ "$disttype" = "beta" ]; then
-    ${curdir}/makearch.sh -b
-  else
-    ${curdir}/makearch.sh
-  fi
-  cd ${DISTDIR}/qt/src
-  rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
+  find . -name '*.mak' -o -name 'qtwin.*' | xargs rm -vf
+  echo 'Building make files...' >&2
+  ${QTDIR}/util/scripts/makemake
   rmdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
 fi
 
