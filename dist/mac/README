@@ -1,0 +1,13 @@
+
+This is general Qt/Mac guide, this will outline known issues:
+
+
+MacOSX:
+
+Threading is not supported. Carbon does not seem thread-safe todate and we will need to
+investigate the threading manager more.
+
+Applications *must* be run out of a bundle (something like widgets.app/). MacOSX needs this 
+to dispatch events correctly, as well as gaining access to the menubar. If using GDB you must
+run with the *full* path to the executable.
+
