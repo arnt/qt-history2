@@ -873,6 +873,7 @@ void GLLandscape::initDisplayLists()
 	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
     }
     glEnd();
+    glDisable(GL_TEXTURE_2D);
 
     glEndList();
 }
