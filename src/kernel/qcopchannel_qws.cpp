@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcopchannel_qws.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qcopchannel_qws.cpp#8 $
 **
 ** Implementation of QCOP protocol
 **
@@ -268,7 +268,8 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 	    QCString c;
 	    QDataStream s( data, IO_ReadOnly );
 	    s >> c;
-	    bool known = qcopServerMap && qcopServerMap->contains( c );
+	    bool known = qcopServerMap && qcopServerMap->contains( c )
+			&& !((*qcopServerMap)[ c ]).isEmpty();
 	    QCString ans = known ? "known" : "unkown";
 	    QWSServer::sendQCopEvent( cl, "", ans, data, TRUE );
 	    return;
