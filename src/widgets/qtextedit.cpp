@@ -1883,7 +1883,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
     if ( !onLink.isEmpty() && onLink == pressedLink && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
 	emitLinkClicked( u.toString( FALSE, FALSE ) );
-	
+
 	// emitting linkClicked() may result in that the cursor winds
 	// up hovering over a different valid link - check this and
 	// set the appropriate cursor shape
@@ -2824,7 +2824,7 @@ void QTextEdit::updateCurrentFormat()
     int i = cursor->index();
     if ( i > 0 )
 	--i;
-    if ( doc->useFormatCollection() && 
+    if ( doc->useFormatCollection() &&
 	 ( !currentFormat || currentFormat->key() != cursor->parag()->at( i )->format()->key() ) ) {
 	if ( currentFormat )
 	    currentFormat->removeRef();
@@ -4273,6 +4273,8 @@ void QTextEdit::clear()
     }
 #endif
     repaintContents( FALSE );
+    emit cursorPositionChanged( cursor );
+    emit cursorPositionChanged( cursor->parag()->paragId(), cursor->index() );
 }
 
 int QTextEdit::undoDepth() const
