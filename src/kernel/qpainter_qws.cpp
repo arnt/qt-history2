@@ -1696,12 +1696,10 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
-		/* XXX
-		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 4,
-			      Nonconvex, CoordModeOrigin );
-		XDrawLines( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 5,
-			    CoordModeOrigin );
-		*/
+
+		if( gfx )
+		  gfx->drawPolygon(a,true,0,4);
+
 		setBrush( oldBrush );
 	    }
 	    if ( empty )
@@ -1743,21 +1741,30 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     map( x, y, &x, &y );
 #endif
 
-    /* XXX
-    if ( bg_mode == TransparentMode )
-	XDrawString16( dpy, hd, gc, x, y, (XChar2b*)v.unicode(), len );
-    else
-	XDrawImageString16( dpy, hd, gc, x, y, (XChar2b*)v.unicode(), len );
-    */
-    /*
-    QPDevCmdParam param[2];
-    QPoint p( x, y );
-    param[0].point = &p;
-    param[1].str = &newstr;
-    pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
-    */
     if ( !gfx )
 	return;
+
+    QRect bbox;
+
+    int lw,underlinepos,strikeoutpos,ascent;
+
+    QString newstr = str.left(len);
+
+    if( cfont.underline() || cfont.strikeOut() || bg_mode==OpaqueMode ) {
+      QFontMetrics fm=fontMetrics();
+      lw=fm.lineWidth();
+      underlinepos=fm.underlinePos();
+      strikeoutpos=fm.strikeOutPos();
+      ascent=fm.ascent();
+      bbox = fm.boundingRect( newstr, len );
+    }
+
+    if( bg_mode == OpaqueMode ) {
+      gfx->save();
+      gfx->setBrush(QBrush(backgroundColor()));
+      gfx->fillRect(x,y-ascent,bbox.width(),bbox.height());
+      gfx->restore();
+    }
 
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     int width=cfont.d->textWidth( shaped, 0, len, cache );
@@ -1765,20 +1772,18 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     delete cache;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
-        QFontMetrics fm = fontMetrics();
-        int lw = fm.lineWidth();
 
 	gfx->save();
 	gfx->setBrush(cpen.color());
 
         // draw underline effect
         if ( cfont.underline() ) {
-	    gfx->fillRect(x,y+fm.underlinePos(), width, lw);
+	    gfx->fillRect(x,y+underlinepos, width, lw);
         }
 
         // draw strikeout effect
         if ( cfont.strikeOut() ) {
-	    gfx->fillRect(x,y-fm.strikeOutPos(), width, lw);
+	    gfx->fillRect(x,y-strikeoutpos, width, lw);
 	}
 
 	gfx->restore();
