@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#33 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#33 $";
 #endif
 
 
@@ -301,12 +301,12 @@ QWidget *QApplication::desktop()
 }
 
 
-void QApplication::flushEvents()		// flush event queue
+void QApplication::flushX()			// flush X output buffer
 {
     XFlush( appDpy );
 }
 
-void QApplication::syncEvents()			// synchronize with server
+void QApplication::syncX()			// synchronize with X server
 {
     XSync( appDpy, FALSE );			// don't discard events
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#7 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#7 $";
 #endif
 
 
@@ -93,8 +93,8 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 
 // The X implementation of these functions is in qapp_x11.cpp
 
-void QApplication::flushEvents() {}		// do nothing
+void QApplication::flushX()	{}		// do nothing
 
-void QApplication::syncEvents()	 {}		// do nothing
+void QApplication::syncX()	{}		// do nothing
 
 #endif

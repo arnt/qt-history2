@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#10 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#11 $
 **
 ** Definition of QApplication class
 **
@@ -42,8 +42,8 @@ public:
 
     virtual bool notify( QObject *, QEvent * ); // send event to object
 
-    static void  flushEvents();			// flush X event queue
-    static void  syncEvents();			// syncronize with X server
+    static void  flushX();			// flush X output buffer
+    static void  syncX();			// syncronize with X server
 
     static void	 cleanup();			// cleanup application
 
