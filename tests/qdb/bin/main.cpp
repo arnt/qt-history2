@@ -215,6 +215,7 @@ int main( int argc, char** argv )
     QDb env;
     env.setOutput( outstream );
     if ( env.parse( commands, echo ) ) {
+	//	QString FILENAME = "test";
 	if ( analyse )
 	    outstream << env.program()->listing().join( "\n" ) << endl;
 	else if ( !env.execute( verbose ) )
@@ -225,11 +226,30 @@ int main( int argc, char** argv )
     /* output results */
     qdb::ResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
     if ( rs->size() ) {
+	uint fieldcount = rs->count();
+	uint i = 0;
+	QString sep = "|";
+	QString line = " ";
+	QStringList cols = rs->columns();
+	for ( i = 0; i < fieldcount; ++i )
+	    line += cols[i].rightJustify( 15 ) + " ";
+	outstream << line << endl;
+	line = sep;
+	for ( i = 0; i < fieldcount; ++i )
+	    line += QString().rightJustify( 15, '-' ) + sep;
+	outstream << line << endl;
 	rs->first();
 	do {
-	    //## todo
+	    line = sep;
+	    qdb::Record& rec = rs->currentRecord();
+	    for ( i = 0; i < fieldcount; ++i )
+		line += rec[i].toString().rightJustify( 15 ) + sep;
+	    outstream << line << endl;
 	} while( rs->next() );
+	if ( verbose )
+	    outstream << "(" << rs->size() << " row" << (rs->size()==1?")":"s)") << endl;
     }
+
     if ( outfile.isOpen() )
 	outfile.close();
     return 0;
