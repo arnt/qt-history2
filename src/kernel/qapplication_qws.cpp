@@ -85,10 +85,14 @@
 #include <limits.h>
 #include <sys/types.h>
 #ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
 #include <sys/socket.h>
+#else
+#include "qsharedmemory.h"
+#endif
 #endif
 
 #include <stdlib.h>
@@ -386,9 +390,9 @@ public:
 	qt_screen->disconnect();
 	delete qt_screen; qt_screen = 0;
 #ifndef QT_NO_QWS_MULTIPROCESS
-	shmdt((char*)sharedRam);
+	shm.detach();
 	if ( !csocket && ramid != -1 ) {
-	    shmctl( ramid, IPC_RMID, 0 );
+	    shm.destroy();
 	}
 	if ( csocket ) {
 	    csocket->flush(); // may be pending QCop message, eg.
@@ -409,6 +413,9 @@ public:
 
     QWSRegionManager *rgnMan;
     uchar *sharedRam;
+#if !defined(Q_NO_QSHM) && !defined(QT_NO_QWS_MULTIPROCESS)
+    QSharedMemory shm;
+#endif
     int sharedRamSize;
     int ramid;
 
@@ -528,19 +535,14 @@ void QWSDisplay::Data::init()
     QString pipe = qws_qtePipeFilename();
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-    key_t memkey =  ftok( pipe.latin1(), 'm' );
-
-
     if ( csocket )    {
 	// QWS client
 	csocket->connectToLocalFile(pipe);
 	QWSIdentifyCommand cmd;
 	cmd.setId(appName);
-#ifndef QT_NO_QWS_MULTIPROCESS
 	if  ( csocket )
 	    cmd.write( csocket );
 	else
-#endif
 	    qt_server_enqueue( &cmd );
 
 	// wait for connect confirmation
@@ -553,24 +555,16 @@ void QWSDisplay::Data::init()
 
 	if ( !QWSDisplay::initLock( pipe, FALSE ) )
 	    qFatal( "Cannot get display lock" );
-	int ramid = shmget(memkey,0,0);
-	if ( ramid == -1 ) {
-	    perror( "Cannot find main shared memory" );
-	    exit(1);
-	}
-	struct shmid_ds shminfo;
-	if ( shmctl( ramid, IPC_STAT, &shminfo ) == -1 )
-	    qFatal( "Cannot get main ram memory status" );
-	sharedRamSize=shminfo.shm_segsz;
 
-	sharedRam = (uchar *)shmat(ramid,0,0);
-	if(sharedRam==(uchar *)-1) {
+	shm = QSharedMemory(0,pipe.latin1());
+	if (shm.attach()) {
+	    qt_get_screen( qws_display_id, qws_display_spec );
+	} else {
 	    perror("Can't attach to main ram memory.");
 	    exit(1);
 	}
-	qt_get_screen( qws_display_id, qws_display_spec );
-    }
-    else
+	sharedRam = (uchar *)shm.base();
+    } else
 #endif
     {
 
@@ -581,16 +575,12 @@ void QWSDisplay::Data::init()
 	sharedRamSize = qwsSharedRamSize;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
-
-	key_t memkey = ftok( pipe.latin1(), 'm' );
-	ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0600);
-	if(ramid<0) {
-	    perror("Cannot allocate main ram shared memory\n");
-	}
-	sharedRam=(uchar *)shmat(ramid,0,0);
-	if(sharedRam==(uchar *)-1) {
+	shm = QSharedMemory(sharedRamSize,pipe.latin1());
+	if (!shm.create())
 	    perror("Cannot attach to main ram shared memory\n");
-	}
+	if (!shm.attach())
+	    perror("Cannot attach to main ram shared memory\n");
+	sharedRam = (uchar *)shm.base();
 #else
 	sharedRam=(uchar *)malloc(sharedRamSize);
 #endif

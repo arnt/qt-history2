@@ -1106,9 +1106,11 @@ bool QVNCScreen::connect( const QString &displaySpec )
 		tmpSpec.remove (0, next + 1); 
 		VNCSCREEN_BASE::connect( tmpSpec );
     }
-	shm = QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename() );
-	shm.create();
-	shm.attach();
+	shm = QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
+	if (!shm.create())
+	    qDebug("create");
+	if (!shm.attach())
+	    qDebug("attach");
 	shmrgn = (unsigned char*)shm.base();
 
     hdr = (QVNCHeader *) shmrgn;
@@ -1128,7 +1130,7 @@ void QVNCScreen::disconnect()
 bool QVNCScreen::initDevice()
 {
     if ( !virtualBuffer ) 
-		VNCSCREEN_BASE::initDevice();
+	VNCSCREEN_BASE::initDevice();
     vncServer = new QVNCServer();
 
     hdr->dirty = FALSE;
