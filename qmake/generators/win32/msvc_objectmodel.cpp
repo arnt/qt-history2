@@ -1017,7 +1017,7 @@ bool VCLinkerTool::parseOption(const char* option)
     displayHash("/STACK"); displayHash("/STUB"); displayHash("/SUBSYSTEM");
     displayHash("/SWAPRUN"); displayHash("/TLBID"); displayHash("/TLBOUT");
     displayHash("/TSAWARE"); displayHash("/VERBOSE"); displayHash("/VERSION");
-    displayHash("/VXD"); displayHash("/WS ");
+    displayHash("/VXD"); displayHash("/WS "); displayHash("/libpath");
 #endif
 #ifdef USE_DISPLAY_HASH
     // Sub options
@@ -1111,6 +1111,7 @@ bool VCLinkerTool::parseOption(const char* option)
         else
             LargeAddressAware = addrAwareLarge;
         break;
+    case 0x2f96bc8: // /libpath:dir
     case 0x0d745c8: // /LIBPATH:dir
         AdditionalLibraryDirectories += option+9;
         break;
