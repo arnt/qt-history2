@@ -402,7 +402,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QApplication::sendPostedEvents();
 
         bool canWait = (!retVal
-                        && QThreadData::current()->postEventList.size() == 0
+                        && QThreadData::get(thread())->postEventList.size() == 0
                         && !d->interrupt
                         && (flags & QEventLoop::WaitForMoreEvents)
                         && !d->zero_timer_count);
