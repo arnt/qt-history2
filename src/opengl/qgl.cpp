@@ -726,6 +726,8 @@ QGLContext* QGLContext::currentCtx = 0;
   If you're using double buffering you can swap the screen contents with
   the off-screen buffer using swapBuffers().
 
+  Please note that QGLContext is not thread safe.
+
     <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
     United States and other countries.
 
