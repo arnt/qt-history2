@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QColor class
 **
 ** Created : 940112
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -74,8 +74,8 @@
   The colors \c color0 (zero pixel value) and \c color1 (non-zero
   pixel value) are special colors for drawing in \link QBitmap
   bitmaps\endlink. Painting with \c color0 sets the bitmap bits to 0
-  (white, i.e. background), and painting with \c color1 sets the bits
-  to 1 (black, i.e. foreground).
+  (transparent, i.e. background), and painting with \c color1 sets the
+  bits to 1 (opaque, i.e. foreground).
 
   The QColor class has an efficient, dynamic color allocation
   strategy.  A color is normally allocated the first time it is used

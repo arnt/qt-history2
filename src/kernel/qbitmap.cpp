@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QBitmap class
 **
 ** Created : 941020
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -59,13 +59,13 @@
   When drawing in a QBitmap (or QPixmap with depth 1), we recommend using
   the  QColor objects \c Qt::color0 and \c Qt::color1.  Painting with \c
   color0 sets the bitmap bits to 0, and painting with \c color1 sets the
-  bits to 1.  For a bitmap, 0-bits indicate background (or white) and
-  1-bits indicate foreground (or black).  Using the \c black and \c white
-  QColor objects make no sense because the QColor::pixel()
-  value is not necessarily 0 for black and 1 for white.
+  bits to 1.  For a bitmap, 0-bits indicate background (or transparent) and
+  1-bits indicate foreground (or opaque).  Using the \c black and \c white
+  QColor objects make no sense because the QColor::pixel() value is not
+  necessarily 0 for black and 1 for white.
 
-  The QBitmap can be transformed (translated, scaled, sheared or
-  rotated) using xForm().
+  The QBitmap can be transformed (translated, scaled, sheared or rotated)
+  using xForm().
 
   Just like the QPixmap class, QBitmap is optimized by the use of \link
   shclass.html implicit sharing\endlink, so it is very efficient to pass
