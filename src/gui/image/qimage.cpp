@@ -27,6 +27,30 @@
 #include "qscreen_qws.h"
 #endif
 
+
+struct QImageData {        // internal image data
+    QAtomic ref;
+
+    int w;                    // image width
+    int h;                    // image height
+    int d;                    // image depth
+    int ncols;                // number of colors
+    int nbytes;               // number of bytes data
+    QRgb *ctbl;               // color table
+    uchar **bits;             // image data
+    bool alpha;               // alpha buffer
+    bool ctbl_mine;           // this allocated ctbl
+    int bitordr;              // bit order (1 bit depth)
+
+    int  dpmx;                // dots per meter X (or 0)
+    int  dpmy;                // dots per meter Y (or 0)
+    QPoint  offset;           // offset in pixels
+#ifndef QT_NO_IMAGE_TEXT
+    QImageDataMisc* misc;     // less common stuff
+#endif
+} *data;
+
+
 // 16bpp images on supported on Qt/Embedded
 #if !defined(Q_WS_QWS) && !defined(QT_NO_IMAGE_16_BIT)
 #define QT_NO_IMAGE_16_BIT
@@ -417,7 +441,7 @@ QImage::QImage(const QByteArray &array)
 QImage::QImage(const QImage &image)
 {
     data = image.data;
-    data->ref();
+    ++data->ref;
 }
 
 /*!
@@ -516,7 +540,7 @@ QImage::QImage(uchar* yourdata, int w, int h, int depth,
 
 QImage::~QImage()
 {
-    if (data && data->deref()) {
+    if (data && !--data->ref) {
         reset();
         delete data;
     }
@@ -531,12 +555,13 @@ QImage::~QImage()
 
 QImage &QImage::operator=(const QImage &image)
 {
-    image.data->ref();                                // avoid 'x = x'
-    if (data->deref()) {
+    QImageData *x = image.data;
+    ++x->ref;
+    x = qAtomicSetPtr(&data, x);
+    if (!--x->ref) {
         reset();
-        delete data;
+        delete x;
     }
-    data = image.data;
     return *this;
 }
 
@@ -553,7 +578,7 @@ QImage &QImage::operator=(const QImage &image)
 
 void QImage::detach()
 {
-    if (data->count != 1)
+    if (data->ref != 1)
         *this = copy();
 }
 
@@ -596,6 +621,7 @@ QImage QImage::copy() const
 }
 
 /*!
+    \fn inline QImage QImage::copy(int x, int y, int w, int h, int conversion_flags=0) const
     \overload
 
     Returns a \link shclass.html deep copy\endlink of a sub-area of
@@ -612,8 +638,22 @@ QImage QImage::copy() const
     \sa bitBlt() Qt::ImageConversionFlags
 */
 
-QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
+/*!
+    \overload
+
+    Returns a \link shclass.html deep copy\endlink of a sub-area of
+    the image.
+
+    The returned image always has the size of the rectangle \a r. In
+    areas beyond this image pixels are filled with pixel 0.
+*/
+inline QImage QImage::copy(const QRect& r, int conversion_flags) const
 {
+    int x = r.x();
+    int y = r.y();
+    int w = r.width();
+    int h = r.height();
+
     int dx = 0;
     int dy = 0;
     if (w <= 0 || h <= 0) return QImage(); // Nothing to copy
@@ -660,16 +700,6 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
     return image;
 }
 
-/*!
-    \fn QImage QImage::copy(const QRect& r) const
-    \overload
-
-    Returns a \link shclass.html deep copy\endlink of a sub-area of
-    the image.
-
-    The returned image always has the size of the rectangle \a r. In
-    areas beyond this image pixels are filled with pixel 0.
-*/
 
 /*!
     \fn bool QImage::isNull() const
@@ -678,7 +708,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     A null image has all parameters set to zero and no allocated data.
 */
-
+bool QImage::isNull() const
+{
+    return data->bits == 0;
+}
 
 /*!
     \fn int QImage::width() const
@@ -687,6 +720,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa height() size() rect()
 */
+int QImage::width() const
+{
+    return data->w;
+}
 
 /*!
     \fn int QImage::height() const
@@ -695,6 +732,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa width() size() rect()
 */
+int QImage::height() const
+{
+    return data->h;
+}
 
 /*!
     \fn QSize QImage::size() const
@@ -703,6 +744,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa width() height() rect()
 */
+QSize QImage::size() const
+{
+    return QSize(data->w,data->h);
+}
 
 /*!
     \fn QRect QImage::rect() const
@@ -712,6 +757,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa width() height() size()
 */
+QRect QImage::rect() const
+{
+    return QRect(0,0,data->w,data->h);
+}
 
 /*!
     \fn int QImage::depth() const
@@ -725,6 +774,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa convertDepth()
 */
+int QImage::depth() const
+{
+    return data->d;
+}
 
 /*!
     \fn int QImage::numColors() const
@@ -737,6 +790,10 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa setNumColors() colorTable()
 */
+int QImage::numColors() const
+{
+    return data->ncols;
+}
 
 /*!
     \fn QImage::Endian QImage::bitOrder() const
@@ -751,45 +808,58 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa depth()
 */
+QImage::Endian QImage::bitOrder() const
+{
+    return static_cast<Endian>(data->bitordr);
+}
 
 /*!
-    \fn uchar **QImage::jumpTable() const
-
     Returns a pointer to the scanline pointer table.
 
     This is the beginning of the data block for the image.
 
     \sa bits() scanLine()
 */
+uchar **QImage::jumpTable() const
+{
+    return data->bits;
+}
 
 /*!
-    \fn QRgb *QImage::colorTable() const
-
     Returns a pointer to the color table.
 
     \sa numColors()
 */
+QRgb *QImage::colorTable() const
+{
+    return data->ctbl;
+}
+
 
 /*!
-    \fn int QImage::numBytes() const
-
     Returns the number of bytes occupied by the image data.
 
     \sa bytesPerLine() bits()
 */
+int QImage::numBytes() const
+{
+    return data->nbytes;
+}
+
 
 /*!
-    \fn int QImage::bytesPerLine() const
-
     Returns the number of bytes per image scanline. This is equivalent
     to numBytes()/height().
 
     \sa numBytes() scanLine()
 */
+int QImage::bytesPerLine() const
+{
+    return data->h ? data->nbytes/data->h : 0;
+}
+
 
 /*!
-    \fn QRgb QImage::color(int i) const
-
     Returns the color in the color table at index \a i. The first
     color is at index 0.
 
@@ -800,10 +870,13 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa setColor() numColors() QColor
 */
+QRgb QImage::color(int i) const
+{
+    Q_ASSERT(i < numColors());
+    return data->ctbl ? data->ctbl[i] : QRgb(uint(-1));
+}
 
 /*!
-    \fn void QImage::setColor(int i, QRgb c)
-
     Sets a color in the color table at index \a i to \a c.
 
     A color value is an RGB triplet. Use the \link ::qRgb()
@@ -812,10 +885,14 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa color() setNumColors() numColors()
 */
+void QImage::setColor(int i, QRgb c)
+{
+    Q_ASSERT(i < numColors());
+    if (data->ctbl)
+        data->ctbl[i] = c;
+}
 
 /*!
-    \fn uchar *QImage::scanLine(int i) const
-
     Returns a pointer to the pixel data at the scanline with index \a
     i. The first scanline is at index 0.
 
@@ -834,15 +911,23 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     \sa bytesPerLine() bits() jumpTable()
 */
+uchar *QImage::scanLine(int i) const
+{
+    Q_ASSERT(i < height());
+    return data->bits ? data->bits[i] : 0;
+}
+
 
 /*!
-    \fn uchar *QImage::bits() const
-
     Returns a pointer to the first pixel data. This is equivalent to
     scanLine(0).
 
     \sa numBytes() scanLine() jumpTable()
 */
+uchar *QImage::bits() const
+{
+    return data->bits ? data->bits[0] : 0;
+}
 
 
 
@@ -905,10 +990,8 @@ void QImage::fill(uint pixel)
             //optimize with 32-bit writes, since image is always aligned
             uint *p = (uint *)scanLine(i);
             uint *end = (uint*)(((ushort*)p) + width());
-            uint fill;
-            ushort *f = (ushort*)&fill;
-            f[0]=pixel;
-            f[1]=pixel;
+            pixel &= 0xffff;
+            uint fill = pixel<<16 + pixel;
             while (p < end)
                 *p++ = fill;
         }
@@ -1039,13 +1122,16 @@ void QImage::setNumColors(int numColors)
 
 
 /*!
-    \fn bool QImage::hasAlphaBuffer() const
-
     Returns true if alpha buffer mode is enabled; otherwise returns
     false.
 
     \sa setAlphaBuffer()
 */
+bool QImage::hasAlphaBuffer() const
+{
+    return data->alpha;
+}
+
 
 /*!
     Enables alpha buffer mode if \a enable is true, otherwise disables
@@ -3493,24 +3579,16 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
     //   - 8 bit, identical palette
     //   - 1 bit, identical palette and byte-aligned area
     //
-    if (haveSamePalette(*dst,*src)
-         && (dst->depth() != 1 ||
-              !((dx&7) || (sx&7) ||
-                 ((sw&7) && (sx+sw < src->width()) ||
-                  (dx+sw < dst->width())))))
-        {
-            // easy to copy
-        } else if (dst->depth() != 32) {
-#ifndef QT_NO_IMAGE_TRUECOLOR
+    bool byteAligned = true;
+    if (dst->depth() == 1)
+        byteAligned = !(dx & 7) && !(sx & 7) && !((sw & 7) && (sx+sw < src->width()) || (dx+sw < dst->width()));
 
-            QImage dstconv = dst->convertDepth(32);
-            bitBlt(&dstconv, dx, dy, src, sx, sy, sw, sh,
-                    (conversion_flags&~Qt::DitherMode_Mask) | Qt::AvoidDither);
-            *dst = dstconv.convertDepthWithPalette(dst->depth(),
-                                                    dst->colorTable(), dst->numColors());
-#endif
-            return;
-        }
+    if (!byteAligned && !haveSamePalette(*dst,*src) && dst->depth() != 32) {
+        QImage dstconv = dst->convertDepth(32);
+        bitBlt(&dstconv, dx, dy, src, sx, sy, sw, sh, (conversion_flags&~Qt::DitherMode_Mask) | Qt::AvoidDither);
+        *dst = dstconv.convertDepthWithPalette(dst->depth(), dst->colorTable(), dst->numColors());
+        return;
+    }
 
     // Now assume palette can be ignored
 
@@ -3525,65 +3603,33 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
         return;
     }
 
-    // Now assume both are the same depth.
-
-    // Now assume both are 32-bit or 8-bit with compatible palettes.
-
-    // "Easy"
+    // Now assume both are the same depth and are 32-bit or 8-bit with compatible palettes.
 
     switch (dst->depth()) {
-    case 1:
-        {
-            uchar* d = dst->scanLine(dy) + dx/8;
-            uchar* s = src->scanLine(sy) + sx/8;
-            const int bw = (sw+7)/8;
-            if (bw < 64) {
-                // Trust ourselves
-                const int dd = dst->bytesPerLine() - bw;
-                const int ds = src->bytesPerLine() - bw;
-                while (sh--) {
-                    for (int t=bw; t--;)
-                        *d++ = *s++;
-                    d += dd;
-                    s += ds;
-                }
-            } else {
-                // Trust libc
-                const int dd = dst->bytesPerLine();
-                const int ds = src->bytesPerLine();
-                while (sh--) {
-                    memcpy(d, s, bw);
-                    d += dd;
-                    s += ds;
-                }
-            }
+    case 1: {
+        uchar* d = dst->scanLine(dy) + dx/8;
+        uchar* s = src->scanLine(sy) + sx/8;
+        const int bw = (sw+7)/8;
+        const int dd = dst->bytesPerLine();
+        const int ds = src->bytesPerLine();
+        while (sh--) {
+            memcpy(d, s, bw);
+            d += dd;
+            s += ds;
         }
+    }
         break;
-    case 8:
-        {
-            uchar* d = dst->scanLine(dy) + dx;
-            uchar* s = src->scanLine(sy) + sx;
-            if (sw < 64) {
-                // Trust ourselves
-                const int dd = dst->bytesPerLine() - sw;
-                const int ds = src->bytesPerLine() - sw;
-                while (sh--) {
-                    for (int t=sw; t--;)
-                        *d++ = *s++;
-                    d += dd;
-                    s += ds;
-                }
-            } else {
-                // Trust libc
-                const int dd = dst->bytesPerLine();
-                const int ds = src->bytesPerLine();
-                while (sh--) {
-                    memcpy(d, s, sw);
-                    d += dd;
-                    s += ds;
-                }
-            }
+    case 8: {
+        uchar* d = dst->scanLine(dy) + dx;
+        uchar* s = src->scanLine(sy) + sx;
+        const int dd = dst->bytesPerLine();
+        const int ds = src->bytesPerLine();
+        while (sh--) {
+            memcpy(d, s, sw);
+            d += dd;
+            s += ds;
         }
+    }
         break;
 #ifndef QT_NO_IMAGE_TRUECOLOR
     case 32:
@@ -3614,26 +3660,13 @@ void bitBlt(QImage *dst, int dx, int dy, const QImage *src, int sx, int sy, int 
         } else {
             QRgb* d = (QRgb*)dst->scanLine(dy) + dx;
             QRgb* s = (QRgb*)src->scanLine(sy) + sx;
-            if (sw < 64) {
-                // Trust ourselves
-                const int dd = dst->width() - sw;
-                const int ds = src->width() - sw;
-                while (sh--) {
-                    for (int t=sw; t--;)
-                        *d++ = *s++;
-                    d += dd;
-                    s += ds;
-                }
-            } else {
-                // Trust libc
-                const int dd = dst->width();
-                const int ds = src->width();
-                const int b = sw*sizeof(QRgb);
-                while (sh--) {
-                    memcpy(d, s, b);
-                    d += dd;
-                    s += ds;
-                }
+            const int dd = dst->width();
+            const int ds = src->width();
+            const int b = sw*sizeof(QRgb);
+            while (sh--) {
+                memcpy(d, s, b);
+                d += dd;
+                s += ds;
             }
         }
         break;
@@ -3688,24 +3721,28 @@ bool QImage::operator!=(const QImage & i) const
 
 
 /*!
-    \fn int QImage::dotsPerMeterX() const
-
     Returns the number of pixels that fit horizontally in a physical
     meter. This and dotsPerMeterY() define the intended scale and
     aspect ratio of the image.
 
     \sa setDotsPerMeterX()
 */
+int QImage::dotsPerMeterX() const
+{
+    return data->dpmx;
+}
 
 /*!
-    \fn int QImage::dotsPerMeterY() const
-
     Returns the number of pixels that fit vertically in a physical
     meter. This and dotsPerMeterX() define the intended scale and
     aspect ratio of the image.
 
     \sa setDotsPerMeterY()
 */
+int QImage::dotsPerMeterY() const
+{
+    return data->dpmy;
+}
 
 /*!
     Sets the value returned by dotsPerMeterX() to \a x.
@@ -3729,6 +3766,11 @@ void QImage::setDotsPerMeterY(int y)
     Returns the number of pixels by which the image is intended to be
     offset by when positioning relative to other images.
 */
+QPoint QImage::offset() const
+{
+    return data->offset;
+}
+
 
 /*!
     Sets the value returned by offset() to \a p.

@@ -26,6 +26,7 @@ template <class T> class QList;
 class QWSPaintEngine;
 #endif
 
+struct QImageData;
 class QImageDataMisc; // internal
 #ifndef QT_NO_IMAGE_TEXT
 class Q_GUI_EXPORT QImageTextKeyLang {
@@ -50,22 +51,16 @@ public:
     enum Endian { BigEndian, LittleEndian, IgnoreEndian };
 
     QImage();
-    QImage(int width, int height, int depth, int numColors=0,
-            Endian bitOrder=IgnoreEndian);
-    QImage(const QSize&, int depth, int numColors=0,
-            Endian bitOrder=IgnoreEndian);
+    QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
+    QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
 #ifndef QT_NO_IMAGEIO
     QImage(const QString &fileName, const char* format=0);
     Q_EXPLICIT QImage(const char * const xpm[]);
     QImage(const QByteArray &data);
 #endif
-    QImage(uchar* data, int w, int h, int depth,
-                QRgb* colortable, int numColors,
-                Endian bitOrder);
+    QImage(uchar* data, int w, int h, int depth, QRgb* colortable, int numColors, Endian bitOrder);
 #ifdef Q_WS_QWS
-    QImage(uchar* data, int w, int h, int depth, int pbl,
-                QRgb* colortable, int numColors,
-                Endian bitOrder);
+    QImage(uchar* data, int w, int h, int depth, int pbl, QRgb* colortable, int numColors, Endian bitOrder);
 #endif
     QImage(const QImage &);
    ~QImage();
@@ -75,19 +70,19 @@ public:
     bool operator!=(const QImage &) const;
     void detach();
     QImage copy() const;
-    QImage copy(int x, int y, int w, int h, int conversion_flags=0) const;
-    QImage copy(const QRect&)        const;
-    bool isNull() const { return data->bits == 0; }
+    inline QImage copy(int x, int y, int w, int h, int conversion_flags=0) const;
+    QImage copy(const QRect&, int conversion_flags = 0) const;
+    bool isNull() const;
 
-    int width() const { return data->w; }
-    int height() const { return data->h; }
-    QSize size() const { return QSize(data->w,data->h); }
-    QRect rect() const { return QRect(0,0,data->w,data->h); }
-    int depth() const { return data->d; }
-    int numColors() const { return data->ncols; }
-    Endian bitOrder() const { return static_cast<Endian>(data->bitordr); }
+    int width() const;
+    int height() const;
+    QSize size() const;
+    QRect rect() const;
+    int depth() const;
+    int numColors() const;
+    Endian bitOrder() const;
 
-    QRgb color(int i)        const;
+    QRgb color(int i) const;
     void setColor(int i, QRgb c);
     void setNumColors(int);
 
@@ -108,10 +103,8 @@ public:
     QWSPaintEngine *paintEngine();
 #endif
 
-    bool create(int width, int height, int depth, int numColors=0,
-                Endian bitOrder=IgnoreEndian);
-    bool create(const QSize&, int depth, int numColors=0,
-                Endian bitOrder=IgnoreEndian);
+    bool create(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
+    bool create(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     void reset();
 
     void fill(uint pixel);
@@ -186,28 +179,8 @@ private:
     void reinit();
     void freeBits();
 
-    struct QImageData {        // internal image data
-        QImageData() : count(1) { }
-        void ref() { ++count; }
-        bool deref() { return !--count; }
-        uint count;
-        int w;                    // image width
-        int h;                    // image height
-        int d;                    // image depth
-        int ncols;                // number of colors
-        int nbytes;               // number of bytes data
-        int bitordr;              // bit order (1 bit depth)
-        QRgb *ctbl;               // color table
-        uchar **bits;             // image data
-        bool alpha;               // alpha buffer
-        int  dpmx;                // dots per meter X (or 0)
-        int  dpmy;                // dots per meter Y (or 0)
-        QPoint  offset;           // offset in pixels
-#ifndef QT_NO_IMAGE_TEXT
-        QImageDataMisc* misc;     // less common stuff
-#endif
-        bool ctbl_mine;           // this allocated ctbl
-    } *data;
+    QImageData *data;
+
 #ifndef QT_NO_IMAGE_TEXT
     QImageDataMisc& misc() const;
 #endif
@@ -215,8 +188,8 @@ private:
     bool doImageIO(QImageIO* io, int quality) const;
 #endif
     friend Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy,
-                                 const QImage* src, int sx, int sy,
-                                 int sw, int sh, int conversion_flags);
+                                    const QImage* src, int sx, int sy,
+                                    int sw, int sh, int conversion_flags);
 };
 
 
@@ -238,83 +211,17 @@ Q_GUI_EXPORT bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, in
 #endif
 
 Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
-                      int sx=0, int sy=0, int sw=-1, int sh=-1,
-                      int conversion_flags=0);
+                         int sx=0, int sy=0, int sw=-1, int sh=-1, int conversion_flags=0);
 
 
 /*****************************************************************************
   QImage member functions
  *****************************************************************************/
 
-inline bool QImage::hasAlphaBuffer() const
+inline QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 {
-    return data->alpha;
+    return copy(QRect(x, y, w, h), conversion_flags);
 }
-
-inline uchar *QImage::bits() const
-{
-    return data->bits ? data->bits[0] : 0;
-}
-
-inline uchar **QImage::jumpTable() const
-{
-    return data->bits;
-}
-
-inline QRgb *QImage::colorTable() const
-{
-    return data->ctbl;
-}
-
-inline int QImage::numBytes() const
-{
-    return data->nbytes;
-}
-
-inline int QImage::bytesPerLine() const
-{
-    return data->h ? data->nbytes/data->h : 0;
-}
-
-inline QImage QImage::copy(const QRect& r) const
-{
-    return copy(r.x(), r.y(), r.width(), r.height());
-}
-
-inline QRgb QImage::color(int i) const
-{
-    Q_ASSERT(i < numColors());
-    return data->ctbl ? data->ctbl[i] : QRgb(uint(-1));
-}
-
-inline void QImage::setColor(int i, QRgb c)
-{
-    Q_ASSERT(i < numColors());
-    if (data->ctbl)
-        data->ctbl[i] = c;
-}
-
-inline uchar *QImage::scanLine(int i) const
-{
-    Q_ASSERT(i < height());
-    return data->bits ? data->bits[i] : 0;
-}
-
-inline int QImage::dotsPerMeterX() const
-{
-    return data->dpmx;
-}
-
-inline int QImage::dotsPerMeterY() const
-{
-    return data->dpmy;
-}
-
-inline QPoint QImage::offset() const
-{
-    return data->offset;
-}
-
 
 inline QImage::Endian QImage::systemBitOrder()
 {
