@@ -977,7 +977,7 @@ void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
   Informs the view that the rows from the \a start row to the \a end row
   inclusive have been removed from the given \a parent model item.
 */
-void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
+void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
     if (d->viewItems.isEmpty())
         return;
