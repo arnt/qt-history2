@@ -775,7 +775,6 @@ void QTitleBarLabel::setActive( bool a )
 QTitleBarButton::QTitleBarButton( QWidget* parent, ButtonType t, const char *name )
     : QButton( parent, name ), type( t )
 {
-    setBackgroundMode( NoBackground );
     setFocusPolicy( NoFocus );
 }
 
