@@ -559,6 +559,7 @@ void qt_message_output(QtMsgType msgType, const char *buf)
 #undef qDebug
 /*!
     \relates QApplication
+    \fn qDebug()
 
     Calls the message handler with the debug message \a msg. If no
     message handler has been installed, the message is printed to
@@ -606,6 +607,7 @@ void qDebug(const char *msg, ...)
 #undef qWarning
 /*!
     \relates QApplication
+    \fn qWarning()
 
     Calls the message handler with the warning message \a msg. If no
     message handler has been installed, the message is printed to
@@ -649,6 +651,7 @@ void qWarning(const char *msg, ...)
 
 /*!
     \relates QApplication
+    \fn qCritical()
 
     Calls the message handler with the critical message \a msg. If no
     message handler has been installed, the message is printed to
@@ -719,6 +722,7 @@ void qErrnoWarning(int code, const char *msg, ...)
 
 /*!
     \relates QApplication
+    \fn qFatal()
 
     Calls the message handler with the fatal message \a msg. If no
     message handler has been installed, the message is printed to
