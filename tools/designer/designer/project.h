@@ -31,6 +31,7 @@
 #include "../interfaces/projectsettingsiface.h"
 #include "sourcefile.h"
 #include "formfile.h"
+#include <qobjectlist.h>
 
 class FormWindow;
 class QObjectList;
@@ -184,6 +185,10 @@ public:
     bool isModified() const { return !isDummy() && modified; }
     void setModified( bool b );
 
+    void addObject( QObject *o );
+    void setObjects( const QObjectList &ol );
+    void removeObject( QObject *o );
+    QObjectList objects() const;
 
 signals:
     void projectModified();
@@ -191,6 +196,8 @@ signals:
     void sourceFileRemoved( SourceFile* );
     void formFileAdded( FormFile* );
     void formFileRemoved( FormFile* );
+    void objectAdded( QObject * );
+    void objectRemoved( QObject * );
 
 private:
     void parse();
@@ -223,6 +230,7 @@ private:
     QString templ;
     bool isDummyProject;
     bool modified;
+    QObjectList objs;
 
 };
 

@@ -200,6 +200,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
 	proName = pName;
     sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
+    objs.setAutoDelete( FALSE );
 }
 
 Project::~Project()
@@ -1154,3 +1155,28 @@ bool Project::removeFormFile( FormFile *ff )
     emit formFileRemoved( ff );
     return TRUE;
 }
+
+void Project::addObject( QObject *o )
+{
+    objs.append( o );
+    emit objectAdded( o );
+}
+
+void Project::setObjects( const QObjectList &ol )
+{
+    objs = ol;
+    for ( QObjectListIt it( objs ); it.current(); ++it )
+	emit objectAdded( it.current() );
+}
+
+void Project::removeObject( QObject *o )
+{
+    emit objectRemoved( o );
+    objs.removeRef( o );
+}
+
+QObjectList Project::objects() const
+{
+    return objs;
+}
+

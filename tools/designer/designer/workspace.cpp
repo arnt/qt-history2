@@ -114,6 +114,15 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, SourceFile* sf )
     setPixmap( 0, *filePixmap );
 }
 
+WorkspaceItem::WorkspaceItem( QListViewItem *parent, QObject *o, bool )
+    : QListViewItem( parent )
+{
+    init();
+    object = o;
+    t = ObjectType;
+    setPixmap( 0, *filePixmap );
+}
+
 WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
     : QListViewItem( parent )
 {
@@ -190,6 +199,8 @@ QString WorkspaceItem::text( int column ) const
 	return formFile->codeFile();
     case SourceFileType:
 	return sourceFile->fileName();
+    case ObjectType:
+	return object->name();
     }
 
     return QString::null; // shut up compiler
@@ -210,6 +221,8 @@ void WorkspaceItem::fillCompletionList( QStringList& completion )
     case SourceFileType:
 	completion += sourceFile->fileName();
 	break;
+    case ObjectType:
+	completion += object->name();
     }
 }
 
@@ -225,6 +238,8 @@ bool WorkspaceItem::checkCompletion( const QString& completion )
 	return completion == formFile->codeFile();
     case SourceFileType:
 	return completion == sourceFile->fileName();
+    case ObjectType:
+	return completion == object->name();
     }
     return FALSE;
 }
@@ -241,6 +256,8 @@ bool WorkspaceItem::isModified() const
 	return formFile->isModified( FormFile::WFormCode );
     case SourceFileType:
 	return sourceFile->isModified();
+    case ObjectType:
+	break;
     }
     return FALSE; // shut up compiler
 }
@@ -334,6 +351,8 @@ void Workspace::setCurrentProject( Project *pro )
 	disconnect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
 	disconnect( project, SIGNAL( formFileAdded(FormFile*) ), this, SLOT( formFileAdded(FormFile*) ) );
 	disconnect( project, SIGNAL( formFileRemoved(FormFile*) ), this, SLOT( formFileRemoved(FormFile*) ) );
+	disconnect( project, SIGNAL( objectAdded(QObject*) ), this, SLOT( objectAdded(QObject*) ) );
+	disconnect( project, SIGNAL( objectRemoved(QObject*) ), this, SLOT( objectRemoved(QObject*) ) );
 	disconnect( project, SIGNAL( projectModified() ), this, SLOT( update() ) );
     }
     project = pro;
@@ -342,6 +361,8 @@ void Workspace::setCurrentProject( Project *pro )
     connect( project, SIGNAL( formFileAdded(FormFile*) ), this, SLOT( formFileAdded(FormFile*) ) );
     connect( project, SIGNAL( formFileRemoved(FormFile*) ), this, SLOT( formFileRemoved(FormFile*) ) );
     connect( project, SIGNAL( destroyed(QObject*) ), this, SLOT( projectDestroyed(QObject*) ) );
+    connect( project, SIGNAL( objectAdded(QObject*) ), this, SLOT( objectAdded(QObject*) ) );
+    connect( project, SIGNAL( objectRemoved(QObject*) ), this, SLOT( objectRemoved(QObject*) ) );
     connect( project, SIGNAL( projectModified() ), this, SLOT( update() ) );
     clear();
 
@@ -362,6 +383,12 @@ void Workspace::setCurrentProject( Project *pro )
 	  forms.current(); ++forms ) {
 	FormFile* f = forms.current();
 	(void) new WorkspaceItem( projectItem, f );
+    }
+
+    for ( QObjectListIt objs = project->objects();
+	  objs.current(); ++objs ) {
+	QObject* o = objs.current();
+	(void) new WorkspaceItem( projectItem, o, FALSE );
     }
 
     updateColors();
@@ -394,6 +421,17 @@ void Workspace::formFileRemoved( FormFile* ff )
     updateColors();
 }
 
+void Workspace::objectAdded( QObject *o )
+{
+    (void) new WorkspaceItem( projectItem, o, FALSE );
+    updateColors();
+}
+
+void Workspace::objectRemoved( QObject *o )
+{
+    delete findItem( o );
+    updateColors();
+}
 
 void Workspace::update()
 {
@@ -465,6 +503,16 @@ WorkspaceItem *Workspace::findItem( SourceFile *sf )
     QListViewItemIterator it( this );
     for ( ; it.current(); ++it ) {
 	if ( ( (WorkspaceItem*)it.current() )->sourceFile == sf )
+	    return (WorkspaceItem*)it.current();
+    }
+    return 0;
+}
+
+WorkspaceItem *Workspace::findItem( QObject *o )
+{
+    QListViewItemIterator it( this );
+    for ( ; it.current(); ++it ) {
+	if ( ( (WorkspaceItem*)it.current() )->object == o )
 	    return (WorkspaceItem*)it.current();
     }
     return 0;
@@ -583,8 +631,6 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case WorkspaceItem::ProjectType:
 	MainWindow::self->popupProjectMenu( pos );
 	return;
-    default:
-	return;
     }
     switch ( menu.exec( pos ) ) {
     case REMOVE_SOURCE:
@@ -602,14 +648,12 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
     case OPEN_FORM_SOURCE:
 	itemClicked( LeftButton, i, pos );
 	break;
-    default:
-	break;
     }
 }
 	
 bool Workspace::eventFilter( QObject *o, QEvent * e )
 {
-    if ( o ==bufferEdit ) 
+    if ( o ==bufferEdit )
 	updateBufferEdit();
     return QListView::eventFilter( o, e );
 }
