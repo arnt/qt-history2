@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#40 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#40 $";
 #endif
 
 
@@ -445,7 +445,7 @@ QImage QPixmap::convertToImage() const
 			mono ? XYPixmap : ZPixmap );
     CHECK_PTR( xi );
 
-    int bitOrder = QImage::IgnoreEndian;
+    enum QImage::Endian bitOrder = QImage::IgnoreEndian;
     if ( mono ) {
 	bitOrder = xi->bitmap_bit_order == LSBFirst ?
 	    QImage::LittleEndian : QImage::BigEndian;
