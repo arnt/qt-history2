@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#106 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#107 $
 **
 ** Implementation of QFileDialog class
 **
@@ -42,6 +42,7 @@
 #include "qstrlist.h"
 
 #include <time.h>
+#include <ctype.h>
 
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
@@ -1406,9 +1407,10 @@ void QFileDialog::okClicked()
 {
     // If selection is valid, return it, else try
     // using selection as a directory to change to.
-    if ( !d->currentFileName.isNull() )
+    if ( !d->currentFileName.isNull() ) {
+	emit fileSelected( d->currentFileName );
 	accept();
-    else {
+    } else {
 	QFileInfo f;
 	QFileDialogPrivate::File * c = (QFileDialogPrivate::File *)files->currentItem();
         if ( c && files->isSelected(c) )
@@ -1497,7 +1499,7 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
     }	
 
     if ( old != d->currentFileName )
-	emit fileSelected( d->currentFileName );
+	emit fileHighlighted( d->currentFileName );
 
     return !d->currentFileName.isNull();
 }
@@ -1631,6 +1633,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    trySetSelection( f, TRUE );
 	}
     } else if ( trySetSelection( i->info, TRUE ) ) {
+	emit fileSelected( d->currentFileName );
 	accept();
     }
 }
@@ -1916,7 +1919,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	// ### here, in QListView and QComboBox.
 	if ( !files->currentItem() )
 	    files->setCurrentItem( files->firstChild() );
-	if ( files->currentItem() && ((QKeyEvent *)e)->ascii() ) {
+	if ( files->currentItem() && isprint(((QKeyEvent *)e)->ascii()) ) {
 	    files->blockSignals( TRUE );
 	    QApplication::sendEvent( files, e );
 	    files->blockSignals( FALSE );
