@@ -4418,7 +4418,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ( i > 0 )
 		--c;
 	    curh = c->format()->height();
-	    cury = lastY + baseLine - c->format()->ascent();
+	    cury = cy + baseLine - c->format()->ascent();
 	}
 
 	// first time - start again...
@@ -6482,7 +6482,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	} else {
 	    if ( !style->isAnchor() && style->color().isValid() ) {
 		// the style is not an anchor and defines a color.
-		// It might be used inside an anchor and it should 
+		// It might be used inside an anchor and it should
 		// override the link color.
 		format.linkColor = FALSE;
 	    }
