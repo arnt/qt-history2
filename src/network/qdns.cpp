@@ -1282,8 +1282,7 @@ QPtrList<QDnsRR> * QDnsDomain::cached( const QDns * r )
     bool nxdomain;
     int cnamecount = 0;
     while( it != end ) {
-	QString s = *it;
-	it++;
+	QString s = *it++;
 	nxdomain = FALSE;
 #if defined(QDNS_DEBUG)
 	qDebug( "looking at cache for %s (%s %d)",
@@ -2288,7 +2287,7 @@ static void doResInit()
 		    &domainName, &nameServer, &searchList )) {
 	    // for NT
 	    separator = ' ';
-	} else if ( getDnsParamsFromRegistry( 
+	} else if ( getDnsParamsFromRegistry(
 	    QString( "System\\CurrentControlSet\\Services\\VxD\\MSTCP" ),
 		    &domainName, &nameServer, &searchList )) {
 	    // for 95/98

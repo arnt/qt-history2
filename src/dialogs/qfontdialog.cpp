@@ -613,7 +613,7 @@ void QFontDialog::updateFamilies()
 #ifdef SHOW_FONTS_IN_FAMILIES
     int idx = 0;
 #endif
-    for( ; it != d->familyNames.end() ; it++ ) {
+    for( ; it != d->familyNames.end() ; ++it ) {
 	s = *it;
 
 #if 0

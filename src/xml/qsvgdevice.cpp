@@ -302,14 +302,14 @@ bool QSvgDevice::save( const QString &fileName )
     // ... and know how to name any image files to be written out
     int icount = 0;
     ImageList::Iterator iit = d->images.begin();
-    for ( ; iit != d->images.end(); iit++ ) {
+    for ( ; iit != d->images.end(); ++iit ) {
 	QString href = QString( "%1_%2.png" ).arg( svgName ).arg( icount );
 	(*iit).image.save( href, "PNG" );
 	(*iit).element.setAttribute( "xlink:href", href );
 	icount++;
     }
     PixmapList::Iterator pit = d->pixmaps.begin();
-    for ( ; pit != d->pixmaps.end(); pit++ ) {
+    for ( ; pit != d->pixmaps.end(); ++pit ) {
 	QString href = QString( "%1_%2.png" ).arg( svgName ).arg( icount );
 	(*pit).pixmap.save( href, "PNG" );
 	(*pit).element.setAttribute( "xlink:href", href );

@@ -477,7 +477,7 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 	else if ( cpiFace )
 	    fl << cpiFace->name();
 
-	for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
+	for ( QStringList::Iterator f = fl.begin(); f != fl.end(); ++f ) {
 	    QLibrary *old = plugDict[*f];
 	    if ( !old ) {
 		useful = TRUE;

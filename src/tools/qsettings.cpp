@@ -564,7 +564,7 @@ QSettingsGroup QSettingsPrivate::readGroup()
     if (grpit == hd.end()) {
 	QStringList::Iterator it = searchPaths.begin();
 	if ( !globalScope )
-	    it++;
+	    ++it;
 	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -600,7 +600,7 @@ void QSettingsPrivate::removeGroup(const QString &key)
     if (grpit == hd.end()) {
 	QStringList::Iterator it = searchPaths.begin();
 	if ( !globalScope )
-	    it++;
+	    ++it;
 	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -653,7 +653,7 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
     if (grpit == hd.end()) {
 	QStringList::Iterator it = searchPaths.begin();
 	if ( !globalScope )
-	    it++;
+	    ++it;
 	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
@@ -689,7 +689,7 @@ QDateTime QSettingsPrivate::modificationTime()
 
     QStringList::Iterator it = searchPaths.begin();
     if ( !globalScope )
-	it++;
+	++it;
     while (it != searchPaths.end()) {
 	QFileInfo fi((*it++) + "/" + heading + "rc");
 	if (fi.exists() && fi.lastModified() > datetime)
@@ -964,7 +964,7 @@ bool QSettings::sync()
 
 	QStringList::Iterator pit = d->searchPaths.begin();
 	if ( !d->globalScope )
-	    pit++;
+	    ++pit;
 	while (pit != d->searchPaths.end()) {
 	    QString filebase = it.key().lower().replace(QRegExp("\\s+"), "_");
 	    QFileInfo di(*pit);
@@ -977,7 +977,7 @@ bool QSettings::sync()
 	    }
 	}
 
-	it++;
+	++it;
 
 	if ( file.name().isEmpty() ) {
 
@@ -1023,13 +1023,13 @@ bool QSettings::sync()
 		    }
 
 		    stream << grpit.key() << "=" << v << endl;
-		    grpit++;
+		    ++grpit;
 		}
 
 		stream << endl;
 	    }
 
-	    hdit++;
+	    ++hdit;
 	}
 
 	if (file.status() != IO_Ok) {
@@ -1606,7 +1606,7 @@ QStringList QSettings::entryList(const QString &key) const
     QString itkey;
     while (it != grp.end()) {
 	itkey = it.key();
-	it++;
+	++it;
 
 	if ( realkey.length() > 0 ) {
 	    if ( itkey.left( realkey.length() ) != realkey )
@@ -1718,7 +1718,7 @@ QStringList QSettings::subkeyList(const QString &key) const
     QString itkey;
     while (it != grp.end()) {
 	itkey = it.key();
-	it++;
+	++it;
 
 	if ( realkey.length() > 0 ) {
 	    if ( itkey.left( realkey.length() ) != realkey )

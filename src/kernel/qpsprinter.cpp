@@ -4769,7 +4769,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 #ifdef Q_WS_X11
     if ( priv->embedFonts && xlfd ) {
 
-	for (QStringList::Iterator it=priv->fontpath.begin(); it!=priv->fontpath.end() && fontfilename.isEmpty(); it++) {
+	for (QStringList::Iterator it=priv->fontpath.begin(); it!=priv->fontpath.end() && fontfilename.isEmpty(); ++it) {
 	    if ((*it).left(1) != "/") continue; // not a path name, a font server
 	    QString fontmapname;
 	    int num = 0;
