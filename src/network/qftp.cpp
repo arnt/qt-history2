@@ -570,8 +570,8 @@ void QFtpDTP::socketConnected()
     // of writeBlocks when download and uploading files.
     // The actual size used here (128k) is default on most
     // Unixes.
-    socket.socketDevice()->setSendBufferSize(128 * 1024);
-    socket.socketDevice()->setReceiveBufferSize(128 * 1024);
+    socket->socketDevice()->setSendBufferSize(128 * 1024);
+    socket->socketDevice()->setReceiveBufferSize(128 * 1024);
 #endif
 
     bytesDone = 0;
