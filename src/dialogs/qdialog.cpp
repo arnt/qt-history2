@@ -25,6 +25,7 @@
 #include "qwhatsthis.h"
 #include "qpopupmenu.h"
 #include "qcursor.h"
+#include "private/qwidget_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -182,8 +183,9 @@
   property is enabled. By default, the size grip is disabled.
 */
 
-class QDialogPrivate : public Qt
+class QDialogPrivate : public QWidgetPrivate
 {
+    Q_DECL_PUBLIC( QWidget );
 public:
 
     QDialogPrivate()
@@ -204,6 +206,10 @@ public:
 #endif
     QPoint lastRMBPress;
 };
+
+#define d d_func()
+#define q q_func()
+
 
 /*!
   Constructs a dialog called \a name, with parent \a parent.
@@ -226,11 +232,10 @@ public:
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( parent, name,
+    : QWidget( new QDialogPrivate, parent, name,
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
       rescode(0), in_loop(0)
 {
-    d = new QDialogPrivate;
 }
 
 /*!
@@ -242,7 +247,6 @@ QDialog::~QDialog()
     // Need to hide() here, as our (to-be) overridden hide()
     // will not be called in ~QWidget.
     hide();
-    delete d;
 }
 
 /*!
@@ -428,34 +432,7 @@ void QDialog::done( int r )
 {
     hide();
     setResult( r );
-
-    // emulate QWidget::close()
-    bool isMain = qApp->mainWidget() == this;
-    bool checkLastWindowClosed = isTopLevel() && !isPopup();
-    if ( checkLastWindowClosed
-	 && qApp->receivers(SIGNAL(lastWindowClosed()))	) {
-	/* if there is no non-withdrawn top level window left (except
-	   the desktop, popups, or dialogs with parents), we emit the
-	   lastWindowClosed signal */
-	QWidgetList list   = qApp->topLevelWidgets();
-	QWidget *widget = 0;
-	for (int i = 0; i < list.size(); ++i) {
-	    widget = list.at(i);
-	    if ( !widget->isHidden()
-		 && !widget->isDesktop()
-		 && !widget->isPopup()
-		 && (!widget->isDialog() || !widget->parentWidget()))
-		break;
-	}
-	if ( widget == 0 )
-	    emit qApp->lastWindowClosed();
-    }
-    if ( isMain )
-	qApp->quit();
-    else if ( testWFlags(WDestructiveClose) ) {
-	clearWFlags(WDestructiveClose);
-	deleteLater();
-    }
+    d->close_helper(QWidgetPrivate::CloseNoEvent);
 }
 
 /*!

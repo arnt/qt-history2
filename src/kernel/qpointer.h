@@ -24,7 +24,7 @@ class QPointer
     QObject *o;
 public:
     inline QPointer() : o(0) {}
-    inline QPointer(T *obj) : o(obj)
+    inline QPointer(T *p) : o(p)
 	{ QMetaObject::addGuard(&o); }
     inline QPointer(const QPointer<T> &p) : o(p.o)
 	{ QMetaObject::addGuard(&o); }
@@ -32,13 +32,17 @@ public:
 	{ QMetaObject::removeGuard(&o); }
     inline QPointer<T> &operator=(const QPointer<T> &p)
 	{ QMetaObject::changeGuard(&o, p.o); return *this; }
-    inline QPointer<T> &operator=(T* obj)
-	{ QMetaObject::changeGuard(&o, obj); return *this; }
+    inline QPointer<T> &operator=(T* p)
+	{ QMetaObject::changeGuard(&o, p); return *this; }
 
     inline bool operator==( const QPointer<T> &p ) const
 	{ return o == p.o; }
-    inline bool operator!= ( const QPointer<T>& p ) const
+    inline bool operator==(const T *p ) const
+	{ return o == static_cast<const QObject*>(p); }
+    inline bool operator!= (const QPointer<T> &p) const
 	{ return o != p.o; }
+    inline bool operator!= (const T *p) const
+	{ return o != static_cast<const QObject*>(p); }
 
     inline bool isNull() const
 	{ return !o; }

@@ -3315,7 +3315,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 bool QETWidget::translateCloseEvent( const MSG & )
 {
-    return close(FALSE);
+    return d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
 }
 
 

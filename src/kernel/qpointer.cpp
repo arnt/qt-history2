@@ -109,7 +109,7 @@
 */
 
 /*!
-    \overload QPointer<T> & QPointer::operator=(T* p)
+    \overload \fn QPointer<T> & QPointer::operator=(T* p)
 
     Assignment operator. This guarded pointer then points to the same
     object as \a p points to.
@@ -127,7 +127,26 @@
 */
 
 /*!
+    \overload \fn bool QPointer::operator==( const T *p) const
+
+    Equality operator; implements traditional pointer semantics.
+    Returns TRUE if both \a p and this guarded pointer are 0, or if
+    both \a p and this pointer point to the same object; otherwise
+    returns FALSE.
+
+    \sa operator!=()
+*/
+
+/*!
     \fn bool QPointer::operator!= ( const QPointer<T>& p ) const
+
+    Inequality operator; implements pointer semantics, the negation of
+    operator==(). Returns TRUE if \a p and this guarded pointer are
+    not pointing to the same object; otherwise returns FALSE.
+*/
+
+/*!
+    \overload \fn bool QPointer::operator!= (const T *p) const
 
     Inequality operator; implements pointer semantics, the negation of
     operator==(). Returns TRUE if \a p and this guarded pointer are

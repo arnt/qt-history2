@@ -176,6 +176,13 @@ public:
 
     QRect clipRect() const;
 
+    enum CloseMode {
+	CloseNoEvent,
+	CloseWithEvent,
+	CloseWithSpontaneousEvent
+    };
+    bool close_helper(CloseMode mode);
+
 #if defined(Q_WS_X11)
     void createInputContext();
     void destroyInputContext();

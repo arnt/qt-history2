@@ -93,7 +93,7 @@ private:
 
     int		rescode;
     uint	in_loop: 1;
-    QDialogPrivate* d;
+    Q_DECL_PRIVATE( QDialog );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

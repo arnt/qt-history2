@@ -300,6 +300,7 @@ private:
     friend class QEventLoop;
     friend class QEvent;
     friend class QWidget;
+    friend class QWidgetPrivate;
     friend class QETWidget;
     friend class QDialog;
     friend class QAccelManager;

@@ -47,7 +47,7 @@ private: \
 
 class QMetaType;
 
-class Q_KERNEL_EXPORT QObjectPrivate
+class Q_KERNEL_EXPORT QObjectPrivate : public Qt
 {
     Q_DECL_PUBLIC( QObject );
 protected:

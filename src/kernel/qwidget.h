@@ -354,7 +354,6 @@ public:
     void setGeometry( int x, int y, int w, int h );
     void setGeometry( const QRect & );
     void adjustSize();
-    bool close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
     bool 		isHidden() const;
@@ -724,6 +723,7 @@ public:
     void drawText( const QPoint &, const QString &);
     inline void drawText(int x, int y, const QString &s)
     { drawText(QPoint(x, y), s); }
+    bool close(bool);
 #endif
 };
 
@@ -813,9 +813,6 @@ inline bool QWidget::isUpdatesEnabled() const
 
 inline void QWidget::update( const QRect &r )
 { update(r.x(), r.y(), r.width(), r.height()); }
-
-inline bool QWidget::close()
-{ return close( FALSE ); }
 
 inline bool QWidget::isVisible() const
 { return testWState(WState_Visible); }

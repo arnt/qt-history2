@@ -18,6 +18,54 @@
 #include "qwidget.h"
 
 /*!
+    \class QInputEvent qevent.h
+    \ingroup events
+
+    \brief The QInputEvent class is the base class for events that
+    describe user input.
+
+*/
+
+/*!
+    \fn bool QInputEvent::isAccepted() const
+
+    Returns the accept flag of the event object. It is set by default.
+
+    \sa accept(), ignore()
+*/
+
+/*!
+    \fn void QInputEvent::accept()
+
+    Sets the accept flag of the event object.
+
+    Setting the accept parameter indicates that the event receiver
+    wants the event. Unwanted events might be propagated to the parent
+    widget.
+
+    The accept flag is set by default.
+
+    \sa ignore()
+*/
+
+
+/*!
+    \fn void QInputEvent::ignore()
+
+    Clears the accept flag parameter of the event object.
+
+    Clearing the accept parameter indicates that the event receiver
+    does not want the event. Unwanted events might be propgated to the
+    parent widget.
+
+    The accept flag is set by default.
+
+    \sa accept()
+*/
+
+
+
+/*!
     \class QMouseEvent qevent.h
     \ingroup events
 
@@ -35,11 +83,10 @@
     until the last mouse button is released.
 
     A mouse event contains a special accept flag that indicates
-    whether the receiver wants the event. You should call
-    QMouseEvent::ignore() if the mouse event is not handled by your
-    widget. A mouse event is propagated up the parent widget chain
-    until a widget accepts it with QMouseEvent::accept() or an event
-    filter consumes it.
+    whether the receiver wants the event. You should call ignore() if
+    the mouse event is not handled by your widget. A mouse event is
+    propagated up the parent widget chain until a widget accepts it
+    with accept() or an event filter consumes it.
 
     The functions pos(), x() and y() give the cursor position relative
     to the widget that receives the mouse event. If you move the
@@ -79,7 +126,7 @@
 */
 
 QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
-    : QEvent(type), p(pos), b(button),s((ushort)state), accpt(TRUE){
+    : QInputEvent(type), p(pos), b(button),s((ushort)state) {
 	g = QCursor::pos();
 }
 
@@ -215,43 +262,6 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
 
 /*!
-    \fn bool QMouseEvent::isAccepted() const
-
-    Returns TRUE if the receiver of the event wants to keep the key;
-    otherwise returns FALSE.
-*/
-
-/*!
-    \fn void QMouseEvent::accept()
-
-    Sets the accept flag of the mouse event object.
-
-    Setting the accept parameter indicates that the receiver of the
-    event wants the mouse event. Unwanted mouse events are sent to the
-    parent widget.
-
-    The accept flag is set by default.
-
-    \sa ignore()
-*/
-
-
-/*!
-    \fn void QMouseEvent::ignore()
-
-    Clears the accept flag parameter of the mouse event object.
-
-    Clearing the accept parameter indicates that the event receiver
-    does not want the mouse event. Unwanted mouse events are sent to
-    the parent widget.
-
-    The accept flag is set by default.
-
-    \sa accept()
-*/
-
-
-/*!
     \class QWheelEvent qevent.h
     \brief The QWheelEvent class contains parameters that describe a wheel event.
 
@@ -263,9 +273,9 @@ Qt::ButtonState QMouseEvent::stateAfter() const
     at the time of the event.
 
     A wheel event contains a special accept flag that indicates
-    whether the receiver wants the event. You should call
-    QWheelEvent::accept() if you handle the wheel event; otherwise it
-    will be sent to the parent widget.
+    whether the receiver wants the event. You should call ignore() if
+    you do not handle the wheel event; otherwise it will be sent to
+    the parent widget.
 
     The QWidget::setEnable() function can be used to enable or disable
     mouse and keyboard events for a widget.
@@ -297,8 +307,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 #ifndef QT_NO_WHEELEVENT
 QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient )
-    : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
-      accpt(TRUE), o(orient)
+    : QInputEvent(Wheel), p(pos), d(delta), s((ushort)state), o(orient)
 {
     g = QCursor::pos();
 }
@@ -402,39 +411,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     AltButton OR'ed together.
 */
 
-/*!
-    \fn bool QWheelEvent::isAccepted() const
-
-    Returns TRUE if the receiver of the event handles the wheel event;
-    otherwise returns FALSE.
-*/
-
-/*!
-    \fn void QWheelEvent::accept()
-
-    Sets the accept flag of the wheel event object.
-
-    Setting the accept parameter indicates that the receiver of the
-    event wants the wheel event. Unwanted wheel events are sent to the
-    parent widget.
-
-    The accept flag is set by default.
-
-    \sa ignore()
-*/
-
-/*!
-    \fn void QWheelEvent::ignore()
-
-    Clears the accept flag parameter of the wheel event object.
-
-    Clearing the accept parameter indicates that the event receiver
-    does not want the wheel event. Unwanted wheel events are sent to
-    the parent widget. The accept flag is set by default.
-
-    \sa accept()
-*/
-
 
 /*!
     \enum Qt::Modifier
@@ -460,13 +436,13 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     Key events occur when a key is pressed or released when a widget
     has keyboard input focus.
 
-  A key event contains a special accept flag that indicates whether the
-  receiver wants the key event.  You should call QKeyEvent::ignore() if the
-  key press or release event is not handled by your widget. A key event is
-  propagated up the parent widget chain until a widget accepts it with
-  QKeyEvent::accept() or an event filter consumes it.
-  Key events for multi media keys are ignored by default. You should call
-  QKeyEvent::accept() if your widget handles those events.
+    A key event contains a special accept flag that indicates whether
+    the receiver wants the key event.  You should call ignore() if the
+    key press or release event is not handled by your widget. A key
+    event is propagated up the parent widget chain until a widget
+    accepts it with accept() or an event filter consumes it.  Key
+    events for multi media keys are ignored by default. You should
+    call accept() if your widget handles those events.
 
     The QWidget::setEnable() function can be used to enable or disable
     mouse and keyboard events for a widget.
@@ -491,8 +467,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     text is the Unicode text that the key generated. If \a autorep is
     TRUE, isAutoRepeat() will be TRUE. \a count is the number of
     single keys.
-
-    The accept flag is set to TRUE.
 */
 
 /*!
@@ -567,27 +541,6 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 }
 
 /*!
-    \fn bool QKeyEvent::isAccepted() const
-
-    Returns TRUE if the receiver of the event wants to keep the key;
-    otherwise returns FALSE
-*/
-
-/*!
-    \fn void QKeyEvent::accept()
-
-    Sets the accept flag of the key event object.
-
-    Setting the accept parameter indicates that the receiver of the
-    event wants the key event. Unwanted key events are sent to the
-    parent widget.
-
-    The accept flag is set by default.
-
-    \sa ignore()
-*/
-
-/*!
     \fn bool QKeyEvent::isAutoRepeat() const
 
     Returns TRUE if this event comes from an auto-repeating key and
@@ -607,19 +560,6 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     \sa QWidget::WA_KeyCompression
 */
 
-/*!
-    \fn void QKeyEvent::ignore()
-
-    Clears the accept flag parameter of the key event object.
-
-    Clearing the accept parameter indicates that the event receiver
-    does not want the key event. Unwanted key events are sent to the
-    parent widget.
-
-    The accept flag is set by default.
-
-    \sa accept()
-*/
 
 /*!
     \enum Qt::Key
@@ -1170,7 +1110,8 @@ void QFocusEvent::resetReason()
     The event handler QWidget::closeEvent() receives close events. The
     default implementation of this event handler accepts the close
     event. If you do not want your widget to be hidden, or want some
-    special handing, you should reimplement the event handler.
+    special handing, you should reimplement the event handler and
+    ignore() the event.
 
     The \link simple-application.html#closeEvent closeEvent() in the
     Application Walkthrough\endlink shows a close event handler that
@@ -1199,50 +1140,11 @@ void QFocusEvent::resetReason()
 /*!
     \fn QCloseEvent::QCloseEvent()
 
-    Constructs a close event object with the accept parameter flag set
-    to FALSE.
+    Constructs a close event object.
 
     \sa accept()
 */
 
-/*!
-    \fn bool QCloseEvent::isAccepted() const
-
-    Returns TRUE if the receiver of the event has agreed to close the
-    widget; otherwise returns FALSE.
-
-    \sa accept(), ignore()
-*/
-
-/*!
-    \fn void QCloseEvent::accept()
-
-    Sets the accept flag of the close event object.
-
-    Setting the accept flag indicates that the receiver of this event
-    agrees to close the widget.
-
-    The accept flag is \e not set by default.
-
-    If you choose to accept in QWidget::closeEvent(), the widget will
-    be hidden. If the widget's \c WDestructiveClose flag is set, it
-    will also be destroyed.
-
-    \sa ignore(), QWidget::hide()
-*/
-
-/*!
-    \fn void QCloseEvent::ignore()
-
-    Clears the accept flag of the close event object.
-
-    Clearing the accept flag indicates that the receiver of this event
-    does not want the widget to be closed.
-
-    The close event is constructed with the accept flag cleared.
-
-    \sa accept()
-*/
 
 /*!
     \class QContextMenuEvent qevent.h
@@ -1300,8 +1202,7 @@ void QFocusEvent::resetReason()
 */
 
 QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
-    : QEvent( ContextMenu ), p( pos ), accpt(TRUE), consum(TRUE),
-    reas( reason ), s((ushort)state)
+    : QInputEvent( ContextMenu ), p( pos ), reas( reason ), s((ushort)state)
 {
     gp = QCursor::pos();
 }
@@ -1369,66 +1270,6 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
     The returned value is \c LeftButton, \c RightButton, \c MidButton,
     \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
-*/
-
-/*!
-    \fn bool QContextMenuEvent::isConsumed() const
-
-    Returns TRUE (which stops propagation of the event) if the
-    receiver has blocked the event; otherwise returns FALSE.
-
-    \sa accept(), ignore(), consume()
-*/
-
-/*!
-    \fn void QContextMenuEvent::consume()
-
-    Sets the consume flag of the context event object.
-
-    Setting the consume flag indicates that the receiver of this event
-    does not want the event to be propagated further (i.e. not sent to
-    parent classes.)
-
-    The consumed flag is not set by default.
-
-    \sa ignore() accept()
-*/
-
-/*!
-    \fn bool QContextMenuEvent::isAccepted() const
-
-    Returns TRUE if the receiver has processed the event; otherwise
-    returns FALSE.
-
-    \sa accept(), ignore(), consume()
-*/
-
-/*!
-    \fn void QContextMenuEvent::accept()
-
-    Sets the accept flag of the context event object.
-
-    Setting the accept flag indicates that the receiver of this event
-    has processed the event. Processing the event means you did
-    something with it and it will be implicitly consumed.
-
-    The accept flag is not set by default.
-
-    \sa ignore() consume()
-*/
-
-/*!
-    \fn void QContextMenuEvent::ignore()
-
-    Clears the accept flag of the context event object.
-
-    Clearing the accept flag indicates that the receiver of this event
-    does not need to show a context menu. This will implicitly remove
-    the consumed flag as well.
-
-    The accept flag is not set by default.
-
-    \sa accept() consume()
 */
 
 /*!
@@ -1561,26 +1402,6 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
     Will return 0 for IMStartEvent and IMEndEvent.
 */
 
-/*!
-    \fn bool QIMEvent::isAccepted() const
-
-    Returns TRUE if the receiver of the event processed the event;
-    otherwise returns FALSE.
-*/
-
-/*!
-    \fn void QIMEvent::accept()
-
-    Sets the accept flag of the input method event object.
-
-    Setting the accept parameter indicates that the receiver of the
-    event processed the input method event.
-
-    The accept flag is not set by default.
-
-    \sa ignore()
-*/
-
 
 /*!
     \fn void QIMEvent::ignore()
@@ -1662,7 +1483,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, int device,
 			    int pressure, int xTilt, int yTilt,
 			    const QPair<int, int> &uId )
-    : QEvent( t ),
+    : QInputEvent( t ),
       mPos( pos ),
       mGPos( globalPos ),
       mDev( device ),
@@ -1788,41 +1609,6 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
     the event.
 
     \sa globalX(), globalPos()
-*/
-
-/*!
-    \fn bool QTabletEvent::isAccepted() const
-
-    Returns TRUE if the receiver of the event handles the tablet
-    event; otherwise returns FALSE.
-*/
-
-/*!
-    \fn void QTabletEvent::accept()
-
-    Sets the accept flag of the tablet event object.
-
-    Setting the accept flag indicates that the receiver of the event
-    wants the tablet event. Unwanted tablet events are sent to the
-    parent widget.
-
-    The accept flag is set by default.
-
-    \sa ignore()
-*/
-
-/*!
-    \fn void QTabletEvent::ignore()
-
-    Clears the accept flag parameter of the tablet event object.
-
-    Clearing the accept flag indicates that the event receiver does
-    not want the tablet event. Unwanted tablet events are sent to the
-    parent widget.
-
-    The accept flag is set by default.
-
-    \sa accept()
 */
 
 /*!

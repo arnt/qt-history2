@@ -26,14 +26,26 @@
 #include "qkernelevent.h"
 #endif // QT_H
 
-class Q_GUI_EXPORT QMouseEvent : public QEvent
+
+class Q_GUI_EXPORT QInputEvent : public QEvent
+{
+public:
+    QInputEvent(Type type) : QEvent(type), accpt(true){}
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+private:
+    bool accpt;
+};
+
+class Q_GUI_EXPORT QMouseEvent : public QInputEvent
 {
 public:
     QMouseEvent( Type type, const QPoint &pos, int button, int state );
 
     QMouseEvent( Type type, const QPoint &pos, const QPoint&globalPos,
 		 int button, int state )
-	: QEvent(type), p(pos), g(globalPos), b((ushort)button),s((ushort)state),accpt(TRUE) {};
+	: QInputEvent(type), p(pos), g(globalPos), b((ushort)button),s((ushort)state) {};
 
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() const { return g; }
@@ -44,26 +56,21 @@ public:
     ButtonState button() const	{ return (ButtonState) b; }
     ButtonState state()	const	{ return (ButtonState) s; }
     ButtonState stateAfter() const;
-    bool   isAccepted() const	{ return accpt; }
-    void   accept()		{ accpt = TRUE; }
-    void   ignore()		{ accpt = FALSE; }
 protected:
     QPoint p;
     QPoint g;
     ushort b;
     ushort s;
-    uint   accpt:1;
 };
 
 
 #ifndef QT_NO_WHEELEVENT
-class Q_GUI_EXPORT QWheelEvent : public QEvent
+class Q_GUI_EXPORT QWheelEvent : public QInputEvent
 {
 public:
     QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
     QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
-	: QEvent(Wheel), p(pos), g(globalPos), d(delta), s((ushort)state),
-	  accpt(TRUE), o(orient) {}
+	: QInputEvent(Wheel), p(pos), g(globalPos), d(delta), s((ushort)state), o(orient) {}
     int	   delta()	const	{ return d; }
     const QPoint &pos() const	{ return p; }
     const QPoint &globalPos() const	{ return g; }
@@ -73,20 +80,16 @@ public:
     int	   globalY()	const	{ return g.y(); }
     ButtonState state()	const	{ return ButtonState(s); }
     Orientation orientation() 	const 	{ return o; }
-    bool   isAccepted() const	{ return accpt; }
-    void   accept()		{ accpt = TRUE; }
-    void   ignore()		{ accpt = FALSE; }
 protected:
     QPoint p;
     QPoint g;
     int d;
     ushort s;
-    bool   accpt;
     Orientation o;
 };
 #endif
 
-class Q_GUI_EXPORT QTabletEvent : public QEvent
+class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
@@ -94,7 +97,7 @@ public:
 		  int pressure, int xTilt, int yTilt, const QPair<int,int> &uId );
     QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device,
 		  int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
-	: QEvent( TabletMove ), mPos( pos ), mGPos( globalPos ), mDev( device ),
+	: QInputEvent( TabletMove ), mPos( pos ), mGPos( globalPos ), mDev( device ),
 	  mPress( pressure ), mXT( xTilt ), mYT( yTilt ), mType( uId.first ),
 	  mPhy( uId.second ), mbAcc(TRUE)
     {}
@@ -125,44 +128,38 @@ protected:
 
 };
 
-class Q_GUI_EXPORT QKeyEvent : public QEvent
+class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 {
 public:
     QKeyEvent( Type type, int key, int state, const QString& text=QString::null,
 	       bool autorep=FALSE, ushort count=1 )
-	: QEvent(type), txt(text), k(key), s((ushort)state), c(count),
-	  accpt(TRUE), autor(autorep)
+	: QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
 	if ( key >= Key_Back && key <= Key_MediaLast )
-	    accpt = FALSE;
+	    ignore();
     }
     int	   key()	const	{ return k; }
 #ifndef QT_NO_COMPAT
     QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text=QString::null,
 	       bool autorep=FALSE, ushort count=1 )
-	: QEvent(type), txt(text), k(key), s((ushort)state), c(count),
-	  accpt(TRUE), autor(autorep)
+	: QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
 	if ( key >= Key_Back && key <= Key_MediaLast )
-	    accpt = FALSE;
+	    ignore();
     }
     int	   ascii()	const	{ return k > 255 ? 0 : k; }
 #endif
     ButtonState state()	const	{ return ButtonState(s); }
     ButtonState stateAfter() const;
-    bool   isAccepted() const	{ return accpt; }
     QString text()      const   { return txt; }
     bool   isAutoRepeat() const	{ return autor; }
     int   count() const	{ return int(c); }
-    void   accept()		{ accpt = TRUE; }
-    void   ignore()		{ accpt = FALSE; }
 
 protected:
     QString txt;
     int k;
     ushort s;
     ushort c;
-    uint   accpt:1;
     uint   autor:1;
 };
 
@@ -253,16 +250,11 @@ protected:
 };
 
 
-class Q_GUI_EXPORT QCloseEvent : public QEvent
+class Q_GUI_EXPORT QCloseEvent : public QInputEvent
 {
 public:
     QCloseEvent()
-	: QEvent(Close), accpt(FALSE) {}
-    bool   isAccepted() const	{ return accpt; }
-    void   accept()		{ accpt = TRUE; }
-    void   ignore()		{ accpt = FALSE; }
-protected:
-    bool   accpt;
+	: QInputEvent(Close) {}
 };
 
 
@@ -281,12 +273,12 @@ public:
 	: QEvent(Hide) {}
 };
 
-class Q_GUI_EXPORT QContextMenuEvent : public QEvent
+class Q_GUI_EXPORT QContextMenuEvent : public QInputEvent
 {
 public:
     enum Reason { Mouse, Keyboard, Other };
     QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
-	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( TRUE ), consum( TRUE ),
+	: QInputEvent( ContextMenu ), p( pos ), gp( globalPos ),
 	reas( reason ), s((ushort)state) {}
     QContextMenuEvent( Reason reason, const QPoint &pos, int state );
 
@@ -299,39 +291,27 @@ public:
     const QPoint&   globalPos() const { return gp; }
 
     ButtonState state()	const	{ return (ButtonState) s; }
-    bool    isAccepted() const	{ return accpt; }
-    bool    isConsumed() const	{ return consum; }
-    void    consume()		{ accpt = FALSE; consum = TRUE; }
-    void    accept()		{ accpt = TRUE; consum = TRUE; }
-    void    ignore()		{ accpt = FALSE; consum = FALSE; }
-
     Reason  reason() const { return Reason( reas ); }
 
 protected:
     QPoint  p;
     QPoint  gp;
-    bool    accpt;
-    bool    consum;
     uint    reas:8;
     ushort s;
 };
 
 
-class Q_GUI_EXPORT QIMEvent : public QEvent
+class Q_GUI_EXPORT QIMEvent : public QInputEvent
 {
 public:
     QIMEvent( Type type, const QString &text, int cursorPosition, int selLength = 0 )
-	: QEvent(type), txt(text), a(TRUE), cpos(cursorPosition), selLen(selLength) {}
+	: QInputEvent(type), txt(text), cpos(cursorPosition), selLen(selLength) {}
     const QString &text() const { return txt; }
     int cursorPos() const { return cpos; }
-    bool isAccepted() const { return a; }
-    void accept() { a = TRUE; }
-    void ignore() { a = FALSE; }
     int selectionLength() const { return selLen; }
 
 private:
     QString txt;
-    bool a  : 1;
     int cpos;
     int selLen;
 };

@@ -91,7 +91,6 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
-    void	contextMenuEvent( QContextMenuEvent * );
     void	hideEvent( QHideEvent* );
 
     void	valueChange();

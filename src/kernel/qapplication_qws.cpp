@@ -2243,7 +2243,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		widget->showNormal();
 		break;
 	    case QWSWindowOperationEvent::Close:
-		widget->close();
+		widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
 		break;
 	}
 	break;

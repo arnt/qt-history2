@@ -5256,7 +5256,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 //
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
-    return close(FALSE);
+    return d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
 }
 
 

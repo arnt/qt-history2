@@ -572,16 +572,6 @@ void QScrollBar::paintEvent( QPaintEvent * )
 
 static QCOORD sliderStartPos = 0;
 
-/*!
-    \reimp
- */
-void QScrollBar::contextMenuEvent( QContextMenuEvent *e )
-{
-    if(clickedAt)
-	e->consume();
-    else
-	e->ignore();
-}
 
 /*!
     \reimp

@@ -1103,8 +1103,6 @@ QRect QWidgetPrivate::clipRect() const
     return r;
 }
 
-
-
 /*!
     \overload void QPixmap::fill( const QWidget *widget, const QPoint &offset )
 
@@ -3710,46 +3708,32 @@ void QWidget::hideChildren(bool spontaneous)
     }
 }
 
-/*!
-    \overload
 
-    Closes this widget. Returns TRUE if the widget was closed;
-    otherwise returns FALSE.
-
-    If \a alsoDelete is TRUE or the widget has the \c
-    WDestructiveClose widget flag, the widget is also deleted. The
-    widget can prevent itself from being closed by rejecting the
-    \l QCloseEvent it gets. A close events is delivered to the widget
-    no matter if the widget is visible or not.
-
-    The QApplication::lastWindowClosed() signal is emitted when the
-    last visible top level widget is closed.
-
-    Note that closing the \l QApplication::mainWidget() terminates the
-    application.
-
-    \sa closeEvent(), QCloseEvent, hide(), QApplication::quit(),
-    QApplication::setMainWidget(), QApplication::lastWindowClosed()
-*/
-
-bool QWidget::close( bool alsoDelete )
+bool QWidgetPrivate::close_helper(CloseMode mode)
 {
-    if ( is_closing )
+    if ( q->is_closing )
 	return TRUE;
-    is_closing = 1;
-    WId id	= winId();
-    bool isMain = qApp->mainWidget() == this;
-    bool checkLastWindowClosed = isTopLevel() && !isPopup();
-    bool deleted = FALSE;
-    QCloseEvent e;
-    QApplication::sendEvent( this, &e );
-    deleted = !QWidget::find(id);
-    if ( !deleted && !e.isAccepted() ) {
-	is_closing = 0;
-	return FALSE;
+    q->is_closing = 1;
+    bool isMain = qApp->mainWidget() == q;
+    bool checkLastWindowClosed = q->isTopLevel() && !q->isPopup();
+    bool wasDeleted = false;
+
+    if (mode != CloseNoEvent) {
+	QPointer<QWidget> that = q;
+	QCloseEvent e;
+	if (mode == CloseWithSpontaneousEvent)
+	    QApplication::sendSpontaneousEvent(q, &e);
+	else
+	    QApplication::sendEvent(q, &e );
+	wasDeleted = (that == 0);
+	if (!wasDeleted && !e.isAccepted()) {
+	    q->is_closing = 0;
+	    return false;
+	}
+	if (!wasDeleted && !q->isHidden() )
+	    q->hide();
     }
-    if ( !deleted && !isHidden() )
-	hide();
+
     if ( checkLastWindowClosed
 	 && qApp->receivers(SIGNAL(lastWindowClosed())) ) {
 	/* if there is no non-withdrawn top level window left (except
@@ -3768,36 +3752,42 @@ bool QWidget::close( bool alsoDelete )
 	if ( widget == 0 )
 	    emit qApp->lastWindowClosed();
     }
-    if ( isMain )
+    if (isMain)
 	qApp->quit();
-    if ( deleted )
-	return TRUE;
-    is_closing = 0;
-    if ( alsoDelete )
-	delete this;
-    else if ( testWFlags(WDestructiveClose) ) {
-	clearWFlags(WDestructiveClose);
-	deleteLater();
+    if (!wasDeleted) {
+	q->is_closing = 0;
+	if (q->testWFlags(WDestructiveClose)) {
+	    q->clearWFlags(WDestructiveClose);
+	    q->deleteLater();
+	}
     }
-    return TRUE;
+    return true;
 }
 
 
 /*!
-    \fn bool QWidget::close()
-
     Closes this widget. Returns TRUE if the widget was closed;
     otherwise returns FALSE.
 
     First it sends the widget a QCloseEvent. The widget is \link
     hide() hidden\endlink if it \link QCloseEvent::accept()
-    accepts\endlink the close event. The default implementation of
-    QWidget::closeEvent() accepts the close event.
+    accepts\endlink the close event. If it \link QCloseEvent::ignore()
+    ignores\endlink the event, nothing happens. The default
+    implementation of QWidget::closeEvent() accepts the close event.
+
+    If the widget has the \c WDestructiveClose widget flag, the widget
+    is also deleted. A close events is delivered to the widget no
+    matter if the widget is visible or not.
 
     The \l QApplication::lastWindowClosed() signal is emitted when the
     last visible top level widget is closed.
 
 */
+
+bool QWidget::close()
+{
+    return d->close_helper(QWidgetPrivate::CloseWithEvent);
+}
 
 /*!
     \property QWidget::visible
@@ -4764,15 +4754,12 @@ void QWidget::resizeEvent( QResizeEvent * )
     This event handler, for event \a e, can be reimplemented in a
     subclass to receive widget close events.
 
-    The default implementation calls e->accept(), which hides this
-    widget. See the \l QCloseEvent documentation for more details.
-
     \sa event(), hide(), close(), QCloseEvent
 */
 
 void QWidget::closeEvent( QCloseEvent *e )
 {
-    e->accept();
+    Q_UNUSED(e);
 }
 
 
@@ -5463,6 +5450,16 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 	return;
     QPainter paint(this);
     paint.drawText(p.x(), p.y(), str);
+}
+
+
+bool QWidget::close( bool alsoDelete )
+{
+    QPointer<QWidget> that = this;
+    bool accepted = close();
+    if (alsoDelete && accepted && that)
+	deleteLater();
+    return accepted;
 }
 #endif // QT_NO_COMPAT
 

@@ -1320,9 +1320,9 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inStructure:
     case inDesk:
 	break;
-    case inGoAway: {
-	widget->close();
-	break; }
+    case inGoAway:
+	widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+	break;
     case inToolbarButton: { //hide toolbars thing
 	int h = 0;
 	QObjectList chldrn = widget->children();
