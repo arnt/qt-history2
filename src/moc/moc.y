@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#6 $
+** $Id: //depot/qt/main/src/moc/moc.y#7 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -89,7 +89,8 @@ extern int yydebug;
 int	 lexdebug;
 int	 lineNo;				// current line number
 bool	 errorControl;				// controlled errors
-bool	 dontGenerate;				// don't generate for class
+bool	 skipClass;				// don't generate for class
+bool	 skipFunc;				// don't generate for func
 
 ArgList	 *tmpArgList;				// current argument list
 Function *tmpFunc;				// current member function
@@ -240,7 +241,7 @@ decl_specs:		  decl_specs decl_specifier
 
 storage_class_specifier:  AUTO
 			| REGISTER
-			| STATIC
+			| STATIC		{ skipFunc = TRUE; }
 			| EXTERN
 			;
 
@@ -375,7 +376,7 @@ class_specifier:	  class_head
 			  opt_obj_member_list
 			  '}'			{ BEGIN CLASS_DEF; }
 			| class_head		{ BEGIN CLASS_DEF;
-						  dontGenerate = TRUE; }
+						  skipClass = TRUE; }
 			;
 
 class_head:		  class_key
@@ -503,9 +504,6 @@ int main( int argc, char **argv )		// program starts here
     }
     init();
     yyparse();
-//    methods.clear();
-//    signals.clear();
-//    slots.clear();
 
     return 0;
 }
@@ -518,7 +516,8 @@ void init()					// initialize
     lexdebug = 0;
     yydebug = 0;
     errorControl = FALSE;
-    dontGenerate = FALSE;
+    skipClass = FALSE;
+    skipFunc = FALSE;
     methods.autoDelete( TRUE );
     signals.autoDelete( TRUE );
     slots.autoDelete( TRUE );
@@ -546,6 +545,44 @@ char *stradd( char *s1, char *s2 )		// adds two strings
 }
 
 
+// Generate C++ code for building member function table
+
+void generateFuncs( FuncList *list, char *functype, int num )
+{
+    Function *f;
+    for ( f=list->first(); f; f=list->next() ) {
+	QString typstr = "";
+	int count = 0;
+	Argument *a = f->args->first();
+	while ( a ) {
+	    if ( count++ )
+		typstr += ",";
+	    typstr += a->typeName;
+	    typstr += a->ptrType;
+	    a = f->args->next();
+	}
+	fprintf( out, "    typedef %s %s(%s::*m%d_t%d)(%s);\n",
+		 (char*)f->type, (char*)f->ptrType,
+		 (char*)className, num, list->at(),(char*)typstr );
+	f->type = f->name.copy();
+	f->type += "(";
+	f->type += typstr;
+	f->type += ")";
+    }
+    for ( f=list->first(); f; f=list->next() )
+	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
+		 num, list->at(), (char*)className, (char*)f->name);
+    if ( list->count() )
+	fprintf( out, "    QMetaData *%s_tbl = new QMetaData[%d];\n",
+		 functype, list->count() );
+    for ( f=list->first(); f; f=list->next() )
+	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
+		 functype, list->at(), (char*)f->type );
+    for ( f=list->first(); f; f=list->next() )
+	fprintf( out, "    %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
+	         functype, list->at(), num, list->at() );
+}
+
 void generate()					// generate C++ source code
 {
     char *hdr1 = "/****************************************************************************\n** Quasar object meta data from C++ file %s\n**\n** ";
@@ -553,8 +590,8 @@ void generate()					// generate C++ source code
     char *hdr3 = "Warning: All changes will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     static int gen_count = 0;
-    if ( dontGenerate ) {			// don't generate for class
-	dontGenerate = FALSE;
+    if ( skipClass ) {				// don't generate for class
+	skipClass = FALSE;
 	return;
     }
     if ( gen_count++ == 0 ) {			// first class to be generated
@@ -575,8 +612,6 @@ void generate()					// generate C++ source code
     fprintf( out, "char *%s::className() const\n{\n    ", (char*)className );
     fprintf( out, "return \"%s\";\n}\n\n", (char*)className );
 
-    Function *f;
-
 //
 // Generate initMetaObject member function
 //
@@ -589,90 +624,15 @@ void generate()					// generate C++ source code
 //
 // Build methods array in initMetaObject()
 //
-    for ( f=methods.first(); f; f=methods.next() ) {
-	QString typstr = "";
-	int count = 0;
-	Argument *a = f->args->first();
-	while ( a ) {
-	    if ( count++ )
-		typstr += ",";
-	    typstr += a->typeName;
-	    typstr += a->ptrType;
-	    a = f->args->next();
-	}
-	fprintf( out, "    typedef %s (%s::*m1_t%d)(%s);\n", (char *)f->type,
-		 (char*)className, methods.at(),(char*)typstr );
-	f->type = f->name.copy();
-	f->type += "(";
-	f->type += typstr;
-	f->type += ")";
-    }
-    if ( methods.count() )
-	fprintf( out, "    static QMetaData method_tbl[] = {\n" );
-    for ( f=methods.first(); f; f=methods.next() ) {
-	fprintf( out, "\t{ \"%s\", (QMember)((m1_t%d)&%s::%s) }%s\n",
-	         (char*)f->type, methods.at(), (char*)className,
-		 (char*)f->name,
-		 (methods.at() == methods.count()-1 ? "};" : ",") );
-    }
+    generateFuncs( &methods, "method", 1 );
 //
 // Build slots array in initMetaObject()
 //
-    for ( f=slots.first(); f; f=slots.next() ) {
-	QString typstr = "";
-	int count = 0;
-	Argument *a = f->args->first();
-	while ( a ) {
-	    if ( count++ )
-		typstr += ",";
-	    typstr += a->typeName;
-	    typstr += a->ptrType;
-	    a = f->args->next();
-	}
-	fprintf( out, "    typedef %s (%s::*m2_t%d)(%s);\n", (char *)f->type,
-		 (char*)className, slots.at(),(char*)typstr );
-	f->type = f->name.copy();
-	f->type += "(";
-	f->type += typstr;
-	f->type += ")";
-    }
-    if ( slots.count() )
-	fprintf( out, "    static QMetaData slot_tbl[] = {\n" );
-    for ( f=slots.first(); f; f=slots.next() ) {
-	fprintf( out, "\t{ \"%s\", (QMember)((m2_t%d)&%s::%s) }%s\n",
-	         (char*)f->type, slots.at(), (char*)className,
-		 (char*)f->name,
-		 (slots.at() == slots.count()-1 ? "};" : ",") );
-    }
+    generateFuncs( &slots, "slot", 2 );
 //
 // Build signals array in initMetaObject()
 //
-    for ( f=signals.first(); f; f=signals.next() ) {
-	QString typstr = "";
-	int count = 0;
-	Argument *a = f->args->first();
-	while ( a ) {
-	    if ( count++ )
-		typstr += ",";
-	    typstr += a->typeName;
-	    typstr += a->ptrType;
-	    a = f->args->next();
-	}
-	fprintf( out, "    typedef %s (%s::*m3_t%d)(%s);\n", (char *)f->type,
-		 (char*)className, signals.at(),(char*)typstr );
-	f->type = f->name.copy();
-	f->type += "(";
-	f->type += typstr;
-	f->type += ")";
-    }
-    if ( signals.count() )
-	fprintf( out, "    static QMetaData signal_tbl[] = {\n" );
-    for ( f=signals.first(); f; f=signals.next() ) {
-	fprintf( out, "\t{ \"%s\", (QMember)((m3_t%d)&%s::%s) }%s\n",
-	         (char*)f->type, signals.at(), (char*)className,
-		 (char*)f->name,
-		 (signals.at() == signals.count()-1 ? "};" : ",") );
-    }
+    generateFuncs( &signals, "signal", 3 );
 //
 // Finally create meta object
 //
@@ -689,7 +649,7 @@ void generate()					// generate C++ source code
     if ( signals.count() )
 	fprintf( out, "\tsignal_tbl, %d );\n", signals.count());
     else
-        fprintf( out, "\t0, 0 );\n\n" );
+        fprintf( out, "\t0, 0 );\n" );
     fprintf( out, "}\n" );
 
 //
@@ -699,6 +659,7 @@ void generate()					// generate C++ source code
 //
 // Generate internal signal functions
 //
+    Function *f;
     f = signals.first();			// make internal signal methods
     while ( f ) {
 	QString typstr = "";			// type string
@@ -766,21 +727,16 @@ ArgList *addArg( Argument *a )			// add argument to list
 
 void addMember( QString type, char m )
 {
-/*
-    Function *n = new Function;
-    n->name = f->name;
-    n->type = type;
-    n->ptrType = f->ptrType;
-    n->lineNo = f->lineNo;
-    n->args = tmpArgList;
-*/
     tmpFunc->type = type;
     tmpFunc->args = tmpArgList;
     tmpArgList = new ArgList;
-    switch( m ) {
-	case 'm': methods.append( tmpFunc ); break;
-	case 's': signals.append( tmpFunc ); break;
-	case 't': slots.  append( tmpFunc ); break;
+    if ( !skipFunc ) {
+	switch( m ) {
+	    case 'm': methods.append( tmpFunc ); break;
+	    case 's': signals.append( tmpFunc ); break;
+	    case 't': slots.  append( tmpFunc ); break;
+	}
     }
+    skipFunc = FALSE;
     tmpFunc = new Function;
 }
