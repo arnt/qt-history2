@@ -8,8 +8,10 @@
 #include <qfont.h>
 #include <qpixmap.h>
 #include <qimage.h>
+#include <quuid.h>
 
 #include <assert.h>
+#include <ole2.h>
 
 static int errorcount = 0;
 static int loopcount = 50;
@@ -368,7 +370,16 @@ public:
 	IDispatch *disp = 0;
 	emit setDispatchSlot( disp );
 	QAxObject *o = object->querySubObject( "getDispatchSlot()" );
+	Q_ASSERT( !o );
+	object->queryInterface( IID_IDispatch, (void**)&disp );
+	Q_ASSERT( disp );
+	emit setDispatchSlot( disp );
+	disp->Release();
+	o = object->querySubObject( "getDispatchSlot()" );
+	Q_ASSERT( o );
+	object->dynamicCall( "setDispatchSlot(IDispatch*)", o->asVariant() );
 	delete o;
+
 
 /*	Difficult to support
 	emit betaPointerSlot( m_beta );
