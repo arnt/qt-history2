@@ -1,13 +1,6 @@
 // Qt stuff
 #include "qnp.h"
 #include <qpainter.h>
-#include <qtstream.h>
-#include <qbuffer.h>
-#include <qpixmap.h>
-#include <qmenubar.h>
-#include <qpushbt.h>
-#include <qlist.h>
-#include <qmsgbox.h>
 
 class Trivial : public QNPWidget {
     Q_OBJECT
@@ -17,6 +10,7 @@ public:
 	QPainter p(this);
 	p.setClipRect(event->rect());
 	int w = width();
+	p.drawRect(rect());
 	p.drawText(w/8, 0, w-w/4, height(), AlignCenter|WordBreak, "Trivial!");
     }
 };
