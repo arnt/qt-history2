@@ -30,3 +30,15 @@ cd ~/qt-%VERSION%/examples/launcher
 See the HTML documentation in doc/html for detailed installation
 instructions.
 
+Note for cross-compilation:
+
+Certain tools such as moc and uic are required to run on the host machine
+therefore are to be built natively. The uic tool also requires a native Qt
+library which means the first step in cross-compilation when requiring uic is
+to do a native build to generate the required native libraries and tools.
+This only needs to be done once. You may also find if you have KDE installed
+that you already have a native Qt library and native uic tool so it can be
+possible to save time and skip this step in special cases. You can then
+provide an -xplatform argument to configure to continue the cross-platform
+build process following the procedures below.
+
