@@ -1,4 +1,4 @@
-/****************************************************************************
+S/****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#190 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
@@ -56,6 +56,7 @@
 #include <qpixmap.h>
 #include <qapplication.h> // for settings
 #include <qsettings.h>
+#include <netinet/in.h>
 #endif // QT_NO_XFTFREETYPE
 
 #include <ctype.h>
