@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qptrcollection.cpp#7 $
 **
 ** Implementation of base class for all pointer based collection classes
 **
@@ -171,6 +171,7 @@ QPtrCollection::Item QPtrCollection::newItem( Item d )
 
 void QPtrCollection::deleteItem( Item d )
 {
+    if ( del_item )
 #if defined(Q_DELETING_VOID_UNDEFINED)
 	delete (char *)d;			// default operation
 #else
