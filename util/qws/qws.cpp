@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#6 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#7 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -19,6 +19,7 @@
 *****************************************************************************/
 
 #include "qws.h"
+#include "qwsevent.h"
 #include "qwscommand.h"
 
 #include <qapplication.h>
@@ -27,9 +28,13 @@
 #include <qsocket.h>
 #include <qdatetime.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+
+static int SWIDTH=640;
+static int SHEIGHT=480;
 
 // make a unique window id
 static int get_window_id()
@@ -46,12 +51,15 @@ static int get_window_id()
 
 QWSClient::QWSClient( int socket, int shmid ) :
     QSocket(socket),
-    s(socket),
-    stream(this)
+    s(socket)
 {
-    stream.setByteOrder(QDataStream::LittleEndian); // XXX per client
-    stream << SWIDTH << SHEIGHT << 32 << shmid;
-    stream.device()->flush();
+    QWSHeader header;
+    header.width = SWIDTH;
+    header.height = SHEIGHT;
+    header.depth = 32;
+    header.shmid = shmid;
+    writeBlock((char*)&header,sizeof(header));
+    flush();
 }
 
 int QWSClient::socket() const
@@ -61,10 +69,14 @@ int QWSClient::socket() const
 
 void QWSClient::sendMouseEvent(const QPoint& pos, int state)
 {
-    int window = 0; // not used yet
-    int time=timer.elapsed();
-    stream << INT8('M') << window << (int)pos.x() << (int)pos.y() << state << time;
-    stream.device()->flush();
+    QWSMouseEvent event;
+    event.type = QWSEvent::Mouse;
+    event.zero_window = 0; // not used yet
+    event.x_root=pos.x();
+    event.y_root=pos.y();
+    event.state=state;
+    event.time=timer.elapsed();
+    writeBlock((char*)&event,sizeof(event));
 }
 
 /*********************************************************************
@@ -131,19 +143,29 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 
 class Main : public QWidget {
     QImage img;
-    QWSServer server;
+    QWSServer *server;
 
 public:
     Main() :
-	server( this )
+	server( 0 )
     {
-	img = QImage( server.frameBuffer(),
-	    SWIDTH, SHEIGHT, 32, 0, 0, QImage::BigEndian );
-
-	setMouseTracking(TRUE);
 	resize(SWIDTH,SHEIGHT);
-	startTimer(500);
+	setMouseTracking(TRUE);
     }
+
+    void serve(int refresh_delay)
+    {
+	if ( !server ) {
+	    setFixedSize(size()); // Allow -geometry to set it, but then freeze.
+	    SWIDTH = width();
+	    SHEIGHT = width();
+	    server = new QWSServer(this);
+	    img = QImage( server->frameBuffer(),
+			SWIDTH, SHEIGHT, 32, 0, 0, QImage::BigEndian );
+	    startTimer(refresh_delay);
+	}
+    }
+
     void timerEvent(QTimerEvent*)
     {
 	repaint(FALSE);
@@ -164,7 +186,7 @@ public:
 
     void sendMouseEvent(QMouseEvent* e)
     {
-	server.sendMouseEvent(e->pos(), e->stateAfter());
+	server->sendMouseEvent(e->pos(), e->stateAfter());
     }
 
     void paintEvent(QPaintEvent* e)
@@ -177,12 +199,19 @@ public:
 
 main(int argc, char** argv)
 {
+    int refresh_delay=500;
+
     QApplication app(argc, argv);
+
+    if ( argc > 1 ) {
+	refresh_delay = atoi(argv[1]);
+    }
 
     qwsRegisterCommands();
 
     Main m;
     app.setMainWidget(&m);
+    m.serve(refresh_delay);
     m.show();
 
     return app.exec();

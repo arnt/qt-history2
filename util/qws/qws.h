@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#3 $
+** $Id: //depot/qt/main/util/qws/qws.h#4 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -27,8 +27,6 @@
 
 #include "qwsproperty.h"
 
-const int SWIDTH=640;
-const int SHEIGHT=480;
 const int QTFB_PORT=0x4642; // FB
 
 class QWSClient;
@@ -85,7 +83,6 @@ public:
 
 public:
     int s; // XXX QSocket::d::socket->socket() is this value
-    QDataStream stream;
     QTime timer;
 
 };
