@@ -59,6 +59,7 @@ QString Project::databaseDescription() const
 void Project::setProjectName( const QString &n )
 {
     proName = n;
+    save();
 }
 
 QString Project::projectName() const
@@ -75,35 +76,77 @@ void Project::parse()
     QString contents = ts.read();
     f.close();
 
+    QString fl( QFileInfo( filename ).baseName() );
+    proName = fl[ 0 ].upper() + fl.mid( 1 );
+
     int i = contents.find( "INTERFACES" );
-    if ( i == -1 )
-	return;
-	
-    QString part = contents.mid( i + QString( "INTERFACES" ).length() );
-    QStringList lst;
-    bool inName = FALSE;
-    QString currName;
-    for ( i = 0; i < (int)part.length(); ++i ) {
-	QChar c = part[ i ];
-	if ( ( c.isLetter() || c.isDigit() || c == '.' ) &&
-	     c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
-	    if ( !inName )
-		currName = QString::null;
-	    currName += c;
-	    inName = TRUE;
-	} else {
+    if ( i != -1 ) {
+	QString part = contents.mid( i + QString( "INTERFACES" ).length() );
+	QStringList lst;
+	bool inName = FALSE;
+	QString currName;
+	for ( i = 0; i < (int)part.length(); ++i ) {
+	    QChar c = part[ i ];
+	    if ( ( c.isLetter() || c.isDigit() || c == '.' ) &&
+		 c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' ) {
+		if ( !inName )
+		    currName = QString::null;
+		currName += c;
+		inName = TRUE;
+	    } else {
+		if ( inName ) {
+		    inName = FALSE;
+		    if ( currName.right( 3 ).lower() == ".ui" )
+			lst.append( currName );
+		}
+	    }
+	}
+
+	uifiles = lst;
+    }
+
+    i = contents.find( "DBFILE" );
+    if ( i != -1 ) {
+	QString part = contents.mid( i + QString( "DBFILE" ).length() );
+	bool inName = FALSE;
+	QString currName;
+	for ( i = 0; i < (int)part.length(); ++i ) {
+	    QChar c = part[ i ];
+	    if ( !inName ) {
+		if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' )
+		    inName = TRUE;
+		else
+		    continue;
+	    }
 	    if ( inName ) {
-		inName = FALSE;
-		if ( currName.right( 3 ).lower() == ".ui" )
-		    lst.append( currName );
+		if ( c == '\n' )
+		    break;
+		dbFile += c;
 	    }
 	}
     }
-
-    // ##### parse project name
-    QString fl( QFileInfo( filename ).baseName() );
-    proName = fl[ 0 ].upper() + fl.mid( 1 );
-    uifiles = lst;
+	
+    i = contents.find( "PROJECTNAME" );
+    if ( i != -1 ) {
+	proName = "";
+	QString part = contents.mid( i + QString( "PROJECTNAME" ).length() );
+	bool inName = FALSE;
+	QString currName;
+	for ( i = 0; i < (int)part.length(); ++i ) {
+	    QChar c = part[ i ];
+	    if ( !inName ) {
+		if ( c != ' ' && c != '\t' && c != '\n' && c != '=' && c != '\\' )
+		    inName = TRUE;
+		else
+		    continue;
+	    }
+	    if ( inName ) {
+		if ( c == '\n' )
+		    break;
+		proName += c;
+	    }
+	}
+    }
 }
 
 void Project::clear()
@@ -139,6 +182,7 @@ void Project::setFormLoaded( const QString &form, bool loaded )
 void Project::setDatabaseDescription( const QString &db )
 {
     dbFile = db;
+    save();
 }
 
 void Project::setDescription( const QString &s )
@@ -230,8 +274,29 @@ void Project::save()
 	contents += "INTERFACES\t= ";
 	for ( QStringList::Iterator it = uifiles.begin(); it != uifiles.end(); ++it )
 	    contents += *it + " ";
+	contents += "\n";
     }
-	
+
+    i = contents.find( "DBFILE" );
+    if ( i != -1 ) {
+	int start = i;
+	int end = contents.find( '\n', i );
+	if ( end == -1 )
+	    end = contents.length() - 1;
+	contents.remove( start, end - start + 1 );
+    }
+    contents += "DBFILE\t= " + dbFile + "\n";
+    
+    i = contents.find( "PROJECTNAME" );
+    if ( i != -1 ) {
+	int start = i;
+	int end = contents.find( '\n', i );
+	if ( end == -1 )
+	    end = contents.length() - 1;
+	contents.remove( start, end - start + 1 );
+    }
+    contents += "PROJECTNAME\t= " + proName + "\n";
+    
     if ( !f.open( IO_WriteOnly ) ) {
 	qWarning( "Couldn't write project file...." );
 	return;
