@@ -247,7 +247,7 @@ static const char * const diff_xpm[]={
 "#aaaaab...cde...",
 "bbbbbbb....bb..."};
 /* XPM */
-static char *refresh_xpm[]={
+static const char * const refresh_xpm[]={
 "16 16 5 1",
 "b c #000000",
 "c c #000080",
@@ -268,10 +268,10 @@ static char *refresh_xpm[]={
 "................",
 ".#b#............",
 ".bbb............",
-".#b#............"
+".#b#............",
 "................"};
 
-class P4Interface : public QObject, public ActionInterface
+class P4Interface : public QObject, public ActionInterface, public QLibraryInterface
 {
     Q_OBJECT
 
@@ -286,6 +286,9 @@ public:
     QAction *create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname ) const;
     void connectTo( QUnknownInterface *ai );
+
+    bool init();
+    bool canUnload() const;
 
 private slots:
     void p4Aware( bool );
@@ -740,9 +743,11 @@ QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )
     QUnknownInterface *iface = 0;
 
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(ActionInterface*)this;
     else if ( uuid == IID_ActionInterface )
 	iface = (ActionInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -764,9 +769,21 @@ unsigned long P4Interface::release()
     return ref;
 }
 
+bool P4Interface::init()
+{
+    return TRUE;
+}
+
+bool P4Interface::canUnload() const
+{
+    return actions.isEmpty();
+}
+
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( P4Interface );
+    QUnknownInterface *iface = (QUnknownInterface*)(ActionInterface*)new P4Interface;
+    iface->addRef();
+    return iface;
 }
 
 #include "main.moc"
