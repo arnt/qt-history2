@@ -3157,7 +3157,10 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     for (p = 0; p < (int)params.cArgs; ++p) {
         bool out;
         QByteArray type = d->metaobj->paramType(signature, p, &out);
-        QVariant qvar(QVariant::nameToType(type), v[p + 1]);
+        QVariant::Type vt = QVariant::nameToType(type);
+        QVariant qvar;
+        if (vt != QVariant::UserType)
+            qvar = QVariant(vt, v[p + 1]);
         if (!qvar.isValid()) {
             if (type == "IDispatch*")
                 qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
