@@ -60,6 +60,142 @@ network protocol) use QDir and no QSocket.
 
 <h2>QNetworkProtocol, QNetworkOperation, QUrlOperator</h2>
 
+QNetworkProtocol provides a base class for implementations
+of network protocols and an architecture to a dynamic registration
+and unregistration of network protocols. If you use these architecture
+you also don't need to care about async programming, as the 
+architecture hides this and does all the work fo it.
 
+Limitation: As it is quite hard to design a base class for
+network protocols which satisfies all network protocols,
+the architecture described here is designed to work with all kinds
+of hirarchical structures, like filesystems. So everything which can
+be interpreted as hirarchical structure, can be implemented as 
+network protocol and easily used in Qt. This is not limited to
+filesystems!
+
+To implement a network protocol create a class derived from
+QNetworkProtocol. 
+
+Other classes will use this network protocol implementation
+to operate on it. So you should reimplement following protected members
+
+\code
+    void QNetworkProtocol::operationListChildren( QNetworkOperation *op );
+    void QNetworkProtocol::operationMkDir( QNetworkOperation *op );
+    void QNetworkProtocol::operationRemove( QNetworkOperation *op );
+    void QNetworkProtocol::operationRename( QNetworkOperation *op );
+    void QNetworkProtocol::operationGet( QNetworkOperation *op );
+    void QNetworkProtocol::operationPut( QNetworkOperation *op );
+\endcode
+
+Some words about how to reimplement these methods: You always
+get a pointer to a QNetworkOperation as argument. This pointer holds
+all information about the operation in the current state. If you start
+procressing such an operation, set the state to \c StInProgress. If
+you finished processing the operation, set the state to \c StDone if it
+was successful or \c StFailed if an error occured. If an error occured
+and you know some details (e.g. an error message) you can also set
+this message to the operation pointer. On errors you also should set
+an error code.
+Also you get all information (type, arguments, etc.) of the operation
+from this QNetworkOperation pointer. Details about which arguments
+you get and have to set and more about QNetworkOperations follows
+later.
+
+If you reimplement such an operation method, it's also very important
+to emit the correct signals at the correct time: In general always emit
+at the end of an operation (when you either successfully finished processing 
+the operation or and error occured) the \c finished() signal with
+the network operation as argument. Then there are some more special
+signals which are specific to operations:
+<ul>
+  <li>Emit in \c operationListChildren: 
+  <ul>
+    <li>\c start() just before starting listing the childrens
+    <li>\c newChild() for each listed child
+  </ul>
+  <li>Emit in \c operationMkDir: 
+  <ul>
+    <li>\c createdDirectory() after the directory has been created
+    <li>\c newChild() after the directory has been created (as a new directory is a new child)
+  </ul>
+  <li>Emit in \c operationRemove: 
+  <ul>
+    <li>\c removed() after the child has been removed
+  </ul>
+  <li>Emit in \c operationRename: 
+  <ul>
+    <li>\c itemChanged() after the child has been renamed
+  </ul>
+  <li>Emit in \c operationGet: 
+  <ul>
+    <li>\c data() each time new data has been read
+  </ul>
+  <li>Emit in \c operationPut: 
+  <ul>
+    <li>No special signals
+  </ul>
+</ul>
+
+For more details about the arguments of these signals take a look
+at the QNetworkProtocol class documentation.
+
+So, to sum it up: If you reimplement such a operation moethod, you
+have to emit some special signals and ALWAYS at the end a
+\c finished() signal, either or success or on failure. Also you have to change
+the state of the operation pointer during processing the operation.
+
+But it's unlikely that the network protocol you implement supports
+all these operations. So, just reimplement the operations, which
+are supported by the protocol. Additionally you have to specify which
+operations are supported then. This is done by reimplementing
+
+\code
+    int QNetworkProtocol::supportedOperations() const;
+\endcode
+
+In your implementation of this method return an int value
+which is constructed by or'ing together the correct values
+(supported operations) of the following enum:
+
+\code
+    enum Operation {
+        OpListChildren = 1,
+        OpMkdir = 2,
+        OpRemove = 4,
+        OpRename = 8,
+        OpGet = 32,
+        OpPut = 64
+    };
+\endcode
+
+So, if your protocol e.g. supports listing children and renaming them, do
+in your implementation of supportedOperations():
+
+\code
+    return OpListChildren | OpRename;
+\endcode
+
+The last method you have to reimplement is
+
+\code
+    bool QNetworkProtocol::checkConnection( QNetworkOperation *op );
+\endcode
+
+Here you have to return TRUE, if the connection is up and ok (this means
+operations on the protocol can be done). If the connection is not ok,
+return FALSE and start to try opening it. If you will not be able to open the
+connection at all (e.g. because the host is not found), emit a \c finished()
+signal and set an errorcode and the \c StFailed state to the QNetworkOperation
+pointer you get here.
+
+Now, you never need to check before doing an operation yourself,
+if the connection is ok. The network architecture does this, this means
+using \c checkConnection it looks if an operation could be done and if
+not, it tries it again and again for some time.
+
+Now, above the QNetworkOperation class has been mentioned
+quite some times. Here are some details about that:
 
 */
