@@ -1307,7 +1307,6 @@ void QWidget::showNormal()
 	if(topData()->fullscreen) {
 	    reparent(0, WType_TopLevel, QPoint(0,0));
 	    setGeometry(topData()->normalGeometry);
-	    topData()->fullscreen = 0;
 	} else {
 	    Rect bounds;
 	    ZoomWindow((WindowPtr)hd, inZoomIn, FALSE);
@@ -1315,6 +1314,8 @@ void QWidget::showNormal()
 	    qt_dirty_wndw_rgn("showNormal",this, &bounds);
 	}
     }
+    if ( extra && extra->topextra )
+	extra->topextra->fullscreen = 0;
     dirtyClippedRegion(TRUE);
     show();
     QEvent e(QEvent::ShowNormal);

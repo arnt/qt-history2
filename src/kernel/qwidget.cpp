@@ -1865,7 +1865,7 @@ QSize QWidget::maximumSize() const
     \endcode
 
     Note that while you can set the size increment for all widgets, it
-    only effects top-level widgets.
+    only affects top-level widgets.
 
     \warning The size increment has no effect under Windows, and may
     be disregarded by the window manager on X.
@@ -5588,7 +5588,7 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 /*!
     Shows the widget in full-screen mode.
 
-    Calling this function only effects top-level widgets.
+    Calling this function only affects top-level widgets.
 
     To return from full-screen mode, call showNormal().
 
@@ -5621,11 +5621,7 @@ void QWidget::showFullScreen()
 {
     if ( !isTopLevel() )
 	return;
-    const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     if ( topData()->fullscreen ) {
-#if defined(Q_WS_QWS)
-	resize( screen.size() );
-#endif
 	show();
 	raise();
 	return;
@@ -5637,6 +5633,7 @@ void QWidget::showFullScreen()
 	      (getWFlags() & 0xffff0000),
 	      QPoint(0,0) );
     topData()->fullscreen = 1;
+    const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     move( screen.topLeft() );
     resize( screen.size() );
     raise();

@@ -1525,7 +1525,7 @@ void QWidget::hideWindow()
 /*!
     Shows the widget minimized, as an icon.
 
-    Calling this function only effects \link isTopLevel() top-level
+    Calling this function only affects \link isTopLevel() top-level
     widgets\endlink.
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible(),
@@ -1583,7 +1583,7 @@ void qt_wait_for_window_manager( QWidget* w )
 /*!
     Shows the widget maximized.
 
-    Calling this function only effects \link isTopLevel() top-level
+    Calling this function only affects \link isTopLevel() top-level
     widgets\endlink.
 
     On X11, this function may not work properly with certain window
@@ -1644,7 +1644,7 @@ void QWidget::showMaximized()
 /*!
     Restores the widget after it has been maximized or minimized.
 
-    Calling this function only effects \link isTopLevel() top-level
+    Calling this function only affects \link isTopLevel() top-level
     widgets\endlink.
 
     \sa showMinimized(), showMaximized(), show(), hide(), isVisible()
@@ -1656,7 +1656,6 @@ void QWidget::showNormal()
 	if ( topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
 	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), QPoint(0,0) );
-	    topData()->fullscreen = 0;
 	}
 	QRect r = topData()->normalGeometry;
 	if ( r.width() >= 0 ) {
@@ -1666,6 +1665,8 @@ void QWidget::showNormal()
 	    move( r.topLeft() );
 	}
     }
+    if ( extra && extra->topextra )
+	extra->topextra->fullscreen = 0;
     show();
     QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );

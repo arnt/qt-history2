@@ -817,16 +817,16 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
+	if ( topData()->fullscreen )
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
-	    topData()->fullscreen = 0;
-	}
 	QRect r = topData()->normalGeometry;
 	if ( r.width() >= 0 ) {
 	    topData()->normalGeometry = QRect(0,0,-1,-1);
 	    setGeometry( r );
 	}
     }
+    if ( extra && extra->topextra )
+	extra->topextra->fullscreen = 0;
     show();
     clearWState( WState_Minimized | WState_Maximized );
 }
