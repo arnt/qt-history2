@@ -365,11 +365,11 @@ void QMenuBar::menuContentsChanged()
 	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
 	    all_hidden = irects[i].isEmpty();
     }
-     if(all_hidden) {
-	if(isVisible())
+    if( all_hidden ) {
+	if( !isHidden())
 	    hide();
     } else {
-	if(!isVisible())
+	if( isHidden() )
 	    show();
     }
 }
