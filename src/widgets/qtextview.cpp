@@ -1591,7 +1591,7 @@ void QTextView::setPalette( const QPalette &p )
     QScrollView::setPalette( p );
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
-	f->setColor( colorGroup().color( QColorGroup::Text ) );
+	f->setColor( colorGroup().text() );
 	viewport()->repaint( FALSE );
     }
 }

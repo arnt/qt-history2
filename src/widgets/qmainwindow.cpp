@@ -865,6 +865,22 @@ void QMainWindow::setDockEnabled( QDockWindow *tb, Dock dock, bool enable )
 	d->disabledDocks.remove( s );
     else if ( d->disabledDocks.find( s ) == d->disabledDocks.end() )
 	d->disabledDocks << s;
+    switch ( dock ) {
+	case Top:
+	    topDock()->setAcceptDockWindow( tb, enable );
+	    break;
+	case Left:
+	    leftDock()->setAcceptDockWindow( tb, enable );
+	    break;
+	case Right:
+	    rightDock()->setAcceptDockWindow( tb, enable );
+	    break;
+	case Bottom:
+	    bottomDock()->setAcceptDockWindow( tb, enable );
+	    break;
+	default:
+	    break;
+    }
 }
 
 /*!  Returns TRUE if \a area is enabled for the dock window \a tb, or
