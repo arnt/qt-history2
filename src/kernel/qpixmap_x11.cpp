@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#127 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -424,7 +424,7 @@ int QPixmap::defaultDepth()
 
 
 /*!
-  \fn Optimization QPixmap::optimization() const
+  \fn QPixmap::Optimization QPixmap::optimization() const
 
   Returns the optimization setting for this pixmap.
 
