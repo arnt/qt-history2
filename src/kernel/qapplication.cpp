@@ -52,9 +52,6 @@
 #include "qstylefactory.h"
 #include "qcomponentfactory.h"
 #include <stdlib.h>
-#ifdef Q_WS_MAC
-#  include "qt_mac.h"
-#endif
 
 #if defined(QT_REMOTE_CONTROL)
 #include "private/qremotecontrol_p.h"
@@ -2730,30 +2727,37 @@ void QApplication::setActiveWindow( QWidget* act )
     if ( active_window == window )
 	return;
 
-    QWidget* old_active = active_window;
-
     // first the activation / deactivation events
-    if ( old_active ) {
+    if(active_window) {
+	QWidgetList deacts;
+	if(style().styleHint(QStyle::SH_Widget_ShareActivation, active_window, NULL)) {
+	    if(QWidgetList *list = topLevelWidgets()) {
+		for(QWidget *w = list->first(); w; w = list->next() ) {
+		    if(w->isVisible() && w->isActiveWindow())
+			deacts.append(w);
+		}
+		delete list;
+	    }
+	} else {
+	    deacts.append(active_window);
+	}
 	active_window = 0;
 	QEvent e( QEvent::WindowDeactivate );
-	QApplication::sendSpontaneousEvent( old_active, &e );
+	for(QWidget *w = deacts.first(); w; w = deacts.next())
+	    QApplication::sendSpontaneousEvent( w, &e );
     }
-    active_window = window;
-#if defined( Q_WS_MAC )
+
+#if 0
     if(QWidgetList *list = topLevelWidgets()) {
 	for(QWidget *w = list->first(); w; w = list->next() ) {
-	    if(w->isVisible() && w->inherits("QDockWindow")) {
-		if(active_window && 
-		   w->parentWidget()->topLevelWidget() == active_window->topLevelWidget()) 
-		    ShowHide((WindowPtr)w->handle(), 1);
-		else 
-		    ShowHide((WindowPtr)w->handle(), 0);
-	    }	
+	    if(w->isVisible() && w->inherits("QDockWindow")) 
+		ShowHide((WindowPtr)w->handle(), 
+			 window && w->parentWidget()->topLevelWidget() == window->topLevelWidget());
 	}
 	delete list;
     }
 #endif
-
+    active_window = window;
     if ( active_window ) {
 	QEvent e( QEvent::WindowActivate );
 	QApplication::sendSpontaneousEvent( active_window, &e );
