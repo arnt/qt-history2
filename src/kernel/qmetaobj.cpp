@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#25 $
 **
 ** Implementation of QMetaObject class
 **
@@ -13,7 +13,8 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#25 $");
+
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -28,7 +29,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#24 $");
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  current version of Qt.
+*/
 
 
 QObjectDictionary *objectDict = 0;		// global object dictionary
@@ -41,20 +43,18 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
 Q_DECLARE(QDictM,QMetaData);
 
 
-/*****************************************************************************
+/*
   Calculate optimal dictionary size for n entries using prime numbers,
   and assuming there are no more than 40 entries.
- *****************************************************************************/
+*/
 
 static int optDictSize( int n )
 {
     if ( n < 6 )
 	n = 5;
-    else
-    if ( n < 10 )
+    else if ( n < 10 )
 	n = 11;
-    else
-    if ( n < 14 )
+    else if ( n < 14 )
 	n = 17;
     else
 	n = 23;
@@ -150,7 +150,7 @@ QMetaData *QMetaObject::signal( int index, bool super ) const
 
 
 QMemberDict *QMetaObject::init( QMetaData *data, int n )
-{						// initialize meta data
+{
     if ( n == 0 )				// nothing, then make no dict
 	return 0;
     QMemberDict *dict = new QMemberDict( optDictSize(n), TRUE, FALSE );
@@ -164,9 +164,9 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
 
 
 QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
-{						// get meta data
+{
     register QMetaObject *meta = (QMetaObject *)this;
-    QMetaData *d = 0; // avoid a dumb gcc warning
+    QMetaData *d = 0;				// avoid compiler warning
     QMemberDict *dict;
     while ( TRUE ) {
 	switch ( code ) {			// find member
@@ -187,7 +187,7 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 }
 
 QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
-{						// get meta data
+{
     register QMetaObject *meta = (QMetaObject *)this;
     QMetaData *d;
     QMemberDict *dict;
@@ -197,7 +197,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	    case SIGNAL_CODE: dict = meta->signalDict; break;
 	    default:	      return 0;		// should not happen
 	}
-	int n = dict->count();
+	int n = dict ? dict->count() : 0;
 	if ( super ) {
 	    if ( index >= n ) {			// try the superclass
 		index -= dict->count();
@@ -214,9 +214,9 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 		default:	  d = 0;	// eliminates compiler warning
 	    }
 	    return &d[n-index-1];
-	}
-	else					// bad index
+	} else {				// bad index
 	    return 0;
+	}
     }
 #if !defined(NO_DEADCODE)
     return 0;
