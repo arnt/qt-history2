@@ -298,6 +298,34 @@ MakefileGenerator::init()
             }
         }
     }
+
+    //extra compilers (done here so it ends up in the variables pre fixed)
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        if(tmp_out.isEmpty())
+            continue;
+        QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                if((*input).isEmpty())
+                    continue;
+                if(QFile::exists((*input)))
+                    (*input) = fileFixify((*input));
+                QFileInfo fi(Option::fixPathToLocalOS((*input)));
+                QString in = fileFixify(Option::fixPathToTargetOS((*input), false)), out = tmp_out;
+                out = replaceExtraCompilerVariables(out, (*input), QString::null);
+                if(project->variables().contains((*it) + ".variable_out")) {
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
+                } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
+                    project->variables()["OBJECTS"] += out; //auto link it in
+                }
+            }
+        }
+    }
+
+    //SOURCES (as objects) get built first!
     v["OBJECTS"] = createObjectList("SOURCES") + v["OBJECTS"]; // init variables
 
     //lex files
@@ -496,32 +524,6 @@ MakefileGenerator::init()
         for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
             if(!(*val_it).isEmpty())
                 (*val_it) = Option::fixPathToTargetOS((*val_it), false);
-        }
-    }
-
-    //extra compilers (done here so it ends up in the variables pre fixed)
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        if(tmp_out.isEmpty())
-            continue;
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                if((*input).isEmpty())
-                    continue;
-                if(QFile::exists((*input)))
-                    (*input) = fileFixify((*input));
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = fileFixify(Option::fixPathToTargetOS((*input), false)), out = tmp_out;
-                out = replaceExtraCompilerVariables(out, (*input), QString::null);
-                if(project->variables().contains((*it) + ".variable_out")) {
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
-                } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
-                    project->variables()["OBJECTS"] += out; //auto link it in
-                }
-            }
         }
     }
 
