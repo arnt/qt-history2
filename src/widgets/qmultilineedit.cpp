@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#196 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#197 $
 **
 ** Implementation of QMultiLineEdit widget class
 **
@@ -343,27 +343,6 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
     QTextEdit::setCursorPosition( line, col );
     if ( mark )
 	document()->setSelectionEnd( QTextDocument::Standard, textCursor() );
-}
-
-
-/*!  Returns the current paragraph in the variable pointed to by \a line
-  and the character position within that paragraph in the variable pointed
-  to by \a col.
-
-  If either variable is null, getCursorPosition() sets only the other
-  variable.
-
-  \sa setCursorPosition()
-*/
-
-void QMultiLineEdit::getCursorPosition( int *line, int *col ) const
-{
-    int l, c;
-    QTextEdit::getCursorPosition( l, c );
-    if ( line )
-	*line = l;
-    if ( col )
-	*col = c;
 }
 
 /*!  Returns the top center point where the cursor is drawn.

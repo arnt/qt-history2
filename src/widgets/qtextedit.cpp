@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#37 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -2598,9 +2598,11 @@ void QTextEdit::setCursorPosition( int para, int index )
   \sa setCursorPosition()
  */
 
-void QTextEdit::getCursorPosition( int &para, int &index ) const
+void QTextEdit::getCursorPosition( int *parag, int *index ) const
 {
-    para = cursor->parag()->paragId();
+    if ( !parag || !index )
+	return;
+    parag = cursor->parag()->paragId();
     index = cursor->index();
 }
 

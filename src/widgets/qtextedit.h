@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.h#23 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.h#24 $
 **
 ** Definition of the QTextEdit class
 **
@@ -170,7 +170,7 @@ public:
 
     bool isReadOnly() const { return readonly; }
 
-    void getCursorPosition( int &parag, int &index ) const;
+    void getCursorPosition( int *parag, int *index ) const;
     bool isModified() const;
     bool italic() const;
     bool bold() const;
