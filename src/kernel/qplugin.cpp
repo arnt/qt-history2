@@ -37,7 +37,6 @@
 
 #include "qapplicationinterface.h"
 #ifndef QT_NO_PLUGIN
-#include "qapplication.h"
 #include "qplugin.h"
 #include "qplugin_p.h"
 
@@ -231,7 +230,7 @@
   \sa setPolicy(), load()
 */
 QPlugIn::QPlugIn( const QString& filename, QApplicationInterface* appIface, LibraryPolicy pol )
-    : pHnd( 0 ), libfile( filename ), appInterface( appIface ), libPol( pol ), ifc( 0 ), info( 0 )
+    : pHnd( 0 ), libfile( filename ), appInterface( appIface ), libPol( pol ), info( 0 )
 {
     if ( pol == OptimizeSpeed )
 	load();
@@ -273,7 +272,7 @@ bool QPlugIn::load()
     }
 
     if ( pHnd )
-	return ifc ? TRUE : loadPlugIn();
+	return info ? TRUE : loadInterface();
     return FALSE;
 }
 
@@ -296,13 +295,13 @@ bool QPlugIn::load()
 bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
-	if ( ifc ) {
-	    if ( !ifc->disconnectNotify() && !force )
+	if ( info ) {
+/*	    if ( !ifc->disconnectNotify() && !force )
 		return FALSE;
 
 	    delete ifc;
 	    ifc = 0;
-
+*/
 	    delete info;
 	    info = 0;
 	}
@@ -361,7 +360,7 @@ QString QPlugIn::library() const
 */
 bool QPlugIn::use()
 {
-    if ( !pHnd || !ifc ) {
+    if ( !pHnd || !info ) {
 	if ( libPol != Manual )
 	    return load();
 #ifdef CHECK_RANGE
@@ -379,47 +378,23 @@ bool QPlugIn::use()
 
   \sa QApplicationInterface
 */
-bool QPlugIn::loadPlugIn()
+bool QPlugIn::loadInterface()
 {
     if ( !pHnd ) {
-	qWarning("QPlugIn::loadPlugIn(): Failed to load library - no handle!");
+	qWarning("QPlugIn::loadInterface(): Failed to load library - no handle!");
 	return FALSE;
     }
 
-    typedef QPlugInInterface* (*QtLoadInterfaceProc)();
-    QtLoadInterfaceProc proc;
-    proc = (QtLoadInterfaceProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
-
-    if ( !proc )
-	return FALSE;
-    ifc = proc();
-
-    if ( !ifc )
-	return FALSE;
-
-    if ( ifc->queryInterface() != queryInterface() ) {
-	delete ifc;
-	ifc = 0;
-	return FALSE;
-    } 
-    if ( !ifc->connectNotify( appInterface ) ) {
-	delete ifc;
-	ifc = 0;
-	return FALSE;
-    }
-
-    typedef QPlugInInfo* (*QtLoadInfoProc)();
+    typedef QPlugInInterface* (*QtLoadInfoProc)();
     QtLoadInfoProc infoProc;
-    infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_plugin_info" );
+    infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 
-    if ( infoProc ) {
-	if ( !infoProc )
-	    return FALSE;
-	info = infoProc();
+    if ( !infoProc )
+	return FALSE;
+    info = infoProc();
 
-	if ( !info )
-	    return FALSE;
-    }
+    if ( !info )
+	return FALSE;
 
     return TRUE;
 }
@@ -432,7 +407,6 @@ QString QPlugIn::name()
     if ( !use() )
 	return QString::null;
 
-    return plugInterface()->name();
     return info->name();
 }
 
@@ -444,7 +418,6 @@ QString QPlugIn::description()
     if ( !use() )
 	return QString::null;
 
-    return plugInterface()->description();
     return info->description();
 }
 
@@ -456,19 +429,31 @@ QString QPlugIn::author()
     if ( !use() )
 	return QString::null;
 
-    return plugInterface()->author();
     return info->author();
 }
 
 /*!
-  Calls the library's featureList() function and returns the result.
+  ###
 */
-QStringList QPlugIn::featureList()
+QUnknownInterface* QPlugIn::queryInterface( const QString &request )
 {
     if ( !use() )
-	return QStringList();
+	return 0;
 
-    return plugInterface()->featureList();
+    QUnknownInterface *iface = info->queryInterface( request );
+   
+    if ( !iface || !iface->connectNotify( appInterface ) )
+	return 0;
+
+    return iface;
+}
+
+QStringList QPlugIn::interfaceList()
+{
+    if ( !use() )
+	return 0;
+
+    return info->interfaceList();
 }
 
 /*!

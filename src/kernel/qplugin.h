@@ -39,7 +39,6 @@
 #define QPLUGIN_H
 
 #ifndef QT_H
-#include "qplugininterface.h"
 #include "qwindowdefs.h"
 #include "qobject.h"
 #endif // QT_H
@@ -47,8 +46,10 @@
 #ifndef QT_NO_PLUGIN
 
 class QApplicationInterface;
+class QUnknownInterface;
+class QPlugInInterface;
 
-class Q_EXPORT QPlugIn : public QPlugInInterface
+class Q_EXPORT QPlugIn
 {
 public:
     enum LibraryPolicy
@@ -74,17 +75,13 @@ public:
     QString description();
     QString author();
 
-    QStringList featureList();
-
-protected:
-    bool use();
-    QPlugInInterface* plugInterface() { return ifc; }
+    QUnknownInterface *queryInterface( const QString& );
+    QStringList interfaceList();
 
 private:
-    bool loadPlugIn();
-
-    QPlugInInterface* ifc;
-    QPlugInInfo* info;
+    bool use();
+    bool loadInterface();
+    QPlugInInterface* info;
 
 #ifdef _WS_WIN_
     HINSTANCE pHnd;
