@@ -1,8 +1,8 @@
 #include "../../../qactioninterface.h"
 #include "../../../qcleanuphandler.h"
-#include "../../../qapplicationinterface.h"
 #include "sounddialog.h"
 
+#include <qapplicationinterface.h>
 #include <qaction.h>
 #include <qpopupmenu.h>
 #include <qdialog.h>
