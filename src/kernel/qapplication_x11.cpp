@@ -1138,7 +1138,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !qt_std_pal )
 	qt_create_std_palette();
 
-    QCString resFont, resFG, resBG, resEF;
+    QCString resFont, resFG, resBG, resEF, sysFont;
 
     QApplication::setEffectEnabled( Qt::UI_General, FALSE);
     QApplication::setEffectEnabled( Qt::UI_AnimateMenu, FALSE);
@@ -1183,9 +1183,10 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    bool mine = FALSE;
 	    if ( res[l] == '*' &&
 		 (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g' ||
-		  res[l+1] == 'F' || res[l+1] == 'B' || res[l+1] == 'G') )
+		  res[l+1] == 'F' || res[l+1] == 'B' || res[l+1] == 'G' ||
+		  res[l+1] == 's' || res[l+1] == 'S' ) )
 		{
-		    // OPTIMIZED, since we only want "*[fbg].."
+		    // OPTIMIZED, since we only want "*[fbgs].."
 
 		    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
 		    int i = item.find( ":" );
@@ -1205,6 +1206,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		}
 
 	    if ( mine ) {
+		if ( !font && key == "systemfont")
+		    sysFont = value.copy();
 		if ( !font && key == "font")
 		    resFont = value.copy();
 		else if  ( !fg &&  key == "foreground" )
@@ -1219,7 +1222,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    l = r + 1;
 	}
     }
-
+    if ( !sysFont.isEmpty() )
+	resFont = sysFont;
     if ( resFont.isEmpty() )
 	resFont = font;
     if ( resFG.isEmpty() )
@@ -2078,7 +2082,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
 
 	QFont f(
-#ifdef Q_OS_SOLARIS
+#if defined(Q_OS_SOLARIS) || defined(Q_OS_HPUX)
 		"Interface System",
 #else
 		"Helvetica",
