@@ -412,32 +412,50 @@ void QOpenGLPaintEngine::updateXForm(const QMatrix &mtx)
     glLoadMatrixf(&mat[0][0]);
 }
 
-void QOpenGLPaintEngine::updateClipRegion(const QRegion &region, bool clip)
+void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, bool clip)
 {
-    QVector <QRect> rects(region.rects());
+    bool useStencil = dgl->format().stencil();
+    bool useDepth = dgl->format().depth() && !useStencil;
 
-    if  (clip) {
-        glClearStencil(0x00);
-        glClear(GL_STENCIL_BUFFER_BIT);
+    // clipping is only supported when a stencil or depth buffer is
+    // available
+    if (!useStencil && !useDepth)
+	return;
 
-        glStencilMask(0x01);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    dgl->makeCurrent();
+    if (clip) {
+	if (useStencil) {
+	    glClearStencil(0x0);
+	    glClear(GL_STENCIL_BUFFER_BIT);
+	    glClearStencil(0x1);
+	} else {
+	    glClearDepth(0x0);
+	    glClear(GL_DEPTH_BUFFER_BIT);
+	    glDepthMask(true);
+	    glClearDepth(0x1);
+	}
 
-	// using glScissor/glClear is faster than drawing the mask
-	// using GL primitives (thanks to Peter Nilsson for that idea)
-        glClearStencil(0x01);
-        glEnable(GL_SCISSOR_TEST);
-        for (int i = 0; i < rects.size(); i++) {
-            glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
-                      rects.at(i).width(), rects.at(i).height());
-            glClear(GL_STENCIL_BUFFER_BIT);
-        }
+	const QVector<QRect> rects = rgn.rects();
+	glEnable(GL_SCISSOR_TEST);
+	for (int i = 0; i < rects.size(); ++i) {
+	    glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
+		      rects.at(i).width(), rects.at(i).height());
+	    glClear(useStencil ? GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT);
+	}
+	glDisable(GL_SCISSOR_TEST);
 
-        glDisable(GL_SCISSOR_TEST);
-        glStencilFunc(GL_EQUAL, 0x01, 0x01);
-        glEnable(GL_STENCIL_TEST);
+	if (useStencil) {
+	    glStencilFunc(GL_EQUAL, 0x1, 0x1);
+	    glEnable(GL_STENCIL_TEST);
+	} else {
+ 	    glDepthFunc(GL_LEQUAL);
+ 	    glEnable(GL_DEPTH_TEST);
+	}
     } else {
-        glDisable(GL_STENCIL_TEST);
+	if (useStencil)
+	    glDisable(GL_STENCIL_TEST);
+	else
+	    glDisable(GL_DEPTH_TEST);
     }
 }
 
