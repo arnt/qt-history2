@@ -660,7 +660,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
 	    drawW = pixmap.width() - xOff; // Cropping first column
 	    if(xPos + drawW > r.right())    // Cropping last column
 		drawW = r.right() - xPos;
-	    drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), true);
+	    drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), false);
 	    xPos += drawW;
 	    xOff = 0;
 	}
