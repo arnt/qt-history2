@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#2 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -44,6 +44,7 @@ public:
     int fontitalic;
     int fontweight;
     int fontsize;
+    int fontsizerel;
     QString fontfamily;
     QStyleSheetItem *parentstyle;
     QString stylename;
@@ -106,6 +107,7 @@ void QStyleSheetItem::init()
     d->fontitalic = Undefined;
     d->fontweight = Undefined;
     d->fontsize = Undefined;
+    d->fontsizerel = 100;
     d->ncolumns = Undefined;
     d->col = QColor(); // !isValid()
     d->anchor = FALSE;
@@ -253,6 +255,28 @@ void QStyleSheetItem::setFontWeight(int w)
 int QStyleSheetItem::fontSize() const
 {
     return d->fontsize;
+}
+
+/*!
+  Sets the font size setting of the style, in relative percentage to
+  the currently used font. The default value is 100 percent.
+
+ \sa fontSizeRelative(), setFontSize(), QFont::pointSize(), QFont::setPointSize()
+ */
+void QStyleSheetItem::setFontSizeRelative(int s)
+{
+    d->fontsizerel = s;
+}
+
+/*!
+  Returns the font size setting of the style. This is either a valid
+  pointsize or QStyleSheetItem::Undefined.
+
+ \sa setFontSizeRelative(), fontSize(), QFont::pointSize(), QFont::setPointSize()
+ */
+int QStyleSheetItem::fontSizeRelative() const
+{
+    return d->fontsizerel;
 }
 
 /*!
@@ -520,23 +544,24 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 
   By creating QStyleSheetItem objects for a style sheet, you build a
   definition of a set of tags.  This definition will be used by the
-  internal QML features to parse and display QML documents to which
-  the style sheet applies. QML is normally visualized in a QMLView or
-  a QMLBrowser. But also QLabel and QWhatsThis support QML contents.
+  internal rich text rendering system to parse and display text
+  documents to which the style sheet applies. Rich text is normally
+  visualized in a QTextView or a QTextBrowser. But also QLabel and
+  QWhatsThis support it for now, with others likely to follow.
 
   The default QStyleSheet object has the following style bindings:
 
   <ul>
-    <li>\c &lt;qml&gt;...&lt;/qml&gt;
-	- A QML document. It understands the following attributes
+    <li>\c &lt;qt&gt;...&lt;/qt&gt;
+	- A Qt rich text document. It understands the following attributes
 	<ul>
 	<li> \c type
 	- The type of the document. The default type is \c page . It indicates that
 	the document is displayed in a page of its own. Another style is \c detail.
 	It can be used to explain certain expressions more detailed in a few
-	sentences. The QMLBrowser will then keep the current page and display the
+	sentences. The QTextBrowser will then keep the current page and display the
 	new document in a small popup similar to QWhatsThis. Note that links
-	will not work in documents with \c &lt;qml \c type="detail" \c &gt;...&lt;/qml&gt;
+	will not work in documents with \c &lt;qt \c type="detail" \c &gt;...&lt;/qt&gt;
 	<li> \c bgcolor
 	- The background color, for example \c bgcolor="yellow" or \c bgcolor="#0000FF"
 	<li> \c bgpixmap
@@ -561,8 +586,11 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- Strong. As default, this is the same as \c &lt;bold&gt;...&lt;/bold&gt; (bold)
 
     <li>\c &lt;large&gt;...&lt;/large&gt;
-	- Large font size.
+	- A larger font size.
 
+    <li>\c &lt;small&gt;...&lt;/small&gt;
+	- A smaller font size.
+	
     <li>\c &lt;code&gt;...&lt;/code&gt;
 	- Indicates Code. As default, this is the same as \c &lt;tt&gt;...&lt;/tt&gt; (typewriter)
 
@@ -629,7 +657,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
   Create a style sheet.  Like any QObject, the created object will be
   deleted when its parent destructs (if the child still exists then).
 
-  By default, the style sheet has the QML definitions defined above.
+  By default, the style sheet has the tag definitions defined above.
 */
 QStyleSheet::QStyleSheet( QObject *parent, const char *name )
     : QObject( parent, name )
@@ -647,7 +675,7 @@ QStyleSheet::~QStyleSheet()
 
 /*!
   \internal
-  Initialized the style sheet to the QML style.
+  Initialized the style sheet to the basic Qt style.
 */
 void QStyleSheet::init()
 {
@@ -657,7 +685,10 @@ void QStyleSheet::init()
 
     QStyleSheetItem*  style;
 
-    style = new QStyleSheetItem( this, "qml" );
+    style = new QStyleSheetItem( this, "qml" ); // compatibility
+    style->setDisplayMode( QStyleSheetItem::DisplayBlock );
+
+    style = new QStyleSheetItem( this, "qt" );
     style->setDisplayMode( QStyleSheetItem::DisplayBlock );
     //style->setMargin( QStyleSheetItem::MarginAll, 4 );
 
@@ -671,11 +702,11 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, "i" );
     style->setFontItalic( TRUE );
 
-    style = new QStyleSheetItem( this, "large" ); //todo make relative to current font
-    style->setFontSize( 24 );
+    style = new QStyleSheetItem( this, "large" );
+    style->setFontSizeRelative( 120 );
 
-    style = new QStyleSheetItem( this, "small" );//todo make relative to current font
-    style->setFontSize( 8 );
+    style = new QStyleSheetItem( this, "small" );
+    style->setFontSizeRelative( 80 );
 
     style = new QStyleSheetItem( this, "strong" );
     style->setFontWeight( QFont::Bold);
@@ -813,8 +844,7 @@ QTextNode* QStyleSheet::tag( const QString& name,
 {
     QStyleSheetItem* style = styles[name];
     if ( !style ) {
-      // HACK Torben warning( "QML Warning: unknown tag '%s'", name.ascii() );
-	//### todo warning message for empty tags that are not marked as empty
+	warning( "QStyleSheet Warning: unknown tag '%s'", name.ascii() );
 	style = nullstyle;
     }
 

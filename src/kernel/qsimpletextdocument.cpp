@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.cpp#2 $
 **
 ** Implementation of the QSimpleTextDocument class
 **
@@ -34,7 +34,7 @@
   This class encapsulates simple richt text usage where a string is interpretted
   as richt text and can be drawn.
 
-  For large documents, see QTExtView or QTextBrowser.
+  For large documents, see QTextView or QTextBrowser.
 */
 
 class QSimpleTextDocumentData

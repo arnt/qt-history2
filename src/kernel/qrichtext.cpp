@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#3 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -204,7 +204,7 @@ void QTextHorizontalLine::draw(QPainter* p, int x, int y,
     }
     QPen pen(p->pen());
     pen.setWidth( 2 );
-    p->setPen( pen );    
+    p->setPen( pen );
     p->drawLine( r.left()-1, y-oy+4, r.right()+1, y-oy+4) ;
 }
 
@@ -232,7 +232,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     QTextIterator end = it.parentNode()->box()->end();
     while ( it != end  && !it->isBox && it->isContainer) {
 	++it;
-    }
+    }	
 
     first = *it;
     parent = it.parentNode();
@@ -242,12 +242,12 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     int rasc = 0;
     int rdesc = 0;
 
-    if (it->isBox) {
-	QTextBox* b = (QTextBox*)*it;
+    if ( first->isBox ) {
+	QTextBox* b = (QTextBox*)first;
 	b->setWidth(p, width );
 	height = b->height;
 	base = height;
-	last = *it;
+	last = first;
 	it = b->end();
 	return;
     }
@@ -352,7 +352,7 @@ QTextIterator QTextRow::end() const
     ++it;
     return it;
 }
- 
+
 void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
 		  QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper,
 		  bool onlyDirty, bool onlySelection)
@@ -382,7 +382,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
     }
 
     dirty = FALSE;
-    
+
     bool reducedFlickerMode = FALSE;
     QTextIterator it;
     for ( it = begin(); it != end(); ++it ) {
@@ -563,7 +563,7 @@ QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
     int tx = fill;
     for ( it = begin(); it != end(); ++it ) {
 	if ( it->isContainer && !it->isBox )
-	    continue;    
+	    continue;
 	p->setFont( it.parentNode()->font() );
 	QFontMetrics fm = p->fontMetrics();
 	if (it->isSimpleNode)
@@ -589,31 +589,25 @@ bool QTextRow::locate(QTextContainer* box, QPainter* p, QTextNode* node, int &lx
 	return FALSE;
     }
 
-
-
-    QTextNode* t = first;
-    QTextContainer* par = parent;
-
-    while (t && t != node && t != last)
-	t = box->nextLayout(t, par);
-    if (t != node ) {
+    QTextIterator it;
+    for ( it = begin(); it != end() && *it != node; ++it )
+	;
+    if ( *it != node )
 	return FALSE; // nothing found
-    }
-
-    t = first;
-    par = parent;
+    
     lx = x + fill;
     QFontMetrics fm = p->fontMetrics();
-    while (t != node) {
-	p->setFont( par->font() );
+    for ( it = begin(); *it != node; ++it ) {
+	if ( !it->isContainer || it->isBox )
+	    continue;
+	p->setFont( it.parentNode()->font() );
 	fm = p->fontMetrics();
-	if (t->isSimpleNode)
-	    lx += fm.width( t->c );
+	if (it->isSimpleNode)
+	    lx += fm.width( it->c );
 	else
-	    lx += ((QTextCustomNode*)t)->width;
-	t = box->nextLayout(t, par);
+	    lx += ((QTextCustomNode*)*it)->width;
     };
-    p->setFont( par->font() );
+    p->setFont( it.parentNode()->font() );
     fm = p->fontMetrics();
     ly = y + base - fm.ascent();
     lh = fm.height();
@@ -861,6 +855,8 @@ int QTextContainer::fontSize() const
     int w = style->fontSize();
     if ( w == -1 && parent )
 	w = parent->fontSize();
+    if ( style->fontSizeRelative() != 100 )
+	w = w * style->fontSizeRelative() / 100;
     return w;
 }
 
@@ -1036,15 +1032,17 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 
     QTextIterator it = begin();
     ++it;
-    p->setFont( it.parentNode()->font() );
-    QFontMetrics fm = p->fontMetrics();
-    while ( it != end() ) {
-	row = new QTextRow(p, fm, it,
-			   colwidth-marginhorizontal - label_offset, alignment() );
-	rows.append(row);
-	row->x = marginleft + label_offset;
-	row->y = h;
-	h += row->height;
+    if ( it != end() ) {
+	p->setFont( it.parentNode()->font() );
+	QFontMetrics fm = p->fontMetrics();
+	while ( it != end() ) {
+	    row = new QTextRow(p, fm, it,
+			       colwidth-marginhorizontal - label_offset, alignment() );
+	    rows.append(row);
+	    row->x = marginleft + label_offset;
+	    row->y = h;
+	    h += row->height;
+	}
     }
 
     height = h;
