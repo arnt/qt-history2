@@ -89,8 +89,8 @@ void qt_mac_dispose_rgn(RgnHandle r) {
     }
 }
 #else
-#define get_rgn NewRgn
-#define dispose_rgn DisposeRgn
+RgnHandle qt_mac_get_rgn() { return NewRgn(); }
+void qt_mac_dispose_rgn(RgnHandle r) { DisposeRgn(r); }
 #endif
 
 // NOT REVISED
