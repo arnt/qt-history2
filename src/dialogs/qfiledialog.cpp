@@ -376,7 +376,7 @@ static void cleanup() {
 static void makeVariables() {
     if ( !openFolderIcon ) {
 	qAddPostRoutine( cleanup );
-	workingDirectory = new QString;
+	workingDirectory = new QString( QDir::currentDirPath() );
 	openFolderIcon = new QPixmap(open_xpm);
 	symLinkDirIcon = new QPixmap(link_dir_xpm);
 	symLinkFileIcon = new QPixmap(link_file_xpm);
@@ -1680,7 +1680,10 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     rereadDir();
     if ( !dirName.isEmpty() )
 	setSelection( dirName );
-
+    else if ( workingDirectory )
+	setDir( *workingDirectory );
+       
+    
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
     } else {
