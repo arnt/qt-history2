@@ -445,13 +445,7 @@ void QPainterPrivate::updateMatrix()
     }
     engine->setDirty(QPaintEngine::DirtyTransform);
 //     printf("VxF=%d, WxF=%d\n", state->VxF, state->WxF);
-//     printf("Using matrix: %f, %f, %f, %f, %f, %f\n",
-//            state->matrix.m11(),
-//            state->matrix.m12(),
-//            state->matrix.m21(),
-//            state->matrix.m22(),
-//            state->matrix.dx(),
-//            state->matrix.dy());
+//     qDebug() << " --- using matrix" << state->matrix << redirection_offset;
 }
 
 /*! \internal */
@@ -978,8 +972,6 @@ bool QPainter::begin(QPaintDevice *pd)
         }
     }
 
-    d->redirection_offset += d->engine->coordinateOffset();
-
     // Copy painter properties from original paint device,
     // required for QPixmap::grabWidget()
     if (originalDevice->devType() == QInternal::Widget) {
@@ -1004,6 +996,8 @@ bool QPainter::begin(QPaintDevice *pd)
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
         return false;
     }
+
+    d->redirection_offset += d->engine->coordinateOffset();
 
     Q_ASSERT(d->engine->isActive());
 
