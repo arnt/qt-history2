@@ -605,7 +605,7 @@ QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     d->init();
     setTitle(title);
 }
-#endif QT_COMPAT
+#endif // QT_COMPAT
 
 #include "moc_qgroupbox.cpp"
 
