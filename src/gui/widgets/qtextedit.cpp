@@ -1394,7 +1394,10 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     if (e->modifiers() & Qt::ControlModifier) {
         switch( e->key() ) {
         case Qt::Key_Z:
-            d->doc->undo();
+            if (e->modifiers() & Qt::ShiftModifier)
+                d->doc->redo();
+            else
+                d->doc->undo();
             break;
         case Qt::Key_Y:
             d->doc->redo();
