@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#90 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#91 $
 #
 # this is a massive hack, written very quickly
 #
@@ -696,7 +696,7 @@ sub readh {
 
 
 sub templates {
-    local ($url, $_, $n, $t, $f, $i, $c);
+    local ($url, $_, $n, $t, $f, $i, $c, $m, $mm, $url);
 
     foreach $n ( sort keys %declared ) {
 	($t, $i, $f) = split(/\s+/, $declared{$n});
@@ -710,13 +710,63 @@ sub templates {
 	    s/\b$c\b/$i/gs;
 #print "making up ", $n, " in ", $f, " from ", $t, "<", $c, ">:\n", $_, "\n";
 	    &storeclass( $f, $n, $_ );
+	    # This is O(toomany) but was easy to write
+	    foreach $m ( keys %name ) {
+		# icky hack here, :. should be :: but perl5 doesn't like that
+		if (($name{$m} =~ /^$t:/s) && ($type{$m} eq "fn") ) {
+		    $mm = $name{$m};
+		    $mm =~ s/.*:+//;
+		    if ( $mm eq $t ) {
+			$mm = $n;
+		    } elsif ( $mm eq "~".$t ) {
+			$mm = "~".$n;
+		    }
+		    unless ( defined( $type{$n . "::" . $mm } ) ) {
+#print "B: ", $name{$m}, "-> ", $n, "::", $mm, "\n";
+			# okie, now set $url to the new url and copy it across
+#			$u = &manglefn($t, $name{$url}, $f, $a, $c);
+#			$url = &mangleclass($n) . "#" . ++$uniq;
+			if ( $mm eq "_cast" ) {
+			    my ($type, $const);
+			    if ( $def{$m} =~ /\s+operator\s+(.*?)\s*\(\)\s*((?:const)?)$/ ) {
+				$type = $1;
+				$const = $2;
+				$url = &manglefn($type, $n, $mm,"",
+						 $const, &mangleclass($n));
+			    } else {
+				die "unparsable definition: ", $n, "::", $mm,
+				" cannot be instantiated from ", $def{$m};
+			    }
+			} else {
+			    my ($type, $args, $const);
+			    if ( $def{$m} =~ /^\s(.*?)\b\s*[A-Za-z_]+::[A-Za-z_]+\s*\(\s*(.*?)\s*\)\s*((?:const)?)$/ ) {
+				$type = $1;
+				$class = $2;
+				$args = $3;
+				$const = $4;
+				$url = &manglefn($type, $n, $mm, $args,
+						 $const, &mangleclass($n));
+			    } else {
+				die "unparsable definition: ", $n, "::", $mm,
+				"cannot be instantiated from ", $def{$m};
+			    }
+			}
+#print "C: ", $m, " -> ", $url, "\n";
+			$def{$url} = $def{$m};
+			$def{$url} =~ s/\b$t\b/$n/g;
+			$name{$url} = $n . "::" . $mm;
+			$doc{$url} = $doc{$m};
+			$overload{$url} = $overload{$m};
+			$type{$url} = "fn";
+#print "D: def: ", $def{$url}, " name: ", $name{$url}, "\n";
+		    }
+		}
+	    }
 	} else {
 	    print "declared $n as $t<$i> but $t is unknown\n";
 	}
     }
 }
-    
-
 
 
 sub readc {
@@ -1055,6 +1105,9 @@ sub printclass {
     local ( $class, $file, $tail, $fnheader, $fntail, %fndocs );
 
     $class = $name{$url};
+
+#print "0: ", $class, "\n";
+
     if (!$internal && ($doc{$url} =~ /^\s*$/)) {
 	print "skipping internal class ", $class, "\n";
 	next;
@@ -1232,6 +1285,7 @@ sub printclass {
 		$a =~ s/\s+$//s;
 
 		$u = &manglefn($t, $name{$url}, $f, $a, $c);
+#print "1: $u\n";
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
 		if ($type{$u} eq "fn") {
 		    $_ = join("", &html($t), "<a href=", $u,
@@ -1266,6 +1320,7 @@ sub printclass {
 		    $_ = join("", "operator <a href=", $u, "><strong>",
 			      &html($r), "</strong></a> ()", $c);
 		    $fndocs{$u} = $mode;
+#print "2: $_\n";
 		} else {
 		    print "undocumented: ", $name{$url}, "::operator ", $r,
 		        " () ", $c, "\n" if ($errmsg++<$maxerr);
@@ -1556,11 +1611,12 @@ $maxerr = 20;
 if ($0 =~ /gendoc/) {
     $internal = 1;
     print "generating internal docs\n";
+    $outputdir = "/tmp/qdoc";
 } else {
     $internal = 0;
+    $outputdir = "/local/qt/doc/html";
 }
 
-$outputdir = "/local/qt/doc/html";
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 $address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
 $doctype = "<!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
