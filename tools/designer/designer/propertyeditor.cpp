@@ -3645,5 +3645,8 @@ EventList *PropertyEditor::eventList() const
 
 void PropertyEditor::setPropertyEditorEnabled( bool b )
 {
-    setTabEnabled( listview, b );
+    if ( !b )
+	removePage( listview );
+    else
+	insertPage( listview, tr( "Property Editor" ), 0 );
 }
