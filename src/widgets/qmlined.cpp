@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#84 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -889,7 +889,7 @@ void QMultiLineEdit::pageDown( bool mark )
     int pageSize = viewHeight() / cellHeight();
     int newTopCell = QMIN( topCell() + pageSize, numLines() - 1 - pageSize );
 
-    if ( pageSize > numLines() ) { // quick hack to handle small texts
+    if ( pageSize >= numLines() ) { // quick hack to handle small texts
 	newTopCell = topCell();
     }
     if ( !curXPos )
@@ -1809,6 +1809,7 @@ void QMultiLineEdit::clear()
     cursorX = cursorY = 0;
     insertLine( "", -1 );
     dummy = TRUE;
+    markIsOn = FALSE;
     repaint( TRUE );
 }
 
