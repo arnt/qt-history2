@@ -244,21 +244,7 @@ QString QFontPrivate::lastResortFont() const
 // Get an array of X font names that matches a pattern
 char **QFontPrivate::getXFontNames( const char *pattern, int *count )
 {
-    static int maxFonts = 256;
-    char **list;
-
-    for (;;) {
-	list = XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern,
-			   maxFonts, count );
-
-	// I know precisely why 32768 is 32768.
-	if ( *count != maxFonts || maxFonts >= 32768 )
-	    return list;
-
-	XFreeFontNames( list );
-
-	maxFonts *= 2;
-    }
+    return XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern, 32768, count );
 }
 
 
