@@ -371,9 +371,9 @@ UnixMakefileGenerator::processPrlFiles()
 		    if(opt.startsWith("-L")) {
 			QString r = opt.right(opt.length() - 2), l = r;
 			fixEnvVariables(l);
-		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			libdirs.append(new MakefileDependDir(r.replace("\"",""),
 							     l.replace("\"","")));
+		    } else if(opt.startsWith("-l") && !processed[opt]) {
 			QString lib = opt.right(opt.length() - 2), prl;
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
