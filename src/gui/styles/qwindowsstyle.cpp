@@ -1121,12 +1121,12 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
 #if defined (Q_WS_WIN)
             {
                 // Force update the HDC before we use it.
-                p->save();
-                p->restore();
                 HDC hdc = p->device()->getDC();
                 RECT rect = { opt->rect.left(), opt->rect.top(),
                               opt->rect.right() + 1, opt->rect.bottom() + 1 };
+                COLORREF old = SetTextColor(hdc, RGB(0, 0, 0));
                 DrawFocusRect(hdc, &rect);
+                SetTextColor(hdc, old);
                 p->device()->releaseDC(hdc);
             }
 #else
