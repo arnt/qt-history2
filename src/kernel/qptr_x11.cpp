@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#20 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#20 $";
 #endif
 
 
@@ -1982,11 +1982,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
-	    QPoint p( x, y );
+	    QRect r( x, y, w, h );
 	    QString newstr = str;
 	    if ( len >= 0 )
 		newstr.resize( len );
-	    param[0].point = &p;
+	    param[0].rect = &r;
 	    param[1].str = newstr.data();
 	    param[2].ival = flags;
 	    pdev->cmd( PDC_DRAWTEXTFRMT, param );
@@ -2000,82 +2000,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     QFontMetrics fm( cfont );
-    int fascent  = fm.ascent();			// get font measurements
-    int fdescent = fm.descent();
-    int fheight  = fm.height();
-    QRegion save_rgn = crgn;			// save the current region
-    int xp, yp, tw;
-    register char *p = (char *)str;
-    int nlines = 1;				// number of lines
-    int ntabs = 0;				// number of tabs
-    int namps = 0;				// number of ampersands
-    int k = len;
 
-    while ( k-- ) {
-	switch ( *p++ ) {
-	    case '\t':
-		ntabs++;			// count tabs
-		break;
-	    case '\n':
-		nlines++;			// count lines
-		break;
-	    case '&':
-		namps++;			// count ampersands
-		break;
-	}
-    }
-
-    if ( tf & SingleLine ) {
-	nlines = 1;
-	tf &= ~WordBreak;			// no wordbreak if single line
-    }
-    else {
-	if ( nlines == 1 )
-	    tf |= SingleLine;
-    }
-    if ( tf & ExpandTabs ) {
-	if ( ntabs == 0 )
-	    tf &= ~ExpandTabs;
-    }
-    else
-	ntabs = 0;
-    if ( tf & ShowPrefix ) {
-	if ( namps == 0 )
-	    tf &= ~ShowPrefix;
-    }
-    else
-	namps = 0;
-
-    // TEST!!! this code will never be executed!!!
-
-    if ( 0 && (tf & (SingleLine|ExpandTabs|ShowPrefix)) == SingleLine ) {
-	tw = fm.width( str );			// simple text line
-	if ( tw < w )
-	    tf |= DontClip;
-	else if ( (tf & DontClip) == 0 )	// clipping necessary
-	    ((QIntPainter*)this)->addClipRect( x, y, w, h );
-	if ( tf & (AlignCenter|AlignRight) ) {
-	    if ( tf & AlignRight )		// right aligned
-		x += w - tw;
-	    else				// centered text
-		x += w/2 - tw/2;
-	}
-	if ( tf & AlignVCenter )		// vertically centered text
-	    y += h/2 + fascent - fheight/2;
-	else if ( tf & AlignBottom )		// bottom aligned
-	    y += h - fdescent;
-	else					// top aligned
-	    y += fascent;
-	drawText( x, y, str, len );
-	if ( (tf & DontClip) == 0 ) {		// restore clipping
-	    ((QIntPainter*)this)->restoreClipping();
-	    if ( save_rgn.handle() != crgn.handle() )
-		setClipRegion( save_rgn );
-	}
-	return;
-    }
-
-    int codelen = len + nlines + 100;
+    int codelen = len + 100;
     ushort *codes = (ushort *)malloc( sizeof(ushort)*codelen );
     ushort cc;					// character code
 
@@ -2083,15 +2009,16 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
     const PREFIX   = 0x2000;			// encoding 0x20zz, zz=char
 
+    register char *p = (char *)str;
+    int nlines     = 0;				// number of lines
     int index      = 0;				// index for codes
     int breakindex = 0;				// index where to break
-    int breakwidth;;				// width of text at breakindex
+    int breakwidth;				// width of text at breakindex
     int bcwidth;				// width of break char
     int tabindex   = 0;				// tab array index
-    int cw = -1;				// character width
-    p = (char *)str;
-    k = 0;					// index for p
-    tw = 0;
+    int cw;					// character width
+    int k = 0;					// index for p
+    int tw = 0;					// text width
 
     while ( k < len ) {				// convert string to codes
 
@@ -2167,6 +2094,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 	tw += cw;
 	if ( (cc & ENDLINE) == ENDLINE ) {
+	    nlines++;
 	    cc |= tw;
 	    tw = 0;
 	    breakindex = tabindex = 0;
@@ -2176,12 +2104,19 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	p++;
     }
 
-    if ( (cc & ENDLINE) != ENDLINE )
+    if ( (cc & ENDLINE) != ENDLINE ) {
 	codes[index++] = ENDLINE | tw;
+	nlines++;
+    }
 
     // TEST
     if ( index > codelen )
 	debug( "index out of range" );
+
+#if 1
+    free( codes );
+    return;
+#endif
 
     codelen = index;
 
@@ -2213,6 +2148,12 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     debug( s );
+
+    int fascent  = fm.ascent();			// get font measurements
+    int fdescent = fm.descent();
+    int fheight  = fm.height();
+    QRegion save_rgn = crgn;			// save the current region
+    int xp, yp;
 
     free( (void *)codes );
 
