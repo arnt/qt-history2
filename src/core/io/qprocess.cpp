@@ -501,6 +501,7 @@ void QProcess::start(const QString &program, const QStringList &arguments)
 
     QCoreApplication::flush();
 
+    d->exitCode = 0;
     d->startProcess();
 }
 
