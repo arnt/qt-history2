@@ -530,10 +530,16 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 }
 #endif // QT3_SUPPORT
 
-QPixmap::QPixmap(int w, int h, const uchar *data, bool isXBitmap)
+QPixmap::QPixmap(int w, int h, const uchar *bits, bool)
     : QPaintDevice(QInternal::Pixmap)
 {
-    init(0, 0, 0, false);
+    init(w, h, 1, false);
+
+    // Need to memcpy each line separatly since QImage is 32bit aligned and
+    // this data is only byte aligned...
+    int bytesPerLine = (w + 7) / 8;
+    for (int y=0; y<h; ++y)
+        memcpy(data->image.scanLine(y), bits + bytesPerLine * y, bytesPerLine);
 }
 
 int QPixmap::metric(PaintDeviceMetric metric) const
