@@ -15382,16 +15382,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 */
 QString &QString::replace( QChar c, const QString & after )
 {
-    int i = 0;
-    while ( i < (int) length() ) {
-	if ( d->unicode[i] == c ) {
-	    replace( i, 1, after );
-	    i += after.length();
-	} else {
-	    i++;
-	}
-    }
-    return *this;
+    return replace( QString( c ), after );
 }
 
 /*! \overload
@@ -15482,8 +15473,12 @@ QString &QString::replace( const QString & before, const QString & after )
 	    if ( !pos )
 		break;
 
-	    // we have a table of replacement positions
-	    uint newlen = d->len + pos*(al-bl);
+	    // we have a table of replacement positions, use them for fast replacing
+	    int adjust = pos*(al-bl);
+	    // index has to be adjusted in case we get back into the loop above.
+	    if ( index != -1 )
+		index += adjust;
+	    uint newlen = d->len + adjust;
 	    int moveend = d->len;
 	    if ( newlen > d->len )
 		setLength( newlen );
@@ -15531,33 +15526,107 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     if ( isNull() )
 	return *this;
 
+    real_detach();
+
     QRegExp rx2 = rx;
-    QString str2 = str;
     int index = 0;
-    int lastCap = rx2.capturedTexts().count() - 1;
+    int numCaptures = rx2.numCaptures();
+    int al = str.length();
 
-    while ( index <= (int)length() ) {
-	index = rx2.search( *this, index );
-	if ( index == -1 )
-	    break;
-
-	if ( lastCap > 0 ) {
-	    str2 = str;
-	    for ( int j = (int) str2.length() - 2; j >= 0; j-- ) {
-		if ( str2[j] == '\\' ) {
-		    int no = str2[j + 1].digitValue();
-		    if ( no > 0 && no <= lastCap )
-			str2.replace( j, 2, rx2.cap(no) );
+    if ( numCaptures ) {
+	// more complicated case....
+	if ( numCaptures > 9 )
+	    numCaptures = 9;
+	int capturePositions[10];
+	int i;
+	for ( i = 0; i <= numCaptures; i++ )
+	    capturePositions[i] = -1;
+	const QChar *uc = str.unicode();
+	bool found = FALSE;
+	for ( i = 0; i < al-1; i++ ) {
+	    if ( uc[i] == '\\' ) {
+		int no = uc[i + 1].digitValue();
+		if ( no > 0 && no <= numCaptures ) {
+		    capturePositions[no] = i;
+		    found = TRUE;
 		}
 	    }
 	}
+	// if we didn't find any capture position, we fall through to the simple
+	// and better optimised case.
+	if ( found ) {
+	    while ( index <= (int)length() ) {
+		index = rx2.search( *this, index );
+		if ( index == -1 )
+		    break;
 
-	replace( index, rx2.matchedLength(), str2 );
-	index += str2.length();
+		QString str2 = str;
+		for ( i = 0; i <= numCaptures; i++ ) {
+		    if ( capturePositions[i] != -1 ) 
+			str2.replace( capturePositions[i], 2, rx2.cap(i) );
+		}
 
-	// avoid infinite loop on 0-length matches (e.g., [a-z]*)
-	if ( rx2.matchedLength() == 0 )
-	    index++;
+		replace( index, rx2.matchedLength(), str2 );
+		index += str2.length();
+
+		// avoid infinite loop on 0-length matches (e.g., [a-z]*)
+		if ( rx2.matchedLength() == 0 )
+		    index++;
+	    }
+	    return *this;
+	}
+    }
+
+    // simple case without needing to worry about captures. can be optimised.
+    
+    while ( index != -1 ) {
+	struct { 
+	    int pos;
+	    int length;
+	} replacements[2048];
+	
+	uint pos = 0;
+	int adjust = 0;
+	while( pos < 2047 ) {
+	    index = rx2.search( *this, index );
+	    if ( index == -1 )
+		break;
+	    int ml = rx2.matchedLength();
+	    replacements[pos].pos = index;
+	    replacements[pos++].length = ml;
+	    index += ml;
+	    adjust += al - ml;
+	    // avoid infinite loop
+	    if ( !ml )
+		index++;
+	}
+	if ( !pos )
+	    break;
+	replacements[pos].pos = d->len;
+	uint newlen = d->len + adjust;
+	// to continue searching at the right position after we did the first round of replacements
+	if ( index != -1 )
+	    index += adjust;
+	QChar *newuc = QT_ALLOC_QCHAR_VEC( newlen+1 );
+	QChar *uc = newuc;
+	int copystart = 0;
+	uint i = 0;
+	while( i < pos ) {
+	    int copyend = replacements[i].pos;
+	    int size = copyend - copystart;
+	    memcpy( uc, d->unicode + copystart, size*sizeof(QChar) );
+	    uc += size;
+	    memcpy( uc, str.unicode(), al*sizeof( QChar ) );
+	    uc += al;
+	    copystart = copyend + replacements[i].length;
+	    i++;
+	}
+	memcpy( uc, d->unicode+copystart, (d->len-copystart)*sizeof(QChar) );
+	QT_DELETE_QCHAR_VEC( d->unicode );
+	d->unicode = newuc;
+	d->len = newlen;
+	d->maxl = newlen+1;
+	d->setDirty();
     }
     return *this;
 }
