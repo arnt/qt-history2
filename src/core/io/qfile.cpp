@@ -765,23 +765,20 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
     bool foundEnd = false;
     Q_LONGLONG ret = 0;
     //from buffer
-    while(!d->buffer.isEmpty() && ret < maxlen) {
+    while(!foundEnd && !d->buffer.isEmpty() && ret < maxlen) {
         uint buffered = qMin(maxlen, (Q_LONGLONG)d->buffer.used()), len = 0;
         char *buffer = d->buffer.take(buffered, &buffered);
         for( ; len < buffered && len < maxlen-ret; len++) {
-            if(*(buffer+len) == '\n')
+            if(*(buffer+len) == '\n') {
+                foundEnd = true;
+                len++;
                 break;
+            }
         }
 
         memcpy(data+ret, buffer, len);
         ret += len;
-        if(len != buffered) { //found end
-            d->buffer.free(len+1);
-            foundEnd = true;
-            break;
-        } else {
-            d->buffer.free(len);
-        }
+        d->buffer.free(len);
     }
     //from the device
     while(!foundEnd && ret < maxlen) {
@@ -796,24 +793,19 @@ QFile::readLine(char *data, Q_LONGLONG maxlen)
             d->buffer.truncate(read_cache_size - got);
         uint len = 0;
         for( ; len < got && len < maxlen-ret; len++) {
-            if(*(buffer+len) == '\n')
+            if(*(buffer+len) == '\n') {
+                foundEnd = true;
+                len++;
                 break;
+            }
         }
 
         memcpy(data+ret, buffer, len);
         ret += len;
-        if(len != got) { //found end
-            d->buffer.free(len+1);
-            foundEnd = true;
-            break;
-        } else {
-            d->buffer.free(len);
-        }
+        d->buffer.free(len);
     }
-    if(ret > 0 && ret != maxlen) {
+    if(ret > 0 && ret != maxlen) 
         *(data + ret) = '\0';
-        ret++;
-    }
     return ret;
 #else
     return QIODevice::readLine(data, maxlen);
