@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#13 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#13 $")
 
 
 struct QFileInfoCache
@@ -760,9 +760,6 @@ void QFileInfo::doStat() const
 	that->fic = new QFileInfoCache;
     STATBUF *b = &that->fic->st;
     if ( STAT(fn.data(),b) != 0 ) {
-#if defined(DEBUG)
-	debug( "QFileInfo::doStat: stat() failed" );
-#endif
 	delete that->fic;
 	that->fic = 0;
     }
