@@ -406,13 +406,14 @@ QObject::~QObject()
             QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
             if (sender.sender) sender.sender->d->removeReceiver(this);
         }
-        if (!--d->senders->ref) {
+        if (d->senders->active) {
+            d->senders->orphaned = true;
+            d->senders->lock.release();
+        } else {
             if (d->senders->senders != d->senders->stack)
                 qFree(d->senders->senders);
             d->senders->lock.~QSpinLock();
             qFree(d->senders);
-        } else {
-            d->senders->lock.release();
         }
         d->senders = 0;
     }
@@ -622,8 +623,10 @@ bool QObject::event(QEvent *e)
     case QEvent::EmitSignal: {
         QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
         QObjectPrivate::Senders *senders = d->senders;
+        bool was_active;
         QObject *sender =
-            QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()));
+            QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()),
+                                             &was_active);
 #if defined(QT_NO_EXCEPTIONS)
         qt_metacall((e->type() == QEvent::InvokeSlot
                      ? QMetaObject::InvokeSlot
@@ -636,11 +639,13 @@ bool QObject::event(QEvent *e)
                          : QMetaObject::EmitSignal),
                         mce->id(), mce->args());
         } catch (...) {
-            QObjectPrivate::resetCurrentSender(senders, sender);
+            QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
+                                               sender, was_active);
             throw;
         }
 #endif
-        QObjectPrivate::resetCurrentSender(senders, sender);
+        QObjectPrivate::resetCurrentSender(senders->orphaned ? senders : d->senders,
+                                           sender, was_active);
         return true;
     }
 
@@ -1365,7 +1370,8 @@ void QObjectPrivate::refSender(QObject *sender)
         Senders *s = (Senders *) qMalloc(sizeof(Senders));
         new (&s->lock) QSpinLock();
         s->senders = s->stack;
-        s->ref = 1;
+        s->active = false;
+        s->orphaned = false;
         s->count = 1;
         s->current = 0;
 
@@ -1396,7 +1402,7 @@ void QObjectPrivate::refSender(QObject *sender)
                 senders->senders =
                     (Senders::Sender*)
                     qRealloc(senders->senders, (i+1)*sizeof(Senders::Sender));
-            } else if (senders->ref > 1) { // we cannot realloc
+            } else if (senders->active) { // we cannot realloc
                 senders->senders =
                     (Senders::Sender*)
                     qMalloc((i+1)*sizeof(Senders::Sender));
@@ -1461,15 +1467,16 @@ void QObjectPrivate::removeSender(QObject *sender)
     Sets current sender, references senders list, and returns the
     previous current sender.
 */
-QObject *QObjectPrivate::setCurrentSender(Senders *senders, QObject *sender)
+QObject *QObjectPrivate::setCurrentSender(Senders *senders, QObject *sender, bool *was_active)
 {
-    if (!senders) return 0;
+    Q_ASSERT(senders);
 
     QSpinLockLocker locker(&senders->lock);
 
     register QObject *const previous = senders->current;
     senders->current = sender;
-    ++senders->ref;
+    *was_active = senders->active;
+    senders->active = true;
     return previous;
 }
 
@@ -1477,29 +1484,40 @@ QObject *QObjectPrivate::setCurrentSender(Senders *senders, QObject *sender)
     Resets current sender, dereferences senders list, and frees it
     when no longer referenced.
  */
-void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
+void QObjectPrivate::resetCurrentSender(Senders *&senders, QObject *sender, bool was_active)
 {
-    if (!senders) return;
+    Q_ASSERT(senders);
 
     senders->lock.acquire();
 
-    senders->current = 0;
-    if (sender) {
-        // only if the new current sender is still in the list
-        for (int i = 0; i < senders->count; ++i) {
-            if (senders->senders[i].sender == sender) {
-                senders->current = sender;
-                break;
-            }
-        }
-    }
-
-    if (!--senders->ref) {
+    if (!was_active && senders->orphaned) {
         if (senders->senders != senders->stack)
             qFree(senders->senders);
         senders->lock.~QSpinLock();
         qFree(senders);
     } else {
+        senders->active = was_active;
+        if (senders->senders != senders->stack) {
+            senders = (Senders *)
+                      qRealloc(senders, sizeof(Senders)
+                               + (senders->count - 1) * sizeof(Senders::Sender));
+            ::memcpy(senders->stack, senders->senders,
+                     senders->count * sizeof(Senders::Sender));
+            qFree(senders->senders);
+            senders->senders = senders->stack;
+        }
+
+        senders->current = 0;
+        if (sender) {
+            // only if the new current sender is still in the list
+            for (int i = 0; i < senders->count; ++i) {
+                if (senders->senders[i].sender == sender) {
+                    senders->current = sender;
+                    break;
+                }
+            }
+        }
+
         senders->lock.release();
     }
 }
@@ -1721,12 +1739,12 @@ void QObjectPrivate::removeReceiver(QObject *receiver)
     Note: The connections will be LOCKED when this function returns.
     Use resetActive() to clear the active flag and release the lock.
 */
-bool QObjectPrivate::setActive(Connections *connections)
+void QObjectPrivate::setActive(Connections *connections, bool *was_active)
 {
     connections->lock.acquire();
-    const bool was_active = connections->active;
+
+    *was_active = connections->active;
     connections->active = true;
-    return was_active;
 }
 
 /*! \internal
@@ -1736,15 +1754,25 @@ bool QObjectPrivate::setActive(Connections *connections)
     Note: The connections lock MUST be LOCKED before calling this
     function.  The lock will be UNLOCKED when this function returns.
 */
-void QObjectPrivate::resetActive(Connections *connections, bool was_active)
+void QObjectPrivate::resetActive(Connections *&connections, bool was_active)
 {
-    connections->active = was_active;
-    if (!connections->active && connections->orphaned) {
+    if (!was_active && connections->orphaned) {
         if (connections->connections != connections->stack)
             qFree(connections->connections);
         connections->lock.~QSpinLock();
         qFree(connections);
     } else {
+        connections->active = was_active;
+        if (connections->connections != connections->stack) {
+            connections = (Connections *)
+                          qRealloc(connections, sizeof(Connections)
+                                   + (connections->count - 1) * sizeof(Connections::Connection));
+            ::memcpy(connections->stack, connections->connections,
+                     connections->count * sizeof(Connections::Connection));
+            qFree(connections->connections);
+            connections->connections = connections->stack;
+        }
+
         connections->lock.release();
     }
 }
@@ -2333,7 +2361,8 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
     if (obj->d->blockSig || !connections)
         return;
 
-    bool was_active = QObjectPrivate::setActive(connections);
+    bool was_connections_active;
+    QObjectPrivate::setActive(connections, &was_connections_active);
     int last_connection = connections->count;
 
     void *static_argv[] = { 0 };
@@ -2379,22 +2408,32 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             connections->lock.release();
 
             QObjectPrivate::Senders *senders = c->receiver->d->senders;
-            QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
+            bool was_senders_active;
+            QObject *sender = QObjectPrivate::setCurrentSender(senders, obj, &was_senders_active);
 #if defined(QT_NO_EXCEPTIONS)
             c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
 #else
             try {
                 c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
             } catch (...) {
-                QObjectPrivate::resetCurrentSender(senders, sender);
+                QObjectPrivate::resetCurrentSender((senders->orphaned
+                                                    ? senders :
+                                                    c->receiver->d->senders),
+                                                   sender, was_senders_active);
 
                 connections->lock.acquire();
-                QObjectPrivate::resetActive(connections, was_active);-
+                QObjectPrivate::resetActive((connections->orphaned
+                                             ? connections
+                                             : obj->d->connections),
+                                            was_connections_active);
 
                 throw;
             }
 #endif
-            QObjectPrivate::resetCurrentSender(senders, sender);
+            QObjectPrivate::resetCurrentSender((senders->orphaned
+                                                ? senders :
+                                                c->receiver->d->senders),
+                                               sender, was_senders_active);
 
             connections->lock.acquire();
             if (connections->orphaned)
@@ -2402,7 +2441,10 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
         }
     }
 
-    QObjectPrivate::resetActive(connections, was_active);
+    QObjectPrivate::resetActive((connections->orphaned
+                                 ? connections
+                                 : obj->d->connections),
+                                was_connections_active);
 }
 
 /*!\internal

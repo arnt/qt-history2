@@ -78,14 +78,15 @@ public:
     Connections::Connection *findConnection(int signal, int &i) const;
     void removeReceiver(QObject *receiver);
 
-    static bool setActive(Connections *connections);
-    static void resetActive(Connections *connections, bool was_active);
+    static void setActive(Connections *connections, bool *was_active);
+    static void resetActive(Connections *&connections, bool was_active);
 
     // slot connections
     struct Senders
     {
         QSpinLock lock;
-        int ref;
+        uint active : 1;
+        uint orphaned : 1;
         QObject *current;
         int count;
         struct Sender {
@@ -100,8 +101,8 @@ public:
     void derefSender(QObject *sender);
     void removeSender(QObject *sender);
 
-    static QObject *setCurrentSender(Senders *senders, QObject *sender);
-    static void resetCurrentSender(Senders *senders, QObject *sender);
+    static QObject *setCurrentSender(Senders *senders, QObject *sender, bool *was_active);
+    static void resetCurrentSender(Senders *&senders, QObject *sender, bool was_active);
 
     QList<QPointer<QObject> > eventFilters;
 
