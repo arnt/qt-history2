@@ -30,10 +30,6 @@
 #include <ctype.h>
 #include <limits.h>
 
-#define d d_func()
-#define q q_func()
-
-
 static const int GUARDED_SIGNAL = INT_MIN;
 static int DIRECT_CONNECTION_ONLY = 0;
 
@@ -271,6 +267,7 @@ public:
 
 bool QObjectPrivate::isSender(const QObject *receiver, const char *signal) const
 {
+    Q_Q(const QObject);
     int signal_index = q->metaObject()->indexOfSignal(signal);
     if (signal_index < 0)
         return false;
@@ -288,6 +285,7 @@ bool QObjectPrivate::isSender(const QObject *receiver, const char *signal) const
 
 QObjectList QObjectPrivate::receiverList(const char *signal) const
 {
+    Q_Q(const QObject);
     QObjectList receivers;
     int signal_index = q->metaObject()->indexOfSignal(signal);
     if (signal_index < 0)
@@ -306,6 +304,7 @@ QObjectList QObjectPrivate::receiverList(const char *signal) const
 
 QObjectList QObjectPrivate::senderList() const
 {
+    Q_Q(const QObject);
     QObjectList senders;
     QConnectionList *list = ::connectionList();
     QReadLocker locker(&list->lock);
@@ -499,9 +498,10 @@ void *qt_find_obj_child(QObject *parent, const char *type, const QString &name)
 QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
+    Q_D(QObject);
     d_ptr->q_ptr = this;
     if (parent) {
-        d->thread = parent->d->thread;
+        d->thread = parent->d_func()->thread;
     } else {
         QThreadData *data = QThreadData::current();
         d->thread = data ? data->id : 0;
@@ -519,9 +519,10 @@ QObject::QObject(QObject *parent)
 QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
+    Q_D(QObject);
     d_ptr->q_ptr = this;
     if (parent) {
-        d->thread = parent->d->thread;
+        d->thread = parent->d_func()->thread;
     } else {
         QThreadData *data = QThreadData::current();
         d->thread = data ? data->id : 0;
@@ -536,17 +537,18 @@ QObject::QObject(QObject *parent, const char *name)
 QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
+    Q_D(QObject);
     d_ptr->q_ptr = this;
     if (d->isWidget) {
         d->thread = 0;
         if (parent) {
             d->parent = parent;
-            d->parent->d->children.append(this);
+            d->parent->d_func()->children.append(this);
         }
         // no events sent here, this is done at the end of the QWidget constructor
     } else {
         if (parent) {
-            d->thread = parent->d->thread;
+            d->thread = parent->d_func()->thread;
         } else {
             QThreadData *data = QThreadData::current();
             d->thread = data ? data->id : 0;
@@ -577,6 +579,7 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 
 QObject::~QObject()
 {
+    Q_D(QObject);
     if (d->wasDeleted) {
 #if defined(QT_DEBUG)
         qWarning("Double QObject deletion detected");
@@ -693,6 +696,7 @@ QObject::~QObject()
 
 QString QObject::objectName() const
 {
+    Q_D(const QObject);
     return d->objectName;
 }
 
@@ -701,6 +705,7 @@ QString QObject::objectName() const
 */
 void QObject::setObjectName(const QString &name)
 {
+    Q_D(QObject);
     d->objectName = name;
 }
 
@@ -750,6 +755,7 @@ static QObject *qChildHelper(const char *objName, const char *inheritsClass,
 QObject* QObject::child(const char *objName, const char *inheritsClass,
                          bool recursiveSearch) const
 {
+    Q_D(const QObject);
     return qChildHelper(objName, inheritsClass, recursiveSearch, d->children);
 }
 #endif
@@ -967,6 +973,7 @@ bool QObject::eventFilter(QObject * /* watched */, QEvent * /* e */)
 
 bool QObject::blockSignals(bool block)
 {
+    Q_D(QObject);
     bool previous = d->blockSig;
     d->blockSig = block;
     return previous;
@@ -975,7 +982,7 @@ bool QObject::blockSignals(bool block)
 /*!
  */
 QThread *QObject::thread() const
-{ return QThreadPrivate::threadForId(d->thread); }
+{ return QThreadPrivate::threadForId(d_func()->thread); }
 
 //
 // The timer flag hasTimer is set when startTimer is called.
@@ -1038,6 +1045,7 @@ QThread *QObject::thread() const
 
 int QObject::startTimer(int interval)
 {
+    Q_D(QObject);
     QThread *thr = thread();
     if (!thr && d->thread != 0) {
         qWarning("QTimer can only be used with a valid thread");
@@ -1064,6 +1072,7 @@ int QObject::startTimer(int interval)
 
 void QObject::killTimer(int id)
 {
+    Q_D(QObject);
     QThread *thr = thread();
     if (!thr && d->thread != 0) {
         qWarning("QTimer can only be used with a valid thread");
@@ -1190,6 +1199,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
                                 bool regexpMatch,
                                 bool recursiveSearch) const
 {
+    Q_D(const QObject);
     QObjectList list;
     bool onlyWidgets = (inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0);
 #ifndef QT_NO_REGEXP
@@ -1304,38 +1314,40 @@ QObject *qt_qFindChild_helper(const QObject *parent, const QString &name, const 
 
 void QObject::setParent(QObject *parent)
 {
+    Q_D(QObject);
     Q_ASSERT(!d->isWidget);
     d->setParent_helper(parent);
 }
 
 
-void QObjectPrivate::setParent_helper(QObject *parent)
+void QObjectPrivate::setParent_helper(QObject *o)
 {
-    if (parent == d->parent)
+    Q_Q(QObject);
+    if (o == parent)
         return;
-    if (d->parent && !d->parent->d->wasDeleted && d->parent->d->children.removeAll(q)) {
-        if(d->sendChildEvents) {
+    if (parent && !parent->d_func()->wasDeleted && parent->d_func()->children.removeAll(q)) {
+        if(sendChildEvents) {
             QChildEvent e(QEvent::ChildRemoved, q);
-            QCoreApplication::sendEvent(d->parent, &e);
+            QCoreApplication::sendEvent(parent, &e);
         }
     }
-    d->parent = parent;
-    if (d->parent) {
+    parent = o;
+    if (parent) {
         // object hierarchies are constrained to a single thread
-        Q_ASSERT_X(d->thread == d->parent->d->thread, "QObject::setParent",
+        Q_ASSERT_X(thread == parent->d_func()->thread, "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
-        d->parent->d->children.append(q);
-        if(d->sendChildEvents) {
-            if (!d->isWidget) {
+        parent->d_func()->children.append(q);
+        if(sendChildEvents) {
+            if (!isWidget) {
                 QChildEvent e(QEvent::ChildAdded, q);
-                QCoreApplication::sendEvent(d->parent, &e);
+                QCoreApplication::sendEvent(parent, &e);
 #ifdef QT3_SUPPORT
-                QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
+                QCoreApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, q));
 #endif
             }
 #ifdef QT3_SUPPORT
             else {
-                QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, q));
+                QCoreApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, q));
             }
 #endif
         }
@@ -1406,6 +1418,7 @@ void QObjectPrivate::setParent_helper(QObject *parent)
 
 void QObject::installEventFilter(QObject *obj)
 {
+    Q_D(QObject);
     if (!obj)
         return;
     // clean up unused items in the list
@@ -1429,6 +1442,7 @@ void QObject::installEventFilter(QObject *obj)
 
 void QObject::removeEventFilter(QObject *obj)
 {
+    Q_D(QObject);
     d->eventFilters.removeAll(obj);
 }
 
@@ -1577,7 +1591,7 @@ static void err_info_about_objects(const char * func,
 */
 
 QObject *QObject::sender() const
-{ return d->currentSender; }
+{ return d_func()->currentSender; }
 
 /*!
     Returns the number of receivers connect to the \a signal.
@@ -2196,15 +2210,16 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
     // determine if this connection should be sent immediately or
     // put into the event queue
     if ((c.type == Qt::AutoConnection
-         && (currentQThreadId != sender->d->thread || receiver->d->thread != sender->d->thread))
-        || (c.type == Qt::QueuedConnection)) {
+         && (currentQThreadId != sender->d_func()->thread
+             || receiver->d_func()->thread != sender->d_func()->thread))
+         || (c.type == Qt::QueuedConnection)) {
         ::queued_activate(sender, c, argv);
         return;
     }
 
     const int member = c.member;
-    QObject * const previousSender = receiver->d->currentSender;
-    receiver->d->currentSender = sender;
+    QObject * const previousSender = receiver->d_func()->currentSender;
+    receiver->d_func()->currentSender = sender;
     list->lock.unlock();
 
     if (qt_signal_spy_callback_set.slot_begin_callback != 0)
@@ -2219,7 +2234,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
         list->lock.lockForRead();
         if (c.receiver) {
             receiver = static_cast<QPublicObject *>(c.receiver);
-            receiver->d->currentSender = previousSender;
+            receiver->d_func()->currentSender = previousSender;
             throw;
         }
     }
@@ -2231,7 +2246,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
     list->lock.lockForRead();
     if (c.receiver) {
         receiver = static_cast<QPublicObject *>(c.receiver);
-        receiver->d->currentSender = previousSender;
+        receiver->d_func()->currentSender = previousSender;
     }
 }
 
@@ -2240,7 +2255,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
  */
 void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 {
-    if (obj->d->blockSig)
+    if (obj->d_func()->blockSig)
         return;
     QConnectionList * const list = ::connectionList();
     if (!list)
@@ -2426,6 +2441,7 @@ QObjectUserData::~QObjectUserData()
  */
 void QObject::setUserData(uint id, QObjectUserData* data)
 {
+    Q_D(QObject);
     d->userData.insert(id, data);
 }
 
@@ -2433,6 +2449,7 @@ void QObject::setUserData(uint id, QObjectUserData* data)
  */
 QObjectUserData* QObject::userData(uint id) const
 {
+    Q_D(const QObject);
     if ((int)id < d->userData.size())
         return d->userData.at(id);
     return 0;
