@@ -164,9 +164,9 @@ void EditSlots::okClicked()
 void EditSlots::slotAdd()
 {
     QListViewItem *i = new QListViewItem( slotListView );
-    i->setText( 0, "new_slot()" );
+    i->setText( 0, "newSlot()" );
     i->setText( 1, "public" );
-    if ( MetaDataBase::isSlotUsed( formWindow, "new_slot()" ) )
+    if ( MetaDataBase::isSlotUsed( formWindow, "newSlot()" ) )
 	i->setText( 2, tr( "Yes" ) );
     else
 	i->setText( 2, tr( "No" ) );
