@@ -39,6 +39,9 @@
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"
+#if defined(_WS_WIN_)
+#include "qt_windows.h"
+#endif
 
 #define RANGE 16
 
@@ -192,7 +195,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 
 #if defined(_WS_WIN_)
     MSG msg;
-    while(PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
+    while(PeekMessage( &msg, widget->winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
 	;
 #endif
     QApplication::syncX();
