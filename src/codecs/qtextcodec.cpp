@@ -1196,6 +1196,8 @@ bool QTextCodec::canEncode( QChar ch ) const
 */
 bool QTextCodec::canEncode( const QString& s ) const
 {
+    if ( s.isEmpty() )
+	return TRUE;
     return toUnicode(fromUnicode(s)) == s;
 }
 
