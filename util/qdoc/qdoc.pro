@@ -3,7 +3,9 @@ CONFIG		= warn_on console release qtinc dylib debug
 isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
 isEmpty(QT_BUILD_TREE):QT_BUILD_TREE=$$QT_SOURCE_TREE
 DEFINES		+= QT_NO_CODECS QT_NO_UNICODETABLES QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE QT_NO_STL QT_NO_COMPRESS QT_COMPAT QT_NO_THREAD
-INCLUDEPATH	= $$QT_BUILD_TREE/include $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/src/core/arch/$$ARCH/ $$QT_BUILD_TREE/include/QtCore $$QT_SOURCE_TREE/include/QtCore
+INCLUDEPATH	= $$QT_BUILD_TREE/include $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/src/core/arch/$$ARCH/ \
+                  $$QT_BUILD_TREE/include/QtCore $$QT_SOURCE_TREE/include/QtCore \
+                  $$QT_BUILD_TREE/include/Qt3Compat $$QT_SOURCE_TREE/include/Qt3Compat
 DEPENDPATH	= $$INCLUDEPATH
 OBJECTS_DIR	= .
 HEADERS		= binarywriter.h \
