@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#2 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,6 +18,10 @@
 #include <malloc.h>
 #endif
 
+#if defined(DEBUG)
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#2 $";
+#endif
+
 
 //
 // The regexp pattern is internally represented as an array of ushorts,
@@ -29,13 +33,9 @@ const ushort BOL	= 0x8001;		// beginning of line 	^
 const ushort EOL	= 0x8002;		// end of line		$
 const ushort BOW	= 0x8003;		// beginning of word	\<
 const ushort EOW	= 0x8004;		// end of word		\>
-const ushort BOT	= 0x8005;		// beginning of tag	\(
-const ushort EOT	= 0x8006;		// end of tag		\)
-const ushort ANY	= 0x8007;		// any character	.
-const ushort CCL	= 0x8008;		// character class	[]
-const ushort CLO	= 0x8009;		// Kleene closure	*
-const ushort OPT	= 0x800a;		// optional closure	?
-const ushort REF	= 0x800b;		// backref		\n
+const ushort ANY	= 0x8005;		// any character	.
+const ushort CCL	= 0x8006;		// character class	[]
+const ushort CLO	= 0x8007;		// Kleene closure	*
 const ushort END	= 0x0000;
 
 // ---------------------------------------------------------------------------
@@ -45,15 +45,16 @@ const ushort END	= 0x0000;
 QRegExp::QRegExp()
 {
     rxdata = 0;
-    valid = wcmode = FALSE;
+    valid = FALSE;
 }
 
-QRegExp::QRegExp( const char *pattern, bool wildcardMode )
+QRegExp::QRegExp( const char *pattern, bool wildcard )
 {
     rxstring = pattern;
     rxdata = 0;
-    wcmode = wildcardMode;
-    compile();					// compile the pattern
+    if ( wildcard )
+	wc2rx();
+    compile();
 }
 
 QRegExp::~QRegExp()
@@ -79,73 +80,89 @@ QRegExp &QRegExp::operator=( const char *pattern )
 //
 // Find the first instance of the regexp pattern in a string.
 //
+
 int QRegExp::match( const char *str, int index, int *len ) const
 {
     if ( !valid || !rxdata || !*rxdata )	// nothing to match
 	return -1;
-    register ushort *d = rxdata;
-    register char   *p = (char *)str + index;
-    char	    *ep;
-    if ( *d == BOL )
+    register char *p = (char *)str + index;
+    ushort *d  = rxdata;
+    char   *ep = 0;
+
+    if ( *d == BOL )				// match from beginning of line
 	ep = matchsub( d, p, p );
     else {
 	if ( (*d & 0x8000) == 0 ) {
 	    while ( *p && *p != (char)*d )	// find first char occurrence
 		p++;
-	    if ( !*p )
-		return -1;
 	}
-	while ( *p ) {
+	while ( *p ) {				// regular match
 	    if ( (ep=matchsub(d,p,(char*)str+index)) )
 		break;
 	    p++;
 	}
     }
-    if ( ep ) {
+    if ( ep ) {					// match
 	if ( len )
 	    *len = ep - p;
 	return (int)(p - str);
     }
-    else
+    else {					// no match
+	if ( len )
+	    *len = 0;
 	return -1;
+    }
+}
+
+
+inline bool iswordchar( int x )
+{
+    return isalnum(x) || x == '_';
 }
 
 
 char *QRegExp::matchsub( ushort *rxd, char *str, char *bol ) const
 {
-    register ushort *d = rxd;
-    register char   *p = str;
-    ushort r;
-    char   c;
+    register char *p = str;
+    ushort *d = rxd;
 
-    while ( (r=*d++) != END ) {
-	if ( (r & 0x8000) == 0 ) {
-	    if ( *p++ != (char)r )
+    while ( *d ) {
+	if ( (*d & 0x8000) == 0 ) {		// match char
+	    if ( *p++ != (char)*d )
 		return 0;
+	    d++;
 	}
-	else switch ( r ) {
-	    case ANY:
+	else switch ( *d++ ) {
+	    case ANY:				// match anything
 		if ( !*p++ )
 		    return 0;
 		break;
-	    case CCL:
+	    case CCL:				// match char class
 		if ( (d[*p >> 4] & (1 << (*p & 0xf))) == 0 )
 		    return 0;
 		p++;
 		d += 16;
 		break;
-	    case BOL:
+	    case BOL:				// match beginning of line
 		if ( p != bol )
 		    return 0;
 		break;
-	    case EOL:
+	    case EOL:				// match end of line
 		if ( *p )
 		    return 0;
 		break;
-	    case CLO:
+	    case BOW:				// match beginning of word
+		if ( !iswordchar(*p) || (p > bol &&  iswordchar(*(p-1)) ) )
+		    return 0;
+		break;
+	    case EOW:				// match end of word
+		if ( iswordchar(*p) || p == bol || !iswordchar(*(p-1)) )
+		    return 0;
+		break;
+	    case CLO:				// closure
 		{
-		char *save_p = p;
-		if ( (*d & 0x8000) == 0 ) {
+		char *first_p = p;
+		if ( (*d & 0x8000) == 0 ) {	// match char
 		    while ( *p && *p == (char)*d )
 			p++;
 		}
@@ -158,22 +175,22 @@ char *QRegExp::matchsub( ushort *rxd, char *str, char *bol ) const
 			d++;
 			while ( *p && d[*p >> 4] & (1 << (*p & 0xf)) )
 			    p++;
-			d += 16;
+			d += 15;
 			break;
-		    default:
-			debug( "QRegExp: INTERNAL ERROR #1" );
+		    default:			// error
+			return 0;
 		}
 		d++;
-		char *ep;
-		while ( p > save_p ) {
-		    if ( (ep = matchsub(d,p,bol)) )
-			return ep;
+		d++;
+		char *end;
+		while ( p >= first_p ) {	// go backwards
+		    if ( (end = matchsub(d,p,bol)) )
+			return end;
 		    --p;
 		}
+		}				// fall through!
+	    default:				// error
 		return 0;
-		}
-	    default:
-		debug( "QRegExp: INTERNAL ERROR #2" );
 	}
     }
     return p;
@@ -184,9 +201,9 @@ char *QRegExp::matchsub( ushort *rxd, char *str, char *bol ) const
 // Translate wildcard pattern to standard regexp pattern.
 // Ex:   *.cpp	==> ^.*\.cpp$
 //
+
 void QRegExp::wc2rx()
 {
-    ASSERT( wcmode );
     register char *p = (char *)rxstring;
     if ( !p )					// no regexp pattern
 	return;
@@ -218,6 +235,7 @@ void QRegExp::wc2rx()
 //
 // Internal: Get char value and increment pointer.
 //
+
 static int char_val( char **str )		// get char value
 {
     register char *p = *str;
@@ -336,21 +354,17 @@ ushort *dump( ushort *p )				// DEBUG !!!
 
 void QRegExp::compile()
 {
-    if ( wcmode )				// convert wildcard
-	wc2rx();
-    if ( rxdata ) {				// delete the old data
-	delete rxdata;
-	rxdata = 0;
-    }
     if ( rxstring.isEmpty() ) {			// no regexp pattern set
 	valid = FALSE;
 	return;
     }
 
-    int maxlen = 2048;				// reserve huge array
-    rxdata = (ushort *)malloc( maxlen*sizeof(ushort) );
-    CHECK_PTR( rxdata );
-    valid  = TRUE;				// valid pattern
+    const maxlen = 1024;			// huge array
+    if ( !rxdata ) {
+	rxdata = new ushort[ maxlen ];
+	CHECK_PTR( rxdata );
+    }
+    valid  = TRUE;				// assume valid pattern
 
     char   *p = rxstring;			// pattern pointer
     ushort *d = rxdata;				// data pointer
@@ -364,16 +378,19 @@ void QRegExp::compile()
 	    case '^':				// beginning of line
 		prev_d = d;
 		GEN( p == rxstring.data() ? BOL : *p );
+		p++;
 		break;
 
 	    case '$':				// end of line
 		prev_d = d;
 		GEN( *(p+1) == 0 ? EOL : *p );
+		p++;
 		break;
 
 	    case '.':				// any char
 		prev_d = d;
 		GEN( ANY );
+		p++;
 		break;
 
 	    case '[':				// character class
@@ -415,7 +432,6 @@ void QRegExp::compile()
 		}
 		if ( *p != ']' ) {		// missing close bracket
 		    valid = FALSE;
-		    debug( "QRegExp: Missing ]" );
 		    return;
 		}
 		if ( d + 16 >= rxdata + maxlen ) {
@@ -428,54 +444,57 @@ void QRegExp::compile()
 			d[i >> 4] |= (1 << (i & 0xf));
 		}
 		d += 16;
+		p++;
 		}
 		break;
 
 	    case '*':				// Kleene closure
 	    case '+':				// positive closure
-	    case '?':				// optional closure
 		{
 		if ( prev_d == 0 ) {		// no previous expression
 		    valid = FALSE;		// empty closure
-		    debug( "QRegExp: Empty closure" );
 		    return;
 		}
 		switch ( *prev_d ) {
 		    case BOL:
 		    case BOW:
 		    case EOW:
-		    case BOT:
-		    case EOT:
 		    case CLO:
-		    case OPT:
-		    case REF:
-			debug( "QRegExp: Illegal closure" );
 			valid = FALSE;
 			return;
 		}
 		int ddiff = d - prev_d;
 		if ( *p == '+' ) {		// duplicate expression
+		    if ( d + ddiff >= rxdata + maxlen ) {
+			valid = FALSE;		// overflow
+			return;
+		    }
 		    memcpy( d, prev_d, ddiff*sizeof(ushort) );
 		    d += ddiff;
 		    prev_d += ddiff;
 		}
 		memmove( prev_d+1, prev_d, ddiff*sizeof(ushort) );
-		*prev_d = *p == '?' ? OPT : CLO;
+		*prev_d = CLO;
 		d++;
 		GEN( END );
+		p++;
 		}
 		break;
 
 	    default:
 		prev_d = d;
-		GEN( *p );
+		if ( *p == '\\' && (*(p+1) == '<' || *(p+1) == '>') ) {
+		    GEN( *++p == '<' ? BOW : EOW );
+		    p++;
+		}
+		else
+		    GEN( char_val(&p) );
 	}
-        p++;
 	if ( d >= rxdata + maxlen ) {		// oops!
 	    valid = FALSE;			// buffer overflow
 	    return;
 	}
     }
     GEN( END );
-    dump( rxdata );
+// DEBUGGING!!!    dump( rxdata );
 }

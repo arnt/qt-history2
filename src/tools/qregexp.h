@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#1 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#2 $
 **
 ** Definition of QRegExp class
 **
@@ -20,7 +20,7 @@ class QRegExp
 {
 public:
     QRegExp();
-    QRegExp( const char *pattern, bool wildcardMode=FALSE );
+    QRegExp( const char *pattern, bool wildcard=FALSE );
     QRegExp( const QRegExp & );
    ~QRegExp();
     QRegExp    &operator=( const QRegExp & );
@@ -28,9 +28,6 @@ public:
 
     bool	isEmpty() const	     { return rxdata != 0; }
     bool	isValid() const	     { return valid; }
-
-    bool 	wildcardMode() const { return wcmode; }
-    void	setWildcardMode( bool );
 
     int		match( const char *str, int index=0, int *len=0 ) const;
 
@@ -43,7 +40,6 @@ private:
     QString	rxstring;			// regular expression pattern
     ushort     *rxdata;				// compiled regexp pattern
     bool	valid;
-    bool	wcmode;
 };
 
 
