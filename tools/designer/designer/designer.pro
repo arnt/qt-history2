@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG		+= qt warn_on 
+CONFIG		+= qt warn_on
 
 !contains(QT_PRODUCT,qt-internal) {
    message(whee..)
@@ -74,8 +74,7 @@ SOURCES	+= command.cpp \
 		connectionitems.cpp \
 		editfunctionsimpl.cpp \
 		variabledialogimpl.cpp \
-		listviewdnd.cpp \
-		listviewitemdrag.cpp
+		listviewdnd.cpp
 HEADERS	+= command.h \
 		defs.h \
 		formwindow.h \
@@ -134,8 +133,7 @@ HEADERS	+= command.h \
 		connectionitems.h \
 		editfunctionsimpl.h \
 		variabledialogimpl.h \
-		listviewdnd.h \
-		listviewitemdrag.h
+		listviewdnd.h
 
 FORMS		+= listboxeditor.ui \
 		editfunctions.ui \

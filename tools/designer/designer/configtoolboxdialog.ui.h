@@ -21,7 +21,6 @@
 #include "mainwindow.h"
 #include "widgetaction.h"
 #include "listviewdnd.h"
-#include "listviewitemdrag.h"
 #include <qlistview.h>
 
 void ConfigToolboxDialog::init()
