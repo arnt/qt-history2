@@ -334,7 +334,19 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     return objName;
 }
 
+/*!
+  Creates declarations for spacer items that are children of \a e.
 
+  \sa createObjectDecl()
+*/
+
+void Uic::createSpacerDecl( const QDomElement &e )
+{
+    for ( QDomElement n = e.firstChild().toElement();
+	  !n.isNull(); n = n.nextSibling().toElement() )
+	if ( n.tagName() == "spacer" )
+	    out << "    QSpacerItem* " << registerObject(getObjectName(n)) << ";" << endl;
+}
 
 /*!
   Creates a set-call for property \a exclusiveProp of the object

@@ -300,8 +300,12 @@ QString Uic::getDatabaseInfo( const QDomElement& e, const QString& tag )
 
 void Uic::registerLayouts( const QDomElement &e )
 {
-    if ( layouts.contains(e.tagName()) )
+    if ( layouts.contains(e.tagName())) {
 	createObjectDecl(e);
+	QString t = e.tagName();
+	if ( t == "vbox" || t == "hbox" || t == "grid" )
+	    createSpacerDecl( e );
+    }
 
     QDomNodeList nl = e.childNodes();
     for ( int i = 0; i < (int) nl.length(); ++i )
@@ -843,7 +847,7 @@ QString Uic::createSpacerImpl( const QDomElement &e, const QString& /*parentClas
     QDomElement n;
     QString objClass, objName;
     objClass = e.tagName();
-    objName = registerObject( "spacer" );
+    objName = registerObject( getObjectName( e ) );
 
     QSize size = DomTool::readProperty( e, "sizeHint", QSize( 0, 0 ) ).toSize();
     QString sizeType = DomTool::readProperty( e, "sizeType", "Expanding" ).toString();
@@ -856,11 +860,11 @@ QString Uic::createSpacerImpl( const QDomElement &e, const QString& /*parentClas
     }
 
     if ( isVspacer )
-	out << "    QSpacerItem* " << objName << " = new QSpacerItem( "
+	out << "    " << objName << " = new QSpacerItem( "
 	    << size.width() << ", " << size.height()
 	    << ", QSizePolicy::Minimum, QSizePolicy::" << sizeType << " );" << endl;
     else
-	out << "    QSpacerItem* " << objName << " = new QSpacerItem( "
+	out << "    " << objName << " = new QSpacerItem( "
 	    << size.width() << ", " << size.height()
 	    << ", QSizePolicy::" << sizeType << ", QSizePolicy::Minimum );" << endl;
 

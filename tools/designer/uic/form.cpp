@@ -236,6 +236,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "class QVBoxLayout;" << endl;
     out << "class QHBoxLayout;" << endl;
     out << "class QGridLayout;" << endl;
+    out << "class QSpacerItem;" << endl;
     if ( objClass == "QMainWindow" ) {
 	out << "class QAction;" << endl;
 	out << "class QActionGroup;" << endl;
@@ -380,6 +381,9 @@ void Uic::createFormDecl( const QDomElement &e )
     for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
 	createObjectDecl( n );
+	QString t = n.tagName();
+ 	if ( t == "vbox" || t == "hbox" || t == "grid" )
+ 	    createSpacerDecl( n );
 	QString s = getClassName( n );
 	if ( s == "QDataTable" || s == "QDataBrowser" ) {
 	    if ( isFrameworkCodeGenerated( n ) )
@@ -397,7 +401,6 @@ void Uic::createFormDecl( const QDomElement &e )
 		createToolbarDecl( a );
 	} else if ( n.tagName() == "menubar" ) {
 	    out << "    " << "QMenuBar *" << getObjectName( n ) << ";" << endl;
-
 	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
 		createMenuBarDecl( a );
 	}

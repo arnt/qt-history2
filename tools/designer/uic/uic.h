@@ -35,11 +35,12 @@ public:
     void createSubDecl( const QDomElement &e, const QString& subclname );
     void createSubImpl( const QDomElement &e, const QString& subclname );
 
-    void createObjectDecl( const QDomElement& e );
-    void createActionDecl( const QDomElement& e );
+    void createObjectDecl( const QDomElement &e );
+    void createSpacerDecl( const QDomElement &e );
+    void createActionDecl( const QDomElement &e );
     void createToolbarDecl( const QDomElement &e );
     void createMenuBarDecl( const QDomElement &e );
-    void createActionImpl( const QDomElement& e, const QString &parent );
+    void createActionImpl( const QDomElement &e, const QString &parent );
     void createToolbarImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
     void createMenuBarImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
     void createPopupMenuImpl( const QDomElement &e, const QString &parentClass, const QString &parent );
