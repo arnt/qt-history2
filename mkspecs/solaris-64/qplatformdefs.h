@@ -87,8 +87,7 @@ typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 #endif
 
-// On 64-bit platforms (Solaris 7 and better) sockets consistently use
-// socklen_t in 64-bit mode.
+// On 64-bit platforms (Solaris 7 and better) sockets use socklen_t.
 #define QT_SOCKLEN_T socklen_t
 
 #define QT_NREAD	I_NREAD
