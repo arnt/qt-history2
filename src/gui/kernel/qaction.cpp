@@ -51,6 +51,11 @@ void QActionPrivate::sendDataChanged()
     if the user presses a Bold toolbar button, the Bold menu item
     will automatically be checked.
 
+    Actions can be created as independent objects, but they may
+    also be created during the construction of menus; the QMenu class
+    contains convenience functions for creating actions suitable for
+    use as menu items.
+
     A QAction may contain an icon, menu text, a shortcut, status text,
     "What's This?" text, and a tool tip. Most of these can be set in
     the constructor. They can also be set independently with
