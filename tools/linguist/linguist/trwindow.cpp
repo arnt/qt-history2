@@ -447,9 +447,9 @@ bool Action::addToToolbar( QToolBar *tb, const QString& text,
     setText( text );
     ess = imageDict->find( QString("small/") + QString(xpmName) );
     if ( ess != 0 ) {
-	QPixmap small;
-	small.loadFromData( ess->data, ess->size );
- 	QIconSet s( small );
+	QPixmap sm;
+	sm.loadFromData( ess->data, ess->size );
+ 	QIconSet s( sm );
  	setIconSet( s );
     }
     return QAction::addTo( tb );
