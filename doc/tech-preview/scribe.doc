@@ -40,10 +40,10 @@ concepts behind Scribe.
 Text documents are represented by the \c QTextDocument class, rather
 than by \c QString objects. Each \c QTextDocument object contains
 information about the document's internal representation, its
-structure, and the user's interactions with its contents. This
-approach allows features such as the layout management and undo/redo
-handling to be delegated to specialized classes, but also provides a
-focus for the framework.
+structure, and keeps track of modifications to provide undo/redo facilities.
+This approach allows features such as the layout management to be
+delegated to specialized classes, but also provides a focus for the
+framework.
 
 Documents are either converted from external sources or created from
 scratch using Qt. The creation process can done by an editor widget,
@@ -149,6 +149,7 @@ The rich text module still has a few missing features:
    of Qt 4.
 \i The API of \c QAbstractTextDocumentLayout is subject to change.
    The class is not guaranteed to be present in Qt 4.
+\i HTML export.
 \endlist
 
 
