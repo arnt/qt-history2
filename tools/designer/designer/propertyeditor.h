@@ -523,6 +523,9 @@ public:
     void setup();
     void setCurrent( QWidget *w );
 
+protected:
+    void contentsMouseDoubleClickEvent( QMouseEvent *e );
+
 private:
     void save( QListViewItem *p );
 

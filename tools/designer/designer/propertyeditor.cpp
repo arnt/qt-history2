@@ -3027,6 +3027,33 @@ void EventList::setup()
     }
 }
 
+extern QListViewItem *newItem;
+
+void EventList::contentsMouseDoubleClickEvent( QMouseEvent *e )
+{
+    QListViewItem *i = itemAt( e->pos() );
+    if ( !i || i->parent() )
+	return;
+    QString s;
+    if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
+	QString s1 = i->text( 0 );
+	int pt = s1.find( "(" );
+	if ( pt != -1 )
+	    s1 = s1.left( pt );
+	s = QString( editor->widget()->name() ) + "_" + s1;
+    } else {
+	s = QString( editor->widget()->name() ) + "_" + i->text( 0 );
+    }
+
+    HierarchyItem *item = new HierarchyItem( i, s, QString::null, QString::null );
+    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+    item->setRenameEnabled( 0, TRUE );
+    setCurrentItem( item );
+    qApp->processEvents();
+    newItem = item;
+    item->startRename( 0 );
+}
+
 void EventList::setCurrent( QWidget * )
 {
 }
@@ -3037,8 +3064,6 @@ void EventList::objectClicked( QListViewItem *i )
 	return;
     formWindow->mainWindow()->editFunction( i->text( 0 ) );
 }
-
-extern QListViewItem *newItem;
 
 void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
