@@ -399,10 +399,12 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int lineExtend = 0;
     while ( TRUE ) {
 	QSize sh = t ? t->t->sizeHint() : QSize();
-	int off = 0;
+	int nx = e;
 	if ( t && t->extraOffset != -1 && t->extraOffset > e )
-	    off = t->extraOffset - e;
-	if ( !t || t->nl || e + off + size_extend( sh, o ) > rect_extend( r, o ) ) {
+	    nx = t->extraOffset;
+	if ( nx + size_extend( sh, o ) > rect_extend( r, o ) )
+	    nx = QMAX( e, rect_extend( r, o ) - size_extend( sh, o ) );
+	if ( !t || t->nl || nx + size_extend( sh, o ) > rect_extend( r, o ) ) {
 	    QValueList<QRect> rects;
 	    int s = stretchs > 0 ? ( rect_extend( r, o ) - e ) / stretchs : 0;
 	    int p = rect_pos( r, o );
@@ -450,12 +452,15 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    pos += lineExtend;
 	    lineExtend = 0;
 	    row.clear();
+	    nx = 0;
+	    if ( t && t->extraOffset != -1 && t->extraOffset > e )
+		nx = t->extraOffset;
 	}
 	
 	if ( !t )
 	    break;
 	
-	e += size_extend( sh, o ) + off;
+	e = nx + size_extend( sh, o );
 	lineExtend = QMAX( lineExtend, size_extend( sh, o, TRUE ) );
 	row.append( t );
 	if ( t->t->isStretchable() || fill )
