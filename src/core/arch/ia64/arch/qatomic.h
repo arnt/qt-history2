@@ -16,7 +16,45 @@
 
 #include <qglobal.h>
 
-#if defined(Q_CC_GNU) && !defined(Q_CC_INTEL)
+#if defined(Q_CC_INTEL)
+
+// intrinsics provided by the Intel C++ Compiler
+extern "C" {
+    int _InterlockedExchange(volatile int *, int);
+    int _InterlockedCompareExchange(volatile int *, int, int);
+    int _InterlockedIncrement(volatile int *addend);
+    int _InterlockedDecrement(volatile int *addend);
+    void * _InterlockedCompareExchangePointer(void * volatile *, void *, void *);
+    void * _InterlockedExchangePointer(void * volatile *, void *);
+}
+
+inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
+{ return static_cast<int>(_InterlockedCompareExchange(ptr, newval, expected)) == expected; }
+
+inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
+{
+    return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile *>(ptr),
+                                              newval, expected) == expected;
+}
+
+
+inline int q_atomic_increment(volatile int *ptr)
+{ return _InterlockedIncrement(ptr); }
+
+inline int q_atomic_decrement(volatile int *ptr)
+{ return _InterlockedDecrement(ptr); }
+
+inline int q_atomic_set_int(volatile int *ptr, int newval)
+{ return _InterlockedExchange(ptr, newval); }
+
+inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
+{
+    return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval);
+}
+
+#else // !Q_CC_INTEL
+
+#  if defined(Q_CC_GNU)
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
 {
@@ -41,14 +79,14 @@ inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *n
     return ret == expected;
 }
 
-#else
+#  else // !Q_CC_GNU
 
 extern "C" {
     Q_CORE_EXPORT int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
     Q_CORE_EXPORT int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 } // extern "C"
 
-#endif // Q_CC_GNU && !Q_CC_INTEL
+#  endif // Q_CC_GNU
 
 inline int q_atomic_increment(volatile int * const ptr)
 {
@@ -89,5 +127,7 @@ inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     }
     return expected;
 }
+
+#endif // Q_CC_INTEL
 
 #endif // IA64_QATOMIC_H
