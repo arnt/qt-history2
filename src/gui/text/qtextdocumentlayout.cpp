@@ -304,7 +304,7 @@ void QTextDocumentLayoutPrivate::relayoutDocument()
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
 {
     Q_ASSERT(data(f)->dirty);
-    qDebug("layouting frame (%d--%d)", f->startPosition(), f->endPosition());
+//     qDebug("layouting frame (%d--%d)", f->startPosition(), f->endPosition());
 
     QTextFrameData *fd = data(f);
     QTextFrameFormat fformat = f->format();
@@ -435,7 +435,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
 void QTextDocumentLayoutPrivate::layoutFlow(LayoutStruct *layoutStruct, int from, int to)
 {
-    qDebug("layoutFlow (%d--%d)", from, to);
+//     qDebug("layoutFlow (%d--%d)", from, to);
     QTextBlockIterator it = q->findBlock(from);
     QTextBlockIterator end = q->findBlock(to+1);
 
@@ -576,7 +576,7 @@ static void markFrames(QTextFrame *current, int start, int end)
     if (current->startPosition() > end || current->endPosition() < start)
         return;
     data(current)->dirty = true;
-    qDebug("    marking frame (%d--%d) as dirty", current->startPosition(), current->endPosition());
+//     qDebug("    marking frame (%d--%d) as dirty", current->startPosition(), current->endPosition());
     QList<QTextFrame *> children = current->children();
     for (int i = 0; i < children.size(); ++i)
         markFrames(children.at(i), start, end);
@@ -585,7 +585,7 @@ static void markFrames(QTextFrame *current, int start, int end)
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
     Q_UNUSED(oldLength);
-    qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
+//     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
     // mark all frames between f_start and f_end as dirty
     markFrames(rootFrame(), from, from + length);
