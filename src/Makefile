@@ -109,7 +109,7 @@ depend:
 
 include:
 	-rm -f $(INCDIR)/*.h
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d include ; done
+	( cd $(INCDIR) ; ln -s ../src/{tools,kernel,widgets,dialogs}/*.h . )
 
 clean:
 	-rm -f dodepend
