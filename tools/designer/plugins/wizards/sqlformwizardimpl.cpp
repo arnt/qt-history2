@@ -250,7 +250,7 @@ void SqlFormWizard::accept()
     }
 
     if ( !editFilter->text().isEmpty() ) {
-	mdbIface->setFakeProperty( widget, "filter", editFilter->text() );
+	widget->setProperty( "filter", editFilter->text() );
 	mdbIface->setPropertyChanged( widget, "filter", TRUE );
     }
 
@@ -258,7 +258,7 @@ void SqlFormWizard::accept()
 	QStringList lst;
 	for ( uint i = 0; i < listBoxSortedField->count(); ++i )
 	    lst << listBoxSortedField->text( i );
-	mdbIface->setFakeProperty( widget, "sort", lst );
+	widget->setProperty( "sort", lst );
 	mdbIface->setPropertyChanged( widget, "sort", TRUE );
     }
 
