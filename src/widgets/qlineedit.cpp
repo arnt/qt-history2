@@ -2291,7 +2291,7 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 	selstart = qMin( anchor, pos );
 	selend = qMax( anchor, pos );
     } else {
-	selstart = selend = 0;
+	deselect();
     }
     if ( fullUpdate ) {
 	cursor = pos;
@@ -2302,9 +2302,10 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 	setCursorVisible( TRUE );
     }
     updateMicroFocusHint();
-    if ( mark ) {
-	if( !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ))
-	    setCursorVisible( FALSE );
+    if ( mark && !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) )
+	setCursorVisible( FALSE );
+    if ( mark || selDirty ) {
+	selDirty = FALSE;
 	emit q->selectionChanged();
     }
 }
