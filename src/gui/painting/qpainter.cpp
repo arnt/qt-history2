@@ -967,6 +967,37 @@ void QPainter::setBrushOrigin(const QPointF &p)
 }
 
 /*!
+  \enum QPainter::CompositionMode
+
+  Defines one of the Porter Duff composition operations.
+*/
+
+/*!
+  Sets the composition mode to \a mode.
+
+  \warning Not all paintdevices support non default composition modes.
+
+  \sa QPainter::CompositionMode QPaintEngine::PaintEngineFeature
+*/
+void QPainter::setCompositionMode(CompositionMode mode)
+{
+    Q_D(QPainter);
+    // #### check for feature
+    d->state->composition_mode = mode;
+}
+
+/*!
+  Resturns the current composition mode.
+
+  \sa QPainter::CompositionMode setCompositionMode()
+*/
+QPainter::CompositionMode QPainter::compositionMode() const
+{
+    Q_D(const QPainter);
+    return d->state->composition_mode;
+}
+
+/*!
     Returns the current background brush.
 
     \sa setBackground() QBrush
@@ -4493,6 +4524,7 @@ QPainterState::QPainterState(const QPainterState *s)
     clipInfo = s->clipInfo;
     changeFlags = 0;
     layoutDirection = s->layoutDirection;
+    composition_mode = s->composition_mode;
 }
 
 QPainterState::QPainterState()
@@ -4507,29 +4539,30 @@ QPainterState::~QPainterState()
 
 void QPainterState::init(QPainter *p) {
     bgBrush = Qt::white;
-        bgMode = Qt::TransparentMode;
-        WxF = false;
-        VxF = false;
-        wx = wy = ww = wh = 0;
-        vx = vy = vw = vh = 0;
-        changeFlags = 0;
-        pfont = 0;
-        painter = p;
-        pen = QPen();
-        bgOrigin = QPointF(0, 0);
-        brush = QBrush();
-        font = deviceFont = QFont();
-        tmpClipRegion = QRegion();
-        tmpClipPath = QPainterPath();
-        tmpClipOp = Qt::NoClip;
+    bgMode = Qt::TransparentMode;
+    WxF = false;
+    VxF = false;
+    wx = wy = ww = wh = 0;
+    vx = vy = vw = vh = 0;
+    changeFlags = 0;
+    pfont = 0;
+    painter = p;
+    pen = QPen();
+    bgOrigin = QPointF(0, 0);
+    brush = QBrush();
+    font = deviceFont = QFont();
+    tmpClipRegion = QRegion();
+    tmpClipPath = QPainterPath();
+    tmpClipOp = Qt::NoClip;
 #ifndef QT_NO_TRANSFORMATIONS
-        worldMatrix.reset();
-        matrix.reset();
-        txop = 0;
+    worldMatrix.reset();
+    matrix.reset();
+    txop = 0;
 #else
-        xlatex = xlatey = 0;
+    xlatex = xlatey = 0;
 #endif
-        layoutDirection = QApplication::layoutDirection();
+    layoutDirection = QApplication::layoutDirection();
+    composition_mode = QPainter::CompositionMode_SourceOver;
 }
 
 #ifdef QT3_SUPPORT

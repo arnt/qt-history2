@@ -20,7 +20,7 @@ void qInitDrawhelperAsm() {}
         }                                                       \
     }
 
-static void blend_color_argb(ARGB *target, const QSpan *span, ARGB color)
+static void blend_color_argb(ARGB *target, const QSpan *span, ARGB color, QPainter::CompositionMode)
 {
     if (!span->len)
         return;
@@ -59,7 +59,7 @@ static void blend_color_argb(ARGB *target, const QSpan *span, ARGB color)
     }
 }
 
-static void blend_color_rgb32(ARGB *target, const QSpan *span, ARGB color)
+static void blend_color_rgb32(ARGB *target, const QSpan *span, ARGB color, QPainter::CompositionMode)
 {
     if (!span->len)
         return;
@@ -92,7 +92,7 @@ static void blend_color_rgb32(ARGB *target, const QSpan *span, ARGB color)
 
 static void blend_argb(ARGB *target, const QSpan *span,
                        const qreal dx, const qreal dy,
-                       const ARGB *image_bits, const int image_width, const int image_height)
+                       const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     // #### take care of non integer dx/dy
     int x = qRound(dx);
@@ -119,7 +119,7 @@ static void blend_argb(ARGB *target, const QSpan *span,
 
 static void blend_rgb32(ARGB *target, const QSpan *span,
                         const qreal dx, const qreal dy,
-                        const ARGB *image_bits, const int image_width, const int image_height)
+                        const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     // #### take care of non integer dx/dy
     int x = qRound(dx);
@@ -147,7 +147,7 @@ static void blend_rgb32(ARGB *target, const QSpan *span,
 
 static void blend_tiled_argb(ARGB *target, const QSpan *span,
                              const qreal dx, const qreal dy,
-                             const ARGB *image_bits, const int image_width, const int image_height)
+                             const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     // #### take care of non integer dx/dy
     int x = qRound(dx);
@@ -169,7 +169,7 @@ static void blend_tiled_argb(ARGB *target, const QSpan *span,
 
 static void blend_tiled_rgb32(ARGB *target, const QSpan *span,
                               const qreal dx, const qreal dy,
-                              const ARGB *image_bits, const int image_width, const int image_height)
+                              const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     // #### take care of non integer dx/dy
     int x = qRound(dx);
@@ -191,7 +191,7 @@ static void blend_tiled_rgb32(ARGB *target, const QSpan *span,
 
 static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span,
                                             const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                            const ARGB *image_bits, const int image_width, const int image_height)
+                                            const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -251,7 +251,7 @@ static void blend_transformed_bilinear_argb(ARGB *target, const QSpan *span,
 
 static void blend_transformed_bilinear_rgb32(ARGB *target, const QSpan *span,
                                              const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                             const ARGB *image_bits, const int image_width, const int image_height)
+                                             const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -311,7 +311,7 @@ static void blend_transformed_bilinear_rgb32(ARGB *target, const QSpan *span,
 
 static void blend_transformed_bilinear_tiled_argb(ARGB *target, const QSpan *span,
                                                   const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                                  const ARGB *image_bits, const int image_width, const int image_height)
+                                                  const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -381,7 +381,7 @@ static void blend_transformed_bilinear_tiled_argb(ARGB *target, const QSpan *spa
 
 static void blend_transformed_bilinear_tiled_rgb32(ARGB *target, const QSpan *span,
                                                    const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                                   const ARGB *image_bits, const int image_width, const int image_height)
+                                                   const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     int x = int((ix + dx * span->x) * fixed_scale);
@@ -452,7 +452,7 @@ static void blend_transformed_bilinear_tiled_rgb32(ARGB *target, const QSpan *sp
 
 static void blend_transformed_argb(ARGB *target, const QSpan *span,
                                    const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                   const ARGB *image_bits, const int image_width, const int image_height)
+                                   const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -484,7 +484,7 @@ static void blend_transformed_argb(ARGB *target, const QSpan *span,
 
 static void blend_transformed_rgb32(ARGB *target, const QSpan *span,
                                     const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                    const ARGB *image_bits, const int image_width, const int image_height)
+                                    const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -516,7 +516,7 @@ static void blend_transformed_rgb32(ARGB *target, const QSpan *span,
 
 static void blend_transformed_tiled_argb(ARGB *target, const QSpan *span,
                                          const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                         const ARGB *image_bits, const int image_width, const int image_height)
+                                         const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;
@@ -549,7 +549,7 @@ static void blend_transformed_tiled_argb(ARGB *target, const QSpan *span,
 
 static void blend_transformed_tiled_rgb32(ARGB *target, const QSpan *span,
                                           const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                          const ARGB *image_bits, const int image_width, const int image_height)
+                                          const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
     const int fixed_scale = 1 << 16;
     const int half_point = 1 << 15;

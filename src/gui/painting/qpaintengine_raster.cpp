@@ -1987,7 +1987,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
             Q_ASSERT(spans->len > 0);
             Q_ASSERT(spans->x + spans->len <= rb->width());
             ARGB *target = rasterBuffer + spans->x;
-            data->blendColor(target, (const QSpan *)spans, color);
+            data->blendColor(target, (const QSpan *)spans, color, QPainter::CompositionMode_SourceOver);
             ++spans;
         }
     } else {
@@ -2042,7 +2042,7 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
             }
         } else {
             data->blend(target, (const QSpan *)spans, (xoff + spans->x)%image_width,
-                        ((y + yoff) % image_height), data->imageData, image_width, image_height);
+                        ((y + yoff) % image_height), data->imageData, image_width, image_height, QPainter::CompositionMode_SourceOver);
         }
         ++spans;
     }
@@ -2065,7 +2065,7 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
     while (count--) {
         data->blendFunc(baseTarget + spans->x, (const QSpan *)spans,
                         ix, iy, dx, dy,
-                        data->imageData, image_width, image_height);
+                        data->imageData, image_width, image_height, QPainter::CompositionMode_SourceOver);
         ++spans;
     }
 }

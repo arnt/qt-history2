@@ -66,6 +66,23 @@ public:
 
     void initFrom(const QWidget *widget);
 
+    enum CompositionMode {
+        CompositionMode_SourceOver,
+        CompositionMode_DestinationOver,
+        CompositionMode_Clear,
+        CompositionMode_Source,
+        CompositionMode_Destination,
+        CompositionMode_SourceIn,
+        CompositionMode_DestinationIn,
+        CompositionMode_SourceOut,
+        CompositionMode_DestinationOut,
+        CompositionMode_SourceAtop,
+        CompositionMode_DestinationAtop,
+        CompositionMode_Xor
+    };
+    void setCompositionMode(CompositionMode mode);
+    CompositionMode compositionMode() const;
+
     const QFont &font() const;
     void setFont(const QFont &f);
 

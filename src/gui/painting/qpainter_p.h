@@ -91,6 +91,7 @@ public:
     QPainter *painter;
     uint changeFlags;
     Qt::LayoutDirection layoutDirection;
+    QPainter::CompositionMode composition_mode;
 };
 
 

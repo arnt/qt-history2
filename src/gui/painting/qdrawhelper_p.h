@@ -3,7 +3,7 @@
 
 #include <qglobal.h>
 #include <qcolor.h>
-
+#include <qpainter.h>
 
 /*******************************************************************************
  * ARGB
@@ -55,13 +55,13 @@ struct QSpan
 };
 
 
-typedef void (*BlendColor)(ARGB *target, const QSpan *span, ARGB color);
+typedef void (*BlendColor)(ARGB *target, const QSpan *span, ARGB color, QPainter::CompositionMode mode);
 typedef void (*Blend)(ARGB *target, const QSpan *span,
                       const qreal dx, const qreal dy,
-                      const ARGB *image_bits, const int image_width, const int image_height);
+                      const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode mode);
 typedef void (*BlendTransformed)(ARGB *target, const QSpan *span,
                                  const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                 const ARGB *image_bits, const int image_width, const int image_height);
+                                 const ARGB *image_bits, const int image_width, const int image_height, QPainter::CompositionMode mode);
 
 struct DrawHelper {
     enum Layout {
