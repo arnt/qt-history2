@@ -46,7 +46,10 @@ protected:
     void writeInstalls(QTextStream &t, const QString &installs);
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
+
+    //interface to the source file info
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
+    void setFileMocable(const QMakeLocalFileName &);
 
 protected:
     QMakeProject *project;

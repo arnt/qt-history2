@@ -37,6 +37,7 @@ private:
 
 protected:
     virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
+    virtual void setFileMocable(const QMakeLocalFileName &);
 
 public:
     QMakeSourceFileInfo();

@@ -217,6 +217,11 @@ char *QMakeSourceFileInfo::getBuffer(int s) {
     return spare_buffer;
 }
 
+void QMakeSourceFileInfo::setFileMocable(const QMakeLocalFileName &)
+{
+
+}
+
 QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &file)
 {
     struct stat fst;
@@ -498,6 +503,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
 		debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", file->file.real().latin1(),
 			  line_count, buffer+x);
 		file->mocable = true;
+		setFileMocable(file->file);
 		break;
 	    }
 	}

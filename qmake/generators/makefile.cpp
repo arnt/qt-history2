@@ -292,42 +292,8 @@ MakefileGenerator::init()
 		    seek |= QMakeSourceFileInfo::SEEK_MOCS;
 		if(sources[x] != "OBJECTS") 
 		    seek |= QMakeSourceFileInfo::SEEK_DEPS;
-		if(seek) {
-		    const QStringList &l = v[sources[x]];
-		    addSourceFiles(l, seek);
-		    if(seek & QMakeSourceFileInfo::SEEK_MOCS) {
-			bool header = (sources[x] == "HEADERS");
-			for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-			    QString file = (*it);
-			    if(!mocable(file))
-				continue;
-
-			    int ext_pos = file.lastIndexOf('.'),
-				ext_len = file.length() - ext_pos,
-				dir_pos = file.lastIndexOf(Option::dir_sep, ext_pos);
-			    QString mocFile;
-			    if(!project->isEmpty("MOC_DIR"))
-				mocFile = project->first("MOC_DIR");
-			    else if(dir_pos != -1)
-				mocFile = file.left(dir_pos+1);
-			    if(header) {
-				mocFile += Option::h_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) +
-					   Option::h_moc_ext;
-				checkMultipleDefinition(mocFile, "SOURCES");
-				project->variables()["_HDRMOC"].append(mocFile);
-			    } else {
-				mocFile += Option::cpp_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + 
-					   Option::cpp_moc_ext;
-				project->variables()["_SRCMOC"].append(mocFile);
-			    }
-			    if(!mocFile.isEmpty()) {
-				mocFile = Option::fixPathToTargetOS(mocFile);
-				mocablesToMOC[cleanFilePath(file)] = mocFile;
-				mocablesFromMOC[cleanFilePath(mocFile)] = file;
-			    }
-			}
-		    }
-		}
+		if(seek) 
+		    addSourceFiles(v[sources[x]], seek);
 	    }
 	}
     }
@@ -1660,6 +1626,42 @@ void MakefileGenerator::checkMultipleDefinition(const QString &f, const QString 
     }
 }
 
+void 
+MakefileGenerator::setFileMocable(const QMakeLocalFileName &file)
+{
+    const QString file_name = file.local();
+
+    bool header = false;
+    for(QStringList::Iterator it =  Option::h_ext.begin(); it !=  Option::h_ext.end(); ++it) {
+	if(file_name.endsWith((*it))) {
+	    header = true;
+	    break;
+	}
+    }
+	
+    int ext_pos = file_name.lastIndexOf('.'), ext_len = file_name.length() - ext_pos,
+	dir_pos = file_name.lastIndexOf(Option::dir_sep, ext_pos);
+    QString mocFile;
+    if(!project->isEmpty("MOC_DIR"))
+	mocFile = project->first("MOC_DIR");
+    else if(dir_pos != -1)
+	mocFile = file_name.left(dir_pos+1);
+
+    if(header) {
+	mocFile += Option::h_moc_mod + file_name.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::h_moc_ext;
+	checkMultipleDefinition(mocFile, "SOURCES");
+	project->variables()["_HDRMOC"].append(mocFile);
+    } else {
+	mocFile += Option::cpp_moc_mod + file_name.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_moc_ext;
+	project->variables()["_SRCMOC"].append(mocFile);
+    }
+    if(!mocFile.isEmpty()) {
+	mocFile = Option::fixPathToTargetOS(mocFile);
+	mocablesToMOC[cleanFilePath(file_name)] = mocFile;
+	mocablesFromMOC[cleanFilePath(mocFile)] = file_name;
+    }
+}
+
 QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &file)
 {
     QMakeLocalFileName ret;
@@ -1679,11 +1681,14 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
     }
 
     ret = QMakeSourceFileInfo::findFileForDep(file);
+    if(!ret.isNull())
+	return ret;
+
     //these are some hacky heuristics it will try to do on an include
     //however these can be turned off at runtime, I'm not sure how
     //reliable these will be, most likely when problems arise turn it off
     //and see if they go away..
-    if(ret.isNull() && Option::mkfile::do_dep_heuristics) {
+    if(Option::mkfile::do_dep_heuristics) {
 	{ //is it a file from a .ui?
 	    QString inc_file = file.real().section(Option::dir_sep, -1);
 	    int extn = inc_file.lastIndexOf('.');
@@ -1759,29 +1764,22 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
 	    if(mocAware() &&		    //is it a moc file?
 	       (file.local().endsWith(Option::cpp_ext.first()) || file.local().endsWith(Option::cpp_moc_ext))
 	       || ((Option::cpp_ext.first() != Option::h_moc_ext) && file.local().endsWith(Option::h_moc_ext))) {
-		QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
+		QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null }; 
 		for(int moc = 0; !mocs[moc].isNull(); moc++) {
 		    QStringList &l = project->variables()[mocs[moc]];
 		    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 			QString fixed_it= Option::fixPathToTargetOS((*it));
 			if(fixed_it.section(Option::dir_sep, -(file.local().count('/')+1)) == file.local()) {
 			    QString ret_name = (*it);
-			    if(mocs[moc] == "_HDRMOC") {
-				//Since it is include, no need to link it in as well
+			    if(!moc) { //Since it is include, no need to link it in as well
 				project->variables()["_SRCMOC"].append((*it));
 				l.erase(it);
-			    } else if(!findMocSource(ret_name).endsWith(fileFixify(file.local()))) {
-				/* Not really a very good test, but this will at least avoid
-				   confusion if it really does happen (since tmake/qmake
-				   previously didn't even allow this the test is mostly accurate) */
-				warn_msg(WarnLogic, "Found potential multiple MOC include %s (%s)",
-					 file.local().latin1(), ret_name.latin1());
 			    }
 			    ret = QMakeLocalFileName(ret_name);
 			    break;
 			}
 		    }
-		    if(ret.isNull())
+		    if(!ret.isNull())
 			break;
 		}
 	    }
