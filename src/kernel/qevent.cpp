@@ -1531,7 +1531,7 @@ void QFocusEvent::resetReason()
 */
 
 QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
-    : QEvent( ContextMenu ), p( pos ), accpt( FALSE ), consum(FALSE),
+    : QEvent( ContextMenu ), p( pos ), accpt(TRUE), consum(FALSE),
     reas( reason ), s((ushort)state)
 {
     gp = QCursor::pos();
