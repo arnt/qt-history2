@@ -671,7 +671,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    ir.setRight(ir.right() + 50);
 	else if((flags & Style_Up))
 	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
-	((QMacPainter *)p)->setport();
+	((QMacStylePainter *)p)->setport();
 	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), bkind, &info, 0, 0, 0, 0);
 	break; }
     case PE_CheckListController:
@@ -1133,33 +1133,32 @@ void QMacStyle::drawControl(ControlElement element,
 #ifndef QT_NO_HEADER
     case CE_HeaderLabel:
     {
-        QRect rect = r;
         const QHeader* header = (const QHeader *)widget;
         int section = opt.headerSection();
 
-        QIconSet* icon = header->iconSet( section );
-        if ( icon ) {
-            QPixmap pixmap = icon->pixmap( QIconSet::Small,
-                                           how & Style_Enabled ?
-                                           QIconSet::Normal : QIconSet::Disabled );
-            int pixw = pixmap.width();
-            int pixh = pixmap.height();
-            // "pixh - 1" because of tricky integer division
+	QRect textr = r;
+        QIconSet* icon = header->iconSet(section);
+        if(icon) {
 
-            QRect pixRect = rect;
-            pixRect.setY( rect.center().y() - (pixh - 1) / 2 );
-            drawItem ( p, pixRect, AlignVCenter, cg, how & Style_Enabled,
-                       &pixmap, QString::null );
-            rect.setLeft( rect.left() + pixw + 2 );
+	    QIconSet::Mode mode = QIconSet::Disabled;
+	    if(how & Style_Enabled)
+		mode = QIconSet::Normal;
+            QPixmap pixmap = icon->pixmap(QIconSet::Small, mode);
+
+	    QRect pixr = r;
+            pixr.setY(r.center().y() - (pixmap.height()-1) / 2); // -1 because of tricky integer division
+            drawItem(p, pixr, AlignVCenter, pal, 
+		     mode != QIconSet::Disabled || !icon->isGenerated(QIconSet::Small, mode), pixmap);
+	    textr.moveBy(pixmap.width()+2, 0);
         }
 
 	// change the color to bright text if we are a table header and selected.
-        const QColor *penColor = &cg.buttonText();
+        const QColor *penColor = &pal.buttonText().color();
         if (::qt_cast<QTable *>(header->parentWidget()) && p->font().bold())
-            penColor = &cg.color(QColorGroup::BrightText);
+            penColor = &pal.color(QColorGroup::BrightText);
 
-        drawItem(p, rect, AlignVCenter, cg, how & Style_Enabled,
-                 0, header->label(section), -1, penColor);
+        drawItem(p, textr, AlignVCenter, pal, how & Style_Enabled,
+                 header->label(section), -1, penColor);
         break;
     }
 #endif // QT_NO_HEADER
