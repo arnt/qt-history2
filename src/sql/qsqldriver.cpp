@@ -437,6 +437,12 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    r = "'" + result + "'";
 	    break;
 	}
+	case QVariant::Bool:
+	    if ( field->value().toBool() )
+		r = "1";
+	    else
+		r = "0";
+	    break;
 	case QVariant::ByteArray : {
 	    if ( hasFeature( BLOB ) ) {
 		QByteArray ba = field->value().toByteArray();
