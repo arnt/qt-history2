@@ -179,7 +179,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	    else if(variable == "MSVCDSP_FORMS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
-
+		bool imagesBuildDone = FALSE;	    // Dirty hack to make it not create an output step for images more than once
 		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
 		QString mocpath = var( "QMAKE_MOC" );
@@ -204,7 +204,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			mocFile = fpath;
 
 		    QString imagesBuild;
-		    if ( !project->variables()["IMAGES"].isEmpty() ) {
+		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			QStringList &list = project->variables()["IMAGES"];
 			for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			    imagesBuild.append(" " + (*it));
@@ -217,7 +217,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			" -i " + fpath + fname + ".h -o " + fpath + fname + ".cpp \\\n"
 			"\t" + mocpath + fpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n";
 		    
-		    if ( !project->variables()["IMAGES"].isEmpty() ) {
+		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			build.append("\t" + uicpath + " -embed " + project->first("QMAKE_ORIG_TARGET") + imagesBuild + " -o "
 			    + project->first("QMAKE_IMAGE_COLLECTION") + " \\\n"); 
 		    } 
@@ -229,7 +229,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t$(BuildCmds)\n\n");
 		    
-		    if ( !project->variables()["IMAGES"].isEmpty() ) {
+		    if ( !project->variables()["IMAGES"].isEmpty() && !imagesBuildDone ) {
 			build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" 
 			    "\n" "\t$(BuildCmds)\n\n");
 		    }
@@ -238,8 +238,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
-		      << "!ENDIF \n\n" << build << "# End Source File" << endl;
-		    
+		      << "!ENDIF \n\n" << "# End Source File" << endl;
+		    if ( !imagesBuildDone )
+			imagesBuildDone = TRUE;
 		}
 	    } else if(variable == "MSVCDSP_LEXSOURCES") {
 		if(project->variables()["LEXSOURCES"].isEmpty())
