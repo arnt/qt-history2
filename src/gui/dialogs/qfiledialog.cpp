@@ -845,7 +845,7 @@ void QFileDialog::showDetail()
     model item \a index.
 */
 
-void QFileDialog::doubleClicked(const QModelIndex &index)
+void QFileDialog::enterSubdir(const QModelIndex &index)
 {
     if (d->model->isDir(index)) {
         d->history.push_back(d->root());
@@ -873,7 +873,7 @@ void QFileDialog::keyPressed(const QModelIndex &index,
         return;
     case Qt::Key_Return:
     case Qt::Key_Enter:
-        doubleClicked(index);
+        enterSubdir(index);
         return;
     default:
         return;
@@ -1343,7 +1343,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
                      q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
     QObject::connect(listView,
                      SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     q, SLOT(doubleClicked(QModelIndex)));
+                     q, SLOT(enterSubdir(QModelIndex)));
     QObject::connect(listView, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
                      q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
 }
@@ -1372,7 +1372,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
                      q, SLOT(populateContextMenu(QMenu*,QModelIndex)));
     QObject::connect(treeView,
                      SIGNAL(doubleClicked(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     q, SLOT(doubleClicked(QModelIndex)));
+                     q, SLOT(enterSubdir(QModelIndex)));
     QObject::connect(treeView, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
                      q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
     QObject::connect(treeView->header(),
