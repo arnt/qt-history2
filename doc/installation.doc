@@ -132,7 +132,7 @@ where you choose to install Qt.
 
     To create the library and compile all examples and the tutorial:
 \code
-    gmake
+    make
 \endcode
     If you have problems, see
     \l http://www.trolltech.com/platforms/.
