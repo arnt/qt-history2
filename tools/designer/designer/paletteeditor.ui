@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>464</width>
-            <height>437</height>
+            <width>469</width>
+            <height>492</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -113,32 +113,6 @@
                                 <string>&lt;b&gt;Generate the palette using basic colors.&lt;/b&gt;&lt;p&gt;If this option is checked, the whole palette can be generated using two basic color for 3D-effects and the background.&lt;/p&gt;</string>
                             </property>
                         </widget>
-                        <spacer>
-                            <property name="name" stdset="0">
-                                <cstring>Horizontal Spacing1</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>20</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                            <property name="scale" stdset="0">
-                                <bool>false</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Choose a color</string>
-                            </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Choose a color for the selected central color role.</string>
-                            </property>
-                        </spacer>
                         <widget class="QLabel">
                             <property name="name">
                                 <cstring>labelMainColor</cstring>
