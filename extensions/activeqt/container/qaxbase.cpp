@@ -1642,7 +1642,7 @@ QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const
     else
         return 0;
 
-//    generator.readEnumInfo();
+    generator.readEnumInfo();
     generator.readFuncsInfo(typeInfo, 0);
     generator.readVarsInfo(typeInfo, 0);
 
@@ -1661,7 +1661,7 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
     className = BSTRToQString(bstr);
     SysFreeString(bstr);
 
-//    generator.readEnumInfo();
+    generator.readEnumInfo();
 
     TYPEATTR *typeattr;
     typeInfo->GetTypeAttr(&typeattr);
@@ -3340,6 +3340,8 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
                 qVariantSet(qvar, *(IDispatch**)v[p+1], "IDispatch*");
             else if (type == "IUnknown*")
                 qVariantSet(qvar, *(IUnknown**)v[p+1], "IUnknown*");
+            else if (type == "QVariant")
+                qvar = *(QVariant*)v[p + 1];
             else if (mo->indexOfEnumerator(type) != -1)
                 qvar = *(int*)v[p + 1];
         }
