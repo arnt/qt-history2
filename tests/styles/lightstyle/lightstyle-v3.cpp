@@ -249,33 +249,29 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	break;
 
     case PE_ButtonCommand:
-	{
-	    if (flags & QStyle::Style_Enabled) {
-		if (flags & (QStyle::Style_Down |
-			     QStyle::Style_On |
-			     QStyle::Style_Sunken))
-		    fill = &pal.brush(QPalette::Midlight);
-		else
-		    fill = &pal.brush(QPalette::Button);
-	    } else
-		fill = &pal.brush(QPalette::Background);
-	    drawLightBevel(p, r, pal, flags, pixelMetric(PM_DefaultFrameWidth),
-			   true, fill);
-	    break;
+	if ((flags & QStyle::Style_Enabled) &&
+	    (flags & (QStyle::Style_Down | QStyle::Style_On |
+		      QStyle::Style_Sunken | QStyle::Style_Raised))) {
+ 	    fill = &pal.brush((flags & (QStyle::Style_Down
+ 					| QStyle::Style_On
+ 					| QStyle::Style_Sunken)) ?
+ 			      QPalette::Midlight : QPalette::Button);
 	}
+	drawLightBevel(p, r, pal, flags, pixelMetric(PM_DefaultFrameWidth),
+		       true, fill);
+	break;
 
     case PE_ButtonBevel:
     case PE_ButtonTool:
 	{
-	    if (flags & QStyle::Style_Enabled) {
-		if (flags & (QStyle::Style_Down |
-			     QStyle::Style_On |
-			     QStyle::Style_Sunken))
-		    fill = &pal.brush(QPalette::Midlight);
-		else
-		    fill = &pal.brush(QPalette::Button);
-	    } else
-		fill = &pal.brush(QPalette::Background);
+	    if ((flags & QStyle::Style_Enabled) &&
+		(flags & (QStyle::Style_Down | QStyle::Style_On |
+			  QStyle::Style_Sunken | QStyle::Style_Raised))) {
+		fill = &pal.brush((flags & (QStyle::Style_Down
+					    | QStyle::Style_On
+					    | QStyle::Style_Sunken)) ?
+				  QPalette::Midlight : QPalette::Button);
+	    }
 	    bool border = (! (flags & QStyle::Style_AutoRaise));
 	    drawLightBevel(p, r, pal, flags,
 			   pixelMetric(PM_DefaultFrameWidth) - (border ? 0 : 1),
@@ -362,8 +358,6 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 	    lr.addCoords(1, 1, -1, -1);
 	    cr.addCoords(2, 2, -2, -2);
 	    ir.addCoords(3, 3, -3, -3);
-
-	    p->fillRect(r, pal.brush(QPalette::Background));
 
 	    p->setPen(flags & Style_Down ? pal.mid() :
 		      (flags & Style_Enabled ? pal.base() : pal.background()));
@@ -760,6 +754,7 @@ void LightStyleV3::drawControl(ControlElement control,
 	    QRect br = r;
 
 	    // draw the command button first
+	    p->setBrushOrigin(p->backgroundOrigin());
 	    drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
 	    if (button->isDefault()) {
 		// then draw the default indicator
