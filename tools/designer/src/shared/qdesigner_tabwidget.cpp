@@ -137,7 +137,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 
             removeTab(dragIndex);
 
-            QDrag::DropActions dropAction = drg->start(QDrag::MoveAction);
+            Qt::DropActions dropAction = drg->start(Qt::MoveAction);
 
             if (dropAction == 0) {
                 // abort
