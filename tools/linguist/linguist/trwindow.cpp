@@ -488,8 +488,9 @@ void TrWindow::open()
 {
     if ( maybeSave() ) {
 	QString newFilename = QFileDialog::getOpenFileName( filename,
-				      tr("Qt translation source (*.ts)\n"
-					 "All files (*)"), this );
+		tr("Qt translation source (*.ts)\n"
+		   "All files (*)"),
+		this, "open" );
 	openFile( newFilename );
     }
 }
@@ -512,8 +513,9 @@ void TrWindow::save()
 void TrWindow::saveAs()
 {
     QString newFilename = QFileDialog::getSaveFileName( filename,
-	    tr("Qt translation source (*.ts)\n"
-	       "All files (*)") );
+	    tr( "Qt translation source (*.ts)\n"
+		"All files (*)"),
+	    this, "save_as" );
     if ( !newFilename.isEmpty() ) {
 	filename = newFilename;
 	save();
@@ -529,7 +531,9 @@ void TrWindow::release()
 
     newFilename = QFileDialog::getSaveFileName( newFilename,
 	    tr("Qt message files for released applications (*.qm)\n"
-	       "All files (*)") );
+	       "All files (*)"),
+	    this, "release",
+	    tr("Release") );
     if ( !newFilename.isEmpty() ) {
 	if ( tor.release(newFilename) )
 	    statusBar()->message( tr("File created."), MessageMS );
@@ -778,9 +782,10 @@ void TrWindow::newPhraseBook()
     QString name;
     for (;;) {
 	name = QFileDialog::getSaveFileName( QString::null,
-		       tr("Qt phrase books (*.qph)\n"
-			  "All files (*)"), 0, "new_phrasebook",
-					     tr("Create new phrase book") );
+	    tr("Qt phrase books (*.qph)\n"
+	       "All files (*)"),
+	    this, "new_phrasebook",
+	    tr("Create New Phrase Book") );
 	if ( !QFile::exists(name) )
 	    break;
 	QMessageBox::warning( this, tr("Qt Linguist"),
@@ -800,10 +805,10 @@ void TrWindow::openPhraseBook()
 {
     QString phrasebooks( qInstallPathData() );
     QString name = QFileDialog::getOpenFileName( phrasebooks + "/phrasebooks",
-	    tr("Qt phrase books (*.qph)\n"
-	       "All files (*)"), 0, "open_phrasebook",
-	       tr("Open phrase book") );
-
+	tr("Qt phrase books (*.qph)\n"
+	   "All files (*)"),
+	this, "open_phrasebook",
+	tr("Open Phrase Book") );
     if ( !name.isEmpty() && !phraseBookNames.contains(name) ) {
 	if ( openPhraseBook(name) ) {
 	    int n = phraseBooks.at( phraseBooks.count() - 1 )->count();
@@ -1581,7 +1586,7 @@ void TrWindow::setupMenuBar()
     viewp->insertItem( tr("&Toolbars"), createDockWindowMenu( OnlyToolBars ) );
 
     // Help
-    manualAct = new Action( helpp, tr("&Manual..."), this, SLOT(manual()),
+    manualAct = new Action( helpp, tr("&Manual"), this, SLOT(manual()),
 			    Key_F1 );
     helpp->insertSeparator();
     aboutAct = new Action( helpp, tr("&About"), this, SLOT(about()) );
