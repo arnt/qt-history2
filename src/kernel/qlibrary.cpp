@@ -38,7 +38,7 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-#define QT_DEBUG_COMPONENT
+//#define QT_DEBUG_COMPONENT
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
@@ -317,6 +317,10 @@ QLibrary::~QLibrary()
   Loads the shared library and initializes the connection to the component.
   Returns a pointer to the QUnknownInterface provided by the component if the 
   library was loaded successfully, otherwise returns null.
+  If the component implements the QLibraryInterface, the init() function will
+  be called and the loading canceled if this function returns FALSE. The system
+  will call the canUnload() function of this interface and try to unload the
+  library in regular intervalls.
 
   This function gets called automatically if the policy is not Manual.
   Otherwise you have to make sure that the library has been loaded before usage.
@@ -392,6 +396,9 @@ bool QLibrary::isLoaded() const
 /*!
   Releases the component and unloads the library when successful.
   Returns TRUE if the library could be unloaded, otherwise FALSE.
+  If the component implements the QLibraryInterface, the canUnload()
+  function will be called and the unloading cancelled if this call
+  returns FALSE.
 
   This function gets called automatically in the destructor if 
   the policy is not Manual.
