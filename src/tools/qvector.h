@@ -54,6 +54,8 @@ class QVector
     T &operator[](int i);
     const T &operator[](int i) const;
     void append(const T &t);
+    void insert(int i, const T &t);
+    void replace(int i, const T &t);
 
     QVector &fill(const T &t, int size = - 1);
 
@@ -71,8 +73,8 @@ class QVector
     inline Iterator end() { detach(); return d->array + d->size; }
     inline ConstIterator end() const { return d->array + d->size; }
     inline ConstIterator constEnd() const { return d->array + d->size; }
-    Iterator insert( Iterator pos, int n, const T& x );
-    inline Iterator insert( Iterator pos, const T& x ) { return insert(pos, 1, x); }
+    Iterator insert( Iterator before, int n, const T& x );
+    inline Iterator insert( Iterator before, const T& x ) { return insert(before, 1, x); }
     Iterator erase( Iterator first, Iterator last );
     inline Iterator erase( Iterator pos ) { return erase(pos, pos+1); }
 
@@ -161,6 +163,14 @@ template <typename T>
 inline T &QVector<T>::operator[](int i)
 { Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::operator[]", "index out of range");
   return data()[i]; }
+template <typename T>
+inline void QVector<T>::insert(int i, const T &t)
+{ Q_ASSERT_X(i >= 0 && i <= d->size, "QVector<T>::insert", "index out of range");
+  insert(begin()+i, 1, t); }
+template <typename T>
+inline void QVector<T>::replace(int i, const T &t)
+{ Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::replace", "index out of range");
+  data()[i] = t; }
 template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {
@@ -267,9 +277,9 @@ void QVector<T>::append(const T &t)
 
 
 template <typename T>
-typename QVector<T>::Iterator QVector<T>::insert( Iterator pos, size_type n, const T& t )
+typename QVector<T>::Iterator QVector<T>::insert( Iterator before, size_type n, const T& t )
 {
-    int p = pos - d->array;
+    int p = before - d->array;
     if ( n != 0 ) {
 	if (d->ref != 1 || d->size + n > d->alloc)
 	    realloc(d->size, QVectorData::grow(d->size+n, sizeof(T),
