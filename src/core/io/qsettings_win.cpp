@@ -527,7 +527,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCo
         }
 
         default:
-            qWarning("QSettings: unknown data %d type in windows registry", dataType);
+            qWarning("QSettings: unknown data %d type in windows registry", static_cast<int>(dataType));
             if (value != 0)
                 *value = QCoreVariant();
             break;

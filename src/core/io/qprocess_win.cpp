@@ -54,7 +54,7 @@ private:
 
 
 QWindowsPipeWriter::QWindowsPipeWriter(HANDLE pipe, QObject * parent)
-    : quitNow(false), QThread(parent)
+  : QThread(parent), quitNow(false) 
 {
   
     DuplicateHandle(GetCurrentProcess(), pipe, GetCurrentProcess(),
@@ -380,7 +380,7 @@ Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
     DWORD bytesRead = 0;
 
     if (read > 0 && !ReadFile(standardReadPipe[0], data, read, &bytesRead, 0))
-        bytesRead = -1;
+        return -1;
     return bytesRead;
 }
 
@@ -390,7 +390,7 @@ Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
     DWORD bytesRead = 0;
 
     if (read > 0 && !ReadFile(errorReadPipe[0], data, read, &bytesRead, 0))
-        bytesRead = -1;
+        return -1;
     return bytesRead;
 }
 
@@ -514,7 +514,5 @@ void QProcessPrivate::notified()
     notifier->start(NOTIFYTIMEOUT);
 }
 
-
-
-
 #include "qprocess_win.moc"
+

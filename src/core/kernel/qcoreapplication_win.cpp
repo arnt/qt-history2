@@ -620,7 +620,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
         wmmsg = QString("WM_(%1)").arg(msg.message);
 
     QString rawParameters;
-    rawParameters.sprintf("hwnd(0x%08x) ", msg.hwnd);
+    rawParameters.sprintf("hwnd(0x%08x) ", (uint)msg.hwnd);
 
     // Custom WM_'s
     if (msg.message > WM_APP)
@@ -638,13 +638,13 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                                 FLAG_STRING(WA_INACTIVE,    "Deactivate"),
                                                 FLAG_STRING(WA_CLICKACTIVE, "Activate by mouseclick"),
                                                 FLAG_STRING());
-                parameters.sprintf("%s Hwnd (0x%08x)", activation.latin1(), msg.hwnd);
+                parameters.sprintf("%s Hwnd (0x%08x)", activation.latin1(), (uint)msg.hwnd);
             }
             break;
 #endif
 #ifdef WM_CAPTURECHANGED
         case WM_CAPTURECHANGED:
-            parameters.sprintf("Hwnd gaining capture (0x%08x)", lParam);
+            parameters.sprintf("Hwnd gaining capture (0x%08x)", (uint)lParam);
             break;
 #endif
 #ifdef WM_CREATE
@@ -758,13 +758,13 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 
                 parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) className(%s) windowName(%s) parent(0x%08x) style(%s) exStyle(%s)",
                                     lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.latin1(), windowName.latin1(),
-                                    lpcs->hwndParent, styles.latin1(), exStyles.latin1());
+                                    (uint)lpcs->hwndParent, styles.latin1(), exStyles.latin1());
             }
             break;
 #endif
 #ifdef WM_DESTROY
         case WM_DESTROY:
-            parameters.sprintf("Destroy hwnd (0x%08x)", msg.hwnd);
+            parameters.sprintf("Destroy hwnd (0x%08x)", (uint)msg.hwnd);
             break;
 #endif
 #ifdef WM_IME_NOTIFY
@@ -785,7 +785,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                                             FLGSTR(IMN_SETSENTENCEMODE),
                                             FLGSTR(IMN_SETSTATUSWINDOWPOS),
                                             FLAG_STRING());
-                parameters.sprintf("Command(%s : 0x%08x)", imnCommand.latin1(), lParam);
+                parameters.sprintf("Command(%s : 0x%08x)", imnCommand.latin1(), (uint)lParam);
             }
             break;
 #endif
@@ -1000,7 +1000,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
             break;
 #endif
         default:
-            parameters.sprintf("wParam(0x%08x) lParam(0x%08x)", wParam, lParam);
+            parameters.sprintf("wParam(0x%08x) lParam(0x%08x)", (uint)wParam, (uint)lParam);
             break;
     }
     // Yes, we want to give the WM_ names 20 chars of space before showing the

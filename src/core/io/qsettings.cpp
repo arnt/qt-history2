@@ -803,14 +803,13 @@ static QString systemIniPath()
 #if defined (Q_OS_WIN) && !defined(QT_NO_QOBJECT)
     // We can't use QLibrary if there is QT_NO_QOBJECT is defined
     QLibrary library("shell32");
-    library.setAutoUnload(false);
     QT_WA( {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
 	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
 	if (SHGetSpecialFolderPath) {
 	    TCHAR path[MAX_PATH];
 	    SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, FALSE);
-	    defPath = QString::fromUcs2((ushort*)path);
+	    defPath = QString::fromUtf16((ushort*)path);
 	}
     } , {
 	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);

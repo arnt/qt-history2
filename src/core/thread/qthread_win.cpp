@@ -227,7 +227,7 @@ void QThread::start(Priority priority)
         qErrnoWarning("QThread::start: Failed to set thread priority");
     }
 
-    if (ResumeThread(d->handle) == -1) {
+    if (ResumeThread(d->handle) == (DWORD) -1) {
         qErrnoWarning("QThread::start: Failed to resume new thread");
     }
 }

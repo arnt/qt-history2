@@ -27,11 +27,11 @@ possible to use this class in a similar way to QSocketNotifier. It will enable t
 */
 
 QWinEventNotifier::QWinEventNotifier(QObject *parent)
-: enabled(false), QObject(parent)
+  : QObject(parent), enabled(false)
 {}
 
 QWinEventNotifier::QWinEventNotifier(HANDLE hEvent, QObject *parent)
-: handleToEvent(hEvent), enabled(false), QObject(parent)
+ : QObject(parent),  handleToEvent(hEvent), enabled(false)
 {
     QEventDispatcherWin32 *eventDispatcher = qt_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance(thread()));
     Q_ASSERT_X(eventDispatcher, "QWinEventNotifier::QWinEventNotifier()",
