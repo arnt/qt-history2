@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#47 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#47 $";
 #endif
 
 
@@ -508,7 +508,7 @@ void QWidget::move( int x, int y )		// move widget
 {
     QPoint p(x,y);
     QRect r = frect;
-    if ( r.topLeft() == p || testFlag(WType_Desktop) )
+    if ( testFlag(WType_Desktop) )
 	return;
     r.setTopLeft( p );
     setFRect( r );
@@ -532,7 +532,7 @@ void QWidget::resize( int w, int h )		// resize widget
 	h = 1;
     QRect r = crect;
     QSize s(w,h);
-    if ( r.size() == s || testFlag(WType_Desktop) )
+    if ( testFlag(WType_Desktop) )
 	return;
     r.setSize( s );
     setCRect( r );
@@ -555,7 +555,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( h < 1 )
 	h = 1;
     QRect  r( x, y, w, h );
-    if ( r == crect || testFlag(WType_Desktop) )
+    if ( testFlag(WType_Desktop) )
 	return;
     setCRect( r );
     if ( testFlag(WType_Overlap) ) {
