@@ -77,8 +77,6 @@ QTextView::QTextView( const QString& text, const QString& context,
 
 QTextView::~QTextView()
 {
-    if ( painter.isActive() )
-	painter.end();
     delete buf_pixmap;
 }
 
@@ -1649,4 +1647,14 @@ void QTextView::setRealWidth( int w )
 void QTextView::updateStyles()
 {
     doc->updateStyles();
+}
+
+void QTextView::setDocument( QTextDocument *dc )
+{
+    if ( dc == doc )
+	return;
+    doc = dc;
+    cursor->setDocument( doc );
+    undoRedoInfo.clear();
+    lastFormatted = 0;
 }

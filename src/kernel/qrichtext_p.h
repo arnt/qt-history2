@@ -121,7 +121,8 @@ public:
     QTextCursor( QTextDocument *d );
 
     QTextDocument *document() const { return doc; }
-
+    void setDocument( QTextDocument *d );
+    
     QTextParag *parag() const;
     int index() const;
     void setParag( QTextParag *s, bool restore = TRUE );

@@ -855,6 +855,15 @@ void QTextCursor::indent()
 	idx = ni;
 }
 
+void QTextCursor::setDocument( QTextDocument *d )
+{
+    doc = d;
+    string = d->firstParag();
+    idx = 0;
+    nested = FALSE;
+    restoreState();
+    tmpIndex = -1;
+}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

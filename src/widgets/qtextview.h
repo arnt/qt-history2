@@ -76,6 +76,7 @@ public:
 
 #if defined(QRICHTEXT_OPEN_API)
     QTextDocument *document() const;
+    void setDocument( QTextDocument *doc );
     QTextCursor *textCursor() const;
 #endif
 
@@ -139,7 +140,7 @@ public:
 
     void repaintChanged();
     void updateStyles();
-    
+
 public slots:
     virtual void undo();
     virtual void redo();
@@ -208,6 +209,7 @@ protected:
 #if !defined(QRICHTEXT_OPEN_API)
     QTextDocument *document() const;
     QTextCursor *textCursor() const;
+    void setDocument( QTextDocument *doc );
 #endif
 
 private slots:
@@ -277,7 +279,6 @@ private:
     int interval;
     UndoRedoInfo undoRedoInfo;
     QTextFormat *currentFormat;
-    QPainter painter;
     int currentAlignment;
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
