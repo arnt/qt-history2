@@ -15,7 +15,6 @@
 int main( int argc, char **argv )
 {
     QString file;
-    bool install = FALSE;
     int option = 0;
 
     for ( int i = 1; i < argc; i++ ) {
