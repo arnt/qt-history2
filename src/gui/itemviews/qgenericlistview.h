@@ -28,15 +28,10 @@ public:
     void setGridSize(const QSize &size);
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
 
-    int contentsX() const;
-    int contentsY() const;
-    int contentsWidth() const;
-    int contentsHeight() const;
-    void resizeContents(int w, int h);
-
 protected:
     QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
+    void resizeContents(int w, int h);
     
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -56,6 +51,8 @@ protected:
     void paintEvent(QPaintEvent *e);
 
     QModelIndex itemAt(int x, int y) const;
+    int horizontalOffset() const;
+    int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemRect(const QModelIndex &item) const;
     QRect itemViewportRect(const QModelIndex &item) const;

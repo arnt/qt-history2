@@ -141,35 +141,6 @@ void QGenericTreeView::hideColumn(int column)
     d->header->hideSection(column);
 }
 
-int QGenericTreeView::contentsX() const
-{
-    return d->header->offset();
-}
-
-int QGenericTreeView::contentsY() const
-{
-    // gives an estimate
-    QItemOptions options;
-    getViewOptions(&options);
-    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
-    int item = verticalScrollBar()->value() / d->verticalFactor;
-    return item * iheight;
-}
-
-int QGenericTreeView::contentsWidth() const
-{
-    return d->header->size();
-}
-
-int QGenericTreeView::contentsHeight() const
-{
-    // gives an estimate
-    QItemOptions options;
-    getViewOptions(&options);
-    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
-    return d->items.count() * iheight;
-}
-
 void QGenericTreeView::open(const QModelIndex &item)
 {
     int v = verticalScrollBar()->value();
@@ -200,8 +171,8 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QPainter painter(viewport());
     QRect area = e->rect();
 
-    d->left = qMax(d->header->sectionAt(contentsX()), 0);
-    d->right = -1;//d->header->sectionAt(contentsX() + visibleWidth());
+    d->left = qMax(d->header->sectionAt(d->header->offset() + area.x()), 0);
+    d->right = -1;//d->header->sectionAt(d->header->offset() + visibleWidth());
     if (d->right < 0)
 	d->right = d->header->count() - 1;
 
@@ -330,13 +301,28 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
     }
 }
 
-QModelIndex QGenericTreeView::itemAt(int x, int y) const
+QModelIndex QGenericTreeView::itemAt(int, int y) const
 {
     int vi = d->item(y, verticalScrollBar()->value());
     QModelIndex mi = d->modelIndex(vi);
     int column = d->editColumn;//d->header->sectionAt(x);
     QModelIndex parent = model()->parent(mi);
     return model()->index(mi.row(), column, parent);
+}
+
+int QGenericTreeView::horizontalOffset() const
+{
+    return d->header->offset();
+}
+
+int QGenericTreeView::verticalOffset() const
+{
+    // gives an estimate
+    QItemOptions options;
+    getViewOptions(&options);
+    int iheight = d->delegate->sizeHint(fontMetrics(), options, model()->index(0, 0, 0)).height();
+    int item = verticalScrollBar()->value() / d->verticalFactor;
+    return item * iheight;
 }
 
 QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
@@ -454,7 +440,7 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
     int section = d->header->section(index);
     int leftPos = d->header->sectionPosition(section);
     int rightPos = 0;
-    int topPos = contentsHeight();
+    int topPos = 0xFFFFFFFF; // FIXME: use Q_MAX_INT or something
     int bottomPos = 0;
     for (int i = 0; i < selection.count(); ++i) {
 	QItemSelectionRange r = selection.at(i);
@@ -477,6 +463,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 	int offset = (left / d->horizontalFactor) + d->header->sectionPosition(column);
 	hscroll = d->header->offset() - offset;
 	d->header->setOffset(offset);
+	return;
     }
     if (dy) {
 	/*
@@ -529,7 +516,6 @@ void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModel
 	    d->open(pi);
 	}
     } else {
-//	resizeContents(contentsWidth(), 0);
 	updateGeometries();
 	d->items.resize(0);
 	d->layout_parent_index = -1;
@@ -552,7 +538,6 @@ void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
 	}
     } else {
 	int count = bottomRight.row() - topLeft.row();
-	//resizeContents(contentsHeight() - d->itemHeight * count, contentsWidth());
 	updateGeometries();
 	// FIXME: this won't work if there are open branches
 	collapse<QGenericTreeViewItem>(d->items, bottomRight.row() - 1, count);
@@ -562,7 +547,6 @@ void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
 
 void QGenericTreeView::columnCountChanged(int, int)
 {
-//    resizeContents(d->header->sizeHint().width(), contentsHeight());
     updateGeometries();
 }
 
@@ -604,8 +588,6 @@ bool QGenericTreeView::doItemsLayout(int num)
 	parent = model()->parent(parent);
 	idx = d->viewIndex(parent, v); // FIXME: slow
     }
-//     int height = contentsHeight() + d->itemHeight * count;
-//    resizeContents(contentsWidth(), height);
     updateGeometries();
     d->viewport->update();
     d->layout_from_index += count;
@@ -615,8 +597,8 @@ bool QGenericTreeView::doItemsLayout(int num)
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     int columnPos = d->header->sectionPosition(column);
-    d->viewport->update(QRect(columnPos, 0, visibleWidth() - columnPos + contentsX(), visibleHeight()));
-//     resizeContents(contentsWidth() + (newSize - oldSize), contentsHeight());
+    QRect rect(columnPos, 0, d->viewport->width() - columnPos + d->header->offset(), d->viewport->height());
+    d->viewport->update(rect);
     updateGeometries();
     updateCurrentEditor();
 }
@@ -769,7 +751,6 @@ void QGenericTreeViewPrivate::close(int i)
     }
     collapse<QGenericTreeViewItem>(items, i, total);
 //     int height = total * itemHeight;
-//    q->resizeContents(q->contentsWidth(), q->contentsHeight() - height);
     q->updateGeometries();
     q->d->viewport->update();
 }
@@ -777,7 +758,7 @@ void QGenericTreeViewPrivate::close(int i)
 int QGenericTreeViewPrivate::pageUp(int i) const
 {
     int v = q->verticalScrollBar()->value();
-    int y = coordinate(i, v) - q->visibleHeight();
+    int y = coordinate(i, v) - viewport->height();
     int idx = item(y, v);
     return idx == -1 ? first() : idx;
 }
@@ -785,7 +766,7 @@ int QGenericTreeViewPrivate::pageUp(int i) const
 int QGenericTreeViewPrivate::pageDown(int i) const
 {
     int v = q->verticalScrollBar()->value();
-    int y = coordinate(i, v) + q->visibleHeight();
+    int y = coordinate(i, v) + viewport->height();
     int idx = item(y, v);
     return idx == -1 ? last() : idx;
 }

@@ -60,11 +60,6 @@ public:
     int sortIndicatorSection() const;
     SortOrder sortIndicatorOrder() const;
 
-    int contentsX() const;
-    int contentsY() const;
-    int contentsWidth() const;
-    int contentsHeight() const;
-
 public slots:
     void setOffset(int offset);
 
@@ -97,6 +92,8 @@ protected:
     int indexAt(int position) const;
 
     QModelIndex itemAt(int x, int y) const;
+    int horizontalOffset() const;
+    int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemViewportRect(const QModelIndex &item) const;
     QModelIndex item(int section) const;

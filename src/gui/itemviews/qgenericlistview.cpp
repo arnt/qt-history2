@@ -305,7 +305,7 @@ void QGenericListView::setGridSize(const QSize &size)
 
 void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
 {
-    QRect crect(rect.left() + contentsX(), rect.top() + contentsY(), rect.width(), rect.height());
+    QRect crect(rect.left() + horizontalScrollBar()->value(), rect.top() + verticalScrollBar()->value(), rect.width(), rect.height());
 
     if (d->movement == Static)
 	d->intersectingStaticSet(crect);
@@ -338,24 +338,10 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     selectionModel()->select(selection, mode, selectionBehavior());
 }
 
-int QGenericListView::contentsX() const
+void QGenericListView::scrollContentsBy(int dx, int dy)
 {
-    return horizontalScrollBar()->value();
-}
-
-int QGenericListView::contentsY() const
-{
-    return verticalScrollBar()->value();
-}
-
-int QGenericListView::contentsWidth() const
-{
-    return d->contentsSize.width();
-}
-
-int QGenericListView::contentsHeight() const
-{
-    return d->contentsSize.height();
+    d->viewport->scroll(dx, dy);
+//    d->viewport->update();
 }
 
 void QGenericListView::resizeContents(int w, int h)
@@ -363,12 +349,6 @@ void QGenericListView::resizeContents(int w, int h)
     d->contentsSize = QSize(w, h);
     horizontalScrollBar()->setRange(0, w - viewport()->width());
     verticalScrollBar()->setRange(0, h - viewport()->height());
-}
-
-void QGenericListView::scrollContentsBy(int dx, int dy)
-{
-    d->viewport->scroll(dx, dy);
-//    d->viewport->update();
 }
 
 void QGenericListView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -394,9 +374,9 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
 
     bool needMore = false;
     if ((d->flow == TopToBottom && d->wrap == Off) || (d->flow == LeftToRight && d->wrap == On))
-        needMore = viewport()->height() >= contentsHeight();
+        needMore = viewport()->height() >= d->contentsSize.height();
     else
-        needMore = viewport()->width() >= contentsWidth();
+        needMore = viewport()->width() >= d->contentsSize.width();
     if (needMore)
 	emit this->needMore();
 }
@@ -479,7 +459,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
     QRect area = e->rect();
-    area.moveBy(contentsX(), contentsY());
+    area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
     if (d->movement == Static)
@@ -508,7 +488,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
 
 QModelIndex QGenericListView::itemAt(int x, int y) const
 {
-    QRect rect(x + contentsX(), y + contentsY(), 1, 1);
+    QRect rect(x + horizontalScrollBar()->value(), y + verticalScrollBar()->value(), 1, 1);
     if (d->movement == Static)
 	d->intersectingStaticSet(rect);
     else
@@ -516,13 +496,23 @@ QModelIndex QGenericListView::itemAt(int x, int y) const
     return (d->intersectVector.empty() ? QModelIndex() : d->intersectVector.first());
 }
 
+int QGenericListView::horizontalOffset() const
+{
+    return horizontalScrollBar()->value();
+}
+
+int QGenericListView::verticalOffset() const
+{
+    return verticalScrollBar()->value();
+}
+
 QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState)
 {
     QRect area = itemRect(currentItem());
     int iw = area.width();
     int ih = area.height();
-    int cw = contentsWidth();
-    int ch = contentsHeight();
+    int cw = d->contentsSize.width();
+    int ch = d->contentsSize.height();
     QPoint pos = area.topLeft();
     d->intersectVector.clear();
 
@@ -629,8 +619,8 @@ QRect QGenericListView::itemRect(const QModelIndex &item) const
 QRect QGenericListView::itemViewportRect(const QModelIndex &item) const
 {
     QRect rect = itemRect(item);
-    rect.moveLeft(rect.left() - contentsX());
-    rect.moveTop(rect.top() - contentsY());
+    rect.moveLeft(rect.left() - horizontalScrollBar()->value());
+    rect.moveTop(rect.top() - verticalScrollBar()->value());
     if (d->wrap == QGenericListView::Off && d->movement == QGenericListView::Static)
 	if (d->flow == QGenericListView::TopToBottom)
  	    rect.setWidth(d->viewport->width());
@@ -649,19 +639,19 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 
     // vertical
     if (rect.top() < area.top()) { // above
-	int cy = contentsY() + rect.top();
+	int cy = verticalScrollBar()->value() + rect.top();
 	verticalScrollBar()->setValue(cy);
     } else if (rect.bottom() > area.bottom()) { // below
-	int cy = contentsY() + rect.bottom() - viewport()->height();
+	int cy = verticalScrollBar()->value() + rect.bottom() - viewport()->height();
 	verticalScrollBar()->setValue(cy);
     }
 
     // horizontal
     if (rect.left() < area.left()) { // left of
-	int cx = contentsX() + rect.left();
+	int cx = horizontalScrollBar()->value() + rect.left();
 	horizontalScrollBar()->setValue(cx);
     } else if (rect.right() > area.right()) { // right of
-	int cx = contentsX() + rect.right() - viewport()->width();
+	int cx = horizontalScrollBar()->value() + rect.right() - viewport()->width();
 	horizontalScrollBar()->setValue(cx);
     }
 }
@@ -675,8 +665,8 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
     for (; it != items.end(); ++it)
 	rect |= itemRect(*it);
     items.clear();
-    rect.moveLeft(rect.left() - contentsX());
-    rect.moveTop(rect.top() - contentsY());
+    rect.moveLeft(rect.left() - horizontalScrollBar()->value());
+    rect.moveTop(rect.top() - verticalScrollBar()->value());
     if (d->wrap == QGenericListView::Off && d->movement == QGenericListView::Static)
 	if (d->flow == QGenericListView::TopToBottom)
  	    rect.setWidth(d->viewport->width());
@@ -781,9 +771,9 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 
     if (d->movement == QGenericListView::Static && d->wrap == QGenericListView::Off)
 	if (d->flow == QGenericListView::LeftToRight)
-	     rect.setHeight(qMin(contentsHeight(), rect.height()));
+	     rect.setHeight(qMin(d->contentsSize.height(), rect.height()));
 	else
-	    rect.setWidth(qMin(contentsWidth(), rect.width()));
+	    rect.setWidth(qMin(d->contentsSize.width(), rect.width()));
 
     if (d->flow == LeftToRight) {
 	int w = bounds.width();
@@ -914,8 +904,8 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 	    d->tree.clearLeaf(i); // FIXME: use fill( 0 )
 	insertFrom = 0;
 
-	int h = contentsHeight();
-	int w = contentsWidth();
+	int h = d->contentsSize.height();
+	int w = d->contentsSize.width();
 
 	// initialize tree
 	// we have to get the bounding rect of the items before we can initialize the tree
@@ -962,17 +952,17 @@ void QGenericListView::moveItem(int index, const QPoint &dest)
     rect = item->rect();
     int w = item->x + rect.width();
     int h = item->y + rect.height();
-    w = w > contentsWidth() ? w : contentsWidth();
-    h = h > contentsHeight() ? h : contentsHeight();
+    w = w > d->contentsSize.width() ? w : d->contentsSize.width();
+    h = h > d->contentsSize.height() ? h : d->contentsSize.height();
     resizeContents(w, h);
 }
 
 void QGenericListView::updateGeometries()
 {
     horizontalScrollBar()->setPageStep(d->viewport->width());
-    horizontalScrollBar()->setRange(0, contentsWidth() - d->viewport->width());
+    horizontalScrollBar()->setRange(0, d->contentsSize.width() - d->viewport->width());
     verticalScrollBar()->setPageStep(d->viewport->height());
-    verticalScrollBar()->setRange(0, contentsHeight() - d->viewport->height());
+    verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height());
 }
 
 void QGenericListViewPrivate::prepareItemsLayout()
@@ -1062,8 +1052,8 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
     // FIXME: should we move this to QAbstractItemView?
     // draw the drag items
     int x = 0, y = 0;
-    int cx = q->contentsX();
-    int cy = q->contentsY();
+    int cx = q->horizontalScrollBar()->value();
+    int cy = q->verticalScrollBar()->value();
     QItemOptions options;
     q->getViewOptions(&options);
     QAbstractItemDelegate *delegate = q->itemDelegate();

@@ -214,7 +214,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     d->pressedItem = item;
     d->pressedState = e->state();
     d->pressedPosition = pos;
-    d->pressedPosition += QPoint(contentsX(), contentsY());
+    d->pressedPosition += QPoint(horizontalOffset(), verticalOffset());
 
     if (item.isValid())
 	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
@@ -242,7 +242,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 	return;
     QPoint bottomRight = e->pos();
     QPoint topLeft = d->pressedPosition;
-    topLeft -= QPoint(contentsX(), contentsY());
+    topLeft -= QPoint(horizontalOffset(), verticalOffset());
     QRect rect = QRect(topLeft, bottomRight).normalize();
 
     d->rubberBand->setGeometry(QRect(d->viewport->mapToGlobal(topLeft),
@@ -525,21 +525,6 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 	}
     }
     return false;
-}
-
-int QAbstractItemView::visibleWidth() const
-{
-    return viewport()->width();
-}
-
-int QAbstractItemView::visibleHeight() const
-{
-    return viewport()->height();
-}
-
-QRect QAbstractItemView::visibleRect() const
-{
-    return QRect(contentsX(), contentsY(), viewport()->width(), viewport()->height());
 }
 
 void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)

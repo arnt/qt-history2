@@ -84,8 +84,6 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
     if (d->leftHeader) {
-// 	disconnect(verticalScrollBar(), SIGNAL(valueChanged(int)),
-// 		   this, SLOT(setVerticalOffset(int)));
 	disconnect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
 		   this, SLOT(rowHeightChanged(int,int,int)));
 	disconnect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -98,8 +96,6 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 
     d->leftHeader = header;
 
-//     connect(verticalScrollBar(), SIGNAL(valueChanged(int)),
-// 	    this, SLOT(setVerticalOffset(int)));
     connect(d->leftHeader, SIGNAL(sectionSizeChanged(int,int,int)),
 	    this, SLOT(rowHeightChanged(int,int,int)));
     connect(d->leftHeader, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -211,6 +207,16 @@ bool QGenericTableView::event(QEvent *e)
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
     return model()->index(rowAt(y), columnAt(x), root());
+}
+
+int QGenericTableView::horizontalOffset() const
+{
+    return d->topHeader->offset();
+}
+
+int QGenericTableView::verticalOffset() const
+{
+    return d->leftHeader->offset();
 }
 
 QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
@@ -341,7 +347,7 @@ void QGenericTableView::rowCountChanged(int, int)
 {
     updateGeometries();
     d->viewport->update();
-    if (d->viewport->height() >= contentsHeight())
+    if (d->viewport->height() >= d->topHeader->size())
 	emit needMore();
 }
 
@@ -474,30 +480,8 @@ bool QGenericTableView::showGrid() const
     return d->showGrid;
 }
 
-int QGenericTableView::contentsX() const
-{
-    return d->topHeader->offset();
-}
-
-int QGenericTableView::contentsY() const
-{
-    return d->leftHeader->offset();
-}
-
-int QGenericTableView::contentsWidth() const
-{
-    return d->topHeader->size();
-}
-
-int QGenericTableView::contentsHeight() const
-{
-    return d->leftHeader->size();
-}
-
 void QGenericTableView::rowHeightChanged(int row, int /*oldSize*/, int /*newSize*/)
 {
-//     updateContents(contentsX(), rowPosition(row),
-// 		    visibleWidth(), visibleHeight() - rowPosition(row) + contentsY());
     updateGeometries();
     int rowp = rowViewportPosition(row);
     d->viewport->update(QRect(0, rowp, d->viewport->width(), d->viewport->height() - rowp));
@@ -506,34 +490,30 @@ void QGenericTableView::rowHeightChanged(int row, int /*oldSize*/, int /*newSize
 
 void QGenericTableView::columnWidthChanged(int column, int /*oldSize*/, int /*newSize*/)
 {
-//     updateContents(columnPosition(column), contentsY(),
-// 		    visibleWidth() - columnPosition(column) + contentsX(), visibleHeight());
     updateGeometries();
     int colp = columnViewportPosition(column);
     d->viewport->update(QRect(colp, 0, d->viewport->height(), d->viewport->width() - colp));
     updateCurrentEditor();
 }
 
-void QGenericTableView::rowIndexChanged(int, int /*oldIndex*/, int /*newIndex*/)
+void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)
 {
-//     int o = d->leftHeader->sectionPosition(d->leftHeader->section(oldIndex));
-//     int n = d->leftHeader->sectionPosition(d->leftHeader->section(newIndex));
-//     int top = (o < n ? o : n);
-//     int height = visibleHeight() - (o > n ? o : n ) + contentsY();
-//     updateContents(contentsX(), top, visibleWidth(), height);
+    int o = rowViewportPosition(d->leftHeader->section(oldIndex));
+    int n = rowViewportPosition(d->leftHeader->section(newIndex));
+    int top = (o < n ? o : n);
+    int height = d->viewport->height() - (o > n ? o : n );
     updateGeometries();
-    d->viewport->update();
+    d->viewport->update(0, top, d->viewport->width(), height);
 }
 
-void QGenericTableView::columnIndexChanged(int, int /*oldIndex*/, int /*newIndex*/)
+void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
 {
-//     int o = d->topHeader->sectionPosition(d->topHeader->section(oldIndex));
-//     int n = d->topHeader->sectionPosition(d->topHeader->section(newIndex));
-//     int left = (o < n ? o : n);
-//     int width = visibleWidth() - (o > n ? o : n) + contentsX();
-//     updateContents(left, contentsY(), width, visibleHeight());
+    int o = columnViewportPosition(d->topHeader->section(oldIndex));
+    int n = columnViewportPosition(d->topHeader->section(newIndex));
+    int left = (o < n ? o : n);
+    int width = d->viewport->width() - (o > n ? o : n);
     updateGeometries();
-    d->viewport->update();
+    d->viewport->update(left, 0, width, d->viewport->height());
 }
 
 void QGenericTableView::selectRow(int row, ButtonState state)

@@ -32,11 +32,6 @@ public:
     bool isColumnHidden(int column) const;
     void setShowGrid(bool show);
     bool showGrid() const;
-
-    int contentsX() const;
-    int contentsY() const;
-    int contentsWidth() const;
-    int contentsHeight() const;
     
 public slots:
     void selectRow(int row, ButtonState state = Qt::NoButton);
@@ -63,6 +58,8 @@ protected:
     bool event(QEvent *e);
     
     QModelIndex itemAt(int x, int y) const;
+    int horizontalOffset() const;
+    int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);

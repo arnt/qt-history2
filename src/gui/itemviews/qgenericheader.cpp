@@ -670,6 +670,20 @@ QModelIndex QGenericHeader::itemAt(int x, int y) const
 	    model()->index(sectionAt(y), 0, 0, QModelIndex::VerticalHeader));
 }
 
+int QGenericHeader::horizontalOffset() const
+{
+    if (orientation() == Qt::Horizontal)
+	return offset();
+    return 0;
+}
+
+int QGenericHeader::verticalOffset() const
+{
+    if (orientation() == Qt::Vertical)
+	return offset();
+    return 0;
+}
+
 QModelIndex QGenericHeader::moveCursor(QAbstractItemView::CursorAction, ButtonState)
 {
     return QModelIndex();
@@ -824,34 +838,6 @@ int QGenericHeader::sortIndicatorSection() const
 Qt::SortOrder QGenericHeader::sortIndicatorOrder() const
 {
     return d->sortIndicatorOrder;
-}
-
-int QGenericHeader::contentsX() const
-{
-    if (orientation() == Qt::Horizontal)
-	return offset();
-    return 0;
-}
-
-int QGenericHeader::contentsY() const
-{
-    if (orientation() == Qt::Vertical)
-	return offset();
-    return 0;
-}
-
-int QGenericHeader::contentsWidth() const
-{
-    if (orientation() == Qt::Horizontal)
-	return size();
-    return d->viewport->width();
-}
-
-int QGenericHeader::contentsHeight() const
-{
-    if (orientation() == Qt::Vertical)
-	return size();
-    return d->viewport->height();
 }
 
 void QGenericHeader::updateGeometries()

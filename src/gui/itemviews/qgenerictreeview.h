@@ -32,11 +32,6 @@ public:
     int columnAt(int x) const;
 
     bool isColumnHidden(int column) const;
-    
-    int contentsX() const;
-    int contentsY() const;
-    int contentsWidth() const;
-    int contentsHeight() const;
 
     void open(const QModelIndex &item);
     void close(const QModelIndex &item);
@@ -60,6 +55,8 @@ protected:
     
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex itemAt(int x, int y) const;
+    int horizontalOffset() const;
+    int verticalOffset() const;
 
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);

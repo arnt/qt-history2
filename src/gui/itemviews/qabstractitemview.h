@@ -46,18 +46,6 @@ public:
 
     bool eventFilter(QObject *object, QEvent *event);
 
-//    virtual QRect estimatedContentsRect() const = 0;
-    
-    // FIXME: duplicates QScrollView API
-    virtual int contentsX() const = 0;
-    virtual int contentsY() const = 0;
-    virtual int contentsWidth() const = 0;
-    virtual int contentsHeight() const = 0;
-
-    int visibleWidth() const;
-    int visibleHeight() const;
-    QRect visibleRect() const;
-
 protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -84,6 +72,9 @@ protected:
 
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
     virtual QModelIndex itemAt(int x, int y) const = 0;
+    
+    virtual int horizontalOffset() const = 0;
+    virtual int verticalOffset() const = 0;
 
     virtual QRect itemViewportRect(const QModelIndex &item) const = 0;
     virtual void ensureItemVisible(const QModelIndex &item) = 0;
