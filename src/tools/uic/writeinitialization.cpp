@@ -835,31 +835,9 @@ void WriteInitialization::initializeTable(DomWidget *w)
 
 void WriteInitialization::initializeTableItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
 {
-    // items
-    for (int i=0; i<items.size(); ++i) {
-        DomItem *item = items.at(i);
-
-        QString itemName = driver->findOrInsertName("__item");
-        output << "\n";
-        output << option.indent << "QListViewItem *" << itemName << " = new QListViewItem(" << varName << ");\n";
-
-        QList<DomProperty*> properties = item->elementProperty();
-        for (int i=0; i<properties.size(); ++i) {
-            DomProperty *p = properties.at(i);
-            if (p->attributeName() == QLatin1String("text"))
-                output << option.indent << itemName << "->setText(" << i << ", "
-                       << trCall(p->elementString(), className) << ");\n";
-
-            if (p->attributeName() == QLatin1String("pixmap"))
-                output << option.indent << itemName << "->setPixmap(" << i << ", "
-                       << pixCall(p->elementPixmap()) << ");\n";
-        }
-
-        if (item->elementItem().size()) {
-            output << option.indent << itemName << "->setOpen(true);\n";
-            initializeListViewItems(className, itemName, item->elementItem());
-        }
-    }
+    Q_UNUSED(className);
+    Q_UNUSED(varName);
+    Q_UNUSED(items);
 }
 
 QString WriteInitialization::pixCall(const QString &pix) const
