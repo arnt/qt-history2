@@ -41,7 +41,7 @@ SOURCES		= smain.cpp \
 
                unix:SOURCES += ../../../3rdparty/sqlite/os_unix.c
                mac:SOURCES += ../../../3rdparty/sqlite/os_mac.c
-               windows:SOURCES += ../../../3rdparty/sqlite/os_win.c
+               win32:SOURCES += ../../../3rdparty/sqlite/os_win.c
 }
 
 include(../qsqldriverbase.pri)
