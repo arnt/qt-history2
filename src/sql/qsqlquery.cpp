@@ -136,19 +136,21 @@ void QSqlResultShared::slotResultDestroyed()
     view in the database).
 
     QSqlQuery supports prepared query execution and binding of
-    parameter values. Note that only input values may be bound. Be
-    aware that not all databases supports prepared queries and value
-    binding. Currently only the Oracle driver and the ODBC driver have
-    proper prepared query support. However, all drivers supports this
-    by emulating the missing features, which of course will not be as
-    effective. It is also important to know that different databases
-    uses different placeholder marks for value binding. Oracle uses a
-    \c : character followed by a placeholder name, while ODBC only
-    uses a \c ? character. Also note that ODBC only supports
-    positional binding - i.e you can't name the different
-    placeholders. You can't mix the different bind styles, e.g by
+    parameter values to placeholders. Note that only input values may
+    be bound. Be aware that not all databases support these
+    features. Currently only the Oracle and ODBC drivers have proper
+    prepared query support, but the rest of the drivers support this
+    by emulating the missing features (the placeholders are simply
+    replaced with the actual value when the query is executed). It is
+    also important to know that different databases use different
+    placeholder marks for value binding. Oracle uses a \c : character
+    followed by a placeholder name, while ODBC only uses a \c ? 
+    character to identify a placeholder. This means that ODBC only
+    supports positional binding - i.e it's not possible to name the
+    different placeholders. You can't mix the different bind styles by
     binding some values using named placeholders and some using
     positional placeholders.
+    
     Example:
 
     \code
@@ -812,11 +814,11 @@ void QSqlQuery::afterSeek()
 
 // XXX: Hack to keep BCI - remove in 4.0. QSqlExtension should be
 // removed, and the prepare(), exec() etc. fu's should be
-// made virtual members of QSqlResult
+// made virtual members of QSqlQuery/QSqlResult
 
-/*! Prepares a SQL statement for execution. The statement
-  may contain placeholders for binding values. Placeholder
-  markers may be database dependent.
+/*! Prepares the SQL query \c query for execution. The query may
+  contain placeholders for binding values. Note that placeholder
+  markers are usually database dependent.
   
   \sa exec(), bindValue(), addBindValue()
 */
@@ -859,10 +861,8 @@ bool QSqlQuery::prepare( const QString& query )
     }
 }
 
-/*! Executes a previously prepared SQL statement.
-  
- If the statement is executed successfully TRUE is returned, otherwise
- FALSE is returned.
+/*! Executes a previously prepared SQL query. If the query is
+ executed successfully TRUE is returned, otherwise FALSE is returned.
  
  \sa prepare(), bindValue(), addBindValue()
 */
@@ -873,7 +873,7 @@ bool QSqlQuery::exec()
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	return d->sqlResult->extension()->exec();
     } else {
-	// fake preparation - just replace the place holders..
+	// fake preparation - just replace the placeholders..
 	QString query = d->sqlResult->lastQuery();
 	QMap<QString, QVariant>::Iterator it;
 	for ( it = d->sqlResult->extension()->values.begin();
@@ -884,11 +884,10 @@ bool QSqlQuery::exec()
     }
 }
 
-/*! Set the placeholder \c place to be bound to value \c val in a
-  prepared statement. Note that the placeholder mark (e.g
-  \c :) should be included when specifying the name.
-  
-  Note: The placeholder values are cleared when prepare() is called.
+/*! Set the placeholder \c placeholder to be bound to value \c val in
+  the prepared statement. Note that the placeholder mark (e.g \c :)
+  should be included when specifying the placeholder name.
+  Placeholder values are cleared when prepare() is called.
   
   \sa addBindValue(), prepare(), exec()
 */
@@ -900,9 +899,8 @@ void QSqlQuery::bindValue( const QString& placeholder, const QVariant& val )
 }
 
 /*! Set the placeholder in position \c pos to be bound to value \c val
-  in a prepared statement. Field numbering starts at 0.
-  
-  Note: The placeholder values are cleared when prepare() is called.
+  in the prepared statement. Field numbering starts at 0.
+  Placeholder values are cleared when prepare() is called.
 
   \sa addBindValue(), prepare(), exec()
 */
@@ -913,11 +911,11 @@ void QSqlQuery::bindValue( int pos, const QVariant& val )
     d->sqlResult->extension()->bindValue( pos, val );
 }
 
-/*! Adds \c val to a list of values when using positional value
-  binding. The order in which addBindValue() is called is the order
-  the values will be bound to the placeholders in the prepared query.
-  
-  Note: The placeholder values are cleared when prepare() is called.
+/*! Adds the value \c val to the list of placeholder values when using
+  positional value binding. The order in which addBindValue() is
+  called determines the order the values will be bound to the
+  placeholders in the prepared query. Placeholder values are cleared
+  when prepare() is called.
   
   \sa bindValue(), prepare(), exec()
 */
