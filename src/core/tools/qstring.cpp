@@ -4460,7 +4460,7 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
                 break;
             }
             case 'p': {
-                quint64 i = (quint64) va_arg(ap, void*);
+                quint64 i = reinterpret_cast<quint64>(va_arg(ap, void*));
                 flags |= QLocalePrivate::Alternate;
                 subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
                 ++c;
