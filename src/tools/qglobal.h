@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#17 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#18 $
 **
 ** Global type declarations and definitions
 **
@@ -49,7 +49,7 @@
 #elif defined(linux)
 #define _OS_LINUX_
 #else
-#define _OS_???_				/* Here: _OS_x_ */
+#error Qt has not been ported to this OS - talk to qt-bugs@troll.no
 #endif
 
 #if defined(_OS_SUN_) || defined(_OS_SOLARIS_) || defined(_OS_HPUX_) || defined(_OS_ULTRIX_) || defined(_OS_LINUX_)
@@ -86,7 +86,7 @@
 #elif defined(_OS_SUN_)
 #define _CC_SUN_
 #else
-#define _CC_???_				/* Here: _CC_x_ */
+#error Qt does not recognize this compiler - talk to qt-bugs@troll.no
 #endif
 
 
