@@ -835,14 +835,6 @@ static const char *languageForWritingSystem[] = {
     "ja",  // Japanese
     "ko",  // Korean
     "vi",  // Vietnamese
-    "sit", // Yi
-    "tl",  // Tagalog
-    "phi", // Hanunoo
-    "phi", // Buhid
-    "phi", // Tagbanwa
-    "sit", // Limbu
-    "tai", // TaiLe
-    0      // Braille
 };
 enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
 
