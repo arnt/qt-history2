@@ -149,13 +149,6 @@ QWorkspace
 New functionality
 -----------------
 
-Docking widgets (Reggie)
-    QDockArea and QDockWidget (or QToolWindow) to allow real
-    docking (floating and inside a dockarea) like in Visual
-    Studio. Also have resizeable dockwindows and all that
-    stuff. Toolbars will then be just such
-    toolwindows/dockwidgets.
-
 Plugin System (Volker)
     System for dynamically loading plugins. First used by designer
     but offered as Qt class. Find a solution to fix qAddPostRoutine
