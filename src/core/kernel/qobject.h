@@ -246,9 +246,9 @@ private: // Disabled copy constructor and operator=
 inline bool QObject::isAncestorOf(const QObject *child) const
 {
     while (child) {
-        child = child->d_ptr->parent;
         if (child == this)
             return true;
+        child = child->d_ptr->parent;
     }
     return false;
 }
