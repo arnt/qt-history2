@@ -548,9 +548,11 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     if ( parent )
 	qt_leave_modal( parent );
 
-    *initialDirectory = fi.dirPath();
-    if ( !result.isEmpty() && selectedFilter )
-	*selectedFilter = selFilter( filter, selFilIdx );
+    if ( !result.isEmpty()) {
+	*initialDirectory = fi.dirPath();    // only save the path if there is a result
+	if ( selectedFilter )
+	    *selectedFilter = selFilter( filter, selFilIdx );
+    }
     return result;
 }
 
