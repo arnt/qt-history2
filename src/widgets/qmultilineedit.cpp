@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#7 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -638,8 +638,6 @@ QString QMultiLineEdit::markedText() const
 
 
 
-static QString emptyLine = "";
-
 /*!
   Returns the text at line number \a line, or 0 if \a line is invalid.
 */
@@ -649,7 +647,7 @@ QString QMultiLineEdit::textLine( int line ) const
     QString *s = contents->at( line );
     if ( s ) {
 	if ( s->isNull() )
-	    return emptyLine;
+	    return "";
 	else
 	    return *s;
     } else
