@@ -3803,7 +3803,7 @@ static void initWinTabFunctions()
 	ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
     } , {
 	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenA" );
-	ptrWTInfo = (PtrWTInfo)library.resolve( "WTOInfoA" );
+	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
 	ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
     } );
 
