@@ -14,7 +14,6 @@
 #ifndef QIODEVICE_H
 #define QIODEVICE_H
 
-#include "qglobal.h"
 #include "qstring.h"
 #include "qobjectdefs.h"
 
