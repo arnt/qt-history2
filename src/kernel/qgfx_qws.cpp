@@ -51,6 +51,15 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
     return qt_screen->createGfx( buffer, w, h, depth, offs );
 }
 
+void QGfx::setSource(unsigned char *,int,int,int,int,QRgb *,int)
+{
+}
+
+void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
+{
+} 
+
+
 /*!
 \fn QScreen::setDirty( const QRect& )
 Indicates which section of the screen has been altered. Used by the VNC
@@ -225,14 +234,6 @@ int QScreen::pixmapDepth() const
 {
     return depth();
 }
-
-void QScreen::setSource(unsigned char *,int,int,int,int,QRgb *,int)
-{
-}
-
-void QScreen::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
-{
-} 
 
 #ifdef QT_LOADABLE_MODULES
 
