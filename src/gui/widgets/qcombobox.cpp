@@ -871,7 +871,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     connect(d->lineEdit, SIGNAL(textChanged(QString)),
             this, SIGNAL(textChanged(QString)));
     d->lineEdit->setFrame(false);
-    d->lineEdit->setContextMenuEnabled(false);
+    d->lineEdit->setContextMenuPolicy(Qt::NoContextMenu);
     d->lineEdit->setFocusProxy(this);
     setAttribute(Qt::WA_InputMethodEnabled);
     d->updateLineEditGeometry();

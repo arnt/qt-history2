@@ -1222,10 +1222,10 @@ void QTextEdit::selectAll()
 /*! \internal
 */
 
-void QTextEdit::timerEvent(QTimerEvent *ev)
+void QTextEdit::timerEvent(QTimerEvent *e)
 {
     Q_D(QTextEdit);
-    if (ev->timerId() == d->cursorBlinkTimer.timerId()) {
+    if (e->timerId() == d->cursorBlinkTimer.timerId()) {
         d->cursorOn = !d->cursorOn;
 
         if (d->cursor.hasSelection())
@@ -1233,10 +1233,10 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
                             != 0);
 
         d->update(d->cursorRect());
-    } else if (ev->timerId() == d->dragStartTimer.timerId()) {
+    } else if (e->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
-    } else if (ev->timerId() == d->trippleClickTimer.timerId()) {
+    } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
     }
 }
@@ -1546,7 +1546,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
 
 /*! \reimp
 */
-void QTextEdit::paintEvent(QPaintEvent *ev)
+void QTextEdit::paintEvent(QPaintEvent *e)
 {
     Q_D(QTextEdit);
     QPainter p(d->viewport);
@@ -1554,7 +1554,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     const int xOffset = d->hbar->value();
     const int yOffset = d->vbar->value();
 
-    QRect r = ev->rect();
+    QRect r = e->rect();
     p.translate(-xOffset, -yOffset);
     r.translate(xOffset, yOffset);
     p.setClipRect(r);
@@ -1576,22 +1576,22 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
 
 /*! \reimp
 */
-void QTextEdit::mousePressEvent(QMouseEvent *ev)
+void QTextEdit::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
 
     d->cursorOnDoubleClick = QTextCursor();
 
-    if (!(ev->button() & Qt::LeftButton))
+    if (!(e->button() & Qt::LeftButton))
         return;
 
-    const QPoint pos = d->translateCoordinates(ev->pos());
+    const QPoint pos = d->translateCoordinates(e->pos());
 
     d->mousePressed = true;
     d->mightStartDrag = false;
 
     if (d->trippleClickTimer.isActive()
-        && ((ev->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
+        && ((e->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
 
         d->cursor.movePosition(QTextCursor::StartOfBlock);
         d->cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
@@ -1605,19 +1605,19 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
                 && cursorPos >= d->cursor.selectionStart()
                 && cursorPos <= d->cursor.selectionEnd()) {
                 d->mightStartDrag = true;
-                d->dragStartPos = ev->globalPos();
+                d->dragStartPos = e->globalPos();
                 d->dragStartTimer.start(QApplication::startDragTime(), this);
                 return;
             }
 
 #ifdef Q_WS_X11
             if (d->imstart != d->imend) {
-                inputContext()->mouseHandler(cursorPos - d->imstart, ev);
+                inputContext()->mouseHandler(cursorPos - d->imstart, e);
                 if (d->imstart != d->imend)
                     return;
             }
 #endif
-            if (ev->modifiers() & Qt::ShiftModifier) {
+            if (e->modifiers() & Qt::ShiftModifier) {
                 d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
             } else {
                 d->setCursorPosition(cursorPos);
@@ -1633,10 +1633,10 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
 
 /*! \reimp
 */
-void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
+void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-    if (!(ev->buttons() & Qt::LeftButton))
+    if (!(e->buttons() & Qt::LeftButton))
         return;
 
     if (!(d->mousePressed || d->cursorOnDoubleClick.hasSelection()))
@@ -1645,13 +1645,13 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
     if (d->mightStartDrag) {
         d->dragStartTimer.stop();
 
-        if ((ev->globalPos() - d->dragStartPos).manhattanLength() > QApplication::startDragDistance())
+        if ((e->globalPos() - d->dragStartPos).manhattanLength() > QApplication::startDragDistance())
             d->startDrag();
 
         return;
     }
 
-    const QPoint mousePos = d->translateCoordinates(ev->pos());
+    const QPoint mousePos = d->translateCoordinates(e->pos());
     const qReal mouseX = qReal(mousePos.x());
 
     int newCursorPos = d->doc->documentLayout()->hitTest(mousePos, Qt::FuzzyHit);
@@ -1723,7 +1723,7 @@ quit:
 
 /*! \reimp
 */
-void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
+void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
 
@@ -1731,7 +1731,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 
     if (d->mightStartDrag) {
         d->mousePressed = false;
-        d->setCursorPosition(ev->pos());
+        d->setCursorPosition(e->pos());
         d->cursor.clearSelection();
         d->selectionChanged();
     }
@@ -1739,10 +1739,10 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
     if (d->mousePressed) {
         d->mousePressed = false;
         d->setClipboardSelection();
-    } else if (ev->button() == Qt::MidButton
+    } else if (e->button() == Qt::MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
-        d->setCursorPosition(ev->pos());
+        d->setCursorPosition(e->pos());
         insertFromMimeData(QApplication::clipboard()->mimeData(QClipboard::Selection));
     }
 
@@ -1754,16 +1754,16 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 
 /*! \reimp
 */
-void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
+void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
     Q_D(QTextEdit);
-    if (ev->button() != Qt::LeftButton) {
-        ev->ignore();
+    if (e->button() != Qt::LeftButton) {
+        e->ignore();
         return;
     }
 
     d->mightStartDrag = false;
-    d->setCursorPosition(ev->pos());
+    d->setCursorPosition(e->pos());
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.length()) {
         d->cursor.select(QTextCursor::WordUnderCursor);
@@ -1774,7 +1774,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 
     d->cursorOnDoubleClick = d->cursor;
 
-    d->trippleClickPoint = ev->globalPos();
+    d->trippleClickPoint = e->globalPos();
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
 }
 
@@ -1786,40 +1786,51 @@ bool QTextEdit::focusNextPrevChild(bool)
     return d->readOnly;
 }
 
-/*! \reimp
-*/
-void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
-{
-    QMenu *popup = createPopupMenu(ev->pos());
-    if (!popup) {
-        ev->ignore();
-        return;
+/*! Shows the standard context menu created with createStandardContextMenu().
+
+  If you do not want the text edit to have a context menu, you can set
+  its \l contextMenuPolicy to Qt::NoContextMenu. If you want to
+  customize the context menu, reimplement this function. If you want
+  to extend the standard context menu, reimplement this function, call
+  createStandardContextMenu() and extend the menu returned.
+
+    \code
+    void TextEdit::contextMenuEvent(QContextMenuEvent * e) {
+            QMenu *menu = createStandardContextMenu();
+            menu->addAction(My Menu Item");
+            //...
+            menu->exec(e->globalPos());
+            delete menu;
     }
-    popup->exec(ev->globalPos());
-    delete popup;
-    ev->accept();
+    \endcode
+*/
+void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
+{
+    QMenu *menu = createStandardContextMenu();
+    menu->exec(e->globalPos());
+    delete menu;
 }
 
 /*! \reimp
 */
-void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
+void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->readOnly || !dataHasText(ev->mimeData())) {
-        ev->ignore();
+    if (d->readOnly || !dataHasText(e->mimeData())) {
+        e->ignore();
         return;
     }
 
-    ev->acceptProposedAction();
+    e->acceptProposedAction();
 }
 
 /*! \reimp
 */
-void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
+void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->readOnly || !dataHasText(ev->mimeData())) {
-        ev->ignore();
+    if (d->readOnly || !dataHasText(e->mimeData())) {
+        e->ignore();
         return;
     }
 
@@ -1831,25 +1842,25 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
     // do this however, unless we introduce either a temporary selection
     // or a temporary second cursor. (Simon)
 
-    ev->acceptProposedAction();
+    e->acceptProposedAction();
 }
 
 /*! \reimp
 */
-void QTextEdit::dropEvent(QDropEvent *ev)
+void QTextEdit::dropEvent(QDropEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->readOnly || !dataHasText(ev->mimeData()))
+    if (d->readOnly || !dataHasText(e->mimeData()))
         return;
 
-    ev->acceptProposedAction();
+    e->acceptProposedAction();
 
-    if (ev->dropAction() == QDrag::MoveAction
-        && (ev->source() == this || ev->source() == d->viewport))
+    if (e->dropAction() == QDrag::MoveAction
+        && (e->source() == this || e->source() == d->viewport))
         d->cursor.removeSelectedText();
 
-    d->setCursorPosition(ev->pos());
-    insertFromMimeData(ev->mimeData());
+    d->setCursorPosition(e->pos());
+    insertFromMimeData(e->mimeData());
 }
 
 /*! \reimp
@@ -1912,13 +1923,13 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 
 /*! \reimp
 */
-void QTextEdit::focusInEvent(QFocusEvent *ev)
+void QTextEdit::focusInEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
     if (!d->readOnly)
         d->setBlinkingCursorEnabled(true);
 
-    QViewport::focusInEvent(ev);
+    QViewport::focusInEvent(e);
 }
 
 /*! \reimp
@@ -1946,19 +1957,19 @@ void QTextEdit::showEvent(QShowEvent *)
 
 /*! \reimp
 */
-void QTextEdit::changeEvent(QEvent *ev)
+void QTextEdit::changeEvent(QEvent *e)
 {
     Q_D(QTextEdit);
-    QViewport::changeEvent(ev);
-    if (ev->type() == QEvent::ApplicationFontChange
-        || ev->type() == QEvent::FontChange) {
+    QViewport::changeEvent(e);
+    if (e->type() == QEvent::ApplicationFontChange
+        || e->type() == QEvent::FontChange) {
         d->doc->documentLayout()->setDefaultFont(font());
         // ####
         for (QFragmentMap<QTextBlockData>::ConstIterator it = d->doc->docHandle()->blockMap().begin();
              !it.atEnd(); ++it)
             it.value()->invalidate();
         resizeEvent(0);
-    }  else if(ev->type() == QEvent::ActivationChange) {
+    }  else if(e->type() == QEvent::ActivationChange) {
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             update();
     }
@@ -1966,12 +1977,12 @@ void QTextEdit::changeEvent(QEvent *ev)
 
 /*! \reimp
 */
-void QTextEdit::wheelEvent(QWheelEvent *ev)
+void QTextEdit::wheelEvent(QWheelEvent *e)
 {
     Q_D(QTextEdit);
     if (d->readOnly) {
-        if (ev->modifiers() & Qt::ControlModifier) {
-            const int delta = ev->delta();
+        if (e->modifiers() & Qt::ControlModifier) {
+            const int delta = e->delta();
             if (delta > 0)
                 zoomOut();
             else if (delta < 0)
@@ -1979,20 +1990,19 @@ void QTextEdit::wheelEvent(QWheelEvent *ev)
             return;
         }
     }
-    QViewport::wheelEvent(ev);
+    QViewport::wheelEvent(e);
     updateMicroFocus();
 }
 
-/*!
-    This function is called to create a right mouse button popup menu
-    at the document position \a pos. If you want to create a custom
-    popup menu, reimplement this function and return the created popup
-    menu. Ownership of the popup menu is transferred to the caller.
+/*!  This function creates the standard context menu which is shown
+  when the user clicks on the line edit with the right mouse
+  button. It is called from the default contextMenuEvent() handler.
+  The popup menu's ownership is transferred to the caller.
 */
-QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
+
+QMenu *QTextEdit::createStandardContextMenu()
 {
     Q_D(QTextEdit);
-    Q_UNUSED(pos);
 
     QMenu *menu = new QMenu(this);
     QAction *a;

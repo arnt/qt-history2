@@ -180,32 +180,32 @@ signals:
     void cursorPositionChanged();
 
 protected:
-    virtual void timerEvent(QTimerEvent *ev);
-    virtual void keyPressEvent(QKeyEvent *ev);
+    virtual void timerEvent(QTimerEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
     virtual void resizeEvent(QResizeEvent *);
-    virtual void paintEvent(QPaintEvent *ev);
-    virtual void mousePressEvent(QMouseEvent *ev);
-    virtual void mouseMoveEvent(QMouseEvent *ev);
-    virtual void mouseReleaseEvent(QMouseEvent *ev);
-    virtual void mouseDoubleClickEvent(QMouseEvent *ev);
+    virtual void paintEvent(QPaintEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent *e);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual bool focusNextPrevChild(bool next);
-    virtual void contextMenuEvent(QContextMenuEvent *ev);
-    virtual void dragEnterEvent(QDragEnterEvent *ev);
-    virtual void dragMoveEvent(QDragMoveEvent *ev);
-    virtual void dropEvent(QDropEvent *ev);
-    virtual void focusInEvent(QFocusEvent *ev);
-    virtual void focusOutEvent(QFocusEvent *ev);
+    virtual void contextMenuEvent(QContextMenuEvent *e);
+    virtual void dragEnterEvent(QDragEnterEvent *e);
+    virtual void dragMoveEvent(QDragMoveEvent *e);
+    virtual void dropEvent(QDropEvent *e);
+    virtual void focusInEvent(QFocusEvent *e);
+    virtual void focusOutEvent(QFocusEvent *e);
     virtual void showEvent(QShowEvent *);
-    virtual void changeEvent(QEvent *ev);
-    virtual void wheelEvent(QWheelEvent *ev);
-
-    virtual QMenu *createPopupMenu(const QPoint &pos);
+    virtual void changeEvent(QEvent *e);
+    virtual void wheelEvent(QWheelEvent *e);
 
     virtual QMimeData *createMimeDataFromSelection() const;
     virtual void insertFromMimeData(const QMimeData *data);
 
     virtual void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
+
+    QMenu *createStandardContextMenu();
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 

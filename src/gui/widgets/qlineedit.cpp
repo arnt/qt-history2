@@ -920,25 +920,6 @@ void QLineEdit::setDragEnabled(bool b)
     d->dragEnabled = b;
 }
 
-/*!
-    \property QLineEdit::contextMenuEnabled
-    \brief whether the lineedit has a context menu or not
-
-     By default, the line edit shows a context menu. If this property
-     is set to false, the line edit ignores context menu events. This
-     is useful when the line edit is embedded into another widget that
-     want to handle the QWidget::contextMenuEvent() itself.
-*/
-
-bool QLineEdit::contextMenuEnabled() const
-{
-    return d->contextMenuEnabled;
-}
-
-void QLineEdit::setContextMenuEnabled(bool enabled)
-{
-    d->contextMenuEnabled = enabled;
-}
 
 /*!
     \property QLineEdit::acceptableInput
@@ -1255,6 +1236,12 @@ bool QLineEdit::event(QEvent * e)
         }
         else if (timerId == d->tripleClickTimer.timerId())
             d->tripleClickTimer.stop();
+    } else if (e->type() == QEvent::ContextMenu) {
+#ifndef QT_NO_IM
+        if (d->composeMode())
+            return true;
+#endif
+        d->separate();
     }
     return QWidget::event(e);
 }
@@ -1959,36 +1946,38 @@ void QLineEditPrivate::drag()
 
 #endif // QT_NO_DRAGANDDROP
 
-/*!\reimp
+/*! Shows the standard context menu created with createStandardContextMenu().
+
+  If you do not want the line edit to have a context menu, you can set
+  its \l contextMenuPolicy to Qt::NoContextMenu. If you want to
+  customize the context menu, reimplement this function. If you want
+  to extend the standard context menu, reimplement this function, call
+  createStandardContextMenu() and extend the menu returned.
+
+    \code
+    void LineEdit::contextMenuEvent(QContextMenuEvent * e) {
+            QMenu *menu = createStandardContextMenu();
+            menu->addAction(My Menu Item");
+            //...
+            menu->exec(e->globalPos());
+            delete menu;
+    }
+    \endcode
 */
 void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
 {
-    if (!d->contextMenuEnabled) {
-        e->ignore();
-        return;
-    }
-#ifndef QT_NO_POPUPMENU
-#ifndef QT_NO_IM
-    if (d->composeMode())
-	return;
-#endif
-    d->separate();
-
-    QMenu *popup = createPopupMenu();
-    popup->exec(e->globalPos());
-    delete popup;
-#endif //QT_NO_POPUPMENU
+    QMenu *menu = createStandardContextMenu();
+    menu->exec(e->globalPos());
+    delete menu;
 }
 
-/*!
-    This function is called to create the popup menu which is shown
-    when the user clicks on the line edit with the right mouse button.
-    If you want to create a custom popup menu, reimplement this
-    function and return the popup menu you create. The popup menu's
-    ownership is transferred to the caller.
+/*!  This function creates the standard context menu which is shown
+  when the user clicks on the line edit with the right mouse
+  button. It is called from the default contextMenuEvent() handler.
+  The popup menu's ownership is transferred to the caller.
 */
 
-QMenu *QLineEdit::createPopupMenu()
+QMenu *QLineEdit::createStandardContextMenu()
 {
 #ifndef QT_NO_POPUPMENU
     d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
