@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#322 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#323 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1961,14 +1961,21 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case FocusIn: {				// got focus
 	QWidget *w = widget->focusWidget();
-	if ( w && (w->isFocusEnabled() || w->isTopLevel()) ) {
-	    qApp->focus_widget = w;
-	    QFocusEvent in( Event_FocusIn );
-	    QApplication::sendEvent( w, &in );
-	} else {
-	    // set focus to some arbitrary widget with WTabToFocus
-	    widget->topLevelWidget()->focusNextPrevChild( TRUE );
-	    focus_widget = widget->focusWidget();
+	if ( !qApp->focus_widget || qApp->focus_widget != w ) { // short-circ
+	    if ( qApp->focus_widget ) {
+		// Inconsistent messages from X.  Force a focus out.
+		QFocusEvent out( Event_FocusOut );
+		QApplication::sendEvent( qApp->focus_widget, &out );
+	    }
+	    if ( w && (w->isFocusEnabled() || w->isTopLevel()) ) {
+		qApp->focus_widget = w;
+		QFocusEvent in( Event_FocusIn );
+		QApplication::sendEvent( w, &in );
+	    } else {
+		// set focus to some arbitrary widget with WTabToFocus
+		widget->topLevelWidget()->focusNextPrevChild( TRUE );
+		focus_widget = widget->focusWidget();
+	    }
 	}
     }
     break;
