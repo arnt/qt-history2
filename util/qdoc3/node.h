@@ -55,10 +55,17 @@ protected:
     Node( Type type, InnerNode *parent, const QString& name );
 
 private:
+#ifdef Q_WS_WIN
+    Type typ;
+    Access acc;
+    Status sta;
+    ThreadSafeness saf;
+#else
     Type typ : 3;
     Access acc : 2;
     Status sta : 3;
     ThreadSafeness saf : 2;
+#endif
     InnerNode *par;
     InnerNode *rel;
     QString nam;
