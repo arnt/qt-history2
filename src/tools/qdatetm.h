@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#23 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#24 $
 **
 ** Definition of date and time classes
 **
@@ -43,8 +43,8 @@ public:
 
     bool   setYMD( int y, int m, int d );
 
-    QDate  addDays( int days )		const;	// add days
-    int	   daysTo( const QDate & )	const;	// days difference
+    QDate  addDays( int days )		const;
+    int	   daysTo( const QDate & )	const;
 
     bool   operator==( const QDate &d ) const { return jd == d.jd; }
     bool   operator!=( const QDate &d ) const { return jd != d.jd; }
