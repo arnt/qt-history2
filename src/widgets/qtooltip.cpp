@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#54 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -81,7 +81,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.48 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.49 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -221,7 +221,8 @@ void QTipManager::add( QWidget *w, const QRect &r, const char *s,
     tips->insert( w, t );
     connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
     if ( a ) {
-	showTip();
+	if ( t->rect.contains( pos ) )
+	    showTip();
 	tips->take( w );
 	if( t->next )
 	    tips->insert( w, t->next );
