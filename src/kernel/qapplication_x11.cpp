@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#521 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#522 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3208,8 +3208,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		break;				// nothing for mouse move
 	}
 
-	if ( popupGrabOk )
-	    XAllowEvents( x11Display(), SyncPointer, CurrentTime );
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
 			   globalPos, button, state );
@@ -3226,7 +3224,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( releaseAfter )
 	    qt_button_down = 0;
 	
-	if ( !qApp->inPopupMode() ) {			// no longer in popup mode
+	if ( qApp->inPopupMode() ) {			// still in popup mode
+	    if ( popupGrabOk )
+		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
+	} else {
 	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
