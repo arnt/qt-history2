@@ -279,7 +279,7 @@ bool qt_get_named_rgb(const char *name, QRgb* rgb)
 
 uint qt_get_rgb_val(const char *name)
 {
-    QRgb r;
+    QRgb r = 0;
     qt_get_named_rgb(name,&r);
     return r;
 }
