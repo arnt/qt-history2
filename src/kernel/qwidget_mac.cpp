@@ -59,10 +59,8 @@
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
+bool fuckery = FALSE;
 
-/* THIS IS FOR PASCAL STYLE STRINGS, WE NEED TO FIGURE OUT IF THESE ARE FREED WHEN HANDED OVER
-   TO THE OS FIXME FIXME FIXME FIXME */
-//this function really sucks, re-write me when you'r edone figuring out
 const unsigned char * p_str(const char * c)
 {
     static unsigned char * ret=NULL;
@@ -95,25 +93,24 @@ QPoint posInWindow(QWidget *w)
     return w->posInTL;
 }
 
-static void paint_children(QWidget * p,const QRect& r, bool now=FALSE)
+static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
 {
     if(!p || r.isEmpty())
 	return;
 
-    if(now) 
-	p->repaint(r);
-    else 
-	QApplication::postEvent(p, new QPaintEvent(r,
-				       !p->testWFlags(QWidget::WRepaintNoErase) ) );
+    if(now || (fuckery && !strcmp(p->name(), "qt_viewport")))
+	p->repaint(r, !p->testWFlags(QWidget::WRepaintNoErase));
+    else
+	QApplication::postEvent(p, new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
 
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
 	for(QObjectListIt it(*childObjects); it.current(); ++it) {
 	    if( (*it)->isWidgetType() ) {
 		QWidget *w = (QWidget *)(*it);
 		if ( w->testWState(Qt::WState_Visible) ) {
-		    QRect wr = w->geometry() & r;
+		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
-			wr.moveBy( -w->x(), -w->y() );
+			wr.translate( -w->x(), -w->y() );
 			paint_children(w, wr, now);
 		    }
 		}
@@ -746,7 +743,7 @@ void QWidget::showWindow()
 	qApp->sendPostedEvents();
 
 	//forces a paint event before the window is shown
-	paint_children(this, QRect(0, 0, width(), height()), TRUE );
+	paint_children(this, QRegion(0, 0, width(), height()), TRUE );
 
 	//handle transition
 	if(parentWidget()) {
@@ -945,27 +942,34 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     if ( isTopLevel() && winid && own_id )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
-    if ( isVisible() ) {
-	if ( isMove ) {
-	    QMoveEvent e( pos(), oldp );
-	    QApplication::sendEvent( this, &e );
-	}
-	if ( isResize ) {
-	    QResizeEvent e( size(), olds );
-	    QApplication::sendEvent( this, &e );
-	}
-	if(isMove || isResize) {
-	    update();
-	    if( parentWidget()) {
-		paint_children( parentWidget(), r );
-		paint_children( parentWidget(), QRect(oldp, olds) );
+    if(isMove || isResize) {
+	if ( isVisible() ) {
+	    if ( isMove ) {
+		QMoveEvent e( pos(), oldp );
+		QApplication::sendEvent( this, &e );
 	    }
+	    if ( isResize ) {
+		QResizeEvent e( size(), olds );
+		QApplication::sendEvent( this, &e );
+
+		//erase the new area
+		QRegion newr = QRegion(QRect(pos(), (olds-QSize(2,2)))) ^ r;
+		if(!newr.isEmpty()) {
+		    newr.translate(-pos().x(), -pos().y());
+		    erase(newr);
+		}
+	    }
+	    
+	    if(parentWidget()) 
+		paint_children( parentWidget(), QRect(oldp, olds) | r );
+	    else
+		update();
+	} else {
+	    if ( isMove )
+		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
+	    if ( isResize )
+		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
 	}
-    } else {
-	if ( isMove )
-	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
-	if ( isResize )
-	    QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
     }
 }
 
@@ -1064,6 +1068,7 @@ void QWidget::erase( const QRegion& reg )
 	}
     }
 
+    qt_set_paintevent_clipping( this, reg );
     QPainter p;
     p.begin(this);
     p.setClipRegion(reg);
@@ -1076,6 +1081,7 @@ void QWidget::erase( const QRegion& reg )
 	p.fillRect(rr, bg_col);
     }
     p.end();
+    qt_clear_paintevent_clipping( this );
 }
 
 
@@ -1265,9 +1271,9 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 {
     SetPortWindowPort((WindowPtr)handle());
     QRect paintRect( 0, 0, w, h );
-
     setWState( WState_InPaintEvent );
     QPaintEvent e( paintRect );
+
     QApplication::sendEvent( this, &e );
     clearWState( WState_InPaintEvent );
 
