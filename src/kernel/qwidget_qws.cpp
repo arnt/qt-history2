@@ -249,17 +249,16 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	    //XXX XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
 	}
 	setAttribute( WA_SetCursor );
+#ifndef QT_NO_WIDGET_TOPEXTRA
+	qwsDisplay()->nameRegion( winId(), name(""), caption() );
+#else
+	qwsDisplay()->nameRegion( winId(), name(""), QString::null );
+#endif
     }
 
     if ( topLevel ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	if ( name( 0 ) )
-	    qwsDisplay()->nameRegion( winId(), name(), windowTitle() );
-	else
-	    qwsDisplay()->nameRegion( winId(), "", windowTitle() );
 	d->createTLExtra();
-#else
-	qwsDisplay()->nameRegion( winId(), name(), QString::null );
 #endif
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WStyle_DialogBorder)

@@ -281,8 +281,9 @@ public:
     static bool isCursorVisible();
 #endif
 
-    enum WindowEvent { Create=0x01, Destroy=0x02, Hide=0x04, Show=0x08,
-		       Raise=0x10, Lower=0x20, Geometry=0x40, Active = 0x80 };
+    enum WindowEvent { Create=0x0001, Destroy=0x0002, Hide=0x0004, Show=0x0008,
+		       Raise=0x0010, Lower=0x0020, Geometry=0x0040, Active = 0x0080,
+		       Name=0x0100 };
 
 signals:
     void windowEvent( QWSWindow *w, QWSServer::WindowEvent e );

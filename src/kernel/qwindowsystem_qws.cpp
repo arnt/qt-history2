@@ -1550,6 +1550,7 @@ void QWSServer::invokeRegionName( const QWSRegionNameCommand *cmd, QWSClient *cl
     if ( changingw ) {
 	changingw->setName( cmd->name );
 	changingw->setWindowCaption( cmd->caption );
+	emit windowEvent( changingw, Name );
     }
 }
 
@@ -3037,5 +3038,6 @@ void QWSInputMethod::setFont( const QFont& )
     \value Lower The window has been lowered.
     \value Geometry The window has changed size or position.
     \value Active The window has become the active window (has keyboard focus).
+    \value Name The window has been named.
 */
 
