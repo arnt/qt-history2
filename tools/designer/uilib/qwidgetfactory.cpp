@@ -1042,7 +1042,6 @@ QColorGroup QWidgetFactory::loadColorGroup( const QDomElement &e )
 	    r++;
 	    cg.setColor( (QColorGroup::ColorRole)r, (col = DomTool::readColor( n ) ) );
 	} else if ( n.tagName() == "pixmap" ) {
-	    QImage img = loadFromCollection( n.firstChild().toText().data() );
 	    QPixmap pix = loadPixmap( n );
 	    cg.setBrush( (QColorGroup::ColorRole)r, QBrush( col, pix ) );
 	}
