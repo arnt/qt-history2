@@ -67,11 +67,12 @@
 
     The most common way to display a modal dialog is to call its
     exec() function. When the user closes the dialog, exec() will
-    provide a useful \link #return return value\endlink. Typically we
+    provide a useful \link #return return value\endlink. Typically,
+    to get the dialog to close and return the appropriate value, we
     connect a default button, e.g. "OK", to the accept() slot and a
-    "Cancel" button to the reject() slot, to get the dialog to close
-    and return the appropriate value. Alternatively you can connect to
-    the done() slot, passing it \c Accepted or \c Rejected.
+    "Cancel" button to the reject() slot.
+    Alternatively you can call the done() slot with \c Accepted or
+    \c Rejected.
 
     An alternative is to call setModal(true), then show(). Unlike
     exec(), show() returns control to the caller immediately. Calling
