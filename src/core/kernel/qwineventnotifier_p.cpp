@@ -32,7 +32,7 @@
 
 
 QWinEventNotifier::QWinEventNotifier(QObject *parent)
-  : QObject(parent), enabled(false)
+  : QObject(parent), handleToEvent(0), enabled(false)
 {}
 
 QWinEventNotifier::QWinEventNotifier(HANDLE hEvent, QObject *parent)
