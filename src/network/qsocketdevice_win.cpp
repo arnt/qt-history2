@@ -96,12 +96,12 @@ void QSocketDevice::init()
 #endif
 	    if ( WSAStartup( MAKEWORD(1,1), &wsadata ) != 0 ) {
 #if defined(QT_CHECK_NULL)
-	        qWarning( "QSocketDevice: WinSock initialization failed" );
+		qWarning( "QSocketDevice: WinSock initialization failed" );
 #endif
 #if defined(QSOCKETDEVICE_DEBUG)
-	        qDebug( "QSocketDevice: WinSock initialization failed"  );
+		qDebug( "QSocketDevice: WinSock initialization failed"  );
 #endif
-	        return;
+		return;
 	    }
 
             initialized = 0x11;
@@ -119,19 +119,17 @@ QSocketDevice::Protocol QSocketDevice::getProtocol( int socket )
 #if !defined (QT_NO_IPV6)
     if (socket != -1) {
 	SOCKADDR_STORAGE ss;
+	memset( &ss, 0, sizeof(ss) );
 	SOCKLEN_T sslen = sizeof( ss );
-	if ( getsockname(socket, (struct sockaddr *)&ss, &sslen) == 0 ) {
+	if ( !::getsockname(socket, (struct sockaddr *)&ss, &sslen) ) {
 	    switch ( ss.ss_family ) {
 		case AF_INET:
 		    return Ipv4;
 		case AF_INET6:
 		    return Ipv6;
 		default:
-		    qWarning("Unable to initialize invalid socket");
 		    break;
 	    }
-	} else {
-	    qWarning("Unable to initialize invalid socket");
 	}
     }
 #endif
@@ -329,11 +327,6 @@ void QSocketDevice::setOption( Option opt, int v )
 
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
-    if ( addr.isIp6Addr() )
-	setProtocol( Ipv6 );
-    else if ( addr.isIp4Addr() )
-	setProtocol( Ipv4 );
-
     struct sockaddr_in a4;
     struct sockaddr *aa;
     SOCKLEN_T aalen;
@@ -348,7 +341,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	Q_IPV6ADDR tmp = addr.ip6Addr();
 	memcpy( &a6.sin6_addr.alt_s6_addr, &tmp, sizeof(tmp) );
 
-    	setProtocol( Ipv6 );
+	setProtocol( Ipv6 );
 	aalen = sizeof( a6 );
 	aa = (struct sockaddr *)&a6;
     } else
@@ -546,30 +539,30 @@ int QSocketDevice::accept()
                 case WSAEINTR:
                     done = FALSE;
                     break;
-	        case WSANOTINITIALISED:
+		case WSANOTINITIALISED:
 		    e = Impossible;
 		    break;
-	        case WSAENETDOWN:
-	        case WSAEOPNOTSUPP:
+		case WSAENETDOWN:
+		case WSAEOPNOTSUPP:
 		    // in all these cases, an error happened during connection
 		    // setup.  we're not interested in what happened, so we
 		    // just treat it like the client-closed-quickly case.
 		    break;
-	        case WSAEFAULT:
+		case WSAEFAULT:
 		    e = InternalError;
 		    break;
-	        case WSAEMFILE:
-	        case WSAEINPROGRESS:
-	        case WSAENOBUFS:
+		case WSAEMFILE:
+		case WSAEINPROGRESS:
+		case WSAENOBUFS:
 		    e = NoResources;
 		    break;
-	        case WSAEINVAL:
-	        case WSAENOTSOCK:
+		case WSAEINVAL:
+		case WSAENOTSOCK:
 		    e = Impossible;
 		    break;
-	        case WSAEWOULDBLOCK:
+		case WSAEWOULDBLOCK:
 		    break;
-	        default:
+		default:
 		    e = UnknownError;
 		    break;
             }

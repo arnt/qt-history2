@@ -354,11 +354,6 @@ void QSocketDevice::setOption( Option opt, int v )
 */
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
-    if ( addr.isIp6Addr() )
-	setProtocol( Ipv6 );
-    else if ( addr.isIp4Addr() )
-	setProtocol( Ipv4 );
-
     struct sockaddr_in a4;
 
     struct sockaddr *aa;
