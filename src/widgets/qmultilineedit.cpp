@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#12 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -62,7 +62,10 @@ struct QMultiLineData
     int	 scrollAccel;
 };
 
-// ##### This should use font bearings.
+// This doesn't use font bearings, as textWidthWithTabs does that.
+// This is just an aesthetics value.
+// It should probably be QMAX(0,3-fontMetrics().minLeftBearing()) though,
+// as bearings give some border anyway.
 static const int BORDER = 3;
 
 static const int blinkTime  = 500;	 // text cursor blink time
@@ -420,7 +423,12 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 			cXPos    , cYPos + fm.height() - 2);
 	    p.drawLine( cXPos - 2, cYPos + fm.height() - 2,
 			cXPos + 2, cYPos + fm.height() - 2);
-	    setCaret( cXPos, row*cellHeight()+cYPos, 1, fm.height() );
+
+	    // TODO: set it other times, eg. when scrollbar moves view
+	    QWMatrix wm = painter->worldMatrix();
+	    setCaret( wm.dx()+cXPos,
+		      wm.dy()+cYPos,
+			1, fm.ascent() );
 	}
     }
     p.end();
