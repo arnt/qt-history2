@@ -37,20 +37,15 @@
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qfileinfo.h>
-#include <qfontdialog.h>
-#include <qheader.h>
 #include <qheader.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <qpopupmenu.h>
-#include <qpushbutton.h>
 #include <qregexp.h>
 #include <qsettings.h>
 #include <qstatusbar.h>
-#include <qtextbrowser.h>
-#include <qtextstream.h>
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
 #include <qprocess.h>
@@ -63,7 +58,7 @@
 
 #ifdef Q_WS_MACX
 //logo is 40x40 on the mac, if it changes - please notify the Qt/Mac team
-static const char *logo_xpm[] = {
+static const char * const logo_xpm[] = {
 "40 40 543 2",
 "  	c None",
 ". 	c #C9D98D",
@@ -649,7 +644,7 @@ static const char *logo_xpm[] = {
 "                                    >@N$O$P$Q$R$                                ",
 "                                                                                "};
 #else
-static const char *logo_xpm[] = {
+static const char * const logo_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "21 16 213 2",
 "   c white",
@@ -1093,7 +1088,7 @@ const QPixmap TrWindow::pageCurl()
 TrWindow::TrWindow()
     : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
 {
-    setIcon( QPixmap(logo_xpm) );
+    setIcon( QPixmap((const char*)logo_xpm) );
 
     setupImageDict();
 
