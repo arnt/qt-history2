@@ -74,6 +74,7 @@
 #include "qobject.h"
 #include <limits.h>
 #include "qcomplextext_p.h"
+#include "qapplication.h"
 #endif // QT_H
 
 //#define DEBUG_COLLECTION
@@ -775,6 +776,7 @@ public:
 
     void setStyleSheet( QStyleSheet *s );
     void updateStyles();
+    void updateFontSizes( int base );
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
     void setContext( const QString &c ) { if ( !c.isEmpty() ) contxt = c; }
 
@@ -1430,6 +1432,7 @@ public:
     QStyleSheet *styleSheet() const { return sheet; }
     void setStyleSheet( QStyleSheet *s ) { sheet = s; }
     void updateStyles();
+    void updateFontSizes( int base );
 
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
@@ -1681,7 +1684,7 @@ inline void QTextDocument::setFlow( QTextFlow *f )
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 inline QTextFormat::QTextFormat()
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ),
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
       painter( 0 ), different( NoFlags )
 {
     ref = 0;
@@ -1690,7 +1693,7 @@ inline QTextFormat::QTextFormat()
 }
 
 inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
-    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( 12 ),
+    : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
       painter( 0 ), different( NoFlags )
 {
     ref = 0;

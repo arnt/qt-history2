@@ -102,6 +102,7 @@ public:
     QTextView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QTextView();
     void setPalette( const QPalette & );
+    void setFont( const QFont &f );
 
     QString text() const;
     QString text( int parag ) const;

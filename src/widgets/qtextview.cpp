@@ -2738,3 +2738,12 @@ QPopupMenu *QTextView::createPopupMenu()
     popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() );
     return popup;
 }
+
+/*! \reimp */
+
+void QTextView::setFont( const QFont &f )
+{
+    QScrollView::setFont( f );
+    doc->updateFontSizes( f.pointSize() );
+    repaintChanged();
+}

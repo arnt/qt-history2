@@ -2760,6 +2760,12 @@ void QTextDocument::updateStyles()
     fCollection->updateStyles();
 }
 
+void QTextDocument::updateFontSizes( int base )
+{
+    invalidate();
+    fCollection->updateFontSizes( base );
+}
+
 void QTextStringChar::setFormat( QTextFormat *f )
 {
     if ( type == Regular ) {
@@ -4598,6 +4604,19 @@ void QTextFormatCollection::updateStyles()
     while ( ( f = it.current() ) ) {
 	++it;
 	f->updateStyle();
+    }
+}
+
+void QTextFormatCollection::updateFontSizes( int base )
+{
+    QDictIterator<QTextFormat> it( cKey );
+    QTextFormat *f;
+    while ( ( f = it.current() ) ) {
+	++it;
+	f->stdPointSize = base;
+	f->fn.setPointSize( f->stdPointSize );
+	styleSheet()->scaleFont( f->fn, f->logicalFontSize );
+	f->update();
     }
 }
 
