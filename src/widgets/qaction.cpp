@@ -148,8 +148,13 @@ void QActionPrivate::update( Update upd )
 	    if ( !tooltip.isNull() ) {
 		if ( !tooltip.isEmpty() )
 		    QToolTip::add( btn, tooltip );
-	    } else if ( !text.isEmpty() )
-		QToolTip::add( btn, text );
+	    } else if ( !text.isEmpty() ) {
+		if ( accel )
+		    QToolTip::add( btn, text + 
+			" (" + QAccel::keyToString( accel->key( accelid )) + ")");
+		else 
+		    QToolTip::add( btn, text );
+	    }
 	    QWhatsThis::remove( btn );
 	    if ( !whatsthis.isEmpty() )
 		QWhatsThis::add( btn, whatsthis );
