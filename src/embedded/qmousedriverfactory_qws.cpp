@@ -108,15 +108,15 @@ QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString 
     if ( driver == "qnx" || driver.isEmpty() )
 	return new QWSQnxMouseHandler( key, device );
 #endif
-#if defined(QT_QWS_SHARP) || defined(QT_QWS_IPAQ)
+#if !defined(QT_QWS_MOUSE_LINUXTP)
     if ( driver == "linuxtp" || driver.isEmpty() )
 	return new QWSLinuxTPMouseHandler( key, device );
 #endif
-#ifdef QT_QWS_YOPY
+#if !defined(QT_QWS_MOUSE_YOPY)
     if ( driver == "yopy" || driver.isEmpty() )
 	return new QWSYopyMouseHandler( key, device );
 #endif
-#ifdef QT_QWS_CASSIOPEIA
+#if !defined(QT_QWS_MOUSE_VR41)
     if ( driver == "vr41xx" || driver.isEmpty() )
 	return new QWSVr41xxMouseHandler( key, device );
 #endif

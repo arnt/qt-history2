@@ -156,15 +156,18 @@ embedded {
 		HEADERS +=$$EMBEDDED_H/qmouselinuxtp_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qmouselinuxtp_qws.cpp
 	}
+	else:DEFINES += QT_NO_QWS_MOUSE_LINUXTP
 
 	contains( mouse-drivers, vr41xx ) {
 		HEADERS +=$$EMBEDDED_H/qmousevr41xx_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qmousevr41xx_qws.cpp
 	}
+	else:DEFINES += QT_NO_QWS_MOUSE_VR41
 
 	contains( mouse-drivers, yopy ) {
 		HEADERS +=$$EMBEDDED_H/qmouseyopy_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qmouseyopy_qws.cpp
 	}
+	else:DEFINES += QT_NO_QWS_MOUSE_YOPY
 }
 
