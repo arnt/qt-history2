@@ -91,7 +91,7 @@ static inline const QRect qrectForHIRect(const HIRect &hirect)
 static inline bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
-        if (w->testAttribute(QWidget::WA_MacMetalStyle))
+        if (w->testAttribute(Qt::WA_MacMetalStyle))
             return true;
         if (w->isTopLevel())
             break;

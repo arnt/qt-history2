@@ -441,7 +441,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     SetDragSendProc(theDrag, make_sendUPP(), o); //fullfills the promise!
 
     if(!noDropCursor) {
-        noDropCursor = new QCursor(QCursor::ForbiddenCursor);
+        noDropCursor = new QCursor(Qt::ForbiddenCursor);
         if(!pm_cursor[0].isNull())
             moveCursor = new QCursor(pm_cursor[0], 0,0);
         if(!pm_cursor[1].isNull())

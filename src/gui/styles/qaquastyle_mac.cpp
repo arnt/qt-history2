@@ -501,7 +501,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         qDebug("Not sure how to return this..");
         return ret;
     }
-    if(widg && widg->testAttribute(QWidget::WA_SetFont)) //if you're using a custom font, no constraints for you!
+    if(widg && widg->testAttribute(Qt::WA_SetFont)) //if you're using a custom font, no constraints for you!
         return ret;
 
     if(ct == QStyle::CT_CustomBase && widg) {

@@ -708,7 +708,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(ptl && ptl->testWFlags(Qt::WStyle_StaysOnTop))
             setWFlags(Qt::WStyle_StaysOnTop);
     }
-    if(dialog && !testWFlags(Qt::WShowModal) && parentWidget() && parentWidget()->testWFlags(WShowModal))
+    if(dialog && !testWFlags(Qt::WShowModal) && parentWidget()
+            && parentWidget()->testWFlags(Qt::WShowModal))
         setWFlags(Qt::WShowModal);
     if(!testWFlags(Qt::WStyle_Customize) && !(desktop || popup) && !testWFlags(Qt::WShowModal))
         setWFlags(Qt::WStyle_Customize | Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);

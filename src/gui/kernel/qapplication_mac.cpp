@@ -1670,18 +1670,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                           sizeof(modifiers), 0, &modifiers);
         int keys = get_modifiers(modifiers, true);
-        int button=QEvent::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
+        int button=Qt::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
         if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
             EventMouseButton mb;
             GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0,
                               sizeof(mb), 0, &mb);
 
             if(mb == kEventMouseButtonPrimary)
-                button = QMouseEvent::LeftButton;
+                button = Qt::LeftButton;
             else if(mb == kEventMouseButtonSecondary)
-                button = QMouseEvent::RightButton;
+                button = Qt::RightButton;
             else
-                button = QMouseEvent::MidButton;
+                button = Qt::MidButton;
         }
 
         switch(ekind) {
@@ -1881,7 +1881,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             break;
         }
         case kEventMouseDown:
-            if(button == QMouseEvent::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
+            if(button == Qt::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
                 remove_context_timer = false;
                 if(!mac_context_timerUPP)
                     mac_context_timerUPP = NewEventLoopTimerUPP(qt_context_timer_callbk);
@@ -1929,21 +1929,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 int macButton = button;
                 static bool macButtonModified = false;
                 if(ekind == kEventMouseDown &&
-                   button == QMouseEvent::LeftButton &&
+                   button == Qt::LeftButton &&
                    (modifiers & controlKey)) {
-                    macButton = QMouseEvent::RightButton;
+                    macButton = Qt::RightButton;
                     macButtonModified = true;
                 }
                 if(ekind == kEventMouseUp && macButtonModified) {
                     macButtonModified = false;
-                    macButton = QMouseEvent::RightButton;
+                    macButton = Qt::RightButton;
                 }
                 QMouseEvent qme(etype, plocal, p, macButton, state | keys);
                 QApplication::sendSpontaneousEvent(widget, &qme);
             }
             if(ekind == kEventMouseDown &&
-               ((button == QMouseEvent::RightButton) ||
-                (button == QMouseEvent::LeftButton && (modifiers & controlKey))))
+               ((button == Qt::RightButton) ||
+                (button == Qt::LeftButton && (modifiers & controlKey))))
                 qt_event_request_context();
 
 #ifdef DEBUG_MOUSE_MAPS

@@ -67,9 +67,9 @@ public:
     QCursor(Qt::HANDLE cursor);
     static int x11Screen();
 #elif defined(Q_WS_MAC)
-    HANDLE handle() const;
+    Qt::HANDLE handle() const;
 #elif defined(Q_WS_QWS)
-    HANDLE handle() const;
+    Qt::HANDLE handle() const;
 #endif
     static QPoint pos();
     static void        setPos(int x, int y);

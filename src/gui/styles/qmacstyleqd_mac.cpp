@@ -276,7 +276,7 @@ void QMacStyleQD::polish(QApplication* app)
 {
     QPalette pal = app->palette();
     QPixmap px(200, 200, 32);
-    QColor pc(black);
+    QColor pc(Qt::black);
     {
         QPainter p(&px);
         ((QMacStyleQDPainter *)&p)->setport();
@@ -304,12 +304,12 @@ void QMacStyleQD::polish(QWidget* w)
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
     if(w->parentWidget() && ::qt_cast<QGroupBox*>(w->parentWidget())
-            && !w->testAttribute(QWidget::WA_SetPalette)
+            && !w->testAttribute(Qt::WA_SetPalette)
             && w->parentWidget()->parentWidget()
             && ::qt_cast<QGroupBox*>(w->parentWidget()->parentWidget())) {
         QPalette pal = w->palette();
         QPixmap px(200, 200, 32);
-        QColor pc(black);
+        QColor pc(Qt::black);
         {
             QPainter p(&px);
             ((QMacStyleQDPainter *)&p)->setport();
@@ -327,7 +327,7 @@ void QMacStyleQD::polish(QWidget* w)
 
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_JAGUAR) {
         if(::qt_cast<QGroupBox*>(w))
-            w->setAttribute(QWidget::WA_ContentsPropagated, true);
+            w->setAttribute(Qt::WA_ContentsPropagated, true);
     }
     if(QLineEdit *lined = ::qt_cast<QLineEdit*>(w)) {
 #if 0
@@ -899,7 +899,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
                 // If the background color is set then make the toolbutton
                 // translucent so the background color is visible
-                if(widget->palette().color(widget->backgroundRole()) != white) {
+                if(widget->palette().color(widget->backgroundRole()) != Qt::white) {
                     p->fillRect(r, widget->palette().color(widget->backgroundRole()));
                     info.state = kThemeStateInactive;
                 }

@@ -115,7 +115,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
             }
 
             QPixmap pm(bm.size());
-            if(pState->painter->backgroundMode() == QPainter::OpaqueMode) {
+            if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
                 pm = bm;
                 bm.fill(Qt::color1);
                 pm.setMask(bm);
