@@ -119,7 +119,6 @@ Q_EXPORT HDC	   qt_display_dc();
     HPALETTE	holdpal;	\
     uint	nocolBrush  : 1;\
     uint	pixmapBrush : 1;\
-    void       *textMetric();	\
     bool	nativeXForm( bool );
 
 #endif

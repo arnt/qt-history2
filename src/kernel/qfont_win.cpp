@@ -47,21 +47,16 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 #include "qpaintdevicemetrics.h"
-
+#include <private/qunicodetables_p.h>
+#include <qfontdatabase.h>
 
 
 extern HDC   shared_dc;		// common dc for all fonts
-extern HFONT stock_sysfont  = 0;
 
 static int max_font_count = 256;
 
-static inline HFONT systemFont()
-{
-    if ( stock_sysfont == 0 )
-	stock_sysfont = (HFONT)GetStockObject(SYSTEM_FONT);
-    return stock_sysfont;
-}
 
+// ### maybe move to qapplication_win
 QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
     QString family = QT_WA_INLINE( QString::fromUcs2((ushort*)lf.lfFaceName),
@@ -77,58 +72,174 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
     return qf;
 }
 
-#if 0
-// ### FIXME
-int QFont::pixelSize() const
+
+static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
+			       int )
 {
-    return (d->request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
+    float pSize;
+    if ( request.pointSize != -1 ) {
+	if ( paintdevice )
+	    pSize = request.pointSize *
+		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720.;
+	else
+	    pSize = (request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
+    } else {
+	pSize = request.pixelSize;
+    }
+    return pSize;
 }
 
-void QFont::setPixelSizeFloat( float pixelSize )
+static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
+			       int )
 {
-    setPointSizeFloat( pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
+    float pSize;
+    if ( fd.pointSize == -1 ) {
+	if ( paintdevice )
+	    pSize = fd.pixelSize * 720. /
+		    QPaintDeviceMetrics( paintdevice ).logicalDpiY();
+	else
+	    pSize = fd.pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY);
+    } else {
+	pSize = fd.pointSize;
+    }
+    return pSize;
 }
-#endif
-
 
 /*****************************************************************************
   QFont member functions
  *****************************************************************************/
 
+QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
+
 void QFont::initialize()
 {
-    if ( QFontPrivate::fontCache )
+    if ( QFontCache::instance )
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
 #if defined(QT_CHECK_RANGE)
     if ( !shared_dc )
 	qSystemWarning( "QFont::initialize() (qfont_win.cpp, 163): couldn't create device context" );
 #endif
-    QFontPrivate::fontCache = new QFontCache();
+    new QFontCache();
+
+    // #########
+    QFontPrivate::defaultScript = QFont::Latin;
 }
 
 void QFont::cleanup()
 {
-    if ( QFontPrivate::fontCache )
-	QFontPrivate::fontCache->clear();
-    delete QFontPrivate::fontCache;
-    QFontPrivate::fontCache = 0;
+    delete QFontCache::instance;
     DeleteDC( shared_dc );
     shared_dc = 0;
 }
 
-// If d->req.dirty is not TRUE the font must have been loaded
-// and we can safely assume that d->fin is a valid pointer:
 
-#define DIRTY_FONT ( !d->fin || d->request.dirty )
+void QFontPrivate::load( QFont::Script script )
+{
+#ifdef QT_CHECK_STATE
+    // sanity checks
+    Q_ASSERT( QFontCache::instance != 0);
+    Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
+#endif // QT_CHECK_STATE
 
+    int px = int( pixelSize( request, paintdevice, screen ) + .5 );
+    QFontDef req = request;
+    req.pixelSize = px;
+    req.pointSize = 0;
+    req.underline = req.strikeOut = 0;
+    req.mask = 0;
+
+    if ( ! engineData ) {
+	QFontCache::Key key( req, QFont::NoScript, screen );
+
+	// look for the requested font in the engine data cache
+	engineData = QFontCache::instance->findEngineData( key );
+
+	if ( ! engineData ) {
+	    // create a new one
+	    engineData = new QFontEngineData;
+	    QFontCache::instance->insertEngineData( key, engineData );
+	} else {
+	    engineData->ref();
+	}
+    }
+
+    // load the font
+    QFontEngine *engine = 0;
+    double scale = 1.0; // ### TODO: fix the scale calculations
+
+    // list of families to try
+    QStringList family_list = QStringList::split( ',', request.family );
+
+    // append the substitute list for each family in family_list
+    QStringList subs_list;
+    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+    for ( ; it != end; ++it )
+	subs_list += QFont::substitutes( *it );
+    family_list += subs_list;
+
+    // append the default fallback font for the specified script
+    // family_list << ... ;
+
+    // null family means find the first font matching the specified script
+    family_list << QString::null;
+
+    it = family_list.begin(), end = family_list.end();
+    for ( ; ! engine && it != end; ++it ) {
+	req.family = *it;
+
+#ifdef Q_WS_X11
+	QFontCache::Key key( req, script, screen );
+#else
+	QFontCache::Key key( req, QFont::NoScript, screen );
+#endif // Q_WS_X11
+
+	// first, look in the font cache for a font...
+	engine = QFontCache::instance->findEngine( key );
+	if ( engine ) {
+	    if ( engine->type() != QFontEngine::Box ) {
+		// found a real font engine... stop
+		break;
+	    }
+
+	    if ( ! req.family.isEmpty() ) {
+		// don't accept a box font engine... retry with the
+		// next family in the list (if any)
+		engine = 0;
+	    }
+	    continue;
+	}
+
+	// not found in cache, try to load it...
+	engine = QFontDatabase::findFont( script, req, screen );
+
+	if ( ! engine ) {
+	    // couldn't load it, put a box font engine in the cache to
+	    // prevent multiple calls to QFontDatabase::findFont
+	    engine = new QFontEngineBox( px );
+	    QFontCache::instance->insertEngine( key, engine );
+
+	    if ( ! req.family.isEmpty() ) {
+		// don't accept a box font engine... retry with the
+		// next family in the list (if any)
+		engine = 0;
+	    }
+	} else {
+	    // insert the new font engine into the font cache
+	    QFontCache::instance->insertEngine( key, engine );
+	}
+    }
+
+    engine->ref();
+    engineData->engines[script] = engine;
+    // initFontInfo( script, scale );
+    // request.dirty = FALSE;
+}
 
 HFONT QFont::handle() const
 {
-    if ( DIRTY_FONT ) {
-	d->load();
-    }
-    return d->fin->hfont;
+    QFontEngine *engine = d->engineForScript( QFont::NoScript );
+    return engine->hfont;
 }
 
 QString QFont::rawName() const
@@ -144,13 +255,13 @@ void QFont::setRawName( const QString &name )
 
 bool QFont::dirty() const
 {
-    return DIRTY_FONT;
+    return !d->engineData;
 }
 
 
-QString QFontPrivate::defaultFamily() const
+QString QFont::defaultFamily() const
 {
-    switch( request.styleHint ) {
+    switch( d->request.styleHint ) {
 	case QFont::Times:
 	    return QString::fromLatin1("Times New Roman");
 	case QFont::Courier:
@@ -165,393 +276,59 @@ QString QFontPrivate::defaultFamily() const
     }
 }
 
-QString QFontPrivate::lastResortFamily() const
+QString QFont::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
 
-QString QFontPrivate::lastResortFont() const
+QString QFont::lastResortFont() const
 {
     return QString::fromLatin1("arial");
 }
 
-void QFontPrivate::initFontInfo()
-{
-    lineWidth = 1;
-    actual = request;				// most settings are equal
-    QT_WA( {
-	TCHAR n[64];
-	GetTextFaceW( fin->dc(), 64, n );
-	actual.family = QString::fromUcs2((ushort*)n);
-	actual.fixedPitch = !(fin->tm.w.tmPitchAndFamily & TMPF_FIXED_PITCH);
-    } , {
-	char an[64];
-	GetTextFaceA( fin->dc(), 64, an );
-	actual.family = QString::fromLocal8Bit(an);
-	actual.fixedPitch = !(fin->tm.a.tmPitchAndFamily & TMPF_FIXED_PITCH);
-    } );
-    if ( actual.pointSize == -1 ) {
-	if ( paintdevice )
-	    actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
-	else {
-	    actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps( fin->dc(), LOGPIXELSY );
-	}
-    } else if ( actual.pixelSize == -1 ) {
-	if ( paintdevice )
-	    actual.pixelSize = actual.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720;
-	else
-	    actual.pixelSize = actual.pointSize * GetDeviceCaps( fin->dc(), LOGPIXELSY ) / 720;
-    }
-
-    actual.dirty = FALSE;
-    exactMatch = ( actual.family == request.family &&
-		   ( request.pointSize == -1 || ( actual.pointSize == request.pointSize ) ) &&
-		   ( request.pixelSize == -1 || ( actual.pixelSize == request.pixelSize ) ) &&
-		   actual.fixedPitch == request.fixedPitch );
-}
-
-void QFontPrivate::load()
-{
-    if ( !fontCache )				// not initialized
-	return;
-    if ( !request.dirty && fin )
-	return;
-
-    QFontEngine *qfs = 0;
-    QString k = key();
-    if ( paintdevice )
-	k += QString::number( (long)(Q_LONG)paintdevice->handle() );
-    qfs = fontCache->find( k );
-
-    if ( qfs )
-	qfs->ref();
-    if ( fin )
-	fin->deref();
-    fin = qfs;
-
-    if ( fin ) {
-	request.dirty = FALSE;
-	return;
-    }
-
-    // font was never loaded
-    fin = new QFontEngineWin( k );
-
-    if ( paintdevice ) {
-	fin->hdc = paintdevice->handle();
-	fin->paintDevice = TRUE;
-    } else if ( qt_winver & Qt::WV_NT_based ) {
-	fin->hdc = GetDC( 0 );
-    }
-    bool stockFont = fin->stockFont;
-    fin->hfont = create( &stockFont, fin->hdc );
-    fin->stockFont = stockFont;
-    HGDIOBJ obj = SelectObject( fin->dc(), fin->hfont );
-#ifndef QT_NO_DEBUG
-    if ( !obj ) {
-	qSystemWarning( "QFontPrivate: SelectObject failed" );
-    }
-#endif
-    BOOL res;
-    QT_WA( {
-	res = GetTextMetricsW( fin->dc(), &fin->tm.w );
-    } , {
-	res = GetTextMetricsA( fin->dc(), &fin->tm.a );
-    } );
-#ifndef QT_NO_DEBUG
-    if ( !res )
-	qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
-#endif
-    int cost = request.pointSize > 0 ? request.pointSize*2000 : request.pixelSize*2000;
-    if ( paintdevice )
-	cost *= 10;
-    fin->cache_cost = cost;
-    fin->getCMap();
-
-    fin->useTextOutA = FALSE;
-    // TextOutW doesn't work for symbol fonts on Windows 95!
-    // since we're using glyph indices we don't care for ttfs about this!
-    if ( qt_winver == Qt::WV_95 && !fin->ttf &&
-	 ( request.family == "Marlett" || request.family == "Symbol" ||
-	 request.family == "Webdings" || request.family == "Wingdings" ) )
-	    fin->useTextOutA = TRUE;
-
-    fontCache->insert( k, fin, cost );
-
-    initFontInfo();
-    request.dirty = FALSE;
-}
-
-
-#if !defined(DEFAULT_GUI_FONT)
-#define DEFAULT_GUI_FONT 17
-#endif
-
-
-// compatMode is used to get Qt-2 compatibility when printing
-HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
-{
-    QString fam = QFont::substitute( request.family );
-    if ( request.rawMode ) {			// will choose a stock font
-	int f, deffnt;
-	// ### why different?
-	if ( (qt_winver & Qt::WV_NT_based) || qt_winver == Qt::WV_32s )
-	    deffnt = SYSTEM_FONT;
-	else
-	    deffnt = DEFAULT_GUI_FONT;
-	fam = fam.lower();
-	if ( fam == "default" )
-	    f = deffnt;
-	else if ( fam == "system" )
-	    f = SYSTEM_FONT;
-#ifndef Q_OS_TEMP
-	else if ( fam == "system_fixed" )
-	    f = SYSTEM_FIXED_FONT;
-	else if ( fam == "ansi_fixed" )
-	    f = ANSI_FIXED_FONT;
-	else if ( fam == "ansi_var" )
-	    f = ANSI_VAR_FONT;
-	else if ( fam == "device_default" )
-	    f = DEVICE_DEFAULT_FONT;
-	else if ( fam == "oem_fixed" )
-	    f = OEM_FIXED_FONT;
-#endif
-	else if ( fam[0] == '#' )
-	    f = fam.right(fam.length()-1).toInt();
-	else
-	    f = deffnt;
-	if ( stockFont )
-	    *stockFont = TRUE;
-	HFONT hfont = (HFONT)GetStockObject( f );
-	if ( !hfont ) {
-#ifndef QT_NO_DEBUG
-	    qSystemWarning( "GetStockObject failed" );
-#endif
-	    hfont = systemFont();
-	}
-	return hfont;
-    }
-
-    int hint = FF_DONTCARE;
-    switch ( request.styleHint ) {
-	case QFont::Helvetica:
-	    hint = FF_SWISS;
-	    break;
-	case QFont::Times:
-	    hint = FF_ROMAN;
-	    break;
-	case QFont::Courier:
-	    hint = FF_MODERN;
-	    break;
-	case QFont::OldEnglish:
-	    hint = FF_DECORATIVE;
-	    break;
-	case QFont::System:
-	    hint = FF_MODERN;
-	    break;
-	default:
-	    break;
-    }
-
-    LOGFONT lf;
-    memset( &lf, 0, sizeof(LOGFONT) );
-
-    // ### fix compatibility mode when printing!!!
-    if ( hdc && !compatMode ) {
-	SIZE size;
-	float sx = 1.;
-	if ( GetWindowExtEx( hdc, &size ) ) {
-	    sx = size.cy;
-	    GetViewportExtEx( hdc, &size );
-	    sx /= size.cy;
-	}
-	if ( request.pointSize != -1 )
-    	    lf.lfHeight = -int((float)request.pointSize* sx *
-	    		   GetDeviceCaps(hdc,LOGPIXELSY)/(float)720+0.5);
-	else
-	    lf.lfHeight = - request.pixelSize;
-    } else {
-	if ( request.pointSize != -1 )
-    	    lf.lfHeight = -int((float)request.pointSize*
-			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
-	else
-	    lf.lfHeight = - request.pixelSize;
-    }
-#ifdef Q_OS_TEMP
-    lf.lfHeight		+= 3;
-#endif
-    lf.lfWidth		= 0;
-    lf.lfEscapement	= 0;
-    lf.lfOrientation	= 0;
-    if ( request.weight == 50 )
-	lf.lfWeight = FW_DONTCARE;
-    else
-	lf.lfWeight = (request.weight*900)/99;
-    lf.lfItalic		= request.italic;
-    lf.lfUnderline	= request.underline;
-    lf.lfStrikeOut	= request.strikeOut;
-    lf.lfCharSet	= DEFAULT_CHARSET;
-
-    int strat = OUT_DEFAULT_PRECIS;
-    if (  request.styleStrategy & QFont::PreferBitmap ) {
-	strat = OUT_RASTER_PRECIS;
-#ifndef Q_OS_TEMP
-    } else if ( request.styleStrategy & QFont::PreferDevice ) {
-	strat = OUT_DEVICE_PRECIS;
-    } else if ( request.styleStrategy & QFont::PreferOutline ) {
-	QT_WA( {
-	    strat = OUT_OUTLINE_PRECIS;
-	} , {
-	    strat = OUT_TT_PRECIS;
-	} );
-    } else if ( request.styleStrategy & QFont::ForceOutline ) {
-	strat = OUT_TT_ONLY_PRECIS;
-#endif
-    }
-
-    lf.lfOutPrecision   = strat;
-
-    int qual = DEFAULT_QUALITY;
-
-    if ( request.styleStrategy & QFont::PreferMatch )
-	qual = DRAFT_QUALITY;
-#ifndef Q_OS_TEMP
-    else if ( request.styleStrategy & QFont::PreferQuality )
-	qual = PROOF_QUALITY;
-#endif
-
-    if ( request.styleStrategy & QFont::PreferAntialias ) {
-	if ( qt_winver >= Qt::WV_XP )
-	    qual = 5; // == CLEARTYPE_QUALITY;
-	else
-	    qual = ANTIALIASED_QUALITY;
-    } else if ( request.styleStrategy & QFont::NoAntialias ) {
-	qual = NONANTIALIASED_QUALITY;
-    }
-
-    lf.lfQuality	= qual;
-
-    lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
-    lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
-    HFONT hfont;
-
-    if ( (fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)) )
-       fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
-
-    QT_WA( {
-	memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
-	hfont = CreateFontIndirect( &lf );
-    } , {
-	// LOGFONTA and LOGFONTW are binary compatible
-	QCString lname = fam.local8Bit();
-	memcpy(lf.lfFaceName,lname.data(),
-	    QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
-	hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
-    } );
-#ifndef QT_NO_DEBUG
-    if ( !hfont )
-	qSystemWarning( "CreateFontIndirect failed" );
-#endif
-
-    if ( stockFont )
-	*stockFont = hfont == 0;
-
-    if ( hfont && request.stretch != 100 ) {
-	HGDIOBJ oldObj = SelectObject( fin->dc(), hfont );
-	BOOL res;
-	int avWidth = 0;
-	QT_WA( {
-	    TEXTMETRICW tm;
-	    res = GetTextMetricsW( fin->dc(), &tm );
-	    avWidth = tm.tmAveCharWidth;
-	} , {
-	    TEXTMETRICA tm;
-	    res = GetTextMetricsA( fin->dc(), &tm);
-	    avWidth = tm.tmAveCharWidth;
-	} );
-#ifndef QT_NO_DEBUG
-	if ( res )
-	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
-#endif
-
-	SelectObject( fin->dc(), oldObj );
-	DeleteObject( hfont );
-
-	lf.lfWidth = avWidth * request.stretch/100;
-	QT_WA( {
-	    hfont = CreateFontIndirect( &lf );
-	} , {
-	    hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
-	} );
-#ifndef QT_NO_DEBUG
-	if ( !hfont )
-	    qSystemWarning( "CreateFontIndirect with stretch failed" );
-#endif
-    }    
-
-#ifndef Q_OS_TEMP
-    if ( hfont == 0 )
-	hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
-#endif
-
-    return hfont;
-}
-
-#define TMX d->fin->tm.w
-#define TMW d->fin->tm.w
-#define TMA d->fin->tm.a
-
-void *QFont::textMetric() const
-{
-    if ( DIRTY_FONT ) {
-	d->load();
-#if defined(QT_DEBUG)
-	Q_ASSERT( d->fin );
-#endif
-    }
-    QT_WA( {
-	return (void *)&TMW;
-    } , {
-	return (void *)&TMA;
-    } );
-}
 
 
 /*****************************************************************************
   QFontMetrics member functions
  *****************************************************************************/
 
-#define IS_TRUETYPE (QT_WA_INLINE( d->fin->tm.w.tmPitchAndFamily, d->fin->tm.a.tmPitchAndFamily ) & TMPF_TRUETYPE)
+#define IS_TRUETYPE (QT_WA_INLINE( engine->tm.w.tmPitchAndFamily, engine->tm.a.tmPitchAndFamily ) & TMPF_TRUETYPE)
+#define TMX engine->tm.w
+#define TMW engine->tm.w
+#define TMA engine->tm.a
 
 int QFontMetrics::ascent() const
 {
-    return TMX.tmAscent;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->ascent();
 }
 
 int QFontMetrics::descent() const
 {
-    return TMX.tmDescent;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->descent();
 }
 
 bool QFontMetrics::inFont(QChar ch) const
 {
-    if ( d->fin->ttf ) {
-	glyph_t glyph;
-	d->fin->getGlyphIndexes( &ch, 1, &glyph );
-	return (glyph != 0);
-    } else {
-	QT_WA( {
-	    WCHAR ch16 = ch.unicode();
-	    if( ch16 < TMW.tmFirstChar || ch16 > TMW.tmLastChar )
-		return FALSE;
-	    return TRUE;//!d->boundingRect( ch ).isEmpty();
-	} , {
-	    if ( ch.row() || ch.cell() < TMA.tmFirstChar
-		|| ch.cell() > TMA.tmLastChar )
-		return FALSE;
-	    return TRUE;//!d->boundingRect( ch ).isEmpty();
-	} );
-    }
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    if ( engine->type() == QFontEngine::Box ) return FALSE;
+    return engine->canRender( &ch, 1 );
 }
 
 int QFontMetrics::leftBearing(QChar ch) const
@@ -559,11 +336,16 @@ int QFontMetrics::leftBearing(QChar ch) const
 #ifdef Q_OS_TEMP
     return 0;
 #else
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     if ( IS_TRUETYPE ) {
 	ABC abc;
 	QT_WA( {
 	    uint ch16 = ch.unicode();
-	    GetCharABCWidths(d->fin->dc(),ch16,ch16,&abc);
+	    GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
 	} , {
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
@@ -574,14 +356,14 @@ int QFontMetrics::leftBearing(QChar ch) const
 	    } else {
 		ch8 = ch.cell();
 	    }
-	    GetCharABCWidthsA(d->fin->dc(),ch8,ch8,&abc);
+	    GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
 	} );
 	return abc.abcA;
     } else {
 	QT_WA( {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
-	    GetCharABCWidthsFloat(d->fin->dc(),ch16,ch16,&abc);
+	    GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
 	} , {
 	    return 0;
@@ -597,11 +379,16 @@ int QFontMetrics::rightBearing(QChar ch) const
 #ifdef Q_OS_TEMP
 	return 0;
 #else
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     if ( IS_TRUETYPE ) {
 	ABC abc;
 	QT_WA( {
 	    uint ch16 = ch.unicode();
-	    GetCharABCWidths(d->fin->dc(),ch16,ch16,&abc);
+	    GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
 	    return abc.abcC;
 	} , {
 	    uint ch8;
@@ -613,14 +400,14 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    } else {
 		ch8 = ch.cell();
 	    }
-	    GetCharABCWidthsA(d->fin->dc(),ch8,ch8,&abc);
+	    GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
 	} );
 	return abc.abcC;
     } else {
 	QT_WA( {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
-	    GetCharABCWidthsFloat(d->fin->dc(),ch16,ch16,&abc);
+	    GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
 	    return int(abc.abcfC);
 	} , {
 	    return -TMW.tmOverhang;
@@ -680,22 +467,29 @@ static int get_min_right_bearing( const QFontMetrics *f )
 
 int QFontMetrics::minLeftBearing() const
 {
-    const QFontDef* def = &d->actual;
+    (void) d->engineForScript( (QFont::Script) fscript );
 
-    if ( def->lbearing == SHRT_MIN ) {
-		minRightBearing(); // calculates both
-    }
+    if ( d->engineData->lbearing == SHRT_MIN )
+	minRightBearing(); // calculates both
 
-    return def->lbearing;
+    return d->engineData->lbearing;
 }
 
 int QFontMetrics::minRightBearing() const
 {
+    // ###########
+    return 0;
+#if 0
 #ifdef Q_OS_TEMP
 	return 0;
 #else
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     // Safely cast away const, as we cache bearings there.
-    QFontDef* def = (QFontDef*)&d->actual;
+    QFontDef* def = &engine->fontDef;
 
     if ( def->rbearing == SHRT_MIN ) {
 	int ml = 0;
@@ -708,7 +502,7 @@ int QFontMetrics::minRightBearing() const
 		n = tm.tmLastChar - tm.tmFirstChar+1;
 		if ( n <= max_font_count ) {
 		    abc = new ABC[n];
-		    GetCharABCWidths(d->fin->dc(), tm.tmFirstChar, tm.tmLastChar, abc);
+		    GetCharABCWidths(engine->dc(), tm.tmFirstChar, tm.tmLastChar, abc);
 		} else {
 		    ml = get_min_left_bearing( this );
 		    mr = get_min_right_bearing( this );
@@ -718,7 +512,7 @@ int QFontMetrics::minRightBearing() const
 		n = tm.tmLastChar - tm.tmFirstChar+1;
 		if ( n <= max_font_count ) {
 		    abc = new ABC[n];
-		    GetCharABCWidthsA(d->fin->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
+		    GetCharABCWidthsA(engine->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
 		} else {
 		    ml = get_min_left_bearing( this );
 		    mr = get_min_right_bearing( this );
@@ -739,7 +533,7 @@ int QFontMetrics::minRightBearing() const
 		int n = tm.tmLastChar - tm.tmFirstChar+1;
 		if ( n <= max_font_count ) {
 		    ABCFLOAT *abc = new ABCFLOAT[n];
-		    GetCharABCWidthsFloat(d->fin->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
+		    GetCharABCWidthsFloat(engine->dc(),tm.tmFirstChar,tm.tmLastChar,abc);
 		    float fml = abc[0].abcfA;
 		    float fmr = abc[0].abcfC;
 		    for (int i=1; i<n; i++) {
@@ -764,22 +558,39 @@ int QFontMetrics::minRightBearing() const
 
     return def->rbearing;
 #endif
+#endif
 }
 
 
 int QFontMetrics::height() const
 {
-    return TMW.tmHeight;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->ascent() + engine->descent();
 }
+
 
 int QFontMetrics::leading() const
 {
-    return TMW.tmExternalLeading;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->leading();
 }
 
 int QFontMetrics::lineSpacing() const
 {
-    return TMW.tmHeight + TMW.tmExternalLeading;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->leading() + engine->ascent() + engine->descent();
 }
 
 int QFontMetrics::width( QChar ch ) const
@@ -787,12 +598,17 @@ int QFontMetrics::width( QChar ch ) const
     if ( ch.category() == QChar::Mark_NonSpacing )
 	return 0;
 
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
 
     SIZE s = {0,0};
     wchar_t tc = ch.unicode();
-    BOOL res = GetTextExtentPoint32W( d->fin->dc(), &tc, 1, &s );
+    BOOL res = GetTextExtentPoint32W( engine->dc(), &tc, 1, &s );
 
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
@@ -823,24 +639,36 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
+
     QTextEngine layout( str,  d );
     layout.itemize( FALSE );
     int w = layout.width( pos, 1 );
+
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
 
-    if ( (qt_winver & Qt::WV_NT_based) == 0 )
+    if ( (qt_winver & Qt::WV_NT_based) == 0 ) {
+	QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+	Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
 	w -= TMX.tmOverhang;
+    }
     return w;
 }
 
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     glyph_t glyphs[10];
     int nglyphs = 9;
     advance_t advances[10];
-    d->fin->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
-    glyph_metrics_t gi = d->fin->boundingBox( glyphs[0] );
+    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 
@@ -860,6 +688,11 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     return TMX.tmMaxCharWidth;
 }
 
@@ -871,19 +704,20 @@ int QFontMetrics::underlinePos() const
 
 int QFontMetrics::strikeOutPos() const
 {
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
     int pos = TMX.tmAscent/3;
     return QMAX(pos,1);
 }
 
 int QFontMetrics::lineWidth() const
 {
-    if ( painter ) {
-	painter->cfont.handle();
-	return painter->cfont.d->lineWidth;
-    } else {
-	return d->lineWidth;
-    }
+    if ( !d->engineData )
+	d->load( QFont::NoScript );
+
+    return d->engineData->lineWidth;
 }
-
-
 

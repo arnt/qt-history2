@@ -343,11 +343,10 @@ QtFontFamily *QFontDatabasePrivate::family( const QString &f, bool create )
 
 
 static QFontDatabasePrivate *db=0;
+#define SMOOTH_SCALABLE 0xffff
 
 #if defined( Q_WS_X11 )
-#  define SMOOTH_SCALABLE 0xffff
 #  include "qfontdatabase_x11.cpp"
-#  undef SMOOTH_SCALABLE
 #elif defined( Q_WS_MAC )
 #  include "qfontdatabase_mac.cpp"
 #elif defined( Q_WS_WIN )

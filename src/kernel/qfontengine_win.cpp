@@ -3,6 +3,8 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 
+#include <qpaintdevice.h>
+
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
 typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
@@ -104,10 +106,40 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 
 // non Uniscribe engine
 
-QFontEngineWin::QFontEngineWin( const char *name)
+QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool stockFont )
 {
     _name = name;
-    cache_cost = 1;
+
+    hdc = _hdc;
+
+    hfont = _hfont;
+    stockFont = stockFont;
+
+    HGDIOBJ obj = SelectObject( dc(), hfont );
+#ifndef QT_NO_DEBUG
+    if ( !obj ) {
+	qSystemWarning( "QFontPrivate: SelectObject failed" );
+    }
+#endif
+    BOOL res;
+    QT_WA( {
+	res = GetTextMetricsW( dc(), &tm.w );
+    } , {
+	res = GetTextMetricsA( dc(), &tm.a );
+    } );
+#ifndef QT_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
+#endif
+    cache_cost = tm.w.tmHeight * tm.w.tmAveCharWidth * 2000;
+    getCMap();
+
+    useTextOutA = FALSE;
+    // TextOutW doesn't work for symbol fonts on Windows 95!
+    // since we're using glyph indices we don't care for ttfs about this!
+    if ( qt_winver == Qt::WV_95 && !ttf &&
+	 ( _name == "Marlett" || _name == "Symbol" || _name == "Webdings" || _name == "Wingdings" ) )
+	    useTextOutA = TRUE;
 }
 
 
@@ -250,7 +282,7 @@ int QFontEngineWin::maxCharWidth() const
 
 const char *QFontEngineWin::name() const
 {
-    return _name;
+    return 0;
 }
 
 bool QFontEngineWin::canRender( const QChar *string,  int len )
@@ -438,3 +470,107 @@ static unsigned char *getCMap( HDC hdc )
     }
     return unicode_data;
 }
+
+
+
+
+
+
+
+QFontEngineBox::QFontEngineBox( int size )
+    : _size( size )
+{
+    cache_cost = 1;
+}
+
+QFontEngineBox::~QFontEngineBox()
+{
+}
+
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
+{
+    if ( *nglyphs < len ) {
+	*nglyphs = len;
+	return OutOfMemory;
+    }
+
+    for ( int i = 0; i < len; i++ )
+	*(glyphs++) = 0;
+    *nglyphs = len;
+
+    if ( advances ) {
+	for ( int i = 0; i < len; i++ )
+	    *(advances++) = _size;
+    }
+    return NoError;
+}
+
+void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t * /*glyphs*/,
+			  const advance_t * /*advances*/, const offset_t * /*offsets*/, int numGlyphs, bool )
+{
+//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
+
+    // ########
+}
+
+glyph_metrics_t QFontEngineBox::boundingBox( const glyph_t *, const advance_t *, const offset_t *, int numGlyphs )
+{
+    glyph_metrics_t overall;
+    overall.x = overall.y = 0;
+    overall.width = _size*numGlyphs;
+    overall.height = _size;
+    overall.xoff = overall.width;
+    overall.yoff = 0;
+    return overall;
+}
+
+glyph_metrics_t QFontEngineBox::boundingBox( glyph_t )
+{
+    return glyph_metrics_t( 0, _size, _size, _size, _size, 0 );
+}
+
+
+
+int QFontEngineBox::ascent() const
+{
+    return _size;
+}
+
+int QFontEngineBox::descent() const
+{
+    return 0;
+}
+
+int QFontEngineBox::leading() const
+{
+    int l = qRound( _size * 0.15 );
+    return (l > 0) ? l : 1;
+}
+
+int QFontEngineBox::maxCharWidth() const
+{
+    return _size;
+}
+
+int QFontEngineBox::cmap() const
+{
+    return -1;
+}
+
+const char *QFontEngineBox::name() const
+{
+    return "null";
+}
+
+bool QFontEngineBox::canRender( const QChar *,  int )
+{
+    return TRUE;
+}
+
+QFontEngine::Type QFontEngineBox::type() const
+{
+    return Box;
+}
+
+
+

@@ -595,9 +595,16 @@ QShapedItem *QTextEngine::shape( int item ) const
 
     if ( !si.shaped )
 	si.shaped = new QShapedItem();
+
+    // ### fix script
     if ( !si.fontEngine )
-	si.fontEngine = fnt->engineForScript( script );
+	si.fontEngine = fnt->engineForScript( QFont::NoScript );
     si.fontEngine->ref();
+    if ( si.fontEngine->type() == QFontEngine::Box ) {
+	// ######## fixme
+
+
+    }
 
     if ( hasUsp10 ) {
 	int l = len;

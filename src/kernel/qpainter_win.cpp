@@ -44,6 +44,7 @@
 #include "qt_windows.h"
 #include "qtextlayout_p.h"
 #include "qtextengine_p.h"
+#include "qfontengine_p.h"
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
@@ -2294,11 +2295,12 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     bool force_bitmap = rop != CopyROP;
     if ( force_bitmap ) {
-	QT_WA( {
-	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
-	} , {
-	    force_bitmap &= !(((TEXTMETRICA*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
-	} );
+	QFontEngine *engine = font->d->engineForScript( QFont::NoScript );
+#ifdef QT_CHECK_STATE
+	Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+	force_bitmap = QT_WA_INLINE( engine->tm.w.tmPitchAndFamily, engine->tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE);
     }
 
     if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {
@@ -2472,7 +2474,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     // we do however need some chars around the part we paint to get arabic shaping correct.
     // ### maybe possible to remove after cursor restrictions work in QRT
     int start = QMAX( 0,  pos - 8 );
-    int end = QMIN( str.length(), pos + len + 8 );
+    int end = QMIN( (int)str.length(), pos + len + 8 );
     QConstString cstr( str.unicode() + start, end - start );
     pos -= start;
 
@@ -2588,14 +2590,3 @@ QPoint QPainter::pos() const
 #endif
 }
 
-
-#if defined(Q_WS_WIN)
-void *QPainter::textMetric()
-{
-    if ( testf(DirtyFont) )
-	updateFont();
-    if ( pfont )
-	return pfont->textMetric();
-    return cfont.textMetric();
-}
-#endif

@@ -113,7 +113,7 @@ public:
 
 #endif // QT_NO_COMPAT
 
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
     static QFontEngine *findFont( QFont::Script script, const QFontDef &request,
 				  int x11Screen );
 #endif // Q_WS_X11

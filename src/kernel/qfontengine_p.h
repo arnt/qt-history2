@@ -1,8 +1,15 @@
 #ifndef QFONTENGINE_P_H
 #define QFONTENGINE_P_H
 
+#include <qglobal.h>
+
+#ifdef Q_WS_WIN
+#include <qt_windows.h>
+#endif
+
 #include "qtextengine_p.h"
 
+class QPaintDevice;
 
 struct glyph_metrics_t;
 class QChar;
@@ -78,7 +85,7 @@ public:
     void getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs ) const;
     void getCMap();
 
-    QCString	_name;
+    QCString _name;
     HDC		hdc;
     HFONT	hfont;
     uint	stockFont   : 1;
@@ -154,14 +161,6 @@ enum IndicFeatures {
     HalantFeature = 0x1000
 };
 
-#ifdef Q_WS_X11
-#include "qt_x11.h"
-
-#ifndef QT_NO_XFTFREETYPE
-#include <freetype/freetype.h>
-#include "ftxopen.h"
-#endif
-
 class QFontEngineBox : public QFontEngine
 {
 public:
@@ -194,6 +193,14 @@ private:
     friend class QFontPrivate;
     int _size;
 };
+
+#ifdef Q_WS_X11
+#include "qt_x11.h"
+
+#ifndef QT_NO_XFTFREETYPE
+#include <freetype/freetype.h>
+#include "ftxopen.h"
+#endif
 
 
 #ifndef QT_NO_XFTFREETYPE
@@ -363,7 +370,7 @@ public:
 class QFontEngineWin : public QFontEngine
 {
 public:
-    QFontEngineWin( const char * name );
+    QFontEngineWin( const char *name, HDC, HFONT, bool );
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
