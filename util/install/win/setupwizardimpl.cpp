@@ -1367,6 +1367,7 @@ void SetupWizardImpl::showPageProgress()
 
     if( !filesCopied ) {
 	createDir( optionsPage->installPath->text() );
+	createDir( optionsPageQsa->installPath->text() );
 	progressPage->filesDisplay->append( "Installing files...\n" );
 
 	// install the right LICENSE file
@@ -1395,6 +1396,25 @@ void SetupWizardImpl::showPageProgress()
 	} else {
 	    // ### error handling -- we could not write the LICENSE file
 	}
+#if defined(QSA)
+	QDir installDirQsa( optionsPageQsa->installPath->text() );
+	QFile licenseFileQsa( installDirQsa.filePath( LICENSE_DEST ) );
+	if ( licenseFileQsa.open( IO_WriteOnly ) ) {
+	    ResourceLoader *rcLoader;
+	    rcLoader = new ResourceLoader( "LICENSE_QSA" );
+	    if ( rcLoader->isValid() ) {
+		licenseFileQsa.writeBlock( rcLoader->data() );
+	    } else {
+		emit wizardPageFailed( indexOf(currentPage()) );
+		QMessageBox::critical( this, tr("Package corrupted"),
+			tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
+	    }
+	    delete rcLoader;
+	    licenseFileQsa.close();
+	} else {
+	    // ### error handling -- we could not write the LICENSE file
+	}
+#endif
 
 	// Install the files -- use different fallbacks if one method failed.
 	QArchive ar;
@@ -1446,6 +1466,21 @@ void SetupWizardImpl::showPageProgress()
 		progressPage->operationProgress->setProgress( FILESTOCOPY );
 	    }
 	}
+
+#if defined(QSA)
+	QArchive arQsa;
+	arQsa.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
+	connect( &arQsa, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
+	connect( &arQsa, SIGNAL( operationFeedback( int ) ), progressPage->operationProgress, SLOT( setProgress( int ) ) );
+	ResourceLoader rcLoaderQsa( "QSA_ARQ", 500 );
+	if ( rcLoaderQsa.isValid() ) {
+	    progressPage->operationProgress->setTotalSteps( rcLoaderQsa.data().count() );
+	    QDataStream ds( rcLoaderQsa.data(), IO_ReadOnly );
+	    arQsa.readArchive( &ds, optionsPageQsa->installPath->text(), licenseKey );
+	} else {
+	    // ### error handling
+	}
+#endif
 	filesCopied = copySuccessful;
 
 	timeCounter = 30;
