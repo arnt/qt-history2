@@ -594,6 +594,7 @@ void QPainter::init()
     penRef = brushRef = 0;
     clip_serial = 0;
     pfont = 0;
+    block_ext = FALSE;
 }
 
 

@@ -211,6 +211,7 @@ void QPainter::init()
     txop = txinv = 0;
     penRef = brushRef = 0;
     pfont = 0;
+    block_ext = FALSE;
 
     d = new QPainterPrivate;
 #ifdef QMAC_NO_QUARTZ
@@ -299,7 +300,7 @@ void QPainter::updatePen()
 #if defined( Q_WS_MACX )
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
-    if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop()) 
+    if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop())
 	qt_recreate_root_win();
 #endif
     PenMode(ropCodes[rop]);
@@ -397,7 +398,7 @@ void QPainter::updateBrush()
 #if defined( Q_WS_MACX )
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
-    if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop()) 
+    if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop())
 	qt_recreate_root_win();
 #endif
     PenMode(ropCodes[rop]);
@@ -590,7 +591,7 @@ bool QPainter::end()				// end painting
 
 void QPainter::flush(const QRegion &rgn, CoordinateMode m)
 {
-    if (!isActive()) 
+    if (!isActive())
 	return;
     initPaintDevice();
 
@@ -1123,7 +1124,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
     cpen.setStyle( DashLine );
     updatePen();
-    if ( cpen.style() != NoPen ) 
+    if ( cpen.style() != NoPen )
 	drawRect(x, y, w, h);
     setRasterOp( old_rop );
     setPen( old_pen );
@@ -1895,7 +1896,7 @@ inline void QPainter::initPaintDevice(bool force) {
     QMacSavedPortInfo::setPaintDevice(pdev);
 
     if( pdev->devType() == QInternal::Printer ) {
-	if(pdev->handle()) 
+	if(pdev->handle())
 	    d->clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth),
 				 pdev->metric(QPaintDeviceMetrics::PdmHeight));
     } else if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget

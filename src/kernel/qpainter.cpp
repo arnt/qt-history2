@@ -665,8 +665,7 @@ void QPainter::save()
 	    updatePen();
 	if ( testf(DirtyBrush) )
 	    updateBrush();
-	if ( !pdev->cmd( QPaintDevice::PdcSave, this, 0 ) )
-	    return;
+	pdev->cmd( QPaintDevice::PdcSave, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
@@ -715,8 +714,9 @@ void QPainter::save()
 void QPainter::restore()
 {
     if ( testf(ExtDev) ) {
-	if ( !pdev->cmd( QPaintDevice::PdcRestore, this, 0 ) )
-	    return;
+	pdev->cmd( QPaintDevice::PdcRestore, this, 0 );
+	if ( pdev->devType() == QInternal::Picture )
+	    block_ext = TRUE;
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
@@ -771,11 +771,12 @@ void QPainter::restore()
     tabarray = ps->ta;
 
 #ifndef QT_NO_TRANSFORMATIONS
-    if (wm_stack )
+    if ( wm_stack )
 	delete (QWMatrixStack *)wm_stack;
     wm_stack = ps->wm_stack;
 #endif
     delete ps;
+    block_ext = FALSE;
 }
 
 
@@ -1311,7 +1312,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
     bool identity = wxmat.m11() == 1.0F && wxmat.m22() == 1.0F &&
 		    wxmat.m12() == 0.0F && wxmat.m21() == 0.0F &&
 		    wxmat.dx()	== 0.0F && wxmat.dy()  == 0.0F;
-    if ( testf(ExtDev) ) {
+    if ( testf(ExtDev) && !block_ext ) {
 	QPDevCmdParam param[2];
 	param[0].matrix = &m;
 	param[1].ival = combine;

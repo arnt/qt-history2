@@ -361,6 +361,7 @@ void QPainter::init()
     pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
     pfont = 0;
+    block_ext = FALSE;
 }
 
 

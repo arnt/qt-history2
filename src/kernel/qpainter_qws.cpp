@@ -234,6 +234,7 @@ void QPainter::init()
     xlatex = xlatey = 0;
 #endif
     pfont = 0;
+    block_ext = FALSE;
 }
 
 

@@ -330,6 +330,7 @@ private:
     int		tabstops;
     int	       *tabarray;
     int		tabarraylen;
+    bool	block_ext;	// for temporary blocking of external devices
 
     // Transformations
 #ifndef QT_NO_TRANSFORMATIONS
