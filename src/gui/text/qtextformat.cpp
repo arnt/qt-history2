@@ -146,10 +146,6 @@ public:
 
     const PropertyMap &properties() const { return props; }
 
-    inline void load(QDataStream &stream)
-    {
-        stream >> type >> props;
-    }
 
 private:
     PropertyMap props;
@@ -165,6 +161,8 @@ private:
 
     mutable bool hashDirty;
     mutable uint hashValue;
+    friend QDataStream &operator<<(QDataStream &, const QTextFormat &);
+    friend QDataStream &operator>>(QDataStream &, QTextFormat &);
 };
 
 static uint variantHash(const QVariant &variant)
@@ -190,6 +188,19 @@ uint QTextFormatPrivate::recalcHash() const
 
     hashDirty = false;
     return hashValue;
+}
+
+
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTextFormat &fmt)
+{
+    stream << fmt.d->type << fmt.d->props;
+    return stream;
+}
+
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
+{
+    stream >> fmt.d->type >> fmt.d->props;
+    return stream;
 }
 
 /*!
@@ -1665,7 +1676,7 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn void QTextFrameFormat::setHeight(const QTextLength &height)
-    
+
     Sets the frame's \a height.
 */
 

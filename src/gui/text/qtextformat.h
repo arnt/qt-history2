@@ -15,12 +15,12 @@
 #define QTEXTFORMAT_H
 
 #include <QtGui/qcolor.h>
-#include <QtCore/qshareddata.h>
-#include <QtCore/qobject.h>
 #include <QtGui/qfont.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qshareddata.h>
 
 class QString;
+class QVariant;
+class QFont;
 
 class QTextFormatCollection;
 class QTextFormatPrivate;
@@ -34,6 +34,10 @@ class QTextFormat;
 class QTextObject;
 class QTextCursor;
 class QTextDocument;
+class QTextLength;
+
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextLength &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextLength &);
 
 class Q_GUI_EXPORT QTextLength
 {
@@ -69,6 +73,9 @@ private:
     friend QDataStream &operator<<(QDataStream &, const QTextLength &);
     friend QDataStream &operator>>(QDataStream &, QTextLength &);
 };
+
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextFormat &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextFormat &);
 
 class Q_GUI_EXPORT QTextFormat
 {
@@ -113,12 +120,15 @@ public:
         FontStrikeOut = 0x2007,
         FontFixedPitch = 0x2008,
 
-        TextColor = 0x2010,
-        TextVerticalAlignment = 0x2011,
+        TextUnderlineColor = 0x2010,
+        TextBackgroundColor = 0x2011,
 
-        IsAnchor = 0x2020,
-        AnchorHref = 0x2021,
-        AnchorName = 0x2022,
+        TextColor = 0x2020,
+        TextVerticalAlignment = 0x2021,
+
+        IsAnchor = 0x2030,
+        AnchorHref = 0x2031,
+        AnchorName = 0x2032,
 
         ObjectType = 0x2f00,
 
@@ -227,6 +237,8 @@ public:
 private:
     QSharedDataPointer<QTextFormatPrivate> d;
     friend class QTextFormatCollection;
+    friend QDataStream &operator<<(QDataStream &, const QTextFormat &);
+    friend QDataStream &operator>>(QDataStream &, QTextFormat &);
 };
 
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
@@ -274,6 +286,18 @@ public:
     { setProperty(FontStrikeOut, strikeOut); }
     inline bool fontStrikeOut() const
     { return boolProperty(FontStrikeOut); }
+
+    inline void setUnderlineColor(const QColor &color)
+    { setProperty(TextUnderlineColor, color); }
+    inline QColor underlineColor() const
+    { return colorProperty(TextUnderlineColor); }
+
+    inline void setBackgroundColor(const QColor &color)
+    { setProperty(TextBackgroundColor, color); }
+    inline void clearBackgroundColor()
+    { clearProperty(TextBackgroundColor); }
+    inline QColor backgroundColor() const
+    { return colorProperty(TextBackgroundColor); }
 
     inline void setFontFixedPitch(bool fixedPitch)
     { setProperty(FontFixedPitch, fixedPitch); }
