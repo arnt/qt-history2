@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#137 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#138 $
 **
 ** Implementation of QFile class
 **
@@ -55,7 +55,7 @@ extern bool qt_file_access( const QString& fn, int t );
   \ingroup io
 
   QFile is an I/O device for reading and writing binary and text files.	A
-  QFile may be used by itself or more conveniently using a QDataStream or
+  QFile may be used by itself or more conveniently with a QDataStream or
   QTextStream.
 
   The file name is usually passed in the constructor but can be changed with
@@ -64,8 +64,8 @@ extern bool qt_file_access( const QString& fn, int t );
 
   The file is opened with open(), closed with close() and flushed with
   flush(). Data is usually read and written using QDataStream or QTextStream,
-  but you can read with readBlock() and write with QIODevice::writeBlock().
-  QFile also supports getch(), ungetch() and putch().
+  but you can read with readBlock() and readLine() and write with
+  writeBlock(). QFile also supports getch(), ungetch() and putch().
 
   The size of the file is returned by size(). You can get the current file
   position or move to a new file position using the at() functions. If you've
@@ -111,7 +111,7 @@ QFile::QFile()
 }
 
 /*!
-  Constructs a QFile with a file name \e name.
+  Constructs a QFile with a file name \a name.
   \sa setName()
 */
 
@@ -162,7 +162,7 @@ void QFile::init()
   Do not call this function if the file has already been opened.
 
   If the file name has no path or a relative path, the path used will be
-  whatever the current directory path is <em>at the time of the open()</em>
+  whatever the application's current directory path is <em>at the time of the open()</em>
   call.
 
   Example:
@@ -202,7 +202,7 @@ bool QFile::exists() const
 }
 
 /*!
-  Returns TRUE if the file given by \e fileName exists; otherwise returns
+  Returns TRUE if the file given by \a fileName exists; otherwise returns
   FALSE.
 */
 
@@ -249,7 +249,7 @@ void QFile::flush()
 }
 
 /*!
-  Returns TRUE if the end of file has been reached, otherwise FALSE.
+  Returns TRUE if the end of file has been reached; otherwise returns FALSE.
   \sa size()
 */
 
@@ -271,9 +271,9 @@ bool QFile::atEnd() const
 /*!
   Reads a line of text.
 
-  Reads bytes from the file until end-of-line is reached or up to \a
-  maxlen bytes, and returns the number of bytes read, or -1 in case of
-  error.  The terminating newline is not stripped.
+  Reads bytes from the file until end-of-line or \a maxlen bytes have
+  been read, whichever occurs first. Returns the number of bytes read,
+  or -1 if there was an error.  The terminating newline is not stripped.
 
   This function is efficient only for buffered files.  Avoid
   readLine() for files that have been opened with the \c IO_Raw
@@ -317,9 +317,10 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 /*!
   Reads a line of text.
 
-  Reads bytes from the file until end-of-line is reached or up to \a
-  maxlen bytes, and returns the number of bytes read, or -1 in case of
-  error.  The terminating newline is not stripped.
+  Reads bytes from the file until end-of-line or \a maxlen bytes have
+  been read, whichever occurs first. Returns the number of bytes read,
+  or -1 if there was an error.g. end of file.  The terminating newline
+  is not stripped.
 
   This function is efficient only for buffered files.  Avoid
   readLine() for files that have been opened with the \c IO_Raw
@@ -386,9 +387,9 @@ int QFile::getch()
 }
 
 /*!
-  Writes the character \e ch to the file.
+  Writes the character \a ch to the file.
 
-  Returns \e ch, or -1 if some error occurred.
+  Returns \a ch, or -1 if some error occurred.
 
   \sa getch(), ungetch()
 */
@@ -422,12 +423,12 @@ int QFile::putch( int ch )
 }
 
 /*!
-  Puts the character \e ch back into the file and decrements the index if it
+  Puts the character \a ch back into the file and decrements the index if it
   is not zero.
 
   This function is normally called to "undo" a getch() operation.
 
-  Returns \e ch, or -1 if some error occurred.
+  Returns \a ch, or -1 if some error occurred.
 
   \sa getch(), putch()
 */
@@ -495,7 +496,7 @@ static QFile::EncoderFn encoder = locale_encoder;
 
   The conversion scheme can be changed using setEncodingFunction().
   This might be useful if you wish to give the user an option to
-  store in file names in UTF-8, etc., but beware that such file names
+  store file names in utf-8, etc., but be ware that such file names
   would probably then be unrecognizable when seen by other programs.
 
   \sa decodeName()
@@ -558,3 +559,4 @@ void QFile::setDecodingFunction( DecoderFn f )
 {
     decoder = f;
 }
+

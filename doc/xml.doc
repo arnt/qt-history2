@@ -43,6 +43,33 @@ The XML module provides a well-formed XML parser using the SAX2 (Simple API for
 XML) interface plus an implementation of the DOM Level 2 (Document Object
 Model).
 
+<h2><a name="overview">Overview of the XML architecture in Qt</a></h2>
+
+The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 2.
+
+SAX is an event-based standard interface for XML parsers.
+The Qt interface follows the design of the SAX2 Java implementation.
+Its naming scheme was adapted to fit the Qt naming conventions.
+Details on SAX2 can be found at
+\link http://www.megginson.com/SAX/ http://www.megginson.com/SAX/ \endlink.
+
+Support for SAX2 filters and the reader factory are under development.
+Furthermore the Qt implementation does not include the SAX1 compatibility classes 
+present in the Java interface. 
+
+For an introduction to Qt's SAX2 classes see
+"\link xml-sax.html The Qt SAX2 implementation \endlink". 
+A code example is discussed in the "\link xml-sax-walkthrough.html tagreader
+walkthrough \endlink".
+
+DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
+constituents of an XML document to a tree structure. Details and the
+specification of DOM Level 2 can be found at
+\link http://www.w3.org/DOM/ http://www.w3.org/DOM/ \endlink.
+More information about the DOM classes in Qt is provided in the
+\link xml-dom.html Qt XML DOM overview \endlink.
+
+ 
 Qt provides the following XML related classes:
 <table>
 <tr bgcolor=#f0f0f0><td><b><a href="qdomattr.html">QDomAttr</a></b><td>Represents one attribute of a QDomElement
@@ -79,34 +106,7 @@ Qt provides the following XML related classes:
 </table>
 
 
-<h2><a name="overview">Overview of the XML architecture in Qt</a></h2>
 
-The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 2.
-
-SAX is an event-based standard interface for XML parsers.
-The Qt interface follows the design of the SAX2 Java implementation.
-Its naming scheme was adapted to fit the Qt naming conventions.
-Details on SAX2 can be found at
-\link http://www.megginson.com/SAX/ http://www.megginson.com/SAX/ \endlink.
-
-Support for SAX2 filters and the reader factory are under development.
-Furthermore the Qt implementation does not include the SAX1 compatibility classes 
-present in the Java interface. 
-
-For an introduction to Qt's SAX2 classes see
-"\link xml-sax.html The Qt SAX2 implementation \endlink". 
-A code example is discussed in the "\link xml-sax-walkthrough.html tagreader
-walkthrough \endlink".
-
-DOM Level 2 is a W3C Recommendation for XML interfaces that maps the
-constituents of an XML document to a tree structure. Details and the
-specification of DOM Level 2 can be found at
-\link http://www.w3.org/DOM/ http://www.w3.org/DOM/ \endlink.
-More information about the DOM classes in Qt is provided in the
-\link xml-dom.html Qt XML DOM overview \endlink.
-
-
- 
 <h2><a name="namespaces">An introduction to namespaces</a></h2>
  
 Parts of the Qt XML module documentation assume that you are

@@ -58,12 +58,15 @@
     regarding paths and files, and manipulate the underlying file system.
 
   A QDir can point to a file using either a relative or an absolute file
-  path. Absolute file paths begin with the directory separator "/" (or
-  with a drive specification except under Unix). If you always use "/"
+  path. Absolute file paths begin with the directory separator "/" or
+  with a drive specification (except under Unix). If you always use "/"
   as a directory separator, Qt will translate your paths to conform to
   the underlying operating system. Relative file names begin with a
   directory name or a file name and specify a path relative to the
   current directory.
+
+  The "current" path refers to the application's working directory. A
+  QDir's own path is set and retrieved with setPath() and path().
 
   An example of an absolute path is the string "/tmp/quartz", a relative
   path might look like "src/fatlib". You can use the function isRelative()
@@ -72,16 +75,22 @@
   a simplified path use cleanDirPath(). To obtain a path which has no
   symbolic links or redundant ".." elements use canonicalPath(). The
   path can be set with setPath(), or changed with cd() and cdUp().
-  Access to some standard paths is provided with current(), home() and
-  root().
+
+  QDir provides several static functions, for example,
+  setCurrent() to set the application's working directory and
+  currentDirPath() to retrieve the application's working
+  directory. Access to some common paths is provided with the static
+  functions, current(), home() and root() which return QDir objects or
+  currentDirPath(), homeDirPath() and rootDirPath() which return the
+  path as a string.
 
     The number of entries in a directory is returned by count(). Obtain
     a string list of the names of all the files and directories in a
     directory with entryList(). If you prefer a list of QFileInfo
     pointers use entryInfoList(). Both these functions can apply a name
     filter, an attributes filter (e.g. read-only, files not directories,
-    etc.), and a sort order. The filters and sorts may be set with calls
-    to setNameFilter(), setFilter() and setSorting(), or may be
+    etc.), and a sort order. The filters and sort may be set with calls
+    to setNameFilter(), setFilter() and setSorting(). They may also be
     specified in the entryList() and entryInfoList()'s arguments.
   
     Create a new directory with mkdir(), rename a directory with
@@ -147,7 +156,6 @@
     }
   \endcode
 */
-
 
 /*!
   Constructs a QDir pointing to the current directory.
@@ -248,7 +256,7 @@ QDir::~QDir()
   directory with this path exists.
 
   The path can be either absolute or relative. Absolute paths begin with
-  the directory separator "/" (or a drive specification except under
+  the directory separator "/" or a drive specification (except under
   Unix). Relative file names begin with a directory name or a file name
   and specify a path relative to the current directory. An example of an
   absolute path is the string "/tmp/quartz", a relative path might look
@@ -512,9 +520,9 @@ void QDir::setNameFilter( const QString &nameFilter )
   \value  Writable  List files for which the application has write access.
   \value  Executable  List files for which the application has execute access.
   \value  Modified  Only list files that have been modified (ignored
-  under Unix)
-  \value  Hidden  List hidden files (on Unix, files starting with a .)
-  \value  System  List system files (ignored under Unix)
+  under Unix).
+  \value  Hidden  List hidden files (on Unix, files starting with a .).
+  \value  System  List system files (ignored under Unix).
 
   If you do not set any of \c Readable, \c Writable or \c Executable,
   QDir will set all three of them.  This makes the default easy to
@@ -649,6 +657,7 @@ QString QDir::operator[]( int index ) const
 
 
 /*!
+    \obsolete
   This function is included to easy porting from Qt 1.x to Qt 2.0,
   it is the same as entryList(), but encodes the filenames as 8-bit
   strings using QFile::encodedName().
@@ -666,6 +675,7 @@ QStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
 }
 
 /*!
+    \obsolete
   This function is included to easy porting from Qt 1.x to Qt 2.0,
   it is the same as entryList(), but encodes the filenames as 8-bit
   strings using QFile::encodedName().
@@ -687,6 +697,7 @@ QStrList QDir::encodedEntryList( const QString &nameFilter,
 
 
 /*!
+\overload
   Returns a list of the names of all files and directories in the
   directory, ordered in accordance with setSorting() and filtered in
   accordance with setFilter() and setNameFilter().
@@ -696,8 +707,7 @@ QStrList QDir::encodedEntryList( const QString &nameFilter,
 
   Returns an empty list if the directory is unreadable or does not exist.
 
-  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter(),
-	encodedEntryList()
+  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
 QStringList QDir::entryList( int filterSpec, int sortSpec ) const
@@ -718,8 +728,7 @@ QStringList QDir::entryList( int filterSpec, int sortSpec ) const
 
   Returns an empty list if the directory is unreadable or does not exist.
 
-  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter(),
-	encodedEntryList()
+  \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
 QStringList QDir::entryList( const QString &nameFilter,
@@ -737,6 +746,7 @@ QStringList QDir::entryList( const QString &nameFilter,
 }
 
 /*!
+\overload
   Returns a list of QFileInfo objects for all files and directories in
   the directory, ordered in accordance with setSorting() and filtered in
   accordance with setFilter() and setNameFilter().
@@ -797,6 +807,7 @@ const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
 }
 
 /*!
+\overload
   Returns TRUE if the \e directory exists. (If a file with the same name
   is found this function will return FALSE).
 
@@ -881,14 +892,14 @@ QDir &QDir::operator=( const QString &path )
 
 /*!
   Returns TRUE if directory \a d and this directory have the same path
-  and all sort and filter settings are equal, otherwise FALSE.
+  and their sort and filter settings are the same; otherwise returns FALSE.
 
     Example:
     \code
     // The current directory is "/usr/local"
     QDir d1( "/usr/local/bin" );
     QDir d2( "bin" );
-    d2 = d2.absPath();
+    d2.convertToAbs();
     if ( d1 == d2 ) qDebug( "They're the same\n" ); // This is printed
     \endcode
 */
@@ -906,11 +917,12 @@ bool QDir::operator==( const QDir &d ) const
 /*!
   Removes a file.
 
-  If \a acceptAbsPath is TRUE a path starting with a separator ('/')
-  will remove the file with the absolute path, if \a acceptAbsPath is FALSE
-  any number of separators at the beginning of \a fileName will be removed.
+  If \a acceptAbsPath is TRUE a path starting with separator "/" will
+  remove the file with the absolute path. If \a
+  acceptAbsPath is FALSE any number of separators at the beginning of \a
+  fileName will be removed and the resultant file name will be removed.
 
-  Returns TRUE if successful, otherwise FALSE.
+  Returns TRUE if the file is removed successfully; otherwise returns FALSE.
 */
 
 bool QDir::remove( const QString &fileName, bool acceptAbsPath )
@@ -928,11 +940,12 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 /*!
   Checks for existence of a file.
 
-  If \a acceptAbsPaths is TRUE a path starting with a separator ('/')
-  will check the file with the absolute path, if \a acceptAbsPath is FALSE
-  any number of separators at the beginning of \a name will be removed.
+  If \a acceptAbsPath is TRUE a path starting with separator "/" will
+  check the file with the absolute path. If \a
+  acceptAbsPath is FALSE any number of separators at the beginning of \a
+  fileName will be removed and the resultant file name will be checked.
 
-  Returns TRUE if the file exists, otherwise FALSE.
+  Returns TRUE if the file exists; otherwise returns FALSE.
 
   \sa QFileInfo::exists(), QFile::exists()
 */
@@ -950,11 +963,11 @@ bool QDir::exists( const QString &name, bool acceptAbsPath )
 }
 
 /*!
-  Returns the native directory separator; '/' under UNIX and '\' under
+  Returns the native directory separator; "/" under UNIX and "\" under
   MS-DOS, Windows NT and OS/2.
 
   You do not need to use this function to build file paths. If you always
-  use '/', Qt will translate your paths to conform to the underlying
+  use "/", Qt will translate your paths to conform to the underlying
   operating system.
 */
 
@@ -972,7 +985,9 @@ char QDir::separator()
 }
 
 /*!
-  Returns the current directory.
+  Returns the application's current directory.
+
+  Use path() to access a QDir object's path.
   \sa currentDirPath(), QDir::QDir()
 */
 
@@ -1004,7 +1019,7 @@ QDir QDir::root()
 /*!
   \fn QString QDir::homeDirPath()
 
-  Returns the absolute path for the user's home directory,
+  Returns the absolute path of the user's home directory,
   \sa home()
 */
 
@@ -1030,9 +1045,13 @@ QStringList qt_makeFilterList( const QString &filter )
 }
 
 /*!
-  Returns TRUE if the \a fileName matches one of the wildcards in the list
-  \a filters.
+    \overload
 
+  Returns TRUE if the \a fileName matches any the wildcard (glob)
+  patterns in the list of \a filters.
+
+    (See \link qregexp.html#wildcard-matching QRegExp wildcard
+    matching.\endlink)
   \sa QRegExp::match()
 */
 
@@ -1053,10 +1072,12 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 }
 
 /*!
-  Returns TRUE if the \a fileName matches the wildcard \a filter.
-  The \a filter may also contain multiple wildcards separated by spaces or
-  semicolons.
+  Returns TRUE if the \a fileName matches the wildcard (glob) pattern \a
+  filter. The \a filter may also contain multiple patterns separated by
+  spaces or semicolons.
 
+    (See \link qregexp.html#wildcard-matching QRegExp wildcard
+    matching.\endlink)
   \sa QRegExp::match()
 */
 
@@ -1068,13 +1089,13 @@ bool QDir::match( const QString &filter, const QString &fileName )
 
 
 /*!
-  Removes all multiple directory separators ('/') and resolves
-  any "." or ".." found in the path.
+  Removes all multiple directory separators "/" and resolves
+  any "."s or ".."s found in the path.
 
   Symbolic links are kept.  This function does not return the
   canonical path, but rather the most simplified version of the input.
-  "../stuff" becomes "stuff", "stuff/../nonsense" becomes "nonsense"
-  and "\\stuff\\more\\..\\nonsense" becomes "\\stuff\\nonsense".
+  "../local" becomes "local", "local/../bin" becomes "bin"
+  and "/local/usr/../bin" becomes "/local/bin".
 
   \sa absPath() canonicalPath()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir_win.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qdir_win.cpp#28 $
 **
 ** Implementation of QDir class
 **
@@ -240,10 +240,12 @@ bool QDir::rename( const QString &oldName, const QString &newName,
 	return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
     }
 }
-
 /*!
-  Sets the the current directory. Returns TRUE if successful.
+  Sets the application's current working directory to \a path. 
+  Returns TRUE if the directory was successfully changed; otherwise
+  returns FALSE.
 */
+
 
 bool QDir::setCurrent( const QString &path )
 {
@@ -259,7 +261,7 @@ bool QDir::setCurrent( const QString &path )
 }
 
 /*!
-  Returns the absolute path of the current directory.
+  Returns the absolute path of the application's current directory.
   \sa current()
 */
 

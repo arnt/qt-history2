@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#83 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#84 $
 **
 ** Implementation of QFileInfo class
 **
@@ -45,33 +45,53 @@
 
 extern bool qt_file_access( const QString& fn, int t );
 
-// NOT REVISED
 /*!
   \class QFileInfo qfileinfo.h
   \brief The QFileInfo class provides system-independent file information.
 
   \ingroup io
 
-  QFileInfo provides information about a file's name and position (path) in
-  the file system, its access rights and whether it is a directory or a
-  symbolic link.  Its size and last modified/read times are also available.
+  QFileInfo provides information about a file's name and position (path)
+  in the file system, its access rights and whether it is a directory or
+  symbolic link, etc. The file's size and last modified/read times are
+  also available.
 
-  To speed up performance, QFileInfo caches information about the file. Because
-  files can be changed by other users or programs, or even by other parts of
-  the same program, there is a function that refreshes the file information:
-  refresh(). If you want a QFileInfo to access the file system
-  every time you request information from it, you can call the function
-  setCaching( FALSE ).
+  A QFileInfo can point to a file with either a relative or an
+  absolute file path. Absolute file paths begin with the directory
+  separator "/" or a drive specification (except on Unix).
+  Relative file names begin with a directory name or a file name and
+  specify a path relative to the current working directory. An example of an
+  absolute path is the string "/tmp/quartz". A relative path might look
+  like "src/fatlib". You can use the function isRelative() to check
+  whether a QFileInfo is using a relative or an absolute file path. You
+  can call the function convertToAbs() to convert a relative QFileInfo's
+  path to an absolute path.
 
-  A QFileInfo can point to a file by using either a relative or an absolute
-  file path. Absolute file paths begin with the directory separator
-  ('/') or a drive specification (not applicable to UNIX).
-  Relative file names begin with a directory name or a file name and specify
-  a path relative to the current directory. An example of
-  an absolute path is the string "/tmp/quartz". A relative path might look like
-  "src/fatlib". You can use the function isRelative() to check whether a QFileInfo
-  is using a relative or an absolute file path. You can call the function
-  convertToAbs() to convert a relative QFileInfo to an absolute one.
+  The file that the QFileInfo works on is set in the constructor or
+  later with setFile(). Use exists() to see if the file exists and
+  size() to get its size. 
+
+  To speed up performance, QFileInfo caches information about the file.
+  Because files can be changed by other users or programs, or even by
+  other parts of the same program, there is a function that refreshes
+  the file information: refresh(). If you want to switch off a
+  QFileInfo's caching and force it to access the file system every time
+  you request information from it call setCaching(FALSE).
+
+  The file's type is obtained with isFile(), isDir() and isSymLink().
+  The readLink() function provides the name of the file the symlink
+  points to.
+
+  Elements of the file's name can be extracted with dirPath() and
+  fileName(). The fileName()'s parts can be extracted with baseName()
+  and extension(). 
+
+  The file's dates are returned by lastModified() and lastRead().
+  Information about the file's access permissions is obtained with
+  isReadable(), isWritable() and isExecutable(). The file's ownership
+  is available from owner(), ownerId(), group() and groupId(). You can
+  examine a file's permissions and ownership in a single statement using
+  the permission() function.
 
   If you need to read and traverse directories, see the QDir class.
 */

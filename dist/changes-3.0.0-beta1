@@ -1127,6 +1127,8 @@ Obsolete functions
 	QActionGroup::insert( QAction * ),  use QActionGroup::add( QAction* ) instead.
 	QApplication::setWinStyleHighlightColor( const QColor &c ), use setPalette() instead
 	QApplication::winStyleHighlightColor(), use palette() instead
+	QDir::encodedEntryList( int filterSpec, int sortSpec ), use QDir::entryList() instead
+	QDir::encodedEntryList( const QString &nameFilter, int filterSpec, int sortSpec ), use QDir::entryList() instead 
 	QMainWindow::addToolBar( QDockWindow *, Dock = Top, bool newLine = FALSE );
 	QMainWindow::addToolBar( QDockWindow *, const QString &label,  Dock = Top, bool newLine = FALSE );
 	QMainWindow::moveToolBar( QDockWindow *, Dock = Top );

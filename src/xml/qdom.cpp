@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#74 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#75 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -48,8 +48,6 @@
 #include "qiodevice.h"
 #include "qregexp.h"
 #include "qbuffer.h"
-
-// NOT REVISED
 
 /**
  * TODO:
@@ -625,7 +623,7 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 
@@ -907,7 +905,7 @@ uint QDomNodeListPrivate::length() const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 
@@ -1570,7 +1568,7 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -1757,7 +1755,7 @@ QDomNode QDomNode::parentNode() const
 }
 
 /*!
-  Returns a list of all child nodes.
+  Returns a list of all direct child nodes.
 
   Most often you will call this function on a QDomElement object.
 
@@ -3584,7 +3582,7 @@ void QDomAttrPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -3938,14 +3936,37 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
   equivalents to these functions, i.e. setAttributeNS(), setAttributeNodeNS()
   and removeAttributeNS().
 
-  The tag's text is retrieved with text().
+    If you want to access the text of a node use text(), e.g.
+    \code
+    QDomElement e = //...
+    //...
+    QString s = e.text()
+    \endcode
+    The text() function operates recursively to find the text (since not
+    all elements contain text). If you want to find all the text in all
+    of a node's children iterate over the children looking for QDomText
+    nodes, e.g.
+    \code
+    QString text;
+    QDomElement element = doc.documentElement();
+    for( QDomNode n = element.firstChild(); !n.isNull(); n = n.nextSibling() )
+    {
+	     QDomText t = n.toText();
+	     if ( !t.isNull() )
+		     text += t.data();
+    }
+    \endcode
+    Note that we attempt to convert each node to a text node and use
+    text() rather than using firstChild().toText().data() or
+    n.toText().data() directly on the node, because the node may not be
+    a text element. 
 
   You can get a list of all the decendents of an element which have a
   specified tag name with elementsByTagName() or  elementsByTagNameNS().
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4412,7 +4433,7 @@ void QDomTextPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4554,7 +4575,7 @@ void QDomCommentPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4687,7 +4708,7 @@ void QDomCDATASectionPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4828,7 +4849,7 @@ void QDomNotationPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -5035,7 +5056,7 @@ void QDomEntityPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -5203,7 +5224,7 @@ void QDomEntityReferencePrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -5330,7 +5351,7 @@ void QDomProcessingInstructionPrivate::save( QTextStream& s, int ) const
 
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -5715,46 +5736,48 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
 
   \module XML
 
-  The QDomDocument class represents the entire XML document. Conceptually, it
-  is the root of the document tree, and provides the primary access to the
-  document's data.
+  The QDomDocument class represents the entire XML document.
+  Conceptually, it is the root of the document tree, and provides the
+  primary access to the document's data.
 
-  Since elements, text nodes, comments, processing instructions, etc. cannot
-  exist outside the context of a document, the document class also contains the
-  factory functions needed to create these objects. The node objects created
-  have an  ownerDocument() function which associates them with the document
-  within whose context they were created.
+  Since elements, text nodes, comments, processing instructions, etc.
+  cannot exist outside the context of a document, the document class
+  also contains the factory functions needed to create these objects.
+  The node objects created have an  ownerDocument() function which
+  associates them with the document within whose context they were
+  created. The DOM classes that will be used most often are QDomNode,
+  QDomDocument, QDomElement and QDomText.
 
-  The parsed XML is represented internally by a tree of objects that can be
-  accessed using the various QDom classes. All QDom classes only \e reference
-  objects in the internal tree. The internal objects in the DOM tree will get
-  deleted, once the last QDom object referencing them and the QDomDocument
-  itself are deleted.
+  The parsed XML is represented internally by a tree of objects that can
+  be accessed using the various QDom classes. All QDom classes only \e
+  reference objects in the internal tree. The internal objects in the
+  DOM tree will get deleted, once the last QDom object referencing them
+  and the QDomDocument itself are deleted.
 
   Creation of elements, text nodes, etc. is done via the various factory
-  functions provided in this class. Using the default constructors of the QDom
-  classes will only result in empty objects, that cannot be manipulated or
-  inserted into the Document.
+  functions provided in this class. Using the default constructors of
+  the QDom classes will only result in empty objects, that cannot be
+  manipulated or inserted into the Document.
 
-  The QDomDocument class has several functions for creating document data, for
-  example, createElement(), createTextNode(), createComment(),
-  createCDATASection(), createProcessingInstruction(), createAttribute() and
-  createEntityReference(). Some of these functions have versions that support
-  namespaces, i.e. createElementNS() and createAttributeNS(). The
-  createDocumentFragment() function is used to hold parts of the document,
-  e.g. for complex documents.
+  The QDomDocument class has several functions for creating document
+  data, for example, createElement(), createTextNode(), createComment(),
+  createCDATASection(), createProcessingInstruction(), createAttribute()
+  and createEntityReference(). Some of these functions have versions
+  that support namespaces, i.e. createElementNS() and
+  createAttributeNS(). The createDocumentFragment() function is used to
+  hold parts of the document, e.g. for complex documents.
 
-  The entire content of the document is set with setContent(). This function
-  parses the string it is passed as an XML document and creates the DOM
-  tree that represents the document. The root element is available using
-  documentElement(). The textual representation of the document can be
-  obtained using toString().
+  The entire content of the document is set with setContent(). This
+  function parses the string it is passed as an XML document and creates
+  the DOM tree that represents the document. The root element is
+  available using documentElement(). The textual representation of the
+  document can be obtained using toString().
 
-  It is possible to insert a node from another document into the document
-  using importNode().
+  It is possible to insert a node from another document into the
+  document using importNode().
 
-  You can obtain a list of all the elements that have a particular tag with
-  elementsByTagName() or with elementsByTagNameNS().
+  You can obtain a list of all the elements that have a particular tag
+  with elementsByTagName() or with elementsByTagNameNS().
 
   The QDom classes are typically used as follows:
   \code
@@ -5781,7 +5804,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
       n = n.nextSibling();
   }
 
-  // lets append a new element to the end of the document
+  // Here we append a new element to the end of the document
   QDomElement elem = doc.createElement( "img" );
   elem.setAttribute( "src", "myimage.png" );
   docElem.appendChild( elem );
@@ -5790,9 +5813,24 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   Once \c doc and \c elem go out of scode, the whole internal tree representing
   the XML document will get deleted.
 
+  To create a document using DOM use code like this:
+  \code
+    QDomDocument doc( "MyML" );
+    QDomElement root = doc.createElement( "MyML" )
+    doc.append( root );
+
+    QDomElement tag = doc.createElement( "Greeting" );
+    root.append( tag );
+
+    QDomText t = doc.createTextNode( "Hello World" );
+    tag.append( t );
+
+    QString xml = doc.toString();
+    \endcode
+
   For further information about the Document Object Model see
   <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
-  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  <a href="http://www.w3.org/TR/DOM-Level-2-Core/">http://www.w3.org/TR/DOM-Level-2-Core/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */

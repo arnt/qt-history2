@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#43 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#44 $
 **
 ** Implementation of QDns class.
 **
@@ -1791,12 +1791,13 @@ QValueList<QHostAddress> QDns::addresses() const
 
 
 /*!
-  Returns a list of mail servers if the record type is \c Mx. The struct
-  \c QDns::MailServer contains the following variables:
-  <ul>
-  <li> \c QString QDns::MailServer::name
-  <li> \c Q_UINT16 QDns::MailServer::priority
-  </ul>
+    \enum QDns::MailServer
+
+  The struct \c QDns::MailServer contains the following variables:
+
+  \value QString QDns::MailServer::name
+  \value Q_UINT16 QDns::MailServer::priority
+
 */
 QValueList<QDns::MailServer> QDns::mailServers() const
 {
@@ -1823,14 +1824,15 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 
 
 /*!
-  Returns a list of servers if the record type is \c Srv. The struct \c
-  QDns::Server contains the following variables:
-  <ul>
-  <li> \c QString QDns::Server::name
-  <li> \c Q_UINT16 QDns::Server::priority
-  <li> \c Q_UINT16 QDns::Server::weight
-  <li> \c Q_UINT16 QDns::Server::port
-  </ul>
+    \enum QDns::Server
+
+  The struct \c QDns::Server contains the following variables:
+  
+  \value QString QDns::Server::name
+  \value Q_UINT16 QDns::Server::priority
+  \value Q_UINT16 QDns::Server::weight
+  \value Q_UINT16 QDns::Server::port
+
 */
 QValueList<QDns::Server> QDns::servers() const
 {
