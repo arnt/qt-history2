@@ -173,6 +173,11 @@ static void qt_create_pipes(QProcessPrivate *that)
 
 void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 {
+    if (pipe[0] == writePipe[0] && pipe[1] == writePipe[1] && pipeWriter) {
+        delete pipeWriter;
+        pipeWriter = 0;
+    }
+
     if (pipe[0] != INVALID_Q_PIPE) {
         CloseHandle(pipe[0]);
         pipe[0] = INVALID_Q_PIPE;
@@ -180,11 +185,6 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
     if (pipe[1] != INVALID_Q_PIPE) {
         CloseHandle(pipe[1]);
         pipe[1] = INVALID_Q_PIPE;
-    }
-
-    if (pipeWriter) {
-        delete pipeWriter;
-        pipeWriter = 0;
     }
 }
 
