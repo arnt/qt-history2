@@ -142,8 +142,6 @@ public:
 
     void ensureCursorVisible();
 
-    virtual int heightForWidth(int width) const;
-
     virtual QVariant loadResource(int type, const QUrl &name);
 
     QMenu *createStandardContextMenu();

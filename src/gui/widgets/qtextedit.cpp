@@ -1530,21 +1530,6 @@ process:
 }
 
 /*!
-    Returns how many pixels high the text edit needs to be to display
-    all the text if the text edit is \a width pixels wide.
-*/
-int QTextEdit::heightForWidth(int width) const
-{
-    Q_D(const QTextEdit);
-    QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
-    const int oldWidth = qRound(layout->documentSize().width());
-    d->doc->setPageSize(QSize(width, INT_MAX));
-    const int height = qRound(layout->documentSize().height());
-    d->doc->setPageSize(QSize(oldWidth, INT_MAX));
-    return height;
-}
-
-/*!
     Loads the resource specified by the given \a type and \a name.
 
     This function is an extension of QTextDocument::loadResource().
