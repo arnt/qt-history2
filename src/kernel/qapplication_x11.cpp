@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#385 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#386 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3022,15 +3022,15 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.ry() = event->xbutton.y_root;
 	state = translateButtonState( event->xbutton.state );
 	switch ( event->xbutton.button ) {
-	    case Button1: button = LeftButton;	
+	    case Button1: button = LeftButton;   goto DoFocus;
+	    case Button2: button = MidButton;    goto DoFocus;
+	    case Button3: button = RightButton;       DoFocus:
 		if ( isEnabled() &&
 		     focusProxy()? (focusProxy()->focusPolicy() & ClickFocus)
 		     : (focusPolicy() & ClickFocus ) ) {
 		    setFocus();
 		}
 		break;
-	    case Button2: button = MidButton;	break;
-	    case Button3: button = RightButton; break;
 	    case Button4: case Button5:
 		// the fancy mouse wheel.
 		
