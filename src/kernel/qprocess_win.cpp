@@ -322,7 +322,7 @@ void QProcess::socketWrite( int fd )
     }
 }
 
-/*!
+/*
   Use a timer for polling misc. stuff.
 */
 void QProcess::timeout()
@@ -343,7 +343,7 @@ void QProcess::timeout()
     }
 }
 
-/*!
+/*
   non-blocking read on the pipe
 */
 QByteArray QProcess::readStddev( HANDLE dev, ulong bytes )
@@ -369,7 +369,7 @@ QByteArray QProcess::readStddev( HANDLE dev, ulong bytes )
     return readBuffer;
 }
 
-/*!
+/*
   Used by connectNotify() and disconnectNotify() to change the value of
   ioRedirection (and related behaviour)
 */
@@ -384,7 +384,7 @@ void QProcess::setIoRedirection( bool value )
     }
 }
 
-/*!
+/*
   Used by connectNotify() and disconnectNotify() to change the value of
   notifyOnExit (and related behaviour)
 */
@@ -399,7 +399,7 @@ void QProcess::setNotifyOnExit( bool value )
     }
 }
 
-/*!
+/*
   Used by connectNotify() and disconnectNotify() to change the value of
   wroteStdinConnected (and related behaviour)
 */
