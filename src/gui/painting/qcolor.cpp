@@ -686,6 +686,13 @@ void QColor::setRgb( QRgb rgb )
 
 
 /*!
+    \fn int QColor::alpha() const
+
+    Returns the alpha channel component of the RGBA value.
+*/
+
+
+/*!
     Returns a lighter (or darker) color, but does not change this
     object.
 
