@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#8 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#9 $
 **
 ** Definition of QObject class
 **
@@ -29,7 +29,7 @@ public:
     virtual bool event( QEvent * );		// handle event
 
     virtual QMetaObject *metaObject() const { return metaObj; }
-    virtual const char  *className() const;	// get name of class
+    virtual const char  *className()  const;	// get name of class
 
     const char *name()		  const { return (const char *)objname; }
     void	setName( const char *name );
@@ -44,24 +44,31 @@ public:
 
     QObjectList *children() const { return childObjects; }
 
+    static bool	connect( QObject *sender, const char *signal,
+			 const QObject *receiver, const char *member );
+    bool	connect( QObject *sender, const char *signal,
+			 const char *member ) const;
+    static bool disconnect( QObject *sender, const char *signal,
+			    const QObject *receiver, const char *member );
+    bool	disconnect( const char *signal,
+			    const QObject *receiver, const char *member=0 );
+    bool	disconnect( const QObject *receiver, const char *member=0 );
+
     void	dumpObjectTree();		// NOTE!!! For debugging
+    void	dumpObjectInfo();
 
 protected:
     QObject	*parent() const { return parentObj; }
-    QConnection *receiver( const char *signal) const;
+    QConnectionList *receivers( const char *signal ) const;
+    void	activate_signal( const char *signal );
+    void	activate_signal( const char *signal, short );
+    void	activate_signal( const char *signal, int );
+    void	activate_signal( const char *signal, long );
+    void	activate_signal( const char *signal, const char * );
     QObject     *sender();			// sender of last signal
 
     void	insertChild( QObject * );	// add child object
     void	removeChild( QObject * );	// remove child object
-
-    static bool	connect( QObject *sender, const char *signal,
-			 const QObject *receiver, const char *member );
-    bool	connect( QObject *sender, const char *signal,
-			 const char *member );
-    static bool disconnect( QObject *sender, const char *signal,
-			    const QObject *receiver, const char *member );
-    bool	disconnect( QObject *sender, const char *signal=0,
-			    const char *member=0 );
 
     virtual void initMetaObject();		// initialize meta object
 
@@ -84,15 +91,20 @@ private:
 
 
 inline bool QObject::connect( QObject *sender, const char *signal,
-			      const char *member )
+			      const char *member ) const
 {
     return connect( sender, signal, this, member );
 }
 
-inline bool QObject::disconnect( QObject *sender, const char *signal,
-				 const char *member )
+inline bool QObject::disconnect( const char *signal,
+				 const QObject *receiver, const char *member )
 {
-    return disconnect( sender, signal, this, member );
+    return disconnect( this, signal, receiver, member );
+}
+
+inline bool QObject::disconnect( const QObject *receiver, const char *member )
+{
+    return disconnect( this, 0, receiver, member );
 }
 
 
