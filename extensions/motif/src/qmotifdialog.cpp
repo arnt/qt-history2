@@ -485,6 +485,21 @@ void QMotifDialog::show()
 
     if ( d->dialog )
 	XtManageChild( d->dialog );
+    else if ( !parentWidget() ) {
+	adjustSize();
+	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
+	QApplication::sendPostedEvents(this, QEvent::Resize);
+
+	Widget p = XtParent( d->shell ), s = p;
+	while ( s != NULL && !XtIsShell( s ) ) // find the shell
+	    s = XtParent( s );
+
+	if ( p && s ) {
+	    int offx = ( (  XtWidth( p ) -  width() ) / 2 );
+	    int offy = ( ( XtHeight( p ) - height() ) / 2 );
+	    move( XtX ( s ) + offx, XtY( s ) + offy );
+	}
+    }
 
     QDialog::show();
 
