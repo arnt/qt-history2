@@ -1326,13 +1326,17 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
     button; pressing Return or Enter is the same as clicking the
     default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1
-    (pressing Escape does nothing); supply 0, 1 or 2 to make pressing
-    Escape equivalent to clicking the relevant button.
+    Escape is the same as clicking this button. It defaults to -1; 
+    supply 0, 1 or 2 to make pressing Escape equivalent to clicking 
+    the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
+
+    Note: If you do not specify an Escape button then if the Escape
+    button is pressed then -1 will be returned.  It is suggested that
+    you specify an Escape button to prevent this from happening.
 
     \sa question(), warning(), critical()
 */
@@ -1365,13 +1369,17 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
     button; pressing Return or Enter is the same as clicking the
     default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1
-    (pressing Escape does nothing); supply 0, 1 or 2 to make pressing
-    Escape equivalent to clicking the relevant button.
+    Escape is the same as clicking this button. It defaults to -1; 
+    supply 0, 1 or 2 to make pressing Escape equivalent to clicking 
+    the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
+
+    Note: If you do not specify an Escape button then if the Escape
+    button is pressed then -1 will be returned.  It is suggested that
+    you specify an Escape button to prevent this from happening.
 
     \sa information(), warning(), critical()
 */
@@ -1404,13 +1412,17 @@ int QMessageBox::question( QWidget *parent, const QString &caption,
     default button; pressing Return or Enter is the same as clicking
     the default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1
-    (pressing Escape does nothing); supply 0, 1, or 2 to make pressing
-    Escape equivalent to clicking the relevant button.
+    Escape is the same as clicking this button. It defaults to -1; 
+    supply 0, 1, or 2 to make pressing Escape equivalent to clicking 
+    the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
+
+    Note: If you do not specify an Escape button then if the Escape
+    button is pressed then -1 will be returned.  It is suggested that
+    you specify an Escape button to prevent this from happening.
 
     \sa information(), question(), critical()
 */
@@ -1444,9 +1456,9 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
     default button; pressing Return or Enter is the same as clicking
     the default button. It defaults to 0 (the first button). \a
     escapeButtonNumber is the index of the Escape button; pressing
-    Escape is the same as clicking this button. It defaults to -1
-    (pressing Escape does nothing); supply 0, 1, or 2 to make pressing
-    Escape equivalent to clicking the relevant button.
+    Escape is the same as clicking this button. It defaults to -1; 
+    supply 0, 1, or 2 to make pressing Escape equivalent to clicking 
+    the relevant button.
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box
