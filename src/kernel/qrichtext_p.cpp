@@ -405,6 +405,10 @@ QString QTextString::toString( const QMemArray<QTextStringChar> &data )
     QChar *uc = (QChar *)s.unicode();
     while ( l-- ) {
 	*uc = c->c;
+	// ### woraround so that non-breaking whitespaces are drawn
+	// properly, actually this should be fixed in QFont somewhere
+	if ( *uc == 0x00a0U )
+	    *uc = 0x20;
 	uc++;
 	c++;
     }
