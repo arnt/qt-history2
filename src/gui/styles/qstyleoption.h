@@ -105,6 +105,7 @@ public:
 
     int lineWidth;
     int midLineWidth;
+    QTabBar::Shape shape;
 
     QStyleOptionTabWidgetFrame();
 
@@ -174,7 +175,6 @@ public:
     enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected};
 
     QTabBar::Shape shape;
-    Qt::Orientation orientation;
     QString text;
     QIcon icon;
     int row;
@@ -184,7 +184,6 @@ public:
     QStyleOptionTab();
 
     QDOC_PROPERTY(QTabBar::Shape shape)
-    QDOC_PROPERTY(Qt::Orientation Orientation)
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(int row)

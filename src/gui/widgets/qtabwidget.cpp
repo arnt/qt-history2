@@ -111,8 +111,10 @@
     \enum QTabWidget::TabPosition
 
     This enum type defines where QTabWidget draws the tab row:
-    \value Top  above the pages
-    \value Bottom  below the pages
+    \value North  above the pages
+    \value South  below the pages
+    \value West  left of the pages
+    \value South  right of the pages
 */
 
 /*!
@@ -120,7 +122,7 @@
 
     This enum type defines the shape of the tabs:
     \value Rounded  rounded look (normal)
-    \value Triangular  triangular look (very unusual, included for completeness)
+    \value Triangular  triangular look
 */
 
 /* undocumented now
@@ -151,6 +153,7 @@ class QTabWidgetPrivate : public QWidgetPrivate
 public:
     QTabWidgetPrivate();
     ~QTabWidgetPrivate();
+    void updateTabBarPosition();
     void showTab(int);
     void removeTab(int);
     void init();
@@ -170,7 +173,7 @@ public:
 
 QTabWidgetPrivate::QTabWidgetPrivate()
     : tabs(0), stack(0), dirty(true),
-      pos(QTabWidget::Top), shape(QTabWidget::Rounded),
+      pos(QTabWidget::North), shape(QTabWidget::Rounded),
       leftCornerWidget(0), rightCornerWidget(0)
 {}
 
@@ -184,7 +187,7 @@ void QTabWidgetPrivate::init()
     q->setTabBar(new QTabBar(q));
 
 #ifdef Q_OS_TEMP
-    pos = QTabWidget::Bottom;
+    pos = QTabWidget::South;
 #endif
 
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -532,17 +535,17 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->dirty = true;
         return; // we'll do it later
     }
-    bool horiz = d->tabs->orientation() == Qt::Horizontal;
-    QSize t(0, d->stack->frameWidth()); // ###### why 0,frameWidth()? Isn't it always 0?
+    bool verticalTabs = d->pos == East || d->pos == West;
+    QSize t(0, d->stack->frameWidth());
     if (d->tabs->isVisibleTo(this))
         t = d->tabs->sizeHint();
-    if (!horiz)
+    if (verticalTabs)
         t.transpose();
     int lcw = 0;
     if (d->leftCornerWidget && d->leftCornerWidget->isVisible()) {
         QSize sz = d->leftCornerWidget->sizeHint();
         d->leftCornerWidget->resize(sz);
-        if (!horiz)
+        if (verticalTabs)
             sz.transpose();
         lcw = sz.width();
         if (t.height() > lcw)
@@ -552,19 +555,19 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     if (d->rightCornerWidget && d->rightCornerWidget->isVisible()) {
         QSize sz = d->rightCornerWidget->sizeHint();
         d->rightCornerWidget->resize(sz);
-        if (!horiz)
+        if (verticalTabs)
             sz.transpose();
         rcw = sz.width();
         if (t.height() > rcw)
             rcw = t.height();
     }
-    int availLength = horiz ? width() : height();
-    int availThickness = horiz ? height() : width();
+    int availLength = verticalTabs ? height() : width();
+    int availThickness = verticalTabs ? width() : height();
     int tw = availLength - lcw - rcw;
     if (t.width() > tw)
         t.setWidth(tw);
     int lw = d->stack->lineWidth();
-    bool reverse = horiz && isRightToLeft();
+    bool reverse = !verticalTabs && isRightToLeft();
     int tabx, taby, stacky, /*exty,*/ exth, overlap;
 
     exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
@@ -592,48 +595,49 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         else if (alignment == Qt::AlignRight)
             tabx += availLength - t.width() - rcw;
     }
-    if (horiz) {
-        d->tabs->setGeometry(tabx, taby, t.width(), t.height());
-        d->panelRect.setRect(0, d->pos != Bottom ? stacky : 0, availLength, availThickness - (exth-overlap) -
-                          t.height()+qMax(0, lw-2));
-    }
-    else {
+    if (verticalTabs) {
         d->tabs->setGeometry(taby, tabx, t.height(), t.width()); // no typo
-        d->panelRect.setRect(stacky, 0, availThickness - (exth-overlap) -
-                          t.height()+qMax(0, lw-2), availLength);
+        d->panelRect.setRect(stacky, 0, availThickness - (exth-overlap)
+                             - t.height() + qMax(0, lw - 2), availLength);
+    } else {
+        d->tabs->setGeometry(tabx, taby, t.width(), t.height());
+        d->panelRect.setRect(0, d->pos != South ? stacky : 0, availLength,
+                             availThickness - (exth - overlap) - t.height() + qMax(0, lw - 2));
     }
 
 
     const int BORDER = 1;
-    if (horiz)
-        d->stack->setGeometry(BORDER, stacky, availLength - 2 * BORDER, d->panelRect.height() - 2);
-    else
+    if (verticalTabs)
         d->stack->setGeometry(stacky, BORDER, d->panelRect.width() - 2, availLength - 2 * BORDER);
+    else
+        d->stack->setGeometry(BORDER, stacky, availLength - 2 * BORDER, d->panelRect.height() - 2);
 
     d->dirty = false;
 
     // move cornerwidgets
     if (d->leftCornerWidget) {
-        int cwThickness = horiz ? d->leftCornerWidget->height() : d->leftCornerWidget->width();
+        int cwThickness = verticalTabs ? d->leftCornerWidget->width()
+                                       : d->leftCornerWidget->height();
         int y = ((t.height() - BORDER) / 2) - (cwThickness / 2);
-        if (tabPosition() == QTabWidget::Bottom)
+        if (tabPosition() == QTabWidget::South)
             ++y;
         int x = (reverse ? availLength - lcw + y : y);
-        if (horiz)
-            d->leftCornerWidget->move(x, y + taby);
-        else
+        if (verticalTabs)
             d->leftCornerWidget->move(y + taby, x);
+        else
+            d->leftCornerWidget->move(x, y + taby);
     }
     if (d->rightCornerWidget) {
-        int cwThickness = horiz ? d->rightCornerWidget->height() : d->rightCornerWidget->width();
+        int cwThickness = verticalTabs ? d->rightCornerWidget->width()
+                                       : d->rightCornerWidget->height();
         int y = ((t.height() - BORDER) / 2) - (cwThickness / 2);
-        if (tabPosition() == QTabWidget::Bottom)
+        if (tabPosition() == QTabWidget::South)
             ++y;
         int x = (reverse ? y : availLength - rcw + y);
-        if (horiz)
-            d->rightCornerWidget->move(x, y + taby);
-        else
+        if (verticalTabs)
             d->rightCornerWidget->move(y + taby, x);
+        else
+            d->rightCornerWidget->move(x, y + taby);
     }
     if (!onlyCheck)
         update();
@@ -667,7 +671,7 @@ QSize QTabWidget::sizeHint() const
     else
         t = t.boundedTo(QApplication::desktop()->size());
     QSize sz;
-    if (d->tabs->orientation() == Qt::Horizontal)
+    if (d->pos == North || d->pos == South)
         sz = QSize(qMax(s.width(), t.width() + rc.width() + lc.width()),
                    s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
     else
@@ -716,13 +720,35 @@ void QTabWidget::showEvent(QShowEvent *)
     setUpLayout();
 }
 
+void QTabWidgetPrivate::updateTabBarPosition()
+{
+    switch (pos) {
+    case QTabWidget::North:
+        tabs->setShape(shape == QTabWidget::Rounded ? QTabBar::RoundedNorth
+                                                    : QTabBar::TriangularNorth);
+        break;
+    case QTabWidget::South:
+        tabs->setShape(shape == QTabWidget::Rounded ? QTabBar::RoundedSouth
+                                                    : QTabBar::TriangularSouth);
+        break;
+    case QTabWidget::West:
+        tabs->setShape(shape == QTabWidget::Rounded ? QTabBar::RoundedWest
+                                                    : QTabBar::TriangularWest);
+        break;
+    case QTabWidget::East:
+        tabs->setShape(shape == QTabWidget::Rounded ? QTabBar::RoundedEast
+                                                    : QTabBar::TriangularEast);
+        break;
+    }
+    q->setUpLayout();
+}
 
 /*!
     \property QTabWidget::tabPosition
     \brief the position of the tabs in this tab widget
 
-    Possible values for this property are \c QTabWidget::Top and \c
-    QTabWidget::Bottom.
+    Possible values for this property are \c QTabWidget::North and \c
+    QTabWidget::South.
 
     \sa TabPosition
 */
@@ -736,19 +762,7 @@ void QTabWidget::setTabPosition(TabPosition pos)
     if (d->pos == pos)
         return;
     d->pos = pos;
-    if (d->tabs->shape() == QTabBar::TriangularAbove || d->tabs->shape() == QTabBar::TriangularBelow) {
-        if (pos == Bottom)
-            d->tabs->setShape(QTabBar::TriangularBelow);
-        else
-            d->tabs->setShape(QTabBar::TriangularAbove);
-    }
-    else {
-        if (pos == Bottom)
-            d->tabs->setShape(QTabBar::RoundedBelow);
-        else
-            d->tabs->setShape(QTabBar::RoundedAbove);
-    }
-    setUpLayout();
+    d->updateTabBarPosition();
 }
 
 /*!
@@ -771,42 +785,8 @@ void QTabWidget::setTabShape(TabShape s)
     if (d->shape == s)
         return;
     d->shape = s;
-    if (d->pos == Top) {
-        if (s == Rounded)
-            d->tabs->setShape(QTabBar::RoundedAbove);
-        else
-            d->tabs->setShape(QTabBar::TriangularAbove);
-    } else {
-        if (s == Rounded)
-            d->tabs->setShape(QTabBar::RoundedBelow);
-        else
-            d->tabs->setShape(QTabBar::TriangularBelow);
-    }
-    setUpLayout();
+    d->updateTabBarPosition();
 }
-
-/*!
-    \property QTabWidget::orientation
-    \brief the orientation of the tabbar
-
-    The orientation must be \l Qt::Horizontal (the default) or \l
-    Qt::Vertical.
-*/
-
-Qt::Orientation QTabWidget::orientation() const
-{
-    return d->tabs->orientation();
-}
-
-void QTabWidget::setOrientation(Qt::Orientation orientation)
-{
-    if (d->tabs->orientation() == orientation)
-        return;
-    d->tabs->setOrientation( orientation );
-    setUpLayout();
-}
-
-
 
 /*!
     \reimp
@@ -938,9 +918,9 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Enabled;
     if (isActiveWindow())
         opt.state |= QStyle::Style_Active;
-    if (tabPosition() == QTabWidget::Top)
+    if (tabPosition() == QTabWidget::North)
         opt.state |= QStyle::Style_Top;
-    else if (tabPosition() == QTabWidget::Bottom)
+    else if (tabPosition() == QTabWidget::South)
         opt.state |= QStyle::Style_Bottom;
     opt.rect = d->panelRect;
     p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);

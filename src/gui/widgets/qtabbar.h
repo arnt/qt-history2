@@ -32,8 +32,13 @@ public:
     QTabBar(QWidget* parent=0);
     ~QTabBar();
 
-    enum Shape { RoundedAbove, RoundedBelow,
-                 TriangularAbove, TriangularBelow };
+    enum Shape { RoundedNorth, RoundedSouth, RoundedWest, RoundedEast,
+                 TriangularNorth, TriangularSouth, TriangularWest, TriangularEast
+#ifdef QT_COMPAT
+                , RoundedAbove = RoundedNorth, RoundedBelow = RoundedSouth,
+                TriangularAbove = TriangularNorth, TriangularBelow = TriangularSouth
+#endif
+    };
 
     Shape shape() const;
     void setShape(Shape shape);

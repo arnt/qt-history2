@@ -40,13 +40,12 @@ class QTabBarPrivate  : public QWidgetPrivate
 public:
     QTabBarPrivate()
         :currentIndex(-1), pressedIndex(-1),
-         shape(QTabBar::RoundedAbove), orientation(Qt::Horizontal),
+         shape(QTabBar::RoundedNorth),
          layoutDirty(false), scrollOffset(0){}
 
     int currentIndex;
     int pressedIndex;
     QTabBar::Shape shape;
-    Qt::Orientation orientation;
     bool layoutDirty;
     int scrollOffset;
 
@@ -109,7 +108,6 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     if (opt.rect.contains(q->mapFromGlobal(QCursor::pos())))
         opt.state |= QStyle::Style_MouseOver;
     opt.shape = shape;
-    opt.orientation = orientation;
     opt.text = ptab->text;
     opt.icon = ptab->icon;
 
@@ -161,14 +159,14 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 
     The \l shape property defines the tabs' appearance. The choice of
     shape is a matter of taste, although tab dialogs (for preferences
-    and similar) invariably use \c RoundedAbove; nobody uses \c
-    TriangularAbove. Tab controls in windows other than dialogs almost
-    always use either \c RoundedBelow or \c TriangularBelow. Many
+    and similar) invariably use \c RoundedNorth.
+    Tab controls in windows other than dialogs almost
+    always use either \c RoundedSouth or \c TriangularSouth. Many
     spreadsheets and other tab controls in which all the pages are
-    essentially similar use \c TriangularBelow, whereas \c
-    RoundedBelow is used mostly when the pages are different (e.g. a
+    essentially similar use \c TriangularSouth, whereas \c
+    RoundedSouth is used mostly when the pages are different (e.g. a
     multi-page tool palette). The default in QTabBar is \c
-    RoundedAbove.
+    RoundedNorth.
 
     The most important part of QTabBar's API is the currentChanged()
     signal.  This is emitted whenever the current tab changes (even at
@@ -203,17 +201,27 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
 /*!
     \enum QTabBar::Shape
 
-    This enum type lists the built-in shapes supported by QTabBar:
+    This enum type lists the built-in shapes supported by QTabBar. Treat these
+    as hints as some styles may not render some of the shapes. However,
+    position should be honored.
 
-    \value RoundedAbove  the normal rounded look above the pages
+    \value RoundedNorth  the normal rounded look above the pages
 
-    \value RoundedBelow  the normal rounded look below the pages
+    \value RoundedSouth  the normal rounded look below the pages
 
-    \value TriangularAbove  triangular tabs above the pages (very
-    unusual; included for completeness)
+    \value RoundedWest  the normal rounded look on the left side of the pages
+
+    \value RoundedEast  the normal rounded look on the right side the pages
+
+    \value TriangularNorth  triangular tabs above the pages.
 
     \value TriangularBelow  triangular tabs similar to those used in
     the Excel spreadsheet, for example
+
+    \value TriangularWest  triangular tabs on the left of the pages.
+
+    \value TriangularEast  triangular tabs on the right of the pages.
+
 */
 
 /*!
@@ -263,6 +271,14 @@ int QTabBarPrivate::indexAtPos(const QPoint &p) const
     return -1;
 }
 
+inline static bool verticalTabs(QTabBar::Shape shape)
+{
+    return shape == QTabBar::RoundedWest
+           || shape == QTabBar::RoundedEast
+           || shape == QTabBar::TriangularWest
+           || shape == QTabBar::TriangularEast;
+}
+
 
 void QTabBarPrivate::layoutTabs()
 {
@@ -270,7 +286,8 @@ void QTabBarPrivate::layoutTabs()
     layoutDirty = false;
     QSize size = q->size();
     int last, available;
-    if (orientation == Qt::Horizontal) {
+    bool vertTabs = verticalTabs(shape);
+    if (!vertTabs) {
         int x = 0;
         for (int i = 0; i < tabList.count(); ++i) {
             QSize sz = q->tabSizeHint(i);
@@ -292,7 +309,7 @@ void QTabBarPrivate::layoutTabs()
 
     if (tabList.count() && last > available) {
         int extra = extraWidth();
-        if (orientation == Qt::Horizontal) {
+        if (!vertTabs) {
             QRect arrows = QStyle::visualRect(q->layoutDirection(), q->rect(), QRect(available - extra, 0, extra, size.height()));
             d->leftB->setGeometry(arrows.left(), arrows.top(), extra/2, arrows.height());
             d->rightB->setGeometry(arrows.right() - extra/2 + 1, arrows.top(), extra/2, arrows.height());
@@ -320,7 +337,7 @@ void QTabBarPrivate::makeVisible(int index)
     const QRect tabRect = tabList.at(index).rect;
 
     const int oldScrollOffset = scrollOffset;
-    const bool horiz = orientation == Qt::Horizontal;
+    const bool horiz = !verticalTabs(shape);
     const int available = (horiz ? q->width() : q->height()) - extraWidth();
     const int start = horiz ? tabRect.left() : tabRect.top();
     const int end = horiz ? tabRect.right() : tabRect.bottom();
@@ -344,7 +361,7 @@ void QTabBarPrivate::scrollTabs()
 {
     const QObject *sender = q->sender();
     int i = -1;
-    if (orientation == Qt::Horizontal) {
+    if (!verticalTabs(shape)) {
         if (sender == leftB) {
             for (i = d->tabList.count() - 1; i >= 0; --i) {
                 if (tabList.at(i).rect.left() - scrollOffset < 0) {
@@ -414,7 +431,7 @@ QTabBar::~QTabBar()
     \brief the shape of the tabs in the tab bar
 
     The value of this property is one of the following: \c
-    RoundedAbove (default), \c RoundedBelow, \c TriangularAbove or \c
+    RoundedNorth (default), \c RoundedSouth, \c TriangularNorth or \c
     TriangularBelow.
 
     \sa Shape
@@ -431,37 +448,6 @@ void QTabBar::setShape(Shape shape)
     if (d->shape == shape)
         return;
     d->shape = shape;
-    d->refresh();
-}
-
-
-/*!
-    \property QTabBar::orientation
-    \brief the orientation of the tabbar
-
-    The orientation must be \l Qt::Horizontal (the default) or \l
-    Qt::Vertical.
-*/
-
-Qt::Orientation QTabBar::orientation() const
-{
-    return d->orientation;
-}
-
-void QTabBar::setOrientation(Qt::Orientation orientation)
-{
-    if (d->orientation == orientation)
-        return;
-    d->orientation = orientation;
-    if (!testWState(Qt::WState_OwnSizePolicy)) {
-        QSizePolicy sp = sizePolicy();
-        sp.transpose();
-        setSizePolicy(sp);
-        clearWState(Qt::WState_OwnSizePolicy);
-    }
-    d->leftB->setArrowType(orientation == Qt::Horizontal ? Qt::LeftArrow : Qt::UpArrow);
-    d->rightB->setArrowType(orientation == Qt::Horizontal ? Qt::RightArrow : Qt::DownArrow);
-
     d->refresh();
 }
 
@@ -626,7 +612,6 @@ QString QTabBar::tabToolTip(int index) const
     return QString();
 }
 
-
 /*!
     Returns the visual rectangle of the of the tab at position \a
     index, or a null rectangle if \a index is out of range.
@@ -637,10 +622,10 @@ QRect QTabBar::tabRect(int index) const
         if (d->layoutDirty)
             const_cast<QTabBarPrivate*>(d)->layoutTabs();
         QRect r = tab->rect;
-        if (d->orientation == Qt::Horizontal)
-            r.translate(-d->scrollOffset, 0);
-        else
+        if (verticalTabs(d->shape))
             r.translate(0, -d->scrollOffset);
+        else
+            r.translate(-d->scrollOffset, 0);
         return QStyle::visualRect(layoutDirection(), rect(), r);
     }
     return QRect();
@@ -705,10 +690,10 @@ QSize QTabBar::minimumSizeHint() const
 {
     if (style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, 0, this))
         return sizeHint();
-    if (d->orientation == Qt::Horizontal)
-        return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
-    else
+    if (verticalTabs(d->shape))
         return QSize(sizeHint().width(), d->rightB->sizeHint().height() * 2 + 75);
+    else
+        return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
 }
 
 /*!
@@ -725,7 +710,7 @@ QSize QTabBar::tabSizeHint(int index) const
         const QFontMetrics fm = fontMetrics();
         QSize csz(fm.size(Qt::TextShowMnemonic, tab->text).width() + iconSize.width() + hframe,
                   qMax(fm.height(), iconSize.height()) + vframe);
-        if (d->orientation == Qt::Vertical)
+        if (verticalTabs(d->shape))
             csz.transpose();
         return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
@@ -823,9 +808,9 @@ void QTabBar::paintEvent(QPaintEvent *)
         }
 
     }
-    if (d->shape == QTabBar::RoundedAbove)
+    if (d->shape == QTabBar::RoundedNorth)
         opt.state |= QStyle::Style_Top;
-    else if (d->shape == QTabBar::RoundedBelow)
+    else if (d->shape == QTabBar::RoundedSouth)
         opt.state |= QStyle::Style_Bottom;
     opt.shape = d->shape;
     p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);

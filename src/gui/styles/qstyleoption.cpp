@@ -398,8 +398,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
 
 QStyleOptionTab::QStyleOptionTab()
     : QStyleOption(QStyleOptionTab::Version, SO_Tab),
-      shape(QTabBar::RoundedAbove),
-      orientation(Qt::Horizontal),
+      shape(QTabBar::RoundedNorth),
       row(0),
       position(Beginning),
       selectedPosition(NotAdjacent)
@@ -411,8 +410,7 @@ QStyleOptionTab::QStyleOptionTab()
 */
 QStyleOptionTab::QStyleOptionTab(int version)
     : QStyleOption(version, SO_Tab),
-      shape(QTabBar::RoundedAbove),
-      orientation(Qt::Horizontal),
+      shape(QTabBar::RoundedNorth),
       row(0),
       position(Beginning),
       selectedPosition(NotAdjacent)
@@ -1503,13 +1501,15 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 */
 
 QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame()
-    : QStyleOption(Version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0)
+    : QStyleOption(Version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0),
+      shape(QTabBar::RoundedNorth)
 {
 }
 
 /*! \internal */
 QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
-    : QStyleOption(version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0)
+    : QStyleOption(version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0),
+      shape(QTabBar::RoundedNorth)
 {
 }
 
