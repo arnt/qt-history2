@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#71 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#72 $
 **
 ** Definition of QListView widget class
 **
@@ -74,7 +74,7 @@ public:
     virtual void insertItem( QListViewItem * );
     virtual void removeItem( QListViewItem * );
 
-    int height() const { return ownHeight; }
+    int height() const;
     virtual void invalidateHeight();
     int totalHeight() const;
     virtual int width( const QFontMetrics&,

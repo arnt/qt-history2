@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#209 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#210 $
 **
 ** Implementation of QListView widget class
 **
@@ -2346,11 +2346,25 @@ QListViewItem* QListViewItem::parent () const
 */
 
 
-/*! \fn int QListViewItem::height () const
-
+/*!
   Returns the height of this item in pixels.  This does not include
   the height of any children; totalHeight() returns that.
 */
+int QListViewItem::height() const
+{
+#ifdef QT_ARNT_CONFIRMED
+    // ##### Arnt, shouldn't we do this, now that height() can
+    // ##### be changed (it was inline in 1.4x).
+
+    QListViewItem * that = (QListViewItem *)this;
+    if ( !that->configured ) {
+	that->configured = TRUE;
+	that->setup(); // ### virtual non-const function called in const
+    }
+#endif
+
+    return ownHeight;
+}
 
 /*!
   Call this function when the value of width() may have changed
