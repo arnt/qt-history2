@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#36 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#37 $
 **
 ** Definition of QFrame widget class
 **
@@ -36,16 +36,17 @@ class Q_EXPORT QFrame : public QWidget			// frame class
     Q_OBJECT
 public:
     QFrame( QWidget *parent=0, const char *name=0, WFlags f=0,
-	    bool allowLines=TRUE );
+	    bool = TRUE );
 
     int		frameStyle()	const;
     virtual void setFrameStyle( int );
 
     int		frameWidth()	const;
-    QRect	frameRect()	const;
     QRect	contentsRect()	const;
 
-    bool	lineShapesOk()	const;
+#if 1 // OBSOLETE, provided for compatibility
+    bool	lineShapesOk()	const { return TRUE; }
+#endif
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -79,8 +80,10 @@ q_properties:
     int		midLineWidth()	const;
     virtual void setMidLineWidth( int );
 
-protected:
+    QRect	frameRect()	const;
     virtual void setFrameRect( const QRect & );
+
+protected:
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
     virtual void drawFrame( QPainter * );
@@ -98,7 +101,6 @@ private:
     short	mwidth;
     short	mlwidth;
     short	fwidth;
-    short	lineok;
 
     void * d;
 private:	// Disabled copy constructor and operator=
@@ -123,9 +125,6 @@ inline void QFrame::setFrameShape( QFrame::Shape s )
 
 inline void QFrame::setFrameShadow( QFrame::Shadow s )
 { setFrameStyle( ( fstyle & MShape ) | s ); }
-
-inline bool QFrame::lineShapesOk() const
-{ return lineok; }				// ### Qt 2.0: bool
 
 inline int QFrame::lineWidth() const
 { return lwidth; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#87 $
 **
 ** Implementation of QFrame widget class
 **
@@ -31,13 +31,12 @@
 
 /*!
   \class QFrame qframe.h
-  \brief The QFrame class is the base class of widgets that have an (optional)
-  frame.
+  \brief The QFrame class is the base class of widgets that (can) have a frame.
 
   \ingroup abstractwidgets
   \ingroup realwidgets
 
-  It draws a label and calls a virtual function, drawContents(), to
+  It draws a frame and calls a virtual function, drawContents(), to
   fill in the frame.  This function is reimplemented by essentially
   all subclasses.  There are also two other less useful functions,
   drawFrame() and frameChanged().
@@ -86,9 +85,9 @@
   <img src=frames.gif height=422 width=520 alt="Table of frame styles">
 
   For obvious reasons, \c NoFrame isn't shown.  The gray areas next to
-  the \c VLine and \c HLine examples are there because the widgets are
-  taller/wider than the natural width of the lines.  frameWidth()
-  returns the natural width of the line.
+  the \c VLine and \c HLine examples are there because the widgets in
+  the illustration are taller/wider than the natural width of the
+  lines.  frameWidth() returns the natural width of the line.
 
   The labels on the top and right are QLabel objects with frameStyle()
   \c Raised|Panel and lineWidth() 1.
@@ -99,15 +98,16 @@
   Constructs a frame widget with frame style \c NoFrame and a 1 pixel frame
   width.
 
-  The \e allowLines argument can be set to FALSE to disallow \c HLine and
-  \c VLine shapes.
+  The last argument exists for compatibility with Qt 1.x; it
+  no longer has any meaning.  (In Qt 2.x, QFrame always allows the
+  HLine and VLine styles.)
 
   The \e parent, \e name and \e f arguments are passed to the QWidget
   constructor.
 */
 
 QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
-		bool allowLines )
+		bool )
     : QWidget( parent, name, f )
 {
     frect  = QRect( 0, 0, 0, 0 );
@@ -115,7 +115,6 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
     lwidth = 1;
     mwidth = 0;
     mlwidth = 0;
-    lineok = (short)allowLines;
     d = 0;
     updateFrameWidth();
 }
@@ -171,10 +170,10 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
   <li> \c StyledPanel draws a rectangular panel with a look depending on
   the current GUI style.  It can be raised or sunken.
-  <li> \c WinPanel draws a rectangular panel that can be raised or sunken.
-  Specifying this shape sets the line width to 2 pixels.  WinPanel provides
-  fancy Windows 95-like shadows. WinPanel is provided for compatibility. For
-  GUI style independence it's recommened to use StyledPanel with
+  <li> \c WinPanel draws a rectangular panel that can be raised or
+  sunken, very like those in Windows 95.  Specifying this shape sets
+  the line width to 2 pixels.  WinPanel is provided for compatibility.
+  For GUI style independence we recommend using StyledPanel with
   setLineWidth(2) instead.
   <li> \c HLine draws a horizontal line (vertically centered).
   <li> \c VLine draws a vertical line (horizontally centered).
@@ -195,21 +194,12 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   frames.  The mid color of the current color group is used for
   drawing middle lines.
 
-  \warning Attempts to set the frame style to \c HLine or \c VLine
-  (with any shadow style) are disregarded unless line shapes are
-  allowed.  Line shapes are allowed by default.
-
-  \sa <a href="#picture">Illustration</a>, frameStyle(), lineShapesOk(),
+  \sa <a href="#picture">Illustration</a>, frameStyle(), 
   colorGroup(), QColorGroup
 */
 
 void QFrame::setFrameStyle( int style )
 {
-    if ( !lineShapesOk() ) {
-	int t = style & QFrame::MShape;
-	if ( t == QFrame::HLine || t == QFrame::VLine )
-	    return;
-    }
 #if defined(CHECK_RANGE)
     bool shape	= (style & MShape)  != 0;
     bool shadow = (style & MShadow) != 0;
@@ -222,15 +212,6 @@ void QFrame::setFrameStyle( int style )
 }
 
 /*!
-  \fn bool QFrame::lineShapesOk() const
-  Returns TRUE if line shapes (\c HLine or \c VLine) are allowed, or FALSE if
-  they are not allowed.
-
-  It is only possible to disallow line shapes in the constructor.
-  The default value is TRUE.
-*/
-
-/*!
   \fn int QFrame::lineWidth() const
   Returns the line width.  (Note that the \e total line width
   for \c HLine and \c VLine is given by frameWidth(), not
@@ -240,6 +221,7 @@ void QFrame::setFrameStyle( int style )
 
   \sa setLineWidth(), midLineWidth(), frameWidth()
 */
+
 
 /*!
   Sets the line width to \e w.
