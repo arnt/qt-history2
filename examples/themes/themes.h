@@ -26,22 +26,10 @@ public:
 protected:
     QTabWidget *tabwidget;
 
-    int sWood, sMetal, sPlatinum, sWindows, sCDE, sMotif, sMotifPlus;
-
 protected slots:
-    void styleWood();
-    void styleMetal();
-    void stylePlatinum();
-    void styleWindows();
-    void styleCDE();
-    void styleMotif();
-    void styleMotifPlus();
-
+    void makeStyle(const QString &);
     void about();
     void aboutQt();
-
-private:
-    void selectStyleMenu( int );
 
     QFont appFont;
 
