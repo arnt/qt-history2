@@ -111,5 +111,11 @@ inline int qt_div_255x255(int x) { return (x + (x>>7) + (x>>14)) >> 16; }
      | (qt_div_255(qGreen(p) * qAlpha(p))  << 8)           \
      | qt_div_255(qBlue(p) * qAlpha(p)))
 
+#define INV_PREMUL(p)                                          \
+    ((qAlpha(p) << 24)                                     \
+     | (((255*qRed(p))/ qAlpha(p)) << 16)             \
+     | (((255*qGreen(p)) / qAlpha(p))  << 8)           \
+     | ((255*qBlue(p)) / qAlpha(p)))
+
 
 #endif

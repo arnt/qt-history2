@@ -1088,10 +1088,10 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int xmax = qMin(devRect.x() + devRect.width(), d->rasterBuffer->width());
     int xmin = qMax(devRect.x(), 0);
 
-    bool bitorder = image.bitOrder();
+    QImage::Format format = image.format();
     for (int y = ymin; y < ymax; ++y) {
         uchar *src = image.scanLine(y - devRect.y());
-        if (bitorder == QImage::LittleEndian) {
+        if (format == QImage::Format_MonoLSB) {
             for (int x = 0; x < xmax - xmin; ++x) {
                 bool set = src[x >> 3] & (0x1 << (x & 7));
                 if (set) {
@@ -1704,8 +1704,7 @@ uint *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
 
 QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QColor &color)
 {
-    tempImage = QImage(image->size(), 32);
-    Q_ASSERT(image->depth() == 32);
+    tempImage = QImage(image->size(), QImage::Format_ARGB32_Premultiplied);
     QRgb color1 = 0xff000000;
     QRgb fg = PREMUL(color.rgba());
     QRgb bg = opaqueBackground ? PREMUL(bgBrush.color().rgba()) : 0;
@@ -1715,7 +1714,6 @@ QImage *QRasterPaintEnginePrivate::colorizeBitmap(const QImage *image, const QCo
         for (int x=0; x < image->width(); ++x)
             target[x] = source[x] == color1 ? fg : bg;
     }
-    tempImage.setAlphaBuffer(true);
     return &tempImage;
 }
 
@@ -2284,7 +2282,7 @@ void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userDat
 #ifndef QT_NO_DEBUG
 QImage QRasterBuffer::clipImage() const
 {
-    QImage image(m_width, m_height, 32);
+    QImage image(m_width, m_height, QImage::Format_ARGB32_Premultiplied);
     image.fill(qRgb(0, 0, 0));
 
     for (int y = 0; y < m_height; ++y) {
@@ -2304,7 +2302,7 @@ QImage QRasterBuffer::clipImage() const
 
 QImage QRasterBuffer::bufferImage() const
 {
-    QImage image(m_width, m_height, 32);
+    QImage image(m_width, m_height, QImage::Format_ARGB32_Premultiplied);
 
     for (int y = 0; y < m_height; ++y) {
         uint *span = const_cast<QRasterBuffer *>(this)->scanLine(y);
@@ -2314,7 +2312,6 @@ QImage QRasterBuffer::bufferImage() const
             image.setPixel(x, y, argb);
         }
     }
-    image.setAlphaBuffer(true);
     return image;
 }
 #endif
@@ -2392,7 +2389,7 @@ void GradientData::initColorTable()
 
     // Up to first point
     while (pos<=begin_pos) {
-        colorTable[pos] = stopColors[0];
+        colorTable[pos] = PREMUL(stopColors[0]);
         ++pos;
     }
 
@@ -2413,7 +2410,7 @@ void GradientData::initColorTable()
                          / (stopPoints[current_stop+1] - stopPoints[current_stop]));
         int idist = 255 - dist;
 
-        colorTable[pos] = INTERPOLATE_PIXEL(current_color, idist, next_color, dist);
+        colorTable[pos] = PREMUL(INTERPOLATE_PIXEL(current_color, idist, next_color, dist));
 
         ++pos;
         dpos += incr;
@@ -2425,7 +2422,7 @@ void GradientData::initColorTable()
 
     // After last point
     while (pos < GRADIENT_STOPTABLE_SIZE) {
-        colorTable[pos] = stopColors[stopCount-1];
+        colorTable[pos] = PREMUL(stopColors[stopCount-1]);
         ++pos;
     }
 }
@@ -2721,7 +2718,7 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
     int width = rect.width();
     int height = rect.height();
 
-    QImage image(width, height, 32);
+    QImage image(width, height, rdata->alphaColor ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32);
     if ( rdata->stopCount == 0 ) {
         image.fill( 0 );
         return image;
@@ -2779,8 +2776,6 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
         dy += d2y;
     }
 
-    image.setAlphaBuffer(rdata->alphaColor);
-
     return image;
 } // qt_draw_gradient_pixmap
 
@@ -2796,7 +2791,7 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
     int width = rect.width();
     int height = rect.height();
 
-    QImage image(width, height, 32);
+    QImage image(width, height, cdata->alphaColor ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32);
 
     if ( cdata->stopCount == 0 ) {
         image.fill( 0 );
@@ -2894,8 +2889,6 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
         }
         dx += 1;
     }
-
-    image.setAlphaBuffer(cdata->alphaColor);
 
     return image;
 }

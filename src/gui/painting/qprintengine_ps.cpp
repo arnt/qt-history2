@@ -3040,13 +3040,13 @@ static QByteArray compress(const QImage & image, bool gray) {
     uchar *pixel = (uchar *)pixelData.data();
     int i = 0;
     if (depth == 1) {
-        QImage::Endian bitOrder = image.bitOrder();
+        QImage::Format format = image.format();
         memset(pixel, 0xff, size);
         for(int y=0; y < height; y++) {
             const uchar * s = image.scanLine(y);
             for(int x=0; x < width; x++) {
                 // need to copy bit for bit...
-                bool b = (bitOrder == QImage::LittleEndian) ?
+                bool b = (format == QImage::Format_MonoLSB) ?
                          (*(s + (x >> 3)) >> (x & 7)) & 1 :
                          (*(s + (x >> 3)) << (x & 7)) & 0x80 ;
                 if (b)

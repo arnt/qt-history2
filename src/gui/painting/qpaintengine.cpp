@@ -434,9 +434,8 @@ void QPaintEngine::drawTiledPixmap(const QRectF &rect, const QPixmap &pixmap, co
         QPixmap tile;
         if (pixmap.hasAlphaChannel()) {
             // ####################
-            QImage image(tw, th, 32);
-            image.fill(QColor(255, 0, 0, 127).rgb());
-            image.setAlphaBuffer(true);
+            QImage image(tw, th, QImage::Format_ARGB32_Premultiplied);
+            image.fill(qRgba(127, 0, 0, 127));
             tile = QPixmap::fromImage(image);
         } else {
             tile = QPixmap(tw, th, pixmap.depth());

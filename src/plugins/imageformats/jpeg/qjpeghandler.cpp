@@ -206,9 +206,9 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 
             // Create QImage's without allocating the data
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image = QImage(NULL, cinfo.output_width, cinfo.output_height, 32, NULL, 0, QImage::IgnoreEndian);
+                image = QImage(NULL, cinfo.output_width, cinfo.output_height, QImage::Format_RGB32);
             } else if (cinfo.output_components == 1) {
-                image = QImage(NULL, cinfo.output_width, cinfo.output_height, 8, NULL, 0, QImage::IgnoreEndian);
+                image = QImage(NULL, cinfo.output_width, cinfo.output_height, QImage::Format_Indexed8);
             } else {
                 // Unsupported format
             }
@@ -235,9 +235,10 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 //            qDebug("Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr);
 
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image = QImage(sWidth, sHeight, 32);
+                image = QImage(sWidth, sHeight, QImage::Format_RGB32);
             } else if (cinfo.output_components == 1) {
-                image = QImage(sWidth, sHeight, 8, 256);
+                image = QImage(sWidth, sHeight, QImage::Format_Indexed8);
+                image.setNumColors(256);
                 for (int i=0; i<256; i++)
                     image.setColor(i, qRgb(i,i,i));
             } else {
@@ -247,7 +248,7 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                 return false;
 
             if (!image.isNull()) {
-                QImage tmpImage(cinfo.output_width, 1, 32);
+                QImage tmpImage(cinfo.output_width, 1, QImage::Format_RGB32);
                 uchar* inData = tmpImage.bits();
                 uchar* outData = image.bits();
                 int out_bpl = image.bytesPerLine();
@@ -284,9 +285,10 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
         } else {
 
             if (cinfo.output_components == 3 || cinfo.output_components == 4) {
-                image = QImage(cinfo.output_width, cinfo.output_height, 32);
+                image = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_RGB32);
             } else if (cinfo.output_components == 1) {
-                image = QImage(cinfo.output_width, cinfo.output_height, 8, 256);
+                image = QImage(cinfo.output_width, cinfo.output_height, QImage::Format_Indexed8);
+                image.setNumColors(256);
                 for (int i=0; i<256; i++)
                     image.setColor(i, qRgb(i,i,i));
             } else {
@@ -489,7 +491,7 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
             case 1:
                 if (gray) {
                     uchar* data = image.scanLine(cinfo.next_scanline);
-                    if (image.bitOrder() == QImage::LittleEndian) {
+                    if (image.format() == QImage::Format_MonoLSB) {
                         for (int i=0; i<w; i++) {
                             bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
                             row[i] = qRed(cmap[bit]);
@@ -502,7 +504,7 @@ static bool write_jpeg_image(const QImage &sourceImage, QIODevice *device, int s
                     }
                 } else {
                     uchar* data = image.scanLine(cinfo.next_scanline);
-                    if (image.bitOrder() == QImage::LittleEndian) {
+                    if (image.format() == QImage::Format_MonoLSB) {
                         for (int i=0; i<w; i++) {
                             bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
                             *row++ = qRed(cmap[bit]);

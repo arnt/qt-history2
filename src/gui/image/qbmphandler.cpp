@@ -182,28 +182,32 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
 
     int ncols;
     int depth;
+    QImage::Format format;
     switch (nbits) {
         case 32:
         case 24:
         case 16:
             depth = 32;
+            format = QImage::Format_RGB32;
             break;
         case 8:
         case 4:
             depth = 8;
+            format = QImage::Format_Indexed8;
             break;
         default:
             depth = 1;
+            format = QImage::Format_Mono;
     }
-    if (depth == 32)                                // there's no colormap
-        ncols = 0;
-    else                                        // # colors used
-        ncols = bi.biClrUsed ? bi.biClrUsed : 1 << nbits;
 
-    image = QImage(w, h, depth, ncols, nbits == 1 ?
-                   QImage::BigEndian : QImage::IgnoreEndian);
+    image = QImage(w, h, format);
     if (image.isNull())                        // could not create image
         return false;
+
+    if (depth != 32) {
+        ncols = bi.biClrUsed ? bi.biClrUsed : 1 << nbits;
+        image.setNumColors(ncols);
+    }
 
     image.setDotsPerMeterX(bi.biXPelsPerMeter);
     image.setDotsPerMeterY(bi.biYPelsPerMeter);
@@ -519,10 +523,10 @@ bool Q_GUI_EXPORT qt_write_dib(QDataStream &s, QImage image)
         delete [] color_table;
     }
 
-    if (image.depth() == 1 && image.bitOrder() != QImage::BigEndian)
-        image = image.convertBitOrder(QImage::BigEndian);
+    if (image.format() == QImage::Format_MonoLSB)
+        image = image.convertToFormat(QImage::Format_Mono);
 
-    int         y;
+    int y;
 
     if (nbits == 1 || nbits == 8) {                // direct output
 #ifdef Q_WS_QWS

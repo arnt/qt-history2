@@ -820,11 +820,12 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
     if (cpp > 15)
         return false;
 
-    if (ncols > 256) {
-        image = QImage(w, h, 32);
-    } else {
-        image = QImage(w, h, 8, ncols);
-    }
+    QImage::Format format = QImage::Format_Indexed8;
+    if (ncols > 256)
+        format = QImage::Format_RGB32;
+    image = QImage(w, h, format);
+    if (ncols <= 256)
+        image.setNumColors(ncols);
 
     if (image.isNull())
         return false;

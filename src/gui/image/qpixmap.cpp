@@ -509,7 +509,7 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 */
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {
-    QImage maskImage(size(), 1, 0, QImage::LittleEndian);
+    QImage maskImage(size(), QImage::Format_MonoLSB);
     QImage image = toImage();
     QRgb mColor = maskColor.rgba();
     for (int w = 0; w < width(); w++) {

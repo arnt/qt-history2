@@ -125,27 +125,26 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
     png_uint_32 height;
     int bit_depth;
     int color_type;
-    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
-        0, 0, 0);
+    png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, 0, 0, 0);
 
     if (color_type == PNG_COLOR_TYPE_GRAY) {
         // Black & White or 8-bit grayscale
         if (bit_depth == 1 && info_ptr->channels == 1) {
             png_set_invert_mono(png_ptr);
             png_read_update_info(png_ptr, info_ptr);
-            image = QImage(width, height, 1, 2, QImage::BigEndian);
+            image = QImage(width, height, QImage::Format_Mono);
             if (image.isNull())
                 return;
+            image.setNumColors(2);
             image.setColor(1, qRgb(0,0,0));
             image.setColor(0, qRgb(255,255,255));
         } else if (bit_depth == 16 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
             png_set_expand(png_ptr);
             png_set_strip_16(png_ptr);
             png_set_gray_to_rgb(png_ptr);
-            image = QImage(width, height, 32);
+            image = QImage(width, height, QImage::Format_ARGB32);
             if (image.isNull())
                 return;
-            image.setAlphaBuffer(true);
             if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
                 png_set_swap_alpha(png_ptr);
 
@@ -157,9 +156,10 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
                 png_set_packing(png_ptr);
             int ncols = bit_depth < 8 ? 1 << bit_depth : 256;
             png_read_update_info(png_ptr, info_ptr);
-            image = QImage(width, height, 8, ncols);
+            image = QImage(width, height, QImage::Format_Indexed8);
             if (image.isNull())
                 return;
+            image.setNumColors(ncols);
             for (int i=0; i<ncols; i++) {
                 int c = i*255/(ncols-1);
                 image.setColor(i, qRgba(c,c,c,0xff));
@@ -173,18 +173,18 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             }
         }
     } else if (color_type == PNG_COLOR_TYPE_PALETTE
-     && png_get_valid(png_ptr, info_ptr, PNG_INFO_PLTE)
-     && info_ptr->num_palette <= 256)
+               && png_get_valid(png_ptr, info_ptr, PNG_INFO_PLTE)
+               && info_ptr->num_palette <= 256)
     {
         // 1-bit and 8-bit color
         if (bit_depth != 1)
             png_set_packing(png_ptr);
         png_read_update_info(png_ptr, info_ptr);
-        png_get_IHDR(png_ptr, info_ptr,
-            &width, &height, &bit_depth, &color_type, 0, 0, 0);
-        image = QImage(width, height, bit_depth, info_ptr->num_palette, QImage::BigEndian);
+        png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, 0, 0, 0);
+        image = QImage(width, height, bit_depth == 1 ? QImage::Format_Mono : QImage::Format_Indexed8);
         if (image.isNull())
             return;
+        image.setNumColors(info_ptr->num_palette);
         int i = 0;
         if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
             image.setAlphaBuffer(true);
@@ -219,19 +219,18 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
         if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
             png_set_gray_to_rgb(png_ptr);
 
-        image = QImage(width, height, 32);
-        if (image.isNull())
-            return;
-
+        QImage::Format format = QImage::Format_ARGB32;
         // Only add filler if no alpha, or we can get 5 channel data.
         if (!(color_type & PNG_COLOR_MASK_ALPHA)
-           && !png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+            && !png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
             png_set_filler(png_ptr, 0xff, QSysInfo::ByteOrder == QSysInfo::BigEndian ?
                            PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
             // We want 4 bytes, but it isn't an alpha channel
-        } else {
-            image.setAlphaBuffer(true);
+            format = QImage::Format_RGB32;
         }
+        image = QImage(width, height, format);
+        if (image.isNull())
+            return;
 
         if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
             png_set_swap_alpha(png_ptr);
@@ -511,7 +510,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
     info_ptr->sig_bit.green = 8;
     info_ptr->sig_bit.blue = 8;
 
-    if (image.depth() == 1 && image.bitOrder() == QImage::LittleEndian)
+    if (image.format() == QImage::Format_MonoLSB)
        png_set_packswap(png_ptr);
 
     png_colorp palette = 0;

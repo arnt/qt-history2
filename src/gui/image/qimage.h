@@ -48,7 +48,6 @@ public:
 class Q_GUI_EXPORT QImage : public QPaintDevice
 {
 public:
-    enum Endian { BigEndian, LittleEndian, IgnoreEndian };
     enum InvertMode { InvertRgb, InvertRgba };
     enum Format {
         Format_Invalid,
@@ -62,10 +61,9 @@ public:
 
     QImage();
     QImage(const QSize &size, Format format);
-    QImage(int with, int height, Format format);
+    QImage(int width, int height, Format format);
+    QImage(uchar *data, int width, int height, Format format);
 
-    QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
-    QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     explicit QImage(const char * const xpm[]);
 #ifndef QT_NO_IMAGEIO
     explicit QImage(const QString &fileName, const char *format = 0);
@@ -73,10 +71,7 @@ public:
     explicit QImage(const char *fileName, const char *format = 0);
 #endif
 #endif
-    QImage(uchar *data, int w, int h, int depth, const QRgb *colortable, int numColors, Endian bitOrder);
-#ifdef Q_WS_QWS
-    QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
-#endif
+
     QImage(const QImage &);
     ~QImage();
 
@@ -95,7 +90,8 @@ public:
 
     Format format() const;
 
-    QImage convertToFormat(Format f) const;
+    QImage convertToFormat(Format f, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+    QImage convertToFormat(Format f, const QVector<QRgb> &colorTable, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
 
     int width() const;
     int height() const;
@@ -104,7 +100,6 @@ public:
 
     int depth() const;
     int numColors() const;
-    Endian bitOrder() const;
 
     QRgb color(int i) const;
     void setColor(int i, QRgb c);
@@ -137,10 +132,6 @@ public:
     int pixelIndex(int x, int y) const;
     QRgb pixel(int x, int y) const;
     void setPixel(int x, int y, uint index_or_rgb);
-
-    QImage convertDepthWithPalette(int, QRgb* p, int pc, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-    QImage convertDepth(int, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-    QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_TRANSFORMATION
     inline QImage scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
@@ -204,6 +195,20 @@ public:
 #endif
 
 #ifdef QT3_SUPPORT
+    enum Endian { BigEndian, LittleEndian, IgnoreEndian };
+    QT3_SUPPORT_CONSTRUCTOR QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
+    QT3_SUPPORT_CONSTRUCTOR QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
+    QT3_SUPPORT_CONSTRUCTOR QImage(uchar *data, int w, int h, int depth, const QRgb *colortable, int numColors, Endian bitOrder);
+#ifdef Q_WS_QWS
+    QT3_SUPPORT_CONSTRUCTOR QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
+#endif
+    inline QT3_SUPPORT Endian bitOrder() const {
+        Format f = format();
+        return f == Format_Mono ? BigEndian : (f == Format_MonoLSB ? LittleEndian : IgnoreEndian);
+    }
+    QT3_SUPPORT QImage convertDepth(int, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+    QT3_SUPPORT QImage convertDepthWithPalette(int, QRgb* p, int pc, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+    QT3_SUPPORT QImage convertBitOrder(Endian) const;
     QT3_SUPPORT uchar **jumpTable();
     QT3_SUPPORT const uchar * const *jumpTable() const;
     inline QT3_SUPPORT void reset() { *this = QImage(); }

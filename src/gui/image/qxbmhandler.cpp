@@ -83,10 +83,11 @@ static bool read_xbm_image(QIODevice *device, QImage *outImage)
             break;
     }
 
-    image = QImage(w, h, 1, 2, QImage::LittleEndian);
+    image = QImage(w, h, QImage::Format_MonoLSB);
     if (image.isNull())
         return false;
 
+    image.setNumColors(2);
     image.setColor(0, qRgb(255,255,255));        // white
     image.setColor(1, qRgb(0,0,0));                // black
 
@@ -131,10 +132,8 @@ static bool write_xbm_image(const QImage &sourceImage, QIODevice *device, const 
     sprintf(buf, "static char %s_bits[] = {\n ", s.toAscii().data());
     device->write(buf, qstrlen(buf));
 
-    if (image.depth() != 1)
-	image = image.convertDepth(1);	// dither
-    if (image.bitOrder() != QImage::LittleEndian)
-        image = image.convertBitOrder(QImage::LittleEndian);
+    if (image.format() != QImage::Format_MonoLSB)
+        image = image.convertToFormat(QImage::Format_MonoLSB);
 
     bool invert = qGray(image.color(0)) < qGray(image.color(1));
     char hexrep[16];

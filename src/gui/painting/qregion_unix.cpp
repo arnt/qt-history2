@@ -2102,7 +2102,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
         }
 
     const int zero = 0;
-    bool little = image.bitOrder() == QImage::LittleEndian;
+    bool little = image.format() == QImage::Format_MonoLSB;
 
     int x,
         y;

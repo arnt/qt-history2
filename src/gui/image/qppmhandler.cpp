@@ -68,18 +68,22 @@ static bool read_pbm_image(QIODevice *device, QImage *outImage)        // read P
         return false;
     if (!(buf[0] == 'P' && isdigit((uchar) buf[1]) && isspace((uchar) buf[2])))
         return false;
+    QImage::Format format;
     switch ((type=buf[1])) {
         case '1':                                // ascii PBM
         case '4':                                // raw PBM
             nbits = 1;
+            format = QImage::Format_Mono;
             break;
         case '2':                                // ascii PGM
         case '5':                                // raw PGM
             nbits = 8;
+            format = QImage::Format_Indexed8;
             break;
         case '3':                                // ascii PPM
         case '6':                                // raw PPM
             nbits = 32;
+            format = QImage::Format_RGB32;
             break;
         default:
             return false;
@@ -97,7 +101,7 @@ static bool read_pbm_image(QIODevice *device, QImage *outImage)        // read P
     int maxc = mcc;
     if (maxc > 255)
         maxc = 255;
-    image = QImage(w, h, nbits, 0, nbits == 1 ? QImage::BigEndian :  QImage::IgnoreEndian);
+    image = QImage(w, h, format);
     if (image.isNull())
         return false;
 

@@ -2491,7 +2491,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
     int w = width();
     int h = height();
     if (format().rgba()) {
-        res = QImage(w, h, 32);
+        res = QImage(w, h, QImage::Format_ARGB32);
         glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
         if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
             // OpenGL gives RGBA; Qt wants ARGB

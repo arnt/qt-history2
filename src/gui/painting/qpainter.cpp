@@ -3496,8 +3496,8 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
         if (pixmap.hasAlphaChannel()) {
             // Needed to preserve the alpha channel in the pixmap
             // While setPixel() is needed to switch on alpha buffer on Embedded
-            QImage img(qRound(r.width()), qRound(r.height()), 32);
-            img.setPixel(0, 0, QColor(255, 0, 0, 127).rgba());
+            QImage img(qRound(r.width()), qRound(r.height()), QImage::Format_ARGB32_Premultiplied);
+            img.setPixel(0, 0, qRgba(127, 0, 0, 127));
             img.setAlphaBuffer(true);
             pm = QPixmap::fromImage(img);
         } else {

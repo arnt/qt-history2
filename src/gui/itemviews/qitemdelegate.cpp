@@ -528,7 +528,7 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
     if (!pm) {
         QImage img = pixmap.toImage();
         if (img.depth() != 32)
-            img = img.convertDepth(32);
+            img = img.convertToFormat(QImage::Format_ARGB32);
         img.setAlphaBuffer(true);
         QColor color = palette.color(enabled
                                      ? QPalette::Normal

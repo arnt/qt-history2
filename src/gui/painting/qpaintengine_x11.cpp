@@ -161,7 +161,8 @@ static QPixmap qt_patternForAlpha(uchar alpha)
     static QPixmap pm;
     QString key = "$qt-alpha-brush$" + QString::number(alpha);
     if (!QPixmapCache::find(key, pm)) {
-        QImage pattern(DITHER_SIZE, DITHER_SIZE, 32);
+        // #### why not use a mono image here????
+        QImage pattern(DITHER_SIZE, DITHER_SIZE, QImage::Format_ARGB32);
         pattern.fill(0xffffffff);
         for (int y = 0; y < DITHER_SIZE; ++y) {
             for (int x = 0; x < DITHER_SIZE; ++x) {

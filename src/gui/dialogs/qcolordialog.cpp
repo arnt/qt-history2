@@ -727,7 +727,7 @@ void QColorLuminancePicker::paintEvent(QPaintEvent *)
     int hi = r.height() - 2;
     if (!pix || pix->height() != hi || pix->width() != wi) {
         delete pix;
-        QImage img(wi, hi, 32);
+        QImage img(wi, hi, QImage::Format_RGB32);
         int y;
         for (y = 0; y < hi; y++) {
             QColor c;
@@ -776,7 +776,7 @@ QColorPicker::QColorPicker(QWidget* parent)
     hue = 0; sat = 0;
     setCol(150, 255);
 
-    QImage img(pWidth, pHeight, 32);
+    QImage img(pWidth, pHeight, QImage::Format_RGB32);
     int x,y;
     for (y = 0; y < pHeight; y++)
         for (x = 0; x < pWidth; x++) {
