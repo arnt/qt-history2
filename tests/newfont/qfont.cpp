@@ -1558,12 +1558,15 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (d->x11data.fontstruct[i]) {
-	    d->load((QFontPrivate::Script) i);
-	}
-    }
 
+    /*
+      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+      if (d->x11data.fontstruct[i]) {
+      d->load((QFontPrivate::Script) i);
+      }
+      }
+    */
+    
     painter = 0;
     flags = 0;
 
@@ -1593,11 +1596,14 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (d->x11data.fontstruct[i]) {
-	    d->load((QFontPrivate::Script) i);
-	}
-    }
+    
+    /*
+      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+      if (d->x11data.fontstruct[i]) {
+      d->load((QFontPrivate::Script) i);
+      }
+      }
+    */
     
     flags = 0;
 
@@ -1898,12 +1904,15 @@ QFontInfo::QFontInfo( const QFont &font )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (d->x11data.fontstruct[i]) {
-	    d->load((QFontPrivate::Script) i);
-	}
-    }
-
+    
+    /*
+      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+      if (d->x11data.fontstruct[i]) {
+      d->load((QFontPrivate::Script) i);
+      }
+      }
+    */
+    
     painter = 0;
     flags = 0;
 
@@ -1935,12 +1944,15 @@ QFontInfo::QFontInfo( const QPainter *p )
     d->ref();
 
     d->load(QFontPrivate::defaultScript);
-    for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-	if (d->x11data.fontstruct[i]) {
-	    d->load((QFontPrivate::Script) i);
-	}
-    }
-
+    
+    /*
+      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
+      if (d->x11data.fontstruct[i]) {
+      d->load((QFontPrivate::Script) i);
+      }
+      }
+    */
+    
     flags = 0;
 
     insertFontInfo( this );

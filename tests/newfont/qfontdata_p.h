@@ -63,14 +63,14 @@ struct QFontDef {
     uchar styleHint;
     uchar styleStrategy;
     uchar weight;
-    
+
     bool italic;
     bool underline;
     bool strikeOut;
     bool fixedPitch;
     bool hintSetByUser;
     bool rawMode;
-    
+
     bool dirty;
 };
 
@@ -85,16 +85,18 @@ class QTextCodec;
 class QFontStruct : public QShared
 {
 public:
-    QFontStruct(Qt::HANDLE h, QCString n) :
-	handle(h), name(n), codec(0)
+    QFontStruct(Qt::HANDLE h, QCString n, QTextCodec *c, int a) :
+	handle(h), name(n), codec(c), cache_cost(a)
     { ; }
 
     ~QFontStruct();
-
+    
     Qt::HANDLE handle;
     QCString name;
     QTextCodec *codec;
+    int cache_cost;
 };
+
 #endif // Q_WS_X11
 
 
@@ -180,7 +182,7 @@ public:
 	actual.hintSetByUser = FALSE;
 	actual.rawMode = FALSE;
 	actual.dirty = TRUE;
-	
+
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
 #endif
