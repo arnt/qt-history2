@@ -505,8 +505,8 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
                 static const char hexchars[] = "0123456789abcdef";
                 for (int i = 0; i < ba.size(); ++i) {
                     uchar s = (uchar) ba[(int)i];
-                    res += hexchars[s >> 4];
-                    res += hexchars[s & 0x0f];
+                    res += QLatin1Char(hexchars[s >> 4]);
+                    res += QLatin1Char(hexchars[s & 0x0f]);
                 }
                 r = QLatin1Char('\'') + res +  QLatin1Char('\'');
                 break;

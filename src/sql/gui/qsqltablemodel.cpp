@@ -386,7 +386,7 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
                                  QSqlError::StatementError);
         return false;
     }
-    stmt.append(' ').append(where);
+    stmt.append(QLatin1Char(' ')).append(where);
 
     if (prepStatement) {
         if (d->editQuery.lastQuery() != stmt) {
@@ -706,7 +706,7 @@ bool QSqlTableModel::removeRow(int row, const QModelIndex &parent)
                              QSqlError::StatementError);
         return false;
     }
-    stmt.append(' ').append(where);
+    stmt.append(QLatin1Char(' ')).append(where);
 
     if (prepStatement) {
         if (d->editQuery.lastQuery() != stmt) {
