@@ -532,7 +532,7 @@ QString QAction::statusTip() const
   \a whatsThis may contain rich-text elements, e.g.:
 
   \dontinclude action/application.cpp
-  \skipto fileOpenText
+  \skipto filePrintText
   \printuntil setWhatsThis
 
   (For a detailed explanation of the above code refer to the
