@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#35 $
 **
 ** Implementation of QPainter class
 **
@@ -22,39 +22,43 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#35 $";
 #endif
 
 
 /*!
-\class QPainter qpainter.h
-\brief The QPainter class paints on paint devices.
+  \class QPainter qpainter.h
+  \brief The QPainter class paints on paint devices.
 
-The painter provides graphics rendering on any QPaintDevice object.
+  The painter provides graphics rendering on any QPaintDevice object.
 
-Graphics can be transformed using view transformation, world transformation
-or a combination of these two.
-View transformation is a window/viewport transformation with translation
-and scaling.  World transformation is a full 2D transformation including
-rotation and shearing.
+  Graphics can be transformed using view transformation, world transformation
+  or a combination of these two.
+  View transformation is a window/viewport transformation with translation
+  and scaling.  World transformation is a full 2D transformation including
+  rotation and shearing.
 
-The typical use of a painter is:
-<ol>
-<li> Call begin() to begin painting on a device.
-<li> Set a pen, a brush etc.
-<li> Perform the drawing.
-<li> Call end() to finish painting.
-</ol>
+  The typical use of a painter is:
+  <ol>
+  <li> Call begin() to begin painting on a device.
+  <li> Set a pen, a brush etc.
+  <li> Draw.
+  <li> Call end() to finish painting.
+  </ol>
 
-Example of use:
-\code
-  QWidget  widget;
-  QPainter paint;
-  paint.begin( &widget );
-  paint.setPen( blue );
-  paint.drawText( 20, 20, 100, 100, AlignCenter, "The Text" );
-  paint.end();
-\endcode
+  Example of use:
+  \code
+    void MyWidget::paintEvent()
+    {
+	QPainter paint;
+	paint.begin( &this );			// start painting widget
+	paint.setPen( blue );			// set blue pen
+	paint.drawText( rect(),			// draw a text, centered
+	                AlignCenter,		//   in the widget
+			"The Text" );
+	paint.end();				// painting done
+    }
+  \endcode
 */
 
 
@@ -68,10 +72,13 @@ void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 
 
 /*!
-Set the number of pixels per tab stop to a fixed number.
+  Set the number of pixels per tab stop to a fixed number.
 
-Tab stops are used when drawing formatted text with \c ExpandTabs set.
-\sa setTabArray().
+  Tab stops are used when drawing formatted text with \c ExpandTabs set.
+  This fixed tab stop value has lower precedence than tab array
+  settings.
+
+  \sa setTabArray()
 */
 
 void QPainter::setTabStops( int ts )		// set tab stops
@@ -85,10 +92,13 @@ void QPainter::setTabStops( int ts )		// set tab stops
 }
 
 /*!
-Set an array containing the tab stops.
+  Set an array containing the tab stops.
 
-The last tab stop must be 0 (terminates the array).
-\sa setTabStops().
+  The last tab stop must be 0 (terminates the array). <br>
+  Notice that setting a tab array overrides any fixed tabulator
+  stop that is set using setTabStops().
+
+  \sa setTabStops()
 */
 
 void QPainter::setTabArray( int *ta )		// set tab array
@@ -143,8 +153,8 @@ void QPainter::killPStack()
 }
 
 /*!
-Saves the current painter state (pushes the state onto a stack).
-\sa restore().
+  Saves the current painter state (pushes the state onto a stack).
+  \sa restore()
 */
 
 void QPainter::save()				// save/push painter state
@@ -183,8 +193,8 @@ void QPainter::save()				// save/push painter state
 }
 
 /*!
-Restores the current painter state (pops a saved state off the stack).
-\sa save().
+  Restores the current painter state (pops a saved state off the stack).
+  \sa save()
 */
 
 void QPainter::restore()			// restore/pop painter state
@@ -242,21 +252,20 @@ void QPainter::restore()			// restore/pop painter state
 //
 
 /*!
-Draw a horizontal (\e y1 == \e y2) or vertical (\e x1 == \e x2) shaded line.
+  Draw a horizontal (\e y1 == \e y2) or vertical (\e x1 == \e x2) shaded line.
 
-The \e tColor argument specifies the top (or left) color and \e bColor
-specifies the bottom (or right) color.
+  The \e tColor argument specifies the top (or left) color and \e bColor
+  specifies the bottom (or right) color.
 
-The \e lw argument specifies the line width for each of the lines. It is
-not the total line width.
+  The \e lw argument specifies the line width for each of the lines. It is
+  not the total line width.
 
-The \e mw argument specifies the width of a middle line drawn in \e mColor.
+  The \e mw argument specifies the width of a middle line drawn in \e mColor.
 
-If \e tColor is brighter that \e bColor, the line appears to be
-raised from the surface.  If \e tColor is darker that \e bColor, the line
-appears to be sunken into the surface.
-
-\sa drawShadeRect() and drawShadePanel().
+  If \e tColor is brighter that \e bColor, the line appears to be
+  raised from the surface.  If \e tColor is darker that \e bColor, the line
+  appears to be sunken into the surface.
+  \sa drawShadeRect(), drawShadePanel(), QFrame
 */
 
 void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
@@ -325,10 +334,10 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 
 
 /*!
-Draw a shaded rectangle given by \e (x,y,w,h).
+  Draw a shaded rectangle given by \e (x,y,w,h).
 
-The arguments have the same meaning as for drawShadeLine().
-\sa drawShadeLine(), drawShadePanel()
+  The arguments have the same meaning as for drawShadeLine().
+  \sa drawShadeLine(), drawShadePanel(), QFrame
 */
 
 void QPainter::drawShadeRect( int x, int y, int w, int h,
@@ -385,7 +394,8 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
 
 
 /*!
-Draw a shaded panel given by \e (x,y,w,h).
+  Draw a shaded panel given by \e (x,y,w,h).
+  \sa drawShadeLine(), drawShadeRect(), QFrame
 */
 
 void QPainter::drawShadePanel( int x, int y, int w, int h,
@@ -447,7 +457,7 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
 //
 
 /*!
-Fills the rectangle \e (x,y,w,h) with a \e color.
+  Fills the rectangle \e (x,y,w,h) with a \e color.
 */
 
 void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
@@ -468,7 +478,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 //
 
 /*!
-Synonymous to setBrushOrigin(x,y).
+  Overloaded setBrushOrigin; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::setBrushOrigin( const QPoint &p )
@@ -477,7 +487,7 @@ void QPainter::setBrushOrigin( const QPoint &p )
 }
 
 /*!
-Synonymous to setWindow(x,y,w,h).
+  Overloaded setWindow; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::setWindow( const QRect &r )
@@ -486,7 +496,7 @@ void QPainter::setWindow( const QRect &r )
 }
 
 /*!
-Synonymous to setViewport(x,y,w,h).
+  Overloaded setViewport; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::setViewport( const QRect &r )
@@ -495,11 +505,8 @@ void QPainter::setViewport( const QRect &r )
 }
 
 /*!
-Clips graphics to the rectangle defined by \e x,\e y,\e w and \e h.
-
-Clipping is automatically enabled.
-
-\sa setClipRegion().
+  Sets the clip region to \e (x,y,w,h) and enables clipping.
+  \sa setClipRegion(), setClipping()
 */
 
 void QPainter::setClipRect( int x, int y, int w, int h )
@@ -508,7 +515,7 @@ void QPainter::setClipRect( int x, int y, int w, int h )
 }
 
 /*!
-Synonymous to drawPoint(x,y).
+  Overloaded to drawPoint; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::drawPoint( const QPoint &p )
@@ -517,7 +524,7 @@ void QPainter::drawPoint( const QPoint &p )
 }
 
 /*!
-Synonymous to moveTo(x,y).
+  Overloaded moveTo; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::moveTo( const QPoint &p )
@@ -526,7 +533,7 @@ void QPainter::moveTo( const QPoint &p )
 }
 
 /*!
-Synonymous to lineTo(x,y).
+  Overloaded lineTo; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::lineTo( const QPoint &p )
@@ -535,7 +542,7 @@ void QPainter::lineTo( const QPoint &p )
 }
 
 /*!
-Synonymous to drawLine(x1,y1,x2,y2).
+  Overloaded drawLine; takes two QPoints instead of \e (x1,y1),(x2,y2).
 */
 
 void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
@@ -544,7 +551,7 @@ void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
 }
 
 /*!
-Synonymous to drawRect(x,y,w,h).
+  Overloaded drawRect; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::drawRect( const QRect &r )
@@ -553,7 +560,7 @@ void QPainter::drawRect( const QRect &r )
 }
 
 /*!
-Synonymous to drawRoundRect(x,y,w,h,xRnd,yRnd).
+  Overloaded drawRoundRect; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
@@ -562,7 +569,7 @@ void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
 }
 
 /*!
-Synonymous to drawEllipse(x,y,w,h).
+  Overloaded drawEllipse; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::drawEllipse( const QRect &r )
@@ -571,34 +578,34 @@ void QPainter::drawEllipse( const QRect &r )
 }
 
 /*!
-Synonymous to drawArc(x,y,w,h,a1,a2).
+  Overloaded drawArc; takes a QRect instead of \e (x,y,w,h).
 */
 
-void QPainter::drawArc( const QRect &r, int a1, int a2 )
+void QPainter::drawArc( const QRect &r, int a, int alen )
 {
-    drawArc( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+    drawArc( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
 /*!
-Synonymous to drawPie(x,y,w,h,a1,a2).
+  Overloaded drawPie; takes a QRect instead of \e (x,y,w,h).
 */
 
-void QPainter::drawPie( const QRect &r, int a1, int a2 )
+void QPainter::drawPie( const QRect &r, int a, int alen )
 {
-    drawPie( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+    drawPie( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
 /*!
-Synonymous to drawChord(x,y,w,h,a1,a2).
+  Overloaded drawChord; takes a QRect instead of \e (x,y,w,h).
 */
 
-void QPainter::drawChord( const QRect &r, int a1, int a2 )
+void QPainter::drawChord( const QRect &r, int a, int alen )
 {
-    drawChord( r.x(), r.y(), r.width(), r.height(), a1, a2 );
+    drawChord( r.x(), r.y(), r.width(), r.height(), a, alen );
 }
 
 /*!
-Synonymous to drawPixmap(x,y,pm,sx,sy,sw,sh).
+  Overloaded drawPixmap; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
@@ -608,7 +615,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
 }
 
 /*!
-Synonymous to fillRect(x,y,w,h,c).
+  Overloaded fillRect; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::fillRect( const QRect &r, const QColor &c )
@@ -617,7 +624,8 @@ void QPainter::fillRect( const QRect &r, const QColor &c )
 }
 
 /*!
-Calls <code>fillRect( x, y, w, h, backgroundColor() )</code>.
+  Erases the area inside \e (x,y,w,h). <br>
+  Equivalent to <code>fillRect( x, y, w, h, backgroundColor() )</code>.
 */
 
 void QPainter::eraseRect( int x, int y, int w, int h )
@@ -626,7 +634,7 @@ void QPainter::eraseRect( int x, int y, int w, int h )
 }
 
 /*!
-Synonymous to eraseRect(x,y,w,h).
+  Overloaded eraseRect; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::eraseRect( const QRect &r )
@@ -635,7 +643,7 @@ void QPainter::eraseRect( const QRect &r )
 }
 
 /*!
-Synonymous to drawShadeLine(x1,y1,x2,y2,...).
+  Overloaded drawShadeLine; takes two QPoints instead of \e (x1,y1),(x2,y2).
 */
 
 void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
@@ -646,7 +654,7 @@ void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
 }
 
 /*!
-Synonymous to drawShadeRect(x1,y1,x2,y2,...).
+  Overloaded drawShadeRect; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::drawShadeRect( const QRect &r,
@@ -657,7 +665,7 @@ void QPainter::drawShadeRect( const QRect &r,
 }
 
 /*!
-Synonymous to drawShadePanel(x1,y1,x2,y2,...).
+  Overloaded drawShadePanel; takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::drawShadePanel( const QRect &r,
@@ -668,7 +676,7 @@ void QPainter::drawShadePanel( const QRect &r,
 }
 
 /*!
-Synonymous to drawText(x,y,...).
+  Overloaded drawText; takes a QPoint instead of \e (x,y).
 */
 
 void QPainter::drawText( const QPoint &p, const char *s, int len )
@@ -677,7 +685,7 @@ void QPainter::drawText( const QPoint &p, const char *s, int len )
 }
 
 /*!
-Synonymous to drawText(x,y,w,h,...).
+  Overloaded drawText (formatted); takes a QRect instead of \e (x,y,w,h).
 */
 
 void QPainter::drawText( const QRect &r, int tf, const char *str, int len,
@@ -687,7 +695,7 @@ void QPainter::drawText( const QRect &r, int tf, const char *str, int len,
 }
 
 /*!
-Synonymous to boundingRect(x,y,w,h,...).
+  Overloaded boundingRect; takes a QRect instead of \e (x,y,w,h).
 */
 
 QRect QPainter::boundingRect( const QRect &r, int tf,
@@ -703,8 +711,8 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 //
 
 /*!
-\relates QPen
-Writes a pen to the stream.
+  \relates QPen
+  Writes a pen to the stream.
 */
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
@@ -713,8 +721,8 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 }
 
 /*!
-\relates QPen
-Reads a pen from the stream.
+  \relates QPen
+  Reads a pen from the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
@@ -734,21 +742,21 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 //
 
 /*!
-\relates QBrush
-Writes a brush to the stream.
+  \relates QBrush
+  Writes a brush to the stream.
 */
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
 {
     s << (UINT8)b.style() << b.color();
     if ( b.style() == CustomPattern )
-	s >> *b.bitmap();
+	s >> *b.pixmap();
     return s;
 }
 
 /*!
-\relates QBrush
-Reads a brush from the stream.
+  \relates QBrush
+  Reads a brush from the stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )
@@ -758,9 +766,9 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     s >> style;
     s >> color;
     if ( style == CustomPattern ) {
-	QBitmap bm;
-	s >> bm;
-	b = QBrush( color, bm );
+	QPixmap pm;
+	s >> pm;
+	b = QBrush( color, pm );
     }
     else
 	b = QBrush( color, (BrushStyle)style );
