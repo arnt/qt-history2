@@ -847,7 +847,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 #if defined(Q_CC_BOR)
 extern "C" __stdcall HRESULT DumpIDL( const QString &outfile, const QString &ver )
 #else
-HRESULT DumpIDL( const QString &outfile, const QString &ver )
+STDAPI DumpIDL( const QString &outfile, const QString &ver )
 #endif
 {
     qAxIsServer = FALSE;
