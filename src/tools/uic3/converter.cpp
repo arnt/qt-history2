@@ -360,7 +360,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     className = fixClassName(className);
 
     if ((className.endsWith("ListView") && className != QLatin1String("Q3ListView"))
-            || (className.endsWith("ListBox") && className != QLatin1String("QComboBox")) // ### Q3ComboBox??
+            || (className.endsWith("ListBox") && className != QLatin1String("QListBox")) // ### Q3ComboBox??
             || (className.endsWith("ComboBox") && className != QLatin1String("QComboBox")) // ### Q3ComboBox??
             || (className.endsWith("IconView") && className != QLatin1String("QIconView"))) // ### Q3IconView??
         candidateCustomWidgets.insert(className, true);
