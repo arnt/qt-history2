@@ -37,8 +37,10 @@ int main(int argc, char **argv)
 
     app.installTranslator(&translator);
 
-    QString keybase("/Qt Linguist/4.0/");
-    QSettings config("Trolltech", "Linguist");
+    app.setOrganizationDomain("trolltech.com");
+    app.setApplicationName("Linguist");
+    QString keybase("4.0/");
+    QSettings config;
 
     QRect r(QApplication::desktop()->screenGeometry());
     r.setX(config.value(keybase + "Geometry/MainwindowX", r.x()).toInt());

@@ -1813,10 +1813,9 @@ bool TrWindow::danger( const QString& source, const QString& translation,
 
 void TrWindow::readConfig()
 {
-    QString keybase("/Qt Linguist/" +
-        QString::number((QT_VERSION >> 16) & 0xff) +
-        "." + QString::number((QT_VERSION >> 8) & 0xff) + "/");
-    QSettings config("Trolltech", "Linguist");
+    QString keybase(QString::number((QT_VERSION >> 16) & 0xff)
+                    + "." + QString::number((QT_VERSION >> 8) & 0xff) + "/");
+    QSettings config;
 
     QRect r( pos(), size() );
     recentFiles = config.value(keybase + "RecentlyOpenedFiles").toStringList();
@@ -1863,10 +1862,9 @@ void TrWindow::readConfig()
 
 void TrWindow::writeConfig()
 {
-    QString keybase( "/Qt Linguist/" +
-                     QString::number( (QT_VERSION >> 16) & 0xff ) +
+    QString keybase(QString::number( (QT_VERSION >> 16) & 0xff ) +
                      "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
-    QSettings config("Trolltech", "Linguist");
+    QSettings config;
 
     config.setValue(keybase + "RecentlyOpenedFiles", recentFiles);
     config.setValue(keybase + "Geometry/MainwindowMaximized", isMaximized());
