@@ -22,6 +22,7 @@
 #include <qmetaobject.h>
 #include <qsettings.h>
 #include <qvariant.h>
+#include <qtextstream.h>
 
 #include <qt_windows.h>
 #include <olectl.h>
