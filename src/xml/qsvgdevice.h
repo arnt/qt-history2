@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#16 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#17 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -91,21 +91,6 @@ private:
     // writing
     void applyStyle( QDomElement *e, int c ) const;
     void applyTransform( QDomElement *e ) const;
-
-    enum ElementType {
-	InvalidElement = 0,
-	CommentElement,
-	RectElement,
-	CircleElement,
-	EllipseElement,
-	LineElement,
-	PolylineElement,
-	PolygonElement,
-	PathElement,
-	TextElement,
-	ImageElement,
-	GroupElement
-    };
 
     // reading
     QRect brect;	    		// bounding rectangle

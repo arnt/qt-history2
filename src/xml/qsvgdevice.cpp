@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#26 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#27 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -57,7 +57,22 @@ const char piData[] = "version=\"1.0\" standalone=\"yes\"";
 class QSvgDevicePrivate {
 };
 
-typedef QMap<QString,QSvgDevice::ElementType> QSvgTypeMap;
+enum ElementType {
+    InvalidElement = 0,
+    CommentElement,
+    RectElement,
+    CircleElement,
+    EllipseElement,
+    LineElement,
+    PolylineElement,
+    PolygonElement,
+    PathElement,
+    TextElement,
+    ImageElement,
+    GroupElement
+};
+
+typedef QMap<QString,ElementType> QSvgTypeMap;
 static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
