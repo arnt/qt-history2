@@ -272,7 +272,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) " 
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
-    t << "uicclean:"
+    t << "uiclean:"
       << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","") << endl;
 	
