@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#10 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#11 $
 **
 ** Definition of QProgressDialog class
 **
@@ -34,8 +34,6 @@ public:
     void	setLabel( QLabel * );
     void	setCancelButton( QPushButton * );
     void	setBar( QProgressBar * );
-    QLabel	  *label()  const;
-    QProgressBar  *bar()    const;
 
     bool	wasCancelled() const;
 
@@ -64,6 +62,8 @@ private:
 		         int totstps);
     void	   center();
     void	   layout();
+    QLabel	  *label()  const;
+    QProgressBar  *bar()    const;
     QProgressData *d;
 
 private:	// Disabled copy constructor and operator=
