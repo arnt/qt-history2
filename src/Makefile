@@ -77,6 +77,9 @@ showsources:
 showinternal:
 	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("INTERNAL")'
 
+showx11only:
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("X11ONLY")'
+
 
 include:
 	-rm -f $(INCDIR)/*.h
