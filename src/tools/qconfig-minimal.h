@@ -1,9 +1,5 @@
 #ifndef QT_H
 #endif /* QT_H */
-#if !defined(QT_NO_QWS_DEPTH_16) || !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_32) || !defined(QT_NO_QWS_VGA_16)  
-/* We only need 1-bit support if we have a 1-bit screen */
-#define QT_NO_QWS_DEPTH_1
-#endif
 
 #ifndef QT_NO_CHECK
 # define QT_NO_CHECK
@@ -51,6 +47,7 @@
 #define QT_NO_TEMPLATE_VARIANT
 #define QT_NO_SESSIONMANAGER
 #define QT_NO_QWS_KEYBOARD
+#define QT_NO_SYNTAXHIGHLIGHTER
 
 #define QT_NO_ACCEL
 #define QT_NO_BUTTON

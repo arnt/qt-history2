@@ -115,13 +115,15 @@ QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key )
     if ( driver == "vr41xx" || driver.isEmpty() )
 	return new QWSVr41xxKeyboardHandler();
 #endif
-#ifndef QT_NO_QWS_KBDTTY
+#ifndef QT_NO_QWS_KEYBOARD
+# ifndef QT_NO_QWS_KBDTTY
     if ( driver =="tty" || driver.isEmpty() )
 	return new QWSTtyKeyboardHandler();
-#endif
-#ifndef QT_NO_QWS_KBDUSB
+# endif
+# ifndef QT_NO_QWS_KBDUSB
     if ( driver == "usb" )
 	return new QWSUsbKeyboardHandler();
+# endif
 #endif
 
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)

@@ -39,6 +39,7 @@
 #include "qnamespace.h"
 #include "qdatastream.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <ctype.h>
 
 
@@ -436,7 +437,6 @@ bool QColor::isDirty() const
     }
 }
 
-#ifndef QT_NO_SPRINTF
 /*!
     Returns the name of the color in the format "#RRGGBB", i.e. a "#"
     character followed by three two-digit hexadecimal numbers.
@@ -446,11 +446,16 @@ bool QColor::isDirty() const
 
 QString QColor::name() const
 {
+#ifndef QT_NO_SPRINTF
     QString s;
     s.sprintf( "#%02x%02x%02x", red(), green(), blue() );
     return s;
-}
+#else
+    char s[20];
+    sprintf( s, "#%02x%02x%02x", red(), green(), blue() );
+    return QString(s);
 #endif
+}
 
 static int hex2int( QChar hexchar )
 {

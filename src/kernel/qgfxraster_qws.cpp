@@ -38,6 +38,8 @@
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 
+#include <limits.h>
+
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
 #ifdef Q_CC_EDG_
