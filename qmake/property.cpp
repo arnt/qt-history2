@@ -37,7 +37,7 @@ QMakeProperty::keyBase(bool version) const
 }
 
 QString
-QMakeProperty::value(QString v, bool just_check)
+QMakeProperty::value(QString v, bool /* just_check */)
 {
     if(v == "QT_INSTALL_PREFIX") {
 #ifdef QT_INSTALL_PREFIX
@@ -70,7 +70,7 @@ QMakeProperty::hasValue(QString v)
 }
 
 void
-QMakeProperty::setValue(QString var, const QString &val)
+QMakeProperty::setValue(QString var, const QString & /* val */)
 {
 }
 
