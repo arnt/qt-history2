@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#33 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#33 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -129,7 +129,7 @@ void QEvent::peErrMsg()				// posted event error message
   \fn QEvent::~QEvent()
   Destroys the event.  Reports an error if the event has been
   \link QApplication::postEvent() posted. \endlink
-  */
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QEvent::type() const
@@ -158,8 +158,6 @@ void QEvent::peErrMsg()				// posted event error message
   \sa QTimer, QObject::timerEvent(), QObject::startTimer(),
   QObject::killTimer(), QObject::killTimers()
  ----------------------------------------------------------------------------*/
-  
-  
 
 /*----------------------------------------------------------------------------
   \fn QTimerEvent::QTimerEvent( int timerId )
