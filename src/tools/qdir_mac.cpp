@@ -105,7 +105,7 @@ bool QDir::isReadable() const
 {
     if(!make_spec(filePath(dPath, TRUE)))
 	return FALSE;
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
     return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0; //let macx do an additional check
 #else
     return TRUE;

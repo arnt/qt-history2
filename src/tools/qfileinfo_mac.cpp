@@ -32,7 +32,7 @@
 #include "qdir.h"
 #include "qt_mac.h"
 
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
 #include <pwd.h>
 #include <grp.h>
 #endif
@@ -95,7 +95,7 @@ static const uint nobodyID = (uint) -2;
 
 QString QFileInfo::owner() const
 {
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
     passwd *pw = getpwuid( ownerId() );
     if ( pw )
 	return QFile::decodeName( pw->pw_name );
@@ -114,7 +114,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
     struct group *gr = getgrgid( groupId() );
     if ( gr )
 	return QFile::decodeName( gr->gr_name );

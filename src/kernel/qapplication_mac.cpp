@@ -614,6 +614,7 @@ void QApplication::beep()
   Main event loop
  *****************************************************************************/
 
+
 /* key maps */
 #ifdef DEBUG_KEY_MAPS
 #define MAP_KEY(x) x, #x
@@ -2236,4 +2237,3 @@ bool QApplication::qt_mac_apply_settings()
 
     return TRUE;
 }
-

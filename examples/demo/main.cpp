@@ -49,7 +49,7 @@
 #include "sql/sqlex.h"
 #endif
 
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
 #include <stdlib.h>
 #include <qdir.h>
 #endif
@@ -119,6 +119,7 @@ int main( int argc, char **argv )
 {
     QString category;
     QApplication a( argc, argv );
+
     for(int i = 1; i < argc-1; i++) {
 	if(!qstrcmp(argv[i], "-demo"))
 	    category = argv[++i];

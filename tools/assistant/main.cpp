@@ -270,7 +270,7 @@ void AddDoc::addItemToList( const QString &rcEntry, const QString &item )
 }
 
 
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
 #include <stdlib.h>
 #include <qdir.h>
 #endif

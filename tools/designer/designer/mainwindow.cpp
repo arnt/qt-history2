@@ -103,7 +103,7 @@ QString assistantPath()
 {
     QString path = QDir::cleanDirPath( QString( qInstallPathBins() ) +
 				       QDir::separator() + "assistant" );
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
     path += QDir::separator() + ".app/Contents/MacOS/assistant";
 #endif
 

@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -621,7 +621,7 @@ MetrowerksMakefileGenerator::findTemplate(QString file)
 bool
 MetrowerksMakefileGenerator::createFork(const QString &f)
 {
-#ifdef Q_OS_MACX
+#if defined(Q_OS_MACX)
     FSRef fref;
     FSSpec fileSpec;
     if(QFile::exists(f)) {
