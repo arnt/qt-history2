@@ -1,33 +1,26 @@
 #include <qprocess.h>
 #include <qtimer.h>
 #include <qmap.h>
+#include <qptrdict.h>
+#include <qwizard.h>
 
-#include "setupwizard.h"
+#include "pages/pages.h"
 #include "shell.h"
 
 class QCheckListItem;
+class QListView;
 
-class SetupWizardImpl : public SetupWizard
+class SetupWizardImpl : public QWizard
 {
     Q_OBJECT
 public:
     SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0, bool reconfig = false );
 
-// Slots reimplementations
-    virtual void clickedPath();
-    virtual void clickedSystem( int );
-    virtual void licenseAction( int );
-    virtual void clickedFolderPath();
-    virtual void clickedDevSysPath();
-    virtual void clickedLicenseFile();
-//    virtual void clickedEnvironmentButton();
-
-    virtual void showPage( QWidget* );
+    void showPage( QWidget* );
     void stopProcesses();
 
     void setReconfigMode( bool );
-protected:
-//    virtual void pageChanged( const QString& );
+
 private:
     int sysID;
 
@@ -45,26 +38,32 @@ private:
 
     void saveSettings();
     void saveSet( QListView* list );
-protected slots:
-    virtual void cleanDone();
-    virtual void configDone();
-    virtual void makeDone();
-    virtual void integratorDone();
-    virtual void readConfigureOutput();
-    virtual void readConfigureError();
-    virtual void readCleanerOutput();
-    virtual void readCleanerError();
-    virtual void readMakeOutput();
-    virtual void readMakeError();
-    virtual void readIntegratorOutput();
-    virtual void readIntegratorError();
-    virtual void timerFired();
+
+private slots:
+    void clickedPath();
+    void clickedSystem( int );
+    void licenseAction( int );
+    void clickedFolderPath();
+    void clickedDevSysPath();
+    void clickedLicenseFile();
+    void cleanDone();
+    void configDone();
+    void makeDone();
+    void integratorDone();
+    void readConfigureOutput();
+    void readConfigureError();
+    void readCleanerOutput();
+    void readCleanerError();
+    void readMakeOutput();
+    void readMakeError();
+    void readIntegratorOutput();
+    void readIntegratorError();
+    void timerFired();
     void optionSelected( QListViewItem * );
     void optionClicked( QListViewItem * );
     void configPageChanged();
     void archiveMsg(const QString &);
     void licenseChanged();
-//    virtual void envDone();
 
 private:
     void showPageLicense();
@@ -73,6 +72,9 @@ private:
     void showPageProgress();
     void showPageBuild();
     void showPageFinish();
+
+    void initPages();
+    void initConnections();
 
     void prepareEnvironment();
 
@@ -123,6 +125,7 @@ private:
     int timeCounter;
     bool triedToIntegrate;
     QStringList allModules;
+    QPixmap bullet;
 
     QCheckListItem *accOn, *accOff;
     QCheckListItem *bigCodecsOn, *bigCodecsOff;
@@ -147,6 +150,16 @@ private:
     QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
 
     QCheckListItem *staticItem;
+
+    // wizard pages
+    LicenseAgreementPageImpl	*licenseAgreementPage;
+    LicensePageImpl		*licensePage;
+    OptionsPageImpl		*optionsPage;
+    FoldersPageImpl		*foldersPage;
+    ConfigPageImpl		*configPage;
+    ProgressPageImpl		*progressPage;
+    BuildPageImpl		*buildPage;
+    FinishPageImpl		*finishPage;
 
 #if defined(EVAL)
     QLineEdit* evalName;

@@ -23,6 +23,7 @@
 #include <qarchive.h>
 #include <qvalidator.h>
 #include <qdatetime.h>
+#include <qlayout.h>
 
 #include <keyinfo.h>
 
@@ -30,88 +31,328 @@
 #include <check-and-patch.h>
 #endif
 
+#include "resource.h"
+#include "pages/sidedecoration.h"
+
 #define FILESTOCOPY 4582
 
-class ResourceLoader
-{
-public:
-    /*
-       Tries to load the binary resource \a resourceName. If the resource is
-       smaller than \a minimumSize, the resource is not loaded and isValid()
-       returns FALSE. isValid() returns also FALSE when the loading failed.
-    */
-    ResourceLoader( char *resourceName, int minimumSize=0 )
-    {
-#if defined(Q_OS_WIN32)
-	valid = TRUE;
-
-	HMODULE hmodule = GetModuleHandle( 0 );
-	HRSRC resource = FindResourceA( hmodule, resourceName, MAKEINTRESOURCEA( 10 ) );
-	HGLOBAL hglobal = LoadResource( hmodule, resource );
-	arSize = SizeofResource( hmodule, resource );
-	if ( arSize == 0 ) {
-	    valid = FALSE;
-	    return;
-	}
-	if ( arSize < minimumSize ) {
-	    valid = FALSE;
-	    return;
-	}
-	arData = (char*)LockResource( hglobal );
-	if ( arData == 0 ) {
-	    valid = FALSE;
-	    return;
-	}
-	ba.setRawData( arData, arSize );
-#elif defined(Q_OS_MACX)
-	valid = FALSE;
-	arSize = 0;
-	arData = 0;
-	QFile f;
-	QString path = "install.app/Contents/Qt/";
-	path += resourceName;
-	f.setName( path );
-	if (!f.open( IO_ReadOnly ))
-	    return;
-	QFileInfo fi(f);
-	arSize = fi.size();
-	arData = new char[arSize];
-	if (f.readBlock( arData, arSize ) != arSize)
-	{
-	    delete[] arData;
-	    return;
-	}
-	ba.setRawData( arData, arSize );
-	valid = TRUE;
-	return;
-#endif
-    }
-
-    ~ResourceLoader()
-    {
-	if ( isValid() )
-	    ba.resetRawData( arData, arSize );
-#if defined(Q_OS_MACX)
-	delete[] arData;
-#endif
-    }
-
-    bool isValid() const
-    {
-	return valid;
-    }
-
-    QByteArray data()
-    {
-	return ba;
-    }
-
-private:
-    bool valid;
-    int arSize;
-    char *arData;
-    QByteArray ba;
+/* XPM */
+static const char *bulletXpm[] = {
+/* width height num_colors chars_per_pixel */
+"    14    14       23            1",
+/* colors */
+". c #ccff99",
+"# c #bfbfbf",
+"a c #99ff99",
+"b c #99cc99",
+"c c #99cc66",
+"d c #66cc99",
+"e c #66cc66",
+"f c #669966",
+"g c #33ff66",
+"h c #33ff33",
+"i c #33cc66",
+"j c #33cc33",
+"k c #339933",
+"l c #00ff33",
+"m c #00ff00",
+"n c #00cc33",
+"o c #00cc00",
+"p c #009933",
+"q c #009900",
+"r c #006633",
+"s c #006600",
+"t c #003333",
+"u c #003300",
+/* pixels */
+"##############",
+"##############",
+"####djjnic####",
+"###eollmlne###",
+"##bnllhlonqd##",
+"##imla.lopqp##",
+"##nlmhgnnqqu##",
+"##nolnonqqrs##",
+"##iopopqrsur##",
+"##cpqpqssusf##",
+"###essrustk###",
+"####brssrk####",
+"##############",
+"##############"
 };
+
+static const char* const logo_data[] = { 
+"32 32 238 2",
+"Qt c None",
+"#u c #000000",
+".# c #020204",
+"a. c #102322",
+"af c #282500",
+"as c #292e26",
+"a8 c #2c686a",
+"ae c #307072",
+"#C c #322a0c",
+"#s c #36320c",
+"am c #3b3d3f",
+"#3 c #3c8082",
+"#f c #3e3a0c",
+"## c #423e0c",
+"#9 c #434341",
+"ad c #438888",
+"aU c #458d8e",
+"#g c #46420c",
+"aM c #46494a",
+"ay c #474948",
+"#D c #4a4328",
+".W c #4a4611",
+"az c #4a4641",
+"a1 c #4a4a49",
+"aH c #4b9e9e",
+"au c #4d9a9f",
+"aS c #4e9a9a",
+"an c #4f4e4a",
+".X c #504e0c",
+"a7 c #51a4a9",
+"#0 c #525250",
+"aT c #55a6a3",
+".Y c #56520c",
+"#a c #5a5604",
+".Z c #5e5a0c",
+".V c #5e5e5c",
+"a0 c #5e5e60",
+"a6 c #5ea0a6",
+".J c #625e0c",
+"bB c #64aaa9",
+"#m c #665e2c",
+"aL c #686867",
+"bw c #68acb2",
+"bo c #696928",
+"ba c #696967",
+"aE c #69aeb2",
+"#z c #6a5614",
+".K c #6a660c",
+"aZ c #6a6a65",
+"bG c #6db4b4",
+".9 c #6e5e24",
+"#. c #6e6a5c",
+"bv c #6fb6b9",
+"bC c #706d28",
+"br c #70bcc5",
+"aQ c #71b7ba",
+".I c #726234",
+".L c #726e0c",
+".0 c #72720c",
+"#w c #746d44",
+"be c #747028",
+"bH c #747428",
+".M c #76720a",
+"aR c #78c1c2",
+"#Z c #797977",
+"a2 c #7a5d3d",
+"#H c #7a6614",
+"#I c #7a760a",
+"#l c #7a7634",
+".1 c #7a7a0c",
+"#e c #7a7a5c",
+"bL c #7bc0c2",
+"b. c #7c7d82",
+"#d c #7e6e34",
+".N c #7e7a0a",
+"bP c #816c20",
+".8 c #82763c",
+"#h c #827a3c",
+".x c #827e0c",
+"#t c #827f4b",
+".O c #828204",
+"#v c #828384",
+".P c #868604",
+"bq c #87d4d9",
+"#k c #89864b",
+"#c c #8a8244",
+".y c #8a8604",
+"#j c #8d8652",
+"al c #8d8d8a",
+"#b c #8e8644",
+".z c #8e8e04",
+"aW c #8f9094",
+"#i c #908952",
+"#Q c #909021",
+"ag c #90d0d2",
+"bO c #916f34",
+"bQ c #91cdd3",
+".7 c #928a44",
+"#p c #928e6c",
+"#P c #947f2f",
+".A c #949204",
+"bh c #949495",
+".6 c #968e4c",
+"aC c #999721",
+".w c #9a8a44",
+"#M c #9a9a99",
+"ap c #9b9b21",
+".5 c #9c924c",
+"#R c #9c9a04",
+"#7 c #9d9d9b",
+"ao c #9e7641",
+".4 c #9e964c",
+"#J c #9e9b21",
+".B c #9e9e04",
+"ac c #9e9e9d",
+"#S c #a09e21",
+"ax c #a0a0a3",
+"aK c #a1a1a2",
+"aX c #a1a1a4",
+".r c #a2a204",
+"#1 c #a2a221",
+"aF c #a2e1dd",
+".3 c #a49a54",
+".2 c #a69e54",
+"bR c #a78446",
+"#6 c #a9a9a8",
+".T c #aaa254",
+".s c #aaaa04",
+"#W c #abaaa6",
+"aN c #ac8861",
+".S c #aea25c",
+".R c #aea65c",
+".t c #aeae04",
+"#L c #b0b0b0",
+"#o c #b2ae94",
+".u c #b2b204",
+"aI c #b2b2b4",
+"b# c #b3b3b2",
+"#X c #b4b4b6",
+"#V c #b5b4b4",
+".Q c #b6aa5c",
+".n c #b6b604",
+"aY c #b6b6b7",
+"bN c #b79658",
+"ah c #b7e5e3",
+"aG c #b7ebe9",
+"ar c #b9d9dc",
+"#8 c #bcbcbe",
+"ab c #bdbdbe",
+".m c #beae5c",
+".F c #beb264",
+"aq c #bef6f6",
+"aB c #c1a470",
+"#F c #c1c1c3",
+".E c #c2b664",
+"at c #c2e9eb",
+"bI c #c39c6a",
+"bs c #c3a366",
+"#U c #c3c3c0",
+"aw c #c3c3c1",
+"#G c #c3c3c7",
+"aD c #c3f1f2",
+"a# c #c6c6c3",
+"#2 c #c7edf3",
+".D c #c8ba6c",
+"bM c #c9a470",
+"#N c #c9c9c4",
+".C c #cabe6c",
+"ak c #cacaca",
+"bx c #cbb076",
+"aa c #cbcbc9",
+"a3 c #ccac7f",
+".H c #ceba54",
+"#E c #ceced0",
+"bi c #cfaf7e",
+"#Y c #cfcfcb",
+"bK c #d1ac80",
+"#5 c #d1d1cf",
+"bu c #d2ae83",
+"bm c #d3b180",
+"bD c #d3b384",
+"bF c #d4b589",
+"aJ c #d4d4d3",
+".j c #d6c664",
+".v c #d6c674",
+"#K c #d6d6d5",
+"bJ c #d7b588",
+"bd c #d8b289",
+"bz c #d8b78d",
+".q c #d8ca74",
+"aj c #d8d8d9",
+"bb c #dabd97",
+"a5 c #dcba91",
+"bE c #dcc097",
+"aA c #ddc292",
+"aP c #dec491",
+".p c #dece75",
+"bk c #dfc79c",
+"av c #e0e0e0",
+"#A c #e2dabc",
+"#O c #e2e2e4",
+"aO c #e3c898",
+"by c #e4c7a1",
+".l c #e6da84",
+"a4 c #e7c7a2",
+"bt c #eacaa5",
+".o c #eede84",
+".G c #eee284",
+".i c #eee294",
+"bn c #efd7b4",
+".k c #f2e69c",
+".e c #f2eaa4",
+"bc c #f3d8b8",
+"bj c #f5e2c8",
+"#r c #f6eea4",
+".f c #f6eeb8",
+".g c #f6f2cc",
+".c c #faf6d4",
+".d c #fafae4",
+".U c #feee95",
+"bA c #fef26c",
+"#q c #fef2ac",
+"#x c #fef2b8",
+"bp c #fef684",
+"bl c #fef690",
+"bg c #fef69c",
+"bf c #fef6a4",
+".a c #fef6b4",
+"#B c #fef6c4",
+"#y c #fef6ce",
+"a9 c #fefaac",
+"aV c #fefab7",
+"ai c #fefac4",
+"#4 c #fefad1",
+"#n c #fefadf",
+".h c #fefaec",
+"#T c #fefee6",
+".b c #fefefa",
+"QtQtQtQtQtQtQtQtQtQtQtQt.#QtQtQtQtQtQt.#QtQtQtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQtQtQt.#.#.a.#QtQtQtQt.#.b.#.#QtQtQtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQtQtQt.#.#.a.a.a.a.#QtQt.#.c.d.b.b.#.#QtQtQtQtQtQtQtQt",
+"QtQtQtQtQtQt.#.#.e.e.e.e.e.e.e.#.#.f.f.g.g.c.h.b.#.#QtQtQtQtQtQt",
+"QtQtQtQt.#.#.i.i.i.i.i.i.i.i.j.j.b.b.k.e.f.f.g.g.c.d.#.#QtQtQtQt",
+"QtQt.#.#.l.l.l.l.l.l.l.l.m.m.n.n.o.o.b.b.k.k.e.f.f.g.g.c.#.#QtQt",
+"Qt.#.p.p.q.p.p.p.p.p.m.m.r.s.t.u.p.q.v.v.b.b.i.i.k.e.f.f.g.g.#Qt",
+"QtQt.#.j.j.j.j.j.w.w.x.y.z.A.B.r.C.C.D.E.E.F.b.b.o.G.k.k.e.#QtQt",
+"QtQtQt.#.H.H.I.I.J.K.L.M.N.O.P.z.Q.Q.Q.R.R.R.S.T.b.b.G.G.#QtQtQt",
+"Qt.#.#.U.V.W.W.W.X.Y.Z.J.K.L.0.1.2.3.3.4.5.5.6.6.7.8.9#..b.#.#Qt",
+"QtQtQt.#.U.U.U.W.W##.W.X.Y#a.J.K.7.7#b#b#b#c#c#d#d.h.h.b.#QtQtQt",
+"QtQtQtQt.##e.U.U.U.W.W#f#g.W.X.Y#h#i#j#k#l#m#m#n#n.h#g.#QtQtQtQt",
+"QtQtQtQt.##o#p#e#q#q#r#f#f#s#f#g#t#u#v#u#w#x#y#y#g#g#z.#QtQtQtQt",
+"QtQtQtQt.#.b#A#o#p#e#B#B#B#C#C#D#u#E#F#G#u#y#g#g#H#I#J#uQtQtQtQt",
+"QtQtQtQt.#.b.h.b#A#o#p#e.d.d.d#u#K#L#M#N#O#u#P#Q#R#S#u#u#uQtQtQt",
+"QtQtQtQt.#.b#T.h#T#n#A#o#p#e#u#U#V#W#X#Y#Z#0#u#1#S#u#2#3#uQtQtQt",
+"QtQtQtQt.##T.h#T#n#T#n#4#A#u#5#6#7#6#8#Z#0#9#u#S#u#2#3a.Qt#u#uQt",
+"QtQtQtQt.##T#n#T#4#4#4#4#u#Oa#aaabac#Z#9#9#u#S#u#2adaeaf#uagah#u",
+"QtQtQtQt.##n#n#4#4#4ai#u#Oajak#Yalamanao#u#Sap#uaqar#3asagatau#u",
+"QtQtQtQt.##T#4#4#4ai#uav#O#OawaxayazaAaB#uapaC#uaDaEaFaGataH#uQt",
+"QtQtQtQt.##4#4aiaiai#uaIaJ#OaKaLaMaNaOaPao#u#uaDaQaRaSaTaU#uQtQt",
+"QtQtQtQt.##4aiaV.aaV#uaWaXaYaZa0a1a2a3a4a5ao#ua6a7a8#u#u#uQtQtQt",
+"QtQtQtQt.#aiaiaiaV.aa9#ub.b#baa0#u#1#ubbbcbdao#ua8#ube.#.#.#.#Qt",
+"QtQtQtQt.#aV.aaVaVbfbfbg#ubhba#u#1.AaC#ubibjbkao#ube#a.#.#.#.#.#",
+"QtQtQtQt.#.aa9.abfa9bgbgbg#u#ubl.AaC#uaD#ubmbna5ao#ubo.#.#.#.#Qt",
+"QtQtQtQt.#.aa9a9bgbgblblblblbpbpaC#uaDbqbr#ubsbtbuao#u.#.#QtQtQt",
+"QtQtQtQtQt.#.#bgbgbgblblbpbpbpbp#uatbvbwa8#u#ubxbybzao#uQtQtQtQt",
+"QtQtQtQtQtQtQt.#.#blblbpbpbAbp#uaDbBbwa8#ubebC#ubDbEbFao#uQtQtQt",
+"QtQtQtQtQtQtQtQtQt.#.#bAbpbA#uaDbGbwa8#ubH.#.#Qt#ubIbJbKao#uQtQt",
+"QtQtQtQtQtQtQtQtQtQtQt.#.##uaDbLbwa8#u.#.#QtQtQtQt#ubMbNbObP#uQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQt#ubQbwa8#u.#QtQtQtQtQtQtQt#ubRbO#uQtQt",
+"QtQtQtQtQtQtQtQtQtQtQtQtQtQt#u#u#uQtQtQtQtQtQtQtQtQtQt#u#uQtQtQt"};
 
 static bool createDir( const QString& fullPath )
 {
@@ -132,38 +373,38 @@ static bool createDir( const QString& fullPath )
     return success;
 }
 
-SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f, bool reconfig ) :
-    SetupWizard( pParent, pName, modal, f ),
+SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags flag, bool reconfig ) :
+    QWizard( pParent, pName, modal, flag ),
     sysID( 0 ),
     tmpPath( QEnvironment::getTempPath() ),
     filesCopied( false ),
     filesToCompile( 0 ),
     filesCompiled( 0 ),
-    reconfigMode( reconfig )
+    reconfigMode( reconfig ),
+    bullet( bulletXpm )
 {
+    // initialize
+    if ( !pName )
+	setName( "SetupWizard" );
+    resize( 600, 390 ); 
+    setCaption( trUtf8( "Qt Installation Wizard" ) );
+    QPixmap logo( ( const char** ) logo_data );
+    setIcon( logo );
+    setIconText( trUtf8( "Qt Installation Wizard" ) );
+    QFont f( font() );
+    f.setFamily( "Arial" );
+    f.setPointSize( 12 );
+    f.setBold( TRUE );
+    setTitleFont( f );
+
+    initPages();
+    initConnections();
+
 #ifdef Q_OS_MACX
     sysID = MACX;
-    sysGroup->hide();
+    optionsPage->sysGroup->hide();
 #endif
     totalFiles = 0;
-    // Disable the HELP button
-    setHelpEnabled( introPage, false );
-    setHelpEnabled( licensePage, false );
-    setHelpEnabled( optionsPage, false );
-    setHelpEnabled( foldersPage, false );
-    setHelpEnabled( configPage, false );
-    setHelpEnabled( progressPage, false );
-    setHelpEnabled( buildPage, false );
-    setHelpEnabled( finishPage, false );
-
-    setNextEnabled( introPage, false );
-    setNextEnabled( licensePage, false );
-    setBackEnabled( progressPage, false );
-    setNextEnabled( progressPage, false );
-    setBackEnabled( buildPage, false );
-    setNextEnabled( buildPage, false );
-    setFinishEnabled( finishPage, true );
-    setBackEnabled( finishPage, false );
 
     triedToIntegrate = false;
 
@@ -198,12 +439,12 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	    qt_version_str = QT_VERSION_STR;
 #if defined(EVAL)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
-	    sysGroup->setButton( 1 );
+	    optionsPage->sysGroup->setButton( 1 );
 	    clickedSystem( 1 );
 	} else
 #endif
 	{
-	    sysGroup->setButton( 0 );
+	    optionsPage->sysGroup->setButton( 0 );
 	    clickedSystem( 0 );
 	}
 	delete archiveHeader;
@@ -213,15 +454,15 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
     // Optionspage
 #if defined(Q_OS_WIN32)
-    installPath->setText( QString( "C:\\Qt\\" ) + QString( qt_version_str ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" ) );
+    optionsPage->installPath->setText( QString( "C:\\Qt\\" ) + QString( qt_version_str ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" ) );
 #elif defined(Q_OS_MACX)
     // ### the replace for Windows is done because qmake has problems with
     // spaces and Borland has problems with "-" in the filenames -- I don't
     // think that there is a need for this on Mac (rms)
-    installPath->setText( QString( QDir::homeDirPath() + "/" ) + QString( qt_version_str ).replace( QRegExp("-"), "" ) );
+    optionsPage->installPath->setText( QString( QDir::homeDirPath() + "/" ) + QString( qt_version_str ).replace( QRegExp("-"), "" ) );
 #endif
 #if defined(EVAL)
-    installDocs->setEnabled( FALSE );
+    optionsPage->installDocs->setEnabled( FALSE );
     // ### find out which evaluation package (MSVC or Borland) we have
     sysMsvc->setEnabled( FALSE );
     sysBorland->setEnabled( FALSE );
@@ -234,28 +475,28 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     QByteArray buffer( 256 );
     unsigned long buffSize( buffer.size() );
     GetUserNameA( buffer.data(), &buffSize );
-    folderGroups->insertItem( "Anyone who uses this computer (all users)" );
-    folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
-    folderPath->setText( QString( "Qt " ) + qt_version_str );
+    foldersPage->folderGroups->insertItem( "Anyone who uses this computer (all users)" );
+    foldersPage->folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
+    foldersPage->folderPath->setText( QString( "Qt " ) + qt_version_str );
     if( qWinVersion() & Qt::WV_NT_based )   // On NT we also have a common folder
-	folderGroups->setEnabled( true );
+	foldersPage->folderGroups->setEnabled( true );
     else
-	folderGroups->setDisabled( true );
+	foldersPage->folderGroups->setDisabled( true );
 #elif defined(Q_OS_UNIX)
-    folderGroups->setDisabled( true );
+    foldersPage->folderGroups->setDisabled( true );
     removePage( foldersPage );
 #endif
 #if 0
     //TODO: Confirm with rms these progress display changes are ok
     // ### rms finds them ugly
-    filesDisplay->setWordWrap( QTextView::WidgetWidth );
-    filesDisplay->setWrapPolicy( QTextView::Anywhere );
-    outputDisplay->setWordWrap( QTextView::WidgetWidth );
-    outputDisplay->setWrapPolicy( QTextView::Anywhere );
+    progressPage->filesDisplay->setWordWrap( QTextView::WidgetWidth );
+    progressPage->filesDisplay->setWrapPolicy( QTextView::Anywhere );
+    buildPage->outputDisplay->setWordWrap( QTextView::WidgetWidth );
+    buildPage->outputDisplay->setWrapPolicy( QTextView::Anywhere );
 #endif
 
     if( reconfig ) {
-	removePage( introPage );
+	removePage( licenseAgreementPage );
 	removePage( licensePage );
 	removePage( foldersPage );
 	removePage( optionsPage );
@@ -270,41 +511,113 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
     // do this rather here than in the showPage() to keep the user's settings
     // when he returns back to the page
-    qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
+    foldersPage->qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
 
     // License Page
     setTitle( licensePage, tr("License Information to Install Qt %1").arg(qt_version_str) );
-    customerID->setFocus();
+    licensePage->customerID->setFocus();
 #if defined(EVAL)
     // ### improve text
-    licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
+    licensePage->licenseInfoHeader->setText( tr("Thank you for your interest in Qt.\n"
 		"Please enter the license information you got for this evaluation version of Qt.") );
 
     customerIDLabel->setText( tr("Name") );
     licenseIDLabel->setText( tr("Company name") );
     licenseeLabel->setText( tr("Serial number") );
-    evalName = customerID;
-    evalCompany = licenseID;
-    evalSerialNumber = licenseeName;
+    evalName = licensePage->customerID;
+    evalCompany = licensePage->licenseID;
+    evalSerialNumber = licensePage->licenseeName;
 
     expiryLabel->hide();
-    expiryDate->hide();
+    licensePage->expiryDate->hide();
     productsLabel->hide();
-    productsString->hide();
-    keyLabel->hide();
-    key->hide();
+    licensePage->productsString->hide();
+    licensePage->keyLabel->hide();
+    licensePage->key->hide();
     readLicenseButton->hide();
 #else
-    licenseID->setValidator( new QIntValidator( 100000, -1, licenseID ) );
+    licensePage->licenseID->setValidator( new QIntValidator( 100000, -1, licensePage->licenseID ) );
     readLicense( QDir::homeDirPath() + "/.qt-license" );
 
     // expiryDate and productsString comes from the license key
-    expiryDate->setEnabled( FALSE );
-    productsString->setEnabled( FALSE );
-    keyLabel->setText( tr("License key") );
-    licenseInfoHeader->setText( tr("Please enter your license information.\n"
+    licensePage->expiryDate->setEnabled( FALSE );
+    licensePage->productsString->setEnabled( FALSE );
+    licensePage->keyLabel->setText( tr("License key") );
+    licensePage->licenseInfoHeader->setText( tr("Please enter your license information.\n"
 		"The License key is required to be able to proceed with the installation process.") );
 #endif
+}
+
+#define ADD_PAGE( var, Class ) \
+    { \
+    var = new Class( this, #var ); \
+    SideDecoration *sideDeco = new SideDecoration( var ); \
+    \
+    Q_ASSERT( var->layout() != 0 ); \
+    if ( var->layout()->inherits("QBoxLayout") ) \
+	((QBoxLayout*)var->layout())->insertWidget( 0, sideDeco ); \
+    \
+    addPage( var, var->title() ); \
+    }
+
+void SetupWizardImpl::initPages()
+{
+    ADD_PAGE( licensePage,	    LicensePageImpl		)
+    ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl	)
+    ADD_PAGE( optionsPage,	    OptionsPageImpl		)
+    ADD_PAGE( foldersPage,	    FoldersPageImpl		)
+    ADD_PAGE( configPage,	    ConfigPageImpl		)
+    ADD_PAGE( progressPage,	    ProgressPageImpl		)
+    ADD_PAGE( buildPage,	    BuildPageImpl		)
+    ADD_PAGE( finishPage,	    FinishPageImpl		)
+
+    // Disable the HELP button
+    setHelpEnabled( licenseAgreementPage, false );
+    setHelpEnabled( licensePage, false );
+    setHelpEnabled( optionsPage, false );
+    setHelpEnabled( foldersPage, false );
+    setHelpEnabled( configPage, false );
+    setHelpEnabled( progressPage, false );
+    setHelpEnabled( buildPage, false );
+    setHelpEnabled( finishPage, false );
+
+    setNextEnabled( licenseAgreementPage, false );
+    setNextEnabled( licensePage, false );
+    setBackEnabled( progressPage, false );
+    setNextEnabled( progressPage, false );
+    setBackEnabled( buildPage, false );
+    setNextEnabled( buildPage, false );
+    setFinishEnabled( finishPage, true );
+    setBackEnabled( finishPage, false );
+}
+
+#undef ADD_PAGE
+
+void SetupWizardImpl::initConnections()
+{
+    connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
+    connect( optionsPage->installPathButton, SIGNAL(clicked()), SLOT(clickedPath()));
+
+    connect( foldersPage->folderPathButton, SIGNAL(clicked()), SLOT(clickedFolderPath()));
+    connect( foldersPage->devSysPathButton, SIGNAL(clicked()), SLOT(clickedDevSysPath()));
+
+    connect( licenseAgreementPage->licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
+
+    connect( licensePage->readLicenseButton, SIGNAL(clicked()), SLOT(clickedLicenseFile()));
+    connect( licensePage->customerID, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+    connect( licensePage->licenseID, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+    connect( licensePage->licenseeName, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+    connect( licensePage->expiryDate, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+    connect( licensePage->productsString, SIGNAL(activated(int)), SLOT(licenseChanged()));
+    connect( licensePage->key, SIGNAL(textChanged(const QString&)), SLOT(licenseChanged()));
+
+    connect( configPage->configList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+    connect( configPage->configList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+    connect( configPage->configList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+    connect( configPage->advancedList, SIGNAL(clicked(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+    connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
+    connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
+    connect( configPage->configTabs, SIGNAL(currentChanged(QWidget*)), SLOT(configPageChanged()));
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -322,7 +635,7 @@ void SetupWizardImpl::stopProcesses()
 void SetupWizardImpl::clickedPath()
 {
     QFileDialog dlg;
-    QDir dir( installPath->text() );
+    QDir dir( optionsPage->installPath->text() );
 
 #if defined(Q_OS_WIN32)
     if( !dir.exists() )
@@ -331,27 +644,27 @@ void SetupWizardImpl::clickedPath()
     dlg.setDir( dir );
     dlg.setMode( QFileDialog::DirectoryOnly );
     if( dlg.exec() ) {
-	installPath->setText( dlg.dir()->absPath() );
+	optionsPage->installPath->setText( dlg.dir()->absPath() );
     }
 #elif defined(Q_OS_MACX)
     if( !dir.exists() )
 	dir.setPath( "/" );
 
-    QString dest =  QFileDialog::getExistingDirectory( installPath->text(), this, NULL, "Select installation directory" );
+    QString dest =  QFileDialog::getExistingDirectory( optionsPage->installPath->text(), this, NULL, "Select installation directory" );
     if (!dest.isNull())
-	installPath->setText( dest );
+	optionsPage->installPath->setText( dest );
 #endif
 }
 
 void SetupWizardImpl::clickedFolderPath()
 {
-    folderPath->setText( shell.selectFolder( folderPath->text(), ( folderGroups->currentItem() == 0 ) ) );
+    foldersPage->folderPath->setText( shell.selectFolder( foldersPage->folderPath->text(), ( foldersPage->folderGroups->currentItem() == 0 ) ) );
 }
 
 void SetupWizardImpl::clickedDevSysPath()
 {
     QFileDialog dlg;
-    QDir dir( devSysPath->text() );
+    QDir dir( foldersPage->devSysPath->text() );
 
     if( !dir.exists() )
 	dir.setPath( devSysFolder );
@@ -359,7 +672,7 @@ void SetupWizardImpl::clickedDevSysPath()
     dlg.setDir( dir );
     dlg.setMode( QFileDialog::DirectoryOnly );
     if( dlg.exec() ) {
-	devSysPath->setText( dlg.dir()->absPath() );
+	foldersPage->devSysPath->setText( dlg.dir()->absPath() );
     }
 }
 
@@ -371,9 +684,9 @@ void SetupWizardImpl::clickedSystem( int sys )
 void SetupWizardImpl::licenseAction( int act )
 {
     if( act )
-	setNextEnabled( introPage, false );
+	setNextEnabled( licenseAgreementPage, false );
     else
-	setNextEnabled( introPage, true );
+	setNextEnabled( licenseAgreementPage, true );
 }
 
 void SetupWizardImpl::readCleanerOutput()
@@ -437,7 +750,7 @@ void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
 		    currentOLine.right( 2 ) == ".c" ||
 		    currentOLine.right( 4 ) == ".pro" ||
 		    currentOLine.right( 3 ) == ".ui" )
-		    compileProgress->setProgress( ++filesCompiled );
+		    buildPage->compileProgress->setProgress( ++filesCompiled );
 
 		logOutput( currentOLine );
 		currentOLine = "";
@@ -470,7 +783,7 @@ void SetupWizardImpl::updateErrorDisplay( QProcess* proc )
 		if( currentOLine.right( 4 ) == ".cpp" || 
 		    currentOLine.right( 2 ) == ".c" || 
 		    currentOLine.right( 4 ) == ".pro" )
-		    compileProgress->setProgress( ++filesCompiled );
+		    buildPage->compileProgress->setProgress( ++filesCompiled );
 
 		logOutput( currentELine );
 		currentELine = "";
@@ -508,16 +821,16 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
 
 void SetupWizardImpl::doFinalIntegration()
 {
-    compileProgress->setProgress( compileProgress->totalSteps() );
+    buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 #if defined(Q_OS_WIN32)
     QString dirName, examplesName, tutorialsName;
-    bool common( folderGroups->currentItem() == 0 );
+    bool common( foldersPage->folderGroups->currentItem() == 0 );
     QString qtDir = QEnvironment::getEnv( "QTDIR" );
 
     switch( sysID ) {
     case MSVC:
 	{
-	    QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+	    QFile autoexp( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
 	    if ( !autoexp.exists() ) {
 		autoexp.open( IO_WriteOnly );
 	    } else {
@@ -546,7 +859,7 @@ void SetupWizardImpl::doFinalIntegration()
 		autoexp.close();
 	    }
 
-	    QFile usertype( devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
+	    QFile usertype( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
 	    if ( !usertype.exists() ) {
 		usertype.open( IO_WriteOnly );
 	    } else {
@@ -577,7 +890,7 @@ void SetupWizardImpl::doFinalIntegration()
     ** Set up our icon folder and populate it with shortcuts.
     ** Then move to the next page.
     */
-    dirName = shell.createFolder( folderPath->text(), common );
+    dirName = shell.createFolder( foldersPage->folderPath->text(), common );
     shell.createShortcut( dirName, common, "Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
 #if !defined(EVAL)
     shell.createShortcut( dirName, common, "Reconfigure Qt", qtDir + "\\bin\\install.exe", "Reconfigure the Qt library", "-reconfig", qtDir );
@@ -601,23 +914,23 @@ void SetupWizardImpl::doFinalIntegration()
 	    description );
     }
 
-    if( installTutorials->isChecked() ) {
+    if( optionsPage->installTutorials->isChecked() ) {
 	if( qWinVersion() & WV_DOS_based ) {
 	    shell.createShortcut( dirName, common,
 		"Tutorials",
 		QEnvironment::getEnv( "QTDIR" ) + "\\tutorial" );
 	} else {
-	    tutorialsName = shell.createFolder( folderPath->text() + "\\Tutorials", common );
+	    tutorialsName = shell.createFolder( foldersPage->folderPath->text() + "\\Tutorials", common );
 	    installIcons( tutorialsName, QEnvironment::getEnv( "QTDIR" ) + "\\tutorial", common );
 	}
     }
-    if( installExamples->isChecked() ) {
+    if( optionsPage->installExamples->isChecked() ) {
 	if( qWinVersion() & WV_DOS_based ) {
 	    shell.createShortcut( dirName, common,
 		"Examples",
 		QEnvironment::getEnv( "QTDIR" ) + "\\examples" );
 	} else {
-	    examplesName = shell.createFolder( folderPath->text() + "\\Examples", common );
+	    examplesName = shell.createFolder( foldersPage->folderPath->text() + "\\Examples", common );
 	    installIcons( examplesName, QEnvironment::getEnv( "QTDIR" ) + "\\examples", common );
 	}
     }
@@ -626,12 +939,12 @@ void SetupWizardImpl::doFinalIntegration()
     */
     QStringList uninstaller;
     uninstaller << ( QString("\"") + shell.windowsFolderName + "\\quninstall.exe" + QString("\"") );
-    uninstaller << installPath->text();
+    uninstaller << optionsPage->installPath->text();
 
     if( common )
-	uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + folderPath->text() + QString("\"") );
+	uninstaller << ( QString("\"") + shell.commonProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
     else
-	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + folderPath->text() + QString("\"") );
+	uninstaller << ( QString("\"") + shell.localProgramsFolderName + QString("\\") + foldersPage->folderPath->text() + QString("\"") );
 
     uninstaller << ( QString("\"") + qt_version_str + QString("\"") );
 
@@ -641,7 +954,7 @@ void SetupWizardImpl::doFinalIntegration()
 
 void SetupWizardImpl::integratorDone()
 {
-    compileProgress->setTotalSteps( compileProgress->totalSteps() );
+    buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
     if( ( !integrator.normalExit() || ( integrator.normalExit() && integrator.exitStatus() ) ) && ( triedToIntegrate ) )
 	logOutput( "The integration process failed.\n", true );
     else {
@@ -674,7 +987,7 @@ void SetupWizardImpl::makeDone()
 //	removePage( progressPage );
 	setAppropriate( progressPage, false );
     } else {
-	compileProgress->setProgress( compileProgress->totalSteps() );
+	buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 
 	if( ( sysID != MSVC ) ||
 	    ( !findFileInPaths( "atlbase.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) &&
@@ -701,7 +1014,7 @@ void SetupWizardImpl::configDone()
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make" );
     QStringList args;
 
-    if( reconfigMode && !rebuildInstallation->isChecked() )
+    if( reconfigMode && !configPage->rebuildInstallation->isChecked() )
 	showPage( finishPage );
 
 #if !defined(EVAL)
@@ -730,8 +1043,8 @@ void SetupWizardImpl::saveSettings()
 {
 #if !defined(EVAL)
     QApplication::setOverrideCursor( Qt::waitCursor );
-    saveSet( configList );
-    saveSet( advancedList );
+    saveSet( configPage->configList );
+    saveSet( configPage->advancedList );
     QApplication::restoreOverrideCursor();
 #endif
 }
@@ -810,51 +1123,23 @@ static bool copyFile( const QString& src, const QString& dest )
 
 void SetupWizardImpl::showPage( QWidget* newPage )
 {
-    SetupWizard::showPage( newPage );
+    QWizard::showPage( newPage );
+    setInstallStep( indexOf(newPage) + 1 );
 
     if( newPage == licensePage ) {
-	setInstallStep( 1 );
 	showPageLicense();
-    } else if( newPage == introPage ) {
-	setInstallStep( 2 );
+    } else if( newPage == licenseAgreementPage ) {
 	readLicenseAgreement();
     } else if( newPage == optionsPage ) {
-	setInstallStep( 3 );
     } else if( newPage == foldersPage ) {
-	setInstallStep( 4 );
 	showPageFolders();
     } else if( newPage == configPage ) {
-	if( reconfigMode )
-	    setInstallStep( 1 );
-	else
-	    setInstallStep( 5 );
 	showPageConfig();
     } else if( newPage == progressPage ) {
-#if defined(EVAL)
-	setInstallStep( 5 );
-#else
-	setInstallStep( 6 );
-#endif
 	showPageProgress();
     } else if( newPage == buildPage ) {
-#if defined(EVAL)
-	setInstallStep( 6 );
-#else
-	if( reconfigMode )
-	    setInstallStep( 2 );
-	else
-	    setInstallStep( 7 );
-#endif
 	showPageBuild();
     } else if( newPage == finishPage ) {
-#if defined(EVAL)
-	setInstallStep( 7 );
-#else
-	if( reconfigMode )
-	    setInstallStep( 3 );
-	else
-	    setInstallStep( 8 );
-#endif
 	showPageFinish();
     }
 }
@@ -884,12 +1169,12 @@ void SetupWizardImpl::showPageFolders()
 {
     QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
-    devSysLabel->setText( devSys[ sysID ] );
-    devSysPath->setEnabled( sysID == 0 );
-    devSysPathButton->setEnabled( sysID == 0 );
+    foldersPage->devSysLabel->setText( devSys[ sysID ] );
+    foldersPage->devSysPath->setEnabled( sysID == 0 );
+    foldersPage->devSysPathButton->setEnabled( sysID == 0 );
 #if defined(Q_OS_WIN32)
     if( sysID == 0 )
-	devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
+	foldersPage->devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 #endif
 }
 
@@ -902,11 +1187,11 @@ void SetupWizardImpl::showPageProgress()
     bool copySuccessful = true;
 
     if( !filesCopied ) {
-	createDir( installPath->text() );
-	filesDisplay->append( "Installing files...\n" );
+	createDir( optionsPage->installPath->text() );
+	progressPage->filesDisplay->append( "Installing files...\n" );
 
 	// install the right LICENSE file
-	QDir installDir( installPath->text() );
+	QDir installDir( optionsPage->installPath->text() );
 	QFile licenseFile( installDir.filePath("LICENSE") );
 	if ( licenseFile.open( IO_WriteOnly ) ) {
 	    ResourceLoader *rcLoader;
@@ -931,13 +1216,13 @@ void SetupWizardImpl::showPageProgress()
 	QArchive ar;
 	ar.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
 	connect( &ar, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
-	connect( &ar, SIGNAL( operationFeedback( int ) ), operationProgress, SLOT( setProgress( int ) ) );
+	connect( &ar, SIGNAL( operationFeedback( int ) ), progressPage->operationProgress, SLOT( setProgress( int ) ) );
 	// First, try to find qt.arq as a binary resource to the file.
 	ResourceLoader rcLoader( "QT_ARQ", 500 );	
 	if ( rcLoader.isValid() ) {
-	    operationProgress->setTotalSteps( rcLoader.data().count() );
+	    progressPage->operationProgress->setTotalSteps( rcLoader.data().count() );
 	    QDataStream ds( rcLoader.data(), IO_ReadOnly );
-	    ar.readArchive( &ds, installPath->text(), key->text() );
+	    ar.readArchive( &ds, optionsPage->installPath->text(), licensePage->key->text() );
 	} else {
 	    // If the resource could not be loaded or is smaller than 500
 	    // bytes, we have the dummy qt.arq: try to find and install
@@ -949,20 +1234,20 @@ void SetupWizardImpl::showPageProgress()
 	    fi.setFile( archiveName );
 	    if( fi.exists() )
 		totalSize = fi.size();
-	    operationProgress->setTotalSteps( totalSize );
+	    progressPage->operationProgress->setTotalSteps( totalSize );
 
 	    ar.setPath( archiveName );
 	    if( ar.open( IO_ReadOnly ) )  {
-		ar.readArchive( installPath->text(), key->text() );
+		ar.readArchive( optionsPage->installPath->text(), licensePage->key->text() );
 #if defined(Q_OS_MACX)
  		QString srcName  = "install.app/Contents/Qt/LICENSE";
     		QString destName = "/.LICENSE";
     		QString srcName2 = srcName;
-    		if (featuresForKeyOnUnix( key->text() ) & Feature_US)
+    		if (featuresForKeyOnUnix( licensePage->key->text() ) & Feature_US)
         	    srcName2 += "-US";
-    		if((!copyFile( srcName, installPath->text() + destName )) ||
-       		   (!copyFile( srcName + "-US", installPath->text() + destName + "-US" )) ||
-       		   (!copyFile( srcName2, installPath->text() + "/LICENSE" )))
+    		if((!copyFile( srcName, optionsPage->installPath->text() + destName )) ||
+       		   (!copyFile( srcName + "-US", optionsPage->installPath->text() + destName + "-US" )) ||
+       		   (!copyFile( srcName2, optionsPage->installPath->text() + "/LICENSE" )))
 		    QMessageBox::critical( this, "Installation Error",
 					   "License files could not be copied." );
 #endif
@@ -970,61 +1255,62 @@ void SetupWizardImpl::showPageProgress()
 		// We were not able to find any qt.arq -- so assume we have
 		// the old fashioned zip archive and simply copy the files
 		// instead.
-		operationProgress->setTotalSteps( FILESTOCOPY );
-		copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
+		progressPage->operationProgress->setTotalSteps( FILESTOCOPY );
+		copySuccessful = copyFiles( QDir::currentDirPath(), optionsPage->installPath->text(), true );
 
 		/*These lines are only to be used when changing the filecount estimate
 		  QString tmp( "%1" );
 		  tmp = tmp.arg( totalFiles );
 		  QMessageBox::information( this, tmp, tmp );
 		 */
-		operationProgress->setProgress( FILESTOCOPY );
+		progressPage->operationProgress->setProgress( FILESTOCOPY );
 	    }
 	}
-#if 0
-	// ### what is the purpose of this? Can't we put it right in the
-	// package in first place?
-	{
-	    QFile inFile( "install.exe" );
-	    QFile outFile( installPath->text() + "\\bin\\Install.exe" );
-	    QFileInfo fi( inFile );
-	    QByteArray buffer( fi.size() );
-
-	    if( buffer.size() ) {
-		if( inFile.open( IO_ReadOnly ) ) {
-		    if( outFile.open( IO_WriteOnly ) ) {
-			inFile.readBlock( buffer.data(), buffer.size() );
-			outFile.writeBlock( buffer.data(), buffer.size() );
-			outFile.close();
-		    }
-		    inFile.close();
-		}
-	    }
-	}
-#endif
 	filesCopied = copySuccessful;
 
 	timeCounter = 30;
 	if( copySuccessful ) {
 #if defined(Q_OS_WIN32)
+	    QDir installDir( optionsPage->installPath->text() );
+	    QDir windowsFolderDir( shell.windowsFolderName );
+#  if !defined(EVAL)
 	    {
-		// copy the uninstaller to the Windows directory -- this is
-		// necessary since the uninstaller deletes all files in the
-		// installation directory (and therefore can't delete
-		// itself)
-		QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
-		QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
-		QFileInfo fi( inFile );
-		QByteArray buffer( fi.size() );
+		// move $QTDIR/install.exe to $QTDIR/bin/install.exe
+		// This is done because install.exe is also used to reconfigure Qt
+		// (and this expects install.exe in bin). We can't move install.exe
+		// to bin in first place, since for the snapshots, we don't have
+		// the .arq archives.
+		QFile inFile( installDir.filePath("install.exe") );
+		QFile outFile( installDir.filePath("bin/install.exe") );
 
-		if( buffer.size() ) {
+		if( inFile.exists() ) {
 		    if( inFile.open( IO_ReadOnly ) ) {
 			if( outFile.open( IO_WriteOnly ) ) {
-			    inFile.readBlock( buffer.data(), buffer.size() );
-			    outFile.writeBlock( buffer.data(), buffer.size() );
+			    outFile.writeBlock( inFile.readAll() );
 			    outFile.close();
+			    inFile.close();
+			    inFile.remove();
 			}
-			inFile.close();
+		    }
+		}
+	    }
+#  endif
+	    {
+		// move the uninstaller to the Windows directory
+		// This is necessary since the uninstaller deletes all files in
+		// the installation directory (and therefore can't delete
+		// itself).
+		QFile inFile( installDir.filePath("bin/quninstall.exe") );
+		QFile outFile( windowsFolderDir.filePath("quninstall.exe") );
+
+		if( inFile.exists() ) {
+		    if( inFile.open( IO_ReadOnly ) ) {
+			if( outFile.open( IO_WriteOnly ) ) {
+			    outFile.writeBlock( inFile.readAll() );
+			    outFile.close();
+			    inFile.close();
+			    inFile.remove();
+			}
 		    }
 		}
 	    }
@@ -1037,7 +1323,7 @@ void SetupWizardImpl::showPageProgress()
 	    } else {
 		qtLib = "\\lib\\qtmt.lib";
 	    }
-	    int ret = trDoIt( installPath->text() + qtLib,
+	    int ret = trDoIt( optionsPage->installPath->text() + qtLib,
 		    evalName->text().latin1(),
 		    evalCompany->text().latin1(),
 		    evalSerialNumber->text().latin1() );
@@ -1074,13 +1360,13 @@ void SetupWizardImpl::showPageFinish()
     if( true ) {
 #endif
 	if( reconfigMode ) {
-	    if( !rebuildInstallation->isChecked() )
+	    if( !configPage->rebuildInstallation->isChecked() )
 		finishMsg = "Qt has been reconfigured, and is ready to be rebuilt.";
 	    else
 		finishMsg = "Qt has been reconfigured and rebuilt, and is ready for use.";
 	}
 	else {
-	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.";
+	    finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() + " and is ready to use.";
 #if defined(Q_OS_WIN32)
             finishMsg += "\nYou may need to reboot, or open";
 	    finishMsg += " the environment editing dialog to make changes to the environment visible";
@@ -1097,7 +1383,7 @@ void SetupWizardImpl::showPageFinish()
 #endif
 	}
 	else {
-	    finishMsg = QString( "The Qt files have been installed to " ) + installPath->text() + " and is ready to be compiled.\n";
+	    finishMsg = QString( "The Qt files have been installed to " ) + optionsPage->installPath->text() + " and is ready to be compiled.\n";
 #if defined(Q_OS_WIN32)
 	    if( persistentEnv ) {
 		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
@@ -1115,7 +1401,7 @@ void SetupWizardImpl::showPageFinish()
 #endif
 	}
     }
-    finishText->setText( finishMsg );
+    finishPage->finishText->setText( finishMsg );
 }
 
 void SetupWizardImpl::setStaticEnabled( bool se )
@@ -1267,37 +1553,37 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 				  "Are you sure you want to build a static Qt library?",
 				  "No, I want to use the cool new stuff", "Yes" ) ) {
 		item->setOn( FALSE );
-		if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
+		if ( ( item = (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) ) ) {
 		item->setOn( TRUE );
-		configList->setCurrentItem( item );
+		configPage->configList->setCurrentItem( item );
 		setStaticEnabled( FALSE );
 	    }
 	}
 	return;
     } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
 	setStaticEnabled( FALSE );
-	if( ( (QCheckListItem*)configList->findItem( "Non-threaded", 0, 0 ) )->isOn() ) {
+	if( ( (QCheckListItem*)configPage->configList->findItem( "Non-threaded", 0, 0 ) )->isOn() ) {
 	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
 								 "may cause instabilities because of runtime "
 								 "library conflicts.", "OK", "Revert" ) ) {
 		item->setOn( FALSE );
-		if( ( item = (QCheckListItem*)configList->findItem( "Static", 0, 0 ) ) ) {
+		if( ( item = (QCheckListItem*)configPage->configList->findItem( "Static", 0, 0 ) ) ) {
 		    item->setOn( TRUE );
-		    configList->setCurrentItem( item );
+		    configPage->configList->setCurrentItem( item );
 		    setStaticEnabled( TRUE );
 		}
 	    }
 	}
     }
     else if( item->text( 0 ) == "Non-threaded" && item->isOn() ) {
-	if( ( (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) )->isOn() ) {
+	if( ( (QCheckListItem*)configPage->configList->findItem( "Shared", 0, 0 ) )->isOn() ) {
 	    if( QMessageBox::information( this, "Are you sure?", "Single-threaded, shared configurations "
 								 "may cause instabilities because of runtime "
 								 "library conflicts.", "OK", "Revert" ) ) {
 		item->setOn( FALSE );
-		if( (item = (QCheckListItem*)configList->findItem( "Threaded", 0, 0 ) ) ) {
+		if( (item = (QCheckListItem*)configPage->configList->findItem( "Threaded", 0, 0 ) ) ) {
 		    item->setOn( TRUE );
-		    configList->setCurrentItem( item );
+		    configPage->configList->setCurrentItem( item );
 		}
 	    }
 	}
@@ -1308,12 +1594,12 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 
 void SetupWizardImpl::configPageChanged()
 {
-    if ( configList->isVisible() ) {
-	configList->setSelected( configList->currentItem(), true );
-	optionSelected( configList->currentItem() );
-    } else if ( advancedList->isVisible() ) {
-	advancedList->setSelected( advancedList->currentItem(), true );
-	optionSelected( advancedList->currentItem() );
+    if ( configPage->configList->isVisible() ) {
+	configPage->configList->setSelected( configPage->configList->currentItem(), true );
+	optionSelected( configPage->configList->currentItem() );
+    } else if ( configPage->advancedList->isVisible() ) {
+	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
+	optionSelected( configPage->advancedList->currentItem() );
     }
 }
 
@@ -1332,7 +1618,9 @@ void SetupWizardImpl::licenseChanged()
 #else
     QDate date;
     uint features;
-    QString licenseKey = key->text();
+    uint testFeature;
+    QString platformString;
+    QString licenseKey = licensePage->key->text().stripWhiteSpace();
     if ( licenseKey.length() != 14 ) {
 	goto rejectLicense;
     }
@@ -1342,44 +1630,30 @@ void SetupWizardImpl::licenseChanged()
 	goto rejectLicense;
     }
 #  ifdef Q_OS_MACX
-    if ( !(features&Feature_Mac) ) {
-	if ( features & (Feature_Unix|Feature_Windows|Feature_Windows|Feature_Embedded) ) {
-	    int ret = QMessageBox::information( this,
-		    tr("No Mac OS X license"),
-		    tr("You are not licensed for the Mac OS X platform.\n"
-		       "Please contact sales@trolltech.com to upgrade\n"
-		       "your license to include the Mac OS X platform."),
-		    tr("Try again"),
-		    tr("Abort installation")
-		    );
-	    if ( ret == 1 ) {
-		QApplication::exit();
-	    } else {
-		key->setText( "" );
-	    }
-	}
-	goto rejectLicense;
-    }
+    testFeature = Feature_Mac;
+    platformString = "Mac OS X";
 #  elif defined(Q_OS_WIN32)
-    if ( !(features&Feature_Windows) ) {
+    testFeature = Feature_Windows;
+    platformString = "Windows";
+#endif
+    if ( !(features&testFeature) ) {
 	if ( features & (Feature_Unix|Feature_Windows|Feature_Mac|Feature_Embedded) ) {
 	    int ret = QMessageBox::information( this,
-		    tr("No Windows license"),
-		    tr("You are not licensed for the Windows platform.\n"
+		    tr("No %1 license").arg(platformString),
+		    tr("You are not licensed for the %1 platform.\n"
 		       "Please contact sales@trolltech.com to upgrade\n"
-		       "your license to include the Windows platform."),
+		       "your license to include the Windows platform.").arg(platformString),
 		    tr("Try again"),
 		    tr("Abort installation")
 		    );
 	    if ( ret == 1 ) {
 		QApplication::exit();
 	    } else {
-		key->setText( "" );
+		licensePage->key->setText( "" );
 	    }
 	}
 	goto rejectLicense;
     }
-#  endif
     if ( date < QDate::currentDate() ) {
 	static bool alreadyShown = FALSE;
 	if ( !alreadyShown ) {
@@ -1404,19 +1678,21 @@ void SetupWizardImpl::licenseChanged()
     else
 	usLicense = FALSE;
 
-    expiryDate->setText( date.toString( Qt::ISODate ) );
+    licensePage->expiryDate->setText( date.toString( Qt::ISODate ) );
     if( features & Feature_Enterprise )
-	productsString->setCurrentItem( 1 );
+	licensePage->productsString->setCurrentItem( 1 );
     else
-	productsString->setCurrentItem( 0 );
+	licensePage->productsString->setCurrentItem( 0 );
     setNextEnabled( licensePage, TRUE );
     return;
 
 rejectLicense:
-    expiryDate->setText( "" );
+    licensePage->expiryDate->setText( "" );
 #  if defined(Q_OS_WIN32)
-//TODO: Is this a bug? It bus errors on MACX, ask rms.
-     productsString->setCurrentItem( -1 );
+    //TODO: Is this a bug? It bus errors on MACX, ask rms.
+    // it should work -- if it doesn't this seems to be a bug in the MACX code,
+    // I guess (rms)
+    licensePage->productsString->setCurrentItem( -1 );
 #  endif
     setNextEnabled( licensePage, FALSE );
     return;
@@ -1426,7 +1702,7 @@ rejectLicense:
 void SetupWizardImpl::logFiles( const QString& entry, bool close )
 {
     if( !fileLog.isOpen() ) {
-	fileLog.setName( installPath->text() + QDir::separator() + "install.log" );
+	fileLog.setName( optionsPage->installPath->text() + QDir::separator() + "install.log" );
 	if( !fileLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
@@ -1437,9 +1713,9 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
     // evaluation packages on lusa -- for now, disable the output that we get
     // the packages out.
 #if 0
-    filesDisplay->append( entry + "\n" );
+    progressPage->filesDisplay->append( entry + "\n" );
 #else
-    filesDisplay->setText( "Installing files...\n" + entry + "\n" );
+    progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
 #endif
     outstream << ( entry + "\n" );
 
@@ -1451,13 +1727,13 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 {
     static QTextStream outstream;
     if( !outputLog.isOpen() ) {
-	outputLog.setName( installPath->text() + QDir::separator() +  "build.log" );
+	outputLog.setName( optionsPage->installPath->text() + QDir::separator() +  "build.log" );
 	if( !outputLog.open( IO_WriteOnly | IO_Translate ) )
 	    return;
     }
     outstream.setDevice( &outputLog );
 
-    outputDisplay->append( entry + "\n" );
+    buildPage->outputDisplay->append( entry + "\n" );
     outstream << ( entry + "\n" );
 
     if( close )
@@ -1490,11 +1766,11 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		    createDir( targetName );
 		if( topLevel ) {
 		    if( fi->fileName() == "doc" )
-			doCopy = installDocs->isChecked();
+			doCopy = optionsPage->installDocs->isChecked();
 		    else if( fi->fileName() == "tutorial" )
-			doCopy = installTutorials->isChecked();
+			doCopy = optionsPage->installTutorials->isChecked();
 		    else if( fi->fileName() == "examples" )
-			doCopy = installExamples->isChecked();
+			doCopy = optionsPage->installExamples->isChecked();
 		}
 		if( doCopy )
 		    if( !copyFiles( entryName, targetName, false ) )
@@ -1502,7 +1778,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 	    } else {
 		if( qApp && !isHidden() ) {
 		    qApp->processEvents();
-		    operationProgress->setProgress( totalFiles );
+		    progressPage->operationProgress->setProgress( totalFiles );
 		    logFiles( targetName );
 		} else {
 		    return false;
@@ -1549,14 +1825,16 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 
 void SetupWizardImpl::setInstallStep( int step )
 {
+    QString captionTxt;
 #if defined(EVAL)
-    setCaption( QString( "Qt Evaluation Version Installation Wizard - Step %1 of 7" ).arg( step ) );
+    captionTxt = tr("Qt Evaluation Version Installation Wizard");
 #else
     if( reconfigMode )
-	setCaption( QString( "Qt Configuration Wizard - Step %1 of 3" ).arg( step ) );
+	captionTxt = tr("Qt Configuration Wizard");
     else
-	setCaption( QString( "Qt Installation Wizard - Step %1 of 8" ).arg( step ) );
+	captionTxt = tr("Qt Installation Wizard");
 #endif
+    setCaption( tr("%1 - Step %2 of %3").arg( captionTxt ).arg( step ).arg( pageCount() ) );
 }
 
 void SetupWizardImpl::timerFired()
@@ -1593,16 +1871,16 @@ void SetupWizardImpl::readLicense( QString filePath)
 	}
 	licenseFile.close();
 
-	customerID->setText( licenseInfo[ "CUSTOMERID" ] );
-	licenseID->setText( licenseInfo[ "LICENSEID" ] );
-	licenseeName->setText( licenseInfo[ "LICENSEE" ] );
+	licensePage->customerID->setText( licenseInfo[ "CUSTOMERID" ] );
+	licensePage->licenseID->setText( licenseInfo[ "LICENSEID" ] );
+	licensePage->licenseeName->setText( licenseInfo[ "LICENSEE" ] );
 	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
-	    productsString->setCurrentItem( 1 );
+	    licensePage->productsString->setCurrentItem( 1 );
 	} else {
-	    productsString->setCurrentItem( 0 );
+	    licensePage->productsString->setCurrentItem( 0 );
 	}
-	expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
-	key->setText( licenseInfo[ "LICENSEKEY" ] );
+	licensePage->expiryDate->setText( licenseInfo[ "EXPIRYDATE" ] );
+	licensePage->key->setText( licenseInfo[ "LICENSEKEY" ] );
     }
 #endif
 }
@@ -1615,16 +1893,16 @@ void SetupWizardImpl::writeLicense( QString filePath )
     if( licenseFile.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream licStream( &licenseFile );
 	
-	licenseInfo[ "CUSTOMERID" ] = customerID->text();
-	licenseInfo[ "LICENSEID" ] = licenseID->text();
-	licenseInfo[ "LICENSEE" ] = licenseeName->text();
-	if( productsString->currentItem() == 0 )
+	licenseInfo[ "CUSTOMERID" ] = licensePage->customerID->text();
+	licenseInfo[ "LICENSEID" ] = licensePage->licenseID->text();
+	licenseInfo[ "LICENSEE" ] = licensePage->licenseeName->text();
+	if( licensePage->productsString->currentItem() == 0 )
 	    licenseInfo[ "PRODUCTS" ] = "qt-professional";
 	else
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
 
-	licenseInfo[ "EXPIRYDATE" ] = expiryDate->text();
-	licenseInfo[ "LICENSEKEY" ] = key->text();
+	licenseInfo[ "EXPIRYDATE" ] = licensePage->expiryDate->text();
+	licenseInfo[ "LICENSEKEY" ] = licensePage->key->text();
 
 	licStream << "# Toolkit license file" << endl;
 	licStream << "CustomerID=\"" << licenseInfo[ "CUSTOMERID" ].latin1() << "\"" << endl;
@@ -1641,7 +1919,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 
 void SetupWizardImpl::clickedLicenseFile()
 {
-    QString licensePath = QFileDialog::getOpenFileName( installPath->text(), QString::null, this, NULL, "Browse for license file" );
+    QString licensePath = QFileDialog::getOpenFileName( optionsPage->installPath->text(), QString::null, this, NULL, "Browse for license file" );
 
     if( !licensePath.isEmpty() )
 	readLicense( licensePath );
@@ -1668,12 +1946,12 @@ void SetupWizardImpl::readLicenseAgreement()
 	rcLoader = new ResourceLoader( "LICENSE" );
     }
     if ( rcLoader->isValid() ) {
-	introText->setText( rcLoader->data() );
-	acceptLicense->setEnabled( TRUE );
+	licenseAgreementPage->introText->setText( rcLoader->data() );
+	licenseAgreementPage->acceptLicense->setEnabled( TRUE );
     } else {
 	QMessageBox::critical( this, tr("Package corrupted"),
 		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
-	acceptLicense->setEnabled( FALSE );
+	licenseAgreementPage->acceptLicense->setEnabled( FALSE );
     }
     delete rcLoader;
 }

@@ -1,17 +1,33 @@
 TEMPLATE	= app
+CONFIG		+= windows qt
+
 HEADERS		= setupwizardimpl.h \
 		  environment.h \
 		  shell.h \
-		  folderdlgimpl.h
+		  resource.h \
+		  folderdlgimpl.h \
+		  pages/pages.h
+
 SOURCES		= main.cpp \
 		  setupwizardimpl.cpp \
 		  setupwizardimpl_config.cpp \
 		  environment.cpp \
 		  shell.cpp \
-		  folderdlgimpl.cpp
-INTERFACES	= setupwizard.ui \
-		  folderdlg.ui
-CONFIG		+= windows qt
+		  resource.cpp \
+		  folderdlgimpl.cpp \
+		  pages/pages.cpp
+
+INTERFACES	= folderdlg.ui \
+		  pages/buildpage.ui \
+		  pages/configpage.ui \
+		  pages/finishpage.ui \
+		  pages/folderspage.ui \
+		  pages/licenseagreementpage.ui \
+		  pages/licensepage.ui \
+		  pages/optionspage.ui \
+		  pages/progresspage.ui \
+		  pages/sidedecoration.ui
+
 TARGET		= install
 DESTDIR		= ../../../bin
 INCLUDEPATH	+= $(QTDIR)/src/3rdparty $(QTDIR)/util/install/archive

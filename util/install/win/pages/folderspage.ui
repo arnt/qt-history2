@@ -1,0 +1,251 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>FoldersPage</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>FoldersPage</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>443</width>
+            <height>284</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form8</string>
+    </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout15</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QGroupBox" row="0" column="0">
+                    <property name="name">
+                        <cstring>folderBox</cstring>
+                    </property>
+                    <property name="title">
+                        <string>Folders and paths</string>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>11</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel" row="0" column="0">
+                            <property name="name">
+                                <cstring>folderLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Program &amp;folder</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>folderPath</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget" row="0" column="1" rowspan="1" colspan="2">
+                            <property name="name">
+                                <cstring>Layout2</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>0</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QLineEdit">
+                                    <property name="name">
+                                        <cstring>folderPath</cstring>
+                                    </property>
+                                    <property name="frameShape">
+                                        <enum>StyledPanel</enum>
+                                    </property>
+                                    <property name="frameShadow">
+                                        <enum>Sunken</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>folderPathButton</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string></string>
+                                    </property>
+                                    <property name="pixmap">
+                                        <pixmap>image0</pixmap>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLabel" row="1" column="0">
+                            <property name="name">
+                                <cstring>qtDirLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Set &amp;QTDIR</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>qtDirCheck</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="2" column="0">
+                            <property name="name">
+                                <cstring>devSysLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>1</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Path</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>devSysPath</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget" row="2" column="1" rowspan="1" colspan="2">
+                            <property name="name">
+                                <cstring>Layout3</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>0</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QLineEdit">
+                                    <property name="name">
+                                        <cstring>devSysPath</cstring>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>devSysPathButton</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string></string>
+                                    </property>
+                                    <property name="pixmap">
+                                        <pixmap>image0</pixmap>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLabel" row="3" column="0">
+                            <property name="name">
+                                <cstring>groupLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Folder &amp;group</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>folderGroups</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox" row="3" column="1" rowspan="1" colspan="2">
+                            <property name="name">
+                                <cstring>folderGroups</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>7</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="1" column="1">
+                            <property name="name">
+                                <cstring>qtDirCheck</cstring>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                        </widget>
+                        <spacer row="1" column="2">
+                            <property name="name" stdset="0">
+                                <cstring>Spacer8</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </grid>
+                </widget>
+                <spacer row="1" column="0">
+                    <property name="name" stdset="0">
+                        <cstring>Spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+            </grid>
+        </widget>
+    </hbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="1115">789c8dd2496fda401407f03b9fc2821baa9a197b666cabca211b5959b2aa52d5c3ac812440c2e28444fdeef5fbdb4a8143548b837f6f98b7cc78a71dfd1c74a3f64e63bed08b918dec50cfa2b65b8ec7ab5fbf773f1a4daea2f22759c49bdf1acdef918d7ad389a7f7a3f2bdc538630c4b7d30618a59e22d2899e1317159914b8ebdd7a06281e7c471452eb823be7c32108760ca55cc8887a089f304a92ce89258a06e515349d4dd03bd4c53493cab9805a3886f157361d0c6ac666a50f7b2a6b7097152513b6b885760d0cc0a628fc899921952ddd5cc33a4da07b9900a23b4c0583885d5f78a796e90f900148249a4baa9a8a505cf4169b9d3440366229648b5028dd10e97d205ad8eab111660c8a5c1e168622c855618e11954e52af63e8126e71ae7dc2126491a72704a14cc71879ee7a072c6e3602fc0cc058f9e4f895218e752e203182c7319f19ea8844e0c6eff9198056b3d9a74c4f2948dc3802760eaacc775bf124d280ba1ab4074899701e77c0c061f020a8d88befce8027af660084940aa0131e0c1a7bef57c196bb55adad8ad98f3e17eb8151b3d3c3e8db7627e327d7ed98ce9d16cbe58fe8b15657efdfab67adfdb3f383caaff57748e4f4ecf66e717dd5eff736fd1195cceaecad0f55abe327853866e376a94dbebd0da6cc51d366ece5bf4ffe70cd6637f7e34fe023b4bf409</data>
+    </image>
+</images>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

@@ -32,12 +32,12 @@ void SetupWizardImpl::cleanDone()
 # elif defined(Q_OS_UNIX)
     if (true) {
 # endif
-	compileProgress->setProgress( 0 );
-        compileProgress->setTotalSteps( int(double(filesToCompile) * 1.8) );
+	buildPage->compileProgress->setProgress( 0 );
+        buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 1.8) );
 	configDone();
     } else { // no proper process handling on DOS based systems - create a batch file instead
 	logOutput( "Generating batch file...\n" );
-	QFile outFile( installPath->text() + "\\build.bat" );
+	QFile outFile( optionsPage->installPath->text() + "\\build.bat" );
 	QTextStream outStream( &outFile );
 
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -49,7 +49,7 @@ void SetupWizardImpl::cleanDone()
 	    outFile.close();
 	}
 	doFinalIntegration();
-	compileProgress->setTotalSteps( compileProgress->totalSteps() );
+	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
     }
 #else
@@ -273,9 +273,9 @@ void SetupWizardImpl::cleanDone()
 	args += "-no-style-sgi";
 #endif
 
-    if( !installExamples->isChecked() )
+    if( !optionsPage->installExamples->isChecked() )
 	args += "-no-examples";
-    if( !installTutorials->isChecked() )
+    if( !optionsPage->installTutorials->isChecked() )
 	args += "-no-tutorials";
 
 # if defined(Q_OS_WIN32)
@@ -292,12 +292,12 @@ void SetupWizardImpl::cleanDone()
 	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	configure.setArguments( args );
 	// Start the configure process
-	compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
+	buildPage->compileProgress->setTotalSteps( int(double(filesToCompile) * 2.6) );
 	if( !configure.start() )
 	    logOutput( "Could not start configure process" );
     } else { // no proper process handling on DOS based systems - create a batch file instead
 	logOutput( "Generating batch file...\n" );
-	QFile outFile( installPath->text() + "\\build.bat" );
+	QFile outFile( optionsPage->installPath->text() + "\\build.bat" );
 	QTextStream outStream( &outFile );
 
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -310,7 +310,7 @@ void SetupWizardImpl::cleanDone()
 	    outFile.close();
 	}
 	doFinalIntegration();
-	compileProgress->setTotalSteps( compileProgress->totalSteps() );
+	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
     }
 #endif
@@ -326,16 +326,16 @@ void SetupWizardImpl::prepareEnvironment()
 
     if( reconfigMode ) {
 	qtDir = QEnvironment::getEnv( "QTDIR" );
-	currentInstLabel->show();
-	currentInstallation->show();
-	rebuildInstallation->show();
-	currentInstallation->setText( qtDir );
+	configPage->currentInstLabel->show();
+	configPage->currentInstallation->show();
+	configPage->rebuildInstallation->show();
+	configPage->currentInstallation->setText( qtDir );
     }
     else {
-	qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( installPath->text() ) );
-	currentInstLabel->hide();
-	currentInstallation->hide();
-	rebuildInstallation->hide();
+	qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( optionsPage->installPath->text() ) );
+	configPage->currentInstLabel->hide();
+	configPage->currentInstallation->hide();
+	configPage->rebuildInstallation->hide();
     }
 
 #if defined(Q_OS_WIN32)
@@ -362,7 +362,7 @@ void SetupWizardImpl::prepareEnvironment()
     }
 #endif
 
-    if( qtDirCheck->isChecked() ) {
+    if( foldersPage->qtDirCheck->isChecked() ) {
 	envSpec |= QEnvironment::PersistentEnv;
 /*
 	if( folderGroups->currentItem() == 0 )
@@ -420,8 +420,8 @@ void SetupWizardImpl::prepareEnvironment()
 	    path.prepend( msVCDir + "\\BIN" );
 	    path.prepend( vsCommonDir + "\\Tools\\" + osDir );
 	    path.prepend( vsCommonDir + "\\Tools" );
-	    if( path.findIndex( installPath->text() + "\\bin" ) == -1 )
-		path.prepend( installPath->text() + "\\bin" );
+	    if( path.findIndex( optionsPage->installPath->text() + "\\bin" ) == -1 )
+		path.prepend( optionsPage->installPath->text() + "\\bin" );
 	    QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
 	    QStringList include = QStringList::split( ';', QEnvironment::getEnv( "INCLUDE", envSpec ) );
 	    include.prepend( msVCDir + "\\ATL\\INCLUDE" );
@@ -446,8 +446,8 @@ void SetupWizardImpl::showPageConfig()
 
     bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
-    if( configList->childCount() ) {
-	QListViewItem* current = configList->firstChild();
+    if( configPage->configList->childCount() ) {
+	QListViewItem* current = configPage->configList->firstChild();
 
 	while( current ) {
 	    QListViewItem* next = current->nextSibling();
@@ -455,7 +455,7 @@ void SetupWizardImpl::showPageConfig()
 	    current = next;
 	}
 
-	current = advancedList->firstChild();
+	current = configPage->advancedList->firstChild();
 	while( current ) {
 	    QListViewItem* next = current->nextSibling();
 	    delete current;
@@ -463,14 +463,14 @@ void SetupWizardImpl::showPageConfig()
 	}
     }
     QSettings settings;
-    configList->setSorting( -1 );
-    advancedList->setSorting( -1 );
+    configPage->configList->setSorting( -1 );
+    configPage->advancedList->setSorting( -1 );
     QCheckListItem *item;
     QCheckListItem *folder;
     QStringList::Iterator it;
 
     // general
-    folder = new QCheckListItem ( configList, "Modules" );
+    folder = new QCheckListItem ( configPage->configList, "Modules" );
     folder->setOpen( true );
 
     bool settingsOK;
@@ -503,7 +503,7 @@ void SetupWizardImpl::showPageConfig()
     }
 
     
-    folder = new QCheckListItem ( configList, "Threading" );
+    folder = new QCheckListItem ( configPage->configList, "Threading" );
     folder->setOpen( true );
     QString entry = settings.readEntry( "/Trolltech/Qt/Threading", "Threaded", &settingsOK );
     item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
@@ -511,7 +511,7 @@ void SetupWizardImpl::showPageConfig()
     item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
     item->setOn( entry == "Non-threaded" );
 
-    folder = new QCheckListItem ( configList, "Library" );
+    folder = new QCheckListItem ( configPage->configList, "Library" );
     folder->setOpen( true );
     entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
     staticItem = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
@@ -519,7 +519,7 @@ void SetupWizardImpl::showPageConfig()
     item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
     item->setOn( entry == "Shared" );
 
-    folder = new QCheckListItem ( configList, "Build" );
+    folder = new QCheckListItem ( configPage->configList, "Build" );
     folder->setOpen( true );
     entry = settings.readEntry( "/Trolltech/Qt/Build", "Release", &settingsOK );
     item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
@@ -528,7 +528,7 @@ void SetupWizardImpl::showPageConfig()
     item->setOn( entry == "Release" );
 
     // Advanced options
-    QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
+    QCheckListItem *imfolder = new QCheckListItem( configPage->advancedList, "Image Formats" );
     imfolder->setOpen( true );
 
     folder = new QCheckListItem( imfolder, "GIF" );
@@ -587,7 +587,7 @@ void SetupWizardImpl::showPageConfig()
     pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
     pngDirect->setOn( entry == "Direct" );
 
-    QCheckListItem *sqlfolder = new QCheckListItem( advancedList, "Sql Drivers" );
+    QCheckListItem *sqlfolder = new QCheckListItem( configPage->advancedList, "Sql Drivers" );
     sqlfolder->setOpen( true );
 
     folder = new QCheckListItem( sqlfolder, "TDS" );
@@ -665,7 +665,7 @@ void SetupWizardImpl::showPageConfig()
     if ( !enterprise )
 	odbcOff->setOn( true );
 
-    QCheckListItem *stfolder = new QCheckListItem( advancedList, "Styles" );
+    QCheckListItem *stfolder = new QCheckListItem( configPage->advancedList, "Styles" );
     stfolder->setOpen( true );
 
     folder = new QCheckListItem( stfolder, "SGI" );
@@ -731,14 +731,14 @@ void SetupWizardImpl::showPageConfig()
     item->setOn( entry == "Direct" );
 
     entry = settings.readEntry( "/Trolltech/Qt/Advanced C++", "Off", &settingsOK );
-    folder = new QCheckListItem( advancedList, "Advanced C++" );
+    folder = new QCheckListItem( configPage->advancedList, "Advanced C++" );
     folder->setOpen( true );
     advancedCppOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
     advancedCppOff->setOn( entry == "Off" );
     advancedCppOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
     advancedCppOn->setOn( entry == "On" );
 
-    folder = new QCheckListItem( advancedList, "Tablet Support" );
+    folder = new QCheckListItem( configPage->advancedList, "Tablet Support" );
     folder->setOpen( true );
     entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
     tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
@@ -746,7 +746,7 @@ void SetupWizardImpl::showPageConfig()
     tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
     tabletOn->setOn( entry == "On" );
 
-    folder = new QCheckListItem( advancedList, "Accessibility" );
+    folder = new QCheckListItem( configPage->advancedList, "Accessibility" );
     folder->setOpen( true );
     entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
     accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
@@ -755,7 +755,7 @@ void SetupWizardImpl::showPageConfig()
     accOn->setOn( entry == "On" );
 
     entry = settings.readEntry( "/Trolltech/Qt/Big Textcodecs", "On", &settingsOK );
-    folder = new QCheckListItem( advancedList, "Big Textcodecs" );
+    folder = new QCheckListItem( configPage->advancedList, "Big Textcodecs" );
     folder->setOpen( true );
     bigCodecsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
     bigCodecsOff->setOn( entry == "Off" );
@@ -780,7 +780,7 @@ void SetupWizardImpl::showPageBuild()
     saveSettings();
 
     if( reconfigMode ) {
-	compileProgress->hide();
+	buildPage->compileProgress->hide();
 
     	args << makeCmds[ sysID ] << "clean";
 	logOutput( "Starting cleaning process" );
@@ -800,7 +800,7 @@ void SetupWizardImpl::showPageBuild()
 void SetupWizardImpl::optionSelected( QListViewItem *i )
 {
     if ( !i ) {
-	explainOption->setText( tr("Change the configuration.") );
+	configPage->explainOption->setText( tr("Change the configuration.") );
 	return;
     }
 
@@ -834,69 +834,69 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
     
     if ( i->text(0) == "Required" ) {
-	explainOption->setText( tr("These modules are a necessary part of the Qt library. "
+	configPage->explainOption->setText( tr("These modules are a necessary part of the Qt library. "
 				   "They can not be disabled.") );
     } else if ( i->parent() && i->parent()->text(0) == "Required" ) {
-	explainOption->setText( tr("This module is a necessary part of the Qt library. "
+	configPage->explainOption->setText( tr("This module is a necessary part of the Qt library. "
 				   "It can not be disabled.") ); 
     } else if ( i->text(0) == "Modules" ) {
-	explainOption->setText( tr("Some of these modules are optional. "
+	configPage->explainOption->setText( tr("Some of these modules are optional. "
 				   "You can deselect the modules that you "
 				   "don't require for your development.\n"
 				   "By default, all modules are selected.") );
     } else if ( i->parent() && i->parent()->text(0) == "Modules" ) {
 	QString moduleText;
 	// ### have some explanation of the module here
-	explainOption->setText( tr("Some of these modules are optional. "
+	configPage->explainOption->setText( tr("Some of these modules are optional. "
 				   "You can deselect the modules that you "
 				   "don't require for your development.\n"
 				   "By default, all modules are selected.") );
     } else if ( i->text(0) == "Threading" ) {
-	explainOption->setText( tr("Build the Qt library with or without thread support. "
+	configPage->explainOption->setText( tr("Build the Qt library with or without thread support. "
 			    "By default, threading is supported.") );
     } else if ( i->parent() && i->parent()->text(0) == "Threading" ) {
 	if ( i->text(0) == "Threaded" ) {
-	    explainOption->setText("Select this option if you want to be able to use threads "
+	    configPage->explainOption->setText("Select this option if you want to be able to use threads "
 				   "in your application.");
 	} else {
-	    explainOption->setText("Select this option if you do not need thread support.\n"
+	    configPage->explainOption->setText("Select this option if you do not need thread support.\n"
 				   "Some classes will not be available without thread support.");
 	}
     } else if ( i->text(0) == "Build" ) {
-	explainOption->setText( tr("<p>Use the debug build of the Qt library to enhance "
+	configPage->explainOption->setText( tr("<p>Use the debug build of the Qt library to enhance "
 				   "debugging of your application. The release build "
 				   "is both smaller and faster.</p>") );
     } else if ( i->text(0) == "Debug" ) {
-	explainOption->setText( tr("<p>A debug build will include debug information in the "
+	configPage->explainOption->setText( tr("<p>A debug build will include debug information in the "
 	                           "Qt library and tools.  This will facilitate debugging "
 				   "of your application.</p>") );
     } else if ( i->text(0) == "Release" ) {
-	explainOption->setText( tr("<p>A release build will build the library and tools without "
+	configPage->explainOption->setText( tr("<p>A release build will build the library and tools without "
 				   "debugging information.  The resulting code is suited for "
 				   "a release, and is both smaller and faster.</p>") );
     } else if ( i->text(0) == "Library" ) {
-	explainOption->setText( "Build a static or a shared Qt library." );
+	configPage->explainOption->setText( "Build a static or a shared Qt library." );
     } else if ( i->parent() && i->parent()->text( 0 ) == "Library" ) {
 	if ( i->text(0) == "Static" ) {
-	    explainOption->setText( tr("<p>Build the Qt library as a static library."
+	    configPage->explainOption->setText( tr("<p>Build the Qt library as a static library."
 				       "All applications created with a static "
 				       "library will be at least 1.5MB big.</p>"
 				       "<p><font color=\"red\">It is not possible to "
 				       "build or use any components or plugins with a "
 				       "static Qt library!</font></p>") );
 	} else {
-	    explainOption->setText("<p>A shared Qt library makes it necessary to "
+	    configPage->explainOption->setText("<p>A shared Qt library makes it necessary to "
 				   "distribute the Qt DLL together with your software.</p>"
 				   "<p>Applications and libraries linked against a shared Qt library "
 				   "are small and can make use of components and plugins.</p>" );
 	}
     } else if ( i->text( 0 ) == "Sql Drivers" ) {
-	explainOption->setText("Select the SQL Drivers you want to support. "
+	configPage->explainOption->setText("Select the SQL Drivers you want to support. "
 				"<font color=#FF0000>You must have the appropriate client libraries "
 				"and header files installed correctly before you can build the Qt SQL drivers.</font>" );
     } else if ( ( i->parent() && i->parent()->text( 0 )== "Sql Drivers" )
 	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Sql Drivers" ) ) {
-	explainOption->setText( "Select the SQL Drivers you want to support. "
+	configPage->explainOption->setText( "Select the SQL Drivers you want to support. "
 			        "<font color=#FF0000>You must have the appropriate client libraries "
 				"and header files installed correctly before you can build the Qt SQL drivers.</font> "
 				"Selected SQL Drivers will be integrated into Qt. \nYou can also "
@@ -906,66 +906,66 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"succeeded. Read the help files in QTDIR\\plugins\\src\\sqldrivers for "
 				"further instructions." );
     } else if ( i->text( 0 ) == "Styles" ) {
-	explainOption->setText( QString("Select support for the various GUI styles that Qt has emulation for." ) );
+	configPage->explainOption->setText( QString("Select support for the various GUI styles that Qt has emulation for." ) );
     } else if ( ( i->parent() && i->parent()->text( 0 ) == "Styles" ) 
 	||  ( i->parent() && i->parent()->parent() && i->parent()->parent()->text( 0 )== "Styles" ) ) {
 	QString styleName = (i->parent()->text( 0 ) == "Styles") ? i->text( 0 ) : i->parent()->text( 0 );
 	if ( styleName == "Windows" ) {
-	    explainOption->setText( QString("The %1 style is builtin to the Qt library.").arg( styleName ) );
+	    configPage->explainOption->setText( QString("The %1 style is builtin to the Qt library.").arg( styleName ) );
 	} else {
-	    explainOption->setText( QString("Selects support for the %1 style. The style can be built "
+	    configPage->explainOption->setText( QString("Selects support for the %1 style. The style can be built "
 				    "as a plugin, or builtin to the library, or not at all.").arg( styleName ) );
 	}
     } else if ( i == accOff ) {
-	explainOption->setText( "Turns off accessibility support. People who need accessibility "
+	configPage->explainOption->setText( "Turns off accessibility support. People who need accessibility "
 				"clients will not be able to use your software." );
     } else if ( i == accOn ) {
-	explainOption->setText( "Enables your Qt software to be used with accessibility clients, "
+	configPage->explainOption->setText( "Enables your Qt software to be used with accessibility clients, "
 				"like a magnifier or narrator tool. The accessibility information "
 				"for the Qt widgets is provided by a plugin on demand and can be "
 				"exchanged or extended easily." );
     } else if ( i->text(0) == "Accessibility" ) {
-	explainOption->setText( "Accessibility means making software usable and accessible to a wide "
+	configPage->explainOption->setText( "Accessibility means making software usable and accessible to a wide "
 				"range of users, including those with disabilities.\n"
 				"This feature relies on components and is not available with a static "
 				"Qt library." );
     } else if ( i == bigCodecsOff ) {
-	explainOption->setText( "All big textcodecs are provided by plugins and get loaded on demand." );
+	configPage->explainOption->setText( "All big textcodecs are provided by plugins and get loaded on demand." );
     } else if ( i == bigCodecsOn ) {
-	explainOption->setText( "The big textcodecs are compiled into the Qt library." );
+	configPage->explainOption->setText( "The big textcodecs are compiled into the Qt library." );
     } else if ( i->text(0) == "Big Textcodecs" ) {
-	explainOption->setText( "Textcodecs provide translations between text encodings. For "
+	configPage->explainOption->setText( "Textcodecs provide translations between text encodings. For "
 				"languages and script systems with many characters it is necessary "
 				"to have big data tables that provide the translation. Those codecs "
 				"can be left out of the Qt library and will be loaded on demand.\n"
 				"Having the codecs in a plugin is not available with a static Qt "
 				"library." );
     } else if ( i->text(0) == "Tablet Support" ) {
-	explainOption->setText( "Qt can support the Wacom brand tablet device." );
+	configPage->explainOption->setText( "Qt can support the Wacom brand tablet device." );
     } else if ( i == tabletOff ) {
-	explainOption->setText( "Support for the Wacom tablet is disabled. This is the default option." );
+	configPage->explainOption->setText( "Support for the Wacom tablet is disabled. This is the default option." );
     } else if ( i == tabletOn ) {
-	explainOption->setText( "This option builds in support for Wacom(c) tablets.\n"
+	configPage->explainOption->setText( "This option builds in support for Wacom(c) tablets.\n"
 				"To use a supported tablet, you must have built the Wintab SDK available "
 				"at http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
 				"set appropriately." );
     } else if ( i->text(0) == "Advanced C++" ) {
-	explainOption->setText( "Qt can be built with exception handling and STL support enabled or "
+	configPage->explainOption->setText( "Qt can be built with exception handling and STL support enabled or "
 				"disabled. The default is to disable advanced C++ features." );
     } else if ( i == advancedCppOn ) {
-	explainOption->setText( "This option builds Qt with exception handling and STL support enabled. "
+	configPage->explainOption->setText( "This option builds Qt with exception handling and STL support enabled. "
 				"Depending on your compiler, this might cause slower execution, larger "
 				"binaries, or compiler issues." );
     } else if ( i == advancedCppOff ) {
-	explainOption->setText( "This option turns advanced C++ features off when building Qt." );
+	configPage->explainOption->setText( "This option turns advanced C++ features off when building Qt." );
     } else if ( i->text(0) == "Image Formats" ) {
-	explainOption->setText( "Qt ships with support for a wide range of common image formats. "
+	configPage->explainOption->setText( "Qt ships with support for a wide range of common image formats. "
 				"Standard formats are always included in Qt, and some more special formats "
 				"can be left out from the Qt library itself and provided by a plugin instead." );
     } else if ( i == gifOff ) {
-	explainOption->setText( "Turn off support for GIF images." );
+	configPage->explainOption->setText( "Turn off support for GIF images." );
     } else if ( i == gifDirect ) {
-	explainOption->setText( "<p>Support for GIF images is compiled into Qt.</p>"
+	configPage->explainOption->setText( "<p>Support for GIF images is compiled into Qt.</p>"
 				"<p><font color=\"red\">If you are in a country "
 				"which recognizes software patents and in which "
 				"Unisys holds a patent on LZW compression and/or "
@@ -974,50 +974,50 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"countries include Canada, Japan, the USA, "
 				"France, Germany, Italy and the UK.</font></p>" );
     } else if ( i->text(0) == "GIF" ) {
-	explainOption->setText( "Qt supports the \"Graphics Interchange Format\".");
+	configPage->explainOption->setText( "Qt supports the \"Graphics Interchange Format\".");
     } else if ( i == mngPlugin ) {
-	explainOption->setText( "Support for MNG images is provided by a plugin that is loaded on demand." );
+	configPage->explainOption->setText( "Support for MNG images is provided by a plugin that is loaded on demand." );
     } else if ( i == mngOff ) {
-	explainOption->setText( "Turn off support for MNG images." );
+	configPage->explainOption->setText( "Turn off support for MNG images." );
     } else if ( i == mngDirect ) {
-	explainOption->setText( "Support for MNG images is compiled into Qt. This requires JPEG support compiled into Qt as well." );
+	configPage->explainOption->setText( "Support for MNG images is compiled into Qt. This requires JPEG support compiled into Qt as well." );
 #if 0
     } else if ( i == mngPresent ) {
-	explainOption->setText( "Support for MNG images is provided by linking against an existing libmng." );
+	configPage->explainOption->setText( "Support for MNG images is provided by linking against an existing libmng." );
 #endif
     } else if ( i->text(0) == "MNG" ) {
-	explainOption->setText( "Qt supports the \"Multiple-Image Network Graphics\" format either "
+	configPage->explainOption->setText( "Qt supports the \"Multiple-Image Network Graphics\" format either "
 				"by compiling the mng sources "
 				"into Qt, or by loading a plugin on demand." );
     } else if ( i == jpegPlugin ) {
-	explainOption->setText( "Support for JPEG images is provided by a plugin that is loaded on demand." );
+	configPage->explainOption->setText( "Support for JPEG images is provided by a plugin that is loaded on demand." );
     } else if ( i == jpegOff ) {
-	explainOption->setText( "Turn off support for JPEG images." );
+	configPage->explainOption->setText( "Turn off support for JPEG images." );
     } else if ( i == jpegDirect ) {
-	explainOption->setText( "Support for JPEG images is compiled into Qt." );
+	configPage->explainOption->setText( "Support for JPEG images is compiled into Qt." );
 #if 0
     } else if ( i == jpegPresent ) {
-	explainOption->setText( "Support for JPEG images is provided by linking against an existing libjpeg." );
+	configPage->explainOption->setText( "Support for JPEG images is provided by linking against an existing libjpeg." );
 #endif
     } else if ( i->text(0) == "JPEG" ) {
-	explainOption->setText( "Qt supports the \"Joint Photographic Experts Group\" format either "
+	configPage->explainOption->setText( "Qt supports the \"Joint Photographic Experts Group\" format either "
 				"by compiling the jpeg sources "
 				"into Qt, or by loading a plugin on demand." );
     } else if ( i == pngPlugin ) {
-	explainOption->setText( "Support for PNG images is provided by a plugin that is loaded on demand." );
+	configPage->explainOption->setText( "Support for PNG images is provided by a plugin that is loaded on demand." );
     } else if ( i == pngOff ) {
-	explainOption->setText( "<p>Turn off support for PNG images.</p>"
+	configPage->explainOption->setText( "<p>Turn off support for PNG images.</p>"
 				"<p><font color=\"red\">Qt Designer, Qt Assistant and Qt Linguist use "
 				"the imageformat PNG. If you choose this option, the images in these "
 				"programs will be missing.</font></p>" );
     } else if ( i == pngDirect ) {
-	explainOption->setText( "Support for PNG images is compiled into Qt." );
+	configPage->explainOption->setText( "Support for PNG images is compiled into Qt." );
 #if 0
     } else if ( i == pngPresent ) {
-	explainOption->setText( "Support for PNG images is provided by linking against an existing libpng." );
+	configPage->explainOption->setText( "Support for PNG images is provided by linking against an existing libpng." );
 #endif
     } else if ( i->text(0) == "PNG" ) {
-	explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either "
+	configPage->explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either "
 				"by compiling the png support "
 				"into Qt, or by loading a plugin on demand." );
     }

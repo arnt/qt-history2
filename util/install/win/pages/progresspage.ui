@@ -1,0 +1,72 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>ProgressPage</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>ProgressPage</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>440</width>
+            <height>283</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form10</string>
+    </property>
+    <hbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout39</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QMultiLineEdit">
+                    <property name="name">
+                        <cstring>filesDisplay</cstring>
+                    </property>
+                    <property name="undoDepth">
+                        <number>0</number>
+                    </property>
+                    <property name="readOnly">
+                        <bool>true</bool>
+                    </property>
+                    <property name="undoRedoEnabled">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QProgressBar">
+                    <property name="name">
+                        <cstring>operationProgress</cstring>
+                    </property>
+                    <property name="centerIndicator">
+                        <bool>false</bool>
+                    </property>
+                    <property name="percentageVisible">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+    </hbox>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
