@@ -496,11 +496,10 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 */
 
 /*!
-  Constructs a selection model with the given \a parent that operates on
-  the specified item \a model.
+  Constructs a selection model that operates on the specified item \a model.
 */
-QItemSelectionModel::QItemSelectionModel(const QAbstractItemModel *model, QObject *parent)
-    : QObject(*new QItemSelectionModelPrivate, parent)
+QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
+    : QObject(*new QItemSelectionModelPrivate, model)
 {
     d->model = model;
 }
@@ -508,10 +507,8 @@ QItemSelectionModel::QItemSelectionModel(const QAbstractItemModel *model, QObjec
 /*!
   \internal
 */
-QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd,
-                                         const QAbstractItemModel *model,
-                                         QObject *parent)
-    : QObject(dd, parent)
+QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model)
+    : QObject(dd, model)
 {
     d->model = model;
 }

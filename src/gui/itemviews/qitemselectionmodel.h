@@ -91,7 +91,7 @@ public:
 
     Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag)
 
-    QItemSelectionModel(const QAbstractItemModel *model, QObject *parent = 0);
+    QItemSelectionModel(QAbstractItemModel *model);
     virtual ~QItemSelectionModel();
 
     QModelIndex currentIndex() const;
@@ -122,8 +122,7 @@ signals:
     void currentColumnChanged(const QModelIndex &current, const QModelIndex &previous);
 
 protected:
-    QItemSelectionModel(QItemSelectionModelPrivate &dd,
-                        const QAbstractItemModel *model, QObject *parent = 0);
+    QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model);
     void emitSelectionChanged(const QItemSelection &newSelection, const QItemSelection &oldSelection);
 
 private:

@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
 
     int rc = 100;
     int cc = 100;
- 
+
     QAbstractItemModel *data = new PlasmaModel(rc, cc, &splitter);
-    QItemSelectionModel *selections = new QItemSelectionModel(data, data);
+    QItemSelectionModel *selections = new QItemSelectionModel(data);
 
     // 1st view
     QTableView *plasmaView = new QTableView(&splitter);

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     QSplitter page;
 
     QAbstractItemModel *data = new Model(1000, 10, &page);
-    QItemSelectionModel *selections = new QItemSelectionModel(data, data);
+    QItemSelectionModel *selections = new QItemSelectionModel(data);
 
     QTableView *table = new QTableView(&page);
     table->setModel(data);

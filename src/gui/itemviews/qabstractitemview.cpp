@@ -432,6 +432,8 @@ QAbstractItemView::~QAbstractItemView()
 */
 void QAbstractItemView::setModel(QAbstractItemModel *model)
 {
+    Q_ASSERT(model);
+
     if (d->model) {
         // view
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -460,7 +462,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     setRoot(QModelIndex::Null);// triggers layout
 
     d->selectionModel = 0;
-    setSelectionModel(new QItemSelectionModel(d->model, this));
+    setSelectionModel(new QItemSelectionModel(d->model));
 }
 
 /*!
@@ -1474,7 +1476,7 @@ void QAbstractItemView::selectionModelDestroyed()
     Closes the given \a editor, and releases it. The \a hint is
     used to specify how the view should respond to the end of the editing
     operation. For example, the hint may indicate that the next item in
-    the view should be opened for editing. 
+    the view should be opened for editing.
 
     \sa edit() QAbstractItemDelegate::releaseEditor()
 */
