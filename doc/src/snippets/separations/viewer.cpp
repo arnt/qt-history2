@@ -169,6 +169,9 @@ void Viewer::chooseFile()
 
 void Viewer::setBrightness(QAction *action)
 {
+    if (!menuMap.contains(action) || scaledImage.isNull())
+        return;
+
     Brightness amount = menuMap[action];
 
     switch (amount) {
