@@ -948,12 +948,12 @@ abstract_decl:		  abstract_decl ptr_operator
 			  const_expression ']'
 				   { $$ = stradd("[",
 				     g->tmpExpression =
-				     g->tmpExpression.stripWhiteSpace(), "]"); }
+				     g->tmpExpression.trimmed(), "]"); }
 			| abstract_decl '['	{ expLevel = 1; }
 			  const_expression ']'
 				   { $$ = stradd($1,"[",
 				     g->tmpExpression =
-				     g->tmpExpression.stripWhiteSpace(),"]"); }
+				     g->tmpExpression.trimmed(),"]"); }
 			| ptr_operator		{ $$ = $1; }
 			| '(' abstract_decl ')' { $$ = $2; }
 			;
@@ -965,7 +965,7 @@ declarator:		  dname			{ $$ = ""; }
 			  const_expression ']'
 				   { $$ = stradd($1,"[",
 				     g->tmpExpression =
-				     g->tmpExpression.stripWhiteSpace(),"]"); }
+				     g->tmpExpression.trimmed(),"]"); }
 			| '(' declarator ')'	{ $$ = $2; }
 			;
 
@@ -1706,7 +1706,7 @@ int main(int argc, char **argv)
     }
 
     if (autoInclude) {
-	int ppos = g->fileName.findRev('.');
+	int ppos = g->fileName.lastIndexOf('.');
 	if (ppos != -1 && tolower(g->fileName[ppos + 1]) == 'h')
 	    g->noInclude = FALSE;
 	else
@@ -1896,8 +1896,8 @@ QByteArray combinePath(const char *infile, const char *outfile)
 
     while (!inSplitted.isEmpty() && !outSplitted.isEmpty() &&
 	    inSplitted.first() == outSplitted.first()) {
-	inSplitted.remove(inSplitted.begin());
-	outSplitted.remove(outSplitted.begin());
+	inSplitted.removeFirst();
+	outSplitted.removeFirst();
 	numCommonComponents++;
     }
 
@@ -1913,7 +1913,7 @@ QByteArray combinePath(const char *infile, const char *outfile)
 	  the output file.
 	*/
 	while (!outSplitted.isEmpty()) {
-	    outSplitted.remove(outSplitted.begin());
+	    outSplitted.removeFirst();
 	    inSplitted.prepend("..");
 	}
 	inSplitted.append(inFileInfo.fileName());
@@ -2037,7 +2037,7 @@ int openNameSpaceForMetaObject(FILE *out)
     }
     QByteArray nm = g->className;
     int pos;
-    while((pos = nm.find("::")) != -1) {
+    while((pos = nm.indexOf("::")) != -1) {
 	QByteArray spaceName = nm.left(pos);
 	nm = nm.right(nm.length() - pos - 2);
 	if (!spaceName.isEmpty()) {
@@ -2274,10 +2274,10 @@ QByteArray purestSuperClassName()
       Make sure qualified template arguments (e.g., foo<bar::baz>)
       don't interfere.
     */
-    int pos = sc.findRev("::", sc.find('<'));
+    int pos = sc.lastIndexOf("::", sc.indexOf('<'));
     if (pos != -1) {
 	sc = sc.right(sc.length() - pos - 2);
-	pos = c.findRev("::");
+	pos = c.lastIndexOf("::");
 	if (pos != -1)
 	    c = c.right(c.length() - pos - 2);
 	if (sc == c)
