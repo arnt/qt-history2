@@ -149,6 +149,38 @@
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
 
+/*! \property QPushButton::autoDefault
+    \brief Whether the push button is the auto default button
+
+  If this property is set to TRUE then the push button will be the focused
+  item in a dialog when it is first shown.
+*/
+
+/*! \property QPushButton::default
+    \brief Whether the push button is the default
+
+  If this property is set to TRUE then the push button will be pressed if the
+  user hits the enter key in a dialog.
+*/
+
+/*! \property QPushButton::flat
+    \brief Whether the border is disabled
+*/
+
+/*! \property QPushButton::iconSet
+    \brief The icon set on the push button
+
+  This property will return 0 if there is no icon set on the push button
+*/
+
+/*! \property QPushButton::menuButton
+    \brief Whether the push button has a menu button on it
+    \obsolete
+
+  If this property is set to TRUE, then a down arrow is drawn on the push
+  button to indicate that a menu will pop up if the user clicks on the 
+  arrow.
+*/
 
 class QPushButtonPrivate
 {
@@ -295,30 +327,6 @@ void QPushButton::setOn( bool enable )
     QButton::setOn( enable );
 }
 
-
-
-/*! \fn bool QPushButton::autoDefault() const
-
-  Returns TRUE if the button is an auto-default button.
-
-  \sa setAutoDefault()
-*/
-
-/*!
-  Sets the push buttons to an auto-default button if \a enable is TRUE
-  or to a normal button if \a enable is FALSE.
-
-  An auto-default button automatically becomes the default push button
-  in a dialog when it receives the keyboard input focus.
-
-  In some GUI styles a default button is drawn with an extra frame
-  around it, up to 3 pixels or more. Qt automatically keeps this space
-  free around auto-default buttons, i.e., auto-default buttons may have
-  a slightly larger size hint.
-
-  \sa autoDefault(), setDefault()
-*/
-
 void QPushButton::setAutoDefault( bool enable )
 {
     if ( (bool)autoDefButton == enable )
@@ -328,29 +336,6 @@ void QPushButton::setAutoDefault( bool enable )
     updateGeometry();
 }
 
-
-/*!
-  \fn bool QPushButton::isDefault() const
-  Returns TRUE if the button is currently the default.
-
-  \sa setDefault()
-*/
-
-/*!  Sets this button to be the current default button of a QDialog if
-  \a enable is TRUE or to be a normal button if \a enable is FALSE.
-
-  The current default button gets clicked when the user presses the
-  Enter key, independently of which widget in the dialog currently
-  has the keyboard input focus.  Only one push button can at any time
-  be the default button.  This button is then displayed with an
-  additional frame (depending on the GUI style).
-
-  The default button behavior is provided only in dialogs. Buttons
-  can always be clicked from the keyboard by pressing Return or the
-  spacebar when the button has focus.
-
-  \sa isDefault(), setAutoDefault(), QDialog
-*/
 
 void QPushButton::setDefault( bool enable )
 {
@@ -583,32 +568,6 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 	setDown( TRUE );
 }
 
-
-
-/*!
-  \fn void QPushButton::setIsMenuButton( bool )
-  \obsolete
-
-  Tells this button to draw a menu indication triangle if \a enable
-  is TRUE and not to draw one if \a enable is FALSE (the default).
-
-  setIsMenuButton() does not cause the button to do anything other
-  than draw the menu indication.
-
-  \sa isMenuButton()
-*/
-
-/*!
-  \fn bool QPushButton::isMenuButton() const
-  \obsolete
-
-  Returns TRUE if this button indicates to the user that pressing
-  it will pop up a menu and FALSE otherwise.  The default is FALSE.
-
-  \sa setIsMenuButton()
-*/
-
-
 /*!
   Associates the popup menu \a popup with this push button and
   thus turns it into a menu button.
@@ -628,12 +587,6 @@ void QPushButton::setPopup( QPopupMenu* popup )
 }
 
 
-/*!
-  Sets the button to display the icon \a icon in addition to its text
-  or pixmap
-
-  \sa iconSet()
- */
 void QPushButton::setIconSet( const QIconSet& icon )
 {
     if (! icon.isNull()) {
@@ -651,11 +604,6 @@ void QPushButton::setIconSet( const QIconSet& icon )
 }
 
 
-/*!
-  Returns the button's icon or 0 if no icon has been defined.
-
-  \sa setIconSet()
- */
 QIconSet* QPushButton::iconSet() const
 {
     if ( !::has_d( this ) )
@@ -718,21 +666,12 @@ void QPushButton::popupPressed()
     }
 }
 
-/*!
-  Disable the border.
-
-  \sa flat()
-*/
 void QPushButton::setFlat( bool f )
 {
     flt = f;
     update();
 }
 
-/*!
-  Returns whether the border is disabled.
-  \sa setFlat()
-*/
 bool QPushButton::isFlat() const
 {
     return flt;

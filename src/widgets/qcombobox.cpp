@@ -195,6 +195,59 @@
   the contents of the text entry field changes.
 */
 
+/*! \property QComboBox::autoCompletion
+    \brief Whether auto completion is enabled or not
+
+  This property can only be set for editable comboboxes, for non-editable 
+  comboboxes it has no effect.
+*/
+
+/*! \property QComboBox::autoResize
+    \brief Whether auto resize is enabled or not
+    \obsolete
+
+  If this property is set to TRUE then the combo box will resize itself
+  whenever its contents change.
+*/
+
+/*! \property QComboBox::count
+    \brief The number of items in the combo box
+*/
+
+/*! \property QComboBox::currentItem
+    \brief The index of the current item in the combo box
+*/
+
+/*! \property QComboBox::currentText
+    \brief The text of the current item
+*/
+
+/*! \property QComboBox::duplicatesEnabled
+    \brief Whether duplicates are allowed or not
+
+  This property only has an effect if the combo box is editable.
+*/
+
+/*! \property QComboBox::editable
+    \brief Whether the combo box is editable or not
+*/
+
+/*! \property QComboBox::insertionPolicy
+    \brief The position of the items inserted by the user
+  
+  The default insertion policy is \c AtBottom.
+*/
+
+/*! \property QComboBox::maxCount
+    \brief The maximum number of items allowed in the combo box
+*/
+
+/*! \property QComboBox::sizeLimit
+    \brief The maximum on-screen size of the combo box.
+
+  This is disregarded in Motif 1.x style.  The default limit is ten lines. 
+  If the number of items in the combo box is/grows larger than lines, a list box is added. 
+*/
 
 class QComboBoxPopup : public QPopupMenu
 {
@@ -413,44 +466,15 @@ QComboBox::~QComboBox()
     delete d;
 }
 
-
-/*!
-  If the combobox is editable and the user enters some text in
-  the lineedit of the combobox and presses return (and the insertionPolicy()
-  is different from \c NoInsertion), the entered text is inserted into the
-  list of this combobox. Now, if you set \a enable to TRUE here,
-  this new text is always inserted, else it's only inserted if it
-  doesn't already exist in the list. If you set \a enable to FALSE
-  and the text exists already in the list, the item which contains
-  the same text like which should be inserted, this item
-  gets the new current item.
-
-  This setting only applies when the user want's to insert a text
-  with pressing the return key. It does \e not affect methods like
-  insertItem() and similar.
-*/
-
 void QComboBox::setDuplicatesEnabled( bool enable )
 {
    d->duplicatesEnabled = enable;
 }
 
-/*!
-  Returns TRUE if the same text can be inserted multiple times
-  into the list of the combobox, else FALSE.
-
-  \sa setDuplicatesEnabled();
-*/
-
 bool QComboBox::duplicatesEnabled() const
 {
     return d->duplicatesEnabled;
 }
-
-
-/*!
-  Returns the number of items in the combo box.
-*/
 
 int QComboBox::count() const
 {
@@ -731,12 +755,6 @@ void QComboBox::clear()
 }
 
 
-/*!
-  Returns the text item being edited, or the current text item if the combo
-  box is not editable.
-  \sa text()
-*/
-
 QString QComboBox::currentText() const
 {
     if ( d->ed )
@@ -838,21 +856,10 @@ void QComboBox::changeItem( const QPixmap &im, const QString &t, int index )
 }
 
 
-/*!
-  Returns the index of the current combo box item.
-  \sa setCurrentItem()
-*/
-
 int QComboBox::currentItem() const
 {
     return d->current;
 }
-
-/*!
-  Sets the current combo box item.
-  This is the item to be displayed on the combo box button.
-  \sa currentItem()
-*/
 
 void QComboBox::setCurrentItem( int index )
 {
@@ -876,30 +883,10 @@ void QComboBox::setCurrentItem( int index )
     currentChanged();
 }
 
-
-/*! \obsolete
-  Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
-  disabled.
-
-  Auto-resizing is disabled by default.
-
-  \sa setAutoResize()
-*/
-
 bool QComboBox::autoResize() const
 {
     return d->autoresize;
 }
-
-/*! \obsolete
-  Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
-  FALSE.
-
-  When auto-resizing is enabled, the combo box button will resize itself
-  whenever the current combo box item change.
-
-  \sa autoResize(), adjustSize()
-*/
 
 void QComboBox::setAutoResize( bool enable )
 {
@@ -1662,29 +1649,10 @@ int QComboBox::completionIndex( const QString & prefix,
 }
 
 
-/*!
-  Returns the current maximum on-screen size of the combo box.  The
-  default is ten lines.
-
-  \sa setSizeLimit() count() maxCount()
-*/
-
 int QComboBox::sizeLimit() const
 {
     return d ? d->sizeLimit : INT_MAX;
 }
-
-
-/*!
-
-  Sets the maximum on-screen size of the combo box to \a lines.  This
-  is disregarded in Motif 1.x style.  The default limit is ten lines.
-
-  If the number of items in the combo box is/grows larger than
-  \c lines, a list box is added.
-
-  \sa sizeLimit() count() setMaxCount()
-*/
 
 void QComboBox::setSizeLimit( int lines )
 {
@@ -1692,28 +1660,10 @@ void QComboBox::setSizeLimit( int lines )
 }
 
 
-
-/*!
-  Returns the current maximum size of the combo box.  By default,
-  there is no limit, so this function returns INT_MAX.
-
-  \sa setMaxCount() count()
-*/
-
 int QComboBox::maxCount() const
 {
     return d ? d->maxCount : INT_MAX;
 }
-
-
-/*!
-  Sets the maximum number of items the combo box can hold to \a count.
-
-  If \a count is smaller than the current number of items, the list is
-  truncated at the end.  There is no limit by default.
-
-  \sa maxCount() count()
-*/
 
 void QComboBox::setMaxCount( int count )
 {
@@ -1723,33 +1673,10 @@ void QComboBox::setMaxCount( int count )
     d->maxCount = count;
 }
 
-/*!
-  Returns the current insertion policy of the combo box.
-
-  \sa setInsertionPolicy()
-*/
-
 QComboBox::Policy QComboBox::insertionPolicy() const
 {
     return d->p;
 }
-
-
-/*!
-  Sets the insertion policy of the combo box to \a policy.
-
-  The insertion policy governs where items typed in by the user are
-  inserted in the list.  The possible values are <ul> <li> \c
-  NoInsertion: Strings typed by the user aren't inserted anywhere <li>
-  \c AtTop: Strings typed by the user are inserted above the top item
-  in the list <li> AtCurrent: Strings typed by the user replace the
-  last selected item <li> AtBottom: Strings typed by the user are
-  inserted at the bottom of the list. </ul>
-
-  The default insertion policy is \c AtBottom.
-
-  \sa insertionPolicy()
-*/
 
 void QComboBox::setInsertionPolicy( Policy policy )
 {
@@ -1958,30 +1885,12 @@ void QComboBox::setEditText( const QString &newText )
     }
 }
 
-
-/*!  Sets this combo box to offer auto-completion while the user is
-  editing if \a enable is TRUE, or not to offer auto-completion of \a
-  enable is FALSE (the default).
-
-  The combo box uses the list of items as candidates for completion.
-
-  Note: This will only work on editable combo boxes, so make the combo
-  box editable before you call this function or it will not work.
-
-  \sa autoCompletion() setEditText()
-*/
-
 void QComboBox::setAutoCompletion( bool enable )
 {
     d->useCompletion = enable;
     d->completeNow = FALSE;
 }
 
-
-/*!  Returns TRUE if this combo box is in auto-completion mode.
-
-  \sa setAutoCompletion()
-*/
 
 bool QComboBox::autoCompletion() const
 {
@@ -1997,23 +1906,11 @@ void QComboBox::styleChange( QStyle& s )
     QWidget::styleChange( s );
 }
 
-/*!
-  Returns whether the combobox is editable or not.
-
-  \sa setEditable()
- */
 bool QComboBox::editable() const
 {
     return d->ed != 0;
 }
 
-
-/*!
-  Make the input field editable, if \a y is TRUE. Otherwise the user
-  may only choose one of the items in the combo box.
-
-  \sa editable()
- */
 void QComboBox::setEditable( bool y )
 {
     if ( y == editable() )

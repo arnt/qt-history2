@@ -84,6 +84,12 @@
   <a href="guibooks.html#fowler">GUI Design Handbook: Radio Button</a>
 */
 
+/*! \property QRadioButton::checked
+    \brief Whether the radio button is checked
+
+  This property will not effect any other radio buttons unless they have been
+  placed in a QButtonGroup.
+*/
 
 static const int gutter = 6; // between button and text
 static const int margin = 2; // to right of text
@@ -130,22 +136,6 @@ void QRadioButton::init()
     }
 }
 
-
-/*!
-  \fn bool QRadioButton::isChecked() const
-  Returns TRUE if the radio button is checked or FALSE if it is not checked.
-  \sa setChecked()
-*/
-
-/*!
-  Checks the radio button if \e check is TRUE or unchecks it if \e check
-  is FALSE.
-
-  Calling this function does not affect other radio buttons unless a radio
-  button group has been defined using the QButtonGroup widget.
-
-  \sa isChecked()
-*/
 void QRadioButton::setChecked( bool check )
 {
     setOn( check );
