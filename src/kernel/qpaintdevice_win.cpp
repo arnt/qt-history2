@@ -462,7 +462,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		int width = QMIN( dst_pm->mask()->width()-dx, sw );
 		int height = QMIN( dst_pm->mask()->height()-dy, sh );
 		MaskBlt( dst_dc, dx, dy, width, height, src_pm->hdc, sx, sy, dst_pm->mask()->hbm(),
-			sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
+			dx, dy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	    } else {
 		BitBlt( dst_dc, dx, dy, sw, sh, src_pm->hdc, sx, sy, ropCodes[rop] );
 	    }
