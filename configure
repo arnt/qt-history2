@@ -462,7 +462,7 @@ while [ "$#" -gt 0 ]; do
 
     UNKNOWN_OPT=no
     case $VAR in
-    accessiblity)
+    accessibility)
        	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_ACCESSIBILITY="$VAL"
 	else
@@ -1113,7 +1113,7 @@ if [ "$CFG_JPEG" = "auto" ]; then
     fi
 fi
 
-#detect accessiblity
+#detect accessibility
 if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
     if [ "$PLATFORM_MAC" = "yes" ]; then
 	CFG_ACCESSIBILITY=yes
@@ -2156,8 +2156,8 @@ Qt/Mac only:
     -no-tablet ......... Do not compile Tablet support.
  *  -tablet ............ Compile Tablet support.
 
-    -no-accessiblity  .. Do not compile Accessibility support.
- *  -accessiblity ...... Compile Accessibility support.
+    -no-accessibility  .. Do not compile Accessibility support.
+ *  -accessibility ...... Compile Accessibility support.
 EOF
 fi
 
