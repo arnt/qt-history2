@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#102 $
 **
 ** Implementation of QRadioButton class
 **
@@ -372,7 +372,7 @@ void QRadioButton::focusInEvent( QFocusEvent * e )
     QButton * b = 0;
     if ( group() && !isOn() )
 	b = group()->selected();
-    if ( b )
+    if ( b && b->isEnabled() )
 	b->setFocus();
     else
 	QButton::focusInEvent( e );
