@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#88 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#88 $");
 
 
 /*!
@@ -478,7 +478,6 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	       AlignCenter|ShowPrefix,
 	       colorGroup(), isEnabled(),
 	       pixmap(), text() );
-
 }
 
 

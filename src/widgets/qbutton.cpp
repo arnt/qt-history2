@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#66 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,8 +15,10 @@
 #include "qpainter.h"
 #include "qkeycode.h"
 #include "qtimer.h"
+#include "qaccel.h"
+#include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#66 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -31,27 +33,86 @@ static const int autoRepeatPeriod = 200;
   The QButton class implements an abstract button, and lets subclasses
   specify how to reply to user actions and how to draw the button.
 
-  The QButton class has three signals. The pressed() signal is emitted
-  when the left mouse button is pressed while the cursor is inside the
-  button. After being pressed, the button will be down until the left
-  mouse button is again released, which causes a released() signal. If the
-  left mouse button is released when the cursor is inside the button, the
-  clicked() signal will be emitted.
+  QButton provides both push and toggle buttons; setToggleButton()
+  toggles between toggle and non-toggle buttons.  The QRadioButton and
+  QCheckBox classes provide only toggle buttons, QPushButton provides
+  both toggle and push buttons.
 
-  There are two types of buttons; standard buttons and toggle buttons. A
-  standard button can either be pressed down or released. The QPushButton
-  class is an example of a standard button. A toggle button has an
-  additional flag that is toggled each time the button is clicked. The
-  QRadioButton and QCheckBox classes are examples of toggle buttons.
+  Any button can have either a text or pixmap label.  setText() sets
+  the button to be a text button and setPixmap() sets it to be a
+  pixmap button.  The text/pixmap is manipulated as necessary to
+  create "disabled" appearance.
 
-  The button label can be a \link setText() text\endlink or a \link
-  setPixmap() pixmap\endlink.  It is up to widget implementation to
-  display the text or the pixmap.  All the button classess provided
-  with Qt can show both texts and pixmaps.
+  QButton provides most of the states used for buttons: <ul>
+  <li>setDown() determines whether the button is \e pressed (see
+  below)
+  <li>setOn() determines whether the (toggle) button is \e on (see
+  below)
+  <li>setEnabled() determines whether the button can be pressed by the
+  user.
+  <li>setAutoRepeat() determines whether the button will auto-repeat
+  if the user holds it down.
+  <li>setToggleButton() determines whether the button is a toggle
+  button or not.
+  </ul>
 
-  Another convention regarding QButtons is \link setAutoResize()
-  auto-resizing\endlink.  Enabling auto-resizing makes a button resize
-  itself whenever the contents change.
+  The difference between setDown() and setOn() can be a bit hard to
+  grasp at first.  It's not really hard, however, as this example
+  shows:
+
+  When the user presses a toggle button to toggle it on, the button is
+  first \e pressed, then released into \e on state.  When the user
+  presses it again (to toggle it off) the button moves first to the \e
+  pressed state, then to the \e off state (neither isOn() or isDown()).
+
+  Default buttons (as used in many dialogs) are provided by
+  QPushButton::setDefault() and QPushButton::setAutoDefault().
+
+  QButton provides four signals: <ul>
+  <li>pressed() is emitted when the left mouse button is pressed while
+  the cursor is inside the button, and if the button is an
+  autoRepeat() button, at regular intervals while the button is being
+  held down.
+  <li>released() is emitted when the left mouse button is released.
+  <li>clicked() is emitted when the left mouse button is released as
+  above, or when the accelerator key is typed, or when animateClick()
+  is called.
+  <li>toggled() is emitted when the state of a toggle button changes.
+  </ul>
+
+  If the button is a text button with "&" in its text, QButton creates
+  an automatic accelerator key.  This code make a push button labelled
+  "Rock & Roll" (where the c is underscored) and an automatic
+  accelerator key, Alt-C:
+
+  \code
+    QPushButton * p = new QPushButton( "Ro&ck && Roll", this, "4/4!" );
+  \endcode
+
+  When the user presses the accelerator (Alt-C in this case), the
+  button emits clicked() and perhaps toggled().
+
+  Buttons with pixmaps do not have automatic accelerators, but you can
+  achieve the same effect in another way.  In this example, yourAccel
+  is a QAccel supplied by you and anyButton is a QButton (or one of
+  its subclasses):
+ 
+  \code
+    yourAccel->connectItem( ALT+Key_F7, anyButton, SLOT(animateClick()) );
+  \endcode
+
+  In this example, when the user presses Alt-F7 the buttop will be
+  pressed (perhaps toggled) and QButtom emits clicked() (and perhaps
+  toggled().
+
+  All of the concrete buttons provided by Qt (\l QPushButton, \l
+  QCheckBox and \l QRadioButton) support both text and pixmap labels.
+
+  To subclass QButton, you have to reimplement at least drawButton()
+  (to draw the button's outskirts) and drawButtonLabel() (to draw its
+  text or pixmap).  It is generally advisable to reimplement
+  sizeHint() as well, and sometimes hitButton() (to determine whether
+  a button press is within the button).
 
   \sa QButtonGroup
 */
@@ -157,6 +218,7 @@ void QButton::setText( const char *text )
     }
     if ( autoresize )
 	adjustSize();
+    setAccelerator( TRUE );
     update();
 }
 
@@ -170,13 +232,15 @@ void QButton::setText( const char *text )
   Sets the button pixmap to \a pixmap and redraws the contents.
 
   If \a pixmap is monochrome (i.e. it is a QBitmap or its \link
-  QPixmap::depth() depth\endlink is 1) and it does not have a mask, this
-  function sets the pixmap to be its own mask. The purpose is to draw
-  transparent bitmaps, which is important for e.g. toggle buttons.
+  QPixmap::depth() depth\endlink is 1) and it does not have a mask,
+  this function sets the pixmap to be its own mask. The purpose of
+  this is to draw transparent bitmaps, which is important for
+  e.g. toggle buttons.
 
-  The button resizes itself if auto-resizing is enabled.
+  The button resizes itself if auto-resizing is enabled, and always
+  disables any accelerator.
 
-  \sa pixmap(), setText(), setAutoResize(), QPixmap::mask()
+  \sa pixmap() setText() setAutoResize() setAccelerator() QPixmap::mask()
 */
 
 void QButton::setPixmap( const QPixmap &pixmap )
@@ -196,6 +260,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
     if ( !btext.isNull() )
 	btext.resize( 0 );
+    setAccelerator( FALSE );
     if ( autoresize && !sameSize )
 	adjustSize();
     repaint( FALSE );
@@ -262,6 +327,31 @@ void QButton::setAutoRepeat( bool enable )
     repeat = (uint)enable;
     if ( repeat && mlbDown )
 	QTimer::singleShot( autoRepeatPeriod, this, SLOT(autoRepeatSlot()) );
+}
+
+
+/*!  Turns on or off accelerator interpretation for this button
+  according to text(). */
+
+void QButton::setAccelerator( bool enable )
+{
+    QAccel * a = CHILD( this, QAccel, "button accelerator" );
+
+    if ( enable ) {
+	const char * p = strchr( text(), '&' );
+	while( p && *p && p[1] == '&' )
+	    p = strchr( p+2, '&' );
+	if ( p && *p && isalpha(p[1]) ) {
+	    if ( a )
+		a->clear();
+	    else
+		a = new QAccel( this, "button accelerator" );
+	    a->connectItem( a->insertItem(ALT+toupper(p[1])),
+			    this, SLOT(animateClick()) );
+	    a = 0; // to avoid the delete
+	}
+    }
+    delete a;
 }
 
 
@@ -569,4 +659,34 @@ void QButton::enabledChange( bool e )
     if ( !e )
 	setDown( FALSE );
     QWidget::enabledChange( e );
+}
+
+
+/*!  Draws an animated click: The button is pressed and a short while
+  later released.
+
+  clicked() and toggled() signals are emitted as appropriate.
+
+  \sa setAccelerator()
+*/
+
+void QButton::animateClick()
+{
+    buttonDown = TRUE;
+    repaint( FALSE );
+    buttonDown = FALSE;
+    if ( isToggleButton() ) {
+	buttonOn = !buttonOn;
+	emit toggled( buttonOn );
+    }
+    emit clicked();
+    QTimer::singleShot( 50, this, SLOT(repaintSlot()) );
+}
+
+
+/*!  Internal slot used for the second stage of animateClick(). */
+
+void QButton::repaintSlot()
+{
+    repaint( FALSE );
 }

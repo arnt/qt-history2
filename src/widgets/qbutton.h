@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#46 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#47 $
 **
 ** Definition of QButton widget class
 **
@@ -41,6 +41,9 @@ public:
     void	setAutoRepeat( bool );
     bool	autoRepeat() const { return (bool)repeat; }
 
+public slots:
+    void	animateClick();
+
 signals:
     void	pressed();
     void	released();
@@ -66,9 +69,12 @@ protected:
 
     void	enabledChange( bool );
 
+    void	setAccelerator( bool );
+
 private slots:
     void	timerSlot();
     void	autoRepeatSlot();
+    void	repaintSlot();
 
 private:
     QString	btext;
