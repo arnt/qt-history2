@@ -410,7 +410,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     QRegion r = managed->d->topData()->decor_allocated_region;
     int rgnIdx = managed->data->alloc_region_index;
 
-    QGfx *gfx = static_cast<QWSPaintEngine *>(painter.data->engine)->gfx();
+    QGfx *gfx = static_cast<QWSPaintEngine *>(painter.d->engine)->gfx();
     if (rgnIdx >= 0) {
         QRegion newRegion;
         bool changed = false;
