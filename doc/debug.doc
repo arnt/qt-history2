@@ -165,6 +165,7 @@ Example:
   }
 \endcode
 
+<hr>
 <h2>Common bugs</h2>
 
 There is one bug that is so common that it deserves mention here: If
