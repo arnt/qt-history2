@@ -235,7 +235,7 @@ QString MetaDataBase::propertyComment( QObject *o, const QString &property )
 	return QString::null;
     }
 
-    return *r->propertyComments.find( property );
+    return r->propertyComments.value( property );
 }
 
 void MetaDataBase::setFakeProperty( QObject *o, const QString &property, const QVariant& value )
