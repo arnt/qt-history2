@@ -1,5 +1,6 @@
 #include "qimageformatplugin.h"
 #include "qimageformatinterface_p.h"
+#include "qimage.h"
 
 class QImageFormatPluginPrivate : public QImageFormatInterface
 {
