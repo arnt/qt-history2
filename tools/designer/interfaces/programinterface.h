@@ -44,7 +44,7 @@
 
 struct ProgramInterface : public QUnknownInterface
 {
-    virtual bool check( const QString &, QStringList &errors, QValueList<int> &line ) = 0;
+    virtual bool check( const QString &, QStringList &errors, QValueList<uint> &line ) = 0;
     virtual bool build( const QString &projectFile, QMap< QString, QMap<QStringList, int > > &errors ) = 0;
     virtual int run( const QStringList &projectFile ) = 0;
 };

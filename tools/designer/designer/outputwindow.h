@@ -61,7 +61,7 @@ public:
     OutputWindow( QWidget *parent );
     ~OutputWindow();
 
-    void setErrorMessages( const QStringList &errors, const QValueList<int> &lines,
+    void setErrorMessages( const QStringList &errors, const QValueList<uint> &lines,
 			   bool clear, const QStringList &locations,
 			   const QObjectList &locationObjects );
     void appendDebug( const QString& );

@@ -110,14 +110,14 @@ void OutputWindow::setupDebug()
 	oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
 }
 
-void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList<int> &lines,
+void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList<uint> &lines,
 				     bool clear, const QStringList &locations,
 				     const QObjectList &locationObjects )
 {
     if ( clear )
 	errorView->clear();
     QStringList::ConstIterator mit = errors.begin();
-    QValueList<int>::ConstIterator lit = lines.begin();
+    QValueList<uint>::ConstIterator lit = lines.begin();
     QStringList::ConstIterator it = locations.begin();
     QObjectList objects = (QObjectList)locationObjects;
     QObject *o = objects.first();

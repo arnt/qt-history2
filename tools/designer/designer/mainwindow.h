@@ -329,11 +329,11 @@ private:
     void readConfig();
     void readOldConfig();
 
-    void setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &props, QWidget *w );
+    void setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w );
     void handleRMBProperties( int id, QMap<QString, int> &props, QWidget *w );
-    void setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, int> &commands, QWidget *w );
+    void setupRMBSpecialCommands( QValueList<uint> &ids, QMap<QString, int> &commands, QWidget *w );
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, QWidget *w );
-    void setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, int> &commands, FormWindow *w );
+    void setupRMBSpecialCommands( QValueList<uint> &ids, QMap<QString, int> &commands, FormWindow *w );
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, FormWindow *w );
     bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();

@@ -1042,7 +1042,7 @@ void DesignerOutputDockImpl::appendError( const QString &s, int l )
 {
     QStringList ls;
     ls << s;
-    QValueList<int> ll;
+    QValueList<uint> ll;
     ll << l;
     outWin->setErrorMessages( ls, ll, FALSE, QStringList(), QObjectList() );
 }

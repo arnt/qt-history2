@@ -1430,7 +1430,7 @@ QWorkspace *MainWindow::qWorkspace() const
 
 void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
 {
-    QValueList<int> ids;
+    QValueList<uint> ids;
     QMap<QString, int> commands;
 
     setupRMBSpecialCommands( ids, commands, fw );
@@ -1442,13 +1442,13 @@ void MainWindow::popupFormWindowMenu( const QPoint & gp, FormWindow *fw )
     handleRMBProperties( r, commands, fw );
     handleRMBSpecialCommands( r, commands, fw );
 
-    for ( QValueList<int>::Iterator i = ids.begin(); i != ids.end(); ++i )
+    for ( QValueList<uint>::Iterator i = ids.begin(); i != ids.end(); ++i )
 	rmbFormWindow->removeItem( *i );
 }
 
 void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget * w)
 {
-    QValueList<int> ids;
+    QValueList<uint> ids;
     QMap<QString, int> commands;
 
     setupRMBSpecialCommands( ids, commands, w );
@@ -1460,11 +1460,11 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
     handleRMBProperties( r, commands, w );
     handleRMBSpecialCommands( r, commands, w );
 
-    for ( QValueList<int>::Iterator i = ids.begin(); i != ids.end(); ++i )
+    for ( QValueList<uint>::Iterator i = ids.begin(); i != ids.end(); ++i )
 	rmbWidgets->removeItem( *i );
 }
 
-void MainWindow::setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &props, QWidget *w )
+void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w )
 {
     const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
     if ( text && qstrcmp( text->type(), "QString") != 0 )
@@ -1507,7 +1507,7 @@ void MainWindow::setupRMBProperties( QValueList<int> &ids, QMap<QString, int> &p
     }
 }
 
-void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, int> &commands, QWidget *w )
+void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids, QMap<QString, int> &commands, QWidget *w )
 {
     int id;
 
@@ -1543,7 +1543,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
     }
 }
 
-void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, int> &commands, FormWindow *fw )
+void MainWindow::setupRMBSpecialCommands( QValueList<uint> &ids, QMap<QString, int> &commands, FormWindow *fw )
 {
     int id;
 
@@ -3087,7 +3087,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 {
     if ( o ) {
 	errorLine--; // ######
-	QValueList<int> l;
+	QValueList<uint> l;
 	l << errorLine + 1;
 	QStringList l2;
 	l2 << errorMessage;

@@ -1481,7 +1481,7 @@ QObjectList *Project::run()
 		programPluginManager->queryInterface( lang, &piface);
 		if ( piface ) {
 		    QStringList error;
-		    QValueList<int> line;
+		    QValueList<uint> line;
 		    if ( qwf_functions ) {
 			QMap<QWidget*, QString>::Iterator it = qwf_functions->find( w );
 			if ( it == qwf_functions->end() )
@@ -1517,7 +1517,7 @@ QObjectList *Project::run()
 			  sources.current(); ++sources ) {
 			SourceFile* f = sources.current();
 			QStringList error;
-			QValueList<int> line;
+			QValueList<uint> line;
 			if ( !piface->check( f->text(), error, line ) &&
 			     !error.isEmpty() && !error[ 0 ].isEmpty() ) {
 			    if ( MainWindow::self ) {
