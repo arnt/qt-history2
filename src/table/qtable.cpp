@@ -3338,10 +3338,15 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
   \sa QTableSelection
 */
 
+// ### Make this virtual in 4.0 and remove hack for QDataTable
 void QTable::selectRow( int row )
 {
-    QTableSelection sel( row, 0, row, numCols() - 1 );
-    addSelection( sel );
+    if ( inherits("QDataTable") ) {
+	setCurrentCell( row, currentColumn() );
+    } else {
+	QTableSelection sel( row, 0, row, numCols() - 1 );
+	addSelection( sel );
+    }
 }
 
 /*! Selects the column \a col
@@ -3349,6 +3354,7 @@ void QTable::selectRow( int row )
   \sa QTableSelection
 */
 
+// ### Make this virtual in 4.0
 void QTable::selectColumn( int col )
 {
     QTableSelection sel( 0, col, numRows() - 1, col );
