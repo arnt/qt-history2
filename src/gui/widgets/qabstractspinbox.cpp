@@ -1170,7 +1170,7 @@ QCoreVariant QAbstractSpinBoxPrivate::getZeroVariant() const
     switch (type) {
     case QCoreVariant::Int: ret = QCoreVariant((int)0); break;
     case QCoreVariant::Double: ret = QCoreVariant((double)0); break;
-    case QCoreVariant::DateTime: ret = QCoreVariant(DATETIME_MIN); break;
+    case QCoreVariant::DateTime: ret = QCoreVariant(QDateTime(QDate(1999, 12, 31), QTime())); break;
     default: break;
     }
     return ret;
@@ -1202,6 +1202,7 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCore
     QValidator::State state;
     if (val) {
         *val = mapTextToValue(input, &state);
+	qDebug("After map: %s", val->toString().latin1());
     } else {
         mapTextToValue(input, &state);
     }

@@ -1488,9 +1488,7 @@ QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
 QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *stateptr) const
 {
     QCoreVariant ret = getZeroVariant();
-    QValidator::State state = QValidator::Acceptable;
-    int year, month, day, hour, min, sec, msec;
-    year = month = day = hour = min = sec = msec = 0;
+    QValidator::State state = QValidator::Acceptable;    
     for (int i=0; state != QValidator::Invalid && i<sections.size(); ++i) {
 	const Section s = sections.at(i).section;
 	QValidator::State tmpstate;
@@ -1501,20 +1499,11 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
         }
     }
 
-    if (oldsection != DaysSection && day < cachedday)
-	day = cachedday;
-
-    if (state == QValidator::Acceptable && (display & DateMask) && !QDate::isValid(year, month, day)) {
-        if (year <= DATE_MIN.year() && month < DATE_MIN.month() || (month == DATE_MIN.month() && day < DATE_MIN.day())) {
-	    month = DATE_MIN.month();
-	    day = DATE_MIN.day();
-	} else {
-	    day = qMin(day, QDate(year, month, 1).daysInMonth());
-	}
-    }
-
+    if (oldsection != DaysSection && ret.toDate().day() < cachedday)
+	setDigit(&ret, DaysSection, cachedday);
+    
     if (oldsection == DaysSection)
-	cachedday = day;
+	cachedday = getDigit(ret, DaysSection);
 
     if (stateptr)
 	*stateptr = state;
@@ -1677,7 +1666,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 
     QValidator::State state;
     if (val) {
-        *val = mapTextToValue(input, &state);
+        *val = mapTextToValue(input, &state);	
     } else {
         mapTextToValue(input, &state);
     }
