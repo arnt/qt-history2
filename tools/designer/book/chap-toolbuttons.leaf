@@ -32,7 +32,7 @@ to open existing projects, forms or files. This button invokes the
 \i \Toolbutton Save\BR Click this toolbar button (or press \Key Ctrl+S) to
 save the project, forms and files. For a new project that has no
 forms or files, click 'Save' to save the project before exiting.
-For new forms, click 'Save' and the \l{Form Save As Dialog} appears. 
+For new forms, click 'Save' and the \l{Save Form As Dialog} appears. 
 
 \i \Toolbutton {Active Project}\BR Click the combobox to view the names of
 the projects that are currently open and select a project name to
@@ -67,7 +67,7 @@ the current form or file.
 
 \endlist
 
-\img qd-searchtoolbuttons3.png
+\img qd-searchttoolbuttons3.png
 \caption search toolbuttons
 
 \section1 The Search Toolbar Buttons
@@ -93,7 +93,7 @@ toolbar button. After this, every time you click the form a new widget
 will be added. Click the \Toolbutton Pointer toolbar button to leave
 this mode.
 
-\img qd-pointertoolbuttons3.png
+\img qd-toolstoolbuttons4.png
 \caption tools
 
 \section2 Tools
@@ -166,7 +166,7 @@ Page' as required.
 
 \endlist
 
-\img qd-viewstoolbuttons3.png
+\img qd-viewstoolbuttons5.png
 \caption views 
 
 \section2 Views

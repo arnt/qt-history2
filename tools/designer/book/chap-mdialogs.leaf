@@ -538,7 +538,7 @@ Click the \Button Close button to leave the dialog.
 
 \section1 The Help Dialogs
 
-\img qd-qtdesigner1dialog1dialog.png
+\img qd-qtdesigner1dialog.png
 \caption Qt Designer Dialog
 
 \target dialog-qt-designer
@@ -563,7 +563,7 @@ Dialog}. This dialog provides information about Qt.
 Click the 'x' located at the top right corner of the dialog to close
 the dialog.
 
-\img qd-fielsaveprojectsettingsdialog.png
+\img qd-filesaveprojectsettingsdialog.png
 \caption Save Project Settings 
 
 \target dialog-save-project-settings
@@ -912,7 +912,7 @@ the 3-D effects. Click the \Button {Select Color} button to invoke the
 Click \OK to accept changes to the palette. Click \CANCEL to leave the
 dialog without making changes to the palette.
 
-\img qd-selectfontdialog
+\img qd-selectfontdialog.png
 \caption Select Font
 
 \target dialog-select-font
@@ -1157,7 +1157,7 @@ will appear in the line edit, allowing you to change the name.
 Click \Button Close to leave the \Dialog {Edit Include (in
 Declaration)} dialog.
 
-\img qd-editincludesinimplmentation.png
+\img qd-editincludesinimplementation.png
 \caption Edit Includes (in Implementation)
 
 \target dialog-edit-includes-in-implementation

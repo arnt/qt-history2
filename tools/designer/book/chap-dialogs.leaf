@@ -576,7 +576,7 @@ We will create some space around the splitter by changing the
     margins of the layout groups that it joins together. To click a
     layout either click a fraction above the layout's top red line or
     click the layout's name in the Object Explorer (the Widgets and
-    Source window). (See \l {The Object Explorer} sidebar for an
+    Source window). (See \l {The Object Explorer Window} sidebar for an
     explanation of the Object Explorer window.) Click the layout that
     contains the list box, and change the \Property layoutMargin property to 6,
     then press \Key Enter. Click the layout that contains
