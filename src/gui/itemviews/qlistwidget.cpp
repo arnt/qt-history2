@@ -689,7 +689,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 /*!
     \fn void QListWidget::itemChanged(QListWidgetItem *item)
 
-    This signal is emitted whenever the data of \a item is changed.
+    This signal is emitted whenever the data of \a item has changed.
 */
 
 

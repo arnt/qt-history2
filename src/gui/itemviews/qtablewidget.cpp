@@ -197,6 +197,7 @@ void QTableModel::setHorizontalHeaderItem(int section, QTableWidgetItem *item)
     vertical[section] = item;
 }
 
+
 void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -605,6 +606,12 @@ void QTableWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMod
 */
 
 /*!
+    \fn void QTableWidget::itemChanged(QTableWidgetItem *item)
+
+    This signal is emitted whenever the data of \a item has changed.
+*/
+
+/*!
     Creates a new table view with the given \a parent.
 */
 QTableWidget::QTableWidget(QWidget *parent)
@@ -674,7 +681,7 @@ int QTableWidget::columnCount() const
 }
 
 /*!
-  ###
+  Returns the row for the \a item.
 */
 int QTableWidget::row(const QTableWidgetItem *item) const
 {
@@ -683,7 +690,7 @@ int QTableWidget::row(const QTableWidgetItem *item) const
 }
 
 /*!
-  ###
+  Returns the column for the \a item.
 */
 int QTableWidget::column(const QTableWidgetItem *item) const
 {
@@ -714,6 +721,9 @@ void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
     d->model()->setItem(row, column, item);
 }
 
+/*!
+    Removes the item at \a row and \a column from the table without deleting it.
+*/
 QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 {
     QTableWidgetItem *item = d->model()->takeItem(row, column);
@@ -721,34 +731,52 @@ QTableWidgetItem *QTableWidget::takeItem(int row, int column)
     return item;
 }
 
+/*!
+  Removes item \a item from the table.
+*/
 void QTableWidget::removeItem(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     d->model()->removeItem(item);
 }
 
+/*!
+  Returns the vertical header item for row \a row.
+*/
 QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 {
     return d->model()->verticalHeaderItem(row);
 }
 
+/*!
+  Sets the vertical header item for row \a row to \a item.
+*/
 void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
     item->view = this;
     d->model()->setHorizontalHeaderItem(row, item);
 }
 
+/*!
+  Returns the horizontal header item for column \a column.
+*/
 QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 {
     return d->model()->horizontalHeaderItem(column);
 }
 
+/*!
+  Sets the horizontal header item for column \a column to \a item.
+*/
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
     item->view = this;
     d->model()->setVerticalHeaderItem(column, item);
 }
 
+/*!
+  Sets the vertical header labels using \a labels.
+*/
 void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 {
     QTableModel *model = d->model();
@@ -763,6 +791,9 @@ void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
     }
 }
 
+/*!
+  Sets the horizontal header labels using \a labels.
+*/
 void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 {
     QTableModel *model = d->model();
@@ -777,21 +808,35 @@ void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
     }
 }
 
+/*!
+  Returns the current item.
+*/
 QTableWidgetItem *QTableWidget::currentItem() const
 {
     return d->model()->item(currentIndex());
 }
 
+/*!
+  Sets the current item to \a item.
+*/
 void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 {
     setCurrentIndex(d->model()->index(item));
 }
 
+/*!
+  Sorts all the rows in the table widget based on \a column and \a order.
+*/
 void QTableWidget::sortItems(int column, Qt::SortOrder order)
 {
     d->model()->sort(column, QModelIndex::Null, order);
 }
 
+/*!
+  Opens an editor for the give \a item. The editor remains open after editing.
+
+  \sa closePersistentEditor()
+*/
 void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -799,6 +844,11 @@ void QTableWidget::openPersistentEditor(QTableWidgetItem *item)
     QAbstractItemView::openPersistentEditor(index);
 }
 
+/*!
+  Closes the persistent editor for \a item.
+
+  \sa openPersistentEditor()
+*/
 void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 {
     Q_ASSERT(item);
@@ -816,6 +866,9 @@ bool QTableWidget::isSelected(const QTableWidgetItem *item) const
     return selectionModel()->isSelected(index);
 }
 
+/*!
+  Selects or deselects \a item depending on \a select.
+*/
 void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(item);
@@ -876,7 +929,7 @@ void QTableWidget::ensureItemVisible(const QTableWidgetItem *item)
 }
 
 /*!
-  ###
+  Inserts an empty row into the table at \a row.
 */
 void QTableWidget::insertRow(int row)
 {
@@ -884,7 +937,7 @@ void QTableWidget::insertRow(int row)
 }
 
 /*!
-  ###
+  Inserts an empty column into the table at \a column.
 */
 void QTableWidget::insertColumn(int column)
 {
@@ -892,7 +945,7 @@ void QTableWidget::insertColumn(int column)
 }
 
 /*!
-  ###
+  Removes the row \a row and all its items from the table.
 */
 void QTableWidget::removeRow(int row)
 {
@@ -900,7 +953,7 @@ void QTableWidget::removeRow(int row)
 }
 
 /*!
-  ###
+  Removes the column \a column and all its items from the table.
 */
 void QTableWidget::removeColumn(int column)
 {
@@ -916,11 +969,17 @@ void QTableWidget::clear()
     d->model()->clear();
 }
 
+/*!
+  \internal
+*/
 void QTableWidget::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
 }
 
+/*!
+  \internal
+*/
 void QTableWidget::setup()
 {
     connect(this, SIGNAL(pressed(const QModelIndex&, int)),
