@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#25 $
 **
 ** Implementation of QDialog class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -28,22 +28,22 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#24 $")
 
   The dialog window can either be modeless or modal. A modeless dialog is
   a normal window, while a modal window must be finished before the user
-  can continue with other parts of the program.  The third constructor
+  can continue with other parts of the program.	 The third constructor
   argument must be set to TRUE to create a modal dialog, otherwise it will
   create a modeless dialog.
 
   Example (your own modal dialog):
   \code
     class Modal : public QDialog {
-        Q_OBJECT
+	Q_OBJECT
     public:
-        Modal( QWidget *parent, const char *name );
+	Modal( QWidget *parent, const char *name );
     };
 
     Modal::Modal( QWidget *parent, const char *name )
 	: QDialog( parent, name, TRUE )
     {
-        QPushButton *ok, cancel;
+	QPushButton *ok, cancel;
 	ok = new QPushButton( "Ok" );
 	ok->setGeometry( 10,10, 100,30 );
 	connect( ok, SIGNAL(clicked()), SLOT(accept()) );
@@ -233,10 +233,8 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 
 void QDialog::closeEvent( QCloseEvent *e )
 {
-    if ( testWFlags(WType_Modal) ) {
-	e->ignore();				// do not delete the dialog
-	reject();
-    }
+    e->accept();
+    reject();					// same as Cancel
 }
 
 
