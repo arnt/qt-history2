@@ -1429,13 +1429,14 @@ static void err_info_about_candidates( int code,
     is valid only during the execution of the slot that calls this
     function.
 
-    Getting access to the object that sent the signal might be useful
-    when many signals are connected to a single slot.
-
-    \warning The pointer returned by this function becomes invalid if
-    the sender is destroyed, or if the slot is disconnected from the
+    The pointer returned by this function becomes invalid if the
+    sender is destroyed, or if the slot is disconnected from the
     sender's signal.
 
+    \warning This function violates the object-oriented principle of
+     modularity. However, getting access to the sender might be useful
+     when many signals are connected to a single slot. The sender is
+     undefined if the slot is called as a normal C++ function.
 */
 
 const QObject *QObject::sender()
