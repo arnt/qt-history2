@@ -54,10 +54,7 @@ SYSCONF_LINK_LIB_SHARED	= #${
 		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
-	    $text .= ' $(SYSCONF_LINK_SHLIB)'
-			. ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)'
-			. ' `lorder /usr/lib/c++rt0.o $(OBJECTS) $(OBJMOC)'
-			    . ' | tsort` $(LIBS); ';
+	    $text .= Project('TMAKE_LINK_SHLIB_CMD');
 	} else {
 	    $text .= ' $(SYSCONF_LINK_SHLIB) '
 			. Project('TMAKE_LFLAGS_SHLIB') . ' '
