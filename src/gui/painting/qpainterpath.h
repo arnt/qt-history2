@@ -63,6 +63,8 @@ public:
 
     bool isEmpty() const;
 
+    QPolygon toPolygon() const;
+
 private:
     QPainterPathPrivate *d_ptr;
 

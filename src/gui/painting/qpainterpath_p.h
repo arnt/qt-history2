@@ -100,14 +100,14 @@ public:
     }
 
     /* Flattens all the curves in the path to linear polygons */
-    QList<QPolygon> flatten(const QMatrix &matrix, FlattenInclusion include = AllSubpaths);
+    QList<QPolygon> flatten(const QMatrix &matrix, FlattenInclusion include = AllSubpaths) const;
 
 #if 0
     /* Scanline converts the path to a bitmap */
     QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
 #endif
 
-    QPolygon toFillPolygon(const QMatrix &xform);
+    QPolygon toFillPolygon(const QMatrix &xform) const;
 
     /* Creates a path containing the outline of this path of width \a penwidth */
     QPainterPath createStroke(int width,

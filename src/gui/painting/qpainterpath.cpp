@@ -261,7 +261,7 @@ void QPainterSubpath::removeBrokenSegments()
 
   Converts all the curves in the path to linear polylines.
 */
-QList<QPolygon> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclusion incl)
+QList<QPolygon> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclusion incl) const
 {
     QList<QPolygon> flatCurves;
     if (!flatCurves.isEmpty() || subpaths.isEmpty())
@@ -281,7 +281,7 @@ QList<QPolygon> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclu
     Converts the flattened path to a polygon that can be used for filling
 */
 
-QPolygon QPainterPathPrivate::toFillPolygon(const QMatrix &matrix)
+QPolygon QPainterPathPrivate::toFillPolygon(const QMatrix &matrix) const
 {
     QPolygon fillPoly;
     QList<QPolygon> polygons = flatten(matrix, AllSubpaths);
@@ -1116,4 +1116,13 @@ QPainterPath QPainterPath::createPathOutline(int width,
                                              Qt::PenJoinStyle joinStyle)
 {
     return d->createStroke(width, penStyle, capStyle, joinStyle);
+}
+
+
+/*!
+  Creates a polygon from the path.
+*/
+QPolygon QPainterPath::toPolygon() const
+{
+    return d->toFillPolygon(QMatrix());
 }
