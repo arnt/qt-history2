@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: credits.doc,v 2.3 1997/06/17 00:01:14 agulbra Exp $
+** $Id: credits.doc,v 2.4 1997/06/17 15:41:26 agulbra Exp $
 **
 ** Credits file - all the qt-bugs stuff
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: credits.doc,v 2.3 1997/06/17 00:01:14 agulbra Exp $";
+static char ident[] = "$Id: credits.doc,v 2.4 1997/06/17 15:41:26 agulbra Exp $";
 #endif
 
 // the list is up to an including /local/qt/mail/qt-bugs/1715
@@ -98,7 +98,7 @@ Edmund Taylor &lt;etaylor@interaccess.com&gt;<br>
 Matthias Ettrich &lt;ettrich@fisher.informatik.uni-tuebingen.de&gt;<br>
 Jason Evans &lt;evans911@cs.uidaho.edu&gt;<br>
 Michael Graff &lt;explorer@flame.org&gt;<br>
-Mattias =?ISO-8859-1?Q?Engdeg=E5rd"?= &lt;f91-men@nada.kth.se&gt;<br>
+Mattias Engdegård &lt;f91-men@nada.kth.se&gt;<br>
 Fergal Mc Carthy &lt;fergal@ilo.dec.com&gt;<br>
 fidaire &lt;fidaire@bip.fr&gt;<br>
 Michael Figley &lt;figley@ibmoto.com&gt;<br>
@@ -217,7 +217,7 @@ Robert Anderson &lt;Robert.E.Anderson@unh.edu&gt;<br>
 Andrew J. Robinson &lt;robinson@eclipse.net&gt;<br>
 Pierre Rocque &lt;rocque@CRHSC.Umontreal.CA&gt;<br>
 J. Solomon Kostelnik &lt;roz@one.net&gt;<br>
-Trond Hellem B| &lt;s638@ii.uib.no&gt;<br>
+Trond Hellem Bø &lt;s638@ii.uib.no&gt;<br>
 Salman Sheikh &lt;salman@vdragon.gsfc.nasa.gov&gt;<br>
 Andreas Schlempp &lt;schlempp@egd.igd.fhg.de&gt;<br>
 Hans Schlenker &lt;schlenkh@informatik.uni-muenchen.de&gt;<br>
