@@ -386,7 +386,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 }
 
 QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
-    : d(_d), indent(0)
+    : d(_d), indent(0), setNamedAnchorInNextOutput(false)
 {
     parse(html);
 //    dumpHtml();
@@ -537,6 +537,10 @@ void QTextHTMLImporter::import()
             d->title = node->text;
             continue;
         }
+        if (node->isAnchor && !node->anchorName.isEmpty()) {
+            setNamedAnchorInNextOutput = true;
+            namedAnchor = node->anchorName;
+        }
         if (node->text.size() == 0)
             continue;
         hasBlock = false;
@@ -618,14 +622,35 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     d->formatCollection.setObjectFormat(table->tableIndex, fmt);
 }
 
-void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt, const QChar &separator)
+void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt, const QChar &separator)
 {
+    if (setNamedAnchorInNextOutput) {
+        charFmt.setAnchor(true);
+        charFmt.setAnchorName(namedAnchor);
+        setNamedAnchorInNextOutput = false;
+    }
+
     d->appendText(QString(separator), d->formatCollection.indexForFormat(charFmt), d->formatCollection.indexForFormat(format));
 }
 
-void QTextHTMLImporter::appendText(const QString &text, const QTextFormat &format)
+void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
 {
-    d->appendText(text, d->formatCollection.indexForFormat(format));
+    if (setNamedAnchorInNextOutput && !text.isEmpty()) {
+        QTextCharFormat fmt = format;
+        fmt.setAnchor(true);
+        fmt.setAnchorName(namedAnchor);
+        d->appendText(QString(text.at(0)), d->formatCollection.indexForFormat(fmt));
+
+        text.remove(0, 1);
+        format.setAnchor(false);
+        format.setAnchorName(QString::null);
+
+        setNamedAnchorInNextOutput = false;
+    }
+
+    if (!text.isEmpty()) {
+        d->appendText(text, d->formatCollection.indexForFormat(format));
+    }
 }
 
 /*!

@@ -115,14 +115,19 @@ private:
 
     void scanTable(int tableNodeIdx, Table *table);
 
-    void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat(), const QChar &separator = QChar::ParagraphSeparator);
-    void appendText(const QString &text, const QTextFormat &format);
+    void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat(), const QChar &separator = QChar::ParagraphSeparator);
+    void appendText(QString text, QTextCharFormat format);
     inline void appendImage(const QTextImageFormat &format)
     { appendText(QString(QChar::ObjectReplacementCharacter), format); }
 
     QTextDocumentFragmentPrivate *d;
     QVector<int> listReferences;
     int indent;
+
+    // insert a named anchor the next time we emit a char format,
+    // either in a block or in regular text
+    bool setNamedAnchorInNextOutput;
+    QString namedAnchor;
 
     struct Table
     {
