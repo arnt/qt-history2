@@ -417,6 +417,8 @@ QFileInfo::absoluteFilePath() const
 /*!
     Returns the file's path absolute path.
 
+    This does not include the filename. ###
+
     \sa dir(), filePath(), fileName(), isRelative(), path()
 */
 
@@ -675,7 +677,7 @@ QFileInfo::dir() const
 /*!
     Returns the file's absolute path as a QDir object.
 
-    \sa dirPath(), filePath(), fileName(), isRelative(), dir()
+    \sa filePath(), fileName(), isRelative(), dir()
 */
 
 QDir
