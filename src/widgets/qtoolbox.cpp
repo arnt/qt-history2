@@ -51,6 +51,9 @@
 #include <qeventloop.h>
 #include <qdatetime.h>
 #include <qcursor.h>
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif
 
 class QToolBoxButton : public QToolButton
 {
@@ -246,7 +249,7 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
   To map a page to its index or vica versa, use page() or pageIndex().
 
   By default, QToolBox shows a quick animation when the user switches
-  berween pages. This effect can be enabled or disabled by calling
+  between pages. This effect can be enabled or disabled by calling
   setScrollEffectEnabled().
 
   \sa QTabWidget
@@ -402,6 +405,7 @@ void QToolBox::buttonClicked()
 	int dist = 0;
 	int h = d->currentPage->parentWidget()->height() - d->lastButton->height();
 
+#ifndef Q_OS_WIN32
 	QTime t;
 	t.start();
 
@@ -417,8 +421,29 @@ void QToolBox::buttonClicked()
 		dist += QABS( direction );
 		t.restart();
 	    }
+	       qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+	}
+#else
+	LARGE_INTEGER count, next, oneMill;
+	QueryPerformanceFrequency( &count );
+	QueryPerformanceCounter( &next ); // Tick/sec
+	oneMill.QuadPart = count.QuadPart/1000;
+	while ( dist < h ) {
+	    QueryPerformanceCounter( &count );
+	    if ( count.QuadPart > next.QuadPart ) {
+	    	next.QuadPart = count.QuadPart + oneMill.QuadPart;
+		QWidgetListIt it( buttons );
+		while ( it.current() ) {
+		    it.current()->raise();
+		    it.current()->move( it.current()->x(),
+					it.current()->y() + direction );
+		    ++it;
+		}
+		dist += QABS( direction );
+	    }
 	    qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
 	}
+#endif
     }
 
     setCurrentPage( page );
