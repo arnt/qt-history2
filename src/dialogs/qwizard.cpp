@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#25 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#26 $
 **
 ** Implementation of something useful.
 **
@@ -398,7 +398,7 @@ It is called when the Next button is clicked.
 to, and the Next button was enabled when the user clicked.
 
 The default implementation returns whatever was set using
-setApproprate().  The ultimate default is TRUE.
+setAppropriate().  The ultimate default is TRUE.
 */
 
 bool QWizard::appropriate( QWidget * w ) const
