@@ -162,7 +162,8 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
     return ik;
 }
 
-/*! \class QIconSet
+/*! 
+  \class QIconSet
 
   \brief The QIconSet class provides a set of icons with different
   styles and sizes.

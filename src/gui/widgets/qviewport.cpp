@@ -62,7 +62,7 @@
 
     It is possible to reserve a margin area around the viewport, see
     setViewportMargins(). The feature is mostly used to place a
-    QHeaderView widget above or aside the scrolling area.
+    QHeaderView widget above or beside the scrolling area.
 
     For convience, QViewport makes all viewport events available in
     the virtual viewportEvent()-handler.  QWidget's specialised

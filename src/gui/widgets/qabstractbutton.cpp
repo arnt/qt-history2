@@ -976,7 +976,8 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f
     Use isChecked() instead.
 */
 
-/*! \fn QPixmap *QAbstractButton::pixmap() const
+/*! 
+    \fn QPixmap *QAbstractButton::pixmap() const
 
     This compatibility function always returns 0.
 

@@ -78,7 +78,8 @@ public:
       pageComboBox->insertItem("Page 1");
       pageComboBox->insertItem("Page 2");
       pageComboBox->insertItem("Page 3");
-      connect(pageComboBox, SIGNAL(activated(int)), pages, SLOT(setCurrent(int)));
+      connect(pageComboBox, SIGNAL(activated(int)),
+              pages, SLOT(setCurrentIndex(int)));
     \endcode
 
     If you just need a stacked layout (not a widget), use QStackedLayout instead.

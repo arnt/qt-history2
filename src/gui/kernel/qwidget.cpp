@@ -4936,7 +4936,7 @@ void QWidget::mousePressEvent(QMouseEvent *e)
     This event handler, for event \a e, can be reimplemented in a
     subclass to receive mouse release events for the widget.
 
-    \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
+    \sa mousePressEvent(), mouseDoubleClickEvent(),
     mouseMoveEvent(), event(),  QMouseEvent
 */
 
