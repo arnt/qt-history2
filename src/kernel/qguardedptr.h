@@ -66,7 +66,7 @@ public:
     }
     QGuardedPtr( T* o)
     {
-	priv = new QGuardedPtrPrivate( (QObject*)o );
+	priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
     }
     QGuardedPtr(const QGuardedPtr<T> &p)
     {
@@ -91,7 +91,7 @@ public:
     QGuardedPtr<T> &operator=(T* o)
     {
 	deref();
-	priv = new QGuardedPtrPrivate( (QObject*)o );
+	priv = new QGuardedPtrPrivate( static_cast<QObject*>(o) );
 	return *this;
     }
 
