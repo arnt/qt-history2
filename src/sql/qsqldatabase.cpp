@@ -37,6 +37,9 @@
 #ifdef QT_SQL_SQLITE
 #include "drivers/sqlite/qsql_sqlite.h"
 #endif
+#ifdef QT_SQL_IBASE
+#include "drivers/ibase/qsql_ibase.h"
+#endif
 
 #include "qapplication.h"
 #include "qsqlresult.h"
@@ -454,8 +457,12 @@ QStringList QSqlDatabase::drivers()
 	l << "QDB2";
 #endif
 #ifdef QT_SQL_SQLITE
-    if ( !l.contains( "QSQLITE1" ) )
-	l << "QSQLITE1";
+    if ( !l.contains( "QSQLITE" ) )
+	l << "QSQLITE";
+#endif
+#ifdef QT_SQL_IBASE
+    if ( !l.contains( "QIBASE" ) )
+	l << "QIBASE";
 #endif
 
     return l;
@@ -511,7 +518,7 @@ bool QSqlDatabase::contains( const QString& connectionName )
     \row \i QTDS7 \i Sybase Adaptive Server
     \row \i QMYSQL3 \i MySQL Driver
     \row \i QDB2 \i IBM DB2, v7.1 and higher
-    \row \i QSQLITE1 \i SQLite embedded database
+    \row \i QSQLITE \i SQLite embedded database
     \endtable
 
     Additional third party drivers, including your own custom drivers,
@@ -588,8 +595,13 @@ void QSqlDatabase::init( const QString& type, const QString& )
 #endif
 
 #ifdef QT_SQL_SQLITE
-	if ( type == "QSQLITE1" )
+	if ( type == "QSQLITE" )
 	    d->driver = new QSQLiteDriver();
+#endif
+
+#ifdef QT_SQL_IBASE
+	if ( type == "QIBASE" )
+	    d->driver = new QIBaseDriver();
 #endif
 
     }

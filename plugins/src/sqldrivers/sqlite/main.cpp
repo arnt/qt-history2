@@ -31,7 +31,7 @@ QSQLiteDriverPlugin::QSQLiteDriverPlugin()
 
 QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
 {
-    if (name == "QSQLITE1") {
+    if (name == "QSQLITE") {
 	QSQLiteDriver* driver = new QSQLiteDriver();
 	return driver;
     }
@@ -41,7 +41,7 @@ QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
 QStringList QSQLiteDriverPlugin::keys() const
 {
     QStringList l;
-    l << "QSQLITE1";
+    l << "QSQLITE";
     return l;
 }
 

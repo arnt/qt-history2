@@ -51,7 +51,7 @@ sql {
 		    $$SQL_CPP/qsqlselectcursor.cpp
 
 	contains(sql-drivers, all ) {
-		sql-driver += psql mysql odbc oci tds db2
+		sql-driver += psql mysql odbc oci tds db2 sqlite
 	}			
 
 	contains(sql-drivers, psql) {
