@@ -586,7 +586,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
             return item.name;
         case DecorationRole:
             if (d == -1)
-                return createIconSet("designer_object.png");
+                return createIconSet("object.png");
             return item.icon.pixmap(Qt::SmallIconSize, QIcon::Normal);
         default:
             return QVariant();

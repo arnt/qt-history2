@@ -86,7 +86,7 @@
                         <number>0</number>
                     </property>
                     <item>
-                        <widget class="Spacer"  name="Horizontal Spacer" widgetboxicon="designer_spacer.png">
+                        <widget class="Spacer"  name="Horizontal Spacer" widgetboxicon="spacer.png">
                             <property name="orientation" >
                                 <enum>Qt::Horizontal</enum>
                             </property>
@@ -104,7 +104,7 @@
                         </widget>
                     </item>
                     <item>
-                        <widget class="Spacer"  name="Vertical Spacer" widgetboxicon="designer_vspacer.png">
+                        <widget class="Spacer"  name="Vertical Spacer" widgetboxicon="vspacer.png">
                             <property name="orientation" >
                                 <enum>Qt::Vertical</enum>
                             </property>
@@ -131,7 +131,7 @@
             <widget class="QWidget">
                 <layout class="QGridLayout">
                     <item row="0" column="0">
-                        <widget class="QPushButton"  name="Push Button" widgetboxicon="designer_pushbutton.png">
+                        <widget class="QPushButton"  name="Push Button" widgetboxicon="pushbutton.png">
                             <property name="text" >
                                 <string>PushButton</string>
                             </property>
@@ -141,7 +141,7 @@
                         </widget>
                     </item>
                     <item row="0" column="1">
-                        <widget class="QToolButton" name="Tool Button" widgetboxicon="designer_toolbutton.png">
+                        <widget class="QToolButton" name="Tool Button" widgetboxicon="toolbutton.png">
                             <property name="objectName">
                                 <string notr="true">toolButton</string>
                             </property>
@@ -151,7 +151,7 @@
                         </widget>
                     </item>
                     <item row="1" column="0">
-                        <widget class="QRadioButton" name="Radio Button" widgetboxicon="designer_radiobutton.png">
+                        <widget class="QRadioButton" name="Radio Button" widgetboxicon="radiobutton.png">
                             <property name="text" >
                                 <string>RadioButton</string>
                             </property>
@@ -161,7 +161,7 @@
                         </widget>
                     </item>
                     <item row="1" column="1">
-                        <widget class="QCheckBox" name="Check Box" widgetboxicon="designer_checkbox.png">
+                        <widget class="QCheckBox" name="Check Box" widgetboxicon="checkbox.png">
                             <property name="text" >
                                 <string>CheckBox</string>
                             </property>
@@ -177,7 +177,7 @@
 
     <category name="Item Views (Model-Based)">
         <ui version="4.0" >
-            <widget class="QListView" name="List View" widgetboxicon="designer_listbox.png">
+            <widget class="QListView" name="List View" widgetboxicon="listbox.png">
                     <property name="geometry">
                         <rect>
                             <x>0</x>
@@ -190,8 +190,8 @@
                         <string notr="true">listView</string>
                     </property>
             </widget>
-
-            <widget class="QTreeView" name="Tree View" widgetboxicon="designer_listview.png">
+                            
+            <widget class="QTreeView" name="Tree View" widgetboxicon="listview.png">
                     <property name="geometry">
                         <rect>
                             <x>0</x>
@@ -204,8 +204,8 @@
                         <string notr="true">treeView</string>
                     </property>
             </widget>
-
-            <widget class="QTableView" name="Table View" widgetboxicon="designer_table.png">
+                            
+            <widget class="QTableView" name="Table View" widgetboxicon="table.png">
                     <property name="geometry">
                         <rect>
                             <x>0</x>
@@ -223,7 +223,7 @@
 
     <category name="Item Widgets (Item-Based)">
         <ui version="4.0" >
-            <widget class="QListWidget" name="List Widget" widgetboxicon="designer_listbox.png">
+            <widget class="QListWidget" name="List Widget" widgetboxicon="listbox.png">
                     <property name="geometry">
                         <rect>
                             <x>0</x>
@@ -236,8 +236,7 @@
                         <string notr="true">listWidget</string>
                     </property>
             </widget>
-
-            <widget class="QTreeWidget" name="Tree Widget" widgetboxicon="designer_listview.png">
+            <widget class="QTreeWidget" name="Tree Widget" widgetboxicon="listview.png">
                     <property name="geometry">
                         <rect>
                             <x>0</x>
@@ -250,8 +249,8 @@
                         <string notr="true">treeWidget</string>
                     </property>
             </widget>
-
-            <widget class="QTableWidget" name="Table Widget" widgetboxicon="designer_table.png">
+                            
+            <widget class="QTableWidget" name="Table Widget" widgetboxicon="table.png">
                     <property name="geometry">
                         <rect>
                             <x>0</x>
@@ -272,7 +271,7 @@
             <widget class="QWidget">
                 <layout class="QGridLayout" >
                     <item row="0" column="0" >
-                        <widget class="QGroupBox" name="Group Box" widgetboxicon="designer_groupbox.png">
+                        <widget class="QGroupBox" name="Group Box" widgetboxicon="groupbox.png">
                             <property name="title" >
                                 <string>GroupBox</string>
                             </property>
@@ -290,7 +289,7 @@
                         </widget>
                     </item>
                     <item row="0" column="1" >
-                        <widget class="QToolBox" name="Tool Box" widgetboxicon="designer_toolbox.png">
+                        <widget class="QToolBox" name="Tool Box" widgetboxicon="toolbox.png">
                             <property name="currentIndex" >
                                 <number>0</number>
                             </property>
@@ -316,7 +315,7 @@
                         </widget>
                     </item>
                     <item row="1" column="0" >
-                        <widget class="QTabWidget" name="Tab Widget" widgetboxicon="designer_tabwidget.png">
+                        <widget class="QTabWidget" name="Tab Widget" widgetboxicon="tabwidget.png">
                             <property name="tabPosition" >
                                 <enum>QTabWidget::Top</enum>
                             </property>
@@ -347,7 +346,7 @@
                         </widget>
                     </item>
                     <item row="1" column="1" >
-                        <widget class="QFrame" name="Frame" widgetboxicon="designer_frame.png">
+                        <widget class="QFrame" name="Frame" widgetboxicon="frame.png">
                             <property name="frameShadow" >
                                 <enum>QFrame::Raised</enum>
                             </property>
@@ -368,7 +367,7 @@
                         </widget>
                     </item>
                     <item row="2" column="0" colspan="2" >
-                        <widget class="QStackedWidget" name="Stacked Widget" widgetboxicon="designer_widgetstack.png">
+                        <widget class="QStackedWidget" name="Stacked Widget" widgetboxicon="widgetstack.png">
                             <property name="geometry">
                                 <rect>
                                     <x>0</x>
@@ -401,7 +400,7 @@
                             <item>
                                 <layout class="QGridLayout" >
                                     <item row="1" column="0" >
-                                        <widget class="QDateTimeEdit" name="Date/Time Edit" widgetboxicon="designer_datetimeedit.png">
+                                        <widget class="QDateTimeEdit" name="Date/Time Edit" widgetboxicon="datetimeedit.png">
                                             <property name="buttonSymbols" >
                                                 <enum>QAbstractSpinBox::UpDownArrows</enum>
                                             </property>
@@ -419,7 +418,7 @@
                                         </widget>
                                     </item>
                                     <item row="0" column="1" >
-                                        <widget class="QSpinBox" name="Spin Box" widgetboxicon="designer_spinbox.png">
+                                        <widget class="QSpinBox" name="Spin Box" widgetboxicon="spinbox.png">
                                             <property name="buttonSymbols" >
                                                 <enum>QAbstractSpinBox::UpDownArrows</enum>
                                             </property>
@@ -437,7 +436,7 @@
                                         </widget>
                                     </item>
                                     <item row="1" column="1" >
-                                        <widget class="QComboBox" name="Combo Box" widgetboxicon="designer_combobox.png">
+                                        <widget class="QComboBox" name="Combo Box" widgetboxicon="combobox.png">
                                             <property name="insertionPolicy" >
                                                 <enum>QComboBox::AtBottom</enum>
                                             </property>
@@ -455,7 +454,7 @@
                                         </widget>
                                     </item>
                                     <item row="0" column="0" >
-                                        <widget class="QLineEdit" name="Line Edit" widgetboxicon="designer_lineedit.png">
+                                        <widget class="QLineEdit" name="Line Edit" widgetboxicon="lineedit.png">
                                             <property name="echoMode" >
                                                 <enum>QLineEdit::Normal</enum>
                                             </property>
@@ -480,7 +479,7 @@
                             <item>
                                 <layout class="QHBoxLayout" >
                                     <item>
-                                        <widget class="QTextEdit" name="Text Edit" widgetboxicon="designer_textedit.png">
+                                        <widget class="QTextEdit" name="Text Edit" widgetboxicon="textedit.png">
                                             <property name="verticalScrollBarPolicy" >
                                                 <enum>Qt::ScrollBarAsNeeded</enum>
                                             </property>
@@ -513,7 +512,7 @@
                                         </widget>
                                     </item>
                                     <item>
-                                        <widget class="QDial" name="Dial" widgetboxicon="designer_dial.png" >
+                                        <widget class="QDial" name="Dial" widgetboxicon="dial.png" >
                                             <property name="orientation" >
                                                 <enum>Qt::Horizontal</enum>
                                             </property>
@@ -533,7 +532,7 @@
                                 </layout>
                             </item>
                             <item>
-                                <widget class="QScrollBar" name="Horizontal Scroll Bar" widgetboxicon="designer_scrollbar.png">
+                                <widget class="QScrollBar" name="Horizontal Scroll Bar" widgetboxicon="scrollbar.png">
                                     <property name="orientation" >
                                         <enum>Qt::Horizontal</enum>
                                     </property>
@@ -551,7 +550,7 @@
                                 </widget>
                             </item>
                             <item>
-                                <widget class="QSlider" name="Slider" widgetboxicon="designer_slider.png">
+                                <widget class="QSlider" name="Slider" widgetboxicon="slider.png">
                                     <property name="orientation" >
                                         <enum>Qt::Horizontal</enum>
                                     </property>
@@ -571,7 +570,7 @@
                         </layout>
                     </item>
                     <item>
-                        <widget class="QScrollBar" name="Vertical Scroll Bar" widgetboxicon="designer_scrollbar.png">
+                        <widget class="QScrollBar" name="Vertical Scroll Bar" widgetboxicon="scrollbar.png">
                             <property name="orientation" >
                                 <enum>Qt::Vertical</enum>
                             </property>
@@ -599,7 +598,7 @@
             <widget class="QWidget">
                 <layout class="QGridLayout" >
                     <item row="0" column="0" >
-                        <widget class="QLabel" name="Label" widgetboxicon="designer_label.png">
+                        <widget class="QLabel" name="Label" widgetboxicon="label.png">
                             <property name="frameShadow" >
                                 <enum>QFrame::Plain</enum>
                             </property>
@@ -618,7 +617,7 @@
                         </widget>
                     </item>
                     <item row="0" column="1" >
-                        <widget class="QLCDNumber" name="LCD Number" widgetboxicon="designer_lcdnumber.png">
+                        <widget class="QLCDNumber" name="LCD Number" widgetboxicon="lcdnumber.png">
                             <property name="mode" >
                                 <enum>QLCDNumber::Dec</enum>
                             </property>
@@ -637,7 +636,7 @@
                         </widget>
                     </item>
                     <item row="1" column="0" colspan="2" >
-                        <widget class="QProgressBar" name="Progress Bar" widgetboxicon="designer_progress.png">
+                        <widget class="QProgressBar" name="Progress Bar" widgetboxicon="progress.png">
                             <property name="value" >
                                 <number>24</number>
                             </property>
@@ -655,7 +654,7 @@
                         </widget>
                     </item>
                     <item row="2" column="0" colspan="2" >
-                        <widget class="QFrame" name="Horizontal Line" widgetboxicon="designer_line.png">
+                        <widget class="QFrame" name="Horizontal Line" widgetboxicon="line.png">
                             <property name="frameShadow" >
                                 <enum>QFrame::Sunken</enum>
                             </property>
@@ -676,7 +675,7 @@
                         </widget>
                     </item>
                     <item rowspan="3" row="0" column="2" >
-                        <widget class="QFrame" name="Vertical Line" widgetboxicon="designer_line.png">
+                        <widget class="QFrame" name="Vertical Line" widgetboxicon="line.png">
                             <property name="frameShadow" >
                                 <enum>QFrame::Sunken</enum>
                             </property>

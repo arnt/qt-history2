@@ -204,31 +204,31 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             break;
 
         case QEvent::MouseMove:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
                 return false;
             fw->handleMouseMoveEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonPress:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
                 return false;
             fw->handleMousePressEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonRelease:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
                 return false;
             fw->handleMouseReleaseEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonDblClick:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
                 return false;
             fw->handleMouseButtonDblClickEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::ContextMenu:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (fw->editMode() != AbstractFormWindow::WidgetEditMode)
                 return true;
             fw->handleContextMenu(w, static_cast<QContextMenuEvent*>(e));
             return true;
@@ -325,21 +325,21 @@ QWidget *FormWindowManager::findManagedWidget(FormWindow *fw, QWidget *w)
 
 void FormWindowManager::setupActions()
 {
-    m_actionCut = new QAction(createIconSet("designer_editcut.png"), tr("Cu&t"));
+    m_actionCut = new QAction(createIconSet("editcut.png"), tr("Cu&t"));
     m_actionCut->setShortcut(Qt::CTRL + Qt::Key_X);
     m_actionCut->setStatusTip(tr("Cuts the selected widgets and puts them on the clipboard"));
     m_actionCut->setWhatsThis(whatsThisFrom("Edit|Cut"));
     connect(m_actionCut, SIGNAL(triggered()), this, SLOT(slotActionCutActivated()));
     m_actionCut->setEnabled(false);
 
-    m_actionCopy = new QAction(createIconSet("designer_editcopy.png"), tr("&Copy"));
+    m_actionCopy = new QAction(createIconSet("editcopy.png"), tr("&Copy"));
     m_actionCopy->setShortcut(Qt::CTRL + Qt::Key_C);
     m_actionCopy->setStatusTip(tr("Copies the selected widgets to the clipboard"));
     m_actionCopy->setWhatsThis(whatsThisFrom("Edit|Copy"));
     connect(m_actionCopy, SIGNAL(triggered()), this, SLOT(slotActionCopyActivated()));
     m_actionCopy->setEnabled(false);
 
-    m_actionPaste = new QAction(createIconSet("designer_editpaste.png"), tr("&Paste"));
+    m_actionPaste = new QAction(createIconSet("editpaste.png"), tr("&Paste"));
     m_actionPaste->setShortcut(Qt::CTRL + Qt::Key_V);
     m_actionPaste->setStatusTip(tr("Pastes the clipboard's contents"));
     m_actionPaste->setWhatsThis(whatsThisFrom("Edit|Paste"));
@@ -360,62 +360,62 @@ void FormWindowManager::setupActions()
     connect(m_actionSelectAll, SIGNAL(triggered()), this, SLOT(slotActionSelectAllActivated()));
     m_actionSelectAll->setEnabled(false);
 
-    m_actionRaise = new QAction(createIconSet("designer_editraise.png"), tr("Bring to &Front"));
+    m_actionRaise = new QAction(createIconSet("editraise.png"), tr("Bring to &Front"));
     m_actionRaise->setStatusTip(tr("Raises the selected widgets"));
     m_actionRaise->setWhatsThis(tr("Raises the selected widgets"));
     connect(m_actionRaise, SIGNAL(triggered()), this, SLOT(slotActionRaiseActivated()));
     m_actionRaise->setEnabled(false);
 
-    m_actionLower = new QAction(createIconSet("designer_editlower.png"), tr("Send to &Back"));
+    m_actionLower = new QAction(createIconSet("editlower.png"), tr("Send to &Back"));
     m_actionLower->setStatusTip(tr("Lowers the selected widgets"));
     m_actionLower->setWhatsThis(tr("Lowers the selected widgets"));
     connect(m_actionLower, SIGNAL(triggered()), this, SLOT(slotActionLowerActivated()));
     m_actionLower->setEnabled(false);
 
 
-    m_actionAdjustSize = new QAction(createIconSet("designer_adjustsize.png"), tr("Adjust &Size"));
+    m_actionAdjustSize = new QAction(createIconSet("adjustsize.png"), tr("Adjust &Size"));
     m_actionAdjustSize->setShortcut(Qt::CTRL + Qt::Key_J);
     m_actionAdjustSize->setStatusTip(tr("Adjusts the size of the selected widget"));
     m_actionAdjustSize->setWhatsThis(whatsThisFrom("Layout|Adjust Size"));
     connect(m_actionAdjustSize, SIGNAL(triggered()), this, SLOT(slotActionAdjustSizeActivated()));
     m_actionAdjustSize->setEnabled(false);
 
-    m_actionHorizontalLayout = new QAction(createIconSet("designer_edithlayout.png"), tr("Lay Out &Horizontally"));
+    m_actionHorizontalLayout = new QAction(createIconSet("edithlayout.png"), tr("Lay Out &Horizontally"));
     m_actionHorizontalLayout->setShortcut(Qt::CTRL + Qt::Key_H);
     m_actionHorizontalLayout->setStatusTip(tr("Lays out the selected widgets horizontally"));
     m_actionHorizontalLayout->setWhatsThis(whatsThisFrom("Layout|Lay Out Horizontally"));
     connect(m_actionHorizontalLayout, SIGNAL(triggered()), this, SLOT(slotActionHorizontalLayoutActivated()));
     m_actionHorizontalLayout->setEnabled(false);
 
-    m_actionVerticalLayout = new QAction(createIconSet("designer_editvlayout.png"), tr("Lay Out &Vertically"));
+    m_actionVerticalLayout = new QAction(createIconSet("editvlayout.png"), tr("Lay Out &Vertically"));
     m_actionVerticalLayout->setShortcut(Qt::CTRL + Qt::Key_L);
     m_actionVerticalLayout->setStatusTip(tr("Lays out the selected widgets vertically"));
     m_actionVerticalLayout->setWhatsThis(whatsThisFrom("Layout|Lay Out Vertically"));
     connect(m_actionVerticalLayout, SIGNAL(triggered()), this, SLOT(slotActionVerticalLayoutActivated()));
     m_actionVerticalLayout->setEnabled(false);
 
-    m_actionGridLayout = new QAction(createIconSet("designer_editgrid.png"), tr("Lay Out in a &Grid"));
+    m_actionGridLayout = new QAction(createIconSet("editgrid.png"), tr("Lay Out in a &Grid"));
     m_actionGridLayout->setShortcut(Qt::CTRL + Qt::Key_G);
     m_actionGridLayout->setStatusTip(tr("Lays out the selected widgets in a grid"));
     m_actionGridLayout->setWhatsThis(whatsThisFrom("Layout|Lay Out in a Grid"));
     connect(m_actionGridLayout, SIGNAL(triggered()), this, SLOT(slotActionGridLayoutActivated()));
     m_actionGridLayout->setEnabled(false);
 
-    m_actionSplitHorizontal = new QAction(createIconSet("designer_editvlayoutsplit.png"),
+    m_actionSplitHorizontal = new QAction(createIconSet("editvlayoutsplit.png"),
                                              tr("Lay Out Horizontally in S&plitter"));
     m_actionSplitHorizontal->setStatusTip(tr("Lays out the selected widgets horizontally in a splitter"));
     m_actionSplitHorizontal->setWhatsThis(whatsThisFrom("Layout|Lay Out Horizontally in Splitter"));
     connect(m_actionSplitHorizontal, SIGNAL(triggered()), this, SLOT(slotActionSplitHorizontalActivated()));
     m_actionSplitHorizontal->setEnabled(false);
 
-    m_actionSplitVertical = new QAction(createIconSet("designer_edithlayoutsplit.png"),
+    m_actionSplitVertical = new QAction(createIconSet("edithlayoutsplit.png"),
                                              tr("Lay Out Vertically in Sp&litter"));
     m_actionSplitVertical->setStatusTip(tr("Lays out the selected widgets vertically in a splitter"));
     m_actionSplitVertical->setWhatsThis(whatsThisFrom("Layout|Lay Out Vertically in Splitter"));
     connect(m_actionSplitVertical, SIGNAL(triggered()), this, SLOT(slotActionSplitVerticalActivated()));
     m_actionSplitVertical->setEnabled(false);
 
-    m_actionBreakLayout = new QAction(createIconSet("designer_editbreaklayout.png"), tr("&Break Layout"));
+    m_actionBreakLayout = new QAction(createIconSet("editbreaklayout.png"), tr("&Break Layout"));
     m_actionBreakLayout->setShortcut(Qt::CTRL + Qt::Key_B);
     m_actionBreakLayout->setStatusTip(tr("Breaks the selected layout"));
     m_actionBreakLayout->setWhatsThis(whatsThisFrom("Layout|Break Layout"));
