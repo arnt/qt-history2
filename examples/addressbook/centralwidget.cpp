@@ -193,7 +193,7 @@ void ABCentralWidget::setupListView()
     listView->addColumn( "Address" );
     listView->addColumn( "E-Mail" );
 
-    listView->setSelectionMode( QListView::Extended );
+    listView->setSelectionMode( QListView::Single );
 
     connect( listView, SIGNAL( clicked( QListViewItem* ) ), this, SLOT( itemSelected( QListViewItem* ) ) );
 
