@@ -40,6 +40,10 @@ public:
     void createSubImpl( const QDomElement &e, const QString& subclname );
 
     void createObjectDecl( const QDomElement& e );
+    void createActionDecl( const QDomElement& e );
+    void createActionImpl( const QDomElement& e );
+    void createToolbarImpl( const QDomElement &e );
+    void createMenuBarImpl( const QDomElement &e );
     QString createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null );
     QString createLayoutImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null );
     QString createObjectInstance( const QString& objClass, const QString& parent, const QString& objName );

@@ -369,6 +369,9 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "class QVBoxLayout; " << endl;
     out << "class QHBoxLayout; " << endl;
     out << "class QGridLayout; " << endl;
+    if ( objClass == "QMainWindow" )
+	out << "class QAction;" << endl;
+
 
     bool dbForm = FALSE;
     if ( dbAware ) {
@@ -458,6 +461,11 @@ void Uic::createFormDecl( const QDomElement &e )
 	if ( dbAware ) {
 	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
 	}
+    } else if ( objClass == "QMainWindow" ) {
+	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
+	if ( dbAware ) {
+	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
+	}
     } else {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
     }
@@ -487,6 +495,15 @@ void Uic::createFormDecl( const QDomElement &e )
 	QString s = getClassName( n );
 	if ( s == "QSqlTable" )
 	    needEventHandler = TRUE;
+    }
+
+    // actions
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName()  == "actions" ) {
+	    nl = n.elementsByTagName( "action" );
+	    for ( i = 0; i < (int) nl.length(); i++ )
+		createActionDecl( nl.item( i ).toElement() );
+	}
     }
 
     out << endl;
@@ -679,12 +696,22 @@ void Uic::createFormImpl( const QDomElement &e )
     out << "#include <qlayout.h>" << endl;
     out << "#include <qtooltip.h>" << endl;
     out << "#include <qwhatsthis.h>" << endl;
-
+    if ( objClass == "QMainWindow" ) {
+	out << "#include <qaction.h>" << endl;
+	out << "#include <qmenubar.h>" << endl;
+	out << "#include <qpopupmenu.h>" << endl;
+	out << "#include <qtoolbar.h>" << endl;
+    }
 
     // find out what images are required
     QStringList requiredImages;
     nl = e.elementsByTagName( "pixmap" );
-    for ( int j = 0; j < (int) nl.length(); j++ ) {
+    int j;
+    for ( j = 0; j < (int) nl.length(); j++ ) {
+	requiredImages += nl.item(j).firstChild().toText().data();
+    }
+    nl = e.parentNode().toElement().elementsByTagName( "iconset" );
+    for ( j = 0; j < (int) nl.length(); j++ ) {
 	requiredImages += nl.item(j).firstChild().toText().data();
     }
 
@@ -760,6 +787,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
+	out << " */" << endl;
+	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
+	out << "    : " << objClass << "( parent, name, fl )" << endl;
+    } else if ( objClass == "QMainWindow" ) {
+	out << "/* " << endl;
+	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
+	out << " *  name 'name' and widget flags set to 'f'." << endl;
+	out << " *" << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, fl )" << endl;
@@ -944,6 +979,24 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << indent << "autoDeleteCursors.resize( " << dbFormCount << " );" << endl;
 	out << indent << "autoDeleteCursors.setAutoDelete( TRUE );" << endl;
     }
+
+    // actions, toolbars, menubar
+    out << endl;
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName()  == "actions" )
+	    createActionImpl( n );
+    }
+    out << endl;
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "toolbars" )
+	    createToolbarImpl( n );
+    }
+    out << endl;
+    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "menubar" )
+	    createMenuBarImpl( n );
+    }
+    out << endl;
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
@@ -1368,6 +1421,14 @@ void Uic::createObjectDecl( const QDomElement& e )
     }
 }
 
+void Uic::createActionDecl( const QDomElement& e )
+{
+    QString objClass = "QAction";
+    QString objName = getObjectName( e );
+    if ( objName.isEmpty() )
+	return;
+    out << "    " << objClass << "* " << objName << ";" << endl;
+}
 
 
 /*!
@@ -1522,6 +1583,85 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     }
 
     return objName;
+}
+
+void Uic::createActionImpl( const QDomElement &n )
+{
+    QDomNodeList nl = n.elementsByTagName( "action" );
+    for ( int i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement ae = nl.item( i ).toElement();
+	QString objName = registerObject( getObjectName( ae ) );
+	out << indent << objName << " = new QAction( this, \"" << objName << "\" );" << endl;
+	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+	    if ( n2.tagName() == "property" ) {
+		bool stdset = stdsetdef;
+		if ( n2.hasAttribute( "stdset" ) )
+		    stdset = toBool( n2.attribute( "stdset" ) );
+		QString prop = n2.attribute("name");
+		if ( prop == "name" )
+		    continue;
+		QString value = setObjectProperty( "QAction", objName, prop, n2.firstChild().toElement(), stdset );
+		if ( value.isEmpty() )
+		    continue;
+		if ( stdset )
+		    out << indent << objName << "->" << mkStdSet(prop ) << "( " << value << " );" << endl;
+		else
+		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
+	    }
+	}
+    }
+}
+
+QString get_dock( const QString &d )
+{
+    if ( d == "0" )
+	return "Unmanaged";
+    if ( d == "1" )
+	return "TornOff";
+    if ( d == "2" )
+	return "Top";
+    if ( d == "3" )
+	return "Bottom";
+    if ( d == "4" )
+	return "Right";
+    if ( d == "5" )
+	return "Left";
+    if ( d == "6" )
+	return "Minimized";
+    return "";
+}
+
+void Uic::createToolbarImpl( const QDomElement &n )
+{
+    QDomNodeList nl = n.elementsByTagName( "toolbar" );
+    out << indent << "QToolBar *tb;" << endl;
+    for ( int i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement ae = nl.item( i ).toElement();
+	QString objName = "tb";
+	QString label = ae.attribute( "label" );
+	QString dock = get_dock( ae.attribute( "dock" ) );
+	out << indent << objName << " = new QToolBar( \"" << label << "\", this, " << dock << " ); " << endl;
+	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+	    if ( n2.tagName() == "action" )
+		out << indent << n2.attribute( "name" ) << "->addTo( tb );" << endl;
+	}
+    }
+}
+
+void Uic::createMenuBarImpl( const QDomElement &n )
+{
+    QDomNodeList nl = n.elementsByTagName( "item" );
+    out << indent << "QPopupMenu *popup;" << endl;
+    for ( int i = 0; i < (int) nl.length(); i++ ) {
+	QDomElement ae = nl.item( i ).toElement();
+	QString objName = "popup";
+	out << indent << objName << " = new QPopupMenu( this ); " << endl;
+	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+	    if ( n2.tagName() == "action" )
+		out << indent << n2.attribute( "name" ) << "->addTo( popup );" << endl;
+	}
+	out << indent << "menuBar()->insertItem( " << trmacro << "(" << fixString( ae.attribute( "text" ) ) << "), popup );" << endl;
+    }
 }
 
 /*!
