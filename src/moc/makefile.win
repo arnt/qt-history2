@@ -1,0 +1,77 @@
+#############################################################################
+# Qt Makefile - Meta Object Compiler (moc)
+#############################################################################
+
+####### Directories
+
+BASEDIR	=	$(QTDIR)
+INCDIR	=	$(BASEDIR)\include
+LIBDIR	=	$(BASEDIR)\lib
+
+####### Compiler
+
+CFLAGS	=	-nologo -O2 -W3
+CC	=	cl
+
+LEX	=	flex
+YACC	=	yacc -d
+
+####### Files
+
+SOURCES	=	moc.l		moc.y
+LEXOUT	=	lexyy.c
+YACCOUT	=	ytab.c
+YACCHDR =	ytab.h
+TMPCPP	=	moc.cpp
+OBJECTS	=	moc.obj
+TARGET	=	moc.exe
+
+####### Implicit rules
+
+.cpp.obj:
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
+
+####### Build rules
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) $(LIBDIR)\qtools.lib
+	@copy moc.exe $(QTDIR)\bin
+
+clean:
+	del $(OBJECTS)
+	del $(TARGET)
+	del $(LEXOUT)
+	del $(YACCOUT)
+	del $(YACCHDR)
+	del $(TMPCPP)
+
+####### Lex/yacc etc.
+
+$(LEXOUT): moc.l
+	$(LEX) moc.l
+
+$(TMPCPP): moc.y $(LEXOUT)
+	$(YACC) moc.y
+	copy $(YACCOUT) $(TMPCPP)
+
+
+# DO NOT CHANGE THIS LINE -- makedep (not makedepend) depends on it.
+
+moc.obj: $(INCDIR)\qstring.h
+moc.obj: $(INCDIR)\qarray.h
+moc.obj: $(INCDIR)\qgarray.h
+moc.obj: $(INCDIR)\qshared.h
+moc.obj: $(INCDIR)\qglobal.h
+moc.obj: $(INCDIR)\qgeneric.h
+moc.obj: $(INCDIR)\qlist.h
+moc.obj: $(INCDIR)\qglist.h
+moc.obj: $(INCDIR)\qcollect.h
+moc.obj: $(INCDIR)\qglobal.h
+moc.obj: $(INCDIR)\qgeneric.h
+moc.obj: $(INCDIR)\qstring.h
+moc.obj: $(INCDIR)\qarray.h
+moc.obj: $(INCDIR)\qgarray.h
+moc.obj: $(INCDIR)\qshared.h
+moc.obj: $(INCDIR)\qdatetm.h
