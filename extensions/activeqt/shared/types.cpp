@@ -547,6 +547,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    intvalue = arg.intVal;
 	    break;
         default:
+            break;
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
@@ -580,6 +581,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    intvalue = *arg.pintVal;
 	    break;
         default:
+            break;
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
 	    && (QVariant::Type)*(char*)param->typeExtra == QVariant::Color ) {
@@ -611,6 +613,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    uintvalue = arg.uintVal;
 	    break;
         default:
+            break;
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
@@ -642,6 +645,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    uintvalue = *arg.puintVal;
 	    break;
         default:
+            break;
 	}
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
@@ -666,6 +670,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    static_QUType_varptr.set( obj, reference );
 		}
 		break;
+            default:
+                break;
 	    }
 	} 
 	break;
@@ -680,6 +686,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		static_QUType_varptr.set( obj, new Q_LLONG(arg.cyVal.int64) );
 		break;
             default:
+                break;
 	    }
 	}
 	break;
@@ -708,6 +715,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		}
 		break;
             default:
+                break;
 	    }
 	}
 	break;

@@ -1241,6 +1241,7 @@ bool QAxHostWidget::event( QEvent *e )
 	}
 	break;
     default:
+        break;
     }
 
     return QWidget::event( e );
