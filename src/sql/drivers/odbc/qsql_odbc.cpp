@@ -149,13 +149,13 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* p )
     case SQL_REAL:
     case SQL_FLOAT:
     case SQL_DOUBLE:
-    case SQL_BIGINT: //use high precision binding
 	type = QVariant::Double;
 	break;
     case SQL_SMALLINT:
     case SQL_INTEGER:
     case SQL_BIT:
     case SQL_TINYINT:
+    case SQL_BIGINT:
 	type = QVariant::Int;
 	break;
     case SQL_BINARY:
@@ -337,11 +337,30 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
 			      (SQLPOINTER)&intbuf,
 			      0,
 			      &lengthIndicator );
-    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
-	if ( lengthIndicator == SQL_NULL_DATA )
-	    isNull = TRUE;
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA ) {
+	isNull = TRUE;
+	return 0;
     }
     return (int)intbuf;
+}
+
+double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
+{
+    SQLDOUBLE dblbuf;
+    SQLINTEGER lengthIndicator = 0;
+    isNull = FALSE;
+    SQLRETURN r = SQLGetData( hStmt,
+			      column+1,
+			      SQL_C_DOUBLE,
+			      (SQLPOINTER)&dblbuf,
+			      0,
+			      &lengthIndicator );
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA ) {
+	isNull = TRUE;
+	return 0.0;
+    }
+
+    return (double) dblbuf;
 }
 
 // creates a QSqlFieldInfo from a valid hStmt generated
@@ -671,8 +690,12 @@ QVariant QODBCResult::data( int field )
 	const QSqlFieldInfo info = d->rInf[ current ];
 	switch ( info.type() ) {
 	case QVariant::Int:
-	    isNull = FALSE;
-	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
+	    if ( info.typeID() == SQL_BIGINT )
+		// bind values as string to prevent loss of precision
+                fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
+                                                  info.length(), isNull, FALSE ) );
+	    else
+		fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Date:
@@ -736,11 +759,12 @@ QVariant QODBCResult::data( int field )
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::Double:
-	    // bind Double values as string to prevent loss of precision
-	    isNull = FALSE;
-	    // length + 1 for the comma
-	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
-					      info.length() + 1, isNull, FALSE ) );
+	    if ( info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC )
+		// bind Double values as string to prevent loss of precision
+		fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current,
+						  info.length() + 1, isNull, FALSE ) ); // length + 1 for the comma
+	    else
+		fieldCache[ current ] = QVariant( qGetDoubleData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
 	case QVariant::CString:
