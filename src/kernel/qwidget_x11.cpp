@@ -621,7 +621,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     XReparentWindow( x11Display(), old_winid,
 		     RootWindow( x11Display(), x11Screen() ), 0, 0 );
 
-    if ( isTopLevel() )
+    if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
 	topData()->parentWinId = 0;
 
     if ( parentObj ) {				// remove from parent
