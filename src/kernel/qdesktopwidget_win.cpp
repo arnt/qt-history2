@@ -1,5 +1,4 @@
 #include "qdesktopwidget.h"
-#define WINVER 0x0500
 #include "qt_windows.h"
 #include "qapplication_p.h"
 #include "qarray.h"
@@ -14,65 +13,92 @@ public:
     static int appScreen;
 
     static QArray<QRect> rects;
+
+    struct MONITORINFO
+    {
+	DWORD   cbSize;
+	RECT    rcMonitor;
+	RECT    rcWork;
+	DWORD   dwFlags;
+    };
+
+    typedef BOOL (WINAPI *InfoFunc)( HMONITOR, MONITORINFO* );
+    typedef BOOL (CALLBACK *EnumProc)( HMONITOR, HDC, LPRECT, LPARAM );
+    typedef BOOL (WINAPI *EnumFunc)(HDC, LPCRECT, EnumProc, LPARAM );
+
+    static EnumFunc enumDisplayMonitors;
+    static InfoFunc getMonitorInfo;
+    static HMODULE user32hnd;
 };
 
-int QDesktopWidgetPrivate::screenCount = 0;
+int QDesktopWidgetPrivate::screenCount = 1;
 int QDesktopWidgetPrivate::appScreen = 0;
+QDesktopWidgetPrivate::EnumFunc QDesktopWidgetPrivate::enumDisplayMonitors = 0;
+QDesktopWidgetPrivate::InfoFunc QDesktopWidgetPrivate::getMonitorInfo = 0;
+HMODULE QDesktopWidgetPrivate::user32hnd = 0;
 QArray<QRect> QDesktopWidgetPrivate::rects = QArray<QRect>();
-
-#if defined(GetMonitorInfo)
 
 BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 {
     static int sn = 0;
 
-    MONITORINFO info;
-    memset( &info, 0, sizeof(MONITORINFO) );
-    info.cbSize = sizeof(MONITORINFO);
-    BOOL res = GetMonitorInfoA( hMonitor, &info );
+    // Get the MONITORINFO block
+    QDesktopWidgetPrivate::MONITORINFO info;
+    memset( &info, 0, sizeof(QDesktopWidgetPrivate::MONITORINFO) );
+    info.cbSize = sizeof(QDesktopWidgetPrivate::MONITORINFO);
+    BOOL res = QDesktopWidgetPrivate::getMonitorInfo( hMonitor, &info );
     if ( !res ) {
 	QDesktopWidgetPrivate::rects.at( sn ) = QRect();
 	return TRUE;
     }
 
+    // Fill list of rects
     RECT r = info.rcMonitor;
     QRect qr( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
     QDesktopWidgetPrivate::rects.at( sn ) = qr;
 
-    if ( info.dwFlags & MONITORINFOF_PRIMARY )
+    if ( info.dwFlags & 0x00000001 ) //MONITORINFOF_PRIMARY
 	QDesktopWidgetPrivate::appScreen = sn;
 
     ++sn;
+    // Stop the enumeration if we have them all
     return ( sn != QDesktopWidgetPrivate::screenCount );
 }
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
-    appScreen = 0;
     if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 ) {
 	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
 	rects.resize( screenCount );
-	EnumDisplayMonitors( 0, 0, enumCallback, 0 );
-    } else 
-	screenCount = 1;
-}
-
+	// Trying to get the function pointers to Win98/2000 only functions
+	user32hnd = LoadLibraryA( "user32.dll" );
+	if ( !user32hnd )
+	    return;
+	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, "EnumDisplayMonitors" );
+	if ( qt_winver & Qt::WV_NT_based )
+#if defined(UNICODE)
+	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoW" );
 #else
-#pragma message( "Compile " __FILE__ " with WINVER >= 0x0500 defined to enable full multihead support for Win98/2000" )
-
-QDesktopWidgetPrivate::QDesktopWidgetPrivate()
-{
-    appScreen = 0;
-    screenCount = 1;
-}
-
+	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
 #endif
+	else
+	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfo" );
+
+	if ( !enumDisplayMonitors || !getMonitorInfo )
+	    return;
+	// Calls enumCallback
+	enumDisplayMonitors( 0, 0, enumCallback, 0 );
+	enumDisplayMonitors = 0;
+	getMonitorInfo = 0;
+	FreeLibrary( user32hnd );
+    }
+}
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
 }
 
-// creates a widget with the size of the virtual desktop
+// creates a widget with the size of the virtual desktop (see qwidget_win.cpp)
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
 {
