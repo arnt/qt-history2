@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#3 $
 **
 ** Implementation of QButton class
 **
@@ -10,10 +10,8 @@
 **
 *****************************************************************************/
 
-#define  QPOPMENU_C
+#define  INCLUDE_MENUITEM_DEF
 #include "qpopmenu.h"
-#include "qsignal.h"
-#include "qbitmap.h"
 #include "qpainter.h"
 #include "qscrbar.h"				// qDrawMotifArrow
 #include "qapp.h"
@@ -36,72 +34,70 @@ const motifArrowHMargin	= 6;			// horizontal arrow margin
 
 
 // ---------------------------------------------------------------------------
-// QMenuItem member functions
-//
-
-QMenuItem::QMenuItem()
-{
-    id = -1;
-    isSeparator = isDisabled = isChecked = FALSE;
-    bitmap = 0;
-    submenu = 0;
-    signal = 0;
-}
-
-QMenuItem::~QMenuItem()
-{
-    delete bitmap;
-    delete submenu;
-    delete signal;
-}
-
-
-// ---------------------------------------------------------------------------
 // QPopupMenu member functions
 //
+
+#define PM_TOP_LEVEL	  0x1			// popup menu flags
+#define PM_BAD_SIZE	  0x2
+#define PM_FIRST_MOUSE_UP 0x4
+
+#define PMTopLevel	  ((pmflags & PM_TOP_LEVEL) == PM_TOP_LEVEL)
+#define PMBadSize	  ((pmflags & PM_BAD_SIZE) == PM_BAD_SIZE)
+#define PMFirstMouseUp	  ((pmflags & PM_FIRST_MOUSE_UP) == PM_FIRST_MOUSE_UP)
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 	: QTableWidget( 0, name, WType_Popup )
 {
-    popupParent = 0;
+    popupParent = 0;				// this is a top level popup
+    actItem = -1;
+    pmflags = PM_TOP_LEVEL | PM_BAD_SIZE;	// init flags
     setBackgroundColor( normalColor );
-    items = new QMenuItemList;
-    activeItem = -1;
-    isTopLevel = TRUE;				// assume top level popup
-    badSize = TRUE;
-    knownSize = QSize( 0, 0 );
-    setNumCols( 1 );
-    setNumRows( 0 );
-    setClipCellPainting( FALSE );		// we're in charge
-    setTopMargin( motifPopupFrame );
+    setNumCols( 1 );				// set number of table columns
+    setNumRows( 0 );				// set number of table rows
+    setClipCellPainting( FALSE );		// don't clip when painting tbl
+    setTopMargin( motifPopupFrame );		// reserve space for frame
     setBottomMargin( motifPopupFrame );
     setLeftMargin( motifPopupFrame );
     setRightMargin( motifPopupFrame );
-    cellh = cellw = 0;
 }
 
 
-void QPopupMenu::popup( const QPoint &pos, int item )
-{						// open popup menu at item+pos
-    if ( items->count() == 0 )			// oops, empty
+void QPopupMenu::menuContentsChanged()
+{
+    pmflags |= PM_BAD_SIZE;
+    if ( isVisible() ) {
+	updateSize();
+	repaint();
+    }
+}
+
+void QPopupMenu::menuStateChanged()
+{
+    repaint();
+}
+
+void QPopupMenu::menuInitSubMenu( QPopupMenu *sub )
+{
+    sub->popupParent = this;
+    sub->pmflags &= ~PM_TOP_LEVEL;		// it is not a top level
+    connect( sub, SIGNAL(activated(int)), SLOT(subActivated(int)) );
+    connect( sub, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
+}
+
+
+void QPopupMenu::popup( const QPoint &pos )	// open popup menu at pos
+{
+    if ( mitems->count() == 0 )			// oops, empty
 	insertSeparator();			// Save Our Souls
-    if ( badSize )
+    if ( PMBadSize )
 	updateSize();
     QWidget *desktop = QApplication::desktop();
-    int sw = desktop->clientSize().width();
-    int sh = desktop->clientSize().height();
+    int sw = desktop->clientSize().width();	// screen width
+    int sh = desktop->clientSize().height();	// screen height
     int x = pos.x();
     int y = pos.y();
     int w = clientSize().width();
     int h = clientSize().height();
-    if ( item >= 0 ) {				// add item pos to y
-	if ( item >= items->count() )		// out of range
-	    item = items->count() - 1;
-	y -= cellHeight( item )/2;
-	while ( --item >= 0 )
-	    y -= cellHeight( item );
-	y -= motifPopupFrame;
-    }
     if ( x+w > sw )				// the complete widget must
 	x = sw - w;				//   be visible
     if ( y+h > sh )
@@ -112,108 +108,6 @@ void QPopupMenu::popup( const QPoint &pos, int item )
 	y = 0;
     move( x, y );
     show();
-}
-
-
-void QPopupMenu::insertAny( const char *text, QBitMap *bitmap,
-			    QPopupMenu *sub, int id, int index )
-{						// insert bitmap + sub menu
-    if ( index > (int)items->count() ) {
-#if defined(CHECK_RANGE)
-	warning( "QPopupMenu::insertItem: Index %d out of range", index );
-#endif
-	return;
-    }
-    if ( index == items->count() )		// append
-	index = -1;
-    QMenuItem *i = new QMenuItem;
-    CHECK_PTR( i );
-    i->id = id;
-    if ( text == 0 && bitmap == 0 && sub == 0 )	// separator
-	i->isSeparator = TRUE;
-    else {
-	i->text = text;
-	i->bitmap = bitmap;
-	if ( (i->submenu = sub) ) {
-	    sub->popupParent = this;
-	    sub->isTopLevel = FALSE;		// it is a sub menu
-	    connect( sub, SIGNAL(activated(int)), SLOT(subActivated(int)) );
-	    connect( sub, SIGNAL(selected(int)),  SLOT(subSelected(int)) );
-	}
-    }
-    if ( index < 0 )
-	items->append( i );
-    else
-	items->insert( index, i );
-    badSize = TRUE;				// needs updateSize
-}
-
-void QPopupMenu::insertItem( const char *text, int id, int index )
-{						// insert text item
-    insertAny( text, 0, 0, id, index );
-}
-
-void QPopupMenu::insertItem( const char *text, QPopupMenu *sub, int index )
-{						// insert text + sub menu
-    insertAny( text, 0, sub, -1, index );
-}
-
-void QPopupMenu::insertItem( QBitMap *bitmap, int id, int index )
-{						// insert bitmap item
-    insertAny( 0, bitmap, 0, id, index );
-}
-
-void QPopupMenu::insertItem( QBitMap *bitmap, QPopupMenu *sub, int index )
-{						// insert bitmap + sub menu
-    insertAny( 0, bitmap, sub, -1, index );
-}
-
-void QPopupMenu::insertSeparator( int index )	// insert menu separator
-{
-    insertAny( 0, 0, 0, -1, index );
-}
-
-void QPopupMenu::removeItem( int index )	// insert menu separator
-{
-    if ( index < 0 || index >= items->count() ) {
-#if defined(CHECK_RANGE)
-	warning( "QPopupMenu::removeItem: Index %d out of range" );
-#endif
-	return;
-    }
-    items->remove( index );
-    badSize = TRUE;				// needs updateSize
-}
-
-
-int QPopupMenu::index( int id ) const		// get index of specified item
-{
-    if ( id == -1 )				// invalid identifier
-	return -1;
-    QMenuItemListIt it( *items );
-    QMenuItem *i;
-    int k = 0;
-    while ( (i=it.current()) ) {
-	if ( i->id == id )
-	    return k;
-	k++;
-	++it;
-    }
-    return -1;
-}
-
-
-bool QPopupMenu::isItemDisabled( int id ) const
-{
-    int ind = index( id );
-    return ind >= 0 ? items->at(ind)->isDisabled : FALSE;
-}
-
-void QPopupMenu::setItemEnabled( int id, bool onOff )
-{
-    int ind = index( id );
-    if ( ind >= 0 )
-	items->at(ind)->isDisabled = onOff;
 }
 
 
@@ -228,21 +122,9 @@ void QPopupMenu::subSelected( int id )
 }
 
 
-bool QPopupMenu::connectItem( int id, const QObject *receiver,
-			      const char *member )
-{
-    QMenuItem *i = items->at( index(id) );
-    if ( !i->signal ) {
-	i->signal = new QSignal;
-	CHECK_PTR( i->signal );
-    }
-    return i->signal->connect( receiver, member );
-}
-
-
 void QPopupMenu::hideAllMenus()			// hide all menus
 {
-    QPopupMenu *popup = this;
+    QPopupMenu *popup = this;			// find top level
     while ( popup->popupParent && popup->popupParent->testFlag(WType_Popup) )
 	popup = (QPopupMenu*)popup->popupParent;
     popup->hide();				// cascade from top level
@@ -250,14 +132,15 @@ void QPopupMenu::hideAllMenus()			// hide all menus
 
 void QPopupMenu::hideSubMenus()			// hide all sub menus
 {
-    QMenuItemListIt it( *items );
-    QMenuItem *p;
-    while ( (p=it.current()) ) {
-	if ( p->submenu )
-	    p->submenu->hide();
+    QMenuItemListIt it(*mitems);
+    QMenuItem *mi;
+    while ( (mi=it.current()) ) {
 	++it;
+	if ( mi->popup() )
+	    mi->popup()->hide();
     }
 }
+
 
 int QPopupMenu::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 {
@@ -265,34 +148,37 @@ int QPopupMenu::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
     long col = findCol( pos.x() );		// ask table for column
     int r = -1;
     if ( row != -1 && col != -1 ) {
-	if ( !items->at((int)row)->isSeparator )
-	    r = (int)row;
+	QMenuItem *mi = mitems->at((int)row);
+	if ( !(mi->isSeparator() || mi->isDisabled()) )
+	    r = (int)row;			// normal item
     }
     return r;
 }
 
+
 void QPopupMenu::updateSize()			// update popup size params
 {
-    QFontMetrics fm( font() );
-    int height = 0;
-    int max_width = 10;
-    QMenuItemListIt it( *items );
-    QMenuItem *popup;
+    int height     = 0;
+    int max_width  = 10;
+    QFontMetrics    fm( font() );
+    QMenuItemListIt it( *mitems );
+    QMenuItem      *mi;
     bool hasSubMenu = FALSE;
-    cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
-    while ( (popup=it.current()) ) {
+    int cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
+
+    while ( (mi=it.current()) ) {
 	int w = 0;
-	if ( popup->submenu )
+	if ( mi->popup() )
 	    hasSubMenu = TRUE;
-	if ( popup->isSeparator )
+	if ( mi->isSeparator() )
 	    height += motifSepHeight;
-	else if ( popup->bitmap ) {
-	    height += popup->bitmap->size().height() + 2*motifItemFrame;
-	    w = popup->bitmap->size().width();
+	else if ( mi->bitmap() ) {
+	    height += mi->bitmap()->size().height() + 2*motifItemFrame;
+	    w = mi->bitmap()->size().width();
 	}
-	else if ( !popup->text.isNull() ) {
+	else if ( mi->string() ) {
 	    height += cellh;
-	    w = fm.width(popup->text);
+	    w = fm.width(mi->string());
 	}
 #if defined(CHECK_NULL)
 	else
@@ -305,33 +191,32 @@ void QPopupMenu::updateSize()			// update popup size params
     max_width  += 2*motifItemHMargin + 2*motifItemFrame;
     if ( hasSubMenu )
 	max_width += fm.ascent() + motifArrowHMargin;
-    setNumRows( items->count() );
-    cellw = max_width;
+    setNumRows( mitems->count() );
     resize( max_width+2*motifPopupFrame, height+2*motifPopupFrame );
-    badSize = FALSE;
+    pmflags &= ~PM_BAD_SIZE;
 }
 
 
 void QPopupMenu::setFont( const QFont &font )
 {
     QWidget::setFont( font );
-    badSize = TRUE;
+    pmflags |= PM_BAD_SIZE;
     if ( isVisible() )
 	update();
 }
 
 void QPopupMenu::show()
 {
-    if ( badSize )
+    if ( PMBadSize )
 	updateSize();
     QWidget::show();
     raise();
-    firstMouseUp = TRUE;
+    pmflags |= PM_FIRST_MOUSE_UP;
 }
 
 void QPopupMenu::hide()
 {
-    activeItem = -1;
+    actItem = -1;
     hideSubMenus();
     killTimers();
     QWidget::hide();
@@ -344,50 +229,60 @@ void QPopupMenu::hide()
 
 int QPopupMenu::cellHeight( long row )
 {
-    QMenuItem *popup = items->at( row );
-    int h = cellh;				// default cell height
-    ASSERT( popup );
-    if ( popup->isSeparator )
+    QMenuItem *mi = mitems->at( row );
+    int h = 0;					// default cell height
+    ASSERT( mi );
+    if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
-    else if ( popup->bitmap )
-	h = popup->bitmap->size().height() + 2*motifItemFrame;
+    else if ( mi->bitmap() )			// bitmap height
+	h = mi->bitmap()->size().height() + 2*motifItemFrame;
+    else {					// text height
+	QFontMetrics fm( font() );
+	h = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
+    }
     return h;
 }
 
 int QPopupMenu::cellWidth( long col )
 {
-    return cellw;
+    return clientSize().width() - 2*motifPopupFrame;
 }
+
 
 void QPopupMenu::paintCell( QPainter *p, long row, long col )
 {
-    QMenuItem *popup = items->at( row );	// get popup item
-    ASSERT( popup );
-    if ( popup->isSeparator ) {			// this is a separator
+    QMenuItem *mi = mitems->at( row );		// get menu item
+    int cellh = cellHeight( row );
+    int cellw = cellWidth( col );
+    ASSERT( mi );
+    if ( mi->isSeparator() ) {			// draw separator
 	p->drawShadeLine( 0, 0, cellw, 0, darkColor, lightColor );
 	return;
     }
-    QFontMetrics fm( font() );
-    int bo = fm.descent()+motifItemVMargin/2;	// baseline offset
-    int h = popup->bitmap ?
-	    popup->bitmap->size().height() + 2*motifItemFrame
-	  : cellh;
-    if ( row == activeItem )			// this is the active item
-	p->drawShadePanel( 0, 0, cellw, h,
+    if ( row == actItem )			// active item frame
+	p->drawShadePanel( 0, 0, cellw, cellh,
 			   lightColor, darkColor,
 			   motifItemFrame, motifItemFrame );
-    else					// normal item
-	p->drawShadePanel( 0, 0, cellw, h,
+    else					// incognito frame
+	p->drawShadePanel( 0, 0, cellw, cellh,
 			   normalColor, normalColor,
 			   motifItemFrame, motifItemFrame );
-    if ( popup->text )
-	p->drawText( motifItemFrame + motifItemHMargin, cellh-bo, popup->text);
-    else if ( popup->bitmap )
+    if ( mi->bitmap() )				// draw bitmap
 	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
-		       *popup->bitmap );
-    if ( popup->submenu ) {			// draw sub menu arrow
-	int dim = fm.ascent()*3/4;
-	qDrawMotifArrow( p, MotifRightArrow, row == activeItem,
+		       *mi->bitmap() );
+    else if ( mi->string() ) {			// draw text
+	QFontMetrics fm( font() );
+	int bo = fm.descent() + motifItemVMargin/2;
+	if ( mi->isDisabled() )
+	    p->setPen( darkGray );
+	p->drawText( motifItemFrame + motifItemHMargin, cellh-bo,
+		     mi->string() );
+	if ( mi->isDisabled() )			// restore pen
+	    p->setPen( foregroundColor() );
+    }
+    if ( mi->popup() ) {			// draw sub menu arrow
+	int dim = cellh*3/5;
+	qDrawMotifArrow( p, MotifRightArrow, row == actItem,
 			 cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
 			 dim, dim,
 			 normalColor, normalColor,
@@ -407,7 +302,7 @@ void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
     paint.drawShadePanel( clientRect(), lightColor, darkColor,
 			  motifPopupFrame, motifPopupFrame );
     paint.end();
-    QTableWidget::paintEvent( e );		// the table draws the items
+    QTableWidget::paintEvent( e );		// will draw the menu items
 }
 
 
@@ -418,15 +313,15 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	return;
     }
     int item = itemAtPos( e->pos() );
-    QMenuItem *p = item >= 0 ? items->at(item) : 0;
-    if ( item != activeItem ) {			// new item activated
-	activeItem = item;
+    QMenuItem *mi = item >= 0 ? mitems->at(item) : 0;
+    if ( item != actItem ) {			// new item activated
+	actItem = item;
 	repaint( FALSE );
-	if ( activeItem >= 0 )
-	    emit activated( p->id );
+	if ( actItem >= 0 && mi->id() >= 0 )
+	    emit activated( mi->id() );
     }
-    if ( p && p->submenu ) {
-	if ( !p->submenu->isVisible() )
+    if ( mi && mi->popup() ) {
+	if ( !mi->popup()->isVisible() )
 	    startTimer( 200 );
     }
     else
@@ -435,23 +330,23 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
-    activeItem = itemAtPos( e->pos() );
+    actItem = itemAtPos( e->pos() );
     repaint( FALSE );
-    if ( activeItem >= 0 ) {			// selected menu item!
-	QMenuItem *p = items->at(activeItem);
-	if ( !p->submenu ) {			// it's not another popup
-	    if ( p->signal )			// activate signal
-		p->signal->activate();
+    if ( actItem >= 0 ) {			// selected menu item!
+	QMenuItem *mi = mitems->at(actItem);
+	if ( !mi->popup() ) {			// it's not another popup
+	    if ( mi->signal() )			// activate signal
+		mi->signal()->activate();
 	    else				// normal connection
-		emit selected( p->id );
+		emit selected( mi->id() );
 	    hideAllMenus();
 	}
     }
     else {
-	if ( isTopLevel ) {
-	    if ( !firstMouseUp )
+	if ( PMTopLevel ) {
+	    if ( !PMFirstMouseUp )
 		hide();
-	    firstMouseUp = FALSE;
+	    pmflags &= ~PM_FIRST_MOUSE_UP;
 	}
 	else					// hide sub menu
 	    hide();
@@ -461,15 +356,15 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
     int item = itemAtPos( e->pos() );
-    QMenuItem *p = item >= 0 ? items->at(item) : 0;
-    if ( item != activeItem ) {			// new item activated
-	activeItem = item;
+    QMenuItem *mi = item >= 0 ? mitems->at(item) : 0;
+    if ( item != actItem ) {			// new item activated
+	actItem = item;
 	repaint( FALSE );
-	if ( activeItem >= 0 )
-	    emit activated( p->id );
+	if ( actItem >= 0 && mi->id() >= 0 )
+	    emit activated( mi->id() );
     }
-    if ( p && p->submenu ) {
-	if ( !p->submenu->isVisible() )
+    if ( mi && mi->popup() ) {
+	if ( !mi->popup()->isVisible() )
 	    startTimer( 200 );
     }
     else
@@ -480,13 +375,13 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 void QPopupMenu::timerEvent( QTimerEvent *e )
 {
     killTimer( e->timerId() );			// single-shot timer
-    if ( activeItem < 0 )
+    if ( actItem < 0 )
 	return;
-    QMenuItem *p = items->at( activeItem );
-    if ( p->submenu ) {
+    QMenuItem *mi = mitems->at( actItem );
+    if ( mi->popup() ) {
 	QPoint pos( clientSize().width()-motifArrowHMargin, motifPopupFrame );
-	for ( int i=0; i<activeItem; i++ )
+	for ( int i=0; i<actItem; i++ )
 	    pos.ry() += cellHeight( i );
-	p->submenu->popup( mapToGlobal(pos) );
+	mi->popup()->popup( mapToGlobal(pos) );
     }
 }
