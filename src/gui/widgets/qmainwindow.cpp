@@ -25,6 +25,8 @@
 #include <qdebug.h>
 
 #include <private/qwidget_p.h>
+#include "qtoolbar_p.h"
+
 #define d d_func()
 
 
@@ -37,6 +39,7 @@ public:
     { }
     QMainWindowLayout *layout;
     QSize iconSize;
+    bool explicitIconSize;
     Qt::ToolButtonStyle toolButtonStyle;
     void init();
 };
@@ -44,9 +47,10 @@ public:
 void QMainWindowPrivate::init()
 {
     Q_Q(QMainWindow);
-    int e = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
-    iconSize = QSize(e, e);
     layout = new QMainWindowLayout(q);
+    const int metric = q->style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+    iconSize = QSize(metric, metric);
+    explicitIconSize = false;
 }
 
 /*
@@ -274,9 +278,15 @@ QSize QMainWindow::iconSize() const
 
 void QMainWindow::setIconSize(const QSize &iconSize)
 {
-    if (d->iconSize == iconSize)
+    QSize sz = iconSize;
+    if (!sz.isValid()) {
+        const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+        sz = QSize(metric, metric);
+    }
+    if (d->iconSize == sz)
         return;
-    d->iconSize = iconSize;
+    d->iconSize = sz;
+    d->explicitIconSize = iconSize.isValid();
     emit iconSizeChanged(d->iconSize);
 }
 
@@ -446,9 +456,9 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(area),
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
-    toolbar->setIconSize(d->iconSize);
+    toolbar->d->updateIconSize(d->iconSize);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
-            toolbar, SLOT(setIconSize(QSize)));
+            toolbar, SLOT(updateIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
             toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
@@ -493,9 +503,9 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
     Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
-    toolbar->setIconSize(d->iconSize);
+    toolbar->d->updateIconSize(d->iconSize);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
-            toolbar, SLOT(setIconSize(QSize)));
+            toolbar, SLOT(updateIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
             toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
@@ -511,7 +521,7 @@ void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 void QMainWindow::removeToolBar(QToolBar *toolbar)
 {
     disconnect(this, SIGNAL(iconSizeChanged(QSize)),
-               toolbar, SLOT(setIconSize(QSize)));
+               toolbar, SLOT(updateIconSize(QSize)));
     disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
                toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
 
@@ -677,6 +687,9 @@ bool QMainWindow::event(QEvent *event)
         else
             static_cast<QStatusTipEvent*>(event)->ignore();
         return true;
+    } else if (event->type() == QEvent::StyleChange) {
+        if (!d->explicitIconSize)
+            setIconSize(QSize());
     }
     return QWidget::event(event);
 }

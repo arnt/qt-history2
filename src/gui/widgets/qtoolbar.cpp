@@ -62,8 +62,11 @@ void QToolBarPrivate::init()
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     QStyle *style = q->style();
+
     int e = style->pixelMetric(QStyle::PM_ToolBarIconSize);
     iconSize = QSize(e, e);
+    explicitIconSize = false;
+
     layout->setAlignment(Qt::AlignLeft);
     layout->setMargin(style->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q)
                       + style->pixelMetric(QStyle::PM_ToolBarItemMargin, &opt, q));
@@ -102,6 +105,15 @@ void QToolBarPrivate::toggleView(bool b)
             q->show();
         else
             q->close();
+    }
+}
+
+void QToolBarPrivate::updateIconSize(const QSize &sz)
+{
+    if (!explicitIconSize) {
+        // iconSize not explicitly set
+        q->setIconSize(sz);
+        explicitIconSize = false;
     }
 }
 
@@ -391,9 +403,28 @@ QSize QToolBar::iconSize() const
 
 void QToolBar::setIconSize(const QSize &iconSize)
 {
+    QSize sz = iconSize;
+    if (!sz.isValid()) {
+        QMainWindow *mw = qobject_cast<QMainWindow *>(parentWidget());
+        if (mw && mw->layout()) {
+            QLayout *layout = mw->layout();
+            int i = 0;
+            QLayoutItem *item = 0;
+            do {
+                item = layout->itemAt(i);
+                if (item->widget() == this)
+                    sz = mw->iconSize();
+            } while (!sz.isValid() && item != 0);
+        }
+    }
+    if (!sz.isValid()) {
+        const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
+        sz = QSize(metric, metric);
+    }
     if (d->iconSize == iconSize)
         return;
-    d->iconSize = iconSize;
+    d->iconSize = sz;
+    d->explicitIconSize = iconSize.isValid();
     emit iconSizeChanged(d->iconSize);
 }
 
@@ -851,6 +882,10 @@ bool QToolBar::event(QEvent *event)
     case QEvent::ParentChange:
         d->handle->setVisible(d->movable && (qobject_cast<QMainWindow *>(parentWidget()) != 0));
         break;
+    case QEvent::StyleChange:
+        if (!d->explicitIconSize)
+            setIconSize(QSize());
+        break;
     default:
         break;
     }
@@ -879,6 +914,5 @@ QAction *QToolBar::toggleViewAction() const
 
     Use windowTitle() instead.
 */
-
 
 #include "moc_qtoolbar.cpp"

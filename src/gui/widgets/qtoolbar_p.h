@@ -76,9 +76,11 @@ public:
     void init();
     void actionTriggered();
     void toggleView(bool b);
+    void updateIconSize(const QSize &sz);
     QToolBarItem createItem(QAction *action);
     int indexOf(QAction *action) const;
 
+    bool explicitIconSize;
     bool movable;
     Qt::ToolBarAreas allowedAreas;
     Qt::Orientation orientation;
