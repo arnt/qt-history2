@@ -94,6 +94,7 @@ extern void moc_warn( const char *msg );
 				  BEGIN QT_DEF;
 				  return TEMPLATE; }
 <QT_DEF>"Q_OBJECT"		{ X; return Q_OBJECT; }
+<QT_DEF>"Q_DISPATCHABLE"	{ X; return Q_DISPATCHABLE; }
 <QT_DEF>"signals"		{ X; return SIGNALS; }
 <QT_DEF>"slots"			{ X; return SLOTS; }
 <QT_DEF>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
@@ -114,6 +115,7 @@ extern void moc_warn( const char *msg );
 <IN_CLASS>"slots"		{ X;if( classPLevel == 1 ) return SLOTS; }
 <IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
 <IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 ) return Q_OBJECT; }
+<IN_CLASS>"Q_DISPATCHABLE"	{ X;if( classPLevel == 1 ) return Q_DISPATCHABLE; }
 <IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
 <IN_CLASS>"Q_OVERRIDE"		{ X;if( classPLevel == 1 ) return Q_OVERRIDE; }
 <IN_CLASS>"Q_ENUMS"		{ X;if( classPLevel == 1 ) return Q_ENUMS; }

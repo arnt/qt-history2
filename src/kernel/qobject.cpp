@@ -571,7 +571,7 @@ void QObject::setName( const char *name )
 
   If \a recursiveSearch is TRUE (the default), child() searches
   nth-generation as well as first-generation children.
-  
+
   If there is no such object, this function returns 0. If there are
   more than one, the first one in depth-first is retured; if you need
   all of them, use queryList() instead.
@@ -582,7 +582,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
     const QObjectList *list = children();
     if ( !list )
 	return 0;
-    
+
     bool onlyWidgets = (inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
     QObjectListIt it( *list );
     QObject *obj;
@@ -1856,49 +1856,50 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].gspec = QMetaProperty::ConstCharStar;
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
     props_tbl[0].setFlags(QMetaProperty::StdSet);
-    QMetaEnum* enum_tbl = QMetaObject::new_metaenum( 3 );
+    QMetaEnum* enum_tbl = new QMetaEnum[3];
     enum_tbl[0].name = "Alignment";
     enum_tbl[0].count = 10;
     enum_tbl[0].set = TRUE;
-    enum_tbl[0].items = QMetaObject::new_metaenum_item( 10 );
-    enum_tbl[0].items[0].key = "AlignLeft";
-    enum_tbl[0].items[0].value = (int) Qt::AlignLeft;
-    enum_tbl[0].items[1].key = "AlignRight";
-    enum_tbl[0].items[1].value = (int) Qt::AlignRight;
-    enum_tbl[0].items[2].key = "AlignHCenter";
-    enum_tbl[0].items[2].value = (int) Qt::AlignHCenter;
-    enum_tbl[0].items[3].key = "AlignTop";
-    enum_tbl[0].items[3].value = (int) Qt::AlignTop;
-    enum_tbl[0].items[4].key = "AlignBottom";
-    enum_tbl[0].items[4].value = (int) Qt::AlignBottom;
-    enum_tbl[0].items[5].key = "AlignVCenter";
-    enum_tbl[0].items[5].value = (int) Qt::AlignVCenter;
-    enum_tbl[0].items[6].key = "AlignCenter";
-    enum_tbl[0].items[6].value = (int) Qt::AlignCenter;
-    enum_tbl[0].items[7].key = "AlignAuto";
-    enum_tbl[0].items[7].value = (int) Qt::AlignAuto;
-    enum_tbl[0].items[8].key = "AlignJustify";
-    enum_tbl[0].items[8].value = (int) Qt::AlignJustify;
-    enum_tbl[0].items[9].key = "WordBreak";
-    enum_tbl[0].items[9].value = (int) Qt::WordBreak;
+    QMetaEnum::Item* item;
+    enum_tbl[0].items = (item = new QMetaEnum::Item[10]);
+    item[0].key = "AlignLeft";
+    item[0].value = (int) Qt::AlignLeft;
+    item[1].key = "AlignRight";
+    item[1].value = (int) Qt::AlignRight;
+    item[2].key = "AlignHCenter";
+    item[2].value = (int) Qt::AlignHCenter;
+    item[3].key = "AlignTop";
+    item[3].value = (int) Qt::AlignTop;
+    item[4].key = "AlignBottom";
+    item[4].value = (int) Qt::AlignBottom;
+    item[5].key = "AlignVCenter";
+    item[5].value = (int) Qt::AlignVCenter;
+    item[6].key = "AlignCenter";
+    item[6].value = (int) Qt::AlignCenter;
+    item[7].key = "AlignAuto";
+    item[7].value = (int) Qt::AlignAuto;
+    item[8].key = "AlignJustify";
+    item[8].value = (int) Qt::AlignJustify;
+    item[9].key = "WordBreak";
+    item[9].value = (int) Qt::WordBreak;
     enum_tbl[1].name = "Orientation";
     enum_tbl[1].count = 2;
     enum_tbl[1].set = FALSE;
-    enum_tbl[1].items = QMetaObject::new_metaenum_item( 2 );
-    enum_tbl[1].items[0].key = "Horizontal";
-    enum_tbl[1].items[0].value = (int) Qt::Horizontal;
-    enum_tbl[1].items[1].key = "Vertical";
-    enum_tbl[1].items[1].value = (int) Qt::Vertical;
+    enum_tbl[1].items = (item = new QMetaEnum::Item[10]);
+    item[0].key = "Horizontal";
+    item[0].value = (int) Qt::Horizontal;
+    item[1].key = "Vertical";
+    item[1].value = (int) Qt::Vertical;
     enum_tbl[2].name = "TextFormat";
     enum_tbl[2].count = 3;
     enum_tbl[2].set = FALSE;
-    enum_tbl[2].items = QMetaObject::new_metaenum_item( 3 );
-    enum_tbl[2].items[0].key = "PlainText";
-    enum_tbl[2].items[0].value = (int) Qt::PlainText;
-    enum_tbl[2].items[1].key = "RichText";
-    enum_tbl[2].items[1].value = (int) Qt::RichText;
-    enum_tbl[2].items[2].key = "AutoText";
-    enum_tbl[2].items[2].value = (int) Qt::AutoText;
+    enum_tbl[2].items = (item = new QMetaEnum::Item[3]);
+    item[0].key = "PlainText";
+    item[0].value = (int) Qt::PlainText;
+    item[1].key = "RichText";
+    item[1].value = (int) Qt::RichText;
+    item[2].key = "AutoText";
+    item[2].value = (int) Qt::AutoText;
 #endif
     metaObj = new QMetaObject( "QObject", 0,
 	slot_tbl, 1,

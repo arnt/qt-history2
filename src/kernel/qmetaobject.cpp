@@ -123,12 +123,12 @@ public:
 #endif
 	classInfo(0), numClassInfo(0), sigOffset(-1) {}
 #ifndef QT_NO_PROPERTIES
-    QMetaEnum     *enumData;			// enumeration types
+    const QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
-    QMetaProperty *propData;                    // property meta data
+    const QMetaProperty *propData;                    // property meta data
     int            numPropData;
 #endif
-    QClassInfo    *classInfo;			// class information
+    const QClassInfo    *classInfo;			// class information
     int            numClassInfo;
 
     int sigOffset;
@@ -183,10 +183,10 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
-			  QMetaProperty *prop_data, int n_props,
-			  QMetaEnum *enum_data, int n_enums,
+			  const QMetaProperty *prop_data, int n_props,
+			  const QMetaEnum *enum_data, int n_enums,
 #endif
-			  QClassInfo *class_info, int n_info )
+			  const QClassInfo *class_info, int n_info )
 {
     classname = class_name;			// set meta data
     superclass = super_class;
@@ -369,10 +369,10 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
 #ifndef QT_NO_PROPERTIES
-					  QMetaProperty *prop_data, int n_props,
-					  QMetaEnum *enum_data, int n_enums,
+					  const QMetaProperty *prop_data, int n_props,
+					  const QMetaEnum *enum_data, int n_enums,
 #endif
-					  QClassInfo * class_info, int n_info )
+					  const QClassInfo * class_info, int n_info )
 {
     return new QMetaObject( classname, superclassobject, slot_data, n_slots,
 			    signal_data, n_signals,
@@ -392,20 +392,6 @@ QMetaData *QMetaObject::new_metadata( int numEntries )
 
 
 #ifndef QT_NO_PROPERTIES
-/*!\internal
- */
-QMetaEnum *QMetaObject::new_metaenum( int numEntries )
-{
-    return numEntries > 0 ? new QMetaEnum[numEntries] : 0;
-}
-
-/*!\internal
- */
-QMetaEnum::Item *QMetaObject::new_metaenum_item( int numEntries )
-{
-    return numEntries > 0 ? new QMetaEnum::Item[numEntries] : 0;
-}
-
 /*!\internal
  */
 QMetaProperty *QMetaObject::new_metaproperty( int numEntries )
@@ -453,7 +439,7 @@ int QMetaObject::numClassInfo( bool super ) const
 
   If  \a super is TRUE,  inherited class information is included.
  */
-QClassInfo* QMetaObject::classInfo( int index, bool super ) const
+const QClassInfo* QMetaObject::classInfo( int index, bool super ) const
 {
     if ( index < 0 )
 	return 0;
@@ -529,7 +515,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	    }
 	}
 	if ( prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
-	    QMetaEnum* e = super->enumerator( prop->t);
+	    const QMetaEnum* e = super->enumerator( prop->t);
 	    if ( e && e->set ) {
 		if ( !prop->testFlags( QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
 #if defined(QT_CHECK_STATE)
@@ -643,7 +629,7 @@ QStrList QMetaObject::slotNames( bool super ) const
 #ifndef QT_NO_PROPERTIES
 /*!\internal
  */
-QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
+const QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numEnumData; ++i )
 	if ( qstrcmp( d->enumData[i].name, name ) == 0 )

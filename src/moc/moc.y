@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#217 $
+** $Id: //depot/qt/main/src/moc/moc.y#218 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -74,14 +74,16 @@ enum Access { Private, Protected, Public };
 
 struct Argument					// single arg meta data
 {
-    Argument( char *left, char *right )
+    Argument( char *left, char *right, char* argName = 0 )
 	{ leftType  = rmWS( left );
 	  rightType = rmWS( right );
 	  if ( leftType == "void" && rightType.isEmpty() )
 	      leftType = "";
+	  name = argName;
 	}
     QCString leftType;
     QCString rightType;
+    QCString name;
 };
 
 class ArgList : public QList<Argument> {	// member function arg list
@@ -300,6 +302,8 @@ Access subClassPerm;			// current access permission
 
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
+bool	   Q_DISPATCHABLEdetected;			// TRUE if current class
+						// contains the Q_DISPATCHABLE macro
 bool	   Q_PROPERTYdetected;			// TRUE if current class
 						// contains at least one Q_PROPERTY,
 						// Q_OVERRIDE, Q_SETS or Q_ENUMS macro
@@ -376,6 +380,7 @@ const int  formatRevision = 12;			// moc output format revision
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
+%token			Q_DISPATCHABLE
 %token			Q_PROPERTY
 %token			Q_OVERRIDE
 %token			Q_CLASSINFO
@@ -425,6 +430,8 @@ const int  formatRevision = 12;			// moc output format revision
 %type  <string>		ptr_operator
 %type  <string>		ptr_operators
 %type  <string>		ptr_operators_opt
+
+%type  <string>		dname
 
 %%
 declaration_seq:	  /* empty */
@@ -642,7 +649,7 @@ argument_declaration:	  decl_specifiers abstract_decl_opt
 				{ $$ = new Argument(straddSpc($1,$2),""); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
-				{ $$ = new Argument(straddSpc($1,$2),$4); }
+				{ $$ = new Argument(straddSpc($1,$2),$4, $3); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
 			  '='	{ expLevel = 1; }
@@ -841,6 +848,14 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
 			  }
+			| Q_DISPATCHABLE		{
+			      if ( tmpAccess )
+				  moc_warn("Q_DISPATCHABLE is not in the private"
+					   " section of the class.\n"
+					   "Q_DISPATCHABLE is a macro that resets"
+					   " access permission to \"private\".");
+			      Q_DISPATCHABLEdetected = TRUE;
+			  }
 			| Q_PROPERTY { tmpYYStart = YY_START;
 				       tmpPropOverride = FALSE;
 				       BEGIN IN_PROPERTY; }
@@ -879,7 +894,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
-			| ':'		{ if ( tmpAccess == Public && Q_PROPERTYdetected )
+			| ':'		{ if ( tmpAccess == Public && (Q_PROPERTYdetected || Q_DISPATCHABLEdetected) )
                                                   BEGIN QT_DEF;
                                               else
                                                   BEGIN IN_CLASS;
@@ -2016,27 +2031,30 @@ int generateEnums()
 	return 0;
 
     fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
-    fprintf( out, "    QMetaEnum* enum_tbl = QMetaObject::new_metaenum( %i );\n", enums.count() );
-
     int i = 0;
     for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
-	fprintf( out, "    enum_tbl[%i].name = \"%s\";\n", i, (const char*)it.current()->name );
-	fprintf( out, "    enum_tbl[%i].count = %u;\n", i, it.current()->count() );
-	fprintf( out, "    enum_tbl[%i].items = QMetaObject::new_metaenum_item( %u );\n",
-		 i, it.current()->count() );
-
-	if ( it.current()->set )
-		fprintf( out, "    enum_tbl[%i].set = TRUE;\n", i );
-	else
-		fprintf( out, "    enum_tbl[%i].set = FALSE;\n", i );
-
+	fprintf( out, "static const QMetaEnum::Item enum_%s%i[%u] = {\n", (const char*) className, i, it.current()->count() );
 	int k = 0;
 	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
-	    fprintf( out, "    enum_tbl[%i].items[%i].key = \"%s\";\n", i, k, eit.current() );
-	    fprintf( out, "    enum_tbl[%i].items[%i].value = (int) %s::%s;\n",
-		     i, k, (const char*)className, eit.current() );
+	    if ( k )
+		fprintf( out, ",\n" );
+	    fprintf( out, "    { \"%s\",  (int) %s::%s }", eit.current(), (const char*) className, eit.current() );
 	}
+	fprintf( out, "\n};\n" );
     }
+    fprintf( out, "static const QMetaEnum enum_tbl_%s[%i] = {\n", (const char*) className, enums.count() );
+    i = 0;
+    for ( QListIterator<Enum> it( enums ); it.current(); ++it, ++i ) {
+	if ( i )
+	    fprintf( out, ",\n" );
+	fprintf( out, "    { \"%s\", %u, enum_%s%i, %s }",
+		 (const char*)it.current()->name,
+		 it.current()->count(),
+		 (const char*) className,
+		 i,
+		 it.current()->set ? "TRUE" : "FALSE" );
+    }
+    fprintf( out, "\n};\n" );
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 
     return enums.count();
@@ -2478,7 +2496,7 @@ int generateProps()
 
 	    // Is it an enum of this class ?
 	    if ( enumpos != -1 )
-		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
+		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl_%s[%i];\n", entry, (const char*) className, enumpos );
 	    // Is it an unknown enum that needs to be resolved ?
 	    else if (!isPropertyType( it.current()->type ) ) {
 		if ( it.current()->oredEnum == 1 )
@@ -2554,19 +2572,73 @@ int generateClassInfos()
     return i;
 }
 
+void generateDispatch()
+{
+    qDebug("generateDispatch");
+    for ( Function* f = funcs.first(); f; f = funcs.next() ) {
+	QCString typstr = "";
+	int count = 0;
+	Argument *a = f->args->first();
+
+	if ( f->type != "void" && qvariant_nameToType( f->type ) == 0  ) {
+	    fprintf( stderr, "%s: Warning: Function %s cannot be dispatched. Return type '%s' not supported.\n", fileName.data(),
+		     f->name.data(), f->type.data() );
+	    continue;
+	}
+	
+	bool isValid = TRUE;
+ 	while ( a ) {
+ 	    if ( !a->rightType.isEmpty() || qvariant_nameToType( a->leftType ) == 0 ) {
+		fprintf( stderr, "%s: Warning: Function %s cannot be dispatched. Offending parameter: %s\n", fileName.data(),
+			 f->name.data(), (a->leftType + ' ' + a->name + a->rightType).data() );
+		isValid = FALSE;
+ 		break;
+	    }
+	    a = f->args->next();
+ 	}
+	if ( !isValid)
+	    continue;
+
+	a = f->args->first();
+	while ( a ) {
+	    if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
+		if ( count++ )
+		    typstr += ",";
+		typstr += a->leftType;
+		typstr += a->rightType;
+		if ( a->name ) {
+		    typstr += " ";
+		    typstr += a->name;
+		}
+		qDebug("left:%s right: %s", a->leftType.data(), a->rightType.data() );
+		
+	    }
+	    a = f->args->next();
+	}
+	qDebug("function: %s %s(%s)", f->type.data(), f->name.data(), typstr.data());
+    }
+
+}
+
 void generateClass()		      // generate C++ source code for a class
 {
     static int gen_count = 0;
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#217 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#218 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
 
     if ( skipClass )				// don't generate for class
 	return;
+
+    if ( Q_DISPATCHABLEdetected ) {
+	generateDispatch();
+	generatedCode = TRUE;
+    }
+
     if ( !Q_OBJECTdetected ) {
 	if ( signals.count() == 0 && slots.count() == 0 && props.count() == 0 && infos.count() == 0 )
 	    return;
@@ -2600,7 +2672,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
-	fprintf( out, "#define Q_MOC_%s\n", className.data() );
 	if ( !noInclude )
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)qtPath );
@@ -2654,6 +2725,12 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 
 //
+// Build the enums array
+// Enums HAVE to be generated BEFORE the properties and staticMetaObject
+//
+    int n_enums = generateEnums();
+    
+//
 // Generate staticMetaObject member function
 //
     fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
@@ -2662,12 +2739,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "    QMetaObject* parentObject = %s::staticMetaObject();\n", (const char*)superclassName );
     else
 	fprintf( out, "    QMetaObject* parentObject = 0;\n" );
-
-//
-// Build the enums array in staticMetaObject()
-// Enums HAVE to be generated BEFORE the properties
-//
-   int n_enums = generateEnums();
 
 //
 // Build property array in staticMetaObject()
@@ -2712,7 +2783,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\t0, 0,\n" );
 
     if ( n_enums )
-	fprintf( out, "\tenum_tbl, %d,\n", n_enums );
+	fprintf( out, "\tenum_tbl_%s, %d,\n", (const char*) className, n_enums );
     else
 	fprintf( out, "\t0, 0,\n" );
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
