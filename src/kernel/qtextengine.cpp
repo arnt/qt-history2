@@ -136,7 +136,7 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
 
     int level = control.level();
 
-    if(dir != QChar::DirON) {
+    if(dir != QChar::DirON && !control.override()) {
 	// add level of run (cases I1 & I2)
 	if( level % 2 ) {
 	    if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN )
@@ -261,7 +261,8 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 #if (BIDI_DEBUG >= 2)
 	cout << "pos=" << current << " dir=" << directions[dir]
 	     << " current=" << directions[dirCurrent] << " last=" << directions[status.last]
-	     << " eor=" << eor << "/" << directions[status.eor] << " lastStrong="
+	     << " eor=" << eor << "/" << directions[status.eor]
+	     << " sor=" << sor << " lastStrong="
 	     << directions[status.lastStrong]
 	     << " level=" << (int)control.level() << endl;
 #endif
@@ -283,20 +284,25 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 		else
 		    level++;
 		if(level < 61) {
-		    if ( !first )
-			appendItems(engine, sor, eor, control, dir);
-		    dir = QChar::DirON; status.eor = QChar::DirON;
+		    eor = current-1;
+		    appendItems(engine, sor, eor, control, dir);
+		    eor = current;
+		    control.embed( level, override );
 		    QChar::Direction edir = (rtl ? QChar::DirR : QChar::DirL );
-		    control.embed( edir, override );
-		    status.last = edir;
+		    dir = status.eor = edir;
 		    status.lastStrong = edir;
 		}
 		break;
 	    }
 	case QChar::DirPDF:
 	    {
-		if ( !first )
+		if (dir != control.direction()) {
+		    eor = current-1;
 		    appendItems(engine, sor, eor, control, dir);
+		    dir = control.direction();
+		}
+		eor = current;
+		appendItems(engine, sor, eor, control, dir);
 		dir = QChar::DirON; status.eor = QChar::DirON;
 		status.last = control.direction();
 		control.pdf();
@@ -593,6 +599,14 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 	case QChar::DirNSM:
 	case QChar::DirBN:
 	    // ignore these
+	    break;
+	case QChar::DirLRO:
+	case QChar::DirLRE:
+	    status.last = QChar::DirL;
+	    break;
+	case QChar::DirRLO:
+	case QChar::DirRLE:
+	    status.last = QChar::DirR;
 	    break;
 	case QChar::DirEN:
 	    if ( status.last == QChar::DirL ) {
