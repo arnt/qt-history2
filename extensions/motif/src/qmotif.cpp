@@ -473,7 +473,7 @@ bool QMotif::processEvents(QEventLoop::ProcessEventsFlags flags)
     // repaints... these need to be delivered before we go to sleep
     QApplication::sendPostedEvents();
 
-    QThreadData *data = QThreadData::current();
+    QThreadData *data = QThreadData::get(thread());
     const bool canWait = (!data->postEventList.isEmpty()
                           && !d->interrupt
                           && (flags & QEventLoop::WaitForMoreEvents));
@@ -512,7 +512,7 @@ bool QMotif::processEvents(QEventLoop::ProcessEventsFlags flags)
 bool QMotif::hasPendingEvents()
 {
     Q_D(QMotif);
-    QThreadData *data = QThreadData::current();
+    QThreadData *data = QThreadData::get(thread());
     return (!data->postEventList.isEmpty() || XtAppPending(d->appContext) != 0);
 }
 

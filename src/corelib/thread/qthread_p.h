@@ -66,9 +66,6 @@ public:
     QThreadData();
     ~QThreadData();
 
-    static QThreadData *current();
-    static void setCurrent(QThreadData *data);
-
     static QThreadData *get(QThread *thread);
 
     int id;
@@ -93,6 +90,8 @@ public:
     bool terminated;
 
     uint stackSize;
+
+    static void setCurrentThread(QThread *thread);
 
     static QThread *threadForId(int id);
 

@@ -49,6 +49,7 @@ public:
 #ifdef QT3_SUPPORT
     void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
 #endif
+    void checkReceiverThread(QObject *receiver);
 
     int &argc;
     char **argv;

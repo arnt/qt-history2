@@ -35,6 +35,7 @@ public:
     inline QAbstractEventDispatcherPrivate()
         : event_filter(0)
     { }
+    void init();
     QAbstractEventDispatcher::EventFilter event_filter;
 };
 

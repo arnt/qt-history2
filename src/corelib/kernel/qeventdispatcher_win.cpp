@@ -178,7 +178,7 @@ void CALLBACK qt_timer_proc(HWND hwnd, UINT message, UINT timerId, DWORD)
 // This function is called by a workerthread
 void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_PTR user, ulong /*reserved*/, ulong /*reserved*/)
 {
-    if (!timerId) // sanity check             
+    if (!timerId) // sanity check
         return;
 
     MSG msg;
@@ -334,7 +334,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
         QCoreApplication::sendPostedEvents();
 
         DWORD waitRet = 0;
-        QThreadData *data = QThreadData::current();
+        QThreadData *data = QThreadData::get(thread());
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
         while (!d->interrupt) {
             DWORD nCount = d->winEventNotifierList.count();
@@ -351,7 +351,7 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
                 haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
                 if (haveMessage && (flags & QEventLoop::ExcludeUserInputEvents)
                     && ((msg.message >= WM_KEYFIRST
-                         && msg.message <= WM_KEYLAST) 
+                         && msg.message <= WM_KEYLAST)
                         || (msg.message >= WM_MOUSEFIRST
                             && msg.message <= WM_MOUSELAST)
                         || msg.message == WM_MOUSEWHEEL)) {
@@ -552,7 +552,7 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
         if (!t->id) { // fall back to normal timer if no more multimedia timers avaiable
             t->dispatcher = 0;
             t->type = TimerInfo::Normal;
-            t->id = SetTimer(0, 0, (uint)interval, (TIMERPROC) qt_timer_proc);            
+            t->id = SetTimer(0, 0, (uint)interval, (TIMERPROC) qt_timer_proc);
         }
     }
 

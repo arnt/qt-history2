@@ -253,6 +253,7 @@ protected:
     friend class QCoreApplication;
     friend class QCoreApplicationPrivate;
     friend class QWidget;
+    friend class QThreadData;
 
 private:
     Q_DISABLE_COPY(QObject)

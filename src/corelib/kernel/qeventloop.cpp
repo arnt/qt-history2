@@ -14,6 +14,7 @@
 #include "qeventloop.h"
 
 #include "qabstracteventdispatcher.h"
+#include "qcoreapplication.h"
 #include "qdatetime.h"
 
 #include "qobject_p.h"
@@ -49,8 +50,9 @@ public:
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
 {
-    QThreadData *data = QThreadData::current();
-    if (!data)
+    if (!QCoreApplication::instance())
+        qWarning("QEventLoop cannot be used without QApplication");
+    else if (!thread())
         qWarning("QEventLoop can only be used with threads started with QThread");
 }
 
@@ -59,7 +61,11 @@ QEventLoop::~QEventLoop()
 
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
-    return QAbstractEventDispatcher::instance(thread())->processEvents(flags);
+    QThread *thr = thread();
+    if (!thr)
+        return false;
+
+    return QAbstractEventDispatcher::instance(thr)->processEvents(flags);
 }
 
 /*!
@@ -84,11 +90,14 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 */
 int QEventLoop::exec(ProcessEventsFlags flags)
 {
+    QThread *thr = thread();
+    if (!thr)
+        return -1;
+
     Q_D(QEventLoop);
     d->exit = false;
 
-    QThreadData *data = QThreadData::current();
-    Q_ASSERT_X(data != 0, "QEventLoop::exec()", "internal error");
+    QThreadData *data = QThreadData::get(thr);
     data->eventLoops.push(this);
 
     while (!d->exit && !data->quitNow) {
@@ -123,6 +132,10 @@ int QEventLoop::exec(ProcessEventsFlags flags)
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 {
+    QThread *thr = thread();
+    if (!thr)
+        return;
+
     QTime start;
     start.start();
     while (processEvents(flags & ~WaitForMoreEvents)) {
@@ -148,17 +161,25 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 */
 void QEventLoop::exit(int returnCode)
 {
+    QThread *thr = thread();
+    if (!thr)
+        return;
+
     Q_D(QEventLoop);
     d->returnCode = returnCode;
     d->exit = true;
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
     if (eventDispatcher)
         eventDispatcher->interrupt();
 }
 
 void QEventLoop::wakeUp()
 {
-    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thread());
+    QThread *thr = thread();
+    if (!thr)
+        return;
+
+    QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
     if (eventDispatcher)
         eventDispatcher->wakeUp();
 }

@@ -26,29 +26,6 @@
 
 
 /*
-  QThreadData
-*/
-
-static pthread_once_t current_data_key_once = PTHREAD_ONCE_INIT;
-static pthread_key_t current_data_key;
-static void create_current_data_key()
-{ pthread_key_create(&current_data_key, NULL); }
-
-QThreadData *QThreadData::current()
-{
-    pthread_once(&current_data_key_once, create_current_data_key);
-    return reinterpret_cast<QThreadData *>(pthread_getspecific(current_data_key));
-}
-
-void QThreadData::setCurrent(QThreadData *data)
-{
-    pthread_once(&current_data_key_once, create_current_data_key);
-    pthread_setspecific(current_data_key, data);
-}
-
-
-
-/*
    QThreadPrivate
 */
 
@@ -67,18 +44,22 @@ static pthread_key_t current_thread_key;
 static void create_current_thread_key()
 { pthread_key_create(&current_thread_key, NULL); }
 
+void QThreadPrivate::setCurrentThread(QThread *thread)
+{
+    pthread_once(&current_thread_key_once, create_current_thread_key);
+    pthread_setspecific(current_thread_key, thread);
+}
+
 void *QThreadPrivate::start(void *arg)
 {
     pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
 
-    pthread_once(&current_thread_key_once, create_current_thread_key);
-    pthread_setspecific(current_thread_key, arg);
+    QThread *thr = reinterpret_cast<QThread *>(arg);
+    setCurrentThread(thr);
+
     pthread_cleanup_push(QThreadPrivate::finish, arg);
 
-    QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData *data = &thr->d_func()->data;
-    QThreadData::setCurrent(data);
-
+    QThreadData *data = QThreadData::get(thr);
     data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
     data->eventDispatcher = new QEventDispatcherUNIX;

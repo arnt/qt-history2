@@ -36,6 +36,11 @@ QThreadData::~QThreadData()
     for (int i = 0; i < postEventList.size(); ++i) {
         const QPostEvent &pe = postEventList.at(i);
         if (pe.event) {
+            --pe.receiver->d_func()->postedEvents;
+#ifdef QT3_SUPPORT
+            if (pe.event->type() == QEvent::ChildInserted)
+                --pe.receiver->d_func()->postedChildInsertedEvents;
+#endif
             pe.event->posted = false;
             delete pe.event;
         }
@@ -43,7 +48,10 @@ QThreadData::~QThreadData()
 }
 
 QThreadData *QThreadData::get(QThread *thread)
-{ return thread ? &thread->d_func()->data : 0; }
+{
+    Q_ASSERT_X(thread != 0, "QThread", "internal error");
+    return &thread->d_func()->data;
+}
 
 
 

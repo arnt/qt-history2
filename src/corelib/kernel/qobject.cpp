@@ -503,8 +503,8 @@ QObject::QObject(QObject *parent)
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
-        QThreadData *data = QThreadData::current();
-        d->thread = data ? data->id : 0;
+        QThread *currentThread = QThread::currentThread();
+        d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
     }
     setParent(parent);
 }
@@ -524,8 +524,8 @@ QObject::QObject(QObject *parent, const char *name)
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
-        QThreadData *data = QThreadData::current();
-        d->thread = data ? data->id : 0;
+        QThread *currentThread = QThread::currentThread();
+        d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
     }
     setParent(parent);
     setObjectName(QString::fromAscii(name));
@@ -539,20 +539,19 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 {
     Q_D(QObject);
     d_ptr->q_ptr = this;
+    if (parent) {
+        d->thread = parent->d_func()->thread;
+    } else {
+        QThread *currentThread = QThread::currentThread();
+        d->thread = currentThread ? QThreadData::get(currentThread)->id : -1;
+    }
     if (d->isWidget) {
-        d->thread = 0;
         if (parent) {
             d->parent = parent;
             d->parent->d_func()->children.append(this);
         }
         // no events sent here, this is done at the end of the QWidget constructor
     } else {
-        if (parent) {
-            d->thread = parent->d_func()->thread;
-        } else {
-            QThreadData *data = QThreadData::current();
-            d->thread = data ? data->id : 0;
-        }
         setParent(parent);
     }
 }
@@ -1095,7 +1094,7 @@ void QObject::killTimer(int id)
     \sa children()
 */
 
-/*! 
+/*!
     \fn const QObjectList &QObject::children() const
 
     Returns a list of child objects, or 0 if this object has no
@@ -2293,9 +2292,10 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
         qt_signal_spy_callback_set.signal_begin_callback(obj, signal_index, argv ? argv : empty_argv);
 
     list->invariant.ref();
-    QThreadData *data = QThreadData::current();
+    QThread *currentThread = QThread::currentThread();
     ::activate(static_cast<QPublicObject *>(obj), signal_index, argv ? argv : empty_argv,
-               data ? data->id : 0, it, list->sendersHash.end());
+               currentThread ? QThreadData::get(currentThread)->id : -1,
+               it, list->sendersHash.end());
 
     if (qt_signal_spy_callback_set.signal_end_callback != 0)
         qt_signal_spy_callback_set.signal_end_callback(obj, signal_index);

@@ -29,7 +29,6 @@
 #include <process.h>
 #endif
 
-static DWORD qt_current_data_tls_index = TLS_OUT_OF_INDEXES;
 static DWORD qt_current_thread_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
 {
@@ -37,27 +36,7 @@ void qt_create_tls()
         return;
     static QMutex mutex;
     QMutexLocker locker(&mutex);
-    qt_current_data_tls_index = TlsAlloc();
     qt_current_thread_tls_index = TlsAlloc();
-}
-
-
-
-
-/*
-  QThreadData
-*/
-
-QThreadData *QThreadData::current()
-{
-    qt_create_tls();
-    return reinterpret_cast<QThreadData *>(TlsGetValue(qt_current_data_tls_index));
-}
-
-void QThreadData::setCurrent(QThreadData *data)
-{
-    qt_create_tls();
-    TlsSetValue(qt_current_data_tls_index, data);
 }
 
 
@@ -67,6 +46,12 @@ void QThreadData::setCurrent(QThreadData *data)
  ** QThreadPrivate
  *************************************************************************/
 
+void QThreadPrivate::setCurrentThread(QThread *thread)
+{
+    qt_create_tls();
+    TlsSetValue(qt_current_thread_tls_index, thread);
+}
+
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
     qt_create_tls();
@@ -74,9 +59,9 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
     QThread::setTerminationEnabled(false);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData *data = &thr->d_func()->data;
-    TlsSetValue(qt_current_data_tls_index, data);
+    QThreadPrivate::setCurrentThread(thr);
 
+    QThreadData *data = &thr->d_func()->data;
     data->quitNow = false;
     // ### TODO: allow the user to create a custom event dispatcher
     data->eventDispatcher = new QEventDispatcherWin32;

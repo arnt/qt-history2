@@ -2612,15 +2612,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         return true;
     }
 
-    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
-               "QApplication::sendEvent",
-               QString::fromLatin1("Cannot send events to objects owned by a different thread "
-                                   "(%1). Receiver '%2' (of type '%3') was created in thread %4")
-               .arg(QString::number(reinterpret_cast<qlonglong>(QThread::currentThread()), 16))
-               .arg(receiver->objectName())
-               .arg(receiver->metaObject()->className())
-               .arg(QString::number(reinterpret_cast<qlonglong>(receiver->thread())), 16)
-               .toLatin1().constData());
+    d->checkReceiverThread(receiver);
 
 #ifdef QT3_SUPPORT
     if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)

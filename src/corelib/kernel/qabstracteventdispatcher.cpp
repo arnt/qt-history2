@@ -18,6 +18,27 @@
 #include <private/qthread_p.h>
 #include <private/qcoreapplication_p.h>
 
+
+void QAbstractEventDispatcherPrivate::init()
+{
+    Q_Q(QAbstractEventDispatcher);
+    QThread *thread = q->thread();
+    if (!thread) {
+        if (!QCoreApplicationPrivate::eventDispatcher) {
+            QCoreApplicationPrivate::eventDispatcher = q;
+        } else {
+            Q_ASSERT_X(false, "QAbstractEventDispatcher",
+                       "An event dispatcher has already been created for the application");
+        }
+    } else {
+        QThreadData *data = QThreadData::get(thread);
+        Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
+                   "An event dispatcher has already been created for this thread");
+        Q_UNUSED(data);
+    }
+}
+
+
 /*!
     \class QAbstractEventDispatcher
     \brief The QAbstractEventDispatcher class manages Qt's event queue, excluding GUI-related events.
@@ -61,19 +82,8 @@
 QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
     : QObject(*new QAbstractEventDispatcherPrivate, parent)
 {
-    QThreadData *data = QThreadData::current();
-    if (!data) {
-        if (!QCoreApplicationPrivate::eventDispatcher) {
-            QCoreApplicationPrivate::eventDispatcher = this;
-        } else {
-            Q_ASSERT_X(false, "QAbstractEventDispatcher",
-                       "An event dispatcher has already been created for the application");
-        }
-    } else {
-        Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
-                   "An event dispatcher has already been created for this thread");
-        Q_UNUSED(data);
-    }
+    Q_D(QAbstractEventDispatcher);
+    d->init();
 }
 
 /*!
@@ -83,19 +93,8 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPriva
                                                    QObject *parent)
     : QObject(dd, parent)
 {
-    QThreadData *data = QThreadData::current();
-    if (!data) {
-        if (!QCoreApplicationPrivate::eventDispatcher) {
-            QCoreApplicationPrivate::eventDispatcher = this;
-        } else {
-            Q_ASSERT_X(false, "QAbstractEventDispatcher",
-                       "An event dispatcher has already been created for the application");
-        }
-    } else {
-        Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
-                   "An event dispatcher has already been created for this thread");
-        Q_UNUSED(data);
-    }
+    Q_D(QAbstractEventDispatcher);
+    d->init();
 }
 
 /*!
@@ -115,8 +114,11 @@ QAbstractEventDispatcher::~QAbstractEventDispatcher()
  */
 QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 {
-    QThreadData *data = thread ? QThreadData::get(thread) : QThreadData::current();
-    return data ? data->eventDispatcher : 0;
+    if (!thread)
+        thread = QThread::currentThread();
+    if (!thread)
+        return 0;
+    return QThreadData::get(thread)->eventDispatcher;
 }
 
 /*! \fn bool QAbstractEventDispatcher::processEvents(QEventLoop::ProcessEventsFlags flags)
@@ -159,7 +161,7 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     false.
 */
 
-/*! 
+/*!
     \fn void QAbstractEventDispatcher::registerSocketNotifier(QSocketNotifier *notifier)
 
     Registers \a notifier with the event loop. Subclasses must

@@ -678,7 +678,7 @@ bool QEventDispatcherUNIX::processEvents(QEventLoop::ProcessEventsFlags flags)
     QCoreApplication::sendPostedEvents();
 
     int nevents = 0;
-    QThreadData *data = QThreadData::current();
+    QThreadData *data = QThreadData::get(thread());
     const bool canWait = (data->postEventList.size() == 0
                           && !d->interrupt
                           && (flags & QEventLoop::WaitForMoreEvents));
