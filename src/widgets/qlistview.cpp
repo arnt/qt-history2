@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#25 $
 **
 ** Implementation of something useful
 **
@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#25 $");
 
 
 struct QListViewPrivate
@@ -1366,13 +1366,14 @@ void QListView::keyPressEvent( QKeyEvent * e )
     else if ( y >= d->r->totalHeight() )
 	y = d->r->totalHeight()-1;
 
-    ensureVisible( viewport()->width()/2 - contentsX(), y );
-
-    i = itemAt( QPoint( 0, y ) );
+    i = itemAt( QPoint( 0, y + contentsY() ) );
     if ( !i ) {
 	warning("QListViewItem::keyPressEvent() no item at %d", y );
 	return;
     }
+
+    ensureVisible( viewport()->width()/2 - contentsX(), y, 0, i->height() );
+
     if ( !isMultiSelection() && i != d->currentSelected ) {
 	if ( d->currentSelected )
 	    d->currentSelected->setSelected( FALSE );
@@ -1553,3 +1554,17 @@ QRect QListView::itemRect( QListViewItem * i ) const
 
     return QRect( 0, 0, -1, -1 );
 }
+
+
+/*! \fn void QListView::doubleClicked( QListViewItem * )
+
+  This signal is emitted whenever an item is double-clicked.  It's
+  emitted on the second button press, not the second button release.
+*/
+
+
+/*! \fn void QListView::returnPressed( QListViewItem * )
+
+  This signal is emitted when enter or return is pressed.  The
+  argument is currentItem().
+*/
