@@ -1092,7 +1092,7 @@ void QWidget::deactivateWidgetCleanup()
 #else
     extern QWidget *qt_button_down;
 #endif
-    if ( this == qt_button_down ) 
+    if ( this == qt_button_down )
 	qt_button_down = 0;
 }
 
@@ -3481,8 +3481,8 @@ void QWidget::show()
 	if ( sendLayoutHint ) {
 	    QEvent e( QEvent::ShowToParent );
 	    QApplication::sendEvent( this, &e );
-	    QApplication::postEvent( parentWidget(),
-				     new QEvent( QEvent::LayoutHint ) );
+// 	    QApplication::postEvent( parentWidget(),
+// 				     new QEvent( QEvent::LayoutHint ) );
 	}
 	return;
     }
@@ -4357,7 +4357,7 @@ bool QWidget::event( QEvent *e )
 		QObject *o;
 		while( ( o = it.current() ) != 0 ) {
 		    ++it;
-		    if ( o->isWidgetType() && 
+		    if ( o->isWidgetType() &&
 			 ((QWidget*)o)->isVisible() &&
 			 !((QWidget*)o)->isTopLevel() )
 			QApplication::sendEvent( o, e );
