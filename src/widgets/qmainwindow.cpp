@@ -1106,7 +1106,7 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
 {
     if ( d->dockWindows.find( dw ) == -1 ) {
 	d->dockWindows.append( dw );
-	connect( dw, SIGNAL( placeChanged( QDockWindow::Place ) ),
+	connect( dw, SIGNAL( placeChanged(QDockWindow::Place) ),
 		 this, SLOT( slotPlaceChanged() ) );
     }
     QString s;
@@ -1205,7 +1205,7 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
     dockWindow->setNewLine( newLine );
     if ( d->dockWindows.find( dockWindow ) == -1 ) {
 	d->dockWindows.append( dockWindow );
-	connect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
+	connect( dockWindow, SIGNAL( placeChanged(QDockWindow::Place) ),
 		 this, SLOT( slotPlaceChanged() ) );
 	dockWindow->installEventFilter( this );
     }
@@ -1372,7 +1372,7 @@ void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 
     dockWindow->hide();
     d->dockWindows.removeRef( dockWindow );
-    disconnect( dockWindow, SIGNAL( placeChanged( QDockWindow::Place ) ),
+    disconnect( dockWindow, SIGNAL( placeChanged(QDockWindow::Place) ),
 		this, SLOT( slotPlaceChanged() ) );
     dockWindow->removeEventFilter( this );
 }

@@ -1142,8 +1142,8 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
 	     this, SLOT( changeDirDuringDrag() ) );
-    connect( this, SIGNAL( contentsMoving( int, int ) ),
-	     this, SLOT( contentsMoved( int, int ) ) );
+    connect( this, SIGNAL( contentsMoving(int,int) ),
+	     this, SLOT( contentsMoved(int,int) ) );
     viewport()->setAcceptDrops( TRUE );
     dragItem = 0;
 }
@@ -1528,12 +1528,12 @@ QFileDialogQFileListView::QFileDialogQFileListView( QWidget *parent, QFileDialog
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
 	     this, SLOT( changeDirDuringDrag() ) );
-    disconnect( header(), SIGNAL( sectionClicked( int ) ),
-		this, SLOT( changeSortColumn( int ) ) );
-    connect( header(), SIGNAL( sectionClicked( int ) ),
-	     this, SLOT( changeSortColumn2( int ) ) );
-    connect( this, SIGNAL( contentsMoving( int, int ) ),
-	     this, SLOT( contentsMoved( int, int ) ) );
+    disconnect( header(), SIGNAL( sectionClicked(int) ),
+		this, SLOT( changeSortColumn(int) ) );
+    connect( header(), SIGNAL( sectionClicked(int) ),
+	     this, SLOT( changeSortColumn2(int) ) );
+    connect( this, SIGNAL( contentsMoving(int,int) ),
+	     this, SLOT( contentsMoved(int,int) ) );
 
     viewport()->setAcceptDrops( TRUE );
     sortcolumn = 0;
@@ -2389,20 +2389,20 @@ void QFileDialog::init()
     d->oldUrl = d->url;
     d->currListChildren = 0;
 
-    connect( &d->url, SIGNAL( start( QNetworkOperation * ) ),
-	     this, SLOT( urlStart( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
-	     this, SLOT( urlFinished( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( newChildren( const QList<QUrlInfo> &, QNetworkOperation * ) ),
-	     this, SLOT( insertEntry( const QList<QUrlInfo> &, QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( removed( QNetworkOperation * ) ),
-	     this, SLOT( removeEntry( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
-	     this, SLOT( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( itemChanged( QNetworkOperation * ) ),
-	     this, SLOT( itemChanged( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
-	     this, SLOT( dataTransferProgress( int, int, QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( start(QNetworkOperation*) ),
+	     this, SLOT( urlStart(QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL( finished(QNetworkOperation*) ),
+	     this, SLOT( urlFinished(QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL( newChildren(const QList<QUrlInfo>&,QNetworkOperation*) ),
+	     this, SLOT( insertEntry(const QList<QUrlInfo>&,QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL( removed(QNetworkOperation*) ),
+	     this, SLOT( removeEntry(QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL( createdDirectory(const QUrlInfo&,QNetworkOperation*) ),
+	     this, SLOT( createdDirectory(const QUrlInfo&,QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL( itemChanged(QNetworkOperation*) ),
+	     this, SLOT( itemChanged(QNetworkOperation*) ) );
+    connect( &d->url, SIGNAL( dataTransferProgress(int,int,QNetworkOperation*) ),
+	     this, SLOT( dataTransferProgress(int,int,QNetworkOperation*) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     nameEdit->setMaxLength( 255 ); //_POSIX_MAX_PATH
@@ -2428,18 +2428,16 @@ void QFileDialog::init()
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
-    connect( files, SIGNAL( selectionChanged() ),
-	     this, SLOT( detailViewSelectionChanged() ) );
-    connect( files, SIGNAL(currentChanged(QListViewItem *)),
-	     this, SLOT(updateFileNameEdit(QListViewItem *)) );
-    connect( files, SIGNAL(doubleClicked(QListViewItem *)),
-	     this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
-    connect( files, SIGNAL(returnPressed(QListViewItem *)),
-	     this, SLOT(selectDirectoryOrFile(QListViewItem *)) );
-    connect( files, SIGNAL(contextMenuRequested(QListViewItem *,
-						const QPoint &, int)),
-	     this, SLOT(popupContextMenu(QListViewItem *,
-					 const QPoint &, int)) );
+    connect(files, SIGNAL(selectionChanged()),
+	    this, SLOT(detailViewSelectionChanged()));
+    connect(files, SIGNAL(currentChanged(QListViewItem*)),
+	    this, SLOT(updateFileNameEdit(QListViewItem*)));
+    connect(files, SIGNAL(doubleClicked(QListViewItem*)),
+	    this, SLOT(selectDirectoryOrFile(QListViewItem*)));
+    connect(files, SIGNAL(returnPressed(QListViewItem*)),
+	    this, SLOT(selectDirectoryOrFile(QListViewItem*)));
+    connect(files, SIGNAL(contextMenuRequested(QListViewItem*,const QPoint&,int)),
+	    this, SLOT(popupContextMenu(QListViewItem*,const QPoint&,int)));
 
     files->installEventFilter( this );
     files->viewport()->installEventFilter( this );
@@ -2448,14 +2446,14 @@ void QFileDialog::init()
     d->moreFiles->setRowMode( QListBox::FitToHeight );
     d->moreFiles->setVariableWidth( TRUE );
 
-    connect( d->moreFiles, SIGNAL(selected(QListBoxItem *)),
-	     this, SLOT(selectDirectoryOrFile(QListBoxItem *)) );
+    connect( d->moreFiles, SIGNAL(selected(QListBoxItem*)),
+	     this, SLOT(selectDirectoryOrFile(QListBoxItem*)) );
     connect( d->moreFiles, SIGNAL( selectionChanged() ),
 	     this, SLOT( listBoxSelectionChanged() ) );
-    connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem *)),
-      this, SLOT(updateFileNameEdit(QListBoxItem *)) );
-    connect( d->moreFiles, SIGNAL( contextMenuRequested( QListBoxItem *, const QPoint & ) ),
-	     this, SLOT( popupContextMenu( QListBoxItem *, const QPoint & ) ) );
+    connect( d->moreFiles, SIGNAL(highlighted(QListBoxItem*)),
+      this, SLOT(updateFileNameEdit(QListBoxItem*)) );
+    connect( d->moreFiles, SIGNAL(contextMenuRequested(QListBoxItem*,const QPoint&)),
+	     this, SLOT(popupContextMenu(QListBoxItem*,const QPoint&)));
 
     d->moreFiles->installEventFilter( this );
     d->moreFiles->viewport()->installEventFilter( this );

@@ -1045,7 +1045,7 @@ bool QAction::addTo( QWidget* w )
 	    d->menuitems.append( mi );
 	    d->update( QActionPrivate::State | QActionPrivate::Visibility | QActionPrivate::EverythingElse ) ;
 	    w->topLevelWidget()->className();
-	    connect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText( int )) );
+	    connect( mi->popup, SIGNAL(highlighted(int)), this, SLOT(menuStatusText(int)) );
 	    connect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
 	    connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 	}
@@ -1210,7 +1210,7 @@ bool QAction::removeFrom( QWidget* w )
 	    mi = *it;
 	    ++it;
 	    if ( mi->popup == w ) {
-		disconnect( mi->popup, SIGNAL(highlighted( int )), this, SLOT(menuStatusText(int)) );
+		disconnect( mi->popup, SIGNAL(highlighted(int)), this, SLOT(menuStatusText(int)) );
 		disconnect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
 		disconnect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 		mi->popup->removeItem( mi->id );
@@ -1607,7 +1607,7 @@ void QActionGroup::add( QAction* action )
 
     connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
-    connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
+    connect( action, SIGNAL( toggled(bool) ), this, SLOT( childToggled(bool) ) );
 
     for (QList<QComboBox*>::Iterator cb(d->comboboxes.begin()); cb != d->comboboxes.end(); ++cb)
 	action->addTo(*cb);

@@ -801,10 +801,10 @@ void QGroupBox::setCheckable( bool b )
 	    d->checkbox = new QCheckBox( title(), this, "qt_groupbox_checkbox" );
 	    setChecked( TRUE );
 	    setChildrenEnabled( TRUE );
-	    connect( d->checkbox, SIGNAL( toggled( bool ) ),
-		     this, SLOT( setChildrenEnabled( bool ) ) );
-	    connect( d->checkbox, SIGNAL( toggled( bool ) ),
-		     this, SIGNAL( toggled( bool ) ) );
+	    connect( d->checkbox, SIGNAL( toggled(bool) ),
+		     this, SLOT( setChildrenEnabled(bool) ) );
+	    connect( d->checkbox, SIGNAL( toggled(bool) ),
+		     this, SIGNAL( toggled(bool) ) );
 	    updateCheckBoxGeometry();
 	}
 	d->checkbox->show();

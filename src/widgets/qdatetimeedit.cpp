@@ -2672,10 +2672,10 @@ void QDateTimeEdit::init()
     de = new QDateEdit( this, "qt_datetime_dateedit" );
     te = new QTimeEdit( this, "qt_datetime_timeedit" );
     d->adv = FALSE;
-    connect( de, SIGNAL( valueChanged( const QDate& ) ),
-	     this, SLOT( newValue( const QDate& ) ) );
-    connect( te, SIGNAL( valueChanged( const QTime& ) ),
-	     this, SLOT( newValue( const QTime& ) ) );
+    connect( de, SIGNAL( valueChanged(const QDate&) ),
+	     this, SLOT( newValue(const QDate&) ) );
+    connect( te, SIGNAL( valueChanged(const QTime&) ),
+	     this, SLOT( newValue(const QTime&) ) );
     setFocusProxy( de );
     setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }

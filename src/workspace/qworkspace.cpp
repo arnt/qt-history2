@@ -367,8 +367,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	QWorkspaceChild* child = new QWorkspaceChild( w, this, "qt_workspacechild" );
 	child->installEventFilter( this );
 
-	connect( child, SIGNAL( popupOperationMenu( const QPoint& ) ),
-		 this, SLOT( popupOperationMenu( const QPoint& ) ) );
+	connect( child, SIGNAL( popupOperationMenu(const QPoint&) ),
+		 this, SLOT( popupOperationMenu(const QPoint&) ) );
 	connect( child, SIGNAL( showOperationMenu() ),
 		 this, SLOT( showOperationMenu() ) );
 	d->windows.append( child );
@@ -1629,8 +1629,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 this, SLOT( showNormal() ) );
 	connect( titlebar, SIGNAL( doMaximize() ),
 		 this, SLOT( showMaximized() ) );
-	connect( titlebar, SIGNAL( popupOperationMenu( const QPoint& ) ),
-		 this, SIGNAL( popupOperationMenu( const QPoint& ) ) );
+	connect( titlebar, SIGNAL( popupOperationMenu(const QPoint&) ),
+		 this, SIGNAL( popupOperationMenu(const QPoint&) ) );
 	connect( titlebar, SIGNAL( showOperationMenu() ),
 		 this, SIGNAL( showOperationMenu() ) );
 	connect( titlebar, SIGNAL( doShade() ),
@@ -2090,8 +2090,8 @@ QWidget* QWorkspaceChild::iconWidget() const
 		 this, SLOT( showNormal() ) );
 	connect( iconw, SIGNAL( doMaximize() ),
 		 this, SLOT( showMaximized() ) );
-	connect( iconw, SIGNAL( popupOperationMenu( const QPoint& ) ),
-		 this, SIGNAL( popupOperationMenu( const QPoint& ) ) );
+	connect( iconw, SIGNAL( popupOperationMenu(const QPoint&) ),
+		 this, SIGNAL( popupOperationMenu(const QPoint&) ) );
 	connect( iconw, SIGNAL( showOperationMenu() ),
 		 this, SIGNAL( showOperationMenu() ) );
 	connect( iconw, SIGNAL( doubleClicked() ),

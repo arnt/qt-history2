@@ -2643,14 +2643,14 @@ void QListView::init()
     connect( d->autoopenTimer, SIGNAL(timeout()),
 	     this, SLOT(openFocusItem()) );
 
-    connect( d->h, SIGNAL(sizeChange( int, int, int )),
-	     this, SLOT(handleSizeChange( int, int, int )) );
-    connect( d->h, SIGNAL(moved( int, int )),
+    connect( d->h, SIGNAL(sizeChange(int,int,int)),
+	     this, SLOT(handleSizeChange(int,int,int)) );
+    connect( d->h, SIGNAL(moved(int,int)),
 	     this, SLOT(triggerUpdate()) );
-    connect( d->h, SIGNAL(sectionClicked( int )),
-	     this, SLOT(changeSortColumn( int )) );
-    connect( d->h, SIGNAL(sectionHandleDoubleClicked( int )),
-	     this, SLOT(adjustColumn( int )) );
+    connect( d->h, SIGNAL(sectionClicked(int)),
+	     this, SLOT(changeSortColumn(int)) );
+    connect( d->h, SIGNAL(sectionHandleDoubleClicked(int)),
+	     this, SLOT(adjustColumn(int)) );
     connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)),
 	     d->h, SLOT(setOffset(int)) );
     connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
@@ -4338,7 +4338,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
 void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(QListViewItem*,const QPoint&,int)) ) ) {
 	e->ignore();
 	return;
     }

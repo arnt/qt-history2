@@ -925,8 +925,8 @@ void QTextEdit::init()
     readonly = TRUE;
     setReadOnly( FALSE );
     setFrameStyle( LineEditPanel | Sunken );
-    connect( doc, SIGNAL( minimumWidthChanged( int ) ),
-	     this, SLOT( documentWidthChanged( int ) ) );
+    connect( doc, SIGNAL( minimumWidthChanged(int) ),
+	     this, SLOT( documentWidthChanged(int) ) );
 
     mousePressed = FALSE;
     inDoubleClick = FALSE;
@@ -5908,7 +5908,7 @@ bool QTextEdit::checkOptimMode()
 	if ( d->optimMode ) {
 	    d->od = new QTextEditOptimPrivate;
 	    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
-	    disconnect( doc, SIGNAL( minimumWidthChanged( int ) ), this, SLOT( documentWidthChanged( int ) ) );
+	    disconnect( doc, SIGNAL( minimumWidthChanged(int) ), this, SLOT( documentWidthChanged(int) ) );
 	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
 	    disconnect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
  	    optimSetText( doc->originalText() );
@@ -5917,7 +5917,7 @@ bool QTextEdit::checkOptimMode()
 	    cursor = new QTextCursor( doc );
 	} else {
  	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
-	    connect( doc, SIGNAL( minimumWidthChanged( int ) ), this, SLOT( documentWidthChanged( int ) ) );
+	    connect( doc, SIGNAL( minimumWidthChanged(int) ), this, SLOT( documentWidthChanged(int) ) );
 	    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
 	    connect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
  	    setText( optimText() );

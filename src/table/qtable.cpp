@@ -1231,7 +1231,7 @@ QWidget *QComboTableItem::createEditor() const
     ( (QComboTableItem*)this )->cb = new QComboBox( edit, table()->viewport(), "qt_editor_cb" );
     cb->insertStringList( entries );
     cb->setCurrentItem( current );
-    QObject::connect( cb, SIGNAL( activated( int ) ), table(), SLOT( doValueChanged() ) );
+    QObject::connect( cb, SIGNAL( activated(int) ), table(), SLOT( doValueChanged() ) );
     return cb;
 }
 
@@ -1497,7 +1497,7 @@ QWidget *QCheckTableItem::createEditor() const
     cb->setChecked( checked );
     cb->setText( text() );
     cb->setBackgroundColor( table()->viewport()->backgroundColor() );
-    QObject::connect( cb, SIGNAL( toggled( bool ) ), table(), SLOT( doValueChanged() ) );
+    QObject::connect( cb, SIGNAL( toggled(bool) ), table(), SLOT( doValueChanged() ) );
     return cb;
 }
 
@@ -2082,20 +2082,20 @@ void QTable::init( int rows, int cols )
     contents.setAutoDelete( FALSE );
 
     // Connect header, table and scrollbars
-    connect( horizontalScrollBar(), SIGNAL( valueChanged( int ) ),
-	     topHeader, SLOT( setOffset( int ) ) );
-    connect( verticalScrollBar(), SIGNAL( valueChanged( int ) ),
-	     leftHeader, SLOT( setOffset( int ) ) );
-    connect( topHeader, SIGNAL( sectionSizeChanged( int ) ),
-	     this, SLOT( columnWidthChanged( int ) ) );
-    connect( topHeader, SIGNAL( indexChange( int, int, int ) ),
-	     this, SLOT( columnIndexChanged( int, int, int ) ) );
-    connect( topHeader, SIGNAL( sectionClicked( int ) ),
-	     this, SLOT( columnClicked( int ) ) );
-    connect( leftHeader, SIGNAL( sectionSizeChanged( int ) ),
-	     this, SLOT( rowHeightChanged( int ) ) );
-    connect( leftHeader, SIGNAL( indexChange( int, int, int ) ),
-	     this, SLOT( rowIndexChanged( int, int, int ) ) );
+    connect( horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+	     topHeader, SLOT( setOffset(int) ) );
+    connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
+	     leftHeader, SLOT( setOffset(int) ) );
+    connect( topHeader, SIGNAL( sectionSizeChanged(int) ),
+	     this, SLOT( columnWidthChanged(int) ) );
+    connect( topHeader, SIGNAL( indexChange(int,int,int) ),
+	     this, SLOT( columnIndexChanged(int,int,int) ) );
+    connect( topHeader, SIGNAL( sectionClicked(int) ),
+	     this, SLOT( columnClicked(int) ) );
+    connect( leftHeader, SIGNAL( sectionSizeChanged(int) ),
+	     this, SLOT( rowHeightChanged(int) ) );
+    connect( leftHeader, SIGNAL( indexChange(int,int,int) ),
+	     this, SLOT( rowIndexChanged(int,int,int) ) );
 
     // Initialize variables
     autoScrollTimer = new QTimer( this );
@@ -3871,7 +3871,7 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(int, int, const QPoint &)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(int,int,const QPoint&)) ) ) {
 	e->ignore();
 	return;
     }
@@ -6373,10 +6373,10 @@ QTableHeader::QTableHeader( int i, QTable *t,
     d = new QTableHeaderPrivate;
     d->oldLinePos = -1; //outside, in contents coords
 #endif
-    connect( this, SIGNAL( sizeChange( int, int, int ) ),
-	     this, SLOT( sectionWidthChanged( int, int, int ) ) );
-    connect( this, SIGNAL( indexChange( int, int, int ) ),
-	     this, SLOT( indexChanged( int, int, int ) ) );
+    connect( this, SIGNAL( sizeChange(int,int,int) ),
+	     this, SLOT( sectionWidthChanged(int,int,int) ) );
+    connect( this, SIGNAL( indexChange(int,int,int) ),
+	     this, SLOT( indexChanged(int,int,int) ) );
 
     stretchTimer = new QTimer( this );
     widgetStretchTimer = new QTimer( this );

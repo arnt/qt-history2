@@ -573,10 +573,10 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
              this, SLOT( doDragAutoScroll() ) );
 #endif
 
-    connect( d->hbar, SIGNAL( valueChanged( int ) ),
-        this, SLOT( hslide( int ) ) );
-    connect( d->vbar, SIGNAL( valueChanged( int ) ),
-        this, SLOT( vslide( int ) ) );
+    connect( d->hbar, SIGNAL( valueChanged(int) ),
+        this, SLOT( hslide(int) ) );
+    connect( d->vbar, SIGNAL( valueChanged(int) ),
+        this, SLOT( vslide(int) ) );
 
     connect( d->hbar, SIGNAL(sliderPressed()), this, SLOT(hbarIsPressed()) );
     connect( d->hbar, SIGNAL(sliderReleased()), this, SLOT(hbarIsReleased()) );

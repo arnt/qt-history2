@@ -2365,7 +2365,7 @@ void QListBox::repaintSelection()
 
 void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(QListBoxItem*,const QPoint&)) ) ) {
 	e->ignore();
 	return;
     }

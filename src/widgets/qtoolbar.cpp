@@ -631,7 +631,7 @@ void QToolBar::createPopup()
 		    uint maxItems = 0;
 		    QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
 		    d->extensionPopup->insertItem( s, cp );
-		    connect( cp, SIGNAL( activated( int ) ), c, SLOT( internalActivate( int ) ) );
+		    connect( cp, SIGNAL( activated(int) ), c, SLOT( internalActivate(int) ) );
 		    for ( int i = 0; i < c->count(); ++i ) {
 		        QString tmp = c->text( i );
 			cp->insertItem( tmp, i );
@@ -646,7 +646,7 @@ void QToolBar::createPopup()
 			    QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
 			    cp->insertItem( tr( "More..." ), sp );
 			    cp = sp;
-			    connect( cp, SIGNAL( activated( int ) ), c, SLOT( internalActivate( int ) ) );
+			    connect( cp, SIGNAL( activated(int) ), c, SLOT( internalActivate(int) ) );
 			}
 		    }
 		}

@@ -1111,8 +1111,8 @@ QGroupBox * QPrintDialog::setupDestination()
     horiz->addSpacing( 19 );
 
     d->fileName = new QLineEdit( g, "file name" );
-    connect( d->fileName, SIGNAL( textChanged( const QString & ) ),
-	     this, SLOT( fileNameEditChanged( const QString & ) ) );
+    connect( d->fileName, SIGNAL( textChanged(const QString&) ),
+	     this, SLOT( fileNameEditChanged(const QString&) ) );
     horiz->addWidget( d->fileName, 1 );
     horiz->addSpacing( 6 );
     d->browse = new QPushButton( tr("Browse..."), g, "browse files" );
@@ -1266,8 +1266,8 @@ QGroupBox * QPrintDialog::setupPaper()
 
     g->addSpace( 8 );
 
-    connect( d->orientationCombo, SIGNAL( activated( int ) ),
-	     this, SLOT( orientSelected( int ) ) );
+    connect( d->orientationCombo, SIGNAL( activated(int) ),
+	     this, SLOT( orientSelected(int) ) );
 
     // paper size
     d->sizeCombo = new QComboBox( FALSE, g );
@@ -1307,8 +1307,8 @@ QGroupBox * QPrintDialog::setupPaper()
     isc( d, tr( "Tabloid (279 x 432 mm)" ), QPrinter::Tabloid );
     isc( d, tr( "US Common #10 Envelope (105 x 241 mm)" ), QPrinter::Comm10E );
 
-    connect( d->sizeCombo, SIGNAL( activated( int ) ),
-	     this, SLOT( paperSizeSelected( int ) ) );
+    connect( d->sizeCombo, SIGNAL( activated(int) ),
+	     this, SLOT( paperSizeSelected(int) ) );
 
     return g;
 }

@@ -2763,8 +2763,8 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT( slotUpdate() ) );
     connect( d->fullRedrawTimer, SIGNAL( timeout() ),
 	     this, SLOT( updateContents() ) );
-    connect( this, SIGNAL( contentsMoving( int, int ) ),
-	     this, SLOT( movedContents( int, int ) ) );
+    connect( this, SIGNAL( contentsMoving(int,int) ),
+	     this, SLOT( movedContents(int,int) ) );
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -4506,7 +4506,7 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
 void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( !receivers( SIGNAL(contextMenuRequested(QIconViewItem*, const QPoint &)) ) ) {
+    if ( !receivers( SIGNAL(contextMenuRequested(QIconViewItem*,const QPoint&)) ) ) {
 	e->ignore();
 	return;
     }

@@ -1037,10 +1037,10 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     lab = new QColorShowLabel( this );
     lab->setMinimumWidth( 60 ); //###
     gl->addMultiCellWidget(lab, 0,-1,0,0);
-    connect( lab, SIGNAL( colorDropped( QRgb ) ),
-	     this, SIGNAL( newCol( QRgb ) ) );
-    connect( lab, SIGNAL( colorDropped( QRgb ) ),
-	     this, SLOT( setRgb( QRgb ) ) );
+    connect( lab, SIGNAL( colorDropped(QRgb) ),
+	     this, SIGNAL( newCol(QRgb) ) );
+    connect( lab, SIGNAL( colorDropped(QRgb) ),
+	     this, SLOT( setRgb(QRgb) ) );
 
     hEd = new QColNumLineEdit( this, "qt_hue_edit" );
     hEd->setValidator( val360 );

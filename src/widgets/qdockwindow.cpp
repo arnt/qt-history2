@@ -1024,8 +1024,8 @@ void QDockWindow::init()
     connect( titleBar, SIGNAL( doubleClicked() ), this, SLOT( dock() ) );
     connect( verHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
     connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
-    connect( this, SIGNAL( orientationChanged( Orientation ) ),
-	     this, SLOT( setOrientation( Orientation ) ) );
+    connect( this, SIGNAL( orientationChanged(Orientation) ),
+	     this, SLOT( setOrientation(Orientation) ) );
 }
 
 /*!
