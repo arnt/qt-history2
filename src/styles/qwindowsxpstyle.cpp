@@ -190,11 +190,7 @@ struct XPThemeData
 	    htheme = handleMap->operator[]( name );
 
         if ( !htheme ) {
-	    static wchar_t nm[256];
-	    Q_ASSERT( name.length() < 255 );
-	    memcpy( nm, (wchar_t*)name.unicode(), sizeof(wchar_t)*name.length() );
-	    nm[name.length()] = 0;
-            htheme = pOpenThemeData( QWindowsXPStylePrivate::winId( widget ), nm );
+            htheme = pOpenThemeData( QWindowsXPStylePrivate::winId( widget ), name.ucs2() );
 	    if ( htheme ) {
 		if ( !handleMap )
 		    handleMap = new QMap<QString, HTHEME>;
@@ -830,7 +826,7 @@ void QWindowsXPStyle::drawControlMask( ControlElement element,
 	return;
     }
 
-    QString name = 0;
+    QString name;
     int partId = 0;
     int stateId = 0;
     switch ( element ) {
