@@ -155,7 +155,8 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
 
-    QFont fnt = font();
+    options->polish(); // adjust system settings 
+    QFont fnt = options->font();
     fnt.setBold( TRUE );
     boldID = options->insertItem( new MyMenuItem( "&Bold", fnt ) );
     options->setAccel( CTRL+Key_B, boldID );
