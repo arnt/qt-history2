@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#13 $
 **
 ** Implementation of QMessageBox class
 **
@@ -15,7 +15,7 @@
 #include "qpushbt.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#13 $";
 #endif
 
 
@@ -63,7 +63,6 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     label->setAlignment( AlignCenter );
     button = new QPushButton( "Ok", this, "button" );
     CHECK_PTR( button );
-    button->setDefault( TRUE );
     connect( button, SIGNAL(clicked()), SLOT(accept()) );
     QFont font( "Helvetica", 12 );
     label->setFont( font );
