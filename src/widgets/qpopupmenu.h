@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#32 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#33 $
 **
 ** Definition of QPopupMenu class
 **
@@ -34,6 +34,8 @@ public:
     void	setFont( const QFont & );	// reimplemented set font
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
+
+    //    void	setEnabled( bool );
 
     int		exec();
 

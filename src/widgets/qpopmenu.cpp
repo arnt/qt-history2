@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#109 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#109 $");
 
 
 // Motif style parameters
@@ -29,6 +29,7 @@ static const int motifItemFrame		= 2;	// menu item frame width
 static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
 static const int motifItemVMargin	= 2;	// menu item ver text margin
+static const int motifItemDivider	= 2;	// space btwn text and pixmap
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 static const int motifArrowVMargin	= 2;	// arrow vertical margin
 static const int motifTabSpacing	= 12;	// space between text and tab
@@ -58,6 +59,77 @@ static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 // members in 2.0
 static QPopupMenu * syncMenu;
 static int syncMenuId;
+
+
+//### How to provide new member variables while keeping binary compatibility:
+#if QT_VERSION == 200
+#error "Remove QPopupMenu dict!"
+#endif
+
+#include <qintdict.h>
+
+
+struct QPopupMenuExtra {
+    bool hasDoubleItem;
+    int maxPMWidth;
+};
+
+
+static QIntDict<QPopupMenuExtra> *qpm_extraStuff = 0;
+
+static void cleanupPopupMenu()
+{
+    delete qpm_extraStuff;
+    qpm_extraStuff = 0;
+}
+
+
+static QPopupMenuExtra * makePMDict( QPopupMenu * that )
+{
+    if ( !qpm_extraStuff ) {
+	qpm_extraStuff = new QIntDict<QPopupMenuExtra>;
+	CHECK_PTR( qpm_extraStuff );
+	qAddPostRoutine( cleanupPopupMenu );
+    }
+
+    QPopupMenuExtra * x = (QPopupMenuExtra *)qpm_extraStuff->find( (long)that );
+    if ( !x ) {
+	x = new QPopupMenuExtra;
+	x->hasDoubleItem = FALSE;
+	x->maxPMWidth = 0;
+	qpm_extraStuff->insert( (long)that, x );
+    }
+
+    return x;
+}
+
+
+static QPopupMenuExtra * lookInPMDict( const QPopupMenu * that )
+{
+    QPopupMenuExtra * x = 0;
+    if ( qpm_extraStuff )
+	x = (QPopupMenuExtra *)qpm_extraStuff->find( (long)that );
+    return x;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*!
@@ -91,13 +163,15 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 }
 
 
-static int getWidthOfCheckCol( int gs )
+static int getWidthOfCheckCol( QPopupMenu *that, int gs )
 {
-    int w = motifItemFrame + 2 * motifCheckMarkHMargin;
-    if ( gs == WindowsStyle )
-	w += 7;
-    else
-	w += 9;
+    QPopupMenuExtra *x= lookInPMDict( that );
+    int pmw = x ? x->maxPMWidth : 0;
+    int cmw = 7;   // check mark width
+    int w = cmw > pmw ? cmw : pmw;
+    if ( gs == MotifStyle )
+	w += 2;
+    w += motifItemFrame + 2 * motifCheckMarkHMargin;
     return w;
 }
 
@@ -138,7 +212,10 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	    for ( pnt = 0; pnt < a.size(); pnt++ )
 		a[pnt] -= offset;
 	}
+#if 0
 	p->setPen( act && !dis ? white : g.text() );
+#endif
+	p->setPen( g.text() );
 	p->drawLineSegments( a );
     }
     else {
@@ -313,6 +390,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 
 QPopupMenu::~QPopupMenu()
 {
+    if ( qpm_extraStuff )
+	qpm_extraStuff->remove( (long)this );
     delete autoaccel;
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
@@ -452,7 +531,6 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     show();
 }
 
-
 /*!
   \fn void QPopupMenu::activated( int id )
 
@@ -482,15 +560,14 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 */
 
 /*! \fn void QPopupMenu::highlightedRedirect( int id )
-
+  \internal
   Used internally to connect submenus to their parents.
 */
 
 /*! \fn void QPopupMenu::activatedRedirect( int id )
-
+  \internal
   Used internally to connect submenus to their parents.
 */
-
 
 void QPopupMenu::subActivated( int id )
 {
@@ -649,8 +726,9 @@ int QPopupMenu::itemPos( int index )		// get y coord for item
 
 void QPopupMenu::updateSize()
 {
-    int height	  = 0;
-    int max_width = 10;
+    int height	     = 0;
+    int max_width    = 10;
+    int max_pm_width = 0;
     GUIStyle gs	  = style();
     QFontMetrics fm = fontMetrics();
 #if 0
@@ -661,17 +739,29 @@ void QPopupMenu::updateSize()
     bool hasSubMenu = FALSE;
     int cellh = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     int tab_width = 0;
+    bool hasTextAndPixmapItem = FALSE;
     while ( (mi=it.current()) ) {
 	int w = 0;
+	int itemHeight = 0;
 	if ( mi->popup() )
 	    hasSubMenu = TRUE;
 	if ( mi->isSeparator() )
-	    height += motifSepHeight;
+	    itemHeight = motifSepHeight;
 	else if ( mi->pixmap() ) {
-	    height += mi->pixmap()->height() + 2*motifItemFrame;
-	    w = mi->pixmap()->width();
-	} else if ( mi->text() ) {
-	    height += cellh;
+	    itemHeight = mi->pixmap()->height() + 2*motifItemFrame;
+	    if ( mi->text() ) {
+		if ( gs == MotifStyle )
+		    itemHeight += 2;		// Room for check rectangle
+		hasTextAndPixmapItem = TRUE; // has text, w will be set below
+		if ( mi->pixmap()->width() > max_pm_width )
+		    max_pm_width = mi->pixmap()->width();
+	    } else {
+		w = mi->pixmap()->width();	// pixmap only
+	    }
+	}
+	if ( mi->text() && !mi->isSeparator() ) {
+	    if ( itemHeight < cellh )
+		itemHeight = cellh;
 	    const char *s = mi->text();
 	    const char *t;
 	    if ( (t=strchr(s, '\t')) ) {	// string contains tab
@@ -680,16 +770,31 @@ void QPopupMenu::updateSize()
 		if ( tw > tab_width )
 		    tab_width = tw;
 	    } else {
-		w = fm.width( s );
+		w += fm.width( s );
 	    }
 	}
+	height += itemHeight;
 #if defined(CHECK_NULL)
-	else
+	if ( !mi->text() && !mi->pixmap() && !mi->isSeparator() )
 	    warning( "QPopupMenu: Popup has invalid menu item" );
 #endif
 	if ( max_width < w )
 	    max_width = w;
 	++it;
+    }
+    if ( hasTextAndPixmapItem ) {
+	QPopupMenuExtra *x = makePMDict( this );
+	x->hasDoubleItem = TRUE;
+	x->maxPMWidth = max_pm_width;
+    } else {
+	QPopupMenuExtra *x = lookInPMDict( this );
+	if ( x ) {
+	    x->hasDoubleItem = FALSE;
+	    x->maxPMWidth    = 0;
+	}
+    }
+    if ( gs == MotifStyle ) {
+	setCheckable( hasTextAndPixmapItem );
     }
     int extra_width = 0;
     if ( tab_width ) {
@@ -702,7 +807,7 @@ void QPopupMenu::updateSize()
     max_width  += 2*motifItemHMargin;
 
     if ( isCheckable() )
-	max_width += getWidthOfCheckCol( gs ) + motifItemFrame;
+	max_width += getWidthOfCheckCol( this, gs ) + motifItemFrame;
     else
 	max_width += 2*motifItemFrame;
 
@@ -828,6 +933,24 @@ void QPopupMenu::hide()
 	qApp->exit_loop();
 }
 
+#if 0
+/*!
+  Reimplements QWidget::setEnabled() for internal purposes.
+*/
+
+void QPopupMenu::setEnabled( bool enable )
+{
+    if ( enable == isEnabled() )
+	return;
+    if ( parentMenu ) {
+	QMenuItem *mi = parentMenu->findPopup( this );
+	if ( mi ) {
+	    parentMenu->setItemEnabled( mi->id(), enable );
+	}
+    }
+    QWidget::setEnabled( enable );
+}
+#endif
 
 /*****************************************************************************
   Implementation of virtual QTableView functions
@@ -836,12 +959,20 @@ void QPopupMenu::hide()
 int QPopupMenu::cellHeight( int row )
 {
     QMenuItem *mi = mitems->at( row );
-    int h;
-    if ( mi->isSeparator() )			// separator height
+    int h = 0;
+    if ( mi->isSeparator() ) {			// separator height
 	h = motifSepHeight;
-    else if ( mi->pixmap() )			// pixmap height
+    } else if ( mi->pixmap() ) {		// pixmap height
 	h = mi->pixmap()->height() + 2*motifItemFrame;
-    else {					// text height
+	if ( mi->text() ) {			// pixmap and text
+	    if ( style() == MotifStyle )
+		h += 2;				// Room for check rectangle
+	    QFontMetrics fm = fontMetrics();
+	    int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+	    if ( h2 > h )
+		h = h2;
+	}
+    } else {					// text height
 	QFontMetrics fm = fontMetrics();
 	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
     }
@@ -854,9 +985,9 @@ int QPopupMenu::cellWidth( int col )
 {
     if ( isCheckable() ) {
 	if ( col == 0 )
-	    return getWidthOfCheckCol(style());
+	    return getWidthOfCheckCol(this,style());
 	else
-	    return width() - ( 2*frameWidth() + getWidthOfCheckCol(style()) );
+	    return width() - (2*frameWidth()+getWidthOfCheckCol(this,style()));
     }	    
     else
 	return width() - 2*frameWidth();	
@@ -889,12 +1020,65 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    p->drawLine( 0, 1, rw, 1 );
 	    return;
 	}
+
+	int cm = gs == MotifStyle ? 2 : 0;	// checkable margin
+
+	if ( mi->isChecked() ) {
+	    if ( gs == WindowsStyle && act && !dis ) {
+		QBrush b( g.mid() );
+		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
+				 g, TRUE, 1, &b );
+	    } else {
+		if ( gs == WindowsStyle || 
+		     mi->pixmap() && mi->text() ) {
+		    QBrush b( g.background() );
+		    qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
+				     g, TRUE, 1, &b );
+		}
+	    }
+	} else if ( !act ) {
+	    qDrawPlainRect( p, cm, cm, cellw-2*cm, cellh-2*cm, 
+			    g.background(), 1, 0 );
+	}		
+
+	if ( mi->text() && mi->pixmap() ) {		// draw pixmap
+	    QPixmap *pixmap = mi->pixmap();
+	    int pixw = pixmap->width();
+	    int pixh = pixmap->height();
+	    if ( gs == MotifStyle ) {
+		if ( act && !dis )			// active item frame
+		    qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE,
+				     motifItemFrame );
+		else				// incognito frame
+		    qDrawPlainRect( p, 0, 0, rw, cellh, g.background(),
+				    motifItemFrame );
+	    } else {
+		if ( act && !dis ) {
+		    if ( !mi->isChecked() )
+			qDrawShadePanel( p, 0, 0, cellw, cellh, g, FALSE, 1 );
+		}
+	    }
+	    QRect cr( cm, cm, cellw-2*cm, cellh-2*cm );
+	    QRect pmr( 0, 0, pixw, pixh );
+	    pmr.moveCenter( cr.center() );
+	    p->drawPixmap( pmr.topLeft(), *pixmap );
+	    if ( gs == WindowsStyle ) {
+		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
+			     (act && !dis) ? darkBlue : g.background());
+	    }
+	    return;
+	}
         
 	int pw = motifItemFrame;
 	if ( gs != MotifStyle )
 	    pw = 1;
 	if ( gs == WindowsStyle ) {
-	    p->fillRect( 0, 0, rw, cellh, act ? darkBlue : g.background() );
+	    if ( mi->isChecked() )
+		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
+			     (act && !dis) ? darkBlue : g.background() );
+	    else
+		p->fillRect( 0, 0, rw, cellh, 
+			     (act && !dis) ? darkBlue : g.background() );
 	} else if ( gs == MotifStyle ) {
 	    if ( act && !dis )			// active item frame
 		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw );
@@ -914,7 +1098,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     if ( gs == WindowsStyle )
-	p->setPen( act ? white : g.text() );
+	p->setPen( (act && !dis) ? white : g.text() );
     else
 	p->setPen( g.text() );
 
@@ -925,20 +1109,13 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     int x = motifItemHMargin + ( isCheckable() ? 0 : motifItemFrame);
-    if ( mi->pixmap() ) {			// draw pixmap
-	QPixmap *pixmap = mi->pixmap();
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixmap( x, motifItemFrame, *pixmap );
-	if ( pixmap->depth() == 1 )
-	    p->setBackgroundMode( TransparentMode );
-    } else if ( mi->text() ) {			// draw text
+    if ( mi->text() ) {			// draw text
 	const char *s = mi->text();
 	const char *t = strchr( s, '\t' );
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t ) {				// draw text before tab
-	    if ( gs == WindowsStyle && dis && !act ) {
+	    if ( gs == WindowsStyle && dis ) {
 		p->setPen( g.light() );
 		p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags,
 			     s, (int)((long)t-(long)s) );
@@ -949,13 +1126,20 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    s = t + 1;
 	    x = tabMark();
 	}
-	if ( gs == WindowsStyle && dis && !act ) {
+	if ( gs == WindowsStyle && dis ) {
 	    p->setPen( g.light() );
 	    p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags, s );
 	    p->setPen( discol );
 	}
 	p->drawText( x, m, cellw, cellh-2*m, text_flags, s );
-    }
+    } else if ( mi->pixmap() ) {			// draw pixmap
+	QPixmap *pixmap = mi->pixmap();
+	if ( pixmap->depth() == 1 )
+	    p->setBackgroundMode( OpaqueMode );
+	p->drawPixmap( x, motifItemFrame, *pixmap );
+	if ( pixmap->depth() == 1 )
+	    p->setBackgroundMode( TransparentMode );
+    } 
     if ( mi->popup() ) {			// draw sub menu arrow
 	int dim = (cellh-2*motifItemFrame) / 2;
 	if ( gs == WindowsStyle && row == actItem ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#52 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#52 $");
 
 
 /*!
@@ -631,12 +631,13 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( !mi->text_data.isNull() )		// delete text
-	    mi->text_data.resize( 0 );
 	register QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
 	    i->width() == pixmap.width() &&
-	    i->height() == pixmap.height();
+	    i->height() == pixmap.height() &&
+	    !mi->text();
+	if ( !mi->text_data.isNull() )		// delete text
+	    mi->text_data.resize( 0 );
 	delete mi->pixmap_data;
 	mi->pixmap_data = new QPixmap( pixmap );
 	if ( fast_refresh )			// fast update
@@ -656,19 +657,19 @@ void QMenuData::changeItem( const QPixmap &pixmap, const char *text, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
-	if ( !mi->text_data.isNull() )		// delete text
-	    mi->text_data.resize( 0 );
 	QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
 	    i->width() == pixmap.width() &&
-	    i->height() == pixmap.height() &&
-	    mi->text_data == text;
+	    i->height() == pixmap.height();
+	if ( mi->text_data != text ) {
+	    fast_refresh = FALSE;
+	    mi->text_data = text;
+	}
 	delete mi->pixmap_data;
 	mi->pixmap_data = new QPixmap( pixmap );
 	if ( fast_refresh ) {			// fast update
 	    updateItem( id );
 	} else {
-	    mi->text_data = text;
 	    menuContentsChanged();
 	}
     }
