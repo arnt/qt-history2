@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#120 $
 **
 ** Implementation of QScrollView class
 **
@@ -1552,7 +1552,9 @@ void QScrollView::moveContents(int x, int y)
 	)
     {
 	// Big move
-	viewport()->update();
+	QPaintEvent* pe = new QPaintEvent( viewport()->rect(),
+				   !viewport()->testWFlags( WRepaintNoErase ) );
+	QApplication::postEvent( viewport(), pe );
 	d->moveAllBy(dx,dy);
     } else {
 	// Small move
