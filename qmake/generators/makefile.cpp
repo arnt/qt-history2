@@ -475,6 +475,7 @@ MakefileGenerator::init()
 			    for(QStringList::Iterator vpath_it = vpath.begin();
 				vpath_it != vpath.end(); ++vpath_it) {
 				QString real_dir = Option::fixPathToLocalOS((*vpath_it));
+				qDebug("Trying %s", QString(real_dir + QDir::separator() + (*val_it)).latin1());
 				if(QFile::exists(real_dir + QDir::separator() + (*val_it))) {
 				    QString dir = (*vpath_it);
 				    if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
@@ -495,16 +496,22 @@ MakefileGenerator::init()
 				real_dir = Option::fixPathToLocalOS(dir);
 				regex = regex.right(regex.length() - dir.length());
 			    }
-			    QDir d(real_dir, regex);
-			    if(!d.count()) {
-				debug_msg(1, "Failure to find %s in vpath (%s)", 
-					  (*val_it).latin1(), vpath.join("::").latin1());
-				warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
-				continue;
+			    if(QFile::exists(real_dir)) {
+				QDir d(real_dir, regex);
+				if(!d.count()) {
+				    debug_msg(1, "Failure to find %s in vpath (%s)", 
+					      (*val_it).latin1(), vpath.join("::").latin1());
+				    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+				    continue;
+				} else {
+				    (*val_it) = dir + d[0];
+				    for(int i = 1; i < (int)d.count(); i++) 
+					l.insert(val_it, dir + d[i]);
+				}
 			    } else {
-				(*val_it) = dir + d[0];
-				for(int i = 1; i < (int)d.count(); i++) 
-				    l.insert(val_it, dir + d[i]);
+				debug_msg(1, "Cannot match %s%c%s, as %s does not exist.",
+					  real_dir.latin1(), QDir::separator(), regex.latin1(), 
+					  real_dir.latin1());
 			    }
 			} 
 		    }
@@ -527,7 +534,7 @@ MakefileGenerator::init()
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
 	QStringList &l = v["FORMS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    QFileInfo fi((*it));
+	    QFileInfo fi(Option::fixPathToLocalOS((*it)));
 	    QString impl, decl;
 	    if ( !project->isEmpty("UI_DIR") ) {
 		impl = project->first("UI_DIR") + fi.baseName() + Option::cpp_ext.first();
@@ -979,7 +986,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	QString m = findMocDestination(*it);
+	QString m = Option::fixPathToTargetOS(findMocDestination(*it));
 	if ( !m.isEmpty())
 	    t << m << ": $(MOC) " << (*it) << "\n\t"
 	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
@@ -1148,7 +1155,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t"
-	      << "test -d " << dst << " || mkdir -p " << dst << "\n\t"
+	      << "@test -d " << dst << " || mkdir -p " << dst << "\n\t"
 	      << target << endl;
 	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {
