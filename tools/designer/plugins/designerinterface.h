@@ -23,7 +23,7 @@
 Q_GUID(IID_DesignerMainWindowInterface,
 0xa0e661da, 0xf45c, 0x4830, 0xaf, 0x47, 0x3, 0xec, 0x53, 0xeb, 0x16, 0x33);
 
-interface DesignerMainWindowInterface : public QUnknownInterface
+struct DesignerMainWindowInterface : public QUnknownInterface
 {
     virtual void fileNew() = 0;
     virtual void fileNewProject() = 0;
@@ -81,7 +81,7 @@ interface DesignerMainWindowInterface : public QUnknownInterface
 Q_GUID(IID_DesignerStatusBarInterface,
 0xc797c970, 0x36e5, 0x463b, 0xae, 0xae, 0x54, 0xaf, 0x3f, 0x5, 0x58, 0x8f);
 
-interface DesignerStatusBarInterface : public QUnknownInterface
+struct DesignerStatusBarInterface : public QUnknownInterface
 {
     virtual void setMessage( const QString&, int ms = 3000 ) = 0;
     virtual void clear() = 0;
@@ -94,7 +94,7 @@ interface DesignerStatusBarInterface : public QUnknownInterface
 Q_GUID(IID_DesignerWidgetInterface,
 0xb7a60c5d, 0x6476, 0x4978, 0x8c, 0x5, 0xcc, 0xe5, 0xce, 0x70, 0x6d, 0x2b);
 
-interface DesignerWidgetInterface : public QUnknownInterface
+struct DesignerWidgetInterface : public QUnknownInterface
 {
     virtual QVariant property( const QCString& ) = 0;
     virtual bool setProperty( const QCString&, const QVariant& ) = 0;
@@ -109,7 +109,7 @@ interface DesignerWidgetInterface : public QUnknownInterface
 Q_GUID(IID_DesignerWidgetListInterface,
 0x5f8283d7, 0x311d, 0x4bfb, 0xad, 0x6a, 0x47, 0x6b, 0x77, 0xe8, 0xc2, 0x88);
 
-interface DesignerWidgetListInterface : public QUnknownInterface
+struct DesignerWidgetListInterface : public QUnknownInterface
 {
     virtual uint count() const = 0;
     virtual DesignerWidgetInterface *reset() = 0;
@@ -131,7 +131,7 @@ Q_GUID(IID_DesignerFormInterface,
 Q_GUID(IID_DesignerActiveFormInterface,
 0x1615fa5a, 0xaa58, 0x40c0, 0x86, 0x13, 0x5e, 0xcd, 0x71, 0xfc, 0xc8, 0xe8);
 */
-interface DesignerFormInterface : public QUnknownInterface
+struct DesignerFormInterface : public QUnknownInterface
 {
     virtual QVariant property( const QCString& ) = 0;
     virtual bool setProperty( const QCString&, const QVariant& ) = 0;
@@ -149,7 +149,7 @@ interface DesignerFormInterface : public QUnknownInterface
 Q_GUID(IID_DesignerFormListInterface,
 0x2002dd2f, 0x9b9f, 0x48c3, 0x82, 0x1c, 0x61, 0x9e, 0xe0, 0x37, 0x5d, 0x27);
 
-interface DesignerFormListInterface : public QUnknownInterface
+struct DesignerFormListInterface : public QUnknownInterface
 {
     virtual const QPixmap* pixmap( DesignerFormInterface*, int col ) const = 0;
     virtual void setPixmap( DesignerFormInterface*, int col, const QPixmap& ) = 0;
@@ -174,7 +174,7 @@ interface DesignerFormListInterface : public QUnknownInterface
 Q_GUID(IID_DesignerProjectInterface,
        0x93f93c71, 0xa37e, 0x4785, 0x92, 0x8c, 0xc3, 0x67, 0xea, 0x7f, 0xef, 0xeb);
 
-interface DesignerProjectInterface : public QUnknownInterface
+struct DesignerProjectInterface : public QUnknownInterface
 {
     virtual QString fileName() const = 0;
     virtual QString projectName() const = 0;
@@ -215,7 +215,7 @@ Q_GUID(IID_DesignerConfigurationInterface,
 Q_GUID( IID_DesignerMetaDatabaseInterface,
 	0x41ed19be, 0xefca, 0x42ed, 0xaa, 0xad, 0x1f, 0x2e, 0x50, 0x2c, 0xa5, 0xfa );
 
-interface DesignerMetaDatabaseInterface : public QUnknownInterface
+struct DesignerMetaDatabaseInterface : public QUnknownInterface
 {
     virtual void setFakeProperty( QObject *o, const QString &property, const QVariant& value ) = 0;
     virtual QVariant fakeProperty( QObject * o, const QString &property ) = 0;
@@ -231,7 +231,7 @@ interface DesignerMetaDatabaseInterface : public QUnknownInterface
 Q_GUID( IID_DesignerWidgetFactoryInteface,
 	0xe61b28ef, 0x63af, 0x4b4f, 0x93, 0x82, 0xdd, 0x9c, 0x5a, 0x4a, 0xc2, 0x77 );
 
-interface DesignerWidgetFactoryInterface : public QUnknownInterface
+struct DesignerWidgetFactoryInterface : public QUnknownInterface
 {
     virtual QWidget *create( const char *className, QWidget *parent, const char *name = 0 ) = 0;
     // ### need more stuff
