@@ -47,8 +47,10 @@ Editor::Editor( QWidget * parent , const char * name )
     save_as = new QPopupMenu();
     file->insertItem( "Save &as",  save_as );
     file->insertItem( "Add &encoding", this, SLOT(addEncoding()) );
+#if QT_FEATURE_PRINTER
     file->insertSeparator();
     file->insertItem( "&Print", this, SLOT(print()),    ALT+Key_P );
+#endif
     file->insertSeparator();
     file->insertItem( "&Close", this, SLOT(close()),ALT+Key_W );
     file->insertItem( "&Quit",  qApp, SLOT(closeAllWindows()),     ALT+Key_Q );
@@ -245,7 +247,7 @@ bool Editor::saveAs( const QString& fileName, int code )
 
 void Editor::print()
 {
-#if QT_FEATURE_FILEDIALOG
+#if QT_FEATURE_PRINTER
     if ( printer.setup(this) ) {		// opens printer dialog
 	printer.setFullPage(TRUE);		// we'll set our own margins
 	QPainter p;
