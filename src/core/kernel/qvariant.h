@@ -37,6 +37,7 @@ class QRectF;
 class QTextFormat;
 class QTextLength;
 class QUrl;
+class QVariantComparisonHelper;
 
 template <class Key, class Type> class QMap;
 
@@ -97,7 +98,7 @@ class Q_CORE_EXPORT QVariant
 
     inline QVariant();
     ~QVariant();
-    QVariant(Type type);
+    explicit QVariant(Type type);
     QVariant(int typeOrUserType, const void *copy);
     QVariant(const QVariant &other);
 
@@ -138,10 +139,6 @@ class Q_CORE_EXPORT QVariant
     QVariant(const QLocale &locale);
 
     QVariant& operator=(const QVariant &other);
-
-    bool operator==(const QVariant &other) const;
-    inline bool operator!=(const QVariant &other) const
-    { return !(other == *this); }
 
     Type type() const;
     int userType() const;
@@ -289,9 +286,16 @@ class Q_CORE_EXPORT QVariant
     };
 #endif
 
+    inline bool operator==(const QVariant &v) const
+    { return cmp(v); }
+    inline bool operator!=(const QVariant &v) const
+    { return !cmp(v); }
+
 protected:
     friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
     friend bool qRegisterGuiVariant();
+    friend inline bool operator==(const QVariant &,
+                                  const QVariantComparisonHelper &);
 #ifndef QT_NO_DEBUG_STREAM
     friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
@@ -305,6 +309,7 @@ protected:
 #ifdef QT3_SUPPORT
     void *castOrDetach(Type t);
 #endif
+    bool cmp(const QVariant &other) const;
 };
 
 #ifndef QT_MOC
@@ -489,6 +494,38 @@ Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QVariant::Type p);
 
 inline bool QVariant::isDetached() const
 { return !d.is_shared || d.data.shared->ref == 1; }
+
+
+#ifdef qdoc
+    inline bool operator==(const QVariant &v1, const QVariant &v2);
+    inline bool operator!=(const QVariant &v1, const QVariant &v2);
+#else
+
+/* Helper class to add one more level of indirection to prevent
+   implicit casts.
+*/
+class QVariantComparisonHelper
+{
+public:
+public:
+    inline QVariantComparisonHelper(const QVariant &var)
+        : v(&var) {}
+private:
+    friend inline bool operator==(const QVariant &,
+                                  const QVariantComparisonHelper &);
+    const QVariant *v;
+};
+
+inline bool operator==(const QVariant &v1, const QVariantComparisonHelper &v2)
+{
+    return v1.cmp(*v2.v);
+}
+
+inline bool operator!=(const QVariant &v1, const QVariantComparisonHelper &v2)
+{
+    return !operator==(v1, v2);
+}
+#endif
 
 #ifndef QT_MOC
 #if defined Q_CC_MSVC && _MSC_VER < 1300

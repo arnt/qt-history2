@@ -2269,11 +2269,35 @@ bool QVariant::convert(Type t)
 }
 
 /*!
+    \fn bool operator==(const QVariant &v1, const QVariant &v2)
+
+    \relates QVariant
+
+    Returns true if \a v1 and \a v2 are equal; otherwise returns false.
+*/
+/*!
+    \fn bool operator!=(const QVariant &v1, const QVariant &v2)
+
+    \relates QVariant
+
+    Returns false if \a v1 and \a v2 are equal; otherwise returns true.
+*/
+
+/*! \fn bool QVariant::operator==(const QVariant &v) const
     Compares this QVariant with \a v and returns true if they are
     equal; otherwise returns false.
 */
 
-bool QVariant::operator==(const QVariant &v) const
+/*!
+    \fn bool QVariant::operator!=(const QVariant &v) const
+    Compares this QVariant with \a v and returns true if they are not
+    equal; otherwise returns false.
+*/
+
+
+/*! \internal
+ */
+bool QVariant::cmp(const QVariant &v) const
 {
     QVariant v2 = v;
     if (d.type != v2.d.type) {
@@ -2283,12 +2307,6 @@ bool QVariant::operator==(const QVariant &v) const
     }
     return handler->compare(&d, &v2.d);
 }
-
-/*!
-    \fn bool QVariant::operator!=(const QVariant &v) const
-    Compares this QVariant with \a v and returns true if they are not
-    equal; otherwise returns false.
-*/
 
 /*! \internal
  */
