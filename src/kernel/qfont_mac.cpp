@@ -230,12 +230,14 @@ int QFontMetrics::rightBearing(QChar) const
 
 int QFontMetrics::strikeOutPos() const
 {
-    return 0;
+    int pos = ascent() / 3;
+    return pos ? pos : 1;
 }
 
 int QFontMetrics::underlinePos() const
 {
-    return 0;
+    int pos = ((lineWidth() * 2) + 3) / 6;
+    return pos ? pos : 1;
 }
 
 
