@@ -41,10 +41,11 @@ void GLControlWidget::transform()
     QFont f( "courier", 8 );
     QFontMetrics fmc( f );
     qglColor( QColor("skyblue") );
-    str.sprintf( "Rot X: %03d - Rot Y: %03d - Rot Z: %03d",
-		 (((int) xRot * 100) % 36000) / 100, 
-		 (((int) yRot * 100) % 36000) / 100, 
-		 (((int) zRot * 100) % 36000) / 100 );
+    int x, y, z;
+    x = (xRot >= 0) ? (int) xRot % 360 : 359 - (QABS((int) xRot) % 360);
+    y = (yRot >= 0) ? (int) yRot % 360 : 359 - (QABS((int) yRot) % 360);
+    z = (zRot >= 0) ? (int) zRot % 360 : 359 - (QABS((int) zRot) % 360);
+    str.sprintf( "Rot X: %03d - Rot Y: %03d - Rot Z: %03d", x, y, z );
     renderText( (width() - fmc.width( str )) / 2, height() - 15, str, f );
     if ( light ) {
 	glEnable( GL_LIGHTING );
