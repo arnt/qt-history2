@@ -14,7 +14,7 @@ public:
     ~SqlFormWizard();
 
 protected slots:
-    void databaseSelected( const QString & );
+    void connectionSelected( const QString & );
     void tableSelected( const QString & );
 
 private:

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>594</width>
-            <height>478</height>
+            <width>580</width>
+            <height>468</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,7 +19,7 @@
     </property>
     <widget class="QWidget">
         <property name="name">
-            <cstring>page</cstring>
+            <cstring>databasePage</cstring>
         </property>
         <attribute name="title">
             <string>Choose the Database and Table</string>
@@ -270,7 +270,7 @@
             </widget>
             <widget class="QLayoutWidget">
                 <property name="name">
-                    <cstring>Layout4</cstring>
+                    <cstring>Layout3</cstring>
                 </property>
                 <grid>
                     <property name="name">
@@ -282,30 +282,30 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLineEdit" row="3" column="1">
+                    <widget class="QListBox" row="2" column="1">
                         <property name="name">
-                            <cstring>LineEdit1_2</cstring>
+                            <cstring>listBoxTable</cstring>
                         </property>
                     </widget>
                     <widget class="QListBox" row="2" column="0">
                         <property name="name">
-                            <cstring>listBoxDatabase</cstring>
+                            <cstring>listBoxConnection</cstring>
                         </property>
                     </widget>
                     <widget class="QLineEdit" row="3" column="0">
                         <property name="name">
-                            <cstring>LineEdit1</cstring>
+                            <cstring>editConnection</cstring>
                         </property>
                     </widget>
-                    <widget class="QLabel" row="1" column="1">
+                    <widget class="QLabel" row="1" column="0">
                         <property name="name">
-                            <cstring>TextLabel3_2</cstring>
+                            <cstring>TextLabel3_3</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Table:</string>
+                            <string>&amp;Connection:</string>
                         </property>
                         <property name="buddy" stdset="0">
-                            <cstring>listBoxTable</cstring>
+                            <cstring>listBoxConnection</cstring>
                         </property>
                     </widget>
                     <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
@@ -321,20 +321,20 @@
                         <property name="hAlign" stdset="0">
                         </property>
                     </widget>
-                    <widget class="QLabel" row="1" column="0">
+                    <widget class="QLabel" row="1" column="1">
                         <property name="name">
-                            <cstring>TextLabel3</cstring>
+                            <cstring>TextLabel3_2</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Database:</string>
+                            <string>&amp;Table:</string>
                         </property>
                         <property name="buddy" stdset="0">
-                            <cstring>listBoxDatabase</cstring>
+                            <cstring>listBoxTable</cstring>
                         </property>
                     </widget>
-                    <widget class="QListBox" row="2" column="1">
+                    <widget class="QLineEdit" row="3" column="1">
                         <property name="name">
-                            <cstring>listBoxTable</cstring>
+                            <cstring>editTable</cstring>
                         </property>
                     </widget>
                 </grid>
@@ -343,7 +343,7 @@
     </widget>
     <widget class="QWidget">
         <property name="name">
-            <cstring>page</cstring>
+            <cstring>populatePage</cstring>
         </property>
         <attribute name="title">
             <string>Autopopulate Form</string>
@@ -657,30 +657,30 @@
         <slot>setEnabled(bool)</slot>
     </connection>
     <connection>
-        <sender>listBoxDatabase</sender>
-        <signal>highlighted(const QString&amp;)</signal>
-        <receiver>LineEdit1</receiver>
-        <slot>setText(const QString&amp;)</slot>
-    </connection>
-    <connection>
         <sender>listBoxTable</sender>
         <signal>highlighted(const QString&amp;)</signal>
-        <receiver>LineEdit1_2</receiver>
+        <receiver>editTable</receiver>
         <slot>setText(const QString&amp;)</slot>
     </connection>
     <connection>
-        <sender>LineEdit1</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>SqlFormWizardBase</receiver>
-        <slot>databaseSelected( const QString &amp; )</slot>
-    </connection>
-    <connection>
-        <sender>LineEdit1_2</sender>
+        <sender>editTable</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>tableSelected( const QString &amp; )</slot>
     </connection>
-    <slot access="protected">databaseSelected( const QString &amp; )</slot>
+    <connection>
+        <sender>editConnection</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>connectionSelected( const QString &amp; )</slot>
+    </connection>
+    <connection>
+        <sender>listBoxConnection</sender>
+        <signal>highlighted(const QString&amp;)</signal>
+        <receiver>editConnection</receiver>
+        <slot>setText(const QString&amp;)</slot>
+    </connection>
     <slot access="protected">tableSelected( const QString &amp; )</slot>
+    <slot access="protected">connectionSelected( const QString &amp; )</slot>
 </connections>
 </UI>

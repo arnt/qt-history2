@@ -1,38 +1,38 @@
 #include "sqlformwizardimpl.h"
+#include <qlistbox.h>
+#include <qlineedit.h>
 
-/*
- *  Constructs a SqlFormWizard which is a child of 'parent', with the
- *  name 'name' and widget flags set to 'f'
- *
- *  The wizard will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal wizard.
- */
 SqlFormWizard::SqlFormWizard( QWidget *w, const QValueList<TemplateWizardInterface::DatabaseConnection> &conns,
 			      QWidget* parent,  const char* name, bool modal, WFlags fl )
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), dbConnections( conns )
 {
+    for ( QValueList<TemplateWizardInterface::DatabaseConnection>::Iterator it = dbConnections.begin();
+	  it != dbConnections.end(); ++it )
+	listBoxConnection->insertItem( (*it).connection );
+    //setNextEnabled( databasePage, FALSE );
+    setFinishEnabled( databasePage, FALSE );
+    setFinishEnabled( populatePage, TRUE );
 }
 
-/*
- *  Destroys the object and frees any allocated resources
- */
 SqlFormWizard::~SqlFormWizard()
 {
     // no need to delete child widgets, Qt does it all for us
 }
 
-/*
- * protected slot
- */
-void SqlFormWizard::databaseSelected( const QString & )
+void SqlFormWizard::connectionSelected( const QString &c )
 {
-    qWarning( "SqlFormWizard::databaseSelected( const QString & ) not yet implemented!" );
+    for ( QValueList<TemplateWizardInterface::DatabaseConnection>::Iterator it = dbConnections.begin();
+	  it != dbConnections.end(); ++it ) {
+	if ( (*it).connection == c ) {
+	    listBoxTable->clear();
+	    editTable->clear();
+	    listBoxTable->insertStringList( (*it).tables );
+	}
+    }
 }
-/*
- * protected slot
- */
-void SqlFormWizard::tableSelected( const QString & )
+
+void SqlFormWizard::tableSelected( const QString &t )
 {
-    qWarning( "SqlFormWizard::tableSelected( const QString & ) not yet implemented!" );
+    //setNextEnabled( databasePage, !t.isEmpty() );
 }
 
