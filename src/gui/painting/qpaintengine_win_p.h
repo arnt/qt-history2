@@ -134,6 +134,7 @@ public:
     COLORREF pColor;
     COLORREF bColor;
     QBrush brush;
+    Qt::BGMode bgMode;
 
     QWMatrix matrix;
     QPainter::TransformationCodes txop;

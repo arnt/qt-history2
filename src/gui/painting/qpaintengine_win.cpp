@@ -1081,6 +1081,8 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 
     QPixmap *pm = (QPixmap*)&pixmap;
     QBitmap *mask = (QBitmap*)pm->mask();
+    if (pixmap.isQBitmap() && d->bgMode == Qt::TransparentMode)
+       mask = (QBitmap*) pm;
 
     HDC pm_dc;
     int pm_offset;
@@ -1476,6 +1478,8 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
     }
     Q_ASSERT(isActive());
 
+    d->bgMode = mode;
+
     SetBkColor(d->hdc, COLOR_VALUE(bgBrush.color()));
     SetBkMode(d->hdc, mode == Qt::TransparentMode ? TRANSPARENT : OPAQUE);
 }
@@ -1855,7 +1859,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::PixmapScale
         | QPaintEngine::ClipTransform
 #endif
-        | QPaintEngine::PainterPaths
+//         | QPaintEngine::PainterPaths
         | QPaintEngine::UsesFontEngine
         | QPaintEngine::LinearGradients;
 
