@@ -2,7 +2,7 @@
 
 int main ( int argc, char **argv )
 {
-    QSettings settings;
+    QSettings settings( TRUE );
     settings.writeEntry( "/Trolltech/QSettings/string", "String" );
     settings.writeEntry( "/Trolltech/QSettings/int", 0xffff );
     settings.writeEntry( "/Trolltech/QSettings/bool", true );
