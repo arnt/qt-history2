@@ -377,10 +377,9 @@ static bool operator<(const QTextHtmlElement &e, const QString &str)
 
 static const QTextHtmlElement *lookupElement(const QString &element)
 {
-    QString elem = element.toLower();
     const QTextHtmlElement *start = &elements[0];
     const QTextHtmlElement *end = &elements[Html_NumElements];
-    return qBinaryFind(start, end, elem);
+    return qBinaryFind(start, end, element);
 }
 
 int QTextHtmlParser::lookupElement(const QString &element)

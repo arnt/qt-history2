@@ -63,7 +63,7 @@ bool QText::mightBeRichText(const QString& text)
                 else if (!text[i].isSpace() && (!tag.isEmpty() || text[i] != '!'))
                     return false; // that's not a tag
             }
-            return QTextHtmlParser::lookupElement(tag) != -1;
+            return QTextHtmlParser::lookupElement(tag.toLower()) != -1;
         }
     }
     return false;
