@@ -368,7 +368,16 @@ done
 #pregenerate moc files
 status "Creating moc files.."
 pushd $DISTDIR/qt/src/moc >/dev/null 2>&1
-$QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
+
+# During snapshots, we never configure the Qt which mkdists checks out and
+# builds moc in, so there's no QT_PRODUCT defined. Define it here.
+
+if [ "$TYPE" = "snapshot" ]; then
+    $QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile QT_PRODUCT=qt-internal
+else
+    $QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
+fi
+
 status `make moc_lex.cpp >/dev/null`
 status `make moc_yacc.cpp >/dev/null`
 rm -f Makefile
