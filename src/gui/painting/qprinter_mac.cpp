@@ -224,9 +224,12 @@ QPrinter::prepare(PMPrintSettings *s)
         if(PMSessionValidatePrintSettings(psession, *s, kPMDontWantBoolean) != noErr)
             return false;
     }
-    PMSetPageRange(*s, minPage()+1, maxPage()+1);
-    PMSetFirstPage(*s, fromPage(), true);
-    PMSetLastPage(*s, toPage(), true);
+    if(minPage() != 0 || maxPage() != 0)
+        PMSetPageRange(*s, minPage(), maxPage());
+    if (d->printRange != AllPages) {
+        PMSetFirstPage(*s, fromPage(), true);
+        PMSetLastPage(*s, toPage(), true);
+    }
     PMSetColorMode(*s, colorMode() == GrayScale ? kPMGray : kPMColor);
     PMSetCopies(*s, numCopies(), true);
     if(outputToFile()) {
@@ -307,16 +310,17 @@ void QPrinter::interpret(PMPrintSettings *s)
 
     UInt32 max, min;
     if(PMGetPageRange(*s, &min, &max) == noErr) {
-        // This is messed up, but the problem here is that range and from/to are
-        // slightly the same and we can get. This makes people see what they expect.
+        // The problem here is that Apple's print dialog will always show a one even when you pass
+        // it a zero. So take care of that. The other problem is that we can also call this because
+        // we need to interpret the default settings, in that case, the min and max will both be
+        // zero. In that case, leave them "as is" as some other functions will reset the max and
+        // make everything OK when the dialog is actually called.
         int newMin = min;
         int newMax = max;
 
-        if ((to != 0 && from != 0) || (min == 1 && max == 1)) {
-            --newMin;
-            --newMax;
-        }
-        setMinMax(newMin, newMax);
+        if (newMin < 1 && newMax != 0)
+            newMin = 1;
+	setMinMax(newMin, newMax);
     }
 
     PMColorMode cm;
