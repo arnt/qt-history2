@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#11 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#12 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -231,13 +231,33 @@ bool QSVGDevice::play( const QDomNode &node )
 	if ( attr.contains( "style" ) )
 	    setStyle( attr.namedItem( "style" ).nodeValue() );
 
-	int x1, y1, x2, y2, rx, ry;
+	int x1, y1, x2, y2, rx, ry, w, h;
 	ElementType t = typeMap[ child.nodeName() ];
 	switch ( t ) {
 	case CommentElement:
 	    // ignore
 	    break;
 	case RectElement:
+	    rx = ry = 0;
+	    x1 = lenToInt( attr, "x" );
+	    y1 = lenToInt( attr, "y" );
+	    w = lenToInt( attr, "width" );
+	    h = lenToInt( attr, "height" );
+	    if ( w == 0 || h == 0 )	// prevent div by zero below
+		break;
+	    x2 = (int)attr.contains( "rx" ); // tiny abuse of x2 and y2
+	    y2 = (int)attr.contains( "ry" );
+	    if ( x2 )
+		rx = lenToInt( attr, "rx" );
+	    if ( y2 )
+		ry = lenToInt( attr, "ry" );
+	    if ( x2 && !y2 )
+		ry = rx;
+	    else if ( !x2 && y2 )
+		rx = ry;
+	    rx = int(200.0*double(rx)/double(w));
+	    ry = int(200.0*double(ry)/double(h));
+	    pt->drawRoundRect( x1, y1, w, h, rx, ry );
 	    break;
 	case CircleElement:
 	    x1 = lenToInt( attr, "cx" );
