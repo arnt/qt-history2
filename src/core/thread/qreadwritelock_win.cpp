@@ -107,12 +107,3 @@ void QReadWriteLock::unlock()
 }
 
 
-int QReadWriteLock::accessCount()
-{
-    return d->accessCount;
-}
-
-bool QReadWriteLock::isReadyForDestruction()
-{
-    return (d->accessCount==0 && d->waitingWriters==0);
-}

@@ -3,9 +3,10 @@
 #include "qatomic.h"
 #include "qreadwritelock_p.h"
 
+
 #include <errno.h>
 #include <string.h>
-
+#include <pthread.h>
 /*
     Duplicated code from qmutex_unix.cpp
 */
@@ -203,17 +204,3 @@ void QReadWriteLock::unlock()
     report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::unlock()", "mutex unlock");
 }
 
-/*!
-    \internal
-*/
-int QReadWriteLock::accessCount()
-{
-    return d->accessCount;
-}
-/*!
-    \internal
-*/
-bool QReadWriteLock::isReadyForDestruction()
-{
-    return (d->accessCount==0 && d->waitingWriters==0);
-}

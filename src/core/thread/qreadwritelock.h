@@ -1,7 +1,7 @@
 #ifndef QREADWRITELOCK_H
 #define QREADWRITELOCK_H
 
-#include "qglobal.h"
+#include <qglobal.h>
 
 struct QReadWriteLockPrivate;
 
@@ -19,11 +19,6 @@ public:
     void lock(AccessMode mode);
     bool tryLock(AccessMode mode);
     void unlock();
-/*
-    The following are for testing (Not a part of the public interface)
-*/
-    int accessCount();
-    bool isReadyForDestruction();
 private:
     Q_DISABLE_COPY(QReadWriteLock)
 
