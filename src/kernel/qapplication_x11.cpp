@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#445 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#446 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -812,10 +812,6 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    }
 	}
 #endif
-	// pick default character set
-
-	set_local_font();
-
       // Connect to X server
 
 	if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
@@ -896,6 +892,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     QColor::initialize();
     QFont::initialize();
+    QCursor::initialize();
     QPainter::initialize();
     gettimeofday( &watchtime, 0 );
 
@@ -986,6 +983,9 @@ debug("Codec for %s is %s", locale, input_mapper ? input_mapper->name() : "<null
 	const char* locale = setlocale( LC_CTYPE, 0 );
 	input_mapper = QTextCodec::codecForName(locale);
     }
+
+    // pick default character set (now that we have done setlocale stuff)
+    set_local_font();
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -1020,6 +1020,7 @@ void qt_cleanup()
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
+    QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
 
