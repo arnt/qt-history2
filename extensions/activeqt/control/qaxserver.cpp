@@ -993,6 +993,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     out << "** WARNING! All changes made in this file will be lost!" << endl;
     out << "****************************************************************************/" << endl << endl;
 
+    out << "import \"ocidl.idl\";" << endl;
     out << "#include <olectl.h>" << endl << endl;
 
     // dummy application to create widgets
