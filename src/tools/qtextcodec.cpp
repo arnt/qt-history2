@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#24 $
 **
 ** Implementation of QTextCodec class
 **
@@ -825,8 +825,6 @@ public:
 		    *cursor++ = *s++;
 		    lout++;
 		}
-	    } else if ( ch.row * 256 + ch.cell == 0xfeff ) {
-		// nothing needs to be done
 	    } else {
 		*cursor++ = unkn;
 		lout++;
@@ -924,6 +922,7 @@ const char* QTextCodec::locale()
 	if ( lang.isEmpty() )
 	    lang = "C";
     }
+    debug( "l <%s>", lang.data() );
     return lang;
 }
 
@@ -935,7 +934,7 @@ public:
     QSimpleTextCodec( int );
     ~QSimpleTextCodec();
 
-    QString toUnicode(const char* chars, int len) const;
+    QString toUnicode(const char* chars, int& len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     const char* name() const;
@@ -1156,7 +1155,7 @@ QSimpleTextCodec::~QSimpleTextCodec()
 }
 
 // what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
-QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
+QString QSimpleTextCodec::toUnicode(const char* chars, int& len) const
 {
     QString r( len );
     const unsigned char * c = (const unsigned char *)chars;
@@ -1204,21 +1203,13 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 	}
 	reverseOwner = this;
     }
-    QString tmp( uc );
-    int i = 0;
-    while( i < (int)tmp.length() ) {
-	if ( tmp[i] == QChar( 0xfeff ) )
-	    tmp.remove( i, 1 );
-	else
-	    i++;
-    }
-    
-    if ( len <0 || len > (int)tmp.length() )
-	len = tmp.length();
+    if ( len <0 || len > (int)uc.length() )
+	len = uc.length();
     char * r = new char[len];
+    int i;
     int u;
     for( i=0; i<len; i++ ) {
-	u = tmp[i].cell + 256* tmp[i].row;
+	u = uc[i].cell + 256* uc[i].row;
 	r[i] = ( u < (int)reverseMap->size() ) ? (*reverseMap)[u] :  '?';
     }
     return r;
