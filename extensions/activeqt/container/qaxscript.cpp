@@ -369,6 +369,9 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 
     Direct access to the script engine is provided through
     queryInterface().
+
+    \warning This class is not available with the bcc5.5 and MingW
+    compilers.
 */
 
 /*!
@@ -600,7 +603,10 @@ void QAxScriptEngine::addItem(const QString &name)
     The script provides scriptEngine() provides feedback to the 
     application through signals. The most important signal is the 
     error() signal. Direct access to the QAxScriptEngine is provided
-    through the scriptEngine() function.    
+    through the scriptEngine() function.
+
+    \warning This class is not available with the bcc5.5 and MingW
+    compilers.
 */
 
 /*!
@@ -873,6 +879,9 @@ QAxBase *QAxScript::findObject(const QString &name)
     application, and add the COM objects the scripts need to access
     using addObject(). Then load() the script sources and invoke the
     functions using call().
+
+    \warning This class is not available with the bcc5.5 and MingW
+    compilers.
 */
 
 /*!
