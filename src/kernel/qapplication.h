@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#136 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#137 $
 **
 ** Definition of QApplication class
 **
@@ -182,6 +182,10 @@ public:
     virtual void     commitData( QSessionManager& sm );
     virtual void     saveState( QSessionManager& sm );
 
+#if defined(_WS_X11_)
+    static void create_xim();
+    static void close_xim();
+#endif
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();

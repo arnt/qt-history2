@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#570 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#571 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -159,7 +159,11 @@ static char    *appFGCol	= 0;		// application fg color
 static char    *appBTNCol	= 0;		// application btn color
 static char    *mwGeometry	= 0;		// main widget geometry
 static char    *mwTitle		= 0;		// main widget title
+//Ming-Che 10/10
+static char    *ximServer   = 0;		//XIM Server will connect to
 static bool	mwIconic	= FALSE;	// main widget iconified
+//Ming-Che 10/10
+static bool noxim			= False;	//connect to xim or not
 static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
 static bool     appForeignDpy	= FALSE;        // we didn't create display
@@ -352,14 +356,25 @@ public:
     void embeddedWindowTabFocus( bool );
 };
 
-
-static void close_xim()
+/*!
+  \internal
+*/
+//Ming-Che 04/10
+void QApplication::close_xim()
 {
 #if !defined(NO_XIM)
     // Calling XCloseIM gives a Purify FMR error
     // XCloseIM( qt_xim );
     // We prefer a less serious memory leak
     qt_xim = 0;
+    QWidgetList *list= qApp->topLevelWidgets();
+    QWidgetListIt it(*list);
+    while(it.current()) {
+	if ( it.current()->extra && it.current()->extra->topextra )
+	    it.current()->extra->topextra->xic=0;
+	++it;
+    }
+    delete list;
 #endif
 }
 
@@ -716,10 +731,94 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
     return v;
 }
 
-
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
+//Ming-Che 05/10
+
+static
+void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
+{
+	QApplication::close_xim();
+	XRegisterIMInstantiateCallback(appDpy,0,0,0,(XIDProc )QApplication::create_xim,0);
+}
+
+/*!
+  \internal
+*/
+void QApplication::create_xim()
+{
+#if !defined(NO_XIM)
+
+    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
+
+	if ( qt_xim ) {
+		XIMCallback	destroy;
+		destroy.callback=xim_destroy_callback;
+		destroy.client_data=NULL;
+		if (XSetIMValues(qt_xim,XNDestroyCallback,&destroy,NULL)!=NULL)
+			qWarning( "Xlib dosn't support destroy callback");
+
+	    XIMStyles *styles=0;
+	    XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
+	    if ( styles ) {
+		bool done = FALSE;
+		int i;
+		for ( i = 0; !done && i < styles->count_styles; i++ ) {
+		    if ( styles->supported_styles[i] == xim_preferred_style ) {
+			qt_xim_style = xim_preferred_style;
+			done = TRUE;
+		    }
+		}
+		// if the preferred input style couldn't be found, look for
+		// Nothing and failing that, None.
+		for ( i = 0; !done && i < styles->count_styles; i++ ) {
+		    if ( styles->supported_styles[i] == (XIMPreeditNothing |
+							 XIMStatusNothing) ) {
+			qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
+			done = TRUE;
+		    }
+		}
+		for ( i = 0; !done && i < styles->count_styles; i++ ) {
+		    if ( styles->supported_styles[i] == (XIMPreeditNone |
+							 XIMStatusNone) ) {
+			qt_xim_style = XIMPreeditNone | XIMStatusNone;
+			done = TRUE;
+		    }
+		}
+		for ( i = 0; i < styles->count_styles; i++) {
+		    if (styles->supported_styles[i] == xim_preferred_style) {
+			qt_xim_style = xim_preferred_style;
+			break;
+		    } else if (styles->supported_styles[i] ==
+			       (XIMPreeditNone | XIMStatusNone) ||
+			       styles->supported_styles[i] ==
+			       (XIMPreeditNothing | XIMStatusNothing) ) {
+			// Either of these will suffice as a default
+			if ( !qt_xim_style )
+			    qt_xim_style = styles->supported_styles[i];
+		    }
+		}
+		XFree(styles);
+	    }
+	    if ( !qt_xim_style ) {
+		// Give up
+		qWarning( "Input style unsupported."
+			  "  See InputMethod documentation.");
+		close_xim();
+	    } else {
+		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIDProc )create_xim,0);		
+		QWidgetList *list= qApp->topLevelWidgets();
+		QWidgetListIt it(*list);
+		while(it.current()) {
+			it.current()->createTLSysExtra();
+			++it;
+		}
+		delete list;
+		}
+	}	
+#endif
+}
 
 void qt_init_internal( int *argcptr, char **argv, Display *display )
 {
@@ -781,6 +880,13 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-geometry" ) {
 		if ( ++i < argc )
 		    mwGeometry = argv[i];
+//Ming-Che 10/10
+		} else if ( arg == "-im" ) {
+		if ( ++i < argc )
+			ximServer = argv[i];
+		} else if ( arg == "-noxim" ) {
+			noxim=TRUE;
+//
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
@@ -967,63 +1073,16 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     if ( is_gui_used ) {
 #if !defined(NO_XIM)
 	qt_xim = 0;
+//Ming-Che 10/10
+	QString ximServerName(ximServer);
+	if (ximServer) ximServerName.prepend("@im=");
 	if ( !XSupportsLocale() )
 	    qDebug("Qt: Locales not supported on X server");
-	else if ( XSetLocaleModifiers ("") == NULL )
-	    qDebug("Qt: Cannot set locale modifiers");
-	else
-	    qt_xim = XOpenIM( appDpy, 0, 0, 0 );
-
-	if ( qt_xim ) {
-	    XIMStyles *styles=0;
-	    XGetIMValues(qt_xim, XNQueryInputStyle, &styles, NULL, NULL);
-	    if ( styles ) {
-		bool done = FALSE;
-		int i;
-		for ( i = 0; !done && i < styles->count_styles; i++ ) {
-		    if ( styles->supported_styles[i] == xim_preferred_style ) {
-			qt_xim_style = xim_preferred_style;
-			done = TRUE;
-		    }
-		}
-		// if the preferred input style couldn't be found, look for
-		// Nothing and failing that, None.
-		for ( i = 0; !done && i < styles->count_styles; i++ ) {
-		    if ( styles->supported_styles[i] == (XIMPreeditNothing |
-							 XIMStatusNothing) ) {
-			qt_xim_style = XIMPreeditNothing | XIMStatusNothing;
-			done = TRUE;
-		    }
-		}
-		for ( i = 0; !done && i < styles->count_styles; i++ ) {
-		    if ( styles->supported_styles[i] == (XIMPreeditNone |
-							 XIMStatusNone) ) {
-			qt_xim_style = XIMPreeditNone | XIMStatusNone;
-			done = TRUE;
-		    }
-		}
-		for ( i = 0; i < styles->count_styles; i++) {
-		    if (styles->supported_styles[i] == xim_preferred_style) {
-			qt_xim_style = xim_preferred_style;
-			break;
-		    } else if (styles->supported_styles[i] ==
-			       (XIMPreeditNone | XIMStatusNone) ||
-			       styles->supported_styles[i] ==
-			       (XIMPreeditNothing | XIMStatusNothing) ) {
-			// Either of these will suffice as a default
-			if ( !qt_xim_style )
-			    qt_xim_style = styles->supported_styles[i];
-		    }
-		}
-		XFree(styles);
-	    }
-	    if ( !qt_xim_style ) {
-		// Give up
-		qWarning( "Input style unsupported."
-			  "  See InputMethod documentation.");
-		close_xim();
-	    }
-	}
+	else if ( ximServer && XSetLocaleModifiers (ximServerName.ascii()) == NULL )
+	    qDebug("Qt: Cannot set locale modifiers: %s",ximServerName.ascii());
+	else if ( !noxim && XRegisterIMInstantiateCallback(appDpy,0,0,0,
+			       (XIDProc )QApplication::create_xim, 0));
+	
 #endif
 	// Always use the locale codec, since we have no examples of non-local
 	// XIMs, and since we cannot get a sensible answer about the encoding
@@ -1080,7 +1139,7 @@ void qt_cleanup()
 
 #if !defined(NO_XIM)
     if ( qt_xim )
-	close_xim();
+	QApplication::close_xim();
 #endif
 
     if ( is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
