@@ -1482,15 +1482,6 @@ void QDragManager::updatePixmap()
     }
 }
 
-QDropData::QDropData(QObject *parent)
-    : QMimeData(parent)
-{
-}
-
-QDropData::~QDropData()
-{
-}
-
 QByteArray QDropData::data(const QString &mimetype) const
 {
     if (qt_motifdnd_active)

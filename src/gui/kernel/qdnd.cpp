@@ -226,3 +226,12 @@ QDragManager *QDragManager::self()
 
 #endif
 
+
+QDropData::QDropData(QObject *parent)
+    : QMimeData(parent)
+{
+}
+
+QDropData::~QDropData()
+{
+}
