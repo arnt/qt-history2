@@ -59,6 +59,7 @@
 #include <limits.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdio.h>
 
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \

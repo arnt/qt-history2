@@ -3458,9 +3458,12 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 void QTable::selectRow( int row )
 {
     row = QMIN(numRows()-1, row);
+#ifndef QT_NO_SQL_VIEW_WIDGETS
     if ( qt_cast<QDataTable*>(this) || selectionMode() == SingleRow ) {
 	setCurrentCell( row, currentColumn() );
-    } else {
+    } else 
+#endif
+    {
 	QTableSelection sel( row, 0, row, numCols() - 1 );
 	addSelection( sel );
     }

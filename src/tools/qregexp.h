@@ -45,7 +45,7 @@
 class QRegExpEngine;
 struct QRegExpPrivate;
 
-class QRegExp
+class Q_EXPORT QRegExp
 {
 public:
     enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };
