@@ -471,10 +471,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     dep->file = findFileForDep(lfn);
                     dep->exists = !dep->file.isNull();
                 } else {
-                    dep->file = lfn;
+                    dep->file = fixPathForFile(lfn);
                 }
-                if(dep->exists)
-                    dep->file = fixPathForFile(dep->file);
                 files->addFile(dep);
             }
             if(dep->exists) {

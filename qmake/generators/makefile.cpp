@@ -1785,6 +1785,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                                 project->variables()["_SRCMOC"].append((*it));
                                 l.erase(it);
                             }
+                            ret_name = fileFixify(ret_name, QDir::currentDirPath(), Option::output_dir);
                             ret = QMakeLocalFileName(ret_name);
                             break;
                         }
