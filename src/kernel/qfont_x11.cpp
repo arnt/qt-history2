@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#172 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -738,7 +738,7 @@ void QFont::load() const
 		name = lastResortFont();
 	} else {
 	    name = PRIV->findFont( &match );
-	    //qWarning( "%s", (const char*) name );
+	    //qWarning( "LOAD %s", (const char*) name );
 	}
 	fn = new QXFontName( name.ascii(), match );
 	CHECK_PTR( fn );
@@ -803,15 +803,17 @@ void QFont::load() const
   QFont_Private member functions
  *****************************************************************************/
 
-#define exactScore	 0xffff
+#define exactScore	   0xfffe
+#define exactUnicodeScore  0xffff
 
-#define CharSetScore	 0x40
-#define PitchScore	 0x20
-#define SizeScore	 0x10
-#define WeightScore	 0x08
-#define SlantScore	 0x04
-#define ResolutionScore	 0x02
-#define WidthScore	 0x01
+#define CharSetScore	 0x80
+#define PitchScore	 0x40
+#define SizeScore	 0x20
+#define WeightScore	 0x10
+#define SlantScore	 0x08
+#define ResolutionScore	 0x04
+#define WidthScore	 0x02
+#define UnicodeScore	 0x01
 
 //
 // Returns a score describing how well a font name matches the contents
@@ -954,7 +956,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	}
     } else if ( strcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
 	// Yes please!
-        score |= CharSetScore;
+        score |= CharSetScore | UnicodeScore;
     } else {
 	exactMatch = FALSE;
     }
@@ -1037,7 +1039,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	score |= WidthScore;
     else
 	exactMatch = FALSE;
-    return exactMatch ? exactScore : score;
+    return exactMatch ? (exactScore | (score&UnicodeScore)) : score;
 }
 
 
@@ -1104,7 +1106,7 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     QCString bestName;
     char *tokens[fontFields];
 
-    if ( bestScalable.score == exactScore ||
+    if ( bestScalable.score >= exactScore ||
 	 ( bestScalable.score > best.score ||
 	   bestScalable.score == best.score &&
 	   ( best.pointDiff != 0 ||
@@ -1137,8 +1139,6 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
     }
     *score   = best.score;
     bestName = best.name;
-
-    //qWarning( "Best = %s", (const char *) best.name );
 
     XFreeFontNames( xFontNames );
 
@@ -1254,8 +1254,11 @@ QCString QFont_Private::findFont( bool *exact )
 	int score;
 	QCString bestName = bestFamilyMember( foundry.ascii(),
 					      familyName.ascii(), &score );
-	if ( score != exactScore )
+	if ( score < exactScore )
 	    *exact = FALSE;
+
+	if ( score & UnicodeScore )
+	    setCharSet( Unicode );
 
 	if( score < CharSetScore ) {
 	    QString f = substitute( family() );
