@@ -49,7 +49,7 @@
             <property name="orientation">
                 <enum>Horizontal</enum>
             </property>
-            <widget class="QListView">
+            <widget class="Q3ListView">
                 <column>
                     <property name="text">
                         <string>Matching documents</string>
@@ -125,7 +125,7 @@
     <variable access="private">QHttp articleFetcher;</variable>
 </variables>
 <slots>
-    <slot specifier="non virtual">fetch( QListViewItem * it )</slot>
+    <slot specifier="non virtual">fetch( Q3ListViewItem * it )</slot>
     <slot specifier="non virtual">fetchDone( bool error )</slot>
     <slot specifier="non virtual">search()</slot>
     <slot specifier="non virtual">searchDone( bool error )</slot>

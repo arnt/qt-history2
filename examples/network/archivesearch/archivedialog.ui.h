@@ -23,13 +23,13 @@ void ArchiveDialog::init()
 {
     connect(&articleSearcher, SIGNAL(done(bool)), this, SLOT(searchDone(bool)));
     connect(&articleFetcher, SIGNAL(done(bool)), this, SLOT(fetchDone(bool)));
-    connect(myListView, SIGNAL(selectionChanged(QListViewItem*)), this, SLOT(fetch(QListViewItem*)));
+    connect(myListView, SIGNAL(selectionChanged(Q3ListViewItem*)), this, SLOT(fetch(Q3ListViewItem*)));
     connect(myLineEdit, SIGNAL(returnPressed()), this, SLOT(search()));
-    connect(myListView, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(fetch(QListViewItem*)));
+    connect(myListView, SIGNAL(returnPressed(Q3ListViewItem*)), this, SLOT(fetch(Q3ListViewItem*)));
     connect(myPushButton, SIGNAL(clicked()), this, SLOT(close()));
 }
 
-void ArchiveDialog::fetch( QListViewItem *it )
+void ArchiveDialog::fetch( Q3ListViewItem *it )
 {
     QUrl u(it->text(1));
     articleFetcher.setHost(u.host());
@@ -96,7 +96,7 @@ void ArchiveDialog::searchDone( bool error )
 	    pos = rx.search(result, pos);
 	    if (pos > -1) {
 		pos += rx.matchedLength();
-		new QListViewItem(myListView, rx.cap(2), rx.cap(1));
+		new Q3ListViewItem(myListView, rx.cap(2), rx.cap(1));
 	    }
 	}
     }
