@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#29 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#30 $
 **
 ** Definition of QWidget class
 **
@@ -16,7 +16,7 @@
 #include "qwindefs.h"
 #include "qobject.h"
 #include "qpaintd.h"
-#include "qcolor.h"
+#include "qpalette.h"
 #include "qfontmet.h"
 #include "qfontinf.h"
 #include "qcursor.h"
@@ -168,17 +168,17 @@ protected:
 
 public:
     QWidget    *parentWidget() const	{ return (QWidget*)QObject::parent(); }
-    bool    	testFlag( WFlags n ) const { return (flags & n) != 0; }
+    bool	testFlag( WFlags n ) const { return (flags & n) != 0; }
     static QWidget	 *find( WId );		// find widget by identifier
     static QWidgetMapper *wmapper()	{ return mapper; }
 
 protected:
-    WFlags  	getFlags() const	{ return flags; }
-    void    	setFlag( WFlags n )	{ flags |= n; }
-    void    	clearFlag( WFlags n )	{ flags &= ~n; }
-    void    	setFRect( const QRect & );	// set frect, update crect
-    void    	setCRect( const QRect & );	// set crect, update frect
-    long    	metric( int )	 const;		// get metric information
+    WFlags	getFlags() const	{ return flags; }
+    void	setFlag( WFlags n )	{ flags |= n; }
+    void	clearFlag( WFlags n )	{ flags &= ~n; }
+    void	setFRect( const QRect & );	// set frect, update crect
+    void	setCRect( const QRect & );	// set crect, update frect
+    long	metric( int )	 const;		// get metric information
     const QFont &fontRef()	 const	{ return fnt; }
 
 #if defined(_WS_PM_)
@@ -197,7 +197,7 @@ private:
     QRect	frect;				// widget frame geometry
     QRect	crect;				// widget client geometry
     QColor	bg_col;				// background color
-    QPalette   &pal;				// widget palette
+    QPalette	pal;				// widget palette
     QFont	fnt;				// widget font
     QCursor	curs;				// widget cursor
     QWExtra    *extra;				// extra widget data
