@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#10 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -416,12 +416,13 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 
     bool reducedFlickerMode = FALSE;
     QTextIterator it;
-    for ( it = begin(); it != end(); ++it ) {
-	if ( it->isSimpleNode && paper ) {
- 	    reducedFlickerMode = TRUE;
-	    break;
-	}
-    }
+    // reduced flicker mode is broken, does not deal with shearing and bearing yet
+//     for ( it = begin(); it != end(); ++it ) {
+// 	if ( it->isCustomNode() && paper ) {
+//  	    reducedFlickerMode = TRUE;
+// 	    break;
+// 	}
+//     }
 
     if ( !reducedFlickerMode ) {
 	if (!onlyDirty && !onlySelection && paper) {
@@ -2122,12 +2123,12 @@ QString QTextDocument::parsePlainText(const QString& doc, int& pos, bool pre, bo
 	    if ( justOneWord && !s.isEmpty() ) {
 		return s;
 	    }
-	    
+	
 	    if ( pre ) {
 		s += doc[pos];
 	    }
 	    else { // non-pre mode: collapse whitespace except nbsp
-		while ( pos+1 < int(doc.length() ) && 
+		while ( pos+1 < int(doc.length() ) &&
 			doc[pos+1].isSpace()  && doc[pos+1] != QChar(0x00a0U) )
 		    pos++;
 		

@@ -23,6 +23,7 @@ public:
     inline bool isSpace() const {return c[0] == ' ';}
     inline bool isNewline() const {return c[0] == '\n';}
     inline bool isNull() const {return c.isNull();}
+    
 
     inline QTextContainer* parent() const;
     inline QTextBox* box() const;
@@ -37,6 +38,8 @@ public:
     uint isBox:1;
     uint isSelected: 1;
     uint isSelectionDirty: 1;
+
+    inline bool isCustomNode() const { return !isSimpleNode && !isContainer; }
 };
 
 
@@ -49,7 +52,7 @@ public:
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0) = 0;
-    
+
     virtual bool expandsHorizontally();
 
     int width;
