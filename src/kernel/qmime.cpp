@@ -532,14 +532,14 @@ void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
 }
 
 /*! Convenience function. Gets the data associated with the absolute
-  name \a abs_name and decodes it to a pixmap.
+  name \a abs_name from the defaultFactory() and decodes it to a pixmap.
 
   \sa data(), image(), QImageDrag::decode()
 */
 
-QPixmap QMimeSourceFactory::pixmap( const QString &abs_name ) const
+QPixmap QMimeSourceFactory::pixmap( const QString &abs_name )
 {
-    const QMimeSource *m = data( abs_name );
+    const QMimeSource *m = defaultFactory()->data( abs_name );
     if ( !m )
 	return QPixmap();
     QPixmap pix;
@@ -548,14 +548,14 @@ QPixmap QMimeSourceFactory::pixmap( const QString &abs_name ) const
 }
 
 /*! Convenience function. Gets the data associated with the absolute
-  name \a abs_name and decodes it to an image.
+  name \a abs_name from the defaultFatory() and decodes it to an image.
 
   \sa data(), pixmap(), QImageDrag::decode()
 */
 
-QImage QMimeSourceFactory::image( const QString &abs_name ) const
+QImage QMimeSourceFactory::image( const QString &abs_name )
 {
-    const QMimeSource *m = data( abs_name );
+    const QMimeSource *m = defaultFactory()->data( abs_name );
     if ( !m )
 	return QImage();
     QImage img;

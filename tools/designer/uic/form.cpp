@@ -358,20 +358,20 @@ void Uic::createFormDecl( const QDomElement &e )
 
     out << endl;
 
-    
-    // find functions...     
+
+    // find functions...
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QStringList publicFunct, protectedFunct, privateFunct;
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
     QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
-      
+
     // for compatibility
-    nl = e.parentNode().toElement().elementsByTagName( "slot" ); 
+    nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -395,9 +395,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	    publicSlotTypes += returnType;
 	    publicSlotSpecifier += specifier;
 	}
-    }    
-    
-    nl = e.parentNode().toElement().elementsByTagName( "function" ); 
+    }
+
+    nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
 	if ( n.parentNode().toElement().tagName() != "functions" )
@@ -442,8 +442,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    }
 	}		
     }
-     
-    // create public functions    
+
+    // create public functions
     for ( it = publicFunct.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
 	  it != publicFunct.end(); ++it, ++it2, ++it3 ) {
 	bool createDecl = TRUE;
@@ -462,7 +462,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	    out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
     }
     out << endl;
-  
+
     // create public additional slots
     out << "public slots:" << endl;
     for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
@@ -485,8 +485,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	out << indent << "void polish();" << endl;
     out << indent << "virtual void retranslateStrings();" << endl;
     out << endl;
-  
-    
+
+
     // find signals
     QStringList extraSignals;
     nl = e.parentNode().toElement().elementsByTagName( "signal" );
@@ -554,7 +554,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	}
 	out << endl;
     }
-    
+
 
     // create protected additional slots
     if ( !protectedSlots.isEmpty() ) {
@@ -662,15 +662,15 @@ void Uic::createFormImpl( const QDomElement &e )
     QStringList::Iterator it;
 
     QMap<QString, CustomInclude> customWidgetIncludes;
-    
+
     // find additional slots and functions
     QStringList extraFuncts;
     QStringList extraFunctTyp;
-    
+
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots" 
+	if ( n.parentNode().toElement().tagName() != "slots"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -680,8 +680,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	    functionName = functionName.left( functionName.length() - 1 );
 	extraFuncts += functionName;
 	extraFunctTyp += n.attribute( "returnType", "void" );
-    }    
-    
+    }
+
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -917,7 +917,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
 	out << endl;
     } else if ( externPixmaps ) {
-	pixmapLoaderFunction = "QMimeSourceFactory::defaultFactory()->pixmap";
+	pixmapLoaderFunction = "QMimeSourceFactory::pixmap";
     }
 
     // constructor(s)
