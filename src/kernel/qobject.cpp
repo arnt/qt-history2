@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#51 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#51 $";
 #endif
 
 
@@ -830,33 +830,48 @@ bool QObject::connect( QObject *sender,		const char *signal,
 
 
 /*!
-Disconnects \e signal in object \e sender from \e member in object
-\e receiver.
+Disconnects \e signal in object \e sender from \e member in object \e
+receiver.
 
-If \e signal is 0, it disconnects \e receiver and \e member from
-any signal.
+A signal-slot connection is removed cleanly when either of the objects
+involved are destroyed.
 
-If \e member is 0, it disconnects anything that is connected to
-\e receiver.
+This function is typically used in three ways, as the following
+examples show.
+
+<ol>
+<li>Disconnect everything connected to an object's signals:
+\code
+  disconnect( myObject );
+\endcode
+<li> Disconnect everything connected to a signal:
+\code
+  disconnect( myObject, SIGNAL(mySignal()) );
+\endcode
+<li> Disconnect a specific receiver.
+\code
+  disconnect( myObject, 0, myReceiver, 0 );
+\endcode
+</ol>
+
+As you can see, three of the four arguments may be left out; they
+default to 0, which is used as a wildcard.
+
+The \e sender has no default and may never be 0.  (You cannot
+disconnect signals from more than one object.)
+
+If \e signal is 0, it disconnects \e receiver and \e member from any
+signal.  If not, only the specified signal is disconnected.
 
 If \e receiver is 0, it disconnects anything connected to \e signal.
+If not, slots in objects other than \e receiver are not disconnected.
 
-The \e sender may not be 0. The \e member must be 0 if \e receiver is 0.
+If \e member is 0, it disconnects anything that is connected to \e
+receiver.  If not, only slots named \e member will be disconnected,
+and all other slots are left alone.  The \e member must be 0 if \e
+receiver is left out, so you cannot disconnect a specifically-named
+slot on all objects.
 
-Common case I. Disconnect everything connected to an object:
-\code
-  QObject::disconnect( myObject );
-\endcode
-
-Common case II. Disconnect everything connected to a signal:
-\code
-  QObject::disconnect( myObject, SIGNAL(mySignal()) );
-\endcode
-
-Common case III. Disconnect a specific receiver.
-\code
-  QObject::disconnect( myObject, 0, myReceiver, 0 );
-\endcode
 \sa connect(). */
 
 bool QObject::disconnect( QObject *sender, const char *signal,
