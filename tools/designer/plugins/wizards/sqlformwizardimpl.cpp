@@ -249,6 +249,19 @@ void SqlFormWizard::accept()
 	mdbIface->setPropertyChanged( widget, "database", TRUE );
     }
 
+    if ( !editFilter->text().isEmpty() ) {
+	mdbIface->setFakeProperty( widget, "filter", editFilter->text() );
+	mdbIface->setPropertyChanged( widget, "filter", TRUE );
+    }
+
+    if ( listBoxSortedField->count() ) {
+	QStringList lst;
+	for ( uint i = 0; i < listBoxSortedField->count(); ++i )
+	    lst << listBoxSortedField->text( i );
+	mdbIface->setFakeProperty( widget, "sort", lst );
+	mdbIface->setPropertyChanged( widget, "sort", TRUE );
+    }
+
     proIface->openDatabase( editConnection->text() );
     QSqlCursor tab( editTable->text() );
     int columns = 2;
@@ -338,19 +351,6 @@ void SqlFormWizard::accept()
 					     QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "deleteRecord()" );
 	}
-    }
-
-    if ( !editFilter->text().isEmpty() ) {
-	mdbIface->setFakeProperty( widget, "filter", editFilter->text() );
-	mdbIface->setPropertyChanged( widget, "filter", TRUE );
-    }
-
-    if ( listBoxSortedField->count() ) {
-	QStringList lst;
-	for ( uint i = 0; i < listBoxSortedField->count(); ++i )
-	    lst << listBoxSortedField->text( i );
-	mdbIface->setFakeProperty( widget, "sort", lst );
-	mdbIface->setPropertyChanged( widget, "sort", TRUE );
     }
 
     proIface->closeDatabase( editConnection->text() );
