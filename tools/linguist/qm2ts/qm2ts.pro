@@ -4,7 +4,7 @@ HEADERS		= ../shared/metatranslator.h
 SOURCES		= main.cpp \
 		  ../shared/metatranslator.cpp
 
-DEFINES 	+= QT_INTERNAL_XML
+!xml:DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 TARGET		= qm2ts

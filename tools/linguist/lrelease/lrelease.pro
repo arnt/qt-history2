@@ -6,7 +6,7 @@ SOURCES		= main.cpp \
 		  ../shared/metatranslator.cpp \
 		  ../shared/proparser.cpp
 
-DEFINES 	+= QT_INTERNAL_XML
+!xml:DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 TARGET		= lrelease

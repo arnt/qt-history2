@@ -28,9 +28,9 @@ SOURCES		= frame.cpp \
 
 FORMS		= dnd/dndbase.ui
 
-DEFINES		+= QT_INTERNAL_ICONVIEW
-DEFINES		+= QT_INTERNAL_WORKSPACE
-DEFINES		+= QT_INTERNAL_CANVAS
+!iconview: DEFINES  += QT_INTERNAL_ICONVIEW
+!workspace: DEFINES += QT_INTERNAL_WORKSPACE
+!canvas: DEFINES    += QT_INTERNAL_CANVAS
 
 include( ../../src/qt_professional.pri )
 

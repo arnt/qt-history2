@@ -18,7 +18,7 @@ SOURCES	= main.cpp uic.cpp form.cpp object.cpp \
 #SOURCES +=	  ../shared/ui2uib.cpp \
 #		  ../shared/uib.cpp
 
-DEFINES		+= QT_INTERNAL_XML
+!xml:DEFINES	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 TARGET		= uic
