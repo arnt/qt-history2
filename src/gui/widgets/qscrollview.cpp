@@ -159,8 +159,7 @@ void QScrollViewPrivate::init()
              q, SLOT(updateScrollBars()) );
 
     q->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
-    q->setLineWidth( q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q) );
-    q->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 QScrollViewPrivate::~QScrollViewPrivate()

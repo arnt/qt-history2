@@ -119,7 +119,9 @@ QViewportPrivate::QViewportPrivate()
 
 void QViewportPrivate::init()
 {
-    q->setFocusPolicy(QWidget::StrongFocus);
+    q->setFocusPolicy(QWidget::WheelFocus);
+    q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     hbar = new QScrollBar(Horizontal,  q);
     hbar->setObjectNameConst("qt_hbar");
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
@@ -129,7 +131,7 @@ void QViewportPrivate::init()
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), QueuedConnection);
     viewport = new QViewportHelper(q);
-//    viewport->setBackgroundRole(QPalette::Base);
+    viewport->setBackgroundRole(QPalette::Base);
     QApplication::sendEvent(viewport, new QEvent(QEvent::User));
     viewport->setObjectNameConst("qt_viewport");
 }
@@ -350,7 +352,7 @@ bool QViewport::viewportEvent(QEvent *e)
 	    return QApplication::sendEvent(d->vbar, e);
 	}
     default:
-        return d->viewport->QWidget::event(e);
+        return static_cast<QViewportHelper*>(d->viewport)->QWidget::event(e);
     }
     return true;
 }

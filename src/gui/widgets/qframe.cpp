@@ -376,6 +376,7 @@ void QFramePrivate::updateFrameWidth()
     case QFrame::LineEditPanel:
     case QFrame::TabWidgetPanel:
     case QFrame::PopupPanel:
+    case QFrame::StyledPanel:
 	frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q);
 	break;
 
@@ -392,7 +393,6 @@ void QFramePrivate::updateFrameWidth()
 
 
     case QFrame::Panel:
-    case QFrame::StyledPanel:
 	switch (frameShadow) {
 	case QFrame::Plain:
 	case QFrame::Raised:
