@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#44 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#44 $";
 #endif
 
 
@@ -40,9 +40,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#43 $
   There are several ways to set up a user-defined coordinate system using
   the painter, for example by QPainter::setWorldMatrix().
 
-  This example shows how to draw on a paint device:
+  Example (draw on a paint device):
   \code
-    void MyWidget::paintEvent( QPaintEvent * ) {
+    void MyWidget::paintEvent( QPaintEvent * )
+    {
 	QPainter p;				// our painter
 	p.begin( this );			// start painting widget
 	p.setPen( red );			// blue outline
@@ -56,11 +57,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#43 $
   from one paint device to another (or to itself).
   It is implemented as the global function bitBlt().
 
-  This code demonstrates how to scroll the contents of a widget 10 pixels
-  to the right:
+  Example (scroll widget contents 10 pixels to the right):
   \code
-     QWidget  w;
-     bitBlt( &w, 10,0, &w, 0,0, -1,-1 );
+     bitBlt( myWidget, 10,0, myWidget, 0,0, -1,-1 );
   \endcode
 
   \warning Qt requires that a QApplication object must exist before any paint
@@ -243,12 +242,22 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
-	if ( ts == PDT_PIXMAP )
+	bool	 tmp_pm = TRUE;
+	if ( ts == PDT_PIXMAP ) {
 	    pm = (QPixmap*)src;
+	    if ( sx != 0 || sy != 0 ||
+		 sw != pm->width() || sh != pm->height() ) {
+		QPixmap *pm_new = new QPixmap( sw, sh, pm->depth() );
+		bitBlt( pm_new, 0, 0, pm, sx, sy, sw, sh );
+		pm = pm_new;
+	    }
+	    else
+		tmp_pm = FALSE;
+	}
 	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
-	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh, CopyROP );
+	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
 	}
 	else {
 #if defined(CHECK_RANGE)
@@ -257,13 +266,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    return;
 	}
 	QPDevCmdParam param[3];
-	QRect  r(sx,sy,sw,sh);
 	QPoint p(dx,dy);
-	param[0].rect	= &r;
-	param[1].point	= &p;
-	param[2].pixmap = pm;
+	param[0].point	= &p;
+	param[1].pixmap = pm;
 	dst->cmd( PDC_DRAWPIXMAP, 0, param );
-	if ( ts == PDT_WIDGET )
+	if ( tmp_pm )
 	    delete pm;
 	return;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qptd_win.cpp#11 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_win.cpp#11 $";
 #endif
 
 
@@ -89,12 +89,22 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
-	if ( ts == PDT_PIXMAP )
+	bool	 tmp_pm = TRUE;
+	if ( ts == PDT_PIXMAP ) {
 	    pm = (QPixmap*)src;
+	    if ( sx != 0 || sy != 0 ||
+		 sw != pm->width() || sh != pm->height() ) {
+		QPixmap *pm_new = new QPixmap( sw, sh, pm->depth() );
+		bitBlt( pm_new, 0, 0, pm, sx, sy, sw, sh );
+		pm = pm_new;
+	    }
+	    else
+		tmp_pm = FALSE;
+	}
 	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
-	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh, CopyROP );
+	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
 	}
 	else {
 #if defined(CHECK_RANGE)
@@ -103,13 +113,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    return;
 	}
 	QPDevCmdParam param[3];
-	QRect  r(sx,sy,sw,sh);
 	QPoint p(dx,dy);
-	param[0].rect	= &r;
-	param[1].point	= &p;
-	param[2].pixmap = pm;
-	dst->cmd( PDC_DRAWPIXMAP, param );
-	if ( ts == PDT_WIDGET )
+	param[0].point	= &p;
+	param[1].pixmap = pm;
+	dst->cmd( PDC_DRAWPIXMAP, 0, param );
+	if ( tmp_pm )
 	    delete pm;
 	return;
     }
