@@ -61,10 +61,20 @@ void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument * )
 {
     QChar key( s[ 0 ] );
     QMap<QChar, QStringList>::Iterator it = completionMap.find( key );
-    if ( it == completionMap.end() )
+    if ( it == completionMap.end() ) {
 	completionMap.insert( key, QStringList( s ) );
-    else
-	( *it ).append( s );
+    } else {
+	QStringList::Iterator sit;
+	for ( sit = (*it).begin(); sit != (*it).end(); ) {
+	    QStringList::Iterator it2 = sit;
+	    ++sit;
+	    if ( (*it2).left( s.length() ) == s ) {
+		if ( (*it2)[ (int)s.length() ].isLetter() && (*it2)[ (int)s.length() ].upper() != (*it2)[ (int)s.length() ] )
+		    return;
+	    }
+	}
+	(*it).append( s );
+    }
 }
 
 QStringList EditorCompletion::completionList( const QString &s, QTextDocument *doc ) const
