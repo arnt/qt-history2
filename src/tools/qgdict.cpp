@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#59 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -400,12 +400,14 @@ bool QGDict::remove( const char *key )
 GCI QGDict::take( const char *key )
 {
     register QBucket *n = unlink( key );
-    GCI tmp = 0;
+    GCI tmp;
     if ( n ) {
 	tmp = n->getData();
 	if ( copyk )
 	    delete [] n->getKey();
 	delete n;
+    } else {
+	tmp = 0;
     }
     return tmp;
 }
@@ -423,16 +425,18 @@ void QGDict::clear()
     register QBucket *n;
     numItems = 0;				// disable remove() function
     for ( uint j=0; j<vlen; j++ ) {		// destroy hash table
-	n = vec[j];
-	while ( n ) {
-	    if ( copyk )
-		delete [] n->getKey();
-	    deleteItem( n->getData() );
-	    QBucket *next = n->getNext();
-	    delete n;
-	    n = next;
+	if ( vec[j] ) {
+	    n = vec[j];
+	    vec[j] = 0;				// detach list of buckets
+	    while ( n ) {
+		if ( copyk )
+		    delete [] n->getKey();
+		QBucket *next = n->getNext();
+		deleteItem( n->getData() );
+		delete n;
+		n = next;
+	    }
 	}
-	vec[j] = 0;
     }
     if ( !iterators )				// no iterators for this dict
 	return;
