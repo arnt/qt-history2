@@ -34,6 +34,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "LIBPNG" ] = "yes";
     dictionary[ "JPEG" ] = "no";
     dictionary[ "MNG" ] = "no";
+    dictionary[ "BUILD_QMAKE" ] = "yes";
 
     if( QEnvironment::getEnv( "MKSPEC" ) == QString( "win32-msvc" ) )
 	dictionary[ "MAKE" ] = "nmake";
@@ -130,6 +131,8 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "JPEG" ] = "yes";
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
+	else if( (*args) == "-no-qmake" )
+	    dictionary[ "BUILD_QMAKE" ] = "no";
 	else if( (*args) == "-D" ) {
 	    ++args;
             qmakeDefines += (*args);
@@ -298,11 +301,15 @@ void ConfigureApp::displayConfig()
 
 void ConfigureApp::buildQmake()
 {
-    // Build qmake
-    cout << "Creating qmake..." << endl;
-    qmakeBuilder.setWorkingDirectory( qtDir + "/qmake" );
-    qmakeBuilder.setArguments( dictionary[ "MAKE" ] );
-    qmakeBuilder.start();
+    if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
+	// Build qmake
+	cout << "Creating qmake..." << endl;
+	qmakeBuilder.setWorkingDirectory( qtDir + "/qmake" );
+	qmakeBuilder.setArguments( dictionary[ "MAKE" ] );
+	qmakeBuilder.start();
+    }
+    else
+	qmakeBuilt();
 }
 
 void ConfigureApp::readQmakeBuilderError()
