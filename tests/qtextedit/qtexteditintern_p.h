@@ -215,7 +215,7 @@ public:
 
     QString text() const;
     QString text( int parag, bool formatted ) const;
-    
+
     void setCompletionEnabled( bool b );
     bool isCompletionEnabled() const;
 
@@ -324,7 +324,8 @@ public:
     };
 
     QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextEditParag *nx, bool updateIds = TRUE );
-
+    virtual ~QTextEditParag() {}
+    
     Type type() const;
     void setType( Type t );
 
@@ -398,6 +399,9 @@ public:
 
     void setAlignment( int a );
     int alignment() const;
+
+    virtual void paint( QPainter &painter, const QColorGroup &cg,
+			QTextEditCursor *cusror = 0, bool drawSelections = FALSE );
 
 private:
     struct Selection {

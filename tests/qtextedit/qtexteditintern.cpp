@@ -799,7 +799,7 @@ void QTextEditDocument::setText( const QString &text )
 	}
 	fParag = 0;
     }
-    
+
     lParag = 0;
     QStringList lst = QStringList::split( '\n', text );
     QStringList::Iterator it = lst.begin();
@@ -833,7 +833,7 @@ QString QTextEditDocument::text( int parag, bool formatted ) const
 	return QString::null;
     if ( !formatted )
 	return p->string()->toString();
-    
+
     // ##### TODO: return formatted string
     return p->string()->toString();
 }
@@ -1608,6 +1608,146 @@ void QTextEditParag::setListDepth( int d )
     left = doc->listIndent( d );
     depth = d;
     invalidate( 0 );
+}
+
+void QTextEditParag::paint( QPainter &painter, const QColorGroup &cg, QTextEditCursor *cursor, bool drawSelections )
+{
+    QTextEditString::Char *chr = at( 0 );
+    int i = 0;
+    int h = 0;
+    int baseLine = 0, lastBaseLine = 0;
+    QTextEditFormat *lastFormat = 0;
+    int lastY = -1;
+    QString buffer;
+    int startX = 0;
+    int bw = 0;
+    int cy = 0;
+    int curx = -1, cury, curh;
+	
+    // #### draw other selections too here!!!!!!!
+    int selStart = -1, selEnd = -1;
+    int matchStart = -1, matchEnd = -1;
+    int mismatchStart = -1, mismatchEnd = -1;
+    if ( hasSelection( QTextEditDocument::Standard ) ) {
+	selStart = selectionStart( QTextEditDocument::Standard );
+	selEnd = selectionEnd( QTextEditDocument::Standard );
+    }
+    if ( hasSelection( QTextEditDocument::ParenMatch ) ) {
+	matchStart = selectionStart( QTextEditDocument::ParenMatch );
+	matchEnd = selectionEnd( QTextEditDocument::ParenMatch );
+    }
+    if ( hasSelection( QTextEditDocument::ParenMismatch ) ) {
+	mismatchStart = selectionStart( QTextEditDocument::ParenMismatch );
+	mismatchEnd = selectionEnd( QTextEditDocument::ParenMismatch );
+    }
+	
+    int line = -1;
+    int cw;
+    for ( ; i < length(); i++ ) {
+	chr = at( i );
+	cw = chr->format->width( chr->c );
+
+	// init a new line
+	if ( chr->lineStart ) {
+	    ++line;
+	    lineInfo( line, cy, h, baseLine );
+	    if ( lastBaseLine == 0 )
+		lastBaseLine = baseLine;
+	}
+	
+	// draw bullet list items
+	if ( line == 0 && type() == QTextEditParag::BulletList ) {
+	    int ext = QMIN( doc->listIndent( 0 ), h );
+	    ext -= 8;
+	    
+	    // ######## use pixmaps for drawing that stuff - this way it's very slow when having long lists!
+	    switch ( doc->bullet( listDepth() ) ) {
+	    case QTextEditDocument::FilledCircle: {
+		painter.setPen( Qt::NoPen );
+		painter.setBrush( cg.brush( QColorGroup::Foreground ) );
+		painter.drawEllipse( leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
+	    } break;
+	    case QTextEditDocument::FilledSquare: {
+		painter.fillRect( leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext,
+				  cg.brush( QColorGroup::Foreground ) );
+	    } break;
+	    case QTextEditDocument::OutlinedCircle: {
+		painter.setPen( QPen( cg.color( QColorGroup::Foreground ) ) );
+		painter.setBrush( Qt::NoBrush );
+		painter.drawEllipse( leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
+	    } break;
+	    case QTextEditDocument::OutlinedSquare: {
+		painter.setPen( QPen( cg.color( QColorGroup::Foreground ) ) );
+		painter.setBrush( Qt::NoBrush );
+		painter.drawRect( leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
+	    } break;
+	    }
+	}
+	
+	// check for cursor mark
+	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
+	    curx = chr->x;
+	    curh = h;
+	    cury = cy;
+	}
+	
+	// first time - start again...
+	if ( !lastFormat || lastY == -1 ) {
+	    lastFormat = chr->format;
+	    lastY = cy;
+	    startX = chr->x;
+	    buffer += chr->c;
+	    bw = cw;
+	    continue;
+	}
+	
+	// if something (format, etc.) changed, draw what we have so far
+	if ( lastY != cy || chr->format != lastFormat ||
+	     buffer == "\t" || chr->c == '\t' || i == selStart || i == selEnd || i ==matchStart ||
+	     i == matchEnd || i == mismatchStart || i == mismatchEnd ) {
+	    painter.setPen( QPen( lastFormat->color() ) );
+	    painter.setFont( lastFormat->font() );
+	    if ( i > selStart && i <= selEnd ) {
+		painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
+		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
+	    }
+	    if ( i > matchStart && i <= matchEnd )
+		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
+	    if ( i > mismatchStart && i <= mismatchEnd )
+		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMismatch ) );
+	    if ( buffer != "\t" )
+		painter.drawText( startX, lastY + lastBaseLine, buffer );
+	    buffer = chr->c;
+	    lastFormat = chr->format;
+	    lastY = cy;
+	    startX = chr->x;
+	    bw = cw;
+	} else {
+	    buffer += chr->c;
+	    bw += cw;
+	}
+	lastBaseLine = baseLine;
+    }
+	
+    // if we are through thge parag, but still have some stuff left to draw, draw it now
+    if ( !buffer.isEmpty() ) {
+	painter.setPen( QPen( lastFormat->color() ) );
+	painter.setFont( lastFormat->font() );
+	if ( i > selStart && i <= selEnd ) {
+	    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
+	    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
+	}
+	if ( i > matchStart && i <= matchEnd )
+	    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
+	if ( i > mismatchStart && i <= mismatchEnd )
+	    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMismatch ) );
+	if ( buffer != "\t" )
+	    painter.drawText( startX, lastY + lastBaseLine, buffer );
+    }
+	
+    // if we should draw a cursor, draw it now
+    if ( curx != -1 && cursor )
+	painter.fillRect( QRect( curx, cury, 2, curh ), Qt::black );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

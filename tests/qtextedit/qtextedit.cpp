@@ -106,7 +106,6 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	return;
 
     QTextEditParag *parag = doc->firstParag();
-    QTextEditString::Char *chr = 0;
     QSize s( doc->firstParag()->rect().size() );
 
     p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
@@ -150,132 +149,8 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
 	painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
 			  colorGroup().color( QColorGroup::Base ) );
-	chr = parag->at( 0 );
-	int i = 0;
-	int h = 0;
-	int baseLine = 0, lastBaseLine = 0;
-	QTextEditFormat *lastFormat = 0;
-	int lastY = -1;
-	QString buffer;
-	int startX = 0;
-	int bw = 0;
-	int cy;
-	int curx = -1, cury, curh;
 	
-	// #### draw other selections too here!!!!!!!
-	int selStart = -1, selEnd = -1;
-	int matchStart = -1, matchEnd = -1;
-	int mismatchStart = -1, mismatchEnd = -1;
-	if ( parag->hasSelection( QTextEditDocument::Standard ) ) {
-	    selStart = parag->selectionStart( QTextEditDocument::Standard );
-	    selEnd = parag->selectionEnd( QTextEditDocument::Standard );
-	}
-	if ( parag->hasSelection( QTextEditDocument::ParenMatch ) ) {
-	    matchStart = parag->selectionStart( QTextEditDocument::ParenMatch );
-	    matchEnd = parag->selectionEnd( QTextEditDocument::ParenMatch );
-	}
-	if ( parag->hasSelection( QTextEditDocument::ParenMismatch ) ) {
-	    mismatchStart = parag->selectionStart( QTextEditDocument::ParenMismatch );
-	    mismatchEnd = parag->selectionEnd( QTextEditDocument::ParenMismatch );
-	}
-	
-	int line = -1;
-	int cw;
-	for ( ; i < parag->length(); i++ ) {
-	    chr = parag->at( i );
-	    cw = chr->format->width( chr->c );
-	    if ( chr->lineStart ) {
-		++line;
-		parag->lineInfo( line, cy, h, baseLine );
-		if ( lastBaseLine == 0 )
-		    lastBaseLine = baseLine;
-	    }
-	
-	    if ( line == 0 && parag->type() == QTextEditParag::BulletList ) {
-		int ext = QMIN( doc->listIndent( 0 ), h );
-		ext -= 8;
-		switch ( doc->bullet( parag->listDepth() ) ) {
-		case QTextEditDocument::FilledCircle: {
-		    painter.setPen( NoPen );
-		    painter.setBrush( colorGroup().brush( QColorGroup::Foreground ) );
-		    painter.drawEllipse( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
-		} break;
-		case QTextEditDocument::FilledSquare: {
-		    painter.fillRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext,
-				      colorGroup().brush( QColorGroup::Foreground ) );
-		} break;
-		case QTextEditDocument::OutlinedCircle: {
-		    painter.setPen( QPen( colorGroup().color( QColorGroup::Foreground ) ) );
-		    painter.setBrush( NoBrush );
-		    painter.drawEllipse( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
-		} break;
-		case QTextEditDocument::OutlinedSquare: {
-		    painter.setPen( QPen( colorGroup().color( QColorGroup::Foreground ) ) );
-		    painter.setBrush( NoBrush );
-		    painter.drawRect( parag->leftIndent() - ext - 4, cy + ( h - ext ) / 2, ext, ext );
-		} break;
-		}
-	    }
-	
-	    if ( parag == cursor->parag() && i == cursor->index() ) {
-		curx = chr->x;
-		curh = h;
-		cury = cy;
-	    }
-	
-	    if ( !lastFormat || lastY == -1 ) {
-		lastFormat = chr->format;
-		lastY = cy;
-		startX = chr->x;
-		buffer += chr->c;
-		bw = cw;
-		continue;
-	    }
-	
-	    if ( lastY != cy || chr->format != lastFormat ||
-		 buffer == "\t" || chr->c == '\t' || i == selStart || i == selEnd || i ==matchStart ||
-		i == matchEnd || i == mismatchStart || i == mismatchEnd ) {
-		painter.setPen( QPen( lastFormat->color() ) );
-		painter.setFont( lastFormat->font() );
-		if ( i > selStart && i <= selEnd ) {
-		    painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
-		    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
-		}
-		if ( i > matchStart && i <= matchEnd )
-		    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
-		if ( i > mismatchStart && i <= mismatchEnd )
-		    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMismatch ) );
-		if ( buffer != "\t" )
-		    painter.drawText( startX, lastY + lastBaseLine, buffer );
-		buffer = chr->c;
-		lastFormat = chr->format;
-		lastY = cy;
-		startX = chr->x;
-		bw = cw;
-	    } else {
-		buffer += chr->c;
-		bw += cw;
-	    }
-	    lastBaseLine = baseLine;
-	}
-	
-	if ( !buffer.isEmpty() ) {
-	    painter.setPen( QPen( lastFormat->color() ) );
-	    painter.setFont( lastFormat->font() );
-	    if ( i > selStart && i <= selEnd ) {
-		painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
-	    }
-	    if ( i > matchStart && i <= matchEnd )
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
-	    if ( i > mismatchStart && i <= mismatchEnd )
-		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMismatch ) );
-	    if ( buffer != "\t" )
-		painter.drawText( startX, lastY + lastBaseLine, buffer );
-	}
-	
-	if ( curx != -1 )
-	    painter.fillRect( QRect( curx, cury, 2, curh ), black );
+	parag->paint( painter, colorGroup(), cursor, TRUE );
 	
 	p->drawPixmap( parag->rect().topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), s ) );
 	if ( parag->rect().x() + parag->rect().width() < contentsX() + contentsWidth() )
