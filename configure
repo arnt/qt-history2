@@ -27,14 +27,17 @@ QMAKE_CONFIG=
 
 # initialize platform detection
 X11_PLATFORM=no
+CFG_PLATFORM=x11
 MAC_PLATFORM=no
 [ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
-### need some way to trigger Qt/Embedded instead of Qt/X11 other
-### than [ -d mkspecs/qws ] that works on internal edition - maybe
+[ -d /System/Library/Frameworks/Carbon.framework ] && CFG_PLATFORM=mac
+### need some way to trigger Qt/Embedded instead of Qt/X11 that
+### works on internal edition, other than [ -d mkspecs/qws ] - maybe
 ### -embedded does the trick after all, but then options must be
 ### parsed _before_ licensing
 QWS_PLATFORM=no
 [ "$MAC_PLATFORM" = "no" ] && [ -d mkspecs/qws ] && QWS_PLATFORM=maybe
+[ "$CFG_PLATFORM" != "mac" ] && [ -d mkspecs/qws ] && CFG_PLATFORM=qws
 
 
 #-------------------------------------------------------------------------------
@@ -44,7 +47,6 @@ QWS_PLATFORM=no
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
 then
-    [ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM=yes
     Edition="free"
     Licensee="Non-Commercial"
     Products="qt-free"
@@ -55,117 +57,114 @@ then
     Licensee="Trolltech"
     Products="qt-internal"
 # Commercial edition - needs a license.
-else
-    if [ -f $relpath/.LICENSE ]
+elif [ -f $relpath/.LICENSE ]
+then
+    echo
+    Desc=""
+    if [ -f $HOME/.qt-license ]
     then
-	echo
-	[ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM=yes
-	Desc=""
-	if [ -f $HOME/.qt-license ]
+	. $HOME/.qt-license >/dev/null 2>&1
+	if [ -z "$LicenseKey" ]
 	then
-	    . $HOME/.qt-license >/dev/null 2>&1
-	    if [ -z "$LicenseKey" ]
-	    then
-		echo
-		echo "You are using an old license file."
-		echo
-		echo "Please install the license file supplied by Trolltech,"
-		echo "or install the Qt Free Edition if you intend to develop"
-		echo "free software."
-		exit 1
-	    fi
-	else
-	    if [ -z "$LicenseKey" ]
-	    then
-		echo
-		echo "Please enter your license key"
-		read LicenseKey
-	    fi
-	fi
-	if echo $LicenseKey | grep "....-....-...." >/dev/null 2>&1
-	then
-	    # get the first character of the key
-	    keyTest=`echo $LicenseKey | cut -b1`
-	    if [ "$QWS_PLATFORM" = "yes" ]
-	    then
-		# we have to test for Qt/Embedded
-	        case $keyTest in
-		A|B|C|D|E|F|G|H|a|b|c|d|e|f|g|h)
-		    # Feature_Embedded
-		    echo ;;
-		*)
-		    echo
-		    echo "You are not licensed for the Qt/Embedded platform."
-		    echo
-		    echo "Please contact sales@trolltech.com to upgrade your license"
-		    echo "to include the Qt/Embedded platform, or install the"
-		    echo "Qt Free Edition if you intend to develop free software."
-		    exit 1 ;;
-		esac
-	    elif [ "$MAC_PLATFORM" = "yes" ]
-            then
-	        case $keyTest in
-		*) ###
-		    # Feature_Mac
-		    echo ;;
-		*)
-		    echo
-		    echo "You are not licensed for the Mac OS X platform."
-		    echo
-		    echo "Please contact sales@trolltech.com to upgrade your license"
-		    echo "to include the Mac OS X platform."
-		    exit 1 ;;
-                esac
-            else
-	        case $keyTest in
-		6|7|8|9|E|F|G|H|e|f|g|h)
-		    # Feature_Unix
-		    echo ;;
-		*)
-		    echo
-		    echo "You are not licensed for the X11 platform."
-		    echo
-		    echo "Please contact sales@trolltech.com to upgrade your license"
-		    echo "to include the X11 platform, or install the Qt Free Edition"
-		    echo "if you intend to develop free software."
-		    exit 1 ;;
-                esac
-	    fi
-	    case $keyTest in
-	    4|5|8|9|C|D|G|H|c|d|g|h)
-		# Feature_Enterprise
-		Desc="Enterprise"
-		Edition="ent"
-		;;
-	    *)
-		Products=qt-professional
-		Desc="Professional"
-		Edition="pro"
-		;;
-	    esac
-	    case $keyTest in
-	    3|5|7|9|B|D|F|H|b|d|f|h)
-		# Feature_US
-		cp -f $relpath/.LICENSE-US $relpath/LICENSE
-		;;
-	    *)
-		cp -f $relpath/.LICENSE $relpath/LICENSE
-		;;
-	    esac
-	else
 	    echo
-	    echo "Invalid license key. Please check the license key."
+	    echo "You are using an old license file."
+	    echo
+	    echo "Please install the license file supplied by Trolltech,"
+	    echo "or install the Qt Free Edition if you intend to develop"
+	    echo "free software."
 	    exit 1
 	fi
     else
-	echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
-	echo "this software has disappeared."
-	echo
-	echo "Sorry, you are not licensed to use this software."
-	echo "Try re-installing."
-	echo
-	exit 0
+	if [ -z "$LicenseKey" ]
+	then
+	    echo
+	    echo "Please enter your license key"
+	    read LicenseKey
+	fi
     fi
+    if echo $LicenseKey | grep "....-....-...." >/dev/null 2>&1
+    then
+	# get the first character of the key
+	keyTest=`echo $LicenseKey | cut -b1`
+	# this character should fit the platform
+	if [ "$CFG_PLATFORM" = "qws" ]
+	then
+	    case $keyTest in
+	    A|B|C|D|E|F|G|H|a|b|c|d|e|f|g|h)
+		# Feature_Embedded
+		echo ;;
+	    *)
+		echo
+		echo "You are not licensed for the Qt/Embedded platform."
+		echo
+		echo "Please contact sales@trolltech.com to upgrade your license"
+		echo "to include the Qt/Embedded platform, or install the"
+		echo "Qt Free Edition if you intend to develop free software."
+		exit 1 ;;
+	    esac
+	elif [ "$CFG_PLATFORM" = "mac" ]
+        then
+	    case $keyTest in
+	    *) ###
+		# Feature_Mac
+		echo ;;
+	    *)
+		echo
+		echo "You are not licensed for the Mac OS X platform."
+		echo
+		echo "Please contact sales@trolltech.com to upgrade your license"
+		echo "to include the Mac OS X platform."
+		exit 1 ;;
+	    esac
+	else
+	    case $keyTest in
+	    6|7|8|9|E|F|G|H|e|f|g|h)
+		# Feature_Unix
+		echo ;;
+	    *)
+		echo
+		echo "You are not licensed for the X11 platform."
+		echo
+		echo "Please contact sales@trolltech.com to upgrade your license"
+		echo "to include the X11 platform, or install the Qt Free Edition"
+		echo "if you intend to develop free software."
+		exit 1 ;;
+	    esac
+	fi
+	case $keyTest in
+	4|5|8|9|C|D|G|H|c|d|g|h)
+	    # Feature_Enterprise
+	    Desc="Enterprise"
+	    Edition="ent"
+	    ;;
+	*)
+	    Products=qt-professional
+	    Desc="Professional"
+	    Edition="pro"
+	    ;;
+	esac
+	case $keyTest in
+	3|5|7|9|B|D|F|H|b|d|f|h)
+	    # Feature_US
+	    cp -f $relpath/.LICENSE-US $relpath/LICENSE
+	    ;;
+	*)
+	    cp -f $relpath/.LICENSE $relpath/LICENSE
+	    ;;
+	esac
+    else
+	echo
+	echo "Invalid license key. Please check the license key."
+	exit 1
+    fi
+else
+    echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
+    echo "this software has disappeared."
+    echo
+    echo "Sorry, you are not licensed to use this software."
+    echo "Try re-installing."
+    echo
+    exit 0
 fi
 
 # check licensed modules
