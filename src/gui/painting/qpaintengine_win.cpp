@@ -496,8 +496,8 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     int w = r.width(), h = r.height();
 
     if (d->pStyle == NoPen) {
-        ++w;
-        ++h;
+        w++;
+        h++;
     }
 
     // Due to inclusive rectangles when using GM_ADVANCED
@@ -596,13 +596,24 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
 // //         setPen(d->bColor);
 // //         updatePen();
 //     }
+    int w = r.width();
+    int h = r.height();
+#ifdef NO_NATIVE_XFORM
+    if (d->pStyle == NoPen) {
+        ++w;
+        ++h;
+    }
+#else
+    --w;
+    --h;
+#endif
 
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
     if (r.width() == 1 && r.height() == 1)
         drawPoint(r.topLeft());
     else
-        Ellipse(d->hdc, r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
+        Ellipse(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 
@@ -621,8 +632,18 @@ void QWin32PaintEngine::drawArc(const QRect &r, int a, int alen)
         ra1 = ra2;
         ra2 = t;
     }
-    int w = r.width();
-    int h = r.height();
+
+    int w = r.width(), h = r.height();
+#ifdef NO_NATIVE_XFORM
+    if (d->pStyle == NoPen) {
+        ++w;
+        ++h;
+    }
+#else
+    --w;
+    --h;
+#endif
+
     if (d->pWidth > 3) {
         // work around a bug in the windows Arc method that
         // sometimes draw wrong cap styles.
@@ -667,12 +688,24 @@ void QWin32PaintEngine::drawPie(const QRect &r, int a, int alen)
         ra1 = ra2;
         ra2 = t;
     }
-    double w2 = 0.5*r.width();
-    double h2 = 0.5*r.height();
-    int xS = qRound(w2 + (cos(ra1)*r.width()) + r.x());
-    int yS = qRound(h2 - (sin(ra1)*r.height()) + r.y());
-    int xE = qRound(w2 + (cos(ra2)*r.width()) + r.x());
-    int yE = qRound(h2 - (sin(ra2)*r.height()) + r.y());
+
+    int w = r.width(), h = r.height();
+#ifdef NO_NATIVE_XFORM
+    if (d->pStyle == NoPen) {
+        ++w;
+        ++h;
+    }
+#else
+    --w;
+    --h;
+#endif
+
+    double w2 = 0.5*w;
+    double h2 = 0.5*h;
+    int xS = qRound(w2 + (cos(ra1)*w) + r.x());
+    int yS = qRound(h2 - (sin(ra1)*h) + r.y());
+    int xE = qRound(w2 + (cos(ra2)*w) + r.x());
+    int yE = qRound(h2 - (sin(ra2)*h) + r.y());
     if (QABS(alen) < 90*16) {
         if ((xS == xE) && (yS == yE)) {
             // don't draw a whole circle
@@ -699,12 +732,24 @@ void QWin32PaintEngine::drawChord(const QRect &r, int a, int alen)
         ra1 = ra2;
         ra2 = t;
     }
-    double w2 = 0.5*r.width();
-    double h2 = 0.5*r.height();
-    int xS = qRound(w2 + (cos(ra1)*r.width()) + r.x());
-    int yS = qRound(h2 - (sin(ra1)*r.height()) + r.y());
-    int xE = qRound(w2 + (cos(ra2)*r.width()) + r.x());
-    int yE = qRound(h2 - (sin(ra2)*r.height()) + r.y());
+
+    int w = r.width(), h = r.height();
+#ifdef NO_NATIVE_XFORM
+    if (d->pStyle == NoPen) {
+        ++w;
+        ++h;
+    }
+#else
+    --w;
+    --h;
+#endif
+
+    double w2 = 0.5*w;
+    double h2 = 0.5*h;
+    int xS = qRound(w2 + (cos(ra1)*w) + r.x());
+    int yS = qRound(h2 - (sin(ra1)*h) + r.y());
+    int xE = qRound(w2 + (cos(ra2)*w) + r.x());
+    int yE = qRound(h2 - (sin(ra2)*h) + r.y());
     if (QABS(alen) < 90*16) {
         if ((xS == xE) && (yS == yE)) {
             // don't draw a whole circle
