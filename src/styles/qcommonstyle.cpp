@@ -2168,13 +2168,14 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 		ctrl <<= 1;
 	    }
 	    if ( titlebar->window() ) {
-		if ( ret == SC_TitleBarMaxButton && titlebar->testWFlags( WStyle_Tool ) ) {
-		    if ( titlebar->window()->isMinimized() )
-			ret = SC_TitleBarUnshadeButton;
-		    else
-			ret = SC_TitleBarShadeButton;
-		} else if ( ret == SC_TitleBarMinButton && !titlebar->testWFlags( WStyle_Tool ) ) {
-		    if ( titlebar->window()->isMinimized() )
+		if (titlebar->testWFlags( WStyle_Tool )) {
+		    if ( ret == SC_TitleBarMinButton || ret == SC_TitleBarMaxButton ) {
+			if ( titlebar->window()->isMinimized() )
+			    ret = SC_TitleBarUnshadeButton;
+			else
+			    ret = SC_TitleBarShadeButton;
+		    }
+		} else if ( ret == SC_TitleBarMinButton && titlebar->window()->isMinimized() ) {
 			ret = QStyle::SC_TitleBarNormalButton;
 		}
 	    }
