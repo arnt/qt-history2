@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#include <qcleanuphandler.h>
 #include <designerinterface.h>
 #include <qfeatures.h>
 #include <qwidget.h>
