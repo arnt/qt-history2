@@ -58,11 +58,10 @@ public:
 #endif
 #endif
 
-    bool isMinimalMatching() const;
-    void setMinimalMatching(bool minimal);
+    bool isMinimal() const;
+    void setMinimal(bool minimal);
 #ifdef QT_COMPAT
-    inline QT_COMPAT bool minimal() const { return isMinimalMatching(); }
-    inline QT_COMPAT void setMinimal(bool minimal) { setMinimalMatching(minimal); }
+    inline QT_COMPAT bool minimal() const { return isMinimal(); }
 #endif
 
     bool exactMatch(const QString &str) const;

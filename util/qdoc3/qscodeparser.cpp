@@ -57,7 +57,7 @@ void QsCodeParser::initializeParser( const Config& config )
     while ( r != replaces.end() ) {
 	if ( replaceRegExp.exactMatch(*r) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
-	    before.setMinimalMatching( TRUE );
+	    before.setMinimal( TRUE );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
@@ -343,7 +343,7 @@ void QsCodeParser::extractTarget( const QString& target, QString& source,
 	    "(\\\\target\\s+(\\S+)[^\n]*\n"
 	    "(?:(?!\\s*\\\\code)[^\n]+\n|\\s*\\\\code.*\\\\endcode\\s*\n)*)"
 	    "(?:\\s*\n|[^\n]*$)" );
-    targetRegExp.setMinimalMatching( TRUE );
+    targetRegExp.setMinimal( TRUE );
 
     int pos = 0;
     while ( (pos = source.indexOf(targetRegExp, pos)) != -1 ) {
@@ -381,7 +381,7 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
     while ( a != args.end() ) {
 	if ( replaceRegExp.exactMatch(*a) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
-	    before.setMinimalMatching( TRUE );
+	    before.setMinimal( TRUE );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
@@ -406,11 +406,11 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
     }
 
     QRegExp codeRegExp( "\\\\" + COMMAND_CODE + "(.*)\\\\" + COMMAND_ENDCODE );
-    codeRegExp.setMinimalMatching( TRUE );
+    codeRegExp.setMinimal( TRUE );
 
     QRegExp quickcodeRegExp(
 	    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" + COMMAND_ENDQUICKCODE );
-    quickcodeRegExp.setMinimalMatching( TRUE );
+    quickcodeRegExp.setMinimal( TRUE );
 
     int quickcodePos = doc.source().indexOf( quickcodeRegExp );
     if ( quickcodePos != -1 ) {
@@ -760,7 +760,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 	    QRegExp quickcodeRegExp(
 		    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" +
 		    COMMAND_ENDQUICKCODE );
-	    quickcodeRegExp.setMinimalMatching( TRUE );
+	    quickcodeRegExp.setMinimal( TRUE );
 	    source.replace( quickcodeRegExp, "" );
 	}
 

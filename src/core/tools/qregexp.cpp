@@ -344,7 +344,7 @@
     Note that quantifiers are "greedy". They will match as much text
     as they can. For example, \bold{0+} will match as many zeros as it
     can from the first zero it finds, e.g. '2.\underline{000}5'.
-    Quantifiers can be made non-greedy, see setMinimalMatching().
+    Quantifiers can be made non-greedy, see setMinimal().
 
     \target capturing-text
     \section1 Capturing Text
@@ -495,7 +495,7 @@
     example, to match the Perl regexp \bold{ro+?m} requires:
     \code
         QRegExp rx("ro+m");
-        rx.setMinimalMatching(true);
+        rx.setMinimal(true);
     \endcode
 
     The equivalent of Perl's \c{/i} option is
@@ -674,7 +674,7 @@
     we need, \bold{.*\\.html?$}.
 
     QRegExp can match case insensitively using setCaseSensitivity(),
-    and can use non-greedy matching, see setMinimalMatching(). By
+    and can use non-greedy matching, see setMinimal(). By
     default QRegExp uses full regexps but this can be changed with
     setWildcard(). Searching can be forward with indexIn() or backward
     with lastIndexIn(). Captured text can be accessed using
@@ -3271,9 +3271,9 @@ QRegExp::QRegExp()
     syntax is \c Wildcard; the default is \c RegExp. The pattern is
     case sensitive, unless \a cs is Qt::CaseInsensitive. Matching is
     greedy (maximal), but can be changed by calling
-    setMinimalMatching().
+    setMinimal().
 
-    \sa setPattern(), setCaseSensitivity(), setPatternSyntax(), setMinimalMatching()
+    \sa setPattern(), setCaseSensitivity(), setPatternSyntax()
 */
 QRegExp::QRegExp(const QString &pattern, Qt::CaseSensitivity cs, PatternSyntax syntax)
 {
@@ -3494,9 +3494,9 @@ void QRegExp::setPatternSyntax(PatternSyntax syntax)
     Returns true if minimal (non-greedy) matching is enabled;
     otherwise returns false.
 
-    \sa setMinimalMatching()
+    \sa setMinimal()
 */
-bool QRegExp::isMinimalMatching() const
+bool QRegExp::isMinimal() const
 {
     return priv->min;
 }
@@ -3516,9 +3516,9 @@ bool QRegExp::isMinimalMatching() const
     \bold{<b>[^<]*\</b>} instead, although this will still fail for
     nested tags.
 
-    \sa isMinimalMatching()
+    \sa isMinimal()
 */
-void QRegExp::setMinimalMatching(bool minimal)
+void QRegExp::setMinimal(bool minimal)
 {
     priv->min = minimal;
 }
@@ -3898,13 +3898,7 @@ QString QRegExp::escape(const QString &str)
 /*!
     \fn bool QRegExp::minimal() const
 
-    Use \l isMinimalMatching() instead.
-*/
-
-/*!
-    \fn void QRegExp::setMinimal(bool minimal)
-
-    Use \l setMinimalMatching() instead.
+    Use \l isMinimal() instead.
 */
 
 /*!

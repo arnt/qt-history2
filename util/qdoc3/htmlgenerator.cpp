@@ -1176,7 +1176,7 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
 
     if (style == CodeMarker::SeparateList) {
 	QRegExp extraRegExp("<@extra>.*</@extra>");
-        extraRegExp.setMinimalMatching(true);
+        extraRegExp.setMinimal(true);
 	marked.replace(extraRegExp, "");
     } else {
         marked.replace( "<@extra>", "&nbsp;&nbsp;<tt>" );
@@ -1297,7 +1297,7 @@ QString HtmlGenerator::protect( const QString& string )
 QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *relative)
 {
     QRegExp linkTag("(<@link node=\"([^\"]+)\">).*(</@link>)");
-    linkTag.setMinimalMatching(true);
+    linkTag.setMinimal(true);
 
     QString html = markedCode;
 
