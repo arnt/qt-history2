@@ -2686,7 +2686,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		pw = pw->parentWidget();
 	    }
 	}
-	if ( o && o->inherits( "QDesignerToolBar" )
+	if ( o && ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDockWindowHandle" ) )
 	     && ( (QMouseEvent*)e )->button() == RightButton )
 	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
