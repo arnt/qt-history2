@@ -287,36 +287,36 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     }
 
 #ifndef Q_OS_TEMP
-        DATA_HBM = CreateBitmap( w, h, 1, 1, newbits );
+    DATA_HBM = CreateBitmap( w, h, 1, 1, newbits );
 #else
-	// WinCE must use DIBSections instead of Compatible Bitmaps
-	// so it's possible to get the colortable at a later point.
-	int   ncols           = 2;
-        int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD)*ncols;
-	char *bmi_data        = new char[bmi_data_len];
-	memset( bmi_data, 0, bmi_data_len );
-	BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
-	BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi_data;
-	bmh->biSize	      = sizeof(BITMAPINFOHEADER);
-	bmh->biWidth	      = w;
-	bmh->biHeight	      = -h; // top-down bitmap
-	bmh->biPlanes	      = 1;
-	bmh->biBitCount	      = 1;
-	bmh->biCompression    = BI_RGB;
-	bmh->biSizeImage      = 0;
-	bmh->biClrUsed	      = ncols;
-	bmh->biClrImportant   = 0;
-        QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
-	coltbl[1] = 0xffffff;
-	coltbl[0] = 0x0;
+    // WinCE must use DIBSections instead of Compatible Bitmaps
+    // so it's possible to get the colortable at a later point.
+    int   ncols           = 2;
+    int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD)*ncols;
+    char *bmi_data        = new char[bmi_data_len];
+    memset( bmi_data, 0, bmi_data_len );
+    BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
+    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi_data;
+    bmh->biSize           = sizeof(BITMAPINFOHEADER);
+    bmh->biWidth          = w;
+    bmh->biHeight         = -h; // top-down bitmap
+    bmh->biPlanes         = 1;
+    bmh->biBitCount       = 1;
+    bmh->biCompression    = BI_RGB;
+    bmh->biSizeImage      = 0;
+    bmh->biClrUsed        = ncols;
+    bmh->biClrImportant   = 0;
+    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+    coltbl[1] = 0xffffff;
+    coltbl[0] = 0x0;
 
-	DATA_HBM = CreateDIBSection( qt_display_dc(), 
-				     bmi,
-				     DIB_RGB_COLORS,
-				     (void**)&(data->ppvBits),
-				     NULL, 
-				     0 );
-	memcpy( data->ppvBits, newbits, bpl*h ); 
+    DATA_HBM = CreateDIBSection( qt_display_dc(),
+				 bmi,
+				 DIB_RGB_COLORS,
+				 (void**)&(data->ppvBits),
+				 NULL,
+				 0 );
+    memcpy( data->ppvBits, newbits, bpl*h );
 #endif
 
     hdc = alloc_mem_dc( DATA_HBM );
@@ -688,7 +688,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 #endif
     }
-
 
     int w = image.width();
     int h = image.height();
