@@ -26,7 +26,7 @@ struct QWSEvent : QWSProtocolItem {
 	SelectionRequest,
 	SelectionNotify,
 	MaxWindowRect,
-	PCOPMessage,
+	QCopMessage,
 	NEvent
     };
 
@@ -202,10 +202,10 @@ struct QWSPropertyReplyEvent : QWSEvent {
 };
 #endif //QT_NO_QWS_PROPERTIES
 
-#ifndef QT_NO_PCOP
-struct QWSPCOPMessageEvent : QWSEvent {
-    QWSPCOPMessageEvent()
-	: QWSEvent( QWSEvent::PCOPMessage, sizeof( simpleData ),
+#ifndef QT_NO_COP
+struct QWSQCopMessageEvent : QWSEvent {
+    QWSQCopMessageEvent()
+	: QWSEvent( QWSEvent::QCopMessage, sizeof( simpleData ),
 		(char*)&simpleData ) {}
 
     void setData( char *d, int len, bool allocateMem = TRUE ) {

@@ -851,13 +851,13 @@ void QWSServer::doClient( QWSClient *client )
 	    invokePlaySound( (QWSPlaySoundCommand*)cs->command, cs->client );
 	    break;
 #endif
-#ifndef QT_NO_PCOP
-	case QWSCommand::PCOPRegisterChannel:
-	    invokeRegisterChannel( (QWSPCOPRegisterChannelCommand*)cs->command,
+#ifndef QT_NO_COP
+	case QWSCommand::QCopRegisterChannel:
+	    invokeRegisterChannel( (QWSQCopRegisterChannelCommand*)cs->command,
 				   cs->client );
 	    break;
-	case QWSCommand::PCOPSend:
-	    invokePCOPSend( (QWSPCOPSendCommand*)cs->command, cs->client );
+	case QWSCommand::QCopSend:
+	    invokeQCopSend( (QWSQCopSendCommand*)cs->command, cs->client );
 	    break;
 #endif
 	}
@@ -1017,14 +1017,14 @@ QList<QWSInternalWindowInfo> * QWSServer::windowList()
     return ret;
 }
 
-#ifndef QT_NO_PCOP
-void QWSServer::sendPCOPEvent( QWSClient *c, const QCString &ch,
+#ifndef QT_NO_COP
+void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
 			       const QCString &msg, const QByteArray &data,
 			       bool response )
 {
     ASSERT( c );
     
-    QWSPCOPMessageEvent event;
+    QWSQCopMessageEvent event;
     event.simpleData.is_response = response;
     event.simpleData.lchannel = ch.length();
     event.simpleData.lmessage = msg.length();
@@ -1413,16 +1413,16 @@ void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient * )
 }
 #endif
 
-#ifndef QT_NO_PCOP
-void QWSServer::invokeRegisterChannel( QWSPCOPRegisterChannelCommand *cmd,
+#ifndef QT_NO_COP
+void QWSServer::invokeRegisterChannel( QWSQCopRegisterChannelCommand *cmd,
 				       QWSClient *client )
 {
-    PCOPChannel::registerChannel( cmd->channel, client );
+    QCopChannel::registerChannel( cmd->channel, client );
 }
 
-void QWSServer::invokePCOPSend( QWSPCOPSendCommand *cmd, QWSClient *client )
+void QWSServer::invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client )
 {
-    PCOPChannel::answer( client, cmd->channel, cmd->message, cmd->data );
+    QCopChannel::answer( client, cmd->channel, cmd->message, cmd->data );
 }
 
 #endif

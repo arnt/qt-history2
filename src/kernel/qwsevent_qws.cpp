@@ -43,9 +43,9 @@ QWSEvent *QWSEvent::factory( int type )
     case QWSEvent::SelectionNotify:
 	event = new QWSSelectionNotifyEvent;
 	break;
-#ifndef QT_NO_PCOP
-    case QWSEvent::PCOPMessage:
-	event = new QWSPCOPMessageEvent;
+#ifndef QT_NO_COP
+    case QWSEvent::QCopMessage:
+	event = new QWSQCopMessageEvent;
 	break;
 #endif
     default:

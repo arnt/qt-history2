@@ -240,13 +240,13 @@ public:
 };
 
 
-#ifndef QT_NO_PCOP
-// PCOP stuff. This should maybe move into qwindowsystem_qws.cpp
-typedef QMap<QString, QList<QWSClient> > PCOPServerMap;
-static PCOPServerMap *pcopServerMap = 0;
+#ifndef QT_NO_COP
+// QCOP stuff. This should maybe move into qwindowsystem_qws.cpp
+typedef QMap<QString, QList<QWSClient> > QCopServerMap;
+static QCopServerMap *qcopServerMap = 0;
 
-typedef QMap<QString, QList<PCOPChannel> > PCOPClientMap;
-static PCOPClientMap *pcopClientMap = 0;
+typedef QMap<QString, QList<QCopChannel> > QCopClientMap;
+static QCopClientMap *qcopClientMap = 0;
 #endif
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
@@ -303,8 +303,8 @@ private:
     QWSMouseEvent* mouse_event;
     QWSRegionModifiedEvent *region_event;
     QWSRegionModifiedEvent *region_ack;
-#ifndef QT_NO_PCOP
-    QWSPCOPMessageEvent *pcop_response;
+#ifndef QT_NO_COP
+    QWSQCopMessageEvent *qcop_response;
 #endif    
     QWSEvent* current_event;
     QValueList<int> unused_identifiers;
@@ -342,8 +342,8 @@ public:
     void waitForConnection();
     void waitForRegionAck();
     void waitForCreation();
-#ifndef QT_NO_PCOP
-    void waitForPCOPResponse();
+#ifndef QT_NO_COP
+    void waitForQCopResponse();
 #endif    
     void init();
     void create()
@@ -397,8 +397,8 @@ void QWSDisplayData::init()
     region_ack = 0;
     mouse_event = 0;
     region_event = 0;
-#ifndef QT_NO_PCOP
-    pcop_response = 0;
+#ifndef QT_NO_COP
+    qcop_response = 0;
 #endif
     current_event = 0;
 
@@ -587,11 +587,11 @@ void QWSDisplayData::fillQueue()
 	    } else {
 		queue.append(e);
 	    }
-#ifndef QT_NO_PCOP	    
-	} else if ( e->type == QWSEvent::PCOPMessage ) {
-	    QWSPCOPMessageEvent *pe = (QWSPCOPMessageEvent*)e;
+#ifndef QT_NO_COP	    
+	} else if ( e->type == QWSEvent::QCopMessage ) {
+	    QWSQCopMessageEvent *pe = (QWSQCopMessageEvent*)e;
 	    if ( pe->simpleData.is_response ) {
-		pcop_response = pe;
+		qcop_response = pe;
 	    } else {
 		queue.append(e);
 	    }
@@ -656,20 +656,20 @@ void QWSDisplayData::waitForCreation()
     }
 }
 
-#ifndef QT_NO_PCOP
-void QWSDisplayData::waitForPCOPResponse()
+#ifndef QT_NO_COP
+void QWSDisplayData::waitForQCopResponse()
 {
     if ( csocket )
 	csocket->flush();
     while ( 1 ) {
 	fillQueue();
-	if ( pcop_response )
+	if ( qcop_response )
 	    break;
 	if ( csocket )
 	    csocket->waitForMore(1000);
     }
-    queue.prepend(pcop_response);
-    pcop_response = 0;
+    queue.prepend(qcop_response);
+    qcop_response = 0;
 }
 #endif
 
@@ -1118,7 +1118,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     //qws_shared_memory = getenv("QWS_NOSHARED") == 0;
 
     int flags = 0;
-    const char *p;
+    char *p;
     int argc = *argcptr;
     int j;
 
@@ -1214,7 +1214,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	qws_single_process = TRUE;
 	QWSServer::startup(qws_display_id, flags);
 	QString env = QString("QWS_DISPLAY=") + qws_display_spec;
-	putenv( env.latin1() );
+	putenv( (char*)/*unwarn*/  env.latin1() );
     }
 
     if( qt_is_gui_used )
@@ -1285,7 +1285,7 @@ void qAddPostRoutine( Q_CleanUpFunction p )
 
 const char *qAppName()				// get application name
 {
-    return appName;
+    return (char*)/* bin-compat */  appName;
 }
 
 /*****************************************************************************
@@ -1985,10 +1985,10 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	QPaintDevice::qwsDisplay()->getPropertyData = data;
     }
 #endif //QT_NO_QWS_PROPERTIES
-#ifndef QT_NO_PCOP
-    if ( event->type == QWSEvent::PCOPMessage ) {
-	QWSPCOPMessageEvent *e = (QWSPCOPMessageEvent*)event;
-	PCOPChannel::processEvent( e->channel, e->message, e->data );
+#ifndef QT_NO_COP
+    if ( event->type == QWSEvent::QCopMessage ) {
+	QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)event;
+	QCopChannel::processEvent( e->channel, e->message, e->data );
     }
 #endif
     
@@ -2183,6 +2183,36 @@ void QApplication::processEvents( int maxtime )
 bool QApplication::qwsEventFilter( QWSEvent * )
 {
     return FALSE;
+}
+
+/*!
+  Set Qt/Embedded custom color table.
+
+  Qt/Embedded on 8-bpp displays allocates a standard 216 color cube.
+  The remaining 40 colors may be used by setting a custom color table in
+  the QWS master process before any clients connect.
+
+  \a colorTable is an array of up to 40 custom colors.  \a start is the
+  starting index (0-39) and \a numColors is the number of colors to be
+  set (1-40).
+
+  This method is non-portable.  It is available \e only in Qt/Embedded.
+*/
+void QApplication::qwsSetCustomColors( QRgb *colorTable, int start, int numColors )
+{
+    if ( start < 0 || start > 39 ) {
+	qWarning( "QApplication::qwsSetCustomColors - start < 0 || start > 39" );
+	return;
+    }
+    if ( start + numColors > 40 ) {
+	numColors = 40 - start;
+	qWarning( "QApplication::qwsSetCustomColors - too many colors" );
+    }
+    start += 216;
+    for ( int i = 0; i < numColors; i++ ) {
+	qt_screen->set( start + i, qRed(colorTable[i]), qGreen(colorTable[i]),
+			qBlue(colorTable[i]) );
+    }
 }
 
 #ifndef QT_NO_QWS_MANAGER
@@ -3279,55 +3309,59 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     }
 }
 
-#ifndef QT_NO_PCOP
+#ifndef QT_NO_COP
 
-class PCOPChannelPrivate
+class QCopChannelPrivate
 {
 public:
     QCString channel;
 };
 
-/*! \class PCOPChannel qwsdisplay_qws.h
+/*! \class QCopChannel qwsdisplay_qws.h
 
   \brief This class provides communication capabilities between several
   clients.
 
-  PCOP, the Palmtop COmmunication Protocol, allows clients to communicate
-  inside of the same address space or between different processes.
+  The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
+  communicate inside of the same address space or between different processes.
 
-  PCOPChannel is an abstract base class. Important functions like send()
-  and isRegistered() are static and therefore usable as is.
+  Currently, this facility is only available on Qt/Embedded as on X11
+  and Windows we are exploring the use of existing standard such as
+  DCOP and COM.
+
+  QCopChannel is an abstract base class. Important functions like send()
+  and isRegistered() are static and therefore usable without an object.
   In order to \e listen to the traffic on channel you have to subclass
-  from PCOPChannel and provide an implementation for receive().
+  from QCopChannel and provide an implementation for receive().
  */
 
 /*!
-  Constructs a PCOP channel and registers it with the server under the name
+  Constructs a QCop channel and registers it with the server under the name
   \a channel.
  */
 
-PCOPChannel::PCOPChannel( const QCString& channel )
+QCopChannel::QCopChannel( const QCString& channel )
 {
-    d = new PCOPChannelPrivate;
+    d = new QCopChannelPrivate;
     d->channel = channel;
 
     if ( !qt_fbdpy ) {
-	qFatal( "PCOPChannel: Must construct a QApplication "
-		"before PCOPChannel" );
+	qFatal( "QCopChannel: Must construct a QApplication "
+		"before QCopChannel" );
 	return;
     }
     
-    if ( !pcopClientMap )
-	pcopClientMap = new PCOPClientMap;
+    if ( !qcopClientMap )
+	qcopClientMap = new QCopClientMap;
 
     // do we need a new channel list ?
-    PCOPClientMap::Iterator it = pcopClientMap->find( channel );
-    if ( it == pcopClientMap->end() )
-	it = pcopClientMap->insert( channel, QList<PCOPChannel>() );
+    QCopClientMap::Iterator it = qcopClientMap->find( channel );
+    if ( it == qcopClientMap->end() )
+	it = qcopClientMap->insert( channel, QList<QCopChannel>() );
     it.data().append( this );
     
     // inform server about this channel
-    QWSPCOPRegisterChannelCommand reg;
+    QWSQCopRegisterChannelCommand reg;
     reg.setChannel( channel );
     // ### ugly
     qt_fbdpy->d->sendCommand( reg );
@@ -3339,10 +3373,10 @@ PCOPChannel::PCOPChannel( const QCString& channel )
   last registered client detaches.
 */
 
-PCOPChannel::~PCOPChannel()
+QCopChannel::~QCopChannel()
 {
-    PCOPClientMap::Iterator it = pcopClientMap->find( d->channel );
-    ASSERT( it != pcopClientMap->end() );
+    QCopClientMap::Iterator it = qcopClientMap->find( d->channel );
+    ASSERT( it != qcopClientMap->end() );
     it.data().removeRef( this );
     // still any clients connected locally ?
     if ( it.data().isEmpty() ) {
@@ -3350,7 +3384,7 @@ PCOPChannel::~PCOPChannel()
 	QDataStream s( data, IO_WriteOnly );
 	s << d->channel;
 	send( "", "detach()", data );
-	pcopClientMap->remove( d->channel );
+	qcopClientMap->remove( d->channel );
     }
     
     delete d;
@@ -3360,14 +3394,14 @@ PCOPChannel::~PCOPChannel()
   Returns the name of the channel.
  */
 
-QCString PCOPChannel::channel() const
+QCString QCopChannel::channel() const
 {
     return d->channel;
 }
 
 /*!
-  \fn void PCOPChannel::receive( const QCString &msg, const QByteArray &data )
-  This abstract virtual function allows subclasses of PCOPChannel to
+  \fn void QCopChannel::receive( const QCString &msg, const QByteArray &data )
+  This abstract virtual function allows subclasses of QCopChannel to
   process data received from their channel.
   Note that the format of \a data has to be well defined in order to
   demarshall the contained information.
@@ -3380,7 +3414,7 @@ QCString PCOPChannel::channel() const
   Returns TRUE if \a channel is registered.
  */
 
-bool PCOPChannel::isRegistered( const QCString& channel )
+bool QCopChannel::isRegistered( const QCString& channel )
 {
     QByteArray data;
     QDataStream s( data, IO_WriteOnly );
@@ -3389,9 +3423,9 @@ bool PCOPChannel::isRegistered( const QCString& channel )
 	return FALSE;
     
     // ### ugly
-    qt_fbdpy->d->waitForPCOPResponse();
-    QWSPCOPMessageEvent *e = (QWSPCOPMessageEvent*)qt_fbdpy->d->dequeue();
-    ASSERT( e->type == QWSEvent::PCOPMessage );
+    qt_fbdpy->d->waitForQCopResponse();
+    QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
+    ASSERT( e->type == QWSEvent::QCopMessage );
     ASSERT( e->channel == "" );
 
     return e->message == "known";
@@ -3404,7 +3438,7 @@ bool PCOPChannel::isRegistered( const QCString& channel )
   \sa receive()
  */
 
-bool PCOPChannel::send(const QCString &channel, const QCString &msg )
+bool QCopChannel::send(const QCString &channel, const QCString &msg )
 {
     QByteArray data;
     return send( channel, msg, data );
@@ -3416,16 +3450,16 @@ bool PCOPChannel::send(const QCString &channel, const QCString &msg )
   auxiliary data. 
  */
 
-bool PCOPChannel::send(const QCString &channel, const QCString &msg,
+bool QCopChannel::send(const QCString &channel, const QCString &msg,
 		       const QByteArray &data )
 {
     if ( !qt_fbdpy ) {
-	qFatal( "PCOPChannel::send: Must construct a QApplication "
-		"before using PCOPChannel" );
+	qFatal( "QCopChannel::send: Must construct a QApplication "
+		"before using QCopChannel" );
 	return FALSE;
     }
 
-    QWSPCOPSendCommand com;
+    QWSQCopSendCommand com;
     com.setMessage( channel, msg, data );
     qt_fbdpy->d->sendCommand( com );
     
@@ -3437,15 +3471,15 @@ bool PCOPChannel::send(const QCString &channel, const QCString &msg,
   Server side: subscribe client \a cl on channel \a ch.
  */
 
-void PCOPChannel::registerChannel( const QString &ch, const QWSClient *cl )
+void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
 {
-    if ( !pcopServerMap )
-	pcopServerMap = new PCOPServerMap;
+    if ( !qcopServerMap )
+	qcopServerMap = new QCopServerMap;
     
     // do we need a new channel list ? 
-    PCOPServerMap::Iterator it = pcopServerMap->find( ch );
-    if ( it == pcopServerMap->end() )
-	it = pcopServerMap->insert( ch, QList<QWSClient>() );
+    QCopServerMap::Iterator it = qcopServerMap->find( ch );
+    if ( it == qcopServerMap->end() )
+	it = qcopServerMap->insert( ch, QList<QWSClient>() );
 
     it.data().append( cl );
 }
@@ -3457,7 +3491,7 @@ void PCOPChannel::registerChannel( const QString &ch, const QWSClient *cl )
   specified channel.
  */
 
-void PCOPChannel::answer( QWSClient *cl, const QCString &ch,
+void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 			  const QCString &msg, const QByteArray &data )
 {
     // internal commands
@@ -3466,56 +3500,56 @@ void PCOPChannel::answer( QWSClient *cl, const QCString &ch,
 	    QCString c;
 	    QDataStream s( data, IO_ReadOnly );
 	    s >> c;
-	    QCString ans = pcopServerMap->contains( c ) ? "known" : "unkown";
-	    QWSServer::sendPCOPEvent( cl, "", ans, data, TRUE );
+	    QCString ans = qcopServerMap->contains( c ) ? "known" : "unkown";
+	    QWSServer::sendQCopEvent( cl, "", ans, data, TRUE );
 	    return;
 	} else if ( msg == "detach()" ) {
 	    QCString c;
 	    QDataStream s( data, IO_ReadOnly );
 	    s >> c;
-	    PCOPServerMap::Iterator it = pcopServerMap->find( c );
-	    if ( it != pcopServerMap->end() ) {
+	    QCopServerMap::Iterator it = qcopServerMap->find( c );
+	    if ( it != qcopServerMap->end() ) {
 		ASSERT( it.data().contains( cl ) );
 		it.data().remove( cl );
 		if ( it.data().isEmpty() )
-		    pcopServerMap->remove( it );
+		    qcopServerMap->remove( it );
 	    }
 	    return;
 	}
-	qWarning( "PCOPChannel: unknown internal command %s", msg.data() );
-	QWSServer::sendPCOPEvent( cl, "", "bad", data );
+	qWarning( "QCopChannel: unknown internal command %s", msg.data() );
+	QWSServer::sendQCopEvent( cl, "", "bad", data );
 	return;
     }
     
-    QList<QWSClient> clist = (*pcopServerMap)[ ch ];
+    QList<QWSClient> clist = (*qcopServerMap)[ ch ];
     if ( clist.isEmpty() ) {
-	qWarning( "PCOPChannel: no client registered for requested channel" );
+	qWarning( "QCopChannel: no client registered for requested channel" );
 	return;
     }
 
     QWSClient *c = clist.first();
     for (; c != 0; c = clist.next() ) {
-	QWSServer::sendPCOPEvent( c, ch, msg, data );
+	QWSServer::sendQCopEvent( c, ch, msg, data );
     }
 }
 
 /*!
   \internal
-  Client side: distribute received event to the PCOP instance managing the
+  Client side: distribute received event to the QCop instance managing the
   channel.
  */
-void PCOPChannel::processEvent( const QCString &ch, const QCString &msg,
+void QCopChannel::processEvent( const QCString &ch, const QCString &msg,
 				const QByteArray &data )
 {
-    ASSERT( pcopClientMap );
+    ASSERT( qcopClientMap );
     
     // filter out internal events
     if ( ch.isEmpty() )
 	return;
     
     // feed local clients with received data
-    QList<PCOPChannel> clients = (*pcopClientMap)[ ch ];
-    for ( PCOPChannel *p = clients.first(); p != 0; p = clients.next() )
+    QList<QCopChannel> clients = (*qcopClientMap)[ ch ];
+    for ( QCopChannel *p = clients.first(); p != 0; p = clients.next() )
 	p->receive( msg, data );
 }
 

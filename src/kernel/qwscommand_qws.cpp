@@ -183,12 +183,12 @@ QWSCommand *QWSCommand::factory( int type )
 	command = new QWSPlaySoundCommand;
 	break;
 #endif
-#ifndef QT_NO_PCOP
-    case QWSCommand::PCOPRegisterChannel:
-	command = new QWSPCOPRegisterChannelCommand;
+#ifndef QT_NO_COP
+    case QWSCommand::QCopRegisterChannel:
+	command = new QWSQCopRegisterChannelCommand;
 	break;
-    case QWSCommand::PCOPSend:
-	command = new QWSPCOPSendCommand;
+    case QWSCommand::QCopSend:
+	command = new QWSQCopSendCommand;
 	break;
 #endif
     default:

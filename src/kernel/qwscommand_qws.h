@@ -106,8 +106,8 @@ struct QWSCommand : QWSProtocolItem
 	SelectCursor,
 	GrabMouse,
 	PlaySound,
-	PCOPRegisterChannel,
-	PCOPSend
+	QCopRegisterChannel,
+	QCopSend
     };
     static QWSCommand *factory( int type );
 };
@@ -344,11 +344,11 @@ struct QWSPlaySoundCommand : public QWSCommand
 #endif
 
 
-#ifndef QT_NO_PCOP
-struct QWSPCOPRegisterChannelCommand : public QWSCommand
+#ifndef QT_NO_COP
+struct QWSQCopRegisterChannelCommand : public QWSCommand
 {
-    QWSPCOPRegisterChannelCommand() :
-	QWSCommand( QWSCommand::PCOPRegisterChannel,
+    QWSQCopRegisterChannelCommand() :
+	QWSCommand( QWSCommand::QCopRegisterChannel,
 		    sizeof( simpleData ), (char *)&simpleData ) {}
 
     void setData( char *d, int len, bool allocateMem ) {
@@ -367,10 +367,10 @@ struct QWSPCOPRegisterChannelCommand : public QWSCommand
     QString channel;
 };
 
-struct QWSPCOPSendCommand : public QWSCommand
+struct QWSQCopSendCommand : public QWSCommand
 {
-    QWSPCOPSendCommand() :
-	QWSCommand( QWSCommand::PCOPSend,
+    QWSQCopSendCommand() :
+	QWSCommand( QWSCommand::QCopSend,
 		    sizeof( simpleData ), (char *)&simpleData ) {}
 
     void setData( char *d, int len, bool allocateMem ) {

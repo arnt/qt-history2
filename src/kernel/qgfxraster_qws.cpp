@@ -1133,11 +1133,25 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 
 inline void QGfxRasterBase::useBrush()
 {
+#ifndef QT_NO_QWS_DEPTH_8
+    if ( qt_screen->depth() == 8 ) {
+	const QColor &c = cbrush.color();
+	pixel = qt_screen->alloc( c.red(), c.green(), c.blue() );
+	return;
+    }
+#endif
     pixel = cbrush.color().pixel();
 }
 
 inline void QGfxRasterBase::usePen()
 {
+#ifndef QT_NO_QWS_DEPTH_8
+    if ( qt_screen->depth() == 8 ) {
+	const QColor &c = cpen.color();
+	pixel = qt_screen->alloc( c.red(), c.green(), c.blue() );
+	return;
+    }
+#endif
     pixel = cpen.color().pixel();
 }
 
@@ -1149,6 +1163,13 @@ void QGfxRasterBase::setBrush( const QBrush & b )
     } else {
 	patternedbrush=FALSE;
     }
+#ifndef QT_NO_QWS_DEPTH_8
+    if ( qt_screen->depth() == 8 ) {
+	const QColor &c = b.color();
+	srccol = qt_screen->alloc( c.red(), c.green(), c.blue() );
+	return;
+    }
+#endif
     srccol=b.color().pixel();
 }
 
@@ -2751,12 +2772,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 
 	    if(av==255) {
-		// Do nothing - we already have source values in r,g,b
-	    } else if(av==0) {
-		r=*(tmp+2);
-		g=*(tmp+1);
-		b=*(tmp+0);
-	    } else {
+		*myptr = GFX_8BPP_PIXEL(r,g,b);
+	    } else if ( av > 0 ) {
 	        r-=*(tmp+2);
 	        g-=*(tmp+1);
 	        b-=*(tmp+0);
@@ -2769,17 +2786,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        r+=*(tmp+2);
 	        g+=*(tmp+1);
 	        b+=*(tmp+0);
+		*myptr = GFX_8BPP_PIXEL(r,g,b);
 	    }
-	    alphabuf[loopc] = GFX_8BPP_PIXEL(r,g,b);
+	    myptr++;
 	}
-
-	// Now write it all out
-
-	myptr=l;
-	myptr+=x1;
-	for(loopc=0;loopc<w;loopc++)
-	    *(myptr++) = alphabuf[loopc];
-
     } else if ( depth == 1 ) {
 	static int warn;
 	if ( warn++ < 5 )
@@ -3533,55 +3543,33 @@ QGfx * QScreen::screenGfx()
 
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 {
-    // First we look to see if we have an exact match
+    // First we look to see if we match a default color
     QRgb myrgb=qRgb(r,g,b);
     int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-    if(screenclut[pos]==myrgb || !initted) {
+    if ( screenclut[pos] == myrgb || !initted ) {
 	return pos;
     }
 
-    // Now look for a free slot - 0 means a free slot since a 'real' 0
-    // would match in the color cube
+    // search for nearest color
+    int ret = 0;
+    unsigned int mindiff = 0xffffffff;
+    unsigned int diff;
+    int dr,dg,db;
 
-    int ret=-1;
+    for ( int loopc = 0; loopc < 256; loopc++ ) {
+	dr = qRed(screenclut[loopc]) - r;
+	dg = qGreen(screenclut[loopc]) - g;
+	db = qBlue(screenclut[loopc]) - b;
+	diff = dr*dr + dg*dg + db*db;
 
-    for(int loopc=216;loopc<256;loopc++) {
-	if(screenclut[loopc]==myrgb) {
-	    return loopc;
-	}
-	if(screenclut[loopc]==0) {
-	    screenclut[loopc]=myrgb;
-	    set(loopc,r,g,b);
-	    return loopc;
-	}
-    }
-
-    // No free slots, look for closest match in whole palette
-
-    unsigned int hold=0xfffff;
-    unsigned int tmp;
-
-    int h1,s1,v1;
-    int h2,s2,v2;
-
-    if(ret==-1) {
-	for(int loopc=0;loopc<256;loopc++) {
-	    h1=qRed(screenclut[loopc]);
-	    s1=qGreen(screenclut[loopc]);
-	    v1=qBlue(screenclut[loopc]);
-	    h2=r;
-	    s2=g;
-	    v2=b;
-	    tmp=abs(h1-h2);
-	    tmp+=abs(s1-s2);
-	    tmp+=abs(v1-v2);
-
-	    if(tmp<hold) {
-		hold=tmp;
-		ret=loopc;
-	    }
+	if ( diff < mindiff ) {
+	    ret = loopc;
+	    if ( !diff )
+		break;
+	    mindiff = diff;
 	}
     }
+
     return ret;
 }
 

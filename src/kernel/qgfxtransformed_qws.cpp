@@ -239,7 +239,23 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
 	h = img.width();
     }
 
-    QImage rimg( w, h, img.depth(), img.numColors(), img.bitOrder() );
+    QImage rimg;
+    if ( img.depth() > 8 ) {
+	rimg = QImage( w, h, img.depth(), img.numColors(), img.bitOrder() );
+    } else {
+	// Unpadded
+	int linestep = (w * img.depth() + 7) / 8;
+	uchar* unpadded_data = new uchar[h*linestep];
+	QRgb* cmap;
+	int nc = img.numColors();
+	if ( nc ) {
+	    cmap = new QRgb[nc];
+	} else {
+	    cmap = 0;
+	}
+	rimg = QImage( unpadded_data, w, h,
+		img.depth(), linestep, cmap, nc, img.bitOrder() );
+    }
 
     for ( int i = 0; i < img.numColors(); i++ ) {
 	rimg.colorTable()[i] = img.colorTable()[i];

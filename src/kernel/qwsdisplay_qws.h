@@ -56,16 +56,16 @@ public:
 #define QT_QWS_PROPERTY_CONVERTSELECTION 999
 #define QT_QWS_PROPERTY_WINDOWNAME 998
 
-#ifndef QT_NO_PCOP
+#ifndef QT_NO_COP
 
-class PCOPChannelPrivate;
+class QCopChannelPrivate;
 class QWSClient;
 
-class PCOPChannel
+class QCopChannel
 {
 public:
-    PCOPChannel( const QCString& channel );
-    virtual ~PCOPChannel();
+    QCopChannel( const QCString& channel );
+    virtual ~QCopChannel();
 
     QCString channel() const;
 
@@ -83,7 +83,7 @@ private:
     // client side
     static void processEvent(  const QCString &ch, const QCString &msg,
 			       const QByteArray &data );
-    PCOPChannelPrivate* d;
+    QCopChannelPrivate* d;
 
     friend class QWSServer;
     friend class QApplication;
@@ -143,7 +143,7 @@ public:
 
 private:
     friend class QApplication;
-    friend class PCOPChannel;
+    friend class QCopChannel;
     QWSDisplayData *d;
 
     int getPropertyLen;

@@ -139,7 +139,7 @@ class QWSServer : private QWSServerSocket
 class QWSServer : private QObject
 #endif
 {
-    friend class PCOPChannel;
+    friend class QCopChannel;
     Q_OBJECT
 
 public:
@@ -191,8 +191,8 @@ public:
 	return &propertyManager;
     }
 #endif
-#ifndef QT_NO_PCOP
-    static void sendPCOPEvent( QWSClient *c, const QCString &ch,
+#ifndef QT_NO_COP
+    static void sendQCopEvent( QWSClient *c, const QCString &ch,
 			       const QCString &msg, const QByteArray &data,
 			       bool response = FALSE );
 #endif
@@ -253,10 +253,10 @@ private:
 #ifndef QT_NO_SOUND
     void invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client );
 #endif
-#ifndef QT_NO_PCOP
-    void invokeRegisterChannel( QWSPCOPRegisterChannelCommand *cmd,
+#ifndef QT_NO_COP
+    void invokeRegisterChannel( QWSQCopRegisterChannelCommand *cmd,
 				QWSClient *client );
-    void invokePCOPSend( QWSPCOPSendCommand *cmd, QWSClient *client );
+    void invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client );
 
 #endif
 
@@ -344,7 +344,7 @@ private:
 #ifndef QT_NO_SOUND
     QWSSoundServer *soundserver;
 #endif
-#ifndef QT_NO_PCOP
+#ifndef QT_NO_COP
     QMap<QString, QList<QWSClient> > channels;
 #endif
 };
