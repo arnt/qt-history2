@@ -176,11 +176,11 @@ public:
     QLayoutWidget( QWidget *parent, const char *name ) : QWidget( parent, name ), sp( QWidget::sizePolicy() ) {}
 
     QSizePolicy sizePolicy() const;
+    void updateSizePolicy();
 
 protected:
     void paintEvent( QPaintEvent * );
     bool event( QEvent * );
-    void updateSizePolicy();
     QSizePolicy sp;
 
 };

@@ -313,6 +313,8 @@ void HorizontalLayout::doLayout()
 		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
 	    else
 		layout->addWidget( w );
+	    if ( w->inherits( "QLayoutWidget" ) )
+		( (QLayoutWidget*)w )->updateSizePolicy();
 	}
 	w->show();
     }
@@ -375,6 +377,8 @@ void VerticalLayout::doLayout()
 		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
 	    else
 		layout->addWidget( w );
+	    if ( w->inherits( "QLayoutWidget" ) )
+		( (QLayoutWidget*)w )->updateSizePolicy();
 	}
 	w->show();
     }
@@ -745,6 +749,8 @@ void GridLayout::doLayout()
 	    } else {
 		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, w->inherits( "Spacer" ) ? ( (Spacer*)w )->alignment() : 0 );
 	    }
+	    if ( w->inherits( "QLayoutWidget" ) )
+		( (QLayoutWidget*)w )->updateSizePolicy();
 	    w->show();
 	} else {
 	    qWarning("ooops, widget '%s' does not fit in layout", w->name() );
