@@ -487,7 +487,7 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
     else
 	buttonDim = ( length - b*2 )/2 - 1;
 
-    sliderMin = b + HORIZONTAL?(buttonDim + buttonDim):1; //b + buttonDim;
+    sliderMin = b + 1; //b + buttonDim;
     maxLength  = length - b*2 - buttonDim*2;
 
      if ( sb->maxValue() == sb->minValue() ) {
@@ -595,30 +595,33 @@ QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, 
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
     pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
     
-    if (sb->orientation() == QScrollBar::Horizontal) {
+    if (sb->orientation() == QScrollBar::Horizontal) 
 	pos = p.x();
-	if (pos < buttonDim)
-	    return SUB_LINE;
-	if (pos < 2 * buttonDim)
-	    return ADD_LINE;
-	if (pos < sliderStart)
-	    return SUB_PAGE;
-	if (pos > sliderStart + sliderLength)
-	    return ADD_PAGE;
-	return SLIDER;
-    }
-    else {
+    else
 	pos = p.y();
-	if (pos < sliderStart)
-	    return SUB_PAGE;
-	if (pos < sliderStart + sliderLength)
-	    return SLIDER;
-	if (pos < sliderMax + sliderLength)
-	    return ADD_PAGE;
-	if (pos < sliderMax + sliderLength + buttonDim)
-	    return SUB_LINE;
+    
+    if (pos < sliderStart)
+	return SUB_PAGE;
+    if (pos < sliderStart + sliderLength)
+	return SLIDER;
+    if (pos < sliderMax + sliderLength)
+	return ADD_PAGE;
+    if (pos < sliderMax + sliderLength + buttonDim)
+	return SUB_LINE;
+    return ADD_LINE;
+
+/*
+    if (pos < buttonDim)
+	return SUB_LINE;
+    if (pos < 2 * buttonDim)
 	return ADD_LINE;
-    }
+    if (pos < sliderStart)
+	return SUB_PAGE;
+    if (pos > sliderStart + sliderLength)
+	return ADD_PAGE;
+    return SLIDER;
+
+*/
 }
 
 /*!
@@ -647,13 +650,16 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     int extent = HORIZONTAL ? sb->height() : sb->width();
 
     if ( HORIZONTAL ) {
-	subY = addY = ( extent - dimB ) / 2;
-	subX = b;
-	addX = b + dimB; //length - dimB - b;
+ 	subY = addY = ( extent - dimB ) / 2;
+ 	subX = length - dimB - dimB - b; //b;
+ 	addX = length - dimB - b;
+// 	subY = addY = ( extent - dimB ) / 2;
+// 	subX = b;
+// 	addX = b + dimB; //length - dimB - b;
     } else {
-	subX = addX = ( extent - dimB ) / 2;
-	subY = length - dimB - dimB - b; //b;
-	addY = length - dimB - b;
+ 	subX = addX = ( extent - dimB ) / 2;
+ 	subY = length - dimB - dimB - b; //b;
+ 	addY = length - dimB - b;
     }
 
     subB.setRect( subX,subY,dimB,dimB );
@@ -662,20 +668,19 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     int sliderEnd = sliderStart + sliderLength;
     int sliderW = extent - b*2;
     if ( HORIZONTAL ) {
-	subPageR.setRect( addB.right() + 1, b,
-			  sliderStart - addB.right() - 1 , sliderW );
-	addPageR.setRect( sliderEnd, b, length - b - sliderEnd, sliderW );
+ 	subPageR.setRect( b + 1, b,
+ 			  sliderStart - 1 , sliderW );
+ 	addPageR.setRect( sliderEnd, b, subX - sliderEnd, sliderW );
+ 	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
 // 	subPageR.setRect( subB.right() + 1, b,
 // 			  sliderStart - subB.right() - 1 , sliderW );
 // 	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+// 	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+
     } else {
 	subPageR.setRect( b, b + 1, sliderW,
 			  sliderStart - b - 1 );
 	addPageR.setRect( b, sliderEnd, sliderW, subY - sliderEnd );
-// 	subPageR.setRect( b, subB.bottom() + 1, sliderW,
-// 			  sliderStart - subB.bottom() - 1 );
-// 	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
 	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
     }
 

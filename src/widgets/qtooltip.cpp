@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#70 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -404,7 +404,7 @@ void QTipManager::showTip()
     QTipManager::Tip *t = (*tips)[ widget ];
     while ( t && !t->rect.contains( pos ) )
 	t = t->next;
-    if ( t == 0 || t == previousTip )
+    if ( t == 0 ) //   #### || t == previousTip )
 	return;
 
     if ( t->tip ) {
@@ -931,7 +931,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.64 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.65 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
