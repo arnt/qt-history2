@@ -123,18 +123,61 @@ QString QSqlIndex::name() const
 }
 
 /*!
-  Returns a comma separated list of the fields in the index.
+  Returns a comma separated list of the fields in the index.  If no prefix
+  is specified, tableName() is prefixed to all field names.
 
 */
 
-QString QSqlIndex::toString() const
+QString QSqlIndex::toString( const QString& prefix = QString::null ) const
 {
-    return flist;
+    QString pfix = ( prefix.isNull() ? tableName() : prefix ) + ".";
+    QString pflist = flist;
+    pflist = pfix + pflist.replace( QRegExp(", "), QString(", ") + pfix );
+    return pflist;
 }
 
 uint QSqlIndex::count() const
 {
     return fieldList.count();
 }
+
+/////////////
+
+/*!
+    \class QSqlRelation qsqlindex.h
+    \brief Class used for relating SQL tables or views
+
+    \module database
+*/
+
+/*!  Constructs a SQL relation as a link between \a parentIndex and \a childIndex.
+  The number of fields in \a parentIndex must be less than or equal to the number of 
+  fields in \a childIndex.  If no \name is given, the relation name defaults to:
+  
+  \code
+  parentIndex.tableName() + " to " + childIndex.tableName()
+  \endcode
+  
+*/
+
+QSqlRelation::QSqlRelation( const QSqlIndex& parentIndex, const QSqlIndex& childIndex, const QString& name )
+    : pIdx( parentIndex ), cIdx( childIndex ), nm( name )
+{
+    if ( nm.isNull() )
+	nm = parentIndex.tableName() + " to " + childIndex.tableName();
+}
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QSqlRelation::~QSqlRelation()
+{
+    
+}
+
+/*! \fn QString name() const
+  Returns the name of the relation.
+*/
 
 #endif

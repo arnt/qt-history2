@@ -120,7 +120,15 @@ public:
 	posMap.clear();
     }
     uint count() const { return fieldList.count(); }
-    QString toString() const { return fieldListStr; }
+    QString toString( const QString& prefix = QString::null ) const 
+    { 
+	if ( prefix.isNull() )
+	    return fieldListStr;
+	QString pfix =  prefix + ".";
+	QString pflist = fieldListStr;
+	pflist = pfix + pflist.replace( QRegExp(", "), QString(", ") + pfix );
+	return pflist;
+    }
 private:
     QString fieldListStr;
     QMap< QString, int > posMap;

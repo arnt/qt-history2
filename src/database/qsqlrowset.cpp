@@ -6,12 +6,12 @@
 
 #ifndef QT_NO_SQL
 
-QString qOrderByClause( const QSqlIndex & i )
+QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
 {
     QString str;
     int k = i.fields().count();
     if( k == 0 ) return QString::null;
-    str = " order by " + i.toString();
+    str = " order by " + i.toString( prefix );
     return str;
 }
 
@@ -89,12 +89,12 @@ bool QSqlRowset::select( const QSqlIndex& sort )
 
 bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString str= "select " + toString();
+    QString str= "select " + toString( tableName );
     str += " from " + tableName;
     if ( !filter.isNull() && filter != "*" )
 	str += " where " + filter;
     if ( sort.count() )
-	str += " order by " + sort.toString();
+	str += " order by " + sort.toString( tableName );
     str += ";";
     return query( str );
 }
@@ -120,9 +120,9 @@ bool QSqlRowset::select( const QSqlIndex & filter, const QSqlIndex & sort )
     return select( fieldEqualsValue( "and", filter ), sort );
 }
 
-QString qMakeFieldValue( QSqlField& field, const QString& op = "=" )
+QString qMakeFieldValue( const QString& prefix, QSqlField& field, const QString& op = "=" )
 {
-    QString f = field.name();
+    QString f = prefix + "." + field.name();
     if( (field.type() == QVariant::String) || (field.type() == QVariant::CString) )
 	f += " " + op + " '" + field.value().toString() + "'";
     else
@@ -143,13 +143,13 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 	for( int j = 0; j < k; ++j ){
 	    if( j > 0 )
 		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( field( i.fields().field(j).name() ) );
+	    filter += qMakeFieldValue( tableName, field( i.fields().field(j).name() ) );
 	}
     } else { // use all fields
  	for ( uint j = 0; j < count(); ++j ) {
 	    if ( j > 0 )
 		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( field( j ) );
+	    filter += qMakeFieldValue( tableName, field( j ) );
 	}
     }
     return filter;

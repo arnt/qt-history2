@@ -49,7 +49,7 @@ int QSqlView::insert()
     int k = count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
-    str += " (" + QSqlFieldList::toString() + ")";
+    str += " (" + QSqlFieldList::toString( name() ) + ")";
     str += " values (";
     QString vals;
     for( int j = 0; j < k; ++j ){
