@@ -44,7 +44,7 @@ class QMacSockNotPrivate;
 #endif
 
 #if defined(Q_OS_UNIX) || defined (Q_WS_WIN)
-#include "list.h"
+#include "qlist.h"
 #endif // Q_OS_UNIX || Q_WS_WIN
 
 #include "qobject_p.h"
