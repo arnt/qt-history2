@@ -16,8 +16,6 @@
 #define QT_NO_CAST_TO_ASCII
 #define QT_CHECK_STATE
 
-#define QAX_NUM_PARAMS 8
-
 #include "qaxobject.h"
 
 #include <quuid.h>
@@ -893,7 +891,7 @@ void QAxBase::clear()
     while (it != d->eventSink.end()) {
 	QAxEventSink *eventSink = it.value();
 	++it;
-	if (eventSink) { //XXX should not happen!
+	if (eventSink) { //### should not happen!
 	    eventSink->unadvise();
 	    eventSink->Release();
 	}
@@ -1201,7 +1199,7 @@ private:
     QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function );
     QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function );
 
-    // XXX from qmetaobject.cpp
+    // ### from qmetaobject.cpp
     enum ProperyFlags  {
 	Invalid			= 0x00000000,
 	Readable		= 0x00000001,
@@ -2644,7 +2642,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 
 	// map result VARIANTARG to void*
 	QVariantToVoidStar(VARIANTToQVariant(arg, prop.type()), *v);
-	//XXXwrapComPointer(*_v, arg.vt, qObject(), prop->name());
+	//### wrapComPointer(*_v, arg.vt, qObject(), prop->name());
 	break;
 
     case QMetaObject::WriteProperty:
