@@ -26,6 +26,8 @@ SOURCES	        += ../src/sqlinterpreter.cpp \
 		../src/filedriver_xbase.cpp \
 		../src/op.cpp \
 		../src/parser.cpp \
+		../src/main.cpp \
+		../src/localsql_qt.cpp \
 		../src/localsql.cpp 
 LIBS		+= -lxdb
 TARGET          += lsql

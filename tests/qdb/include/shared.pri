@@ -21,7 +21,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 CONFIG		+= qt warn_on debug console
-DEFINES		+= QT_LITE_UNICODE QT_NO_COMPONENT 
+DEFINES		+= QT_LITE_UNICODE
 INCLUDEPATH	+= ../include
 xbase {
 	INCLUDEPATH	+= $$XBASE_ROOT

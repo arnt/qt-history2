@@ -1,152 +1,104 @@
-#include "sqlinterpreter.h"
-#include <qvariant.h>
-#include <qvaluelist.h>
+/*
+    Xbase project source code
 
-#define FILENAME "test.dbf"
+    This file contains the LocalSQL component implementation
 
-int main( int /*argc*/, char** /*argv*/ )
+    Copyright (C) 2000 Dave Berton (db@trolltech.com)
+		       Jasmin Blanchette (jasmin@trolltech.com)
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+*/
+
+#include <qfeatures.h>
+
+#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_SQL
+
+#include <qsqldriverinterface.h>
+#include <localsql_qt.h>
+
+class LocalSQLDriverPlugin : public QSqlDriverInterface
 {
+public:
+    LocalSQLDriverPlugin();
 
-    Environment env;
+    QUnknownInterface *queryInterface( const QUuid& );
+    unsigned long addRef();
+    unsigned long release();
 
-#if 0
-    /* create a table :
+    QSqlDriver* create( const QString &name );
+    QStringList featureList() const;
 
-       create table test(
-       id numeric(10),
-       name character(30)
-       );
+private:
+    unsigned long ref;
+};
 
-     */
-    env.program().append( new Push( "id" ) );
-    env.program().append( new Push( QVariant::Int ) );
-    env.program().append( new Push( 10 ) );
-    env.program().append( new Push( 0 ) );
-    env.program().append( new PushList( 4 ) );
-    env.program().append( new Push( "name" ) );
-    env.program().append( new Push( QVariant::String ) );
-    env.program().append( new Push( 30 ) );
-    env.program().append( new Push( 0 ) );
-    env.program().append( new PushList( 4 ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Create( FILENAME ) );
-#endif
+LocalSQLDriverPlugin::LocalSQLDriverPlugin()
+: ref( 0 )
+{
+}
 
-#if 0
-    /* insert some records */
-    env.program()->append( new Open( 0, FILENAME ) );
-    env.program()->append( new Push( "id" ) );
-    env.program()->append( new Push( 12 ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new Push( "name" ) );
-    env.program()->append( new Push( QString("db") ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new Insert( 0 ) );
-    env.program()->append( new Close( 0 ) );
-    env.program().append( new Close( 0 ) );
-#endif
+QUnknownInterface *LocalSQLDriverPlugin::queryInterface( const QUuid &uuid )
+{
+    QUnknownInterface *iface = 0;
+    if ( uuid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( uuid == IID_QFeatureListInterface )
+	iface = (QFeatureListInterface*)this;
+    else if ( uuid == IID_QSqlDriverInterface )
+	iface = (QSqlDriverInterface*)this;
 
-#if 0
-    /* create an index on id field */
-    env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new PushFieldDesc( 0, "id" ) );
-    env.program().append( new PushList( 1 ) );
-    env.program().append( new CreateIndex( 0, QVariant(FALSE,1) ) );
-    env.program().append( new Close( 0 ) );
-#endif
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
 
-#if 0
-    /* delete records with id = 2 */
-    env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new Next( 0, 6 ) );
-    env.program().append( new PushFieldValue( 0, 0 ) );
-    env.program().append( new Push( 2 ) );
-    env.program().append( new Ne( 1 ) );
-    env.program().append( new Mark( 0 ) );
-    //env.program().append( new Goto( 1 ) );
-    //env.program().append( new DeleteMarked( 0 ) );
-    env.program().append( new RewindMarked( 0 ) );
-    env.program().append( new NextMarked( 0 , 12 ) );
-    env.program().append( new Push( 99 ) );
-    env.program().append( new Push( QString("blarging") ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new Update( 0 ) );
-    env.program().append( new Close( 0 ) );
-#endif
+unsigned long LocalSQLDriverPlugin::addRef()
+{
+    return ref++;
+}
 
-#if 0
-    /* update a record */
-    env.program()->append( new Open( 0, FILENAME ) );
-    env.program()->append( new Next( 0, 6 ) );
-    env.program()->append( new Push( QString("name") ) );
-    env.program()->append( new Push( QString("blarg") ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new Update( 0 ) );
-    env.program()->append( new Close( 0 ) );
-#endif
+unsigned long LocalSQLDriverPlugin::release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
 
-#if 0
-    /* create an index on name field */
-    env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new PushFieldDesc( 0, "name" ) );
-    env.program().append( new PushList( 1 ) );
-    env.program().append( new CreateIndex( 0, QVariant(FALSE,1) ) );
-    env.program().append( new Close( 0 ) );
-#endif
+    return ref;
+}
 
-    /* select some records using a range scan */
-    env.program()->append( new Open( 0, FILENAME ) );
-    env.program()->append( new PushFieldDesc( 0, "id" ) );
-    env.program()->append( new PushFieldDesc( 0, "name" ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new CreateResult( 0 ) );
-    env.program()->append( new PushFieldDesc( 0, "name" ) );
-    env.program()->append( new Push( "blarg" ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new RangeScan( 0 ) );
-    env.program()->append( new RewindMarked( 0 ) );
-    env.program()->append( new NextMarked( 0 , 16 ) );
-    env.program()->append( new PushFieldValue( 0, 0 ) );
-    env.program()->append( new PushFieldValue( 0, 1 ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new SaveResult( 0 ) );
-    env.program()->append( new Goto( 10 ) );
-    env.program()->append( new PushFieldDesc( 0, "id" ) );
-    env.program()->append( new Push( QVariant( TRUE, 0 )  ) );
-    env.program()->append( new PushList( 2 ) );
-    env.program()->append( new Sort( 0 ) );
-    env.program()->append( new Close( 0 ) );
-
-#if 0
-    /* select all records and sort */
-    env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new PushFieldDesc( 0, "id" ) );
-    env.program().append( new PushFieldDesc( 0, "name" ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new CreateResult( 0 ) );
-    env.program().append( new Next( 0 , 11 ) );
-    env.program().append( new PushFieldValue( 0, 0 ) );
-    env.program().append( new PushFieldValue( 0, 1 ) );
-    env.program().append( new PushList( 2 ) );
-    env.program().append( new SaveResult( 0 ) );
-    env.program().append( new Goto( 5 ) );
-    env.program().append( new PushFieldDesc( 0, "id" ) );
-    env.program().append( new Push( QVariant( FALSE, 0 )  ) );
-    env.program().append( new PushFieldDesc( 0, "name" ) );
-    env.program().append( new Push( QVariant( TRUE, 0 ) ) );
-    env.program().append( new PushList( 4 ) );
-    env.program().append( new Sort( 0 ) );
-    env.program().append( new Close( 0 ) );
-#endif
-
-#if 0
-    /* drop a table */
-    env.program().append( new Drop( 0, FILENAME ) );
-#endif
-
-    env.execute();
-    env.saveListing( "programlisting" );
-
+QSqlDriver* LocalSQLDriverPlugin::create( const QString &name )
+{
+    if ( name == "LocalSQL" )
+	return new LocalSQLDriver();
     return 0;
 }
+
+QStringList LocalSQLDriverPlugin::featureList() const
+{
+    QStringList l;
+    l.append("LocalSQL");
+    return l;
+}
+
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( LocalSQLDriverPlugin )
+}
+
+#endif
+#endif
