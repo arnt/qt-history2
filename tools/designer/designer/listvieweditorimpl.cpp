@@ -61,7 +61,7 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
 void ListViewEditor::applyClicked()
 {
     setupItems();
-    PopulateListViewCommand *cmd = new PopulateListViewCommand( tr( "Edit Items and Columns of '%1'" ).arg( listview->name() ),
+    PopulateListViewCommand *cmd = new PopulateListViewCommand( tr( "Edit the Items and Columns of '%1'" ).arg( listview->name() ),
 								formwindow, listview, itemsPreview );
     cmd->execute();
     formwindow->commandHistory()->addCommand( cmd );

@@ -529,7 +529,7 @@ void HierarchyList::removeTabPage()
 	QTabWidget *tw = (QTabWidget*)w;
 	if ( tw->currentPage() ) {
 	    QDesignerTabWidget *dtw = (QDesignerTabWidget*)tw;
-	    DeleteTabPageCommand *cmd = new DeleteTabPageCommand( tr( "Remove Page %1 of %2" ).
+	    DeleteTabPageCommand *cmd = new DeleteTabPageCommand( tr( "Delete Page %1 of %2" ).
 								  arg( dtw->pageTitle() ).arg( tw->name() ),
 								  formWindow, tw, tw->currentPage() );
 	    formWindow->commandHistory()->addCommand( cmd );
@@ -539,7 +539,7 @@ void HierarchyList::removeTabPage()
 	QWizard *wiz = (QWizard*)formWindow->mainContainer();
 	if ( wiz->currentPage() ) {
 	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
-	    DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" ).
+	    DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" ).
 									arg( dw->pageTitle() ).arg( wiz->name() ),
 									formWindow, wiz,
 									wiz->indexOf( wiz->currentPage() ), TRUE );

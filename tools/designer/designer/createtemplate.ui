@@ -77,7 +77,7 @@
             </property>
             <property>
                 <name>whatsThis</name>
-                <string>Enter the name of the new template here</string>
+                <string>Enter the name of the new template</string>
             </property>
         </widget>
         <widget row="1"  column="1"  rowspan="2"  colspan="1" >
@@ -92,7 +92,7 @@
             </property>
             <property>
                 <name>whatsThis</name>
-                <string>Choose the class which should be used as baseclass for the new template here</string>
+                <string>Enter the name of the class which should be used as the template's base class</string>
             </property>
         </widget>
         <widget row="3"  column="0"  rowspan="1"  colspan="2" >

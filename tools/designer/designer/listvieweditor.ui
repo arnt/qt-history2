@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Listview&lt;/b&gt;&lt;p&gt;Use the controls on the &lt;b&gt;Items&lt;/b&gt;-tab to add, change and remove items in the listview. Change the column configuration of the view using the controls on the &lt;b&gt;Columns&lt;/b&gt;-tab.&lt;/p&gt;Press the &lt;b&gt;New Item&lt;/b&gt;-button to create a new item and enter a text or provide a pixmap.&lt;/p&gt;&lt;p&gt;Select an item from the list and press the &lt;b&gt;Delete Item&lt;/b&gt;-button to remove the item from the list.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Listview&lt;/b&gt;&lt;p&gt;Use the controls on the &lt;b&gt;Items&lt;/b&gt;-tab to add, edit or delete items in the listview. Change the column configuration of the listview using the controls on the &lt;b&gt;Columns&lt;/b&gt;-tab.&lt;/p&gt;Click the &lt;b&gt;New Item&lt;/b&gt;-button to create a new item, then enter text and add a pixmap.&lt;/p&gt;&lt;p&gt;Select an item from the list and click the &lt;b&gt;Delete Item&lt;/b&gt;-button to remove the item from the list.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -82,7 +82,7 @@
                             <string>Delete item</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Deletes the selected item.&lt;/b&gt;&lt;p&gt;Existing subitems are deleted, too.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Deletes the selected item.&lt;/b&gt;&lt;p&gt;Any sub-items are also deleted.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QGroupBox" row="0" column="2" rowspan="8" colspan="1">
@@ -155,7 +155,7 @@
                                     <string>Change column</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Select the current column.&lt;/b&gt;&lt;p&gt;Itemtext and pixmap will be changed for the current column&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Select the current column.&lt;/b&gt;&lt;p&gt;The item's text and pixmap will be changed for the current column&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="0" column="0">
@@ -211,7 +211,7 @@
                                             <string>Delete Pixmap</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Delete the pixmap of the selected item.&lt;/b&gt;&lt;p&gt;The pixmap in the current column of the selected item will be deleted.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Delete the selected item's pixmap.&lt;/b&gt;&lt;p&gt;The pixmap in the current column of the selected item will be deleted.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                     <widget class="QPushButton">
@@ -231,7 +231,7 @@
                                             <string>Select a Pixmap</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Select a pixmap-file for the item.&lt;/b&gt;&lt;p&gt;The pixmap will be changed in the current column of the selected item.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Select a pixmap file for the item.&lt;/b&gt;&lt;p&gt;The pixmap will be changed in the current column of the selected item.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                 </hbox>
@@ -271,7 +271,7 @@
                             <string>Add a subitem</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Create a new subitem for the selected item.&lt;/b&gt;&lt;p&gt;New subitems are inserted at the top of the list of subitems, and new levels will be created automatically.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Create a new sub-item for the selected item.&lt;/b&gt;&lt;p&gt;New sub-items are inserted at the top of the list of sub-items, and new levels are created automatically.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <spacer row="3" column="1">
@@ -305,7 +305,7 @@
                             <string>Move up</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The item will be moved within the hierarchy level.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The item will be moved within its level in the hierarchy.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="5" column="1">
@@ -322,7 +322,7 @@
                             <string>Move down</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The item will be moved within the hierarchy level.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The item will be moved within its level in the hierarchy.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="6" column="1">
@@ -339,7 +339,7 @@
                             <string>Move left</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item one level up.&lt;/b&gt;&lt;p&gt;This will also change the level of the parent item.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item one level up.&lt;/b&gt;&lt;p&gt;This will also change the level of the item's sub-items.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="7" column="1">
@@ -356,7 +356,7 @@
                             <string>Move right</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item one level down.&lt;/b&gt;&lt;p&gt;This will also change the level of the parent item.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item one level down.&lt;/b&gt;&lt;p&gt;This will also change the level of the item's sub-items.&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </grid>
@@ -454,7 +454,7 @@
                                     <string>Select a Pixmap</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Select a pixmap-file for the selected column.&lt;/b&gt;&lt;p&gt;The pixmap will be displayed in the header of the listview.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Select a pixmap file for the selected column.&lt;/b&gt;&lt;p&gt;The pixmap will be displayed in the header of the listview.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="0" column="0">
@@ -493,7 +493,7 @@
                                     <string>Clicka&amp;ble</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>If this option is checked, the selected column will react on mouseclicks on the header.</string>
+                                    <string>If this option is checked, the selected column will react to mouse clicks on the header.</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox" row="3" column="0" rowspan="1" colspan="2">
@@ -537,7 +537,7 @@
                             <string>Move down</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The top-most column will be the first column in the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="0" column="1">
@@ -551,7 +551,7 @@
                             <string>Add a Column</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Create a new column.&lt;/b&gt;&lt;p&gt;New columns are appended to the list and may be moved using the up- and down-buttons.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Create a new column.&lt;/b&gt;&lt;p&gt;New columns are appended at the end of (right of) the list and may be moved using the up- and down-buttons.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="3" column="1">
@@ -568,7 +568,7 @@
                             <string>Move up</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The top-most column will be the first column in the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QListBox" row="0" column="0" rowspan="5" colspan="1">
@@ -669,7 +669,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -683,7 +683,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

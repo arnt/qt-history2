@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Listbox&lt;/b&gt;&lt;p&gt;Add, change and remove items in the listbox.&lt;/p&gt;&lt;p&gt;Press the &lt;b&gt;New Item&lt;/b&gt;-button to create a new listbox entry, and enter text or choose a pixmap.&lt;/p&gt;&lt;p&gt;Select an item from the list and press the &lt;b&gt;Delete Item&lt;/b&gt;-button to remove the item from the list.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Listbox&lt;/b&gt;&lt;p&gt;Add, edit or delete items in the listbox.&lt;/p&gt;&lt;p&gt;Click the &lt;b&gt;New Item&lt;/b&gt;-button to create a new listbox entry, then enter text and choose a pixmap.&lt;/p&gt;&lt;p&gt;Select an item from the list and click the &lt;b&gt;Delete Item&lt;/b&gt;-button to remove the item from the list.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">
@@ -120,7 +120,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -134,7 +134,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>
@@ -206,7 +206,7 @@
                         <string>Delete Pixmap</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Delete the pixmap of the selected item.</string>
+                        <string>Delete the selected item's pixmap.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton" row="1" column="3">
@@ -226,7 +226,7 @@
                         <string>Select a Pixmap</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Choose a pixmap-file for the selected item.</string>
+                        <string>Choose a pixmap file for the selected item.</string>
                     </property>
                 </widget>
                 <widget class="QLabel" row="0" column="0">
@@ -254,7 +254,7 @@
                         <string>Change text</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Change the text of the selected item.</string>
+                        <string>Change the selected item's text.</string>
                     </property>
                 </widget>
             </grid>

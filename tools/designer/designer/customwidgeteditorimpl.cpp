@@ -210,8 +210,9 @@ void CustomWidgetEditor::addWidgetClicked()
     QString s = w->className;
     if ( !MetaDataBase::addCustomWidget( w ) ) {
 	QMessageBox::information( this, tr( "Adding a Custom Widget" ),
-				  tr( "There exists already a custom widget with the name '%1',\n"
-				      "so it is not possible to add another one with this name." ).arg( s ) );
+				  tr( "Custom widget names must be unique.\n"
+				      "A custom widget called '%1' already exists, so it is not possible "
+				      "to add another widget with this name." ).arg( s ) );
 	return;
     }
 
@@ -257,7 +258,7 @@ void CustomWidgetEditor::deleteWidgetClicked()
 
     if ( mainWindow->isCustomWidgetUsed( w ) ) {
 	QMessageBox::information( mainWindow, tr( "Removing Custom Widget" ),
-				  tr( "The custom widget '%1' is currently used, so it can't be removed." ).
+				  tr( "The custom widget '%1' is in use, so it cannot be removed." ).
 				  arg( w->className ) );
 	return;
     }
@@ -378,8 +379,9 @@ void CustomWidgetEditor::checkWidgetName()
 	QString s = w->className;
 	w->className = oldName;
 	QMessageBox::information( this, tr( "Renaming a Custom Widget" ),
-				  tr( "The name '%1' is already use by another custom widget,\n"
-				      "so it is not possible to rename it to this name." ).arg( s ) );
+				  tr( "Custom widget names must be unique.\n"
+				      "A custom widget called '%1' already exists, so it is not possible "
+				      "to rename this widget with this name." ).arg( s ) );
 	if ( i != boxWidgets->item( boxWidgets->currentItem() ) ) {
 	    boxWidgets->setCurrentItem( i );
 	    qApp->processEvents();

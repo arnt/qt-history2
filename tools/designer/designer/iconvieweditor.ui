@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Iconview&lt;/b&gt;&lt;p&gt;Add, change and remove items in the icon view.&lt;/p&gt;&lt;p&gt;Press the &lt;b&gt;New Item&lt;/b&gt;-button to create a new entry, and enter a text or choose a pixmap.&lt;/p&gt;&lt;p&gt;Select an item from the view and press the &lt;b&gt;Delete Item&lt;/b&gt;-button to remove the item from the view.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Iconview&lt;/b&gt;&lt;p&gt;Add, edit or delete items in the icon view.&lt;/p&gt;&lt;p&gt;Click the &lt;b&gt;New Item&lt;/b&gt;-button to create a new item, then enter text and choose a pixmap.&lt;/p&gt;&lt;p&gt;Select an item from the view and click the &lt;b&gt;Delete Item&lt;/b&gt;-button to remove the item from the iconview.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -69,7 +69,7 @@
                         <cstring>preview</cstring>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>All items in the view.</string>
+                        <string>All items in the iconview.</string>
                     </property>
                 </widget>
                 <widget class="QLayoutWidget">
@@ -97,7 +97,7 @@
                                 <string>Add an item</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>Create a new item for the view.</string>
+                                <string>Create a new item for the iconview.</string>
                             </property>
                         </widget>
                         <widget class="QPushButton">
@@ -237,7 +237,7 @@
                                         <string>Delete Pixmap</string>
                                     </property>
                                     <property name="whatsThis" stdset="0">
-                                        <string>Delete the pixmap of the selected item.</string>
+                                        <string>Delete the selected item's pixmap.</string>
                                     </property>
                                 </widget>
                                 <widget class="QPushButton">
@@ -257,7 +257,7 @@
                                         <string>Select a Pixmap</string>
                                     </property>
                                     <property name="whatsThis" stdset="0">
-                                        <string>Select a pixmap-file for the current item.</string>
+                                        <string>Select a pixmap file for the current item.</string>
                                     </property>
                                 </widget>
                             </hbox>
@@ -336,7 +336,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -350,7 +350,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

@@ -125,7 +125,7 @@ void WizardEditor::removeClicked()
     listBox->removeItem( index);
 
     // schedule remove command
-    DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" )
+    DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" )
 								.arg( listBox->text( index ) ).arg( wizard->name() ),
 								formwindow, wizard, index, FALSE );
     commands.append( cmd );

@@ -145,7 +145,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	    break;
 	}
     }
-	
+
     signalBox->setCurrentItem( signalBox->firstItem() );
 
     fillConnectionsList();
@@ -284,7 +284,7 @@ void ConnectionEditor::disconnectClicked()
 void ConnectionEditor::okClicked()
 {
     MacroCommand *rmConn = 0, *addConn = 0;
-    QString n = tr( "Connect/Disconnect signals and slots of '%1' and '%2'" ).arg( sender->name() ).arg( receiver->name() );
+    QString n = tr( "Connect/Disconnect the signals and slots of '%1' and '%2'" ).arg( sender->name() ).arg( receiver->name() );
     QValueList<MetaDataBase::Connection>::Iterator cit;
     if ( !oldConnections.isEmpty() ) {
 	QPtrList<Command> commands;

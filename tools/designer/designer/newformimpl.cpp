@@ -149,8 +149,8 @@ void CustomFormItem::insert( Project *pro )
 	FormFile *ff = new FormFile( filename, TRUE, pro );
 	if ( !resource.load( ff ) ) {
 	    QMessageBox::information( MainWindow::self, MainWindow::tr("Load Template"),
-				      MainWindow::tr("Couldn't load form description from template " +
-						     filename ) );
+				      MainWindow::tr("Couldn't load form description from template '" +
+						     filename + "'" ) );
 	    delete ff;
 	    return;
 	}
@@ -317,7 +317,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 		si->setDragEnabled( FALSE );
 	    }
 	    iface->release();
-	}	
+	}
     }
 
     QStringList sourceTemplates = MainWindow::self->sourceTemplates();

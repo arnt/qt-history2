@@ -92,7 +92,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Connect current action</string>
+                        <string>Connect current Action</string>
                     </property>
                 </widget>
                 <spacer>

@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Preferences&lt;/b&gt;&lt;p&gt;Change the preferences of the designer application. There is always one tab with general preferenced. Depending on installed plugins, there might be more tabs for plugin preferences.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Preferences&lt;/b&gt;&lt;p&gt;Change the preferences of Qt Designer. There is always one tab with general preferences. There may be additional tabs, depending on which plugins are installed.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -111,7 +111,7 @@
                                     <string>Choose a color</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Select a color in the colordialog.</string>
+                                    <string>Select a color in the color dialog.</string>
                                 </property>
                             </widget>
                             <widget class="QRadioButton" row="0" column="0">
@@ -168,7 +168,7 @@
                                     <string>Select a pixmap</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Choose a pixmap-file.</string>
+                                    <string>Choose a pixmap file.</string>
                                 </property>
                             </widget>
                         </grid>
@@ -324,7 +324,7 @@
                             </size>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
+                            <string>A splash screen is displayed when starting Qt Designer if this option is checked.</string>
                         </property>
                     </spacer>
                     <widget class="QGroupBox" row="2" column="0">
@@ -358,7 +358,7 @@
                                     <string>Restore last workspace</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>The current workspace settings will be restored next time you start the designer if this option is checked.</string>
+                                    <string>The current workspace settings will be restored the next time you start Qt Designer if this option is checked.</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox">
@@ -375,7 +375,7 @@
                                     <string>Show Splashscreen</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
+                                    <string>A splash screen is displayed when starting Qt Designer if this option is checked.</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox">
@@ -419,7 +419,7 @@
                                             <cstring>editDocPath</cstring>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Enter the path to the documentation.&lt;/b&gt;&lt;p&gt;You may provide an $environment variable as first part of your pathname.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Enter the path to the documentation.&lt;/b&gt;&lt;p&gt;You may provide an $environment variable as the first part of the pathname.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                     <widget class="QToolButton">
@@ -471,7 +471,7 @@
                                     <string>Big Icons</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Uses big icons in the toolbars when checked.</string>
+                                    <string>Big icons will be used in the toolbars if this is checked.</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox">
@@ -485,7 +485,7 @@
                                     <string>Text Labels</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Shows textlabels in the toolbars when checked.</string>
+                                    <string>Text labels will be usin in the toolbars if this is checked.</string>
                                 </property>
                             </widget>
                         </vbox>
@@ -549,7 +549,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -566,7 +566,7 @@
                         <bool>false</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

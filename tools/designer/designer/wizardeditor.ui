@@ -211,7 +211,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -225,7 +225,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

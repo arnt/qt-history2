@@ -33,8 +33,8 @@ ConnectionViewer::ConnectionViewer( QWidget *parent, FormWindow *fw )
     : ConnectionViewerBase( parent, 0, TRUE ), formWindow( fw )
 {
     readConnections();
-    editButton->setEnabled( (connectionListView->currentItem() != 0));	
-    disconnectButton->setEnabled( (connectionListView->currentItem() != 0));	
+    editButton->setEnabled( (connectionListView->currentItem() != 0));
+    disconnectButton->setEnabled( (connectionListView->currentItem() != 0));
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 }
 
@@ -79,7 +79,7 @@ void ConnectionViewer::editConnection()
 	editor.exec();
 	connectionListView->clear();
 	readConnections();
-    }	
+    }
 }
 
 void ConnectionViewer::currentConnectionChanged( QListViewItem *i )
@@ -90,8 +90,8 @@ void ConnectionViewer::currentConnectionChanged( QListViewItem *i )
 	return;
     }
 
-    editButton->setEnabled( TRUE );	
-    disconnectButton->setEnabled( TRUE );	
+    editButton->setEnabled( TRUE );
+    disconnectButton->setEnabled( TRUE );
 }
 
 void ConnectionViewer::readConnections()
@@ -106,7 +106,7 @@ void ConnectionViewer::readConnections()
 	if ( formWindow->isMainContainer( (QWidget*)(*it).receiver ) &&
 	     !MetaDataBase::hasSlot( formWindow, MetaDataBase::normalizeSlot( (*it).slot ).latin1() ) )
 	    continue;
-	
+
 	MetaDataBase::Connection conn = *it;
 	if ( !noselection ) {
 	    if ( conn.sender->isWidgetType() && !selection.contains( (QWidget*)(conn.sender) )
@@ -134,7 +134,7 @@ void ConnectionViewer::disconnectConnection()
 	return;
 
     MetaDataBase::Connection conn = connections[ connectionListView->currentItem() ];
-    RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove connection between %1 and %2" ).
+    RemoveConnectionCommand *cmd = new RemoveConnectionCommand( tr( "Remove connection between '%1' and '%2'" ).
 								arg( conn.sender->name() ).arg( conn.receiver->name() ),
 								formWindow, conn );
     formWindow->commandHistory()->addCommand( cmd );

@@ -160,7 +160,7 @@ QString SourceFile::createUnnamedFileName( const QString &extension )
 	count = 1;
 	extensionCounter->insert( extension, count );
     }
-	
+
     return "unnamed" + QString::number( count ) + "." + extension;
 }
 
@@ -226,7 +226,7 @@ void SourceFile::checkTimeStamp()
 	return;
     timeStamp.update();
     if ( QMessageBox::information( MainWindow::self, tr( "Qt Designer" ),
-				   tr( "The file %1 has been changed outside Qt Designer.\n"
+				   tr( "File '%1' has been changed outside Qt Designer.\n"
 				       "Do you want to reload it?" ).arg( filename ),
 				   tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
 	load();
@@ -240,7 +240,7 @@ void SourceFile::checkFileName()
     SourceFile *sf = pro->findSourceFile( filename, this );
     if ( sf )
 	QMessageBox::warning( MainWindow::self, tr( "Invalid Filename" ),
-			      tr( "The project contains already a sourcefile with the\n"
+			      tr( "The project already contains a source file with \n"
 				  "filename '%1'. Please choose a new filename." ).arg( filename ) );
     while ( sf ) {
 	LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );

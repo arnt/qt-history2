@@ -131,8 +131,9 @@ void EditSlots::okClicked()
     }
 
     if ( invalidSlots ) {
-	if ( QMessageBox::information( this, tr( "Edit Slots" ), tr( "Some syntatically wrong slots defined.\n"
-								     "Remove these slots?" ),
+	if ( QMessageBox::information( this, tr( "Edit Slots" ),
+					     tr( "Some syntactically incorrect slots have been defined.\n"
+						 "Remove these slots?" ),
 				       tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
 	    QListViewItemIterator it( slotListView );
 	    QListViewItem *i;
@@ -329,5 +330,5 @@ void EditSlots::setCurrentSlot( const QString &slot )
 	}
 	++it;
     }
-		
+
 }

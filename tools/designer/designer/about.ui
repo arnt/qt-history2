@@ -65,7 +65,7 @@
                 <cstring>TextLabel1_2</cstring>
             </property>
             <property name="text">
-                <string>Copyright (C) 2000-2001 Trolltech AS</string>
+                <string>Copyright (C) 2000-2001 Trolltech AS. All Rights Reserved</string>
             </property>
             <property name="alignment">
                 <set>AlignCenter</set>

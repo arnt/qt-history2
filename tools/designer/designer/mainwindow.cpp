@@ -156,8 +156,8 @@ MainWindow::MainWindow( bool asClient )
 
     statusBar()->clear();
 #if defined(QT_NON_COMMERCIAL)
-    statusBar()->addWidget( new QLabel(tr("Ready - This is the non-commercial version of Qt - For commercial"
-	" evaluation purposes, use the help menu to register with Trolltech."), statusBar()), 1 );
+    statusBar()->addWidget( new QLabel(tr("Ready - This is the non-commercial version of Qt - "
+	"For commercial evaluations, use the help menu to register with Trolltech."), statusBar()), 1 );
 #else
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
 #endif
@@ -308,19 +308,22 @@ void MainWindow::setupPropertyEditor()
     dw->setWidget( propertyEditor );
     dw->setFixedExtentWidth( 300 );
     dw->setCaption( tr( "Property Editor/Signal Handlers" ) );
-    QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
-					"<p>You can change the appearance and behaviour of the selected widget in the "
-					"property editor.</p>"
-					"<p>You can set properties for components and forms at design time and see the "
-					"changes immediately. Each property has its own editor which you can use to enter "
-					"new values, open a special dialog or select values from a predefined list. "
-					"Use <b>F1</b> to get detailed help for the selected property.</p>"
-					"<p>You can resize the columns of the editor by dragging the separators of the list "
-					"header.</p>"
-					"<p><b>Signal Handlers</b></p>"
-					"<p>In the Signal Handlers tab you can define connections between "
-					"signals of widgets and slots of the form. That is just a convenience "
-					"way, you can use the connection tool to do that as well." ) );
+    QWhatsThis::add( propertyEditor,
+		     tr("<b>The Property Editor</b>"
+			"<p>You can change the appearance and behavior of the selected widget in the "
+			"property editor.</p>"
+			"<p>You can set properties for components and forms at design time and see the "
+			"immediately see the effects of the changes. "
+			"Each property has its own editor which (depending on the property) can be used "
+			"to enter "
+			"new values, open a special dialog, or to select values from a predefined list. "
+			"Click <b>F1</b> to get detailed help for the selected property.</p>"
+			"<p>You can resize the columns of the editor by dragging the separators in the "
+			"list's header.</p>"
+			"<p><b>Signal Handlers</b></p>"
+			"<p>In the Signal Handlers tab you can define connections between "
+			"the signals emitted by widgets and the slots in the form. "
+			"(These connections can also be made using the connection tool.)" ) );
     dw->show();
 }
 
@@ -350,12 +353,14 @@ void MainWindow::setupHierarchyView()
 
     dw->setCaption( tr( "Object Explorer" ) );
     dw->setFixedExtentWidth( 300 );
-    QWhatsThis::add( hierarchyView, tr("<b>The Object Explorer</b>"
-				      "<p>The object explorer gives a quick overview about the relations "
-				      "between the widgets in your form. You can use the clipboard functions using "
-				      "a context menu for each item in the view.</p>"
-				      "<p>The columns can be resized by dragging the separator in the list header.</p>"
-				       "<p>On the second tab you can see all the declared slots, variables, includes, etc. of the form.</p>") );
+    QWhatsThis::add( hierarchyView,
+		     tr("<b>The Object Explorer</b>"
+			"<p>The Object Explorer provides an overview of the relationships "
+			"between the widgets in a form. You can use the clipboard functions using "
+			"a context menu for each item in the view. It is also useful for selecting widgets "
+			"in forms that have complex layouts.</p>"
+			"<p>The columns can be resized by dragging the separator in the list's header.</p>"
+			"<p>The second tab shows all the form's slots, class variables, includes, etc.</p>") );
     dw->show();
 }
 
@@ -376,9 +381,10 @@ void MainWindow::setupWorkspace()
     dw->setWidget( vbox );
 
     dw->setCaption( tr( "File Overview" ) );
-    QWhatsThis::add( wspace, tr("<b>The File Overview box</b>"
-				  "<p>The File Overview Box displays all files of all projects, including forms and source files.</p>"
-				"<p>Its search field allows rapid switching between files.</p>"));
+    QWhatsThis::add( wspace, tr("<b>The File Overview Window</b>"
+				"<p>The File Overview Window displays all the files in all "
+				"open projects, including forms and source files.</p>"
+				"<p>Use the search field to rapidly switch between files.</p>"));
     dw->setFixedExtentHeight( 100 );
     dw->show();
 }
@@ -393,7 +399,13 @@ void MainWindow::setupActionEditor()
     dw->setWidget( actionEditor );
     actionEditor->show();
     dw->setCaption( tr( "Action Editor" ) );
-    QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
+    QWhatsThis::add( actionEditor, tr("<b>The Action Editor</b>"
+				      "<p>The Action Editor is used to add actions and action groups to "
+				      "a form, and to connect actions to slots. Actions and action "
+				      "groups can be dragged into menus and into toolbars, and may "
+				      "feature keyboard shortcuts and tooltips. If actions have pixmaps "
+				      "these are displayed on toolbar buttons and besides their names in "
+				      "menus.</p>" ) );
     dw->hide();
     setAppropriate( dw, FALSE );
 }
@@ -827,8 +839,8 @@ void MainWindow::helpContents()
 	    f.close();
 	} else {
 #if 0
-	    QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation property index file!\n"
-					    "Define the correct documentation path in the preferences dialog." ) );
+	    QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation index file!\n"
+					    "Please set the correct documentation path in the preferences dialog." ) );
 #endif
 	}
     }
@@ -1273,11 +1285,12 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 {
     if ( fw )
 	QWhatsThis::add( fw, tr( "<b>The Form Window</b>"
-			       "<p>Use the different tools to add widgets or to change the layout "
-			       "and behaviour of the components in your form. Select one or multiple "
-			       "widgets and move them, or resize a single widget using the handles.</p>"
-			       "<p>Changes in the <b>Property Editor</b> can be seen at design time, "
-			       "and you can open a preview of your form in different styles.</p>"
+			       "<p>Use the various tools to add widgets or to change the layout "
+			       "and behavior of the components in the form. Select one or multiple "
+			       "widgets to move them or lay them out. If a single widget is chosen it can "
+			       "be resized using the resize handles.</p>"
+			       "<p>Changes in the <b>Property Editor</b> are visible at design time, "
+			       "and you can preview the form in different styles.</p>"
 			       "<p>You can change the grid resolution, or turn the grid off in the "
 			       "<b>Preferences</b> dialog in the <b>Edit</b> menu."
 			       "<p>You can have several forms open, and all open forms are listed "
@@ -1323,8 +1336,7 @@ void MainWindow::createNewProject( const QString &lang )
     }
 
     if ( !pro->isValid() ) {
-	QMessageBox::information( this, tr("New Project"),
-			tr("Cannot create invalid project." ) );
+	QMessageBox::information( this, tr("New Project"), tr( "Cannot create an invalid project." ) );
 	delete pro;
 	return;
     }
@@ -1573,7 +1585,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator( 0 );
 	if ( ( (QDesignerTabWidget*)w )->count() > 1) {
-	    ids << ( id = rmbWidgets->insertItem( tr("Remove Page"), -1, 0 ) );
+	    ids << ( id = rmbWidgets->insertItem( tr("Delete Page"), -1, 0 ) );
 	    commands.insert( "remove", id );
 	}
 	ids << ( id = rmbWidgets->insertItem( tr("Add Page"), -1, 0 ) );
@@ -1596,7 +1608,7 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	    ids << rmbFormWindow->insertSeparator( 0 );
 
 	if ( ( (QWizard*)fw->mainContainer() )->pageCount() > 1) {
-	    ids << ( id = rmbFormWindow->insertItem( tr("Remove Page"), -1, 0 ) );
+	    ids << ( id = rmbFormWindow->insertItem( tr("Delete Page"), -1, 0 ) );
 	    commands.insert( "remove", id );
 	}
 
@@ -1631,7 +1643,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
 	if ( ok ) {
-	    QString pn( tr( "Set 'text' of '%2'" ).arg( w->name() ) );
+	    QString pn( tr( "Set the 'text' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "text", w->property( "text" ),
 							      text, QString::null, QString::null );
@@ -1643,7 +1655,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	bool ok = FALSE;
 	QString title = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
 	if ( ok ) {
-	    QString pn( tr( "Set 'title' of '%2'" ).arg( w->name() ) );
+	    QString pn( tr( "Set the 'title' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "title", w->property( "title" ),
 							      title, QString::null, QString::null );
@@ -1655,7 +1667,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	bool ok = FALSE;
 	QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, w->property("pageTitle").toString(), &ok, this );
 	if ( ok ) {
-	    QString pn( tr( "Set 'pageTitle' of '%2'" ).arg( w->name() ) );
+	    QString pn( tr( "Set the 'pageTitle' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "pageTitle", w->property( "pageTitle" ),
 							      text, QString::null, QString::null );
@@ -1667,7 +1679,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	QPixmap oldPix = w->property( "pixmap" ).toPixmap();
 	QPixmap pix = qChoosePixmap( this, formWindow(), oldPix );
 	if ( !pix.isNull() ) {
-	    QString pn( tr( "Set 'pixmap' of '%2'" ).arg( w->name() ) );
+	    QString pn( tr( "Set the 'pixmap' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "pixmap", w->property( "pixmap" ),
 							      pix, QString::null, QString::null );
@@ -1690,7 +1702,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	} else if ( id == commands[ "remove" ] ) {
 	    if ( tw->currentPage() ) {
 		QDesignerTabWidget *dtw = (QDesignerTabWidget*)tw;
-		DeleteTabPageCommand *cmd = new DeleteTabPageCommand( tr( "Remove Page %1 of %2" ).
+		DeleteTabPageCommand *cmd = new DeleteTabPageCommand( tr( "Delete Page %1 of %2" ).
 								      arg( dtw->pageTitle() ).arg( tw->name() ),
 								      formWindow(), tw, tw->currentPage() );
 		formWindow()->commandHistory()->addCommand( cmd );
@@ -1716,7 +1728,7 @@ void MainWindow::handleRMBSpecialCommands( int id, QMap<QString, int> &commands,
 	} else if ( id == commands[ "remove" ] ) {
 	    if ( wiz->currentPage() ) {
 		QDesignerWizard *dw = (QDesignerWizard*)wiz;
-		DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" ).
+		DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" ).
 									    arg( dw->pageTitle() ).arg( wiz->name() ),
 									    formWindow(), wiz, wiz->indexOf( wiz->currentPage() ) );
 		formWindow()->commandHistory()->addCommand( cmd );
@@ -2267,7 +2279,7 @@ QPopupMenu *MainWindow::setupTabWidgetHierarchyMenu( QWidget *parent, const char
     QPopupMenu *menu = new QPopupMenu( parent );
 
     menu->insertItem( tr( "Add Page" ), parent, addSlot );
-    menu->insertItem( tr( "Remove Page" ), parent, removeSlot );
+    menu->insertItem( tr( "Delete Page" ), parent, removeSlot );
     menu->insertSeparator();
     actionEditCut->addTo( menu );
     actionEditCopy->addTo( menu );
@@ -2373,7 +2385,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow * )
 	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
 	if ( ok ) {
-	    QString pn( tr( "Set 'text' of '%2'" ).arg( w->name() ) );
+	    QString pn( tr( "Set the 'text' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "text", w->property( "text" ),
 							      text, QString::null, QString::null );
@@ -2388,7 +2400,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow * )
 	QString text;
 	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
 	if ( ok ) {
-	    QString pn( tr( "Set 'title' of '%2'" ).arg( w->name() ) );
+	    QString pn( tr( "Set the 'title' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
 							      "title", w->property( "title" ),
 							      text, QString::null, QString::null );
@@ -2422,9 +2434,9 @@ void MainWindow::rebuildCustomWidgetGUI()
 	a->setIconSet( *w->pixmap );
 	a->setStatusTip( tr( "Insert a " +w->className + " (custom widget)" ) );
 	a->setWhatsThis( tr("<b>" + w->className + " (custom widget)</b>"
-			    "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> menu to "
-			    "add and change the custom widgets. You can add properties as well as "
-			    "signals and slots to integrate them into the designer, "
+			    "<p>Click <b>Edit Custom Widgets...</b> in the <b>Tools|Custom</b> menu to "
+			    "add and change custom widgets. You can add properties as well as "
+			    "signals and slots to integrate them into Qt Designer, "
 			    "and provide a pixmap which will be used to represent the widget on the form.</p>") );
 
 	a->addTo( customWidgetToolBar );
@@ -2553,9 +2565,9 @@ void MainWindow::checkTempFiles()
     d.setNameFilter( "*.ui" );
     QStringList lst = d.entryList();
     QApplication::restoreOverrideCursor();
-    bool load = QMessageBox::information( this, tr( "Restoring last session" ),
-					  tr( "The Qt Designer found some temporary saved files, which have been\n"
-					      "written when the Qt Designer crashed last time. Do you want to\n"
+    bool load = QMessageBox::information( this, tr( "Restoring the Last Session" ),
+					  tr( "Qt Designer found some temporary saved files, which were\n"
+					      "written when Qt Designer crashed last time. Do you want to\n"
 					      "load these files?" ), tr( "&Yes" ), tr( "&No" ) ) == 0;
     QApplication::setOverrideCursor( waitCursor );
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {

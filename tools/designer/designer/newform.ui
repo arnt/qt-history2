@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;New Form&lt;/b&gt;&lt;p&gt;Select a template for the new form and click the &lt;b&gt;OK&lt;/b&gt;-button to open it.&lt;/p&gt;</string>
+        <string>&lt;b&gt;New Form&lt;/b&gt;&lt;p&gt;Select a template for the new form and click the &lt;b&gt;OK&lt;/b&gt;-button to create it.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">
@@ -106,7 +106,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Open a new form using the selected template.</string>
+                        <string>Create a new form using the selected template.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -120,7 +120,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and do not open a form.</string>
+                        <string>Close the dialog without creating a new form.</string>
                     </property>
                 </widget>
             </hbox>
@@ -142,7 +142,7 @@
                 <bool>true</bool>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Displays a list of available templates.</string>
+                <string>Displays a list of the available templates.</string>
             </property>
         </widget>
         <widget class="QLabel" row="0" column="0">

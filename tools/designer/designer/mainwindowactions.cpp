@@ -101,7 +101,7 @@ static QIconSet createIconSet( const QString &name )
 void MainWindow::setupEditActions()
 {
     actionEditUndo = new QAction( tr("Undo"), createIconSet( "undo.xpm" ),tr("&Undo: Not Available"), CTRL + Key_Z, this, 0 );
-    actionEditUndo->setStatusTip( tr( "Reverses the last action" ) );
+    actionEditUndo->setStatusTip( tr( "Undoes the last action" ) );
     actionEditUndo->setWhatsThis( whatsThisFrom( "Edit|Undo" ) );
     connect( actionEditUndo, SIGNAL( activated() ), this, SLOT( editUndo() ) );
     actionEditUndo->setEnabled( FALSE );
@@ -125,7 +125,7 @@ void MainWindow::setupEditActions()
     actionEditCopy->setEnabled( FALSE );
 
     actionEditPaste = new QAction( tr( "Paste" ), createIconSet("editpaste.xpm"), tr( "&Paste" ), CTRL + Key_V, this, 0 );
-    actionEditPaste->setStatusTip( tr( "Pastes clipboard contents" ) );
+    actionEditPaste->setStatusTip( tr( "Pastes the clipboard's contents" ) );
     actionEditPaste->setWhatsThis( whatsThisFrom( "Edit|Paste" ) );
     connect( actionEditPaste, SIGNAL( activated() ), this, SLOT( editPaste() ) );
     actionEditPaste->setEnabled( FALSE );
@@ -164,28 +164,28 @@ void MainWindow::setupEditActions()
 
     actionEditSlots = new QAction( tr( "Slots" ), createIconSet("editslots.xpm"),
 				   tr( "S&lots..." ), 0, this, 0 );
-    actionEditSlots->setStatusTip( tr("Opens a dialog to edit slots") );
+    actionEditSlots->setStatusTip( tr("Opens a dialog for editing slots") );
     actionEditSlots->setWhatsThis( whatsThisFrom( "Edit|Slots" ) );
     connect( actionEditSlots, SIGNAL( activated() ), this, SLOT( editSlots() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSlots, SLOT( setEnabled(bool) ) );
 
     actionEditConnections = new QAction( tr( "Connections" ), createIconSet("connecttool.xpm"),
 					 tr( "Co&nnections..." ), 0, this, 0 );
-    actionEditConnections->setStatusTip( tr("Opens a dialog to edit connections") );
+    actionEditConnections->setStatusTip( tr("Opens a dialog for editing connections") );
     actionEditConnections->setWhatsThis( whatsThisFrom( "Edit|Connections" ) );
     connect( actionEditConnections, SIGNAL( activated() ), this, SLOT( editConnections() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 
     actionEditSource = new QAction( tr( "Source" ), QIconSet(),
 					 tr( "&Source..." ), CTRL + Key_E, this, 0 );
-    actionEditSource->setStatusTip( tr("Opens an editor to edit the source of the form") );
+    actionEditSource->setStatusTip( tr("Opens an editor to edit the form's source code") );
     actionEditSource->setWhatsThis( whatsThisFrom( "Edit|Source" ) );
     connect( actionEditSource, SIGNAL( activated() ), this, SLOT( editSource() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
 
     actionEditFormSettings = new QAction( tr( "Form Settings" ), QPixmap(),
 					  tr( "&Form Settings..." ), 0, this, 0 );
-    actionEditFormSettings->setStatusTip( tr("Opens a dialog to change the settings of the form") );
+    actionEditFormSettings->setStatusTip( tr("Opens a dialog to change the form's settings") );
     actionEditFormSettings->setWhatsThis( whatsThisFrom( "Edit|Form Settings" ) );
     connect( actionEditFormSettings, SIGNAL( activated() ), this, SLOT( editFormSettings() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
@@ -278,7 +278,7 @@ void MainWindow::setupSearchActions()
 
     actionSearchFind->addTo( tb );
     incrementalSearch = new QLineEdit( tb );
-    QToolTip::add( incrementalSearch, tr( "Incremetal Search (ALT+I)" ) );
+    QToolTip::add( incrementalSearch, tr( "Incremetal Search (Alt+I)" ) );
     connect( incrementalSearch, SIGNAL( textChanged( const QString & ) ),
 	     this, SLOT( searchIncremetalFind() ) );
     connect( incrementalSearch, SIGNAL( returnPressed() ),
@@ -442,7 +442,7 @@ void MainWindow::setupToolActions()
 
     actionToolsCustomWidget = new QAction( tr("Custom Widgets"),
 					   createIconSet( "customwidget.xpm" ), tr("Edit &Custom Widgets..."), 0, this, 0 );
-    actionToolsCustomWidget->setStatusTip( tr("Opens a dialog to change the custom widgets") );
+    actionToolsCustomWidget->setStatusTip( tr("Opens a dialog to add and change custom widgets") );
     actionToolsCustomWidget->setWhatsThis( whatsThisFrom( "Tools|Custom|Edit Custom Widgets" ) );
 
     connect( actionToolsCustomWidget, SIGNAL( activated() ), this, SLOT( toolsCustomWidget() ) );
@@ -518,7 +518,7 @@ void MainWindow::setupToolActions()
 	tb->setCloseMode( QDockWindow::Undocked );
 #endif
 	QWhatsThis::add( tb, tr( "<b>The Custom Widgets toolbar</b>%1"
-				 "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> menu to "
+				 "<p>Click <b>Edit Custom Widgets...</b> in the <b>Tools|Custom</b> menu to "
 				 "add and change custom widgets</p>" ).arg(tr(toolbarHelp).
 				 arg( tr(" Click on the buttons to insert a single widget, "
 				 "or double click to insert multiple widgets.") )) );
@@ -569,7 +569,7 @@ void MainWindow::setupFileActions()
     a->setMenuText( tr( "&Open..." ) );
     a->setIconSet( createIconSet("fileopen.xpm") );
     a->setAccel( CTRL + Key_O );
-    a->setStatusTip( tr( "Opens an existing project, form for source file ") );
+    a->setStatusTip( tr( "Opens an existing project, form or source file ") );
     a->setWhatsThis( whatsThisFrom( "File|Open" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileOpen() ) );
     a->addTo( tb );
@@ -650,7 +650,7 @@ void MainWindow::setupFileActions()
     a = new QAction( this, 0 );
     a->setText( tr( "Exit" ) );
     a->setMenuText( tr( "E&xit" ) );
-    a->setStatusTip( tr( "Quits the application and prompts to save changed forms, source files and project settings" ) );
+    a->setStatusTip( tr( "Quits the application and prompts to save any changed forms, source files or project settings" ) );
     a->setWhatsThis( whatsThisFrom( "File|Exit" ) );
     connect( a, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
     a->addTo( fileMenu );
@@ -688,7 +688,7 @@ void MainWindow::setupProjectActions()
 
     QAction* actionEditPixmapCollection = new QAction( tr( "Image Collection..." ), QPixmap(),
 					  tr( "&Image Collection..." ), 0, this, 0 );
-    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the image collection of the current project") );
+    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog for editing the current project's image collection") );
     actionEditPixmapCollection->setWhatsThis( whatsThisFrom( "Project|Image Collection" ) );
     connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
     actionEditPixmapCollection->setEnabled( FALSE );
@@ -698,7 +698,7 @@ void MainWindow::setupProjectActions()
 #ifndef QT_NO_SQL
     QAction* actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
 						 tr( "&Database Connections..." ), 0, this, 0 );
-    actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog to edit the database connections of the current project") );
+    actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog for editing the current project's database connections") );
     actionEditDatabaseConnections->setWhatsThis( whatsThisFrom( "Project|Database Connections" ) );
     connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
     //actionEditDatabaseConnections->setEnabled( FALSE );
@@ -708,7 +708,7 @@ void MainWindow::setupProjectActions()
 
     QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
 					  tr( "&Project Settings..." ), 0, this, 0 );
-    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
+    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the project's settings") );
     actionEditProjectSettings->setWhatsThis( whatsThisFrom( "Project|Project Settings" ) );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
     actionEditProjectSettings->setEnabled( FALSE );
@@ -740,17 +740,17 @@ void MainWindow::setupPreviewActions()
     for ( QStringList::Iterator it = styles.begin(); it != styles.end(); ++it ) {
 	QString info;
 	if ( *it == "Motif" )
-	    info = tr( "The preview will use the Motif Look&Feel used as the default style on most UNIX-Systems." );
+	    info = tr( "The preview will use the Motif look and feel which is used as the default style on most UNIX systems." );
 	else if ( *it == "Windows" )
-	    info = tr( "The preview will use the Windows Look&Feel used as the default style on Windows-Systems." );
+	    info = tr( "The preview will use the Windows look and feel." );
 	else if ( *it == "Platinum" )
-	    info = tr( "The preview will use the Platinum Look&Feel resembling a Macinosh-like GUI style." );
+	    info = tr( "The preview will use the Platinum look and feel which is similar to the Macinosh GUI style." );
 	else if ( *it == "CDE" )
-	    info = tr( "The preview will use the CDE Look&Feel which is similar to some versions of the Common Desktop Environment." );
+	    info = tr( "The preview will use the CDE look and feel which is similar to some versions of the Common Desktop Environment." );
 	else if ( *it == "SGI" )
-	    info = tr( "The preview will use the Motif Look&Feel used as the default style on SGI-systems." );
+	    info = tr( "The preview will use the Motif look and feel which is used as the default style on SGI systems." );
 	else if ( *it == "MotifPlus" )
-	    info = tr( "The preview will use an advanced Motif Look&Feel as used by the GIMP toolkit (GTK) on Linux." );
+	    info = tr( "The preview will use the advanced Motif look and feel used by the GIMP toolkit (GTK) on Linux." );
 
 	a = new QAction( tr( "Preview Form in %1 Style" ).arg( *it ), createIconSet("previewform.xpm"),
 					 tr( "... in %1 Style" ).arg( *it ), 0, this, 0 );
@@ -772,11 +772,11 @@ void MainWindow::setupWindowActions()
 	windowActionsSetup = TRUE;
 
 	actionWindowTile = new QAction( tr( "Tile" ), tr( "&Tile" ), 0, this );
-	actionWindowTile->setStatusTip( tr("Arranges all windows tiled") );
+	actionWindowTile->setStatusTip( tr("Tiles the windows so that they are all visible") );
 	actionWindowTile->setWhatsThis( whatsThisFrom( "Window|Tile" ) );
 	connect( actionWindowTile, SIGNAL( activated() ), qworkspace, SLOT( tile() ) );
 	actionWindowCascade = new QAction( tr( "Cascade" ), tr( "&Cascade" ), 0, this );
-	actionWindowCascade->setStatusTip( tr("Arrange all windows cascaded") );
+	actionWindowCascade->setStatusTip( tr("Cascades the windows so that all their title bars are visible") );
 	actionWindowCascade->setWhatsThis( whatsThisFrom( "Window|Cascade" ) );
 	connect( actionWindowCascade, SIGNAL( activated() ), qworkspace, SLOT( cascade() ) );
 
@@ -857,7 +857,7 @@ void MainWindow::setupHelpActions()
     connect( actionHelpManual, SIGNAL( activated() ), this, SLOT( helpManual() ) );
 
     actionHelpAbout = new QAction( tr("About"), QPixmap(), tr("&About..."), 0, this, 0 );
-    actionHelpAbout->setStatusTip( tr("Displays information about this product") );
+    actionHelpAbout->setStatusTip( tr("Displays information about Qt Designer") );
     actionHelpAbout->setWhatsThis( whatsThisFrom( "Help|About" ) );
     connect( actionHelpAbout, SIGNAL( activated() ), this, SLOT( helpAbout() ) );
 
@@ -868,7 +868,7 @@ void MainWindow::setupHelpActions()
 
 #if defined(QT_NON_COMMERCIAL)
     actionHelpRegister = new QAction( tr("Register Qt"), QPixmap(), tr("&Register Qt..."), 0, this, 0 );
-    actionHelpRegister->setStatusTip( tr("Launches web browser with evaluation form at www.trolltech.com") );
+    actionHelpRegister->setStatusTip( tr("Opens a web browser at the evaluation form on www.trolltech.com") );
     actionHelpRegister->setWhatsThis( tr("Register with Trolltech") );
     connect( actionHelpRegister, SIGNAL( activated() ), this, SLOT( helpRegister() ) );
 #endif
@@ -908,7 +908,7 @@ void MainWindow::setupHelpActions()
 
 void MainWindow::fileNew()
 {
-    statusBar()->message( tr( "Select new item ...") );
+    statusBar()->message( tr( "Create a new project, form or source file...") );
     NewForm dlg( this, projectNames(), currentProject->projectName(), templatePath() );
     dlg.exec();
     statusBar()->clear();
@@ -987,7 +987,7 @@ void MainWindow::fileCloseProject()
 	currentProject = 0;
 	if ( lastValid ) {
 	    projectSelected( lastValid );
-	    statusBar()->message( tr( currentProject->projectName() + " project selected...") );
+	    statusBar()->message( "Selected project '" + tr( currentProject->projectName() + "'") );
 	}
 	if ( !windows.isEmpty() ) {
 	    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
@@ -1017,7 +1017,7 @@ void MainWindow::projectInsertFile()
 
 void MainWindow::fileOpen( const QString &filter, const QString &extension, const QString &fn, bool inProject  )
 {
-    statusBar()->message( tr( "Select a file...") );
+    statusBar()->message( tr( "Open a file...") );
 
     QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(), "/designer" );
 
@@ -1097,15 +1097,15 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		    ImportFilterInterface* iface = 0;
 		    manager.queryInterface( filter, &iface );
 		    if ( !iface ) {
-			statusBar()->message( tr( "No import filter available for %1").
+			statusBar()->message( tr( "No import filter is available to import '%1'").
 					      arg( filename ), 3000 );
 			return;
 		    }
-		    statusBar()->message( tr( "Importing %1 using import filter ...").arg( filename ) );
+		    statusBar()->message( tr( "Importing '%1' using import filter ...").arg( filename ) );
 		    QStringList list = iface->import( filter, filename );
 		    iface->release();
 		    if ( list.isEmpty() ) {
-			statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
+			statusBar()->message( tr( "Nothing to load in '%1'").arg( filename ), 3000 );
 			return;
 		    }
 		    if ( !inProject )
@@ -1138,7 +1138,7 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 	makeNew = ts.read().length() < 2;
     }
     if ( !makeNew ) {
-	statusBar()->message( tr( "Reading file %1...").arg( filename ) );
+	statusBar()->message( tr( "Reading file '%1'...").arg( filename ) );
 	if ( QFile::exists( filename ) ) {
 	    FormFile *ff2 = currentProject->findFormFile( currentProject->makeRelative( filename ) );
 	    if ( ff2 && ff2->formWindow() ) {
@@ -1157,10 +1157,10 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 	    QApplication::restoreOverrideCursor();
 	    if ( b ) {
 		rebuildCustomWidgetGUI();
-		statusBar()->message( tr( "File %1 opened.").arg( filename ), 3000 );
+		statusBar()->message( tr( "Loaded file '%1'").arg( filename ), 3000 );
 	    } else {
-		statusBar()->message( tr( "Failed to load file %1").arg( filename ), 5000 );
-		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file %1").arg( filename ) );
+		statusBar()->message( tr( "Failed to load file '%1'").arg( filename ), 5000 );
+		QMessageBox::information( this, tr("Load File"), tr("Couldn't load file '%1'").arg( filename ) );
 		delete ff;
 	    }
 	    return (FormWindow*)resource.widget();
@@ -1250,7 +1250,7 @@ void MainWindow::saveAllTemp()
     if ( inSaveAllTemp )
 	return;
     inSaveAllTemp = TRUE;
-    statusBar()->message( tr( "Qt Designer is crashing - attempting to save work..." ) );
+    statusBar()->message( tr( "Qt Designer is crashing. Attempting to save files..." ) );
     QWidgetList windows = qWorkspace()->windowList();
     QString baseName = QDir::homeDirPath() + "/.designer/saved-form-";
     int i = 1;
@@ -1563,7 +1563,7 @@ void MainWindow::editSlots()
     if ( !formWindow() )
 	return;
 
-    statusBar()->message( tr( "Edit slots of current form..." ) );
+    statusBar()->message( tr( "Edit the current form's slots..." ) );
     EditSlots dlg( this, formWindow() );
     dlg.exec();
     statusBar()->clear();
@@ -1574,7 +1574,7 @@ void MainWindow::editConnections()
     if ( !formWindow() )
 	return;
 
-    statusBar()->message( tr( "Edit connections in current form..." ) );
+    statusBar()->message( tr( "Edit the current form's connections..." ) );
     ConnectionViewer dlg( this, formWindow() );
     dlg.exec();
     statusBar()->clear();
@@ -1595,7 +1595,7 @@ SourceEditor *MainWindow::openSourceEdior()
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
-				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
+				  tr( "There is no plugin for editing " + lang + " code installed" ) );
 	return 0;
     }
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
@@ -1635,7 +1635,7 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
-				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
+				  tr( "There is no plugin for edit " + lang + " code installed" ) );
 	return 0;
     }
     if ( f )
@@ -1671,7 +1671,7 @@ void MainWindow::editFormSettings()
     if ( !formWindow() )
 	return;
 
-    statusBar()->message( tr( "Edit settings of current form..." ) );
+    statusBar()->message( tr( "Edit the current form's settings..." ) );
     FormSettings dlg( this, formWindow() );
     dlg.exec();
     statusBar()->clear();

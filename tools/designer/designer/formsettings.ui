@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Form Settings&lt;/b&gt;&lt;p&gt;Change settings for the form. Settings like &lt;b&gt;Comment&lt;/b&gt; and &lt;b&gt;Author&lt;/b&gt; are for personal use and not required.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Form Settings&lt;/b&gt;&lt;p&gt;Change settings for the form. Settings like &lt;b&gt;Comment&lt;/b&gt; and &lt;b&gt;Author&lt;/b&gt; are for your own use and are not required.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">
@@ -78,10 +78,10 @@
                         <bool>true</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Save pixmaps into the .ui files</string>
+                        <string>Save pixmaps in the .ui files</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Save Inline&lt;/b&gt;&lt;p&gt;Saves the pixmaps you choose as binary data into the .ui files. Pixmaps are not shared between forms. We recommend using Project Imagefiles instead.</string>
+                        <string>&lt;b&gt;Save Inline&lt;/b&gt;&lt;p&gt;Saves the pixmaps as binary data in the .ui files. Pixmaps saved like this are not shared between forms. We recommend using Project image files instead.</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton" row="2" column="0">
@@ -92,11 +92,11 @@
                         <string>Project &amp;Imagefile</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Use the Project's Image file to load pixmaps</string>
+                        <string>Use the Project's Image file for pixmaps</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Use the Project's Image file to open pixmaps&lt;/b&gt;
-&lt;p&gt;Each project has a collection of pixmaps. If you use a project, we recommend that you use this option since it shares images and is the fastest and most efficient way to use pixmaps in your forms.&lt;/p&gt;</string>
+                        <string>&lt;b&gt;Use the Project's Image file for pixmaps&lt;/b&gt;
+&lt;p&gt;Each project may have a collection of pixmaps. If you use a project, we recommend that you use this option since it shares the images and is the fastest and most efficient way to use pixmaps in your forms.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLineEdit" row="1" column="1">
@@ -107,10 +107,10 @@
                         <bool>false</bool>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Specify Pixmap-Loader function (only function-name, no parentheses!)</string>
+                        <string>Specify Pixmap-Loader function (only the function's name, no parentheses!)</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Specify Pixmap-Loader function&lt;/b&gt;&lt;p&gt;Specify the function which should be used for loading a pixmap in the generated code. &lt;em&gt;Only enter the function-name, no parentheses!&lt;/em&gt;</string>
+                        <string>&lt;b&gt;Specify Pixmap-Loader function&lt;/b&gt;&lt;p&gt;Specify the function which should be used for loading a pixmap in the generated code. &lt;em&gt;Only enter the function's name, with no parentheses.&lt;/em&gt;</string>
                     </property>
                 </widget>
                 <widget class="QRadioButton" row="1" column="0">
@@ -121,10 +121,10 @@
                         <string>Use &amp;Function:</string>
                     </property>
                     <property name="toolTip" stdset="0">
-                        <string>Use a defined function to load pixmaps</string>
+                        <string>Use the given function for pixmaps</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Use a defined function to open pixmaps&lt;/b&gt;&lt;p&gt;If you choose this option you must define a function in the line edit at the right which will be used in the generated code for loading pixmaps. When choosing a pixmap in &lt;i&gt;Qt Designer&lt;/i&gt; you will be asked to specify the arguments which will be passed to the function in the generated code.&lt;p&gt; This approach makes it possible to use your own icon-loader function for loading pixmaps.  &lt;i&gt;Qt Designer&lt;/i&gt; can't preview the correct image if you use your own function.</string>
+                        <string>&lt;b&gt;Use a given function for pixmaps&lt;/b&gt;&lt;p&gt;If you choose this option you must define a function in the line edit at the right which will be used in the generated code for loading pixmaps. When choosing a pixmap in &lt;i&gt;Qt Designer&lt;/i&gt; you will be asked to specify the arguments which will be passed to the function in the generated code.&lt;p&gt; This approach makes it possible to use your own icon-loader function for loading pixmaps.  &lt;i&gt;Qt Designer&lt;/i&gt; can't preview the correct image if you use your own function.</string>
                     </property>
                 </widget>
             </grid>
@@ -160,7 +160,7 @@
                         <string>Change class name</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Enter the name of the class that will be created.&lt;/b&gt;&lt;p&gt;&lt;em&gt;classname.h&lt;/em&gt; and &lt;em&gt;classname.cpp&lt;/em&gt; will be generated as C++-output when it is compiled with the uic.&lt;/p&gt;</string>
+                        <string>&lt;b&gt;Enter the name of the class that will be created.&lt;/b&gt;&lt;p&gt;&lt;em&gt;classname.h&lt;/em&gt; and &lt;em&gt;classname.cpp&lt;/em&gt; will be generated as C++ output when it is compiled by uic.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLabel" row="3" column="0">
@@ -182,7 +182,7 @@
                         <string>Enter your name</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Enter your name here.</string>
+                        <string>Enter your name.</string>
                     </property>
                 </widget>
                 <widget class="QLabel" row="0" column="0">
@@ -290,7 +290,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -304,7 +304,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;View Connections&lt;/b&gt;&lt;p&gt;Displays all connections in the current form Select a connection from the list and click the &lt;b&gt;Edit&lt;/b&gt;-button to change the connection.&lt;/p&gt;</string>
+        <string>&lt;b&gt;View Connections&lt;/b&gt;&lt;p&gt;Displays all the connections in the current form. Select a connection from the list and click the &lt;b&gt;Edit&lt;/b&gt;-button to change the connection.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">
@@ -180,7 +180,7 @@
                 <string>Edit connection</string>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Opens a dialog to change the selected connection.</string>
+                <string>Opens a dialog for editing the selected connection.</string>
             </property>
         </widget>
         <spacer row="2" column="1">

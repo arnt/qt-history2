@@ -43,7 +43,7 @@
     </property>
     <property>
         <name>whatsThis</name>
-        <string>&lt;b&gt;Edit Multiline Edit&lt;/b&gt;&lt;p&gt;Enter the text and press the &lt;b&gt;OK&lt;/b&gt;-Button to apply the changes.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Multiline Edit&lt;/b&gt;&lt;p&gt;Enter the text and click the &lt;b&gt;OK&lt;/b&gt;-Button to apply the changes.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property stdset="1">
@@ -174,7 +174,7 @@
                     </property>
                     <property>
                         <name>whatsThis</name>
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget>
@@ -193,7 +193,7 @@
                     </property>
                     <property>
                         <name>whatsThis</name>
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

@@ -399,7 +399,7 @@ void PropertyItem::createResetButton()
     hbox->hide();
     QObject::connect( resetButton, SIGNAL( clicked() ),
 		      listview, SLOT( resetProperty() ) );
-    QToolTip::add( resetButton, PropertyEditor::tr( "Reset property to its default value" ) );
+    QToolTip::add( resetButton, PropertyEditor::tr( "Reset the property to its default value" ) );
     QWhatsThis::add( resetButton, PropertyEditor::tr( "Click this button to reset the property to its default value" ) );
     updateResetButtonState();
 }

@@ -359,10 +359,10 @@ void FormWindow::insertWidget()
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
     if ( WidgetDatabase::isCustomWidget( id ) ) {
 	QWhatsThis::add( w, tr("<b>A %1 (custom widget)</b> "
-			    "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> "
-			    "menu to add and change the custom widgets. You can add "
-			    "properties as well as signals and slots to integrate them into the "
-			    "designer, and provide a pixmap which will be used to represent "
+			    "<p>Click <b>Edit Custom Widgets...</b> in the <b>Tools|Custom</b> "
+			    "menu to add and change custom widgets. You can add "
+			    "properties as well as signals and slots to integrate custom widgets into "
+			    "<i>Qt Designer</i>, and provide a pixmap which will be used to represent "
 			    "the widget on the form.</p>")
 			    .arg(WidgetDatabase::toolTip( id )) );
 	QToolTip::add( w, tr("A %1 (custom widget)").arg(WidgetDatabase::toolTip( id )) );
@@ -471,10 +471,10 @@ void FormWindow::insertWidget( QWidget *w, bool checkName )
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
     if ( WidgetDatabase::isCustomWidget( id ) ) {
 	QWhatsThis::add( w, tr("<b>A %1 (custom widget)</b> "
-			    "<p>Select <b>Edit Custom Widgets...</b> in the <b>Tools->Custom</b> "
-			    "menu to add and change the custom widgets. You can add "
-			    "properties as well as signals and slots to integrate them into the "
-			    "designer, and provide a pixmap which will be used to represent "
+			    "<p>Click <b>Edit Custom Widgets...</b> in the <b>Tools|Custom</b> "
+			    "menu to add and change custom widgets. You can add "
+			    "properties as well as signals and slots to integrate custom widgets into "
+			    "<i>Qt Designer</i>, and provide a pixmap which will be used to represent "
 			    "the widget on the form.</p>")
 			    .arg(WidgetDatabase::toolTip( id )) );
 	QToolTip::add( w, tr("A %1 (custom widget)").arg(WidgetDatabase::toolTip( id )) );
@@ -506,7 +506,7 @@ void FormWindow::handleContextMenu( QContextMenuEvent *e, QWidget *w )
 	    // if widget is laid out, find the first non-laid out super-widget
 	    QWidget *realWidget = w; // but store the original one
 	    while ( w->parentWidget() &&
-		    ( WidgetFactory::layoutType( w->parentWidget()) != WidgetFactory::NoLayout || 
+		    ( WidgetFactory::layoutType( w->parentWidget()) != WidgetFactory::NoLayout ||
 		      !insertedWidgets.find(w) ) )
 		w = w->parentWidget();
 	    if ( mainContainer()->inherits( "QMainWindow" ) &&
@@ -599,7 +599,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		    hadOwnPalette = w->parentWidget()->ownPalette();
 		    restorePalette = w->parentWidget()->palette();
 		}
-	    } 
+	    }
 	} else { // press was on the formwindow
 	    if ( e->button() == LeftButton ) { // left button: start rubber selection and show formwindow properties
 		drawRubber = TRUE;
@@ -826,7 +826,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	if ( newReceiver &&
 	     ( isMainContainer( newReceiver ) || insertedWidgets.find( newReceiver ) ) && !isCentralWidget( newReceiver ) )
 	    connectReceiver = connectableObject( newReceiver, connectReceiver );
-	mainWindow()->statusBar()->message( tr( "Connect '%1' with '%2'" ).arg( connectSender->name() ).
+	mainWindow()->statusBar()->message( tr( "Connect '%1' to '%2'" ).arg( connectSender->name() ).
 					    arg( connectReceiver->name() ) );
 	qApp->processEvents();
 	if ( drawRecRect )
@@ -884,9 +884,12 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 		// break layout if necessary
 		if ( WidgetFactory::layoutType( wa ) != WidgetFactory::NoLayout ) {
 		    if ( QMessageBox::information( mainWindow(), tr( "Inserting a Widget" ),
-						   tr( "You tried to insert a widget into the laid out Container Widget '%1'.\n"
-						       "This is not possible. In order to insert the widget, the layout of '%1'\n"
-						       "has to be broken. Break the layout or cancel the operation?" ).
+						   tr( "You tried to insert a widget into the "
+						       "layout Container Widget '%1'.\n"
+						       "This is not possible. "
+						       "In order to insert the widget, the layout of '%1'\n"
+						       "must first be broken.\n"
+						       "Break the layout or cancel the operation?" ).
 						   arg( wa->name() ).
 						   arg( wa->name() ), tr( "&Break Layout" ), tr( "&Cancel" ) ) )
 			goto make_move_command; // cancel
@@ -966,9 +969,12 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	    endRectDraw();
 	    if ( WidgetFactory::layoutType( insertParent ) != WidgetFactory::NoLayout ) {
 		if ( QMessageBox::information( mainWindow(), tr( "Inserting a Widget" ),
-					       tr( "You tried to insert a widget into the laid out Container Widget '%1'.\n"
-						   "This is not possible. In order to insert the widget, the layout of '%1'\n"
-						   "has to be broken. Break the layout or cancel the operation?" ).
+					       tr( "You tried to insert a widget into the "
+						   "layout Container Widget '%1'.\n"
+						   "This is not possible. "
+						   "In order to insert the widget, the layout of '%1'\n"
+						   "must first be broken.\n"
+						   "Break the layout or cancel the operation?" ).
 					       arg( insertParent->name() ).
 					       arg( insertParent->name() ), tr( "&Break Layout" ), tr( "&Cancel" ) ) == 0 ) {
 		    breakLayout( insertParent );
@@ -1625,7 +1631,7 @@ void FormWindow::currentToolChanged()
 	break;
     case ORDER_TOOL:
 	if ( mainWindow()->formWindow() == this ) {
-	    mainWindow()->statusBar()->message( tr( "Click widgets to change tab order...") );
+	    mainWindow()->statusBar()->message( tr( "Click widgets to change the tab order...") );
 	    orderedWidgets.clear();
 	    showOrderIndicators();
 	    if ( mainWindow()->formWindow() == this )
@@ -1712,13 +1718,13 @@ bool FormWindow::checkCustomWidgets()
     }
 
     if ( !missingCustomWidgets.isEmpty() ) {
-	QString txt = tr( "Following custom widgets are used in '%1',\n"
-			  "but they are not known to the designer:" ).arg( name() );
+	QString txt = tr( "The following custom widgets are used in '%1',\n"
+			  "but are not known to Qt Designer:\n" ).arg( name() );
 	for ( QStringList::Iterator sit = missingCustomWidgets.begin(); sit != missingCustomWidgets.end(); ++sit )
 	    txt += "   " + *sit + "\n";
-	txt += "If you save this form and generate code for it by the UIC, \n"
-	       "the generated code will not compile. Do you really want to save\n"
-	       "this form now?";
+	txt += "If you save this form and generate code for it using uic, \n"
+	       "the generated code will not compile.\n"
+	       "Do you want to save this form now?";
 	if ( QMessageBox::information( mainWindow(), tr( "Save Form" ), txt ) == 1 )
 	    return FALSE;
     }
@@ -1811,7 +1817,7 @@ void FormWindow::checkAccels()
 	if ( (*it).count() > 1 ) {
 	    ok = FALSE;
 	    switch ( QMessageBox::information( mainWindow(), tr( "Check Accelerators" ),
-					       tr( "The accelerator '%1' is used %2 times."
+					       tr( "Accelerator '%1' is used %2 times."
 						   ).arg( it.key().upper() ).arg( (*it).count() ),
 					       tr( "&Select" ),
 					       tr( "&Cancel" ), 0, 2 ) ) {
@@ -1828,7 +1834,7 @@ void FormWindow::checkAccels()
 
     if ( ok )
 	QMessageBox::information( mainWindow(), tr( "Check Accelerators" ),
-				  tr( "No accelerator is used more than once!" ) );
+				  tr( "No accelerator is used more than once." ) );
 }
 
 void FormWindow::raiseWidgets()
@@ -1875,7 +1881,7 @@ void FormWindow::selectAll()
 void FormWindow::layoutHorizontal()
 {
     QWidgetList widgets( selectedWidgets() );
-    LayoutHorizontalCommand *cmd = new LayoutHorizontalCommand( tr( "Layout horizontally" ),
+    LayoutHorizontalCommand *cmd = new LayoutHorizontalCommand( tr( "Lay out horizontally" ),
 								this, mainContainer(), 0, widgets );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1885,7 +1891,7 @@ void FormWindow::layoutHorizontal()
 void FormWindow::layoutVertical()
 {
     QWidgetList widgets( selectedWidgets() );
-    LayoutVerticalCommand *cmd = new LayoutVerticalCommand( tr( "Layout vertically" ),
+    LayoutVerticalCommand *cmd = new LayoutVerticalCommand( tr( "Lay out vertically" ),
 							    this, mainContainer(), 0, widgets );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1895,7 +1901,7 @@ void FormWindow::layoutVertical()
 void FormWindow::layoutHorizontalSplit()
 {
     QWidgetList widgets( selectedWidgets() );
-    LayoutHorizontalSplitCommand *cmd = new LayoutHorizontalSplitCommand( tr( "Layout horizontally (in splitter)" ),
+    LayoutHorizontalSplitCommand *cmd = new LayoutHorizontalSplitCommand( tr( "Lay out horizontally (in splitter)" ),
 									  this, mainContainer(), 0, widgets );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1905,7 +1911,7 @@ void FormWindow::layoutHorizontalSplit()
 void FormWindow::layoutVerticalSplit()
 {
     QWidgetList widgets( selectedWidgets() );
-    LayoutVerticalSplitCommand *cmd = new LayoutVerticalSplitCommand( tr( "Layout vertically (in splitter)" ),
+    LayoutVerticalSplitCommand *cmd = new LayoutVerticalSplitCommand( tr( "Lay out vertically (in splitter)" ),
 								      this, mainContainer(), 0, widgets );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1918,7 +1924,7 @@ void FormWindow::layoutGrid()
     int yres = grid().y();
 
     QWidgetList widgets( selectedWidgets() );
-    LayoutGridCommand *cmd = new LayoutGridCommand( tr( "Layout in a grid" ),
+    LayoutGridCommand *cmd = new LayoutGridCommand( tr( "Lay out in a grid" ),
 						    this, mainContainer(), 0, widgets, xres, yres );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1939,7 +1945,7 @@ void FormWindow::layoutHorizontalContainer( QWidget *w )
 	     insertedWidgets.find( (QWidget*)o ) )
 	    widgets.append( (QWidget*)o );
     }
-    LayoutHorizontalCommand *cmd = new LayoutHorizontalCommand( tr( "Layout children horizontally" ),
+    LayoutHorizontalCommand *cmd = new LayoutHorizontalCommand( tr( "Lay out children horizontally" ),
 								this, mainContainer(), w, widgets );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1960,7 +1966,7 @@ void FormWindow::layoutVerticalContainer( QWidget *w )
 	     insertedWidgets.find( (QWidget*)o ) )
 	    widgets.append( (QWidget*)o );
     }
-    LayoutVerticalCommand *cmd = new LayoutVerticalCommand( tr( "Layout children vertically" ),
+    LayoutVerticalCommand *cmd = new LayoutVerticalCommand( tr( "Lay out children vertically" ),
 							    this, mainContainer(), w, widgets );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );
@@ -1984,7 +1990,7 @@ void FormWindow::layoutGridContainer( QWidget *w )
 	     insertedWidgets.find( (QWidget*)o ) )
 	    widgets.append( (QWidget*)o );
     }
-    LayoutGridCommand *cmd = new LayoutGridCommand( tr( "Layout children in a grid" ),
+    LayoutGridCommand *cmd = new LayoutGridCommand( tr( "Lay out children in a grid" ),
 						    this, mainContainer(), w, widgets, xres, yres );
     clearSelection( FALSE );
     commandHistory()->addCommand( cmd );

@@ -122,7 +122,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -136,7 +136,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>
@@ -215,7 +215,7 @@
                             <string>Move up</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The top-most column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="5" column="1">
@@ -232,7 +232,7 @@
                             <string>Move down</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The top-most column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="1" column="1">
@@ -315,7 +315,7 @@
                                             <string>Delete Pixmap</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Delete the pixmap of the selected item.&lt;/b&gt;&lt;p&gt;The pixmap in the current column of the selected item will be deleted.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Delete the selected item's pixmap.&lt;/b&gt;&lt;p&gt;The pixmap in the current column of the selected item will be deleted.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                     <widget class="QPushButton">
@@ -335,7 +335,7 @@
                                             <string>Select a Pixmap</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Select a pixmap-file for the item.&lt;/b&gt;&lt;p&gt;The pixmap will be changed in the current column of the selected item.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Select a pixmap file for the item.&lt;/b&gt;&lt;p&gt;The pixmap will be changed in the current column of the selected item.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                 </hbox>
@@ -446,7 +446,7 @@
                             <string>Move up</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item up.&lt;/b&gt;&lt;p&gt;The top-most column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QListBox" row="0" column="0" rowspan="6" colspan="1">
@@ -468,7 +468,7 @@
                             <string>Move down</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The top-most column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <spacer row="3" column="1">
@@ -582,7 +582,7 @@
                                             <string>Delete Pixmap</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Delete the pixmap of the selected item.&lt;/b&gt;&lt;p&gt;The pixmap in the current column of the selected item will be deleted.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Delete the selected item's pixmap.&lt;/b&gt;&lt;p&gt;The pixmap in the current column of the selected item will be deleted.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                     <widget class="QPushButton">
@@ -602,7 +602,7 @@
                                             <string>Select a Pixmap</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Select a pixmap-file for the item.&lt;/b&gt;&lt;p&gt;The pixmap will be changed in the current column of the selected item.&lt;/p&gt;</string>
+                                            <string>&lt;b&gt;Select a pixmap file for the item.&lt;/b&gt;&lt;p&gt;The pixmap will be changed in the current column of the selected item.&lt;/p&gt;</string>
                                         </property>
                                     </widget>
                                 </hbox>

@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Connections&lt;/b&gt;&lt;p&gt;Add and remove connections in the current form .&lt;/p&gt;&lt;p&gt;Select a signal and a corresponding slot and press the &lt;b&gt;Connect&lt;/b&gt;-button to create a connection.&lt;/p&gt;&lt;p&gt;Select a connection from the list and press the &lt;b&gt;Disconnect&lt;/b&gt;-button to delete the connection.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Connections&lt;/b&gt;&lt;p&gt;Add and remove connections in the current form .&lt;/p&gt;&lt;p&gt;Select a signal and a corresponding slot then press the &lt;b&gt;Connect&lt;/b&gt;-button to create a connection.&lt;/p&gt;&lt;p&gt;Select a connection from the list then press the &lt;b&gt;Disconnect&lt;/b&gt;-button to delete the connection.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">
@@ -124,7 +124,7 @@
                 <cstring>slotBox</cstring>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>&lt;b&gt;A list of slots for the receiver.&lt;/b&gt;&lt;p&gt;Only those slots are displayed that have arguments corresponding with the signal selected in the Signal-list.&lt;/b&gt;</string>
+                <string>&lt;b&gt;A list of slots for the receiver.&lt;/b&gt;&lt;p&gt;The slots that are displayed are only those which have arguments that correspond with the arguments of the signal that is currently selected in the Signal-list.&lt;/b&gt;</string>
             </property>
         </widget>
         <widget class="QLabel" row="4" column="0">
@@ -152,7 +152,7 @@
                 <string>Create connection</string>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Create the connection between signal and slot.</string>
+                <string>Create a connection between a signal and a slot.</string>
             </property>
         </widget>
         <widget class="QPushButton" row="5" column="2">
@@ -166,7 +166,7 @@
                 <bool>true</bool>
             </property>
             <property name="toolTip" stdset="0">
-                <string>Remove selected connection</string>
+                <string>Remove the selected connection</string>
             </property>
             <property name="whatsThis" stdset="0">
                 <string>Remove the selected connection.</string>
@@ -245,7 +245,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -259,7 +259,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>
@@ -294,7 +294,7 @@
                 <cstring>signalBox</cstring>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Displays a list of signals for the emitting widget.</string>
+                <string>Displays the list of signals that the widget emits.</string>
             </property>
         </widget>
         <widget class="QLayoutWidget" row="0" column="1">

@@ -182,8 +182,8 @@ QPopupMenu *Editor::createPopupMenu()
 {
     QPopupMenu *menu = QTextEdit::createPopupMenu();
     menu->insertSeparator();
-    menu->insertItem( tr( "C&omment Code\tALT+C" ), this, SLOT( commentSelection() ) );
-    menu->insertItem( tr( "Unco&mment Code\tALT+U" ), this, SLOT( uncommentSelection() ) );
+    menu->insertItem( tr( "C&omment Code\tAlt+C" ), this, SLOT( commentSelection() ) );
+    menu->insertItem( tr( "Unco&mment Code\tAlt+U" ), this, SLOT( uncommentSelection() ) );
     return menu;
 }
 

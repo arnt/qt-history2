@@ -40,7 +40,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Slots&lt;/b&gt;&lt;p&gt;Add, change and remove slots of the current form.&lt;/p&gt;&lt;p&gt;Press the &lt;b&gt;Add Slot&lt;/b&gt;-button to create a new slot, enter a slot name and choose an access mode.&lt;/p&gt;&lt;p&gt;Select an entry from the list and press the &lt;b&gt;Delete Slot&lt;/b&gt;-button to remove a slot. All connections using this slot will be removed, too.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Slots&lt;/b&gt;&lt;p&gt;Add, edit or delete the current form's slots.&lt;/p&gt;&lt;p&gt;Click the &lt;b&gt;Add Slot&lt;/b&gt;-button to create a new slot; enter a slot name and choose an access mode.&lt;/p&gt;&lt;p&gt;Select an entry from the list and click the &lt;b&gt;Delete Slot&lt;/b&gt;-button to remove a slot; all connections using this slot will also be removed.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -189,7 +189,7 @@
                         <string>Delete slot</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Delete the selected slot.&lt;/b&gt;&lt;p&gt;All connections using this slot are removed, too.&lt;/p&gt;</string>
+                        <string>&lt;b&gt;Delete the selected slot.&lt;/b&gt;&lt;p&gt;All connections using this slot are also removed.&lt;/p&gt;</string>
                     </property>
                 </widget>
             </hbox>
@@ -259,7 +259,7 @@
                                 <string>Change slot name</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and has to be syntactically correct.&lt;/p&gt;</string>
+                                <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and must be syntactically correct.&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
@@ -290,7 +290,7 @@
                                 <string>Change slot name</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and has to be syntactically correct.&lt;/p&gt;</string>
+                                <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;The name should include the argument list and must be syntactically correct.&lt;/p&gt;</string>
                             </property>
                         </widget>
                     </hbox>
@@ -369,7 +369,7 @@
                                 <string>Change slot access</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots will be created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
+                                <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots are created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
@@ -412,7 +412,7 @@
                                 <string>Change slot access</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots will be created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
+                                <string>&lt;b&gt;Change the access policy of the slot&lt;/b&gt;&lt;p&gt;All slots are created virtual and should be reimplemented in subclasses.&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <spacer>
@@ -492,7 +492,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and apply all changes.</string>
+                        <string>Close the dialog and apply all the changes.</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -506,7 +506,7 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>Close dialog and discard all changes.</string>
+                        <string>Close the dialog and discard any changes.</string>
                     </property>
                 </widget>
             </hbox>

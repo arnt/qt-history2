@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Edit Custom Widgets&lt;/b&gt;&lt;p&gt;Add and remove custom widgets to the designer's database, and change the properties of existing widgets.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Edit Custom Widgets&lt;/b&gt;&lt;p&gt;Add or delete custom widgets from &lt;i&gt;Qt Designer&lt;/i&gt;'s database, and edit the properties of existing widgets.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">
@@ -55,7 +55,7 @@
                 <cstring>boxWidgets</cstring>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>The list of all custom widgets known to the designer.</string>
+                <string>The list of all custom widgets known to Qt Designer.</string>
             </property>
         </widget>
         <widget class="QPushButton" row="0" column="1">
@@ -69,7 +69,7 @@
                 <string>Add new custom widget.</string>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>&lt;b&gt;Create an empty custom widget and add it to the list.&lt;/b&gt;&lt;p&gt;New custom widgets have a default name and header-file, which must both be provided.&lt;/p&gt;</string>
+                <string>&lt;b&gt;Create an empty custom widget and add it to the list.&lt;/b&gt;&lt;p&gt;New custom widgets have a default name and header file, which must both be changed to appropriate values.&lt;/p&gt;</string>
             </property>
         </widget>
         <widget class="QPushButton" row="1" column="1">
@@ -173,7 +173,7 @@
             </property>
             <property name="whatsThis" stdset="0">
                 <string>&lt;b&gt;Load Descriptions&lt;/b&gt;&lt;p&gt;Loads a file which contains descriptions of custom widgets, so that these custom widgets can be used in the Qt Designer.&lt;/p&gt;
-&lt;p&gt;As it is a lot of work to type in all the information for custom widgets, you should check the tool createcw which you can find in $QTDIR/tools/designer/tools/createcw. Using that tool you can create custom widget description files for your custom widgets without the need of typing in all that information. For more information about that see the README file in that directory&lt;/p&gt;</string>
+&lt;p&gt;Since it is a lot of work to type in all the information for custom widgets, you should consider using the createcw tool which is in $QTDIR/tools/designer/tools/createcw. Using createcw you can create custom widget description files for your custom widgets without the need to type in all the information manually. For more information about the README file in the createcw directory&lt;/p&gt;</string>
             </property>
         </widget>
         <widget class="QPushButton" row="4" column="1">
@@ -187,7 +187,7 @@
                 <string>Saves widget description file</string>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>&lt;b&gt;Save Descriptions&lt;/b&gt;&lt;p&gt;Saves all descriptions of the shown custom widgets to file which can be used to import these custom widgets somewhere else.</string>
+                <string>&lt;b&gt;Save Descriptions&lt;/b&gt;&lt;p&gt;Saves all the descriptions of the shown custom widgets to a file which can then be used to import the custom widgets elsewhere.</string>
             </property>
         </widget>
         <widget class="QTabWidget" row="0" column="2" rowspan="5" colspan="1">
@@ -195,7 +195,7 @@
                 <cstring>TabWidget1</cstring>
             </property>
             <property name="whatsThis" stdset="0">
-                <string>Change properties for the selected custom widget.</string>
+                <string>Change the properties of the selected custom widget.</string>
             </property>
             <widget class="QWidget">
                 <property name="name">
@@ -253,7 +253,7 @@
                                     <string>Select a Pixmap</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Select a pixmap-file.&lt;/b&gt;&lt;p&gt;The pixmap will be used to represent the widget in forms.&lt;/b&gt;</string>
+                                    <string>&lt;b&gt;Select a pixmap file.&lt;/b&gt;&lt;p&gt;The pixmap will be used to represent the widget in forms.&lt;/b&gt;</string>
                                 </property>
                             </widget>
                         </hbox>
@@ -280,7 +280,7 @@
                                     <string>Enter filename</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Change the headerfile's name for the selected custom widget.&lt;/b&gt;&lt;p&gt;The headerfile will be included by forms using the widget.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Change the header file's name for the selected custom widget.&lt;/b&gt;&lt;p&gt;The header file will be included by forms using the widget.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton">
@@ -300,7 +300,7 @@
                                     <string>Choose headerfile</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Look for the headerfile in a filedialog.</string>
+                                    <string>Look for the header file using a filedialog.</string>
                                 </property>
                             </widget>
                             <widget class="QComboBox">
@@ -321,7 +321,7 @@
                                     <string>Select access</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Change how the include file will be included.&lt;/b&gt;&lt;p&gt;Global include-files will be included using &amp;lt;&amp;gt;-brackets, while local files will included using quotation marks.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Change how the include file will be included.&lt;/b&gt;&lt;p&gt;Global include files will be included using &amp;lt;&amp;gt;-brackets, while local files will included using quotation marks.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                         </hbox>
@@ -334,7 +334,7 @@
                             <string>Change classname</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Enter the classname for the selected customwidget.&lt;/b&gt;&lt;p&gt;A class of that name has to be defined in the headerfile.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Enter the classname for the selected custom widget.&lt;/b&gt;&lt;p&gt;A class of that name must be defined in the header file.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="1" column="0">
@@ -427,7 +427,7 @@
                             <string>Horizontal Sizepolicy</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>Choose the horizontal sizepolicy here</string>
+                            <string>Choose the horizontal size policy</string>
                         </property>
                     </widget>
                     <widget class="QSpinBox" row="3" column="1">
@@ -447,7 +447,7 @@
                             <string>Size hint width</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Set the sizehint for the selected widget.&lt;/b&gt;&lt;p&gt;The sizehint provides the recommended size for the widget. Enter a sizehint of -1/-1 if no size is recommended.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Set the size hint for the selected widget.&lt;/b&gt;&lt;p&gt;The size hint provides the recommended size for the widget. Enter a sizehint of -1/-1 if no size is recommended.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QSpinBox" row="3" column="2">
@@ -467,7 +467,7 @@
                             <string>Size hint height</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Set the sizehint for the selected widget.&lt;/b&gt;&lt;p&gt;The sizehint provides the recommended size for the widget. Enter a sizehint of -1/-1 if no size is recommended.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Set the size hint for the selected widget.&lt;/b&gt;&lt;p&gt;The size hint provides the recommended size for the widget. Enter a sizehint of -1/-1 if no size is recommended.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QComboBox" row="4" column="1">
@@ -508,7 +508,7 @@
                             <string>Vertical Sizepolicy</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>Choose the verical sizepolicy for the widget here</string>
+                            <string>Choose the verical size policy for the widget</string>
                         </property>
                     </widget>
                     <spacer row="6" column="2">
@@ -540,7 +540,7 @@
                         </property>
                         <property name="whatsThis" stdset="0">
                             <string>&lt;p&gt;&lt;b&gt;Container Widget&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;If this customwidget should be able to contain other widgets (children), check this checkbox.&lt;/p&gt;</string>
+&lt;p&gt;If this custom widget is able to contain other widgets (children), check this checkbox.&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </grid>
@@ -567,7 +567,7 @@
                             <cstring>listSignals</cstring>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>The list of all signals the selected widget can emit.</string>
+                            <string>The list of all the signals that the selected widget can emit.</string>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget">
@@ -615,7 +615,7 @@
                                     <string>Add new signal</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Add a new signal for the current custom widget.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name has to be unique.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Add a new signal for the current custom widget.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name must be unique.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton">
@@ -632,7 +632,7 @@
                                     <string>Delete signal</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Delete the signal.&lt;/b&gt;&lt;p&gt;All connections using this signal will be deleted, too.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Delete the signal.&lt;/b&gt;&lt;p&gt;All connections using this signal will also be deleted.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                         </hbox>
@@ -670,7 +670,7 @@
                                     <string>Change signal name</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name has to be unique.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name must be unique.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                         </hbox>
@@ -727,7 +727,7 @@
                             <bool>true</bool>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>The list of all slots of the selected custom widget.</string>
+                            <string>The list of all the custom widget's slots.</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="2" column="0">
@@ -749,7 +749,7 @@
                             <string>Change slot name</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name has to be unique.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Change the name of the selected slot.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name must be unique.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="2" column="2">
@@ -781,7 +781,7 @@
                             <string>Change slot access</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Change the access policy of the slot.&lt;/b&gt;&lt;p&gt;You can only connect to public slots of the widget.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Change the slot's access policy.&lt;/b&gt;&lt;p&gt;You can only connect to the widget's public slots.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="4">
@@ -829,7 +829,7 @@
                                     <string>Add new slot</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Add a new slot to the current custom widget.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name has to be unique.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Add a new slot to the current custom widget.&lt;/b&gt;&lt;p&gt;An argument list should be provided in the signal's name, and the name must be unique.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton">
@@ -846,7 +846,7 @@
                                     <string>Delete slot</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Delete the slot.&lt;/b&gt;&lt;p&gt;All connections using this slot will be deleted, too.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Delete the slot.&lt;/b&gt;&lt;p&gt;All connections using this slot will also be deleted.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                         </hbox>
@@ -915,7 +915,7 @@
                                     <string>Add new property</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Add a new property to the current customwidget.&lt;/b&gt;&lt;p&gt;The properties have to be implemented in the class using the property system of Qt.&lt;/p&gt;</string>
+                                    <string>&lt;b&gt;Add a new property to the current custom widget.&lt;/b&gt;&lt;p&gt;The properties must be implemented in the class using Qt's property system.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton">
@@ -1020,7 +1020,7 @@
                             <string>Select property type</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Select the type of the property.&lt;/b&gt;&lt;p&gt;The propertiy has to be implemented in the class using the property system of Qt.&lt;/p&gt;&lt;p&gt;You can use integer types to support enumeration properties in the property editor.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Select the type of the property.&lt;/b&gt;&lt;p&gt;The propertiy must be implemented in the class using Qt's property system.&lt;/p&gt;&lt;p&gt;You can use integer types to support enumeration properties in the property editor.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QListView" row="0" column="0" rowspan="1" colspan="4">
@@ -1056,7 +1056,7 @@
                             <bool>true</bool>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;The list of properties of the current custom widget.&lt;/b&gt;&lt;p&gt;The properties of the custom widget can be changed in the property editor.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;The list of the current widget's properties.&lt;/b&gt;&lt;p&gt;The properties of the custom widget can be changed in the property editor.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QLineEdit" row="2" column="1">
@@ -1067,7 +1067,7 @@
                             <string>Change property name</string>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Enter a name for the property.&lt;/b&gt;&lt;p&gt;The properties have to be implemented in the class using the property system of Qt.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Enter a name for the property.&lt;/b&gt;&lt;p&gt;The properties must be implemented in the class using Qt's property system.&lt;/p&gt;</string>
                         </property>
                     </widget>
                     <widget class="QLabel" row="2" column="0">

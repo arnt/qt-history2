@@ -51,7 +51,7 @@ void MultiLineEditor::okClicked()
 
 void MultiLineEditor::applyClicked()
 {
-    PopulateMultiLineEditCommand *cmd = new PopulateMultiLineEditCommand( tr( "Set text of '%1'" ).arg( mlined->name() ),
+    PopulateMultiLineEditCommand *cmd = new PopulateMultiLineEditCommand( tr( "Set the text of '%1'" ).arg( mlined->name() ),
 									  formwindow, mlined, preview->text() );
     cmd->execute();
     formwindow->commandHistory()->addCommand( cmd );

@@ -116,9 +116,10 @@ void DatabaseConnectionsEditor::doConnect()
 	    project->saveConnections();
 	} else {
 	    QMessageBox::warning( MainWindow::self, QApplication::tr( "Connection" ),
-				     QApplication::tr( "Could not connect to the database.\n"
-						       "Please check whether the server is running and if you typed in all information correctly.\n"
-							    "[ " + conn->lastError() + " ]" ) );
+				  QApplication::tr( "Could not connect to the database.\n"
+						    "Please ensure that the database server is running "
+						    "and that all the connection information is correct.\n"
+						    "[ " + conn->lastError() + " ]" ) );
 	    delete conn;
 	}
     } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...
