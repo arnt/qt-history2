@@ -1117,7 +1117,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		} else {
 		    overall->ascent = QMAX(overall->ascent, xgi->y);
 		    overall->descent = QMAX(overall->descent, xgi->height - xgi->y);
-		    overall->lbearing = QMIN(overall->lbearing, xgi->x);
+		    overall->lbearing = QMIN(overall->lbearing, -xgi->x);
 		    overall->rbearing = QMAX(overall->rbearing, overall->width +
 					     (xgi->width - xgi->x));
 		    overall->width += xgi->xOff;
@@ -1594,7 +1594,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     QFontDatabase::parseFontName(familyName, foundryName, familyName);
     if ( foundryName == "x11" )
 	foundryName = QString::null;
-    
+
     QString addStyle = request.addStyle;
     if (addStyle.isEmpty())
 	addStyle = "*";
