@@ -87,18 +87,22 @@ QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent) : Q
 #ifndef QT_NO_ACCEL
 QAction::QAction(const QString& text, QKeySequence accel, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
-    d->group = parent;
     d->text = text;
     setAccel(accel);
+    d->group = parent;
+    if(parent)
+        parent->addAction(this);
 }
 
 QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
                    QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
-    d->group = parent;
     d->text = text;
     setAccel(accel);
     d->icons = new QIconSet(icon);
+    d->group = parent;
+    if(parent)
+        parent->addAction(this);
 }
 
 QAction::QAction(const QString& text, QKeySequence accel, QWidget* parent) : QObject(*(new QActionPrivate), parent)
