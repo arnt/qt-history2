@@ -190,7 +190,7 @@ void* QLibraryPrivate::resolveSymbol( const char *symbol )
     QCString symn2;
     symn2.sprintf("_%s", symbol);
     ret = NSAddressOfSymbol(NSLookupSymbolInModule(pHnd, symn2));
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+#if defined(QT_DEBUG_COMPONENT)
     if(!ret)
 	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif

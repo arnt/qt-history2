@@ -148,7 +148,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 #else
     void* address = GetProcAddress( pHnd, f );
 #endif
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+#if defined(QT_DEBUG_COMPONENT)
     if ( !address )
 	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
 #endif

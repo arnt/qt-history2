@@ -87,7 +87,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 
     void* address = 0;
     if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address ) < 0 ) {
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+#if defined(QT_DEBUG_COMPONENT)
 	QString filename = library->library();
 	qWarning( "%s: couldn't resolve symbol \"%s\"", filename.latin1(), symbol );
 #endif
@@ -146,7 +146,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 #else
     void* address = dlsym( pHnd, symbol );
 #endif
-#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+#if defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )
 	qWarning( "%s", error );
