@@ -242,7 +242,7 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
 	QMakeLocalFileName f((*it).real() + Option::dir_sep + file.real());
 	if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode))
-	    return file;
+	    return f;
     }
     return QMakeLocalFileName();
 }
