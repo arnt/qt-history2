@@ -29,6 +29,7 @@
 
 #ifndef QT_H
 #  include <private/qt_mac_p.h>
+#  include "qevent.h"
 #  include "qstyle.h"
 #  include "qwidget.h"
 #endif // QT_H
@@ -45,6 +46,9 @@ public:
     QSize sizeHint() const { return QSize(0, 0); }
 
 protected:
+    void mousePressEvent(QMouseEvent *ev) { ev->ignore(); }
+    void mouseMoveEvent(QMouseEvent *ev) { ev->ignore(); }
+    void mouseReleaseEvent(QMouseEvent *ev) { ev->ignore(); }
     bool eventFilter(QObject * o, QEvent * e);
 
 protected:
