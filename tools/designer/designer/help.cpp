@@ -190,11 +190,27 @@ void Help::filePrint()
 	int dpix = metrics.logicalDpiX();
 	int dpiy = metrics.logicalDpiY();
 	const int margin = 72; // pt
-	QRect body(margin*dpix/72, margin*dpiy/72,
-		   metrics.width()-margin*dpix/72*2,
-		   metrics.height()-margin*dpiy/72*2 );
-	QFont font("times", 10);
-	QSimpleRichText richText( browser->text(), font, browser->context(), browser->styleSheet(),
+	QRect body( margin*dpix/72, margin*dpiy/72,
+		    metrics.width()-margin*dpix/72*2,
+		    metrics.height()-margin*dpiy/72*2 );
+	QFont font( "times", 10 );
+	QStringList filePaths = browser->mimeSourceFactory()->filePath();
+	QString file;
+	QStringList::Iterator it = filePaths.begin();
+	for ( ; it != filePaths.end(); ++it ) {
+	    file = QUrl( *it, QUrl( browser->source() ).path() ).path();
+	    if ( QFile::exists( file ) )
+		break;
+	    else
+		file = QString::null;
+	}
+	if ( file.isEmpty() )
+	    return;
+	QFile f( file );
+	if ( !f.open( IO_ReadOnly ) )
+	    return;
+	QTextStream ts( &f );
+	QSimpleRichText richText( ts.read(), font, browser->context(), browser->styleSheet(),
 				  browser->mimeSourceFactory(), body.height() );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
