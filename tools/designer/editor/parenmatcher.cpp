@@ -23,6 +23,7 @@
 
 #include "qtextedit.h"
 #include <qrichtext_p.h>
+#include <qapplication.h>
 
 ParenMatcher::ParenMatcher()
 {
@@ -31,20 +32,18 @@ ParenMatcher::ParenMatcher()
 bool ParenMatcher::match( QTextCursor *cursor )
 {
     bool ret = FALSE;
-    if ( cursor->document()->hasSelection( QTextDocument::Selection1 ) ||
-	 cursor->document()->hasSelection( QTextDocument::Selection2 ) ) {
-	cursor->document()->removeSelection( QTextDocument::Selection1 );
-	cursor->document()->removeSelection( QTextDocument::Selection2 );
-	ret = TRUE;
-    }
 
     QChar c( cursor->parag()->at( cursor->index() )->c );
+    bool ok1 = FALSE;
+    bool ok2 = FALSE;
     if ( c == '{' || c == '(' || c == '[' ) {
-	return checkOpenParen( cursor ) || ret;
+	ok1 = checkOpenParen( cursor );
+	ret = ok1 || ret;
     } else if ( cursor->index() > 0 ) {
 	c = cursor->parag()->at( cursor->index() - 1 )->c;
 	if ( c == '}' || c == ')' || c == ']' ) {
-	    return checkClosedParen( cursor ) || ret;
+	    ok2 = checkClosedParen( cursor );
+	    ret = ok2 || ret;
 	}
     }
 
@@ -103,6 +102,8 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 		++i;
 		continue;
 	    }
+	
+	
 	
 	    int id = QTextDocument::Selection2;
 	    if ( c == '{' && closedParen.chr != '}' ||

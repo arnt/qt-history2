@@ -360,8 +360,8 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 
 
     bool selChanged = FALSE;
-    for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
-	selChanged = doc->removeSelection( i ) || selChanged;
+    for ( int i = 1; i < QTextDocument::Temp; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+ 	selChanged = doc->removeSelection( i ) || selChanged;
 
     if ( selChanged ) {
 	cursor->parag()->document()->nextDoubleBuffered = TRUE;
@@ -535,6 +535,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	}
     }
 
+    emitCursorPositionChanged( cursor );
     if ( clearUndoRedoInfo )
 	clearUndoRedo();
     changeIntervalTimer->start( 100, TRUE );
@@ -1275,7 +1276,6 @@ void QTextView::doResize()
 
 void QTextView::doChangeInterval()
 {
-    emitCursorPositionChanged( cursor );
     interval = 0;
 }
 
