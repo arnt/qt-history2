@@ -203,6 +203,7 @@ void QProcessPrivate::canWrite()
     }
 
     writeBuffer.free(written);
+    emit q->bytesWritten(written);
     if (writeSocketNotifier)
         writeSocketNotifier->setEnabled(true);
 }

@@ -427,7 +427,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     int ret = qt_native_select(QList<int>() << fd, msecs < 0 ? 0 : msecs, true);
     if (ret == 0) {
         processError = QProcess::Timedout;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
         return false;
     }
 
@@ -436,8 +436,19 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 
 bool QProcessPrivate::waitForBytesWritten(int msecs)
 {
-    Q_UNUSED(msecs);
-    return false;
+    Q_Q(QProcess);
+    if (writeBuffer.isEmpty())
+        return false;
+
+    int ret = qt_native_select(QList<int>() << writePipe[1], msecs < 0 ? 0 : msecs, false);
+    if (ret == 0) {
+        processError = QProcess::Timedout;
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
+        return false;
+    }
+
+    canWrite();
+    return true;
 }
 
 bool QProcessPrivate::waitForFinished(int msecs)
