@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#134 $
 **
 ** Definition of QIconView widget class
 **
@@ -136,7 +136,7 @@ struct QIconViewPrivate
     QColor ownColor;
     QFont ownFont;
     bool wordWrapIconText;
-    
+
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -190,7 +190,7 @@ QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *pare
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setWordWrap( QMultiLineEdit::FixedWidthWrap | QMultiLineEdit::BreakWithinWords );
-    setWrapColumnOrWidth( item->iconView()->maxItemWidth() - 
+    setWrapColumnOrWidth( item->iconView()->maxItemWidth() -
 			  ( item->iconView()->itemTextPos() == QIconView::Bottom ?
 			    0 : item->iconRect().width() ) );
     setMaxLength( item->iconView()->maxItemTextLength() );
@@ -1362,7 +1362,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     itemIconRect.setHeight( ph );
 
     calcTmpText();
-    
+
     QString t = text_;
     if ( t.isEmpty() ) {
 	if ( view->d->wordWrapIconText )
@@ -1370,10 +1370,10 @@ void QIconViewItem::calcRect( const QString &text_ )
 	else
 	    t = tmpText;
     }
-    
+
     int tw = 0;
     int th = 0;
-    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth() - 
+    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
 			       ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 			       iconRect().width() ),
 			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
@@ -1453,7 +1453,7 @@ void QIconViewItem::paintItem( QPainter *p )
 	m = QIconSet::Disabled;
 
     calcTmpText();
-    
+
     if ( view->itemTextPos() == QIconView::Bottom ) {
 	int w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width();
 
@@ -1468,7 +1468,7 @@ void QIconViewItem::paintItem( QPainter *p )
 	} /*else
 	    p->setPen( view->colorGroup().text() );*/
 
-	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, 
+	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak,
 		     view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
@@ -1486,7 +1486,7 @@ void QIconViewItem::paintItem( QPainter *p )
 	} /*else
 	    p->setPen( view->colorGroup().text() );*/
 
-	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, 
+	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak,
 		     view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
@@ -1602,12 +1602,12 @@ void QIconViewItem::calcTmpText()
     wordWrapDirty = FALSE;
 
     int w = iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
-					   iconRect().width() );
-    if ( fm->width( itemText ) <= w ) {
+					   iconRect().width() ) - 4;
+    if ( fm->width( itemText ) < w ) {
 	tmpText = itemText;
 	return;
     }
-    
+
     tmpText = "...";
     int i = 0;
     while ( fm->width( tmpText + itemText[ i ] ) < w )
@@ -1910,7 +1910,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->hasOwnColor = FALSE;
     d->hasOwnFont = FALSE;
     d->wordWrapIconText = TRUE;
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2777,7 +2777,7 @@ void QIconView::setItemTextPos( ItemTextPos pos )
 	item->wordWrapDirty = TRUE;
 	item->calcRect();
     }
-    
+
     orderItemsInGrid();
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
 }
@@ -3002,10 +3002,10 @@ bool QIconView::sortOrder() const
   multiple lines. Or it truncates the item text so that it shrinks
   to the maximal item width and appens three dots "..." to the
   displayed text to indicate that not the full text is displayed.
-  
+
   If you set \a b to TRUE, a word wrap is done, else the
   text is displayed truncated.
-  
+
   NOTE: Both possibilities just change the way how the text is
   displayed, they do NOT modify the item text itslef.
 */
@@ -3020,9 +3020,9 @@ void QIconView::setWordWrapIconText( bool b )
 
 /*!
   Returns TRUE, if an item text which needs too much
-  space (to the width) is displayed word wrapped, or FALSE 
+  space (to the width) is displayed word wrapped, or FALSE
   if it gets displayed truncated.
-  
+
   \sa QIconView::setWordWrapIconText()
 */
 
