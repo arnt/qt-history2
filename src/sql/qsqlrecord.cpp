@@ -628,6 +628,7 @@ void QSqlRecord::detach()
 	delete x;
 }
 
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 {
@@ -636,6 +637,7 @@ QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 	dbg.nospace() << "\n " << QString("%1: ").arg(i, 2) << *r.field(i);
     return dbg.space();
 }
+#endif
 #endif
 
 #endif
