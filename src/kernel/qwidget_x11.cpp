@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#18 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#18 $";
 #endif
 
 
@@ -153,6 +153,7 @@ bool QWidget::create()				// create widget
     return TRUE;
 }
 
+
 bool QWidget::destroy()				// destroy widget
 {
     if ( this == activeWidget )
@@ -175,6 +176,38 @@ bool QWidget::destroy()				// destroy widget
 	set_id( 0 );
     }
     return TRUE;
+}
+
+
+void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
+			bool showIt )
+{
+    WId old_ident = ident;
+    if ( testFlag(WType_Desktop) )
+	old_ident = 0;
+    set_id( 0 );
+    if ( parentObj )				// remove from parent
+	parentObj->removeChild( this );
+    if ( (parentObj = parent) )
+	parentObj->insertChild( this );
+    bool was_disabled = isDisabled();
+    QSize s = clientSize();			// save size
+    QColor bgc = bg_col;			// save colors
+    QColor fgc = fg_col;
+    flags = f;
+    clearFlag( WState_Created );
+    clearFlag( WState_Visible );
+    create();
+    setBackgroundColor( bgc );			// restore colors
+    setForegroundColor( fgc );
+    resize( s );				// restore size
+    move( p );					// set new position
+    if ( was_disabled )
+	disable();
+    if ( showIt )
+	show();
+    if ( old_ident )
+	XDestroyWindow( dpy, old_ident );
 }
 
 

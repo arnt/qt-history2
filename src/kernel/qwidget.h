@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#18 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#19 $
 **
 ** Definition of QWidget class
 **
@@ -115,6 +115,8 @@ public:
     void    resize( const QSize & );
     virtual void changeGeometry( int x, int y, int w, int h );
     void    changeGeometry( const QRect & );	// move and resize
+    void    recreate( QWidget *parent, WFlags f, const QPoint &p,
+		      bool showIt=FALSE );
 
     void    erase();				// erase widget contents
     void    scroll( int dx, int dy );		// scroll widget contents
@@ -124,7 +126,7 @@ public:
 
   // Widget events
 
-protected:
+protected:    
     bool	 event( QEvent * );
     virtual void timerEvent( QTimerEvent * );
     virtual void mousePressEvent( QMouseEvent * );
@@ -162,7 +164,8 @@ public:
 #endif
 
 protected:
-    void    setFlag( WFlags n )	{ flags |= n; }
+    WFlags  getFlags() const		{ return flags; }
+    void    setFlag( WFlags n )		{ flags |= n; }
     void    clearFlag( WFlags n )	{ flags &= ~n; }
     void    setRect( const QRect & );		// set rect, update ncrect
     void    setNCRect( const QRect & );		// set ncrect, update rect
