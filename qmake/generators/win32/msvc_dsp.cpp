@@ -312,6 +312,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				      + project->first("QMAKE_IMAGE_COLLECTION") + "\n\n";
 			build.append("# End Custom Build\n\n");
 
+			t << "USERDEP_" << base << "=";
+			for ( QStringList::Iterator it2 = list.begin(); it2 != list.end(); ++it2 ) {
+			    t << "\"" << (*it2) << "\" ";
+			}
+			t << endl << endl;
+
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 			  << "!ENDIF \n\n" << endl;
