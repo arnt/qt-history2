@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#2 $
 **
 ** Implementation of the QtTextView class
 **
@@ -246,7 +246,7 @@ void QtTextView::createRichText()
     d->paplinkcol = d->mylinkcol;
 
     d->doc_ = new QtRichText( d->txt, viewport()->font(), d->contxt,
-			     8, mimeSourceFactory(), styleSheet() );
+			     8, mimeSourceFactory(), (QtStyleSheet*)styleSheet() );
     if ( !d->doc_->attributes() )
 	return;
     if (d->doc_->attributes()->contains("bgcolor")){
@@ -438,7 +438,7 @@ QString QtTextView::documentTitle() const
 int QtTextView::heightForWidth( int w ) const
 {
     QtRichText doc ( d->txt, viewport()->font(), d->contxt,
-		    8, mimeSourceFactory(), styleSheet() );
+		    8, mimeSourceFactory(), (QtStyleSheet*)styleSheet() );
     {
 	QPainter p( this );
 	doc.setWidth(&p, w);

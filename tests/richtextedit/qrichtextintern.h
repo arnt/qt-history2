@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#2 $
 **
 ** Internal rich text classes
 **
@@ -32,6 +32,40 @@ class QtTextContainer;
 class QtTextBox;
 class QtTextIterator;
 class QtRichText;
+
+class QtTextCharFormat;
+class QtTextFormatCollection;
+class QtTextCustomItem;
+
+
+class QtStyleSheet : public QStyleSheet
+{
+public:
+    QtStyleSheet( QObject *parent=0, const char *name=0 );
+    ~QtStyleSheet();
+};
+
+
+class QtTextRichString : public QString
+{
+public:
+    QtTextRichString( QtTextFormatCollection* fmt );
+    ~QtTextRichString();
+
+    int length() const;
+    void remove( int index, int len );
+    void insert( int index, const QChar& c, QtTextCharFormat* fmt );
+    
+    QChar charAt( int index ) const;
+    QtTextCharFormat* formatAt( int index ) const;
+
+    bool isCustomItem( int index ) const;
+    QtTextCustomItem* customItemAt( int index ) const;
+    
+private:
+    QtTextFormatCollection* format;
+};
+
 
 class QtTextOptions {
 public:
@@ -338,7 +372,7 @@ class QtRichText : public QtTextBox
 public:
     QtRichText( const QString &doc, const QFont& fnt = QApplication::font(),
 	       const QString& context = QString::null,
-	       int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
+	       int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
     ~QtRichText();
 
 
@@ -363,7 +397,7 @@ private:
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
     QString contxt;
-    const QStyleSheet* sheet_;
+    const QtStyleSheet* sheet_;
     const QMimeSourceFactory* factory_;
     QStyleSheetItem* base;
 

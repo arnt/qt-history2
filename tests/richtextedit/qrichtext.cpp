@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#2 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1905,7 +1905,7 @@ void QtTextCursor::last(QPainter* p, bool select)
 
 QtRichText::QtRichText( const QString &doc, const QFont& font,
 		      const QString& context,
-		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
+		      int margin,  const QMimeSourceFactory* factory, const QtStyleSheet* sheet  )
     :QtTextBox( (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
 {
     isRoot = 1;
@@ -1914,7 +1914,7 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
     // for access during parsing only
     factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
     // for access during parsing only
-    sheet_ = sheet? sheet : QStyleSheet::defaultSheet();
+    sheet_ = sheet? sheet : (QtStyleSheet*)QtStyleSheet::defaultSheet();
 
     init( doc, font, margin );
 
@@ -2397,4 +2397,67 @@ bool QtRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 	sheet_->error( msg );
     }
     return valid;
+}
+
+
+
+QtTextRichString::QtTextRichString( QtTextFormatCollection* fmt )
+    : QString(),format( fmt )
+{
+}
+
+QtTextRichString::~QtTextRichString()
+{
+}
+
+int QtTextRichString::length() const
+{
+    return QString::length() / 2;
+}
+
+void QtTextRichString::remove( int index, int len )
+{
+    // TODO unregister formats 
+    QString::remove( index * 2, len * 2);
+}
+
+void QtTextRichString::insert( int index, const QChar& c, QtTextCharFormat* form )
+{
+    ushort fmt = 0; // TODO get fmt from format form
+    QString::insert( (uint) (index*2), c );
+    QChar d ( fmt );
+    QString::insert( (uint) (index*2+1), d );
+    
+}
+    
+QChar QtTextRichString::charAt( int index ) const
+{
+    return QString::at( (uint) index );
+}
+
+QtTextCharFormat* QtTextRichString::formatAt( int index ) const
+{
+    // TODO ask warwick about byteorder
+    uint fmt = (uint) QString::at( (uint) (index + 1) );
+    // TODO get format from fmt
+    return 0;
+}
+
+bool QtTextRichString::isCustomItem( int index ) const
+{
+}
+
+QtTextCustomItem* QtTextRichString::customItemAt( int index ) const
+{
+}
+
+
+
+QtStyleSheet::QtStyleSheet( QObject *parent=0, const char *name=0 )
+    : QStyleSheet( parent, name )
+{
+}
+
+QtStyleSheet::~QtStyleSheet()
+{
 }
