@@ -3,9 +3,6 @@ This is a general Qt/Mac guide, this will outline known issues in Qt/Mac:
 
 MacOSX:
 
-Threading is not supported. In theory much of it should work as pthreads are support by 
-MacOSX, however this support has not been verified yet.
-
 Applications *must* be run out of a bundle (something like widgets.app/). MacOSX needs this 
 to dispatch events correctly, as well as gaining access to the menubar. If using GDB you must
 run with the *full* path to the executable.

@@ -280,7 +280,8 @@ enum {
 #ifndef QMAC_QMENUBAR_NO_NATIVE
     kEventQtRequestMenubarUpdate = 13,
 #endif
-    kEventQtRequestTimer = 14
+    kEventQtRequestTimer = 14,
+    kEventQtRequestWakeup = 15
 };
 void qt_event_request_updates(QWidget *w, QRegion &r)
 {
@@ -326,13 +327,14 @@ void qt_event_request_menubarupdate()
 }
 #endif
 
-static const int non_gui_event_count = 4;
+static const int non_gui_event_count = 5;
 static EventTypeSpec events[] = {
     /* Since non-gui Qt is a subset of gui qt app I put the non-GUI
        events at the top and only pass those in as part of the event
        handler, if you add more to the top you must increase the 
        non_gui_event_count
     */
+    { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestMenubarUpdate },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestContext },
@@ -427,6 +429,9 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
+#if defined(QT_THREAD_SUPPORT)
+	QThread::initialize();
+#endif
 
 	{ //create an empty widget on startup and this can be used for a port anytime
 	    QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
@@ -1074,6 +1079,7 @@ bool QApplication::processNextEvent( bool canWait )
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
 #endif
+    emit guiThreadAwake();
 
     if(qt_is_gui_used && qt_replay_event) {	//ick
 	EventRef ev = qt_replay_event;
@@ -1394,8 +1400,16 @@ bool QApplication::do_mouse_down( Point *pt )
     return in_widget;
 }
 
+static bool wakeup_pending = FALSE;
 void QApplication::wakeUpGuiThread()
 {
+    if(wakeup_pending)
+	return;
+    wakeup_pending = TRUE;
+    EventRef upd = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestWakeup, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &upd);
+    PostEventToQueue( GetMainEventQueue(), upd, kEventPriorityHigh );
 }
 
 bool qt_modal_state()
@@ -1545,6 +1559,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    delete list;
 		}
 	    } 
+	} else if(ekind == kEventQtRequestWakeup) {
+	    wakeup_pending = FALSE; 	    //do nothing else , we just woke up!
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = FALSE;
