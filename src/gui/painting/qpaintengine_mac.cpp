@@ -174,7 +174,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
        !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QQuickDrawPaintEngine::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
-//	return false;
+	return false;
     }
 
     //save the gworld now, we'll reset it in end()
@@ -1097,7 +1097,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
        !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QCoreGraphicsPaintEngine::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
-//	return false;
+	return false;
     }
 
     d->pdev = pdev;
