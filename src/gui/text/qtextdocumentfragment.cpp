@@ -292,7 +292,7 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
 		blockFormatIdx = formatIdx;
 
 	    int pos = cursor.position();
-	    QStringList blocks = QStringList::split(QTextParagraphSeparator, text, true /*allow empty entries*/);
+	    QStringList blocks = text.split(QTextParagraphSeparator);
 	    for (int i = 0; i < blocks.size(); ++i) {
 		if (i > 0) {
 		    destPieceTable->insertBlockSeparator(pos, blockFormatIdx);
