@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#21 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -302,8 +302,8 @@ bool QSpinBox::eventFilter( QObject * o, QEvent * e )
 	return FALSE;
 
     if ( e->type() == Event_FocusOut &&
-	 !pv.isNull() &&
-	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable )
+	 !pv.isNull() /*ARNTS&&
+	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable*/ )
 	// return to last valid choice on focus change
 	vi->setText( pv );
     else if ( e->type() == Event_KeyPress ) {
@@ -386,8 +386,8 @@ void QSpinBox::resizeEvent( QResizeEvent * e )
 
 void QSpinBox::textChanged()
 {
-    if ( vi->validator() &&
-	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable )
+    if ( vi->validator() /*ARNTS&&
+	 vi->validator()->isValid( vi->text() ) != QValidator::Acceptable*/ )
 	return;
 
     QString s = vi->text();
