@@ -588,6 +588,24 @@ static QString prototype(const QStringList &ptypes, const QStringList &pnames, b
     return prototype;
 }
 
+static QString addDefaultArguments(const QString &prototype, int numDefArgs)
+{
+    // nothing to do, or unsupported anyway
+    if (!numDefArgs || prototype.contains("/**"))
+        return prototype;
+
+    QString ptype(prototype);
+
+    int in = -1;
+    while (numDefArgs) {
+        in = ptype.lastIndexOf("]", in);
+        ptype.replace(in, 1, ",optional]");
+        --numDefArgs;
+    }
+
+    return ptype;
+}
+
 static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &className, bool isBindable, QTextStream &out)
 {
     int id = 1;
@@ -704,10 +722,23 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     }
     out << endl;
     out << "\tmethods:" << endl;
+    int numDefArgs = 0;
+    QString outBuffer;
     for (i = 0; i < mo->slotCount(); ++i) {
         const QMetaMember slot = mo->slot(i);
         if (slot.access() != QMetaMember::Public)
             continue;
+
+        if (slot.isCloned()) {
+            ++numDefArgs;
+            continue;
+        }
+        if (!outBuffer.isEmpty()) {
+            outBuffer = addDefaultArguments(outBuffer, numDefArgs);
+            numDefArgs = 0;
+            out << outBuffer;
+            outBuffer = QString();
+        }
         
         QString signature(slot.signature());
         QString name(signature.left(signature.indexOf('(')));
@@ -736,13 +767,19 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         
         QString ptype(prototype(ptypes, pnames, &ok));
         if (!ok)
-            out << "\t/****** Slot parameter uses unsupported datatype" << endl;
+            outBuffer += "\t/****** Slot parameter uses unsupported datatype\n";
         
-        out << "\t\t[id(" << id << ")] " << type << " " << name << "(" << ptype << ");" << endl;
+        outBuffer += "\t\t[id(" + QString::number(id) + ")] " + type + " " + name + "(" + ptype + ");\n";
         
         if (!ok)
-            out << "\t******/" << endl;
+            outBuffer += "\t******/\n";
         ++id;
+    }
+    if (!outBuffer.isEmpty()) {
+        outBuffer = addDefaultArguments(outBuffer, numDefArgs);
+        numDefArgs = 0;
+        out << outBuffer;
+        outBuffer = QString();
     }
     out << "\t};" << endl << endl;
     
@@ -805,7 +842,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             out << "] void " << name << "(" << ptype << ");" << endl;
             
             if (!ok)
-                out << "\t******/" << endl;	    
+                out << "\t******/" << endl;
             ++id;
         }
         out << "\t};" << endl << endl;
