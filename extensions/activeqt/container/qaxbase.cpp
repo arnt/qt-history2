@@ -695,9 +695,9 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     \i QDateTime&
     \row
     \i CY
-    \i Q_LONGLONG
-    \i Q_LONGLONG
-    \i Q_LONGLONG&
+    \i qint64
+    \i qint64
+    \i qint64&
     \row
     \i OLE_COLOR
     \i QColor
@@ -1850,7 +1850,7 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
         str = "uint";
         break;
     case VT_CY:
-        str = "Q_LONGLONG";
+        str = "qint64";
         break;
     case VT_R4:
         str = "float";
@@ -1933,7 +1933,7 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
         str = guessTypes(tdesc.lpadesc->tdescElem, info, function);
         if (!str.isEmpty()) {
             for (int index = 0; index < tdesc.lpadesc->cDims; ++index)
-                str += "[" + QByteArray::number(tdesc.lpadesc->rgbounds[index].cElements) + "]";
+                str += "[" + QByteArray::number((int)tdesc.lpadesc->rgbounds[index].cElements) + "]";
         }
         break;
     case VT_USERDEFINED:
@@ -3115,7 +3115,7 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
                 QString source = BSTRToQString(exc->bstrSource);
                 QString desc = BSTRToQString(exc->bstrDescription);
                 QString help = BSTRToQString(exc->bstrHelpFile);
-                unsigned long helpContext = exc->dwHelpContext;
+                uint helpContext = exc->dwHelpContext;
 
                 if (helpContext && !help.isEmpty())
                     help += QString(" [%1]").arg(helpContext);

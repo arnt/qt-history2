@@ -42,7 +42,7 @@ static QString docuFromName(ITypeInfo *typeInfo, const QString &name)
             if (!docString.isEmpty())
                 docu += docString + "\n";
             if (!helpFile.isEmpty())
-                docu += QString("For more information, see help context %1 in %2.\n").arg(helpContext).arg(helpFile);
+                docu += QString("For more information, see help context %1 in %2.\n").arg((uint)helpContext).arg(helpFile);
         }
     }
 
