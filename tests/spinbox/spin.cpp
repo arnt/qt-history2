@@ -27,6 +27,7 @@ public:
     QLineEdit* suffixEd;
     QLineEdit* prefixEd;
     QLineEdit* minTxtEd;
+    QLabel* textLb;
 
 public slots:
  
@@ -69,6 +70,14 @@ Main::Main(QWidget* parent, const char* name, int f)
     stepBox->setValue( mainBox->lineStep() );
     connect( stepBox, SIGNAL(valueChanged(int)), this, SLOT( updateStep() ) );
 
+    QLabel* textPre = new QLabel("Value Text:", this );
+    textPre->setMinimumSize( textPre->sizeHint() );
+    QLabel* textLb = new QLabel("(uninit)", this );
+    textLb->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+    textLb->setMinimumSize( textLb->sizeHint() );
+    connect( mainBox, SIGNAL(valueChanged(const char*)), 
+	     textLb, SLOT(setText(const char*)) );
+    
     wrapCheck = new QCheckBox("Enable Wrapping", this );
     wrapCheck->setMinimumSize( wrapCheck->sizeHint() );
     wrapCheck->setChecked( mainBox->wrapping() );
@@ -99,16 +108,19 @@ Main::Main(QWidget* parent, const char* name, int f)
     QLabel* prefixPre = new QLabel("Set Prefix:", this );
     prefixPre->setMinimumSize( prefixPre->sizeHint() );
     prefixEd = new QLineEdit( this );
+    prefixEd->setMinimumSize( prefixEd->sizeHint() );
     connect( prefixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setPrefix(const char*)));
 
     QLabel* suffixPre = new QLabel("Set Suffix:", this );
     suffixPre->setMinimumSize( suffixPre->sizeHint() );
     suffixEd = new QLineEdit( this );
+    suffixEd->setMinimumSize( suffixEd->sizeHint() );
     connect( suffixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setSuffix(const char*)));
 
     QLabel* minTxtPre = new QLabel("Set specialValueText:", this );
     minTxtPre->setMinimumSize( minTxtPre->sizeHint() );
     minTxtEd = new QLineEdit( this );
+    minTxtEd->setMinimumSize( minTxtEd->sizeHint() );
     connect( minTxtEd, SIGNAL(textChanged(const char*)), this, SLOT(updateSpecValTxt(const char*)));
 
     palCheck = new QCheckBox("Custom palette", this );
@@ -128,7 +140,7 @@ Main::Main(QWidget* parent, const char* name, int f)
     ok->setDefault( TRUE );
     QObject::connect( ok, SIGNAL(clicked()), this, SLOT(accept()) );
 
-    QGridLayout* dl = new QGridLayout( this, 11, 3, 5 );
+    QGridLayout* dl = new QGridLayout( this, 12, 3, 5 );
     dl->addWidget( mainPre,	0, 0 );
     dl->addWidget( mainBox,	0, 1 );
     dl->addWidget( stepPre,	1, 0 );
@@ -146,13 +158,15 @@ Main::Main(QWidget* parent, const char* name, int f)
     dl->addWidget( suffixEd,	7, 1 );
     dl->addWidget( minTxtPre,	8, 0 );
     dl->addWidget( minTxtEd,	8, 1 );
-    dl->addWidget( palCheck,	9, 0 );
-    dl->addWidget( disableCheck,9, 1 );
-    dl->addWidget( styleCheck,	9, 2 );
-    dl->addWidget( ok,		10, 2 );
+    dl->addWidget( textPre,	9, 0 );
+    dl->addWidget( textLb,	9, 1 );
+    dl->addWidget( palCheck,	10, 0 );
+    dl->addWidget( disableCheck,10, 1 );
+    dl->addWidget( styleCheck,	10, 2 );
+    dl->addWidget( ok,		11, 2 );
     dl->activate();
 
-    resize( 350, 300 );
+    resize( 1, 1 );
 
 
 }
