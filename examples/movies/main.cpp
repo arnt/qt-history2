@@ -174,36 +174,45 @@ private slots:
 
 // A QFileDialog that chooses movies.
 //
-class MovieStarter : public QFileDialog {
+class MovieStarter: public QFileDialog {
     Q_OBJECT
 public:
-    MovieStarter(const char *dir) :
-        QFileDialog(dir, "*.gif")
-    {
-        //behave as in getOpenFilename
-        setMode( ExistingFile );
-        // When a file is selected, show it as a movie.
-        connect(this, SIGNAL(fileSelected(const QString&)),
-                this, SLOT(startMovie(const QString&)));
-    }
+    MovieStarter(const char *dir);
 
 public slots:
-    void startMovie(const QString& filename)
-    {
-        if ( filename ) // Start a new movie - have it delete when closed.
-            (void)new MovieScreen(filename, QMovie(filename), 0, 0, WDestructiveClose);
-    }
-
+    void startMovie(const QString& filename);
     // QDialog's method - normally closes the file dialog.
     // We want it left open, and we want Cancel to quit everything.
-    void done( int r )
-    {
-        if (r != Accepted) qApp->quit(); // end on Cancel
-        setResult( r );
-
-        // And don't hide.
-    }
+    void done( int r );
 };
+
+
+MovieStarter::MovieStarter(const char *dir)
+    : QFileDialog(dir, "*.gif")
+{
+    //behave as in getOpenFilename
+    setMode( ExistingFile );
+    // When a file is selected, show it as a movie.
+    connect(this, SIGNAL(fileSelected(const QString&)),
+	    this, SLOT(startMovie(const QString&)));
+}
+
+
+void MovieStarter::startMovie(const QString& filename)
+{
+    if ( filename ) // Start a new movie - have it delete when closed.
+	(void)new MovieScreen( filename, QMovie(filename), 0, 0,
+			       WDestructiveClose);
+}
+
+void MovieStarter::done( int r )
+{
+    if (r != Accepted)
+	qApp->quit(); // end on Cancel
+    setResult( r );
+
+    // And don't hide.
+}
 
 
 int main(int argc, char **argv)
@@ -224,14 +233,14 @@ int main(int argc, char **argv)
         fd->show();
 
         // Some help text to explain the `hidden' features.
-        QLabel* help = new QLabel(
-            "Choose some movies.\n\n"
-            "Shift-click to Restart.\n"
-            "Click to Pause,\n"
-            "then left-click to Step,\n"
-            "control-left-click to Step 10,\n"
-            "right-click to Unpause\n\n"
-            "Windows may be resized to enlarge movie.", 0 );
+        QLabel* help 
+	    = new QLabel( "Choose some movies.\n\n"
+			  "Shift-click to Restart.\n"
+			  "Click to Pause,\n"
+			  "then left-click to Step,\n"
+			  "control-left-click to Step 10,\n"
+			  "right-click to Unpause\n\n"
+			  "Windows may be resized to enlarge movie.", 0 );
         help->setCaption( "movies - Help" );
         help->setIndent( 10 );
         help->show();
@@ -241,4 +250,4 @@ int main(int argc, char **argv)
     return a.exec();
 }
 
-#include "main.moc"
+#include ".moc/debug/main.moc"
