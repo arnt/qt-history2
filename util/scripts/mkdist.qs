@@ -45,6 +45,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^pics"),
 		       new RegExp("^extensions/xt"),
 		       new RegExp("^tools/designer"),
+		       new RegExp("^tools/lsqrc"),
 		       new RegExp("^tools/linguist"),
 		       new RegExp("^tools/makeqpf"),
 		       new RegExp("^tools/mergetr"),
@@ -61,9 +62,6 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^doc/tutorial"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
-		       new RegExp("^src/gui/itemviews/qlistwidget"),
-		       new RegExp("^src/gui/itemviews/qtreewidget"),
-		       new RegExp("^src/gui/itemviews/qtablewidget"),
 		       new RegExp("^LICENSE.TROLL") ];
 var checkoutKeep = [ /./ ];
 
@@ -150,6 +148,7 @@ editionKeep["preview"] = [ new RegExp(".") ];
  */
 
 moduleMap["demonstration applications"]  = new RegExp("^demos");
+moduleMap["documentation"]  = new RegExp("^doc");
 moduleMap["example classes"]             = new RegExp("^examples");
 moduleMap["qmake application"]           = new RegExp("^qmake");
 moduleMap["activeqt module"]             = new RegExp("^extensions/activeqt");
@@ -158,7 +157,7 @@ moduleMap["compatibility classes"]       = new RegExp("^src/compat");
 moduleMap["core module"]                 = new RegExp("^src/core");
 moduleMap["accessibility module"]        = new RegExp("(^src/gui/accessible|^src/plugins/accessible)");
 moduleMap["dialog module"]               = new RegExp("^src/gui/dialogs");
-moduleMap["embedded classes"]            = new RegExp("(^src/gui/embedded|^src/plugins/gfxdrivers)");
+moduleMap["embedded classes"]            = new RegExp("(^src/gui/embedded|^src/plugins/gfxdrivers|^src/plugins/decorations)");
 moduleMap["item views module"]           = new RegExp("^src/gui/itemviews");
 moduleMap["gui module"]                  = new RegExp("^src/gui/kernel");
 moduleMap["painting module"]             = new RegExp("(^src/gui/painting|^src/gui/image|^src/plugins/imageformats)");
