@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#36 $
 **
 ** Implementation of QPixmap class
 **
@@ -13,8 +13,9 @@
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qdstream.h"
+#include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -252,7 +253,7 @@ bool qt_image_did_turn_scanlines()
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
-  \sa save(), imageFormat()
+  \sa loadFromData(), save(), imageFormat()
  ----------------------------------------------------------------------------*/
 
 bool QPixmap::load( const char *fileName, const char *format )
@@ -273,10 +274,47 @@ bool QPixmap::load( const char *fileName, const char *format )
 }
 
 /*----------------------------------------------------------------------------
+  Loads an image from the binary data in \e data (\e len bytes).
+  Returns TRUE if successful, or FALSE if the image could not be loaded.
+
+  If \e format is specified, then the loader will try to read the image
+  using the specified format.  If \e format is not specified (default),
+  the loader reads a few bytes from the header to guess the file format.
+
+  The QImageIO documentation lists the supported image formats and
+  explains how to add extra formats.
+
+  \sa load(), save(), imageFormat()
+ ----------------------------------------------------------------------------*/
+
+bool QPixmap::loadFromData( const uchar *data, uint len, const char *format )
+{
+    QByteArray a;
+    a.setRawData( (char *)data, len );
+    QBuffer b( a );
+    b.open( IO_ReadOnly );
+    QImageIO io( &b, format );
+#if defined(_WS_WIN_)
+    can_turn_scanlines = TRUE;
+#endif
+    bool result = io.read();
+    b.close();
+    a.resetRawData( (char *)data, len );
+    if ( result ) {
+	detach();
+	result = convertFromImage( io.image() );
+    }
+#if defined(_WS_WIN_)
+    can_turn_scanlines = did_turn_scanlines = FALSE;
+#endif
+    return result;
+}
+
+/*----------------------------------------------------------------------------
   Saves the pixmap to the file \e fileName, using the image file format
   \e format.  Returns TRUE if successful, or FALSE if the image could not
   be saved.
-  \sa load(), imageFormat()
+  \sa load(), loadFromData(), imageFormat()
  ----------------------------------------------------------------------------*/
 
 bool QPixmap::save( const char *fileName, const char *format ) const
