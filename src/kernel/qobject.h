@@ -302,9 +302,7 @@ public:
 	AccelAvailable = 32,			// accelerator available event
 	CaptionChange = 33,			// caption changed
 	IconChange = 34,			// icon changed
-	ParentFontChange = 35,			// parent font changed
 	ApplicationFontChange = 36,		// application font changed
-	ParentPaletteChange = 37,		// parent palette changed
 	ApplicationPaletteChange = 38,		// application palette changed
 	PaletteChange = 39,			// widget palette changed
 	Clipboard = 40,				// internal clipboard event

@@ -52,21 +52,6 @@ QWidgetPrivate::~QWidgetPrivate()
 	deleteExtra();
 }
 
-void QWidgetPrivate::propagatePaletteChange()
-{
-    QEvent pc(QEvent::PaletteChange);
-    QApplication::sendEvent(q, &pc);
-    if(!children.isEmpty()) {
-	QEvent ppc(QEvent::ParentPaletteChange);
-	for(int i = 0; i < children.size(); ++i) {
-	    QObject *o = children.at(i);
-	    if(o->isWidgetType())
-		QApplication::sendEvent(o, &ppc);
-	}
-    }
-    q->paletteChange(q->palette()); // compatibility
-}
-
 /*!
     \class QWidget qwidget.h
     \brief The QWidget class is the base class of all user interface objects.
@@ -439,6 +424,7 @@ QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
 /*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
+
 
 static QFont qt_naturalWidgetFont( QWidget* w ) {
     QFont naturalfont = QApplication::font( w );
@@ -1099,6 +1085,25 @@ void QWidgetPrivate::updatePropagatedBackground()
 	if (lst.at(i)->isWidgetType())
 	    static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground(true);
 }
+
+void QWidgetPrivate::propagatePaletteChange()
+{
+    QEvent pc(QEvent::PaletteChange);
+    QApplication::sendEvent(q, &pc);
+    if(!children.isEmpty()) {
+	for(int i = 0; i < children.size(); ++i) {
+	    QWidget *w = static_cast<QWidget*>(children.at(i));
+	    if(!w->isWidgetType() || w->isTopLevel())
+		continue;
+	    if(!w->testAttribute(QWidget::WA_SetPalette))
+		w->pal = qt_naturalWidgetPalette(w);
+	    w->d->updateSystemBackground();
+	    w->d->propagatePaletteChange();
+	}
+    }
+    q->paletteChange(q->palette()); // compatibility
+}
+
 
 
 /*!
@@ -2479,11 +2484,14 @@ void QWidget::setFont_helper( const QFont &font )
     fnt.x11SetScreen( x11Screen() );
 #endif
     if ( !d->children.isEmpty() ) {
-	QEvent e( QEvent::ParentFontChange );
 	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    if ( o->isWidgetType() )
-		QApplication::sendEvent( o, &e );
+	    QWidget *w = static_cast<QWidget*>(d->children.at(i));
+	    if (!w->isWidgetType() || w->isTopLevel())
+		continue;
+	    if (w->testAttribute(WA_SetFont))
+		w->setFont_helper(w->fnt.resolve(qt_naturalWidgetFont(w)));
+	    else
+		w->setFont_helper(qt_naturalWidgetFont(w));
 	}
     }
     if ( hasFocus() )
@@ -4155,24 +4163,11 @@ bool QWidget::event( QEvent *e )
 		showWindow();
 	    break;
 
-	case QEvent::ParentFontChange:
-	    if ( isTopLevel() )
-		break;
-	    // fall through
 	case QEvent::ApplicationFontChange:
 	    if (testAttribute(WA_SetFont))
 		setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
 	    else
-		unsetFont();
-	    break;
-
-	case QEvent::ParentPaletteChange:
-	    if(isTopLevel())
-		break;
-	    if(!testAttribute(WA_SetPalette))
-		pal = qt_naturalWidgetPalette(this);
-	    d->updateSystemBackground();
-	    d->propagatePaletteChange();
+		setFont_helper(qt_naturalWidgetFont(this));
 	    break;
 
 	case QEvent::ApplicationPaletteChange:

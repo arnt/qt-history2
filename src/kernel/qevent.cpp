@@ -121,10 +121,8 @@
     \value WindowDeactivate  Window was deactivated.
     \value CaptionChange  Widget's caption changed.
     \value IconChange  Widget's icon changed.
-    \value ParentFontChange  Font of the parent widget changed.
     \value ApplicationFontChange  Default application font changed.
     \value PaletteChange  Palette of the widget changed.
-    \value ParentPaletteChange  Palette of the parent widget changed.
     \value ApplicationPaletteChange  Default application palette changed.
     \value Clipboard  Clipboard contents have changed.
     \value SockAct  Socket activated, used to implement \l{QSocketNotifier}.
