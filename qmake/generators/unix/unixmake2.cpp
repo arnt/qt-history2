@@ -1334,7 +1334,12 @@ UnixMakefileGenerator::writePkgConfigFile()
     if(dot != -1)
 	lname = lname.left(dot);
     QString fname = lname + Option::pkgcfg_ext;
-
+    if(!project->isEmpty("DESTDIR")) {
+	fname.prepend(var("DESTDIR"));
+	fname = Option::fixPathToLocalOS(fileFixify(fname,
+						    QDir::currentDirPath(),
+						    Option::output_dir));
+    }
     QFile ft(fname);
     if(!ft.open(IO_WriteOnly))
 	return;
@@ -1343,7 +1348,10 @@ UnixMakefileGenerator::writePkgConfigFile()
     t << "prefix=" << qInstallPath() << endl;
     t << "exec_prefix=${prefix}\n"
       << "libdir=${exec_prefix}/lib\n"
-      << "includedir=${prefix}/include" << endl << endl;
+      << "includedir=${prefix}/include" << endl;
+    // non-standard entry. Provides useful info normally only
+    // contained in the internal .qmake.cache file
+    t << varGlue("CONFIG", "qt_config=", " ", "") << endl << endl;
 
     t << "Name: Qt" << endl;
     t << "Description: Qt GUI Library" << endl;
@@ -1365,12 +1373,5 @@ UnixMakefileGenerator::writePkgConfigFile()
     t << "Cflags: " << var("QMAKE_CXXFLAGS") << " "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << varGlue("DEFINES","-D"," -D"," ")
-      << "-I" << specdir();
-    if(!project->isActiveConfig("no_include_pwd")) {
-	QString pwd = fileFixify(QDir::currentDirPath());
-	if(pwd.isEmpty())
-	    pwd = ".";
-	t << " -I" << pwd;
-    }
-    t << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
+      << "-I" << qInstallPath() << "/include";
 }
