@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#57 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#58 $
 **
 ** Definition of QButton widget class
 **
@@ -38,7 +38,9 @@ public:
 
     bool	isToggleButton() const;
 
+    void	setDown( bool );
     bool	isDown() const;
+
     bool	isOn() const;
 
     bool	autoResize() const;
@@ -59,7 +61,6 @@ signals:
 
 protected:
     void	setToggleButton( bool );
-    void	setDown( bool );
     void	setOn( bool );
 
     virtual bool hitButton( const QPoint &pos ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#111 $
 **
 ** Implementation of QButton widget class
 **
@@ -49,9 +49,10 @@ static QPixmap *getDrawingPixmap()
 
 struct QButtonData
 {
-    QButtonData() : group(0) {}
+    QButtonData() : group(0), a(0) {}
     QButtonGroup *group;
     QTimer timer;
+    QAccel *a;
 };
 
 
@@ -363,8 +364,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 
 int QButton::accel() const
 {
-    QAccel *a = CHILD((QObject*)this,QAccel,"buttonAccel");
-    return a ? a->key(0) : 0;
+    return d && d->a ? d->a->key(0) : 0;
 }
 
 /*!
@@ -397,16 +397,17 @@ void QButton::setAccel( int key )
 	key = c ? ALT+toupper(c) : 0;
     }
 
-    QAccel *a = CHILD(this,QAccel,"buttonAccel");
+    ensureData();
     if ( key == 0 ) {				// delete accel
-	delete a;
+	delete d->a;
+	d->a = 0;
     } else {
-	if ( a )
-	    a->clear();
+	if ( d->a )
+	    d->a->clear();
 	else
-	    a = new QAccel( this, "buttonAccel" );
-	a->connectItem( a->insertItem(key,0),
-			this, SLOT(animateClick()) );
+	    d->a = new QAccel( this, "buttonAccel" );
+	d->a->connectItem( d->a->insertItem(key,0),
+			   this, SLOT(animateClick()) );
     }
 }
 
@@ -509,9 +510,9 @@ void QButton::animateClick()
   Sets the state of the button to pressed down if \e enable is TRUE
   or to standing up if \e enable is FALSE.
 
-  If the button is a toggle button, it is \e not toggled.
-  Call toggle() as well if you need to do that.
-  The pressed() and released() signals are not emitted by this function.
+  If the button is a toggle button, it is \e not toggled.  Call
+  toggle() as well if you need to do that.  The pressed() and
+  released() signals are not emitted by this function.
 
   This method is provided in case you need to override the mouse event
   handlers.
@@ -813,9 +814,7 @@ void QButton::animateTimeout()
 }
 
 
-/*!
-  Reimplemented for implementational reasons.
-*/
+/*! \reimp */
 
 void QButton::enabledChange( bool e )
 {
