@@ -34,7 +34,7 @@ public:
     QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
                     QObject *parent = 0);
 #ifndef QT_BUILD_QMAKE
-     // qmake doesn't link against qcoreapplication, which this ctor needs
+     // qmake doesn't link against QCoreApplication, which this constructor needs
      QCoreSettings(QObject *parent = 0);
 #endif
     ~QCoreSettings();
@@ -66,7 +66,7 @@ public:
     void setFallbacksEnabled(bool b);
     bool fallbacksEnabled() const;
 
-    QString path() const;
+    QString fileName() const;
 
 protected:
     QCoreSettings(QCoreSettingsPrivate *p, QObject *parent = 0);

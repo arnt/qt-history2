@@ -41,7 +41,7 @@ public:
     bool isWritable() const;
     HKEY writeHandle() const;
     bool readKey(HKEY parentHandle, const QString &rSubKey, QCoreVariant *value) const;
-    QString path() const;
+    QString fileName() const;
 
 private:
     RegistryLocationList regList; // list of registry locations to search for keys
@@ -779,7 +779,7 @@ void QWinSettingsPrivate::sync()
     RegFlushKey(writeHandle());
 }
 
-QString QWinSettingsPrivate::path() const
+QString QWinSettingsPrivate::fileName() const
 {
     if (regList.isEmpty())
         return QString();
@@ -792,11 +792,11 @@ bool QWinSettingsPrivate::isWritable() const
 }
 
 QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
-                                                    Qt::SettingsScope scope,
-                                                    const QString &organization,
-                                                    const QString &application,
-                                                    VariantToStringFunc vts,
-                                                    StringToVariantFunc stv)
+                                                   Qt::SettingsScope scope,
+                                                   const QString &organization,
+                                                   const QString &application,
+                                                   VariantToStringFunc vts,
+                                                   StringToVariantFunc stv)
 {
     if (format == Qt::NativeFormat) {
         QWinSettingsPrivate *p = new QWinSettingsPrivate(scope, organization, application);
@@ -812,9 +812,9 @@ QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
 }
 
 QCoreSettingsPrivate *QCoreSettingsPrivate::create(const QString &fileName,
-                                                    Qt::SettingsFormat format,
-                                                    VariantToStringFunc vts,
-                                                    StringToVariantFunc stv)
+                                                   Qt::SettingsFormat format,
+                                                   VariantToStringFunc vts,
+                                                   StringToVariantFunc stv)
 {
     if (format == Qt::NativeFormat) {
         QWinSettingsPrivate *p = new QWinSettingsPrivate(fileName);

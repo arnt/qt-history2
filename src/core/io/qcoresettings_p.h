@@ -125,7 +125,7 @@ public:
     virtual void clear() = 0;
     virtual void sync() = 0;
     virtual bool isWritable() const = 0;
-    virtual QString path() const = 0;
+    virtual QString fileName() const;
 
     QString actualKey(const QString &key) const;
     void beginGroupOrArray(const QSettingsGroup &group);
@@ -191,7 +191,7 @@ public:
     void clear();
     void sync();
     bool isWritable() const;
-    QString path() const;
+    QString fileName() const;
 
     void init();
 

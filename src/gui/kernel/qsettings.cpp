@@ -123,8 +123,6 @@ QSettings::QSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
 
     If \a format is Qt::IniFormat, \a fileName is the name of an .ini
     file.
-
-    \sa path()
 */
 QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format, QObject *parent)
     : QCoreSettings(QCoreSettingsPrivate::create(fileName, format,

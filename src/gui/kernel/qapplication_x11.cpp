@@ -711,7 +711,7 @@ bool QApplication::x11_apply_settings()
     }
 
     QSettings settings(Qt::UserScope, QLatin1String("Trolltech"), QLatin1String("Qt"));
-    settingsstamp = QFileInfo(settings.path()).lastModified();
+    settingsstamp = QFileInfo(settings.fileName()).lastModified();
     if (!settingsstamp.isValid())
         return false;
 

@@ -236,7 +236,6 @@ public:
     void clear();
     void sync();
     bool isWritable() const;
-    QString path() const { return QString(); } // ###
 
 private:
     struct SearchDomain

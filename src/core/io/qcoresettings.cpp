@@ -119,6 +119,11 @@ QCoreSettingsPrivate::~QCoreSettingsPrivate()
 {
 }
 
+QString QCoreSettingsPrivate::fileName() const
+{
+    return QString();
+}
+
 QString QCoreSettingsPrivate::actualKey(const QString &key) const
 {
     QString n = normalizedKey(key);
@@ -946,7 +951,7 @@ void QConfFileSettingsPrivate::sync()
     }
 }
 
-QString QConfFileSettingsPrivate::path() const
+QString QConfFileSettingsPrivate::fileName() const
 {
     QConfFile *confFile = confFiles[spec];
     if (confFile == 0)
@@ -1806,7 +1811,7 @@ QCoreSettings::QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
     If \a format is Qt::IniFormat, \a fileName is the name of an .ini
     file.
 
-    \sa path()
+    \sa fileName()
 */
 QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
                              QObject *parent)
@@ -1909,9 +1914,9 @@ void QCoreSettings::sync()
 
     \sa isWritable()
 */
-QString QCoreSettings::path() const
+QString QCoreSettings::fileName() const
 {
-    return d->path();
+    return d->fileName();
 }
 
 /*!
@@ -2260,7 +2265,7 @@ QStringList QCoreSettings::childGroups() const
     One reason why isWritable() might return false is if
     QCoreSettings operates on a read-only file.
 
-    \sa path(), status()
+    \sa fileName(), status()
 */
 bool QCoreSettings::isWritable() const
 {
