@@ -1659,10 +1659,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 break;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
-            if (btn->state & (QStyle::Style_On | QStyle::Style_Down))
-                bdi.state = kThemeStatePressed;
-            else
-                bdi.state = kThemeStateActive;
+            bdi.state = tds;
             bdi.adornment = kThemeAdornmentNone;
             bdi.value = kThemeButtonOff;
             if (btn->features & ((QStyleOptionButton::Flat | QStyleOptionButton::HasMenu)))
