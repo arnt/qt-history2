@@ -504,7 +504,8 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
         bits = kWindowEdgeBottom;
     else
         return false;
-    SetDrawerPreferredEdge(qt_mac_window_for(w), bits);
+    OSStatus err = SetDrawerPreferredEdge(qt_mac_window_for(w), bits);
+    qDebug("are we cool? %ld", err);
     return true;
 }
 
@@ -749,12 +750,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         Rect r;
         SetRect(&r, data->crect.left(), data->crect.top(), data->crect.left(), data->crect.top());
         WindowClass wclass = kSheetWindowClass;
-        if(popup || testWFlags(Qt::WStyle_Splash) == Qt::WStyle_Splash)
+        if(qt_mac_is_macdrawer(this))
+            wclass = kDrawerWindowClass;
+        else if(popup || (testWFlags(Qt::WStyle_Splash) == Qt::WStyle_Splash))
             wclass = kModalWindowClass;
         else if(testWFlags(Qt::WShowModal))
             wclass = kMovableModalWindowClass;
-        else if(qt_mac_is_macdrawer(this))
-            wclass = kDrawerWindowClass;
         else if(testWFlags(Qt::WStyle_Tool) && objectName() == QLatin1String("toolTipTip")) // Tool tips
             wclass = kHelpWindowClass;
         else if(testWFlags(Qt::WStyle_Tool)
