@@ -29,6 +29,8 @@
 #endif
 #include <Carbon/Carbon.h>
 #include <QuickTime/Movies.h>
+#undef QT_BUILD_KEY
+#include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 #include "qglobal.h"
 
 #ifdef Q_OS_MAC9
