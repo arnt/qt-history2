@@ -160,10 +160,7 @@
 
     Under Windows there are certain problems starting 16-bit applications
     and capturing their output. Microsoft recommends using an intermediate
-    application to start 16-bit applications. See Knowledge Base article \link
-    http://support.microsoft.com/default.aspx?scid=KB;en-us;q150956 Q150956
-    \endlink for details on this and example code for an intermediate
-    application.
+    application to start 16-bit applications.
 
     \sa QSocket
 */
@@ -490,7 +487,7 @@ QString QProcess::readLineStdout()
 
     uint size = a.size();
     buf->consumeBytes( size, 0 );
-    
+
     // get rid of terminating \n or \r\n
     if ( size>0 && a.at( size - 1 ) == '\n' ) {
       if ( size>1 && a.at( size - 2 ) == '\r' )
@@ -527,7 +524,7 @@ QString QProcess::readLineStderr()
 
     uint size = a.size();
     buf->consumeBytes( size, 0 );
-    
+
     // get rid of terminating \n or \r\n
     if ( size>0 && a.at( size - 1 ) == '\n' ) {
       if ( size>1 && a.at( size - 2 ) == '\r' )
