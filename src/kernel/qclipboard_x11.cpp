@@ -117,7 +117,7 @@ public:
 
 	delete s2;
     }
-
+    
     QMimeSource* source()
     { return src; }
     void addTransferredPixmap(QPixmap pm)
@@ -513,10 +513,10 @@ bool QClipboard::event( QEvent *e )
 		    while (d->source()->format(atoms)) atoms++;
 		    if (d->source()->provides("image/ppm")) atoms++;
 		    if (d->source()->provides("image/pbm")) atoms++;
-		    
+
 		    // local 8 bit and compound (multibyte) text
 		    if (d->source()->provides("text/plain")) atoms += 2;
-		    
+
 #ifdef QT_CLIPBOARD_DEBUG
 		    qDebug("qclipboard_x11.cpp:%d: %d provided types", __LINE__, atoms);
 #endif
@@ -534,7 +534,7 @@ bool QClipboard::event( QEvent *e )
 			qDebug("qclipboard_x11.cpp:%d: atom* for '%s' = %p %d",
 			       __LINE__, fmt, dnd, n);
 #endif
-			
+
 			// compiler should handle the Atom to long conversion implicitly
 			atarget[n++] = *dnd;
 		    }
@@ -570,10 +570,10 @@ bool QClipboard::event( QEvent *e )
 		    if ( target == XA_STRING || target == xa_text ) {
 			fmt = "text/plain";
 		    } else if ( target == xa_compound ) {
-			fmt = "text/plain";
+			fmt = "COMPOUND_TEXT";
 			data = d->source()->encodedData(fmt);
 			char *list[] = { data.data() };
-
+			
 			XTextProperty textprop;
 			if (XmbTextListToTextProperty(dpy, list, 1, XCompoundTextStyle,
 						      &textprop) == Success) {
@@ -700,7 +700,7 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
     if ( !fmt || empty() )
 	return QByteArray( 0 );
-
+    
     Atom fmtatom = 0;
 
     if ( 0==qstrcmp(fmt,"text/plain") ) {

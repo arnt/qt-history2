@@ -707,7 +707,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 		QTextCodec* codec = findcharset(m);
 		if ( codec ) {
 		    QByteArray payload;
-
+		    
 		    payload = e->encodedData(mime);
 		    if ( payload.size() ) {
 			int l;
@@ -728,6 +728,14 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 			return TRUE;
 		    }
 		}
+	    }
+	} else if ( 0 == qstricmp(mime, "COMPOUND_TEXT") ) {
+	    QByteArray payload;
+	    payload = e->encodedData(mime);
+	    if ( payload.size() ) {
+		str = QString::fromLocal8Bit(payload, payload.size());
+		subtype = "plain";
+		return TRUE;
 	    }
 	}
     }
