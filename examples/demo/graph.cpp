@@ -30,6 +30,9 @@ public:
 	moving = 0;
 	speed = 200;
     }
+    ~GraphWidgetPrivate() {
+	delete canvas;
+    }
     NodeItemList nodeItems;
     FigureEditor* editor;
     QCanvas* canvas;
