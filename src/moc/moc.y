@@ -2847,8 +2847,19 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
-	if ( !g->noInclude )
+	if ( !g->noInclude ) {
+	    /*
+	      The header file might be a Qt header file with QT_NO_COMPAT
+	      macros around signals, slots or properties. Without the #undef,
+	      we cannot compile Qt itself with QT_NO_COMPAT.
+
+	      Header files of libraries build around Qt can also use
+	      QT_NO_COMPAT, so this #undef might be beneficial to users of Qt,
+	      and not only to developers of Qt.
+	    */
+	    fprintf( out, "#undef QT_NO_COMPAT\n" );
 	    fprintf( out, "#include \"%s\"\n", (const char*)g->includeFile );
+	}
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n\n", (const char*)g->qtPath );
 	fprintf( out, "#include <%squcomextra.h>\n", (const char*)g->qtPath );
