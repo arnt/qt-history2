@@ -1498,6 +1498,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    curpar->setAlignment( Qt::AlignCenter );
 			else if ( *attr.find( "align" ) == "right" )
 			    curpar->setAlignment( Qt::AlignRight );
+			else if ( *attr.find( "align" ) == "justify" )
+			    curpar->setAlignment( Qt::AlignJustify );
 		    }
 		    depth++;
 		}
@@ -1615,6 +1617,8 @@ static QString align_to_string( const QString &tag, int a )
 	    return " align=right ";
 	if ( a & Qt::AlignCenter )
 	    return " align=center ";
+	if ( a & Qt::AlignJustify )
+	    return " align=justify ";
     }
     return "";
 }
