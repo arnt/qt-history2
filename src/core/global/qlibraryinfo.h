@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+class QSettings;
+
 class Q_CORE_EXPORT QLibraryInfo
 {
 public:
@@ -26,11 +28,11 @@ public:
 
     enum LibraryLocation
     {
-        PrefixPath, 
-        DocumentationPath, 
-        HeadersPath, 
-        LibrariesPath, 
-        BinariesPath, 
+        PrefixPath,
+        DocumentationPath,
+        HeadersPath,
+        LibrariesPath,
+        BinariesPath,
         PluginsPath,
         DataPath,
         TranslationsPath,
@@ -38,7 +40,7 @@ public:
     };
     static QString location(LibraryLocation);
 
-    static QString configuration();
+    static QSettings *configuration();
 
 private:
     QLibraryInfo();

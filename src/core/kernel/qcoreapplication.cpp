@@ -339,11 +339,11 @@ void QCoreApplication::init()
             }
             QByteArray arg = d->argv[i];
             if (arg.indexOf("-qtconfig=", 0) != -1) {
-                extern QString qt_library_config_file; //qlibraryinfo.cpp
-                qt_library_config_file = arg.right(arg.length() - 10);
+                extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
+                qt_set_library_config_file(arg.right(arg.length() - 10));
             } else if (arg == "-qtconfig" && i < d->argc-1) {
-                extern QString qt_library_config_file; //qlibraryinfo.cpp
-                qt_library_config_file = d->argv[++i];
+                extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
+                qt_set_library_config_file(d->argv[++i]);
             } else {
                 d->argv[j++] = d->argv[i];
             }
@@ -353,7 +353,7 @@ void QCoreApplication::init()
             d->argc = j;
         }
     }
-    
+
     qt_startup_hook();
 }
 

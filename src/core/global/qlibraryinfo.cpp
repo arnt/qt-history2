@@ -16,11 +16,20 @@
 #include "qsettings.h"
 #include "qlibraryinfo.h"
 #ifndef QT_NO_QOBJECT
+# include "qpointer.h"
 # include "qcoreapplication.h"
 #endif
 
 #include "qconfig.cpp"
-Q_CORE_EXPORT QString qt_library_config_file;
+
+Q_GLOBAL_STATIC(QString, qt_library_config_file)
+Q_CORE_EXPORT void qt_set_library_config_file(QString p) { *(qt_library_config_file()) = p; }
+
+#ifdef QT_NO_QOBJECT
+static QSettings *qt_library_settings = 0;
+#else
+static QPointer<QSettings> qt_library_settings = 0;
+#endif
 
 /*! \class QLibraryInfo
     \brief The QLibraryInfo class provides information about the Qt library.
@@ -42,7 +51,7 @@ Q_CORE_EXPORT QString qt_library_config_file;
 
 QLibraryInfo::QLibraryInfo()
 {
-    
+
 }
 
 /*!
@@ -82,14 +91,15 @@ QLibraryInfo::buildKey()
     return QT_BUILD_KEY;
 }
 
-static bool qt_find_qlibrary_info_config()
+static QSettings *qt_find_qlibrary_info_config()
 {
+    if(!qt_library_config_file()->isNull())
+        return (new QSettings(*qt_library_config_file(), QSettings::IniFormat));
+
     { //look in the binary itself
-        QString qtconfig = ":/qt/etc/qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
+        const QString qtconfig = ":/qt/etc/qt.conf";
+        if(QFile::exists(qtconfig))
+            return (new QSettings(qtconfig, QSettings::IniFormat));
     }
 #ifndef QT_NO_QOBJECT
     if(QCoreApplication *app = QCoreApplication::instance()) { //walk up the file system from the exe to (a) root
@@ -137,10 +147,8 @@ static bool qt_find_qlibrary_info_config()
             if(trySearch) {
                 QDir pwd(QFileInfo(exe).path());
                 while(1) {
-                    if(pwd.exists("qt.conf")) {
-                        qt_library_config_file = pwd.filePath("qt.conf");
-                        return true;
-                    }
+                    if(pwd.exists("qt.conf"))
+                        return (new QSettings(pwd.filePath("qt.conf"), QSettings::IniFormat));
                     if(pwd.isRoot())
                         break;
                     pwd.cdUp();
@@ -150,33 +158,25 @@ static bool qt_find_qlibrary_info_config()
     }
 #endif
     if(char *qtdir = qgetenv("QTDIR")) {     //look in QTDIR
-        QString qtconfig = QString::fromUtf8(qtdir) + "/" + "qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
+        const QString qtconfig = QString::fromUtf8(qtdir) + "/" + "qt.conf";
+        if(QFile::exists(qtconfig))
+            return (new QSettings(qtconfig, QSettings::IniFormat));
     }
     if(char *qtconfig_str = qgetenv("QTCONFIG")) {     //look in QTCONFIG
-        QString qtconfig = QString::fromUtf8(qtconfig_str);
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
+        const QString qtconfig = QString::fromUtf8(qtconfig_str);
+        if(QFile::exists(qtconfig))
+            return (new QSettings(qtconfig, QSettings::IniFormat));
     }
     { //look in the home dir
-        QString qtconfig = QDir::homePath() + "/" + ".qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
+        const QString qtconfig = QDir::homePath() + "/" + ".qt.conf";
+        if(QFile::exists(qtconfig))
+            return (new QSettings(qtconfig, QSettings::IniFormat));
     }
     { //walk up the file system from PWD to (a) root
         QDir pwd = QDir::current();
         while(1) {
-            if(pwd.exists("qt.conf")) {
-                qt_library_config_file = pwd.filePath("qt.conf");
-                return true;
-            }
+            if(pwd.exists("qt.conf"))
+                return (new QSettings(pwd.filePath("qt.conf"), QSettings::IniFormat));
             if(pwd.isRoot())
                 break;
             pwd.cdUp();
@@ -184,18 +184,14 @@ static bool qt_find_qlibrary_info_config()
     }
 #ifdef Q_OS_UNIX
     { //look in the /etc
-        QString qtconfig = "/etc/qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
+        const QString qtconfig = "/etc/qt.conf";
+        if(QFile::exists(qtconfig))
+            return (new QSettings(qtconfig, QSettings::IniFormat));
     }
     { //look in the /usr/local/etc
-        QString qtconfig = "/usr/local/etc/qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
+        const QString qtconfig = "/usr/local/etc/qt.conf";
+        if(QFile::exists(qtconfig))
+            return (new QSettings(qtconfig, QSettings::IniFormat));
     }
 #endif
 #ifdef Q_OS_WIN
@@ -203,15 +199,15 @@ static bool qt_find_qlibrary_info_config()
         //###TDB
     }
 #endif
-    
-    return false;     //no luck
+    return 0;     //no luck
 }
 
 /*!
-  Returns the active configuration information file. This is normally
-  only usefull for debugging but could be usefull to retrieve custom
-  information. This file is a QSettings readable INI file. Qt will
-  automatically find the configuration file by looking (in order):
+  Returns the active configuration information settings. This is
+  normally only usefull for debugging but could be usefull to retrieve
+  custom information. Do not destruct the return value as QLibrary
+  retains ownership. Qt will automatically find the configuration file
+  by looking (in order):
 
   \list
 
@@ -219,12 +215,6 @@ static bool qt_find_qlibrary_info_config()
   <config_location>.
 
   \i A resource of the name :/qt/etc/qt.conf.
-
-  \i An environment variable QTCONFIG.
-
-  \i An environment variable QTDIR/qt.conf (for Qt3 compatiblity).
-
-  \i A file in $(HOME)/.qt.conf.
 
   \i A file of the name qt.conf in the directory from which your
   application executable lives. The filesystem will be walked up from
@@ -234,29 +224,33 @@ static bool qt_find_qlibrary_info_config()
   application executable was run. The filesystem will be walked up
   from that directory to the root.
 
-  \i A file in /etc/qt.conf (Unix only)
+  \i An environment variable QTCONFIG.
 
-  \i A file in /usr/local//etc/qt.conf (Unix only)
+  \i An environment variable QTDIR/qt.conf.
+
+  \i A file in $(HOME)/.qt.conf.
+
+  \i A file in /etc/qt.conf. (Unix only)
+
+  \i A file in /usr/local/etc/qt.conf. (Unix only)
 
   \endlist
 
-  If no configuration can be found a null QString will be returned.
+  If no configuration can be found then zero will be returned.
 
   \sa QLibrayInfo::location, QSettings
 */
 
-QString
-QLibraryInfo::configuration()
+QSettings
+*QLibraryInfo::configuration()
 {
-    if(qt_library_config_file.isNull()) 
-        qt_find_qlibrary_info_config();
-    if(!QFile::exists(qt_library_config_file))
-        return QString();
-    return qt_library_config_file;
+    if(qt_library_settings)
+        return qt_library_settings;
+    return qt_library_settings = qt_find_qlibrary_info_config();
 }
 
 /*!
-  Returns the location specified by \a loc. 
+  Returns the location specified by \a loc.
 
   \sa QLibraryInfo::LibraryLocation, QLibraryInfo::configuration
 */
@@ -264,47 +258,100 @@ QLibraryInfo::configuration()
 QString
 QLibraryInfo::location(LibraryLocation loc)
 {
-    if(qt_library_config_file.isNull()) 
-        qt_find_qlibrary_info_config();
-    if(!qt_library_config_file.isNull()) {
-        QString key;
-        switch(loc) {
-        case PrefixPath:
-            key = "PrefixPath";
-            break;
-        case DocumentationPath:
-            key = "DocumentationPath";
-            break;
-        case HeadersPath:
-            key = "HeadersPath";
-            break;
-        case LibrariesPath:
-            key = "LibrariesPath";
-            break;
-        case BinariesPath:
-            key = "BinariesPath";
-            break;
-        case PluginsPath:
-            key = "PluginsPath";
-            break;
-        case DataPath:
-            key = "DataPath";
-            break;
-        case TranslationsPath:
-            key = "TranslationsPath";
-            break;
-        case SettingsPath:
-            key = "SettingsPath";
-            break;
-        default:
-            break;
-        }
-        if(!key.isNull()) {
-            QSettings settings(qt_library_config_file, QSettings::IniFormat);
-            return settings.value("QtCore/" + key, QDir::currentPath()).toString();
-        }
+    if(!configuration())
+        return QString();
+
+    QString key;
+    switch(loc) {
+    case PrefixPath:
+        key = "Prefix";
+        break;
+    case DocumentationPath:
+        key = "Documentation";
+        break;
+    case HeadersPath:
+        key = "Headers";
+        break;
+    case LibrariesPath:
+        key = "Libraries";
+        break;
+    case BinariesPath:
+        key = "Binaries";
+        break;
+    case PluginsPath:
+        key = "Plugins";
+        break;
+    case DataPath:
+        key = "Data";
+        break;
+    case TranslationsPath:
+        key = "Translations";
+        break;
+    case SettingsPath:
+        key = "Settings";
+        break;
+    default:
+        break;
     }
-    return QString();
+
+    QString ret;
+    if(!key.isNull()) {
+        QSettings *config = configuration();
+        config->beginGroup("Paths");
+
+        QString subKey;
+        {
+            int maj = 0, min = 0, pat = 0;
+            QStringList children = config->childGroups();
+            for(int child = 0; child < children.size(); ++child) {
+                QString cver = children.at(child);
+                QStringList cver_list = cver.split('.');
+                if(cver_list.size() > 0 && cver_list.size() < 4) {
+                    bool ok;
+                    int cmaj = -1, cmin = -1, cpat = -1;
+                    cmaj = cver_list[0].toInt(&ok);
+                    if(!ok || cmaj < 0)
+                        continue;
+                    if(cver_list.size() >= 2) {
+                        cmin = cver_list[1].toInt(&ok);
+                        if(!ok)
+                            continue;
+                        if(cmin < 0)
+                            cmin = -1;
+                    }
+                    if(cver_list.size() >= 3) {
+                        cpat = cver_list[2].toInt(&ok);
+                        if(!ok)
+                            continue;
+                        if(cpat < 0)
+                            cpat = -1;
+                    }
+                    if((cmaj >= maj && cmaj <= ((QT_VERSION >> 16) & 0xFF)) &&
+                       (cmin == -1 || (cmin >= min && cmin <= ((QT_VERSION >> 8) & 0xFF))) &&
+                       (cpat == -1 || (cpat >= pat && cpat <= (QT_VERSION & 0xFF))) &&
+                       config->contains(cver + "/" + key)) {
+                        subKey = cver + "/";
+                        maj = cmaj;
+                        min = cmin;
+                        pat = cpat;
+                    }
+                }
+            }
+        }
+        if(config->contains(subKey + key)) {
+            ret = config->value(subKey + key).toString();
+            int rep;
+            QRegExp reg_var("\\$\\(.*\\)");
+            reg_var.setMinimal(true);
+            while((rep = reg_var.indexIn(ret)) != -1)
+                ret.replace(rep, reg_var.matchedLength(),
+                               QString(qgetenv(ret.mid(rep + 2, reg_var.matchedLength() - 3).toLatin1().constData())));
+        } else {
+            ret = QDir::currentPath();
+        }
+        config->endGroup();
+    }
+    return ret;
 }
 
 

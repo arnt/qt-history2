@@ -18,6 +18,7 @@
 #include <stdarg.h>
 #include <qlibraryinfo.h>
 #include <qhash.h>
+#include <qsettings.h>
 
 //convenience
 QString Option::prf_ext;
@@ -215,9 +216,8 @@ Option::parseCommandLine(int argc, char **argv, int skip)
 #endif
                 return QMAKE_CMDLINE_BAIL;
             } else if(opt == "qtconfig") {
-                extern QString qt_library_config_file; //qlibraryinfo.cpp
-                qt_library_config_file = argv[++x];
-                Option::qtconfig_commandline = qt_library_config_file;
+                extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
+                qt_set_library_config_file(Option::qtconfig_commandline = argv[++x]);
             } else if(opt == "show_qtconfig") {
                 show_qtconfig = true;
             } else if(opt == "h" || opt == "help") {
@@ -297,8 +297,7 @@ Option::parseCommandLine(int argc, char **argv, int skip)
         }
     }
 
-    QString qt_library_config = QLibraryInfo::configuration();
-    if(qt_library_config.isNull() && argv && argv[0]) {
+    if(!QLibraryInfo::configuration() && argv && argv[0]) {
         bool trySearch = true;
         QString exe = argv[0];
         if(QDir::isRelativePath(exe)) {
@@ -330,8 +329,8 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             QDir pwd(QFileInfo(exe).path());
             while(1) {
                 if(pwd.exists("qt.conf")) {
-                    extern QString qt_library_config_file; //qlibraryinfo.cpp
-                    qt_library_config = qt_library_config_file = pwd.filePath("qt.conf");
+                    extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
+                    qt_set_library_config_file(pwd.filePath("qt.conf"));
                     break;
                 }
                 if(pwd.isRoot())
@@ -340,13 +339,15 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             }
         }
     }
-    if(qt_library_config.isNull()) {
+    if(!QLibraryInfo::configuration()) {
         fprintf(stderr, "Unable to find a Qt configuration.\n");
         return QMAKE_CMDLINE_BAIL;
     }
-    debug_msg(1, "Using Qt/configuration: %s\n", qt_library_config.toLatin1().constData());
+    debug_msg(1, "Using Qt/configuration: %s\n",
+              QLibraryInfo::configuration()->fileName().toLatin1().constData());
     if(show_qtconfig)
-        fprintf(stdout, "Using configuration: %s\n", qt_library_config.toLatin1().constData());
+        fprintf(stdout, "Using configuration: %s\n",
+                QLibraryInfo::configuration()->fileName().toLatin1().constData());
     return QMAKE_CMDLINE_SUCCESS;
 }
 

@@ -1102,16 +1102,16 @@ fi
 [ -z "$QT_INSTALL_SETTINGS" ]     && QT_INSTALL_SETTINGS=/etc/xdg
 
 cat > $outpath/qt.conf.new <<EOF
-[QtCore]
-PrefixPath = $QT_INSTALL_PREFIX
-DocumentationPath = $QT_INSTALL_DOCS
-HeadersPath = $QT_INSTALL_HEADERS
-LibrariesPath = $QT_INSTALL_LIBS
-BinariesPath = $QT_INSTALL_BINS
-PluginsPath = $QT_INSTALL_PLUGINS
-DataPath = $QT_INSTALL_DATA
-TranslationsPath = $QT_INSTALL_TRANSLATIONS
-SettingsPath = $QT_INSTALL_SETTINGS
+[Paths]
+Prefix = $QT_INSTALL_PREFIX
+Documentation = $QT_INSTALL_DOCS
+Headers = $QT_INSTALL_HEADERS
+Libraries = $QT_INSTALL_LIBS
+Binaries = $QT_INSTALL_BINS
+Plugins = $QT_INSTALL_PLUGINS
+Data = $QT_INSTALL_DATA
+Translations = $QT_INSTALL_TRANSLATIONS
+Settings = $QT_INSTALL_SETTINGS
 EOF
 
 # copy only if qt.conf has changed

@@ -1279,22 +1279,22 @@ void Configure::generateConfigfiles()
 
     if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
 	outStream.setDevice(&outFile);
-        outStream << "[QtCore]" << endl;
-	outStream << "PrefixPath = "
+        outStream << "[Paths]" << endl;
+	outStream << "Prefix = "
                   << QString(dictionary["QT_INSTALL_PREFIX"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "BinariesPath = "
+	outStream << "Binaries = "
 		  << QString(dictionary["QT_INSTALL_BINS"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "DocumentationPath = "
+	outStream << "Documentation = "
 		  << QString(dictionary["QT_INSTALL_DOCS"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "HeadersPath = "
+	outStream << "Headers = "
 		  << QString(dictionary["QT_INSTALL_HEADERS"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "LibrariesPath = "
+	outStream << "Libraries = "
 		  << QString(dictionary["QT_INSTALL_LIBS"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "PluginsPath = "
+	outStream << "Plugins = "
 		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "DataPath = "
+	outStream << "Data = "
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << endl;
-	outStream << "TranslationPath = "
+	outStream << "Translations = "
 		  << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" )  << endl;
 	outFile.close();
     }

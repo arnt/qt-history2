@@ -21,6 +21,7 @@
 #include <qhash.h>
 #include <qlibraryinfo.h>
 #include <qbuffer.h>
+#include <qsettings.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
@@ -2279,8 +2280,9 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
                     t << specdir() << Option::dir_sep << "tmake.conf" << " ";
             }
             const QStringList &included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
-            t << QLibraryInfo::configuration() << " \\\n\t"
-              << included.join(" \\\n\t\t") << "\n\t"
+            if(QLibraryInfo::configuration())
+                t << QLibraryInfo::configuration()->fileName() << " \\\n\t";
+            t << included.join(" \\\n\t\t") << "\n\t"
               << qmake << endl;
             for(int include = 0; include < included.size(); ++include)
                 t << included.at(include) << ":" << endl;
