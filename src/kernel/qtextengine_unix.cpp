@@ -68,8 +68,26 @@ void QTextEngine::shape( int item ) const
     }
     ((QTextEngine *)this)->used += si.num_glyphs;
 
-    si.width = 0;
     advance_t *advances = this->advances( &si );
+
+    if (kern && si.fontEngine->type() == QFontEngine::Xft) {
+	FT_Face face = static_cast<QFontEngineXft *>(si.fontEngine)->freetypeFace();
+	if (FT_HAS_KERNING(face)) {
+	    FT_Vector kerning;
+	    glyph_t *g = glyphs(&si);
+	    bool kern = false;
+	    for (int i = 0; i < si.num_glyphs-1; ++i) {
+		FT_Get_Kerning(face, *g, *(g+1), FT_KERNING_DEFAULT, &kerning);
+		++g;
+		kerning.x >>= 6;
+		advances[i] += kerning.x;
+		kern |= (kerning.x != 0);
+	    }
+	    si.hasPositioning |= kern;
+	}
+    }
+
+    si.width = 0;
     advance_t *end = advances + si.num_glyphs;
     while ( advances < end )
 	si.width += *(advances++);

@@ -223,6 +223,11 @@ QTextLayout::~QTextLayout()
     delete d;
 }
 
+void QTextLayout::enableKerning(bool enable)
+{
+    d->enableKerning(enable);
+}
+
 void QTextLayout::setText( const QString& string, const QFont& fnt )
 {
     delete d;

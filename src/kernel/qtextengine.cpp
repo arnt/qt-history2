@@ -793,7 +793,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 
 
 QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
-    : string( str ), fnt( f ), direction( QChar::DirON ), haveCharAttributes( FALSE ), widthOnly( FALSE )
+    : string(str), fnt(f), direction(QChar::DirON), haveCharAttributes(FALSE), widthOnly(FALSE), kern(false)
 {
 #ifdef Q_WS_WIN
     if ( !resolvedUsp10 )

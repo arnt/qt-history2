@@ -91,6 +91,8 @@ public:
     void setText( const QString& string, const QFont& fnt );
     void setText( const QString& string);
 
+    void enableKerning(bool enable);
+
     enum LineBreakStrategy {
 	AtWordBoundaries,
 	AtCharBoundaries

@@ -324,6 +324,7 @@ public:
 
     void recalcAdvances( int len, glyph_t *glyphs, advance_t *advances );
 
+    FT_Face freetypeFace() const { return _face; }
 private:
     friend class QFontPrivate;
     XftFont *_font;

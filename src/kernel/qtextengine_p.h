@@ -294,6 +294,8 @@ public:
     int width( int charFrom, int numChars ) const;
     glyph_metrics_t boundingBox( int from,  int len ) const;
 
+    void enableKerning(bool enable) { kern = enable; }
+
     QScriptItemArray items;
     QString string;
     QFontPrivate *fnt;
@@ -304,7 +306,8 @@ public:
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
-    unsigned int reserved : 25;
+    unsigned int kern : 1;
+    unsigned int reserved : 24;
 
     int length( int item ) const {
 	const QScriptItem &si = items[item];
