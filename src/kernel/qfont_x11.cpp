@@ -663,7 +663,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    QPoint p = pa[pa.size() - nmarks];
 	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
 	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, qfs );
-	    if ( qfs && qfs->codec )
+	    if ( qfs && qfs != (QFontStruct *)-1 && qfs->codec )
 		cache->mapped = qfs->codec->fromUnicode( str, pos + i, 1 );
 	    QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 	    cache->next = run;
