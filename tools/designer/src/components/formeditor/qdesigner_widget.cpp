@@ -617,15 +617,18 @@ void QLayoutSupport::insertRow(QGridLayout *gridLayout, int row)
         it.next();
 
         QRect info = it.value();
-
+        qDebug() << "widget:" << it.key()->widget() << "info:" << info;
         if (info.y() > row) {
             info.translate(0, 1);
             it.setValue(info);
+            qDebug() << "move item:" << it.key()->widget();
         }
     }
 
-    for (int c = 0; c < gridLayout->columnCount(); ++c)
+    for (int c = 0; c < gridLayout->columnCount(); ++c) {
         infos.insert(new QSpacerItem(0,0), QRect(c, row + 1, 1, 1));
+        qDebug() << "inserted fake spacer at:" << QRect(c, row + 1, 1, 1);
+    }
 
     rebuildGridLayout(gridLayout, infos);
 }
@@ -663,15 +666,15 @@ QRect QLayoutSupport::itemInfo(int index) const
     if (QGridLayout *l = qt_cast<QGridLayout*>(layout())) {
         int row, column, rowSpan, columnSpan;
         l->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
+        return QRect(column, row, columnSpan, rowSpan);
     } else if (qt_cast<QHBoxLayout*>(layout())) {
         return QRect(0, index, 1, 1);
     } else if (qt_cast<QVBoxLayout*>(layout())) {
         return QRect(index, 0, 1, 1);
     } else {
         Q_ASSERT(0); // ### not supported yet!
+        return QRect();
     }
-
-    return QRect();
 }
 
 int QLayoutSupport::findItemAt(const QPoint &pos) const
