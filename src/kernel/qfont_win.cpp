@@ -45,8 +45,20 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
     QFont qf(family);
     if (lf.lfItalic)
 	qf.setItalic( TRUE );
-    if (lf.lfWeight != FW_DONTCARE)
-	qf.setWeight(lf.lfWeight*99/900);
+    if (lf.lfWeight != FW_DONTCARE) {
+	int weight;
+	if ( lf.lfWeight < 400 )
+	    weight = QFont::Light;
+	else if ( lf.lfWeight < 600 )
+	    weight = QFont::Normal;
+	else if ( lf.lfWeight < 700 )
+	    weight = QFont::DemiBold;
+	else if ( lf.lfWeight < 800 )
+	    weight = QFont::Bold;
+	else
+	    weight = QFont::Black;
+	qf.setWeight(weight);
+    }
     int lfh = QABS( lf.lfHeight );
     Q_ASSERT(shared_dc);
     qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
