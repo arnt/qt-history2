@@ -9,7 +9,7 @@
 
 #define PEN_INPUT
 #ifdef PEN_INPUT
-#include "../../util/qws/input_pen.h"
+#include "input_pen.h"
 #endif
 #include <qwindowsystem_qws.h>
 
@@ -295,8 +295,8 @@ main(int argc, char** argv)
 		    | QWidget::WStyle_NoBorder | QWidget::WStyle_StaysOnTop );
     pi.setFrameStyle( QFrame::Box | QFrame::Plain );
     pi.setLineWidth( 1 );
-    pi.addCharSet( "/etc/qws/qimpen/asciilower.qpt" );
-    pi.addCharSet( "/etc/qws/qimpen/numeric.qpt" );
+    pi.addCharSet( "qimpen/asciilower.qpt" );
+    pi.addCharSet( "qimpen/numeric.qpt" );
     pi.show();
     pi.resize( pi.width(), pi.sizeHint().height() + 1 );
     pi.move( 0,  h - pi.height() );
