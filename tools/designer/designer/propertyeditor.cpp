@@ -3443,7 +3443,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 			ke->key() == Key_Left ) )
 		i->setOpen( FALSE );
 	} else if ( ( ke->key() == Key_Return || ke->key() == Key_Enter ) && o->inherits( "QComboBox" ) ) {
-	    QKeyEvent ke2( QEvent::KeyPress, Key_Space, 0, 0 );
+	    QKeyEvent ke2( QEvent::KeyPress, Key_Space, 0 );
 	    QApplication::sendEvent( o, &ke2 );
 	    return TRUE;
 	}
