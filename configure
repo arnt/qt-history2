@@ -1642,7 +1642,7 @@ fi
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 if [ "$X11_PLATFORM" = "yes" ]
 then
-    [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
+    [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG x11sm"
 
     # for some reason, the following libraries are not always build shared,
     # so *every* program/lib (including Qt) has to link against them
