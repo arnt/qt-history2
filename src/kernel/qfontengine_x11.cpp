@@ -15,6 +15,9 @@
 // defined in qfontdatbase_x11.cpp
 extern int qt_mibForXlfd( const char * encoding );
 
+QFontEngine::~QFontEngine()
+{
+}
 
 // ------------------------------------------------------------------
 // The box font engine

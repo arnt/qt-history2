@@ -107,7 +107,7 @@ public:
     static QString shapedString( const QString &str, int from = 0, int len = -1, QPainter::TextDirection dir = QPainter::Auto, const QFontMetrics *fm = 0);
     static QChar shapedCharacter(const QString &str, int pos, const QFontMetrics *fm = 0);
 
-#ifndef Q_WS_X11
+#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
     // positions non spacing marks relative to the base character at position pos.
     static QPointArray positionMarks( QFontPrivate *f, const QString &str, int pos, QRect *boundingRect = 0 );
 #endif

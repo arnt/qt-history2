@@ -1531,12 +1531,10 @@ void QFont::cacheStatistics()
     qDebug( "{" );
     while ( (qfs = it.current()) ) {
 	++it;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
 	qDebug( "   [%s]", (const char *) qfs->name() );
 #elif defined(Q_WS_MAC)
 	qDebug( "   [we need to implement this]"); //XXX
-#else
-	qDebug( "   [%s]", (const char *) qfs->key() );
 #endif
     }
     qDebug( "}" );
@@ -1888,7 +1886,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
     return *this;
 }
 
-#ifndef Q_WS_X11
+#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
     return d->boundingRect( ch );

@@ -47,6 +47,7 @@ struct QGlyphMetrics
     int yoff;
 };
 
+#ifdef Q_WS_X11
 typedef unsigned short glyph_t;
 
 struct offset_t {
@@ -56,38 +57,138 @@ struct offset_t {
 
 typedef int advance_t;
 
-struct QShapedItem;
-struct QCharAttributes;
-
 struct QScriptAnalysis
 {
-    int script    : 7;
-    int bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
-    int override  : 1;  // Set when in LRO/RLO embedding
-    int reserved  : 2;
+    unsigned int script    : 7;
+    unsigned int bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
+    unsigned int override  : 1;  // Set when in LRO/RLO embedding
+    unsigned int reserved  : 2;
     bool operator == ( const QScriptAnalysis &other ) {
 	return
 	    script == other.script &&
 	    bidiLevel == other.bidiLevel;
 	// ###
-// 	    &&
-// 	    override == other.override;
+// 	    && override == other.override;
     }
 
 };
 
+
+#endif
+#ifdef Q_WS_WIN
+
+// do not change the definitions below unless you know what you are doing!
+// it is designed to be compatible with the types found in uniscribe.
+
+typedef unsigned short glyph_t;
+
+struct offset_t {
+    int x;
+    int y;
+};
+
+typedef int advance_t;
+
+struct QScriptAnalysis {
+    unsigned int script         :10;
+    unsigned int rtl            :1;
+    unsigned int layoutRTL      :1;
+    unsigned int linkBefore     :1;
+    unsigned int linkAfter      :1;
+    unsigned int logicalOrder   :1;
+    unsigned int noGlyphIndex   :1;
+    unsigned int bidiLevel         :5;
+    unsigned int override          :1;
+    unsigned int inhibitSymSwap    :1;
+    unsigned int charShape         :1;
+    unsigned int digitSubstitute   :1;
+    unsigned int inhibitLigate     :1;
+    unsigned int fDisplayZWG        :1;
+    unsigned int arabicNumContext  :1;
+    unsigned int gcpClusters       :1;
+    unsigned int reserved          :1;
+    unsigned int engineReserved    :2;
+    bool operator == ( const QScriptAnalysis &other ) {
+	return
+	    script == other.script &&
+	    bidiLevel == other.bidiLevel;
+	// ###
+// 	    && override == other.override;
+    }
+};
+
+
+#endif
+
+// enum and struct are  made to be compatible with Uniscribe, dont change unless you know what you're doing.
+struct GlyphAttributes {
+    // highest value means highest priority for justification. Justification is done by first inserting kashidas
+    // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
+    // spacing, and last spacing between arabic words.
+    // NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
+    enum Justification {
+	NoJustification= 0,   // Justification can't be applied at this glyph
+	Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
+	Character      = 2,   // Inter-character justification point follows this glyph
+	Space          = 4,   // This glyph represents a blank outside an Arabic run
+	Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
+	Arabic_Kashida = 8,   // Kashida(U+640) in middle of word
+	Arabic_Alef    = 9,   // Final form of Alef-like (U+627, U+625, U+623, U+632)
+	Arabic_Ha      = 10,  // Final Form Of Ha (U+647)
+	Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
+	Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
+	Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
+	Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
+    };
+    unsigned int justification   :4;  // Justification class
+    unsigned int clusterStart    :1;  // First glyph of representation of cluster
+    unsigned int mark            :1;  // needs to be positioned around base char
+    unsigned int zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
+    unsigned int reserved        :1;
+    unsigned char combiningClass :8;
+};
+
+
+// also this is compatible to uniscribe. Do not change.
+struct QCharAttributes {
+    uint softBreak      :1;     // Potential linebreak point
+    uint whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
+    uint charStop       :1;     // Valid cursor position (for left/right arrow)
+    uint wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
+    uint invalid        :1;
+    uint reserved       :3;
+};
+
+
+struct QShapedItem
+{
+    QShapedItem()
+	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
+	  glyphAttributes( 0 ), ownGlyphs( TRUE ) {}
+    ~QShapedItem();
+    int num_glyphs;
+    glyph_t *glyphs;
+    advance_t *advances;
+    offset_t *offsets;
+    unsigned short *logClusters;
+    GlyphAttributes *glyphAttributes;
+    bool ownGlyphs : 1;
+};
+
+class QFontEngine;
+
 struct QScriptItem
 {
     int position;
-    int x;
-    int y;
-    int width;
     QScriptAnalysis analysis;
     short baselineAdjustment;
     short ascent;
     short descent;
-    QFontEngine *fontEngine;
+    int x;
+    int y;
+    int width;
     QShapedItem *shaped;
+    QFontEngine *fontEngine;
 };
 
 struct QScriptItemArrayPrivate
@@ -129,64 +230,10 @@ public:
     QScriptItemArrayPrivate *d;
 };
 
-
-// enum and struct are  made to be compatible with Uniscribe
-struct GlyphAttributes {
-    // highest value means highest priority for justification. Justification is done by first inserting kashidas
-    // starting with the highest priority positions, then stretching spaces, afterwards extending inter char
-    // spacing, and last spacing between arabic words.
-    // NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
-    enum Justification {
-	NoJustification= 0,   // Justification can't be applied at this glyph
-	Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
-	Character      = 2,   // Inter-character justification point follows this glyph
-	Space          = 4,   // This glyph represents a blank outside an Arabic run
-	Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
-	Arabic_Kashida = 8,   // Kashida(U+640) in middle of word
-	Arabic_Alef    = 9,   // Final form of Alef-like (U+627, U+625, U+623, U+632)
-	Arabic_Ha      = 10,  // Final Form Of Ha (U+647)
-	Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
-	Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
-	Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
-	Arabic_Seen    = 14   // Highest Priority: Initial Shape Of Seen(U+633) (End)
-    };
-    unsigned int justification   :4;  // Justification class
-    unsigned int clusterStart    :1;  // First glyph of representation of cluster
-    unsigned int mark            :1;  // needs to be positioned around base char
-    unsigned int zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-    unsigned int reserved        :1;
-    unsigned char combiningClass :8;
-};
-
-struct QShapedItem
-{
-    QShapedItem()
-	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
-	  glyphAttributes( 0 ), ownGlyphs( TRUE ) {}
-    ~QShapedItem();
-    int num_glyphs;
-    glyph_t *glyphs;
-    advance_t *advances;
-    offset_t *offsets;
-    unsigned short *logClusters;
-    GlyphAttributes *glyphAttributes;
-    bool ownGlyphs : 1;
-};
-
-struct QCharAttributes {
-    uint softBreak      :1;     // Potential linebreak point
-    uint whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
-    uint charStop       :1;     // Valid cursor position (for left/right arrow)
-    uint wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
-    uint invalid        :1;
-    uint reserved       :3;
-};
-
-class QTextEngine;
-class QFontEngine;
 class QFontPrivate;
 
-struct QTextEngine {
+class QTextEngine {
+public:
     QTextEngine( const QString &str, QFontPrivate *f );
     ~QTextEngine();
 

@@ -34,6 +34,7 @@
 
 #include "qfont.h"
 #include "qfontdata_p.h"
+#include "qfontengine_p.h"
 #include "qcomplextext_p.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
@@ -48,13 +49,10 @@
 #include "qpaintdevicemetrics.h"
 
 
-static USHORT GetTTUnicodeGlyphIndex(HDC hdc, USHORT ch);
 
+extern HDC   shared_dc;		// common dc for all fonts
+extern HFONT stock_sysfont  = 0;
 
-static HDC   shared_dc	    = 0;		// common dc for all fonts
-static HFONT shared_dc_font = 0;		// used by Windows 95/98
-
-static HFONT stock_sysfont  = 0;
 static int max_font_count = 256;
 
 static inline HFONT systemFont()
@@ -92,54 +90,6 @@ void QFont::setPixelSizeFloat( float pixelSize )
 }
 #endif
 
-/*****************************************************************************
-  QFontStruct implementation
- *****************************************************************************/
-
-QFontStruct::QFontStruct( const QString &key )
-    : QShared(), k(key), hdc(0), hfont(0), stockFont( 0 ), paintDevice( 0 ), useTextOutA( 0 )
-{
-    cache_cost = 1;
-}
-
-HDC QFontStruct::dc() const
-{
-    if ( hdc || (qt_winver & Qt::WV_NT_based) ) // either NT_based or Printer
-	return hdc;
-    Q_ASSERT( shared_dc != 0 && hfont != 0 );
-    if ( shared_dc_font != hfont ) {
-	SelectObject( shared_dc, hfont );
-	shared_dc_font = hfont;
-    }
-    return shared_dc;
-}
-
-void QFontStruct::reset()
-{
-    QT_WA( {
-	if ( hdc ) {				// one DC per font (Win NT)
-	    //SelectObject( hdc, systemFont() );
-	    if ( !stockFont )
-		DeleteObject( hfont );
-	    if ( !paintDevice )
-		ReleaseDC( 0, hdc );
-	    hdc = 0;
-	    hfont = 0;
-	}
-    } , {
-	if ( hfont ) {				// shared DC (Windows 95/98)
-	    if ( shared_dc_font == hfont ) {	// this is the current font
-		Q_ASSERT( shared_dc != 0 );
-		SelectObject( shared_dc, systemFont() );
-		shared_dc_font = 0;
-	    }
-	    if ( !stockFont )
-		DeleteObject( hfont );
-	    hfont = 0;
-	}
-    } );
-}
-
 
 /*****************************************************************************
   QFont member functions
@@ -154,14 +104,8 @@ void QFont::initialize()
     if ( !shared_dc )
 	qSystemWarning( "QFont::initialize() (qfont_win.cpp, 163): couldn't create device context" );
 #endif
-    shared_dc_font = 0;
     QFontPrivate::fontCache = new QFontCache();
 }
-
-#ifndef Q_OS_TEMP
-static MAT2 *mat = 0;
-#endif
-static HFONT last_font = 0;
 
 void QFont::cleanup()
 {
@@ -169,32 +113,22 @@ void QFont::cleanup()
 	QFontPrivate::fontCache->clear();
     delete QFontPrivate::fontCache;
     QFontPrivate::fontCache = 0;
-    shared_dc_font = 0;
     DeleteDC( shared_dc );
     shared_dc = 0;
-#ifndef Q_OS_TEMP
-    delete mat;
-    mat = 0;
-#endif
-    last_font = 0;
 }
 
 // If d->req.dirty is not TRUE the font must have been loaded
 // and we can safely assume that d->fin is a valid pointer:
 
-#define DIRTY_FONT ( !d->fin || d->request.dirty || d->fin->dirty())
+#define DIRTY_FONT ( !d->fin || d->request.dirty )
 
 
 HFONT QFont::handle() const
 {
     if ( DIRTY_FONT ) {
 	d->load();
-    } else {
-	if ( d->fin->font() != last_font )
-	    QFontPrivate::fontCache->find( d->fin->key() );
     }
-    last_font = d->fin->font();
-    return last_font;
+    return d->fin->hfont;
 }
 
 QString QFont::rawName() const
@@ -213,71 +147,6 @@ bool QFont::dirty() const
     return DIRTY_FONT;
 }
 
-
-QRect QFontPrivate::boundingRect( const QChar &ch )
-{
-
-
-#ifndef Q_OS_TEMP
-    GLYPHMETRICS gm;
-
-    if ( !mat ) {
-	mat = new MAT2;
-	mat->eM11.value = mat->eM22.value = 1;
-	mat->eM11.fract = mat->eM22.fract = 0;
-	mat->eM21.value = mat->eM12.value = 0;
-	mat->eM21.fract = mat->eM12.fract = 0;
-    }
-    uint chr = 0;
-    QT_WA( {
-	chr = ch.unicode();
-    } , {
-	if ( ch.unicode() < 0x80 ) {
-	    chr = ch.unicode();
-	} else {
-	    QCString str = QString( ch ).local8Bit();
-	    uchar *res = (uchar *) str.data();
-	    if ( str.length() > 1 ) {
-		chr = (ushort) *res << 8;
-		res++;
-	    }
-    	    chr += *res;
-	}
-    } );
-
-    if ( chr ) {
-	DWORD res = 0;
-	QT_WA( {
-	    if( !(fin->textMetricW()->tmPitchAndFamily & TMPF_TRUETYPE) ) {
-		SIZE s;
-		BOOL res = GetTextExtentPoint32W( fin->dc(), (WCHAR*) &ch, 1, &s );
-		return QRect( 0, -fin->textMetricW()->tmAscent, s.cx, s.cy );
-	    } else {
-		res = GetGlyphOutlineW( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
-	    }
-	} , {
-	    if( !(fin->textMetricA()->tmPitchAndFamily & TMPF_TRUETYPE) ) {
-		SIZE s;
-		BOOL res = GetTextExtentPoint32W( fin->dc(), (WCHAR*) &ch, 1, &s );
-		return QRect( 0, -fin->textMetricA()->tmAscent, s.cx, s.cy );
-	    } else {
-		res = GetGlyphOutlineA( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
-	    }
-	} );
-
-	if ( res != GDI_ERROR )
-	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
-// This is supposed to fail sometimes as we use it in inFont.
-/*
-#ifndef QT_NO_DEBUG
-	else if ( qt_winver & Qt::WV_NT_based )
-	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code" );
-#endif
-*/
-    }
-#endif
-    return QRect();
-}
 
 QString QFontPrivate::defaultFamily() const
 {
@@ -314,12 +183,12 @@ void QFontPrivate::initFontInfo()
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
 	actual.family = QString::fromUcs2((ushort*)n);
-	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	actual.fixedPitch = !(fin->tm.w.tmPitchAndFamily & TMPF_FIXED_PITCH);
     } , {
 	char an[64];
 	GetTextFaceA( fin->dc(), 64, an );
 	actual.family = QString::fromLocal8Bit(an);
-	actual.fixedPitch = !(fin->textMetricA()->tmPitchAndFamily & TMPF_FIXED_PITCH);
+	actual.fixedPitch = !(fin->tm.a.tmPitchAndFamily & TMPF_FIXED_PITCH);
     } );
     if ( actual.pointSize == -1 ) {
 	if ( paintdevice )
@@ -348,61 +217,65 @@ void QFontPrivate::load()
     if ( !request.dirty && fin )
 	return;
 
-    QFontStruct *qfs = 0;
+    QFontEngine *qfs = 0;
     QString k = key();
     if ( paintdevice )
 	k += QString::number( (long)(Q_LONG)paintdevice->handle() );
     qfs = fontCache->find( k );
 
-    if ( !qfs ) {			// font was never loaded
-	qfs = new QFontStruct( k );
-	Q_CHECK_PTR( qfs );
-    } else {
+    if ( qfs )
 	qfs->ref();
-    }
     if ( fin )
 	fin->deref();
     fin = qfs;
 
-    if ( !fin->font() ) {			// font not loaded
-	if ( paintdevice ) {
-	    fin->hdc = paintdevice->handle();
-	    fin->paintDevice = TRUE;
-	} else if ( qt_winver & Qt::WV_NT_based ) {
-	    fin->hdc = GetDC( 0 );
-	}
-	bool stock = fin->stockFont;
-	fin->hfont = create( &stock, fin->hdc );
-	fin->stockFont = stock;
-	HGDIOBJ obj = SelectObject( fin->dc(), fin->hfont );
-#ifndef QT_NO_DEBUG
-	if ( !obj ) {
-	    qSystemWarning( "QFontPrivate: SelectObject failed" );
-	}
-#endif
-	BOOL res;
-	QT_WA( {
-	    res = GetTextMetricsW( fin->dc(), &fin->tm.w );
-	} , {
-	    res = GetTextMetricsA( fin->dc(), &fin->tm.a );
-	} );
-#ifndef QT_NO_DEBUG
-	if ( !res )
-	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
-#endif
-	int cost = request.pointSize > 0 ? request.pointSize*2000 : request.pixelSize*2000;
-	if ( paintdevice )
-	    cost *= 10;
-	fin->cache_cost = cost;
+    if ( fin )
+	return;
 
-	// TextOutW doesn't work for symbol fonts on Windows 95!
-	if ( qt_winver == Qt::WV_95 &&
-	     ( request.family == "Marlett" || request.family == "Symbol" ||
-	     request.family == "Webdings" || request.family == "Wingdings" ) )
-		fin->useTextOutA = TRUE;
+    // font was never loaded
+    fin = new QFontEngineWin( k );
 
-	fontCache->insert( k, fin, cost );
+    if ( paintdevice ) {
+	fin->hdc = paintdevice->handle();
+	fin->paintDevice = TRUE;
+    } else if ( qt_winver & Qt::WV_NT_based ) {
+	fin->hdc = GetDC( 0 );
     }
+    bool stockFont = fin->stockFont;
+    fin->hfont = create( &stockFont, fin->hdc );
+    fin->stockFont = stockFont;
+    HGDIOBJ obj = SelectObject( fin->dc(), fin->hfont );
+#ifndef QT_NO_DEBUG
+    if ( !obj ) {
+	qSystemWarning( "QFontPrivate: SelectObject failed" );
+    }
+#endif
+    BOOL res;
+    QT_WA( {
+	res = GetTextMetricsW( fin->dc(), &fin->tm.w );
+    } , {
+	res = GetTextMetricsA( fin->dc(), &fin->tm.a );
+    } );
+#ifndef QT_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
+#endif
+    int cost = request.pointSize > 0 ? request.pointSize*2000 : request.pixelSize*2000;
+    if ( paintdevice )
+	cost *= 10;
+    fin->cache_cost = cost;
+    fin->getCMap();
+
+    fin->useTextOutA = FALSE;
+    // TextOutW doesn't work for symbol fonts on Windows 95!
+    // since we're using glyph indices we don't care for ttfs about this!
+    if ( qt_winver == Qt::WV_95 && !fin->ttf &&
+	 ( request.family == "Marlett" || request.family == "Symbol" ||
+	 request.family == "Webdings" || request.family == "Wingdings" ) )
+	    fin->useTextOutA = TRUE;
+
+    fontCache->insert( k, fin, cost );
+
     initFontInfo();
     request.dirty = FALSE;
 }
@@ -515,37 +388,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     lf.lfItalic		= request.italic;
     lf.lfUnderline	= request.underline;
     lf.lfStrikeOut	= request.strikeOut;
-
-#if 0
-    // #### add a hook to the script for the locale
-    /*
-	We use DEFAULT_CHARSET as much as possible, so that
-	we get good Unicode-capable fonts on international
-	platforms (eg. Japanese Windows NT).
-    */
-    int cs;
-    switch ( charSet() ) {
-	case AnyCharSet:
-	case ISO_8859_1:
-	    cs = DEFAULT_CHARSET;
-	    break;
-	case ISO_8859_2:
-	    cs = EASTEUROPE_CHARSET;
-	    break;
-	case ISO_8859_9:
-	    cs = TURKISH_CHARSET;
-	    break;
-	case ISO_8859_7:
-	    cs = GREEK_CHARSET;
-	    break;
-	default:
-	    cs = DEFAULT_CHARSET; // Charset follows locale
-	    break;
-    }
-    lf.lfCharSet	= cs;
-#else
     lf.lfCharSet	= DEFAULT_CHARSET;
-#endif
 
     int strat = OUT_DEFAULT_PRECIS;
     if (  request.styleStrategy & QFont::PreferBitmap ) {
@@ -618,163 +461,19 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     return hfont;
 }
 
-#ifdef UNICODE
-#define TMX (fin->textMetricW())
-#else
-#define TMX (fin->textMetricA())
-#endif
-
-int QFontPrivate::textWidth( const QString &str, int pos, int len )
-{
-    // Japanese win95 fails without this
-    if ( len == 0 )
-	return 0;
-
-    int width = 0;
-    SIZE s = {0,0};
-    const QChar *uc = str.unicode()+pos;
-    const wchar_t* tc = (const wchar_t*)uc;
-    int i;
-    int last = 0;
-    for ( i = 0; i < len; i++ ) {
-	// for the row hack, see comment in buildCache below!
-	uchar row = uc->row();
-	if ( uc->category() == QChar::Mark_NonSpacing && (row < 0x09 || row > 0x0e) && pos + i > 0 ) {
-	    if ( i - last > 0 ) {
-		GetTextExtentPoint32W( fin->dc(), tc + last, i - last, &s );
-		width += s.cx;
-	    }
-	    last = i + 1;
-	}
-	uc++;
-    }
-    BOOL res = GetTextExtentPoint32W( fin->dc(), tc + last, i - last, &s );
-#ifndef QT_NO_DEBUG
-    if ( !res )
-	qSystemWarning( "QFontPrivate:textWidth: GetTextExtentPoint32 failed" );
-#endif
-    width += s.cx;
-
-    if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	width -= TMX->tmOverhang;
-    return width;
-
-}
-
-void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QFontPrivate::TextRun *cache )
-{
-    // Japanese win95 fails without this
-    if ( len == 0 )
-	return;
-
-    int width = 0;
-    SIZE s = {0,0};
-    QPointArray pa;
-    int nmarks = 0;
-    int i;
-    int lasts = 0;
-    bool singlePrint = FALSE;
-    const QChar *uc = str.unicode() + pos;
-    for ( i = 0; i < len; i++ ) {
-	unsigned char row = uc->row();
-	if ( row >= 0x05 && row <= 0x06 || row >= 0xfb )
-	    singlePrint = TRUE;
-	// disable our shaping for indic and thai, as we (a) can't do indic, so we let uniscribe do it (b) Uniscribe repositions thai marks anyway,
-	// so positioning by hand doesn't work correctly.
-	if ( uc->category() == QChar::Mark_NonSpacing && (row < 0x09 || row > 0x0e) && !nmarks && pos + i > 0 ) {
-	    const QChar *qc = str.unicode() + lasts;
-	    int length = i - lasts;
-	    cache->setParams( width, 0, 0, qc, length,
-		singlePrint ? QFont::Hebrew : QFont::NoScript );
-	    singlePrint = FALSE;
-	    BOOL res = GetTextExtentPoint32W( hdc ? hdc : fin->dc(), (wchar_t *)cache->string, length, &s );
-#ifndef QT_NO_DEBUG
-	    if ( !res )
-		qSystemWarning( "QFontPrivate::buildCache: GetTextExtentPoint32 failed" );
-#endif
-	    width += s.cx;
-	    cache->next = new QFontPrivate::TextRun();
-	    cache = cache->next;
-	    lasts = i;
-	    pa = QComplexText::positionMarks( this, str, pos + i - 1 );
-	    nmarks = pa.size();
-	} else if ( nmarks ) {
-	    QPoint p = pa[(int)(pa.size() - nmarks)];
-	    // we abuse Hebrew to tell the printing to call TextOut for every char by itself
-	    // This is needed to work around too much intelligence in Win, when Uniscribe is installed.
-	    // ### For 3.1 we should use Uniscribe when available
-	    const QChar *qc = str.unicode() + lasts;
-	    int length = i - lasts;
-	    cache->setParams( width + p.x(), p.y(), 0, qc, length,
-		singlePrint ? QFont::Hebrew : QFont::NoScript );
-	    singlePrint = FALSE;
-	    cache->next = new QFontPrivate::TextRun();
-	    cache = cache->next;
-	    nmarks--;
-	    lasts = i;
-	}
-	uc++;
-    }
-
-    const QChar *qc = str.unicode() + lasts;
-    int length = i - lasts;
-    if ( nmarks ) {
-	QPoint p = pa[(int)(pa.size() - nmarks)];
-	cache->setParams( width + p.x(), p.y(), 0, qc, length,
-	    singlePrint ? QFont::Hebrew : QFont::NoScript );
-    } else {
-	cache->setParams( width, 0, 0, qc, length,
-	    singlePrint ? QFont::Hebrew : QFont::NoScript );
-    }
-}
-
-void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
-{
-    while ( cache ) {
-	if ( cache->script != QFont::Hebrew ) {
-	    // hack to get symbol fonts working on Win95. See also QFontPrivate::load()
-	    if ( fin->useTextOutA ) {
-		QConstString str( cache->string, cache->length );
-		QCString cstr = str.string().local8Bit();
-		TextOutA( hdc, x + cache->xoff, y + cache->yoff, cstr.data(), cstr.length() );
-	    } else {
-    		TextOutW( hdc, x + cache->xoff, y + cache->yoff, (wchar_t *)cache->string, cache->length );
-	    }
-	} else {
-	    // we need to print every character by itself to keep the bidi
-	    // algorithm of uniscribe from reordering things once again.
-	    int l = 0;
-	    int xadd = 0;
-	    SIZE s = {0,0};
-	    while( l < cache->length ) {
-		TextOutW( hdc, x + cache->xoff + xadd, y + cache->yoff, (wchar_t *)(cache->string + l), 1 );
-		BOOL res = GetTextExtentPoint32W( hdc, (wchar_t *)(cache->string + l), 1, &s );
-#ifndef QT_NO_DEBUG
-		if ( !res )
-		    qSystemWarning( "QFontPrivate::drawText: GetTextExtentPoint32 failed" );
-#endif
-
-		xadd += s.cx;
-		l++;
-	    }
-	}
-	cache = cache->next;
-    }
-
-}
 
 void *QFont::textMetric() const
 {
     if ( DIRTY_FONT ) {
 	d->load();
 #if defined(QT_DEBUG)
-	Q_ASSERT( d->fin && d->fin->font() );
+	Q_ASSERT( d->fin );
 #endif
     }
     QT_WA( {
-	return (void *)d->fin->textMetricW();
+	return (void *)&d->fin->tm.w;
     } , {
-	return (void *)d->fin->textMetricA();
+	return (void *)&d->fin->tm.a;
     } );
 }
 
@@ -789,9 +488,9 @@ void *QFontMetrics::textMetric() const
 	return painter->textMetric();
     } else  {
 	QT_WA( {
-    	    return (void *)d->fin->textMetricW();
+	    return (void *)&d->fin->tm.w;
 	} , {
-	    return (void *)d->fin->textMetricA();
+	    return (void *)&d->fin->tm.a;
 	} );
     }
 }
@@ -800,9 +499,9 @@ void *QFontMetrics::textMetric() const
 #undef  TMX
 #undef  TMA
 #undef  TMW
-#define TMA (painter ? (TEXTMETRICA*)painter->textMetric() : d->fin->textMetricA())
+#define TMA ((TEXTMETRICA*)(painter ? painter->textMetric() : textMetric()))
 #ifdef UNICODE
-#define TMW (painter ? (TEXTMETRICW*)painter->textMetric() : d->fin->textMetricW())
+#define TMW ((TEXTMETRICW*)(painter ? painter->textMetric() : textMetric()))
 #else
 #define TMW TMA
 #endif
@@ -822,35 +521,23 @@ int QFontMetrics::descent() const
 
 bool QFontMetrics::inFont(QChar ch) const
 {
-#if 0
-    WCHAR wch = ch.unicode();
-    WORD glyphindex;
-    GetGlyphIndicesW( hdc(), &wch, 1, &glyphindex, GGI_MARK_NONEXISTING_GLYPHS );
-    return ( glyphindex != 0xffff );
-#else
-    QT_WA( {
-	const TEXTMETRICW *f = TMW;
-	if ( !(f->tmPitchAndFamily & TMPF_TRUETYPE) ) {
+    if ( d->fin->ttf ) {
+	glyph_t glyph;
+	d->fin->getGlyphIndexes( &ch, 1, &glyph );
+	return (glyph != 0);
+    } else {
+	QT_WA( {
 	    WCHAR ch16 = ch.unicode();
-	    if( ch16 < f->tmFirstChar || ch16 > f->tmLastChar )
+	    if( ch16 < d->fin->tm.w.tmFirstChar || ch16 > d->fin->tm.w.tmLastChar )
 		return FALSE;
-	    return !d->boundingRect( ch ).isEmpty();
-	}
-    } , {
-	const TEXTMETRICA *f = TMA;
-	if ( !(f->tmPitchAndFamily & TMPF_TRUETYPE) ) {
-	    if ( ch.row() || ch.cell() < f->tmFirstChar
-		|| ch.cell() > f->tmLastChar )
+	    return TRUE;//!d->boundingRect( ch ).isEmpty();
+	} , {
+	    if ( ch.row() || ch.cell() < d->fin->tm.w.tmFirstChar
+		|| ch.cell() > d->fin->tm.w.tmLastChar )
 		return FALSE;
-	    return !d->boundingRect( ch ).isEmpty();
-	}
-    } );
-
-    HFONT oldFont = (HFONT)SelectObject( hdc(), d->fin->font() );
-    int result = GetTTUnicodeGlyphIndex( hdc(), ch.unicode() );
-    SelectObject( hdc(), oldFont );
-    return (result != 0);
-#endif
+	    return TRUE;//!d->boundingRect( ch ).isEmpty();
+	} );
+    }
 }
 
 
@@ -1074,12 +761,12 @@ int QFontMetrics::height() const
 
 int QFontMetrics::leading() const
 {
-    return TMX->tmExternalLeading;
+    return TMX->tmExternalLeading + TMX->tmInternalLeading;
 }
 
 int QFontMetrics::lineSpacing() const
 {
-    return TMX->tmHeight + TMX->tmExternalLeading;
+    return TMX->tmHeight + TMX->tmExternalLeading + TMX->tmInternalLeading;
 }
 
 int QFontMetrics::width( QChar ch ) const
@@ -1111,98 +798,51 @@ int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
 	len = str.length();
-
-    // Japanese win95 fails without this
     if ( len == 0 )
 	return 0;
 
-    bool simple = str.simpleText();
-    QString shaped = str ? str : QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
-    if ( !simple )
-	len = shaped.length();
-
-    HDC tmp = d->fin->hdc;
-    if ( qt_winver & Qt::WV_NT_based && painter ) {
-	painter->nativeXForm( TRUE );
-	d->fin->hdc = painter->handle();
-    }
-    int width = d->textWidth( str, 0, len );
-    if( qt_winver & Qt::WV_NT_based && painter ) {
-	painter->nativeXForm( FALSE );
-	d->fin->hdc = tmp;
-    }
-
-    return width;
+    QTextEngine layout( str, d );
+    layout.itemize( FALSE );
+    return layout.width( 0, len );
 }
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    QChar ch = str[pos];
-    if ( ch.category() == QChar::Mark_NonSpacing )
-	return 0;
-    ch = QComplexText::shapedCharacter( str, pos );
-    if ( !ch.unicode() )
-		return 0;
-    SIZE s = {0,0};
-    wchar_t tc = ch.unicode();
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( TRUE );
-    BOOL res = GetTextExtentPoint32W( hdc(), &tc, 1, &s );
+    QTextEngine layout( str,  d );
+    layout.itemize( FALSE );
+    int w = layout.width( pos, 1 );
     if ( qt_winver & Qt::WV_NT_based && painter )
 	painter->nativeXForm( FALSE );
 
-#ifndef QT_NO_DEBUG
-    if ( !res )
-	qSystemWarning( "QFontMatrics::charWidth: GetTextExtentPoint32 failed" );
-#endif
-
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
-	s.cx -= TMX->tmOverhang;
-    return s.cx;
+	w -= TMX->tmOverhang;
+    return w;
 }
+
+QRect QFontMetrics::boundingRect( QChar ch ) const
+{
+    glyph_t glyphs[10];
+    int nglyphs = 9;
+    advance_t advances[10];
+    d->fin->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+    QGlyphMetrics gi = d->fin->boundingBox( glyphs[0] );
+    return QRect( gi.x, gi.y, gi.width, gi.height );
+}
+
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    if ( len < 0 )
+    if (len < 0)
 	len = str.length();
+    if (len == 0)
+	return QRect();
 
-    int cx = width(str,len);
-
-    int l = len ? leftBearing(str[0]) : 0;
-    int r = len ? -rightBearing(str[len-1]) : 0;
-    // To be safer, check bearings of next-to-end characters too.
-    if (len > 1 ) {
-	int newl = width(str[0])+leftBearing(str[1]);
-	int newr = -width(str[len-1])-rightBearing(str[len-2]);
-	if ( newl < l ) l = newl;
-	if ( newr > r ) r = newr;
-    }
-
-    const TEXTMETRICA *tm = TMX;
-    return QRect(l, -tm->tmAscent, cx+r, tm->tmAscent+tm->tmDescent);
-
-#if 0 // accurate, but slooooow
-    const QChar *ch = str.unicode();
-    if ( !mat ) {
-	mat = new MAT2;
-	mat->eM11.value = mat->eM22.value = 1;
-	mat->eM11.fract = mat->eM22.fract = 0;
-	mat->eM21.value = mat->eM12.value = 0;
-	mat->eM21.fract = mat->eM12.fract = 0;
-    }
-
-    GLYPHMETRICS gm;
-    int asc = 0, desc = 0;
-    while ( len ) {
-	GetGlyphOutlineW( d->fin->dc(), ch->unicode(), GGO_METRICS, &gm, 0, 0, mat );
-	asc = QMAX( asc, gm.gmptGlyphOrigin.y );
-	desc = QMAX( desc, gm.gmBlackBoxY - gm.gmptGlyphOrigin.y );
-	--len;
-	++ch;
-    }
-
-    return QRect( l, -asc, cx+r, asc + desc );
-#endif
+    QTextEngine layout( str, d );
+    layout.itemize( FALSE );
+    QGlyphMetrics gm = layout.boundingBox( 0, len );
+    return QRect( gm.x, gm.y, gm.width, gm.height );
 }
 
 
@@ -1245,562 +885,3 @@ int QFontMetrics::lineWidth() const
 
 
 
-
-// The code below is mostly copied from MSDN support Q241020: 
-// "HOWTO: Translate Unicode Character Codes to TrueType Glyph Indices in Windows 95"
-//
-// It gives us a means to find out if a character exists in a true type font, needed for
-// eg. inFont()
-
-
-#pragma pack(1)     // for byte alignment
-// We need byte alignment to be structure compatible with the
-// contents of a TrueType font file
-
-// Macros to swap from Big Endian to Little Endian
-#define SWAPWORD(x) MAKEWORD( HIBYTE(x), LOBYTE(x) )
-#define SWAPLONG(x) MAKELONG( SWAPWORD(HIWORD(x)), SWAPWORD(LOWORD(x)) )
-
-
-typedef struct _CMap4   // From the TrueType Spec. revision 1.66
-{
-    USHORT format;          // Format number is set to 4. 
-    USHORT length;          // Length in bytes. 
-    USHORT version;         // Version number (starts at 0).
-    USHORT segCountX2;      // 2 x segCount.
-    USHORT searchRange;     // 2 x (2**floor(log2(segCount)))
-    USHORT entrySelector;   // log2(searchRange/2)
-    USHORT rangeShift;      // 2 x segCount - searchRange
-
-    USHORT Arrays[1];       // Placeholder symbol for address of arrays following
-} CMAP4, *LPCMAP4;
-
-
-/*  CMAP table Data
-    From the TrueType Spec revision 1.66
-
-    USHORT  Table Version #
-    USHORT  Number of encoding tables
-*/ 
-#define     CMAPHEADERSIZE  (sizeof(USHORT)*2)
-
-
-/*  ENCODING entry Data aka CMAPENCODING
-    From the TrueType Spec revision 1.66
-
-    USHORT  Platform Id
-    USHORT  Platform Specific Encoding Id
-    ULONG   Byte Offset from beginning of table
-*/ 
-#define     ENCODINGSIZE    (sizeof(USHORT)*2 + sizeof(ULONG))
-
-typedef struct _CMapEncoding
-{
-    USHORT  PlatformId;
-    USHORT  EncodingId;
-    ULONG   Offset;
-} CMAPENCODING;
-
-
-// Macro to pack a TrueType table name into a DWORD
-#define MAKETABLENAME(ch1, ch2, ch3, ch4) ( (((DWORD)(ch4)) << 24) | (((DWORD)(ch3)) << 16) | (((DWORD)(ch2)) << 8) | ((DWORD)(ch1)) )
-
-/* public functions */ 
-USHORT GetTTUnicodeCharCount(HDC hdc);
-
-
-// DWORD packed four letter table name for each GetFontData()
-// function call when working with the CMAP TrueType table
-DWORD dwCmapName = MAKETABLENAME( 'c','m','a','p' );
-
-static USHORT *GetEndCountArray(LPBYTE pBuff)
-{
-    return (USHORT *)(pBuff + 7 * sizeof(USHORT));  // Per TT spec
-}
-
-static USHORT *GetStartCountArray(LPBYTE pBuff)
-{
-    DWORD   segCount = ((LPCMAP4)pBuff)->segCountX2/2;
-    return (USHORT *)( pBuff + 
-        8 * sizeof(USHORT) +        // 7 header + 1 reserved USHORT
-        segCount*sizeof(USHORT) );  // Per TT spec
-}
-
-static USHORT *GetIdDeltaArray(LPBYTE pBuff)
-{
-    DWORD   segCount = ((LPCMAP4)pBuff)->segCountX2/2;
-    return (USHORT *)( pBuff + 
-        8 * sizeof(USHORT) +        // 7 header + 1 reserved USHORT
-        segCount * 2 * sizeof(USHORT) );    // Per TT spec
-}
-
-static USHORT *GetIdRangeOffsetArray(LPBYTE pBuff)
-{
-    DWORD   segCount = ((LPCMAP4)pBuff)->segCountX2/2;
-    return (USHORT *)( pBuff + 
-        8 * sizeof(USHORT) +        // 7 header + 1 reserved USHORT
-        segCount * 3 * sizeof(USHORT) );    // Per TT spec
-}
-
-
-static void SwapArrays( LPCMAP4 pFormat4 )
-{
-    DWORD   segCount = pFormat4->segCountX2/2;  // Per TT Spec
-    DWORD   i;
-    USHORT  *pGlyphId, 
-            *pEndOfBuffer, 
-            *pstartCount    = GetStartCountArray( (LPBYTE)pFormat4 ), 
-            *pidDelta       = GetIdDeltaArray( (LPBYTE)pFormat4 ), 
-            *pidRangeOffset = GetIdRangeOffsetArray( (LPBYTE)pFormat4 ), 
-            *pendCount      = GetEndCountArray( (LPBYTE)pFormat4 );
-
-    // Swap the array elements for Intel.
-    for (i=0; i < segCount; i++)
-    {
-        pendCount[i] = SWAPWORD(pendCount[i]);
-        pstartCount[i] = SWAPWORD(pstartCount[i]);
-        pidDelta[i] = SWAPWORD(pidDelta[i]);
-        pidRangeOffset[i] = SWAPWORD(pidRangeOffset[i]);
-    }
-
-    // Swap the Glyph Id array
-    pGlyphId = pidRangeOffset + segCount;   // Per TT spec
-    pEndOfBuffer = (USHORT*)((LPBYTE)pFormat4 + pFormat4->length);
-    for (;pGlyphId < pEndOfBuffer; pGlyphId++)
-    {
-        *pGlyphId = SWAPWORD(*pGlyphId);
-    }
-} /* end of function SwapArrays */ 
-
-
-static BOOL GetFontEncoding ( 
-    HDC hdc, 
-    CMAPENCODING * pEncoding, 
-    int iEncoding 
-    )
-/*
-    Note for this function to work correctly, structures must 
-    have byte alignment.
-*/ 
-{
-    DWORD   dwResult;
-    BOOL    fSuccess = TRUE;
-
-    // Get the structure data from the TrueType font
-    dwResult = GetFontData ( 
-        hdc, 
-        dwCmapName, 
-        CMAPHEADERSIZE + ENCODINGSIZE*iEncoding, 
-        pEncoding, 
-        sizeof(CMAPENCODING) );
-    fSuccess = (dwResult == sizeof(CMAPENCODING));
-
-    // swap the Platform Id for Intel
-    pEncoding->PlatformId = SWAPWORD(pEncoding->PlatformId);
-
-    // swap the Specific Id for Intel
-    pEncoding->EncodingId = SWAPWORD(pEncoding->EncodingId);
-
-    // swap the subtable offset for Intel
-    pEncoding->Offset = SWAPLONG(pEncoding->Offset);
-
-    return fSuccess;
-
-} /* end of function GetFontEncoding */ 
-
-static BOOL GetFontFormat4Header ( 
-    HDC hdc, 
-    LPCMAP4 pFormat4, 
-    DWORD dwOffset 
-    )
-/*
-    Note for this function to work correctly, structures must 
-    have byte alignment.
-*/ 
-{
-    BOOL    fSuccess = TRUE;
-    DWORD   dwResult;
-    int     i;
-    USHORT  *pField;
-
-    // Loop and Alias a writeable pointer to the field of interest
-    pField = (USHORT *)pFormat4;
-
-    for (i=0; i < 7; i++)
-    {
-        // Get the field from the subtable
-        dwResult = GetFontData ( 
-            hdc, 
-            dwCmapName, 
-            dwOffset + sizeof(USHORT)*i, 
-            pField, 
-            sizeof(USHORT) );
-        
-        // swap it to make it right for Intel.
-        *pField = SWAPWORD(*pField);
-        // move on to the next
-        pField++;
-        // accumulate our success
-        fSuccess = (dwResult == sizeof(USHORT)) && fSuccess;
-    }
-
-    return fSuccess;
-
-} /* end of function GetFontFormat4Header */ 
-
-static BOOL GetFontFormat4Subtable ( 
-    HDC hdc,                    // DC with TrueType font
-    LPCMAP4 pFormat4Subtable,   // destination buffer
-    DWORD   dwOffset            // Offset within font
-    )
-{
-    DWORD   dwResult;
-    USHORT  length;
-    
-
-    // Retrieve the header values in swapped order
-    if (!GetFontFormat4Header ( hdc, 
-        pFormat4Subtable, 
-        dwOffset ))
-    {
-        return FALSE;
-    }
-
-    // Get the rest of the table
-    length = pFormat4Subtable->length - (7 * sizeof(USHORT));
-    dwResult = GetFontData( hdc, 
-        dwCmapName,
-        dwOffset + 7 * sizeof(USHORT),      // pos of arrays
-        (LPBYTE)pFormat4Subtable->Arrays,   // destination
-        length );       
-
-    if ( dwResult != length)
-    {
-        // We really shouldn't ever get here
-        return FALSE;
-    }
-    
-    // Swamp the arrays
-    SwapArrays( pFormat4Subtable );
-
-    return TRUE;
-}
-
-static USHORT GetFontFormat4CharCount (
-    LPCMAP4 pFormat4    // pointer to a valid Format4 subtable
-    )
-{
-    USHORT  i,
-            *pendCount = GetEndCountArray((LPBYTE) pFormat4),
-            *pstartCount = GetStartCountArray((LPBYTE) pFormat4),
-            *idRangeOffset = GetIdRangeOffsetArray( (LPBYTE) pFormat4 );
-
-    // Count the # of glyphs
-    USHORT nGlyphs = 0;
-
-    if ( pFormat4 == NULL )
-        return 0;
-
-    // by adding up the coverage of each segment
-    for (i=0; i < (pFormat4->segCountX2/2); i++)
-    {
-
-        if ( idRangeOffset[i] == 0)
-        {
-            // if per the TT spec, the idRangeOffset element is zero,
-            // all of the characters in this segment exist.
-            nGlyphs += pendCount[i] - pstartCount[i] +1;
-        }
-        else
-        {
-            // otherwise we have to test for glyph existence for
-            // each character in the segment.
-            USHORT idResult;    //Intermediate id calc.
-            USHORT ch;
-
-            for (ch = pstartCount[i]; ch <= pendCount[i]; ch++)
-            {
-                // determine if a glyph exists
-                idResult = *(
-                    idRangeOffset[i]/2 + 
-                    (ch - pstartCount[i]) + 
-                    &idRangeOffset[i]
-                    );  // indexing equation from TT spec
-                if (idResult != 0)
-                    // Yep, count it.
-                    nGlyphs++;
-            }
-        }
-    }
-
-    return nGlyphs;
-} /* end of function GetFontFormat4CharCount */ 
-
-static BOOL GetTTUnicodeCoverage ( 
-    HDC hdc,            // DC with TT font
-    LPCMAP4 pBuffer,    // Properly allocated buffer
-    DWORD cbSize,       // Size of properly allocated buffer
-    DWORD *pcbNeeded    // size of buffer needed
-    )
-/*
-    if cbSize is to small or zero, or if pBuffer is NULL the function
-    will fail and return the required buffer size in *pcbNeeded.
-
-    if another error occurs, the function will fail and *pcbNeeded will
-    be zero.
-
-    When the function succeeds, *pcbNeeded contains the number of bytes 
-    copied to pBuffer.
-*/ 
-{
-    USHORT          nEncodings;     // # of encoding in the TT font
-    CMAPENCODING    Encoding;       // The current encoding
-    DWORD           dwResult;
-    DWORD           i, 
-                    iUnicode;       // The Unicode encoding
-    CMAP4           Format4;        // Unicode subtable format
-    LPCMAP4         pFormat4Subtable;   // Working buffer for subtable
-
-    // Get the number of subtables in the CMAP table from the CMAP header
-    // The # of subtables is the second USHORT in the CMAP table, per the TT Spec.
-    dwResult = GetFontData ( hdc, dwCmapName, sizeof(USHORT), &nEncodings, sizeof(USHORT) );
-    nEncodings = SWAPWORD(nEncodings);
-    
-    if ( dwResult != sizeof(USHORT) )
-    {
-        // Something is wrong, we probably got GDI_ERROR back
-        // Probably this means that the Device Context does not have
-        // a TrueType font selected into it.
-        return FALSE;
-    }
-
-    // Get the encodings and look for a Unicode Encoding
-    iUnicode = nEncodings;
-    for (i=0; i < nEncodings; i++)
-    {
-        // Get the encoding entry for each encoding
-        if (!GetFontEncoding ( hdc, &Encoding, i ))
-        {
-            *pcbNeeded = 0;
-            return FALSE;
-        }
-        
-        // Take note of the Unicode encoding.
-        // 
-        // A Unicode encoding per the TrueType specification has a
-        // Platform Id of 3 and a Platform specific encoding id of 1
-        // Note that Symbol fonts are supposed to have a Platform Id of 3 
-        // and a specific id of 0. If the TrueType spec. suggestions were
-        // followed then the Symbol font's Format 4 encoding could also
-        // be considered Unicode because the mapping would be in the
-        // Private Use Area of Unicode. We assume this here and allow 
-        // Symbol fonts to be interpreted. If they do not contain a 
-        // Format 4, we bail later. If they do not have a Unicode 
-        // character mapping, we'll get wrong results.
-        // Code could infer from the coverage whether 3-0 fonts are 
-        // Unicode or not by examining the segments for placement within
-        // the Private Use Area Subrange.
-        if (Encoding.PlatformId == 3 && 
-            (Encoding.EncodingId == 1 || Encoding.EncodingId == 0) )
-        {
-            iUnicode = i;       // Set the index to the Unicode encoding
-        }
-    }
-
-    // index out of range means failure to find a Unicode mapping
-    if (iUnicode >= nEncodings)
-    {
-        // No Unicode encoding found.
-        *pcbNeeded = 0;
-        return FALSE;
-    }
-
-    // Get the header entries(first 7 USHORTs) for the Unicode encoding.
-    if ( !GetFontFormat4Header ( hdc, &Format4, Encoding.Offset ) )
-    {
-        *pcbNeeded = 0;
-        return FALSE;
-    }
-
-    // Check to see if we retrieved a Format 4 table 
-    if ( Format4.format != 4 )
-    {
-        // Bad, subtable is not format 4, bail.
-        // This could happen if the font is corrupt
-        // It could also happen if there is a new font format we
-        // don't understand.
-        *pcbNeeded = 0;
-        return FALSE;
-    }
-
-    // Figure buffer size and tell caller if buffer to small
-    *pcbNeeded = Format4.length;    
-    if (*pcbNeeded > cbSize || pBuffer == NULL)
-    {
-        // Either test indicates caller needs to know
-        // the buffer size and the parameters are not setup
-        // to continue.
-        return FALSE;
-    }
-
-    // allocate a full working buffer
-    pFormat4Subtable = (LPCMAP4)malloc ( Format4.length );
-    if ( pFormat4Subtable == NULL)
-    {
-        // Bad things happening if we can't allocate memory
-        *pcbNeeded = 0;
-        return FALSE;
-    }
-
-    // get the entire subtable
-    if (!GetFontFormat4Subtable ( hdc, pFormat4Subtable, Encoding.Offset ))
-    {
-        // Bad things happening if we can't allocate memory
-        *pcbNeeded = 0;
-        return FALSE;
-    }
-
-    // Copy the retrieved table into the buffer
-    CopyMemory( pBuffer, 
-        pFormat4Subtable, 
-        pFormat4Subtable->length );
-
-    free ( pFormat4Subtable );
-    return TRUE;
-} /* end of function GetTTUnicodeCoverage */ 
-
-static BOOL FindFormat4Segment (
-    LPCMAP4 pTable,     // a valid Format4 subtable buffer
-    USHORT ch,          // Unicode character to search for
-    USHORT *piSeg       // out: index of segment containing ch
-    )
-/*
-    if the Unicode character ch is not contained in one of the 
-    segments the function returns FALSE.
-
-    if the Unicode character ch is found in a segment, the index
-    of the segment is placed in*piSeg and the function returns
-    TRUE.
-*/ 
-{
-    USHORT  i, 
-            segCount = pTable->segCountX2/2;
-    USHORT  *pendCount = GetEndCountArray((LPBYTE) pTable);
-    USHORT  *pstartCount = GetStartCountArray((LPBYTE) pTable);
-
-    // Find segment that could contain the Unicode character code
-    for (i=0; i < segCount && pendCount[i] < ch; i++);
-
-    // We looked in them all, ch not there
-    if (i >= segCount)
-        return FALSE;
-    
-    // character code not within the range of the segment
-    if (pstartCount[i] > ch)
-        return FALSE;
-
-    // this segment contains the character code
-    *piSeg = i;
-    return TRUE;
-} /* end of function FindFormat4Segment */ 
-
-USHORT GetTTUnicodeCharCount ( 
-    HDC hdc
-    )
-/*
-    Returns the number of Unicode character glyphs that 
-    are in the TrueType font that is selected into the hdc.
-*/ 
-{
-    LPCMAP4 pUnicodeCMapTable;
-    USHORT  cChar;
-    DWORD   dwSize;
-
-    // Get the Unicode CMAP table from the TT font
-    GetTTUnicodeCoverage( hdc, NULL, 0, &dwSize );
-    pUnicodeCMapTable = (LPCMAP4)malloc( dwSize );
-    if (!GetTTUnicodeCoverage( hdc, pUnicodeCMapTable, dwSize, &dwSize ))
-    {
-        // possibly no Unicode cmap, not a TT font selected,...
-        free( pUnicodeCMapTable );
-        return 0;
-    }
-
-    cChar = GetFontFormat4CharCount( pUnicodeCMapTable );
-    free( pUnicodeCMapTable );
-
-    return cChar;
-} /* end of function GetTTUnicodeCharCount */ 
-
-
-static USHORT GetTTUnicodeGlyphIndex (
-    HDC hdc,        // DC with a TrueType font selected
-    USHORT ch       // Unicode character to convert to Index
-    )
-/*
-    When the TrueType font contains a glyph for ch, the
-    function returns the glyph index for that character.
-
-    If an error occurs, or there is no glyph for ch, the
-    function will return the missing glyph index of zero.
-*/ 
-{
-    LPCMAP4 pUnicodeCMapTable;
-    DWORD   dwSize;
-    USHORT  iSegment;
-    USHORT  *idRangeOffset;
-    USHORT  *idDelta;
-    USHORT  *startCount;
-    USHORT  GlyphIndex = 0;     // Initialize to missing glyph
-
-    // How big a buffer do we need for Unicode CMAP?
-    GetTTUnicodeCoverage( hdc, NULL, 0, &dwSize );
-    pUnicodeCMapTable = (LPCMAP4)malloc( dwSize );
-    if (!GetTTUnicodeCoverage( hdc, pUnicodeCMapTable, dwSize, &dwSize ))
-    {
-        // Either no Unicode cmap, or some other error occurred
-        // like font in DC is not TT.
-        free( pUnicodeCMapTable );
-        return 0;       // return missing glyph on error
-    }
-
-    // Find the cmap segment that has the character code.
-    if (!FindFormat4Segment( pUnicodeCMapTable, ch, &iSegment ))
-    {
-        free( pUnicodeCMapTable );
-        return 0;       // ch not in cmap, return missing glyph
-    }
-
-    // Get pointers to the cmap data
-    idRangeOffset = GetIdRangeOffsetArray( (LPBYTE) pUnicodeCMapTable );
-    idDelta = GetIdDeltaArray( (LPBYTE) pUnicodeCMapTable );
-    startCount = GetStartCountArray( (LPBYTE) pUnicodeCMapTable );
-    
-    // Per TT spec, if the RangeOffset is zero,
-    if ( idRangeOffset[iSegment] == 0)
-    {
-        // calculate the glyph index directly
-        GlyphIndex = (idDelta[iSegment] + ch) % 65536;
-    }
-    else
-    {
-        // otherwise, use the glyph id array to get the index
-        USHORT idResult;    //Intermediate id calc.
-
-        idResult = *(
-            idRangeOffset[iSegment]/2 + 
-            (ch - startCount[iSegment]) + 
-            &idRangeOffset[iSegment]
-            );  // indexing equation from TT spec
-        if (idResult)
-            // Per TT spec, nonzero means there is a glyph
-            GlyphIndex = (idDelta[iSegment] + idResult) % 65536;
-        else
-            // otherwise, return the missing glyph
-            GlyphIndex = 0;
-    }
-
-    free( pUnicodeCMapTable );
-    return GlyphIndex;
-} /* end of function GetTTUnicodeGlyphIndex */ 
- 

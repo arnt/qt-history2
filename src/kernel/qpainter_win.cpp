@@ -42,6 +42,8 @@
 #include "qcomplextext_p.h"
 #include "qfontdata_p.h"
 #include "qt_windows.h"
+#include "qtextlayout.h"
+#include "qtextengine_p.h"
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
@@ -2470,43 +2472,95 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	}
     }
 
-    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-    font->d->buildCache( hdc, shaped, 0, len, cache );
-    if ( rop == CopyROP ) {
-#ifndef Q_OS_TEMP
-	font->d->drawText( hdc, x, y, cache );
-#else
-	// ### Problem here is that we can't align the text to the baseline of the font
-	// The value 3 is here to correct the difference between the bottom of the font
-	// and the baseline of it, however this should be calulated, or somehow the alignment
-	// set to the baseline
-	font->d->drawText( hdc, x, y + 5, cache );
-#endif
-    } else {
-	// Doesn't work for non-TrueType fonts, but we dealt with those
-	// with the bitmap above.
-#ifndef Q_OS_TEMP
-	BeginPath(hdc);
-	font->d->drawText( hdc, x, y, cache );
-	EndPath(hdc);
-#else
-	// ### See last ### comment above
-	font->d->drawText( hdc, x, y + 5, cache );
-#endif
-	uint pix = COLOR_VALUE(cpen.data->color);
-	HBRUSH tbrush = CreateSolidBrush( pix );
-	SelectObject( hdc, tbrush );
-#ifndef Q_OS_TEMP
-	FillPath(hdc);
-#endif
-	SelectObject( hdc, hbrush );
-	DeleteObject( tbrush );
+    QTextLayout layout( str, this );
+    layout.beginLayout();
+
+    layout.setBoundary( pos );
+    layout.setBoundary( pos + len );
+
+    QTextEngine *engine = layout.d;
+
+    // small hack to force skipping of unneeded items
+    int start = 0;
+    while ( engine->items[start].position < pos )
+	++start;
+    engine->currentItem = start;
+    layout.beginLine( 0xfffffff );
+    int end = start;
+    while ( !layout.atEnd() && layout.currentItem().from() < pos + len ) {
+	layout.addCurrentItem();
+	end++;
+    }
+    int ascent;
+    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
+
+    // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
+    // for painting.
+
+    for ( int i = start; i < end; i++ ) {
+	QScriptItem &si = engine->items[i];
+
+	QFontEngine *fe = si.fontEngine;
+	assert( fe );
+	QShapedItem *shaped = si.shaped;
+	assert( shaped );
+
+	int xpos = x + si.x;
+	int ypos = y + si.y - ascent;
+
+	bool rightToLeft = si.analysis.bidiLevel % 2;
+
+	if ( rop != CopyROP ) {
+	    // Doesn't work for non-TrueType fonts, but we dealt with those
+	    // with the bitmap above.
+	    BeginPath(hdc);
+	}
+	HDC oldDC = fe->hdc;
+	fe->hdc = hdc;
+	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+	fe->hdc = oldDC;
+	if ( rop != CopyROP ) {
+	    EndPath(hdc);
+	    uint pix = COLOR_VALUE(cpen.data->color);
+	    HBRUSH tbrush = CreateSolidBrush( pix );
+	    SelectObject( hdc, tbrush );
+	    FillPath(hdc);
+	    SelectObject( hdc, hbrush );
+	    DeleteObject( tbrush );
+	}
     }
 
     if ( nat_xf )
 	nativeXForm( FALSE );
+}
 
-    delete cache;
+
+
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
+{
+    if ( testf(DirtyFont) ) {
+	updateFont();
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
+		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
+	return;
+    }
+
+    QScriptItem &si = ti.engine->items[ti.item];
+
+    QShapedItem *shaped = ti.engine->shape( ti.item );
+    QFontEngine *fe = si.fontEngine;
+    assert( fe );
+
+    x += ti.x();
+    y += ti.y();
+
+    bool rightToLeft = si.analysis.bidiLevel % 2;
+
+    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
 }
 
 

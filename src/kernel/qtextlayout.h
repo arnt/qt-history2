@@ -4,7 +4,7 @@
 #include <qstring.h>
 #include <qnamespace.h>
 
-struct QTextEngine;
+class QTextEngine;
 class QFont;
 
 class Q_EXPORT QTextItem

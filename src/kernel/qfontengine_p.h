@@ -2,6 +2,9 @@
 #define QFONTENGINE_P_H
 
 #include "qtextengine_p.h"
+#include "qfontdata_p.h"
+
+#ifdef Q_WS_X11
 #include <qt_x11.h>
 
 #ifndef QT_NO_XFTFREETYPE
@@ -123,22 +126,6 @@ private:
 
 class QScriptItem;
 
-enum IndicFeatures {
-    InitFeature = 0x0001,
-    NuktaFeature = 0x0002,
-    AkhantFeature = 0x0004,
-    RephFeature = 0x0008,
-    BelowFormFeature = 0x0010,
-    HalfFormFeature = 0x0020,
-    PostFormFeature = 0x0040,
-    VattuFeature = 0x0080,
-    PreSubstFeature = 0x0100,
-    BelowSubstFeature = 0x0200,
-    AboveSubstFeature = 0x0400,
-    PostSubstFeature = 0x0800,
-    HalantFeature = 0x1000
-};
-
 #ifndef QT_NO_XFTFREETYPE
 class QOpenType
 {
@@ -165,6 +152,92 @@ private:
     bool hasGSub : 1;
     bool hasGPos : 1;
 };
+#endif // QT_NO_XFTFREETYPE
+
+#endif // Q_WS_X11
+
+
+enum IndicFeatures {
+    InitFeature = 0x0001,
+    NuktaFeature = 0x0002,
+    AkhantFeature = 0x0004,
+    RephFeature = 0x0008,
+    BelowFormFeature = 0x0010,
+    HalfFormFeature = 0x0020,
+    PostFormFeature = 0x0040,
+    VattuFeature = 0x0080,
+    PreSubstFeature = 0x0100,
+    BelowSubstFeature = 0x0200,
+    AboveSubstFeature = 0x0400,
+    PostSubstFeature = 0x0800,
+    HalantFeature = 0x1000
+};
+
+
+
+#ifdef Q_WS_WIN
+
+class QOpenType;
+
+class QFontEngineWin : public QFontEngine
+{
+public:
+    QFontEngineWin( const char * name );
+
+    QOpenType *openType() const;
+
+    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
+
+    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+
+    QGlyphMetrics boundingBox( const glyph_t *glyphs,
+			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
+    QGlyphMetrics boundingBox( glyph_t glyph );
+
+    int ascent() const;
+    int descent() const;
+    int leading() const;
+    int maxCharWidth() const;
+
+    const char *name() const;
+
+    bool canRender( const QChar *string,  int len );
+
+    Type type() const;
+};
+
+#if 0
+class QFontEngineUniscribe : public QFontEngine
+{
+public:
+    QFontEngineUniscribe( const char * name );
+    ~QFontEngineUniscribe();
+
+    QOpenType *openType() const;
+
+    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, advance_t *advances, bool reverse );
+
+    virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
+				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
+    QGlyphMetrics boundingBox( glyph_t glyph );
+
+    int ascent() const;
+    int descent() const;
+    int leading() const;
+    int maxCharWidth() const;
+
+    const char *name() const;
+
+    bool canRender( const QChar *string,  int len );
+
+    Type type() const;
+
+    void *scriptCache;
+};
 #endif
+
+#endif // Q_WS_WIN
 
 #endif

@@ -773,7 +773,7 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos, const QFontMet
     }
 }
 
-#ifndef Q_WS_X11
+#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
 QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 					 int pos, QRect *boundingRect )
 {

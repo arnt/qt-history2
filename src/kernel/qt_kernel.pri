@@ -119,7 +119,9 @@ kernel {
 		  $$KERNEL_CPP/qsound_win.cpp \
 		  $$KERNEL_CPP/qthread_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
-		  $$KERNEL_CPP/qole_win.c
+		  $$KERNEL_CPP/qole_win.c \
+		  $$KERNEL_CPP/qtextengine_win.cpp \
+		  $$KERNEL_CPP/qfontengine_win.cpp
 
 	unix:x11 {
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
@@ -138,7 +140,9 @@ kernel {
 			  $$KERNEL_CPP/qregion_x11.cpp \
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
-			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
+			  $$KERNEL_CPP/qwidgetcreate_x11.cpp \
+		          $$KERNEL_CPP/qtextengine_x11.cpp \
+		          $$KERNEL_CPP/qfontengine_x11.cpp
 	}
 
 	mac {
@@ -163,9 +167,7 @@ kernel {
              DEFINES += QMAC_ONE_PIXEL_LOCK
         } else:unix {
 	   SOURCES += $$KERNEL_CPP/qprinter_unix.cpp \
-		      $$KERNEL_CPP/qeventloop_unix.cpp \
-		      $$KERNEL_CPP/qtextengine_x11.cpp \
-		      $$KERNEL_CPP/qfontengine_x11.cpp
+		      $$KERNEL_CPP/qeventloop_unix.cpp
         }
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \
 		    $$KERNEL_CPP/qprocess_unix.cpp \

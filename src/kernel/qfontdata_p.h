@@ -102,7 +102,7 @@ struct QFontDef {
 
 class QTextCodec;
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined (Q_WS_WIN)
 
 struct QGlyphMetrics;
 class QChar;
@@ -119,19 +119,25 @@ public:
 	OutOfMemory
     };
 
+#ifdef Q_WS_X11
     enum Type {
 	Box,
 	Xlfd,
 	Xft
     };
+#elif defined( Q_WS_WIN )
+    enum Type {
+	Win,
+	Uniscribe
+    };
+#endif
 
-    virtual ~QFontEngine() = 0;
+    virtual ~QFontEngine();
 
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const = 0;
 
     virtual QOpenType *openType() const { return 0; }
-    virtual int cmap() const = 0;
 
     virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
@@ -155,15 +161,33 @@ public:
     virtual Type type() const = 0;
 
     int cache_cost;
+#ifdef Q_WS_WIN
+    HDC dc() const;
+    void getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs ) const;
+    void getCMap();
+
+    QCString	_name;
+    HDC		hdc;
+    HFONT	hfont;
+    uint	stockFont   : 1;
+    uint	paintDevice : 1;
+    uint        useTextOutA : 1;
+    uint        ttf         : 1;
+    union {
+	TEXTMETRICW	w;
+	TEXTMETRICA	a;
+    } tm;
+    int		lw;
+    unsigned char *cmap;
+#endif
 };
 
 
-inline QFontEngine::~QFontEngine()
-{
-}
-
 typedef QFontEngine QFontStruct;
+#endif // WIN || X11
 
+
+#ifdef Q_WS_X11
 enum { widthCacheSize = 0x500 };
 
 class QFontX11Data  // used as a QFontPrivate member
@@ -177,41 +201,8 @@ public:
     QFontX11Data();
     ~QFontX11Data();
 };
-
 #endif // Q_WS_X11
 
-
-#ifdef Q_WS_WIN
-
-class QFontStruct : public QShared
-{
-public:
-    QFontStruct( const QString &key );
-    ~QFontStruct() { reset(); }
-    bool	    dirty()      const { return hfont == 0; }
-    HDC		    dc()	 const;
-    HFONT	    font()	 const { return hfont; }
-    const TEXTMETRICA	   *textMetricA() const { return &tm.a; }
-    const TEXTMETRICW	   *textMetricW() const { return &tm.w; }
-    QString key() const  { return k; }
-    void	    reset();
-
-    QString	k;
-    HDC		hdc;
-    HFONT	hfont;
-    uint	stockFont:1;
-    uint	paintDevice:1;
-    uint        useTextOutA:1;
-    union {
-	TEXTMETRICW	w;
-	TEXTMETRICA	a;
-    } tm;
-    int		lw;
-    int cache_cost;
-//    friend void QFont::initFontInfo() const;
-};
-
-#endif // Q_WS_WIN
 
 #if defined( Q_WS_MAC )
 
@@ -302,9 +293,10 @@ public:
     QString key() const;
 
     static int getFontWeight(const QCString &, bool = FALSE);
+
+#if !defined( Q_WS_X11 ) && !defined( Q_WS_WIN )
     QRect boundingRect( const QChar &ch );
 
-#ifndef Q_WS_X11
     struct TextRun {
 	TextRun()
 	{
@@ -389,13 +381,11 @@ public:
     QPaintDevice *paintdevice;
 
 #ifdef Q_WS_WIN
+    QFontEngine *engineForScript( QFont::Script ) const { return fin; }
     void load();
     void initFontInfo();
     HFONT create( bool *stockFont, HDC hdc = 0, bool compatMode = FALSE );
     QFontStruct *fin;
-
-    void buildCache( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
-    void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_QWS
