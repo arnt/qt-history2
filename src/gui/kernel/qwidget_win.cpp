@@ -660,11 +660,11 @@ void QWidgetPrivate::setWindowIcon_sys()
         x->winIconSmall = 0;
     }
 
-    x->winIconSmall = qt_createIcon(q->windowIcon(), 
+    x->winIconSmall = qt_createIcon(q->windowIcon(),
                                     GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON),
                                     &(x->iconPixmap));
-    x->winIconBig = qt_createIcon(q->windowIcon(), 
-                                  GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 
+    x->winIconBig = qt_createIcon(q->windowIcon(),
+                                  GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON),
                                   &(x->iconPixmap));
     if (!x->winIconBig)
         x->winIconBig = x->winIconSmall;
@@ -775,7 +775,7 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    if (isVisible() && isUpdatesEnabled()) {
+    if (isVisible() && updatesEnabled()) {
         InvalidateRect(winId(), 0, false);
         setAttribute(Qt::WA_PendingUpdate);
     }
@@ -783,7 +783,7 @@ void QWidget::update()
 
 void QWidget::update(const QRegion &rgn)
 {
-    if (isVisible() && isUpdatesEnabled()) {
+    if (isVisible() && updatesEnabled()) {
         if (!rgn.isEmpty()) {
             InvalidateRgn(winId(), rgn.handle(), false);
             setAttribute(Qt::WA_PendingUpdate);
@@ -794,7 +794,7 @@ void QWidget::update(const QRegion &rgn)
 void QWidget::update(const QRect &r)
 {
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && isVisible() && isUpdatesEnabled()) {
+    if (w && h && isVisible() && updatesEnabled()) {
         RECT r;
         r.left = x;
         r.top  = y;
@@ -813,7 +813,7 @@ void QWidget::update(const QRect &r)
 
 void QWidget::repaint(const QRegion& rgn)
 {
-    if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
 
     setAttribute(Qt::WA_PendingUpdate, false);
@@ -1336,7 +1336,7 @@ void QWidget::setBaseSize(int w, int h)
 
 void QWidget::scroll(int dx, int dy)
 {
-    if (!isUpdatesEnabled() && children().size() == 0)
+    if (!updatesEnabled() && children().size() == 0)
         return;
     UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
     if (!testAttribute(Qt::WA_NoBackground))
@@ -1348,7 +1348,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (!isUpdatesEnabled())
+    if (!updatesEnabled())
         return;
     UINT flags = SW_INVALIDATE;
     if (!testAttribute(Qt::WA_NoBackground))

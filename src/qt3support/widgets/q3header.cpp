@@ -962,7 +962,7 @@ void Q3Header::setLabel(int section, const QString &s, int size)
 
     setSectionSizeAndHeight(section, size);
 
-    if (isUpdatesEnabled()) {
+    if (updatesEnabled()) {
         updateGeometry();
         calculatePositions();
         update();
@@ -1046,7 +1046,7 @@ void Q3Header::removeLabel(int section)
         d->s2i[i] = d->s2i[i+1];
     d->s2i.resize(n);
 
-    if (isUpdatesEnabled()) {
+    if (updatesEnabled()) {
         for (i = 0; i < n; ++i)
             if (d->s2i[i] > index)
                 --d->s2i[i];
@@ -1056,13 +1056,13 @@ void Q3Header::removeLabel(int section)
         d->i2s[i] = d->i2s[i+1];
     d->i2s.resize(n);
 
-    if (isUpdatesEnabled()) {
+    if (updatesEnabled()) {
         for (i = 0; i < n; ++i)
             if (d->i2s[i] > section)
                 --d->i2s[i];
     }
 
-    if (isUpdatesEnabled()) {
+    if (updatesEnabled()) {
         updateGeometry();
         calculatePositions();
         update();
@@ -1177,7 +1177,7 @@ int Q3Header::addLabel(const QString &s, int size)
     d->clicks.setBit(section, d->clicks_default);
     d->resize.setBit(section, d->resize_default);
 
-    if (isUpdatesEnabled()) {
+    if (updatesEnabled()) {
         updateGeometry();
         calculatePositions();
         update();
@@ -1341,7 +1341,7 @@ void Q3Header::setCellSize(int section, int s)
     if (section < 0 || section >= count())
         return;
     d->sizes[section] = s;
-    if (isUpdatesEnabled())
+    if (updatesEnabled())
         calculatePositions();
 }
 

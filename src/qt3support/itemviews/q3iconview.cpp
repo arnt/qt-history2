@@ -3468,7 +3468,7 @@ void Q3IconView::arrangeItemsInGrid(bool update)
     else
         h += d->spacing;
 
-    bool ue = isUpdatesEnabled();
+    bool ue = updatesEnabled();
     viewport()->setUpdatesEnabled(false);
     int vw = visibleWidth();
     int vh = visibleHeight();
@@ -3714,7 +3714,7 @@ void Q3IconView::selectAll(bool select)
     Q3IconViewItem *item = d->firstItem;
     Q3IconViewItem *i = d->currentItem;
     bool changed = false;
-    bool ue = viewport()->isUpdatesEnabled();
+    bool ue = viewport()->updatesEnabled();
     viewport()->setUpdatesEnabled(false);
     QRect rr;
     for (; item; item = item->next) {

@@ -2060,7 +2060,7 @@ void Q3ScrollView::moveContents(int x, int y)
        )
     {
         // Big move
-        if (viewport()->isUpdatesEnabled())
+        if (viewport()->updatesEnabled())
             viewport()->update();
         d->moveAllBy(dx,dy);
     } else if (!d->fake_scroll || d->contentsWidth() > visibleWidth()) {
@@ -2164,7 +2164,7 @@ void Q3ScrollView::resizeContents(int w, int h)
 */
 void Q3ScrollView::updateContents(int x, int y, int w, int h)
 {
-    if (!isVisible() || !isUpdatesEnabled())
+    if (!isVisible() || !updatesEnabled())
         return;
 
     QWidget* vp = viewport();
@@ -2253,7 +2253,7 @@ void Q3ScrollView::repaintContents(bool erase)
 */
 void Q3ScrollView::repaintContents(int x, int y, int w, int h, bool erase)
 {
-    if (!isVisible() || !isUpdatesEnabled())
+    if (!isVisible() || !updatesEnabled())
         return;
 
     QWidget* vp = viewport();

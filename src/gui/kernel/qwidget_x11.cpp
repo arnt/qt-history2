@@ -1307,7 +1307,7 @@ void QWidget::activateWindow()
 void QWidget::update()
 {
     Q_D(QWidget);
-    if (isVisible() && isUpdatesEnabled()) {
+    if (isVisible() && updatesEnabled()) {
 //         d->removePendingPaintEvents(); // ### this is far too slow to go in
         d->invalidated_region = d->clipRect();
         QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
@@ -1317,7 +1317,7 @@ void QWidget::update()
 void QWidget::update(const QRegion &rgn)
 {
     Q_D(QWidget);
-    if (isVisible() && isUpdatesEnabled()) {
+    if (isVisible() && updatesEnabled()) {
         d->invalidated_region |= (rgn & d->clipRect());
         QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
@@ -1327,7 +1327,7 @@ void QWidget::update(const QRect &r)
 {
     Q_D(QWidget);
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && isVisible() && isUpdatesEnabled()) {
+    if (w && h && isVisible() && updatesEnabled()) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -1441,7 +1441,7 @@ void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, 
 void QWidget::repaint(const QRegion& rgn)
 {
     Q_D(QWidget);
-    if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
 
     if (testAttribute(Qt::WA_WState_InPaintEvent))
@@ -2291,7 +2291,7 @@ void QWidget::scroll(int dx, int dy)
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
     Q_D(QWidget);
-    if (!isUpdatesEnabled() && children().size() == 0)
+    if (!updatesEnabled() && children().size() == 0)
         return;
     bool valid_rect = r.isValid();
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();

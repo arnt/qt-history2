@@ -156,7 +156,7 @@ void CheckListItem::setOn(bool on)
     QCheckListItem::setOn(on);
 
     SetupWizardImpl* wizard = qobject_cast<SetupWizardImpl*>(listView()->window());
-    if (wizard && listView()->isVisible() && listView()->isUpdatesEnabled())
+    if (wizard && listView()->isVisible() && listView()->updatesEnabled())
 	wizard->optionClicked(this);
 }
 
@@ -363,12 +363,12 @@ void SetupWizardImpl::optionClicked( CheckListItem *item )
     } else if ( item==db2Direct && odbcDirect->isOn() ) {
 	if ( odbcPlugin->isEnabled() )
 	    odbcPlugin->QCheckListItem::setOn(true);
-	else 
+	else
 	    odbcOff->QCheckListItem::setOn(true);
     } else if ( item==odbcDirect && db2Direct->isOn() ) {
 	if ( db2Plugin->isEnabled() )
 	    db2Plugin->QCheckListItem::setOn(true);
-	else 
+	else
 	    db2Off->QCheckListItem::setOn(true);
     }
 }
@@ -767,7 +767,7 @@ void SetupWizardImpl::cleanDone()
 
 	    if ( globalInformation.reconfig() )
 		outStream << globalInformation.text(GlobalInformation::MakeTool) << " clean" << endl;
-	    
+
 	    // There is a limitation on Windows 9x regarding the length of the
 	    // command line. So rather use the configure.cache than specifying
 	    // all configure options on the command line.
@@ -1105,7 +1105,7 @@ void SetupWizardImpl::showPageConfig()
     entry = settings.readEntry( "/Trolltech/Qt/Build", "Release", &settingsOK );
     item = new CheckListItem( folder, "Debug", QCheckListItem::RadioButton );
     item->setOn( entry == "Debug" );
-    item = new CheckListItem( folder, "Release", QCheckListItem::RadioButton );	
+    item = new CheckListItem( folder, "Release", QCheckListItem::RadioButton );
     item->setOn( entry == "Release" );
 
     // Advanced options
@@ -1130,7 +1130,7 @@ void SetupWizardImpl::showPageConfig()
 	vcprojOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
 	vcprojOn->setOn( entry == "On" );
     }
-    
+
     CheckListItem *imfolder = new CheckListItem( configPage->advancedList, "Image Formats" );
     imfolder->setHelpText(tr("<p>Qt ships with support for a wide range of common image formats. "
 			     "<p>Standard formats are always included in Qt, and some more special formats "
@@ -1188,7 +1188,7 @@ void SetupWizardImpl::showPageConfig()
     jpegOff->setOn( entry == "Off" );
     jpegPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     jpegPlugin->setOn( entry == "Plugin" );
-    jpegDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+    jpegDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     jpegDirect->setOn( entry == "Direct" );
 
     folder = new CheckListItem( imfolder, "PNG" );
@@ -1209,7 +1209,7 @@ void SetupWizardImpl::showPageConfig()
     pngOff->setEnabled( false );
     pngPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     pngPlugin->setOn( entry == "Plugin" );
-    pngDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+    pngDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     pngDirect->setOn( entry == "Direct" );
 
     CheckListItem *sqlfolder = new CheckListItem( configPage->advancedList, "Sql Drivers" );
@@ -1223,7 +1223,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "iBase" );
     folder->addRequiredFiles("ibase.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/iBase", "Off", &settingsOK );
-    ibaseOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    ibaseOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     ibaseOff->setOn( true );
     ibaseOff->setEnabled( enterprise );
     ibasePlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1240,7 +1240,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "DB2" );
     folder->addRequiredFiles("db2cli.lib,sqlcli1.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/DB2", "Off", &settingsOK );
-    db2Off = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    db2Off = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     db2Off->setOn( true );
     db2Off->setEnabled( enterprise );
     db2Plugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1253,7 +1253,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "TDS" );
     folder->addRequiredFiles("ntwdblib.lib,sqldb.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
-    tdsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    tdsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     tdsOff->setOn( true );
     tdsOff->setEnabled( enterprise );
     tdsPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1266,7 +1266,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "PostgreSQL" );
     folder->addRequiredFiles("libpqdll.lib,libpq-fe.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
-    psqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    psqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     psqlOff->setOn( true );
     psqlOff->setEnabled( enterprise );
     psqlPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1279,7 +1279,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "OCI" );
     folder->addRequiredFiles("oci.lib,oci.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
-    ociOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    ociOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     ociOff->setOn( true );
     ociOff->setEnabled( enterprise );
     ociPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1292,7 +1292,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "MySQL" );
     folder->addRequiredFiles("libmysql.lib,mysql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
-    mysqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    mysqlOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     mysqlOff->setOn( true );
     mysqlOff->setEnabled( enterprise );
     mysqlPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1304,7 +1304,7 @@ void SetupWizardImpl::showPageConfig()
 
     folder = new CheckListItem( sqlfolder, "SQLite" );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/SQLite", "Off", &settingsOK );
-    sqliteOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    sqliteOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     sqliteOff->setOn( true );
     sqliteOff->setEnabled( enterprise );
     sqlitePlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1317,7 +1317,7 @@ void SetupWizardImpl::showPageConfig()
     folder = new CheckListItem( sqlfolder, "ODBC" );
     folder->addRequiredFiles("odbc32.lib,sql.h");
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
-    odbcOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
+    odbcOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     odbcOff->setOn( true );
     odbcOff->setEnabled( enterprise );
     odbcPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
@@ -1334,7 +1334,7 @@ void SetupWizardImpl::showPageConfig()
     entry = settings.readEntry( "/Trolltech/Qt/Styles/SGI", "Plugin", &settingsOK );
     sgiOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     sgiOff->setOn( entry == "Off" );
-    sgiPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+    sgiPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     sgiPlugin->setOn( entry == "Plugin" );
     sgiDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     sgiDirect->setOn( entry == "Direct" );
@@ -1352,7 +1352,7 @@ void SetupWizardImpl::showPageConfig()
     entry = settings.readEntry( "/Trolltech/Qt/Styles/MotifPlus", "Plugin", &settingsOK );
     motifplusOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     motifplusOff->setOn( entry == "Off" );
-    motifplusPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );	    
+    motifplusPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     motifplusPlugin->setOn( entry == "Plugin" );
     motifplusDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     motifplusDirect->setOn( entry == "Direct" );
@@ -1363,7 +1363,7 @@ void SetupWizardImpl::showPageConfig()
     platinumOff->setOn( entry == "Off" );
     platinumPlugin = new CheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     platinumPlugin->setOn( entry == "Plugin" );
-    platinumDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
+    platinumDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     platinumDirect->setOn( entry == "Direct" );
 
     folder = new CheckListItem( stfolder, "Motif" );
@@ -1446,7 +1446,7 @@ void SetupWizardImpl::showPageConfig()
 			   "library."), configPage->explainOption);
     bigCodecsOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
     bigCodecsOff->setOn( entry == "Off" );
-    bigCodecsOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );	
+    bigCodecsOn = new CheckListItem( folder, "On", QCheckListItem::RadioButton );
     bigCodecsOn->setOn( entry == "On" );
 
     setStaticEnabled( staticItem->isOn() );
@@ -1454,7 +1454,7 @@ void SetupWizardImpl::showPageConfig()
 
     configPage->configList->setUpdatesEnabled(true);
     configPage->advancedList->setUpdatesEnabled(true);
-    
+
     // Needed to force the scrollbars to appear on Windows 9x...
     QListViewItem *dummy = new QListViewItem(configPage->configList, "Dummy Item");
     delete dummy;

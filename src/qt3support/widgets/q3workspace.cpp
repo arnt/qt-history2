@@ -924,7 +924,7 @@ void Q3WorkspacePrivate::maximizeWindow(QWidget* w)
     if (!c || c == d->maxWindow)
         return;
 
-    bool updatesEnabled = q->isUpdatesEnabled();
+    bool updatesEnabled = q->updatesEnabled();
     q->setUpdatesEnabled(false);
 
     if (c->iconw && d->icons.contains(c->iconw->parentWidget()))
@@ -1381,7 +1381,7 @@ void Q3WorkspacePrivate::operationMenuActivated(QAction *action)
 
 void Q3WorkspacePrivate::hideChild(Q3WorkspaceChild *c)
 {
-    bool updatesEnabled = q->isUpdatesEnabled();
+    bool updatesEnabled = q->updatesEnabled();
     q->setUpdatesEnabled(false);
     focus.removeAll(c);
     QRect restore;

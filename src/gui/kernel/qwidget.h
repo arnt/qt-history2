@@ -135,7 +135,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(Qt::FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy)
     Q_PROPERTY(bool focus READ hasFocus)
     Q_PROPERTY(Qt::ContextMenuPolicy contextMenuPolicy READ contextMenuPolicy WRITE setContextMenuPolicy)
-    Q_PROPERTY(bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
+    Q_PROPERTY(bool updatesEnabled READ updatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible DESIGNABLE false)
     Q_PROPERTY(bool minimized READ isMinimized)
     Q_PROPERTY(bool maximized READ isMaximized)
@@ -344,7 +344,7 @@ public:
     static QWidget *keyboardGrabber();
 
     // Update/refresh functions
-    bool isUpdatesEnabled() const;
+    bool updatesEnabled() const;
     void setUpdatesEnabled(bool enable);
 
 #if 0 //def Q_WS_QWS
@@ -598,6 +598,7 @@ private:
 
 #ifdef QT3_SUPPORT
 public:
+    inline QT3_SUPPORT bool isUpdatesEnabled() const { return updatesEnabled(); }
     QT3_SUPPORT QStyle *setStyle(const QString&);
     inline QT3_SUPPORT bool isVisibleToTLW() const;
     QT3_SUPPORT QRect visibleRect() const;
@@ -784,7 +785,7 @@ inline bool QWidget::hasMouseTracking() const
 inline bool QWidget::underMouse() const
 { return testAttribute(Qt::WA_UnderMouse); }
 
-inline bool QWidget::isUpdatesEnabled() const
+inline bool QWidget::updatesEnabled() const
 { return !testAttribute(Qt::WA_UpdatesDisabled); }
 
 inline void QWidget::update(int x, int y, int w, int h)

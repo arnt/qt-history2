@@ -1512,7 +1512,7 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
     if (hasSelectedText())
         removeSelectedText();
 
-    bool oldupdate = isUpdatesEnabled();
+    bool oldupdate = updatesEnabled();
     setUpdatesEnabled(false);
     const int preeditSelectionBase = 31900;
     for (int i = 0; i < d->numPreeditSelections; ++i)
@@ -2004,7 +2004,7 @@ void Q3TextEdit::viewportResizeEvent(QResizeEvent *e)
 void Q3TextEdit::ensureCursorVisible()
 {
     // Not visible or the user is draging the window, so don't position to caret yet
-    if (!isUpdatesEnabled() || !isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed()) {
+    if (!updatesEnabled() || !isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed()) {
         d->ensureCursorVisibleInShowEvent = true;
         return;
     }
@@ -3170,7 +3170,7 @@ void Q3TextEdit::checkUndoRedoInfo(UndoRedoInfo::Type t)
 */
 void Q3TextEdit::repaintChanged()
 {
-    if (!isUpdatesEnabled() || !viewport()->isUpdatesEnabled())
+    if (!updatesEnabled() || !viewport()->updatesEnabled())
         return;
 
     updateContents(); // good enough until this class is rewritten

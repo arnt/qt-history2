@@ -3087,7 +3087,7 @@ void Q3ListView::insertItem(Q3ListViewItem * i)
 
 void Q3ListView::clear()
 {
-    bool wasUpdatesEnabled = viewport()->isUpdatesEnabled();
+    bool wasUpdatesEnabled = viewport()->updatesEnabled();
     viewport()->setUpdatesEnabled(false);
     setContentsPos(0, 0);
     viewport()->setUpdatesEnabled(wasUpdatesEnabled);
@@ -3504,7 +3504,7 @@ void Q3ListView::updateGeometries()
 
 void Q3ListView::handleSizeChange(int section, int os, int ns)
 {
-    bool upe = viewport()->isUpdatesEnabled();
+    bool upe = viewport()->updatesEnabled();
     viewport()->setUpdatesEnabled(false);
     int sx = horizontalScrollBar()->value();
     bool sv = horizontalScrollBar()->isVisible();
@@ -3633,7 +3633,7 @@ void Q3ListView::viewportResizeEvent(QResizeEvent *e)
 
 void Q3ListView::triggerUpdate()
 {
-    if (!isVisible() || !isUpdatesEnabled()) {
+    if (!isVisible() || !updatesEnabled()) {
         // Not in response to a setText/setPixmap any more.
         return; // it will update when shown, or something.
     }

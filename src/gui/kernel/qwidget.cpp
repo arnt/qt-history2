@@ -315,7 +315,7 @@ void QWidget::resetInputContext()
         setEnabled(),
         hasMouseTracking(),
         setMouseTracking(),
-        isUpdatesEnabled(),
+        updatesEnabled(),
         setUpdatesEnabled(),
         visibleRegion().
 
@@ -714,7 +714,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
         if (!parentWidget->isEnabled())
             q->setAttribute(Qt::WA_Disabled, true);
         // propgate updates enabled state
-        if (!parentWidget->isUpdatesEnabled())
+        if (!parentWidget->updatesEnabled())
             q->setAttribute(Qt::WA_UpdatesDisabled, true);
         //propagate layout direction
         if (parentWidget->testAttribute(Qt::WA_RightToLeft))
@@ -1130,7 +1130,7 @@ void QWidgetPrivate::setUpdatesEnabled_helper(bool enable)
 {
     Q_Q(QWidget);
 
-    if (enable && !q->isWindow() && q->parentWidget() && !q->parentWidget()->isUpdatesEnabled())
+    if (enable && !q->isWindow() && q->parentWidget() && !q->parentWidget()->updatesEnabled())
         return; // nothing we can do
 
     if (enable != q->testAttribute(Qt::WA_UpdatesDisabled))

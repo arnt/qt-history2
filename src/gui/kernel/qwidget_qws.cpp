@@ -595,20 +595,20 @@ void QWidget::activateWindow()
 
 void QWidget::update()
 {
-    if (isVisible() && isUpdatesEnabled())
+    if (isVisible() && updatesEnabled())
         QApplication::postEvent(this, new QWSUpdateEvent(visibleRegion()));
 }
 
 void QWidget::update(const QRegion &rgn)
 {
-    if (isVisible() && isUpdatesEnabled())
+    if (isVisible() && updatesEnabled())
          QApplication::postEvent(this, new QWSUpdateEvent(rgn & visibleRegion()));
 }
 
 void QWidget::update(const QRect &r)
 {
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if (w && h && isVisible() && isUpdatesEnabled()) {
+    if (w && h && isVisible() && updatesEnabled()) {
         if (w < 0)
             w = data->crect.width()  - x;
         if (h < 0)
@@ -697,7 +697,7 @@ static void qt_qws_release_double_buffer(QWSDoubleBuffer **db)
 
 void QWidget::repaint(const QRegion& rgn)
 {
-    if (!isVisible() || !isUpdatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
+    if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
 
     if (testAttribute(Qt::WA_WState_InPaintEvent))
@@ -1242,7 +1242,7 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    if (!isUpdatesEnabled() && children().size() == 0)
+    if (!updatesEnabled() && children().size() == 0)
         return;
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();

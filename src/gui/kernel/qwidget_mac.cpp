@@ -418,7 +418,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
                            region_rects[i].width(), region_rects[i].height());
 #endif
-                if (widget->isVisible() && widget->isUpdatesEnabled()) { //process the actual paint event.
+                if (widget->isVisible() && widget->updatesEnabled()) { //process the actual paint event.
                     if(widget->testAttribute(Qt::WA_WState_InPaintEvent))
                         qWarning("QWidget::repaint: recursive repaint detected.");
 
@@ -1416,7 +1416,7 @@ void QWidget::update()
 void QWidget::update(const QRect &r)
 {
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    if(isUpdatesEnabled() && isVisible()) {
+    if(updatesEnabled() && isVisible()) {
         if(w < 0)
             w = data->crect.width()  - x;
         if(h < 0)
@@ -1430,7 +1430,7 @@ void QWidget::update(const QRect &r)
 
 void QWidget::update(const QRegion &rgn)
 {
-    if(isUpdatesEnabled() && isVisible())
+    if(updatesEnabled() && isVisible())
         HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
 }
 
@@ -1979,7 +1979,7 @@ void QWidget::scroll(int dx, int dy)
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
     bool valid_rect = r.isValid();
-    if(!isUpdatesEnabled() &&  (valid_rect || children().isEmpty()))
+    if(!updatesEnabled() &&  (valid_rect || children().isEmpty()))
         return;
 
     if(!valid_rect) {        // scroll children
