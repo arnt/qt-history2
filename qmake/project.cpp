@@ -810,6 +810,11 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    return FALSE;
 	}
 	QString msg = args.first();
+	if((msg.startsWith("\"") || msg.startsWith("'")) && msg.endsWith(msg.left(1)))
+	    msg = msg.mid(1, msg.length()-2);
+	msg.replace(QString("${QMAKE_FILE}"), parser.file.latin1());
+	msg.replace(QString("${QMAKE_LINE_NUMBER}"), QString::number(parser.line_no));
+	msg.replace(QString("${QMAKE_DATE}"), QDateTime::currentDateTime().toString());
 	doVariableReplace(msg, place);
 	fixEnvVariables(msg);
 	printf("Project %s: %s\n", func.upper().latin1(), msg.latin1());

@@ -1,4 +1,5 @@
 # Additional Qt project file for qtmain lib on Windows
+!win32-*:error("${QMAKE_FILE} is intended only for Windows!")
 TEMPLATE	= lib
 TARGET		= qtmain
 VERSION		= 3.1.0
