@@ -134,6 +134,33 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   called to populate the model with data.
 */
 
+/*!
+  \fn QSqlTableModel::beforeDelete(int row)
+
+  This signal is emitted before the row \a row is deleted.
+*/
+
+/*!
+  \fn QSqlTableModel::beforeInsert(QSqlRecord &record)
+
+  This signal is emitted before a new row is inserted. The
+  values that are about to be inserted are stored in \a record
+  and can be modified before they will be inserted.
+*/
+
+/*!
+  \fn QSqlTableModel::beforeUpdate(int row, QSqlRecord &record)
+
+  This signal is emitted before the row \a row is updated with
+  the values from \a record.
+
+  Note that only values that are marked as generated will be updated.
+  The generated flag can be set with \l QSqlRecord::setGenerated()
+  and checked with \l QSqlRecord::isGenerated().
+
+  \sa QSqlRecord::isGenerated()
+*/
+
 
 /*!
   Creates an empty QSqlTableModel and sets the parent to \a parent
@@ -332,6 +359,16 @@ void QSqlTableModel::setQuery(const QSqlQuery &query)
     QSqlModel::setQuery(query);
 }
 
+/*!
+    Updates the row \a row in the currently active database table
+    with the values from \a values.
+
+    Note that only values that have the generated-flag set are updated.
+    The generated-flag can be set with QSqlRecord::setGenerated() and
+    tested with QSqlRecord::isGenerated().
+
+    \sa QSqlRecord::isGenerated()
+ */
 bool QSqlTableModel::update(int row, const QSqlRecord &values)
 {
     QSqlRecord rec(values);
@@ -380,11 +417,22 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
     return true;
 }
 
+/*!
+   Inserts the values \a values into the database table.
+   Returns true if the values could be inserted, otherwise false.
+   Error information can be retrieved with \l lastError().
+
+   \sa lastError()
+ */
 bool QSqlTableModel::insert(const QSqlRecord &values)
 {
+    QSqlRecord rec(values);
+    emit beforeInsert(rec);
+
     bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
     QString stmt = d->db.driver()->sqlStatement(QSqlDriver::InsertStatement, d->tableName,
-                                                values, prepStatement);
+                                                rec, prepStatement);
+
     if (stmt.isEmpty())
         return false;
 
@@ -396,9 +444,9 @@ bool QSqlTableModel::insert(const QSqlRecord &values)
             }
         }
 
-        for (int i = 0; i < values.count(); ++i) {
-            if (values.isGenerated(i))
-                d->editQuery.addBindValue(values.value(i));
+        for (int i = 0; i < rec.count(); ++i) {
+            if (rec.isGenerated(i))
+                d->editQuery.addBindValue(rec.value(i));
         }
 
         if (!d->editQuery.exec()) {
@@ -597,6 +645,9 @@ int QSqlTableModel::fieldIndex(const QString &fieldName) const
     return d->rec.indexOf(fieldName);
 }
 
+/*!
+    Returns a SQL SELECT statement.
+ */
 QString QSqlTableModel::selectStatement() const
 {
     QString query;
@@ -639,6 +690,8 @@ bool QSqlTableModel::removeRow(int row, const QModelIndex &parent)
     // ### also handle manual update strategy...?
     if (row < 0 || row >= rowCount() || parent.isValid())
         return false;
+
+    emit beforeDelete(row);
 
     const QSqlRecord values(d->primaryValues(row));
     bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);

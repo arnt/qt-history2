@@ -73,9 +73,9 @@ public slots:
 signals:
     void primeInsert(int row, QSqlRecord &record);
 
-    void beforeInsert(int row, QSqlRecord &record);
+    void beforeInsert(QSqlRecord &record);
     void beforeUpdate(int row, QSqlRecord &record);
-    void beforeDelete(int row, QSqlRecord &record);
+    void beforeDelete(int row);
 
 protected:
     virtual bool update(int row, const QSqlRecord &values);
