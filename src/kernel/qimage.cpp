@@ -1,16 +1,16 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#30 $
 **
 ** Implementation of QImage and QImageIO classes
 **
 ** Author  : Haavard Nord
 ** Created : 950207
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
-#define  QIMAGE_C
+#define	 QIMAGE_C
 #include "qimage.h"
 #include "qregexp.h"
 #include "qfile.h"
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#30 $";
 #endif
 
 /*!
@@ -537,7 +537,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
 	case 1:
 	    nbytes = (long)((width+7)/8)*height;
 	    break;
-        case 8:
+	case 8:
 	    nbytes = (long)width*height;
 	    break;
 	case 24:
@@ -669,7 +669,7 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
 	}
 	*b++ = (int)pix - 1;			// map RGB color to pixel
     }
-    int ncols =  do_quant ? 256 : cdict.count();
+    int ncols =	 do_quant ? 256 : cdict.count();
     dst->setNumColors( ncols );
     if ( do_quant ) {				// quantization needed
 	for ( int i=0; i<ncols; i++ )		// build 3+3+2 color table
@@ -703,7 +703,7 @@ static bool convert_8_to_24( const QImage *src, QImage *dst )
 	uchar *b = src->scanline(y);
 	uchar *end = p + bpl;
 	while ( p < end ) {
-	    *p++ = QRED  ( src->color(*b) );
+	    *p++ = QRED	 ( src->color(*b) );
 	    *p++ = QGREEN( src->color(*b) );
 	    *p++ = QBLUE ( src->color(*b++) );
 	}
@@ -723,7 +723,7 @@ static bool convert_1_to_24( const QImage *src, QImage *dst )
 	int v;
 	for ( int x=0; x<dst->width(); x++ ) {
 	    v = (big ? *b >> (7 - (x & 7)) : *b >> (x & 7)) & 1;
-	    *p++ = QRED  ( src->color(v) );
+	    *p++ = QRED	 ( src->color(v) );
 	    *p++ = QGREEN( src->color(v) );
 	    *p++ = QBLUE ( src->color(v) );
 	    if ( (x & 7) == 7 )
@@ -769,8 +769,8 @@ static bool dither_image( const QImage *src, QImage *dst )
     if ( !dst->create( src->width(), src->height(), 1, 2, QImage::BigEndian ) )
 	return FALSE;				// something failed
     dst->setColor( 0, QRGB(255, 255, 255) );
-    dst->setColor( 1, QRGB(  0,   0,   0) );
-    int   w = src->width();
+    dst->setColor( 1, QRGB(  0,	  0,   0) );
+    int	  w = src->width();
     int	  h = src->height();
     uchar gray[256];				// gray map for 8 bit images
     bool  use_gray = src->depth() == 8;
@@ -1370,7 +1370,7 @@ Example:
     QPixmap  pixmap;
     iio.setFileName( "burger.bmp" );
     if ( image.read() )			\/ ok
-        pixmap = iio.image();		\/ convert to pixmap
+	pixmap = iio.image();		\/ convert to pixmap
 \endcode
 
 \sa setIODevice(), setFileName(), setFormat(), write().
@@ -1378,12 +1378,12 @@ Example:
 
 bool QImageIO::read()				// read image data
 {
-    QFile 	   file;
-    const char 	  *image_format;
+    QFile	   file;
+    const char	  *image_format;
     QImageHandler *h;
 
     if ( iodev ) {				// read from io device
-        // ok, already open
+	// ok, already open
     }
     else if ( !fname.isEmpty() ) {		// read from file
 	file.setFileName( fname );
@@ -1534,7 +1534,7 @@ const  BMP_OLD = 12;				// old Windows/OS2 BMP size
 const  BMP_WIN = 40;				// new Windows BMP size
 const  BMP_OS2 = 64;				// new OS/2 BMP size
 
-const  BMP_RGB  = 0;				// no compression
+const  BMP_RGB	= 0;				// no compression
 const  BMP_RLE8 = 1;				// run-length encoded, 8 bits
 const  BMP_RLE4 = 2;				// run-length encoded, 4 bits
 
@@ -1606,6 +1606,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     if ( d->atEnd() )				// end of stream/file
 	return;
 #if 0
+    debug( "bfOffBits........%d", bf.bfOffBits );
     debug( "biSize...........%d", bi.biSize );
     debug( "biWidth..........%d", bi.biWidth );
     debug( "biHeight.........%d", bi.biHeight );
@@ -1618,8 +1619,8 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     debug( "biClrUsed........%d", bi.biClrUsed );
     debug( "biClrImportant...%d", bi.biClrImportant );
 #endif
-    int w = bi.biWidth,  h = bi.biHeight,  nbits = bi.biBitCount;
-    int t = bi.biSize,   comp = bi.biCompression;
+    int w = bi.biWidth,	 h = bi.biHeight,  nbits = bi.biBitCount;
+    int t = bi.biSize,	 comp = bi.biCompression;
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
 	 bi.biPlanes != 1 || comp > BMP_RLE4 )
 	return;					// weird BMP image
@@ -1653,7 +1654,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 
     d->at( startpos + bf.bfOffBits );		// start of image data
 
-    int  padlen;
+    int	 padlen;
     char padbuf[8];
     uchar **line = image.jumpTable();
 
@@ -1831,13 +1832,13 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     strncpy( bf.bfType, "BM", 2 );		// build file header
     bf.bfReserved1 = bf.bfReserved2 = 0;	// reserved, should be zero
     bf.bfOffBits   = BMP_FILEHDR_SIZE + BMP_WIN + image.numColors()*4;
-    bf.bfSize      = bf.bfOffBits + bpl_bmp*image.height();
+    bf.bfSize	   = bf.bfOffBits + bpl_bmp*image.height();
     s << bf;					// write file header
 
-    bi.biSize          = BMP_WIN;		// build info header
-    bi.biWidth         = image.width();
-    bi.biHeight        = image.height();
-    bi.biPlanes        = 1;
+    bi.biSize	       = BMP_WIN;		// build info header
+    bi.biWidth	       = image.width();
+    bi.biHeight	       = image.height();
+    bi.biPlanes	       = 1;
     bi.biBitCount      = depth4 ? 4 : image.depth();
     bi.biCompression   = BMP_RGB;
     bi.biSizeImage     = bpl_bmp*image.height();
@@ -1863,7 +1864,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 	image = image.convertBitOrder( QImage::BigEndian );
 
     bool   flip = image.depth() == 24;
-    uchar *buf  = new uchar[bpl_bmp];
+    uchar *buf	= new uchar[bpl_bmp];
     uchar *b, *end;
     register uchar *p;
 
@@ -1906,8 +1907,8 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 
 static int read_pbm_int( QIODevice *d )		// read int, skip comments
 {
-    int   c;
-    int   val = -1;
+    int	  c;
+    int	  val = -1;
     bool  digit;
     const buflen = 100;
     char  buf[buflen];
@@ -1940,11 +1941,11 @@ static int read_pbm_int( QIODevice *d )		// read int, skip comments
 
 static void read_pbm_image( QImageIO *iio )	// read PBM image data
 {
-    const       buflen = 300;
-    char        buf[buflen];
-    QRegExp     r1, r2;
+    const	buflen = 300;
+    char	buf[buflen];
+    QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
-    int	      	w, h, nbits, mcc;
+    int		w, h, nbits, mcc;
     char	type;
     bool	raw;
     QImage	image;
@@ -1965,7 +1966,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	case '6':				// raw PPM
 	    nbits = 24;
 	    break;
-        default:
+	default:
 	    return;
     }
     raw = type >= '4';
@@ -2045,18 +2046,18 @@ static void write_pbm_image( QImageIO *iio )	// write PBM image data
 
 static inline int hex2byte( register char *p )
 {
-    return (isdigit(*p)     ? *p     - '0' : toupper(*p)     - 'A' + 10) << 4 |
+    return (isdigit(*p)	    ? *p     - '0' : toupper(*p)     - 'A' + 10) << 4 |
 	   (isdigit(*(p+1)) ? *(p+1) - '0' : toupper(*(p+1)) - 'A' + 10);
 }
 
 static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
 {
-    const       buflen = 300;
-    char        buf[buflen];
-    QRegExp     r1, r2;
+    const	buflen = 300;
+    char	buf[buflen];
+    QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
-    int	        i;
-    int	      	w=-1, h=-1;
+    int		i;
+    int		w=-1, h=-1;
     QImage	image;
 
     r1 = "^#define[\x20\t]+[a-zA-Z0-9_]+[\x20\t]+";
@@ -2115,7 +2116,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 {
     QIODevice *d = iio->ioDevice();
     QImage     image = iio->image();
-    int        w = image.width();
+    int	       w = image.width();
     int	       h = image.height();
     int	       i;
     QString    s = fbname(iio->fileName());	// get file base name
@@ -2152,7 +2153,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
     int bcnt = 0;
     register char *p = buf;
     uchar *b = image.scanline(0);
-    int  x=0, y=0;
+    int	 x=0, y=0;
     long nbytes = image.numBytes();
     w = (w+7)/8;
     while ( nbytes-- ) {			// write all bytes
@@ -2187,7 +2188,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 static int read_xpm_char( QIODevice *d )
 {
     static bool inside_quotes = FALSE;
-    static int  save_char = 256;
+    static int	save_char = 256;
     int c;
     if ( save_char != 256 ) {
 	c = save_char;
@@ -2227,12 +2228,12 @@ static int read_xpm_char( QIODevice *d )
 static void read_xpm_image( QImageIO *iio )	// read XPM image data
 {
 #if 0
-    const       buflen = 200;
-    char        buf[buflen];
+    const	buflen = 200;
+    char	buf[buflen];
     char       *p = buf;
-    QRegExp     r = "/\\*.XPM.\\*/";
+    QRegExp	r = "/\\*.XPM.\\*/";
     QIODevice  *d = image->iodev;
-    int	      	c, cpp, ncols, w, h;
+    int		c, cpp, ncols, w, h;
 
     d->readLine( buf, buflen );			// "/* XPM */"
     if ( r.match(buf) < 0 )
