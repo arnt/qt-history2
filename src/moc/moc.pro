@@ -1,6 +1,6 @@
 TEMPLATE    =	moc.t
-LEXINPUT    =	moc.y
-YACCINPUT   =	moc.l
+LEXINPUT    =	moc.l
+YACCINPUT   =	moc.y
 INCLUDEPATH =	.;../tools
 MOCGEN	    =	mocgen.cpp
 TOOLSRC     =	qbuffer.cpp	\

@@ -79,9 +79,9 @@ YACC	=	byacc -d
 
 ####### Lex/yacc files
 
-LEXIN	=	moc.y
+LEXIN	=	moc.l
 LEXOUT  =	lex.yy.c
-YACCIN	=	moc.l
+YACCIN	=	moc.y
 YACCOUT =	y.tab.c
 YACCHDR =	y.tab.h
 MOCGEN  =	mocgen.cpp
