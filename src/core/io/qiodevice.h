@@ -27,19 +27,19 @@ class Q_CORE_EXPORT QIODevice
 public:
     typedef Q_LONGLONG Offset;
 
-    enum AccessTypes {
+    enum AccessType {
         Direct = 0x0100,
         Sequential = 0x0200,
         Combined = Direct | Sequential,
         TypeMask = 0x0f00
     };
 
-    enum HandlingModes {
+    enum HandlingMode {
         Raw = 0x0040,
         Async = 0x0080
     };
 
-    enum OpenModes {
+    enum OpenMode {
         ReadOnly = 0x0001,
         WriteOnly = 0x0002,
         ReadWrite = 0x0003,

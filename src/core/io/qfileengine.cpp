@@ -44,7 +44,7 @@
 
 //************* QFileEngineHandler
 /*!
-    \class QFileEngineHandler qfileengine.h
+    \class QFileEngineHandler
     \reentrant
 
     \brief The QFileEngineHandler class allows custom QFileEngines to be
@@ -114,7 +114,7 @@ QFileEngineHandler::~QFileEngineHandler()
 
 //**************** QFileEngine
 /*!
-    \class QFileEngine qfileengine.h
+    \class QFileEngine
     \reentrant
 
     \brief The QFileEngine class provides an abstraction for accessing
@@ -202,6 +202,56 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
     \sa rename()
  */
 
+/*! \fn bool QFileEngine::open(int mode)
+
+    Opens the file in the specified \a mode. Returns true if the file
+    was successfully opened; otherwise returns false.
+
+    The \a mode is an OR combination of QIODevice::OpenMode and
+    QIODevice::HandlingMode values.
+*/
+
+/*! \fn bool QFileEngine::close()
+*/
+
+/*! \fn void QFileEngine::flush()
+*/
+
+/*! \fn QIODevice::QFileEngine::Offset size() const
+*/
+
+/*! \fn QIODevice::QFileEngine::Offset at() const
+*/
+
+/*! \fn bool QFileEngine::seek(QIODevice::Offset off)
+*/
+
+/*! \fn bool QFileEngine::isSequential() const
+*/
+
+/*! \fn Q_LONGLONG QFileEngine::read(char *data, Q_LONGLONG maxlen)
+*/
+
+/*! \fn Q_LONGLONG QFileEngine::write(const char *data, Q_LONGLONG len)
+*/
+
+/*! \fn bool QFileEngine::link(const QString &newName)
+*/
+
+/*! \enum QFileEngine::Type
+
+    \value File
+    \value Resource
+
+    \value User
+    \value MaxUser
+
+    \sa type()
+*/
+
+/*! \fn Type QFileEngine::type() const
+
+*/
 
 /*!
   Returns the QIODevice::Status that resulted from the last failed
@@ -228,9 +278,9 @@ QString QFileEngine::errorString() const
 }
 
 /*!
-  Maps the file contents from \a offset for the given \a number of
-  bytes, returning a pointer (uchar *) to the contents. If this fails,
-  0 is returned.
+  Maps the file contents from \a offset for the given number of bytes
+  \a size, returning a pointer to the contents. If this fails, 0 is
+  returned.
 
   The default implementation falls back to block reading/writing if
   this function returns 0.
@@ -238,7 +288,7 @@ QString QFileEngine::errorString() const
   \sa unmap()
 */
 
-uchar *QFileEngine::map(Q_LONGLONG, Q_LONGLONG) 
+uchar *QFileEngine::map(Q_LONGLONG /* offset */, Q_LONGLONG /* size */)
 { 
     return 0; 
 }
@@ -248,7 +298,7 @@ uchar *QFileEngine::map(Q_LONGLONG, Q_LONGLONG)
 
    \sa QFileEngine::map()
 */
-void  QFileEngine::unmap(uchar * /*data*/) 
+void QFileEngine::unmap(uchar * /* data */)
 { 
 }
 
@@ -385,8 +435,7 @@ void  QFileEngine::unmap(uchar * /*data*/)
     This virtual function must be reimplemented by all subclasses.
 
     \sa setFileName(), FileInfo
- */
-
+*/
 
 /*!
     \fn QString QFileEngine::fileName(FileName file) const
@@ -452,20 +501,19 @@ void  QFileEngine::unmap(uchar * /*data*/)
     \value DefaultName The same filename that was passed to the
     QFileEngine.
     \value BaseName The name of the file excluding the path.
-    \value PathName The path to the file excluding the BaseName.
+    \value PathName The path to the file excluding the base name.
     \value AbsoluteName The absolute path to the file (including
-    the BaseName).
+    the base name).
     \value AbsolutePathName The absolute path to the file (excluding
-    the BaseName).
+    the base name).
     \value LinkName The full file name of the file that this file is a
 link to. (This will be empty if this file is not a link.)
-    \value CanonicalName Often very similar to LinkName will return the true path to the file
+    \value CanonicalName Often very similar to LinkName. Will return the true path to the file.
+    \value CanonicalPathName Same as CanonicalName, excluding the base name.
 
     \sa fileName(), setFileName()
 */
 
-// ### DOC: I recast all these as positives, i.e. assuming an absence
-// means it isn't true and presence means it is.
 /*!
     \enum QFileEngine::FileInfo
 
@@ -535,8 +583,6 @@ link to. (This will be empty if this file is not a link.)
 
     \sa owner(), ownerId(), setFileName()
 */
-
-
 
 //**************** QFSFileEnginePrivate
 QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()

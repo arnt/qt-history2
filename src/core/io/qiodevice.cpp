@@ -146,7 +146,7 @@ QIODevicePrivate::~QIODevicePrivate()
 */
 
 /*!
-    \enum QIODevice::AccessTypes
+    \enum QIODevice::AccessType
 
     \internal
 
@@ -157,7 +157,7 @@ QIODevicePrivate::~QIODevicePrivate()
 */
 
 /*!
-    \enum QIODevice::HandlingModes
+    \enum QIODevice::HandlingMode
 
     \internal
 
@@ -166,7 +166,7 @@ QIODevicePrivate::~QIODevicePrivate()
 */
 
 /*!
-    \enum QIODevice::OpenModes
+    \enum QIODevice::OpenMode
 
     \value ReadOnly     The device can only be read from.
     \value WriteOnly    The device can only be written to.
@@ -261,7 +261,7 @@ int QIODevice::flags() const
     Returns a value specifying the current operation mode. This is a
     selection of mode flags, combined using the logical OR operator.
 
-    \sa OpenModes
+    \sa OpenMode
 */
 
 /*!
@@ -455,7 +455,7 @@ void QIODevice::resetStatus()
 
     Used by subclasses to set the device \a flags.
 
-    \sa OpenModes
+    \sa OpenMode
 */
 void QIODevice::setFlags(int f)
 {

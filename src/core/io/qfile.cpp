@@ -174,11 +174,8 @@ QFilePrivate::openExternalFile(int flags, int fd)
 /*!
     Constructs a QFile with no name.
 */
-QFile::QFile() :
-#ifndef QT_NO_QFILE_QOBJECT
-    QObject(),
-#endif
-    QIODevice(*new QFilePrivate)
+QFile::QFile()
+    : QIODevice(*new QFilePrivate)
 {
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
@@ -188,6 +185,8 @@ QFile::QFile() :
 #ifndef QT_NO_QFILE_QOBJECT
 /*!
     Constructs a QFile with no name.
+
+    The \a parent is passed to the QObject constructor.
 */
 QFile::QFile(QObject *parent) : QObject(parent), QIODevice(*new QFilePrivate)
 {
@@ -202,11 +201,8 @@ QFile::QFile(QObject *parent) : QObject(parent), QIODevice(*new QFilePrivate)
 
     \sa setFileName()
 */
-QFile::QFile(const QString &name) :
-#ifndef QT_NO_QFILE_QOBJECT
-    QObject(),
-#endif
-    QIODevice(*new QFilePrivate)
+QFile::QFile(const QString &name)
+    : QIODevice(*new QFilePrivate)
 {
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     d->fileName = name;
@@ -217,11 +213,8 @@ QFile::QFile(const QString &name) :
 /*!
    \internal
 */
-QFile::QFile(QFilePrivate &dd) :
-#ifndef QT_NO_QFILE_QOBJECT
-    QObject(),
-#endif
-    QIODevice(dd)
+QFile::QFile(QFilePrivate &dd)
+    : QIODevice(dd)
 {
     d_ptr = static_cast<QFilePrivate *>(QIODevice::d_ptr);
     setFlags(QIODevice::Direct);
@@ -649,8 +642,7 @@ QFile::open(int mode, FILE *fh)
 }
 
 /*!
-
-    \sa close()
+    \reimp
 */
 
 bool
@@ -829,28 +821,28 @@ QFile::readLine(char *data, Q_LONGLONG maxSize)
 /*!
     Reads a line of text.
 
-    Reads bytes from the file into the \a string until end-of-line or
+    Reads bytes from the file into the \a str until end-of-line or
     \a maxSize bytes have been read, whichever occurs first.
     Returns the number of bytes read, or -1 if there was an error
     (e.g. end of file). Any terminating newline is not stripped.
 
     This function is only efficient for buffered files. Avoid using
-    readLine() for files that have been opened with the \c QIODevice::Raw
-    flag.
+    readLine() for files that have been opened with the
+    QIODevice::Raw flag.
 
-    Note that the string is read as plain Latin1 bytes, not Unicode.
+    Note that the string is read as plain Latin-1 bytes, not Unicode.
 
     \sa read(), QTextStream::readLine()
 */
 
 Q_LONGLONG
-QFile::readLine(QString &s, Q_LONGLONG maxSize)
+QFile::readLine(QString &str, Q_LONGLONG maxSize)
 {
     QByteArray ba;
     ba.resize(maxSize);
     Q_LONGLONG l = readLine(ba.data(), maxSize);
     if (l > 0)
-        s = QString::fromLatin1(ba);
+        str = QString::fromLatin1(ba);
     return l;
 }
 
@@ -1189,5 +1181,3 @@ QFileEngine
         d->fileEngine = QFileEngine::createFileEngine(d->fileName);
     return d->fileEngine;
 }
-
-
