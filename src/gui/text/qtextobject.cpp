@@ -18,6 +18,7 @@
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
 #include "qtextlist.h"
+#include "qdebug.h"
 
 #define d d_func()
 #define q q_func()
@@ -1115,14 +1116,20 @@ QTextBlock::iterator QTextBlock::iterator::operator++()
 
 QTextBlock::iterator QTextBlock::iterator::operator--()
 {
-    int ne = p->fragmentMap().previous(n);
+    n = p->fragmentMap().previous(n);
+
+    if (n == b)
+        return *this;
+
     int formatIndex = p->fragmentMap().fragment(n)->format;
-    int prev = ne;
-    do {
-        ne = prev;
-        prev = p->fragmentMap().previous(ne);
-    } while (ne != b && p->fragmentMap().fragment(prev)->format == formatIndex);
-    n = ne;
+    int last = n;
+
+    while (n != b && p->fragmentMap().fragment(n)->format != formatIndex) {
+        last = n;
+        n = p->fragmentMap().previous(n);
+    }
+
+    n = last;
     return *this;
 }
 
