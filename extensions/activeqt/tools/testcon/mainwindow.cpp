@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setupUi(this);
+    setObjectName("MainWindow");
 
     QAxScriptManager::registerEngine("PerlScript", ".pl");
     QAxScriptManager::registerEngine("Python", ".py");
@@ -67,8 +68,8 @@ void MainWindow::on_actionFileNew_triggered()
     QAxSelect select(this);
     if (select.exec()) {
         QAxWidget *container = new QAxWidget(workspace, Qt::WDestructiveClose);
-	container->setObjectName(container->windowTitle());
         container->setControl(select.clsid());
+	container->setObjectName(container->windowTitle());
         workspace->addWindow(container);
 	container->show();
     }
@@ -93,6 +94,7 @@ void MainWindow::on_actionFileLoad_triggered()
     QDataStream d(&file);
     d >> *container;
 
+    container->setObjectName(container->windowTitle());
     container->show();
 
     updateGUI();
