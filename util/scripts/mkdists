@@ -914,12 +914,28 @@ for plat in mac win x11 embedded; do
 	fi
 	if [ "x$DO_PKG" = "xyes" ]; then
 	   status "CD Package..."
+	   if [ $plat = "win" ]; then
+	       # do the unix->dos translation of text files
+	       for a in $txtfiles; do perl -pi -e 's/\n/\r\n/' $a; done ;
+	   fi
 	   case $plat in
 	   win) opts="-win -n" ;;
 	   x11) opts="-unix" ;;
 	   *) opts="-${plat}" ;;
 	   esac
 	   $QPKG_PATH $opts -desc $VERSION_STR -o "$OUT_TREE/${PLATNAME}.arq" ${PLATNAME}/* >& /dev/null
+	   if [ $plat = "win" ]; then
+	       # create a batch file to build the self-extracting archive for Windows
+	       pushd $OUT_TREE
+	       echo "install.exe -add-archive $PLATNAME.arq" > build-selfextractor.bat
+	       zip -l9q $OUT_TREE/win-selfextractor.zip build-selfextractor.bat
+	       zip -9q $OUT_TREE/win-selfextractor.zip "${PLATNAME}.arq"
+	       rm build-selfextractor.bat
+	       popd
+	       pushd qt/dist/win
+	       zip -9q $OUT_TREE/win-selfextractor.zip install.exe
+	       popd
+	   fi
 	fi
 	)
 	status "" "-1"
