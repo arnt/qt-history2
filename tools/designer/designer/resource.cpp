@@ -702,7 +702,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)
 	changed << "margin" << "spacing";
     }
-    
+
     if ( w == formwindow->mainContainer() ) {
 	if ( changed.findIndex( "geometry" ) == -1 )
 	    changed << "geometry";
@@ -1236,9 +1236,6 @@ void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem 
 
 QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o )
 {
-    Spacer *spacer = (Spacer*) WidgetFactory::create( WidgetDatabase::idFromClassName("Spacer"),
-						      parent, "spacer", FALSE);
-    spacer->setOrientation( o );
     QDomElement n = e.firstChild().toElement();
     int row = e.attribute( "row" ).toInt();
     int col = e.attribute( "column" ).toInt();
@@ -1248,18 +1245,21 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	rowspan = 1;
     if ( colspan < 1 )
 	colspan = 1;
-    spacer->setAutoResize( FALSE );
-    while ( !n.isNull() ) {
-	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" )
-		setObjectProperty( spacer, n2.firstChild().toText().data(), n2.nextSibling().toElement() );
-	}
-	n = n.nextSibling().toElement();
-    }
-    spacer->setAutoResize( TRUE );
 
     if ( !previewMode ) {
+	Spacer *spacer = (Spacer*) WidgetFactory::create( WidgetDatabase::idFromClassName("Spacer"),
+							  parent, "spacer", FALSE);
+	spacer->setOrientation( o );
+	spacer->setAutoResize( FALSE );
+	while ( !n.isNull() ) {
+	    if ( n.tagName() == "property" ) {
+		QDomElement n2 = n.firstChild().toElement();
+		if ( n2.tagName() == "name" )
+		    setObjectProperty( spacer, n2.firstChild().toText().data(), n2.nextSibling().toElement() );
+	    }
+	    n = n.nextSibling().toElement();
+	}
+	spacer->setAutoResize( TRUE );
 	if ( formwindow )
 	    formwindow->insertWidget( spacer, pasting );
 	if ( layout ) {
@@ -1269,21 +1269,54 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 		( (QDesignerGridLayout*)layout )->addMultiCellWidget( spacer, row, row + rowspan - 1, col, col + colspan - 1,
 								      spacer->alignment() );
 	}
+	return spacer;
     } else {
-	QSpacerItem *item = new QSpacerItem( spacer->width(), spacer->height(),
-					     spacer->sizePolicy().horData(),
-					     spacer->sizePolicy().verData() );
+	Qt::Orientation orient;
+	int w = 0, h = 0;
+	QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
+	while ( !n.isNull() ) {
+	    if ( n.tagName() == "property" ) {
+		QDomElement n2 = n.firstChild().toElement();
+		if ( n2.tagName() == "name" ) {
+		    if ( n2.firstChild().toText().data() == "orientation" ) {
+			if ( n2.nextSibling().firstChild().toText().data() == "Horizontal" )
+			    orient = Qt::Horizontal;
+			else
+			    orient = Qt::Vertical;
+		    } else if ( n2.firstChild().toText().data() == "sizeType" ) {
+			if ( n2.nextSibling().firstChild().toText().data() == "Fixed" )
+			    sizeType = QSizePolicy::Fixed;
+			else if ( n2.nextSibling().firstChild().toText().data() == "Minimum" )
+			    sizeType = QSizePolicy::Minimum;
+			else if ( n2.nextSibling().firstChild().toText().data() == "Maximum" )
+			    sizeType = QSizePolicy::Maximum;
+			else if ( n2.nextSibling().firstChild().toText().data() == "Preferred" )
+			    sizeType = QSizePolicy::Preferred;
+			else if ( n2.nextSibling().firstChild().toText().data() == "MinimumExpanding" )
+			    sizeType = QSizePolicy::MinimumExpanding;
+			else if ( n2.nextSibling().firstChild().toText().data() == "Expanding" )
+			    sizeType = QSizePolicy::Expanding;
+		    } else if ( n2.firstChild().toText().data() == "sizeHint" ) {
+			w = n2.nextSibling().firstChild().firstChild().toText().data().toInt();
+			h = n2.nextSibling().firstChild().nextSibling().firstChild().toText().data().toInt();
+		    }
+		}
+	    }
+	    n = n.nextSibling().toElement();
+	}
+
+	QSpacerItem *item = new QSpacerItem( w, h, orient == Qt::Horizontal ? sizeType : QSizePolicy::Minimum,
+					     orient == Qt::Vertical ? sizeType : QSizePolicy::Minimum );
 	if ( layout ) {
 	    if ( layout->inherits( "QBoxLayout" ) )
 		( (QBoxLayout*)layout )->addItem( item );
 	    else
-		( (QDesignerGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1, 
-								spacer->alignment() );
+		( (QDesignerGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1,
+								orient == Qt::Horizontal ? Qt::AlignVCenter : Qt::AlignHCenter );
 	}
-	delete spacer;
 	return 0;
     }
-    return spacer;
+    return 0;
 }
 
 /*!
@@ -1421,7 +1454,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	QSizePolicy sp = v.toSizePolicy();
 	sp.setHeightForWidth( ( (QWidget*)obj )->sizePolicy().hasHeightForWidth() );
     }
-    
+
     obj->setProperty( prop, v );
 }
 
