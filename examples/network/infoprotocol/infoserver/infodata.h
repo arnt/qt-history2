@@ -29,3 +29,4 @@ private:
 };
 
 #endif // INFODATA_H
+
