@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#72 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#73 $
 **
 ** Definition of event classes
 **
@@ -28,6 +28,7 @@
 #include "qwindowdefs.h"
 #include "qregion.h"
 #include "qnamespace.h"
+#include "qmime.h"
 #endif // QT_H
 
 
@@ -261,12 +262,11 @@ protected:
     bool spont;
 };
 
-
 // This class is rather closed at the moment.  If you need to create your
 // own QDragMoveEvent objects, write to qt-bugs@troll.no and we'll try to
 // find a way to extend it so it covers your needs.
 
-class Q_EXPORT QDragMoveEvent : public QEvent
+class Q_EXPORT QDragMoveEvent : public QEvent, public QMimeSource
 {
 public:
     QDragMoveEvent( const QPoint& pos )
@@ -279,9 +279,11 @@ public:
     void   accept( const QRect & r) { accpt = TRUE; rect = r; }
     void   ignore( const QRect & r) { accpt =FALSE; rect = r; }
     QRect  answerRect() const { return rect; }
-    const char* format( int n = 0 );
-    bool provides( const char* );
-    QByteArray data( const char* );
+
+    const char* format( int n = 0 ) const;
+    bool provides( const char* ) const;
+    QByteArray encodedData( const char* ) const;
+
 protected:
     QDragMoveEvent( const QPoint& pos, Type type )
 	: QEvent(type), p(pos), accpt(FALSE), d(0),
@@ -320,7 +322,7 @@ public:
 };
 
 
-class Q_EXPORT QDropEvent : public QEvent
+class Q_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
     QDropEvent( const QPoint& pos )
@@ -329,7 +331,12 @@ public:
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    QByteArray data( const char* );
+
+    const char* format( int n = 0 ) const;
+    QByteArray encodedData( const char* ) const;
+
+    QByteArray data(const char* f) const { return encodedData(f); }
+
 protected:
     QPoint p;
     bool   accpt;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#32 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#33 $
 **
 ** Definition of QDragObject
 **
@@ -33,7 +33,7 @@ class QWidget;
 #endif // QT_H
 
 
-class Q_EXPORT QDragObject: public QObject {
+class Q_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
 public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
@@ -42,10 +42,6 @@ public:
     bool drag();
     bool dragMove();
     void dragCopy();
-
-    virtual bool provides(const char*) const;
-    virtual const char * format(int) const=0;
-    virtual QByteArray encodedData(const char*) const=0;
 
     virtual void setPixmap(QPixmap);
     virtual void setPixmap(QPixmap, QPoint hotspot);
@@ -95,8 +91,8 @@ public:
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canDecode( QDragMoveEvent* e );
-    static bool decode( QDropEvent* e, QString& s );
+    static bool canDecode( QMimeSource* e );
+    static bool decode( QMimeSource* e, QString& s );
 };
 
 
@@ -116,9 +112,9 @@ public:
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canDecode( QDragMoveEvent* e );
-    static bool decode( QDropEvent* e, QImage& i );
-    static bool decode( QDropEvent* e, QPixmap& i );
+    static bool canDecode( QMimeSource* e );
+    static bool decode( QMimeSource* e, QImage& i );
+    static bool decode( QMimeSource* e, QPixmap& i );
 };
 
 
@@ -134,9 +130,9 @@ public:
     virtual void setUrls( QStrList urls );
 
     static QString urlToLocalFile(const char*);
-    static bool canDecode( QDragMoveEvent* e );
-    static bool decode( QDropEvent* e, QStrList& i );
-    static bool decodeLocalFiles( QDropEvent* e, QStrList& i );
+    static bool canDecode( QMimeSource* e );
+    static bool decode( QMimeSource* e, QStrList& i );
+    static bool decodeLocalFiles( QMimeSource* e, QStrList& i );
 };
 
 

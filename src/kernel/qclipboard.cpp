@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#20 $
 **
 ** Implementation of QClipboard class
 **
@@ -135,3 +135,63 @@ void QClipboard::setData( const char* format, void * )
     warning( "QClipboard::data: Unknown format: %s", format );
 #endif
 }
+
+
+/*!
+  For future extension.  Do not call.
+
+  \internal
+
+  Returns a reference to a QMimeSource representation
+  of the current clipboard data.
+*/
+const QMimeSource& QClipboard::data() const
+{
+    fatal("QClipboard::getData() is not implemented yet");
+
+    /*
+    if ( !storeddata ) {
+    } else {
+	make storeddata from X clipboard
+    }
+    return *storeddata;
+    */
+    static QMimeSource* dummy;
+    return *dummy; // never happens
+}
+
+/*!
+  For future extension.  Do not call.
+
+  \internal
+
+  Sets the clipboard data.  Ownership of the data is transferred
+  to the clipboard - the only way to remove this data is to set
+  something else, or to call clear().  The QDragObject subclasses
+  are reasonable things to put on the clipboard (but do not try
+  to \link QDragObject::drag() drag\endlink the same object).
+  Do not put QDragMoveEvent or QDropEvent subclasses on the clipboard,
+  as they do not belong to the event handler which receives them.
+
+  The setText() and setPixmap() functions are shorthand ways
+  of setting the data.
+*/
+void QClipboard::putData( QMimeSource* src )
+{
+    fatal("QClipboard::putData() is not implemented yet");
+
+    /*
+    delete storeddata;
+    */
+
+    if ( !src ) {
+	clear();
+    } else {
+	/*
+	storeddata = src;
+	put it on X clipboard
+	*/
+    }
+}
+
+

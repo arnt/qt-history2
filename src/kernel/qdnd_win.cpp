@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#38 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -871,7 +871,7 @@ void QDragManager::drop()
 }
 
 
-bool QDragMoveEvent::provides( const char* mimeType )
+bool QDragMoveEvent::provides( const char* mimeType ) const
 {
     if (!current_dropobj) // Sanity
 	return FALSE;
@@ -889,7 +889,8 @@ bool QDragMoveEvent::provides( const char* mimeType )
     return does;
 }
 
-const char* QDragMoveEvent::format( int fn )
+static
+const char* dnd_format( int fn )
 {
     if (!current_dropobj) // Sanity
 	return 0;
@@ -910,6 +911,16 @@ const char* QDragMoveEvent::format( int fn )
     delete fmtetc;
 
     return fmt.isEmpty() ? 0 : (const char*)fmt;
+}
+
+const char* QDragMoveEvent::format( int fn ) const
+{
+    return dnd_format(fn);
+}
+
+const char* QDropEvent::format( int fn ) const
+{
+    return dnd_format(fn);
 }
 
 QByteArray qt_olednd_obtain_data( const char *format )
@@ -981,12 +992,12 @@ QByteArray qt_olednd_obtain_data( const char *format )
     return result;
 }
 
-QByteArray QDragMoveEvent::data( const char *format )
+QByteArray QDragMoveEvent::encodedData( const char *format ) const
 {
     return qt_olednd_obtain_data( format );
 }
 
-QByteArray QDropEvent::data( const char* format )
+QByteArray QDropEvent::encodedData( const char* format ) const
 {
     return qt_olednd_obtain_data( format );
 }
@@ -1037,6 +1048,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     QApplication::sendEvent( dragSource, &e );
     obj->Release();
 
+    delete obj; // NOTE: in X11 version, this object lives a little longer.
     object = 0;
     updatePixmap();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#18 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#19 $
 **
 ** Definition of QClipboard class
 **
@@ -28,6 +28,7 @@
 #include "qobject.h"
 #endif // QT_H
 
+class QMimeSource;
 
 class Q_EXPORT QClipboard : public QObject
 {
@@ -39,13 +40,17 @@ private:
 public:
     void	clear();
 
-    virtual void *data( const char* format ) const;
-    virtual void	setData( const char *format, void * );
+    const QMimeSource& data() const;
+    void  putData( QMimeSource* );
 
-    QString text()	 const;
+    QString     text()	 const;
     void	setText( const QString &);
     QPixmap	pixmap() const;
     void	setPixmap( const QPixmap & );
+
+    // Qt 1.x
+    void *data( const char* format ) const;
+    void  setData( const char *format, void * );
 
 signals:
     void	dataChanged();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#68 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -920,7 +920,7 @@ bool qt_xdnd_handle_badwindow()
   \sa data() provides()
 */
 
-const char* QDragMoveEvent::format( int n )
+const char* QDragMoveEvent::format( int n ) const
 {
     int i = 0;
     while( i<n && qt_xdnd_types[i] )
@@ -941,7 +941,7 @@ const char* QDragMoveEvent::format( int n )
   \sa data()
 */
 
-bool QDragMoveEvent::provides( const char *mimeType )
+bool QDragMoveEvent::provides( const char *mimeType ) const
 {
     int n=0;
     const char* f;
@@ -1069,11 +1069,10 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
   \sa format()
 */
 
-QByteArray QDragMoveEvent::data( const char *format )
+QByteArray QDragMoveEvent::encodedData( const char *format ) const
 {
     return qt_xdnd_obtain_data( format );
 }
-
 
 /*!
   \class QDropEvent qevent.h
@@ -1098,12 +1097,27 @@ QByteArray QDragMoveEvent::data( const char *format )
   The resulting data will have a \link QByteArray::size() size\endlink
   of 0 if the format was not available.
 
-  \sa QDragMoveEvent::data() QDragMoveEvent::format()
+  \sa QDragMoveEvent::encodedData() QDragMoveEvent::format()
 */
 
-QByteArray QDropEvent::data( const char *format )
+QByteArray QDropEvent::encodedData( const char *format ) const
 {
     return qt_xdnd_obtain_data( format );
+}
+
+const char* QDropEvent::format( int n ) const
+{
+    int i = 0;
+    while( i<n && qt_xdnd_types[i] )
+	i++;
+    if ( i < n )
+	return 0;
+
+    const char* name = qt_xdnd_atom_to_str( qt_xdnd_types[i] );
+    if ( !name )
+	return 0; // should never happen
+
+    return name;
 }
 
 bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
