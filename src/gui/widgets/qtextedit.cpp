@@ -599,6 +599,20 @@ void QTextEditPrivate::adjustScrollbars()
 }
 
 /*!
+    \class QTextEdit
+    \brief The QTextEdit class provides a widget that is used to edit and display
+    both plain and rich text.
+
+    \ingroup text
+
+    A QTextEdit widget provides 
+
+
+    \sa QTextDocument QTextCursor
+
+*/
+
+/*!
     Constructs an empty QTextEdit with parent \a
     parent.
 */
@@ -881,6 +895,28 @@ void QTextEdit::setCurrentFont(const QFont &f)
     fmt.setFont(f);
     mergeCurrentCharFormat(fmt);
 }
+
+/*!
+    \fn void QTextEdit::undo() const
+
+    Undoes the last operation.
+
+    If there is no operation to undo, i.e. there is no undo step in
+    the undo/redo history, nothing happens.
+
+    \sa redo()
+*/
+
+/*!
+    \fn void QTextEdit::redo() const
+
+    Redoes the last operation.
+
+    If there is no operation to redo, i.e. there is no redo step in
+    the undo/redo history, nothing happens.
+
+    \sa undo()
+*/
 
 /*!
     Copies the selected text to the clipboard and deletes it from
