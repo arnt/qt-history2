@@ -318,42 +318,27 @@ Please send the bug report to
 */
 
 /*! \page buyhowto.html
-\title How to Buy Qt
+\title How to Purchase Qt
 
-You can order the Qt Enterprise Edition and Qt Professional Edition
-by printing out the
-\link http://www.trolltech.com/purchase/orderform.html order
-form\endlink and faxing it to <strong><nobr>+47 21 60 48 01</nobr></strong>. For
-prices, please see the
-\link http://www.trolltech.com/pricing.html Pricing and
-Availability page.\endlink
+On Trolltech's web site, you can find \link
+http://www.trolltech.com/products/qt/licensing.html licensing
+information\endlink and \link
+http://www.trolltech.com/products/qt/pricing.html price lists\endlink for
+Qt Professional Edition, Qt Enterprise Edition, and other Trolltech
+products.
 
-We accept payment by:
+To purchase, please visit the
+<a href="https://webshop.trolltech.com/cgi-bin/index.cgi">Trolltech
+webshop</a>. In the webshop, you can generate a Purchase Order, order
+a Quote, or purchase directly using credit card.
 
-\list
-\i Credit card (VISA, American Express, Mastercard, JCB)
-\i Cheque (US or international)
-\i SWIFT international bank transfer (see details on the
-\link http://www.trolltech.com/purchase/orderform.html order form\endlink)
-\endlist
+For further information and assistance, please contact Trolltech sales:
 
-<small>(Due to restrictions imposed by the credit card companies,
-we cannot accept credit card orders via the web or e-mail; we must
-receive the signed order form.)</small>
+Email: \link mailto:sales@trolltech.com sales@trolltech.com\endlink
 
-Cheques and order forms can also be sent by ordinary mail to:
-<strong>
-<blockquote>
-Trolltech AS<br>
-Waldemar Thranes gate 98<br>
-NO-0175 Oslo<br>
-NORWAY<br>
-</blockquote>
-</strong>
+Phone, US office (for North America): <strong>(+1) 650-813-1676</strong>
 
-For questions regarding purchase and pricing, please contact us at
-\link mailto:sales@trolltech.com sales@trolltech.com\endlink or phone
-<nobr><b>+47 21 60 48 00</b></nobr>.
+Phone, Norway office (for others): <strong>+47 2160 4800</strong>
 */
 
 
@@ -868,15 +853,21 @@ Public License instead of this License.
 
 \title Company Information
 
-Trolltech AS is a computer software company. We provide software
-development tools and libraries, as well as expert consultancy
-services.
+Trolltech is an international computer software house. We provide software
+development tools and libraries.
 
 Our flagship product is
 \link http://www.trolltech.com/products/qt.html Qt\endlink, the
-multi-platform, C++ Graphical User Interface toolkit. Qt enables you
+multi-platform C++ application framework. Qt enables you
 to build professional, efficient, portable and maintainable GUI
 applications quickly and easily.
+
+\link http://www.trolltech.com/products/embedded/index.html
+Qt/Embedded\endlink, the embedded version of Qt, is designed to power
+todays new generation of embedded computers and electronic consumer
+devices. On top of that, \link
+http://www.trolltech.com/products/qtopia/index.html Qtopia\endlink
+provides a window system and application suite for handheld devices.
 
 \section1 Software that makes Sense
 
@@ -895,12 +886,16 @@ most qualified developers and designers themselves.
 
 \section1 History
 
-Trolltech was founded in 1994. The core team of designers at
-Trolltech started developing Qt in 1992, and since then Qt has
-steadily expanded and improved. The first commercial version of Qt
-was released in 1995. Since then, Trolltech has experienced rapid
-growth, and Qt is currently used in thousands of successful software
-development projects world wide.
+Trolltech was founded in 1994. The core team of designers at Trolltech
+started developing Qt in 1992, and the first commercial version of Qt was
+released in 1995. Since then, Trolltech has experienced rapid growth, and
+Qt is currently used in thousands of successful commercial software
+development projects world wide. At Trolltech, we continously work to
+improve and expand Qt to ensure that it always represents the state of the
+art in usability, look and feel, performance, and stability.
+
+For more information, please visit the \link http://www.trolltech.com
+Trolltech website\endlink.
 
 \section1 Contact Information
 
@@ -968,14 +963,14 @@ pages provide information about how to secure your server.
 <td rowspan=4><br></td>
 <tr>
 <td ><br></td>
-<td valign="top"> General inquiries: +1 408 567 0212</td>
+<td valign="top"> General inquiries: (+1) 650-813-1676</td>
 <td rowspan=3><br></td>
-<td valign="top" rowspan=3> 3350 Scott Blvd.<br> Building 55, Suite 2<br> Santa Clara<br> CA 95054<br> USA</td></tr>
+<td valign="top" rowspan=3> 1860 Embarcadero Road<br> Suite 100<br> Palo Alto<br> CA 94303<br> USA</td></tr>
 <tr>
 <td colspan=2><strong>Telefax</strong></td>
 <tr>
 <td ><br></td>
-<td valign="top"> All inquiries: +1 408 567 0264</td>
+<td valign="top"> All inquiries: (+1) 650-813-1851</td>
 </table>
 
 */
