@@ -110,6 +110,7 @@ public:
 
 QStyle::QStyle(GUIStyle s) : gs(s)
 {
+    d = new QStylePrivate;
 }
 
 /*!
@@ -123,6 +124,7 @@ QStyle::QStyle() :
     gs(WindowsStyle)
 #endif
 {
+    d = new QStylePrivate;
 }
 
 /*!
@@ -130,7 +132,8 @@ QStyle::QStyle() :
 */
 QStyle::~QStyle()
 {
-    // delete d;
+    delete d;
+    d = 0;
 }
 
 /*!

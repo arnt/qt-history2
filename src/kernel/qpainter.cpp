@@ -1967,7 +1967,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 */
 void QPainter::drawImage( int x, int y, const QImage & image,
 			  int sx, int sy, int sw, int sh,
-			  int conversionFlags = 0)
+			  int conversionFlags )
 {
 #ifdef _WS_QWS_
     //### Hackish
@@ -2059,28 +2059,10 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 }
 
 /*!
-  \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr )
-*/
-/*!
-  \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr, int conversion_flags )
-*/
-void QPainter::drawImage( const QPoint &p, const QImage &i, const QRect &sr, int conversion_flags )
-{
-    drawImage(p.x(),p.y(),i,sr.x(),sr.y(),sr.width(),sr.height(),conversion_flags);
-}
-
-/*!
-  \overload void QPainter::drawImage( const QPoint &, const QImage & )
-*/
-void QPainter::drawImage( const QPoint & p, const QImage & i )
-{
-    drawImage(p, i, i.rect());
-}
-
-/*!
   \overload void QPainter::drawImage( const QPoint &, const QImage &, int conversion_flags )
 */
-void QPainter::drawImage( const QPoint & p, const QImage & i, int conversion_flags )
+void QPainter::drawImage( const QPoint & p, const QImage & i,
+			  int conversion_flags )
 {
     drawImage(p, i, i.rect(), conversion_flags);
 }

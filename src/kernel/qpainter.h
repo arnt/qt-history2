@@ -203,13 +203,12 @@ public:
 			    const QRect &sr );
     void	drawPixmap( const QPoint &, const QPixmap & );
     void	drawImage( int x, int y, const QImage &,
-			   int sx=0, int sy=0, int sw=-1, int sh=-1 );
-    void	drawImage( const QPoint &, const QImage &, const QRect &sr );
-    void	drawImage( const QPoint &, const QImage & );
-    void	drawImage( int x, int y, const QImage &,
-			   int sx, int sy, int sw, int sh, int conversion_flags );
-    void	drawImage( const QPoint &, const QImage &, const QRect &sr, int conversion_flags );
-    void	drawImage( const QPoint &, const QImage &, int conversion_flags );
+			   int sx = 0, int sy = 0, int sw = -1, int sh = -1,
+			   int conversionFlags = 0 );
+    void	drawImage( const QPoint &, const QImage &,
+			   const QRect &sr, int conversionFlags = 0 );
+    void	drawImage( const QPoint &, const QImage &,
+			   int conversion_flags = 0 );
     void	drawTiledPixmap( int x, int y, int w, int h, const QPixmap &,
 				 int sx=0, int sy=0 );
     void	drawTiledPixmap( const QRect &, const QPixmap &,
@@ -585,10 +584,11 @@ inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
 }
 
 inline void QPainter::drawImage( const QPoint &p, const QImage &pm,
-				 const QRect &sr )
+                                 const QRect &sr, int conversionFlags )
 {
-    drawImage( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
-}
+    drawImage( p.x(), p.y(), pm,
+	       sr.x(), sr.y(), sr.width(), sr.height(), conversionFlags );
+}                                                                               
 
 inline void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm,
 				       const QPoint &sp )
