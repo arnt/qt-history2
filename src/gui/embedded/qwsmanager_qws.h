@@ -39,18 +39,21 @@ public:
 
     static QDecoration *newDefaultDecoration();
 
-    QRegion region();
     QWidget *widget();
     void maximize();
 
     static QWidget *grabbedMouse();
+
+    QRegion region();
+    QRegion &cachedRegion()
+    { return cached_region.region; }
 
 protected slots:
     void menuTriggered(QAction *item);
     void styleMenuTriggered(QAction *item);
 
 protected:
-    void handleMove(const QPoint &);
+    void handleMove(QPoint g);
 
     virtual bool event(QEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *);
@@ -64,6 +67,18 @@ protected:
     void minimize();
     void toggleMaximize();
 
+
+private:
+    struct RegionCaching {
+        int regionType;
+        QRegion region;
+        Qt::WFlags windowFlags;
+        QRect windowGeometry;
+    } cached_region;
+
+    bool newCachedRegion(const QPoint &pos);
+    int cachedRegionAt()
+    { return cached_region.regionType; }
 };
 
 #include "qdecorationdefault_qws.h"

@@ -225,20 +225,20 @@ static inline Qt::CursorShape regionToShape(int region)
 
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
+    newCachedRegion(e->globalPos());
+
 #ifndef QT_NO_CURSOR
-    // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-
-    int reg = d->activeRegion;
-    if (d->activeRegion == QDecoration::None && !QWidget::mouseGrabber())
-        reg = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
-
-    qwsd->selectCursor(d->managed, regionToShape(reg));
+    qwsd->selectCursor(d->managed, regionToShape(cachedRegionAt()));
 #endif //QT_NO_CURSOR
-    // resize/move regions
 
+    if (d->activeRegion)
+        handleMove(e->globalPos());
+}
+
+void QWSManager::handleMove(QPoint g)
+{
     // don't allow dragging to where the user probably cannot click!
-    QPoint g = e->globalPos();
     extern QRect qt_maxWindowRect;
     if (qt_maxWindowRect.isValid()) {
         if (g.x() < qt_maxWindowRect.x())
@@ -251,11 +251,6 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
             g.setY(qt_maxWindowRect.bottom());
     }
 
-    handleMove(g);
-}
-
-void QWSManager::handleMove(const QPoint &g)
-{
     if (g == d->mousePos)
         return;
 
@@ -482,6 +477,30 @@ void QWSManager::toggleMaximize()
     } else {
         d->managed->showNormal();
     }
+}
+
+bool QWSManager::newCachedRegion(const QPoint &pos)
+{
+    // Check if anything has changed that would affect the region caching
+    if (d->managed->getWFlags() == cached_region.windowFlags
+        && d->managed->geometry() == cached_region.windowGeometry
+        && cached_region.region.contains(pos))
+        return false;
+
+    // Update the cached region
+    int reg = QApplication::qwsDecoration().regionAt(d->managed, pos);
+    if (QWidget::mouseGrabber())
+        reg = QDecoration::None;
+
+    cached_region.regionType = reg;
+    cached_region.region = QApplication::qwsDecoration().region(d->managed, d->managed->geometry(),
+                                                                reg);
+    cached_region.windowFlags = d->managed->getWFlags();
+    cached_region.windowGeometry = d->managed->geometry();
+//    QRect rec = cached_region.region.boundingRect();
+//    qDebug("Updated cached region: 0x%04x (%d, %d)  (%d, %d,  %d, %d)",
+//           reg, pos.x(), pos.y(), rec.x(), rec.y(), rec.right(), rec.bottom());
+    return true;
 }
 
 #endif //QT_NO_QWS_MANAGER
