@@ -93,8 +93,8 @@
     \value IbeamCursor - ibeam/text entry
     \value SizeVerCursor - vertical resize
     \value SizeHorCursor - horizontal resize
-    \value SizeBDiagCursor - diagonal resize (/)
-    \value SizeFDiagCursor - diagonal resize (\)
+    \value SizeFDiagCursor - diagonal resize (/)
+    \value SizeBDiagCursor - diagonal resize (\)
     \value SizeAllCursor - all directions resize
     \value BlankCursor - blank/invisible cursor
     \value SplitVCursor - vertical splitting
