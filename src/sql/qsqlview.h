@@ -12,17 +12,14 @@
 #ifndef QT_NO_SQL
 
 // View Modes
-
-// #define SQL_ReadOnly	        0x0001
-// #define SQL_WriteOnly		0x0002
-// #define SQL_ReadWrite		0x0003
-// #define SQL_Append		0x0004
-// #define SQL_Truncate		0x0008
-// #define SQL_Translate		0x0010
-// #define SQL_ModeMask		0x00ff
+#define SQL_ReadOnly            0x0000
+#define SQL_Insert	        0x0001
+#define SQL_Update		0x0002
+#define SQL_Delete		0x0004
+#define SQL_Writeable		0x0007
 
 class QSqlDatabase;
-
+class QSqlViewPrivate;
 class Q_EXPORT QSqlView : public QSqlFieldList, public QSql
 {
 public:
@@ -39,19 +36,23 @@ public:
 
     void              setMode( int flags );
     int               mode() const;
+    bool              isReadOnly() const;
+    bool              canInsert() const;
+    bool              canUpdate() const;
+    bool              canDelete() const;
 
     bool              select();
     bool              select( const QSqlIndex& sort );
     bool              select( const QSqlIndex & filter, const QSqlIndex & sort );
     bool              select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
-    QSqlIndex         sort() const { return srt; }
-    QString           filter() const { return ftr; }
+    QSqlIndex         sort() const;
+    QString           filter() const;
     void              setName( const QString& name );
-    QString           name() const { return nm; }
+    QString           name() const;
 
 protected:
-    void     postSeek();
-    
+    void              postSeek();
+
     QSqlFieldList &   operator=( const QSqlFieldList & list );
     bool              setQuery( const QString & str );
     QString           fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
@@ -63,11 +64,8 @@ protected:
 private:
     QSqlFieldList     fields() const;     //hide
     void              sync();
-    int               lastAt;
-    QString           nm;
-    QSqlIndex         srt;
-    QString           ftr;
-    int               apply( const QString& q, bool invalidate );
+    int               apply( const QString& q, bool invalidate );    
+    QSqlViewPrivate*  d;
 };
 
 #endif // QT_NO_SQL

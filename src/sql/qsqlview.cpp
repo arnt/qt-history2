@@ -4,6 +4,19 @@
 
 #ifndef QT_NO_SQL
 
+class QSqlViewPrivate
+{
+public:    
+    QSqlViewPrivate( const QString& name )
+	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 )
+    {}
+    int               lastAt;
+    QString           nm;
+    QSqlIndex         srt;
+    QString           ftr;
+    int               md;
+};
+
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
 {
     QString str;
@@ -20,10 +33,12 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 */
 
 QSqlView::QSqlView( const QString & name, const QString& databaseName )
-    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() ), lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name )
+    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() )
 {
-    if ( !nm.isNull() )
-	setName( nm );
+    d = new QSqlViewPrivate( name );
+    setMode( SQL_ReadOnly );
+    if ( !d->nm.isNull() )
+	setName( d->nm );
 }
 
 /*!
@@ -32,14 +47,18 @@ QSqlView::QSqlView( const QString & name, const QString& databaseName )
 */
 
 QSqlView::QSqlView( const QSqlView & s )
-    : QSqlFieldList( s ), QSql( s ), lastAt( s.lastAt ), nm( s.nm )
+    : QSqlFieldList( s ), QSql( s )
 {
-
+    d = new QSqlViewPrivate( s.d->nm );
+    d->lastAt = s.d->lastAt;
+    d->nm = s.d->nm;
+    d->srt = s.d->srt;
+    d->ftr = s.d->ftr;
 }
 
 QSqlView::~QSqlView()
 {
-
+    delete d;
 }
 
 /*!
@@ -51,11 +70,32 @@ QSqlView& QSqlView::operator=( const QSqlView& s )
 {
     QSqlFieldList::operator=( s );
     QSql::operator=( s );
-    lastAt = s.lastAt;
-    nm = s.nm;
-    srt = s.srt;
-    ftr = s.ftr;
+    if ( d )
+	delete d;
+    d = new QSqlViewPrivate( s.d->nm );
+    d->lastAt = s.d->lastAt;
+    d->nm = s.d->nm;
+    d->srt = s.d->srt;
+    d->ftr = s.d->ftr;
     return *this;
+}
+
+/*!  Returns the current sort, or an empty index if there is no
+  current sort.
+
+*/
+QSqlIndex QSqlView::sort() const
+{
+    return d->srt;
+}
+
+/*!  Returns the current filter, or an empty string if there is no
+  current filter.
+
+*/
+QString QSqlView::filter() const
+{
+    return d->ftr;
 }
 
 /*!
@@ -65,8 +105,17 @@ QSqlView& QSqlView::operator=( const QSqlView& s )
 */
 void QSqlView::setName( const QString& name )
 {
-    nm = name;
+    d->nm = name;
     *this = driver()->fields( name );
+}
+
+/*!  Returns the name of the view.
+
+*/
+
+QString QSqlView::name() const
+{
+    return d->nm;
 }
 
 /*!
@@ -133,17 +182,17 @@ bool QSqlView::select( const QSqlIndex& sort )
 
 bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString str= "select " + toString( nm );
-    str += " from " + nm;
+    QString str= "select " + toString( d->nm );
+    str += " from " + d->nm;
     if ( !filter.isNull() && filter != "*" ) {
-	ftr = filter;
+	d->ftr = filter;
 	str += " where " + filter;
     } else
-	ftr = QString::null;
+	d->ftr = QString::null;
     if ( sort.count() > 0 )
-	str += " order by " + sort.toString( nm );
+	str += " order by " + sort.toString( d->nm );
     str += ";";
-    srt = sort;
+    d->srt = sort;
     return setQuery( str );
 }
 
@@ -165,8 +214,90 @@ bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
 */
 bool QSqlView::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( fieldEqualsValue( nm, "and", filter ), sort );
+    return select( fieldEqualsValue( d->nm, "and", filter ), sort );
 }
+
+/*!    
+  Sets the view mode to \a mode.  This value can be an OR'ed
+  combination of SQL modes.  The available modes are: <ul> <li>
+  SQL_ReadOnly <li> SQL_Insert <li> SQL_Update <li> SQL_Delete <li>
+  SQL_Writeable </ul>
+   
+  For example,
+  
+  \code 
+  QSqlView view( "emp" );
+  view.setMode( SQL_Writeable ); // allow insert/update/delete
+  ...
+  view.setMode( SQL_Insert | SQL_Update ); // allow inserts and updates
+  ...
+  view.setMode( SQL_ReadOnly ); // no inserts/updates/deletes allowed
+  \endcode
+*/
+
+void QSqlView::setMode( int mode ) 
+{
+    d->md = mode;
+}
+
+/*    
+   Returns the current view mode.
+   
+   \sa setMode
+*/
+
+int QSqlView::mode() const
+{
+    return d->md;
+}
+
+/*   
+   Returns TRUE if the view is read-only, FALSE otherwise.
+   
+   \sa setMode
+*/
+
+bool QSqlView::isReadOnly() const
+{
+    return d->md == 0;
+}
+
+/*   
+   Returns TRUE if the view will perform inserts, FALSE otherwise.
+   
+   \sa setMode
+*/
+
+bool QSqlView::canInsert() const
+{
+    return ( ( d->md & SQL_Insert ) == SQL_Insert ) ;
+}
+
+
+/*   
+   Returns TRUE if the view will perform updates, FALSE otherwise.
+   
+   \sa setMode
+*/
+
+bool QSqlView::canUpdate() const
+{
+    return ( ( d->md & SQL_Update ) == SQL_Update ) ;
+}
+
+/*   
+   Returns TRUE if the view will perform updates, FALSE otherwise.
+   
+   \sa setMode
+*/
+
+
+bool QSqlView::canDelete() const
+{
+    return ( ( d->md & SQL_Update ) == SQL_Update ) ;
+}
+
+
 
 QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlField* field, const QString& op = "=" )
 {
@@ -210,15 +341,19 @@ QString QSqlView::fieldEqualsValue( const QString& prefix, const QString& fieldS
 }
 
 /*!  Inserts the current contents of the view record buffer into the
-  database.  If \a invalidate is TRUE, the current view can no longer
-  be navigated (i.e., any prior select statements will no longer be
-  active or valid).  Returns the number of rows affected by the
-  insert.  For error information, use lastError().
+  database, if the view allows inserts.  If \a invalidate is TRUE, the
+  current view can no longer be navigated (i.e., any prior select
+  statements will no longer be active or valid).  Returns the number
+  of rows affected by the insert.  For error information, use
+  lastError().
 
+  \sa setMode
 */
 
 int QSqlView::insert( bool invalidate )
 {
+    if ( ( d->md & SQL_Insert ) != SQL_Insert )
+	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
@@ -255,6 +390,8 @@ int QSqlView::insert( bool invalidate )
 
 int QSqlView::update( const QString & filter, bool invalidate )
 {
+    if ( ( d->md & SQL_Update ) != SQL_Update )
+	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
     QString str = "update " + name();
@@ -301,6 +438,8 @@ int QSqlView::update( const QSqlIndex & filter, bool invalidate )
 
 int QSqlView::del( const QString & filter, bool invalidate )
 {
+    if ( ( d->md & SQL_Delete ) != SQL_Delete )
+	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
     QString str = "delete from " + name();
@@ -362,8 +501,8 @@ QVariant QSqlView::calculateField( uint )
 
 void QSqlView::sync()
 {
-    if ( lastAt != at() ) {
-	lastAt = at();
+    if ( d->lastAt != at() ) {
+	d->lastAt = at();
 	uint i = 0;
 	for ( ; i < count(); ++i ){
 	    if ( field(i)->isCalculated() )
