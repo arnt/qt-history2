@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#74 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#74 $");
 
 
 /*****************************************************************************
@@ -789,7 +789,7 @@ bool QApplication::processNextEvent( bool canWait )
 	    TranslateMessage( &msg );		// translate to WM_CHAR
 	    return TRUE;
 	} else {
-	    debug( "couln't translate key code" );
+	    debug( "couldn't translate key code" );
 	}
     }
     DispatchMessage( &msg );			// send to WndProc
