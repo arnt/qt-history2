@@ -19,12 +19,12 @@
 #include "qobject.h"
 #endif // QT_H
 #ifndef QT_NO_SIGNALMAPPER
-class  QSignalMapperData;
-struct QSignalMapperRec;
+class  QSignalMapperPrivate;
 
 
 class Q_EXPORT QSignalMapper : public QObject {
     Q_OBJECT
+    Q_DECL_PRIVATE(QSignalMapper);
 public:
     QSignalMapper( QObject* parent, const char* name=0 );
     ~QSignalMapper();
@@ -40,9 +40,6 @@ signals:
 public slots:
     void map();
 
-private:
-    QSignalMapperData* d;
-    QSignalMapperRec* getRec( const QObject* );
 
 private slots:
     void removeMapping();

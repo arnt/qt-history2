@@ -14,15 +14,12 @@
 
 #include "qsignalmapper.h"
 #ifndef QT_NO_SIGNALMAPPER
-#include "qptrdict.h"
+#include "qhash.h"
+#include "qobject_p.h"
+#define d d_func()
+#define q q_func()
 
-struct QSignalMapperRec {
-    QSignalMapperRec()
-    {
-	has_int = 0;
-	str_id = QString::null;
-    }
-
+struct Rec {
     uint has_int:1;
 
     int int_id;
@@ -30,15 +27,29 @@ struct QSignalMapperRec {
     // extendable to other types of identification
 };
 
-class QSignalMapperData {
-public:
-    QSignalMapperData()
-    {
-	dict.setAutoDelete( TRUE );
-    }
 
-    QPtrDict<QSignalMapperRec> dict;
+class QSignalMapperPrivate : public QObjectPrivate {
+    Q_DECL_PUBLIC(QSignalMapper);
+public:
+
+
+    QHash<QObject *, Rec *> dict;
 };
+
+static Rec *getRec(QObject *that, QHash<QObject *, Rec *> *hash,
+					 QObject *sender)
+{
+    QHash<QObject *, Rec *>::Iterator it = hash->find(sender);
+    if (it == hash->constEnd()) {
+	Rec *rec = new Rec;
+	rec->has_int = 0;
+
+	hash->insert(sender, rec);
+	QObject::connect(sender, SIGNAL(destroyed()), that, SLOT(removeMapping()));
+    }
+    return *it;
+}
+
 
 /*!
     \class QSignalMapper qsignalmapper.h
@@ -55,10 +66,9 @@ public:
     Constructs a QSignalMapper called \a name, with parent \a parent.
     Like all QObjects, it will be deleted when the parent is deleted.
 */
-QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
-    QObject( parent, name )
+QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
+    QObject(new QSignalMapperPrivate, parent, name)
 {
-    d = new QSignalMapperData;
 }
 
 /*!
@@ -66,7 +76,6 @@ QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
 */
 QSignalMapper::~QSignalMapper()
 {
-    delete d;
 }
 
 /*!
@@ -75,9 +84,9 @@ QSignalMapper::~QSignalMapper()
 
     There may be at most one integer identifier for each object.
 */
-void QSignalMapper::setMapping( const QObject* sender, int identifier )
+void QSignalMapper::setMapping(const QObject* sender, int identifier)
 {
-    QSignalMapperRec* rec = getRec(sender);
+    Rec *rec = getRec(this, &d->dict, const_cast<QObject *>(sender));
     rec->int_id = identifier;
     rec->has_int = 1;
 }
@@ -91,9 +100,9 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
     There may be at most one string identifier for each object, and it
     may not be empty.
 */
-void QSignalMapper::setMapping( const QObject* sender, const QString &identifier )
+void QSignalMapper::setMapping(const QObject* sender, const QString &identifier)
 {
-    QSignalMapperRec* rec = getRec(sender);
+    Rec *rec = getRec(this, &d->dict, const_cast<QObject *>(sender));
     rec->str_id = identifier;
 }
 
@@ -101,9 +110,9 @@ void QSignalMapper::setMapping( const QObject* sender, const QString &identifier
     Removes all mappings for \a sender. This is done automatically
     when mapped objects are destroyed.
 */
-void QSignalMapper::removeMappings( const QObject* sender )
+void QSignalMapper::removeMappings(const QObject* sender)
 {
-    d->dict.remove((void*)sender);
+    d->dict.remove(const_cast<QObject *>(sender));
 }
 
 void QSignalMapper::removeMapping()
@@ -116,25 +125,14 @@ void QSignalMapper::removeMapping()
 */
 void QSignalMapper::map()
 {
-    const QObject* s = sender();
-    QSignalMapperRec* rec = d->dict.find( (void*)s );
-    if ( rec ) {
-	if ( rec->has_int )
-	    emit mapped( rec->int_id );
-	if ( !rec->str_id.isEmpty() )
-	    emit mapped( rec->str_id );
+    QHash<QObject *,Rec *>::Iterator it = d->dict.find(const_cast<QObject *>(sender()));
+    if (it != d->dict.constEnd()) {
+	Rec *rec = *it;
+	if (rec->has_int)
+	    emit mapped(rec->int_id);
+	if (!rec->str_id.isEmpty())
+	    emit mapped(rec->str_id);
     }
-}
-
-QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
-{
-    QSignalMapperRec* rec = d->dict.find( (void*)sender );
-    if (!rec) {
-	rec = new QSignalMapperRec;
-	d->dict.insert( (void*)sender, rec );
-	connect( sender, SIGNAL(destroyed()), this, SLOT(removeMapping()) );
-    }
-    return rec;
 }
 
 /*!
