@@ -3731,7 +3731,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		    return FALSE;
 		if ( !itm || itm->editType() == QTableItem::OnTyping )
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
-		if ( ke->key() == Key_Tab ) {
+		if ( (ke->key() == Key_Tab) && !(ke->state() & ShiftButton) ) {
 		    if ( currentColumn() >= numCols() - 1 )
 			return TRUE;
 		    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
@@ -3911,7 +3911,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	activateNextCell();
 	return;
     case Key_Tab: case Key_BackTab:
-	if ( e->key() == Key_Tab ) {
+	if ( (e->key() == Key_Tab) && !(e->state() & ShiftButton) ) {
 	    if ( currentColumn() >= numCols() - 1 )
 		return;
 	    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
