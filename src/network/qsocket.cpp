@@ -46,10 +46,6 @@
 #ifndef NO_ERRNO_H
 #include <errno.h>
 #endif
-#ifdef _OS_WIN32_
-#include <windows.h>
-#include <winsock.h>
-#endif
 
 #ifdef Q_OS_WIN32
 #include <winsock.h>
