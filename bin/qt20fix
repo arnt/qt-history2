@@ -1,6 +1,20 @@
 #!/usr/bin/perl -w
-
 #
+# in sh/bash/zsh:
+#    make 2>&1 | .../qt/bin/qt20fix
+# in csh/tcsh
+#    make |& .../qt/bin/qt20fix
+#
+# repeat as long as qt20fix says to.  if your make supports the -k
+# flag, that speeds up the process a bit.
+#
+# qt20fix tends to fix a bit over half of the remaining problems in
+# each run.
+#
+# if you don't use gcc, you will need to change parseline.
+#
+
+
 # this function must accept one line, which is presumed to be an error
 # message, and return an array of three strings: the file name, the
 # line number and the variable that is undefined.
@@ -98,25 +112,52 @@ sub parseline{
  "AltButton" => "QMouseEvent::AltButton",
  "KeyButtonMask" => "QMouseEvent::KeyButtonMask",
 
- "color0" => "QColor::color0",
- "color1" => "QColor::color1",
- "black" => "QColor::black",
- "white" => "QColor::white",
- "darkGray" => "QColor::darkGray",
- "gray" => "QColor::gray",
- "lightGray" => "QColor::lightGray",
- "red" => "QColor::red",
- "green" => "QColor::green",
- "blue" => "QColor::blue",
- "cyan" => "QColor::cyan",
- "magenta" => "QColor::magenta",
- "yellow" => "QColor::yellow",
- "darkRed" => "QColor::darkRed",
- "darkGreen" => "QColor::darkGreen",
- "darkBlue" => "QColor::darkBlue",
- "darkCyan" => "QColor::darkCyan",
- "darkMagenta" => "QColor::darkMagenta",
- "darkYellow" => "QColor::darkYellow",
+ "color0" => "Qt::color0",
+ "color1" => "Qt::color1",
+ "black" => "Qt::black",
+ "white" => "Qt::white",
+ "darkGray" => "Qt::darkGray",
+ "gray" => "Qt::gray",
+ "lightGray" => "Qt::lightGray",
+ "red" => "Qt::red",
+ "green" => "Qt::green",
+ "blue" => "Qt::blue",
+ "cyan" => "Qt::cyan",
+ "magenta" => "Qt::magenta",
+ "yellow" => "Qt::yellow",
+ "darkRed" => "Qt::darkRed",
+ "darkGreen" => "Qt::darkGreen",
+ "darkBlue" => "Qt::darkBlue",
+ "darkCyan" => "Qt::darkCyan",
+ "darkMagenta" => "Qt::darkMagenta",
+ "darkYellow" => "Qt::darkYellow",
+
+ "AlignLeft" => "Qt::AlignLeft",
+ "AlignRight" => "Qt::AlignRight",
+ "AlignHCenter" => "Qt::AlignHCenter",
+ "AlignTop" => "Qt::AlignTop",
+ "AlignBottom" => "Qt::AlignBottom",
+ "AlignVCenter" => "Qt::AlignVCenter",
+ "AlignCenter" => "Qt::AlignCenter",
+ "SingleLine" => "Qt::SingleLine",
+ "DontClip" => "Qt::DontClip",
+ "ExpandTabs" => "Qt::ExpandTabs",
+ "ShowPrefix" => "Qt::ShowPrefix",
+ "WordBreak" => "Qt::WordBreak",
+ "DontPrint" => "Qt::DontPrint",
+
+ "TransparentMode" => "Qt::TransparentMode",
+ "OpaqueMode" => "Qt::OpaqueMode",
+
+ "PixelUnit" => "Qt::PixelUnit",
+ "LoMetricUnit" => "Qt::LoMetricUnit",
+ "HiMetricUnit" => "Qt::HiMetricUnit",
+ "LoEnglishUnit" => "Qt::LoEnglishUnit",
+ "HiEnglishUnit" => "Qt::HiEnglishUnit",
+ "TwipsUnit" => "Qt::TwipsUnit",
+
+ "WindowsStyle" => "Qt::WindowsStyle",
+ "MotifStyle" => "Qt::MotifStyle",
 );
 
 # 
