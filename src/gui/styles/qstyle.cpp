@@ -496,8 +496,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PE_IndicatorRadioButton  Exclusive on/off indicator, for example, a QRadioButton.
     \value PE_IndicatorRadioButtonMask  Bitmap mask for an exclusive indicator.
 
-    \value PE_Q3DockWindowHandle  Tear off handle for Qt 3 compatible dock windows and
-        toolbars (e.g., \l{Q3DockWindow} and \l{Q3ToolBar})
     \value PE_Q3DockWindowSeparator  Item separator for Qt 3 compatible dock window
                                      and toolbar contents.
     \value PE_IndicatorDockWindowResizeHandle  Resize handle for dock windows.

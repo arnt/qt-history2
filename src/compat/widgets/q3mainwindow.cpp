@@ -258,7 +258,7 @@ protected:
             if (i == pressedHandle)
                 opt.state |= QStyle::Style_On;
 
-            style()->drawPrimitive(QStyle::PE_Q3DockWindowHandle, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_IndicatorToolBarHandle, &opt, &p, this);
             x += 30;
         }
     }

@@ -115,7 +115,6 @@ public:
         PE_Q3CheckListController,
         PE_Q3CheckListExclusiveIndicator,
         PE_Q3CheckListIndicator,
-        PE_Q3DockWindowHandle,
         PE_Q3DockWindowSeparator,
         PE_Q3Separator,
 
