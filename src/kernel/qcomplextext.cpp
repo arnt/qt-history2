@@ -1,5 +1,7 @@
 #include "qcomplextext_p.h"
 #include "qrichtext_p.h"
+#include "qfontmetrics.h"
+#include "qrect.h"
 #include <stdlib.h>
 
 // -----------------------------------------------------
@@ -54,10 +56,10 @@ static inline const QChar *prevChar( const QString &str, int pos )
     pos--;
     const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
-	if( !ch->isMark() )
-	    return ch;
-	pos--;
-	ch--;
+        if( !ch->isMark() )
+            return ch;
+        pos--;
+        ch--;
     }
     return &QChar::replacement;
 }
@@ -68,19 +70,19 @@ static inline const QChar *nextChar( const QString &str, int pos)
     int len = str.length();
     const QChar *ch = str.unicode() + pos;
     while( pos < len ) {
-	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( !ch->isMark() )
-	    return ch;
-	// assume it's a transparent char, this might not be 100% correct
-	pos++;
-	ch++;
+        //qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
+        if( !ch->isMark() )
+            return ch;
+        // assume it's a transparent char, this might not be 100% correct
+        pos++;
+        ch++;
     }
     return &QChar::replacement;
 }
 
 static inline bool prevVisualCharJoins( const QString &str, int pos)
 {
-    return (	 prevChar( str, pos )->joining() != QChar::OtherJoining );
+    return (     prevChar( str, pos )->joining() != QChar::OtherJoining );
 }
 
 static inline bool nextVisualCharJoins( const QString &str, int pos)
@@ -96,27 +98,27 @@ QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
     QChar::Joining joining = str[pos].joining();
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
-	case QChar::OtherJoining:
-	case QChar::Center:
-	    // these don't change shape
-	    return XIsolated;
-	case QChar::Right:
-	    // only rule R2 applies
-	    if( nextVisualCharJoins( str, pos ) )
-		return XFinal;
-	    return XIsolated;
-	case QChar::Dual:
-	    bool right = nextVisualCharJoins( str, pos );
-	    bool left = prevVisualCharJoins( str, pos );
-	    //qDebug("dual: right=%d, left=%d", right, left);
-	    if( right && left )
-		return XMedial;
-	    else if ( right )
-		return XFinal;
-	    else if ( left )
-		return XInitial;
-	    else
-		return XIsolated;
+        case QChar::OtherJoining:
+        case QChar::Center:
+            // these don't change shape
+            return XIsolated;
+        case QChar::Right:
+            // only rule R2 applies
+            if( nextVisualCharJoins( str, pos ) )
+                return XFinal;
+            return XIsolated;
+        case QChar::Dual:
+            bool right = nextVisualCharJoins( str, pos );
+            bool left = prevVisualCharJoins( str, pos );
+            //qDebug("dual: right=%d, left=%d", right, left);
+            if( right && left )
+                return XMedial;
+            else if ( right )
+                return XFinal;
+            else if ( left )
+                return XInitial;
+            else
+                return XIsolated;
     }
     return XIsolated;
 }
@@ -125,7 +127,7 @@ QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
  */
 static inline bool prevLogicalCharJoins( const QString &str, int pos)
 {
-    return (	 nextChar( str, pos )->joining() != QChar::OtherJoining );
+    return (     nextChar( str, pos )->joining() != QChar::OtherJoining );
 }
 
 static inline bool nextLogicalCharJoins( const QString &str, int pos)
@@ -141,27 +143,27 @@ QComplexText::Shape QComplexText::glyphVariantLogical( const QString &str, int p
     QChar::Joining joining = str[pos].joining();
     //qDebug("checking %x, joining=%d", str[pos].unicode(), joining);
     switch ( joining ) {
-	case QChar::OtherJoining:
-	case QChar::Center:
-	    // these don't change shape
-	    return XIsolated;
-	case QChar::Right:
-	    // only rule R2 applies
-	    if( nextLogicalCharJoins( str, pos ) )
-		return XFinal;
-	    return XIsolated;
-	case QChar::Dual:
-	    bool right = nextLogicalCharJoins( str, pos );
-	    bool left = prevLogicalCharJoins( str, pos );
-	    //qDebug("dual: right=%d, left=%d", right, left);
-	    if( right && left )
-		return XMedial;
-	    else if ( right )
-		return XFinal;
-	    else if ( left )
-		return XInitial;
-	    else
-		return XIsolated;
+        case QChar::OtherJoining:
+        case QChar::Center:
+            // these don't change shape
+            return XIsolated;
+        case QChar::Right:
+            // only rule R2 applies
+            if( nextLogicalCharJoins( str, pos ) )
+                return XFinal;
+            return XIsolated;
+        case QChar::Dual:
+            bool right = nextLogicalCharJoins( str, pos );
+            bool left = prevLogicalCharJoins( str, pos );
+            //qDebug("dual: right=%d, left=%d", right, left);
+            if( right && left )
+                return XMedial;
+            else if ( right )
+                return XFinal;
+            else if ( left )
+                return XInitial;
+            else
+                return XIsolated;
     }
     return XIsolated;
 }
@@ -186,7 +188,7 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x0609, 0 }, // 0x609
     { 0x060a, 0 }, // 0x60a
     { 0x060b, 0 }, // 0x60b
-    { 0x060c, 0 }, // 0x60c 	Arabic comma
+    { 0x060c, 0 }, // 0x60c     Arabic comma
     { 0x060d, 0 }, // 0x60d
     { 0x060e, 0 }, // 0x60e
     { 0x060f, 0xfffd, 0xfffd, 0xfffd }, // 0x60f
@@ -202,70 +204,70 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x0618, 0 }, // 0x618
     { 0x0619, 0 }, // 0x619
     { 0x061a, 0 }, // 0x61a
-    { 0x061b, 0 }, // 0x61b  	Arabic semicolon
+    { 0x061b, 0 }, // 0x61b     Arabic semicolon
     { 0x061c, 0 }, // 0x61c
     { 0x061d, 0 }, // 0x61d
     { 0x061e, 0 }, // 0x61e
-    { 0x061f, 0 }, // 0x61f  	Arabic question mark
+    { 0x061f, 0 }, // 0x61f     Arabic question mark
 
     { 0x0620, 0 }, // 0x620
-    { 0xfe80, 0 }, // 0x621 	Hamza
-    { 0xfe81, 1 }, // 0x622 	R 	Alef with Madda above
-    { 0xfe83, 1 }, // 0x623 	R 	Alef with Hamza above
-    { 0xfe85, 1 }, // 0x624 	R 	Waw with Hamza above
-    { 0xfe87, 1 }, // 0x625 	R 	Alef with Hamza below
-    { 0xfe89, 3 }, // 0x626 	D 	Yeh with Hamza above
-    { 0xfe8d, 1 }, // 0x627 	R 	Alef
-    { 0xfe8f, 3 }, // 0x628 	D 	Beh
-    { 0xfe93, 1 }, // 0x629 	R 	Teh Marbuta
-    { 0xfe95, 3 }, // 0x62a 	D 	Teh
-    { 0xfe99, 3 }, // 0x62b 	D 	Theh
-    { 0xfe9d, 3 }, // 0x62c 	D 	Jeem
-    { 0xfea1, 3 }, // 0x62d 	D 	Hah
-    { 0xfea5, 3 }, // 0x62e 	D 	Khah
-    { 0xfea9, 1 }, // 0x62f 	R 	Dal
+    { 0xfe80, 0 }, // 0x621     Hamza
+    { 0xfe81, 1 }, // 0x622     R       Alef with Madda above
+    { 0xfe83, 1 }, // 0x623     R       Alef with Hamza above
+    { 0xfe85, 1 }, // 0x624     R       Waw with Hamza above
+    { 0xfe87, 1 }, // 0x625     R       Alef with Hamza below
+    { 0xfe89, 3 }, // 0x626     D       Yeh with Hamza above
+    { 0xfe8d, 1 }, // 0x627     R       Alef
+    { 0xfe8f, 3 }, // 0x628     D       Beh
+    { 0xfe93, 1 }, // 0x629     R       Teh Marbuta
+    { 0xfe95, 3 }, // 0x62a     D       Teh
+    { 0xfe99, 3 }, // 0x62b     D       Theh
+    { 0xfe9d, 3 }, // 0x62c     D       Jeem
+    { 0xfea1, 3 }, // 0x62d     D       Hah
+    { 0xfea5, 3 }, // 0x62e     D       Khah
+    { 0xfea9, 1 }, // 0x62f     R       Dal
 
-    { 0xfeab, 1 }, // 0x630 	R 	Thal
-    { 0xfead, 1 }, // 0x631 	R 	Reh
-    { 0xfeaf, 1 }, // 0x632 	R 	Zain
-    { 0xfeb1, 1 }, // 0x633 	D 	Seen
-    { 0xfeb5, 3 }, // 0x634 	D 	Sheen
-    { 0xfeb9, 3 }, // 0x635 	D 	Sad
-    { 0xfebd, 3 }, // 0x636 	D 	Dad
-    { 0xfec1, 3 }, // 0x637 	D 	Tah
-    { 0xfec5, 3 }, // 0x638 	D 	Zah
-    { 0xfec9, 3 }, // 0x639 	D 	Ain
-    { 0xfecd, 3 }, // 0x63a 	D 	Ghain
+    { 0xfeab, 1 }, // 0x630     R       Thal
+    { 0xfead, 1 }, // 0x631     R       Reh
+    { 0xfeaf, 1 }, // 0x632     R       Zain
+    { 0xfeb1, 1 }, // 0x633     D       Seen
+    { 0xfeb5, 3 }, // 0x634     D       Sheen
+    { 0xfeb9, 3 }, // 0x635     D       Sad
+    { 0xfebd, 3 }, // 0x636     D       Dad
+    { 0xfec1, 3 }, // 0x637     D       Tah
+    { 0xfec5, 3 }, // 0x638     D       Zah
+    { 0xfec9, 3 }, // 0x639     D       Ain
+    { 0xfecd, 3 }, // 0x63a     D       Ghain
     { 0x063b, 0 }, // 0x63b
     { 0x063c, 0 }, // 0x63c
     { 0x063d, 0 }, // 0x63d
     { 0x063e, 0 }, // 0x63e
     { 0x063f, 0 }, // 0x63f
 
-    { 0x0640, 0 }, // 0x640 	C 	Tatweel
-    { 0xfed1, 3 }, // 0x641 	D 	Feh
-    { 0xfed5, 3 }, // 0x642 	D 	Qaf
-    { 0xfed9, 3 }, // 0x643 	D 	Kaf
-    { 0xfedd, 3 }, // 0x644 	D 	Lam
-    { 0xfee1, 3 }, // 0x645 	D 	Meem
-    { 0xfee5, 3 }, // 0x646 	D 	Noon
-    { 0xfee9, 3 }, // 0x647 	D 	Heh
-    { 0xfeed, 1 }, // 0x648 	R 	Waw
-    { 0xfeef, 1 }, // 0x649 	R 	Alef Maksura // ### Dual according to newest arabicshaping.txt
-    { 0xfef1, 3 }, // 0x64a 	D 	Yeh
-    { 0x064b, 0 }, // 0x64b 	Mark Fathatan
-    { 0x064c, 0 }, // 0x64c 	Mark Dammatan
-    { 0x064d, 0 }, // 0x64d 	Mark Kasratan
-    { 0x064e, 0 }, // 0x64e 	Mark Fatha
-    { 0x064f, 0 }, // 0x64f 	Mark Damma
+    { 0x0640, 0 }, // 0x640     C       Tatweel
+    { 0xfed1, 3 }, // 0x641     D       Feh
+    { 0xfed5, 3 }, // 0x642     D       Qaf
+    { 0xfed9, 3 }, // 0x643     D       Kaf
+    { 0xfedd, 3 }, // 0x644     D       Lam
+    { 0xfee1, 3 }, // 0x645     D       Meem
+    { 0xfee5, 3 }, // 0x646     D       Noon
+    { 0xfee9, 3 }, // 0x647     D       Heh
+    { 0xfeed, 1 }, // 0x648     R       Waw
+    { 0xfeef, 1 }, // 0x649     R       Alef Maksura // ### Dual according to newest arabicshaping.txt
+    { 0xfef1, 3 }, // 0x64a     D       Yeh
+    { 0x064b, 0 }, // 0x64b     Mark Fathatan
+    { 0x064c, 0 }, // 0x64c     Mark Dammatan
+    { 0x064d, 0 }, // 0x64d     Mark Kasratan
+    { 0x064e, 0 }, // 0x64e     Mark Fatha
+    { 0x064f, 0 }, // 0x64f     Mark Damma
 
-    { 0x0650, 0 }, // 0x650 	Mark Kasra
-    { 0x0651, 0 }, // 0x651 	Mark Shadda
-    { 0x0652, 0 }, // 0x652 	Mark Sukan
+    { 0x0650, 0 }, // 0x650     Mark Kasra
+    { 0x0651, 0 }, // 0x651     Mark Shadda
+    { 0x0652, 0 }, // 0x652     Mark Sukan
     // these do not exist in latin6 anymore:
-    { 0x0653, 0 }, // 0x653 	Mark Maddah above
-    { 0x0654, 0 }, // 0x654 	Mark Hamza above
-    { 0x0655, 0 }, // 0x655 	Mark Hamza below
+    { 0x0653, 0 }, // 0x653     Mark Maddah above
+    { 0x0654, 0 }, // 0x654     Mark Hamza above
+    { 0x0655, 0 }, // 0x655     Mark Hamza below
     { 0x0656, 0 }, // 0x656
     { 0x0657, 0 }, // 0x657
     { 0x0658, 0 }, // 0x658
@@ -277,135 +279,135 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x065e, 0 }, // 0x65e
     { 0x065f, 0 }, // 0x65f
 
-    { 0x0660, 0 }, // 0x660 	Arabic 0
-    { 0x0661, 0 }, // 0x661 	Arabic 1
-    { 0x0662, 0 }, // 0x662 	Arabic 2
-    { 0x0663, 0 }, // 0x663 	Arabic 3
-    { 0x0664, 0 }, // 0x664 	Arabic 4
-    { 0x0665, 0 }, // 0x665 	Arabic 5
-    { 0x0666, 0 }, // 0x666 	Arabic 6
-    { 0x0667, 0 }, // 0x667 	Arabic 7
-    { 0x0668, 0 }, // 0x668 	Arabic 8
-    { 0x0669, 0 }, // 0x669 	Arabic 9
-    { 0x066a, 0 }, // 0x66a 	Arabic % sign
-    { 0x066b, 0 }, // 0x66b 	Arabic decimal separator
-    { 0x066c, 0 }, // 0x66c 	Arabic thousands separator
-    { 0x066d, 0 }, // 0x66d 	Arabic five pointed star
+    { 0x0660, 0 }, // 0x660     Arabic 0
+    { 0x0661, 0 }, // 0x661     Arabic 1
+    { 0x0662, 0 }, // 0x662     Arabic 2
+    { 0x0663, 0 }, // 0x663     Arabic 3
+    { 0x0664, 0 }, // 0x664     Arabic 4
+    { 0x0665, 0 }, // 0x665     Arabic 5
+    { 0x0666, 0 }, // 0x666     Arabic 6
+    { 0x0667, 0 }, // 0x667     Arabic 7
+    { 0x0668, 0 }, // 0x668     Arabic 8
+    { 0x0669, 0 }, // 0x669     Arabic 9
+    { 0x066a, 0 }, // 0x66a     Arabic % sign
+    { 0x066b, 0 }, // 0x66b     Arabic decimal separator
+    { 0x066c, 0 }, // 0x66c     Arabic thousands separator
+    { 0x066d, 0 }, // 0x66d     Arabic five pointed star
     { 0x066e, 0 }, // 0x66e
     { 0x066f, 0 }, // 0x66f
 
-	// ### some glyphs do not have shaped mappings in the presentation forms A. 
-	// these have the shaping set to 0 for the moment. Will have to find out better mappings for them.
+        // ### some glyphs do not have shaped mappings in the presentation forms A.
+        // these have the shaping set to 0 for the moment. Will have to find out better mappings for them.
     { 0x0670, 0 }, // 0x670
-    { 0xfb50, 1 }, // 0x671 R 	Alef Wasla
-    { 0x0672, 0 }, // 0x672 R	 Alef with wavy Hamza above
-    { 0x0673, 0 }, // 0x673 R 	Alef with wavy Hamza below
-    { 0x0674, 0 }, // 0x674 U 	High Hamza
-    { 0x0675, 0 }, // 0x675 R 	High Hamza Alef
-    { 0x0676, 0 }, // 0x676 R 	High Hamza Wav
-    { 0xfbdd, 0 }, // 0x677 R 	U with hamza above // ### only isolated form found...
-    { 0x0678, 0 }, // 0x678 D 	High hamza yeh
-    { 0xfb66, 3 }, // 0x679 D  	ttheh
-    { 0xfb5e, 3 }, // 0x67a D 	theheh
-    { 0xfb52, 3 }, // 0x67b D 	beeh
-    { 0x067c, 0 }, // 0x67cD 	teh with ring
-    { 0x067d, 0 }, // 0x67d D 	teh with three dots above downwards
-    { 0xfb56, 3 }, // 0x67e D 	peh
-    { 0xfb62, 3 }, // 0x67f D 	teheh
+    { 0xfb50, 1 }, // 0x671 R   Alef Wasla
+    { 0x0672, 0 }, // 0x672 R    Alef with wavy Hamza above
+    { 0x0673, 0 }, // 0x673 R   Alef with wavy Hamza below
+    { 0x0674, 0 }, // 0x674 U   High Hamza
+    { 0x0675, 0 }, // 0x675 R   High Hamza Alef
+    { 0x0676, 0 }, // 0x676 R   High Hamza Wav
+    { 0xfbdd, 0 }, // 0x677 R   U with hamza above // ### only isolated form found...
+    { 0x0678, 0 }, // 0x678 D   High hamza yeh
+    { 0xfb66, 3 }, // 0x679 D   ttheh
+    { 0xfb5e, 3 }, // 0x67a D   theheh
+    { 0xfb52, 3 }, // 0x67b D   beeh
+    { 0x067c, 0 }, // 0x67cD    teh with ring
+    { 0x067d, 0 }, // 0x67d D   teh with three dots above downwards
+    { 0xfb56, 3 }, // 0x67e D   peh
+    { 0xfb62, 3 }, // 0x67f D   teheh
 
-    { 0xfb5a, 3 }, // 0x680 D 	beheh
-    { 0x0681, 0 }, // 0x681 D 	hah with hamza above
-    { 0x0682, 0 }, // 0x682 D 	hah with two dots vertical above
-    { 0xfb76, 3 }, // 0x683 D 	nyeh
-    { 0xfb72, 3 }, // 0x684 D 	dyeh
-    { 0x0685, 0 }, // 0x685 D 	hah with three dots above
-    { 0xfb7a, 3 }, // 0x686 D 	tcheh
-    { 0xfb7e, 3 }, // 0x687 D 	tcheheh
-    { 0xfb88, 1 }, // 0x688 R 	ddal
-    { 0x0689, 0 }, // 0x689 R 	dal with ring
-    { 0x068a, 0 }, // 0x68a R 	dal with dot
-    { 0x068b, 0 }, // 0x68b R 	dal with dot below and small tah
-    { 0xfb84, 1 }, // 0x68cR 	dahal
-    { 0xfb82, 1 }, // 0x68d R 	ddahal
-    { 0xfb86, 1 }, // 0x68e R 	dul
-    { 0x068f, 0 }, // 0x68f R 	dal with three dots above downwards
+    { 0xfb5a, 3 }, // 0x680 D   beheh
+    { 0x0681, 0 }, // 0x681 D   hah with hamza above
+    { 0x0682, 0 }, // 0x682 D   hah with two dots vertical above
+    { 0xfb76, 3 }, // 0x683 D   nyeh
+    { 0xfb72, 3 }, // 0x684 D   dyeh
+    { 0x0685, 0 }, // 0x685 D   hah with three dots above
+    { 0xfb7a, 3 }, // 0x686 D   tcheh
+    { 0xfb7e, 3 }, // 0x687 D   tcheheh
+    { 0xfb88, 1 }, // 0x688 R   ddal
+    { 0x0689, 0 }, // 0x689 R   dal with ring
+    { 0x068a, 0 }, // 0x68a R   dal with dot
+    { 0x068b, 0 }, // 0x68b R   dal with dot below and small tah
+    { 0xfb84, 1 }, // 0x68cR    dahal
+    { 0xfb82, 1 }, // 0x68d R   ddahal
+    { 0xfb86, 1 }, // 0x68e R   dul
+    { 0x068f, 0 }, // 0x68f R   dal with three dots above downwards
 
-    { 0x0690, 0 }, // 0x690 R 	dal with four dots above
-    { 0xfb8c, 1 }, // 0x691 R 	rreh
-    { 0x0692, 0 }, // 0x692 R 	reh with small v
-    { 0x0693, 0 }, // 0x693 R 	reh with ring
-    { 0x0694, 0 }, // 0x694 R 	reh with dot below
-    { 0x0695, 0 }, // 0x695 R 	reh with small v below
-    { 0x0696, 0 }, // 0x696 R 	reh with dot below and dot above
-    { 0x0697, 0 }, // 0x697 R 	reh with two dots above
-    { 0xfb8a, 1 }, // 0x698 R 	jeh
-    { 0x0699, 0 }, // 0x699 R 	reh with four dots above
-    { 0x069a, 0 }, // 0x69a D 	seen with dot below and dot above
-    { 0x069b, 0 }, // 0x69b D 	seen with three dots below
-    { 0x069c, 0 }, // 0x69cD 	seen with three dots below and three dots above
-    { 0x069d, 0 }, // 0x69d D 	sad with two dots below
-    { 0x069e, 0 }, // 0x69e D 	sad with three dots above
-    { 0x069f, 0 }, // 0x69f D 	tah with three dots above
+    { 0x0690, 0 }, // 0x690 R   dal with four dots above
+    { 0xfb8c, 1 }, // 0x691 R   rreh
+    { 0x0692, 0 }, // 0x692 R   reh with small v
+    { 0x0693, 0 }, // 0x693 R   reh with ring
+    { 0x0694, 0 }, // 0x694 R   reh with dot below
+    { 0x0695, 0 }, // 0x695 R   reh with small v below
+    { 0x0696, 0 }, // 0x696 R   reh with dot below and dot above
+    { 0x0697, 0 }, // 0x697 R   reh with two dots above
+    { 0xfb8a, 1 }, // 0x698 R   jeh
+    { 0x0699, 0 }, // 0x699 R   reh with four dots above
+    { 0x069a, 0 }, // 0x69a D   seen with dot below and dot above
+    { 0x069b, 0 }, // 0x69b D   seen with three dots below
+    { 0x069c, 0 }, // 0x69cD    seen with three dots below and three dots above
+    { 0x069d, 0 }, // 0x69d D   sad with two dots below
+    { 0x069e, 0 }, // 0x69e D   sad with three dots above
+    { 0x069f, 0 }, // 0x69f D   tah with three dots above
 
-    { 0x06a0, 0 }, // 0x6a0 D 	ain with three dots above
-    { 0x06a1, 0 }, // 0x6a1 D 	dotless feh
-    { 0x06a2, 0 }, // 0x6a2 D 	feh with dot moved below
-    { 0x06a3, 0 }, // 0x6a3 D 	feh with dot below
-    { 0xfb6a, 3 }, // 0x6a4 D 	veh
-    { 0x06a5, 0 }, // 0x6a5 D 	feh with three dots below
-    { 0xfb6e, 3 }, // 0x6a6 D 	peheh
-    { 0x06a7, 0 }, // 0x6a7 D 	qaf with dot above
-    { 0x06a8, 0 }, // 0x6a8 D 	qaf woith three dots above
-    { 0xfb8e, 3 }, // 0x6a9 D 	keheh
-    { 0x06aa, 0 }, // 0x6aa D 	swash kaf
-    { 0x06ab, 0 }, // 0x6ab D 	kaf with ring
-    { 0x06ac, 0 }, // 0x6acD 	kaf with dot above
-    { 0xfbd3, 3 }, // 0x6ad D 	ng
-    { 0x06ae, 0 }, // 0x6ae D 	kaf with three dots below
-    { 0xfb92, 3 }, // 0x6af D 	gaf
+    { 0x06a0, 0 }, // 0x6a0 D   ain with three dots above
+    { 0x06a1, 0 }, // 0x6a1 D   dotless feh
+    { 0x06a2, 0 }, // 0x6a2 D   feh with dot moved below
+    { 0x06a3, 0 }, // 0x6a3 D   feh with dot below
+    { 0xfb6a, 3 }, // 0x6a4 D   veh
+    { 0x06a5, 0 }, // 0x6a5 D   feh with three dots below
+    { 0xfb6e, 3 }, // 0x6a6 D   peheh
+    { 0x06a7, 0 }, // 0x6a7 D   qaf with dot above
+    { 0x06a8, 0 }, // 0x6a8 D   qaf woith three dots above
+    { 0xfb8e, 3 }, // 0x6a9 D   keheh
+    { 0x06aa, 0 }, // 0x6aa D   swash kaf
+    { 0x06ab, 0 }, // 0x6ab D   kaf with ring
+    { 0x06ac, 0 }, // 0x6acD    kaf with dot above
+    { 0xfbd3, 3 }, // 0x6ad D   ng
+    { 0x06ae, 0 }, // 0x6ae D   kaf with three dots below
+    { 0xfb92, 3 }, // 0x6af D   gaf
 
-    { 0x06b0, 0 }, // 0x6b0 D 	gaf with ring
-    { 0xfb9a, 3 }, // 0x6b1 D 	ngoeh
-    { 0x06b2, 0 }, // 0x6b2 D 	gaf with two dots below
-    { 0xfb96, 3 }, // 0x6b3 D 	gueh
-    { 0x06b4, 0 }, // 0x6b4 D 	gaf with three dots above
-    { 0x06b5, 0 }, // 0x6b5 D 	lam with small v
-    { 0x06b6, 0 }, // 0x6b6 D 	lam with dot above
-    { 0x06b7, 0 }, // 0x6b7 D 	lam with three dots above
-    { 0x06b8, 0 }, // 0x6b8 D 	lam with three dots below
-    { 0x06b9, 0 }, // 0x6b9 D 	noon with dot below
-    { 0xfb9e, 1 }, // 0x6ba R 	noon ghunna 
-    { 0xfba0, 3 }, // 0x6bb D 	rnoon
-    { 0x06bc, 0 }, // 0x6bcD 	noon with ring
-    { 0x06bd, 0 }, // 0x6bd D 	noon with three dots above
-    { 0xfbaa, 3 }, // 0x6be D 	heh doachashmee
-    { 0x06bf, 0 }, // 0x6bf D 	tcheh with dot above
+    { 0x06b0, 0 }, // 0x6b0 D   gaf with ring
+    { 0xfb9a, 3 }, // 0x6b1 D   ngoeh
+    { 0x06b2, 0 }, // 0x6b2 D   gaf with two dots below
+    { 0xfb96, 3 }, // 0x6b3 D   gueh
+    { 0x06b4, 0 }, // 0x6b4 D   gaf with three dots above
+    { 0x06b5, 0 }, // 0x6b5 D   lam with small v
+    { 0x06b6, 0 }, // 0x6b6 D   lam with dot above
+    { 0x06b7, 0 }, // 0x6b7 D   lam with three dots above
+    { 0x06b8, 0 }, // 0x6b8 D   lam with three dots below
+    { 0x06b9, 0 }, // 0x6b9 D   noon with dot below
+    { 0xfb9e, 1 }, // 0x6ba R   noon ghunna
+    { 0xfba0, 3 }, // 0x6bb D   rnoon
+    { 0x06bc, 0 }, // 0x6bcD    noon with ring
+    { 0x06bd, 0 }, // 0x6bd D   noon with three dots above
+    { 0xfbaa, 3 }, // 0x6be D   heh doachashmee
+    { 0x06bf, 0 }, // 0x6bf D   tcheh with dot above
 
-    { 0xfba4, 1 }, // 0x6c0 R 	heh with yeh above = ligature hamza on hah (06d5 + 0654)
-    { 0xfba6, 3 }, // 0x6c1 D 	heh goal
-    { 0x06c2, 0 }, // 0x6c2 R 	heh goal with hamza above (06c1 + 0654)
-    { 0x06c3, 0 }, // 0x6c3 R 	teh marbuta goal
-    { 0x06c4, 0 }, // 0x6c4 R 	waw with ring
-    { 0xfbe0, 1 }, // 0x6c5 R 	kirghiz oe
-    { 0xfbd9, 1 }, // 0x6c6 R 	oe
-    { 0xfbd7, 1 }, // 0x6c7 R 	u
-    { 0xfbdb, 1 }, // 0x6c8 R 	yu
-    { 0xfbe2, 1 }, // 0x6c9 R 	kirghiz yu
-    { 0x06ca, 0 }, // 0x6ca R 	waw with teo dots above
-    { 0xfbde, 1 }, // 0x6cb R 	ve
-    { 0x06cc, 0 }, // 0x6cc D 	farsi yeh
-    { 0x06cd, 0 }, // 0x6cd R 	yeh with tail
-    { 0x06ce, 0 }, // 0x6ce D 	yeh with small v
-    { 0x06cf, 0 }, // 0x6cf R 	waw with dot above
+    { 0xfba4, 1 }, // 0x6c0 R   heh with yeh above = ligature hamza on hah (06d5 + 0654)
+    { 0xfba6, 3 }, // 0x6c1 D   heh goal
+    { 0x06c2, 0 }, // 0x6c2 R   heh goal with hamza above (06c1 + 0654)
+    { 0x06c3, 0 }, // 0x6c3 R   teh marbuta goal
+    { 0x06c4, 0 }, // 0x6c4 R   waw with ring
+    { 0xfbe0, 1 }, // 0x6c5 R   kirghiz oe
+    { 0xfbd9, 1 }, // 0x6c6 R   oe
+    { 0xfbd7, 1 }, // 0x6c7 R   u
+    { 0xfbdb, 1 }, // 0x6c8 R   yu
+    { 0xfbe2, 1 }, // 0x6c9 R   kirghiz yu
+    { 0x06ca, 0 }, // 0x6ca R   waw with teo dots above
+    { 0xfbde, 1 }, // 0x6cb R   ve
+    { 0x06cc, 0 }, // 0x6cc D   farsi yeh
+    { 0x06cd, 0 }, // 0x6cd R   yeh with tail
+    { 0x06ce, 0 }, // 0x6ce D   yeh with small v
+    { 0x06cf, 0 }, // 0x6cf R   waw with dot above
 
-    { 0xfbe4, 3 }, // 0x6d0 D 	e
-    { 0x06d1, 0 }, // 0x6d1 D 	yeh with three dots below
-    { 0xfbae, 1 }, // 0x6d2 R 	yeh barree
-    { 0xfbb0, 1 }, // 0x6d3 R 	yeh barree with hamza above
-    { 0x06d4, 0 }, // 0x6d4 U 	full stop
-    { 0x06d5, 0 }, // 0x6d5 D 	ae
-    { 0x06d6, 0 }, // 0x6d6 	koreanic annotaion signs
-    { 0x06d7, 0 }, // 0x6d7 	...
+    { 0xfbe4, 3 }, // 0x6d0 D   e
+    { 0x06d1, 0 }, // 0x6d1 D   yeh with three dots below
+    { 0xfbae, 1 }, // 0x6d2 R   yeh barree
+    { 0xfbb0, 1 }, // 0x6d3 R   yeh barree with hamza above
+    { 0x06d4, 0 }, // 0x6d4 U   full stop
+    { 0x06d5, 0 }, // 0x6d5 D   ae
+    { 0x06d6, 0 }, // 0x6d6     koreanic annotaion signs
+    { 0x06d7, 0 }, // 0x6d7     ...
     { 0x06d8, 0 }, // 0x6d8
     { 0x06d9, 0 }, // 0x6d9
     { 0x06da, 0 }, // 0x6da
@@ -432,7 +434,7 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x06ee, 0 }, // 0x6ee
     { 0x06ef, 0 }, // 0x6ef
 
-    { 0x06f0, 0 }, // 0x6f0 	Arabic indic digit 0
+    { 0x06f0, 0 }, // 0x6f0     Arabic indic digit 0
     { 0x06f1, 0 }, // 0x6f1
     { 0x06f2, 0 }, // 0x6f2
     { 0x06f3, 0 }, // 0x6f3
@@ -441,12 +443,12 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x06f6, 0 }, // 0x6f6
     { 0x06f7, 0 }, // 0x6f7
     { 0x06f8, 0 }, // 0x6f8
-    { 0x06f9, 0 }, // 0x6f9 	Arabic indic digit 9
-    { 0x06fa, 0 }, // 0x6fa D 	Sheen with dot below
-    { 0x06fb, 0 }, // 0x6fb D 	dad with dot below
-    { 0x06fc, 0 }, // 0x6fc D 	ghain with dot below
-    { 0x06fd, 0 }, // 0x6fd 	Sindhi ampersand
-    { 0x06fe, 0 }, // 0x6fe 	sindhi postposition
+    { 0x06f9, 0 }, // 0x6f9     Arabic indic digit 9
+    { 0x06fa, 0 }, // 0x6fa D   Sheen with dot below
+    { 0x06fb, 0 }, // 0x6fb D   dad with dot below
+    { 0x06fc, 0 }, // 0x6fc D   ghain with dot below
+    { 0x06fd, 0 }, // 0x6fd     Sindhi ampersand
+    { 0x06fe, 0 }, // 0x6fe     sindhi postposition
     { 0x06ff, 0 }, // 0x6ff
 
 };
@@ -455,84 +457,84 @@ static const ushort arabicUnicodeMapping[256][4] = {
 // of the lam can be either initial of medial. So initial maps to the isolated form of the ligature,
 // medial to the final form
 static const ushort arabicUnicodeLamAlefMapping[6][4] = {
-    { 0xfffd, 0xfffd, 0xfef5, 0xfef6 }, // 0x622 	R 	Alef with Madda above
-    { 0xfffd, 0xfffd, 0xfef7, 0xfef8 }, // 0x623 	R	Alef with Hamza above
-    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x624 	R	Waw with Hamza above
-    { 0xfffd, 0xfffd, 0xfef9, 0xfefa }, // 0x625 	R	Alef with Hamza below
-    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x626 	D	Yeh with Hamza above
-    { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627 	R	Alef
+    { 0xfffd, 0xfffd, 0xfef5, 0xfef6 }, // 0x622        R       Alef with Madda above
+    { 0xfffd, 0xfffd, 0xfef7, 0xfef8 }, // 0x623        R       Alef with Hamza above
+    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x624        R       Waw with Hamza above
+    { 0xfffd, 0xfffd, 0xfef9, 0xfefa }, // 0x625        R       Alef with Hamza below
+    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x626        D       Yeh with Hamza above
+    { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627         R       Alef
 };
 
 const QChar *QComplexText::shapedString(const QString& uc, int from, int len, int *lenOut )
 {
     if( len < 0 )
-	len = uc.length() - from;
+        len = uc.length() - from;
     if( len == 0 ) {
-	*lenOut = 0;
-	return 0;
+        *lenOut = 0;
+        return 0;
     }
 
     if( !shapeBuffer || len > shapeBufSize ) {
-// 	if( shapeBuffer ) free( (void *) shapeBuffer );
-// 	shapeBuffer = (QChar *) malloc( len*sizeof( QChar ) );
-	delete [] shapeBuffer;
-	shapeBuffer = new QChar[ len + 1];
-	shapeBufSize = len;
+//      if( shapeBuffer ) free( (void *) shapeBuffer );
+//      shapeBuffer = (QChar *) malloc( len*sizeof( QChar ) );
+        delete [] shapeBuffer;
+        shapeBuffer = new QChar[ len + 1];
+        shapeBufSize = len;
     }
-    
+
     QChar *data = shapeBuffer;
     const QChar *ch = uc.unicode() + from;
     *lenOut = 0;
     for ( int i = 0; i < len; i++ ) {
-	uchar r = ch->row();
-	uchar c = ch->cell();
-	if ( r != 0x06 ) {
-	    *data = *ch;
-	    data++;
-	    (*lenOut)++;
-	} else {
-	    int shape = glyphVariant( uc, i+from );
-	    //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
-	    // take care of lam-alef ligatures (lam right of alef)
-	    ushort map;
-	    switch ( c ) {
-		case 0x44: { // lam
-		    const QChar *pch = prevChar( uc, i+from );
-		    if ( pch->row() == 0x06 ) {
-			switch ( pch->cell() ) {
-			    case 0x22:
-			    case 0x23:
-			    case 0x25:
-			    case 0x27:
-				//qDebug(" lam of lam-alef ligature");
-				map = arabicUnicodeLamAlefMapping[pch->cell() - 0x22][shape];
-				goto next;
-			    default:
-				break;
-			}
-		    }
-		    break;
-		}
-		case 0x22: // alef with madda
-		case 0x23: // alef with hamza above
-		case 0x25: // alef with hamza below
-		case 0x27: // alef
-		    if ( nextChar( uc, i+from )->unicode() == 0x0644 ) {
-			// have a lam alef ligature
-			//qDebug(" alef of lam-alef ligature");
-			goto skip;
-		    }
-		default:
-		    break;
-	    }
-	    map = arabicUnicodeMapping[c][0] + shape;
-	next:
-	    *data = map;
-	    data++;
-	    (*lenOut)++;
-	}
+        uchar r = ch->row();
+        uchar c = ch->cell();
+        if ( r != 0x06 ) {
+            *data = *ch;
+            data++;
+            (*lenOut)++;
+        } else {
+            int shape = glyphVariant( uc, i+from );
+            //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
+            // take care of lam-alef ligatures (lam right of alef)
+            ushort map;
+            switch ( c ) {
+                case 0x44: { // lam
+                    const QChar *pch = prevChar( uc, i+from );
+                    if ( pch->row() == 0x06 ) {
+                        switch ( pch->cell() ) {
+                            case 0x22:
+                            case 0x23:
+                            case 0x25:
+                            case 0x27:
+                                //qDebug(" lam of lam-alef ligature");
+                                map = arabicUnicodeLamAlefMapping[pch->cell() - 0x22][shape];
+                                goto next;
+                            default:
+                                break;
+                        }
+                    }
+                    break;
+                }
+                case 0x22: // alef with madda
+                case 0x23: // alef with hamza above
+                case 0x25: // alef with hamza below
+                case 0x27: // alef
+                    if ( nextChar( uc, i+from )->unicode() == 0x0644 ) {
+                        // have a lam alef ligature
+                        //qDebug(" alef of lam-alef ligature");
+                        goto skip;
+                    }
+                default:
+                    break;
+            }
+            map = arabicUnicodeMapping[c][0] + shape;
+        next:
+            *data = map;
+            data++;
+            (*lenOut)++;
+        }
     skip:
-	ch++;
+        ch++;
     }
     return shapeBuffer;
 }
@@ -541,38 +543,38 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos )
 {
     const QChar *ch = str.unicode() + pos;
     if ( ch->row() != 0x06 )
-	return *ch;
+        return *ch;
     else {
-	int shape = glyphVariantLogical( str, pos );
-	//qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
-	// lam aleph ligatures
-	switch ( ch->cell() ) {
-	    case 0x44: { // lam
-		const QChar *nch = nextChar( str, pos );
-		if ( nch->row() == 0x06 ) {
-		    switch ( nch->cell() ) {
-			case 0x22:
-			case 0x23:
-			case 0x25:
-			case 0x27:
-			    return QChar(arabicUnicodeLamAlefMapping[nch->cell() - 0x22][shape]);
-			default:
-			    break;
-		    }
-		}
-		break;
-	    }
-	    case 0x22: // alef with madda
-	    case 0x23: // alef with hamza above
-	    case 0x25: // alef with hamza below
-	    case 0x27: // alef
-		if ( prevChar( str, pos )->unicode() == 0x0644 )
-		    // have a lam alef ligature
-		    return QChar(0);
-	    default:
-		break;
-	}
-	return QChar(arabicUnicodeMapping[ch->cell()][0] + shape);
+        int shape = glyphVariantLogical( str, pos );
+        //qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, arabicUnicodeMapping[ch->cell()][shape]);
+        // lam aleph ligatures
+        switch ( ch->cell() ) {
+            case 0x44: { // lam
+                const QChar *nch = nextChar( str, pos );
+                if ( nch->row() == 0x06 ) {
+                    switch ( nch->cell() ) {
+                        case 0x22:
+                        case 0x23:
+                        case 0x25:
+                        case 0x27:
+                            return QChar(arabicUnicodeLamAlefMapping[nch->cell() - 0x22][shape]);
+                        default:
+                            break;
+                    }
+                }
+                break;
+            }
+            case 0x22: // alef with madda
+            case 0x23: // alef with hamza above
+            case 0x25: // alef with hamza below
+            case 0x27: // alef
+                if ( prevChar( str, pos )->unicode() == 0x0644 )
+                    // have a lam alef ligature
+                    return QChar(0);
+            default:
+                break;
+        }
+        return QChar(arabicUnicodeMapping[ch->cell()][0] + shape);
     }
 }
 
@@ -580,59 +582,154 @@ void QComplexText::glyphPositions( QTextString *str )
 {
     Shape lastShape = XIsolated;
     Shape shape = XIsolated;
-    
+
     int len = str->length();
     QTextString::Char *ch = &str->at( 0 );
+    int lastChar = -1;
     for ( int i = 0; i < len; i++ ) {
-	// ignore custom Items
-	if ( ch->isCustom() ) {
-	    lastShape = XIsolated;
-	    ++ch;
-	    continue;
-	}
+        // ignore custom Items
+        if ( ch->isCustom() ) {
+            lastShape = XIsolated;
+            ++ch;
+            continue;
+        }
 
-	const QChar &c = ch->c;
-	QTextString::Char::Type type = QTextString::Char::Regular;
-	QChar shapedChar;
-	bool join = FALSE;
-	if ( c.isMark() ) {
-	    type = QTextString::Char::Mark;
-	    shape = lastShape;
-	} 
+        const QChar &c = ch->c;
+        QTextString::Char::Type type = QTextString::Char::Regular;
+        QChar shapedChar;
+        bool join = FALSE;
+        if ( c.isMark() ) {
+            type = QTextString::Char::Mark;
+            shape = lastShape;
+        }
 #if 0
-	else {
-	    switch( c.row() ) {
-		case 0x06: // arabic, needs shaping
-		    shapedChar = arabicUnicodeMapping[c.cell()][0];
-		    shape = arabicUnicodeMapping[c.cell()][1];
-		    if ( (lastShape & XInitial) && (shape & XFinal) ) {
-			join = TRUE;
-		    }
-		    break;
-		default:
-		    break;
-	    } 	 
-	}
+        else {
+            switch( c.row() ) {
+                case 0x06: // arabic, needs shaping
+                    shapedChar = arabicUnicodeMapping[c.cell()][0];
+                    shape = arabicUnicodeMapping[c.cell()][1];
+                    if ( (lastShape & XInitial) && (shape & XFinal) ) {
+                        join = TRUE;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
 #endif
-	switch( type ) {
-	    case QTextString::Char::Mark:
-		if ( ch->type != QTextString::Char::Mark ) {
-		    QTextFormat *f = ch->d.format;
-		    ch->d.mark = new QTextString::Char::MarkData;
-		    ch->d.mark->format = f;
-		    ch->type = QTextString::Char::Mark;
-		}
-		// XXX position the glyph correctly!
-		if ( i > 0 ) 
-		    ch->d.mark->xoff = - str->width( i - 1 );
-		else
-		    ch->d.mark->xoff = 0;
-		ch->d.mark->yoff = 0;
-	    default:
-		break;
-	}
-	lastShape = shape;
-	++ch;
+        switch( type ) {
+            case QTextString::Char::Mark:
+                if ( ch->type != QTextString::Char::Mark ) {
+                    QTextFormat *f = ch->d.format;
+                    ch->d.mark = new QTextString::Char::MarkData;
+                    ch->d.mark->format = f;
+                    ch->type = QTextString::Char::Mark;
+                }
+                // XXX position the glyph correctly!
+                if ( lastChar != -1  ) {
+                    ch->d.mark->xoff = - str->width( lastChar );
+                    ch->d.mark->yoff = 0;
+                    str->at(lastChar).hasCursor = FALSE;
+                } else {
+                    ch->d.mark->xoff = 0;
+                    ch->d.mark->yoff = 0;
+                }
+            default:
+                lastChar = i;
+                break;
+        }
+        qDebug("glyph U+%x type=%d", ch->c.unicode(), type );
+        ch->hasCursor = TRUE;
+        lastShape = shape;
+        ++ch;
     }
+    qDebug("---- end string ---");
+}
 
+QPointArray QComplexText::positionMarks( const QFont &f, const QString &str, int pos )
+{
+    int len = str.length();
+    int nmarks = 0;
+    while ( pos + nmarks < len && str[pos+nmarks +1].combiningClass() > 0 )
+        nmarks++;
+
+    if ( !nmarks )
+        return QPointArray();
+
+    QFontMetrics fm( f );
+    QChar baseChar = QComplexText::shapedCharacter( str, pos );
+    QRect baseRect = fm.boundingRect( baseChar );
+
+    QPointArray pa( nmarks );
+    int i;
+    unsigned char lastCmb = 0;
+    QRect attachmentRect;
+    for( i = 0; i < nmarks; i++ ) {
+        QChar mark = str[pos+i+1];
+        unsigned char cmb = mark.combiningClass();
+        // combining marks of different class don't interact. Reset the rectangle.
+        if ( cmb != lastCmb ) {
+            qDebug( "resetting rect" );
+            attachmentRect = baseRect;
+        }
+
+        QPoint p;
+        QRect markRect = fm.boundingRect( mark );
+        switch( cmb ) {
+        case QChar::Combining_DoubleBelow:
+                // ### wrong in rtl context!
+        case QChar::Combining_BelowLeft:
+            p += QPoint( 0, 1 );
+        case QChar::Combining_BelowLeftAttached:
+            p += attachmentRect.bottomLeft() - markRect.topLeft();
+            break;
+        case QChar::Combining_Below:
+            p += QPoint( 0, 2 );
+        case QChar::Combining_BelowAttached:
+            p += attachmentRect.bottomLeft() - markRect.topLeft();
+            p += QPoint( (attachmentRect.width() - markRect.width())/2 , 0 );
+            break;
+            case QChar::Combining_BelowRight:
+            p += QPoint( 0, 1 );
+        case QChar::Combining_BelowRightAttached:
+            p += attachmentRect.bottomRight() - markRect.topRight();
+            break;
+            case QChar::Combining_Left:
+            p += QPoint( -1, 0 );
+        case QChar::Combining_LeftAttached:
+            break;
+            case QChar::Combining_Right:
+            p += QPoint( 1, 0 );
+        case QChar::Combining_RightAttached:
+            break;
+        case QChar::Combining_DoubleAbove:
+            // ### wrong in RTL context!
+        case QChar::Combining_AboveLeft:
+            p += QPoint( 0, -1 );
+        case QChar::Combining_AboveLeftAttached:
+            p += attachmentRect.topLeft() - markRect.bottomLeft();
+            break;
+            case QChar::Combining_Above:
+            p += QPoint( 0, -2 );
+        case QChar::Combining_AboveAttached:
+            p += attachmentRect.topLeft() - markRect.bottomLeft();
+            p += QPoint( (attachmentRect.width() - markRect.width())/2 , 0 );
+            break;
+            case QChar::Combining_AboveRight:
+            p += QPoint( 0, -1 );
+        case QChar::Combining_AboveRightAttached:
+            p += attachmentRect.topRight() - markRect.bottomRight();
+            break;
+
+        case QChar::Combining_IotaSubscript:
+            default:
+                break;
+        }
+        //qDebug( "char=%x combiningClass = %d offset=%d/%d", mark.unicode(), cmb, p.x(), p.y() );
+        markRect.moveBy( p.x(), p.y() );
+        attachmentRect = attachmentRect | markRect;
+        lastCmb = cmb;
+        pa.setPoint( i, p );
+    }
+    return pa;
 }
