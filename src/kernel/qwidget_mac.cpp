@@ -730,7 +730,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QRegion clean(reg);
 	clean.translate(p.x(), p.y());
 	clean &= clippedRegion();
-	ValidWindowRgn((WindowPtr)hd, (RgnHandle)clean.handle());
+//	ValidWindowRgn((WindowPtr)hd, (RgnHandle)clean.handle());
 	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
 	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
     }
@@ -1352,9 +1352,9 @@ void QWidget::propagateUpdates()
     RgnHandle r = NewRgn();
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
     if(!EmptyRgn(r)) {
-	ValidWindowRgn((WindowPtr)hd, r); 
 	QRegion rgn(r);
 	rgn.translate(-x(), -y());
+	ValidWindowRgn((WindowPtr)hd, (RgnHandle)rgn.handle()); 
 	paint_children(this, rgn, TRUE, TRUE);
     }
     DisposeRgn(r);
