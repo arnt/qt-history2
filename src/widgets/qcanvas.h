@@ -496,6 +496,9 @@ public:
     ~QCanvasLine();
     void setPoints(int x1, int y1, int x2, int y2);
 
+    QPoint startPoint() const { return QPoint(x1,y1); }
+    QPoint endPoint() const { return QPoint(x2,y2); }
+    
     int rtti() const;
 
     void setPen(QPen p);
