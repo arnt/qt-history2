@@ -23,11 +23,17 @@ SOURCES		= finddialog.cpp \
 		  listviews.cpp \
 		  splashloader.cpp \
 		  ../shared/metatranslator.cpp
+FORMS		= about.ui
 
 DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
+
+TARGET		= linguist
 INCLUDEPATH	= ../pics \
 		  ../shared \
 		  ../../../src/kernel
 DESTDIR		= ../../../bin
-FORMS		= about.ui
+
+target.path=$$QT_INSTALL_BINPATH
+isEmpty(target.path):target.path=$$QT_PREFIX/bin
+INSTALLS	+= target
