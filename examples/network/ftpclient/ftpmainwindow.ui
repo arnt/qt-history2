@@ -248,6 +248,7 @@
     </connection>
 </connections>
 <includes>
+    <include location="global" impldecl="in declaration">qftp.h</include>
     <include location="local" impldecl="in implementation">ftpmainwindow.ui.h</include>
 </includes>
 <forwards>
@@ -262,17 +263,17 @@
 <functions>
     <function type="function" access="private">init()</function>
     <function type="function" access="private">destroy()</function>
-    <function type="slot" access="public">connectToHost()</function>
     <function type="slot" access="private">uploadFile()</function>
     <function type="slot" access="private">downloadFile()</function>
     <function type="slot" access="private">removeFile()</function>
+    <function type="slot">connectToHost()</function>
     <function type="slot" access="private">changePath( const QString &amp; newPath )</function>
+    <function type="slot" access="private">changePathOrDownload(  QListViewItem * )</function>
     <function type="slot" access="private">ftp_start()</function>
     <function type="slot" access="private">ftp_doneError( const QString &amp; msg )</function>
-    <function type="slot" access="private">ftp_stateChanged( int state )</function>
+    <function type="slot" access="private">ftp_stateChanged( QFtp::State state )</function>
     <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; i )</function>
     <function type="slot" access="private">ftp_rawCommandReply( int code, const QString &amp; text )</function>
-    <function type="slot" access="private">changePathOrDownload(  QListViewItem * )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
