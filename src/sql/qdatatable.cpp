@@ -961,9 +961,8 @@ bool QDataTable::insertCurrent()
 #endif
 	if ( ( !b && !sqlCursor()->isActive() ) || !sqlCursor()->isActive() ) {
 	    handleError( sqlCursor()->lastError() );
+	    endInsert(); // cancel the insert if anything goes wrong
 	    refresh();
-	    if ( QTable::beginEdit( currentRow(), currentColumn(), FALSE ) )
-		setEditMode( Editing, currentRow(), currentColumn() );
 	} else {
 	    endInsert();
 	    refresh();
