@@ -200,6 +200,7 @@ void FormTab::addPrefix()
 
     QModelIndex idx = model->addNewPrefix();
     view->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+    m_prefix_edit->setFocus();
 }
 
 void FormTab::setCurrentPrefix(const QString &prefix)
