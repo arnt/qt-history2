@@ -101,10 +101,13 @@
 #include "qthread.h"
 #endif
 
+//for qt_mac.h
+QPaintDevice *qt_mac_safe_pdev = 0;
+QList<QMacSavedPortInfo> QMacSavedPortInfo::gports;
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-
 static int mouse_button_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
@@ -359,8 +362,11 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	QCursor::initialize();
 	QPainter::initialize();
 
-	QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
-	tlw->hide();
+    { //create an empty widget on startup and this can be used for a port anytime
+	    QWidget *tlw = new QWidget(NULL, "empty_widget", Qt::WDestructiveClose);
+	    tlw->hide();
+	    qt_mac_safe_pdev = tlw;
+    }
 
 	if(!app_proc_handler) {
 	    app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
@@ -419,6 +425,11 @@ void qt_cleanup()
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
     QMenuBar::cleanup();
 #endif
+
+    if(qt_mac_safe_pdev) {
+        delete qt_mac_safe_pdev;
+        qt_mac_safe_pdev = NULL;
+    }
 }
 
 /*****************************************************************************

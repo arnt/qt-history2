@@ -8,6 +8,7 @@
 #endif
 #define DEBUG 0
 
+
 #include "Carbon.h"
 #include "Movies.h"
 
@@ -60,8 +61,9 @@ inline void QMacSavedFontInfo::init(CGrafPtr w)
     }
 }
 
+#include <qlist.h>
 #include <qpaintdevice.h>
-extern QPaintDevice *g_cur_paintdev; //qpainter_mac.cpp
+extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -70,23 +72,30 @@ class QMacSavedPortInfo
     PenState pen; //go pennstate
     RGBColor back, fore;
     QMacSavedFontInfo *fi;
-    QPaintDevice *dev;
     void init();
+    
+    static QList<QMacSavedPortInfo> gports;
+    bool valid_gworld;
+    inline void register_self() { gports.append(this); }
+    inline void deregister_self() { gports.remove(this); }
 public:
     inline QMacSavedPortInfo() { init(); }
     inline QMacSavedPortInfo(QPaintDevice *pd) { init(); setPaintDevice(pd); }
     ~QMacSavedPortInfo();
     static bool setPaintDevice(QPaintDevice *);
+
+    static void removingGWorld(const GWorldPtr w);
 };
 
 inline bool
 QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
-    if(pd == g_cur_paintdev || !(g_cur_paintdev = pd))
+    if(!pd)
 	return FALSE;
     switch(pd->devType()) {
     case QInternal::Printer:
     case QInternal::Pixmap:
+    int x = (int)pd->handle();
 	SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
 	break;
     case QInternal::Widget:
@@ -104,31 +113,48 @@ inline void QMacSavedPortInfo::init()
 {
     fi = NULL;
     if(mac_window_count) {
-	GetBackColor(&back);
+   	GetBackColor(&back);
 	GetForeColor(&fore);
 	GetGWorld(&world, &handle);
+	int x = (int)world;
+	valid_gworld = TRUE;
+    register_self();
 	fi = new QMacSavedFontInfo(world);
 	clip = NewRgn();
 	GetClip(clip);
 	GetPenState(&pen);
-	dev = g_cur_paintdev;
     }
 }
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
-    setPaintDevice(NULL);
+    deregister_self();
     if(mac_window_count) {
-	SetGWorld(world,handle); //always do this one first
+    int x = (int)world;
+    if(valid_gworld) 
+	    SetGWorld(world,handle); //always do this one first
+    else
+        setPaintDevice(qt_mac_safe_pdev);
 	SetClip(clip);
 	DisposeRgn(clip);
 	SetPenState(&pen);
 	RGBForeColor(&fore);
 	RGBBackColor(&back);
-	g_cur_paintdev = dev;
     }
     if(fi)
 	delete fi;
 }
 
+//sanity checks
+inline void QMacSavedPortInfo::removingGWorld(const GWorldPtr w) 
+{
+    if(!gports.count())
+        return;
+    for(QListIterator<QMacSavedPortInfo> it(gports); it.current(); ++it) {
+        int x = (int)(*it)->world;
+        int y = (int)w;
+        if((*it)->world == w) 
+            (*it)->valid_gworld = FALSE;
+    }
+}            
 #endif // QT_MAC_H

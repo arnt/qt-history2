@@ -8,6 +8,17 @@
 
 static QImage convertPixmapToImage(QPixmap::QPixmapData *, GWorldPtr);
 
+static inline void safely_dispose_gworld(GWorldPtr gw)
+{
+   GWorldPtr w;
+   GDHandle h;
+   GetGWorld(&w, &h);
+   if(w == gw)
+       QMacSavedPortInfo::setPaintDevice(qt_mac_safe_pdev);        
+   QMacSavedPortInfo::removingGWorld(gw);
+   DisposeGWorld(gw);    
+}
+
 #ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
 #define CALC_COST(pm_d) (pm_d->w * pm_d->h * pm_d->d / 4)
 #include <qintcache.h>
@@ -17,8 +28,8 @@ class QMacInternalPixmapCache : public QIntCache<QPixmap::QPixmapData>
     int pixmap_key, cache_used;
 public:
     QMacInternalPixmapCache() : 
-	QIntCache<QPixmap::QPixmapData>(640*480*4, 149), 
-	pixmap_key(0), cache_used(0) { } //640x480 32bit
+	QIntCache<QPixmap::QPixmapData>(640*480*4, 149), //640x480 32bit
+	pixmap_key(0), cache_used(0) { } 
     ~QMacInternalPixmapCache() { }
     Qt::HANDLE getGWorld(const QPixmap *);
 protected:
@@ -34,8 +45,7 @@ void QMacInternalPixmapCache::deleteItem(Item d)
 #ifdef ONE_PIXEL_LOCK
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)data->cache.gworld));
 #endif
- 	DisposeGWorld((GWorldPtr)data->cache.gworld);
-	data->cache.gworld = NULL;
+        safely_dispose_gworld((GWorldPtr)data->cache.gworld);
 	data->cache.key = -1;
     }
 }
@@ -43,7 +53,8 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 {
     QPixmap *pm = (QPixmap *)p; //mutable
     if(pm->data->cache.gworld) {
-	find(pm->data->cache.key); //most recently used now baby!
+        if(!pm->isQBitmap())
+	        find(pm->data->cache.key); //most recently used now baby!
 	return pm->data->cache.gworld;
     }
 
@@ -54,8 +65,7 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
     Rect rect;
     SetRect(&rect,0,0,w,h);
     int cost = CALC_COST(pm->data); //some cost
-
-    for(int tries = 0; tries < 10; tries++) { //I'm willing to try 10 times
+    for(int tries = 1; tries <= 5; tries++) { 
 	QDErr e = 0;
 	const int params = alignPix | stretchPix | newDepth;
 #if 0    
@@ -85,17 +95,19 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 	    cache_used += cost;
 	    if(cache_used > maxCost())
 		setMaxCost(cache_used);
-	    pm->data->cache.key = pixmap_key++;
-	    //try to resize the cache 5 times to fit the new pixmap
-	    for(int i = 0; i < 5; i++) {
-	        setMaxCost(maxCost() + cost);
-	        if(insert(pm->data->cache.key, p->data, cost))
-	            break;
-	    }
-	    if(pm->data->cache.img) { 	    //back like it was before
-		pm->convertFromImage(*pm->data->cache.img);
-		delete pm->data->cache.img;
-		pm->data->cache.img = NULL;
+            if(!pm->isQBitmap()) { //bitmaps are not part of the virtual support
+	        pm->data->cache.key = pixmap_key++;
+	        //try to resize the cache 5 times to fit the new pixmap
+	        for(int i = 0; i < 5; i++) {
+	                setMaxCost(maxCost() + cost);
+	                if(insert(pm->data->cache.key, p->data, cost))
+	                break;
+	        }
+	        if(pm->data->cache.img) { 	    //back like it was before
+		        pm->convertFromImage(*pm->data->cache.img);
+		        delete pm->data->cache.img;
+		        pm->data->cache.img = NULL;
+	        }
 	    }
 	    break;
 	}
@@ -562,7 +574,7 @@ void QPixmap::deref()
 #ifdef ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap(gw));
 #endif
-            DisposeGWorld(gw);
+            safely_dispose_gworld(gw);
         }
         delete data;
 	data = NULL;
