@@ -15,6 +15,8 @@
 #include "qwindowdefs.h"
 #include "qdatetime.h"
 
+#include <qcoreapplication.h>
+
 #include <string.h>
 
 #if defined (QT_NO_IPV6)
