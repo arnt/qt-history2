@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#19 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#19 $");
 
 
 /*!
@@ -608,13 +608,17 @@ void QHBoxLayout::add( QWidget *w, int stretch,
     bool noMinSize = ( w->minimumSize().isNull() );
     if ( noMinSize ) {
 	QSize hint = w->sizeHint();
-	if ( !hint.isEmpty() ) {
-	    if ( stretch == 0 ) {
-		w->setFixedWidth( hint.width() );
-	    }
-	    if ( alignment != 0 ) {
-		w->setFixedHeight( hint.height() );
-	    }
+
+	if ( hint.width() > 0 ) {
+	    w->setMinimumWidth( hint.width() );
+	    if ( stretch == 0 )
+		w->setMaximumWidth( hint.width() );
+	}
+
+	if ( hint.height() > 0 ) {
+	    w->setMinimumHeight( hint.height() );
+	    if ( alignment != 0 )
+		w->setMaximumHeight( hint.height() );
 	}
     }
     if ( !alignment )
@@ -669,13 +673,17 @@ void QVBoxLayout::add( QWidget *w, int stretch,
     bool noMinSize = ( w->minimumSize().isNull() );
     if ( noMinSize ) {
 	QSize hint = w->sizeHint();
-	if ( !hint.isEmpty() ) {
-	    if ( stretch == 0 ) {
-		w->setFixedHeight( hint.height() );
-	    }
-	    if ( alignment != 0 ) {
-		w->setFixedWidth( hint.width() );
-	    }
+
+	if ( hint.height() > 0 ) {
+	    w->setMinimumHeight( hint.height() );
+	    if ( stretch == 0 )
+		w->setMaximumHeight( hint.height() );
+	}
+
+	if ( hint.width() > 0 ) {
+	    w->setMinimumWidth( hint.width() );
+	    if ( alignment != 0 )
+		w->setMaximumWidth( hint.width() );
 	}
     }
     if ( !alignment )
