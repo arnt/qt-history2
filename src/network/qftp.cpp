@@ -128,8 +128,8 @@ private slots:
 private:
     void clearData()
     {
-	data_ba = FALSE;
-	data.ba = 0;
+	is_ba = FALSE;
+	data.dev = 0;
     }
 
     QSocket socket;
@@ -139,11 +139,13 @@ private:
     int bytesTotal;
     bool callWriteData;
 
+    // If is_ba is TRUE, ba is used; ba is never 0.
+    // Otherwise dev is used; dev can be 0 or not.
     union {
 	QByteArray *ba;
 	QIODevice *dev;
     } data;
-    bool data_ba;
+    bool is_ba;
 };
 
 class QFtpPI : public QObject
@@ -231,11 +233,14 @@ public:
     int id;
     QFtp::Command command;
     QStringList rawCmds;
+
+    // If is_ba is TRUE, ba is used; ba is never 0.
+    // Otherwise dev is used; dev can be 0 or not.
     union {
 	QByteArray *ba;
 	QIODevice *dev;
     } data;
-    bool data_ba;
+    bool is_ba;
 
     static int idCounter;
 };
@@ -243,21 +248,21 @@ public:
 int QFtpCommand::idCounter = 0;
 
 QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw )
-    : command(cmd), rawCmds(raw), data_ba(FALSE)
+    : command(cmd), rawCmds(raw), is_ba(FALSE)
 {
     id = ++idCounter;
-    data.ba = 0;
+    data.dev = 0;
 }
 
 QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, const QByteArray &ba )
-    : command(cmd), rawCmds(raw), data_ba(TRUE)
+    : command(cmd), rawCmds(raw), is_ba(TRUE)
 {
     id = ++idCounter;
     data.ba = new QByteArray( ba );
 }
 
 QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev )
-    : command(cmd), rawCmds(raw), data_ba(FALSE)
+    : command(cmd), rawCmds(raw), is_ba(FALSE)
 {
     id = ++idCounter;
     data.dev = dev;
@@ -265,7 +270,7 @@ QFtpCommand::QFtpCommand( QFtp::Command cmd, QStringList raw, QIODevice *dev )
 
 QFtpCommand::~QFtpCommand()
 {
-    if ( data_ba )
+    if ( is_ba )
 	delete data.ba;
 }
 
@@ -293,19 +298,19 @@ QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
 
 void QFtpDTP::setData( QByteArray *ba )
 {
-    data_ba = TRUE;
+    is_ba = TRUE;
     data.ba = ba;
 }
 
 void QFtpDTP::setDevice( QIODevice *dev )
 {
-    data_ba = FALSE;
+    is_ba = FALSE;
     data.dev = dev;
 }
 
 void QFtpDTP::writeData()
 {
-    if ( data_ba ) {
+    if ( is_ba ) {
 #if defined(QFTPDTP_DEBUG)
 	qDebug( "QFtpDTP::writeData: write %d bytes", data.ba->size() );
 #endif
@@ -531,7 +536,7 @@ void QFtpDTP::socketReadyRead()
 	    }
 	}
     } else {
-	if ( !data_ba && data.dev ) {
+	if ( !is_ba && data.dev ) {
 	    QByteArray ba( socket.bytesAvailable() );
 	    Q_LONG bytesRead = socket.readBlock( ba.data(), ba.size() );
 	    if ( bytesRead < 0 ) {
@@ -572,7 +577,7 @@ void QFtpDTP::socketError( int e )
 
 void QFtpDTP::socketConnectionClosed()
 {
-    if ( !data_ba && data.dev ) {
+    if ( !is_ba && data.dev ) {
 	clearData();
     }
 #if defined(QFTPDTP_DEBUG)
@@ -1817,7 +1822,7 @@ QIODevice* QFtp::currentDevice() const
     QFtpCommand *c = d->pending.getFirst();
     if ( !c )
 	return 0;
-    if ( c->data_ba )
+    if ( c->is_ba )
 	return 0;
     return c->data.dev;
 }
@@ -1928,10 +1933,10 @@ void QFtp::startNextCommand()
 	d->pi.connectToHost( c->rawCmds[0], c->rawCmds[1].toUInt() );
     } else {
 	if ( c->command == Put ) {
-	    if ( c->data_ba && c->data.ba ) {
+	    if ( c->is_ba ) {
 		d->pi.dtp.setData( c->data.ba );
 		d->pi.dtp.setBytesTotal( c->data.ba->size() );
-	    } else if ( !c->data_ba && c->data.dev ) {
+	    } else if ( c->data.dev ) {
 		d->pi.dtp.setDevice( c->data.dev );
 		if ( c->data.dev->isSequentialAccess() )
 		    d->pi.dtp.setBytesTotal( 0 );
@@ -1939,7 +1944,7 @@ void QFtp::startNextCommand()
 		    d->pi.dtp.setBytesTotal( c->data.dev->size() );
 	    }
 	} else if ( c->command == Get ) {
-	    if ( !c->data_ba && c->data.dev ) {
+	    if ( !c->is_ba && c->data.dev ) {
 		d->pi.dtp.setDevice( c->data.dev );
 	    }
 	} else if ( c->command == Close ) {

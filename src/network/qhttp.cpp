@@ -150,20 +150,20 @@ public:
     QHttpNormalRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
 	header(h), to(t)
     {
-	data_ba = FALSE;
+	is_ba = FALSE;
 	data.dev = d;
     }
 
     QHttpNormalRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
 	header(h), to(t)
     {
-	data_ba = TRUE;
+	is_ba = TRUE;
 	data.ba = d;
     }
 
     ~QHttpNormalRequest()
     {
-	if ( data_ba )
+	if ( is_ba )
 	    delete data.ba;
     }
 
@@ -182,7 +182,7 @@ private:
 	QByteArray *ba;
 	QIODevice *dev;
     } data;
-    bool data_ba;
+    bool is_ba;
     QIODevice *to;
 };
 
@@ -190,7 +190,7 @@ void QHttpNormalRequest::start( QHttp *http )
 {
     http->d->header = header;
 
-    if ( data_ba ) {
+    if ( is_ba ) {
 	http->d->buffer = *data.ba;
 	if ( http->d->buffer.size() > 0 )
 	    http->d->header.setContentLength( http->d->buffer.size() );
@@ -228,7 +228,7 @@ QHttpRequestHeader QHttpNormalRequest::requestHeader()
 
 QIODevice* QHttpNormalRequest::sourceDevice()
 {
-    if ( data_ba )
+    if ( is_ba )
 	return 0;
     return data.dev;
 }
