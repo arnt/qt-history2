@@ -240,6 +240,14 @@ code to get things working again. There are a few other functions
 that  took a QFont::CharSet as parameter. Just remove the charset
 from the parameterlist.
 
+\section1 QLayout and Related Abstract Layout Classes
+
+The definition of \l QGLayoutIterator, \l QLayout, \l QLayoutItem, \l
+QLayoutIterator, \l QSpacerItem and \l QWidgetItem were moved from \c
+<qabstractlayout.h> to \c <qlayout.h>. The header \c
+<qabstractlayout.h> now includes \c <qlayout.h> for compatibility. It
+might be removed in a future version.
+
 \section1 QMultiLineEdit
 
 The QMultiLineEdit was a simple editor widget in former Qt
@@ -378,7 +386,7 @@ which is what one expects.
 The following function is now obsolete, as it has an unwieldy
 parameter list and a bad name:
 \list
-\i bool QRegExp::match( const QString & str, int index = 0,
+\i bool QRegExp::match( const QString \& str, int index = 0,
 			int * len = 0, bool indexIsStart = TRUE ) const
 \endlist
 It will be removed in a future version of Qt. Its documentation
@@ -415,7 +423,7 @@ need to adjust your code to use the QIconSet On/Off mechanism.
 Likewise, the \e on parameter of these two functions is now ignored:
 
 \list
-\i void QToolButton::setIconSet ( const QIconSet & set, bool on )</li>
+\i void QToolButton::setIconSet ( const QIconSet \& set, bool on )</li>
 \i QIconSet QToolButton::iconSet ( bool on ) const</li>
 \endlist
 
@@ -423,14 +431,14 @@ These functions are still provided only for ease of porting. New code
 should rather use the following:
 
 \list
-\i void QToolButton::setIconSet( const QIconSet & set )</li>
+\i void QToolButton::setIconSet( const QIconSet \& set )</li>
 \i QIconSet QToolButton::iconSet() const</li>
 \endlist
 
 Finally, this function is no longer virtual:
 
 \list
-\i void QToolButton::setIconSet( const QIconSet & set, bool on )
+\i void QToolButton::setIconSet( const QIconSet \& set, bool on )
 \endlist
 
 If you have a class that inherits QToolButton and that reimplements
@@ -495,7 +503,7 @@ a quadratic one. If you have been using either
 QPainter::drawQuadBezier() or QPointArray::quadBezier() you will have
 to replace these calls with
 \list
-\i void QPainter::drawCubicBezier( const QPointArray &, int index=0 ) and
+\i void QPainter::drawCubicBezier( const QPointArray \&, int index=0 ) and
 \i QPointArray QPointArray::cubicBezier() const
 \endlist
 respectively. Neither the arguments nor the resulting curve have changed.

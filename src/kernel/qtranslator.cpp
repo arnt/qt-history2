@@ -153,7 +153,7 @@ static uint elfHash( const char * name )
 
     if ( name ) {
 	k = (const uchar*)name;
-	while( *k ) {
+	while ( *k ) {
 	    h = (h << 4) + *k++;
 	    if ( (g = (h & 0xf0000000)) != 0 )
 		h ^= g >> 24;
@@ -189,7 +189,7 @@ public:
 	unmapPointer( 0 ), unmapLength( 0 ),
 	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 ),
 	messages( 0 ) { }
-    // note: QTranslator must finalize this before deallocating it.
+    // QTranslator must finalize this before deallocating it.
 
     // for mmap'ed files, this is what needs to be unmapped.
     char * unmapPointer;
@@ -206,7 +206,7 @@ public:
 };
 
 
-/*! \class QTranslator qtranslator.h
+/*! \class QTranslator
 
   \brief The QTranslator class provides internationalization support for text
   output.
@@ -228,17 +228,17 @@ public:
   \code
   int main( int argc, char ** argv )
   {
-    QApplication app( argc, argv );
+      QApplication app( argc, argv );
 
-    QTranslator translator( 0 );
-    translator.load( "trfile.qm", "." );
-    app.installTranslator( &translator );
+      QTranslator translator( 0 );
+      translator.load( "trfile.qm", "." );
+      app.installTranslator( &translator );
 
-    MyWidget m;
-    app.setMainWidget( &m );
-    m.show();
+      MyWidget m;
+      app.setMainWidget( &m );
+      m.show();
 
-    return app.exec();
+      return app.exec();
   }
   \endcode
 
@@ -348,7 +348,7 @@ QTranslator::~QTranslator()
   \list 1
    \i File name with \a suffix appended (".qm" if suffix is QString::null).
    \i File name with text after a character in \a search_delimiters stripped
-       ("_." is the default for \a search_delimiters if it is QString::null).
+      ("_." is the default for \a search_delimiters if it is QString::null).
    \i File name stripped and \a suffix appended.
    \i File name stripped further, etc.
   \endlist
@@ -379,35 +379,34 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
     if ( filename[0] == '/'
 #ifdef Q_WS_WIN
-	 || filename[0] && filename[1] == ':'
-	 || filename[0] == '\\'
+	 || (filename[0] && filename[1] == ':') || filename[0] == '\\'
 #endif
 	 )
-	prefix = QString::fromLatin1("");
+	prefix = QString::fromLatin1( "" );
     else
 	prefix = directory;
 
     if ( prefix.length() ) {
 	if ( prefix[int(prefix.length()-1)] != '/' )
-	    prefix += QChar('/');
+	    prefix += QChar( '/' );
     }
 
     QString fname = filename;
     QString realname;
     QString delims;
     delims = search_delimiters.isNull() ?
-	     QString::fromLatin1("_.") : search_delimiters;
+	     QString::fromLatin1( "_." ) : search_delimiters;
 
     for ( ;; ) {
 	QFileInfo fi;
 
 	realname = prefix + fname;
-	fi.setFile(realname);
+	fi.setFile( realname );
 	if ( fi.isReadable() )
 	    break;
 
-	realname += suffix.isNull() ? QString::fromLatin1(".qm") : suffix;
-	fi.setFile(realname);
+	realname += suffix.isNull() ? QString::fromLatin1( ".qm" ) : suffix;
+	fi.setFile( realname );
 	if ( fi.isReadable() )
 	    break;
 
@@ -426,7 +425,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     }
 
     // realname is now the fully qualified name of a readable file.
-
 
 #if defined(QT_USE_MMAP)
     // unix (if mmap supported)
@@ -498,13 +496,14 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     QByteArray tmpArray;
     tmpArray.setRawData( d->unmapPointer, d->unmapLength );
     QDataStream s( tmpArray, IO_ReadOnly );
-    s.device()->at( magic_length );
+    if ( !s.device()->at(magic_length) )
+	return FALSE;
 
     // read.
     Q_UINT8 tag = 0;
     Q_UINT32 length = 0;
     s >> tag >> length;
-    while( tag && length ) {
+    while ( tag && length ) {
 	if ( tag == QTranslatorPrivate::Contexts && !d->contextArray ) {
 	    d->contextArray = new QByteArray;
 	    d->contextArray->setRawData( tmpArray.data()+s.device()->at(),
@@ -518,7 +517,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	    d->messageArray->setRawData( tmpArray.data()+s.device()->at(),
 					 length );
 	}
-	s.device()->at( s.device()->at() + length );
+	if ( !s.device()->at(s.device()->at() + length) )
+	    return FALSE;
 	tag = 0;
 	length = 0;
 	if ( !s.atEnd() )
@@ -658,7 +658,7 @@ void QTranslator::squeeze( SaveMode mode )
     QMap<QTranslatorPrivate::Offset, void *>::Iterator offset;
     offset = offsets.begin();
     QDataStream ds( *d->offsetArray, IO_WriteOnly );
-    while( offset != offsets.end() ) {
+    while ( offset != offsets.end() ) {
 	QTranslatorPrivate::Offset k = offset.key();
 	++offset;
 	ds << (Q_UINT32)k.h << (Q_UINT32)k.o;
@@ -926,7 +926,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	return QTranslatorMessage();
 
     // go back on equal key
-    while( r != d->offsetArray->data() && cmp_uint32_big( r - 8, r ) == 0 )
+    while ( r != d->offsetArray->data() && cmp_uint32_big(r - 8, r) == 0 )
 	r -= 8;
 
     QDataStream s( *d->offsetArray, IO_ReadOnly );
@@ -935,7 +935,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     s >> rh >> ro;
 
     QDataStream ms( *d->messageArray, IO_ReadOnly );
-    while( rh == h ) {
+    while ( rh == h ) {
 	ms.device()->at( ro );
 	QTranslatorMessage m( ms );
 	if ( match(m.context(), context)

@@ -46,18 +46,23 @@
 
 #include "qlayoutengine_p.h"
 
-// This cannot be a subclass of QLayoutItem, since it can contain
-// different item classes.
-class QLayoutBox
+/*
+  Three internal classes related to QGridLayout: (1) QGridBox is a
+  QLayoutItem with (row, column) information; (2) QGridMultiBox is a
+  QGridBox with (torow, tocolumn) information; (3) QGridLayoutData is
+  the internal representation of a QGridLayout.
+*/
+
+class QGridBox
 {
 public:
-    QLayoutBox( QLayoutItem *lit ) { item_ = lit; }
+    QGridBox( QLayoutItem *lit ) { item_ = lit; }
 
-    QLayoutBox( QWidget *wid ) { item_ = new QWidgetItem( wid ); }
-    QLayoutBox( int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum,
-		QSizePolicy::SizeType vData= QSizePolicy::Minimum )
-	{ item_ = new QSpacerItem( w, h, hData, vData ); }
-    ~QLayoutBox() { delete item_; }
+    QGridBox( QWidget *wid ) { item_ = new QWidgetItem( wid ); }
+    QGridBox( int w, int h, QSizePolicy::SizeType hData = QSizePolicy::Minimum,
+	      QSizePolicy::SizeType vData = QSizePolicy::Minimum )
+    { item_ = new QSpacerItem( w, h, hData, vData ); }
+    ~QGridBox() { delete item_; }
 
     QSize sizeHint() const { return item_->sizeHint(); }
     QSize minimumSize() const { return item_->minimumSize(); }
@@ -82,20 +87,20 @@ private:
     int row, col;
 };
 
-class QMultiBox
+class QGridMultiBox
 {
 public:
-    QMultiBox( QLayoutBox *box, int toRow, int toCol )
+    QGridMultiBox( QGridBox *box, int toRow, int toCol )
 	: box_( box ), torow( toRow ), tocol( toCol ) { }
-    ~QMultiBox() { delete box_; }
-    QLayoutBox *box() { return box_; }
+    ~QGridMultiBox() { delete box_; }
+    QGridBox *box() { return box_; }
     QLayoutItem *takeItem() { return box_->takeItem(); }
 
 private:
     friend class QGridLayoutData;
     friend class QGridLayoutDataIterator;
 
-    QLayoutBox *box_;
+    QGridBox *box_;
     int torow, tocol;
 };
 
@@ -106,8 +111,8 @@ public:
     QGridLayoutData( int nRows, int nCols );
     ~QGridLayoutData();
 
-    void add( QLayoutBox*, int row, int col );
-    void add( QLayoutBox*, int row1, int row2, int col1, int col2 );
+    void add( QGridBox*, int row, int col );
+    void add( QGridBox*, int row1, int row2, int col1, int col2 );
     QSize sizeHint( int ) const;
     QSize minimumSize( int ) const;
     QSize maximumSize( int ) const;
@@ -144,10 +149,10 @@ public:
 private:
     void setNextPosAfter( int r, int c );
     void recalcHFW( int w, int s );
-    void addHfwData ( QLayoutBox *box, int width );
+    void addHfwData ( QGridBox *box, int width );
     void init();
     QSize findSize( QCOORD QLayoutStruct::*, int ) const;
-    void addData( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
+    void addData( QGridBox *b, bool r = TRUE, bool c = TRUE );
     void setSize( int rows, int cols );
     void setupLayoutData( int space );
     void setupHfwLayoutData( int space );
@@ -159,8 +164,8 @@ private:
     QMemArray<QLayoutStruct> rowData;
     QMemArray<QLayoutStruct> colData;
     QMemArray<QLayoutStruct> *hfwData;
-    QPtrList<QLayoutBox> things;
-    QPtrList<QMultiBox> *multi;
+    QPtrList<QGridBox> things;
+    QPtrList<QGridMultiBox> *multi;
     bool needRecalc;
     bool has_hfw;
     int hfw_width;
@@ -216,13 +221,16 @@ bool QGridLayoutData::hasHeightForWidth( int spacing )
     return has_hfw;
 }
 
-/* Assumes that setupLayoutData has been called.
-   And that qGeomCalc has filled in colData with appropriate values
+/*
+  Assumes that setupLayoutData() has been called, and that
+  qGeomCalc() has filled in colData with appropriate values.
 */
 void QGridLayoutData::recalcHFW( int w, int spacing )
 {
-    //go through all children, using colData and heightForWidth()
-    //and put the results in hfw_rowData
+    /*
+      Go through all children, using colData and heightForWidth()
+      and put the results in hfw_rowData.
+    */
     if ( !hfwData )
 	hfwData = new QMemArray<QLayoutStruct>( rr );
     setupHfwLayoutData( spacing );
@@ -255,8 +263,8 @@ int QGridLayoutData::heightForWidth( int w, int spacing )
 
 bool QGridLayoutData::findWidget( QWidget* w, int *row, int *col )
 {
-    QPtrListIterator<QLayoutBox> it( things );
-    QLayoutBox * box;
+    QPtrListIterator<QGridBox> it( things );
+    QGridBox * box;
     while ( (box = it.current()) != 0 ) {
 	++it;
 	if ( box->item()->widget() == w ) {
@@ -268,8 +276,8 @@ bool QGridLayoutData::findWidget( QWidget* w, int *row, int *col )
 	}
     }
     if ( multi ) {
-	QPtrListIterator<QMultiBox> it( *multi );
-	QMultiBox * mbox;
+	QPtrListIterator<QGridMultiBox> it( *multi );
+	QGridMultiBox * mbox;
 	while ( (mbox = it.current()) != 0 ) {
 	    ++it;
 	    box = mbox->box();
@@ -391,7 +399,7 @@ void QGridLayoutData::setNextPosAfter( int row, int col )
     }
 }
 
-void QGridLayoutData::add( QLayoutBox *box, int row, int col )
+void QGridLayoutData::add( QGridBox *box, int row, int col )
 {
     expand( row+1, col+1 );
     box->row = row;
@@ -401,9 +409,8 @@ void QGridLayoutData::add( QLayoutBox *box, int row, int col )
     setNextPosAfter( row, col );
 }
 
-
-void QGridLayoutData::add( QLayoutBox *box,  int row1, int row2,
-			int col1, int col2  )
+void QGridLayoutData::add( QGridBox *box,  int row1, int row2,
+			   int col1, int col2  )
 {
 #ifdef QT_CHECK_RANGE
     if ( row2 >= 0 && row2 < row1 )
@@ -418,9 +425,9 @@ void QGridLayoutData::add( QLayoutBox *box,  int row1, int row2,
     expand( row2+1, col2+1 );
     box->row = row1;
     box->col = col1;
-    QMultiBox *mbox = new QMultiBox( box, row2, col2 );
+    QGridMultiBox *mbox = new QGridMultiBox( box, row2, col2 );
     if ( !multi ) {
-	multi = new QPtrList<QMultiBox>;
+	multi = new QPtrList<QGridMultiBox>;
 	multi->setAutoDelete(TRUE);
     }
     multi->append( mbox );
@@ -431,7 +438,7 @@ void QGridLayoutData::add( QLayoutBox *box,  int row1, int row2,
     setNextPosAfter( row2, col2 );
 }
 
-void QGridLayoutData::addData( QLayoutBox *box, bool r, bool c )
+void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
 {
     QSize hint = box->sizeHint();
     QSize minS = box->minimumSize();
@@ -502,22 +509,22 @@ static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 	stretch = stretch || chain[i].stretch == 0;
 	chain[i].empty = FALSE;
     }
-    w += spacing * (end-start);
-    wh += spacing * (end-start);
-    max += spacing * (end-start);
+    w += spacing * ( end - start );
+    wh += spacing * ( end - start );
+    max += spacing * ( end - start );
 
-    if ( max < minSize ) { //implies w<minSize
-	//we must increase the maximum size of at least one of the
-	//items. qGeomCalc() will put the extra space in between
-	//the items. We must recover that extra space and put it somewhere.
-	//It does not really matter where, since the user can always
-	//specify stretch factors and avoid this code.
-
-	//qDebug( "Multicell bigger than maximumSize" );
-	qGeomCalc( chain, start, end-start + 1, 0, minSize, spacing );
+    if ( max < minSize ) { // implies w < minSize
+	/*
+	  We must increase the maximum size of at least one of the
+	  items. qGeomCalc() will put the extra space in between the
+	  items. We must recover that extra space and put it
+	  somewhere. It does not really matter where, since the user
+	  can always specify stretch factors and avoid this code.
+	*/
+	qGeomCalc( chain, start, end - start + 1, 0, minSize, spacing );
 	int pos = 0;
 	for ( i = start; i <= end; i++ ) {
-	    int nextPos = (i==end) ? minSize-1 : chain[i+1].pos;
+	    int nextPos = ( i == end ) ? minSize - 1 : chain[i + 1].pos;
 	    int realSize = nextPos - pos;
 	    if ( i != end )
 		realSize -= spacing;
@@ -529,7 +536,6 @@ static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 	}
 
     } else if ( w < minSize ) {
-	//qDebug( "Big multicell" );
 	qGeomCalc( chain, start, end - start + 1, 0, minSize, spacing );
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].minimumSize < chain[i].size )
@@ -556,14 +562,13 @@ void QGridLayoutData::setupLayoutData( int spacing )
 #endif
     has_hfw = FALSE;
     int i;
-    for ( i = 0; i < rr; i++ ) {
+    for ( i = 0; i < rr; i++ )
 	rowData[i].initParameters();
-    }
-    for ( i = 0; i < cc; i++ ) {
+    for ( i = 0; i < cc; i++ )
 	colData[i].initParameters();
-    }
-    QPtrListIterator<QLayoutBox> it( things );
-    QLayoutBox * box;
+
+    QPtrListIterator<QGridBox> it( things );
+    QGridBox * box;
     while ( (box = it.current()) != 0 ) {
 	++it;
 	addData( box );
@@ -571,11 +576,11 @@ void QGridLayoutData::setupLayoutData( int spacing )
     }
 
     if ( multi ) {
-	QPtrListIterator<QMultiBox> it( *multi );
-	QMultiBox * mbox;
+	QPtrListIterator<QGridMultiBox> it( *multi );
+	QGridMultiBox * mbox;
 	while ( (mbox = it.current()) != 0 ) {
 	    ++it;
-	    QLayoutBox *box = mbox->box();
+	    QGridBox *box = mbox->box();
 	    int r1 = box->row;
 	    int c1 = box->col;
 	    int r2 = mbox->torow;
@@ -613,30 +618,27 @@ void QGridLayoutData::setupLayoutData( int spacing )
     needRecalc = FALSE;
 }
 
-void QGridLayoutData::addHfwData ( QLayoutBox *box, int width )
+void QGridLayoutData::addHfwData ( QGridBox *box, int width )
 {
     QMemArray<QLayoutStruct> &rData = *hfwData;
     if ( box->hasHeightForWidth() ) {
 	int hint = box->heightForWidth( width );
-	rData[box->row].sizeHint = QMAX( hint,
-					 rData[box->row].sizeHint );
-	rData[box->row].minimumSize = QMAX( hint,
-					    rData[box->row].minimumSize );
+	rData[box->row].sizeHint = QMAX( hint, rData[box->row].sizeHint );
+	rData[box->row].minimumSize = QMAX( hint, rData[box->row].minimumSize );
     } else {
 	QSize hint = box->sizeHint();
 	QSize minS = box->minimumSize();
 	rData[box->row].sizeHint = QMAX( hint.height(),
-				     rData[box->row].sizeHint );
+					 rData[box->row].sizeHint );
 	rData[box->row].minimumSize = QMAX( minS.height(),
-					rData[box->row].minimumSize );
+					    rData[box->row].minimumSize );
     }
 }
 
-
 /*
-  similar to setupLayoutData, but uses
-  heightForWidth( colData ) instead of sizeHint
-  assumes that setupLayoutData and qGeomCalc( colData ) has been called
+  Similar to setupLayoutData(), but uses heightForWidth(colData)
+  instead of sizeHint(). Assumes that setupLayoutData() and
+  qGeomCalc(colData) has been called.
 */
 void QGridLayoutData::setupHfwLayoutData( int spacing )
 {
@@ -646,18 +648,18 @@ void QGridLayoutData::setupHfwLayoutData( int spacing )
 	rData[i] = rowData[i];
 	rData[i].minimumSize = rData[i].sizeHint = 0;
     }
-    QPtrListIterator<QLayoutBox> it( things );
-    QLayoutBox * box;
+    QPtrListIterator<QGridBox> it( things );
+    QGridBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
 	addHfwData( box, colData[box->col].size );
     }
     if ( multi ) {
-	QPtrListIterator<QMultiBox> it( *multi );
-	QMultiBox * mbox;
+	QPtrListIterator<QGridMultiBox> it( *multi );
+	QGridMultiBox * mbox;
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
-	    QLayoutBox *box = mbox->box();
+	    QGridBox *box = mbox->box();
 	    int r1 = box->row;
 	    int c1 = box->col;
 	    int r2 = mbox->torow;
@@ -705,8 +707,8 @@ void QGridLayoutData::distribute( QRect r, int spacing )
     }
     QMemArray<QLayoutStruct> &rData = *rDataPtr;
 
-    QPtrListIterator<QLayoutBox> it( things );
-    QLayoutBox * box;
+    QPtrListIterator<QGridBox> it( things );
+    QGridBox * box;
     while ( (box=it.current()) != 0 ) {
 	++it;
 	int x = colData[box->col].pos;
@@ -720,11 +722,11 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	box->setGeometry( QRect( x, y, w, h ) );
     }
     if ( multi ) {
-	QPtrListIterator<QMultiBox> it( *multi );
-	QMultiBox * mbox;
+	QPtrListIterator<QGridMultiBox> it( *multi );
+	QGridMultiBox * mbox;
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
-	    QLayoutBox *box = mbox->box();
+	    QGridBox *box = mbox->box();
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
 	    if ( r2 < 0 )
@@ -789,13 +791,13 @@ public:
     QLayoutItem *takeCurrent() {
 	QLayoutItem *item = 0;
 	if ( multi ) {
-	    QMultiBox *b = data->multi->take( idx );
+	    QGridMultiBox *b = data->multi->take( idx );
 	    if ( b ) {
 		item = b->takeItem();
 		delete b;
 	    }
 	} else {
-	    QLayoutBox *b = data->things.take( idx );
+	    QGridBox *b = data->things.take( idx );
 	    if ( b ) {
 		item = b->takeItem();
 		delete b;
@@ -809,7 +811,6 @@ private:
     bool multi;
     int idx;
 };
-
 
 /*!
   \class QGridLayout
@@ -881,7 +882,6 @@ private:
   See also the \link layout.html Layout Overview \endlink documentation.
 */
 
-
 /*! \base64 gridlayout.png
 
 iVBORw0KGgoAAAANSUhEUgAAAakAAACWBAMAAACWWWqkAAAAFVBMVEUAAADc3NzAwMD/AP+A
@@ -920,27 +920,25 @@ RwbV+8hNqf4Hob4MkPD3BvwAAAAASUVORK5CYII=
 */
 
 /*!
-    \enum  QGridLayout::Corner
+  \enum QGridLayout::Corner
 
-    This enum identifies which corner is the origin (0, 0) of the layout.
+  This enum identifies which corner is the origin (0, 0) of the layout.
 
-    \value TopLeft
-    \value TopRight
-    \value BottomLeft
-    \value BottomRight
+  \value TopLeft the top-left corner
+  \value TopRight the top-right corner
+  \value BottomLeft the bottom-left corner
+  \value BottomRight the bottom-right corner
 */
-
 
 /*!
   Constructs a new QGridLayout with \a nRows rows, \a nCols columns
-   with parent widget, \a  parent. \a parent may not be 0. The grid
-   layout is called \a name.
+  with parent widget, \a  parent. \a parent may not be 0. The grid
+  layout is called \a name.
 
   \a border is the number of pixels between the edge of the widget and
   its managed children. \a space is the default number of pixels
   between cells.  If \a space is -1, the value of \a border is used.
 */
-
 QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border,
 			  int space, const char *name )
     : QLayout( parent, border, space, name )
@@ -958,14 +956,12 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border,
   This grid is placed according to \a parentLayout's default placement
   rules.
 */
-
 QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
 			  int space, const char *name )
     : QLayout( parentLayout, space, name )
 {
     init( nRows, nCols );
 }
-
 
 /*!
   Constructs a new grid with \a nRows rows and \a nCols columns. If \a
@@ -976,7 +972,6 @@ QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
   widgets and layouts into this layout at any time, but layout will
   not be performed before this is inserted into another layout.
 */
-
 QGridLayout::QGridLayout( int nRows, int nCols,
 			  int space, const char *name )
      : QLayout( space, name )
@@ -984,12 +979,10 @@ QGridLayout::QGridLayout( int nRows, int nCols,
     init( nRows, nCols );
 }
 
-
 /*!
   Destroys the grid layout. Geometry management is terminated if
   this is a top-level grid.
 */
-
 QGridLayout::~QGridLayout()
 {
     delete data;
@@ -997,7 +990,7 @@ QGridLayout::~QGridLayout()
 
 /*!
   Returns the number of rows in this grid.
-  */
+*/
 int QGridLayout::numRows() const
 {
     return data->numRows();
@@ -1005,7 +998,7 @@ int QGridLayout::numRows() const
 
 /*!
   Returns the number of columns in this grid.
-  */
+*/
 int QGridLayout::numCols() const
 {
     return data->numCols();
@@ -1042,22 +1035,18 @@ QSize QGridLayout::maximumSize() const
     return s;
 }
 
-
 /*!
     Returns TRUE if this layout's preferred height depends on its
     width; otherwise returns FALSE.
 */
-
 bool QGridLayout::hasHeightForWidth() const
 {
     return ((QGridLayout*)this)->data->hasHeightForWidth( spacing() );
 }
 
-
 /*!
   Returns the layout's preferred height when it is \a w pixels wide.
 */
-
 int QGridLayout::heightForWidth( int w ) const
 {
     QGridLayout *that = ((QGridLayout*)this);
@@ -1074,7 +1063,6 @@ int QGridLayout::heightForWidth( int w ) const
   Note: if a widget spans multiple rows/columns, the top-left cell
   is returned.
 */
-
 bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
 {
     return data->findWidget( w, row, col );
@@ -1082,7 +1070,7 @@ bool QGridLayout::findWidget( QWidget* w, int *row, int *col )
 
 /*!
   Resizes managed widgets within the rectangle \a r.
- */
+*/
 void QGridLayout::setGeometry( const QRect &r )
 {
     if ( data->isDirty() || r != geometry() ) {
@@ -1093,7 +1081,6 @@ void QGridLayout::setGeometry( const QRect &r )
 	data->distribute( s, spacing() );
     }
 }
-
 
 /*!
   Returns the geometry of the cell with row \a row and column
@@ -1114,7 +1101,7 @@ QRect QGridLayout::cellGeometry( int row, int col ) const
   Expands this grid so that it will have \a nRows rows and \a nCols columns.
   Will not shrink the grid. You should not need to call this function because
   QGridLayout expands automatically as new items are inserted.
- */
+*/
 void QGridLayout::expand( int nRows, int nCols )
 {
     data->expand( nRows, nCols );
@@ -1123,7 +1110,6 @@ void QGridLayout::expand( int nRows, int nCols )
 /*!
   Sets up the grid.
 */
-
 void QGridLayout::init( int nRows, int nCols )
 {
     setSupportsMargin( TRUE );
@@ -1133,10 +1119,9 @@ void QGridLayout::init( int nRows, int nCols )
 }
 
 /*!
-    \overload
+  \overload
   Adds \a item to the next free position of this layout.
 */
-
 void QGridLayout::addItem( QLayoutItem *item )
 {
     int r, c;
@@ -1148,38 +1133,33 @@ void QGridLayout::addItem( QLayoutItem *item )
   Adds \a item at position \a row, \a col. The layout takes ownership
   of the \a item.
 */
-
 void QGridLayout::addItem( QLayoutItem *item, int row, int col )
 {
     add( item, row, col );
 }
 
-
 /*!
   Adds \a item at position \a row, \a col. The layout takes ownership
   of the \a item.
 */
-
 void QGridLayout::add( QLayoutItem *item, int row, int col )
 {
-    QLayoutBox *box = new QLayoutBox( item );
+    QGridBox *box = new QGridBox( item );
     data->add( box, row, col );
 }
 
 /*!
   Adds the \a item to the cell grid, spanning multiple rows/columns.
 
-    The cell will span from \a fromRow, \a fromCol to \a toRow, \a
-    toCol. Alignment is specified by \a alignment, which is a bitwise
-    OR of Qt::AlignmentFlags values. The default alignment is 0, which
-    means that the widget fills the entire cell.
-
+  The cell will span from \a fromRow, \a fromCol to \a toRow, \a
+  toCol. Alignment is specified by \a alignment, which is a bitwise
+  OR of Qt::AlignmentFlags values. The default alignment is 0, which
+  means that the widget fills the entire cell.
 */
-
 void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
-  int fromCol, int toCol, int alignment )
+				int fromCol, int toCol, int alignment )
 {
-    QLayoutBox *b = new QLayoutBox( item );
+    QGridBox *b = new QGridBox( item );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
 }
@@ -1232,7 +1212,6 @@ static bool checkWidget( QLayout *l, QWidget *w )
   space, but should be sized according to sizeHint().
   \endlist
 */
-
 void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 {
     if ( !checkWidget( this, w ) )
@@ -1261,33 +1240,29 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
   A non-zero alignment indicates that the widget should not grow to
   fill the available space but should be sized according to
   sizeHint().
-
 */
-
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
 				      int fromCol, int toCol, int alignment )
 {
-    QLayoutBox *b = new QLayoutBox( w );
+    QGridBox *b = new QGridBox( w );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
 }
 
 /*!
   Places the \a layout at position (\a row, \a col) in the grid.
-  The top-left position is (0,0).
+  The top-left position is (0, 0).
 */
-
 void QGridLayout::addLayout( QLayout *layout, int row, int col)
 {
     addChildLayout( layout );
     add( layout, row, col );
 }
 
-
 /*!
-    Adds the layout \a layout to the cell grid, spanning multiple
-    rows/columns. The cell will span from \a fromRow, \a fromCol to \a
-    toRow, \a toCol.
+  Adds the layout \a layout to the cell grid, spanning multiple
+  rows/columns. The cell will span from \a fromRow, \a fromCol to \a
+  toRow, \a toCol.
 
   Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values. The default alignment is 0, which means
@@ -1297,11 +1272,10 @@ void QGridLayout::addLayout( QLayout *layout, int row, int col)
   fill the available space but should be sized according to
   sizeHint().
 */
-
 void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
 				      int fromCol, int toCol, int alignment )
 {
-    QLayoutBox *b = new QLayoutBox( layout );
+    QGridBox *b = new QGridBox( layout );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
 }
@@ -1328,18 +1302,15 @@ void QGridLayout::setRowStretch( int row, int stretch )
   Returns the stretch factor for row \a row.
   \sa setRowStretch()
 */
-
 int QGridLayout::rowStretch( int row ) const
 {
     return data->rowStretch( row );
 }
 
-
 /*!
   Returns the stretch factor for column \a col.
   \sa setColStretch()
 */
-
 int QGridLayout::colStretch( int col ) const
 {
     return data->colStretch( col );
@@ -1358,16 +1329,14 @@ int QGridLayout::colStretch( int col ) const
 
   \sa colStretch(), addColSpacing(), setRowStretch()
 */
-
 void QGridLayout::setColStretch( int col, int stretch )
 {
     data->setColStretch( col, stretch );
 }
 
-
 /*!
   Sets the minimum height of row \a row to \a minsize pixels.
- */
+*/
 void QGridLayout::addRowSpacing( int row, int minsize )
 {
     QLayoutItem *b = new QSpacerItem( 0, minsize );
@@ -1377,7 +1346,7 @@ void QGridLayout::addRowSpacing( int row, int minsize )
 
 /*!
   Sets the minimum width of column \a col to \a minsize pixels.
- */
+*/
 void QGridLayout::addColSpacing( int col, int minsize )
 {
     QLayoutItem *b = new QSpacerItem( minsize, 0 );
@@ -1385,12 +1354,9 @@ void QGridLayout::addColSpacing( int col, int minsize )
     add( b, 0, col );
 }
 
-
-
 /*!
   Returns the expansiveness of this layout.
 */
-
 QSizePolicy::ExpandData QGridLayout::expanding() const
 {
     return data->expanding( spacing() );
@@ -1399,7 +1365,6 @@ QSizePolicy::ExpandData QGridLayout::expanding() const
 /*!
   Sets which of the four corners of the grid corresponds to (0, 0) to \a c.
 */
-
 void QGridLayout::setOrigin( Corner c )
 {
     data->setReversed( c == BottomLeft || c == BottomRight,
@@ -1421,7 +1386,6 @@ QGridLayout::Corner QGridLayout::origin() const
 /*!
   Resets cached information.
 */
-
 void QGridLayout::invalidate()
 {
     QLayout::invalidate();
@@ -1476,8 +1440,6 @@ public:
     bool hasHfw;
     bool dirty;
 };
-
-
 
 class QBoxLayoutIterator : public QGLayoutIterator
 {
@@ -1585,7 +1547,6 @@ private:
   See also \link layout.html the Layout overview \endlink.
 */
 
-
 /*! \enum QBoxLayout::Direction
 
   This type is used to determine the direction of
@@ -1597,9 +1558,7 @@ private:
   \value Down  The same as \c TopToBottom
   \value BottomToTop  Vertical, from bottom to top
   \value Up  The same as \c BottomToTop
- */
-
-
+*/
 
 static inline bool horz( QBoxLayout::Direction dir )
 {
@@ -1619,7 +1578,6 @@ static inline bool horz( QBoxLayout::Direction dir )
 
   \sa direction()
 */
-
 QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 			int border, int space, const char *name )
     : QLayout( parent, border, space, name )
@@ -1636,7 +1594,6 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
   The \a space is the default number of pixels between neighboring children.
   If \a space is -1, this QBoxLayout will inherit its parent's spacing().
 */
-
 QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
 			const char *name )
     : QLayout( parentLayout, space, name )
@@ -1645,8 +1602,6 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
     dir = d;
     setSupportsMargin( TRUE );
 }
-
-
 
 /*!
   Constructs a new QBoxLayout with direction \a d and name \a
@@ -1657,7 +1612,6 @@ QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
 
   You have to insert this box into another layout.
 */
-
 QBoxLayout::QBoxLayout( Direction d, int space, const char *name )
     : QLayout( space, name )
 {
@@ -1669,7 +1623,6 @@ QBoxLayout::QBoxLayout( Direction d, int space, const char *name )
 /*!
   Destroys this box layout.
 */
-
 QBoxLayout::~QBoxLayout()
 {
     delete data;
@@ -1678,31 +1631,30 @@ QBoxLayout::~QBoxLayout()
 /*!
   Returns the preferred size of this box layout.
 */
-
 QSize QBoxLayout::sizeHint() const
 {
     if ( data->dirty ) {
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    return data->sizeHint + QSize(2*margin(),2*margin());
+    return data->sizeHint + QSize( 2 * margin(), 2 * margin() );
 }
+
 /*!
   Returns the minimum size needed by this box layout.
 */
-
 QSize QBoxLayout::minimumSize() const
 {
     if ( data->dirty ) {
 	QBoxLayout *that = (QBoxLayout*)this;
 	that->setupGeom();
     }
-    return data->minSize + QSize(2*margin(),2*margin());
+    return data->minSize + QSize( 2 * margin(), 2 * margin() );
 }
+
 /*!
   Returns the maximum size needed by this box layout.
 */
-
 QSize QBoxLayout::maximumSize() const
 {
     if ( data->dirty ) {
@@ -1719,14 +1671,10 @@ QSize QBoxLayout::maximumSize() const
     return s;
 }
 
-
-
-
 /*!
   Returns TRUE if this layout's preferred height depends on its width;
   otherwise returns FALSE.
 */
-
 bool QBoxLayout::hasHeightForWidth() const
 {
     if ( data->dirty ) {
@@ -1736,11 +1684,9 @@ bool QBoxLayout::hasHeightForWidth() const
     return data->hasHfw;
 }
 
-
 /*!
   Returns the layout's preferred height when it is \a w pixels wide.
 */
-
 int QBoxLayout::heightForWidth( int w ) const
 {
     w -= 2*margin();
@@ -1756,7 +1702,6 @@ int QBoxLayout::heightForWidth( int w ) const
 /*!
   Resets cached information.
 */
-
 void QBoxLayout::invalidate()
 {
     QLayout::invalidate();
@@ -1764,21 +1709,15 @@ void QBoxLayout::invalidate()
     data->setDirty();
 }
 
-
-/*!
-  \reimp
-*/
-
+/*! \reimp */
 QLayoutIterator QBoxLayout::iterator()
 {
     return QLayoutIterator( new QBoxLayoutIterator( data ) );
 }
 
-
 /*!
   Returns the expansiveness of this layout.
 */
-
 QSizePolicy::ExpandData QBoxLayout::expanding() const
 {
     if ( data->dirty ) {
@@ -1790,24 +1729,24 @@ QSizePolicy::ExpandData QBoxLayout::expanding() const
 
 /*!
   Resizes managed widgets within the rectangle \a r.
- */
+*/
 void QBoxLayout::setGeometry( const QRect &r )
 {
     if ( !data->geomArray || r != geometry() ) {
 	QLayout::setGeometry( r );
 	if ( !data->geomArray )
 	    setupGeom();
-	QRect cr = alignment() ? alignmentRect(r) : r;
-	QRect s( cr.x()+margin(), cr.y()+margin(),
-		 cr.width()-2*margin(), cr.height()-2*margin() );
+	QRect cr = alignment() ? alignmentRect( r ) : r;
+	QRect s( cr.x() + margin(), cr.y() + margin(),
+		 cr.width() - 2 * margin(), cr.height() - 2 * margin() );
 
 	QMemArray<QLayoutStruct> a = *data->geomArray;
-	int pos = horz(dir) ? s.x() : s.y();
-	int space = horz(dir) ? s.width() : s.height();
+	int pos = horz( dir ) ? s.x() : s.y();
+	int space = horz( dir ) ? s.width() : s.height();
 	int n = a.count();
 	if ( data->hasHfw && !horz(dir) ) {
 	    for ( int i = 0; i < n; i++ ) {
-		QBoxLayoutItem *box = data->list.at(i);
+		QBoxLayoutItem *box = data->list.at( i );
 		if ( box->item->hasHeightForWidth() )
 		    a[i].sizeHint = a[i].minimumSize =
 				    box->item->heightForWidth( s.width() );
@@ -1816,28 +1755,26 @@ void QBoxLayout::setGeometry( const QRect &r )
 
 	qGeomCalc( a, 0, n, pos, space, spacing() );
 	for ( int i = 0; i < n; i++ ) {
-	    QBoxLayoutItem *box = data->list.at(i);
+	    QBoxLayoutItem *box = data->list.at( i );
 
 	    switch ( dir ) {
 	    case LeftToRight:
-		box->item->setGeometry( QRect( a[i].pos, s.y(),
-					       a[i].size, s.height() ));
+		box->item->setGeometry( QRect(a[i].pos, s.y(),
+					      a[i].size, s.height()) );
 		break;
 	    case RightToLeft:
-		box->item->setGeometry( QRect( s.left() + s.right()
-					       - a[i].pos - a[i].size, s.y(),
-					       a[i].size, s.height() ));
+		box->item->setGeometry( QRect(s.left() + s.right()
+					      - a[i].pos - a[i].size, s.y(),
+					      a[i].size, s.height()) );
 		break;
-
 	    case TopToBottom:
-		box->item->setGeometry( QRect( s.x(), a[i].pos,
-					       s.width(), a[i].size ));
+		box->item->setGeometry( QRect(s.x(), a[i].pos,
+					      s.width(), a[i].size) );
 		break;
 	    case BottomToTop:
-		box->item->setGeometry( QRect( s.x(), s.top() + s.bottom()
-					       - a[i].pos - a[i].size,
-					       s.width(), a[i].size ));
-		break;
+		box->item->setGeometry( QRect(s.x(), s.top() + s.bottom()
+					      - a[i].pos - a[i].size,
+					      s.width(), a[i].size) );
 	    }
 	}
     }
@@ -1846,7 +1783,6 @@ void QBoxLayout::setGeometry( const QRect &r )
 /*!
   Adds \a item to the end of this box layout.
 */
-
 void QBoxLayout::addItem( QLayoutItem *item )
 {
     QBoxLayoutItem *it = new QBoxLayoutItem( item );
@@ -1854,18 +1790,15 @@ void QBoxLayout::addItem( QLayoutItem *item )
     invalidate();
 }
 
-
-
 /*!
   Inserts \a item in this box layout at position \a index.  If \a index
   is negative, the item is added at the end.
 
-  \warning does not call QLayout::insertChildLayout() if \a item is
+  \warning Does not call QLayout::insertChildLayout() if \a item is
   a QLayout.
 
   \sa addItem(), findWidget()
 */
-
 void QBoxLayout::insertItem( int index, QLayoutItem *item )
 {
     if ( index < 0 )				// append
@@ -1875,8 +1808,6 @@ void QBoxLayout::insertItem( int index, QLayoutItem *item )
     data->list.insert( index, it );
     invalidate();
 }
-
-
 
 /*!
   Inserts a non-stretchable space at position \a index, with size \a size.
@@ -1907,7 +1838,6 @@ void QBoxLayout::insertSpacing( int index, int size )
     invalidate();
 }
 
-
 /*!
   Inserts a stretchable space at position \a index, with zero minimum size
   and stretch factor \a stretch. If \a index is negative the space
@@ -1915,7 +1845,6 @@ void QBoxLayout::insertSpacing( int index, int size )
 
   \sa insertSpacing()
 */
-
 void QBoxLayout::insertStretch( int index, int stretch )
 {
     if ( index < 0 )				// append
@@ -1936,7 +1865,6 @@ void QBoxLayout::insertStretch( int index, int stretch )
     invalidate();
 }
 
-
 /*!
   Inserts \a layout at position \a index, with stretch
   factor \a stretch.  If \a index is negative, the layout is added at
@@ -1944,7 +1872,6 @@ void QBoxLayout::insertStretch( int index, int stretch )
 
   \sa setAutoAdd(), insertWidget(), insertSpacing()
 */
-
 void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
 {
     if ( index < 0 )				// append
@@ -1981,9 +1908,8 @@ void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
 
   \sa setAutoAdd(), insertLayout(), insertSpacing()
 */
-
-void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch, int
-alignment )
+void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch,
+			       int alignment )
 {
     if ( !checkWidget( this, widget ) )
 	 return;
@@ -1997,8 +1923,6 @@ alignment )
     data->list.insert( index, it );
     invalidate();
 }
-
-
 
 /*!
   Adds a non-stretchable space with size \a size to the end of this
@@ -2047,9 +1971,8 @@ void QBoxLayout::addStretch( int stretch )
 
   \sa insertWidget(), setAutoAdd(), addLayout(), addSpacing()
 */
-
-void QBoxLayout::addWidget( QWidget *widget, int stretch, int
-alignment )
+void QBoxLayout::addWidget( QWidget *widget, int stretch,
+			    int alignment )
 {
     insertWidget( -1, widget, stretch, alignment );
 }
@@ -2064,14 +1987,11 @@ void QBoxLayout::addLayout( QLayout *layout, int stretch )
     insertLayout( -1, layout, stretch );
 }
 
-
-
 /*!
   Limits the perpendicular dimension of the box (e.g. height if the
   box is LeftToRight) to a minimum of \a size. Other constraints may
   increase the limit.
 */
-
 void QBoxLayout::addStrut( int size )
 {
     QLayoutItem *b;
@@ -2088,13 +2008,11 @@ void QBoxLayout::addStrut( int size )
     invalidate();
 }
 
-
 /*!
   Searches for widget \a w in this layout (not including child layouts).
 
   Returns the index of \a w, or -1 if \a w is not found.
 */
-
 int QBoxLayout::findWidget( QWidget* w )
 {
     const int n = data->list.count();
@@ -2105,15 +2023,12 @@ int QBoxLayout::findWidget( QWidget* w )
     return -1;
 }
 
-
-
 /*!
   Sets the stretch factor for widget \a w to \a stretch and returns
   TRUE, if \a w is found in this layout (not including child layouts).
 
   Returns FALSE if \a w is not found.
 */
-
 bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 {
     QPtrListIterator<QBoxLayoutItem> it( data->list );
@@ -2129,7 +2044,6 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
     return FALSE;
 }
 
-
 /*!
   \overload
 
@@ -2138,7 +2052,6 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
   Returns FALSE if \a l is not found.
 */
-
 bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 {
     QPtrListIterator<QBoxLayoutItem> it( data->list );
@@ -2157,7 +2070,6 @@ bool QBoxLayout::setStretchFactor( QLayout *l, int stretch )
 /*!
   Sets the direction of this layout to \a direction.
 */
-
 void QBoxLayout::setDirection( Direction direction )
 {
     if ( dir == direction )
@@ -2204,19 +2116,17 @@ void QBoxLayout::setDirection( Direction direction )
 
 }
 
-
 /*!
   Initializes the data structure needed by qGeomCalc and
   recalculates max/min and size hint.
 */
-
 void QBoxLayout::setupGeom()
 {
     if ( !data->dirty )
 	return;
 
-    int maxw = horz(dir) ? 0 : QWIDGETSIZE_MAX;
-    int maxh = horz(dir) ? QWIDGETSIZE_MAX : 0;
+    int maxw = horz( dir ) ? 0 : QWIDGETSIZE_MAX;
+    int maxh = horz( dir ) ? QWIDGETSIZE_MAX : 0;
     int minw = 0;
     int minh = 0;
     int hintw = 0;
@@ -2230,11 +2140,11 @@ void QBoxLayout::setupGeom()
     delete data->geomArray;
     int n = data->list.count();
     data->geomArray = new QMemArray<QLayoutStruct>( n );
-    QMemArray<QLayoutStruct> &a = *data->geomArray;
+    QMemArray<QLayoutStruct>& a = *data->geomArray;
 
     bool first = TRUE;
     for ( int i = 0; i < n; i++ ) {
-	QBoxLayoutItem *box = data->list.at(i);
+	QBoxLayoutItem *box = data->list.at( i );
 	QSize max = box->item->maximumSize();
 	QSize min = box->item->minimumSize();
 	QSize hint = box->item->sizeHint();
@@ -2242,8 +2152,9 @@ void QBoxLayout::setupGeom()
 	bool empty = box->item->isEmpty();
 	// space before non-empties, except the first:
 	int space = ( empty || first ) ? 0 : spacing();
-	bool ignore =  empty && box->item->widget(); // ignore hidden widgets
-	if ( horz( dir ) ) {
+	bool ignore = empty && box->item->widget(); // ignore hidden widgets
+
+	if ( horz(dir) ) {
 	    bool expand = exp & QSizePolicy::Horizontally || box->stretch > 0;
 	    horexp = horexp || expand;
 	    maxw += max.width() + space;
@@ -2276,20 +2187,20 @@ void QBoxLayout::setupGeom()
 	    a[i].minimumSize = min.height();
 	    a[i].expansive = expand;
 	}
+
 	a[i].empty = empty;
 	a[i].stretch = box->stretch;
 	data->hasHfw = data->hasHfw || box->item->hasHeightForWidth();
 	first = first && empty;
     }
 
-    data->expanding =  (QSizePolicy::ExpandData)
-		       (( horexp ? QSizePolicy::Horizontally : 0 )
-			| ( verexp ? QSizePolicy::Vertically : 0 ) );
+    data->expanding = (QSizePolicy::ExpandData)
+		       ( (horexp ? QSizePolicy::Horizontally : 0)
+			 | (verexp ? QSizePolicy::Vertically : 0) );
 
-
-    data->minSize = QSize(minw,minh);
-    data->maxSize = QSize(maxw,maxh);
-    data->sizeHint = QSize(hintw,hinth);
+    data->minSize = QSize( minw, minh );
+    data->maxSize = QSize( maxw, maxh );
+    data->sizeHint = QSize( hintw, hinth );
 
     data->maxSize = data->maxSize.expandedTo( data->minSize );
     data->sizeHint = data->sizeHint.expandedTo( data->minSize )
@@ -2298,11 +2209,9 @@ void QBoxLayout::setupGeom()
     data->dirty = FALSE;
 }
 
-
 /*!
   Calculates and stores the preferred height given the width \a w.
 */
-
 int QBoxLayout::calcHfw( int w )
 {
     int h = 0;
@@ -2332,7 +2241,6 @@ int QBoxLayout::calcHfw( int w )
     return h;
 }
 
-
 /*!
   \fn QBoxLayout::Direction QBoxLayout::direction() const
 
@@ -2341,7 +2249,6 @@ int QBoxLayout::calcHfw( int w )
 
   \sa QBoxLayout::Direction addWidget() addSpacing()
 */
-
 
 /*!
   \class QHBoxLayout
@@ -2374,7 +2281,6 @@ int QBoxLayout::calcHfw( int w )
       \link layout.html the Layout overview \endlink
 */
 
-
 /*!
   Constructs a new top-level horizontal box with parent \a parent and name
   \a name.
@@ -2393,17 +2299,14 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 {
 }
 
-
 /*!
   Constructs a new horizontal box with the name \a name and adds it
   to \a parentLayout.
 
   The \a space is the default number of pixels between neighboring
   children. If \a space is -1, this QHBoxLayout will inherit its
-  parent's spacing()
-
+  parent's spacing().
 */
-
 QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 			  const char *name )
     :QBoxLayout( parentLayout,
@@ -2412,30 +2315,25 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 {
 }
 
-
 /*!
   Constructs a new horizontal box with the name \a name.  You must
   add it to another layout.
 
   The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QHBoxLayout will inherit its parent's spacing()
-
- */
+  If \a space is -1, this QHBoxLayout will inherit its parent's spacing().
+*/
 QHBoxLayout::QHBoxLayout( int space, const char *name )
     : QBoxLayout( QApplication::reverseLayout() ? RightToLeft : LeftToRight,
 		  space, name )
 {
 }
 
-
 /*!
   Destroys this box layout.
 */
-
 QHBoxLayout::~QHBoxLayout()
 {
 }
-
 
 /*!
   \class QVBoxLayout
@@ -2445,7 +2343,7 @@ QHBoxLayout::~QHBoxLayout()
   \ingroup geomanagement
   \ingroup appearance
 
-  This class is used to construct vertical box layout objects.  See \l
+  This class is used to construct vertical box layout objects.  See
   QBoxLayout for more details.
 
   The simplest way to use this class is like this:
@@ -2467,8 +2365,7 @@ QHBoxLayout::~QHBoxLayout()
   its managed children.	 The \a space is the default number of pixels
   between neighboring children.  If \a space is -1 the value
   of \a border is used for \a space.
-
- */
+*/
 QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 			  int space, const char *name )
     : QBoxLayout( parent, TopToBottom, border, space, name )
@@ -2476,16 +2373,13 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 
 }
 
-
 /*!
   Constructs a new vertical box with the name \a name and adds it
   to \a parentLayout.
 
   The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QVBoxLayout will inherit its parent's spacing()
-
+  If \a space is -1, this QVBoxLayout will inherit its parent's spacing().
 */
-
 QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
 			  const char *name )
     :QBoxLayout( parentLayout, TopToBottom, space, name )
@@ -2498,8 +2392,7 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int space,
   to another layout.
 
   The \a space is the default number of pixels between neighboring children.
-  If \a space is -1, this QVBoxLayout will inherit its parent's spacing()
-
+  If \a space is -1, this QVBoxLayout will inherit its parent's spacing().
 */
 QVBoxLayout::QVBoxLayout( int space, const char *name )
     :QBoxLayout( TopToBottom, space, name )
@@ -2509,7 +2402,6 @@ QVBoxLayout::QVBoxLayout( int space, const char *name )
 /*!
   Destroys this box layout.
 */
-
 QVBoxLayout::~QVBoxLayout()
 {
 }

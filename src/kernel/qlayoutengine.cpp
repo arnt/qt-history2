@@ -41,10 +41,10 @@
 
 static inline int toFixed( int i ) { return i * 256; }
 static inline int fRound( int i ) {
-    return  i % 256 < 128 ? i / 256 : 1 + i / 256;
+    return ( i % 256 < 128 ) ? i / 256 : 1 + i / 256;
 }
+
 /*
-  \internal
   This is the main workhorse of the QGridLayout. It portions out
   available space to the chain's children.
 
@@ -57,9 +57,8 @@ static inline int fRound( int i ) {
 
   chain contains input and output parameters describing the geometry.
   count is the count of items in the chain,
-  pos and space give the interval (relative to parentWidget topLeft.)
+  pos and space give the interval (relative to parentWidget topLeft).
 */
-
 void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		int space, int spacer )
 {
@@ -75,9 +74,6 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 
     int i;
     for ( i = start; i < start + count; i++ ) {
-#if 0 // ###
-	qDebug( "    stretch %d, sizeHint %d, maximumSize %d, minimumSize %d, expansive %s, empty %s", chain[i].stretch, chain[i].sizeHint, chain[i].maximumSize, chain[i].minimumSize, chain[i].expansive ? "true" : "false", chain[i].empty ? "true" : "false" );
-#endif
 	chain[i].done = FALSE;
 	cHint += chain[i].sizeHint;
 	cMin += chain[i].minimumSize;
@@ -90,8 +86,8 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 
     int extraspace = 0;
     if ( spacerCount )
-	spacerCount -= 1; //only spacers between things
-    if ( space < cMin + spacerCount*spacer ) {
+	spacerCount--; // only spacers between things
+    if ( space < cMin + spacerCount * spacer ) {
 	//	qDebug("not enough space");
 	for ( i = start; i < start+count; i++ ) {
 	    chain[i].size = chain[i].minimumSize;
@@ -155,12 +151,12 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 	extraspace = space_left;
 	/*
 	  Do a trial distribution and calculate how much it is off.
-	  If there are more deficit pixels than surplus pixels,
-	  give the minimum size items what they need, and repeat.
+	  If there are more deficit pixels than surplus pixels, give
+	  the minimum size items what they need, and repeat.
 	  Otherwise give to the maximum size items, and repeat.
 
-	  I have a wonderful mathematical proof for the correctness of
-	  this principle, but unfortunately this comment is too
+	  I have a wonderful mathematical proof for the correctness
+	  of this principle, but unfortunately this comment is too
 	  small to contain it.
 	*/
 	int surplus, deficit;
@@ -221,7 +217,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 
     //### should do a sub-pixel allocation of extra space
     int extra = extraspace / ( spacerCount + 2 );
-    int p = pos+extra;
+    int p = pos + extra;
     for ( i = start; i < start+count; i++ ) {
 	chain[i].pos = p;
 	p = p + chain[i].size;

@@ -41,7 +41,7 @@
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
-#include "qabstractlayout.h"
+#include "qlayout.h"
 #include "qtextcodec.h"
 #include <qcursor.h>
 #include <qtimer.h>

@@ -1,4 +1,4 @@
- /**********************************************************************
+/**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -126,13 +126,13 @@ QString qwf_currFileName = "";
   \i Adding additional widget factories to be able to create custom
   widgets. See createWidget() for details.
 
-  This class is not included in the Qt library itself. To use it you
-  have to link against libqui.so (unix) or qui.lib (windows), which is
-  build into $(QTDIR)/lib if you built the Qt Designer. Also to be
-  able to include qwidgetfactory.h you have to add
-  $(QTDIR)/tools/designer/uilib to your project's include path.
-
   \endlist
+
+  This class is not included in the Qt library itself. To use it you
+  have to link against libqui.so (Unix) or qui.lib (Windows), which is
+  build into \c $(QTDIR)/lib if you built the Qt Designer. Also to be
+  able to include qwidgetfactory.h you have to add
+  \c $(QTDIR)/tools/designer/uilib to your project's include path.
 */
 
 /*! Constructs a QWidgetFactory. */
@@ -145,7 +145,7 @@ QWidgetFactory::QWidgetFactory()
     defMargin = 11;
 }
 
-/*! \fn QWidgetFactory::QWidgetFactory()
+/*! \fn QWidgetFactory::~QWidgetFactory()
     Destructor.
 */
 
