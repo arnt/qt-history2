@@ -155,6 +155,21 @@ QSqlDriverExtension::~QSqlDriverExtension()
 {
 }
 
+bool QSqlDriverExtension::isOpen() const
+{
+    return FALSE;
+}
+
+bool QSqlDriverExtension::open( const QString&,
+				const QString&,
+				const QString&,
+				const QString&,
+				int,
+				const QMap<QString, QString>& )
+{
+    return FALSE;
+}
+
 bool QSqlDriverExtension::implements( const QString& ) const
 {
     return FALSE;

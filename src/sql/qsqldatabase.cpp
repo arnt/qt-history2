@@ -929,20 +929,24 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
 */
 void QSqlDatabase::setConnectionOption( const QString& option, const QString& value )
 {
-    d->connOptions[option] = value;
+    if ( value == QString::null ) {
+	QMap<QString, QString>::Iterator it;
+	if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
+	    d->connOptions.remove( it );
+    } else {
+	d->connOptions[option] = value;
+    }
 }
 
 /*!
-*/
-void QSqlDatabase::clearConnectionOption( const QString& option )
-{
-    d->connOptions.remove( option );
-}
-
-/*!
+    Returns the value assosiated with connection option \a option.
+    If the option is not set to anything, a null string is returned.
 */
 QString QSqlDatabase::connectionOption( const QString& option ) const
 {
-    return d->connOptions[option];
+    QMap<QString, QString>::Iterator it;
+    if ( (it = d->connOptions.find( option )) != d->connOptions.end() )
+	return it.data();
+    return QString::null;
 }
 #endif // QT_NO_SQL

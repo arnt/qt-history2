@@ -84,7 +84,7 @@ public:
 	       const QString& password,
 	       const QString& host,
 	       int port,
-	       const QMap<QString, QString> connOpts );
+	       const QMap<QString, QString>& connOpts );
     bool implements( const QString& function ) const;
 private:
     QPSQLDriver *driver;
@@ -100,16 +100,14 @@ bool QPSQLDriverExtension::open( const QString& db,
 				 const QString& password,
 				 const QString& host,
 				 int port,
-				 const QMap<QString, QString> connOpts )
+				 const QMap<QString, QString>& connOpts )
 {
     return driver->open( db, user, password, host, port, connOpts );
 }
 
 bool QPSQLDriverExtension::implements( const QString& function ) const
 {
-    if ( function == "isOpen" )
-	return TRUE;
-    else if ( function == "open" )
+    if ( function == "isOpen" || function == "open" )
 	return TRUE;
     return FALSE;
 }
@@ -621,33 +619,8 @@ bool QPSQLDriver::open( const QString & db,
 			const QString & host,
 			int port )
 {
-    if ( isOpen() )
-	close();
-    QString connectString;
-    if ( host.length() )
-	connectString.append( "host=" ).append( host );
-    if ( db.length() )
-	connectString.append( " dbname=" ).append( db );
-    if ( user.length() )
-	connectString.append( " user=" ).append( user );
-    if ( password.length() )
-	connectString.append( " password=" ).append( password );
-    if ( port > -1 )
-	connectString.append( " port=" ).append( QString::number( port ) );
-    d->connection = PQconnectdb( connectString.local8Bit().data() );
-    if ( PQstatus( d->connection ) == CONNECTION_BAD ) {
-	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
-	setOpenError( TRUE );
-	return FALSE;
-    }
-
-    pro = getPSQLVersion( d->connection );
-    d->isUtf8 = setEncodingUtf8( d->connection );
-    setDatestyle( d->connection );
-
-    setOpen( TRUE );
-    setOpenError( FALSE );
-    return TRUE;
+    qWarning("QPSQLDriver::open(): This version of open() is no longer supported." );
+    return FALSE;
 }
 
 bool QPSQLDriver::open( const QString & db,
@@ -655,7 +628,7 @@ bool QPSQLDriver::open( const QString & db,
 			const QString & password,
 			const QString & host,
 			int port,
-			const QMap<QString, QString> connOpts )
+			const QMap<QString, QString>& connOpts )
 {
     if ( isOpen() )
 	close();

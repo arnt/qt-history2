@@ -480,16 +480,16 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 
     \sa setOpen()
 */
-bool QSqlDriver::open( const QString & db,
-		       const QString & user,
-		       const QString & password,
-		       const QString & host,
+bool QSqlDriver::open( const QString& db,
+		       const QString& user,
+		       const QString& password,
+		       const QString& host,
 		       int port,
-		       const QMap<QString, QString> connOpts )
+		       const QMap<QString, QString>& connOpts )
 {
     if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
 	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
-	if ( ext )
+	if ( ext && ext->implements( "open" ) )
 	    return ext->open( db, user, password, host, port, connOpts );
     }
     return open( db, user, password, host, port );
