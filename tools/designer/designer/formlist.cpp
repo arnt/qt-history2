@@ -98,7 +98,7 @@ void FormListItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
 	f.setBold( TRUE );
 	p->setFont( f );
     }
-	
+
     QListViewItem::paintCell( p, g, column, width, align );
     p->setPen( QPen( cg.dark(), 1 ) );
     if ( column == 0 )
@@ -123,7 +123,7 @@ QColor FormListItem::backgroundColor()
 void FormListItem::updateBackColor()
 {
     if ( listView()->firstChild() == this ) {
- 	backColor = backColor1;
+	backColor = backColor1;
 	return;
     }
 
@@ -185,7 +185,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 	sourceParent->setPixmap( 0, *folderPixmap );
 	sourceParent->setOpen( TRUE );
     }
-	
+
     formsParent = new FormListItem( this );
     formsParent->setType( FormListItem::Parent );
     formsParent->setText( 0, tr( "Forms" ) );
@@ -213,7 +213,7 @@ void FormList::setProject( Project *pro )
 	sourceParent->setPixmap( 0, *folderPixmap );
 	sourceParent->setOpen( TRUE );
     }
-	
+
     formsParent = new FormListItem( this );
     formsParent->setType( FormListItem::Parent );
     formsParent->setText( 0, tr( "Forms" ) );
@@ -478,12 +478,14 @@ void FormList::rmbClicked( QListViewItem *i )
 	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
 	    QMap<QString, QString> extensionFilterMap;
 	    iface->fileFilters( extensionFilterMap );
-	    mainWindow->fileOpen( *extensionFilterMap.begin(), extensionFilterMap.begin().key() );
+	    QMapConstIterator<QString,QString> it = extensionFilterMap.begin();
+	    mainWindow->fileOpen( *it, it.key() );
 	} else if ( id == ADD_NEW_SOURCE ) {
 	    QMap<QString, QString> extensionFilterMap;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
 	    iface->fileFilters( extensionFilterMap );
-	    QString fn = QFileDialog::getSaveFileName( QString::null, *extensionFilterMap.begin(), mainWindow );
+	    QMapConstIterator<QString,QString> it = extensionFilterMap.begin();
+	    QString fn = QFileDialog::getSaveFileName( QString::null, *it, mainWindow );
 	    if ( !fn.isEmpty() ) {
 		SourceFile *sf = new SourceFile( fn );
 		MetaDataBase::addEntry( sf );
