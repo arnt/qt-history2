@@ -39,12 +39,7 @@
 #define QTHREAD_H
 
 #ifndef QT_H
-// #include "qwindowdefs.h"
-#ifndef QT_NO_COMPAT
-#include "qmutex.h"
-#include "qsemaphore.h"
-#include "qwaitcondition.h"
-#endif // QT_NO_COMPAT
+#  include "qwindowdefs.h"
 #endif // QT_H
 
 #include <limits.h>
@@ -54,10 +49,8 @@ struct QThreadInstance;
 class Q_EXPORT QThread
 {
 public:
-#if 0
 #ifndef QT_NO_COMPAT
     static void postEvent( QObject *,QEvent * );
-#endif
 #endif
 
     static Qt::HANDLE currentThread();
