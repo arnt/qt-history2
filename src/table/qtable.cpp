@@ -3532,10 +3532,19 @@ void QTableHeader::mouseDoubleClickEvent( QMouseEvent *e )
 	section--;
 	if ( p >= sectionPos( count() - 1 ) + sectionSize( count() - 1 ) )
 	    ++section;
-	if ( orientation() == Horizontal )
+	if ( orientation() == Horizontal ) {
 	    table->adjustColumn( section );
-	else
+	    for ( int i = 0; i < table->numCols(); ++i ) {
+		if ( table->isColumnSelected( i ) )
+		    table->adjustColumn( i );
+	    }
+	} else {
 	    table->adjustRow( section );
+	    for ( int i = 0; i < table->numRows(); ++i ) {
+		if ( table->isRowSelected( i ) )
+		    table->adjustRow( i );
+	    }
+	}
     }
 }
 
