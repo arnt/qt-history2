@@ -935,6 +935,8 @@ void HelpDialog::insertContents( const QString &filename, const QString &titl,
     QFile file( filename );
     if ( !file.open( IO_ReadOnly ) )
 	return;
+    QFileInfo fi( filename );
+    QString dir = fi.dirPath();
     QTextStream ts( &file );
     QString text = ts.read();
     text = text.simplifyWhiteSpace();
@@ -1008,7 +1010,7 @@ void HelpDialog::insertContents( const QString &filename, const QString &titl,
 	}
 	oldDepth = (*it2).depth;
 	lastItem->setText( 0, (*it2).title );
-	lastItem->setLink( (*it2).link );
+	lastItem->setLink( dir + "/" + (*it2).link );
     }
 
 }
