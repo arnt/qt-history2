@@ -28,9 +28,10 @@
 class QByteArray;
 class QIODevicePrivate;
 
-class Q_CORE_EXPORT QIODevice
 #ifndef QT_NO_QOBJECT
-    : public QObject
+class Q_CORE_EXPORT QIODevice : public QObject
+#else
+class Q_CORE_EXPORT QIODevice
 #endif
 {
 #ifndef QT_NO_QOBJECT
