@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#24 $
+** $Id: //depot/qt/main/src/moc/moc.l#25 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -53,6 +53,8 @@ extern void addExpressionString( char * );
 				  return TEMPLATE; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"			{ X;return SLOTS; }
+<QT_DEF>"Q_EXPORT"		{ X;return QEXPORT; }
+
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
 <IN_CLASS>"{"			{ level++;Y; }

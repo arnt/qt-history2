@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#94 $
+** $Id: //depot/qt/main/src/moc/moc.y#95 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#94 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#95 $");
 
 static Q1String rmWS( const char * );
 
@@ -170,12 +170,14 @@ const int  formatRevision = 3;			// moc output format revision
 %token			SIGNALS
 %token			SLOTS
 %token			Q_OBJECT
+%token			QEXPORT
 
 
 %type  <string>		class_name
 %type  <string>		template_class_name
 %type  <string>		template_spec
 %type  <string>		opt_base_spec
+
 %type  <string>		base_spec
 %type  <string>		base_list
 %type  <string>		qt_macro_name
@@ -321,8 +323,8 @@ opt_template_spec:	  /* empty */
 			;
 
 
-class_key:		  opt_template_spec CLASS	{ $$ = "class"; }
-			| opt_template_spec STRUCT	{ $$ = "struct"; }
+class_key:		  opt_template_spec CLASS opt_q_export	{ $$ = "class"; }
+			| opt_template_spec STRUCT opt_q_export	{ $$ = "struct"; }
 			;
 
 complete_class_name:	  qualified_class_name	{ $$ = $1; }
@@ -515,6 +517,11 @@ class_head:		  class_key
 			  class_name		{ className = $2; }
 			  opt_base_spec		{ superclassName = $4; }
 			;
+
+opt_q_export:			/* empty */	
+			| QEXPORT		
+			;
+
 
 opt_base_spec:			/* empty */	{ $$ = 0; }
 			| base_spec		{ $$ = $1; }
@@ -1252,7 +1259,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.28 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.29 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
