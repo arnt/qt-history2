@@ -105,13 +105,12 @@ static bool block_set_alignment = FALSE;
     QTextEdit can display images (using QMimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
     viewport, scrollbars will appear. The text edit can load both plain
-    text and HTML files (a subset of HTML 3.2 and 4, and CSS1 is
-    supported).  The rendering style and the set of valid tags are
-    defined by a styleSheet(). Change the style sheet with
-    \l{setStyleSheet()}; see QStyleSheet for details. The images
-    identified by image tags are displayed if they can be interpreted
-    using the text edit's \l{QMimeSourceFactory}; see
-    setMimeSourceFactory().
+    text and HTML files (a subset of HTML 3.2 and 4).  The rendering
+    style and the set of valid tags are defined by a styleSheet().
+    Change the style sheet with \l{setStyleSheet()}; see QStyleSheet
+    for details. The images identified by image tags are displayed if
+    they can be interpreted using the text edit's
+    \l{QMimeSourceFactory}; see setMimeSourceFactory().
 
     If you want a text browser with more navigation use
     QTextBrowser. If you just need to display a small piece of rich
