@@ -219,7 +219,7 @@ void OptionsPageImpl::choosePath()
 #if defined(Q_OS_WIN32)
     if( !dir.exists() ) {
 #  if defined(QSA)
-	dir.setPath( "C:\\QSA" );
+	dir.setPath( "C:\\Qt_QSA" );
 #  else
 	dir.setPath( "C:\\Qt" );
 #endif
@@ -228,14 +228,14 @@ void OptionsPageImpl::choosePath()
     QString dest = QFileDialog::getExistingDirectory( installPath->text(), this, NULL, "Select installation directory" );
     if ( dest.isNull() ) {
 #  if defined(QSA)
-	dest = "C:\\QSA";
+	dest = "C:\\Qt_QSA";
 #  else
 	dest = "C:\\Qt";
 #  endif
     }
     if ( dest.right(1) == "\\" ) {
 #  if defined(QSA)
-	dest += "QSA";
+	dest += "Qt_QSA";
 #  else
 	dest += "Qt";
 #  endif

@@ -479,7 +479,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	clickedSystem( sysGroupButton );
 #if defined(QSA)
 	optionsPageQsa->installPath->setText(
-		QString( "C:\\Qt_QSA\\" ) +
+		QString( "C:\\Qt_QSA\\QSA" ) +
 		QString( globalInformation.qsaVersionStr() ).replace( QRegExp("\\s"), "" ).replace( QRegExp("-"), "" )
 		);
 #endif
