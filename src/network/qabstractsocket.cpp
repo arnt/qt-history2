@@ -1395,6 +1395,16 @@ bool QAbstractSocket::isSequential() const
 }
 
 /*! \reimp
+
+    Returns true if the socket connection is closed, and no more data is
+    available for reading; otherwise returns false.
+ */
+bool QAbstractSocket::atEnd() const
+{
+    return (d->state == UnconnectedState && d->readBuffer.isEmpty());
+}
+
+/*! \reimp
 */
 qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
 {

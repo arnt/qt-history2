@@ -103,6 +103,7 @@ public:
     // from QIODevice
     void close();
     bool isSequential() const;
+    bool atEnd() const;
 
     // for synchronous access
     bool waitForConnected(int msecs = 30000);
