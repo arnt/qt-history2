@@ -244,9 +244,10 @@ void QHashData::free()
     \list
     \i QHash provides faster lookups than QMap.
     \i When iterating over a QMap, the items are always sorted by
-       key. With QHash, the items can be in any order.
+       key. With QHash, the items are arbitrarily ordered.
     \i The key type of a QMap must provide operator<(). The key
-       type of a QHash must provide operator==() and qHash().
+       type of a QHash must provide operator==() and a global
+       qHash(Key) function.
     \endlist
 
     Here's an example QHash with QString keys and int values:
@@ -279,7 +280,8 @@ void QHashData::free()
     \endcode
 
     If there is no item with the specified key in the hash, these
-    functions return a \l{default-constructed value}.
+    functions return a \l{default-constructed value}, and in the
+    operator[]() case, a new key--value pair is inserted.
 
     If you want to check whether the hash contains a certain key, use
     contains():
@@ -289,9 +291,9 @@ void QHashData::free()
         if (hash.contains("TIMEOUT"))
 	    timeout = hash.value("TIMEOUT");
     \endcode
-    
-    There is also a value() overload that returns its second argument
-    if there is no item with the specified key:
+
+    There is also a value() overload that uses its second argument as
+    a default value if there is no item with the specified key:
 
     \code
 	int timeout = hash.value("TIMEOUT", 30);
@@ -313,7 +315,7 @@ void QHashData::free()
         }
     \endcode
 
-    To avoid that problem, replace \c hash[i] with \c hash.value(i)
+    To avoid this problem, replace \c hash[i] with \c hash.value(i)
     in the code above.
 
     If you want to navigate through all the (key, value) pairs stored
@@ -331,12 +333,19 @@ void QHashData::free()
     Here's the same code, but using an \l{STL-style iterator} this time:
 
     \code
-	QHash<QString, int>::ConstIterator it = hash.begin();
-        while (it != hash.end()) {
+	QHash<QString, int>::ConstIterator it = hash.constBegin();
+        while (it != hash.constEnd()) {
 	    cout << it.key() << ": " << it.value() << endl;
 	    ++it;
         }
     \endcode
+
+    QHash is unordered so an iterator's sequence cannot be assumed to
+    be predictable. If ordering by key is required they use QMap.
+    Alternatively, if ordering is only needed occasionally, or for
+    small hashes, calling keys(), sorting the resulting list, and
+    iterating over the hash based on the list of sorted keys might
+    prove sufficient.
 
     Normally, a QHash allows only one value per key. If you call
     insert() with a key that already exists in the QHash, the
@@ -372,9 +381,9 @@ void QHashData::free()
     \endcode
 
     The items that share the same key are available from most
-    recently to less recently inserted.
+    recently to least recently inserted.
 
-    If all you need is the values stored in a hash (not the keys),
+    If you only need to extract the values from a hash (not the keys),
     you can also use \l{foreach}:
 
     \code
@@ -385,15 +394,16 @@ void QHashData::free()
     \endcode
 
     Items can be removed from the hash in several ways. One way is to
-    call remove(); this will remove any item with a certain key.
-    Another way is to use QHashMutableIterator::remove(). In
-    addition, you can clear the entire hash using clear().
+    call remove(); this will remove any item with the given key.
+    Another way is to use QHashMutableIterator::remove(). In addition,
+    you can clear the entire hash using clear().
 
     QHash's key and value data types must be \l{assignable data
     types}. You cannot, for example, store a QWidget as a value;
     instead, store a QWidget *. In addition, QHash's key type must
-    provide operator==(), and there must exist a global qHash()
-    function that returns a hash value for the type.
+    provide operator==(), and there must also be a global qHash()
+    function that returns a hash value for an argument of the key's
+    type.
 
     Here's a list of the C++ and Qt types that can serve as keys in a
     QHash: any integer type (char, unsigned long, etc.), any pointer
@@ -432,6 +442,12 @@ void QHashData::free()
 
 	#endif // EMPLOYEE_H
     \endcode
+    As the example shows, a qHash() function need not be difficult to
+    implement since we can build on the qHash() functions that Qt
+    provides. Here we've relied on Qt's global qHash(const QString&)
+    to give us a hash value for the employee's name, and XORed this
+    with the day they were born to help produce unique hashes for
+    people with the same name.
 
     The qHash() function computes a numeric value based on a key. It
     can use any algorithm imaginable, as long as it always returns
@@ -439,16 +455,16 @@ void QHashData::free()
     \c{e1 == e2}, then \c{qHash(e1) == qHash(e2)} must hold as well.
     However, to obtain good performance, the qHash() function should
     attempt to return different hash values for different keys to the
-    largest possible extent.
+    largest extent possible.
 
-    Internally, QHash uses a hash table to perform lookups. Unlike
-    QDict in Qt 3, which required to be initialized with a prime
-    number, QHash's hash table automatically grows and shrinks to
-    provide fast lookups without wasting too much memory. You can
-    still control the size of the hash table by calling reserve() if
-    you already know approximately how many items the QHash may
-    contain, but this isn't necessary to obtain good performance. You
-    can also call capacity() to retreive the hash table size.
+    Internally, QHash uses a hash table to perform lookups. Unlike Qt
+    3's QDict, which needed to be initialized with a prime number,
+    QHash's hash table automatically grows and shrinks to provide fast
+    lookups without wasting too much memory. You can still control the
+    size of the hash table by calling reserve() if you already know
+    approximately how many items the QHash will contain, but this isn't
+    necessary to obtain good performance. You can also call capacity()
+    to retreive the hash table's size.
 
     \sa QMap
 */
@@ -465,9 +481,9 @@ void QHashData::free()
     Constructs a copy of \a other.
 
     This operation occurs in \l{constant time}, because QHash is
-    \l{implicitly shared}. This makes return a QHash from a function
-    very fast. If a shared instance is modified, it will be copied
-    (copy-on-write), and this takes \l{linear time}.
+    \l{implicitly shared}. This makes returning a QHash from a
+    function very fast. If a shared instance is modified, it will be
+    copied (copy-on-write), and this takes \l{linear time}.
 
     \sa operator=()
 */
@@ -475,7 +491,7 @@ void QHashData::free()
 /*! \fn QHash::~QHash()
 
     Destroys the hash. References to the values in the hash and all
-    iterators of this hash become invalidated.
+    iterators of this hash become invalid.
 */
 
 /*! \fn QHash<Key, T> &QHash::operator=(const QHash<Key, T> &other)
@@ -485,7 +501,7 @@ void QHashData::free()
     This operation occurs in \l{constant time}, because QHash is
     \l{implicitly shared}.
 
-    All iterators in the current hash become invalidated by this
+    All iterators in the current hash are invalidated by this
     operation.
 */
 
@@ -520,8 +536,8 @@ void QHashData::free()
 
 /*! \fn bool QHash::isEmpty() const
 
-    Returns true if the hash contains no items; returns false
-    otherwise.
+    Returns true if the hash contains no items; otherwise returns
+    false.
 
     \sa size()
 */
@@ -533,8 +549,8 @@ void QHashData::free()
 
 /*! \fn QHash::operator QSafeBool() const
 
-    Returns true if the hash contains some items; returns true
-    otherwise.
+    Returns true if the hash contains at least one item; otherwise
+    returns false.
 
     Example:
     \code
@@ -550,11 +566,10 @@ void QHashData::free()
 /*! \fn void QHash::reserve(int size)
 
     Ensures that the QHash's internal hash table consists of at least
-    \a size buckets. Ideally, \a size should reflect the maximum
-    number of items expected in the hash.
+    \a size buckets.
 
     This function is useful for code that needs to build a huge hash
-    and wants to avoid repeated reallocation. Example:
+    and wants to avoid repeated reallocation. For example:
 
     \code
 	QHash<QString, int> hash;
@@ -562,12 +577,16 @@ void QHashData::free()
 	for (int i = 0; i < 5000; ++i)
 	    hash.insert(keys[i], values[i]);
     \endcode
+#### Jasmin: 5000 is not huge to my mind; if reserve() is applicable
+on something that only has 5000 entries I'd use the word "big"; if you
+only really need reserve for > 10000 then I'd use 10000 in the example
+and stick with "huge"
 
-    The \a size parameter can be any number. Internally, QHash will
-    compute a prime number to use for the number of buckets.
-
-    If \a size is an underestimate, the worse that will happen is
-    that the QHash will be a bit slower.
+    Ideally, \a size should be slightly more than the maximum number
+    of items expected in the hash. \a size doesn't have to be prime
+    since QHash will use a prime number internally anyway. If \a size
+    is an underestimate, the worse that will happen is that the QHash
+    will be a bit slower.
 
     In general, you will rarely ever need to call this function.
     QHash's internal hash table automatically shrinks or grows to
@@ -591,7 +610,7 @@ void QHashData::free()
 
     \internal
 
-    Detaches this hash from other hashes with which it may share
+    Detaches this hash from any other hashes with which it may share
     data.
 
     \sa isDetached()
@@ -602,7 +621,7 @@ void QHashData::free()
     \internal
 
     Returns true if the hash's internal data isn't shared with any
-    other hash object; returns false otherwise.
+    other hash object; otherwise returns false.
 
     \sa detach()
 */
@@ -616,7 +635,10 @@ void QHashData::free()
 
 /*! \fn int QHash::remove(const Key &key)
 
-    Removes all items with the key \a key from the hash.
+    Removes all the items that have the key \a key from the hash.
+    Returns the number of items removed which is usually 1 but will be
+    0 if the key isn't in the hash, or \> 1 if insertMulti() has been
+    used with the \a key.
 
     \sa clear(), take()
 */
@@ -651,7 +673,7 @@ void QHashData::free()
     items for \a key in the hash, the value of the most recently
     inserted one is returned.
 
-    \sa contains()
+    \sa contains() operator[]()
 */
 
 /*! \fn const T QHash::value(const Key &key, const T &defaultValue) const
@@ -667,10 +689,11 @@ void QHashData::free()
     Returns the value associated with the key \a key as a modifiable
     reference.
 
-    If the hash contains no item with key \a key, the function
-    inserts a \l{default-constructed} in the hash and returns a
-    reference to it. If the hash contains multiple items with key \a
-    key, this function returns the most recently inserted value.
+    If the hash contains no item with key \a key, the function inserts
+    a \l{default-constructed} value into the hash with key \a key, and
+    returns a reference to it. If the hash contains multiple items
+    with key \a key, this function returns the most recently inserted
+    value.
 
     \sa insert(), value()
 */
@@ -684,16 +707,23 @@ void QHashData::free()
 
 /*! \fn QList<Key> QHash::keys() const
 
-    Returns a list of all the keys in the hash, in the order in which
-    they are stored in the hash.
+    Returns a list of all the keys in the hash, in an arbitrary order.
+    The order is the same as that used by values().
+### Jasmin: I don't like us commiting to "the order they're stored in
+in the hash" because that limits us and reveals an internal detail
+that I don't think's appropriate: from the user's point of view the
+ordering is arbitrary.
 
     \sa values()
 */
 
 /*! \fn QList<T> QHash::values() const
 
-    Returns a list of all the values in the hash, in the order in
-    which they are stored in the hash.
+    Returns a list of all the values in the hash, in an arbitrary
+    order. The order is the same as that used by keys(). For keys that
+    have \link insertMulti() multiple values\endlink, only the most
+    recent value is included in the list.
+### Jasmin: what about insertMulti()'s values? I've guessed.
 
     \sa keys()
 */
@@ -703,7 +733,7 @@ void QHashData::free()
     \overload
 
     Returns a list of all the values associated with a given key,
-    from the most recently inserted to the less recently inserted
+    from the most recently inserted to the least recently inserted
     one.
 
     \sa insertMulti()
@@ -726,7 +756,8 @@ void QHashData::free()
 /*! \fn QHash::Iterator QHash::begin()
 
     Returns a \l{STL-style iterator} pointing to the first item in
-    the hash.
+    the hash. (First means the first key in the hash's arbitrary
+    internal ordering.)
 
     \sa constBegin(), end()
 */
@@ -739,15 +770,18 @@ void QHashData::free()
 /*! \fn QHash::ConstIterator QHash::constBegin() const
 
     Returns a const \l{STL-style iterator} pointing to the first item
-    in the hash.
+    in the hash. (First means the first key in the hash's arbitrary
+    internal ordering.)
 
     \sa begin(), constEnd()
 */
 
 /*! \fn QHash::Iterator QHash::end()
 
-    Returns a \l{STL-style iterator} pointing to the next-to-last item
-    in the hash.
+    Returns a \l{STL-style iterator} pointing to the imaginary "item"
+    after the last item in the hash. (Last means the last key in the
+    hash's arbitrary internal ordering.)
+
 
     \sa begin(), constEnd()
 */
@@ -759,16 +793,17 @@ void QHashData::free()
 
 /*! \fn QHash::ConstIterator QHash::constEnd() const
 
-    Returns a const \l{STL-style iterator} pointing to the
-    next-to-last item.
+    Returns a const \l{STL-style iterator} pointing to the imaginary
+    "item" after the last item in the hash. (Last means the last key
+    in the hash's arbitrary internal ordering.)
 
     \sa constBegin(), end()
 */
 
 /*! \fn Iterator QHash::erase(Iterator it)
 
-    Removes the item associated with the iterator \a it from the
-    hash.
+    Removes the item (key and values) associated with the iterator \a
+    it from the hash.
 
     \sa remove()
 */
@@ -784,8 +819,8 @@ void QHashData::free()
     If the hash contains multiple items with key \a key, this
     function returns an iterator that points to the most recently
     inserted value. The other values are accessible by incrementing
-    that iterator. For example, here's some code that iterates over
-    all the items with the same key:
+    the iterator. For example, here's some code that iterates over all
+    the items with the same key:
 
     \code
 	QHash<QString, int> hash;
@@ -797,7 +832,7 @@ void QHashData::free()
         }
     \endcode
 
-    \sa value()
+    \sa value() values()
 */
 
 /*! \fn ConstIterator QHash::find(const Key &key) const
@@ -809,8 +844,8 @@ void QHashData::free()
 
     Inserts a new item with the key \a key and a value of \a value.
 
-    If there is already one item with the key \a key, that item's
-    value is replaced with \a value.
+    If there is already an item with the key \a key, that item's value
+    is replaced with \a value.
 
     If there are multiple items with the key \a key, the most
     recently inserted item's value is replaced with \a value.
@@ -826,21 +861,30 @@ void QHashData::free()
     function will simply create a new one. (This behavior is
     different from insert(), which overwrites the value of an
     existing item.)
+### Jasmin: I'm confused. I thought that if I use insertMulti() on a
+key that already exists my value will be pushed on top of the stack of
+values associated with that value, and that every _key_ is always
+unique in a hash. The text above implies that there could be multiple
+identical keys.
 
     \sa insert(), values()
 */
 
 /*! \fn QHash<Key, T> &QHash::operator+=(const QHash<Key, T> &other)
 
-    Inserts all the items in \a others into this hash.
+    Inserts all the items in the \a other hash into this hash. If a
+    key is common to both hashes, the value from the \a other hash
+    will overwrite the value in this hash.
 
     \sa insertMulti()
 */
 
 /*! \fn QHash<Key, T> QHash::operator+(const QHash<Key, T> &other) const
 
-    Returns a hash that contain all items in this hash in addition to
-    all items in \a other.
+    Returns a hash that contains all the items in this hash in
+    addition to all the items in \a other. If a key is common to both
+    hashes, the value from the \a other hash will be the one used in
+    the returned hash.
 
     \sa insertMulti()
 */
@@ -894,11 +938,11 @@ void QHashData::free()
     Returns the current item's key as a const reference.
 
     There is no direct way of changing an item's key through an
-    iterator. You need to call QHash::erase() followed by
-    QHash::insert() or QHash::insertMulti().
+    iterator, but it can be achieved by calling QHash::erase()
+    followed by QHash::insert() or QHash::insertMulti().
 
     \sa value()
-*/	
+*/
 
 /*! \fn T &QHash::Iterator::value() const
 
@@ -912,7 +956,7 @@ void QHashData::free()
 	    it.value() = "Bonjour";
     \endcode
 
-    \sa key()
+    \sa key() operator*()
 */
 
 /*! \fn T &QHash::Iterator::operator*() const
@@ -922,7 +966,7 @@ void QHashData::free()
     Same as value().
 
     \sa key()
-*/	
+*/
 
 /*! \fn bool QHash::Iterator::operator==(const Iterator &other)
 
@@ -930,7 +974,7 @@ void QHashData::free()
     iterator; otherwise returns false.
 
     \sa operator!=()
-*/	
+*/
 
 /*! \fn bool QHash::Iterator::operator!=(const Iterator &other)
 
@@ -944,12 +988,12 @@ void QHashData::free()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the hash and returns an iterator to the new current
-    item.
+    item. If there are no more items QHash::end() is returned.
 
     Calling this function on QHash::end() leads to undefined results.
 
     \sa operator--()
-*/	
+*/
 
 /*! \fn QHash::Iterator QHash::Iterator::operator++(int)
 
@@ -966,12 +1010,13 @@ void QHashData::free()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator pointing to the new current item.
+    If there are no more items QHash::begin() is returned.
 
     Calling this function on QHash::begin() leads to undefined
     results.
 
     \sa operator++()
-*/	
+*/
 
 /*! \fn QHash::Iterator QHash::Iterator::operator--(int)
 
@@ -1025,7 +1070,7 @@ void QHashData::free()
 
     Returns the current item's value.
 
-    \sa key()
+    \sa key() operator*()
 */
 
 /*! \fn const T &QHash::ConstIterator::operator*() const
@@ -1057,7 +1102,7 @@ void QHashData::free()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the hash and returns an iterator to the new current
-    item.
+    item. If there are no more items QHash::end() is returned.
 
     Calling this function on QHash::end() leads to undefined results.
 
@@ -1079,6 +1124,7 @@ void QHashData::free()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator pointing to the new current item.
+    If there are no more items QHash::begin() is returned.
 
     Calling this function on QHash::begin() leads to undefined
     results.
