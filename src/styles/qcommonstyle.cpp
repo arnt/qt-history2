@@ -317,7 +317,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	if (data)
 	    lw = *((int *) data[0]);
 
-	qDrawShadePanel(p, r, cg, FALSE, lw);
+	qDrawShadePanel(p, r, cg, FALSE, lw, &cg.brush(QColorGroup::Button));
 	break; }
 
     case PO_MenuBarItem: {

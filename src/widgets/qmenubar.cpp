@@ -209,6 +209,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
 
     setFrameStyle( QFrame::MenuBarPanel );
+    setLineWidth( style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this) );
 
     QFontMetrics fm = fontMetrics();
     int gs = style();
@@ -241,18 +242,17 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 void QMenuBar::styleChange( QStyle& old )
 {
     switch ( style().guiStyle() ) {
-	case WindowsStyle:
-	    setMouseTracking( TRUE );
-	    break;
-	case MotifStyle:
-	    setLineWidth( style().pixelMetric( QStyle::PM_DefaultFrameWidth,
-					       this ) );
-	    setMouseTracking( FALSE );
-	    break;
-	default:
-	    break;
+    case WindowsStyle:
+	setMouseTracking( TRUE );
+	break;
+    case MotifStyle:
+	setMouseTracking( FALSE );
+	break;
+    default:
+	break;
     }
     setFrameStyle( QFrame::MenuBarPanel );
+    setLineWidth( style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this ) );
     updateGeometry();
     QFrame::styleChange( old );
 }
@@ -943,7 +943,7 @@ void QMenuBar::drawContents( QPainter *p )
 	return;
 
     // Draw the menu bar contents in the current style
-    style().drawPrimitive( QStyle::PO_PanelMenuBar, p, rect(), g );
+    // style().drawPrimitive( QStyle::PO_PanelMenuBar, p, rect(), g );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );

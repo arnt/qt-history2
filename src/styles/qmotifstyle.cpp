@@ -214,15 +214,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
     switch( op ) {
     case PO_ButtonCommand:
     case PO_ButtonBevel:
+    case PO_ButtonTool:
     case PO_HeaderSection:
 	qDrawShadePanel( p, r, cg, bool(flags & PStyle_Sunken),
 			 pixelMetric(PM_DefaultFrameWidth),
 			 &cg.brush(QColorGroup::Button) );
-	break;
-
-    case PO_FocusRect:
-	// PO_FocusRect is handled in QCommonStyle...
-	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
 
     case PO_Indicator: {
@@ -241,6 +237,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 			     pixelMetric(PM_DefaultFrameWidth), &fill );
 #endif
 	break; }
+
     case PO_ExclusiveIndicator: {
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 	static QCOORD inner_pts[] =         // used for filling diamond
@@ -270,8 +267,8 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	a.translate( r.x(), r.y() );
 	p->drawPolyline( a );
 
-
 	break; }
+
     case PO_MenuBarItem: {
 	if ( flags & PStyle_On )  // active item
 	    qDrawShadePanel( p, r, cg, FALSE, motifItemFrame,
@@ -280,6 +277,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    p->fillRect( r, cg.brush(QColorGroup::Button) );
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break; }
+
     case PO_Panel:
     case PO_PanelPopup: {
 	// not sure if this is correct...
@@ -290,6 +288,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawShadePanel( p, r, cg, bool(flags & PStyle_Sunken), lw,
 			 &cg.brush(QColorGroup::Button) );
 	break; }
+
     case PO_ArrowUp:
     case PO_ArrowDown:
     case PO_ArrowRight:
@@ -509,7 +508,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	break; }
 
     case PO_DockWindowHandle: {
-	
+
 	p->save();
 	p->translate( r.x(), r.y() );
 
@@ -538,11 +537,11 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		    a.setPoint( 2*i+1, x+1+3*i, 2 );
 		}
 		p->drawPoints( a );
-// 		if ( drawBorder ) {
-// 		    p->setPen( QPen( Qt::darkGray ) );
-// 		    p->drawLine( r.width() - 1, 0,
-// 				 r.width() - 1, tbExtent );
-// 		}
+		// if ( drawBorder ) {
+		// p->setPen( QPen( Qt::darkGray ) );
+		// p->drawLine( r.width() - 1, 0,
+		// r.width() - 1, tbExtent );
+		// }
 	    }
 	} else {
 	    int h = r.height();
@@ -565,16 +564,60 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 		    a.setPoint( 2*i+1, 1, y+1+3*i );
 		}
 		p->drawPoints( a );
-// 		if ( drawBorder ) {
-// 		    p->setPen( QPen( Qt::darkGray ) );
-// 		    p->drawLine( 0, r.height() - 1,
-// 				 tbExtent, r.height() - 1 );
-// 		}
+		// if ( drawBorder ) {
+		// p->setPen( QPen( Qt::darkGray ) );
+		// p->drawLine( 0, r.height() - 1,
+		// tbExtent, r.height() - 1 );
+		// }
 	    }
 	}
 	p->restore();
-    break; }
-    
+	break; }
+
+    case PO_CheckMark: {
+	const int markW = 6;
+	const int markH = 6;
+	int posX = r.x() + ( r.width()  - markW ) / 2 - 1;
+	int posY = r.y() + ( r.height() - markH ) / 2;
+	int dfw = pixelMetric(PM_DefaultFrameWidth);
+
+	if (dfw < 2) {
+	    // Could do with some optimizing/caching...
+	    QPointArray a( 7*2 );
+	    int i, xx, yy;
+	    xx = posX;
+	    yy = 3 + posY;
+	    for ( i=0; i<3; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy++;
+	    }
+	    yy -= 2;
+	    for ( i=3; i<7; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy--;
+	    }
+	    if ( ! (flags & PStyle_Enabled) && ! (flags & PStyle_On) ) {
+		int pnt;
+		p->setPen( cg.highlightedText() );
+		QPoint offset(1,1);
+		for ( pnt = 0; pnt < (int)a.size(); pnt++ )
+		    a[pnt] += offset;
+		p->drawLineSegments( a );
+		for ( pnt = 0; pnt < (int)a.size(); pnt++ )
+		    a[pnt] -= offset;
+	    }
+	    p->setPen( cg.text() );
+	    p->drawLineSegments( a );
+
+	    qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, cg, TRUE, dfw);
+	} else
+	    qDrawShadePanel( p, posX, posY, markW, markH, cg, TRUE, dfw,
+			     &cg.brush( QColorGroup::Mid ) );
+
+	break; }
+
     default:
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
@@ -671,7 +714,7 @@ void QMotifStyle::drawControl( ControlElement element,
  	if ( p->brush().style() != NoBrush )
  	    p->setBrush( NoBrush );
 	break; }
-    
+
     case CE_TabBarTab: {
 	if ( !widget || !widget->parentWidget() )
 	    break;
@@ -704,11 +747,11 @@ void QMotifStyle::drawControl( ControlElement element,
 
 	    if ( selected ) {
 		p->fillRect( QRect( r.left()+1, r.bottom()-o, r.width()-3, 2),
-		     tb->palette().active().brush( QColorGroup::Background ));
+			     tb->palette().active().brush( QColorGroup::Background ));
 		p->setPen( tb->colorGroup().background() );
-//          p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
-//          if (o)
-//              p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
+		// p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
+		// if (o)
+		// p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
 		p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
 		p->setPen( tb->colorGroup().light() );
 	    } else {
@@ -734,17 +777,17 @@ void QMotifStyle::drawControl( ControlElement element,
 			 r.right() - 1, r.bottom() - 1 + (selected ? o : -o));
 	    if ( o ) {
 		p->drawPoint( r.right() - 1, r.top() + 1 );
-		p->drawLine( r.right(), r.top() + 2, r.right(), 
-			     r.bottom() - 
+		p->drawLine( r.right(), r.top() + 2, r.right(),
+			     r.bottom() -
 			     (selected ? (lastIsCurrent ? 0:1):1+o));
 		p->drawPoint( r.right() - 1, r.top() + 1 );
 	    }
 	} else if ( tb->shape()  == QTabBar::RoundedBelow ) {
 	    if ( selected ) {
 		p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
-		      tb->palette().active().brush( QColorGroup::Background ));
+			     tb->palette().active().brush( QColorGroup::Background ));
 		p->setPen( tb->colorGroup().background() );
-//          p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
+		// p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
 		p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
 		p->setPen( tb->colorGroup().dark() );
 	    } else {
@@ -849,6 +892,150 @@ void QMotifStyle::drawControl( ControlElement element,
 	}
 	break; }
     
+#ifndef QT_NO_POPUPMENU
+    case CE_PopupMenuItem: {
+	if (! widget || ! data)
+	    break;
+
+	QPopupMenu *popupmenu = (QPopupMenu *) widget;
+	QMenuItem *mi = (QMenuItem *) data[0];
+	int tab = *((int *) data[1]);
+	int maxpmw = *((int *) data[2]);
+	bool dis = ! mi->isEnabled();
+	bool checkable = popupmenu->isCheckable();
+	bool act = how & CStyle_Selected;
+	int x, y, w, h;
+
+	r.rect(&x, &y, &w, &h);
+
+	if ( checkable )
+	    maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
+
+	int checkcol = maxpmw;
+
+	if ( mi && mi->isSeparator() ) {                    // draw separator
+	    p->setPen( cg.dark() );
+	    p->drawLine( x, y, x+w, y );
+	    p->setPen( cg.light() );
+	    p->drawLine( x, y+1, x+w, y+1 );
+	    return;
+	}
+
+	int pw = motifItemFrame;
+
+	if ( act && !dis ) {                        // active item frame
+	    if (pixelMetric( PM_DefaultFrameWidth ) > 1)
+		qDrawShadePanel( p, x, y, w, h, cg, FALSE, pw,
+				 &cg.brush( QColorGroup::Button ) );
+	    else
+		qDrawShadePanel( p, x+1, y+1, w-2, h-2, cg, TRUE, 1,
+				 &cg.brush( QColorGroup::Button ) );
+	}
+	else                                // incognito frame
+	    p->fillRect(x, y, w, h, cg.brush( QColorGroup::Button ));
+
+	if ( !mi )
+	    return;
+
+	if ( mi->isChecked() ) {
+	    if ( mi->iconSet() ) {
+		qDrawShadePanel( p, x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
+				 cg, TRUE, 1, &cg.brush( QColorGroup::Midlight ) );
+	    }
+	} else if ( !act ) {
+	    p->fillRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
+			cg.brush( QColorGroup::Button ));
+	}
+
+	if ( mi->iconSet() ) {              // draw iconset
+	    QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
+	    if (act && !dis )
+		mode = QIconSet::Active;
+	    QPixmap pixmap;
+	    if ( checkable && mi->isChecked() )
+		pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+	    else
+		pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+
+	    int pixw = pixmap.width();
+	    int pixh = pixmap.height();
+	    QRect cr( x + motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame );
+	    QRect pmr( 0, 0, pixw, pixh );
+	    pmr.moveCenter( cr.center() );
+	    p->setPen( cg.text() );
+	    p->drawPixmap( pmr.topLeft(), pixmap );
+
+	} else  if ( checkable ) {  // just "checking"...
+	    int mw = checkcol;
+	    int mh = h - 2*motifItemFrame;
+	    if ( mi->isChecked() ) {
+		PFlags cflags = PStyle_Default;
+		if (! dis)
+		    cflags |= PStyle_Enabled;
+		if (act)
+		    cflags |= PStyle_On;
+
+		drawPrimitive(PO_CheckMark, p,
+			      QRect(x+motifItemFrame, y+motifItemFrame, mw, mh),
+			      cg, cflags);
+	    }
+	}
+
+
+	p->setPen( cg.buttonText() );
+
+	QColor discol;
+	if ( dis ) {
+	    discol = cg.text();
+	    p->setPen( discol );
+	}
+
+	int xm = motifItemFrame + checkcol + motifItemHMargin;
+
+	if ( mi->custom() ) {
+	    int m = motifItemVMargin;
+	    p->save();
+	    mi->custom()->paint( p, cg, act, !dis,
+				 x+xm, y+m, w-xm-tab+1, h-2*m );
+	    p->restore();
+	}
+	QString s = mi->text();
+	if ( !s.isNull() ) {                        // draw text
+	    int t = s.find( '\t' );
+	    int m = motifItemVMargin;
+	    const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+	    if ( t >= 0 ) {                         // draw tab text
+		p->drawText( x+w-tab-motifItemHMargin-motifItemFrame,
+			     y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+		s = s.left( t );
+	    }
+	    p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+	} else if ( mi->pixmap() ) {                        // draw pixmap
+	    QPixmap *pixmap = mi->pixmap();
+	    if ( pixmap->depth() == 1 )
+		p->setBackgroundMode( OpaqueMode );
+	    p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
+	    if ( pixmap->depth() == 1 )
+		p->setBackgroundMode( TransparentMode );
+	}
+	if ( mi->popup() ) {                        // draw sub menu arrow
+	    int dim = (h-2*motifItemFrame) / 2;
+	    if ( act )
+		drawPrimitive(PO_ArrowRight, p,
+			      QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
+				    y+h/2-dim/2, dim, dim), cg,
+			      (PStyle_Sunken |
+			       (mi->isEnabled() ? PStyle_Enabled : PStyle_Default)));
+	    else
+		drawPrimitive(PO_ArrowRight, p,
+			      QRect(x+w - motifArrowHMargin - motifItemFrame - dim,
+				    y+h/2-dim/2, dim, dim), cg,
+			      (mi->isEnabled() ? PStyle_Enabled : PStyle_Default));
+	}
+
+	break; }
+#endif // QT_NO_POPUPMENU
+
     default:
 	QCommonStyle::drawControl( element, p, widget, r, cg, how, data );
 	break;
@@ -893,12 +1080,12 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    drawSubControl( SC_SliderHandle, p, w, r, cg, flags, subActive,
 			    data );
 	break;
-	
+
     case CC_ComboBox:
 	if ( sub == SC_None )
 	    sub = SC_ComboBoxArrow | SC_ComboBoxEditField;
 	if ( sub & SC_ComboBoxArrow )
-	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags, subActive, 
+	    drawSubControl( SC_ComboBoxArrow, p, w, r, cg, flags, subActive,
 			    data );
 	if ( sub & SC_ComboBoxEditField )
 	    drawSubControl( SC_ComboBoxEditField, p, w, r, cg, flags,
@@ -910,7 +1097,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    break;
 
 	QScrollBar *scrollbar = (QScrollBar *) w;
-	QRect addline, subline, addpage, subpage, slider, groove;
+	QRect addline, subline, addpage, subpage, slider;
 
 	subline = querySubControlMetrics(control, w, SC_ScrollBarSubLine, data);
 	addline = querySubControlMetrics(control, w, SC_ScrollBarAddLine, data);
@@ -1073,14 +1260,14 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 	break; }
 
     case SC_ComboBoxArrow: {
-	QComboBox * cb = (QComboBox *) widget;	
+	QComboBox * cb = (QComboBox *) widget;
 	int awh, ax, ay, sh, sy, dh, ew;
 	int fw = pixelMetric( PM_DefaultFrameWidth, cb);
 
 	drawPrimitive( PO_ButtonCommand, p, r, cg, flags );
 	QRect ar = querySubControlMetrics( CC_ComboBox, cb, SC_ComboBoxArrow,
 					   data );
-	qDrawArrow( p, DownArrow, MotifStyle, FALSE, ar.x(), ar.y(), 
+	qDrawArrow( p, DownArrow, MotifStyle, FALSE, ar.x(), ar.y(),
 		    ar.width(), ar.height(), cg, TRUE );
 
 	QRect tr = r;
@@ -1099,20 +1286,20 @@ void QMotifStyle::drawSubControl( SCFlags subCtrl,
 	    QRect re = subRect( SR_ComboBoxFocusRect, cb );
 	    drawPrimitive( PO_FocusRect, p, re, cg );
 	}
-	
+
 	break; }
-	
+
     case SC_ComboBoxEditField: {
 	QComboBox * cb = (QComboBox *) widget;
 	if ( cb->editable() ) {
-	    QRect er = querySubControlMetrics( CC_ComboBox, cb, 
+	    QRect er = querySubControlMetrics( CC_ComboBox, cb,
 					       SC_ComboBoxEditField );
 	    er.addCoords( -1, -1, 1, 1);
-	    qDrawShadePanel( p, er, cg, TRUE, 1, 
+	    qDrawShadePanel( p, er, cg, TRUE, 1,
 			     &cg.brush( QColorGroup::Button ));
-	}	
+	}
 	break; }
-    
+
     default:
 	break;
     }
@@ -1367,17 +1554,17 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    rect = cb->rect();
 	    rect.addCoords( fw, fw, -fw, -fw );
 	    int ew = get_combo_extra_width( rect.height() );
-	
+
 	    if( QApplication::reverseLayout() )
 		rect.moveBy( ew, 0 );
  	    rect.addCoords( 1, 1, -1-ew, -1 );
 	    break; }
-	
+
 	default:
 	    break;
 	}
 	break;
-	
+
     default:
 	return QCommonStyle::querySubControlMetrics( control, widget, sc, data );
     }
@@ -1402,7 +1589,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	rect = QCommonStyle::subRect( r, widget );
 	rect.addCoords( 1, 1, -1, -2 );
 	break;
-	
+
     case SR_ComboBoxFocusRect: {
 	int awh, ax, ay, sh, sy, dh, ew;
 	int fw = pixelMetric( PM_DefaultFrameWidth, widget );
@@ -1443,562 +1630,6 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
     return rect;
 }
 
-/*! \reimp */
-void QMotifStyle::drawIndicator( QPainter* p,
-                                 int x, int y, int w, int h, const QColorGroup &g,
-                                 int s, bool down, bool /*enabled*/ )
-{
-    bool on = s != QButton::Off;
-    bool showUp = !(down ^ on);
-    QBrush fill =  showUp || s == QButton::NoChange
-                ? g.brush( QColorGroup::Button ) : g.brush( QColorGroup::Mid );
-    if ( s == QButton::NoChange ) {
-        qDrawPlainRect( p, x, y, w, h, g.text(), 1, &fill );
-        p->drawLine(x+w-1,y,x,y+h-1);
-    } else
-        qDrawShadePanel( p, x, y, w, h, g, !showUp, pixelMetric( PM_DefaultFrameWidth ), &fill );
-}
-
-
-/*! \reimp */
-
-QSize
-QMotifStyle::indicatorSize() const
-{
-    return QSize(13,13);
-}
-
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-/*! \reimp */
-
-void QMotifStyle::drawExclusiveIndicator( QPainter* p,
-                                   int x, int y, int w, int h, const QColorGroup &g,
-                                   bool on, bool down, bool /* enabled */ )
-{
-    static QCOORD inner_pts[] =         // used for filling diamond
-    { 2,6, 6,2, 10,6, 6,10 };
-    static QCOORD top_pts[] =           // top (^) of diamond
-    { 0,6, 6,0 , 11,5, 10,5, 6,1, 1,6, 2,6, 6,2, 9,5 };
-    static QCOORD bottom_pts[] =                // bottom (V) of diamond
-    { 1,7, 6,12, 12,6, 11,6, 6,11, 2,7, 3,7, 6,10, 10,6 };
-
-    bool showUp = !(down ^ on );
-    QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
-    p->eraseRect( x, y, w, h );
-    p->setPen( NoPen );
-    p->setBrush( showUp ? g.brush( QColorGroup::Button ) :
-                          g.brush( QColorGroup::Mid ) )  ;
-    a.translate( x, y );
-    p->drawPolygon( a );                        // clear inner area
-    p->setPen( showUp ? g.light() : g.dark() );
-    p->setBrush( NoBrush );
-    a.setPoints( QCOORDARRLEN(top_pts), top_pts );
-    a.translate( x, y );
-    p->drawPolyline( a );                       // draw top part
-    p->setPen( showUp ? g.dark() : g.light() );
-    a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
-    a.translate( x, y );
-    p->drawPolyline( a );                       // draw bottom part
-}
-
-
-/*!
-  Draws the mask of a mark indicating the state of an exclusive choice
-*/
-void
-QMotifStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int, int, bool /* on */)
-{
-    p->setBrush( Qt::color1 );
-    p->setPen( Qt::color1 );
-
-    QPointArray a;
-    a.setPoints( 4, 0,6, 6,0, 12,6, 6, 12 );
-    a.translate(x,y);
-    p->drawPolygon( a );
-}
-
-
-/*! \reimp */
-
-QSize
-QMotifStyle::exclusiveIndicatorSize() const
-{
-    return QSize(13,13);
-}
-
-
-
-
-/*! \reimp */
-
-void
-QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
-                 int x, int y, int w, int h,
-                 const QColorGroup &g, bool enabled, const QBrush * /* fill */ )
-{
-    // ### may be worth caching these as pixmaps, especially with the
-    //      cost of rotate() for vertical arrows.
-
-    QPointArray bFill;                          // fill polygon
-    QPointArray bTop;                           // top shadow.
-    QPointArray bBot;                           // bottom shadow.
-    QPointArray bLeft;                          // left shadow.
-    QWMatrix    matrix;                         // xform matrix
-    bool vertical = type == UpArrow || type == DownArrow;
-    bool horizontal = !vertical;
-    int  dim = w < h ? w : h;
-    int  colspec = 0x0000;                      // color specification array
-
-    if ( dim < 2 )                              // too small arrow
-        return;
-
-    // adjust size and center (to fix rotation below)
-    if ( w >  dim ) {
-        x += (w-dim)/2;
-        w = dim;
-    }
-    if ( h > dim ) {
-        y += (h-dim)/2;
-        h = dim;
-    }
-
-    if ( dim > 3 ) {
-        if ( dim > 6 )
-            bFill.resize( dim & 1 ? 3 : 4 );
-        bTop.resize( (dim/2)*2 );
-        bBot.resize( dim & 1 ? dim + 1 : dim );
-        bLeft.resize( dim > 4 ? 4 : 2 );
-        bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
-        if ( dim > 4 )
-            bLeft.putPoints( 2, 2, 1,2, 1,dim-3 );
-        bTop.putPoints( 0, 4, 1,0, 1,1, 2,1, 3,1 );
-        bBot.putPoints( 0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2 );
-
-        for( int i=0; i<dim/2-2 ; i++ ) {
-            bTop.putPoints( i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i );
-            bBot.putPoints( i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i );
-        }
-        if ( dim & 1 )                          // odd number size: extra line
-            bBot.putPoints( dim-1, 2, dim-3,dim/2, dim-1,dim/2 );
-        if ( dim > 6 ) {                        // dim>6: must fill interior
-            bFill.putPoints( 0, 2, 1,dim-3, 1,2 );
-            if ( dim & 1 )                      // if size is an odd number
-                bFill.setPoint( 2, dim - 3, dim / 2 );
-            else
-                bFill.putPoints( 2, 2, dim-4,dim/2-1, dim-4,dim/2 );
-        }
-    }
-    else {
-        if ( dim == 3 ) {                       // 3x3 arrow pattern
-            bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
-            bTop .setPoints( 2, 1,0, 1,0 );
-            bBot .setPoints( 2, 1,2, 2,1 );
-        }
-        else {                                  // 2x2 arrow pattern
-            bLeft.setPoints( 2, 0,0, 0,1 );
-            bTop .setPoints( 2, 1,0, 1,0 );
-            bBot .setPoints( 2, 1,1, 1,1 );
-        }
-    }
-
-    if ( type == UpArrow || type == LeftArrow ) {
-        matrix.translate( x, y );
-        if ( vertical ) {
-            matrix.translate( 0, h - 1 );
-            matrix.rotate( -90 );
-        } else {
-            matrix.translate( w - 1, h - 1 );
-            matrix.rotate( 180 );
-        }
-        if ( down )
-            colspec = horizontal ? 0x2334 : 0x2343;
-        else
-            colspec = horizontal ? 0x1443 : 0x1434;
-    }
-    else if ( type == DownArrow || type == RightArrow ) {
-        matrix.translate( x, y );
-        if ( vertical ) {
-            matrix.translate( w-1, 0 );
-            matrix.rotate( 90 );
-        }
-        if ( down )
-            colspec = horizontal ? 0x2443 : 0x2434;
-        else
-            colspec = horizontal ? 0x1334 : 0x1343;
-    }
-
-    QColor *cols[5];
-    if ( enabled ) {
-        cols[0] = 0;
-        cols[1] = (QColor *)&g.button();
-        cols[2] = (QColor *)&g.mid();
-        cols[3] = (QColor *)&g.light();
-        cols[4] = (QColor *)&g.dark();
-    } else {
-        cols[0] = 0;
-        cols[1] = (QColor *)&g.button();
-        cols[2] = (QColor *)&g.button();
-        cols[3] = (QColor *)&g.button();
-        cols[4] = (QColor *)&g.button();
-    }
-#define CMID    *cols[ (colspec>>12) & 0xf ]
-#define CLEFT   *cols[ (colspec>>8) & 0xf ]
-#define CTOP    *cols[ (colspec>>4) & 0xf ]
-#define CBOT    *cols[ colspec & 0xf ]
-
-    QPen     savePen   = p->pen();              // save current pen
-    QBrush   saveBrush = p->brush();            // save current brush
-    QWMatrix wxm = p->worldMatrix();
-    QPen     pen( NoPen );
-    QBrush brush = g.brush( enabled?QColorGroup::Button:QColorGroup::Mid );
-
-    p->setPen( pen );
-    p->setBrush( brush );
-    p->setWorldMatrix( matrix, TRUE );          // set transformation matrix
-    p->drawPolygon( bFill );                    // fill arrow
-    p->setBrush( NoBrush );                     // don't fill
-
-    p->setPen( CLEFT );
-    p->drawLineSegments( bLeft );
-    p->setPen( CTOP );
-    p->drawLineSegments( bTop );
-    p->setPen( CBOT );
-    p->drawLineSegments( bBot );
-
-    p->setWorldMatrix( wxm );
-    p->setBrush( saveBrush );                   // restore brush
-    p->setPen( savePen );                       // restore pen
-
-#undef CMID
-#undef CLEFT
-#undef CTOP
-#undef CBOT
-
-}
-
-
-/*!\reimp
-*/
-void QMotifStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-			      const QColorGroup &g, bool sunken, const QBrush* fill)
-{
-    drawPrimitive( PO_ButtonCommand, p, QRect( x, y, w, h), g,
-		   sunken ? PStyle_Sunken : PStyle_Default );
-//     qDrawShadePanel( p, x, y, w, h, g, sunken, pixelMetric(),
-//                      fill ? fill : (sunken ?
-//                                     &g.brush( QColorGroup::Mid )      :
-//                                     &g.brush( QColorGroup::Button ) ));
-}
-
-/*! \reimp */
-
-void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken, const QBrush* fill)
-{
-    QMotifStyle::drawButton(p, x, y, w, h, g, sunken, fill);
-}
-
-
-/*! \reimp */
-
-void
-QMotifStyle::drawFocusRect( QPainter* p,
-                            const QRect& r, const QColorGroup &g , const QColor* bg, bool atBorder)
-{
-    if (bg ) {
-        int h,s,v;
-        bg->hsv(&h,&s,&v);
-        if (v >= 128)
-            p->setPen( Qt::black );
-        else
-            p->setPen( Qt::white );
-    }
-    else
-        p->setPen( g.foreground() );
-    p->setBrush( NoBrush );
-    if ( atBorder )
-        p->drawRect( QRect( r.x()+1, r.y()+1, r.width()-2, r.height()-2 ) );
-    else
-        p->drawRect( r );
-
-}
-
-
-/*! \reimp */
-void QMotifStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap) const
-{
-    // QCommonStyle::tabbarMetrics( t, hframe, vframe, overlap );
-}
-
-/*! \reimp */
-void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool selected )
-{
-    // drawControl( CE_TabBarTab, p, tb, t->rect(), tb->colorGroup(),
-    // selected ? CStyle_Selected : CStyle_Default );
-    //  QRect r( t->rect() );
-    //     int o = defaultFrameWidth() > 1 ? 1 : 0;
-
-    //     if ( tb->shape()  == QTabBar::RoundedAbove ) {
-    //         if ( o ) {
-    //             p->setPen( tb->colorGroup().light() );
-    //             p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-    //             p->setPen( tb->colorGroup().light() );
-    //             p->drawLine( r.left(), r.bottom()-1, r.right(), r.bottom()-1 );
-    //             if ( r.left() == 0 )
-    //                 p->drawPoint( tb->rect().bottomLeft() );
-    //         }
-    //         else {
-    //             p->setPen( tb->colorGroup().light() );
-    //             p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
-    //         }
-
-    //         if ( selected ) {
-    //             p->fillRect( QRect( r.left()+1, r.bottom()-o, r.width()-3, 2),
-    //                          tb->palette().active().brush( QColorGroup::Background ));
-    //             p->setPen( tb->colorGroup().background() );
-    //          p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
-    //          if (o)
-    //              p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
-    //             p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
-    //             p->setPen( tb->colorGroup().light() );
-    //         } else {
-    //             p->setPen( tb->colorGroup().light() );
-    //             r.setRect( r.left() + 2, r.top() + 2,
-    //                        r.width() - 4, r.height() - 2 );
-    //         }
-
-    //         p->drawLine( r.left(), r.bottom()-1, r.left(), r.top() + 2 );
-    //         p->drawPoint( r.left()+1, r.top() + 1 );
-    //         p->drawLine( r.left()+2, r.top(),
-    //                      r.right() - 2, r.top() );
-    //         p->drawPoint( r.left(), r.bottom());
-
-    //         if ( o ) {
-    //             p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
-    //             p->drawLine( r.left()+2, r.top()+1,
-    //                          r.right() - 2, r.top()+1 );
-    //         }
-
-    //         p->setPen( tb->colorGroup().dark() );
-    //         p->drawLine( r.right() - 1, r.top() + 2,
-    //                      r.right() - 1, r.bottom() - 1 + (selected?o:-o));
-    //         if ( o ) {
-    //             p->drawPoint( r.right() - 1, r.top() + 1 );
-    //             p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:1+o));
-    //             p->drawPoint( r.right() - 1, r.top() + 1 );
-    //         }
-    //     } else if ( tb->shape()  == QTabBar::RoundedBelow ) {
-    //         if ( selected ) {
-    //             p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
-    //                          tb->palette().active().brush( QColorGroup::Background ));
-    //             p->setPen( tb->colorGroup().background() );
-    //          p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
-    //             p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
-    //             p->setPen( tb->colorGroup().dark() );
-    //         } else {
-    //             p->setPen( tb->colorGroup().dark() );
-    //             p->drawLine( r.left(), r.top(), r.right(), r.top() );
-    //             r.setRect( r.left() + 2, r.top(),
-    //                        r.width() - 4, r.height() - 2 );
-    //         }
-
-    //         p->drawLine( r.right() - 1, r.top(),
-    //                      r.right() - 1, r.bottom() - 2 );
-    //         p->drawPoint( r.right() - 2, r.bottom() - 2 );
-    //         p->drawLine( r.right() - 2, r.bottom() - 1,
-    //                      r.left() + 1, r.bottom() - 1 );
-    //         p->drawPoint( r.left() + 1, r.bottom() - 2 );
-
-    //         if (defaultFrameWidth() > 1) {
-    //             p->drawLine( r.right(), r.top(),
-    //                          r.right(), r.bottom() - 1 );
-    //             p->drawPoint( r.right() - 1, r.bottom() - 1 );
-    //             p->drawLine( r.right() - 1, r.bottom(),
-    //                          r.left() + 2, r.bottom() );
-    //         }
-
-    //         p->setPen( tb->colorGroup().light() );
-    //         p->drawLine( r.left(), r.top(),
-    //                      r.left(), r.bottom() - 2 );
-
-    //     } else {
-    //         QCommonStyle::drawTab( p, tb, t, selected );
-    //     }
-
-}
-
-
-
-#define HORIZONTAL      (sb->orientation() == QScrollBar::Horizontal)
-#define VERTICAL        !HORIZONTAL
-#define MOTIF_BORDER    pixelMetric( PM_DefaultFrameWidth )
-#define SLIDER_MIN      9 // ### motif says 6 but that's too small
-
-
-/*! \reimp */
-
-void QMotifStyle::scrollBarMetrics( const QScrollBar* sb,
-                                    int &sliderMin, int &sliderMax,
-                                    int &sliderLength, int &buttonDim ) const
-{
-    int maxLength;
-    int b = MOTIF_BORDER;
-    int length = HORIZONTAL ? sb->width()  : sb->height();
-    int extent = HORIZONTAL ? sb->height() : sb->width();
-
-    if ( length > ( extent - b*2 - 1 )*2 + b*2  )
-        buttonDim = extent - b*2;
-    else
-        buttonDim = ( length - b*2 )/2 - 1;
-
-    sliderMin = b + buttonDim;
-    maxLength  = length - b*2 - buttonDim*2;
-
-    if ( sb->maxValue() == sb->minValue() ) {
-        sliderLength = maxLength;
-    } else {
-        uint range = sb->maxValue()-sb->minValue();
-        sliderLength = (sb->pageStep()*maxLength)/
-                        (range + sb->pageStep());
-        if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
-            sliderLength = SLIDER_MIN;
-        if ( sliderLength > maxLength )
-            sliderLength = maxLength;
-    }
-    sliderMax = sliderMin + maxLength - sliderLength;
-
-}
-
-
-/*! \reimp */
-
-void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
-                                         int sliderStart, uint controls,
-                                         uint activeControl )
-{
-// #define ADD_LINE_ACTIVE ( activeControl == AddLine )
-// #define SUB_LINE_ACTIVE ( activeControl == SubLine )
-//     QColorGroup g  = sb->colorGroup();
-
-//     int sliderMin, sliderMax, sliderLength, buttonDim;
-//     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
-
-//     if ( controls == (AddLine | SubLine | AddPage | SubPage | Slider | First | Last ) )
-//         qDrawShadePanel( p, sb->rect(), g, TRUE );
-
-//     if (sliderStart > sliderMax) { // sanity check
-//         sliderStart = sliderMax;
-//     }
-
-//     int b = MOTIF_BORDER;
-//     int dimB = buttonDim;
-//     QRect addB;
-//     QRect subB;
-//     QRect addPageR;
-//     QRect subPageR;
-//     QRect sliderR;
-//     int addX, addY, subX, subY;
-//     int length = HORIZONTAL ? sb->width()  : sb->height();
-//     int extent = HORIZONTAL ? sb->height() : sb->width();
-
-//     if ( HORIZONTAL ) {
-//         subY = addY = ( extent - dimB ) / 2;
-//         subX = b;
-//         addX = length - dimB - b;
-//     } else {
-//         subX = addX = ( extent - dimB ) / 2;
-//         subY = b;
-//         addY = length - dimB - b;
-//     }
-
-//     subB.setRect( subX,subY,dimB,dimB );
-//     addB.setRect( addX,addY,dimB,dimB );
-
-//     int sliderEnd = sliderStart + sliderLength;
-//     int sliderW = extent - b*2;
-//     if ( HORIZONTAL ) {
-//         subPageR.setRect( subB.right() + 1, b,
-//                           sliderStart - subB.right() - 1 , sliderW );
-//         addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
-//         sliderR .setRect( sliderStart, b, sliderLength, sliderW );
-//     } else {
-//         subPageR.setRect( b, subB.bottom() + 1, sliderW,
-//                           sliderStart - subB.bottom() - 1 );
-//         addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
-//         sliderR .setRect( b, sliderStart, sliderW, sliderLength );
-//     }
-
-//     if ( controls & AddLine )
-//         drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-//                    ADD_LINE_ACTIVE, addB.x(), addB.y(),
-//                    addB.width(), addB.height(), g, TRUE );
-//     if ( controls & SubLine )
-//         drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-//                    SUB_LINE_ACTIVE, subB.x(), subB.y(),
-//                    subB.width(), subB.height(), g, TRUE );
-
-//     QBrush fill = g.brush( QColorGroup::Mid );
-//     if (sb->backgroundPixmap() ){
-//         fill = QBrush( g.mid(), *sb->backgroundPixmap() );
-//     }
-
-//     if ( controls & SubPage )
-//         p->fillRect( subPageR, fill );
-
-//     if ( controls & AddPage )
-//         p->fillRect( addPageR, fill );
-
-//     if ( controls & Slider ) {
-//         QPoint bo = p->brushOrigin();
-//         p->setBrushOrigin(sliderR.topLeft());
-//         if ( sliderR.isValid() )
-//             drawBevelButton( p, sliderR.x(), sliderR.y(),
-//                              sliderR.width(), sliderR.height(), g,
-//                              FALSE, &g.brush( QColorGroup::Button ) );
-
-//         //      qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
-//         p->setBrushOrigin(bo);
-//     }
-
-}
-
-
-/*!\reimp
- */
-int QMotifStyle::sliderLength() const
-{
-    return 30;
-}
-
-/*!\reimp
- */
-void QMotifStyle::drawSlider( QPainter *p,
-                             int x, int y, int w, int h,
-                             const QColorGroup &g,
-                              Orientation orient, bool, bool )
-{
-    drawBevelButton( p, x, y, w, h, g, FALSE, &g.brush( QColorGroup::Button) );
-    if ( orient == Horizontal ) {
-        QCOORD mid = x + w / 2;
-        qDrawShadeLine( p, mid,  y , mid,  y + h - 2,
-                        g, TRUE, 1);
-    } else {
-        QCOORD mid = y +h / 2;
-        qDrawShadeLine( p, x, mid,  x + w - 2, mid,
-                        g, TRUE, 1);
-    }
-}
-
-/*!\reimp
- */
-void QMotifStyle::drawSliderGroove( QPainter *p,
-                                      int x, int y, int w, int h,
-                                      const QColorGroup& g, QCOORD /*c */,
-                                      Orientation )
-{
-    qDrawShadePanel( p, x, y, w, h, g, TRUE, 1, &g.brush( QColorGroup::Mid ) );
-}
-
 /*! \reimp
 */
 void QMotifStyle::polishPopupMenu( QPopupMenu* p)
@@ -2009,60 +1640,6 @@ void QMotifStyle::polishPopupMenu( QPopupMenu* p)
         p->setCheckable( FALSE );
     p->setLineWidth( 2 );
 }
-
-
-
-
-/*! \reimp
-*/
-void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
-                                 const QColorGroup &g,
-                                 bool act, bool dis )
-{
-//     const int markW = 6;
-//     const int markH = 6;
-//     int posX = x + ( w - markW )/2 - 1;
-//     int posY = y + ( h - markH )/2;
-
-//     if ( defaultFrameWidth() < 2) {
-//         // Could do with some optimizing/caching...
-//         QPointArray a( 7*2 );
-//         int i, xx, yy;
-//         xx = posX;
-//         yy = 3 + posY;
-//         for ( i=0; i<3; i++ ) {
-//             a.setPoint( 2*i,   xx, yy );
-//             a.setPoint( 2*i+1, xx, yy+2 );
-//             xx++; yy++;
-//         }
-//         yy -= 2;
-//         for ( i=3; i<7; i++ ) {
-//             a.setPoint( 2*i,   xx, yy );
-//             a.setPoint( 2*i+1, xx, yy+2 );
-//             xx++; yy--;
-//         }
-//         if ( dis && !act ) {
-//             int pnt;
-//             p->setPen( g.highlightedText() );
-//             QPoint offset(1,1);
-//             for ( pnt = 0; pnt < (int)a.size(); pnt++ )
-//                 a[pnt] += offset;
-//             p->drawLineSegments( a );
-//             for ( pnt = 0; pnt < (int)a.size(); pnt++ )
-//                 a[pnt] -= offset;
-//         }
-//         p->setPen( g.text() );
-//         p->drawLineSegments( a );
-
-//         qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE,
-//                          defaultFrameWidth());
-//     }
-//     else {
-//         qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE,
-//                     defaultFrameWidth(), &g.brush( QColorGroup::Mid ) );
-//     }
-}
-
 
 /*! \reimp
 */
@@ -2112,314 +1689,6 @@ int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi,
     if ( mi->custom() )
         h = QMAX( h, mi->custom()->sizeHint().height() + 2*motifItemVMargin + 2*motifItemFrame );
     return h;
-}
-
-/*! \reimp
-*/
-void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
-                                     int tab, QMenuItem* mi,
-                                     const QPalette& pal,
-                                     bool act, bool enabled,
-                                     int x, int y, int w, int h )
-{
-    const QColorGroup & g = pal.active();
-    bool dis      = !enabled;
-    QColorGroup itemg = dis ? pal.disabled() : pal.active();
-
-    if ( checkable )
-        maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
-    int checkcol          =     maxpmw;
-
-    if ( mi && mi->isSeparator() ) {                    // draw separator
-        p->setPen( g.dark() );
-        p->drawLine( x, y, x+w, y );
-        p->setPen( g.light() );
-        p->drawLine( x, y+1, x+w, y+1 );
-        return;
-    }
-
-    int pw = motifItemFrame;
-
-    if ( act && !dis ) {                        // active item frame
-        if (pixelMetric( PM_DefaultFrameWidth ) > 1)
-            qDrawShadePanel( p, x, y, w, h, g, FALSE, pw,
-                             &g.brush( QColorGroup::Button ) );
-        else
-            qDrawShadePanel( p, x+1, y+1, w-2, h-2, g, TRUE, 1,
-                             &g.brush( QColorGroup::Button ) );
-    }
-    else                                // incognito frame
-        p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
-
-    if ( !mi )
-        return;
-
-    if ( mi->isChecked() ) {
-        if ( mi->iconSet() ) {
-            qDrawShadePanel( p, x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
-                             g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
-        }
-    } else if ( !act ) {
-        p->fillRect(x+motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame,
-                    g.brush( QColorGroup::Button ));
-    }
-
-    if ( mi->iconSet() ) {              // draw iconset
-        QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
-        if (act && !dis )
-            mode = QIconSet::Active;
-	QPixmap pixmap;
-	if ( checkable && mi->isChecked() )
-	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
-	else
-	    pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
-
-        int pixw = pixmap.width();
-        int pixh = pixmap.height();
-        QRect cr( x + motifItemFrame, y+motifItemFrame, checkcol, h-2*motifItemFrame );
-        QRect pmr( 0, 0, pixw, pixh );
-        pmr.moveCenter( cr.center() );
-        p->setPen( itemg.text() );
-        p->drawPixmap( pmr.topLeft(), pixmap );
-
-    } else  if ( checkable ) {  // just "checking"...
-        int mw = checkcol;
-        int mh = h - 2*motifItemFrame;
-        if ( mi->isChecked() ) {
-            drawCheckMark( p, x+motifItemFrame,
-                           y+motifItemFrame, mw, mh, itemg, act, dis );
-        }
-    }
-
-
-    p->setPen( g.buttonText() );
-
-    QColor discol;
-    if ( dis ) {
-        discol = itemg.text();
-        p->setPen( discol );
-    }
-
-    int xm = motifItemFrame + checkcol + motifItemHMargin;
-
-    if ( mi->custom() ) {
-        int m = motifItemVMargin;
-        p->save();
-        mi->custom()->paint( p, itemg, act, enabled,
-                             x+xm, y+m, w-xm-tab+1, h-2*m );
-        p->restore();
-    }
-    QString s = mi->text();
-    if ( !s.isNull() ) {                        // draw text
-        int t = s.find( '\t' );
-        int m = motifItemVMargin;
-        const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-        if ( t >= 0 ) {                         // draw tab text
-            p->drawText( x+w-tab-motifItemHMargin-motifItemFrame,
-                         y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
-            s = s.left( t );
-        }
-        p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
-    } else if ( mi->pixmap() ) {                        // draw pixmap
-        QPixmap *pixmap = mi->pixmap();
-        if ( pixmap->depth() == 1 )
-            p->setBackgroundMode( OpaqueMode );
-        p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
-        if ( pixmap->depth() == 1 )
-            p->setBackgroundMode( TransparentMode );
-    }
-    if ( mi->popup() ) {                        // draw sub menu arrow
-        int dim = (h-2*motifItemFrame) / 2;
-        if ( act ) {
-            drawArrow( p, RightArrow,
-                       mi->isEnabled(),
-                       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
-                       dim, dim, g,
-                       mi->isEnabled() );
-        } else {
-            drawArrow( p, RightArrow,
-                       FALSE,
-                       x+w - motifArrowHMargin - motifItemFrame - dim,  y+h/2-dim/2,
-                       dim, dim, g, mi->isEnabled() );
-        }
-    }
-}
-
-
-/*! \reimp
- */
-void QMotifStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
-                                    const QColorGroup &g,
-                                    bool /* sunken */,
-                                    bool editable,
-                                    bool /*enabled */,
-                                    const QBrush *fb )
-{
-//     QBrush fill = fb ? *fb : g.brush( QColorGroup::Button );
-
-//     int awh, ax, ay, sh, sy, dh, ew;
-//     get_combo_parameters( buttonRect(x,y,w,h), ew, awh, ax, ay, sh, dh, sy );
-
-//     drawButton( p, x, y, w, h, g, FALSE, &fill );
-
-//     qDrawArrow( p, DownArrow, MotifStyle, FALSE,
-//                 ax, ay, awh, awh, g, TRUE );
-//     p->setPen( g.light() );
-//     p->drawLine( ax, sy, ax+awh-1, sy );
-//     p->drawLine( ax, sy, ax, sy+sh-1 );
-//     p->setPen( g.dark() );
-//     p->drawLine( ax+1, sy+sh-1, ax+awh-1, sy+sh-1 );
-//     p->drawLine( ax+awh-1, sy+1, ax+awh-1, sy+sh-1 );
-
-//     if ( editable ) {
-//         QRect r( comboButtonRect(x,y,w,h) );
-//         qDrawShadePanel( p, QRect(r.x()-1, r.y()-1, r.width()+2, r.height()+2), g, TRUE, 1, &fill );
-//     }
-}
-
-
-/*! \reimp
- */
-QRect QMotifStyle::comboButtonRect( int x, int y, int w, int h) const
-{
-//     QRect r = buttonRect( x, y, w, h );
-//     int ew = get_combo_extra_width( r.height() );
-//     if( QApplication::reverseLayout() )
-//         r.moveBy( ew, 0 );
-//     return QRect(r.x()+1, r.y()+1, r.width()-2-ew, r.height()-2);
-}
-
-/*! \reimp
- */
-QRect QMotifStyle::comboButtonFocusRect( int x, int y, int w, int h ) const
-{
-//     int awh, ax, ay, sh, sy, dh, ew;
-//     get_combo_parameters( buttonRect( x, y, w, h ),
-//                           ew, awh, ax, ay, sh, dh, sy );
-//     return QRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
-
-    return QRect();
-}
-
-/*!\reimp
- */
-void QMotifStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
-                                bool highlight, const QColorGroup &cg,
-                                bool drawBorder )
-{
-//     p->save();
-//     p->translate( r.x(), r.y() );
-
-//     QColor dark( cg.dark() );
-//     QColor light( cg.light() );
-//     unsigned int i;
-//     if ( orientation == Qt::Vertical ) {
-//         int w = r.width();
-//         if ( w > 6 ) {
-//             if ( highlight )
-//                 p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
-//             QPointArray a( 2 * ((w-6)/3) );
-
-//             int x = 3 + (w%3)/2;
-//             p->setPen( dark );
-//             p->drawLine( 1, 8, w-2, 8 );
-//             for( i=0; 2*i < a.size(); i ++ ) {
-//                 a.setPoint( 2*i, x+1+3*i, 6 );
-//                 a.setPoint( 2*i+1, x+2+3*i, 3 );
-//             }
-//             p->drawPoints( a );
-//             p->setPen( light );
-//             p->drawLine( 1, 9, w-2, 9 );
-//             for( i=0; 2*i < a.size(); i++ ) {
-//                 a.setPoint( 2*i, x+3*i, 5 );
-//                 a.setPoint( 2*i+1, x+1+3*i, 2 );
-//             }
-//             p->drawPoints( a );
-//             if ( drawBorder ) {
-//                 p->setPen( QPen( Qt::darkGray ) );
-//                 p->drawLine( r.width() - 1, 0,
-//                              r.width() - 1, toolBarHandleExtent() );
-//             }
-//         }
-//     } else {
-//         int h = r.height();
-//         if ( h > 6 ) {
-//             if ( highlight )
-//                 p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
-//             QPointArray a( 2 * ((h-6)/3) );
-//             int y = 3 + (h%3)/2;
-//             p->setPen( dark );
-//             p->drawLine( 8, 1, 8, h-2 );
-//             for( i=0; 2*i < a.size(); i ++ ) {
-//                 a.setPoint( 2*i, 5, y+1+3*i );
-//                 a.setPoint( 2*i+1, 2, y+2+3*i );
-//             }
-//             p->drawPoints( a );
-//             p->setPen( light );
-//             p->drawLine( 9, 1, 9, h-2 );
-//             for( i=0; 2*i < a.size(); i++ ) {
-//                 a.setPoint( 2*i, 4, y+3*i );
-//                 a.setPoint( 2*i+1, 1, y+1+3*i );
-//             }
-//             p->drawPoints( a );
-//             if ( drawBorder ) {
-//                 p->setPen( QPen( Qt::darkGray ) );
-//                 p->drawLine( 0, r.height() - 1,
-//                              toolBarHandleExtent(), r.height() - 1 );
-//             }
-//         }
-//     }
-//     p->restore();
-}
-
-/*! \reimp */
-// void QMotifStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-//                                    QMenuItem* mi, QColorGroup& g, bool active,
-//                                    bool down, bool hasFocus )
-// {
-//     QRect r( x, y, w, h);
-
-//     if ( active ) // active item
-//         qDrawShadePanel( p, r, g, FALSE, motifItemFrame,
-//                          &g.brush( QColorGroup::Button ));
-//     else // other item
-//         p->fillRect(r, g.brush( QColorGroup::Button ));
-
-//     QCommonStyle::drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
-//                                    mi, g, active, down, hasFocus );
-// }
-
-/*!
- \reimp
- */
-int QMotifStyle::spinBoxFrameWidth() const
-{
-    return 0;
-}
-
-/*!
- \reimp
- */
-int QMotifStyle::progressChunkWidth() const
-{
-    return 1;
-}
-
-/*!
-  \reimp
-*/
-void QMotifStyle::drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
-{
-    qDrawShadePanel( p, x, y, w, h, g, TRUE, 1 );
-    p->fillRect( x + 2, y + 2, w - 4, h - 4, g.base() );
-}
-
-/*!
- \reimp
- */
-void QMotifStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
-{
-    p->fillRect( x, y, w, h, g.highlight() );
 }
 
 /*!
