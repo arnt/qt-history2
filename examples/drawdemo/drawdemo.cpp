@@ -17,6 +17,10 @@
 #include <qapplication.h>
 #include <math.h>
 
+//
+// First we define the functionality our demo should present 
+// to the user. You might add different demo-modes if you wish so.
+//
 
 //
 // This function draws a color wheel.
@@ -107,21 +111,23 @@ struct DrawThing {
 };
 
 //
-// You can add your draw function here.
-// Leave the zeros at the end of the array!
+// All previously implemented functions are collected
+// in the following "table". 
+// If you implement different functionality, your new draw 
+// function must be assigned here with a function pointer and 
+// description. 
+// Leave the zeros at the end, they will be used
+// as markers referring to the end of the array. 
 //
 
 DrawThing ourDrawFunctions[] = {
+// name of the function, title presented to the user 
     { drawColorWheel,	"Draw color wheel" },
     { drawFonts,	"Draw fonts" },
     { drawShapes,	"Draw shapes" },
     { 0,		0 } };
 
 
-//
-// DrawView has installable draw routines, just add a function pointer
-// and a text in the table above.
-//
 
 class DrawView : public QWidget
 {
@@ -161,27 +167,53 @@ DrawView::DrawView()
 
     // Calculate the size for the radio buttons
     int maxwidth = 80;
+    int maxheight = 10;
     int i;
     const char *n;
     QFontMetrics fm = bgroup->fontMetrics();
+    
+    // Find out the longest function description.
+    // Here we make use of the last "0,0"-entry in the 
+    // ourDrawFunctions-array.
     for ( i=0; (n=ourDrawFunctions[i].name) != 0; i++ ) {
         int w = fm.width( n );
-        maxwidth = QMAX(w,maxwidth);
+        maxwidth = QMAX(w,maxwidth); // QMAX is a macro defined in qglobal.h
+                                     // and returns the biggest of to values.
+	// Due to its macro nature one should use it with care and with
+	// constant parameters only. 
     }
-    maxwidth = maxwidth + 20;			// add 20 pixels
+
+    maxwidth = maxwidth + 30;			// allow 30 pixels for radiobuttons
 
     for ( i=0; (n=ourDrawFunctions[i].name) != 0; i++ ) {
         QRadioButton *rb = new QRadioButton( n, bgroup );
         rb->setGeometry( 10, i*30+10, maxwidth, 30 );
-        if ( i == 0 )
+
+        maxheight += 30;
+
+	if ( i == 0 )
             rb->setChecked( TRUE );
     }
+
+    maxheight += 10;                            // maxheight is now 10 pixels upper margin
+    						// plus number_of_drawfunctions * 30
+    						// plus 10 pixels lower margin	
 
     drawindex = 0;				// draw first thing
     maxindex  = i;
 
-    maxwidth += 40;				// now size of bgroup
+    maxwidth += 20;				// add some margin, this results in the
+   						// final width of bgroup 
 
+    bgroup->resize( maxwidth, maxheight );      // resize bgroup to its final size
+  						// when no printersupport is provided  
+
+
+// If -- at compile time -- printer support will be disabled,
+// we won't set up printing functionality.
+
+#ifndef QT_NO_PRINTER
+    
     printer = new QPrinter;
 
     // Create and setup the print button
@@ -190,13 +222,16 @@ DrawView::DrawView()
     print->move( maxwidth/2 - print->width()/2, maxindex*30+20 );
     connect( print, SIGNAL(clicked()), SLOT(printIt()) );
 
+    // Resize bgroup to its final size when printersupport is given.
     bgroup->resize( maxwidth, print->y()+print->height()+10 );
+
+#endif    
 
     resize( 640,300 );
 }
 
 //
-// Clean up
+// Clean up.
 //
 DrawView::~DrawView()
 {
@@ -232,12 +267,10 @@ void DrawView::drawIt( QPainter *p )
 
 void DrawView::printIt()
 {
-#ifndef QT_NO_PRINTER
     if ( printer->setup( this ) ) {
         QPainter paint( printer );
         drawIt( &paint );
     }
-#endif
 }
 
 //
