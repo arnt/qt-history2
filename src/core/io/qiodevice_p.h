@@ -40,7 +40,7 @@ class Q_CORE_EXPORT QIODevicePrivate
 
 protected:
     QIODevicePrivate();
-    ~QIODevicePrivate();
+    virtual ~QIODevicePrivate();
 
     QIODevice *q_ptr;
 
