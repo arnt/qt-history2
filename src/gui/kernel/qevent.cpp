@@ -2063,6 +2063,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     Q_UNUSED(e);
 #endif
 }
+#endif
 
 /*!
     \internal
@@ -2079,4 +2080,3 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 QClipboardEvent::QClipboardEvent(QEventPrivate *data)
     : QEvent(QEvent::Clipboard)
 { d = data; }
-#endif
