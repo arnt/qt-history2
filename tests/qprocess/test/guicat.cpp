@@ -14,6 +14,9 @@ GuiCat::GuiCat( QWidget *p ) : QVBox( p )
     pb = new QPushButton( "Read One Byte", this );
     connect( pb, SIGNAL(clicked()), this, SLOT(readOneByte()) );
 
+    pb = new QPushButton( "Read 16*4096 Byte", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(readMuch()) );
+
     pb = new QPushButton( "Write to Stdout", this );
     connect( pb, SIGNAL(clicked()), this, SLOT(writeStdout()) );
 
@@ -41,6 +44,22 @@ void GuiCat::readOneByte()
 	cin >> ch;
 	buf.resize( buf.size() + 1 );
 	buf.at( buf.size()-1 ) = ch;
+    }
+}
+
+
+void GuiCat::readMuch()
+{
+    char ch;
+    int i = 0;
+    while( !cin.eof() ) {
+	cin >> ch;
+	i++;
+	if ( i >= 16*4096 ) {
+	    buf.resize( buf.size() + 1 );
+	    buf.at( buf.size()-1 ) = ch;
+	    break;
+	}
     }
 }
 

@@ -50,6 +50,7 @@ Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit, int com )
     QLineEdit *in = new QLineEdit( &main );
     out = new QLabel( &main );
     err = new QLabel( &main );
+    QPushButton *writeMuch = new QPushButton( "Write much", &main );
     QPushButton *close = new QPushButton( "Close Stdin", &main );
 
     // hup, kill
@@ -77,6 +78,9 @@ Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit, int com )
     // slot dataStdin( const QString& )
     QObject::connect( in, SIGNAL(textChanged(const QString&)),
 	    proc, SLOT(dataStdin(const QString&)) );
+    // slot write much
+    QObject::connect( writeMuch, SIGNAL(clicked()),
+	    this, SLOT(writeMuch()) );
     // slot closeStdin()
     QObject::connect( close, SIGNAL(clicked()),
 	    proc, SLOT(closeStdin()) );
@@ -108,6 +112,13 @@ Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit, int com )
 	return;
     }
     main.show();
+}
+
+void Some::writeMuch()
+{
+    QString big;
+    big.fill( 'c', 16*4096 );
+    proc->dataStdin( big );
 }
 
 void Some::kill()

@@ -11,6 +11,7 @@ public:
 
 public slots:
     void readOneByte();
+    void readMuch();
 
     void writeStdout();
     void writeStderr();
