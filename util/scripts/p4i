@@ -1,27 +1,30 @@
 #!/usr/bin/perl -w
 
-$P4 = "/local/bin/p4";
+$P4 = "p4";
 
 # Simplify program name, if it is a path.
-$0 =~ s#.*/##;
+$0 =~ s/.*\///;
 
-if ( ! -f $P4 ) {
-    die "$0: $P4 is not a file\n";
-} elsif ( ! -x $P4 ) {
-    die "$0: $P4 is not executable\n";
+open( P4, "$P4 -V |") || die "$0: Couldn't exec $P4: $!\n";
+$line = <P4>;
+close( P4 );
+chomp( $line );
+if ( $line !~ /^Perforce/ ) {
+    die "$0: $P4 -V isn't p4? Returned: \"$line\"\n";
 }
-
+    
 if ( $#ARGV != 0 ) {
     die "$0: takes a single change number as argument\n";
 } else {
     $change = $ARGV[0];
 }
 
-@branchFiles=();
+@branchFiles = ();
 open( P4, "$P4 describe -s $change |") || die "$0: Couldn't exec $P4: $!\n";
 @changeDescription = <P4>;
 close( P4 );
-pop @changeDescription;
+# The last line is blank, so discard it.
+pop( @changeDescription );
 
 # This is pretty evil; essentially it picks out the "affected files" lines and
 # pushes the filename of each onto @branchFiles.
@@ -32,18 +35,18 @@ grep {
 } @changeDescription;
 
 # Check all files in same branch
-$abort=0;
+$abort = 0;
 @pathComponents = split ( /\//, $branchFiles[0] );
 # The leading "//" will split into two empty fields, so we use 4 instead of 2
 # here.
-$branch=$pathComponents[4];
+$branch = $pathComponents[4];
 print "Merging from $branch to main\n";
 
 foreach $file ( @branchFiles ) {
     @pathComponents = split ( /\//, $file );
     if ( $pathComponents[4] != $branch ) {
 	print STDERR "File $file on branch $pathComponents[4], not $branch\n";
-	$abort=1;
+	$abort = 1;
     }
 }
 
@@ -51,16 +54,16 @@ if ( $abort ) {
     die "$0: Exiting; not all files on the same branch";
 }
 
-@mainFiles=();
+@mainFiles = ();
 foreach $file ( @branchFiles ) {
     @pathComponents = split ( /\//, $file );
-    $pathComponents[4]="main";
+    $pathComponents[4] = "main";
     $mainfile = join ("/", @pathComponents );
-    push ( @mainFiles, $mainfile );
+    push( @mainFiles, $mainfile );
 }
 
 # Check all files are closed
-$files=join( " ", @mainFiles );
+$files = join( " ", @mainFiles );
 print "Checking files are closed: $files\n";
 # Unbelievable... p4 writes this file list to stderr!?
 open( P4, "$P4 opened $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
@@ -99,7 +102,7 @@ if ( $abort ) {
 # Now do the integrate
 
 print "Integrating: $files\n";
-for ( $count=0; $count < @branchFiles; $count++ ) {
+for ( $count = 0; $count < @branchFiles; $count++ ) {
     open( P4, "$P4 integrate $branchFiles[$count] $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
@@ -107,7 +110,7 @@ for ( $count=0; $count < @branchFiles; $count++ ) {
 	$line =~ s/\#[0-9]+(,\#[0-9]+)*//g;
 	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]" ) {
 	    print STDERR "$P4 returned unexpected line \"$line\"\n";
-	    $abort=1;
+	    $abort = 1;
 	}
     }
     close( P4 );
@@ -122,7 +125,7 @@ if ( $abort ) {
 # First we want to be able to handle the files by name rather than in a list.
 %filesToResolve = ();
 foreach $file (@mainFiles) {
-    $filesToResolve{$file}=1;
+    $filesToResolve{$file} = 1;
 }
 
 #foreach $key ( keys( %filesToResolve ) ) {
