@@ -399,15 +399,15 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 {
     if ( e->type() == QEvent::KeyPress) {
 	QKeyEvent * k = (QKeyEvent *)e;
-	if ( o == d->sizeEdit && 
+	if ( o == d->sizeEdit &&
         (k->key() == Key_Up ||
 	     k->key() == Key_Down ||
          k->key() == Key_Prior ||
          k->key() == Key_Next) ) {
-	    
+
 	    int ci = d->sizeList->currentItem();
 	    (void)QApplication::sendEvent( d->sizeList, k );
-	    
+
 	    if ( ci != d->sizeList->currentItem() &&
 		style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this))
 		d->sizeEdit->selectAll();
@@ -417,7 +417,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 	    k->accept();
         accept();
 	    return TRUE;
-	} 
+	}
     } else if ( e->type() == QEvent::FocusIn &&
 		style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) ) {
 	if ( o == d->familyList )
@@ -673,8 +673,6 @@ void QFontDialog::updateSample()
 void QFontDialog::scriptHighlighted( int index )
 {
     d->script = (QFont::Script)index;
-    QString currentStyle = d->styleList->currentText();
-
     d->sampleEdit->setText( d->fdb.scriptSample( d->script ) );
     updateFamilies();
 }
