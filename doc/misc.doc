@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.32 1998/10/31 04:04:28 agulbra Exp $
+** $Id: misc.doc,v 2.33 1998/11/20 17:10:39 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.32 1998/10/31 04:04:28 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.33 1998/11/20 17:10:39 aavit Exp $";
 #endif
 
 
@@ -178,11 +178,18 @@ Troll Tech can be reached via the following e-mail addresses:
 </dl>
 
 
+<h2>Sales Phone</h2>
+
+<center>
+<strong>+47 22 80 63 91</strong>
+</center>
+
+
 <h2>FAX</h2>
 
 Our telefax number is:<br>
 <center>
-<strong>+47 22 64 69 49</strong>
+<strong>+47 22 80 63 80</strong>
 </center>
 
 
@@ -193,8 +200,8 @@ Our postal address is:<br>
 <table>
 <tr><td align=left>
 Troll Tech AS<br>
-PO Box 6133 Etterstad<br>
-N-0602 Oslo<br>
+Waldemar Thranes gt. 98b<br>
+N-0175 Oslo<br>
 NORWAY<br></td></tr>
 </table>
 </center>
