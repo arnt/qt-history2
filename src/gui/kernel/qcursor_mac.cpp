@@ -32,6 +32,7 @@ extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 #include <qpainter.h>
 class QMacCursorWidget : public QWidget
 {
+    Q_OBJECT
     QBitmap bitmap;
 public:
     QMacCursorWidget(const QBitmap *b, const QBitmap *m) :
@@ -63,6 +64,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *) { bitBlt(this, 0, 0, &bitmap); }
 };
+#include "qcursor_mac.moc"
 
 class QMacAnimateCursor : public QObject
 {
