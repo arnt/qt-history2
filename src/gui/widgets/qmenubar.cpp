@@ -377,6 +377,7 @@ QMenuBar::QMenuBar(QWidget *parent) : QWidget(*new QMenuBarPrivate, parent, 0)
 QMenuBar::QMenuBar(QWidget *parent, const char *name) : QWidget(*new QMenuBarPrivate, parent, 0)
 {
     d->init();
+    setObjectName(name);
 }
 #endif
 
