@@ -687,7 +687,7 @@ typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 #  define QT_LARGEFILE_SUPPORT 64
 #endif
 #if defined(QT_LARGEFILE_SUPPORT)
-    typedef unsigned long long QtOffset;
+    typedef Q_ULLONG QtOffset;
 #else
     typedef Q_ULONG QtOffset;
 #endif
