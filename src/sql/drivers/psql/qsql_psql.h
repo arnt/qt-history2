@@ -16,7 +16,6 @@
 
 #include <qsqlresult.h>
 #include <qsqldriver.h>
-#include <libpq-fe.h>
 
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_PSQL
@@ -24,14 +23,19 @@
 #define Q_EXPORT_SQLDRIVER_PSQL Q_SQL_EXPORT
 #endif
 
-class QPSQLPrivate;
+typedef struct pg_conn PGconn;
+typedef struct pg_result PGresult;
+
+class QPSQLResultPrivate;
+class QPSQLDriverPrivate;
 class QPSQLDriver;
 class QSqlRecordInfo;
 
 class QPSQLResult : public QSqlResult
 {
+    friend class QPSQLResultPrivate;
 public:
-    QPSQLResult(const QPSQLDriver* db, const QPSQLPrivate* p);
+    QPSQLResult(const QPSQLDriver* db, const QPSQLDriverPrivate* p);
     ~QPSQLResult();
     PGresult* result();
 protected:
@@ -46,13 +50,18 @@ protected:
     int numRowsAffected();
     QSqlRecord record() const;
 
+    bool poll();
+    int pollDescriptor() const;
+    bool resetAsync(const QString &sqlquery);
+    void cancelAsync();
+
 private:
-    int currentSize;
-    QPSQLPrivate *d;
+    QPSQLResultPrivate *d;
 };
 
 class Q_EXPORT_SQLDRIVER_PSQL QPSQLDriver : public QSqlDriver
 {
+    Q_OBJECT
 public:
     enum Protocol {
         Version6 = 6,
@@ -78,7 +87,7 @@ public:
     QSqlIndex primaryIndex(const QString& tablename) const;
     QSqlRecord record(const QString& tablename) const;
 
-    Protocol protocol() const { return pro; }
+    Protocol protocol() const;
     PGconn *connection();
     QString formatValue(const QSqlField &field,
                                      bool trimStrings) const;
@@ -89,8 +98,7 @@ protected:
     bool rollbackTransaction();
 private:
     void init();
-    Protocol pro;
-    QPSQLPrivate *d;
+    QPSQLDriverPrivate *d;
 };
 
 #endif

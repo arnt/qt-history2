@@ -24,6 +24,8 @@
 #include <qsqlrecord.h>
 #include <qstringlist.h>
 
+#include <libpq-fe.h>
+
 // PostgreSQL header <utils/elog.h> included by <postgres.h> redefines DEBUG.
 #if defined(DEBUG)
 # undef DEBUG
@@ -38,20 +40,56 @@
 #include <catalog/pg_type.h>
 #undef errno
 
-class QPSQLPrivate
+class QPSQLDriverPrivate
 {
 public:
-  QPSQLPrivate():connection(0), result(0), isUtf8(false) {}
-    PGconn        *connection;
-    PGresult        *result;
-    bool        isUtf8;
+    QPSQLDriverPrivate(): connection(0), isUtf8(false), pro(QPSQLDriver::Version6) {}
+    PGconn *connection;
+    bool isUtf8;
+    QPSQLDriver::Protocol pro;
 };
 
-static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QPSQLPrivate* p)
+class QPSQLResultPrivate
+{
+public:
+    QPSQLResultPrivate(QPSQLResult *qq): q(qq), driver(0), result(0), currentSize(-1) {}
+
+    QPSQLResult *q;
+    const QPSQLDriverPrivate *driver;
+    PGresult *result;
+    int currentSize;
+
+    bool processResults();
+};
+
+static QSqlError qMakeError(const QString& err, QSqlError::ErrorType type,
+                            const QPSQLDriverPrivate *p)
 {
     const char *s = PQerrorMessage(p->connection);
     QString msg = p->isUtf8 ? QString::fromUtf8(s) : QString::fromLocal8Bit(s);
     return QSqlError(QLatin1String("QPSQL: ") + err, msg, type);
+}
+
+bool QPSQLResultPrivate::processResults()
+{
+    if (!result)
+        return false;
+
+    int status = PQresultStatus(result);
+    if (status == PGRES_TUPLES_OK) {
+        q->setSelect(true);
+        q->setActive(true);
+        currentSize = PQntuples(result);
+        return true;
+    } else if (status == PGRES_COMMAND_OK) {
+        q->setSelect(false);
+        q->setActive(true);
+        currentSize = -1;
+        return true;
+    }
+    q->setLastError(qMakeError(QLatin1String("Unable to create query"), QSqlError::StatementError,
+                               driver));
+    return false;
 }
 
 static QCoreVariant::Type qDecodePSQLType(int t)
@@ -130,12 +168,11 @@ static QCoreVariant::Type qDecodePSQLType(int t)
     return type;
 }
 
-QPSQLResult::QPSQLResult(const QPSQLDriver* db, const QPSQLPrivate* p)
-: QSqlResult(db),
-  currentSize(0)
+QPSQLResult::QPSQLResult(const QPSQLDriver* db, const QPSQLDriverPrivate* p)
+    : QSqlResult(db)
 {
-    d =   new QPSQLPrivate();
-    (*d) = (*p);
+    d = new QPSQLResultPrivate(this);
+    d->driver = p;
 }
 
 QPSQLResult::~QPSQLResult()
@@ -154,8 +191,8 @@ void QPSQLResult::cleanup()
     if (d->result)
         PQclear(d->result);
     d->result = 0;
-    setAt(-1);
-    currentSize = 0;
+    setAt(QSql::BeforeFirst);
+    d->currentSize = -1;
     setActive(false);
 }
 
@@ -165,7 +202,7 @@ bool QPSQLResult::fetch(int i)
         return false;
     if (i < 0)
         return false;
-    if (i >= currentSize)
+    if (i >= d->currentSize)
         return false;
     if (at() == i)
         return true;
@@ -198,7 +235,7 @@ QCoreVariant QPSQLResult::data(int i)
     case QCoreVariant::Bool:
         return QCoreVariant((bool)(val[0] == 't'));
     case QCoreVariant::String:
-        return d->isUtf8 ? QString::fromUtf8(val) : QString::fromLocal8Bit(val);
+        return d->driver->isUtf8 ? QString::fromUtf8(val) : QString::fromLocal8Bit(val);
     case QCoreVariant::LongLong:
         if (val[0] == '-')
             return QString::fromLatin1(val).toLongLong();
@@ -263,21 +300,21 @@ QCoreVariant QPSQLResult::data(int i)
         QByteArray ba;
         const_cast<QSqlDriver *>(driver())->beginTransaction();
         Oid oid = atoi(val);
-        int fd = lo_open(d->connection, oid, INV_READ);
+        int fd = lo_open(d->driver->connection, oid, INV_READ);
         if (fd < 0) {
             qWarning("QPSQLResult::data: unable to open large object for read");
             const_cast<QSqlDriver *>(driver())->commitTransaction();
             return QCoreVariant(ba);
         }
         int size = 0;
-        int retval = lo_lseek(d->connection, fd, 0L, SEEK_END);
+        int retval = lo_lseek(d->driver->connection, fd, 0L, SEEK_END);
         if (retval >= 0) {
-            size = lo_tell(d->connection, fd);
-            lo_lseek(d->connection, fd, 0L, SEEK_SET);
+            size = lo_tell(d->driver->connection, fd);
+            lo_lseek(d->driver->connection, fd, 0L, SEEK_SET);
         }
         if (size == 0) {
-            lo_close(d->connection, fd);
-            ((QSqlDriver*)driver())->commitTransaction();
+            lo_close(d->driver->connection, fd);
+            const_cast<QSqlDriver *>(driver())->commitTransaction();
             return QCoreVariant(ba);
         }
         char * buf = new char[size];
@@ -294,7 +331,7 @@ QCoreVariant QPSQLResult::data(int i)
                 p += retval;
         }
 #else
-        retval = lo_read(d->connection, fd, buf, size);
+        retval = lo_read(d->driver->connection, fd, buf, size);
 #endif
 
         if (retval < 0) {
@@ -303,7 +340,7 @@ QCoreVariant QPSQLResult::data(int i)
             ba = QByteArray(buf, size);
         }
         delete [] buf;
-        lo_close(d->connection, fd);
+        lo_close(d->driver->connection, fd);
         const_cast<QSqlDriver *>(driver())->commitTransaction();
         return QCoreVariant(ba);
     }
@@ -327,34 +364,14 @@ bool QPSQLResult::reset (const QString& query)
         return false;
     if (!driver()->isOpen() || driver()->isOpenError())
         return false;
-    setActive(false);
-    setAt(QSql::BeforeFirst);
-    if (d->result)
-        PQclear(d->result);
-    if (d->isUtf8) {
-        d->result = PQexec(d->connection, query.utf8());
-    } else {
-        d->result = PQexec(d->connection, query.local8Bit());
-    }
-    int status =  PQresultStatus(d->result);
-    if (status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK) {
-        if (status == PGRES_TUPLES_OK) {
-            setSelect(true);
-            currentSize = PQntuples(d->result);
-        } else {
-            setSelect(false);
-            currentSize = -1;
-        }
-        setActive(true);
-        return true;
-    }
-    setLastError(qMakeError(QLatin1String("Unable to create query"), QSqlError::StatementError, d));
-    return false;
+    d->result = PQexec(d->driver->connection,
+                       d->driver->isUtf8 ? query.utf8() : query.local8Bit());
+    return d->processResults();
 }
 
 int QPSQLResult::size()
 {
-    return currentSize;
+    return d->currentSize;
 }
 
 int QPSQLResult::numRowsAffected()
@@ -371,7 +388,7 @@ QSqlRecord QPSQLResult::record() const
     int count = PQnfields(d->result);
     for (int i = 0; i < count; ++i) {
         QSqlField f;
-        if (d->isUtf8)
+        if (d->driver->isUtf8)
             f.setName(QString::fromUtf8(PQfname(d->result, i)));
         else
             f.setName(QString::fromLocal8Bit(PQfname(d->result, i)));
@@ -389,6 +406,44 @@ QSqlRecord QPSQLResult::record() const
         info.append(f);
     }
     return info;
+}
+
+bool QPSQLResult::poll()
+{
+   if (!PQconsumeInput(d->driver->connection)) {
+        setLastError(qMakeError(QLatin1String("Unable to fetch data from the server"),
+                                QSqlError::ConnectionError, d->driver));
+        return false;
+    }
+    if (PQisBusy(d->driver->connection))
+        return true; // continue polling
+    d->result = PQgetResult(d->driver->connection);
+    return d->processResults();
+}
+
+int QPSQLResult::pollDescriptor() const
+{
+    return PQsocket(d->driver->connection);
+}
+
+bool QPSQLResult::resetAsync(const QString &query)
+{
+    cleanup();
+    const QSqlDriver *dr = driver();
+    if (!dr || !dr->isOpen() || !dr->isOpenError())
+        return false;
+    if (!PQsendQuery(d->driver->connection,
+                     d->driver->isUtf8 ? query.utf8() : query.local8Bit())) {
+        setLastError(qMakeError(QLatin1String("Unable to execute asynchronous query"),
+                                QSqlError::ConnectionError, d->driver));
+        return false;
+    }
+    return true;
+}
+
+void QPSQLResult::cancelAsync()
+{
+    PQrequestCancel(d->driver->connection);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -444,18 +499,18 @@ static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
 }
 
 QPSQLDriver::QPSQLDriver(QObject *parent)
-    : QSqlDriver(parent), pro(QPSQLDriver::Version6)
+    : QSqlDriver(parent)
 {
     init();
 }
 
 QPSQLDriver::QPSQLDriver(PGconn * conn, QObject * parent)
-    : QSqlDriver(parent), pro(QPSQLDriver::Version6)
+    : QSqlDriver(parent)
 {
     init();
     d->connection = conn;
     if (conn) {
-        pro = getPSQLVersion(d->connection);
+        d->pro = getPSQLVersion(d->connection);
         setOpen(true);
         setOpenError(false);
     }
@@ -463,7 +518,7 @@ QPSQLDriver::QPSQLDriver(PGconn * conn, QObject * parent)
 
 void QPSQLDriver::init()
 {
-    d = new QPSQLPrivate();
+    d = new QPSQLDriverPrivate();
 }
 
 QPSQLDriver::~QPSQLDriver()
@@ -487,7 +542,7 @@ bool QPSQLDriver::hasFeature(DriverFeature f) const
     case QuerySize:
         return true;
     case BLOB:
-        return pro >= QPSQLDriver::Version71;
+        return d->pro >= QPSQLDriver::Version71;
     case Unicode:
         return d->isUtf8;
     default:
@@ -530,7 +585,7 @@ bool QPSQLDriver::open(const QString & db,
         return false;
     }
 
-    pro = getPSQLVersion(d->connection);
+    d->pro = getPSQLVersion(d->connection);
     d->isUtf8 = setEncodingUtf8(d->connection);
     setDatestyle(d->connection);
 
@@ -617,7 +672,7 @@ QStringList QPSQLDriver::tables(QSql::TableType type) const
         QString query(QLatin1String("select relname from pg_class where (relkind = 'r') "
                 "and (relname !~ '^Inv') "
                 "and (relname !~ '^pg_') "));
-        if (pro >= QPSQLDriver::Version73)
+        if (d->pro >= QPSQLDriver::Version73)
             query.append(QLatin1String("and (relnamespace not in "
                          "(select oid from pg_namespace where nspname = 'information_schema')) "));
         t.exec(query);
@@ -628,7 +683,7 @@ QStringList QPSQLDriver::tables(QSql::TableType type) const
         QString query(QLatin1String("select relname from pg_class where (relkind = 'v') "
                 "and (relname !~ '^Inv') "
                 "and (relname !~ '^pg_') "));
-        if (pro >= QPSQLDriver::Version73)
+        if (d->pro >= QPSQLDriver::Version73)
             query.append(QLatin1String("and (relnamespace not in "
                          "(select oid from pg_namespace where nspname = 'information_schema')) "));
         t.exec(query);
@@ -653,7 +708,7 @@ QSqlIndex QPSQLDriver::primaryIndex(const QString& tablename) const
     QSqlQuery i(createResult());
     QString stmt;
 
-    switch(pro) {
+    switch(d->pro) {
     case QPSQLDriver::Version6:
         stmt = QLatin1String("select pg_att1.attname, int(pg_att1.atttypid), pg_cl.relname "
                 "from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
@@ -704,7 +759,7 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
         return info;
 
     QString stmt;
-    switch(pro) {
+    switch(d->pro) {
     case QPSQLDriver::Version6:
         stmt = QLatin1String("select pg_attribute.attname, int(pg_attribute.atttypid), "
                 "pg_attribute.attnotnull, pg_attribute.attlen, pg_attribute.atttypmod, "
@@ -752,7 +807,7 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
 
     QSqlQuery query(createResult());
     query.exec(stmt.arg(tablename.toLower()));
-    if (pro >= QPSQLDriver::Version71) {
+    if (d->pro >= QPSQLDriver::Version71) {
         while (query.next()) {
             int len = query.value(3).toInt();
             int precision = query.value(4).toInt();
@@ -877,3 +932,9 @@ bool QPSQLDriver::isOpen() const
 {
     return PQstatus(d->connection) == CONNECTION_OK;
 }
+
+QPSQLDriver::Protocol QPSQLDriver::protocol() const
+{
+    return d->pro;
+}
+
