@@ -362,10 +362,8 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         qt_mac_safe_pdev = tlw;
     }
 
-    bool canWait;
     bool retVal = false;
-
-    do {
+    while(1) {
         QApplication::sendPostedEvents();
         retVal = d->activateTimers() > 0; //send null timers
 
@@ -378,22 +376,21 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
             ReleaseEvent(event);
         } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
 
-        QThreadData *data = QThreadData::current();
-        canWait = (!retVal
-                   && data->postEventList.size() == 0
-                   && !d->interrupt
-                   && (flags & QEventLoop::WaitForMoreEvents)
-                   && !d->zero_timer_count);
+        QApplication::sendPostedEvents();
 
+        bool canWait = (!retVal
+                        && QThreadData::current()->postEventList.size() == 0
+                        && !d->interrupt
+                        && (flags & QEventLoop::WaitForMoreEvents)
+                        && !d->zero_timer_count);
         if (canWait) {
             emit aboutToBlock();
-            while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut)
-                ;
+            while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
+        } else {
+            break;
         }
-    } while (canWait);
-
-    if (d->interrupt)
-        d->interrupt = false;
+    } 
+    d->interrupt = false;
     return retVal;
 }
 
