@@ -351,7 +351,7 @@ QObject::~QObject()
 
     // disconnect receivers
     if (d->connections) {
-        d->connections->lock.acquire();
+        d->connections->mutex.lock();
 
         // reset all guarded pointers
         int i = 0;
@@ -372,11 +372,12 @@ QObject::~QObject()
 
         if (d->connections->active) {
             d->connections->orphaned = true;
-            d->connections->lock.release();
+            d->connections->mutex.unlock();
         } else {
             if (d->connections->connections != d->connections->stack)
                 qFree(d->connections->connections);
-            d->connections->lock.~QSpinLock();
+            d->connections->mutex.unlock();
+            d->connections->mutex.~QMutex();
             qFree(d->connections);
         }
         d->connections = 0;
@@ -384,7 +385,7 @@ QObject::~QObject()
 
     // disconnect senders
     if (d->senders) {
-        d->senders->lock.acquire();
+        d->senders->mutex.lock();
 
         for (int i = 0; i < d->senders->count; ++i) {
             QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
@@ -392,11 +393,12 @@ QObject::~QObject()
         }
         if (d->senders->active) {
             d->senders->orphaned = true;
-            d->senders->lock.release();
+            d->senders->mutex.unlock();
         } else {
             if (d->senders->senders != d->senders->stack)
                 qFree(d->senders->senders);
-            d->senders->lock.~QSpinLock();
+            d->senders->mutex.unlock();
+            d->senders->mutex.~QMutex();
             qFree(d->senders);
         }
         d->senders = 0;
@@ -1322,16 +1324,17 @@ void QObjectPrivate::refSender(QObject *sender)
     bool created = false;
     if (!senders) {
         Senders *s = (Senders *) qMalloc(sizeof(Senders));
-        new (&s->lock) QSpinLock();
+        new (&s->mutex) QMutex;
         s->senders = s->stack;
         s->active = false;
         s->orphaned = false;
         s->count = 1;
         s->current = 0;
 
-        s->lock.acquire();
+        s->mutex.lock();
         if (!q_atomic_test_and_set_ptr(&senders, 0, s)) {
-            s->lock.~QSpinLock();
+            s->mutex.unlock();
+            s->mutex.~QMutex();
             qFree(s);
         } else {
             created = true;
@@ -1339,7 +1342,7 @@ void QObjectPrivate::refSender(QObject *sender)
     }
 
     if (!created) {
-        senders->lock.acquire();
+        senders->mutex.lock();
         if (!senders->active && senders->senders != senders->stack) {
             // deallocate the separate senders array (keeping the
             // structure and array in a single memory block
@@ -1354,7 +1357,7 @@ void QObjectPrivate::refSender(QObject *sender)
         while (i < senders->count) {
             if (senders->senders[i].sender == sender) {
                 ++senders->senders[i].ref;
-                senders->lock.release();
+                senders->mutex.unlock();
                 return;
             }
             ++i;
@@ -1384,7 +1387,7 @@ void QObjectPrivate::refSender(QObject *sender)
     senders->senders[i].sender = sender;
     senders->senders[i].ref = 1;
 
-    senders->lock.release();
+    senders->mutex.unlock();
 }
 
 /*
@@ -1396,7 +1399,7 @@ void QObjectPrivate::derefSender(QObject *sender)
 {
     if (!senders) return;
 
-    QSpinLockLocker locker(&senders->lock);
+    QMutexLocker locker(&senders->mutex);
 
     for (int i = 0; i < senders->count; ++i) {
         if (senders->senders[i].sender == sender) {
@@ -1418,7 +1421,7 @@ void QObjectPrivate::removeSender(QObject *sender)
 {
     if (!senders) return;
 
-    QSpinLockLocker locker(&senders->lock);
+    QMutexLocker locker(&senders->mutex);
 
     for (int i = 0; i < senders->count; ++i) {
         if (senders->senders[i].sender == sender)
@@ -1436,7 +1439,7 @@ QObject *QObjectPrivate::setCurrentSender(Senders *senders, QObject *sender, boo
 {
     Q_ASSERT(senders);
 
-    QSpinLockLocker locker(&senders->lock);
+    QMutexLocker locker(&senders->mutex);
 
     register QObject *const previous = senders->current;
     senders->current = sender;
@@ -1453,12 +1456,13 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender, bool 
 {
     Q_ASSERT(senders);
 
-    senders->lock.acquire();
+    senders->mutex.lock();
 
     if (!was_active && senders->orphaned) {
         if (senders->senders != senders->stack)
             qFree(senders->senders);
-        senders->lock.~QSpinLock();
+        senders->mutex.unlock();
+        senders->mutex.~QMutex();
         qFree(senders);
     } else {
         senders->active = was_active;
@@ -1473,7 +1477,7 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender, bool 
             }
         }
 
-        senders->lock.release();
+        senders->mutex.unlock();
     }
 }
 
@@ -1580,16 +1584,17 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
     bool created = false;
     if (!connections) {
         Connections *c = (Connections *) qMalloc(sizeof(Connections));
-        new (&c->lock) QSpinLock();
+        new (&c->mutex) QMutex;
         c->count = 1;
         c->active = false;
         c->dirty = false;
         c->orphaned = false;
         c->connections = c->stack;
 
-        c->lock.acquire();
+        c->mutex.lock();
         if (!q_atomic_test_and_set_ptr(&connections, 0, c)) {
-            c->lock.~QSpinLock();
+            c->mutex.unlock();
+            c->mutex.~QMutex();
             qFree(c);
         } else {
             created = true;
@@ -1597,7 +1602,7 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
     }
 
     if (!created) {
-        connections->lock.acquire();
+        connections->mutex.lock();
         if (!connections->active) {
             if (connections->connections != connections->stack) {
                 // deallocate the separate connections array (keeping
@@ -1662,7 +1667,7 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
     c.type = type;
     c.types = types;
 
-    connections->lock.release();
+    connections->mutex.unlock();
 }
 
 /*! \internal
@@ -1686,7 +1691,7 @@ void QObjectPrivate::removeReceiver(QObject *receiver)
 {
     if (!connections) return;
 
-    QSpinLockLocker locker(&connections->lock);
+    QMutexLocker locker(&connections->mutex);
 
     for (int i = 0; i < connections->count; ++i) {
         QObjectPrivate::Connections::Connection &c = connections->connections[i];
@@ -1708,7 +1713,7 @@ void QObjectPrivate::removeReceiver(QObject *receiver)
 */
 void QObjectPrivate::setActive(Connections *connections, bool *was_active)
 {
-    connections->lock.acquire();
+    connections->mutex.lock();
 
     *was_active = connections->active;
     connections->active = true;
@@ -1726,11 +1731,12 @@ void QObjectPrivate::resetActive(Connections *connections, bool was_active)
     if (!was_active && connections->orphaned) {
         if (connections->connections != connections->stack)
             qFree(connections->connections);
-        connections->lock.~QSpinLock();
+        connections->mutex.unlock();
+        connections->mutex.~QMutex();
         qFree(connections);
     } else {
         connections->active = was_active;
-        connections->lock.release();
+        connections->mutex.unlock();
     }
 }
 
@@ -1785,7 +1791,7 @@ int QObject::receivers(const char *signal) const
 #endif
             return false;
         }
-        QSpinLockLocker locker(&d->connections->lock);
+        QMutexLocker locker(&d->connections->mutex);
         for (int i = 0; d->findConnection(signal_index, i); ++receivers)
             ;
     }
@@ -2236,7 +2242,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
 
-    QSpinLockLocker locker(&s->d->connections->lock);
+    QMutexLocker locker(&s->d->connections->mutex);
     bool success = false;
     for (int i = 0; i < s->d->connections->count; ++i) {
         QObjectPrivate::Connections::Connection &c = s->d->connections->connections[i];
@@ -2362,7 +2368,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             continue;
         }
 
-        connections->lock.release();
+        connections->mutex.unlock();
 
         QObjectPrivate::Senders *senders = c->receiver->d->senders;
         bool was_senders_active;
@@ -2374,7 +2380,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             c->receiver->qt_metacall(InvokeMetaMember, c->member, argv);
         } catch (...) {
             QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
-            connections->lock.acquire();
+            connections->mutex.lock();
             QObjectPrivate::resetActive(connections, was_connections_active);
 
             throw;
@@ -2382,7 +2388,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
 #endif
 
         QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
-        connections->lock.acquire();
+        connections->mutex.lock();
         if (connections->orphaned)
             break;
     }

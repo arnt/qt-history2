@@ -31,7 +31,7 @@
 #include "qpointer.h"
 #include "qcoreevent.h"
 #include "qlist.h"
-#include <private/qspinlock_p.h>
+#include "qmutex.h"
 
 
 inline QObjectData::~QObjectData() {}
@@ -50,7 +50,7 @@ public:
 
     // signal connections
     struct Connections {
-        QSpinLock lock;
+        QMutex mutex;
         uint active : 1;
         uint dirty : 1;
         uint orphaned : 1;
@@ -80,7 +80,7 @@ public:
     // slot connections
     struct Senders
     {
-        QSpinLock lock;
+        QMutex mutex;
         uint active : 1;
         uint orphaned : 1;
         QObject *current;
