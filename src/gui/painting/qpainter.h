@@ -167,14 +167,22 @@ public:
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-                    const QRect &sourceRect = QRect(), Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawPixmap(int x, int y, int w, int h, const QPixmap &,
-                    int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1,
+                    const QRect &sourceRect = QRect(),
                     Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr,
-                    Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    inline void drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
+                           int sx=0, int sy=0, int sw=-1, int sh=-1,
+                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap)
+    { drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode); }
+    inline void drawPixmap(int x, int y, const QPixmap &pm,
+                           int sx=0, int sy=0, int sw=-1, int sh=-1,
+                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap)
+    { drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh), mode); }
+    inline void drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
+                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap)
+    { drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr, mode); }
+    inline void drawPixmap(const QPoint &p, const QPixmap &pm,
+                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap)
+    { drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, QRect(0, 0, pm.width(), pm.height()), mode); }
 
     void drawText(int x, int y, const QString &, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)
@@ -359,31 +367,6 @@ inline void QPainter::setWindow(const QRect &r)
 inline void QPainter::setViewport(const QRect &r)
 {
     setViewport(r.x(), r.y(), r.width(), r.height());
-}
-
-inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-                                 int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
-{
-    drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
-}
-
-inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh,
-                                 Qt::PixmapDrawingMode mode)
-{
-    drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh), mode);
-}
-
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
-                                 Qt::PixmapDrawingMode mode)
-{
-    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr, mode);
-}
-
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
-{
-    drawPixmap(QRect(p.x(), p.y(), -1, -1),
-               pm,
-               QRect(0, 0, pm.width(), pm.height()), mode);
 }
 
 inline void QPainter::eraseRect(const QRect &r)
