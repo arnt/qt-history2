@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#73 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#72 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#73 $")
 
 
 /*----------------------------------------------------------------------------
@@ -25,57 +25,71 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#72 $")
 
   Qt provides a very powerful mechanism for seamless object
   communication; \link metaobjects.html signal/slot
-  connections. \endlink The signal/slot mechanism is an advanced way
+  connections\endlink. The signal/slot mechanism is an advanced way
   of making traditional callback routines.
 
   Example:
   \code
     //
-    // MyObject must inherit QObject to use signals and slots.
+    // The Mandelbrot class uses a QTimer to calculate the mandelbrot
+    // set one scanline at a time without blocking the CPU.
+    // It inherits QObject to use signals and slots.
+    // Calling start() starts the calculation. The done() signal is
+    // emitted when it has finished.
+    // Note that this example is not complete. Feel free to complete it.
     //
 
-    class MyObject : public QObject
+    class Mandelbrot : public QObject
     {
 	Q_OBJECT				// required for signals/slots
     public:
-	MyObject( QObject *parent=0, const char *name );
+	Mandelbrot( QObject *parent=0, const char *name );
+	...
+    public slots:
+        void	start();
     signals:
-	void	minuteTimeout();
+	void	done();
     private slots:
-	void	secondTimeout();
+	void	calculate();
     private:
-	QTimer *timer;
-	int	secs;
+	QTimer  timer;
+	...
     };
 
     //
-    // Initializes MyObject and sets up a timer.
-    // The QTimer::timeout() signal is emitted at a specified millisecond
-    // interval (here: 1 second).
-    // This timeout signal is connected to the internal secondTimeout()
-    // slot of MyObject.
+    // Constructs and initializes a Mandelbrot object.
     //
 
-    MyObject::MyObject( QObject *parent=0, const char *name )
+    Mandelbrot::Mandelbrot( QObject *parent=0, const char *name )
 	: QObject( parent, name )
     {
-	secs = 0;				// 0 seconds so far
-	timer = new QTimer;
-	connect( timer, SIGNAL(timeout()), SLOT(secondTimeout()) );
-	timer->start( 1000 );			// start 1 second timer
+	connect( &timer, SIGNAL(timeout()), SLOT(calculate()) );
+	...
     }
 
     //
-    // secondTimeout() is activated by the QTimer::timeout() signal
+    // Starts the calculation task. The internal calculate() slot
+    // will be activated every 10 milliseconds.
     //
 
-    void MyObject::secondTimeout()
+    void Mandelbrot::start()
     {
-	debug( "Timer activation" );
-	if ( ++secs == 60 ) {			// 60 seconds elapsed
-	    secs = 0;				// reset counter, and
-	    emit minuteTimeout();		// emit a new signal
-	}
+        if ( !timer.isActive() )		// not already running
+	    timer.start( 10 );			// timeout every 10 ms
+    }
+
+    //
+    // Calculates one scanline at a time.
+    // Emits the done() signal when finished.
+    //
+
+    void Mandelbrot::calculate()
+    {
+        ...			// perform the calculation for a scanline
+        if ( finished ) {	// no more scanlines 
+	   timer.stop();
+	   emit done();
+        }
     }
   \endcode
 
@@ -936,7 +950,7 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 
 
 /*----------------------------------------------------------------------------
-  \fn bool QObject::connect( QObject *sender, const char *signal, const char *member ) const
+  \overload bool QObject::connect( QObject *sender, const char *signal, const char *member ) const
 
   Connects \e signal from the \e sender object to \e member in this object.
 
@@ -964,39 +978,53 @@ static void err_member_notfound( int code, QObject *object, const char *member,
 
   Example:
   \code
-    QLCDNumber *lcd  = new QLCDNumber;
-    QScrollBar *sbar = new QScrollBar;
-    QObject::connect( sbar, SIGNAL(valueChanged(int)),
-		      lcd,  SLOT(display(int)) );
+    QLabel     *label  = new QLabel;
+    QScrollBar *scroll = new QScrollBar;
+    QObject::connect( scroll, SIGNAL(valueChanged(int)),
+		      label,  SLOT(setNum(int)) );
   \endcode
 
   This example connects the scroll bar's \link QScrollBar::valueChanged()
-  valueChanged()\endlink signal to the LCD number's \link
-  QLCDNumber::display() display()\endlink slot. It makes the LCD number
-  always display the current scroll bar value.
+  valueChanged()\endlink signal to the label's \link QLabel::setNum()
+  setNum()\endlink slot. It makes the label always display the current
+  scroll bar value.
 
   A signal can even be connected to another signal, i.e. \e member is
   a SIGNAL().
 
-  Example:
   \code
-    QPushButton *button1 = new QPushButton;
-    QPushButton *button2 = new QPushButton;
-    QObject::connect( button1, SIGNAL(clicked()),
-	              button2, SIGNAL(clicked()) );
-    QObject::connect( button2, SIGNAL(clicked()),
-                      qApp,    SLOT(quitApp()) );
+    class MyWidget : public QWidget
+    {
+    public:
+        MyWidget();
+    ...
+    signals:
+        void aSignal(int);
+    ...
+    private:
+    ...
+        QPushButton *aButton;
+    };
+
+    MyWidget::MyWidget()
+    {
+        aButton = new QPushButton( this );
+	connect( aButton, SIGNAL(clicked()), SIGNAL(aSignal()) );
+    }
   \endcode
 
-  Clicking \c button1 makes this button emit the \link QButton::clicked()
-  clicked()\endlink signal, which immediately leads to emitting
-  \c button2's clicked() signal which terminates the application.
+  In its constructor, MyWidget creates a private button and connects the
+  \link QButton::clicked() clicked()\endlink signal to relay clicked() to
+  the outside world. You can achieve the same effect by connecting the
+  clicked() signal to a private slot and emitting aSignal() in this slot,
+  but that takes a few lines of extra code and is not quite as clear, of
+  course.
 
   A signal can be connected to many slots/signals. Many signals can be
-  connected to one slot. There is no limit.
+  connected to one slot.
 
-  When a signal is connected to several slots, emitting the signal will
-  activate the slots in the same order they were connected.
+  If a signal is connected to several slots, the slots are activated
+  in arbitrary order when the signal is emitted.
 
   \sa disconnect()
  ----------------------------------------------------------------------------*/
