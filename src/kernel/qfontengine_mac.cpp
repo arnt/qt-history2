@@ -18,10 +18,10 @@
 #include "qcomplextext_p.h"
 
 //antialiasing
-#ifdef Q_WS_MACX
-# define QMAC_FONT_ANTIALIAS
+#ifndef Q_WS_MACX
+# define QMAC_FONT_NO_ANTIALIAS
 #endif
-#ifdef QMAC_FONT_ANTIALIAS
+#ifndef QMAC_FONT_NO_ANTIALIAS
 # include "qpixmap.h"
 # include "qpaintdevicemetrics.h"
 # include <ApplicationServices/ApplicationServices.h>
@@ -269,7 +269,7 @@ int
 QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int, int y,
 			   QPaintDevice *dev, const QRegion *rgn) const
 {
-#if !defined(QMAC_FONT_ANTIALIAS)
+#if defined(QMAC_FONT_NO_ANTIALIAS)
     Q_UNUSED(dev);
     Q_UNUSED(rgn);
 #endif
@@ -335,6 +335,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     ATSUAttributeValuePtr values[arr_guess];
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading | kATSLineFractDisable;
+    if(fontDef.styleStrategy & QFont::NoAntialias)
+	layopts |= kATSLineNoAntiAliasing;
 
 #if QT_MACOSX_VERSION >= 0x1020
     if(qMacVersion() == Qt::MV_10_DOT_1)
@@ -348,7 +350,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
-#if defined(QMAC_FONT_ANTIALIAS)
+#if !defined(QMAC_FONT_NO_ANTIALIAS)
     tags[arr] = kATSUCGContextTag; //cgcontext
     CGrafPtr port = NULL;
     CGContextRef ctx = NULL;
@@ -384,7 +386,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
 	qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
-#if defined(QMAC_FONT_ANTIALIAS)
+#if !defined(QMAC_FONT_NO_ANTIALIAS)
 	QDEndCGContext(port, &ctx);
 #endif
 	return 0;
@@ -416,7 +418,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     }
     if(task & DRAW) {
 	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
-#if defined(QMAC_FONT_ANTIALIAS)
+#if !defined(QMAC_FONT_NO_ANTIALIAS)
 		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
 #else
 		     kATSUUseGrafPortPenLoc, kATSUUseGrafPortPenLoc
@@ -425,7 +427,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     }
     //cleanup
     ATSUDisposeTextLayout(alayout);
-#if defined(QMAC_FONT_ANTIALIAS)
+#if !defined(QMAC_FONT_NO_ANTIALIAS)
     QDEndCGContext(port, &ctx);
 #endif
     return ret;
