@@ -910,7 +910,12 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 	    da->moveDockWindow( this );
 	mw = da->parentWidget();
     }
-    if ( mw && mw->inherits( "QMainWindow" ) ) {
+    // added the !dockArea check because if you, for example, create a dockwindow
+    // with the leftDock() of a main window as parent, from the code above, you
+    // get mw set to the QMainWindow, so your dockwindow gets moved to the
+    // top dock.  As a result, this dockwindow is docked on the TopDock,
+    // not exactly what the person is looking for...
+    if ( mw && mw->inherits( "QMainWindow" ) && !dockArea ) {
 	if ( place() == InDock )
 	    ( (QMainWindow*)mw )->addDockWindow( this, Qt::DockTop );
 	moveEnabled = ((QMainWindow*)mw)->dockWindowsMovable();
