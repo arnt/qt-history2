@@ -83,7 +83,7 @@ QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
 
 void QTextTable::resize(int rows, int cols)
 {
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
 
     int nRows = d->rows();
     int nCols = d->cols();
@@ -98,12 +98,12 @@ void QTextTable::resize(int rows, int cols)
     else if (nRows > rows)
 	removeRows(rows, nRows-rows);
 
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 }
 
 void QTextTable::insertRows(int pos, int num)
 {
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
 
     int nRows = d->rows();
     int nCols = d->cols();
@@ -128,13 +128,13 @@ void QTextTable::insertRows(int pos, int num)
 	++cursorPos;
     }
 
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 }
 
 void QTextTable::insertCols(int pos, int num)
 {
 //     qDebug() << "-------- insertCols" << pos << num;
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
 
     int nRows = d->rows();
     int nCols = d->cols();
@@ -151,13 +151,13 @@ void QTextTable::insertCols(int pos, int num)
     }
 
 //     qDebug() << "-------- end insertCols" << pos << num;
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 }
 
 void QTextTable::removeRows(int pos, int num)
 {
 //     qDebug() << "-------- removeRows" << pos << num;
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
 
     int nRows = d->rows();
 
@@ -175,14 +175,14 @@ void QTextTable::removeRows(int pos, int num)
 
     d->pieceTable->remove(from, end-from+1);
 
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 //     qDebug() << "-------- end removeRows" << pos << num;
 }
 
 void QTextTable::removeCols(int pos, int num)
 {
 //     qDebug() << "-------- removeCols" << pos << num;
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
 
     int nRows = d->rows();
     int nCols = d->cols();
@@ -203,7 +203,7 @@ void QTextTable::removeCols(int pos, int num)
 	d->pieceTable->remove(from, end-from);
     }
 
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 //     qDebug() << "-------- end removeCols" << pos << num;
 }
 

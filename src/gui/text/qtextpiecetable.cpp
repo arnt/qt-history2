@@ -61,12 +61,10 @@ bool UndoCommand::tryMerge(const UndoCommand &other)
 
 QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
 {
-    undoBlock = 0;
-    undoPosition = 0;
-    undoEnabled = false;
+    editBlock = 0;
+    docChangeFrom = -1;
 
-    insertBlockSeparator(0, formats.indexForFormat(QTextBlockFormat()));
-    undoEnabled = true;
+    undoPosition = 0;
 
     lists = new QTextListManager(this);
     tables = new QTextTableManager(this);
@@ -75,6 +73,10 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     lout = layout;
     // take ownership
     lout->setParent(this);
+
+    undoEnabled = false;
+    insertBlockSeparator(0, formats.indexForFormat(QTextBlockFormat()));
+    undoEnabled = true;
 }
 
 QTextPieceTable::~QTextPieceTable()
@@ -109,6 +111,8 @@ void QTextPieceTable::insertWithoutUndo(int pos, uint strPos, uint length, int f
     for (int i = 0; i < cursors.size(); ++i)
 	cursors.at(i)->adjustPosition(pos, length, op);
     emit contentsChanged();
+
+    adjustDocumentChanges(pos, length);
 }
 
 void QTextPieceTable::insertBlock(int pos)
@@ -182,19 +186,19 @@ void QTextPieceTable::insertBlockSeparator(int pos, int blockFormat)
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    if (!undoEnabled)
-	return;
+    beginEditBlock();
 
-    truncateUndoStack();
+    if (undoEnabled) {
+	truncateUndoStack();
 
-    UndoCommand c = { UndoCommand::Inserted, (undoBlock != 0),
-		      UndoCommand::MoveCursor, blockFormat, strPos, pos, { 1 } };
+	UndoCommand c = { UndoCommand::Inserted, true,
+			  UndoCommand::MoveCursor, blockFormat, strPos, pos, { 1 } };
 
-    appendUndoItem(c);
-    Q_ASSERT(undoPosition == undoStack.size());
+	appendUndoItem(c);
+	Q_ASSERT(undoPosition == undoStack.size());
+    }
 
-    if (!undoBlock && lout)
-	lout->documentChange(pos, 0, 1);
+    endEditBlock();
 }
 
 void QTextPieceTable::insert(int pos, const QString &str, int format)
@@ -220,25 +224,26 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    if (!undoEnabled)
-	return;
+    beginEditBlock();
+    if (undoEnabled) {
+	truncateUndoStack();
 
-    truncateUndoStack();
+	UndoCommand c = { UndoCommand::Inserted, true,
+			  UndoCommand::MoveCursor, format, strPos, pos, { strLength } };
 
-    UndoCommand c = { UndoCommand::Inserted, (undoBlock != 0),
-		      UndoCommand::MoveCursor, format, strPos, pos, { strLength } };
+	appendUndoItem(c);
+	Q_ASSERT(undoPosition == undoStack.size());
+    }
 
-    appendUndoItem(c);
-    Q_ASSERT(undoPosition == undoStack.size());
-
-    if (!undoBlock && lout)
-	lout->documentChange(pos, 0, strLength);
+    endEditBlock();
 }
 
 void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 {
     Q_ASSERT(pos >= 0 && pos+length <= fragments.length());
     Q_ASSERT(blocks.length() == fragments.length());
+
+    beginEditBlock();
 
     removeBlocks(pos, length);
 
@@ -256,7 +261,7 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 	    uint n = fragments.next(x);
 
 	    QTextFragment *X = fragments.fragment(x);
-	    UndoCommand c = { UndoCommand::Removed, ((n != end) | (undoBlock != 0)),
+	    UndoCommand c = { UndoCommand::Removed, true,
 			      op, X->format, X->position, fragments.key(x), { X->size } };
 	    appendUndoItem(c);
 
@@ -281,16 +286,17 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 	cursors.at(i)->adjustPosition(pos, -length, op);
     emit contentsChanged();
 
-    if (!undoBlock && lout)
-	lout->documentChange(pos, length, 0);
+    adjustDocumentChanges(pos, -length);
+
+    endEditBlock();
 }
 
 void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newFormat, FormatChangeMode mode)
 {
-    if (undoEnabled) {
+    if (undoEnabled)
 	truncateUndoStack();
-	beginUndoBlock();
-    }
+
+    beginEditBlock();
 
     int newFormatIdx = -1;
     if (mode == SetFormat)
@@ -326,7 +332,7 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
 	}
 
 	if (undoEnabled) {
-	    UndoCommand c = { UndoCommand::FormatChanged, true /*undoBlock != 0*/, UndoCommand::MoveCursor, oldFormat,
+	    UndoCommand c = { UndoCommand::FormatChanged, true, UndoCommand::MoveCursor, oldFormat,
 			      0, pos, { length } };
 
 	    appendUndoItem(c);
@@ -345,8 +351,7 @@ void QTextPieceTable::setFormat(int pos, int length, const QTextFormat &newForma
     if (n)
 	unite(n);
 
-    if (undoEnabled)
-	endUndoBlock();
+    endEditBlock();
 
     BlockIterator blockIt = blocksFind(startPos);
     BlockIterator endIt = blocksFind(endPos);
@@ -408,6 +413,7 @@ void QTextPieceTable::undoRedo(bool undo)
 
     PMDEBUG("%s", undo ? "undo:" : "redo:");
     undoEnabled = false;
+    beginEditBlock();
     while (1) {
 	if (undo)
 	    --undoPosition;
@@ -441,15 +447,12 @@ void QTextPieceTable::undoRedo(bool undo)
 		break;
 	} else {
 	    ++undoPosition;
-	    if (undoPosition == undoStack.size() || !undoStack[undoPosition].block)
+	    if (undoPosition == undoStack.size() || !undoStack[undoPosition-1].block)
 		break;
 	}
     }
+    endEditBlock();
     undoEnabled = true;
-
-    // ############ optimise
-    if (lout)
-	lout->documentChange(0, length(), length());
 }
 
 /*!
@@ -457,7 +460,7 @@ void QTextPieceTable::undoRedo(bool undo)
 */
 void QTextPieceTable::appendUndoItem(QAbstractUndoItem *item)
 {
-    UndoCommand c = { UndoCommand::Custom, (undoBlock != 0),
+    UndoCommand c = { UndoCommand::Custom, (editBlock != 0),
 		      UndoCommand::MoveCursor, 0, 0, 0, { 0 } };
     c.custom = item;
     appendUndoItem(c);
@@ -504,17 +507,57 @@ void QTextPieceTable::enableUndoRedo(bool enable)
     }
 }
 
-void QTextPieceTable::endUndoBlock()
+void QTextPieceTable::endEditBlock()
 {
-    if (--undoBlock || undoPosition <= 0)
+    if (--editBlock)
 	return;
 
-    undoStack[undoPosition - 1].block = false;
+    if (undoEnabled && undoPosition > 0)
+	undoStack[undoPosition - 1].block = false;
 
-    // #### cache the changed region so the layouter doesn't do too much work.
-    if (!undoBlock && lout)
-	lout->documentChange(0, length(), length());
+    if (docChangeFrom >= 0)
+	lout->documentChange(docChangeFrom, docChangeOldLength, docChangeLength);
+    docChangeFrom = -1;
 }
+
+void QTextPieceTable::adjustDocumentChanges(int from, int addedOrRemoved)
+{
+    if (docChangeFrom < 0) {
+	docChangeFrom = from;
+	if (addedOrRemoved > 0) {
+	    docChangeOldLength = 0;
+	    docChangeLength = addedOrRemoved;
+	} else {
+	    docChangeOldLength = -addedOrRemoved;
+	    docChangeLength = 0;
+	}
+// 	qDebug("adjustDocumentChanges:");
+// 	qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
+	return;
+    }
+
+    // have to merge the new change with the already existing one.
+    int added = qMax(0, addedOrRemoved);
+    int removed = qMax(0, -addedOrRemoved);
+
+    int diff = 0;
+    if(from + removed < docChangeFrom)
+	diff = docChangeFrom - from - removed;
+    else if(from > docChangeFrom + docChangeLength)
+	diff = from - (docChangeFrom + docChangeLength);
+
+    int overlap_start = qMax(from, docChangeFrom);
+    int overlap_end = qMin(from + removed, docChangeFrom + docChangeLength);
+    int removedInside = qMax(0, overlap_end - overlap_start);
+    removed -= removedInside;
+
+//     qDebug("adjustDocumentChanges: from=%d, addedOrRemoved=%d, diff=%d, removedInside=%d", from, addedOrRemoved, diff, removedInside);
+    docChangeFrom = qMin(docChangeFrom, from);
+    docChangeOldLength += removed + diff;
+    docChangeLength += added - removedInside + diff;
+//     qDebug("    -> %d %d %d", docChangeFrom, docChangeOldLength, docChangeLength);
+}
+
 
 QString QTextPieceTable::plainText() const
 {

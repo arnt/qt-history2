@@ -58,7 +58,7 @@ void QTextListPrivate::removeAllFormatIndicesFromBlocks()
     QTextPieceTable *table = const_cast<QTextPieceTable *>(allBlocks.first().pieceTable());
     Q_ASSERT(table);
 
-    table->beginUndoBlock();
+    table->beginEditBlock();
 
     Q_FOREACH(QTextPieceTable::BlockIterator it, allBlocks) {
 	Q_ASSERT(!it.atEnd());
@@ -68,7 +68,7 @@ void QTextListPrivate::removeAllFormatIndicesFromBlocks()
 	it.setBlockFormat(fmt);
     }
 
-    table->endUndoBlock();
+    table->endEditBlock();
 }
 
 QTextList::QTextList(QTextPieceTable *table, QObject *parent)

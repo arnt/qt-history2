@@ -63,7 +63,7 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
     QTextBlockFormat fmt = cursor.blockFormat();
     fmt.setNonDeletable(true);
 
-    pieceTable->beginUndoBlock();
+    pieceTable->beginEditBlock();
 
     // add block after table
     fmt.setNonDeletable(true);
@@ -85,7 +85,7 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
 	++pos;
     }
 
-    pieceTable->endUndoBlock();
+    pieceTable->endEditBlock();
 
     return tables.value(tableIdx);
 }

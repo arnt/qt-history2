@@ -487,7 +487,7 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     if (!d || text.isEmpty())
 	return;
 
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
 
     d->remove();
 
@@ -509,7 +509,7 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
 	d->pieceTable->insert(d->position, blocks.at(i), formatIdx);
     }
 
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 }
 
 void QTextCursor::deleteChar()
@@ -712,10 +712,10 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format)
     if (!d)
 	return;
 
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
     d->remove();
     d->insertBlock(format);
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 }
 
 /*!
@@ -856,10 +856,10 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
     if (!d || fragment.isNull())
 	return;
 
-    d->pieceTable->beginUndoBlock();
+    d->pieceTable->beginEditBlock();
     d->remove();
     fragment.d->insert(*this);
-    d->pieceTable->endUndoBlock();
+    d->pieceTable->endEditBlock();
 }
 
 void QTextCursor::insertImage(const QTextImageFormat &format)

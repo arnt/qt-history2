@@ -135,8 +135,8 @@ public:
     inline void redo() { undoRedo(false); }
     void appendUndoItem(QAbstractUndoItem *);
     void truncateUndoStack();
-    inline void beginUndoBlock() { undoBlock++; }
-    void endUndoBlock();
+    inline void beginEditBlock() { editBlock++; }
+    void endEditBlock();
     void enableUndoRedo(bool enable);
     inline bool isUndoRedoEnabled() const { return undoEnabled; }
 
@@ -182,6 +182,8 @@ private:
 
     void insertWithoutUndo(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
 
+    void adjustDocumentChanges(int from, int addedOrRemoved);
+
 public:
     inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
     inline void removeCursor(QTextCursorPrivate *c) { cursors.remove(c); }
@@ -196,8 +198,12 @@ private:
 
     QVector<UndoCommand> undoStack;
     bool undoEnabled;
-    int undoBlock;
     int undoPosition;
+
+    int editBlock;
+    int docChangeFrom;
+    int docChangeOldLength;
+    int docChangeLength;
 
     QTextFormatCollection formats;
     QTextListManager *lists;
