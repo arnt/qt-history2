@@ -77,7 +77,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	  << "$(MAKE)" << "\n\t"
 	  << "@cd ..";
         for(int i = 1; i < subLevels; i++ )
-	    t << "\\..";
+	    t << Option::dir_sep + "..";
 	t << endl << endl;
     }
 
@@ -100,7 +100,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	      << " " << buildArgs() << "\n\t"
 	      << "@cd ..";
 	    for(int i = 1; i < subLevels; i++ ) 
-		t << "\\..";
+		t << Option::dir_sep + "..";
 	}
     } else {
 	// Borland make does not like empty an empty command section, so insert
@@ -133,7 +133,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		t << "$(MAKE) " << targs[x] << "\n\t"
 		    << "@cd ..";
 		for(int i = 1; i < subLevels; i++ ) 
-		    t << "\\..";
+		    t << Option::dir_sep + "..";
 	    }
 	} else {
 	    // Borland make does not like empty an empty command section, so
