@@ -1100,6 +1100,8 @@ bool QTextEdit::event( QEvent *e )
 		case Key_Home:
 		case Key_End:
 		case Key_Backspace:
+		case Key_Left:
+		case Key_Right:
 		    ke->accept();
 		default:
 		    break;
