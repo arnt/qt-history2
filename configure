@@ -214,6 +214,7 @@ MODULES="styles tools kernel widgets dialogs iconview workspace"
 AVAIL_MODULES=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
 QMAKE_VARS="$QMAKE_VARS \"styles += windows motif aqua mac platinum sgi cde motifplus\""
+QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\""
 
 
 #-------------------------------------------------------------------------------
@@ -566,7 +567,7 @@ do
 	   then
 	      [ "$VAR" = "style" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
 	      VAR="${VAR}-${OPT}"
-	   elif [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ]
+	   elif [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ]
 	   then
 	      VAR="${VAR}-driver"
 	   fi
@@ -575,7 +576,7 @@ do
 	then
 	   PLUG_VAR="${VAR}-plugin"
 	   IN_VAR="${VAR}"
-	   if [ "$IN_VAR" = "sql" ] || [ "$IN_VAR" = "gfx" ]
+	   if [ "$IN_VAR" = "sql" ] || [ "$IN_VAR" = "gfx" ] || [ "$VAR" = "kbd" ]
 	   then
 	      IN_VAR="${IN_VAR}-driver"
 	   fi
