@@ -2,6 +2,14 @@
 **
 ** Implementation of Nurb widget class
 **
+** Copyright (C) 1996 by Troll Tech AS.
+**
+** Permission to use, copy, modify, and distribute this software and its
+** documentation for any purpose and without fee is hereby granted, provided
+** that the above copyright notice appear in all copies.
+** No representations are made about the suitability of this software for any
+** purpose. It is provided "as is" without express or implied warranty.
+**
 ** Some of the code has been borrowed from SGI's tnurb example, which is
 ** (c) Copyright 1993, Silicon Graphics, Inc.
 **
