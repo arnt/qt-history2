@@ -117,7 +117,7 @@ QDir
 QDom
 ----
 
- - Make QDomNode::hasChildNodes() work as documented.
+ - QDomNode::hasChildNodes() now works as documented.
  - QDomDocument::toString() includes now namespaces in its output.
  - QDomDocument::QDomDocument() constructor now allows adding children
    to the document.
@@ -252,12 +252,12 @@ New signal:
 QServerSocket
 -------------
 
- - Set the SO_REUSEADDR option so the server can be restarted.
+ - Set the SO_REUSEADDR option so that the server can be restarted.
 
 QSocket
 -------
 
- - Make deletion of QSocked instances safe if it is in response to a
+ - Make deletion of QSocket instances safe if it is in response to a
    signal emitted by the object itself.
 
 SocketDevice
@@ -280,16 +280,16 @@ New function:
 QSql
 ----
 
- - The source of the SQL driver plug-ins were moved to
+ - The source of the SQL driver plug-ins have been moved to
    $QTDIR/plugins/src/sqldrivers/.
  - The postgres driver checks the version number of the server. So there is
-   no need for different drivers: QPSQL6 does no longer exist -- use QPSQL7
+   no need for different drivers: QPSQL6 no longer exists -- use QPSQL7
    instead.
  - Postgres driver supports now 3 PostgreSQL back ends: 6.x, 7.0.x and 7.1.x
  - Better handling of errors coming from the database.
  - SQL driver for Microsoft SQL Server and Sybase Adaptive Server (TDS).
  - Added caching for forward-only cursors.
- - Avoid crashes on the unloading of SQL plug-ins that occurred on some
+ - Avoid crashes on the unloading of SQL plugins that occurred on some
    platforms.
  - QSqlResults can be forward only to improve performance
    (QSqlResult::setForwardOnly()).
@@ -298,11 +298,11 @@ QSql
 QTable
 ------
 
- - Don't call processEvents() in columnWidthChanged() and
-   rowHeightChanged() to avoid side effects.
+ - No longer calls processEvents() in columnWidthChanged() and
+   rowHeightChanged() in order to avoid any side effects.
  - Ensure that mousePressEvent doesn't emit contextMenuRequested(),
-   only when it is called from the contextMenu event handler.
- - For more useful sub-classing the new functions listed below have
+   unless it is called from the contextMenu event handler.
+ - For more useful subclassing the new functions listed below have
    been added.
 
 New functions:
