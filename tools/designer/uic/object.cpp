@@ -237,7 +237,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    } else if ( objClass ==  "QTable" || objClass == "QDataTable" ) {
 		QString header = ( n.tagName() == "column" ) ?
 				 "horizontalHeader" : "verticalHeader";
-		QString call = createTableRowColumnImpl( n, objName, &value );
+		call = createTableRowColumnImpl( n, objName, &value );
 		if ( !call.isEmpty() ) {
 		    out << call;
 		    trout << indent << objName << "->" << header << "()->setLabel( "
