@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#190 $
 **
 ** Implementation of QApplication class
 **
@@ -298,7 +298,7 @@ QApplication::QApplication( Display* dpy )
 
 void QApplication::init_precmdline()
 {
-    messageFiles = 0;
+    translators = 0;
 #if defined(CHECK_STATE)
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
@@ -1200,10 +1200,10 @@ void QApplication::noteTopLevel( QWidget* tlw )
 
 void QApplication::installTranslator( QTranslator * mf )
 {
-    if ( !messageFiles )
-	messageFiles = new QList<QTranslator>;
+    if ( !translators )
+	translators = new QList<QTranslator>;
     if ( mf )
-	messageFiles->insert( 0, mf );
+	translators->insert( 0, mf );
 }
 
 
@@ -1215,12 +1215,12 @@ void QApplication::installTranslator( QTranslator * mf )
 
 void QApplication::removeTranslator( QTranslator * mf )
 {
-    if ( !messageFiles || !mf )
+    if ( !translators || !mf )
 	return;
-    messageFiles->first();
-    while( messageFiles->current() && messageFiles->current() != mf )
-	messageFiles->next();
-    messageFiles->take();
+    translators->first();
+    while( translators->current() && translators->current() != mf )
+	translators->next();
+    translators->take();
 }
 
 
@@ -1249,9 +1249,9 @@ QString QApplication::translate( const char * scope, const char * key ) const
 	return key;
     // scope can be null, for global stuff
 
-    if ( messageFiles ) {
+    if ( translators ) {
 	uint h = QTranslator::hash( scope, key );
-	QListIterator<QTranslator> it( *messageFiles );
+	QListIterator<QTranslator> it( *translators );
 	QTranslator * mf;
 	QString result;
 	while( (mf=it.current()) != 0 ) {

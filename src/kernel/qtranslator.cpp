@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#3 $
 **
 ** Localization database support.
 **
@@ -126,7 +126,7 @@ static inline uint readhash( const char * c, int o, uint base ) {
 
 
 
-/*! \class QTranslator qmessagefile.h
+/*! \class QTranslator qtranslator.h
 
   \brief The QTranslator class provides internationalization support for text output.
 
@@ -618,7 +618,7 @@ void QTranslator::remove( uint h )
 }
 
 
-/*! \class QTranslatorIterator qmessagefile.h
+/*! \class QTranslatorIterator qtranslator.h
 
   \brief The QTranslatorIterator class provides the ability to list QTranslator contents etc.
 

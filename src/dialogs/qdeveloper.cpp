@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#7 $
 **
 ** Implementation of QDeveloper class
 **
@@ -101,7 +101,7 @@ public:
     QDict<QDeveloperTranslationKey> keys;
 };
 
-QDeveloperTranslationKey::QDeveloperTranslationKey( QDeveloperTranslationScope* parent, 
+QDeveloperTranslationKey::QDeveloperTranslationKey( QDeveloperTranslationScope* parent,
 						    const char* key ) :
 	QListViewItem(parent, key)
     {
@@ -135,7 +135,7 @@ public:
 
         // ##### This at least.  But would it make sense to be able to
         // ##### look at some OTHER translation while trying to
-        // ##### translate this one?  ie. use an auxiliary QMessageFile
+        // ##### translate this one?  ie. use an auxiliary QTranslator
         // ##### for another column.
 	translations->addColumn(getenv("LANG"));
     }

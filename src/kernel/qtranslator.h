@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#1 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#2 $
 **
 ** Definition of something or other
 **
@@ -9,8 +9,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMESSAGEFILE_H
-#define QMESSAGEFILE_H
+#ifndef QTRANSLATOR_H
+#define QTRANSLATOR_H
 
 #include "qobject.h"
 #include "qintdict.h"
