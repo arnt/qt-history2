@@ -996,8 +996,12 @@ void QTextCursor::gotoPageDown( int visibleHeight )
 	s = s->next();
     }
 
-    if ( !s && doc )
+    if ( !s && doc ) {
 	s = doc->lastParag();
+	string = s;
+	idx = string->length() - 1;
+	return;
+    }
 
     if ( !s->isValid() )
 	return;
