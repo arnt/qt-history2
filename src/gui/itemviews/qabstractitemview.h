@@ -72,7 +72,6 @@ protected slots:
     virtual void updateCurrentEditor();
     virtual void updateGeometries();
 
-
 signals:
     void needMore();
 

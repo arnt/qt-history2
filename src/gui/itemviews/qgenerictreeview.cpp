@@ -126,6 +126,9 @@ QGenericTreeView::QGenericTreeView(QGenericItemModel *model, QWidget *parent)
     d->layout_parent_index = -1;
     d->layout_from_index = -1;
     d->layout_count = model->rowCount(root());
+    
+    QObject::connect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
+		     this, SLOT(setHorizontalOffset(int)));
 }
 
 QGenericTreeView::~QGenericTreeView()
@@ -140,8 +143,6 @@ QGenericHeader *QGenericTreeView::header() const
 void QGenericTreeView::setHeader(QGenericHeader *header)
 {
     if (d->header) {
-	QObject::disconnect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
-			    this, SLOT(setHorizontalOffset(int)));
 	QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int, int, int)),
 			    this, SLOT(columnWidthChanged(int, int, int)));
 	QObject::disconnect(d->header, SIGNAL(sectionIndexChanged(int, int, int)),
@@ -153,8 +154,6 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
     // FIXME: reparent header ???
     d->header = header;
     setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
-    QObject::connect(horizontalScrollBar(), SIGNAL(valueChanged(int)),
-		     this, SLOT(setHorizontalOffset(int)));
     QObject::connect(d->header, SIGNAL(sectionSizeChanged(int, int, int)),
 		     this, SLOT(columnWidthChanged(int, int, int)));
     QObject::connect(d->header, SIGNAL(sectionIndexChanged(int, int, int)),

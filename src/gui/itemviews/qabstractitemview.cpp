@@ -104,6 +104,10 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->verticalScrollBar(), SIGNAL(sliderReleased()), q, SLOT(fetchMore()));
     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)), q, SLOT(fetchMore()));
 
+    QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)), q, SLOT(updateCurrentEditor()),
+		     QueuedConnection);
+    QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),q, SLOT(updateCurrentEditor()),
+		     QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
 
     q->viewport()->setBackgroundRole(QPalette::Base);
