@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#38 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#38 $";
 #endif
 
 
@@ -169,6 +169,13 @@ void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 		       SLOT(subActivated(int)) );
     popup->disconnect( SIGNAL(highlightedRedirect(int)), this,
 		       SLOT(subHighlighted(int)) );
+}
+
+
+void QPopupMenu::frameChanged()
+{    
+    debug( "frameChanged" );
+    menuContentsChanged();
 }
 
 
@@ -383,7 +390,7 @@ void QPopupMenu::updateSize()			// update popup size params
     }
     max_width += extra_width;
     setNumRows( mitems->count() );
-    resize( max_width+2*motifPopupFrame, height+2*motifPopupFrame );
+    resize( max_width+2*frameWidth(), height+2*frameWidth() );
     badSize = FALSE;
 }
 
@@ -613,7 +620,7 @@ int QPopupMenu::cellHeight( long row )
 
 int QPopupMenu::cellWidth( long )
 {
-    return width() - 2*motifPopupFrame;
+    return width() - 2*frameWidth();
 }
 
 
@@ -888,7 +895,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )	// open sub menu
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( popup ) {				// it is a popup
 	QPoint pos( width() - motifArrowHMargin,
-		    motifPopupFrame + motifArrowVMargin );
+		    frameWidth() + motifArrowVMargin );
 	for ( int i=0; i<actItem; i++ )
 	    pos.ry() += (QCOORD)cellHeight( i );
 	popupActive = actItem;
