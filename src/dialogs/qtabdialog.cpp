@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#90 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#91 $
 **
 ** Implementation of QTabDialog class
 **
@@ -53,8 +53,8 @@
   not offer any way to find out which page is currently visible or to
   set the visible page.
 
-  QTabDialog provides an OK button and optionally Apply, Cancel and
-  Defaults buttons.
+  QTabDialog provides an OK button and optionally Apply, Cancel,
+  Defaults, and Help buttons.
 
   The normal way to use QTabDialog is to do the following in the
   constructor: <ol> <li> Create a QTabDialog. <li> Create a QWidget
@@ -80,7 +80,10 @@
 
   There are also several other signals which may be useful. <ul> <li>
   cancelButtonPressed() is emitted when the user clicks Cancel.  <li>
-  defaultButtonPressed() is emitted when the user clicks Defaults; the
+  defaultButtonPressed() is emitted when the user clicks Defaults;
+  <li>
+  helpButtonPressed() is emitted when the user clicks Help;
+  the
   slot it is connected to should reset the state of the dialog to the
   application defaults.  <li> aboutToShow() is emitted at the start of
   show(); if there is any chance that the state of the application may
@@ -181,6 +184,7 @@ struct QTabPrivate
     QPushButton * ok;
     QPushButton * cb;
     QPushButton * db;
+    QPushButton * hb;
     QPushButton * ab;
 
     QBoxLayout * tll;
@@ -188,7 +192,7 @@ struct QTabPrivate
 
 QTabPrivate::QTabPrivate()
 	: tw(0),
-	  ok(0), cb(0), db(0), ab(0),
+	  ok(0), cb(0), db(0), hb(0), ab(0),
 	  tll(0)
 {}
 
@@ -268,6 +272,19 @@ bool QTabDialog::hasDefaultButton() const
 
 
 /*!
+  Returns TRUE if the tab dialog has a Help button, FALSE if not.
+
+  \sa setApplyButton() applyButtonPressed() hasCancelButton()
+  hasHelpButton()
+*/
+
+bool QTabDialog::hasHelpButton() const
+{
+     return d->hb != 0;
+}
+
+
+/*!
   \fn void QTabDialog::cancelButtonPressed();
 
   This signal is emitted when the Cancel button is clicked.  It is
@@ -305,6 +322,16 @@ bool QTabDialog::hasCancelButton() const
   Apply or OK.
 
   \sa applyButtonPressed() cancelButtonPressed() setDefaultButton()
+*/
+
+
+/*!
+  \fn void QTabDialog::helpButtonPressed();
+
+  This signal is emitted when the Help button is pressed.  It
+  should give instructions about how to use the dialog.
+
+  \sa applyButtonPressed() cancelButtonPressed() setHelpButton()
 */
 
 
@@ -681,6 +708,48 @@ void QTabDialog::setApplyButton()
 
 
 /*!
+  Adds a Help button to the dialog.  The button's text is set to \e
+  text.
+
+  When Help is clicked, the helpButtonPressed() signal is emitted.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
+
+  \sa setApplyButton() setCancelButton() helpButtonPressed()
+*/
+
+void QTabDialog::setHelpButton( const QString &text )
+{
+    if ( !text ) {
+        delete d->hb;
+        d->hb = 0;
+        setSizes();
+    } else {
+        if ( !d->hb ) {
+            d->hb = new QPushButton( this, "give help" );
+            connect( d->hb, SIGNAL(clicked()),
+                     this, SIGNAL(helpButtonPressed()) );
+            setUpLayout();
+        }
+        d->hb->setText( text );
+        setSizes();
+        //d->hb->show();
+    }
+}
+
+
+/*!
+  Adds a Help button to the dialog.  The button's text is set to
+  a localizable "Help".
+ */
+void QTabDialog::setHelpButton()
+{
+    setHelpButton( tr("Help") );
+}
+
+/*!
   Adds a Defaults button to the dialog.  The button's text is set to \e
   text.
 
@@ -824,6 +893,11 @@ void QTabDialog::setUpLayout()
 	buttonRow->addSpacing( betweenButtonsMargin );
     }
 
+    if ( d->hb ) {
+	buttonRow->addWidget( d->hb, 0 );
+	buttonRow->addSpacing( betweenButtonsMargin );
+    }
+
     if ( d->ok ) {
 	buttonRow->addWidget( d->ok, 0 );
 	buttonRow->addSpacing( betweenButtonsMargin );
@@ -873,6 +947,14 @@ void QTabDialog::setSizes()
 	    bh = s.height();
     }
 
+    if ( d->hb ) {
+	s = d->hb->sizeHint();
+	if ( s.width() > bw )
+	    bw = s.width();
+	if ( s.height() > bh )
+	    bh = s.height();
+    }
+
     if ( d->cb ) {
 	s = d->cb->sizeHint();
 	if ( s.width() > bw )
@@ -891,12 +973,19 @@ void QTabDialog::setSizes()
 	d->ab->setFixedSize( bw, bh );
     if ( d->db )
 	d->db->setFixedSize( bw, bh );
+    if ( d->hb )
+	d->hb->setFixedSize( bw, bh );
     if ( d->cb )
 	d->cb->setFixedSize( bw, bh );
 
     // fiddle the tab chain so the buttons are in their natural order
     QWidget * w = d->ok;
 
+    if ( d->hb ) {
+	if ( w )
+	    setTabOrder( w, d->hb );
+	w = d->hb;
+    }
     if ( d->db ) {
 	if ( w )
 	    setTabOrder( w, d->db );

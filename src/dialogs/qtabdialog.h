@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#44 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#45 $
 **
 ** Definition of QTabDialog class
 **
@@ -74,6 +74,10 @@ public:
     void setDefaultButton();
     bool hasDefaultButton() const;
 
+    void setHelpButton( const QString &text );
+    void setHelpButton();
+    bool hasHelpButton() const;
+
     void setCancelButton( const QString &text );
     void setCancelButton();
     bool hasCancelButton() const;
@@ -102,6 +106,7 @@ signals:
     void applyButtonPressed();
     void cancelButtonPressed();
     void defaultButtonPressed();
+    void helpButtonPressed();
 
     void selected( const QString& );
 
