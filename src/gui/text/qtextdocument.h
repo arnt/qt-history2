@@ -71,7 +71,7 @@ signals:
     void contentsChanged();
     // ########### make these two work
     void undoAvailable(bool);
-    bool redoAvailable(bool);
+    void redoAvailable(bool);
 
 public slots:
     void undo();
