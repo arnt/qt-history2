@@ -166,16 +166,16 @@ the following stages:
 	<ol>
 	  <li> Run <tt>lupdate</tt> to extract translatable text from
 	  the C++ source code of the Qt application, resulting in a
-	  message file for translators (a .qmt file).  The utility
+	  message file for translators (a .ts file).  The utility
 	  recognizes the tr() construct described above and creates
-	  a certain number of .qmt files (usually one per language).
-	  <li> Provide translations for the source texts in the .qmt
-	  file, using Qt Linguist.  Since .qmt files are in XML
+	  a certain number of .ts files (usually one per language).
+	  <li> Provide translations for the source texts in the .ts
+	  file, using Qt Linguist.  Since .ts files are in XML
 	  format, you can also edit them by hand.
 	  <li> Run <tt>lrelease</tt> to obtain a light-weight message
-	  file (a .qm file) from the .qmt file, suitable only for end
-	  use. 	You can see the .qmt files as "source files", and .qm
-	  as "object files".  The translator edits the .qmt files, but
+	  file (a .qm file) from the .ts file, suitable only for end
+	  use. 	You can see the .ts files as "source files", and .qm
+	  as "object files".  The translator edits the .ts files, but
 	  the users of your application only need the .qm files.  Both
 	  kinds of files are platform and locale independent.
 	</ol>
@@ -193,10 +193,10 @@ HEADERS		= funnydialog.h \
 SOURCES		= funnydialog.cpp \
 		  main.cpp \
 		  wackywidget.cpp
-MESSAGES	= superapp_dk.qmt \
-		  superapp_fi.qmt \
-		  superapp_no.qmt \
-		  superapp_se.qmt
+TRANSLATIONS	= superapp_dk.ts \
+		  superapp_fi.ts \
+		  superapp_no.ts \
+		  superapp_se.ts
 </pre>
 
 	When you invoke <tt>lupdate</tt> or <tt>lrelease</tt>, you
@@ -206,14 +206,14 @@ MESSAGES	= superapp_dk.qmt \
 	In this example, four exotic languages are supported: Danish,
 	Finnish, Norwegian and Swedish.  If you use tmake, you don't
 	need an extra project file for lupdate; your tmake project
-	file will do, if you add the MESSAGES lines.
+	file will do, if you add the TRANSLATIONS lines.
 
 	In your application, you have to \l QTranslator::load()
 	the translation files appropriate for the user's language, and
 	to install them using \l QApplication::installTranslator().
 
 	If you have been using the old Qt tools (findtr, msg2qm and
-	mergetr), you can use <tt>qm2qmt</tt> to convert your old
+	mergetr), you can use <tt>qm2ts</tt> to convert your old
 	.qm files.
 
 	To get started, you should read at least the first chapter of
@@ -231,7 +231,7 @@ MESSAGES	= superapp_dk.qmt \
 	targeting.  In the near future Qt will ship with translations
 	for some languages.  We recommend that if you need to
 	translate the Qt strings now, put the translations in separate
-	.qmt and .qm files.  This will simplify transition to the
+	.ts and .qm files.  This will simplify transition to the
 	official Qt translations.
 
 	</p>
