@@ -3230,7 +3230,7 @@ void QCanvasSprite::draw(QPainter& painter)
   canvas, so you will need to call setCanvas() to display a canvas.
 */
 QCanvasView::QCanvasView(QWidget* parent, const char* name, WFlags f) :
-    QScrollView(parent,name,f|WRepaintNoErase|WResizeNoErase|WNorthWestGravity)
+    QScrollView(parent,name,f|WRepaintNoErase|WResizeNoErase|WStaticContents)
 {
     d = new QCanvasViewData;
     viewing = 0;

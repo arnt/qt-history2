@@ -5515,7 +5515,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     bool transbg = backgroundOrigin() != WidgetOrigin;
     // we ignore NorthWestGravity at the moment for reversed layout
     if ( transbg ||
-	 (!testWFlags( WNorthWestGravity ) &&
+	 (!testWFlags( WStaticContents ) &&
 	  testWState( WState_Exposed ) && was_resize ) ||
 	 QApplication::reverseLayout() ) {
 	// remove unnecessary paint events from the queue

@@ -2179,13 +2179,13 @@ void QListViewPrivate::Root::setup()
 
   Performance is boosted by modifying the widget flags \a f so that only
   part of the QListViewItem children is redrawn.  This may be unsuitable
-  for custom QListViewItem classes, in which case \c WNorthWestGravity and
+  for custom QListViewItem classes, in which case \c WStaticContents and
   \c WRepaintNoErase should be cleared.
 
   \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 QListView::QListView( QWidget * parent, const char *name, WFlags f )
-    : QScrollView( parent, name, f | WNorthWestGravity | WRepaintNoErase )
+    : QScrollView( parent, name, f | WStaticContents | WRepaintNoErase )
 {
     init();
 }

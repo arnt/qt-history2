@@ -1184,7 +1184,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
-	    if ( !testWFlags( WNorthWestGravity ) )
+	    if ( !testWFlags( WStaticContents ) )
 		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	}
     } else {

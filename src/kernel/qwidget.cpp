@@ -630,7 +630,7 @@ erase it. This allows smart-repainting to avoid flicker.
 \value WMouseNoMask  indicates that even if the widget has a mask,
 it wants mouse events for its entire rectangle.
 
-\value WNorthWestGravity  indicates that the widget contents are
+\value WStaticContents  indicates that the widget contents are
 north-west aligned and static. On resize, such a widget will receive
 paint events only for the newly visible part of itself.
 

@@ -2541,7 +2541,7 @@ void QIconViewItem::checkRect()
 */
 
 QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase  | f )
+    : QScrollView( parent, name, WStaticContents | WRepaintNoErase  | f )
 {
     if ( !unknown_icon ) {
 	unknown_icon = new QPixmap( (const char **)unknown_xpm );

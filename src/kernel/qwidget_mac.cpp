@@ -1257,7 +1257,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    {
 		//finally issue "expose" event
 		QRegion upd((oldregion + clpreg) - bltregion);
-		if(isResize && !testWFlags(WNorthWestGravity))
+		if(isResize && !testWFlags(WStaticContents))
 		    upd += clippedRegion();
 		qt_dirty_wndw_rgn("internalSetGeometry",this, upd);
 		//and force the update

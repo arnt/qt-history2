@@ -920,7 +920,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    }
 #endif
 /*
-	    if ( !testWFlags( WNorthWestGravity ) ) {
+	    if ( !testWFlags( WStaticContents ) ) {
 		QApplication::postEvent(this,new QPaintEvent(visibleRect(),
 					!testWFlags(WResizeNoErase) ) );
 	    }

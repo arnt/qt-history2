@@ -194,7 +194,7 @@ public:
                 // clipped_viewport still covers viewport
                 if( static_bg )
                     clipped_viewport->repaint( clipped_viewport->visibleRect(), TRUE );
-                else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) ) || static_bg )
+                else if ( ( !isScroll && !clipped_viewport->testWFlags( Qt::WStaticContents) ) || static_bg )
                     QApplication::postEvent( clipped_viewport, new QPaintEvent( clipped_viewport->visibleRect(),
                                                                                 !clipped_viewport->testWFlags(Qt::WResizeNoErase) ) );
             } else {
@@ -470,24 +470,24 @@ viewport, clipper or scroll bars.
 
 When you construct a QScrollView, some of the widget flags apply to the
 viewport() instead of being sent to the QWidget constructor for the
-QScrollView. This applies to \c WResizeNoErase, \c WNorthWestGravity,
+QScrollView. This applies to \c WResizeNoErase, \c WStaticContents,
 \c WRepaintNoErase and \c WPaintClever. See Qt::WidgetFlags for
 documentation about these flags.  Here are some examples: \list
 
 \i An image-manipulation widget would use \c
-WResizeNoErase|WNorthWestGravity because the widget draws all pixels
+WResizeNoErase|WStaticContents because the widget draws all pixels
 itself, and when its size increases, it only needs a paint event for
 the new part because the old part remains unchanged.
 
 \i A word processing widget might use \c WResizeNoErase and repaint
 itself line by line to get a less-flickery resizing. If the widget is
 in a mode in which no text justification can take place, it might use \c
-WNorthWestGravity too, so that it would only get a repaint for the
+WStaticContents too, so that it would only get a repaint for the
 newly visible parts.
 
 \i A scrolling game widget in which the background scrolls as the
 characters move might use \c WRepaintNoErase (in addition to \c
-WNorthWestGravity and \c WResizeNoErase) so that the window system
+WStaticContents and \c WResizeNoErase) so that the window system
 background does not flash in and out during scrolling.
 \endlist
 
@@ -531,7 +531,7 @@ flag explicitly.
   Constructs a QScrollView with a \a parent, a \a name and widget
   flags \a f.
 
-  The widget flags \c WNorthWestGravity, \c WRepaintNoErase and \c
+  The widget flags \c WStaticContents, \c WRepaintNoErase and \c
   WPaintClever are propagated to the viewport() widget. The other
   widget flags are propagated to the parent constructor as usual.
 */
@@ -539,9 +539,9 @@ flag explicitly.
 
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase) & (~WResizeNoErase) )
+    QFrame( parent, name, f & (~WStaticContents) & (~WRepaintNoErase) & (~WResizeNoErase) )
 {
-    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity);
+    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WStaticContents);
     d = new QScrollViewData( this, flags );
 
 #ifndef QT_NO_DRAGANDDROP

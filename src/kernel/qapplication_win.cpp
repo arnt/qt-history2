@@ -3461,7 +3461,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    if ( isVisible() ) {
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
-		if ( !testWFlags( WNorthWestGravity ) )
+		if ( !testWFlags( WStaticContents ) )
 		    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	    } else {
 		QResizeEvent *e = new QResizeEvent( newSize, oldSize );

@@ -762,7 +762,7 @@ int QListBoxPixmap::rtti() const
 
   Performance is boosted by modifying the widget flags \a f so that only
   part of the QListBoxItem children is redrawn.  This may be unsuitable
-  for custom QListBoxItem classes, in which case \c WNorthWestGravity and
+  for custom QListBoxItem classes, in which case \c WStaticContents and
   \c WRepaintNoErase should be cleared immediately after construction.
 
   \sa QWidget::clearWFlags() Qt::WidgetFlags

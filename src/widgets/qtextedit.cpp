@@ -543,7 +543,7 @@ static bool block_set_alignment = FALSE;
 */
 
 QTextEdit::QTextEdit( QWidget *parent, const char *name )
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase | WResizeNoErase ),
+    : QScrollView( parent, name, WStaticContents | WRepaintNoErase | WResizeNoErase ),
       doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
@@ -572,7 +572,7 @@ QTextEdit::QTextEdit( QWidget *parent, const char *name )
 
 QTextEdit::QTextEdit( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase | WResizeNoErase ),
+    : QScrollView( parent, name, WStaticContents | WRepaintNoErase | WResizeNoErase ),
       doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
