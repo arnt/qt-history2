@@ -80,12 +80,14 @@ QLocaleStaticData::QLocaleStaticData()
     m_inf_str = "inf";
 }
 
-#ifdef Q_WS_WIN
+#ifdef Q_WS_WIN 
 #   define isinf(d) (!_finite(d) && !_isnan(d))
 #   define isnan(d) _isnan(d)
+#ifndef Q_CC_GNU
 #   define ULLONG_MAX _UI64_MAX
 #   define LLONG_MAX _I64_MAX
 #   define LLONG_MIN _I64_MIN
+#endif
 #endif
 
 #if !defined(INFINITY)
