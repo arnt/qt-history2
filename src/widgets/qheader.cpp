@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#72 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -150,7 +150,7 @@ int QHeader::cellPos( int i ) const
     if ( i >=  cachedIdx  ) {
 	for ( int j = cachedIdx; j < i; j++ )
 	    r += pSize( j );
-    } else { //### 
+    } else { //###
 	for ( int j = cachedIdx-1; j >= i; j-- )
 	    r -= pSize( j );
     }
@@ -390,7 +390,7 @@ int QHeader::findLine( int c )
 	return i;
 }
 
-void QHeader::moveAround( int fromIdx, int toIdx )
+void QHeader::moveCell( int fromIdx, int toIdx )
 {
     if ( fromIdx == toIdx )
 	return;
@@ -434,7 +434,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
 
     int i = cellAt( c );
-    int p = pPos( i ); 
+    int p = pPos( i );
 
     if (  i != 0 && c < p + GRIPMARGIN || c > p + pSize( i ) - GRIPMARGIN ) {
 	if ( c < p + GRIPMARGIN )
@@ -478,7 +478,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
     case Moving: {
 	setCursor( arrowCursor );
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
-	    moveAround( handleIdx, moveToIdx );
+	    moveCell( handleIdx, moveToIdx );
 	    emit moved( handleIdx, moveToIdx );
 	    repaint();
 	} else {
@@ -502,7 +502,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
     int s = orient == Horizontal ? m->pos().x() : m->pos().y();
     if ( state == Idle ) {
 	int i = cellAt( s );
-	int p = pPos( i ); 
+	int p = pPos( i );
 	bool hit = FALSE;
 
 	if (  s < p + GRIPMARGIN || s > p + pSize( i ) - GRIPMARGIN ) {
