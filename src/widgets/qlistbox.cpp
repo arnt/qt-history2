@@ -61,7 +61,7 @@ class QListBoxPrivate
 public:
     QListBoxPrivate( QListBox *lb ):
 	head( 0 ), last( 0 ), cache( 0 ), cacheIndex( -1 ), current( 0 ), highlighted( 0 ),
-	columnPosOne( 0 ),
+	rowPosCache( 0 ), columnPosOne( 0 ),
 	rowMode( QListBox::FixedNumber ), columnMode( QListBox::FixedNumber ),
 	numRows( 1 ), numColumns( 1 ),
 	currentRow( 0 ), currentColumn( 0 ),
@@ -89,6 +89,7 @@ public:
 
     QMemArray<int> columnPos;
     QMemArray<int> rowPos;
+    int rowPosCache;
     int columnPosOne;
 
     QListBox::LayoutMode rowMode;
@@ -1843,8 +1844,10 @@ QListBoxItem *QListBox::item( int index ) const
 	}
     }
 
-    d->cache = i;
-    d->cacheIndex = index;
+    if ( index > 0 ) {
+	d->cache = i;
+	d->cacheIndex = index;
+    }
 
     return i;
 }
@@ -1861,13 +1864,29 @@ int QListBox::index( const QListBoxItem * lbi ) const
 {
     if ( !lbi )
 	return -1;
-    int c = 0;
-    QListBoxItem * i = d->head;
-    while ( i && i != lbi ) {
-	c++;
-	i = i->n;
+    QListBoxItem * i_n = d->head;
+    int c_n = 0;
+    if ( d->cache ) {
+	i_n = d->cache;
+	c_n = d->cacheIndex;
     }
-    return i ? c : -1;
+    QListBoxItem* i_p = i_n;
+    int c_p = c_n;
+    while ( ( i_n != 0 || i_p != 0 ) && i_n != lbi && i_p != lbi ) {
+	if ( i_n ) {
+	    c_n++;
+	    i_n = i_n->n;
+	}
+	if ( i_p ) {
+	    c_p--;
+	    i_p = i_p->p;
+	}
+    }
+    if ( i_p == lbi )
+	return c_p;
+    if ( i_n == lbi )
+	return c_n;
+    return -1;
 }
 
 
@@ -3378,7 +3397,7 @@ QListBoxItem * QListBox::itemAt( const QPoint& p ) const
     int col = columnAt( x );
     int row = rowAt( y );
 
-    QListBoxItem *i = item( col * numRows()  +row );
+    QListBoxItem *i = item( col * numRows()  + row );
     if ( i && numColumns() > 1 ) {
 	if ( d->columnPos[ col ] + i->width( this ) >= x )
 	    return i;
@@ -3493,30 +3512,9 @@ int QListBox::topItem() const
     doLayout();
 
     // move rightwards to the best column
-
-    int col = 0;
-    while ( col < numColumns() && d->columnPos[col] < contentsX() )
-	col++;
-
-    int item = 0;
-    if ( ( col < numColumns() &&
-	   d->columnPos[col+1] <= contentsX()+visibleWidth() ) ||
-	 col == 0 ||
-	 d->columnPos[col] < contentsX()+visibleWidth()/2 )
-	item = col*numRows();
-    else
-	item = (col-1)*numRows();
-
-    // move downwards to the top visible item
-    int y = contentsY();
-    int row = 0;
-    while ( row < numRows() &&
-	    y > d->rowPos[row] &&
-	    row + item < (int)count()-1 )
-	row++;
-
-    // return result
-    return row+item;
+    int col = columnAt( contentsX() );
+    int row = rowAt( contentsY() );
+    return col * numRows() + row; 
 }
 
 
@@ -3600,22 +3598,18 @@ void QListBox::refreshSlot()
     QRegion r;
     int x = contentsX();
     int y = contentsY();
-    int col = 0;
-    int row = 0;
+    int col = columnAt( x );
+    int row = rowAt( y );
     int top = row;
     while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
 	col++;
     while( top < (int)d->rowPos.size()-1 && d->rowPos[top+1] < y )
 	top++;
-    QListBoxItem * i = item( col * numRows() );
+    QListBoxItem * i = item( col * numRows() + row );
 
     while ( i && (int)col < numColumns() &&
 	    d->columnPos[col] < x + visibleWidth()  ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
-	while ( i && row < top ) {
-	    i = i->n;
-	    row++;
-	}
 	while ( i && row < numRows() && d->rowPos[row] <
 		y + visibleHeight() ) {
 	    if ( i->dirty )
@@ -3624,12 +3618,11 @@ void QListBox::refreshSlot()
 	    row++;
 	    i = i->n;
 	}
-	while ( i && row < numRows() ) {
-	    i = i->n;
-	    row++;
-	}
-	row = 0;
 	col++;
+	if ( numColumns() > 1 ) {
+	    row = top;
+	    i = item( col *  numRows() + row );
+	}
     }
 
     if ( r.isEmpty() )
@@ -3680,10 +3673,6 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     p.setBackgroundColor( backgroundBrush().color() );
     while ( i && (int)col < numColumns() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
-	while ( i && row < top ) {
-	    i = i->n;
-	    row++;
-	}
 	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
 	    int ch = d->rowPos[row+1] - d->rowPos[row];
 	    QRect itemRect( d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch );
@@ -3705,12 +3694,11 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 	    }
 	    i = i->n;
 	}
-	while ( i && row < numRows() ) {
-	    i = i->n;
-	    row++;
-	}
-	row = 0;
 	col++;
+	if ( numColumns() > 1 ) {
+	    row = top;
+	    i = item( col *  numRows() + row );
+	}
     }
 
     if ( r.isEmpty() )
@@ -3773,17 +3761,22 @@ int QListBox::rowAt( int y ) const
     int r = d->rowPos.size() - 2;
     if ( r < 0 )
 	return -1;
+    if ( l <= d->rowPosCache && d->rowPosCache <= r ) {
+	if ( d->rowPos[ QMAX( l, d->rowPosCache - 10 ) ] <= y
+	     && y <= d->rowPos[ QMIN( r, d->rowPosCache + 10 ) ] ) {
+	    l = QMAX( l, d->rowPosCache - 10 );
+	    r = QMIN( r, d->rowPosCache + 10 );
+	}
+    }
     int i = ( (l+r+1) / 2 );
-    static int n = 0;
-    n = 0;
     while ( r - l ) {
-	n++;
 	if ( d->rowPos[i] > y )
 	    r = i -1;
 	else
 	    l = i;
 	i = ( (l+r+1) / 2 );
     }
+    d->rowPosCache = i;
     if ( d->rowPos[i] <= y && y <= d->rowPos[i+1]  )
 	return  i;
 
@@ -3791,7 +3784,7 @@ int QListBox::rowAt( int y ) const
 }
 
 
-/*!  Returns the rectangle on the screen that \a item occupies in
+/*!  Returns the rectangle on the sizecreen that \a item occupies in
   viewport()'s coordinates, or an invalid rectangle if \a item is a null
   pointer or is not currently visible.
 */
