@@ -73,7 +73,7 @@ only involves setting a pointer and incrementing the reference count.
 
 Object assignment (with operator=) for implicitly and explicitly
 shared objects is implemented as shallow copies.  A deep copy can be
-made by calling a copy() function.
+made by calling a copy() function or by using \l QDeepCopy.
 
 The benefit of sharing is that a program does not need to duplicate data
 when it is not required, which results in less memory usage and less
