@@ -964,7 +964,7 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
 	    QString output = file.name();
 	    if(fi.isDir())
 		output += QDir::separator();
-	    if(output.endsWith(projectSuffix())) {
+	    if(!output.endsWith(projectSuffix())) {
 		if(file.name().isEmpty() || fi.isDir())
 		    output += project->first("TARGET");
 		output += projectSuffix() + QDir::separator();
