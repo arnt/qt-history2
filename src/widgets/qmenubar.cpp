@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#72 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#72 $");
 
 
 /*!
@@ -525,6 +525,13 @@ int QMenuBar::calculateRects( int max_width )
     return max_height;
 }
 
+/*!
+  Returns the height that the menu would resize itself to if its parent
+  (and hence itself) resized to the given width.  This can be useful for
+  simple layout tasks where the height of the menubar is needed after
+  items have been inserted.  See examples/showimg/showimg.cpp for an
+  example of the usage.
+*/
 int QMenuBar::heightForWidth(int max_width) const
 {
     // Okay to cast away const, as we are not updating.
