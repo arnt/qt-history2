@@ -1625,7 +1625,7 @@ bool QWidget::isClippedRegionDirty()
 {
     if(!extra || extra->clip_dirty)
 	return TRUE;
-    if(/*!isTopLevel() && */(parentWidget() && parentWidget()->isClippedRegionDirty()))
+    if(/*!isTopLevel() && */(parentWidget(TRUE) && parentWidget(TRUE)->isClippedRegionDirty()))
 	return TRUE;
     return FALSE;
 }
