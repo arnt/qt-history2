@@ -262,6 +262,14 @@
       </property>
     </actiongroup>
   </widget>
+  <connections>
+    <connection>
+      <sender>addressEdit</sender>
+      <signal>returnPressed()</signal>
+      <receiver>actionGo</receiver>
+      <slot>trigger()</slot>
+    </connection>
+  </connections>
   <layoutdefault spacing="6" margin="11" />
   <images>
     <image name="image0" >
