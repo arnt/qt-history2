@@ -118,7 +118,6 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#include <qdict.h>" << endl;
     out << "#include <qmime.h>" << endl;
     out << "#include <qdragobject.h>" << endl;
-    out << "#include <qpixmap.h>" << endl << endl;
 
 
     QPtrList<EmbedImage> list_image;
@@ -238,9 +237,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "\tif ( !!abs_name )" << endl;
 	out << "\t    img = uic_findImage( abs_name );" << endl;
 	out << "\tif ( !img.isNull() ) {" << endl;
-	out << "\t    QPixmap pix;" << endl;
-	out << "\t    pix.convertFromImage( img );" << endl;
-	out << "\t    QMimeSourceFactory::defaultFactory()->setPixmap( abs_name, pix );" << endl;
+	out << "\t    QMimeSourceFactory::defaultFactory()->setImage( abs_name, img );" << endl;
 	out << "\t    return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
 	out << "\t} else {" << endl;
 	out << "\t    QMimeSourceFactory::removeFactory( (QMimeSourceFactory*)this );" << endl;
