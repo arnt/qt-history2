@@ -510,6 +510,7 @@ protected:
 
 private:
     void init();
+    ToggleState internalState() const;
     void setStoredState( ToggleState );
     void stateChange( ToggleState s );
     void restoreState();
