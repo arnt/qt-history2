@@ -7879,6 +7879,7 @@ void Q3ListView::adjustColumn(int col)
 
     d->h->adjustHeaderSize(oldw - w);
     if (oldw != w) {
+        d->fullRepaintOnComlumnChange = true;
         d->h->resizeSection(col, w);
         emit d->h->sizeChange(col, oldw, w);
     }
