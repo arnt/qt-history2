@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#12 $
 **
 ** Global functions
 **
@@ -16,7 +16,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#12 $";
 #endif
 
 
@@ -47,7 +47,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
     if ( *wordSize != 32 && *wordSize != 16 ) { // word size should be 16 or 32
 #if defined(CHECK_RANGE)
-	fatal( "qSysInfo: Unsupported system word size %d", wordSize );
+	fatal( "qSysInfo: Unsupported system word size %d", *wordSize );
 #endif
 	return FALSE;
     }
