@@ -258,7 +258,11 @@ QVariant QPSQLResult::data( int i )
 	    return ( b );
 	}
     case QVariant::String:
-	return QVariant( val );
+	if ( PQgetisnull( d->result, at(), i ) ) {
+	    return QVariant( QString() );
+	} else {
+	    return QVariant( val );
+	}
     case QVariant::Int:
 	return QVariant( val.toInt() );
     case QVariant::Double:
