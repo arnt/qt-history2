@@ -5,5 +5,6 @@ SOURCES		+= sqlcatalog.cpp
 
 win32:OBJECTS_DIR = obj
 unix:OBJECTS_DIR  = .obj
+unix:LIBS	+= -lpthread
 
 TARGET      	= sqlcatalog
