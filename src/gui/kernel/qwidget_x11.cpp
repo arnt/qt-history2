@@ -71,6 +71,69 @@ static QWidget *keyboardGrb = 0;
 int qt_x11_create_desktop_on_screen = -1;
 
 
+// MWM support
+struct QtMWMHints {
+    ulong flags, functions, decorations;
+    long input_mode;
+    ulong status;
+};
+
+enum {
+    MWM_HINTS_FUNCTIONS   = (1L << 0),
+
+    MWM_FUNC_ALL      = (1L << 0),
+    MWM_FUNC_RESIZE   = (1L << 1),
+    MWM_FUNC_MOVE     = (1L << 2),
+    MWM_FUNC_MINIMIZE = (1L << 3),
+    MWM_FUNC_MAXIMIZE = (1L << 4),
+    MWM_FUNC_CLOSE    = (1L << 5),
+
+    MWM_HINTS_DECORATIONS = (1L << 1),
+
+    MWM_DECOR_ALL      = (1L << 0),
+    MWM_DECOR_BORDER   = (1L << 1),
+    MWM_DECOR_RESIZEH  = (1L << 2),
+    MWM_DECOR_TITLE    = (1L << 3),
+    MWM_DECOR_MENU     = (1L << 4),
+    MWM_DECOR_MINIMIZE = (1L << 5),
+    MWM_DECOR_MAXIMIZE = (1L << 6),
+
+    MWM_HINTS_INPUT_MODE = (1L << 2),
+
+    MWM_INPUT_FULL_APPLICATION_MODAL    = 3L
+};
+
+
+static QtMWMHints GetMWMHints(Display *display, Window window)
+{
+    QtMWMHints mwmhints;
+
+    Atom type;
+    int format;
+    ulong nitems, bytesLeft;
+    uchar *data = 0;
+    if ((XGetWindowProperty(display, window, ATOM(_MOTIF_WM_HINTS), 0, 5, false,
+                            ATOM(_MOTIF_WM_HINTS), &type, &format, &nitems, &bytesLeft,
+                            &data) == Success)
+        && (type == ATOM(_MOTIF_WM_HINTS)
+            && format == 32
+            && nitems >= 5)) {
+        mwmhints = *(reinterpret_cast<QtMWMHints *>(data));
+    } else {
+        mwmhints.flags = 0L;
+        mwmhints.functions = MWM_FUNC_ALL;
+        mwmhints.decorations = MWM_DECOR_ALL;
+        mwmhints.input_mode = 0L;
+        mwmhints.status = 0L;
+    }
+
+    if (data)
+        XFree(data);
+
+    return mwmhints;
+}
+
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -439,18 +502,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     long net_wintypes[7] = { 0, 0, 0, 0, 0, 0, 0 };
     int curr_wintype = 0;
 
-    // NET window states
-    long net_winstates[6] = { 0, 0, 0, 0, 0, 0 };
-    int curr_winstate = 0;
-
-    struct {
-        ulong flags, functions, decorations;
-        long input_mode;
-        ulong status;
-    } mwmhints;
-
-    mwmhints.flags = mwmhints.functions = 0L;
-    mwmhints.decorations = (1L << 0); // MWM_DECOR_ALL
+    QtMWMHints mwmhints;
+    mwmhints.flags = 0L;
+    mwmhints.functions = MWM_FUNC_ALL;
+    mwmhints.decorations = MWM_DECOR_ALL;
     mwmhints.input_mode = 0L;
     mwmhints.status = 0L;
 
@@ -467,28 +522,28 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         }
         if (testWFlags(Qt::WStyle_Customize)) {
             mwmhints.decorations = 0L;
-            mwmhints.flags |= (1L << 1); // MWM_HINTS_DECORATIONS
+            mwmhints.flags |= MWM_HINTS_DECORATIONS;
 
             if (testWFlags(Qt::WStyle_NoBorder)) {
                 // override netwm type - quick and easy for KDE noborder
                 net_wintypes[curr_wintype++] = ATOM(_KDE_NET_WM_WINDOW_TYPE_OVERRIDE);
             } else {
                 if (testWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_DialogBorder)) {
-                    mwmhints.decorations |= (1L << 1); // MWM_DECOR_BORDER
-                    mwmhints.decorations |= (1L << 2); //  MWM_DECOR_RESIZEH
+                    mwmhints.decorations |= MWM_DECOR_BORDER;
+                    mwmhints.decorations |= MWM_DECOR_RESIZEH;
                 }
 
                 if (testWFlags(Qt::WStyle_Title))
-                    mwmhints.decorations |= (1L << 3); // MWM_DECOR_TITLE
+                    mwmhints.decorations |= MWM_DECOR_TITLE;
 
                 if (testWFlags(Qt::WStyle_SysMenu))
-                    mwmhints.decorations |= (1L << 4); // MWM_DECOR_MENU
+                    mwmhints.decorations |= MWM_DECOR_MENU;
 
                 if (testWFlags(Qt::WStyle_Minimize))
-                    mwmhints.decorations |= (1L << 5); // MWM_DECOR_MINIMIZE
+                    mwmhints.decorations |= MWM_DECOR_MINIMIZE;
 
                 if (testWFlags(Qt::WStyle_Maximize))
-                    mwmhints.decorations |= (1L << 6); // MWM_DECOR_MAXIMIZE
+                    mwmhints.decorations |= MWM_DECOR_MAXIMIZE;
             }
 
             if (testWFlags(Qt::WStyle_Tool)) {
@@ -499,12 +554,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_ContextHelp);
         } else {
             setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
-
-            // maximized netwm state
-            if (testWState(Qt::WState_Maximized)) {
-                net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
-                net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
-            }
         }
 
         // ### need a better way to do this
@@ -523,19 +572,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_DIALOG);
         // normal netwm type - default
         net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_NORMAL);
-
-        // stays on top
-        if (testWFlags(Qt::WStyle_StaysOnTop)) {
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_ABOVE);
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_STAYS_ON_TOP);
-        }
-
-        if (testWFlags(Qt::WShowModal)) {
-            mwmhints.input_mode = 3L; // MWM_INPUT_FULL_APPLICATION_MODAL
-            mwmhints.flags |= (1L << 2); // MWM_HINTS_INPUT_MODE
-
-            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MODAL);
-        }
 
         if (testWFlags(Qt::WX11BypassWM)) {
             wsa.override_redirect = True;
@@ -610,11 +646,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         XSetWMProtocols(dpy, id, protocols, n);
 
         // set mwm hints
-        if (mwmhints.flags != 0l)
+        if (mwmhints.flags != 0l) {
             XChangeProperty(dpy, id, ATOM(_MOTIF_WM_HINTS), ATOM(_MOTIF_WM_HINTS), 32,
                             PropModeReplace, (unsigned char *) &mwmhints, 5);
-        else
+        } else {
             XDeleteProperty(dpy, id, ATOM(_MOTIF_WM_HINTS));
+        }
 
         // set _NET_WM_WINDOW_TYPE
         if (curr_wintype > 0)
@@ -622,13 +659,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                             (unsigned char *) net_wintypes, curr_wintype);
         else
             XDeleteProperty(dpy, id, ATOM(_NET_WM_WINDOW_TYPE));
-
-        // set _NET_WM_WINDOW_STATE
-        if (curr_winstate > 0)
-            XChangeProperty(dpy, id, ATOM(_NET_WM_STATE), XA_ATOM, 32, PropModeReplace,
-                            (unsigned char *) net_winstates, curr_winstate);
-        else
-            XDeleteProperty(dpy, id, ATOM(_NET_WM_STATE));
 
         // set _NET_WM_PID
         long curr_pid = getpid();
@@ -1785,6 +1815,75 @@ void QWidget::show_sys()
         if (got_hints)
             XFree((char *)h);
 
+        // update _MOTIF_WM_HINTS
+        QtMWMHints mwmhints = GetMWMHints(d->xinfo.display(), winId());
+
+        if (testWFlags(Qt::WShowModal)) {
+            mwmhints.input_mode = MWM_INPUT_FULL_APPLICATION_MODAL;
+            mwmhints.flags |= MWM_HINTS_INPUT_MODE;
+        }
+
+        if (minimumSize() == maximumSize()) {
+            // fixed size, remove the resize handle (since mwm/dtwm
+            // isn't smart enough to do it itself)
+            mwmhints.flags |= MWM_HINTS_FUNCTIONS;
+            if (mwmhints.functions == MWM_FUNC_ALL) {
+                mwmhints.functions = (MWM_FUNC_MOVE
+                                      | MWM_FUNC_MINIMIZE
+                                      | MWM_FUNC_MAXIMIZE
+                                      | MWM_FUNC_CLOSE);
+            } else {
+                mwmhints.functions &= ~MWM_FUNC_RESIZE;
+            }
+
+            mwmhints.flags |= MWM_HINTS_DECORATIONS;
+            if (mwmhints.decorations == MWM_DECOR_ALL) {
+                mwmhints.decorations = (MWM_DECOR_BORDER
+                                        | MWM_DECOR_RESIZEH
+                                        | MWM_DECOR_TITLE
+                                        | MWM_DECOR_MENU
+                                        | MWM_DECOR_MINIMIZE
+                                        | MWM_DECOR_MAXIMIZE);
+            } else {
+                mwmhints.decorations &= ~MWM_DECOR_RESIZEH;
+            }
+        }
+
+        if (mwmhints.flags != 0l) {
+            XChangeProperty(d->xinfo.display(), winId(), ATOM(_MOTIF_WM_HINTS),
+                            ATOM(_MOTIF_WM_HINTS), 32, PropModeReplace,
+                            (unsigned char *) &mwmhints, 5);
+        } else {
+            XDeleteProperty(d->xinfo.display(), winId(), ATOM(_MOTIF_WM_HINTS));
+        }
+
+        // set _NET_WM_STATE
+        Atom net_winstates[6] = { 0, 0, 0, 0, 0, 0 };
+        int curr_winstate = 0;
+
+        if (testWFlags(Qt::WStyle_StaysOnTop)) {
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_ABOVE);
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_STAYS_ON_TOP);
+        }
+        if (testWState(Qt::WState_FullScreen)) {
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_FULLSCREEN);
+        }
+        if (testWState(Qt::WState_Maximized)) {
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_HORZ);
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MAXIMIZED_VERT);
+        }
+        if (testWFlags(Qt::WShowModal)) {
+            net_winstates[curr_winstate++] = ATOM(_NET_WM_STATE_MODAL);
+        }
+
+        if (curr_winstate > 0) {
+            XChangeProperty(d->xinfo.display(), winId(), ATOM(_NET_WM_STATE), XA_ATOM,
+                            32, PropModeReplace, (unsigned char *) net_winstates, curr_winstate);
+        } else {
+            XDeleteProperty(d->xinfo.display(), winId(), ATOM(_NET_WM_STATE));
+        }
+
+        // set _NET_WM_USER_TIME
         if (X11->userTime != CurrentTime) {
             XChangeProperty(d->xinfo.display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
                             32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
