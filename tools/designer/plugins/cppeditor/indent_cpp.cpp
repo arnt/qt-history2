@@ -80,16 +80,16 @@ void Indent_CPP::indent( QTextDocument *, QTextParag *parag, int *oldIndent, int
 	i = s.length()-1;
 	while ( i >= 0 ) {
 	    QChar c = s[ i ];
-	    if ( c == ";" && braceLevel == 0 && parenLevel == 0 ) {
+	    if ( c == ';' && braceLevel == 0 && parenLevel == 0 ) {
 		seenSemicolon = TRUE;
-	    } else if ( c == "}" ) {
+	    } else if ( c == '}' ) {
 		braceLevel++;
 		seenBraces = TRUE;
-	    } else if ( c == "{" ) {
+	    } else if ( c == '{' ) {
 		braceLevel--;
-	    } else if ( c == ")" ) {
+	    } else if ( c == ')' ) {
 		parenLevel++;
-	    } else if ( c == "(" ) {
+	    } else if ( c == '(' ) {
 		parenLevel--;
 	    }
 	    i--;
