@@ -1898,8 +1898,10 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 			    if ( eiface )
 				eiface->setError( line );
 			}
+#if 0 // ########## fix problem that JS gives an parse error if a function has typed arguments
 			QApplication::restoreOverrideCursor();
 			return 0;
+#endif
 		    }
 		}
 	    }
