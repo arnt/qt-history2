@@ -2466,6 +2466,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
     # when building qmake, we use #defines for the install paths,
     # however they are real functions in the library
     mkdir -p "$outpath/src/core/global"
+    [ -f "$outpath/src/core/global/qconfig.h" ] && chmod +w "$outpath/src/core/global/qconfig.h"
     echo "/* All features enabled while building qmake */" >"$outpath/src/core/global/qconfig.h"
     for conf in "$outpath/include/QtCore/qconfig.h" "$outpath/include/Qt/qconfig.h"; do
         if [ '!' -f "$conf" ]; then
