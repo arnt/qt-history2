@@ -131,13 +131,13 @@
 class QTabBarExtension : public QWidget
 {
 public:
-    QTabBarExtension( QWidget * parent = 0, const char * name = 0 )
+    QTabBarExtension( QTabWidget * parent = 0, const char * name = 0 )
         : QWidget( parent, name ) {};
 protected:
     void paintEvent( QPaintEvent * )
     {
         QObject * obj = parent();
-        if( obj && obj->inherits("QTabWidget") ){
+        if( obj ){
             QTabWidget * t = (QTabWidget *) obj;
             QPainter p( this );
             style().drawTabBarExtension( &p, x(), y(), width(), height(),
