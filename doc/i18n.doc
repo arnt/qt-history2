@@ -62,7 +62,7 @@ Strings that are in "programmer space" (such as QObject names
 and file format texts) need not use QString; the traditional
 char* or the QCString class will suffice.
 
-You're unlikely to notice that you are using Unicode -
+You're unlikely to notice that you are using Unicode;
 QString, and QChar are just like easier versions of the clumsy
 const char* and char from traditional C.
 
@@ -85,7 +85,7 @@ using \l QObject::tr(). For example, assuming
 This is 99% of the user-visible strings you're likely to
 write.
 
-If the quoted text is \e not in a member function of a
+If the quoted text is not in a member function of a
 QObject/QWidget subclass, use either the tr() function of an
 appropriate class, or the QApplication::translate() function
 directly:
@@ -249,12 +249,33 @@ QTranslator::insert() and then writes a .qm file with
 QTranslator::save(). This way the translations can come from any
 source you choose.
 
-Qt itself contains a small number of strings that will also need to
-be translated to the languages that you are targeting. In the future
-Qt will ship with translations for some languages. We recommend that
-if you need to translate the Qt strings now (or some of them), put
-the translations in separate .ts and .qm files. This will simplify
-transition to the official Qt translations.
+\target qt-itself
+Qt itself contains about 400 strings that will also need to be
+translated to the languages that you are targeting. You will find
+translation files for French and German in \c $QTDIR/translations
+as well as a template for translating to other languages.
+
+Typically, your application's main() function will look like this:
+\code
+    int main( int argc, char **argv )
+    {
+	QApplication app( argc, argv );
+
+	// translation file for Qt
+	QTranslator qt( 0 );
+	qt.load( QString( "qt_" ) + QTextCodec::locale(), "." );
+	app.installTranslator( &qt );
+
+	// translation file for application strings
+	QTranslator myapp( 0 );
+	myapp.load( QString( "myapp_" ) + QTextCodec::locale(), "." );
+	app.installTranslator( &myapp );
+
+	...
+
+	return app.exec();
+    }
+\endcode
 
 \section2 Support Encodings
 
