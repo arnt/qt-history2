@@ -9,3 +9,7 @@ SUBDIRS += webbrowser \
 	   hierarchy
  
 opengl:SUBDIRS += opengl
+
+#ohject saftey headers are not in mingw
+win32-g++:SUBDIRS -= opengl
+

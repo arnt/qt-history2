@@ -10,6 +10,9 @@
 
 #include <qt_windows.h>
 
+#ifdef Q_CC_GNU
+#include <olectl.h>
+#endif
 
 #ifdef QT_DEBUG
 const DWORD dwTimeOut = 1000;

@@ -840,7 +840,7 @@ bool QAxBase::setControl( const QString &c )
     clear();
     ctrl = c;
     // don't waste time for DCOM requests
-    if (ctrl.find("/{") != ctrl.length()-39 && !ctrl.endsWith("}&")) {
+    if (ctrl.find("/{") != (int)ctrl.length()-39 && !ctrl.endsWith("}&")) {
 	QUuid uuid( ctrl );
 	if ( uuid.isNull() ) {
 	    QSettings controls;
@@ -1071,6 +1071,15 @@ bool QAxBase::initializeActive(IUnknown** ptr)
     return *ptr != 0;
 }
 
+
+// There seams to be a naming problem in mingw headers 
+#ifdef Q_CC_GNU
+#ifndef COAUTHIDENTITY
+#define COAUTHIDENTITY AUTH_IDENTITY
+#endif
+#endif
+
+
 /*!
     Creates the instance on a remote server, and returns the IUnknown interface
     to the object in \a ptr. This function returns TRUE if successful, otherwise
@@ -1133,7 +1142,7 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
     serverInfo.dwReserved1 = 0;
     serverInfo.dwReserved2 = 0;
     serverInfo.pAuthInfo = &authInfo;
-    serverInfo.pwszName = (ushort*)server.ucs2();
+    serverInfo.pwszName = (WCHAR*)server.ucs2();
 
     IClassFactory *factory = 0;
     HRESULT res = CoGetClassObject(QUuid(clsid), CLSCTX_REMOTE_SERVER, &serverInfo, IID_IClassFactory, (void**)&factory);
