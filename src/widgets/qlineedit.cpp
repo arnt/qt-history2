@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#208 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#209 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1415,9 +1415,8 @@ void QLineEdit::dragScrollSlot()
   newMarkAnchor to \a newMarkDrag.  Returns TRUE if it changes the line
   edit and FALSE if it doesn't.
 
-  Linebreaks in \a newText are converted to spaces, and
-  it is truncated to maxLength() if necessary
-  before testing its validity.
+  Linebreaks in \a newText are converted to spaces, and it is
+  truncated to maxLength() if necessary before testing its validity.
 
   Repaints and emits textChanged() if appropriate.
 */
@@ -1458,7 +1457,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	if ( offset > cursorPos )
 	    offset = cursorPos;
 
-	if ( (alignmentFlag & AlignLeft) && (tbuf == t || tbuf == t.right( tbuf.length() ) ) ) {
+	if ( (alignmentFlag & AlignLeft) &&
+	     (tbuf == t || tbuf == t.right( tbuf.length() ) ) ) {
 	    int i = 0;
 	    while( i < minP && t[i] == tbuf[i] )
 		i++;
@@ -1523,8 +1523,7 @@ void QLineEdit::insert( const QString &newText )
     int ncp = QMIN( cp+t.length(), (uint)maxLength() );
     cursorOn = FALSE;
     blinkSlot();
-    validateAndSet( test, ncp, ncp, ncp );
-    if (validateAndSet( test, ncp, ncp, ncp )) {
+    if ( validateAndSet( test, ncp, ncp, ncp ) ) {
         if ( offset > cp ) {
             offset = cp;
             repaintArea( offset, ncp );
