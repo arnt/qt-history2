@@ -1,0 +1,19 @@
+diff -urw template/library/Makefile solaris-gcc-shared/library/Makefile
+--- template/library/Makefile	Mon May 27 20:52:52 1996
++++ solaris-gcc-shared/library/Makefile	Mon May 27 22:03:51 1996
+@@ -88,10 +88,11 @@
+ # the "proper" rules of library numbering.
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../../lib/libqt.so.${VERSION}
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.${VERSION} \
+-		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
++	$(CC) -shared -o libqt.so.$(VERSION) \
++		$(OBJECTS) $(METAOBJ) -lX11 -lsocket -lc
++	-rm -f ../../../lib/libqt.so ../../../lib/libqt.so.${VERSION}
++	mv libqt.so.$(VERSION) ../../../lib
++	ln -s libqt.so.$(VERSION) ../../../lib/libqt.so
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
