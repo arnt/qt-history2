@@ -1265,6 +1265,7 @@ void Parser::matchDataType()
 	yyTok = getToken();
 	break;
     case Tok_integer:
+	len = 10;
 	type = QVariant::Int;
 	yyTok = getToken();
 	break;
