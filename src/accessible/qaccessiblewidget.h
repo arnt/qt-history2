@@ -26,31 +26,29 @@ class QAccessibleWidgetPrivate;
 class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 {
 public:
-    QAccessibleWidget( QObject *o, Role r = Client, QString name = QString(), 
+    QAccessibleWidget( QWidget *o, Role r = Client, QString name = QString(), 
 	QString description = QString(), QString value = QString(), 
 	QString help = QString(), QString defAction = QString(),
 	QString accelerator = QString(), State s = Normal );
 
     ~QAccessibleWidget();
 
-    Relation	relationTo(const QAccessibleInterface *, int) const;
-
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
-    int		navigate(Relation, int, QAccessibleInterface **) const;
-
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface*) const;
-    bool	queryChild( int control, QAccessibleInterface ** ) const;
-    bool	queryParent( QAccessibleInterface ** ) const;
+    Relation	relationTo(int, const QAccessibleInterface *, int) const;
 
-    QString	text( Text t, int control ) const;
-    void	setText( Text t, int control, const QString &text );
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    int		childAt(int x, int y) const;
+    QRect	rect(int control) const;
+    int		navigate(Relation, int, QAccessibleInterface **) const;
+
+    QString	text(Text t, int control) const;
+    void	setText(Text t, int control, const QString &text);
+    Role	role(int control) const;
+    State	state(int control) const;
 
     bool	doAction(int action, int control);
+    QString	actionText(int action, Text t, int control) const;
+
     bool	setFocus(int control);
     bool	setSelected(int control, bool on, bool extend);
     void	clearSelection();

@@ -40,8 +40,12 @@ public:
 };
 
 /*!
-  \class QAccessibleWidget qaccessiblewidget.h
-  \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
+    \class QAccessibleWidget qaccessiblewidget.h
+    \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
+    \ingroup misc
+
+    This class is convenient to use as a base class for custom implementations of
+    QAccessibleInterfaces that provide information about widget objects.
 */
 
 /*!
@@ -50,7 +54,7 @@ public:
     \a accelerator and \a state are optional parameters for static values
     of the object's property.
 */
-QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name,
+QAccessibleWidget::QAccessibleWidget( QWidget *o, Role role, QString name,
     QString description, QString value, QString help, QString defAction, QString accelerator, State state )
     : QAccessibleObject( o )
 {
@@ -130,7 +134,7 @@ QRect	QAccessibleWidget::rect( int control ) const
     return QRect( wpos.x(), wpos.y(), w->width(), w->height() );
 }
 
-/*! \reimp */
+/*! \reimp
 int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 {
 #if defined(QT_DEBUG)
@@ -192,24 +196,24 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 	break;
     };
     return -1;
-}
+}*/
 
 /*! \reimp */
-QAccessible::Relation QAccessibleWidget::relationTo(const QAccessibleInterface *iface, int child) const
+QAccessible::Relation QAccessibleWidget::relationTo(int control,const QAccessibleInterface *iface, int child) const
 {
     QObject *o = iface ? iface->object() : 0;
     if (!o)
 	return None;
 
     if (o == object())
-	return child ? Parent : Self;
+	return child ? Ancestor : Self;
 
     if (o->parent() == object()->parent())
 	return Sibling;
 
     QObjectList cl(object()->queryList("QWidget", 0, 0, FALSE));
     if (cl.contains(o))
-	return Parent;
+	return Ancestor;
 
     for (int i = 0; i < cl.count(); ++i) {
 	QObject *child = cl.at(i);
@@ -230,24 +234,37 @@ int QAccessibleWidget::navigate(Relation relation, int index, QAccessibleInterfa
 	const_cast<QAccessibleWidget*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)iface);
 	return 0;
     case Child:
-	queryChild(index + 1, iface);
-	return *iface ? 0 : -1;
-    case Parent:
-	queryParent(iface);
+	{
+	    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+	    if (cl.isEmpty())
+		return -1;
+	    
+	    QObject *o = 0;
+	    if (cl.count() > index)
+		o = cl.at(index);
+	    
+	    if (!o)
+		return -1;
+	    
+	    QAccessible::queryAccessibleInterface(o, iface);
+	}
 	return *iface ? 0 : -1;
     case Ancestor:
-	queryParent(iface);
-	for (int i = 0; i < index, *iface; ++i) {
-	    QAccessibleInterface *parent = *iface;	    
-	    parent->queryParent(iface);
-	    parent->release();
+	{
+	    QObject *parentObject = widget()->parentWidget();
+	    int i;
+	    for (i = index; i > 0; --i)
+		parentObject = parentObject->parent();
+	    if (!parentObject && i == 0)
+		parentObject = qApp;
+	    QAccessible::queryAccessibleInterface( parentObject, iface );
 	}
 	return *iface ? 0 : -1;
     case Sibling:
-	queryParent(iface);
+	QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
 	if (*iface) {
 	    QAccessibleInterface *parent = *iface;
-	    parent->queryChild(index + 1, iface);
+	    parent->navigate(Child, index, iface);
 	    parent->release();
 	}
 	return *iface ? 0 : -1;
@@ -267,37 +284,7 @@ int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
     QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
     int index = cl.indexOf(child->object());
-    if (index != -1)
-	++index;
     return index;
-}
-
-/*! \reimp */
-bool QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface ) const
-{
-    *iface = 0;
-    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
-    if ( cl.isEmpty() )
-	return FALSE;
-
-    QObject *o = 0;
-    if ( cl.count() >= control )
-	o = cl.at( control-1 );
-
-    if ( !o )
-	return FALSE;
-
-    return QAccessible::queryAccessibleInterface( o, iface );
-}
-
-/*! \reimp */
-bool QAccessibleWidget::queryParent( QAccessibleInterface **iface ) const
-{
-#ifndef Q_WS_WIN32
-    if (!widget()->parentWidget(TRUE))
-	return QAccessible::queryAccessibleInterface( qApp, iface );
-#endif
-    return QAccessible::queryAccessibleInterface( widget()->parentWidget(), iface );
 }
 
 /*! \reimp */
@@ -316,8 +303,6 @@ bool QAccessibleWidget::doAction(int action, int control)
 QString QAccessibleWidget::text( Text t, int control ) const
 {
     switch ( t ) {
-    case DefaultAction:
-	return d->defAction;
     case Description:
 	if ( !control && d->description.isEmpty() ) {
 	    QString desc = QToolTip::textFor(widget());
@@ -346,13 +331,18 @@ QString QAccessibleWidget::text( Text t, int control ) const
     return QString();
 }
 
+QString QAccessibleWidget::actionText(int action, Text t, int control) const
+{
+    if (action != Default || t != Name || control)
+	return QString();
+    return d->defAction;
+}
+
+
 /*! \reimp */
 void QAccessibleWidget::setText( Text t, int /*control*/, const QString &text )
 {
     switch ( t ) {
-    case DefaultAction:
-	d->defAction = text;
-	break;
     case Description:
 	d->description = text;
 	break;

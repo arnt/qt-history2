@@ -78,7 +78,7 @@
     \value Mixed
     \value ReadOnly
     \value HotTracked
-    \value Default
+    \value DefaultButton
     \value Expanded
     \value Collapsed
     \value Busy
@@ -249,6 +249,16 @@
 */
 
 /*!
+    \fn void QAccessible::initialize()
+    \internal
+*/
+
+/*!
+    \fn void QAccessible::cleanup()
+    \internal
+*/
+
+/*!
     \fn static void QAccessible::updateAccessibility( QObject *object, int control, Event reason )
 
     Notifies accessibility clients about a change in \a object's
@@ -314,6 +324,43 @@ void qRemoveAccessibleObject(QObject *object)
     }
 }
 
+/*!
+    \enum QAccessible::InterfaceFactory
+
+    A function pointer type. Use a function with that prototype to install
+    interface factories with installFactory.
+
+    The function receives a QObject pointer, set the second
+    parameter to the pointer of the corresponding QAccessibleInterface, and
+    return TRUE, or return FALSE if it doesn't provide a QAccessibleInterface 
+    for the QObject.
+
+    Installed factories are called by queryAccessibilityInterface() until
+    one provides an interface.
+*/
+
+/*!
+    \enum QAccessible::UpdateHandler
+
+    A function pointer type. Use a function with that prototype to install
+    your own update function.
+
+    The function is called by updateAccessibility().
+*/
+
+/*!
+    \enum QAccessible::RootObjectHandler
+
+    A function pointer type. Use a function with that prototype to install
+    your own root object handler.
+
+    The function is called by setRootObject().
+*/
+
+/*!
+    Installs the InterfaceFactory \a factory. The last factory added
+    is the first one used in queryAccessibleInterface.
+*/
 void QAccessible::installFactory(InterfaceFactory factory)
 {
     if (!factory)
@@ -332,6 +379,9 @@ void QAccessible::installFactory(InterfaceFactory factory)
     qAccessibleFactories->append((void*)factory);
 }
 
+/*!
+    Removes \a factory from the list of installed InterfaceFactories.
+*/
 void QAccessible::removeFactory(InterfaceFactory factory)
 {
     if (!qAccessibleFactories || !factory)
@@ -340,6 +390,10 @@ void QAccessible::removeFactory(InterfaceFactory factory)
     qAccessibleFactories->remove((void*)factory);
 }
 
+/*!
+    Installs \a handler as the function to be used by updateAccessibility, and 
+    returns the previously installed function pointer.
+*/
 QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handler)
 {
     UpdateHandler old = updateHandler;
@@ -347,6 +401,10 @@ QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handl
     return old;
 }
 
+/*!
+    Installs \a handler as the function to be used by setRootObject, and 
+    returns the previously installed function pointer.
+*/
 QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectHandler handler)
 {
     RootObjectHandler old = rootObjectHandler;
@@ -425,9 +483,10 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
     if ( factory )
 	return factory->createAccessibleInterface( mo->className(), object, iface ) == QS_OK;
 
-    if (qt_cast<QWidget*>(object))
-	*iface = new QAccessibleWidget(object);
-    else if (qt_cast<QApplication*>(object))
+    QWidget *widget = qt_cast<QWidget*>(object);
+    if (widget)
+	*iface = new QAccessibleWidget(widget);
+    else if (object == qApp)
 	*iface = new QAccessibleApplication();
     else
 	return FALSE;
@@ -464,7 +523,7 @@ bool QAccessible::isActive()
     object as the root object immediately before the event loop is entered
     in QApplication::exec().
 
-    \sa queryAccessibleInterface
+    \sa queryAccessibleInterface()
 */
 
 /*!
@@ -510,32 +569,6 @@ bool QAccessible::isActive()
     Returns the index of the object \a child.
 
     \sa childCount(), queryChild()
-*/
-
-/*!
-    \fn QRESULT QAccessibleInterface::queryChild( int control, QAccessibleInterface **iface ) const
-
-    Sets \a iface to point to the implementation of the
-    QAccessibleInterface for the child specified with \a control. If
-    the child doesn't provide accessibility information on it's own,
-    the value of \a iface is set to 0. For those elements, this
-    object is responsible for exposing the child's properties.
-
-    All objects provide this information.
-
-    \sa childCount(), queryParent(), indexOfChild()
-*/
-
-/*!
-    \fn QRESULT QAccessibleInterface::queryParent( QAccessibleInterface **iface ) const
-
-    Sets \a iface to point to the implementation of the
-    QAccessibleInterface for the parent object, or to 0 if there is
-    no such implementation or object.
-
-    All objects provide this information.
-
-    \sa queryChild()
 */
 
 /*!

@@ -173,28 +173,15 @@ public:
 	Clock		= 0x0000003D
     };
 
-    enum NavDirection {
-	NavUp		= 0x00000001,
-	NavDown		= 0x00000002,
-	NavLeft		= 0x00000003,
-	NavRight	= 0x00000004,
-	NavNext		= 0x00000005,
-	NavPrevious	= 0x00000006,
-	NavFirstChild	= 0x00000007,
-	NavLastChild	= 0x00000008,
-	NavFocusChild	= 0x00000009
-    };
-
     enum Text {
 	Name		= 0,
 	Description,
 	Value,
 	Help,
 	Accelerator,
-	DefaultAction
     };
 
-    enum DefaultActions {
+    enum DefaultAction {
 	Default		= -101,
 	Press		= -102,
 	Increment	= -103,
@@ -207,15 +194,21 @@ public:
     enum Relation {
 	None		= 0x00000000,
 	Self		= 0x00000001,
-	Label		= 0x00000002,
-	Buddy		= 0x00000004,
-	Parent		= 0x00000008,
-	Ancestor	= 0x00000010,
-	Child		= 0x00000011,
-	Descendent	= 0x00000012,
-	Sibling		= 0x00000014,
+	Ancestor	= 0x00000002,
+	Child		= 0x00000004,
+	Descendent	= 0x00000008,
+	Sibling		= 0x00000010,
+	FocusChild	= 0x00000011,
+	Label		= 0x00000012,
+	Buddy		= 0x00000014,
 	Controller	= 0x00000018,
-	Controlled	= 0x00000020
+	Controlled	= 0x00000020,
+	LogicalMask	= 0x0000ffff,
+	Above		= 0x00010000,
+	Below		= 0x00020000,
+	Left		= 0x00040000,
+	Right		= 0x00080000,
+	GeometricalMask = 0xffff0000
     };
 
     typedef bool(*InterfaceFactory)(QObject*, QAccessibleInterface**);
@@ -252,17 +245,14 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     // hierarchy
     virtual int		childCount() const = 0;
     virtual int		indexOfChild(const QAccessibleInterface *) const = 0;
-    virtual bool	queryChild(int control, QAccessibleInterface**) const = 0;
-    virtual bool	queryParent(QAccessibleInterface**) const = 0;
 
     // relations
-    virtual Relation	relationTo(const QAccessibleInterface *, int) const = 0;
+    virtual Relation	relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
 
     // navigation
     virtual int		childAt(int x, int y) const = 0;
     virtual QRect	rect(int control) const = 0;
-    virtual int		navigate(NavDirection direction, int startControl) const = 0;
-    virtual int		navigate(Relation, int, QAccessibleInterface **) const = 0;
+    virtual int		navigate(Relation relation, int index, QAccessibleInterface **iface) const = 0;
 
     // properties and state
     virtual QString	text(Text t, int control) const = 0;

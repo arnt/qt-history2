@@ -30,7 +30,7 @@ public:
     QAccessibleObject(QObject *object);
     virtual ~QAccessibleObject();
 
-    QRESULT	queryInterface( const QUuid &, QUnknownInterface** );
+    QRESULT	queryInterface(const QUuid &, QUnknownInterface**);
     Q_REFCOUNT
 
     bool	isValid() const;
@@ -55,30 +55,27 @@ class Q_EXPORT QAccessibleApplication : public QAccessibleObject
 public:
     QAccessibleApplication();
 
-    // hierarchy
+    // relations
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface*) const;
-    bool	queryChild( int control, QAccessibleInterface** ) const;
-    bool	queryParent( QAccessibleInterface** ) const;
-
-    // relations
-    Relation	relationTo(const QAccessibleInterface *, int) const;
+    Relation	relationTo(int, const QAccessibleInterface *, int) const;
 
     // navigation
-    int		childAt( int x, int y ) const;
-    QRect	rect( int control ) const;
-    int		navigate( NavDirection direction, int startControl ) const;
+    int		childAt(int x, int y) const;
+    QRect	rect(int control) const;
     int		navigate(Relation, int, QAccessibleInterface **) const;
 
     // properties and state
-    QString	text( Text t, int control ) const;
-    void	setText( Text t, int control, const QString &text );
-    Role	role( int control ) const;
-    State	state( int control ) const;
+    QString	text(Text t, int control) const;
+    void	setText(Text t, int control, const QString &text);
+    Role	role(int control) const;
+    State	state(int control) const;
     QVector<int> selection() const;
 
     // selection
     bool	doAction(int action, int control);
+    QString	actionText(int action, Text t, int control) const;
+
     bool	setFocus(int control);
     bool	setSelected(int control, bool on, bool extend);
     void	clearSelection();

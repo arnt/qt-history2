@@ -33,7 +33,8 @@ public:
     \ingroup misc
 
     This class is mainly provided for convenience. All subclasses of
-    the QAccessibleInterface should use this class as the base class.
+    the QAccessibleInterface that provide implementations of non-widget object
+    should use this class as the base class.
 */
 
 extern void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface);
@@ -203,30 +204,6 @@ int QAccessibleApplication::indexOfChild(const QAccessibleInterface *child) cons
 }
 
 /*! \reimp */
-bool QAccessibleApplication::queryChild( int control, QAccessibleInterface **iface ) const
-{
-    *iface = 0;
-    if (!control)
-	return FALSE;
-
-    QObject *o = 0;
-    const QWidgetList tlw(topLevelWidgets());
-    if (tlw.count() >= control)
-	o = tlw.at(control-1);
-    if (!o )
-	return FALSE;
-
-    return QAccessible::queryAccessibleInterface( o, iface );
-}
-
-/*! \reimp */
-bool QAccessibleApplication::queryParent( QAccessibleInterface **iface ) const
-{
-    *iface = 0;
-    return FALSE;
-}
-
-/*! \reimp */
 int QAccessibleApplication::childAt( int x, int y ) const
 {
     const QWidgetList tlw(topLevelWidgets());
@@ -245,18 +222,18 @@ QRect QAccessibleApplication::rect( int ) const
 }
 
 /*! \reimp */
-QAccessible::Relation QAccessibleApplication::relationTo(const QAccessibleInterface *iface, int child) const
+QAccessible::Relation QAccessibleApplication::relationTo(int control, const QAccessibleInterface *iface, int child) const
 {
     QObject *o = iface ? iface->object() : 0;
     if (!o)
 	return None;
 
     if(o == object())
-	return child ? Parent : Self;
+	return child ? Ancestor : Self;
 
     QWidgetList tlw(topLevelWidgets());
     if (tlw.contains(qt_cast<QWidget*>(o)))
-	return Parent;
+	return Ancestor;
 
     for (int i = 0; i < tlw.count(); ++i) {
 	QWidget *w = tlw.at(i);
@@ -277,47 +254,29 @@ int QAccessibleApplication::navigate(Relation relation, int index, QAccessibleIn
 	const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)iface);
 	return 0;
     case Child:
-	queryChild(index + 1, iface);
-	return 0;
-    default:
-	break;
-    }
-    return -1;
-}
+	{
+	    QObject *o = 0;
+	    const QWidgetList tlw(topLevelWidgets());
+	    if (tlw.count() > index)
+		o = tlw.at(index);
+	    if (!o )
+		return -1;
 
-
-/*! \reimp */
-int QAccessibleApplication::navigate( NavDirection dir, int startControl ) const
-{
-#if defined(QT_DEBUG)
-    if ( startControl )
-	qWarning( "QAccessibleApplication::navigate: This implementation does not support subelements! (ID %d unknown for %s)", startControl, object()->className() );
-#else
-    Q_UNUSED(startControl);
-#endif
-    int count = childCount();
-    switch ( dir ) {
-    case NavFirstChild:
-	return count ? 1 : -1;
-    case NavLastChild:
-	return count ? count : -1;
-    case NavFocusChild:
+	    QAccessible::queryAccessibleInterface( o, iface );
+	    return *iface ? 0 : -1;
+	}
+    case FocusChild:
 	{
 	    QWidget *actw = qApp->activeWindow();
 	    if (!actw)
 		return -1;
-	    QAccessibleInterface *iface = 0;
-	    QAccessible::queryAccessibleInterface(actw, &iface);
-	    if (!iface)
-		return -1;
-	    int index = indexOfChild(iface);
-	    iface->release();
-	    return index;
+
+	    QAccessible::queryAccessibleInterface(actw, iface);
+	    return *iface ? 0 : -1;
 	}
     default:
-	qWarning( "QAccessibleApplication::navigate: unhandled request" );
 	break;
-    };
+    }
     return -1;
 }
 
@@ -332,8 +291,6 @@ QString QAccessibleApplication::text( Text t, int ) const
     case Description:
 	return qApp->applicationFilePath();
 	break;
-    case DefaultAction:
-	return QApplication::tr("Activate");
     }
     return QString();
 }
@@ -367,6 +324,15 @@ bool QAccessibleApplication::doAction(int action, int child)
     if (action == Default)
 	return setFocus( child );
     return FALSE;
+}
+
+/*! \reimp */
+QString QAccessibleApplication::actionText(int action, Text text, int child) const
+{
+    if (action != Default || text != Name || child)
+	return QString();
+
+    return QApplication::tr("Activate");
 }
 
 /*! \reimp */

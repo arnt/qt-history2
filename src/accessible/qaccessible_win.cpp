@@ -620,7 +620,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accHitTest( long xLeft, long yTop,
     }
     QAccessibleInterface *acc = 0;
     if ( control )
-	accessible->queryChild( control, &acc );
+	accessible->navigate( Child, control-1, &acc );
     if ( !acc ) {
 	(*pvarID).vt = VT_I4;
 	(*pvarID).lVal = control;
@@ -668,26 +668,52 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    int control = accessible->navigate( (NavDirection)navDir, varStart.lVal );
+    QAccessibleInterface *acc = 0;
+    int control = -1;
+    switch(navDir) {
+    case NAVDIR_FIRSTCHILD:
+	control = accessible->navigate(Child, 0, &acc);
+	break;
+    case NAVDIR_LASTCHILD:
+	control = accessible->navigate(Child, accessible->childCount()-1, &acc);
+	break;
+    case NAVDIR_NEXT:
+    case NAVDIR_PREVIOUS:
+	if (!varStart.lVal){
+	    QAccessibleInterface *parent = 0;
+	    accessible->navigate(Ancestor, 0, &parent);
+	    if (parent) {
+		int index = parent->indexOfChild(accessible);
+		index += (navDir == NAVDIR_NEXT) ? 1 : -1;
+		if (index >= 0 && index < parent->childCount())
+		    control = parent->navigate(Child, index, &acc);
+		parent->release();
+	    }
+	} else {
+	}
+	break;
+    case NAVDIR_UP:
+    case NAVDIR_DOWN:
+    case NAVDIR_LEFT:
+    case NAVDIR_RIGHT:
+    default:
+	break;
+    }
     if ( control == -1 ) {
 	(*pvarEnd).vt = VT_EMPTY;
 	return S_FALSE;
     }
-    QAccessibleInterface *acc = 0;
     if ( control ) {
-	if ( varStart.lVal || navDir == NavFirstChild || navDir == NavLastChild || navDir == NavFocusChild ) {
-	    accessible->queryChild( control, &acc );
+/*	if ( varStart.lVal || navDir == NavFirstChild || navDir == NavLastChild || navDir == NavFocusChild ) {
+	    accessible->navigate(Child, control-1, &acc);
 	} else {
 	    QAccessibleInterface *parent = 0;
-	    accessible->queryParent( &parent );
+	    accessible->navigate(Ancestor, 0, &parent);
 	    if ( parent ) {
-		parent->queryChild( control, &acc );
+		parent->navigate(Child, control-1, &acc );
 		parent->release();
 	    }
-	}
-    } else {
-	acc = accessible;
-	acc->addRef();
+	}*/
     }
     if ( !acc ) {
 	(*pvarEnd).vt = VT_I4;
@@ -724,7 +750,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild( VARIANT varChildID, 
 	acc = accessible;
 	acc->addRef();
     } else {
-	accessible->queryChild( varChildID.lVal, &acc );
+	accessible->navigate(Child, varChildID.lVal-1, &acc );
     }
 
     if ( acc ) {
@@ -753,7 +779,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispP
 	return E_FAIL;
 
     QAccessibleInterface *acc = 0;
-    accessible->queryParent( &acc );
+    accessible->navigate(Ancestor, 0, &acc);
     if (acc) {
 	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
 	acc->release();
@@ -775,7 +801,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction( VARIANT varID 
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    if ( accessible->doAction( QAccessible::Default, varID.lVal ) )
+    if ( accessible->doAction( Default, varID.lVal ) )
 	return S_OK;
 
     return DISP_E_MEMBERNOTFOUND;
@@ -786,7 +812,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varI
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    QString def = accessible->text( DefaultAction, varID.lVal );
+    QString def = accessible->actionText( Default, Name, varID.lVal );
     if ( !!def ) {
 	*pszDefaultAction = QStringToBSTR( def );
 	return S_OK;
@@ -938,14 +964,14 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus( VARIANT *pvarID )
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    int control = accessible->navigate( NavFocusChild, 0 );
+    QAccessibleInterface *acc = 0;
+    int control = accessible->navigate( FocusChild, 0, &acc );
     if ( control == -1 ) {
 	(*pvarID).vt = VT_EMPTY;
 	return S_FALSE;
     }
-    QAccessibleInterface *acc = 0;
     if ( control )
-	accessible->queryChild( control, &acc );
+	accessible->navigate(Child, control-1, &acc);
     if ( !acc ) {
 	(*pvarID).vt = VT_I4;
 	(*pvarID).lVal = control;
