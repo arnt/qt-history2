@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#14 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -400,6 +400,7 @@ struct QFileDialogPrivate {
     class MCItem: public QListBoxItem {
     public:
 	MCItem( QListBox *, QListViewItem * item );
+	MCItem( QListBox *, QListViewItem * item, QListBoxItem *after );
 	QString text() const;
 	const QPixmap *pixmap() const;
 	int height( const QListBox * ) const;
@@ -1336,6 +1337,16 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
     i = item;
     if ( lb )
 	lb->insertItem( this );
+}
+
+QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item, QListBoxItem *after )
+    : QListBoxItem(), selectable( TRUE )
+{
+    i = item;
+    if ( lb ) {
+	int index = lb->index( after );
+	lb->insertItem( this, ++index );
+    }
 }
 
 void QFileDialogPrivate::MCItem::setSelectable( bool sel )
@@ -3500,14 +3511,13 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 {
     QListViewItemIterator it( files );
     QListViewItem *item = 0;
-    int index = -1;
     if ( inf.isDir() ) {
-	for ( ; it.current(); ++it, ++index ) {
+	for ( ; it.current(); ++it ) {
 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isFile() )
 		break;
 	}
 	it = QListViewItemIterator( files );
-	for ( ; it.current(); ++it, ++index ) {
+	for ( ; it.current(); ++it ) {
 	    item = it.current();
 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() < inf.name() ) {
 		item = it.current();
@@ -3515,7 +3525,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	    }
 	}
     } else {
-	for ( ; it.current(); ++it, ++index ) {
+	for ( ; it.current(); ++it ) {
 	    item = it.current();
 	    if ( ( (QFileDialogPrivate::File*)it.current() )->info.isDir() )
 		continue;
@@ -3528,13 +3538,18 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     }
 
     QFileDialogPrivate::File * i = 0;
+    QFileDialogPrivate::MCItem *i2 = 0;
     if ( item )
 	i = new QFileDialogPrivate::File(d, &inf ,files, item );
     else
 	i = new QFileDialogPrivate::File(d, &inf ,files );
-    QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( 0 , i );
+    if ( item )
+	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i, 
+					     ( (QFileDialogPrivate::File*)item )->i );
+    else
+	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
+	
     i->i = i2;
-    d->moreFiles->insertItem( i2, index );
 }									
 
 void QFileDialog::removeEntry( const QString &filename )
