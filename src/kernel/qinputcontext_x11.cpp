@@ -41,6 +41,7 @@
 #include "qinputcontext_p.h"
 
 #include <stdlib.h>
+#include <limits.h>
 
 int compose_keycode = 0;
 
