@@ -686,7 +686,7 @@ bool QMYSQLResult::exec()
             setLastError(qMakeError(QLatin1String("Unable to bind outvalues"), QSqlError::StatementError, d));
             return false;
         }
-        setAt(QSql::BeforeFirst);
+        setAt(QSql::BeforeFirstRow);
     }
     setActive(true);
     return true;
