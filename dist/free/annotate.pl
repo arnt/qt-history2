@@ -1,3 +1,6 @@
+MOVED to www/qpl
+
+
 #!/usr/bin/perl
 
 open( A, "< QPL-ANNOTATED" ) || die;
