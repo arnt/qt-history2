@@ -1,0 +1,103 @@
+/*! \class QSizePolicy qsizepolicy.h
+
+\brief The QSizePolicy provides a simple compact way to express resizing behaviour.
+
+\in###group ###
+
+The class provides a way to describe the ability of a widget class to
+change its geometry.  A (vertical) scroll bar is described as "really,
+really wants to be of fixed width, but is eager to extend its length,
+if possible"; a list box is described as "eager to grow in both
+directions"; a push button is described as "the width will grow if
+necessary, the height really wants to be fixed"; etc.
+
+When a class provides a good QSizePolicy (the return value of
+QWidget::sizePolicy()) and a sizeHint(), QLayout can do
+natural-seeming and good layout management with a minimum of code on
+behalf of the application programmer.
+
+The bulk of the QSizePolicy is in two enums, SizeType and ExpandData.
+SizeType lets you describe the widget's policy towards size change in
+each dimension.  There are six values: <ul>
+
+<li>\c Fixed - the widget is very, very reluctant to deviate from
+sizeHint() in the relevant dimension.  (Example: The vertical scroll
+bar is Fixed to sizeHint().width()).
+
+<li>\c Minimum - the widget is willing, but not eager, to grow beyond
+the size specified by sizeHint().  (Example: The push button is
+willing to be wider than it has to be, but not eager.)
+
+<li>\c Maximum - the widget is willing, but not eager, to shrink
+beyond the size specified by sizeHint().  (No widgets in Qt have this
+policy.  It is present mostly for symmetry.)
+
+<li>\c Preferred - the widget is willing to shrink or grow if
+necessary, but the sizeHint() is preferred, if possible.  (This is the
+default, if you do not reimplement QWidget::sizePolicy().)
+
+<li>\c MinimumExpanding - the widget is very, very reluctant to shrink
+below sizeHint() but eager to grow beyond it.  (This is likely to be
+the cases for the central widget in many application windows.  For
+example, the text editing field in a word processor will likely have
+this policy.)
+
+<li>\c Expanding - the widget is willing, but not eager to shrink
+below sizeHint(), and it is eager to grow beyond it.  (This too is
+present mostly for symmetry.)
+
+</ul>
+
+
+*/
+
+
+
+/*! QSizePolicy::QSizePolicy()
+
+Creates a QSizePolicy object indicating that the widget in question
+has in love with sizeHint().
+
+*/
+
+/*! QSizePolicy( SizeType hor, SizeType ver )
+
+Constructs a QSizePolicy object with horizontal size policy \a hor and
+vertical policy \a ver.
+
+*/
+
+/*! QSizePolicy::SizeType QSizePolicy::horData() const
+*/
+
+
+/*! QSizePolicy::SizeType QSizePolicy::verData() const
+*/
+
+/*! bool QSizePolicy::mayShrinkHorizontally() const
+*/
+
+
+/*! bool QSizePolicy::mayShrinkVertically() const
+*/
+
+
+/*! bool QSizePolicy::mayGrowHorizontally() const
+*/
+
+
+/*! bool QSizePolicy::mayGrowVertically() const
+*/
+
+/*! QSizePolicy::ExpandData QSizePolicy::expanding() const
+*/
+
+/*! void QSizePolicy::setHorData( SizeType d )
+*/
+
+
+/*! void QSizePolicy::setVerData( SizeType d )
+*/
+
+/*! bool QSizePolicy::hasWidthForHeight()
+*/
