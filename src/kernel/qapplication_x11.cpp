@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#45 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -28,7 +28,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#45 $";
 #endif
 
 
@@ -50,10 +50,10 @@ static char    *appDpyName = 0;			// X11 display name
 static bool	appSync = FALSE;		// X11 synchronization
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
-static GC	app_gc_ro = 0;			// read-only GC
-static GC	app_gc_tmp = 0;			// temporary GC
-static GC	app_gc_ro_m = 0;		// read-only GC (monochrome)
-static GC	app_gc_tmp_m = 0;		// temporary GC (monochrome)
+static GC	app_gc_ro     = 0;		// read-only GC
+static GC	app_gc_tmp    = 0;		// temporary GC
+static GC	app_gc_ro_m   = 0;		// read-only GC (monochrome)
+static GC	app_gc_tmp_m  = 0;		// temporary GC (monochrome)
 static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 #if defined(DEBUG)
