@@ -226,6 +226,25 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
 	arg.pdispVal = QPixmapToIPicture( var.toPixmap() );
 	break;
 
+    case QVariant::List:
+	{
+	    arg.vt = VT_ARRAY|VT_VARIANT;
+	    const QValueList<QVariant> list = var.toList();
+	    const int count = list.count();
+
+	    arg.parray = SafeArrayCreateVector( VT_VARIANT, 0, list.count() );
+	    QValueList<QVariant>::ConstIterator it = list.begin();
+	    LONG index = 0;
+	    while ( it != list.end() ) {
+		QVariant qvar = *it;
+		++it;
+		VARIANT var = QVariantToVARIANT( qvar, qvar.typeName() );
+		SafeArrayPutElement( arg.parray, &index, &var );
+		++index;
+	    }
+	}
+	break;
+
     default:
 	break;
     }
@@ -233,7 +252,7 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
     return arg;
 }
 
-void VARIANTToQUObject( VARIANT arg, QUObject *obj )
+void VARIANTToQUObject( VARIANT arg, QUObject *obj, const QUParameter *param )
 {
     QUType *preset = obj->type;
     if ( arg.vt & VT_BYREF ) {
@@ -334,6 +353,9 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_UI1:
 	var = arg.bVal;
 	break;
+    case VT_UI1 | VT_BYREF:
+	var = *arg.pbVal;
+	break;
     case VT_I2:
 	var = arg.iVal;
 	break;
@@ -344,6 +366,9 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    break;
 	}
 	var = (int)arg.lVal;
+	break;
+    case VT_I4 | VT_BYREF:
+	var = (int)*arg.plVal;
 	break;
     case VT_R4:
 	var = (double)arg.fltVal;
@@ -416,6 +441,31 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_EMPTY:
 	// empty VARIANT type return
 	break;
+    case VT_ARRAY|VT_VARIANT:
+	{
+	    SAFEARRAY *array = arg.parray;
+	    QValueList<QVariant> list;
+
+	    if ( !array || array->cDims != 1 ) {
+		var = list;
+		break;
+	    }
+
+	    long lBound, uBound;
+	    SafeArrayGetLBound( array, 1, &lBound );
+	    SafeArrayGetUBound( array, 1, &uBound );
+
+	    for ( long i = lBound; i <= uBound; ++i ) {
+		VARIANT var;
+		SafeArrayGetElement( array, &i, &var );
+
+		QVariant qvar = VARIANTToQVariant( var, 0 );
+		list << qvar;
+	    }
+
+	    var = list;
+	}
+	break;
     default:
 	break;
     }
@@ -461,9 +511,6 @@ VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param )
 
     VARIANT res;
     QUObjectToVARIANT( &obj, res, param );
-    if ( param->inOut & QUParameter::Out )
-	res.vt |= VT_BYREF;
-
     obj.type->clear( &obj );
 
     return res;
@@ -561,10 +608,19 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExt
 
 void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 {
+    bool byref = param && ( param->inOut & QUParameter::Out );
+    if ( param && param->type->canConvertFrom( obj, obj->type ) )
+	param->type->convertFrom( obj, obj->type );
+
     // map the QUObject's type to the VARIANT
     if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-	arg.vt = VT_I4;
-	arg.lVal = static_QUType_int.get( obj );
+	if ( byref ) {
+	    arg.vt = VT_I4|VT_BYREF;
+	    arg.plVal = new long(static_QUType_int.get( obj ));
+	} else {
+	    arg.vt = VT_I4;
+	    arg.lVal = static_QUType_int.get( obj );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
 	arg.vt = VT_BSTR;
 	arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
@@ -581,18 +637,29 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	arg.vt = VT_I4;
 	arg.lVal = static_QUType_enum.get( obj );
     } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-	arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
-    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-	arg.vt = VT_DISPATCH;
-	arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
-    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-	arg.vt = VT_UNKNOWN;
-	arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
+	QVariant value = static_QUType_QVariant.get( obj );
+	if ( byref && QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+	    const char *type = (const char*)param->typeExtra;
+	    if ( !qstrcmp( type, "int" ) ) {
+		arg.vt = VT_I4 | VT_BYREF;
+		arg.plVal = new long(value.toInt());
+	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
+		arg.vt = VT_BSTR | VT_BYREF;
+		arg.pbstrVal = new BSTR(QStringToBSTR( value.toString() ) );
+	    }
+	} else {
+	    arg = QVariantToVARIANT( value );
+	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
 	const char *type = (const char*)param->typeExtra;
 	if ( !qstrcmp( type, "int" ) ) {
-	    arg.vt = VT_I4;
-	    arg.lVal = *(int*)static_QUType_ptr.get( obj );
+	    if ( byref ) {
+		arg.vt = VT_I4 | VT_BYREF;
+		*arg.plVal = *(int*)static_QUType_ptr.get( obj );
+	    } else {
+		arg.vt = VT_I4;
+		arg.lVal = *(int*)static_QUType_ptr.get( obj );
+	    }
 	} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
 	    arg.vt = VT_BSTR;
 	    arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
@@ -608,3 +675,4 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	arg.vt = VT_EMPTY;
     }
 }
+
