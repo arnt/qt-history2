@@ -96,6 +96,7 @@ static int qRoundAIX( double d )
 #define qRound qRoundAIX
 #endif
 
+#if 0
 
 #if defined(_CC_GNU_) && defined(__i386__)
 
@@ -154,6 +155,8 @@ inline double qsin( double a ) { return qsincos(a,FALSE); }
 inline double qcos( double a ) { return qsincos(a,TRUE); }
 
 #endif
+
+#endif // 0
 
 
 /*****************************************************************************

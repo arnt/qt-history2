@@ -53,6 +53,7 @@ void QColor::cleanup()
     color_init = FALSE;
 }
 
+#if 0
 // Return a value for how close a is to b
 // Lower is better
 static inline int match(QRgb a,QRgb b)
@@ -105,6 +106,7 @@ inline unsigned int closestMatch(int r,int g,int b)
     }
     return pos;
 }
+#endif
 
 
 /*****************************************************************************

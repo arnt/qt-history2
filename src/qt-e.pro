@@ -308,6 +308,7 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qfontfactoryttf_qws.cpp \
 		  kernel/qmemorymanager_qws.cpp \
 		  kernel/qwscommand_qws.cpp \
+		  kernel/qwsevent_qws.cpp \
 		  kernel/qwindowsystem_qws.cpp \
 		  kernel/qkeyboard_qws.cpp \
 		  kernel/qwscursor_qws.cpp \

@@ -20,6 +20,7 @@
 
 #ifndef QT_H
 #include "qpixmap.h"
+#include "qobject.h"
 #endif // QT_H
 
 #ifndef QT_NO_QWS_MANAGER
