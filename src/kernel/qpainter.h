@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#37 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#38 $
 **
 ** Definition of QPainter class
 **
@@ -82,8 +82,9 @@ public:
 
   // Scaling and transformations
 
-    PaintUnit	unit()	       const;		// get set painter unit
-    void	setUnit( PaintUnit );
+//    PaintUnit	unit()	       const;		// get set painter unit
+//    void	setUnit( PaintUnit );		// NOT IMPLEMENTED!!!
+
     void	setViewXForm( bool );		// set xform on/off
     bool	hasViewXForm() const { return testf(VxF); }
     QRect	window()       const;		// get window
@@ -227,7 +228,7 @@ private:
     QColor	bg_col;				// background color
     uchar	bg_mode;			// background mode
     uchar	rop;				// raster op/transfer mode
-    uchar	pu;				// coordinate unit
+    uchar	pu;				// coordinate unit/NOT USED
     QPoint	bro;				// brush origin
     QFont	cfont;				// current font
     QPen	cpen;				// current pen
@@ -289,10 +290,12 @@ inline QPoint QPainter::brushOrigin() const
     return bro;
 }
 
+/*
 inline PaintUnit QPainter::unit() const
 {
     return (PaintUnit)pu;
 }
+*/
 
 
 #if !(defined(QPAINTER_C) || defined(DEBUG))
