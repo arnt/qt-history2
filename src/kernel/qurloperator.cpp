@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#16 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -448,7 +448,7 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
 
     QNetworkProtocol *gProt = QNetworkProtocol::getNetworkProtocol( u->protocol() );
     gProt->setUrl( u );
-    
+
     if ( gProt && ( gProt->supportedOperations() & QNetworkProtocol::OpGet ) &&
 	 ( gProt->supportedOperations() & QNetworkProtocol::OpPut ) ) {
 	connect( gProt, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
@@ -464,7 +464,6 @@ const QNetworkOperation *QUrlOperator::copy( const QString &from, const QString 
 	QUrlOperator *u2 = new QUrlOperator( to );
 	QNetworkProtocol *pProt = QNetworkProtocol::getNetworkProtocol( u2->protocol() );
 	pProt->setUrl( u2 );
-	pProt->setAutoDelete( TRUE );
 	
 	d->getOpPutProtMap[ opGet ] = pProt;
 	d->getOpGetProtMap[ opGet ] = gProt;
@@ -802,6 +801,8 @@ void QUrlOperator::finishedGet( QNetworkOperation *op )
     d->getOpGetProtMap.remove( op );
     d->getOpPutProtMap.remove( op );
     d->getOpRemoveOpMap.remove( op );
+    if ( pProt )
+	pProt->setAutoDelete( TRUE );
     if ( put && pProt )
 	pProt->addOperation( put );
     if ( rm && gProt )

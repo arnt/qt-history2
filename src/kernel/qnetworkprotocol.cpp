@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#31 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -736,7 +736,7 @@ void QNetworkProtocol::setAutoDelete( bool b, int i )
 
 /*!
   Returns TRUE, of autodeleting is enabled, else FALSE.
-  
+
   \sa QNetworkProtocol::setAutoDelete()
 */
 
