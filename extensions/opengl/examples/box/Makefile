@@ -14,6 +14,11 @@ LINK	=	gcc
 LFLAGS	=	
 LIBS	=	-L$(QTDIR)/lib -lqgl -lqt -L/usr/X11R6/lib -lMesaGL -lMesaGLU -lXext -lm -lX11
 MOC	=	moc
+####### End of automatically generated section
+#
+# $Source: /tmp/cvs/qt/extensions/opengl/examples/box/Makefile,v $
+#
+
 
 ####### Files
 
