@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#70 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,9 +20,12 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#70 $");
 
 //### How to provide new member variables while keeping binary compatibility:
+#if QT_VERSION == 200
+#error "Remove QLineEdit dict!"
+#endif
 
 #include <qintdict.h>
 

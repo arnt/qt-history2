@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#99 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#99 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -365,6 +365,10 @@ int QListBoxPixmap::width( const QListBox * ) const
 
 
 //### How to provide new member variables while keeping binary compatibility:
+
+#if QT_VERSION == 200
+#error "Remove QListBox dict."
+#endif
 
 #include <qintdict.h>
 
