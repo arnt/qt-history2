@@ -260,7 +260,7 @@ void QIOEngine::unmap(uchar * /*data*/)
     QIOEngine::errorStatus to an appropriate value.
 
     \a flags is a selection of the values defined in QIODevice::OpenModes,
-    combined using the bitwise OR operator.
+    combined using the OR operator.
 
     This virtual function must be reimplemented by all subclasses.
 

@@ -253,7 +253,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     for the other cases, button() is more useful.
 
     The returned value is a selection of the following values,
-    combined using the bitwise OR operator:
+    combined using the OR operator:
     \c Qt::LeftButton, \c Qt::RightButton, \c Qt::MidButton,
     \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
 
@@ -425,7 +425,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     Returns the keyboard modifier flags at the time of the event.
 
     The returned value is a selection of the following values,
-    combined using the bitwise OR operator:
+    combined using the OR operator:
     \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
 */
 
@@ -519,7 +519,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientatio
     before the event occurred.
 
     The returned value is a selection of the following values,
-    combined using the bitwise OR operator:
+    combined using the OR operator:
     \c Qt::ShiftButton, \c Qt::ControlButton, \c Qt::AltButton, and
     \c Qt::MetaButton.
 
@@ -1322,7 +1322,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
     generated.
 
     The returned value is a selection of the following values,
-    combined with the bitwise OR operator:
+    combined with the OR operator:
     \c Qt::LeftButton, \c Qt::RightButton, \c Qt::MidButton,
     \c Qt::ShiftButton, \c Qt::ControlButton, and \c Qt::AltButton.
 */

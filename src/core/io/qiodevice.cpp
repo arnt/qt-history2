@@ -266,7 +266,7 @@ int QIODevice::flags() const
     \fn int QIODevice::state() const
 
     Returns a value specifying the current state. This is a selection
-    of state values, combined using the bitwise OR operator.
+    of state values, combined using the OR operator.
 
     The flags are: \c QIODevice::Open.
 
@@ -533,7 +533,7 @@ void QIODevice::setStatus(int status, int errNum)
     the device was successfully opened; otherwise returns false.
 
     The mode parameter \a mode must be selection of the following flags,
-    combined using the bitwise OR operator:
+    combined using the OR operator:
     \table
     \header \i Mode flags \i Meaning
     \row \i \c QIODevice::Raw \i specifies raw (unbuffered) file access.

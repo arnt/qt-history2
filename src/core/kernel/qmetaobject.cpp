@@ -928,7 +928,7 @@ QMetaMember::Access QMetaMember::access() const
     of each enumerated item) are returned by key(); the number of keys
     is given by keyCount(). isFlag() returns whether the enumerator is
     meant to be used as a flag, meaning that its values can be combined
-    using the bitwise OR operator.
+    using the OR operator.
 
     The conversion functions keyToValue(), valueToKey(), keysToValue(),
     and valueToKeys() allow conversion between the integer
@@ -1012,7 +1012,7 @@ int QMetaEnum::value(int index) const
     Returns true if this enumerator is used as a flag; otherwise returns
     false.
 
-    When used as flags, enumerators can be combined using the bitwise OR
+    When used as flags, enumerators can be combined using the OR
     operator.
 
     \sa keysToValue(), valueToKeys()
@@ -1083,7 +1083,7 @@ const char* QMetaEnum::valueToKey(int value) const
 
 /*!
     Returns the value derived from combining together the values of the
-    \a keys using the bitwise OR operator. Note that the strings in \a keys
+    \a keys using the OR operator. Note that the strings in \a keys
     must be '|'-separated.
 
     \sa isFlag(), valueToKey(), keysToValue()
@@ -1162,7 +1162,7 @@ QByteArray QMetaEnum::valueToKeys(int value) const
 
     If the property is an enumeration, isEnumType() returns true; if the
     property is an enumeration that is also a flag (i.e. its values
-    can be combined using the bitwise OR operator), isEnumType() and
+    can be combined using the OR operator), isEnumType() and
     isFlagType() both return true. The enumerator for these types is
     available from enumerator().
 
@@ -1235,7 +1235,7 @@ uint QMetaProperty::type() const
     Returns true if the property's type is an enumeration value that
     is used as a flag; otherwise returns false.
 
-    Flags can be combined using the bitwise OR operator. A set type is
+    Flags can be combined using the OR operator. A set type is
     implicitly also an enum type.
 
     \sa isEnumType(), enumerator()

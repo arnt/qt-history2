@@ -775,15 +775,16 @@ QDir::filter() const
 /*!
     \enum QDir::FilterSpec
 
-    This enum describes the filtering options available to QDir, e.g.
+    This enum describes the filtering options available to QDir; e.g.
     for entryList() and entryInfoList(). The filter value is specified
-    by OR-ing together values from the following list:
+    by combining values from the following list using the OR
+    operator:
 
-    \value Dirs  List directories that match the filters.
-    \value AllDirs List all directories, i.e. don't apply the filters
-    to directory names.
-    \value Files  List files only.
-    \value  Drives  List disk drives (ignored under Unix).
+    \value Dirs    List directories that match the filters.
+    \value AllDirs List all directories; i.e. don't apply the filters
+                   to directory names.
+    \value Files   List files only.
+    \value  Drives List disk drives (ignored under Unix).
     \value  NoSymLinks  Do not list symbolic links (ignored by operating
     systems that don't support symbolic links).
     \value All List directories, files, drives and symlinks (this does not list
