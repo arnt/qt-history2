@@ -685,33 +685,46 @@ if ( iface ) {
 }
 \endcode
 
-\section2 Using a Component Trader
-
-While the plugin concept allows you to dynamically extend and modify an
-application it has one major drawback: the application has to load a large
-number of libraries to determine which ones provide suitable
-components. This might not be a problem for a small number of highly
-specialized plugins, but when plugins are shared between different applications 
-the number of libraries being loaded and unloaded unnecessarily makes application 
-startup very inefficient.
-
-A Component Trader tells an application which components implement a
-certain set of interfaces, and the application can then select and use
-one of those components. If multiple components are suitable the user
-is able to prioritize a single component.
-
-This makes it necessary for components to register their set of implemented 
-interfaces in the central database, so that the component trader can look up the
-components matching the request and pick the preferred one for the application to use.
-
-Registering (and unregistering) the component is again done in the implementation of the 
-QComponentServerInterface:
+The plugin manager will load all shared libraries in the path specified using
+QLibrary, calls \link QLibrary::queryInterface() queryInterface()\endlink to test
+the library for the implementation of the interface of type IID_ImageColor, and
+uses any implementation of the QFeatureListInterface or the QComponentInterface to
+get information about what the plugin actually does. Calling 
 
 \code
-bool ComponentServer::registerComponents( const QString &filepath ) const
-{
-    return QComponentFactory::registerComponent( TestComponent::cid,
-		   filepath, "Test Component" );
-}
+colorPlugins.queryInterface( "Sepia", &iface );
 \endcode
+
+will have the plugin manager look up the library that is responsible for the feature
+"Sepia", gets a pointer to the ImageColorInterface implementation in that component, 
+and returns this pointer in the \e iface variable that can then be used to call the
+implementation of the "Sepia" color filter.
+
+With the QPluginManager's destruction, all plugins are unloaded again.
+
+\section1 Caveats
+
+Even though an application and shared libraries loaded by that application live inside
+the same address space, all heap operations executed within the code operate on separate 
+parts of the memory. This raises a number of issues on all platforms
+
+\section3 References to memory allocated in a shared library become invalid when this library is unloaded
+
+If you allocate memory in component code using operator new, make sure that there are no more
+references to that memory before unloading the library. See the documentation of the QLibraryInterface
+for more information.
+
+
+
+On certain platforms, additional problems result from the implementation of the library
+loader, or the memory management
+
+\section3 on Windows, all modules running in one address space should use the same instance of the C runtime library
+
+The qmake tool will apply settings to generate code for the shared C runtime to make sure that all
+binaries use the same instance of the runtime library.
+
+\section3 Mixing up compile options for threading, debug symbols, or exception handling between applications and libraries might crash
+
+QLibrary tries to catch those mismatches and will prevent loading of libraries, or issue a warning.
 */
