@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#161 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1568,7 +1568,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) 
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param)
 		 || !hdc )
 		return;
 	}
@@ -1953,6 +1953,12 @@ static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
     int sz = 4*2 + len*2 + fk.length()*2 + sizeof(double)*6;
     QByteArray buf(sz);
     uchar *p = (uchar *)buf.data();
+    *((double*)p)=m.m11();  p+=sizeof(double);
+    *((double*)p)=m.m12();  p+=sizeof(double);
+    *((double*)p)=m.m21();  p+=sizeof(double);
+    *((double*)p)=m.m22();  p+=sizeof(double);
+    *((double*)p)=m.dx();   p+=sizeof(double);
+    *((double*)p)=m.dy();   p+=sizeof(double);
     QChar h1( '$' );
     QChar h2( 'q' );
     QChar h3( 't' );
@@ -1963,12 +1969,6 @@ static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
     *((QChar*)p)=h4;  p+=2;
     memcpy( (char*)p, (char*)str.unicode(), len*2 );  p += len*2;
     memcpy( (char*)p, (char*)fk.unicode(), fk.length()*2 ); p += fk.length()*2;
-    *((double*)p)=m.m11();  p+=sizeof(double);
-    *((double*)p)=m.m12();  p+=sizeof(double);
-    *((double*)p)=m.m21();  p+=sizeof(double);
-    *((double*)p)=m.m22();  p+=sizeof(double);
-    *((double*)p)=m.dx();   p+=sizeof(double);
-    *((double*)p)=m.dy();   p+=sizeof(double);
     return QString( (QChar*)buf.data(), buf.size()/2 );
 }
 
