@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qcolor.h"
 #include "qcolormap.h"
 #include "qvector.h"
 #include "qt_windows.h"
