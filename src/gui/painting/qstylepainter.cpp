@@ -19,7 +19,8 @@
     \brief The QStylePainter class is a convenience class for drawing QStyle
     elements inside a widget.
 
-    \ingroup appearance multimedia
+    \ingroup appearance
+    \ingroup multimedia
 
     QStylePainter extends QPainter with a set of high-level \c
     draw...() functions implemented on top of QStyle's API. The
@@ -113,48 +114,29 @@
 */
 
 /*!
-    \fn void QStylePainter::drawItem(const QRect &rect, int flags, const QPalette &pal,
-                                     bool enabled, const QString &text, int len = -1,
-                                     const QColor *penColor = 0)
+    \fn void QStylePainter::drawItemText(const QRect &rect, int flags, const QPalette &pal,
+                                         bool enabled, const QString &text,
+                                         const QColor *penColor = 0)
 
     Draws the \a text in rectangle \a rect and palette \a pal.
-
-    The pen color is specified with \a penColor. The
-    \a enabled bool indicates whether or not the item is enabled;
-    when reimplementing this bool should influence how the item is
-    drawn.
-
-    If \a len is -1 (the default), all the \a text is drawn;
-    otherwise only the first \a len characters of \a text are drawn.
     The text is aligned and wrapped according to \a
     flags.
 
-    \sa QStyle::drawItem(), Qt::Alignment
+    The pen color is specified with \a penColor. The \a enabled bool
+    indicates whether or not the item is enabled; when reimplementing
+    this bool should influence how the item is drawn.
+
+    \sa QStyle::drawItemText(), Qt::Alignment
 */
 
 /*!
-    \fn void QStylePainter::drawItem(const QRect &rect, int flags, const QPalette &pal,
-                                     bool enabled, const QPixmap &pixmap,
-                                     const QColor *penColor = 0)
-
-    \overload
+    \fn void QStylePainter::drawItemPixmap(const QRect &rect, int flags, const QPalette &pal,
+                                           const QPixmap &pixmap, const QColor *penColor)
 
     Draws the \a pixmap in rectangle \a rect using palette \a pal.
+    The pixmap is aligned according to \a flags.
 
-    \sa QStyle::drawItem()
-*/
-
-
-/*!
-    \fn void QStylePainter::drawItem(const QRect &rect, int flags, const QPalette &pal,
-                                     bool enabled, const QPixmap &pixmap, const QString &text,
-                                     int len = -1, const QColor *penColor = 0)
-
-    \overload
-
-    Draws the \a pixmap or \a text in rectangle \a rect using palette \a pal.
-
-    \sa QStyle::drawItem()
+    \sa QStyle::drawItemPixmap(), Qt::Alignment
 */
 
 /*!

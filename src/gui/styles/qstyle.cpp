@@ -513,42 +513,38 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 */
 
 /*!
-    \enum QStyle::StyleFlag
+    \enum QStyle::StateFlag
 
     This enum represents flags for drawing PrimitiveElements. Not all
     primitives use all of these flags. Note that these flags may mean
-    different things to different primitives. For an explanation of
-    the relationship between primitives and their flags, as well as
-    the different meanings of the flags, see the \link
-    customstyles.html Style overview\endlink.
+    different things to different primitives.
 
-    \value Style_Active
-    \value Style_AutoRaise
-    \value Style_Bottom
-    \value Style_Children
-    \value Style_None
-    \value Style_Down
-    \value Style_Editing
-    \value Style_Enabled
-    \value Style_FocusAtBorder
-    \value Style_HasFocus
-    \value Style_HasFocus
-    \value Style_Horizontal
-    \value Style_Item
-    \value Style_MouseOver
-    \value Style_NoChange
-    \value Style_Off
-    \value Style_On
-    \value Style_Open
-    \value Style_Raised
-    \value Style_Rectangle
-    \value Style_Selected
-    \value Style_Sibling
-    \value Style_Sunken
-    \value Style_Top
-    \value Style_Up
-
-    \omitvalue Style_Default
+    \value State_Active
+    \value State_AutoRaise
+    \value State_Bottom
+    \value State_Children
+    \value State_None
+    \value State_Down
+    \value State_Editing
+    \value State_Enabled
+    \value State_FocusAtBorder
+    \value State_HasFocus
+    \value State_HasFocus
+    \value State_Horizontal
+    \value State_Item
+    \value State_MouseOver
+    \value State_NoChange
+    \value State_Off
+    \value State_On
+    \value State_Open
+    \value State_Raised
+    \value State_Rectangle
+    \value State_Selected
+    \value State_Sibling
+    \value State_Sunken
+    \value State_Top
+    \value State_Up
+    \omitvalue State_Default
 
     \sa drawPrimitive()
 */
@@ -573,43 +569,43 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \table
     \header \i PrimitiveElement \i Option Cast \i Style Flag \i Remark
     \row \i \l PE_FrameFocusRect \i \l QStyleOptionFocusRect
-         \i \l Style_FocusAtBorder
+         \i \l State_FocusAtBorder
          \i Whether the focus is is at the border or inside the widget.
     \row \i{1,2} \l PE_IndicatorCheckBox \i{1,2} \l QStyleOptionButton
-          \i \l Style_NoChange \i Indicates a "tri-state" checkbox.
-    \row \i \l Style_On \i Indicates the indicator is checked.
+          \i \l State_NoChange \i Indicates a "tri-state" checkbox.
+    \row \i \l State_On \i Indicates the indicator is checked.
 
     \row \i \l PE_IndicatorRadioButton \i \l QStyleOptionButton
-          \i \l Style_On \i Indicates that a radio button is selected.
+          \i \l State_On \i Indicates that a radio button is selected.
     \row \i{1,3} \l PE_Q3CheckListExclusiveIndicator, \l PE_CheckListIndicator
-         \i{1,3} \l QStyleOptionListView \i \l Style_On
+         \i{1,3} \l QStyleOptionListView \i \l State_On
          \i Indicates whether or not the controller is selected.
-    \row \i \l Style_NoChange \i Indicates a "tri-state" controller.
-    \row \i \l Style_Enable \i Indicates the controller is enabled.
+    \row \i \l State_NoChange \i Indicates a "tri-state" controller.
+    \row \i \l State_Enable \i Indicates the controller is enabled.
     \row \i{1,2} \l PE_TreeBranch \i{1,2} \l QStyleOption
-         \i \l Style_Down \i Indicates that the Tree Branch is pressed
-    \row \i \l Style_Open \i Indicates that the tree branch is expanded.
+         \i \l State_Down \i Indicates that the Tree Branch is pressed
+    \row \i \l State_Open \i Indicates that the tree branch is expanded.
     \row \i \l PE_IndicatorHeaderArrow \i \l QStyleOptionHeader
-         \i \l Style_Up \i Indicates that the arrow should be drawn up;
+         \i \l State_Up \i Indicates that the arrow should be drawn up;
          otherwise it should be down.
     \row \i{1,3} \l PE_PanelHeaderSection \i{1,3} \l QStyleOptionHeader
-         \i \l Style_Sunken \i Indicates that the section is pressed.
-    \row \i \l Style_Up \i Indicates that the sort indicator should be pointing up.
-    \row \i \l Style_Off \i Indicates that the the section is not selected.
+         \i \l State_Sunken \i Indicates that the section is pressed.
+    \row \i \l State_Up \i Indicates that the sort indicator should be pointing up.
+    \row \i \l State_Off \i Indicates that the the section is not selected.
     \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit,
             \l PE_PanelPopup, \l PE_PanelDockWindow
-         \i \l QStyleOptionFrame \i \l Style_Sunken
+         \i \l QStyleOptionFrame \i \l State_Sunken
          \i Indicates that the Frame should be sunken.
     \row \i \l PE_Q3DockWindowHandle \i \l QStyleOptionDockWindow
-         \i \l Style_Horizontal \i Indicates that the window handle is horizontal
+         \i \l State_Horizontal \i Indicates that the window handle is horizontal
          instead of vertical.
     \row \i \l PE_Q3DockWindowSeparator \i \l QStyleOption
-         \i \l Style_Horizontal \i Indicates that the separator is horizontal
+         \i \l State_Horizontal \i Indicates that the separator is horizontal
          instead of vertical.
     \row \i \l PE_IndicatorSpinPlus, \l PE_IndicatorSpinMinus, \l PE_IndicatorSpinUp,
             \l PE_IndicatorSpinDown,
          \i \l QStyleOptionSpinBox
-         \i \l Style_Sunken \i Indicates that the button is pressed.
+         \i \l State_Sunken \i Indicates that the button is pressed.
     \endtable
 
     \sa PrimitiveElement, StyleFlags, QStyleOption
@@ -662,8 +658,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_DockWindowEmptyArea  The empty area of a QDockWindow
 
     \value CE_ToolBoxTab  The toolbox's tab area
-    \value CE_HeaderLabel  The header's label
     \value CE_SizeGrip  Window resize handle; see also QSizeGrip.
+
+    \value CE_Header         A header
+    \value CE_HeaderSection  A header section
+    \value CE_HeaderLabel    The header's label
 
     \value CE_ScrollBarAddLine  Scroll bar line increase indicator.
                                 (i.e., scroll down); see also QScrollBar.
@@ -704,53 +703,53 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \header \i ControlElement \i Option Cast \i Style Flag \i Remark
     \row \i{1,4} \l CE_MenuItem, \l CE_MenuBarItem
          \i{1,4} \l QStyleOptionMenuItem
-         \i \l Style_Selected \i The menu item is currently selected item
-    \row \i \l Style_Enabled \i The item is enabled
-    \row \i \l Style_Down
+         \i \l State_Selected \i The menu item is currently selected item
+    \row \i \l State_Enabled \i The item is enabled
+    \row \i \l State_Down
          \i Set if the menu item is down
          (i.e., if the mouse button or the space bar is pressed)
-    \row \i \l Style_HasFocus \i Set if the menubar has input focus
+    \row \i \l State_HasFocus \i Set if the menubar has input focus
     \row \i{1,6} \l CE_PushButton, \l CE_PushButtonLabel
          \i{1,6} \l QStyleOptionButton
-         \i \l Style_Enabled \i Set if the button is enabled
-    \row \i \l Style_HasFocus \i Set if the button has input focus
-    \row \i \l Style_Raised \i Set if the button is not down, not on and not flat
-    \row \i \l Style_On \i Set if the button is a toggle button and is toggled on
-    \row \i \l Style_Down
+         \i \l State_Enabled \i Set if the button is enabled
+    \row \i \l State_HasFocus \i Set if the button has input focus
+    \row \i \l State_Raised \i Set if the button is not down, not on and not flat
+    \row \i \l State_On \i Set if the button is a toggle button and is toggled on
+    \row \i \l State_Down
          \i Set if the button is down (i.e., the mouse button or the
          space bar is pressed on the button)
-    \row \i \l Style_ButtonDefault \i Set if the button is a default button
+    \row \i \l State_ButtonDefault \i Set if the button is a default button
 
     \row \i{1,6} \l CE_RadioButton, \l CE_RadioButtonLabel,
                  \l CE_CheckBox, \l CE_CheckBoxLabel
          \i{1,6} \l QStyleOptionButton
-         \i \l Style_Enabled \i Set if the button is enabled
-    \row \i \l Style_HasFocus \i Set if the button has input focus
-    \row \i \l Style_On \i Set if the button is checked
-    \row \i \l Style_Off \i Set if the button is not checked
-    \row \i \l Style_NoChange \i Set if the button is in the NoChange state
-    \row \i \l Style_Down
+         \i \l State_Enabled \i Set if the button is enabled
+    \row \i \l State_HasFocus \i Set if the button has input focus
+    \row \i \l State_On \i Set if the button is checked
+    \row \i \l State_Off \i Set if the button is not checked
+    \row \i \l State_NoChange \i Set if the button is in the NoChange state
+    \row \i \l State_Down
          \i Set if the button is down (i.e., the mouse button or
          the space bar is pressed on the button)
     \row \i{1,2} \l CE_ProgressBarContents, \l CE_ProgressBarLabel,
                  \l CE_ProgressBarGroove
          \i{1,2} \l QStyleOptionProgressBar
-         \i \l Style_Enabled \i Set if the progressbar is enabled
-    \row \i \l Style_HasFocus \i Set if the progressbar has input focus
-    \row \i \l CE_HeaderLabel \i \l QStyleOptionHeader \i \i
+         \i \l State_Enabled \i Set if the progressbar is enabled
+    \row \i \l State_HasFocus \i Set if the progressbar has input focus
+    \row \i \l CE_Header, \l CE_HeaderSection, \c CE_HeaderLabel \i \l QStyleOptionHeader \i \i
     \row \i{1,7} \l CE_ToolButtonLabel
          \i{1,7} \l QStyleOptionToolButton
-         \i \l Style_Enabled \i Set if the tool button is enabled
-    \row \i \l Style_HasFocus \i Set if the tool button has input focus
-    \row \i \l Style_Down
+         \i \l State_Enabled \i Set if the tool button is enabled
+    \row \i \l State_HasFocus \i Set if the tool button has input focus
+    \row \i \l State_Down
          \i Set if the tool button is down (i.e., a mouse button or
          the space bar is pressed)
-    \row \i \l Style_On \i Set if the tool button is a toggle button and is toggled on
-    \row \i \l Style_AutoRaise \i Set if the tool button has auto-raise enabled
-    \row \i \l Style_MouseOver \i Set if the mouse pointer is over the tool button
-    \row \i \l Style_Raised \i Set if the button is not down and is not on
+    \row \i \l State_On \i Set if the tool button is a toggle button and is toggled on
+    \row \i \l State_AutoRaise \i Set if the tool button has auto-raise enabled
+    \row \i \l State_MouseOver \i Set if the mouse pointer is over the tool button
+    \row \i \l State_Raised \i Set if the button is not down and is not on
     \row \i \l CE_ToolBoxTab \i \l QStyleOptionToolBox
-         \i \l Style_Selected \i The tab is the currently selected tab
+         \i \l State_Selected \i The tab is the currently selected tab
     \endtable
 
     \sa ControlElement, StyleFlags, QStyleOption
@@ -944,37 +943,37 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \table
     \header \i ComplexControl \i Option Cast \i Style Flag \i Remark
     \row \i{1,2} \l{CC_SpinBox} \i{1,2} \l QStyleOptionSpinBox
-         \i \l Style_Enabled \i Set if the spin box is enabled
-    \row \i \l Style_HasFocus \i Set if the spin box has input focus
+         \i \l State_Enabled \i Set if the spin box is enabled
+    \row \i \l State_HasFocus \i Set if the spin box has input focus
 
     \row \i{1,2} \l {CC_ComboBox} \i{1,2} \l QStyleOptionComboBox
-         \i \l Style_Enabled \i Set if the combobox is enabled
-    \row \i \l Style_HasFocus \i Set if the combobox has input focus
+         \i \l State_Enabled \i Set if the combobox is enabled
+    \row \i \l State_HasFocus \i Set if the combobox has input focus
 
     \row \i{1,2} \l {CC_ScrollBar} \i{1,2} \l QStyleOptionSlider
-         \i \l Style_Enabled \i Set if the scroll bar is enabled
-    \row \i \l Style_HasFocus \i Set if the scroll bar has input focus
+         \i \l State_Enabled \i Set if the scroll bar is enabled
+    \row \i \l State_HasFocus \i Set if the scroll bar has input focus
 
     \row \i{1,2} \l {CC_Slider} \i{1,2} \l QStyleOptionSlider
-         \i \l Style_Enabled \i Set if the slider is enabled
-    \row \i \l Style_HasFocus \i Set if the slider has input focus
+         \i \l State_Enabled \i Set if the slider is enabled
+    \row \i \l State_HasFocus \i Set if the slider has input focus
 
     \row \i{1,6} \l {CC_ToolButton} \i{1,6} \l QStyleOptionToolButton
-         \i \l Style_Enabled \i Set if the tool button is enabled
-    \row \i \l Style_HasFocus \i Set if the tool button has input focus
-    \row \i \l Style_Down \i Set if the tool button is down (i.e., a mouse
+         \i \l State_Enabled \i Set if the tool button is enabled
+    \row \i \l State_HasFocus \i Set if the tool button has input focus
+    \row \i \l State_Down \i Set if the tool button is down (i.e., a mouse
         button or the space bar is pressed)
-    \row \i \l Style_On \i Set if the tool button is a toggle button
+    \row \i \l State_On \i Set if the tool button is a toggle button
         and is toggled on
-    \row \i \l Style_AutoRaise \i Set if the tool button has auto-raise enabled
-    \row \i \l Style_Raised \i Set if the button is not down, not on, and doesn't
+    \row \i \l State_AutoRaise \i Set if the tool button has auto-raise enabled
+    \row \i \l State_Raised \i Set if the button is not down, not on, and doesn't
         contain the mouse when auto-raise is enabled
 
     \row \i \l{CC_TitleBar} \i \l QStyleOptionTitleBar
-         \i \l Style_Enabled \i Set if the title bar is enabled
+         \i \l State_Enabled \i Set if the title bar is enabled
 
     \row \i \l{CC_Q3ListView} \i \l QStyleOptionListView
-         \i \l Style_Enabled \i Set if the list view is enabled
+         \i \l State_Enabled \i Set if the list view is enabled
     \endtable
 
     \sa ComplexControl SubControl QStyleOptionComplex
@@ -1186,7 +1185,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_ComboBox
     \value CT_DialogButtons
     \value CT_DockWindow
-    \value CT_Header
     \value CT_HeaderSection
     \value CT_LineEdit
     \value CT_Menu

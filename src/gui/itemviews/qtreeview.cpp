@@ -726,7 +726,7 @@ void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 QModelIndex QTreeView::indexAt(const QPoint &p) const
 {

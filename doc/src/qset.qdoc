@@ -512,6 +512,11 @@
     Constructs a copy of \a other.
 */
 
+/*! fn QSet::const_iterator &QSet::const_iterator::operator=(const const_iterator &other)
+
+    Assigns \a other to this iterator.
+*/
+
 /*! \fn const T &QSet::const_iterator::operator*() const
 
     Returns a reference to the current item.

@@ -361,7 +361,7 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 
     \overload
 
-    Translate this line the distance \a dx and \dy.
+    Translates this line the distance \a dx and \a dy.
 */
 
 /*!
