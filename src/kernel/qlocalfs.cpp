@@ -124,7 +124,26 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
     QValueList<QUrlInfo> infos;
     while ( ( fi = it.current() ) != 0 ) {
 	++it;
-	infos << QUrlInfo( fi->fileName(), 0/*permissions*/, fi->owner(), fi->group(),
+	int p = 0;
+	if ( fi->permission( QFileInfo::ReadUser ) )
+	    p |= QFileInfo::ReadUser;
+	if ( fi->permission( QFileInfo::WriteUser ) )
+	    p |= QFileInfo::WriteUser;
+	if ( fi->permission( QFileInfo::ExeUser ) )
+	    p |= QFileInfo::ExeUser;
+	if ( fi->permission( QFileInfo::ReadGroup ) )
+	    p |= QFileInfo::ReadGroup;
+	if ( fi->permission( QFileInfo::WriteGroup ) )
+	    p |= QFileInfo::WriteGroup;
+	if ( fi->permission( QFileInfo::ExeGroup ) )
+	    p |= QFileInfo::ExeGroup;
+	if ( fi->permission( QFileInfo::ReadOther ) )
+	    p |= QFileInfo::ReadOther;
+	if ( fi->permission( QFileInfo::WriteOther ) )
+	    p |= QFileInfo::WriteOther;
+	if ( fi->permission( QFileInfo::ExeOther ) )
+	    p |= QFileInfo::ExeOther;
+	infos << QUrlInfo( fi->fileName(), p, fi->owner(), fi->group(),
 			   fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
 			   fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
     }
