@@ -1,15 +1,16 @@
 Trolltech Product Review License Agreement
-Version 1.0
+Agreement version 1.1
+
 
 
 IMPORTANT-READ CAREFULLY: 
 1. This Trolltech End-User License Agreement ("Agreement") is a legal
-agreement between you (either an individual or a legal entity)
-("Licensee") and Trolltech AS ("Trolltech"), and pertains to the
-Trolltech software product(s) accompanying this Agreement, which include(s)
-computer software and may include "online" or electronic documentation,
-associated media, and printed materials, including the source code, example
-programs and the documentation ("Licensed Software").
+agreement between you (either an individual or a legal entity) ("Licensee")
+and Trolltech AS ("Trolltech"), and pertains to the Trolltech software
+product(s) accompanying this Agreement, which include(s) computer software
+and may include "online" or electronic documentation, associated media, and
+printed materials, including the source code, example programs and the
+documentation ("Licensed Software").
 
 2. The Licensed Software is protected by copyright laws and international
 copyright treaties, as well as other intellectual property laws and
@@ -40,10 +41,7 @@ Software. Licensee may not modify or distribute the Licensed Software.
 Licensee may not distribute any software statically or dynamically linked
 with the Licensed Software. 
 
-7. This Licensed Software is time-limited. All rights granted to Licensee
-in this agreement will be void after the end of the evaluation period,
-which is no later than 180 days after Licensee received the Licensed
-Software.
+7. This Licensed Software is time-limited. All rights granted to Licensee in this agreement will be void after the end of the evaluation period, which is no later than 180 days after Licensee received the Licensed Software.
 
 8. The Licensed Software may provide links to third party libraries or code
 (collectively "Third Party Libraries") to implement various functions.
@@ -51,7 +49,7 @@ Third Party Libraries are not prepared by or owned by Trolltech, and do not
 comprise part of the Licensed Software. In some cases, access to Third
 Party Libraries may be included along with the Licensed Software delivery
 as a convenience for development and testing only. Such source code and
-libraries as are or may be listed in the "src/3rdparty" source tree
+libraries as are or may be listed in the ".../src/3rdparty" source tree
 delivered with the Licensed Software, as may be amended from time to time,
 do not comprise the Licensed Software.  Licensee acknowledges (1) that some
 Third Party Libraries may require additional licensing of copyright and
@@ -70,8 +68,9 @@ merchantability, fitness for a particular purpose, title and
 non-infringement with regard to the Licensed Software.
 
 
+
 LIMITATION OF LIABILITY
-10. If, Trolltech's warranty dislaimer notwithstanding, Trolltech is held
+10. If, Trolltech's warranty dislaimer notwithstanding, Trolltech is held 
 liable to Licensee, whether in contract, tort or any other legal theory,
 based on the Licensed Software, Trolltech's entire liability to Licensee
 and Licensee's exclusive remedy shall be, at Trolltech's option, either (A)
@@ -90,23 +89,15 @@ with this Agreement.
 
 GENERAL PROVISIONS
 11. This Agreement may only be modified in writing signed by authorized
-representatives of Licensee and Trolltech. All terms of any purchase order
-or other ordering document shall be superseded by this Agreement.  If any
-provision of the Agreement is found void or unenforceable, the remainder
-will remain valid and enforceable according to its terms.  If any remedy
-provided is determined to have failed for its essential purpose, all
-limitations of liability and exclusions of damages set forth in this
-Agreement shall remain in effect.
+representatives of Licensee and Trolltech. In case of a conflict between
+the Agreement and the terms of any purchase order or other ordering
+document, the Agreement shall prevail. If any provision of the Agreement is
+found void or unenforceable, the remainder will remain valid and
+enforceable according to its terms. If any remedy provided is determined to
+have failed for its essential purpose, all limitations of liability and
+exclusions of damages set forth in this Agreement shall remain in effect.
 
 
-12. This Agreement shall be construed, interpreted and governed by the laws
-of the State of California, USA. Any action or proceeding arising from or
-relating to this Agreement shall be brought in a federal court in the
-Northern District of California or in the State Court in Santa Clara
-County, California, and each party irrevocably submits to the personal
-jurisdiction of any such court in any such action or proceeding. The
-Agreement gives Licensee specific legal rights; Licensee may have others,
-which vary from state to state and from country to country.  Trolltech
-reserves all rights not specifically granted in this Agreement.
-
-
+12. This Agreement shall be construed, interpreted and governed by the 
+laws of Norway, the legal venue to be Oslo City Court. Trolltech reserves
+all rights not specifically granted in this Agreement.
