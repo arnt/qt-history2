@@ -45,7 +45,7 @@ uic3 {
     uic3_moc.output = $$MOC_DIR/moc_${QMAKE_FILE_BASE}.cpp
     uic3_moc.depends = ${QMAKE_FILE_BASE}.h
     uic3_moc.input = FORMS
-    uic3_moc.variable_out = _HDRMOC
+    uic3_moc.variable_out = HDRMOC
     uic3_moc.name = UIC3 MOC ${QMAKE_FILE_IN}
     QMAKE_EXTRA_COMPILERS += uic3_moc
 }
