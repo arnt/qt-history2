@@ -112,8 +112,6 @@ public:
     {
         l_marg = r_marg = t_marg = b_marg = 0;
         viewport->polish();
-        viewport->setBackgroundMode(Qt::PaletteDark);
-        viewport->setBackgroundOrigin(QWidget::WidgetOrigin);
         vMode = Q3ScrollView::Auto;
         hMode = Q3ScrollView::Auto;
         corner = 0;
