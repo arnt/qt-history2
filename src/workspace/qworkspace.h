@@ -110,6 +110,7 @@ private slots:
     void toolMenuAboutToShow();
     void activateNextWindow();
     void activatePreviousWindow();
+    void dockWindowsShow();
     void scrollBarChanged();
 
 private:

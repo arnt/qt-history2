@@ -60,6 +60,7 @@
 #include "qstyle.h"
 
 // magic non-mdi things
+#include "qtimer.h"
 #include "qdockarea.h"
 #include "qstatusbar.h"
 #include "qmainwindow.h"
@@ -229,7 +230,7 @@ public:
     // toplevel mdi fu
     QWorkspace::WindowMode wmode;
     QGuardedPtr<QMainWindow> mainwindow;
-    QPtrList<QDockWindow> dockwindows;
+    QPtrList<QDockWindow> dockwindows, newdocks;
 };
 
 /*!
@@ -733,6 +734,10 @@ void QWorkspace::handleUndock(QDockWindow *w)
 		      (!left && (l->x() + l->width() == nearest->x()) )))
 		    furthest = l;
 	    }
+	    if(left)
+		x = furthest->x() + furthest->width();
+	    else
+		x = furthest->x() - w->width();
 
 	    QPoint sc_pt(x, y);
 	    place_score sc;
@@ -743,8 +748,7 @@ void QWorkspace::handleUndock(QDockWindow *w)
 	    sc.y = sc_pt.y();
 	    for ( it.toFirst(); it.current(); ++it ) {
 		l = it.current();
-		if ( l != w && !l->isHidden() && 
-		     l->geometry().intersects(QRect(sc_pt, w->size()))) {
+		if ( l != w && l->geometry().intersects(QRect(sc_pt, w->size()))) {
 		    sc.o = 1;
 		    break;
 		}
@@ -876,6 +880,18 @@ void QWorkspace::handleUndock(QDockWindow *w)
 	w->hide();
 }
 
+void QWorkspace::dockWindowsShow()
+{
+    QPtrList<QDockWindow> lst = d->newdocks;
+    d->newdocks.clear();
+    for(QPtrListIterator<QDockWindow> dw_it(lst); (*dw_it); ++dw_it) {
+	if(d->dockwindows.find((*dw_it)) != -1) 
+	    continue;
+	handleUndock((*dw_it));
+	d->dockwindows.append((*dw_it));
+    }
+}
+
 /*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
@@ -884,7 +900,8 @@ void QWorkspace::showEvent( QShowEvent *e )
        QWorkspace be used as an MDI. */
     if(d->wmode == WS_Default) {
 	d->wmode = WS_MDI;
-#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
+//#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
+#if 1
 	QWidget *o = topLevelWidget();
 	if(o->inherits("QMainWindow")) {
 	    d->mainwindow = (QMainWindow*)o;
@@ -925,7 +942,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 			} else if ((*dock_it)->inherits("QDockWindow")) {
 			    QDockWindow *dw = (QDockWindow*)(*dock_it);
 			    dw->move(dw->mapToGlobal(QPoint(0, 0)));
-			    d->dockwindows.append(dw);
+			    d->newdocks.append(dw);
 			} else {
 			    qDebug("not sure what to do with %s %s", (*dock_it)->className(),
 				   (*dock_it)->name());
@@ -934,7 +951,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 		    if(tb_list.count() == 1) {
 			QToolBar *tb = tb_list.first();
 			tb->move(0, 0);
-			d->dockwindows.prepend(tb);
+			d->newdocks.prepend(tb);
 		    } else if(tb_list.count()) {
 			QDockWindow *dw = new QDockWindow(QDockWindow::OutsideDock, 
 							  w->parentWidget(), "QMagicDock");
@@ -948,7 +965,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 			dw->setWidget(w);
 			dw->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 			dw->setGeometry(0, 0, os.width(), os.height() + dw->sizeHint().height());
-			d->dockwindows.prepend(dw);
+			d->newdocks.prepend(dw);
 			((QDockArea*)w)->setAcceptDockWindow(dw, FALSE);
 			w->show();
 		    }
@@ -962,9 +979,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 		w->reparent(this, w->testWFlags(~(0)) | WType_TopLevel, w->pos());
 	    }
 	}
-	//setup dockwindows
-	for(QPtrListIterator<QDockWindow> dw_it(d->dockwindows); (*dw_it); ++dw_it) 
-	    handleUndock((*dw_it));
+	dockWindowsShow();
 
 	QWidget *w = new QWidget(NULL, "QDoesNotExist", 
 				 WType_Dialog | WStyle_Customize | WStyle_NoBorder);
@@ -1190,6 +1205,20 @@ QWidgetList QWorkspace::windowList() const
 /*!\reimp*/
 bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
+    if(d->wmode == WS_TopLevel && 
+       (e->type() == QEvent::ChildInserted || e->type() == QEvent::Reparent) &&
+       d->mainwindow && o->inherits("QDockWindow") && o->parent() == d->mainwindow) {
+	QDockWindow *w = (QDockWindow*)o;
+	if(d->newdocks.find(w) == -1 && d->dockwindows.find(w) == -1) {
+	    if(w->inherits("QToolBar"))
+		d->newdocks.prepend(w);
+	    else
+		d->newdocks.append(w);
+	    if(d->newdocks.count() == 1)
+		QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
+	}
+    }
+
     static QTime* t = 0;
     static QWorkspace* tc = 0;
 #ifndef QT_NO_MENUBAR
