@@ -48,13 +48,15 @@ VPATH += $$QT_SOURCE_TREE/src/core/global \
          $$QT_SOURCE_TREE/src/compat/tools
 
 unix {
-   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp
+   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp \
+              qlibrary_unix.cpp
    mac {
      SOURCES += qsettings_mac.cpp qurl.cpp
    }
 }
 win32 {
-   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp qsettings_win.cpp
+   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp \
+              qsettings_win.cpp qlibrary_win.cpp
    *-msvc:LIBS += ole32.lib advapi32.lib
 }
 macx-*: LIBS += -framework CoreServices
