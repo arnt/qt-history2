@@ -394,5 +394,5 @@ void QPpmHandler::setOption(ImageOption option, const QVariant &value)
 
 QByteArray QPpmHandler::name() const
 {
-    return subType.isEmpty() ? "ppm" : subType;
+    return subType.isEmpty() ? QByteArray("ppm") : subType;
 }
