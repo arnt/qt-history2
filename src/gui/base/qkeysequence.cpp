@@ -18,7 +18,6 @@
 
 #include "qaccel.h"
 #include "qdebug.h"
-#include "qshared.h"
 #ifndef QT_NO_REGEXP
 # include "qregexp.h"
 #endif

@@ -2,7 +2,6 @@
 #define Q_X11INFO_X11_H
 
 #include "qnamespace.h"
-#include "qshared.h"
 
 struct QX11InfoData;
 class QPaintDevice;
@@ -70,7 +69,8 @@ protected:
 };
 
 // ### hm. maybe move this - needed for inlining
-struct QX11InfoData : public QShared {
+struct QX11InfoData {
+    uint ref;
     Display *x_display;
     int x_screen;
     int x_depth;

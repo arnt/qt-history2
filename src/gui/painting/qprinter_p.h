@@ -17,9 +17,7 @@
 #ifndef QT_NO_PRINTER
 
 #ifndef QT_H
-#include <qshared.h>
-#include <qstring.h>
-#include <qsize.h>
+#include <qprinter.h>
 #endif // QT_H
 
 class QPrinterPrivate

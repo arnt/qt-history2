@@ -23,7 +23,6 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qmap.h"
-#include "qshared.h"
 #include "qmemorymanager_qws.h"
 #include "qgfx_qws.h"
 #include "qtextengine_p.h"

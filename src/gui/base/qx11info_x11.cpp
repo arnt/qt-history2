@@ -42,7 +42,7 @@ QX11Info::QX11Info()
 
 QX11Info::~QX11Info()
 {
-    if (x11data && x11data->deref())
+    if (x11data && !--x11data->ref)
 	delete x11data;
 }
 
@@ -82,7 +82,7 @@ void QX11Info::cloneX11Data(const QPaintDevice *fromDevice)
 	    xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
 	QX11InfoData *d = new QX11InfoData;
 	*d = *xd;
-	d->count = 0;
+	d->ref = 0;
 	setX11Data(d);
     } else {
 	setX11Data(0);
@@ -97,11 +97,11 @@ void QX11Info::cloneX11Data(const QPaintDevice *fromDevice)
 
 void QX11Info::setX11Data(const QX11InfoData* d)
 {
-    if (x11data && x11data->deref())
+    if (x11data && !--x11data->ref)
 	delete x11data;
     x11data = (QX11InfoData *)d;
     if (x11data)
-	x11data->ref();
+	++x11data->ref;
 }
 
 
@@ -130,12 +130,11 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
 	res->x_defcolormap = appDefaultColormap();
 	res->x_visual = appVisual();
 	res->x_defvisual = appDefaultVisual();
-	res->deref();
     } else if (x11data) {
 	res = new QX11InfoData;
 	*res = *x11data;
-	res->count = 0;
     }
+    res->ref = 0;
     return res;
 }
 
