@@ -62,7 +62,7 @@ public:
     virtual ~QSGIStyle();
 
 #if !defined(Q_NO_USING_KEYWORD)
-    using QStyle::polish;
+//    using QStyle::polish;
     using QMotifStyle::polish;
 #endif
     void polish( QWidget* );
