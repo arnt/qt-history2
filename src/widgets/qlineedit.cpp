@@ -65,7 +65,7 @@
 #endif
 
 struct UndoRedoInfo {
-    enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
+    enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected, Clear };
     UndoRedoInfo( QTextParagraph *p ) : type( Invalid ), parag( p ) {
 	text = QString::null; index = -1;
     }
@@ -498,6 +498,14 @@ void QLineEdit::init()
     setMouseTracking( TRUE );
     setFrame( TRUE );
 }
+
+/*!
+  Sets the line edit's text.
+
+  Note: All undo/redo history will be cleared. Text is not validated when inserted with this function.
+
+  \sa insert()
+*/
 
 void QLineEdit::setText( const QString &text )
 {
@@ -1736,7 +1744,11 @@ void QLineEdit::copy() const
 
 void QLineEdit::paste()
 {
+    bool oldHST = hasSelectedText();
+    bool oldStart = d->parag->selectionStart( QTextDocument::Standard );
     insert( QApplication::clipboard()->text( d->clipboard_mode ), TRUE );
+    if ( oldHST )
+	d->undoRedoInfo.index = oldStart;
     deselect();
     if ( hasMask() )
 	updateOverwriteSelection();
@@ -2102,15 +2114,34 @@ void QLineEdit::setFont( const QFont & f )
 
 
 /*!
-    Clears the contents of the editor. This is equivalent to setText("").
+    Clears the contents of the editor.
+    The edited property is set to FALSE.
+    Undo/redo history is updated.
 */
 
 void QLineEdit::clear()
 {
     if ( hasMask() )
 	setText( clearString( 0, d->maskList->count() ) );
-    else
-	setText( QString::null );
+    else {
+	QString oldText = this->text();
+	d->checkUndoRedoInfo( UndoRedoInfo::Clear );
+	d->undoRedoInfo.index = 0;
+	d->undoRedoInfo.text = oldText;
+	d->parag->truncate( 0 );
+	d->cursor->setIndex( 0 );
+	if ( hasFocus() )
+	    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->paragraph()->rect().height(), TRUE );
+	deselect();
+	update();
+	setEdited( FALSE );
+	if ( !oldText.isEmpty() ) {
+	    emit textChanged( QString::null );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
+	}
+    }
 }
 
 
