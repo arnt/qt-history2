@@ -45,7 +45,7 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
     const QModelIndex & /* index */)
 {
     if (spinBox)
-        cancelEditing(spinBox);
+        emit closeEditor(spinBox);
 
     spinBox = new QSpinBox(parent);
     spinBox->setMinimum(0);
@@ -106,17 +106,6 @@ void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
     editor->setGeometry(option.rect);
 }
 
-void SpinBoxDelegate::acceptEditing(QWidget *editor)
-{
-    emit commitData(editor);
-    emit closeEditor(editor);
-}
-
-void SpinBoxDelegate::cancelEditing(QWidget *editor)
-{
-    emit closeEditor(editor);
-}
-
 bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
 {
     if (object == spinBox) {
@@ -128,12 +117,12 @@ bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
             switch (keyEvent->key()) {
                 case Qt::Key_Return:
                     spinBox->setValue(spinBox->cleanText().toInt());
-                    acceptEditing(spinBox);
+                    emit commitData(spinBox);
                     emit closeEditor(spinBox, QAbstractItemDelegate::EditNextItem);
                     return true;
 
                 case Qt::Key_Escape:
-                    cancelEditing(spinBox);
+                    emit closeEditor(spinBox, QAbstractItemDelegate::RevertModelCache);
                     return true;
 
                 default:

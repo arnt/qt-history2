@@ -46,9 +46,6 @@ protected:
     bool eventFilter(QObject *object, QEvent *event);
 
 private:
-    void acceptEditing(QWidget *editor);
-    void cancelEditing(QWidget *editor);
-
     QSpinBox *spinBox;
 };
 
