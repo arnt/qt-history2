@@ -10,11 +10,15 @@
          BUILDS += ReleasePackage DebugPackage
      }
   } else:DebugPackage {
-     OBJECTS_DIR ~= s,release,debug,g
-     MOC_DIR ~= s,release,debug,g
+     isEmpty(OBJECTS_DIR): OBJECTS_DIR = debug
+     else: OBJECTS_DIR ~= s,release,debug,gi
+     isEmpty(MOC_DIR): MOC_DIR = debug
+     else: MOC_DIR ~= s,release,debug,gi
      #TARGET = $${TARGET}d
   } else:ReleasePackage {
-     OBJECTS_DIR ~= s,debug,release,g
-     MOC_DIR ~= s,debug,release,g
+     isEmpty(OBJECTS_DIR): OBJECTS_DIR = release
+     else: OBJECTS_DIR ~= s,debug,release,gi
+     isEmpty(MOC_DIR): MOC_DIR = release
+     else: MOC_DIR ~= s,debug,release,gi
   }
 }
