@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.48 1999/05/05 19:13:13 aavit Exp $
+** $Id: porting.doc,v 1.49 1999/05/08 21:21:08 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -364,13 +364,13 @@ for return types/parameters.
 
 <ul>
  <li><tt>void QFileDialog::setFilters(const QStrList&)</tt>
-      becomes <tt><b><tt>void QFileDialog::setFilters(const QStringList&)</b></tt>
+      becomes <tt><b>void QFileDialog::setFilters(const QStringList&)</b></tt>
  <li><tt>QStrList QFileDialog::getOpenFileNames(...)</tt>
-      becomes <tt><b><tt>QStringList QFileDialog::getOpenFileNames(...)</b></tt>
+      becomes <tt><b>QStringList QFileDialog::getOpenFileNames(...)</b></tt>
  <li><tt>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStrList&)</tt>
-      becomes <tt><b><tt>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStringList&)</b></tt>
+      becomes <tt><b>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStringList&)</b></tt>
  <li><tt>const QStrList *QDir::entryList(...) const</tt>
-      becomes <tt><b><tt>QStringList QDir::entryList(...) const</b></tt>
+      becomes <tt><b>QStringList QDir::entryList(...) const</b></tt>
 	(note that the return type is no longer a pointer)
 </ul>
 
