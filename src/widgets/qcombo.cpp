@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#57 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#57 $");
 
 
 /*!
@@ -32,9 +32,16 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#56 $");
 
   \ingroup realwidgets
 
-  A combo box is a kind of popup menu that is opened by pressing a
-  button.  The popup list contains a number of text or pixmap items.
-  The button displays the current item when the popup list is closed.
+  A combo box may be defined as a selection widget which displays the
+  current selection, and which can pop up a list of possible
+  selections.  Some combo boxes also allow the user to select
+  arbitrary strings, using a line editor.
+
+  Since combo boxes occupy little screen space and always display the
+  current selection, they are very well suited to displaying and
+  selecting modes (such as font family and size): The user can always
+  see what mode he/she is in, and the majority of the screen space is
+  available for real work.
 
   QComboBox supports three different appearances: Motif 1.x, Motif 2.0
   and Windows 95.  In Motif 1.x, a combo box was called XmOptionMenu,
@@ -42,15 +49,12 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#56 $");
   syndrome.  In Motif 2.0, OSF introduced an improved combo box and
   named that XmComboBox.  QComboBox provides both.
 
-  <more here>
-
   A combo box emits two signals, activated() and highlighted(), when
   a new item has been activated (selected) or highlighted (set to current).
 */
 
 
-/*!
-  \fn void QComboBox::activated( int index )
+/*! \fn void QComboBox::activated( int index )
   This signal is emitted when a new item has been activated (selected).
   The \e index is the position of the item in the popup list.
 */
@@ -65,8 +69,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#56 $");
   strings.
 */
 
-/*!
-  \fn void QComboBox::highlighted( int index )
+/*! \fn void QComboBox::highlighted( int index )
   This signal is emitted when a new item has been set to current.
   The \e index is the position of the item in the popup list.
 */
