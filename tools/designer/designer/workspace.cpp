@@ -219,8 +219,10 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Base, backgroundColor() );
     g.setColor( QColorGroup::Foreground, Qt::black );
 
-    if ( type() == FormSourceType && ( !formFile->hasFormCode() ||
-	 formFile->codeFileState() == FormFile::Deleted ) ) {
+    if ( type() == FormSourceType &&
+	 ( !formFile->hasFormCode() || ( formFile->codeFileState() == FormFile::Deleted && formFile->formWindow() ) ) &&
+	 parent() && parent()->parent() && ( (WorkspaceItem*)parent()->parent() )->project &&
+	 ( (WorkspaceItem*)parent()->parent() )->project->isCpp() ) {
 	g.setColor( QColorGroup::Text, listView()->palette().disabled().color( QColorGroup::Text) );
 	g.setColor( QColorGroup::HighlightedText, listView()->palette().disabled().color( QColorGroup::Text) );
     } else {
