@@ -20,6 +20,9 @@ public:
 
     virtual QSize intrinsicSize(const QTextFormat &format);
     virtual void drawObject(QPainter *p, const QRect &rect, const QTextFormat &format);
+
+    typedef QImage (*ExternalImageLoaderFunction)(const QString &name, const QString &context);
+    static ExternalImageLoaderFunction externalLoader;
 };
 
 #endif // QTEXTIMAGEHANDLER_P_H

@@ -9,6 +9,8 @@
 #include <private/qtextengine_p.h>
 #include <qpalette.h>
 
+QTextImageHandler::ExternalImageLoaderFunction QTextImageHandler::externalLoader = 0;
+
 static QPixmap getPixmap(const QTextImageFormat &format)
 {
     QPixmap pm;
@@ -23,9 +25,19 @@ static QPixmap getPixmap(const QTextImageFormat &format)
 
     QString key = QString("$qt_rt_%1_%2_%3").arg(format.name()).arg(size.width()).arg(size.height());
     if (!QPixmapCache::find(key, pm)) {
-        QImage img(format.name());
-        if (img.isNull())
-            return pm;
+        QImage img;
+        const QString name = format.name();
+
+        if (QTextImageHandler::externalLoader) {
+            // ###
+            QString context;
+            img = QTextImageHandler::externalLoader(name, context);
+        }
+
+        if (img.isNull()) // try direct loading
+            if (!img.load(name))
+                return pm;
+
         if (size.isValid() && img.size() != size)
             img = img.smoothScale(size);
         pm.convertFromImage(img);
