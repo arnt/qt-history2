@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#21 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#22 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -348,26 +348,30 @@ bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     }
 	break;
     case PdcDrawLineSegments:
-	a = *p[0].ptarr;
-	for (uint i = 0; i < a.size() / 2; i++) {
-	    e = doc.createElement( "line" );
-	    e.setAttribute( "x1", a[2*i].x() );
-	    e.setAttribute( "y1", a[2*i].y() );
-	    e.setAttribute( "x2", a[2*i+1].x() );
-	    e.setAttribute( "y2", a[2*i+1].y() );
+	{
+	    a = *p[0].ptarr;
+	    for (uint i = 0; i < a.size() / 2; i++) {
+		e = doc.createElement( "line" );
+		e.setAttribute( "x1", a[int(2*i)].x() );
+		e.setAttribute( "y1", a[int(2*i)].y() );
+		e.setAttribute( "x2", a[int(2*i+1)].x() );
+		e.setAttribute( "y2", a[int(2*i+1)].y() );
+	    }
 	}
 	break;
     case PdcDrawPolyline:
     case PdcDrawPolygon:
-	a = *p[0].ptarr;
-	e = doc.createElement( ( c == PdcDrawPolyline ) ?
-			       "polyline" : "polygon" );
-	for (uint i = 0; i < a.size(); i++) {
-	    QString tmp;
-	    tmp.sprintf( "%d %d ", a[ i ].x(), a[ i ].y() );
-	    str += tmp;
+	{
+	    a = *p[0].ptarr;
+	    e = doc.createElement( ( c == PdcDrawPolyline ) ?
+				   "polyline" : "polygon" );
+	    for (uint i = 0; i < a.size(); i++) {
+		QString tmp;
+		tmp.sprintf( "%d %d ", a[ (int)i ].x(), a[ (int)i ].y() );
+		str += tmp;
+	    }
+	    e.setAttribute( "points", str.stripWhiteSpace() );
 	}
-	e.setAttribute( "points", str.stripWhiteSpace() );
 	break;
     case PdcDrawCubicBezier:
 	a = *p[0].ptarr;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#12 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#13 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -60,6 +60,12 @@ class QDomNode;
 class QDomNamedNodeMap;
 class QSVGDevicePrivate;
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QMap<QString, QString>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QSVGDevice : public QPaintDevice
 {
 public:
@@ -114,7 +120,14 @@ private:
     QDomNode current;
     QPoint curPt;
     QPainter *pt;			// used by play() et al
+
+    #if defined(Q_TEMPLATEDLL)
+    // MOC_SKIP_BEGIN
+    template class Q_EXPORT QMap<QString, ElementType> typeMap;
+    // MOC_SKIP_END
+    #else
     QMap<QString,ElementType> typeMap;	// element types
+    #endif
     QMap<QString,QString> colMap;	// recognized color keyword names
 
     // writing
@@ -133,3 +146,4 @@ inline QRect QSVGDevice::boundingRect() const
 #endif // QT_NO_SVG
 
 #endif // QSVGDEVICE_H
+
