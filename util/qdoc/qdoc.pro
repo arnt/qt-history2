@@ -2,7 +2,7 @@ TEMPLATE	= app
 CONFIG		= warn_on console release qtinc dylib debug
 isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
 isEmpty(QT_BUILD_TREE):QT_BUILD_TREE=$$QT_SOURCE_TREE
-DEFINES		+= QT_NO_CODECS QT_NO_UNICODETABLES QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE QT_NO_STL QT_NO_COMPRESS
+DEFINES		+= QT_NO_CODECS QT_NO_UNICODETABLES QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE QT_NO_STL QT_NO_COMPRESS QT_COMPAT QT_NO_THREAD
 INCLUDEPATH	= $$QT_BUILD_TREE/include $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/src/core/arch/$$ARCH/
 DEPENDPATH	= $$QT_BUILD_TREE/include $$QT_SOURCE_TREE/include
 OBJECTS_DIR	= .
@@ -57,7 +57,8 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/compat/tools/qglist.cpp \
 		  $$QT_SOURCE_TREE/src/compat/tools/qgvector.cpp \
 		  $$QT_SOURCE_TREE/src/compat/tools/qptrcollection.cpp \
-		  $$QT_SOURCE_TREE/src/core/base/qglobal.cpp \
+		  $$QT_SOURCE_TREE/src/compat/tools/qshared.cpp \
+		  $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
 		  $$QT_SOURCE_TREE/src/core/codecs/qtextcodec.cpp \
 		  $$QT_SOURCE_TREE/src/core/codecs/qutfcodec.cpp \
 		  $$QT_SOURCE_TREE/src/core/io/qbuffer.cpp \
@@ -91,7 +92,7 @@ mac {
     INCLUDEPATH+=$$QT_SOURCE_TREE/src/3rdparty/dlcompat
     LIBS += -framework CoreFoundation -framework CoreServices
 } 
-unix:SOURCES += $$QT_SOURCE_TREE/src/core/tools/qlibrary_unix.cpp
+unix:SOURCES += $$QT_SOURCE_TREE/src/core/library/qlibrary_unix.cpp
 win32 {
    SOURCES	+= $$QT_SOURCE_TREE/src/core/io/qdir_win.cpp \
 	  	   $$QT_SOURCE_TREE/src/core/io/qfile_win.cpp \
