@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#39 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#40 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#40 $");
 
 
 /*!
@@ -337,9 +337,10 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     } else if ( filedlg_dir.isNull() ) {
 	filedlg_dir = QDir::currentDirPath();
     }
-    filedlg_dir.replace(QRegExp("/"),"\\");
 
 #if defined(_WS_WIN_)
+
+    filedlg_dir.replace(QRegExp("/"),"\\");
 
     const int maxstrlen = 256;
     char *file = new char[maxstrlen];
@@ -415,9 +416,10 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     } else if ( filedlg_dir.isNull() ) {
 	filedlg_dir = QDir::currentDirPath();
     }
-    filedlg_dir.replace(QRegExp("/"),"\\");
 
 #if defined(_WS_WIN_)
+
+    filedlg_dir.replace(QRegExp("/"),"\\");
 
     const int maxstrlen = 256;
     char *file = new char[maxstrlen];
