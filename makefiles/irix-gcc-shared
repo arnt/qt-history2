@@ -1,0 +1,12 @@
+diff -ur template/library/Makefile irix-gcc-shared/library/Makefile
+--- template/library/Makefile	Thu Aug 29 17:47:10 1996
++++ irix-gcc-shared/library/Makefile	Sun Sep  1 19:30:56 1996
+@@ -104,7 +104,7 @@
+ dep: depend
+ 
+ clean:
+-	-rm -f *.o *.bak *~ *% $(METASRC)
++	-rm -f so_locations *.o *.bak *~ *% $(METASRC) 
+ 
+ # For maximum compatibility with old versions of make, we generate
+ # a separate rule for each meta object source file.

@@ -1,0 +1,73 @@
+diff -ur template/Makefile irix-dcc-shared/Makefile
+--- template/Makefile	Mon Sep  2 00:48:45 1996
++++ irix-dcc-shared/Makefile	Mon Sep  2 00:49:47 1996
+@@ -4,8 +4,8 @@
+ # Read PORTING for instructions how to port Qt to a new platform.
+ #
+ 
+-CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall
++CC = DCC
++CFLAGS = -O2 -fullwarn -smart
+ LFLAGS	= -lqt
+ 
+ all: library tutorial examples
+Only in irix-dcc-shared: Makefile.orig
+diff -ur template/examples/xshape/Makefile irix-dcc-shared/examples/xshape/Makefile
+--- template/examples/xshape/Makefile	Sat Aug 17 18:00:13 1996
++++ irix-dcc-shared/examples/xshape/Makefile	Mon Sep  2 00:49:47 1996
+@@ -25,8 +25,9 @@
+ 
+ .SUFFIXES: .cpp
+ 
++# evil hack: get rid of -smart, it cores here
+ .cpp.o:
+-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
++	$(CC) -c -O2 -fullwarn -I$(INCDIR) $<
+ 
+ ####### Build rules
+ 
+Only in irix-dcc-shared/examples/xshape: Makefile.orig
+diff -ur template/library/Makefile irix-dcc-shared/library/Makefile
+--- template/library/Makefile	Mon Sep  2 00:49:17 1996
++++ irix-dcc-shared/library/Makefile	Mon Sep  2 00:54:11 1996
+@@ -78,7 +78,7 @@
+ .SUFFIXES: .cpp
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fPIC $<
++	$(CC) -I$(INCDIR) -c -fullwarn -O2 $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ 
+@@ -104,7 +104,7 @@
+ dep: depend
+ 
+ clean:
+-	-rm -f *.o *.bak *~ *% $(METASRC)
++	-rm -f so_locations *.o *.bak *~ *% $(METASRC)
+ 
+ # For maximum compatibility with old versions of make, we generate
+ # a separate rule for each meta object source file.
+Only in irix-dcc-shared/library: Makefile.orig
+diff -ur template/moc/Makefile irix-dcc-shared/moc/Makefile
+--- template/moc/Makefile	Mon Sep  2 00:48:45 1996
++++ irix-dcc-shared/moc/Makefile	Mon Sep  2 00:50:46 1996
+@@ -53,7 +53,7 @@
+ all: $(TARGET)
+ 
+ $(TARGET): $(OBJECTS) $(TOOLOBJ)
+-	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
++	$(CC) $(TOOLOBJ) $(OBJECTS) -o $(TARGET)
+ 
+ depend:
+ 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
+@@ -75,7 +75,7 @@
+ ####### Compile the .cpp files
+ 
+ moc_gen.o: moc_gen.cpp
+-	$(CC) -c $(CFLAGS) -Wno-unused -I$(INCDIR) $? -o $@
++	$(CC) -c -O2 -fullwarn -woff 3262,3203 -I$(INCDIR) $? -o $@
+ 
+ qbuffer.o: ../library/qbuffer.cpp
+ 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
