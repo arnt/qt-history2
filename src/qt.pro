@@ -75,8 +75,12 @@ win32 {
 
 	CONFIG	+= zlib
 	INCLUDEPATH += tmp
-	dll:DEFINES+=QT_MAKEDLL
-
+	dll {
+	    DEFINES+=QT_MAKEDLL
+	    exists(qt.rc) {
+		RC_FILE = qt.rc
+	    }
+	}
 }
 win32-borland:INCLUDEPATH += kernel
 
