@@ -470,7 +470,8 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
     // well be 0, so we can't check recvfrom's return value.
     ssize_t readBytes;
     do {
-        readBytes = ::recvfrom(socketDescriptor, 0, 0, MSG_PEEK, storagePtr, &storageSize);
+        char c;
+        readBytes = ::recvfrom(socketDescriptor, &c, 1, MSG_PEEK, storagePtr, &storageSize);
     } while (readBytes == -1 && errno == EINTR);
 
     // If the port was set in the sockaddr structure, then a new message is available.
@@ -529,7 +530,8 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
 
     ssize_t recvFromResult = 0;
     do {
-        recvFromResult = ::recvfrom(socketDescriptor, data, maxSize,
+        char c;
+        recvFromResult = ::recvfrom(socketDescriptor, maxSize ? data : &c, maxSize ? maxSize : 1,
                                     0, (struct sockaddr *)&aa, &sz);
     } while (recvFromResult == -1 && errno == EINTR);
 
@@ -546,7 +548,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
            port ? *port : 0, (Q_LONGLONG) recvFromResult);
 #endif
 
-    return Q_LONGLONG(recvFromResult);
+    return Q_LONGLONG(maxSize ? recvFromResult : recvFromResult == -1 ? -1 : 0);
 }
 
 Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG len,
