@@ -137,7 +137,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
 	long mt;
 	ICGetSeed(internet_config, &mt);
 	if(mt == mime_registry_version)
-	    return TRUE;
+	    return true;
 	mime_registry_version = mt;
 	mime_registry.clear();
     }
@@ -165,7 +165,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
     //cleanup
     DisposeHandle(hdl);
     ICEnd(internet_config);
-    return TRUE;
+    return true;
 }
 
 inline static void qt_mac_copy_to_str255(const QString &qstr, unsigned char *pstr)
@@ -184,11 +184,11 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 	    return 0;
 	}
 	if(!mime_registry.contains(mime)) {
-	    for(int ret = 'QT00';  TRUE; ret++) {
-		bool found = FALSE;
+	    for(int ret = 'QT00';  true; ret++) {
+		bool found = false;
 		for(QMapIterator<QString, int> it = mime_registry.begin(); it != mime_registry.end(); ++it) {
 		    if(it.data() == ret) {
-			found = TRUE;
+			found = true;
 			break;
 		    }
 		}
@@ -236,7 +236,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
     mime_registry.clear();
     QStringList entries = mime_settings.subkeyList("/mimetypes/keys");
     for(QStringList::ConstIterator it=entries.begin(); it != entries.end(); ++it) {
-	bool ok = FALSE;
+	bool ok = false;
 	int mac_t = mime_settings.readNumEntry(QString("/mimetypes/keys/") + (*it) + "/mac_type", 0, &ok);
 	if(!ok) {
 	    qWarning("That shouldn't happen!! %s", (*it).latin1());
@@ -249,7 +249,7 @@ bool QMacMimeAnyMime::loadMimeRegistry()
 	}
 	mime_registry.insert(qt_t, mac_t);
     }
-    return TRUE;
+    return true;
 }
 
 int QMacMimeAnyMime::registerMimeType(const char *mime)
@@ -319,8 +319,8 @@ bool QMacMimeAnyMime::canConvert(const char* mime, int flav)
 {
     loadMimeRegistry();
     if(mime_registry.contains(mime) && mime_registry[mime] == flav)
-	return TRUE;
-    return FALSE;
+	return true;
+    return false;
 }
 
 QByteArray QMacMimeAnyMime::convertToMime(QList<QByteArray> data, const char* , int)
@@ -447,9 +447,9 @@ int QMacMimeImage::flavor(int)
 int QMacMimeImage::flavorFor(const char* mime)
 {
     if(!qstrnicmp(mime,"image/",5)) {
-	QStrList ofmts = QImage::outputFormats();
-	for(const char* fmt=ofmts.first(); fmt; fmt=ofmts.next()) {
-	    if(!qstricmp(fmt,mime+6))
+	QList<QByteArray> ofmts = QImage::outputFormats();
+	for (int i = 0; i < ofmts.count(); ++i) {
+	    if (!qstricmp(ofmts.at(i), mime + 6))
 		return kScrapFlavorTypePicture;
 	}
     }
@@ -466,13 +466,13 @@ const char* QMacMimeImage::mimeFor(int flav)
 bool QMacMimeImage::canConvert(const char* mime, int flav)
 {
     if(flav == kScrapFlavorTypePicture && !qstrnicmp(mime,"image/",5)) {
-	QStrList ofmts = QImage::outputFormats();
-	for(const char* fmt=ofmts.first(); fmt; fmt=ofmts.next()) {
-	    if(!qstricmp(fmt,mime+6))
-		return TRUE;
+	QList<QByteArray> ofmts = QImage::outputFormats();
+	for (int i = 0; i < ofmts.count(); ++i) {
+	    if (!qstricmp(ofmts.at(i), mime + 6))
+		return true;
 	}
     }
-    return FALSE;
+    return false;
 }
 
 QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const char* mime, int flav)
@@ -586,7 +586,7 @@ bool QMacMimeFileUri::canConvert(const char* mime, int flav)
 {
     if(!qstricmp(mime,"text/uri-list"))
 	return flav == typeFileURL;
-    return FALSE;
+    return false;
 }
 
 QByteArray QMacMimeFileUri::convertToMime(QList<QByteArray> data, const char* mime, int flav)
@@ -678,7 +678,7 @@ bool QMacMimeHFSUri::canConvert(const char* mime, int flav)
 {
     if(!qstricmp(mime,"text/uri-list"))
 	return flav == kDragFlavorTypeHFS;
-    return FALSE;
+    return false;
 }
 
 QByteArray QMacMimeHFSUri::convertToMime(QList<QByteArray> data, const char* mime, int flav)
@@ -727,7 +727,7 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* m
 void QMacMime::initialize()
 {
     if(mimes.isEmpty()) {
-	mimes.setAutoDelete(TRUE);
+	mimes.setAutoDelete(true);
 	new QMacMimeImage;
 	new QMacMimeText;
 	new QMacMimeFileUri;
@@ -810,8 +810,8 @@ QList<QMacMime*> QMacMime::all(QMacMimeType t)
 /*!
   \fn bool QMacMime::canConvert(const char* mime, int flav)
 
-  Returns TRUE if the convertor can convert (both ways) between
-  \a mime and \a flav; otherwise returns FALSE.
+  Returns true if the convertor can convert (both ways) between
+  \a mime and \a flav; otherwise returns false.
 
   All subclasses must reimplement this pure virtual function.
 */
