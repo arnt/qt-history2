@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#3 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#4 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#4 $");
 
 
 #if defined(_CC_MSVC_)
@@ -538,8 +538,7 @@ void QGLContext::setFormat( const QGLFormat &format )
 
 bool QGLContext::create()
 {
-    if ( valid )
-	reset();
+    reset();
     valid = chooseContext();
     return valid;
 }
@@ -568,6 +567,7 @@ bool QGLContext::create()
 
 bool QGLContext::chooseContext()
 {
+    bool success = FALSE;
     if ( paintDevice->devType() == PDT_WIDGET ) {
 	win = ((QWidget *)paintDevice)->winId();
 	dc  = GetDC( win );
@@ -575,29 +575,35 @@ bool QGLContext::chooseContext()
 	win = 0;
 	dc  = paintDevice->handle();
     }
+    ASSERT( dc != 0 );
     PIXELFORMATDESCRIPTOR pfd;
     int pixelFormatId = choosePixelFormat( &pfd );
-    if ( pixelFormatId == 0 ) {
-	rc = 0;
-	dc = 0;
-    } else {
-	if ( !SetPixelFormat( dc, pixelFormatId, &pfd ) ) {
+    if ( pixelFormatId != 0 ) {
+	if ( SetPixelFormat(dc, pixelFormatId, &pfd) ) {
+	    rc = wglCreateContext( dc );
+	    success = TRUE;
+	} else {
+#if 1
 	    LPVOID lpMsgBuf;
 	    FormatMessage( 
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		0, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR) &lpMsgBuf, 0, 0 );
-	    //debug( (const char *)lpMsgBuf );
+	    debug( (const char *)lpMsgBuf );
 	    LocalFree( lpMsgBuf );
- 	}
-	rc = wglCreateContext( dc );
+#endif
+	}
     }
     if ( win ) {
 	ReleaseDC( win, dc );
 	dc = 0;
     }
-    return TRUE;
+    if ( !success ) {
+	rc = 0;
+	dc = 0;
+    }
+    return success;
 }
 
 
@@ -659,11 +665,12 @@ void QGLContext::reset()
 	return;
     doneCurrent();
     wglDeleteContext( rc );
-    rc = 0;
-    dc = 0;
+    rc  = 0;
+    dc  = 0;
     win = 0;
     valid = FALSE;
 }
+
 
 //
 // NOTE: In a multi-threaded environment, each thread has a current
@@ -674,24 +681,24 @@ void QGLContext::reset()
 static QGLContext *currentContext = 0;
 
 /*!
-  Makes this context the current context
- */
+  Makes this context the current OpenGL context.  All gl functions
+  you call operate on this context until another context is made current.
+*/
+
 void QGLContext::makeCurrent()
 {
-    /*
     if ( currentContext ) {
 	if ( currentContext == this )		// already current
 	    return;
 	currentContext->doneCurrent();
     }
-    */
-    dc = paintDevice->handle();
-    if ( dc ) {
-	tmp_dc = FALSE;
-    } else {
-	tmp_dc = TRUE;
+    if ( !valid )
+	return;
+    if ( win )
 	dc = GetDC( win );
-    }
+    else
+	dc = paintDevice->handle();
+    ASSERT( dc != 0 );
     if ( QColor::hPal() ) {
 	SelectPalette( dc, QColor::hPal(), FALSE );
 	RealizePalette( dc );
@@ -700,21 +707,19 @@ void QGLContext::makeCurrent()
     currentContext = this;
 }
 
+
 void QGLContext::doneCurrent()
 {
-    return;
     if ( currentContext != this )
 	return;
-    wglMakeCurrent( 0, 0 );
-    if ( tmp_dc ) {
-#if defined(DEBUG)
-	ASSERT( win != 0 );
-#endif
+    currentContext = 0;
+    wglMakeCurrent( dc, 0 );
+    if ( win ) {
 	ReleaseDC( win, dc );
 	dc = 0;
     }
-    currentContext = 0;
 }
+
 
 /*!
   Swaps the screen contents with an off-screen buffer. Works only if
@@ -809,6 +814,7 @@ bool QGLContext::chooseContext()
 			   None, TRUE );
     return cx != 0;
 }
+
 
 void QGLContext::reset()
 {
@@ -936,6 +942,16 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 
 
 /*!
+  Destroys the widget.
+*/
+
+QGLWidget::~QGLWidget()
+{
+    delete glcx;
+}
+
+
+/*!
   \fn const QGLFormat &QGLWidget::format() const
   Returns the widget's format.
   \sa setFormat()
@@ -974,8 +990,7 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 
 void QGLWidget::setFormat( const QGLFormat &format )
 {
-    glcx->setFormat( format );
-    glcx->create();
+    setContext( new QGLContext(format,this) );
 }
 
 
@@ -986,7 +1001,9 @@ void QGLWidget::setFormat( const QGLFormat &format )
 */
 
 /*!
-  Sets a new context for this widget. The old context is deleted.
+  Sets a new context for this widget. The context must be created using
+  \e new.  QGLWidget will delete the context when another context is set
+  or when the widget is destroyed.
   \sa context(), setFormat()
 */
 
@@ -1002,13 +1019,33 @@ void QGLWidget::setContext( QGLContext *context )
 	warning( "QGLWidget::setContext: Context must refer this widget" );
 #endif
     }
+
+    bool has_cx = glcx != 0;
     delete glcx;
     glcx = context;
+
+#if defined(Q_WGL)
+
+    if ( has_cx ) {
+	// We already have a context and must therefore create a new
+	// window since Windows does not permit setting a new OpenGL
+	// context for a window that already has one set.
+	destroy( TRUE, TRUE );
+	create( 0, TRUE, TRUE );
+    }
+
     if ( !glcx->isValid() ) {
 	if ( !glcx->create() )
 	    return;
     }
+
+#endif
+
 #if defined(Q_GLX)
+    if ( !glcx->isValid() ) {
+	if ( !glcx->create() )
+	    return;
+    }
     bool visible = isVisible();
     if ( visible )
         hide();
@@ -1038,6 +1075,7 @@ void QGLWidget::setContext( QGLContext *context )
     create( w );
     if ( visible )
 	show();
+
 #endif
 }
 
@@ -1132,5 +1170,4 @@ device settings of a context.
 
 Many applications need only the high-level QGLWidget class. The other QGL
 classes provide advanced features.
-
 */
