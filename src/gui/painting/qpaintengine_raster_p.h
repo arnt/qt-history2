@@ -108,7 +108,7 @@ public:
         SourceOverComposite
     };
 
-    void fillForBrush(const QBrush &brush, FillData *data, const QPainterPath *path);
+    FillData fillForBrush(const QBrush &brush, const QPainterPath *path);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 
     QImage *colorizeBitmap(const QImage *image, const QColor &color);

@@ -756,15 +756,7 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, FillData *fillData)
     Q_ASSERT(d->deviceRect.width() <= d->rasterBuffer->width());
     Q_ASSERT(d->deviceRect.height() <= d->rasterBuffer->height());
 
-    if (fillData->callback) {
-        if (d->clipEnabled) {
-            qt_scanconvert(d->outlineMapper->convert(path), qt_span_fill_clipped, fillData,
-                           &clipBox, d);
-        } else {
-            qt_scanconvert(d->outlineMapper->convert(path), fillData->callback, fillData->data,
-                           &clipBox, d);
-        }
-    }
+    qt_scanconvert(d->outlineMapper->convert(path), fillData->callback, fillData->data, &clipBox, d);
 }
 
 
@@ -780,11 +772,9 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
 
     Q_D(QRasterPaintEngine);
 
-    FillData fillData = { d->rasterBuffer, 0, 0 };
-
     if (d->brush.style() != Qt::NoBrush) {
         d->outlineMapper->setMatrix(d->matrix, d->txop);
-        d->fillForBrush(d->brush, &fillData, &path);
+        FillData fillData = d->fillForBrush(d->brush, &path);
         fillPath(path, &fillData);
     }
 
@@ -810,7 +800,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
             if (stroke.isEmpty())
                 return;
         }
-        d->fillForBrush(QBrush(d->pen.brush()), &fillData, &stroke);
+        FillData fillData = d->fillForBrush(QBrush(d->pen.brush()), &stroke);
         fillPath(stroke, &fillData);
     }
 
@@ -954,20 +944,10 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qt_draw_text_item(QPoint(0, ti.ascent), ti, d->fontRasterBuffer->hdc(), d);
 
     // Decide on which span func to use
-    FillData fillData = { d->rasterBuffer, 0, 0 };
-    d->fillForBrush(d->pen.brush(), &fillData, 0);
+    FillData fillData = d->fillForBrush(d->pen.brush(), 0);
 
-    qt_span_func func = fillData.callback;
-    void *data = fillData.data;
-
-    if (!func)
+    if (!fillData.callback)
         return;
-
-    FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
-    if (d->clipEnabled) {
-        func = qt_span_fill_clipped;
-        data = &clipData;
-    }
 
     // Boundaries
     int ymax = qMin(devRect.y() + devRect.height(), d->rasterBuffer->height());
@@ -996,7 +976,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         }
 
         // Call span func for current set of spans.
-        func(y, spans.size(), spans.data(), data);
+        fillData.callback(y, spans.size(), spans.data(), fillData.data);
     }
 
 #else
@@ -1210,14 +1190,8 @@ void QRasterPaintEngine::drawLine(const QLineF &l)
         if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
             mode = LineDrawIncludeLastPixel;
 
-        FillData fillData = { d->rasterBuffer, 0, 0 };
-        d->fillForBrush(QBrush(d->pen.brush()), &fillData, 0);
-
-        FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
-        void *data = d->clipEnabled ? (void *)&clipData : (void *) fillData.data;
-        qt_span_func func = d->clipEnabled ? qt_span_fill_clipped : fillData.callback;
-
-        drawLine_bresenham(line, func, data, mode);
+        FillData fillData = d->fillForBrush(QBrush(d->pen.brush()), 0);
+        drawLine_bresenham(line, fillData.callback, fillData.data, mode);
         return;
     }
     QPaintEngine::drawLine(l);
@@ -1239,8 +1213,7 @@ void QRasterPaintEngine::drawRect(const QRectF &r)
         QRectF rect(r);
         rect.translate(d->matrix.dx(), d->matrix.dy());
 
-        FillData fillData = { d->rasterBuffer, 0, 0 };
-        d->fillForBrush(d->brush, &fillData);
+        FillData fillData = d->fillForBrush(d->brush, 0);
 
         FillData clipData = { d->rasterBuffer, fillData.callback, fillData.data };
         void *data = d->clipEnabled ? (void *)&clipData : (void *) fillData.data;
@@ -1320,11 +1293,11 @@ QPoint QRasterPaintEngine::coordinateOffset() const
 }
 
 
-void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fillData,
-                                             const QPainterPath *path)
+FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPainterPath *path)
 {
     Q_ASSERT(fillData);
-    Q_ASSERT(fillData->rasterBuffer);
+
+    fillData->rasterBuffer = rasterBuffer;
 
     switch (brush.style()) {
 
@@ -1461,6 +1434,17 @@ void QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, FillData *fill
 
     default:
         break;
+    }
+
+    if (clipEnabled) {
+        FillData clipFillData = {
+            fillData->rasterBuffer,
+            qt_span_fill_clipped,
+            fillData
+        };
+        return clipFillData;
+    } else {
+        return *fillData;
     }
 }
 
