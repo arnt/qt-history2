@@ -53,6 +53,7 @@ const int Q_MUTEX_RECURSIVE = 1;
 class Q_EXPORT QMutex : public Qt
 {
     friend class QWaitCondition;
+    friend class QWaitConditionPrivate;
 
 public:
     QMutex(bool recursive = FALSE);

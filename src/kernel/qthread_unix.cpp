@@ -42,80 +42,10 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
-#include <pthread.h>
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
-#include <qlist.h>
-#include <unistd.h>
 #include <qapplication.h>
-#include <qsocketnotifier.h>
-#include <qobject.h>
-#include <qptrdict.h>
-#include <sys/time.h>
-#include <unistd.h>
+#include <qlist.h>
 
-// Thread definitions for UNIX platforms
-
-#if defined(_OS_LINUX_)
-#  include <features.h>
-#  if (__GLIBC__ == 2) && (__GLIBC_MINOR__ == 0)
-// Linux with glibc 2.0.x - POSIX 1003.4a thread implementation
-#    define Q_HAS_RECURSIVE_MUTEX
-#    define Q_USE_PTHREAD_MUTEX_SETKIND
-#    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK_NP
-#    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE_NP
-#  else
-#    define Q_HAS_RECURSIVE_MUTEX
-#    undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#    define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_DEFAULT
-#    define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#  endif
-#elif defined(_OS_OSF_)
-// Digital UNIX - 4.0 and later has a POSIX 1003.1c implementation - should we assume >4.0?
-#  define Q_HAS_RECURSIVE_MUTEX
-#  define Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
-#  define Q_MUTEX_TYPE MUTEX_RECURSIVE_NP
-#elif defined(_OS_AIX_)
-// AIX 4.3 says pthread_mutexattr_setkind_np is provided for compatibility, so
-// we assume that all versions of AIX have it (probably not the best thing to do)
-#  define Q_HAS_RECURSIVE_MUTEX
-#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
-#  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
-#elif defined(_OS_HPUX_)
-// HP/UX 10.30 (from documentation on hp.com)
-#  define Q_HAS_RECURSIVE_MUTEX
-#  define Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
-#  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
-#elif defined (_OS_FREEBSD_) || defined(_OS_OPENBSD_)
-// FreeBSD and OpenBSD use the same user-space thread implementation
-#  define Q_HAS_RECURSIVE_MUTEX
-#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
-#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#elif defined(_OS_SOLARIS_)
-// Solaris 2.7 and later
-#  define Q_HAS_RECURSIVE_MUTEX
-#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
-#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#elif defined(_OS_IRIX_)
-#  define Q_HAS_RECURSIVE_MUTEX
-#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
-#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
-#else
-// Fall through for systems we don't know about
-#  warning "Assuming non-POSIX 1003.1c thread implementation. Talk to qt-bugs@trolltech.com."
-#  undef  Q_HAS_RECURSIVE_MUTEX
-#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  undef  Q_NORMAL_MUTEX_TYPE
-#  undef  Q_RECURSIVE_MUTEX_TYPE
-#endif
+#include "qthread_p.h"
 
 
 /**************************************************************************
@@ -184,244 +114,6 @@
   sequence.
 
 */
-
-
-class QMutexPrivate {
-public:
-    QMutexPrivate(bool recursive = FALSE);
-    virtual ~QMutexPrivate();
-
-    virtual void lock();
-    virtual void unlock();
-    virtual bool locked();
-
-#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
-    virtual int type() const { return Q_MUTEX_NORMAL; }
-#endif
-
-    pthread_mutex_t mutex;
-};
-
-
-QMutexPrivate::QMutexPrivate(bool recursive)
-{
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-
-    if (recursive) {
-
-#if defined(Q_RECURSIVE_MUTEX_TYPE)
-#  if defined(Q_USE_PTHREAD_MUTEX_SETKIND)
-	pthread_mutexattr_setkind_np(&attr, Q_RECURSIVE_MUTEX_TYPE);
-#  else
-	pthread_mutexattr_settype(&attr, Q_RECURSIVE_MUTEX_TYPE);
-#  endif
-#endif
-
-    } else {
-
-#if defined(Q_NORMAL_MUTEX_TYPE)
-#  if defined(Q_USE_PTHREAD_MUTEX_SETKIND)
-	pthread_mutexattr_setkind_np(&attr, Q_NORMAL_MUTEX_TYPE);
-#  else
-	pthread_mutexattr_settype(&attr, Q_NORMAL_MUTEX_TYPE);
-#  endif
-#endif
-
-    }
-
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_mutex_init( &mutex, &attr );
-
-    pthread_mutexattr_destroy(&attr);
-
-#ifdef CHECK_RANGE
-    if( ret )
-	qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
-#endif
-}
-
-
-QMutexPrivate::~QMutexPrivate()
-{
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_mutex_destroy( &mutex );
-
-#ifdef CHECK_RANGE
-    if ( ret )
-	qWarning( "QMutex::~QMutex: destroy failure: %s", strerror( ret ) );
-#endif
-}
-
-
-void QMutexPrivate::lock()
-{
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_mutex_lock(&mutex);
-
-#ifdef CHECK_RANGE
-    if (ret)
-	qWarning("QMutex::lock: mutex lock failure: %s", strerror(ret));
-#endif
-}
-
-
-void QMutexPrivate::unlock()
-{
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_mutex_unlock(&mutex);
-
-#ifdef CHECK_RANGE
-    if (ret)
-	qWarning("QMutex::unlock: mutex unlock failure: %s", strerror(ret));
-#endif
-}
-
-
-bool QMutexPrivate::locked()
-{
-    int ret = pthread_mutex_trylock(&mutex);
-
-    if (ret == EBUSY) {
-	return TRUE;
-    } else if (ret) {
-#ifdef CHECK_RANGE
-	qWarning("QMutex::locked: try lock failed: %s", strerror(ret));
-#endif
-    } else {
-	pthread_mutex_unlock(&mutex);
-    }
-
-    return FALSE;
-}
-
-
-class QRMutexPrivate : public QMutexPrivate
-{
-public:
-    QRMutexPrivate();
-
-#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
-    int type() const { return Q_MUTEX_RECURSIVE; }
-#endif
-
-#ifndef Q_HAS_RECURSIVE_MUTEX
-    ~QRMutexPrivate();
-
-    void lock();
-    void unlock();
-    bool locked();
-
-    int count;
-    HANDLE owner;
-    pthread_mutex_t mutex2;
-#endif
-};
-
-
-QRMutexPrivate::QRMutexPrivate()
-    : QMutexPrivate(TRUE)
-{
-#ifndef Q_HAS_RECURSIVE_MUTEX
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-
-#  ifdef CHECK_RANGE
-    int ret =
-#  endif
-	pthread_mutex_init( &mutex2, &attr );
-
-    pthread_mutexattr_destroy(&attr);
-
-#  ifdef CHECK_RANGE
-    if( ret )
-	qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
-#  endif
-
-    count = 0;
-#endif
-}
-
-
-#ifndef Q_HAS_RECURSIVE_MUTEX
-
-QRMutexPrivate::~QRMutexPrivate()
-{
-#  ifdef CHECK_RANGE
-    int ret =
-#  endif
-	pthread_mutex_destroy(&mutex2);
-
-#  ifdef CHECK_RANGE
-    if( ret )
-	qWarning( "QMutex::QMutex: destroy failure: %s", strerror( ret ) );
-#  endif
-
-}
-
-void QRMutexPrivate::lock()
-{
-    pthread_mutex_lock(&mutex2);
-
-    if(count > 0 && owner == QThread::currentThread()) {
-	count++;
-    } else {
-	pthread_mutex_unlock(&mutex2);
-	QMutexPrivate::lock();
-	pthread_mutex_lock(&mutex2);
-
-	count = 1;
-	owner = QThread::currentThread();
-    }
-
-    pthread_mutex_unlock(&mutex2);
-}
-
-
-void QRMutexPrivate::unlock()
-{
-    pthread_mutex_lock(&mutex2);
-
-    if (owner != QThread::currentThread()) {
-#ifdef CHECK_RANGE
-	qWarning("QMutex::unlock: unlock from different thread than locker");
-	qWarning("                was locked by %d, unlock attempt from %d",
-		 owner, QThread::currentThread());
-	pthread_mutex_unlock(&mutex2);
-#endif
-
-	return;
-    }
-
-    // do nothing if the count is already 0... to reflect the behaviour described
-    // in the docs
-    if (count && (--count) < 1) {
-	QMutexPrivate::unlock();
-	count=0;
-    }
-
-    pthread_mutex_unlock(&mutex2);
-}
-
-
-bool QRMutexPrivate::locked()
-{
-    pthread_mutex_lock(&mutex2);
-    bool ret = QMutexPrivate::locked();
-    pthread_mutex_unlock(&mutex2);
-
-    return ret;
-}
-
-#endif
 
 
 /*!
@@ -601,114 +293,6 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 */
 
 
-class QThreadPrivate {
-public:
-    QThreadPrivate();
-    ~QThreadPrivate();
-
-    void init(QThread *);
-
-    pthread_t thread_id;
-
-    QWaitCondition thread_done;      // Used for QThread::wait()
-
-    bool finished, running;
-
-    static void internalRun(QThread *);
-};
-
-
-extern "C" {
-    static void * start_thread(void * t)
-    {
-	QThreadPrivate::internalRun( (QThread *) t );
-	return 0;
-    }
-
-    void destruct_dummy(void *)
-    {
-    }
-}
-
-
-static QMutex *dictMutex = 0;
-#ifdef QWS
-static QPtrDict<QThread> *thrDict = 0;
-#else
-static QIntDict<QThread> *thrDict = 0;
-#endif
-
-QThreadPrivate::QThreadPrivate()
-    : thread_id(0), finished(FALSE), running(FALSE)
-{
-    if (! dictMutex)
-	dictMutex = new QMutex;
-    if (! thrDict)
-#ifdef QWS
-	thrDict = new QPtrDict<QThread>;
-#else
-	thrDict = new QIntDict<QThread>;
-#endif
-}
-
-
-QThreadPrivate::~QThreadPrivate()
-{
-    dictMutex->lock();
-    if (thread_id)
-	thrDict->remove((HANDLE) thread_id);
-    dictMutex->unlock();
-
-    thread_id = 0;
-}
-
-
-void QThreadPrivate::init(QThread *that) {
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
-    pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-
-    int ret = pthread_create( &thread_id, &attr, start_thread, (void *) that );
-
-    pthread_attr_destroy(&attr);
-
-    if ( ret ) {
-#ifdef CHECK_RANGE
-	qWarning("QThread::start: thread creation error: %s", strerror(ret));
-#endif
-
-       	return;
-    }
-}
-
-
-void QThreadPrivate::internalRun( QThread *that )
-{
-    dictMutex->lock();
-    thrDict->insert(QThread::currentThread(), that);
-    dictMutex->unlock();
-
-    that->d->running = TRUE;
-    that->d->finished = FALSE;
-
-    that->run();
-
-    dictMutex->lock();
-
-    QThread *there = thrDict->find(QThread::currentThread());
-    if (there) {
-	there->d->running = FALSE;
-	there->d->finished = TRUE;
-
-	there->d->thread_done.wakeAll();
-    }
-
-    thrDict->remove(QThread::currentThread());
-    dictMutex->unlock();
-}
-
-
 /*!
   This returns the thread ID of the currently executing thread.  The
   handle returned by this function is used for internal reasons and
@@ -716,7 +300,11 @@ void QThreadPrivate::internalRun( QThread *that )
 */
 HANDLE QThread::currentThread()
 {
+#if defined(_OS_SOLARIS_)
+    return (HANDLE) thr_self();
+#else
     return (HANDLE) pthread_self();
+#endif
 }
 
 
@@ -811,7 +399,11 @@ void QThread::exit()
 
     dictMutex->unlock();
 
+#if defined(_OS_SOLARIS_)
+    thr_exit(0);
+#else
     pthread_exit(0);
+#endif
 }
 
 
@@ -972,52 +564,6 @@ bool QThread::running() const
 */
 
 
-/**************************************************************************
- ** QWaitConditionPrivate
- *************************************************************************/
-
-class QWaitConditionPrivate {
-public:
-    pthread_cond_t cond;
-    QMutex mutex;
-
-    QWaitConditionPrivate();
-    ~QWaitConditionPrivate();
-};
-
-
-QWaitConditionPrivate::QWaitConditionPrivate()
-{
-    pthread_condattr_t cattr;
-    pthread_condattr_init(&cattr);
-
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_cond_init(&cond, &cattr);
-
-    pthread_condattr_destroy(&cattr);
-
-#ifdef CHECK_RANGE
-    if( ret )
-	qWarning( "QWaitCondition::QWaitCondition: event init failure %s", strerror( ret ) );
-#endif
-}
-
-QWaitConditionPrivate::~QWaitConditionPrivate()
-{
-    int ret = pthread_cond_destroy(&cond);
-    if( ret ) {
-#ifdef CHECK_RANGE
-	qWarning( "QWaitCondition::~QWaitCondition: event destroy failure %s", strerror( ret ) );
-#endif
-
-	// seems we have threads waiting on us, lets wake them up
-	pthread_cond_broadcast(&cond);
-    }
-}
-
-
 /*!
   Constructs a new event signalling object.
 */
@@ -1052,26 +598,7 @@ QWaitCondition::~QWaitCondition()
 */
 bool QWaitCondition::wait(unsigned long time)
 {
-    d->mutex.lock();
-
-    int ret;
-    if (time != ULONG_MAX) {
-	timespec ti;
-	ti.tv_sec = (time / 1000);
-	ti.tv_nsec = (time % 1000) * 1000000;
-
-	ret = pthread_cond_timedwait(&(d->cond), &(d->mutex.d->mutex), &ti);
-    } else {
-	ret = pthread_cond_wait ( &(d->cond), &(d->mutex.d->mutex) );
-    }
-
-    d->mutex.unlock();
-
-#ifdef CHECK_RANGE
-    if( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
-#endif
-
-    return (ret == 0);
+    return d->wait(time);
 }
 
 
@@ -1098,66 +625,7 @@ bool QWaitCondition::wait(unsigned long time)
 */
 bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
-    if (! mutex) return FALSE;
-
-#ifdef CHECK_RANGE
-    if (mutex->d->type() == Q_MUTEX_RECURSIVE)
-	qWarning("QWaitCondition::unlockAndWait: warning - using recursive mutexes with\n"
-		 "                             conditions undefined!");
-#endif
-
-#ifndef Q_HAS_RECURSIVE_MUTEX
-    int c = 0;
-    HANDLE id = 0;
-
-    if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
-	QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
-	pthread_mutex_lock(&(rmp->mutex2));
-
-	if (! rmp->count) {
-#  ifdef CHECK_RANGE
-	    qWarning("QWaitCondition::unlockAndWait: recursive mutex not locked!");
-#  endif
-
-	    return FALSE;
-	}
-
-	c = rmp->count;
-	id = rmp->owner;
-
-	rmp->count = 0;
-	rmp->owner = 0;
-
-	pthread_mutex_unlock(&(rmp->mutex2));
-    }
-#endif
-
-    int ret;
-    if (time != ULONG_MAX) {
-	timespec ti;
-	ti.tv_sec = (time / 1000);
-	ti.tv_nsec = (time % 1000) * 1000000;
-
-	ret = pthread_cond_timedwait(&(d->cond), &(mutex->d->mutex), &ti);
-    } else {
-	ret = pthread_cond_wait ( &(d->cond), &(mutex->d->mutex) );
-    }
-
-#ifndef Q_HAS_RECURSIVE_MUTEX
-    if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
-	QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
-	pthread_mutex_lock(&(rmp->mutex2));
-	rmp->count = c;
-	rmp->owner = id;
-	pthread_mutex_unlock(&(rmp->mutex2));
-    }
-#endif
-
-#ifdef CHECK_RANGE
-    if ( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
-#endif
-
-    return (ret == 0);
+    return d->wait(mutex, time);
 }
 
 
@@ -1170,18 +638,7 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 */
 void QWaitCondition::wakeOne()
 {
-    d->mutex.lock();
-
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_cond_signal( &(d->cond) );
-
-#ifdef CHECK_RANGE
-    if ( ret ) qWarning("QWaitCondition::wakeOne: wake error: %s",strerror(ret));
-#endif
-
-    d->mutex.unlock();
+    d->wakeOne();
 }
 
 
@@ -1194,18 +651,7 @@ void QWaitCondition::wakeOne()
 */
 void QWaitCondition::wakeAll()
 {
-    d->mutex.lock();
-
-#ifdef CHECK_RANGE
-    int ret =
-#endif
-	pthread_cond_broadcast(& (d->cond) );
-
-#ifdef CHECK_RANGE
-    if( ret ) qWarning("QWaitCondition::wakeAll: wake error: %s",strerror(ret));
-#endif
-
-    d->mutex.unlock();
+    d->wakeAll();
 }
 
 
@@ -1245,25 +691,21 @@ public:
     QSemaphorePrivate(int);
     ~QSemaphorePrivate();
 
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
+    QMutex mutex;
+    QWaitCondition cond;
 
     int value, max;
 };
 
 
 QSemaphorePrivate::QSemaphorePrivate(int m)
-    : value(0), max(m)
+    : mutex(FALSE), value(0), max(m)
 {
-    pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&cond, NULL);
 }
 
 
 QSemaphorePrivate::~QSemaphorePrivate()
 {
-    pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&cond);
 }
 
 
@@ -1295,17 +737,17 @@ QSemaphore::~QSemaphore()
 int QSemaphore::operator++(int)
 {
     int ret;
-
-    pthread_mutex_lock( &(d->mutex) );
+    
+    d->mutex.lock();
 
     while (d->value >= d->max)
-	pthread_cond_wait( &(d->cond), &(d->mutex) );
+	d->cond.wait(&(d->mutex));
 
     ++(d->value);
     if (d->value > d->max) d->value = d->max;
     ret = d->value;
 
-    pthread_mutex_unlock( &(d->mutex) );
+    d->mutex.unlock();
 
     return ret;
 }
@@ -1321,15 +763,15 @@ int QSemaphore::operator--(int)
 {
     int ret;
 
-    pthread_mutex_lock( &(d->mutex) );
+    d->mutex.lock();
 
     --(d->value);
     if (d->value < 0) d->value = 0;
     ret = d->value;
 
-    pthread_cond_broadcast( &(d->cond) );
-    pthread_mutex_unlock( &(d->mutex) );
-
+    d->cond.wakeAll();
+    d->mutex.unlock();
+    
     return ret;
 }
 
@@ -1344,11 +786,11 @@ int QSemaphore::operator+=(int n)
 {
     int ret;
 
-    pthread_mutex_lock( &(d->mutex) );
+    d->mutex.lock();
 
     while (d->value + n > d->max)
-	pthread_cond_wait( &(d->cond), &(d->mutex) );
-
+	d->cond.wait(&(d->mutex));
+    
     d->value += n;
 
 #ifdef CHECK_RANGE
@@ -1360,8 +802,8 @@ int QSemaphore::operator+=(int n)
 
     ret = d->value;
 
-    pthread_mutex_unlock( &(d->mutex) );
-
+    d->mutex.unlock();
+    
     return ret;
 }
 
@@ -1373,7 +815,7 @@ int QSemaphore::operator-=(int n)
 {
     int ret;
 
-    pthread_mutex_lock( &(d->mutex) );
+    d->mutex.lock();
 
     d->value -= n;
 
@@ -1386,8 +828,8 @@ int QSemaphore::operator-=(int n)
 
     ret = d->value;
 
-    pthread_cond_signal( &(d->cond) );
-    pthread_mutex_unlock( &(d->mutex) );
+    d->cond.wakeOne();
+    d->mutex.unlock();
 
     return ret;
 }
@@ -1400,9 +842,9 @@ int QSemaphore::operator-=(int n)
 int QSemaphore::available() const {
     int ret;
 
-    pthread_mutex_lock( &(d->mutex) );
+        d->mutex.lock();
     ret = d->max - d->value;
-    pthread_mutex_unlock( &(d->mutex) );
+    d->mutex.unlock();
 
     return ret;
 }
@@ -1414,9 +856,9 @@ int QSemaphore::available() const {
 int QSemaphore::total() const {
     int ret;
 
-    pthread_mutex_lock( &(d->mutex) );
+    d->mutex.lock();
     ret = d->max;
-    pthread_mutex_unlock( &(d->mutex) );
+    d->mutex.unlock();
 
     return ret;
 }
