@@ -560,7 +560,6 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
 
 void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * e )
 {
-    //QPoint pos = e->pos();
     currentIndex = findItem( mousePressPos );
     if ( currentIndex > itemList.count() ) {
 	MenuBarEditorItem * i =

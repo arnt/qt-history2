@@ -1836,10 +1836,6 @@ void AddActionToToolBarCommand::unexecute()
 
 // ------------------------------------------------------------
 
-// MenuCommands
-
-// ------------------------------------------------------------
-
 AddToolBarCommand::AddToolBarCommand( const QString &n, FormWindow *fw, QMainWindow *mw )
     : Command( n, fw ), toolBar( 0 ), mainWindow( mw )
 {
@@ -2013,7 +2009,6 @@ AddActionToPopupCommand::AddActionToPopupCommand( const QString &n,
 void AddActionToPopupCommand::execute()
 {
     menu->insert( item, index );
-    //menu->update();
 }
 
 void AddActionToPopupCommand::unexecute()
@@ -2021,7 +2016,6 @@ void AddActionToPopupCommand::unexecute()
     item->hideMenu();
     int i = menu->find( item->anyAction() );
     menu->remove( i );
-    //menu->update();
 }
 
 // ------------------------------------------------------------
@@ -2079,16 +2073,23 @@ RenameActionCommand::RenameActionCommand( const QString &n,
 
 void RenameActionCommand::execute()
 {
-    action->setMenuText( newName );
-    action->setName( newName );
-    menu->update();
+    QString n = newName;
+    action->setMenuText( n );
+    action->setText( n );
+
+    QObject * o = menu->parent();
+    qDebug( "QObject %p %s %s", o, o->name(), o->className() );
+    MenuBarEditor * e = ( o ? (MenuBarEditor *)o->child( 0, "MenuBarEditor" ) : 0 );
+    int idx = ( e ? e->findItem( menu ) : - 1 );
+    MenuBarEditorItem * i = ( idx > -1 ? e->item( idx ) : 0 );
+    QString m = ( ( !!i ) ? i->menuText() : QString("unknown") );
+    action->setName( m.remove( "&" ).lower() + n.remove( "&" ) + "Action" );
 }
 
 void RenameActionCommand::unexecute()
 {
     action->setMenuText( oldName );
     // FIXME: setName to old name ?
-    menu->update();
 }
 
 // ------------------------------------------------------------
@@ -2105,9 +2106,10 @@ AddMenuCommand::AddMenuCommand( const QString &n,
 				FormWindow *fw,
 				QMainWindow *mw,
 				const QString &nm )
-    : Command( n, fw ), item( 0 ), name( nm ), index( -1 )
+    : Command( n, fw ), bar( 0 ), item( 0 ), name( nm ), index( -1 )
 {
-    bar = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
+    if ( mw )
+	bar = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
 }
 
 void AddMenuCommand::execute()
@@ -2126,7 +2128,6 @@ void AddMenuCommand::execute()
 	bar->insertItem( name, popup, index );
     } else {
 	bar->insertItem( item, index );
-	bar->update();
     }
 }
 
@@ -2135,7 +2136,6 @@ void AddMenuCommand::unexecute()
     item->menu()->hide();
     int i = bar->findItem( item );
     bar->removeItemAt( i );
-    bar->update();
 }
 
 // ------------------------------------------------------------
@@ -2172,7 +2172,6 @@ ExchangeMenuCommand::ExchangeMenuCommand( const QString &n,
 void ExchangeMenuCommand::execute()
 {
     bar->exchange( k, l );
-    bar->update();
 }
 
 void ExchangeMenuCommand::unexecute()
@@ -2196,15 +2195,13 @@ void RenameMenuCommand::execute()
 {
     item->setMenuText( newName );
     QString s = newName;
-    //item->setName( s.remove( '&' ).lower() );
-    bar->update();
+    //item->setName( s.remove( "&" ).lower() );
 }
 
 void RenameMenuCommand::unexecute()
 {
     item->setMenuText( oldName );
     // FIXME: setName to old name ?
-    bar->update();
 }
 
 // ------------------------------------------------------------
