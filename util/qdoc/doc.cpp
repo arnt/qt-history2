@@ -258,6 +258,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     int numBugs = 0;
     bool inValue = FALSE;
     bool inCaption = FALSE;
+    bool inQuote = FALSE;
+    bool inTable = FALSE;
+    bool inHeader = FALSE;
+    int numPendingRows = 1;
+    bool useRowDarkColor = TRUE;
     int headingBegin = -1;
     bool metNL = FALSE; // never met N.L.
     int begin;
@@ -340,11 +345,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKindHasToBe( Doc::Fn, command );
 		}
 		break;
-	    case HASH( 'a', 3 ):
-		CONSUME( "arg" );
-		warning( 1, location(),
-			 "Command '\\arg' is not supported, use '\\a'" );
-		break;
 	    case HASH( 'b', 3 ):
 		// see also \value
 		CONSUME( "bug" );
@@ -411,10 +411,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += openCaption;
 		inCaption = TRUE;
 		break;
-	    case HASH( 'd', 6 ):
-		CONSUME( "define" );
-		getWord( yyIn, yyPos );
-		break;
 	    case HASH( 'd', 8 ):
 		CONSUME( "defgroup" );
 		groupName = getWord( yyIn, yyPos );
@@ -461,27 +457,27 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		} else if ( command[5] == QChar('o') ) {
 		    CONSUME( "endomit" );
 		    warning( 2, location(), "Missing '\\omit'" );
-		} else if ( command[5] == QChar('s') ) {
+		} else {
 		    CONSUME( "endlist" );
 		    if ( openedLists.isEmpty() )
 			warning( 2, location(), "Missing '\\list'" );
 		    else
 			yyOut += openedLists.pop().endHtml();
-		} else {
-#if 1
-		    CONSUME( "example" );
-		    warning( 2, location(),
-			     "Command '%s' has been renamed '%s'", "\\example",
-			     "\\file" );
-		    fileName = getWord( yyIn, yyPos );
-		    skipRestOfLine( yyIn, yyPos );
-		    setKind( Doc::Example, command );
-#endif
 		}
 		break;
 	    case HASH( 'e', 8 ):
-		CONSUME( "endquote" );
-		yyOut += QString( "</blockquote>" );
+		if ( command[4] == QChar('q') ) {
+		    CONSUME( "endquote" );
+		    yyOut += QString( "</blockquote>" );
+		} else {
+		    CONSUME( "endtable" );
+		    if ( inTable ) {
+			yyOut += QString( "</table></center>" );
+			inTable = FALSE;
+		    } else {
+			warning( 2, location(), "Missing '\\table'" );
+		    }
+		}
 		break;
 	    case HASH( 'e', 9 ):
 		CONSUME( "extension" );
@@ -537,12 +533,24 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case HASH( 'h', 6 ):
 		CONSUME( "header" );
+		if ( inTable ) {
+		    if ( numPendingRows > 0 )
+			numPendingRows--;
+		    yyOut += QString( "<tr bgcolor=\"#a2c511\">" );
+		    inHeader = TRUE;
+		} else {
+		    warning( 2, location(),
+			     "Command '\\header' outside '\\table'" );
+		}
+		break;
+	    case HASH( 'h', 10 ):
+		CONSUME( "headerfile" );
 		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
 		if ( x.isEmpty() ) {
 		    warning( 2, location(),
-			     "Expected file name after '\\header'" );
+			     "Expected file name after '\\headerfile'" );
 		} else {
 		    headers.insert( x );
 		    setKindHasToBe( Doc::Class, command );
@@ -551,7 +559,30 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case HASH( 'i', 1 ):
 		CONSUME( "i" );
 		if ( openedLists.isEmpty() ) {
-		    warning( 2, location(), "Command '\\i' outside '\\list'" );
+		    if ( inTable ) {
+			int numCols = 1;
+			int numRows = 1;
+
+			skipSpaces( yyIn, yyPos );
+
+			yyOut += QString( "<t%1 valign=\"top\"" )
+				 .arg( inHeader ? "h" : "d" );
+			if ( yyPos + 1 < (int) yyIn.length() &&
+			     (numCols = yyIn[yyPos].digitValue()) > 0 &&
+			     (numRows = yyIn[yyPos + 1].digitValue()) > 0 ) {
+			    getWord( yyIn, yyPos );
+			    yyOut += QString( " colspan=\"%1\"" )
+				     .arg( numCols );
+			    yyOut += QString( " rowspan=\"%1\"" )
+				     .arg( numRows );
+			    numPendingRows = QMAX( numPendingRows,
+						   numRows - 1 );
+			}
+			yyOut += QChar( '>' );
+		    } else {
+			warning( 2, location(),
+				 "Met '\\i' outside '\\list' or '\\table'" );
+		    }
 		} else {
 		    yyOut += openedLists.top().itemHtml();
 		}
@@ -818,15 +849,18 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case HASH( 'q', 5 ):
 		CONSUME( "quote" );
-		yyOut += QString( "<blockquote>" );
+		if ( inQuote ) {
+		    warning( 2, location(), "Cannot nest '\\quote' commands" );
+		} else {
+		    yyOut += QString( "<blockquote>" );
+		    inQuote = TRUE;
+		}
 		break;
 #if 1 // ###
 	    case HASH( 'w', 11 ):
 		CONSUME( "walkthrough" );
-#if 0
 		warning( 2, location(), "Command '%s' has been renamed '%s'",
 			 "\\walkthrough", "\\quotefile" );
-#endif
 		command = QString( "quotefile" );
 		// fall through
 #endif
@@ -844,6 +878,23 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    walk.startPass1( x, Doc::resolver() );
 		}
 		yyOut += QString( "\\quotefile " ) + x + QChar( '\n' );
+		break;
+	    case HASH( 'r', 3 ):
+		// see also \header
+		CONSUME( "row" );
+		if ( inTable ) {
+		    if ( numPendingRows > 0 ) {
+			numPendingRows--;
+		    } else {
+			useRowDarkColor = !useRowDarkColor;
+		    }
+		    inHeader = FALSE;
+		    yyOut += QString( "<tr bgcolor=\"%1\">" )
+			     .arg( useRowDarkColor ? "#f0f0f0" : "#d0d0d0" );
+		} else {
+		    warning( 2, location(),
+			     "Command '\\row' outside '\\table'" );
+		}
 		break;
 	    case HASH( 'r', 5 ):
 		CONSUME( "reimp" );
@@ -928,8 +979,20 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\skipuntil " ) + substr + QChar( '\n' );
 		break;
 	    case HASH( 't', 5 ):
-		CONSUME( "title" );
-		title = getRestOfParagraph( yyIn, yyPos );
+		if ( command[1] == QChar('a') ) {
+		    CONSUME( "table" );
+		    if ( inTable ) {
+			warning( 2, location(),
+				 "Cannot nest '\\table' commands" );
+		    } else {
+			yyOut += QString( "<center><table cellpadding=\"4\""
+					  " cellspacing=\"2\" border=\"0\">" );
+			inTable = TRUE;
+		    }
+		} else {
+		    CONSUME( "title" );
+		    title = getRestOfParagraph( yyIn, yyPos );
+		}
 		break;
 	    case HASH( 't', 6 ):
 		CONSUME( "target" );
@@ -1042,6 +1105,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	yyOut += QString( "</ul>" );
     if ( inCaption )
 	yyOut += closeCaption;
+    if ( inQuote )
+    	warning( 2, location(), "Missing '\\endquote'" );
+    if ( inTable )
+	warning( 2, location(), "Missing '\\endtable'" );
     if ( headingBegin != -1 )
 	warning( 2, location(), "Trailing '\\section'" );
 
@@ -1298,16 +1365,16 @@ QStringList DocParser::getStringList()
 bool DocParser::somethingAheadPreventingNewParagraph()
 {
     int pos = yyPos;
-    bool something = FALSE;
 
     skipSpaces( yyIn, pos );
     if ( pos < yyLen - 4 ) {
 	QString lookahead = yyIn.mid( pos, 4 );
 	if ( lookahead == QString("<li>") || lookahead == QString("\\bug") ||
+	     lookahead == QString("\\hea") || lookahead == QString("\\row") ||
 	     lookahead == QString("\\val") )
-	    something = TRUE;
+	    return TRUE;
     }
-    return something;
+    return FALSE;
 }
 
 bool DocParser::valueIsDocumented()
@@ -1861,7 +1928,7 @@ QString Doc::htmlCompactList( const QMap<QString, QString>& list )
 		QMap<QString, QString>::Iterator first;
 		first = paragraph[currentParagraphNo[i]].begin();
 
-		html += QString( "<td>%1\n" ).arg( href(*first) );
+		html += QString( "<td width=\"3%\">%1\n" ).arg( href(*first) );
 		if ( classext.contains(*first) )
 		    html += QChar( '*' );
 

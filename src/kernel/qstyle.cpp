@@ -74,24 +74,24 @@ public:
   the QStyle functions to see the meaning of the arguments.
 
   When calling QStyle functions from your own widgets, you must only
-  pass either the default QStyleOption, or the argument that QStyle
+  pass either the default QStyleOption or the argument that QStyle
   is documented to accept. For example, if the function expects
-  QStyleOption(QMenuItem*,int), you must not pass QStyleOption(QMenuItem*),
-  and the optional integer would then be uninitialized.
+  QStyleOption(QMenuItem *, int), passing QStyleOption(QMenuItem *)
+  leaves the optional integer argument uninitialized.
 
-  When making your own QStyle subclass, you must similarly only expect the
-  default or documented argument - the other arguments will have
-  uninitialized values.
+  When subclassing QStyle, you must similarly only expect the default
+  or documented arguments. The other arguments will have uninitialized
+  values.
 
-  If you make your own QStyle subclasses and your own widgets, you can
-  make a subclass of QStyleOption in order to pass additional arguments
-  to your QStyle subclass (of course, you'll need to cast the
-  "const QStyleOption&" argument to your subclass, so be sure your style
-  has been called from your widget!
+  If you make your own QStyle subclasses and your own widgets, you
+  can make a subclass of QStyleOption to pass additional arguments to
+  your QStyle subclass. You will need to cast the "const
+  QStyleOption&" argument to your subclass, so be sure your style has
+  been called from your widget.
 */
 
 /*!
-  \fn QStyleOption::QStyleOption(StyleOptionDefault=Default)
+  \fn QStyleOption::QStyleOption(StyleOptionDefault)
 
   The default option. This can always be passed as the optional argument
   to QStyle functions.
@@ -614,72 +614,62 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   even for PrimitiveElements that make use of extra options. When \a opt
   is non-default, it is used as follows:
 
-<center>
-<table cellpadding=4 cellspacing=2 border=0>
-<tr bgcolor=#A2C511>
-<th>PrimitiveElement</th>
-<th>Options</th>
-<th>Notes</th>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top><b>PE_FocusRect</b></td>
-<td valign=top>QStyleOption(const QColor& bg)</td>
-<td valign=top>\e bg is the background color on which the focus rect is being drawn.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=2 valign=top><b>PE_Panel</b></td>
-<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
-	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
-<td valign=top>\e linewidth is the line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=2 valign=top><b>PE_PanelPopup</b></td>
-<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
-	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
-<td valign=top>\e linewidth is the line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=2 valign=top><b>PE_PanelMenuBar</b></td>
-<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
-	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
-<td valign=top>\e linewidth is the line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=2 valign=top><b>PE_PanelDockWindow</b></td>
-<td rowspan=2 valign=top>QStyleOption(int linewidth, int midlinewidth)
-	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink</td>
-<td valign=top>\e linewidth is the line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>\e midlinewidth is the mid-line width for drawing the panel.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top rowspan=4><b>PE_GroupBoxFrame</b></td>
-<td rowspan=4 valign=top>QStyleOption(int linewidth, int midlinewidth, int shape, int shadow)
-	<p>opt.\link QStyleOption::lineWidth() lineWidth()\endlink <p>opt.\link QStyleOption::midLineWidth() midLineWidth()\endlink
-	<p>opt.\link QStyleOption::frameShape() frameShape()\endlink <p>opt.\link QStyleOption::frameShadow() frameShadow()\endlink</td>
-<td valign=top>\e linewidth is the line width for the group box.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>\e midlinewidth is the mid-line width for the group box.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>\e shape is the frame shape for the group box.  See QFrame.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>\e shadow is the frame shadow for the group box.</td>
-</tr>
-</table>
-</center>
+  \table
+  \header \i PrimitiveElement \i Options \i Notes
+  \row \i \l PE_FocusRect
+       \i \l QStyleOption ( const \l QColor & bg )
+	  \list
+	  \i opt.\link QStyleOption::color() color\endlink()
+	  \endlist
+       \i \e bg is the background color on which the focus rect is being drawn.
+  \row \i12 \l PE_Panel
+       \i12 \l QStyleOption ( int linewidth, int midlinewidth )
+	    \list
+	    \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+	    \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+	    \endlist
+       \i \e linewidth is the line width for drawing the panel.
+  \row \i \e midlinewidth is the mid-line width for drawing the panel.
+  \row \i12 \l PE_PanelPopup
+       \i12 \l QStyleOption ( int linewidth, int midlinewidth )
+	    \list
+	    \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+	    \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+	    \endlist
+       \i \e linewidth is the line width for drawing the panel.
+  \row \i \e midlinewidth is the mid-line width for drawing the panel.
+  \row \i12 \l PE_PanelMenuBar
+       \i12 \l QStyleOption ( int linewidth, int midlinewidth )
+	    \list
+	    \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+	    \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+	    \endlist
+       \i \e linewidth is the line width for drawing the panel.
+  \row \i \e midlinewidth is the mid-line width for drawing the panel.
+  \row \i12 \l PE_PanelDockWindow
+       \i12 \l QStyleOption ( int linewidth, int midlinewidth )
+	    \list
+	    \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+	    \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+	    \endlist
+       \i \e linewidth is the line width for drawing the panel.
+  \row \i \e midlinewidth is the mid-line width for drawing the panel.
+  \row \i14 \l PE_GroupBoxFrame
+       \i14 \l QStyleOption ( int linewidth, int midlinewidth, int shape, int shadow )
+	    \list
+	    \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+	    \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+	    \i opt.\link QStyleOption::frameShape() frameShape\endlink()
+	    \i opt.\link QStyleOption::frameShadow() frameShadow\endlink()
+	    \endlist
+       \i \e linewidth is the line width for the group box.
+  \row \i \e midlinewidth is the mid-line width for the group box.
+  \row \i \e shape is the \link QFrame::frameShape frame shape \endlink
+	  for the group box.
+  \row \i \e shadow is the \link QFrame::frameShadow frame shadow \endlink
+	  for the group box.
+  \endtable
+
 
   For all other \link QStyle::PrimitiveElement
   PrimitiveElements\endlink, \a opt is unused.
@@ -746,330 +736,185 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   of the extra options.  See the table below for the appropriate \a
   widget and \a opt usage:
 
-<center>
-<table cellpadding=4 cellspacing=2 border=0>
-<tr bgcolor=#A2C511>
-<th>ControlElement<br>&amp; Widget Cast</th>
-<th>Style Flags</th>
-<th>Notes</th>
-<th>Options</th>
-<th>Notes</th>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=6 valign=top><b>CE_PushButton</b><br>const QPushButton *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the button is enabled.</td>
-<td rowspan=6 valign=top>unused</td>
-<td rowspan=6 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the button has input focus.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Raised
-<td valign=top>set if the button is not down, not on and not flat.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the button is a toggle button and toggled on.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the button is down (ie. mouse button or space pressed on
-    the button).</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_ButtonDefault</td>
-<td valign=top>set if the button a default button.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=6 valign=top><b>CE_PushButtonLabel</b><br>const QPushButton *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the button is enabled.</td>
-<td rowspan=6 valign=top>unused</td>
-<td rowspan=6 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the button has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Raised
-<td valign=top>set if the button is not down, not on and not flat.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the button is a toggle button and toggled on.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the button is down (ie. mouse button or space pressed on
-    the button).</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_ButtonDefault</td>
-<td valign=top>set if the button a default button.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=6 valign=top><b>CE_CheckBox</b><br>const QCheckBox *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the checkbox is enabled.</td>
-<td rowspan=6 valign=top>unused</td>
-<td rowspan=6 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the checkbox has input focus.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the checkbox is checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Off</td>
-<td valign=top>set if the checkbox is not checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_NoChange</td>
-<td valign=top>set if the checkbox is in the NoChange state.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the checkbox is down (ie. mouse button or space pressed on
-    the button).</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=6 valign=top><b>CE_CheckboxLabel</b><br>const QCheckBox *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the checkbox is enabled.</td>
-<td rowspan=6 valign=top>unused</td>
-<td rowspan=6 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the checkbox has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the checkbox is checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Off</td>
-<td valign=top>set if the checkbox is not checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_NoChange</td>
-<td valign=top>set if the checkbox is in the NoChange state.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the checkbox is down (ie. mouse button or space pressed on
-    the button).</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=5 valign=top><b>CE_RadioButton</b><br>const QRadioButton *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the radiobutton is enabled.</td>
-<td rowspan=5 valign=top>unused</td>
-<td rowspan=5 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the radiobutton has input focus.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the radiobutton is checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Off</td>
-<td valign=top>set if the radiobutton is not checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the radiobutton is down (ie. mouse button or space pressed on
-    the button).</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=5 valign=top><b>CE_RadioButtonLabel</b><br>const QRadioButton *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the radiobutton is enabled.</td>
-<td rowspan=5 valign=top>unused</td>
-<td rowspan=5 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the radiobutton has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the radiobutton is checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Off</td>
-<td valign=top>set if the radiobutton is not checked.</td>
-</tr>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the radiobutton is down (ie. mouse button or space pressed on
-    the button).</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=2 valign=top><b>CE_TabBarTab</b><br>const QTabBar *</td></td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set is the tabbar and tab is enabled.</td>
-<td valign=top>QStyleOption(QTab *t)
-	<p>opt.\link QStyleOption::tab() tab()\endlink</td>
-<td valign=top>\e t is the QTab being drawn.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Selected</td>
-<td valign=top>set is the tab is selected (ie. the current tab).</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=2 valign=top><b>CE_TabBarLabel</b><br>const QTabBar *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set is the tabbar and tab is enabled.</td>
-<td valign=top>QStyleOption(QTab *t)
-        <p>opt.\link QStyleOption::tab() tab()\endlink</td>
-<td valign=top>\e t is the QTab being drawn.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set is the tab has input focus.</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=2 valign=top><b>CE_ProgressBarGroove</b><br>const QProgressBar *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set is the progressbar is enabled.</td>
-<td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set is the progressbar has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=2 valign=top><b>CE_ProgressBarContents</b><br>const QProgressBar *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set is the progressbar is enabled.</td>
-<td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set is the progressbar has input focus.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan= 2 valign=top><b>CE_ProgressBarLabel</b><br>const QProgressBar *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set is the progressbar is enabled.</td>
-<td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set is the progressbar has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top rowspan=3><b>CE_PopupMenuItem</b><br>const QPopupMenu *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the menuitem is enabled</td>
-<td rowspan=3 valign=top>QStyleOption(QMenuItem *mi, int tabwidth, int maxpmwidth)
-	<p>opt.\link QStyleOption::menuItem() menuItem()\endlink
-	<p>opt.\link QStyleOption::tabWidth() tabWidth()\endlink
-	<p>opt.\link QStyleOption::maxIconWidth() maxIconWidth()\endlink</td>
-<td valign=top>\e mi is the menu item being drawn.
-QMenuItem is currently an internal class.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Active</td>
-<td valign=top>set if the menuitem is active (ie. the current item).</td>
-<td valign=top>\e tabwidth is the width of the tab column where key accelerators are drawn.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the menuitem is down (ie. mouse button or space pressed).</td>
-<td valign=top>\e maxpmwidth is the maximum width of the check column where checkmarks and iconsets
-are drawn.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=4 valign=top><b>CE_MenuBarItem</b><br>const QMenuBar *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the menuitem is enabled</td>
-<td valign=top>QStyleOption(QMenuItem *mi)
-	<p>opt.\link QStyleOption::menuItem() menuItem()\endlink</td>
-<td valign=top>\e mi is the menu item being drawn.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Active</td>
-<td valign=top>set if the menuitem is active (ie. the current item).</td>
-<td rowspan=3>&nbsp;</td>
-<td rowspan=3>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the menuitem is down (ie. mouse button or space pressed).</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the menubar has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top rowspan=7><b>CE_ToolButtonLabel</b><br>const QToolButton *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the toolbutton is enabled.</td>
-<td valign=top>QStyleOption(ArrowType t)
-	<p>opt.\link QStyleOption::arrowType() arrowType()\endlink</td>
-<td valign=top>when the tool button only contains an arrow, \e t is the
-    arrow's type.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the toolbutton has input focus.</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the toolbutton is a toggle button and is toggled on.</td>
-<td valign=top rowspan=4>&nbsp;</td>
-<td valign=top rowspan=4>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_AutoRaise</td>
-<td valign=top>set if the toolbutton has auto-raise enabled.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_MouseOver</td>
-<td valign=top>set if the mouse pointer is over the toolbutton.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_Raised</td>
-<td valign=top>set if the button is not down, not on and doesn't contain the mouse
-    when auto-raise is enabled.</td>
-</tr>
-</table>
-</center>
+  \table
+  \header \i ControlElement \& Widget Cast
+	  \i Style Flags
+	  \i Notes
+	  \i Options
+	  \i Notes
+
+  \row \i16 \l CE_PushButton
+
+	    (const \l QPushButton *)
+       \i \l Style_Enabled \i Set if the button is enabled.
+       \i16 Unused.
+       \i16 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the button has input focus.
+  \row \i \l Style_Raised \i Set if the button is not down, not on and not flat.
+  \row \i \l Style_On \i Set if the button is a toggle button and toggled on.
+  \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
+			   space bar is pressed on the button).
+  \row \i \l Style_ButtonDefault \i Set if the button a default button.
+
+  \row \i16 \l CE_PushButtonLabel
+
+	    (const QPushButton *)
+       \i \l Style_Enabled \i Set if the button is enabled.
+       \i16 Unused.
+       \i16 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the button has input focus.
+  \row \i \l Style_Raised \i Set if the button is not down, not on and not flat.
+  \row \i \l Style_On \i Set if the button is a toggle button and toggled on.
+  \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
+			   space bar is pressed on the button).
+  \row \i \l Style_ButtonDefault \i Set if the button a default button.
+  \row \i16 \l CE_CheckBox
+
+	    (const \l QCheckBox *)
+       \i \l Style_Enabled \i Set if the checkbox is enabled.
+       \i16 Unused.
+       \i16 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the checkbox has input focus.
+  \row \i \l Style_On \i Set if the checkbox is checked.
+  \row \i \l Style_Off \i Set if the checkbox is not checked.
+  \row \i \l Style_NoChange \i Set if the checkbox is in the NoChange state.
+  \row \i \l Style_Down \i Set if the checkbox is down (i.e., the mouse button or
+			   space bar is pressed on the button).
+
+  \row \i16 \l CE_CheckBoxLabel
+
+	    (const \l QCheckBox *)
+       \i \l Style_Enabled \i Set if the checkbox is enabled.
+       \i16 Unused.
+       \i16 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the checkbox has input focus.
+  \row \i \l Style_On \i Set if the checkbox is checked.
+  \row \i \l Style_Off \i Set if the checkbox is not checked.
+  \row \i \l Style_NoChange \i Set if the checkbox is in the NoChange state.
+  \row \i \l Style_Down \i Set if the checkbox is down (i.e., the mouse button
+			   or the space is pressed on the checkbox).
+
+  \row \i15 \l CE_RadioButton
+
+	    (const QRadioButton *)
+       \i \l Style_Enabled \i Set if the radiobutton is enabled.
+       \i15 Unused.
+       \i15 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the radiobutton has input focus.
+  \row \i \l Style_On \i Set if the radiobutton is checked.
+  \row \i \l Style_Off \i Set if the radiobutton is not checked.
+  \row \i \l Style_Down \i Set if the radiobutton is down (i.e., the mouse
+			   button or space bar is pressed on the radiobutton).
+
+  \row \i15 \l CE_RadioButtonLabel
+
+	    (const QRadioButton *)
+       \i \l Style_Enabled \i Set if the radiobutton is enabled.
+       \i15 Unused.
+       \i15 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the radiobutton has input focus.
+  \row \i \l Style_On \i Set if the radiobutton is checked.
+  \row \i \l Style_Off \i Set if the radiobutton is not checked.
+  \row \i \l Style_Down \i Set if the radiobutton is down (i.e., the mouse
+			   button or space bar is pressed on the radiobutton).
+
+  \row \i12 \l CE_TabBarTab
+
+	    (const \l QTabBar *)
+       \i \l Style_Enabled \i Set is the tabbar and tab is enabled.
+       \i12 \l QStyleOption ( \l QTab *t )
+	    \list
+	    \i opt.\link QStyleOption::tab() tab\endlink()
+	    \endlist
+       \i12 \e t is the QTab being drawn.
+  \row \i \l Style_Selected \i Set is the tab is the current tab.
+
+  \row \i12 \l CE_TabBarLabel
+
+	    (const \l QTabBar *)
+       \i \l Style_Enabled \i Set is the tabbar and tab is enabled.
+       \i12 \l QStyleOption ( \l QTab *t )
+	    \list
+	    \i opt.\link QStyleOption::tab() tab\endlink()
+	    \endlist
+       \i12 \e t is the QTab being drawn.
+  \row \i \l Style_HasFocus \i Set is the tab has input focus.
+
+  \row \i12 \l CE_ProgressBarGroove
+
+	    (const QProgressBar *)
+       \i \l Style_Enabled \i Set is the progressbar is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+  \row \i \l Style_HasFocus \i Set is the progressbar has input focus.
+
+  \row \i12 \l CE_ProgressBarContents
+
+	    (const \l QProgressBar *)
+       \i \l Style_Enabled \i Set is the progressbar is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+  \row \i \l Style_HasFocus \i Set is the progressbar has input focus.
+
+  \row \i12 \l CE_ProgressBarLabel
+	    (const \l QProgressBar *)
+       \i \l Style_Enabled \i Set is the progressbar is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+  \row \i \l Style_HasFocus \i Set is the progressbar has input focus.
+
+  \row \i13 \l CE_PopupMenuItem
+
+	    (const \l QPopupMenu *)
+       \i \l Style_Enabled \i Set if the menuitem is enabled.
+       \i13 \l QStyleOption ( QMenuItem *mi, int tabwidth, int maxpmwidth )
+	    \list
+	    \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+	    \i opt.\link QStyleOption::tabWidth() tabWidth\endlink()
+	    \i opt.\link QStyleOption::maxIconWidth() maxIconWidth\endlink()
+	    \endlist
+       \i \e mi is the menu item being drawn. QMenuItem is currently an
+	  internal class.
+  \row \i \l Style_Active \i Set if the menuitem is the current item.
+       \i \e tabwidth is the width of the tab column where key accelerators
+          are drawn.
+  \row \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button
+			   or space bar is pressed).
+       \i \e maxpmwidth is the maximum width of the check column where
+	  checkmarks and iconsets are drawn.
+
+  \row \i14 \l CE_MenuBarItem
+
+	    (const \l QMenuBar *)
+       \i \l Style_Enabled \i Set if the menuitem is enabled
+       \i14 \l QStyleOption ( QMenuItem *mi )
+	    \list
+	    \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+	    \endlist
+       \i14 \e mi is the menu item being drawn.
+  \row \i \l Style_Active \i Set if the menuitem is the current item.
+  \row \i \l Style_Down \i Set if the menuitem is down (i.e., a mouse button or
+			   the space bar is pressed).
+  \row \i \l Style_HasFocus \i Set if the menubar has input focus.
+
+  \row \i17 \l CE_ToolButtonLabel
+
+	    (const \l QToolButton *)
+       \i \l Style_Enabled \i Set if the toolbutton is enabled.
+       \i17 \l QStyleOption ( \l ArrowType t )
+	    \list
+	    \i opt.\link QStyleOption::arrowType() arrowType\endlink()
+	    \endlist
+       \i17 When the tool button only contains an arrow, \e t is the arrow's type.
+  \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
+  \row \i \l Style_Down \i Set if the toolbutton is down (i.e., a mouse button or
+			   the space is pressed).
+  \row \i \l Style_On \i Set if the toolbutton is a toggle button and is toggled on.
+  \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+  \row \i \l Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
+  \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
+       contain the mouse when auto-raise is enabled.
+  \endtable
 
   \sa ControlElement, StyleFlags
 */
@@ -1136,75 +981,31 @@ are drawn.</td>
   the value of \a subrect.  See the table below for the appropriate \a
   widget casts:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>SubRect</th>
-      <th>Widget Cast</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_PushButtonContents</b></td>
-      <td valign=top>const QPushButton *</td>
-     </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SR_PushButtonFocusRect</b></td>
-      <td valign=top>const QPushButton *</td>
-     </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_CheckBoxIndicator</b></td>
-      <td valign=top>const QCheckBox *</td>
-     </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SR_CheckBoxContents</b></td>
-      <td valign=top>const QCheckBox *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_CheckBoxFocusRect</b></td>
-      <td valign=top>const QCheckBox *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SR_RadioButtonIndicator</b></td>
-      <td valign=top>const QRadioButton *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_RadioButtonContents</b></td>
-      <td valign=top>const QRadioButton *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SR_RadioButtonFocusRect</b></td>
-      <td valign=top>const QRadioButton *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_ComboBoxFocusRect</b></td>
-      <td valign=top>const QComboBox *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SR_DockWindowHandleRect</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_ProgressBarGroove</b></td>
-      <td valign=top>const QProgressBar *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SR_ProgressBarContents</b></td>
-      <td valign=top>const QProgressBar *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SR_ProgressBarLabel</b></td>
-      <td valign=top>const QProgressBar *</td>
-    </tr>
-  </table>
-  </center>
+  \table
+  \header \i SubRect \i Widget Cast
+  \row \i \l SR_PushButtonContents \i (const \l QPushButton *)
+  \row \i \l SR_PushButtonFocusRect \i (const \l QPushButton *)
+  \row \i \l SR_CheckBoxIndicator \i (const \l QCheckBox *)
+  \row \i \l SR_CheckBoxContents \i (const \l QCheckBox *)
+  \row \i \l SR_CheckBoxFocusRect \i (const \l QCheckBox *)
+  \row \i \l SR_RadioButtonIndicator \i (const \l QRadioButton *)
+  \row \i \l SR_RadioButtonContents \i (const \l QRadioButton *)
+  \row \i \l SR_RadioButtonFocusRect \i (const \l QRadioButton *)
+  \row \i \l SR_ComboBoxFocusRect \i (const \l QComboBox *)
+  \row \i \l SR_DockWindowHandleRect \i (const \l QWidget *)
+  \row \i \l SR_ProgressBarGroove \i (const \l QProgressBar *)
+  \row \i \l SR_ProgressBarContents \i (const \l QProgressBar *)
+  \row \i \l SR_ProgressBarLabel \i (const \l QProgressBar *)
+  \endtable
 
-  \e Note: the tear-off handle (SR_DockWindowHandleRect) for QDockWindow
-  is a private class.  You can gain access to the QDockWindow by using
-  the QWidget::parentWidget() function.  For example:
+  The tear-off handle (SR_DockWindowHandleRect) for QDockWindow
+  is a private class.  Use QWidget::parentWidget() to access the
+  QDockWindow:
 
   \code
-  if (! widget->parentWidget())
-      return;
-  const QDockWindow *dw = (const QDockWindow *) widget->parentWidget();
+    if ( !widget->parentWidget() )
+	return;
+    const QDockWindow *dw = (const QDockWindow *) widget->parentWidget();
   \endcode
 
   \sa SubRect
@@ -1316,118 +1117,80 @@ are drawn.</td>
   can make use of the extra options.  See the table below for the appropriate
   \a widget and \a opt usage:
 
-<center>
-<table cellpadding=4 cellspacing=2 border=0>
-<tr bgcolor=#A2C511>
-<th>ComplexControl<br>&amp; Widget Cast</th>
-<th>Style Flags</th>
-<th>Notes</th>
-<th>Options</th>
-<th>Notes</th>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=2 valign=top><b>CC_SpinWidget</b><br>const QSpinWidget *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the spinwidget is enabled.</td>
-<td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the spinwidget has input focus.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=2 valign=top><b>CC_ComboBox</b><br>const QComboBox *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the combobox is enabled.</td>
-<td rowspan=2 valign=top>unused</td>
-<td rowspan=2 valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the combobox has input focus.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td rowspan=2 valign=top><b>CC_ScrollBar</b><br>const QScrollBar *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the scrollbar is enabled.</td>
-<td valign=top>unused</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the scrollbar has input focus.</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td rowspan=2 valign=top><b>CC_Slider</b><br>const QSlider *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the slider is enabled.</td>
-<td valign=top>unused</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the slider has input focus.</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top rowspan=7><b>CC_ToolButton</b><br>const QToolButton *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the toolbutton is enabled.</td>
-<td valign=top>QStyleOption(ArrowType t)<p>opt.\link QStyleOption::arrowType() arrowType()\endlink</td>
-<td valign=top>when the tool button only contains an arrow, \e t is the
-    arrow's type.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_HasFocus</td>
-<td valign=top>set if the toolbutton has input focus.</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Down</td>
-<td valign=top>set if the toolbutton is down (ie. mouse button or space pressed).</td>
-<td valign=top>&nbsp;</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_On</td>
-<td valign=top>set if the toolbutton is a toggle button and is toggled on.</td>
-<td valign=top rowspan=4>&nbsp;</td>
-<td valign=top rowspan=4>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_AutoRaise</td>
-<td valign=top>set if the toolbutton has auto-raise enabled.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_MouseOver</td>
-<td valign=top>set if the mouse pointer is over the toolbutton.</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top>Style_Raised</td>
-<td valign=top>set if the button is not down, not on and doesn't contain the mouse
-    when auto-raise is enabled.</td>
-</tr>
-<tr bgcolor=#f0f0f0>
-<td valign=top><b>CC_TitleBar</b><br>const QWidget *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the titlebar is enabled.</td>
-<td valign=top>unused</td>
-<td valign=top>&nbsp;</td>
-</tr>
-<tr bgcolor=#d0d0d0>
-<td valign=top><b>CC_ListView</b><br>const QListView *</td>
-<td valign=top>Style_Enabled</td>
-<td valign=top>set if the titlebar is enabled.</td>
-<td valign=top>QStyleOption(QListViewItem *item)<p>opt.\link QStyleOption::listViewItem() listViewItem()\endlink</td>
-<td valign=top>\e item is the item that needs branches drawn</td>
-</tr>
-</table>
-</center>
+  \table
+  \header \i ComplexControl \& Widget Cast
+	  \i Style Flags
+	  \i Notes
+	  \i Options
+	  \i Notes
+
+  \row \i12 \l CC_SpinWidget
+
+            (const \l QSpinWidget *)
+       \i \l Style_Enabled \i Set if the spinwidget is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the spinwidget has input focus.
+
+  \row \i12 \l CC_ComboBox
+
+            (const \l QComboBox *)
+       \i \l Style_Enabled \i Set if the combobox is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the combobox has input focus.
+
+  \row \i12 \l CC_ScrollBar
+
+	    (const \l QScrollBar *)
+       \i \l Style_Enabled \i Set if the scrollbar is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+  \row \i \l Style_HasFocus \i Set if the scrollbar has input focus.
+
+  \row \i12 \l CC_Slider
+
+            (const \l QSlider *)
+       \i \l Style_Enabled \i Set if the slider is enabled.
+       \i12 Unused.
+       \i12 &nbsp;
+
+  \row \i \l Style_HasFocus \i Set if the slider has input focus.
+
+  \row \i16 \l CC_ToolButton
+
+	    (const \l QToolButton *)
+       \i \l Style_Enabled \i Set if the toolbutton is enabled.
+       \i16 \l QStyleOption ( \l ArrowType t )
+	    \list
+	    \i opt.\link QStyleOption::arrowType() arrowType\endlink()
+	    \endlist
+       \i16 When the tool button only contains an arrow, \e t is the
+	    arrow's type.
+  \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
+  \row \i \l Style_Down \i Set if the toolbutton is down (ie. mouse button or space pressed).
+  \row \i \l Style_On \i Set if the toolbutton is a toggle button and is toggled on.
+  \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
+  \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
+			     contain the mouse when auto-raise is enabled.
+
+  \row \i \l CC_TitleBar
+
+          (const \l QWidget *)
+       \i \l Style_Enabled \i Set if the titlebar is enabled.
+       \i Unused.
+       \i &nbsp;
+
+  \row \i \l CC_ListView
+
+	  (const \l QListView *)
+       \i \l Style_Enabled \i Set if the titlebar is enabled.
+       \i \l QStyleOption ( \l QListViewItem *item )
+	  \list
+	  \i opt.\link QStyleOption::listViewItem() listViewItem\endlink()
+	  \endlist
+       \i \e item is the item that needs branches drawn
+  \endtable
 
   \sa ComplexControl, SubControl
 */
@@ -1564,52 +1327,18 @@ are drawn.</td>
   of \a widget. See the table below for the appropriate \a widget
   casts:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>PixelMetric</th>
-      <th>Widget Cast</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_SliderControlThickness</td>
-      <td valign=top>const QSlider *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>PM_SliderLength</td>
-      <td valign=top>const QSlider *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_SliderTickmarkOffset</td>
-      <td valign=top>const QSlider *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>PM_SliderSpaceAvailable</td>
-      <td valign=top>const QSlider *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_TabBarTabOverlap</td>
-      <td valign=top>const QTabBar *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>PM_TabBarTabHSpace</td>
-      <td valign=top>const QTabBar *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_TabBarTabVSpace</td>
-      <td valign=top>const QTabBar *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top>PM_TabBarBaseHeight</td>
-      <td valign=top>const QTabBar *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top>PM_TabBarBaseOverlap</td>
-      <td valign=top>const QTabBar *</td>
-    </tr>
-  </table>
-  </center>
-
-  \sa PixelMetric
+  \table
+  \header \i PixelMetric \i Widget Cast
+  \row \i \l PM_SliderControlThickness \i (const \l QSlider *)
+  \row \i \l PM_SliderLength \i (const \l QSlider *)
+  \row \i \l PM_SliderTickmarkOffset \i (const \l QSlider *)
+  \row \i \l PM_SliderSpaceAvailable \i (const \l QSlider *)
+  \row \i \l PM_TabBarTabOverlap \i (const \l QTabBar *)
+  \row \i \l PM_TabBarTabHSpace \i (const \l QTabBar *)
+  \row \i \l PM_TabBarTabVSpace \i (const \l QTabBar *)
+  \row \i \l PM_TabBarBaseHeight \i (const \l QTabBar *)
+  \row \i \l PM_TabBarBaseOverlap \i (const \l QTabBar *)
+  \endtable
 */
 
 /*!
@@ -1645,74 +1374,24 @@ are drawn.</td>
   options.  See the table below for the appropriate \a widget and \a opt
   usage:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>ContentsType</th>
-      <th>Widget Cast</th>
-      <th>Options</th>
-      <th>Notes</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CT_PushButton</b></td>
-      <td valign=top>const QPushButton *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CT_CheckBox</b></td>
-      <td valign=top>const QCheckBox *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CT_RadioButton</b></td>
-      <td valign=top>const QRadioButton *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CT_ToolButton</b></td>
-      <td valign=top>const QToolButton *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CT_ComboBox</b></td>
-      <td valign=top>const QComboBox *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CT_Splitter</b></td>
-      <td valign=top>const QSplitter *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CT_DockWindow</b></td>
-      <td valign=top>const QDockWindow *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CT_ProgressBar</b></td>
-      <td valign=top>const QProgressBar *</td>
-      <td valign=top>unused</td>
-      <td valign=top>&nbsp;</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CT_PopupMenuItem</b></td>
-      <td valign=top>const QPopupMenu *</td>
-      <td valign=top>QStyleOption(QMenuItem *mi)
-	    <p>opt.\link QStyleOption::menuItem() menuItem()\endlink</td>
-      <td valign=top>\e mi is the menu item to use when calculating the size.
-      QMenuItem is currently an internal class.</td>
-    </tr>
-  </table>
-  </center>
-
-  \sa ContentsType
+  \table
+  \header \i ContentsType \i Widget Cast \i Options \i Notes
+  \row \i \l CT_PushButton \i (const \l QPushButton *) \i Unused. \i &nbsp;
+  \row \i \l CT_CheckBox \i (const \l QCheckBox *) \i Unused. \i &nbsp;
+  \row \i \l CT_RadioButton \i (const \l QRadioButton *) \i Unused. \i &nbsp;
+  \row \i \l CT_ToolButton \i (const \l QToolButton *) \i Unused. \i &nbsp;
+  \row \i \l CT_ComboBox \i (const \l QComboBox *) \i Unused. \i &nbsp;
+  \row \i \l CT_Splitter \i (const \l QSplitter *) \i Unused. \i &nbsp;
+  \row \i \l CT_DockWindow \i (const \l QDockWindow *) \i Unused. \i &nbsp;
+  \row \i \l CT_ProgressBar \i (const \l QProgressBar *) \i Unused. \i &nbsp;
+  \row \i \l CT_PopupMenuItem \i (const QPopupMenu *)
+       \i \l QStyleOption ( QMenuItem *mi )
+	  \list
+	  \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+	  \endlist
+       \i \e mi is the menu item to use when calculating the size.
+	  QMenuItem is currently an internal class.
+  \endtable
 */
 
 /*!
@@ -1808,10 +1487,7 @@ are drawn.</td>
   widget and \a returnData are unused, and are provided only for
   future development considerations.
 
-  For an explanation of the return value see
-  \link QStyle::StyleHint StyleHint\endlink.
-
-  \sa StyleHint
+  For an explanation of the return value see \l StyleHint.
 */
 
 /*!
@@ -1854,42 +1530,16 @@ are drawn.</td>
   the value of \a stylepixmap. See the table below for the appropriate
   \a widget casts:
 
-  <center>
-  <table cellpadding=4 cellspacing=2 border=0>
-    <tr bgcolor=#A2C511>
-      <th>StylePixmap</th>
-      <th>Widget Cast</th>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SP_TitleBarMinButton</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SP_TitleBarMaxButton</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SP_TitleBarCloseButton</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SP_TitleBarNormalButton</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SP_TitleBarShadeButton</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#f0f0f0>
-      <td valign=top><b>SP_TitleBarUnshadeButton</b></td>
-      <td valign=top>const QWidget *</td>
-    </tr>
-    <tr bgcolor=#d0d0d0>
-      <td valign=top><b>SP_DockWindowCloseButton</b></td>
-      <td valign=top>const QDockWindow *</td>
-    </tr>
-  </table>
-  </center>
+  \table
+  \header \i StylePixmap \i Widget Cast
+  \row \i \l SP_TitleBarMinButton \i (const \l QWidget *)
+  \row \i \l SP_TitleBarMaxButton \i (const \l QWidget *)
+  \row \i \l SP_TitleBarCloseButton \i (const \l QWidget *)
+  \row \i \l SP_TitleBarNormalButton \i (const \l QWidget *)
+  \row \i \l SP_TitleBarShadeButton \i (const \l QWidget *)
+  \row \i \l SP_TitleBarUnshadeButton \i (const \l QWidget *)
+  \row \i \l SP_DockWindowCloseButton \i (const \l QDockWindow *)
+  \endtable
 
   \sa StylePixmap
 */
