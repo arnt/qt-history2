@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#73 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#74 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -94,6 +94,10 @@ typedef uint HDC;
 #endif
 typedef struct tagMSG MSG;
 
+#if defined(_CC_BOR_)
+#define NEEDS_QMAIN
+#endif
+
 HANDLE qWinAppInst();
 HANDLE qWinAppPrevInst();
 int    qWinAppCmdShow();
@@ -138,6 +142,11 @@ GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
 GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #endif // _WS_X11_
+
+
+#if defined(NEEDS_QMAIN)
+#define main qMain
+#endif
 
 
 // Global platform-independent types and functions

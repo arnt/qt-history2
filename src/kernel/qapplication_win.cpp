@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#44 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#44 $")
 
 
 /*****************************************************************************
@@ -103,7 +103,12 @@ typedef declare(QArrayM,pchar) ArgV;
   WinMain() - initializes Windows and calls user's startup function main()
  *****************************************************************************/
 
+#if defined(NEEDS_QMAIN)
+int qMain( int, char ** );
+#else
 extern "C" int main( int, char ** );
+#endif
+
 
 extern "C"
 int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
@@ -668,6 +673,8 @@ int QApplication::enter_loop()
 	DispatchMessage( &msg );		// send to WndProc
 	if ( configRequests )			// any pending configs?
 	    qWinProcessConfigRequests();
+	if ( postedEvents && postedEvents->count() )
+	    sendPostedEvents();
     }
 
     app_exit_loop = FALSE;
@@ -1415,7 +1422,7 @@ static int translateKeyCode( int key )		// get Key_... code
 bool QETWidget::translateKeyEvent( const MSG &msg )
 {
     int type;
-    int code = 0;
+    int code;
     int ascii = 0;
     int state = 0;
 
@@ -1452,7 +1459,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg )
 // Paint event translation
 //
 
-bool QETWidget::translatePaintEvent( const MSG &msg )
+bool QETWidget::translatePaintEvent( const MSG & )
 {
     PAINTSTRUCT ps;
     RECT rect;
