@@ -121,6 +121,7 @@ public:
 	Underline = 0x01000000,
 	Overline  = 0x02000000,
 	StrikeOut = 0x04000000,
+	IncludeTrailingSpaces = 0x08000000,
 #endif
 	NoAccel = 0x4000
     };
