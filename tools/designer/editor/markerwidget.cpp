@@ -418,7 +418,7 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
     QPopupMenu m( 0, "editor_breakpointsmenu" );
 
     int toggleBreakPoint;
-    int editBreakpoints;
+//    int editBreakpoints;
 
     QTextParag *p = ( (Editor*)viewManager->currentView() )->document()->firstParag();
     int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
@@ -457,8 +457,8 @@ void MarkerWidget::contextMenuEvent( QContextMenuEvent *e )
 	    ( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
 	else
 	    ( (ParagData*)p->extraData() )->marker = ParagData::Breakpoint;
-    } else if ( res == editBreakpoints ) {
-	emit editBreakPoints();
+//    } else if ( res == editBreakpoints ) {
+//	emit editBreakPoints();
     }
     doRepaint();
     emit markersChanged();
