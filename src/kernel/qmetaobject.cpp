@@ -772,8 +772,8 @@ int QMetaProperty::keysToValue( const QStrList& keys ) const
 	return -1;
     int value = 0;
     for ( QStrListIterator it( keys ); it.current(); ++it ) {
-	uint i = ed->count;
-	while ( --i > 0 ) {
+	uint i;
+	for( i = ed->count; i > 0; --i ) {
 	    if ( !qstrcmp( it.current(), ed->items[i-1].key) ) {
 		value |= ed->items[i-1].value;
 		break;

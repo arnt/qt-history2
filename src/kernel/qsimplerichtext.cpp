@@ -113,6 +113,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->widthUsed = -1;
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
+    d->doc->setTextFormat( Qt::RichText );
     d->doc->setFormatter( new QTextFormatterBreakWords );
     d->doc->setDefaultFont( fnt );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
@@ -158,6 +159,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->widthUsed = -1;
     d->font = fnt;
     d->doc = new QTextDocument( 0 );
+    d->doc->setTextFormat( Qt::RichText );
     d->doc->setFormatter( new QTextFormatterBreakWords );
     d->doc->setDefaultFont( fnt );
     d->doc->flow()->setPageSize( pageBreak );
