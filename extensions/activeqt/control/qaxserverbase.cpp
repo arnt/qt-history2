@@ -2335,13 +2335,18 @@ HRESULT WINAPI QAxServerBase::Load( IStream *pStm )
     QBuffer qtbuffer( qtarray );
     qtbuffer.open( IO_ReadOnly | IO_Translate );
     QDataStream qtstream( &qtbuffer );
+
+    const QMetaObject *mo = qt.object->metaObject();
     while ( !qtbuffer.atEnd() ) {
-	QCString property;
+	QCString propname;
 	QVariant value;
-	qtstream >> property;
+	qtstream >> propname;
 	qtstream >> value;
 
-	qt.object->setProperty( property, value );
+	int idx = mo->findProperty(propname, TRUE);
+	const QMetaProperty *property = mo->property( idx, TRUE );
+	if (property->writable())
+	    qt.object->setProperty( propname, value );
     }
     return S_OK;
 }

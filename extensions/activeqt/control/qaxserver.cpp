@@ -523,6 +523,7 @@ static const char* const ignore_props[] =
     "focusEnabled",
     "customWhatsThis",
     "shown",
+    "windowTransparency",
     0
 };
 
