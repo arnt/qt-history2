@@ -2919,7 +2919,7 @@ bool QCanvasPixmapArray::readPixmaps( const QString& datafilenamepattern,
 	img = new QCanvasPixmap*[framecount];
     }
     bool ok = TRUE;
-    bool arg = framecount > 1;
+    bool arg = fc > 0;
     if ( !arg )
 	framecount=1;
     for (int i=0; i<framecount; i++) {
