@@ -316,6 +316,11 @@ public:
 	return sh->start;
     }
 
+    const_iterator constBegin() const
+    {
+	return sh->start;
+    }
+
     iterator end()
     {
 	detach();
@@ -323,6 +328,11 @@ public:
     }
 
     const_iterator end() const
+    {
+	return sh->finish;
+    }
+
+    const_iterator constEnd() const
     {
 	return sh->finish;
     }

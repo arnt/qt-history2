@@ -377,6 +377,8 @@ public:
     Iterator end()	{ return Iterator( header ); }
     ConstIterator begin() const { return ConstIterator( (NodePtr)(header->left ) ); }
     ConstIterator end() const { return ConstIterator( header ); }
+    ConstIterator constBegin() const { return ConstIterator( (NodePtr)(header->left ) ); }
+    ConstIterator constEnd() const { return ConstIterator( header ); }
 
     ConstIterator find(const Key& k) const;
 
@@ -667,7 +669,7 @@ public:
 	return *this;
     }
 #  ifdef Q_CC_HPACC    // undo the HP-UX aCC hackery done above
-#    undef Q_TYPENAME 
+#    undef Q_TYPENAME
 #    define Q_TYPENAME typename
 #  endif
 #endif

@@ -455,6 +455,15 @@
 */
 
 /*!
+    \fn const_iterator QValueVector::constBegin() const
+
+    Returns a const iterator pointing to the beginning of the vector.
+    If the vector is empty(), the returned iterator will equal end().
+
+    \sa constEnd();
+*/
+
+/*!
     \fn iterator QValueVector::end()
 
     Returns an iterator pointing behind the last element of the
@@ -468,6 +477,15 @@
 
     Returns a const iterator pointing behind the last element of the
     vector.
+*/
+
+/*!
+    \fn const_iterator QValueVector::constEnd() const
+
+    Returns a const iterator pointing behind the last element of the
+    vector.
+
+    \sa constBegin()
 */
 
 /*!

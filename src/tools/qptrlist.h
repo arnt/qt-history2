@@ -118,8 +118,10 @@ public:
     typedef QPtrListStdIterator<type> ConstIterator;
     inline Iterator begin() { return QGList::begin(); }
     inline ConstIterator begin() const { return QGList::begin(); }
+    inline ConstIterator constBegin() const { return QGList::begin(); }
     inline Iterator end() { return QGList::end(); }
     inline ConstIterator end() const { return QGList::end(); }
+    inline ConstIterator constEnd() const { return QGList::end(); }
     inline Iterator erase( Iterator it ) { return QGList::erase( it ); }
     // stl syntax compatibility
     typedef Iterator iterator;

@@ -480,8 +480,10 @@ public:
     bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
     iterator begin() { detach(); return iterator( sh->node->next ); }
     const_iterator begin() const { return const_iterator( sh->node->next ); }
+    const_iterator constBegin() const { return const_iterator( sh->node->next ); }
     iterator end() { detach(); return iterator( sh->node ); }
     const_iterator end() const { return const_iterator( sh->node ); }
+    const_iterator constEnd() const { return const_iterator( sh->node ); }
     iterator insert( iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
     uint remove( const T& x ) { detach(); return sh->remove( x ); }
     void clear();

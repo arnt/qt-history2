@@ -396,6 +396,15 @@
 */
 
 /*!
+    \fn const_iterator QValueList::constBegin() const
+
+    Returns an iterator pointing to the first item in the list. This
+    iterator equals end() if the list is empty.
+
+    \sa constEnd()
+*/
+
+/*!
     \fn iterator QValueList::end()
 
     Returns an iterator pointing \e past the last item in the list.
@@ -413,6 +422,15 @@
     This iterator equals begin() if the list is empty.
 
     \sa last(), begin()
+*/
+
+/*!
+    \fn const_iterator QValueList::constEnd() const
+
+    Returns an iterator pointing \e past the last item in the list.
+    This iterator equals begin() if the list is empty.
+
+    \sa constEnd()
 */
 
 /*!

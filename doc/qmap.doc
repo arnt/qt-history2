@@ -380,6 +380,18 @@
 */
 
 /*!
+    \fn ConstIterator QMap::constBegin() const
+
+    Returns an iterator pointing to the first element in the map. This
+    iterator equals end() if the map is empty.
+
+    The items in the map are traversed in the order defined by
+    operator\<(Key, Key).
+
+    \sa constEnd() QMapConstIterator
+*/
+
+/*!
     \fn Iterator QMap::end()
 
     The iterator returned by end() points to the element which is one
@@ -396,6 +408,19 @@
     \fn ConstIterator QMap::end() const
 
     \overload
+*/
+
+/*!
+    \fn ConstIterator QMap::constEnd() const
+
+    The iterator returned by end() points to the element which is one
+    past the last element in the container. The past-the-end iterator
+    is still associated with the map it belongs to, but it is \e not
+    dereferenceable; operator*() will not return a well-defined value. 
+
+    This iterator equals constBegin() if the map is empty.
+    
+    \sa constBegin() QMapConstIterator
 */
 
 /*!
