@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
@@ -19,7 +19,7 @@
 
 #include "glaccum.h"
 #include "jitter.h"
-#include "math.h"
+#include <math.h>
 
 #define ACSIZE  1
 #define PI_ 3.14159265358979323846
