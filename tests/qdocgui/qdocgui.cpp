@@ -62,7 +62,7 @@ void QDocMainWindow::init()
 void QDocMainWindow::populateListView()
 {
     waitText = new QLabel( "Currently qdocing", this, "wait", WStyle_Customize | WStyle_NormalBorder );
-    vb->addWidget( waitText ); 
+    vb->addWidget( waitText );
     waitText->setCaption( "qdoc GUI - Waiting" );
     waitText->setFont( QFont("times", 36) );
     waitText->setAlignment( AlignCenter );
@@ -72,6 +72,7 @@ void QDocMainWindow::populateListView()
     QDir e( qtdirenv + "/util/qdoc" );
     proc->setWorkingDirectory( e );
     proc->addArgument( qtdirenv + "/util/qdoc/qdoc" );
+    proc->addArgument( "--friendly" );
     proc->addArgument( "-Wall" );
     proc->addArgument( "-W4" );
 
