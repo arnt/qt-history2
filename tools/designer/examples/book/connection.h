@@ -11,8 +11,8 @@
 ****************************************************************************/
 
 // Add your own connection parameters here
-#define DB_BOOKS_DRIVER "QMYSQL3"
-#define DB_BOOKS 	""
+#define DB_BOOKS_DRIVER "QSQLITE"
+#define DB_BOOKS 	":memory:"
 #define DB_BOOKS_USER 	""
 #define DB_BOOKS_PASSWD ""
 #define DB_BOOKS_HOST 	""
