@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#147 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#148 $
 **
 ** Implementation of QFileDialog class
 **
@@ -993,7 +993,7 @@ void QFileDialog::init()
     d->inaccessible = tr( "Inaccessible" );
 
     d->symLinkToFile = tr( "Symlink to File" );
-    d->symLinkToDir = tr( "symlink to Directory" );
+    d->symLinkToDir = tr( "Symlink to Directory" );
     d->symLinkToSpecial = tr( "Symlink to Special" );
     d->file = tr( "File" );
     d->dir = tr( "Dir" );
