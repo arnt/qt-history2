@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#124 $
 **
 ** Implementation of QListView widget class
 **
@@ -1376,6 +1376,13 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		current->i->paintCell( p, colorGroup(), ac, r.width(),
 				       columnAlignment( ac ) );
 		p->restore();
+		if ( c == 0 && current->i == d->focusItem && hasFocus() &&
+		     !d->allColumnsShowFocus ) {
+		    p->save();
+		    p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		    current->i->paintFocus( p, colorGroup(), r );
+		    p->restore();
+		}
 		x += cs;
 		c++;
 	    }
@@ -1417,23 +1424,15 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	}
 	
 	// does current need focus indication?
-	if ( current->i == d->focusItem && hasFocus() ) {
+	if ( current->i == d->focusItem && hasFocus() &&
+	     d->allColumnsShowFocus ) {
 	    p->save();
-	    if ( d->allColumnsShowFocus ) {
-		int x1 = ox > 0 ? -1 : 0;
-		int x2 = d->h->width() - ox;
-		int w = QMIN( viewport()->width(), x2-x1+1 );
-		r.setRect( x1, current->y - oy, w, ih );
-                p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
-		current->i->paintFocus( p, colorGroup(), r );
-	    } else {
-		r.setRect( d->h->cellPos( d->h->mapToActual( 0 ) ) - ox,
-			   current->y - oy,
-			   d->h->cellSize( d->h->mapToActual( 0 ) ),
-			   ih );
-                p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
-		current->i->paintFocus( p, colorGroup(), r );
-	    }
+	    int x1 = ox > 0 ? -1 : 0;
+	    int x2 = d->h->width() - ox;
+	    int w = QMIN( viewport()->width(), x2-x1+1 );
+	    r.setRect( x1, current->y - oy, w, ih );
+	    p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+	    current->i->paintFocus( p, colorGroup(), r );
 	    p->restore();
 	}
 	
