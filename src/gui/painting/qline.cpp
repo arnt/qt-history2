@@ -354,6 +354,14 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 */
 
 /*!
+    \fn void QLineF::translate(qreal dx, qreal dy)
+
+    \overload
+
+    Translate this line the distance \a dx and \dy.
+*/
+
+/*!
   \fn qreal QLineF::angle(const QLineF &line) const
 
   Returns the smallest angle between the given \a line and this line, not

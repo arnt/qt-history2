@@ -55,6 +55,7 @@ public:
 #endif
     inline void translate(const QLineF &p);
     inline void translate(const QPointF &p);
+    inline void translate(qreal dx, qreal dy);
 
     inline void operator+=(const QPointF &d);
     inline void operator-=(const QPointF &d);
@@ -140,6 +141,11 @@ inline void QLineF::translate(const QPointF &point)
 {
     p1 += point;
     p2 += point;
+}
+
+inline void QLineF::translate(qreal dx, qreal dy)
+{
+    this->translate(QPointF(dx, dy));
 }
 
 inline void QLineF::setLength(qreal len)
