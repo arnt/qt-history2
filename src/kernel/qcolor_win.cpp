@@ -65,10 +65,7 @@ int QColor::maxColors()
 
 int QColor::numBitPlanes()
 {
-    static int planes = 0;
-    if ( planes == 0 )
-	planes = GetDeviceCaps( qt_display_dc(), BITSPIXEL );
-    return planes;
+    return GetDeviceCaps( qt_display_dc(), BITSPIXEL );
 }
 
 
