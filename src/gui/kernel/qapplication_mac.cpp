@@ -270,10 +270,13 @@ void qt_mac_secure_keyboard(bool b)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(b) {
-        if (EnableSecureEventInput)
+        // workaround for gcc warning
+        SInt32 (*ese)() = EnableSecureEventInput;
+        if (ese)
             EnableSecureEventInput();
     } else {
-        if (DisableSecureEventInput)
+        SInt32 (*dse)() = DisableSecureEventInput;
+        if (dse)
             DisableSecureEventInput();
     }
 #else
