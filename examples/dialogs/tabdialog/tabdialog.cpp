@@ -124,7 +124,7 @@ ApplicationsTab::ApplicationsTab(QWidget *parent, const QFileInfo &fileInfo)
     for (int i = 1; i <= 30; ++i) {
         applications.append(tr("Application %1").arg(i));
     }
-    applicationsListBox->insertItems(applications);
+    applicationsListBox->insertItems(0, applications);
 
     QCheckBox *alwaysCheckBox;
 
