@@ -1627,7 +1627,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
   This enum defines what type of device is generating the event.
 
-  \value None    No device, or an unknown device
+  \value NoDevice    No device, or an unknown device
   \value Puck    A Puck.
   \value Stylus  A Stylus (the narrow end of the pen)
   \value Eraser  An Eraser (the broad end of the pen)
