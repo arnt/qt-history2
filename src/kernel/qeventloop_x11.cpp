@@ -48,8 +48,6 @@
 
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
-static const int XFocusOut = FocusOut;
-static const int XFocusIn = FocusIn;
 #undef FocusOut
 #undef FocusIn
 
