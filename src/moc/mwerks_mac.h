@@ -34,7 +34,6 @@
 #ifdef Q_OS_MAC9
  //these don't belong here, need a way to access this outside .h files
 # define QT_NO_CODECS
-# define QT_LITE_UNICODE
 # define MOC_MWERKS_PLUGIN
 #endif
 #define macintosh
