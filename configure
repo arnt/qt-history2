@@ -896,6 +896,8 @@ then
    then
        XRENDER=yes
        $x11tests/xrender.test $XQMAKESPEC $VERBOSE && XRENDER=no && XFTFREETYPE=no
+   else
+        XFTFREETYPE=no
    fi
    # Auto-detect XftFreeType support
    if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
@@ -1402,9 +1404,27 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 if [ "$X11_PLATFORM" = "yes" ]
 then
     [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
-    [ "x$XINERAMA" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
-    [ "x$XRENDER" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xrender"
-    [ "x$XFTFREETYPE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
+
+    # for some reason, the following libraries are not always build shared,
+    # so *every* program/lib (including Qt) has to link against them
+    if [ "x$XINERAMA" = "xyes" ]
+    then
+	QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
+	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXinerama\""
+    fi
+    if [ "x$XRENDER" = "xyes" ]
+    then
+	QMAKE_CONFIG="$QMAKE_CONFIG xrender"
+	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXrender\""
+    fi
+    if [ "x$XFTFREETYPE" = "xyes" ]
+    then
+	QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
+	# libXft uses libfreetype to do all the work, BUT libfreetype isn't picked
+	# up as a dependency if libXft isn't a shared library, so we have to add
+	# libfreetype as well as libXft to the program/lib link command
+	QMAKE_VARS="$QMAKE_VARS \"LIBS+=-lXft -lfreetype\""
+    fi
 fi
 [ "x$GIF" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG gif"
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
