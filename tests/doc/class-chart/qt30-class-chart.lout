@@ -25,7 +25,7 @@
 @F { info@trolltech.com }
 }
 @Place 
-    x { 19c }
+    x { 19.2c }
     y { 36.5c }
 {
 0.5 @Scale lightgrey @Colour 180d @Rotate
@@ -44,7 +44,7 @@ that Qt applications reach the widest possible market.
 }
 @Place 
     x { 15.25c }
-    y { 24.25c }
+    y { 24.30c }
 {
 0.5 @Scale 90d @Rotate lightgrey @Colour 
 @F @Verbatim @Begin 
@@ -167,9 +167,12 @@ CP 1258
 Apple Roman
 } 
 }
-@Place x { 25.65c } y { 26.25c }
+@Place x { 25.60c } y { 26.25c }
 { 0.5 @Scale grey @Colour 90d @Rotate
 { Copyright @CopyRight 2001 Trolltech AS. All Rights Reserved. } }
+@Place x { 22.75c } y { 12c }
+{ 0.2 @Scale 90d @Rotate
+@IncludeGraphic { logo_face_trolltech.eps } }
 @CD 
 @Scale 
 @Diag 
@@ -218,7 +221,7 @@ Apple Roman
 	    K { QWIDGET:: @Node { QWidget } } 
 	    Q { QWIDGETFACTORY:: @BNode { QWidgetFactory } }
 	    R { QACCESSIBLE:: @BNode { QAccessible } }
-	    V { QMEMARRAY:: @Node paint { cyan } { Q{@B{M}}emArray } }
+	    V { QMEMARRAY:: @Node paint { cyan } { QMemArray } }
 	@Rowa
 	    B { QBRUSH:: @ANode { QBrush } } 
 	    E { QEVENT:: @Node paint { lightblue } { QEvent } } 
@@ -231,14 +234,14 @@ Apple Roman
 	@Rowa
 	    B { QCURSOR:: @ANode { QCursor } } 
 	    E { QIMEVENT:: @Node paint { lightblue } { QIMEvent } } 
-	    F { QACTION:: @Node paint { yellow } { Q{@B{A}}ction } } 
+	    F { QACTION:: @Node paint { yellow } { QAction } } 
 	    L { QCOMBOBOX:: @Node { QComboBox } } 
 	    M { QCHECKBOX:: @Node { QCheckBox } } 
 	    R { QASYNCIO:: @BNode { QAsyncIO } } 
 	    V { QMETAPROPERTY:: @BNode { QMetaProperty } }
 	    W { QPOINTARRAY:: @Node paint { cyan } { QPointArray } }
 	@Rowa
-	    B { QKEYSEQUENCE:: @ANode { Q{@B{K}}eySequence } } 
+	    B { QKEYSEQUENCE:: @ANode { QKeySequence } } 
 	    E { QKEYEVENT:: @Node paint { lightblue } { QKeyEvent } } 
 	    F { QAPPLICATION:: @Node paint { yellow } { QApplication } } 
 	    L { QDATETIMEEDIT:: @Node { QDateTimeEdit } } 
@@ -261,7 +264,7 @@ Apple Roman
 	    E { QDROPEVENT:: @Node paint { lightblue } { QDropEvent } } 
 	    F { QCLIPBOARD:: @Node paint { yellow } { QClipboard } } 
 	    L { QDIAL:: @Node { QDial } } 
-	    M { QRADIOBUTTON:: @Node { Q{@B{R}}adioButton } } 
+	    M { QRADIOBUTTON:: @Node { QRadioButton } } 
 	    Q { QXMLDTDHANDLER:: @Node paint { lightmagenta } { QXmlDTDHandler } }
 	    R { QCOLORGROUP:: @BNode { QColorGroup } } 
 	    V { QMUTEX:: @BNode { QMutex } }
