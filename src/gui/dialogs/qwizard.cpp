@@ -697,8 +697,8 @@ QPushButton * QWizard::helpButton() const
 
 
 /*!
-    This virtual function is responsible for adding the bottom divider
-    and the buttons below it.
+    This virtual function is responsible for adding the buttons below
+    the bottom divider.
 
     \a layout is the horizontal layout of the entire wizard.
 */
@@ -768,9 +768,9 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 
 
 /*!
-    This virtual function is responsible for laying out the title row
-    and adding the horizontal divider between the title and the wizard
-    page. \a layout is the horizontal layout for the wizard, and \a
+    This virtual function is responsible for laying out the title row.
+
+    \a layout is the horizontal layout for the wizard, and \a
     title is the title for this page. This function is called every
     time \a title changes.
 */
