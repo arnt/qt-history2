@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#112 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#113 $
 **
 ** Definition of QStyle class
 **
@@ -178,7 +178,7 @@ public:
 
 	CE_RadioButton,
 	CE_RadioButtonLabel,
-	
+
 	CE_TabBarTab
         /*
 	  CE_MenuBarItem,
@@ -339,13 +339,13 @@ public:
 	PM_DockWindowSeparatorExtent,
 	PM_DockWindowHandleExtent,
 	PM_DockWindowFrameWidth,
-	
+
 	PM_MenuBarFrameWidth,
 
 	PM_TabBarOverlap,
 	PM_TabBarBaseHeight,
 	PM_TabBarBaseOverlap
-	
+
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
@@ -492,15 +492,9 @@ public:
 				    int x, int y, int w, int h) = 0;
 
     // title bar
-    enum TitleControl { TitleNone = 0x00,
-			TitleSysMenu = 0x1 , TitleMinButton  = 0x2 , TitleMaxButton = 0x4,
-			TitleCloseButton = 0x8 , TitleLabel = 0x10, TitleNormalButton = 0x20,
-			TitleShadeButton=0x40, TitleUnshadeButton=0x80 };
-    virtual QPixmap titleBarPixmap( const QTitleBar *, TitleControl ) = 0;
-    virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const = 0;
-    virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
-				       uint controls, uint activeControl ) = 0;
-    virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& ) = 0;
+    // titleBarPixmap - how would we do something like this in the new api? use
+    // styleHint and return pointers to pixmaps?
+    virtual QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const = 0;
 
     // listviewitem
     enum ListViewItemControl { ListViewNone = 0x00,

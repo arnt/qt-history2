@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#91 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#92 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -249,13 +249,13 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->controlId = -1;
     connect( d->popup, SIGNAL( aboutToShow() ), this, SLOT(operationMenuAboutToShow() ));
     connect( d->popup, SIGNAL( activated(int) ), this, SLOT( operationMenuActivated(int) ) );
-    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleNormalButton)), tr("&Restore"), 1);
+    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarNormalButton)), tr("&Restore"), 1);
     d->popup->insertItem(tr("&Move"), 2);
     d->popup->insertItem(tr("&Size"), 3);
-    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleMinButton)), tr("Mi&nimize"), 4);
-    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleMaxButton)), tr("Ma&ximize"), 5);
+    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarMinButton)), tr("Mi&nimize"), 4);
+    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarMaxButton)), tr("Ma&ximize"), 5);
     d->popup->insertSeparator();
-    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleCloseButton)),
+    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarCloseButton)),
 				  tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
 
@@ -267,8 +267,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->toolPopup->setItemChecked( 7, TRUE );
     d->toolPopup->setCheckable( TRUE );
     d->toolPopup->insertSeparator();
-    d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleShadeButton)), tr("&Roll up"), 6);
-    d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleCloseButton)),
+    d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarShadeButton)), tr("&Roll up"), 6);
+    d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarCloseButton)),
 				      tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
 
@@ -568,7 +568,7 @@ void QWorkspace::insertIcon( QWidget* w )
     QRect cr = updateWorkspace();
     int x = 0;
     int y = cr.height() - w->height();
-    
+
     QPtrListIterator<QWidget> it( d->icons );
     while ( it.current () ) {
 	QWidget* i = it.current();
@@ -669,7 +669,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	QWorkspace *fake = (QWorkspace*)w;
 	fake->clearWState( WState_Maximized );
 	fake->setWState( WState_Minimized );
-	
+
 	updateWorkspace();
     }
 }
@@ -911,7 +911,7 @@ void QWorkspace::showMaximizeControls()
 	QToolTip::add( iconB, tr( "Minimize" ) );
 	l->addWidget( iconB );
 	iconB->setFocusPolicy( NoFocus );
-	iconB->setIconSet(style().titleBarPixmap(0, QStyle::TitleMinButton));
+	iconB->setIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarMinButton));
 	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( iconB, SIGNAL( clicked() ),
 		 this, SLOT( minimizeActiveWindow() ) );
@@ -919,7 +919,7 @@ void QWorkspace::showMaximizeControls()
 	QToolTip::add( restoreB, tr( "Restore Down" ) );
 	l->addWidget( restoreB );
 	restoreB->setFocusPolicy( NoFocus );
-	restoreB->setIconSet( style().titleBarPixmap(0, QStyle::TitleNormalButton));
+	restoreB->setIconSet( style().titleBarPixmap(0, QStyle::SC_TitleBarNormalButton));
 	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( restoreB, SIGNAL( clicked() ),
 		 this, SLOT( normalizeActiveWindow() ) );
@@ -929,7 +929,7 @@ void QWorkspace::showMaximizeControls()
 	QToolTip::add( closeB, tr( "Close" ) );
 	l->addWidget( closeB );
 	closeB->setFocusPolicy( NoFocus );
-	closeB->setIconSet( style().titleBarPixmap(0, QStyle::TitleCloseButton) );
+	closeB->setIconSet( style().titleBarPixmap(0, QStyle::SC_TitleBarCloseButton) );
 	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ),
 		 this, SLOT( closeActiveWindow() ) );
@@ -1057,9 +1057,9 @@ void QWorkspace::operationMenuAboutToShow()
 	return;
 
     if ( d->active->isHidden() )
-	d->popup->changeItem( 1, QIconSet(style().titleBarPixmap(0, QStyle::TitleNormalButton)), "&Restore" );
+	d->popup->changeItem( 1, QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarNormalButton)), "&Restore" );
     else
-	d->popup->changeItem( 1, QIconSet(style().titleBarPixmap(0, QStyle::TitleNormalButton)), "&Restore" );
+	d->popup->changeItem( 1, QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarNormalButton)), "&Restore" );
 
     if ( d->active == d->maxWindow ) {
 	d->popup->setItemEnabled( 2, FALSE );
@@ -1088,10 +1088,10 @@ void QWorkspace::toolMenuAboutToShow()
 
     if ( d->active->shademode )
 	d->toolPopup->changeItem( 6,
-				  QIconSet(style().titleBarPixmap(0, QStyle::TitleShadeButton).xForm(
+				  QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarShadeButton).xForm(
 				      QWMatrix().rotate( -180 ))), "&Roll down" );
     else
-	d->toolPopup->changeItem( 6, QIconSet(style().titleBarPixmap(0, QStyle::TitleShadeButton)), "&Roll up" );
+	d->toolPopup->changeItem( 6, QIconSet(style().titleBarPixmap(0, QStyle::SC_TitleBarShadeButton)), "&Roll up" );
 
     QWorkspace* w = (QWorkspace*)d->active->windowWidget();
     if ( !w )
@@ -1205,10 +1205,10 @@ void QWorkspace::cascade()
 {
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
-    
+
     const int xoffset = 13;
     const int yoffset = 20;
-    
+
     // make a list of all relevant mdi clients
     QPtrList<QWorkspaceChild> widgets;
     for ( QWorkspaceChild* wc = d->focus.first(); wc; wc = d->focus.next() ) {
@@ -1261,12 +1261,12 @@ void QWorkspace::tile()
 {
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
-    
+
     int rows = 1;
     int cols = 1;
     int n = 0;
     QWorkspaceChild* c;
-    
+
     QPtrListIterator<QWorkspaceChild> it( d->windows );
     while ( it.current () ) {
 	c = it.current();
@@ -1292,7 +1292,7 @@ void QWorkspace::tile()
     int col = 0;
     int w = width() / cols;
     int h = height() / rows;
-    
+
     it.toFirst();
     while ( it.current () ) {
 	c = it.current();
@@ -1960,7 +1960,7 @@ QRect QWorkspace::updateWorkspace()
 	return rect();
 
     QRect cr( rect() );
-    
+
     if ( scrollBarsEnabled() ) {
 
 	d->corner->raise();
@@ -2029,7 +2029,7 @@ QRect QWorkspace::updateWorkspace()
 
 	cr.setRect( 0, 0, width() - vsbExt, height() - hsbExt );
     }
-    
+
     QPtrListIterator<QWidget> ii( d->icons );
     while ( ii.current() ) {
 	QWorkspaceChild* w = (QWorkspaceChild*)ii.current();
@@ -2048,7 +2048,7 @@ QRect QWorkspace::updateWorkspace()
 	if ( m )
 	    w->move( x, y );
     }
-    
+
     return cr;
 
 }

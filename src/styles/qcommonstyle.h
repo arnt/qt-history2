@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#23 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#24 $
 **
 ** Definition of QCommonStyle class
 **
@@ -136,12 +136,6 @@ public:
     // statusbar
     void drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool permanent );
     void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
-
-    // title bar
-    virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const;
-    virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
-				       uint controls, uint activeControl );
-    virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
 
     ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & );
 

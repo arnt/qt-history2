@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#62 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#63 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -271,158 +271,6 @@ void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const 
     p->restore();
 }
 
-#define TITLEBAR_PAD 3
-#define TITLEBAR_SEPARATION 1
-#define TITLEBAR_PIXMAP_WIDTH 12
-#define TITLEBAR_PIXMAP_HEIGHT 12
-#define TITLEBAR_CONTROL_WIDTH (TITLEBAR_PAD+TITLEBAR_PIXMAP_WIDTH)
-#define TITLEBAR_CONTROL_HEIGHT (TITLEBAR_PAD+TITLEBAR_PIXMAP_HEIGHT)
-
-/*!
- \reimp
- */
-void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
-				    int &titleW, int &titleH) const
-{
-#ifndef QT_NO_TITLEBAR
-    titleH = 18;
-    if(tb->window) {
-	titleW = tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
-		 (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH)-4;
-	ctrlH = TITLEBAR_CONTROL_HEIGHT;
-	ctrlW = TITLEBAR_CONTROL_WIDTH;
-    } else {
-	titleW = tb->width();
-	ctrlH = ctrlW = 0;
-    }
-#endif //QT_NO_TITLEBAR
-}
-
-/*!
- \reimp
- */
-void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
-					uint controls, uint activeControl )
-{
-#ifndef QT_NO_TITLEBAR
-    QColor left = tb->act || !tb->window ? tb->aleftc : tb->ileftc;
-    QColor right = tb->act || !tb->window ? tb->arightc : tb->irightc;
-    if ( left != right ) {
-	double rS = left.red();
-	double gS = left.green();
-	double bS = left.blue();
-
-	double rD = double(right.red() - rS) / tb->width();
-	double gD = double(right.green() - gS) / tb->width();
-	double bD = double(right.blue() - bS) / tb->width();
-
-	int w = tb->width();
-	for ( int sx = 0; sx < w; sx++ ) {
-	    rS+=rD;
-	    gS+=gD;
-	    bS+=bD;
-	    p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
-	    p->drawLine( sx, 0, sx, tb->height() );
-	}
-    } else {
-	p->fillRect( tb->rect(), left );
-    }
-    QRect r;
-    if(tb->window)
-	r = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH + 2, 0,
-		   tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
-		   (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
-		   tb->height());
-    else
-	r = QRect( 0, 0, tb->width(), tb->height());
-
-    p->setPen( tb->act || !tb->window ? tb->atextc : tb->itextc );
-    p->drawText(r.x()+2, r.y(), r.width(), r.height(),
-		AlignAuto | AlignVCenter | SingleLine, tb->cuttext );
-
-    if(tb->window) {
-	QRect r(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
-		2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	bool down = activeControl & TitleCloseButton;
-	QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
-	drawPrimitive(PO_ButtonTool, p, r, tb->colorGroup(),
-		      down ? PStyle_Sunken : PStyle_Default);
-	int xoff = 0, yoff = 0;
-	if (down) {
-	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
-	    yoff = pixelMetric(PM_ButtonShiftVertical);
-	}
-	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-			   TITLEBAR_CONTROL_HEIGHT),
-		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
-
-	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*2),
-		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-
-	down = activeControl & TitleMaxButton;
-	pm = QPixmap(titleBarPixmap(tb, TitleMaxButton));
-	drawPrimitive(PO_ButtonTool, p, r, tb->colorGroup(),
-		      down ? PStyle_Sunken : PStyle_Default);
-	xoff = 0;
-	yoff = 0;
-	if(down) {
-	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
-	    yoff = pixelMetric(PM_ButtonShiftVertical);
-	}
-	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-			   TITLEBAR_CONTROL_HEIGHT),
-		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
-
-	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3),
-		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	QStyle::TitleControl ctrl = controls & TitleNormalButton ? TitleNormalButton : TitleMinButton;
-	down = activeControl & ctrl;
-	pm = QPixmap(titleBarPixmap(tb, ctrl));
-	drawPrimitive(PO_ButtonTool, p, r, tb->colorGroup(),
-		      down ? PStyle_Sunken : PStyle_Default);
-	xoff=0, yoff=0;
-	if(down) {
-	    xoff = pixelMetric(PM_ButtonShiftHorizontal);
-	    yoff = pixelMetric(PM_ButtonShiftVertical);
-	}
-	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-			   TITLEBAR_CONTROL_HEIGHT),
-		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
-
- 	if ( !tb->pixmap.isNull() ) {
-	    r = QRect( 2 + TITLEBAR_CONTROL_WIDTH / 2 - tb->pixmap.width() / 2,
-		       tb->height() / 2 - tb->pixmap.height() / 2,
-		       tb->pixmap.width(), tb->pixmap.height() );
-
-	    p->drawPixmap( r.x(), r.y(), tb->pixmap, 0, 0, tb->pixmap.width(), tb->pixmap.height() );
- 	}
-    }
-#endif //QT_NO_TITLEBAR
-}
-
-/*!
- \reimp
- */
-QStyle::TitleControl QCommonStyle::titleBarPointOver( const QTitleBar*tb, const QPoint&point )
-{
-#ifndef QT_NO_TITLEBAR
-    if(tb->window) {
-	if(QRect(tb->width()-(TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION), 2,
-		 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
-	    return TitleCloseButton;
-	else if(QRect(tb->width()-((TITLEBAR_CONTROL_HEIGHT+TITLEBAR_SEPARATION) * 2), 2,
-		      TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
-	    return TitleMaxButton;
-	else if(QRect(tb->width()-((TITLEBAR_CONTROL_HEIGHT+TITLEBAR_SEPARATION) * 3), 2,
-		      TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
-	    return TitleMinButton;
-	else if(QRect(2+TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
-	    return TitleSysMenu;
-    }
-    return TitleLabel;
-#endif //QT_NO_TITLEBAR
-}
-
 /*!
  \reimp
  */
@@ -441,6 +289,16 @@ QCommonStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &pos )
 
 
 
+
+
+
+
+#define TITLEBAR_PAD 3
+#define TITLEBAR_SEPARATION 1
+#define TITLEBAR_PIXMAP_WIDTH 12
+#define TITLEBAR_PIXMAP_HEIGHT 12
+#define TITLEBAR_CONTROL_WIDTH (TITLEBAR_PAD+TITLEBAR_PIXMAP_WIDTH)
+#define TITLEBAR_CONTROL_HEIGHT (TITLEBAR_PAD+TITLEBAR_PIXMAP_HEIGHT)
 
 
 
@@ -885,7 +743,7 @@ void QCommonStyle::drawControlMask( ControlElement control,
     case CE_RadioButton:
 	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
 	break;
-    
+
     default:
 	p->fillRect(r, color1);
 	break;
@@ -1142,6 +1000,116 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 	break; }
 
+    case CC_TitleBar: {
+#ifndef QT_NO_TITLEBAR
+	QTitleBar *titlebar = (QTitleBar *) widget;
+
+	QColor left = titlebar->act || !titlebar->window ?
+		      titlebar->aleftc : titlebar->ileftc;
+	QColor right = titlebar->act || !titlebar->window ?
+		       titlebar->arightc : titlebar->irightc;
+	if ( left != right ) {
+	    double rS = left.red();
+	    double gS = left.green();
+	    double bS = left.blue();
+
+	    double rD = double(right.red() - rS) / titlebar->width();
+	    double gD = double(right.green() - gS) / titlebar->width();
+	    double bD = double(right.blue() - bS) / titlebar->width();
+
+	    int w = titlebar->width();
+	    for ( int sx = 0; sx < w; sx++ ) {
+		rS+=rD;
+		gS+=gD;
+		bS+=bD;
+		p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
+		p->drawLine( sx, 0, sx, titlebar->height() );
+	    }
+	} else {
+	    p->fillRect( titlebar->rect(), left );
+	}
+
+	QRect ir;
+	if(titlebar->window)
+	    ir = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH + 2, 0,
+			titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
+					    TITLEBAR_SEPARATION)*3)-
+			(TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
+			titlebar->height());
+	else
+	    ir = QRect( 0, 0, titlebar->width(), titlebar->height());
+
+	p->setPen( titlebar->act || !titlebar->window ?
+		   titlebar->atextc : titlebar->itextc );
+	p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
+		    AlignAuto | AlignVCenter | SingleLine, titlebar->cuttext );
+
+	if (titlebar->window) {
+	    QRect ir(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
+		     2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    bool down = active & SC_TitleBarCloseButton;
+	    QPixmap pm(titleBarPixmap(titlebar, SC_TitleBarCloseButton));
+	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
+			  down ? PStyle_Sunken : PStyle_Default);
+	    int xoff = 0, yoff = 0;
+	    if (down) {
+		xoff = pixelMetric(PM_ButtonShiftHorizontal);
+		yoff = pixelMetric(PM_ButtonShiftVertical);
+	    }
+	    drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+			       TITLEBAR_CONTROL_HEIGHT),
+		      AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+
+	    ir = QRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
+					   TITLEBAR_SEPARATION)*2),
+		       2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+
+	    down = active & SC_TitleBarMaxButton;
+	    pm = QPixmap(titleBarPixmap(titlebar, SC_TitleBarMaxButton));
+	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
+			  down ? PStyle_Sunken : PStyle_Default);
+	    xoff = 0;
+	    yoff = 0;
+	    if(down) {
+		xoff = pixelMetric(PM_ButtonShiftHorizontal);
+		yoff = pixelMetric(PM_ButtonShiftVertical);
+	    }
+	    drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+			       TITLEBAR_CONTROL_HEIGHT),
+		      AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+
+	    ir = QRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
+					   TITLEBAR_SEPARATION)*3),
+		       2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+	    QStyle::SubControl ctrl = (controls & SC_TitleBarNormalButton ?
+				       SC_TitleBarNormalButton : SC_TitleBarMinButton);
+	    down = active & ctrl;
+	    pm = QPixmap(titleBarPixmap(titlebar, ctrl));
+	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
+			  down ? PStyle_Sunken : PStyle_Default);
+	    xoff=0, yoff=0;
+	    if(down) {
+		xoff = pixelMetric(PM_ButtonShiftHorizontal);
+		yoff = pixelMetric(PM_ButtonShiftVertical);
+	    }
+	    drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+			       TITLEBAR_CONTROL_HEIGHT),
+		      AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+
+	    if ( !titlebar->pixmap.isNull() ) {
+		ir = QRect( 2 + TITLEBAR_CONTROL_WIDTH / 2 -
+			    titlebar->pixmap.width() / 2,
+			    titlebar->height() / 2 - titlebar->pixmap.height() / 2,
+			    titlebar->pixmap.width(), titlebar->pixmap.height() );
+
+		p->drawPixmap( ir.x(), ir.y(), titlebar->pixmap, 0, 0,
+			       titlebar->pixmap.width(), titlebar->pixmap.height() );
+	    }
+	}
+#endif //QT_NO_TITLEBAR
+      	break; }
+
+
     default:
 	break;
     }
@@ -1377,6 +1345,50 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	}
 	break; }
 
+    case CC_TitleBar: {
+#ifndef QT_NO_TITLEBAR
+	QTitleBar *titlebar = (QTitleBar *) w;
+
+	if(titlebar->window) {
+	    switch (sc) {
+	    case SC_TitleBarLabel:
+		rect.setCoords(TITLEBAR_CONTROL_WIDTH, 0,
+			       titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						   TITLEBAR_SEPARATION) * 3),
+			       titlebar->height());
+		break;
+
+	    case SC_TitleBarCloseButton:
+		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
+						TITLEBAR_SEPARATION), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
+
+	    case SC_TitleBarMaxButton:
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						 TITLEBAR_SEPARATION) * 2), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
+
+	    case SC_TitleBarMinButton:
+		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
+						 TITLEBAR_SEPARATION) * 3), 2,
+			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		break;
+
+	    case SC_TitleBarSysMenu:
+		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
+			     TITLEBAR_CONTROL_HEIGHT);
+		break;
+
+	    default:
+		break;
+	    }
+	} else if (sc != SC_TitleBarLabel)
+	    rect = QRect();
+#endif //QT_NO_TITLEBAR
+	break; }
+
     default:
 	break;
     }
@@ -1402,6 +1414,21 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
 
 	// we can do this because subcontrols were designed to be masks as well...
 	while (ret == SC_None && ctrl < SC_ScrollBarGroove) {
+	    r = querySubControlMetrics(control, widget, (QStyle::SubControl) ctrl, data);
+	    if (r.isValid() && r.contains(pos))
+		ret = (QStyle::SubControl) ctrl;
+
+	    ctrl <<= 1;
+	}
+
+	break; }
+
+    case CC_TitleBar: {
+	QRect r;
+	uint ctrl = SC_TitleBarSysMenu;
+
+	// we can do this because subcontrols were designed to be masks as well...
+	while (ret == SC_None && ctrl < SC_TitleBarUnshadeButton) {
 	    r = querySubControlMetrics(control, widget, (QStyle::SubControl) ctrl, data);
 	    if (r.isValid() && r.contains(pos))
 		ret = (QStyle::SubControl) ctrl;
@@ -1499,15 +1526,15 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_TabBarOverlap:
 	ret = 3;
 	break;
-	
+
     case PM_TabBarBaseHeight:
 	ret = 0;
 	break;
-	
+
     case PM_TabBarBaseOverlap:
 	ret = 0;
 	break;
-	
+
     default:
 	ret = 0;
 	break;

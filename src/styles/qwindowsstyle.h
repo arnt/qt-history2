@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#24 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#25 $
 **
 ** Definition of Windows-like style class
 **
@@ -141,7 +141,7 @@ public:
     void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
     // title bar
-    QPixmap titleBarPixmap( const QTitleBar *, TitleControl );
+    QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const;
 
     // listview item
     void drawListViewItemBranch( QPainter *, int, int, int, const QColorGroup & cg, QListViewItem * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#68 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#69 $
 **
 ** Implementation of Windows-like style class
 **
@@ -412,11 +412,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 	} else
 	    drawPrimitive(PO_ButtonCommand, p, br, cg, flags);
 	break; }
- 
+
     case CE_TabBarTab: {
 	QTabBar * tb = (QTabBar *) widget;
 	QRect r( r );
-	
+
 	if ( tb->shape()  == QTabBar::RoundedAbove ) {
 	    p->setPen( cg.midlight() );
 	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
@@ -459,13 +459,13 @@ void QWindowsStyle::drawControl( ControlElement element,
 
 	    p->setPen( cg.dark() );
 	    x2 = r.right() - 1;
-	    p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 + 
+	    p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 +
 			 ((how & CStyle_Selected) ? 1:-1));
 	    p->setPen( cg.shadow() );
 	    p->drawPoint( x2, r.top() + 1 );
 	    p->drawPoint( x2, r.top() + 1 );
 	    x2++;
-	    p->drawLine( x2, r.top() + 2, x2, r.bottom() - 
+	    p->drawLine( x2, r.top() + 2, x2, r.bottom() -
 			 ((how & CStyle_Selected) ? 1:2));
 	} else if ( tb->shape() == QTabBar::RoundedBelow ) {
 	    if ( how & CStyle_Selected ) {
@@ -503,8 +503,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
 	}
 	break; }
-	
-    
+
+
     default:
 	QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
     }
@@ -1406,25 +1406,23 @@ static const char * const qt_unshade_xpm[] = {
 /*!
  \reimp
  */
-QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
+QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, SubControl ctrl) const
 {
     switch(ctrl) {
-    case TitleLabel:
-    case TitleNone:
-    case TitleSysMenu:
-	break;
-    case TitleShadeButton:
+    case SC_TitleBarShadeButton:
 	return QPixmap((const char **)qt_shade_xpm);
-    case TitleUnshadeButton:
+    case SC_TitleBarUnshadeButton:
 	return QPixmap((const char **)qt_unshade_xpm);
-    case TitleNormalButton:
+    case SC_TitleBarNormalButton:
 	return QPixmap((const char **)qt_normalizeup_xpm);
-    case TitleMinButton:
+    case SC_TitleBarMinButton:
 	return QPixmap((const char **)qt_minimize_xpm);
-    case TitleMaxButton:
+    case SC_TitleBarMaxButton:
 	return QPixmap((const char **)qt_maximize_xpm);
-    case TitleCloseButton:
+    case SC_TitleBarCloseButton:
 	return QPixmap((const char **)qt_close_xpm);
+    default:
+	break;
     }
     return QPixmap();
 }

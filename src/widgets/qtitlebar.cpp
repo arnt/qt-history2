@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#50 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -67,42 +67,54 @@ public:
 	if ( !parentWidget()->inherits( "QTitleBar" ) )
 	    return;
 	QTitleBar *t = (QTitleBar *)parentWidget();
-	int controlWidth, controlHeight, titleHeight, titleWidth;
-	t->style().titleBarMetrics(t, controlWidth, controlHeight, titleWidth, titleHeight);
 
 	QString tipstring;
-	switch(t->style().titleBarPointOver( t, pos )) {
-	case QStyle::TitleNone:
+	QStyle::SubControl control =
+	    t->style().querySubControl(QStyle::CC_TitleBar, t, pos);
+	QSize controlSize =
+	    t->style().querySubControlMetrics(QStyle::CC_TitleBar, t, control).size();
+
+	switch(control) {
+	case QStyle::SC_None:
+	default:
 	    break;
-	case QStyle::TitleSysMenu:
+
+	case QStyle::SC_TitleBarSysMenu:
 	    tipstring = t->tr("System Menu");
 	    break;
-	case QStyle::TitleShadeButton:
+
+	case QStyle::SC_TitleBarShadeButton:
 	    tipstring = t->tr("Shade");
 	    break;
-	case QStyle::TitleUnshadeButton:
+
+	case QStyle::SC_TitleBarUnshadeButton:
 	    tipstring = t->tr("Unshade");
 	    break;
-	case QStyle::TitleNormalButton:
-	case QStyle::TitleMinButton:
+
+	case QStyle::SC_TitleBarNormalButton:
+	case QStyle::SC_TitleBarMinButton:
 	    if(t->window->isMinimized())
 		tipstring = t->tr("Normalize");
 	    else
 		tipstring = t->tr("Minimize");
 	    break;
-	case QStyle::TitleMaxButton:
+
+	case QStyle::SC_TitleBarMaxButton:
 	    tipstring = t->tr("Maximize");
 	    break;
-	case QStyle::TitleCloseButton:
+
+	case QStyle::SC_TitleBarCloseButton:
 	    tipstring = t->tr("Close");
 	    break;
-	case QStyle::TitleLabel:
+
+	case QStyle::SC_TitleBarLabel:
 	    if(t->cuttext != t->text)
 		tipstring = t->text;
 	    break;
 	}
+
 	if(!tipstring.isEmpty())
-	    tip( QRect(pos, QSize(controlWidth, controlHeight)), tipstring );
+	    tip( QRect(pos, controlSize), tipstring );
     }
 };
 
@@ -111,7 +123,7 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
 {
     toolTip = new QTitleBarTip( this );
     window = w;
-    buttonDown = 0;
+    buttonDown = QStyle::SC_None;
     act = 0;
     getColors();
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
@@ -182,11 +194,11 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton ) {
 	emit doActivate();
-	int ctrl = (int)style().titleBarPointOver(this, e->pos());
-	switch(ctrl) {
-	case QStyle::TitleSysMenu:
-	{
-	    buttonDown = 0;
+	QStyle::SCFlags ctrl =
+	    style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+	switch (ctrl) {
+	case QStyle::SC_TitleBarSysMenu: {
+	    buttonDown = QStyle::SC_None;
 	    static QTime* t = 0;
 	    static QTitleBar* tc = 0;
 	    if ( !t )
@@ -200,22 +212,24 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 		emit doClose();
 		return;
 	    }
-	    break;
-	}
-	case QStyle::TitleShadeButton:
-	case QStyle::TitleUnshadeButton:
-	case QStyle::TitleNormalButton:
-	case QStyle::TitleMinButton:
+	    break; }
+
+	case QStyle::SC_TitleBarShadeButton:
+	case QStyle::SC_TitleBarUnshadeButton:
+	case QStyle::SC_TitleBarNormalButton:
+	case QStyle::SC_TitleBarMinButton:
 	    if(window && window->isMinimized())
-		buttonDown = QStyle::TitleNormalButton;
+		buttonDown = QStyle::SC_TitleBarNormalButton;
 	    else
 		buttonDown = ctrl;
 	    break;
-	case QStyle::TitleMaxButton:
-	case QStyle::TitleCloseButton:
+
+	case QStyle::SC_TitleBarMaxButton:
+	case QStyle::SC_TitleBarCloseButton:
 	    buttonDown = ctrl;
 	    break;
-	case QStyle::TitleLabel:
+
+	case QStyle::SC_TitleBarLabel:
 	    buttonDown = ctrl;
 	    moveOffset = mapToParent( e->pos() );
 	    break;
@@ -223,16 +237,17 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 
 	QPainter p(this);
 	if(window && window->isMinimized())
-	    ctrl |= QStyle::TitleNormalButton;
-	style().drawTitleBarControls(&p, this, ctrl, buttonDown);
+	    ctrl |= QStyle::SC_TitleBarNormalButton;
+	style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(), colorGroup(),
+				   QStyle::CStyle_Default, ctrl, buttonDown);
 	p.end();
     }
 }
 
 void QTitleBar::contextMenuEvent( QContextMenuEvent *e )
 {
-    int ctrl = style().titleBarPointOver(this, e->pos());
-    if(ctrl == QStyle::TitleLabel) {
+    QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+    if(ctrl == QStyle::SC_TitleBarLabel) {
 	emit popupOperationMenu(e->globalPos());
 	e->accept();
     }
@@ -242,78 +257,81 @@ void QTitleBar::contextMenuEvent( QContextMenuEvent *e )
 void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton ) {
-	int ctrl = style().titleBarPointOver(this, e->pos());
-	if(ctrl == QStyle::TitleMinButton && window && window->isMinimized())
-	    ctrl = QStyle::TitleNormalButton;
-	if(ctrl == buttonDown) {
+	QStyle::SCFlags ctrl =
+	    style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+	if (ctrl == QStyle::SC_TitleBarMinButton && window && window->isMinimized())
+	    ctrl = QStyle::SC_TitleBarNormalButton;
+	if (ctrl == buttonDown) {
 	    QPainter p(this);
-	    style().drawTitleBarControls(&p, this,
-					 ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0), 0);
+	    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
+				       colorGroup(), QStyle::CStyle_Default,
+				       ctrl | (window && window->isMinimized() ?
+					       QStyle::SC_TitleBarNormalButton : 0),
+				       QStyle::SC_None);
 	    p.end();
-		
+
 	    switch(ctrl) {
-	    case QStyle::TitleSysMenu:
+	    case QStyle::SC_TitleBarSysMenu:
 		break;
-	    case QStyle::TitleShadeButton:
+	    case QStyle::SC_TitleBarShadeButton:
 		emit doShade();
 		break;
-	    case QStyle::TitleUnshadeButton:
-	    case QStyle::TitleNormalButton:
+	    case QStyle::SC_TitleBarUnshadeButton:
+	    case QStyle::SC_TitleBarNormalButton:
 		emit doNormal();
 		break;
-	    case QStyle::TitleMinButton:
+	    case QStyle::SC_TitleBarMinButton:
 		emit doMinimize();
 		break;
-	    case QStyle::TitleMaxButton:
+	    case QStyle::SC_TitleBarMaxButton:
 		emit doMaximize();
 		break;
-	    case QStyle::TitleCloseButton:
+	    case QStyle::SC_TitleBarCloseButton:
 		emit doClose();
-		buttonDown = 0;
+		buttonDown = QStyle::SC_None;
 		return;
-	    case QStyle::TitleLabel:
+	    case QStyle::SC_TitleBarLabel:
 		break;
 	    }
 	}
-	buttonDown = 0;
+	buttonDown = QStyle::SC_None;
 	releaseMouse();
     }
 }
 
 void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 {
-    if ( !buttonDown )
+    if ( buttonDown == QStyle::SC_None)
 	return;
 
-    switch(buttonDown) {
-    case QStyle::TitleSysMenu:
+    switch (buttonDown) {
+    case QStyle::SC_TitleBarSysMenu:
 	break;
-    case QStyle::TitleShadeButton:
-    case QStyle::TitleUnshadeButton:
-    case QStyle::TitleNormalButton:
-    case QStyle::TitleMinButton:
-    case QStyle::TitleMaxButton:
-    case QStyle::TitleCloseButton:
-    {
-	static int last_ctrl = 0;
-	int ctrl = style().titleBarPointOver(this, e->pos());
-	if(ctrl == QStyle::TitleMinButton && window && window->isMinimized())
-	    ctrl = QStyle::TitleNormalButton;
+
+    case QStyle::SC_TitleBarShadeButton:
+    case QStyle::SC_TitleBarUnshadeButton:
+    case QStyle::SC_TitleBarNormalButton:
+    case QStyle::SC_TitleBarMinButton:
+    case QStyle::SC_TitleBarMaxButton:
+    case QStyle::SC_TitleBarCloseButton: {
+	static QStyle::SCFlags last_ctrl = 0;
+	QStyle::SCFlags ctrl =
+	    style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
+	if(ctrl == QStyle::SC_TitleBarMinButton && window && window->isMinimized())
+	    ctrl = QStyle::SC_TitleBarNormalButton;
 	if(ctrl != last_ctrl) {
 	    QPainter p(this);
-	    if(ctrl == buttonDown)
-		style().drawTitleBarControls(&p, this,
-					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0),
-					     buttonDown);
-	    else
-		style().drawTitleBarControls(&p, this,
-					     ctrl | (window && window->isMinimized() ? QStyle::TitleNormalButton : 0),
-					     QStyle::TitleNone);
+	    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
+				       colorGroup(), QStyle::CStyle_Default,
+				       ctrl | (window && window->isMinimized() ?
+					       QStyle::SC_TitleBarNormalButton : 0),
+				       ((ctrl == buttonDown) ? buttonDown :
+					QStyle::SC_None));
 	}
 	last_ctrl = ctrl;
-	break;
-    }
-    case QStyle::TitleLabel:
+	break; }
+
+    case QStyle::SC_TitleBarLabel:
 	if ( (moveOffset - mapToParent( e->pos() ) ).manhattanLength() >= 4 ) {
 	    QPoint p = mapFromGlobal(e->globalPos());
 #ifndef QT_NO_WORKSPACE
@@ -350,37 +368,47 @@ void QTitleBar::resizeEvent( QResizeEvent *r)
     cutText();
     if(oldt != cuttext) {
 	QPainter painter(this);
-	style().drawTitleBarControls(&painter, this, QStyle::TitleLabel, buttonDown);
+	style().drawComplexControl(QStyle::CC_TitleBar, &painter, this, rect(),
+				   colorGroup(), QStyle::CStyle_Default,
+				   QStyle::SC_TitleBarLabel, buttonDown);
     }
 }
 
 void QTitleBar::paintEvent(QPaintEvent *)
 {
-    int ctrls = QStyle::TitleLabel | QStyle::TitleSysMenu | QStyle::TitleMaxButton;
-    ctrls |= QStyle::TitleCloseButton | QStyle::TitleShadeButton | QStyle::TitleUnshadeButton;
+    QStyle::SCFlags ctrls = (QStyle::SC_TitleBarLabel |
+			     QStyle::SC_TitleBarSysMenu |
+			     QStyle::SC_TitleBarMaxButton);
+    ctrls |= (QStyle::SC_TitleBarCloseButton |
+	      QStyle::SC_TitleBarShadeButton |
+	      QStyle::SC_TitleBarUnshadeButton);
     if(window && window->isMinimized())
-	ctrls |= QStyle::TitleNormalButton;
+	ctrls |= QStyle::SC_TitleBarNormalButton;
     else
-	ctrls |= QStyle::TitleMinButton;
+	ctrls |= QStyle::SC_TitleBarMinButton;
 
     QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
     buffer.begin( this, rect() );
-    style().drawTitleBarControls(buffer.painter(), this, ctrls, buttonDown);
+    style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
+			       colorGroup(), QStyle::CStyle_Default, ctrls, buttonDown);
 }
 
 void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
 {
-    if ( e->button() == LeftButton ) {
-	switch(style().titleBarPointOver(this, e->pos())) {
-	case QStyle::TitleLabel:
-	    emit doubleClicked();
-	    break;
-	case QStyle::TitleSysMenu:
-	    emit doClose();
-	    break;
-	default:
-	    break;
-	}
+    if ( e->button() != LeftButton )
+	return;
+
+    switch(style().querySubControl(QStyle::CC_TitleBar, this, e->pos())) {
+    case QStyle::SC_TitleBarLabel:
+	emit doubleClicked();
+	break;
+
+    case QStyle::SC_TitleBarSysMenu:
+	emit doClose();
+	break;
+
+    default:
+	break;
     }
 }
 
@@ -388,8 +416,8 @@ void QTitleBar::cutText()
 {
     QFontMetrics fm( font() );
 
-    int maxw, tmp;
-    style().titleBarMetrics(this, tmp, tmp, maxw, tmp);
+    int maxw = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
+					      QStyle::SC_TitleBarLabel).width();
     cuttext = text;
     if ( fm.width( text+"m" ) > maxw ) {
 	int i = text.length();
@@ -407,21 +435,33 @@ void QTitleBar::setText( const QString& title )
     cutText();
 
     QPainter p(this);
-    style().drawTitleBarControls(&p, this, QStyle::TitleLabel, 0);
+    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(), colorGroup(),
+			       QStyle::CStyle_Default, QStyle::SC_TitleBarLabel);
 }
 
 
 void QTitleBar::setIcon( const QPixmap& icon )
 {
-    int controlWidth, controlHeight, titleHeight, titleWidth;
-    style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
-    if(icon.width() > controlWidth || icon.height() > controlHeight)
-	pixmap.convertFromImage( icon.convertToImage().smoothScale( controlWidth, controlHeight ) );
-    else
+    QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
+						  QStyle::SC_TitleBarSysMenu);
+    if (icon.width() > menur.width()) {
+	// try to keep something close to the same aspect
+	int aspect = (icon.height() * 100) / icon.width();
+	int newh = (aspect * menur.width()) / 100;
+	pixmap.convertFromImage( icon.convertToImage().smoothScale(menur.width(),
+								   newh) );
+    } else if (icon.height() > menur.height()) {
+	// try to keep something close to the same aspect
+	int aspect = (icon.width() * 100) / icon.height();
+	int neww = (aspect * menur.height()) / 100;
+	pixmap.convertFromImage( icon.convertToImage().smoothScale(neww,
+								   menur.height()) );
+    } else
 	pixmap = icon;
 
     QPainter p(this);
-    style().drawTitleBarControls(&p, this, QStyle::TitleSysMenu, 0);
+    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(), colorGroup(),
+			       QStyle::CStyle_Default, QStyle::SC_TitleBarSysMenu);
 }
 
 void QTitleBar::enterEvent( QEvent * )
@@ -463,9 +503,14 @@ bool QTitleBar::event( QEvent* e )
 QSize QTitleBar::sizeHint() const
 {
     constPolish();
-    int controlWidth, controlHeight, titleHeight, titleWidth;
-    style().titleBarMetrics(this, controlWidth, controlHeight, titleWidth, titleHeight);
-    return QSize( controlWidth, QMAX( QMAX(controlHeight, titleHeight), fontMetrics().lineSpacing() ) );;
+
+    QRect labelr = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
+						  QStyle::SC_TitleBarLabel),
+	   menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
+						  QStyle::SC_TitleBarSysMenu);
+
+    return QSize( menur.width(), QMAX( QMAX(menur.height(), 18),
+				       fontMetrics().lineSpacing() ) );
 }
 
 #endif //QT_NO_TITLEBAR

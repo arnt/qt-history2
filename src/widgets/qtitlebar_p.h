@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#17 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#18 $
 **
 ** Definition of some Qt private functions.
 **
@@ -106,7 +106,7 @@ protected:
 private:
     void cutText();
     void getColors();
-    int buttonDown;
+    QStyle::SCFlags buttonDown;
     QPoint moveOffset;
     QToolTip *toolTip;
 

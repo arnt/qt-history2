@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#826 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#827 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@
 #include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qwindowsstyle.h" // ######## dependency
-#include "qmotifplusstyle.h" // ######## dependency
+// #include "qmotifplusstyle.h" // ######## dependency
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
