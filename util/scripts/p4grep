@@ -3,21 +3,23 @@
 # Find revision transitions where change occurs.
 #
 
-$maxsim=10;
-$long_format=0;
+$maxsim=20;
+$long_format=1;
 
 while ( @ARGV ) {
-    if ( $ARGV[0] eq "-c" ) {
-	shift;
-	$keychange = $ARGV[0];
-    } elsif ( $ARGV[0] eq "-l" ) {
-        $long_format = 1;
-    } elsif ( !$pattern ) {
-	$pattern = $ARGV[0];
-    } else {
-	$file = $ARGV[0];
-    }
+  if ( $ARGV[0] eq "-c" ) {
     shift;
+    $keychange = $ARGV[0];
+  } elsif ( $ARGV[0] eq "-l" || $ARGV[0] eq "-long" ) {
+    $long_format = 1;
+  } elsif ( $ARGV[0] eq "-s" || $ARGV[0] eq "-short" ) {
+    $long_format = 0;
+  } elsif ( !$pattern ) {
+    $pattern = $ARGV[0];
+  } else {
+    $file = $ARGV[0];
+  }
+  shift;
 }
 
 $pattern && $file || die "Usage:  p4grep pattern file\n";
@@ -68,7 +70,7 @@ while (<p4>) {
     ($change) = ($_ =~ /Change (\d+)/);
     #print STDERR "$change\n";
     my $fh;
-    open $fh, "p4 describe $change & |";
+    open $fh, "p4 describe $change |";
     $c{$n} = $change;
     $fh{$n} = $fh;
     $n++;
