@@ -285,7 +285,7 @@ QTableWidgetItem::QTableWidgetItem(QTableWidget *view)
 
 QTableWidgetItem::~QTableWidgetItem()
 {
-//    view->itemDeleted(this);
+    view->removeItem(this);
 }
 
 /*!

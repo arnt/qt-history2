@@ -37,6 +37,7 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableWidget)
 
+    friend class QTableWidgetItem;
 public:
     QTableWidget(QWidget *parent = 0);
     ~QTableWidget();
