@@ -1040,6 +1040,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value LongLong a long long
     \value ULongLong an unsigned long long
     \value Map  a QMap<QString,QCoreVariant>
+    \value Object a pointer to a QObject.
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
@@ -1188,6 +1189,16 @@ QCoreVariant::QCoreVariant(const char *val)
   \fn QCoreVariant::QCoreVariant(const QDateTime &val)
 
     Constructs a new variant with a date/time value, \a val.
+*/
+
+/*!
+  \fn QCoreVariant::QCoreVariant(QObject *object)
+
+    Constructs a new variant with a QObject pointer \a object. If the
+    \a object is destroyed, the pointer stored in the variant is set
+    to zero.
+
+    \sa QPointer
 */
 
 /*!
@@ -1667,9 +1678,11 @@ QCoreVariantMap QCoreVariant::toMap() const
 */
 
 /*!
-
     Returns the variant as a pointer to a QObject if the variant has
     type() Object; otherwise returns a null pointer.
+
+    Note that toObject() also returns a null pointer if the object was
+    destroyed, similar to a \l QPointer<QObject*>.
 */
 QObject * QCoreVariant::toObject() const
 {
