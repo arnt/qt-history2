@@ -63,12 +63,12 @@ public:
 QDockWindowLayout::QDockWindowLayout(QWidget *widget, Qt::Orientation o)
     : QLayout(widget), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
-{ }
+{ connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
 
 QDockWindowLayout::QDockWindowLayout(QLayout *layout, Qt::Orientation o)
     : QLayout(layout), orientation(o), save_layout_info(0),
       relayout_type(QInternal::RelayoutNormal)
-{ }
+{ connect(this, SIGNAL(emptied()), SLOT(maybeDelete()), Qt::QueuedConnection); }
 
 QLayoutItem *QDockWindowLayout::find(QWidget *widget)
 {
@@ -164,7 +164,7 @@ QLayoutItem *QDockWindowLayout::takeAt(int index)
                 if (relayout_type == QInternal::RelayoutDropped) {
                     // probably splitting...
                 } else if (!save_layout_info) {
-                    deleteLater();
+                    emit emptied();
 		} else {
 		    QLayout *parentLayout = qt_cast<QLayout *>(parent());
 		    if (parentLayout)
@@ -1121,4 +1121,10 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
     }
 
     relayout_type = QInternal::RelayoutNormal;
+}
+
+void QDockWindowLayout::maybeDelete()
+{
+    if (layout_info.isEmpty())
+        delete this;
 }

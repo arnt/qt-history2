@@ -31,7 +31,7 @@ class QDockWindowLayout : public QLayout
 {
     Q_OBJECT
 
- public:
+public:
     Qt::Orientation orientation;
     QList<QDockWindowLayoutInfo> layout_info;
     QList<QDockWindowLayoutInfo> *save_layout_info;
@@ -76,6 +76,12 @@ class QDockWindowLayout : public QLayout
     void split(QDockWindow *dockwindow, Qt::Orientation direction);
 
     void split(QDockWindow *existing, QDockWindow *with, Qt::DockWindowArea area);
+
+signals:
+    void emptied();
+
+private slots:
+    void maybeDelete();
 };
 
 static inline QCOORD pick(Qt::Orientation o, const QPoint &p)
