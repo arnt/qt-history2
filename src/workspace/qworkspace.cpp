@@ -1335,10 +1335,20 @@ void QWorkspace::showMaximizeControls()
 #ifndef QT_NO_MENUBAR
     Q_ASSERT(d->maxWindow);
     QMenuBar* b = 0;
-
-    // Do a breadth-first search first, and query recoursively if nothing is found.
-    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
-						   FALSE, FALSE );
+    
+    // Do a breadth-first search first on every parent, 
+    QWidget* w = parentWidget();
+    QObjectList * l = 0;
+    while ( !l && w ) {
+	l = w->queryList( "QMenuBar", 0, FALSE, FALSE );
+	w = w->parentWidget();	
+	if ( l && !l->count() ) {
+	    delete l;
+	    l = 0;
+	}
+    } 
+    
+    // and query recursively if nothing is found.
     if ( !l || !l->count() ) {
 	if ( l )
 	    delete l;
