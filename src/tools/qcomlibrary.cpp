@@ -118,7 +118,6 @@ static bool verify( const QString& library, uint version, uint flags, const char
 
 void QComLibrary::createInstanceInternal()
 {
-    qDebug("QComLibrary %s, createInstanceInternal()", library().latin1() );
     if ( library().isEmpty() )
 	return;
 
