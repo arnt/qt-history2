@@ -16,7 +16,8 @@ void ControlInfo::setControl( QAxWidget *activex )
 
     QMetaObject *mo = activex->metaObject();
     QListViewItem *item = new QListViewItem( listInfo, "Class Info", QString::number( mo->numClassInfo() ) );
-    for ( int i = 0; i < mo->numClassInfo(FALSE ); ++i ) {
+    int i;
+    for ( i = 0; i < mo->numClassInfo(FALSE ); ++i ) {
 	const QClassInfo *info = mo->classInfo( i, FALSE );
 	(void)new QListViewItem( item, info->name, info->value );
     }

@@ -196,7 +196,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    const QString classId = qAxFactory()->classID(className).toString().upper();
 	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
 	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
-	    QString classVersion = mo ? mo->classInfo( "VERSION" ) : QString::null;
+	    QString classVersion = mo ? QString(mo->classInfo( "VERSION" )) : QString::null;
 	    if ( classVersion.isNull() )
 		classVersion = "1.0";
 	    const QString classMajorVersion = classVersion.left( classVersion.find(".") );
@@ -250,7 +250,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    const QString classId = qAxFactory()->classID(className).toString().upper();
 	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
 	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
-	    QString classVersion = mo ? mo->classInfo( "VERSION" ) : QString::null;
+	    QString classVersion = mo ? QString(mo->classInfo( "VERSION" )) : QString::null;
 	    if ( classVersion.isNull() )
 		classVersion = "1.0";
 	    const QString classMajorVersion = classVersion.left( classVersion.find(".") );
@@ -899,12 +899,17 @@ typedef int (*QWinEventFilter) (MSG*);
 extern int QAxEventFilter( MSG *pMsg );
 extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
 
+#if defined(NEEDS_QMAIN)
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+int qMain( int, char ** );
+#else
 #if defined( Q_OS_TEMP )
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
 EXTERN_C int __cdecl main( int, char ** );
 #else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
 EXTERN_C int main( int, char ** );
+#endif
 #endif
 
 EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, 

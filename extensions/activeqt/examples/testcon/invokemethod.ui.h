@@ -17,7 +17,7 @@ void InvokeMethod::invoke()
 	return;
     
     setValue();
-    QCString method = comboMethods->currentText();
+    QCString method = comboMethods->currentText().local8Bit();
     QValueList<QVariant> vars;
     QListViewItemIterator it( listParameters );
     while ( it.current() ) {

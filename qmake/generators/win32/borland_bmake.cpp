@@ -120,6 +120,10 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
     t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : 
 			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
+    t << "IDC		=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
+			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
+    t << "IDL		=	" << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
+			      Option::fixPathToTargetOS(var("QMAKE_IDL"), FALSE)) << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
     t << "DEF_FILE =	" << varList("DEF_FILE") << endl;
     t << "RES_FILE =	" << varList("RES_FILE") << endl;

@@ -127,7 +127,7 @@ void ChangeProperties::setValue()
     case QVariant::Bool:
 	{
 	    QString txt = editValue->text().lower();
-	    value = ( txt != "0" && txt != "false" );
+	    value = QVariant( ( txt != "0" && txt != "false" ), 23 );
 	}
 	break;
     case QVariant::List:
