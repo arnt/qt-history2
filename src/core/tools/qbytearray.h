@@ -33,7 +33,7 @@ Q_CORE_EXPORT char *qstrdup(const char *);
 inline uint qstrlen(const char *str)
 { return str ? uint(strlen(str)) : 0; }
 
-char *qstrcpy(char *dst, const char *src);
+Q_CORE_EXPORT char *qstrcpy(char *dst, const char *src);
 Q_CORE_EXPORT char *qstrncpy(char *dst, const char *src, uint len);
 
 Q_CORE_EXPORT int qstrcmp(const char *str1, const char *str2);
