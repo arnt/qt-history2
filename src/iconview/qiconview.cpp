@@ -5800,9 +5800,10 @@ QSize QIconView::sizeHint() const
     }
 
     d->dirty = TRUE;
-    int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, this);
-    return QSize( QMIN(400, contentsWidth() + sbextent),
-		  QMIN(400, contentsHeight() + sbextent) );
+    int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent, this) 
+		+ 2*frameWidth();
+    return QSize( QMIN(400, contentsWidth() + extra),
+		  QMIN(400, contentsHeight() + extra) );
 }
 
 /*!
