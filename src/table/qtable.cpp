@@ -412,6 +412,10 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
     Table items can be deleted with delete in the standard way; the
     table and cell will be updated accordingly.
 
+    Note, that if you have a table item that is not currently in a table
+    then anything you do to that item other than insert it into a table
+    will result in undefined behaviour.
+
     \img qtableitems.png Table Items
 
     \sa QCheckTableItem QComboTableItem
