@@ -1518,9 +1518,7 @@ sun4m)
     ARCH=sparc
     ;;
 esac
-if ! test -d "$relpath/arch/$ARCH"; then
-    ARCH="generic"
-fi
+test -d "$relpath/arch/$ARCH" || ARCH="generic"
 
 # symlink the arch/$ARCH/arch/ include directory to include/arch/
 rm -f "$outpath/include/arch"
