@@ -344,6 +344,8 @@ void debug( const char *msg, ... )
 }
 
 /*!
+  \fn void qWarning( const char *msg, ... )
+
   \relates QApplication
   Prints a warning message, or calls the message handler (if it has been
   installed).
@@ -407,6 +409,8 @@ void warning( const char *msg, ... )
 }
 
 /*!
+  \fn void qFatal( const char *msg, ... )
+
   \relates QApplication
   Prints a fatal error message and exits, or calls the message handler (if it
   has been installed).
