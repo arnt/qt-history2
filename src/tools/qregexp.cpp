@@ -3228,12 +3228,12 @@ static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
 
 static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 {
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &engineCache ) : 0 );
+#endif
     if ( eng->deref() ) {
 #ifndef QT_NO_REGEXP_OPTIM
-#ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &engineCache ) : 0 );
-#endif
 	if ( engineCache == 0 ) {
 	    engineCache = new QCache<QRegExpEngine>;
 	    engineCache->setAutoDelete( TRUE );
