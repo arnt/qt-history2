@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#15 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#15 $";
 #endif
 
 #include "qstring.h"
@@ -79,6 +79,17 @@ static inline bool checkIndex( const char *method, int count, int index )
     return TRUE;
 }
 
+/*! \class QListBox qlistbox.h
+
+  \brief QListBox provides a single-column list of items.
+
+  Since this is so flippant, H&aring;vard will write something less
+  funny and more informative.
+
+  */
+
+/*! Creates a new QListBox.  The arguments are passed to the parent
+  class as usual. */
 
 QListBox::QListBox( QWidget *parent, const char *name )
     : QTableWidget( parent, name )
@@ -101,12 +112,17 @@ QListBox::QListBox( QWidget *parent, const char *name )
     clearTableFlags( Tbl_clipCellPainting );
 }
 
+/*! Deletes the list box and frees the memory used. */
+
 QListBox::~QListBox()
 {
     clearList();
     delete itemList;
 }
 
+/*! Sets the list box' contents to \e l.  The list box is cleared in
+  various ways; scrolled to the top of the list and so on.  \sa
+  insertStrList(), insertItem(). */
 
 void QListBox::setStrList( const QStrList *l )
 {
@@ -134,6 +150,10 @@ void QListBox::setStrList( const QStrList *l )
     }
 }
 
+/*! Sets the list box' contents to the \e numStrings at \e l.  The
+  list box is cleared in various ways; scrolled to the top of the list
+  and so on.  \sa insertStrList(), insertItem(). */
+
 void QListBox::setStrList( const char **strs,int numStrings )
 {
     clearList();
@@ -157,6 +177,12 @@ void QListBox::setStrList( const char **strs,int numStrings )
     }
 }
 
+/*! Inserts the string list \e l into the list at item \e index.  If
+  \e index is negative, \e l is inserted at the end of the list.  If
+  \e index is too large, insertStrList() doesn't do anything.
+
+  \sa insertItem(), inSort() */
+
 void QListBox::insertStrList( const QStrList *l, int index )
 {
     if ( !checkInsertIndex( "insertStrList", count(), &index ) )
@@ -176,6 +202,13 @@ void QListBox::insertStrList( const QStrList *l, int index )
     }
 }
 
+/*! Inserts the \e numStrings strings at \e strs into the list at item
+  \e index.  If \e index is negative, \e l is inserted at the end of
+  the list.  If \e index is too large, insertStrList() doesn't do
+  anything.
+
+  \sa insertItem(), inSort() */
+
 void QListBox::insertStrList( const char **strs, int numStrings, int index )
 {
     if ( !checkInsertIndex( "insertStrList", count(), &index ) )
@@ -193,6 +226,10 @@ void QListBox::insertStrList( const char **strs, int numStrings, int index )
     }
 }
 
+/*! Inserts \e string into the list at \e index.  If \e index is
+  negative, \e string is inserted at the end of the list.  \sa
+  insertStrList(). */
+
 void QListBox::insertItem( const char *string, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
@@ -206,6 +243,10 @@ void QListBox::insertItem( const char *string, int index )
 	update(); // Optimize drawing ( only the ones after index ) ###
     }
 }
+
+/*! Inserts \e pixmap into the list at \e index.  If \e index is
+  negative, \e pixmap is inserted at the end of the list.  \sa
+  insertStrList(). */
 
 void QListBox::insertItem( const QPixmap *pixmap, int index )
 {
@@ -229,6 +270,11 @@ void QListBox::insertItem( const QPixmap *pixmap, int index )
 
 }
 
+/*! Insert and sort.  Yes.
+
+  Inserts \e string into the list and sorts the list. \sa
+  insertItem(). */
+
 void QListBox::inSort( const char *string )
 {
 #if defined(CHECK_NULL)
@@ -244,6 +290,8 @@ void QListBox::inSort( const char *string )
 	update(); // Optimize drawing ( find index )
     }
 }
+
+/*! Removes the item at position \e index.  \sa insertItem(). */
 
 void QListBox::removeItem( int index )
 {
@@ -264,6 +312,10 @@ void QListBox::removeItem( int index )
 	update(); // Optimize this zucker!   ###
 }
 
+/*! Returns a pointer to the string at position \e index, or a null
+  pointer if the position either doesn't exist or doesn't contain a
+  string. \sa pixmap(). */
+
 const char *QListBox::string( int index ) const
 {
     if ( !checkIndex( "string", count(), index ) )
@@ -271,6 +323,10 @@ const char *QListBox::string( int index ) const
     QLBItem *tmp = itemList->at( index );
     return tmp->type == LBI_String ? tmp->string : 0;
 }
+
+/*! Returns a pointer to the pixmap at position \e index, or a null
+  pointer if the position either doesn't exist or doesn't contain a
+  pixmap. \sa string(). */
 
 QPixmap *QListBox::pixmap( int index ) const
 {
@@ -280,12 +336,22 @@ QPixmap *QListBox::pixmap( int index ) const
     return tmp->type == LBI_Pixmap ? tmp->pixmap : 0;
 }
 
+/*! Replaces the item at posistion \e index with \e string.  If \e
+  index is negative or too large, changeItem() does nothing.
+
+  \sa insertItem(), removeItem(). */
+
 void QListBox::changeItem( const char *string, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
     changeAny( string, 0, 0, index );
 }
+
+/*! Replaces the item at posistion \e index with \e pixmap.  If \e
+  index is negative or too large, changeItem() does nothing.
+
+  \sa insertItem(), removeItem(). */
 
 void QListBox::changeItem( const QPixmap *pixmap, int index )
 {
@@ -294,12 +360,16 @@ void QListBox::changeItem( const QPixmap *pixmap, int index )
     changeAny( 0, pixmap, 0, index );
 }
 
+/*! Deletes all items in the list.  \sa removeItems(), setStrList(). */
+
 void QListBox::clear()
 {
     clearList();
     if ( autoUpdate() )
 	erase();
 }
+
+/*! Not implemented yet. \sa The Future. */
 
 void QListBox::setStringCopy( bool b )
 {
@@ -316,6 +386,9 @@ void QListBox::setStringCopy( bool b )
     
 }
 
+/*! Scrolls the list box so the highlighted item is in the middle of
+  the visible box. */
+
 void QListBox::centerCurrentItem()
 {
     int top;
@@ -331,10 +404,15 @@ void QListBox::centerCurrentItem()
     setTopItem( top );
 }
 
+/*! Returns the number of visible items.  This may change at any time
+  since the user may resize the widget. */
+
 int QListBox::numItemsVisible()
 {
     return lastRowVisible() - topCell() + 1;
 }
+
+/*! Not implemented yet. */
 
 void QListBox::setUserItems( bool b )
 {
@@ -347,24 +425,38 @@ void QListBox::setUserItems( bool b )
     ownerDrawn = b;
 }
 
+/*! Not implemented yet. */
+
 bool QListBox::userItems()
 {
     return ownerDrawn;
 }
+
+/*! Returns a new QLBItem which may be used freely.  QListBox will not
+  try to keep track of this item, but you can call deleteItem() to
+  delete it. */
 
 QLBItem *QListBox::newItem()
 {
     return new QLBItem;
 }
 
+/*! Deletes \e i.  \sa newItem(). */
+
 void QListBox::deleteItem( QLBItem *i )
 {
     delete i;
 }
 
+/*! Not implemented yet. */
+
 void QListBox::paintItem( QPainter *, int )
 {
 }
+
+/*! Inserts \e lbi into the list at \e index.  If \e index is
+  negative, \e lbi is inserted at the end of the list.  \sa
+  insertStrList(). */
 
 void QListBox::insertItem( const QLBItem *lbi, int index )
 {
@@ -390,8 +482,12 @@ void QListBox::inSort( const QLBItem *lbi )
     if ( autoUpdate() ) {
 	update(); // Optimize drawing ( find index )
     }
-}
-*/
+} */
+
+/*! Replaces the item at posistion \e index with \e lbi.  If \e
+  index is negative or too large, changeItem() does nothing.
+
+  \sa insertItem(), removeItem(). */
 
 void QListBox::changeItem( const QLBItem *lbi, int index )
 {
@@ -400,6 +496,8 @@ void QListBox::changeItem( const QLBItem *lbi, int index )
     changeAny( 0, 0, lbi, index );
 }
 
+/*! Returns a pointer to the item at position \e index.  If that item
+  isn't a QLBItem, you are very unlucky. */
 
 QLBItem *QListBox::item( int index ) const
 {
@@ -409,6 +507,8 @@ QLBItem *QListBox::item( int index ) const
 #endif
     return itemList->at( index );
 }
+
+/*! Returns the height of the item at position \e l in pixels. */
 
 int QListBox::cellHeight( long l )
 {
@@ -437,10 +537,15 @@ int QListBox::cellHeight( long l )
     }
 }
 
+/*! Returns the walue set by setCellWidth(). \sa cellHeight(). */
+
 int QListBox::cellWidth( long l )
 {
     return QTableWidget::cellWidth();  // cellWidth is always constant
 }
+
+/*! This virtual function returns a null pointer in QListBox and must
+  be reimplemented by subclasses that use other types. */
 
 int QListBox::itemHeight( QLBItem *lbi )
 {
@@ -449,12 +554,25 @@ int QListBox::itemHeight( QLBItem *lbi )
     return 0;
 }
 
+/*! This virtual function returns a null pointer in QListBox and must
+  be reimplemented by subclasses that use other types. */
+
 int QListBox::itemWidth( QLBItem *lbi )
 {
     warning("QListBox::itemWidth: You must reimplement itemWidth() when you"
             " use item types different from LBI_String and LBI_Pixmap");
     return 0;
 }
+
+/*! This event handler knows about the up and down arrow keys and
+  about enter.
+
+  Up and down arrow keys make the highlighted item move and if
+  necessary the list scroll.
+
+  Enter makes the list box emit the selected() signal.
+
+  \sa selected(), setTopItem(). */
 
 void QListBox::keyPressEvent( QKeyEvent *e )
 {
@@ -483,6 +601,9 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     }
 }
 
+/*! Sets the highlighted item to the item at position \e index.  The
+  highlighting is moved and list scrolled as necessary.  */
+
 void QListBox::setCurrentItem( int index )
 {
     if ( index == current )
@@ -498,15 +619,25 @@ void QListBox::setCurrentItem( int index )
 
 }
 
+/*! Returns the number of items in the list box. */
+
 int QListBox::count() const
 {
     return itemList->count();
 }
 
+/*! Returns TRUE if the item at position \e index is at least partly
+  visible. */
 bool QListBox::itemVisible( int index )
 {
     return rowIsVisible( index );
 }
+
+/*! Repaints the cell at position \e row using \e p.  The \e column
+  argument is ignored, it is present because QTableWidget is more
+  general.
+
+  \sa QTableWidget::paintCell(). */
 
 void QListBox::paintCell( QPainter *p, long row, long column )
 {
@@ -543,6 +674,8 @@ void QListBox::paintCell( QPainter *p, long row, long column )
         p->drawPixmap( 3, 2, *lbi->pixmap );
 }
 
+/*! This event handler moves the highlight to the clicked item, and
+  ignores mouse clicks that don't fall on an item. */
 
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
@@ -551,6 +684,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	setCurrentItem( itemClicked );
     }
 }
+
+/*! Not completely implemented */
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
@@ -580,6 +715,10 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
+/*! Not completely implemented.  Contains a very very funny comment,
+  though, which may be considered a suitable substitute for actually
+  working. */
+
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( doDrag )
@@ -590,6 +729,10 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     }
     // emit & gutta!
 }
+
+/*! This event handler emits the selected() signal for the
+  double-clicked item.  It ignores clicks that don't fall on an
+  item. */
 
 void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -618,6 +761,8 @@ void QListBox::timerEvent( QTimerEvent *e )
 	}
     }
 }
+
+/*! Deletes all items in the list box. */
 
 void QListBox::clearList()
 {
