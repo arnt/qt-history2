@@ -71,13 +71,14 @@ QString QDir::homeDirPath()
 {
     QString d;
     d = QString::fromLatin1( getenv("HOME") );
-    if ( d.isEmpty() )
+    if ( d.isEmpty() || !QFile::exists( d ) ) {
 	d = QString::fromLatin1( getenv("USERPROFILE") );
-    if ( d.isEmpty() )
-	d = QString::fromLatin1( getenv("HOMEDRIVE") ) + QString::fromLatin1( getenv("HOMEPATH") );
-
-    if ( d.isEmpty() )
-	d = rootDirPath();
+	if ( d.isEmpty() || !QFile::exists( d ) ) {
+	    d = QString::fromLatin1( getenv("HOMEDRIVE") ) + QString::fromLatin1( getenv("HOMEPATH") );
+	    if ( d.isEmpty() || !QFile::exists( d ) )
+		d = rootDirPath();
+	}
+    }
 
     slashify( d );
     return d;
