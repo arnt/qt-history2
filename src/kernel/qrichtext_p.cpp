@@ -131,7 +131,7 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
 	    index = para->length() - 1;
     }
 
-    tmpIndex = -1;
+    tmpX = -1;
     idx = index;
     fixCursorPosition();
 }

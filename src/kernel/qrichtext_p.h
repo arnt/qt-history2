@@ -341,7 +341,7 @@ private:
     void gotoIntoNested( const QPoint &globalPos );
 
     QTextParagraph *para;
-    int idx, tmpIndex;
+    int idx, tmpX;
     int ox, oy;
     QStack<int> indices;
     QStack<QTextParagraph*> paras;
