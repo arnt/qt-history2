@@ -250,6 +250,7 @@ void QDesignerWorkbench::switchToNeutralMode()
     m_toolToolBar->setParent(0);
     m_formToolBar->setParent(0);
     m_core->setTopLevel(0);
+    qDesigner->setMainWindow(0);
 
     if (m_workspace)
         delete m_workspace->parentWidget();
@@ -286,6 +287,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
     mw->addToolBar(m_formToolBar);
+    qDesigner->setMainWindow(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
@@ -324,6 +326,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         widgetBoxWrapper->setMenuBar(m_globalMenuBar);
         widgetBoxWrapper->action()->setEnabled(false);
         widgetBoxWrapper->setSaveSettingsOnClose(true);
+        qDesigner->setMainWindow(widgetBoxWrapper);
 #endif
         widgetBoxWrapper->addToolBar(m_editToolBar);
         widgetBoxWrapper->addToolBar(m_toolToolBar);

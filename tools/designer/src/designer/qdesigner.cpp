@@ -88,6 +88,8 @@ bool QDesigner::event(QEvent *ev)
         closeEvent->setAccepted(m_workbench->handleClose());
         if (closeEvent->isAccepted()) {
             // We're going down, make sure that we don't get our settings saved twice.
+            if (m_mainWindow)
+                m_mainWindow->setSaveSettingsOnClose(false);
             eaten = QApplication::event(ev);
         }
         eaten = true;
@@ -98,4 +100,14 @@ bool QDesigner::event(QEvent *ev)
         break;
     }
     return eaten;
+}
+
+void QDesigner::setMainWindow(QDesignerToolWindow *tw)
+{
+    m_mainWindow = tw;
+}
+
+QDesignerToolWindow *QDesigner::mainWindow() const
+{
+    return m_mainWindow;
 }

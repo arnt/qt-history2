@@ -17,6 +17,8 @@
 #include <QtCore/QPointer>
 #include <QtGui/QApplication>
 
+#include "qdesigner_toolwindow.h"
+
 #define qDesigner \
     (static_cast<QDesigner*>(QCoreApplication::instance()))
 
@@ -35,6 +37,8 @@ public:
     QDesignerWorkbench *workbench() const;
     QDesignerSession *session() const;
     QDesignerServer *server() const;
+    QDesignerToolWindow *mainWindow() const;
+    void setMainWindow(QDesignerToolWindow *tw);
 
 protected:
     bool event(QEvent *ev);
@@ -49,6 +53,7 @@ private:
     QDesignerServer *m_server;
     QDesignerSession *m_session;
     QDesignerWorkbench *m_workbench;
+    QPointer<QDesignerToolWindow> m_mainWindow;
 };
 
 #endif // QDESIGNER_H

@@ -16,6 +16,7 @@
 int main(int argc, char *argv[])
 {
     QDesigner app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
     return app.exec();
 }
