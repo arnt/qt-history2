@@ -74,6 +74,8 @@ extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
 extern const char* qt_xdnd_atom_to_str( Atom );
 
 
+static int clipboard_timeout = 5000; // 5s timeout on clipboard operations
+
 static QWidget * owner = 0;
 static QWidget *requestor = 0;
 static bool timer_event_clear = FALSE;
@@ -248,6 +250,7 @@ public:
 typedef QMap<Window,QClipboardINCRTransaction*> TransactionMap;
 static TransactionMap *transactions = 0;
 static QX11EventFilter prev_x11_event_filter = 0;
+static int incr_timer_id = 0;
 
 static int qt_xclb_transation_event_handler(XEvent *event)
 {
@@ -259,6 +262,20 @@ static int qt_xclb_transation_event_handler(XEvent *event)
     if (prev_x11_event_filter)
 	return prev_x11_event_filter(event);
     return 0;
+}
+
+/*
+  called when no INCR activity has happened for 'clipboard_timeout'
+  milliseconds... we assume that all unfinished transactions have
+  timed out and remove everything from the transaction map
+*/
+static void qt_xclb_incr_timeout(void)
+{
+    qWarning("QClipboard: timed out while sending data");
+
+    TransactionMap::Iterator it = transactions->begin(),
+			    end = transactions->end();
+    for (; it != end; ++it) delete *it;
 }
 
 QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, int f,
@@ -298,6 +315,10 @@ int QClipboardINCRTransaction::x11Event(XEvent *event)
 	|| (event->xproperty.state != PropertyDelete
 	    || event->xproperty.atom != property))
 	return 0;
+
+    // restart the INCR timer
+    if (incr_timer_id) QApplication::clipboard()->killTimer(incr_timer_id);
+    incr_timer_id = QApplication::clipboard()->startTimer(clipboard_timeout);
 
     unsigned int bytes_left = data.size() - offset;
     if (bytes_left > 0) {
@@ -570,8 +591,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 
     for (;;) {
 	XFlush( dpy );
-	if ( !qt_xclb_wait_for_event(dpy,win,PropertyNotify,
-				     (XEvent*)&event,5000) )
+	if ( !qt_xclb_wait_for_event(dpy,win,PropertyNotify,&event,clipboard_timeout) )
 	    break;
 	if ( event.xproperty.atom != property ||
 	     event.xproperty.state != PropertyNewValue )
@@ -858,6 +878,13 @@ bool QClipboard::event( QEvent *e )
 		selectionData()->clear();
 		emit selectionChanged();
 	    }
+
+	    return TRUE;
+	} else if (te->timerId() == incr_timer_id) {
+	    killTimer(incr_timer_id);
+	    incr_timer_id = 0;
+
+	    qt_xclb_incr_timeout();
 
 	    return TRUE;
 	} else {
@@ -1295,7 +1322,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     VDEBUG("QClipboardWatcher::getDataInFormat: waiting for SelectionNotify event");
 
     XEvent xevent;
-    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) ||
+    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,clipboard_timeout) ||
 	 xevent.xselection.property == None ) {
 	DEBUG("QClipboardWatcher::getDataInFormat: format not available");
 	return buf;
