@@ -76,11 +76,15 @@ extern int qFontGetWeight( const QCString &/*weightString*/,
     return 0;
 }
 
+static void populate_database(const QString& fam);
+
 #endif
 
 static QFont::CharSet getCharSet( const QString &name );
-
-void newWinFont( void * p );
+static void newWinFont( void * p );
+class QtFontCharSet;
+static void add_style( QtFontCharSet *charSet, const QString& styleName,
+		bool italic, bool lesserItalic, int weight );
 
 class QtFontCharSet;
 class QtFontFamily;
@@ -145,6 +149,8 @@ private:
 
     friend void QFontDatabase::createDatabase();
     friend void newWinFont( void * p );
+    friend void add_style( QtFontCharSet *charSet, const QString& styleName,
+		bool italic, bool lesserItalic, int weight );
 };
 
 class QtFontCharSet {
@@ -208,6 +214,8 @@ private:
 
     friend void QFontDatabase::createDatabase();
     friend void newWinFont( void * p );
+    friend void add_style( QtFontCharSet *charSet, const QString& styleName,
+		bool italic, bool lesserItalic, int weight );
 };
 
 class QtFontFamily
@@ -259,6 +267,8 @@ private:
 
     friend void QFontDatabase::createDatabase();
     friend void newWinFont( void * p );
+    friend void add_style( QtFontCharSet *charSet, const QString& styleName,
+		bool italic, bool lesserItalic, int weight );
 };
 
 class QtFontFoundry
@@ -402,18 +412,15 @@ void QtFontStyle::setBitmapScalable()
     bitmapScalable = TRUE;
 }
 
+static
 int styleSortValue( QtFontStyle *style )
 {
-    int score = 0;
-    if ( style->weight() == QFont::Bold )
-	score += 100;
-    else if ( style->weight() != QFont::Normal )
-	score += 1000;
-
+    int score = 100000; // so lexical ordering is ok
+    score += style->weight() * 100;
     if ( style->italic() ) {
 	score += 10;
 	if ( style->lesserItalic() )
-	    score += 1000;
+	    score += 20000;
     }
     return score;
 
@@ -433,13 +440,18 @@ const QStringList &QtFontCharSet::styles() const
 {
     if ( namesDirty ) {
 	QtFontCharSet *that = (QtFontCharSet*) this;  // Mutable function
-	QMap<int, QString> styleMap;
+#ifdef _WS_WIN_
+	// Lazy evaluation
+	populate_database(parent()->name());
+#endif
+	QMap<QString, QString> styleMap;
 	QDictIterator<QtFontStyle> iter( styleDict );
 	QtFontStyle *tmp;
 	for( ; (tmp = iter.current()) ; ++iter ) {
-	    styleMap.insert( styleSortValue( tmp ), tmp->name() );
+	    styleMap.insert( QString().setNum(styleSortValue( tmp ))+
+			tmp->name(), tmp->name() );
 	}
-	QMap<int,QString>::Iterator it = styleMap.begin();
+	QMap<QString,QString>::Iterator it = styleMap.begin();
 	for ( ; it != styleMap.end(); ++it )
 	    that->styleNames.append( *it );
 	that->namesDirty = FALSE;
@@ -934,7 +946,13 @@ void QFontDatabase::createDatabase()
     }
 }
 
+static
 void newWinFont( void * )
+{
+}
+static
+void add_style( QtFontCharSet *charSet, const QString& styleName,
+	    bool italic, bool lesserItalic, int weight )
 {
 }
 #endif
@@ -960,6 +978,65 @@ QString winGetCharSetName( BYTE /*chset*/ )
     // ##### Could give hints to the user
     return "Unicode";
 }
+
+static
+void add_style( QtFontCharSet *charSet, const QString& styleName,
+		bool italic, bool lesserItalic, int weight )
+{
+    QString weightString;
+    if ( weight <= QFont::Light )
+	weightString = "Light";
+    else if ( weight <= QFont::Normal )
+	weightString = "Regular";
+    else if ( weight <= QFont::DemiBold )
+	weightString = "DemiBold";
+    else if ( weight <= QFont::Bold )
+	weightString = "Bold";
+    else
+	weightString = "Black";
+
+    QString sn = styleName;
+    if ( sn.isEmpty() ) {
+	// Not TTF, we make the name
+	if ( weight != QFont::Normal || !italic && !lesserItalic ) {
+	    sn += weightString;
+	    sn += " ";
+	}
+	if ( italic )
+	    sn += "Italic ";
+	if ( lesserItalic ) {
+	    // Windows doesn't tell the user, so we don't either
+	    //  sn += "Oblique ";
+	    sn += "Italic ";
+	}
+	sn = sn.left(sn.length()-1); // chomp " "
+    }
+
+debug("New font: %s %s%s %d",
+sn.latin1(),
+italic?" Italic":"",
+lesserItalic?" Oblique":"",
+weight
+);
+    QtFontStyle *style = charSet->styleDict.find( sn );
+    if ( !style ) {
+	//qWarning( "New style[%s] for [%s][%s][%s]",
+	// (const char*)styleName, (const char*)charSetName,
+	// (const char*)familyName, (const char *)foundryName );
+	style = new QtFontStyle( charSet, sn );
+	CHECK_PTR( style );
+	style->ital         = italic;
+	style->lesserItal   = lesserItalic;
+	style->weightString = weightString;
+	style->weightVal    = weight;
+	style->weightDirty  = FALSE;
+	charSet->addStyle( style );
+    }
+else
+debug("Already got it");
+    style->setSmoothlyScalable();  // cowabunga
+}
+
 
 static
 void newWinFont( void * p )
@@ -1001,14 +1078,9 @@ void newWinFont( void * p )
 	CHECK_PTR(charSet);
 	family->addCharSet( charSet );
     }
-    bool italic = f->elfLogFont.lfItalic;;
-    bool lesserItalic = FALSE;
-    QString weightString;
-    int weight = f->elfLogFont.lfWeight;
-    weightString.setNum( weight );
+    bool italic = f->elfLogFont.lfItalic;
+    int weight = f->elfLogFont.lfWeight/10;
 
-    //tc = ((NEWLOGFONT*)&f->elfLogFont)->lfStyle; // cowabunga, only works
-                // for true type fonts, don't know how to check for them
     tc = (TCHAR*)f->elfStyle;
 
     QString styleName;
@@ -1018,37 +1090,38 @@ void newWinFont( void * p )
 	styleName = QString::fromLocal8Bit((const char*)tc);
     }
 
-    QtFontStyle *style = charSet->styleDict.find( styleName );
-    if ( !style ) {
-	//qWarning( "New style[%s] for [%s][%s][%s]",
-	// (const char*)styleName, (const char*)charSetName,
-	// (const char*)familyName, (const char *)foundryName );
-	style = new QtFontStyle( charSet, styleName );
-	CHECK_PTR( style );
-	style->ital         = italic;
-	style->lesserItal   = lesserItalic;
-	style->weightString = weightString;
-	style->weightVal    = weight;
-	style->weightDirty  = FALSE;
-	charSet->addStyle( style );
+    if ( styleName.isEmpty() ) {
+	// Not TTF, we enumerate the
+	// transformed fonts that Windows can generate.
+debug("%s with quality %x",familyName.latin1(),f->elfLogFont.lfQuality);
+	add_style( charSet, styleName, FALSE, FALSE, weight );
+	add_style( charSet, styleName, FALSE, TRUE, weight );
+	if ( weight < QFont::DemiBold*10 ) {
+	    // Can make bolder
+	    add_style( charSet, styleName, FALSE, FALSE, QFont::Bold );
+	    add_style( charSet, styleName, FALSE, TRUE, QFont::Bold );
+	}
+    } else {
+	add_style( charSet, styleName, italic, FALSE, weight );
     }
-    style->setSmoothlyScalable();  // cowabunga
 }
 
-void QFontDatabase::createDatabase()
+static
+void populate_database(const QString& fam)
 {
-    if ( db ) return;
-
-    db = new QFontDatabasePrivate;
-
     QWidget dummy;
     QPainter p( &dummy );
+
     if ( qt_winver == Qt::WV_NT ) {
 	LOGFONT lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
-	lf.lfFaceName[0] = 0;
+	if ( fam.isNull() ) {
+	    lf.lfFaceName[0] = 0;
+	} else {
+	    memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
+		sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+	}
 	lf.lfPitchAndFamily = 0;
-
 #if 1
 	EnumFontFamiliesEx( dummy.handle(), &lf,
 	    (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
@@ -1059,12 +1132,29 @@ void QFontDatabase::createDatabase()
     } else {
 	LOGFONTA lf;
 	lf.lfCharSet = DEFAULT_CHARSET;
-	lf.lfFaceName[0] = 0;
+	if ( fam.isNull() ) {
+	    lf.lfFaceName[0] = 0;
+	} else {
+	    QCString lname = fam.local8Bit();
+	    memcpy(lf.lfFaceName,lname.data(),
+		QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
+	}
 	lf.lfPitchAndFamily = 0;
 	EnumFontFamiliesExA( dummy.handle(), &lf,
 	    (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
     }
+
+    // ##### Should add Italic if none already
+    // ##### Should add Bold and Bold Italic if any less-than-bold exists
 }
+
+void QFontDatabase::createDatabase()
+{
+    if ( db ) return;
+    db = new QFontDatabasePrivate;
+    populate_database(0);
+}
+
 
 #endif
 
