@@ -58,9 +58,9 @@ public:
         On =       Qt::Checked
     };
     inline QT_COMPAT ToggleState state() const
-        { return static_cast<ToggleState>(checkState()); }
+        { return static_cast<QCheckBox::ToggleState>(static_cast<int>(checkState())); }
     inline QT_COMPAT void setState(ToggleState state)
-        { setCheckState(static_cast<Qt::CheckState>(state)); }
+        { setCheckState(static_cast<Qt::CheckState>(static_cast<int>(state))); }
     inline QT_COMPAT void setNoChange()
         { setCheckState(Qt::PartiallyChecked); }
     QT_COMPAT_CONSTRUCTOR QCheckBox(QWidget *parent, const char* name);
