@@ -58,8 +58,8 @@ private:
 class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
 public:
-    QTDSDriver( QObject* parent = 0, const char* name = 0 );
-    QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent = 0, const char* name = 0 );
+    QTDSDriver(QObject* parent = 0);
+    QTDSDriver(LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent = 0);
     ~QTDSDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,

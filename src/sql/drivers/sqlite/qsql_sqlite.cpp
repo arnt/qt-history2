@@ -30,8 +30,6 @@
 
 typedef struct sqlite_vm sqlite_vm;
 
-#define QSQLite_DRIVER_NAME "QSQLITE1"
-
 static QSqlVariant::Type nameToType(const QString& typeName)
 {
     QString tName = typeName.upper();
@@ -408,8 +406,8 @@ int QSQLiteResult::numRowsAffected()
 
 /////////////////////////////////////////////////////////
 
-QSQLiteDriver::QSQLiteDriver(QObject * parent, const char * name)
-: QSqlDriver(parent, name ? name : QSQLite_DRIVER_NAME)
+QSQLiteDriver::QSQLiteDriver(QObject * parent)
+: QSqlDriver(parent)
 {
     d = new QSQLiteDriverPrivate();
     d->access = 0;

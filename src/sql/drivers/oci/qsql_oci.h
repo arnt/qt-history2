@@ -99,8 +99,8 @@ private:
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
 public:
-    QOCIDriver( QObject* parent = 0, const char* name = 0 );
-    QOCIDriver( OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent = 0, const char* name = 0 );
+    QOCIDriver(QObject* parent = 0);
+    QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent = 0);
     ~QOCIDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool                open( const QString & db,

@@ -486,14 +486,14 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
     return QPSQLDriver::Version6;
 }
 
-QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
+QPSQLDriver::QPSQLDriver(QObject *parent)
+    : QSqlDriver(parent), pro(QPSQLDriver::Version6)
 {
     init();
 }
 
-QPSQLDriver::QPSQLDriver( PGconn * conn, QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
+QPSQLDriver::QPSQLDriver(PGconn * conn, QObject * parent)
+    : QSqlDriver(parent), pro(QPSQLDriver::Version6)
 {
     init();
     d->connection = conn;

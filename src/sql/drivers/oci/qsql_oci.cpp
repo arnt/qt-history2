@@ -1723,14 +1723,14 @@ bool QOCI9Result::exec()
 ////////////////////////////////////////////////////////////////////////////
 
 
-QOCIDriver::QOCIDriver( QObject* parent, const char* name )
-    : QSqlDriver( parent, (name ? name : "QOCI") )
+QOCIDriver::QOCIDriver(QObject* parent)
+    : QSqlDriver(parent)
 {
     init();
 }
 
-QOCIDriver::QOCIDriver( OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent, const char* name )
-    : QSqlDriver( parent, (name ? name : "QOCI") )
+QOCIDriver::QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent)
+    : QSqlDriver(parent)
 {
     d = new QOCIPrivate();
     d->env = env;

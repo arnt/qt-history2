@@ -1017,14 +1017,14 @@ int QDB2Result::size()
 
 /************************************/
 
-QDB2Driver::QDB2Driver( QObject* parent, const char* name )
-    : QSqlDriver( parent, name )
+QDB2Driver::QDB2Driver(QObject* parent)
+    : QSqlDriver(parent)
 {
     d = new QDB2DriverPrivate;
 }
 
-QDB2Driver::QDB2Driver( Qt::HANDLE env, Qt::HANDLE con, QObject* parent, const char* name )
-    : QSqlDriver( parent, name )
+QDB2Driver::QDB2Driver( Qt::HANDLE env, Qt::HANDLE con, QObject* parent)
+    : QSqlDriver(parent)
 {
     d = new QDB2DriverPrivate;
     d->hEnv = (SQLHANDLE)env;

@@ -416,14 +416,14 @@ int QTDSResult::numRowsAffected()
 
 ///////////////////////////////////////////////////////////////////
 
-QTDSDriver::QTDSDriver( QObject* parent, const char* name )
-    : QSqlDriver( parent,name ? name : "QTDS" )
+QTDSDriver::QTDSDriver(QObject* parent)
+    : QSqlDriver(parent)
 {
     init();
 }
 
-QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent, const char* name )
-    : QSqlDriver( parent,name ? name : "QTDS" )
+QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent)
+    : QSqlDriver(parent)
 {
     init();    
     d->login = rec;

@@ -64,8 +64,8 @@ class Q_EXPORT_SQLDRIVER_MYSQL QMYSQLDriver : public QSqlDriver
 {
     friend class QMYSQLResult;
 public:
-    QMYSQLDriver( QObject * parent=0, const char * name=0 );
-    QMYSQLDriver( MYSQL * con, QObject * parent=0, const char * name=0 );
+    QMYSQLDriver(QObject *parent=0);
+    QMYSQLDriver(MYSQL *con, QObject * parent=0);
     ~QMYSQLDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,

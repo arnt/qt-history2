@@ -60,7 +60,7 @@ class QSQLiteDriver : public QSqlDriver
 {
     friend class QSQLiteResult;
 public:
-    QSQLiteDriver(QObject * parent=0, const char * name=0);
+    QSQLiteDriver(QObject * parent=0);
     ~QSQLiteDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,

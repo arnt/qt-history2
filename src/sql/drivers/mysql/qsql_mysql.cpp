@@ -320,8 +320,8 @@ static void qServerInit()
 #endif // Q_NO_MYSQL_EMBEDDED
 }
 
-QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
-    : QSqlDriver( parent, name ? name : QMYSQL_DRIVER_NAME )
+QMYSQLDriver::QMYSQLDriver(QObject * parent)
+    : QSqlDriver(parent)
 {
     init();
     qServerInit();
@@ -331,8 +331,8 @@ QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
     Create a driver instance with an already open connection handle.
 */
 
-QMYSQLDriver::QMYSQLDriver( MYSQL * con, QObject * parent, const char * name )
-    : QSqlDriver( parent, name ? name : QMYSQL_DRIVER_NAME )
+QMYSQLDriver::QMYSQLDriver(MYSQL * con, QObject * parent)
+    : QSqlDriver(parent)
 {
     init();
     if ( con ) {

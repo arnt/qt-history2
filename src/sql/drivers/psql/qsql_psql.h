@@ -62,8 +62,8 @@ public:
 	Version73 = 9
     };
 
-    QPSQLDriver( QObject * parent=0, const char * name=0 );
-    QPSQLDriver( PGconn * conn, QObject * parent=0, const char * name=0 );
+    QPSQLDriver(QObject *parent=0);
+    QPSQLDriver(PGconn *conn, QObject *parent=0);
     ~QPSQLDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,
