@@ -120,6 +120,12 @@ private:
 class QPainter;
 class QTextFormatCollection;
 
+struct QTextInlineObjectInterface
+{
+    virtual void layoutItem(QTextItem item) = 0;
+    virtual void drawItem(QPainter *painter, const QPoint &position, QTextItem item) = 0;
+};
+
 class Q_GUI_EXPORT QTextLayout
 {
 public:
@@ -134,6 +140,7 @@ public:
     void setFormatCollection(const QTextFormatCollection *formats);
     void setText( const QString& string);
     QString text() const;
+    void setInlineObjectInterface(QTextInlineObjectInterface *iface);
 
     enum LineBreakStrategy {
 	AtWordBoundaries,

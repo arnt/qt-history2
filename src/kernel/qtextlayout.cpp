@@ -140,6 +140,11 @@ QString QTextLayout::text() const
     return d->string;
 }
 
+void QTextLayout::setInlineObjectInterface(QTextInlineObjectInterface *iface)
+{
+    d->setInlineObjectInterface(iface);
+}
+
 /* add an additional item boundary eg. for style change */
 
 int QTextLayout::numItems() const
@@ -291,6 +296,17 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	line.ascent = qMax(line.ascent, current.ascent);
 	line.descent = qMax(line.descent, current.descent);
 
+	if (current.isObject) {
+	    if (line.length && line.textWidth + current.width > line.width && !(d->textFlags & Qt::SingleLine))
+		goto found;
+
+	    line.textWidth += current.width;
+	    line.length++;
+
+	    ++item;
+	    continue;
+	}
+
 	int length = d->length(item);
 
 	const QCharAttributes *itemAttrs = attributes + current.position;
@@ -340,7 +356,7 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 		goto found;
 
 	    pos = next + 1;
-    } while (pos < length);
+	} while (pos < length);
 	++item;
     }
  found:
@@ -555,6 +571,9 @@ void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions ) const
     for (int i = 0; i < nItems; ++i) {
 	int item = visualOrder[i]+firstItem;
 	QScriptItem &si = eng->items[item];
+
+	if (si.isObject && eng->inlineObjectIface)
+	    eng->inlineObjectIface->drawItem(p, QPoint(x, y), QTextItem(item, eng));
 
 	if ( si.isTab || si.isObject ) {
 	    x += si.width;

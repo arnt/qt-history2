@@ -12,7 +12,7 @@
 
 #include "qtextengine_p.h"
 
-void QTextEngine::shape( int item ) const
+void QTextEngine::shapeText( int item ) const
 {
     QScriptItem &si = items[item];
 

@@ -569,7 +569,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 // -----------------------------------------------------------------------------------------------------
 
 
-void QTextEngine::shape( int item ) const
+void QTextEngine::shapeText( int item ) const
 {
     QScriptItem &si = items[item];
 

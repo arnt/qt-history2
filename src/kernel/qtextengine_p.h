@@ -32,6 +32,8 @@ class QString;
 class QOpenType;
 class QPainter;
 
+struct QTextInlineObjectInterface;
+
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.
 // * negative yoff means the following stuff is drawn higher up.
@@ -252,15 +254,16 @@ class QPalette;
 class QTextEngine {
 public:
     QTextEngine()
-	: fnt(0), formats(0), allocated(0), memory(0)
+	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0)
 	{}
     QTextEngine(const QString &str, QFontPrivate *f )
-	: fnt(f), formats(0), allocated(0), memory(0)
+	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0)
 	{ setText(str); fnt->ref(); }
     ~QTextEngine();
 
     void setText(const QString &str);
     void setFormatCollection(const QTextFormatCollection *fmts) { formats = fmts; }
+    void setInlineObjectInterface(QTextInlineObjectInterface *iface) { inlineObjectIface = iface; }
 
     enum Mode {
 	Full = 0x00,
@@ -331,11 +334,14 @@ public:
     unsigned int reserved : 24;
     unsigned int textFlags;
     QPalette *pal;
+    QTextInlineObjectInterface *inlineObjectIface;
 
     int allocated;
     void **memory;
     int num_glyphs;
     int used;
+private:
+    void shapeText( int item ) const;
 };
 
 #endif

@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include "qtextengine_p.h"
+#include "qtextlayout_p.h"
 
 #include "qscriptengine_p.h"
 #include <qfont.h>
@@ -916,6 +917,17 @@ void QTextEngine::setBoundary(int strPos)
 	return;
     }
     splitItem( itemToSplit, strPos - items[itemToSplit].position );
+}
+
+void QTextEngine::shape( int item ) const
+{
+    if (items[item].isObject) {
+	if (inlineObjectIface)
+	    // ##### const cast
+	    inlineObjectIface->layoutItem(QTextItem(item, const_cast<QTextEngine *>(this)));
+    } else {
+	shapeText(item);
+    }
 }
 
 void QTextEngine::splitItem( int item, int pos )
