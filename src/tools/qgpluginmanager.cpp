@@ -447,4 +447,12 @@ QStringList QGPluginManager::featureList() const
     return list;
 }
 
+bool QGPluginManager::enabled() const
+{
+#ifdef QT_SHARED
+    return TRUE;
+#endif
+    return FALSE;
+}
+
 #endif //QT_NO_COMPONENT

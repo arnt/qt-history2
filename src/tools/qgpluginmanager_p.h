@@ -80,6 +80,8 @@ public:
     void setAutoUnload( bool );
 
 protected:
+    bool enabled() const;
+
     QUuid interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library
     QDict<QLibrary> libDict;	    // Dict to match library file with library
