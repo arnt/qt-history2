@@ -661,10 +661,15 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
 */
 void QListView::timerEvent(QTimerEvent *e)
 {
-    if (e->timerId() == d->layoutTimer) {
-        killTimer(d->layoutTimer);
+    if (e->timerId() == d->startLayoutTimer) {
+        killTimer(d->startLayoutTimer);
         doItemsLayout(); // showing the scrollbars will trigger a resize event,
-        d->layoutTimer = 0; // so let the timer id be non-zero untill after the layout is done
+        d->startLayoutTimer = 0; // so let the timer id be non-zero untill after the layout is done
+    } else if (e->timerId() == d->batchLayoutTimer) {
+        if (doItemsLayout(100)) {
+            killTimer(d->batchLayoutTimer);
+            d->batchLayoutTimer = 0;
+        }
     }
     QAbstractItemView::timerEvent(e);
 }
@@ -675,11 +680,11 @@ void QListView::timerEvent(QTimerEvent *e)
 void QListView::resizeEvent(QResizeEvent *e)
 {
     QAbstractItemView::resizeEvent(e);
-    if (d->resizeMode == Adjust && d->layoutTimer == 0) {
+    if (d->resizeMode == Adjust && d->startLayoutTimer == 0) {
         QSize delta = e->size() - e->oldSize();
         if ((d->flow == LeftToRight && delta.width() != 0) ||
             (d->flow == TopToBottom && delta.height() != 0))
-            d->layoutTimer = startTimer(100); // wait 1/10 sec before starting the layout
+            d->startLayoutTimer = startTimer(100); // wait 1/10 sec before starting the layout
     }
 }
 
@@ -1077,8 +1082,7 @@ void QListView::doItemsLayout()
         if (d->layoutMode == SinglePass)
             doItemsLayout(d->model->rowCount(root())); // layout everything
         else
-            while (!doItemsLayout(100)) // do layout in batches
-                qApp->processEvents();
+            d->batchLayoutTimer = startTimer(0); // do a new batch as fast as possible
     }
 
     QAbstractItemView::doItemsLayout();
@@ -1402,7 +1406,8 @@ QListViewPrivate::QListViewPrivate()
       layoutStart(0),
       translate(0),
       layoutWraps(0),
-      layoutTimer(0),
+      startLayoutTimer(0),
+      batchLayoutTimer(0),
       column(0)
 {}
 

@@ -328,7 +328,10 @@ public:
     QVector<int> yposVector;
     QVector<int> wrapVector;
     int layoutWraps;
-    int layoutTimer;
+
+    // timers
+    int startLayoutTimer;
+    int batchLayoutTimer;
 
     // used when dragging
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
