@@ -3073,15 +3073,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 	data[ (int)index + i ].type = QTextStringChar::Regular;
 	data[ (int)index + i ].rightToLeft = 0;
 	data[ (int)index + i ].startOfRun = 0;
-#if defined(Q_WS_X11)
-	//### workaround for broken courier fonts on X11
-	if ( s[ i ] == QChar( 0x00a0U ) )
-	    data[ (int)index + i ].c = ' ';
-	else
-	    data[ (int)index + i ].c = s[ i ];
-#else
 	data[ (int)index + i ].c = s[ i ];
-#endif
 	data[ (int)index + i ].setFormat( f );
     }
     textChanged = TRUE;
@@ -4768,7 +4760,7 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 {
     const QChar &c = string->at( pos ).c;
     char ch = c.latin1();
-    if ( c.isSpace() && ch != '\n' )
+    if ( c.isSpace() && ch != '\n' && c.unicode() != 0x00a0U )
 	return TRUE;
     if ( c.unicode() == 0xad ) // soft hyphen
 	return TRUE;
