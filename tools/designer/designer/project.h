@@ -212,6 +212,8 @@ public:
 
     void formOpened( FormWindow *fw );
 
+    QString locationOfObject( QObject *o );
+
 signals:
     void projectModified();
     void sourceFileAdded( SourceFile* );
@@ -220,7 +222,7 @@ signals:
     void formFileRemoved( FormFile* );
     void objectAdded( QObject * );
     void objectRemoved( QObject * );
-    void runtimeError( const QString &message );
+    void runtimeError( const QString &message, const QString &file, int line );
     void runFinished();
     void newFormOpened( FormWindow *fw );
 

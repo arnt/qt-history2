@@ -1509,22 +1509,24 @@ QObjectList *Project::run()
 				MainWindow::self->
 				    showSourceLine( it.key(), line[ 0 ] - 1,
 						    MainWindow::Error );
-				QStringList l;
-				QObjectList l2;
-				for ( int i = 0; i < (int)error.count(); ++i ) {
-				    if ( qwf_form_object )
-					l << QString( QString( qwf_form_object->
-							       name() ) +
-						      " [Source]" );
-				    else
-					l << QString( QString( w->name() ) +
-						      " [Source]" );
-				    l2.append( w );
-				}
+			    }
+			    QStringList l;
+			    QObjectList l2;
+			    for ( int i = 0; i < (int)error.count(); ++i ) {
+				if ( qwf_form_object )
+				    l << QString( QString( qwf_form_object->
+							   name() ) +
+						  " [Source]" );
+				else
+				    l << QString( QString( w->name() ) +
+						  " [Source]" );
+				l2.append( w );
+			    }
+			    if ( MainWindow::self ) {
 				MainWindow::self->outputWindow()->
 				    setErrorMessages( error, line, FALSE, l, l2 );
 			    }
-			    emit runtimeError( error[0] );
+			    emit runtimeError( error[0], l[0], line[0] );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
 			    return 0;
@@ -1540,16 +1542,18 @@ QObjectList *Project::run()
 			    if ( MainWindow::self ) {
 				MainWindow::self->
 				    showSourceLine( f, line[ 0 ] - 1, MainWindow::Error );
-				QStringList l;
-				QObjectList l2;
-				for ( int i = 0; i < (int)error.count(); ++i ) {
-				    l << f->fileName();
-				    l2.append( f );
-				}
+			    }
+			    QStringList l;
+			    QObjectList l2;
+			    for ( int i = 0; i < (int)error.count(); ++i ) {
+				l << f->fileName();
+				l2.append( f );
+			    }
+			    if ( MainWindow::self ) {
 				MainWindow::self->outputWindow()->
 				    setErrorMessages( error, line, FALSE, l, l2 );
 			    }
-			    emit runtimeError( error[0] );
+			    emit runtimeError( error[0], l[0], line[0] );
 			    piface->release();
 			    QApplication::restoreOverrideCursor();
 			    return 0;
@@ -1700,7 +1704,7 @@ void Project::designerCreated()
 
 void Project::emitRuntimeError( QObject *o, int l, const QString &msg )
 {
-    emit runtimeError( msg );
+    emit runtimeError( msg, locationOfObject( o ), l );
     if ( MainWindow::self )
 	MainWindow::self->showErrorMessage( o, l, msg );
 }
@@ -1709,3 +1713,44 @@ void Project::formOpened( FormWindow *fw )
 {
     emit newFormOpened( fw );
 }
+
+QString Project::locationOfObject( QObject *o )
+{
+    if ( MainWindow::self ) {
+	QWidgetList windows = MainWindow::self->qWorkspace()->windowList();
+	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	    FormWindow *fw = 0;
+	    SourceEditor *se = 0;
+	    if ( w->inherits( "FormWindow" ) ) {
+		fw = (FormWindow*)w;
+	    } else if ( w->inherits( "SourceEditor" ) ) {
+		se = (SourceEditor*)w;
+		if ( !se->object() )
+		    continue;
+		if ( se->formWindow() )
+		    return se->formWindow()->name() + QString( "[Source]" );
+		else
+		    return makeRelative( se->sourceFile()->fileName() );
+	    }
+	}
+    }
+
+    if ( o->inherits( "SourceFile" ) ) {
+	for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+	      sources.current(); ++sources ) {
+	    SourceFile* f = sources.current();
+	    if ( f == o )
+		return makeRelative( f->fileName() );
+	}
+    }
+
+    if ( !qwf_forms ) {
+	qWarning( "Project::locationOfObject: qwf_forms is NULL!" );
+	return QString::null;
+    }
+
+    QString s = makeRelative( *qwf_forms->find( (QWidget*)o ) );
+    s += " [Source]";
+    return s;
+}
+

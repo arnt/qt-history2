@@ -3093,7 +3093,9 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 	l2 << errorMessage;
 	QObjectList ol;
 	ol.append( o );
-	oWindow->setErrorMessages( l2, l, TRUE, QStringList(), ol );
+	QStringList ll;
+	ll << currentProject->locationOfObject( o );
+	oWindow->setErrorMessages( l2, l, TRUE, ll, ol );
 	showSourceLine( o, errorLine, Error );
     }
 }
