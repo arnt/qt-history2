@@ -1,4 +1,4 @@
-/**********************************************************************
+**********************************************************************
 **   Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 **   qt-translations-tools.doc
@@ -18,7 +18,24 @@
 \title Chapter 1: Release Manager
 <a name="Chapter_1:_Release_Manager">
 
-Two tools are provided for the release manager, \e lupdate and \e lrelease.
+Two tools are provided for the release manager, \e lupdate and \e
+lrelease. Thes tools depend on <tt>qmake</tt> project files.
+
+<h2><a name="Qt_Project_Files">Qt Project Files</a></h2>
+
+\e lupdate and \e lrelease depend on information in the application's \c
+.pro Qt project file. For each language additional to the native
+language there must be an entry in the \c TRANSLATIONS section of the
+project file. A typical entry looks like this:
+
+\walkthrough  tt2/tt2.pro
+\skipto TRANSLATIONS
+\printline TRANSLATIONS
+\printline 
+
+Using a locale within the filename is useful for determining which
+language to load at runtime -- this is explained in 
+<a href="linguist_programmer.html#Chapter_3:_Programmers">Chapter 3: Programmers</a>.
 
 <h2><a name="lupdate">lupdate</a></h2>
 
@@ -68,22 +85,6 @@ them and use them automatically.
 Note that \e lrelease will only incorporate translations that are marked
 as "done". If a translation is missing, or has failed validation, or is
 not marked as done, the original text will be used instead.
-
-<h2><a name="Qt_Project_Files">Qt Project Files</a></h2>
-
-\e lupdate and \e lrelease depend on information in the application's \c
-.pro Qt project file. For each language additional to the native
-language there must be an entry in the \c TRANSLATIONS section of the
-project file. A typical entry looks like this:
-
-\walkthrough  tt2/tt2.pro
-\skipto TRANSLATIONS
-\printline TRANSLATIONS
-\printline 
-
-Using a locale within the filename is useful for determining which
-language to load at runtime -- this is explained in 
-<a href="linguist_programmer.html#Chapter_3:_Programmers">Chapter 3: Programmers</a>.
 
 <h2><a name="Incomplete_Translations">Incomplete Translations</a></h2>
 

@@ -42,9 +42,9 @@
     </ul>
 <li><a href="linguist_manager.html#Chapter_1:_Release_Manager">Chapter 1: Release Manager</a>
     <ul>
+    <li><a href="linguist_manager.html#Qt_Project_Files">Qt Project Files</a>
     <li><a href="linguist_manager.html#lupdate">lupdate</a>
     <li><a href="linguist_manager.html#lrelease">lrelease</a>
-    <li><a href="linguist_manager.html#Qt_Project_Files">Qt Project Files</a>
     <li><a href="linguist_manager.html#Incomplete_Translations">Incomplete Translations</a>
     </ul>
 <li><a href="linguist_translator.html#Chapter_2:_Translators">Chapter 2: Translators</a>
