@@ -190,9 +190,8 @@ QRangeControl::~QRangeControl()
 
 void QRangeControl::setValue( int value )
 {
-    int lprevVal = prevVal;
     directSetValue( value );
-    if ( lprevVal != val || prevVal != val )
+    if ( prevVal != val )
 	valueChange();
 }
 
