@@ -2297,13 +2297,15 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 	    } else if (cachedday > day) {
 		day = cachedday;
 		fixday = true;
+
 	    }
 
 	    if (!QDate::isValid(year, month, day)) {
 		if (day < 32) {
 		    cachedday = day;
-		}
-		fixday = true;
+		} else if (day > 28 && QDate::isValid(year, month, 1)) {
+                    fixday = true;
+                }
 	    }
 	    if (fixday) {
 		day = qMin<int>(day, QDate(year, month, 1).daysInMonth());
