@@ -21,7 +21,6 @@
 #include "qfontinfo.h"
 #include "qpainter.h"
 #include "qhash.h"
-#include "qcache.h"
 #include "qdatastream.h"
 #include "qapplication.h"
 #include "qcleanuphandler.h"
@@ -1373,9 +1372,10 @@ static void initFontSubst()
     if (!fontSubst.isEmpty())
 	return;
 
-    for ( int i=0; initTbl[i] != 0; i += 2 )
-	QFont::insertSubstitution(QString::fromLatin1(initTbl[i]),
-				  QString::fromLatin1(initTbl[i+1]));
+    for ( int i=0; initTbl[i] != 0; i += 2 ) {
+	QStringList &list = fontSubst[QString::fromLatin1(initTbl[i])];
+	list.append(QString::fromLatin1(initTbl[i+1]));
+    }
 }
 
 
