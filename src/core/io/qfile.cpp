@@ -1040,7 +1040,7 @@ Q_LLONG QFile::read(char *data, Q_LLONG len)
     //from the device
     if(ret < len) {
         if(len > read_cache_size) {
-            Q_LLONG read = fileEngine()->read(data, len);
+            Q_LLONG read = fileEngine()->read(data+ret, len-ret);
             if(read != -1)
                 ret += read;
         } else {
