@@ -90,7 +90,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup ) {				
+    if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
@@ -197,10 +197,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     } else if ( topLevel ) {			// create top-level widget
 	// WWA: I cannot get the Unicode versions to work.
-	
+
 	if ( !popup && !testWFlags( WStyle_Dialog ) && !testWFlags( WStyle_Tool) )
 	    parentw = 0;
-	
+
 	if ( exsty )
 	    id = CreateWindowExA( exsty, windowClassName, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -896,22 +896,19 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QPoint oldp( pos() );
     QSize  olds( size() );
     if ( isMove == FALSE && olds.width()==w && olds.height()==h )
 	return;
     if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
-	if ( extra && extra->topextra ) {
-	    // They might be different
-	    QSize fs = frameSize();
-	    w += fs.width()  - crect.width();
-	    h += fs.height() - crect.height();
-	}
-	setFRect( QRect(x,y,w,h) );
+	setCRect( QRect(x,y,w,h) );
 	setWState( WState_ConfigPending );
-	MoveWindow( winId(), x, y, w, h, TRUE );
+	if ( isTopLevel() ) {
+	    QRect fr( frameGeometry() );
+	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
+	} else 
+	    MoveWindow( winId(), x, y, w, h, TRUE );
 	clearWState( WState_ConfigPending );
     }
 
@@ -941,7 +938,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	qWarning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 	maxw = QMIN( maxw, QWIDGETSIZE_MAX );
-	maxh = QMIN( maxh, QWIDGETSIZE_MAX );	
+	maxh = QMIN( maxh, QWIDGETSIZE_MAX );
     }
     if ( maxw < 0 || maxh < 0 ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "

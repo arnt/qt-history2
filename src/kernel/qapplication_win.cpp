@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#347 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#348 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2831,14 +2831,14 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	// Ignore silly Windows move event to wild pos after iconify.
 	// (### check if this has been corrected with the other fixes in 2.0)
 	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) { //###not 32-bit safe
-	    QPoint newPos( a, b );
-	    r.moveTopLeft( newPos );
+	    QPoint newCPos( a, b );
+	    r.moveTopLeft( newCPos );
 	    setCRect( r );
 	    if ( isVisible() ) {
-		QMoveEvent e( newPos, oldPos );
+		QMoveEvent e( pos(), oldPos ); //pos (including frame), not cpos
 		QApplication::sendEvent( this, &e );
 	    } else {
-		QMoveEvent * e = new QMoveEvent( newPos, oldPos );
+		QMoveEvent * e = new QMoveEvent( pos(), oldPos );
 		QApplication::postEvent( this, e );
 	    }
 	}
