@@ -1014,6 +1014,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
     t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
+    t << "INSTALL_FILE= " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_DIR = " << var("QMAKE_INSTALL_DIR") << endl;
     t << "SUBTARGETS =	";     // subdirectory targets are sub-directory
     for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it)
 	t << " \\\n\t\t" << (*it)->target;
