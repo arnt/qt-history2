@@ -84,7 +84,10 @@ MyRichText::MyRichText( QWidget *parent, const char *name )
     view->setText( "This is a <b>Test</b> with <i>italic</i> <u>stuff</u>" );
     QBrush paper;
     paper.setPixmap( QPixmap( "../richtext/marble.png" ) );
-    view->setPaper( paper );
+    if ( paper.pixmap() != 0 )
+	view->setPaper( paper );
+    else
+	view->setPaper( white );
 
     view->setText( sayings[0] );
     view->setMinimumSize( 450, 250 );
