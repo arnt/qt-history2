@@ -73,6 +73,7 @@ public slots:
     void startProcess1();
     void startProcess2();
     void startProcess3();
+    void startProcess4();
     void launchProcess0();
     void launchProcess1();
     void launchProcess2();

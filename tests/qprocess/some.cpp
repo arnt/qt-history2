@@ -134,6 +134,23 @@ void Some::procInit( bool start, int com, QStringList *env )
 	proc->addArgument( "-much" );
 	hideAfterExit = FALSE;
 	break;
+    case 4:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "backslash should occur on positions after . and every line should start with arg" );
+	proc->addArgument( "arg .\\ text" );
+	proc->addArgument( "arg .\\" );
+	proc->addArgument( "arg ..\\\\ text" );
+	proc->addArgument( "arg ..\\\\" );
+	proc->addArgument( "" );
+	proc->addArgument( "quote should occur on positions after ; and every line should start with arg" );
+	proc->addArgument( "arg ;\" text" );
+	proc->addArgument( "arg ;\"" );
+	proc->addArgument( "arg .;\\\" text" );
+	proc->addArgument( "arg .;\\\"" );
+	proc->addArgument( "arg .;.\\\"\\ text" );
+	proc->addArgument( "arg .;.\\\"\\" );
+	hideAfterExit = FALSE;
+	break;
     default:
 	proc->addArgument( QDir::current().absFilePath( "some" ) );
 	proc->addArgument( "-cat" );
@@ -320,6 +337,11 @@ void SomeFactory::startProcess2()
 void SomeFactory::startProcess3()
 {
     new Some( parent, TRUE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 3 );
+}
+
+void SomeFactory::startProcess4()
+{
+    new Some( parent, TRUE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 4 );
 }
 
 void SomeFactory::launchProcess0()

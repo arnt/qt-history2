@@ -62,6 +62,10 @@ int main( int argc, char **argv )
 		    qDebug( proc.readLineStdout() );
 		}
 	    }
+	} else {
+	    for ( int i = 0; i<argc; i++ ) {
+		cout << argv[i] << endl;
+	    }
 	}
     } else {
 	QApplication a( argc, argv );
@@ -82,6 +86,9 @@ int main( int argc, char **argv )
 	newProcess = new QPushButton( "Start Process (much)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
 		&factory, SLOT(startProcess3()) );
+	newProcess = new QPushButton( "Start Process (cmdline)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(startProcess4()) );
 	// launch process
 	newProcess = new QPushButton( "Launch Process (cat)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
