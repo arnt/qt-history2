@@ -872,11 +872,12 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 /*!
     Returns ItemFlags.
 
-    The base class implementation returns 0.
+    The base class implementation
+    returns QAbstractItemModel::ItemIsSelectable | QAbstractItemModel::ItemIsEnabled
 */
 QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &) const
 {
-    return 0;
+    return ItemIsSelectable | ItemIsEnabled;
 }
 
 /*!
@@ -1051,7 +1052,7 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) 
 /*!
   Sets the data \a value in the header with \a orientation, in \a section and for \a role.
 */
-  
+
 bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, int role,
                                        const QVariant &value)
 {
