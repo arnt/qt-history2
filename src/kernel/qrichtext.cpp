@@ -1972,6 +1972,9 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
     }
 
+    if ( verticalBreak() && parag->lastInFrame && parag->document()->flow() )
+	parag->document()->flow()->eraseAfter( parag, p );
+
     parag->document()->nextDoubleBuffered = FALSE;
 }	
 
@@ -2016,6 +2019,8 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 		    delete buf_pixmap;
 		    buf_pixmap = 0;
 		}
+		if ( verticalBreak() && flow() )
+		    flow()->draw( p, cx, cy, cw, ch );
 
 		return lastFormatted;
 	    }
@@ -2049,6 +2054,9 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	delete buf_pixmap;
 	buf_pixmap = 0;
     }
+
+    if ( verticalBreak() && flow() )
+	flow()->draw( p, cx, cy, cw, ch );
 
     tmpCursor = 0;
     return lastFormatted;
@@ -2318,6 +2326,8 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
     newLinesAllowed = FALSE;
+    splittedInside = FALSE;
+    lastInFrame = FALSE;
     defFormat = formatCollection()->defaultFormat();
     if ( !doc ) {
 	tabStopWidth = defFormat->width( 'x' ) * 8;
@@ -2552,11 +2562,18 @@ void QTextParag::format( int start, bool doMove )
     if ( y != r.height() )
 	r.setHeight( y );
 
+    splittedInside = FALSE;
+    if ( p )
+	p->lastInFrame = FALSE;
     if ( doc && doc->verticalBreak() ) {
 	const int oy = r.y();
 	int y = oy;
 	doc->flow()->adjustFlow( y, r.width(), r.height(), TRUE );
 	if ( oy != y ) {
+	    if ( p ) {
+		p->lastInFrame = TRUE;
+		p->setChanged( TRUE );
+	    }
 	    int oh = r.height();
 	    r.setY( y );
 	    r.setHeight( oh );

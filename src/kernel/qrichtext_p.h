@@ -605,6 +605,8 @@ inline bool QTextString::isRightToLeft() const
 
 class QTextParag
 {
+    friend class QTextDocument;
+    
 public:
     struct LineStart {
 	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
@@ -791,7 +793,9 @@ private:
     bool needPreProcess : 1;
     bool fullWidth : 1;
     bool newLinesAllowed : 1;
-    QMap<int, Selection> selections;
+    bool splittedInside : 1;
+    bool lastInFrame : 1;
+      QMap<int, Selection> selections;
     int state, id;
     QTextString *str;
     int align;
@@ -1101,6 +1105,9 @@ public:
     virtual bool isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
     virtual void updateHeight( QTextCustomItem *i );
 
+    virtual void draw( QPainter *, int , int , int , int ) {}
+    virtual void eraseAfter( QTextParag *, QPainter * ) {}                     
+    
     void clear();
 
 private:
