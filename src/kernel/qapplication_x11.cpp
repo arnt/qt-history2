@@ -4533,7 +4533,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( !popupTarget->isEnabled() ) {
 	    if ( popupGrabOk )
 		XAllowEvents( x11Display(), SyncPointer, CurrentTime );
-	    return FALSE;
 	}
 
 	switch ( type ) {
