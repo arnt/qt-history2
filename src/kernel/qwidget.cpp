@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#173 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#172 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#173 $");
 
 
 /*!
@@ -1978,7 +1978,8 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case Event_MouseMove:
-	    mouseMoveEvent( (QMouseEvent*)e );
+	    if ( hasMouseTracking() || ((QMouseEvent*)e)->state() )
+		mouseMoveEvent( (QMouseEvent*)e );
 	    break;
 
 	case Event_MouseButtonPress:

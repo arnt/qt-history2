@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#174 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#173 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#174 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -60,9 +60,13 @@ const uint stdWidgetEventMask =			// X event mask
   \internal
   Creates a new widget window if \e window is null, otherwise sets the
   widget's window.
+
+  Destroys the old window if \e destroyOldWindow is TRUE.  If \e
+  destroyOldWindow is FALSE, you are responsible for destroying
+  the window later (using platform native code).  
 */
 
-void QWidget::create( WId window )
+void QWidget::create( WId window, bool destroyOldWindow )
 {
     if ( testWFlags(WState_Created) && window == 0 )
 	return;
@@ -112,10 +116,11 @@ void QWidget::create( WId window )
     else
 	parentw = parentWidget()->winId();
 
-    XSetWindowAttributes wattr;
+    XSetWindowAttributes wsa;
 
     if ( window ) {				// override the old window
-	destroyw = winid;
+	if ( destroyOldWindow )
+	    destroyw = winid;
 	id = window;
 	setWinId( window );
     } else if ( desktop ) {			// desktop widget
@@ -137,50 +142,51 @@ void QWidget::create( WId window )
 				      black.pixel(),
 				      bg_col.pixel() );
 	} else {
-	    wattr.background_pixel = bg_col.pixel();
-	    wattr.border_pixel = black.pixel();		
-	    wattr.colormap = (Colormap)x11Colormap();
+	    wsa.background_pixel = bg_col.pixel();
+	    wsa.border_pixel = black.pixel();		
+	    wsa.colormap = (Colormap)x11Colormap();
 	    id = XCreateWindow( dpy, parentw,
 				frect.left(), frect.top(),
 				frect.width(), frect.height(),
 				0, x11Depth(), InputOutput,
 				(Visual*)x11Visual(),
 				CWBackPixel|CWBorderPixel|CWColormap,
-				&wattr );
+				&wsa );
 	}
 	setWinId( id );				// set widget id/handle + hd
     }
 
     if ( topLevel && !(desktop || popup || modal) ) {
 	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
-	    ulong wattr_mask = 0;
+	    ulong wsa_mask = 0;
 	    if ( testWFlags(WStyle_NormalBorder) ) {
 		;				// ok, we already have it
 	    } else {
 		if ( testWFlags(WStyle_DialogBorder) ) {
 		    XSetTransientForHint( dpy, id, root_win );
 		} else {			// no border
-		    wattr.override_redirect = TRUE;
-		    wattr_mask |= CWOverrideRedirect;
+		    wsa.override_redirect = TRUE;
+		    wsa_mask |= CWOverrideRedirect;
 		}
 	    }
 	    if ( testWFlags(WStyle_Tool) ) {
-		wattr.save_under = TRUE;
-		wattr_mask |= CWSaveUnder;
+		wsa.save_under = TRUE;
+		wsa_mask |= CWSaveUnder;
 	    }
-	    if ( wattr_mask )
-		XChangeWindowAttributes( dpy, id, wattr_mask, &wattr );
+	    if ( wsa_mask )
+		XChangeWindowAttributes( dpy, id, wsa_mask, &wsa );
 	} else {				// normal top-level widget
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
 		       WStyle_MinMax );
 	}
     }
+
     if ( popup ) {				// popup widget
 	XSetTransientForHint( dpy, id, parentw );
-	wattr.override_redirect = TRUE;
-	wattr.save_under = TRUE;
+	wsa.override_redirect = TRUE;
+	wsa.save_under = TRUE;
 	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
-				 &wattr );
+				 &wsa );
     } else if ( topLevel && !desktop ) {	// top-level widget
 	if ( modal ) {
 	    QWidget *p = parentWidget();	// real parent
@@ -217,9 +223,10 @@ void QWidget::create( WId window )
 	protocols[0] = q_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
+
     if ( testWFlags(WResizeNoErase) ) {
-	wattr.bit_gravity = NorthWestGravity;	// don't erase when resizing
-	XChangeWindowAttributes( dpy, id, CWBitGravity, &wattr );
+	wsa.bit_gravity = NorthWestGravity;	// don't erase when resizing
+	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
     setWFlags( WState_TrackMouse );
     setMouseTracking( FALSE );			// also sets event mask
@@ -230,20 +237,52 @@ void QWidget::create( WId window )
 	XDefineCursor( dpy, winid, oc ? oc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
     }
+
+    if ( window ) {				// got window from outside
+	XWindowAttributes a;
+	XGetWindowAttributes( dpy, window, &a );
+	frect.setRect( a.x, a.y, a.width, a.height );
+	crect = frect;
+	if ( a.map_state == IsUnmapped )
+	    setWFlags( WState_Visible );
+	else
+	    clearWFlags( WState_Visible );
+    }
+
     if ( destroyw )
 	XDestroyWindow( dpy, destroyw );
 }
 
 
+#if QT_VERSION == 200
+#error "Cleanup here"
+//
+// Remove create(window) and create().  Return void.
+// Default arguments: (window=0, destroyW=TRUE)
+#endif
+
+
 /*!
   \internal
-  Creates the widget's window. Equivalent with create(0).
+  Creates the widget's window. Equivalent with create(window,TRUE).
+  This function is usually called from the QWidget constructor.
+*/
+
+void QWidget::create( WId window )
+{
+    create( window, TRUE );
+}
+
+
+/*!
+  \internal
+  Creates the widget's window. Equivalent with create(0,TRUE).
   This function is usually called from the QWidget constructor.
 */
 
 bool QWidget::create()
 {
-    create( 0 );
+    create( 0, TRUE );
     return TRUE;
 }
 
@@ -584,7 +623,7 @@ void QWidget::grabMouse()
 	    mouseGrb->releaseMouse();
 	XGrabPointer( dpy, winid, TRUE,
 		      ButtonPressMask | ButtonReleaseMask |
-		      ButtonMotionMask | EnterWindowMask | LeaveWindowMask,
+		      PointerMotionMask | EnterWindowMask | LeaveWindowMask,
 		      GrabModeAsync, GrabModeAsync,
 		      None, None, CurrentTime );
 	mouseGrb = this;
@@ -610,8 +649,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 	    mouseGrb->releaseMouse();
 	XGrabPointer( dpy, winid, TRUE,
 		      ButtonPressMask | ButtonReleaseMask |
-		      ButtonMotionMask |
-		      EnterWindowMask | LeaveWindowMask,
+		      PointerMotionMask | EnterWindowMask | LeaveWindowMask,
 		      GrabModeAsync, GrabModeAsync,
 		      None, cursor.handle(), CurrentTime );
 	mouseGrb = this;
