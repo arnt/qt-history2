@@ -229,7 +229,7 @@ const uchar qt_pixmap_bit_mask[] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0
 
 QBitmap QPixmap::mask() const
 {
-    if (!data->image.hasAlphaBuffer() || data->image.depth() != 32) {
+    if (!data->image.hasAlphaChannel() || data->image.depth() != 32) {
         return QBitmap();
     }
 
@@ -256,7 +256,7 @@ QBitmap QPixmap::mask() const
 void QPixmap::setMask(const QBitmap &mask)
 {
     if (mask.size().isEmpty()) {
-        data->image.setAlphaBuffer(false);
+        data->image = data->image.convertToFormat(QImage::Format_RGB32);
 
     } else if (mask.size() != size()) {
         qWarning("QPixmap::setMask() mask size differs from pixmap size");
@@ -274,7 +274,7 @@ void QPixmap::setMask(const QBitmap &mask)
             break;
 
         case 32:
-            data->image.setAlphaBuffer(true);
+            data->image = data->image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             for (int y=0; y<h; ++y) {
                 uchar *mscan = imageMask.scanLine(y);
                 QRgb *tscan = (QRgb *) data->image.scanLine(y);
@@ -290,12 +290,12 @@ void QPixmap::setMask(const QBitmap &mask)
 
 bool QPixmap::hasAlpha() const
 {
-    return data->image.hasAlphaBuffer();
+    return data->image.hasAlphaChannel();
 }
 
 bool QPixmap::hasAlphaChannel() const
 {
-    return data->image.hasAlphaBuffer();
+    return data->image.hasAlphaChannel();
 }
 
 QBitmap QPixmap::createHeuristicMask(bool clipTight ) const
@@ -306,7 +306,7 @@ QBitmap QPixmap::createHeuristicMask(bool clipTight ) const
 
 QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 {
-    QImage maskImage(size(), 1, 0, QImage::LittleEndian);
+    QImage maskImage(size(), QImage::Format_MonoLSB);
     QImage image = toImage();
     QRgb mColor = maskColor.rgba();
     for (int w = 0; w < width(); w++) {
@@ -528,7 +528,7 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 }
 #endif // QT3_SUPPORT
 
-QPixmap::QPixmap(int w, int h, const uchar *data, bool isXbitmap)
+QPixmap::QPixmap(int w, int h, const uchar *data, bool isXBitmap)
     : QPaintDevice(QInternal::Pixmap)
 {
     init(0, 0, 0, false);
@@ -548,7 +548,7 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
     return writer->write(toImage());
 }
 
-void QPixmap::init(int w, int h, int d, bool bitmap)
+void QPixmap::init(int w, int h, int d, bool)
 {
     if (d <= 0)
         d = 32;
@@ -609,7 +609,7 @@ QPixmap QPixmap::alphaChannel() const
 
 QImage QPixmapData::createBitmapImage(int w, int h)
 {
-    QImage bitmap(w, h, 1, 2, QImage::LittleEndian);
+    QImage bitmap(w, h, QImage::Format_MonoLSB);
     bitmap.setColor(0, QColor(Qt::color0).rgba());
     bitmap.setColor(1, QColor(Qt::color1).rgba());
     return bitmap;
@@ -625,7 +625,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     QImage image = dst->toImage();
     QPainter p(&image);
     p.setCompositionMode(QPainter::CompositionMode_Source);
-    p.drawImage(dx, dy, *src, sx, sy, sw, sh);
+    p.drawImage(dx, dy, src->toImage(), sx, sy, sw, sh);
     *dst = QPixmap::fromImage(image);
 }
 #endif
