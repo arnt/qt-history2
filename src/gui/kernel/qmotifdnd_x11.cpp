@@ -751,7 +751,7 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
 
 void qt_motifdnd_enable(QWidget *widget, bool)
 {
-    DndWriteReceiverProperty(widget->x11Info()->display(), widget->winId(),
+    DndWriteReceiverProperty(X11->display, widget->winId(),
                               DND_DRAG_DYNAMIC);
 }
 

@@ -362,7 +362,7 @@ QPixmap::~QPixmap()
 QPixmap QPixmap::copy(bool) const
 {
 #if defined(Q_WS_X11)
-    int old = x11SetDefaultScreen(data->xinfo->screen());
+    int old = x11SetDefaultScreen(data->xinfo.screen());
 #endif // Q_WS_X11
 
     QPixmap pm(data->w, data->h, data->d, data->bitmap, data->optim);
@@ -556,7 +556,7 @@ void QPixmap::resize(int w, int h)
     // Create new pixmap
     QPixmap pm(w, h, d, data->bitmap, data->optim);
 #ifdef Q_WS_X11
-    pm.x11SetScreen(data->xinfo->screen());
+    pm.x11SetScreen(data->xinfo.screen());
 #endif // Q_WS_X11
     if (!data->uninit && !isNull()) {                // has existing pixmap
         // Copy old pixmap
@@ -658,7 +658,7 @@ void QPixmap::setMask(const QBitmap &newmask)
     else
         newmaskcopy = new QBitmap(newmask);
 #ifdef Q_WS_X11
-    newmaskcopy->x11SetScreen(data->xinfo->screen());
+    newmaskcopy->x11SetScreen(data->xinfo.screen());
 #endif
     data->mask = newmaskcopy;
 }

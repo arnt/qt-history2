@@ -148,13 +148,13 @@ Drawable qt_x11Handle(const QPaintDevice *pd)
     Returns the QX11Info structure for the \a pd paint device. 0 is
     returned if it can't be obtained.
 */
-QX11Info *qt_x11Info(const QPaintDevice *pd)
+const QX11Info *qt_x11Info(const QPaintDevice *pd)
 {
     Q_ASSERT(pd);
     if (pd->devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(pd)->x11Info();
+        return &static_cast<const QWidget *>(pd)->x11Info();
     else if (pd->devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(pd)->x11Info();
+        return &static_cast<const QPixmap *>(pd)->x11Info();
     return 0;
 }
 
@@ -178,15 +178,12 @@ int QPaintDevice::metric(int) const
 
 Display *QPaintDevice::x11Display() const
 {
-    QX11Info *info = qt_x11Info(this);
-    if (info)
-	return info->display();
-    return QX11Info::display();
+    return X11->display;
 }
 
 int QPaintDevice::x11Screen() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->screen();
     return QX11Info::appScreen();
@@ -194,7 +191,7 @@ int QPaintDevice::x11Screen() const
 
 void *QPaintDevice::x11Visual() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->visual();
     return QX11Info::appVisual();
@@ -202,7 +199,7 @@ void *QPaintDevice::x11Visual() const
 
 int QPaintDevice::x11Depth() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
         return info->depth();
     return QX11Info::appDepth();
@@ -210,7 +207,7 @@ int QPaintDevice::x11Depth() const
 
 int QPaintDevice::x11Cells() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->cells();
     return QX11Info::appCells();
@@ -218,7 +215,7 @@ int QPaintDevice::x11Cells() const
 
 Qt::HANDLE QPaintDevice::x11Colormap() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->colormap();
     return QX11Info::appColormap();
@@ -226,7 +223,7 @@ Qt::HANDLE QPaintDevice::x11Colormap() const
 
 bool QPaintDevice::x11DefaultColormap() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->defaultColormap();
     return QX11Info::appDefaultColormap();
@@ -234,7 +231,7 @@ bool QPaintDevice::x11DefaultColormap() const
 
 bool QPaintDevice::x11DefaultVisual() const
 {
-    QX11Info *info = qt_x11Info(this);
+    const QX11Info *info = qt_x11Info(this);
     if (info)
 	return info->defaultVisual();
     return QX11Info::appDefaultVisual();

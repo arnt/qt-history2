@@ -562,9 +562,7 @@ void QWhatsThisPrivate::say(QWidget * widget, const QString &text, int x, int y)
     QWhatsThat *whatsThat = new QWhatsThat(
         text,
 #if defined(Q_WS_X11)
-        QApplication::desktop()->screen(widget ?
-                                         widget->x11Info()->screen() :
-                                        QCursor::x11Screen()),
+        QApplication::desktop()->screen(widget ? widget->x11Info().screen() : QCursor::x11Screen()),
 #else
         0,
 #endif

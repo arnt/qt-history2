@@ -14,13 +14,11 @@
 #ifndef QPIXMAP_H
 #define QPIXMAP_H
 
-#ifndef QT_H
 #include "qcolor.h" // char*->QColor conversion
 #include "qnamespace.h"
 #include "qpaintdevice.h"
 #include "qstring.h" // char*->QString conversion
 #include "qimage.h"
-#endif // QT_H
 
 class QGfx;
 class QPixmapPrivate;
@@ -30,7 +28,8 @@ class QPixmapPrivate;
 class QMultiCellPixmap;
 #endif
 #if defined(Q_WS_X11)
-class QX11Info;
+// #### go away
+#include <qx11info_x11.h>
 class QX11PaintEngine;
 #endif
 
@@ -146,7 +145,7 @@ public:
 #elif defined(Q_WS_X11)
     static int x11SetDefaultScreen(int screen);
     void x11SetScreen(int screen);
-    QX11Info *x11Info() const;
+    const QX11Info &x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;
 #endif
@@ -206,7 +205,7 @@ protected:
         void *ximage;
         void *maskgc;
         QPixmap *alphapm;
-        QX11Info *xinfo;
+        QX11Info xinfo;
 	Qt::HANDLE xft_hd;
 #elif defined(Q_WS_MAC)
         CGImageRef cgimage;

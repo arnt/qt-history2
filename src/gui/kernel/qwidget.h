@@ -462,7 +462,7 @@ public:
 #if defined(Q_WS_QWS) //&& defined(QT_OLD_GFX)
     virtual QGfx *graphicsContext(bool clip_children=true) const;
 #elif defined(Q_WS_X11)
-    QX11Info *x11Info() const;
+    const QX11Info &x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;
 #endif

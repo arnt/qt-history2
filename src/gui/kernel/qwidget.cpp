@@ -65,7 +65,6 @@ QWidgetPrivate::QWidgetPrivate() :
 #endif
         ,hd(0)
 #if defined(Q_WS_X11)
-        ,xinfo(0)
         ,xft_hd(0)
 #elif defined(Q_WS_MAC)
         ,cg_hd(0)
@@ -786,7 +785,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
         data.fnt.resolve(0);
     }
 #if defined(Q_WS_X11)
-    data.fnt.x11SetScreen(xinfo->screen());
+    data.fnt.x11SetScreen(xinfo.screen());
 #endif // Q_WS_X11
 
     if (!q->isDesktop())
@@ -2716,7 +2715,7 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
     data.fnt = font;
 #if defined(Q_WS_X11)
     // make sure the font set on this widget is associated with the correct screen
-    data.fnt.x11SetScreen(xinfo->screen());
+    data.fnt.x11SetScreen(xinfo.screen());
 #endif
     if (!d->children.isEmpty()) {
         for (int i = 0; i < d->children.size(); ++i) {
@@ -4270,7 +4269,7 @@ void QWidget::adjustSize()
         if (exp & QSizePolicy::Vertically)
             s.setHeight(qMax(s.height(), 150));
 #if defined(Q_WS_X11)
-        QRect screen = QApplication::desktop()->screenGeometry(x11Info()->screen());
+        QRect screen = QApplication::desktop()->screenGeometry(x11Info().screen());
 #else // all others
         QRect screen = QApplication::desktop()->screenGeometry(pos());
 #endif

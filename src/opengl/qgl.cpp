@@ -1820,10 +1820,10 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         XVisualInfo *vi = XGetVisualInfo(QX11Info::display(), VisualIDMask | VisualScreenMask,
                                           &visInfo, &nvis);
         if (vi) {
-            QX11InfoData* xd = pm.x11Info()->getX11Data(true);
+            QX11InfoData* xd = pm.x11Info().getX11Data(true);
             xd->depth = vi->depth;
             xd->visual = (Visual *) gl_pixmap_visual;
-            pm.x11Info()->setX11Data(xd);
+            const_cast<QX11Info &>(pm.x11Info()).setX11Data(xd);
             XFree(vi);
         }
     }

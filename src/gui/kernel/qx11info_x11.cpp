@@ -22,6 +22,23 @@ QX11Info::QX11Info()
 {
 }
 
+
+QX11Info::QX11Info(const QX11Info &other)
+{
+    x11data = other.x11data;
+    ++x11data->ref;
+}
+
+QX11Info &QX11Info::operator=(const QX11Info &other)
+{
+    QX11InfoData *x = other.x11data;
+    ++x->ref;
+    x = qAtomicSetPtr(&x11data, x);
+    if (x && !--x->ref)
+        delete x;
+    return *this;
+}
+
 QX11Info::~QX11Info()
 {
     if (x11data && !--x11data->ref)
@@ -39,9 +56,9 @@ void QX11Info::copyX11Data(const QPaintDevice *fromDevice)
     QX11InfoData *xd = 0;
     if (fromDevice) {
         if (fromDevice->devType() == QInternal::Widget)
-            xd = static_cast<const QWidget *>(fromDevice)->x11Info()->x11data;
+            xd = static_cast<const QWidget *>(fromDevice)->x11Info().x11data;
         else if (fromDevice->devType() == QInternal::Pixmap)
-            xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
+            xd = static_cast<const QPixmap *>(fromDevice)->x11Info().x11data;
     }
     setX11Data(xd);
 }
@@ -58,10 +75,10 @@ void QX11Info::cloneX11Data(const QPaintDevice *fromDevice)
     if (fromDevice) {
         QX11InfoData *xd;
         if (fromDevice->devType() == QInternal::Widget) {
-            xd = static_cast<const QWidget *>(fromDevice)->x11Info()->x11data;
+            xd = static_cast<const QWidget *>(fromDevice)->x11Info().x11data;
 	} else {
 	    Q_ASSERT(fromDevice->devType() == QInternal::Pixmap);
-            xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
+            xd = static_cast<const QPixmap *>(fromDevice)->x11Info().x11data;
 	}
         d = new QX11InfoData(*xd);
         d->ref = 0;

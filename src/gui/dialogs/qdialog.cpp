@@ -33,7 +33,7 @@
 #endif
 
 #if defined(Q_WS_X11)
-#include "qx11info_x11.h"
+#include "private/qt_x11_p.h"
 #endif
 
 /*!
@@ -612,7 +612,7 @@ void QDialog::show()
         && qApp->mainWidget() && qApp->mainWidget()->isVisible()
         && !qApp->mainWidget()->isMinimized()) {
         // make sure the transient for hint is set properly for modal dialogs
-        XSetTransientForHint(x11Info()->display(), winId(), qApp->mainWidget()->winId());
+        XSetTransientForHint(X11->display, winId(), qApp->mainWidget()->winId());
     }
 #endif // Q_WS_X11
 

@@ -38,6 +38,10 @@
 #include <qt_windows.h>
 #endif // Q_WS_WIN
 
+#ifdef Q_WS_X11
+#include <qx11info_x11.h>
+#endif
+
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
 //  - top-level widgets have extra extra data to reduce cost further
@@ -48,9 +52,6 @@ class QOleDropTarget;
 #endif
 #if defined(Q_WS_MAC)
 class QCoreGraphicsPaintEnginePrivate;
-#endif
-#if defined(Q_WS_X11)
-class QX11Info;
 #endif
 class QPaintEngine;
 class QPixmap;
@@ -217,7 +218,7 @@ public:
     uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
 #if defined(Q_WS_X11)
-    QX11Info *xinfo;
+    QX11Info xinfo;
     Qt::HANDLE xft_hd;
 #endif
 #if defined(Q_WS_MAC)

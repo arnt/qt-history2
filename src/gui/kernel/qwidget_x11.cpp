@@ -186,16 +186,16 @@ Q_GUI_EXPORT void qt_x11_enforce_cursor(QWidget * w)
     if (w->testAttribute(Qt::WA_SetCursor)) {
         QCursor *oc = QApplication::overrideCursor();
         if (oc) {
-            XDefineCursor(w->x11Info()->display(), w->winId(), oc->handle());
+            XDefineCursor(X11->display, w->winId(), oc->handle());
         } else if (w->isEnabled()) {
-            XDefineCursor(w->x11Info()->display(), w->winId(), w->cursor().handle());
+            XDefineCursor(X11->display, w->winId(), w->cursor().handle());
         } else {
             // enforce the windows behavior of clearing the cursor on
             // disabled widgets
-            XDefineCursor(w->x11Info()->display(), w->winId(), XNone);
+            XDefineCursor(X11->display, w->winId(), XNone);
         }
     } else {
-        XDefineCursor(w->x11Info()->display(), w->winId(), XNone);
+        XDefineCursor(X11->display, w->winId(), XNone);
     }
 }
 
@@ -205,15 +205,15 @@ Q_GUI_EXPORT void qt_wait_for_window_manager(QWidget* w)
     XEvent ev;
     QTime t;
     t.start();
-    while (!XCheckTypedWindowEvent(w->x11Info()->display(), w->winId(), ReparentNotify, &ev)) {
-        if (XCheckTypedWindowEvent(w->x11Info()->display(), w->winId(), MapNotify, &ev))
+    while (!XCheckTypedWindowEvent(X11->display, w->winId(), ReparentNotify, &ev)) {
+        if (XCheckTypedWindowEvent(X11->display, w->winId(), MapNotify, &ev))
             break;
         if (t.elapsed() > 500)
             return; // give up, no event available
         qApp->syncX(); // non-busy wait
     }
     qApp->x11ProcessEvent(&ev);
-    if (XCheckTypedWindowEvent(w->x11Info()->display(), w->winId(), ConfigureNotify, &ev))
+    if (XCheckTypedWindowEvent(X11->display, w->winId(), ConfigureNotify, &ev))
         qApp->x11ProcessEvent(&ev);
 }
 
@@ -224,7 +224,7 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
         XEvent e;
         e.xclient.type = ClientMessage;
         e.xclient.message_type = ATOM(_NET_WM_STATE);
-        e.xclient.display = w->x11Info()->display();
+        e.xclient.display = X11->display;
         e.xclient.window = w->winId();
         e.xclient.format = 32;
         e.xclient.data.l[0] = set ? 1 : 0;
@@ -232,7 +232,7 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
         e.xclient.data.l[2] = two;
         e.xclient.data.l[3] = 0;
         e.xclient.data.l[4] = 0;
-        XSendEvent(w->x11Info()->display(), RootWindow(w->x11Info()->display(), w->x11Info()->screen()),
+        XSendEvent(X11->display, RootWindow(X11->display, w->x11Info().screen()),
                    False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
     } else {
         Atom ret;
@@ -240,7 +240,7 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
         unsigned char *data = 0;
         unsigned long nitems = 0, after = 0;
         Atom *old_states = 0;
-        status = XGetWindowProperty(w->x11Info()->display(), w->winId(),
+        status = XGetWindowProperty(X11->display, w->winId(),
                                     ATOM(_NET_WM_STATE), 0, 1024, False,
                                     XA_ATOM, &ret, &format, &nitems,
                                     &after, &data);
@@ -262,10 +262,10 @@ static void qt_net_change_wm_state(const QWidget* w, bool set, Atom one, Atom tw
         }
 
         if (j)
-            XChangeProperty(w->x11Info()->display(), w->winId(), ATOM(_NET_WM_STATE), XA_ATOM, 32,
+            XChangeProperty(X11->display, w->winId(), ATOM(_NET_WM_STATE), XA_ATOM, 32,
                             PropModeReplace, (uchar *) new_states, j);
         else
-            XDeleteProperty(w->x11Info()->display(), w->winId(), ATOM(_NET_WM_STATE));
+            XDeleteProperty(X11->display, w->winId(), ATOM(_NET_WM_STATE));
 
         delete [] new_states;
         if (data) XFree(data);
@@ -321,14 +321,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (!window)
         initializeWindow = true;
 
-    if (!d->xinfo)
-        d->xinfo = new QX11Info;
-
     if (desktop &&
         qt_x11_create_desktop_on_screen >= 0 &&
-        qt_x11_create_desktop_on_screen != d->xinfo->screen()) {
+        qt_x11_create_desktop_on_screen != d->xinfo.screen()) {
         // desktop on a certain screen other than the default requested
-        QX11InfoData *xd = d->xinfo->getX11Data(true);
+        QX11InfoData *xd = d->xinfo.getX11Data(true);
         xd->screen = qt_x11_create_desktop_on_screen;
         xd->depth = QX11Info::appDepth(xd->screen);
         xd->cells = QX11Info::appCells(xd->screen);
@@ -336,24 +333,24 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
         xd->visual = (Visual *) QX11Info::appVisual(xd->screen);
         xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
-        d->xinfo->setX11Data(xd);
-    } else if (parentWidget() &&  parentWidget()->d->xinfo->screen() != d->xinfo->screen()) {
+        d->xinfo.setX11Data(xd);
+    } else if (parentWidget() &&  parentWidget()->d->xinfo.screen() != d->xinfo.screen()) {
         // if we have a parent widget, move to its screen if necessary
-        QX11InfoData* xd = d->xinfo->getX11Data(true);
-        xd->screen = parentWidget()->d->xinfo->screen();
+        QX11InfoData* xd = d->xinfo.getX11Data(true);
+        xd->screen = parentWidget()->d->xinfo.screen();
         xd->depth = QX11Info::appDepth(xd->screen);
         xd->cells = QX11Info::appCells(xd->screen);
         xd->colormap = QX11Info::appColormap(xd->screen);
         xd->defaultColormap = QX11Info::appDefaultColormap(xd->screen);
         xd->visual = (Visual *) QX11Info::appVisual(xd->screen);
         xd->defaultVisual = QX11Info::appDefaultVisual(xd->screen);
-        d->xinfo->setX11Data(xd);
+        d->xinfo.setX11Data(xd);
     }
 
     //get display, screen number, root window and desktop geometry for
     //the current screen
-    Display *dpy = d->xinfo->display();
-    int scr = d->xinfo->screen();
+    Display *dpy = X11->display;
+    int scr = d->xinfo.screen();
     Window root_win = RootWindow(dpy, scr);
     int sw = DisplayWidth(dpy,scr);
     int sh = DisplayHeight(dpy,scr);
@@ -385,7 +382,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         else
             setWState(Qt::WState_Visible);
 
-        QX11InfoData* xd = d->xinfo->getX11Data(true);
+        QX11InfoData* xd = d->xinfo.getX11Data(true);
 
         // find which screen the window is on...
         xd->screen = QX11Info::appScreen(); // by default, use the default :)
@@ -401,10 +398,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         xd->cells = DisplayCells(dpy, xd->screen);
         xd->visual = a.visual;
         xd->defaultVisual = (XVisualIDFromVisual((Visual *) a.visual) ==
-                           XVisualIDFromVisual((Visual *) QX11Info::appVisual(d->xinfo->screen())));
+                             XVisualIDFromVisual((Visual *) QX11Info::appVisual(d->xinfo.screen())));
         xd->colormap = a.colormap;
-        xd->defaultColormap = (a.colormap == QX11Info::appColormap(d->xinfo->screen()));
-        d->xinfo->setX11Data(xd);
+        xd->defaultColormap = (a.colormap == QX11Info::appColormap(d->xinfo.screen()));
+        d->xinfo.setX11Data(xd);
     } else if (desktop) {                        // desktop widget
         id = (WId)parentw;                        // id = root window
         QWidget *otherDesktop = find(id);        // is there another desktop?
@@ -416,22 +413,22 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             setWinId(id);
         }
     } else {
-        if (d->xinfo->defaultVisual() && d->xinfo->defaultColormap()) {
+        if (d->xinfo.defaultVisual() && d->xinfo.defaultColormap()) {
             id = (WId)qt_XCreateSimpleWindow(this, dpy, parentw,
                                              data->crect.left(), data->crect.top(),
                                              data->crect.width(), data->crect.height(),
                                              0,
-                                             QColor(Qt::black).pixel(d->xinfo->screen()),
-                                             QColor(Qt::white).pixel(d->xinfo->screen()));
+                                             QColor(Qt::black).pixel(d->xinfo.screen()),
+                                             QColor(Qt::white).pixel(d->xinfo.screen()));
         } else {
-            wsa.background_pixel = QColor(Qt::white).pixel(d->xinfo->screen());
-            wsa.border_pixel = QColor(Qt::black).pixel(d->xinfo->screen());
-            wsa.colormap = d->xinfo->colormap();
+            wsa.background_pixel = QColor(Qt::white).pixel(d->xinfo.screen());
+            wsa.border_pixel = QColor(Qt::black).pixel(d->xinfo.screen());
+            wsa.colormap = d->xinfo.colormap();
             id = (WId)qt_XCreateWindow(this, dpy, parentw,
                                        data->crect.left(), data->crect.top(),
                                        data->crect.width(), data->crect.height(),
-                                       0, d->xinfo->depth(), InputOutput,
-                                       (Visual *) d->xinfo->visual(),
+                                       0, d->xinfo.depth(), InputOutput,
+                                       (Visual *) d->xinfo.visual(),
                                        CWBackPixel|CWBorderPixel|CWColormap,
                                        &wsa);
         }
@@ -447,7 +444,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     if (X11->has_xft) {
         d->xft_hd = (Qt::HANDLE)
-                    XftDrawCreate(dpy, id, (Visual *) d->xinfo->visual(), d->xinfo->colormap());
+                    XftDrawCreate(dpy, id, (Visual *) d->xinfo.visual(), d->xinfo.colormap());
     }
 #endif // QT_NO_XFT
 
@@ -764,15 +761,13 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 qt_dnd_enable(this, false);
         } else {
             if (destroyWindow)
-                qt_XDestroyWindow(this, d->xinfo->display(), data->winid);
+                qt_XDestroyWindow(this, d->xinfo.display(), data->winid);
         }
         setWinId(0);
 
         extern void qPRCleanup(QWidget *widget); // from qapplication_x11.cpp
         if (testWState(Qt::WState_Reparented))
             qPRCleanup(this);
-        delete d->xinfo;
-        d->xinfo = 0;
     }
 }
 
@@ -799,9 +794,9 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     // hide and reparent our own window away. Otherwise we might get
     // destroyed when emitting the child remove event below. See QWorkspace.
-    XUnmapWindow(d->xinfo->display(), old_winid);
-    XReparentWindow(d->xinfo->display(), old_winid,
-                     RootWindow(d->xinfo->display(), d->xinfo->screen()), 0, 0);
+    XUnmapWindow(d->xinfo.display(), old_winid);
+    XReparentWindow(d->xinfo.display(), old_winid,
+                     RootWindow(d->xinfo.display(), d->xinfo.screen()), 0, 0);
 
     if (isTopLevel()) {
         // input contexts are associated with toplevel widgets, so we need
@@ -831,7 +826,7 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
         if (obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
             if (!w->isTopLevel()) {
-                XReparentWindow(d->xinfo->display(), w->winId(), winId(),
+                XReparentWindow(d->xinfo.display(), w->winId(), winId(),
                                 w->geometry().x(), w->geometry().y());
             } else if (w->isPopup()
                         || w->testWFlags(Qt::WStyle_DialogBorder)
@@ -845,8 +840,8 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
                   visible, so we unmap and remap all toplevel-transient children *after*
                   the toplevel parent has been mapped.  thankfully, this is easy in Qt :)
                 */
-                XUnmapWindow(w->d->xinfo->display(), w->winId());
-                XSetTransientForHint(w->d->xinfo->display(), w->winId(), winId());
+                XUnmapWindow(w->d->xinfo.display(), w->winId());
+                XSetTransientForHint(w->d->xinfo.display(), w->winId(), winId());
                 QApplication::postEvent(w, new QEvent(QEvent::ShowWindowRequest));
             }
         }
@@ -871,7 +866,7 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
         setWindowTitle(capt);
     }
     if (old_winid)
-        qt_XDestroyWindow(this, d->xinfo->display(), old_winid);
+        qt_XDestroyWindow(this, d->xinfo.display(), old_winid);
     if (setcurs)
         setCursor(oldcurs);
 
@@ -902,8 +897,8 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
     int           x, y;
     Window child;
     QPoint p = d->mapToWS(pos);
-    XTranslateCoordinates(d->xinfo->display(), winId(),
-                          QApplication::desktop()->screen(d->xinfo->screen())->winId(),
+    XTranslateCoordinates(d->xinfo.display(), winId(),
+                          QApplication::desktop()->screen(d->xinfo.screen())->winId(),
                           p.x(), p.y(), &x, &y, &child);
     return QPoint(x, y);
 }
@@ -919,8 +914,8 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 {
     int           x, y;
     Window child;
-    XTranslateCoordinates(d->xinfo->display(),
-                          QApplication::desktop()->screen(d->xinfo->screen())->winId(),
+    XTranslateCoordinates(d->xinfo.display(),
+                          QApplication::desktop()->screen(d->xinfo.screen())->winId(),
                           winId(), pos.x(), pos.y(), &x, &y, &child);
     return d->mapFromWS(QPoint(x, y));
 }
@@ -986,7 +981,7 @@ void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
     if (brush.style() == Qt::NoBrush || q->testAttribute(Qt::WA_NoSystemBackground)) {
-        XSetWindowBackgroundPixmap(xinfo->display(), q->winId(), XNone);
+        XSetWindowBackgroundPixmap(xinfo.display(), q->winId(), XNone);
     } else if (brush.pixmap()) {
         QPixmap pix = *brush.pixmap();
         if (data.wrect.isValid() && !pix.isNull() && !isBackgroundInherited()) {
@@ -994,17 +989,17 @@ void QWidgetPrivate::updateSystemBackground()
             int yoff = data.wrect.y() % pix.height();
             if (xoff || yoff) {
                 QPixmap newPix(pix.size(), pix.depth());
-                qt_erase_background(&newPix, newPix.x11Info()->screen(), 0,0,pix.width(), pix.height(),
+                qt_erase_background(&newPix, newPix.x11Info().screen(), 0,0,pix.width(), pix.height(),
                                     pix, xoff, yoff);
                 pix = newPix;
             }
         }
-        XSetWindowBackgroundPixmap(xinfo->display(), q->winId(),
+        XSetWindowBackgroundPixmap(xinfo.display(), q->winId(),
                                    isBackgroundInherited()
                                    ? ParentRelative
                                    : pix.handle());
     } else {
-        XSetWindowBackground(xinfo->display(), q->winId(), brush.color().pixel(xinfo->screen()));
+        XSetWindowBackground(xinfo.display(), q->winId(), brush.color().pixel(xinfo.screen()));
     }
 }
 
@@ -1018,7 +1013,7 @@ void QWidget::setCursor(const QCursor &cursor)
     }
     setAttribute(Qt::WA_SetCursor);
     qt_x11_enforce_cursor(this);
-    XFlush(d->xinfo->display());
+    XFlush(d->xinfo.display());
 }
 
 void QWidget::unsetCursor()
@@ -1030,7 +1025,7 @@ void QWidget::unsetCursor()
     if (!isTopLevel())
         setAttribute(Qt::WA_SetCursor, false);
     qt_x11_enforce_cursor(this);
-    XFlush(d->xinfo->display());
+    XFlush(d->xinfo.display());
 }
 
 static XTextProperty*
@@ -1100,10 +1095,10 @@ void QWidget::setWindowTitle(const QString &caption)
         return;
 
     d->topData()->caption = caption;
-    XSetWMName(d->xinfo->display(), winId(), qstring_to_xtp(caption));
+    XSetWMName(d->xinfo.display(), winId(), qstring_to_xtp(caption));
 
     QByteArray net_wm_name = caption.toUtf8();
-    XChangeProperty(d->xinfo->display(), winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
+    XChangeProperty(d->xinfo.display(), winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
                     PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
 
     QEvent e(QEvent::WindowTitleChange);
@@ -1129,7 +1124,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
         if (pm->mask())
             mask_pixmap = pm->mask()->handle();
     }
-    XWMHints *h = XGetWMHints(d->xinfo->display(), q->winId());
+    XWMHints *h = XGetWMHints(d->xinfo.display(), q->winId());
     XWMHints  wm_hints;
     bool got_hints = h != 0;
     if (!got_hints) {
@@ -1139,7 +1134,7 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
     h->icon_pixmap = icon_pixmap;
     h->icon_mask = mask_pixmap;
     h->flags |= IconPixmapHint | IconMaskHint;
-    XSetWMHints(d->xinfo->display(), q->winId(), h);
+    XSetWMHints(d->xinfo.display(), q->winId(), h);
     if (got_hints)
         XFree((char *)h);
 }
@@ -1149,10 +1144,10 @@ void QWidget::setWindowIconText(const QString &iconText)
     d->createTLExtra();
     d->extra->topextra->iconText = iconText;
 
-    XSetWMIconName(d->xinfo->display(), winId(), qstring_to_xtp(iconText));
+    XSetWMIconName(d->xinfo.display(), winId(), qstring_to_xtp(iconText));
 
     QByteArray icon_name = iconText.toUtf8();
-    XChangeProperty(d->xinfo->display(), winId(), ATOM(_NET_WM_ICON_NAME), ATOM(UTF8_STRING), 8,
+    XChangeProperty(d->xinfo.display(), winId(), ATOM(_NET_WM_ICON_NAME), ATOM(UTF8_STRING), 8,
                     PropModeReplace, (unsigned char *) icon_name.data(), icon_name.size());
 
     QEvent e(QEvent::IconTextChange);
@@ -1193,7 +1188,7 @@ void QWidget::grabMouse()
 #ifndef QT_NO_DEBUG
         int status =
 #endif
-            XGrabPointer(d->xinfo->display(), winId(), False,
+            XGrabPointer(d->xinfo.display(), winId(), False,
                           (uint)(ButtonPressMask | ButtonReleaseMask |
                                   PointerMotionMask | EnterWindowMask |
                                   LeaveWindowMask),
@@ -1236,7 +1231,7 @@ void QWidget::grabMouse(const QCursor &cursor)
 #ifndef QT_NO_DEBUG
         int status =
 #endif
-        XGrabPointer(d->xinfo->display(), winId(), False,
+        XGrabPointer(d->xinfo.display(), winId(), False,
                       (uint)(ButtonPressMask | ButtonReleaseMask |
                              PointerMotionMask | EnterWindowMask | LeaveWindowMask),
                       GrabModeAsync, GrabModeAsync,
@@ -1265,8 +1260,8 @@ void QWidget::grabMouse(const QCursor &cursor)
 void QWidget::releaseMouse()
 {
     if (!qt_nograb() && mouseGrb == this) {
-        XUngrabPointer(d->xinfo->display(),  X11->time);
-        XFlush(d->xinfo->display());
+        XUngrabPointer(d->xinfo.display(),  X11->time);
+        XFlush(d->xinfo.display());
         mouseGrb = 0;
     }
 }
@@ -1294,7 +1289,7 @@ void QWidget::grabKeyboard()
     if (!qt_nograb()) {
         if (keyboardGrb)
             keyboardGrb->releaseKeyboard();
-        XGrabKeyboard(d->xinfo->display(), data->winid, False, GrabModeAsync, GrabModeAsync,
+        XGrabKeyboard(d->xinfo.display(), data->winid, False, GrabModeAsync, GrabModeAsync,
                        X11->time);
         keyboardGrb = this;
     }
@@ -1309,7 +1304,7 @@ void QWidget::grabKeyboard()
 void QWidget::releaseKeyboard()
 {
     if (!qt_nograb() && keyboardGrb == this) {
-        XUngrabKeyboard(d->xinfo->display(), X11->time);
+        XUngrabKeyboard(d->xinfo.display(), X11->time);
         keyboardGrb = 0;
     }
 }
@@ -1370,7 +1365,7 @@ void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
-        XSetInputFocus(d->xinfo->display(), tlw->winId(), XRevertToNone, X11->time);
+        XSetInputFocus(d->xinfo.display(), tlw->winId(), XRevertToNone, X11->time);
     }
 }
 
@@ -1531,7 +1526,7 @@ void QWidget::repaint(const QRegion& rgn)
     QPoint redirectionOffset;
     QX11DoubleBuffer *qDoubleBuffer = 0;
     if (double_buffer) {
-        qt_x11_get_double_buffer(&qDoubleBuffer, d->hd, d->xinfo->screen(), d->xinfo->depth(),
+        qt_x11_get_double_buffer(&qDoubleBuffer, d->hd, d->xinfo.screen(), d->xinfo.depth(),
                                  br.width(), br.height());
 
 	d->hd = qDoubleBuffer->hd;
@@ -1556,10 +1551,10 @@ void QWidget::repaint(const QRegion& rgn)
 
     if (testAttribute(Qt::WA_NoSystemBackground)) {
         if (double_buffer && !testAttribute(Qt::WA_NoBackground)) {
-            GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
+            GC gc = qt_xget_temp_gc(d->xinfo.screen(), false);
 	    if (testAttribute(Qt::WA_PaintUnclipped))
-		XSetSubwindowMode(d->xinfo->display(), gc, IncludeInferiors);
-            XCopyArea(d->xinfo->display(), winId(), d->hd, gc,
+		XSetSubwindowMode(d->xinfo.display(), gc, IncludeInferiors);
+            XCopyArea(d->xinfo.display(), winId(), d->hd, gc,
                       brWS.x(), brWS.y(), brWS.width(), brWS.height(), 0, 0);
         }
     } else if (!testAttribute(Qt::WA_NoBackground)) {
@@ -1573,7 +1568,7 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
         if (double_buffer) {
-            qt_erase_background(q, q->d->xinfo->screen(),
+            qt_erase_background(q, q->d->xinfo.screen(),
                                 br.x() - redirectionOffset.x(), br.y() - redirectionOffset.y(),
                                 br.width(), br.height(), data->pal.brush(w->d->bg_role),
                                 br.x() + offset.x(), br.y() + offset.y());
@@ -1585,7 +1580,7 @@ void QWidget::repaint(const QRegion& rgn)
 		    QPainter p(q);
 		    p.fillRect(rr, data->pal.brush(w->d->bg_role));
 		} else {
-		    XClearArea(q->d->xinfo->display(), q->winId(),
+		    XClearArea(q->d->xinfo.display(), q->winId(),
 			       rr.x(), rr.y(), rr.width(), rr.height(), False);
 		}
             }
@@ -1627,13 +1622,13 @@ void QWidget::repaint(const QRegion& rgn)
         QPainter::restoreRedirected(this);
 
     if (double_buffer) {
-        GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
+        GC gc = qt_xget_temp_gc(d->xinfo.screen(), false);
         QVector<QRect> rects = rgn.rects();
 	if (testAttribute(Qt::WA_PaintUnclipped))
-	    XSetSubwindowMode(d->xinfo->display(), gc, IncludeInferiors);
+	    XSetSubwindowMode(d->xinfo.display(), gc, IncludeInferiors);
         for (int i = 0; i < rects.size(); ++i) {
             QRect rr = d->mapToWS(rects[i]);
-            XCopyArea(d->xinfo->display(), d->hd, winId(), gc,
+            XCopyArea(d->xinfo.display(), d->hd, winId(), gc,
                       rr.x() - brWS.x(), rr.y() - brWS.y(),
                       rr.width(), rr.height(),
                       rr.x(), rr.y());
@@ -1746,7 +1741,7 @@ void QWidget::setWindowState(uint newstate)
                     XEvent e;
                     e.xclient.type = ClientMessage;
                     e.xclient.message_type = ATOM(WM_CHANGE_STATE);
-                    e.xclient.display = d->xinfo->display();
+                    e.xclient.display = d->xinfo.display();
                     e.xclient.window = data->winid;
                     e.xclient.format = 32;
                     e.xclient.data.l[0] = IconicState;
@@ -1754,12 +1749,12 @@ void QWidget::setWindowState(uint newstate)
                     e.xclient.data.l[2] = 0;
                     e.xclient.data.l[3] = 0;
                     e.xclient.data.l[4] = 0;
-                    XSendEvent(d->xinfo->display(),
-                               RootWindow(d->xinfo->display(),d->xinfo->screen()),
+                    XSendEvent(d->xinfo.display(),
+                               RootWindow(d->xinfo.display(),d->xinfo.screen()),
                                False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
                 } else {
                     setAttribute(Qt::WA_Mapped);
-                    XMapWindow(d->xinfo->display(), winId());
+                    XMapWindow(d->xinfo.display(), winId());
                 }
             }
 
@@ -1793,7 +1788,7 @@ void QWidget::setWindowState(uint newstate)
 void QWidget::show_sys()
 {
     if (isTopLevel() ) {
-        XWMHints *h = XGetWMHints(d->xinfo->display(), winId());
+        XWMHints *h = XGetWMHints(d->xinfo.display(), winId());
         XWMHints  wm_hints;
         bool got_hints = h != 0;
         if (!got_hints) {
@@ -1802,18 +1797,18 @@ void QWidget::show_sys()
         }
         h->initial_state = testWState(Qt::WState_Minimized) ? IconicState : NormalState;
         h->flags |= StateHint;
-        XSetWMHints(d->xinfo->display(), winId(), h);
+        XSetWMHints(d->xinfo.display(), winId(), h);
         if (got_hints)
             XFree((char *)h);
 
         if (X11->userTime != CurrentTime) {
-            XChangeProperty(d->xinfo->display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
+            XChangeProperty(d->xinfo.display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
                             32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
         }
 
         if (!d->topData()->embedded
             && d->topData()->parentWinId
-            && d->topData()->parentWinId != QX11Info::appRootWindow(d->xinfo->screen())
+            && d->topData()->parentWinId != QX11Info::appRootWindow(d->xinfo.screen())
             && !isMinimized()) {
             X11->deferred_map.append(this);
             return;
@@ -1822,7 +1817,7 @@ void QWidget::show_sys()
         if (isMaximized() && !isFullScreen()
             && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                  && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
-	    XMapWindow( x11Info()->display(), winId() );
+	    XMapWindow(X11->display, winId() );
  	    qt_wait_for_window_manager(this);
 
  	    // if the wm was not smart enough to adjust our size, do that manually
@@ -1846,7 +1841,7 @@ void QWidget::show_sys()
         }
 
 	if (isFullScreen() && !qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
- 	    XMapWindow(x11Info()->display(), winId());
+ 	    XMapWindow(X11->display, winId());
  	    qt_wait_for_window_manager(this);
 	    return;
 	}
@@ -1855,7 +1850,7 @@ void QWidget::show_sys()
     if (testAttribute(Qt::WA_OutsideWSRange))
         return;
     setAttribute(Qt::WA_Mapped);
-    XMapWindow(d->xinfo->display(), winId());
+    XMapWindow(d->xinfo.display(), winId());
 }
 
 
@@ -1871,7 +1866,7 @@ void QWidget::hide_sys()
     if (isTopLevel()) {
         X11->deferred_map.removeAll(this);
         if (winId()) // in nsplugin, may be 0
-            XWithdrawWindow(d->xinfo->display(), winId(), d->xinfo->screen());
+            XWithdrawWindow(d->xinfo.display(), winId(), d->xinfo.screen());
 
         QTLWExtra *top = d->topData();
         data->crect.moveTopLeft(QPoint(data->crect.x() - top->fleft, data->crect.y() - top->ftop));
@@ -1880,11 +1875,11 @@ void QWidget::hide_sys()
         top->fleft = top->fright = top->ftop = top->fbottom = 0;
         data->fstrut_dirty = true;
 
-        XFlush(d->xinfo->display());
+        XFlush(d->xinfo.display());
     } else {
         setAttribute(Qt::WA_Mapped, false);
         if (winId()) // in nsplugin, may be 0
-            XUnmapWindow(d->xinfo->display(), winId());
+            XUnmapWindow(d->xinfo.display(), winId());
     }
 }
 
@@ -1903,7 +1898,7 @@ void QWidget::raise()
     int from;
     if (p && (from = p->d->children.indexOf(this)) >= 0)
         p->d->children.move(from, p->d->children.size() - 1);
-    XRaiseWindow(d->xinfo->display(), winId());
+    XRaiseWindow(d->xinfo.display(), winId());
 }
 
 /*!
@@ -1921,7 +1916,7 @@ void QWidget::lower()
     int from;
     if (p && (from = p->d->children.indexOf(this)) >= 0)
         p->d->children.move(from, 0);
-    XLowerWindow(d->xinfo->display(), winId());
+    XLowerWindow(d->xinfo.display(), winId());
 }
 
 
@@ -1947,7 +1942,7 @@ void QWidget::stackUnder(QWidget* w)
     Window stack[2];
     stack[0] = w->winId();;
     stack[1] = winId();
-    XRestackWindows(d->xinfo->display(), stack, 2);
+    XRestackWindows(d->xinfo.display(), stack, 2);
 }
 
 
@@ -2003,7 +1998,7 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
     s.win_gravity = qt_widget_tlw_gravity;        // usually NorthWest
     // reset in case it was set
     qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity: NorthWestGravity;
-    XSetWMNormalHints(widget->x11Info()->display(), widget->winId(), &s);
+    XSetWMNormalHints(X11->display, widget->winId(), &s);
 }
 
 
@@ -2032,7 +2027,7 @@ void QWidgetPrivate::setWSGeometry()
       Qt coordinate system for parent
       X coordinate system for parent (relative to parent's wrect).
      */
-    Display *dpy = xinfo->display();
+    Display *dpy = xinfo.display();
     QRect validRange(-XCOORD_MAX,-XCOORD_MAX, 2*XCOORD_MAX, 2*XCOORD_MAX);
     QRect wrectRange(-WRECT_MAX,-WRECT_MAX, 2*WRECT_MAX, 2*WRECT_MAX);
     QRect wrect;
@@ -2131,7 +2126,7 @@ void QWidgetPrivate::setWSGeometry()
 
 void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
-    Display *dpy = d->xinfo->display();
+    Display *dpy = d->xinfo.display();
 
     if (testWFlags(Qt::WType_Desktop))
         return;
@@ -2377,8 +2372,8 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     if (dx == 0 && dy == 0)
         return;
 
-    Display *dpy = d->xinfo->display();
-    GC gc = qt_xget_readonly_gc(d->xinfo->screen(), false);
+    Display *dpy = d->xinfo.display();
+    GC gc = qt_xget_readonly_gc(d->xinfo.screen(), false);
     // Want expose events
     if (w > 0 && h > 0 && !just_update) {
         XSetGraphicsExposures(dpy, gc, True);
@@ -2439,8 +2434,8 @@ int QWidget::metric(int m) const
     } else if (m == QPaintDeviceMetrics::PdmHeight) {
         val = data->crect.height();
     } else {
-        Display *dpy = d->xinfo->display();
-        int scr = d->xinfo->screen();
+        Display *dpy = d->xinfo.display();
+        int scr = d->xinfo.screen();
         switch (m) {
             case QPaintDeviceMetrics::PdmDpiX:
             case QPaintDeviceMetrics::PdmPhysicalDpiX:
@@ -2459,10 +2454,10 @@ int QWidget::metric(int m) const
                       DisplayHeight(dpy,scr);
                 break;
             case QPaintDeviceMetrics::PdmNumColors:
-                val = d->xinfo->cells();
+                val = d->xinfo.cells();
                 break;
             case QPaintDeviceMetrics::PdmDepth:
-                val = d->xinfo->depth();
+                val = d->xinfo.depth();
                 break;
             default:
                 val = 0;
@@ -2577,7 +2572,7 @@ void QWidget::setMask(const QRegion& region)
     if(QWExtra *extra = d->extraData())
         extra->mask = region;
 
-    XShapeCombineRegion(d->xinfo->display(), winId(), ShapeBounding, 0, 0,
+    XShapeCombineRegion(d->xinfo.display(), winId(), ShapeBounding, 0, 0,
                          region.handle(), ShapeSet);
 }
 
@@ -2602,9 +2597,9 @@ void QWidget::setMask(const QBitmap &bitmap)
         extra->mask = QRegion(bitmap);
 
     QBitmap bm = bitmap;
-    if (bm.x11Info()->screen() != d->xinfo->screen())
-        bm.x11SetScreen(d->xinfo->screen());
-    XShapeCombineMask(d->xinfo->display(), winId(), ShapeBounding, 0, 0,
+    if (bm.x11Info().screen() != d->xinfo.screen())
+        bm.x11SetScreen(d->xinfo.screen());
+    XShapeCombineMask(X11->display, winId(), ShapeBounding, 0, 0,
                        bm.handle(), ShapeSet);
 }
 
@@ -2616,7 +2611,7 @@ void QWidget::setMask(const QBitmap &bitmap)
 
 void QWidget::clearMask()
 {
-    XShapeCombineMask(d->xinfo->display(), winId(), ShapeBounding, 0, 0,
+    XShapeCombineMask(d->xinfo.display(), winId(), ShapeBounding, 0, 0,
                        XNone, ShapeSet);
 }
 
@@ -2787,14 +2782,14 @@ double QWidget::windowOpacity() const
 /*!
     \internal
 */
-QX11Info *QWidget::x11Info() const
+const QX11Info &QWidget::x11Info() const
 {
     return d->xinfo;
 }
 
 void QWidgetPrivate::setWindowRole(const char *role)
 {
-    XChangeProperty(q->d->xinfo->display(), q->winId(),
+    XChangeProperty(q->d->xinfo.display(), q->winId(),
                     ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
                     (unsigned char *)role, qstrlen(role));
 }

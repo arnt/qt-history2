@@ -1241,7 +1241,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 
     if (ts == QInternal::Pixmap) {
         src_pm = (QPixmap*)src;
-        if (src_pm->x11Info()->screen() != dst_xf->screen())
+        if (src_pm->x11Info().screen() != dst_xf->screen())
             src_pm->x11SetScreen(dst_xf->screen());
         mono_src = src_pm->depth() == 1;
         mask = ignoreMask ? 0 : src_pm->data->mask;
@@ -1433,12 +1433,12 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     // since we can't scale pixmaps this should always hold
     Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
 
-    if (d->xinfo && d->xinfo->screen() != pixmap.x11Info()->screen()) {
+    if (d->xinfo && d->xinfo->screen() != pixmap.x11Info().screen()) {
         QPixmap* p = const_cast<QPixmap *>(&pixmap);
         p->x11SetScreen(d->xinfo->screen());
     }
 
-    QPixmap::x11SetDefaultScreen(pixmap.x11Info()->screen());
+    QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
     QBitmap *mask = 0;
     if(mode == Qt::ComposePixmap)
@@ -1508,7 +1508,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
 
         QBitmap *comb = new QBitmap(sw, sh);
         comb->detach();
-        GC cgc = qt_xget_temp_gc(pixmap.x11Info()->screen(), true);   // get temporary mono GC
+        GC cgc = qt_xget_temp_gc(pixmap.x11Info().screen(), true);   // get temporary mono GC
         XSetForeground(d->dpy, cgc, 0);
         XFillRectangle(d->dpy, comb->handle(), cgc, 0, 0, sw, sh);
         XSetBackground(d->dpy, cgc, 0);
