@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#17 $
 **
 ** Implementation of Windows-like style class
 **
@@ -299,6 +299,8 @@ QWindowsStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int
 
 
 
+/*!\reimp
+ */
 QSize
 QWindowsStyle::exclusiveIndicatorSize() const
 {
@@ -323,6 +325,8 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
 }
 
+/*!\reimp
+ */
 void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g, bool sunken, const QBrush* fill)
 {
@@ -330,6 +334,8 @@ void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 }
 
 
+/*!\reimp
+ */
 void
 QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
@@ -388,12 +394,16 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 }
 
 
+/*!\reimp
+ */
 void QWindowsStyle::getButtonShift( int &x, int &y)
 {
     x = 1;
     y = 1;
 }
 
+/*!\reimp
+ */
 void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool sunken ,
 				     bool /* editable */,
@@ -407,11 +417,15 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 }
 
+/*!\reimp
+ */
 QRect QWindowsStyle::comboButtonRect( int x, int y, int w, int h){
     return QRect(x+2, y+2, w-4-16, h-4);
 }
 
 
+/*!\reimp
+ */
 QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 {
     return QRect(x+3, y+3, w-6-16, h-6);
@@ -423,6 +437,8 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 #define MOTIF_BORDER	2
 #define SLIDER_MIN	9 // ### motif says 6 but that's too small
 
+/*!\reimp
+ */
 void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int&buttonDim )
 {
     int maxLength;
@@ -453,6 +469,8 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int 
 }
 
 
+/*!\reimp
+ */
 void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
@@ -785,6 +803,8 @@ QWindowsStyle::drawSliderMask( QPainter *p,
 }
 
 
+/*!\reimp
+ */
 void QWindowsStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD c,
@@ -802,6 +822,8 @@ void QWindowsStyle::drawSliderGroove( QPainter *p,
     }
 
 }
+/*!\reimp
+ */
 int QWindowsStyle::maximumSliderDragDistance() const
 {
     return 20;

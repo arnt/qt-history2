@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#19 $
 **
 ** Implementation of Motif-like style class
 **
@@ -535,6 +535,8 @@ void QMotifStyle::drawSlider( QPainter *p,
     }
 }
 
+/*!\reimp
+ */
 void QMotifStyle::drawSliderGroove( QPainter *p,
 				      int x, int y, int w, int h,
 				      const QColorGroup& g, QCOORD /*c */,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#29 $
 **
 ** Implementation of QStyle class
 **
@@ -443,9 +443,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 /*!
-  \fn void QStyle::drawArrow( QPainter *p, Qt::ArrowType type, bool down,
-		     int x, int y, int w, int h,
-		     const QColorGroup &g, bool enabled, const QBrush *fill)
+  \fn void QStyle::drawArrow( QPainter *p, Qt::ArrowType type, bool down, int x, int y, int w, int h, const QColorGroup &g, bool enabled, const QBrush *fill)
   Draws a button indicating direction.
 */
 
@@ -553,10 +551,8 @@ QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int slid
 */
 
 /*!
-  \fn void drawSlider( QPainter *p,
-			     int x, int y, int w, int h,
-			     const QColorGroup &g,
-			     Orientation, bool tickAbove, bool tickBelow)
+  \fn void QStyle::drawSlider( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g, Orientation, bool tickAbove, bool tickBelow)
   Draws a slider.
 			
 */
@@ -573,10 +569,8 @@ QStyle::drawSliderMask( QPainter *p,
 }
 
 /*!
-  \fn  void QStyle::drawSliderGroove( QPainter *p,
-				   int x, int y, int w, int h,
-				   const QColorGroup& g, QCOORD c,
-				   Orientation )
+  \fn  void QStyle::drawSliderGroove( QPainter *p,  int x, int y, int w, int h,
+				   const QColorGroup& g, QCOORD c, Orientation )
 
   Draws a slider groove
 
