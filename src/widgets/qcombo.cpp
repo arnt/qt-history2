@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#132 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#131 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#132 $");
 
 
 /*!
@@ -1227,7 +1227,9 @@ void QComboBox::popup()
 	    y = 0;
 	d->listBox->move( x, y );
 	d->listBox->raise();
+	d->listBox->blockSignals( TRUE );
 	d->listBox->setCurrentItem( d->current );
+	d->listBox->blockSignals( FALSE );
 	d->listBox->setAutoScrollBar( TRUE );
 	d->listBox->show();
     } else {
@@ -1246,6 +1248,7 @@ void QComboBox::popDownListBox()
     ASSERT( d->usingListBox );
     d->listBox->removeEventFilter( this );
     d->listBox->hide();
+    d->listBox->setCurrentItem( d->current );
     if ( d->arrowDown ) {
 	d->arrowDown = FALSE;
 	repaint( FALSE );
@@ -1437,6 +1440,11 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    if ( !d->popup->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
 		d->listBox->removeEventFilter( this );
+		// ### uglehack!
+		// call internalHighlight so the highlighed signal
+		// will be emitted at least as often as necessary.
+		// it may be called more often than necessary
+		internalHighlight( d->current );
 	    }
 	    break;
 	default:
