@@ -1016,7 +1016,8 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
 
-    if (state() == EditingState && d->editors.contains(index))
+    QModelIndex buddy = model()->buddy(index);
+    if (state() == EditingState && d->editors.contains(buddy))
         return;
 
     if (state() == SelectingState) {
