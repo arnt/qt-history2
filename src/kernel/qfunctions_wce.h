@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Compatibility functionality for WindowsCE platforms 
+** Compatibility functionality for WindowsCE platforms
 **
 ** Created : 010613
 **
@@ -60,7 +60,6 @@ extern "C" {
 
 
 #ifndef POCKET_PC
-
 int isprint( int c );
 int isdigit( int c );
 int isxdigit( int c );
@@ -73,16 +72,6 @@ int isgraph( int c );
 #define SM_CYCURSOR             14
 
 #endif
-
-
-typedef struct _DROPFILES
-{ 
-    DWORD pFiles; 
-    POINT pt; 
-    BOOL fNC; 
-    BOOL fWide; 
-} DROPFILES, FAR *LPDROPFILES; 
-
 
 struct _stat
 {
@@ -204,7 +193,7 @@ COLORREF PALETTEINDEX( WORD wPaletteIndex );
 
 void *bsearch( const void *key, const void *base, size_t num, size_t width, int ( __cdecl *compare ) ( const void *elem1, const void *elem2 ) );
 
-
+#define ETO_GLYPH_INDEX              0x0010
 typedef struct tagENUMLOGFONTEX {
   LOGFONT  elfLogFont;
   TCHAR  elfFullName[LF_FULLFACESIZE];
@@ -258,9 +247,9 @@ BOOL TextOut(
 #define DETACHED_PROCESS		3
 #define CF_HDROP				4
 
-HANDLE GetCurrentProcess(void);
-DWORD GetCurrentThreadId(void);
-HANDLE GetCurrentThread(void);
+//HANDLE GetCurrentProcess(void);
+//DWORD GetCurrentThreadId(void);
+//HANDLE GetCurrentThread(void);
 
 
 /////////////////////////////////////////////////////////////////
@@ -275,22 +264,43 @@ HANDLE GetCurrentThread(void);
 // Missing typedefs
 #ifndef _TIME_T_DEFINED
 typedef unsigned long time_t;
-#define _TIME_T_DEFINED 
+#define _TIME_T_DEFINED
 #endif
 typedef HANDLE  HDWP;
 typedef HANDLE  HDROP;
 typedef wchar_t _TUCHAR;
 typedef LPVOID  LPPRINTER_DEFAULTS;
-typedef LPVOID  LPCHOOSEFONT;
+
+#if (_WIN32_WCE < 400) // CE 4.0, CE.NET has these
+    typedef struct _DROPFILES
+    {
+	DWORD pFiles;
+	POINT pt;
+	BOOL fNC;
+	BOOL fWide;
+    } DROPFILES, FAR *LPDROPFILES;
+
+    typedef LPVOID      	LPCHOOSEFONT;
+#   define WS_THICKFRAME	WS_DLGFRAME
+#   define RDW_INVALIDATE       (0x0001)
+#   define RDW_INTERNALPAINT    (0x0002)
+#   define RDW_ERASE            (0x0004)
+#   define RDW_VALIDATE         (0x0008)
+#   define RDW_NOERASE          (0x0020)
+#   define RDW_NOCHILDREN       (0x0040)
+#   define RDW_ALLCHILDREN      (0x0080)
+#   define RDW_UPDATENOW        (0x0100)
+#   define RDW_ERASENOW         (0x0200)
+#endif // _WIN32_WCE < 400
+
 #if (_WIN32_WCE < 210)
 typedef LPVOID  LPPAGESETUPDLG;
 #endif // _WIN32_WCE < 210
 typedef UINT    UWORD;
 
-// Missing definitions: not necessary equal to their Win32 values 
+// Missing definitions: not necessary equal to their Win32 values
 // (the goal is to just have a clean compilation of MFC)
 #define BS_USERBUTTON             BS_PUSHBUTTON
-#define WS_THICKFRAME             WS_DLGFRAME
 #define WS_MAXIMIZE               0
 #define WS_MINIMIZE               0
 #define WS_EX_CONTROLPARENT       0x00010000L
@@ -298,7 +308,7 @@ typedef UINT    UWORD;
 #ifndef WS_EX_TOOLWINDOW
 #define WS_EX_TOOLWINDOW          0
 #endif
-#define WS_EX_NOPARENTNOTIFY      0 
+#define WS_EX_NOPARENTNOTIFY      0
 #define WM_ENTERIDLE              0x0121
 #define WM_PRINT                  WM_PAINT
 #define WM_NCCREATE               (0x0081)
@@ -314,16 +324,7 @@ typedef UINT    UWORD;
 #define CTLCOLOR_SCROLLBAR        CTLCOLOR_EDIT
 #define PSM_CANCELTOCLOSE         (WM_USER + 107)
 #define ESB_ENABLE_BOTH           (0x0000)
-#define RDW_INVALIDATE            (0x0001)
-#define RDW_INTERNALPAINT         (0x0002)
-#define RDW_ERASE                 (0x0004)
-#define RDW_VALIDATE              (0x0008)
 #define RDW_NOINTERNALPAINT       (0x0010)
-#define RDW_NOERASE               (0x0020)
-#define RDW_NOCHILDREN            (0x0040)
-#define RDW_ALLCHILDREN           (0x0080)
-#define RDW_UPDATENOW             (0x0100)
-#define RDW_ERASENOW              (0x0200)
 #define RDW_FRAME                 (0x0400)
 #define RDW_NOFRAME               (0x0800)
 #ifndef DCX_CACHE
@@ -335,7 +336,7 @@ typedef UINT    UWORD;
 #define HELP_HELPFILE             (0x0000L)
 #define MSGF_MENU                 2
 #define pshHelp                   0x040E
-#define SM_DBCSENABLED            42 
+#define SM_DBCSENABLED            42
 #define MF_BITMAP                 0x00000004L
 #define MF_DISABLED               0
 #define FW_REGULAR                FW_NORMAL
@@ -346,7 +347,7 @@ typedef UINT    UWORD;
 #define IDB_HIST_SMALL_COLOR      8
 #define IDB_HIST_LARGE_COLOR      9
 #define DEFAULT_GUI_FONT          SYSTEM_FONT
-#define SFGAO_LINK                0x00010000L   
+#define SFGAO_LINK                0x00010000L
 #ifndef _MAX_FNAME
 #define _MAX_FNAME                 64
 #endif
@@ -385,19 +386,19 @@ typedef UINT    UWORD;
 #define MM_ISOTROPIC              7
 #define MM_ANISOTROPIC            8
 #define OLEUI_FALSE               0
-#define OLEUI_SUCCESS             1     
-#define OLEUI_OK                  1    
-#define OLEUI_CANCEL              2     
+#define OLEUI_SUCCESS             1
+#define OLEUI_OK                  1
+#define OLEUI_CANCEL              2
 #define KF_EXTENDED               0x0100
 #define KF_DLGMODE                0x0800
 #define KF_MENUMODE               0x1000
 #define KF_ALTDOWN                0x2000
 #define KF_REPEAT                 0x4000
 #define KF_UP                     0x8000
-#define IDB_STD_SMALL_MONO        2     
-#define IDB_STD_LARGE_MONO        3     
-#define IDB_VIEW_SMALL_MONO       6    
-#define IDB_VIEW_LARGE_MONO       7  
+#define IDB_STD_SMALL_MONO        2
+#define IDB_STD_LARGE_MONO        3
+#define IDB_VIEW_SMALL_MONO       6
+#define IDB_VIEW_LARGE_MONO       7
 #define SPI_GETWORKAREA           48
 #define LBSELCHSTRING             TEXT("commdlg_LBSelChangedNotify")
 #define SHAREVISTRING             TEXT("commdlg_ShareViolation")
@@ -428,7 +429,7 @@ typedef UINT    UWORD;
 	#define IDC_APPSTARTING     MAKEINTRESOURCE(32650)
 	#define IDC_HELP            MAKEINTRESOURCE(32651)
 	#define IDC_HAND	    MAKEINTRESOURCE(32649)
-#endif 
+#endif
 
 #if defined(_MIPS_)
 extern "C" void _asm(char *, ...);
@@ -444,7 +445,7 @@ extern "C" void _asm(char *, ...);
 #define GMEM_SHARE                0
 #endif // _WIN32_WCE
 
-// WinCE: CESYSGEN prunes the following FRP defines, 
+// WinCE: CESYSGEN prunes the following FRP defines,
 // and INTERNET_TRANSFER_TYPE_ASCII breaks in wininet.h
 #undef FTP_TRANSFER_TYPE_ASCII
 #define FTP_TRANSFER_TYPE_ASCII 0x00000001
@@ -453,7 +454,7 @@ extern "C" void _asm(char *, ...);
 
 #define MM_TEXT 1
 typedef DWORD OLE_COLOR;
-#define WS_OVERLAPPEDWINDOW 0 
+#define WS_OVERLAPPEDWINDOW 0
 
 #ifndef MF_BITMAP
 #define MF_BITMAP 0x00000004L
@@ -504,7 +505,7 @@ typedef struct tagNCCALCSIZE_PARAMS {
 } NCCALCSIZE_PARAMS, *LPNCCALCSIZE_PARAMS;
 
 
-// The WinCE OS headers #defines the following, 
+// The WinCE OS headers #defines the following,
 // but it interferes with MFC member functions.
 #undef TrackPopupMenu
 #undef DrawIcon
@@ -519,7 +520,7 @@ typedef struct tagNCCALCSIZE_PARAMS {
 #endif
 
 
-typedef struct tagFINDREPLACEW 
+typedef struct tagFINDREPLACEW
 {
    DWORD        lStructSize;        // size of this struct 0x20
    HWND         hwndOwner;          // handle to owner's window
@@ -536,7 +537,7 @@ typedef struct tagFINDREPLACEW
 } FINDREPLACE, *LPFINDREPLACE;
 
 #if defined(_WIN32_WCE_PSPC) && (_WIN32_WCE == 201)
-	#define OFN_READONLY         0 
+	#define OFN_READONLY         0
 	#define OFN_ENABLEHOOK       0
 	#define OFN_ENABLETEMPLATE   0
 	#define OFN_ALLOWMULTISELECT 0
@@ -581,11 +582,11 @@ typedef struct tagFINDREPLACEW
 #endif // _WIN32_WCE_NO_OLE
 
 // Missing headers
-#include "prsht.h"    
+#include "prsht.h"
 
 // Missing string functions aliases
 #ifndef _istlead
-#define _istlead(ch) (FALSE)  
+#define _istlead(ch) (FALSE)
 #endif
 #ifndef _vsnwprintf
 #define _vsnwprintf(a,b,c,d) vswprintf(a,c,d)
@@ -613,7 +614,7 @@ BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize);
 BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint);
 BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize);
 void _endthreadex(unsigned nExitCode);
-unsigned long _beginthreadex(void *security, unsigned stack_size, 
+unsigned long _beginthreadex(void *security, unsigned stack_size,
 		    unsigned (__stdcall *start_address)(void *),
 		    void *arglist, unsigned initflag, unsigned *thrdaddr);
 
