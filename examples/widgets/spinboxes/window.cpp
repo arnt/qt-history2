@@ -74,7 +74,7 @@ void Window::createDateTimeEdits()
     meetingEdit->setTimeRange(QTime(0, 0, 0, 0), QTime(23, 59, 59, 999));
 
     QLabel *formatLabel = new QLabel(tr("Format string for the meeting date "
-        "and time"), editsGroup);
+        "and time:"), editsGroup);
 
     QComboBox *formatComboBox = new QComboBox(editsGroup);
     formatComboBox->insertItem("yyyy-MM-dd hh:mm:ss (zzz ms)");
