@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#27 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#28 $
 #
 # this is a massive hack, written very quickly
 #
@@ -66,7 +66,7 @@ sub processcode {
     s!\\/(.*?\n)!//$1!gs;
     s/\n  /\n/gs;
 
-    join($_, "<blockquote><pre>\n", "</pre></blockquote>\n");
+    join($_, "<bq><pre>\n", "</pre></bq>\n");
 }
 
 
@@ -187,7 +187,7 @@ sub processdocs {
 	-egsx;
 
 	$brief{$url} = $1
-	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n\s*\n)|$)//s);
+	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n<p>\s*)|(?:$))//s);
 
 	$doc{$url} = $doc;
     }
@@ -582,7 +582,7 @@ sub printout {
 	$file = $url;
 	$file =~ s/#.*//;
 	if ($file ne $cfile) {
-	    $fnheader = "<h2>Member Function Documentation</h2>\n<dl>\n";
+	    $fnheader = "<h2>Member Function Documentation</h2>\n";
 	    print O $fntail, $tail;
 	    close(O);
 	    open(O, "> $file") || die "can't open $file for writing";
@@ -737,12 +737,12 @@ sub printout {
 	    my ($name);
 	    print O $fnheader;
 	    $fnheader = "";
-	    $fntail = "</dl>\n";
+	    $fntail = "\n";
 	    $_ = $def{$url};
 	    $name = $url;
 	    $name =~ s/^[^\#]*\#//;
 	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
-	    print O "<dt>", $_, "\n<dd>", $doc{$url};
+	    print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
 	}
     }
     print O $fntail, $tail;
