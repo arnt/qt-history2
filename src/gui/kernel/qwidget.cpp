@@ -4864,6 +4864,8 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::WindowStateChange:
         {
+            changeEvent(e);
+
             QEvent::Type type;
             if (isMinimized())
                 type = QEvent::ShowMinimized;
