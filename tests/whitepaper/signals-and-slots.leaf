@@ -6,31 +6,28 @@ understand and use, simple to hand code, and are fully supported by
 \l{Qt Designer}.
 \endquote
 
-\omit ### Mark, avoid 'component programming' for QObject ### \endomit
+GUI applications respond to user actions. For example, when a user clicks
+a menu item or toolbar button, the program executes some code.  More
+generally, we want objects of any kind to be able to communicate with one
+another. For example, if we were parsing an XML file we might want to
+notify a list view that we're using to represent the XML file's structure
+whenever we encounter a new tag. The programmer must relate events to the
+relevant code. Older toolkits use mechanisms which are not type-safe
+(i.e. are crash-prone), are inflexible, and are not object oriented. Qt
+uses a mechanism, invented by Trolltech, called 'signals and slots'.
+Signals and slots is a powerful inter-object communication mechanism that
+can be used to completely replace the crude callbacks and message maps
+used by older toolkits. Signals and slots are type-safe, flexible, and
+well suited to component programming.
 
-GUI applications respond to user actions. For example, when a user
-clicks a menu item or toolbar button, the program executes some code.
-More generally, we want objects of any kind to be able to communicate
-with one another. For example, if we were parsing an XML file we might
-want to notify a list view that we're using to represent the XML
-file's structure whenever we encounter a new tag. The programmer must
-relate events to the relevant code. Older toolkits use mechanisms
-which are not type-safe (i.e. are crash-prone), are inflexible, and
-make it difficult to do component programming. Qt uses a mechanism,
-invented by Trolltech, called 'signals and slots'. Signals and
-slots is a powerful inter-object communication mechanism
-that can be used to completely replace the crude callbacks and message
-maps used by older toolkits. Signals and slots are type-safe,
-flexible, and well suited to component programming.
-
-If a programmer wants to associate some code with a button, using the
-old callback mechanism, they would have to pass a pointer to a
-function to the button. When the button is clicked, the function would
-then be called. There is no way of ensuring that arguments of the
-right type are given to the function when it is called, which makes
-crashes more likely. The other problem with the callback approach is
-that it tightly binds the GUI element to the functionality, making it
-difficult to develop classes independently.
+If a programmer wants to associate some code with a button, using the old
+callback mechanism, they would have to pass a pointer to a function to
+the button. When the button is clicked, the function would then be
+called. There is no way of ensuring that arguments of the right type are
+given to the function when it is called, which makes crashes more likely.
+The other problem with the callback approach is that it tightly binds the
+GUI element to the functionality, making it difficult to develop classes
+independently.
 
 Qt's signals and slots mechanism is different. Qt widgets emit signals
 when events occur. For example, a button will emit a 'clicked' signal

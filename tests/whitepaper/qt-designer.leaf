@@ -58,7 +58,7 @@ developers do not need to invoke \Cmd uic themselves.
 Usually forms are compiled into the executable, but in some situations
 customers need to modify the appearance of an application without
 accessing the source code. Qt supports 'dynamic dialogs':
-\File .ui files can be loaded at runtime and dynamically converted
+\File .ui files can be loaded at run-time and dynamically converted
 into fully functional forms. Companies can supply application
 executables along with the customer-modifiable forms in \File .ui
 format, and the customer can use \QD to customize the appearance of
@@ -83,6 +83,11 @@ Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
 and which include overviews and introductions to various aspects of Qt
 programming.
+
+Qt Assistant is a Qt application that renders Qt's HTML reference
+documentation using \Class QTextEdit. The \Class QTextEdit class
+supports a subset of HTML 3.2, and can also use custom tags that are
+created with the \Class QStyleSheet class.
 
 \section1 GUI Application Example
 

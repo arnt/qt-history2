@@ -10,11 +10,10 @@
 \input 2d-and-3d-graphics.leaf
 \input databases.leaf
 \input internationalization.leaf
-\input qt-linguist.leaf
 \input styles-and-themes.leaf
 \input layouts.leaf
 \input events.leaf
 \input input-output-and-networking.leaf
 \input collection-classes.leaf
 \input plugins.leaf
-\omit \input component-model.leaf \endomit
+\input qts-architecture.leaf
