@@ -23,7 +23,7 @@ unix {
             QMAKE_EXTRA_TARGETS += debug-$${sub}
             #release
             eval(release-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_RELEASE_TARGETS)
-            eval(release-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) debug))
+            eval(release-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) release))
             EXTRA_RELEASE_TARGETS += release-$${sub}
             QMAKE_EXTRA_TARGETS += release-$${sub}
         } else { #both a debug and release target in one
