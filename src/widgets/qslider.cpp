@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#13 $
 **
 ** Implementation of QSlider class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#13 $");
 
 #define SLIDE_BORDER	2
 #define MOTIF_WIDTH	30
@@ -28,8 +28,8 @@ static const int repeatTime    = 100;
 /*!
   \class QSlider qslider.h
 
-  \brief The QSlider widget provides a vertical or horizontal slider
-  (stripped down scrollbar).
+  \brief The QSlider widget provides a vertical or horizontal slider.
+
 
   A slider is used to let the user control a value within a
   program-definable range. In contrast to a QScrollBar, the QSlider
@@ -325,7 +325,7 @@ void QSlider::timerEvent( QTimerEvent *t )
 
 /*!
   Paints the slider button using painter \a p with size and
-  posistion given by \a r. Reimplement this function to change the
+  position given by \a r. Reimplement this function to change the
   look of the slider button.  
 */
 
@@ -369,7 +369,7 @@ void QSlider::paintSlider( int oldPos, int newPos )
     //### a bit wasteful if the slider moves more than one slider width
     switch ( style() ) {
     case WindowsStyle:
-	d = newPos - oldPos;
+	d = QABS( newPos - oldPos );
 	if ( oldPos < newPos ) {
 	    c = oldPos;
 	} else {
@@ -384,7 +384,7 @@ void QSlider::paintSlider( int oldPos, int newPos )
 	break;
     default:
     case MotifStyle:
-	d = newPos - oldPos;
+	d = QABS( newPos - oldPos );
 	if ( oldPos < newPos ) {
 	    c = oldPos + SLIDE_BORDER;
 	} else {
@@ -478,6 +478,11 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 				  e->pos().x() : e->pos().y())
 				- sliderPos );
 	emit sliderPressed();
+    } else if ( style()   == WindowsStyle) {
+	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
+	moveSlider( pos - slideWidth() / 2 );
+	state = Dragging;
+	clickOffset = slideWidth() / 2;     
     } else if ( orient == Horizontal && e->pos().x() < r.left() 
 		|| orient == Vertical && e->pos().y() < r.top() ) {
 	state = TimingDown;
@@ -497,15 +502,19 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
-    /*
-    if ( style == WindowsStyle ) {
+    
+    if ( style() == WindowsStyle ) {
 	QRect r = rect();
 	if ( orientation() == Horizontal )
 	    r.setRect( r.x() - 20, r.y() - 30, r.width() + 40, r.height() + 60 );
 	else
 	    r.setRect( r.x() - 30, r.y() - 20, r.width() + 60, r.height() + 40 );
+	if ( !r.contains( e->pos() ) ) { 
+	    moveSlider( positionFromValue( sliderStartVal) );
+	    return;
+	}
     }
-    */
+
     if ( (e->state() & MidButton) ) { 		// middle button wins
 	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
 	moveSlider( pos - slideWidth() / 2 );
@@ -515,20 +524,11 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 	return;					// left mouse button is up
     if ( state != Dragging )
 	return;
-    int  a = available();
+
     int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
-    int oldPos = sliderPos;
-    sliderPos = QMIN( a, QMAX( 0, pos - clickOffset) );
-    int newVal = valueFromPosition( sliderPos );
-    if ( sliderVal != newVal ) {
-	sliderVal = newVal;
-	emit sliderMoved( sliderVal );
-    }
-    if ( tracking() && sliderVal != value() ) {
-	directSetValue( sliderVal );
-	emit valueChanged( sliderVal );
-    }
-    paintSlider( oldPos, sliderPos );
+
+    
+    moveSlider( pos - clickOffset );
 }
 
 
@@ -550,20 +550,30 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
 
 void QSlider::moveSlider( int pos )
 {
-        int  a = available();
-	int oldPos = sliderPos;
-	sliderPos = QMIN( a, QMAX( 0, pos ) );
-	int newVal = valueFromPosition( sliderPos );
-	if ( sliderVal != newVal ) {
-	    sliderVal = newVal;
-	    emit sliderMoved( sliderVal );
-	}
-	if ( sliderVal != value() ) {
-	    directSetValue( sliderVal );
-	    emit valueChanged( sliderVal );
-	}
-	paintSlider( oldPos, sliderPos );
+    int  a = available();
+    int oldPos = sliderPos;
+    int newPos = QMIN( a, QMAX( 0, pos ) );
+    int newVal = valueFromPosition( newPos );
+    if ( sliderVal != newVal ) {
+	sliderVal = newVal;
+	emit sliderMoved( sliderVal );
+    }
+    if ( tracking() && sliderVal != value() ) {
+	directSetValue( sliderVal );
+	emit valueChanged( sliderVal );
+    }
 
+    switch ( style() ) {
+    case WindowsStyle:
+	sliderPos = positionFromValue( newVal );
+	break;
+    default:
+    case MotifStyle:
+	sliderPos  = newPos;
+	break;
+    }	    
+    if ( sliderPos != oldPos )
+	paintSlider( oldPos, sliderPos );
 }
 
 
@@ -601,19 +611,25 @@ void QSlider::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
     case Key_Left:
 	if ( orient == Horizontal )
-	    setValue( value() - 1 );
+	    subtractLine();
 	break;
     case Key_Right:
 	if ( orient == Horizontal )
-	    setValue( value() + 1 );
+	    addLine();
 	break;
     case Key_Up:
 	if ( orient == Vertical )
-	    setValue( value() - 1 );
+	    subtractLine();
 	break;
     case Key_Down:
-	if ( orient == Vertical )
-	    setValue( value() + 1 );
+	if ( orient == Vertical )	
+	    addLine();
+	break;
+    case Key_Prior:
+	subtractPage();
+	break;
+    case Key_Next:
+	addPage();
 	break;
     case Key_Home:
 	setValue( minValue() );
