@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.33 1998/11/20 17:10:39 aavit Exp $
+** $Id: misc.doc,v 2.34 1999/01/11 17:53:56 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.33 1998/11/20 17:10:39 aavit Exp $";
+static char ident[] = "$Id: misc.doc,v 2.34 1999/01/11 17:53:56 agulbra Exp $";
 #endif
 
 
@@ -62,7 +62,7 @@ You may use the Qt Free Edition to create application programs provided that:
 <li>Your software does not require modifications to Qt Free Edition.
 <li>You satisfy ONE of the following three requirements
  <dl>
- <dt>EITHER 
+ <dt>EITHER
  <dd>Users of your software can freely obtain source code for the
  software, freely modify the source code (possibly with restrictions
  on copyright notices, attributions and legal responsibility), and
@@ -71,7 +71,7 @@ You may use the Qt Free Edition to create application programs provided that:
  <dd>Your software is distributed under the GNU GENERAL PUBLIC LICENSE,
  version 2 or later, as defined by the Free Software Foundation.
  <dt>OR
- <dd>Your software is distributed under the GNU LIBRARY GENERAL PUBLIC 
+ <dd>Your software is distributed under the GNU LIBRARY GENERAL PUBLIC
  LICENSE, version 2 or later, as defined by the Free Software Foundation.
  </dl>
 </ul>
@@ -83,7 +83,7 @@ part of your job the following conditions also apply:
 <li>Your software must not require libraries, programs, data or
     documentation that are not available outside your organization in
     order to compile or use.
-<li>If and when your organization starts using the software, you must 
+<li>If and when your organization starts using the software, you must
     notify Troll Tech AS of the following:
     <ul>
     <li>Your organization's name and purpose.
@@ -295,8 +295,9 @@ Tech AS.
 All other trademarks mentioned in this documentation are recognized as
 belonging to their respective owners, including but not limited to
 <tt>AIX, BSD/OS, BSDI, Borland, DEC, Digital UNIX, HP, HP-UX, IBM,
-IRIX, Microsoft, OpenGL, OSF/1, OpenGL, SGI, Solaris, SparcWorks, Sun,
-SunOS, SunPRO, Symantec, Tetris, Visual C++</tt> and <tt> Watcom.</tt>
+IRIX, Microsoft, OpenGL, OSF/1, OpenGL, PostSCript, SGI, Solaris,
+SparcWorks, Sun, SunOS, SunPRO, Symantec, Tetris, Visual C++</tt> and
+<tt> Watcom.</tt>
 
 */
 
