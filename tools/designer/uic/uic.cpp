@@ -415,7 +415,7 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
 	QDomElement ae = nl.item( i ).toElement();
 	QString dock = get_dock( ae.attribute( "dock" ) );
 	QString objName = getObjectName( ae );
- 	out << indent << objName << " = new QToolBar( \"\", this, " << dock << " ); " << endl;
+ 	out << indent << objName << " = new QToolBar( QString(\"\"), this, " << dock << " ); " << endl;
 	createObjectImpl( ae, parentClass, parent );
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" ) {
@@ -461,6 +461,8 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	    out << endl;
 	    out << indent << objName << "->insertSeparator( " << i << " );" << endl;
 	}
+	out << indent << objName << "->insertItem( QString(\"\"), " << itemName << ", " << i << " );" << endl;
+	trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( ae.attribute( "text" ) ) << " );" << endl;
 	c = c.nextSibling().toElement();
 	i++;
     }

@@ -1031,7 +1031,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		QString page = createObjectImpl( n, objClass, "this" );
 		QString comment;
 		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
-		out << indent << "addPage( " << page << ", \"\" );" << endl;
+		out << indent << "addPage( " << page << ", QString(\"\") );" << endl;
 		trout << indent << "setTitle( " << page << ", " << trcall( label, comment ) << " );" << endl;
 		QVariant def( FALSE, 0 );
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )

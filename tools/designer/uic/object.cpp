@@ -277,7 +277,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		QString page = createObjectImpl( n, objClass, objName );
 		QString comment;
 		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
-		out << indent << objName << "->insertTab( " << page << ", \"\" );" << endl;
+		out << indent << objName << "->insertTab( " << page << ", QString(\"\") );" << endl;
 		trout << indent << objName << "->changeTab( " << page << ", "
 		      << trcall( label, comment ) << " );" << endl;
 	    }
