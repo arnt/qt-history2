@@ -541,7 +541,7 @@ void QProcess::close()
 {
     flush();
     terminate();
-    waitForFinished(0);
+    waitForFinished(-1);
     QIODevice::close();
 }
 
@@ -638,6 +638,8 @@ QStringList QProcess::environment() const
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
 
+    If msecs is -1, this function waits forever.
+
     \sa waitForFinished()
 */
 bool QProcess::waitForStarted(int msecs)
@@ -693,6 +695,8 @@ bool QProcess::waitForBytesWritten(int msecs)
 
     \warning Calling this function from the main (GUI) thread
     might cause your user interface to freeze.
+
+    If msecs is -1, this function waits forever.
 
     \sa waitForFinished()
 */

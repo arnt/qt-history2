@@ -1164,6 +1164,8 @@ bool QAbstractSocket::setSocketDescriptor(int socketDescriptor, SocketState sock
             qDebug("Connected!");
     \endcode
 
+    If msecs is -1, this function waits forever.
+
     \sa connectToHost(), connected()
 */
 bool QAbstractSocket::waitForConnected(int msecs)
@@ -1195,8 +1197,8 @@ bool QAbstractSocket::waitForConnected(int msecs)
 #if defined (QABSTRACTSOCKET_DEBUG)
     int attempt = 1;
 #endif
-    while (state() == ConnectingState && stopWatch.elapsed() < msecs) {
-        int timeout = qMin(QT_CONNECT_TIMEOUT, msecs - stopWatch.elapsed());
+    while (state() == ConnectingState && (msecs == -1 || stopWatch.elapsed() < msecs)) {
+        int timeout = msecs == -1 ? msecs : qMin(QT_CONNECT_TIMEOUT, msecs - stopWatch.elapsed());
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocket::waitForConnected(%i) waiting %.2f secs for connection attempt #%i",
                msecs, timeout / 1000.0, attempt++);
@@ -1246,7 +1248,7 @@ bool QAbstractSocket::waitForReadyRead(int msecs)
     forever {
         bool readyToRead = false;
         if (!d->socketLayer.waitForReadOrWrite(&readyToRead, true, !d->writeBuffer.isEmpty(),
-                                               msecs - stopWatch.elapsed())) {
+                                               msecs == -1 ? msecs : msecs - stopWatch.elapsed())) {
             d->socketError = d->socketLayer.error();
             setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
@@ -1300,7 +1302,7 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
     forever {
         bool readyToRead = false;
         if (!d->socketLayer.waitForReadOrWrite(&readyToRead, true, !d->writeBuffer.isEmpty(),
-                                               msecs - stopWatch.elapsed())) {
+                                               msecs == -1 ? msecs : msecs - stopWatch.elapsed())) {
             d->socketError = d->socketLayer.error();
             setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)
@@ -1341,6 +1343,8 @@ bool QAbstractSocket::waitForBytesWritten(int msecs)
             qDebug("Disconnected!");
     \endcode
 
+    If msecs is -1, this function waits forever.
+
     \sa disconnect(), close()
 */
 bool QAbstractSocket::waitForDisconnected(int msecs)
@@ -1364,7 +1368,7 @@ bool QAbstractSocket::waitForDisconnected(int msecs)
         bool readyToRead = false;
         if (!d->socketLayer.waitForReadOrWrite(&readyToRead, state() == ConnectedState,
                                                !d->writeBuffer.isEmpty(),
-                                               msecs - stopWatch.elapsed())) {
+                                               msecs == -1 ? msecs : msecs - stopWatch.elapsed())) {
             d->socketError = d->socketLayer.error();
             setErrorString(d->socketLayer.errorString());
 #if defined (QABSTRACTSOCKET_DEBUG)

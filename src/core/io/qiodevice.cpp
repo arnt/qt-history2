@@ -415,12 +415,12 @@ void QIODevice::close()
     before and after the call, or by connecting to bytesWritten().
 
     Calling this function is equivalent to calling
-    waitForBytesWritten() until bytesToWrite() returns 0.
+    waitForBytesWritten(-1) until bytesToWrite() returns 0.
 */
 bool QIODevice::flush()
 {
     while (bytesToWrite() > 0) {
-        if (!waitForBytesWritten(0))
+        if (!waitForBytesWritten(-1))
             return false;
     }
     return true;
@@ -833,7 +833,7 @@ void QIODevice::ungetChar(char c)
 /*!
     Blocks until data is available for reading and the readyRead()
     signal has been emitted, or until \a msecs milliseconds have
-    passed.
+    passed. If msecs is -1, this function waits forever.
 
     Returns true if data is available for reading; otherwise returns
     false (if the operation timed out or if an error occurred).
@@ -857,7 +857,8 @@ bool QIODevice::waitForReadyRead(int msecs)
     For buffered devices, this function waits until a payload of
     buffered written data has been written to the device and the
     bytesWritten() signal has been emitted, or until \a msecs
-    milliseconds have passed. For unbuffered devices, it does nothing.
+    milliseconds have passed. If msecs is -1, this function waits
+    forever. For unbuffered devices, it does nothing.
 
     Returns true if a payload of data was written to the device;
     otherwise returns false (i.e. if the operation timed out, or if an
