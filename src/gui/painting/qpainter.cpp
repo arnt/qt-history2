@@ -1746,7 +1746,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	width = 0;
 	tf |= QPainter::DontPrint;
     } else {
-	int lineWidth = wordbreak ? qMax(0, r.width()) : INT_MAX;
+	int lineWidth = wordbreak ? qMax(0, r.width()) : 0x01000000;
 	if(!wordbreak)
 	    tf |= Qt::IncludeTrailingSpaces;
 	textLayout.beginLayout((tf & Qt::DontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine );
