@@ -859,6 +859,11 @@ bool QMainWindow::isDockEnabled( QDockArea *area ) const
 
 void QMainWindow::setDockEnabled( QDockWindow *tb, Dock dock, bool enable )
 {
+    if ( d->dockWindows.find( tb ) == -1 ) {
+	d->dockWindows.append( tb );
+	connect( tb, SIGNAL( placeChanged( QDockWindow::Place ) ),
+		 this, SLOT( slotPlaceChanged() ) );
+    }
     QString s;
     s.sprintf( "%p_%d", tb, (int)dock );
     if ( enable )
