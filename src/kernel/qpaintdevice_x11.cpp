@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#8 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#8 $";
 #endif
 
 
@@ -111,4 +111,5 @@ long QPaintDevice::metric( int ) const
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::metrics: Device has no metric information" );
 #endif
+    return 0;
 }
