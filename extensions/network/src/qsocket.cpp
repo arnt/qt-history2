@@ -79,6 +79,7 @@ QSocketPrivate::~QSocketPrivate()
     delete rsn;
     delete wsn;
     delete socket;
+    delete dns;
 }
 
 
@@ -274,17 +275,7 @@ void QSocket::connectToHost( const QString &host, int port )
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
-    if ( d->state != Idle )
-	close();
-    // Re-initialize
-    delete d;
-
-    d = new QSocketPrivate;
     setSocket( -1 );
-
-    QObject * p = this;
-    while ( p && p->parent() )
-	p = p->parent();
 
     d->state = HostLookup;
     d->host = host;
@@ -308,17 +299,7 @@ void QSocket::connectToLocalFile( const QString &filename )
     qDebug( "QSocket (%s)::connectToLocalFile: file %s",
 	    name(), filename.ascii() );
 #endif
-    if ( d->state != Idle )
-	close();
-    // Re-initialize
-    delete d;
-
-    d = new QSocketPrivate;
     setSocket( -1, FALSE );
-
-    QObject * p = this;
-    while ( p && p->parent() )
-	p = p->parent();
 
     d->state = HostLookup;
     d->host = QString::null;
@@ -361,6 +342,7 @@ void QSocket::tryConnecting()
 	}
 	return;
     }
+    emit hostFound();
 
     // ### hack: just use the first address
     d->state = Connecting;
@@ -493,7 +475,7 @@ bool QSocket::open( int m )
   Closes the socket.
   The mode to \c QSocket::Binary and the read buffer is cleared.
 
-  If the output buffer is empty, the state is set to \ QSocket::Idle
+  If the output buffer is empty, the state is set to \c QSocket::Idle
   and the connection is terminated immediately.  If the output buffer
   still contains data to be written, QSocket goes into the
   \c QSocket::Closing state and the rest of the data will be written.
@@ -529,6 +511,7 @@ void QSocket::close()
     delete d;
     d = new QSocketPrivate;
     d->state = Idle;
+    emit closed();
 }
 
 
