@@ -1134,7 +1134,7 @@ inline T qt_cast(const QObject *object)
 
 #define Q_DECLARE_INTERFACE(Iface) \
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
-{ return (IFace *) object ? object->qt_metacast(#Iface) : 0; }
+{ return (IFace *)(object ? object->qt_metacast(#Iface) : 0); }
 
 #endif // QGLOBAL_H
 
