@@ -778,7 +778,16 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
     QString value = readEntry( key, QString::number(def), ok );
-    return value.toDouble();
+    bool conv_ok;
+    double retval = value.toDouble( &conv_ok );
+    if ( conv_ok )
+	return retval;
+    if ( ! value.isEmpty() )
+	qWarning( "QSettings::readDoubleEntry: '%s' is not a number",
+		  value.latin1() );
+    if ( ok )
+	*ok = FALSE;
+    return def;
 }
 
 
@@ -793,7 +802,16 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
     QString value = readEntry( key, QString::number( def ), ok );
-    return value.toInt();
+    bool conv_ok;
+    int retval = value.toInt( &conv_ok );
+    if ( conv_ok )
+	return retval;
+    if ( ! value.isEmpty() )
+	qWarning( "QSettings::readNumEntry: '%s' is not a number",
+		  value.latin1() );
+    if ( ok )
+	*ok = FALSE;
+    return def;
 }
 
 
