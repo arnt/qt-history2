@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#227 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#228 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1818,8 +1818,6 @@ void QFileDialog::setDir( const QString & pathstr )
     QDir tmp( dr );
     tmp.setFilter( cwd.filter() );
     setDir( tmp );
-    if ( d->types->isEnabled() )
-        setFilter( d->types->currentText() );
 }
 
 /*!

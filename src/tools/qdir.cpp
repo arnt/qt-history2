@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#93 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#94 $
 **
 ** Implementation of QDir class
 **
@@ -1297,7 +1297,7 @@ QString QDir::rootDirPath()
     return d;
 }
 
-static QStringList makeFilterList( const QString &filter )
+static QStringList makeFilterList( QString filter )
 {
     if ( filter.isEmpty() )
         return QStringList();
@@ -1729,7 +1729,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
         else
             dirty = TRUE;
         return TRUE;
-    }
+}
 
 
 /*!  Returns a list if the root directories on this system.  On
