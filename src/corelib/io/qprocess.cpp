@@ -283,7 +283,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     This signal is emitted when the process has made new data
     available through its standard output channel (\c stdout). It is
-    emitted regardless of the current \l{read channel}{readChannel()}.
+    emitted regardless of the current \l{readChannel()}{read channel}.
 
     \sa readAllStandardOutput(), readChannel()
 */
@@ -293,8 +293,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     This signal is emitted when the process has made new data
     available through its standard error channel (\c stderr). It is
-    emitted regardless of the current \l{read
-    channel}{readChannel()}.
+    emitted regardless of the current \l{readChannel()}{read
+    channel}.
 
     \sa readAllStandardError(), readChannel()
 */
@@ -739,7 +739,7 @@ QString QProcess::workingDirectory() const
     process in this directory. The default behavior is to start the
     process in the working directory of the calling process.
 
-    \sa setWorkingDirectory(), start()
+    \sa workingDirectory(), start()
 */
 void QProcess::setWorkingDirectory(const QString &dir)
 {
@@ -834,7 +834,7 @@ qint64 QProcess::bytesToWrite() const
 /*!
     Returns the type of error that occurred last.
 
-    \sa error()
+    \sa state()
 */
 QProcess::ProcessError QProcess::error() const
 {
@@ -845,7 +845,7 @@ QProcess::ProcessError QProcess::error() const
 /*!
     Returns the current state of the process.
 
-    \sa stateChanged()
+    \sa stateChanged(), error()
 */
 QProcess::ProcessState QProcess::state() const
 {
@@ -896,7 +896,7 @@ QStringList QProcess::environment() const
 
     If msecs is -1, this function will not time out.
 
-    \sa waitForFinished()
+    \sa started(), waitForReadyRead(), waitForBytesWritten(), waitForFinished()
 */
 bool QProcess::waitForStarted(int msecs)
 {
@@ -954,7 +954,7 @@ bool QProcess::waitForBytesWritten(int msecs)
 
     If msecs is -1, this function will not time out.
 
-    \sa waitForFinished()
+    \sa finished(), waitForStarted(), waitForReadyRead(), waitForBytesWritten()
 */
 bool QProcess::waitForFinished(int msecs)
 {
