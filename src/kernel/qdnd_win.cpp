@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#33 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -181,17 +181,17 @@ public:
     QByteArray	convertFromMime( QByteArray data, const char* , int );
 };
 
-inline int QWindowsMimeAnyMime::countCf()
+int QWindowsMimeAnyMime::countCf()
 {
     return mimetypes.count();
 }
 
-inline const char* QWindowsMimeAnyMime::convertorName()
+const char* QWindowsMimeAnyMime::convertorName()
 {
     return "Any-Mime";
 }
 
-inline int QWindowsMimeAnyMime::cf(int index)
+int QWindowsMimeAnyMime::cf(int index)
 {
     return mimetypes.at(index)->cf;
 }
@@ -241,12 +241,12 @@ bool QWindowsMimeAnyMime::canConvert( const char* mime, int cf )
     return 0==stricmp(mt->mime,mime);
 }
 
-inline QByteArray QWindowsMimeAnyMime::convertToMime( QByteArray data, const char* , int )
+QByteArray QWindowsMimeAnyMime::convertToMime( QByteArray data, const char* , int )
 {
     return data;
 }
 
-inline QByteArray QWindowsMimeAnyMime::convertFromMime( QByteArray data, const char* , int )
+QByteArray QWindowsMimeAnyMime::convertFromMime( QByteArray data, const char* , int )
 {
     return data;
 }
@@ -265,17 +265,17 @@ public:
     QByteArray	convertFromMime( QByteArray data, const char* , int );
 };
 
-inline int QWindowsMimeText::countCf()
+int QWindowsMimeText::countCf()
 {
     return 1 /* 2 with unicode */;
 }
 
-inline const char* QWindowsMimeText::convertorName()
+const char* QWindowsMimeText::convertorName()
 {
     return "Text";
 }
 
-inline int QWindowsMimeText::cf(int index)
+int QWindowsMimeText::cf(int index)
 {
     return CF_TEXT;
     // return index ? CF_TEXT : CF_UNICODETEXT;  // Note UNICODE first.
@@ -302,14 +302,25 @@ bool QWindowsMimeText::canConvert( const char* mime, int cf )
     return cf == CF_TEXT && qstrnicmp(mime,"text/",5)==0;
 }
 
-inline QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* , int )
+QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* , int )
 {
-    return data;
+    if ( data[(int)data.size()-1] ) {
+	// Strip nul
+	QByteArray r(data.size()-1);
+	memcpy(r.data(),data.data(),r.size());
+	return r;
+    } else {
+	// Not nul-terminated
+	return data;
+    }
 }
 
-inline QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* , int )
+QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* , int )
 {
-    return data;
+    QByteArray r(data.size()+1);
+    memcpy(r.data(),data.data(),data.size());
+    r[(int)data.size()]='\0';
+    return r;
 }
 
 
@@ -326,17 +337,17 @@ public:
     QByteArray	convertFromMime( QByteArray data, const char* mime, int cf );
 };
 
-inline int QWindowsMimeImage::countCf()
+int QWindowsMimeImage::countCf()
 {
     return 1;
 }
 
-inline const char* QWindowsMimeImage::convertorName()
+const char* QWindowsMimeImage::convertorName()
 {
     return "Image";
 }
 
-inline int QWindowsMimeImage::cf(int index)
+int QWindowsMimeImage::cf(int index)
 {
     return CF_DIB;
 }
@@ -451,22 +462,22 @@ public:
     QByteArray	convertFromMime( QByteArray data, const char* mime, int cf );
 };
 
-inline int QWindowsMimeUrl::countCf()
+int QWindowsMimeUrl::countCf()
 {
     return 1;
 }
 
-inline const char* QWindowsMimeUrl::convertorName()
+const char* QWindowsMimeUrl::convertorName()
 {
     return "Urls";
 }
 
-inline int QWindowsMimeUrl::cf(int index)
+int QWindowsMimeUrl::cf(int index)
 {
     return CF_HDROP;
 }
 
-inline int QWindowsMimeUrl::cfFor(const char* mime)
+int QWindowsMimeUrl::cfFor(const char* mime)
 {
     return qstricmp(mime,"url/url")==0;
 }
