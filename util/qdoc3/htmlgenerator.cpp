@@ -86,6 +86,7 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     nonCompatClasses.clear();
     mainClasses.clear();
     compatClasses.clear();
+    moduleClassMap.clear();
     funcIndex.clear();
     legaleseTexts.clear();
     findAllClasses(tree->root());
@@ -230,6 +231,12 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    generateAnnotatedList(relative, marker, nonCompatClasses);
 	} else if (atom->string() == "classes") {
 	    generateCompactList(relative, marker, nonCompatClasses);
+	} else if (atom->string().contains("classesbymodule")) {
+            QString arg = atom->string().trimmed();
+            QString moduleName = atom->string().mid(atom->string().indexOf(
+                "classesbymodule") + 15).trimmed();
+            if (moduleClassMap.contains(moduleName))
+	        generateAnnotatedList(relative, marker, moduleClassMap[moduleName]);
 	} else if (atom->string() == "classhierarchy") {
 	    generateClassHierarchy(relative, marker, nonCompatClasses);
 	} else if (atom->string() == "compatclasses") {
@@ -561,6 +568,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     generateIncludes(inner, marker);
     generateStatus(inner, marker);
     if (classe) {
+        generateModuleName(classe, marker);
 	generateInherits(classe, marker);
 	generateInheritedBy(classe, marker);
     }
@@ -1719,6 +1727,9 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
                     if ((*c)->status() == Node::Main)
 		        mainClasses.insert((*c)->name(), *c);
                 }
+                QString moduleName = (*c)->moduleName();
+                if (!moduleName.isEmpty())
+                    moduleClassMap[moduleName].insert((*c)->name(), *c);
 	    } else if ((*c)->isInnerNode()) {
 	        findAllClasses(static_cast<InnerNode *>(*c));
 	    }

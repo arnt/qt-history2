@@ -404,6 +404,22 @@ void Generator::generateExampleFiles(const FakeNode *fake, CodeMarker *marker)
     generateText(text, fake, marker);
 }
 
+void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
+{
+    if (!classe->moduleName().isEmpty()) {
+        Text text;
+	text << Atom::ParaLeft
+             << "Part of the "
+             << Atom(Atom::Link, classe->moduleName().toLower()+".html")
+             << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+             << Atom(Atom::String, classe->moduleName())
+             << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+             << " module."
+             << Atom::ParaRight;
+        generateText(text, classe, marker);
+    }
+}
+
 QString Generator::indent( int level, const QString& markedCode )
 {
     if ( level == 0 )

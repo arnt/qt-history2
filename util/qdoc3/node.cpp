@@ -307,6 +307,45 @@ void InnerNode::removeChild( Node *child )
     }
 }
 
+/*
+    Find the module (QtCore, QtGui, etc.) to which the class belongs.
+    We do this by obtaining the full path to the header file's location
+    and examine everything between "src/" and the filename.
+    This is dirty because we are using hardcoded separators.
+*/
+const QString Node::moduleName() const
+{
+    QString path = location().filePath();
+    int start = path.lastIndexOf("src/");
+    if (start == -1)
+        return "";
+
+    QString moduleDir = path.mid(start + 4);
+    int finish = moduleDir.indexOf("/");
+
+    if (start == -1)
+        return "";
+
+    moduleDir = moduleDir.left(finish);
+
+    if (moduleDir == "core")
+        return "QtCore";
+    else if (moduleDir == "gui")
+        return "QtGui";
+    else if (moduleDir == "opengl")
+        return "QtOpenGL";
+    else if (moduleDir == "network")
+        return "QtNetwork";
+    else if (moduleDir == "sql")
+        return "QtSql";
+    else if (moduleDir == "xml")
+        return "QtXml";
+    else if (moduleDir == "compat")
+        return "Qt3Compat";
+    else
+        return "";
+}
+
 void InnerNode::removeRelated(Node *pseudoChild)
 {
     related.removeAll(pseudoChild);

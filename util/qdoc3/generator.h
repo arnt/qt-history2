@@ -56,6 +56,8 @@ protected:
 				   CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      CodeMarker *marker );
+    virtual void generateModuleName( const ClassNode *classe,
+                                     CodeMarker *marker);
 
     void generateThreadSafeness( const Node *node, CodeMarker *marker );
     void generateStatus( const Node *node, CodeMarker *marker );
