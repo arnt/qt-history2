@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#69 $
+** $Id: //depot/qt/main/src/tools/qstring.h#70 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -123,10 +123,14 @@ UINT16 qchecksum( const char *s, uint len );
 #endif
 Q_UINT16 qChecksum( const char *s, uint len );
 
+
 /*****************************************************************************
   QByteArray class
  *****************************************************************************/
 
+#if defined(QT_DLL)
+template class Q_EXPORT QArray<char>;
+#endif
 typedef QArray<char> QByteArray;
 
 
@@ -187,7 +191,7 @@ public:
     QString();					// make null string
     QString( int size );			// allocate size incl. \0
     QString( const QString & );			// impl-shared copy
-    QString( const QByteArray& );			// deep copy
+    QString( const QByteArray& );		// deep copy
     QString( const char *str );			// deep copy
     QString( const char *str, uint maxlen );	// deep copy, max length
     ~QString();
@@ -467,16 +471,16 @@ inline QString operator+( char c1, const QString &s2 )
 
 class QRegExp;
 
-class Q_EXPORT Q1String : public QByteArray		// string class
+class Q_EXPORT Q1String : public QByteArray	// string class
 {
 public:
     Q1String() {}				// make null string
     Q1String( int size );			// allocate size incl. \0
     Q1String( const Q1String &s ) : QByteArray( s ) {}
-    Q1String( const char *str );			// deep copy
+    Q1String( const char *str );		// deep copy
     Q1String( const char *str, uint maxlen );	// deep copy, max length
 
-    Q1String    &operator=( const Q1String &s );	// shallow copy
+    Q1String    &operator=( const Q1String &s );// shallow copy
     Q1String    &operator=( const char *str );	// deep copy
 
     bool	isNull()	const;

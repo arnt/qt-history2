@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#58 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#59 $
 **
 ** Global functions
 **
@@ -34,6 +34,7 @@
   or "1.31".
 */
 
+Q_EXPORT
 const char *qVersion()
 {
     return QT_VERSION_STR;
@@ -60,6 +61,7 @@ static bool si_bigEndian;
   (i.e. different endianness for 16 bit and 32 bit integers).
 */
 
+Q_EXPORT
 bool qSysInfo( int *wordSize, bool *bigEndian )
 {
 #if defined(CHECK_NULL)
@@ -155,6 +157,7 @@ static msg_handler handler = 0;			// pointer to debug handler
   \link debug.html Debugging\endlink
 */
 
+Q_EXPORT
 void debug( const char *msg, ... )
 {
     char buf[512];
@@ -198,6 +201,7 @@ void debug( const char *msg, ... )
   \link debug.html Debugging\endlink
 */
 
+Q_EXPORT
 void warning( const char *msg, ... )
 {
     char buf[512];
@@ -243,6 +247,7 @@ void warning( const char *msg, ... )
   \link debug.html Debugging\endlink
 */
 
+Q_EXPORT
 void fatal( const char *msg, ... )
 {
     char buf[512];
@@ -328,6 +333,7 @@ void fatal( const char *msg, ... )
 // The CHECK_PTR macro calls this function to check if an allocation went ok.
 //
 
+Q_EXPORT
 bool chk_pointer( bool c, const char *n, int l )
 {
     if ( c )
@@ -361,11 +367,13 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 
 static bool suppressObsolete = FALSE;
 
+Q_EXPORT
 void qSuppressObsoleteWarnings( bool suppress )
 {
     suppressObsolete = suppress;
 }
 
+Q_EXPORT
 void qObsolete(	 const char *obj, const char *oldfunc, const char *newfunc )
 {
     if ( suppressObsolete )
@@ -376,6 +384,7 @@ void qObsolete(	 const char *obj, const char *oldfunc, const char *newfunc )
 	   obj, oldfunc, newfunc );
 }
 
+Q_EXPORT
 void qObsolete(	 const char *obj, const char *oldfunc )
 {
     if ( suppressObsolete )
@@ -385,6 +394,7 @@ void qObsolete(	 const char *obj, const char *oldfunc )
     debug( "%s::%s: This function is obsolete.", obj, oldfunc );
 }
 
+Q_EXPORT
 void qObsolete(	 const char *message )
 {
     if ( suppressObsolete )
@@ -448,6 +458,7 @@ void qObsolete(	 const char *message )
   \sa debug(), warning(), fatal(), \link debug.html Debugging\endlink
 */
 
+Q_EXPORT
 msg_handler qInstallMsgHandler( msg_handler h )
 {
     msg_handler old = handler;
