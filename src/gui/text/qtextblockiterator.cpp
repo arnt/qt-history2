@@ -76,7 +76,7 @@ QTextLayout *QTextBlockIterator::layout() const
             QTextPieceTable::FragmentIterator it = pt->find(pos);
 
             while (pos < endPos) {
-                const QTextFragment *frag = it.value();
+                const QTextFragment * const frag = it.value();
 
                 const int formatIndex = frag->format;
                 if (formatIndex != lastFormatIdx) {
@@ -140,13 +140,14 @@ QString QTextBlockIterator::blockText() const
     QTextPieceTable::FragmentIterator it = pt->find(pos);
 
     while (pos < endPos) {
-        const QTextFragment *frag = it.value();
-        const QChar *fragText = buffer.constData() + frag->stringPosition;
+        const QTextFragment * const frag = it.value();
+
         Q_ASSERT(pos >= it.position());
         const int inFragmentOffset = pos - it.position();
+
         const int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-        text += QString::fromRawData(fragText + inFragmentOffset, charsToCopy);
+        text += QString::fromRawData(buffer.constData() + frag->stringPosition + inFragmentOffset, charsToCopy);
         pos += charsToCopy;
         ++it;
     }
