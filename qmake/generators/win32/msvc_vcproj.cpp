@@ -702,38 +702,6 @@ void VcprojGenerator::initPostBuildEventTools()
 	RConf.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
 	RConf.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
     }
-    if(project->isActiveConfig("activeqt")) {
-	QString name = project->first("QMAKE_ORIG_TARGET");
-	QString nameext = project->first("TARGET");
-	QString objdir = project->first("OBJECTS_DIR");
-	QString idc = project->first("QMAKE_IDC");
-
-	RConf.postBuild.Description = "Finalizing ActiveQt server...";
-	if(!RConf.postBuild.CommandLine.isEmpty())
-	    RConf.postBuild.CommandLine += " &amp;&amp; ";
-
-	if(project->isActiveConfig("dll")) { // In process
-	    RConf.postBuild.CommandLine +=
-		// call idc to generate .idl file from .dll
-		idc + " $(TargetPath) -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
-		// call midl to create implementations of the .idl file
-		project->first("QMAKE_IDL") + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
-		// call idc to replace tlb...
-		idc + " $(TargetPath) /tlb " + objdir + name + ".tlb &amp;&amp; " +
-		// register server
-		idc + " $(TargetPath) /regserver";
-	} else { // out of process
-	    RConf.postBuild.CommandLine =
-		// call application to dump idl
-		"$(TargetPath) -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
-		// call midl to create implementations of the .idl file
-		project->first("QMAKE_IDL") + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
-		// call idc to replace tlb...
-		idc + " $(TargetPath) /tlb " + objdir + name + ".tlb &amp;&amp; " +
-		// call app to register
-		"$(TargetPath) -regserver";
-	}
-    }
 }
 
 void VcprojGenerator::initPreLinkEventTools()
