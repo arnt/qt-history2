@@ -8,25 +8,13 @@ styles {
 		  $$STYLES_CPP/qcommonstyle.cpp
 
 	contains( styles, all ) {
-		styles += pocketpc aqua mac cde motifplus sgi platinum compact interlace windows motif
+		styles += aqua mac cde motifplus sgi platinum compact interlace windows motif
 	}
-
-	!wince-msvc:styles -= pocketpc
-	contains( styles, pocketpc ) {
-		HEADERS +=$$STYLES_H/qpocketpcstyle_wce.h 
-		SOURCES +=$$STYLES_CPP/qpocketpcstyle_wce.cpp 
-
-		!contains( styles, windows ) {
-			message( pocketpc requires windows )
-			styles += windows
-		}
-	}
-	!contains( styles, pocketpc):DEFINES += QT_NO_STYLE_POCKETPC
 
 	!macx-g++:styles -= aqua mac
 	contains( styles, aqua ) {
-		HEADERS +=$$STYLES_H/qaquastyle.h 
-		SOURCES +=$$STYLES_CPP/qaquastyle.cpp 
+		HEADERS +=$$STYLES_H/qaquastyle.h
+		SOURCES +=$$STYLES_CPP/qaquastyle.cpp
 
 		!contains( styles, windows ) {
 			message( aqua requires windows )

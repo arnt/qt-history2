@@ -48,9 +48,6 @@
 #include "qplatinumstyle.h"
 #include "qsgistyle.h"
 #include "qcompactstyle.h"
-#ifndef QT_NO_STYLE_POCKETPC
-#include "qpocketpcstyle_wce.h"
-#endif
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -146,11 +143,6 @@ QStyle *QStyleFactory::create( const QString& s )
 #ifndef QT_NO_STYLE_COMPACT
     if ( style == "compact" )
         return new QCompactStyle;
-    else
-#endif
-#ifndef QT_NO_STYLE_POCKETPC
-    if ( style == "pocketpc" )
-        return new QPocketPCStyle;
     else
 #endif
 #ifndef QT_NO_STYLE_AQUA
