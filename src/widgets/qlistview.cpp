@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#97 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#97 $");
 
 
 const int Unsorted = 16383;
@@ -79,7 +79,7 @@ struct QListViewPrivate
 	QPixmap pm;
 	ItemColumnInfo * next;
     };
-    
+
     struct ViewColumnInfo {
 	ViewColumnInfo(): align(AlignLeft), sortable(TRUE), next( 0 ) {}
 	~ViewColumnInfo() { delete next; }
@@ -87,7 +87,7 @@ struct QListViewPrivate
 	bool sortable;
 	ViewColumnInfo * next;
     };
-    
+
     // private variables used in QListView
     ViewColumnInfo * vci;
     QHeader * h;
@@ -208,7 +208,7 @@ QListViewItem::QListViewItem( QListView * parent,
 {
     init();
     parent->insertItem( this );
-    
+
     setText( 0, label1 );
     setText( 1, label2 );
     setText( 2, label3 );
@@ -680,7 +680,7 @@ const char * QListViewItem::text( int column ) const
 {
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
-    
+
     while( column && l ) {
 	l = l->next;
 	column--;
@@ -692,7 +692,7 @@ const char * QListViewItem::text( int column ) const
 
 /*!  Sets the text in column \a column to \a text, if \a column is a
   valid column number and \a text is non-null.
-  
+
   If \a text() has been reimplemented, this function may be a no-op.
 
   \sa text() key()
@@ -722,7 +722,7 @@ void QListViewItem::setText( int column, const char * text )
 
 /*!  Sets the pixmap in column \a column to \a text, if \a text is
   non-null and \a column is non-negative.
-  
+
   \sa pixmap() setText()
 */
 
@@ -756,7 +756,7 @@ const QPixmap * QListViewItem::pixmap( int column ) const
 {
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
-    
+
     while( column && l ) {
 	l = l->next;
 	column--;
@@ -1346,8 +1346,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		current->i->paintFocus( p, colorGroup(), r );
 	    } else {
-		r.setRect( d->h->cellPos( 0 ) - ox, current->y - oy,
-			   d->h->cellSize( d->h->mapToActual( 0 ) ), ih );
+		r.setRect( d->h->cellPos( d->h->mapToActual( 0 ) ) - ox,
+			   current->y - oy,
+			   d->h->cellSize( d->h->mapToActual( 0 ) ),
+			   ih );
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		current->i->paintFocus( p, colorGroup(), r );
 	    }
