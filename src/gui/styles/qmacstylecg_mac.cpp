@@ -1012,13 +1012,22 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
     return ret;
 }
 
-QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *w,
+QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *widget,
 				    const QSize &contentsSize, const QStyleOption &opt) const
 {
     QSize sz;
     switch (contents) {
     default:
-        sz = QWindowsStyle::sizeFromContents(contents, w, contentsSize, opt);
+        sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
+    }
+    {
+	QSize macsz;
+	if(qt_aqua_size_constrain(widget, contents, sz, &macsz) != QAquaSizeUnknown) {
+	    if(macsz.width() != -1)
+		sz.setWidth(macsz.width());
+	    if(macsz.height() != -1)
+		sz.setHeight(macsz.height());
+	}
     }
     return sz;
 }
