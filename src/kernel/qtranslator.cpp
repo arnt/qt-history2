@@ -346,6 +346,8 @@ QTranslator::~QTranslator()
 }
 
 
+extern bool qt_detectRTLLanguage();
+
 /*!  Loads \a filename, which may be an absolute file name or relative
   to \a directory.  The previous contents of this translator object is
   discarded.
@@ -376,8 +378,6 @@ QTranslator::~QTranslator()
 
   \sa save()
 */
-
-extern bool qt_detectRTLLanguage();
 
 bool QTranslator::load( const QString & filename, const QString & directory,
 			const QString & search_delimiters,

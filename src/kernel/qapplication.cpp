@@ -2238,6 +2238,14 @@ void QApplication::syncX()	{}		// do nothing
 
 #ifndef QT_NO_TRANSLATION
 
+bool qt_detectRTLLanguage()
+{
+    return qApp->tr( "QT_LAYOUT_DIRECTION",
+	    "Translate this string to the string 'LTR' in left-to-right"
+	    " languages or to 'RTL' in right-to-left languages (such as Arabic"
+	    " and Hebrew) to get proper widget layout." ) == "RTL";
+}
+
 /*!
   Adds the message file \a mf to the list of message files to be used
   for translations.
@@ -2249,14 +2257,6 @@ void QApplication::syncX()	{}		// do nothing
 
   \sa removeTranslator() translate() QTranslator::load()
 */
-
-bool qt_detectRTLLanguage()
-{
-    return qApp->tr( "QT_LAYOUT_DIRECTION",
-	    "Translate this string to the string 'LTR' in left-to-right"
-	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-	    " and Arabic) to get proper widget layout." ) == "RTL";
-}
 
 void QApplication::installTranslator( QTranslator * mf )
 {
@@ -2795,7 +2795,7 @@ void QApplication::setActiveWindow( QWidget* act )
 		}
 		delete list;
 	    }
-	} else 
+	} else
 #endif
 	    deacts.append(active_window);
 	active_window = 0;
@@ -2817,7 +2817,7 @@ void QApplication::setActiveWindow( QWidget* act )
 		}
 		delete list;
 	    }
-	} else 
+	} else
 #endif
 	    acts.append(active_window);
 	for(QWidget *w = acts.first(); w; w = acts.next())

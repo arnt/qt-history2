@@ -3543,10 +3543,10 @@ QTextStringChar *QTextStringChar::clone() const
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
-    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), numSubParag( -1 ),
-      tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
+    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), listS( QStyleSheetItem::ListDisc ), 
+      numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), 
 #ifndef QT_NO_TEXTCUSTOMITEM
-      tc( 0 ), numCustomItems( 0 ),
+      tc( 0 ), numCustomItems( 0 ), 
 #endif
       pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
       eData( 0 ), pntr( 0 ), commandHistory( 0 )
