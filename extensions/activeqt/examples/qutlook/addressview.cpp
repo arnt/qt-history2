@@ -56,11 +56,13 @@ AddressBookModel::AddressBookModel(AddressView *parent)
     if (!outlook.isNull()) {
         Outlook::NameSpace session(outlook.Session());
         session.Logon();
-        Outlook::MAPIFolder folder(session.GetDefaultFolder(Outlook::olFolderContacts));
-        contactItems = new Outlook::Items(folder.Items());
+        Outlook::MAPIFolder *folder = session.GetDefaultFolder(Outlook::olFolderContacts);
+        contactItems = new Outlook::Items(folder->Items());
 	connect(contactItems, SIGNAL(ItemAdd(IDispatch*)), parent, SLOT(updateOutlook()));
 	connect(contactItems, SIGNAL(ItemChange(IDispatch*)), parent, SLOT(updateOutlook()));
 	connect(contactItems, SIGNAL(ItemRemove()), parent, SLOT(updateOutlook()));    
+
+        delete folder;
     }
 }
 
