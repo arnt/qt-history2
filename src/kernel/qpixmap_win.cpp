@@ -577,7 +577,7 @@ QImage QPixmap::convertToImage() const
 	((QPixmap*)this)->allocCell();
 #else
     memcpy( image.bits(), data->ppvBits, image.numBytes() );
-    GetDIBColorTable( hdc, &ds, 0, ncols, (RGBQUAD*)coltbl );
+    qt_GetDIBColorTable( hdc, &ds, 0, ncols, (RGBQUAD*)coltbl );
 #endif
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
