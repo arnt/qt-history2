@@ -2879,7 +2879,7 @@ void PropertyList::setupProperties()
 	}
     }
     
-    if ( !w->inherits( "QSplitter" ) && !w->inherits( "MenuBarEditor" ) && !w->inherits( "QDesignerToolBar" ) &&
+    if ( !w->inherits( "QSplitter" ) && !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) &&
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
 	setPropertyValue( item );
@@ -2898,7 +2898,7 @@ void PropertyList::setupProperties()
     }
 
     if ( !w->inherits( "Spacer" ) && !w->inherits( "QLayoutWidget" ) &&
-	 !w->inherits( "MenuBarEditor" ) && !w->inherits( "QDesignerToolBar" ) ) {
+	 !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) ) {
 	item = new PropertyTextItem( this, item, 0, "toolTip", TRUE, FALSE );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) )
