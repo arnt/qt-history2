@@ -54,6 +54,9 @@
 
 class QWidget;
 class QObject;
+class QKeyEvent;
+class QMouseEvent;
+class QWheelEvent;
 
 extern bool qt_modal_state();
 extern void qt_enter_modal( QWidget* );
