@@ -454,12 +454,11 @@ void QTextHTMLImporter::import()
         } else if (node->id == Html_table) {
             Table t;
             if (scanTable(i, &t)) {
-            tables.append(t);
-            hasBlock = false;
+		tables.append(t);
+		hasBlock = false;
             }
             continue;
-        } else if (node->id == Html_tr) {
-            Q_ASSERT(!tables.isEmpty());
+        } else if (node->id == Html_tr && !tables.isEmpty()) {
             tables[tables.size() - 1].currentRow++;
             continue;
         }
@@ -495,8 +494,7 @@ void QTextHTMLImporter::import()
 
             charFmt.merge(node->charFormat());
 
-            if (node->isTableCell) {
-                Q_ASSERT(!tables.isEmpty());
+            if (node->isTableCell && !tables.isEmpty()) {
 
                 charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
 
