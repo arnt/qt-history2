@@ -706,6 +706,8 @@ void SetupWizardImpl::showPageConfig()
 #endif
     pngOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
     pngOff->setOn( entry == "Off" );
+    // PNG is required by the build system (ie. we use PNG), so don't allow it to be turned off
+    pngOff->setEnabled( FALSE );
     pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     pngPlugin->setOn( entry == "Plugin" );
     pngDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );	    
