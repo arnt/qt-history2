@@ -98,10 +98,6 @@
     \sa QWidget::setAutoMask()
 */
 
-#if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
-#define SAVE_RADIOBUTTON_PIXMAPS
-#endif
-
 /*!
     Constructs a radio button with no text.
 
@@ -137,9 +133,6 @@ QRadioButton::QRadioButton( const QString &text, QWidget *parent,
 
 void QRadioButton::init()
 {
-#ifndef SAVE_RADIOBUTTON_PIXMAPS
-    setAutoMask(TRUE);
-#endif
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setToggleButton( TRUE );
 #ifndef QT_NO_BUTTONGROUP
@@ -194,6 +187,9 @@ void QRadioButton::drawButton( QPainter *paint )
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
     const QColorGroup &cg = colorGroup();
 
+#if !defined( QT_NO_TEXTSTREAM )
+#   define  SAVE_RADIOBUTTON_PIXMAPS
+#endif
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     QString pmkey;				// pixmap key
     int kf = 0;
