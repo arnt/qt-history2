@@ -36,13 +36,12 @@
 **********************************************************************/
 
 #include <qplatformdefs.h>
-#include "qfontdata_p.h"
-
 #ifdef NEW_FONT
-#include "fontengine.h"
-#include "fontenginexlfd.h"
-#include "fontenginexft.h"
+#include "../tests/newrichtext/qfontengine_p.h"
+#include "../tests/newrichtext/opentype.h"
 #endif
+
+#include <private/qfontdata_p.h>
 
 #include "qt_x11.h"
 
@@ -328,6 +327,7 @@ int qt_xlfdEncoding_Id( const char *encoding )
     return -1;
 }
 
+#ifdef NEW_FONT
 int qt_mibForXlfd( const char * encoding )
 {
     int id = qt_xlfdEncoding_Id( encoding );
@@ -335,6 +335,7 @@ int qt_mibForXlfd( const char * encoding )
 	return xlfd_encoding[id].mib;
     return 0;
 };
+#endif
 
 static const char * xlfd_for_id( int id )
 {
@@ -1002,6 +1003,12 @@ void QFontDatabase::createDatabase()
 }
 
 #ifdef NEW_FONT
+
+// --------------------------------------------------------------------------------------
+// font loader
+// --------------------------------------------------------------------------------------
+
+
 static inline QFontEngine *loadEngine( int styleStrategy, int styleHint,
 					   const QString &family,
 					   const QString &foundry,

@@ -379,6 +379,8 @@ protected:
 #if defined(Q_WS_WIN)
     QT_WIN_PAINTER_MEMBERS
 #elif defined(Q_WS_X11)
+    friend class QFontEngineXLFD;
+    friend class QFontEngineBox;
     Display    *dpy;				// current display
     int		scrn;				// current screen
     Qt::HANDLE	hd;				// handle to drawable
