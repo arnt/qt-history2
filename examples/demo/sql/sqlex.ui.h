@@ -13,37 +13,9 @@
 #include <qspinbox.h>
 #include <qsqlerror.h>
 #include <qsqlcursor.h>
+#include <qsqlselectcursor.h>
 #include <qdatatable.h>
 #include "connect.h"
-
-class QCustomSqlCursor: public QSqlCursor
-{
-public:
-    QCustomSqlCursor( const QString & query = QString::null, bool autopopulate = TRUE, QSqlDatabase* db = 0 ) :
-		QSqlCursor( QString::null, autopopulate, db )
-    {
-	exec( query );
-	if ( isSelect() && autopopulate ) {
-	    QSqlRecordInfo inf = ((QSqlQuery*)this)->driver()->recordInfo( *(QSqlQuery*)this );
-	    for ( QSqlRecordInfo::iterator it = inf.begin(); it != inf.end(); ++it ) {
-		append( *it );
-	    }	    
-	}
-	setMode( QSqlCursor::ReadOnly );
-    }
-    QCustomSqlCursor( const QCustomSqlCursor & other ): QSqlCursor( other ) {}
-    bool select( const QString & /*filter*/, const QSqlIndex & /*sort*/ = QSqlIndex() )
-	{ return exec( lastQuery() ); }
-    QSqlIndex primaryIndex( bool /*prime*/ = TRUE ) const
-	{ return QSqlIndex(); }
-    int insert( bool /*invalidate*/ = TRUE )
-	{ return FALSE; }
-    int update( bool /*invalidate*/ = TRUE )
-	{ return FALSE; }
-    int del( bool /*invalidate*/ = TRUE )
-	{ return FALSE; }
-    void setName( const QString& /*name*/, bool /*autopopulate*/ = TRUE ) {}
-};
 
 static void showError( const QSqlError& err, QWidget* parent = 0 )
 {
@@ -115,9 +87,10 @@ void SqlEx::dbConnect()
 void SqlEx::execQuery()
 {
     // use a custom cursor to populate the data table
-    QCustomSqlCursor* cursor = new QCustomSqlCursor( te->text(), TRUE, QSqlDatabase::database( "SqlEx", TRUE ) );
+    QSqlSelectCursor* cursor = new QSqlSelectCursor( te->text(), QSqlDatabase::database( "SqlEx", TRUE ) );
     if ( cursor->isSelect() ) {
 	dt->setSqlCursor( cursor, TRUE, TRUE );
+	dt->setSort( QStringList() );
 	dt->refresh( QDataTable::RefreshAll );
 	QString txt( "Query OK" );
 	if ( cursor->size() >= 0 )
