@@ -6,7 +6,6 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/tools/qdir.cpp \
            $$QT_SOURCE_TREE/src/tools/qdir_win.cpp \
            $$QT_SOURCE_TREE/src/tools/qstring.cpp \
-           $$QT_SOURCE_TREE/src/tools/qlocale.cpp \
            $$QT_SOURCE_TREE/src/tools/qfileinfo.cpp \
            $$QT_SOURCE_TREE/src/tools/qfileinfo_win.cpp \
            $$QT_SOURCE_TREE/src/tools/qfile.cpp \
