@@ -17,7 +17,7 @@ exampledirs		= $QTDIR/doc/src \
 			  $QTDIR/tutorial \
                           $QTDIR/extensions/activeqt/examples
 imagedirs		= $QTDIR/doc/src/images \
-			  $QTDIR/doc/src/tech-preview/images
+			  $QTDIR/doc/src/examples/images
 outputdir		= $QTDIR/doc/html
 base			= file:$QTDIR/doc/html
 versionsym		= QT_VERSION_STR
@@ -29,9 +29,8 @@ defines			= Q_QDOC \
 
 extraimages.HTML	= logo32
 
-macro.key.HTML          = "<bold>ALPHA\1BETA</bold>"
-macro.key               = "{\1}"
-macro.menu              = "[\1]"
+macro.key               = "\\bold"
+macro.menu              = "\\bold"
 
 Cpp.ignoretokens	= QAXFACTORY_EXPORT \
                           QM_EXPORT_CANVAS \

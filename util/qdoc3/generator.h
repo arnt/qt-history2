@@ -55,11 +55,13 @@ protected:
 				   CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      CodeMarker *marker );
+
     void generateThreadSafeness( const Node *node, CodeMarker *marker );
     void generateStatus( const Node *node, CodeMarker *marker );
     const Atom *generateAtomList( const Atom *atom, const Node *relative,
 				  CodeMarker *marker, bool generate,
 				  int& numGeneratedAtoms );
+    void generateExampleFiles(const FakeNode *fake, CodeMarker *marker);
 
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );
@@ -93,6 +95,8 @@ private:
     static QMap<QString, QMap<QString, QString> > fmtLeftMaps;
     static QMap<QString, QMap<QString, QString> > fmtRightMaps;
     static QMap<QString, QStringList> imgFileExts;
+    static QStringList exampleFiles;
+    static QStringList exampleDirs;
     static QStringList imageFiles;
     static QStringList imageDirs;
     static QString outDir;

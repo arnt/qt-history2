@@ -2,7 +2,6 @@ alias.also			= sa
 alias.endquotation              = endquote
 alias.group			= defgroup
 alias.i				= e
-alias.image			= img
 alias.include			= input
 alias.inheaderfile		= headerfile
 alias.quotation                 = quote
@@ -32,6 +31,7 @@ macro.i61                       = "\\o{6,1}"
 macro.i71                       = "\\o{7,1}"
 macro.i81                       = "\\o{8,1}"
 macro.i91                       = "\\o{9,1}"
+macro.img                       = "\\image"
 macro.quotefromfile             = "\\quotefile"
 
 spurious			= "Missing comma in .*" \

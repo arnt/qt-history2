@@ -33,6 +33,8 @@ public:
     QStringList getAllFiles( const QString& filesVar, const QString& dirsVar,
 			     const QString& defaultNameFilter );
 
+    static QStringList getFilesHere( const QString& dir,
+                                     const QString& nameFilter );
     static QString findFile( const Location& location, const QStringList &files,
 			     const QStringList& dirs, const QString& fileName,
 			     QString& userFriendlyFilePath );
@@ -52,7 +54,6 @@ public:
 private:
     static bool isMetaKeyChar( QChar ch );
     void load( Location location, const QString& fileName );
-    QStringList getFilesHere( const QString& dir, const QString& nameFilter );
 
     QString prog;
     Location loc;

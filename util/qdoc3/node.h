@@ -160,7 +160,7 @@ private:
 class FakeNode : public InnerNode
 {
 public:
-    enum SubType { HeaderFile, File, Group, Module, Page };
+    enum SubType { Example, HeaderFile, File, Group, Module, Page };
 
     FakeNode( InnerNode *parent, const QString& name, SubType subType );
 

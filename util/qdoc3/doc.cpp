@@ -34,8 +34,8 @@ struct Macro
 
 enum {
     CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BADCODE, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C,
-    CMD_CAPTION, CMD_CHAPTER, CMD_CODE, CMD_ELSE, CMD_ENDABSTRACT, CMD_ENDCHAPTER, CMD_ENDCODE,
-    CMD_ENDFOOTNOTE, CMD_ENDIF, CMD_ENDLINK, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
+    CMD_CAPTION, CMD_CHAPTER, CMD_CODE, CMD_DOTS, CMD_ELSE, CMD_ENDABSTRACT, CMD_ENDCHAPTER,
+    CMD_ENDCODE, CMD_ENDFOOTNOTE, CMD_ENDIF, CMD_ENDLINK, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
     CMD_ENDQUOTATION, CMD_ENDRAW, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
     CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE, CMD_GENERATELIST,
     CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE, CMD_INCLUDE, CMD_INLINEIMAGE, CMD_INDEX,
@@ -63,6 +63,7 @@ static struct {
     { "caption", CMD_CAPTION, 0 },
     { "chapter", CMD_CHAPTER, 0 },
     { "code", CMD_CODE, 0 },
+    { "dots", CMD_DOTS, 0 },
     { "else", CMD_ELSE, 0 },
     { "endabstract", CMD_ENDABSTRACT, 0 },
     { "endchapter", CMD_ENDCHAPTER, 0 },
@@ -424,6 +425,21 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        leavePara();
                         append(Atom::Code, getCode(CMD_CODE, marker));
 		        break;
+                    case CMD_DOTS:
+                        {
+                            if (priv->text.lastAtom()->type() == Atom::Code
+                                    && priv->text.lastAtom()->string().endsWith("\n\n"))
+                                priv->text.lastAtom()->chopString();
+
+                            QString arg = getOptionalArgument();
+                            int indent = 4;
+                            if (!arg.isEmpty())
+                                indent = arg.toInt();
+                            for (int i = 0; i < indent; ++i)
+                                appendToCode(" ");
+                            appendToCode("...\n");
+                        }
+                        break;
 		    case CMD_ELSE:
 		        if (preprocessorSkipping.size() > 0) {
 			    if (preprocessorSkipping.top()) {
@@ -2059,7 +2075,8 @@ Text Doc::trimmedBriefText(const QString &className) const
         else
 	    standardWording = false;
 
-        if (!w.isEmpty() && (w.first() == "class" || w.first() == "widget"))
+        if (!w.isEmpty() && (w.first() == "class" || w.first() == "widget"
+                             || w.first() == "namespace"))
 	    w.removeFirst();
         else
 	    standardWording = false;

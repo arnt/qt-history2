@@ -15,6 +15,7 @@
 
 #define COMMAND_CLASS                   Doc::alias("class")
 #define COMMAND_ENUM                    Doc::alias("enum")
+#define COMMAND_EXAMPLE                 Doc::alias("example")
 #define COMMAND_FILE                    Doc::alias("file")
 #define COMMAND_FN                      Doc::alias("fn")
 #define COMMAND_GROUP                   Doc::alias("group")
@@ -158,8 +159,8 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 
 Set<QString> CppCodeParser::topicCommands()
 {
-    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE << COMMAND_FN
-			  << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
+    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE << COMMAND_FILE
+                          << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
 			  << COMMAND_NAMESPACE << COMMAND_PAGE << COMMAND_PROPERTY
 			  << COMMAND_TYPEDEF;
 }
@@ -215,6 +216,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	    lastPath = path;
 	}
 	return node;
+    } else if ( command == COMMAND_EXAMPLE ) {
+	return new FakeNode( tre->root(), arg, FakeNode::Example );
     } else if ( command == COMMAND_FILE ) {
 	return new FakeNode( tre->root(), arg, FakeNode::File );
     } else if ( command == COMMAND_GROUP ) {

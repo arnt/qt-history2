@@ -10,6 +10,7 @@
 #include "editdistance.h"
 #include "generator.h"
 #include "node.h"
+#include "openedlist.h"
 #include "quoter.h"
 #include "separator.h"
 #include "tokenizer.h"
@@ -18,6 +19,8 @@ QList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
 QMap<QString, QStringList> Generator::imgFileExts;
+QStringList Generator::exampleFiles;
+QStringList Generator::exampleDirs;
 QStringList Generator::imageFiles;
 QStringList Generator::imageDirs;
 QString Generator::outDir;
@@ -64,6 +67,8 @@ void Generator::initialize(const Config &config)
 	}
     }
 
+    exampleFiles = config.getStringList(CONFIG_EXAMPLES);
+    exampleDirs = config.getStringList(CONFIG_EXAMPLEDIRS);
     imageFiles = config.getStringList(CONFIG_IMAGES);
     imageDirs = config.getStringList(CONFIG_IMAGEDIRS);
 
@@ -193,16 +198,14 @@ void Generator::generateText( const Text& text, const Node *relative,
 
 void Generator::generateBody( const Node *node, CodeMarker *marker )
 {
-#if 1
-// ###
-if (node->name().contains("foo"))
-node->doc().body().dump();
-#endif
-
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
 	if ( func->isOverload() && func->metaness() != FunctionNode::Ctor )
 	    generateOverload( node, marker );
+    } else if (node->type() == Node::Fake) {
+        const FakeNode *fake = static_cast<const FakeNode *>(node);
+        if (fake->subType() == FakeNode::Example)
+            generateExampleFiles(fake, marker);
     }
 
     if (node->doc().isEmpty()) {
@@ -376,6 +379,65 @@ void Generator::generateInheritedBy( const ClassNode *classe,
 	}
 	text << Atom::ParaRight;
 	generateText( text, classe, marker );
+    }
+}
+
+void Generator::generateExampleFiles(const FakeNode *fake, CodeMarker *marker)
+{
+    QString examplePath = fake->name();
+
+    // we can assume that this file always exists
+    QString proFileName = examplePath + "/" + examplePath.split("/").last() + ".pro";
+
+    QString userFriendlyFilePath;
+    QString fullPath = Config::findFile(fake->doc().location(), exampleFiles, exampleDirs,
+                                        proFileName, userFriendlyFilePath);
+    if (fullPath.isEmpty()) {
+        fake->doc().location().warning(tr("Cannot find file '%1'").arg(proFileName));
+        return;
+    }
+
+    int sizeOfBoringPartOfPath = fullPath.size() - proFileName.size();
+    fullPath.truncate(fullPath.lastIndexOf('/'));
+
+    // should not hardcode the file extensions
+    QStringList exampleFiles = Config::getFilesHere(fullPath, "*.cpp *.h");
+    if (!exampleFiles.isEmpty()) {
+        // move main.cpp and to the end, if it exists
+        QString mainCpp;
+        QStringListMutableIterator i(exampleFiles);
+        i.toBack();
+        while (i.hasPrevious()) {
+            QString fileName = i.previous();
+            if (fileName.endsWith("/main.cpp")) {
+                mainCpp = fileName;
+                i.remove();
+            }
+        }
+        if (!mainCpp.isEmpty())
+            exampleFiles.append(mainCpp);
+
+        // add any qmake Qt resource files
+        exampleFiles += Config::getFilesHere(fullPath, "*.qrc");
+    }
+
+    if (!exampleFiles.isEmpty()) {
+        OpenedList openedList(OpenedList::Bullet);
+
+        Text text;
+        text << Atom::ParaLeft << "Example files:" << Atom::ParaRight
+             << Atom(Atom::ListLeft, openedList.styleString());
+        foreach (QString exampleFile, exampleFiles) {
+            openedList.next();
+            text << Atom(Atom::ListItemNumber, openedList.numberString())
+                 << Atom(Atom::ListItemLeft, openedList.styleString()) << Atom::ParaLeft
+                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_TELETYPE)
+                 << exampleFile.mid(sizeOfBoringPartOfPath)
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_TELETYPE)
+                 << Atom::ParaRight << Atom(Atom::ListItemRight, openedList.styleString());
+        }
+        text << Atom(Atom::ListRight, openedList.styleString());
+        generateText(text, fake, marker);
     }
 }
 

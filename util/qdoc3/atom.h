@@ -28,7 +28,7 @@ public:
 
     void appendChar( QChar ch ) { str += ch; }
     void appendString( const QString& string ) { str += string; }
-    void chopString() { str.truncate( str.length() - 1 ); }
+    void chopString() { str.chop(1); }
     void setString(const QString &string) { str = string; }
     Atom *next() { return nex; }
     void setNext( Atom *newNext ) { nex = newNext; }
