@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#2 $
+** $Id: //depot/qt/main/src/moc/moc.y#3 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -29,10 +29,8 @@
 ** Don't panic if you get 7 shift/reduce conflicts. That is perfectly normal.
 **
 ** TODO:
-**    Get rid of constructors/destructors and operators.
-**    int as default return value.
-**    Specify output file. Default name on UNIX: file.m.C
-**    Many classes in one file.
+**    Better grammer. int as def. return value.
+**    Specify output file. Default name on UNIX: file.m.C ?
 **    Clean up memory.
 *****************************************************************************/
 
@@ -91,7 +89,7 @@ int	 lineNo;				// current line number
 bool	 errorControl;				// controlled errors
 
 Argument tmpArg;				// current argument
-ArgList	 tmpArgList;				// current argument list
+ArgList	*tmpArgList;				// current argument list
 Function tmpFunc;				// current member function
 
 %}
@@ -175,7 +173,7 @@ Function tmpFunc;				// current member function
 %type  <string>		ptr_operator
 
 %%
-class_defs:			/* empty */
+class_defs:
 			| class_defs class_def
 			;
 
@@ -409,6 +407,7 @@ obj_member_area:	  METHODS		{ BEGIN CLASS_DEF; }
 			  opt_slot_declarations
 			| PRIVATE		{ BEGIN INSIDE; level = 1; }
 			| PROTECTED		{ BEGIN INSIDE; level = 1; }
+			| PUBLIC		{ BEGIN INSIDE; level = 1; }
 			;
 
 opt_method_declarations:	/* empty */
@@ -508,9 +507,9 @@ int main( int argc, char **argv )		// program starts here
     }
     init();
     yyparse();
-    methods.clear();
-    signals.clear();
-    slots.clear();
+//    methods.clear();
+//    signals.clear();
+//    slots.clear();
 
     return 0;
 }
@@ -566,11 +565,11 @@ void generate()					// generate C++ source code
     else
         fprintf( out, "\n" );
 
-    fprintf( out, "class QPart__%s : public QPart \n{\npublic:",
+    fprintf( out, "class QObject__%s : public QObject \n{\npublic:",
 	     (char*)className );
     fprintf( out, "\n    void setSender( QObject *s ) { sender=s; }\n};\n\n" );
 
-    fprintf( out, "char *%s::className()\n{\n    ", (char*)className );
+    fprintf( out, "char *%s::className() const\n{\n    ", (char*)className );
     fprintf( out, "return \"%s\";\n}\n\n", (char*)className );
 
     Function *f;
@@ -578,18 +577,16 @@ void generate()					// generate C++ source code
 //
 // Generate initMetaObject member function
 //
-    fprintf( out, "void %s::initMetaObject( QMetaObject *&m )\n{\n",
-	     (char*)className );
+    fprintf( out, "void %s::initMetaObject()\n{\n    ", (char*)className );
+//
+// Call to initialize parent meta object
+//
+    fprintf( out, "if ( getMetaObject(\"%s\") == 0 )\n",(char*)superclassName);
+    fprintf( out, "\t%s::initMetaObject();\n", (char *)superclassName );
 //
 // Build methods array in initMetaObject()
 //
-    fprintf( out, "    QMetaData *%s__methods = ", (char*)className );
-    if ( methods.count() )
-	fprintf( out, "new QMetaData[%d];\n", methods.count() );
-    else
-	fprintf( out, "0;\n" );
-    f = methods.first();
-    while ( f ) {
+    for ( f=methods.first(); f; f=methods.next() ) {
 	QString typstr = "";
 	int count = 0;
 	Argument *a = f->args->first();
@@ -600,28 +597,25 @@ void generate()					// generate C++ source code
 	    typstr += a->ptrType;
 	    a = f->args->next();
 	}
-	fprintf( out, "    %s__methods[%d].name = \"%s(%s)\";\n",
-		 (char*)className, methods.at(), (char*)f->name,(char*)typstr);
-	fprintf( out, "    %s %s(%s::*method_val%d)(%s) = &%s::%s;\n",
-		 (char*)f->type, (char*)f->ptrType,
-		 (char*)className, methods.at(), (char*)typstr,
-		 (char*)className, (char*)f->name );
-	fprintf( out, "    %s__methods[%d].ptr = *((QMember*)&method_val%d);\n",
-		 (char*)className, methods.at(), methods.at() );
-	f = methods.next();
+	fprintf( out, "    typedef %s (%s::*m1_t%d)(%s);\n", (char *)f->type,
+		 (char*)className, methods.at(),(char*)typstr );
+	f->type = f->name.copy();
+	f->type += "(";
+	f->type += typstr;
+	f->type += ")";
     }
-    methods.clear();
-
+    if ( methods.count() )
+	fprintf( out, "    static QMetaData method_tbl[] = {\n" );
+    for ( f=methods.first(); f; f=methods.next() ) {
+	fprintf( out, "\t{ \"%s\", (QMember)((m1_t%d)&%s::%s) }%s\n",
+	         (char*)f->type, methods.at(), (char*)className,
+		 (char*)f->name,
+		 (methods.at() == methods.count()-1 ? "};" : ",") );
+    }
 //
 // Build slots array in initMetaObject()
 //
-    fprintf( out, "    QMetaData *%s__slots = ", (char*)className );
-    if ( slots.count() )
-	fprintf( out, "new QMetaData[%d];\n", slots.count() );
-    else
-	fprintf( out, "0;\n" );
-    f = slots.first();
-    while ( f ) {
+    for ( f=slots.first(); f; f=slots.next() ) {
 	QString typstr = "";
 	int count = 0;
 	Argument *a = f->args->first();
@@ -632,27 +626,25 @@ void generate()					// generate C++ source code
 	    typstr += a->ptrType;
 	    a = f->args->next();
 	}
-	fprintf( out, "    %s__slots[%d].name = \"%s(%s)\";\n",
-		 (char*)className, slots.at(), (char*)f->name, (char*)typstr );
-	fprintf( out, "    void (%s::*slot_val%d)(%s) = &%s::%s;\n",
-		 (char*)className, slots.at(), (char*)typstr,
-		 (char*)className, (char*)f->name );
-	fprintf( out, "    %s__slots[%d].ptr = *((QMember*)&slot_val%d);\n",
-		 (char*)className, slots.at(), slots.at() );
-	f = slots.next();
+	fprintf( out, "    typedef %s (%s::*m2_t%d)(%s);\n", (char *)f->type,
+		 (char*)className, slots.at(),(char*)typstr );
+	f->type = f->name.copy();
+	f->type += "(";
+	f->type += typstr;
+	f->type += ")";
     }
-    slots.clear();
-
+    if ( slots.count() )
+	fprintf( out, "    static QMetaData slot_tbl[] = {\n" );
+    for ( f=slots.first(); f; f=slots.next() ) {
+	fprintf( out, "\t{ \"%s\", (QMember)((m2_t%d)&%s::%s) }%s\n",
+	         (char*)f->type, slots.at(), (char*)className,
+		 (char*)f->name,
+		 (slots.at() == slots.count()-1 ? "};" : ",") );
+    }
 //
 // Build signals array in initMetaObject()
 //
-    fprintf( out, "    pchar *%s__signals = ", (char*)className );
-    if ( signals.count() )
-	fprintf( out, "new pchar[%d];\n", signals.count() );
-    else
-	fprintf( out, "0;\n" );
-    f = signals.first();
-    while ( f ) {
+    for ( f=signals.first(); f; f=signals.next() ) {
 	QString typstr = "";
 	int count = 0;
 	Argument *a = f->args->first();
@@ -663,19 +655,38 @@ void generate()					// generate C++ source code
 	    typstr += a->ptrType;
 	    a = f->args->next();
 	}
-	fprintf( out, "    %s__signals[%d] = \"%s(%s)\";\n",
-		 (char*)className, signals.at(),(char*)f->name, (char*)typstr);
-	f = signals.next();
+	fprintf( out, "    typedef %s (%s::*m3_t%d)(%s);\n", (char *)f->type,
+		 (char*)className, signals.at(),(char*)typstr );
+	f->type = f->name.copy();
+	f->type += "(";
+	f->type += typstr;
+	f->type += ")";
     }
-
+    if ( signals.count() )
+	fprintf( out, "    static QMetaData signal_tbl[] = {\n" );
+    for ( f=signals.first(); f; f=signals.next() ) {
+	fprintf( out, "\t{ \"%s\", (QMember)((m3_t%d)&%s::%s) }%s\n",
+	         (char*)f->type, signals.at(), (char*)className,
+		 (char*)f->name,
+		 (signals.at() == signals.count()-1 ? "};" : ",") );
+    }
 //
 // Finally create meta object
 //
-    fprintf( out, "    m = new QMetaObject( \"%s\", \"%s\",\n",
+    fprintf( out, "    metaObject = new QMetaObject( \"%s\", \"%s\",\n",
 	     (char*)className, (char*)superclassName );
-    fprintf( out, "\t%s__methods, %d,\n", (char*)className, methods.count() );
-    fprintf( out, "\t%s__slots, %d,\n", (char*)className, slots.count() );
-    fprintf( out, "\t%s__signals, %d );\n", (char*)className, signals.count());
+    if ( methods.count() )
+	fprintf( out, "\tmethod_tbl, %d,\n", methods.count() );
+    else
+        fprintf( out, "\t0, 0,\n" );
+    if ( slots.count() )
+	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
+    else
+        fprintf( out, "\t0, 0,\n" );
+    if ( signals.count() )
+	fprintf( out, "\tsignal_tbl, %d );\n", signals.count());
+    else
+        fprintf( out, "\t0, 0 );\n\n" );
     fprintf( out, "}\n\n" );
 
 //
@@ -685,7 +696,6 @@ void generate()					// generate C++ source code
 //
 // Generate internal signal functions
 //
-#ifdef AKSJDHKASHD
     f = signals.first();			// make internal signal methods
     while ( f ) {
 	QString typstr = "";			// type string
@@ -694,7 +704,7 @@ void generate()					// generate C++ source code
 	int  count = 0;
 	char buf[12];
 						// method header
-	fprintf( out, "// signal %s\n", (char*)f->name );
+	fprintf( out, "// SIGNAL %s\n", (char*)f->name );
 	fprintf( out, "void %s::%s( ", (char*)className, (char*)f->name );
 	Argument *a = f->args->first();
 	while ( a ) {				// argument list
@@ -715,10 +725,16 @@ void generate()					// generate C++ source code
 	}
 
 	fprintf( out, "%s )\n{\n", (char*)argstr );
-	fprintf( out, "	   typedef void (Part::*PPS)(%s);\n", (char*)typstr );
-	fprintf( out, "	   SPList *list = getSlots(\"%s(%s)\");\n",
+	fprintf( out, "    typedef void (QObject::*RT)(%s);\n", (char*)typstr);
+	fprintf( out, "    QConnection *c = receiver(\"%s(%s)\");\n", 
 		 (char*)f->name, (char*)typstr );
-	fprintf( out, "	   if ( !list )\n\treturn;\n" );
+	fprintf( out, "    if ( !c )\n\treturn;\n" );
+	fprintf( out, "    RT r = (RT)(*(c->member()));\n" );
+	fprintf( out, "    QObject__%s *object = (QObject__%s*)c->object();\n",
+		 (char*)className, (char*)className );
+	fprintf( out, "    object->setSender( this );\n" );
+	fprintf( out, "    (object->*r)(%s);\n}\n\n", (char*)valstr );
+/*
 	fprintf( out, "	   Part_%s *owner = (Part_%s*)getOwner();\n",
 		 (char*)className, (char*)className );
 //	fprintf( out, "	   Part *owner = getOwner();\n" );
@@ -729,9 +745,12 @@ void generate()					// generate C++ source code
 	fprintf( out, "\t(owner->*p)(%s);\n", (char*)valstr );
 	fprintf( out, "\t++it;\n    }\n" );
 	fprintf( out, "}\n\n" );
+*/
 	f = signals.next();
     }
-#endif
+
+    methods.clear();
+    slots.clear();
     signals.clear();
 }
 
@@ -753,9 +772,9 @@ void addMember( QString type, Function *f, char m )
     n->ptrType = f->ptrType;
     n->lineNo = f->lineNo;
     n->args = new ArgList;
-    *n->args = *f->args;
-    ArgList emptyArgList;
-    tmpArgList = emptyArgList;			// set arg list empty
+    *n->args = tmpArgList; // *f->args;
+//    ArgList emptyArgList;
+//    tmpArgList = emptyArgList;			// set arg list empty
     switch( m ) {
 	case 'm': methods.append( n ); break;
 	case 's': signals.append( n ); break;
