@@ -54,9 +54,9 @@
 struct QFileInfoCache
 {
 #if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
+    QT_STATBUF64 st;
 #else
-    struct stat st;
+    QT_STATBUF st;
 #endif
 };
 
