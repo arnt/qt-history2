@@ -991,6 +991,9 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
 */
 void QScrollView::contextMenuEvent( QContextMenuEvent *e )
 {
+    if ( e->reason() != QContextMenuEvent::Keyboard )
+	return;
+
     QContextMenuEvent ce( e->reason(), viewport()->mapFromGlobal( e->globalPos() ),
 			  e->globalPos() );
     viewportContextMenuEvent( &ce );
@@ -1312,9 +1315,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    break;
 	case QEvent::ContextMenu:
 	    viewportContextMenuEvent( (QContextMenuEvent*)e );
-	    if ( ((QContextMenuEvent*)e)->isAccepted() )
-		return TRUE;
-	    break;
+	    return TRUE;
 	case QEvent::ChildRemoved:
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
 	    break;
