@@ -91,8 +91,8 @@ MOCGEN  =	mocgen.cpp
 $(LEXOUT): $(LEXIN)
 	$(LEX) $(LEXIN)
 
-$(MOCGEN): moc.y $(LEXOUT)
-	$(YACC) moc.y
+$(MOCGEN): $(YACCIN) $(LEXOUT)
+	$(YACC) $(YACCIN)
 	-del $(MOCGEN)
 	-ren $(YACCOUT) $(MOCGEN)
 
