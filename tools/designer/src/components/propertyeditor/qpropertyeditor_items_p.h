@@ -38,13 +38,20 @@ struct QT_PROPERTYEDITOR_EXPORT IProperty
     };
 
     inline IProperty()
-        : m_parent(0), m_changed(0), m_dirty(0), m_fake(0) {}
+        : m_parent(0),
+          m_changed(0),
+          m_dirty(0),
+          m_fake(0),
+          m_reset(0) {}
 
     virtual ~IProperty() {}
 
     // ### pure
     bool changed() const { return m_changed; }
     void setChanged(bool b) { m_changed = b; m_dirty = b; }
+
+    bool hasReset() const { return m_reset; }
+    void setHasReset(bool b) { m_reset = b; }
 
     virtual bool dirty() const { return m_dirty; }
     virtual void setDirty(bool b) { m_dirty = b; }
@@ -80,6 +87,7 @@ protected:
     uint m_changed : 1;
     uint m_dirty : 1;
     uint m_fake : 1;
+    uint m_reset : 1;
 };
 
 struct QT_PROPERTYEDITOR_EXPORT IPropertyGroup: public IProperty

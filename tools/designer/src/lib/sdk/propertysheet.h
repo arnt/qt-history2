@@ -33,6 +33,9 @@ struct IPropertySheet
     virtual QString propertyGroup(int index) const = 0;
     virtual void setPropertyGroup(int index, const QString &group) = 0;
 
+    virtual bool hasReset(int index) const = 0;
+    virtual void reset(int index) = 0;
+
     virtual bool isVisible(int index) const = 0;
     virtual void setVisible(int index, bool b) = 0;
 

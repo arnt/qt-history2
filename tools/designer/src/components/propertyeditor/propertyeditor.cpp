@@ -275,6 +275,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         }
 
         if (p) {
+            p->setHasReset(sheet->hasReset(i));
             QString group = sheet->propertyGroup(i);
             PropertyCollection *c = group.isEmpty() ? root : g.value(group);
             if (!c) {

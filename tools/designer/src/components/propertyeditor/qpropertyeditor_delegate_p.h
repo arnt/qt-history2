@@ -53,6 +53,7 @@ public:
 
 public slots:
     void sync();
+    void resetProperty();
 
 protected:
     virtual void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,

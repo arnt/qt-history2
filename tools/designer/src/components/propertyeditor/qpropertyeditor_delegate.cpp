@@ -14,14 +14,17 @@
 #include "qpropertyeditor_delegate_p.h"
 #include "qpropertyeditor_model_p.h"
 
-#include <QPainter>
-#include <QFrame>
-#include <QKeyEvent>
-#include <QApplication>
-#include <QSpinBox>
+#include <QtGui/QPainter>
+#include <QtGui/QFrame>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QApplication>
+#include <QtGui/QSpinBox>
+#include <QtGui/QToolButton>
+#include <QtGui/QHBoxWidget>
+#include <QtGui/QMessageBox>
 
-#include <qdrawutil.h>
-#include <qdebug.h>
+#include <QtGui/qdrawutil.h>
+#include <QtCore/qdebug.h>
 #include <limits.h>
 
 using namespace QPropertyEditor;
@@ -130,6 +133,19 @@ QWidget *Delegate::createEditor(QWidget *parent,
         Q_ASSERT(editor);
 
         editor->installEventFilter(const_cast<Delegate *>(this));
+
+        if (property->hasReset()) {
+            QWidget *hbox = new QHBoxWidget(parent);
+            editor->setParent(hbox);
+            editor->show();
+            QToolButton *resetButton = new QToolButton(hbox);
+            resetButton->setIcon(QPixmap(":/trolltech/formeditor/images/resetproperty.png"));
+            connect(resetButton, SIGNAL(clicked()), this, SLOT(resetProperty()));
+            hbox->show();
+
+            editor = hbox;
+        }
+
         return editor;
     }
 
@@ -167,3 +183,9 @@ void Delegate::sync()
     QWidget *w = static_cast<QWidget*>(sender());
     emit commitData(w);
 }
+
+void Delegate::resetProperty()
+{
+    QMessageBox::information(qt_cast<QWidget*>(parent()), tr("Designer"), tr("Feature not implemented yet!"));
+}
+

@@ -35,6 +35,9 @@ public:
     virtual QString propertyGroup(int index) const;
     virtual void setPropertyGroup(int index, const QString &group);
 
+    virtual bool hasReset(int index) const;
+    virtual void reset(int index);
+
     virtual bool isAttribute(int index) const;
     virtual void setAttribute(int index, bool b);
 
@@ -66,9 +69,14 @@ protected:
         uint changed: 1;
         uint visible: 1;
         uint attribute: 1;
+        uint reset: 1;
 
         inline Info()
-            : changed(0), visible(1), attribute(0) {}
+            : changed(0),
+              visible(1),
+              attribute(0),
+              reset(1)
+        {}
     };
 
     QHash<int, Info> m_info;

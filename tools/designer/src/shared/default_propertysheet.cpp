@@ -77,10 +77,10 @@ int QDesignerPropertySheet::count() const
 int QDesignerPropertySheet::indexOf(const QString &name) const
 {
     int index = meta->indexOfProperty(name.toLatin1());
-    
+
     if (index == -1)
         index = m_addIndex.value(name, -1);
-    
+
     return index;
 }
 
@@ -242,6 +242,26 @@ void QDesignerPropertySheet::setProperty(int index, const QVariant &value)
         QMetaProperty p = meta->property(index);
         p.write(m_object, resolvePropertyValue(value));
     }
+}
+
+bool QDesignerPropertySheet::hasReset(int index) const
+{
+    if (isAdditionalProperty(index))
+        return m_info.value(index).reset;
+
+    QMetaProperty p = meta->property(index);
+    return m_info.value(index).reset;
+}
+
+void QDesignerPropertySheet::reset(int index)
+{
+    if (isAdditionalProperty(index))
+        return;
+
+    // ### TODO: reset for fake properties.
+
+    QMetaProperty p = meta->property(index);
+    p.reset(m_object);
 }
 
 bool QDesignerPropertySheet::isChanged(int index) const
