@@ -823,7 +823,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
         if (qt_screen->isTransformed())
             destImg.fill(0x00FFFFFF);
         else
-            pm.fill(QColor(0x00FFFFFF));
+            pm.fill(QColor(0xFF, 0xFF, 0xFF, 0x00));
     } else
         memset(dptr, 0xff, dbytes);
 
