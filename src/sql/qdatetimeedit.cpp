@@ -209,6 +209,10 @@ private:
   date/time editors.  For date/time editing widgets, see QDateEdit,
   QTimeEdit and QDateTimeEdit.
 
+  Terminology: A QDateEdit widget comprises three 'sections', one each
+  for the year, month and day. Similarly a QTimeWidget comprises three
+  sections, one each for the hour, minute and second.
+
 */
 
 /*!  Constructs an empty datetime base with parent \a parent and name \a
@@ -669,8 +673,8 @@ public:
 
     \code
     QDateEdit *dateedit = new QDateEdit( QDate::currentDate(), this );
-    dateedit->setMinValue( QDate::currentDate().addDays( -365 ) );
-    dateedit->setMaxValue( QDate::currentDate().addDays(  365 ) );
+    dateedit->setRange( QDate::currentDate().addDays( -365 ),
+			QDate::currentDate().addDays(  365 ) );
     dateedit->setOrder( QDateEdit::MDY );
     dateedit->setAutoAdvance( TRUE );
     \endcode
@@ -682,7 +686,21 @@ public:
     section of the date, e.g. enters two digits for the month, they are
     automatically taken to the next section. 
 
+  Terminology: A QDateEdit widget comprises three 'sections', one each
+  for the year, month and day. 
+
   \sa QTimeEdit QDateTimeEdit
+*/
+
+/*
+  \enum QDateEdit::Order
+
+  This enum defines the order in which the sections that comprise a date
+  appear.
+  \value MDY month-day-year
+  \value DMY day-month-year
+  \value YMD year-month-day (the default)
+  \value YDM year-day-month
 */
 
 
@@ -777,10 +795,8 @@ QDate QDateEdit::maxValue() const
 
 
 /*! Sets the valid input range for the editor to be from \a min to \a
-  max.  If \a min is invalid, there is no minimum date.  Similarly, if
-  \a max is invalid, there is no maximum date.  For example:
-
-  ###
+  max inclusive.  If \a min is invalid no minimum date will be set.
+  Similarly, if \a max is invalid no maximum date will be set.  
 
 */
 
@@ -1217,7 +1233,7 @@ bool QDateEdit::setFocusSection( int s )
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
 	d->typing = FALSE;
-	fix(); // will emit valueChanged if nec
+	fix(); // will emit valueChanged if necessary
     }
     return QDateTimeEditBase::setFocusSection( s );
 }
@@ -1401,15 +1417,18 @@ public:
     \code
     QTime timeNow = QTime::currentTime();
     QTimeEdit *timeedit = new QTimeEdit( timeNow, this );
-    timeedit->setMinValue( timeNow );
-    timeedit->setMaxValue( timeNow.addSecs( 60 * 60 ) );
+    timeedit->setRange( timeNow, timeNow.addSecs( 60 * 60 ) );
     \endcode
 
     Here we've created a QTimeEdit widget set to the current time. We've
     also set the minimum value to the current time and the maximum time
     to one hour from now.
 
+  Terminology: A QTimeWidget comprises three sections, one each for the
+  hour, minute and second.
+
   \sa QDateEdit QDateTimeEdit
+
 */
 
 
@@ -1499,10 +1518,8 @@ QTime QTimeEdit::maxValue() const
 
 
 /*! Sets the valid input range for the editor to be from \a min to \a
-  max.  If \a min is invalid, there is no minimum time.  Similarly, if
-  \a max is invalid, there is no maximum time.  For example:
-
-  ###
+  max inclusive.  If \a min is invalid no minimum time is set.
+  Similarly, if \a max is invalid no maximum time is set.  
 
 */
 
@@ -1667,8 +1684,6 @@ void QTimeEdit::stepDown()
   correspond to either the hour, minute or second section, depending
   on \a sec.
 
-  \sa setOrder()
-
 */
 
 QString QTimeEdit::sectionFormattedText( int sec )
@@ -1706,7 +1721,7 @@ bool QTimeEdit::setFocusSection( int s )
 }
 
 
-/*! Sets the hour to \h, which must be a valid hour.
+/*! Sets the hour to \a h, which must be a valid hour.
 
 */
 
@@ -1720,7 +1735,7 @@ void QTimeEdit::setHour( int h )
 }
 
 
-/*! Sets the minute to \m, which must be a valid minute.
+/*! Sets the minute to \a m, which must be a valid minute.
 
 */
 
@@ -1734,7 +1749,7 @@ void QTimeEdit::setMinute( int m )
 }
 
 
-/*! Sets the second to \s, which must be a valid second, i.e. in the
+/*! Sets the second to \a s, which must be a valid second, i.e. in the
    range 0 to 59.
 
 */
@@ -1941,12 +1956,16 @@ public:
 
     \code
     QDateTimeEdit *datetimeedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
-    dateedit->setMinValue( QDate::currentDateTime() );
-    dateedit->setMaxValue( QDate::currentDateTime().addDays( 7 ) );
+    dateedit->setRange( QDateTime::currentDateTime(), 
+			QDateTime::currentDateTime().addDays( 7 ) );
     \endcode
 
     Here we've created a new QDateTimeEdit object with a minimum
     date/time of now and a maximum date/time of a week from now.
+
+  Terminology: A QDateEdit widget comprises three 'sections', one each
+  for the year, month and day. Similarly a QTimeWidget comprises three
+  sections, one each for the hour, minute and second.
 
   \sa QDateEdit QTimeEdit
 */
@@ -1964,7 +1983,7 @@ QDateTimeEdit::QDateTimeEdit( QWidget * parent, const char * name )
 
 
 /*!
-  Constructs a datetime edit with the initial value \datetime.
+  Constructs a datetime edit with the initial value \a datetime.
 
 */
 QDateTimeEdit::QDateTimeEdit( const QDateTime& datetime,
