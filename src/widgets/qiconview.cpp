@@ -3449,9 +3449,11 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
     setCurrentItem( item );
 
     if ( e->button() == LeftButton ) {
-	
-	if ( !d->currentItem && ( d->selectionMode == Multi ||
+	if ( !item && ( d->selectionMode == Multi ||
 				  d->selectionMode == Extended ) ) {
+	    d->tmpCurrentItem = d->currentItem;
+	    d->currentItem = 0;
+	    repaintItem( d->tmpCurrentItem );
 	    if ( d->rubber )
 		delete d->rubber;
 	    d->rubber = 0;
@@ -3502,6 +3504,10 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	    emitClicked = FALSE;
 	delete d->rubber;
 	d->rubber = 0;
+	d->currentItem = d->tmpCurrentItem;
+	d->tmpCurrentItem = 0;
+	if ( d->currentItem )
+	    repaintItem( d->currentItem );
     }
 
     if ( d->scrollTimer ) {
