@@ -2678,5 +2678,48 @@ QPixmap QCommonStyle::stylePixmap(StylePixmap, const QWidget *, const QStyleOpti
     return QPixmap();
 }
 
+/*! \reimp */
+QPixmap QCommonStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap, 
+				   const QPalette &pal, const QStyleOption & ) const
+{
+    switch(pixmaptype) {
+    case PT_Disabled: {
+	QImage img;
+	QBitmap pixmapMask;
+	if ( pixmap.mask() ) {
+	    pixmapMask = *pixmap.mask();
+	} else {
+	    img = pixmap.convertToImage();
+	    pixmapMask.convertFromImage( img.createHeuristicMask(),
+					 Qt::MonoOnly | Qt::ThresholdDither );
+	}
+	QPixmap ret( pixmap.width() + 1, pixmap.height() + 1 );
+	ret.fill( pal.color(QPalette::Disabled, QPalette::Background) );
+
+	QPainter painter;
+	painter.begin( &ret );
+	painter.setPen( pal.color(QPalette::Disabled, QPalette::Base) );
+	painter.drawPixmap( 1, 1, pixmapMask );
+	painter.setPen( pal.color(QPalette::Disabled, QPalette::Foreground) );
+	painter.drawPixmap( 0, 0, pixmapMask );
+	painter.end();
+
+	if ( !pixmapMask.mask() )
+	    pixmapMask.setMask( pixmapMask );
+
+	QBitmap mask( ret.size() );
+	mask.fill( Qt::color0 );
+	painter.begin( &mask );
+	painter.drawPixmap( 0, 0, pixmapMask );
+	painter.drawPixmap( 1, 1, pixmapMask );
+	painter.end();
+	ret.setMask( mask );
+	return ret;
+    }
+    default:
+	break;
+    }
+    return pixmap;
+}
 
 #endif // QT_NO_STYLE

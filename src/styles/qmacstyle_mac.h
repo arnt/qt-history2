@@ -110,8 +110,12 @@ public:
     static void setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy);
     static WidgetSizePolicy widgetSizePolicy( QWidget *w );
 
-protected:
-    bool event(QEvent *);
+    QPixmap stylePixmap( StylePixmap sp,
+			 const QWidget *widget = 0,
+			 const QStyleOption& = QStyleOption::Default ) const;
+
+    QPixmap stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
+			 const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

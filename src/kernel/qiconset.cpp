@@ -17,6 +17,7 @@
 #ifndef QT_NO_ICONSET
 
 #include "qapplication.h"
+#include "qstyle.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qimage.h"
@@ -772,56 +773,7 @@ QPixmap *QIconSet::createDisabled(Size size, State state) const
     QPixmap normalPix = pixmap(size, Normal, state);
     if (normalPix.isNull())
 	return 0;
-
-    QImage img;
-    QPixmap *pixmap = 0;
-#ifdef Q_WS_MAC //on mac it just gets lighter..
-    if(!qt_iconset_gray_disabled) {
-	img = normalPix;
-	for(int y = 0; y < img.height(); y++) {
-	    for(int x = 0; x < img.width(); x++)
-		img.setPixel(x, y, QColor(img.pixel(x, y)).light().rgb());
-	}
-	pixmap = new QPixmap(img);
-	if(normalPix.mask())
-	    pixmap->setMask(*normalPix.mask());
-    } else
-#endif
-    {
-	QBitmap normalMask;
-	if ( normalPix.mask() ) {
-	    normalMask = *normalPix.mask();
-	} else {
-	    img = normalPix.convertToImage();
-	    normalMask.convertFromImage( img.createHeuristicMask(),
-					 Qt::MonoOnly | Qt::ThresholdDither );
-	}
-
-	pixmap = new QPixmap( normalPix.width() + 1,
-				   normalPix.height() + 1 );
-	const QPalette &pal = QApplication::palette();
-	pixmap->fill( pal.color(QPalette::Disabled, QPalette::Background) );
-
-	QPainter painter;
-	painter.begin( pixmap );
-	painter.setPen( pal.color(QPalette::Disabled, QPalette::Base) );
-	painter.drawPixmap( 1, 1, normalMask );
-	painter.setPen( pal.color(QPalette::Disabled, QPalette::Foreground) );
-	painter.drawPixmap( 0, 0, normalMask );
-	painter.end();
-
-	if ( !normalMask.mask() )
-	    normalMask.setMask( normalMask );
-
-	QBitmap mask( pixmap->size() );
-	mask.fill( Qt::color0 );
-	painter.begin( &mask );
-	painter.drawPixmap( 0, 0, normalMask );
-	painter.drawPixmap( 1, 1, normalMask );
-	painter.end();
-	pixmap->setMask( mask );
-    }
-    return pixmap;
+    return new QPixmap(QApplication::style().stylePixmap( QStyle::PT_Disabled, normalPix, QApplication::palette() ));
 }
 
 #endif // QT_NO_ICONSET

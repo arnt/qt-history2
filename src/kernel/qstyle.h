@@ -148,6 +148,29 @@ public:
 	    drawItem(p, r, flags, pal, enabled, text, len, penColor);
     }
 
+    enum StyleFlags {
+	Style_Default = 		0x00000000,
+	Style_Enabled = 		0x00000001,
+	Style_Raised =			0x00000002,
+	Style_Sunken =	 		0x00000004,
+	Style_Off =			0x00000008,
+	Style_NoChange =		0x00000010,
+	Style_On =			0x00000020,
+	Style_Down =			0x00000040,
+	Style_Horizontal =		0x00000080,
+	Style_HasFocus =		0x00000100,
+	Style_Top =			0x00000200,
+	Style_Bottom =			0x00000400,
+	Style_FocusAtBorder =		0x00000800,
+	Style_AutoRaise =		0x00001000,
+	Style_MouseOver =		0x00002000,
+	Style_Up =			0x00004000,
+	Style_Selected =	 	0x00008000,
+	Style_Active =			0x00010000,
+	Style_ButtonDefault =		0x00020000
+    };
+    typedef uint SFlags;
+
     enum PrimitiveElement {
 	PE_ButtonCommand,
 	PE_ButtonDefault,
@@ -223,34 +246,10 @@ public:
 	PE_CustomBase =			0xf000000
     };
 
-    enum StyleFlags {
-	Style_Default = 		0x00000000,
-	Style_Enabled = 		0x00000001,
-	Style_Raised =			0x00000002,
-	Style_Sunken =	 		0x00000004,
-	Style_Off =			0x00000008,
-	Style_NoChange =		0x00000010,
-	Style_On =			0x00000020,
-	Style_Down =			0x00000040,
-	Style_Horizontal =		0x00000080,
-	Style_HasFocus =		0x00000100,
-	Style_Top =			0x00000200,
-	Style_Bottom =			0x00000400,
-	Style_FocusAtBorder =		0x00000800,
-	Style_AutoRaise =		0x00001000,
-	Style_MouseOver =		0x00002000,
-	Style_Up =			0x00004000,
-	Style_Selected =	 	0x00008000,
-	Style_Active =			0x00010000,
-	Style_ButtonDefault =		0x00020000
-    };
-    typedef uint SFlags;
-
     virtual void drawPrimitive( PrimitiveElement pe,
 				QPainter *p, const QRect &r,
 				const QPalette &pal, SFlags flags = Style_Default,
 				const QStyleOption& = QStyleOption::Default ) const = 0;
-
 
     enum ControlElement {
 	CE_PushButton,
@@ -700,12 +699,18 @@ public:
 				 const QWidget *widget = 0,
 				 const QStyleOption& = QStyleOption::Default ) const = 0;
 
+    enum PixmapType {
+	PT_Disabled,
+
+	// do not add any values below/greater than this
+	PT_CustomBase =		0xf0000000
+    };
+
+    virtual QPixmap stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
+				 const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const = 0;
 
     static QRect visualRect( const QRect &logical, const QWidget *w );
-
     static QRect visualRect( const QRect &logical, const QRect &bounding );
-
-
 
 
     // Old 2.x QStyle API

@@ -1006,7 +1006,7 @@ void QMacStyle::drawControl(ControlElement element,
 	if(mi) {
 	    QString s = mi->text();
 	    if (!s.isNull()) {                        // draw text
-		int t = s.find('\t');
+		int t = s.indexOf('\t');
 		int m = macItemVMargin;
 		int text_flags = AlignRight | AlignVCenter | NoAccel | DontClip | SingleLine;
 		if (t >= 0) {                         // draw tab text
@@ -2308,7 +2308,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	}
 
 	if(! mi->text().isNull()) {
-	    if(mi->text().find('\t') >= 0)
+	    if(mi->text().indexOf('\t') >= 0)
 		w += 12;
 	}
 
@@ -2363,9 +2363,57 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 }
 
 /*! \reimp */
-bool QMacStyle::event(QEvent *e)
+QPixmap QMacStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap, 
+				const QPalette &pal, const QStyleOption &opt ) const
 {
-    return QWindowsStyle::event(e);
+    switch(pixmaptype) {
+    case PT_Disabled: {
+	QImage img;
+	img = pixmap;
+	for(int y = 0; y < img.height(); y++) {
+	    for(int x = 0; x < img.width(); x++)
+		img.setPixel(x, y, QColor(img.pixel(x, y)).light().rgb());
+	}
+	QPixmap ret(img);
+	if(pixmap.mask())
+	    ret.setMask(*pixmap.mask());
+	return ret;
+    }
+    default:
+	break;
+    }
+    return QCommonStyle::stylePixmap(pixmaptype, pixmap, pal, opt);
+}
+
+/*! \reimp */
+QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap,  const QWidget *widget, const QStyleOption& opt) const
+{
+    IconRef icon = 0;
+    switch(stylepixmap) {
+    case SP_MessageBoxInformation:
+	GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
+	break;
+    case SP_MessageBoxWarning:
+	GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
+	break;
+    case SP_MessageBoxCritical:
+	GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
+	break;
+    case SP_MessageBoxQuestion:
+	//no idea how to do this ###
+    default:
+	break;
+    }
+    if(icon) {
+	QPixmap ret(32, 32);
+	QMacSavedPortInfo pi(&ret);
+	Rect rect;
+	SetRect(&rect, 0, 0, ret.width(), ret.height());
+	PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
+	ReleaseIconRef(icon);
+	return ret;
+    }
+    return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 /*!

@@ -584,7 +584,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
 
     p->setPen( penColor?*penColor:pal.foreground().color() );
     QPixmap pm( pixmap );
@@ -611,32 +610,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
 	x += w - pm.width();
 
-    if ( !enabled ) {
-	if ( pm.mask() ) {			// pixmap with a mask
-	    if ( !pm.selfMask() ) {		// mask is not pixmap itself
-		QPixmap pmm( *pm.mask() );
-		pmm.setMask( *((QBitmap *)&pmm) );
-		pm = pmm;
-	    }
-	} else if ( pm.depth() == 1 ) {	// monochrome pixmap, no mask
-	    pm.setMask( *((QBitmap *)&pm) );
-#ifndef QT_NO_IMAGE_HEURISTIC_MASK
-	} else {				// color pixmap, no mask
-	    QString k;
-	    k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
-	    if ( !QPixmapCache::find(k, pm) ) {
-		pm = pm.createHeuristicMask();
-		pm.setMask( (QBitmap&)pm );
-		QPixmapCache::insert( k, pm );
-	    }
-#endif
-	}
-	if ( gs == Qt::WindowsStyle ) {
-	    p->setPen( pal.light() );
-	    p->drawPixmap( x+1, y+1, pm );
-	    p->setPen( pal.text() );
-	}
-    }
+    if ( !enabled ) 
+	pm = stylePixmap( PT_Disabled, pm, pal );
     p->drawPixmap( x, y, pm );
     if ( clip )
 	p->restore();
@@ -1791,6 +1766,21 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	custom values must be greater than this value.
 
     \sa stylePixmap()
+*/
+
+/*
+    \fn QPixmap QStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap, 
+                                     const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const;
+
+    Returns a pixmap styled to conform to \a pixmaptype description out of \a pixmap.
+
+    The \a opt argument can be used to pass extra information required
+    when drawing the ControlElement. Note that \a opt may be the
+    default value even for StylePixmaps that can make use of the extra
+    options. Currently, the \a opt argument is unused.
+   
+    Not all types of pixmaps will change from their input - and the
+    result will simply be the pixmap passed in.
 */
 
 /*!

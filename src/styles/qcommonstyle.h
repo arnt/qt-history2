@@ -91,6 +91,8 @@ public:
 			 const QWidget *widget = 0,
 			 const QStyleOption& = QStyleOption::Default ) const;
 
+    QPixmap stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
+			 const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const;
 
 private:
     // Disabled copy constructor and operator=
