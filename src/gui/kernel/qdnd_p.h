@@ -128,6 +128,7 @@ public:
 
     void releaseQt();
     const QMimeData *mimeData() const;
+    DWORD reportedPerformedEffect() const;
 
     // IUnknown methods 
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
@@ -150,7 +151,8 @@ public:
 private:
     ULONG m_refs;
     QMimeData *data;
-    int CF_PREFEREDDROPEFFECT;
+    int CF_PERFORMEDDROPEFFECT;
+    DWORD performedEffect;
 };
 
 #endif

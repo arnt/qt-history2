@@ -78,7 +78,7 @@ static QByteArray getData(int cf, struct IDataObject *pDataObj)
     STGMEDIUM s;
     if (pDataObj->GetData(&formatetc, &s) == S_OK) {
         DWORD * val = (DWORD*)GlobalLock(s.hGlobal);
-        data = QByteArray::fromRawData((char*)GlobalLock(val), GlobalSize(val));
+        data = QByteArray::fromRawData((char*)val, GlobalSize(val));
         data.detach();
         GlobalUnlock(s.hGlobal);
         ReleaseStgMedium(&s);

@@ -324,7 +324,8 @@ QOleDataObject::QOleDataObject(QMimeData *mimeData)
 {
     m_refs = 1;
     data = mimeData;
-    CF_PREFEREDDROPEFFECT = RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
+    CF_PERFORMEDDROPEFFECT = RegisterClipboardFormat(CFSTR_PERFORMEDDROPEFFECT);
+    performedEffect = DROPEFFECT_NONE;
 }
 
 void QOleDataObject::releaseQt()
@@ -335,10 +336,14 @@ void QOleDataObject::releaseQt()
     }
 }
 
-
 const QMimeData *QOleDataObject::mimeData() const
 {
     return data;
+}
+
+DWORD QOleDataObject::reportedPerformedEffect() const
+{
+    return performedEffect;
 }
 
 //---------------------------------------------------------------------
@@ -438,11 +443,16 @@ QOleDataObject::GetCanonicalFormatEtc(LPFORMATETC, LPFORMATETC pformatetcOut)
 }
 
 STDMETHODIMP
-QOleDataObject::SetData(LPFORMATETC, STGMEDIUM *, BOOL)
+QOleDataObject::SetData(LPFORMATETC pFormatetc, STGMEDIUM *pMedium, BOOL fRelease)
 {
-    // A data transfer object that is used to transfer data
-    //    (either via the clipboard or drag/drop does NOT
-    //    accept SetData on ANY format.
+    if (pFormatetc->cfFormat == CF_PERFORMEDDROPEFFECT && pMedium->tymed == TYMED_HGLOBAL) {
+        DWORD * val = (DWORD*)GlobalLock(pMedium->hGlobal);
+        performedEffect = *val;
+        GlobalUnlock(pMedium->hGlobal);
+        if (fRelease)
+            ReleaseStgMedium(pMedium);
+        return ResultFromScode(S_OK);
+    }
     return ResultFromScode(E_NOTIMPL);
 }
 
@@ -459,10 +469,25 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
 
     SCODE sc = S_OK;
     
-    QVector<FORMATETC> fmtetcs = QWindowsMime::allFormatsForMime(data);
-    *ppenumFormatEtc = OleStdEnumFmtEtc_Create(fmtetcs.size(), fmtetcs.data());
-    if (*ppenumFormatEtc == NULL)
-        sc = E_OUTOFMEMORY;
+    if (dwDirection == DATADIR_GET) {
+        
+        QVector<FORMATETC> fmtetcs = QWindowsMime::allFormatsForMime(data);
+        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(fmtetcs.size(), fmtetcs.data());
+        if (*ppenumFormatEtc == NULL)
+            sc = E_OUTOFMEMORY;
+    
+    } else {
+    
+        FORMATETC formatetc;
+        formatetc.cfFormat = CF_PERFORMEDDROPEFFECT;
+        formatetc.dwAspect = DVASPECT_CONTENT;
+        formatetc.lindex = -1;
+        formatetc.ptd = NULL;
+        formatetc.tymed = TYMED_HGLOBAL;
+        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(1, &formatetc);
+        if (*ppenumFormatEtc == NULL)
+            sc = E_OUTOFMEMORY;
+    }
 
     return ResultFromScode(sc);
 }
@@ -742,8 +767,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
 #endif
 
     dragPrivate()->target = 0;
-    updatePixmap();
-
+    
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
@@ -757,6 +781,9 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     src->createCursors();
     QOleDataObject *obj = new QOleDataObject(o->mimeData());
     DWORD allowedEffects = translateToWinDragEffects(dragPrivate()->possible_actions);
+
+    // always allow a copy
+    allowedEffects |= DROPEFFECT_COPY;
     
 #ifdef Q_OS_TEMP
     HRESULT r = 0;
@@ -767,6 +794,12 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     
     QDrag::DropAction ret = QDrag::IgnoreAction;
     if (r == DRAGDROP_S_DROP) {
+        if (obj->reportedPerformedEffect() != DROPEFFECT_NONE)
+            resultEffect = obj->reportedPerformedEffect();
+        // Force it to be a copy if an unsuported operation occured.
+        // This indicates a bug in the drop target.
+        if (resultEffect != DROPEFFECT_NONE && !(resultEffect & allowedEffects))
+            resultEffect = DROPEFFECT_COPY; 
         ret = translateToQDragDropAction(resultEffect);
     } else {
         dragPrivate()->target = 0;
