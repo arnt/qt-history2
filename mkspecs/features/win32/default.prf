@@ -1,1 +1,20 @@
 CONFIG = uic rcc rtti_off exceptions_off stl_off warn_on debug incremental_off thread_off windows $$CONFIG
+
+# Use debug/release build combos for all projects, on build
+# systems that "natively" supports multiple builds
+!contains(TEMPLATE, subdirs):shared:!win32-msvc:!macx-xcode {
+  !build_pass {
+     DebugPackage.target = debug
+     DebugPackage.CONFIG = debug
+     ReleasePackage.target = release
+     ReleasePackage.CONFIG = release
+     BUILDS = DebugPackage ReleasePackage
+  } else:DebugPackage {
+     OBJECTS_DIR ~= s,release,debug,g
+     MOC_DIR ~= s,release,debug,g
+     #TARGET = $${TARGET}d
+  } else:ReleasePackage {
+     OBJECTS_DIR ~= s,debug,release,g
+     MOC_DIR ~= s,debug,release,g
+  }
+}

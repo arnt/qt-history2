@@ -3,24 +3,6 @@ INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 TEMPLATE	= lib
 VERSION		= 4.0.0
 
-# debug/release combos for our libraries
-shared:!win32-msvc:!macx-xcode {
-  !build_pass {
-     DebugPackage.target = debug
-     DebugPackage.CONFIG = debug
-     ReleasePackage.target = release
-     ReleasePackage.CONFIG = release
-     BUILDS = DebugPackage ReleasePackage
-  } else:DebugPackage {
-     OBJECTS_DIR ~= s,release,debug,g
-     MOC_DIR ~= s,release,debug,g
-     #TARGET = $${TARGET}d
-  } else:ReleasePackage {
-     OBJECTS_DIR ~= s,debug,release,g
-     MOC_DIR ~= s,debug,release,g
-  }
-}
-
 #exported symbol table (for linux only now)
 sam_version_map:dll:linux-g++ {
    0:exists($(QTDIR)/src/libqt.map) {
