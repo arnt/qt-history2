@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.66 1999/09/03 04:34:59 aavit Exp $
+** $Id: porting.doc,v 1.67 1999/09/17 16:06:15 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -755,7 +755,7 @@ a simple way to build nested widget structures.
 
 <h3><a name=QListView>QListView</a></h3>
 
-In Qt 1.x mouse events to the viewport where redirected to the
+<p>In Qt 1.x mouse events to the viewport where redirected to the
 event handlers for the listview; in Qt 2.0, this functionality is
 in QScrollView where mouse (and other position-oriented) events are
 redirected to viewportMousePressEvent() etc, which in turn translate
@@ -768,6 +768,10 @@ viewportMousePressEvent(),
 viewportMouseDoubleClickEvent(), viewportMouseMoveEvent(), or
 viewportMouseReleaseEvent() respectively.  New code will usually override
 contentsMousePressEvent() etc.
+
+<p>The signal QListView::selectionChanged(QListViewItem *) can now be
+emitted with a null pointer as parameter. Programs that use the
+argument without checking for 0, may crash.
 
 <h3><a name=QMultiLineEdit>QMultiLineEdit</a></h3>
 
