@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#113 $
 **
 ** Implementation of layout classes
 **
@@ -1623,8 +1623,9 @@ void QBoxLayout::addStrut( int size )
   stretch factor greater than zero, the space is distributed according
   to the QWidget:sizePolicy() of each widget that's involved.
 
-  The default alignment is 0, which means that the widget fills the
-  entire cell.
+  Alignment is specified by \a alignmnt which takes the same arguments
+  as QLabel::setAlignment(). The default alignment is 0, which means
+  that the widget fills the entire cell.
 
   Note: The alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now

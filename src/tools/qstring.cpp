@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#256 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#257 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10522,7 +10522,7 @@ QString::QString( int size, bool /*dummy*/ )
 
 /*!
   Constructs a string that is a deep copy of \a ba interpreted as
-  interpreted as a classic C string.
+  a classic C string.
 */
 
 QString::QString( const QByteArray& ba )
