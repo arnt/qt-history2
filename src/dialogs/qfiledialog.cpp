@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#374 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#375 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3682,7 +3682,7 @@ void QFileDialog::addFilter( const QString &filter )
 {
     if ( filter.isEmpty() )
 	return;
-    
+
     QString f( filter );
     QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
     int len;
@@ -3875,7 +3875,13 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 
     if ( op && op->state() == QNetworkProtocol::StFailed ) {
 	if ( d->paths->hasFocus() )
-	d->ignoreNextKeyPress = TRUE;
+	    d->ignoreNextKeyPress = TRUE;
+
+	if ( d->progressDia ) {
+	    d->progressDia->close();
+	    delete d->progressDia;
+	    d->progressDia = 0;
+	}
 
 	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
 
@@ -3900,8 +3906,6 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	resortDir();
     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
 	if ( d->progressDia ) {
-	    d->progressDia->setTotalSteps( 1 );
-	    d->progressDia->setProgress( 0 );
 	    d->progressDia->reset();
 	    d->progressDia->show();
 	}	
@@ -3921,7 +3925,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
     if ( !d->progressDia ) {
 	if ( bytesDone < bytesTotal) {
 	    d->progressDia = new QProgressDialog( tr( "Read: %1" ).arg( op->arg1() ), QString::null,
-						  bytesTotal, 0 );
+						  bytesTotal, this, 0, TRUE );
 	    d->progressDia->show();
 	    d->progressDia->setProgress( 0 );
 	    d->progressDia->setTotalSteps( bytesTotal );
@@ -3929,17 +3933,19 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
 	    return;
     }
 		
-    if ( d->progressDia->totalSteps() != bytesTotal )
-	d->progressDia->setTotalSteps( bytesTotal );
+    if ( d->progressDia ) {
+	if ( d->progressDia->totalSteps() != bytesTotal )
+	    d->progressDia->setTotalSteps( bytesTotal );
+    
+	if ( op->operation() == QNetworkProtocol::OpGet )
+	    d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg1() ) );
+	else if ( op->operation() == QNetworkProtocol::OpPut )
+	    d->progressDia->setLabelText( tr( "Write: %1" ).arg( op->arg1() ) );
+	else
+	    return;
 
-    if ( op->operation() == QNetworkProtocol::OpGet )
-	d->progressDia->setLabelText( tr( "Read: %1" ).arg( op->arg1() ) );
-    else if ( op->operation() == QNetworkProtocol::OpPut )
-	d->progressDia->setLabelText( tr( "Write: %1" ).arg( op->arg1() ) );
-    else
-	return;
-
-    d->progressDia->setProgress( bytesDone < bytesTotal ? bytesDone : bytesTotal - 1 );
+	d->progressDia->setProgress( bytesDone < bytesTotal ? bytesDone : bytesTotal - 1 );
+    }
 }
 
 void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
