@@ -45,6 +45,7 @@
   \class QPlugInInterface qplugininterface.h
 
   \brief An abstract class to provide a common interface to functionality a plugin provides.
+  \ingroup plugin
 
   In order to be able to use dynamically loaded libraries it is necessary to
   define an interface which the application can use to access functionality in the plugin. 
@@ -178,6 +179,7 @@
   \class QPlugIn qplugin.h
 
   \brief This class provides a wrapper for library loading and unloading.
+  \ingroup plugin
 
   The QPlugIn class works as the connection between the application and the
   plugin. Both the application's plugin loader and the plugin are based upon
@@ -457,6 +459,7 @@ QStringList QPlugIn::featureList()
 /*!
   \class QPlugInManager qpluginmanager.h
   \brief Template class for plugin management.
+  \ingroup plugin
 
   The QPlugInManager provides feature-based access for plugins implementing the same interface. It uses
   the featureList() method of QPlugIn to create a hash table to match each provided feature with the
