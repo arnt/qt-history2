@@ -170,7 +170,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     }
 
     if ( !list_image.isEmpty() ) {
-	out << "static struct EmbedImage {\n"
+	out << "static const struct EmbedImage {\n"
 	    "    int width, height, depth;\n"
 	    "    const unsigned char *data;\n"
 #ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
