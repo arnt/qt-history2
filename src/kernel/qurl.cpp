@@ -1139,7 +1139,7 @@ QString QUrl::dirPath() const
     Encodes the \a url in-place into UTF-8.  For example
 
     \code
-	QString url = http://www.trolltech.com/
+	QString url = http://www.trolltech.com
 	QUrl::encode( url );
 	// url is now "http%3A//www%20trolltech%20com"
     \endcode
@@ -1197,7 +1197,7 @@ static uchar hex_to_int( uchar c )
     \code
 	QString url = "http%3A//www%20trolltech%20com"
 	QUrl::decode( url );
-	// url is now "http//www.trolltech.com"
+	// url is now "http://www.trolltech.com"
     \endcode
 
     \sa encode()
