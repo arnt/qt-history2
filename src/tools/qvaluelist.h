@@ -39,6 +39,7 @@
 #define QVALUELIST_H
 
 #ifndef QT_H
+#include "qtl.h"
 #include "qshared.h"
 #include "qdatastream.h"
 #endif // QT_H
@@ -78,12 +79,16 @@ class Q_EXPORT QValueListIterator
     typedef QValueListNode<T>* NodePtr;
 #ifndef QT_NO_STL
     typedef std::bidirectional_iterator_tag  iterator_category;
+#endif
     typedef T        value_type;
+#ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
+#else
+    typedef int difference_type;
+#endif
     typedef size_t size_type;
     typedef T*   pointer;
     typedef T& reference;
-#endif
 
     /**
      * Variables
@@ -137,12 +142,16 @@ class Q_EXPORT QValueListConstIterator
     typedef QValueListNode<T>* NodePtr;
 #ifndef QT_NO_STL
     typedef std::bidirectional_iterator_tag  iterator_category;
+#endif
     typedef T        value_type;
+#ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
+#else
+    typedefl int difference_type;
+#endif
     typedef size_t size_type;
     typedef const T*   pointer;
     typedef const T& reference;
-#endif
 
     /**
      * Variables
@@ -358,9 +367,6 @@ public:
 #else
     typedef int difference_type;
 #endif
-    typedef QValueListIterator<T> Iterator;
-    typedef QValueListConstIterator<T> ConstIterator;
-    typedef T ValueType;
 
     /**
      * API
@@ -392,17 +398,17 @@ public:
     }
     bool operator== ( const std::list<T>& l ) const
     {
-	if ( count() != l.count() )
+	if ( size() != l.size() )
 	    return FALSE;
 	return qEqual( begin(), end(), l.begin() );
     }
 #endif
     bool operator== ( const QValueList<T>& l ) const
     {
-	if ( count() != l.count() )
+	if ( size() != l.size() )
 	    return FALSE;
-	ConstIterator it2 = begin();
-	ConstIterator it = l.begin();
+	const_iterator it2 = begin();
+	const_iterator it = l.begin();
 	for( ; it != l.end(); ++it, ++it2 )
 	    if ( !( *it == *it2 ) )
 		return FALSE;
@@ -410,11 +416,11 @@ public:
     }
 
     bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
-    Iterator begin() { detach(); return Iterator( sh->node->next ); }
-    ConstIterator begin() const { return ConstIterator( sh->node->next ); }
-    Iterator end() { detach(); return Iterator( sh->node ); }
-    ConstIterator end() const { return ConstIterator( sh->node ); }
-    Iterator insert( Iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
+    iterator begin() { detach(); return iterator( sh->node->next ); }
+    const_iterator begin() const { return const_iterator( sh->node->next ); }
+    iterator end() { detach(); return iterator( sh->node ); }
+    const_iterator end() const { return const_iterator( sh->node ); }
+    iterator insert( iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
     void remove( const T& x ) { detach(); sh->remove( x ); }
     void clear() { if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; } }
 
@@ -460,28 +466,28 @@ public:
     QValueList<T> operator+ ( const QValueList<T>& l ) const
     {
 	QValueList<T> l2( *this );
-	for( ConstIterator it = l.begin(); it != l.end(); ++it )
+	for( const_iterator it = l.begin(); it != l.end(); ++it )
 	    l2.append( *it );
 	return l2;
     }
 
     QValueList<T>& operator+= ( const QValueList<T>& l )
     {
-	for( ConstIterator it = l.begin(); it != l.end(); ++it )
+	for( const_iterator it = l.begin(); it != l.end(); ++it )
 	    append( *it );
 	return *this;
     }
 
 
-    Iterator fromLast() { detach(); return Iterator( sh->node->prev ); }
-    ConstIterator fromLast() const { return ConstIterator( sh->node->prev ); }
+    iterator fromLast() { detach(); return iterator( sh->node->prev ); }
+    const_iterator fromLast() const { return const_iterator( sh->node->prev ); }
 
     bool isEmpty() const { return ( sh->nodes == 0 ); }
 
-    Iterator append( const T& x ) { detach(); return sh->insert( end(), x ); }
-    Iterator prepend( const T& x ) { detach(); return sh->insert( begin(), x ); }
+    iterator append( const T& x ) { detach(); return sh->insert( end(), x ); }
+    iterator prepend( const T& x ) { detach(); return sh->insert( begin(), x ); }
 
-    Iterator remove( Iterator it ) { detach(); return sh->remove( it ); }
+    iterator remove( iterator it ) { detach(); return sh->remove( it ); }
 
     T& first() { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->node->next->data; }
     const T& first() const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->node->next->data; }
@@ -490,12 +496,12 @@ public:
 
     T& operator[] ( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->at(i)->data; }
     const T& operator[] ( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->at(i)->data; }
-    Iterator at( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return Iterator( sh->at(i) ); }
-    ConstIterator at( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return ConstIterator( sh->at(i) ); }
-    Iterator find ( const T& x ) { detach(); return Iterator( sh->find( sh->node->next, x) ); }
-    ConstIterator find ( const T& x ) const { return ConstIterator( sh->find( sh->node->next, x) ); }
-    Iterator find ( Iterator it, const T& x ) { detach(); return Iterator( sh->find( it.node, x ) ); }
-    ConstIterator find ( ConstIterator it, const T& x ) const { return ConstIterator( sh->find( it.node, x ) ); }
+    iterator at( uint i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return iterator( sh->at(i) ); }
+    const_iterator at( uint i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return const_iterator( sh->at(i) ); }
+    iterator find ( const T& x ) { detach(); return iterator( sh->find( sh->node->next, x) ); }
+    const_iterator find ( const T& x ) const { return const_iterator( sh->find( sh->node->next, x) ); }
+    iterator find ( iterator it, const T& x ) { detach(); return iterator( sh->find( it.node, x ) ); }
+    const_iterator find ( const_iterator it, const T& x ) const { return const_iterator( sh->find( it.node, x ) ); }
     int findIndex( const T& x ) const { return sh->findIndex( sh->node->next, x) ; }
     uint contains( const T& x ) const { return sh->contains( x ); }
 
@@ -506,6 +512,9 @@ public:
 	append( x );
 	return *this;
     }
+    typedef QValueListIterator<T> Iterator;
+    typedef QValueListConstIterator<T> ConstIterator;
+    typedef T ValueType;
 
 protected:
     /**
@@ -518,18 +527,6 @@ protected:
      */
     QValueListPrivate<T>* sh;
 };
-
-#if 0
-#ifndef QT_NO_STL
-template <class T>
-inline bool operator<( const QValueList<T>& x,
-		       const QValueList<T>& y )
-{
-    return std::lexicographical_compare( x.begin(), x.end(),
-				    y.begin(), y.end() );
-}
-#endif
-#endif
 
 #ifndef QT_NO_DATASTREAM
 template<class T>
@@ -550,8 +547,8 @@ inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 template<class T>
 inline QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 {
-    s << (Q_UINT32)l.count();
-    QValueListConstIterator<T> it = l.begin();
+    s << (Q_UINT32)l.size();
+    QValueList<T>::const_iterator it = l.begin();
     for( ; it != l.end(); ++it )
 	s << *it;
     return s;
