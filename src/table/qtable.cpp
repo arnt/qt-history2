@@ -2718,7 +2718,9 @@ void QTable::clearCell( int row, int col )
 {
     if ( (int)contents.size() != numRows() * numCols() )
 	resizeData( numRows() * numCols() );
+    contents.setAutoDelete( TRUE );
     contents.remove( indexOf( row, col ) );
+    contents.setAutoDelete( FALSE );
 }
 
 /*! Sets the text in the cell at \a row, \a col to \a text.
