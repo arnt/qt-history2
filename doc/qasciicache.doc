@@ -101,11 +101,10 @@
 
   Setting \a size to a suitably large \link primes.html prime
   number\endlink (equal to or greater than the expected number of entries)
-  makes the hash distribution better and hence the loopup faster.
+  makes the hash distribution better and hence the lookup faster.
 
   Setting \a caseSensitive to TRUE will treat "abc" and "Abc" as different
   keys.  Setting it to FALSE will make the dictionary ignore case.
-  Case insensitive comparison includes the whole Unicode alphabeth.
 
   Setting \a copyKeys to TRUE will make the dictionary copy the key
   when an item is inserted.  Setting it to FALSE will make the dictionary
