@@ -55,11 +55,21 @@ class QMainWindow;
 
 class Q_EXPORT QDockWindow : public QFrame
 {
+    Q_OBJECT
+    Q_ENUMS( CloseMode )
+    Q_PROPERTY( int closeMode READ closeMode  WRITE setCloseMode )
+    Q_PROPERTY( bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled )
+    Q_PROPERTY( bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled )
+    Q_PROPERTY( bool horizontalStretchable READ isHorizontalStretchable  WRITE setHorizontalStretchable )
+    Q_PROPERTY( bool verticalStretchable READ isVerticalStretchable  WRITE setVerticalStretchable )
+    Q_PROPERTY( bool stretchable READ isStretchable )
+    Q_PROPERTY( bool newLine READ newLine  WRITE setNewLine )
+    Q_PROPERTY( int offset READ offset  WRITE setOffset )
+
     friend class QDockWindowHandle;
     friend class QDockWindowTitleBar;
     friend class QDockArea;
     friend class QMainWindow;
-    Q_OBJECT
 
 public:
     enum Place { InDock, OutsideDock };
