@@ -657,13 +657,12 @@ HierarchyView::HierarchyView( QWidget *parent )
     : QTabWidget( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
 		  WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
 {
+    formwindow = 0;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     listview = new HierarchyList( this, formWindow() );
     addTab( listview, tr( "Widgets" ) );
     fList = new FunctionList( this, formWindow() );
     addTab( fList, tr( "Source" ) );
-
-    formwindow = 0;
 }
 
 void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
