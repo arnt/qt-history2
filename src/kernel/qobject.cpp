@@ -1996,7 +1996,7 @@ void QObject::cleanupEventFilter(QObject* obj)
 
 
 /*!
-    \fn const char *QObject::tr( const char *sourceText, const char * comment ) const
+    \fn QString QObject::tr( const char *sourceText, const char * comment ) const
 
     Returns a translated version of \a sourceText, or \a sourceText
     itself if there is no appropriate translated version. The
@@ -2010,8 +2010,8 @@ void QObject::cleanupEventFilter(QObject* obj)
 */
 
 /*!
-    \fn const char *QObject::trUtf8( const char *sourceText,
-				     const char *comment ) const
+    \fn QString QObject::trUtf8( const char *sourceText,
+                                 const char *comment ) const
 
     Returns a translated version of \a sourceText, or
     QString::fromUtf8(\a sourceText) if there is no appropriate
