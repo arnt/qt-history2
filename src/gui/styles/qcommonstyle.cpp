@@ -1627,7 +1627,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                     r.moveTopLeft(QPoint(twf->rect.center().x() - twf->tabBarSize.width() / 2, 0));
                     break;
                 case Qt::AlignRight:
-                    r.moveTopLeft(QPoint(twf->rect.right() - twf->tabBarSize.width(), 0));
+                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(), 0));
                     break;
                 }
                 r = visualRect(twf->direction, twf->rect, r);
@@ -1644,7 +1644,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 case Qt::AlignRight:
-                    r.moveTopLeft(QPoint(twf->rect.right() - twf->tabBarSize.width(),
+                    r.moveTopLeft(QPoint(twf->rect.width() - twf->tabBarSize.width(),
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 }

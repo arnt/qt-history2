@@ -1717,6 +1717,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 if (!selected) {
                     y1 += 2;
                     x1 += firstTab ? borderThinkness : 0;
+                    x2 -= lastTab ? borderThinkness : 0;
                 }
                 // Delete border
                 if (selected) {
@@ -1754,6 +1755,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 if (!selected) {
                     y2 -= 2;
                     x1 += firstTab ? borderThinkness : 0;
+                    x2 -= lastTab ? borderThinkness : 0;
                 }
                 // Delete border
                 if (selected) {
@@ -1791,6 +1793,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 if (!selected) {
                     x1 += 2;
                     y1 += firstTab ? borderThinkness : 0;
+                    y2 -= lastTab ? borderThinkness : 0;
                 }
                 // Delete border
                 if (selected) {
@@ -1828,6 +1831,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 if (!selected) {
                     x2 -= 2;
                     y1 += firstTab ? borderThinkness : 0;
+                    y2 -= lastTab ? borderThinkness : 0;
                 }
                 // Delete border
                 if (selected) {
