@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#250 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#251 $
 **
 ** Implementation of QWidget class
 **
@@ -507,11 +507,12 @@ void QWidget::cancelResize()
 
 
 /*!
-  Send deferred or enforced move and resize events for this widget.
+  Send deferred or enforced move, resize and child events for this widget.
 */
 
 void QWidget::sendDeferredEvents()
 {
+    QApplication::sendPostedEvents( this, Event_ChildInserted );
     uint m = (uint)(long)deferredMoves->find(this);
     uint r = (uint)(long)deferredResizes->find(this);
     if ( m && r && decompress_a(r) < 0 ) {
