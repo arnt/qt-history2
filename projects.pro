@@ -20,11 +20,6 @@ CONFIG -= qt #don't need the qt.prf, but do it last
 
 ### installations ####
 
-#qt.config
-htmldocs.files = $$QT_BUILD_TREE/doc/html/*
-htmldocs.path = $$docs.path/html
-INSTALLS += htmldocs
-
 #docs
 htmldocs.files = $$QT_BUILD_TREE/doc/html/*
 htmldocs.path = $$docs.path/html
