@@ -65,7 +65,8 @@ QDataStream &operator>>(QDataStream &s, QColorGroup &g)
 	p.setColor(QPalette::Active, QPalette::Mid, mid);
 	p.setColor(QPalette::Active, QPalette::Text, text);
 	p.setColor(QPalette::Active, QPalette::Base, base);
-	g = p.active();
+        g = p;
+        g.setCurrentColorGroup(QPalette::Active);
     } else {
 	int max = QPalette::NColorRoles;
 	if (s.version() <= 3) // Qt 2.x
@@ -102,11 +103,11 @@ QColorGroup QPalette::createColorGroup(ColorGroup cr) const
 
 void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 {
-    setColorGroup(cg, g.foreground(), g.button(), g.light(),
-		  g.dark(), g.mid(), g.text(), g.brightText(), g.base(),
-		  g.background(), g.midlight(), g.buttonText(), g.shadow(),
-		  g.highlight(), g.highlightedText(), g.link(),
-		  g.linkVisited());
+    setColorGroup(cg, g.brush(Foreground), g.brush(Button), g.brush(Light),
+		  g.brush(Dark), g.brush(Mid), g.brush(Text), g.brush(BrightText), g.brush(Base),
+		  g.brush(Background), g.brush(Midlight), g.brush(ButtonText), g.brush(Shadow),
+		  g.brush(Highlight), g.brush(HighlightedText), g.brush(Link),
+		  g.brush(LinkVisited));
 }
 
 #endif

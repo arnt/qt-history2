@@ -1380,7 +1380,7 @@ void QPrintDialog::printerOrFileSelected( int id )
     if ( d->outputToFile ) {
 	d->ok->setEnabled( TRUE );
 	fileNameEditChanged( d->fileName->text() );
-	if ( !d->fileName->edited() && d->fileName->text().isEmpty() ) {
+	if ( !d->fileName->isModified() && d->fileName->text().isEmpty() ) {
 	    QString home = QString::fromLatin1( ::getenv( "HOME" ) );
 	    QString cur = QDir::currentDirPath();
 	    if ( home.at(home.length()-1) != '/' )

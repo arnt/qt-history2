@@ -38,7 +38,7 @@ public:
     QPalette(const QColor &foreground, const QColor &background, const QColor &light,
 	     const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
 #ifdef QT_COMPAT
-    QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive) QT_COMPAT;
+    QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
 #endif
     QPalette(const QPalette &palette);
     ~QPalette();

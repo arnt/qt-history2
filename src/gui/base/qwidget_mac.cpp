@@ -854,7 +854,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
 #endif
-	else if (testWFlags(WStyle_Tool) && qstrcmp(name(), "toolTipTip") == 0) // Tool tips
+	else if (testWFlags(WStyle_Tool) && qstrcmp(objectName(), "toolTipTip") == 0) // Tool tips
 	    wclass = kHelpWindowClass;
 	else if(testWFlags(WStyle_Tool)
                 || (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
