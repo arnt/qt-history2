@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#19 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#20 $
 **
 ** Definition of QGArray class
 **
@@ -19,7 +19,7 @@ class QGArray					// generic array
 {
 friend class QBuffer;
 public:
-    struct array_data : QShared {		// shared array
+    struct array_data : public QShared {	// shared array
 	array_data()	{ data=0; len=0; }
 	char *data;				// actual array data
 	uint  len;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#28 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#29 $
 **
 ** Definition of QBrush class
 **
@@ -51,7 +51,7 @@ private:
     QBrush	copy()	const;
     void	detach();
     void	init( const QColor &, BrushStyle );
-    struct QBrushData : QShared {		// brush data
+    struct QBrushData : public QShared {	// brush data
 	BrushStyle style;
 	QColor	  color;
 	QPixmap	 *pixmap;

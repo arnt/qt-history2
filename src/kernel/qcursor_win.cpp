@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#18 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -23,14 +23,14 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#18 $");
 
 
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
 
-struct QCursorData : QShared {			// internal cursor data
+struct QCursorData : public QShared {		// internal cursor data
     QCursorData();
    ~QCursorData();
     int	      cshape;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#22 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#23 $
 **
 ** Definition of QPen class
 **
@@ -46,7 +46,7 @@ private:
     QPen	copy()	const;
     void	detach();
     void	init( const QColor &, uint, PenStyle );
-    struct QPenData : QShared {			// pen data
+    struct QPenData : public QShared {		// pen data
 	PenStyle  style;
 	uint	  width;
 	QColor	  color;
