@@ -563,7 +563,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_RubberBand:
-	drawPrimitive(PE_FocusRect, p, r, cg, flags, opt);
+	drawPrimitive(PE_FocusRect, p, r, pal, flags, opt);
 	break;
     default:
 	break;
@@ -1612,7 +1612,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
 		p->setPen( pal2.highlightedText() );
 		QString caption = titlebar->visibleText();
-		if(styleHint(SH_GUIStyle, titlebar, opt, 0) == WindowsStyle && 
+		if(styleHint(SH_GUIStyle, titlebar, opt, 0) == WindowsStyle &&
 		   titlebar->window() && titlebar->window()->isWindowModified())
 		    caption += " *";
 		p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
