@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#18 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#18 $")
 
 
 // --------------------------------------------------------------------------
@@ -204,12 +204,12 @@ void qt_init( int *argcptr, char **argv )
 	QString arg = argv[i];
 	if ( arg == "-nograb" )
 	    appNoGrab = !appNoGrab;
-	else if ( arg == (const char *)"-memchk" )
+	else if ( arg == "-memchk" )
 	    appMemChk = !appMemChk;
-	else if ( arg == (const char *)"-membuf" ) {
+	else if ( arg == "-membuf" ) {
 	    if ( ++i < argc ) mcBufSize = atoi(argv[i]);
 	}
-	else if ( arg == (const char *)"-memlog" ) {
+	else if ( arg == "-memlog" ) {
 	    if ( ++i < argc ) mcLogFile = argv[i];
 	}
 	else
