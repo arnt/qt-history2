@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#28 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#29 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -233,8 +233,8 @@ QtFileIconDragItem::QtFileIconDragItem()
     makeKey();
 }
 
-QtFileIconDragItem::QtFileIconDragItem( const QRect &r, const QString &u )
-    : QIconDragItem( r ), url_( u )
+QtFileIconDragItem::QtFileIconDragItem( const QRect &ir, const QRect &tr, const QString &u )
+    : QIconDragItem( ir, tr ), url_( u )
 {
     makeKey();
 }
@@ -255,10 +255,10 @@ void QtFileIconDragItem::setURL( const QString &u )
 
 void QtFileIconDragItem::makeKey()
 {	
-    QString k( "%1%2%3%4%5%6%7%8%9" );
-    k = k.arg( rect_.x() ).arg( " " ).arg( rect_.y() ).arg( " " ).
-	arg( rect_.width() ).arg( " " ).arg( rect_.height() ).
-	arg( " " ).arg( url_ );
+    QString k( "%1 %2 %3 %4 %5 %6 %7 %8 %9");
+    k = k.arg( iconRect().x() ).arg( iconRect().y() ).arg( iconRect().width() ).
+	arg( iconRect().height() ).arg( textRect().x() ).arg( textRect().y() ).
+	arg( textRect().width() ).arg( textRect().height() ).arg( url_ );
     key_ = k;
 }
 
@@ -303,10 +303,10 @@ QByteArray QtFileIconDrag::encodedData( const char* mime ) const
 	int c = 0;
 	QtFileIconList::ConstIterator it = icons.begin();
 	for ( ; it != icons.end(); ++it ) {
-	    QString k( "%1%2%3%4%5%6%7%8%9" );
-	    k = k.arg( (*it).rect().x() ).arg( " " ).arg( (*it).rect().y() ).arg( " " ).
-		arg( (*it).rect().width() ).arg( " " ).arg( (*it).rect().height() ).
-		arg( " " ).arg( (*it).url() );
+	    QString k( "%1 %2 %3 %4 %5 %6 %7 %8 %9" );
+	    k = k.arg( (*it).iconRect().x() ).arg( (*it).iconRect().y() ).arg( (*it).iconRect().width() ).
+		arg( (*it).iconRect().height() ).arg( (*it).textRect().x() ).arg( (*it).textRect().y() ).
+		arg( (*it).textRect().width() ).arg( (*it).textRect().height() ).arg( (*it).url() );
 	    int l = k.length();
 	    a.resize(c + l + 1 );
 	    memcpy( a.data() + c , k.latin1(), l );
@@ -361,25 +361,44 @@ bool QtFileIconDrag::decode( QMimeSource* e, QValueList<QtFileIconDragItem> &lis
 	    }
 
 	    QtFileIconDragItem icon;
-	    QRect r;
+	    QRect ir, tr;
 	
-	    r.setX( atoi( s.latin1() ) );
+	    ir.setX( atoi( s.latin1() ) );
 	    int pos = s.find( ' ' );
 	    if ( pos == -1 )
 		return FALSE;
-	    r.setY( atoi( s.latin1() + pos + 1 ) );
+	    ir.setY( atoi( s.latin1() + pos + 1 ) );
 	    pos = s.find( ' ', pos + 1 );
 	    if ( pos == -1 )
 		return FALSE;
-	    r.setWidth( atoi( s.latin1() + pos + 1 ) );
+	    ir.setWidth( atoi( s.latin1() + pos + 1 ) );
 	    pos = s.find( ' ', pos + 1 );
 	    if ( pos == -1 )
 		return FALSE;
-	    r.setHeight( atoi( s.latin1() + pos + 1 ) );
-	    icon.setRect( r );
+	    ir.setHeight( atoi( s.latin1() + pos + 1 ) );
+
 	    pos = s.find( ' ', pos + 1 );
 	    if ( pos == -1 )
 		return FALSE;
+	    tr.setX( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setY( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setWidth( atoi( s.latin1() + pos + 1 ) );
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    tr.setHeight( atoi( s.latin1() + pos + 1 ) );
+
+	    pos = s.find( ' ', pos + 1 );
+	    if ( pos == -1 )
+		return FALSE;
+	    icon.setIconRect( ir );
+	    icon.setTextRect( tr );
 	    icon.setURL( s.latin1() + pos + 1 );
 	    list_.append( icon );
 	}
@@ -690,7 +709,12 @@ QDragObject *QtFileIconView::dragObject()
  		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
     for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item; item = (QtFileIconViewItem*)item->nextItem() )
 	if ( item->isSelected() )
-	    drag->append( QtFileIconDragItem( QRect( item->pos() - orig, QSize( item->width(), item->height() ) ),
+	    drag->append( QtFileIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
+						     item->iconRect( FALSE ).y() - orig.y(), 
+						     item->iconRect().width(), item->iconRect().height() ),
+					      QRect( item->textRect( FALSE ).x() - orig.x(),
+						     item->textRect( FALSE ).y() - orig.y(), 	
+						     item->textRect().width(), item->textRect().height() ),
 					      QString( "file://" + item->filename() ).latin1() ) );
 
     return drag;

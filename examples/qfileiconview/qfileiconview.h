@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#13 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#14 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -33,7 +33,7 @@ class QtFileIconDragItem : public QIconDragItem
 {
 public:
     QtFileIconDragItem();
-    QtFileIconDragItem( const QRect &r, const QString &u );
+    QtFileIconDragItem( const QRect &ir, const QRect &tr, const QString &u );
     ~QtFileIconDragItem();
 	
     QString url() const;
