@@ -410,12 +410,20 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
  	out << indent << objName << " = new QToolBar( \"\", this, " << dock << " ); " << endl;
 	createObjectImpl( ae, parentClass, parent );
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-	    if ( n2.tagName() == "action" )
+	    if ( n2.tagName() == "action" ) {
 		out << indent << n2.attribute( "name" ) << "->addTo( " << objName << " );" << endl;
-	    else if ( n2.tagName() == "separator" )
+	    } else if ( n2.tagName() == "separator" ) {
 		out << indent << objName << "->addSeparator();" << endl;
-	    else if ( n2.tagName() == "widget" )
-		createObjectImpl( n2, "QToolBar", objName );
+	    } else if ( n2.tagName() == "widget" ) {
+		if ( n2.attribute( "class" ) != "Spacer" ) {
+		    createObjectImpl( n2, "QToolBar", objName );
+		} else {
+		    QString child = createSpacerImpl( n, parentClass, parent, objName );
+		    out << indent << "QApplication::sendPostedEvents( " << objName
+			<< ", QEvent::ChildInserted );" << endl;
+		    out << indent << objName << "->boxLayout()->addItem( " << child << " );" << endl;
+		}
+	    }
 	}
     }
 }

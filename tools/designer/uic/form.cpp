@@ -684,6 +684,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	nl = e.parentNode().toElement().elementsByTagName( *it );
 	for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	    QString name = getClassName( nl.item(i).toElement() );
+	    if ( name == "Spacer" ) {
+		globalIncludes += "qlayout.h";
+		globalIncludes += "qapplication.h";
+		continue;
+	    }
 	    if ( name.mid( 1 ) == "ListView" )
 		globalIncludes += "qheader.h";
 	    if ( name != objClass ) {
