@@ -38,15 +38,11 @@ tools {
 		  $$TOOLS_P/qlibrary_p.h \
 		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
-		  $$TOOLS_H/qmutex.h \
-		  $$TOOLS_P/qmutex_p.h \
-		  $$TOOLS_P/qmutexpool_p.h \
 		  $$TOOLS_P/qpluginmanager_p.h \
 		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qptrqueue.h \
 		  $$TOOLS_H/qregexp.h \
-		  $$TOOLS_H/qsemaphore.h \
 		  $$TOOLS_H/qsettings.h \
 		  $$TOOLS_P/qsettings_p.h \
 		  $$TOOLS_H/qshared.h \
@@ -57,14 +53,11 @@ tools {
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
-		  $$TOOLS_P/qthreadinstance_p.h \
-		  $$TOOLS_H/qthreadstorage.h\
 		  $$TOOLS_P/qunicodetables_p.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$TOOLS_H/qvaluestack.h \
 		  $$TOOLS_H/qvaluevector.h \
-		  $$TOOLS_H/qwaitcondition.h \
 		  $$TOOLS_P/qcom_p.h \
 		  $$TOOLS_P/qucom_p.h \
 		  $$TOOLS_H/quuid.h
@@ -73,12 +66,7 @@ tools {
 	 	  $$TOOLS_CPP/qfile_win.cpp \
 		  $$TOOLS_CPP/qfileinfo_win.cpp \
 		  $$TOOLS_CPP/qlibrary_win.cpp \
-		  $$TOOLS_CPP/qsettings_win.cpp \
-		  $$TOOLS_CPP/qmutex_win.cpp \
-		  $$TOOLS_CPP/qwaitcondition_win.cpp \
-		  $$TOOLS_CPP/qsemaphore_win.cpp \
-		  $$TOOLS_CPP/qthreadstorage_win.cpp \
-		  $$TOOLS_CPP/qcriticalsection_p.cpp
+		  $$TOOLS_CPP/qsettings_win.cpp
 
 	wince-* {
 		SOURCES -= $$TOOLS_CPP/qdir_win.cpp \
@@ -94,11 +82,7 @@ tools {
 		  $$TOOLS_CPP/qfileinfo_mac.cpp
 	else:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
-		  $$TOOLS_CPP/qfileinfo_unix.cpp \
-		  $$TOOLS_CPP/qmutex_unix.cpp \
-		  $$TOOLS_CPP/qsemaphore_unix.cpp \
-		  $$TOOLS_CPP/qthreadstorage_unix.cpp \
-		  $$TOOLS_CPP/qwaitcondition_unix.cpp
+		  $$TOOLS_CPP/qfileinfo_unix.cpp
 
         mac:!embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp
 	mac:exists($$TOOLS_CPP/qlibrary_mac.cpp):SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp
@@ -127,7 +111,6 @@ tools {
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qlibrary.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
-		  $$TOOLS_CPP/qmutexpool.cpp \
 		  $$TOOLS_CPP/qptrcollection.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstring.cpp \

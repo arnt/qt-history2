@@ -3722,7 +3722,7 @@ void QApplication::unlock(bool wakeUpGui)
 
 bool QApplication::locked()
 {
-    return qt_mutex->locked();
+    return qt_mutex->isLocked();
 }
 
 bool QApplication::tryLock()

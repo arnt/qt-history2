@@ -79,7 +79,6 @@ kernel {
 		  $$KERNEL_H/qsound.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
-		  $$KERNEL_H/qthread.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
@@ -117,7 +116,6 @@ kernel {
 		  $$KERNEL_CPP/qpainter_win.cpp \
 		  $$KERNEL_CPP/qregion_win.cpp \
 		  $$KERNEL_CPP/qsound_win.cpp \
-		  $$KERNEL_CPP/qthread_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
 		  $$KERNEL_CPP/qole_win.c \
 		  $$KERNEL_CPP/qfontengine_win.cpp
@@ -174,8 +172,7 @@ kernel {
 	              $$KERNEL_CPP/qpsprinter.cpp \
 		      $$KERNEL_CPP/qeventloop_unix.cpp
         }
-	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp \
-		        $$KERNEL_CPP/qthread_unix.cpp
+	unix:SOURCES += $$KERNEL_CPP/qprocess_unix.cpp
 
 	SOURCES += $$KERNEL_CPP/qabstractlayout.cpp \
 		  $$KERNEL_CPP/qucomextra.cpp \
@@ -233,7 +230,6 @@ kernel {
 		  $$KERNEL_CPP/qsocketnotifier.cpp \
 		  $$KERNEL_CPP/qsound.cpp \
 		  $$KERNEL_CPP/qstylesheet.cpp \
-		  $$KERNEL_CPP/qthread.cpp \
 		  $$KERNEL_CPP/qtimer.cpp \
 		  $$KERNEL_CPP/qurl.cpp \
 		  $$KERNEL_CPP/qlocalfs.cpp \
