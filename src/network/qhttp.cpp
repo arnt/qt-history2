@@ -63,7 +63,7 @@
 
   \module network
 
-  This class is the common part of the more special QHttpReplyHeader and
+  This class is the common part of the more special QHttpResponseHeader and
   QHttpRequestHeader classes. Probably, you will instantiate one of the more
   special classes rather than this one.
 
@@ -91,7 +91,7 @@
   same key. If you try to set the value for a key which already exists, the old
   value is overwritten.
 
-  \sa QHttpRequestHeader QHttpReplyHeader
+  \sa QHttpRequestHeader QHttpResponseHeader
 */
 
 /*!
@@ -217,7 +217,7 @@ QTextStream& QHttpHeader::read( QTextStream& stream )
 	}
 
 	// Parse the line
-    	if ( !parseLine( str, number++ ) ) {
+	if ( !parseLine( str, number++ ) ) {
 	    m_bValid = FALSE;
 	    return stream;
 	}
@@ -427,21 +427,21 @@ void QHttpHeader::setConnection( Connection con )
 
 /****************************************************
  *
- * QHttpReplyHeader
+ * QHttpResponseHeader
  *
  ****************************************************/
 
 /*!
-  \class QHttpReplyHeader qhttp.h
+  \class QHttpResponseHeader qhttp.h
     \ingroup io
-  \brief The QHttpReplyHeader class contains reply header information for HTTP.
+  \brief The QHttpResponseHeader class contains response header information for HTTP.
 
   \module network
 
   This class is used in the QHttpClient class to report the header information
   that the client received from the server.
 
-  HTTP replies have a status code that indicates the status of the reply. This
+  HTTP replies have a status code that indicates the status of the response. This
   code is a 3-digit integer result code (for details please refer to RFC 1945).
   In addition to the status code, you can also specify a human-readable text
   that describes the reason for the code ("reason phrase"). This class provides
@@ -454,17 +454,17 @@ void QHttpHeader::setConnection( Connection con )
 */
 
 /*!
-  Constructs an empty HTTP reply header.
+  Constructs an empty HTTP response header.
 */
-QHttpReplyHeader::QHttpReplyHeader()
+QHttpResponseHeader::QHttpResponseHeader()
 {
 }
 
 /*!
-  Constructs a HTTP reply header with the status code \a code, the reason
+  Constructs a HTTP response header with the status code \a code, the reason
   phrase \a text and the protocol-version \a version.
 */
-QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
+QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int version )
     : QHttpHeader(), m_code( code ), m_text( text ), m_version( version )
 {
 }
@@ -472,16 +472,16 @@ QHttpReplyHeader::QHttpReplyHeader( int code, const QString& text, int version )
 /*!
   Constructs a copy of \a header.
 */
-QHttpReplyHeader::QHttpReplyHeader( const QHttpReplyHeader& header )
+QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
     : QHttpHeader( header ), m_code( header.m_code ), m_text( header.m_text ), m_version( header.m_version )
 {
 }
 
 /*!
-  Constructs a HTTP reply header from the string \a str. The string is parsed
+  Constructs a HTTP response header from the string \a str. The string is parsed
   and the information is set.
 */
-QHttpReplyHeader::QHttpReplyHeader( const QString& str )
+QHttpResponseHeader::QHttpResponseHeader( const QString& str )
     : QHttpHeader()
 {
     parse( str );
@@ -491,9 +491,9 @@ QHttpReplyHeader::QHttpReplyHeader( const QString& str )
   Sets the status code to \a code, the reason phrase to \a text and the
   protocol-version to \a version.
 
-  \sa replyCode() replyText() version()
+  \sa statusCode() reasonPhrase() version()
 */
-void QHttpReplyHeader::setReply( int code, const QString& text, int version )
+void QHttpResponseHeader::setResponse( int code, const QString& text, int version )
 {
     m_code = code;
     m_text = text;
@@ -501,38 +501,38 @@ void QHttpReplyHeader::setReply( int code, const QString& text, int version )
 }
 
 /*!
-  Returns the status code of the HTTP reply header.
+  Returns the status code of the HTTP response header.
 
-  \sa setReply() replyText() version()
+  \sa setResponse() reasonPhrase() version()
 */
-int QHttpReplyHeader::replyCode() const
+int QHttpResponseHeader::statusCode() const
 {
     return m_code;
 }
 
 /*!
-  Returns the reason phrase of the HTTP reply header.
+  Returns the reason phrase of the HTTP response header.
 
-  \sa setReply() replyCode() version()
+  \sa setResponse() statusCode() version()
 */
-QString QHttpReplyHeader::replyText() const
+QString QHttpResponseHeader::reasonPhrase() const
 {
     return m_text;
 }
 
 /*!
-  Returns the protocol-version of the HTTP reply header.
+  Returns the protocol-version of the HTTP response header.
 
-  \sa setReply() replyCode() replyText()
+  \sa setResponse() statusCode() reasonPhrase()
 */
-int QHttpReplyHeader::version() const
+int QHttpResponseHeader::version() const
 {
     return m_version;
 }
 
 /*! \reimp
 */
-bool QHttpReplyHeader::parseLine( const QString& line, int number )
+bool QHttpResponseHeader::parseLine( const QString& line, int number )
 {
     if ( number != 0 )
 	return QHttpHeader::parseLine( line, number );
@@ -562,7 +562,7 @@ bool QHttpReplyHeader::parseLine( const QString& line, int number )
 
 /*! \reimp
 */
-QString QHttpReplyHeader::toString() const
+QString QHttpResponseHeader::toString() const
 {
     QString ret( "HTTP/%1.%2 %3 %4\r\n%5\r\n" );
     return ret.arg( m_version / 10 ).arg ( m_version % 10 ).arg( m_code ).arg( m_text ).arg( QHttpHeader::toString() );
@@ -570,30 +570,30 @@ QString QHttpReplyHeader::toString() const
 
 #if 0
 /*!
-  Reads a HTTP reply header from the text stream \a stream and stores it in \a
+  Reads a HTTP response header from the text stream \a stream and stores it in \a
   header and returns a refernce to the stream.
 */
-QTextStream& operator>>( QTextStream& stream, QHttpReplyHeader& header )
+QTextStream& operator>>( QTextStream& stream, QHttpResponseHeader& header )
 {
     return header.read( stream );
 }
 
 /*!
-  Writes the HTTP reply header \a header to the stream \a stream and returns a
+  Writes the HTTP response header \a header to the stream \a stream and returns a
   reference to the stream.
 */
-QTextStream& operator<<( QTextStream& stream, const QHttpReplyHeader& header )
+QTextStream& operator<<( QTextStream& stream, const QHttpResponseHeader& header )
 {
     return header.write( stream );
 }
 #endif
 
 /*!
-  Returns TRUE if the server did not specify a size of the reply data, This is
+  Returns TRUE if the server did not specify a size of the response data, This is
   only possible if the server set the connection mode to Close. Otherwise this
   function returns FALSE.
 */
-bool QHttpReplyHeader::hasAutoContentLength() const
+bool QHttpResponseHeader::hasAutoContentLength() const
 {
     if ( connection() == Close && !hasKey( "content-length" ) )
 	return TRUE;
@@ -625,7 +625,7 @@ bool QHttpReplyHeader::hasAutoContentLength() const
   Since this is a subclass of QHttpHeader, all functions in this class are also
   available, especially setValue() and value().
 
-  \sa QHttpReplyHeader QHttpClient
+  \sa QHttpResponseHeader QHttpClient
 */
 
 /*!
@@ -777,7 +777,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
 
   This class provides all means to send HTTP requests to a HTTP server and
   receive the answer from the server. You have full control over the request
-  header and full access to the reply header.
+  header and full access to the response header.
 
   If you want to fetch only single HTML sites, please look at the QHttp class;
   it provides an easier to use interface to this functionality (it provides the
@@ -794,65 +794,65 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
     client.request( "www.trolltech.com", 80, header );
   \endcode
 
-  This makes only the request. If a part of the reply arrived, the signal
-  replyChunk() is emitted. After the last chunk was reported like this, the
+  This makes only the request. If a part of the response arrived, the signal
+  responseChunk() is emitted. After the last chunk was reported like this, the
   signal finished() is emitted. This allows you to process the document as far
   as possible, without waiting for the complete transmission to be finished.
 
   If you require to receive the whole document before you can do anything, take
-  also a look at the signal reply(). This signal is emitted when the whole
+  also a look at the signal response(). This signal is emitted when the whole
   document was received.
 */
 
 /*!
-  \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QByteArray& data )
+  \fn void QHttpClient::response( const QHttpResponseHeader& repl, const QByteArray& data )
 
-  This signal is emitted when the reply is available. The reply header is
-  passed in \a repl and the data of the reply is passed in \a data. Do not
+  This signal is emitted when the response is available. The response header is
+  passed in \a repl and the data of the response is passed in \a data. Do not
   call request() in response to this signal. Instead wait for finished().
 
   If this QHttpClient has a device set, then this signal is not emitted.
 
-  \sa replyChunk()
+  \sa responseChunk()
 */
 /*!
-  \fn void QHttpClient::reply( const QHttpReplyHeader& repl, const QIODevice* device )
+  \fn void QHttpClient::response( const QHttpResponseHeader& repl, const QIODevice* device )
   \overload
 
-  This signal is emitted when the reply is available and the data was written
-  to the device \a device. The reply header is passed in \a repl. Do not call
+  This signal is emitted when the response is available and the data was written
+  to the device \a device. The response header is passed in \a repl. Do not call
   request() in response to this signal. Instead wit for finished().
 
   If this QHttpClient has no device set, then this signal is not emitted.
 
-  \sa replyChunk()
+  \sa responseChunk()
 */
 /*!
-  \fn void QHttpClient::replyChunk( const QHttpReplyHeader& repl, const QByteArray& data )
+  \fn void QHttpClient::responseChunk( const QHttpResponseHeader& repl, const QByteArray& data )
 
-  This signal is emitted if the client has received a piece of the reply data.
+  This signal is emitted if the client has received a piece of the response data.
   This is useful for slow connections: you don't have to wait until all data is
   available; you can present the data that is already loaded to the user.
 
   The header is passed in \a repl and the data chunk in \a data.
 
-  If you are only interested in the complete document, use one of the reply()
+  If you are only interested in the complete document, use one of the response()
   signals instead.
 
   After everything is read and reported, the finished() signal is emitted.
 
-  \sa finished() reply()
+  \sa finished() response()
 */
 /*!
-  \fn void QHttpClient::replyHeader( const QHttpReplyHeader& repl )
+  \fn void QHttpClient::responseHeader( const QHttpResponseHeader& repl )
 
-  This signal is emitted if the HTTP header of the reply is available. The
+  This signal is emitted if the HTTP header of the response is available. The
   header is passed in \a repl.
 
-  It is now possible to decide wether the reply data should be read in memory
+  It is now possible to decide wether the response data should be read in memory
   or rather in some device by calling setDevice().
 
-  \sa setDevice() reply() replyChunk()
+  \sa setDevice() response() responseChunk()
 */
 /*!
   \fn void QHttpClient::requestFailed( int error )
@@ -868,7 +868,7 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   This signal is emitted when the QHttpClient is able to start a new request.
   The QHttpClient is either in the state Idle or Alive now.
 
-  \sa reply() replyChunk()
+  \sa response() responseChunk()
 */
 
 /*!
@@ -1046,17 +1046,17 @@ void QHttpClient::slotClosed()
 
 	// If we got no Content-Length then we know
 	// now that the request has completed.
-	if ( m_reply.hasAutoContentLength() ) {
+	if ( m_response.hasAutoContentLength() ) {
 	    if ( m_device )
-		emit reply( m_reply, m_device );
+		emit response( m_response, m_device );
 	    else
-		emit reply( m_reply, m_buffer );
+		emit response( m_response, m_buffer );
 
 	    // Save memory
 	    m_buffer = QByteArray();
 	} else {
 	    // We got Content-Length, so did we get all bytes ?
-	    if ( m_bytesRead != m_reply.contentLength() ) {
+	    if ( m_bytesRead != m_response.contentLength() ) {
 		emit requestFailed( ErrWrongContentLength );
 	    }
 	}
@@ -1163,20 +1163,20 @@ void QHttpClient::slotReadyRead()
 	    --i;
 	    m_readHeader = FALSE;
 	    m_buffer[i] = 0;
-	    m_reply = QHttpReplyHeader( QString( m_buffer ) );
+	    m_response = QHttpResponseHeader( QString( m_buffer ) );
 
 	    // Check header
-	    if ( !m_reply.isValid() ) {
-		emit requestFailed( ErrInvalidReplyHeader );
+	    if ( !m_response.isValid() ) {
+		emit requestFailed( ErrInvalidResponseHeader );
 		close();
 		return;
 	    }
-	    emit replyHeader( m_reply );
+	    emit responseHeader( m_response );
 
 	    // Handle data that was already read
 	    m_bytesRead = m_buffer.size() - i - 4;
-	    if ( !m_reply.hasAutoContentLength() )
-		m_bytesRead = QMIN( m_reply.contentLength(), m_bytesRead );
+	    if ( !m_response.hasAutoContentLength() )
+		m_bytesRead = QMIN( m_response.contentLength(), m_bytesRead );
 
 	    if ( m_device ) {
 		// Write the data to file
@@ -1184,21 +1184,21 @@ void QHttpClient::slotReadyRead()
 
 		QByteArray tmp( m_bytesRead );
 		memcpy( tmp.data(), m_buffer.data() + i + 4, m_bytesRead );
-		emit replyChunk( m_reply, tmp );
+		emit responseChunk( m_response, tmp );
 	    } else {
 		// Copy the data to the beginning of a new buffer.
 		QByteArray tmp;
 		// Resize the array. Do we know the size of the data a priori ?
-		if ( m_reply.hasAutoContentLength() )
+		if ( m_response.hasAutoContentLength() )
 		    tmp.resize( m_bytesRead );
 		else
-		    tmp.resize( m_reply.contentLength() );
+		    tmp.resize( m_response.contentLength() );
 		memcpy( tmp.data(), m_buffer.data() + i + 4, m_bytesRead );
 		m_buffer = tmp;
 
 		QByteArray tmp2( m_bytesRead );
 		memcpy( tmp2.data(), m_buffer.data(), m_bytesRead );
-		emit replyChunk( m_reply, tmp2 );
+		emit responseChunk( m_response, tmp2 );
 	    }
 	}
     }
@@ -1206,8 +1206,8 @@ void QHttpClient::slotReadyRead()
     if ( !m_readHeader ) {
 	uint n = m_socket->bytesAvailable();
 	if ( n > 0 ) {
-	    if ( !m_reply.hasAutoContentLength() )
-		n = QMIN( m_reply.contentLength() - m_bytesRead, n );
+	    if ( !m_response.hasAutoContentLength() )
+		n = QMIN( m_response.contentLength() - m_bytesRead, n );
 
 	    if ( m_device ) {
 		QByteArray arr( n );
@@ -1215,15 +1215,15 @@ void QHttpClient::slotReadyRead()
 		m_device->writeBlock( arr.data(), n );
 
 		arr.resize( n );
-		emit replyChunk( m_reply, arr );
+		emit responseChunk( m_response, arr );
 	    } else {
-		if ( m_reply.hasAutoContentLength() )
+		if ( m_response.hasAutoContentLength() )
 		    m_buffer.resize( m_buffer.size() + n );
 		n = m_socket->readBlock( m_buffer.data() + m_bytesRead, n );
 
 		QByteArray tmp( n );
 		memcpy( tmp.data(), m_buffer.data()+m_bytesRead, n );
-		emit replyChunk( m_reply, tmp );
+		emit responseChunk( m_response, tmp );
 	    }
 	    m_bytesRead += n;
 	}
@@ -1231,17 +1231,17 @@ void QHttpClient::slotReadyRead()
 	// Read everything ?
 	// We can only know that is the content length was given in advance.
 	// Otherwise we emit the signal in closed().
-	if ( !m_reply.hasAutoContentLength() && m_bytesRead == m_reply.contentLength() ) {
+	if ( !m_response.hasAutoContentLength() && m_bytesRead == m_response.contentLength() ) {
 	    if ( m_device )
-		emit reply( m_reply, m_device );
+		emit response( m_response, m_device );
 	    else
-		emit reply( m_reply, m_buffer );
+		emit response( m_response, m_buffer );
 
 	    // Save memory
 	    m_buffer = QByteArray();
 
 	    // Handle Keep Alive
-	    switch ( m_reply.connection() ) {
+	    switch ( m_response.connection() ) {
 	    case QHttpHeader::KeepAlive:
 		m_state = Alive;
 		// Start a timer, so that we emit the keep alive signal
@@ -1399,8 +1399,8 @@ QHttp::QHttp()
     d = 0;
     bytesRead = 0;
     client = new QHttpClient( this );
-    connect( client, SIGNAL(replyChunk(const QHttpReplyHeader&, const QByteArray&)),
-	    this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
+    connect( client, SIGNAL(responseChunk(const QHttpResponseHeader&, const QByteArray&)),
+	    this, SLOT(reply(const QHttpResponseHeader&, const QByteArray&)) );
     connect( client, SIGNAL(finished()),
 	    this, SLOT(requestFinished()) );
     connect( client, SIGNAL(requestFailed( int )),
@@ -1458,16 +1458,16 @@ void QHttp::operationPut( QNetworkOperation *op )
     client->request( u.host(), u.port() != -1 ? u.port() : 80, header, op->rawArg(1) );
 }
 
-void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
+void QHttp::reply( const QHttpResponseHeader &rep, const QByteArray & dataA )
 {
     QNetworkOperation *op = operationInProgress();
     if ( op ) {
-	if ( rep.replyCode() >= 400 && rep.replyCode() < 600 ) {
+	if ( rep.statusCode() >= 400 && rep.statusCode() < 600 ) {
 	    op->setState( StFailed );
 	    op->setProtocolDetail(
-		    QString("%1 %2").arg(rep.replyCode()).arg(rep.replyText())
+		    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
 						    );
-	    switch (rep.replyCode() ) {
+	    switch (rep.statusCode() ) {
 		case 401:
 		case 403:
 		case 405:
@@ -1526,8 +1526,8 @@ void QHttp::requestFailed( int err )
 	    case QHttpClient::ErrUnexpectedClose:
 		op->setProtocolDetail( tr( "Connection closed by %1" ).arg( url()->host() ) );
 		break;
-	    case QHttpClient::ErrInvalidReplyHeader:
-		op->setProtocolDetail( tr( "Invalid HTTP reply header" ) );
+	    case QHttpClient::ErrInvalidResponseHeader:
+		op->setProtocolDetail( tr( "Invalid HTTP response header" ) );
 		break;
 	    case QHttpClient::ErrWrongContentLength:
 		op->setProtocolDetail( tr( "Wrong content length" ) );

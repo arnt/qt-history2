@@ -101,17 +101,17 @@ private:
     bool m_bValid;
 };
 
-class QM_EXPORT_HTTP QHttpReplyHeader : public QHttpHeader
+class QM_EXPORT_HTTP QHttpResponseHeader : public QHttpHeader
 {
 public:
-    QHttpReplyHeader();
-    QHttpReplyHeader( int code, const QString& text = QString::null, int version = 10 );
-    QHttpReplyHeader( const QHttpReplyHeader& header );
-    QHttpReplyHeader( const QString& str );
+    QHttpResponseHeader();
+    QHttpResponseHeader( int code, const QString& text = QString::null, int version = 10 );
+    QHttpResponseHeader( const QHttpResponseHeader& header );
+    QHttpResponseHeader( const QString& str );
 
-    void setReply( int code, const QString& text = QString::null, int version = 10 );
-    int replyCode() const;
-    QString replyText() const;
+    void setResponse( int code, const QString& text = QString::null, int version = 10 );
+    int statusCode() const;
+    QString reasonPhrase() const;
     int version() const;
     bool hasAutoContentLength() const;
 
@@ -165,7 +165,7 @@ public:
 	ErrHostNotFound,
 	ErrSocketRead,
 	ErrUnexpectedClose,
-	ErrInvalidReplyHeader,
+	ErrInvalidResponseHeader,
 	ErrWrongContentLength
     };
 
@@ -185,10 +185,10 @@ public:
     QIODevice* device() const;
 
 signals:
-    void reply( const QHttpReplyHeader& repl, const QByteArray& data );
-    void reply( const QHttpReplyHeader& repl, const QIODevice* device );
-    void replyChunk( const QHttpReplyHeader& repl, const QByteArray& data );
-    void replyHeader( const QHttpReplyHeader& repl );
+    void response( const QHttpResponseHeader& repl, const QByteArray& data );
+    void response( const QHttpResponseHeader& repl, const QIODevice* device );
+    void responseChunk( const QHttpResponseHeader& repl, const QByteArray& data );
+    void responseHeader( const QHttpResponseHeader& repl );
     void requestFailed( int error );
     void finished();
 
@@ -216,7 +216,7 @@ private:
     QHttpRequestHeader m_header;
     State m_state;
     bool m_readHeader;
-    QHttpReplyHeader m_reply;
+    QHttpResponseHeader m_response;
 
     int m_idleTimer;
 
@@ -239,7 +239,7 @@ protected:
     void operationPut( QNetworkOperation *op );
 
 private slots:
-    void reply( const QHttpReplyHeader & rep, const QByteArray & dataA );
+    void reply( const QHttpResponseHeader & rep, const QByteArray & dataA );
     void requestFinished();
     void requestFailed( int );
     void connected();
@@ -257,8 +257,8 @@ private:
 QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpRequestHeader& );
 QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
 
-QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpReplyHeader& );
-QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
+QM_EXPORT_HTTP QTextStream& operator>>( QTextStream&, QHttpResponseHeader& );
+QM_EXPORT_HTTP QTextStream& operator<<( QTextStream&, const QHttpResponseHeader& );
 #endif
 
 #endif
