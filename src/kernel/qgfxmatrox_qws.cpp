@@ -713,6 +713,7 @@ bool QMatroxScreen::initDevice()
 
 void QMatroxScreen::shutdownDevice()
 {
+    qt_screencursor->hide();
     QLinuxFbScreen::shutdownDevice();
 }
 
@@ -765,7 +766,6 @@ QMatroxCursor::QMatroxCursor()
 
 QMatroxCursor::~QMatroxCursor()
 {
-    matrox_regwx(XCURCTL,0);
 }
 
 void QMatroxCursor::init(SWCursorData *,bool)
