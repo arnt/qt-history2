@@ -830,13 +830,17 @@ function copyDist(packageDir, platform, edition)
 
     //check that key files are present
     var keyFiles = ["README",
-		    ".LICENSE",
-		    ".LICENSE-US",
 		    "INSTALL",
-		    "PLATFORMS",
-		    "MANIFEST"];
-    if (edition != "preview")
+		    "PLATFORMS"];
+    if (edition != "preview" || edition != "beta")
 	keyFiles.push("changes-" + options["version"]);
+    if (edition == "opensource") {
+	keyFiles.push("LICENSE.GPL");
+	keyFiles.push("LICENSE.QPL");
+    } else {
+	keyFiles.push(".LICENSE");
+	keyFiles.push(".LICENSE-US");
+    }
     for (var i in keyFiles) {
 	if (!File.exists(packageDir + "/" + keyFiles[i]))
 	    warning("Missing %1 in package.".arg(packageDir + "/" + keyFiles[i]));
