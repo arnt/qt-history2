@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#318 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#319 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1389,6 +1389,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
     if ( !tmp.isNull() )
 	emit highlighted( tmp );
     emit highlighted( tmp2 );
+    emit currentChanged( i );
 }
 
 
@@ -2191,7 +2192,7 @@ void QListBox::emitChangedSignal( bool lazy ) {
 	if ( d->selectionMode == Single )
 	    emit changedListBox->selectionChanged( item( currentItem() ) );
     }
-    
+
     changedListBox = lazy ? this : 0;
 }
 
@@ -3307,6 +3308,7 @@ void QListBox::takeItem( const QListBoxItem * item)
 	if ( !tmp.isNull() )
 	    emit highlighted( tmp );
 	emit highlighted( tmp2 );
+	emit currentChanged( i );
     }
 
     triggerUpdate( TRUE );

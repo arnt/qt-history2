@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#103 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#104 $
 **
 ** Definition of QListBox widget class
 **
@@ -180,6 +180,7 @@ signals:
 
     void selectionChanged();
     void selectionChanged( QListBoxItem * );
+    void currentChanged( QListBoxItem * );
     void clicked( QListBoxItem * );
     void clicked( QListBoxItem *, const QPoint & );
     void pressed( QListBoxItem * );
