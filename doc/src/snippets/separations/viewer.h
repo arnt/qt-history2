@@ -22,6 +22,7 @@ class QFrame;
 class QGridLayout;
 class QLabel;
 class QMenu;
+class FinalWidget;
 class ScreenWidget;
 
 class Viewer : public QMainWindow
@@ -42,19 +43,18 @@ private:
     QFrame *createCentralWidget();
     void openImageFile(QString &filePath);
 
+    FinalWidget *finalWidget;
+    int brightness;
+    QAction *currentBrightness;
     QAction *saveAction;
     QGridLayout *grid;
     QImage scaledImage;
-    QLabel *finalWidget;
+    QMap <QAction*,Brightness> menuMap;
     QMenu *brightnessMenu;
     QMenu *fileMenu;
     ScreenWidget *cyanWidget;
     ScreenWidget *magentaWidget;
     ScreenWidget *yellowWidget;
-
-    int brightness;
-    QAction *currentBrightness;
-    QMap <QAction*,Brightness> menuMap;
 };
 
 #endif

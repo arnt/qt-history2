@@ -19,11 +19,15 @@ the color to be selection via a standard dialog. The image is displayed in a
 label widget.
 */
 
+#include <QApplication>
 #include <QColorDialog>
+#include <QDrag>
 #include <QGridLayout>
 #include <QImage>
 #include <QLabel>
 #include <QMenu>
+#include <QMimeData>
+#include <QMouseEvent>
 #include <QPixmap>
 #include <QPushButton>
 #include <QWidget>
@@ -36,8 +40,8 @@ or yellow), connects the color selector and invert checkbox to functions,
 and creates a two-by-two grid layout.
 */
 
-ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor, QString name,
-                           Separation mask)
+ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor,
+                           const QString &name, Separation mask)
     : QFrame(parent)
 {
     paintColor = initialColor;
@@ -55,7 +59,6 @@ ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor, QString name,
     palette.setColor(QPalette::Button, initialColor);
     colorButton->setPalette(palette);
 
-
     invertButton = new QPushButton(tr("Invert"), this);
     //invertButton->setToggleButton(true);
     //invertButton->setOn(inverted);
@@ -65,52 +68,10 @@ ScreenWidget::ScreenWidget(QWidget *parent, QColor initialColor, QString name,
     connect(invertButton, SIGNAL(clicked()), this, SLOT(invertImage()));
 
     grid = new QGridLayout(this);
-    //grid->expand(3, 2);
     grid->addWidget(imageLabel, 0, 0, 1, 2);
     grid->addWidget(nameLabel, 1, 0);
     grid->addWidget(colorButton, 1, 1);
     grid->addWidget(invertButton, 2, 1, 1, 1);
-}
-
-/*!
-    Separate the current image into cyan, magenta, and yellow components.
-    Create a representation of how each component might appear when applied
-    to a blank white piece of paper.
-*/
-
-void ScreenWidget::setColor()
-{
-    QColor newColor = QColorDialog::getColor(paintColor);
-
-    if (newColor.isValid()) {
-        paintColor = newColor;
-        QPalette palette(colorButton->palette());
-        palette.setColor(QPalette::Button, paintColor);
-        colorButton->setPalette(palette);
-        createImage();
-        emit imageChanged();
-    }
-}
-
-/*!
-    Records the original image selected by the user, creates a color
-    separation, and enables the invert image checkbox.
-*/
-
-void ScreenWidget::setImage(QImage &image)
-{
-    originalImage = image;
-    createImage();
-    invertButton->setEnabled(true);
-}
-
-/*!
-    Returns a pointer to the modified image.
-*/
-
-QImage* ScreenWidget::image()
-{
-    return &newImage;
 }
 
 /*!
@@ -170,6 +131,15 @@ void ScreenWidget::createImage()
 }
 
 /*!
+    Returns a pointer to the modified image.
+*/
+
+QImage* ScreenWidget::image()
+{
+    return &newImage;
+}
+
+/*!
     Sets whether the amount of ink applied to the canvas is to be inverted
     (subtracted from the maximum value) before the ink is applied.
 */
@@ -180,4 +150,36 @@ void ScreenWidget::invertImage()
     inverted = !inverted;
     createImage();
     emit imageChanged();
+}
+
+/*!
+    Separate the current image into cyan, magenta, and yellow components.
+    Create a representation of how each component might appear when applied
+    to a blank white piece of paper.
+*/
+
+void ScreenWidget::setColor()
+{
+    QColor newColor = QColorDialog::getColor(paintColor);
+
+    if (newColor.isValid()) {
+        paintColor = newColor;
+        QPalette palette(colorButton->palette());
+        palette.setColor(QPalette::Button, paintColor);
+        colorButton->setPalette(palette);
+        createImage();
+        emit imageChanged();
+    }
+}
+
+/*!
+    Records the original image selected by the user, creates a color
+    separation, and enables the invert image checkbox.
+*/
+
+void ScreenWidget::setImage(QImage &image)
+{
+    originalImage = image;
+    createImage();
+    invertButton->setEnabled(true);
 }

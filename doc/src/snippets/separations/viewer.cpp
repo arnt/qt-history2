@@ -36,6 +36,7 @@ brightness of the separations.
 #include <QPixmap>
 #include <QStringList>
 
+#include "finalwidget.h"
 #include "screenwidget.h"
 #include "viewer.h"
 
@@ -116,7 +117,7 @@ QFrame* Viewer::createCentralWidget()
 
     QSize labelSize(256, 256);
 
-    finalWidget = new QLabel(frame);
+    finalWidget = new FinalWidget(frame, tr("Final image"));
     finalWidget->setMinimumSize(labelSize);
 
     cyanWidget = new ScreenWidget(frame, Qt::cyan, tr("Cyan"),

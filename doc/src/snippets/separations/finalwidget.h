@@ -10,49 +10,41 @@
 **
 ****************************************************************************/
 
-#ifndef SCREENWIDGET_H
-#define SCREENWIDGET_H
+#ifndef FINALWIDGET_H
+#define FINALWIDGET_H
 
-#include <QColor>
 #include <QFrame>
 #include <QImage>
+#include <QPoint>
 
 class QGridLayout;
 class QLabel;
-class QPushButton;
+class QMouseEvent;
 class QWidget;
 
-class ScreenWidget : public QFrame
+class FinalWidget : public QFrame
 {
     Q_OBJECT
+
 public:
-    enum Separation { Cyan, Magenta, Yellow };
+    FinalWidget(QWidget *parent, const QString &name);
+    void setPixmap(const QPixmap &pixmap);
+    const QPixmap *pixmap() const;
 
-    ScreenWidget(QWidget *parent, QColor initialColor, const QString &name,
-                 Separation mask);
-    void setImage(QImage &image);
-    QImage* image();
-
-signals:
-    void imageChanged();
-
-public slots:
-    void setColor();
-    void invertImage();
+protected:
+    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
 
 private:
     void createImage();
 
-    bool inverted;
-    QColor paintColor;
+    bool dragging;
+    bool hasImage;
     QGridLayout *grid;
-    QImage newImage;
     QImage originalImage;
     QLabel *imageLabel;
     QLabel *nameLabel;
-    QPushButton *colorButton;
-    QPushButton *invertButton;
-    Separation maskColor;
+    QPoint dragStartPosition;
 };
 
 #endif
