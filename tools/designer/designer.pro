@@ -5,6 +5,8 @@ SUBDIRS		= util \
 		   designer \
 		   editor \
 		  plugins/wizards \
-		  plugins/cppeditor
+		  plugins/cppeditor \
+		  plugins/dlg \
+		  plugins/rc
 CONFIG += ordered
 
