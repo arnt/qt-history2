@@ -463,14 +463,14 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
+             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
     d->init();
 }
 
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder)
+             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
     d->init();
     setArea(area);
@@ -620,6 +620,7 @@ void QDockWindow::setArea(QDockWindow *after, Qt::Orientation direction)
     Q_UNUSED(direction);
 }
 
+/*! \reimp */
 void QDockWindow::changeEvent(QEvent *event)
 {
     switch (event->type()) {
@@ -631,6 +632,7 @@ void QDockWindow::changeEvent(QEvent *event)
     }
 }
 
+/*! \reimp */
 void QDockWindow::childEvent(QChildEvent *event)
 {
     QWidget *child = qt_cast<QWidget *>(event->child());
@@ -644,12 +646,14 @@ void QDockWindow::childEvent(QChildEvent *event)
     }
 }
 
+/*! \reimp */
 void QDockWindow::closeEvent(QCloseEvent *event)
 {
     if (!d->closable)
         event->ignore();
 }
 
+/*! \reimp */
 bool QDockWindow::event(QEvent *event)
 {
     switch (event->type()) {
