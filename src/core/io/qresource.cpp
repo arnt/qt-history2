@@ -30,7 +30,7 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 /* ******************** QResource ***************** */
 
 /*!
-    \class QResource
+    \class QResource qresource.h
     \reentrant
 
     \brief The QResource class provides access to application resource data.
@@ -38,16 +38,14 @@ Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
     \ingroup io
     \mainclass
 
-    \l{QResource}s are created and used internally although they can
-    also be used for direct access to the application's current
-    resources. Resources must be accessed using absolute paths.
-    Compression and encryption are taken care of internally.
+    QResources are created and used internally although they can also
+    be used for direct access to the application's current resources.
+    Resources must be accessed using absolute paths. Compression and
+    encryption are taken care of internally.
 
     Use find() to find a resource. A resource has a name(), a size(),
     and either data() or children() (child resources). A resource may
     also have another resource as its parent().
-
-    \sa {resources.html}{Resource System}
 */
 
 struct QResourceNode
@@ -118,10 +116,8 @@ QResource *QResourceNode::localeResource()
             if(resource->d->lang == systemLocale.language() &&
                resource->d->country == systemLocale.country())
                 return resource;
-            if(!ret && resource->d->lang == systemLocale.language())
-                ret = resource;
-            else if(!ret && resource->d->lang == QLocale::C && //default
-                    resource->d->country == QLocale::AnyCountry)
+            if(!ret && resource->d->lang == QLocale::C && //default
+               resource->d->country == QLocale::AnyCountry)
                 ret = resource;
         }
         return ret;
@@ -281,6 +277,8 @@ QResource
 *QResource::find(const QString &resource)
 {
     if(!qt_resource_root)
+        return 0;
+    if (resource.isEmpty())
         return 0;
     if(resource[0] == QLatin1Char('/'))
         return QResourcePrivate::locateResource(resource);
@@ -451,3 +449,4 @@ QMetaResource::~QMetaResource()
     delete d_ptr;
     d_ptr = 0;
 }
+
