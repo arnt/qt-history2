@@ -129,7 +129,7 @@ bool qws_savefonts = FALSE;
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
 bool qws_accel = TRUE;	    // ### never set
-char *qws_display_spec = "LinuxFb:/dev/fb0:0";
+const char *qws_display_spec = "LinuxFb:/dev/fb0:0";
 int qws_display_id = 0;
 #ifndef QT_NO_QWS_MANAGER
 static QWSDecoration *qws_decoration = 0;
@@ -1000,7 +1000,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     qws_smoothfonts = getenv("QWS_NO_SMOOTH_FONTS") == 0;
     qws_sw_cursor = getenv("QWS_SW_CURSOR") != 0;
 
-    char *display = getenv("QWS_DISPLAY");
+    const char *display = getenv("QWS_DISPLAY");
     if ( display )
 	qws_display_spec = display;
 

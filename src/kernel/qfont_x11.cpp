@@ -1635,7 +1635,7 @@ QCString QFont_Private::bestMatchFontSetMember( const QString& family,
 		FontGuessingPair *fontGuessingPair = fontGuessingList->first();
 		while(fontGuessingPair) {
 			if( qstricmp(family, fontGuessingPair->family[0]) == 0 ) {
-				for(int i = 0; i < fontGuessingPair->family.count() - 1; i++) {
+				for(int i = 0; i < (int)fontGuessingPair->family.count() - 1; i++) {
 					char s[1024];
 					sprintf(s, "-*-%s-%s-%s-*-*-*-%d-%d-%d-*-*-%s,",
 					fontGuessingPair->family[i+1].latin1(),		

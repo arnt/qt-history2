@@ -835,8 +835,7 @@ QGroupBox * QPrintDialog::setupDestination()
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {
-	char * t;
-	t = getenv( "PRINTER" );
+	const char * t = getenv( "PRINTER" );
 	if ( !t || !*t )
 	    t = getenv( "LPDEST" );
 	dollarPrinter = QString::fromLatin1(t);
