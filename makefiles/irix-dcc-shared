@@ -59,3 +59,13 @@ diff -ur template/moc/Makefile irix-dcc-shared/moc/Makefile
  
  depend:
  	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
+@@ -75,7 +75,7 @@
+ ####### Compile the .cpp files
+ 
+ moc_gen.o: moc_gen.cpp
+-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
++	$(CC) -c -O2 -fullwarn -woff 3262,3203 -I$(INCDIR) $? -o $@
+ 
+ qbuffer.o: ../library/qbuffer.cpp
+ 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
+

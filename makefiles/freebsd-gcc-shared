@@ -19,8 +19,8 @@ diff -uwr template/library/Makefile freebsd-gcc-shared/library/Makefile
  
  # VERSION - the version number of the shared library, where applicable
  
--VERSION=0.9.8
-+VERSION=0.98
+-VERSION=0.9.9
++VERSION=0.909
  
  # Creates the library when all files have been compiled
  
