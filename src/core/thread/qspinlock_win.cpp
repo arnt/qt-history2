@@ -16,22 +16,22 @@
 #include "qt_windows.h"
 
 #ifndef QT_NO_THREAD
-void QSpinLockPrivate::initialize()
+void QSpinLock::initialize()
 {
     event = CreateEvent(0, false, false, 0);
 }
 
-void QSpinLockPrivate::cleanup()
+void QSpinLock::cleanup()
 {
     CloseHandle(event);
 }
 
-void QSpinLockPrivate::wait()
+void QSpinLock::wait()
 {
     WaitForSingleObject(event, INFINITE);
 }
 
-void QSpinLockPrivate::wake()
+void QSpinLock::wake()
 {
     SetEvent(event);
 }

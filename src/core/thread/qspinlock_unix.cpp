@@ -14,26 +14,27 @@
 #include "qspinlock_p.h"
 
 #ifndef QT_NO_THREAD
-void QSpinLockPrivate::initialize()
+void QSpinLock::initialize()
 {
     pthread_mutex_init(&mutex, 0);
     pthread_cond_init(&cond, 0);
 }
 
-void QSpinLockPrivate::cleanup()
+void QSpinLock::cleanup()
 {
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond);
 }
 
-void QSpinLockPrivate::wait()
+void QSpinLock::wait()
 {
     pthread_mutex_lock(&mutex);
-    pthread_cond_wait(&cond, &mutex);
+    while (!q_atomic_test_and_set_int(&lock, 0, ~0))
+        pthread_cond_wait(&cond, &mutex);
     pthread_mutex_unlock(&mutex);
 }
 
-void QSpinLockPrivate::wake()
+void QSpinLock::wake()
 {
     pthread_mutex_lock(&mutex);
     pthread_cond_signal(&cond);

@@ -32,36 +32,6 @@
 #include <qatomic.h>
 #include <qnamespace.h>
 
-#ifdef Q_OS_UNIX
-
-class QSpinLockPrivate
-{
-public:
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-
-    void initialize();
-    void cleanup();
-    void wait();
-    void wake();
-};
-
-#endif // Q_OS_UNIX
-
-#ifdef Q_OS_WIN
-
-class Q_CORE_EXPORT QSpinLockPrivate
-{
-public:
-    Qt::HANDLE event;
-
-    void initialize();
-    void cleanup();
-    void wait();
-    void wake();
-};
-
-#endif // Q_OS_WIN
 
 /*
   QSpinLock is similar to QMutex, except that it has *VERY* strict
@@ -72,27 +42,38 @@ class Q_CORE_EXPORT QSpinLock
 {
 public:
     inline QSpinLock()
-    { lock = waiters = 0; d.initialize(); }
+    { lock = waiters = 0; initialize(); }
     inline ~QSpinLock()
-    { d.cleanup(); }
+    { cleanup(); }
 
     inline void acquire()
     {
         q_atomic_increment(&waiters);
-        while (!q_atomic_test_and_set_int(&lock, 0, ~0))
-            d.wait();
+        if (!q_atomic_test_and_set_int(&lock, 0, ~0))
+            wait();
         q_atomic_decrement(&waiters);
     }
     inline void release()
     {
         (void) q_atomic_set_int(&lock, 0);
-        if (waiters != 0) d.wake();
+        if (waiters != 0) wake();
     }
 
 private:
     volatile int lock;
     volatile int waiters;
-    QSpinLockPrivate d;
+
+#if defined(Q_OS_UNIX)
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+#elif defined(Q_OS_WIN)
+    Qt::HANDLE event;
+#endif
+
+    void initialize();
+    void cleanup();
+    void wait();
+    void wake();
 };
 
 // QStaticSpinLock allows you to have static-global spinlocks
