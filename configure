@@ -2784,7 +2784,6 @@ elif [ "$CFG_ZLIB" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG zlib"
 elif [ "$CFG_ZLIB" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-zlib"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lz\""
 fi
 [ "$CFG_NIS" = "yes" ] && QT_CONFIG="$QT_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"

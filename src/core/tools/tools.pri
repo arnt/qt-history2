@@ -51,22 +51,22 @@ SOURCES += \
 
 #zlib support
 contains(QT_CONFIG, zlib) {
-INCLUDEPATH += ../3rdparty/zlib
-	SOURCES+= \
-		../3rdparty/zlib/adler32.c \
-		../3rdparty/zlib/compress.c \
-		../3rdparty/zlib/crc32.c \
-		../3rdparty/zlib/deflate.c \
-		../3rdparty/zlib/gzio.c \
-		../3rdparty/zlib/inffast.c \
-		../3rdparty/zlib/inflate.c \
-		../3rdparty/zlib/inftrees.c \
-		../3rdparty/zlib/trees.c \
-		../3rdparty/zlib/uncompr.c \
-		../3rdparty/zlib/zutil.c
-}
-!contains(QT_CONFIG, no-zlib):contains(QT_CONFIG, zlib) {
-	unix:LIBS += -lz
+   INCLUDEPATH += ../3rdparty/zlib
+   SOURCES+= \
+	../3rdparty/zlib/adler32.c \
+	../3rdparty/zlib/compress.c \
+	../3rdparty/zlib/crc32.c \
+	../3rdparty/zlib/deflate.c \
+	../3rdparty/zlib/gzio.c \
+	../3rdparty/zlib/inffast.c \
+	../3rdparty/zlib/inflate.c \
+	../3rdparty/zlib/inftrees.c \
+	../3rdparty/zlib/trees.c \
+	../3rdparty/zlib/uncompr.c \
+	../3rdparty/zlib/zutil.c
+} else:!contains(QT_CONFIG, no-zlib) {
+   unix:LIBS += -lz
+#  win32:LIBS += libz.lib
 }
 
 
