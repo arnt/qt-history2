@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#120 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,12 +28,20 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#120 $");
 
 
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.
-#define SafeXDestroyImage(x) { free((x)->data); (x)->data=0; XDestroyImage(x); }
+
+inline static void qSafeXDestroyImage( XImage *x )
+{
+    if ( x->data ) {
+	free( x->data );
+	x->data = 0;
+    }
+    XDestroyImage( x );
+}
 
 
 /*****************************************************************************
@@ -57,7 +65,7 @@ static void qt_cleanup_mitshm()
 	xshmpm = 0;
     }
     XShmDetach( dpy, &xshminfo );
-    SafeXDestroyImage( xshmimg );
+    qSafeXDestroyImage( xshmimg );
     xshmimg = 0;
     shmdt( xshminfo.shmaddr );
     shmctl( xshminfo.shmid, IPC_RMID, 0 );
@@ -98,7 +106,7 @@ bool qt_create_mitshm_buffer( QPaintDevice* dev, int w, int h )
     if ( ok )
 	ok = XShmAttach( dpy, &xshminfo );
     if ( !ok ) {
-	SafeXDestroyImage( xshmimg );
+	qSafeXDestroyImage( xshmimg );
 	if ( xshminfo.shmaddr )
 	    shmdt( xshminfo.shmaddr );
 	if ( xshminfo.shmid != -1 )
@@ -255,7 +263,7 @@ QPixmap::~QPixmap()
 	if ( data->mask )
 	    delete data->mask;
 	if ( data->ximage )
-	    SafeXDestroyImage( (XImage*)data->ximage );
+	    qSafeXDestroyImage( (XImage*)data->ximage );
 	if ( hd && qApp )
 	    XFreePixmap( dpy, hd );
 	delete data;
@@ -281,7 +289,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	if ( data->mask )
 	    delete data->mask;
 	if ( data->ximage )
-	    SafeXDestroyImage( (XImage*)data->ximage );
+	    qSafeXDestroyImage( (XImage*)data->ximage );
 	if ( hd )
 	    XFreePixmap( dpy, hd );
 	delete data;
@@ -349,7 +357,7 @@ void QPixmap::optimize( bool enable )
     data->optim = enable;
     data->dirty = FALSE;
     if ( data->ximage ) {
-	SafeXDestroyImage( (XImage*)data->ximage );
+	qSafeXDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
 }
@@ -481,10 +489,10 @@ QImage QPixmap::convertToImage() const
 	d = 32;					//   > 8  ==> 32
 
     if ( data->optim ) {
-	if ( !data->dirty )
+	if ( !data->dirty ) {
 	    xi = (XImage *)data->ximage;
-	else if ( data->ximage ) {
-	    SafeXDestroyImage( (XImage*)data->ximage );
+	} else if ( data->ximage ) {
+	    qSafeXDestroyImage( (XImage*)data->ximage );
 	    ((QPixmap *)this)->data->ximage = 0;
 	}
     }
@@ -720,7 +728,7 @@ QImage QPixmap::convertToImage() const
 	((QPixmap*)this)->data->dirty  = FALSE;
 	((QPixmap*)this)->data->ximage = xi;
     } else {
-	SafeXDestroyImage( xi );
+	qSafeXDestroyImage( xi );
     }
     return image;
 }
@@ -808,7 +816,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	data->mask = 0;
     }
     if ( data->ximage ) {			// throw old image data
-	SafeXDestroyImage( (XImage*)data->ximage );
+	qSafeXDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
 
@@ -1038,6 +1046,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		px->r = qRed  ( ctable[i] );
 		px->g = qGreen( ctable[i] );
 		px->b = qBlue ( ctable[i] );
+		px->n = 0;
 		px->use = pop[i];
 		if ( pop[i] > maxpop ) {	// select most popular entry
 		    maxpop = pop[i];
@@ -1147,7 +1156,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	data->dirty  = FALSE;
 	data->ximage = xi;
     } else {
-	SafeXDestroyImage( xi );
+	qSafeXDestroyImage( xi );
     }
     data->w = w;  data->h = h;	data->d = dd;
 
@@ -1357,7 +1366,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( !data->dirty )
 	    xi = (XImage*)data->ximage;
 	else if ( data->ximage ) {
-	    SafeXDestroyImage( (XImage*)data->ximage );
+	    qSafeXDestroyImage( (XImage*)data->ximage );
 	    data->ximage = 0;
 	}
     }
@@ -1556,7 +1565,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	data->dirty  = FALSE;
 	data->ximage = xi;
     } else {
-	SafeXDestroyImage( xi );
+	qSafeXDestroyImage( xi );
     }
 
     if ( depth1 ) {				// mono bitmap
@@ -1582,7 +1591,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    xi = XCreateImage( dpy, (Visual *)x11Visual(), x11Depth(),
 			       ZPixmap, 0, (char *)dptr, w, h, 32, 0 );
 	    XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
-	    SafeXDestroyImage( xi );
+	    qSafeXDestroyImage( xi );
 #if defined(MITSHM)
 	}
 #endif
