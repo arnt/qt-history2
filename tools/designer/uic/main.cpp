@@ -186,14 +186,14 @@ int main( int argc, char * argv[] )
 	fileOut.open( IO_WriteOnly, stdout );
     }
     QTextStream out( &fileOut );
-    out.setEncoding( QTextStream::UnicodeUTF8 );
 
     if ( imagecollection ) {
+	out.setEncoding( QTextStream::Latin1 );
 	Uic::embed( out, projectName, images );
 	return 0;
     }
 
-
+    out.setEncoding( QTextStream::UnicodeUTF8 );
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) )
 	qFatal( "uic: Could not open file '%s' ", fileName );

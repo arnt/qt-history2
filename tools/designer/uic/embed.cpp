@@ -75,21 +75,17 @@ static void embedData( QTextStream& out, const uchar* input, int nbytes )
 
 static void embedData( QTextStream& out, const QRgb* input, int n )
 {
-    QString s;
+    out << hex;
+    const QRgb *v = input;
     for ( int i=0; i<n; i++ ) {
-	if ( (i%14) == 0 ) {
-	    s += "\n    ";
-	    out << (const char*)s;
-	    s.truncate( 0 );
-	}
-	QRgb v = input[i];
-	s += "0x";
-	s += QString::number(v,16);
+	if ( (i%14) == 0  )
+	    out << endl << "    ";
+	out << "0x";
+	out << hex << *v++;
 	if ( i < n-1 )
-	    s += ',';
+	    out << ',';
     }
-    if ( s.length() )
-	out << (const char*)s;
+    out << dec; // back to decimal mode
 }
 
 void Uic::embed( QTextStream& out, const char* project, const QStringList& images )
