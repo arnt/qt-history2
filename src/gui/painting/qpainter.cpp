@@ -1136,6 +1136,8 @@ bool QPainter::begin(QPaintDevice *pd)
     d->engine->setRenderHint(QPainter::TextAntialiasing, true);
     ++d->device->painters;
 
+    d->engine->emulationSpecifier = 0;
+
     return true;
 }
 
@@ -2100,9 +2102,11 @@ void QPainter::drawPoint(const QPointF &p)
             pt += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
             QRectF rect(pt.x(), pt.y(), 1, 1);
-            d->draw_helper(&rect,
-                           Qt::OddEvenFill,
-                           QPainterPrivate::RectangleShape);
+            save();
+            setBrush(d->state->pen.color());
+            d->draw_helper(&rect, Qt::OddEvenFill, QPainterPrivate::RectangleShape,
+                           QPainterPrivate::FillDraw);
+            restore();
             return;
         }
     }
