@@ -2240,7 +2240,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
-	data[ (int)index + i ].d = 0;
+	data[ (int)index + i ].d.format = 0;
 	data[ (int)index + i ].isCustom = 0;
 	data[ (int)index + i ].rightToLeft = 0;
 #if defined(Q_WS_X11)
@@ -2262,10 +2262,10 @@ QTextString::~QTextString()
     for ( int i = 0; i < (int)data.count(); ++i ) {
 	if ( data[ i ].isCustom ) {
 	    delete data[ i ].customItem();
-	    if ( ( (Char::CharData*)data[ i ].d )->format )
-		( (Char::CharData*)data[ i ].d )->format->removeRef();
-	    delete (Char::CharData*)data[ i ].d;
-	    data[ i ].d = 0;
+	    if ( data[ i ].d.custom->format )
+		data[ i ].d.custom->format->removeRef();
+	    delete data[ i ].d.custom;
+	    data[ i ].d.custom = 0;
 	} else if ( data[ i ].format() ) {
 	    data[ i ].format()->removeRef();
 	}
@@ -2281,12 +2281,12 @@ void QTextString::insert( int index, Char *c )
 		 sizeof( Char ) * ( os - index ) );
     }
     data[ (int)index ].c = c->c;
-    data[ (int)index ].setFormat( c->format() );
     data[ (int)index ].x = 0;
     data[ (int)index ].lineStart = 0;
     data[ (int)index ].rightToLeft = 0;
-    data[ (int)index ].d = 0;
+    data[ (int)index ].d.format = 0;
     data[ (int)index ].isCustom = 0;
+    data[ (int)index ].setFormat( c->format() );
     textChanged = TRUE;
 }
 
@@ -2294,6 +2294,7 @@ void QTextString::truncate( int index )
 {
     index = QMAX( index, 0 );
     index = QMIN( index, (int)data.size() - 1 );
+    // ### WWA: need to destruct lost stuff?
     data.truncate( index );
     textChanged = TRUE;
 }
@@ -2303,6 +2304,7 @@ void QTextString::remove( int index, int len )
     memmove( data.data() + index, data.data() + index + len,
 	     sizeof( Char ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
+    // ### WWA: need to destruct removed stuff?
     textChanged = TRUE;
 }
 
@@ -2375,27 +2377,30 @@ void QTextDocument::updateStyles()
 void QTextString::Char::setFormat( QTextFormat *f )
 {
     if ( !isCustom ) {
-	d = (void*)f;
+	d.format = f;
+	// ### WWA: f->addRef() needed?
     } else {
-	if ( !d ) {
-	    d = new CharData;
-	    ( (CharData*)d )->custom = 0;
+	if ( !d.custom ) {
+	    d.custom = new CharData;
+	    d.custom->custom = 0;
 	}
-	( (CharData*)d )->format = f;
+	// ### WWA: d.custom->format->removeRef() needed?
+	d.custom->format = f;
+	// ### WWA: f->addRef() needed?
     }
 }
 
 void QTextString::Char::setCustomItem( QTextCustomItem *i )
 {
     if ( !isCustom ) {
-	QTextFormat *f = (QTextFormat*)d;
-	d = new CharData;
-	( (CharData*)d )->format = f;
+	QTextFormat *f = d.format;
+	d.custom = new CharData;
+	d.custom->format = f;
 	isCustom = TRUE;
     } else {
-	delete ( (CharData*)d )->custom;
+	delete d.custom->custom;
     }
-    ( (CharData*)d )->custom = i;
+    d.custom->custom = i;
 }
 
 int QTextString::width(int idx) const

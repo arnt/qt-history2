@@ -777,7 +777,7 @@ public:
     {
 	friend class QTextString;
     public:
-	Char() : lineStart( 0 ), isCustom( 0 ), d( 0 ) {} // this is never called, initialize variables in QTextString::insert()!!!
+	Char() : lineStart( 0 ), isCustom( 0 ) {d.format=0;} // this is never called, initialize variables in QTextString::insert()!!!
 	~Char();
 	QChar c;
 	uint lineStart : 1;
@@ -800,10 +800,14 @@ public:
 	};
 	
 	Char &operator=( const Char & ) {
+abort();
 	    return *this;
 	}
 
-	void *d;
+	union {
+	    CharData* custom;
+	    QTextFormat* format;
+	} d;
     };
 
     QTextString();
@@ -2416,18 +2420,18 @@ inline QTextString::Char::~Char()
     if ( format() )
 	format()->removeRef();
     if ( isCustom )
-	delete (QTextCustomItem*)d;
+	delete d.custom;
 }
 
 inline QTextFormat *QTextString::Char::format() const
 {
-    return !isCustom ? (QTextFormat*)d : ( (CharData*)d )->format;
+    return !isCustom ? d.format : d.custom->format;
 }
 
 
 inline QTextCustomItem *QTextString::Char::customItem() const
 {
-    return isCustom ? ( (CharData*)d )->custom : 0;
+    return isCustom ? d.custom->custom : 0;
 }
 
 inline int QTextString::Char::height() const
