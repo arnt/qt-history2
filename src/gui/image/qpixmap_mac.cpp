@@ -670,6 +670,18 @@ Qt::HANDLE QPixmap::macQDAlphaHandle() const
 
 Qt::HANDLE QPixmap::macCGHandle() const
 {
+    if(data->mask && !data->alpha) { //combine the mask into my image data (lazily)
+        uchar *dptr = (uchar*)data->pixels, *drow;
+        const uint dbpr = data->nbytes / data->h;
+        const unsigned short sbpr = data->mask->data->nbytes / data->mask->data->h;
+        uchar *sptr = (uchar*)data->mask->data->pixels, *srow;
+        for(int yy=0; yy < data->h; yy++) {
+            drow = dptr + (yy * dbpr);
+            srow = sptr + (yy * sbpr);
+            for(int xx=0; xx < data->w*4; xx+=4)
+                *(drow+xx) = ~*(srow+xx+1);
+        }
+    }
     return data->cg_data;
 }
 
