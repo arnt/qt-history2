@@ -677,6 +677,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	w = 1;
     if ( h < 1 )
 	h = 1;
+    QPoint oldmp = posInWindow(this);
     QPoint oldp = pos();
     QSize  olds = size();
 
@@ -696,16 +697,18 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isMove ) {
 	    QMoveEvent e( pos(), oldp );
 	    QApplication::sendEvent( this, &e );
-	    update(oldp.x(), oldp.y(), olds.width(), olds.height());
 	    update(rect());
 	}
 	if ( isResize ) {
 	    QResizeEvent e( size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    update(oldp.x(), oldp.y(), olds.width(), olds.height());
 	    update(rect());
 	}
-
+	if( isMove || isResize ) {
+	    Rect r;
+	    SetRect( &r, oldmp.x(), oldmp.y(), oldmp.x()+olds.width(), oldmp.y()+olds.height() );
+	    InvalWindowRect( (WindowRef)winId(), &r );
+	}
     } else {
 	if ( isMove ) 
 	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
