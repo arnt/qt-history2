@@ -31,7 +31,6 @@
 #include "qregion.h"
 #include "qvector.h"
 #include "qmatrix.h"
-
 #include "qpainter.h"
 #include "qpainterpath.h"
 

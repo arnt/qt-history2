@@ -52,7 +52,7 @@ public:
         Normal   = 50,
         DemiBold = 63,
         Bold     = 75,
-        Black         = 87
+        Black    = 87
     };
 
     enum Style {
@@ -335,7 +335,6 @@ inline void QFont::setItalic(bool b) {
 }
 
 
-
 /*****************************************************************************
   QFont stream functions
  *****************************************************************************/
@@ -344,6 +343,5 @@ inline void QFont::setItalic(bool b) {
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QFont &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QFont &);
 #endif
-
 
 #endif // QFONT_H

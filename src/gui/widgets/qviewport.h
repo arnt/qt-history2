@@ -26,7 +26,7 @@ class Q_GUI_EXPORT QViewport : public QFrame
     Q_PROPERTY(Qt::ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy)
 
 public:
-    QViewport(QWidget* parent=0);
+    explicit QViewport(QWidget* parent=0);
     ~QViewport();
 
     Qt::ScrollBarPolicy verticalScrollBarPolicy() const;

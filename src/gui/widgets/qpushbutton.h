@@ -29,8 +29,8 @@ class Q_GUI_EXPORT QPushButton : public QAbstractButton
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QPushButton(QWidget *parent=0);
-    QPushButton(const QString &text, QWidget *parent=0);
+    explicit QPushButton(QWidget *parent=0);
+    explicit QPushButton(const QString &text, QWidget *parent=0);
     QPushButton(const QIcon& icon, const QString &text, QWidget *parent=0);
     ~QPushButton();
 
@@ -74,4 +74,4 @@ private:
     Q_PRIVATE_SLOT(d, void popupPressed())
 };
 
-#endif
+#endif // QPUSHBUTTON_H

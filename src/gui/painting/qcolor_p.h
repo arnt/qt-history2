@@ -34,4 +34,4 @@ bool qt_get_named_rgb(const char *, QRgb*);
 bool qt_get_hex_rgb(const char *, QRgb *);
 QStringList qt_get_colornames();
 
-#endif
+#endif // QCOLOR_P_H

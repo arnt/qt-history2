@@ -51,4 +51,4 @@ public:
     void showOrHideScrollBars();
 };
 
-#endif
+#endif // QVIEWPORT_P_H

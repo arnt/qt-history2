@@ -225,4 +225,5 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
 
 #endif // QT_NO_VARIANT
+
 #endif // QVARIANT_H

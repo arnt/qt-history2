@@ -69,4 +69,4 @@ private:
     QTextOptionPrivate *d;
 };
 
-#endif
+#endif // QTEXTOPTION_H

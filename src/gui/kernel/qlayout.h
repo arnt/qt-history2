@@ -30,8 +30,8 @@ class Q_GUI_EXPORT QGridLayout : public QLayout
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGridLayout)
 public:
-    QGridLayout(QWidget *parent);
-    QGridLayout(QLayout *parentLayout);
+    explicit QGridLayout(QWidget *parent);
+    explicit QGridLayout(QLayout *parentLayout);
     QGridLayout();
 
 #ifdef QT_COMPAT
@@ -124,9 +124,9 @@ public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
                      Down = TopToBottom, Up = BottomToTop };
 
-    QBoxLayout(Direction, QWidget *parent);
-    QBoxLayout(Direction, QLayout *parentLayout);
-    QBoxLayout(Direction);
+    explicit QBoxLayout(Direction, QWidget *parent);
+    explicit QBoxLayout(Direction, QLayout *parentLayout);
+    explicit QBoxLayout(Direction);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
@@ -188,8 +188,8 @@ class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
     Q_OBJECT
 public:
     QHBoxLayout();
-    QHBoxLayout(QWidget *parent);
-    QHBoxLayout(QLayout *parentLayout);
+    explicit QHBoxLayout(QWidget *parent);
+    explicit QHBoxLayout(QLayout *parentLayout);
     ~QHBoxLayout();
 
 #ifdef QT_COMPAT
@@ -209,8 +209,8 @@ class Q_GUI_EXPORT QVBoxLayout : public QBoxLayout
     Q_OBJECT
 public:
     QVBoxLayout();
-    QVBoxLayout(QWidget *parent);
-    QVBoxLayout(QLayout *parentLayout);
+    explicit QVBoxLayout(QWidget *parent);
+    explicit QVBoxLayout(QLayout *parentLayout);
     ~QVBoxLayout();
 
 #ifdef QT_COMPAT
@@ -226,4 +226,5 @@ private:
 };
 
 #endif // QT_NO_LAYOUT
+
 #endif // QLAYOUT_H

@@ -127,4 +127,4 @@ public:
     bool clipChildren;
 };
 
-#endif
+#endif // QPAINTENGINE_QWS_P_H

@@ -305,4 +305,3 @@ private:
 };
 
 #endif // QAPPLICATION_H
-

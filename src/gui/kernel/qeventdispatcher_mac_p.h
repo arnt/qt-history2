@@ -37,7 +37,7 @@ class QEventDispatcherMac : public QEventDispatcherUNIX
     Q_DECLARE_PRIVATE(QEventDispatcherMac)
 
 public:
-    QEventDispatcherMac(QObject *parent = 0);
+    explicit QEventDispatcherMac(QObject *parent = 0);
     ~QEventDispatcherMac();
 
     bool processEvents(QEventLoop::ProcessEventsFlags flags);

@@ -84,4 +84,4 @@ Q_CORE_EXPORT HINSTANCE qWinAppPrevInst();
 Q_GUI_EXPORT int           qWinAppCmdShow();
 Q_GUI_EXPORT HDC           qt_display_dc();
 
-#endif
+#endif // QWINDOWDEFS_WIN_H

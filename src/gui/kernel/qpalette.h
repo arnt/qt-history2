@@ -189,4 +189,5 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
 #endif // QT_NO_DATASTREAM
 
 #endif // QT_NO_PALETTE
+
 #endif // QPALETTE_H

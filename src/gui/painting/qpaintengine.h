@@ -100,7 +100,7 @@ public:
         PolylineMode
     };
 
-    QPaintEngine(PaintEngineFeatures features=0);
+    explicit QPaintEngine(PaintEngineFeatures features=0);
     virtual ~QPaintEngine();
 
     bool isActive() const { return active; }
@@ -145,47 +145,41 @@ public:
     QPaintDevice *paintDevice() const;
 
     enum Type {
-        //X11
         X11,
-        //Windows
         Windows, Gdiplus,
-        //Mac
         QuickDraw, CoreGraphics, MacPrinter,
-        //QWS
         QWindowSystem,
-        // PostScript
         PostScript,
-        // OpenGL
         OpenGL,
-        // Picture
         Picture,
-        // SVG
         SVG,
 
-        User = 50,                                // first user type id
-        MaxUser = 100                                // last user type id
+        User = 50,    // first user type id
+        MaxUser = 100 // last user type id
     };
     virtual Type type() const = 0;
 
-    enum { IsActive                   = 0x00000001,
-           ExtDev                     = 0x00000002,
-           IsStartingUp               = 0x00000004,
-           NoCache                    = 0x00000008,
-           VxF                         = 0x00000010,
-           WxF                         = 0x00000020,
-           ClipOn                 = 0x00000040,
-           SafePolygon                 = 0x00000080,
-           MonoDev                 = 0x00000100,
-//            DirtyFont                  = 0x00000200,
-//            DirtyPen                 = 0x00000400,
-//            DirtyBrush                 = 0x00000800,
-           RGBColor                 = 0x00001000,
-           FontMet                 = 0x00002000,
-           FontInf                 = 0x00004000,
-           CtorBegin                 = 0x00008000,
-           UsePrivateCx           = 0x00010000,
-           VolatileDC                 = 0x00020000,
-           Qt2Compat                 = 0x00040000 };
+    enum {
+        IsActive     = 0x00000001,
+        ExtDev       = 0x00000002,
+        IsStartingUp = 0x00000004,
+        NoCache      = 0x00000008,
+        VxF          = 0x00000010,
+        WxF          = 0x00000020,
+        ClipOn       = 0x00000040,
+        SafePolygon  = 0x00000080,
+        MonoDev      = 0x00000100,
+//        DirtyFont    = 0x00000200,
+//        DirtyPen     = 0x00000400,
+//        DirtyBrush   = 0x00000800,
+        RGBColor     = 0x00001000,
+        FontMet      = 0x00002000,
+        FontInf      = 0x00004000,
+        CtorBegin    = 0x00008000,
+        UsePrivateCx = 0x00010000,
+        VolatileDC   = 0x00020000,
+        Qt2Compat    = 0x00040000
+    };
     inline bool testf(uint b) const { return (flags&b)!=0; }
     inline void setf(uint b) { flags |= b; }
     inline void clearf(uint b) { flags &= (~b); }
@@ -268,5 +262,5 @@ inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures);
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags);
-#endif // QPAINTENGINE_H
 
+#endif // QPAINTENGINE_H

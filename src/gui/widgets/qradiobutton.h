@@ -26,8 +26,8 @@ class Q_GUI_EXPORT QRadioButton : public QAbstractButton
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QRadioButton(QWidget *parent=0);
-    QRadioButton(const QString &text, QWidget *parent=0);
+    explicit QRadioButton(QWidget *parent=0);
+    explicit QRadioButton(const QString &text, QWidget *parent=0);
 
     QSize sizeHint() const;
 

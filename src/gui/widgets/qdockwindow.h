@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
 
 public:
-    QDockWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
+    explicit QDockWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~QDockWindow();
 
     QWidget *widget() const;

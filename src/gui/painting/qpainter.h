@@ -55,7 +55,7 @@ public:
     Q_DECLARE_FLAGS(RenderHints, RenderHint)
 
     QPainter();
-    QPainter(QPaintDevice *);
+    explicit QPainter(QPaintDevice *);
     ~QPainter();
 
     QPaintDevice *device() const;
@@ -763,4 +763,4 @@ inline void QPainter::drawPicture(const QPoint &pt, const QPicture &p)
 }
 #endif
 
-#endif // #ifndef QPAINTER_H
+#endif // QPAINTER_H

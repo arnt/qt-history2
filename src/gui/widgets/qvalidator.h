@@ -25,7 +25,7 @@ class Q_GUI_EXPORT QValidator : public QObject
 {
     Q_OBJECT
 public:
-    QValidator(QObject * parent);
+    explicit QValidator(QObject * parent);
     ~QValidator();
 
     enum State {
@@ -56,7 +56,7 @@ class Q_GUI_EXPORT QIntValidator : public QValidator
     Q_PROPERTY(int top READ top WRITE setTop)
 
 public:
-    QIntValidator(QObject * parent);
+    explicit QIntValidator(QObject * parent);
     QIntValidator(int bottom, int top, QObject * parent);
     ~QIntValidator();
 
@@ -92,7 +92,7 @@ class Q_GUI_EXPORT QDoubleValidator : public QValidator
     Q_PROPERTY(int decimals READ decimals WRITE setDecimals)
 
 public:
-    QDoubleValidator(QObject * parent);
+    explicit QDoubleValidator(QObject * parent);
     QDoubleValidator(double bottom, double top, int decimals, QObject * parent);
     ~QDoubleValidator();
 
@@ -127,7 +127,7 @@ class Q_GUI_EXPORT QRegExpValidator : public QValidator
     Q_OBJECT
 
 public:
-    QRegExpValidator(QObject *parent);
+    explicit QRegExpValidator(QObject *parent);
     QRegExpValidator(const QRegExp& rx, QObject *parent);
     ~QRegExpValidator();
 

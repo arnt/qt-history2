@@ -87,7 +87,7 @@ private:
     friend class QFontPrivate;
 #endif
 
-    QFontPrivate  *d;
+    QFontPrivate *d;
     int fscript;
 };
 
@@ -136,7 +136,7 @@ public:
     inline bool operator !=(const QFontMetricsF &other) { return !operator==(other); }
 
 private:
-    QFontPrivate  *d;
+    QFontPrivate *d;
     int fscript;
 };
 

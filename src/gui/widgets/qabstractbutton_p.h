@@ -60,4 +60,4 @@ public:
     void fixFocusPolicy();
 };
 
-#endif
+#endif // QABSTRACTBUTTON_P_H

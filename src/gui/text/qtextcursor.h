@@ -37,10 +37,10 @@ class Q_GUI_EXPORT QTextCursor
 {
 public:
     QTextCursor();
-    QTextCursor(QTextDocument *document);
+    explicit QTextCursor(QTextDocument *document);
     QTextCursor(QTextDocumentPrivate *p, int pos);
-    QTextCursor(QTextFrame *frame);
-    QTextCursor(const QTextBlock &block);
+    explicit QTextCursor(QTextFrame *frame);
+    explicit QTextCursor(const QTextBlock &block);
     explicit QTextCursor(QTextCursorPrivate *d);
     QTextCursor(const QTextCursor &cursor);
     QTextCursor &operator=(const QTextCursor &other);

@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
 
 public:
-    QSpinBox(QWidget *parent = 0);
+    explicit QSpinBox(QWidget *parent = 0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QSpinBox(QWidget *parent, const char *name);
     QT_COMPAT_CONSTRUCTOR QSpinBox(int min, int max, int step, QWidget *parent,
@@ -98,7 +98,7 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
 
 public:
-    QDoubleSpinBox(QWidget *parent = 0);
+    explicit QDoubleSpinBox(QWidget *parent = 0);
 
     double value() const;
 
@@ -140,4 +140,4 @@ private:
     Q_DECLARE_PRIVATE(QDoubleSpinBox)
 };
 
-#endif
+#endif // QSPINBOX_H

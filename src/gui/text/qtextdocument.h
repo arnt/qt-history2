@@ -74,8 +74,8 @@ class Q_GUI_EXPORT QTextDocument : public QObject
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
 
 public:
-    QTextDocument(QObject *parent = 0);
-    QTextDocument(const QString &text, QObject *parent = 0);
+    explicit QTextDocument(QObject *parent = 0);
+    explicit QTextDocument(const QString &text, QObject *parent = 0);
     ~QTextDocument();
 
     bool isEmpty() const;
@@ -100,7 +100,7 @@ public:
     enum FindFlag
     {
         FindCaseSensitively = 0x00001,
-        FindWholeWords = 0x00002
+        FindWholeWords      = 0x00002
         // ### more
     };
     Q_DECLARE_FLAGS(FindFlags, FindFlag)
@@ -129,10 +129,10 @@ public:
     void print(QPrinter *printer) const;
 
     enum ResourceType {
-        HtmlResource = 1,
+        HtmlResource  = 1,
         ImageResource = 2,
 
-        UserResource = 100
+        UserResource  = 100
     };
     virtual QVariant loadResource(int type, const QUrl &name);
 
@@ -161,4 +161,4 @@ private:
     Q_DECLARE_PRIVATE(QTextDocument)
 };
 
-#endif
+#endif // QTEXTDOCUMENT_H

@@ -68,4 +68,5 @@ private:
 };
 
 #endif // QT_NO_SESSIONMANAGER
+
 #endif // QSESSIONMANAGER_H

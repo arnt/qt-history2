@@ -48,4 +48,4 @@ public:
     QFont defaultFont;
 };
 
-#endif
+#endif // QABSTRACTTEXTDOCUMENTLAYOUT_P_H

@@ -95,4 +95,4 @@ private:
 
 #endif // QT_OPENTYPE
 
-#endif //QOPENTYPE_P_H
+#endif // QOPENTYPE_P_H

@@ -47,8 +47,8 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
 
 public:
-    QLineEdit(QWidget* parent=0);
-    QLineEdit(const QString &, QWidget* parent=0);
+    explicit QLineEdit(QWidget* parent=0);
+    explicit QLineEdit(const QString &, QWidget* parent=0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QLineEdit(QWidget* parent, const char* name);
     QT_COMPAT_CONSTRUCTOR QLineEdit(const QString &, QWidget* parent, const char* name);

@@ -46,4 +46,4 @@ public:
     QWidget *menubar;
 };
 
-#endif
+#endif // QLAYOUT_P_H

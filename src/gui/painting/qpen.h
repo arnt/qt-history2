@@ -25,7 +25,7 @@ public:
     QPen(const QColor &color, float width = 0, Qt::PenStyle style = Qt::SolidLine);
     QPen(const QColor &cl, float width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j);
     QPen(const QPen &pen);
-   ~QPen();
+    ~QPen();
     QPen &operator=(const QPen &pen);
 
     inline Qt::PenStyle style() const { return d->style; }

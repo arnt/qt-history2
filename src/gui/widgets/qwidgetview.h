@@ -23,7 +23,7 @@ class Q_GUI_EXPORT QWidgetView : public QViewport
     Q_OBJECT
     Q_PROPERTY(bool widgetResizable READ widgetResizable WRITE setWidgetResizable)
 public:
-    QWidgetView(QWidget* parent=0);
+    explicit QWidgetView(QWidget* parent=0);
     ~QWidgetView();
 
     QWidget *widget() const;
@@ -47,5 +47,4 @@ private:
     Q_DISABLE_COPY(QWidgetView)
 };
 
-
-#endif
+#endif // QWIDGETVIEW_H

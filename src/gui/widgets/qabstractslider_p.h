@@ -52,4 +52,4 @@ public:
     inline int bound(int val) const { return qMax(minimum, qMin(maximum, val)); }
 };
 
-#endif
+#endif // QABSTRACTSLIDER_P_H

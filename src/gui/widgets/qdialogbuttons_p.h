@@ -37,11 +37,13 @@ QDialogButtons : public QWidget
 public:
     enum Button { None=0, Accept=0x01, Reject=0x02, Help=0x04, Apply=0x08, All=0x10, Abort=0x20, Retry=0x40, Ignore=0x80 };
 #ifndef QT_NO_DIALOG
-    QDialogButtons(QDialog *parent, bool autoConnect = true, Q_UINT32 buttons = Accept | Reject,
-                   Qt::Orientation orient = Qt::Horizontal);
+    explicit QDialogButtons(QDialog *parent, bool autoConnect = true,
+                            Q_UINT32 buttons = Accept | Reject,
+                            Qt::Orientation orient = Qt::Horizontal);
 #endif // QT_NO_DIALOG
-    QDialogButtons(QWidget *parent, Q_UINT32 buttons = Accept | Reject,
-                   Qt::Orientation orient = Qt::Horizontal);
+    explicit QDialogButtons(QWidget *parent,
+                            Q_UINT32 buttons = Accept | Reject,
+                            Qt::Orientation orient = Qt::Horizontal);
     ~QDialogButtons();
 
     void setQuestionMode(bool);

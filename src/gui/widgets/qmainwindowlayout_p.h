@@ -38,7 +38,7 @@ class QMainWindowLayout : public QLayout
     Q_OBJECT
 
 public:
-    QMainWindowLayout(QMainWindow *mainwindow);
+    explicit QMainWindowLayout(QMainWindow *mainwindow);
     ~QMainWindowLayout();
 
     QLayoutItem *statusbar;
@@ -81,8 +81,6 @@ public:
     void invalidate();
 
     void removeRecursive(QDockWindow *dockwindow);
-
-
 
 
     // utility functions

@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QProgressBar : public QWidget
     Q_PROPERTY(bool textVisible READ isTextVisible WRITE setTextVisible)
 
 public:
-    QProgressBar(QWidget *parent = 0);
+    explicit QProgressBar(QWidget *parent = 0);
 
     void setMinimum(int minimum);
     int minimum() const;

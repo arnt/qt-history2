@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
     Q_PROPERTY(QStringList searchPaths READ searchPaths WRITE setSearchPaths)
 
 public:
-    QTextBrowser(QWidget* parent = 0);
+    explicit QTextBrowser(QWidget* parent = 0);
     virtual ~QTextBrowser();
 
     QUrl source() const;

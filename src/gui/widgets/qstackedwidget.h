@@ -25,7 +25,7 @@ class Q_GUI_EXPORT QStackedWidget : public QFrame
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     Q_PROPERTY(int count READ count)
 public:
-    QStackedWidget(QWidget *parent=0);
+    explicit QStackedWidget(QWidget *parent=0);
     ~QStackedWidget();
 
     int addWidget(QWidget *w);
@@ -54,5 +54,4 @@ private:
     Q_DECLARE_PRIVATE(QStackedWidget)
 };
 
-
-#endif
+#endif // QSTACKEDWIDGET_H

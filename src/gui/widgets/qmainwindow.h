@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 
 public:
-    QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
+    explicit QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~QMainWindow();
 
     Qt::IconSize iconSize() const;

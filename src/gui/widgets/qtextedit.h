@@ -82,8 +82,8 @@ public:
 #endif
     };
 
-    QTextEdit(QWidget *parent = 0);
-    QTextEdit(const QString &text, QWidget *parent = 0);
+    explicit QTextEdit(QWidget *parent = 0);
+    explicit QTextEdit(const QString &text, QWidget *parent = 0);
     virtual ~QTextEdit();
 
     void setDocument(QTextDocument *document);

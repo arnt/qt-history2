@@ -37,8 +37,8 @@ private:
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 
 public:
-    QMenu(QWidget *parent = 0);
-    QMenu(const QString &title, QWidget *parent = 0);
+    explicit QMenu(QWidget *parent = 0);
+    explicit QMenu(const QString &title, QWidget *parent = 0);
     ~QMenu();
 
 #ifdef Q_NO_USING_KEYWORD

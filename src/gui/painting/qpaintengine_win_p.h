@@ -308,4 +308,4 @@ public:
     QGdiplusPaintEngine *gdiplusEngine;
 };
 
-#endif
+#endif // QPAINTENGINE_WIN_P_H

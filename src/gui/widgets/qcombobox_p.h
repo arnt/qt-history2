@@ -222,4 +222,4 @@ public:
     QPersistentModelIndex root;
 };
 
-#endif //QCOMBOBOX_P_H
+#endif // QCOMBOBOX_P_H

@@ -40,7 +40,7 @@ class QToolBarHandle : public QWidget
     DragState *state;
 
 public:
-    QToolBarHandle(QToolBar *parent);
+    explicit QToolBarHandle(QToolBar *parent);
 
     void setOrientation(Qt::Orientation orientation);
     Qt::Orientation orientation() const;

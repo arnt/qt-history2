@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QTextList : public QTextBlockGroup
 {
     Q_OBJECT
 public:
-    QTextList(QTextDocument *doc);
+    explicit QTextList(QTextDocument *doc);
     ~QTextList();
 
     int count() const;

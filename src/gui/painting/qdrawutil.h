@@ -102,4 +102,5 @@ Q_GUI_EXPORT QT_COMPAT void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GUIS
 #endif
 
 #endif // QT_NO_DRAWUTIL
+
 #endif // QDRAWUTIL_H

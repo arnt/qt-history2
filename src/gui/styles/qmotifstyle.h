@@ -31,7 +31,7 @@ class Q_GUI_EXPORT_STYLE_MOTIF QMotifStyle : public QCommonStyle
 {
     Q_OBJECT
 public:
-    QMotifStyle(bool useHighlightCols=false);
+    explicit QMotifStyle(bool useHighlightCols=false);
     virtual ~QMotifStyle();
 
     void setUseHighlightColors(bool);

@@ -16,7 +16,6 @@
 
 #ifdef Q_OS_TEMP
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
@@ -464,4 +463,5 @@ UINT    GlobalFlags(HGLOBAL hMem);
 }        // Extern C.
 #endif
 #endif // Q_OS_TEMP
+
 #endif // QFUNCTIONS_WCE_H

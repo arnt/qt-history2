@@ -555,4 +555,4 @@ public:
     { return colorProperty(TableBackgroundColor); }
 };
 
-#endif
+#endif // QTEXTFORMAT_H

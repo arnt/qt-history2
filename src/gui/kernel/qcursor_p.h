@@ -91,4 +91,4 @@ struct QCursorData {
     static bool initialized;
 };
 
-#endif
+#endif // QCURSOR_P_H

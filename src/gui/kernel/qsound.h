@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QSOUND_H
 #define QSOUND_H
 
@@ -27,7 +28,7 @@ public:
     static bool isAvailable();
     static void play(const QString& filename);
 
-    QSound(const QString& filename, QObject* parent = 0);
+    explicit QSound(const QString& filename, QObject* parent = 0);
     ~QSound();
 
     int loops() const;
@@ -53,4 +54,4 @@ private:
 
 #endif // QT_NO_SOUND
 
-#endif
+#endif // QSOUND_H

@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QHBoxWidget : public QFrame
 {
     Q_OBJECT
 public:
-    QHBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
+    explicit QHBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
 
     void setMargin(int);
     void setSpacing(int);

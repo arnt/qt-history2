@@ -32,7 +32,7 @@ class Q_GUI_EXPORT QPrinter : public QPaintDevice
 public:
     enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution };
 
-    QPrinter(PrinterMode mode = ScreenResolution);
+    explicit QPrinter(PrinterMode mode = ScreenResolution);
    ~QPrinter();
 
     enum Orientation { Portrait, Landscape };

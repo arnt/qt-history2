@@ -96,7 +96,7 @@ class Q_GUI_EXPORT QWidgetPlugin : public QObject, public QWidgetFactoryInterfac
     Q_OBJECT
     Q_INTERFACES(QWidgetFactoryInterface:QFactoryInterface)
 public:
-    QWidgetPlugin(QObject *parent = 0);
+    explicit QWidgetPlugin(QObject *parent = 0);
     ~QWidgetPlugin();
 
     virtual QStringList keys() const = 0;
@@ -117,7 +117,7 @@ class Q_GUI_EXPORT QWidgetContainerPlugin : public QWidgetPlugin, public QWidget
     Q_OBJECT
     Q_INTERFACES(QWidgetContainerInterfacePrivate)
 public:
-    QWidgetContainerPlugin(QObject *parent = 0);
+    explicit QWidgetContainerPlugin(QObject *parent = 0);
     ~QWidgetContainerPlugin();
 
     virtual QWidget* containerOfWidget(const QString &key, QWidget *container) const;
@@ -143,4 +143,5 @@ public:
 };
 
 #endif // QT_NO_WIDGETPLUGIN
+
 #endif // QWIDGETPLUGIN_H

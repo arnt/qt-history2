@@ -37,23 +37,23 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 
 public:
     enum Section {
-	NoSection = 0x0000,
-	AMPMSection = 0x0001,
-	MSecsSection = 0x0002,
+	NoSection      = 0x0000,
+	AMPMSection    = 0x0001,
+	MSecsSection   = 0x0002,
 	SecondsSection = 0x0004,
 	MinutesSection = 0x0008,
-	HoursSection = 0x0010,
-	DaysSection = 0x0100,
-	MonthsSection = 0x0200,
-	YearsSection = 0x0400
+	HoursSection   = 0x0010,
+	DaysSection    = 0x0100,
+	MonthsSection  = 0x0200,
+	YearsSection   = 0x0400
     };
 
     Q_DECLARE_FLAGS(Sections, Section)
 
-    QDateTimeEdit(QWidget *parent = 0);
-    QDateTimeEdit(const QDateTime &dt, QWidget *parent = 0);
-    QDateTimeEdit(const QDate &d, QWidget *parent = 0);
-    QDateTimeEdit(const QTime &t, QWidget *parent = 0);
+    explicit QDateTimeEdit(QWidget *parent = 0);
+    explicit QDateTimeEdit(const QDateTime &dt, QWidget *parent = 0);
+    explicit QDateTimeEdit(const QDate &d, QWidget *parent = 0);
+    explicit QDateTimeEdit(const QTime &t, QWidget *parent = 0);
 
     QDateTime dateTime() const;
     QDate date() const;
@@ -129,4 +129,4 @@ public:
     QDateEdit(const QDate &t, QWidget *parent = 0);
 };
 
-#endif
+#endif // QDATETIMEEDIT_H

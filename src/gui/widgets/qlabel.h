@@ -34,8 +34,8 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
-    QLabel(QWidget *parent=0, Qt::WFlags f=0);
-    QLabel(const QString &text, QWidget *parent=0, Qt::WFlags f=0);
+    explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);
+    explicit QLabel(const QString &text, QWidget *parent=0, Qt::WFlags f=0);
     ~QLabel();
 
     QString text() const;
@@ -115,7 +115,6 @@ private:
 
     friend class QTipLabel;
 };
-
 
 #endif // QT_NO_LABEL
 

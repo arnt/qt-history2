@@ -214,4 +214,4 @@ private:
     QTextEngine *eng;
 };
 
-#endif
+#endif // QTEXTLAYOUT_H

@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QSplashScreen : public QWidget
 {
     Q_OBJECT
 public:
-    QSplashScreen(const QPixmap &pixmap = QPixmap(), Qt::WFlags f = 0);
+    explicit QSplashScreen(const QPixmap &pixmap = QPixmap(), Qt::WFlags f = 0);
     virtual ~QSplashScreen();
 
     void setPixmap(const QPixmap &pixmap);
@@ -53,5 +53,6 @@ private:
     Q_DISABLE_COPY(QSplashScreen)
     Q_DECLARE_PRIVATE(QSplashScreen)
 };
-#endif //QT_NO_SPLASHSCREEN
-#endif
+#endif // QT_NO_SPLASHSCREEN
+
+#endif // QSPLASHSCREEN_H

@@ -105,4 +105,4 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QPolygonF &array);
 inline void QPolygonF::translate(qReal dx, qReal dy)
 { translate(QPointF(dx, dy)); }
 
-#endif // QPOLYGONy_H
+#endif // QPOLYGON_H

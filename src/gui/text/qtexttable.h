@@ -68,7 +68,7 @@ class Q_GUI_EXPORT QTextTable : public QTextFrame
 {
     Q_OBJECT
 public:
-    QTextTable(QTextDocument *doc);
+    explicit QTextTable(QTextDocument *doc);
     ~QTextTable();
 
     void resize(int rows, int cols);
@@ -100,4 +100,4 @@ private:
     friend class QTextTableCell;
 };
 
-#endif
+#endif // QTEXTTABLE_H

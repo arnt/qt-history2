@@ -124,7 +124,7 @@ private:
 class QOleDataObject : public IDataObject
 {
 public:
-    QOleDataObject(QMimeData *mimeData);
+    explicit QOleDataObject(QMimeData *mimeData);
 
     void releaseQt();
     const QMimeData *mimeData() const;

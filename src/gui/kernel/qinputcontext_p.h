@@ -51,7 +51,7 @@ class QInputContext
 {
 public:
 #ifdef Q_WS_X11
-    QInputContext(QWidget *); // should be a toplevel widget
+    explicit QInputContext(QWidget *); // should be a toplevel widget
     ~QInputContext();
 
     void setFocus();

@@ -22,7 +22,7 @@ class Q_GUI_EXPORT QVBoxWidget : public QHBoxWidget
 {
     Q_OBJECT
 public:
-    QVBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
+    explicit QVBoxWidget(QWidget* parent=0, Qt::WFlags f=0);
 
 #ifdef QT_COMPAT
 public:
@@ -35,4 +35,4 @@ private:
 
 #endif // QT_NO_VBOX
 
-#endif // QVBOX_H
+#endif // QVBOXWIDGET_H

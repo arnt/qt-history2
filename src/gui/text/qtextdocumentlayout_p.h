@@ -37,7 +37,7 @@ class Q_GUI_EXPORT QTextDocumentLayout : public QAbstractTextDocumentLayout
     Q_DECLARE_PRIVATE(QTextDocumentLayout)
     Q_OBJECT
 public:
-    QTextDocumentLayout(QTextDocument *doc);
+    explicit QTextDocumentLayout(QTextDocument *doc);
 
     // from the abstract layout
     void draw(QPainter *painter, const PaintContext &context);

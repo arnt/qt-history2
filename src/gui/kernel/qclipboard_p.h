@@ -95,4 +95,4 @@ inline QMimeSourceWrapper::~QMimeSourceWrapper()
     delete source;
 }
 
-#endif
+#endif // QCLIPBOARD_P_H

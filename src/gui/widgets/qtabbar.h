@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QTabBar: public QWidget
     Q_PROPERTY(int count READ count)
 
 public:
-    QTabBar(QWidget* parent=0);
+    explicit QTabBar(QWidget* parent=0);
     ~QTabBar();
 
     enum Shape { RoundedNorth, RoundedSouth, RoundedWest, RoundedEast,
@@ -106,4 +106,4 @@ private:
     Q_PRIVATE_SLOT(d, void scrollTabs())
 };
 
-#endif
+#endif // QTABBAR_H

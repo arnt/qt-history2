@@ -25,8 +25,8 @@ class Q_GUI_EXPORT QStackedLayout : public QLayout
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     QDOC_PROPERTY(int count READ count)
 public:
-    QStackedLayout(QWidget *parent);
-    QStackedLayout(QLayout *parentLayout);
+    explicit QStackedLayout(QWidget *parent);
+    explicit QStackedLayout(QLayout *parentLayout);
     ~QStackedLayout();
 
     int addWidget(QWidget *w);
@@ -60,4 +60,4 @@ private:
     Q_DISABLE_COPY(QStackedLayout)
 };
 
-#endif
+#endif // QSTACKEDLAYOUT_H

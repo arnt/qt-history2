@@ -22,7 +22,7 @@ class QStylePainter : public QPainter
 {
 public:
     inline QStylePainter() : QPainter(), widget(0), wstyle(0) {}
-    inline QStylePainter(QWidget *w) { begin(w, w); }
+    inline explicit QStylePainter(QWidget *w) { begin(w, w); }
     inline QStylePainter(QPaintDevice *pd, QWidget *w) { begin(pd, w); }
     inline bool begin(QWidget *w) { return begin(w, w); }
     inline bool begin(QPaintDevice *pd, QWidget *w) {
@@ -84,6 +84,4 @@ void QStylePainter::drawItemPixmap(const QRect &r, int flags, const QPalette &pa
     wstyle->drawItemPixmap(this, r, flags, pal, pixmap, penColor);
 }
 
-
-
-#endif
+#endif // QSTYLEPAINTER_H

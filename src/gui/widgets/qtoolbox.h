@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QToolBox : public QFrame
     Q_PROPERTY(int count READ count)
 
 public:
-    QToolBox(QWidget *parent = 0, Qt::WFlags f = 0);
+    explicit QToolBox(QWidget *parent = 0, Qt::WFlags f = 0);
     ~QToolBox();
 
     int addItem(QWidget *widget, const QString &text);
@@ -98,4 +98,5 @@ inline int QToolBox::insertItem(int index, QWidget *item, const QString &text)
 { return insertItem(index, item, QIcon(), text); }
 
 #endif // QT_NO_TOOLBOX
-#endif
+
+#endif // QTOOLBOX_H

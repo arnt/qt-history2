@@ -48,4 +48,4 @@ public:
     mutable bool dirty;
 };
 
-#endif
+#endif // QTEXTTABLE_P_H

@@ -25,8 +25,8 @@ class Q_GUI_EXPORT QTextDocumentFragment
 {
 public:
     QTextDocumentFragment();
-    QTextDocumentFragment(const QTextDocument *document);
-    QTextDocumentFragment(const QTextCursor &range);
+    explicit QTextDocumentFragment(const QTextDocument *document);
+    explicit QTextDocumentFragment(const QTextCursor &range);
     QTextDocumentFragment(const QTextDocumentFragment &rhs);
     QTextDocumentFragment &operator=(const QTextDocumentFragment &rhs);
     ~QTextDocumentFragment();

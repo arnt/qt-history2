@@ -55,4 +55,4 @@ struct q_scriptEngine {
 
 extern const q_scriptEngine qt_scriptEngines[];
 
-#endif
+#endif // QSCRIPTENGINE_P_H

@@ -93,6 +93,6 @@ static inline void qMaxExpCalc(int & max, bool &exp,
     exp = exp || boxexp;
 }
 
-#endif //QT_NO_LAYOUT
+#endif // QT_NO_LAYOUT
 
-#endif
+#endif // QLAYOUTENGINE_P_H

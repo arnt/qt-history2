@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QDrag : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDrag)
 public:
-    QDrag(QWidget *dragSource);
+    explicit QDrag(QWidget *dragSource);
     ~QDrag();
 
     enum DropAction {
@@ -68,4 +68,5 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDrag::DropActions)
-#endif
+
+#endif // QDRAG_H

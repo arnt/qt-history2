@@ -11,6 +11,9 @@
 **
 **/
 
+#ifndef QPOLYGONCLIPPER_P_H
+#define QPOLYGONCLIPPER_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -276,3 +279,5 @@ private:
     QPolygonClipperBuffer<OutType> buffer1;
     QPolygonClipperBuffer<OutType> buffer2;
 };
+
+#endif // QPOLYGONCLIPPER_P_H

@@ -43,7 +43,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
-    QAction(QObject* parent = 0);
+    explicit QAction(QObject* parent = 0);
     QAction(const QString &text, QObject* parent=0);
     QAction(const QIcon &icon, const QString &text, QObject* parent=0);
 
@@ -155,4 +155,5 @@ private:
 };
 
 #include "QtGui/qactiongroup.h" // ### remove after tech-preview 1
-#endif
+
+#endif // QACTION_H

@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QAbstractButton : public QWidget
     Q_PROPERTY(bool down READ isDown WRITE setDown DESIGNABLE false)
 
 public:
-    QAbstractButton(QWidget* parent=0);
+    explicit QAbstractButton(QWidget* parent=0);
     ~QAbstractButton();
 
     void setText(const QString &text);
@@ -117,6 +117,5 @@ private:
     Q_DISABLE_COPY(QAbstractButton)
     friend class QButtonGroup;
 };
-
 
 #endif // QABSTRACTBUTTON_H

@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QShortcut : public QObject
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(Qt::ShortcutContext context READ context WRITE setContext)
 public:
-    QShortcut(QWidget *parent);
+    explicit QShortcut(QWidget *parent);
     QShortcut(const QKeySequence& key, QWidget *parent,
               const char *member = 0, const char *ambiguousMember = 0,
               Qt::ShortcutContext context = Qt::WindowShortcut);

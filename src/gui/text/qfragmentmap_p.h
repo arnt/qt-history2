@@ -328,4 +328,4 @@ private:
     QFragmentMap& operator= (const QFragmentMap& m);
 };
 
-#endif
+#endif // QFRAGMENTMAP_P_H

@@ -38,7 +38,7 @@ class Q_GUI_EXPORT QTextImageHandler : public QObject,
     Q_OBJECT
     Q_INTERFACES(QTextObjectInterface)
 public:
-    QTextImageHandler(QObject *parent = 0);
+    explicit QTextImageHandler(QObject *parent = 0);
 
     virtual QSizeF intrinsicSize(QTextDocument *doc, const QTextFormat &format);
     virtual void drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, const QTextFormat &format);

@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QDial: public QAbstractSlider
     Q_PROPERTY(double notchTarget READ notchTarget WRITE setNotchTarget)
     Q_PROPERTY(bool notchesVisible READ notchesVisible WRITE setNotchesVisible)
 public:
-    QDial(QWidget *parent = 0);
+    explicit QDial(QWidget *parent = 0);
 
     ~QDial();
 
@@ -81,4 +81,4 @@ private:
 
 #endif  // QT_NO_DIAL
 
-#endif
+#endif // QDIAL_H

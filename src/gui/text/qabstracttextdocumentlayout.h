@@ -45,7 +45,7 @@ public:
         QRect rect;
     };
 
-    QAbstractTextDocumentLayout(QTextDocument *doc);
+    explicit QAbstractTextDocumentLayout(QTextDocument *doc);
 
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;
     virtual int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const = 0;
@@ -95,4 +95,4 @@ public:
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface, "http://trolltech.com/Qt/QTextObjectInterface")
 
-#endif
+#endif // QABSTRACTTEXTDOCUMENTLAYOUT_H

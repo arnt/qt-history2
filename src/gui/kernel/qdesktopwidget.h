@@ -65,4 +65,4 @@ private:
 #endif
 };
 
-#endif //QDESKTOPWIDGET_H
+#endif // QDESKTOPWIDGET_H

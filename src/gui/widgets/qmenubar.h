@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QMenuBar : public QWidget
     Q_PROPERTY(bool defaultUp READ isDefaultUp WRITE setDefaultUp)
 
 public:
-    QMenuBar(QWidget *parent = 0);
+    explicit QMenuBar(QWidget *parent = 0);
     ~QMenuBar();
 
 #ifdef Q_NO_USING_KEYWORD

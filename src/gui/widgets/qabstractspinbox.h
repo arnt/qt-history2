@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(QString cleanText READ cleanText)
 
 public:
-    QAbstractSpinBox(QWidget *parent = 0);
+    explicit QAbstractSpinBox(QWidget *parent = 0);
     ~QAbstractSpinBox();
 
     enum StepEnabledFlag { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };

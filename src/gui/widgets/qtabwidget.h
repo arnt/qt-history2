@@ -33,7 +33,7 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QTabWidget(QWidget *parent = 0);
+    explicit QTabWidget(QWidget *parent = 0);
     ~QTabWidget();
 
     int addTab(QWidget *widget, const QString &);

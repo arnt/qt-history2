@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QComboBox : public QWidget
     Q_PROPERTY(bool autoHide READ autoHide WRITE setAutoHide)
 
 public:
-    QComboBox(QWidget *parent = 0);
+    explicit QComboBox(QWidget *parent = 0);
     ~QComboBox();
 
     int sizeLimit() const;

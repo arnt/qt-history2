@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QActionGroup : public QObject
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
-    QActionGroup(QObject* parent);
+    explicit QActionGroup(QObject* parent);
     ~QActionGroup();
 
     QAction *addAction(QAction* a);

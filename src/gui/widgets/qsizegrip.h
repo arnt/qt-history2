@@ -23,7 +23,7 @@ class Q_GUI_EXPORT QSizeGrip : public QWidget
 {
     Q_OBJECT
 public:
-    QSizeGrip(QWidget* parent);
+    explicit QSizeGrip(QWidget *parent);
     ~QSizeGrip();
 
     QSize sizeHint() const;
@@ -39,12 +39,13 @@ protected:
     bool event(QEvent *);
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSizeGrip(QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QSizeGrip(QWidget *parent, const char *name);
 #endif
 private:
     Q_DECLARE_PRIVATE(QSizeGrip)
     Q_DISABLE_COPY(QSizeGrip)
 };
 
-#endif //QT_NO_SIZEGRIP
-#endif
+#endif // QT_NO_SIZEGRIP
+
+#endif // QSIZEGRIP_H

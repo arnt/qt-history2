@@ -34,7 +34,7 @@ class Q_GUI_EXPORT QKeySequence
 {
 public:
     QKeySequence();
-    QKeySequence(const QString &key);
+    explicit QKeySequence(const QString &key);
     QKeySequence(int k1, int k2 = 0, int k3 = 0, int k4 = 0);
     QKeySequence(const QKeySequence &ks);
     ~QKeySequence();
@@ -100,6 +100,6 @@ public:
     QKeySequence(int) {}
 };
 
-#endif //QT_NO_ACCEL
+#endif // QT_NO_ACCEL
 
-#endif
+#endif // QKEYSEQUENCE_H

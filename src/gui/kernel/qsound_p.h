@@ -48,7 +48,7 @@ class QAuServer : public QObject {
     Q_OBJECT
 
 public:
-    QAuServer(QObject* parent);
+    explicit QAuServer(QObject* parent);
     ~QAuServer();
 
     virtual void init(QSound*);

@@ -49,7 +49,7 @@ public:
 
 
     QPainterPath();
-    QPainterPath(const QPointF &startPoint);
+    explicit QPainterPath(const QPointF &startPoint);
     QPainterPath(const QPainterPath &other);
     QPainterPath &operator=(const QPainterPath &other);
     ~QPainterPath();
@@ -198,4 +198,3 @@ inline bool QPainterPath::isEmpty() const
 }
 
 #endif // QPAINTERPATH_H
-

@@ -28,8 +28,8 @@ class Q_GUI_EXPORT QCheckBox : public QAbstractButton
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QCheckBox(QWidget *parent=0);
-    QCheckBox(const QString &text, QWidget *parent=0);
+    explicit QCheckBox(QWidget *parent=0);
+    explicit QCheckBox(const QString &text, QWidget *parent=0);
 
 
     QSize sizeHint() const;

@@ -25,7 +25,7 @@ class Q_GUI_EXPORT QGridWidget : public QFrame
     Q_OBJECT
 
 public:
-    QGridWidget(int n, QWidget *parent = 0, Qt::WFlags f = 0);
+    explicit QGridWidget(int n, QWidget *parent = 0, Qt::WFlags f = 0);
     QGridWidget(int n, Qt::Orientation orientation, QWidget *parent = 0, Qt::WFlags f = 0);
 
     void setMargin(int margin);

@@ -31,7 +31,7 @@ class Q_GUI_EXPORT QTextObject : public QObject
     Q_OBJECT
 
 protected:
-    QTextObject(QTextDocument *doc);
+    explicit QTextObject(QTextDocument *doc);
     ~QTextObject();
 
     void setFormat(const QTextFormat &format);
@@ -61,7 +61,7 @@ class Q_GUI_EXPORT QTextBlockGroup : public QTextObject
     Q_OBJECT
 
 protected:
-    QTextBlockGroup(QTextDocument *doc);
+    explicit QTextBlockGroup(QTextDocument *doc);
     ~QTextBlockGroup();
 
     virtual void blockInserted(const QTextBlock &block);
@@ -89,7 +89,7 @@ class Q_GUI_EXPORT QTextFrame : public QTextObject
     Q_OBJECT
 
 public:
-    QTextFrame(QTextDocument *doc);
+    explicit QTextFrame(QTextDocument *doc);
     ~QTextFrame();
 
     void setFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
@@ -253,4 +253,4 @@ private:
 
 Q_DECLARE_TYPEINFO(QTextFragment, Q_MOVABLE_TYPE);
 
-#endif
+#endif // QTEXTOBJECT_H

@@ -43,4 +43,4 @@ public:
 
 };
 
-#endif
+#endif // QFRAME_P_H

@@ -163,7 +163,7 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 
 
 public:
-    QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
+    explicit QWidget(QWidget* parent = 0, Qt::WFlags f = 0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QWidget(QWidget* parent, const char *name, Qt::WFlags f = 0);
 #endif

@@ -32,7 +32,7 @@ class Q_GUI_EXPORT_STYLE_SGI QSGIStyle: public QMotifStyle
 {
     Q_OBJECT
 public:
-    QSGIStyle(bool useHighlightCols = false);
+    explicit QSGIStyle(bool useHighlightCols = false);
     virtual ~QSGIStyle();
 
 #if !defined(Q_NO_USING_KEYWORD)

@@ -36,7 +36,7 @@ class Q_GUI_EXPORT QToolBar : public QWidget
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 
 public:
-    QToolBar(QWidget *parent = 0);
+    explicit QToolBar(QWidget *parent = 0);
     ~QToolBar();
 
     void setMovable(bool movable = true);

@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QPSPrintEngine : public QPaintEngine, public QPrintEngine
     Q_DECLARE_PRIVATE(QPSPrintEngine)
 public:
     // QPrinter uses these
-    QPSPrintEngine(QPrinter::PrinterMode m);
+    explicit QPSPrintEngine(QPrinter::PrinterMode m);
     ~QPSPrintEngine();
 
     virtual bool begin(QPaintDevice *pdev);

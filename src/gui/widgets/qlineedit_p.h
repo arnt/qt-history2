@@ -179,4 +179,4 @@ public:
     void clipboardChanged();
 };
 
-#endif
+#endif // QLINEEDIT_P_H

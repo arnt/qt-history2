@@ -30,7 +30,7 @@ class Q_GUI_EXPORT_STYLE_CDE QCDEStyle : public QMotifStyle
     Q_OBJECT
 public:
 
-    QCDEStyle(bool useHighlightCols = false);
+    explicit QCDEStyle(bool useHighlightCols = false);
     virtual ~QCDEStyle();
 
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0,

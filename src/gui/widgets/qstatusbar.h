@@ -28,7 +28,7 @@ class Q_GUI_EXPORT QStatusBar: public QWidget
 
 public:
     QStatusBar(QWidget* parent, const char* name);
-    QStatusBar(QWidget* parent=0);
+    explicit QStatusBar(QWidget* parent=0);
     virtual ~QStatusBar();
 
     virtual void addWidget(QWidget *, int stretch = 0, bool = false);

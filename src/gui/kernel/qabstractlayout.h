@@ -31,7 +31,7 @@ class QSize;
 class Q_GUI_EXPORT QLayoutItem
 {
 public:
-    QLayoutItem(Qt::Alignment alignment = 0) : align(alignment) { }
+    explicit QLayoutItem(Qt::Alignment alignment = 0) : align(alignment) { }
     virtual ~QLayoutItem();
     virtual QSize sizeHint() const = 0;
     virtual QSize minimumSize() const = 0;
@@ -85,7 +85,7 @@ private:
 class Q_GUI_EXPORT QWidgetItem : public QLayoutItem
 {
 public:
-    QWidgetItem(QWidget *w) : wid(w) { }
+    explicit QWidgetItem(QWidget *w) : wid(w) { }
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
