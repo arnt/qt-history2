@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#405 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#406 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -957,22 +957,23 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
     POINT p;
-    HWND  win;
+    HWND  win, parent;
     QWidget *w;
     p.x = x;
     p.y = y;
     win = WindowFromPoint( p );
     if ( !win )
 	return 0;
+
     w = QWidget::find( win );
     if ( !w )
 	return 0;
-    if ( child ) {
-	HWND cwin = ChildWindowFromPoint( win, p );
-	if ( cwin && cwin != win )
-	    return QWidget::find( cwin );
-    }
 
+    if ( !child ) {
+	while ( parent = GetParent( win ) )
+	    win = parent;
+	w = QWidget::find( win );
+    }
     return w;
 }
 
@@ -1514,7 +1515,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		POINT curPos;
 		GetCursorPos( &curPos );
 
-		QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
+		QWidget* w = QApplication::widgetAt( curPos.x, curPos.y, TRUE );
 		if (w && w->testWFlags(Qt::WType_Popup))
 		    widget = (QETWidget*)w;
 	    }
@@ -2363,7 +2364,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	     && qApp->activePopupWidget() != activePopupWidget
 	     && replayPopupMouseEvent ) {
 	    // the popup dissappeared. Replay the event
-	    QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
+	    QWidget* w = QApplication::widgetAt( gpos.x, gpos.y, TRUE );
 	    if (w && !qt_blocked_modal( w ) ) {
 		if ( w->isEnabled() ) {
 		    QWidget* tw = w;
