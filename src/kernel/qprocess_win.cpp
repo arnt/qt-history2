@@ -313,7 +313,7 @@ bool QProcess::start( QStringList *env )
 	    envlist[pos++] = 0;
 	}
 	success = CreateProcessW( applicationName, commandLine,
-		0, 0, TRUE, CREATE_NO_WINDOW
+		0, 0, TRUE, ( comms==0 ? CREATE_NEW_CONSOLE : CREATE_NO_WINDOW )
 #ifndef Q_OS_TEMP
 		| CREATE_UNICODE_ENVIRONMENT
 #endif
@@ -364,7 +364,7 @@ bool QProcess::start( QStringList *env )
 	else
 	    applicationName = appName.local8Bit().data();
 	success = CreateProcessA( applicationName, args.local8Bit().data(),
-		0, 0, TRUE, DETACHED_PROCESS,
+		0, 0, TRUE, comms==0 ? CREATE_NEW_CONSOLE : DETACHED_PROCESS,
 		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
