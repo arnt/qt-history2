@@ -1,24 +1,12 @@
 REQUIRES        = opengl
 TEMPLATE	= app
 CONFIG		+= qt opengl warn_on debug
-HEADERS		= glalpha.h \ 
-		  glstencil.h \
-		  gldouble.h \
-		  gldepth.h \
-		  glaccum.h \
-		  glcontrolwidget.h \
+HEADERS		= application.h \ 
 		  glinfo.h
-SOURCES		= glalpha.cpp \
-		  glstencil.cpp \
-		  gldouble.cpp \
-		  gldepth.cpp \
-		  glaccum.cpp \
-		  glcontrolwidget.cpp \
+SOURCES		= application.cpp \
 		  main.cpp 
 unix:SOURCES	+= glinfo_x11.cpp
 win32:SOURCES   += glinfo_win.cpp
 mac:SOURCES	+= glinfo_mac.cpp
 TARGET		= gltest
 DEPENDPATH	= ../include
-INTERFACES	= gltest.ui
-unix:DEFINES		+= QT_NO_XINERAMA QT_NO_XINPUT QT_NO_XRENDER

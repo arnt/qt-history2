@@ -15,6 +15,9 @@
 #include <qstringlist.h>
 #include <qwidget.h>
 #include <qgl.h>
+#include <qdialog.h>
+class QTextView;
+class QListView;
 
 #if defined(Q_WS_WIN)
 #include <qt_windows.h>
@@ -57,7 +60,7 @@ struct visual_attribs {
 };
 #endif
 
-class GLInfo : public QGLWidget
+class GLInfo : public QDialog
 {
     Q_OBJECT
 
@@ -69,6 +72,9 @@ public:
 protected:
     QString *infotext;
     QStringList *viewlist;
+    QTextView* infoView;
+    QListView* infoList;
+    QGLWidget *glw;
 #if defined(Q_WS_X11)
     QWidget *parent;
     void print_screen_info(Display *dpy, int scrnum);

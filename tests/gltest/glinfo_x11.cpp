@@ -22,6 +22,10 @@
 #include <GL/glu.h>
 
 #include <qstring.h>
+#include <qlistview.h>
+#include <qlayout.h>
+#include <qtextview.h>
+#include <qpushbutton.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -81,7 +85,7 @@ void GLInfo::print_extension_list(const char *ext)
 
 void GLInfo::print_screen_info(Display *dpy, int scrnum)
 {
-    makeCurrent();
+    glw->makeCurrent();
 
     const char *serverVendor = glXQueryServerString(dpy, scrnum, GLX_VENDOR);
     const char *serverVersion = glXQueryServerString(dpy, scrnum, GLX_VERSION);
@@ -98,7 +102,7 @@ void GLInfo::print_screen_info(Display *dpy, int scrnum)
     const char *gluExtensions = (const char *) gluGetString((GLenum)GLU_EXTENSIONS);
 
     infotext->sprintf("%sdirect rendering: %s\n", (const char*)*infotext, 
-		      format().directRendering() ? "Yes" : "No");
+		      glw->format().directRendering() ? "Yes" : "No");
     infotext->sprintf("%sserver glx vendor string: %s\n", (const char*)*infotext, serverVendor);
     infotext->sprintf("%sserver glx version string: %s\n", (const char*)*infotext, serverVersion);
     infotext->sprintf("%sserver glx extensions:\n", (const char*)*infotext);
@@ -240,8 +244,10 @@ void GLInfo::print_visual_info(Display *dpy, int scrnum)
 }
 
 GLInfo::GLInfo(QWidget* parent, const char* name)
-    : QGLWidget(parent, name)
+    : QDialog(parent, name)
 {
+    glw = new QGLWidget( this );
+    
     infotext = new QString("GLTest:\n");
     viewlist = new QStringList();
     char *displayName = NULL;
@@ -265,6 +271,59 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
 	    printf("\n\n");
     }
   
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    infoView = new QTextView( this, "infoView" );
+    layout->addWidget( infoView, 7 );
+ 
+    infoList = new QListView( this, "infoList" );
+    infoList->addColumn( trUtf8( "Vis ID", "" ) );
+    infoList->addColumn( trUtf8( "Vis Depth", "" ) );
+    infoList->addColumn( trUtf8( "Visual Type", "" ) );
+    infoList->addColumn( trUtf8( "Transparent", "" ) );
+    infoList->addColumn( trUtf8( "buff size", "" ) );
+    infoList->addColumn( trUtf8( "level", "" ) );
+    infoList->addColumn( trUtf8( "render type", "" ) );
+    infoList->addColumn( trUtf8( "DB", "" ) );
+    infoList->addColumn( trUtf8( "stereo", "" ) );
+    infoList->addColumn( trUtf8( "R sz", "" ) );
+    infoList->addColumn( trUtf8( "G sz", "" ) );
+    infoList->addColumn( trUtf8( "B sz", "" ) );
+    infoList->addColumn( trUtf8( "A sz", "" ) );
+    infoList->addColumn( trUtf8( "aux buff", "" ) );
+    infoList->addColumn( trUtf8( "depth", "" ) );
+    infoList->addColumn( trUtf8( "stencil", "" ) );
+    infoList->addColumn( trUtf8( "R accum", "" ) );
+    infoList->addColumn( trUtf8( "G accum", "" ) );
+    infoList->addColumn( trUtf8( "B accum", "" ) );
+    infoList->addColumn( trUtf8( "A accum", "" ) );
+    infoList->addColumn( trUtf8( "MS num", "" ) );
+    infoList->addColumn( trUtf8( "MS bufs", "" ) );
+    infoList->setSelectionMode( QListView::Extended );
+    infoList->setAllColumnsShowFocus( TRUE );
+    layout->addWidget( infoList, 10 );
+    
+    QHBoxLayout *buttonLayout = new QHBoxLayout( this );
+    layout->addLayout( buttonLayout );
+    buttonLayout->addStretch();
+    
+    QPushButton *ok = new QPushButton( "Ok", this );
+    connect( ok, SIGNAL( clicked() ), this, SLOT( accept() ));
+    buttonLayout->addWidget( ok );
+    
+    int i;
+    QListViewItem *item;
+    QStringList list, listItem;
+    infoView->setText(*infotext);
+    for ( QStringList::Iterator it = viewlist->begin(); it != viewlist->end(); ++it ) {
+        i = 0;
+        item = new QListViewItem(infoList);
+        listItem = QStringList::split(" ", (*it).latin1());
+        for ( QStringList::Iterator ti = listItem.begin(); ti != listItem.end(); ++ti ) {
+            item->setText(i, (*ti).latin1());
+            i++;
+        }
+        infoList->insertItem(item);
+    }
 };
 
 QString GLInfo::getText()
