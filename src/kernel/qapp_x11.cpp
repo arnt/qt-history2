@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#93 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#92 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#93 $";
 #endif
 
 
@@ -1725,28 +1725,28 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-    if ( !parentWidget() ) {			// top level widget
-	Window child;
-	int    x, y;
-	XTranslateCoordinates( display(), id(), DefaultRootWindow(display()),
-			       0, 0, &x, &y, &child );
-	QPoint newPos( x, y );
-	QSize  newSize( event->xconfigure.width, event->xconfigure.height );
-	QRect  r = geometry();
-	if ( newSize != size() ) {		// size changed
-	    QSize oldSize = size();
-	    r.setSize( newSize );
-	    setCRect( r );
-	    QResizeEvent e( newSize, oldSize );
-	    QApplication::sendEvent( this, &e );
-	}
-	if ( newPos != geometry().topLeft() ) {
-	    QPoint oldPos = pos();
-	    r.setTopLeft( newPos );
-	    setCRect( r );
-	    QMoveEvent e( frameGeometry().topLeft(), oldPos );
-	    QApplication::sendEvent( this, &e );
-	}
+    if ( parentWidget() && !testWFlags(WType_Modal) )
+	return TRUE;				// child widget
+    Window child;
+    int    x, y;
+    XTranslateCoordinates( display(), id(), DefaultRootWindow(display()),
+			   0, 0, &x, &y, &child );
+    QPoint newPos( x, y );
+    QSize  newSize( event->xconfigure.width, event->xconfigure.height );
+    QRect  r = geometry();
+    if ( newSize != size() ) {			// size changed
+	QSize oldSize = size();
+	r.setSize( newSize );
+	setCRect( r );
+	QResizeEvent e( newSize, oldSize );
+	QApplication::sendEvent( this, &e );
+    }
+    if ( newPos != geometry().topLeft() ) {
+	QPoint oldPos = pos();
+	r.setTopLeft( newPos );
+	setCRect( r );
+	QMoveEvent e( frameGeometry().topLeft(), oldPos );
+	QApplication::sendEvent( this, &e );
     }
     return TRUE;
 }
