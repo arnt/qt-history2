@@ -90,7 +90,7 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
 }
 
 #ifdef USE_GROSS_BIG_BUFFER_THING
-char *gimme_buffer(off_t s)
+static char *gimme_buffer(off_t s)
 {
     static char *big_buffer = NULL;
     static int big_buffer_size = 0;
@@ -188,66 +188,91 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	total_size_read += have_read);
     close(file);
 
+    enum { UI_FILE, C_FILE } ftype;
+    if(fn.right(3) == ".ui")
+	ftype = UI_FILE;
+    else
+	ftype = C_FILE;
+
     for(int x = 0; x < total_size_read; x++) {
-	if(*(big_buffer + x) == '#') {
-	    x++;
-	    if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
-		x += 8;
-		char term = *(big_buffer + x);
-		if(term == '"');
-		else if(term == '<')
-		    term = '>';
-		else
-		    continue; //wtf?
+	QString inc;
+	if(ftype == C_FILE) {
+	    if(*(big_buffer + x) == '#') {
 		x++;
+		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
+		    x += 8;
+		    char term = *(big_buffer + x);
+		    if(term == '"');
+		    else if(term == '<')
+			term = '>';
+		    else
+			continue; //wtf?
+		    x++;
 
-		int inc_len;
-		for(inc_len = 0; *(big_buffer + x + inc_len) != term; inc_len++);
-		*(big_buffer + x + inc_len) = '\0';
+		    int inc_len;
+		    for(inc_len = 0; *(big_buffer + x + inc_len) != term; inc_len++);
+		    *(big_buffer + x + inc_len) = '\0';
 		
-		QString fqn, inc = big_buffer + x;
-
-		if(!stat(fndir + inc, &fst))
-		    fqn = fndir + inc;
-		else if((Option::mode == Option::WIN_MODE && inc[1] != ':') || 
-			(Option::mode == Option::UNIX_MODE && inc[0] != '/')) {
-		    bool found = FALSE;
-		    for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
-			QString dep = (*it) + QDir::separator() + inc;
-			if((found = QFile::exists(dep)))
-			    fqn = dep;
-		    }
+		    inc = big_buffer + x;
 		}
-		if(fqn.isEmpty()) {
-		    //these are some hacky heuristics it will try to do on an include
-		    //however these can be turned off at runtime, I'm not sure how
-		    //reliable these will be, most likely when problems arise turn it off
-		    //and see if they go away..
-		    if(Option::do_dep_heuristics) { //some heuristics..
-			//is it a file from a .ui?
-			int extn = inc.findRev('.');
-			if(extn != -1) {
-			    QString uip = inc.left(extn) + Option::ui_ext + "$";
-			    QStringList uil = project->variables()["INTERFACES"];
-			    for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-				if((*it).find(QRegExp(uip)) != -1) { 
-				    fqn = (*it).left((*it).length()-3) + inc.right(inc.length()-extn);
-				    break;
-				}
+	    }
+	} else if(ftype == UI_FILE) {
+	    if(*(big_buffer + x) == '<') {
+		x++;
+		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
+		    x += 8;
+		    while(*(big_buffer + (x++)) != '>');
+		    int inc_len = 0;
+		    for( ; *(big_buffer + x + inc_len) != '<'; inc_len++);
+		    *(big_buffer + x + inc_len) = '\0';
+		
+		    inc = big_buffer + x;
+		}
+	    }
+	}
+
+	if(!inc.isEmpty()) {
+	    QString fqn;
+	    if(!stat(fndir + inc, &fst))
+		fqn = fndir + inc;
+	    else if((Option::mode == Option::WIN_MODE && inc[1] != ':') || 
+		    (Option::mode == Option::UNIX_MODE && inc[0] != '/')) {
+		bool found = FALSE;
+		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
+		    QString dep = (*it) + QDir::separator() + inc;
+		    if((found = QFile::exists(dep)))
+			fqn = dep;
+		}
+	    }
+	    if(fqn.isEmpty()) {
+		//these are some hacky heuristics it will try to do on an include
+		//however these can be turned off at runtime, I'm not sure how
+		//reliable these will be, most likely when problems arise turn it off
+		//and see if they go away..
+		if(Option::do_dep_heuristics) { //some heuristics..
+		    //is it a file from a .ui?
+		    int extn = inc.findRev('.');
+		    if(extn != -1) {
+			QString uip = inc.left(extn) + Option::ui_ext + "$";
+			QStringList uil = project->variables()["INTERFACES"];
+			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
+			    if((*it).find(QRegExp(uip)) != -1) { 
+				fqn = (*it).left((*it).length()-3) + inc.right(inc.length()-extn);
+				break;
 			    }
 			}
 		    }
-		    if(!Option::do_dep_heuristics || fqn.isEmpty()) //I give up
-			continue;
 		}
-
-		fqn = Option::fixPathToTargetOS(fqn);
-		if(absolute)
-		    fileAbsolute(fqn);
-
-		if(fndeps.findIndex(fqn) == -1)
-		    fndeps.append(fqn);
+		if(!Option::do_dep_heuristics || fqn.isEmpty()) //I give up
+		    continue;
 	    }
+
+	    fqn = Option::fixPathToTargetOS(fqn);
+	    if(absolute)
+		fileAbsolute(fqn);
+
+	    if(fndeps.findIndex(fqn) == -1)
+		fndeps.append(fqn);
 	}
 	//read past new line now..
 	for( ; x < total_size_read && (*(big_buffer + x) != '\n'); x++);
@@ -635,13 +660,14 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
     QStringList &uil = project->variables()[ui];
     for(QStringList::Iterator it = uil.begin(); it != uil.end(); it++) {
 	QFileInfo fi(*it);
+	QString deps =  depends[(*it)].join(" \\\n\t\t");
 	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
 
-	t << decl << ": " << (*it) << "\n\t"
+	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
 
-	t << impl << ": " << (*it) << "\n\t"
+	t << impl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -i " << decl << " -o " << impl << endl << endl;
     }
 }
