@@ -248,6 +248,9 @@ QComboBox::QComboBox(QComboBoxPrivate &dd,
 
 void QComboBoxPrivate::init()
 {
+    QGenericListView *l = new QGenericListView(model, 0);
+    container = new ListViewContainer(l, q);
+    container->setParent(q, Qt::WType_Popup);
     q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
@@ -255,15 +258,12 @@ void QComboBoxPrivate::init()
         delegate = new MenuDelegate(model, q);
     else
         delegate = new QItemDelegate(model, q);
-    QGenericListView *l = new QGenericListView(model, 0);
     l->setItemDelegate(delegate);
-    container = new ListViewContainer(l, q);
-    container->setParent(q, Qt::WType_Popup);
-    QApplication::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
-                          q, SLOT(itemSelected(const QModelIndex &)));
-    QApplication::connect(q->listView()->selectionModel(),
-                          SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
-                          q, SLOT(emitHighlighted(const QModelIndex &)));
+    QObject::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
+                     q, SLOT(itemSelected(const QModelIndex &)));
+    QObject::connect(q->listView()->selectionModel(),
+                     SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
+                     q, SLOT(emitHighlighted(const QModelIndex &)));
 }
 
 QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
@@ -862,17 +862,19 @@ void QComboBox::changeEvent(QEvent *e)
         //### need to update scrollers etc. as well here
         break;
     case QEvent::EnabledChange:
-        if (!isEnabled())
+        if (!isEnabled() && d->container)
             d->container->hide();
         break;
     case QEvent::ApplicationPaletteChange:
     case QEvent::PaletteChange:
-        d->container->setPalette(palette());
+        if (d->container)
+            d->container->setPalette(palette());
         break;
     case QEvent::ApplicationFontChange:
     case QEvent::FontChange:
         d->sizeHint = QSize(); // invalidate size hint
-        d->container->setFont(font());
+        if (d->container)
+            d->container->setFont(font());
         if (d->lineEdit)
             d->updateLineEditGeometry();
         break;
