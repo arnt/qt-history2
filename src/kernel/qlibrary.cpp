@@ -386,8 +386,10 @@ bool QLibrary::unload( bool force )
 #endif
 		if ( force )
 		    delete info;
-		else
+		else {
+		    info->addRef();
 		    return FALSE;
+		}
 	    }
 	    info = 0;
 	}
