@@ -4,7 +4,7 @@ include( compat.qdoc )
 
 project		= QSA
 language	= Qt Script
-headerdirs	= qsa
+headers		= qsa/quickclasslist
 sourcedirs	= qsa
 outputdir	= output/qsa
 outputformats	= HTML
