@@ -4,7 +4,6 @@ Dokumentasjon:
     qvector.doc
     event-driven.html
     which/that
-    riktig bruk av X windows, eller hva som naa var riktig...
     brushe opp websidene
     dokumenter de siste noen-og-70-funksjonene
     dokumenter eksakt hva som tegnes av f.eks. drawLine (begge endepunkter)
@@ -44,9 +43,7 @@ Funksjonalitet:
 
     Multi line editor
 
-    MessageBox-funksjonalitet (YesNoCancel osv.)
-
-    Fontdatabase
+    MessageBox-funksjonalitet (YesNoCancel osv.) 
 
     Designer/Resurser
 
@@ -64,6 +61,8 @@ Funksjonalitet:
 
     Strengdatabase for flerspråklige applikasjoner
 
+    Støtte jpg og gif
+
     Støtte for å kunne sette annet enn ISO-8859-1
 
     Widget-flagg offentliggjøres og brukes for å lage rammeløse
@@ -73,6 +72,7 @@ Funksjonalitet:
 
 	font select
 	color select
+	input box
 
     Enkeltoppgaver:
 
@@ -91,11 +91,15 @@ Funksjonalitet:
     Fontmetrics: endre boundingrect til alltid aa gi samme hoeyde, lag
 	         en ny funksjon som returnerer dagens bounding rect verdi.
 
+    legge inn signalet lastTopLevelWindowClosed (ellernoesåntnoe) i
+    QApplication
+
 Bugs:
 -----
     QComboBox resize
 
     Default plassering av barnewidgets
+
 
 Ferdigstilling:
 ---------------
@@ -137,8 +141,6 @@ Ferdigstilling:
     
     Innebygget fontfamilie matching
 
-    Tilgang paa scrollbarene i QTableView
-
     QWidget::raise() og QWidget::lower maa stokke om i lista
 
     Debug utskrifter fjernes (evt. warning)
@@ -166,4 +168,11 @@ Gjort:
 	-i "hurra.h"		#include "hurra.h"
 
     QFileDialog bugen til Dan; klikker nederst og faar oeverste valgt.
+
+    printer dialogen setter ikke landscape riktig.
+
+    Tilgang paa scrollbarene i QTableView
+
+    riktig bruk av X windows, eller hva som naa var riktig...
+
 
