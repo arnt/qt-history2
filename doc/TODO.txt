@@ -155,6 +155,11 @@ QWorkspace
   More control over min/max/close buttons individually
   raise without focus
 
+Socket Multicasting (rms)
+  There was one request for a socket class where you can easily do
+  multicasting. I'm not sure if many people will need this.
+
+
 New functionality
 -----------------
 
