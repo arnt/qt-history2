@@ -250,7 +250,8 @@
 
   When writing regular expressions in C++ code, remember that C++ processes
   <tt>&#92;</tt> characters.  To match a <tt>$</tt> character, you must write
-  <tt>"\\$"</tt> in C++ source, not <tt>"\$"</tt>.
+  <tt>"\\$"</tt> in C++ source, not <tt>"\$"</tt>.  To match a <tt>&#92;</tt>
+  character, you must write <tt>"&#92;&#92;&#92;&#92;</tt>.
 
   If you want to know more about regular expressions, read Jeffrey Friedl's
   <em>Mastering Regular Expressions</em> (O'Reilly).
@@ -788,7 +789,7 @@ private:
     bool mmMinimal; // minimal matching?
     QArray<int> mmCaptured; // an array of pairs (start, len)
     QArray<int> mmCapturedNoMatch; // an array of pairs (-1, -1)
-    QArray<int> mmSuetelane; // big QArray<int> array
+    QArray<int> mmBigArray; // big QArray<int> array
     int *mmInNextStack; // is state is mmNextStack?
     int *mmCurStack; // stack of current states
     int *mmNextStack; // stack of next states
@@ -894,7 +895,7 @@ int QRegExpEngine::createState( const CharClass& cc )
     cl.insert( n, new CharClass(cc) );
     return setupState( CharClassBit | n );
 #else
-    Q_UNUSED( (CharClass&) cc );
+    Q_UNUSED( cc );
     return setupState( CharClassBit );
 #endif
 }
@@ -917,8 +918,7 @@ int QRegExpEngine::createState( int bref )
   The two following functions add a transition between all pairs of states
   (i, j) where i is fond in from, and j is found in to.
 
-  Cat-transitions are distinguished from plus-transitions for capturing
-  purposes.
+  Cat-transitions are distinguished from plus-transitions for capturing.
 */
 
 void QRegExpEngine::addCatTransitions( const QArray<int>& from,
@@ -977,7 +977,7 @@ int QRegExpEngine::anchorAlternation( int a, int b )
 }
 
 /*
-  Returns an anchors that means a AND b.
+  Returns an anchor that means a AND b.
 */
 int QRegExpEngine::anchorConcatenation( int a, int b )
 {
@@ -992,7 +992,7 @@ int QRegExpEngine::anchorConcatenation( int a, int b )
 #endif
 
 /*
-  Adds anchor a as a possible anchor between state from and state to.
+  Adds anchor a between state from and state to.
 */
 void QRegExpEngine::addAnchors( int from, int to, int a )
 {
@@ -1006,8 +1006,8 @@ void QRegExpEngine::addAnchors( int from, int to, int a )
 
 #ifndef QT_NO_REGEXP_OPTIM
 /*
-  The two following functions provide the automaton with the information
-  necessary for its matching heuristics to work.
+  The two following functions provide the engine with the information needed by
+  its matching heuristics.
 */
 
 void QRegExpEngine::setupGoodStringHeuristic( int earlyStart, int lateStart,
@@ -1211,7 +1211,7 @@ int QRegExpEngine::addLookahead( QRegExpEngine *eng, bool negative )
 
 #ifndef QT_NO_REGEXP_CAPTURE
 /*
-  We want the leftmost longest captures.
+  We want the longest leftmost captures.
 */
 bool QRegExpEngine::isBetterCapture( const int *begin1, const int *end1,
 				     const int *begin2, const int *end2 )
@@ -1297,7 +1297,7 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 /*
   The three following functions are what Jeffrey Friedl would call transmissions
   (or bump-alongs).  Using one or the other should make no difference, except
-  in running time.
+  in performance.
 */
 
 bool QRegExpEngine::goodStringMatch()
@@ -1391,7 +1391,7 @@ bool QRegExpEngine::bruteMatch()
 #endif
 
 /*
-  Here's the core of the engine.
+  Here's the core of the engine.  It tries to do a match here and now.
 */
 bool QRegExpEngine::matchHere()
 {
@@ -2479,9 +2479,9 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
 #else
     mmSlideTabSize = 0;
 #endif
-    mmSuetelane.resize( (3 + 4 * ncap) * ns + 4 * ncap + mmSlideTabSize );
+    mmBigArray.resize( (3 + 4 * ncap) * ns + 4 * ncap + mmSlideTabSize );
 
-    mmInNextStack = mmSuetelane.data();
+    mmInNextStack = mmBigArray.data();
     memset( mmInNextStack, -1, ns * sizeof(int) );
     mmCurStack = mmInNextStack + ns;
     mmNextStack = mmInNextStack + 2 * ns;
@@ -2591,6 +2591,7 @@ void QRegExpEngine::parseFactor( Box *box )
 #else
     static const int atom = 0;
 #endif
+
 #ifndef QT_NO_REGEXP_INTERVAL
 #define YYREDO() \
 	yyIn = in, yyPos0 = pos0, yyPos = pos, yyLen = len, yyCh = ch, \
@@ -3061,8 +3062,8 @@ int QRegExp::match( const QString& str, int index, int *len,
 
 /*!
   Attempts to find a match in \a str from position \a start (0 by default).  If
-  \a start is -1, the search starts at the last character; if -2,
-  at the next to last character; etc.
+  \a start is -1, the search starts at the last character; if -2, at the next to
+  last character; etc.
 
   Returns the position of the first match, or -1 if there was no match.
 
