@@ -66,7 +66,11 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
     hostent ent;
     hostent *result;
     int err;
+#if defined (Q_OS_TRU64)
+    if ((result = gethostbyname(hostName.latin1())) != 0) {
+#else
     if (gethostbyname_r(hostName.latin1(), &ent, auxbuf, sizeof(auxbuf), &result, &err) == 0) {
+#endif
         if (ent.h_addrtype == AF_INET) {
             for (char **p = ent.h_addr_list; *p != 0; p++) {
                 QHostAddress addr(ntohl(*((long *)*p)));
@@ -84,6 +88,11 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         results.d->err = QDnsHostInfo::UnknownError;
         results.d->errorStr = QString::fromLocal8Bit(hstrerror(h_errno));
     }
+
+#if defined (Q_OS_TRU64)
+    endhostent();
+#endif
+
 #endif //  !defined (QT_NO_GETADDRINFO)
 
 #if defined(QDNS_DEBUG)
