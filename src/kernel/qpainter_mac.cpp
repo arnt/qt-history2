@@ -50,7 +50,6 @@
 #include "qt_mac.h"
 #include <qstack.h>
 #include <qtextcodec.h>
-#include <qimage.h>
 
 const int TxNone=0;
 const int TxTranslate=1;
@@ -296,31 +295,22 @@ void QPainter::updateBrush()
     brush_style_pix = 0;
     int bs = cbrush.style();
     if( bs >= Dense1Pattern && bs <= DiagCrossPattern ) {
-	uchar *pat=pat_tbl[ bs-Dense1Pattern ];
-	int d = 0;
-	if(bs<=Dense7Pattern)
-	    d=8;
-	else if (bs<=CrossPattern)
-	    d=24;
-	else
-	    d=16;
-
 	QString key;
 	key.sprintf( "$qt-brush$%d", bs );
 	brush_style_pix = QPixmapCache::find( key );
 	if ( !brush_style_pix ) {                        // not already in pm dict
+	    uchar *pat=pat_tbl[ bs-Dense1Pattern ];
+	    int d = 16;
+	    if(bs<=Dense7Pattern)
+		d=8;
+	    else if (bs<=CrossPattern)
+		d=24;
 	    brush_style_pix = new QPixmap( d, d );
 	    Q_CHECK_PTR( brush_style_pix );
-
-	    QImage i(pat, d, d, 1, NULL, 2, QImage::LittleEndian);
-	    i.setColor( 0, qRgba(255,255,255, 0) );
-	    i.setColor( 1, qRgba(0,0,0, 0) );
-	    QBitmap bitmap;
-	    bitmap = i;
-	    brush_style_pix->setMask(bitmap);
+	    brush_style_pix->setMask(QBitmap( d, d, pat, FALSE ));
 	    QPixmapCache::insert( key, brush_style_pix );
 	}
-	brush_style_pix->fill(black);
+	brush_style_pix->fill(cbrush.color());
     } 
 }
 
