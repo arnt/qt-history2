@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#87 $
+** $Id: //depot/qt/main/src/tools/qstring.h#88 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -151,7 +151,7 @@ class QRegExp;
 class Q_EXPORT QChar {
 public:
     // The alternatives just avoid order-of-construction warnings.
-#if defined(_WS_X11_) || defined(_WS_WIN_BYTESWAP_)
+#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
     QChar() : row(0), cell(0) { }
     QChar( char c ) : row(0), cell(c) { }
     QChar( uchar c ) : row(0), cell(c) { }
@@ -197,13 +197,13 @@ public:
     friend int operator>( const QChar& c, char ch );
     friend int operator>( char ch, const QChar& c );
 
-#if defined(_WS_X11_) || defined(_WS_WIN_BYTESWAP_)
-    // XChar2b on X11, ushort on _WS_WIN_BYTESWAP_
+#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
+    // XChar2b on X11, ushort on(_OS_WIN32_BYTESWAP_
     uchar row;
     uchar cell;
     enum { networkOrdered = 1 };
 #else
-    // ushort on _WS_WIN_
+    // ushort on _OS_WIN32_
     uchar cell;
     uchar row;
     enum { networkOrdered = 0 };
@@ -815,7 +815,7 @@ Q_EXPORT inline QCString operator+( char c1, const QCString &s2 )
     return tmp;
 }
 
-#if defined(_WS_WIN_)
+#if defined(_OS_WIN32_)
 extern Q_EXPORT QString qt_winQString(void*);
 extern Q_EXPORT const void* qt_winTchar(const QString& str, bool addnul);
 extern Q_EXPORT void* qt_winTchar_new(const QString& str);

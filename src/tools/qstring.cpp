@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#152 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#153 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -4145,7 +4145,7 @@ QConstString::~QConstString()
 */
 
 
-#if defined(_WS_WIN_)
+#if defined(_OS_WIN32_)
 
 #include <windows.h>
 
@@ -4162,7 +4162,7 @@ const void* qt_winTchar(const QString& str, bool addnul)
 
 #define EXTEND if (str.length() > buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
 
-#if defined(_WS_WIN_BYTESWAP_)
+#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
     EXTEND
     for ( int i=str.length(); i--; )
 	buf[i] = uc[i].row << 8 | uc[i].cell;
@@ -4207,7 +4207,7 @@ QString qt_winQString(void* tc)
     int len=0;
     while ( ((TCHAR*)tc)[len] )
 	len++;
-#if defined(_WS_WIN_BYTESWAP_)
+#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
     QString r;
     for ( int i=0; i<len; i++ )
 	r += QChar(((TCHAR*)tc)[i]&0xff,((TCHAR*)tc)[i]>>8);
@@ -4222,4 +4222,4 @@ QString qt_winQString(void* tc)
 #endif
 }
 
-#endif // _WS_WIN_
+#endif // _OS_WIN32_
