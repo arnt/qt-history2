@@ -911,7 +911,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar,
 	tb->oldDock = edge;
 	tb->oldIndex = dl->findRef( tb );
     }
-    triggerLayout( FALSE );
+    triggerLayout();
 }
 
 
@@ -1000,6 +1000,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     QMainWindowPrivate::ToolBar * ct;
     ct = d->takeToolBarFromDock( toolBar );
 
+    bool recalc = FALSE;
     if ( ct ) {
 	setDockEnabled( edge, TRUE );
 	setDockEnabled( toolBar, edge, TRUE );
@@ -1033,7 +1034,8 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    if ( edge != Hidden ) {
 		ct->oldDock = edge;
 		ct->oldIndex = dl->findRef( ct );
-	    }
+	    } else
+		recalc = TRUE;
 	    delete ct;
 	    return;
 	}
@@ -1062,7 +1064,8 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	if ( edge != Hidden ) {
 	    ct->oldDock = edge;
 	    ct->oldIndex = dl->findRef( ct );
-	}
+	} else
+	    recalc = TRUE;
     } else {
 	addToolBar( toolBar, edge, nl );
 	QMainWindowPrivate::ToolBarDock *dummy;
@@ -1075,7 +1078,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	}
     }
 
-    triggerLayout( edge == Hidden );
+    triggerLayout();
 }
 
 /*!
@@ -1288,15 +1291,15 @@ void QMainWindow::setUpLayout()
     if ( style() == WindowsStyle )
 	d->tll->addSpacing( 1 );
 
+    d->tll->addWidget( d->hideDock );
+    d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
+    d->tll->addSpacing( 1 );
     if ( d->hidden && !d->hidden->isEmpty() ) {
-	d->tll->addWidget( d->hideDock );
-	d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
 	d->hideDock->show();
 	QMainWindowPrivate::ToolBar *tb;
 	for ( tb = d->hidden->first(); tb; tb = d->hidden->next() )
 	    tb->t->hide();
 	d->hideDock->repaint( TRUE );
-	d->tll->addSpacing( 1 );
     } else {
 	d->hideDock->hide();
     }
@@ -1595,8 +1598,17 @@ bool QMainWindow::rightJustification() const
 
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
-    //    deleteLayout = TRUE; //############## Reggie did this. Why?
-    if ( deleteLayout ) {
+    if ( !deleteLayout ) {
+	if ( d->hidden && !d->hidden->isEmpty() ) {
+	    d->hideDock->show();
+	    QMainWindowPrivate::ToolBar *tb;
+	    for ( tb = d->hidden->first(); tb; tb = d->hidden->next() )
+		tb->t->hide();
+	    d->hideDock->repaint( TRUE );
+	} else {
+	    d->hideDock->hide();
+	}
+    } else {
 	delete d->tll;
 	d->tll = 0;
 	if ( isVisible() )
