@@ -542,6 +542,18 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
     return ret;
 }
 
+bool qt_mac_can_clickThrough(const QWidget *w)
+{
+    // Idea here is that if a parent doesn't have a clickthrough property,
+    // neither can it's child
+    while (w) {
+	if (w->testAttribute(Qt::WA_MacNoClickThrough))
+	    return false;
+	w = w->parentWidget();
+    }
+    return true;
+}
+
 bool qt_mac_is_macdrawer(const QWidget *w)
 {
 #if 1

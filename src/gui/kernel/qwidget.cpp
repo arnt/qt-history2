@@ -2686,23 +2686,6 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
     d->propagatePaletteChange();
 }
 
-
-#if defined(Q_WS_MAC)
-static inline bool qt_mac_can_clickThrough(const QWidget *w)
-{
-    // Idea here is that if a parent doesn't have a clickthrough property,
-    // neither can it's child
-    while (w) {
-	if (w->testAttribute(Qt::WA_MacNoClickThrough))
-	    return false;
-	w = w->parentWidget();
-    }
-    return true;
-}
-#endif
-
-
-
 /*!
     \property QWidget::palette
     \brief the widget's palette
@@ -2716,16 +2699,19 @@ static inline bool qt_mac_can_clickThrough(const QWidget *w)
 */
 const QPalette &QWidget::palette() const
 {
-    if (!isEnabled())
+    if (!isEnabled()) {
         data->pal.setCurrentColorGroup(QPalette::Disabled);
-    else if (!isVisible() || isActiveWindow())
+    } else if (!isVisible() || isActiveWindow()) {
         data->pal.setCurrentColorGroup(QPalette::Active);
+    } else {
 #ifdef Q_WS_MAC
-    else if (qt_mac_can_clickThrough(this))
-        data->pal.setCurrentColorGroup(QPalette::Active);
+        extern bool qt_mac_can_clickThrough(const QWidget *); //qwidget_mac.cpp
+        if (qt_mac_can_clickThrough(this))
+            data->pal.setCurrentColorGroup(QPalette::Active);
+        else
 #endif
-    else
-        data->pal.setCurrentColorGroup(QPalette::Inactive);
+            data->pal.setCurrentColorGroup(QPalette::Inactive);
+    }
     return data->pal;
 }
 

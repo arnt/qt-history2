@@ -139,6 +139,7 @@ inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern bool qt_mac_can_clickThrough(const QWidget *); //qwidget_mac.cpp
 extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
@@ -1435,15 +1436,10 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                     HIViewRef child;
                     const HIPoint hiPT = CGPointMake(pt->h - widget->geometry().x(), pt->v - widget->geometry().y());
                     if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &hiPT, true, &child) == noErr && child) {
-                        for(QWidget *child_widget = QWidget::find((WId)child); child_widget;
-                            child_widget = child_widget->parentWidget()) {
-                            if(child_widget->testAttribute(Qt::WA_MacNoClickThrough)) {
-                                if(mouse_down_unhandled)
-                                    (*mouse_down_unhandled) = true;
-                                return false;
-                            }
-                            if(child_widget == widget)
-                                break;
+                        if(!qt_mac_can_clickThrough(QWidget::find((WId)child))) {
+                            if(mouse_down_unhandled)
+                                (*mouse_down_unhandled) = true;
+                            return false;
                         }
                     }
                 }
