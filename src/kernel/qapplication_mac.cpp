@@ -815,10 +815,11 @@ struct key_sym
 
 static key_sym modifier_syms[] = {
 { shiftKey, Qt::ShiftButton, "Qt::Shift" },
-{ controlKey, Qt::AltButton, "Qt::AltButton" },
-{ rightControlKey, Qt::AltButton, "Qt::AltButton" },
-{ optionKey, Qt::ControlButton, "Qt::ControlButton" },
-{ rightOptionKey, Qt::ControlButton, "Qt::ControlButton" },
+{ controlKey, Qt::ControlButton, "Qt::ControlButton" },
+{ rightControlKey, Qt::ControlButton, "Qt::ControlButton" },
+{ cmdKey, Qt::ControlButton, "Qt::ControlButton" },
+{ optionKey, Qt::AltButton, "Qt::AltButton" },
+{ rightOptionKey, Qt::AltButton, "Qt::AltButton" },
 {   0, 0, NULL }
 };
 static int get_modifiers(int key)
@@ -854,11 +855,11 @@ static int get_key(int key)
 {
     for(int i = 0; key_syms[i].desc; i++) {
 	if(key_syms[i].mac_code == key) {
-//	    qDebug("got key: %s", key_syms[i].desc);
+	    qDebug("got key: %s", key_syms[i].desc);
 	    return key_syms[i].qt_code;
 	}
     }
-//    qDebug("Falling back to ::%d::", key);
+    qDebug("Falling back to ::%d::", key);
     return key;
 }
 
@@ -1292,18 +1293,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 
 #ifdef QMAC_QMENUBAR_NATIVE //In native menubar mode we offer the event to the menubar first..
+	char upchr = toupper(chr);
 	if(etype == QEvent::KeyPress) {
-#if 0
-	    EventRecord erec;
-	    erec.what = keyDown;
-	    erec.modifiers = modif;;
-	    erec.message = chr;
-	    long mi = MenuEvent(&erec);
-#else
-	    long mi = MenuKey(chr);
-#endif
-	    if(mi) {
-		QMenuBar::activate(mi);
+	    MenuRef menu;
+	    MenuItemIndex idx;
+	    if(IsMenuKeyEvent(NULL, event, kNilOptions, &menu, &idx)) {
+		QMenuBar::activate((((short)menu) << 16) | ((short)idx));
 		break;
 	    } 
 	}

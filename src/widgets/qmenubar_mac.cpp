@@ -109,18 +109,17 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 			k = QAccel::stringToKey(accel);
 
 		    if( k != Qt::Key_unknown ) {
-			char mod = 0, charcode = 0;
-			if ( (k & Qt::CTRL) == Qt::CTRL ) 
-			    mod |= controlKey;
+			char mod = 0;
+			if ( (k & Qt::CTRL) != Qt::CTRL ) 
+			    mod |= kMenuNoCommandModifier;
 			if ( (k & Qt::ALT) == Qt::ALT ) 
-			    mod |= optionKey;
+			    mod |= kMenuOptionModifier;
 			if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
-			    mod |= shiftKey;
-			k &= ~(Qt::SHIFT | Qt::CTRL | Qt::ALT);
-			charcode = toupper((char)k);
-			if(charcode >= 'A' && charcode <= 'Z') {
+			    mod |= kMenuShiftModifier;
+			char keycode = (char) (k & (~(Qt::SHIFT | Qt::CTRL | Qt::ALT)));
+			if(toupper(keycode) >= 'A' && toupper(keycode) <= 'Z') {
 			    SetMenuItemModifiers(ret, id, mod);
-			    SetItemCmd(ret, id, charcode);
+			    SetItemCmd(ret, id, keycode );
 			}
 		    }
 		}
