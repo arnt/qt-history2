@@ -4,6 +4,7 @@
 #include <qtextblockiterator.h>
 #include <qtextlist.h>
 #include <qtexttable.h>
+#include <qdatastream.h>
 
 #include <qstring.h>
 #include <qfontmetrics.h>
@@ -77,7 +78,7 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 
 QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop)
 {
-    stream << Q_INT32(prop.type);
+    stream <<(Q_INT32(prop.type));
 
     switch (prop.type) {
         case QTextFormat::Undefined: break;

@@ -6,6 +6,7 @@
 #include <qmap.h>
 #include <qpointer.h>
 #include <qvarlengtharray.h>
+#include <qdatastream.h>
 
 #include "qtextdocument.h"
 #include "qtexthtmlparser_p.h"
