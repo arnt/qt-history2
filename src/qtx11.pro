@@ -1,5 +1,5 @@
 TEMPLATE    =	lib
-CONFIG	    =	qt x11inc warn_on release
+CONFIG      =	qt warn_on release
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
 		dialogs/qprndlg.h \
@@ -140,6 +140,7 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		kernel/qlayout.cpp \
 		kernel/qmetaobj.cpp \
 		kernel/qmovie.cpp \
+		kernel/qnpsupport.cpp \
 		kernel/qobject.cpp \
 		kernel/qpainter.cpp \
 		kernel/qpalette.cpp \
@@ -212,4 +213,4 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtooltip.cpp
 TARGET      =	qt
 VERSION     =	1.3
-DESTDIR	    =	../lib
+DESTDIR     =	../lib
