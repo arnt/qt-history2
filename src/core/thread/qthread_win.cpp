@@ -196,7 +196,7 @@ void QThread::start(Priority priority)
     int prio;
     switch (priority) {
     case IdlePriority:
-	if (QSysInfo::WindowsVersion & Qt::WV_DOS_based) {
+	if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
 	    prio = THREAD_PRIORITY_LOWEST;
 	} else {
 	    prio = THREAD_PRIORITY_IDLE;
@@ -224,7 +224,7 @@ void QThread::start(Priority priority)
         break;
 
     case TimeCriticalPriority:
-	if (QSysInfo::WindowsVersion & Qt::WV_DOS_based) {
+	if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
 	    prio = THREAD_PRIORITY_HIGHEST;
 	} else {
 	    prio = THREAD_PRIORITY_TIME_CRITICAL;
