@@ -25,10 +25,14 @@
 #include "cppbrowser.h"
 #include <parenmatcher.h>
 #include <qsettings.h>
+#include <qpopupmenu.h>
+#include <qinputdialog.h>
+#include <designerinterface.h>
 
-CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
-    : Editor( fn, parent, name )
+CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, DesignerInterface *i )
+    : Editor( fn, parent, name ), dIface( i )
 {
+    dIface->addRef();
     document()->setPreProcessor( new SyntaxHighlighter_CPP );
     document()->setIndent( new Indent_CPP );
     completion = new CppEditorCompletion( this );
@@ -37,6 +41,11 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name )
     while ( SyntaxHighlighter_CPP::keywords[ i ] != QString::null )
 	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ i++ ], 0, FALSE );
     configChanged();
+}
+
+CppEditor::~CppEditor()
+{
+    dIface->release();
 }
 
 void CppEditor::configChanged()
@@ -63,4 +72,59 @@ void CppEditor::configChanged()
     }
 
     Editor::configChanged();
+}
+
+QPopupMenu *CppEditor::createPopupMenu()
+{
+    QPopupMenu *m = Editor::createPopupMenu();
+    m->insertSeparator();
+    m->insertItem( tr( "Add Include File (in Declaration)..." ), this, SLOT( addInclDecl() ) );
+    m->insertItem( tr( "Add Include File (in Implementation)..." ), this, SLOT( addInclImpl() ) );
+    m->insertItem( tr( "Add Forward Declaration..." ), this, SLOT( addForward() ) );
+    m->insertItem( tr( "Add Class Variable..." ), this, SLOT( addVar() ) );
+    return m;
+}
+
+void CppEditor::addInclDecl()
+{
+    QString s = QInputDialog::getText( tr( "Add Include File (In Declaration)" ),
+				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
+    if ( s.isEmpty() )
+	return;
+    DesignerFormWindow *form = dIface->currentForm();
+    QStringList lst = form->declarationIncludes();
+    lst << s;
+    form->setDeclarationIncludes( lst );
+}
+
+void CppEditor::addInclImpl()
+{
+    QString s = QInputDialog::getText( tr( "Add Include File (In Implementation)" ),
+				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
+    if ( s.isEmpty() )
+	return;
+    DesignerFormWindow *form = dIface->currentForm();
+    QStringList lst = form->implementationIncludes();
+    lst << s;
+    form->setImplementationIncludes( lst );
+}
+
+void CppEditor::addForward()
+{
+    QString s = QInputDialog::getText( tr( "Add Forward Declaration" ),
+				       tr( "You should input that in the form <b>ClassName;</b>" ) );
+    DesignerFormWindow *form = dIface->currentForm();
+    QStringList lst = form->forwardDeclarations();
+    lst << s;
+    form->setForwardDeclarations( lst );
+}
+
+void CppEditor::addVar()
+{
+    QString s = QInputDialog::getText( tr( "Add Class Variable" ),
+				       tr( "You should input that in the form <b>type var;</b>" ) );
+    DesignerFormWindow *form = dIface->currentForm();
+    QStringList lst = form->variables();
+    lst << s;
+    form->setVariables( lst );
 }

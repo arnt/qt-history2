@@ -25,23 +25,33 @@
 
 class EditorCompletion;
 class EditorBrowser;
+class DesignerInterface;
 
 class  CppEditor : public Editor
 {
     Q_OBJECT
 
 public:
-    CppEditor( const QString &fn, QWidget *parent, const char *name );
+    CppEditor( const QString &fn, QWidget *parent, const char *name, DesignerInterface *i );
+    ~CppEditor();
 
     virtual EditorCompletion *completionManager() { return completion; }
     virtual EditorBrowser *browserManager() { return browser; }
     void configChanged();
 
     bool supportsBreakPoints() const { return FALSE; }
+    QPopupMenu *createPopupMenu();
+
+private slots:
+    void addInclDecl();
+    void addInclImpl();
+    void addForward();
+    void addVar();
 
 protected:
     EditorCompletion *completion;
     EditorBrowser *browser;
+    DesignerInterface *dIface;
 
 };
 

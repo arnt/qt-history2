@@ -73,10 +73,10 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
 	( (EditorInterfaceImpl*)this )->viewManager->showMarkerWidget( FALSE );
-	CppEditor *e = new CppEditor( QString::null, viewManager, "editor" );
-	e->installEventFilter( this );
 	if ( iface )
 	    iface->queryInterface( IID_Designer, (QUnknownInterface**) &dIface );
+	CppEditor *e = new CppEditor( QString::null, viewManager, "editor", dIface );
+	e->installEventFilter( this );
 	connect( e, SIGNAL( intervalChanged() ), this, SLOT( intervalChanged() ) );
 	QApplication::sendPostedEvents( viewManager, QEvent::ChildInserted );
     }
@@ -210,11 +210,13 @@ void EditorInterfaceImpl::indent()
 
 void EditorInterfaceImpl::splitView()
 {
+#if 0
     if ( !viewManager || !viewManager->currentView() )
 	return;
     QTextDocument *doc = ( (CppEditor*)viewManager->currentView() )->document();
     CppEditor *editor = new CppEditor( QString::null, viewManager, "editor" );
     editor->setDocument( doc );
+#endif
 }
 
 void EditorInterfaceImpl::scrollTo( const QString &txt )
