@@ -1384,7 +1384,7 @@
     \section1 Using Rich Text for Printing
 
     Qt provides rich text using a subset of HTML. The QSimpleRichText
-    class makes rich-text printing simple. All we need to do is create a
+    class makes rich text printing simple. All we need to do is create a
     string with the proper format tags inserted at the appropriate
     places. For our example, we will keep the printing output similar to
     previous versions.

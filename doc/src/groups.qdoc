@@ -438,7 +438,7 @@ These classes are relevant to Qt/Embedded users.
 \title Text Related Classes
 
 These classes are relevant to text processing. See also the
-\l{rich-text.html}{Rich Text Overview} and the
+\l{richtext.html}{Rich Text Processing} overview and the
 \link xml.html XML classes \endlink.
 */
 
