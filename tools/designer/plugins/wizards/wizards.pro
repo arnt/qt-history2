@@ -5,7 +5,7 @@ WIN32:CONFIG   -= staticlib
 sql {
 	HEADERS		= sqlformwizardimpl.h
 	SOURCES		= main.cpp sqlformwizardimpl.cpp
-	INTERFACES	= sqlformwizard.ui
+	INTERFACES	= sqlformwizard.ui mainwindowwizard.ui
 }
 DESTDIR		= $(QTDIR)/plugins
 PROJECTNAME	= Wizards

@@ -4,6 +4,7 @@
 #include <qfeatures.h>
 #include <qwidget.h>
 #include "sqlformwizardimpl.h"
+#include "mainwindowwizard.h"
 
 class StandardTemplateWizardInterface : public TemplateWizardInterface
 {
@@ -51,6 +52,10 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 	wizard->exec();
     }
 #endif
+    if ( templ == "QMainWindow" ) {
+	MainWindowWizardBase *wizard = new MainWindowWizardBase( 0, 0, TRUE );
+	wizard->exec();
+    }
 }
 
 QUnknownInterface *StandardTemplateWizardInterface::queryInterface( const QUuid& uuid )
