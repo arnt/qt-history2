@@ -38,7 +38,7 @@ ADDCLEAN    =	qmake.tds
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj \
 	msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj winmakefile.obj projectgenerator.obj \
-	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj
+ 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj
 
 #qt code
 QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
@@ -101,6 +101,9 @@ qchar.obj: ..\src\tools\qchar.cpp
 
 qstring.obj: ..\src\tools\qstring.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp
+
+qlocale.obj: ..\src\tools\qlocale.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlocale.cpp
 
 quuid.obj: ..\src\tools\quuid.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\quuid.cpp
@@ -209,6 +212,9 @@ msvc_vcproj.obj: generators/win32/msvc_vcproj.cpp
 
 msvc_objectmodel.obj: generators/win32/msvc_objectmodel.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
+
+qtmd5.obj: generators/win32/qtmd5.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/qtmd5.cpp
 
 project.obj: project.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) project.cpp
