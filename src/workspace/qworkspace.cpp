@@ -1037,8 +1037,12 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	inCaptionChange = TRUE;
-	if ( o == topLevelWidget() )
-	    d->topCaption = ((QWidget*)o)->caption();
+	if ( o == topLevelWidget() ) {
+	    QWidget *tlw = (QWidget*)o;
+	    if ( !d->maxWindow 
+		|| tlw->caption() != tr("%1 - [%2]").arg(d->topCaption).arg(d->maxWindow->caption()) )
+		d->topCaption = tlw->caption();
+	}
 
 	if ( d->maxWindow && !!d->topCaption )
 	    topLevelWidget()->setCaption( tr("%1 - [%2]")
