@@ -85,6 +85,8 @@
  *****************************************************************************/
 
 static Qt::ButtonState mouse_button_state = Qt::NoButton;
+static bool	app_do_modal	= FALSE;	// modal mode
+extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 static char    *appName;                        // application name
 static Cursor *currentCursor;                  //current cursor
 QObject	       *qt_clipboard = 0;
@@ -1074,6 +1076,114 @@ bool QApplication::do_mouse_down( EventRecord* es )
   return in_widget;
 }
 
+void QApplication::wakeUpGuiThread()
+{
+}
+
+/*****************************************************************************
+  A modal widget without a parent becomes application-modal.
+  A modal widget with a parent becomes modal to its parent and grandparents..
+
+  qt_enter_modal()
+	Enters modal state
+	Arguments:
+	    QWidget *widget	A modal widget
+
+  qt_leave_modal()
+	Leaves modal state for a widget
+	Arguments:
+	    QWidget *widget	A modal widget
+ *****************************************************************************/
+
+bool qt_modal_state()
+{
+    return app_do_modal;
+}
+
+void qt_enter_modal( QWidget *widget )
+{
+    if ( !qt_modal_stack ) {			// create modal stack
+	qt_modal_stack = new QWidgetList;
+	CHECK_PTR( qt_modal_stack );
+    }
+    qt_modal_stack->insert( 0, widget );
+    app_do_modal = TRUE;
+}
+
+
+void qt_leave_modal( QWidget *widget )
+{
+    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+	if ( qt_modal_stack->isEmpty() ) {
+	    delete qt_modal_stack;
+	    qt_modal_stack = 0;
+	}
+    }
+    app_do_modal = qt_modal_stack != 0;
+}
+
+
+static bool qt_try_modal( QWidget *widget, EventRecord *event )
+{
+    if ( qApp->activePopupWidget() )
+	return TRUE;
+    // a bit of a hack: use WStyle_Tool as a general ignore-modality
+    // flag, also for complex widgets with children.
+    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
+	return TRUE;
+
+    QWidget *modal=0, *top=QApplication::activeModalWidget();
+
+    QWidget* groupLeader = widget;
+    widget = widget->topLevelWidget();
+
+    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
+	modal = widget;
+    if ( !top || modal == top )			// don't block event
+	return TRUE;
+
+    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
+	groupLeader = groupLeader->parentWidget();
+
+    if ( groupLeader ) {
+	// Does groupLeader have a child in qt_modal_stack?
+	bool unrelated = TRUE;
+	modal = qt_modal_stack->first();
+	while (modal && unrelated) {
+	    QWidget* p = modal->parentWidget();
+	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
+		p = p->parentWidget();
+	    }
+	    modal = qt_modal_stack->next();
+	    if ( p == groupLeader ) unrelated = FALSE;
+	}
+
+	if ( unrelated )
+	    return TRUE;		// don't block event
+    }
+
+    bool block_event  = FALSE;
+    bool paint_event = FALSE;
+
+    switch ( event->what ) {
+    case keyDown:
+    case keyUp:
+    case mouseDown:
+    case mouseUp:
+	block_event	 = TRUE;
+	break;
+    case updateEvt:
+	paint_event = TRUE;
+	break;
+    }
+
+    if ( top->parentWidget() == 0 && (block_event || paint_event) )
+	top->raise();
+
+    return !block_event;
+}
+
+
 /* almost all of this is bogus, it needs to be fixed on the next pass. Basically it needs to use
    a qetwidget for event translation, mouse events and popups are wrong too, FIXME!! */
 int QApplication::macProcessEvent(MSG * m)
@@ -1110,6 +1220,9 @@ int QApplication::macProcessEvent(MSG * m)
 	    widget = QApplication::widgetAt(er->where.h, er->where.v, true);
     
 	if(widget) {
+	    if ( app_do_modal && !qt_try_modal(widget, er) )
+		return 1;
+
 	    int mychar=get_key(er->message & charCodeMask);
 	    QKeyEvent ke(QEvent::KeyPress,mychar, mychar, 
 			 get_modifiers(er->modifiers), QString(QChar(mychar)));
@@ -1124,6 +1237,9 @@ int QApplication::macProcessEvent(MSG * m)
 	    widget = QApplication::widgetAt(er->where.h, er->where.v, true);
     
 	if(widget) {
+	    if ( app_do_modal && !qt_try_modal(widget, er) )
+		return 1;
+
 	    int mychar=get_key(er->message & charCodeMask);
 	    QKeyEvent ke(QEvent::KeyRelease,mychar, mychar, 
 			 get_modifiers(er->modifiers), QString(QChar(mychar)));
@@ -1196,6 +1312,9 @@ int QApplication::macProcessEvent(MSG * m)
 
 	    //finally send the event to the widget if its not the popup
 	    if ( widget && widget != popupwidget ) {
+		if ( app_do_modal && !qt_try_modal(widget, er) )
+		    return 1;
+
 		if(er->what == mouseDown) {
 		    QWidget* w = widget;
 		    while ( w->focusProxy() )
@@ -1236,6 +1355,9 @@ int QApplication::macProcessEvent(MSG * m)
 		    widget = QApplication::widgetAt( er->where.h, er->where.v, true );
 		}
 		if ( widget ) {
+		    if ( app_do_modal && !qt_try_modal(widget, er) )
+			return 1;
+
 		    //set the cursor up
 		    Cursor *n = NULL;
 		    if(widget->extra && widget->extra->curs) 
@@ -1263,35 +1385,6 @@ int QApplication::macProcessEvent(MSG * m)
     }
     return 0;
 }
-
-void QApplication::wakeUpGuiThread()
-{
-}
-
-/*****************************************************************************
-  A modal widget without a parent becomes application-modal.
-  A modal widget with a parent becomes modal to its parent and grandparents..
-
-  qt_enter_modal()
-	Enters modal state
-	Arguments:
-	    QWidget *widget	A modal widget
-
-  qt_leave_modal()
-	Leaves modal state for a widget
-	Arguments:
-	    QWidget *widget	A modal widget
- *****************************************************************************/
-
-void qt_enter_modal( QWidget * )
-{
-}
-
-
-void qt_leave_modal( QWidget * )
-{
-}
-
 
 void QApplication::processEvents( int maxtime)
 {
