@@ -823,7 +823,7 @@ QMAKE_ARGS="$QMAKE_ARGS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
 [ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
-[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort`
+[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort | sed 's-/\./-/-'`
 
 [ ! -z "$D_FLAGS" ] && QMAKE_ARGS="$QMAKE_ARGS \"DEFINES+=$D_FLAGS\""
 if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
