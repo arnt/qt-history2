@@ -1738,6 +1738,9 @@ void SetupWizardImpl::showPageProgress()
 	    if ( tdsPluginInstall && !tdsPluginInstall->isOn() ) {
 		plugins.remove( "qsqltds.dll" );
 	    }
+	    if ( db2PluginInstall && !db2PluginInstall->isOn() ) {
+		plugins.remove( "qsqldb2.dll" );
+	    }
 	    // patch the .qmake.cache with the correct paths
 	    QFile cacheFile( installDir.filePath(".qmake.cache") );
 	    if ( cacheFile.open( IO_ReadOnly | IO_Translate ) ) {
