@@ -13580,7 +13580,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 	real_detach();
 	memcpy( d->unicode+index, s, len*sizeof(QChar) );
     } else {
-	int df = d->unicode - s;
+	int df = s - d->unicode; // ### pointer subtraction, cast down to int
 	if ( df >= 0 && (uint)df < d->maxl ) {
 	    // Part of me - take a copy.
 	    QChar *tmp = QT_ALLOC_QCHAR_VEC( slen );
@@ -14926,7 +14926,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 {
 #ifdef QT_QSTRING_UCS_4
 #warning "operator>> not working properly"
-#endif    
+#endif
     if ( s.version() == 1 ) {
 	QCString l;
 	s >> l;
