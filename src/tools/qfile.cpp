@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#5 $
 **
 ** Implementation of QFile class
 **
@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#5 $";
 #endif
 
 
@@ -524,7 +524,7 @@ int QFile::putch( int ch )			// put char
 {
 #if defined(CHECK_STATE)
     if ( !isOpen() ) {				// file not open
-	warning( "QFile::getch: File not open" );
+	warning( "QFile::putch: File not open" );
 	return EOF;
     }
     if ( !isWritable() ) {			// writing not permitted
