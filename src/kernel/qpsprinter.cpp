@@ -2174,17 +2174,17 @@ unsigned short QPSPrinterFontPrivate::insertIntoSubset( unsigned short u )
     if ( !subset[u] ) {
 	if ( !downloaded ) { // we need to add to the page subset
 	    subset.insert(u, new unsigned short(subsetCount)); // mark it as used
-	    printf("GLOBAL SUBSET ADDED %04x = %04x\n",u, subsetCount);
+	    //printf("GLOBAL SUBSET ADDED %04x = %04x\n",u, subsetCount);
 	    retval = subsetCount;
 	    subsetCount++;
 	} else if ( !page_subset[u] ) {
 	    page_subset.insert(u, new unsigned short(pageSubsetCount)); // mark it as used
-	    printf("PAGE SUBSET ADDED %04x = %04x\n",u, pageSubsetCount);
+	    //printf("PAGE SUBSET ADDED %04x = %04x\n",u, pageSubsetCount);
 	    retval = pageSubsetCount;
 	    pageSubsetCount++;
 	}
     } else {
-	qDebug("QPSPrinterzFont::internal error");
+	qDebug("QPSPrinterFont::internal error");
     }
     return retval;
 }
@@ -4991,7 +4991,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     if (fontfilename.length() > 0) { // maybe there is no file name
 	QFile fontfile(fontfilename);
 	if ( fontfile.exists() ) {
-	    printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
+	    //printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
 	    data = QByteArray( fontfile.size() );
 
 	    fontfile.open(IO_Raw | IO_ReadOnly);
