@@ -1578,10 +1578,10 @@ void QScrollView::moveContents(int x, int y)
     if (!dx && !dy)
 	return; // Nothing to do
 
+    emit contentsMoving( -x, -y );
+
     d->vx = x;
     d->vy = y;
-
-    emit contentsMoving( -x, -y );
 
     if ( d->clipped_viewport ) {
 	// Cheap move (usually)
