@@ -806,7 +806,7 @@ fi
 # Tests
 
 #x11
-if [ ! -z "`grep QMAKE_INCDIR_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
+if [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
     x11tests=$relpath/config.tests/x11
 
    #opengl
