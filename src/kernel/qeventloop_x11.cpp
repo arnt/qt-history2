@@ -146,7 +146,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
 	    // also flushes output buffer
 	    while ( XPending( QPaintDevice::x11AppDisplay() ) ) {
-		if ( d->quitnow ) {		// quit between events
+		if ( d->exitloop ) {		// quit between events
 		    return FALSE;
 		}
 
