@@ -24,6 +24,20 @@ class QPrintDialogPrivate : public QAbstractPrintDialogPrivate
 public:
     QPrintDialogPrivate() : ep(0) { }
 
+    inline void browseClicked() {}
+    inline void okClicked() {}
+    inline void printerOrFileSelected(int) {}
+    inline void landscapeSelected(int) {}
+    inline void paperSizeSelected(int) {}
+    inline void orientSelected(int) {}
+    inline void pageOrderSelected(int) {}
+    inline void colorModeSelected(int) {}
+    inline void setNumCopies(int) {}
+    inline void printRangeSelected(int) {}
+    inline void setFirstPage(int) {}
+    inline void setLastPage(int) {}
+    inline void fileNameEditChanged(const QString & /*text*/) {}
+
     QMacPrintEnginePrivate *ep;
 };
 
@@ -80,3 +94,5 @@ int QPrintDialog::exec()
     }
     return result;
 }
+
+#include "moc_qprintdialog.cpp"
