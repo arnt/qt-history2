@@ -741,7 +741,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     else if(project->isActiveConfig("compile_libtool"))
         t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << endl;
     else
-        t << "\t-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << endl;
+        t << "\t-$(DEL_FILE) " << "$(TARGET)" << " " << endl;
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin") && !project->isActiveConfig("compile_libtool"))
         t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
