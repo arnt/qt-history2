@@ -697,9 +697,7 @@ void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     Bool antialiased = False;
-#if 0 // disable antialias support for now
     XftPatternGetBool(engine->pattern(), XFT_ANTIALIAS, 0, &antialiased);
-#endif
     FT_Face face = engine->freetypeFace();
 
     // start generating font glyphs

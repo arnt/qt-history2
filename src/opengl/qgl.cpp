@@ -2120,7 +2120,7 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
     // always regenerate font disp. lists for pixmaps - hw accelerated
     // contexts can't handle this otherwise
     bool regenerate = d->glcx->deviceIsPixmap();
-#if 0 // QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFTFREETYPE
     // font color needs to be part of the font cache key when using
     // antialiased fonts since one set of glyphs needs to be generated
     // for each font color
@@ -2180,7 +2180,7 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
     makeCurrent();
 
     // save GL state
-    glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT );
+    glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT | GL_COLOR_BUFFER_BIT );
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
@@ -2189,6 +2189,8 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
     glPushMatrix();
     glLoadIdentity();
 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     glRasterPos2i( x, y );
     glListBase( displayListBase( fnt, listBase ) );
     glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
@@ -2212,7 +2214,9 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
 {
     makeCurrent();
     glRasterPos3d( x, y, z );
-    glPushAttrib( GL_LIST_BIT );
+    glPushAttrib( GL_LIST_BIT | GL_COLOR_BUFFER_BIT );
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     glListBase( displayListBase( fnt, listBase ) );
     glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
     glPopAttrib();
