@@ -492,9 +492,9 @@ MakefileGenerator::init()
 
     //Image files
     if(!project->isEmpty("IMAGES")) {
-	if(project->isEmpty("QMAKE_IMAGE_FILE"))
-	    v["QMAKE_IMAGE_FILE"].append("images.cpp");
-	QString imgfile = project->first("QMAKE_IMAGE_FILE");
+	if(project->isEmpty("QMAKE_IMAGE_COLLECTION"))
+	    v["QMAKE_IMAGE_COLLECTION"].append("qmake_image_collection.cpp");
+	QString imgfile = project->first("QMAKE_IMAGE_COLLECTION");
 	Option::fixPathToTargetOS(imgfile);
 	if(!project->isEmpty("UI_DIR")) {
 	    if(imgfile.find(Option::dir_sep) != -1)
@@ -512,7 +512,7 @@ MakefileGenerator::init()
 	    }
 	    depends[imgfile].append(f);
 	}
-	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_FILE"));
+	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_COLLECTION"));
     }
 
     //lex files
@@ -808,7 +808,7 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
 
     QString uidir;
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
-        QString src(project->first("QMAKE_IMAGE_FILE"));
+        QString src(project->first("QMAKE_IMAGE_COLLECTION"));
 	t << (*oit) << ": " << src;
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["UI_DIR"].isEmpty() ||
@@ -966,7 +966,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
     writeImageObj(t, "IMAGEOBJECTS");
-    writeImageSrc(t, "QMAKE_IMAGE_FILE");
+    writeImageSrc(t, "QMAKE_IMAGE_COLLECTION");
 
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");
