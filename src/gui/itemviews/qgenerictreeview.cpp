@@ -251,7 +251,7 @@ void QGenericTreeView::open(const QModelIndex &item)
         return;
     int idx = d->viewIndex(item);
     if (idx > -1) // is visible
-        d->open(idx);
+        d->open(idx, true);
     else
         d->opened.append(item);
 }
@@ -268,7 +268,7 @@ void QGenericTreeView::close(const QModelIndex &item)
         return;
     int idx = d->viewIndex(item);
     if (idx > -1) // is visible
-        d->close(idx);
+        d->close(idx, true);
     else
         d->opened.remove(d->opened.indexOf(item));
 }
@@ -553,9 +553,9 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
             return; // we are on an item - select it
         }
         if (d->items.at(vi).open)
-            d->close(vi);
+            d->close(vi, true);
         else
-            d->open(vi);
+            d->open(vi, true);
     }
 }
 
@@ -647,11 +647,11 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
         return d->modelIndex(d->above(vi));
     case QAbstractItemView::MoveLeft:
         if (d->items.at(vi).open)
-            d->close(vi);
+            d->close(vi, true);
         break;
     case QAbstractItemView::MoveRight:
         if (!d->items.at(vi).open)
-            d->open(vi);
+            d->open(vi, true);
         break;
     case QAbstractItemView::MovePageUp:
         return d->modelIndex(d->pageUp(vi));
@@ -1068,7 +1068,7 @@ int QGenericTreeView::columnSizeHint(int column) const
     return w;
 }
 
-void QGenericTreeViewPrivate::open(int i)
+void QGenericTreeViewPrivate::open(int i, bool update)
 {
     QModelIndex index = items.at(i).index;
     opened.append(index);
@@ -1078,9 +1078,11 @@ void QGenericTreeViewPrivate::open(int i)
 
     layout(i);
 
-    q->updateGeometries();
-    viewport->update();
-    qApp->processEvents();
+    if (update) {
+        q->updateGeometries();
+        viewport->update();
+        qApp->processEvents();
+    }
 
     // make sure we open children that are already open
     // FIXME: this is slow: optimize
@@ -1090,14 +1092,15 @@ void QGenericTreeViewPrivate::open(int i)
             int k = opened.indexOf(o.at(j));
             opened.remove(k);
             int v = viewIndex(o.at(j));
-            open(v);
+            open(v, update);
         }
     }
 
-    emit q->expanded(index);
+    if (update)
+        emit q->expanded(index);
 }
 
-void QGenericTreeViewPrivate::close(int i)
+void QGenericTreeViewPrivate::close(int i, bool update)
 {
     QAbstractItemModel *model = q->model();
     int total = items.at(i).total;
@@ -1113,10 +1116,12 @@ void QGenericTreeViewPrivate::close(int i)
         idx = viewIndex(tmp);
     }
     qCollapse<QGenericTreeViewItem>(items, i, total);
-    q->updateGeometries();
-    viewport->update();
 
-    emit q->collapsed(index);
+    if (update) {
+        q->updateGeometries();
+        viewport->update();
+        emit q->collapsed(index);
+    }
 }
 
 void QGenericTreeViewPrivate::layout(int i)
@@ -1296,9 +1301,12 @@ void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
     if (parent.isValid()) {
         int p = viewIndex(parent);
         if (p > -1 && items.at(p).open) {
-            close(p);
-            open(p);
+            close(p, false);
+            open(p, false);
+            q->updateGeometries();
+            viewport->update();
         }
+
     } else {
         items.clear();
         q->doItemsLayout();

@@ -23,8 +23,8 @@ public:
 
     ~QGenericTreeViewPrivate() {}
 
-    void open(int item);
-    void close(int item);
+    void open(int item, bool update);
+    void close(int item, bool update);
     void layout(int item);
 
     int pageUp(int item) const;
