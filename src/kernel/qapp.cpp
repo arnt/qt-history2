@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#11 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#11 $";
 #endif
 
 
@@ -49,6 +49,10 @@ QApplication::QApplication()
 
 QApplication::~QApplication()
 {
+    if ( appFont )
+	delete appFont;
+    if ( appCursor )
+	delete appCursor;
     qApp = 0;
 }
 
