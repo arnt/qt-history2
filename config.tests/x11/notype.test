@@ -1,6 +1,7 @@
 #!/bin/sh
 
 QMKSPEC=$1
+XPLATFORM=`basename $1`
 VERBOSE=$2
 SRCDIR=$3
 OUTDIR=$4
@@ -13,26 +14,35 @@ then
 fi
 
 
-# ?
+# Detect broken X11 headers when using GCC 2.95 or later
+#   Xsun on Solaris 2.5.1 and 2.6:
+#   	Patches are available for Solaris 7 and Solaris 8 but
+#   	not for Solaris 2.5.1 or 2.6.
 
-ABSPATH=
-if [ "$SRCDIR" != "$OUTDIR" ]
+NOTYPE=no
+
+if [ $XPLATFORM = "solaris-g++" ]
 then
-    ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/x11"
+    NOTYPE=yes
+
+    ABSPATH=
+    if [ "$SRCDIR" != "$OUTDIR" ]
+    then
+	ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/x11"
+    fi
+
+    test -d $OUTDIR/config.tests/x11 || mkdir -p $OUTDIR/config.tests/x11
+    $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/x11/notypetest.pro -o $OUTDIR/config.tests/x11/Makefile >/dev/null 2>&1
+    cd $OUTDIR/config.tests/x11
+
+    if [ "$VERBOSE" = "yes" ]; then
+	make
+    else
+	make >/dev/null 2>&1
+    fi
+
+    [ -x notypetest ] && NOTYPE=no
 fi
-
-test -d $OUTDIR/config.tests/x11 || mkdir -p $OUTDIR/config.tests/x11
-$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/x11/notypetest.pro -o $OUTDIR/config.tests/x11/Makefile >/dev/null 2>&1
-cd $OUTDIR/config.tests/x11
-
-if [ "$VERBOSE" = "yes" ]; then
-  make
-else
-  make >/dev/null 2>&1
-fi
-
-NOTYPE=yes
-[ -x notypetest ] && NOTYPE=no
 
 
 # done

@@ -1076,16 +1076,9 @@ then
 	XKB=yes
 	$x11tests/xkb.test $XQMAKESPEC $VERBOSE && XKB=no
     fi
-    # Work around broken X11 headers when using GCC 2.95 and better
-    # 	Xsun on Solaris 2.5.1 and 2.6:
-    #   	Patches are available for Solaris 7 and Solaris 8 but
-    #   	not for Solaris 2.5.1 or 2.6.
+    # Work around broken X11 headers when using GCC 2.95 or later
     NOTYPE=no
-    case $PLATFORM in
-    solaris-g++)
-	$x11tests/notype.test $XQMAKESPEC $VERBOSE $relpath $outpath && NOTYPE=yes
-	;;
-    esac
+    $x11tests/notype.test $XQMAKESPEC $VERBOSE $relpath $outpath && NOTYPE=yes
     if [ "x$NOTYPE" = "xyes" ]
     then
 	QMAKE_VARS="$QMAKE_VARS  \"QMAKE_CXXFLAGS+=-fpermissive\""
