@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#30 $
 **
 ** Implementation of QFileInfo class
 **
@@ -28,7 +28,7 @@
 extern "C" int readlink( const char *, void *, uint );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#30 $");
 
 
 #if defined(_OS_FATFS_)
@@ -66,7 +66,7 @@ struct QFileInfoCache
 
   \ingroup tools
 
-  QFileInfo provides information about a files name and position (path) in
+  QFileInfo provides information about a file's name and position (path) in
   the file system, its access rights and whether it is a directory or a
   symbolic link.  Its size and last modified/read times are also available.
 
