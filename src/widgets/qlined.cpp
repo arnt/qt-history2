@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#62 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#62 $");
 
 
 /*!
@@ -709,7 +709,7 @@ void QLineEdit::cursorLeft( bool mark, int steps )
 	cursorRight( mark, -steps );
 	return;
     }
-    if ( cursorPos != 0 ) {
+    if ( cursorPos != 0 || !mark && hasMarkedText() ) {
 	killTimers();
 	cursorOn = TRUE;
 	cursorPos -= steps;
@@ -740,7 +740,7 @@ void QLineEdit::cursorRight( bool mark, int steps )
 	return;
     }
     int len = (int)strlen( tbuf );
-    if ( len > cursorPos ) {
+    if ( len > cursorPos || !mark && hasMarkedText() ) {
 	QFontMetrics fm = fontMetrics();
 	killTimers();
 	cursorOn   = TRUE;
@@ -820,7 +820,7 @@ void QLineEdit::del()
 
 void QLineEdit::home( bool mark )
 {
-    if ( cursorPos != 0 ) {
+    if ( cursorPos != 0 || !mark && hasMarkedText() ) {
 	killTimers();
 	cursorPos = 0;
 	if ( mark ) {
@@ -846,7 +846,7 @@ void QLineEdit::home( bool mark )
 void QLineEdit::end( bool mark )
 {
     int tlen = strlen( tbuf );
-    if ( cursorPos != tlen ) {
+    if ( cursorPos != tlen || !mark && hasMarkedText() ) {
 	killTimers();
 	offset += showLastPartOffset( &tbuf[offset], fontMetrics(),
 				      width() - LEFT_MARGIN - RIGHT_MARGIN );
