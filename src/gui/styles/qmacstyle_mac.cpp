@@ -783,7 +783,7 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
           mini  = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeMini);
     bool guess_size = false;
     QAquaWidgetSize ret = QAquaSizeUnknown;
-    QMacStyle *macStyle = qt_cast<QMacStyle *>(&widg->style());
+    QMacStyle *macStyle = qt_cast<QMacStyle *>(widg->style());
     if(macStyle) {
         QMacStyle::WidgetSizePolicy wsp = macStyle->widgetSizePolicy(widg);
         if(wsp == QMacStyle::SizeDefault)
