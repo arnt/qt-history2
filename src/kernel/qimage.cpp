@@ -5521,7 +5521,7 @@ static void write_xbm_image( QImageIO *iio )
 		*p++ = '\n';
 		*p++ = ' ';
 		*p   = '\0';
-		if ( qstrlen(buf) != d->writeBlock( buf, qstrlen(buf) ) ) {
+		if ( (int)qstrlen(buf) != d->writeBlock( buf, qstrlen(buf) ) ) {
 		    iio->setStatus( 1 );
 		    return;
 		}
@@ -5531,7 +5531,7 @@ static void write_xbm_image( QImageIO *iio )
 	}
     }
     strcpy( p, " };\n" );
-    if ( qstrlen(buf) != d->writeBlock( buf, qstrlen(buf) ) )
+    if ( (int)qstrlen(buf) != d->writeBlock( buf, qstrlen(buf) ) )
 	iio->setStatus( 1 );
 }
 
