@@ -841,7 +841,7 @@ QString QDate::toString(Qt::DateFormat f) const
             tt.tm_mon = month() - 1;
             tt.tm_year = year() - 1900;
 
-            static const char avoidEgcsWarning[] = "%X";
+            const char *avoidEgcsWarning = "%x";
             if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt))
                 return QString::fromLocal8Bit(buf);
 #endif
