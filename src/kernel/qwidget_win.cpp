@@ -172,11 +172,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
     } else if (!desktop ) {
 	if ( testWFlags(WStyle_Customize) ) {
-	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {
-		style = WS_POPUP;		// no border
-	    } else {
-		style = 0;
-	    }
+	    style = 0;
 	} else {
 #ifndef Q_OS_TEMP
 	    style = WS_OVERLAPPED;
@@ -201,7 +197,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( topLevel ) {
 #ifndef Q_OS_TEMP
 	    if ( testWFlags(WStyle_NormalBorder) )
-		style |= WS_THICKFRAME;
+		style |= WS_POPUP | WS_THICKFRAME;
 	    else if ( testWFlags(WStyle_DialogBorder) )
 		style |= WS_POPUP | WS_DLGFRAME;
 #else
