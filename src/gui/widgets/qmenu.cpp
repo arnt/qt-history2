@@ -590,7 +590,10 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     if (action_e == QAction::Trigger) {
         hideUpToMenuBar();
         if (inWhatsThisMode) {
-            QWhatsThis::showText(q->mapToGlobal(actionRect(action).center()), action->whatsThis(), q);
+            QString s = action->whatsThis();
+            if (s.isEmpty())
+                s = whatsThis;
+            QWhatsThis::showText(q->mapToGlobal(actionRect(action).center()), s, q);
             return;
         }
     }
@@ -637,7 +640,10 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
         QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
 #endif
-        action->showStatusText(q);
+        QWidget *w = d->causedPopup;
+        while (QMenu *m = qt_cast<QMenu*>(w))
+            w = m->d->causedPopup;
+        action->showStatusText(w);
     }
 }
 
@@ -1634,17 +1640,30 @@ void QMenu::contextMenuEvent(QContextMenuEvent *e)
 bool
 QMenu::event(QEvent *e)
 {
-    if (e->type() == QEvent::KeyPress) {
+    switch (e->type()) {
+    case QEvent::KeyPress: {
         QKeyEvent *ke = (QKeyEvent*)e;
         if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
             keyPressEvent(ke);
             return true;
         }
-    } else if (e->type() == QEvent::Resize) {
+    } break;
+    case QEvent::Resize:
         d->itemsDirty = 1;
         d->updateActions();
-    } else if (e->type() == QEvent::Show) {
+        break;
+    case QEvent::Show:
         d->updateActions();
+        break;
+    case QEvent::QueryWhatsThis:
+        e->setAccepted(d->whatsThis.size());
+        if (QAction *action = d->actionAt(static_cast<QHelpEvent*>(e)->pos())) {
+            if (action->whatsThis().size() || action->menu())
+                e->accept();
+        }
+        return true;
+    default:
+        break;
     }
     return QWidget::event(e);
 }

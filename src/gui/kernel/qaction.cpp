@@ -18,6 +18,7 @@
 #include "qapplication.h"
 #include "qevent.h"
 #include "qlist.h"
+#include "qdebug.h"
 #include <private/qshortcutmap_p.h>
 #include <private/qapplication_p.h>
 
@@ -555,7 +556,7 @@ QString QAction::toolTip() const
 
     There is no default statusTip text.
 
-    \sa setStatusTip() setToolTip() showStatusMessage()
+    \sa setStatusTip() setToolTip() showStatusText()
 */
 void QAction::setStatusTip(const QString &statustip)
 {

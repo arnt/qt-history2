@@ -4740,6 +4740,10 @@ bool QWidget::event(QEvent *e)
         else
             e->ignore();
         break;
+    case QEvent::QueryWhatsThis:
+        if (d->whatsThis.isEmpty())
+            e->ignore();
+        break;
 #endif
 #ifndef QT_NO_ACCESSIBILITY
     case QEvent::AccessibilityHelp: {

@@ -2889,6 +2889,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
+    case QEvent::QueryWhatsThis:
         {
             QWidget* w = static_cast<QWidget *>(receiver);
             QHelpEvent *help = static_cast<QHelpEvent*>(e);

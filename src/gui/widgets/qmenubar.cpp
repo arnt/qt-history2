@@ -23,6 +23,7 @@
 #include <qevent.h>
 #include <qmainwindow.h>
 #include <qtoolbar.h>
+#include <qwhatsthis.h>
 
 #ifdef QT_COMPAT
 #include <private/qaction_p.h>
@@ -690,6 +691,8 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     QAction *action = d->actionAt(e->pos());
     if (!action) {
         d->setCurrentAction(0);
+        if (QWhatsThis::inWhatsThisMode())
+            QWhatsThis::showText(e->globalPos(), d->whatsThis, this);
         return;
     }
 
@@ -941,7 +944,8 @@ void QMenuBar::contextMenuEvent(QContextMenuEvent *e)
 bool QMenuBar::event(QEvent *e)
 {
     Q_D(QMenuBar);
-    if(e->type() == QEvent::KeyPress) {
+    switch (e->type()) {
+    case QEvent::KeyPress: {
         QKeyEvent *ke = (QKeyEvent*)e;
 #if 0
         if(!d->keyboardState) { //all keypresses..
@@ -954,15 +958,27 @@ bool QMenuBar::event(QEvent *e)
             return true;
         }
 
-    } else if(e->type() == QEvent::Shortcut) {
+    } break;
+    case QEvent::Shortcut: {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         int shortcutId = se->shortcutId();
         for(int j = 0; j < d->shortcutIndexMap.size(); ++j) {
             if (shortcutId == d->shortcutIndexMap.value(j))
                 d->internalShortcutActivated(j);
         }
-    } else if (e->type() == QEvent::Show) {
+    } break;
+    case QEvent::Show:
         d->updateGeometries();
+        break;
+    case QEvent::QueryWhatsThis:
+        e->setAccepted(d->whatsThis.size());
+        if (QAction *action = d->actionAt(static_cast<QHelpEvent*>(e)->pos())) {
+            if (action->whatsThis().size() || action->menu())
+                e->accept();
+        }
+        return true;
+    default:
+        break;
     }
     return QWidget::event(e);
 }
