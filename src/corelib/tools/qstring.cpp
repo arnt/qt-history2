@@ -530,7 +530,7 @@ inline int QString::grow(int size)
     \internal
 */
 
-/*! 
+/*!
     \fn QString::QString()
 
     Constructs a null string. Null strings are also empty.
@@ -1047,7 +1047,7 @@ QString &QString::insert(int i, const QLatin1String &str)
     expand(qMax(d->size, i) + len - 1);
 
     ::memmove(d->data + i + len, d->data + i, (d->size - i - len) * sizeof(QChar));
-    for (int j = 0; j < len; ++j) 
+    for (int j = 0; j < len; ++j)
         d->data[i + j] = s[j];
     return *this;
 }
@@ -2500,30 +2500,25 @@ QString QString::section(const QString &sep, int start, int end, SectionFlags fl
         if(end < 0)
             end += sections.count() - skip;
     }
-    int x = 0, run = 0;
+    int x = 0;
     QString ret;
-    for(int i = 0; x <= end && i != sections.size(); ++i) {
+    for(int i = 0; x <= end && i < sections.size(); ++i) {
         QString section = sections.at(i);
         if(x >= start) {
-            if(section.isEmpty()) {
-                run++;
-            } else {
-                if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
-                    int i_end = run;
-                    if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
-                        i_end++;
-                    if((flags & SectionIncludeLeadingSep) && i && x == start)
-                        i_end++;
-                    for(int i = 0; i < i_end; i++)
-                        ret += sep;
-                } else if((flags & SectionIncludeLeadingSep) && i) {
+            if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
+                int i_end = 0;
+                if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
+                    i_end++;
+                if((flags & SectionIncludeLeadingSep) && i && x == start)
+                    i_end++;
+                for(int i = 0; i < i_end; i++)
                     ret += sep;
-                }
-                run = 0;
-                ret += section;
-                if((flags & SectionIncludeTrailingSep) && i != sections.size()-1)
-                    ret += sep;
+            } else if((flags & SectionIncludeLeadingSep) && i) {
+                ret += sep;
             }
+            ret += section;
+            if((flags & SectionIncludeTrailingSep) && i != sections.size()-1)
+                ret += sep;
         }
         if(!section.isEmpty() || !(flags & SectionSkipEmpty))
             x++;
@@ -2579,10 +2574,8 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
         l.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
         last_m = m;
         last_len = sep.matchedLength();
-        if((m += sep.matchedLength()) >= n) {
-            last = 1;
+        if((m += sep.matchedLength()) >= n)
             break;
-        }
     }
     if(!last)
         l.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
@@ -2594,25 +2587,25 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
     else if(end < 0)
         end = l.count() + end;
 
-    int i = 0;
     QString ret;
     for (int idx = 0; idx < l.size(); ++idx) {
         const section_chunk &chk = l.at(idx);
         if((flags & SectionSkipEmpty) && chk.length == chk.string.length()) {
-            if(i <= start)
+            if(idx <= start)
                 start++;
             end++;
         }
-        if(i == start) {
-            ret = (flags & SectionIncludeLeadingSep) ? chk.string : chk.string.mid(chk.length);
-        } else if(i > start) {
+        if(idx == start) {
+            ret += (flags & SectionIncludeLeadingSep) ? chk.string : chk.string.mid(chk.length);
+        } else if(idx > start) {
             ret += chk.string;
         }
-        if(i == end) {
-            if(idx < l.size()-1 && flags & SectionIncludeTrailingSep)
-                ret += chk.string.left(chk.length);
-            break;
+        if(idx >= start && idx < l.size()-1 && flags & SectionIncludeTrailingSep) {
+            const section_chunk &next = l.at(idx+1);
+            ret += next.string.left(next.length);
         }
+        if(idx == end)
+            break;
     }
     return ret;
 }
