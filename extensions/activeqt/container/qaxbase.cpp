@@ -439,10 +439,14 @@ QString QAxMetaObject::paramType(const QString &prototype, int index, bool *out)
     if (param.isEmpty())
 	return "QVariant";
 
-    QChar lc = param.at(param.length()-1);
-    bool byRef = lc == '&' || lc == '*';
-    if (byRef)
-	param.truncate(param.length()-1);
+    bool byRef = false;
+    if (param.endsWith("&")) {
+	byRef = true;
+	param.truncate(param.length() - 1);
+    } else if (param.endsWith("**")) {
+	byRef = true;
+	param.truncate(param.length() - 2);
+    }
 
     if (out)
 	*out = byRef;
@@ -1698,8 +1702,11 @@ QString MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *type
 	
 	QString ptype = guessTypes( tdesc, typeinfo, function );
 	if ( pdesc.wParamFlags & PARAMFLAG_FRETVAL ) {
-	    if (ptype.endsWith("&") || ptype.endsWith("*"))
-		ptype.truncate(ptype.length()-1);
+	    if (ptype.endsWith("&")) {
+		ptype.truncate(ptype.length() - 1);
+	    } else if (ptype.endsWith("**")) {
+		ptype.truncate(ptype.length() - 2);
+	    }
 	    if (ptype.startsWith("const "))
 		type = ptype.mid(6);
 	    else
