@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#309 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#310 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -194,7 +194,7 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE,
     privateGC = TRUE;				// will be slower
 #endif
     if ( privateGC ) {
-	GC gc = XCreateGC( dpy, hd, 0, 0 );	
+	GC gc = XCreateGC( dpy, hd, 0, 0 );
 	XSetGraphicsExposures( dpy, gc, FALSE );
 	return gc;
     }
@@ -1360,7 +1360,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    if ( pa.size() != a.size() ) {
 		index = 0;
 		npoints = pa.size();
-	    }		
+	    }
 	}
     }
     if ( cpen.style() != NoPen )
@@ -2022,7 +2022,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    if ( pa.size() != a.size() ) {
 		index  = 0;
 		nlines = pa.size()/2;
-	    }		
+	    }
 	}
     }
     if ( cpen.style() != NoPen )
@@ -2068,7 +2068,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    if ( pa.size() != a.size() ) {
 		index   = 0;
 		npoints = pa.size();
-	    }		
+	    }
 	}
     }
     if ( cpen.style() != NoPen )
@@ -2123,7 +2123,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	    if ( pa.size() != a.size() ) {
 		index   = 0;
 		npoints = pa.size();
-	    }		
+	    }
 	}
     }
     if ( winding )				// set to winding fill rule
@@ -2397,6 +2397,7 @@ static void drawTile( QPainter *p, int x, int y, int w, int h,
     }
 }
 
+#if 0 // see comment in drawTiledPixmap
 /* Internal, used by drawTiledPixmap */
 
 static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
@@ -2413,6 +2414,7 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
 	y *= 2;
     }
 }
+#endif
 
 /*!
   Draws a tiled \a pixmap in the specified rectangle.
@@ -2444,10 +2446,10 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	sy = sy % sh;
     /*
       Requirements for optimizing tiled pixmaps:
-       - not an external device
-       - not scale or rotshear
-       - not mono pixmap
-       - no mask
+      - not an external device
+      - not scale or rotshear
+      - not mono pixmap
+      - no mask
     */
     QBitmap *mask = (QBitmap *)pixmap.mask();
     if ( !testf(ExtDev) && txop <= TxTranslate && pixmap.depth() > 1 &&
@@ -2462,12 +2464,19 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	XSetFillStyle( dpy, gc, FillSolid );
 	return;
     }
+
+#if 0
+    // maybe there'll be point in this again, but for the time all it
+    // does is make trouble for the postscript code.
     if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
-	int tw = sw, th = sh;
-	while ( tw*th < 32678 && tw < w/2 )
-	    tw *= 2;
-	while ( tw*th < 32678 && th < h/2 )
-	    th *= 2;
+	int tw = sw;
+	int th = sh;
+	while( th * tw < 4096 && ( th < h || tw < w ) ) {
+	    if ( h/th > w/tw )
+		th *= 2;
+	    else
+		tw *= 2;
+	}
 	QPixmap tile( tw, th, pixmap.depth(), QPixmap::NormalOptim );
 	fillTile( &tile, pixmap );
 	if ( mask ) {
@@ -2479,6 +2488,11 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     } else {
 	drawTile( this, x, y, w, h, pixmap, sx, sy );
     }
+#else
+    // for now we'll just output the original and let the postscript
+    // code make what it can of it.  qpicture will be unhappy.
+    drawTile( this, x, y, w, h, pixmap, sx, sy );
+#endif
 }
 
 
