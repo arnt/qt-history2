@@ -808,7 +808,8 @@ QMakeProject::read(uchar cmd)
             if(Option::mkfile::qmakespec.isEmpty()) {
                 for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
                     QString mkspec = (*it) + QDir::separator() + "default";
-                    if(QFile::exists(mkspec)) {
+                    QFileInfo default_info(mkspec);
+                    if(default_info.exists() && default_info.isSymLink()) {
                         Option::mkfile::qmakespec = mkspec;
                         break;
                     }
