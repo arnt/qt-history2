@@ -541,7 +541,8 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
     if ( lineStarts.findRef( dockWidget ) != -1 && i < (int)dockWidgets->count() )
 	dockWidgets->at( i )->setNewLine( TRUE );
     if ( makeFloating )
-	dockWidget->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog, QPoint( 0, 0 ), FALSE );
+	dockWidget->reparent( topLevelWidget(), WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog, 
+			      QPoint( 0, 0 ), FALSE );
     if ( swap )
 	dockWidget->resize( dockWidget->height(), dockWidget->width() );
     updateLayout();

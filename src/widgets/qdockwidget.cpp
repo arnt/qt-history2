@@ -213,7 +213,7 @@ private:
 };
 
 QDockWidgetHandle::QDockWidgetHandle( QDockWidget *dw )
-    : QWidget( dw, "qt_dockwidget_internal" ), dockWidget( dw ), closeButton( 0 )
+    : QWidget( dw, "qt_dockwidget_internal" ), dockWidget( dw ), mousePressed( FALSE ), closeButton( 0 )
 {
 }
 
@@ -254,6 +254,8 @@ void QDockWidgetHandle::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent *e )
 {
+    if ( !mousePressed )
+	return;
     dockWidget->endRectDraw();
     mousePressed = FALSE;
     if ( !hadDblClick )
