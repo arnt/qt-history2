@@ -17,6 +17,7 @@
 
 #include "project.h"
 #include "xmloutput.h"
+#include "qatomic.h"
 #include <qdebug.h>
 #include <qlist.h>
 #include <qstring.h>
@@ -40,9 +41,7 @@ enum customBuildCheck {
     none,
     mocSrc,
     mocHdr,
-    uic,
-    lexyacc,
-    resource
+    lexyacc
 };
 enum triState {
     unset = -1,
@@ -767,7 +766,6 @@ public:
         return Uindex;
     }
 
-//     using Node::addElement;
     void addElement(const QString &filepath, const VCFilterFile &allInfo){
         QString newNodeName(filepath);
 
@@ -819,7 +817,6 @@ public:
         return Uindex;
     }
 
-//     using Node::addElement;
     void addElement(const QString &filepath, const VCFilterFile &allInfo){
         QString newKey(filepath);
 
@@ -827,8 +824,8 @@ public:
         if (index != -1)
             newKey = filepath.mid(index+1);
 
-        // Key designed to sort files with
-        // same name in different paths
+        // Key designed to sort files with same
+        // name in different paths correctly
         children.insert(newKey + "\0" + allInfo.file, allInfo);
     }
 
@@ -844,6 +841,17 @@ public:
 // ----------------------------------------------------------------------------
 
 
+class VCFilterPrivate {
+public:
+    QAtomic ref;
+    Node *Files;
+
+    inline VCFilterPrivate() {
+        ref = 1;
+        Files = 0;
+    }
+};
+
 class VcprojGenerator;
 class VCFilter
 {
@@ -852,17 +860,14 @@ public:
     VCFilter();
     ~VCFilter();
 
+    VCFilter(const VCFilter &filter);
+
     void addFile(const QString& filename);
     void addFile(const VCFilterFile& fileInfo);
-
     void addFiles(const QStringList& fileList);
-
     void addMOCstage(const VCFilterFile &str, bool hdr);
-    void addUICstage(QString str);
-    bool addIMGstage(QString str);
+    bool addExtraCompiler(const VCFilterFile &info);
     void modifyPCHstage(QString str);
-
-    //void generateXml(XmlOutput &xml);
     void generateXml(XmlOutput &xml, const VCFilterFile &info);
 
     // Variables
@@ -871,21 +876,27 @@ public:
     triState                ParseFiles;
     VcprojGenerator*        Project;
     QList<VCConfiguration> *Config;
+
     customBuildCheck	    CustomBuild;
     QString		    customMocArguments;
+
     bool		    useCustomBuildTool;
     VCCustomBuildTool       CustomBuildTool;
+
     bool                    useCompilerTool;
     VCCLCompilerTool        CompilerTool;
+
     bool                    flat_files;
 
 private:
-    Node                   *Files;
     void createOutputStructure();
+
+    VCFilterPrivate         *d;
 
     friend XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool); // ####
 };
 
+typedef QList<VCFilter> VCFilterList;
 class VCProject
 {
 public:
@@ -906,11 +917,11 @@ public:
     VCFilter                SourceFiles;
     VCFilter                HeaderFiles;
     VCFilter                MOCFiles;
-    VCFilter                UICFiles;
     VCFilter                FormFiles;
     VCFilter                TranslationFiles;
     VCFilter                LexYaccFiles;
     VCFilter                ResourceFiles;
+    VCFilterList            ExtraCompilersFiles;
 };
 
 XmlOutput &operator<<(XmlOutput &, const VCCLCompilerTool &);

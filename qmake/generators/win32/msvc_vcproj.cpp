@@ -366,6 +366,20 @@ nextfile:
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
+bool VcprojGenerator::hasBuiltinCompiler(const QString &file)
+{
+    // Source files
+    for (int i = 0; i < Option::cpp_ext.count(); ++i)
+        if (file.endsWith(Option::cpp_ext.at(i)))
+            return true;
+    if (file.endsWith(".c"))
+        return true;
+    // Resource files
+    if (file.endsWith(".rc")) 
+        return true;
+    return false;
+}
+
 void VcprojGenerator::init()
 {
     if(init_flag)
@@ -406,6 +420,32 @@ void VcprojGenerator::init()
         project->variables()["PRECOMPILED_PCH"]    = precompPch;
     }
 
+    // Add all input files for a custom compiler into a map for uniqueness,
+    // unless the compiler is configure as a combined stage, then use the first one
+    const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::ConstIterator it = quc.constBegin(); it != quc.constEnd(); ++it) {
+        const QStringList &invar = project->variables().value((*it) + ".input");
+        for(QStringList::ConstIterator iit = invar.constBegin(); iit != invar.constEnd(); ++iit) {
+            QStringList fileList = project->variables().value(*iit);
+            if (!fileList.isEmpty()) {
+                if (project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1)
+                    fileList = fileList.first();
+                for(QStringList::ConstIterator fit = fileList.constBegin(); fit != fileList.constEnd(); ++fit) {
+                    const QString &file = (*fit);
+                    if (hasBuiltinCompiler(file))
+                        warn_msg(WarnLogic, "extracompiler will override builtin compiler (%s)", file.latin1());
+                    extraCompilerSources[file] += *it;
+                }
+            }
+        }
+    }
+
+#if 0 // Debuging
+    Q_FOREACH(QString aKey, extraCompilerSources.keys()) {
+        qDebug("Extracompilers for %s are (%s)", aKey.latin1(), extraCompilerSources.value(aKey).join(", ").latin1());
+    }
+#endif
+
     initProject(); // Fills the whole project with proper data
 }
 
@@ -418,11 +458,12 @@ void VcprojGenerator::initProject()
     initSourceFiles();
     initHeaderFiles();
     initMOCFiles();
-    initUICFiles();
     initFormsFiles();
     initTranslationFiles();
     initLexYaccFiles();
     initResourceFiles();
+
+    initExtraCompilerOutputs();
 
     // Own elements -----------------------------
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
@@ -583,12 +624,6 @@ void VcprojGenerator::initCompilerTool()
 
     RConf.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
     RConf.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
-    QStringList::iterator it;
-    for(it=RConf.compiler.PreprocessorDefinitions.begin();
-        it!=RConf.compiler.PreprocessorDefinitions.end();
-        ++it)
-        (*it).replace('\"', "&quot;");
-
     RConf.compiler.parseOptions(project->variables()["MSVCPROJ_INCPATH"]);
 }
 
@@ -668,12 +703,10 @@ void VcprojGenerator::initPostBuildEventTools()
     if(!project->variables()["QMAKE_POST_LINK"].isEmpty()) {
         RConf.postBuild.Description = var("QMAKE_POST_LINK");
         RConf.postBuild.CommandLine = var("QMAKE_POST_LINK");
-        RConf.postBuild.Description.replace(" && ", " &amp;&amp; ");
-        RConf.postBuild.CommandLine.replace(" && ", " &amp;&amp; ");
     }
     if(!project->variables()["MSVCPROJ_COPY_DLL"].isEmpty()) {
         if(!RConf.postBuild.CommandLine.isEmpty())
-            RConf.postBuild.CommandLine += " &amp;&amp; ";
+            RConf.postBuild.CommandLine += " && ";
         RConf.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
         RConf.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
     }
@@ -761,20 +794,6 @@ void VcprojGenerator::initMOCFiles()
     addMocArguments(vcProject.MOCFiles);
 }
 
-void VcprojGenerator::initUICFiles()
-{
-    vcProject.UICFiles.flat_files = project->isActiveConfig("flat");
-    vcProject.UICFiles.Name = "Generated Form Files";
-    vcProject.UICFiles.Filter = "cpp;c;cxx;h;hpp;hxx;";
-    vcProject.UICFiles.Project = this;
-
-    vcProject.UICFiles.addFiles(project->variables()["UICDECLS"]);
-    vcProject.UICFiles.addFiles(project->variables()["UICIMPLS"]);
-
-    vcProject.UICFiles.Config = &(vcProject.Configuration);
-    vcProject.UICFiles.CustomBuild = none;
-}
-
 void VcprojGenerator::initFormsFiles()
 {
     vcProject.FormFiles.flat_files = project->isActiveConfig("flat");
@@ -786,7 +805,7 @@ void VcprojGenerator::initFormsFiles()
 
     vcProject.FormFiles.Project = this;
     vcProject.FormFiles.Config = &(vcProject.Configuration);
-    vcProject.FormFiles.CustomBuild = uic;
+    vcProject.FormFiles.CustomBuild = none;
 }
 
 void VcprojGenerator::initTranslationFiles()
@@ -832,7 +851,45 @@ void VcprojGenerator::initResourceFiles()
 
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);
-    vcProject.ResourceFiles.CustomBuild = resource;
+    vcProject.ResourceFiles.CustomBuild = none;
+}
+
+void VcprojGenerator::initExtraCompilerOutputs()
+{
+    const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    int count = 0;
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it, ++count) {
+        // Create an extra compiler filter and add the files
+        VCFilter extraCompile;
+        extraCompile.flat_files = project->isActiveConfig("flat");
+        extraCompile.Name = (*it);
+        extraCompile.ParseFiles = _False;
+        extraCompile.Filter = "";
+
+        // If the extra compiler has a variable_out set the output file
+        // is added to an other file list, and does not need its own..
+        QString tmp_other_out = project->first((*it) + ".variable_out");
+        if (!tmp_other_out.isEmpty())
+            continue;
+
+        QString tmp_out = project->first((*it) + ".output");
+        if (project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+            // Combined output, only one file result
+            extraCompile.addFile(
+                Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, QString::null, QString::null), false));
+        } else {
+            // One output file per input
+            QStringList tmp_in = project->variables()[project->first((*it) + ".input")];
+            for (int i = 0; i < tmp_in.count(); ++i)
+                extraCompile.addFile(
+                    Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, tmp_in.at(i), QString::null), false));
+        }
+        extraCompile.Project = this;
+        extraCompile.Config = &(vcProject.Configuration);
+        extraCompile.CustomBuild = none;
+
+        vcProject.ExtraCompilersFiles.append(extraCompile);
+    }
 }
 
 /* \internal

@@ -1744,39 +1744,58 @@ XmlOutput &operator<<(XmlOutput &xml, const VCConfiguration &tool)
 }
 // VCFilter ---------------------------------------------------------
 VCFilter::VCFilter()
-    :   ParseFiles(unset), Files(0), flat_files(true)
+    :   ParseFiles(unset), flat_files(true)
 {
+    d = new VCFilterPrivate();
+
     useCustomBuildTool = false;
     useCompilerTool = false;
 }
 
 VCFilter::~VCFilter()
 {
-    delete Files;
-    Files = 0;
+    if (!--d->ref)
+        delete d;
+}
+
+VCFilter::VCFilter(const VCFilter &filter)
+{
+    ++filter.d->ref;
+    d = filter.d;
+
+    Name = filter.Name;
+    Filter = filter.Filter;
+    ParseFiles = filter.ParseFiles;
+    Project = filter.Project;
+    Config = filter.Config;
+    CustomBuild = filter.CustomBuild;
+    customMocArguments = filter.customMocArguments;
+    useCustomBuildTool = filter.useCustomBuildTool;
+    useCompilerTool = filter.useCompilerTool;
+    flat_files = filter.flat_files;
 }
 
 void VCFilter::createOutputStructure()
 {
-    if (Files)
+    if (d->Files) // Only create one file structure
         return;
 
     if (flat_files)
-        Files = new FlatNode;
+        d->Files = new FlatNode;
     else
-        Files = new TreeNode;
+        d->Files = new TreeNode;
 }
 
 void VCFilter::addFile(const QString& filename)
 {
     createOutputStructure();
-    Files->addElement(filename, VCFilterFile(filename));
+    d->Files->addElement(filename, VCFilterFile(filename));
 }
 
 void VCFilter::addFile(const VCFilterFile& fileInfo) 
 {
     createOutputStructure();
-    Files->addElement(fileInfo.file, fileInfo);
+    d->Files->addElement(fileInfo.file, fileInfo);
 }
 
 void VCFilter::addFiles(const QStringList& fileList)
@@ -1804,58 +1823,6 @@ void VCFilter::addMOCstage(const VCFilterFile &file, bool hdr)
     CustomBuildTool.Outputs += mocOutput;
 }
 
-void VCFilter::addUICstage(QString str)
-{
-    useCustomBuildTool = true;
-    QString uicApp = Project->var("QMAKE_UIC");
-    QString mocApp = Project->var("QMAKE_MOC");
-    QString fname = str.section('\\', -1);
-    QString mocDir = Project->var("MOC_DIR");
-    QString uiDir = Project->var("UI_DIR");
-    QString uiHeaders;
-    QString uiSources;
-
-    // Determining the paths for the output files.
-    int slash = str.lastIndexOf('\\');
-    QString pname = (slash != -1) ? str.left(slash+1) : QString(".\\");
-    if(!uiDir.isEmpty()) {
-        uiHeaders = uiDir;
-        uiSources = uiDir;
-    } else {
-        uiHeaders = Project->var("UI_HEADERS_DIR");
-        uiSources = Project->var("UI_SOURCES_DIR");
-        if(uiHeaders.isEmpty())
-            uiHeaders = pname;
-        if(uiSources.isEmpty())
-            uiSources = pname;
-    }
-    if(!uiHeaders.endsWith("\\"))
-        uiHeaders += "\\";
-    if(!uiSources.endsWith("\\"))
-        uiSources += "\\";
-
-    // Determine the file name.
-    int dot = fname.lastIndexOf('.');
-    if(dot != -1)
-        fname.truncate(dot);
-
-    if(mocDir.isEmpty())
-        mocDir = pname;
-
-    CustomBuildTool.Description = ("Uic'ing " + str + "...\"");
-    CustomBuildTool.CommandLine += // Create .h from .ui file
-        uicApp + " " + str + " -o " + uiHeaders + fname + ".h";
-    CustomBuildTool.CommandLine += // Create .cpp from .ui file
-        uicApp + " " + str + " -i " + fname + ".h -o " + uiSources + fname + ".cpp";
-    CustomBuildTool.CommandLine += // Moc the headerfile
-        mocApp + " " + uiHeaders + fname + ".h -o " + mocDir + Option::h_moc_mod + fname + Option::h_moc_ext;
-
-    CustomBuildTool.AdditionalDependencies += mocApp;
-    CustomBuildTool.AdditionalDependencies += uicApp;
-    CustomBuildTool.Outputs +=
-        uiHeaders + fname + ".h;" + uiSources + fname + ".cpp;" + mocDir + Option::h_moc_mod + fname + Option::h_moc_ext;
-}
-
 void VCFilter::modifyPCHstage(QString str)
 {
     bool isCFile = str.endsWith(".c");
@@ -1871,55 +1838,135 @@ void VCFilter::modifyPCHstage(QString str)
     CompilerTool.ForcedIncludeFiles       = "$(NOINHERIT)";
 }
 
-bool VCFilter::addIMGstage(QString str)
+bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 {
-    bool isCorH = false;
-    if (str.endsWith(".c") || str.endsWith(".rc"))
-        isCorH = true;
-    QStringList::Iterator it;
-    for(it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it)
-        if(str.endsWith(*it))
-            isCorH = true;
-    for(it = Option::h_ext.begin(); it != Option::h_ext.end(); ++it)
-        if(str.endsWith(*it))
-            isCorH = true;
-
-    QString collectionName = Project->project->first("QMAKE_IMAGE_COLLECTION");
-    if (str.isEmpty() || isCorH || collectionName.isEmpty())
+    const QStringList &extraCompilers = 
+        Project->extraCompilerSources.value(info.file);
+    if (extraCompilers.isEmpty())
         return false;
 
-    CustomBuildTool = VCCustomBuildTool();
+    CustomBuildTool.AdditionalDependencies.clear();
+    CustomBuildTool.CommandLine.clear();
+    CustomBuildTool.Description.clear();
+    CustomBuildTool.Outputs.clear();
+    CustomBuildTool.ToolName.clear();
+    CustomBuildTool.ToolPath.clear();
     useCustomBuildTool = true;
 
-    // Some projects (like designer core) may have too many images to
-    // call uic directly. Therefor we have to create a temporary
-    // file, with the image list, and call uic with the -f option.
-    QString tmpFileCmd = "echo ";
-    QString tmpImageFilename = ".imgcol";
-    QStringList& list = Project->project->variables()["IMAGES"];
-    bool firstOutput = true;
-    it = list.begin();
-    while(it!=list.end()) {
-        tmpFileCmd += (*it) + " ";
-        ++it;
-        if (tmpFileCmd.length()>250 || it==list.end()) {
-            CustomBuildTool.CommandLine += tmpFileCmd
-                                          + (firstOutput?"> ":">> ")
-                                          + tmpImageFilename;
-            tmpFileCmd = "echo ";
-            firstOutput = false;
-        }
-    }
+    for (int x = 0; x < extraCompilers.count(); ++x) {
+        const QString &extraCompilerName = extraCompilers.at(x);
 
-    QString uicApp = Project->var("QMAKE_UIC");
-    CustomBuildTool.Description = ("Generate imagecollection");
-    CustomBuildTool.CommandLine +=
-        uicApp + " -embed " + Project->project->first("QMAKE_ORIG_TARGET")
-        + " -f .imgcol -o " + collectionName;
-    CustomBuildTool.AdditionalDependencies += uicApp;
-    CustomBuildTool.AdditionalDependencies += list;
-    CustomBuildTool.Outputs = collectionName;
-    CustomBuildTool.Outputs += tmpImageFilename;
+        // All information about the extra compiler
+        QString tmp_out = Project->project->first(extraCompilerName + ".output");
+        QString tmp_cmd = Project->project->variables()[extraCompilerName + ".commands"].join(" ");
+        QString tmp_cmd_name = Project->project->variables()[extraCompilerName + ".name"].join(" ");
+        QStringList tmp_dep = Project->project->variables()[extraCompilerName + ".depends"];
+        QString tmp_dep_cmd = Project->project->variables()[extraCompilerName + ".depend_command"].join(" ");
+        QStringList vars = Project->project->variables()[extraCompilerName + ".variables"];
+        bool combined = Project->project->variables()[extraCompilerName + ".CONFIG"].indexOf("combine") != -1;
+
+        QString cmd, cmd_name, out;
+        QStringList deps, inputs;
+        // Variabel replacement of output name
+        out = Option::fixPathToTargetOS(
+                    Project->replaceExtraCompilerVariables(tmp_out, info.file, QString::null),
+                    false);
+        // Dependency for the output
+        if(!tmp_dep.isEmpty())
+	    deps = tmp_dep;
+	if(!tmp_dep_cmd.isEmpty()) {
+            // Execute dependency command, and add every line as a dep
+	    char buff[256];
+	    QString dep_cmd = Project->replaceExtraCompilerVariables(tmp_dep_cmd, 
+							            info.file, 
+                                                                    out);
+	    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+		while(!feof(proc)) {
+		    int read_in = fread(buff, 1, 255, proc);
+		    if(!read_in)
+			break;
+		    int l = 0;
+		    for(int i = 0; i < read_in; i++) {
+			if(buff[i] == '\n' || buff[i] == ' ') {
+			    deps += QByteArray(buff+l, (i - l) + 1);
+			    l = i;
+			}
+		    }
+		}
+		fclose(proc);
+	    }
+	}
+        for (int i = 0; i < deps.count(); ++i)
+	    deps[i] = Option::fixPathToTargetOS(
+                        Project->replaceExtraCompilerVariables(deps.at(i), info.file, out),
+                        false);
+        // Command for file
+        if (combined) {
+            // Replace variables for command w/o intput files
+            cmd = Project->replaceExtraCompilerVariables(tmp_cmd, 
+                                                         QString::null, 
+                                                         out);
+            // Add dependencies for each file
+            QStringList tmp_in = Project->project->variables()[extraCompilerName + ".input"];
+            for (int a = 0; a < tmp_in.count(); ++a) {
+                const QStringList &files = Project->project->variables()[tmp_in.at(a)];
+                for (int b = 0; b < files.count(); ++b) {
+                    deps += Project->findDependencies(files.at(b));
+                    inputs += Option::fixPathToTargetOS(files.at(b), false);
+                }
+            }
+            deps += inputs; // input files themselvs too..
+            // Add input files to command line
+            cmd = cmd.replace("${QMAKE_FILE_IN}", inputs.join(" "));
+        } else {
+            cmd = Project->replaceExtraCompilerVariables(tmp_cmd, 
+                                                         info.file, 
+                                                         out);
+        }
+        // Name for command
+	if(!tmp_cmd_name.isEmpty()) {
+	    cmd_name = Project->replaceExtraCompilerVariables(tmp_cmd_name, info.file, out);
+	} else {
+	    int space = cmd.indexOf(' ');
+	    if(space != -1)
+		cmd_name = cmd.left(space);
+	    else
+		cmd_name = cmd;
+	    if((cmd_name[0] == '\'' || cmd_name[0] == '"') &&
+		cmd_name[0] == cmd_name[cmd_name.length()-1])
+		cmd_name = cmd_name.mid(1,cmd_name.length()-2);
+	}
+
+        // Fixify paths
+        cmd = Option::fixPathToTargetOS(cmd, false);
+        for (int i = 0; i < deps.count(); ++i)
+            deps[i] = Option::fixPathToTargetOS(deps[i], false);
+
+
+        // Output in info.additionalFile -----------
+        if (!CustomBuildTool.Description.isEmpty())
+            CustomBuildTool.Description += " & ";
+        CustomBuildTool.Description += cmd_name;
+        CustomBuildTool.CommandLine += cmd;
+        int space = cmd.indexOf(' ');
+        QFileInfo finf(cmd.left(space));
+        if (extraCompilers.count() > 1 && x == 0)
+            CustomBuildTool.ToolName = "Tools collection:";
+        if (!CustomBuildTool.ToolName.isEmpty())
+            CustomBuildTool.ToolName += " ";
+        CustomBuildTool.ToolName += finf.baseName();
+        if (CustomBuildTool.ToolPath.isEmpty())
+            CustomBuildTool.ToolPath += finf.dirPath();
+        CustomBuildTool.Outputs += out;
+
+        // Make sure that all deps are only once        
+        deps += CustomBuildTool.AdditionalDependencies;
+        QMap<QString, bool> uniqDeps;
+        for (int c = 0; c < deps.count(); ++c)
+            uniqDeps[deps.at(c)] = false;
+        uniqDeps[cmd.left(cmd.indexOf(' '))] = false;
+        CustomBuildTool.AdditionalDependencies = uniqDeps.keys();
+    }
     return true;
 }
 
@@ -1987,18 +2034,15 @@ void VCFilter::generateXml(XmlOutput &xml, const VCFilterFile &info)
             useCompilerTool = true;
 
         // Add UIC, MOC and PCH stages to file
-        if(CustomBuild == mocSrc) {
+        if(addExtraCompiler(info)) {
+            ; // on purpose
+        } else if(CustomBuild == mocSrc) {
             if (info.file.endsWith(Option::cpp_moc_ext))
                 addMOCstage(info, false);
         } else if(CustomBuild == mocHdr) {
             addMOCstage(info, true);
-        } else if(CustomBuild == uic) {
-            addUICstage(info.file);
-        } else if (CustomBuild == resource) {
-            static bool resourceBuild = false;
-            if (!resourceBuild)
-                resourceBuild = addIMGstage(info.file);
-        }
+        } 
+
         if(Project->usePCH)
             modifyPCHstage(info.file);
     }
@@ -2026,14 +2070,16 @@ void VCFilter::generateXml(XmlOutput &xml, const VCFilterFile &info)
 
 XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool)
 {
-    if(!tool.Files || !tool.Files->hasElements())
+    if(!tool.d->Files)
+        return xml;
+    if(!tool.d->Files->hasElements())
         return xml;
 
     xml << tag(_Filter)
             << attrS(_Name, tool.Name)
             << attrT(_ParseFiles, tool.ParseFiles)
             << attrS(_Filter, tool.Filter);
-    tool.Files->generateXML(xml, QString(), &tool);
+    tool.d->Files->generateXML(xml, QString(), &tool);
     xml << closetag(_Filter);
     return xml;
 }
@@ -2061,19 +2107,20 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProject &tool)
                     << attrS(_Name, tool.PlatformName)
             << closetag(_Platforms)
             << tag(_Configurations);
-    for(int i = 0; i < tool.Configuration.count(); i++)
+    for(int i = 0; i < tool.Configuration.count(); ++i)
         xml << tool.Configuration[i];
     xml     << closetag(_Configurations)
             << tag(_Files)
                 << (VCFilter&)tool.SourceFiles
                 << (VCFilter&)tool.HeaderFiles
                 << (VCFilter&)tool.MOCFiles
-                << (VCFilter&)tool.UICFiles
                 << (VCFilter&)tool.FormFiles
                 << (VCFilter&)tool.TranslationFiles
                 << (VCFilter&)tool.LexYaccFiles
-                << (VCFilter&)tool.ResourceFiles
-            << closetag(_Files)
+                << (VCFilter&)tool.ResourceFiles;
+    for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
+        xml     << (VCFilter&)tool.ExtraCompilersFiles.at(j);
+    xml     << closetag(_Files)
             << tag(_Globals)
                 << data(); // No "/>" end tag
     return xml;

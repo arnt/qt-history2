@@ -44,8 +44,11 @@ public:
     virtual bool doDepends() const { return false; } //never necesary
     QString precompH, precompHFilename,
             precompObj, precompPch;
-    bool usePCH;
     QString mocFile(const QString &file) { return Win32MakefileGenerator::mocFile(file); }
+    static bool hasBuiltinCompiler(const QString &file);
+
+    QMap<QString, QStringList> extraCompilerSources;
+    bool usePCH;
 
 protected:
     virtual bool supportsMetaBuild() { return false; }
@@ -69,11 +72,12 @@ protected:
     void initSourceFiles();
     void initHeaderFiles();
     void initMOCFiles();
-    void initUICFiles();
     void initFormsFiles();
     void initTranslationFiles();
     void initLexYaccFiles();
     void initResourceFiles();
+    void initExtraCompilerOutputs();
+
     void addMocArguments(VCFilter &filter);
 
     VCProject vcProject;

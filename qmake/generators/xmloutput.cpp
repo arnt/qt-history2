@@ -88,6 +88,7 @@ QString XmlOutput::doConversion(const QString &text)
 
     QString output(text);
     if (conversion == XMLConversion) {
+        output.replace('&', "&amp;");
         output.replace('\"', "&quot;");
         output.replace('\'', "&apos;");
     } else if (conversion == EscapeConversion) {
