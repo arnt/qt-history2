@@ -3142,7 +3142,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   \sa QPlugIn, QClientInterface
 */
-QApplicationInterface* QApplication::requestApplicationInterface( const QCString& request )
+QApplicationInterface* QApplication::requestApplicationInterface( const QCString& /*request*/ )
 {
     return 0;
 }
