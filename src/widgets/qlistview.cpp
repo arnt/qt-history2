@@ -4101,6 +4101,9 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	d->startEdit = FALSE;
     QListViewItem *oldCurrent = currentItem();
 
+    if ( e->button() == RightButton && (e->state() & ControlButton ) )
+	goto emit_signals;
+
     if ( !i ) {
 	if ( !( e->state() & ControlButton ) )
 	    clearSelection();
@@ -4236,7 +4239,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
 
     if ( e->button() == RightButton && i == d->pressedItem ) {
-	if ( !i )
+	if ( !i && !(e->state() & ControlButton) )
 	    clearSelection();
 
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
