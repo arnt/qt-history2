@@ -71,7 +71,7 @@ public:
     virtual void addEditor( Editor *e );
     virtual QValueList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
 
-    virtual void setContext( QObjectList *toplevels, QObject *this_ );
+    virtual void setContext( QObject *this_ );
 
     void setEnabled( bool b ) { enabled = b; }
 

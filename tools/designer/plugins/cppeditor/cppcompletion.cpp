@@ -201,7 +201,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
     return QValueList<QStringList>();
 }
 
-void CppEditorCompletion::setContext( QObjectList *, QObject *this_ )
+void CppEditorCompletion::setContext( QObject *this_ )
 {
     ths = this_;
 }

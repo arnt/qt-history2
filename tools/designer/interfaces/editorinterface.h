@@ -75,7 +75,7 @@ struct EditorInterface : public QUnknownInterface
     virtual void indent() = 0;
     virtual void scrollTo( const QString &txt, const QString &first ) = 0;
     virtual void splitView() = 0;
-    virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
+    virtual void setContext( QObject *this_ ) = 0;
     virtual void setError( int line ) = 0;
     virtual void setStep( int line ) = 0;
     virtual void setStackFrame( int line ) = 0;

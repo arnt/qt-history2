@@ -665,7 +665,7 @@ QValueList<QStringList> EditorCompletion::functionParameters( const QString &, Q
     return QValueList<QStringList>();
 }
 
-void EditorCompletion::setContext( QObjectList *, QObject * )
+void EditorCompletion::setContext( QObject * )
 {
 }
 

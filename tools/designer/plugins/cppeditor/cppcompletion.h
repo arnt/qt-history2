@@ -37,7 +37,7 @@ public:
 #endif
     bool doObjectCompletion( const QString &object );
     QValueList<QStringList> functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
-    void setContext( QObjectList *toplevels, QObject *this_ );
+    void setContext( QObject *this_ );
 
 private:
     QGuardedPtr<QObject> ths;

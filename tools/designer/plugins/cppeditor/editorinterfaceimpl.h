@@ -59,7 +59,7 @@ public:
     void indent();
     void scrollTo( const QString &txt, const QString &first );
     void splitView();
-    void setContext( QObjectList *toplevels, QObject *this_ );
+    void setContext( QObject *this_ );
     void readSettings();
 
     void setError( int line );

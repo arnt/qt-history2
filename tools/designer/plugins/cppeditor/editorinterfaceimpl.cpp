@@ -245,11 +245,11 @@ void EditorInterfaceImpl::scrollTo( const QString &txt, const QString & )
     ( (CppEditor*)viewManager->currentView() )->setFocus();
 }
 
-void EditorInterfaceImpl::setContext( QObjectList *toplevels, QObject *this_ )
+void EditorInterfaceImpl::setContext( QObject *this_ )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return;
-    ( (CppEditor*)viewManager->currentView() )->completionManager()->setContext( toplevels, this_ );
+    ( (CppEditor*)viewManager->currentView() )->completionManager()->setContext( this_ );
 }
 
 void EditorInterfaceImpl::setError( int line )
