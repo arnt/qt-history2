@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#23 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#24 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -79,7 +79,7 @@ public:
 	OpRemove = 4,
 	OpRename = 8,
 	OpGet = 32,
-	OpPut = 64,
+	OpPut = 64
     };
 
     enum ConnectionState {
