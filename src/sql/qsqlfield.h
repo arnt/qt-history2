@@ -112,7 +112,7 @@ public:
 		   int prec = -1,
 		   const QVariant& defValue = QVariant(),
 		   int sqlType = 0,
-		   bool calculated = FALSE );
+		   bool generated = TRUE );
     QSqlFieldInfo( const QSqlFieldInfo & other );
     QSqlFieldInfo( const QSqlField & other, bool generated = TRUE );
     ~QSqlFieldInfo();
