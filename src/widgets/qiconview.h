@@ -74,7 +74,7 @@ public:
     virtual void setData( const QByteArray &d );
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator== ( const QIconDragItem& ) const;
-#endif // _CC_GNU_
+#endif
 
 private:
     QByteArray ba;
@@ -119,7 +119,7 @@ private:
 	IconDragItem item;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 	bool operator== ( const QIconDrag::Item& ) const;
-#endif // _CC_GNU_
+#endif
     };
 
 public:
