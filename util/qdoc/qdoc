@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#157 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#158 $
 #
 # this is a massive hack, written very quickly
 #
@@ -632,8 +632,9 @@ sub writepages {
 
     foreach $file ( keys %pages ) {
 	$doc = $pages{$file};
+	open(O, "> $outputdir/$file") ||
+	    die "can't open $outputdir/$file";
 	if ( $file =~ /\.html$/ ) {
-	    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
 	    $doc =~ s-\\link\s+([^\s\(]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 		if (defined($anchor{$1})) {
 		    sprintf("<a href=\"%s\">%s</a>", $anchor{$1}, $2);
@@ -686,8 +687,7 @@ sub writepages {
 	    $doc =~ s/<linebreak>//gs;
 	    $doc =~ s/<p>\s*<p>/<p>/gs;
 	    
-	    open(O, "> $outputdir/$file") ||
-		die "can't open $outputdir/$file";
+	    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
 	} else {
 	    print O $doc, "\n";
 	}
