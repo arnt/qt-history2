@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#21 $
 **
 ** Implementation of QToolBar class
 **
@@ -31,9 +31,9 @@
   QMainWindow, create a number of QToolButton widgets (or other
   widgets) in left to right (or top to bottom) order, call
   addSeparator() when you want a separator, and that's all.
-  
+
   The application/application.cpp example does precisely this.
-  
+
   Each QToolBar lives in a \link QMainWindow dock \endlink in a
   QMainWindow, and can optionally start a new line in its dock.  Tool
   bars that start a new line are always positioned at the left end or
@@ -171,8 +171,7 @@ void QToolBar::setUpGM()
 			? QBoxLayout::Down : QBoxLayout::LeftToRight,
 			style() == WindowsStyle ? 2 : 1, 0 );
 
-    if ( style() == WindowsStyle )
-	b->addSpacing( 9 );
+    b->addSpacing( 9 );
 
     const QObjectList * c = children();
     QObjectListIt it( *c );
@@ -216,19 +215,54 @@ void QToolBar::setUpGM()
 }
 
 
-/*!  Paint the handle.
-
-*/
+/*!  Paint the handle.  The Motif style is rather close to Netscape
+  and even closer to KDE. */
 
 void QToolBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
+    qDrawShadePanel( &p, 0, 0, width(), height(),
+		     colorGroup(), FALSE, 1, 0 );
     if ( style() == MotifStyle ) {
-	qDrawShadePanel( &p, 0, 0, width(), height(),
-			 colorGroup(), FALSE, 1, 0 );
+	QColor d( colorGroup().dark() );
+	QColor l( colorGroup().light() );
+	unsigned int i;
+	if ( orientation() == Vertical ) {
+	    QPointArray a( 2 * ((width()-6)/3) );
+	    int x = 3 + (width()%3)/2;
+	    p.setPen( d );
+	    p.drawLine( 1, 8, width()-2, 8 );
+	    for( i=0; 2*i < a.size(); i ++ ) {
+		a.setPoint( 2*i, x+1+3*i, 6 );
+		a.setPoint( 2*i+1, x+2+3*i, 3 );
+	    }
+	    p.drawPoints( a );
+	    p.setPen( l );
+	    p.drawLine( 1, 9, width()-2, 9 );
+	    for( i=0; 2*i < a.size(); i++ ) {
+		a.setPoint( 2*i, x+3*i, 5 );
+		a.setPoint( 2*i+1, x+1+3*i, 2 );
+	    }
+	    p.drawPoints( a );
+	} else {
+	    QPointArray a( 2 * ((height()-6)/3) );
+	    int y = 3 + (height()%3)/2;
+	    p.setPen( d );
+	    p.drawLine( 8, 1, 8, height()-2 );
+	    for( i=0; 2*i < a.size(); i ++ ) {
+		a.setPoint( 2*i, 5, y+1+3*i );
+		a.setPoint( 2*i+1, 2, y+2+3*i );
+	    }
+	    p.drawPoints( a );
+	    p.setPen( l );
+	    p.drawLine( 9, 1, 9, height()-2 );
+	    for( i=0; 2*i < a.size(); i++ ) {
+		a.setPoint( 2*i, 4, y+3*i );
+		a.setPoint( 2*i+1, 1, y+1+3*i );
+	    }
+	    p.drawPoints( a );
+	}
     } else {
-	qDrawShadePanel( &p, 0, 0, width(), height(),
-			 colorGroup(), FALSE, 1, 0 );
 	if ( orientation() == Vertical ) {
 	    qDrawShadePanel( &p, 2, 4, width() - 4, 3,
 			     colorGroup(), FALSE, 1, 0 );
