@@ -1207,7 +1207,8 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 
 /*!
     \property QTreeWidget::sortingEnabled
-    \brief whether the items in the tree widget are sorted
+    \brief whether the items in the tree widget can be sorted
+    by clicking on the header
 */
 
 /*!
