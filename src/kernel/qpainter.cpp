@@ -2841,17 +2841,19 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    textLayout.setBoundary( underlinePositions[i]+1 );
 	}
 
-	int lineWidth = wordbreak ? r.width() : INT_MAX;
+	int lineWidth = wordbreak ? QMAX(0, r.width()-rb-lb) : INT_MAX;
+	if(!wordbreak)
+	    tf |= Qt::IncludeTrailingSpaces;
 
 	int add = 0;
 	int leading = fm.leading();
 	height = -leading;
 
-	//qDebug("\n\nbeginLayout: lw = %d", lineWidth );
+	//qDebug("\n\nbeginLayout: lw = %d, rectwidth=%d", lineWidth , r.width());
 	while ( !textLayout.atEnd() ) {
 	    height += leading;
 	    textLayout.beginLine( lineWidth == INT_MAX ? lineWidth : lineWidth + add );
-	    //qDebug("beginLine( %d )",  lineWidth+add );
+	    //qDebug("-----beginLine( %d )-----",  lineWidth+add );
 	    bool linesep = FALSE;
 	    while ( 1 ) {
 		QTextItem ti = textLayout.currentItem();
@@ -2872,7 +2874,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 		    } else {
 			tw = tabstops - (x % tabstops);
 		    }
-// 		    qDebug("tw = %d",  tw );
+ 		    //qDebug("tw = %d",  tw );
 		    if ( tw )
 			ti.setWidth( tw );
 		}
@@ -2884,12 +2886,12 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 
 	    int ascent, descent, lineLeft, lineRight;
-	    textLayout.setLineWidth( r.width() + add );
-	    int state = textLayout.endLine( 0, height, tf|Qt::IncludeTrailingSpaces, &ascent, &descent,
+	    textLayout.setLineWidth( r.width()-rb-lb + add );
+	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
 					    &lineLeft, &lineRight );
 
 	    if ( state != QTextLayout::LineEmpty || linesep ) {
-		//qDebug("finalizing line: ascent = %d, descent=%d lineleft=%d lineright=%d", ascent, descent,lineLeft, lineRight  );
+		//qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
 		left = QMIN( left, lineLeft );
 		right = QMAX( right, lineRight );
 		height += ascent + descent + 1;
@@ -2908,8 +2910,10 @@ void qt_format_text( const QFont& font, const QRect &_r,
     else if ( tf & Qt::AlignVCenter )
 	yoff = (r.height() - height)/2;
 
-    if ( brect )
+    if ( brect ) {
 	*brect = QRect( r.x() + left, r.y() + yoff, right-left + lb+rb, height );
+	//qDebug("br = %d %d %d/%d, left=%d, right=%d", brect->x(), brect->y(), brect->width(), brect->height(), left, right);
+    }
 
     if (!(tf & QPainter::DontPrint)) {
 	bool restoreClipping = FALSE;
@@ -2944,9 +2948,10 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	if (fnt.overline()) _tf |= Qt::Overline;
 	if (fnt.strikeOut()) _tf |= Qt::StrikeOut;
 
+	//qDebug("have %d items",textLayout.numItems());
 	for ( int i = 0; i < textLayout.numItems(); i++ ) {
 	    QTextItem ti = textLayout.itemAt( i );
-// 	    qDebug("Item %d: from=%d,  to=%d,  space=%d", i, ti.from(),  ti.length(), ti.isSpace() );
+ 	    //qDebug("Item %d: from=%d,  length=%d,  space=%d x=%d", i, ti.from(),  ti.length(), ti.isSpace(), ti.x() );
 	    if ( ti.isTab() || ti.isObject() )
 		continue;
 	    int textFlags = _tf;

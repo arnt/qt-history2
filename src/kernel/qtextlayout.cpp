@@ -333,7 +333,8 @@ QTextLayout::Result QTextLayout::addCurrentItem()
 
     d->currentItem++;
 
-    return (d->widthUsed >= d->lineWidth) ? LineFull : Ok;
+    return (d->widthUsed <= d->lineWidth 
+	    || (d->currentItem < d->items.size() && d->items[d->currentItem].isSpace)) ? Ok : LineFull;
 }
 
 QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
@@ -353,14 +354,17 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     if ( d->firstItemInLine == -1 )
 	goto end;
 
-    if ( !(alignment & (Qt::SingleLine|Qt::IncludeTrailingSpaces)) && d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
+    if ( !(alignment & (Qt::SingleLine|Qt::IncludeTrailingSpaces)) 
+	&& d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
 	int i = d->currentItem-1;
 	while ( i > d->firstItemInLine && d->items[i].isSpace ) {
 	    numSpaceItems++;
 	    d->widthUsed -= d->items[i--].width;
 	}
-    } else if ( (alignment & (Qt::WordBreak|Qt::BreakAnywhere)) &&
-		d->widthUsed > d->lineWidth ) {
+    } 
+
+    if ( (alignment & (Qt::WordBreak|Qt::BreakAnywhere)) &&
+	 d->widthUsed > d->lineWidth ) {
 	// find linebreak
 	bool breakany = alignment & Qt::BreakAnywhere;
 
@@ -379,6 +383,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 #endif
 	{
 	    int tmpWidth = 0;
+	    int swidth = 0;
 	    // forward search is probably faster
 	    for ( int i = d->firstItemInLine; i < d->currentItem; i++ ) {
 		const QScriptItem *si = &d->items[i];
@@ -391,44 +396,50 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 		int lastGlyph = 0;
 		int tmpItemWidth = 0;
 
-//   		qDebug("looking for break in item %d", i );
-
-		for ( int pos = 0; pos < length; pos++ ) {
-// 		    qDebug("advance=%d, tmpWidth=%d, softbreak=%d, whitespace=%d",
-// 			   advances->x, tmpWidth, itemAttrs->softBreak, itemAttrs->whiteSpace );
-		    int glyph = logClusters[pos];
-		    if ( lastGlyph != glyph ) {
-			while ( lastGlyph < glyph )
-			    tmpItemWidth += advances[lastGlyph++];
-			if ( w + tmpWidth + tmpItemWidth > d->lineWidth ) {
-			    d->widthUsed = w;
-			    goto found;
+//    		qDebug("looking for break in item %d, isSpace=%d", i, si->isSpace );
+		if(si->isSpace && !(alignment & (Qt::SingleLine|Qt::IncludeTrailingSpaces))) {
+		    swidth += si->width;
+		} else {
+		    tmpWidth += swidth;
+		    swidth = 0;
+		    for ( int pos = 0; pos < length; pos++ ) {
+ 			//qDebug("advance=%d, tmpWidth=%d, softbreak=%d, whitespace=%d",
+ 		    //	   *advances, tmpWidth, itemAttrs->softBreak, itemAttrs->whiteSpace );
+			int glyph = logClusters[pos];
+			if ( lastGlyph != glyph ) {
+			    while ( lastGlyph < glyph )
+				tmpItemWidth += advances[lastGlyph++];
+			    if ( w + tmpWidth + tmpItemWidth > d->lineWidth ) {
+// 				qDebug("found break at w=%d, tmpWidth=%d, tmpItemWidth=%d", w, tmpWidth, tmpItemWidth);
+				d->widthUsed = w;
+				goto found;
+			    }
 			}
+			if ( (itemAttrs->softBreak ||
+			      ( breakany && itemAttrs->charStop ) ) &&
+			     (i != d->firstItemInLine || pos != 0) ) {
+			    if ( breakItem != i )
+				itemWidth = 0;
+			    if (itemAttrs->softBreak)
+				breakany = FALSE;
+			    breakItem = i;
+			    breakPosition = pos;
+//   			    qDebug("found possible break at item %d, position %d (absolute=%d), w=%d, tmpWidth=%d, tmpItemWidth=%d", breakItem, breakPosition, d->items[breakItem].position+breakPosition, w, tmpWidth, tmpItemWidth);
+			    breakGlyph = glyph;
+			    w += tmpWidth + tmpItemWidth;
+			    itemWidth += tmpItemWidth;
+			    tmpWidth = 0;
+			    tmpItemWidth = 0;
+			}
+			itemAttrs++;
 		    }
-		    if ( (itemAttrs->softBreak ||
-			  ( breakany && itemAttrs->charStop ) ) &&
-			 (i != d->firstItemInLine || pos != 0) ) {
-			if ( breakItem != i )
-			    itemWidth = 0;
-			if (itemAttrs->softBreak)
-			    breakany = FALSE;
-			breakItem = i;
-			breakPosition = pos;
-//  			qDebug("found possible break at item %d, position %d (absolute=%d), tmpWidth=%d, tmpItemWidth=%d", breakItem, breakPosition, d->items[breakItem].position+breakPosition, tmpWidth, tmpItemWidth );
-			breakGlyph = glyph;
-			w += tmpWidth + tmpItemWidth;
-			itemWidth += tmpItemWidth;
-			tmpWidth = 0;
-			tmpItemWidth = 0;
+		    while ( lastGlyph < si->num_glyphs )
+			tmpItemWidth += advances[lastGlyph++];
+		    tmpWidth += tmpItemWidth;
+		    if ( w + tmpWidth > d->lineWidth ) {
+			d->widthUsed = w;
+			goto found;
 		    }
-		    itemAttrs++;
-		}
-		while ( lastGlyph < si->num_glyphs )
-		    tmpItemWidth += advances[lastGlyph++];
-		tmpWidth += tmpItemWidth;
-		if ( w + tmpWidth > d->lineWidth ) {
-		    d->widthUsed = w;
-		    goto found;
 		}
 	    }
 	}
@@ -449,13 +460,6 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	    d->currentItem = breakItem+1;
 	} else {
 	    d->currentItem = breakItem;
-	    if ( d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
-		int i = d->currentItem-1;
-		while ( i > d->firstItemInLine && d->items[i].isSpace ) {
-		    numSpaceItems++;
-		    d->widthUsed -= d->items[i--].width;
-		}
-	    }
 	}
     }
 
