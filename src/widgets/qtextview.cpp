@@ -505,7 +505,8 @@ void QTextView::keyPressEvent( QKeyEvent *e )
         moveCursor( MovePgDown, e->state() & ShiftButton, e->state() & ControlButton );
         break;
     case Key_Return: case Key_Enter:
-        doc->removeSelection( QTextDocument::Standard );
+        if ( doc->hasSelection( QTextDocument::Standard, TRUE ) )
+	    removeSelectedText();
 #ifndef QT_NO_CURSOR
         viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
@@ -2947,7 +2948,7 @@ int QTextView::wrapColumnOrWidth() const
   \property QTextView::wrapPolicy
   \brief the word wrap policy, at whitespace or anywhere
 
-  Defines where text can be wrapped when word wrap mode is not 
+  Defines where text can be wrapped when word wrap mode is not
   \c NoWrap. The choices are \c AtWhiteSpace (the default) and \c
   Anywhere.
 
