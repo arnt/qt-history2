@@ -1771,7 +1771,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	setMinimumSize( 128, 0 );
     } else {
 	setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	setMinimumSize( 128, 96 );
+	setMinimumSize( 128, 0 );
     }
 
     childWidget = window;
