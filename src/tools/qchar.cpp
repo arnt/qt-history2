@@ -399,13 +399,13 @@ bool QChar::isSymbol() const
 int QChar::digitValue() const
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_INT8 *dec_row = QUnicodeTables::decimal_info[row()];
-    if(!dec_row)
+    register int pos = QUnicodeTables::decimal_info[row()];
+    if( !pos )
 	return -1;
-    return dec_row[cell()];
+    return QUnicodeTables::decimal_info[(pos<<8) + cell()];
 #else
     // ##### just latin1
-    if (ucs < '0' || ucs > '9')
+    if ( ucs < '0' || ucs > '9' )
 	return -1;
     else
 	return ucs - '0';
@@ -475,10 +475,10 @@ static QString shared_decomp;
 QString QChar::decomposition() const
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_UINT16 *r = QUnicodeTables::decomposition_info[row()];
-    if(!r) return QString();
+    register int pos = QUnicodeTables::decomposition_info[row()];
+    if(!pos) return QString::null;
 
-    Q_UINT16 pos = r[cell()];
+    pos = QUnicodeTables::decomposition_info[(pos<<8)+cell()];
     if(!pos) return QString::null;
     pos+=2;
 
@@ -499,10 +499,10 @@ QString QChar::decomposition() const
 QChar::Decomposition QChar::decompositionTag() const
 {
 #ifndef QT_NO_UNICODETABLES
-    const Q_UINT16 *r = QUnicodeTables::decomposition_info[row()];
-    if(!r) return QChar::Single;
+    register int pos = QUnicodeTables::decomposition_info[row()];
+    if(!pos) return QChar::Single;
 
-    Q_UINT16 pos = r[cell()];
+    pos = QUnicodeTables::decomposition_info[(pos<<8)+cell()];
     if(!pos) return QChar::Single;
 
     return (QChar::Decomposition) QUnicodeTables::decomposition_map[pos];
