@@ -293,7 +293,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
 
 	if ( !interpreterInterfaceManager ) {
-	    interpreterInterfaceManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
+	    interpreterInterfaceManager =
+		new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
 	    QStringList paths(QApplication::libraryPaths());
 	    QStringList::Iterator it = paths.begin();
 	    while (it != paths.end()) {
@@ -1472,6 +1473,19 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     QMap<QString, QString> bodies;
     QString s;
+    if ( !interpreterInterfaceManager ) {
+	QString dir = getenv( "QTDIR" );
+	dir += "/plugins/designer";
+	interpreterInterfaceManager =
+	    new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
+	QStringList paths(QApplication::libraryPaths());
+	QStringList::Iterator it = paths.begin();
+	while ( it != paths.end() ) {
+	    interpreterInterfaceManager->addLibraryPath( *it + "/designer" );
+	    it++;
+	}
+    }
+
     while ( !n.isNull() ) {
 	if ( n.tagName() == "function" ) {
 	    QString name = n.attribute( "name" );
@@ -1479,6 +1493,8 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 	    QString ident = name.left( pos );
 	    QMap<QString, QString>::Iterator it = languageSlots.find( ident );
 	    if ( it != languageSlots.end() ) {
+		InterpreterInterface *interpreterInterface =
+		    (InterpreterInterface*)interpreterInterfaceManager->queryInterface( *it );
 		Functions *funcs = 0;
 		QMap<QString, Functions*>::Iterator fit = languageFunctions.find( *it );
 		if ( fit == languageFunctions.end() ) {
@@ -1488,14 +1504,17 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 		    funcs = *fit;
 		}
 		QString body = n.firstChild().toText().data();
-		QString s = "function " + name + "\n" + body + "\n\n";
-		funcs->functions += s;
-		if ( qwf_language && *qwf_language == *it ) {
-		    if ( !qwf_functions )
-			qwf_functions = new QMap<QWidget*, QString>;
-		    if ( !qwf_forms )
-			qwf_forms = new QMap<QWidget*, QString>;
-		    (*(qwf_functions))[ toplevel ].append( s );
+		if ( interpreterInterface ) {
+		    QString s = interpreterInterface->createFunctionDeclaration( name, body );
+		    funcs->functions += s;
+		    if ( qwf_language && *qwf_language == *it ) {
+			if ( !qwf_functions )
+			    qwf_functions = new QMap<QWidget*, QString>;
+			if ( !qwf_forms )
+			    qwf_forms = new QMap<QWidget*, QString>;
+			(*(qwf_functions))[ toplevel ].append( s );
+		    }
+		    interpreterInterface->release();
 		}
 
 	    }
