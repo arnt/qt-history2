@@ -523,7 +523,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	qFatal( "Couldn't open %s for writing", outfile.latin1() );
     out.setDevice( &file );
 
-    QString version = ver;
+    QString version( ver.unicode(), ver.length() );
     while ( version.contains( '.' ) > 1 ) {
 	int lastdot = version.findRev( '.' );
 	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
