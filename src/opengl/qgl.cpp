@@ -40,6 +40,8 @@ static void *gl_pixmap_visual = 0;
 # include <private/qt_mac_p.h>
 #endif
 
+#include <stdlib.h> // malloc
+
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 #ifndef APIENTRY
