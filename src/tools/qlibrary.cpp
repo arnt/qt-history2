@@ -189,7 +189,7 @@ void QLibraryPrivate::killTimer()
   The shared object "mylib", which now acts as a component server, is guaranteed to
   provide a pointer to the correct interface type, so that it becomes safe to use
   unknown libraries in an application. Since the lifetime of the interface is reference
-  controlled it is also impossible to unload the library when there are references to 
+  controlled it is also impossible to unload the library when there are references to
   memory allocated in the library.
 
   If provided by the component, QLibrary uses the QLibraryInterface implementation to
@@ -228,7 +228,7 @@ void QLibraryPrivate::killTimer()
   \endcode
 
   on Windows. But \e "mylib.dll" will obviously not work on other platforms.
-  If \a filename does not include a path, the library loader will look for 
+  If \a filename does not include a path, the library loader will look for
   the file in the platform specific search paths.
 
   \sa setPolicy(), unload()
@@ -361,7 +361,7 @@ void QLibrary::createInstanceInternal()
 
 /*!
   Returns the address of the exported symbol \a symb. The library gets
-  loaded if necessary. The function returns a null pointer if the symbol 
+  loaded if necessary. The function returns a null pointer if the symbol
   could not be resolved or the library could not be loaded.
 
   \code
@@ -384,6 +384,8 @@ void *QLibrary::resolve( const char* symb )
 	return 0;
 
     void *address = d->resolveSymbol( symb );
+
+#ifdef Q_CC_BOR
     if ( !address ) {
 #if defined(QT_DEBUG_COMPONENT)
 	// resolveSymbol() might give a warning; so let that warning look so fatal
@@ -391,6 +393,8 @@ void *QLibrary::resolve( const char* symb )
 #endif
 	address = d->resolveSymbol( QString( "_" ) + symb );
     }
+#endif
+
     return address;
 }
 
@@ -429,11 +433,11 @@ bool QLibrary::load()
 }
 
 /*!
-  Unloads the library and returns TRUE if the library could be unloaded, 
+  Unloads the library and returns TRUE if the library could be unloaded,
   otherwise returns FALSE.
 
   Any component referenced by the QLibrary object is being released before
-  the library is unloaded. If the component implements the QLibraryInterface, 
+  the library is unloaded. If the component implements the QLibraryInterface,
   the \link QLibraryInterface::cleanup() cleanup() \endlink function is called. if
   the subsequent call to \link QLibraryInterface::canUnload() canUnload() \endlink
   return FALSE, unloading will be cancelled.
