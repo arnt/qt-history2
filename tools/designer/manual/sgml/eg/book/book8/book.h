@@ -1,7 +1,7 @@
 /****************************************************************************
-** Form interface generated from reading ui file 'book.ui'
+** Form interface generated from reading ui file '/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book8/book.ui'
 **
-** Created: Fri Feb 16 09:18:06 2001
+** Created: Fri Feb 23 12:24:43 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

@@ -8,8 +8,8 @@ This chapter shows you how to use Qt's data-aware widgets from within
 \qd. It demonstrates \ins, \upd and \del in both \class[QDataTable]s
 (tables) and \class[QDataBrowser]s (forms). It also shows how to code
 Master-Detail relationships and Drilldown. A simple approach to Foreign
-key handling is presented, and a more sophisticated approach is
-given in the SQL module documentation.
+key handling is presented, while a more sophisticated approach is
+presented in the SQL module documentation.
 </para>
 
 <para>
@@ -17,7 +17,7 @@ If you wish to run the examples or create your own applications using
 these widgets you need access to an SQL database and a Qt database driver
 that can connect to the database. At the time of writing the drivers
 that Qt supports are QODBC (Open Database Connectivity), QOCI (Oracle),
-QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL). 
+QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL 7) and QMYSQL (MySQL).
 </para>
 
 <para>
@@ -28,21 +28,21 @@ of SQL is highly recommended. We assume some familiarity with
 understanding of the concepts of normalisation and of primary and
 foreign keys. A standard text covering SQL databases is <citetitle
 pubwork="book">An Introduction to Database Systems (7th ed.)</> by C. J.
-Date, ISBN 0201385902. 
+Date, ISBN 0201385902.
 </para>
 
 <para>
-In the following text we describe the creation of the 'book'
-application. The application demonstrates how to use \class[QDataTable]s
-including in-place record editing and setting up master-detail
-relationships between \class[QDataTable]s. It also explains how to drill
-down from a \class[QDataTable] to another widget, for example to a
-\class[QDataBrowser] or a \class[QDataView] and how to perform record
-editing in \class[QDataBrowser]s. A great deal of functionality is
-available from the classes directly in \qd although subclassing is
-always available for finer control. If you want to build the example you
-will need to create the example schema on your database.
-<figure><title>The Book Application</title>
+In the following text we describe the creation of a 'book' database
+application. The application demonstrates how to use
+\class[QDataTable]s including in-place record editing and how to set
+up master-detail relationships between \class[QDataTable]s. It also
+explains how to drill down from a \class[QDataTable] to another
+widget, for example to a \class[QDataBrowser] or a \class[QDataView]
+and how to perform record editing in \class[QDataBrowser]s. A great
+deal of functionality is available from the classes directly in \qd
+although subclassing is always available for finer control. If you
+want to build the 'book' examples you will need to create the example
+schema on your database.  <figure><title>The Book Application</title>
 \img[book-main]
 </figure>
 </para>
@@ -51,22 +51,23 @@ will need to create the example schema on your database.
 <para>
 Note that the examples in this chapter all use the tables, views and
 records which are defined in the
-<filename>qt/tools/designer/eg/book/book.sql</> file. This file has been
-tested with PostgreSQL 6. You may need to modify the SQL in this file to
-recreate the example database on your own system. 
+<filename>qt/tools/designer/eg/book/book.sql</> file. This file has
+been tested with PostgreSQL 6 and PostgreSQL 7. You may need to modify
+the SQL in this file to recreate the example database on your own
+system.
+
 <example><title>Schema <literal>CREATE TABLE</> Statements</><programlisting>
 \scan eg/book/book.sql /CREATE TABLE\s*author/ /CREATE TABLE\s*format/
 </programlisting></example>
-The book table is simplified for the purposes of example. It can only
-relate a book to a single author (authorid) and lacks an ISBN field.
-The format table is used to store 'paperback', 'hardback', etc.
-<example><title>Schema <literal>CREATE VIEW</> Statements</><programlisting>
-\scan eg/book/book.sql /CREATE VIEW/ /CREATE VIEW/
-</programlisting></example>
-The book_view is used to present the book's format as a textual value
-rather than as a raw id. The author_view maps one-to-one with the author
-table and allows us to select an author on the basis of a single field,
-in a combobox for example.
+
+The 'book' table is simplified for the purposes of example. It can
+only relate a book to a single author (authorid) and lacks an ISBN
+field.  The 'sequence' table is used for generating unique index
+values for the example tables.  Note that SQL databases often provide
+their own method for achieving the same thing (for example, using the
+CREATE SEQUENCE command).  This is a more optimal solution, however
+for the purposes of the example, we will use a 'sequence' table which
+is portable to the vast majority of SQL databases.
 </para>
 </sidebar>
 
@@ -102,7 +103,7 @@ in a combobox for example.
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
 	will remain in force until you change or delete them or quit
-	\qd. 
+	\qd.
 	</para>
 
 	<para>
@@ -134,7 +135,7 @@ in a combobox for example.
 
 	<para>
 	The applications you create must make their own connections to
-	the SQL database. 
+	the SQL database.
 <example><title>createConnections() function</><programlisting>
 bool createConnections()
 {
@@ -144,11 +145,11 @@ bool createConnections()
     defaultDB-&gt;setUserName( &quot;bookuser&quot; );
     defaultDB-&gt;setPassword( &quot;bookpw&quot; );
     defaultDB-&gt;setHostName( &quot;bookhost&quot; );
-    if ( ! defaultDB-&gt;open() ) { 
-        qWarning( &quot;Failed to open books database: &quot; + 
-                  defaultDB-&gt;lastError().driverText() );
-        qWarning( defaultDB-&gt;lastError().databaseText() );
-        return FALSE;
+    if ( ! defaultDB-&gt;open() ) {
+	qWarning( &quot;Failed to open books database: &quot; +
+		  defaultDB-&gt;lastError().driverText() );
+	qWarning( defaultDB-&gt;lastError().databaseText() );
+	return FALSE;
     }
 
     return TRUE;
@@ -158,7 +159,7 @@ bool createConnections()
 	driver we wish to use. We then set the connection information by
 	calling the <literal>set...</> functions. Finally we attempt to
 	open the connection. If we succeed we return TRUE, otherwise we
-	output some error information and return FALSE. 
+	output some error information and return FALSE.
 <example><title>From <filename>qt/tools/designer/eg/book/book1/main.cpp</></><programlisting>
 \scan eg/book/book1/main.cpp /int main/ /^}/
 </programlisting></example>
@@ -172,7 +173,7 @@ bool createConnections()
 	url="http://doc.trolltech.com/sql.html">Qt SQL Module
 	documentation</>.
 	</para>
-	
+
 	<para>
 	Note that you do not need to keep a reference to database
 	connections. If you use a single database connection, this
@@ -189,14 +190,15 @@ bool createConnections()
 <title>Using \class[QDataTable]</>
 
     <para>
-    \class[QDataTable]s may be placed on any form and provide browsing of database
-    tables and views. \class[QDataTable]s can also be used to update or delete records
-    in-place. Inserting records via a \class[QDataTable] usually requires connecting
-    to the <function>primeInsert()</> signal, so that we can generate
-    primary keys for example, or provide default values. If we wish to
-    present records using a form view (perhaps combining data from
-    several tables and views) we might use several \class[QDataBrowser]s
-    and \class[QDataView]s. 
+    \class[QDataTable]s may be placed on any form to provide browsing
+    of database tables and views. \class[QDataTable]s can also be used
+    to update or delete records in-place. Inserting records via a
+    \class[QDataTable] usually requires connecting to the
+    <function>primeInsert()</> signal, so that we can generate primary
+    keys for example, or provide default values. If we wish to present
+    records using a form view (perhaps combining data from several
+    tables and views) we might use several \class[QDataBrowser]s and
+    \class[QDataView]s.
     </para>
 
     <sect2 id="quickly-viewing-a-database-table">
@@ -206,12 +208,12 @@ bool createConnections()
 	This example, along with all the other examples in this chapter,
 	has the project name 'book' and uses the database created by
 	the <filename>book.sql</> script. As we work through the chapter
-	we will build the 'book' application. Create or copy the
+	we will build the 'book' application step by step. Create or copy the
 	<filename>qt/tools/designer/eg/book/book1/main.cpp</> file shown
 	earlier. The project file for this first example is
 	<filename>qt/tools/designer/eg/book/book1/book.pro</>. Start a new
 	project by clicking <guimenuitem>File|New Project</>. Complete
-	the dialog by entering a project name and a project file name. 
+	the dialog by entering a project name and a project file name.
 	Now click <guimenuitem>Edit|Database Connections</>. Fill in the
 	connection information appropriate to your database then press
 	<guibutton>Connect</>. The connection name should now appear in
@@ -222,7 +224,7 @@ bool createConnections()
 
 	<para>
 	We will now create a new form with a \class[QDataTable] that's connected to
-	one of our database tables. 
+	one of our database tables.
 	</para>
 
 	<para>
@@ -230,7 +232,7 @@ bool createConnections()
 	with a number of form templates to choose from. Choose the
 	'Dialog' form and click \ok. Now click
 	<guimenuitem>File|Save</>. You will be prompted for a filename,
-	call it <filename>book.ui</>. 
+	call it <filename>book.ui</>.
 	</para>
 
 	<sect3 id="setting-up-a-qdatatable">
@@ -240,7 +242,7 @@ bool createConnections()
 	    To place a \class[QDataTable] widget on the form either
 	    click <guimenuitem>Tools|Views|QDataTable</> or click the
 	    \button[QDataTable] toolbar button. Click on the form and
-	    the SQL Table Wizard will appear. 
+	    the SQL Table Wizard will appear.
 
 	    <orderedlist numeration="arabic">
 		<listitem>
@@ -255,10 +257,10 @@ bool createConnections()
 
 		    <para>
 		    Click the connection you wish to use, listed in the
-		    left hand list box, e.g. "(default)". The tables and
+		    left hand list box, e.g. "(default)". The available tables and
 		    views will appear in the right hand Table list box.
-		    Click the author table and then click the
-		    <guibutton>Next</> button. 
+		    Click the 'author' table and then click the
+		    <guibutton>Next</> button.
 		    </para>
 		</listitem>
 
@@ -269,11 +271,11 @@ bool createConnections()
 		    displayed in the \class[QDataTable] and in what
 		    order. By default all fields except the primary key
 		    (if there is one) are in the Displayed Fields list
-		    box. The left and right pointing blue arrow buttons
+		    box. The left- and right-pointing blue arrow buttons
 		    can be used to move fields between the Displayed
 		    Fields and the Available Fields list boxes. The blue
 		    up and down pointing arrow buttons are used to
-		    select the display order of the displayed fields. 
+		    select the display order of the displayed fields.
 		    </para>
 
 		    <para>
@@ -286,12 +288,12 @@ bool createConnections()
 		    <para>
 		    The <emphasis>Table Properties</> wizard page provides
 		    convenient access to some of the database-related
-		    properties of the \class[QDataTable]. 
+		    properties of the \class[QDataTable].
 		    </para>
 
 		    <para>
-		    Click the Confirm Deletes checkbox, then click
-		    <guibutton>Next</>. 
+		    Make sure the Confirm Deletes checkbox is checked, then click
+		    <guibutton>Next</>.
 		    </para>
 		</listitem>
 
@@ -328,7 +330,7 @@ bool createConnections()
 		    </para>
 
 		    <para>
-		    Click <guibutton>Finish</>. 
+		    Click <guibutton>Finish</>.
 		    </para>
 		</listitem>
 
@@ -363,7 +365,7 @@ bool createConnections()
 	    must add the <filename>main.cpp</> file to the project file and
 	    make the project. We should also do some renaming to make things
 	    easier to understand.
-	    
+
 	    <orderedlist numeration="arabic">
 		<listitem>
 		    <para>
@@ -375,15 +377,15 @@ bool createConnections()
 
 		<listitem>
 		    <para>
-		    Click <guimenuitem>File|Save All</>. 
+		    Click <guimenuitem>File|Save All</>.
 		    </para>
 		</listitem>
 
 		<listitem>
 		    <para>
 		    Open the project file, e.g. <filename>book.pro</>, in a
-		    plain text editor and add the line: 
-		    <literal>SOURCES += main.cpp</> 
+		    plain text editor and add the line:
+		    <literal>SOURCES += main.cpp</>
 		    at the end of the file.
 		    </para>
 		</listitem>
@@ -410,20 +412,16 @@ bool createConnections()
 
 	    <sidebar><title>A Note on Foreign Keys</title>
 	    <para>
-	    In most relational databases tables contain fields which are
-	    foreign keys into other tables. In our book database example the
-	    formatid in the book table is a foreign key into the format
-	    table, and the authorid in the book table is a foreign key into
-	    the author table. When we present a form to the end user we do
-	    not usually want the foreign key itself to be visible but rather
-	    the text associated with it. Thus, we would want the format name
-	    to appear rather than the format id when we show the book table.
-	    Whilst this can be achieved programmatically, e.g. using
-	    calculated fields, it is far easier to create a view that
-	    encompasses the fields we wish to make visible to the user. A
-	    view also places the burden of work on the database rather than
-	    the client application. In the examples we have created the
-	    book_view view to demonstrate this approach.
+	    In most relational databases tables contain fields which
+	    are foreign keys into other tables. In our 'book' database
+	    example the authorid in the book table is a foreign key
+	    into the author table. When we present a form to the end
+	    user we do not usually want the foreign key itself to be
+	    visible but rather the text associated with it. Thus, we
+	    would want the author's name to appear rather than the
+	    author id when we show book information.  In many
+	    databases, this can be achieved using a VIEW.  See your
+	    database's documentation for details.
 	    </para>
 	    </sidebar>
 
@@ -436,12 +434,13 @@ bool createConnections()
 
 	<para>
 	Record insertion into a relational database usually requires
-	the generation of a unique primary key. Also we often want to
+	the generation of a primary key value which uniquely
+	identifies the record in the table. Also we often want to
 	create default values for some fields to minimize the user's
 	work. We will create a slot to capture the \class[QDataTable]s
 	<function>primeInsert</> signal and populate the
-	<classname>QSqlRecord</> insertion buffer with a unique primary
-	key.
+	<classname>QSqlRecord</> insertion buffer with a unique
+	primary key.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -455,7 +454,7 @@ bool createConnections()
 	    </listitem>
 
 	    <listitem>
-		<para> 
+		<para>
 		Click the <guibutton>Connect Signal/Slots</>
 		toolbar button, then click the AuthorDataTable, drag to
 		the form and release the mouse. The Edit Connections
@@ -483,16 +482,19 @@ bool createConnections()
 <programlisting>
 \scan eg/book/book2/book.cpp /BookForm::primeInsertAuthor/ /^}/
 </programlisting>
-		The \class[QSqlQuery] constructor executes the query and
-		we call \fn[next()] to navigate to the first record of
-		the resultant record set. The signal passed us a pointer
-		to the insertion buffer and we then put the value we've
-		retrieved, i.e. the next sequence number, into the
-		buffer's id field.
-		(Note that not all databases support the nextval
-		function so you may need to read your database's
-		documentation to see how to generate unique keys in
-		code.) 
+		A \class[QSqlQuery] object is used to increment and
+		retrieve a unique 'sequence' number for the author
+		table. The signal passed us a pointer to the insertion
+		buffer and we then put the value we've retrieved,
+		i.e. the next sequence number, into the buffer's id
+		field.  (Again, note that SQL databases often support
+		a native 'sequence' function.  The method used here is
+		inappropriate for production systems, and is for
+		example purposes only.  See your database's
+		documentation for details on how to generate unique
+		keys in code.  In many cases, the database can
+		generate them automatically, or the database may
+		provide a special syntax for dealing with sequences)
 		</para>
 	    </listitem>
 
@@ -580,17 +582,17 @@ bool createConnections()
 	<para>
 	Databases often have pairs of tables that are related. For
 	example an invoice table might list the numbers, dates and
-	customers for invoices, but not the actual invoice items which
-	the invoice item table might store. In the book application we 
+	customers for invoices, but not the actual invoice items, which
+	an invoice item table might store. In the 'book' application we
 	wish to have a \class[QDataTable] that we can use to browse
 	through the authors table and a second \class[QDataTable] to
-	show the books they've written. 
+	show the books they've written.
 	</para>
 
 	<para>
 	Open the book project if it isn't already in \qd. We will
 	modify this project to show two \class[QDataTable]s that
-	relate the author table to the book_view view. 
+	relate the author table to the book table.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
@@ -613,23 +615,25 @@ bool createConnections()
 		on the bottom half of the form. The SQL Table Wizard
 		will appear. (This Wizard is explained in <xref
 		linkend="quickly-viewing-a-database-table"> "Quickly
-		Viewing a Database Table".) 
+		Viewing a Database Table".)
 		<orderedlist numeration="arabic" inheritnum="inherit">
 		    <listitem>
 			<para>
-			Click the connection you're using and click the
-			book_view view. Click the <guibutton>Next</> button.
+			Click the connection you're using and click
+			the book table. Click the <guibutton>Next</>
+			button.
 			</para>
 		    </listitem>
 
 		    <listitem>
 			<para>
-			Move the authorid and id fields from the
-			Displayed Fields listbox to the Available Fields
-			list box. Move the title field to the top of the
-			Displayed Fields, and move the price field above
-			the format field.
-			Click the <guibutton>Next</> button.
+			Since we do not want them visiblem, make sure
+			the authorid and id fields are moved to the
+			Available Fields list box by using the arrow
+			buttons. Move the title field to the top of
+			the Displayed Fields, and move the price field
+			above the notes field.  Click the
+			<guibutton>Next</> button.
 			</para>
 		    </listitem>
 
@@ -663,14 +667,14 @@ bool createConnections()
 		<para>
 		Shift+Click the top \class[QDataTable] so that both \class[QDataTable]s
 		are selected and then click the <guibutton>Lay out Vertically
-		(in Splitter)</> toolbar button. 
+		(in Splitter)</> toolbar button.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
 		Click on the form and click the <guibutton>Lay
-		out Vertically</> toolbar button. 
+		out Vertically</> toolbar button.
 		</para>
 	    </listitem>
 
@@ -684,8 +688,8 @@ bool createConnections()
 	\class[QDataTable]. However we only want the books of the
 	currently selected author showing in the bottom
 	\class[QDataTable]. We will deal with this by filtering the
-	records in the book_view according to the author in the author
-	table.
+	records in the book table according to the author selected in
+	the author table.
 	</para>
 
 	<sidebar><title>Using the Table Editor</>
@@ -708,7 +712,7 @@ bool createConnections()
 		<para>
 		Click the <guibutton>New Column</> button.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
@@ -754,7 +758,7 @@ bool createConnections()
 	<title>Filtering One \class[QDataTable] by Another</title>
 
 	    <para>
-	    To filter the book_view's records we need to capture the author
+	    To filter the book table's records we need to capture the author
 	    \class[QDataTable]'s <function>currentChanged()</> signal and change the
 	    BookDataTable's filter accordingly.
 
@@ -766,7 +770,7 @@ bool createConnections()
 		    name of \fn[newCurrentAuthor(QSqlRecord*)].
 		    Click \ok.
 		    </para>
-		</listitem> 
+		</listitem>
 
 		<listitem>
 		    <para>
@@ -811,13 +815,12 @@ bool createConnections()
 	<title>Preparing the Interface for Drilldown</title>
 
 	    <para>
-	    We can now browse authors and see their books in the
-	    BookDataTable. Unfortunately we cannot edit the books themselves
-	    because the BookDataTable is based on a view and our database
-	    might not support editable views. In the next section we will
-	    address this issue by drilling down to a dialog through which we
-	    can edit books. For now we will add some buttons to the main
-	    BookForm which we will use to invoke the book editing dialog.
+	    We can now browse/edit authors and see their books in the
+	    BookDataTable.  In the next section we explore
+	    \class[QDataBrowser], which will allow us to drill down to
+	    a dialog through which we can edit books. For now we will
+	    add some buttons to the main BookForm which we will use to
+	    invoke the book editing dialog.
 
 	    <orderedlist numeration="arabic">
 		<listitem>
@@ -826,7 +829,7 @@ bool createConnections()
 		    Layout</> toolbar button. Resize the form
 		    to make room for some buttons at the bottom.
 		    </para>
-		</listitem> 
+		</listitem>
 
 		<listitem>
 		    <para>
@@ -884,7 +887,7 @@ bool createConnections()
 	<title>Setting up a \class[QDataBrowser]</title>
 
 	<para>
-	We will create a new form to allow users to edit book records. Click
+	We will now create a new form to allow users to edit book records. Click
 	the <guibutton>New</> toolbar button, click the Dialog template from
 	the New Form dialog and click \ok. Change the name of the form to
 	EditBookForm and its caption to 'Edit Books'. Click the
@@ -898,7 +901,7 @@ bool createConnections()
 		Click the <guibutton>Data Browser</> toolbar button, then
 		click the form. The Data Browser Wizard will appear.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
@@ -911,14 +914,15 @@ bool createConnections()
 
 		<para>
 		Click the connection you wish to use, listed in the
-		Connection list box, e.g. "(default)". The tables and views
-		will appear in the Table list box. Click the book table and
-		then click the <guibutton>Next</> button. 
+		Connection list box, e.g. "(default)". The available
+		tables and views will appear in the Table list
+		box. Click the book table and then click the
+		<guibutton>Next</> button.
 		</para>
 	    </listitem>
 
 	    <listitem>
-		<para> 
+		<para>
 		The <emphasis>Displayed Fields</> wizard page provides a
 		means of selecting which fields should be displayed in
 		the \class[QDataBrowser] and in what order. By default
@@ -927,14 +931,15 @@ bool createConnections()
 		and right blue arrow buttons can be used to move fields
 		between the Displayed Fields and the Available Fields
 		list boxes. The blue up and down arrow buttons are used
-		to select the display order of the displayed fields. 
+		to select the display order of the displayed fields.
 		<para>
 
 		<para>
-		We don't want to see the formatid and authorid foreign keys
-		on the form, so move them both to the Available Fields list
-		box. Move the title field to the top of the Displayed Fields
-		list. Click the <guibutton>Next</> button. 
+		We don't want to see the authorid foreign key field on
+		the form, so move it to the Available Fields list
+		box. Also, move the title field to the top of the
+		Displayed Fields list. Click the <guibutton>Next</>
+		button.
 		</para>
 	    </listitem>
 
@@ -944,29 +949,30 @@ bool createConnections()
 		us to choose which navigation and editing buttons should
 		appear on the form.
 		</para>
-		
+
 		<para>
 		We will accept the defaults and simply click the
-		<guibutton>Next</> button. 
+		<guibutton>Next</> button.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		The <emphasis>SQL</> wizard page is used to set
-		the \class[QDataBrowser]'s Filter and Sort properties. The Filter is an SQL
-		<literal>WHERE</> clause (without the word 'WHERE'). For
-		example, to only list book that cost less than 50 (of our
-		currency, e.g. dollars), we 
+		The <emphasis>SQL</> wizard page is used to set the
+		\class[QDataBrowser]'s Filter and Sort properties. The
+		Filter is an SQL <literal>WHERE</> clause (without the
+		word 'WHERE'). For example, to only list book that
+		cost less than 50 (of some currency, e.g. dollars), we
 		would enter <literal>price < 50</>. We will leave the
 		filter empty. The Available Fields list box lists all
 		the fields. The Sort By list box lists the fields that
-		the \class[QDataBrowser] is to sort by and the direction
-		of their sorting (ASCending or DESCending). The left and
-		right blue arrows are used to move fields between the
-		two list boxes. The up and down blue arrows move fields
-		up and down within the Sort By list box. The ASC or DESC
-		setting is changed with the sort order button.
+		the \class[QDataBrowser] is to sort by and the
+		direction of their sorting (ASCending or
+		DESCending). The left and right blue arrows are used
+		to move fields between the two list boxes. The up and
+		down blue arrows move fields up and down within the
+		Sort By list box. The ASC or DESC setting is changed
+		with the sort order button.
 		</para>
 
 		<para>
@@ -1014,10 +1020,17 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		We will be creating our own database cursor so we could
-		set the BookDataBrowser's frameworkCode property to
-		FALSE to prevent \qd from generating redundant code for
-		the cursor.
+		\qd will generate the necessary code to make the
+		browser operational (including generating the
+		appropriate cursor, sort and filter code).
+		</para>
+
+		<para>
+		For finer control over the form, we will be creating
+		our own database cursor.  Therefore, set the
+		BookDataBrowser's frameworkCode property to FALSE in
+		the Properties window to prevent \qd from generating
+		redundant code for the cursor.
 		</para>
 	    </listitem>
 
@@ -1039,7 +1052,7 @@ bool createConnections()
 		\P\Item
 
 		\item\p
-		\fn[refresh()] to refresh the cursor from the database; 
+		\fn[refresh()] to refresh the cursor from the database;
 		\P\Item
 
 		\item\p
@@ -1049,13 +1062,13 @@ bool createConnections()
 		\P\Item
 
 		\item\p
-		\fn[clearValues()] to clear the form's values. 
+		\fn[clearValues()] to clear the form's values.
 		\P\Item
 
 	    </itemizedlist>
 	</para>
-	
-	<para>	
+
+	<para>
 	If you use \qd's
 	\class[QDataBrowser] wizard you will be given the option of
 	creating a default set of buttons for navigation and editing.
@@ -1116,7 +1129,7 @@ bool createConnections()
 
 	<orderedlist numeration="arabic">
 	    <listitem>
-		<para> 
+		<para>
 		We need to make a new slot to connect the Edit Books'
 		button's <function>clicked()</> signal to. Click on the Book
 		form to make it \qd's active form. Invoke the Edit Slots
@@ -1128,7 +1141,7 @@ bool createConnections()
 		<function>editClicked()</> slot. Click \ok to leave the
 		dialog.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
@@ -1141,32 +1154,32 @@ bool createConnections()
 </programlisting>
 		</para>
 
-		\p
-		We create our dialog as before. We also create
-		a cursor over the book table and set the dialog's
+		\p We create our dialog as before. We also create a
+		cursor over the book table and set the dialog's
 		\class[QDataBrowser], BookDataBrowser, to use this new
 		cursor. We set the \class[QDataBrowser]'s filter and
-		sort to those that applied to the main form's book_view
-		\class[QDataTable]. We refresh the \class[QDataBrowser]
-		and seek to the same record the user was viewing on the
-		main form. Then we exec the dialog and delete it when
-		the user has finished with it. Finally we update the
-		BookDataTable in the main form to reflect any changes
-		that were made in the dialog.
-		\P
-	    </listitem> 
+		sort to those that applied to the main form's book
+		\class[QDataTable]. We refresh the
+		\class[QDataBrowser] and seek to the same record the
+		user was viewing on the main form. Then we exec the
+		dialog and delete it when the user has finished with
+		it. Finally we update the BookDataTable in the main
+		form to reflect any changes that were made in the
+		dialog.  \P
+	    </listitem>
 
 	    <listitem>
 		<para>
 		Because our code refers to a class declared in
-		<filename>editbook.h</> and to a \class[QDataBrowser] we need to add two
-		includes. Click on the BookForm, then click on the Source
-		tab of the Object Hierarchy window. Right click the 'Includes (In
+		<filename>editbook.h</> and to a \class[QDataBrowser]
+		we need to add two additional include files. Click on
+		the BookForm, then click on the Source tab of the
+		Object Hierarchy window. Right click the 'Includes (In
 		Declaration)' item and click New. Type in
-		<filename>editbook.h</>. Now add a second include, this
-		time, <filename>qdatabrowser.h</>.
+		<filename>editbook.h</>. Now add a second include,
+		this time, <filename>qdatabrowser.h</>.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	</orderedlist>
 	</para>
@@ -1178,22 +1191,22 @@ bool createConnections()
 	the book table, we cannot edit the foreign keys nor perform
 	inserts. We will deal with insertion in the same way as we did
 	with the \class[QDataTable], then we will handle the foreign
-	keys.
+	key relationship to author.
 	</para>
 
 	</sect3>
-	
+
 	<sect3 id="inserting-into-a-qdatabrowser">
 	<title>Inserting into a \class[QDataBrowser]</title>
 
 	<para>
 	We will create a slot to receive the Edit Books form's
 	<function>primeInsert()</> signal so that we can insert a unique
-	primary key. 
+	primary key.
 
 	<orderedlist numeration="arabic">
 	    <listitem>
-		<para> 
+		<para>
 		Click on the Edit Books form, then
 		create a new Slot called \fn[primeInsertBook(QSqlRecord*)].
 		</para>
@@ -1202,12 +1215,12 @@ bool createConnections()
 		<guibutton>New Slot</> button and type the new slot name
 		in the Slot Properties Slot edit box. Click \ok.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
 		Connect the BookDataBrowser's <function>primeInsert()</>
-		signal to the \fn[primeInsertBook()] slot. 
+		signal to the \fn[primeInsertBook()] slot.
 		</para>
 		<para>
 		Click the
@@ -1217,7 +1230,7 @@ bool createConnections()
 		<function>primeInsert()</> signal and the
 		primeInsertBook slot. Click \ok.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
@@ -1229,7 +1242,7 @@ bool createConnections()
 \scan eg/book/book6/editbook.cpp /EditBookForm::primeInsertBook/ /^}/
 </programlisting>
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	    <listitem>
 		<para>
@@ -1238,7 +1251,7 @@ bool createConnections()
 		Connect the Close button's \fn[clicked()] signal to the
 		EditBookForm's \fn[accept()] slot.
 		</para>
-	    </listitem> 
+	    </listitem>
 
 	</orderedlist>
 	</para>
@@ -1256,7 +1269,7 @@ bool createConnections()
 	url="http://doc.trolltech.com/sql.html#Custom_Editor_Widgets">Qt
 	SQL Module documentation</>, particularly the StatusPicker
 	example. A simpler approach that can be taken wholly within \qd
-	is presented here. 
+	is presented here.
 	</para>
 
 	<para>
@@ -1275,7 +1288,7 @@ bool createConnections()
 	'Author'. Click the \button[ComboBox] toolbar button and click
 	on the form beneath the price QLineEdit. In the Property Window
 	change the ComboBox's name to ComboBoxAuthor and change its
-	sizePolicy hSizeType to Expanding. 
+	sizePolicy hSizeType to Expanding.
 	\P\Item
 
 	\item\p
@@ -1292,7 +1305,7 @@ bool createConnections()
 	also need to ensure that we put the author's id into the book
 	table's authorid field when a book record is inserted or
 	updated. We'll ensure the code is executed at the right time by
-	putting it in slots and connecting signals to our slots. 
+	putting it in slots and connecting signals to our slots.
 	\P
 
 	\list[1]
@@ -1326,7 +1339,7 @@ bool createConnections()
 
 	\item\p
 	All that remains is to write the underlying code. All the
-	code snippets are taken from 
+	code snippets are taken from
 	\f[qt/tools/designer/eg/book/book7/editbook.ui].
 	    \list[1,1]
 	    \item\p
@@ -1335,27 +1348,27 @@ bool createConnections()
 	    constructed and we will use it to populate the ComboBox with
 	    author names.
 <programlisting>
-\scan eg/book/book7/editbook.cpp /EditBookForm::init/ /^}/ 
+\scan eg/book/book7/editbook.cpp /EditBookForm::init/ /^}/
 </programlisting>
 	    Here we execute a query to get a list of author names and
-	    insert each one into the ComboBox. 
+	    insert each one into the ComboBox.
 	    \P\Item
 
 	    \item\p
 	    We next write the code which will be executed just before a
 	    record is updated (or inserted) in the database.
 <programlisting>
-\scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
+\scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/
 </programlisting>
 	    We look up the id of the ComboBox's current author and place
-	    it in the update (or insert) buffer's authorid field. 	    
+	    it in the update (or insert) buffer's authorid field.
 	    \P\Item
 
 	    \item\p
 	    As the user navigates through the records we ensure
 	    that the ComboBox reflects the current author.  xset r on
 <programlisting>
-\scan eg/book/book7/editbook.cpp /EditBookForm::primeUpdateBook/ /^}/ 
+\scan eg/book/book7/editbook.cpp /EditBookForm::primeUpdateBook/ /^}/
 </programlisting>
 	    Firstly we look up the book's author and secondly we iterate
 	    through the ComboBox's items until we find the author and
@@ -1369,11 +1382,11 @@ bool createConnections()
     If the author name has changed or been deleted the query will
     fail and no author id will be inserted into the buffer causing the \ins
     to fail.  An alternative is to record
-    the author id's as we populate the ComboBox and store them in a 
+    the author id's as we populate the ComboBox and store them in a
     \class[QMap] which we can then look up as required. This approach
     requires changes to the \fn[init()], \fn[beforeUpdateBook()] and
     \fn[primeInsertBook()] functions and the addition of a new function,
-    \fn[mapAuthor()]. 
+    \fn[mapAuthor()].
     The relevant code from
     \f[qt/tools/designer/eg/book/book8/editbook.ui] is shown below.
 
@@ -1390,7 +1403,7 @@ bool createConnections()
 	    \item\p
 	    We now record the author id's in the \fn[init()] function.
 <programlisting>
-\scan eg/book/book8/editbook.cpp /EditBookForm::init/ /^}$/ 
+\scan eg/book/book8/editbook.cpp /EditBookForm::init/ /^}$/
 </programlisting>
 	    After inserting each author's name into the ComboBox we
 	    populate a \class[QMap] with the author's name and id.
@@ -1398,17 +1411,17 @@ bool createConnections()
 
 	    \item\p
 	    Instead of looking up the author's id in the database we
-	    look it up in the static \class[QMap].
+	    look it up in the \class[QMap].
 <programlisting>
-\scan eg/book/book8/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/ 
+\scan eg/book/book8/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/
 </programlisting>
 	    \P\Item
 
 	    \item\p
 	    We use a single function for storing author id's and
-	    returning them so that we can use a static data structure. 
+	    returning them so that we can use a static data structure.
 <programlisting>
-\scan eg/book/book8/editbook.cpp /EditBookForm::mapAuthor/ /^}/ 
+\scan eg/book/book8/editbook.cpp /EditBookForm::mapAuthor/ /^}/
 </programlisting>
 	    If the populate flag is TRUE, we store the author's name and
 	    id in the \class[QMap], otherwise we look up the given
@@ -1427,12 +1440,11 @@ documentation</>, particulary the section on subclassing
 \P
 
 \p
-We could apply the same techniques to the formatid foreign key
-but won't demonstrate this since it is essentially a repetition.
+
 \P
 
 <para>
-The book example demonstrates the basic techniques needed for SQL
+The 'book' example demonstrates the basic techniques needed for SQL
 programming with Qt. Additional information on the Qt SQL classes,
 especially the \class[QSqlQuery] and \class[QSqlCursor] classes is
 provided in the <ulink url="http://doc.trolltech.com/sql.html">Qt SQL

@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>588</width>
-            <height>474</height>
+            <width>580</width>
+            <height>470</height>
         </rect>
     </property>
     <property name="caption">
@@ -70,17 +70,24 @@
         <receiver>BookForm</receiver>
         <slot>primeInsertAuthor(QSqlRecord*)</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="public" language="C++">primeInsertAuthor( QSqlRecord *buffer )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">primeInsertAuthor( QSqlRecord * buffer )</slot>
 </connections>
 <functions>
     <function name="init()" >{
     
 }</function>
+    <function name="destroy()" >{
+
+}</function>
     <function name="primeInsertAuthor(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT nextval('author_seq');" );
-    if ( query.next() )
-	buffer-&gt;setValue( "id", query.value( 0 ) );
+    QSqlQuery q;
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='author';" );
+    q.exec( "select sequence from sequence where tablename='author';" );
+    if ( q.next() ) {
+	buffer-&gt;setValue( "id", q.value( 0 ) );
+    }
 }</function>
 </functions>
 </UI>

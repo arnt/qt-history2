@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>552</width>
-            <height>293</height>
+            <width>548</width>
+            <height>291</height>
         </rect>
     </property>
     <property name="caption">
@@ -293,9 +293,9 @@
         <receiver>EditBookForm</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">primeInsertBook( QSqlRecord * buffer )</slot>
 </connections>
 <functions>
     <function name="init()" >{
@@ -305,9 +305,12 @@
     
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT nextval('book_seq');" ); 
-    if ( query.next() ) 
-	buffer-&gt;setValue( "id", query.value( 0 ) );    
+    QSqlQuery q;  
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
+    q.exec( "select sequence from sequence where tablename='book';" );  
+    if ( q.next() ) {  
+	buffer-&gt;setValue( "id", q.value( 0 ) );  
+    }     
 }</function>
 </functions>
 </UI>

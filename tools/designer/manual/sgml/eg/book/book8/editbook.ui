@@ -11,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>528</width>
-            <height>373</height>
+            <width>524</width>
+            <height>371</height>
         </rect>
     </property>
     <property name="caption">
@@ -369,7 +369,7 @@
 </connections>
 <functions>
     <function name="init()" >{
-    QSqlQuery query( "SELECT name, id FROM author_view ORDER BY name;" );    
+    QSqlQuery query( "SELECT surname, id FROM author ORDER BY surname;" );    
     while ( query.next() ) {
 	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString() ); 
 	int id = query.value( 1 ).toInt();
@@ -391,14 +391,17 @@
 	id = authorMap[ name ];
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT nextval('book_seq');" );   
-    if ( query.next() ) 
-	buffer-&gt;setValue( "id", query.value( 0 ).toInt() );       
+    QSqlQuery q;  
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
+    q.exec( "select sequence from sequence where tablename='book';" );  
+    if ( q.next() ) {  
+	buffer-&gt;setValue( "id", q.value( 0 ) );  
+    }  
 }</function>
     <function name="primeUpdateBook(QSqlRecord*)" >{
     // Who is this book's author?
-    QSqlQuery query( "SELECT name FROM author_view WHERE id='" +  
-	buffer-&gt;value( "authorid" ).toString() + "';" ); 
+    QSqlQuery query( "SELECT surname FROM author WHERE id=" +  
+	buffer-&gt;value( "authorid" ).toString() + ";" ); 
     QString author = "";    
     if ( query.next() )
 	author = query.value( 0 ).toString();

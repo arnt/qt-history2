@@ -96,10 +96,10 @@
                 </column>
                 <column>
                     <property name="text">
-                        <string>Format</string>
+                        <string>Notes</string>
                     </property>
                     <property name="field">
-                        <string>format</string>
+                        <string>notes</string>
                     </property>
                 </column>
                 <property name="name">
@@ -116,7 +116,7 @@
                 <property name="database" stdset="0">
                     <stringlist>
                         <string>(default)</string>
-                        <string>book_view</string>
+                        <string>book</string>
                     </stringlist>
                 </property>
             </widget>
@@ -194,7 +194,6 @@
     
 }</function>
     <function name="editClicked()" >{
-    
     EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
     QSqlCursor cur( "book" );
     dialog-&gt;BookDataBrowser-&gt;setCursor( &amp;cur );
@@ -214,9 +213,12 @@
     BookDataTable-&gt;refresh();
 }</function>
     <function name="primeInsertAuthor(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT nextval('author_seq');" );
-    if ( query.next() )
-	buffer-&gt;setValue( "id", query.value( 0 ) );
+    QSqlQuery q; 
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='author';" ); 
+    q.exec( "select sequence from sequence where tablename='author';" ); 
+    if ( q.next() ) { 
+	buffer-&gt;setValue( "id", q.value( 0 ) ); 
+    } 
 }</function>
 </functions>
 </UI>

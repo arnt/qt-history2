@@ -15,11 +15,11 @@
 
 bool createConnections();
 
-int main( int argc, char *argv[] ) 
+int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( ! createConnections() ) 
+    if ( ! createConnections() )
 	return 1;
 
     BookForm bookForm;
@@ -42,8 +42,8 @@ bool createConnections()
     defaultDB->setUserName( DB_BOOKS_USER );
     defaultDB->setPassword( DB_BOOKS_PASSWD );
     defaultDB->setHostName( DB_BOOKS_HOST );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open books database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open books database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -51,5 +51,3 @@ bool createConnections()
 
     return TRUE;
 }
-
-

@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>540</width>
-            <height>379</height>
+            <width>536</width>
+            <height>309</height>
         </rect>
     </property>
     <property name="caption">
@@ -359,35 +359,38 @@
         <receiver>EditBookForm</receiver>
         <slot>primeInsertBook(QSqlRecord*)</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="public" language="C++">beforeUpdateBook( QSqlRecord *buffer )</slot>
-    <slot access="public" language="C++">primeInsertBook( QSqlRecord *buffer )</slot>
-    <slot access="public" language="C++">primeUpdateBook( QSqlRecord *buffer )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">beforeUpdateBook( QSqlRecord * buffer )</slot>
+    <slot access="public" language="C++" returnType="void">primeInsertBook( QSqlRecord * buffer )</slot>
+    <slot access="public" language="C++" returnType="void">primeUpdateBook( QSqlRecord * buffer )</slot>
 </connections>
 <functions>
-    <function name="beforeUpdateBook(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT id FROM author_view WHERE name='" + 
-	ComboBoxAuthor-&gt;currentText() + "';" );
-    if ( query.next() )
-	buffer-&gt;setValue( "authorid", query.value( 0 ) );
+    <function name="init()" >{
+    QSqlQuery query( "SELECT surname FROM author ORDER BY surname;" );    
+    while ( query.next() ) 
+	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString()); 
 }</function>
     <function name="destroy()" >{
     
 }</function>
-    <function name="init()" >{
-    QSqlQuery query( "SELECT name FROM author_view ORDER BY name;" );    
-    while ( query.next() ) 
-	ComboBoxAuthor-&gt;insertItem( query.value( 0 ).toString()); 
+    <function name="beforeUpdateBook(QSqlRecord*)" >{
+    QSqlQuery query( "SELECT id FROM author WHERE surname ='" + 
+	ComboBoxAuthor-&gt;currentText() + "';" );
+    if ( query.next() )
+	buffer-&gt;setValue( "authorid", query.value( 0 ) );
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
-    QSqlQuery query( "SELECT nextval('book_seq');" );   
-    if ( query.next() )   
-	buffer-&gt;setValue( "id", query.value( 0 ) );       
+    QSqlQuery q;  
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
+    q.exec( "select sequence from sequence where tablename='book';" );  
+    if ( q.next() ) {  
+	buffer-&gt;setValue( "id", q.value( 0 ) );  
+    }  
 }</function>
     <function name="primeUpdateBook(QSqlRecord*)" >{
     // Who is this book's author?
-    QSqlQuery query( "SELECT name FROM author_view WHERE id='" +  
+    QSqlQuery query( "SELECT surname FROM author WHERE id='" +  
 	buffer-&gt;value( "authorid" ).toString() + "';" ); 
     QString author = "";    
     if ( query.next() )

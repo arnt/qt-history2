@@ -9,8 +9,8 @@
 *****************************************************************************/
 
 
-#define DB_BOOKS_DRIVER	    "QODBC"
-#define DB_BOOKS	    "book"
-#define DB_BOOKS_USER	    "bookuser"
-#define DB_BOOKS_PASSWD	    "bookpw"
-#define DB_BOOKS_HOST	    "bookhost"
+#define DB_BOOKS_DRIVER	    "QPSQL6"
+#define DB_BOOKS	    "testdb"
+#define DB_BOOKS_USER	    "db"
+#define DB_BOOKS_PASSWD	    "db"
+#define DB_BOOKS_HOST	    "silverfish"

@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file 'book.ui'
+** Form implementation generated from reading ui file '/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book8/book.ui'
 **
-** Created: Fri Feb 16 09:18:08 2001
+** Created: Fri Feb 23 12:24:43 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "./book.h"
+#include "/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book8/book.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qdatatable.h>
@@ -52,7 +52,7 @@ BookForm::BookForm( QWidget* parent,  const char* name, bool modal, WFlags fl )
     BookDataTable = new QDataTable( Splitter1, "BookDataTable" );
     BookDataTable->addColumn( "title", "Title" );
     BookDataTable->addColumn( "price", "Price" );
-    BookDataTable->addColumn( "format", "Format" );
+    BookDataTable->addColumn( "notes", "Notes" );
     BookDataTable->setReadOnly( TRUE );
     QStringList BookDataTableSort;
     BookDataTableSort << "title ASC";
@@ -113,7 +113,7 @@ void BookForm::polish()
     if ( BookDataTable ) {
         QSqlCursor* cursor = BookDataTable->sqlCursor();
         if ( !cursor ) {
-            cursor = new QSqlCursor( "book_view" );
+            cursor = new QSqlCursor( "book" );
             BookDataTable->setCursor( cursor, FALSE, TRUE );
         }
         if ( !cursor->isActive() )
@@ -124,7 +124,6 @@ void BookForm::polish()
 
 void BookForm::editClicked()
 {
-    
     EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
     QSqlCursor cur( "book" );
     dialog->BookDataBrowser->setCursor( &cur );
@@ -148,9 +147,12 @@ void BookForm::newCurrentAuthor( QSqlRecord *author )
 
 void BookForm::primeInsertAuthor( QSqlRecord *buffer )
 {
-    QSqlQuery query( "SELECT nextval('author_seq');" );
-    if ( query.next() )
-	buffer->setValue( "id", query.value( 0 ) );
+    QSqlQuery q; 
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='author';" ); 
+    q.exec( "select sequence from sequence where tablename='author';" ); 
+    if ( q.next() ) { 
+	buffer->setValue( "id", q.value( 0 ) ); 
+    } 
 }
 
 void BookForm::init()

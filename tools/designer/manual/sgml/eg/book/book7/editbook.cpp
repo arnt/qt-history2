@@ -1,12 +1,12 @@
 /****************************************************************************
-** Form implementation generated from reading ui file 'editbook.ui'
+** Form implementation generated from reading ui file '/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book7/editbook.ui'
 **
-** Created: Tue Jan 23 12:04:52 2001
+** Created: Fri Feb 23 12:24:31 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "./editbook.h"
+#include "/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book7/editbook.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qcombobox.h>
@@ -34,7 +34,7 @@ EditBookForm::EditBookForm( QWidget* parent,  const char* name, bool modal, WFla
 {
     if ( !name )
 	setName( "EditBookForm" );
-    resize( 540, 379 ); 
+    resize( 536, 309 ); 
     setCaption( tr( "Edit Books" ) );
     EditBookFormLayout = new QVBoxLayout( this ); 
     EditBookFormLayout->setSpacing( 6 );
@@ -201,25 +201,28 @@ void EditBookForm::polish()
     QDialog::polish();
 }
 
-void EditBookForm::beforeUpdateBook( QSqlRecord *buffer )
+void EditBookForm::beforeUpdateBook( QSqlRecord * buffer )
 {
-    QSqlQuery query( "SELECT id FROM author_view WHERE name='" + 
+    QSqlQuery query( "SELECT id FROM author WHERE surname ='" + 
 	ComboBoxAuthor->currentText() + "';" );
     if ( query.next() )
 	buffer->setValue( "authorid", query.value( 0 ) );
 }
 
-void EditBookForm::primeInsertBook( QSqlRecord *buffer )
+void EditBookForm::primeInsertBook( QSqlRecord * buffer )
 {
-    QSqlQuery query( "SELECT nextval('book_seq');" );   
-    if ( query.next() )   
-	buffer->setValue( "id", query.value( 0 ) );       
+    QSqlQuery q;  
+    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
+    q.exec( "select sequence from sequence where tablename='book';" );  
+    if ( q.next() ) {  
+	buffer->setValue( "id", q.value( 0 ) );  
+    }  
 }
 
-void EditBookForm::primeUpdateBook( QSqlRecord *buffer )
+void EditBookForm::primeUpdateBook( QSqlRecord * buffer )
 {
     // Who is this book's author?
-    QSqlQuery query( "SELECT name FROM author_view WHERE id='" +  
+    QSqlQuery query( "SELECT surname FROM author WHERE id='" +  
 	buffer->value( "authorid" ).toString() + "';" ); 
     QString author = "";    
     if ( query.next() )
@@ -235,7 +238,7 @@ void EditBookForm::primeUpdateBook( QSqlRecord *buffer )
 
 void EditBookForm::init()
 {
-    QSqlQuery query( "SELECT name FROM author_view ORDER BY name;" );    
+    QSqlQuery query( "SELECT surname FROM author ORDER BY surname;" );    
     while ( query.next() ) 
 	ComboBoxAuthor->insertItem( query.value( 0 ).toString()); 
 }
