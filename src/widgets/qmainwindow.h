@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#23 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#24 $
 **
 ** Definition of QMainWindow class
 **
@@ -60,6 +60,8 @@ public:
     void addToolBar( QToolBar *, const QString &label,
 		     ToolBarDock = Top, bool newLine = FALSE );
     void removeToolBar( QToolBar * );
+    void moveToolBar( QToolBar *, const QString &label,
+		      ToolBarDock = Top, bool newLine = FALSE );
 
     void show();
 

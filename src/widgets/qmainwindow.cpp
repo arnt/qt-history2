@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#47 $
 **
 ** Implementation of QMainWindow class
 **
@@ -388,8 +388,11 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 }
 
 
-/*!  Adds \a toolbar to this the \a edge window of this window.
+/*!  Adds \a toolBar to this the end of \a edge, labelling it \a label
+and makes it start a new line of tool bars if \a nl is TRUE.
 
+If \a toolBar is already managed by some main window, it is first
+removed from that window.
 */
 
 void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
@@ -397,6 +400,9 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 {
     if ( !toolBar )
 	return;
+
+    if ( toolBar->mw )
+	toolBar->mw->removeToolBar( toolBar );
 
     setDockEnabled( edge, TRUE );
 
@@ -428,6 +434,20 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 
     dl->append( new QMainWindowPrivate::ToolBar( toolBar, label, nl ) );
     triggerLayout();
+}
+
+
+/*!  Moves \a toolBar to the end of \a edge, changing its label to \a
+label and its newline status to \a nl.
+
+The behaviour of this function if \a toolBar is 0 or not being managed
+by this main window is undefined.
+*/
+
+void QMainWindow::moveToolBar( QToolBar * toolBar, const QString &label,
+			      ToolBarDock edge, bool nl )
+{
+    addToolBar( toolBar, label, edge, nl );
 }
 
 
@@ -469,6 +489,7 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
     if ( !ct )
 	ct = takeToolBarFromDock( toolBar, d->unmanaged );
     if ( ct ) {
+	toolBar->mw = 0;
 	delete ct;
 	triggerLayout();
     }

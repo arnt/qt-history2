@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#18 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#19 $
 **
 ** Definition of QToolBar class
 **
@@ -73,6 +73,8 @@ private:
     Orientation o;
     QMainWindow * mw;
     QWidget * sw;
+
+    friend QMainWindow;
 };
 
 
