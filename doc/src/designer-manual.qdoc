@@ -1191,8 +1191,8 @@ destination object, or dragged outside.
 \i \bold{Deleting connections}
 
 The whole connection can be selected by clicking on any of the path
-segments. Once selected, connections can be deleted, and they will not
-be set up in the .ui file.
+segments. Once selected, connections can be deleted with the \key Delete
+key, and they will not be set up in the .ui file.
 \endtable
 
 */
