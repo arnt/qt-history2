@@ -634,14 +634,20 @@ QSqlQuery must be used instead. (Note that not all databases support
 editable views.)
 
 Each cursor has an internal 'edit buffer' which is used by all the edit
-operations (insert, update and delete).  For example, when inserting a
-record using a cursor, you must first initialize the fields in the
-cursor's edit buffer.  Then, calling QSQlCursor::insert() will insert
-the contents of the edit buffer into the database.  Similarly, when
-updating (or deleting) a record, the values of the fields in the edit
-buffer are used to update (or delete) the record in the database.  The
-'edit buffer' is unaffected by any <a
-href="#Navigating_Result_Sets">cursor navigation</a> functions.
+operations (insert, update and delete).  The editing process is the same
+for each operation: acquire a pointer to the relevant buffer; call
+setValue() to prime the buffer with the values you want; call insert()
+or update() or del() to perform the desired operation. For example, when
+inserting a record using a cursor, you call primeInsert() to get a
+pointer to the edit buffer and then call setValue() on this buffer to
+set each field's value. Then you call QSQlCursor::insert() to insert the
+contents of the edit buffer into the database.  Similarly, when updating
+(or deleting) a record, the values of the fields in the edit buffer are
+used to update (or delete) the record in the database.  The 'edit
+buffer' is unaffected by any <a href="#Navigating_Result_Sets">cursor
+navigation</a> functions. Note that if you pass a string value to
+setValue() any single quotes will be escaped (turned into a pair of
+single quotes) since a single quote is a special character in SQL.
 
 The primeInsert(), primeUpdate() and primeDelete() methods all return
 a pointer to the internal edit buffer, however each method can
