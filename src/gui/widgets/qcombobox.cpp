@@ -47,6 +47,8 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
 
     // add widgets to layout and create scrollers if needed
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
+    layout->setSpacing(0);
+    layout->setMargin(0);
     if (style().styleHint(QStyle::SH_ComboBox_Popup)) {
         top = new Scroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new Scroller(QAbstractSlider::SliderSingleStepAdd, this);
