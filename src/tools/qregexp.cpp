@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#150 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#151 $
 **
 ** Implementation of QRegExp class
 **
@@ -46,7 +46,6 @@
 #include "qstring.h"
 #include "qtl.h"
 #include "qptrvector.h"
-#include "qcleanuphandler.h"
 
 #include <limits.h>
 
@@ -3087,7 +3086,6 @@ struct QRegExpPrivate
 
 #ifndef QT_NO_REGEXP_OPTIM
 static QCache<QRegExpEngine> *engineCache = 0;
-QCleanupHandler<QCache<QRegExpEngine> > qt_cleanup_regexp_cache;
 #endif
 
 static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
@@ -3112,7 +3110,6 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 #ifndef QT_NO_REGEXP_OPTIM
 	if ( engineCache == 0 ) {
 	    engineCache = new QCache<QRegExpEngine>;
-	    qt_cleanup_regexp_cache.add( engineCache );
 	    engineCache->setAutoDelete( TRUE );
 	}
 	if ( !pattern.isNull() &&
