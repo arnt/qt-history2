@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -64,7 +64,7 @@
 #include "dbconnectionimpl.h"
 #endif
 
-static const char * whatsthis_image[] = {
+static const char * const whatsthis_image[] = {
     "16 16 3 1",
     "	c None",
     "o	c #000000",

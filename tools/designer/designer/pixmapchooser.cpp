@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -42,7 +42,7 @@
 #if defined(DESIGNER)
 #include "../pics/images.h"
 
-static const char *logo_xpm[] = {
+static const char * const logo_xpm[] = {
 /* width height num_colors chars_per_pixel */
 "21 16 213 2",
 "  	c white",

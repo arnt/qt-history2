@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -40,7 +40,7 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 
-static const char* file_xpm[]={
+static const char * const file_xpm[]={
     "16 16 5 1",
     ". c #7f7f7f",
     "# c None",

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -50,7 +50,7 @@
 
 #include <stdlib.h>
 
-static const char * folder_xpm[]={
+static const char * const folder_xpm[]={
     "16 16 6 1",
     ". c None",
     "b c #ffff00",
