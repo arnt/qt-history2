@@ -2416,14 +2416,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		arg.vt = VT_ERROR;
 		arg.scode = DISP_E_TYPEMISMATCH;
 
-		// map QVariant to VARIANTARG. ### Maybe it would be better
-		// to convert the QVariant to what the VARIANT is supposed to be,
-		// but we don't know that from the QMetaProperty of course.
-		if ( qstrcmp( prop->type(), _v->typeName() ) ) {
-		    QVariant::Type type = QVariant::nameToType( prop->type() );
-		    if ( type != QVariant::Invalid )
-			_v->cast( type );
-		}
+		// map QVariant to VARIANTARG.
 		QVariantToVARIANT( *_v, arg, prop->type() );
 
 		if ( arg.vt == VT_EMPTY ) {
@@ -2566,7 +2559,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    if ( varc ) {
 		varc = 1;
 		const QMetaProperty *prop = metaObject()->property( id, TRUE );
-		QVariantToVARIANT( vars[0], arg[0], prop ? prop->type() : 0 );
+		QVariantToVARIANT( vars[0], arg[0], prop->type() );
 		res = 0;
 		disptype = DISPATCH_PROPERTYPUT;
 	    } else {
@@ -2879,7 +2872,7 @@ public:
 
 	QCString property = BSTRToQString((TCHAR*)name).local8Bit();
 	QVariant qvar = map[property];
-	QVariantToVARIANT( qvar, *var, (const char*)0 );
+	QVariantToVARIANT( qvar, *var, qvar.typeName() );
 	return S_OK;
     }
     HRESULT __stdcall Write( LPCOLESTR name, VARIANT *var )
