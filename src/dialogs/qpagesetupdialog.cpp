@@ -57,6 +57,7 @@ static const char *pageSizeNames[] = {
     0
 };
 
+#ifdef PSD_ENABLE_PAPERSOURCE
 static const char *paperSourceNames[] = {
     "Only One",
     "Lower",
@@ -74,8 +75,6 @@ static const char *paperSourceNames[] = {
     0
 };
 
-
-#ifdef PSD_ENABLE_PAPERSOURCE
 struct PaperSourceNames
 {
     PaperSourceNames(const char *nam, QPrinter::PaperSource ps)
