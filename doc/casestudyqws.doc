@@ -127,6 +127,8 @@ keyboard.  The compact example includes a keyboard, so we use this code.
 Key and pointer input is Qt/Embedded specific, so it is surrounded
 by #ifdef _WS_QWS_ ...  #endif so that we can compile the example with Qt/X11
 or Qt/Windows if we wish.
+<li>The touch panel needs to be calibrated.  There is a calibration module
+included in the compact demo, so we use this.
 </ol>
 
 <h3>Creating a suitable Qt/Embedded Library</h3>
@@ -158,6 +160,7 @@ features as follows:
     #define QT_NO_CANVAS
     #define QT_NO_DIAL
     #define QT_NO_WORKSPACE
+    #define QT_NO_TABLE
     #define QT_NO_LCDNUMBER
     #define QT_NO_STYLE_MOTIF
     #define QT_NO_STYLE_PLATINUM
@@ -165,6 +168,7 @@ features as follows:
     #define QT_NO_PROGRESSDIALOG
     #define QT_NO_TABDIALOG
     #define QT_NO_WIZARD
+    #define QT_NO_EFFECTS
 </pre>
 
 <p>
@@ -220,7 +224,7 @@ The fonts must be installed in /usr/local/qt-embedded/etc/fonts:
     mkdir usr/local/qt-embedded
     mkdir usr/local/qt-embedded/etc
     mkdir usr/local/qt-embedded/etc/fonts
-    cp helvetica_100_50.qpf helvetica_120_50.qpf usr/local/qt-embedded/etc/fonts
+    cp helvetica_100_50.qlf helvetica_120_50.qlf usr/local/qt-embedded/etc/fonts
 </pre>
 
 When the kernel boots it looks for several files to run.  In order to have
@@ -233,8 +237,7 @@ directory is also used by Qt/Embedded:
 </pre>
 
 Create a ramdisk object, link it with the kernel, copy it to the compact flash
-and boot Linux.  You should see the notepad appear on the LCD display.  The
-touch panel calibration is very simple at the time of writing - just touch
-each corner of the display to calibrate.
+and boot Linux.  You should see the calibration screen appear on the LCD
+display.
 
 */

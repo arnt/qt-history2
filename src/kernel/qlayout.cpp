@@ -822,7 +822,7 @@ private:
 
   Columns 0, 2 and 4 in this dialog fragment are made up of a QLabel,
   a QLineEdit and a QListBox.  Columns 1 and 2 are placeholders, made
-  with setColSpacing().	 Row 0 consists of three QLabel objects, row 1
+  with addColSpacing().	 Row 0 consists of three QLabel objects, row 1
   of three QLineEdit objects and row 2 of three QListBox objects.
 
   Since we did not want any space between the rows, we had to use

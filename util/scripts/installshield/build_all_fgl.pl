@@ -2,7 +2,7 @@
 #
 # Builds all InstallShield file lists.
 #
-# Copyright (c) 1998 by Troll Tech AS. All rights reserved.
+# Copyright (c) 1998 by Trolltech AS. All rights reserved.
 #
 
 $dir = $ENV{"QTINST_DIR"};

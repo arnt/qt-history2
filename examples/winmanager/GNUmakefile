@@ -3,7 +3,7 @@
 #
 # Unix Makefile, requires GNU make (gmake).
 #
-# Copyright (C) 2000 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 2000 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 

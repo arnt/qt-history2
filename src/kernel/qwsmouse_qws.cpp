@@ -54,7 +54,7 @@
 #define QWS_TOUCHPANEL
 #endif
 
-//#define QWS_ERICTOUCHPANEL
+//#define QWS_CUSTOMTOUCHPANEL
 
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
                      Microsoft = 2, QVFBMouse = 3, TPanel = 4 };
@@ -522,11 +522,11 @@ void QVrTPanelHandlerPrivate::readMouseData()
 #endif
 }
 
-class QEricTPanelHandlerPrivate : public QMouseHandler {
+class QCustomTPanelHandlerPrivate : public QMouseHandler {
     Q_OBJECT
 public:
-    QEricTPanelHandlerPrivate(MouseProtocol, QString dev);
-    ~QEricTPanelHandlerPrivate();
+    QCustomTPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~QCustomTPanelHandlerPrivate();
 
 private:
     int mouseFD;
@@ -535,9 +535,9 @@ private slots:
 
 };
 
-QEricTPanelHandlerPrivate::QEricTPanelHandlerPrivate( MouseProtocol, QString )
+QCustomTPanelHandlerPrivate::QCustomTPanelHandlerPrivate( MouseProtocol, QString )
 {
-#ifdef QWS_ERICTOUCHPANEL
+#ifdef QWS_CUSTOMTOUCHPANEL
     if ((mouseFD = open( "/dev/ts", O_RDONLY)) < 0) {
         qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
 	return;
@@ -552,13 +552,13 @@ QEricTPanelHandlerPrivate::QEricTPanelHandlerPrivate( MouseProtocol, QString )
 #endif
 }
 
-QEricTPanelHandlerPrivate::~QEricTPanelHandlerPrivate()
+QCustomTPanelHandlerPrivate::~QCustomTPanelHandlerPrivate()
 {
     if (mouseFD >= 0)
 	close(mouseFD);
 }
 
-struct Ericdata {
+struct CustomTPdata {
 
   unsigned char status;
   unsigned short xpos;
@@ -566,12 +566,12 @@ struct Ericdata {
 
 };
 
-void QEricTPanelHandlerPrivate::readMouseData()
+void QCustomTPanelHandlerPrivate::readMouseData()
 {
-#ifdef QWS_ERICTOUCHPANEL
+#ifdef QWS_CUSTOMTOUCHPANEL
     if(!qt_screen)
 	return;
-    Ericdata data;
+    CustomTPdata data;
 
     unsigned char data2[5];
 
@@ -720,11 +720,11 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 
     QMouseHandler *handler = 0;
 
-#ifdef QWS_ERICTOUCHPANEL
-    handler=new QEricTPanelHandlerPrivate(mouseProtocol,mouseDev);
+#ifdef QWS_CUSTOMTOUCHPANEL
+    handler=new QCustomTPanelHandlerPrivate(mouseProtocol,mouseDev);
 #endif
     
-#ifndef QWS_ERICTOUCHPANEL
+#ifndef QWS_CUSTOMTOUCHPANEL
     switch ( mouseProtocol ) {
 	case MouseMan:
 	case IntelliMouse:

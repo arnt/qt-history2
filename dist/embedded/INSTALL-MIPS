@@ -1,9 +1,9 @@
-			  INSTALLING Qt/Embedded
+			INSTALLING Qt/Embedded for MIPS
 
 
-This installation procedure is written for Linux. It may need to be
-modified for other platforms.
- 
+The mips cross-compilation tools from http://www.linux-vr.org/tools.html
+are supported by this version of Qt/Embedded.
+
 Unpack the archive if you have not done so already:
 
 cd <anywhere>
@@ -17,16 +17,9 @@ Compile the Qt/Embedded library and examples:
 cd ~/qt-%VERSION%
 export QTDIR=~/qt-%VERSION%
 export LD_LIBRARY_PATH=~/qt-%VERSION%/lib:$LD_LIBRARY_PATH
-./configure
+./configure -xplatform linux-mips-g++
 make
 
-You will require a working Linux framebuffer to use Qt/Embedded.
-
-To run the demo:
-
-cd ~/qt-%VERSION%/examples/launcher
-./start_demo
-
-See the HTML documentation in doc/html for detailed installation
-instructions.
+See also the Cassiopeia case study in the Windowsystem-specific notes in the
+HTML documentation.
 

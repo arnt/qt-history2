@@ -19,6 +19,7 @@
 #include <qtextstream.h>
 
 #include "../compact/keyboard.h"
+#include "../compact/calibrate.h"
 
 #include "notepad.h"
 
@@ -189,6 +190,11 @@ int main( int argc, char *argv[] )
     notePad->show();
 
     app.setMainWidget( notePad );
+
+#ifdef __MIPSEL__
+    Calibrate *c = new Calibrate;
+    c->show();
+#endif
 
     return app.exec();
 }

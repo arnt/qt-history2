@@ -1,6 +1,6 @@
 #!/bin/sh
-# 
-# Copyright 1997-2000 Troll Tech AS.  All rights reserved.
+#
+# Copyright 1997-2000 Trolltech AS.  All rights reserved.
 #
 
 VERBOSE=

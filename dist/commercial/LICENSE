@@ -1,10 +1,10 @@
                         Qt COMMERCIAL LICENSE AGREEMENT
                    FOR PROFESSIONAL AND ENTERPRISE EDITIONS
 
-Copyright (C) 1999-2000 Troll Tech AS.  All rights reserved.
+Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 
 This non-exclusive non-transferable License Agreement is between you
-("Licensee") and Troll Tech AS, and pertains to all files in the
+("Licensee") and Trolltech AS, and pertains to all files in the
 Qt GUI Toolkit ("Software"), including the source code, example programs
 and the documentation.
 
@@ -13,7 +13,7 @@ and the documentation.
 
 1. All intellectual property rights in the Software are owned by Troll
 Tech AS and are protected by Norwegian copyright laws, other applicable
-copyright laws, and international treaty provisions. Troll Tech AS retains
+copyright laws, and international treaty provisions. Trolltech AS retains
 all rights not expressly granted. No title, property rights or copyright
 in the Software or in any modifications to the Software shall pass to the
 Licensee under any circumstances.
@@ -54,7 +54,7 @@ The modified result is governed by this License Agreement as Software.
                          LIMITATION OF LIABILITY
 
 THIS SOFTWARE IS PROVIDED "AS IS" AND EXCEPT AS SPECIFICALLY PROVIDED
-HEREIN, TROLL TECH AS MAKES NO WARRANTY OR REPRESENTATION, EITHER
+HEREIN, TROLLTECH AS MAKES NO WARRANTY OR REPRESENTATION, EITHER
 EXPRESSED OR IMPLIED, WITH RESPECT TO THE SOFTWARE, INCLUDING THEIR
 QUALITY, PERFORMANCE, MERCHANTABILITY, OR FITNESS FOR A PARTICULAR
 PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE
@@ -62,7 +62,7 @@ SOFTWARE IS WITH THE LICENSEE.
 
 Because software is inherently complex and may not be completely free of
 errors, the Licensee is advised to verify his work and make backup copies
-where appropriate. In no event will Troll Tech AS be liable for any
+where appropriate. In no event will Trolltech AS be liable for any
 damages whatsoever including - but not restricted to - lost revenue or
 profits or other direct, indirect, special, incidental, cover, or
 consequential damages arising out of the use of or inability to use the

@@ -25,6 +25,7 @@
 
 #include "keyboard.h"
 #include "unikeyboard.h"
+#include "calibrate.h"
 
 #include <qwindowsystem_qws.h>
 
@@ -455,5 +456,11 @@ main(int argc, char** argv)
 
     
     t.show();
+
+#ifdef __MIPSEL__
+    Calibrate *c = new Calibrate;
+    c->show();
+#endif
+
     app.exec();
 }

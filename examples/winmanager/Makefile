@@ -3,7 +3,7 @@
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
-# Copyright (C) 2000 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 2000 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 

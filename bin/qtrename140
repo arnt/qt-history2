@@ -3,12 +3,12 @@
 #  Perl script to change programs to use the longer header-file names
 #  introduced in Qt version 1.40.  Note that Qt is distributed with
 #  compatilibity headers making this program unnecessary at present,
-#  but which may be discontinued in Qt 2.0.  
+#  but which may be discontinued in Qt 2.0.
 #
 #  This is version 1.0 of the conversion script.
 #
 #
-#  Copyright (C) 1998 by Troll Tech AS.
+#  Copyright (C) 1998 by Trolltech AS.
 #
 #  Permission to use, copy, modify, and distribute this software and its
 #  documentation for any purpose and without fee is hereby granted,
@@ -16,7 +16,7 @@
 #  both that copyright notice and this permission notice appear in
 #  supporting documentation, and that any modifications are clearly
 #  annotated as not originating from the copyright holder.
-# 
+#
 #  This file is provided AS IS with no warranties of any kind.  The author
 #  shall have no liability with respect to the infringement of copyrights,
 #  trade secrets or any patents by this file or any part thereof.  In no

@@ -2,7 +2,7 @@
 #
 # Builds an InstallShield file list.
 #
-# Copyright (c) 1998 by Troll Tech AS. All rights reserved.
+# Copyright (c) 1998 by Trolltech AS. All rights reserved.
 #
 
 $recurse = 0;

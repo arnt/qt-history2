@@ -1,9 +1,9 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/qfd/Makefile#2 $
+# $Id: //depot/qt/main/examples/qfd/Makefile#3 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
-# Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1998 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 
