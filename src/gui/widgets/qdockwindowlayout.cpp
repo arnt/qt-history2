@@ -41,14 +41,6 @@
 #endif
 
 
-static inline bool canExpand(Qt::Orientation o, const QSizePolicy &sp)
-{
-    QSizePolicy::ExpandData exp = sp.expanding();
-    return (o == Qt::Horizontal ?
-	    (exp & QSizePolicy::Horizontally) != 0 :
-	    (exp & QSizePolicy::Vertically  ) != 0);
-}
-
 static inline bool canGrow(Qt::Orientation o, const QSizePolicy &sp)
 { return (o == Qt::Horizontal ? sp.mayGrowHorizontally() : sp.mayGrowVertically()); }
 
@@ -336,79 +328,60 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
     const int separator_extent =
 	qApp->style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
-    for (int pass = 0; pass < 2; ++pass) {
-	bool need_second_pass = true;
+    for (x = 0; x < layout_info.count(); ++x) {
+        const QDockWindowLayoutInfo &info = layout_info.at(x);
 
-	VDEBUG("  PASS %d", pass);
-        for (x = 0; x < layout_info.count(); ++x) {
-            const QDockWindowLayoutInfo &info = layout_info.at(x);
+        QLayoutStruct &ls = a[x];
+        ls.init();
+        ls.empty = info.item->isEmpty();
+        if (ls.empty)
+            continue;
 
-            QLayoutStruct &ls = a[x];
-            ls.init();
-            ls.empty = info.item->isEmpty();
+        if (info.is_sep) {
+            VDEBUG("    separator");
+            ls.sizeHint = ls.minimumSize = ls.maximumSize = separator_extent;
+        } else {
+            const QSizePolicy &sp =
+                info.item->widget()
+                ? info.item->widget()->sizePolicy()
+                : QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-            if (ls.empty)
-                continue;
+            if (info.is_dropped) {
+                Q_ASSERT(relayout_type != QInternal::RelayoutNormal);
+                Q_ASSERT(info.cur_size > 0);
 
-            if (info.is_sep) {
-                VDEBUG("    separator");
-                ls.sizeHint = ls.minimumSize = ls.maximumSize = separator_extent;
+                // item was just dropped into the layout
+                ls.minimumSize = info.cur_size;
+                ls.sizeHint = info.cur_size;
+                ls.maximumSize = info.cur_size;
+                // do not use stretch for dropped items... we want them in the
+                // exact size we specify
+                ls.stretch = 0;
             } else {
-                const QSizePolicy &sp =
-                    info.item->widget()
-                    ? info.item->widget()->sizePolicy()
-                    : QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+                ls.minimumSize = pick(orientation, info.item->minimumSize());
+                ls.maximumSize = pick(orientation, info.item->maximumSize());
 
-		bool grow = pass == 0
-                            ? canExpand(orientation, sp)
-                            : canGrow(orientation, sp);
-
-		if (info.is_dropped) {
-		    Q_ASSERT(relayout_type != QInternal::RelayoutNormal);
-
-		    // layout a dummy item
-		    ls.minimumSize = pick(orientation, info.item->minimumSize());
-		    ls.sizeHint = info.cur_size;
-		    ls.maximumSize = grow
-                                     ? pick(orientation, info.item->maximumSize())
-                                     : pick(orientation, info.item->sizeHint());
-
-		    // do not use stretch for dummy/dropped items... we want them in the
-		    // exact size we specify
-		    ls.stretch = 0;
-		} else {
-		    ls.minimumSize = pick(orientation, info.item->minimumSize());
-
-		    if (grow) {
-			ls.maximumSize = pick(orientation, info.item->maximumSize());
-			ls.sizeHint = info.cur_size == -1
-                                      ? pick(orientation, info.item->sizeHint())
-                                      : info.cur_size;
-
-			if (pass == 0)
-                            need_second_pass = false;
-		    } else {
-			ls.maximumSize = pick(orientation, info.item->sizeHint());
-			ls.sizeHint = info.cur_size == -1 ? ls.minimumSize : info.cur_size;
-		    }
-
-		    // use stretch that is the same as the size hint... this way widgets
-		    // will grow proportinally to their existing size, i.e. big widgets
-		    // grow "faster" than smaller widgets.
-		    ls.stretch = ls.sizeHint;
-		}
-
-                // sanity checks
-                ls.sizeHint = qMax(ls.sizeHint, ls.minimumSize);
-                ls.minimumSize = qMin(ls.minimumSize, ls.maximumSize);
-
-                VDEBUG("    dockwindow cur %4d min %4d max %4d, hint %4d stretch %4d",
-                       info.cur_size, ls.minimumSize, ls.maximumSize, ls.sizeHint, ls.stretch);
+                if (canGrow(orientation, sp)) {
+                    ls.sizeHint = ls.minimumSize;
+                    ls.stretch = info.cur_size == -1
+                                 ? pick(orientation, info.item->sizeHint())
+                                 : info.cur_size;
+                    ls.expansive = true;
+                } else {
+                    ls.sizeHint = info.cur_size == -1
+                                 ? pick(orientation, info.item->sizeHint())
+                                 : info.cur_size;
+                }
             }
-        }
 
-        if (!need_second_pass)
-            break;
+            // sanity checks
+            ls.sizeHint = qMax(ls.sizeHint, ls.minimumSize);
+            ls.minimumSize = qMin(ls.minimumSize, ls.maximumSize);
+
+            VDEBUG("    dockwindow cur %4d min %4d max %4d, hint %4d stretch %4d "
+                   "expansive %d empty %d",
+                   info.cur_size, ls.minimumSize, ls.maximumSize, ls.sizeHint, ls.stretch, ls.expansive, ls.empty);
+        }
     }
 
     qGeomCalc(a, 0, a.count(), 0, pick(orientation, rect.size()), 0);
@@ -1211,9 +1184,10 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
             if (location.area == Qt::RightDockWindowArea
                 || location.area == Qt::BottomDockWindowArea)
                 ++at;
-            const_cast<QDockWindowLayoutInfo &>(info).cur_size = pick(orientation, sz2);
+            const int sz = pick(orientation, target.size());
+            const_cast<QDockWindowLayoutInfo &>(info).cur_size -= sz + separatorExtent;
             QDockWindowLayoutInfo &newInfo = insert(at, new QWidgetItem(dockwindow));
-            newInfo.cur_size = pick(orientation, sz1);
+            newInfo.cur_size = sz;
             newInfo.is_dropped = true;
             relayout(QInternal::RelayoutDropped);
             newInfo.is_dropped = false;
