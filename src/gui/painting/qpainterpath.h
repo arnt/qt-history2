@@ -69,6 +69,8 @@ public:
     inline void curveTo(qReal ctrlPt1x, qReal ctrlPt1y, qReal ctrlPt2x, qReal ctrlPt2y,
                         qReal endPtx, qReal endPty);
 
+    QPointF currentPosition() const;
+
     void addRect(const QRectF &rect);
     inline void addRect(qReal x, qReal y, qReal w, qReal h);
     void addEllipse(const QRectF &rect);

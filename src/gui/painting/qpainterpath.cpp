@@ -751,6 +751,19 @@ void QPainterPath::arcTo(const QRectF &rect, qReal startAngle, qReal sweepLength
     }
 }
 
+
+/*!
+    \fn QPointF QPainterPath::currentPosition() const
+
+    Returns the current position of the path.
+*/
+QPointF QPainterPath::currentPosition() const
+{
+    Q_ASSERT(!elements.isEmpty());
+    return QPointF(elements.last().x, elements.last().y);
+}
+
+
 /*!
     \fn void QPainterPath::addRect(qReal x, qReal y, qReal width, qReal height)
 
