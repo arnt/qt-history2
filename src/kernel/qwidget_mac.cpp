@@ -135,10 +135,10 @@ int mac_window_count = 0;
 
 static WId qt_root_win() {
     WindowPtr ret = NULL;
-#if 0
+#ifdef Q_WS_MAC9
     //my desktop hacks, trying to figure out how to get a desktop, this doesn't work
     //but I'm going to leave it for now so I can test some more FIXME!!!
-    GetCWMgrPort(ret);
+//    GetCWMgrPort(ret);
 #else
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP ON MACX
 #if 0
@@ -158,7 +158,7 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
-OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
+pascal OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, 
 			 RgnHandle, void *w)
 {
     QWidget *widget = (QWidget *)w;
@@ -309,7 +309,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    }
 	}
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
-	InstallWindowContentPaintProc((WindowPtr)id, macSpecialErase, 0, this);
+	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(macSpecialErase), 0, this);
 //	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
 
 	if(testWFlags( WType_Popup )) 
@@ -743,7 +743,8 @@ void QWidget::showWindow()
 	    for(QObject *obj; (obj = it.current()); ++it ) 
 		qApp->sendPostedEvents(obj, 0);
 	}
-
+	
+#ifdef Q_WS_MACX
 	//handle transition
 	if(qApp->style().inherits("QAquaStyle") &&
 	   parentWidget() && testWFlags(WShowModal)) {
@@ -751,6 +752,7 @@ void QWidget::showWindow()
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
 	}
+#endif	
 
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);

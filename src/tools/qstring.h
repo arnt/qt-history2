@@ -373,9 +373,17 @@ struct Q_EXPORT QStringData : public QShared {
 	}
 	dirty = 1;
     }
+#ifdef Q_OS_MAC9    
+    uint len;
+#else
     uint len : 30;
+#endif    
     uint simpletext : 1;
-    uint maxl : 30;
+#ifdef Q_OS_MAC9
+    uint maxl;
+#else
+	uint macx : 30;
+#endif
     uint dirty : 1;
 };
 

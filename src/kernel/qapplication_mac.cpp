@@ -209,8 +209,8 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassWindow, kEventWindowUpdate },
 	    { kEventClassWindow, kEventWindowActivated },
 	    { kEventClassWindow, kEventWindowDeactivated },
-//	    { kEventClassWindow, kEventWindowShown },
-//	    { kEventClassWindow, kEventWindowHidden },
+	    { kEventClassWindow, kEventWindowShown },
+	    { kEventClassWindow, kEventWindowHidden },
 
 	    { kEventClassApplication, kEventAppActivated }, 
 	    { kEventClassApplication, kEventAppDeactivated }
@@ -983,8 +983,7 @@ void qt_leave_modal( QWidget *widget )
 
 static bool qt_try_modal( QWidget *widget, EventRef event )
 {
-	return TRUE;
-    if ( qApp->activePopupWidget() )
+   if ( qApp->activePopupWidget() )
 	return TRUE;
     // a bit of a hack: use WStyle_Tool as a general ignore-modality
     // flag, also for complex widgets with children.
@@ -1341,8 +1340,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 		while(app->inPopupMode())
 		    app->activePopupWidget()->close();
 	} else if(ekind == kEventWindowShown || ekind == kEventWindowHidden) {
-		return CallNextEventHandler(ref, event);
-		return eventNotHandledErr; //hack
+
 	}
     break;
     case kEventClassApplication:
