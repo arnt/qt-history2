@@ -40,6 +40,7 @@
 #include <qdir.h>
 #include <qtextbrowser.h>
 #include <qaccel.h>
+#include <qregexp.h>
 
 class MyString : public QString
 {
@@ -239,6 +240,7 @@ void HelpDialog::loadIndexFile()
 
 	if ( s.isEmpty() )
 	    continue;
+	s = s.replace( QRegExp( "\\\\" ), "" );
 	if ( !lastItem || lastItem->text() != s )
 	    lastItem = new HelpNavigationListItem( listIndex, s );
 	lastItem->addLink( link );
