@@ -14,6 +14,7 @@
 #include <qaxobject.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qsettings.h>
 #include <quuid.h>
 
 #include <qt_windows.h>
@@ -776,10 +777,34 @@ int main(int argc, char **argv)
                     category = DoNothing;
                     break;
                 } else if (arg == "h") {
-                    qWarning("dumpdoc Usage:\n\tdumpcpp object -c <classname> [-n <namespace>] [-o <filename>] [-nometaobject]"
-                        "              \n\tobject   : object[/subobject]*"
-                        "              \n\tsubobject: property\n"
-                        "      \nexample:\n\tdumpcpp Outlook.Application/Session/CurrentUser -c CurrentUser -o outlook.currentuser");
+                    qWarning("dumpcpp Version1.0\n\n"
+                        "Usage:\n"
+                        "dumpcpp input [-c <classname>] [-n <namespace>] [-o <filename>]\n\n"
+                        "   input:     A ProgID, CLSID, type library file or type library ID\n"
+                        "   classname: The name of the generated C++ class (ignored for typelibs)\n"
+                        "   namespace: The name of the generated C++ namespace\n"
+                        "   filename:  The file name (without extension) of the generated files\n"
+                        "\n"
+                        "classname, namespace and filename will be generated if not provided.\n\n"
+                        "Other parameters:\n"
+                        "   -nometaobject Don't generate meta object information (no .cpp file)\n"
+                        "   -impl Only generate the .cpp file\n"
+                        "   -decl Only generate the .h file\n"
+                        "\n"
+                        "Examples:\n"
+                        "   dumpcpp Outlook.Application -n Outlook -c Application -o outlook.application\n"
+                        "\n"
+                        "   Generate a file outlook.h declaring a C++ namespace 'Outlook', a file\n"
+                        "   outlook.application.h declaring a C++ class 'Application' in the namespace\n"
+                        "   'Outlook' as well as a file outlook.application.cpp with the meta object\n"
+                        "   data for the class 'Application'.\n"
+                        "\n"
+                        "   dumpcpp {3B756301-0075-4E40-8BE8-5A81DE2426B7}\n"
+                        "\n"
+                        "   Generate a file wrapperaxlib.h declaring the namespace 'wrapperaxLib' and\n"
+                        "   one C++ class for each coclass and dispinterface in the type library, as\n"
+                        "   well as a file wrapperaxlib.cpp with the meta object data."
+                        "\n");
                     return 0;
                 }
             } else {
@@ -816,27 +841,40 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    // interpret input as type library ID
+    if (!QFile::exists(object) && object.at(0) == '{' && object.at(object.length()-1) == '}') {
+        QSettings settings;
+        QString key = QString("/Classes/TypeLib/%1").arg(QLatin1String(object));
+        QStringList versions = settings.subkeyList(key);
+        QStringList codes;
+        if (versions.count()) {
+            key += "/" + versions.last();
+            codes = settings.subkeyList(key);
+        }
+        for (int c = 0; c < codes.count(); ++c) {
+            object = settings.readEntry(key + "/" + codes.at(c) + "/win32/.");
+            if (QFile::exists(object))
+                break;
+        }
+    }
+
+    // interpret input as type library file
     if (QFile::exists(object) && generateTypeLibrary(object, outname, (ObjectCategory)category))
         return 0;
 
-    QByteArray subobject = object;
-    int index = subobject.indexOf('/');
-    if (index != -1)
-        subobject = subobject.left(index);
     
-    QAxObject topobject(subobject);
-    
-    if (topobject.isNull()) {
-        qWarning("dumpcpp: Could not instantiate COM object '%s'", subobject.data());
+    QAxObject axobject(object);
+    if (object.isNull()) {
+        qWarning("dumpcpp: Could not instantiate COM object '%s'", object.data());
         return -2;
     }
 
     if (className.isEmpty()) {
-        if (!subobject.contains('{') && !subobject.contains(' ')) {
+        if (!object.contains('{') && !object.contains(' ')) {
             int classNameIndex = 0;
-            if (subobject.contains('.')) {
-                nameSpace = object.left(subobject.indexOf('.'));
-                classNameIndex = subobject.indexOf('.') + 1;
+            if (object.contains('.')) {
+                nameSpace = object.left(object.indexOf('.'));
+                classNameIndex = object.indexOf('.') + 1;
             }
             if (object.contains('/'))
                 classNameIndex = object.lastIndexOf('/') + 1;
@@ -844,7 +882,7 @@ int main(int argc, char **argv)
         } else {
             BSTR progid;
             IOleObject *oleObject = 0;
-            topobject.queryInterface(IID_IOleObject, (void**)&oleObject);
+            axobject.queryInterface(IID_IOleObject, (void**)&oleObject);
             if (oleObject) {
                 oleObject->GetUserType(USERCLASSTYPE_FULL, &progid);
                 className = BSTRToQString(progid).latin1();
@@ -856,30 +894,10 @@ int main(int argc, char **argv)
     if (className.isEmpty())
         className = "Class1";
 
-    QAxObject *axobject = &topobject;
-    while (index != -1 && axobject) {
-        index++;
-        subobject = object.mid(index);
-        if (object.indexOf('/', index) != -1) {
-            int oldindex = index;
-            index = object.indexOf('/', index);
-            subobject = object.mid(oldindex, index-oldindex);	    
-        } else {
-            index = -1;
-        }
-        
-        axobject = axobject->querySubObject(subobject);
-        category |= SubObject;
-    }
-    if (!axobject || axobject->isNull()) {
-        qWarning("dumpcpp: Subobject '%s' does not exist in '%s'", subobject.data(), object.data());
-        return -3;
-    }
-
     if (outname.isEmpty()) {
         if (!nameSpace.isEmpty())
             outname = nameSpace.toLower() + ".";
         outname += className.toLower();
     }
-    return generateClass(axobject, className, nameSpace, outname, (ObjectCategory)category) ? 0 : -4;
+    return generateClass(&axobject, className, nameSpace, outname, (ObjectCategory)category) ? 0 : -4;
 }
