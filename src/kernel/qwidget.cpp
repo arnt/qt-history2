@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#260 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#261 $
 **
 ** Implementation of QWidget class
 **
@@ -741,16 +741,6 @@ void QWidget::destroyMapper()
 	if ( !w->parentObj )			// widget is a parent
 	    w->destroy( TRUE, TRUE );
     }
-#if defined(DEBUG)
-    ASSERT( it.count() == 0 );
-#endif
-#if 0
-    it.toFirst();				// shouln't be any more widgets
-    while ( (w=it.current()) ) {		// delete the rest
-	++it;
-	w->destroy( TRUE, TRUE );
-    }
-#endif
     delete myMapper;
 }
 
