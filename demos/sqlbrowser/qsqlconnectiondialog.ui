@@ -1,8 +1,8 @@
 <ui version="4.0" stdsetdef="1" >
   <class>QSqlConnectionDialogUi</class>
-  <widget class="QDialog" name="connectionDialog" >
+  <widget class="QDialog" name="QSqlConnectionDialogUi" >
     <property name="objectName" >
-      <string notr="true" >connectionDialog</string>
+      <string notr="true" >QSqlConnectionDialogUi</string>
     </property>
     <property name="geometry" >
       <rect>
