@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#55 $
 **
 ** Implementation of QAccel class
 **
@@ -410,69 +410,87 @@ void QAccel::tlwDestroyed()
 }
 
 
-/* 62 defined shortcuts from the microsoft book:
+/* \page shortcuts.html
+   
+<title>Standard Accelerators</title>
+\postheader
 
-<b><u>A</u></b>bout
-Insert <b><u>O</u></b>bject
-<b><u>Q</u></b>uick View
-Always on <b><u>T</u></b>op
-<b><u>L</u></b>ink Here
-<b><u>R</u></b>edo
-<b><u>A</u></b>pply
-Ma<b><u>x</u></b>imize
-<b><u>R</u></b>epeat
-<b><u>B</u></b>ack
-Mi<b><u>n</u></b>imize
-<b><u>R</u></b>estore
-<b><u>B</u></b>rowse
-<b><u>M</u></b>ove
-<b><u>R</u></b>esume
-<b><u>C</u></b>lose
-<b><u>M</u></b>ove Here
-<b><u>R</u></b>etry
-<b><u>C</u></b>opy
-<b><u>N</u></b>ew
-<b><u>R</u></b>un
-<b><u>C</u></b>opy Here
-<b><u>N</u></b>ext
-<b><u>S</u></b>ave
-Create <b><u>S</u></b>hortcut
-<b><u>N</u></b>o
-Save <b><u>A</u></b>s
-Create <b><u>S</u></b>hortcut Here
-<b><u>O</u></b>pen
-Select <b><u>A</u></b>ll
-Cu<b><u>t</u></b>
-Open <b><u>W</u></b>ith
-Se<b><u>n</u></b>d To
-<b><u>D</u></b>elete
-<b><u>P</u></b>aste
-<b><u>S</u></b>how
-<b><u>E</u></b>dit
-Paste <b><u>L</u></b>ink
-<b><u>S</u></b>ize
-<b><u>E</u></b>xit
-Paste <b><u>S</u></b>hortcut
-S<b><u>p</u></b>lit
-<b><u>E</u></b>xplore
-Page Set<b><u>u</u></b>p
-<b><u>S</u></b>top
-<b><u>F</u></b>ile
-Paste <b><u>S</u></b>pecial
-<b><u>U</u></b>ndo
-<b><u>F</u></b>ind
-<b><u>P</u></b>ause
-<b><u>V</u></b>iew
-<b><u>H</u></b>elp
-<b><u>P</u></b>lay
-<b><u>W</u></b>hat's This?
-Help <b><u>T</u></b>opics
-<b><u>P</u></b>rint
-<b><u>W</u></b>indow
-<b><u>H</u></b>ide
-<b><u>P</u></b>rint Here
-<b><u>Y</u></b>es
-<b><u>I</u></b>nsert
-P<b><u>r</u></b>operties
+<h1 align="center">Standard Accelerator Keys</h1>
+
+Microsoft defines a large number of standard accelerators; the Open
+Group defines a somewhat smaller number.  Here is a list of the ones
+that involve letter keys, sorted alphabetically.  The boldfaced letter
+(A in About) together with Alt is Microsoft's accelerator; where the
+Open Group has a different standard we explain the difference in
+parentheses.
+
+<ul>
+<li><b><u>A</u></b>bout
+<li>Always on <b><u>T</u></b>op
+<li><b><u>A</u></b>pply
+<li><b><u>B</u></b>ack
+<li><b><u>B</u></b>rowse
+<li><b><u>C</u></b>lose (CDE: Alt-F4.  Alt-F4 is "close window" in Windows.)
+<li><b><u>C</u></b>opy (CDE: Ctrl-C, Ctrl-Insert)
+<li><b><u>C</u></b>opy Here
+<li>Create <b><u>S</u></b>hortcut
+<li>Create <b><u>S</u></b>hortcut Here
+<li>Cu<b><u>t</u></b>
+<li><b><u>D</u></b>elete
+<li><b><u>E</u></b>dit
+<li><b><u>E</u></b>xit
+<li><b><u>E</u></b>xplore
+<li><b><u>F</u></b>ile
+<li><b><u>F</u></b>ind
+<li><b><u>H</u></b>elp
+<li>Help <b><u>T</u></b>opics
+<li><b><u>H</u></b>ide
+<li><b><u>I</u></b>nsert
+<li>Insert <b><u>O</u></b>bject
+<li><b><u>L</u></b>ink Here
+<li>Ma<b><u>x</u></b>imize
+<li>Mi<b><u>n</u></b>imize
+<li><b><u>M</u></b>ove
+<li><b><u>M</u></b>ove Here
+<li><b><u>N</u></b>ew
+<li><b><u>N</u></b>ext
+<li><b><u>N</u></b>o
+<li><b><u>O</u></b>pen
+<li>Open <b><u>W</u></b>ith
+<li>Page Set<b><u>u</u></b>p
+<li><b><u>P</u></b>aste
+<li>Paste <b><u>L</u></b>ink
+<li>Paste <b><u>S</u></b>hortcut
+<li>Paste <b><u>S</u></b>pecial
+<li><b><u>P</u></b>ause
+<li><b><u>P</u></b>lay
+<li><b><u>P</u></b>rint
+<li><b><u>P</u></b>rint Here
+<li>P<b><u>r</u></b>operties
+<li><b><u>Q</u></b>uick View
+<li><b><u>R</u></b>edo (CDE: Ctrl-Y, Alt-Backspace)
+<li><b><u>R</u></b>epeat
+<li><b><u>R</u></b>estore
+<li><b><u>R</u></b>esume
+<li><b><u>R</u></b>etry
+<li><b><u>R</u></b>un
+<li><b><u>S</u></b>ave
+<li>Save <b><u>A</u></b>s
+<li>Select <b><u>A</u></b>ll
+<li>Se<b><u>n</u></b>d To
+<li><b><u>S</u></b>how
+<li><b><u>S</u></b>ize
+<li>S<b><u>p</u></b>lit
+<li><b><u>S</u></b>top
+<li><b><u>U</u></b>ndo (CDE says Ctrl-Z or Alt-Backspace)
+<li><b><u>V</u></b>iew
+<li><b><u>W</u></b>hat's This?
+<li><b><u>W</u></b>indow
+<li><b><u>Y</u></b>es
+	</ul>
+
+<a href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
+<a href="http://www.amazon.com/exec/obidos/ASIN/1859121047/trolltech/t">
+
 
 */
