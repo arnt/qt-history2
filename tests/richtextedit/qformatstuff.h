@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#2 $
 **
 ** Definition of the QtTextView class
 **
@@ -31,6 +31,8 @@
 #include <qfont.h>
 #include <qcstring.h>
 
+class QStyleSheetItem;
+
 class QtTextCharFormat
 {
     friend class QtTextFormatCollection;
@@ -40,21 +42,23 @@ public:
     QtTextCharFormat( const QtTextCharFormat &format );
     QtTextCharFormat( const QFont &f, const QColor &c );
     virtual ~QtTextCharFormat();
+
+    QtTextCharFormat makeTextFormat( const QStyleSheetItem &item );
     
     QColor color() const;
     QFont font() const;
-    
+
     virtual bool isCustomItem() { return FALSE; }
-    
+
     int addRef();
     int removeRef();
-    
+
 protected:
     QFont _font;
     QColor _color;
     QCString key;
     int ref;
-    
+
 };
 
 class QtTextCustomItem : public QtTextCharFormat
@@ -62,27 +66,27 @@ class QtTextCustomItem : public QtTextCharFormat
 public:
     QtTextCustomItem() : QtTextCharFormat() {}
     virtual ~QtTextCustomItem();
-    
+
     bool isCustomItem() { return TRUE; }
-    
+
 };
 
 class QtTextFormatCollection
 {
     friend class QtTextCharFormat;
-    
+
 public:
     QtTextFormatCollection();
-    
+
     ushort registerFormat( const QtTextCharFormat &format );
     void unregisterFormat( ushort index );
     QtTextCharFormat *format( ushort index );
-    
+
 protected:
     QMap< QCString, QtTextCharFormat* > cKey;
     QMap< int, QtTextCharFormat* > cIndex;
     QMap< QCString, int > cKeyIndex;
-    
+
 };
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#1 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#2 $
 **
 ** Definition of the QtTextView class
 **
@@ -27,6 +27,7 @@
 
 #include <qdatastream.h>
 #include <qcstring.h>
+#include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
     : ref( 1 )
@@ -34,7 +35,7 @@ QtTextCharFormat::QtTextCharFormat()
 }
 
 QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
-    : _font( format._font ), _color( format._color ), 
+    : _font( format._font ), _color( format._color ),
       key( format.key ), ref( 1 )
 {
 }
@@ -72,6 +73,25 @@ int QtTextCharFormat::removeRef()
     return --ref;
 }
 
+QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem &item )
+{
+    QtTextCharFormat format = *this;
+    if ( item.fontWeight() != QStyleSheetItem::Undefined )
+        format._font.setWeight( item.fontWeight() );
+    if ( item.fontSize() != QStyleSheetItem::Undefined )
+        format._font.setPointSize( item.fontSize() );
+    if ( !item.fontFamily().isEmpty() )
+        format._font.setFamily( item.fontFamily() );
+    if ( item.color().isValid() )
+        format._color = item.color();
+    if ( item.definesFontItalic() )
+        format._font.setItalic( item.fontItalic() );
+    if ( item.definesFontUnderline() )
+        format._font.setUnderline( item.fontUnderline() );
+
+    return format;
+}
+
 QtTextCustomItem::~QtTextCustomItem()
 {
 }
@@ -79,7 +99,7 @@ QtTextCustomItem::~QtTextCustomItem()
 QtTextFormatCollection::QtTextFormatCollection()
 {
 }
-    
+
 ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
     if ( cKey.contains( format.key ) ) {
@@ -94,7 +114,7 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
         return i;
     }
 }
- 
+
 void QtTextFormatCollection::unregisterFormat( ushort index )
 {
     if ( cIndex.contains( index ) ) {
@@ -107,7 +127,7 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
         if ( ref <= 0 )
             delete f;
     }
-        
+
 }
 
 QtTextCharFormat *QtTextFormatCollection::format( ushort index )
