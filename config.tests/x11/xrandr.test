@@ -25,7 +25,7 @@ done
 # debuggery
 [ "$VERBOSE" = "yes" ] && echo "XRandR auto-detection... ($*)"
 
-# check for lib
+# check for the Xrandr library
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
 LIBDIRS="$IN_LIBDIRS $XDIRS /usr/shlib /usr/lib /lib"
 F=
@@ -42,7 +42,7 @@ if [ -z "$F" ]; then
     [ "$VERBOSE" = "yes" ] && echo "  Could not find XRandR lib anywhere in $LIBDIRS"
 fi
     
-# check for headers
+# check for Xrandr.h and randr.h
 XRANDR_H=
 RANDR_R=
 if [ "$XRANDR" = "yes" ]; then
