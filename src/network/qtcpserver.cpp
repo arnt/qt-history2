@@ -428,8 +428,6 @@ QTcpSocket *QTcpServer::nextPendingConnection()
 }
 
 /*!
-    \obsolete
-
     This virtual function is called by QTcpServer when a new
     connection is available. The \a socketDescriptor argument is the
     native socket descriptor for the accepted connection.
