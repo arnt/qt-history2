@@ -37,9 +37,9 @@ CppEditor::CppEditor( const QString &fn, QWidget *parent, const char *name, Desi
     document()->setIndent( new Indent_CPP );
     completion = new CppEditorCompletion( this );
     browser = new CppEditorBrowser( this );
-    int i = 0;
-    while ( SyntaxHighlighter_CPP::keywords[ i ] != QString::null )
-	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ i++ ], 0, FALSE );
+    int j = 0;
+    while ( SyntaxHighlighter_CPP::keywords[ j ] != QString::null )
+	    completion->addCompletionEntry( SyntaxHighlighter_CPP::keywords[ j++ ], 0, FALSE );
     configChanged();
 }
 
