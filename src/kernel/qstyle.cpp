@@ -862,33 +862,29 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     a widget that performs some action or displays information to the
     user.
 
-
     \value CE_PushButton  the bevel and default indicator of a QPushButton.
     \value CE_PushButtonLabel  the label (iconset with text or pixmap)
 	of a QPushButton.
 
-
     \value CE_CheckBox  the indicator of a QCheckBox.
     \value CE_CheckBoxLabel  the label (text or pixmap) of a QCheckBox.
-
 
     \value CE_RadioButton  the indicator of a QRadioButton.
     \value CE_RadioButtonLabel  the label (text or pixmap) of a QRadioButton.
 
-
     \value CE_TabBarTab  the tab within a QTabBar (a QTab).
     \value CE_TabBarLabel  the label within a QTab.
-
 
     \value CE_ProgressBarGroove  the groove where the progress
 	indicator is drawn in a QProgressBar.
     \value CE_ProgressBarContents  the progress indicator of a QProgressBar.
     \value CE_ProgressBarLabel  the text label of a QProgressBar.
 
-
     \value CE_PopupMenuItem  a menu item in a QPopupMenu.
     \value CE_PopupMenuScroller scrolling areas in a popumenu when the
 	style supports scrolling.
+    \value CE_PopupMenuHoriztonalExtra extra frame area set aside with PM_PopupMenuFrameHorizontalExtra
+    \value CE_PopupMenuVerticalExtra extra frame area set aside with PM_PopupMenuFrameVerticalExtra
 
     \value CE_MenuBarItem  a menu item in a QMenuBar.
 
@@ -1463,6 +1459,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_SplitterWidth  width of a splitter.
 
     \value PM_TitleBarHeight height of the title bar.
+    \value PM_PopupMenuFrameHorizontalExtra additional border, e.g. for panels
+    \value PM_PopupMenuFrameVerticalExtra additional border, e.g. for panels
 
     \value PM_IndicatorWidth  width of a check box indicator.
     \value PM_IndicatorHeight  height of a checkbox indicator.
@@ -1482,8 +1480,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	values above this are reserved for custom use. Therefore,
 	custom values must be greater than this value.
 
-    \value PM_PopupMenuFrameHorizontalExtra additional border, e.g. for panels
-    \value PM_PopupMenuFrameVerticalExtra additional border, e.g. for panels
 
     \sa pixelMetric()
 */

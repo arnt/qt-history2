@@ -630,13 +630,38 @@ void QFrame::drawFrame( QPainter *p )
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
-    case PopupPanel:
+    case PopupPanel: 
 #ifndef QT_NO_STYLE
+    {
+	int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this), 
+	    hextra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
+	if(vextra > 0 || hextra > 0) {
+	    QRect fr = frameRect();
+	    int   fw = frameWidth();
+	    if(vextra > 0) {
+		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this, 
+				    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
+				    g, flags, opt);
+		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this, 
+				    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
+				    g, flags, opt);
+	    }
+	    if(hextra > 0) {
+		style().drawControl(QStyle::CE_PopupMenuHorizontalExtra, p, this,
+				    QRect(fr.x() + fw, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
+				    g, flags, opt);
+		style().drawControl(QStyle::CE_PopupMenuHorizontalExtra, p, this,
+				    QRect(fr.right() - fw - hextra, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
+				    g, flags, opt);
+	    }
+	}
+
         if ( cstyle == Plain )
             qDrawPlainRect( p, r, g.foreground(), lwidth );
         else
 	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, g, flags, opt);
         break;
+    }
 #endif // fall through to Panel if QT_NO_STYLE
 
     case Panel:

@@ -704,6 +704,8 @@ void QMacStyle::drawControl(ControlElement element,
     } else if(qAquaActive(cg)) {
 	if(!(how & Style_Enabled))
 	    tds = kThemeStateUnavailable;
+    case CE_PopupMenuHorizontalExtra:
+    case CE_PopupMenuVerticalExtra:
     } else {
 	if(how & Style_Enabled)
 	    tds = kThemeStateInactive;
@@ -719,11 +721,15 @@ void QMacStyle::drawControl(ControlElement element,
 	Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
 	ThemeMenuState tms = kThemeMenuActive;
-	if(how & Style_Active)
-	    tms |= kThemeMenuSelected;
-	ThemeMenuItemType tmit = kThemeMenuItemScrollUpArrow;
-	if((how & Style_Down))
-	    tmit = kThemeMenuItemScrollDownArrow;
+	ThemeMenuItemType tmit = kThemeMenuItemPlain;
+	if(element == CE_PopupMenuScroller) {
+	    if(how & Style_Active)
+		tms |= kThemeMenuSelected;
+	    if((how & Style_Down))
+		tmit = kThemeMenuItemScrollDownArrow;
+	    else
+		tmit = kThemeMenuItemScrollUpArrow;
+	} 
 	((QMacPainter *)p)->setport();
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
 	break; }
