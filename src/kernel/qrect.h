@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#16 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#17 $
 **
 ** Definition of QRect class
 **
@@ -27,7 +27,7 @@ public:
     bool   isNull()	const;
     bool   isEmpty()	const;
     bool   isValid()	const;
-    QRect &normalize();	
+    void   normalize();	
 
     int	   left()	 const	{ return x1; }
     int	   top()	 const	{ return y1; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#25 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -154,7 +154,8 @@ bool QRect::isValid() const
 }
 
 /*----------------------------------------------------------------------------
-  Normalizes the rectangle and returns a reference to this rectangle.
+  Normalizes the rectangle, i.e. makes sure it has a non-negative width
+  and height.
 
   It swaps left and right if left() > right(), and swaps top and bottom if
   top() > bottom().
@@ -162,7 +163,7 @@ bool QRect::isValid() const
   \sa isValid()
  ----------------------------------------------------------------------------*/
 
-QRect &QRect::normalize()
+void QRect::normalize()
 {
     QCOORD t;
     if ( x2 < x1 ) {				// swap bad x values
@@ -175,7 +176,6 @@ QRect &QRect::normalize()
 	y1 = y2;
 	y2 = t;
     }
-    return *this;
 }
 
 
