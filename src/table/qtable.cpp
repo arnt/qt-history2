@@ -3404,7 +3404,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 void QTable::selectRow( int row )
 {
     row = QMIN(numRows()-1, row);
-    if ( inherits("QDataTable") ) {
+    if ( inherits("QDataTable") || selectionMode() == SingleRow ) {
 	setCurrentCell( row, currentColumn() );
     } else {
 	QTableSelection sel( row, 0, row, numCols() - 1 );
