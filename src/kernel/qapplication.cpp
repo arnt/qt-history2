@@ -914,7 +914,7 @@ void QApplication::initialize( int argc, char **argv )
 {
 #ifdef QT_THREAD_SUPPORT
     qt_mutex = new QMutex( TRUE );
-    postevent_mutex = new QMutex( FALSE );
+    postevent_mutex = new QMutex( TRUE );
 #endif // QT_THREAD_SUPPORT
 
     app_argc = argc;
