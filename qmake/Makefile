@@ -5,8 +5,8 @@
 CXX	    =   cl
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
-		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I$(QTDIR)\include /I$(QTDIR)\src\tools \
-		/I$(QTDIR)\mkspecs\win32-msvc \
+		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I..\include /I..\src\tools \
+		/I..\mkspecs\win32-msvc \
 		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL /DQT_NO_COMPRESS /DUNICODE
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	/DEBUG
@@ -23,8 +23,8 @@ BCB = $(MAKEDIR)\..
 CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -O1 \
-		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I$(QTDIR)\include -I$(QTDIR)\src\tools \
-		-I$(QTDIR)\mkspecs\win32-borland \
+		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\include -I..\src\tools \
+		-I..\mkspecs\win32-borland \
 		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
@@ -47,7 +47,7 @@ QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
-	-copy qmake.exe $(QTDIR)\bin\qmake.exe
+	-copy qmake.exe ..\bin\qmake.exe
 
 clean::
 	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
@@ -61,89 +61,89 @@ distclean:: clean
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) $<
 
-qconfig.obj: $(QTDIR)\src\tools\qconfig.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qconfig.cpp
+qconfig.obj: ..\src\tools\qconfig.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qconfig.cpp
 
-qlibrary.obj: $(QTDIR)\src\tools\qlibrary.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qlibrary.cpp
+qlibrary.obj: ..\src\tools\qlibrary.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlibrary.cpp
 
-qlibrary_win.obj: $(QTDIR)\src\tools\qlibrary_win.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qlibrary_win.cpp
+qlibrary_win.obj: ..\src\tools\qlibrary_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qlibrary_win.cpp
 
-qtextstream.obj: $(QTDIR)\src\tools\qtextstream.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qtextstream.cpp
+qtextstream.obj: ..\src\tools\qtextstream.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qtextstream.cpp
 
-qiodevice.obj: $(QTDIR)\src\tools\qiodevice.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qiodevice.cpp
+qiodevice.obj: ..\src\tools\qiodevice.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qiodevice.cpp
 
-qglobal.obj: $(QTDIR)\src\tools\qglobal.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qglobal.cpp
+qglobal.obj: ..\src\tools\qglobal.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qglobal.cpp
 
-qgdict.obj: $(QTDIR)\src\tools\qgdict.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qgdict.cpp
+qgdict.obj: ..\src\tools\qgdict.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qgdict.cpp
 
-qcstring.obj: $(QTDIR)\src\tools\qcstring.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qcstring.cpp
+qcstring.obj: ..\src\tools\qcstring.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qcstring.cpp
 
-qstring.obj: $(QTDIR)\src\tools\qstring.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qstring.cpp
+qstring.obj: ..\src\tools\qstring.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qstring.cpp
 
-qdatastream.obj: $(QTDIR)\src\tools\qdatastream.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qdatastream.cpp
+qdatastream.obj: ..\src\tools\qdatastream.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qdatastream.cpp
 
-qgarray.obj: $(QTDIR)\src\tools\qgarray.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qgarray.cpp
+qgarray.obj: ..\src\tools\qgarray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qgarray.cpp
 
-qbuffer.obj: $(QTDIR)\src\tools\qbuffer.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qbuffer.cpp
+qbuffer.obj: ..\src\tools\qbuffer.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qbuffer.cpp
 
-qglist.obj: $(QTDIR)\src\tools\qglist.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qglist.cpp
+qglist.obj: ..\src\tools\qglist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qglist.cpp
 
-qptrcollection.obj: $(QTDIR)\src\tools\qptrcollection.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qptrcollection.cpp
+qptrcollection.obj: ..\src\tools\qptrcollection.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qptrcollection.cpp
 
-qfile.obj: $(QTDIR)\src\tools\qfile.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qfile.cpp
+qfile.obj: ..\src\tools\qfile.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qfile.cpp
 
-qfile_win.obj: $(QTDIR)\src\tools\qfile_win.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qfile_win.cpp
+qfile_win.obj: ..\src\tools\qfile_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qfile_win.cpp
 
-qtextcodec.obj: $(QTDIR)\src\codecs\qtextcodec.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\codecs\qtextcodec.cpp
+qtextcodec.obj: ..\src\codecs\qtextcodec.cpp
+	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
 
-qregexp.obj: $(QTDIR)\src\tools\qregexp.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qregexp.cpp
+qregexp.obj: ..\src\tools\qregexp.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qregexp.cpp
 
-qgvector.obj: $(QTDIR)\src\tools\qgvector.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qgvector.cpp
+qgvector.obj: ..\src\tools\qgvector.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qgvector.cpp
 
-qgcache.obj: $(QTDIR)\src\tools\qgcache.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qgcache.cpp
+qgcache.obj: ..\src\tools\qgcache.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qgcache.cpp
 
-qbitarray.obj: $(QTDIR)\src\tools\qbitarray.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qbitarray.cpp
+qbitarray.obj: ..\src\tools\qbitarray.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qbitarray.cpp
 
-qdir.obj: $(QTDIR)\src\tools\qdir.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qdir.cpp
+qdir.obj: ..\src\tools\qdir.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qdir.cpp
 
-qfileinfo_win.obj: $(QTDIR)\src\tools\qfileinfo_win.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qfileinfo_win.cpp
+qfileinfo_win.obj: ..\src\tools\qfileinfo_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qfileinfo_win.cpp
 
-qdir_win.obj: $(QTDIR)\src\tools\qdir_win.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qdir_win.cpp
+qdir_win.obj: ..\src\tools\qdir_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qdir_win.cpp
 
-qfileinfo.obj: $(QTDIR)\src\tools\qfileinfo.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qfileinfo.cpp
+qfileinfo.obj: ..\src\tools\qfileinfo.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qfileinfo.cpp
 
-qdatetime.obj: $(QTDIR)\src\tools\qdatetime.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qdatetime.cpp
+qdatetime.obj: ..\src\tools\qdatetime.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qdatetime.cpp
 
-qstringlist.obj: $(QTDIR)\src\tools\qstringlist.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qstringlist.cpp
+qstringlist.obj: ..\src\tools\qstringlist.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qstringlist.cpp
 
-qmap.obj: $(QTDIR)\src\tools\qmap.cpp
-	$(CXX) $(CXXFLAGS) $(QTDIR)\src\tools\qmap.cpp
+qmap.obj: ..\src\tools\qmap.cpp
+	$(CXX) $(CXXFLAGS) ..\src\tools\qmap.cpp
 
 makefile.obj: generators\makefile.cpp
 	$(CXX) $(CXXFLAGS) generators\makefile.cpp
