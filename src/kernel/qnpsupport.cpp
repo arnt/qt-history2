@@ -146,7 +146,8 @@ int qt_event_handler( XEvent* event )
 	qt_reset_color_avail();
 	QApplication::sendPostedEvents();
 	// send the event to Xt in any case (think about XGrabPointer with ownerEvents TRUE
-	(void) qt_np_cascade_event_handler[event->type]( event );
+	if ( event->type != 7 && event->type != 8 )
+	    (void) qt_np_cascade_event_handler[event->type]( event );
 	return True;
     }
 }
