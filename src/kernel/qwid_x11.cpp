@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#213 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,8 +21,14 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+#if !defined(XlibSpecificationRelease)
+#define X11R4
+typedef char *XPointer;
+#else
+#undef  X11R4
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#212 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#213 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -31,7 +37,7 @@ bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
 void qt_close_popup( QWidget * );		// --- "" ---
 void qt_insert_sip( QWidget*, int, int );	// --- "" ---
-int qt_sip_count( QWidget* );			// --- "" ---
+int  qt_sip_count( QWidget* );			// --- "" ---
 void qt_updated_rootinfo();
 
 
@@ -354,9 +360,10 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
 	if ( extra && extra->xic ) {
-	    // ### this should really be in deleteExtra()
+#if !defined(X11R4)
 	    XDestroyIC( (XIC)extra->xic );
 	    extra->xic = 0;
+#endif
 	}
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );

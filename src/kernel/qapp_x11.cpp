@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#264 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#265 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,13 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
+#if !defined(XlibSpecificationRelease)
+#define X11R4
+typedef char *XPointer;
+#else
+#undef  X11R4
 #include <X11/Xlocale.h>
+#endif
 
 #if defined(_OS_LINUX_) && defined(DEBUG)
 #include "qfile.h"
@@ -69,11 +75,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#264 $");
-
-#if !defined(XlibSpecificationRelease)
-typedef char *XPointer;				// X11R4
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#265 $");
 
 
 /*****************************************************************************
@@ -141,7 +143,9 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
 
-static XIM xim;
+#if !defined(X11R4)
+static XIM	xim;
+#endif
 
 timeval        *qt_wait_timer();
 int	        qt_activate_timers();
@@ -397,14 +401,16 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal );
     }
+#if !defined(X11R4)
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
     if ( XSupportsLocale() &&
 	 ( qstrlen(XSetLocaleModifiers( "" )) ||
 	   qstrlen(XSetLocaleModifiers( "@im=none" ) ) ) )
-	xim = XOpenIM (appDpy, 0, 0, 0);
+	xim = XOpenIM( appDpy, 0, 0, 0 );
     else
 	xim = 0;
+#endif
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -444,15 +450,20 @@ void qt_cleanup()
     QFont::cleanup();
     QColor::cleanup();
 
+#if !defined(X11R4)
+    if ( xim ) {
+	// Calling XCloseIM gives a Purify FMR error
+	// Instead we get a non-critical memory leak
+	// XCloseIM( xim );
+	xim = 0;
+    }
+#endif
+
 #define CLEANUP_GC(g) if (g) XFreeGC(appDpy,g)
     CLEANUP_GC(app_gc_ro);
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
     CLEANUP_GC(app_gc_tmp_m);
-
-    if ( xim )
-	XCloseIM( xim );
-    xim = 0;
 
     if ( !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
@@ -2591,7 +2602,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   count = 0;
     int	   state;
     KeySym key = 0;
-    Status status;
 
     if ( !keyDict ) {
 	keyDict = new QIntDict<int>( 13 );
@@ -2603,8 +2613,17 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-    int keycode = event->xkey.keycode;
+#if defined(X11R4)
+    // Implementation for X11R4 not using XIM
+
+    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
+
+#else
+    // Implementation for X11R5 and newer, using XIM
+
     static int composingKeycode;
+    int	       keycode = event->xkey.keycode;
+    Status     status;
 
     if ( type == Event_KeyPress ) {
 	if ( xim ) {
@@ -2622,19 +2641,16 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		composingKeycode = keycode; // ### not documented in xlib
 		return TRUE;
 	    }
-
 	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
 				     ascii, 16, &key, &status );
 	} else {
 	    count = XLookupString( &((XEvent*)event)->xkey,
 				   ascii, 16, &key, 0 );
 	}
-
 	if ( count && !keycode ) {
 	    keycode = composingKeycode;
 	    composingKeycode = 0;
 	}
-
 	keyDict->replace( keycode, (int*)key );
 	if ( count < 15 )
 	    ascii[count] = '\0';
@@ -2654,6 +2670,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    delete s;
 	}
     }
+#endif // !X11R4
 
     state = translateButtonState( event->xkey.state );
 
