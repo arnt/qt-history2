@@ -902,8 +902,11 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 #endif
     static char winfocus_line[] = { 1, 1 };
 
-    QPen     old_pen = cpen;
+    QPen    old_pen = cpen;
+    QBrush  old_brush = cbrush;
     RasterOp old_rop = (RasterOp)rop;
+
+    setBrush( QBrush() );
 
     if ( xorPaint ) {
         if ( QColor::numBitPlanes() <= 8 )
@@ -948,6 +951,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
     setRasterOp( old_rop );
     setPen( old_pen );
+    setBrush( old_brush );
 }
 
 void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )

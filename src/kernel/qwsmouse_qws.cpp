@@ -400,7 +400,7 @@ private:
     QTimer *rtimer;
 };
 
-QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString ) :
+QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString dev ) :
     QCalibratedMouseHandler()
 {
 #ifdef QWS_TOUCHPANEL

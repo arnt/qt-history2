@@ -41,6 +41,14 @@
 #define UNIX_PATH_MAX    108
 #endif
  
+#ifdef __MIPSEL__
+ #ifndef SOCK_DGRAM
+  #define SOCK_DGRAM 1
+ #endif
+ #ifndef SOCK_STREAM
+  #define SOCK_STREAM 2
+ #endif
+#endif
 
 /***********************************************************************
  *

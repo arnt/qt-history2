@@ -614,7 +614,7 @@ void QVNCServer::clientCutText()
     if ( cutTextPending && client->bytesAvailable() >= cutTextPending ) {
 	char *text = new char [cutTextPending+1];
 	client->readBlock( text, cutTextPending );
-	delete text;
+	delete [] text;
 	cutTextPending = 0;
 	handleMsg = FALSE;
     }
