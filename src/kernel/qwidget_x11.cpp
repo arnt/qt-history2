@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#330 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#331 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1640,33 +1640,36 @@ void QWidget::deleteSysExtra()
 
 void QWidget::createTLSysExtra()
 {
-    XPoint spot; spot.x = 1; spot.y = 1; // dummmy
+    if ( qt_xim ) {
+	XPoint spot; spot.x = 1; spot.y = 1; // dummmy
 
-    // ##### TODO: use fontset of focus widget
-    QFontMetrics fm = fontMetrics();
-    XFontSet fontset = (XFontSet)fm.fontSet();
+	// ##### TODO: use fontset of focus widget
+	QFontMetrics fm = fontMetrics();
+	XFontSet fontset = (XFontSet)fm.fontSet();
 
-    XVaNestedList preedit_att = XVaCreateNestedList(0,
-		    XNFontSet, fontset,
-		    XNSpotLocation, &spot,
-		    NULL);
-    XVaNestedList status_att = XVaCreateNestedList(0,
-		    XNFontSet, fontset,
-		    NULL);
+	XVaNestedList preedit_att = XVaCreateNestedList(0,
+			XNFontSet, fontset,
+			XNSpotLocation, &spot,
+			NULL);
+	XVaNestedList status_att = XVaCreateNestedList(0,
+			XNFontSet, fontset,
+			NULL);
 
-    extra->topextra->xic = (void*)XCreateIC( qt_xim,
-		    XNInputStyle, qt_xim_style,
-		    XNClientWindow, winId(),
-		    XNFocusWindow, winId(),
-		    XNPreeditAttributes, preedit_att,
-		    XNStatusAttributes, status_att,
-		    0 );
+	extra->topextra->xic = (void*)XCreateIC( qt_xim,
+			XNInputStyle, qt_xim_style,
+			XNClientWindow, winId(),
+			XNFocusWindow, winId(),
+			XNPreeditAttributes, preedit_att,
+			XNStatusAttributes, status_att,
+			0 );
+    }
 }
 
 void QWidget::deleteTLSysExtra()
 {
 #if !defined(X11R4)
     if (extra->topextra->xic) {
+	XUnsetICFocus( (XIC) extra->topextra->xic );
 	XDestroyIC( (XIC) extra->topextra->xic );
 	extra->topextra->xic = 0;
     }
