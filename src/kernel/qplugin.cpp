@@ -47,7 +47,7 @@
 
 /*!
   \fn QCleanUpHandler::~QCleanUpHandler()
-  
+
   This destructor will delete all handled objects.
 */
 
@@ -90,7 +90,7 @@
 */
 
 /*!
-  Creates a QPlugIn object for the shared library \a filename, propagating \a appIface 
+  Creates a QPlugIn object for the shared library \a filename, propagating \a appIface
   to all interfaces created within this library.
   The library get's loaded immediately if \a pol is OptimizeSpeed.
 
@@ -118,10 +118,10 @@ QPlugIn::~QPlugIn()
 
 /*!
   Loads the shared library and initializes the connection to the QPlugInInterface.
-  Returns a pointer to the QPlugInInterface if the library was loaded successfully, 
+  Returns a pointer to the QPlugInInterface if the library was loaded successfully,
   otherwise returns null.
 
-  This function gets called automatically if the policy is not Manual. 
+  This function gets called automatically if the policy is not Manual.
   Otherwise you have to make sure that the library has been loaded before usage.
 
   \sa setPolicy()
@@ -129,13 +129,13 @@ QPlugIn::~QPlugIn()
 QPlugInInterface* QPlugIn::load()
 {
     if ( libfile.isEmpty() )
-	return FALSE;
+	return 0;
 
     if ( !pHnd ) {
 	pHnd = qt_load_library( libfile );
 
 	if ( !pHnd )
-	    return FALSE;
+	    return 0;
     }
 
     if ( pHnd )
@@ -200,7 +200,7 @@ QPlugInInterface* QPlugIn::loadInterface()
 #if defined(CHECK_RANGE)
 	qWarning("QPlugIn::loadInterface(): Failed to load library - no handle!");
 #endif
-	return FALSE;
+	return 0;
     }
 
     typedef QPlugInInterface* (*QtLoadInfoProc)();
@@ -210,7 +210,7 @@ QPlugInInterface* QPlugIn::loadInterface()
     if ( !infoProc )
 	return 0;
     info = infoProc();
-    
+
     if ( info ) {
 	info->appInterface = appInterface;
 	if ( !info->ref() ) {
@@ -220,7 +220,7 @@ QPlugInInterface* QPlugIn::loadInterface()
 	return info;
     }
 
-    return FALSE;
+    return 0;
 }
 
 /*!
