@@ -2297,6 +2297,7 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 
 void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 {
+    bool lineDirty = FALSE;
     if ( textDirty ) {
 	// do validation
 	bool wasValidInput = validInput;
@@ -2324,19 +2325,23 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 	}
 	updateTextLayout();
 	updateMicroFocusHint();
+	lineDirty = textDirty || selDirty;
 	if ( setModified )
 	    modified = TRUE;
-	if ( textDirty )
+	if ( textDirty ) {
+	    textDirty = FALSE;
 	    emit q->textChanged( maskData ? stripString(text) : text );
+	}
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( q, 0, QAccessible::ValueChanged );
 #endif
     }
-    if ( selDirty )
+    if ( selDirty ) {
+	selDirty = FALSE;
 	emit q->selectionChanged();
-    if ( textDirty || selDirty || !setModified )
+    }
+    if ( lineDirty || !setModified )
 	q->update();
-    textDirty = selDirty = FALSE;
 }
 
 void QLineEditPrivate::setText( const QString& txt )
