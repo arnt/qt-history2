@@ -1226,6 +1226,8 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 */
 void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 {
+    if (!model())
+        return;
     bool hadCurrent = true;
     QModelIndex current = currentIndex();
     if (!current.isValid()) {
