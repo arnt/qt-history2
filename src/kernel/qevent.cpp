@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#103 $
 **
 ** Implementation of event classes
 **
@@ -712,9 +712,11 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   accept the close event, nothing happens.
 
   The \link QApplication::setMainWidget() main widget\endlink of the
-  application is a special case. When it accepts the close event, the
-  application is immediately \link QApplication::quit()
-  terminated\endlink.
+  application is a special case. When it accepts the close event, Qt
+  leaves the \link QApplication::exec() main event loop\endlink and
+  the application is immediately \link QApplication::quit() terminated\endlink
+  (i.e. it returns back from the call to QApplication::exec() in your
+  main() function).
 
   The event handler QWidget::closeEvent() receives close events.
 
@@ -739,8 +741,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \endcode
 
   A typical reimplementation of a close event handler is shown in the
-  qwerty/qwerty.cpp example: If the document wasn't changed, the close
-  event is accepted with \a e->except(). If there are unsaved changes,
+  qwerty/qwerty.cpp example: If the document was not changed, the close
+  event is accepted with \a e->accept(). If there are unsaved changes,
   it asks the user whether she wants to save the data. This is done
   with QMessageBox::warning(). The close event is only accepted if the
   data was either saved successfully or if the user explicitely stated
@@ -748,10 +750,10 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   If you want your widget also to be deleted when it is closed, simply
   create it with the \c WDestructiveClose widget flag.  This is very
-  useful for the independent toplevel windows of a multi window
+  useful for the independent top-level windows of a multi window
   application. The qwerty/qwerty.cpp example also makes use of this.
 
-  \warning Be careful.  destructive close implies that the widget was created
+  \warning Be careful. Destructive close implies that the widget was created
   on the heap using the \c new operator. Even when the widget has been
   created by new doing this is a tricky operation. Be sure that you cannot
   have any other pointers to the widget hanging around.
@@ -765,7 +767,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
   QApplication::setMainWidget(), QApplication::lastWindowClosed(),
-   QApplication::quit()
+  QApplication::exec(), QApplication::quit()
 */
 
 /*!
