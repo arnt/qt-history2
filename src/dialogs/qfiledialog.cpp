@@ -4093,10 +4093,9 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
     } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
-	// ### hack.  after 1.40, we need to merge the completion code
-	// ### here, in QListView and QComboBox.
-	if ( isprint(((QKeyEvent *)e)->ascii()) ) {
-	    QString nt( nameEdit->text() );;
+	if ( ( nameEdit->cursorPosition() == (int)nameEdit->text().length() || nameEdit->hasMarkedText() ) &&
+	     isprint(((QKeyEvent *)e)->ascii()) ) {
+	    QString nt( nameEdit->text() );
 	    nt.truncate( nameEdit->cursorPosition() );
 	    nt += (char)(((QKeyEvent *)e)->ascii());
 	    QListViewItem * i = files->firstChild();
