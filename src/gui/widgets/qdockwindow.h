@@ -23,7 +23,8 @@ public:
         DockWindowFloatable   = 0x04,
 
         DockWindowFeatureMask = 0x07,
-        AllDockWindowFeatures = DockWindowFeatureMask
+        AllDockWindowFeatures = DockWindowFeatureMask,
+        NoDockWindowFeatures  = 0x00
     };
     Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
 
