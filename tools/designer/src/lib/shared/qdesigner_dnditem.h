@@ -34,6 +34,7 @@ public:
     virtual DropType type() const;
 
 protected:
+    void setDomUi(DomUI *dom_ui);
     virtual void init(DomUI *ui, QWidget *widget, QWidget *decoration, const QPoint &global_mouse_pos);
 
 private:

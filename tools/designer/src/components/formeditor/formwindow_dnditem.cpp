@@ -41,8 +41,22 @@ FormWindowDnDItem::FormWindowDnDItem(AbstractDnDItem::DropType type, FormWindow 
     QWidget *decoration = decorationFromWidget(widget);
     QPoint pos = widget->mapToGlobal(QPoint(0, 0));
     decoration->move(pos);
-    DomUI *dom_ui = widgetToDom(widget, form);
 
-    init(dom_ui, widget, decoration, global_mouse_pos);
+    init(0, widget, decoration, global_mouse_pos);
 }
+
+DomUI *FormWindowDnDItem::domUi() const
+{
+    DomUI *result = QDesignerDnDItem::domUi();
+    if (result != 0)
+        return result;
+    FormWindow *form = qobject_cast<FormWindow*>(source());
+    if (widget() == 0 || form == 0)
+        return 0;
+
+    result = widgetToDom(widget(), form);
+    const_cast<FormWindowDnDItem*>(this)->setDomUi(result);
+    return result;
+}
+
 

@@ -107,3 +107,9 @@ QWidget *QDesignerDnDItem::source() const
 {
     return m_source;
 }
+
+void QDesignerDnDItem::setDomUi(DomUI *dom_ui)
+{
+    delete m_dom_ui;
+    m_dom_ui = dom_ui;
+}
