@@ -476,8 +476,6 @@ QVNCServer::QVNCServer(int id)
 
 void QVNCServer::init(uint port)
 {
-    qDebug("QVNCServer created");
-
     handleMsg = false;
     client = 0;
     encodingsPending = 0;
@@ -486,7 +484,11 @@ void QVNCServer::init(uint port)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
     serverSocket = new QTcpServer(this);
-    serverSocket->listen(port);
+    if (!serverSocket->listen(port))
+        qDebug("QVNCServer could not connect: %s", serverSocket->errorString().latin1());
+    else
+        qDebug("QVNCServer created on port %d", port);
+
     connect(serverSocket, SIGNAL(newConnection()), this, SLOT(newConnection()));
 }
 
@@ -504,7 +506,6 @@ void QVNCServer::newConnection()
     }
     client = serverSocket->nextPendingConnection();
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
-    connect(client,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
     connect(client,SIGNAL(closed()),this,SLOT(discardClient()));
     handleMsg = false;
     encodingsPending = 0;
@@ -923,7 +924,7 @@ void QVNCServer::sendHextile()
                     sptr = screendata;
                     if (checkFill(screendata, rect.w * rect.h)) {
                         // This area is a single color
-                        qDebug("Send empty block");
+                        //qDebug("Send empty block");
                         Q_UINT8 subenc = 2; // BackgroundSpecified subencoding
                         client->write((char *)&subenc, 1);
                         int pixel;
@@ -1028,10 +1029,10 @@ void QVNCServer::checkUpdate()
 
 void QVNCServer::discardClient()
 {
-    delete client;
+    if (client)
+        client->deleteLater();
     client = 0;
     timer->stop();
-    qDebug("QVNCServer::discardClient()");
 }
 
 /*
@@ -1275,9 +1276,9 @@ bool QVNCScreen::connect(const QString &displaySpec)
     }
     shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
     if (!shm->create())
-        qDebug("create");
+        qDebug("QVNCScreen could not create shared memory");
     if (!shm->attach())
-        qDebug("attach");
+        qDebug("QVNCScreen could not attach to shared memory");
     shmrgn = (unsigned char*)shm->base();
 
     hdr = (QVNCHeader *) shmrgn;
