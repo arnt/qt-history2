@@ -131,7 +131,7 @@ sub parsemembers {
     s@\s*</ul>\s*@\n.in -1c\n@gs;
     $_;
 }
-    
+
 
 
 sub parseclassfile {
@@ -231,18 +231,18 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Troll Tech AS\" \\\" -*- nroff -*-
 .\\\" Copyright 1992-1999 Troll Tech AS.  All rights reserved.  See the
-.\\\" LICENSE file included in the distribution for a complete license
+.\\\" license file included in the distribution for a complete license
 .\\\" statement.
 .\\\"
 .ad l
 .nh
 .SH NAME
-", $name, " \\- ", &fixup( $desc{$url} ), 
+", $name, " \\- ", &fixup( $desc{$url} ),
 &fixup( &parseclassfile( &prepare( $contents ) ) ),
 ".SH \"SEE ALSO\"
 .BR http://www.troll.no/qt/", $url, "
 .SH COPYRIGHT
-Copyright 1992-1999 Troll Tech AS.  See the LICENSE file included in
+Copyright 1992-1999 Troll Tech AS.  See the license file included in
 the distribution for a complete license statement.
 .SH AUTHOR
 Generated automatically from the source code.

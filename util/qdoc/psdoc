@@ -11,7 +11,7 @@ $initstr =
 .nr bs 0
 .ad l
 .nh
-.ls 1.40
+.ls 2.0
 .nr \$v 120
 .sp 8
 .ft CR
@@ -28,7 +28,7 @@ Preliminary Version, \\*(td
 .sp 4\nhttp://www.troll.no/
 .br
 sales\@troll.no / qt-bugs\@troll.no
-.br\nfax: +47 22646949
+.br\nfax: +47 22806380
 .ce 0
 .pn 1
 .ef '%'''
