@@ -8,6 +8,8 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 
+#include <qbitmap.h>
+
 #include <qt_x11.h>
 
 #include "qfont.h"
@@ -423,12 +425,11 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	}
 	if ( xlfd_transformations == XlfdTrUnsupported ) {
 	    // XServer or font don't support server side transformations, need to do it by hand
-#if 0
-            QRect bbox( 0, 0, ti.width(), ti.ascent() + ti.descent() );
+            QRect bbox( 0, 0, si->width, si->ascent + si->descent );
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
+            QWMatrix mat1 = p->xmat;
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -445,7 +446,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
-                paint.drawTextItem( -ti.x(), -ti.y()+ti.ascent(), ti, textFlags );
+		draw( &paint, -si->x, -si->y-si->ascent, engine, si, textFlags );
                 paint.end();
                 wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
                 if ( wx_bm->isNull() ) {
@@ -453,7 +454,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
                     return;
                 }
             }
-            double fx=x + ti.x(), fy=y + ti.y() - ti.ascent(), nfx, nfy;
+            double fx=x + si->x, fy=y + si->y - si->ascent, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
@@ -472,7 +473,6 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    delete wx_bm;
 #endif
             return;
-#endif
         }
 	transform = TRUE;
     } else if ( p->txop == QPainter::TxTranslate ) {
