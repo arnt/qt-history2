@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#389 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#390 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -220,8 +220,8 @@ static void set_winapp_name()
 	GetModuleFileNameA( 0, appName, sizeof(appName) );
 	char *p = strrchr( appName, '\\' );	// skip path
 	if ( p )
-	    memmove( appName, p+1, strlen(p) );
-	int l = strlen( appName );
+	    memmove( appName, p+1, qstrlen(p) );
+	int l = qstrlen( appName );
 	if ( (l > 4) && !stricmp( appName + l - 4, ".exe" ) )
 	    appName[l-4] = '\0';		// drop .exe extension
     }

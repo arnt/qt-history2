@@ -1045,7 +1045,7 @@ void QUriDrag::setUris( QStrList uris )
     QByteArray a;
     int c=0;
     for ( const char* s = uris.first(); s; s = uris.next() ) {
-	int l = strlen(s);
+	int l = qstrlen(s);
 	a.resize(c+l+2);
 	memcpy(a.data()+c,s,l);
 	memcpy(a.data()+c+l,"\r\n",2);

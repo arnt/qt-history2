@@ -1570,7 +1570,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
     }
     if ( fwidth ) {				// adjustment required
 	if ( !(flags() & left) ) {		// but NOT left adjustment
-	    len = strlen(p);
+	    len = qstrlen(p);
 	    int padlen = fwidth - len;
 	    if ( padlen <= 0 ) {		// no padding required
 		writeBlock( p, len );
@@ -1586,7 +1586,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	fwidth = 0;				// reset field width
     }
     else
-	writeBlock( p, strlen(p) );
+	writeBlock( p, qstrlen(p) );
     return *this;
 }
 
@@ -1702,7 +1702,7 @@ QTextStream &QTextStream::operator<<( double f )
     if ( fwidth )				// padding
 	*this << (const char*)buf;
     else					// just write it
-	writeBlock( buf, strlen(buf) );
+	writeBlock( buf, qstrlen(buf) );
     return *this;
 }
 
@@ -1715,7 +1715,7 @@ QTextStream &QTextStream::operator<<( const char* s )
 {
     CHECK_STREAM_PRECOND
     char padbuf[48];
-    uint len = strlen( s );			// don't write null terminator
+    uint len = qstrlen( s );			// don't write null terminator
     if ( fwidth ) {				// field width set
 	int padlen = fwidth - len;
 	fwidth = 0;				// reset width

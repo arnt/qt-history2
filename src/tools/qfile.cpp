@@ -274,7 +274,7 @@ int QFile::readLine( char *p, uint maxlen )
     } else {					// buffered file
 	p = fgets( p, maxlen, fh );
 	if ( p ) {
-	    nread = strlen( p );
+	    nread = qstrlen( p );
 	    ioIndex += nread;
 	} else {
 	    nread = -1;

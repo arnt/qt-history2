@@ -43,7 +43,7 @@ static QScreen * qt_dodriver(char * driver,char * a,unsigned char * b)
 {    
     char buf[200];
     strcpy(buf,"/etc/qws/drivers/");
-    strcpy(buf+17,driver);
+    qstrcpy(buf+17,driver);
     qDebug("Attempting driver %s",driver);
     
     void * handle;
@@ -117,7 +117,7 @@ QScreen * qt_probe_bus()
 	if(busses->d_name[0]!='.') {
 	    char buf[100];
 	    strcpy(buf,"/proc/bus/pci/");
-	    strcpy(buf+14,busses->d_name);
+	    qstrcpy(buf+14,busses->d_name);
 	    int p=strlen(buf);
 	    dirptr2=opendir(buf);
 	    if(dirptr2) {
@@ -125,7 +125,7 @@ QScreen * qt_probe_bus()
 		while(cards) {
 		    if(cards->d_name[0]!='.') {
 			buf[p]='/';
-			strcpy(buf+p+1,cards->d_name);
+			qstrcpy(buf+p+1,cards->d_name);
 			QScreen * ret=qt_do_entry(buf);
 			if(ret)
 			    return ret;

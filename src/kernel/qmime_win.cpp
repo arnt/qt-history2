@@ -280,7 +280,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
 {
     if ( cf == CF_TEXT ) {
 	const char* d = data.data();
-	const int s = strlen(d);
+	const int s = qstrlen(d);
 	QByteArray r(data.size()+1);
 	char* o = r.data();
 	int j=0;

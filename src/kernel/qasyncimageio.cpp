@@ -1063,7 +1063,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 	    if (count<11) hold[count]=ch;
 	    count++;
 	    if (count==hold[0]+1) {
-		if (strncmp((char*)(hold+1), "NETSCAPE", 8)==0) {
+		if (qstrncmp((char*)(hold+1), "NETSCAPE", 8)==0) {
 		    // Looping extension
 		    state=NetscapeExtensionBlockSize;
 		} else {

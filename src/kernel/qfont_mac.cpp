@@ -140,8 +140,8 @@ void QFont::macSetFont(void * v)
 	TextSize(pointSize());
 	short foo;
 	char buf[300];
-	strcpy(buf+1,family().ascii());
-	buf[0]=strlen(buf+1);
+	qstrcpy(buf+1,family().ascii());
+	buf[0]=qstrlen(buf+1);
 	GetFNum((unsigned char *)buf,&foo);
 	TextFont(foo);
     }

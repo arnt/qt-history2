@@ -188,7 +188,7 @@ bool QFile::open( int m )
 		perm = "w";
 	    }
 	}
-	strcpy( perm2, perm );
+	qstrcpy( perm2, perm );
 #if defined(HAS_TEXT_FILEMODE)
 	if ( isTranslated() )
 	    strcat( perm2, "t" );

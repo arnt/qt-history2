@@ -43,8 +43,8 @@ bool QDir::mkdir(const QString &dirname,bool acceptAbsPath) const
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
-    strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);
+    qstrcpy(bigbuf+1,wingle);
+    bigbuf[0]=qstrlen(wingle);
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
@@ -67,8 +67,8 @@ bool QDir::rmdir(const QString &dirname,bool acceptAbsPath) const
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dirname,
 						    acceptAbsPath));
-    strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);
+    qstrcpy(bigbuf+1,wingle);
+    bigbuf[0]=qstrlen(wingle);
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
@@ -90,8 +90,8 @@ bool QDir::isReadable() const
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dPath,
 						    true));
-    strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);
+    qstrcpy(bigbuf+1,wingle);
+    bigbuf[0]=qstrlen(wingle);
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
@@ -134,8 +134,8 @@ bool QDir::setCurrent(const QString& path)
     char bigbuf[257];
     const char * wingle=
            (const char *)QFile::encodeName(path);
-    strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);
+    qstrcpy(bigbuf+1,wingle);
+    bigbuf[0]=qstrlen(wingle);
     OSErr ret;
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
@@ -211,8 +211,8 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dPath,
 						    true));
-    strcpy(bigbuf+1,wingle);
-    bigbuf[0]=strlen(wingle);
+    qstrcpy(bigbuf+1,wingle);
+    bigbuf[0]=qstrlen(wingle);
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
     if(ret!=noErr) {
 	qWarning("Make FS spec in readDirEntries error %d",ret);

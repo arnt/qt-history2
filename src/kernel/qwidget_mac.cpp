@@ -22,9 +22,9 @@ WId myactive=-1;
 
 const unsigned char * p_str(const char * c)
 {
-    const unsigned char * ret=new const unsigned char[strlen(c)+2];
-    ((unsigned char *)ret)[0]=strlen(c);
-    strcpy(((char *)ret)+1,c);
+    const unsigned char * ret=new const unsigned char[qstrlen(c)+2];
+    ((unsigned char *)ret)[0]=qstrlen(c);
+    qstrcpy(((char *)ret)+1,c);
     return ret;
 }
 

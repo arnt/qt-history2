@@ -4528,11 +4528,11 @@ static void write_xbm_image( QImageIO *iio )
     char       buf[100];
 
     sprintf( buf, "#define %s_width %d\n", s.ascii(), w );
-    d->writeBlock( buf, strlen(buf) );
+    d->writeBlock( buf, qstrlen(buf) );
     sprintf( buf, "#define %s_height %d\n", s.ascii(), h );
-    d->writeBlock( buf, strlen(buf) );
+    d->writeBlock( buf, qstrlen(buf) );
     sprintf( buf, "static char %s_bits[] = {\n ", s.ascii() );
-    d->writeBlock( buf, strlen(buf) );
+    d->writeBlock( buf, qstrlen(buf) );
 
     iio->setStatus( 0 );
 
@@ -4575,14 +4575,14 @@ static void write_xbm_image( QImageIO *iio )
 		*p++ = '\n';
 		*p++ = ' ';
 		*p   = '\0';
-		d->writeBlock( buf, strlen(buf) );
+		d->writeBlock( buf, qstrlen(buf) );
 		p = buf;
 		bcnt = 0;
 	    }
 	}
     }
     strcpy( p, " };\n" );
-    d->writeBlock( buf, strlen(buf) );
+    d->writeBlock( buf, qstrlen(buf) );
 }
 
 #endif // QT_NO_IMAGEIO_XBM
