@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#6 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#6 $";
 #endif
 
 /*! \class QComboBox qcombo.h
@@ -137,33 +137,30 @@ void QComboBox::setStrList( const char **strs,int numStrings )
 }
 
   /*!
-  Inserts a string item. If index is negative the string will be appended. 
+  Inserts a text item. If index is negative the item will be appended. 
   Note that this operation will change the indexes of all items after
   the one being inserted. If \e index is larger then count() - 1
   the function returns immediately.
   */
 
-void QComboBox::insertItem( const char *string, int index )
+void QComboBox::insertItem( const char *text, int index )
 {
     bool append = index < 0;
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
-#if defined(CHECK_NULL)
-    CHECK_PTR( string );
-#endif
-    d->popup->insertItem( string, index );
+    d->popup->insertItem( text, index );
     if ( !append )
         reIndex();
     if ( index == d->current )
         currentChanged();
 }
 
-  /*!
-  Inserts a pixmap item. If index is negative the pixmap will be appended. 
-  Note that this operation will change the indexes of all items after
-  the one being inserted. If \e index is larger then count() - 1
-  the function returns immediately.
-  */
+/*!
+Inserts a pixmap item. If index is negative the item will be appended. 
+Note that this operation will change the indexes of all items after
+the one being inserted. If \e index is larger then count() - 1
+the function returns immediately.
+*/
 
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
 {
@@ -195,33 +192,22 @@ void QComboBox::removeItem( int index )
 }
 
 
-/*
-long QComboBox::accel( int index ) const		// get accelerator key
-{
-    return d->popup->accel( index );
-}
-
-void QComboBox::setAccel( long key, int index )		// set accelerator key
-{
-    d->popup->setAccel( key, index );
-}
+/*!
+Returns the text item at a given index or 0 if the index is out of range or
+the item is not a text.
 */
-  /*!
-  Returns the string item at a given index. If index is out of range or
-  the item indexed is not a string 0 is returned.
-  */
 
-const char *QComboBox::string( int index ) const
+const char *QComboBox::text( int index ) const
 {
-    if ( !checkIndex( "string", count(), index ) )
+    if ( !checkIndex( "text", count(), index ) )
 	return 0;
-    return d->popup->string( index );
+    return d->popup->text( index );
 }
 
-  /*!
-  Returns the pixmap item at a given index. If index is out of range or
-  the item indexed is not a pixmap 0 is returned.
-  */
+/*!
+Returns the pixmap item at a given index or 0 if the index is out of range or
+the item is not a pixmap.
+*/
 
 QPixmap *QComboBox::pixmap( int index ) const
 {
@@ -230,22 +216,20 @@ QPixmap *QComboBox::pixmap( int index ) const
     return d->popup->pixmap( index );
 }
 
-  /*!
-  Replaces the item at a given index with a string. If index is out of range 
-  the operation is ignored.
-  */
+/*!
+Replaces the item at a given index with a text.
+*/
 
-void QComboBox::changeItem( const char *string, int index )
+void QComboBox::changeItem( const char *text, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    d->popup->changeItem( string, index );
+    d->popup->changeItem( text, index );
 }
 
-  /*!
-  Replaces the item at a given index with a pixmap. If index is out of range 
-  the operation is ignored.
-  */
+/*!
+Replaces the item at a given index with a pixmap.
+*/
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
@@ -254,23 +238,29 @@ void QComboBox::changeItem( const QPixmap &im, int index )
     d->popup->changeItem( im, index );
 }
 
-  /*!
-  Removes all items, leaving an empty combo box button.
-  */
+/*!
+Removes all items, leaving an empty combo box.
+*/
+
 void QComboBox::clear()
 {
     d->popup->clear();
     d->current = 0;
 }
 
+/*!
+Returns the number of items in the combo box.
+*/
+
 int QComboBox::count() const
 {
     return d->popup->count();
 }
 
-  /*!
-  Sets current item, i.e. the item displayed on the combo box button.
-  */
+/*!
+Sets current item, i.e. the item displayed on the combo box button.
+*/
+
 void QComboBox::setCurrentItem( int index )
 {
     if ( index == d->current )
@@ -333,11 +323,9 @@ void QComboBox::paintEvent( QPaintEvent * )
 {
     QPainter p;
 
-
     QColorGroup g  = colorGroup();
 
     p.begin( this );
-
     int dist, buttonH, buttonW;
 
     if ( getMetrics( width(), height(), &dist, &buttonW, &buttonH ) ) {
@@ -347,7 +335,7 @@ void QComboBox::paintEvent( QPaintEvent * )
                          g.light(), g.dark(), 2 );
         QFontMetrics fm( font() );
         QRect clip( 2, 2, xPos - 2 - 3, height() - 4 );
-        const char *tmp = d->popup->string( d->current );
+        const char *tmp = d->popup->text( d->current );
         if ( tmp ) {
             p.drawText( clip, AlignCenter | AlignVCenter, tmp );
         } else {
@@ -415,7 +403,7 @@ void QComboBox::adjustSize()
         buttonH = 0;
         buttonW = 0;
     }
-    const char *tmp = d->popup->string( d->current );
+    const char *tmp = d->popup->text( d->current );
     int w, h;
     if ( tmp ) {
         QFontMetrics fm( font() );

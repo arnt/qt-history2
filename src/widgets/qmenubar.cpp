@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#31 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#31 $";
 #endif
 
 /*! \class QMenuBar qmenubar.h
@@ -255,7 +255,7 @@ void QMenuBar::show()
     QWidget *w = parentWidget();
     while ( (mi=it.current()) ) {
 	++it;
-	QString s = mi->string();
+	QString s = mi->text();
 	if ( !s.isEmpty() ) {
 	    int i = s.find( '&' );
 	    if ( i >= 0 && s[i+1] != '&' ) {
@@ -323,7 +323,7 @@ void QMenuBar::updateRects()
 	    h = mi->pixmap()->height();
 	}
 	else {					// text item
-	    w = fm.width( mi->string() ) + 2*motifItemHMargin;
+	    w = fm.width( mi->text() ) + 2*motifItemHMargin;
 	    h = fm.height() + motifItemVMargin;
 	}
 	w += 2*motifItemFrame;
@@ -400,13 +400,13 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	    p->drawPixmap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
 			   *mi->pixmap() );
-	else if ( mi->string() ) {
+	else if ( mi->text() ) {
 	    if ( mi->isDisabled() )
 		p->setPen( palette().disabled().text() );
 	    else
 		p->setPen( g.text() );
 	    p->drawText( r, AlignCenter | ShowPrefix | DontClip,
-			 mi->string() );
+			 mi->text() );
 	}
     }
     p->end();

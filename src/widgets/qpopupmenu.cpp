@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#33 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -15,11 +15,11 @@
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
-#include "qscrbar.h"				// qDrawMotifArrow
+#include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#33 $";
 #endif
 
 
@@ -345,9 +345,9 @@ void QPopupMenu::updateSize()			// update popup size params
 	    height += mi->pixmap()->height() + 2*motifItemFrame;
 	    w = mi->pixmap()->width();
 	}
-	else if ( mi->string() ) {
+	else if ( mi->text() ) {
 	    height += cellh;
-	    const char *s = mi->string();
+	    const char *s = mi->text();
 	    char *t = strchr( s, '\t' );
 	    if ( t ) {				// string contains tab
 		w = fm.width( s, (int)t-(int)s );
@@ -519,8 +519,8 @@ void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 	    }
 	    long k = mi->key();
 	    autoaccel->insertItem( k, mi->id() );
-	    if ( mi->string() ) {
-		QString s = mi->string();
+	    if ( mi->text() ) {
+		QString s = mi->text();
 		int i = s.find('\t');
 		QString t = key_str( k );
 		if ( i >= 0 )
@@ -529,8 +529,8 @@ void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
 		    s += '\t';
 		    s += t;
 		}
-		if ( s != mi->string() ) {
-		    mi->setString( s );
+		if ( s != mi->text() ) {
+		    mi->setText( s );
 		    badSize = TRUE;
 		}
 	    }
@@ -620,7 +620,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
     QMenuItem *mi = mitems->at( row );		// get menu item
     int cellh	  = cellHeight( row );
     int cellw	  = cellWidth( col );
-    int gs	  = style();
+    GUIStyle gs	  = style();
 
     if ( mi->isSeparator() ) {			// draw separator
 	p->setPen( g.dark() );
@@ -645,8 +645,8 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
     }
-    else if ( mi->string() ) {			// draw text
-	const char *s = mi->string();
+    else if ( mi->text() ) {			// draw text
+	const char *s = mi->text();
 	const char *t = strchr( s, '\t' );
 	int x = motifItemFrame + motifItemHMargin;
 	int m = motifItemVMargin;
@@ -673,11 +673,9 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	}
 	else if ( gs == MotifStyle ) {
 	    dim /= 2;
-	    qDrawMotifArrow( p, MotifRightArrow, row == actItem,
-			     cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
-			     dim, dim,
-			     g.background(), g.background(),
-			     g.light(), g.dark() );
+	    qDrawArrow( p, RightArrow, gs, row == actItem,
+			cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
+			dim, dim, g );
 	}
     }
 }
