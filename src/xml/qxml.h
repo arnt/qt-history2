@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#30 $
+** $Id: //depot/qt/main/src/xml/qxml.h#31 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -321,8 +321,8 @@ private:
     enum EntityRecognitionContext { InContent, InAttributeValue, InEntityValue, InDTD };
 
     // private functions
-    void eat_ws();
-    void next_eat_ws();
+    bool eat_ws();
+    bool next_eat_ws();
 
     void next();
     bool atEnd();

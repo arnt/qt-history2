@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#60 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#61 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -90,103 +90,6 @@
 #define XMLERR_INTERNALGENERALENTITYINDTD "internal general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINAV  "external parsed general entity reference not allowed in attribute value"
-
-void QXmlSimpleReader::next()
-{
-    if ( !xmlRef.isEmpty() ) {
-	c = xmlRef[0];
-	xmlRef.remove( 0, 1 );
-    } else {
-	if ( c=='\n' || c=='\r' ) {
-	    lineNr++;
-	    columnNr = -1;
-	}
-	if ( pos >= xmlLength ) {
-	    c = QEOF;
-	} else {
-	    c = xml[pos];
-	    columnNr++;
-	    pos++;
-	}
-    }
-}
-
-void QXmlSimpleReader::eat_ws()
-{ while ( !atEnd() && is_S(c) ) next(); }
-
-void QXmlSimpleReader::next_eat_ws()
-{ next(); eat_ws(); }
-
-
-// use buffers instead of QString::operator+= when single characters are read
-QString& QXmlSimpleReader::string()
-{
-    stringValue += QString( stringArray, stringPos );
-    stringPos = 0;
-    return stringValue;
-}
-QString& QXmlSimpleReader::name()
-{
-    nameValue += QString( nameArray, namePos );
-    namePos = 0;
-    return nameValue;
-}
-QString& QXmlSimpleReader::ref()
-{
-    refValue += QString( refArray, refPos );
-    refPos = 0;
-    return refValue;
-}
-
-void QXmlSimpleReader::stringAddC()
-{
-    if ( stringPos >= 256 ) {
-	stringValue += QString( stringArray, stringPos );
-	stringPos = 0;
-    }
-    stringArray[stringPos++] = c;
-}
-void QXmlSimpleReader::nameAddC()
-{
-    if ( namePos >= 256 ) {
-	nameValue += QString( nameArray, namePos );
-	namePos = 0;
-    }
-    nameArray[namePos++] = c;
-}
-void QXmlSimpleReader::refAddC()
-{
-    if ( refPos >= 256 ) {
-	refValue += QString( refArray, refPos );
-	refPos = 0;
-    }
-    refArray[refPos++] = c;
-}
-
-void QXmlSimpleReader::stringAddC(const QChar& ch)
-{
-    if ( stringPos >= 256 ) {
-	stringValue += QString( stringArray, stringPos );
-	stringPos = 0;
-    }
-    stringArray[stringPos++] = ch;
-}
-void QXmlSimpleReader::nameAddC(const QChar& ch)
-{
-    if ( namePos >= 256 ) {
-	nameValue += QString( nameArray, namePos );
-	namePos = 0;
-    }
-    nameArray[namePos++] = ch;
-}
-void QXmlSimpleReader::refAddC(const QChar& ch)
-{
-    if ( refPos >= 256 ) {
-	refValue += QString( refArray, refPos );
-	refPos = 0;
-    }
-    refArray[refPos++] = ch;
-}
 
 // the constants for the lookup table
 static const signed char cltWS      =  0; // white space
@@ -2689,6 +2592,12 @@ bool QXmlSimpleReader::parseProlog()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseProlog, state );
 		return FALSE;
@@ -2777,7 +2686,10 @@ bool QXmlSimpleReader::parseProlog()
 	    case EatWS:
 		// XML declaration only on first position possible
 		xmldecl_possible = FALSE;
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseProlog, state );
+		    return FALSE;
+		}
 		break;
 	    case Lt:
 		next();
@@ -2863,6 +2775,12 @@ bool QXmlSimpleReader::parseElement()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseElement, state );
 		return FALSE;
@@ -2927,7 +2845,10 @@ bool QXmlSimpleReader::parseElement()
 	    case Ws1:
 	    case Ws2:
 	    case Ws3:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElement, state );
+		    return FALSE;
+		}
 		break;
 	    case STagEnd:
 		// call the handler
@@ -3221,6 +3142,12 @@ bool QXmlSimpleReader::parseContent()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseContent, state );
 		return FALSE;
@@ -3458,6 +3385,12 @@ bool QXmlSimpleReader::parseMisc()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseMisc, state );
 		return FALSE;
@@ -3510,7 +3443,10 @@ bool QXmlSimpleReader::parseMisc()
 
 	switch ( state ) {
 	    case eatWS:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseMisc, state );
+		    return FALSE;
+		}
 		break;
 	    case Lt:
 		next();
@@ -3604,6 +3540,12 @@ bool QXmlSimpleReader::parsePI()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parsePI, state );
 		return FALSE;
@@ -3716,7 +3658,10 @@ bool QXmlSimpleReader::parsePI()
 	    case Ws3:
 	    case Ws4:
 	    case Ws5:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parsePI, state );
+		    return FALSE;
+		}
 		break;
 	    case Version:
 		if ( !parseAttribute() ) {
@@ -3827,6 +3772,12 @@ bool QXmlSimpleReader::parseDoctype()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseDoctype, state );
 		return FALSE;
@@ -3899,7 +3850,10 @@ bool QXmlSimpleReader::parseDoctype()
 	    case Ws2:
 	    case Ws3:
 	    case Ws4:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case Doctype2:
 		d->parseName_useRef = FALSE;
@@ -3913,7 +3867,10 @@ bool QXmlSimpleReader::parseDoctype()
 		}
 		break;
 	    case MP:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case PER:
 		d->parsePEReference_context = InDTD;
@@ -3929,7 +3886,10 @@ bool QXmlSimpleReader::parseDoctype()
 		}
 		break;
 	    case MPE:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseDoctype, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		if ( lexicalHnd ) {
@@ -4016,6 +3976,12 @@ bool QXmlSimpleReader::parseExternalID()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseExternalID, state );
 		return FALSE;
@@ -4069,7 +4035,10 @@ bool QXmlSimpleReader::parseExternalID()
 		}
 		break;
 	    case SysWS:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseExternalID, state );
+		    return FALSE;
+		}
 		break;
 	    case SysSQ:
 	    case SysDQ:
@@ -4089,7 +4058,10 @@ bool QXmlSimpleReader::parseExternalID()
 		}
 		break;
 	    case PubWS:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseExternalID, state );
+		    return FALSE;
+		}
 		break;
 	    case PubSQ:
 	    case PubDQ:
@@ -4106,7 +4078,10 @@ bool QXmlSimpleReader::parseExternalID()
 		break;
 	    case PubWS2:
 		d->publicId = string();
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseExternalID, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		d->systemId = string();
@@ -4163,6 +4138,12 @@ bool QXmlSimpleReader::parseMarkupdecl()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseMarkupdecl, state );
 		return FALSE;
@@ -4313,6 +4294,12 @@ bool QXmlSimpleReader::parsePEReference()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parsePEReference, state );
 		return FALSE;
@@ -4449,6 +4436,12 @@ bool QXmlSimpleReader::parseAttlistDecl()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
 		return FALSE;
@@ -4507,7 +4500,10 @@ bool QXmlSimpleReader::parseAttlistDecl()
 	    case Ws1:
 	    case Ws2:
 	    case Ws3:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
@@ -4567,7 +4563,10 @@ bool QXmlSimpleReader::parseAttlistDecl()
 			return FALSE;
 		    }
 		}
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttlistDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -4653,6 +4652,12 @@ bool QXmlSimpleReader::parseAttType()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseAttType, state );
 		return FALSE;
@@ -4770,10 +4775,16 @@ bool QXmlSimpleReader::parseAttType()
 		}
 		break;
 	    case NO2:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case NO3:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case NOName:
 		d->parseName_useRef = FALSE;
@@ -4783,10 +4794,16 @@ bool QXmlSimpleReader::parseAttType()
 		}
 		break;
 	    case NO4:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case EN:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case ENNmt:
 		if ( !parseNmtoken() ) {
@@ -4795,7 +4812,10 @@ bool QXmlSimpleReader::parseAttType()
 		}
 		break;
 	    case EN2:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttType, state );
+		    return FALSE;
+		}
 		break;
 	    case ADone:
 		next();
@@ -4853,6 +4873,12 @@ bool QXmlSimpleReader::parseAttValue()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseAttValue, state );
 		return FALSE;
@@ -4989,6 +5015,12 @@ bool QXmlSimpleReader::parseElementDecl()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseElementDecl, state );
 		return FALSE;
@@ -5047,7 +5079,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		}
 		break;
 	    case Ws1:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Nam:
 		d->parseName_useRef = FALSE;
@@ -5057,7 +5092,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		}
 		break;
 	    case Ws2:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Empty:
 		d->parseString_s = "EMPTY";
@@ -5074,7 +5112,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		}
 		break;
 	    case Cont:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Mix:
 		d->parseString_s = "#PCDATA";
@@ -5084,13 +5125,19 @@ bool QXmlSimpleReader::parseElementDecl()
 		}
 		break;
 	    case Mix2:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Mix3:
 		next();
 		break;
 	    case MixN1:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case MixN2:
 		d->parseName_useRef = FALSE;
@@ -5100,7 +5147,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		}
 		break;
 	    case MixN3:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case MixN4:
 		next();
@@ -5115,7 +5165,10 @@ bool QXmlSimpleReader::parseElementDecl()
 		next();
 		break;
 	    case WsD:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseElementDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -5169,6 +5222,12 @@ bool QXmlSimpleReader::parseNotationDecl()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
 		return FALSE;
@@ -5219,7 +5278,10 @@ bool QXmlSimpleReader::parseNotationDecl()
 		}
 		break;
 	    case Ws1:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Nam:
 		d->parseName_useRef = FALSE;
@@ -5229,7 +5291,10 @@ bool QXmlSimpleReader::parseNotationDecl()
 		}
 		break;
 	    case Ws2:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case ExtID:
 		d->parseExternalID_allowPublicID = TRUE;
@@ -5239,7 +5304,10 @@ bool QXmlSimpleReader::parseNotationDecl()
 		}
 		break;
 	    case Ws3:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseNotationDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Done:
 		next();
@@ -5296,6 +5364,12 @@ bool QXmlSimpleReader::parseChoiceSeq()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
 		return FALSE;
@@ -5340,7 +5414,10 @@ bool QXmlSimpleReader::parseChoiceSeq()
 
 	switch ( state ) {
 	    case Ws1:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
+		    return FALSE;
+		}
 		break;
 	    case CS:
 		if ( !parseChoiceSeq() ) {
@@ -5349,10 +5426,16 @@ bool QXmlSimpleReader::parseChoiceSeq()
 		}
 		break;
 	    case Ws2:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
+		    return FALSE;
+		}
 		break;
 	    case More:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseChoiceSeq, state );
+		    return FALSE;
+		}
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
@@ -5438,6 +5521,12 @@ bool QXmlSimpleReader::parseEntityDecl()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
 		return FALSE;
@@ -5538,7 +5627,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case Ws1:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Name:
 		d->parseName_useRef = FALSE;
@@ -5548,7 +5640,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case Ws2:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case EValue:
 		if ( !parseEntityValue() ) {
@@ -5564,7 +5659,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case Ws3:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case Ndata:
 		d->parseString_s = "NDATA";
@@ -5574,7 +5672,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case Ws4:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case NNam:
 		d->parseName_useRef = TRUE;
@@ -5587,7 +5688,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		next();
 		break;
 	    case Ws6:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case PENam:
 		d->parseName_useRef = FALSE;
@@ -5597,7 +5701,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case Ws7:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case PEVal:
 		if ( !parseEntityValue() ) {
@@ -5613,7 +5720,10 @@ bool QXmlSimpleReader::parseEntityDecl()
 		}
 		break;
 	    case WsE:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseEntityDecl, state );
+		    return FALSE;
+		}
 		break;
 	    case EDDone:
 		next();
@@ -5672,6 +5782,12 @@ bool QXmlSimpleReader::parseEntityValue()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseEntityValue, state );
 		return FALSE;
@@ -5785,6 +5901,12 @@ bool QXmlSimpleReader::parseComment()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseComment, state );
 		return FALSE;
@@ -5892,6 +6014,12 @@ bool QXmlSimpleReader::parseAttribute()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseAttribute, state );
 		return FALSE;
@@ -5936,10 +6064,16 @@ bool QXmlSimpleReader::parseAttribute()
 		}
 		break;
 	    case Ws:
-		eat_ws();
+		if ( !eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttribute, state );
+		    return FALSE;
+		}
 		break;
 	    case Eq:
-		next_eat_ws();
+		if ( !next_eat_ws() ) {
+		    parseFailed( &QXmlSimpleReader::parseAttribute, state );
+		    return FALSE;
+		}
 		break;
 	    case Quotes:
 		if ( !parseAttValue() ) {
@@ -5984,6 +6118,12 @@ bool QXmlSimpleReader::parseName()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseName, state );
 		return FALSE;
@@ -6069,6 +6209,12 @@ bool QXmlSimpleReader::parseNmtoken()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseNmtoken, state );
 		return FALSE;
@@ -6171,6 +6317,12 @@ bool QXmlSimpleReader::parseReference()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseReference, state );
 		return FALSE;
@@ -6455,6 +6607,12 @@ bool QXmlSimpleReader::parseString()
 #endif
 	if ( !d->parseStack->isEmpty() ) {
 	    ParseFunction function = d->parseStack->top()->function;
+	    if ( function == &QXmlSimpleReader::eat_ws ) {
+		d->parseStack->pop();
+#if defined(QT_QXML_DEBUG)
+		qDebug( "QXmlSimpleReader: eat_ws (cont)" );
+#endif
+	    }
 	    if ( !(this->*function)() ) {
 		parseFailed( &QXmlSimpleReader::parseString, state );
 		return FALSE;
@@ -6486,6 +6644,60 @@ bool QXmlSimpleReader::parseString()
 
 	next();
     }
+}
+
+/*
+  This private function moves the cursor to the next character.
+*/
+void QXmlSimpleReader::next()
+{
+    if ( !xmlRef.isEmpty() ) {
+	c = xmlRef[0];
+	xmlRef.remove( 0, 1 );
+    } else {
+	if ( c=='\n' || c=='\r' ) {
+	    lineNr++;
+	    columnNr = -1;
+	}
+	if ( pos >= xmlLength ) {
+	    c = QEOF;
+	} else {
+	    c = xml[pos];
+	    columnNr++;
+	    pos++;
+	}
+    }
+}
+
+/*
+  This private function moves the cursor to the next non-whitespace character.
+  This function does not move the cursor if the actual cursor position is a
+  non-whitespace charcter.
+
+  Returns FALSE when you use incremental parsing and this function reaches EOF
+  with reading only whitespace characters. In this case it also poplulates the
+  parseStack with useful information. In all other cases, this function returns
+  TRUE.
+*/
+bool QXmlSimpleReader::eat_ws()
+{
+    while ( !atEnd() ) {
+	if ( !is_S(c) ) {
+	    return TRUE;
+	}
+	next();
+    }
+    if ( d->parseStack != 0 ) {
+	pushParseState( &QXmlSimpleReader::eat_ws, 0 );
+	return FALSE;
+    }
+    return TRUE;
+}
+
+bool QXmlSimpleReader::next_eat_ws()
+{
+    next();
+    return eat_ws();
 }
 
 
@@ -6597,6 +6809,77 @@ void QXmlSimpleReader::pushParseState( ParseFunction function, int state )
     ps->function = function;
     ps->state = state;
     d->parseStack->push( ps );
+}
+
+
+// use buffers instead of QString::operator+= when single characters are read
+QString& QXmlSimpleReader::string()
+{
+    stringValue += QString( stringArray, stringPos );
+    stringPos = 0;
+    return stringValue;
+}
+QString& QXmlSimpleReader::name()
+{
+    nameValue += QString( nameArray, namePos );
+    namePos = 0;
+    return nameValue;
+}
+QString& QXmlSimpleReader::ref()
+{
+    refValue += QString( refArray, refPos );
+    refPos = 0;
+    return refValue;
+}
+
+void QXmlSimpleReader::stringAddC()
+{
+    if ( stringPos >= 256 ) {
+	stringValue += QString( stringArray, stringPos );
+	stringPos = 0;
+    }
+    stringArray[stringPos++] = c;
+}
+void QXmlSimpleReader::nameAddC()
+{
+    if ( namePos >= 256 ) {
+	nameValue += QString( nameArray, namePos );
+	namePos = 0;
+    }
+    nameArray[namePos++] = c;
+}
+void QXmlSimpleReader::refAddC()
+{
+    if ( refPos >= 256 ) {
+	refValue += QString( refArray, refPos );
+	refPos = 0;
+    }
+    refArray[refPos++] = c;
+}
+
+void QXmlSimpleReader::stringAddC(const QChar& ch)
+{
+    if ( stringPos >= 256 ) {
+	stringValue += QString( stringArray, stringPos );
+	stringPos = 0;
+    }
+    stringArray[stringPos++] = ch;
+}
+void QXmlSimpleReader::nameAddC(const QChar& ch)
+{
+    if ( namePos >= 256 ) {
+	nameValue += QString( nameArray, namePos );
+	namePos = 0;
+    }
+    nameArray[namePos++] = ch;
+}
+void QXmlSimpleReader::refAddC(const QChar& ch)
+{
+    if ( refPos >= 256 ) {
+	refValue += QString( refArray, refPos );
+	refPos = 0;
+    }
+    refArray[refPos++] = ch;
 }
 
 #endif //QT_NO_XML
