@@ -76,7 +76,9 @@ void ConnectionModel::refresh()
     for (int i = 0; i < list.count(); ++i) {
         QString cn = list.at(i);
         QSqlDatabase db = QSqlDatabase::database(cn);
-        CData data = { cn, cn };
+        CData data;
+        data.cname = cn;
+        data.label = cn;
         connections.append(data);
         tableNames.append(db.tables());
     }
