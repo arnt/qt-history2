@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#6 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#6 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -84,9 +84,6 @@ static Atom qt_xdnd_dragsource_xid = 0;
 
 // the types in this drop.  100 is no good, but at least it's big.
 static Atom qt_xdnd_types[100];
-
-// preferred type, as atom
-static Atom qt_xdnd_preferred_type = 0;
 
 static QIntDict<QString> * qt_xdnd_drag_types = 0;
 static QDict<Atom> qt_xdnd_atom_numbers( 17 );
@@ -311,7 +308,6 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
     QApplication::sendEvent( qt_xdnd_current_widget, &e );
 
     qt_xdnd_dragsource_xid = 0;
-    qt_xdnd_preferred_type = 0;
     qt_xdnd_types[0] = 0;
     qt_xdnd_current_widget = 0;
 }
