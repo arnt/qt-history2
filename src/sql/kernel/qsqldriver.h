@@ -47,7 +47,8 @@ public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
                          NamedPlaceholders, PositionalPlaceholders };
 
-    enum StatementType { WhereStatement, UpdateStatement, InsertStatement, DeleteStatement };
+    enum StatementType { WhereStatement, SelectStatement, UpdateStatement,
+                         InsertStatement, DeleteStatement };
 
     QSqlDriver(QObject *parent=0);
     ~QSqlDriver();

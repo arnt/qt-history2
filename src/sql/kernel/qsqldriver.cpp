@@ -312,6 +312,16 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
     QString s;
     s.reserve(128);
     switch (type) {
+    case SelectStatement:
+        for (i = 0; i < rec.count(); ++i) {
+            if (rec.isGenerated(i))
+                s.append(rec.fieldName(i)).append(", ");
+        }
+        if (s.isEmpty())
+            return s;
+        s.chop(2);
+        s.prepend("SELECT ").append(" FROM ").append(tableName);
+        break;
     case WhereStatement:
         if (preparedStatement) {
             for (i = 0; i < rec.count(); ++i) {

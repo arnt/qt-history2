@@ -15,6 +15,7 @@
 #include "qsqltablemodel.h"
 
 #include "qhash.h"
+#include "qsqldriver.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
@@ -611,17 +612,21 @@ QString QSqlTableModel::selectStatement() const
         d->error = QSqlError("No tablename given", QString(), QSqlError::Statement);
         return query;
     }
-
-    QSqlRecord rec = d->db.record(d->tableName);
     if (d->rec.isEmpty()) {
         d->error = QSqlError("Unable to find table " + d->tableName, QString(),
                              QSqlError::Statement);
         return query;
     }
-    query.append("SELECT ");
-    query.append(d->rec.toString()).append(" FROM ").append(d->tableName).append(" ");
+
+    query = d->db.driver()->sqlStatement(QSqlDriver::SelectStatement, d->tableName,
+                                          d->rec, false);
+    if (query.isEmpty()) {
+        d->error = QSqlError("Unable to select fields from table " + d->tableName, QString(),
+                             QSqlError::Statement);
+        return query;
+    }
     if (!d->filter.isEmpty())
-        query.append("WHERE ").append(d->filter).append(" ");
+        query.append(" WHERE ").append(d->filter).append(" ");
     query.append(orderByStatement());
 
     return query;
