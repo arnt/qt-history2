@@ -544,7 +544,8 @@ void qt_message_output(QtMsgType msgType, const char *buf)
         || (msgType == QtWarningMsg && (qgetenv("QT_FATAL_WARNINGS") != 0)) ) {
 
 #if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
-        _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
+        if (_CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf) == 1)
+            _CrtDbgBreak();
 #endif
 
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
