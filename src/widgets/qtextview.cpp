@@ -31,6 +31,7 @@
 #include "qpainter.h"
 
 #include "qstack.h"
+#include "stdio.h"
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qlayout.h"
@@ -39,11 +40,11 @@
 #include "qimage.h"
 #include "qmime.h"
 #include "qdragobject.h"
+#include "qclipboard.h"
 
-#include <stdio.h>
 
 
-// NOT REVISED
+
 /*!
   \class QTextView qtextview.h
   \brief A sophisticated single-page rich text viewer.
@@ -55,14 +56,14 @@
 
   The rendering style and available tags are defined by a
   styleSheet(). Currently, a small XML/CSS1 subset including embedded
-  images is supported. See QStyleSheet for details. Possible images
-  within the text document are resolved by using a QMimeSourceFactory.
-  See setMimeSourceFactory() for details.
+  images and tables is supported. See QStyleSheet for
+  details. Possible images within the text document are resolved by
+  using a QMimeSourceFactory.  See setMimeSourceFactory() for details.
 
   Using QTextView is quite similar to QLabel. It's mainly a call to
   setText() to set the contents. Setting the background color is
   slighty different from other widgets, since a text view is a
-  scrollable widget that naturally provies a scrolling background. You
+  scrollable widget that naturally provides a scrolling background. You
   can specify the colorgroup of the displayed text with
   setPaperColorGroup() or directly define the paper background with
   setPaper(). QTextView supports both plain color and complex pixmap
@@ -71,16 +72,11 @@
   Note that we do not intend to add a full-featured web browser widget
   to Qt (since that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
-  support in Qt is supposed to provide a fast and sufficient way to
-  add reasonable online help facilities to applications. We will,
-  however, extend it to some degree in future versions of Qt. Most
-  likely some basic table support will be put in and a new class to
-  provide rich text input.
+  support in Qt is supposed to provide a fast, portable and sufficient
+  way to add reasonable online help facilities to applications. We
+  will, however, extend it to some degree in future versions of Qt.
 
   For even more, like hypertext capabilities, see QTextBrowser.
-
-  \bug No selection possible.
-  No table support (yet).
 */
 
 class QTextViewData
@@ -99,6 +95,11 @@ public:
     bool linkunderline;
     QTimer* resizeTimer;
     Qt::TextFormat textformat;
+    QTextCursor* fcresize;
+    QTextCursor* cursor;
+    uint selection :1;
+    uint dirty :1;
+    uint dragSelection :1;
 };
 
 
@@ -107,7 +108,7 @@ public:
   with the standard \a parent and \a name optional arguments.
 */
 QTextView::QTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     init();
 }
@@ -120,7 +121,7 @@ QTextView::QTextView(QWidget *parent, const char *name)
 */
 QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
 {
     init();
     setText( text, context );
@@ -135,19 +136,23 @@ void QTextView::init()
     d->mylinkcol = blue;
     d->paplinkcol = d->mylinkcol;
     d->linkunderline = TRUE;
+    d->fcresize = 0;
+    d->cursor = 0;
 
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
     setHScrollBarMode( QScrollView::Auto );
-//     setHScrollBarMode( AlwaysOff );
 
     d->doc_ = 0;
     d->sheet_ = 0;
     d->factory_ = 0;
     d->txt = QString::fromLatin1("<p></p>");
     d->textformat = AutoText;
+    d->dirty = TRUE;
+    d->selection = FALSE;
+    d->dragSelection = FALSE;
 
-    viewport()->setBackgroundMode(NoBackground);
+    viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 
@@ -161,6 +166,7 @@ void QTextView::init()
 QTextView::~QTextView()
 {
     delete d->doc_;
+    delete d->cursor;
     delete d;
 }
 
@@ -186,7 +192,7 @@ void QTextView::setText( const QString& text, const QString& context)
     d->original_txt = text;
     d->contxt = context;
 
-    if ( d->txt.isEmpty() )
+    if ( text.isEmpty() )
 	d->txt = QString::fromLatin1("<p></p>");
     else if ( d->textformat == AutoText ) {
 	if ( QStyleSheet::mightBeRichText( text ) )
@@ -199,25 +205,28 @@ void QTextView::setText( const QString& text, const QString& context)
     else // rich text
 	d->txt = text;
 
-    QPainter * p = new QPainter( this );
-    // first try to use the full width of the viewport
-    QSize vs( viewportSize( 1,1 ) );
-    richText().setWidth( p, vs.width() );
-    // if we'll need to scroll vertically, and the only reason we'll
-    // need to scroll horizontally is the vertical scroll bar, try
-    // to reformat so we won't need to scroll horizontally at all
-    if ( richText().height > vs.height() &&
-	 richText().width <= vs.width() &&
-	 richText().width + /*###*/ 16 /*###*/ > vs.width() )
-	richText().setWidth( p, vs.width()-16 );
-    delete p;
-    resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
-    if ( isVisible() ) {
-	viewport()->update();
-	viewport()->setCursor( arrowCursor );
-    }
+
+    setContentsPos( 0, 0 );
+    richText().invalidateLayout();
+    richText().flow()->initialize( visibleWidth() );
+    updateLayout();
+    viewport()->repaint();
 }
 
+
+/*!
+  Appends \a text to the current text.
+
+  Useful for log viewers.
+*/
+void QTextView::append( const QString& text )
+{
+    richText().append( text,  mimeSourceFactory(), styleSheet() );
+    int y = contentsHeight();
+    int h = richText().lastChild()->bottomMargin();
+    doResize();
+    updateContents( contentsX(), y-h, visibleWidth(), h );
+}
 
 /*!
   Returns the contents of the view.
@@ -247,25 +256,23 @@ void QTextView::createRichText()
 
     d->doc_ = new QRichText( d->txt, viewport()->font(), d->contxt,
 			     8, mimeSourceFactory(), styleSheet() );
-    if ( !d->doc_->attributes() )
-	return;
-    if (d->doc_->attributes()->contains("bgcolor")){
-	QColor  col ( (*d->doc_->attributes())["bgcolor"].latin1() );
+    if (d->doc_->attributes().contains("bgcolor")){
+	QColor  col ( d->doc_->attributes()["bgcolor"].latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Base, col );
     }
-    if (d->doc_->attributes()->contains("link")){
-	QColor  col ( (*d->doc_->attributes())["link"].latin1() );
+    if (d->doc_->attributes().contains("link")){
+	QColor  col ( d->doc_->attributes()["link"].latin1() );
 	if ( col.isValid() )
 	    d->paplinkcol = col;
     }
-    if (d->doc_->attributes()->contains("text")){
-	QColor  col ( (*d->doc_->attributes())["text"].latin1() );
+    if (d->doc_->attributes().contains("text")){
+	QColor  col ( d->doc_->attributes()["text"].latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Text,  col );
     }
-    if (d->doc_->attributes()->contains("background")){
-	QString imageName = (*d->doc_->attributes())["background"];
+    if (d->doc_->attributes().contains("background")){
+	QString imageName = d->doc_->attributes()["background"];
 	QPixmap pm;
 	const QMimeSource* m =
 	    context().isNull()
@@ -279,6 +286,8 @@ void QTextView::createRichText()
 	if (!pm.isNull())
 	    d->papcolgrp.setBrush( QColorGroup::Base, QBrush(d->papcolgrp.base(), pm) );
     }
+    delete d->cursor;
+    d->cursor = new QTextCursor( richText() );
 }
 
 
@@ -429,7 +438,7 @@ bool QTextView::linkUnderline() const
 */
 QString QTextView::documentTitle() const
 {
-    return richText().attributes()?(*richText().attributes())["title"]:QString::null;
+    return richText().attributes()["title"];
 }
 
 /*!
@@ -437,13 +446,14 @@ QString QTextView::documentTitle() const
 */
 int QTextView::heightForWidth( int w ) const
 {
-    QRichText doc ( d->txt, viewport()->font(), d->contxt,
-		    8, mimeSourceFactory(), styleSheet() );
-    {
-	QPainter p( this );
-	doc.setWidth(&p, w);
-    }
-    return doc.height;
+//     QRichText doc ( d->txt, viewport()->font(), d->contxt,
+// 		    8, mimeSourceFactory(), styleSheet() );
+//     {
+// 	QPainter p( this );
+// 	doc.setWidth(&p, w);
+//     }
+//     return doc.height;
+    return w;
 }
 
 /*!
@@ -473,20 +483,58 @@ const QBrush& QTextView::paper()
 void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
-    QRegion r(cx-ox, cy-oy, cw, ch);
-    richText().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QTextOptions( &paper() )); //## todo linkcolor
+    QTextOptions to(&paper() );
+    to.offsetx = ox;
+    to.offsety = oy;
 
+    QRegion r(cx-ox, cy-oy, cw, ch);
+
+    QTextCursor tc( richText() );
+    tc.gotoParagraph( p, &richText() );
+    QTextParagraph* b = tc.paragraph;
+
+    // TODO merge with update, this is only draw. Everything needs to be clean!
+    QFontMetrics fm( p->fontMetrics() );
+    while ( b && tc.y() <= cy + ch ) {
+
+	if ( b && b->dirty ) //ensure the paragraph is layouted
+	    tc.updateLayout( p, cy + ch );
+
+	tc.gotoParagraph( p, b );
+
+	if ( tc.y() + tc.paragraph->height > cy ) {
+	    do {
+		tc.makeLineLayout( p, fm );
+		QRect geom( tc.lineGeometry() );
+		if ( geom.bottom() > cy && geom.top() < cy+ch )
+		    tc.drawLine( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
+	    }
+	    while ( tc.gotoNextLine( p, fm ) );
+	}
+	b = b->nextInDocument();
+    };
+
+    richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
     p->setClipRegion(r);
 
     if ( paper().pixmap() )
-	p->drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+	p->drawTiledPixmap(0, 0, visibleWidth(), visibleHeight(),
 			   *paper().pixmap(), ox, oy);
     else
-	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
-
-    qApp->syncX();
+	p->fillRect(0, 0, visibleWidth(), visibleHeight(), paper() );
 
     p->setClipping( FALSE );
+
+
+    const int pagesize = 100000;
+
+     for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
+
+	 p->setPen( DotLine );
+
+	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
+		      pagesize - oy );
+     }
 }
 
 /*!
@@ -498,69 +546,149 @@ void QTextView::viewportResizeEvent(QResizeEvent* )
 
 void QTextView::doResize()
 {
-    QSize vw = viewportSize( QMAX( richText().widthUsed,
-				   richText().width),
-			     richText().height );
-    {
-	QPainter p(this);
-	richText().setWidth( &p, vw.width() );
-    }
-    resizeContents( QMAX( richText().widthUsed,
-			  richText().width),
-		    richText().height );
-    viewport()->update();
+    QPainter p( viewport() );
+    if ( !d->fcresize->updateLayout( &p, d->fcresize->y() + d->fcresize->paragraph->height + 1000 ) )
+	d->resizeTimer->start( 0, TRUE );
+    QTextFlow* flow = richText().flow();
+    resizeContents( QMAX( flow->widthUsed-1, visibleWidth() ), flow->height );
 }
-
-
 
 /*!
   \reimp
 */
 void QTextView::resizeEvent( QResizeEvent* e )
 {
-    if ( contentsHeight() > 4 * height() ) {
-      // large document, do deferred resize
-      d->resizeTimer->start( 200, TRUE );
-      QScrollView::resizeEvent( e );
+    setUpdatesEnabled( FALSE ); // to hinder qscrollview from showing/hiding scrollbars. Safe since we call resizeContents later!
+    QScrollView::resizeEvent( e );
+    setUpdatesEnabled( TRUE);
+    richText().invalidateLayout();
+    richText().flow()->initialize( visibleWidth() );
+    updateLayout();
+    viewport()->repaint( FALSE );
+}
+
+
+/*!
+  \reimp
+*/
+void QTextView::viewportMousePressEvent( QMouseEvent* e )
+{
+    if ( !d->cursor )
+	return;
+    if ( e->button() != LeftButton )
+	return;
+    QPainter p( viewport() );
+    d->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+    p.end();
+    if ( !d->cursor->isSelected() ) {
+	clearSelection();
+	d->dragSelection = TRUE;
+    } else {
     }
-    else {
-      // small document, resize immediately
-      QSize vw = viewportSize( QMAX( richText().widthUsed,
-				     richText().width),
-			       richText().height );
-      {
-	  QPainter p( this );
-	  richText().setWidth( &p, vw.width() );
-      }
-      resizeContents( QMAX( richText().widthUsed,
-			    richText().width),
-		      richText().height );
-      QScrollView::resizeEvent( e );
-      if ( viewport()->isVisible() )
-	  viewport()->repaint( FALSE );
+}
+
+/*!
+  \reimp
+*/
+void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
+{
+    if ( d->dragSelection && e->button() == LeftButton ) {
+	//### TODO put selection into clipboard
+#if defined(_WS_X11_)
+	copy();
+#else
+	if ( style() == MotifStyle )
+	    copy();
+#endif
+	d->dragSelection = FALSE;
     }
 }
 
 
 /*!
-  \reimp
+  Copies the marked text to the clipboard.  
 */
-void QTextView::viewportMousePressEvent( QMouseEvent* )
+void QTextView::copy()
 {
+#if defined(_WS_X11_)
+    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+#endif
+#if defined(_OS_WIN32_)
+    // Need to convert NL to CRLF
+    QRegExp nl("\\n");
+    t.replace( nl, "\r\n" );
+#endif
+    QApplication::clipboard()->setText( richText().selectedText() );
+#if defined(_WS_X11_)
+    connect( QApplication::clipboard(), SIGNAL(dataChanged()),
+	     this, SLOT(clipboardChanged()) );
+#endif
+}
+
+/*!
+  Selects all text.
+*/
+void QTextView::selectAll()
+{
+    //#####
 }
 
 /*!
   \reimp
 */
-void QTextView::viewportMouseReleaseEvent( QMouseEvent* )
+void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 {
-}
 
-/*!
-  \reimp
-*/
-void QTextView::viewportMouseMoveEvent( QMouseEvent* )
-{
+     if (e->state() & LeftButton && d->dragSelection ) {
+	 if ( !d->cursor )
+	     return;
+	QPainter p(viewport());
+ 	d->cursor->split();
+	QTextCursor oldc( *d->cursor );
+	d->cursor->goTo( &p, e->pos().x() + contentsX(),
+			 e->pos().y() + contentsY() );
+  	if ( d->cursor->split() ) {
+	    if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
+		oldc.current++;
+		oldc.update( &p );
+	    }
+ 	}
+	int oldy = oldc.y();
+	int oldx = oldc.x();
+	int oldh = oldc.height;
+	int newy = d->cursor->y();
+	int newx = d->cursor->x();
+	int newh = d->cursor->height;
+
+	QTextCursor start( richText() ), end( richText() );
+
+	bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
+	if ( oldIsFirst ) {
+	    start = oldc;
+	    end = *d->cursor;
+	} else {
+	    start = *d->cursor;
+	    end = oldc;
+	}
+
+	while ( start.paragraph != end.paragraph ) {
+ 	    start.setSelected( !start.isSelected() );
+	    start.rightOneItem( &p );
+	    d->selection = TRUE;
+	}
+	while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
+ 	    start.setSelected( !start.isSelected() );
+	    start.rightOneItem( &p );
+	    d->selection = TRUE;
+	}
+	p.end();
+	repaintContents( 0, QMIN(oldy, newy),
+			 contentsWidth(),
+			 QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
+			 FALSE);
+	QRect geom ( d->cursor->caretGeometry() );
+	ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
+     }
 }
 
 /*!
@@ -568,10 +696,13 @@ void QTextView::viewportMouseMoveEvent( QMouseEvent* )
 */
 void QTextView::keyPressEvent( QKeyEvent * e)
 {
+    int unknown = 0;
     switch (e->key()) {
     case Key_Right:
+	scrollBy( 10, 0 );
 	break;
     case Key_Left:
+	scrollBy( -10, 0 );
 	break;
     case Key_Up:
 	scrollBy( 0, -10 );
@@ -583,15 +714,28 @@ void QTextView::keyPressEvent( QKeyEvent * e)
 	setContentsPos(0,0);
 	break;
     case Key_End:
-	setContentsPos(0,contentsHeight()-viewport()->height());
+	setContentsPos(0,contentsHeight()-visibleHeight());
 	break;
     case Key_PageUp:
-	scrollBy( 0, -viewport()->height() );
+	scrollBy( 0, -visibleHeight() );
 	break;
     case Key_PageDown:
-	scrollBy( 0, viewport()->height() );
+	scrollBy( 0, visibleHeight() );
 	break;
+    case Key_C:
+	if ( e->state() & ControlButton )
+	    copy();
+#if defined (_WS_WIN_)
+    case Key_Insert:
+	if ( e->state() & ControlButton )
+	    copy();
+#endif	
+	break;
+    default:
+	unknown++;
     }
+    if ( unknown )				// unknown key
+	e->ignore();
 }
 
 /*!
@@ -636,331 +780,68 @@ void QTextView::setTextFormat( Qt::TextFormat format )
 }
 
 
-//************************************************************************
-
-#if 0
-QTextEdit::QTextEdit(QWidget *parent, const char *name)
-    : QTextView( parent, name )
-{
-    setKeyCompression( TRUE );
-    setVScrollBarMode( AlwaysOn );
-    cursor_hidden = FALSE;
-    cursorTimer = new QTimer( this );
-    cursorTimer->start(200, TRUE);
-    connect( cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
-
-    cursor = 0;
-
-}
-
-QTextEdit::~QTextEdit()
-{
-}
-
-
-
-/*!
-  reimplemented for internal purposes
+/*!\internal
  */
-void QTextEdit::setText( const QString& text, const QString& context  )
+void QTextView::updateLayout()
 {
-    QTextView::setText( text, context );
-    delete cursor;
-    cursor = new QTextCursor(richText());
-}
-
-/*!
-  Make a tree dump
- */
-QString QTextEdit::text()
-{
-    qDebug("not yet implemented");
-    return "not yet implemented";
-}
-
-void QTextEdit::keyPressEvent( QKeyEvent * e)
-{
-
-//     if (e->key() == Key_Plus)
-// 	exit(2); // profiling
-
-
-    hideCursor();
-    bool select = e->state() & Qt::ShiftButton;
-#define CLEARSELECT if (!select) {cursor->clearSelection();updateSelection();}
-
-
-    if (e->key() == Key_Right
-	|| e->key() == Key_Left
-	|| e->key() == Key_Up
-	|| e->key() == Key_Down
-	|| e->key() == Key_Home
-	|| e->key() == Key_End
-	|| e->key() == Key_PageUp
-	|| e->key() == Key_PageDown
-	) {
-	// cursor movement
-	CLEARSELECT
-	    QTextRow*  oldCursorRow = cursor->row;
-	bool ensureVisibility = TRUE;
-	{
-	    QPainter p( viewport() );
-	    switch (e->key()) {
-	    case Key_Right:
-		cursor->right(&p, select);
-		p.end();
-		break;
-	    case Key_Left:
-		cursor->left(&p, select);
-		p.end();
-		break;
-	    case Key_Up:
-		cursor->up(&p, select);
-		p.end();
-		break;
-	    case Key_Down:
-		cursor->down(&p, select);
-		p.end();
-		break;
-	    case Key_Home:
-		cursor->home(&p, select);
-		p.end();
-		break;
-	    case Key_End:
-		cursor->end(&p, select);
-		p.end();
-		break;
-	    case Key_PageUp:
-		p.end();
-		ensureVisibility = FALSE;
-		{
-		    int oldContentsY = contentsY();
-		    if (!cursor->ylineOffsetClean)
-			cursor->yline-=oldContentsY;
-		    scrollBy( 0, -viewport()->height() );
-		    if (oldContentsY == contentsY() )
-			break;
-		    p.begin(viewport());
-		    int oldXline = cursor->xline;
-		    int oldYline = cursor->yline;
-		    cursor->goTo( &p, oldXline, oldYline +  1 + contentsY(), select);
-		    cursor->xline = oldXline;
-		    cursor->yline = oldYline;
-		    cursor->ylineOffsetClean = TRUE;
-		    p.end();
-		}
-		break;
-	    case Key_PageDown:
-		p.end();
-		ensureVisibility = FALSE;
-		{
-		    int oldContentsY = contentsY();
-		    if (!cursor->ylineOffsetClean)
-			cursor->yline-=oldContentsY;
-		    scrollBy( 0, viewport()->height() );
-		    if (oldContentsY == contentsY() )
-			break;
-		    p.begin(viewport());
-		    int oldXline = cursor->xline;
-		    int oldYline = cursor->yline;
-		    cursor->goTo( &p, oldXline, oldYline + 1 + contentsY(), select);
-		    cursor->xline = oldXline;
-		    cursor->yline = oldYline;
-		    cursor->ylineOffsetClean = TRUE;
-		    p.end();
-		}
-		break;
-	    }
-	}
-	if (cursor->row == oldCursorRow)
-	    updateSelection(cursor->rowY, cursor->rowY);
-	else
-	    updateSelection();
-	if (ensureVisibility) {
-	    ensureVisible(cursor->x, cursor->y);
-	}
-	showCursor();
-    }
-    else {
-	
-	if (e->key() == Key_Return || e->key() == Key_Enter ) {
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    for (int i = 0; i < QMIN(4, e->count()); i++)
-			cursor->enter( &p ); // can be optimized
-		}
-	    updateScreen();
-	}
-	else if (e->key() == Key_Delete) {
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    cursor->del( &p, QMIN(4, e->count() ));
-		}
-	    updateScreen();
-	}
-	else if (e->key() == Key_Backspace) {
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    cursor->backSpace( &p, QMIN(4, e->count() ) );
-		}
-	    updateScreen();
-	}
-	else if (!e->text().isEmpty() ){
-	    CLEARSELECT
-		{
-		    QPainter p( viewport() );
-		    cursor->insert( &p, e->text() );
-		}
-	    updateScreen();
-	}
-    }
-}
-
-
-/* Updates the visible selection according to the internal
-  selection. If oldY and newY is defined, then only the area between
-  both horizontal lines is taken into account. */
-void QTextEdit::updateSelection(int oldY, int newY)
-{
-    if (!cursor || !cursor->selectionDirty)
+    if ( !isVisible() ) {
+	d->dirty = TRUE;
 	return;
-
-    if (oldY > newY) {
-	int tmp = oldY;
-	oldY = newY;
-	newY = tmp;
     }
 
-    QPainter p(viewport());
-    int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
-    int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+viewport()->height()):contentsY()+viewport()->height();
-    QRegion r;
-    richText().draw(&p, 0, 0, contentsX(), contentsY(),
-			   contentsX(), minY,
-			   viewport()->width(), maxY-minY,
-			   r, paperColorGroup(), QTextOptions(&paper()), FALSE, TRUE);
-    cursor->selectionDirty = FALSE;
-}
+    QSize cs( viewportSize( contentsWidth(), contentsHeight() ) );
+    int ymax = contentsY() + cs.height() + 1;
 
-void QTextEdit::viewportMousePressEvent( QMouseEvent * e)
-{
-    hideCursor();
-    cursor->clearSelection();
-    updateSelection();
+    delete d->fcresize;
+    d->fcresize = new QTextCursor( richText() );
+
     {
 	QPainter p( viewport() );
-	cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+	d->fcresize->initParagraph( &p, &richText() );
+	d->fcresize->updateLayout( &p, ymax );
     }
-    showCursor();
-}
 
-void QTextEdit::viewportMouseReleaseEvent( QMouseEvent * )
-{
-    // nothing
-}
+    QTextFlow* flow = richText().flow();
+    QSize vs( viewportSize( flow->widthUsed, flow->height ) );
 
-void QTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
-{
-    if (e->state() & LeftButton) {
-	hideCursor();
-	QTextRow*  oldCursorRow = cursor->row;
-	{
-	    QPainter p(viewport());
-	    cursor->goTo( &p, e->pos().x() + contentsX(),
-			  e->pos().y() + contentsY(), TRUE);
-	}
-	if (cursor->row == oldCursorRow)
-	    updateSelection(cursor->rowY, cursor->rowY );
-	else
-	    updateSelection();
-	if (cursor->y + cursor->height > contentsY() + viewport()->height()) {
-	    scrollBy(0, cursor->y + cursor->height-contentsY()-viewport()->height());
-	}
-	else if (cursor->y < contentsY())
-	    scrollBy(0, cursor->y - contentsY() );
-	showCursor();
-    }
-}
-
-void QTextEdit::drawContentsOffset(QPainter*p, int ox, int oy,
-				 int cx, int cy, int cw, int ch)
-{
-    QTextView::drawContentsOffset(p, ox, oy, cx, cy, cw, ch);
-    if (!cursor_hidden)
-	cursor->draw(p, ox, oy, cx, cy, cw, ch);
-}
-
-void QTextEdit::cursorTimerDone()
-{
-    if (cursor_hidden) {
-	if (QTextEdit::hasFocus())
-	    showCursor();
-	else
-	    cursorTimer->start(400, TRUE);
-    }
-    else {
-	hideCursor();
-    }
-}
-
-void QTextEdit::showCursor()
-{
-    cursor_hidden = FALSE;
-    QPainter p( viewport() );
-    cursor->draw(&p, contentsX(), contentsY(),
-		 contentsX(), contentsY(),
-		 viewport()->width(), viewport()->height());
-    cursorTimer->start(400, TRUE);
-}
-
-void QTextEdit::hideCursor()
-{
-    if (cursor_hidden)
-	return;
-    cursor_hidden = TRUE;
-    repaintContents(cursor->x, cursor->y,
-		    cursor->width(), cursor->height);
-    cursorTimer->start(300, TRUE);
-}
-
-
-
-/*!  Updates the visible screen according to the (changed) internal
-  data structure.
-*/
-void QTextEdit::updateScreen()
-{
-    {
+    if ( vs.width() != visibleWidth() ) {
+	flow->initialize( vs.width() );
+	richText().invalidateLayout();
 	QPainter p( viewport() );
-	QRegion r(0, 0, viewport()->width(), viewport()->height());
-	richText().draw(&p, 0, 0, contentsX(), contentsY(),
-			       contentsX(), contentsY(),
-			       viewport()->width(), viewport()->height(),
-			       r, paperColorGroup(), QTextOptions( &paper() ), TRUE);
-	p.setClipRegion(r);
-	if ( paper().pixmap() )
-	    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-			      *paperColorGroup().brush( QColorGroup::Base ).pixmap(), contentsX(), contentsY());
-	else
-	    p.fillRect(0, 0, viewport()->width(), viewport()->height(), paper());
+	d->fcresize->gotoParagraph( &p, &richText() );
+	d->fcresize->updateLayout( &p, ymax );
     }
-    showCursor();
-    resizeContents( QMAX( richText().widthUsed, richText().width(), richText().height );
-    ensureVisible(cursor->x, cursor->y);
+
+    resizeContents( QMAX( flow->widthUsed-1, vs.width() ), flow->height );
+    d->resizeTimer->start( 0, TRUE );
+    d->dirty = FALSE;
 }
 
-void QTextEdit::viewportResizeEvent(QResizeEvent* e)
+
+/*!\reimp
+ */
+void QTextView::showEvent( QShowEvent* )
 {
-    QTextView::viewportResizeEvent(e);
-    {
-	QPainter p( this );
-	cursor->calculatePosition(&p);
-    }
+    if ( d->dirty )
+	updateLayout();
 }
 
+void QTextView::clearSelection()
+{
+    if ( !d->selection ) 
+	return; // nothing to do
+    
+    richText().clearSelection();
+    d->selection = FALSE;
+    repaintContents( richText().flow()->updateRect(), FALSE );
+    richText().flow()->validateRect();
+}
 
+void QTextView::clipboardChanged()
+{
+#if defined(_WS_X11_)
+    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		this, SLOT(clipboardChanged()) );
+    clearSelection();
 #endif
-
+}

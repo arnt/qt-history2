@@ -70,7 +70,7 @@ protected:
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );
-    const QTextContainer* anchor(const QPoint& pos);
+    QString anchorAt(const QPoint& pos);
     QTextBrowserData *d;
 
 };

@@ -66,10 +66,10 @@ public:
 
     void setPaperColorGroup( const QColorGroup& colgrp);
     const QColorGroup &paperColorGroup() const;
-    
+
     void setLinkColor( const QColor& );
     const QColor& linkColor() const;
-    
+
     void setLinkUnderline( bool );
     bool linkUnderline() const;
 
@@ -80,6 +80,13 @@ public:
 
     int heightForWidth( int w ) const;
 
+    void append( const QString& text );
+
+public slots:
+   void copy();
+   void selectAll();
+
+
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,
 			    int cx, int cy, int cw, int ch);
@@ -89,6 +96,7 @@ protected:
     void viewportMouseReleaseEvent( QMouseEvent* );
     void viewportMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent * );
+    void showEvent( QShowEvent* );
 
 protected:
 
@@ -97,54 +105,16 @@ protected:
 
 private slots:
     void doResize();
+    void clipboardChanged(); 
 
 private:
     void init();
     void createRichText();
+    friend class QRichText;
     QTextViewData* d;
+    void updateLayout();
+    void clearSelection();
 };
-
-
-
-#if 0
-class QTextCursor;
-
-class Q_EXPORT QTextEdit : public QTextView
-{
-    //    Q_OBJECT
-public:
-    QTextEdit(QWidget *parent=0, const char *name=0);
-    ~QTextEdit();
-
-    void setText( const QString& text, const QString& context = QString::null );
-    QString text();
-
-protected:
-    void drawContentsOffset(QPainter*, int ox, int oy,
-			    int cx, int cy, int cw, int ch);
-    void viewportMousePressEvent( QMouseEvent* );
-    void viewportMouseReleaseEvent( QMouseEvent* );
-    void viewportMouseMoveEvent( QMouseEvent* );
-    void keyPressEvent( QKeyEvent * );
-    void viewportResizeEvent(QResizeEvent*);
-
-    void showCursor();
-    void hideCursor();
-
-    //private slots:
-void cursorTimerDone();
-
-private:
-    bool cursor_hidden;
-    QTimer* cursorTimer;
-    QTextCursor* cursor;
-
-    void updateSelection(int oldY=-1, int newY=-1);
-
-    void updateScreen();
-    void* d;
-};
-#endif
 
 
 

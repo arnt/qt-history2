@@ -24,12 +24,15 @@
 *****************************************************************************/
 #include "qstylesheet.h"
 #include "qrichtextintern.cpp"
+
+#include <qtextstream.h>
 #include <qapplication.h>
 #include <qlayout.h>
 #include <qpainter.h>
 
 #include <qstack.h>
 #include <stdio.h>
+#include <values.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qlayout.h>
@@ -37,92 +40,108 @@
 #include <qtimer.h>
 #include <qimage.h>
 #include <qdragobject.h>
+#include <qdatetime.h>
+#include <qdrawutil.h>
 
-// NOT REVISED
-
-QTextIterator::~QTextIterator()
+class QTextTableCell : public QLayoutItem
 {
+public:
+    QTextTableCell(QTextTable* table,
+      int row, int column, 		
+      const QMap<QString, QString> &attr,
+      const QStyleSheetItem* style,
+      const QTextCharFormat& fmt, const QString& context,
+      const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc, int& pos );
+    ~QTextTableCell();
+    QSize sizeHint() const ;
+    QSize minimumSize() const ;
+    QSize maximumSize() const ;
+    QSizePolicy::ExpandData expanding() const;
+    bool isEmpty() const;
+    void setGeometry( const QRect& ) ;
+    QRect geometry() const;
+
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
+    void realize();
+
+    int row() const { return row_; }
+    int column() const { return col_; }
+    int rowspan() const { return rowspan_; }
+    int colspan() const { return colspan_; }
+    int stretch() const { return stretch_; }
+
+    void draw( int x, int y,
+	       int ox, int oy, int cx, int cy, int cw, int ch,
+	       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
+
+    QString anchorAt( int x, int y ) const;
+    
+private:
+
+    QPainter* painter() const;
+    QRect geom;
+    QTextTable* parent;
+    QRichText* richtext;
+    QBrush* background;
+    int row_;
+    int col_;
+    int rowspan_;
+    int colspan_;
+    int stretch_;
+    int maxw;
+    int minw;
+    bool hasFixedWidth;
+};
+
+class QTextTable: public QTextCustomItem
+{
+public:
+    QTextTable(const QMap<QString, QString> &attr);
+    ~QTextTable();
+    void realize( QPainter* );
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
+
+    bool noErase() const { return TRUE; };
+    bool expandsHorizontally() const { return TRUE; }
+    void resize( QPainter*, int nwidth );
+    QString anchorAt( QPainter* p, int x, int y );
+
+private:
+    QGridLayout* layout;
+    QList<QTextTableCell> cells;
+
+    friend class QTextTableCell;
+    void addCell( QTextTableCell* cell );
+    QPainter* painter;
+    int cachewidth;
+    int fixwidth;
+    int cellpadding;
+    int cellspacing;
+    int border;
+    int outerborder;
+    int stretch;
+};
+
+
+void QTextOptions::erase( QPainter* p, const QRect& r ) const
+{
+    if ( !paper )
+	return;
+    if ( paper->pixmap() )
+	p->drawTiledPixmap( r, *paper->pixmap(),
+			    QPoint(r.x()+offsetx, r.y()+offsety) );
+    else
+	p->fillRect(r, *paper );
 }
 
-
-QTextIterator QTextIterator::next() const
-{
-    if ( !node )
-	return QTextIterator( node );
-
-    if ( node->isContainer && (( QTextContainer*) node)->child )
-	return QTextIterator(  (( QTextContainer*) node)->child, ( QTextContainer*) node);
-    if ( node->next &&  !node->isLastSibling )
-	return QTextIterator( node->next, par );
-    QTextNode* i = node->next;
-    while ( i && i->isLastSibling ) {
-	i = i->next;
-    }
-    if ( i )
-	return QTextIterator( i->next, ((QTextContainer*)i)->parent );
-    return 0;
-}
-
-
-QTextIterator QTextIterator::operator++ (int)
-{
-    QTextIterator tmp = next(); // not really faster but doesn't matter
-    node = tmp.node;
-    par = tmp.par;
-    return *this;
-}
-
-QTextIterator& QTextIterator::operator++ ()
-{
-    QTextIterator tmp = next();
-    node = tmp.node;
-    par = tmp.par;
-    return *this;
-}
-
-QTextNode::QTextNode()
-{
-    next = 0;
-    isSimpleNode = 1;
-    isLastSibling = 0;
-    isContainer = 0;
-    isBox = 0;
-    isRoot = 0;
-    isSelected = 0;
-    isSelectionDirty = 0;
-}
-
-
-QTextNode::~QTextNode()
-{
-}
-
-
-
-
-//************************************************************************
-
-QTextCustomNode::QTextCustomNode()
-    :QTextNode()
-{
-    isSimpleNode = 0;
-    width = height = 0;
-}
-
-QTextCustomNode::~QTextCustomNode()
-{
-}
-
-
-bool QTextCustomNode::expandsHorizontally()
-{
-    return FALSE;
-}
 
 
 QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory)
-    : QTextCustomNode()
 {
     width = height = 0;
     if ( attr.contains("width") )
@@ -151,10 +170,18 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
     }
 
     if ( !img.isNull() ) {
-	if ( width == 0 )
+	if ( width == 0 ) {
 	    width = img.width();
-	if ( height == 0 )
+	    if ( height != 0 ) {
+		width = img.width() * height / img.height();
+	    }
+	}
+	if ( height == 0 ) {
 	    height = img.height();
+	    if ( width != img.width() ) {
+		height = img.height() * width / img.width();
+	    }
+	}
 
 	if ( img.width() != width || img.height() != height ){
 	    img = img.smoothScale(width, height);
@@ -162,7 +189,9 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	    height = img.height();
 	}
 	pm.convertFromImage( img );
+	qDebug("image conversion");
 	if ( pm.mask() ) {
+	    qDebug("image with a mask!");
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
 	    reg = new QRegion( all.subtract( mask ) );
@@ -172,22 +201,35 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
     if ( pm.isNull() && (width*height)==0 ) {
 	width = height = 50;
     }
-}
 
+    place = PlaceInline;
+    if ( attr["align"] == "left" )
+	place = PlaceLeft;
+    else if ( attr["align"] == "right" )
+	place = PlaceRight;
+
+}
 
 QTextImage::~QTextImage()
 {
 }
 
 
+QTextCustomItem::Placement QTextImage::placement()
+{
+    return place;
+}
+
 void QTextImage::draw(QPainter* p, int x, int y,
-		    int ox, int oy, int /*cx*/, int /*cy*/, int /*cw*/, int /*ch*/,
-		    QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& /*to*/)
+		    int ox, int oy, int , int , int , int ,
+		       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& /*to*/)
 {
     if ( pm.isNull() ) {
 	p->fillRect( x-ox , y-oy, width, height,  cg.dark() );
 	return;
     }
+    QRect r( x-ox, y-oy, width, height );
+    backgroundRegion = backgroundRegion.subtract( r );
     if ( reg ){
 	QRegion tmp( *reg );
 	tmp.translate( x-ox, y-oy );
@@ -197,11 +239,9 @@ void QTextImage::draw(QPainter* p, int x, int y,
 }
 
 
-
-QTextHorizontalLine::QTextHorizontalLine(const QMap<QString, QString> &, const QMimeSourceFactory&)
+QTextHorizontalLine::QTextHorizontalLine()
 {
     height = 8;
-    width = 200;
 }
 
 
@@ -210,1771 +250,39 @@ QTextHorizontalLine::~QTextHorizontalLine()
 }
 
 
-bool QTextHorizontalLine::expandsHorizontally()
-{
-    return TRUE;
-}
-
 void QTextHorizontalLine::draw(QPainter* p, int x, int y,
-			     int ox, int oy, int cx, int cy, int cw, int ch,
-			     QRegion&, const QColorGroup&, const QTextOptions& to)
+				//int ox, int oy, int cx, int cy, int cw, int ch,
+				int ox, int oy, int , int , int , int ,
+				QRegion&, const QColorGroup& cg, const QTextOptions& to )
 {
     QRect rm( x-ox, y-oy, width, height);
-    QRect ra( cx-ox, cy-oy, cw,  ch);
-    QRect r = rm.intersect( ra );
-    if (to.paper) {
-	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
-	else
-	    p->fillRect(r, *to.paper );
-    }
-    QPen pen(p->pen());
-    pen.setWidth( 2 );
-    p->setPen( pen );
-    p->drawLine( r.left()-1, y-oy+4, r.right()+1, y-oy+4) ;
-}
-
-
-//************************************************************************
-
-QTextRow::QTextRow()
-{
-    x = y = width = height = base = 0;
-    fill = 0;
-    first = last = 0;
-    parent = 0;
-
-    dirty = TRUE;
-}
-
-QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
-		    QTextIterator& it, int w, int& min, int align)
-{
-    x = y = width = height = base = 0;
-    dirty = TRUE;
-
-    width = w;
-
-    QTextIterator end = it.parentNode()->box()->end();
-    while ( it != end  && !it->isBox && it->isContainer) {
-	++it;
-    }	
-
-    if ( it == end ) {
-	fill = 0;
-	first = last = 0;
-	parent = 0;
-	return;
-    }
-
-    first = *it;
-
-    parent = it.parentNode();
-
-    int tx = 0;
-    int rh = 0;
-    int rasc = 0;
-    int rdesc = 0;
-
-    if ( first->isBox ) {
-	QTextBox* b = (QTextBox*)first;
-	b->setWidth(p, width );
-	width = QMAX( b->widthUsed, width );
-	height = b->height;
-	base = height;
-	last = first;
-	it = b->end();
-	min = b->widthUsed;
-	return;
-    }
-
-    // do word wrap
-    QTextIterator lastSpace = it;
-    int lastHeight = rh;
-    int lastWidth = 0;
-    int lastBearing = 0;
-    int lastAsc = rasc;
-    int lastDesc = rdesc;
-    bool noSpaceFound = TRUE; // TRUE;
-
-    QTextIterator prev = it;
-
-
-    while ( it != end ) {
-	int h,a,d;
-	if (it->isSimpleNode) {
-	    if ( it.parentNode()->font() != p->font() ) {
-		p->setFont( it.parentNode()->font() );
-	    }
-	    if (!it->isNull())
-		tx += fm.width(it->text);
-	    h = fm.height();
-	    a = fm.ascent();
-	    d = h-a;
-	}
-	else if ( !it->isContainer ) {
-	    QTextCustomNode* c = (QTextCustomNode*)*it;
-	    if ( c->expandsHorizontally() ) {
-		c->width = width + fm.minRightBearing() - fm.width(' ');
-	    }
-	    tx +=c->width;
-	    h = c->height;
-	    a = h;
-	    d = 0;
-	}
-	else if ( it->isContainer ){
-	    if ( it->isBox )
-		break;
-	    else {
-		++it;
-		continue;
-	    }
-	}
-	
-	if (tx > width - fm.width(' ') + fm.minRightBearing() && !noSpaceFound  && !it->isSpace() )
-	    break;
-
-	rh = QMAX( rh, h );
-	rasc = QMAX( rasc, a );
-	rdesc = QMAX( rdesc, d );
-	
-	prev = it;
-	++it;
-	
-	// break (a) after a space, (b) before a box, (c) if we have
-	// to or (d) at the end of a box.
-	if (prev->isSpace() || prev->isNewline() ||
-	    it == end || it->isBox || noSpaceFound ){
-	    lastSpace = prev;
-	    lastHeight = rh;
-	    lastAsc = rasc;
-	    lastDesc = rdesc;
-	    lastWidth = tx;
-	    lastBearing = fm.minRightBearing();
-	    if (noSpaceFound && prev->isSpace())
-		noSpaceFound = FALSE;
-	}
-	if ( prev->isNewline() )
-	    break;
-    }
-
-    last = *lastSpace;
-
-    rh = lastHeight;
-    rasc = lastAsc;
-    rdesc = lastDesc;
-
-    height = QMAX(rh, rasc+rdesc);
-    base = rasc;
-
-    if (align == Qt::AlignCenter)
-	fill = (width - lastWidth) / 2;
-    else if (align == Qt::AlignRight)
-	fill = width - lastWidth;
-    else
-	fill = 0;
-
-    it = lastSpace;
-
-    if ( lastWidth > width ) {
-	width = lastWidth;
-	fill = 0;
-    }
-
-    min = lastWidth - lastBearing;
-
-    ++it;
-
-}
-
-
-
-QTextRow::~QTextRow()
-{
-}
-
-
-
-QTextIterator QTextRow::begin() const
-{
-    return QTextIterator( first, parent );
-}
-
-QTextIterator QTextRow::end() const
-{
-    QTextIterator it( last, 0 );
-    ++it;
-    return it;
-}
-
-void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-		  QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to,
-		  bool onlyDirty, bool onlySelection)
-{
-
-    if (!intersects(cx-obx, cy-oby, cw,ch)) {
-	dirty = FALSE;
-	return;
-    }
-
-
-    if (first->isBox) {
-	//we have to draw the box
-	((QTextBox*)first)->draw(p, obx+x, oby+y, ox, oy, cx, cy, cw, ch,
-			       backgroundRegion, cg, to, dirty?FALSE:onlyDirty, onlySelection);
-	dirty = FALSE;
-	return;
-    }
-
-    QRegion r(x+obx-ox, y+oby-oy, width, height);
-
-    backgroundRegion = backgroundRegion.subtract(r);
-
-    if (onlyDirty) {
-	if (!dirty)
-	    return;
-    }
-
-    dirty = FALSE;
-
-    bool reducedFlickerMode = FALSE;
-    QTextIterator it;
-    // reduced flicker mode is broken, does not deal with shearing and bearing yet
-//     for ( it = begin(); it != end(); ++it ) {
-// 	if ( it->isCustomNode() && to.paper ) {
-//  	    reducedFlickerMode = TRUE;
-// 	    break;
-// 	}
-//     }
-
-    if ( !reducedFlickerMode ) {
-	if (!onlyDirty && !onlySelection && to.paper) {
-	    if ( to.paper->pixmap() )
-		p->drawTiledPixmap(x+obx-ox, y+oby-oy, width, height, *to.paper->pixmap(), x+obx, y+oby);
-	    else
-		p->fillRect(x+obx-ox, y+oby-oy, width, height, *to.paper);
-	}
-    }
-
-
-
-
-    bool inFirst = TRUE;
-
-    int tx = x;
-
-    if ( fill > 0 )
-	tx += fill;
-
-    static QString s;
-
-    QFontMetrics fm = p->fontMetrics();
-    for ( it = begin(); it != end(); ++it ) {
-	if ( it->isContainer )
-	    continue;
-	const QTextContainer* anc = it.parentNode()->anchor();
-	s.truncate(0);
-	QFont font = it.parentNode()->font();
-	if ( anc && to.linkUnderline && anc->attributes()
-	     && anc->attributes()->contains("href") )
-	    font.setUnderline( TRUE );
-	if ( font != p->font() ) {
-		
-	    p->setFont( font );
-	}
-	int tw = 0;
-	bool select = it->isSelected;
-	bool selectionDirty = it->isSelectionDirty;
-	it->isSelectionDirty = 0;
-	if (it->isSimpleNode) {
-	    if (!it->isNull()){
-		s += it->text;
-		tw += fm.width( it->text );
-	    }
-	    QTextNode* tmp;
-	    // special optimized code for simple nodes (characters)
-	    while ( *it != last && (tmp = it->nextSibling() ) && tmp->isSimpleNode
-		    && ((bool)tmp->isSelected) == select
-		    && ((bool) tmp->isSelectionDirty) == selectionDirty
-		    && it->isSimpleNode
-		    ) {
-		it = QTextIterator( tmp, it.parentNode() );
-		tmp->isSelectionDirty = 0;
-		if (!it->isNull()) {
-		    s += it->text;
-		    tw += fm.width( it->text );
-		}
-		// 	    if (it->isSpace())
-		// 	      break;
-	    }
-	}
-	else {
-	    // custom nodes
-	    tw += ((QTextCustomNode*)*it)->width;
-	}
-	
-
-	if (!onlySelection || selectionDirty) {
-	    p->setPen( it.parentNode()->color(cg.text()) );
-	
-	    if ( anc && anc->attributes() && anc->attributes()->contains("href") )
-		p->setPen( to.linkColor );
-		
-
-	
-	    if (select) {
-		if ( inFirst )
-		    p->fillRect(x+obx-ox, y+oby-oy, tw+(tx-x), height, cg.highlight() );
-		if (*it ==last)
-		    p->fillRect(tx+obx-ox, y+oby-oy, width-(tx-x), height, cg.highlight());
-		else
-		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, cg.highlight());
-		p->setPen( cg.highlightedText() );
-	    }
-	    else if ( (onlyDirty || onlySelection || (reducedFlickerMode && it->isSimpleNode)) && to.paper ) {
-		int txo = 0;
-		if ( inFirst ) {
-		    if ( to.paper->pixmap() )
-			p->drawTiledPixmap(x+obx-ox, y+oby-oy, tw+(tx-x), height,
-					   *to.paper->pixmap(), x+obx, y+oby);
-		    else
-			p->fillRect(x+obx-ox, y+oby-oy, tw+(tx-x), height, *to.paper );
-		    txo = tw;
-		}
-		if (*it == last){
-		    if ( to.paper->pixmap() )
-			p->drawTiledPixmap(tx+obx-ox+txo, y+oby-oy, width-(tx-x)-txo, height,
-					   *to.paper->pixmap(), tx+obx+txo, y+oby);
-		    else
-			p->fillRect(tx+obx-ox+txo, y+oby-oy, width-(tx-x)-txo, height, *to.paper);
-		}
-		else {
-		    if ( to.paper->pixmap() )
-			p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, height,
-					   *to.paper->pixmap(), tx+obx, y+oby);
-		    else
-			p->fillRect(tx+obx-ox, y+oby-oy, tw, height, *to.paper);
-		}
-	    }
-	
-	    if (it->isSimpleNode) {
-		// Get rid of garbage at last of line (\n etc. at visible
-		// on Windows. ### Matthias: Fix in parser?
- 		int len = s.length();
- 		while ( len > 0 && s[len-1] < (char)32 ) {
- 		   len--;
- 		}
-		p->drawText(tx+obx-ox, y+oby-oy+base, s, len);
-	    }
-	    else {
-		if ( reducedFlickerMode ) {
-		    if (!it->isSelected) {
-			if ( inFirst ) {
-			    if ( to.paper->pixmap() )
-				p->drawTiledPixmap(x+obx-ox, y+oby-oy, (tx-x), height,
-						   *to.paper->pixmap(), x+obx, y+oby);
-			    else
-				p->fillRect(x+obx-ox, y+oby-oy, (tx-x), height, *to.paper);
-			}
-			if ( *it == last){
-			    if ( to.paper->pixmap() )
-				p->drawTiledPixmap(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height,
-						   *to.paper->pixmap(), tx+obx+tw, y+oby);
-			    else
-				p->fillRect(tx+tw+obx-ox, y+oby-oy, width-(tx-x)-tw, height, *to.paper);
-			}
-		    }
-		    int h = ((QTextCustomNode*)*it)->height;
-		    if ( h < height && !it->isSelected ) {
-			if ( to.paper->pixmap() )
-			    p->drawTiledPixmap(tx+obx-ox, y+oby-oy, tw, base-h,
-					       *to.paper->pixmap(), tx+obx, y+oby);
-			else
-			    p->fillRect(tx+obx-ox, y+oby-oy, tw, base-h, *to.paper);
-			if ( to.paper->pixmap() )
-			    p->drawTiledPixmap(tx+obx-ox, y+oby-oy+base, tw, height-base,
-					       *to.paper->pixmap(), tx+obx, y+oby+base);
-			else
-			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *to.paper);
-		    }
-		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
-						  ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, to);
-		
-		    if ( it->isSelected ) {
-			QRect tr( tx+obx-ox, y+oby-oy+base-h, tw, h );
-			backgroundRegion = backgroundRegion.subtract( tr );
-		    }
-		}
-		else {
-		    int h = ((QTextCustomNode*)*it)->height;
-		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
-					      ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to);
-		}
-	    }
-	}
-	tx += tw;
-	inFirst = FALSE;
-    };
-
-}
-
-QTextNode* QTextRow::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
-{
-  QFontMetrics fm = p->fontMetrics();
-    if (!intersects(xarg-obx, yarg-oby, 0,0))
-	return 0;
-
-    if (first->isBox) {
-	return ((QTextBox*)first)->hitTest(p, obx+x, oby+y, xarg, yarg);
-    }
-    QTextIterator it;
-    int tx = fill;
-    for ( it = begin(); it != end(); ++it ) {
-	if ( it->isContainer && !it->isBox )
-	    continue;
-	p->setFont( it.parentNode()->font() );
-	if (it->isSimpleNode)
-	    tx += fm.width( it->text );
-	else
-	    tx += ((QTextCustomNode*)*it)->width;
-	if (obx + x + tx > xarg)
-	    break;
-    }
-    return *it;
-
-}
-
-bool QTextRow::locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh)
-{
-    if (first->isBox) { // a box row
-	if (node == first) {
-	    lx = x;
-	    ly = y;
-	    lh = height;
-	    return TRUE;
-	}
-	return FALSE;
-    }
-
-    QTextIterator it;
-    for ( it = begin(); it != end() && *it != node; ++it )
-	;
-    if ( *it != node )
-	return FALSE; // nothing found
-
-    lx = x + fill;
-    QFontMetrics fm = p->fontMetrics();
-    for ( it = begin(); *it != node; ++it ) {
-	if ( !it->isContainer || it->isBox )
-	    continue;
-	p->setFont( it.parentNode()->font() );
-	if (it->isSimpleNode)
-	    lx += fm.width( it->text );
-	else
-	    lx += ((QTextCustomNode*)*it)->width;
-    };
-    p->setFont( it.parentNode()->font() );
-    ly = y + base - fm.ascent();
-    lh = fm.height();
-
-    return TRUE;
-}
-
-
-
-//************************************************************************
-QTextContainer::QTextContainer( const QStyleSheetItem *stl)
-    : style(stl)
-{
-    isSimpleNode = 0;
-    isContainer = 1;
-    fnt = 0;
-    parent = 0;
-    child = 0;
-    attributes_ = 0;
-    fontsize = -1;
-}
-
-QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-    : style(stl)
-{
-    isSimpleNode = 0;
-    isContainer = 1;
-    fnt = 0;
-    parent = 0;
-    child = 0;
-    attributes_ = 0;
-    fontsize = -1;
-    if (!attr.isEmpty() )
-	setAttributes( attr );
-}
-
-void QTextContainer::setParent( QTextContainer* p)
-{
-    // invalidate any cached values
-    delete  fnt;
-    fnt = 0;
-    fontsize = -1;
-    if ( col.isValid() )
-	col = QColor();
-
-    // set the parent
-    parent = p;
-}
-
-void QTextContainer::setColor( const QColor& c)
-{
-    col = c;
-}
-
-
-void QTextContainer::setFont( const QFont& f)
-{
-    fnt = new QFont( f );
-}
-
-void QTextContainer::setFontSize( int s )
-{
-    if ( s < 1)
-	s = 1;
-    fontsize = s;
-}
-
-
-void QTextContainer::setAttributes(const QMap<QString, QString> &attr )
-{
-    delete attributes_;
-    attributes_ = new QMap<QString, QString>( attr );
-}
-
-QTextContainer::~QTextContainer()
-{
-    delete fnt;
-    delete attributes_;
-    QTextNode* n = child;
-    while ( n ) {
-	QTextNode* nx;
-
-	if (n->isLastSibling)
-	    nx = 0;
-	else
-	    nx = n->next;
-	
-	if (n->isBox)
-	    delete (QTextBox*)n;
-	else if (n->isContainer)
-	    delete (QTextContainer*)n;
-	else if (n->isSimpleNode)
-	    delete n;
-	else
-	    delete (QTextCustomNode*)n;
-
-	n = nx;
-    }
-}
-
-
-QTextContainer* QTextContainer::copy() const
-{
-    QTextContainer* result = new QTextContainer( style );
-    if (attributes_)
-	result->setAttributes( *attributes_ );
-    return result;
-}
-
-void QTextContainer::split(QTextNode* node)
-{
-    QTextContainer* c2 = copy();
-
-    QTextNode* prev = node->previousSibling(); // slow!
-    if (!node->isContainer) {
-	QTextNode* n = new QTextNode;
-	//n->text = QString::null;  already does this
-	n->isLastSibling = 1;
-	n->next = this;
-	if (prev)
-	    prev->next = n;
-	else
-	    child = n;
-    }
-    else {
-	if (prev){
-	    prev->isLastSibling = 1;
-	    prev->next = this;
-	}
-	else
-	    child = 0;
-    }
-
-    c2->child = node;
-    c2->parent = parent;
-
-    c2->next = next;
-    next = c2;
-    c2->isLastSibling = isLastSibling;
-    isLastSibling = 0;
-
-    if (!isBox)
-	parent->split(c2);
-    else
-	c2->reparentSubtree();
-}
-
-
-const QMap<QString, QString> * QTextContainer::attributes() const
-{
-    return attributes_;
-}
-
-const QTextContainer* QTextContainer::anchor() const
-{
-    if ( style->isAnchor() )
-	return this;
-    if ( parent )
-	return parent->anchor();
-    return 0;
-}
-
-
-QTextContainer* QTextContainer::findAnchor(const QString& name ) const
-{
-    if (style->isAnchor() && attributes() &&
-	attributes()->contains("name") && (*attributes())["name"] == name)
-	return (QTextContainer*)this;
-
-    QTextNode* n = child;
-    while( n ) {
-	if (n->isContainer) {
-	    QTextContainer* t = ((QTextContainer*)n)->findAnchor( name );
-	    if (t)
-		return t;
-	}
-	n = n->nextSibling();
-    }
-    return 0;
-}
-
-QTextBox* QTextContainer::box() const
-{
-    QTextContainer* result = (QTextContainer*) this;
-    while (result && !result->isBox)
-	result = result->parent;
-    return (QTextBox*)result;
-}
-
-QTextBox* QTextContainer::parentBox() const
-{
-    QTextContainer* result = (QTextContainer*) parent;
-    while (result && !result->isBox)
-	result = result->parent;
-    return (QTextBox*)result;
-}
-
-
-QTextIterator QTextContainer::begin() const
-{
-    return QTextIterator( this );
-}
-
-QTextIterator QTextContainer::end() const
-{
-    if ( !isLastSibling )
-	return QTextIterator( next, parent );
-    QTextContainer* i = parent;
-    while ( i && i->isLastSibling)
-	i = i->parent;
-    if ( i )
-	return QTextIterator( i->next );
-    return 0;
-}
-
-
-
-QTextNode* QTextContainer::lastChild() const
-{
-    if (!child)
-	return 0;
-    return child->lastSibling();
-}
-
-
-void QTextContainer::reparentSubtree()
-{
-    QTextNode* n = child;
-    while (n) {
-	if (n->isContainer) {
-	    ((QTextContainer*)n)->setParent( this );
-	    ((QTextContainer*)n)->reparentSubtree();
-	}
-	if (n->isLastSibling) {
-	    n->next = this;
-	    break;
-	}
-	n = n->next;
-    }
-}
-
-
-
-
-void QTextContainer::createFont()
-{
-    // fnt is used to cache these values, therefore
-    // use a temporary QFont* here
-    QFont* f = new QFont( fontFamily() );
-    f->setWeight( fontWeight() );
-    f->setItalic( fontItalic() );
-    f->setUnderline( fontUnderline() );
-    if ( style->fontSize() > 0 )
-	f->setPointSize( style->fontSize() );
-    else {
-	QRichText* r = root();
-	if ( r ) {
-	    f->setPointSize( r->font().pointSize() );
-	    style->styleSheet()->scaleFont( *f, fontSize() );
-	}
-    }
-    fnt = f;
-}
-
-
-
-int QTextContainer::fontWeight() const
-{
-    if ( fnt )
-      return fnt->weight();
-    int w = style->fontWeight();
-    if ( w == QStyleSheetItem::Undefined && parent )
-	w = parent->fontWeight();
-    return w;
-}
-
-bool QTextContainer::fontItalic() const
-{
-    if ( fnt )
-      return fnt->italic();
-    if ( style->definesFontItalic() )
-      return style->fontItalic();
-    return parent? parent->fontItalic() : FALSE;
-}
-
-bool QTextContainer::fontUnderline() const
-{
-    if ( fnt )
-      return fnt->underline();
-    if ( style->definesFontUnderline() ) {
-	return style->fontUnderline();
-    }
-    return parent? parent->fontUnderline() : FALSE;
-}
-
-int QTextContainer::fontSize() const
-{
-    if ( fontsize != -1 )
-	return fontsize;
-
-
-   int f = style->logicalFontSize();
-
-    if ( f == -1 && parent )
-	f = parent->fontSize();
-
-    f += style->logicalFontSizeStep();
-
-   QTextContainer* that = (QTextContainer*) this;
-   that->setFontSize( f );
-
-    return fontsize;
-}
-
-QString QTextContainer::fontFamily() const
-{
-    if ( fnt )
-      return fnt->family();
-    QString f = style->fontFamily();
-    if ( f.isNull() && parent )
-	f = parent->fontFamily();
-    return f;
-}
-
-
-QTextFont::QTextFont( const QStyleSheetItem *stl)
-    : QTextContainer( stl )
-{
-}
-
-QTextFont::QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-    : QTextContainer( stl, attr )
-{
-}
-
-QTextFont::~QTextFont()
-{
-}
-
-void QTextFont::setParent( QTextContainer* p)
-{
-    QTextContainer::setParent( p );
-
-    if ( attributes() && attributes()->contains("color") )
-	setColor( QColor( (*attributes())["color"] ) );
-
-    if ( attributes() && attributes()->contains("size") ) {
-	QString a = (*attributes())["size"];
-	int n = a.toInt();
-	if ( a[0] == '+' || a[0] == '-' )
-	    n += fontSize();
-	setFontSize( n );
-    }
-
-    //### TODO some more font attributes
+    //QRect ra( cx-ox, cy-oy, cw,  ch);
+    QRect r = rm; // ####.intersect( ra );
+    to.erase( p, r );
+    qDrawShadeLine( p, r.left()-1, y-oy+4, r.right()+1, y-oy+4, cg, TRUE );
 }
 
 //************************************************************************
-
-QTextBox::QTextBox( const QStyleSheetItem *stl)
-    :QTextContainer(stl)
-{
-    rows.setAutoDelete(TRUE);
-    isSimpleNode = 0;
-    isBox = 1;
-    width = height = widthUsed = 0;
-}
-
-QTextBox::QTextBox( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-    :QTextContainer(stl, attr)
-{
-    rows.setAutoDelete(TRUE);
-    isSimpleNode = 0;
-    isBox = 1;
-    width = height = widthUsed = 0;
-}
-
-QTextContainer* QTextBox::copy() const
-{
-    QTextBox* result = new QTextBox( style );
-    return result;
-}
-
-QTextBox::~QTextBox()
-{
-}
-
-
-
-
-#define IN16BIT(x) QMAX( (2<<15)-1, x)
-
-void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-		  QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to,
-		  bool onlyDirty, bool onlySelection)
-{
-    if (onlySelection && !isSelectionDirty)
-	return;
-    isSelectionDirty = 0;
-
-    if ( !onlySelection && style->displayMode() == QStyleSheetItem::DisplayListItem && rows.first()) {
-	QTextRow* row = rows.first();
-	QRect r (obx-ox + row->x - 25, oby-oy + row->y, 25, row->height); //#### label width
-	if ( to.paper ) {
-	    if ( to.paper->pixmap() )
-		p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
-	    else
-		p->fillRect(r, *to.paper );
-	}
-	
-	QTextBox* b = parentBox();
-	QStyleSheetItem::ListStyle s = b?b->listStyle():QStyleSheetItem::ListDisc;
-	
-	switch ( s ) {
-	case QStyleSheetItem::ListDecimal:
-	case QStyleSheetItem::ListLowerAlpha:
-	case QStyleSheetItem::ListUpperAlpha:
-	    {
-		int n = 1;
-		if ( b )
-		    n = b->numberOfSubBox( this, TRUE );
-		QString l;
-		switch ( s ) {
-		case QStyleSheetItem::ListLowerAlpha:
-		    if ( n < 27 ) {
-			l = QChar( ('a' + (char) (n-1)));
-			break;
-		    }
-		case QStyleSheetItem::ListUpperAlpha:
-		    if ( n < 27 ) {
-			l = QChar( ('A' + (char) (n-1)));
-			break;
-		    }
-		    break;
-		default:  //QStyleSheetItem::ListDecimal:
-		    l.setNum( n );
-		    break;
-		}
-		l += QString::fromLatin1(". ");
-		p->setFont( font() );
-		p->drawText( r, Qt::AlignRight|Qt::AlignVCenter, l);
-	    }
-	    break;
-	case QStyleSheetItem::ListSquare:
-	    {
-		QRect er( r.right()-10, r.center().y()-1, 6, 6);
-		p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
-	    }
-	    break;
-	case QStyleSheetItem::ListCircle:
-	    {
-		QRect er( r.right()-10, r.center().y()-1, 6, 6);
-		p->drawEllipse( er );
-	    }
-	    break;
-	case QStyleSheetItem::ListDisc:
-	default:
-	    {
-		p->setBrush( cg.brush( QColorGroup::Foreground ));
-		QRect er( r.right()-10, r.center().y()-1, 6, 6);
-		p->drawEllipse( er );
-		p->setBrush( Qt::NoBrush );
-	    }
-	    break;
-	}
-	
-	backgroundRegion = backgroundRegion.subtract( r );
-    }
-
-
-
-    for (QTextRow* row = rows.first(); row; row = rows.next()) {
-	row->draw(p, obx, oby, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to, onlyDirty, onlySelection);
-    }
-
-}
-
-
-void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
-{
-    if (newWidth == width && !forceResize) // no need to resize
-	return;
-
-    if (style->displayMode() == QStyleSheetItem::DisplayNone) {
-	height = 0;
-	return;
-    }
-
-    QList<QTextRow> oldRows;
-    if ( newWidth == width ){
-	// reduce flicker by storing the old rows.
-	oldRows = rows;
-	rows.setAutoDelete( FALSE );
-	oldRows.setAutoDelete( TRUE );
-    }
-    rows.clear();
-    rows.setAutoDelete( TRUE );
-
-    width = newWidth;
-    widthUsed = 0;
-    height = 0;
-
-    int label_offset = 0;
-    if ( style->displayMode() == QStyleSheetItem::DisplayListItem )
-	label_offset = 25; //### hardcoded
-
-    int ncols = numberOfColumns();
-    int colwidth = newWidth / ncols;
-    if (colwidth < 10)
-	colwidth = 10;
-
-    QTextRow* row;
-
-    int margintop = margin( QStyleSheetItem::MarginTop );
-    int marginbottom = margin( QStyleSheetItem::MarginBottom );
-    int marginleft = margin( QStyleSheetItem::MarginLeft );
-    int marginright = margin( QStyleSheetItem::MarginRight );
-    int marginhorizontal = marginright + marginleft;
-    int h = margintop;
-
-    QFontMetrics fm = p->fontMetrics();
-    QTextIterator it = begin();
-    ++it;
-    if ( it != end() ) {
-	p->setFont( it.parentNode()->font() );
-	int min = 0;
-	while ( it != end() ) {
-	    row = new QTextRow(p, fm, it,
-			       colwidth-marginhorizontal - label_offset, min,
-			       alignment() );
-	    if ( !row->first ) {
-		delete row;
-		break;
-	    }
-	    else {
-		rows.append(row);
-		row->x = marginleft + label_offset;
-		row->y = h;
-		h += row->height;
-		widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
-	    }
-	}
-    }
-
-    height = h;
-
-    // adapt colwidth in case some rows didn't fit
-    widthUsed *= ncols;
-    colwidth = QMAX( width, widthUsed) / ncols;
-    if (colwidth < 10)
-	colwidth = 10;
-
-    if (!oldRows.isEmpty() || ncols > 1 ) {
-	// do multi columns if required. Also check with the old rows to
-	// optimize the refresh
-
-	row = rows.first();
-	QTextRow* old = oldRows.first();
-	height = 0;
-	h /= ncols;
-	for (int colnum = 0; colnum < ncols; colnum++) {
-	    int colheight = margintop;
-	    for (; row && colheight < h; row = rows.next()) {
-		row->x = colnum  * colwidth + marginleft + label_offset;
-		row->y = colheight;
-		
-		colheight += row->height;
-		
-		if ( old) {
-		    if ( row->first->isBox ) {
-			// do not check a height change of box rows!
-			if ( old->first == row->first &&
-			     old->last == row->last &&
-			     old->width == old->width &&
-			     old->x == row->x &&
-			     old->y == row->y ) {
-			    row->dirty = old->dirty;
-			}
-		    } else if ( old->first == row->first &&
-				old->last == row->last &&
-				old->height == row->height &&
-				old->width == old->width &&
-				old->x == row->x &&
-				old->y == row->y ) {
-			row->dirty = old->dirty;
-		    }
-		    old = oldRows.next();
-		}
-	    }
-	    height = QMAX( height, colheight );
-	}
-    }
-
-    // collapse the bottom margin
-    if ( isLastSibling && parent && parent->isBox){
-	// ignore bottom margin
-    } else if ( !isLastSibling && next && next->isBox ) {
-	// collapse
-	height += QMAX( ((QTextContainer*)next)->style->margin( QStyleSheetItem::MarginTop), marginbottom);
-    } else {
-	// nothing to collapse
-	height += marginbottom;
-    }
-}
-
-
-void QTextBox::update(QPainter* p, QTextRow* r)
-{
-    if ( r ) { // optimization
-	QTextRow* row;
-	QTextRow* prev = 0;
-	
-	//todo drop QList and connect the rows directly *sigh*
-	for ( row = rows.first(); row && row != r; row = rows.next()) {
-	    prev = row;
-	}
-	bool fast_exit = TRUE;
-	QFontMetrics fm = p->fontMetrics();
-	if (prev) {
-	    int min = 0;
-	    QTextIterator it( prev->first, prev->parent );
-	    QTextRow tr (p, fm, it, prev->width, min);
-	    fast_exit = fast_exit && prev->last == tr.last;
-	}
-	if (fast_exit) {
-	    int min = 0;
-	    QTextIterator it( r->first, r->parent );
-	    QTextRow tr (p, fm, it,  r->width, min, alignment() );
-	    widthUsed = QMAX( widthUsed, min * numberOfColumns() );
-	    fast_exit = fast_exit && r->last == tr.last && r->height == tr.height;
-	    if (fast_exit) {
-		r->dirty = TRUE;
-		r->fill = tr.fill;
-		return;
-	    }
-	}
-    }
-
-    int oldHeight = height;
-    setWidth(p, width, TRUE);
-
-    if (height != oldHeight) { // we have to inform our parent
-	QTextBox* b = parentBox();
-	if (b){
-	    b->update( p ); // TODO SLOW
-	}
-    }
-}
-
-QTextRow* QTextBox::locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh)
-{
-	
-    QTextRow* row;
-    for ( row = rows.first(); row; row = rows.next()) {
-	if (row->locate(p, node, lx, ly, lh) ) {
-	    lry = row->y;
-	    lrh = row->height;
-	    break;
-	}
-    }
-    if (row) {
-	QTextBox* b = parentBox();
-	if (b) {
-	    int mx, my, mh, mry, mrh;
-	    mx = my = mh = mry = mrh = 0;
-	    (void) b->locate(p, this, mx, my, mh, mry, mrh);
-	    lx += mx;
-	    ly += my;
-	    lry += my;
-	}
-    }
-    return row;
-}
-
-QTextNode* QTextBox::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
-{
-    QTextRow* row;
-    QTextNode* result = 0;
-    for ( row = rows.first(); row; row = rows.next()) {
-	result = row->hitTest(p, obx, oby, xarg, yarg);
-	if (result)
-	    break;
-    }
-    return result;
-}
-
-
-int QTextBox::numberOfSubBox( QTextBox* subbox, bool onlyListItems)
-{
-    QTextNode* i = child;
-    int n = 1;
-    while (i && i != subbox ) {
-	if (!onlyListItems || (i->isBox && ((QTextBox*)i)->style->displayMode() == QStyleSheetItem::DisplayListItem) )
-	    n++;
-	i = i->nextSibling();
-    }
-    if (i)
-	return n;
-    return 1;
-}
-
-
-QStyleSheetItem::ListStyle QTextBox::listStyle()
-{
-    if ( attributes() ) {
-	QString s =  (*attributes())["type"];
-	
-	if ( !s )
-	    return style->listStyle();
-	else {
-	    QCString sl = s.latin1();
-	    if ( sl == "1" )
-		return QStyleSheetItem::ListDecimal;
-	    else if ( sl == "a" )
-		return QStyleSheetItem::ListLowerAlpha;
-	    else if ( sl == "A" )
-		return QStyleSheetItem::ListUpperAlpha;
-	    sl = sl.lower();
-	    if ( sl == "square" )
-		return QStyleSheetItem::ListSquare;
-	    else if ( sl == "disc" )
-		return QStyleSheetItem::ListDisc;
-	    else if ( sl == "circle" )
-		return QStyleSheetItem::ListCircle;
-	}
-    }
-    return style->listStyle();
-}
-
-
-//************************************************************************
-#if 0
-class QTextCursor{
-public:
-    QTextCursor(QRichText& doc);
-    ~QTextCursor();
-    void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
-
-    QRichText* document;
-
-    int x;
-    int y;
-    int height;
-
-    QTextRow* row;
-    int rowY;
-    int rowHeight;
-
-    int width() { return 1; }
-
-    QTextNode *node;
-    QTextContainer *nodeParent;
-
-    bool hasSelection;
-    bool selectionDirty;
-    void clearSelection();
-
-    void insert(QPainter* p, const QString& s);
-    void enter(QPainter* p);
-    void del(QPainter* p, int c = 1);
-    void backSpace(QPainter* p, int c = 1);
-
-    void right(QPainter* p, bool select = FALSE);
-    void left(QPainter* p, bool select = FALSE);
-    void up(QPainter* p, bool select = FALSE);
-    void down(QPainter* p, bool select = FALSE);
-    void home(QPainter* p, bool select = FALSE);
-    void last(QPainter* p, bool select = FALSE);
-    void goTo(QPainter* p, int xarg, int yarg, bool select = FALSE);
-
-
-    void goTo(QTextNode* n, QTextContainer* par,  bool select = FALSE);
-    void calculatePosition(QPainter* p);
-
-    int xline;
-    int yline;
-    bool ylineOffsetClean;
-
-private:
-    void rightInternal(bool select = FALSE);
-    void leftInternal(bool select = FALSE);
-};
-
-
-QTextCursor::QTextCursor(QRichText& doc)
-{
-    document = &doc;
-    node = document;
-    nodeParent = 0;
-    hasSelection = FALSE;
-    selectionDirty = FALSE;
-
-    while (node && node->isContainer)
-	node = document->depthFirstSearch( node, nodeParent);
-
-
-    x = y = height = rowY = rowHeight = 0;
-    row = 0;
-    xline = 0;
-    yline = 0;
-    ylineOffsetClean = FALSE;
-}
-
-QTextCursor::~QTextCursor()
-{
-}
-
-void QTextCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch)
-{
-    if ( QMAX( x, cx ) <= QMIN( x+width(), cx+cw ) &&
-	 QMAX( y, cy ) <= QMIN( y+height, cy+ch ) ) {
-
-	p->drawLine(x-ox, y-oy, x-ox, y-oy+height-1);
-	// warwick says two-pixels cursor are ugly
-	//	p->drawLine(x+1-ox, y-oy, x+1-ox, y-oy+height-1);
-    }
-}
-
-
-void QTextCursor::clearSelection()
-{
-    if (!hasSelection)
-	return;
-
-    QTextNode* i = document;
-    QTextContainer* ip = 0;
-    while (i && i->isContainer)
-	i = document->depthFirstSearch( i, ip);
-
-    while ( i ) {
-	if (i->isSelected) {
-	    i->isSelected = 0;
-	    i->isSelectionDirty = 1;
-	    QTextBox* b = ip->box();
-	    do {
-		b->isSelectionDirty = 1;
-	    }while ( ( b = b->parentBox() ) );
-	}
-	i = document->nextLeaf( i, ip );
-    }
-
-    selectionDirty = TRUE;
-    hasSelection = FALSE;
-}
-
-void QTextCursor::goTo(QTextNode* n, QTextContainer* par, bool select)
-{
-    if (select && node != n){
-	selectionDirty = TRUE;
-	hasSelection = TRUE;
-
-	QTextNode* other = n;
-	QTextContainer* otherParent = par;
-
-	QTextNode* i1 = node;
-	QTextContainer* i1p = nodeParent;
-	QTextNode* i2 = other;
-	QTextContainer* i2p = otherParent;
-	
-	while (i1 != other && i2 != node){
-	    if (i1) i1 = document->nextLeaf(i1, i1p);
-	    if (i2) i2 = document->nextLeaf(i2, i2p);
-	}
-	QTextNode* first = 0;
-	QTextContainer* firstParent = 0;
-	QTextNode* last = 0;
-	if (i1 == other) {
-	    first = node;
-	    firstParent = nodeParent;
-	    last = other;
-	}
-	else {
-	    first = other;
-	    firstParent = otherParent;
-	    last = node;
-	}
-
-	while (first != last ) {
-	    first->isSelected = first->isSelected?0:1;
-	    QTextBox* b = firstParent->box();
-	    do {
-		b->isSelectionDirty = 1;
-	    }while ( ( b = b->parentBox() ) );
-	    firstParent->box()->isSelectionDirty = 1;
-	    first->isSelectionDirty = 1;
-	    first = document->nextLeaf( first, firstParent );
-	}
-    }
-
-    node = n;
-    nodeParent = par;
-}
-
-
-/*! Set x, y, xline, yline, row, rowY and rowHeight according to the
-  current cursor position.  */
-void QTextCursor::calculatePosition(QPainter* p)
-{
-    if (!node || !nodeParent) {
-	xline = yline = x = y = 0;
-	ylineOffsetClean = FALSE;
-	return;
-    }
-    row = nodeParent->box()->locate(p, node, x, y, height, rowY, rowHeight);
-    xline = x;
-    yline = y;
-    ylineOffsetClean = FALSE;
-}
-
-/*!  Move the cursor to the node near the given coordinates. If select
-  is TRUE, the nodes in between toggle their selection state.  */
-void QTextCursor::goTo(QPainter* p, int xarg, int yarg, bool select)
-{
-    QTextNode* n = document->hitTest(p, 0, 0, xarg, yarg);
-    if (n)
-	goTo(n, n->parent(), select);
-    calculatePosition(p);
-}
-
-
-/*!
-  Insert the given string at the current cursor position.
- */
-void QTextCursor::insert(QPainter* p, const QString& s)
-{
-    if (s.isEmpty())
-	return;
-
-    QTextNode* n = new QTextNode;
-    n->text = s[0];
-
-    QTextNode* last = n;
-    for (unsigned int i = 1; i < s.length(); i++) {
-	last->next = new QTextNode;
-	last = last->next;
-	last->text = s[int(i)];
-    }
-
-    if (nodeParent->child == node) {
-	last->next = node;
-	nodeParent->child = n;
-	//	row = 0;
-    } else {
-	QTextNode* prev = node->previousSibling(); // slow!
-	last->next = node;
-	prev->next = n;
-    }
-    QTextBox* b = node->box();
-    if (b) {
-	if (row && row->first == node){
-	    row->first = n;
-	}
-	b->update(p, row);
-    }
-    calculatePosition(p);
-}
-
-
-/*!
-  Enter key, splits the paragraph.
- */
-void QTextCursor::enter(QPainter* p)
-{
-
-    nodeParent->split(node);
-
-    QTextBox* b = nodeParent->box();
-    b->update(p);
-    b->next->box()->update( p );
-
-    nodeParent = node->parent();
-    calculatePosition(p);
-}
-
-
-/*!
-  Delete c items behind the cursor.
- */
-void QTextCursor::del(QPainter* p, int c)
-{
-    QTextNode* curNode = node;
-    QTextContainer* curParent = nodeParent;
-    QTextRow* curRow = row;
-    bool useCurRow = (curRow->first!=curNode && curRow->last != curNode);
-
-    curRow->dirty = TRUE;
-
-    if (c < 1)
-	c = 1;
-
-    QTextBox* nodeBox = 0;
-    QTextBox* curBox = 0;
-
-    bool bigUpdate = FALSE;
-
-    for (int i = 0; i < c; i++) {
-	curNode = node;
-	curParent = nodeParent;
-
-	rightInternal();
-
-	// nothing to do
-	if ( node == curNode )
-	    return;
-
-	nodeBox = node->box();
-	curBox = curNode->box();
-
-	QTextNode* prev = curNode->previousSibling();
-
-	// workaround for empty containers at the last
-	if (!prev && curParent != curBox)
-	    prev = curParent;
-
-	if (prev && prev->next == curNode) {
-	    prev->next = curNode->next;
-	    prev->isLastSibling = curNode->isLastSibling;
-	}
-	if (curParent->child == curNode){
-	    if (curNode->isLastSibling)
-		curParent->child = 0;
-	    else
-		curParent->child = curNode->next;
-	}
-
-	if ( nodeBox != curBox) {
-	    QTextNode* hook = prev;
-	    if (hook) {
-		// climb up the tree if we are at the last of usual containers
-		while (hook->isLastSibling && !hook->next->isBox )
-		    hook = hook->next;
-	    }
-
-	    // first, disconnect the moving items, then reconnect them
-	    // behind the hook
-
-	    // find the target and the lastTarget
-	    bool curBoxInNodeBox = curBox->parentBox()==nodeBox;
-	    QTextNode* target = curBoxInNodeBox?curBox->next:nodeBox->child;
-
-	    while (target->isBox && ((QTextContainer*)target)->child)
-		target = ((QTextContainer*)target)->child;
-
-	    QTextNode* lastTarget;
-	    if (!curBoxInNodeBox) {
-		lastTarget = target->lastSibling();
-	    }
-	    else {
-		QTextNode* i = target;
-		while ( !i->isLastSibling && (i->next && !i->next->isBox ))
-		    i = i->next;
-		lastTarget = i;
-	    }
-
-	    // disconnect
-	    QTextNode* prevTarget = target->previousSibling();
-	    if (prevTarget) {
-		prevTarget->isLastSibling = lastTarget->isLastSibling;
-		prevTarget->next = lastTarget->next;
-	    } else {
-		QTextContainer* targetParent = target->parent();
-		targetParent->child = 0;
-		if (lastTarget->next != targetParent)
-		    targetParent->child = lastTarget->next;
-		else {
-		    // targetParent is empty => remove
-		    QTextNode* targetParentPrev = targetParent->previousSibling();
-		    if (targetParentPrev) {
-			targetParentPrev->isLastSibling = targetParent->isLastSibling;
-			targetParentPrev->next = targetParent->next;
-		    }
-		    else {
-			QTextContainer* targetParentParent = targetParent->parent;
-			if (targetParentParent) {
-			    if (targetParent->isLastSibling)
-				targetParentParent->child = 0;
-			    else {
-				targetParentParent->child = targetParent->next;
-			    }
-			}
-		    }
-
-		    // TODO das muss doch immmer eine box sein (?)
-		    if (targetParent->isBox)
-			delete (QTextBox*)targetParent;
-		    else
-			delete targetParent;
-		    nodeBox = 0;
-		}
-	    }
-
-
-	    // reconnect
-	    if (hook) {
-		lastTarget->isLastSibling = hook->isLastSibling;
-		lastTarget->next = hook->next;
-		hook->next = target;
-		hook->isLastSibling = 0;
-	    }
-	    else { // empty curbox, make the target the first child
-		curBox->child = target;
-		lastTarget->isLastSibling = 1;
-	    }
-
-
-	    QTextBox* b = curBox->parentBox();
-	    if (b)
-		b->reparentSubtree();
-	    else
-		curBox->reparentSubtree();
-
-	    if (nodeBox){
-		nodeBox->reparentSubtree();
-	    }
-
-	    bigUpdate = TRUE;
-
-	    // recalculate the nodeParent
-	    nodeParent = node->parent();
-	}
-	delete curNode;
-
-	curNode = node;
-	curParent = nodeParent;
-    }
-
-    if ( !bigUpdate ) {
-	curBox->update(p, useCurRow?curRow:0);
-    }
-    else {
-	// big update
-
-	if ( nodeBox )
-	    nodeBox->update( p );
-
-	int oldCurBoxHeight = curBox->height;
-	curBox->update( p );
-
-	// if the curbox changes height, the parent box gets updated
-	// automatically. Otherwise we do it here for safety.
-	QTextBox* b = curBox->parentBox();
-	if (b && oldCurBoxHeight == curBox->height) {
-	    b->update( p );
-	}
-    }
-
-    calculatePosition(p);
-
-}
-
-
-
-/*!
-  Delete c items before the cursor.
- */
-void QTextCursor::backSpace(QPainter* p, int c)
-{
-    QTextNode* curNode = node;
-    for (int i = 0; i < c; i++)
-	leftInternal();
-    if ( node == curNode )
-	return;
-    del(p, c);
-}
-
-/*!
-  Move the cursor one item to the right
- */
-void QTextCursor::right(QPainter* p,bool select)
-{
-    rightInternal(select);
-    calculatePosition(p);
-}
-
-/*!
-  internal
- */
-void QTextCursor::rightInternal(bool select)
-{
-    QTextContainer* np = nodeParent;
-    QTextNode* n = document->nextLeaf(node, np);
-    if (n)
-	goTo(n, np, select);
-}
-
-/*!
-  Move the cursor one item to the left
- */
-void QTextCursor::left(QPainter* p, bool select)
-{
-    leftInternal(select);
-    calculatePosition(p);
-}
-
-/*!
-  internal
- */
-void QTextCursor::leftInternal(bool select)
-{
-    QTextContainer* tmpParent = 0;
-
-    QTextContainer* np = nodeParent;
-    while (np->parent && document->nextLeaf(np, tmpParent) == node)
-	np = np->parent;
-
-
-    QTextNode* n = 0;
-    QTextNode* tmp = np->nextLeaf(np, tmpParent);
-
-    while (tmp != node) {
-	n = tmp;
-	np = tmpParent;
-	tmp = document->nextLeaf(tmp, tmpParent);
-    }
-    if (n)
-	goTo(n, np, select);
-}
-
-/*!
-  Move the cursor one row up
- */
-void QTextCursor::up(QPainter* p, bool select)
-{
-    QTextNode* tmp = node;
-    int ty = rowY - 1;
-    while (ty > 0 && (!tmp || tmp == node)) {
-	tmp = document->hitTest(p, 0, 0, xline, ty--);
-    }
-    if (tmp)
-	goTo(tmp, tmp->parent(), select );
-    int oldXline = xline;
-    calculatePosition(p);
-    xline = oldXline;
-}
-
-/*!
-  Move the cursor one row down
- */
-void QTextCursor::down(QPainter* p, bool select)
-{
-    QTextNode* tmp = node;
-    int ty = rowY + rowHeight + 1;
-    while (ty < document->height && (!tmp || tmp == node)) {
-	tmp = document->hitTest(p, 0, 0, xline, ty++);
-    }
-    if (tmp)
-	goTo(tmp, tmp->parent(), select );
-    int oldXline = xline;
-    calculatePosition(p);
-    xline = oldXline;
-}
-
-/*!
-  Home key
- */
-void QTextCursor::home(QPainter* p, bool select)
-{
-    goTo(row->first, row->parent, select );
-    calculatePosition(p);
-}
-
-/*!
-  End key
- */
-void QTextCursor::end(QPainter* p, bool select)
-{
-    goTo(row->last, row->last->parent(), select );
-    calculatePosition(p);
-}
-
-
-#endif
-
 
 
 QRichText::QRichText( const QString &doc, const QFont& font,
 		      const QString& context,
-		      int margin,  const QMimeSourceFactory* factory,
-		      const QStyleSheet* sheet  )
-    : QTextBox( 0 )
+		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
+    :QTextParagraph( 0, new QTextFormatCollection(),
+		      QTextCharFormat( font, Qt::black ), (base = new QStyleSheetItem(0,"") ) )
 {
-    style = new QStyleSheetItem( 0, QString::fromLatin1("") );
-    base = (QStyleSheetItem*)style;
-    isRoot = 1;
     contxt = context;
 
     // for access during parsing only
     factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
     // for access during parsing only
-    sheet_ = sheet? sheet : QStyleSheet::defaultSheet();
+    sheet_ = sheet? sheet : (QStyleSheet*)QStyleSheet::defaultSheet();
 
-    init( doc, font, margin );
+    int pos = 0;
 
-    // clear references that are no longer needed
-    factory_ = 0;
-    sheet_ = 0;
-}
-
-
-void QRichText::init( const QString& doc, const QFont& font, int margin )
-{
     //set up base style
+
+    QFont font( format.font() );
     base->setDisplayMode(QStyleSheetItem::DisplayInline);
     base->setFontFamily( font.family() );
     base->setFontItalic( font.italic() );
@@ -1984,14 +292,78 @@ void QRichText::init( const QString& doc, const QFont& font, int margin )
     base->setLogicalFontSize( 3 );
     base->setMargin( QStyleSheetItem::MarginAll, margin );
 
+    keep_going = TRUE;
+    init( doc, pos );
+
+    // clear references that are no longer needed
+    factory_ = 0;
+    sheet_ = 0;
+}
+
+
+// constructor for nested text in text (tables, etc.)
+QRichText::QRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos,
+			const QStyleSheetItem* style, const QTextCharFormat& fmt,
+			const QString& context,
+			int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
+    :QTextParagraph( 0, new QTextFormatCollection(),
+	    QTextCharFormat( fmt ), ( base = new QStyleSheetItem(*style) ), attr )
+{
+    contxt = context;
+
+    // for access during parsing only
+    factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
+    // for access during parsing only
+    sheet_ = sheet? sheet : (QStyleSheet*)QStyleSheet::defaultSheet();
+
+    base->setMargin( QStyleSheetItem::MarginAll, margin );
+
+    keep_going = FALSE;
+    init( doc, pos );
+
+     // clear references that are no longer needed
+    factory_ = 0;
+    sheet_ = 0;
+}
+
+
+void QRichText::init( const QString& doc, int& pos )
+{
+    if ( !flow_ )
+	flow_ = new QTextFlow();
+
+    nullstyle = sheet_->item("");
+
     valid = TRUE;
-    int pos = 0;
-    parse(this, 0, doc, pos);
+//     QTime before = QTime::currentTime();
+    if ( !keep_going )
+	parse(this, style, 0, format, doc, pos);
+    else  do {
+	parse(this, style, 0, format, doc, pos);
+	// missplaced close tags may kick us out of the parser (auto
+	// recover failure), simply jump over the tag and continue
+	// until the very end
+	int oldpos = pos;
+	if ( pos < (int) doc.length()-1
+	     && (hasPrefix(doc, pos, QChar('<')) ) ) {
+	    if ( hasPrefix(doc, pos+1, QChar('/')) )
+		(void) parseCloseTag( doc, pos );
+	    else {
+		QMap<QString, QString> attr;
+		bool emptyTag = FALSE;
+		(void) parseOpenTag( doc, pos, attr, emptyTag );
+	    }
+	}
+	if ( pos == oldpos )
+	    pos++;
+    } while ( pos < (int) doc.length()-1 );
+    //qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
 }
 
 QRichText::~QRichText()
 {
     delete base;
+    delete flow_;
 }
 
 
@@ -2007,6 +379,8 @@ bool QRichText::isValid() const
     return valid;
 }
 
+
+
 /*!
   Returns the context of the rich text document. If no context has been specified
   in the constructor, a null string is returned.
@@ -2016,165 +390,182 @@ QString QRichText::context() const
     return contxt;
 }
 
+#define ENSURE_ENDTOKEN     if ( curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
+		     || curstyle->displayMode() == QStyleSheetItem::DisplayListItem ){ \
+		    (dummy?dummy:current)->text.append( "\n", fmt ); \
+		}
 
-bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QString &doc, int& pos)
+#define CLOSE_TAG (void) eatSpace(doc, pos); \
+		int recoverPos = pos; \
+		valid = (hasPrefix(doc, pos, QChar('<')) \
+			 && hasPrefix(doc, pos+1, QChar('/')) \
+			 && eatCloseTag(doc, pos, tagname) ); \
+		if (!valid) { \
+		    pos = recoverPos; \
+		    valid = TRUE; \
+		    return TRUE; \
+		}
+
+#define PROVIDE_DUMMY	if ( current->child && !dummy ) { \
+		    dummy = new QTextParagraph( current, formats, fmt,  nullstyle ); \
+		    QTextParagraph* it = current->child; \
+		    while ( it->next ) \
+			it = it->next; \
+		    it->next = dummy; \
+		    dummy->prev = it; \
+		}
+
+void QRichText::append( const QString& txt, const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
+{
+    // for access during parsing only
+    factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
+    // for access during parsing only
+    sheet_ = sheet? sheet : (QStyleSheet*)QStyleSheet::defaultSheet();
+    int pos = 0;
+    lastChild()->invalidateLayout(); // fix bottom border
+    parse( this, style, 0, format, txt, pos );
+    // clear references that are no longer needed
+    factory_ = 0;
+    sheet_ = 0;
+}
+
+
+bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle, QTextParagraph* dummy,
+			QTextCharFormat fmt, const QString &doc, int& pos)
 {
     bool pre = current->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
+    if ( !pre )
+	eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
-		
-// 		// only in editor mode!
-// 		if (current->isBox){ // todo this inserts a hitable null character
-// 		    QTextNode* n = new QTextNode;
-// 		    n->text = QChar::null;
-// 		    QTextNode* l = lastChild;
-// 		    if (!l)
-// 			current->child = n;
-// 		    else {
-// 			l->isLastSibling = 0;
-// 			l->next = n;
-// 		    }
-// 		    n->next = current;
-// 		    n->isLastSibling = 1;
-// 		    lastChild = n;
-// 		    l = n;
-// 		}
+		ENSURE_ENDTOKEN;
+		if ( curstyle->isAnchor() ) {
+		    PROVIDE_DUMMY
+		    (dummy?dummy:current)->text.append( '\0', fmt );
+		}
 		return TRUE;
 	    }
 	    QMap<QString, QString> attr;
 	    bool emptyTag = FALSE;
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
-	
-	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
-	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
-		pos = beforePos;
-		return FALSE;
-	    }
 
-	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
+	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
+ 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
+ 		pos = beforePos;
+		ENSURE_ENDTOKEN;
+ 		return FALSE;
+ 	    }
+
+	    if ( nstyle && !nstyle->allowedInContext( curstyle ) ) {
 		QString msg;
 		msg.sprintf( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
 		sheet_->error( msg );
 		pos = beforePos;
+		ENSURE_ENDTOKEN;
 		return FALSE;
 	    }
-	
-	    QTextNode* tag = sheet_->tag(tagname, attr, context(), *factory_, emptyTag );
-	    if (tag->isContainer ) {
-		QTextContainer* ctag = (QTextContainer*) tag;
-		bool cpre = ctag->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
-		if (current == this && !attr.isEmpty() ) {
-		    setAttributes( attr );
-		}
-		valid = valid && ctag != 0;
-		if (valid) {
-		    QTextNode* l = lastChild;
-		    if (!l){
-			current->child  = ctag;
-			ctag->isLastSibling = 1;
-		    }
-		    else {
-			l->next = ctag;
-			l->isLastSibling = 0;
-		    }
-			
-		    ctag->setParent( current );
-		    ctag ->next = current;
-		    ctag->isLastSibling = 1;
-		    lastChild = ctag;
 
-		    eatSpace(doc, pos); // no whitespace within an unknown container or box
-		
-		    bool ctagUnknown = ctag->style->name().isEmpty() ;
-		    if ( !cpre && (ctagUnknown || ctag->isBox) )
-			eatSpace(doc, pos); // no whitespace within an unknown container or box
-		
-		    if (parse(ctag, 0, doc, pos) ) {
-			if (!cpre)
-			    (void) eatSpace(doc, pos);
-			int recoverPos = pos;
-			valid = (hasPrefix(doc, pos, QChar('<'))
-				 && hasPrefix(doc, pos+1, QChar('/'))
-				 && eatCloseTag(doc, pos, tagname) );
-			
-			// sloppy mode, warning was done in eatCloseTag
-			if (!valid) {
-			    pos = recoverPos;
-			    valid = TRUE;
-			    return TRUE;
-			}
-			
-			if (!valid)
-			    return TRUE;
-		    }
-		    if ( !pre && (ctagUnknown || ctag->isBox) ) // no whitespace between unknown containers or boxes
-			(void) eatSpace(doc, pos);
+	    // TODO was wenn wir keinen nstyle haben?
+	    if ( !nstyle )
+		nstyle = nullstyle;
+
+	    QTextCustomItem* custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag );
+	    if ( custom || tagname == "br") {
+		PROVIDE_DUMMY
+		if ( custom )
+		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
+		else {// br
+		    (dummy?dummy:current)->text.append( "\n", fmt ) ;
+		    if ( !pre )
+			eatSpace(doc, pos);
 		}
 	    }
-	    else { // empty tags
-		if (valid) {
-		    QTextNode* l = lastChild;
-		    if (!l){
-			current->child  = tag;
-			tag->isLastSibling = 1;
+	    else if ( tagname == "table" ) {
+		QTextCharFormat nfmt( fmt.makeTextFormat( nstyle, attr ) );
+		custom = parseTable( attr, nfmt, doc, pos );
+		if ( custom ) {
+		    PROVIDE_DUMMY
+		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom )  );
+		    (dummy?dummy:current)->text.append( " ", fmt );
+		}
+		CLOSE_TAG
+	    }
+	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
+		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
+		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
+		) {
+		QTextParagraph* subparagraph = new QTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
+
+		if ( current == this && !child && text.isEmpty() )
+		    attributes_ = attr; // propagate attributes
+
+		if ( !current->text.isEmpty() ){
+		    dummy = new QTextParagraph( current, formats, fmt, nullstyle );
+		    dummy->text = current->text;
+		    dummy->text.append( "\n", fmt );
+		    current->text.clear();
+		    current->child = dummy;
+		}
+
+		bool recover = FALSE;
+		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos) ) {
+		    (void) eatSpace(doc, pos);
+		    int recoverPos = pos;
+		    valid = (hasPrefix(doc, pos, QChar('<'))
+			     && hasPrefix(doc, pos+1, QChar('/'))
+			     && eatCloseTag(doc, pos, tagname) );
+		    // sloppy mode, warning was done in eatCloseTag
+		    if (!valid) {
+			pos = recoverPos;
+			valid = TRUE;
+			recover = TRUE;
 		    }
+		}
+		if ( subparagraph->style->displayMode() == QStyleSheetItem::DisplayNone ) {
+		    // delete invisible paragraphs
+		    delete subparagraph;
+		} else {
+		    // connect visible paragraphs
+		    if ( !current->child )
+			current->child = subparagraph;
 		    else {
-			l->next = tag;
-			l->isLastSibling = 0;
+			QTextParagraph* it = current->child;
+			while ( it->next )
+			    it = it->next;
+			it->next = subparagraph;
+			subparagraph->prev = it;
 		    }
-		    tag ->next = current;
-		    tag->isLastSibling = 1;
-		    lastChild = tag;
-			
-		    if (!pre && tag->isSimpleNode && tag->isNewline()){
-		      while (pos < int(doc.length())
-			     && doc[pos].isSpace()
-			     && doc[pos] != QChar(0x00a0U) )
-			pos++;
-		    }
+		    dummy = 0;
+		}
+
+		if ( recover )
+		    return TRUE; // sloppy, we could return FALSE to abort
+		(void) eatSpace(doc, pos);
+	    }
+	    else { // containers and empty tags
+		// TODO: check empty tags and custom tags in stylesheet
+
+		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos ) ) {
+		    CLOSE_TAG
 		}
 	    }
 	}
-	else {
-// 	    QString word = parsePlainText(doc, pos, pre);
-// 	    if (valid){
-// 		QTextNode* l = lastChild;
-// 		for (int i = 0; i < int(word.length()); i++){
-// 		    QTextNode* n = new QTextNode;
-// 		    n->text = word[i];
-// 		    if (!l)
-// 			current->child = n;
-// 		    else {
-// 			l->isLastSibling = 0;
-// 			l->next = n;
-// 		    }
-// 		    n->next = current;
-// 		    n->isLastSibling = 1;
-// 		    lastChild = n;
-// 		    l = n;
-// 		}
-// 		if (!pre)
-// 		    sep |= eatSpace(doc, pos);
-// 	    }
-	    QString word = parsePlainText(doc, pos, pre, TRUE);
-	    if (valid){
-		QTextNode* l = lastChild;
-		QTextNode* n = new QTextNode;
-		n->text = word;
-		if (!l)
-		    current->child = n;
-		else {
-		    l->isLastSibling = 0;
-		    l->next = n;
-		}
-		n->next = current;
-		n->isLastSibling = 1;
-		lastChild = n;
-		//l = n; NOT USED
-		if (!pre && doc[pos] == '<')
+	else { // plain text
+	    if ( current->child && !dummy ) {
+		dummy = new QTextParagraph( current, formats, fmt,  nullstyle );
+		QTextParagraph* it = current->child;
+		while ( it->next )
+		    it = it->next;
+		it->next = dummy;
+		dummy->prev = it;
+	    }
+ 	    QString word = parsePlainText( doc, pos, pre, TRUE );
+ 	    if (valid){
+		(dummy?dummy:current)->text.append( word, fmt );
+		if (!pre && (doc.unicode())[pos] == '<')
 		    (void) eatSpace(doc, pos);
 	    }
 	}
@@ -2182,17 +573,101 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
     return TRUE;
 }
 
+static bool qt_is_cell_in_use( QList<QTextTableCell>& cells, int row, int col )
+{
+    for ( QTextTableCell* c = cells.first(); c; c = cells.next() ) {
+	if ( row >= c->row() && row < c->row() + c->rowspan()
+	     && col >= c->column() && col < c->column() + c->colspan() )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos )
+{
+
+    QTextTable* table = new QTextTable( attr );
+    int row = -1;
+    int col = -1;
+
+    QString rowbgcolor;
+    QString rowalign;
+    QString tablebgcolor = attr["bgcolor"];
+
+    QList<QTextTableCell> multicells;
+
+    QString tagname;
+    (void) eatSpace(doc, pos);
+    while ( valid && pos < int(doc.length() )) {
+	int beforePos = pos;
+	if (hasPrefix(doc, pos, QChar('<')) ){
+	    if (hasPrefix(doc, pos+1, QChar('/'))) {
+		tagname = parseCloseTag( doc, pos );
+		if ( tagname == "table" ) {
+		    pos = beforePos;
+		    return table;
+		}
+	    } else {
+		QMap<QString, QString> attr2;
+		bool emptyTag = FALSE;
+		tagname = parseOpenTag( doc, pos, attr2, emptyTag );
+		if ( tagname == "tr" ) {
+		    rowbgcolor = attr2["bgcolor"];
+		    rowalign = attr2["align"];
+		    row++;
+		    col = -1;
+		}
+		else if ( tagname == "td" || tagname == "th" ) {
+		    col++;
+		    while ( qt_is_cell_in_use( multicells, row, col ) ) {
+			col++;
+		    }
+
+		    if ( row >= 0 && col >= 0 ) {
+			const QStyleSheetItem* style = sheet_->item(tagname);
+			if ( !attr2.contains("bgcolor") ) {
+			    if (!rowbgcolor.isEmpty() )
+				attr2["bgcolor"] = rowbgcolor;
+			    else if (!tablebgcolor.isEmpty() )
+				attr2["bgcolor"] = tablebgcolor;
+			}
+			if ( !attr2.contains("align") ) {
+			    if (!rowalign.isEmpty() )
+				attr2["align"] = rowalign;
+			}
+			QTextTableCell* cell  = new QTextTableCell( table, row, col,
+			      attr2, style,
+			      fmt.makeTextFormat( style, attr2, 0 ),
+			      contxt, *factory_, sheet_, doc, pos );
+			if ( cell->colspan() > 1 || cell->rowspan() > 1 )
+			    multicells.append( cell );
+// 			qDebug("add cell %d %d (%d %d )", row, col, cell->rowspan(), cell->colspan() );
+			col += cell->colspan()-1;
+		    }
+		}
+	    }
+
+	} else {
+	    ++pos;
+	}
+    }
+    return table;
+}
+
+
+
+
 bool QRichText::eatSpace(const QString& doc, int& pos, bool includeNbsp )
 {
     int old_pos = pos;
-    while (pos < int(doc.length()) && doc[pos].isSpace() && ( includeNbsp || doc[pos] != QChar(0x00a0U) ) )
+    while (pos < int(doc.length()) && (doc.unicode())[pos].isSpace() && ( includeNbsp || (doc.unicode())[pos] != QChar(0x00a0U) ) )
 	pos++;
     return old_pos < pos;
 }
 
 bool QRichText::eat(const QString& doc, int& pos, QChar c)
 {
-    valid = valid && (bool) (doc[pos] == c);
+    valid = valid && (bool) ((doc.unicode())[pos] == c);
     if (valid)
 	pos++;
     return valid;
@@ -2200,7 +675,7 @@ bool QRichText::eat(const QString& doc, int& pos, QChar c)
 
 bool QRichText::lookAhead(const QString& doc, int& pos, QChar c)
 {
-    return (doc[pos] == c);
+    return ((doc.unicode())[pos] == c);
 }
 
 
@@ -2216,23 +691,24 @@ QMap<QCString, QChar> *htmlMap()
     if ( !html_map ){
 	html_map = new QMap<QCString, QChar>;
 	qAddPostRoutine( qt_cleanup_html_map );
-	html_map->insert("lt", '<');
-	html_map->insert("gt", '>');
-	html_map->insert("amp", '&');
-	html_map->insert("nbsp", 0x00a0U);
-	html_map->insert("aring", 0x00e5U);
-	html_map->insert("oslash", 0x00f8U);
-	html_map->insert("ouml", 0x00f6U);
-	html_map->insert("auml", 0x00e4U);
-	html_map->insert("uuml", 0x00fcU);
-	html_map->insert("Ouml", 0x00d6U);
-	html_map->insert("Auml", 0x00c4U);
-	html_map->insert("Uuml", 0x00dcU);
-	html_map->insert("szlig", 0x00dfU);
-	html_map->insert("copy", 0x00a9U);
-	html_map->insert("deg", 0x00b0U);
-	html_map->insert("micro", 0x00b5U);
-	html_map->insert("plusmn", 0x00b1U);
+  	html_map->insert("lt", '<');
+  	html_map->insert("gt", '>');
+  	html_map->insert("amp", '&');
+  	html_map->insert("nbsp", 0x00a0U);
+  	html_map->insert("aring", 'å');
+  	html_map->insert("oslash", 'ø');
+  	html_map->insert("ouml", 'ö');
+  	html_map->insert("auml", 'ä');
+  	html_map->insert("uuml", 'ü');
+  	html_map->insert("Ouml", 'Ö');
+  	html_map->insert("Auml", 'Ä');
+  	html_map->insert("Uuml", 'Ü');
+  	html_map->insert("szlig", 'ß');
+  	html_map->insert("copy", '©');
+  	html_map->insert("deg", '°');
+  	html_map->insert("micro", 'µ');
+  	html_map->insert("plusmn", '±');
+  	html_map->insert("middot", '*');
     }
     return html_map;
 }
@@ -2242,11 +718,11 @@ QChar QRichText::parseHTMLSpecialChar(const QString& doc, int& pos)
     QCString s;
     pos++;
     int recoverpos = pos;
-    while ( pos < int(doc.length()) && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 6) {
-	s += doc[pos];
+    while ( pos < int(doc.length()) && (doc.unicode())[pos] != ';' && !(doc.unicode())[pos].isSpace() && pos < recoverpos + 6) {
+	s += (doc.unicode())[pos];
 	pos++;
     }
-    if (doc[pos] != ';' && !doc[pos].isSpace() ) {
+    if ((doc.unicode())[pos] != ';' && !(doc.unicode())[pos].isSpace() ) {
 	pos = recoverpos;
 	return '&';
     }
@@ -2269,10 +745,10 @@ QString QRichText::parseWord(const QString& doc, int& pos, bool insideTag, bool 
 {
     QString s;
 
-    if (doc[pos] == '"') {
+    if ((doc.unicode())[pos] == '"') {
 	pos++;
-	while ( pos < int(doc.length()) && doc[pos] != '"' ) {
-	    s += doc[pos];
+	while ( pos < int(doc.length()) && (doc.unicode())[pos] != '"' ) {
+	    s += (doc.unicode())[pos];
 	    pos++;
 	}
 	eat(doc, pos, '"');
@@ -2280,15 +756,15 @@ QString QRichText::parseWord(const QString& doc, int& pos, bool insideTag, bool 
     else {
 	static QString term = QString::fromLatin1("/>");
 	while( pos < int(doc.length()) &&
-	       ( !insideTag || (doc[pos] != '>' && !hasPrefix( doc, pos, term)) )
-	       && doc[pos] != '<'
-	       && doc[pos] != '='
-	       && !doc[pos].isSpace())
+	       ( !insideTag || ((doc.unicode())[pos] != '>' && !hasPrefix( doc, pos, term)) )
+	       && (doc.unicode())[pos] != '<'
+	       && (doc.unicode())[pos] != '='
+	       && !(doc.unicode())[pos].isSpace())
 	{
-	    if ( doc[pos] == '&')
+	    if ( (doc.unicode())[pos] == '&')
 		s += parseHTMLSpecialChar( doc, pos );
 	    else {
-		s += doc[pos];
+		s += (doc.unicode())[pos];
 		pos++;
 	    }
 	}
@@ -2304,30 +780,30 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool j
 {
     QString s;
     while( pos < int(doc.length()) &&
-	   doc[pos] != '<' ) {
-	if (doc[pos].isSpace() && doc[pos] != QChar(0x00a0U) ){
-	    if ( justOneWord && !s.isEmpty() ) {
-		return s;
-	    }
-	
+	   (doc.unicode())[pos] != '<' ) {
+	if ((doc.unicode())[pos].isSpace() && (doc.unicode())[pos] != QChar(0x00a0U) ){
+
 	    if ( pre ) {
-		s += doc[pos];
+		if ( (doc.unicode())[pos] == ' ' )
+		    s += QChar(0x00a0U);
+		else
+		    s += (doc.unicode())[pos];
 	    }
 	    else { // non-pre mode: collapse whitespace except nbsp
 		while ( pos+1 < int(doc.length() ) &&
-			doc[pos+1].isSpace()  && doc[pos+1] != QChar(0x00a0U) )
+			(doc.unicode())[pos+1].isSpace()  && (doc.unicode())[pos+1] != QChar(0x00a0U) )
 		    pos++;
-		
+
 		s += ' ';
 	    }
 	    pos++;
 	    if ( justOneWord )
 		return s;
 	}
-	else if ( doc[pos] == '&')
+	else if ( (doc.unicode())[pos] == '&')
 		s += parseHTMLSpecialChar( doc, pos );
 	else {
-	    s += doc[pos];
+	    s += (doc.unicode())[pos];
 	    pos++;
 	}
     }
@@ -2338,7 +814,7 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool j
 
 bool QRichText::hasPrefix(const QString& doc, int pos, QChar c)
 {
-    return valid && doc[pos] ==c;
+    return valid && (doc.unicode())[pos] ==c;
 }
 
 bool QRichText::hasPrefix(const QString& doc, int pos, const QString& s)
@@ -2346,7 +822,7 @@ bool QRichText::hasPrefix(const QString& doc, int pos, const QString& s)
     if ( pos + s.length() >= doc.length() )
 	return FALSE;
     for (int i = 0; i < int(s.length()); i++) {
-	if (doc[pos+i] != s[i])
+	if ((doc.unicode())[pos+i] != s[i])
 	    return FALSE;
     }
     return TRUE;
@@ -2357,11 +833,9 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 {
     emptyTag = FALSE;
     pos++;
-    QString tag = parseWord(doc, pos, TRUE, TRUE);
-    eatSpace(doc, pos, TRUE);
-
-    if (tag[0] == '!') {
-	if (tag.left(3) == QString::fromLatin1("!--")) {
+    if ( hasPrefix(doc, pos, '!') ) {
+	if ( hasPrefix( doc, pos+1, "--")) {
+	    pos += 3;
 	    // eat comments
 	    QString pref = QString::fromLatin1("-->");
 	    while ( valid && !hasPrefix(doc, pos, pref )
@@ -2373,6 +847,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 	    }
 	    else
 		valid = FALSE;
+	    emptyTag = TRUE;
 	    return QString::null;
 	}
 	else {
@@ -2389,6 +864,8 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 	}
     }
 
+    QString tag = parseWord(doc, pos, TRUE, TRUE);
+    eatSpace(doc, pos, TRUE);
     static QString term = QString::fromLatin1("/>");
     static QString s_true = QString::fromLatin1("true");
 
@@ -2425,13 +902,19 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
     return tag;
 }
 
-bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
+QString QRichText::parseCloseTag( const QString& doc, int& pos )
 {
     pos++;
     pos++;
     QString tag = parseWord(doc, pos, TRUE, TRUE);
     eatSpace(doc, pos, TRUE);
     eat(doc, pos, '>');
+    return tag;
+}
+
+bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
+{
+    QString tag = parseCloseTag( doc, pos );
     if (!valid) {
 	QString msg;
 	msg.sprintf( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
@@ -2447,3 +930,1929 @@ bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
     }
     return valid;
 }
+
+
+
+// convenience function
+void QRichText::draw(QPainter* p, int x, int y,
+		      int ox, int oy, int cx, int cy, int cw, int ch,
+		      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
+{
+    QTextCursor tc( *this );
+    QTextParagraph* b = this;
+    QFontMetrics fm( p->fontMetrics() );
+    while ( b ) {
+	tc.gotoParagraph( p, b );
+	do {
+	    tc.makeLineLayout( p, fm );
+	    QRect geom( tc.lineGeometry() );
+	    if ( geom.bottom()+y > cy && geom.top()+y < cy+ch )
+		tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+	}
+	while ( tc.gotoNextLine( p, fm ) );
+	b = tc.paragraph->nextInDocument();
+    }
+    flow()->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+}
+
+
+// convenience function
+void QRichText::doLayout( QPainter* p, int nwidth ) {
+    QTextCursor fc( *this );
+    invalidateLayout();
+    flow()->initialize( nwidth );
+    fc.initParagraph( p, this );
+    fc.updateLayout( p );
+}
+
+// convenience function
+QString QRichText::anchorAt( QPainter* p, int x, int y) const
+{
+    QFontMetrics fm( p->fontMetrics() );
+    QTextCursor tc( *((QRichText*)this) );
+    tc.gotoParagraph( p, (QRichText*)this );
+    QTextParagraph* b = tc.paragraph;
+    while ( b && tc.y() < y ) {
+	if ( b && b->dirty ){
+	    tc.initParagraph( p, b );
+	    tc.updateLayout( p, y + 1 );
+	}
+
+	tc.gotoParagraph( p, b );
+
+	if ( tc.y() + tc.paragraph->height > y ) {
+	    do {
+		tc.makeLineLayout( p, fm );
+		QRect geom( tc.lineGeometry() );
+		if ( geom.contains( QPoint(x,y) ) ) {
+		    tc.gotoLineStart( p, fm );
+		    while ( !tc.atEndOfLine() && geom.left() + tc.currentx + tc.currentoffsetx < x ) {
+			tc.right( p );
+		    }
+		    if ( geom.left() + tc.currentx + tc.currentoffsetx > x )
+			tc.left( p );
+		    QTextCharFormat format( *tc.currentFormat() );
+		    if ( format.customItem() ) {
+			// custom items may have anchors as well
+			int h = format.customItem()->height;
+			int nx = x - geom.x() - tc.currentx;
+			int ny = y - geom.y() - tc.base + h;
+			QString anchor = format.customItem()->anchorAt( p, nx, ny );
+			if ( !anchor.isNull() )
+			    return anchor;
+		    }
+		    return format.anchorHref();
+		}
+	    }
+	    while ( tc.gotoNextLine( p, fm ) );
+	}
+	b = b->nextInDocument();
+    }
+
+    return QString::null;
+}
+
+bool QRichText::clearSelection()
+{
+    bool result = FALSE;
+    QTextParagraph* b = this;
+    while ( b->child )
+	b = b->child;
+    while ( b ) {
+	if ( b->text.isSelected() ) {
+	    result = TRUE;
+	    b->text.clearSelection();
+	    flow()->invalidateRect( QRect( 0, b->y, flow()->width, b->height ) );
+	}
+	b = b->nextInDocument();
+    }
+    return result;
+}
+
+QString QRichText::selectedText()
+{
+    QString result;
+    QTextParagraph* b = this;
+    while ( b->child )
+	b = b->child;
+    while ( b ) {
+	int column = 0;
+	if ( b->text.isSelected() ) {
+	    for (int i = 0; i < b->text.length(); i++ ) {
+		if ( b->text.isSelected( i ) ) {
+		    QString& s = b->text.getCharAt( i );
+		    if ( column + s.length() > 79 ) {
+			result += '\n';
+			column = 0;
+		    }
+		    result += s;
+		    column += s.length();
+		}
+	    }
+	    result += '\n';
+	}
+	b = b->nextInDocument();
+    }
+    return result;
+}
+
+
+void QTextParagraph::invalidateLayout()
+{
+    dirty = TRUE;
+    QTextParagraph* b = child;
+    while ( b ) {
+	b->dirty = TRUE;
+	b->invalidateLayout();
+	b = b->next;
+    }
+    if ( next && !next->dirty ) {
+	next->invalidateLayout();
+    }
+
+
+    if ( parent ) {
+	QTextParagraph* p = parent;
+	while ( p && !p->next && p->parent )
+	    p = p->parent;
+	if ( p->next && !p->next->dirty)
+	    p->next->invalidateLayout();
+    }
+}
+
+
+QTextParagraph* QTextParagraph::realParagraph()
+{
+    // to work around dummy paragraphs
+    if ( parent &&style->name().isEmpty() )
+	return parent->realParagraph();
+    return this;
+}
+
+QStyleSheetItem::ListStyle QTextParagraph::listStyle()
+{
+    QString s =  attributes()["type"];
+
+    if ( !s )
+	return style->listStyle();
+    else {
+	QCString sl = s.latin1();
+	if ( sl == "1" )
+	    return QStyleSheetItem::ListDecimal;
+	else if ( sl == "a" )
+	    return QStyleSheetItem::ListLowerAlpha;
+	else if ( sl == "A" )
+	    return QStyleSheetItem::ListUpperAlpha;
+	sl = sl.lower();
+	if ( sl == "square" )
+	    return QStyleSheetItem::ListSquare;
+	else if ( sl == "disc" )
+		return QStyleSheetItem::ListDisc;
+	else if ( sl == "circle" )
+	    return QStyleSheetItem::ListCircle;
+    }
+    return style->listStyle();
+}
+
+
+int QTextParagraph::numberOfSubParagraph( QTextParagraph* subparagraph, bool onlyListItems)
+{
+    QTextParagraph* it = child;
+    int i = 1;
+    while ( it && it != subparagraph ) {
+	if ( !onlyListItems || it->style->displayMode() == QStyleSheetItem::DisplayListItem )
+	    ++i;
+	it = it->next;
+    }
+    return i;
+}
+
+QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* formatCol, const QTextCharFormat& fmt,
+	      const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
+    : parent( p ), formats( formatCol ), format( fmt ), text( formatCol ), style ( stl ), attributes_( attr )
+{
+    init();
+};
+
+
+QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* formatCol, const QTextCharFormat& fmt,
+	      const QStyleSheetItem *stl )
+    : parent( p ), formats( formatCol ), format( fmt ), text( formats ), style ( stl )
+{
+    init();
+};
+
+
+void QTextParagraph::init()
+{
+    formats->registerFormat( format );
+
+    child = next = prev = 0;
+    height = y = 0;
+    dirty = TRUE;
+    selected = FALSE;
+    flow_ = 0;
+    if ( parent )
+	flow_ = parent->flow();
+
+    align = QStyleSheetItem::Undefined;
+
+    if ( attributes_.contains("align") ) {
+ 	QString s = attributes_["align"].lower();
+ 	if ( s  == "center" )
+ 	    align = Qt::AlignCenter;
+ 	else if ( s == "right" )
+ 	    align = Qt::AlignRight;
+	else
+	    align = Qt::AlignLeft;
+    }
+}
+
+QTextParagraph::~QTextParagraph()
+{
+    formats->unregisterFormat( format );
+    QTextParagraph* tmp = child;
+    while ( child ) {
+	tmp = child;
+	child = child->next;
+	delete tmp;
+    }
+}
+
+QTextParagraph* QTextParagraph::nextInDocument()
+{
+    if ( next  ) {
+	QTextParagraph* b = next;
+ 	while ( b->child )
+ 	    b = b->child;
+	return b;
+    }
+    if ( parent ) {
+	return parent->nextInDocument();
+    }
+    return 0;
+}
+
+QTextParagraph* QTextParagraph::prevInDocument()
+{
+    if ( prev ){
+	QTextParagraph* b = prev;
+	while ( b->child ) {
+	    b = b->child;
+	    while ( b->next )
+		b = b->next;
+	}
+	return b;
+    }
+    if ( parent ) {
+	return parent->prevInDocument();
+    }
+    return 0;
+}
+
+
+QTextParagraph* QTextParagraph::lastChild()
+{
+    if ( !child )
+	return this;
+    QTextParagraph* b = child;
+    while ( b->next )
+	b = b->next;
+    return b->lastChild();
+}
+
+
+QTextFlow* QTextParagraph::flow()
+{
+    if ( !flow_ ) {
+	qDebug("AUTSCH!!!!!!! no flow");
+    }
+    return flow_;
+}
+
+
+
+QTextRichString::QTextRichString( QTextFormatCollection* fmt )
+    : formats( fmt )
+{
+    items = 0;
+    len = 0;
+    store = 0;
+    selection = 0;
+}
+
+QTextRichString::~QTextRichString()
+{
+    for (int i = 0; i < len; ++i )
+	formats->unregisterFormat( *items[i].format );
+}
+
+void QTextRichString::clearSelection()
+{
+    for (int i = 0; i < len; ++i ) {
+	items[i].selected = 0;
+    }
+    selection = FALSE;
+}
+
+bool QTextRichString::isSelected() const
+{
+    return selection;
+}
+
+
+void QTextRichString::clear()
+{
+    for (int i = 0; i < len; ++i )
+	formats->unregisterFormat( *items[i].format );
+    if ( items )
+	delete [] items;
+    items = 0;
+    len = 0;
+    store = 0;
+}
+
+
+void QTextRichString::remove( int index, int len )
+{
+    for (int i = 0; i < len; ++i )
+	formats->unregisterFormat( *formatAt( index + i ) );
+
+    int olen = length();
+    if ( index + len >= olen ) {		// range problems
+	if ( index < olen ) {			// index ok
+	    setLength( index );
+	}
+    } else if ( len != 0 ) {
+// 	memmove( items+index, items+index+len,
+// 		 sizeof(Item)*(olen-index-len) );
+	for (int i = index; i < olen-len; ++i)
+	    items[i] = items[i+len];
+	setLength( olen-len );
+    }
+}
+
+void QTextRichString::insert( int index, const QString& c, const QTextCharFormat& form )
+{
+    QTextCharFormat* f = formats->registerFormat( form );
+
+    if ( index >= len ) {			// insert after end
+	setLength( index+1 );
+    } else {					// normal insert
+//	int olen = len;
+	int nlen = len + 1;
+	setLength( nlen );
+// 	memmove( items+index+1, items+index,
+// 		 sizeof(Item)*(olen-index) );
+	for (int i = len-1; i > index; --i)
+	    items[i] = items[i-1];
+    }
+
+    items[index].c = c;
+    items[index].format = f;
+    items[index].width = -1;
+}
+
+
+QString& QTextRichString::getCharAt( int index )
+{
+    items[index].width = -1;
+    return items[index].c;
+}
+
+void QTextRichString::setSelected( int index, bool selected )
+{
+    items[index].selected = selected;
+    if ( selected )
+	selection = TRUE;
+}
+
+bool QTextRichString::isSelected( int index ) const
+{
+    return items[index].selected;
+}
+
+
+void QTextRichString::setBold( int index, bool b )
+{
+     if ( bold( index ) == b )
+ 	return ;
+     QTextCharFormat* oldfmt = items[index].format;
+     QFont f = oldfmt->font();
+     QColor c = oldfmt->color();
+     f.setBold( b );
+     QTextCharFormat newfmt( f, c );
+     formats->unregisterFormat( *oldfmt );
+     items[index].format =formats->registerFormat( newfmt );
+     items[index].width = -1;
+}
+
+bool QTextRichString::bold( int index ) const
+{
+    return items[index].format->font().bold();
+}
+
+void QTextRichString::setLength( int l )
+{
+    if ( l <= store ) {
+	len = l; // TODO shrinking
+	return;
+    } else {
+	store = QMAX( l*2, 40 );
+	Item* newitems = new Item[store]; // TODO speedup using new char(....)
+// 	if ( items )
+// 	    memcpy( newitems, items, sizeof(Item)*len );
+	for (int i = 0; i < len; ++i )
+	    newitems[i] = items[i];
+	if ( items )
+	    delete [] items;
+	items = newitems;
+	len = l;
+    }
+}
+
+QTextRichString::QTextRichString( const QTextRichString &other )
+{
+    formats = other.formats;
+    len = other.len;
+    items = 0;
+    store = 0;
+    if ( len ) {
+	store = QMAX( len, 40 );
+	items = new Item[ store ];
+// 	memcpy( items, other.items, sizeof(Item)*len );
+	for (int i = 0; i < len; ++i ) {
+	    items[i] = other.items[i];
+	    items[i].format->addRef();
+	}
+    }
+}
+
+QTextRichString& QTextRichString::operator=( const QTextRichString &other )
+{
+    clear();
+    formats = other.formats;
+    len = other.len;
+    items = 0;
+    store = 0;
+    if ( len ) {
+	items = new Item[ len ];
+	store = len;
+// 	memcpy( items, other.items, sizeof(Item)*len );
+	for (int i = 0; i < len; ++i ) {
+	    items[i] = other.items[i];
+	    items[i].format->addRef();
+	}
+    }
+    return *this;
+}
+
+
+QTextCursor::QTextCursor(QRichText& document )
+{
+    doc = &document;
+    paragraph = doc;
+    first = y_ = width = widthUsed = height = base = fill = 0;
+    last = first - 1;
+    current = currentx = currentoffset = currentoffsetx = 0;
+    lmargin = rmargin = 0;
+    static_lmargin = static_rmargin = 0;
+    currentasc  = currentdesc = 0;
+    xline_current = 0;
+    xline = 0;
+    xline_paragraph = 0;
+    formatinuse = 0;
+}
+QTextCursor::~QTextCursor()
+{
+}
+
+
+/*!
+  Like gotoParagraph() but also initializes the paragraph
+  (i.e. setting the cached values in the paragraph to the cursor's
+  settings and not vice versa.
+
+ */
+void QTextCursor::initParagraph( QPainter* p, QTextParagraph* b )
+{
+	b->y = y_;
+	b->height = 0;
+	while ( b->child  ) {
+	    b->child->y = b->y;
+	    b = b->child;
+	}
+	gotoParagraph( p, b );
+}
+
+void QTextCursor::gotoParagraph( QPainter* p, QTextParagraph* b )
+{
+    if ( !b )
+	return;
+    while ( b->child ) {
+	b = b->child;
+    }
+
+    paragraph = b;
+    flow = paragraph->flow();
+    if ( paragraph->text.isEmpty() )
+	paragraph->text.append( " ", paragraph->format );
+
+    first = y_ = width = widthUsed = height = base = fill = 0;
+    last = first - 1;
+
+
+    y_ =  b->y;
+    int m =  b->topMargin();
+    flow->adjustFlow( y_, widthUsed, m ) ;
+
+    y_ += m;
+
+    static_lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft );
+    static_rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight );
+    static_labelmargin = paragraph->totalLabelMargin();
+
+    width = flow->width;
+    lmargin = flow->adjustLMargin( y_, static_lmargin );
+    lmargin += static_labelmargin;
+    rmargin = flow->adjustRMargin( y_, static_rmargin );
+
+    current = 0;
+
+    currentx = lmargin;
+    currentoffset = 0;
+    currentoffsetx = 0;
+    QFontMetrics fm( p->fontMetrics() );
+    updateCharFormat( p, fm );
+
+}
+
+void QTextCursor::update( QPainter* p )
+{
+    int i = current;
+    int io = currentoffset;
+    QFontMetrics fm( p->fontMetrics() );
+    gotoParagraph( p, paragraph );
+    makeLineLayout( p, fm );
+    gotoLineStart( p, fm );
+    while ( current < i )
+	rightOneItem( p );
+    while ( currentoffset < io )
+	right( p );
+}
+
+
+bool QTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
+{
+    current = last;
+    if ( atEnd() ) {
+	current++;
+	y_ += height + 1; // first pixel below us
+	int m = paragraph->bottomMargin();
+	QTextParagraph* nid = paragraph->nextInDocument();
+	if ( nid ) {
+	    m -= nid->topMargin();
+	}
+	if ( m > 0 ) {
+	    flow->adjustFlow( y_, widthUsed, m ) ;
+	    y_ += m;
+	}
+	width = flow->width;
+	lmargin = flow->adjustLMargin( y_, static_lmargin );
+	lmargin += static_labelmargin;
+	rmargin = flow->adjustRMargin( y_, static_rmargin );
+	paragraph->height = y() - paragraph->y; //####
+	paragraph->dirty = FALSE;
+	return FALSE;
+    }
+    current++;
+    currentx = lmargin;
+    y_ += height;
+    width = flow->width;
+    lmargin = flow->adjustLMargin( y_, static_lmargin );
+    lmargin += static_labelmargin;
+    rmargin = flow->adjustRMargin( y_, static_rmargin );
+
+    height = 0;
+    updateCharFormat( p, fm );
+    return TRUE;
+}
+
+void QTextCursor::gotoLineStart( QPainter* p, const QFontMetrics& fm )
+{
+    current = first;
+    currentoffset = currentoffsetx = 0;
+    currentx = lmargin + fill;
+    updateCharFormat( p, fm );
+}
+
+
+void QTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
+{
+    if ( pastEnd() )
+	return;
+    QTextCharFormat* fmt = currentFormat();
+    p->setFont( fmt->font() );
+    p->setPen( fmt->color() );
+    currentasc = fm.ascent();
+    currentdesc = fm.descent();
+    QTextCustomItem* custom = fmt->customItem();
+    if ( custom ) {
+	if ( custom->width < 0 ) {
+	    custom->realize( p );
+	}
+	if ( width >= 0 && custom->expandsHorizontally() ) {
+	    custom->resize( p, width - lmargin - rmargin - fm.width(' ' ) );
+	}
+	if ( custom->placeInline() )
+	    currentasc = custom->height;
+    }
+    formatinuse = fmt;
+}
+
+
+void QTextCursor::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
+			      QRegion& backgroundRegion,
+			      const QColorGroup& cg, const QTextOptions& to )
+
+{
+    if ( !par->parent )
+	return;
+    if ( par->style->displayMode() != QStyleSheetItem::DisplayListItem )
+	return;
+
+    QRect r (x - ox, y-oy, w, h ); ///#### label width?
+    to.erase( p, r );
+    backgroundRegion = backgroundRegion.subtract( r );
+    QStyleSheetItem::ListStyle s = par->parent->listStyle();
+
+    QFont font = p->font();
+    p->setFont( par->parent->format.font() );
+    int size = p->fontMetrics().lineSpacing() / 3;
+    if ( size > 12 )
+	size = 12;
+
+    switch ( s ) {
+    case QStyleSheetItem::ListDecimal:
+    case QStyleSheetItem::ListLowerAlpha:
+    case QStyleSheetItem::ListUpperAlpha:
+	{
+	    int n = 1;
+	    n = par->parent->numberOfSubParagraph( par, TRUE );
+	    QString l;
+	    switch ( s ) {
+	    case QStyleSheetItem::ListLowerAlpha:
+		if ( n < 27 ) {
+		    l = QChar( ('a' + (char) (n-1)));
+		    break;
+		}
+	    case QStyleSheetItem::ListUpperAlpha:
+		if ( n < 27 ) {
+		    l = QChar( ('A' + (char) (n-1)));
+		    break;
+		}
+		break;
+	    default:  //QStyleSheetItem::ListDecimal:
+		l.setNum( n );
+		break;
+	    }
+	    l += QString::fromLatin1(". ");
+	    p->drawText( r, Qt::AlignRight|Qt::AlignVCenter, l);
+	}
+	break;
+    case QStyleSheetItem::ListSquare:
+	{
+	    QRect er( r.right()-size*2, r.center().y()-1, size, size);
+	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
+	}
+	break;
+    case QStyleSheetItem::ListCircle:
+	{
+	    QRect er( r.right()-size*2, r.center().y()-1, size, size);
+	    p->drawEllipse( er );
+	}
+	break;
+    case QStyleSheetItem::ListDisc:
+    default:
+	{
+	    p->setBrush( cg.brush( QColorGroup::Foreground ));
+	    QRect er( r.right()-size*2, r.center().y()-1, size, size );
+	    p->drawEllipse( er );
+	    p->setBrush( Qt::NoBrush );
+	}
+	break;
+    }
+
+    p->setFont( font );
+}
+
+void QTextCursor::drawLine( QPainter* p, int ox, int oy,
+			     int cx, int cy, int cw, int ch,
+			     QRegion& backgroundRegion,
+			     const QColorGroup& cg, const QTextOptions& to )
+
+{
+    QFontMetrics fm( p->fontMetrics() );
+    gotoLineStart( p, fm );
+
+    if ( pastEndOfLine() ) {
+	qDebug("try to draw empty line!!");
+	return;
+    }
+
+    int gx = 0;
+    int gy = y();
+
+    int realWidth = QMAX( width, widthUsed );
+    QRect r(gx-ox+lmargin, gy-oy, realWidth-lmargin-rmargin, height);
+
+    bool clipMode = currentFormat()->customItem() && currentFormat()->customItem()->noErase();
+
+    if (!clipMode )
+	to.erase( p, r );
+
+    if ( first == 0 ) {
+	//#### TODO cache existence of label
+	QTextParagraph*it = paragraph;
+	int m = 0;
+	while ( it &&
+		( it->style->displayMode() == QStyleSheetItem::DisplayListItem
+		  || it->prev == 0 ) ) {
+	    int itm = it->labelMargin();
+	    m += itm;
+	    drawLabel( p, it, gx+lmargin-m, gy, itm, height, ox, oy, backgroundRegion, cg, to );
+	    m += it->margin( QStyleSheetItem::MarginLeft );
+	    if ( it->style->displayMode() == QStyleSheetItem::DisplayListItem && it->prev )
+		it = 0;
+	    else
+		it = it->parent;
+	}
+    }
+
+    QString c;
+    while ( !atEndOfLine() ) {
+	QTextCharFormat *format  = currentFormat();
+	if ( !format->anchorHref().isEmpty() ) {
+	    p->setPen( to.linkColor );
+	    if ( to.linkUnderline ) {
+		QFont f = format->font();
+		f.setUnderline( TRUE );
+		p->setFont( f );
+	    }
+	}
+	bool selected = paragraph->text.isSelected(current);
+	if ( selected ) {
+	    int w = paragraph->text.items[current].width;
+	    p->fillRect( gx-ox+currentx, gy-oy, w, height, cg.highlight() );
+	    p->setPen( cg.highlightedText() );
+	}
+
+	QTextCustomItem* custom = format->customItem();
+	if ( custom ) {
+	    int h = custom->height;
+	    if ( custom->placeInline() )
+		custom->draw(p, gx+currentx, gy+base-h, ox, oy,
+			     cx, cy, cw, ch, backgroundRegion, cg, to );
+	}
+	else {
+	    c = paragraph->text.charAt( current );
+	    p->drawText(gx+currentx-ox, gy-oy+base, c, c.length());
+	}
+	if ( selected )
+	    p->setPen( format->color() );
+	gotoNextItem( p, fm );
+	gy = y();
+    }
+
+    if (clipMode ) {
+	p->setClipRegion( backgroundRegion );
+	to.erase( p, r);
+	p->setClipping( FALSE );
+    }
+    backgroundRegion = backgroundRegion.subtract(r);
+}
+
+bool QTextCursor::atEnd() const
+{
+    return current > paragraph->text.length()-2;
+}
+
+
+bool QTextCursor::pastEnd() const
+{
+    return current > paragraph->text.length() - 1;
+}
+
+bool QTextCursor::pastEndOfLine() const
+{
+    return current > last;
+}
+
+bool QTextCursor::atEndOfLine() const
+{
+    return current > last || (current == last && currentoffset >= int(paragraph->text.charAt( current ).length())-1);
+}
+
+bool QTextCursor::inLastLine() const
+{
+    return last > paragraph->text.length()-2;
+}
+
+bool QTextCursor::rightOneItem( QPainter* p )
+{
+    QFontMetrics fm( p->fontMetrics() );
+    if ( atEnd() ) {
+	QTextParagraph* next = paragraph->nextInDocument();
+	if ( next ) {
+	    if ( next->dirty ) {
+		updateLayout( p );
+	    }
+	    gotoParagraph( p, next );
+	    makeLineLayout( p, fm );
+	    gotoLineStart( p, fm );
+	} else {
+	    return FALSE;
+	}
+    }
+    else if ( current >= last ) {
+	(void) gotoNextLine( p, fm );
+	makeLineLayout( p, fm );
+	gotoLineStart( p, fm );
+    }
+    else {
+	gotoNextItem( p, fm );
+    }
+    return TRUE;
+}
+
+void QTextCursor::right( QPainter* p )
+{
+    if ( !pastEnd() && !pastEndOfLine() ) {
+	QString c =  paragraph->text.charAt( current );
+	if ( currentoffset  < int(c.length()) - 1 ) {
+	    QTextCharFormat* fmt = currentFormat();
+	    p->setFont( fmt->font() );
+	    QFontMetrics fm( p->fontMetrics() );
+	    currentoffset++;
+	    currentoffsetx = fm.width( c, currentoffset );
+	    return;
+	}
+    }
+    (void) rightOneItem( p );
+}
+
+void QTextCursor::left( QPainter* p )
+{
+    QFontMetrics fm( p->fontMetrics() );
+    if ( currentoffset > 0 ) {
+	QString c =  paragraph->text.charAt( current );
+	QTextCharFormat* fmt = currentFormat();
+	p->setFont( fmt->font() );
+	currentoffset--;
+	currentoffsetx = fm.width( c, currentoffset );
+    }
+    else if ( current == 0 ) {
+	if ( paragraph->prevInDocument() ) {
+	    gotoParagraph( p, paragraph->prevInDocument() );
+	    makeLineLayout( p, fm );
+	    gotoLineStart( p, fm );
+	    while ( !atEnd() )
+		(void) rightOneItem( p );
+	}
+    }
+    else {
+	int i = current;
+	if ( current == first ) {
+	    gotoParagraph( p, paragraph );
+	    makeLineLayout( p, fm );
+	}
+	gotoLineStart( p, fm );
+	while ( current <  i - 1 )
+	    (void) rightOneItem( p );
+	QString c =  paragraph->text.charAt( current );
+	if ( c.length() > 1 ) {
+	    currentoffset = c.length() - 1;
+	    QTextCharFormat* fmt = currentFormat();
+	    p->setFont( fmt->font() );
+	    QFontMetrics fm( p->fontMetrics() );
+	    currentoffsetx = fm.width( c, currentoffset );
+	}
+    }
+}
+
+
+void QTextCursor::up( QPainter* p )
+{
+    if ( xline_paragraph != paragraph || xline_current != current )
+	xline = x();
+    QFontMetrics fm( p->fontMetrics() );
+
+    gotoLineStart( p, fm );
+    left( p );
+    gotoLineStart( p, fm );
+    while ( !atEndOfLine() && x()  < xline ) {
+	right( p );
+    }
+    xline_paragraph = paragraph;
+    xline_current = current;
+}
+
+void QTextCursor::down( QPainter* p )
+{
+    if ( xline_paragraph != paragraph || xline_current != current )
+	xline = x();
+    while ( current < last )
+	(void) rightOneItem( p );
+    (void) rightOneItem( p );
+    while ( !atEndOfLine() && x() < xline ) {
+	right( p );
+    }
+
+    xline_paragraph = paragraph;
+    xline_current = current;
+}
+
+
+void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
+{
+    QFontMetrics fm( p->fontMetrics() );
+    gotoParagraph( p, doc );
+    QTextParagraph* b = paragraph;
+    while ( b ) {
+	gotoParagraph( p, b );
+	b = paragraph;
+	b = b->nextInDocument();
+	//??? update dirty stuff here?
+	if ( !b || y() + paragraph->height  > ypos ) {
+	    do {
+		makeLineLayout( p, fm );
+		QRect geom( lineGeometry() );
+		if ( ypos <= geom.bottom() || inLastLine() ) {
+		    gotoLineStart( p, fm );
+ 		    while ( !atEndOfLine() && geom.left() + x() < xpos ) {
+ 			right( p );
+ 		    }
+  		    if ( geom.left() + x() > xpos )
+  			left( p );
+		    return;
+		}
+	    }
+	    while ( gotoNextLine( p, fm ) );
+	}
+    }
+}
+
+
+void QTextCursor::setSelected( bool selected )
+{
+    if ( current < paragraph->text.length() ) {
+	if ( selected )
+	    paragraph->selected = TRUE;
+	paragraph->text.setSelected( current, selected );
+    }
+}
+
+bool QTextCursor::isSelected() const
+{
+    if ( current < paragraph->text.length() )
+	return ( paragraph->text.isSelected( current ) );
+    return FALSE;
+}
+
+void QTextCursor::insert( QPainter* p, const QString& text )
+{
+    QFontMetrics fm( p->fontMetrics() );
+    if ( paragraph->text.isCustomItem( current ) ) {
+	paragraph->text.insert( current, text, currentFormat()->formatWithoutCustom() );
+	current++;
+	currentoffset = 0;
+    }
+    else {
+	QString& sref = paragraph->text.getCharAt( current );
+	for ( uint i = 0; i < text.length(); i++ ) {
+	    sref.insert( currentoffset, text[i] );
+	    if ( text[i] == ' ' && currentoffset < int(sref.length())-1 ) { // not isSpace() to ignore nbsp
+		paragraph->text.insert( current+1, sref.mid( currentoffset+1 ),
+					*currentFormat() );
+		sref.truncate( currentoffset+1 );
+		current++;
+		currentoffset = 0;
+	    }
+	    else {
+		currentoffset++;
+	    }
+	}
+    }
+
+    updateParagraph( p );
+}
+
+bool QTextCursor::split()
+{
+    QString s = paragraph->text.charAt( current );
+    if ( currentoffset == 0 || currentoffset >= int(s.length()) ) {
+	return FALSE;
+    }
+    bool sel = isSelected();
+    paragraph->text.insert( current+1, s.mid( currentoffset ),
+			    *currentFormat() );
+    paragraph->text.getCharAt( current ).truncate( currentoffset );
+    current++;
+    currentoffset = 0;
+    last++;
+    setSelected( sel );
+    return TRUE;
+}
+
+void QTextCursor::updateParagraph( QPainter* p )
+{
+     int ph = paragraph->height;
+
+     int oldy = y_;
+     int oldfirst = first;
+     int oldlast = last;
+     int oldcurrent = current;
+     int prevliney = oldy;
+
+     QTextCursor store ( *this );
+     QFontMetrics fm( p->fontMetrics() );
+     gotoParagraph( p, paragraph );
+     do {
+	 makeLineLayout( p, fm );
+	 if ( last < oldcurrent )
+	     prevliney = y_;
+     } while ( gotoNextLine( p, fm ) );
+     *this = store;
+
+     update( p );
+
+     int uy = QMIN( oldy, y_ );
+     if ( current == first )
+	 uy = QMIN( uy, prevliney );
+
+     if ( ph != paragraph->height ) {
+	 qDebug("height different ");
+	 if ( paragraph->nextInDocument() )
+	     paragraph->nextInDocument()->invalidateLayout();
+	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, MAXINT-1000) ) );
+     } else if ( first == oldfirst && last == oldlast && current != first ) {
+	 flow->invalidateRect( QRect( 0, uy, width, height ) );
+     }
+     else {
+	 flow->invalidateRect( QRect( 0, uy, width, paragraph->height - (uy - paragraph->y ) ) );
+     }
+}
+
+
+void QTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
+{
+    if ( pastEnd() )
+	return;
+    // tabulators belong here
+    QTextRichString::Item* item = &paragraph->text.items[current];
+    QTextCustomItem* custom = item->format->customItem();
+    if ( currentFormat() != formatinuse ){ // somebody may have changed the document
+	updateCharFormat( p, fm );
+    }
+    if ( custom ) {
+	if ( custom->placeInline() )
+	    currentx += custom->width;
+    }
+    else {
+	QString c = item->c;
+	if ( item->width < 0 ) {
+	    item->width = fm.width( c );
+	}
+	currentx += item->width;
+    }
+    current++;
+    currentoffset = currentoffsetx = 0;
+
+    if ( current < paragraph->text.length() && !paragraph->text.haveSameFormat( current-1, current ) ) {
+ 	updateCharFormat( p, fm );
+    }
+}
+
+void QTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
+{
+    first = current;
+
+    if ( pastEnd() )
+	return;
+
+    last = first;
+    int rh = 0;
+    int rasc = 0;
+    int rdesc = 0;
+
+    // do word wrap
+    int lastSpace =current;
+    int lastHeight = rh;
+    int lastWidth = 0;
+    int lastAsc = rasc;
+    int lastDesc = rdesc;
+    bool noSpaceFound = TRUE;
+
+    QTextCharFormat* fmt = currentFormat();
+    int fmt_current = current;
+    p->setFont( fmt->font() );
+    int space_width = fm.width(' ');
+    int fm_ascent = fm.ascent();
+    int fm_height = fm.height();
+
+    widthUsed = 0;
+
+    QList<QTextCustomItem> floatingItems;
+
+    while ( !pastEnd() ) {
+
+	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
+	    fmt = currentFormat();
+	    fmt_current = current;
+	    p->setFont( fmt->font() );
+	    space_width = fm.width(' ');
+	    fm_ascent = fm.ascent();
+	    fm_height = fm.height();
+	}
+
+	QTextRichString::Item* item = &paragraph->text.items[current];
+
+	QChar lastc;
+
+	QTextCustomItem* custom = item->format->customItem();
+	if ( !custom && !item->c.isEmpty() ) {
+	    lastc = item->c[ item->c.length()-1];
+	}
+
+	if ( custom && !custom->placeInline() ) {
+	    floatingItems.append( custom );
+	}
+
+	bool custombreak = custom && custom->ownLine();
+
+	if ( custombreak && current > first ) {
+	    // break _before_ a custom expander
+ 	    noSpaceFound = TRUE;
+ 	    lastc = '\n'; // fake newline
+	} else {
+	    if ( currentasc + currentdesc > rh )
+		rh = currentasc + currentdesc;
+	    if ( currentasc > rasc )
+		rasc = currentasc;
+	    if ( currentdesc > rdesc )
+		rdesc = currentdesc;
+
+	    gotoNextItem( p, fm );
+	    if ( custombreak ) {
+		// also break _behind_ a custom expander
+		++current;
+		lastc = '\n';
+	    }
+	}
+	// if a wordbreak is possible and required, do it. Unless we
+	// have a newline, of course. In that case we break after the
+	// newline to avoid empty lines.
+	if ( currentx > width - rmargin - space_width
+	     && !noSpaceFound && lastc != '\n' )
+	    break;
+
+	// word break is possible (a) after a space, (b) after a
+	// newline, (c) before expandable item  or (d) at the end of the paragraph.
+	if ( noSpaceFound || lastc == ' ' || lastc == '\n' || current == paragraph->text.length() ){
+	    lastSpace = current - 1;
+	    lastHeight = rh;
+	    lastAsc = rasc;
+	    lastDesc = rdesc;
+	    lastWidth = currentx;
+ 	    if ( lastc == ' ' )
+ 		noSpaceFound = FALSE;
+	}
+	if ( lastc == '\n' )
+	    break;
+    }
+
+    last = lastSpace;
+    if ( last == paragraph->text.length() ) { // can happen with break behind custom expanders
+	last--;
+    }
+
+    rh = lastHeight;
+    rasc = lastAsc;
+    rdesc = lastDesc;
+
+    height = QMAX(rh, rasc+rdesc+1);
+    base = rasc;
+
+    fill = 0;
+    switch ( paragraph->alignment() ) {
+    case Qt::AlignLeft:
+	fill = 0;
+	break;
+    case Qt::AlignCenter:
+	fill = (width - rmargin - lastWidth) / 2;
+	break;
+    case Qt::AlignRight:
+	fill = width - rmargin - lastWidth;
+	break;
+    }
+
+    current = lastSpace;//###
+
+    int min = lastWidth ;
+    if ( min + rmargin > widthUsed )
+	widthUsed = min + rmargin;
+    if ( widthUsed > width )
+	fill = 0; // fall back to left alignment if there isn't sufficient space
+
+    flow->adjustFlow( y_, widthUsed, height ) ;
+
+
+    int fl = lmargin;
+    int fr = width - rmargin;
+    for ( QTextCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
+	item->y = y_ + height;
+	flow->adjustFlow( item->y, item->width, item->height );
+	if ( item->placement() == QTextCustomItem::PlaceRight ) {
+	    fr -= item->width;
+	    item->x = fr;
+	} else {
+	    item->x = fl;
+	    fl += item->width;
+	}
+	flow->registerFloatingItem( item, item->placement() == QTextCustomItem::PlaceRight );
+    }
+}
+
+
+/*\internal
+
+  Note: The cursor's paragraph needs to be initialized
+ */
+bool QTextCursor::updateLayout( QPainter* p, int ymax )
+{
+    QFontMetrics fm( p->fontMetrics() );
+    QTextParagraph* b = paragraph;
+    gotoParagraph( p, b );
+    while ( b && ( ymax < 0 || y_ <= ymax ) ) {
+
+	if ( !b->dirty )
+	    y_ = b->y + b->height;
+	else do {
+		makeLineLayout( p, fm );
+	} while ( gotoNextLine( p, fm ) );
+
+	b = b->nextInDocument();
+	if ( b ) {
+	    if ( b->dirty ) {
+		initParagraph( p, b );
+	    } else {
+		gotoParagraph( p, b );
+	    }
+	}
+    }
+    return b == 0;
+}
+
+
+
+void QTextCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch)
+{
+    QRect r( caretGeometry() );
+    if ( QMAX( r.left(), cx ) <= QMIN( r.right(), cx+cw ) &&
+	 QMAX( r.top(), cy ) <= QMIN( r.bottom(), cy+ch ) ) {
+	p->drawLine(r.left()-ox, r.top()-oy, r.left()-ox, r.bottom()-oy );
+    }
+}
+
+QRect QTextCursor::caretGeometry() const
+{
+    return QRect( x(), y()+base-currentasc, 1, currentasc + currentdesc + 1 );
+}
+QRect QTextCursor::lineGeometry() const
+{
+    int realWidth = QMAX( width, widthUsed );
+    return QRect( 0, y(), realWidth, height );
+}
+
+
+QTextFlow::QTextFlow()
+{
+    width = widthUsed = height = 0;
+}
+
+QTextFlow::~QTextFlow()
+{
+}
+
+
+void QTextFlow::initialize( int w)
+{
+    height = 0;
+    width = w;
+    widthUsed = 0;
+
+    leftItems.clear();
+    rightItems.clear();
+}
+
+
+int QTextFlow::adjustLMargin( int yp, int margin )
+{
+    QTextCustomItem* item = 0;
+    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+	if ( yp >= item->y && yp < item->y + item->height )
+	    margin = QMAX( margin, item->x + item->width + 4 );
+    }
+    return margin;
+}
+
+int QTextFlow::adjustRMargin( int yp, int margin )
+{
+    QTextCustomItem* item = 0;
+    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+	if ( yp >= item->y && yp < item->y + item->height )
+	    margin = QMAX( margin, width - item->x - 4 );
+    }
+    return margin;
+}
+
+
+const int pagesize = 100000;
+
+void QTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
+{
+    if ( w > widthUsed )
+	widthUsed = w;
+
+
+    if ( FALSE && pages ) { // check pages
+	int ty = yp;
+	int yinpage = ty % pagesize;
+ 	if ( yinpage < 2 )
+ 	    yp += 2 - yinpage;
+ 	else
+	    if ( yinpage + h > pagesize - 2 )
+	    yp += ( pagesize - yinpage ) + 2;
+    }
+
+    if ( yp + h > height )
+	height = yp + h;
+
+}
+
+void QTextFlow::registerFloatingItem( QTextCustomItem* item, bool right   )
+{
+    if ( right ) {
+	if ( !rightItems.contains( item ) )
+	    rightItems.append( item );
+    }
+    else if ( !leftItems.contains( item ) )
+	leftItems.append( item );
+}
+
+void QTextFlow::drawFloatingItems(QPainter* p,
+				   int ox, int oy, int cx, int cy, int cw, int ch,
+				   QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
+{
+    QTextCustomItem* item = 0;
+    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+    }
+
+    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+    }
+}
+
+
+
+
+QTextTable::QTextTable(const QMap<QString, QString> & attr  )
+{
+    cells.setAutoDelete( TRUE );
+
+    cellspacing = 2;
+    if ( attr.contains("cellspacing") )
+	cellspacing = attr["cellspacing"].toInt();
+    cellpadding = 1;
+    if ( attr.contains("cellpadding") )
+	cellpadding = attr["cellpadding"].toInt();
+    border = 0;
+    if ( attr.contains("border" ) ) {
+	QString s( attr["border"] );
+	if ( s == "true" )
+	    border = 1;
+	else
+	    border = attr["border"].toInt();
+    }
+
+    if ( border )
+	cellspacing += 2;
+    outerborder = cellspacing + border;
+    layout = new QGridLayout( 1, 1, cellspacing );
+
+    fixwidth = 0;
+    stretch = 0;
+    if ( attr.contains("width") ) {
+	bool b;
+	QString s( attr["width"] );
+	int w = s.toInt( &b );
+	if ( b ) {
+	    fixwidth = w;
+	} else {
+ 	    s = s.stripWhiteSpace();
+ 	    if ( s.length() > 1 && s[ s.length()-1 ] == '%' )
+		stretch = s.left( s.length()-1).toInt();
+	}
+    }
+
+    cachewidth = 0;
+}
+
+QTextTable::~QTextTable()
+{
+    delete layout;
+}
+
+void QTextTable::realize( QPainter* p)
+{
+    painter = p;
+    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
+	cell->realize();
+
+    width = 0;
+}
+
+void QTextTable::draw(QPainter* p, int x, int y,
+		       int ox, int oy, int cx, int cy, int cw, int ch,
+		       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
+{
+    painter = p;
+    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	if ( y + cell->geometry().top() < cy+ch && y + 2*outerborder + cell->geometry().bottom() > cy ) {
+	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+	    if ( border ) {
+		const int w = 1;
+		QRect r( x+outerborder+cell->geometry().x()-w-ox,
+			 y+outerborder+cell->geometry().y()-w-oy,
+			 cell->geometry().width()+2*w,
+			 cell->geometry().height()+2*w);
+		int s = cellspacing;
+		p->fillRect( r.left()-s, r.top(), s, r.height(), cg.button() );
+		p->fillRect( r.right(), r.top(), s, r.height(), cg.button() );
+		p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
+		p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
+		qDrawShadePanel( p, r, cg, TRUE );
+//  		QRect r2(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w,
+//  			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
+//  		backgroundRegion = backgroundRegion.subtract( r2 );
+
+	    }
+	}
+    }
+    if ( border ) {
+	QRect r ( x-ox, y-oy, width, height );
+	int s = border;
+	p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
+	p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
+	p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
+	p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
+	qDrawShadePanel( p, r, cg, FALSE, border );
+	backgroundRegion = backgroundRegion.subtract( r );
+    }
+}
+
+void QTextTable::resize( QPainter* p, int nwidth )
+{
+    if ( nwidth == cachewidth )
+	return;
+    cachewidth = nwidth;
+    painter = p;
+
+    if ( stretch )
+	nwidth = nwidth * stretch / 100;
+
+    width = nwidth + 2*outerborder;
+    layout->invalidate();
+    int shw = layout->sizeHint().width() + 2*outerborder;
+    int mw = layout->minimumSize().width() + 2*outerborder;
+    if ( stretch )
+	width = QMAX( mw, nwidth );
+    else
+	width = QMAX( mw, QMIN( nwidth, shw ) );
+
+    if ( fixwidth )
+	width = fixwidth;
+
+    // play it again, Sam, to fix the stretches
+    layout->invalidate();
+    mw = layout->minimumSize().width() + 2*outerborder;
+    width = QMAX( width, mw );
+
+    int h = layout->heightForWidth( width-2*outerborder );
+    layout->setGeometry( QRect(0, 0, width-2*outerborder, h)  );
+    height = layout->geometry().height()+2*outerborder;
+};
+
+QString QTextTable::anchorAt( QPainter* p, int x, int y )
+{
+    painter = p;
+    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+	if ( cell->geometry().contains( QPoint(x,y) ) )
+	    return cell->anchorAt( x+outerborder, y+outerborder );
+    }
+    return QString::null;
+}
+
+
+
+void QTextTable::addCell( QTextTableCell* cell )
+{
+    cells.append( cell );
+    layout->addMultiCell( cell, cell->row(), cell->row() + cell->rowspan()-1,
+			  cell->column(), cell->column() + cell->colspan()-1 );
+//     if ( cell->stretch() ) {
+// 	qDebug("colstrech %d to %d", cell->column(), cell->stretch() );
+// 	//### other columns when colspan
+// 	layout->setColStretch( cell->column(), cell->stretch() );
+//     }
+}
+
+QTextTableCell::QTextTableCell(QTextTable* table,
+       int row, int column,
+       const QMap<QString, QString> &attr,
+       const QStyleSheetItem* style,
+       const QTextCharFormat& fmt, const QString& context,
+       const QMimeSourceFactory &factory, const QStyleSheet *sheet, const QString& doc, int& pos )
+{
+    maxw = QWIDGETSIZE_MAX;
+    minw = 0;
+
+    parent = table;
+    row_ = row;
+    col_ = column;
+    stretch_ = 0;
+    richtext = new QRichText( attr, doc, pos, style,
+			      fmt, context, parent->cellpadding, &factory, sheet );
+    rowspan_ = 1;
+    colspan_ = 1;
+    if ( attr.contains("colspan") )
+	colspan_ = attr["colspan"].toInt();
+    if ( attr.contains("rowspan") )
+	rowspan_ = attr["rowspan"].toInt();
+
+    background = 0;
+    if ( attr.contains("bgcolor") ) {
+	background = new QBrush(QColor( attr["bgcolor"] ));
+    }
+
+    hasFixedWidth = FALSE;
+    if ( attr.contains("width") ) {
+	bool b;
+	QString s( attr["width"] );
+	int w = s.toInt( &b );
+	if ( b ) {
+	    maxw = w;
+	    minw = maxw;
+	    hasFixedWidth = TRUE;
+	} else {
+ 	    s = s.stripWhiteSpace();
+ 	    if ( s.length() > 1 && s[ s.length()-1 ] == '%' )
+		stretch_ = s.left( s.length()-1).toInt();
+	}
+    }
+
+    parent->addCell( this );
+}
+
+QTextTableCell::~QTextTableCell()
+{
+    delete richtext;
+}
+
+QSize QTextTableCell::sizeHint() const
+{
+    //### see QLabel::sizeHint()
+    return QSize(maxw,0).expandedTo( minimumSize() );
+}
+
+QSize QTextTableCell::minimumSize() const
+{
+    if ( stretch_ )
+	return QSize( QMAX( minw, parent->width * stretch_ / 100 - 2*parent->cellspacing), 0);
+    return QSize(minw,0);
+}
+
+QSize QTextTableCell::maximumSize() const
+{
+    return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+}
+
+QSizePolicy::ExpandData QTextTableCell::expanding() const
+{
+    return QSizePolicy::BothDirections;
+}
+
+bool QTextTableCell::isEmpty() const
+{
+    return FALSE;
+}
+void QTextTableCell::setGeometry( const QRect& r)
+{
+    if ( r.width() != richtext->flow()->width ) {
+	richtext->doLayout( painter(), r.width() );
+    }
+    geom = r;
+}
+QRect QTextTableCell::geometry() const
+{
+    return geom;
+}
+
+bool QTextTableCell::hasHeightForWidth() const
+{
+    return TRUE;
+}
+
+int QTextTableCell::heightForWidth( int w ) const
+{
+    w = QMAX( minw, w ); //####PAUL SHOULD DO THAT
+
+    if ( richtext->flow()->width != w ) {
+	QTextTableCell* that = (QTextTableCell*) this;
+	that->richtext->doLayout(painter(), w );
+    }
+    return richtext->flow()->height;
+}
+
+void QTextTableCell::realize()
+{
+
+    if ( hasFixedWidth )
+	return;
+
+    richtext->doLayout(painter(), QWIDGETSIZE_MAX );
+    maxw = richtext->flow()->widthUsed + 6;
+    richtext->doLayout(painter(), 0 );
+    minw = richtext->flow()->widthUsed;
+}
+
+QPainter* QTextTableCell::painter() const
+{
+    return parent->painter;
+}
+
+void QTextTableCell::draw(int x, int y,
+			int ox, int oy, int cx, int cy, int cw, int ch,
+			QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
+{
+    if ( richtext->flow()->width != geom.width() )
+	richtext->doLayout(painter(), geom.width() );
+
+    QTextOptions o(to);
+    if ( background )
+	o.paper = background;
+
+    QRect r(x-ox+geom.x(), y-oy+geom.y(), geom.width(), geom.height() );
+    richtext->draw(painter(), x+geom.x(), y+geom.y(), ox, oy, cx, cy, cw, ch, backgroundRegion, cg, o );
+
+    painter()->setClipRegion( backgroundRegion );
+    o.erase( painter(), r );
+    backgroundRegion = backgroundRegion.subtract( r );
+}
+
+QString QTextTableCell::anchorAt( int x, int y ) const
+{
+    return richtext->anchorAt( painter(), x - geometry().x(), y - geometry().y() );
+}
+
+
+QTextCharFormat::QTextCharFormat()
+    : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ),
+      custom( 0 )
+{
+}
+
+QTextCharFormat::QTextCharFormat( const QTextCharFormat &format )
+    : font_( format.font_ ), color_( format.color_ ),
+      key( format.key ), ref( 1 ),
+      logicalFontSize( format.logicalFontSize ),
+      stdPointSize( format.stdPointSize ),
+      anchor_href( format.anchor_href ),
+      anchor_name( format.anchor_name ),
+      parent(0), custom( format.custom )
+{
+}
+
+QTextCharFormat::QTextCharFormat( const QFont &f, const QColor &c )
+    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ),
+      parent(0), custom( 0 )
+{
+    createKey();
+}
+
+
+
+QTextCharFormat::~QTextCharFormat()
+{
+}
+
+
+
+void QTextCharFormat::createKey()
+{
+    QTextOStream ts( &key );
+    ts
+	<< font_.pointSize() << "_"
+	<< font_.weight() << "_"
+	<< (int)font_.underline()
+	<< (int) font_.italic()
+	<< anchor_href << "_"
+	<< anchor_name << "_"
+	<< color_.pixel()
+	<< font_.family() << "_"
+	<<(ulong) custom;
+}
+
+QTextCharFormat &QTextCharFormat::operator=( const QTextCharFormat &fmt )
+{
+    font_ = fmt.font_;
+    color_ = fmt.color_;
+    key = fmt.key;
+    ref = 1;
+    logicalFontSize = fmt.logicalFontSize;
+    stdPointSize = fmt.stdPointSize;
+    anchor_href = fmt.anchor_href;
+    anchor_name = fmt.anchor_name;
+    custom = fmt.custom;
+    return *this;
+}
+
+bool QTextCharFormat::operator==( const QTextCharFormat &format )
+{
+    return format.key == key;
+}
+
+int QTextCharFormat::addRef()
+{
+    return ++ref;
+}
+
+int QTextCharFormat::removeRef()
+{
+    return --ref;
+}
+
+QTextCharFormat QTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
+						   const QMap<QString,QString>& attr,
+						   QTextCustomItem*  item ) const
+{
+    QTextCharFormat format(*this);
+    format.custom = item;
+    bool changed = FALSE;
+    if ( style ) {
+	if ( style->name() == "font") {
+
+	    if ( attr.contains("color") )
+		format.color_.setNamedColor( attr["color"] );
+	    if ( attr.contains("size") ) {
+		QString a = attr["size"];
+		int n = a.toInt();
+		if ( a[0] == '+' || a[0] == '-' )
+		    n += format.logicalFontSize;
+		format.logicalFontSize = n;
+		format.font_.setPointSize( format.stdPointSize );
+		style->styleSheet()->scaleFont( format.font_, format.logicalFontSize );
+	    }
+	    if ( attr.contains("face") ) {
+		QString a = attr["face"];
+		if ( a.contains(',') )
+		    a = a.left( a.find(',') );
+		format.font_.setFamily( a );
+	    }
+	} else {
+
+	    if ( style->isAnchor() ) {
+		format.anchor_href = attr["href"];
+		format.anchor_name = attr["name"];
+		changed = TRUE;
+	    }
+
+	    if ( style->fontWeight() != QStyleSheetItem::Undefined )
+		format.font_.setWeight( style->fontWeight() );
+	    if ( style->fontSize() != QStyleSheetItem::Undefined )
+		format.font_.setPointSize( style->fontSize() );
+	    else if ( style->logicalFontSize() != QStyleSheetItem::Undefined ) {
+		format.logicalFontSize = style->logicalFontSize();
+		format.font_.setPointSize( format.stdPointSize );
+		style->styleSheet()->scaleFont( format.font_, format.logicalFontSize );
+	    }
+	    else if ( style->logicalFontSizeStep() != QStyleSheetItem::Undefined ) {
+		format.logicalFontSize += style->logicalFontSizeStep();
+		format.font_.setPointSize( format.stdPointSize );
+		style->styleSheet()->scaleFont( format.font_, format.logicalFontSize );
+	    }
+	    if ( !style->fontFamily().isEmpty() )
+		format.font_.setFamily( style->fontFamily() );
+	    if ( style->color().isValid() )
+		format.color_ = style->color();
+	    if ( style->definesFontItalic() )
+		format.font_.setItalic( style->fontItalic() );
+	    if ( style->definesFontUnderline() )
+		format.font_.setUnderline( style->fontUnderline() );
+	}
+    }
+
+    if ( item || font_ != format.font_ || changed || color_ != format.color_) // slight performance improvement
+	format.createKey();
+    return format;
+}
+
+
+QTextCharFormat QTextCharFormat::formatWithoutCustom()
+{
+    QTextCharFormat fm( *this );
+    fm.custom = 0;
+    fm.createKey();
+    return fm;
+}
+
+QTextFormatCollection::QTextFormatCollection()
+    : cKey(199),lastRegisterFormat( 0 )
+{
+}
+
+
+static int anchorcount = 0;
+QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &format )
+{
+    if ( format.parent == this ) {
+	QTextCharFormat* f = ( QTextCharFormat*) &format;
+	f->addRef();
+	lastRegisterFormat = f;
+	return f;
+    }
+
+    if ( lastRegisterFormat ) {
+        if ( format.key == lastRegisterFormat->key ) {
+	    lastRegisterFormat->addRef();
+	    return lastRegisterFormat;
+        }
+    }
+
+    if ( format.isAnchor() ) {
+	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
+	// see unregisterFormat()
+	++anchorcount;
+	lastRegisterFormat =  new QTextCharFormat( format );
+	return lastRegisterFormat;
+    }
+
+    QTextCharFormat *fc = cKey[ format.key ];
+    if ( fc ) {
+	fc->addRef();
+	lastRegisterFormat = fc;
+	return fc;
+    } else {
+	QTextCharFormat *f = new QTextCharFormat( format );
+	f->parent = this;
+	cKey.insert( f->key, f );
+	lastRegisterFormat = f;
+	return f;
+    }
+}
+
+void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
+{
+    QTextCharFormat* f  = 0;
+
+    if ( format.isAnchor() ) {
+	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
+	// see registerFormat()
+	f = (QTextCharFormat*)&format;
+	int ref = f->removeRef();
+	if ( ref <= 0 ) {
+	    if ( f == lastRegisterFormat )
+		lastRegisterFormat = 0;
+	    --anchorcount;
+	    delete f;
+	}
+	return;
+    }
+
+    if ( format.parent == this )
+	f = ( QTextCharFormat*)&format;
+    else
+	f = cKey[ format.key ];
+
+    if ( f ) {
+	int ref = f->removeRef();
+	if ( ref <= 0 ) {
+	    if ( f == lastRegisterFormat )
+		lastRegisterFormat = 0;
+	    cKey.remove( format.key );
+	    delete f;
+	}
+    }
+}
+

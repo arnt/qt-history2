@@ -104,7 +104,7 @@ QSimpleRichText::~QSimpleRichText()
 */
 void QSimpleRichText::setWidth( QPainter* p, int w)
 {
-    d->doc->setWidth( p, w );
+    d->doc->doLayout( p, w );
 }
 
 /*!
@@ -114,7 +114,7 @@ void QSimpleRichText::setWidth( QPainter* p, int w)
 */
 int QSimpleRichText::width() const
 {
-    return d->doc->width;
+    return d->doc->flow()->width;
 }
 
 
@@ -131,7 +131,7 @@ int QSimpleRichText::width() const
 */
 int QSimpleRichText::widthUsed() const
 {
-    return d->doc->widthUsed;
+    return d->doc->flow()->widthUsed;
 }
 
 
@@ -141,7 +141,7 @@ int QSimpleRichText::widthUsed() const
 */
 int QSimpleRichText::height() const
 {
-    return d->doc->height;
+    return d->doc->flow()->height;
 }
 
 
@@ -206,15 +206,7 @@ QString QSimpleRichText::context() const
 */
 QString QSimpleRichText::anchor( QPainter* p, const QPoint& pos )
 {
-    QTextNode* n = d->doc->hitTest( p, 0, 0, pos.x(), pos.y() );
-    if ( !n )
-      return QString::null;
-
-    const QTextContainer* act = n->parent()->anchor();
-    if (act && act->attributes() && act->attributes()->contains("href") )
-      return ( act->attributes()->operator[]("href") );
-
-    return QString::null;
+    return d->doc->anchorAt( p, pos.x(), pos.y() );
 }
 
 
@@ -247,12 +239,12 @@ static uint int_sqrt(uint n)
 void QSimpleRichText::adjustSize( QPainter* p )
 {
     int w = QApplication::desktop()->width();
-    d->doc->setWidth( p,w );
-    w = int_sqrt(5*d->doc->height/3*d->doc->widthUsed);
-    d->doc->setWidth( p,w );
-    if ( w*3 < 5*d->doc->height ) {
-	w = int_sqrt(6*d->doc->height/3*d->doc->widthUsed);
-	d->doc->setWidth( p,w );
+    d->doc->doLayout( p,w );
+    w = int_sqrt(5*d->doc->height/3*d->doc->flow()->widthUsed);
+    d->doc->doLayout( p,w );
+    if ( w*3 < 5*d->doc->flow()->height ) {
+	w = int_sqrt(6*d->doc->flow()->height/3*d->doc->flow()->widthUsed);
+	d->doc->doLayout( p,w );
     }
 }
 

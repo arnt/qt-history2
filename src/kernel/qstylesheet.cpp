@@ -826,7 +826,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	understands the attributes \c width and \c height that determine
 	the size of the image. If the pixmap does not fit to the specified
 	size, it will be scaled automatically ( by using QImage::smoothScale() ).
-	
+
 	The \c align attribute determines where the image is
 	placed. Per default, an image is placed inline, just like a
 	normal character. Specify \c left or \c right to place the
@@ -1039,6 +1039,20 @@ void QStyleSheet::init()
      style = new QStyleSheetItem( this, QString::fromLatin1("u") );
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
+     
+     
+     // tables
+     style = new QStyleSheetItem( this, QString::fromLatin1("tr") );
+     style->setContexts(QString::fromLatin1("table"));
+     style = new QStyleSheetItem( this, QString::fromLatin1("td") );
+     style->setContexts(QString::fromLatin1("tr"));
+     style = new QStyleSheetItem( this, QString::fromLatin1("th") );
+     style->setFontWeight( QFont::Bold );
+     style->setAlignment( Qt::AlignCenter );
+     style->setContexts(QString::fromLatin1("tr"));
+
+     
+     
      style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
 }
 
@@ -1121,55 +1135,27 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 
   This function should not (yet) be used in application code.
 */
-QTextNode* QStyleSheet::tag( const QString& name,
-			     const QMap<QString, QString> &attr,
-			     const QString& context,
-			     const QMimeSourceFactory& factory,
-			     bool emptyTag ) const
+QTextCustomItem* QStyleSheet::tag( const QString& name,
+				   const QMap<QString, QString> &attr,
+				   const QString& context,
+				   const QMimeSourceFactory& factory,
+				   bool /*emptyTag */ ) const
 {
-    QStyleSheetItem* style = name.isNull()?0:styles[name];
-    if ( !style ) {
-	QString msg;
-	msg.sprintf("QStyleSheet Warning: unknown tag '%s'", name.ascii() );
-	error( msg );
-	style = nullstyle;
-    }
-
     static QString s_img = QString::fromLatin1("img");
     static QString s_hr = QString::fromLatin1("hr");
     static QString s_br = QString::fromLatin1("br");
     static QString s_multicol = QString::fromLatin1("multicol");
     static QString s_font = QString::fromLatin1("font");
 
+    const QStyleSheetItem* style = item( name );
     // first some known  tags
+    if ( !style )
+	return 0;
     if ( style->name() == s_img )
 	return new QTextImage(attr, context, factory);
-    else if ( style->name() == s_hr )
-	return new QTextHorizontalLine(attr, factory);
-    else if ( style->name() == s_br ) {
-	QTextNode* result = new QTextNode;
-	result->text = '\n';
-	return result;
-    }
-    else if ( style->name() == s_multicol )
-	return new QTextMulticol( style, attr );
-    else if ( style->name() == s_font )
-	return new QTextFont( style, attr );
-
-    // empty tags
-    if ( emptyTag ) { // w know nothing about that, make a null node
-	return new QTextNode;
-    }
-
-    // process containers
-    switch ( style->displayMode() ) {
-    case QStyleSheetItem::DisplayBlock:
-    case QStyleSheetItem::DisplayNone:
-    case QStyleSheetItem::DisplayListItem:
-	return new QTextBox( style, attr );
-    default: // inline, none
-	return new QTextContainer( style, attr );
-    }
+    if ( style->name() == s_hr )
+	return new QTextHorizontalLine();
+   return 0;
 }
 
 
