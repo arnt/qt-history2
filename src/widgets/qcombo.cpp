@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#64 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#64 $");
 
 
 /*!
@@ -103,14 +103,15 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#63 $");
 
 
 /*! \fn void QComboBox::activated( int index )
+
   This signal is emitted when a new item has been activated (selected).
   The \e index is the position of the item in the popup list.
 */
 
-/* \fn void QComboBox::activated( const char * )
+/*! \fn void QComboBox::activated( const char * string )
 
   This signal is emitted when a new item has been activated
-  (selected). The argument is the activated string.
+  (selected). \a string is the activated string.
 
   You can also use activated(int) signal, but be aware that its
   argument meaningful only for selected strings, not for typed
@@ -118,14 +119,15 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#63 $");
 */
 
 /*! \fn void QComboBox::highlighted( int index )
+
   This signal is emitted when a new item has been set to current.
   The \e index is the position of the item in the popup list.
 */
 
-/* \fn void QComboBox::highlighted( const char * )
+/*! \fn void QComboBox::highlighted( const char * string )
 
-  This signal is emitted when a new item has been highlighted. The
-  argument is the highlighted string.
+  This signal is emitted when a new item has been highlighted. \a
+  string is the highlighted string.
 
   You can also use highlighted(int) signal.
 */
