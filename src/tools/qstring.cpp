@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#68 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#67 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#68 $")
 
 
 /*****************************************************************************
@@ -274,7 +274,7 @@ static void createCRC16Table()			// build CRC16 lookup table
   The checksum is independent of the byte order (endianness).
  ----------------------------------------------------------------------------*/
 
-UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
+UINT16 qchecksum( const char *data, uint len )
 {
     if ( !crc_tbl_init ) {			// create lookup table
 	createCRC16Table();
@@ -286,11 +286,9 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
     uchar *p = (uchar *)data;
     while ( len-- ) {
 	c = *p++;
-	index = ((crc ^ c) & 15);
-	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[index];
+	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
 	c >>= 4;
-	index = ((crc ^ c) & 15);
-	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[index];
+	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
     }
     return ~crc;
 }
@@ -306,8 +304,9 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
 
   \inherit QArray
   \ingroup tools
+  \ingroup shared
 
-  This class will be documented later.
+  QByteArray is defined as QArray\<char\>.
  ----------------------------------------------------------------------------*/
 
 
@@ -317,7 +316,10 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
 
 /*----------------------------------------------------------------------------
   \relates QByteArray
-  Writes a byte array to a stream.
+  Writes a byte array to a stream and returns a reference to the stream.
+
+  The serialization format is the byte array size (\c UINT32) followed by
+  this number of bytes.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
@@ -327,7 +329,7 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 
 /*----------------------------------------------------------------------------
   \relates QByteArray
-  Reads a byte array from a stream.
+  Reads a byte array from a stream and returns a reference to the stream.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
