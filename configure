@@ -1524,7 +1524,7 @@ then
 fi
 
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
-[ "x$DO_INCREMENT" = "xyes" ] && echo "Incremental.......... $INCREMENTAL"
+[ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental.......... $INCREMENTAL"
 echo "Configuration........ $QMAKE_CONFIG"
 echo "Embedded support..... $EMBEDDED"
 echo "Thread support....... $THREAD"
