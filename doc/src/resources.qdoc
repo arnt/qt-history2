@@ -9,8 +9,8 @@
     risk of losing the files.
 
     The resource system is based on tight cooperation between \c
-    qmake, \c rcc (the Qt resource compiler), \e{Qt Designer}, and
-    QFile. It obsoletes Qt 3's \c qembed tool and
+    qmake, \c rcc (Qt's resource compiler), and QFile. It obsoletes
+    Qt 3's \c qembed tool and the
     \l{http://doc.trolltech.com/qq/qq05-iconography.html#imagestorage}{image
     collection} mechanism.
 
@@ -73,27 +73,28 @@
     :/myresources/cut-img.png.
 
     Some resources, such as translation files and icons, many need to
-    change based on the system's locale. This is possible using the
-    \c lang attribute. For example:
+    change based on the user's locale. This is possible using the \c
+    lang attribute. For example:
 
     \code
         <qresource>
             <file>cut.jpg</file>
         </qresource>
-        <qresource lang="de">
-            <file name="cut.jpg">cut_de.jpg</file>
+        <qresource lang="fr">
+            <file name="cut.jpg">cut_fr.jpg</file>
         </qresource>
     \endcode
 
-    If QLocale::system() is \c de (i.e. German), the \c cut_de.jpg
-    image is exported as \c :/cut.jpg, overriding the previous entry.
-    For other locales, \c cut.jpg is used.
+    If the user's locale is French (e.g. QLocale::system() returns
+    "fr_FR"), \c :/cut.jpg becomes a reference to the \c cut_fr.jpg
+    image. For other locales, \c cut.jpg is used.
 
     \section1 Using Resources in the Application
 
-    In the application, resource paths can be used anywhere instead
-    of file system paths. In particular, you can pass a resource path
-    instead of a file name to the QPixmap or QImage constructor:
+    In the application, resource paths can be used in most places
+    instead of ordinary file system paths. In particular, you can
+    pass a resource path instead of a file name to the QPixmap or
+    QImage constructor:
 
     \quotefromfile mainwindows/application/mainwindow.cpp
     \skipto cutAct = new QAction(QPixmap(":/images/cut.png
@@ -104,24 +105,30 @@
 
     In memory, resources are represented by a tree of QResource
     objects. The tree is automatically built at startup and used by
-    QFile for resolving paths to resources. If you have resources in
-    a static library, you might need to force initialization of your
-    resources by calling \c qInitResources_application(), where \c
-    application is the name of your application. (This can be
-    overridden by setting the \c qmake \c QMAKE_RESOURCE_NAME
-    variable.) This function is generated as part for the \c
-    qrc_application.cpp file. For example:
+    QFile for resolving paths to resources.
+
+    QResource supports the concept of a search path list. If you then
+    refer to a resource with \c : instead of \c :/ as the prefix, the
+    resource will be looked up using the search path list. The search
+    path list is empty at startup; call QResource::addSearchPath() to
+    add paths to it.
+
+    If you have resources in a static library, you might need to
+    force initialization of your resources by calling \c
+    qInitResources_xxx(), where \c xxx is the base name of the \c
+    .qrc file. This function is generated as part for the \c
+    qrc_xxx.cpp file. For example:
 
     \code
-    extern int qInitResources_application();
+        extern int qInitResources_graphlib();
 
-    int main(int argc, char *argv[])
-    {
-        QApplication app(argc, argv);
-        qInitResources_application();
-        ...
-        return app.exec();
-    }
+        int main(int argc, char *argv[])
+        {
+            QApplication app(argc, argv);
+            qInitResources_graphlib();
+            ...
+            return app.exec();
+        }
     \endcode
 
     \section1 Inspecting Resources
@@ -154,7 +161,7 @@
         lsqrc application.exe /images/new.png
     \endcode
 
-    The output is a hexadecimal dump of the resource data.
+    The output is a hexadecimal dump of the resource data:
 
     \code
         ****************** /images/new.png [386] ****************
