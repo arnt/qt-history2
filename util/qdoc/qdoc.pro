@@ -69,6 +69,7 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfile.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfileinfo.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qglobal.cpp \
+		  $$QT_SOURCE_TREE/src/tools/qhash.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qiodevice.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qlibrary.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qlist.cpp \
