@@ -377,6 +377,8 @@ QTranslator::~QTranslator()
   \sa save()
 */
 
+extern bool qt_detectRTLLanguage();
+
 bool QTranslator::load( const QString & filename, const QString & directory,
 			const QString & search_delimiters,
 			const QString & suffix )

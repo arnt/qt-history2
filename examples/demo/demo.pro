@@ -77,8 +77,9 @@ table {
 	INTERFACES += widgets/widgetsbase_pro.ui
 }
 
-TRANSLATIONS	= demo_de.ts \
-		  demo_fr.ts
+TRANSLATIONS	= translations/demo_de.ts \
+		  translations/demo_fr.ts \
+		  translations/demo_iw.ts
 
 TARGET		= demo
 INCLUDEPATH	+= .

@@ -104,8 +104,6 @@ void CategoryItem::paint( QPainter *p )
 Frame::Frame( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
 {
-    updateTranslators();
-
     title = tr( "Qt Demo Collection" );
     setCaption( title );
 
@@ -220,8 +218,8 @@ void Frame::clickedCategory( QListBoxItem *item )
 void Frame::updateTranslators()
 {
     if ( !qt_translator ) {
-	qt_translator = new QTranslator( this );
-	translator = new QTranslator( this );
+	qt_translator = new QTranslator( qApp );
+	translator = new QTranslator( qApp );
 	qApp->installTranslator( qt_translator );
 	qApp->installTranslator( translator );
     }
@@ -229,7 +227,7 @@ void Frame::updateTranslators()
     QString QTDIR = getenv( "QTDIR" );
 
     qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), QTDIR + "/translations" );
-    translator->load( QString( "demo_%1" ).arg( QTextCodec::locale() ) );
+    translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
 }
 
 bool Frame::event( QEvent *e )
@@ -239,3 +237,4 @@ bool Frame::event( QEvent *e )
 
     return QMainWindow::event( e );
 }
+

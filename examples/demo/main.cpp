@@ -119,6 +119,9 @@ int main( int argc, char **argv )
 #ifdef Q_OS_MACX
     setenv("QTDIR", QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + ".." + QDir::separator() + ".."), 0);
 #endif
+
+    Frame::updateTranslators();
+
     // #### how about a splash screen?
     Frame frame;
 
