@@ -444,7 +444,7 @@ bool QInputContext::endComposition(QWidget *fw)
         fw = qApp->focusWidget();
 
     if (fw) {
-        QInputMethodEvent e(QString::null, QString::null, QList<QInputMethodEvent::Attribute>());
+        QInputMethodEvent e;
         result = qt_sendSpontaneousEvent(fw, &e);
     }
 
@@ -464,8 +464,9 @@ void QInputContext::accept(QWidget *fw)
 #endif
 
     if (fw && imePosition != -1) {
-        QInputMethodEvent e(QString::null, imeComposition ? *imeComposition : QString(), 
-                            QList<QInputMethodEvent::Attribute>());
+        QInputMethodEvent e;
+        if (imeComposition)
+            e.setCommitString(*imeComposition);
          qt_sendSpontaneousEvent(fw, &e);
     }
 
@@ -567,7 +568,8 @@ bool QInputContext::composition(LPARAM lParam)
             // a fixed result, return the converted string
             *imeComposition = getString(imc, GCS_RESULTSTR);
             imePosition = -1;
-            QInputMethodEvent e(QString(), *imeComposition, QList<QInputMethodEvent::Attribute>());
+            QInputMethodEvent e;
+            e.setCommitString(*imeComposition);
             *imeComposition = QString::null;
             result = qt_sendSpontaneousEvent(fw, &e);
         }
@@ -597,10 +599,10 @@ bool QInputContext::composition(LPARAM lParam)
                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition, selLength,
                                                      standardFormat(SelectionFormat, fw));
            if (imePosition + selLength < imeComposition->length())
-               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition + selLength, 
+               attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition + selLength,
                                                      imeComposition->length() - imePosition - selLength,
                                                      standardFormat(PreeditFormat, fw));
-           QInputMethodEvent e(*imeComposition, QString(), attrs);
+           QInputMethodEvent e(*imeComposition, attrs);
            result = qt_sendSpontaneousEvent(fw, &e);
         }
         releaseContext(fw->winId(), imc);
