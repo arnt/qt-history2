@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#121 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#120 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#121 $");
 
 
 // For thread-safety:
@@ -157,6 +157,53 @@ static int highest_bit( uint v )
     return i;
 }
 
+static uint n_bits( uint v )
+{
+    int i = 0;
+    while ( v ) {
+	v = v & (v - 1);
+	i++;
+    }
+    return i;
+}
+
+static uint *red_scale_table   = 0;
+static uint *green_scale_table = 0;
+static uint *blue_scale_table  = 0;
+
+static void cleanup_scale_tables()
+{
+    delete red_scale_table;
+    delete green_scale_table;
+    delete blue_scale_table;
+}
+
+/*
+  Could do smart bitshifting, but the "obvious" algorithm only works for
+  nBits >= 4. This is more robust.
+*/
+static void build_scale_table( uint **table, uint nBits )
+{
+    if ( nBits > 7 ) {
+#if defined(CHECK_RANGE)
+	warning( "build_scale_table: internal error, nBits = %i", nBits );
+#endif
+	return;
+    }
+    if (!*table) {
+	static bool firstTable = TRUE;
+	if ( firstTable ) {
+	    qAddPostRoutine( cleanup_scale_tables );
+	    firstTable = FALSE;
+	}	
+	*table = new uint[256];
+    }
+    int   maxVal   = (1 << nBits) - 1;
+    int   valShift = 8 - nBits;
+    int i;
+    for( i = 0 ; i < maxVal + 1 ; i++ )
+	(*table)[i << valShift] = i*255/maxVal;
+}
 
 /*****************************************************************************
   QPixmap member functions
@@ -448,7 +495,6 @@ int QPixmap::metric( int m ) const
     return val;
 }
 
-
 /*!
   Converts the pixmap to an image. Returns a null image if the operation
   failed.
@@ -526,6 +572,28 @@ QImage QPixmap::convertToImage() const
 	int  red_shift	 = highest_bit( red_mask )   - 7;
 	int  green_shift = highest_bit( green_mask ) - 7;
 	int  blue_shift	 = highest_bit( blue_mask )  - 7;
+
+	uint red_bits    = n_bits( red_mask );
+	uint green_bits  = n_bits( green_mask );
+	uint blue_bits   = n_bits( blue_mask );
+
+	static uint red_table_bits   = 0;
+	static uint green_table_bits = 0;
+	static uint blue_table_bits  = 0;
+
+	if ( red_bits < 8 && red_table_bits != red_bits) {
+	    build_scale_table( &red_scale_table, red_bits );
+	    red_table_bits = red_bits;
+	}
+	if ( blue_bits < 8 && blue_table_bits != blue_bits) {
+	    build_scale_table( &blue_scale_table, blue_bits );
+	    blue_table_bits = blue_bits;
+	}
+	if ( green_bits < 8 && green_table_bits != green_bits) {
+	    build_scale_table( &green_scale_table, green_bits );
+	    green_table_bits = green_bits;
+	}
+
 	int  r, g, b;
 
 	QRgb  *dst;
@@ -594,6 +662,13 @@ QImage QPixmap::convertToImage() const
 		    b = (pixel & blue_mask) >> blue_shift;
 		else
 		    b = (pixel & blue_mask) << -blue_shift;
+
+		if ( red_bits < 8 )
+		    r = red_scale_table[r];
+		if ( green_bits < 8 )
+		    g = green_scale_table[g];
+		if ( blue_bits < 8 )
+		    b = blue_scale_table[b];
 
 		if (msk) {
 		    if ( ale ) {
