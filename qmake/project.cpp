@@ -1240,7 +1240,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	for(QMap<QString, QStringList>::ConstIterator it = place.begin();
 	    it != place.end(); ++it) {
 	    if(!it.key().startsWith("."))
-		putenv(Option::sysenv_mod + it.key() + '=' + it.value().join(" "));
+		putenv(const_cast<char*>(QString(Option::sysenv_mod + it.key() + '=' + it.value().join(" ")).ascii()));
 	}
 #endif
 	bool ret = system(args.first().latin1()) == 0;
@@ -1676,7 +1676,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    for(QMap<QString, QStringList>::ConstIterator it = place.begin();
 			it != place.end(); ++it) {
 			if(!it.key().startsWith("."))
-			    putenv(Option::sysenv_mod + it.key() + '=' + it.value().join(" "));
+			    putenv(const_cast<char*>(QString(Option::sysenv_mod + it.key() + '=' + it.value().join(" ")).ascii()));
 		    }
 #endif
 		    char buff[256];
