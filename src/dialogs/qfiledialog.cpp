@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#301 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#302 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3852,8 +3852,6 @@ static int cmpInfo( const void *n1, const void *n2 )
 
 void QFileDialog::resortDir()
 {
-    files->viewport()->setUpdatesEnabled( FALSE );
-    
     int numFiles = 0, numDirs = 0;
     int i = 0, j = 0;
     
@@ -3903,6 +3901,4 @@ void QFileDialog::resortDir()
 	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
 	}
     }
-
-    files->viewport()->setUpdatesEnabled( TRUE );
 }
