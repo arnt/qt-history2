@@ -631,6 +631,40 @@ static QFontDatabasePrivate *db=0;
 #  include "qfontdatabase_qws.cpp"
 #endif
 
+static QtFontStyle *bestStyle(QtFontFoundry *foundry, const QtFontStyle::Key &styleKey)
+{
+    int best = 0;
+    int dist = 0xffff;
+
+    for ( int i = 0; i < foundry->count; i++ ) {
+	QtFontStyle *style = foundry->styles[i];
+
+	int d = QABS( styleKey.weight - style->key.weight );
+
+	if ( styleKey.stretch != 0 && style->key.stretch != 0 ) {
+	    d += QABS( styleKey.stretch - style->key.stretch );
+	}
+
+	if ( styleKey.italic ) {
+	    if ( !style->key.italic )
+		d += style->key.oblique ? 0x0001 : 0x1000;
+	} else if ( styleKey.oblique ) {
+	    if (!style->key.oblique )
+		d += style->key.italic ? 0x0001 : 0x1000;
+	} else if ( style->key.italic || style->key.oblique ) {
+	    d += 0x1000;
+	}
+
+	if ( d < dist ) {
+	    best = i;
+	    dist = d;
+	}
+    }
+
+    FM_DEBUG( "          best style has distance 0x%x", dist );
+    return foundry->styles[best];
+}
+
 static
 unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStrategy,
                           const QtFontFamily *family, const QString &foundry_name,
@@ -656,37 +690,7 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
         FM_DEBUG("          looking for matching style in foundry '%s' %d",
                   foundry->name.isEmpty() ? "-- none --" : foundry->name.latin1(), foundry->count);
 
-        QtFontStyle *style = 0;
-        int best = 0;
-        int dist = 0xffff;
-
-        for (int i = 0; i < foundry->count; i++) {
-            style = foundry->styles[i];
-
-            int d = QABS(styleKey.weight - style->key.weight);
-
-            if (styleKey.stretch != 0 && style->key.stretch != 0) {
-                d += QABS(styleKey.stretch - style->key.stretch);
-            }
-
-            if (styleKey.italic) {
-                if (!style->key.italic)
-                    d += style->key.oblique ? 0x0001 : 0x1000;
-            } else if (styleKey.oblique) {
-                if (!style->key.oblique)
-                    d += style->key.italic ? 0x0001 : 0x1000;
-            } else if (style->key.italic || style->key.oblique) {
-                d += 0x1000;
-            }
-
-            if (d < dist) {
-                best = i;
-                dist = d;
-            }
-        }
-
-        FM_DEBUG("          best style has distance 0x%x", dist);
-        style = foundry->styles[best];
+        QtFontStyle *style = bestStyle(foundry, styleKey);
 
         if (! style->smoothScalable && (styleStrategy & QFont::ForceOutline)) {
             FM_DEBUG("            ForceOutline set, but not smoothly scalable");
@@ -1603,11 +1607,7 @@ QFont QFontDatabase::font(const QString &family, const QString &style,
     }
 
     QtFontStyle::Key styleKey(style);
-    QtFontStyle *s = allStyles.style(styleKey);
-
-    // ### perhaps do a bit of matching to find the most compatible font?
-    if (!s && allStyles.count)
-        s = allStyles.styles[0];
+    QtFontStyle *s = bestStyle(&allStyles, styleKey);
 
     if (!s) // no styles found?
         return QApplication::font();

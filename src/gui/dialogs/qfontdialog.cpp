@@ -592,11 +592,25 @@ void QFontDialog::updateStyles()
 
         if (!d->style.isEmpty()) {
             bool found = false;
-            for (int i = 0 ; i < (int)d->styleList->count() ; i++) {
-                if (d->style == d->styleList->text(i)) {
-                    d->styleList->setCurrentItem(i);
-                    found = true;
-                    break;
+            bool first = TRUE;
+            QString cstyle = d->style;
+        redo:
+            for ( int i = 0 ; i < (int)d->styleList->count() ; i++ ) {
+                if ( cstyle == d->styleList->text(i) ) {
+                     d->styleList->setCurrentItem( i );
+                     found = TRUE;
+                     break;
+                 }
+            }
+            if (!found && first) {
+                if (cstyle.contains("Italic")) {
+                    cstyle.replace("Italic", "Oblique");
+                    first = FALSE;
+                    goto redo;
+                } else if (cstyle.contains("Oblique")) {
+                    cstyle.replace("Oblique", "Italic");
+                    first = FALSE;
+                    goto redo;
                 }
             }
             if (!found)
@@ -605,7 +619,7 @@ void QFontDialog::updateStyles()
 
         d->styleEdit->setText(d->styleList->currentText());
         if (style().styleHint(QStyle::SH_FontDialog_SelectAssociatedText, this) &&
-             d->styleList->hasFocus())
+            d->styleList->hasFocus())
             d->styleEdit->selectAll();
 
         d->smoothScalable = d->fdb.isSmoothlyScalable(d->familyList->currentText(), d->styleList->currentText());
