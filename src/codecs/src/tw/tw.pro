@@ -11,7 +11,7 @@ SOURCES         = $(QTDIR)/src/codecs/qbig5codec.cpp \
 TARGET          = qtwcodecs
 DESTDIR         = ../../../../plugins/codecs
 
-target.path=$$plugins.path
+target.path=$$plugins.path/codecs
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins/codecs
 INSTALLS += target
 

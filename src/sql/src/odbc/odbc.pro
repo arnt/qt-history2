@@ -14,8 +14,8 @@ unix:LIBS       += -lodbc
 win32:LIBS  	+= odbc32.lib
 
 TARGET		= qsqlodbc
-DESTDIR		= ../../../../plugins
+DESTDIR		= ../../../../plugins/sqldrivers
 
-target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+target.path=$$plugins.path/sqldrivers
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/sqldrivers
 INSTALLS += target

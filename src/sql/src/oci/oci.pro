@@ -12,9 +12,9 @@ win32:INCLUDEPATH += c:\oracle\Ora81\OCI\include
 win32:LIBS      += oci.lib
 unix:LIBS	+= -lclntsh
 
-DESTDIR		= ../../../../plugins
+DESTDIR		= ../../../../plugins/sqldrivers
 TARGET		= qsqloci
 
-target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+target.path=$$plugins.path/sqldrivers
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/sqldrivers
 INSTALLS += target

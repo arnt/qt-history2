@@ -13,6 +13,6 @@ win32:OBJECTS_DIR	= obj
 TARGET		= qwindowsstyle
 DESTDIR		= ../../../../plugins/styles
 
-target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+target.path=$$plugins.path/styles
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/styles
 INSTALLS += target
