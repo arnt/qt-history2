@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#55 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -36,6 +36,13 @@
 #include <X11/Xlib.h> // for XEvent
 #include <X11/Xatom.h> // for XA_STRING and friends
 #include <X11/extensions/shape.h>
+
+// conflict resolution
+
+const int XKeyPress = KeyPress;
+const int XKeyRelease = KeyRelease;
+#undef KeyPress;
+#undef KeyRelease;
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -208,7 +215,7 @@ void qt_xdnd_setup() {
 
     qt_x11_intern_atom( "XdndAware", &qt_xdnd_aware );
 
-    
+
     qt_x11_intern_atom( "XdndActionCopy", &qt_xdnd_action_copy );
 
     qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
@@ -292,7 +299,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
-    QWidget * c = find_child( w, p );
+    QWidget * c = find_child( w, p ); // changes p to to c-local coordinates
 
     if ( !c || !c->acceptDrops() && c->isDesktop() )
 	return;
@@ -533,7 +540,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
     }
 
     if ( beingCancelled ) {
-	if ( e->type() == Event_KeyRelease &&
+	if ( e->type() == QEvent::KeyRelease &&
 	     ((QKeyEvent*)e)->key() == Key_Escape ) {
 	    dragSource->removeEventFilter( this );
 	    object = 0;
@@ -547,10 +554,10 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 
     ASSERT( object != 0 );
 
-    if ( e->type() == Event_MouseMove ) {
+    if ( e->type() == QEvent::MouseMove ) {
 	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
 	return TRUE;
-    } else if ( e->type() == Event_MouseButtonRelease ) {
+    } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	if ( willDrop )
 	    drop();
 	else
@@ -561,7 +568,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	beingCancelled = FALSE;
 	qApp->exit_loop();
 	return TRUE;
-    } else if ( e->type() == Event_KeyPress &&
+    } else if ( e->type() == QEvent::KeyPress &&
 		((QKeyEvent*)e)->key() == Key_Escape ) {
 	cancel();
 	dragSource->removeEventFilter( this );
@@ -570,7 +577,7 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	beingCancelled = FALSE;
 	qApp->exit_loop();
 	return TRUE;
-    } else if ( e->type() == Event_DragResponse ) {
+    } else if ( e->type() == QEvent::DragResponse ) {
 	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
 	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
 	    restoreCursor = TRUE;

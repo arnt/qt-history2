@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#59 $
 **
 ** Implementation of QScrollView class
 **
@@ -685,22 +685,22 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
     if (!d) return FALSE; // we are destructing
     if ( obj == &d->viewport ) {
 	switch ( e->type() ) {
-	  case Event_Paint:
+	  case QEvent::Paint:
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
-	  case Event_MouseButtonPress:
+	  case QEvent::MouseButtonPress:
 	    viewportMousePressEvent( (QMouseEvent*)e );
 	    break;
-	  case Event_MouseButtonRelease:
+	  case QEvent::MouseButtonRelease:
 	    viewportMouseReleaseEvent( (QMouseEvent*)e );
 	    break;
-	  case Event_MouseButtonDblClick:
+	  case QEvent::MouseButtonDblClick:
 	    viewportMouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
-	  case Event_MouseMove:
+	  case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
-	  case Event_ChildRemoved:
+	  case QEvent::ChildRemoved:
 	    removeChild(((QChildEvent*)e)->child());
 	    break;
 	}
@@ -709,7 +709,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	QSVChildRec* r = d->rec((QWidget*)obj);
 	if (!r) return FALSE; // spurious
 	switch ( e->type() ) {
-	  case Event_Resize:
+	  case QEvent::Resize:
 	    d->autoResize(this);
 	    break;
 	}

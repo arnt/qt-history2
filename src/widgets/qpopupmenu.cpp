@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#174 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#175 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1307,7 +1307,8 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    p->updateRow( p->actItem );
     }
 
-    if ( (e->state() & MouseButtonMask) == 0 && !hasMouseTracking() )
+    if ( (e->state() & QMouseEvent::MouseButtonMask) == 0 &&
+	 !hasMouseTracking() )
 	return;
 
     int	 item = itemAtPos( e->pos() );
@@ -1323,7 +1324,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    singleSingleShot->stop();
     } else {					// mouse on valid item
 	// but did not register mouse press
-	if ( (e->state() & MouseButtonMask) && !mouseBtDn )
+	if ( (e->state() & QMouseEvent::MouseButtonMask) && !mouseBtDn )
 	    mouseBtDn = TRUE; // so mouseReleaseEvent will pop down
 
 	register QMenuItem *mi = mitems->at( item );

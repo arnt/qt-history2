@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#168 $
 **
 ** Implementation of QObject class
 **
@@ -562,7 +562,7 @@ bool QObject::event( QEvent *e )
 	if ( activate_filters(e) )		// stopped by a filter
 	    return TRUE;
     }
-    if ( e->type() == Event_Timer ) {		// timer event
+    if ( e->type() == QEvent::Timer ) {		// timer event
 	timerEvent( (QTimerEvent*)e );
 	return TRUE;
     }
@@ -969,7 +969,7 @@ void QObject::removeChild( QObject *obj )
 
     bool MyWidget::eventFilter( QObject *, QEvent *e )
     {
-	if ( e->type() == Event_KeyPress ) {	// key press
+	if ( e->type() == QEvent::KeyPress ) {	// key press
 	    QKeyEvent *k = (QKeyEvent*)e;
 	    debug( "Ate key press %d", k->key() );
 	    return TRUE;			// eat event

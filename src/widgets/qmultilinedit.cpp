@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#106 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -810,14 +810,14 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    emit textChanged();
 	return;
     }
-    if ( e->state() & ControlButton ) {
+    if ( e->state() & QMouseEvent::ControlButton ) {
 	switch ( e->key() ) {
 	case Key_A:
 	case Key_Left:
-	    home( e->state() & ShiftButton );
+	    home( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_B:
-	    cursorLeft( e->state() & ShiftButton );
+	    cursorLeft( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_C:
 	    copyText();
@@ -827,10 +827,10 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_E:
 	case Key_Right:
-	    end( e->state() & ShiftButton );
+	    end( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_F:
-	    cursorRight( e->state() & ShiftButton );
+	    cursorRight( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_H:
 	    backspace();
@@ -839,10 +839,10 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    killLine();
 	    break;
 	case Key_N:
-	    cursorDown( e->state() & ShiftButton );
+	    cursorDown( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_P:
-	    cursorUp( e->state() & ShiftButton );
+	    cursorUp( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_V:
 	    paste();
@@ -856,34 +856,34 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
     } else {
 	switch ( e->key() ) {
 	case Key_Left:
-	    cursorLeft( e->state() & ShiftButton );
+	    cursorLeft( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Right:
-	    cursorRight( e->state() & ShiftButton );
+	    cursorRight( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Up:
-	    cursorUp( e->state() & ShiftButton );
+	    cursorUp( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Down:
-	    cursorDown( e->state() & ShiftButton );
+	    cursorDown( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Backspace:
 	    backspace();
 	    break;
 	case Key_Home:
-	    home( e->state() & ShiftButton );
+	    home( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_End:
-	    end( e->state() & ShiftButton );
+	    end( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Delete:
 	    del();
 	    break;
 	case Key_Next:
-	    pageDown( e->state() & ShiftButton );
+	    pageDown( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Prior:
-	    pageUp( e->state() & ShiftButton );
+	    pageUp( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Enter:
 	case Key_Return:
@@ -1549,7 +1549,7 @@ void QMultiLineEdit::end( bool mark )
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
-    if ( m->button() ==  MidButton ) {
+    if ( m->button() == QMouseEvent::MidButton ) {
 	if ( hasMarkedText() ) {
 #if defined(_WS_X11_)
 	    copyText();		// copy-and-paste to self
@@ -1574,7 +1574,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     cursorX = xPosToCursorPos( *getString( newY ), fm,
 			       m->pos().x() - BORDER + xOffset(),
 			       cellWidth() - 2 * BORDER );
-    if ( m->button() ==  LeftButton ) {
+    if ( m->button() ==  QMouseEvent::LeftButton ) {
 	dragMarking    = TRUE;
 	curXPos        = 0;
 	markAnchorX    = cursorX;
@@ -1588,7 +1588,8 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	}	
     }
 
-    if ( m->button() ==  MidButton || m->button() ==  LeftButton) {
+    if ( m->button() == QMouseEvent::MidButton ||
+	 m->button() == QMouseEvent::LeftButton) {
 	if ( cursorY != newY ) {
 	    int oldY = cursorY;
 	    cursorY = newY;
@@ -1598,7 +1599,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     }
     if ( readOnly )
     	return;
-    if ( m->button() ==  MidButton ) {
+    if ( m->button() == QMouseEvent::MidButton ) {
 #if defined(_WS_X11_)
 	paste();		// Will repaint the cursor line.
 #else
@@ -1699,7 +1700,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 
 void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 {
-    if ( m->button() ==  LeftButton ) {
+    if ( m->button() == QMouseEvent::LeftButton ) {
 	dragMarking    = TRUE;
 	markWord( cursorX, cursorY );
 	wordMark = TRUE;

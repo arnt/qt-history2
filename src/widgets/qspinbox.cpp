@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#49 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -472,9 +472,9 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
     if ( obj != vi )
 	return FALSE;
 
-    if ( ev->type() == Event_FocusOut ) {
+    if ( ev->type() == QEvent::FocusOut ) {
 	interpretText();
-    } else if ( ev->type() == Event_KeyPress ) {
+    } else if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
 	if ( k->key() == Key_Up ) {
 	    stepUp();

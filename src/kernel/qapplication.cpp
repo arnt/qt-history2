@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#153 $
 **
 ** Implementation of QApplication class
 **
@@ -808,15 +808,15 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
     }
 
     // throw away mouse events to disabled widgets
-    if ( event->type() <= Event_MouseMove &&
-	 event->type() >= Event_MouseButtonPress &&
+    if ( event->type() <= QEvent::MouseMove &&
+	 event->type() >= QEvent::MouseButtonPress &&
 	 ( receiver->isWidgetType() &&
 	   !((QWidget *)receiver)->isEnabled() ) )
 	 return FALSE;
 
     // throw away any mouse-tracking-only mouse events
-    if ( event->type() == Event_MouseMove &&
-	 (((QMouseEvent*)event)->state() & MouseButtonMask) == 0 &&
+    if ( event->type() == QEvent::MouseMove &&
+	 (((QMouseEvent*)event)->state()&QMouseEvent::MouseButtonMask) == 0 &&
 	 ( receiver->isWidgetType() &&
 	   !((QWidget *)receiver)->hasMouseTracking() ) )
 	return TRUE;

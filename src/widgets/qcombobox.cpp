@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#148 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1340,7 +1340,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     if ( !event )
 	return TRUE;
     else if ( object == d->ed ) {
-	if ( event->type() == Event_KeyPress ) {
+	if ( event->type() == QEvent::KeyPress ) {
 	    keyPressEvent( (QKeyEvent *)event );
 	    if ( ((QKeyEvent *)event)->isAccepted() ) {
 		d->completeNow = FALSE;
@@ -1349,12 +1349,12 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		d->completeNow = TRUE;
 		d->completeAt = d->ed->cursorPosition();
 	    }
-	} else if ( event->type() == Event_KeyRelease ) {
+	} else if ( event->type() == QEvent::KeyRelease ) {
 	    d->completeNow = FALSE;
 	    keyReleaseEvent( (QKeyEvent *)event );
 	    return ((QKeyEvent *)event)->isAccepted();
-	} else if ( (event->type() == Event_FocusIn ||
-		     event->type() == Event_FocusOut ) ) {
+	} else if ( (event->type() == QEvent::FocusIn ||
+		     event->type() == QEvent::FocusOut ) ) {
 	    d->completeNow = FALSE;
 	    // to get the focus indication right
 	    update();
@@ -1389,7 +1389,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     } else if ( d->usingListBox && object == d->listBox ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
-        case Event_MouseMove:
+        case QEvent::MouseMove:
 	    if ( !d->mouseWasInsidePopup  ) {
 		QPoint pos = e->pos();
 		if ( d->listBox->rect().contains( pos ) )
@@ -1413,9 +1413,9 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	    break;
-	case Event_MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    if ( d->listBox->rect().contains( e->pos() ) ) {
-		QMouseEvent tmp( Event_MouseButtonDblClick,
+		QMouseEvent tmp( QEvent::MouseButtonDblClick,
 				 e->pos(), e->button(), e->state() ) ;
 		// will hide popup
 		QApplication::sendEvent( object, &tmp );
@@ -1432,8 +1432,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	    break;
-        case Event_MouseButtonDblClick:
-        case Event_MouseButtonPress:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseButtonPress:
 	    if ( !d->listBox->rect().contains( e->pos() ) ) {
 		QPoint globalPos = d->listBox->mapToGlobal(e->pos());
 		if ( QApplication::widgetAt( globalPos, TRUE ) == this ) {
@@ -1444,7 +1444,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		return TRUE;
 	    }
 	    break;
-	case Event_KeyPress:
+	case QEvent::KeyPress:
 	    switch( ((QKeyEvent *)event)->key() ) {
 	    case Key_Escape:
 		popDownListBox();
@@ -1464,17 +1464,17 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     } else if ( !d->usingListBox && object == d->popup ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch ( event->type() ) {
-        case Event_MouseButtonRelease:
+        case QEvent::MouseButtonRelease:
 	    if ( d->shortClick ) {
-		QMouseEvent tmp( Event_MouseMove,
+		QMouseEvent tmp( QEvent::MouseMove,
 				 e->pos(), e->button(), e->state() ) ;
 		// highlight item, but don't pop down:
 		QApplication::sendEvent( object, &tmp );
 		return TRUE;
 	    }
 	    break;
-        case Event_MouseButtonDblClick:
-        case Event_MouseButtonPress:
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseButtonPress:
 	    if ( !d->popup->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
 		d->listBox->removeEventFilter( this );

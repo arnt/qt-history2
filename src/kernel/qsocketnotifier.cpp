@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#20 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -218,13 +218,13 @@ void QSocketNotifier::setEnabled( bool enable )
 /*!
   Handles events for the socket notifier object.
 
-  Emits the activated() signal when a \c Event_SockAct is received.
+  Emits the activated() signal when a \c QEvent::SockAct is received.
 */
 
 bool QSocketNotifier::event( QEvent *e )
 {
     QObject::event( e );			// will activate filters
-    if ( e->type() == Event_SockAct ) {
+    if ( e->type() == QEvent::SockAct ) {
 	emit activated( sockfd );
 	return TRUE;
     }

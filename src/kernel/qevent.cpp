@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#65 $
 **
 ** Implementation of event classes
 **
@@ -31,63 +31,66 @@ void QEvent::peErrMsg()				// posted event error message
 #if defined(CHECK_STATE)
     const char *n = 0;
     switch ( t ) {				// convert type to msg string
-	case Event_Timer:
-	    n = "Timer";
-	    break;
-	case Event_MouseButtonPress:
-	    n = "MouseButtonPress";
-	    break;
-	case Event_MouseButtonRelease:
-	    n = "MouseButtonRelease";
-	    break;
-	case Event_MouseButtonDblClick:
-	    n = "MouseButtonDblClick";
-	    break;
-	case Event_MouseMove:
-	    n = "MouseMove";
-	    break;
-	case Event_Wheel:
-	    n = "Wheel";
-	    break;
-	case Event_KeyPress:
-	    n = "KeyPress";
-	    break;
-	case Event_KeyRelease:
-	    n = "KeyRelease";
-	    break;
-	case Event_FocusIn:
-	    n = "FocusIn";
-	    break;
-	case Event_FocusOut:
-	    n = "FocusOut";
-	    break;
-	case Event_Enter:
-	    n = "Enter";
-	    break;
-	case Event_Leave:
-	    n = "Leave";
-	    break;
-	case Event_Paint:
-	    n = "Paint";
-	    break;
-	case Event_Move:
-	    n = "Move";
-	    break;
-	case Event_Resize:
-	    n = "Resize";
-	    break;
-	case Event_Create:
-	    n = "Create";
-	    break;
-	case Event_Destroy:
-	    n = "Destroy";
-	    break;
-	case Event_Close:
-	    n = "Close";
-	    break;
-	case Event_Quit:
-	    n = "Quit";
-	    break;
+    case QEvent::Timer:
+	n = "Timer";
+	break;
+    case QEvent::MouseButtonPress:
+	n = "MouseButtonPress";
+	break;
+    case QEvent::MouseButtonRelease:
+	n = "MouseButtonRelease";
+	break;
+    case QEvent::MouseButtonDblClick:
+	n = "MouseButtonDblClick";
+	break;
+    case QEvent::MouseMove:
+	n = "MouseMove";
+	break;
+    case QEvent::Wheel:
+	n = "Wheel";
+	break;
+    case QEvent::KeyPress:
+	n = "KeyPress";
+	break;
+    case QEvent::KeyRelease:
+	n = "KeyRelease";
+	break;
+    case QEvent::FocusIn:
+	n = "FocusIn";
+	break;
+    case QEvent::FocusOut:
+	n = "FocusOut";
+	break;
+    case QEvent::Enter:
+	n = "Enter";
+	break;
+    case QEvent::Leave:
+	n = "Leave";
+	break;
+    case QEvent::Paint:
+	n = "Paint";
+	break;
+    case QEvent::Move:
+	n = "Move";
+	break;
+    case QEvent::Resize:
+	n = "Resize";
+	break;
+    case QEvent::Create:
+	n = "Create";
+	break;
+    case QEvent::Destroy:
+	n = "Destroy";
+	break;
+    case QEvent::Close:
+	n = "Close";
+	break;
+    case QEvent::Quit:
+	n = "Quit";
+	break;
+    default:
+	n = "<other>";
+	break;
     }
     if ( n )
 	warning( "QEvent: Posted event %s cannot be stack variable, ignored",
@@ -133,7 +136,7 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 /*!
-  \fn QEvent::QEvent( int type )
+  \fn QEvent::QEvent( Type type )
   Contructs an event object with a \a type. The file qevent.h lists
   all event types.
 */
@@ -218,29 +221,29 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 /*!
-  \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
+  \fn QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
   Constructs a mouse event object.
 
-  The type parameter must be \c Event_MouseButtonPress,
-  \c Event_MouseButtonRelease,
-  \c Event_MouseButtonDblClick or \c Event_MouseMove.
+  The type parameter must be \c QEvent::MouseButtonPress,
+  \c QEvent::MouseButtonRelease,
+  \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
 */
 
-QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
+QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
     : QEvent(type), p(pos), b(button),s((ushort)state){
 	g = QCursor::pos();
 }
 
 
 /*!
-  \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, const QPoint &globalPos,  int button, int state )
+  \fn QMouseEvent::QMouseEvent( Type type, const QPoint &pos, const QPoint &globalPos,  int button, int state )
 
   Constructs a mouse event object.
 
-  The type parameter must be \c Event_MouseButtonPress,
-  \c Event_MouseButtonRelease,
-  \c Event_MouseButtonDblClick or \c Event_MouseMove.
+  The type parameter must be \c QEvent::MouseButtonPress,
+  \c QEvent::MouseButtonRelease,
+  \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
 */
 
 /*!
@@ -251,8 +254,8 @@ QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn const QPoint &QMouseEvent::globalPos() const 
-  
+  \fn const QPoint &QMouseEvent::globalPos() const
+
   Returns the global position of the mouse pointer \e at \e the \e
   time of the event. This is important on asynchronous window systems
   like X11: Whenever you move your widgets around in response to mouse
@@ -446,10 +449,10 @@ QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn QKeyEvent::QKeyEvent( int type, int key, int ascii, int state )
+  \fn QKeyEvent::QKeyEvent( Type type, int key, int ascii, int state )
   Constructs a key event object.
 
-  The \a type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
+  The \a type parameter must be \c QEvent::KeyPress or \c QEvent::KeyRelease.
 
   If \a key is 0, the event is not a result of a known key (e.g. it
   may be the result of a compose sequence or keyboard macro).
@@ -528,10 +531,10 @@ QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn QFocusEvent::QFocusEvent( int type )
+  \fn QFocusEvent::QFocusEvent( Type type )
   Constructs a focus event object.
 
-  The \a type parameter must be either \a Event_FocusIn or \a Event_FocusOut.
+  The \a type parameter must be either \a QEvent::FocusIn or \a QEvent::FocusOut.
 */
 
 /*!
@@ -771,11 +774,11 @@ QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn QChildEvent::QChildEvent( int type, QWidget *child )
+  \fn QChildEvent::QChildEvent( Type type, QWidget *child )
   Constructs a child event object.
 
-  The \a type parameter must be either \a Event_ChildInserted
-  or \a Event_ChildRemoved.
+  The \a type parameter must be either \a QEvent::ChildInserted
+  or \a QEvent::ChildRemoved.
 */
 
 /*!
@@ -812,7 +815,7 @@ QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn QCustomEvent::QCustomEvent( int type, void *data )
+  \fn QCustomEvent::QCustomEvent( Type type, void *data )
   Constructs a custom event object with the event type \a type and a
   pointer to \a data.
 */

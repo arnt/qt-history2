@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#161 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1322,7 +1322,9 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( doDrag && (e->state() & (RightButton|LeftButton|MidButton)) != 0 ) {
+    if ( doDrag && (e->state() & ( QMouseEvent::RightButton |
+				   QMouseEvent::LeftButton |
+				   QMouseEvent::MidButton ) ) != 0 ) {
 	int itemClicked = findItem( e->pos().y() );
 	if ( itemClicked >= 0 ) {
 	    if ( isTiming ) {
@@ -1393,7 +1395,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Up:
 	if ( currentItem() > 0 ) {
 	    ensureCurrentVisible( currentItem() - 1 );
-	    if ( e->state() & ShiftButton )
+	    if ( e->state() & QMouseEvent::ShiftButton )
 		toggleCurrentItem();
 	}
 	e->accept();
@@ -1401,7 +1403,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Down:
 	if ( currentItem() < (int)count() - 1 ) {
 	    ensureCurrentVisible( currentItem()+1 );
-	    if ( e->state() & ShiftButton )
+	    if ( e->state() & QMouseEvent::ShiftButton )
 		toggleCurrentItem();
 	}
 	e->accept();
@@ -1412,7 +1414,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if (lastRowVisible() == (int) count() - 1){
 		int o = yOffset();
 		setBottomItem( lastRowVisible() );
-		if ( currentItem() < lastRowVisible() && currentItem() == topItem() 
+		if ( currentItem() < lastRowVisible() && currentItem() == topItem()
 		     && yOffset() != o)
 		    setCurrentItem(currentItem() + 1);
 		break;

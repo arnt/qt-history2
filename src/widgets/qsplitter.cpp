@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#30 $
 **
 **  Splitter widget
 **
@@ -85,14 +85,14 @@ void QInternalSplitter::mouseMoveEvent( QMouseEvent *e )
 }
 void QInternalSplitter::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == LeftButton ) {
+    if ( e->button() == QMouseEvent::LeftButton ) {
 	s->startMoving();
 	s->moveTo( mapToParent( e->pos() ));
     }
 }
 void QInternalSplitter::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() == LeftButton )
+    if ( e->button() == QMouseEvent::LeftButton )
 	s->stopMoving();
 }
 
@@ -119,14 +119,14 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
   it may be difficult to control the relative sizing to your requirements).
 
   To show a QListBox and a QMultiLineEdit side by side:
-  
+
   \code
     QSplitter *split = new QSplitter( parent );
     QListBox *lb = new QListBox( split );
     QMultiLineEdit *lb = new QMultiLineEdit( split );
   \endcode
-  
-  
+
+
   In QSplitter the boundary can be either horizontal or vertical.  The
   default is horizontal (the children are side by side) and you
   can use setOrientation( QSplitter::Vertical ) to set it to vertical.
@@ -238,13 +238,13 @@ QCOORD QSplitter::newpos() const
 bool QSplitter::event( QEvent *e )
 {
     switch( e->type() ) {
-    case Event_ChildInserted:
+    case QEvent::ChildInserted:
 	childInsertEvent( (QChildEvent*) e );
 	break;
-    case Event_ChildRemoved:
+    case QEvent::ChildRemoved:
 	childRemoveEvent( (QChildEvent*) e );
 	break;
-    case Event_LayoutHint:
+    case QEvent::LayoutHint:
 	layoutHintEvent( e );
 	break;
     default:

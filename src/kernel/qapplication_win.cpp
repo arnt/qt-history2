@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#171 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -682,14 +682,14 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	{
 	    postedEvents->take( postedEvents->findRef( pe ) );
 	    switch ( event_type ) {
-	      case Event_Move:
+	      case QEvent::Move:
 		if ( first ) {
 		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
 		    first = FALSE;
 		}
 		newpos = ((QMoveEvent*)pe->event)->pos();
 		break;
-	      case Event_Resize:
+	      case QEvent::Resize:
 		if ( first ) {
 		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
 		    first = FALSE;
@@ -706,13 +706,13 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( !first ) {
 	// Got one
 	switch ( event_type ) {
-	  case Event_Move:
+	  case QEvent::Move:
 	    {
 		QMoveEvent e(newpos, oldpos);
 		sendEvent( receiver, &e );
 	    }
 	    break;
-	  case Event_Resize:
+	  case QEvent::Resize:
 	    {
 		QResizeEvent e(newsize, oldsize);
 		sendEvent( receiver, &e );
@@ -938,7 +938,7 @@ static void sn_activate_fd( int sockfd, int type )
     QSNDict  *dict = *sn_vec[type];
     QSockNot *sn   = dict ? dict->find(sockfd) : 0;
     if ( sn ) {
-	QEvent event( Event_SockAct );
+	QEvent event( QEvent::SockAct );
 	QApplication::sendEvent( sn->obj, &event );
     }
 }
@@ -1054,7 +1054,7 @@ void QApplication::winFocus( QWidget *widget, bool gotFocus )
 	}
     } else {
 	if ( focus_widget && !inPopupMode() ) {
-	    QFocusEvent out( Event_FocusOut );
+	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
 	    QApplication::sendEvent( widget, &out );
@@ -1094,7 +1094,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( widget->winEvent(&msg) )		// send through widget filter
 	return 0;
 
-    int evt_type = Event_None;
+    int evt_type = QEvent::None;
     bool result = TRUE;
 
     if ( sn_msg && message == sn_msg ) {	// socket notifier message
@@ -1209,7 +1209,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	case WM_DESTROY:			// destroy window
 	    if ( hwnd == curWin ) {
-		QEvent leave( Event_Leave );
+		QEvent leave( QEvent::Leave );
 		QApplication::sendEvent( widget, &leave );
 		curWin = 0;
 	    }
@@ -1277,7 +1277,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_CHANGECBCHAIN:
 	case WM_DRAWCLIPBOARD:
 	    if ( qt_clipboard ) {
-		QCustomEvent e( Event_Clipboard, &msg );
+		QCustomEvent e( QEvent::Clipboard, &msg );
 		QApplication::sendEvent( qt_clipboard, &e );
 		return 0;
 	
@@ -1293,7 +1293,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     }
 
-    if ( evt_type != Event_None ) {		// simple event
+    if ( evt_type != QEvent::None ) {		// simple event
 	QEvent e( evt_type );
 	result = QApplication::sendEvent(widget, &e);
     }
@@ -1549,7 +1549,7 @@ static void dispatchTimer( uint timerId, MSG *msg )
 	HANDLE newWin = WindowFromPoint(p);
 	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
 	    QWidget *curWidget = QWidget::find(curWin);
-	    QEvent leave( Event_Leave );
+	    QEvent leave( QEvent::Leave );
 	    QApplication::sendEvent( curWidget, &leave );
 	    curWin = 0;
 	}
@@ -1749,16 +1749,16 @@ static void releaseAutoCapture()
 //
 
 static ushort mouseTbl[] = {
-    WM_MOUSEMOVE,	Event_MouseMove,		0,
-    WM_LBUTTONDOWN,	Event_MouseButtonPress,		LeftButton,
-    WM_LBUTTONUP,	Event_MouseButtonRelease,	LeftButton,
-    WM_LBUTTONDBLCLK,	Event_MouseButtonDblClick,	LeftButton,
-    WM_RBUTTONDOWN,	Event_MouseButtonPress,		RightButton,
-    WM_RBUTTONUP,	Event_MouseButtonRelease,	RightButton,
-    WM_RBUTTONDBLCLK,	Event_MouseButtonDblClick,	RightButton,
-    WM_MBUTTONDOWN,	Event_MouseButtonPress,		MidButton,
-    WM_MBUTTONUP,	Event_MouseButtonRelease,	MidButton,
-    WM_MBUTTONDBLCLK,	Event_MouseButtonDblClick,	MidButton,
+    WM_MOUSEMOVE,	QEvent::MouseMove,		0,
+    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,		LeftButton,
+    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	LeftButton,
+    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	LeftButton,
+    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,		RightButton,
+    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	RightButton,
+    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	RightButton,
+    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,		MidButton,
+    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	MidButton,
+    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	MidButton,
     0,			0,				0
 };
 
@@ -1800,7 +1800,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     button = mouseTbl[++i];			// which button
     state  = translateButtonState( msg.wParam ); // button state
 
-    if ( type == Event_MouseMove ) {
+    if ( type == QEvent::MouseMove ) {
 	QCursor *c = qt_grab_cursor();
 	if ( !c )
 	    c = QApplication::overrideCursor();
@@ -1812,12 +1812,12 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( curWin ) {			// send leave event
 		QWidget *curWidget = QWidget::find(curWin);
 		if ( curWidget ) {
-		    QEvent leave( Event_Leave );
+		    QEvent leave( QEvent::Leave );
 		    QApplication::sendEvent( curWidget, &leave );
 		}
 	    }
 	    curWin = winId();
-	    QEvent enter( Event_Enter );	// send enter event
+	    QEvent enter( QEvent::Enter );	// send enter event
 	    QApplication::sendEvent( this, &enter );
 	}
 
@@ -1851,11 +1851,11 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	QWidget *popupChild = findChildWidget( popup, pos );
 	bool releaseAfter = FALSE;
 	switch ( type ) {
-	    case Event_MouseButtonPress:
-	    case Event_MouseButtonDblClick:
+	    case QEvent::MouseButtonPress:
+	    case QEvent::MouseButtonDblClick:
 		popupButtonFocus = popupChild;
 		break;
-	    case Event_MouseButtonRelease:
+	    case QEvent::MouseButtonRelease:
 		releaseAfter = TRUE;
 		break;
 	    default:
@@ -1875,17 +1875,17 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
     } else {					// not popup mode
 	int bs = state & (LeftButton | RightButton | MidButton);
-	if ( (type == Event_MouseButtonPress ||
-	      type == Event_MouseButtonDblClick) && bs == button ) {
+	if ( (type == QEvent::MouseButtonPress ||
+	      type == QEvent::MouseButtonDblClick) && bs == button ) {
 	    if ( QWidget::mouseGrabber() == 0 )
 		setAutoCapture( winId() );
-	} else if ( type == Event_MouseButtonRelease && bs == 0 ) {
+	} else if ( type == QEvent::MouseButtonRelease && bs == 0 ) {
 	    if ( QWidget::mouseGrabber() == 0 )
 		releaseAutoCapture();
 	}
 	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
 	QApplication::sendEvent( this, &e );	// send event
-	if ( type != Event_MouseMove )
+	if ( type != QEvent::MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression
     }
     return TRUE;
@@ -2035,8 +2035,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key
-	k0 = sendKeyEvent( Event_KeyPress, 0, msg.wParam, state, grab );
-	k1 = sendKeyEvent( Event_KeyRelease, 0, msg.wParam, state, grab );
+	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab );
+	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab );
     } else {
 	int code = translateKeyCode( msg.wParam );
         if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
@@ -2058,14 +2058,14 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
-		    k0 = sendKeyEvent( Event_KeyRelease, code, rec->ascii,
+		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
 				       state, grab);
-		    k1 = sendKeyEvent( Event_KeyPress, code, rec->ascii,
+		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
 				       state, grab );
 		}
 	    } else {
 		store_key_rec( msg.wParam, wm_char.wParam );
-		k0 = sendKeyEvent( Event_KeyPress, code, wm_char.wParam,
+		k0 = sendKeyEvent( QEvent::KeyPress, code, wm_char.wParam,
 				   state, grab );
 	    }
         } else {
@@ -2077,7 +2077,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( !code )
 		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
 				state);
-		k0 = sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
+		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii, state, grab);
 	    }
         }
     }
@@ -2128,8 +2128,8 @@ static bool isModifierKey(int code)
 bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
 			      bool grab )
 {
-    if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
-	QKeyEvent a( Event_Accel, code, ascii, state );
+    if ( type == QEvent::KeyPress && !grab ) {	// send accel event to tlw
+	QKeyEvent a( QEvent::Accel, code, ascii, state );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
@@ -2140,7 +2140,7 @@ bool QETWidget::sendKeyEvent( int type, int code, int ascii, int state,
     QKeyEvent e( type, code, ascii, state );
     QApplication::sendEvent( this, &e );
     if ( !isModifierKey(code) && state == AltButton
-      && type == Event_KeyPress && !e.isAccepted() )
+      && type == QEvent::KeyPress && !e.isAccepted() )
 	QApplication::beep();  // emulate windows behaviour
     return e.isAccepted();
 }

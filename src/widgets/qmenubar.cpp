@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#122 $
 **
 ** Implementation of QMenuBar class
 **
@@ -251,7 +251,7 @@ void QMenuBar::frameChanged()
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
-    if ( object == parent() && event->type() == Event_Resize ) {
+    if ( object == parent() && event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	setGeometry( 0, y(), e->size().width(), height() );
 	calculateRects();
@@ -261,13 +261,13 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( style() != WindowsStyle ||
 	 !isVisibleToTLW() ||
 	 !object->isWidgetType() ||
-	 !( event->type() == Event_Accel ||
-	    event->type() == Event_KeyPress ||
-	    event->type() == Event_KeyRelease ) )
+	 !( event->type() == QEvent::Accel ||
+	    event->type() == QEvent::KeyPress ||
+	    event->type() == QEvent::KeyRelease ) )
 	return FALSE;
 
     // look for Alt press and Alt-anything press
-    if ( event->type() == Event_Accel ) {
+    if ( event->type() == QEvent::Accel ) {
 	QWidget * f = ((QWidget *)object)->focusWidget();
 	QKeyEvent * ke = (QKeyEvent *) event;
 	if ( f ) { // ### this thinks alt and meta are the same
@@ -294,7 +294,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( ((QWidget*)object)->focusWidget() == object ||
 	 (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0) ) {
 	if ( windowsaltactive &&
-	     event->type() == Event_KeyRelease &&
+	     event->type() == QEvent::KeyRelease &&
 	     (((QKeyEvent *)event)->key() == Key_Alt ||
 	      ((QKeyEvent *)event)->key() == Key_Meta) ) {
 	    actItem = 0;
@@ -310,8 +310,8 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		tlw->installEventFilter( this );
 	    }
 	    return TRUE;
-	} else if ( (event->type() == Event_KeyPress ||
-		     event->type() == Event_KeyRelease) &&
+	} else if ( (event->type() == QEvent::KeyPress ||
+		     event->type() == QEvent::KeyRelease) &&
 		    !(((QKeyEvent *)event)->key() == Key_Alt ||
 		      ((QKeyEvent *)event)->key() == Key_Meta) ) {
 	    if ( object->parent() )
@@ -322,7 +322,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 
     // look for top-level window focus changes
     if ( windowsaltactive &&
-	 event->type() == Event_FocusOut &&
+	 event->type() == QEvent::FocusOut &&
 	 qApp && qApp->focusWidget() != this ) {
 	setWindowsAltMode( FALSE, -1 );
 	if ( object->parent() )
@@ -405,8 +405,8 @@ bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
     if ( !rect().contains( pos ) )		// outside
 	return FALSE;
     int item = itemAtPos( pos );
-    if ( item == -1 && (e->type() == Event_MouseButtonPress ||
-			e->type() == Event_MouseButtonRelease) ) {
+    if ( item == -1 && (e->type() == QEvent::MouseButtonPress ||
+			e->type() == QEvent::MouseButtonRelease) ) {
 	hidePopups();
 	goodbye();
 	return FALSE;
@@ -741,7 +741,8 @@ void QMenuBar::drawContents( QPainter *p )
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton &&  e->button() != RightButton )
+    if ( e->button() != QMouseEvent::LeftButton &&
+	 e->button() != QMouseEvent::RightButton )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
@@ -777,7 +778,8 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton &&  e->button() != RightButton )
+    if ( e->button() != QMouseEvent::LeftButton &&
+	 e->button() != QMouseEvent::RightButton )
 	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );

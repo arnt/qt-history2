@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#61 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -306,8 +306,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     // avoid dumping core in case of application madness, and return
     // quickly for some common but irrelevant events
     if ( !tips || !e || !obj || !obj->isWidgetType() ||
-	 e->type() == Event_Timer || e->type() == Event_Paint ||
-	 e->type() == Event_SockAct )
+	 e->type() == QEvent::Timer || e->type() == QEvent::Paint ||
+	 e->type() == QEvent::SockAct )
 	return FALSE;
     QWidget *w = (QWidget *)obj;
 
@@ -319,8 +319,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     }
 
     if ( !t ) {
-	if ( e->type() >= Event_MouseButtonPress &&
-	     e->type() <= Event_Leave )
+	if ( e->type() >= QEvent::MouseButtonPress &&
+	     e->type() <= QEvent::Leave )
 	    wakeUp.stop();
 	return FALSE;
     }
@@ -328,17 +328,17 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
     // with that out of the way, let's get down to action
 
     switch( e->type() ) {
-    case Event_MouseButtonPress:
-    case Event_MouseButtonRelease:
-    case Event_MouseButtonDblClick:
-    case Event_KeyPress:
-    case Event_KeyRelease:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
 	// input - turn off tool tip mode
 	hideTip();
 	fallAsleep.stop();
 	leaveWindow.stop();
 	break;
-    case Event_MouseMove:
+    case QEvent::MouseMove:
 	{ // a whole scope just for one variable
 	    QMouseEvent * m = (QMouseEvent *)e;
 
@@ -370,13 +370,13 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    }
 	}
 	break;
-    case Event_Enter:
+    case QEvent::Enter:
 	if ( label && label->isVisible() && w == widget )
 	    leaveWindow.stop();
 	else if ( w ) // test in event_leave below should always hit first
 	    wakeUp.stop();
 	break;
-    case Event_Leave:
+    case QEvent::Leave:
 	if ( label && label->isVisible() )
 	    leaveWindow.start( 50, TRUE );
 	else if ( widget != w )
@@ -925,7 +925,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.55 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.56 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

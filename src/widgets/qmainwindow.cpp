@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#32 $
 **
 ** Implementation of QMainWindow class
 **
@@ -46,6 +46,8 @@
 
   \ingroup realwidgets
   \ingroup application
+
+  \define QMainWindow::ToolBarDock
 
   In addition, you need the large central widget, which you supply and
   tell QMainWindow about using setCentralWidget(), and perhaps a few
@@ -431,7 +433,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 static QMainWindowPrivate::ToolBar * takeToolBarFromDock( QToolBar * t,
 							  QMainWindowPrivate::ToolBarDock *l )
 {
-    if ( !l )
+    if ( !l || !l->count() )
 	return 0;
     QMainWindowPrivate::ToolBar * ct = l->first();
     do {
@@ -576,6 +578,7 @@ void QMainWindow::setUpLayout()
     }
     if ( d->sb && !d->sb->testWFlags( WState_DoHide ) )
 	d->tll->addWidget( d->sb, 0 );
+    //debug( "act %d, %d", x(), y() );
     d->tll->activate();
 }
 
@@ -584,8 +587,11 @@ void QMainWindow::setUpLayout()
 
 void QMainWindow::show()
 {
-    setUpLayout();
+    //debug( "s1 %d, %d", x(), y() );
     QWidget::show();
+    //debug( "s2 %d, %d", x(), y() );
+    setUpLayout();
+    //debug( "s3 %d, %d", x(), y() );
 }
 
 
@@ -618,6 +624,7 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
+    //debug( "pe %d, %d", x(), y() );
     if ( style() == WindowsStyle ) {
 	QPainter p( this );
 	int y = menuBar()->height();
@@ -633,17 +640,15 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
-    if ( e->type() == Event_Show || e->type() == Event_Hide ) {
+    if ( e->type() == QEvent::Show || e->type() == QEvent::Hide ) {
 	triggerLayout();
-#if 0
-	// this is nice code, but it does not work.
-    } else if ( ( e->type() == Event_MouseButtonPress ||
-		  e->type() == Event_MouseMove ||
-		  e->type() == Event_MouseButtonRelease ) &&
+    } else if ( ( e->type() == QEvent::MouseButtonPress ||
+		  e->type() == QEvent::MouseMove ||
+		  e->type() == QEvent::MouseButtonRelease ) &&
+		0 && // 1.4x
 		o && ( d->moving || o->inherits( "QToolBar" ) ) ) {
 	moveToolBar( d->moving ? d->moving : (QToolBar *)o, (QMouseEvent *)e );
 	return TRUE;
-#endif
     }
     return QWidget::eventFilter( o, e );
 }
@@ -654,7 +659,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 
 bool QMainWindow::event( QEvent * e )
 {
-    if ( e->type() == Event_ChildRemoved ) {
+    if ( e->type() == QEvent::ChildRemoved ) {
 	QChildEvent * c = (QChildEvent *) e;
 	if ( c->child() == 0 ||
 	     c->child()->testWFlags( WType_TopLevel ) ) {
@@ -767,23 +772,24 @@ void QMainWindow::triggerLayout()
   the funky docking.
 */
 
-void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
+void QMainWindow::moveToolBar( QToolBar * t , QMouseEvent * e )
 {
-#if 0
-    // again. nice code, shame about bugs.
-    if ( e->type() == Event_MouseButtonPress ) {
+    if ( e->type() == QEvent::MouseButtonPress ) {
+	//debug( "saw press" );
 	d->moving = 0;
 	d->offset = e->pos();
 	d->pos = QCursor::pos();
 	return;
-    } else if ( e->type() == Event_MouseButtonRelease ) {
+    } else if ( e->type() == QEvent::MouseButtonRelease ) {
+	//debug( "saw release" );
 	if ( d->moving ) {
-	    releaseMouse();
 	    qApp->removeEventFilter( this );
 	    d->moving = 0;
 	}
 	return;
     }
+
+    //debug( "saw move" );
 
     // with that out of the way, let's concentrate on the moves...
 
@@ -801,9 +807,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 
     if ( !d->moving ) {
 	d->moving = t;
-	grabMouse();
 	qApp->installEventFilter( this );
-	debug( "grabbing" );
     }
 
     QPoint lp( mapFromGlobal( p ) );
@@ -817,6 +821,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 			 QPoint( p.x() - d->offset.x(),
 				 p.y() - d->offset.y() ),
 			 TRUE );
+	    QApplication::syncX();
 	    dock = d->tornOff;
 	} else {
 	    t->move( p.x() - d->offset.x(),
@@ -955,5 +960,4 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 	ct->nl = TRUE;
 	triggerLayout();
     }
-#endif
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#102 $
 **
 ** Implementation of QScrollBar class
 **
@@ -498,8 +498,8 @@ static QCOORD sliderStartPos = 0;
 
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( !(e->button() == LeftButton ||
-	   (style() == MotifStyle && e->button() == MidButton) ) )
+    if ( !(e->button() == QMouseEvent::LeftButton ||
+	   (style() == MotifStyle && e->button() == QMouseEvent::MidButton) ) )
 	return;
 
     if ( maxValue() == minValue() ) // nothing to be done
@@ -512,7 +512,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	  pressedControl == SUB_PAGE ||
 	  pressedControl == SLIDER ) &&
 	 style() == MotifStyle &&
-	 e->button() == MidButton ) {
+	 e->button() == QMouseEvent::MidButton ) {
 	int dummy1, dummy2, sliderLength;
 	PRIV->metrics( &dummy1, &dummy2, &sliderLength );
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
@@ -544,8 +544,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !clickedAt || !(e->button() == LeftButton ||
-			 (style() == MotifStyle && e->button() == MidButton)) )
+    if ( !clickedAt || !(e->button() == QMouseEvent::LeftButton ||
+			 (style() == MotifStyle &&
+			  e->button() == QMouseEvent::MidButton)) )
 	return;
     ScrollControl tmp = (ScrollControl) pressedControl;
     clickedAt = FALSE;
@@ -581,8 +582,9 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	clickedAt = FALSE;
 	return;
     }
-    if ( !clickedAt || !(e->state() & LeftButton ||
-			 ((e->state() & MidButton) && style() == MotifStyle)) )
+    if ( !clickedAt || !(e->state() & QMouseEvent::LeftButton ||
+			 ((e->state() & QMouseEvent::MidButton) &&
+			  style() == MotifStyle)) )
 	return;
     int newSliderPos;
     if ( pressedControl == SLIDER ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#123 $
 **
 ** Implementation of QButton widget class
 **
@@ -666,7 +666,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 
 void QButton::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != QMouseEvent::LeftButton )
 	return;
     bool hit = hitButton( e->pos() );
     if ( hit ) {				// mouse press on button
@@ -686,7 +686,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != QMouseEvent::LeftButton )
 	return;
     if ( d )
         timer()->stop();
@@ -714,7 +714,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 
 void QButton::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !((e->state() & LeftButton) && mlbDown) )
+    if ( !((e->state() & QMouseEvent::LeftButton) && mlbDown) )
 	return;					// left mouse button is up
     if ( hitButton( e->pos() ) ) {		// mouse move in button
 	if ( !buttonDown ) {

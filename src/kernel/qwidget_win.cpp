@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#128 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -306,7 +306,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     reparentFocusWidgets( parent );		// fix focus chains
 
     if ( parentObj ) {				// remove from parent
-	QChildEvent e( Event_ChildRemoved, this );
+	QChildEvent e( QEvent::ChildRemoved, this );
 	QApplication::sendEvent( parentObj, &e );
 	parentObj->removeChild( this );
     }
@@ -355,7 +355,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
     delete accelerators;
     if ( parent ) {
-	QChildEvent *e = new QChildEvent( Event_ChildInserted, this );
+	QChildEvent *e = new QChildEvent( QEvent::ChildInserted, this );
 	QApplication::postEvent( parent, e );
     } else {
 	QFocusData *fd = focusData( TRUE );
@@ -851,7 +851,7 @@ void QWidget::setMinimumSize( int minw, int minh )
     if ( minw > width() || minh > height() )
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
     if ( parentWidget() ) {
-	QEvent *e = new QEvent( Event_LayoutHint );
+	QEvent *e = new QEvent( QEvent::LayoutHint );
 	QApplication::postEvent( parentWidget(), e );
     }
 
@@ -872,7 +872,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     if ( maxw < width() || maxh < height() )
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
     if ( parentWidget() ) {
-	QEvent *e = new QEvent( Event_LayoutHint );
+	QEvent *e = new QEvent( QEvent::LayoutHint );
 	QApplication::postEvent( parentWidget(), e );
     }
 }

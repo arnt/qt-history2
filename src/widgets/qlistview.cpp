@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#149 $
 **
 ** Implementation of QListView widget class
 **
@@ -2017,32 +2017,32 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	return FALSE;
 
     if ( o == d->h &&
-	 e->type() >= Event_MouseButtonPress &&
-	 e->type() <= Event_MouseMove ) {
+	 e->type() >= QEvent::MouseButtonPress &&
+	 e->type() <= QEvent::MouseMove ) {
 	QMouseEvent * me = (QMouseEvent *)e;
 	QMouseEvent me2( me->type(),
 			 QPoint( me->pos().x(),
 				 me->pos().y() - d->h->height() ),
 			 me->button(), me->state() );
 	switch( me2.type() ) {
-	case Event_MouseButtonPress:
-	    if ( me2.button() == RightButton ) {
+	case QEvent::MouseButtonPress:
+	    if ( me2.button() == QMouseEvent::RightButton ) {
 		mousePressEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
-	case Event_MouseButtonDblClick:
-	    if ( me2.button() == RightButton )
+	case QEvent::MouseButtonDblClick:
+	    if ( me2.button() == QMouseEvent::RightButton )
 		return TRUE;
 	    break;
-	case Event_MouseMove:
-	    if ( me2.state() & RightButton ) {
+	case QEvent::MouseMove:
+	    if ( me2.state() & QMouseEvent::RightButton ) {
 		mouseMoveEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
-	case Event_MouseButtonRelease:
-	    if ( me2.button() == RightButton ) {
+	case QEvent::MouseButtonRelease:
+	    if ( me2.button() == QMouseEvent::RightButton ) {
 		mouseReleaseEvent( &me2 );
 		return TRUE;
 	    }
@@ -2055,22 +2055,22 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	QFocusEvent * fe = (QFocusEvent *)e;
 
 	switch( e->type() ) {
-	case Event_MouseButtonPress:
+	case QEvent::MouseButtonPress:
 	    mousePressEvent( me );
 	    return TRUE;
-	case Event_MouseButtonDblClick:
+	case QEvent::MouseButtonDblClick:
 	    mouseDoubleClickEvent( me );
 	    return TRUE;
-	case Event_MouseMove:
+	case QEvent::MouseMove:
 	    mouseMoveEvent( me );
 	    return TRUE;
-	case Event_MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    mouseReleaseEvent( me );
 	    return TRUE;
-	case Event_FocusIn:
+	case QEvent::FocusIn:
 	    focusInEvent( fe );
 	    return TRUE;
-	case Event_FocusOut:
+	case QEvent::FocusOut:
 	    focusOutEvent( fe );
 	    return TRUE;
 	default:
@@ -2293,7 +2293,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( e->button() == RightButton ) {
+    if ( e->button() == QMouseEvent::RightButton ) {
 	QListViewItem * i;
 	if ( viewport()->rect().contains( e->pos() ) )
 	    i = itemAt( e->pos() );
@@ -2308,7 +2308,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	return;
     }
 
-    if ( e->button() != LeftButton )
+    if ( e->button() != QMouseEvent::LeftButton )
 	return;
 
     d->ignoreDoubleClick = FALSE;
@@ -2363,7 +2363,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( e->button() == RightButton ) {
+    if ( e->button() == QMouseEvent::RightButton ) {
 	QListViewItem * i;
 	if ( viewport()->rect().contains( e->pos() ) )
 	    i = itemAt( e->pos() );
@@ -2378,7 +2378,7 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
 	return;
     }
 
-    if ( e->button() != LeftButton || !d->buttonDown )
+    if ( e->button() != QMouseEvent::LeftButton || !d->buttonDown )
 	return;
 
     QListViewItem * i = itemAt( e->pos() );
@@ -2637,7 +2637,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	return;
 
     if ( i->isSelectable() &&
-	 ((e->state() & ShiftButton) || !isMultiSelection()) )
+	 ((e->state() & QMouseEvent::ShiftButton) || !isMultiSelection()) )
 	setSelected( i, d->currentSelected
 		     ? d->currentSelected->isSelected()
 		     : TRUE );

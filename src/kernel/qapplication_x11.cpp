@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#344 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#345 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -103,6 +103,17 @@ static inline void bzero( void *s, int n )
     memset( s, 0, n );
 }
 #endif
+
+// resolve the conflict between X11's FocusIn and QEvent::FocusIn
+const int XFocusOut = FocusOut;
+const int XFocusIn = FocusIn;
+#undef FocusOut;
+#undef FocusIn;
+
+const int XKeyPress = KeyPress;
+const int XKeyRelease = KeyRelease;
+#undef KeyPress;
+#undef KeyRelease;
 
 /*****************************************************************************
   Internal variables and functions
@@ -1408,7 +1419,7 @@ public:
 class QPEvent : public QEvent			// trick to set/clear posted
 {
 public:
-    QPEvent( int type ) : QEvent( type ) {}
+    QPEvent( Type type ) : QEvent( type ) {}
     void setPostedFlag()	{ posted = TRUE; }
     void clearPostedFlag()	{ posted = FALSE; }
 };
@@ -1465,7 +1476,7 @@ void qt_x11SendPostedEvents()			// transmit posted events
 	++it;
 	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event ) {
-	    if ( pe->event->type() == Event_LayoutHint ) {
+	    if ( pe->event->type() == QEvent::LayoutHint ) {
 		// layout hints are idempotent and can cause quite
 		// expensive processing, so make sure to deliver just
 		// one per receiver.
@@ -1476,7 +1487,7 @@ void qt_x11SendPostedEvents()			// transmit posted events
 		while ( (pe2=it2.current()) != 0 ) {
 		    ++it2;
 		    if ( pe2->event &&
-			 pe2->event->type() == Event_LayoutHint &&
+			 pe2->event->type() == QEvent::LayoutHint &&
 			 pe2->receiver == pe->receiver ) {
 			((QPEvent*)pe2->event)->clearPostedFlag();
 			postedEvents->removeRef( pe2 );
@@ -1520,14 +1531,14 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    {
 		postedEvents->take( postedEvents->findRef( pe ) );
 		switch ( event_type ) {
-		case Event_Move:
+		case QEvent::Move:
 		    if ( first ) {
 			oldpos = ((QMoveEvent*)pe->event)->oldPos();
 			first = FALSE;
 		    }
 		    newpos = ((QMoveEvent*)pe->event)->pos();
 		    break;
-		case Event_Resize:
+		case QEvent::Resize:
 		    if ( first ) {
 			oldsize = ((QResizeEvent*)pe->event)->oldSize();
 			first = FALSE;
@@ -1544,13 +1555,13 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( !first ) {
 	// Got one
 	switch ( event_type ) {
-	case Event_Move:
+	case QEvent::Move:
 	    {
 		QMoveEvent e(newpos, oldpos);
 		sendEvent( receiver, &e );
 	    }
 	    break;
-	case Event_Resize:
+	case QEvent::Resize:
 	    {
 		QResizeEvent e(newsize, oldsize);
 		sendEvent( receiver, &e );
@@ -1813,7 +1824,7 @@ static int sn_activate()
 	}
     }
     if ( sn_act_list->count() > 0 ) {		// activate entries
-	QEvent event( Event_SockAct );
+	QEvent event( QEvent::SockAct );
 	QSNListIt it( *sn_act_list );
 	QSockNot *sn;
 	while ( (sn=it.current()) ) {
@@ -1963,8 +1974,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    case ButtonPress:
 	    case ButtonRelease:
 	    case MotionNotify:
-	    case KeyPress:
-	    case KeyRelease:
+	    case XKeyPress:
+	    case XKeyRelease:
 		widget = qPRFindWidget( event->xany.window );
 		break;
 	    }
@@ -1993,8 +2004,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		switch ( event->type ) {
 		case ButtonPress:
 		case ButtonRelease:
-		case KeyPress:
-		case KeyRelease:
+		case XKeyPress:
+		case XKeyRelease:
 		    widget->hide();
 		    return 1;
 		}
@@ -2022,8 +2033,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	widget->translateMouseEvent( event );
 	break;
 	
-    case KeyPress:				// keyboard event
-    case KeyRelease: {
+    case XKeyPress:				// keyboard event
+    case XKeyRelease: {
 	qt_x_clipboardtime = event->xkey.time;
 	QWidget *g = QWidget::keyboardGrabber();
 	if ( g )
@@ -2051,7 +2062,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	widget->translateConfigEvent( event );
 	break;
 
-    case FocusIn: {				// got focus
+    case XFocusIn: {				// got focus
 	if ( inPopupMode() ) // some delayed focus event to ignore
 	    break;
 	active_window = widget->topLevelWidget();
@@ -2065,9 +2076,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
     break;
 
-    case FocusOut:				// lost focus
+    case XFocusOut:				// lost focus
 	if ( focus_widget && !inPopupMode() ) {
-	    QFocusEvent out( Event_FocusOut );
+	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
 	    QApplication::sendEvent( widget, &out );
@@ -2076,7 +2087,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case EnterNotify:			// enter window
     case LeaveNotify: {			// leave window
-	QEvent e( event->type == EnterNotify ? Event_Enter : Event_Leave );
+	QEvent e( event->type == EnterNotify ? QEvent::Enter : QEvent::Leave );
 	QApplication::sendEvent( widget, &e );
     }
     break;
@@ -2167,7 +2178,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case SelectionClear:
     case SelectionNotify:
 	if ( qt_clipboard ) {
-	    QCustomEvent e( Event_Clipboard, event );
+	    QCustomEvent e( QEvent::Clipboard, event );
 	    QApplication::sendEvent( qt_clipboard, &e );
 	}
 	break;
@@ -2336,10 +2347,10 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	case ButtonPress:			// disallow mouse/key events
 	case ButtonRelease:
 	case MotionNotify:
-	case KeyPress:
-	case KeyRelease:
-	case FocusIn:
-	case FocusOut:
+	case XKeyPress:
+	case XKeyRelease:
+	case XFocusIn:
+	case XFocusOut:
 	case ClientMessage:
 	    block_event	 = TRUE;
 	    break;
@@ -2822,24 +2833,24 @@ int translateButtonState( int s )
 {
     int bst = 0;
     if ( s & Button1Mask )
-	bst |= LeftButton;
+	bst |= QMouseEvent::LeftButton;
     if ( s & Button2Mask )
-	bst |= MidButton;
+	bst |= QMouseEvent::MidButton;
     if ( s & Button3Mask )
-	bst |= RightButton;
+	bst |= QMouseEvent::RightButton;
     if ( s & ShiftMask )
-	bst |= ShiftButton;
+	bst |= QMouseEvent::ShiftButton;
     if ( s & ControlMask )
-	bst |= ControlButton;
+	bst |= QMouseEvent::ControlButton;
     if ( s & Mod1Mask )
-	bst |= AltButton;
+	bst |= QMouseEvent::AltButton;
     return bst;
 }
 
 bool QETWidget::translateMouseEvent( const XEvent *event )
 {
     static bool manualGrab = FALSE;
-    int	   type;				// event parameters
+    QEvent::Type type;				// event parameters
     QPoint pos;
     QPoint globalPos;
     int	   button = 0;
@@ -2849,14 +2860,16 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	XEvent *xevent = (XEvent *)event;
 	while ( XCheckTypedWindowEvent(dpy,winId(),MotionNotify,xevent) )
 	    ;					// compress motion events
-	type = Event_MouseMove;
+	type = QEvent::MouseMove;
 	pos.rx() = xevent->xmotion.x;
 	pos.ry() = xevent->xmotion.y;
 	globalPos.rx() = xevent->xmotion.x_root;
 	globalPos.ry() = xevent->xmotion.y_root;
 	state = translateButtonState( xevent->xmotion.state );
 	if ( !qt_button_down )
-	    state &= ~(LeftButton|MidButton|RightButton);
+	    state &= ~(QMouseEvent::LeftButton |
+		       QMouseEvent::MidButton |
+		       QMouseEvent::RightButton );
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
@@ -2864,15 +2877,15 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.ry() = event->xbutton.y_root;
 	state = translateButtonState( event->xbutton.state );
 	switch ( event->xbutton.button ) {
-	    case Button1: button = LeftButton;	
+	    case Button1: button = QMouseEvent::LeftButton;	
 		if ( isEnabled() &&
 		     focusProxy()? (focusProxy()->focusPolicy() & ClickFocus)
 		     : (focusPolicy() & ClickFocus ) ) {
 		    setFocus();
 		}
 		break;
-	    case Button2: button = MidButton;	break;
-	    case Button3: button = RightButton; break;
+	    case Button2: button = QMouseEvent::MidButton;	break;
+	    case Button3: button = QMouseEvent::RightButton; break;
 	    case Button4: case Button5:
 		// the fancy mouse wheel.
 		
@@ -2933,10 +2946,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
                        < QApplication::doubleClickInterval() &&
 		 QABS(event->xbutton.x - mouseXPos) < 5 &&
 		 QABS(event->xbutton.y - mouseYPos) < 5 ) {
-		type = Event_MouseButtonDblClick;
+		type = QEvent::MouseButtonDblClick;
 		mouseButtonPressTime -= 2000;	// no double-click next time
 	    } else {
-		type = Event_MouseButtonPress;
+		type = QEvent::MouseButtonPress;
 		mouseButtonPressTime = event->xbutton.time;
 	    }
 	    mouseButtonPressed = button; 	// save event params for
@@ -2954,7 +2967,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;
 
-	    if ( (state & (LeftButton|MidButton|RightButton)) == 0 ) {
+	    if ( (state & ( QMouseEvent::LeftButton | 
+			    QMouseEvent::MidButton |
+			    QMouseEvent::RightButton)) == 0 ) {
 		qt_button_down = 0;
 		qt_window_for_button_down = 0;
 	    }
@@ -2962,7 +2977,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( unexpected )
 		return FALSE;			// unexpected event
 
-	    type = Event_MouseButtonRelease;
+	    type = QEvent::MouseButtonRelease;
 	}
     }
     mouseActWindow = winId();			// save some event params
@@ -2991,12 +3006,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    return FALSE;
 
 	switch ( type ) {
-	    case Event_MouseButtonPress:
-	    case Event_MouseButtonDblClick:
+	    case QEvent::MouseButtonPress:
+	    case QEvent::MouseButtonDblClick:
 		popupButtonFocus = popupChild;
 		popupOfPopupButtonFocus = popup;
 		break;
-	    case Event_MouseButtonRelease:
+	    case QEvent::MouseButtonRelease:
 		releaseAfter = TRUE;
 		break;
 	    default:
@@ -3020,7 +3035,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( popupGrabOk )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );
 	} else {				// left popup mode
-	    if ( type != Event_MouseButtonRelease && state != 0 &&
+	    if ( type != QEvent::MouseButtonRelease && state != 0 &&
 		 QWidget::find((WId)mouseActWindow) ) {
 		manualGrab = TRUE;		// need to manually grab
 		XGrabPointer( dpy, mouseActWindow, FALSE,
@@ -3135,7 +3150,7 @@ static void deleteKeyDicts()
 
 bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 {
-    int	   type;
+    QEvent::Type type;
     int	   code = -1;
     char   ascii[16]; // ##### Needs to be Unicode (XIM work)
     int	   count = 0;
@@ -3150,7 +3165,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	qAddPostRoutine( deleteKeyDicts );
     }
 
-    type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
+    type = (event->type == QEvent::KeyPress) 
+	   ? QEvent::KeyPress : QEvent::KeyRelease;
 
 #if defined(NO_XIM)
 
@@ -3163,7 +3179,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	       keycode = event->xkey.keycode;
     Status     status;
 
-    if ( type == Event_KeyPress ) {
+    if ( type == QEvent::KeyPress ) {
 	if ( xim ) {
 	    QWExtra * xd = extraData();
 	    if ( !xd ) {
@@ -3227,17 +3243,18 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    }
 	    i += 2;
 	}
-	if ( code == Key_Tab && (state & ShiftButton) == ShiftButton ) {
+	if ( code == Key_Tab &&
+	     (state & QMouseEvent::ShiftButton) == QMouseEvent::ShiftButton ) {
 	    code = Key_Backtab;
 	    ascii[0] = 0;
 	}
     }
 #if defined(DEBUG)
     if ( debug_level > 0
-	 && type==Event_KeyPress
+	 && type==QEvent::KeyPress
 	 && code==Key_D
-	 && (state&ControlButton)
-	 && (state&AltButton) )
+	 && (state&QMouseEvent::ControlButton)
+	 && (state&QMouseEvent::AltButton) )
 	{
 	    QWidgetList *list   = qApp->topLevelWidgets();
 	    QWidget     *widget = list->first();
@@ -3256,9 +3273,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     // process accelerates before popups
     QKeyEvent e( type, code, count > 0 ? ascii[0] : 0, state );
-    if ( type == Event_KeyPress && !grab ) {
+    if ( type == QEvent::KeyPress && !grab ) {
 	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( Event_Accel, code, count > 0 ? ascii[0] : 0, state );
+	QKeyEvent a( QEvent::Accel, code, count > 0 ? ascii[0] : 0, state );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() ){

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#59 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -404,7 +404,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 // 	qDrawShadePanel( p, fr, colorGroup(), down );
 
     style().drawBevelButton(p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down);
-    
+
     int logIdx = mapToLogical(i);
 
     QString s;
@@ -434,7 +434,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
 
 void QHeader::mousePressEvent( QMouseEvent *m )
 {
-    if ( m->button() != LeftButton )
+    if ( m->button() != QMouseEvent::LeftButton )
 	return;
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
@@ -466,7 +466,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 
 void QHeader::mouseReleaseEvent( QMouseEvent *m )
 {
-    if ( m->button() != LeftButton )
+    if ( m->button() != QMouseEvent::LeftButton )
 	return;
     State oldState = state;
     state = Idle;

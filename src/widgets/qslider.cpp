@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#62 $
 **
 ** Implementation of QSlider class
 **
@@ -747,13 +747,13 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     sliderStartVal = sliderVal;
     QRect r = sliderRect();
 
-    if ( e->button() == RightButton ) {
+    if ( e->button() == QMouseEvent::RightButton ) {
 	return;
     } else if ( r.contains( e->pos() ) ) {
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
 	emit sliderPressed();
-    } else if ( e->button() == MidButton ||
+    } else if ( e->button() == QMouseEvent::MidButton ||
 		(funnyWindowsStyle && style() == WindowsStyle) ) {
 	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideLength() / 2 );

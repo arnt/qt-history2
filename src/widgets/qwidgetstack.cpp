@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#16 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -266,6 +266,8 @@ void QWidgetStack::show()
 	    ++it;
 	    if ( o->isWidgetType() && o != topWidget )
 		((QWidget *)o)->hide();
+	    else
+		((QWidget *)o)->show();
 	}
     }
 
@@ -336,7 +338,7 @@ QWidget * QWidgetStack::visibleWidget() const
 
 bool QWidgetStack::event( QEvent * e )
 {
-    if ( e->type() == Event_ChildInserted )
+    if ( e->type() == QEvent::ChildInserted )
 	setChildGeometries();
     return QFrame::event( e );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#124 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#125 $
 **
 ** Implementation of QFileDialog class
 **
@@ -566,7 +566,7 @@ void QFileDialogPrivate::MCList::mouseDoubleClickEvent( QMouseEvent * e )
     if ( e ) {
 	setFocusToPoint( e->pos() );
 	// ### uglehack alert ###
-	QKeyEvent ke( Event_KeyPress, Key_Enter, 0, 0 );
+	QKeyEvent ke( QEvent::KeyPress, Key_Enter, 0, 0 );
 	QApplication::sendEvent( lv, &ke );
     }
 }
@@ -1952,12 +1952,12 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
 	return TRUE;
-    if ( o == files && e->type() == Event_FocusOut &&
+    if ( o == files && e->type() == QEvent::FocusOut &&
 	 files->currentItem() && mode() != ExistingFiles ) {
 	files->setSelected( files->currentItem(), FALSE );
-    } else if ( o == files && e->type() == Event_KeyPress ) {
+    } else if ( o == files && e->type() == QEvent::KeyPress ) {
 	QTimer::singleShot( 0, this, SLOT(fixupNameEdit()) );
-    } else if ( o == nameEdit && e->type() == Event_KeyPress ) {
+    } else if ( o == nameEdit && e->type() == QEvent::KeyPress ) {
 	// ### hack.  after 1.40, we need to merge the completion code
 	// ### here, in QListView and QComboBox.
 	if ( isprint(((QKeyEvent *)e)->ascii()) ) {
@@ -1974,7 +1974,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 		return TRUE;
 	    }
 	}
-    } else if ( o == nameEdit && e->type() == Event_FocusIn ) {
+    } else if ( o == nameEdit && e->type() == QEvent::FocusIn ) {
 	fileNameEditDone();
     }
     return FALSE;

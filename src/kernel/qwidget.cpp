@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#276 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#277 $
 **
 ** Implementation of QWidget class
 **
@@ -529,7 +529,7 @@ void QWidget::cancelResize()
 
 void QWidget::sendDeferredEvents()
 {
-    QApplication::sendPostedEvents( this, Event_ChildInserted );
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     uint m = (uint)(long)deferredMoves->find(this);
     uint r = (uint)(long)deferredResizes->find(this);
     if ( m && r && decompress_a(r) < 0 ) {
@@ -642,7 +642,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	}
     }
     if ( parent ) {
-	QChildEvent *e = new QChildEvent( Event_ChildInserted, this );
+	QChildEvent *e = new QChildEvent( QEvent::ChildInserted, this );
 	QApplication::postEvent( parent, e );
     }
 }
@@ -663,7 +663,7 @@ QWidget::~QWidget()
 	f->focusWidgets.removeRef( this );
 
     if ( parentObj ) {
-	QChildEvent e( Event_ChildRemoved, this );
+	QChildEvent e( QEvent::ChildRemoved, this );
 	QApplication::sendEvent( parentObj, &e );
     }
     if ( deferredMoves ) {
@@ -2023,12 +2023,12 @@ void QWidget::setFocus()
 		// imitate other toolkits by not sending a focus out event in that case
 	    }
 	    else {
-		QFocusEvent out( Event_FocusOut );
+		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
 	    }
 	}
 
-	QFocusEvent in( Event_FocusIn );
+	QFocusEvent in( QEvent::FocusIn );
 	QApplication::sendEvent( this, &in );
     }
 }
@@ -2057,7 +2057,7 @@ void QWidget::clearFocus()
 	if ( w && w->focusWidget() == this ) {
 	    // clear active focus
 	    qApp->focus_widget = 0;
-	    QFocusEvent out( Event_FocusOut );
+	    QFocusEvent out( QEvent::FocusOut );
 	    QApplication::sendEvent( w, &out );
 	}
     }
@@ -2849,36 +2849,37 @@ bool QWidget::event( QEvent *e )
 
     switch ( e->type() ) {
 
-	case Event_Timer:
+	case QEvent::Timer:
 	    timerEvent( (QTimerEvent*)e );
 	    break;
 
-	case Event_MouseMove:
+	case QEvent::MouseMove:
 	    mouseMoveEvent( (QMouseEvent*)e );
 	    break;
 
-	case Event_MouseButtonPress:
+	case QEvent::MouseButtonPress:
 	    mousePressEvent( (QMouseEvent*)e );
 	    break;
 
-	case Event_MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    mouseReleaseEvent( (QMouseEvent*)e );
 	    break;
 
-	case Event_MouseButtonDblClick:
+	case QEvent::MouseButtonDblClick:
 	    mouseDoubleClickEvent( (QMouseEvent*)e );
 	    break;
 
-	case Event_Wheel:
+	case QEvent::Wheel:
 	    wheelEvent( (QWheelEvent*)e );
 	    if ( ! ((QWheelEvent*)e)->isAccepted() )
 		return FALSE;
 	    break;
-	case Event_KeyPress: {
+	case QEvent::KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
 	    if ( k->key() == Key_Backtab ||
-		 (k->key() == Key_Tab && (k->state() & ShiftButton)) )
+		 (k->key() == Key_Tab && 
+		  (k->state() & QMouseEvent::ShiftButton)) )
 		res = focusNextPrevChild( FALSE );
 	    else if ( k->key() == Key_Tab )
 		res = focusNextPrevChild( TRUE );
@@ -2894,7 +2895,7 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 
-	case Event_KeyRelease: {
+	case QEvent::KeyRelease: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    QWidget *w = this;
 	    while ( w ) {
@@ -2906,60 +2907,60 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 
-	case Event_FocusIn:
+	case QEvent::FocusIn:
 	    focusInEvent( (QFocusEvent*)e );
 	    break;
 
-	case Event_FocusOut:
+	case QEvent::FocusOut:
 	    focusOutEvent( (QFocusEvent*)e );
 	    break;
 
-	case Event_Enter:
+	case QEvent::Enter:
 	    enterEvent( e );
 	    break;
 
-	case Event_Leave:
+	case QEvent::Leave:
 	     leaveEvent( e );
 	    break;
 
-	case Event_Paint:
+	case QEvent::Paint:
 	    paintEvent( (QPaintEvent*)e );
 	    break;
 
-	case Event_Move:
+	case QEvent::Move:
 	    moveEvent( (QMoveEvent*)e );
 	    break;
 
-	case Event_Resize:
+	case QEvent::Resize:
 	    resizeEvent( (QResizeEvent*)e );
 	    break;
 
-	case Event_Close: {
+	case QEvent::Close: {
 	    QCloseEvent *c = (QCloseEvent *)e;
 	    closeEvent( c );
 	    if ( !c->isAccepted() )
 		return FALSE;
 	    }
 	    break;
-	case Event_Drop:
+	case QEvent::Drop:
 	    dropEvent( (QDropEvent*) e);
 	    break;	
-	case Event_DragEnter:
+	case QEvent::DragEnter:
 	    dragEnterEvent( (QDragEnterEvent*) e);
 	    break;	
-	case Event_DragMove:
+	case QEvent::DragMove:
 	    dragMoveEvent( (QDragMoveEvent*) e);
 	    break;	
-	case Event_DragLeave:
+	case QEvent::DragLeave:
 	    dragLeaveEvent( (QDragLeaveEvent*) e);
 	    break;	
-	case Event_ChildInserted: case Event_ChildRemoved:
+	case QEvent::ChildInserted: case QEvent::ChildRemoved:
 	    childEvent( (QChildEvent*) e);
 	    break;
-	case Event_Show:
+	case QEvent::Show:
 	    showEvent( (QShowEvent*) e);
 	    break;
-	case Event_Hide:
+	case QEvent::Hide:
 	    hideEvent( (QHideEvent*) e);
 	    break;
 	default:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#35 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -419,10 +419,10 @@ bool QClipboard::event( QEvent *e )
 {
     // #### Needs to deal with Unicode
 
-    if ( e->type() != Event_Clipboard )
+    if ( e->type() != QEvent::Clipboard )
 	return QObject::event( e );
 
-    XEvent *xevent = (XEvent *)Q_CUSTOM_EVENT(e)->data();
+    XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
     Display *dpy = qt_xdisplay();
     QClipboardData *d = clipboardData();
 

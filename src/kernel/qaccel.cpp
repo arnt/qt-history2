@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#51 $
 **
 ** Implementation of QAccel class
 **
@@ -372,16 +372,16 @@ void QAccel::repairEventFilter()
 
 bool QAccel::eventFilter( QObject *, QEvent *e )
 {
-    if ( d->enabled && e->type() == Event_Accel &&
+    if ( d->enabled && e->type() == QEvent::Accel &&
 	 parent() && parent()->isWidgetType() &&
 	 ((QWidget *)parent())->isVisibleToTLW() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
-	if ( k->state() & ShiftButton )
+	if ( k->state() & QMouseEvent::ShiftButton )
 	    key |= SHIFT;
-	if ( k->state() & ControlButton )
+	if ( k->state() & QMouseEvent::ControlButton )
 	    key |= CTRL;
-	if ( k->state() & AltButton )
+	if ( k->state() & QMouseEvent::AltButton )
 	    key |= ALT;
 	QAccelItem *item = find_key( d->aitems, key, k->ascii() );
 	if ( item && item->enabled ) {

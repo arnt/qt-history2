@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#36 $
 **
 ** Implementation of QTimer class
 **
@@ -178,7 +178,7 @@ void QTimer::stop()
 
 bool QTimer::event( QEvent *e )
 {
-    if ( e->type() != Event_Timer )		// ignore all other events
+    if ( e->type() != QEvent::Timer )		// ignore all other events
 	return FALSE;
     if ( single )				// stop single shot timer
 	stop();

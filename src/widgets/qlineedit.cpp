@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#156 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#157 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -384,14 +384,14 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
     int unknown = 0;
-    if ( e->state() & ControlButton ) {
+    if ( e->state() & QMouseEvent::ControlButton ) {
 	switch ( e->key() ) {
 	case Key_A:
 	case Key_Left:
-	    home( e->state() & ShiftButton );
+	    home( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_B:
-	    cursorLeft( e->state() & ShiftButton );
+	    cursorLeft( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_C:
 	    if ( hasMarkedText() && echoMode() == Normal )
@@ -402,10 +402,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_E:
 	case Key_Right:
-	    end( e->state() & ShiftButton );
+	    end( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_F:
-	    cursorRight( e->state() & ShiftButton );
+	    cursorRight( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_H:
 	    backspace();
@@ -431,19 +431,19 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     } else {
 	switch ( e->key() ) {
 	case Key_Left:
-	    cursorLeft( e->state() & ShiftButton );
+	    cursorLeft( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Right:
-	    cursorRight( e->state() & ShiftButton );
+	    cursorRight( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Backspace:
 	    backspace();
 	    break;
 	case Key_Home:
-	    home( e->state() & ShiftButton );
+	    home( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_End:
-	    end( e->state() & ShiftButton );
+	    end( e->state() & QMouseEvent::ShiftButton );
 	    break;
 	case Key_Delete:
 	    del();
@@ -681,7 +681,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     cursorPos = offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
 					  e->pos().x() - margin,
 					  width() - 2*margin );
-    if ( e->button() == MidButton ) {
+    if ( e->button() == QMouseEvent::MidButton ) {
 #if defined(_WS_X11_)
 	insert( QApplication::clipboard()->text() );
 #else
@@ -774,7 +774,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 #endif
     if ( dragScrolling )
 	dragScrolling = FALSE;
-    if ( e->button() != LeftButton )
+    if ( e->button() != QMouseEvent::LeftButton )
 	return;
 
     int margin = frame() ? 4 : 2;
@@ -1236,14 +1236,14 @@ bool QLineEdit::event( QEvent * e )
     if ( !e )
 	return QWidget::event( e );
 
-    if ( e->type() == Event_DragEnter ) {
+    if ( e->type() == QEvent::DragEnter ) {
 	if ( ((QDragEnterEvent *) e)->provides( "text/plain" ) ) {
 	    ((QDragEnterEvent *) e)->accept( rect() );
 	    return TRUE;
 	}
-    } else if ( e->type() == Event_DragLeave ) {
+    } else if ( e->type() == QEvent::DragLeave ) {
 	return TRUE;
-    } else if ( e->type() == Event_Drop ) {
+    } else if ( e->type() == QEvent::Drop ) {
 	QDropEvent * de = (QDropEvent *) e;
 	QString str;
 	if ( QTextDrag::decode( de, str ) ) {

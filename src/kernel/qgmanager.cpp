@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#40 $
 **
 ** Implementation of QGGeometry class
 **
@@ -145,7 +145,7 @@ public:
 
 protected:
     virtual bool addC( QChain *s ) = 0;
-    
+
 private:
     QGManager::Direction dir;
 
@@ -243,7 +243,7 @@ public:
 
     void setName( QString s ) { nam = s; }
     QString name() { return nam; }
-    
+
 private:
     int maxsize;
     int minsize;
@@ -417,7 +417,7 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 			 branches.count()
 			 );
 	else
-	    msg.sprintf( "QGManager: not enough space for %s chain %s", 
+	    msg.sprintf( "QGManager: not enough space for %s chain %s",
 			 horz( direction() ) ? "horizontal" : "vertical",
 			 name().ascii() );
 	warning( msg );
@@ -825,20 +825,22 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
 
     QWidget *w = (QWidget*)o;
     switch ( e->type() ) {
-    case Event_Resize: {
+    case QEvent::Resize: {
 	QResizeEvent *r = (QResizeEvent*)e;
 	resizeHandle( w, r->size() );
 	break;
     }
-    case Event_ChildRemoved: {
+    case QEvent::ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
 	remove( c->child() );
-	QEvent *lh = new QEvent( Event_LayoutHint );
+	QEvent *lh = new QEvent( QEvent::LayoutHint );
 	QApplication::postEvent( o, lh );
 	break;
     }
-    case Event_LayoutHint:
+    case QEvent::LayoutHint:
 	activate(); //######## ######@#!#@!$ should be optimized somehow...
+	break;
+    default:
 	break;
     }
     return FALSE;			    // standard event processing
