@@ -849,7 +849,7 @@ QRect QTableView::visualRect(const QModelIndex &index) const
     if (!index.isValid() || index.parent() != rootIndex())
         return QRect();
     return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
-                 columnWidth(index.column()), rowHeight(index.row()));
+                 columnWidth(index.column()) - 1, rowHeight(index.row()) - 1);
 }
 
 /*!
