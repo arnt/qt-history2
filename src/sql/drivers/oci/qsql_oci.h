@@ -41,7 +41,6 @@
 #include <qsqlfield.h>
 #include <qsqldriver.h>
 #include <qstring.h>
-#include <private/qsqloptioninterface_p.h>
 
 #include <oci.h>
 
