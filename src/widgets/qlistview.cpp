@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#42 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#42 $");
 
 
 const int Unsorted = 32767;
@@ -114,17 +114,17 @@ struct QListViewPrivate
   constant strings.  This creates an item which is a child of \e
   parent, with two fixed-content strings, and discards the pointer to
   it:
-  
+
   \code
      (void) new QListViewItem( parent, "first column", "second column", 0 );
   \endcode
-  
+
   This object will be deleted when \e parent is deleted, as for \link
   QObject QObjects. \endlink
 
   If you keep the pointer, you can set or change the texts using
   setText(), add pixmaps using setPixmap().
-  
+
   More to come.
 */
 
@@ -149,9 +149,12 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 
 
 
-/*!  Create a new list view item in the QListView \a parent,
-  with the contents asdf asdf asdf ### sex vold ###
-
+/*!  Creates a new list view item in the QListView \a parent,
+  with a null-terminated series of constant strings as contents.
+  
+  \code
+     (void)new QListViewItem( lv, "/", "Root directory", 0 );
+  \endcode
 */
 
 QListViewItem::QListViewItem( QListView * parent,
@@ -171,9 +174,13 @@ QListViewItem::QListViewItem( QListView * parent,
 }
 
 
-/*!  Create a new list view item which is a child of \a parent,
-  with the contents asdf asdf asdf ### sex vold ###
-
+/*!  Creates a new list view item that's a child of the QListViewItem
+  \a parent, with a null-terminated series of constant strings as
+  contents.  Possible example in a news or e-mail reader:
+  
+  \code
+     (void)new QListViewItem( parentMessage, author, subject, 0 );
+  \endcode
 */
 
 QListViewItem::QListViewItem( QListViewItem * parent,
@@ -192,7 +199,7 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     va_end( ap );
 }
 
-/*!  Perform the initializations that's common to the constructors. */
+/*!  Performs the initializations that's common to the constructors. */
 
 void QListViewItem::init()
 {
@@ -250,8 +257,8 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 }
 
 
-/*!  Removes \a tbg from this object's list of children.
-*/
+/*!  Removes \a tbg from this object's list of children.  This is
+  normally called by tbg's destructor. */
 
 void QListViewItem::removeItem( QListViewItem * tbg )
 {
@@ -290,7 +297,8 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 /*!  Returns a key that can be used for sorting by column \a column.
   The default implementation returns text().
 
-  The return value is immediately copied.
+  QListViewItem immediately copies the return value of this function,
+  so it's safe to return a pointer to a static variable.
 
   \sa sortChildItems()
 */
@@ -311,8 +319,13 @@ static int cmp( const void *n1, const void *n2 )
 }
 
 
-/*!  Undocumented for the time being.  I'll redoc when its semantics
-  have settled down.
+/*!  Sorts the children of this item by the return values of what
+  key(\a colum ), in ascending order if \a ascending is TRUE and in
+  descending order of \a descending is FALSE.
+
+  Asks some of the children to sort their children.  (QListView and
+  QListViewItem ensure that all on-screen objects are properly sorted,
+  but may avoid sorting other objects in order to be more responsive.)
 
   \sa key()
 */
@@ -469,7 +482,9 @@ void QListViewItem::setup()
 /*! \fn bool QListViewItem::isSelectable() const
 
   Returns TRUE if the item is selectable (as it is by default) and
-  FALSE if it isn't. \sa setSelectable() */
+  FALSE if it isn't.
+
+  \sa setSelectable() */
 
 
 /*!  Sets this items to be selectable if \a enable is TRUE (the
@@ -487,7 +502,7 @@ void QListViewItem::setSelectable( bool enable )
 
 /*! \fn bool QListViewItem::isExpandable() { return expnadable; }
 
-  Returns TRUE if this item is selectable even when it has no
+  Returns TRUE if this item is expandable even when it has no
   children.
 */
 
@@ -498,7 +513,11 @@ void QListViewItem::setSelectable( bool enable )
   The dirview example uses this in the canonical fashion: It checks
   whether the directory is empty in setup() and calls
   setExpandable(TRUE) if not, and in setOpen() it reads the contents
-  of the directory and inserts items accordingly.
+  of the directory and inserts items accordingly.  This strategy means
+  that dirview can display the entire file system without reading very
+  much at start-up.
+  
+  \sa setSelectable()
 */
 
 void QListViewItem::setExpandable( bool enable )
@@ -534,6 +553,9 @@ void QListViewItem::enforceSortOrder()
 /*!  Sets this item to be selected \a s is TRUE, and to not be
   selected if \a o is FALSE.  Doesn't repaint anything in either case.
 
+  Thsi function does not maintan any invariants --
+  QListView::setItemSelected() does that.
+  
   \sa ownHeight() totalHeight() */
 
 void QListViewItem::setSelected( bool s )
@@ -549,6 +571,8 @@ void QListViewItem::setSelected( bool s )
   setOwnHeight() can be used to set the item's own height, setOpen()
   to show or hide its children, and invalidateHeight() to invalidate
   the cached height.
+  
+  \sa height()
 */
 
 int QListViewItem::totalHeight() const
@@ -576,7 +600,7 @@ int QListViewItem::totalHeight() const
 
 /*!  Returns the text in column \a column, or else 0.
 
-  The returned string must be copied or used at once;
+  The returned pointer must be copied or used at once;
   reimplementations of this function are at liberty to e.g. return a
   pointer into a static buffer.
 
@@ -592,8 +616,8 @@ const char * QListViewItem::text( int column ) const
 }
 
 
-/*!  This virtual function paints the contents of one cell.
-
+/*!  This virtual function paints the contents of one column of one item.
+  
   \a p is a QPainter open on the relevant paint device.  \a pa is
   translated so 0, 0 is the top left pixel in the cell and \a width-1,
   height()-1 is the bottom right pixel \e in the cell.  The other
@@ -673,9 +697,6 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 {
     p->fillRect( 0, 0, w, h, cg.base() );
 
-    if ( !decorateChildren() )
-	return;
-
     const QListViewItem * child = firstChild();
     int linetop = 0, linebot = 0;
 
@@ -706,15 +727,14 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		p->drawLine( bx - 2, linebot, bx + 2, linebot );
 		if ( !child->isOpen() )
 		    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
-
+		// dotlinery
+		dotlines[c++] = QPoint( bx, linetop );
+		dotlines[c++] = QPoint( bx, linebot - 5 );
+		dotlines[c++] = QPoint( bx + 6, linebot );
+		dotlines[c++] = QPoint( w, linebot );
+		linebot += 6;
+		linetop = linebot;
 	    } else {
-#if 0		
-		// down or right arrow.  yucking ugly, but hey.
-		::qDrawArrow( p, child->isOpen() ? DownArrow : RightArrow,
-			      s, FALSE, bx - 5, linebot - 5, 11, 11,
-			      cg, TRUE );
-#else
-
 		int x = bx - 4;
 		int y = linebot - 4;
 		int d = 9;
@@ -726,26 +746,10 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		    //RightArrow
 		    a.setPoints( 3, x, y, x, y+d, x+d, y+d/2 );
 		}
-		QPen     savePen   = p->pen();
-                QBrush   saveBrush = p->brush();
-
-		p->setPen( cg.text() );
-		p->setBrush( cg.text() );
-
+		p->setPen( cg.foreground() );
 		p->drawPolygon( a );
-
-		p->setPen( savePen );
-		p->setBrush( saveBrush );
-#endif
 	    }
-	    // dotlinery
-	    dotlines[c++] = QPoint( bx, linetop );
-	    dotlines[c++] = QPoint( bx, linebot - 5 );
-	    dotlines[c++] = QPoint( bx + 6, linebot );
-	    dotlines[c++] = QPoint( w, linebot );
-	    linebot += 6;
-	    linetop = linebot;
-	} else {
+	} else if ( s == WindowsStyle ) {
 	    // just dotlinery
 	    dotlines[c++] = QPoint( bx + 2, linebot ); // ### +2? +1?
 	    dotlines[c++] = QPoint( w, linebot );
@@ -763,10 +767,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	dotlines[c++] = QPoint( bx, linebot );
     }
 
-    if ( s == MotifStyle ) {
-	p->setPen( cg.foreground() );
-	p->drawLineSegments( dotlines, 0, c/2 );
-    } else {
+    if ( s == WindowsStyle ) {
 	// this could be done much faster on X11, but not on Windows.
 	// oh well.  do it the hard way.
 
@@ -813,18 +814,6 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     }
 }
 
-/*!
-  If this function returns TRUE, the list view item will draw lines to
-  indicate the tree structure, and a handle to open and close the subtree.
-
-  The default implementation returns TRUE.
-*/
-
-bool QListViewItem::decorateChildren() const
-{
-    return TRUE;
-}
-
 
 QListViewPrivate::Root::Root( QListView * parent )
     : QListViewItem( parent )
@@ -863,10 +852,70 @@ void QListViewPrivate::Root::setup()
 /*!
   \class QListView qlistview.h
   \brief The QListView class implements a tree/list view.
+  
+  It can display and control a hierarchy of multi-column items, and
+  provides the ability to add new items at run-time, let the user
+  select one or many items, sort the list in increasing or decreasing
+  order by any column, and so on.
 
-  Lots of things don't work yet.  The tree view functionality hasn't
-  been tested since the last extensive changes, focus stuff doesn't
-  work, input is ignored and so on.
+  The simplest mode of usage is to create a QListView, create one or
+  more QListViewItem objects with the QListView as parent, set up the
+  list view, and show() it.
+  
+  The main setup functions are <ul>
+  
+  <li>setColumn() - sets the header text and width of a column.
+
+  <li>setMultiSelection() - decides whether one can select one or many
+  objects in this list view.  The default is FALSE (selecting one item
+  unselects any other selected item).
+  
+  <li>setAllColumnsShowFocus() - decides whether items should show
+  keyboard focus using all columns, or just column 0.  The default is
+  to show focus using just column 0.
+  
+  <li>setTreeStepSize() - decides the how many pixels an item's
+  children are indented relative to their parent.  The default is 20.
+  This is mostly a matter of taste.
+  
+  <li>setSorting() - decides whether the items should be sorted in
+  ascending or descending order, and by what column.</ul>
+
+  There are also several functions for mapping between items and
+  coordinates.  itemAt() returns the item at a position on-screen,
+  itemRect() returns the rectangle an item occupies on the screen and
+  itemPos() returns the position of any item (not on-screen, in the
+  list view).  firstChild() returns the item at the top of the view
+  (not necessarily on-screen) so you can iterate over the items using
+  either QListViewItem::itemBelow() or a combination of
+  QListViewItem::firstChild() and QListViewItem::nextSibling().
+  
+  Naturally, QListView provides a clear() function, as well as an
+  explicit insertItem() for when QListViewItem's default insertion
+  won't do.
+
+  Since QListView offers multiple selection it has to display keyboard
+  focus and selection state separately.  Therefore there are functions
+  both to set the selection state of an item, setSelected(), and to
+  select which item displays keyboard focus, setCurrentItem().
+  
+  QListView emits two groups of signals: One group signals changes in
+  selection/focus state and one signals selection.  The first group
+  consists of selectionChanged(), applicable to all list views, and
+  selectionChanged( QListViewItem * ), applicable only to
+  single-selection list view, and currentChanged( QListViewItem * ).
+  The second group consists of doubleClicked( QListViewItem * ),
+  returnPressed( QListViewItem * ) and rightButtonClicked(
+  QListViewItem *, const QPoint&, int ).
+
+  In Motif style, QListView deviates fairly strongly from the look and
+  feel of the Motif hierarchical tree view.  This is done mostly to
+  provide a usable keyboard interface and to make the list view look
+  better with a white background.
+  
+  \internal
+  
+  need to say stuff about the mouse and keyboard interface.
 */
 
 /*!  Creates a new empty list view, with \a parent as a parent and \a
@@ -877,7 +926,7 @@ QListView::QListView( QWidget * parent, const char * name )
 {
     d = new QListViewPrivate;
     d->timer = new QTimer( this );
-    d->levelWidth = 0;
+    d->levelWidth = 20;
     d->r = 0;
     d->h = new QHeader( this, "list view header" );
     d->h->installEventFilter( this );
@@ -894,8 +943,6 @@ QListView::QListView( QWidget * parent, const char * name )
 	     this, SLOT(updateContents()) );
     connect( d->h, SIGNAL(sizeChange( int, int )),
 	     this, SLOT(triggerUpdate()) );
-    connect( d->h, SIGNAL(sizeChange( int, int )),
-	     this, SIGNAL(sizeChanged()) );
     connect( d->h, SIGNAL(moved( int, int )),
 	     this, SLOT(triggerUpdate()) );
     connect( d->h, SIGNAL(sectionClicked( int )),
@@ -1059,7 +1106,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 }
 
 
-/*! Rebuild the lis of drawable QListViewItems.  This function is
+/*! Rebuilds the lis of drawable QListViewItems.  This function is
   const so that const functions can call it without requiring
   d->drawables to be mutable */
 
@@ -1147,7 +1194,7 @@ void QListView::buildDrawableList() const
 
 
 /*!  Returns the number of pixels a child is offset from its parent.
-  This number has meaning only for tree views.
+  This number has meaning only for tree views.  The default is 20.
 
   \sa setTreeStepSize()
 */
@@ -1158,8 +1205,8 @@ int QListView::treeStepSize() const
 }
 
 
-/*!  Set teh the number of pixels a child is offset from its parent,
-  in a tree view.
+/*!  Sets the the number of pixels a child is offset from its parent,
+  in a tree view to \a l.  The default is 20.
 
   \sa treeStepSize()
 */
@@ -1174,8 +1221,8 @@ int QListView::treeStepSize() const
 
 
 /*!  Inserts a top-level QListViewItem into this list view.  You
-  should not need to call this; the QListViewItem constructor does it
-  for you.
+  generally do not need to call this; the QListViewItem constructor
+  does it for you.
 */
 
 void QListView::insertItem( QListViewItem * i )
@@ -1185,7 +1232,7 @@ void QListView::insertItem( QListViewItem * i )
 }
 
 
-/*!  Remove all the list view items from the list, and trigger an
+/*!  Remove and delete all the items in this list view, and trigger an
   update. \sa triggerUpdate() */
 
 void QListView::clear()
@@ -1212,7 +1259,8 @@ void QListView::clear()
 
 /*!  Sets the header for column \a column to be labelled \a label and
   be \a size pixels wide.  If \a column is negative (as it is by
-  default) setColumn() adds a new column at the right end. */
+  default) setColumn() adds a new column at the right end of the
+  widget. */
 
 void QListView::setColumn( const char * label, int size, int column )
 {
@@ -1259,8 +1307,9 @@ void QListView::updateContents()
 }
 
 
-/*!  Trigger a size-and-stuff update during the next iteration of the
-  event loop.  Cleverly makes sure that there'll be just one. */
+/*!  Triggers a size, geometry and contentual update during the next
+  iteration of the event loop.  Cleverly makes sure that there'll be
+  just one update, to avoid flicker. */
 
 void QListView::triggerUpdate()
 {
@@ -1335,8 +1384,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     return QScrollView::eventFilter( o, e );
 }
 
-/*!
-  Returns the listview containing this item.
+/*! Returns a pointer to the listview containing this item.
 */
 
 QListView * QListViewItem::listView() const
@@ -1427,7 +1475,7 @@ QListViewItem * QListViewItem::itemBelow()
 
   Returns a pointer to the first (top) child of this item.
 
-  NOTE that the children are not guaranteed to be sorted properly.
+  Note that the children are not guaranteed to be sorted properly.
   QListView and QListViewItem try to postpone or avoid sorting to the
   greatest degree possible, in order to keep the user interface
   snappy.
@@ -1440,7 +1488,7 @@ QListViewItem * QListViewItem::itemBelow()
   Returns a pointer to the next sibling (below this one) of this
   item.
 
-  NOTE that the siblings are not guaranteed to be sorted properly.
+  Note that the siblings are not guaranteed to be sorted properly.
   QListView and QListViewItem try to postpone or avoid sorting to the
   greatest degree possible, in order to keep the user interface
   snappy.
@@ -1459,20 +1507,6 @@ QListViewItem * QListViewItem::itemBelow()
   Returns the height of this item in pixels.  This does not include
   the height of any children; totalHeight() returns that.
 */
-
-/*! \fn virtual int QListViewItem::compare (int column, const QListViewItem * with) const
-
-  Defined to return less than 0, 0 or greater than 0 depending on
-  whether this item is lexicograpically before, the same as, or after
-  \a with when sorted by column \a column.
-*/
-
-/*! \fn void QListView::sizeChanged ()
-
-  This signal is emitted when the list view changes width (or height?
-  not at present).
-*/
-
 
 /*! \fn void QListView::selectionChanged()
 
@@ -1883,8 +1917,8 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 
 /*!  Returns i->isSelected().
 
-  Provided only because QListView provides setSelected() and I like
-  completeness.
+  Provided only because QListView provides setSelected() and trolls
+  are neat creatures and like neat, orthogonal interfaces.
 */
 
 bool QListView::isSelected( QListViewItem * i ) const
