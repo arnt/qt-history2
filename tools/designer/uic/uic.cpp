@@ -419,10 +419,8 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
 
     if ( pix.isEmpty() )
 	return parent + "->insertItem( " + trcall( txt, com ) + " );";
-    else
-	return parent + "->insertItem( " + pix + ", " + trcall( txt, com ) + " );";
 
-    return QString::null;
+    return parent + "->insertItem( " + pix + ", " + trcall( txt, com ) + " );";
 }
 
 /*!
