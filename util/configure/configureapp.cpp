@@ -1128,6 +1128,9 @@ void Configure::generateConfigfiles()
     archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/arch");
     if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/arch/qatomic.h", FALSE))
 	qDebug("Couldn't copy %s to include/arch", archFile.latin1() );
+    if (!SetFileAttributesA(dictionary[ "QT_INSTALL_HEADERS" ] + "/arch/qatomic.h",
+			    FILE_ATTRIBUTE_NORMAL))
+	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     outName = outDir + "/qmodules.h";
 
