@@ -22,6 +22,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qevent.h>
+#include <qdebug.h>
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qpixmapcache.h>
@@ -138,7 +139,8 @@ void QItemDelegate::paint(QPainter *painter,
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
-    QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
+    QFontMetrics fontMetrics(opt.font);
+    QRect textRect(pt, QSize(fontMetrics.width(text), fontMetrics.height()) + sz);
     doLayout(opt, &pixmapRect, &textRect, false);
 
     // draw the background color
@@ -175,7 +177,8 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
-    QRect textRect(pt, QFontMetrics(fnt).size(0, text) + sz);
+    QFontMetrics fontMetrics(fnt);
+    QRect textRect(pt, QSize(fontMetrics.width(text), fontMetrics.height()) + sz);
     doLayout(option, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();
