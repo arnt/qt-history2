@@ -1,11 +1,11 @@
 /****************************************************************************
 ** $Id$
 **
-** ???
+** Implementation of QDialogButtons class
 **
 ** Copyright (C) 2003 Trolltech AS.  All rights reserved.
 **
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
