@@ -287,7 +287,7 @@ QIODevice::Offset QFile::size() const
 	QT_FSTAT( fh ? QT_FILENO(fh) : fd, &st );
     } else {
 	QT_WA( {
-	    ::_wstat( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
+	    QT_TSTAT( (TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)&st );
 	} , {
 	    QT_STAT(qt_win95Name(fn), &st);
 	} );

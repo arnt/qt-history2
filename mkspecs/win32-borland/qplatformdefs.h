@@ -28,10 +28,17 @@
 #include <windows.h>
 
 #if __BORLANDC__ >= 0x550
-# define QT_STATBUF		struct stat		// non-ANSI defs
-# define QT_STATBUF4TSTAT	struct _stat		// non-ANSI defs
-# define QT_STAT		::stat
-# define QT_FSTAT		::fstat
+#ifdef QT_LARGE_FILE_SUPPORT
+#define QT_STATBUF		struct stati64		// non-ANSI defs
+#define QT_STATBUF4TSTAT	struct _stati64		// non-ANSI defs
+#define QT_STAT			::stati64
+#define QT_FSTAT		::fstati64
+#else
+#define QT_STATBUF		struct stat		// non-ANSI defs
+#define QT_STATBUF4TSTAT	struct _stat		// non-ANSI defs
+#define QT_STAT			::stat
+#define QT_FSTAT		::fstat
+#endif
 # define QT_STAT_REG		_S_IFREG
 # define QT_STAT_DIR		_S_IFDIR
 # define QT_STAT_MASK		_S_IFMT
@@ -41,7 +48,13 @@
 # define QT_FILENO		_fileno
 # define QT_OPEN		::open
 # define QT_CLOSE		::_close
-# define QT_LSEEK		::_lseek
+#ifdef QT_LARGE_FILE_SUPPORT
+#define QT_LSEEK		::_lseeki64
+#define QT_TSTAT		::_tstati64
+#else
+#define QT_LSEEK		::_lseek
+#define QT_TSTAT		::_tstat
+#endif
 # define QT_READ		::_read
 # define QT_WRITE		::_write
 # define QT_ACCESS		::_access
@@ -60,10 +73,17 @@
 #  define QT_OPEN_BINARY	_O_BINARY
 # endif
 #else						// all other systems
-# define QT_STATBUF		struct stat
-# define QT_STATBUF4TSTAT	struct stat
-# define QT_STAT		::stat
-# define QT_FSTAT		::fstat
+#ifdef QT_LARGE_FILE_SUPPORT
+#define QT_STATBUF		struct stati64		// non-ANSI defs
+#define QT_STATBUF4TSTAT	struct stati64		// non-ANSI defs
+#define QT_STAT			::stati64
+#define QT_FSTAT		::fstati64
+#else
+#define QT_STATBUF		struct stat		// non-ANSI defs
+#define QT_STATBUF4TSTAT	struct stat		// non-ANSI defs
+#define QT_STAT			::stat
+#define QT_FSTAT		::fstat
+#endif
 # define QT_STAT_REG		S_IFREG
 # define QT_STAT_DIR		S_IFDIR
 # define QT_STAT_MASK		S_IFMT
@@ -73,7 +93,13 @@
 # define QT_FILENO		fileno
 # define QT_OPEN		::open
 # define QT_CLOSE		::close
-# define QT_LSEEK		::lseek
+#ifdef QT_LARGE_FILE_SUPPORT
+#define QT_LSEEK		::lseeki64
+#define QT_TSTAT		::tstati64
+#else
+#define QT_LSEEK		::lseek
+#define QT_TSTAT		::tstat
+#endif
 # define QT_READ		::read
 # define QT_WRITE		::write
 # define QT_ACCESS		::access

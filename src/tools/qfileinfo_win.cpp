@@ -426,7 +426,7 @@ void QFileInfo::doStat() const
 
     int r;
     QT_WA( {
-	r = _wstat((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
+	r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
     } , {
 	r = QT_STAT(qt_win95Name(fn), b);
     } );
