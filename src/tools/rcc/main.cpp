@@ -74,7 +74,8 @@ listResourceFile(const QString &file)
             resource.prefix = child.attribute("prefix");
             for(QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                 if(res.toElement().tagName() == QLatin1String("file")) {
-                    QFileInfo file(filePath + res.firstChild().toText().data());
+                    QString fileName(res.firstChild().toText().data());
+                    QFileInfo file(filePath + fileName);
                     QString name;
                     if(res.toElement().hasAttribute("name")) 
                         name = res.toElement().attribute("name");
@@ -86,6 +87,7 @@ listResourceFile(const QString &file)
                         }
                         QDir dir;
                         if(!file.exists()) {
+                            fileName = fileName.section('/', 0, -2);
                             dir = QDir(file.path(), file.fileName());
                             dir.setFilter(QDir::Filters(QDir::Files|QDir::AllDirs));
                         } else {
@@ -98,8 +100,11 @@ listResourceFile(const QString &file)
                                 continue;
                             if(!subFiles[subFile].isDir()) {
                                 RCCFileInfo res;
-                                res.name += (name.isNull() ? dir.path() : name) 
-                                            + "/" + subFiles[subFile].fileName();
+                                if(!name.isNull())
+                                    res.name = name + "/";
+                                else
+                                    res.name = fileName + "/";
+                                res.name += subFiles[subFile].fileName();
                                 res.fileinfo = subFiles[subFile];
                                 resource.files.append(res);
                             }
@@ -109,7 +114,7 @@ listResourceFile(const QString &file)
                         }
                     } else {
                         RCCFileInfo res;
-                        res.name = name.isNull() ? file.filePath() : name;
+                        res.name = name.isNull() ? fileName : name;
                         res.fileinfo = QFileInfo(file);
                         resource.files.append(res);
                     }
@@ -366,7 +371,7 @@ main(int argc, char **argv)
                             if(display.at(d) == "files")
                                 out << r.files.at(f).fileinfo.filePath();
                             else if(display.at(d) == "names")
-                                out << r.files.at(f).name;
+                                out << ":" + QDir::cleanPath(resource_root + "/" + r.prefix + "/" + r.files.at(f).name);
                             else if(display.at(d) == "langs")
                                 out << r.lang.name();
                         }
