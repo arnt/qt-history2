@@ -27,12 +27,23 @@
 **
 **********************************************************************/
 
+/* This writes to:
+   1) ~/Library/Preferences/...
+   2) /Library/Preferences/...
+*/
+
 #include "qsettings.h"
 #ifndef QT_NO_SETTINGS
+#include <qregexp.h>
 #include <qstring.h>
 #include <qptrlist.h>
 #include <qwindowdefs.h>
 #include <CoreFoundation/CoreFoundation.h>
+
+/*****************************************************************************
+  QSettings debug facilities
+ *****************************************************************************/
+//#define DEBUG_SETTINGS_KEYS
 
 static QString *qt_mac_settings_base = NULL;
 
@@ -42,6 +53,7 @@ static QString *qt_mac_settings_base = NULL;
 #if 1
 #define MACKEY_SEP '.'
 static void qt_mac_fix_key(QString &k) {
+    k.replace(QRegExp("//"), "/");
     if(k.length() && k[0] == '/')
 	k = k.mid(1);
     for ( int i=0; i<(int)k.length(); i++ ) {
@@ -93,31 +105,41 @@ void qt_setSettingsBasePath( const QString &s )
  *****************************************************************************/
 class search_keys {
     CFStringRef i, k;
+    QString qi, qk;
 public:
-    search_keys(QString id, QString key);
+    search_keys(QString id, QString key, const char * =NULL);
     ~search_keys();
 
     CFStringRef id() const { return i; }
+    const QString &qtId() const { return qi; }
     CFStringRef key() const { return k; }
+    const QString &qtKey() const { return qk; }
 };
-search_keys::search_keys(QString path, QString key) 
+search_keys::search_keys(QString path, QString key, const char *where) 
 {
-//    qDebug("-> %s::%s", path.latin1(), key.latin1());
+#ifndef DEBUG_SETTINGS_KEYS
+    Q_UNUSED(where);
+#endif
+    qi = path;
+    qk = key;
     int start = 0;
-    if(key[0] == '/')
+    if(qk[0] == '/')
 	start++;
-    int slsh = key.find('/', start);
+    int slsh = qk.find('/', start);
     if(slsh != -1) {
-	path += key.left(slsh);
-	key = key.mid(slsh+1);
+	qi += qk.left(slsh);
+	qk = qk.mid(slsh+1);
     }
-    qt_mac_fix_key(path);
+    qt_mac_fix_key(qi);
     if(qt_mac_settings_base)
-	path.prepend(*qt_mac_settings_base);
-    qt_mac_fix_key(key);
-//    qDebug("<- %s::%s", path.latin1(), key.latin1());
-    i = CFStringCreateWithCharacters(NULL, (UniChar *)path.unicode(), path.length());
-    k = CFStringCreateWithCharacters(NULL, (UniChar *)key.unicode(), key.length());
+	qi.prepend(*qt_mac_settings_base);
+    qt_mac_fix_key(qk);
+#ifdef DEBUG_SETTINGS_KEYS
+    qDebug("[QSettings::%s] %s::%s -> %s::%s", where ? where : "*Unknown*", 
+	   path.latin1(), key.latin1(), qi.latin1(), qk.latin1());
+#endif
+    i = CFStringCreateWithCharacters(NULL, (UniChar *)qi.unicode(), qi.length());
+    k = CFStringCreateWithCharacters(NULL, (UniChar *)qk.unicode(), qk.length());
 }
 search_keys::~search_keys()
 {
@@ -134,6 +156,7 @@ public:
     QSettingsPrivate();
     bool writeEntry(QString, CFPropertyListRef);
     QStringList searchPaths;
+    QStringList syncKeys;
 };
 
 QSettingsPrivate::QSettingsPrivate() 
@@ -145,13 +168,15 @@ QSettingsPrivate::QSettingsPrivate()
 }
 
 bool QSettingsPrivate::writeEntry(QString key, CFPropertyListRef plr)
-{	
+{
     bool ret = FALSE;
     for ( QStringList::Iterator it = searchPaths.fromLast(); 
 	  it != searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "writeEntry");
 	CFPreferencesSetAppValue(k.key(), plr, k.id());    
 	if(TRUE) { //hmmm..
+	    if(!syncKeys.findIndex(k.qtId()) != -1)
+		syncKeys.append(k.qtId());
 	    ret = TRUE;
 	    break;
 	}
@@ -175,9 +200,19 @@ QSettings::~QSettings()
 
 bool QSettings::sync()
 {
-    if(CFPreferencesAppSynchronize(kCFPreferencesAnyApplication))
-	return FALSE;
-    return TRUE;
+    bool ret = TRUE;
+    for ( QStringList::Iterator it = d->syncKeys.begin();  it != d->syncKeys.end(); --it ) {
+	CFStringRef csr = CFStringCreateWithCharacters(NULL, (UniChar *)(*it).unicode(), 
+						       (*it).length());
+#ifdef DEBUG_SETTINGS_KEYS
+	qDebug("QSettings::sync(%s)", (*it).latin1());
+#endif
+	if(CFPreferencesAppSynchronize(csr))
+	    ret = FALSE;
+	CFRelease(csr);
+    }
+    d->syncKeys.clear();
+    return ret;
 }
 
 void QSettings::insertSearchPath( System s, const QString &path)
@@ -212,7 +247,7 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 #endif // QT_CHECK_STATE
     for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
 	  it != d->searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "readBoolEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFBooleanGetTypeID()) {
 		CFRelease(r);
@@ -242,7 +277,7 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 #endif // QT_CHECK_STATE
     for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
 	  it != d->searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "readDoubleEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFNumberGetTypeID()) {
 		CFRelease(r);
@@ -277,7 +312,7 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 #endif // QT_CHECK_STATE
     for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
 	  it != d->searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "readNumEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFNumberGetTypeID()) {
 		CFRelease(r);
@@ -312,7 +347,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 #endif // QT_CHECK_STATE
     for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
 	  it != d->searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "readEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFStringGetTypeID()) {
 		CFRelease(r);
@@ -341,7 +376,6 @@ bool QSettings::writeEntry(const QString &key, bool value)
 #endif // QT_CHECK_STATE
     CFBooleanRef val = value ? kCFBooleanTrue : kCFBooleanFalse;
     bool ret = d->writeEntry(key, val);
-    CFRelease(val);
     return ret;
 }
 #endif
@@ -424,7 +458,7 @@ QStringList QSettings::entryList(const QString &key) const
 #endif // QT_CHECK_STATE
     for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
 	  it != d->searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "entryList");
 	// perhaps we should iterate over all the possible values (ie kCFPreferenceAllUsers)
 	if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), kCFPreferencesCurrentUser,
 						     kCFPreferencesAnyHost)) {
@@ -455,7 +489,7 @@ QStringList QSettings::subkeyList(const QString &key) const
 #endif // QT_CHECK_STATE
     for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
 	  it != d->searchPaths.end(); --it ) {
-	search_keys k((*it), key);
+	search_keys k((*it), key, "subkeyList");
 	// perhaps we should iterate over all the possible values (ie kCFPreferenceAllUsers)
 	if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), kCFPreferencesCurrentUser,
 						     kCFPreferencesAnyHost)) {
