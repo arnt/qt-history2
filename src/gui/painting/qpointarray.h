@@ -19,6 +19,7 @@
 #include "qpoint.h"
 #endif // QT_H
 
+class QMatrix;
 
 class Q_GUI_EXPORT QPointArray : public QVector<QPoint>
 {
