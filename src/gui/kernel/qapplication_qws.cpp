@@ -2872,7 +2872,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 }
 
 
-bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool /*grab*/)
+bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab is used in the #ifdef */
 {
     int code = -1;
     Qt::KeyboardModifiers state = event->simpleData.modifiers;
