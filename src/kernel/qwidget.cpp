@@ -2687,7 +2687,7 @@ const QCursor &QWidget::cursor() const
 	    ? *extra->curs
 	    : arrowCursor;
     else
-	return isTopLevel() ? arrowCursor : parentWidget()->cursor();
+	return (isTopLevel() || !parentWidget()) ? arrowCursor : parentWidget()->cursor();
 }
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
