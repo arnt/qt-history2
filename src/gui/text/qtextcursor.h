@@ -112,6 +112,8 @@ public:
     QTextTable *insertTable(int rows, int cols);
     QTextTable *currentTable() const;
 
+    QTextFrame *insertFrame(const QTextFrameFormat &format);
+
     void insertFragment(const QTextDocumentFragment &fragment);
 
     void insertImage(const QTextImageFormat &format);

@@ -234,9 +234,9 @@ QTextTableFormat QTextFormat::toTableFormat() const
     return f;
 }
 
-QTextFloatFormat QTextFormat::toFloatFormat() const
+QTextFrameFormat QTextFormat::toFrameFormat() const
 {
-    QTextFloatFormat f;
+    QTextFrameFormat f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -510,7 +510,7 @@ QTextGroup *QTextFormatCollection::createGroup(int index)
         group = new QTextList(pieceTable);
     else if (f.isTableFormat())
         group = new QTextTable(pieceTable);
-    else if (f.isFloatFormat())
+    else if (f.isFrameFormat())
         group = new QTextFloat(pieceTable);
     else
         group = new QTextGroup(pieceTable);

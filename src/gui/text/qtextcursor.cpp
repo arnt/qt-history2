@@ -1013,6 +1013,13 @@ QTextTable *QTextCursor::currentTable() const
 }
 
 
+QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
+{
+    // #############3
+    return 0;
+}
+
+
 /*!
     Inserts \a fragments at the current position.
 

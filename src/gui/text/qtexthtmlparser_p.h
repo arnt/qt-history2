@@ -58,7 +58,7 @@ struct QTextHtmlParserNode {
     uint fontOverline : 1;
     uint fontStrikeOut : 1;
     uint fontFixedPitch : 1;
-    QTextFloatFormat::Position cssFloat : 2;
+    QTextFrameFormat::Position cssFloat : 2;
     QString fontFamily;
     int fontPointSize;
     int fontWeight;

@@ -14,9 +14,6 @@ class Q_GUI_EXPORT QTextFloat : public QTextFrame
     Q_DECLARE_PRIVATE(QTextFloat);
 public:
 
-    void setFormat(const QTextFloatFormat &format) { setCommonFormat(format); }
-    QTextFloatFormat format() const { return commonFormat().toFloatFormat(); }
-
 private:
     QTextFloat(QObject *parent);
     ~QTextFloat();

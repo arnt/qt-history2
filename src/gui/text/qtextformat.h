@@ -17,54 +17,11 @@ class QTextBlockFormat;
 class QTextCharFormat;
 class QTextListFormat;
 class QTextTableFormat;
-class QTextFloatFormat;
+class QTextFrameFormat;
 class QTextImageFormat;
 class QTextFormat;
 class QTextBlockIterator;
-
-class QTextGroupPrivate;
-
-class QTextGroup : public QObject
-{
-    Q_DECLARE_PRIVATE(QTextGroup);
-    Q_OBJECT
-protected:
-    QTextGroup(QObject *parent);
-    ~QTextGroup();
-    QTextGroup(QTextGroupPrivate &p, QObject *parent);
-public:
-    int commonFormatType() const;
-    QTextFormat commonFormat() const;
-    void setCommonFormat(const QTextFormat &format);
-
-    QList<QTextBlockIterator> blockList() const;
-
-protected:
-    virtual void insertBlock(const QTextBlockIterator &block);
-    virtual void removeBlock(const QTextBlockIterator &block);
-    virtual void blockFormatChanged(const QTextBlockIterator &block);
-
-private:
-    friend class QTextFormatCollection;
-    friend class QTextFormat;
-    friend class QTextPieceTable;
-};
-
-class QTextFramePrivate;
-
-class QTextFrame : public QTextGroup
-{
-    Q_DECLARE_PRIVATE(QTextFrame);
-    Q_OBJECT
-protected:
-    QTextFrame(QObject *parent);
-    ~QTextFrame();
-    QTextFrame(QTextFramePrivate &p, QObject *parent);
-public:
-
-    QList<QTextFrame *> children();
-    QTextFrame *parent();
-};
+class QTextGroup;
 
 class Q_GUI_EXPORT QTextFormat
 {
@@ -78,7 +35,7 @@ public:
         CharFormat = 2,
         ListFormat = 3,
         TableFormat = 4,
-        FloatFormat = 5,
+        FrameFormat = 5,
 
         UserFormat = 100
     };
@@ -196,14 +153,14 @@ public:
     inline bool isBlockFormat() const { return type() == BlockFormat; }
     inline bool isListFormat() const { return type() == ListFormat; }
     inline bool isTableFormat() const { return type() == TableFormat; }
-    inline bool isFloatFormat() const { return type() == FloatFormat; }
+    inline bool isFrameFormat() const { return type() == FrameFormat; }
     inline bool isImageFormat() const { return type() == CharFormat && intProperty(ObjectType) == ImageObject; }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
     QTextListFormat toListFormat() const;
     QTextTableFormat toTableFormat() const;
-    QTextFloatFormat toFloatFormat() const;
+    QTextFrameFormat toFrameFormat() const;
     QTextImageFormat toImageFormat() const;
 
     bool operator==(const QTextFormat &rhs) const;
@@ -441,12 +398,12 @@ public:
     { return intProperty(ImageHeight); }
 };
 
-class Q_GUI_EXPORT QTextFloatFormat : public QTextFormat
+class Q_GUI_EXPORT QTextFrameFormat : public QTextFormat
 {
 public:
-    inline QTextFloatFormat() : QTextFormat(FloatFormat) {}
+    inline QTextFrameFormat() : QTextFormat(FrameFormat) {}
 
-    bool isValid() const { return isFloatFormat(); }
+    bool isValid() const { return isFrameFormat(); }
 
     enum Position {
         None,
@@ -459,5 +416,54 @@ public:
     inline Position position() const
     { return (Position)intProperty(CssFloat, None); }
 };
+
+
+class QTextGroupPrivate;
+
+class QTextGroup : public QObject
+{
+    Q_DECLARE_PRIVATE(QTextGroup);
+    Q_OBJECT
+protected:
+    QTextGroup(QObject *parent);
+    ~QTextGroup();
+    QTextGroup(QTextGroupPrivate &p, QObject *parent);
+public:
+    int commonFormatType() const;
+    QTextFormat commonFormat() const;
+    void setCommonFormat(const QTextFormat &format);
+
+    QList<QTextBlockIterator> blockList() const;
+
+protected:
+    virtual void insertBlock(const QTextBlockIterator &block);
+    virtual void removeBlock(const QTextBlockIterator &block);
+    virtual void blockFormatChanged(const QTextBlockIterator &block);
+
+private:
+    friend class QTextFormatCollection;
+    friend class QTextFormat;
+    friend class QTextPieceTable;
+};
+
+class QTextFramePrivate;
+
+class QTextFrame : public QTextGroup
+{
+    Q_DECLARE_PRIVATE(QTextFrame);
+    Q_OBJECT
+protected:
+    QTextFrame(QObject *parent);
+    ~QTextFrame();
+    QTextFrame(QTextFramePrivate &p, QObject *parent);
+public:
+
+    void setFormat(const QTextFrameFormat &format) { setCommonFormat(format); }
+    QTextFrameFormat format() const { return commonFormat().toFrameFormat(); }
+
+    QList<QTextFrame *> children();
+    QTextFrame *parent();
+};
+
 
 #endif

@@ -468,15 +468,15 @@ void QTextHTMLImporter::import()
                 fmt.setWidth(node->imageWidth);
             if (node->imageHeight >= 0)
                 fmt.setHeight(node->imageHeight);
-            QTextFloatFormat::Position f = node->cssFloat;
+            QTextFrameFormat::Position f = node->cssFloat;
             // HTML4 compat
-            if (f == QTextFloatFormat::None) {
+            if (f == QTextFrameFormat::None) {
                 if (node->alignment == Qt::AlignLeft)
-                    f = QTextFloatFormat::Left;
+                    f = QTextFrameFormat::Left;
                 else if (node->alignment == Qt::AlignRight)
-                    f = QTextFloatFormat::Right;
+                    f = QTextFrameFormat::Right;
             }
-            QTextFloatFormat ffmt;
+            QTextFrameFormat ffmt;
             ffmt.setPosition(f);
             QTextGroup *group = formats.createGroup(ffmt);
             fmt.setGroup(group);
