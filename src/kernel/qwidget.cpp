@@ -583,7 +583,10 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     slightly simpler title bar. This is the flag QDialog uses.
 
     \value WStyle_Splash  indicates that the window is a splash screen.
-    This is the same as \c WStyle_NoBorder|WStyle_StaysOnTop|WX11BypassWM.
+    On X11, we try to follow NETWM standard for a splash screen window if the
+    window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
+    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacNoSheet \c |
+    \c WStyle_Tool \c | \c WWinOwnDC
 
     Modifier flags:
 
