@@ -439,6 +439,27 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    XFree( (char*)data );
 	}
 
+ 	static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
+ 	if ( *format == 8 && *type == xa_compound_text ) {
+	    // convert COMPOUND_TEXT to a multibyte string
+ 	    XTextProperty textprop;
+ 	    textprop.encoding = *type;
+ 	    textprop.format = *format;
+ 	    textprop.nitems = length;
+ 	    textprop.value = (unsigned char *) buffer->data();
+
+ 	    char **list_ret = 0;
+ 	    int count;
+	    if ( XmbTextPropertyToTextList( dpy, &textprop, &list_ret,
+					    &count ) == Success &&
+		 count && list_ret ) {
+		offset = strlen( list_ret[0] );
+		buffer->resize( offset + ( nullterm ? 1 : 0 ) );
+		memcpy( buffer->data(), list_ret[0], offset );
+	    }
+ 	    if (list_ret) XFreeStringList(list_ret);
+ 	}
+
 	// zero-terminate (for text)
        	if (nullterm)
 	    buffer->at(buffer_offset) = '\0';
@@ -642,6 +663,9 @@ bool QClipboard::event( QEvent *e )
 	    QByteArray data;
 	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
 	    static Atom xa_multiple = *qt_xdnd_str_to_atom( "MULTIPLE" );
+	    static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
+	    static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
+	    static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
 	    struct AtomPair { Atom target; Atom property; } *multi = 0;
 	    int nmulti = 0;
 	    int imulti = -1;
@@ -677,7 +701,7 @@ bool QClipboard::event( QEvent *e )
 		    while (d->source()->format(atoms)) atoms++;
 		    if (d->source()->provides("image/ppm")) atoms++;
 		    if (d->source()->provides("image/pbm")) atoms++;
-		    if (d->source()->provides("text/plain")) atoms++;
+		    if (d->source()->provides("text/plain")) atoms+=3;
 
 #if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    qDebug("qclipboard_x11.cpp:%d: %d provided types", __LINE__, atoms);
@@ -705,8 +729,11 @@ bool QClipboard::event( QEvent *e )
 			atarget[n++] = XA_PIXMAP;
 		    if ( d->source()->provides("image/pbm") )
 			atarget[n++] = XA_BITMAP;
-		    if ( d->source()->provides("text/plain") )
+		    if ( d->source()->provides("text/plain") ) {
+			atarget[n++] = xa_utf8_string;
+			atarget[n++] = xa_compound_text;
 			atarget[n++] = XA_STRING;
+		    }
 
 #if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    for (int index = 0; index < n; index++) {
@@ -729,7 +756,36 @@ bool QClipboard::event( QEvent *e )
 		} else {
 		    bool already_done = FALSE;
 		    if ( target == XA_STRING) {
+			// the ICCCM states that STRING is latin1 plus newline and tab
+			// see section 2.6.2
+			fmt = "text/plain;charset=ISO-8859-1";
+		    } else if ( target == xa_utf8_string ) {
+			// proposed UTF8_STRING conversion type
+			fmt = "text/plain;charset=UTF-8";
+		    } else if ( target == xa_text || target == xa_compound_text ) {
+			// the ICCCM states that TEXT and COMPOUND_TEXT are in the
+			// encoding of choice, so we choose the encoding of the locale
 			fmt = "text/plain";
+			data = d->source()->encodedData( fmt );
+			char *list[] = { data.data() };
+			XICCEncodingStyle style;
+			if ( target == xa_compound_text )
+			    style = XCompoundTextStyle;
+			else
+			    style = XStdICCTextStyle;
+			XTextProperty textprop;
+			if ( XmbTextListToTextProperty( dpy, list, 1, style,
+							&textprop ) == Success ) {
+			    data.duplicate( (const char *) textprop.value,
+					    textprop.nitems );
+			    XFree( textprop.value );
+			    XChangeProperty( dpy, req->requestor, property,
+					     xa_compound_text, 8, PropModeReplace,
+					     (unsigned char *) data.data(),
+					     data.size() );
+			    evt.xselection.property = property;
+			}
+			already_done = TRUE;
 		    } else if ( target == XA_PIXMAP ) {
 			fmt = "image/ppm";
 			data = d->source()->encodedData(fmt);
@@ -849,12 +905,26 @@ const char* QClipboardWatcher::format( int n ) const
 	QClipboardWatcher *that = (QClipboardWatcher *) this;
 	QByteArray ba = getDataInFormat(xa_targets);
 	Atom *target = (Atom *) ba.data();
+	static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
+	static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
+	static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
 	int i, size = ba.size() / sizeof(Atom);
-	for (i = 0; i < size; i++)
-	    if ( *target == XA_PIXMAP )
+	for (i = 0; i < size; ++i) {
+	    if ( target[i] == XA_PIXMAP )
 		that->formatList.append("image/ppm");
+	    else if ( target[i] == XA_STRING )
+		that->formatList.append( "text/plain;charset=ISO-8859-1" );
+	    else if ( target[i] == xa_utf8_string )
+		that->formatList.append( "text/plain;charset=UTF-8" );
+	    else if ( target[i] == xa_text ||
+		      target[i] == xa_compound_text )
+		that->formatList.append( "text/plain" );
 	    else
 		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
+	    qDebug( "QClipboardWatcher::format: format %d %s for %s",
+		    i, formatList[i],
+		    XGetAtomName( QPaintDevice::x11AppDisplay(), target[i] ) );
+	}
     }
 
     if (n >= 0 && n < (signed) formatList.count())
@@ -871,8 +941,14 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 
     Atom fmtatom = 0;
 
-    if ( 0==qstrcmp(fmt,"text/plain") ) {
-   	fmtatom = XA_STRING;
+    if ( 0==qstricmp(fmt,"text/plain;charset=iso-8859-1") ) {
+	// ICCCM section 2.6.2 says STRING is latin1 text
+	fmtatom = XA_STRING;
+    } else if ( 0==qstricmp(fmt,"text/plain;charset=utf-8") ) {
+	// proprosed UTF8_STRING conversion type
+	fmtatom = *qt_xdnd_str_to_atom( "UTF8_STRING" );
+    } else if ( 0==qstrcmp(fmt,"text/plain") ) {
+   	fmtatom = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
     } else if ( 0==qstrcmp(fmt,"image/ppm") ) {
 	fmtatom = XA_PIXMAP;
 	QByteArray pmd = getDataInFormat(fmtatom);
@@ -917,6 +993,11 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
     Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
+
+#ifdef QCLIPBOARD_DEBUG
+    qDebug( "QClipboardWatcher::getDataInFormat: format %s",
+	    XGetAtomName( dpy, fmtatom ) );
+#endif // QCLIPBOARD_DEBUG
 
     XConvertSelection( dpy, (inSelectionMode) ? XA_PRIMARY : qt_xa_clipboard,
 		       fmtatom, qt_selection_property, win, CurrentTime );
