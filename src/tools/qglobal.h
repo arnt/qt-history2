@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#136 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#137 $
 **
 ** Global type declarations and definitions
 **
@@ -230,6 +230,7 @@
 #undef QT_DLL
 #endif
 #if defined(QT_MAKEDLL)		/* create a Qt DLL library */
+#undef QT_DLL
 #define Q_EXPORT  __declspec(dllexport)
 #define Q_TEMPLATEDLL
 #undef  Q_DISABLE_COPY		/* avoid unresolved externals */
