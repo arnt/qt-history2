@@ -1,7 +1,7 @@
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qlineedit.h>
-#include <qcombobox.h>
+#include <qspinbox.h>
 
 #include "qsqleditorfactory.h"
 #include "qsqleditor.h"
@@ -20,18 +20,17 @@ QSqlEditorFactory::QSqlEditorFactory()
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 					   QSqlField & field )
 {
-    QSqlEditor* w;
+    QWidget * w;
     switch ( field.type() ) {
     case QVariant::Int:
-	w = new QSqlSpinBox( parent, field );
+	w = new QSpinBox( parent );
 	break;
     default:
     case QVariant::String:
     case QVariant::CString:
-	w = new QSqlLineEdit( parent, field );
+	w = new QLineEdit( parent );
 	break;
     }
-    w->syncToEditor();
     return w;
 }
 

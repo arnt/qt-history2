@@ -2,61 +2,26 @@
 #define QSQLEDITOR_H
 
 #ifndef QT_H
-#include "qwidget.h"
-#include "qlayout.h"
-#include "qsqlfield.h"
+#include "qframe.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class Q_EXPORT QSqlEditor : public QWidget
+class QRadioButton;
+class Q_EXPORT QSqlCustomEd : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY( bool state READ state WRITE setState )
+
 public:
-    QSqlEditor( QSqlField& field, QWidget * parent=0, const char * name=0, WFlags f=0 );
-     ~QSqlEditor();
-    void syncToEditor();
-    void syncToField();
-protected:
-    virtual QVariant editorValue() = 0;
-    virtual void takeValue( QVariant& value ) = 0;
+    QSqlCustomEd ( QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
+    
+    bool state() const;
+    void setState( bool st );
+
 private:
-    QSqlField&       fld;
+    QRadioButton * s;
 };
-
-
-class QLineEdit;
-class Q_EXPORT QSqlLineEdit : public QSqlEditor
-{
-public:
-    QSqlLineEdit ( QWidget * parent, QSqlField& field, const char * name=0 );
-    QSqlLineEdit ( const QString & contents, QWidget * parent, QSqlField& field, const char * name=0 );
-    ~QSqlLineEdit();
-    QLineEdit* lineEdit();
-protected:
-    QVariant editorValue();
-    void takeValue( QVariant& value );
-private:
-    QLineEdit* ed;
-    QGridLayout* grid;
-};
-
-class QSpinBox;
-class Q_EXPORT QSqlSpinBox : public QSqlEditor
-{
-public:
-    QSqlSpinBox ( QWidget * parent, QSqlField& field, const char * name = 0 );
-    QSqlSpinBox ( int minValue, int maxValue, int step, QWidget * parent, QSqlField& field, const char * name = 0 );
-    ~QSqlSpinBox();
-    QSpinBox* spinBox();
-protected:
-    QVariant editorValue();
-    void takeValue( QVariant& value );
-private:
-    QSpinBox* ed;
-    QGridLayout* grid;
-};
-
 
 #endif	// QT_NO_SQL
 #endif
