@@ -609,7 +609,7 @@ bool ResultSet::sort( const List& index )
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
 	List indexData = index[i].toList();
-	uint fieldNumber = indexData[0].toUint();
+	uint fieldNumber = indexData[0].toUInt();
 	if ( fieldNumber == -1 ) {
 	    env->setLastError( "Field number not found: " + QString::number( fieldNumber ) );
 	    return FALSE;

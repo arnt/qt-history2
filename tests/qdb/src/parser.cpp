@@ -706,13 +706,14 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	LocalSQLOp *op = 0;
 	int tableId;
 	QString field;
+	int resultColumn;
 	int nextCond;
 	int i;
 
 	switch ( node ) {
     	case Node_Avg:
-	    field = (*++v).toString();
-	    yyProg->append( new PushGroupAvg(0, field) );
+	    resultColumn = (*++v).toInt();
+	    yyProg->append( new PushGroupAvg(0, resultColumn) );
 	    break;
 	case Node_And:
 	    nextCond = yyNextLabel--;
@@ -721,9 +722,10 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	    emitExpr( *++v, group, trueLab, falseLab );
 	    break;
 	case Node_Count:
-	    field = (*++v).toString();
-	    yyProg->append( new PushGroupCount(0, field) );
+	    resultColumn = (*++v).toInt();
+	    yyProg->append( new PushGroupCount(0, resultColumn) );
 	    break;
+#if notyet // ###
 	case Node_Field:
 	    tableId = (*++v).toInt();
 	    field = (*++v).toString();
@@ -732,6 +734,7 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	    else
 		yyProg->append( new PushFieldValue(tableId, field) );
 	    break;
+#endif
 	case Node_In:
 	    emitExpr( *++v, group );
 	    yyProg->append( new Push(*++v) );
@@ -742,12 +745,12 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	    yyProg->append( new Like((*++v).toString(), trueLab, falseLab) );
 	    break;
 	case Node_Max:
-	    field = (*++v).toString();
-	    yyProg->append( new PushGroupMax(0, field) );
+	    resultColumn = (*++v).toInt();
+	    yyProg->append( new PushGroupMax(0, resultColumn) );
 	    break;
 	case Node_Min:
-	    field = (*++v).toString();
-	    yyProg->append( new PushGroupMin(0, field) );
+	    resultColumn = (*++v).toInt();
+	    yyProg->append( new PushGroupMin(0, resultColumn) );
 	    break;
 	case Node_Not:
 	    emitExpr( *++v, group, falseLab, trueLab );
@@ -768,8 +771,8 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	    }
 	    break;
 	case Node_Sum:
-	    field = (*++v).toString();
-	    yyProg->append( new PushGroupSum(0, field) );
+	    resultColumn = (*++v).toInt();
+	    yyProg->append( new PushGroupSum(0, resultColumn) );
 	    break;
 	default:
 	    ++v;
@@ -995,9 +998,9 @@ void Parser::emitFieldDesc( const QVariant& column, const QString& columnName )
 	if ( borrowFrom.type() == QVariant::List ) {
 	    int id = borrowFrom.asList()[1].toInt();
 	    QString name = borrowFrom.asList()[2].toString();
-	    yyProg->append( new PushFieldDataInfo(id, name) );
+	    yyProg->append( new PushFieldTypeInfo(id, name) );
 	} else {
-	    yyProg->append( new Push(borrowFrom.type()) );
+	    yyProg->append( new Push(borrowFrom.toInt()) );
 	    yyProg->append( new Push(0) );
 	    yyProg->append( new Push(0) );
 	}
@@ -1052,7 +1055,7 @@ void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
 
     yyProg->append( new PushSeparator );
     while ( col != columns.end() ) {
-	yyProg->append( new PushFieldDesc(tableId, *col) );
+// ###	yyProg->append( new PushFieldDesc(tableId, *col) );
 	++col;
     }
     yyProg->append( new MakeList );
@@ -1177,6 +1180,8 @@ QVariant Parser::matchPrimaryExpr()
 {
     QVariant right;
     bool uminus = FALSE;
+    int node;
+    int n;
 
     while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
 	if ( yyTok == Tok_Minus )
@@ -1327,7 +1332,7 @@ QVariant Parser::matchScalarExpr()
     left = matchMultiplicativeExpr();
     while ( yyTok == Tok_Plus || yyTok == Tok_Minus ) {
 	QValueList<QVariant> scalExp;
-	int node = yyTok == Tok_Plus ? Node_Plus : Node_Minus;
+	int node = yyTok == Tok_Plus ? Node_Add : Node_Subtract;
 	scalExp.append( node );
 	scalExp.append( left );
 	yyTok = getToken();
@@ -1425,7 +1430,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 
     switch ( yyTok ) {
     case Tok_Equal:
-	pred.append( (int) Node_Equal );
+	pred.append( (int) Node_Eq );
 	yyTok = getToken();
 	right = matchScalarExpr();
 	pred.append( left );
@@ -2047,7 +2052,7 @@ void Parser::matchSelectStatement()
     if ( yyTok == Tok_Aster ) {
 	QValueList<QVariant> aster;
 	yyTok = getToken();
-	aster.append( (int) Node_Aster );
+	aster.append( (int) Node_Star );
 	selectColumns.append( aster );
 	selectColumnNames.append( QString::null );
 	yyNumColumnOccs++;
@@ -2152,7 +2157,7 @@ void Parser::matchUpdateStatement()
     yyProg->append( new PushSeparator );
     while ( as != assignments.end() ) {
 	yyProg->append( new PushSeparator );
-	yyProg->append( new PushFieldDesc(tableId, as.key()) );
+// ###	yyProg->append( new PushFieldDesc(tableId, as.key()) );
 	emitExpr( *as );
 	yyProg->append( new MakeList );
 	++as;

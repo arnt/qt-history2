@@ -1400,7 +1400,7 @@ private:
 class PushGroupValue : public PushGroupOp
 {
 public:
-    PushGroupValue( int id, const QVariant& P2 )
+    PushGroupValue( int id, uint P2 )
 	: PushGroupOp( id, P2, LocalSQLResultSet::Value ) {}
     QString name() const { return "pushgroupvalue"; }
 };
@@ -1427,7 +1427,7 @@ class PushGroupSum : public PushGroupOp
 {
 public:
     PushGroupSum( int id, uint P2 )
-	: Op( id, P2, LocalSQLResultSet::Sum ) {}
+	: PushGroupOp( id, P2, LocalSQLResultSet::Sum ) {}
     QString name() const { return "pushgroupsum"; }
 };
 
