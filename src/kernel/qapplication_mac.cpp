@@ -404,14 +404,15 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	if(rfork != -1)
 	    QDir::setCurrent(path.left(rfork+1));
     }
-
-    ProcessSerialNumber psn;
-    GetCurrentProcess(&psn);
-    SetFrontProcess(&psn);
 #endif
 
     qApp->setName( appName );
     if ( qt_is_gui_used ) {
+#ifdef Q_WS_MACX
+	ProcessSerialNumber psn;
+	GetCurrentProcess(&psn);
+	SetFrontProcess(&psn);
+#endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #endif
