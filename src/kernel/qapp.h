@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#47 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#48 $
 **
 ** Definition of QApplication class
 **
@@ -69,6 +69,8 @@ public:
 
     static void	    flushX();
     static void	    syncX();
+
+    static void     beep();
 
 #if defined(_WS_MAC_)
     virtual bool    macEventFilter( MSG * );

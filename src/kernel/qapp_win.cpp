@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#54 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#54 $");
 
 
 /*****************************************************************************
@@ -715,6 +715,12 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	}
     }
 }
+
+
+void QApplication::beep()
+{
+}
+
 
 
 //

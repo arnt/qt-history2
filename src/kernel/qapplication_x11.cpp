@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#169 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#168 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#169 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -776,7 +776,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
 void QApplication::flushX()
 {
-    XFlush( appDpy );
+    if ( appDpy )
+	XFlush( appDpy );
 }
 
 /*----------------------------------------------------------------------------
@@ -787,8 +788,22 @@ void QApplication::flushX()
 
 void QApplication::syncX()
 {
-    XSync( appDpy, FALSE );			// don't discard events
+    if ( appDpy )
+	XSync( appDpy, FALSE );			// don't discard events
 }
+
+
+/*!
+  Makes a simple tone.  The tone has the default length, frequency
+  and volume.
+*/
+
+void QApplication::beep()
+{
+    if ( appDpy )
+	XBell( appDpy, 0 );
+}
+
 
 
 /*****************************************************************************
