@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#22 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#22 $";
 #endif
 
 
@@ -1917,51 +1917,6 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 }
 
 
-class QIntPainter : public QPainter {		// internal painter functions
-public:
-    void addClipRect( int, int, int, int );
-    void restoreClipping();
-};
-
-void QIntPainter::addClipRect( int x, int y, int w, int h )
-{
-    if ( borrowWidgetGC )
-	createOwnGC();
-    QRect r( x, y, w, h );
-    if ( testf(WxF) ) {				// world xform active
-	QPointArray a( r );			// complex region
-	a = xForm( a );
-	QRegion new_rgn( a );
-	if ( testf(ClipOn) )			// add to existing region
-	    new_rgn = new_rgn.intersect( crgn );
-	setClipRegion( new_rgn );
-    }
-    else {					// simple region
-	Region rgn;
-	r = xForm( r );
-	XRectangle xr;
-	xr.x = r.x();
-	xr.y = r.y();
-	xr.width = r.width();
-	xr.height = r.height();
-	rgn = XCreateRegion();			// create X region directly
-	XUnionRectWithRegion( &xr, rgn, rgn );
-	if ( testf(ClipOn) )			// add to existing region
-	    XIntersectRegion( rgn, crgn.handle(), rgn );
-	XSetRegion( dpy, gc, rgn );
-	XDestroyRegion( rgn );			// no longer needed
-    }
-}
-
-void QIntPainter::restoreClipping()
-{
-    if ( testf(ClipOn) )			// set original region
-	XSetRegion( dpy, gc, crgn.handle() );
-    else
-	XSetClipMask( dpy, gc, None );
-}
-
-
 void QPainter::drawText( int x, int y, int w, int h, int tf,
 			 const char *str, int len )
 {
@@ -2170,8 +2125,36 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( nlines == 1 && (codes[0] & WDBITS) < w && h > fheight )
 	tf |= DontClip;				// no need to clip
 
-    if ( (tf & DontClip) == 0 )			// clip text
-	((QIntPainter*)this)->addClipRect( x, y, w, h );
+    if ( (tf & DontClip) == 0 )	{		// clip text
+	if ( borrowWidgetGC )
+	    createOwnGC();
+	QRect r( x, y, w, h );
+	if ( testf(WxF) ) {			// world xform active
+	    QPointArray a( r );			// complex region
+	    a = xForm( a );
+	    QRegion new_rgn( a );
+	    if ( testf(ClipOn) )		// add to existing region
+		new_rgn = new_rgn.intersect( crgn );
+	    setClipRegion( new_rgn );
+	}
+	else {					// simple region
+	    r = xForm( r );
+	    XRectangle xr;
+	    xr.x = r.x();
+	    xr.y = r.y();
+	    xr.width = r.width();
+	    xr.height = r.height();
+	    if ( testf(ClipOn) ) {		// clipping active
+		Region rgn = XCreateRegion();
+		XUnionRectWithRegion( &xr, rgn, rgn );
+		XIntersectRegion( rgn, crgn.handle(), rgn );
+		XSetRegion( dpy, gc, rgn );
+		XDestroyRegion( rgn );		// no longer needed
+	    }
+	    else				// slightly faster
+		XSetClipRectangles( dpy, gc, 0, 0, &xr, 1, YXBanded );
+	}
+    }
 
     if ( (tf & AlignVCenter) == AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
@@ -2210,13 +2193,13 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    while ( *ci && (*ci & (BEGLINE|TABSTOP)) == 0 ) {
 		if ( (*ci & PREFIX) == PREFIX ) {
 		    int xcpos = fm.width( p, k );
-		    drawLine( x+xp+xcpos, y+yp,
-			      x+xp+xcpos+CWIDTH( *ci&0xff ), y+yp );
+		    drawLine( x+xp+xcpos, y+yp+2,
+			      x+xp+xcpos+CWIDTH( *ci&0xff ), y+yp+2 );
 		}
 		p[k++] = (char)*ci++;
 		index++;
 	    }
-	    p[k] = 0;
+// INGEN VITS!!!	    p[k] = 0;
 	    drawText( x+xp, y+yp, p, k );
 	    if ( (*ci & BEGLINE) == BEGLINE || *ci == 0 )
 		break;
@@ -2229,7 +2212,10 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
-	((QIntPainter*)this)->restoreClipping();
+	if ( testf(ClipOn) )			// set original region
+	    XSetRegion( dpy, gc, crgn.handle() );
+	else
+	    XSetClipMask( dpy, gc, None );
 	if ( save_rgn.handle() != crgn.handle() )
 	    setClipRegion( save_rgn );
     }
