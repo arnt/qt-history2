@@ -26,19 +26,18 @@ public:
     enum Shape {Circle, Rectangle, Path};
 
     Item(QPoint topLeft, Shape _shape, const QColor &c)
-        : shape(_shape), sel(false), color(c) {
+        : shape(_shape), selected(false), color(c) {
         translate(topLeft);
         if (shape == Path) {
             path = new QPainterPath;
-
-            path->addRect(20,20,60,60);
+            path->addRect(20,20, 60,60);
             path->moveTo(0,0);
-            path->curveTo(99,0,50,50,99,99);
+            path->curveTo(99,0, 50,50, 99,99);
             path->moveTo(99,99);
-            path->curveTo(0,99,50,50,0,0);
+            path->curveTo(0,99, 50,50, 0,0);
             QFont fnt("times", 75);
             QRect r = QFontMetrics(fnt).boundingRect("Trolltech");
-            path->addText(-r.center()+QPoint(50,140), fnt, "Trolltech");
+            path->addText(-r.center() + QPoint(50, 140), fnt, "Trolltech");
         }
     }
 
@@ -48,7 +47,7 @@ public:
     }
 
     void draw(QPainter *p, bool useOwnColor = true) {
-        if (sel)
+        if (selected)
             p->setPen(Qt::red);
         else
             p->setPen(Qt::black);
@@ -83,16 +82,12 @@ public:
         return r;
     }
 
-    void setSelected(bool selected) {
-        sel = selected;
+    void setSelected(bool sel) {
+        selected = sel;
     }
 
     void setOffset(QPoint p) {
         offset = p - trans;
-    }
-
-    bool selected() const {
-        return sel;
     }
 
     void translate(QPoint p) {
@@ -103,7 +98,7 @@ private:
     QPoint offset;
     QPoint trans;
     Shape shape;
-    bool sel;
+    bool selected;
     QColor color;
     QPainterPath *path;
 };
@@ -119,10 +114,10 @@ Items::Items(QWidget *parent)
                               QColor(120+rand()%136,120+rand()%136,120+rand()%136)));
     }
 
-    Item *item = new Item(QPoint(), Item::Path, QColor(120,255,120,200));
-    QRect r = item->boundingRect();
-    item->translate(QPoint(591/2,600/2)-r.center());
+    Item *item = new Item(QPoint(), Item::Path, QColor(120, 255, 120, 200));
+    item->translate(QPoint(591/2, 600/2) - item->boundingRect().center());
     items.append(item);
+    dragging = false;
 }
 
 Items::~Items()
@@ -136,33 +131,28 @@ void Items::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.drawPixmap(0, 0, buffer);
 
-    if (!anchor.isNull()) {
-        p.setBrush(QColor(120,120,255,100));
-        items[items.size()-1]->draw(&p, false);
+    if (dragging) {
+        p.setBrush(QColor(120, 120, 255, 100));
+        items.last()->draw(&p, false);
     }
 }
 
 void Items::mousePressEvent(QMouseEvent *event)
 {
-    anchor = current = event->pos();
-
-    bool selected = false;
+    dragging = true;
     for (int i = items.size()-1; i >= 0; --i) {
-        if (!selected && items.at(i)->boundingRect().contains(anchor)) {
+        if (items.at(i)->boundingRect().contains(event->pos())) {
+            items.last()->setSelected(false);
             items[i]->setSelected(true);
-            items[i]->setOffset(anchor);
+            items[i]->setOffset(event->pos());
             itemBr = items.at(i)->boundingRect();
-            selected = true;
             items.move(i, items.size()-1);
             break;
-        } else {
-            items[i]->setSelected(false);
         }
     }
     if (!itemBrOrig.isEmpty())
         drawItems(itemBrOrig);
     itemBrOrig = itemBr;
-
 
     QPainter px(&buffer);
     items.last()->draw(&px);
@@ -173,20 +163,14 @@ void Items::mousePressEvent(QMouseEvent *event)
 
 void Items::mouseMoveEvent(QMouseEvent *event)
 {
-    current = event->pos();
-    for (int i = 0; i < items.size(); ++i) {
-        if (items.at(i)->selected()) {
-            items[i]->translate(current);
-            itemBr = items.at(i)->boundingRect();
-            break;
-        }
-    }
+    items.last()->translate(event->pos());
+    itemBr = items.last()->boundingRect();
     update();
 }
 
 void Items::mouseReleaseEvent(QMouseEvent *)
 {
-    anchor = current = QPoint();
+    dragging = false;
     drawItems(itemBr);
     if (!itemBrOrig.isEmpty())
         drawItems(itemBrOrig);
@@ -203,15 +187,12 @@ void Items::resizeEvent(QResizeEvent *)
 void Items::drawItems(const QRect &rect)
 {
     QPainter px(&buffer);
-    int drawn = 0;
 
-    QRect clip = rect;
-    if (!clip.isEmpty()) {
-        px.setClipRect(clip);
-    }
+    if (!rect.isEmpty())
+        px.setClipRect(rect);
     fillBackground(&px);
     for (int i = 0; i < items.size(); ++i) {
-        if (clip.isEmpty() || items[i]->boundingRect().intersects(clip))
+        if (rect.isEmpty() || items.at(i)->boundingRect().intersects(rect))
             items[i]->draw(&px);
     }
 }

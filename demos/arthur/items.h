@@ -37,7 +37,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
-    QPoint anchor, current;
+    bool dragging;
     QRect itemBr, itemBrOrig;
     QPixmap buffer;
     QList<Item *> items;
