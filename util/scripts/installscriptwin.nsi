@@ -145,9 +145,11 @@ Function ValidateKey
   !insertmacro MUI_INSTALLOPTIONS_READ $KEY2 "checkqtlicense.ini" "Field 4" "State"
   !insertmacro MUI_INSTALLOPTIONS_READ $KEY3 "checkqtlicense.ini" "Field 6" "State"
   push $1
+  IfErrors 0
   qtnsisext::IsValidLicense $KEY1 $KEY2 $KEY3
+  IfErrors wrongKey
   pop $1
-  strcmp $1 "0" 0 checkForUS
+  strcmp $1 "1" checkForUS
     goto wrongKey
 
   checkForUS:
