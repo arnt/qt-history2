@@ -269,18 +269,25 @@ void QLabel::setText( const QString &text )
     QSize osh = sizeHint();
     clearContents();
     ltext = text;
+    bool useRichText = (textformat == RichText || 
+      ( ( textformat == AutoText ) && QStyleSheet::mightBeRichText(ltext) ) );
 #ifndef QT_NO_ACCEL
-    int p = QAccel::shortcutKey( ltext );
-    if ( p ) {
-	if ( !accel )
-	    accel = new QAccel( this, "accel label accel" );
-	accel->connectItem( accel->insertItem( p ),
-			    this, SLOT(acceleratorSlot()) );
+    // ### Setting accelerators for rich text labels will not work.
+    // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly 
+    // not intended.
+    if ( !useRichText ) {
+	qWarning("accelerator set");
+	int p = QAccel::shortcutKey( ltext );
+	if ( p ) {
+	    if ( !accel )
+		accel = new QAccel( this, "accel label accel" );
+	    accel->connectItem( accel->insertItem( p ),
+				this, SLOT(acceleratorSlot()) );
+	}
     }
 #endif
 #ifndef QT_NO_RICHTEXT
-    if ( textformat == RichText ||
-	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
+    if ( useRichText ) {
 	doc = new QSimpleRichText( ltext, font() );
 	doc->setDefaultFont( font() );
 	doc->setWidth( 10 );
@@ -915,12 +922,15 @@ void QLabel::setBuddy( QWidget *buddy )
     if ( !lbuddy )
 	return;
 
-    int p = QAccel::shortcutKey( ltext );
-    if ( p ) {
-	if ( !accel )
-	    accel = new QAccel( this, "accel label accel" );
-	accel->connectItem( accel->insertItem( p ),
-			    this, SLOT(acceleratorSlot()) );
+    if ( !( textformat == RichText || (textformat == AutoText && 
+				       QStyleSheet::mightBeRichText(ltext) ) ) ) {
+	int p = QAccel::shortcutKey( ltext );
+	if ( p ) {
+	    if ( !accel )
+		accel = new QAccel( this, "accel label accel" );
+	    accel->connectItem( accel->insertItem( p ),
+				this, SLOT(acceleratorSlot()) );
+	}
     }
 
     connect( lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
