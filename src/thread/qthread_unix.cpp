@@ -178,8 +178,8 @@ void QThread::initialize()
     if (qt_global_mutexpool)
 	return;
 
-    qt_global_mutexpool = new QMutexPool(true, 73);
-    qt_thread_mutexpool = new QMutexPool(false, 127);
+    qt_global_mutexpool = new QMutexPool(true);
+    qt_thread_mutexpool = new QMutexPool(false);
 }
 
 /*! \internal

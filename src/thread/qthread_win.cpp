@@ -181,8 +181,8 @@ void QThread::initialize()
     if ( qt_global_mutexpool )
 	return;
 
-    qt_global_mutexpool = new QMutexPool( TRUE, 73 );
-    qt_thread_mutexpool = new QMutexPool( FALSE, 127 );
+    qt_global_mutexpool = new QMutexPool(true);
+    qt_thread_mutexpool = new QMutexPool(false);
 
     create_tls();
 }
