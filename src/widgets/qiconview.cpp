@@ -3792,6 +3792,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     switch ( e->key() )
     {
     case Key_Home: {
+	d->currInputString = QString::null;
 	if ( !d->firstItem )
 	    return;
 
@@ -3807,6 +3808,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_End: {
+	d->currInputString = QString::null;
 	if ( !d->lastItem )
 	    return;
 
@@ -3822,6 +3824,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_Right: {	
+	d->currInputString = QString::null;
 	QIconViewItem *item;
 	if ( d->alignMode == East ) {
 	    if ( !d->currentItem->next )
@@ -3864,6 +3867,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_Left: {
+	d->currInputString = QString::null;
 	QIconViewItem *item;
 	if ( d->alignMode == East ) {
 	    if ( !d->currentItem->prev )
@@ -3906,15 +3910,18 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_Space: {
+	d->currInputString = QString::null;
 	if ( d->selectionMode == Single )
 	    return;
 
 	d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
     } break;
     case Key_Enter: case Key_Return:
+	d->currInputString = QString::null;
 	emit returnPressed( d->currentItem );
 	break;
     case Key_Down: {
+	d->currInputString = QString::null;
 	QIconViewItem *item;
 	
 	if ( d->alignMode == East ) {
@@ -3958,6 +3965,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_Up: {
+	d->currInputString = QString::null;
 	QIconViewItem *item;
 	
 	if ( d->alignMode == East ) {
@@ -4001,6 +4009,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_Next: {
+	d->currInputString = QString::null;
 	if ( d->alignMode == East )
 	    scrollBy( 0, visibleHeight() );
 	else
@@ -4017,6 +4026,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	}
     } break;
     case Key_Prior: {
+	d->currInputString = QString::null;
 	if ( d->alignMode == East )
 	    scrollBy( 0, -visibleHeight() );
 	else
@@ -4035,6 +4045,8 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     default:
 	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() )
 	    findItemByName( e->text() );
+	else
+	    d->currInputString = QString::null;
     }
 
     if ( e->key() != Key_Shift &&

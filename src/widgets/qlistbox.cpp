@@ -1731,6 +1731,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
     switch ( e->key() ) {
     case Key_Up:
+	d->currInputString = QString::null;
 	if ( currentItem() > 0 ) {
 	    if ( e->state() & ShiftButton ) {
 		int i = currentItem();
@@ -1742,6 +1743,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Down:
+	d->currInputString = QString::null;
 	if ( currentItem() < (int)count() - 1 ) {
 	    if ( e->state() & ShiftButton ) {
 		int i = currentItem();
@@ -1753,6 +1755,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Left:
+	d->currInputString = QString::null;
 	if ( currentColumn() > 0 ) {
 	    setCurrentItem( currentItem() - numRows() );
 	    if ( e->state() & ShiftButton )
@@ -1771,6 +1774,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Right:
+	d->currInputString = QString::null;
 	if ( currentColumn() < numColumns()-1 ) {
 	    int row = currentRow();
 	    int i = currentItem();
@@ -1798,6 +1802,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Next:
 	{
+	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    int i = 0;
 	    if ( numColumns() == 1 ) {
@@ -1832,6 +1837,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} break;
     case Key_Prior:
 	{
+	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    int i;
 	    if ( numColumns() == 1 ) {
@@ -1867,11 +1873,13 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Space:
+	d->currInputString = QString::null;
 	toggleCurrentItem();
 	break;
 
     case Key_Return:
     case Key_Enter:
+	d->currInputString = QString::null;
 	if ( currentItem() >= 0 && selectionMode() != NoSelection ) {
 	    QString tmp = item( currentItem() )->text();
 	    emit selected( currentItem());
@@ -1883,6 +1891,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Home:
 	{
+	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    setCurrentItem( 0 );
 	    int i = 0;
@@ -1904,6 +1913,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} break;
     case Key_End:
 	{
+	    d->currInputString = QString::null;
 	    int old = currentItem();
 	    int i = (int)count() - 1;
 	    setCurrentItem( i );
@@ -1926,6 +1936,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     default: {
 	    if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
 		d->findItemByName( e->text() );
+	    } else {
+		d->currInputString = QString::null;
 	    }
 	}
 	return;
@@ -3341,6 +3353,6 @@ QListBoxItem *QListBox::findItem( const QString &text ) const
 	if ( item->text().lower().left( text.length() ) == text )
 	    return item;
     }
-    
+
     return 0;
 }

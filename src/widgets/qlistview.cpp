@@ -3242,6 +3242,10 @@ void QListView::keyPressEvent( QKeyEvent * e )
     bool singleStep = FALSE;
 
     switch( e->key() ) {
+    case Key_Backspace:
+    case Key_Delete:
+	d->currentPrefix.truncate( 0 );
+	break;
     case Key_Enter:
     case Key_Return:
 	d->currentPrefix.truncate( 0 );
@@ -3381,6 +3385,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		}
 	    }
 	} else {
+	    d->currentPrefix.truncate( 0 );
 	    e->ignore();
 	    return;
 	}
