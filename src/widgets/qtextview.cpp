@@ -560,6 +560,9 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
     if ( isReadOnly() )
 	return;
 
+    if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
+	return;
+
     lastFormatted = cursor->parag();
     drawCursor( FALSE );
 
@@ -1312,6 +1315,8 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
 
 void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
 {
+    if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
+	return;
     QTextCursor c2 = *cursor;
     QString txt( text );
     drawCursor( FALSE );
