@@ -665,7 +665,7 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
         - QAxBase::dynamicCall(return value)
         - IPropertyBag::Write (QtPropertyBag)
 */
-QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
+QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint type)
 {
     QVariant var;
     switch(arg.vt) {
@@ -694,13 +694,13 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
         var = *arg.piVal;
         break;
     case VT_I4:
-        if (typeName == "QColor")
+        if (type == QVariant::Color || typeName == "QColor")
             var = OLEColorToQColor(arg.lVal);
         else
             var = (int)arg.lVal;
         break;
     case VT_I4|VT_BYREF:
-        if (typeName == "QColor")
+        if (type == QVariant::Color || typeName == "QColor")
             var = OLEColorToQColor((int)*arg.plVal);
         else
             var = (int)*arg.plVal;
@@ -724,13 +724,13 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
         var = *arg.puiVal;
         break;
     case VT_UI4:
-        if (typeName == "QColor")
+        if (type == QVariant::Color || typeName == "QColor")
             var = OLEColorToQColor(arg.ulVal);
         else
             var = (int)arg.ulVal;
         break;
     case VT_UI4|VT_BYREF:
-        if (typeName == "QColor")
+        if (type == QVariant::Color || typeName == "QColor")
             var = OLEColorToQColor((uint)*arg.pulVal);
         else
             var = (int)*arg.pulVal;
@@ -761,17 +761,17 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
         break;
     case VT_DATE:
         var = DATEToQDateTime(arg.date);
-        if (typeName == "QDate*") {
+        if (type == QVariant::Date || typeName == "QDate*") {
             var.cast(QCoreVariant::Date);
-        } else if (typeName == "QTime*") {
+        } else if (type == QVariant::Time || typeName == "QTime*") {
             var.cast(QCoreVariant::Time);
         }
         break;
     case VT_DATE|VT_BYREF:
         var = DATEToQDateTime(*arg.pdate);
-        if (typeName == "QDate*") {
+        if (type == QVariant::Date || typeName == "QDate*") {
             var.cast(QCoreVariant::Date);
-        } else if (typeName == "QTime*") {
+        } else if (type == QVariant::Time || typeName == "QTime*") {
             var.cast(QCoreVariant::Time);
         }
         break;
@@ -790,7 +790,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
                 disp = *arg.ppdispVal;
             else
                 disp = arg.pdispVal;
-            if (typeName == "QFont" || typeName == "QFont*") {
+            if (type == QVariant::Font || typeName == "QFont" || typeName == "QFont*") {
                 IFont *ifont = 0;
                 if (disp)
                     disp->QueryInterface(IID_IFont, (void**)&ifont);
@@ -800,7 +800,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
                 } else {
                     var = QFont();
                 }
-            } else if (typeName == "QPixmap" || typeName == "QPixmap*") {
+            } else if (type == QVariant::Pixmap || typeName == "QPixmap" || typeName == "QPixmap*") {
                 IPicture *ipic = 0;
                 if (disp)
                     disp->QueryInterface(IID_IPicture, (void**)&ipic);
@@ -971,7 +971,9 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName)
         break;
     }
     
-    QVariant::Type proptype = typeName.isEmpty() ? QVariant::Invalid : QVariant::nameToType(typeName);
+    QVariant::Type proptype = (QVariant::Type)type;
+    if (proptype == QVariant::Invalid && !typeName.isEmpty())
+        proptype = QVariant::nameToType(typeName);
     if (proptype != QVariant::Invalid && var.type() != proptype) {
         if (var.canCast(proptype)) {
             var.cast(proptype);

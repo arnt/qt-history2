@@ -2473,7 +2473,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
 		return DISP_E_BADPARAMCOUNT;
 
-	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.typeName());
+	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.typeName(), property.type());
 	    if (!var.isValid()) {
 		if (puArgErr)
 		    *puArgErr = 0;
@@ -2783,7 +2783,7 @@ HRESULT WINAPI QAxServerBase::Load(IPropertyBag *bag, IErrorLog * /*log*/)
 	var.vt = VT_EMPTY;
 	HRESULT res = bag->Read(bstr, &var, 0);
 	if (property.isWritable() && var.vt != VT_EMPTY) {
-	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.typeName())))
+	    if (res != S_OK || !qt.object->setProperty(pname, VARIANTToQVariant(var, property.typeName(), property.type())))
 		error = true;
 	}
 	SysFreeString(bstr);
