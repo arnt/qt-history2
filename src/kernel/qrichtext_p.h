@@ -1675,11 +1675,11 @@ inline void QTextCursor::setIndex( int i, bool restore )
 {
     if ( restore )
 	restoreState();
-    if ( i >= string->length() ) {
+    if ( i < 0 || i >= string->length() ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QTextCursor::setIndex: %d out of range", i );
 #endif
-	i = string->length() - 1;
+	i = i < 0 ? 0 : string->length() - 1;
     }
 
     tmpIndex = -1;
