@@ -547,7 +547,7 @@ void QDockWindowTitleBar::keyPressEvent( QKeyEvent *e )
 	return;
     if ( e->key() == Key_Control ) {
 	ctrlDown = TRUE;
-	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+	dockWindow->handleMove( mapFromGlobal( QCursor::pos() ) - offset, QCursor::pos(), !opaque );
     }
 }
 
@@ -557,7 +557,7 @@ void QDockWindowTitleBar::keyReleaseEvent( QKeyEvent *e )
 	return;
     if ( e->key() == Key_Control ) {
 	ctrlDown = FALSE;
-	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+	dockWindow->handleMove( mapFromGlobal( QCursor::pos() ) - offset, QCursor::pos(), !opaque );
     }
 }
 
@@ -586,7 +586,7 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     e->accept();
-    dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
+    dockWindow->handleMove( e->pos() - offset, e->globalPos(), !opaque );
     if ( opaque )
 	dockWindow->updatePosition( e->globalPos() );
 }
@@ -754,19 +754,19 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 /*!
-    \fn void QDockWindow::setHorizontalStretchable( bool b ) 
+    \fn void QDockWindow::setHorizontalStretchable( bool b )
     \obsolete
 */
 /*!
-    \fn void QDockWindow::setVerticalStretchable( bool b ) 
+    \fn void QDockWindow::setVerticalStretchable( bool b )
     \obsolete
 */
 /*!
-    \fn bool QDockWindow::isHorizontalStretchable() const 
+    \fn bool QDockWindow::isHorizontalStretchable() const
     \obsolete
 */
 /*!
-    \fn bool QDockWindow::isVerticalStretchable() const 
+    \fn bool QDockWindow::isVerticalStretchable() const
     \obsolete
 */
 /*! \fn void QDockWindow::orientationChanged( Orientation o )
@@ -833,7 +833,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f | ( p == OutsideDock ? (WType_Dialog | WStyle_Customize | WStyle_NoBorder) : 0 ) ),
       wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), curPlace( p ), resizeEnabled( FALSE ),
       moveEnabled( TRUE ), nl( FALSE ), opaque( FALSE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), dockWindowData( 0 ),
-      lastPos( -1, -1 ) 
+      lastPos( -1, -1 )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
@@ -1525,7 +1525,7 @@ void QDockWindow::undock( QWidget *w )
 
 /*!
   \fn void QDockWindow::undock()
-  \internal 
+  \internal
 */
 
 void QDockWindow::removeFromDock( bool fixNewLines )
