@@ -2335,7 +2335,7 @@ private:
     (e.g. a validating parser).
 
     The design of the XML classes follows the \link
-    http://www.megginson.com/SAX/ SAX2 Java interface\endlink, with
+    http://www.saxproject.org/ SAX2 Java interface\endlink, with
     the names adapted to fit Qt naming conventions. It should be very
     easy for anybody who has worked with SAX2 to get started with the
     Qt XML classes.
