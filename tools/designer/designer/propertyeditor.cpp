@@ -2213,7 +2213,8 @@ PropertyList::PropertyList( PropertyEditor *e )
     header()->setMovingEnabled( FALSE );
     header()->setFullSize( TRUE );
     setResizePolicy( QScrollView::Manual );
-    viewport()->setAcceptDrops(true);
+    viewport()->setAcceptDrops( true );
+    viewport()->installEventFilter( this );
     addColumn( tr( "Property" ) );
     addColumn( tr( "Value" ) );
     connect( header(), SIGNAL( sizeChange( int, int, int ) ),
@@ -2227,6 +2228,8 @@ PropertyList::PropertyList( PropertyEditor *e )
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
     setColumnWidthMode( 1, Manual );
+    mousePressed = false;
+    pressItem = 0;
 }
 
 void PropertyList::resizeEvent( QResizeEvent *e )
@@ -2670,16 +2673,68 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 		   ke->key() == Key_Right ))
 		i->setOpen( TRUE );
 	    else if ( i->isOpen() &&
-		 ( ke->key() == Key_Minus ||
-		   ke->key() == Key_Left ) )
+		      ( ke->key() == Key_Minus ||
+			ke->key() == Key_Left ) )
 		i->setOpen( FALSE );
 	} else if ( ( ke->key() == Key_Return || ke->key() == Key_Enter ) && o->inherits( "QComboBox" ) ) {
 	    QKeyEvent ke2( QEvent::KeyPress, Key_Space, 0, 0 );
 	    QApplication::sendEvent( o, &ke2 );
 	    return TRUE;
 	}
-    } else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) ) {
+    }
+    else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) ) {
 	QTimer::singleShot( 100, editor->formWindow()->commandHistory(), SLOT( checkCompressedCommand() ) );
+    }
+    else if ( o == viewport() ) {
+	QMouseEvent *me;
+	PropertyListItem* i;
+    	switch ( e->type() ) {
+	case QEvent::MouseButtonPress:
+	    me = (QMouseEvent*)e;
+	    i = (PropertyListItem*) itemAt( me->pos() );
+	    if( i  && ( i->inherits("PropertyColorItem") || i->inherits("PropertyPixmapItem") ) ) {
+		pressItem = i;
+		pressPos = me->pos();
+		mousePressed = true;
+	    }
+	    break;
+	case QEvent::MouseMove:
+	    me = (QMouseEvent*)e;
+	    if ( me && me->state() & LeftButton && mousePressed) {
+		
+		i = (PropertyListItem*) itemAt( me->pos() );
+		if( i  && i == pressItem ) {
+		
+		    if(( pressPos - me->pos() ).manhattanLength() > QApplication::startDragDistance() ){
+			if ( i->inherits("PropertyColorItem") ) {
+			    QColor col = i->value().asColor();
+			    QColorDrag *drg = new QColorDrag( col, this );
+			    QPixmap pix( 30, 25 );
+			    pix.fill( col );
+			    QPainter p( &pix );
+			    p.drawRect( 0, 0, pix.width(), pix.height() );
+			    p.end();
+			    drg->setPixmap( pix );
+			    mousePressed = false;
+			    drg->dragCopy();
+			}
+			else if ( i->inherits("PropertyPixmapItem") ) {
+			    QPixmap pix = i->value().asPixmap();
+			    if( !pix.isNull() ) {
+				QImage img = pix.convertToImage();
+				QImageDrag *drg = new QImageDrag( img, this );
+				drg->setPixmap( pix );
+				mousePressed = false;
+				drg->dragCopy();
+			    }
+			}
+		    }
+		}
+	    }
+	    break;
+	default:
+	    break;
+	}
     }
 
     return QListView::eventFilter( o, e );

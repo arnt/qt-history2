@@ -505,6 +505,11 @@ protected:
 protected:
     PropertyEditor *editor;
 
+private:
+    PropertyListItem* pressItem;
+    QPoint pressPos;
+    bool mousePressed;
+
 };
 
 class EventList : public HierarchyList
