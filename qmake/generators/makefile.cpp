@@ -936,7 +936,7 @@ QString MakefileGenerator::build_args()
 	//warnings
 	else if(Option::warn_level == WarnNone)
 	    ret += " -Wnone";
-	else if(Option::warn_level & WarnAll)
+	else if(Option::warn_level == WarnAll)
 	    ret += " -Wall";
 	else if(Option::warn_level & WarnParser)
 		ret += " -Wparser";
