@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#1 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -69,12 +69,14 @@ public:
 
     static void registerNetworkProtocol( const QString &protocol, QNetworkProtocol *nprotocol );
     static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
-    
+
 signals:
     void error( int ecode, const QString &msg );
     void data( const QCString & );
     void putSuccessful( const QString & );
     void connectionStateChanged( int state, const QString &data );
+    void finished( int );
+    void start( int );
 
 protected:
     QUrl *url;
@@ -102,8 +104,6 @@ public:
 
 signals:
     void entry( const QUrlInfo & );
-    void finished( int );
-    void start( int );
     void createdDirectory( const QUrlInfo & );
     void removed( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
