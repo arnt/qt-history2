@@ -559,7 +559,7 @@ void Uic::createFormDecl( const QDomElement &e )
     // for multiple constructor initialization
     if ( dbAware )
 	out << indent << "void init" << nameOfClass << "();" << endl;
-	
+
     out << "};" << endl;
     out << endl;
     out << "#endif // " << protector << endl;
@@ -761,16 +761,16 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     out << "{" << endl;
-    
+
     if ( dbAware ) {
 	out << indent << "init" << nameOfClass << "();" << endl;
 	out << "}" << endl << endl;
-	
+
 	if ( objClass == "QSqlDialog" ) {
 	    out << "/* " << endl;
 	    out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	    out << " *  name 'name' and widget flags set to 'f' " << endl;
-	    out << " *" << endl;	    
+	    out << " *" << endl;
 	    out << " *  The " << objClass.mid(1).lower() << " will be initialized with the default cursor 'cursor'." << endl;
 	    out << " *" << endl;
 	    out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
@@ -786,7 +786,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << "/* " << endl;
 	    out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	    out << " *  name 'name' and widget flags set to 'f'." << endl;
-	    out << " *" << endl;	    
+	    out << " *" << endl;
 	    out << " *  The " << objClass.mid(1).lower() << " will be initialized with the default cursor 'cursor'." << endl;
 	    out << " */" << endl;
 	    out << nameOfClass << "::" << nameOfClass << "( QSqlCursor* cursor, QWidget* parent,  const char* name, WFlags fl )" << endl;
@@ -796,12 +796,12 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << indent << "setCursor( cursor );" << endl;
 	    out << "}" << endl << endl;
 	}
-	
+
 	out << "/* " << endl;
 	out << " *  Initializes " << nameOfClass << "." << endl;
 	out << " */" << endl;
-	out << "void " << nameOfClass << "::init" << nameOfClass <<"()" << endl;	
-	out << "{" << endl;	
+	out << "void " << nameOfClass << "::init" << nameOfClass <<"()" << endl;
+	out << "{" << endl;
     }
 
     // create pixmaps for all images
@@ -1261,7 +1261,7 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 		    out << indent << indent << "cursor = new QSqlCursor( name );" << endl;
 		else
 		    out << indent << indent <<  "cursor = new QSqlCursor( name, " << (*it) << "Connection );" << endl;
-		out << indent << indent << "cursor->select();" << endl;
+		out << indent << indent << "cursor->select( cursor->primaryIndex() );" << endl;
 		out << indent << indent << "autoDeleteCursors.insert( " << i << ", cursor );" << endl;
 		out << indent << indent << "recognized = TRUE;" << endl;
 		out << indent << "}" << endl;
