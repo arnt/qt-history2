@@ -3877,7 +3877,7 @@ int QTextString::width( int idx ) const
 	     // complex text. We need some hacks to get the right metric here
 	     QString str;
 	     int pos = 0;
-	     if( idx > 4 )
+	     if( idx > 8 )
 		 pos = idx - 8;
 	     int off = idx - pos;
 	     int end = QMIN( length(), idx + 8 );
