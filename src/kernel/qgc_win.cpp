@@ -413,10 +413,11 @@ bool QWin32GC::end()
     return true;
 }
 
-void QWin32GC::drawLine(int x1, int y1, int x2, int y2)
+void QWin32GC::drawLine(const QPoint &p1, const QPoint &p2)
 {
     Q_ASSERT(isActive());
 
+    int x1 = p1.x(), x2 = p2.x(), y1 = p1.y(), y2 = p2.y();
     bool plot_pixel = FALSE;
     plot_pixel = (d->pWidth == 0) && (d->pStyle == SolidLine);
     if (plot_pixel) {
@@ -468,9 +469,11 @@ void QWin32GC::drawLine(int x1, int y1, int x2, int y2)
 #endif
 }
 
-void QWin32GC::drawRect(int x, int y, int w, int h)
+void QWin32GC::drawRect(const QRect &r)
 {
     Q_ASSERT(isActive());
+
+    int w = r.width(), h = r.height();
 
     if (d->pStyle == NoPen) {
 	++w;
@@ -485,22 +488,22 @@ void QWin32GC::drawRect(int x, int y, int w, int h)
 
     if (d->nocolBrush) {
 	SetTextColor(d->hdc, d->bColor);
-	Rectangle(d->hdc, x, y, x+w, y+h);
+	Rectangle(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
 	SetTextColor(d->hdc, d->pColor);
     } else {
-	Rectangle(d->hdc, x, y, x+w, y+h);
+	Rectangle(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
     }
 }
 
-void QWin32GC::drawPoint(int x, int y)
+void QWin32GC::drawPoint(const QPoint &p)
 {
     Q_ASSERT(isActive());
 
     if (d->pStyle != NoPen)
 #ifndef Q_OS_TEMP
-	SetPixelV(d->hdc, x, y, d->pColor);
+	SetPixelV(d->hdc, p.x(), p.y(), d->pColor);
 #else
-	SetPixel(d->hdc, x, y, d->pColor);
+	SetPixel(d->hdc, p.x(), p.y(), d->pColor);
 #endif
 }
 
@@ -521,17 +524,17 @@ void QWin32GC::drawPoints(const QPointArray &pts, int index, int npoints)
     }
 }
 
-void QWin32GC::drawWinFocusRect(int x, int y, int w, int h, bool, const QColor &bgColor)
+void QWin32GC::drawWinFocusRect(const QRect &fr, bool, const QColor &bgColor)
 {
     if (!isActive())
 	return;
     Q_ASSERT(d->hdc);
 
     RECT r;
-    r.left   = x;
-    r.right  = x + w;
-    r.top    = y;
-    r.bottom = y + h;
+    r.left   = fr.x();
+    r.right  = fr.x() + fr.width();
+    r.top    = fr.y();
+    r.bottom = fr.y() + fr.height();
 
     if (qGray(bgColor.rgb()) < 10) { // Use white pen for very dark colors
 	int col = GetBkColor(d->hdc);
@@ -543,12 +546,12 @@ void QWin32GC::drawWinFocusRect(int x, int y, int w, int h, bool, const QColor &
     }
 }
 
-void QWin32GC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
+void QWin32GC::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
 
     if (xRnd <= 0 || yRnd <= 0) {
-	drawRect(x, y, w, h);			// draw normal rectangle
+	drawRect(r);			// draw normal rectangle
 	return;
     }
     if (xRnd >= 100)				// fix ranges
@@ -558,12 +561,13 @@ void QWin32GC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->bColor);
-    RoundRect(d->hdc, x, y, x+w, y+h, w*xRnd/100, h*yRnd/100);
+    RoundRect(d->hdc, r.x(), r.y(), r.x()+r.width(), r.y()+r.height(),
+	      r.width()*xRnd/100, r.height()*yRnd/100);
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32GC::drawEllipse(int x, int y, int w, int h)
+void QWin32GC::drawEllipse(const QRect &r)
 {
     Q_ASSERT(isActive());
     // Workaround for Windows GDI
@@ -575,10 +579,10 @@ void QWin32GC::drawEllipse(int x, int y, int w, int h)
 
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->bColor);
-    if (w == 1 && h == 1)
-	drawPoint(x, y);
+    if (r.width() == 1 && r.height() == 1)
+	drawPoint(r.topLeft());
     else
-	Ellipse(d->hdc, x, y, x+w, y+h);
+	Ellipse(d->hdc, r.x(), r.y(), r.x()+r.width(), r.y()+r.height());
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->pColor);
 
@@ -586,7 +590,7 @@ void QWin32GC::drawEllipse(int x, int y, int w, int h)
 // 	setPen(oldPen);
 }
 
-void QWin32GC::drawArc(int x, int y, int w, int h, int a, int alen)
+void QWin32GC::drawArc(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -597,6 +601,8 @@ void QWin32GC::drawArc(int x, int y, int w, int h, int a, int alen)
 	ra1 = ra2;
 	ra2 = t;
     }
+    int w = r.width();
+    int h = r.height();
     if (d->pWidth > 3) {
 	// work around a bug in the windows Arc method that
 	// sometimes draw wrong cap styles.
@@ -608,10 +614,10 @@ void QWin32GC::drawArc(int x, int y, int w, int h, int a, int alen)
 
     double w2 = 0.5*w;
     double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w2) + x);
-    int yS = qRound(h2 - (sin(ra1)*h2) + y);
-    int xE = qRound(w2 + (cos(ra2)*w2) + x);
-    int yE = qRound(h2 - (sin(ra2)*h2) + y);
+    int xS = qRound(w2 + (cos(ra1)*w2) + r.x());
+    int yS = qRound(h2 - (sin(ra1)*h2) + r.y());
+    int xE = qRound(w2 + (cos(ra2)*w2) + r.x());
+    int yE = qRound(h2 - (sin(ra2)*h2) + r.y());
     if (QABS(alen) < 90*16) {
 	if ((xS == xE) && (yS == yE)) {
 	    // don't draw a whole circle
@@ -620,17 +626,17 @@ void QWin32GC::drawArc(int x, int y, int w, int h, int a, int alen)
     }
 #ifndef Q_OS_TEMP
     if (d->rasterOp == CopyROP) {
-        Arc(d->hdc, x, y, x+w, y+h, xS, yS, xE, yE);
+        Arc(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h, xS, yS, xE, yE);
     } else
 #endif
     {
 	QPointArray pa;
-	pa.makeArc(x, y, w, h, a, alen);	// arc polyline
+	pa.makeArc(r.x(), r.y(), w, h, a, alen);	// arc polyline
 	drawPolyInternal(pa, FALSE);
     }
 }
 
-void QWin32GC::drawPie(int x, int y, int w, int h, int a, int alen)
+void QWin32GC::drawPie(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -641,12 +647,12 @@ void QWin32GC::drawPie(int x, int y, int w, int h, int a, int alen)
 	ra1 = ra2;
 	ra2 = t;
     }
-    double w2 = 0.5*w;
-    double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w) + x);
-    int yS = qRound(h2 - (sin(ra1)*h) + y);
-    int xE = qRound(w2 + (cos(ra2)*w) + x);
-    int yE = qRound(h2 - (sin(ra2)*h) + y);
+    double w2 = 0.5*r.width();
+    double h2 = 0.5*r.height();
+    int xS = qRound(w2 + (cos(ra1)*r.width()) + r.x());
+    int yS = qRound(h2 - (sin(ra1)*r.height()) + r.y());
+    int xE = qRound(w2 + (cos(ra2)*r.width()) + r.x());
+    int yE = qRound(h2 - (sin(ra2)*r.height()) + r.y());
     if (QABS(alen) < 90*16) {
 	if ((xS == xE) && (yS == yE)) {
 	    // don't draw a whole circle
@@ -656,13 +662,13 @@ void QWin32GC::drawPie(int x, int y, int w, int h, int a, int alen)
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->bColor);
 #ifndef Q_OS_TEMP
-    Pie(d->hdc, x, y, x+w, y+h, xS, yS, xE, yE);
+    Pie(d->hdc, r.x(), r.y(), r.right()+1, r.bottom()+1, xS, yS, xE, yE);
 #endif
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32GC::drawChord(int x, int y, int w, int h, int a, int alen)
+void QWin32GC::drawChord(const QRect &r, int a, int alen)
 {
     Q_ASSERT(isActive());
 
@@ -673,12 +679,12 @@ void QWin32GC::drawChord(int x, int y, int w, int h, int a, int alen)
 	ra1 = ra2;
 	ra2 = t;
     }
-    double w2 = 0.5*w;
-    double h2 = 0.5*h;
-    int xS = qRound(w2 + (cos(ra1)*w) + x);
-    int yS = qRound(h2 - (sin(ra1)*h) + y);
-    int xE = qRound(w2 + (cos(ra2)*w) + x);
-    int yE = qRound(h2 - (sin(ra2)*h) + y);
+    double w2 = 0.5*r.width();
+    double h2 = 0.5*r.height();
+    int xS = qRound(w2 + (cos(ra1)*r.width()) + r.x());
+    int yS = qRound(h2 - (sin(ra1)*r.height()) + r.y());
+    int xE = qRound(w2 + (cos(ra2)*r.width()) + r.x());
+    int yE = qRound(h2 - (sin(ra2)*r.height()) + r.y());
     if (QABS(alen) < 90*16) {
 	if ((xS == xE) && (yS == yE)) {
 	    // don't draw a whole circle
@@ -688,7 +694,7 @@ void QWin32GC::drawChord(int x, int y, int w, int h, int a, int alen)
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->bColor);
 #ifndef Q_OS_TEMP
-    Chord(d->hdc, x, y, x+w, y+h, xS, yS, xE, yE);
+    Chord(d->hdc, r.x(), r.y(), r.right()+1, r.bottom()+1, xS, yS, xE, yE);
 #endif
     if (d->nocolBrush)
 	SetTextColor(d->hdc, d->pColor);
@@ -865,8 +871,7 @@ void QWin32GC::drawPolyInternal(const QPointArray &a, bool close)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32GC::drawPixmap( int x, int y, const QPixmap &pixmap,
-			   int sx, int sy, int sw, int sh )
+void QWin32GC::drawPixmap( const QRect &r, const QPixmap &pixmap, const QRect &sr )
 {
     if (!isActive())
 	return;
@@ -884,15 +889,16 @@ void QWin32GC::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     if (mask)
-	MaskBlt(d->hdc, x, y, sw, sh,
-		pm_dc, sx, sy+pm_offset,
-		mask->hbm(), sx, sy+pm_offset,
+	MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+		pm_dc, sr.x(), sr.y()+pm_offset,
+		mask->hbm(), sr.x(), sr.y()+pm_offset,
 		MAKEROP4(0x00aa0000, SRCCOPY));
     else
-	BitBlt(d->hdc, x, y, sw, sh, pixmap.handle(), sx, sy, SRCCOPY);
+	BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+	       pixmap.handle(), sr.x(), sr.y(), SRCCOPY);
 }
 
-void QWin32GC::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
+void QWin32GC::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
     return;
 
@@ -903,8 +909,8 @@ void QWin32GC::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     QFontEngine *fe = si->fontEngine;
     Q_ASSERT( fe );
 
-    x += si->x;
-    y += si->y;
+    int x = p.x() + si->x;
+    int y = p.y() + si->y;
 
     HDC oldDC = fe->hdc;
     fe->hdc = d->hdc;
@@ -1326,18 +1332,18 @@ Qt::RasterOp qt_map_rop_for_bitmaps( Qt::RasterOp r )
 extern void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap );
 extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);
 
-void QWin32GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool)
+void QWin32GC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
 
     int sw = pixmap.width();
     int sh = pixmap.height();
 
-    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
+    if ( sw*sh < 8192 && sw*sh < 16*r.width()*r.height() ) {
 	int tw = sw, th = sh;
-	while ( tw*th < 32678 && tw < w/2 )
+	while ( tw*th < 32678 && tw < r.width()/2 )
 	    tw *= 2;
-	while ( tw*th < 32678 && th < h/2 )
+	while ( tw*th < 32678 && th < r.height()/2 )
 	    th *= 2;
 	QPixmap tile( tw, th, pixmap.depth(), QPixmap::BestOptim );
 	qt_fill_tile( &tile, pixmap );
@@ -1346,8 +1352,8 @@ void QWin32GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 	    qt_fill_tile( &tilemask, *mask );
 	    tile.setMask( tilemask );
 	}
-	drawTile( this, x, y, w, h, tile, sx, sy );
+	drawTile( this, r.x(), r.y(), r.width(), r.height(), tile, p.x(), p.y() );
     } else {
-	drawTile( this, x, y, w, h, pixmap, sx, sy );
+	drawTile( this, r.x(), r.y(), r.width(), r.height(), pixmap, p.x(), p.y() );
     }
 }

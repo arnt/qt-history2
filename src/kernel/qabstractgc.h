@@ -67,7 +67,7 @@ public:
     virtual void updateXForm(QPainterState *ps) = 0;
     virtual void updateClipRegion(QPainterState *ps) = 0;
 
-    virtual void drawLine(const QPoint &p1, const QPoint &ps) = 0;
+    virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;
     virtual void drawRect(const QRect &r) = 0;
     virtual void drawPoint(const QPoint &p) = 0;
     virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1) = 0;

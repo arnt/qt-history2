@@ -90,7 +90,7 @@ static QHash<Qt::HANDLE, QPostEventList *> postEventListHash;
 static QPostEventList postEventList;
 #endif
 
-QPostEventList *qt_postEventList(QObject *object)
+Q_CORE_EXPORT QPostEventList *qt_postEventList(QObject *object)
 {
 #if defined(QT_THREAD_SUPPORT)
     const Qt::HANDLE current = QThread::currentThread();
