@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#8 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#9 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -319,7 +319,7 @@ int main( int argc, char* argv[] )
     int newfile = 2;
 
     if ( argc <= newfile ) {
-	qDebug("usage: %s  orgfile newfile [outfile]", argv[0]);
+	qWarning("usage: %s  orgfile newfile [outfile]", argv[0]);
 	exit(1);
     }
 
