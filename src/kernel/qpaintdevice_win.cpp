@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#15 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#15 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -62,7 +62,7 @@ long QPaintDevice::metric( int ) const
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	     RasterOp rop )
+	     RasterOp rop, bool ignoreMask  )
 {
     if ( src->isExtDev() ) {
 #if defined(CHECK_NULL)
@@ -181,9 +181,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     else
 	mask = 0;
 
-    if ( mask ) {
+    if ( mask && !ignoreMask ) {
 	MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-		 sx, sy, 0xccaa0000 );
+		 sx, sy, 0xccaa0000 );		// CopyROP
     }
     else {
 	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );

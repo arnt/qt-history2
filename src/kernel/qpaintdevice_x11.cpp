@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#51 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#51 $")
 
 
 /*----------------------------------------------------------------------------
@@ -225,7 +225,7 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
   If \e sh is negative, then bitBlt calculates
   <code>sh = src->height - sy.</code><br>
 
-  The \e rop parameter can be one of:
+  The \e rop argument can be one of:
   <ul>
   <li> \c CopyROP:     dst = src.
   <li> \c OrROP:       dst = dst OR src.
@@ -238,7 +238,11 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
   <li> \c NotROP:      dst = NOT dst
   </ul>
 
-  There are two restrictions:
+  The \e ignoreMask argument (default FALSE) applies where \e src is
+  a QPixmap with a \link QPixmap::setMask() mask\endlink.
+  If \e ignoreMask is TRUE, bitBlt ignores the pixmap's mask.
+
+  BitBlt has two restrictions:
   <ol>
   <li> The \e src device must be QWidget or QPixmap.  You cannot copy pixels
   from a picture or a printer (external device).
@@ -249,7 +253,7 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	     RasterOp rop )
+	     RasterOp rop, bool ignoreMask )
 {
     if ( src->handle() == 0 ) {
 #if defined(CHECK_NULL)
@@ -354,6 +358,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
 
     GC gc;
+
+    if ( ignoreMask )				// don't use the mask
+	mask = 0;
 
     if ( mask && !mono ) {			// fast masked blt
 	gc = get_mask_gc( dpy, dst->handle(), mask->data->ser_no,
