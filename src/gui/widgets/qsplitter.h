@@ -53,14 +53,14 @@ public:
     bool opaqueResize() const;
     void refresh();
 
-    void moveToFirst(QWidget *);
-    void moveToLast(QWidget *);
-
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
     QList<int> sizes() const;
     void setSizes(const QList<int> &list);
+
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
 
     int handleWidth() const;
     void setHandleWidth(int);
@@ -76,6 +76,9 @@ public:
     int indexOfHandle(QSplitterHandle *handle) const;
     QSplitterHandle *handle(int index) const;
 
+signals:
+    void splitterMoved(int pos, int index);
+
 protected:
     virtual QSplitterHandle *createHandle();
 
@@ -90,23 +93,22 @@ protected:
 public:
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
     QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
-protected:
-    QT_COMPAT int idAfter(QWidget*) const;
+    inline QT_COMPAT void moveToFirst(QWidget *w) { insertWidget(0,w); }
+    inline QT_COMPAT void moveToLast(QWidget *) { addWidget(w); }
 #endif
 
 private:
     Q_DISABLE_COPY(QSplitter)
     Q_DECLARE_PRIVATE(QSplitter)
-#ifndef QT_NO_TEXTSTREAM
-    friend Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
-    friend Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
-#endif
+private:
 };
 
+//#ifdef QT_COMPAT
 #ifndef QT_NO_TEXTSTREAM
 Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
 Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
 #endif
+//#endif
 
 class QSplitterHandlePrivate;
 class QSplitterHandle : public QWidget
@@ -116,7 +118,7 @@ public:
     QSplitterHandle(Qt::Orientation o, QSplitter *parent);
     void setOrientation(Qt::Orientation o);
     Qt::Orientation orientation() const;
-    bool opaque() const;
+    bool opaqueResize() const;
     QSplitter *splitter() const;
 
     QSize sizeHint() const;

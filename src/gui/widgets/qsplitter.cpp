@@ -29,6 +29,9 @@
 #include "qvector.h"
 #include "private/qframe_p.h"
 #include "private/qlayoutengine_p.h"
+
+#include <ctype.h>
+
 #define d d_func()
 #define q q_func()
 
@@ -93,7 +96,7 @@ public:
     int adjustPos(int, int, int *, int *, int *, int *) const;
     bool collapsible(QSplitterLayoutStruct *) const;
     QSplitterLayoutStruct *findWidget(QWidget *) const;
-    QSplitterLayoutStruct *addWidget(QWidget *, bool prepend = false);
+    QSplitterLayoutStruct *insertWidget(int index, QWidget *);
     void doMove(bool backwards, int pos, int index, int delta,
                 bool mayCollapse, int *positions, int *widths);
     void setGeo(QSplitterLayoutStruct *s, int pos, int size);
@@ -101,19 +104,6 @@ public:
     void updateHandles();
 
 };
-
-class QtBoolBlocker //############ duplicated from qstackedwidget.cpp
-{
-    bool &block;
-    bool reset;
-public:
-    inline QtBoolBlocker(bool &b):block(b), reset(b){block = true;}
-    inline ~QtBoolBlocker(){block = reset; }
-};
-
-
-
-
 
 class QSplitterHandlePrivate : QWidgetPrivate
 {
@@ -142,7 +132,7 @@ Qt::Orientation QSplitterHandle::orientation() const
     return d->orient;
 }
 
-bool QSplitterHandle::opaque() const
+bool QSplitterHandle::opaqueResize() const
 {
     return d->s->opaqueResize();
 }
@@ -152,12 +142,30 @@ QSplitter *QSplitterHandle::splitter() const
     return d->s;
 }
 
+/*!
+
+  Tells the splitter to move this handle to position /a p, which is
+  the distance from the left (or top) edge of the widget.
+
+  Note that \a p is also measured from the left (or top) for
+  right-to-left languages. This function will map \a p to the
+  appropriate position before calling QSplitter::moveSplitter().
+
+  \sa QSplitter::moveSplitter()
+*/
 void QSplitterHandle::moveSplitter(int p)
 {
     if (d->s->isRightToLeft() && d->orient == Qt::Horizontal)
-        p = d->s->contentsRect().width() - p; //########### is this the right place to do this ????
+        p = d->s->contentsRect().width() - p;
     d->s->moveSplitter(p, d->s->indexOfHandle(this));
 }
+
+/*!
+   Returns the closest legal position to \a p of the splitter handle. The positions are
+   measured from the left (or top) edge of the splitter, even for right-to-left languages.
+
+   \sa QSplitter::closestLegalPosition(), moveSplitter()
+*/
 
 int QSplitterHandle::closestLegalPosition(int p)
 {
@@ -193,7 +201,7 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
         return;
     int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                  - mouseOffset;
-    if (opaque()) {
+    if (opaqueResize()) {
         moveSplitter(pos);
     } else {
         d->s->setRubberband(closestLegalPosition(pos));
@@ -208,7 +216,7 @@ void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 
 void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 {
-    if (!opaque() && e->button() == Qt::LeftButton) {
+    if (!opaqueResize() && e->button() == Qt::LeftButton) {
         int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                      - mouseOffset;
         d->s->setRubberband(-1);
@@ -437,6 +445,7 @@ void QSplitterPrivate::addContribution(int index, int *min, int *max, bool mayCo
         }
         if (mayCollapse || !s->collapsed)
             *min += pick(qSmartMinSize(s->widget));
+
         *max += pick(s->widget->maximumSize());
     }
 }
@@ -458,6 +467,10 @@ int QSplitterPrivate::findWidgetJustBeforeOrJustAfter(int index, int delta, int 
     return -1;
 }
 
+/*
+  For the splitter handle with index \a index, \a min and \a max give the range without collapsing any widgets,
+  and \a farMin and farMax give the range with collapsing included.
+*/
 void QSplitterPrivate::getRange(int index, int *farMin, int *min, int *max, int *farMax) const
 {
     int n = list.count();
@@ -712,42 +725,49 @@ void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
 #endif
 
 /*
-    Inserts the widget \a w at the end (or at the beginning if \a
-    prepend is true) of the splitter's list of widgets.
+    Inserts the widget \a w at position \a index in the splitter's list of widgets.
 
-    It is the responsibility of the caller to make sure that \a w is
-    not already in the splitter.
+    If \a w is already in the splitter, it will be moved to the new position.
 */
 
-QSplitterLayoutStruct *QSplitterPrivate::addWidget(QWidget *w, bool prepend)
+QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
 {
-    QSplitterHandle *newHandle = 0;
-    QSplitterLayoutStruct *s = new QSplitterLayoutStruct;
-    QString tmp = QLatin1String("qt_splithandle_");
-    tmp += w->objectName();
-    newHandle = q->createHandle();
-    newHandle->setObjectName(tmp);
-    s->handle = newHandle;
-    s->widget = w;
-    if (prepend)
-        list.prepend(s);
-    else
-        list.append(s);
+    QSplitterLayoutStruct *sls = 0;
+    int i;
+    for (i = 0; i < list.size(); ++i) {
+        QSplitterLayoutStruct *s = d->list.at(i);
+        if (s->widget == w) {
+            sls = s;
+            break;
+        }
+    }
+    if (sls) {
+        list.move(i,index);
+    } else {
+        QSplitterHandle *newHandle = 0;
+        sls = new QSplitterLayoutStruct;
+        QString tmp = QLatin1String("qt_splithandle_");
+        tmp += w->objectName();
+        newHandle = q->createHandle();
+        newHandle->setObjectName(tmp);
+        sls->handle = newHandle;
+        sls->widget = w;
+        list.insert(index,sls);
 
-
-    if (newHandle && q->isVisible())
-        newHandle->show(); // will trigger sending of post events
+        if (newHandle && q->isVisible())
+            newHandle->show(); // will trigger sending of post events
 
 #ifdef QT_COMPAT
-    if (compatMode) {
-        int sf = getStretch(s->widget);
-        if (sf == 243)
-            setStretch(s->widget, 0);
-        else if (sf == 0)
-            setStretch(s->widget, 1);
-    }
+        if (compatMode) {
+            int sf = getStretch(s->widget);
+            if (sf == 243)
+                setStretch(s->widget, 0);
+            else if (sf == 0)
+                setStretch(s->widget, 1);
+        }
 #endif
-    return s;
+    }
+    return sls;
 }
 
 /*!
@@ -934,23 +954,18 @@ void QSplitter::resizeEvent(QResizeEvent *)
 
 void QSplitter::addWidget(QWidget *w)
 {
-    if (d->findWidget(w))
-        return; //#### or should we move it ???
-    QtBoolBlocker b(d->blockChildAdd);
-    if (w->parentWidget() != this)
-        w->setParent(this);
-    if (isVisible())
-        w->show();
-    d->addWidget(w);
-    d->recalc(isVisible());
+    insertWidget(d->list.count(), w);
 }
 
 void QSplitter::insertWidget(int index, QWidget *w)
 {
-#ifdef Q_CC_GNU
-#warning "unimplemented"
-#endif
-    //#############
+    QBoolBlocker b(d->blockChildAdd);
+    if (w->parentWidget() != this)
+        w->setParent(this);
+    if (isVisible())
+        w->show();
+    d->insertWidget(index, w);
+    d->recalc(isVisible());
 }
 
 int QSplitter::indexOf(QWidget *w) const
@@ -1012,17 +1027,7 @@ void QSplitter::childEvent(QChildEvent *c)
     QWidget *w = static_cast<QWidget*>(c->child());
 
     if (c->added() && !d->blockChildAdd && !w->isTopLevel() && !d->findWidget(w)) {
-        addWidget(w); //#####
-/*
-        QList<QSplitterLayoutStruct *>::iterator it = d->list.begin();
-        while (it != d->list.end()) {
-            if ((*it)->wid == c->child())
-                return;
-            ++it;
-        }
-        d->addWidget(static_cast<QWidget *>(c->child()));
-        d->recalc(isVisible());
-*/
+        addWidget(w);
     } else  if (c->type() == QEvent::ChildRemoved) {
         for (int i = 0; i < d->list.size(); ++i) {
             QSplitterLayoutStruct *s = d->list.at(i);
@@ -1088,25 +1093,19 @@ bool QSplitter::event(QEvent *e)
     return QWidget::event(e);
 }
 
-#ifdef QT_COMPAT
 /*!
-    Returns the ID of the widget to the right of or below the widget
-    \a w, or 0 if there is no such widget (i.e. it is either not in
-    this QSplitter or \a w is at the end).
+  \fn QSplitter::splitterMoved(int pos, int index)
+
+  This signal is emitted when the splitter handle at index \a index
+  has been moved to positon \a pos.
+
+  For Arabic, Hebrew and other right-to-left languages the layout is
+  reversed.  \a p is then the distance from the right (or top) edge
+  of the widget.
+
+  \sa moveSplitter()
 */
 
-int QSplitter::idAfter(QWidget* w) const
-{
-    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
-    bool seen_w = false;
-    while (it != d->list.end()) {
-        if ((*it)->widget == w)
-            seen_w = true;
-        ++it;
-    }
-    return 0;
-}
-#endif
 
 /*!
     Moves the left/top edge of the splitter handle at \a index as
@@ -1117,7 +1116,7 @@ int QSplitter::idAfter(QWidget* w) const
     reversed.  \a p is then the distance from the right (or top) edge
     of the widget.
 
-    \sa idAfter()
+    \sa idAfter(), splitterMoved()
 */
 void QSplitter::moveSplitter(int p, int index)
 {
@@ -1159,7 +1158,10 @@ void QSplitter::moveSplitter(int p, int index)
             d->setGeo(sls, poss[wid], ws[wid]);
     }
     d->storeSizes();
+
+    emit splitterMoved(p, index);
 }
+
 
 /*!
     Returns the valid range of the splitter with index \a index in
@@ -1177,6 +1179,10 @@ void QSplitter::getRange(int index, int *min, int *max) const
 /*!
     Returns the closest legal position to \a pos of the widget with index
     \a index.
+
+    For Arabic, Hebrew and other right-to-left languages the layout is
+    reversed.  Positions are then measured from the right (or top) edge
+    of the widget.
 
     \sa idAfter()
 */
@@ -1205,39 +1211,14 @@ void QSplitter::setOpaqueResize(bool on)
     d->opaque = on;
 }
 
-
+#ifdef QT_COMPAT
 /*!
     Moves widget \a w to the leftmost/top position.
 */
 
 void QSplitter::moveToFirst(QWidget *w)
 {
-    // ### Jasmin 4.0: use QList::move() instead of that stuff, and do the same with moveToLast()
-//############# obsolete in favour of insertWidget?
-#ifdef Q_CC_GNU
-#warning "unimplemented"
-#endif
-#if 0
-    bool found = false;
-    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
-    while (it != d->list.end()) {
-        if ((*it)->wid == w) {
-            found = true;
-            QSplitterLayoutStruct *s = *it;
-            QSplitterLayoutStruct *p = *(--it);
-            if (it != d->list.begin()) { // not already at first place
-                d->list.removeAll(p);
-                d->list.removeAll(s);
-                d->list.prepend(p);
-                d->list.prepend(s);
-            }
-            break;
-        }
-        ++it;
-    }
-    if (!found)
-        d->addWidget(w, true);
-#endif
+    insertWidget(0, w);
 }
 
 
@@ -1247,32 +1228,9 @@ void QSplitter::moveToFirst(QWidget *w)
 
 void QSplitter::moveToLast(QWidget *w)
 {
-//############# obsolete in favour of addWidget?
-#ifdef Q_CC_GNU
-#warning "unimplemented"
-#endif
-#if 0
-    bool found = false;
-    QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
-    while (it != d->list.end()) {
-        if ((*it)->wid == w) {
-            found = true;
-            QSplitterLayoutStruct *s = *it;
-            QSplitterLayoutStruct *p = *(++it);
-            if (it != d->list.end()) { // the splitter handle after s
-                d->list.removeAll(p);
-                d->list.append(p);
-            }
-            d->list.removeAll(s);
-            d->list.append(s);
-            break;
-        }
-        ++it;
-    }
-    if (!found)
-        d->addWidget(w);
-#endif
+    addWidget(w);
 }
+#endif
 
 /*!
     \reimp
@@ -1430,6 +1388,77 @@ void QSplitter::changeEvent(QEvent *ev)
     QFrame::changeEvent(ev);
 }
 
+
+
+
+
+QByteArray QSplitter::saveState() const
+{
+    QByteArray b;
+
+    bool first = true;
+    b.append('[');
+
+    for (int i = 0; i < d->list.size(); ++i) {
+        QSplitterLayoutStruct *s = d->list.at(i);
+
+        if (!first)
+            b.append(',');
+
+        if (s->widget->isHidden()) {
+            b.append('H');
+        } else {
+            b.append(QByteArray::number(d->pick(s->rect.size())));
+        }
+        first = false;
+
+    }
+    b.append(']');
+    return b;
+}
+
+bool QSplitter::restoreState(const QByteArray &state)
+{
+    int index = 0;
+    int i = 0;
+    int n = d->list.count();
+
+    if (i < state.size() && state.at(i) == '[') {
+        ++i;
+        while (i < state.size() && state.at(i) != ']') {
+            if (index == n)
+                break;
+            QSplitterLayoutStruct *s = d->list.at(index);
+            if (state.at(i) == 'H') {
+                s->widget->hide();
+                ++i;
+            } else {
+                s->widget->show();
+                int dim = 0;
+                while (i < state.size() && ::isdigit(state.at(i))) {
+                    dim *= 10;
+                    dim += state.at(i) - '0';
+                    ++i;
+                }
+                s->sizer = dim;
+                if (dim == 0)
+                    d->setGeo(s, 0, 0);
+            }
+            if (state.at(i) == ',') {
+                ++i;
+            } else {
+                break;
+            }
+            ++index;
+        }
+        d->doResize();
+        return (state.at(i) == ']');
+    }
+    return false;
+}
+
+
+//#ifdef QT_COMPAT
 #ifndef QT_NO_TEXTSTREAM
 /*!
     \relates QSplitter
@@ -1442,24 +1471,7 @@ void QSplitter::changeEvent(QEvent *ev)
 
 QTextStream& operator<<(QTextStream& ts, const QSplitter& splitter)
 {
-    bool first = true;
-    ts << "[";
-
-    for (int i = 0; i < splitter.d->list.size(); ++i) {
-        QSplitterLayoutStruct *s = splitter.d->list.at(i);
-
-        if (!first)
-            ts << ",";
-
-        if (s->widget->isHidden()) {
-            ts << "H";
-        } else {
-            ts << splitter.d->pick(s->rect.size());
-        }
-        first = false;
-
-    }
-    ts << "]" << endl;
+    ts << splitter.saveState() << endl;
     return ts;
 }
 
@@ -1475,54 +1487,17 @@ QTextStream& operator<<(QTextStream& ts, const QSplitter& splitter)
 
 QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
 {
-#undef SKIP_SPACES
-#define SKIP_SPACES() \
-    while (line[i].isSpace()) \
-        i++
     QString line = ts.readLine();
-    int index = 0;
-    int i = 0;
-    int n = splitter.d->list.count();
+    line = line.simplified();
+    line.replace(' ', QString());
+    line = line.toUpper();
 
-    SKIP_SPACES();
-    if (line[i] == '[') {
-        i++;
-        SKIP_SPACES();
-        while (line[i] != ']') {
-            if (index == n)
-                break;
-            QSplitterLayoutStruct *s = splitter.d->list.at(index);
-            if (line[i].toUpper() == 'H') {
-                s->widget->hide();
-                i++;
-            } else {
-                s->widget->show();
-                int dim = 0;
-                while (line[i].digitValue() >= 0) {
-                    dim *= 10;
-                    dim += line[i].digitValue();
-                    i++;
-                }
-                s->sizer = dim;
-                if (dim == 0)
-                    splitter.d->setGeo(s, 0, 0);
-            }
-            SKIP_SPACES();
-            if (line[i] == ',') {
-                i++;
-            } else {
-                break;
-            }
-            SKIP_SPACES();
-            ++index;
-        }
-    }
-    splitter.d->doResize();
+    splitter.restoreState(line.toAscii());
     return ts;
 }
-#endif
-
-#endif
+#endif // QT_NO_TEXTSTREAM
+//#endif // QT_COMPAT
+#endif // QT_NO_SPLITTER
 
 /*!
     \enum QSplitter::ResizeMode
