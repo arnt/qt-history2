@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.18 1999/04/28 09:53:55 aavit Exp $
+** $Id: i18n.doc,v 1.19 1999/04/29 19:20:18 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -55,6 +55,10 @@ in the following stages:
 	Strings that are in "programmer space" - such as QObject
 	names and file format texts need not use QString - the
 	traditional char*, or the QCString class will suffice.
+	<p>
+	You're unlikely to notice that you are using unicode - QString,
+	and QChar are just like easy versions of the clumsy const char*
+	and char from traditional C.
 	</p>
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
 	<p>
@@ -62,10 +66,10 @@ in the following stages:
 	that will be presented to the user, ensure it goes through
 	the
 	\link QApplication::translate() QApplication::translate()\endlink
-       	function by using
-	\link QObject::tr() tr()\endlink if the
-	quoted text is in a QObject/QWidget subclass, eg. assuming
-	<tt>LoginWidget</tt> is such a class:
+       	function, usually this simply means using
+	\link QObject::tr() tr()\endlink
+	eg. assuming
+	<tt>LoginWidget</tt> is a subclass of QWidget:
 	\code
 	LoginWidget::LoginWidget()
 	{
@@ -74,7 +78,9 @@ in the following stages:
 	}
 	\endcode
 
-	If the quoted text is not in a member function of a
+	This is 99% of the strings you're likely to write.
+
+	If the quoted text is \e not in a member function of a
 	QObject/QWidget subclass, use either
 	the tr() function of an approriate class, or the
 	QApplication::translate() function directly:
@@ -191,8 +197,8 @@ in the following stages:
 
 <h2>System Support</h2>
 
-Operating system and window system support for Unicode is still in
-the early stages, and varies between systems.  The level of support
+Operating systems and window systems supporting Unicode are still in
+the early stages.  The level of support
 available in the underlying system influences the support Qt provides
 on that platform, but applications written with Qt need not generally
 be too concerned with the actual limitations.
@@ -223,10 +229,15 @@ be too concerned with the actual limitations.
     </ul>
 </dl>
 
-<h2>Note about Kinput2</h2>
+Note that unlike many toolkits for Windows (eg. MFC), with Qt you \e can
+have \e one program compiled with Unicode support and that program will
+also run on Windows 95/98 in Latin-1 locales.  You do \e not need two
+differen binaries for Windows NT and 95/98.
+
+<h2>Note about Kinput2 on X11</h2>
 
 If using the Kinput2 XIM Server, users may need to apply the
-bug-fix patch below.  Without this patch, Kinput2 produces bad
+bug-fix patch below.  Without this patch, Kinput2 can produce bad
 XIM Protocol, causing application lock-up.
 <p>
 For a recent version of Kinput2 that includes all users need, see
@@ -253,18 +264,17 @@ ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
 While Troll Tech doesn't have the resources or expertise in all
 the languages of the world to immediately include support in Qt,
 we are very keen to work with people who <em>do</em> have the
-expertise.  Over the next few versions, we hope to add support
-for <em>your</em> language of choice, until everyone can use Qt,
+expertise.  Over the next few minor version numbers, we hope to add support
+for <em>your</em> language of choice, until everyone can use Qt
 and all the programs developed with Qt, regardless of their
 language.
 
 Initially, languages with uni-directional single-byte encodings
 (European Latin1 and KOI8-R, etc.)
-will be refined.
-Then, the uni-directional multi-byte encodings (East Asian
-EUC-JP, etc.) will be supported. Finally, support for the "complex"
+and the uni-directional multi-byte encodings (East Asian
+EUC-JP, etc.) will be supported. Later, support for the "complex"
 encodings - those requiring right-to-left input or complex character
-composition (eg. Arabic and Thai script) will be implemented.
+composition (eg. Arabic, Hebrew, and Thai script) will be implemented.
 The current state of activity is:
 <dl compact>
  <dt><b>ISO standard encodings
@@ -273,23 +283,21 @@ The current state of activity is:
 	ISO 8859-3,
 	ISO 8859-4,
 	ISO 8859-5,
-	ISO 8859-6-I,
 	ISO 8859-7,
-	ISO 8859-8-I,
 	ISO 8859-9, and
 	ISO 8859-15
 	</b>
   <dd>Fully supported.
-	The Arabic (6-I) and Hebrew (8-I) encodings are not supported,
-	but are under development externally.
+	The Arabic (ISO 8859-6-I) and Hebrew (ISO 8859-8-I) encodings
+	are not supported, but are under development externally.
  <dt><b>KOI8-R</b>
   <dd>Fully supported.
  <dt><b>eucJP, JIS, and ShiftJIS</b>
-  <dd>Fully supported. Uses eucJP with the XIMP protocol on X11.
-	Windows NT support under development.
-	Serika Kurusugawa is assisting with this effort.
+  <dd>Fully supported. Uses eucJP with the XIMP protocol on X11,
+	and the IME Windows NT in Japanese Windows NT.
+	Serika Kurusugawa and other are assisting with this effort.
 	<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>kinput2</a>
-	is the tested input method.
+	is the tested input method for X11.
  <dt><b>eucKR</b>
   <dd>Under external development, 
 	Mizi Research are assisting with this effort.
@@ -302,7 +310,7 @@ The current state of activity is:
 If you are interested in contributing to existing efforts, or
 supporting new encodings beyond the more standard ones above, your work
 can be considered for inclusion in the official Qt distribution, or
-included with your application.
+just included with your application.
 
 Eventually, we hope to help Unix become as Unicode-oriented as
 Windows NT is becoming.
