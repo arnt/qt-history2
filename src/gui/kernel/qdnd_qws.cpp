@@ -175,14 +175,14 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                     }
                     if (cw && cw->acceptDrops()) {
                         object->d_func()->target = cw;
-                        QDragEnterEvent dee(me->pos(), QDrag::CopyAction/*####*/, QDragManager::self()->dropData);
+                        QDragEnterEvent dee(cw->mapFromGlobal(me->globalPos()), QDrag::CopyAction/*####*/, QDragManager::self()->dropData);
                         QApplication::sendEvent(object->target(), &dee);
                         willDrop = dee.isAccepted();
                         updateCursor();
                         restoreCursor = true;
                     }
                 } else if (cw) {
-                    QDragMoveEvent dme(me->pos(), QDrag::CopyAction/*####*/, QDragManager::self()->dropData);
+                    QDragMoveEvent dme(cw->mapFromGlobal(me->globalPos()), QDrag::CopyAction/*####*/, QDragManager::self()->dropData);
                     QApplication::sendEvent(cw, &dme);
                     updatePixmap();
                 }
