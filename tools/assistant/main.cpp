@@ -219,10 +219,10 @@ int main( int argc, char ** argv )
 	}
     }
 
-    if ( resourceDir.isNull() )
-	resourceDir = qInstallPath() + QString( "/translations/" );
-    if ( !QFile::exists( resourceDir ) )
-	qWarning( "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
+    if( resourceDir.isNull() )
+	resourceDir = qInstallPathTranslations();
+    if( !QFile::exists( resourceDir ) ) 
+	fprintf( stderr, "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
 
     QTranslator translator( 0 );
     translator.load( QString("assistant_") + QTextCodec::locale(), resourceDir );

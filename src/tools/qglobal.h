@@ -949,6 +949,7 @@ Q_EXPORT const char *qInstallPathLibs();
 Q_EXPORT const char *qInstallPathBins();
 Q_EXPORT const char *qInstallPathPlugins();
 Q_EXPORT const char *qInstallPathData();
+Q_EXPORT const char *qInstallPathTranslations();
 
 #endif // __cplusplus
 

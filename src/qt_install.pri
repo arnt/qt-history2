@@ -15,6 +15,10 @@ htmldocs.files = ../doc/html/*
 htmldocs.path = $$docs.path/html
 INSTALLS += htmldocs
 
+#translations
+translations.files = ../translations/*.qm
+INSTALLS += translations
+
 macx { #mac framework
     QtFramework = /System/Library/Frameworks/Qt.framework
     QtDocs      = /Developer/Documentation/Qt

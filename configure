@@ -298,6 +298,7 @@ QT_INSTALL_LIBS=
 QT_INSTALL_BINS=
 QT_INSTALL_PLUGINS=
 QT_INSTALL_DATA=
+QT_INSTALL_TRANSLATIONS=
 
 
 #-------------------------------------------------------------------------------
@@ -357,7 +358,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=yes
 	;;
     #Qt style options that pass an argument
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-depths|-make|-nomake|-qconfig|-platform|-xplatform|-buildkey)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-depths|-make|-nomake|-qconfig|-platform|-xplatform|-buildkey)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	shift
 	VAL=$1
@@ -466,6 +467,9 @@ while [ "$#" -gt 0 ]; do
 	;;
     libdir)
 	QT_INSTALL_LIBS="$VAL"
+	;;
+    translationdir)
+	QT_INSTALL_TRANSLATIONS="$VAL"
 	;;
     qconfig)
 	CFG_QCONFIG=$VAL
@@ -981,6 +985,8 @@ done
 [ -z "$QT_INSTALL_PLUGINS" ] && QT_INSTALL_PLUGINS=$QT_INSTALL_PREFIX/plugins
 # default PREFIX
 [ -z "$QT_INSTALL_DATA" ]    && QT_INSTALL_DATA=$QT_INSTALL_PREFIX
+# default PREFIX/translations
+[ -z "$QT_INSTALL_TRANSLATIONS" ]    && QT_INSTALL_TRANSLATIONS=$QT_INSTALL_PREFIX/translations
 
 # generate qconfig.cpp
 [ -d $outpath/src/tools ] || mkdir -p $outpath/src/tools
@@ -994,6 +1000,7 @@ static const char QT_INSTALL_HEADERS[267] = "qt_hdrpath=$QT_INSTALL_HEADERS";
 static const char QT_INSTALL_LIBS   [267] = "qt_libpath=$QT_INSTALL_LIBS";
 static const char QT_INSTALL_PLUGINS[267] = "qt_plgpath=$QT_INSTALL_PLUGINS";
 static const char QT_INSTALL_DATA   [267] = "qt_datpath=$QT_INSTALL_DATA";
+static const char QT_INSTALL_TRANSLATIONS[267] = "qt_trnpath=$QT_INSTALL_TRANSLATIONS";
 
 /* strlen( "qt_xxxpath=" ) == 11 */
 const char *qInstallPath()        { return QT_INSTALL_PREFIX  + 11; }
@@ -1003,6 +1010,7 @@ const char *qInstallPathLibs()    { return QT_INSTALL_LIBS    + 11; }
 const char *qInstallPathBins()    { return QT_INSTALL_BINS    + 11; }
 const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }
 const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11; }
+const char *qInstallPathTranslations()    { return QT_INSTALL_TRANSLATIONS + 11; }
 EOF
 
 # avoid unecessary rebuilds by copying only if qconfig.cpp has changed
@@ -1828,11 +1836,11 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir]
 	[-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ]
-	[-datadir dir] [-debug] [-release] [-no-gif] [-qt-gif] [-no-sm]
-	[-sm] [-qt-zlib] [-system-zlib] [-qt-libjpeg] [-system-libjpeg]
-	[-qt-libpng] [-system-libpng] [-qt-libmng] [-system-libmng]
-	[-no-thread] [-thread] [-no-nis] [-nis] [-no-cups] [-cups]
-	[-no-largefile] [-largefile] [-version-script] [-no-stl] [-stl]
+	[-datadir dir] [-translationdir dir] [-debug] [-release] [-no-gif]
+	[-qt-gif] [-no-sm] [-sm] [-qt-zlib] [-system-zlib] [-qt-libjpeg]
+	[-system-libjpeg] [-qt-libpng] [-system-libpng] [-qt-libmng]
+	[-system-libmng] [-no-thread] [-thread] [-no-nis] [-nis] [-no-cups]
+	[-cups] [-no-largefile] [-largefile] [-version-script] [-no-stl] [-stl]
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
 	[-with-<module setting>] [-without-<module setting>] [-fast] [-no-fast]
 
@@ -1857,6 +1865,8 @@ Installation options:
                           (default PREFIX/plugins)
     -datadir dir ....... Data used by Qt programs will be installed to dir
                           (default PREFIX)
+    -translationdir dir  Translations used by Qt programs will be installed to dir
+                          (default PREFIX/translations)
 
  You may use these options to turn on strict plugin loading.
 
@@ -2713,6 +2723,7 @@ QMAKE_VARS="$QMAKE_VARS \"plugins.path=${QT_INSTALL_PLUGINS}\""
 QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
 QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
 QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
+QMAKE_VARS="$QMAKE_VARS \"translation.path=${QT_INSTALL_TRANSLATIONS}\""
 
 # turn off exceptions for the compilers that support it
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`
