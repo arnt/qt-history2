@@ -68,8 +68,8 @@ protected:
     QVariant		data( int field );
     bool		isNull( int field );
     bool		reset ( const QString& query );
-    int                 size();
-    int                 numRowsAffected();
+    int			size();
+    int			numRowsAffected();
 private:
     QMYSQLResultPrivate* d;
 };
@@ -88,11 +88,15 @@ public:
 			      int port = -1 );
     void		close();
     QSqlQuery		createQuery() const;
-    QStringList         tables( const QString& user ) const;
-    QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QSqlRecord          record( const QString& tablename ) const;
-    QSqlRecord          record( const QSqlQuery& query ) const;
-    MYSQL*              mysql();
+    QStringList		tables( const QString& user ) const;
+    QSqlIndex		primaryIndex( const QString& tablename ) const;
+    QSqlRecord		record( const QString& tablename ) const;
+    QSqlRecord		record( const QSqlQuery& query ) const;
+    MYSQL*		mysql();
+protected:
+    bool		beginTransaction();
+    bool		commitTransaction();
+    bool		rollbackTransaction();
 private:
     void		init();
     QMYSQLDriverPrivate* d;

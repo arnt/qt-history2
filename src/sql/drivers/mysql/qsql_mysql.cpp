@@ -262,6 +262,7 @@ QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
 void QMYSQLDriver::init()
 {
     d = new QMYSQLDriverPrivate();
+    d->mysql = 0;
 }
 
 QMYSQLDriver::~QMYSQLDriver()
@@ -273,9 +274,12 @@ bool QMYSQLDriver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
     case Transactions:
-#if 0
-	if ( (d->mysql->server_capabilities & CLIENT_TRANSACTIONS) == CLIENT_TRANSACTIONS )
-	    return TRUE;
+// CLIENT_TRANSACTION should be defined in all recent mysql client libs > 3.23.34
+#ifdef CLIENT_TRANSACTIONS
+	if ( d->mysql ) {
+	    if ( ( d->mysql->server_capabilities & CLIENT_TRANSACTIONS ) == CLIENT_TRANSACTIONS )
+		return TRUE;
+	}
 #endif
 	return FALSE;
     case QuerySize:
@@ -417,4 +421,58 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 MYSQL* QMYSQLDriver::mysql()
 {
      return d->mysql;
+}
+
+bool QMYSQLDriver::beginTransaction()
+{
+#ifndef CLIENT_TRANSACTIONS
+    return FALSE;
+#endif
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QMYSQLDriver::beginTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
+    if ( mysql_query( d->mysql, "BEGIN WORK" ) ) {
+	setLastError( qMakeError("Unable to begin transaction", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    return TRUE;
+}
+
+bool QMYSQLDriver::commitTransaction()
+{
+#ifndef CLIENT_TRANSACTIONS
+    return FALSE;
+#endif
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QMYSQLDriver::commitTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
+    if ( mysql_query( d->mysql, "COMMIT" ) ) {
+	setLastError( qMakeError("Unable to commit transaction", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    return TRUE;
+}
+
+bool QMYSQLDriver::rollbackTransaction()
+{
+#ifndef CLIENT_TRANSACTIONS
+    return FALSE;
+#endif
+    if ( !isOpen() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QMYSQLDriver::rollbackTransaction: Database not open" );
+#endif
+	return FALSE;
+    }
+    if ( mysql_query( d->mysql, "ROLLBACK" ) ) {
+	setLastError( qMakeError("Unable to rollback transaction", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    return TRUE;
 }
