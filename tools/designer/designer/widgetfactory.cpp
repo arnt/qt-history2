@@ -1337,14 +1337,8 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
 	return QVariant();
     } else if ( propName == "frameworkCode" ) {
 	return QVariant( TRUE, 0 );
-    } else if ( propName == "layoutMargin" ) {
-	//if ( w->inherits( "QLayoutWidget" ) )
-	//    return QVariant( 0 );
-	//else if ( MainWindow::self->formWindow() )
-	    return QVariant( -1 ); 
-    } else if ( propName == "layoutSpacing" ) {
-	if ( MainWindow::self->formWindow() )
-	    return QVariant( -1 ); 
+    } else if ( propName == "layoutMargin" || propName == "layoutSpacing" ) {
+	return QVariant( -1 ); 
     }
 
     return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
