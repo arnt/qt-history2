@@ -869,20 +869,24 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     if (e->button() != Qt::LeftButton || d->buttonstate != None)
         return;
 
+    QStyle *style = this->style();
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_All;
-    if ((se & StepUpEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                        QStyle::SC_SpinBoxUp, this).contains(p)) {
+    if ((se & StepUpEnabled)
+        && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                             QStyle::SC_SpinBoxUp, this)).contains(p)) {
         d->updateState(true);
         e->accept();
-    } else if ((se & StepDownEnabled) && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                                         QStyle::SC_SpinBoxDown, this).contains(p)) {
+    } else if ((se & StepDownEnabled)
+               && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                                    QStyle::SC_SpinBoxDown, this)).contains(p)) {
         d->updateState(false);
         e->accept();
-    } else if (d->slider && style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                            QStyle::SC_SpinBoxSlider, this).contains(p)) {
+    } else if (d->slider
+               && QStyle::visualRect(opt.direction, opt.rect, style->subControlRect(QStyle::CC_SpinBox, &opt,
+                                                                                    QStyle::SC_SpinBoxSlider, this)).contains(p)) {
         d->sliderpressed = true;
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
         e->accept();
