@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#124 $
+** $Id: //depot/qt/main/src/tools/qstring.h#125 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -125,7 +125,9 @@ public:
 
     char latin1() const { return rw ? 0 : cl; }
     ushort unicode() const { return (rw << 8) | cl; }
+#ifndef QT_NO_CAST_ASCII
     operator char() const { return latin1(); }
+#endif
 
     friend int operator==( QChar c1, QChar c2 );
     friend int operator==( QChar c1, char c );
