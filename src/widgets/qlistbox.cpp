@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#242 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#243 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1405,10 +1405,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         } else if ( numColumns() > 1 && currentItem() > 0 ) {
             int row = currentRow();
             setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
-            
+
             if ( !item( currentItem() ) )
                 setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
-            
+
             if ( e->state() & ShiftButton )
                 toggleCurrentItem();
         } else {
@@ -1426,13 +1426,13 @@ void QListBox::keyPressEvent( QKeyEvent *e )
                     setCurrentItem( row + 1 );
                 else
                     setCurrentItem( i );
-                        
+
             if ( e->state() & ShiftButton )
                 toggleCurrentItem();
         } else if ( numColumns() > 1 && currentRow() < numRows() ) {
             if ( currentRow() + 1 < numRows() ) {
                 setCurrentItem( currentRow() + 1 );
-            
+
                 if ( e->state() & ShiftButton )
                     toggleCurrentItem();
             }
@@ -1441,6 +1441,38 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         }
         break;
     case Key_Next:
+    {
+        int old = currentItem();
+        int i = 0;
+        if ( numColumns() == 1 ) {
+            i = currentItem() + numItemsVisible();
+            i = i > (int)count() - 1 ? (int)count() - 1 : i;
+            setCurrentItem( i );
+            setTopItem( i );
+        } else {
+            // I'm not sure about this behavior...
+            if ( currentRow() == numRows() - 1 )
+                i = currentItem() + numRows();
+            else
+                i = currentItem() + numRows() - currentRow() - 1;
+            i = i > (int)count() ? (int)count() : i;
+            setCurrentItem( i );
+        }
+        
+        if ( d->selectionMode == Multi &&
+             e->state() & ShiftButton &&
+             ++old <= i ) {
+            QListBoxItem *c;
+            while ( old <= i ) {
+                c = item( old );
+                if ( c ) {
+                    c->s = !c->s;
+                    updateItem( c );
+                }
+                ++old;
+            }
+            emitChangedSignal( TRUE );
+        }
 #if 0
         if ( style() == MotifStyle) {
             if ( lastRowVisible() == (int) count() - 1){
@@ -1473,8 +1505,40 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         if (oldCurrent == currentItem() && currentItem() + 1 <  (int) count() )
             ensureCurrentVisible( currentItem() + 1 );
 #endif
-        break;
+        } break;
     case Key_Prior:
+    {
+        int old = currentItem();
+        int i = 0;
+        if ( numColumns() == 1 ) {
+            i = currentItem() - numItemsVisible();
+            i = i < 0 ? 0 : i;
+            setCurrentItem( i );
+            setBottomItem( i );
+        } else {
+            // I'm not sure about this behavior...
+            if ( currentRow() == 0 )
+                i = currentItem() - numRows();
+            else
+                i = currentItem() - currentRow();
+            i = i < 0 ? 0 : i;
+            setCurrentItem( i );
+        }
+        
+        if ( d->selectionMode == Multi &&
+             e->state() & ShiftButton &&
+             --old >= i ) {
+            QListBoxItem *c;
+            while ( old >= i ) {
+                c = item( old );
+                if ( c ) {
+                    c->s = !c->s;
+                    updateItem( c );
+                }
+                --old;
+            }
+            emitChangedSignal( TRUE );
+        }
 #if 0
         if ( style() != MotifStyle) {
             if (currentItem() != topItem() || topItem() == 0){
@@ -1504,7 +1568,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         if (oldCurrent == currentItem() && currentItem() > 0)
             ensureCurrentVisible( currentItem() -1);
 #endif
-        break;
+        } break;
 
     case Key_Space:
         toggleCurrentItem();
@@ -1519,6 +1583,50 @@ void QListBox::keyPressEvent( QKeyEvent *e )
                 emit selected( tmp );
         }
         break;
+    case Key_Home:
+    {
+        int old = currentItem();
+        setCurrentItem( 0 );
+        int i = 0;
+        
+        if ( d->selectionMode == Multi &&
+             e->state() & ShiftButton &&
+             --old >= i ) {
+            QListBoxItem *c;
+            while ( old >= i ) {
+                c = item( old );
+                if ( c ) {
+                    c->s = !c->s;
+                    updateItem( c );
+                }
+                --old;
+            }
+            emitChangedSignal( TRUE );
+        } 
+    } break;
+    case Key_End:
+    {
+        int old = currentItem();
+        int i = (int)count() - 1;
+        if ( numColumns() > 1 )
+            ++i;
+        setCurrentItem( i );
+        
+        if ( d->selectionMode == Multi &&
+             e->state() & ShiftButton &&
+             ++old <= i ) {
+            QListBoxItem *c;
+            while ( old <= i ) {
+                c = item( old );
+                if ( c ) {
+                    c->s = !c->s;
+                    updateItem( c );
+                }
+                ++old;
+            }
+            emitChangedSignal( TRUE );
+        } 
+    } break;
     default:
         e->ignore();
         return;
