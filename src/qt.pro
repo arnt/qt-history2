@@ -18,8 +18,10 @@ win32:TMAKE_CXXFLAGS   += -DUNICODE
 #win32:TMAKE_CFLAGS     += -MD
 #win32:TMAKE_CXXFLAGS   += -MD
 
-png:INCLUDEPATH	       += 3rdparty/libpng
-zlib:INCLUDEPATH       += 3rdparty/zlib
+PNG_INCLUDEPATH		= 3rdparty/libpng
+ZLIB_INCLUDEPATH	= 3rdparty/zlib
+png:INCLUDEPATH	       += $$PNG_INCLUDEPATH
+zlib:INCLUDEPATH       += $$ZLIB_INCLUDEPATH
 win32:INCLUDEPATH      += tmp
 win32-borland:INCLUDEPATH += kernel
 
@@ -398,7 +400,7 @@ unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
 		  $$KERNEL_H/qfontdatabase.h
 
-png:SOURCES    += 3rdparty/libpng/png.c \
+PNG_SOURCES	= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
 		  3rdparty/libpng/pngget.c \
 		  3rdparty/libpng/pngmem.c \
@@ -414,7 +416,7 @@ png:SOURCES    += 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngwtran.c \
 		  3rdparty/libpng/pngwutil.c
 
-zlib:SOURCES   += 3rdparty/zlib/adler32.c \
+ZLIB_SOURCES	= 3rdparty/zlib/adler32.c \
 		  3rdparty/zlib/compress.c \
 		  3rdparty/zlib/crc32.c \
 		  3rdparty/zlib/deflate.c \
@@ -428,6 +430,9 @@ zlib:SOURCES   += 3rdparty/zlib/adler32.c \
 		  3rdparty/zlib/trees.c \
 		  3rdparty/zlib/uncompr.c \
 		  3rdparty/zlib/zutil.c
+
+png:SOURCES    += $$PNG_SOURCES
+zlib:SOURCES   += $$ZLIB_SOURCES
 
 TARGET		= qt
 VERSION		= 2.00
