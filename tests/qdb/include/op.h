@@ -880,24 +880,19 @@ public:
 };
 
 
-/* Push type info information of the field identified by
-  'nameOrNumber' in the file identified by 'id onto the top of the
-  stack.  'nameOrNumber' can be the name of the field or the number of
-  the field within the file.  The field must exist in the file.  The
-  'field type info' is pushed onto the stack in the following order:
-
-  field type (QVariant::Type)
-  field length (int)
-  field decimal precision (int)
+/* Push the field type of the field identified by 'nameOrNumber' in
+  the file identified by 'id onto the top of the stack.
+  'nameOrNumber' can be the name of the field or the number of the
+  field within the file.  The field must exist in the file.
 
 */
 
-class PushTypeInfo : public Op
+class PushType : public Op
 {
 public:
-    PushTypeInfo( const QVariant& id, const QVariant& nameOrNumber )
+    PushType( const QVariant& id, const QVariant& nameOrNumber )
 	: Op( id, nameOrNumber ) {}
-    QString name() const { return "pushtypeinfo"; }
+    QString name() const { return "pushtype"; }
     int exec( LocalSQLEnvironment* env )
     {
 	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
@@ -909,9 +904,7 @@ public:
 	    if ( !drv->fieldTypeInfo( p2.toInt(), v ) )
 		return FALSE;
 	}
-	List list = v.toList();
-	for ( uint i = 0; i < list.count(); ++i )
-	    env->stack()->push( list[i] );
+	env->stack()->push( v );
 	return TRUE;
     }
 };

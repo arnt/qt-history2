@@ -169,8 +169,8 @@ struct LocalSQLFileDriver : public LocalSQLDataSet
     virtual bool markAll() = 0;
     virtual bool createIndex( const List& index, bool unique, bool notnull ) = 0;
     virtual bool drop() = 0;
-    virtual bool fieldTypeInfo( const QString& name, QVariant& v ) = 0;
-    virtual bool fieldTypeInfo( int i, QVariant& v ) = 0;
+    virtual bool fieldType( const QString& name, QVariant& v ) = 0;
+    virtual bool fieldType( int i, QVariant& v ) = 0;
     virtual bool clearMarked() = 0;
     virtual QStringList indexNames() = 0;
     virtual QStringList primaryIndex() = 0;

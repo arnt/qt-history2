@@ -732,7 +732,7 @@ bool FileDriver::field( uint i, QVariant& v )
     return d->getField( i, v );
 }
 
-bool FileDriver::fieldTypeInfo( const QString& name, QVariant& v )
+bool FileDriver::fieldType( const QString& name, QVariant& v )
 {
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "FileDriver::fieldTypeInfo(string)..." << flush;
@@ -743,10 +743,10 @@ bool FileDriver::fieldTypeInfo( const QString& name, QVariant& v )
     if ( i == -1 ) {
 	ERROR_RETURN( UNKNOWN_FIELD_NAME + "'" + name + "'" );
     }
-    return fieldTypeInfo( i, v );
+    return fieldType( i, v );
 }
 
-bool FileDriver::fieldTypeInfo( int i, QVariant& v )
+bool FileDriver::fieldType( int i, QVariant& v )
 {
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "FileDriver::fieldTypeInfo(int)..." << flush;
@@ -756,14 +756,8 @@ bool FileDriver::fieldTypeInfo( int i, QVariant& v )
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
 	ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(i));
     }
-    List field;
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
-    int len = d->file.GetFieldLen( i );
-    int prec = d->file.GetFieldDecimal( i );
-    field.append( (int) type );
-    field.append( len );
-    field.append( prec );
-    v = field;
+    v = (int) type;
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
