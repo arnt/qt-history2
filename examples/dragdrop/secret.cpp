@@ -12,6 +12,7 @@
 
 #include "secret.h"
 #include <qevent.h>
+#include <qpixmap.h>
 
 
 //create the object withe the secret byte
