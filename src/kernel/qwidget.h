@@ -918,18 +918,20 @@ struct Q_EXPORT QWExtra {
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy;			// XDND forwarding to embedded windows
-    bool children_use_dnd;
 #endif
 #if defined(Q_WS_MAC)
     QMacDndExtra *macDndExtra;
     bool clip_dirty, child_dirty;
     QRegion clip_saved, clip_sibs, clip_children;
-
+    QRegion dirty_area;
 #ifndef QMAC_NO_QUARTZ
     uint ctx_children_clipped:1;
 #endif
     uint has_dirty_area:1;
-    QRegion dirty_area;
+#endif    
+    uint bg_origin : 2;
+#if defined(Q_WS_X11)
+    uint children_use_dnd : 1;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
@@ -941,7 +943,6 @@ struct Q_EXPORT QWExtra {
 #endif
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
-    uint bg_origin : 2;
 };
 
 
