@@ -27,7 +27,7 @@ linux-*:version_script {
    TARGETDEPS += libqt.map
 }
 
-KERNEL_CPP	= kernel	
+KERNEL_CPP	= kernel
 CANVAS_CPP      = canvas
 WIDGETS_CPP	= widgets
 SQL_CPP	        = sql
@@ -88,7 +88,7 @@ win32 {
 	INCLUDEPATH += tmp
 	!staticlib {
 	    DEFINES+=QT_MAKEDLL
-	    exists(qt.rc) {
+	    !win32-borland && exists(qt.rc) {
 		RC_FILE = qt.rc
 	    }
 	}
