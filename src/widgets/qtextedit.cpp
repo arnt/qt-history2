@@ -2153,6 +2153,10 @@ void QTextEdit::removeParagraph( int para )
 
 void QTextEdit::undo()
 {
+    // XXX FIXME The next line is here because there may be a command
+    // that needs to be 'flushed'.  The FIXME is because I am not 
+    // 100% certain this is the right call to do this.
+    clearUndoRedo();
     if ( isReadOnly() || !doc->commands()->isUndoAvailable() || !undoEnabled )
 	return;
 
