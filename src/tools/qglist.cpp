@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#9 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#9 $";
 #endif
 
 
@@ -251,7 +251,7 @@ Qdnode *QGList::unlink()			// unlink current node
     return n;
 }
 
-bool QGList::remove( Qdnode *n )		// remove one item
+bool QGList::removeNode( Qdnode *n )		// remove one item
 {
     CHECK_PTR( n );
     if ( n->prev && n->prev->next != n ||
