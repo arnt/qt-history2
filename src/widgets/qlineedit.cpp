@@ -3131,9 +3131,12 @@ void QLineEdit::insert( const QString &newText, bool paste )
     }
 
     // we don't update the undoRedoInfo.index if the type is already Insert
-    if ( d->undoRedoInfo.type != UndoRedoInfo::Insert )
+    if ( d->undoRedoInfo.type != UndoRedoInfo::Insert ) {
+	d->checkUndoRedoInfo( UndoRedoInfo::Insert );
 	d->undoRedoInfo.index = cp1;
-    d->checkUndoRedoInfo( UndoRedoInfo::Insert );
+    } else {
+	d->checkUndoRedoInfo( UndoRedoInfo::Insert );
+    }
 
     QString newString = original;
     if ( hasMask() )
