@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#41 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#41 $";
 #endif
 
 
@@ -1919,8 +1919,16 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) )			// NOTE: bitmaps should work
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[3];
+	    QRect  r(0,0,pixmap.width(),pixmap.height());
+	    QPoint p(x,y);
+	    param[0].rect   = &r;
+	    param[1].point  = &p;
+	    param[2].pixmap = &pixmap;
+	    pdev->cmd( PDC_DRAWPIXMAP, param );
 	    return;
+	}
 	if ( testf(WxF) )			// no scaling or rotation ;-(
 	    WXFORM_P( x, y );
 	if ( testf(VxF) )
