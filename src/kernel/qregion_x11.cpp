@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#46 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -193,6 +193,7 @@ Region qt_x11_bitmapToRegion(const QBitmap& bitmap)
 */
 QRegion::QRegion( const QBitmap & bm )
 {
+#warning "Not implemented"
 }
 
 /*!
@@ -209,7 +210,7 @@ QRegion::~QRegion()
 
 
 /*!
-  Assigns a 
+  Assigns a
   \link shclass.html shallow copy\endlink of \e r to this region and
   returns a reference to the region.
 */
@@ -227,7 +228,7 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 
 /*!
-  Returns a 
+  Returns a
   \link shclass.html deep copy\endlink of the region.
 */
 
