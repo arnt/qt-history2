@@ -1704,7 +1704,8 @@ void QLayout::setResizeMode( ResizeMode mode )
 	autoMinimum = TRUE;
 	autoResizeMode = FALSE;
     }
-    activate();
+    if ( mainWidget() && mainWidget()->isVisible() )
+	activate();
 }
 
 QLayout::ResizeMode QLayout::resizeMode() const
