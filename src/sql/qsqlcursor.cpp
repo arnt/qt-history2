@@ -49,11 +49,21 @@ class QSqlCursorPrivate
 {
 public:
 
-    QSqlCursorPrivate( const QString& name )
-	: lastAt( QSql::BeforeFirst ), nm( name ), srt( name ), md( 0 )
+    QSqlCursorPrivate( const QString& name, QSqlDatabase* sdb )
+	: lastAt( QSql::BeforeFirst ), nm( name ), srt( name ), md( 0 ), db( sdb ), q( 0 )
     {}
-    ~QSqlCursorPrivate(){}
+    ~QSqlCursorPrivate()
+    {
+	delete q;
+    }
 
+    QSqlQuery* query()
+    {
+	if ( !q )
+	    q = new QSqlQuery( 0, db );
+	return q;
+    }
+    
     int               lastAt;
     QString           nm;         //name
     QSqlIndex         srt;        //sort
@@ -64,6 +74,8 @@ public:
     // the primary index as it was before the user changed the values in editBuffer
     QString           editIndex;
     QSqlRecordInfo    infoBuffer;
+    QSqlDatabase*     db;
+    QSqlQuery*        q;
 };
 
 QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
@@ -232,7 +244,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* db )
     : QSqlRecord(), QSqlQuery( QString::null, db )
 {
-    d = new QSqlCursorPrivate( name );
+    d = new QSqlCursorPrivate( name, db );
     setMode( Writable );
     if ( !d->nm.isNull() )
 	setName( d->nm, autopopulate );
@@ -245,13 +257,14 @@ QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* d
 QSqlCursor::QSqlCursor( const QSqlCursor & other )
     : QSqlRecord( other ), QSqlQuery( other )
 {
-    d = new QSqlCursorPrivate( other.d->nm );
+    d = new QSqlCursorPrivate( other.d->nm, other.d->db );
     d->lastAt = other.d->lastAt;
     d->nm = other.d->nm;
     d->srt = other.d->srt;
     d->ftr = other.d->ftr;
     d->priIndx = other.d->priIndx;
     d->infoBuffer = other.d->infoBuffer;
+    d->q = 0; // do not share queries
     setMode( other.mode() );
 }
 
@@ -273,13 +286,14 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
     QSqlRecord::operator=( other );
     QSqlQuery::operator=( other );
     delete d;
-    d = new QSqlCursorPrivate( other.d->nm );
+    d = new QSqlCursorPrivate( other.d->nm, other.d->db );
     d->lastAt = other.d->lastAt;
     d->nm = other.d->nm;
     d->srt = other.d->srt;
     d->ftr = other.d->ftr;
     d->priIndx = other.d->priIndx;
     d->infoBuffer = other.d->infoBuffer;
+    d->q = 0; // do not share queries
     setMode( other.mode() );
     return *this;
 }
@@ -1273,9 +1287,9 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 	if ( exec( q ) )
 	    ar = numRowsAffected();
     } else if ( driver() ) {
-	QSqlQuery sql( driver()->createQuery() );
-	if ( sql.exec( q ) )
-	    ar = sql.numRowsAffected();
+	QSqlQuery* sql = d->query();
+	if ( sql && sql->exec( q ) )
+	    ar = sql->numRowsAffected();
     }
     return ar;
 }
@@ -1287,45 +1301,32 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
 {
     int ar = 0;
-    QSqlQuery * sql = 0;
+    QSqlQuery* sql = 0;
     
     if ( invalidate ) {
+	sql = (QSqlQuery*)this;
 	d->lastAt = QSql::BeforeFirst;
-	if ( !prepare( q ) ) {
-	    return 0;
-	}
-    } else if ( driver() ) {
-	// workaround for VC++ bug
-	QSqlQuery temp = driver()->createQuery();
-	sql = new QSqlQuery( temp );
-	if ( !sql->prepare( q ) ) {
-	    delete sql;
-	    return 0;
-	}
     } else {
-	return 0;
+	sql = d->query();
     }
+    if ( !sql )
+	return 0;
+    
+    if ( invalidate || sql->lastQuery() != q ) {
+	if ( !sql->prepare( q ) )
+	    return 0;
+    }
+    
     int cnt = 0;
     for ( int j = 0; j < (int) count(); ++j ) {
 	QSqlField* f = d->editBuffer.field( j );
 	if ( d->editBuffer.isGenerated( j ) ) {
-	    if ( invalidate ) {
-		bindValue( cnt, f->value() );
-	    } else {
-		sql->bindValue( cnt, f->value() );
-	    }
+	    sql->bindValue( cnt, f->value() );
 	    cnt++;
 	}
     }
-    if ( invalidate ) {
-	if ( QSqlQuery::exec() ) {
-	    ar = numRowsAffected();
-	}
-    } else {
-	if ( sql->exec() ) {
-	    ar = sql->numRowsAffected();
-	}
-	delete sql;
+    if ( sql->exec() ) {
+	ar = sql->numRowsAffected();
     }
     return ar;
 }
