@@ -22,6 +22,10 @@ main(int argc, char **argv)
         if(bytes[i] == 0x12 && bytes[i+1] == 0x15 && bytes[i+2] == 0x19 && bytes[i+3] == 0x78)
             (void)new QMetaResource((const uchar *)bytes.data()+i);
     }
+    if(!QResource::find("/")) {
+        fprintf(stderr, "** No resources!!!\n");
+        return 666;
+    }
     if(argc == 2) {
         QList<const QResource*> files;
         QStack<const QResource*> containers;
