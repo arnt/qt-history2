@@ -202,7 +202,9 @@ Q3ProgressBar *Q3ProgressDialog::bar() const
 }
 
 
+#ifdef QT_COMPAT
 /*!
+  \obsolete
   Constructs a progress dialog.
 
   Default settings:
@@ -233,6 +235,7 @@ Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, const char *name,
 }
 
 /*!
+  \obsolete
   Constructs a progress dialog.
 
    The \a labelText is text used to remind the user what is progressing.
@@ -270,7 +273,59 @@ Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
     setModal(modal);
     init(creator, labelText, cancelButtonText, totalSteps);
 }
+#endif
 
+/*!
+  Constructs a progress dialog.
+
+  Default settings:
+  \list
+      \i The label text is empty.
+      \i The cancel button text is (translated) "Cancel".
+      \i The total number of steps is 100.
+  \endlist
+
+  The \a creator argument is the widget to use as the dialog's parent.
+  The widget flags, \a f, are passed to the QDialog::QDialog() constructor.
+
+  \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
+  setTotalSteps()
+*/
+Q3ProgressDialog::Q3ProgressDialog(QWidget *creator, Qt::WFlags f)
+    : QDialog(creator, f)
+{
+    init(creator, QString::fromLatin1(""), tr("Cancel"), 100);
+}
+
+/*!
+  Constructs a progress dialog.
+
+   The \a labelText is text used to remind the user what is progressing.
+
+   The \a cancelButtonText is the text to display on the cancel button,
+            or 0 if no cancel button is to be shown.
+
+   The \a totalSteps is the total number of steps in the operation for
+   which this progress dialog shows progress.  For example, if the
+   operation is to examine 50 files, this value would be 50. Before
+   examining the first file, call setProgress(0). As each file is
+   processed call setProgress(1), setProgress(2), etc., finally
+   calling setProgress(50) after examining the last file.
+
+   The \a creator argument is the widget to use as the dialog's parent.
+   The widget flags, \a f, are passed to the
+   QDialog::QDialog() constructor.
+
+  \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
+  setTotalSteps()
+*/
+Q3ProgressDialog::Q3ProgressDialog(const QString &labelText,
+                                  const QString &cancelButtonText,
+                                  int totalSteps, QWidget *creator, Qt::WFlags f)
+    : QDialog(creator, f)
+{
+    init(creator, labelText, cancelButtonText, totalSteps);
+}
 
 /*!
   Destroys the progress dialog.

@@ -36,11 +36,17 @@ class Q_GUI_EXPORT Q3ProgressDialog : public QDialog
     Q_PROPERTY(QString labelText READ labelText WRITE setLabelText)
 
 public:
-    Q3ProgressDialog(QWidget* parent=0, const char* name=0, bool modal=false,
-                     Qt::WFlags f=0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR Q3ProgressDialog(QWidget* parent=0, const char* name=0, bool modal=false,
+                                           Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR Q3ProgressDialog(const QString& labelText,
+                                           const QString &cancelButtonText, int totalSteps,
+                                           QWidget* parent=0, const char* name=0,
+                                           bool modal=false, Qt::WFlags f=0);
+#endif
+    Q3ProgressDialog(QWidget* parent = 0, Qt::WFlags f = 0);
     Q3ProgressDialog(const QString& labelText, const QString &cancelButtonText,
-                     int totalSteps, QWidget* parent=0, const char* name=0,
-                     bool modal=false, Qt::WFlags f=0);
+                     int totalSteps, QWidget* parent=0, Qt::WFlags f=0);
     ~Q3ProgressDialog();
 
     void setLabel(QLabel *);
@@ -88,7 +94,7 @@ protected slots:
 
 private:
     void init(QWidget *creator, const QString& lbl, const QString &canc,
-                         int totstps);
+              int totstps);
     void layout();
     QLabel *label()  const;
     Q3ProgressBar *bar()    const;
