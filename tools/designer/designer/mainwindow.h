@@ -289,6 +289,7 @@ private:
     void addRecentlyOpened( const QString &fn, QStringList &lst );
     void showSourceLine( QObject *o, int line, bool error );
     void editSource( bool resetSame );
+    QWidget *findRealForm( QWidget *w );
 
 private slots:
     void doSlotsChanged();

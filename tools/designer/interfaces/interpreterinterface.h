@@ -35,6 +35,7 @@ struct InterpreterInterface : public QUnknownInterface
 {
     virtual QStringList featureList() const = 0;
     virtual bool exec( QObject *obj, const QString &code ) = 0;
+    virtual void setBreakPoints( QObject *obj, const QValueList<int> &lst ) = 0;
     virtual void onShowDebugStep( QObject *obj, const char *slot ) = 0;
 };
 

@@ -1636,14 +1636,12 @@ void MainWindow::fileCreateTemplate()
     int i = 0;
     for ( i = 0; i < WidgetDatabase::count(); ++i ) {
 	if ( WidgetDatabase::isForm( i ) && WidgetDatabase::widgetGroup( i ) != "Temp") {
-	    qDebug("form %s", WidgetDatabase::className( i ).latin1() );
 	    dia.listClass->insertItem( WidgetDatabase::className( i ) );
 	}
     }
     for ( i = 0; i < WidgetDatabase::count(); ++i ) {
 	if ( WidgetDatabase::isContainer( i ) && !WidgetDatabase::isForm(i) &&
 	     WidgetDatabase::className( i ) != "QTabWidget" && WidgetDatabase::widgetGroup( i ) != "Temp" ) {
-	    qDebug("container %s", WidgetDatabase::className( i ).latin1() );
 	    dia.listClass->insertItem( WidgetDatabase::className( i ) );
 	}
     }
@@ -2169,8 +2167,11 @@ void MainWindow::searchGotoLine()
 
 QObjectList *MainWindow::previewProject()
 {
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	e->save();
+	e->saveBreakPoints();
+    }
+
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
     if ( !currentProject )
@@ -2236,13 +2237,12 @@ QObjectList *MainWindow::previewProject()
     delete qwf_language;
     qwf_language = new QString( currentProject->language() );
 
+    InterpreterInterface *iiface = 0;
     if ( interpreterPluginManager ) {
 	QString lang = currentProject->language();
-	InterpreterInterface *iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
-	if ( iiface ) {
+	iiface = (InterpreterInterface*)interpreterPluginManager->queryInterface( lang );
+	if ( iiface )
 	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
-	    iiface->release();
-	}
     }
 
     QObjectList *l = new QObjectList;
@@ -2252,6 +2252,18 @@ QObjectList *MainWindow::previewProject()
 	    l->append( w );
 	    w->hide();
 	}
+    }
+
+    if ( iiface ) {
+	for ( QObject *o = l->first(); o; o = l->next() ) {
+	    QWidget *fw = findRealForm( (QWidget*)o );
+	    if ( !fw )
+		continue;
+	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
+	    if ( !bps.isEmpty() )
+		iiface->setBreakPoints( o, bps );
+	}
+	iiface->release();
     }
 
     QApplication::restoreOverrideCursor();
@@ -4473,6 +4485,16 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 Project *MainWindow::emptyProject()
 {
     return eProject;
+}
+
+QWidget *MainWindow::findRealForm( QWidget *wid )
+{
+    QWidgetList windows = workSpace()->windowList();
+    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	if ( QString( w->name() ) == QString( wid->name() ) )
+	    return w;
+    }
+    return 0;
 }
 
 #include "mainwindow.moc"
