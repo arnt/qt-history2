@@ -17,6 +17,7 @@
 <variable>QMap&lt;QString, ConfigStyle&gt; styles;</variable>
 <variable>ConfigStyle currentStyle;</variable>
 <variable>QString currentElement;</variable>
+<exportmacro>EDITOR_EXPORT</exportmacro>
 <widget class="QWidget">
     <property name="name">
         <cstring>PreferencesBase</cstring>
@@ -25,8 +26,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>362</width>
-            <height>313</height>
+            <width>358</width>
+            <height>311</height>
         </rect>
     </property>
     <property name="caption">
@@ -56,6 +57,9 @@
                 <string>&amp;Syntax Highlighting</string>
             </property>
             <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -247,7 +251,7 @@
                     </property>
                 </widget>
                 <spacer row="4" column="1">
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
                     <property name="orientation">
@@ -273,6 +277,9 @@
                 <string>&amp;Options</string>
             </property>
             <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -350,20 +357,20 @@
         <receiver>PreferencesBase</receiver>
         <slot>elementChanged(const QString&amp;)</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="protected" language="C++">colorClicked()</slot>
-    <slot access="protected" language="C++">reInit()</slot>
-    <slot access="protected" language="C++">save()</slot>
-    <slot access="public" language="C++">updatePreview()</slot>
-    <slot access="protected" language="C++">boldChanged( bool b )</slot>
-    <slot access="protected" language="C++">elementChanged( const QString &amp;element )</slot>
-    <slot access="protected" language="C++">familyChanged( const QString &amp;f )</slot>
-    <slot access="protected" language="C++">italicChanged( bool b )</slot>
-    <slot access="protected" language="C++">setColorPixmap( const QColor &amp;c )</slot>
-    <slot access="public" language="C++">setPath( const QString &amp;p )</slot>
-    <slot access="protected" language="C++">sizeChanged( int s )</slot>
-    <slot access="protected" language="C++">underlineChanged( bool b )</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">colorClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">reInit()</slot>
+    <slot access="protected" language="C++" returnType="void">save()</slot>
+    <slot access="public" language="C++" returnType="void">updatePreview()</slot>
+    <slot access="protected" language="C++" returnType="void">boldChanged( bool b )</slot>
+    <slot access="protected" language="C++" returnType="void">elementChanged( const QString &amp;element )</slot>
+    <slot access="protected" language="C++" returnType="void">familyChanged( const QString &amp;f )</slot>
+    <slot access="protected" language="C++" returnType="void">italicChanged( bool b )</slot>
+    <slot access="protected" language="C++" returnType="void">setColorPixmap( const QColor &amp;c )</slot>
+    <slot access="public" language="C++" returnType="void">setPath( const QString &amp;p )</slot>
+    <slot access="protected" language="C++" returnType="void">sizeChanged( int s )</slot>
+    <slot access="protected" language="C++" returnType="void">underlineChanged( bool b )</slot>
 </connections>
 <functions>
     <function name="init()" >{
