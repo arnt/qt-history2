@@ -14,6 +14,8 @@ Applications compiled for 3.2 will continue to run with 3.3.
 Qt library
 ----------
 
+- The Qt SQL module now supports Interbase and SQLite. This makes it
+  possible to write database applications that do not require a database server.
 
 Qt Motif Extension
 ------------------
@@ -88,3 +90,7 @@ Sun CC 5.0.
 
 - QSound
 	Windows: Support loop related APIs
+
+- QSql
+	Support for Interbase and SQLite
+
