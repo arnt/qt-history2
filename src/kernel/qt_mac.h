@@ -115,8 +115,7 @@ public:
     static bool setPaintDevice(QPaintDevice *);
     static bool flush(QPaintDevice *);
     static bool flush(QPaintDevice *, const QRegion &r, bool force=FALSE);
-
-    static void removingGWorld(const GWorldPtr w);
+    static void setAlphaTransparancy(QWidget *, float);
 };
 
 inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev) 
@@ -145,6 +144,24 @@ inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev, const QRegion &r, bool 
     } 
 #endif
     return FALSE;
+}
+
+#ifdef Q_WS_MACX
+extern "C" {
+    typedef struct CGSConnection *CGSConnectionRef;
+    typedef struct CGSWindow *CGSWindowRef;
+    extern OSStatus CGSSetWindowAlpha(CGSConnectionRef, CGSWindowRef, float);
+    extern CGSWindowRef GetNativeWindowFromWindowRef(WindowRef);
+    extern CGSConnectionRef _CGSDefaultConnection();
+}
+#endif
+inline void QMacSavedPortInfo::setAlphaTransparancy(QWidget *w, float l)
+{
+#ifdef Q_WS_MACX
+    CGSSetWindowAlpha(_CGSDefaultConnection(), 
+		      GetNativeWindowFromWindowRef((WindowRef)w->handle()), l);
+
+#endif
 }
 
 inline bool QMacSavedPortInfo::setClipRegion(const QRect &rect)
@@ -258,15 +275,4 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 #endif
 }
 
-//sanity checks
-inline void QMacSavedPortInfo::removingGWorld(const GWorldPtr w) 
-{
-    if(!gports.count())
-        return;
-    for(QPtrListIterator<QMacSavedPortInfo> it(gports); it.current(); ++it) {
-        if((*it)->world == w) 
-            (*it)->valid_gworld = FALSE;
-    }
-}            
-#endif
 #endif // QT_MAC_H

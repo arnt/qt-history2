@@ -533,7 +533,10 @@ void QAquaStyle::polish( QApplication* app )
 void QAquaStyle::polish( QWidget * w )
 {
     d->addWidget(w);
-
+#ifdef Q_WS_MAC
+    if(w->inherits("QPopupMenu"))
+	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
+#endif
     if(w->inherits("QLineEdit")) 
 	((QLineEdit *)w)->setLineWidth(3);
 
@@ -568,6 +571,10 @@ void QAquaStyle::polish( QWidget * w )
 void QAquaStyle::unPolish( QWidget * w )
 {
     d->removeWidget(w);
+#ifdef Q_WS_MAC
+    if(w->inherits("QPopupMenu"))
+	QMacSavedPortInfo::setAlphaTransparancy(w, 1);
+#endif
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
