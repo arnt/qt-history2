@@ -127,7 +127,7 @@ private:
     QThreadStorage &operator=(const QThreadStorage &);
 #endif // Q_DISABLE_COPY
 
-    static void deleteData(void **x) { qThreadStorage_deleteData((T*)*x); }
+    static void deleteData(void **x) { qThreadStorage_deleteData(reinterpret_cast<T>(*x)); }
 
 public:
     inline QThreadStorage() : d(deleteData) { }
@@ -137,9 +137,9 @@ public:
     { return d.get() != 0; }
 
     inline T& localData()
-    { return qThreadStorage_localData(d, (T*)0); }
+    { return qThreadStorage_localData(d, reinterpret_cast<T*>(0)); }
     inline const T localData() const
-    { return qThreadStorage_localData_const(d, (T*)0); }
+    { return qThreadStorage_localData_const(d, reinterpret_cast<T*>(0)); }
 
     inline void setLocalData(T t)
     { qThreadStorage_setLocalData(d, &t); }
