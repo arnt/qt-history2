@@ -2585,6 +2585,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     } else {
 #ifndef QT_NO_XRENDER
 	if (rendhd && pixmap.x11RenderHandle() &&
+	    pixmap.data->alphapm &&
 	    pixmap.data->alphapm->x11RenderHandle())
 	    XRenderComposite(dpy, PictOpOver,
 			     pixmap.x11RenderHandle(),
