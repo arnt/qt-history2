@@ -264,7 +264,7 @@ bool QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyp
 	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
 	    glyphs[i].advance.x = size.cx - overhang;
 	    // if glyph's within cache range, store it for later
-	    if ( glyph < widthCacheSize )
+	    if ( glyph < widthCacheSize && (size.cx - overhang) < 0x100 )
 		widthCache[glyph] = size.cx - overhang;
 	}
 	str++;

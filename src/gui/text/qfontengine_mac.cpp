@@ -532,7 +532,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	ret = FixRound(right-left);
 	if(!ret)
 	    ret = -666; //marker
-	if(use_len == 1 && s->unicode() < widthCacheSize)
+	if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
 	    widthCache[s->unicode()] = ret;
     }
     if(task & DRAW) {
