@@ -1,0 +1,7 @@
+
+To use the virtual framebuffer compile libqt with -DQWS_VFB (see qt-e.pro).
+Start qvfb, then a qws server.
+Since keyboard support is not available yet you should run the server with
+-nokeyboard
+
+
