@@ -1738,7 +1738,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
         ((QMacStyleQDPainter *)p)->setport();
         DrawThemeTrack(&ttdi, NULL, NULL, 0);
         if(sub & SC_SliderTickmarks) {
-            int numTicks = sldr->maximum() / sldr->pageStep();
+	    int numTicks = (sldr->maxValue() - sldr->minValue() + 1) / sldr->pageStep();
             if(sldr->tickInterval())
                 numTicks = sldr->width() / sldr->tickInterval();
             DrawThemeTrackTickMarks(&ttdi, numTicks, NULL, 0);
