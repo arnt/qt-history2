@@ -2159,8 +2159,8 @@ MakefileGenerator::specdir()
     if(!spec.isEmpty())
 	return spec;
     spec = Option::mkfile::qmakespec;
-    const char *d = getenv("QTDIR");
-    if(d) {
+#if 0
+    if(const char *d = getenv("QTDIR")) {
 	QString qdir = Option::fixPathToTargetOS(QString(d));
 	if(qdir.endsWith(QString(QChar(QDir::separator()))))
 	    qdir.truncate(qdir.length()-1);
@@ -2174,6 +2174,9 @@ MakefileGenerator::specdir()
 	    spec = absSpec;
 	}
     }
+#else
+    spec = Option::fixPathToTargetOS(spec);
+#endif
     return spec;
 }
 
