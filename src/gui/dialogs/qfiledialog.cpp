@@ -306,8 +306,8 @@ public:
 #define d d_func()
 #define q q_func()
 
-QFileDialog::QFileDialog(QWidget *parent)
-    : QDialog(*new QFileDialogPrivate, parent)
+QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
+    : QDialog(*new QFileDialogPrivate, parent, f)
 {
     d->setup();
     setDirectory(QDir::home());

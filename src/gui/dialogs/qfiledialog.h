@@ -33,7 +33,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_ENUMS(ViewMode FileMode)
 
 public:
-    QFileDialog(QWidget *parent);
+    QFileDialog(QWidget *parent=0, Qt::WFlags f=0);
     ~QFileDialog();
 
     void setDirectory(const QDir &directory);
