@@ -88,15 +88,6 @@ static short qt_mac_menu_find_action(MenuRef menu, QMacMenuAction *action)
 //enabling of commands
 void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
 {
-    short index = qt_mac_menu_find_action(menu, cmd);
-    if(index != -1) {
-        UInt32 size;
-        if(GetMenuItemPropertySize(menu, index, kMenuCreatorQt, kMenuPropertyQAction, &size) != noErr || size != sizeof(QAction*))
-            return;
-    } else {
-        return;
-    }
-
     if(b) {
         EnableMenuCommand(menu, cmd);
         if(MenuRef dock_menu = GetApplicationDockTileMenu())
@@ -187,6 +178,16 @@ static QString qt_mac_menu_merge_text(MenuCommand cmd)
     return ret;
 }
 
+static QKeySequence qt_mac_menu_merge_accel(MenuCommand cmd)
+{
+    QKeySequence ret;
+    if(cmd == kHICommandPreferences)
+        ret = QKeySequence(Qt::CTRL+Qt::Key_Comma);
+    else if(cmd == kHICommandQuit)
+        ret = QKeySequence(Qt::CTRL+Qt::Key_Q);
+    return ret;
+}
+
 //backdoors to disable/enable certain features of the menubar bindings
 void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //disable menubar icons
 void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //disable menubars entirely
@@ -194,22 +195,11 @@ void qt_mac_set_no_menubar_merge(bool b) { qt_mac_no_menubar_merge = b; } //disa
 
 bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
 {
-    MenuItemIndex index;
-    {
-        MenuRef tmp_menu;
-        if(GetIndMenuItemWithCommandID(menu, command, 1, &tmp_menu, &index) == noErr) {
-            if(!menu)
-                menu = tmp_menu;
-            else if(tmp_menu != menu)
-                qWarning("This cannot happen!!");
-        }
-    }
-
     //fire event
     QMacMenuAction *action = 0;
-    if(GetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), 0, &action) != noErr)
+    if(GetMenuCommandProperty(menu, command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), 0, &action) != noErr) 
         return false;
-    if(action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab)
+    if(action_e == QAction::Trigger && by_accel && action->ignore_accel) //no, not a real accel (ie tab) 
         return false;
     action->action->activate(action_e);
 
@@ -412,10 +402,11 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, attr, action->command);
         else
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
+        SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     } else if(!qt_modal_state()) {
-            qt_mac_command_set_enabled(action->menu, action->command, true);
+        qt_mac_command_set_enabled(action->menu, action->command, true);
+        SetMenuCommandProperty(0, action->command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     }
-    SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     syncAction(action);
 }
 
@@ -452,8 +443,10 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     }
     {
         QString cmd_text = qt_mac_menu_merge_text(action->command);
-        if(!cmd_text.isNull())
+        if(!cmd_text.isNull()) {
             text = cmd_text;
+            accel = qt_mac_menu_merge_accel(action->command);
+        }
     }
     if(accel.count() > 1)
         text += " (****)"; //just to denote a multi stroke shortcut
@@ -461,7 +454,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     MenuItemDataRec data;
     memset(&data, '\0', sizeof(data));
 
-    //string
+    //text
     data.whichData |= kMenuItemDataCFString;
     data.cfText = QCFString::toCFStringRef(qt_mac_no_ampersands(text));
 
@@ -569,7 +562,6 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         
     //actually set it
     SetMenuItemData(action->menu, action->command, true, &data);
-
 }
 
 void
