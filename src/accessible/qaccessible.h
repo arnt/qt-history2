@@ -194,7 +194,7 @@ public:
 	DefaultAction
     };
 
-    enum DefaultAction {
+    enum DefaultActions {
 	Default		= -101,
 	Press		= -102,
 	Increment	= -103,
