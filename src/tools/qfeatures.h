@@ -128,6 +128,9 @@
 // Range-control widgets
 //#define QT_NO_RANGECONTROL
 
+// Regular expression capture
+//#define QT_NO_REGEXP
+
 // QSignalMapper
 //#define QT_NO_SIGNALMAPPER
 
@@ -289,9 +292,44 @@
 #define QT_NO_QWS_WINDOWS_WM_STYLE
 #endif
 
-// Regular expression capture
-#if !defined(QT_NO_REGEXP) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_REGEXP
+// Regular expression anchors
+#if !defined(QT_NO_REGEXP_ANCHOR_ALT) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_ANCHOR_ALT
+#endif
+
+// Regular expression back-reference
+#if !defined(QT_NO_REGEXP_BACKREF) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_BACKREF
+#endif
+
+// Regular expression character-class
+#if !defined(QT_NO_REGEXP_CCLASS) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_CCLASS
+#endif
+
+// Regular expression escape
+#if !defined(QT_NO_REGEXP_ESCAPE) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_ESCAPE
+#endif
+
+// Regular expression interval
+#if !defined(QT_NO_REGEXP_INTERVAL) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_INTERVAL
+#endif
+
+// Regular expression lookahead
+#if !defined(QT_NO_REGEXP_LOOKAHEAD) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_LOOKAHEAD
+#endif
+
+// Regular expression optimization
+#if !defined(QT_NO_REGEXP_OPTIM) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_OPTIM
+#endif
+
+// Regular expression wildcard
+#if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_WILDCARD
 #endif
 
 // Semi-modal dialogs
@@ -354,49 +392,9 @@
 #define QT_NO_PICTURE
 #endif
 
-// Regular expression anchors
-#if !defined(QT_NO_REGEXP_ANCHOR_ALT) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_ANCHOR_ALT
-#endif
-
-// Regular expression back-reference
-#if !defined(QT_NO_REGEXP_BACKREF) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_BACKREF
-#endif
-
 // Regular expression capture
-#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP))
+#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP) || defined(QT_NO_STRINGLIST))
 #define QT_NO_REGEXP_CAPTURE
-#endif
-
-// Regular expression character-class
-#if !defined(QT_NO_REGEXP_CCLASS) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_CCLASS
-#endif
-
-// Regular expression escape
-#if !defined(QT_NO_REGEXP_ESCAPE) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_ESCAPE
-#endif
-
-// Regular expression interval
-#if !defined(QT_NO_REGEXP_INTERVAL) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_INTERVAL
-#endif
-
-// Regular expression lookahead
-#if !defined(QT_NO_REGEXP_LOOKAHEAD) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_LOOKAHEAD
-#endif
-
-// Regular expression optimization
-#if !defined(QT_NO_REGEXP_OPTIM) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_OPTIM
-#endif
-
-// Regular expression wildcard
-#if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_REGEXP))
-#define QT_NO_REGEXP_WILDCARD
 #endif
 
 // Template classes in QVariant

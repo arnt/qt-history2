@@ -54,13 +54,13 @@ SeeAlso: ???
 
 Feature: REGEXP
 Section: Data structures
-Requires: STRINGLIST
+Requires:
 Name: Regular expression capture
 SeeAlso: ???
 
 Feature: REGEXP_CAPTURE
 Section: Data structures
-Requires: REGEXP
+Requires: REGEXP STRINGLIST
 Name: Regular expression capture
 SeeAlso: ???
 
