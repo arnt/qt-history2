@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#8 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -85,7 +85,7 @@ void FileMainWindow::setup()
     root->setOpen( TRUE );
     splitter->setResizeMode( dirlist, QSplitter::KeepSize );
 
-    fileview = new QtFileIconView( "/", splitter );
+    fileview = new QtFileIconView( "/", FALSE, splitter );
     fileview->setSelectionMode( QIconView::StrictMulti );
     fileview->setViewMode( QIconSet::Large );
 
@@ -106,11 +106,11 @@ void FileMainWindow::setup()
     QPixmap pix;
 
     pix = QPixmap( cdtoparent_xpm );
-	(void)new QToolButton( pix, "One directory up", QString::null,
+    (void)new QToolButton( pix, "One directory up", QString::null,
                            this, SLOT( cdUp() ), toolbar, "cd up" );
 
     pix = QPixmap( newfolder_xpm );
-	(void)new QToolButton( pix, "New Folder", QString::null,
+    (void)new QToolButton( pix, "New Folder", QString::null,
                            this, SLOT( newFolder() ), toolbar, "new folder" );
 
     connect( dirlist, SIGNAL( folderSelected( const QString & ) ),
