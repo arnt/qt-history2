@@ -1311,6 +1311,61 @@ QString QFont::key() const
 }
 
 
+/*!
+  Returns a description of this font.  The description is a comma-separated
+  list of the various attributes, perfectly suited for use in QSettings.
+
+  \sa fromString()
+ */
+QString QFont::toString() const
+{
+    QStringList l;
+    l.append(family());
+    l.append(QString::number(pointSize()));
+    l.append(QString::number(styleHint()));
+    l.append(QString::number(weight()));
+    l.append(QString::number(italic()));
+    l.append(QString::number(underline()));
+    l.append(QString::number(strikeOut()));
+    l.append(QString::number(fixedPitch()));
+    l.append(QString::number(rawMode()));
+    return l.join(",");
+}
+
+
+/*!
+  Sets this font to match the description \a descrip.  The description
+  is a comma-separated list of the attributes, as returned by toString().
+
+  \sa toString()
+ */
+bool QFont::fromString(const QString &descrip)
+{
+    QStringList l(QStringList::split(',', descrip));
+
+    if (l.count() != 9) {
+
+#ifdef QT_CHECK_STATE
+	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
+#endif
+
+	return FALSE;
+    }
+
+    setFamily(l[0]);
+    setPointSize(l[1].toInt());
+    setStyleHint((StyleHint) l[2].toInt());
+    setWeight(l[3].toInt());
+    setItalic(l[4].toInt());
+    setUnderline(l[5].toInt());
+    setStrikeOut(l[6].toInt());
+    setFixedPitch(l[7].toInt());
+    setRawMode(l[8].toInt());
+
+    return TRUE;
+}
+
+
 /*! \internal
   Internal function that dumps font cache statistics.
 */

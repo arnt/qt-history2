@@ -148,6 +148,9 @@ public:
 
     QString key() const;
 
+    QString toString() const;
+    bool fromString(const QString &);
+
     // we will need some central way to convert a charset to an encoding name, but
     // probably not in QFont
     // static QString encodingName( CharSet );
@@ -164,15 +167,15 @@ public:
     static void initialize();
     static void cleanup();
     static void cacheStatistics();
-    
-    
+
+
 #if defined(Q_WS_QWS)
     void qwsRenderToDisk(bool all=TRUE);
 #endif
 
 
 #ifndef QT_NO_COMPAT
-    
+
     enum CharSet {
 	ISO_8859_1,  Latin1 = ISO_8859_1, AnyCharSet,
 	ISO_8859_2,  Latin2 = ISO_8859_2,
@@ -217,7 +220,7 @@ public:
     };
 
     QFont(const QString &, int, int, bool, CharSet);
-    
+
     CharSet charSet() const;
     void setCharSet(CharSet);
     static CharSet charSetForLocale();
@@ -229,13 +232,13 @@ public:
 protected:
     // why protected?
     bool dirty() const;
-    
+
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
     int deciPointSize() const;
-    
-    
+
+
 private:
     QFont( QFontPrivate *, bool deep = TRUE );
 

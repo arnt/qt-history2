@@ -27,11 +27,9 @@
 #define QSETTINGS_H
 
 #ifndef QT_H
-#include <qstring.h>
-#include <qvariant.h>
-#include <qiodevice.h>
+#include <qdatetime.h>
+#include <qstringlist.h>
 #endif // QT_H
-
 
 class QSettingsPrivate;
 
@@ -39,31 +37,30 @@ class QSettingsPrivate;
 class QSettings
 {
 public:
-    enum System { Unix, Windows };
-
-    QSettings(bool = FALSE, QSettings * = 0);
+    QSettings();
     ~QSettings();
 
-    void setWritable(bool);
-    bool writable() const;
+    bool sync();
 
-    bool write();
+    bool writeEntry(const QString &, bool);
+    bool writeEntry(const QString &, double);
+    bool writeEntry(const QString &, int);
+    bool writeEntry(const QString &, const char *);
+    bool writeEntry(const QString &, const QString &);
+    bool writeEntry(const QString &, const QStringList &, const QChar &);
 
-    void setFallback(QSettings *);
-    const QSettings *fallback() const;
-
-    void setPath(System, const QString &);
-    const QString &path(System) const;
-
-    bool writeEntry(const QString &, const QVariant &);
-    QVariant readEntry(const QString &);
+    QStringList readListEntry(const QString &, const QChar &);
+    QString readEntry(const QString &);
+    int readNumEntry(const QString &);
+    double readDoubleEntry(const QString &);
+    bool readBoolEntry(const QString &);
 
     bool removeEntry(const QString &);
 
-    // void setRawContent(QIODevice *);
+    QDateTime lastModficationTime(const QString &);
 
-
-protected:
+    static void insertSearchPath(const QString &);
+    static void removeSearchPath(const QString &);
 
 
 private:
