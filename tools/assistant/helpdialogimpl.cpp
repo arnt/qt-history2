@@ -791,6 +791,8 @@ void HelpDialog::currentContentsChanged( QListViewItem * )
 void HelpDialog::showContentsTopic()
 {
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listContents->currentItem();
+    if ( !i )
+	return;
     emit showLink( i->link() );
 }
 
