@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#22 $
 **
 ** Definition of QIconView widget class
 **
@@ -1986,40 +1986,94 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	repaintItem( d->currentItem );
     } break;
     case Key_Right:
-    {
-	if ( !d->currentItem->next )
-	    return;
+    {	
+	QIconViewItem *item;
+	if ( d->alignMode == East ) {
+	    if ( !d->currentItem->next )
+		return;
 
-	QIconViewItem *item = d->currentItem;
-	setCurrentItem( d->currentItem->next );
+	    item = d->currentItem;
+	    setCurrentItem( d->currentItem->next );
 
-	if ( d->selectionMode == Single ) {
-	    item->setSelected( FALSE );
-	    d->currentItem->setSelected( TRUE, TRUE );
+	    if ( d->selectionMode == Single ) {
+		item->setSelected( FALSE );
+		d->currentItem->setSelected( TRUE, TRUE );
+	    } else {
+		if ( e->state() & ShiftButton )
+		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    }
 	} else {
-	    if ( e->state() & ShiftButton )
-		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    item = d->firstItem;
+	    QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
+	    for ( ; item; item = item->next ) {
+		if ( item->x() > d->currentItem->x() && r.intersects( item->rect() ) ) {
+		    QRect ir = r.intersect( item->rect() );
+		    if ( item->next && r.intersects( item->next->rect() ) ) {
+			QRect irn = r.intersect( item->next->rect() );
+			if ( irn.height() > ir.height() )
+			    item = item->next;
+		    }
+		    QIconViewItem *i = d->currentItem;
+		    d->currentItem = item;
+		    item = i;
+		    if ( d->selectionMode == Single ) {
+			i->setSelected( FALSE );
+			d->currentItem->setSelected( TRUE, TRUE );
+		    } else {
+			if ( e->state() & ShiftButton )
+			d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+		    }
+		    break;
+		}
+	    }
 	}
-
+	
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
     case Key_Left:
     {
-	if ( !d->currentItem->prev )
-	    return;
+	QIconViewItem *item;
+	if ( d->alignMode == East ) {
+	    if ( !d->currentItem->prev )
+		return;
 
-	QIconViewItem *item = d->currentItem;
-	setCurrentItem( d->currentItem->prev );
+	    item = d->currentItem;
+	    setCurrentItem( d->currentItem->prev );
 
-	if ( d->selectionMode == Single ) {
-	    item->setSelected( FALSE );
-	    d->currentItem->setSelected( TRUE, TRUE );
+	    if ( d->selectionMode == Single ) {
+		item->setSelected( FALSE );
+		d->currentItem->setSelected( TRUE, TRUE );
+	    } else {
+		if ( e->state() & ShiftButton )
+		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    }
 	} else {
-	    if ( e->state() & ShiftButton )
-		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    item = d->lastItem;
+	    QRect r( 0, d->currentItem->y(), contentsWidth(), d->currentItem->height() );
+	    for ( ; item; item = item->prev ) {
+		if ( item->x() < d->currentItem->x() && r.intersects( item->rect() ) ) {
+		    QRect ir = r.intersect( item->rect() );
+		    if ( item->prev && r.intersects( item->prev->rect() ) ) {
+			QRect irn = r.intersect( item->prev->rect() );
+			if ( irn.height() > ir.height() )
+			    item = item->prev;
+		    }
+		    QIconViewItem *i = d->currentItem;
+		    d->currentItem = item;
+		    item = i;
+		    if ( d->selectionMode == Single ) {
+			i->setSelected( FALSE );
+			d->currentItem->setSelected( TRUE, TRUE );
+		    } else {
+			if ( e->state() & ShiftButton )
+			    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+		    }
+		    break;
+		}
+	    }
 	}
-
+	
 	repaintItem( item );
 	repaintItem( d->currentItem );
     } break;
@@ -2035,44 +2089,22 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Down:
     {
-	QIconViewItem *item = d->firstItem;
-	QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
-	for ( ; item; item = item->next ) {
-	    if ( item->y() > d->currentItem->y() && r.intersects( item->rect() ) ) {
-		QRect ir = r.intersect( item->rect() );
-		if ( item->next && r.intersects( item->next->rect() ) ) {
-		    QRect irn = r.intersect( item->next->rect() );
-		    if ( irn.width() > ir.width() )
-			item = item->next;
-		}
-		QIconViewItem *i = d->currentItem;
-		d->currentItem = item;
-		if ( d->selectionMode == Single ) {
-		    i->setSelected( FALSE );
-		    d->currentItem->setSelected( TRUE, TRUE );
-		} else {
-		    if ( e->state() & ShiftButton )
-			d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
-		}
-		repaintItem( i );
-		repaintItem( d->currentItem );
-		break;
-	    }
-	}
-	if ( !item ) {
-	    item = d->firstItem;
+	QIconViewItem *item;
+	
+	if ( d->alignMode == East ) {
+	    QIconViewItem *item = d->firstItem;
 	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
 	    for ( ; item; item = item->next ) {
-		if ( r.intersects( item->rect() ) ) {
+		if ( item->y() > d->currentItem->y() && r.intersects( item->rect() ) ) {
 		    QRect ir = r.intersect( item->rect() );
 		    if ( item->next && r.intersects( item->next->rect() ) ) {
 			QRect irn = r.intersect( item->next->rect() );
 			if ( irn.width() > ir.width() )
 			    item = item->next;
 		    }
-		    item = item->next;
 		    QIconViewItem *i = d->currentItem;
 		    d->currentItem = item;
+		    item = i;
 		    if ( d->selectionMode == Single ) {
 			i->setSelected( FALSE );
 			d->currentItem->setSelected( TRUE, TRUE );
@@ -2080,40 +2112,73 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 			if ( e->state() & ShiftButton )
 			    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 		    }
-		    repaintItem( i );
-		    repaintItem( d->currentItem );
 		    break;
 		}
 	    }
-	}
+	} else {
+	    if ( !d->currentItem->next )
+		return;
 
+	    item = d->currentItem;
+	    setCurrentItem( d->currentItem->next );
+
+	    if ( d->selectionMode == Single ) {
+		item->setSelected( FALSE );
+		d->currentItem->setSelected( TRUE, TRUE );
+	    } else {
+		if ( e->state() & ShiftButton )
+		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    }
+	}
+	repaintItem( item );
+	repaintItem( d->currentItem );
     } break;
     case Key_Up:
     {
-	QIconViewItem *item = d->lastItem;
-	QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
-	for ( ; item; item = item->prev ) {
-	    if ( item->y() < d->currentItem->y() && r.intersects( item->rect() ) ) {
-		QRect ir = r.intersect( item->rect() );
-		if ( item->prev && r.intersects( item->prev->rect() ) ) {
-		    QRect irn = r.intersect( item->prev->rect() );
-		    if ( irn.width() > ir.width() )
-			item = item->prev;
+	QIconViewItem *item;
+	
+	if ( d->alignMode == East ) {
+	    item = d->lastItem;
+	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
+	    for ( ; item; item = item->prev ) {
+		if ( item->y() < d->currentItem->y() && r.intersects( item->rect() ) ) {
+		    QRect ir = r.intersect( item->rect() );
+		    if ( item->prev && r.intersects( item->prev->rect() ) ) {
+			QRect irn = r.intersect( item->prev->rect() );
+			if ( irn.width() > ir.width() )
+			    item = item->prev;
+		    }
+		    QIconViewItem *i = d->currentItem;
+		    d->currentItem = item;
+		    item = i;
+		    if ( d->selectionMode == Single ) {
+			i->setSelected( FALSE );
+			d->currentItem->setSelected( TRUE, TRUE );
+		    } else {
+			if ( e->state() & ShiftButton )
+			    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+		    }
+		    break;
 		}
-		QIconViewItem *i = d->currentItem;
-		d->currentItem = item;
-		if ( d->selectionMode == Single ) {
-		    i->setSelected( FALSE );
-		    d->currentItem->setSelected( TRUE, TRUE );
-		} else {
-		    if ( e->state() & ShiftButton )
-			d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
-		}
-		repaintItem( i );
-		repaintItem( d->currentItem );
-		break;
+	    }
+	} else {
+	    if ( !d->currentItem->prev )
+		return;
+
+	    item = d->currentItem;
+	    setCurrentItem( d->currentItem->prev );
+
+	    if ( d->selectionMode == Single ) {
+		item->setSelected( FALSE );
+		d->currentItem->setSelected( TRUE, TRUE );
+	    } else {
+		if ( e->state() & ShiftButton )
+		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
 	    }
 	}
+	
+	repaintItem( item );
+	repaintItem( d->currentItem );
     } break;
     }
 
@@ -2241,7 +2306,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
     int ypos = 0;
 
     if ( d->alignMode == East ) {
-	int px = d->spacing;
+	int px = 0;
 	int py = d->spacing;
 	int pw = d->rastX == -1 ? 1 : d->rastX / 2;
 	int ph = d->rastY == -1 ? 1 : d->rastY / 2;
@@ -2302,7 +2367,7 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	d->mostOuter = QMAX( d->mostOuter, xpos + item->width() );
     } else {
 	int px = d->spacing;
-	int py = d->spacing;
+	int py = 0;
 	int pw = d->rastX == -1 ? 1 : d->rastX / 2;
 	int ph = d->rastY == -1 ? 1 : d->rastY / 2;
 	bool isFirst = item == d->firstItem;
