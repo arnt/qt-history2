@@ -959,7 +959,10 @@ QSize QComboBox::sizeHint() const
     int sw, sh;
     if ( d->usingListBox() ) {
 	sw = 4 + 4 + maxW;
-	sh = 2 + 2 + maxH;
+	if ( style() == WindowsStyle )
+	    sh = 3 + 3 + maxH;
+	else 
+	    sh = 5 + 5 + maxH;
 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
 	sw += sw - cr.width();
     } else {
