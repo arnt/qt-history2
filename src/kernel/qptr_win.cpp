@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#53 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,7 +30,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#53 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -891,7 +891,6 @@ void QPainter::setBrushOrigin( int x, int y )
 
 void QPainter::nativeXForm( bool enable )
 {
-    XFORM m;
     if ( enable ) {
 	XFORM m;
 	QWMatrix mtx;
@@ -912,14 +911,8 @@ void QPainter::nativeXForm( bool enable )
 	SetGraphicsMode( hdc, GM_ADVANCED );
 	SetWorldTransform( hdc, &m );
     } else {
-	m.eM11 = (FLOAT)1.0;
-	m.eM12 = (FLOAT)0.0;
-	m.eM21 = (FLOAT)0.0;
-	m.eM22 = (FLOAT)1.0;
-	m.eDx  = (FLOAT)0.0;
-	m.eDy  = (FLOAT)0.0;
-	SetWorldTransform( hdc, &m );
-	SetGraphicsMode( hdc, GM_COMPATIBLE );
+	SetGraphicsMode( hdc, GM_ADVANCED );
+	ModifyWorldTransform( hdc, 0, MWT_IDENTITY );
     }
 }
 
@@ -1902,7 +1895,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 {
     if ( !isActive() )
 	return;
-    bool nat_xf = qt_winver == WV_NT && txop == TxRotShear;
+    bool nat_xf = qt_winver == WV_NT && txop >= TxScale;
     if ( len < 0 )
 	len = strlen( str );
     if ( len == 0 )				// empty string

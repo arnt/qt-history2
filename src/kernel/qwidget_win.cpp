@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#45 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,8 +26,9 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#45 $");
 
+extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080
@@ -144,7 +145,7 @@ bool QWidget::create()
 	} else {
 	    setWinId( id );
 	}
-    }  else if ( topLevel ) {			// create top-level widget
+    } else if ( topLevel ) {			// create top-level widget
 	if ( exsty )
 	    id = CreateWindowEx( exsty, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
