@@ -282,9 +282,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
     map.clear();
     Q_UINT32 n;
     in >> n;
-#ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
     map.d->insertInOrder = true;
-#endif
     for (Q_UINT32 i = 0; i < n; ++i) {
         aKey key;
         aT value;
@@ -293,9 +291,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &ma
         if (in.atEnd())
             break;
     }
-#ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
     map.d->insertInOrder = false;
-#endif
     return in;
 }
 
