@@ -1044,6 +1044,50 @@ qgfx_vga16_set_write_planes(int mask)
     qgfx_vga_io_w_fast( 0x3C4, 2, mask );
 }
 
+// Return a value for how close a is to b
+// Lower is better
+static inline int match(QRgb a,QRgb b)
+{
+    int ret;
+
+#if defined(QWS_DEPTH_8)
+    QColor tmp1(a);
+    QColor tmp2(b);
+    int h1,s1,v1;
+    int h2,s2,v2;
+    tmp1.hsv(&h1,&s1,&v1);
+    tmp2.hsv(&h2,&s2,&v2);
+    ret=abs(h1-h2);
+    ret+=abs(s1-s2);
+    ret+=abs(v1-v2);
+#else
+    ret=abs(qGray(a)-qGray(b));
+#endif
+
+    return ret;
+}
+
+template <const int depth, const int type>
+inline unsigned int QGfxRaster<depth,type>::closestMatch(int r,int g,int b)
+{
+    if(r>255 || g>255 || b>255 || r<0 || g<0 || b<0)
+	abort();
+
+    QRgb tomatch=qRgb(r,g,b);
+    int loopc;
+    unsigned int hold=0xfffff;
+    unsigned int tmp;
+    int pos=0;
+    for(loopc=0;loopc<clutcols;loopc++) {
+	tmp=match(clut[loopc],tomatch);
+	if(tmp<hold) {
+	    hold=tmp;
+	    pos=loopc;
+	}
+    }
+    return pos;
+}
+
 template<const int depth,const int type>
 inline void QGfxRaster<depth,type>::useBrush()
 {
@@ -1324,29 +1368,6 @@ void QGfxRaster<depth,type>::setSourcePen()
     srcwidgety=0;
 }
 
-// Return a value for how close a is to b
-// Lower is better
-static int match(QRgb a,QRgb b)
-{
-    int ret;
-
-#if defined(QWS_DEPTH_8)
-    QColor tmp1(a);
-    QColor tmp2(b);
-    int h1,s1,v1;
-    int h2,s2,v2;
-    tmp1.hsv(&h1,&s1,&v1);
-    tmp2.hsv(&h2,&s2,&v2);
-    ret=abs(h1-h2);
-    ret+=abs(s1-s2);
-    ret+=abs(v1-v2);
-#else
-    ret=abs(qGray(a)-qGray(b));
-#endif
-
-    return ret;
-}
-
 // Cols==0, put some default values in. Numcols==0, figure it out from
 // source depth
 
@@ -1410,27 +1431,6 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 #endif
 	}
     }
-}
-
-template <const int depth, const int type>
-unsigned int QGfxRaster<depth,type>::closestMatch(int r,int g,int b)
-{
-    if(r>255 || g>255 || b>255 || r<0 || g<0 || b<0)
-	abort();
-
-    QRgb tomatch=qRgb(r,g,b);
-    int loopc;
-    unsigned int hold=0xfffff;
-    unsigned int tmp;
-    int pos=0;
-    for(loopc=0;loopc<clutcols;loopc++) {
-	tmp=match(clut[loopc],tomatch);
-	if(tmp<hold) {
-	    hold=tmp;
-	    pos=loopc;
-	}
-    }
-    return pos;
 }
 
 //screen coordinates
