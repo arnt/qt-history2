@@ -278,7 +278,6 @@ bool qBinarySearch(const Container &c, const T &value)
     return qBinarySearch(c.begin(), c.end(), value);
 }
 
-// ### 4.0: rename qDeleteAll() qDelete() once we got rid of qDelete() in qglobal.h
 template <class InputIterator>
 void qDeleteAll(InputIterator b, InputIterator e)
 {
@@ -293,7 +292,6 @@ void qDeleteAll(const Container &c)
 {
     qDeleteAll(c.begin(), c.end());
 }
-
 
 template <class Container>
 class QBackInsertIterator
