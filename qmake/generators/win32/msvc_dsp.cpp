@@ -292,14 +292,21 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	    } else if(variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
 		QString mocpath = var("QMAKE_MOC");
 		mocpath = mocpath.replace(QRegExp("\\..*$"), "") + " ";
-		QStringList list = project->variables()["OBJMOC"];
+
+		QStringList &objl = project->variables()["OBJMOC"],
+		    &srcl = project->variables()["SRCMOC"];
+
+		QStringList list;
+		for(int index = 0; index < objl.count() && index < srcl.count(); ++index)
+		{
+		    list << srcl.at(index);
+		}
 
 		if(!list.isEmpty()) {
 		    if(!project->isActiveConfig("flat"))
 			list.sort();
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-
-			t << "# Begin Source File\n\nSOURCE=" << QMakeSourceFileInfo::mocFile(*it) << endl;
+			t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 			t << "# End Source File" << endl;
 		    }
 		}
