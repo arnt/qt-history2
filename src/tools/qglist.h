@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#8 $
+** $Id: //depot/qt/main/src/tools/qglist.h#9 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -78,16 +78,17 @@ protected:
     uint  contains( GCI );			// get number of equal matches
 
     GCI	  at( uint index );			// access item at i'th pos
-    uint  at() const      { return curIndex; }	// get current index
+    uint  at() const	  { return curIndex; }	// get current index
     Qdnode *currentNode() { return curNode;  }  // get current node
 
     GCI	  get() const;				// get current item
 
     GCI	  cfirst() const;			// get ptr to first list item
-    GCI	  first();				// get first item in list
-    GCI	  last();				// get last item in list
-    GCI	  next();				// get next item in list
-    GCI	  prev();				// get previous item in list
+    GCI	  clast()  const;			// get ptr to last list item
+    GCI	  first();				// set first item in list curr
+    GCI	  last();				// set last item in list curr
+    GCI	  next();				// set next item in list curr
+    GCI	  prev();				// set prev item in list curr
 
     void  toVector( QGVector & ) const;		// put items in vector
 
@@ -137,6 +138,11 @@ inline GCI QGList::get() const
 inline GCI QGList::cfirst() const
 {
     return firstNode ? firstNode->data : 0;
+}
+
+inline GCI QGList::clast() const
+{
+    return lastNode ? lastNode->data : 0;
 }
 
 
