@@ -80,6 +80,9 @@ public:
     QFile(const QString &name);
     ~QFile();
 
+    virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
+    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOFile; }
+
     Error error() const;
     void unsetError();
     QString errorString() const;

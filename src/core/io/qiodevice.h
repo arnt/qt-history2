@@ -52,6 +52,9 @@ public:
     QIODevice();
     virtual ~QIODevice();
 
+    enum DeviceType { IOUnknown, IOFile, IOBuffer, IOSocket, IOUser = 30 };
+    virtual DeviceType deviceType() const { return IOUnknown; }
+
     int flags() const;
     inline int mode() const { return flags() & ModeMask; }
 
@@ -120,6 +123,24 @@ protected:
 private:
     Q_DISABLE_COPY(QIODevice)
 };
+
+template <typename T>
+T qt_cast(const QIODevice *device)
+{
+    Q_ASSERT(device->deviceType() != QIODevice::IOUnknown);
+    if(static_cast<T>(0)->castDeviceType() == device->deviceType())
+        return static_cast<T>(device);
+    return 0;
+}
+
+template <typename T>
+T qt_cast(QIODevice *device)
+{
+    Q_ASSERT(device->deviceType() != QIODevice::IOUnknown);
+    if(static_cast<T>(0)->castDeviceType() == device->deviceType())
+        return static_cast<T>(device);
+    return 0;
+}
 
 #ifdef QT_COMPAT
 // QIODevice::AccessType 

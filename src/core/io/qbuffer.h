@@ -27,6 +27,9 @@ public:
     QBuffer(QByteArray *buf);
     ~QBuffer();
 
+    virtual QIODevice::DeviceType deviceType() const { return castDeviceType(); }
+    static QIODevice::DeviceType castDeviceType() { return QIODevice::IOBuffer; }
+
     QByteArray &buffer();
     const QByteArray &buffer() const;
     void setBuffer(QByteArray *a);

@@ -236,6 +236,15 @@ QIODevice::~QIODevice()
     d_ptr = 0;
 }
 
+/*!
+    \fn QIODevice::DeviceType QIODevice::type() const
+
+    Returns the type of this QIODevice. Used mostly for upcast to
+    subclass type (for error handling). 
+
+    \sa qt_cast
+*/
+
 
 /*!
     Returns the current I/O device flags setting.
