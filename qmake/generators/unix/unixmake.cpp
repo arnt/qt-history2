@@ -72,6 +72,10 @@ UnixMakefileGenerator::init()
 
     if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
 	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "so" );
+    if( project->isEmpty("QMAKE_COPY_FILE") )
+	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY) -p" );
+    if( project->isEmpty("QMAKE_COPY_DIR") )
+	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -pR" );
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
 

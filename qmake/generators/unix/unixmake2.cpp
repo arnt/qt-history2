@@ -124,6 +124,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "TAR      = "	<< var("QMAKE_TAR") << endl;
     t << "GZIP     = " << var("QMAKE_GZIP") << endl;
     t << "COPY     = " << var("QMAKE_COPY") << endl;
+    t << "COPY_FILE= " << var("QMAKE_COPY_FILE") << endl;
+    t << "COPY_DIR = " << var("QMAKE_COPY_DIR") << endl;
     t << "DEL      = " << var("QMAKE_DEL") << endl;
     t << "MOVE     = " << var("QMAKE_MOVE") << endl;
     t << endl;
