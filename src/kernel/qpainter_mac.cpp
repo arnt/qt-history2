@@ -762,7 +762,7 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
     RgnHandle polyRegion = qt_mac_get_rgn();
     OpenRgn();
     MoveTo(a[0].x()+d->offx, a[0].y()+d->offy);
-    for(uint x = 1; x < a.size(); x++)
+    for(int x = 1; x < a.size(); x++)
 	LineTo(a[x].x()+d->offx, a[x].y()+d->offy);
     if(close)
 	LineTo(a[0].x()+d->offx, a[0].y()+d->offy);
@@ -1159,7 +1159,7 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 	    aa.resize(a[0].size() + a[1].size() + a[2].size() + a[3].size());
 	    uint j = 0;
 	    for(int k=0; k<4; k++) {
-		for(uint i=0; i<a[k].size(); i++) {
+		for(int i=0; i<a[k].size(); i++) {
 		    aa.setPoint(j, a[k].point(i));
 		    j++;
 		}
@@ -1469,7 +1469,7 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     //make a region of it
     PolyHandle poly = OpenPoly();
     MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-    for(uint x = 1; x < pa.size(); x++)
+    for(int x = 1; x < pa.size(); x++)
 	LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
     ClosePoly();
     //now draw it

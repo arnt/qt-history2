@@ -233,7 +233,7 @@ QRegion::QRegion(const QPointArray &a, bool)
 
 	OpenRgn();
 	MoveTo(a[0].x(), a[0].y());
-	for(unsigned int loopc = 1; loopc < a.size(); loopc++) {
+	for(int loopc = 1; loopc < a.size(); loopc++) {
 	    LineTo(a[loopc].x(), a[loopc].y());
 	    MoveTo(a[loopc].x(), a[loopc].y());
 	}

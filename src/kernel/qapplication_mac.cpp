@@ -32,7 +32,7 @@
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
 #include "qvaluelist.h"
-#include "qptrdict.h"
+#include "qhash.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
@@ -113,7 +113,7 @@ bool qt_scrollbar_jump_to_pos = FALSE;
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
 extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
 static QGuardedPtr<QWidget> qt_mouseover;
-static QPtrDict<void> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
+static QHash<WindowRef, int> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
 static enum { QT_MAC_OFFTHESPOT, QT_MAC_ONTHESPOT } qt_mac_input_spot = QT_MAC_ONTHESPOT;
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -159,26 +159,24 @@ public:
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
 };
-static QIntDict<QTSMDocumentWrapper> *qt_mac_tsm_dict=NULL;
+static QHash<int, QTSMDocumentWrapper> *qt_mac_tsm_dict=NULL;
 void qt_mac_unicode_init(QWidget *w) {
-    if(!qt_mac_tsm_dict) {
-	qt_mac_tsm_dict = new QIntDict<QTSMDocumentWrapper>();
-	qt_mac_tsm_dict->setAutoDelete(TRUE);
-    } else if(qt_mac_tsm_dict->find((long)w->handle())) {
+    if(!qt_mac_tsm_dict) 
+	qt_mac_tsm_dict = new QHash<int, QTSMDocumentWrapper>();
+    else if(qt_mac_tsm_dict->contains((int)w->handle())) 
 	return;
-    }
-    QTSMDocumentWrapper *doc_wrap = new QTSMDocumentWrapper;
-    qt_mac_tsm_dict->insert((long)w->handle(), doc_wrap);
+    qt_mac_tsm_dict->insert((int)w->handle(), QTSMDocumentWrapper());
 }
 void qt_mac_unicode_cleanup(QWidget *w) {
     if(w && qt_mac_tsm_dict && w->isTopLevel())
-	qt_mac_tsm_dict->remove((long)w->handle());
+	qt_mac_tsm_dict->remove((int)w->handle());
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
-    if(!w || !qt_mac_tsm_dict)
+    if(!w || !qt_mac_tsm_dict || 
+       !qt_mac_tsm_dict->contains((int)w->handle()))
 	return 0;
-    return qt_mac_tsm_dict->find((long)w->handle());
+    return &(*qt_mac_tsm_dict)[(int)w->handle()];
 }
 void qt_mac_unicode_reset_input(QWidget *w) {
     if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(w)) {
@@ -232,7 +230,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     WindowPtr wp;
     short ret = FindWindow(p, &wp);
 #if !defined(QMAC_NO_FAKECURSOR) && !defined(MACOSX_102)
-    if(wp && !unhandled_dialogs.find((void *)wp)) {
+    if(wp && !unhandled_dialogs.find(wp)) {
 	QWidget *tmp_w = QWidget::find((WId)wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
 	    tmp_w->hide();
@@ -243,7 +241,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     }
 #endif
     if(w) {
-	if(wp && !unhandled_dialogs.find((void *)wp)) {
+	if(wp && !unhandled_dialogs.find(wp)) {
 	    *w = QWidget::find((WId)wp);
 	    if(!*w)
 		qWarning("Qt: qt_mac_find_window: Couldn't find %d",(int)wp);
@@ -795,6 +793,10 @@ void qt_cleanup()
 	    delete qt_mac_safe_pdev;
 	    qt_mac_safe_pdev = NULL;
 	}
+    }
+    if(qt_mac_tsm_dict) {
+	delete qt_mac_tsm_dict;
+	qt_mac_tsm_dict = NULL;
     }
 }
 
@@ -2180,9 +2182,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	widget = QWidget::find((WId)wid);
 	if(!widget) {
 	    if(ekind == kEventWindowShown)
-		unhandled_dialogs.insert((void *)wid, (void *)1);
+		unhandled_dialogs.insert(wid, 1);
 	    else if(ekind == kEventWindowHidden)
-		unhandled_dialogs.remove((void *)wid);
+		unhandled_dialogs.remove(wid);
 	    handled_event = FALSE;
 	    break;
 	} else if(widget->isDesktop()) {
@@ -2287,7 +2289,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    if(!app->activeWindow()) {
 		WindowPtr wp = ActiveNonFloatingWindow();
-		if(wp && !unhandled_dialogs.find((void *)wp)) {
+		if(wp && !unhandled_dialogs.find(wp)) {
 		    if(QWidget *tmp_w = QWidget::find((WId)wp))
 			app->setActiveWindow(tmp_w);
 		}

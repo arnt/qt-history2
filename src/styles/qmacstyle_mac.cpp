@@ -417,7 +417,7 @@ void QMacStyle::unPolish(QWidget* w)
 
 /*! \reimp */
 void QMacStyle::drawItem(QPainter *p, const QRect &r,
-			 int flags, const QColorGroup &cg, bool enabled,
+			 int flags, const QColorGroup &cg, bool,
 			 const QString& text, int len,
 			 const QColor* penColor) const
 {
