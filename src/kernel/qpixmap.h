@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#12 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#13 $
 **
 ** Definition of QPixMap class
 **
@@ -27,7 +27,7 @@ friend class QPainter;
 public:
     QPixMap( int w, int h, int depth=-1 );
     QPixMap( int w, int h, const char *data, bool isXbitmap );
-    QPixMap( QImageData * );
+    QPixMap( const QImageData * );
    ~QPixMap();
 
     int	   width()  const { return pw; }
@@ -44,8 +44,8 @@ public:
 
     void   fill( const QColor &fillColor=white );
 
-    void   createPixMap( QImageData * );
-    void   getPixMap( QImageData * );
+    bool   getImageData( QImageData * ) const;
+    bool   setImageData( const QImageData * );
     static QPixMap *grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
     static QPixMap *find( const char *key );	// pixmap dict functions
@@ -56,12 +56,17 @@ public:
     QPixMap *xForm( const QWorldMatrix & );	// transform bitmap
     static QWorldMatrix trueMatrix( const QWorldMatrix &, int w, int h );
 
+    bool   cacheImageData( bool onOff );
+    void   setImageDataDirty();
+
 protected:
     long   metric( int ) const;			// get metric information
 
 private:
     QCOOT  pw, ph;				// pixmap width,height
     int	   pd;					// pixmap depth
+    uint   dirty : 1;
+    uint   optim : 1;
 #if defined(_WS_WIN_)
     HANDLE allocMemDC();
     void   freeMemDC();
@@ -69,6 +74,8 @@ private:
 #elif defined(_WS_PM_)
     HANDLE hdcmem;
     HANDLE hbm;
+#elif defined(_WS_X11_)
+    void  *ximage;
 #endif
 };
 

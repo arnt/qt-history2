@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#12 $
 **
 ** Implementation of QImage class
 **
@@ -14,19 +14,14 @@
 #include "qregexp.h"
 #include "qfile.h"
 #include "qdstream.h"
+#include "qlist.h"
 #include "qintdict.h"
 #include <stdlib.h>
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#12 $";
 #endif
-
-
-#undef MIN
-#undef MAX
-#define MIN(x,y)  ((x)<(y) ? (x) : (y))
-#define MAX(x,y)  ((x)>(y) ? (x) : (y))
 
 
 static void read_qt_image( QImageIO * );	// standard image io handlers
@@ -41,6 +36,133 @@ static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
 static void read_xpm_image( QImageIO * );
 static void write_xpm_image( QImageIO * );
+
+
+// --------------------------------------------------------------------------
+// Misc. utility functions
+//
+
+static QString fbname( const char *fileName )	// get file basename (sort of)
+{
+    QString s = fileName;
+    if ( !s.isEmpty() ) {
+	int i;
+	if ( (i=s.findRev('/')) >= 0 )
+	    s = &s[i];
+	if ( (i=s.findRev('\\')) >= 0 )
+	    s = &s[i];
+	QRegExp r( "[a-zA-Z][a-zA-Z0-9_]*" );
+	int p = r.match( s, 0, &i );
+	if ( p >= 0 )
+	    s = &s[p];
+	s.truncate(i);
+    }
+    if ( s.isEmpty() )
+	s = "dummy";
+    return s;
+}
+
+inline int gray_val( int r, int g, int b )	// convert RGB to gray 0..255
+{
+    return (r*11+g*16+b*5)/32;
+}
+
+inline int gray_val( ulong rgb )		// convert RGB to gray 0..255
+{
+    return gray_val( QImageData::red(rgb),
+		     QImageData::green(rgb),
+		     QImageData::blue(rgb) );
+}
+
+
+// --------------------------------------------------------------------------
+// Image handler functions
+//
+
+struct QImageHandler {
+    QString	      format;			// image format
+    QString	      header;			// image header pattern
+    bool	      text_mode;		// image I/O mode
+    image_io_handler  read_image;		// image read function
+    image_io_handler  write_image;		// image write function
+};
+
+typedef declare(QListM,QImageHandler) QIHList;	// list of image handlers
+static QIHList *imageHandlers = 0;
+static bool	is_installing_stdhandlers = FALSE;
+
+static void cleanup_image_handlers()		// cleanup image handler list
+{
+    delete imageHandlers;
+    imageHandlers = 0;
+}
+
+static void init_image_handlers()		// initialize image handlers
+{
+    if ( imageHandlers == 0 && !is_installing_stdhandlers ) {
+	is_installing_stdhandlers = TRUE;	// avoid bad recursion
+	imageHandlers = new QIHList;
+	CHECK_PTR( imageHandlers );
+	imageHandlers->setAutoDelete( TRUE );
+	qAddPostRoutine( cleanup_image_handlers );
+	QImage::defineIOHandler( "QT", "^QIMG", "B",
+				 read_qt_image, write_qt_image );
+//	QImage::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", "B",
+//				 read_gif_image, write_gif_image );
+	QImage::defineIOHandler( "BMP", "^BM", "B",
+				 read_bmp_image, write_bmp_image );
+	QImage::defineIOHandler( "PBM", "^P1", "T",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "PBMRAW", "^P4", "B",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "PGM", "^P2", "T",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "PGMRAW", "^P5", "B",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "PPM", "^P3", "T",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "PPMRAW", "^P6", "B",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "PNM", "^P1", ".",
+				 read_pbm_image, write_pbm_image );
+	QImage::defineIOHandler( "XBM", "^#define", "T",
+				 read_xbm_image, write_xbm_image );
+//	QImage::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
+//				 read_xpm_image, write_xpm_image );
+	is_installing_stdhandlers = FALSE;
+    }
+}
+
+static QImageHandler *get_image_handler( const char *format )
+{						// get pointer to handler
+    if ( imageHandlers == 0 )
+	init_image_handlers();
+    register QImageHandler *p = imageHandlers->first();
+    while ( p ) {				// traverse list
+	if ( p->format == format )
+	    return p;
+	p = imageHandlers->next();
+    }
+    return 0;					// no such handler
+}
+
+void QImage::defineIOHandler( const char *format,
+			      const char *header,
+			      const char *flags,
+			      image_io_handler read_image,
+			      image_io_handler write_image )
+{
+    if ( imageHandlers == 0 && !is_installing_stdhandlers )
+	init_image_handlers();
+    register QImageHandler *p = new QImageHandler;
+    CHECK_PTR( p );
+    p->format = format;
+    p->header = header;
+    p->text_mode = flags && *flags == 'T';
+    p->read_image = read_image;
+    p->write_image = write_image;
+    imageHandlers->insert( p );
+}
 
 
 // --------------------------------------------------------------------------
@@ -71,7 +193,7 @@ char *qt_get_bitflip_array()			// called from QPixMap code
 
 QImageData::QImageData()
 {
-    width = height = depth = ncols = -1;
+    width = height = depth = ncols = 0;
     ctbl  = 0;
     bits  = 0;
     bitOrder = IgnoreEndian;
@@ -83,6 +205,16 @@ QImageData::~QImageData()
 	delete ctbl;
     if ( bits )
 	freeBits();
+}
+
+
+void QImageData::clear()			// dealloc all data
+{
+    freeBits();
+    delete ctbl;
+    ctbl = 0;
+    width = height = depth = ncols = 0;
+    bitOrder = IgnoreEndian;
 }
 
 
@@ -98,15 +230,25 @@ int QImageData::systemByteOrder()		// determine system byte order
 }
 
 
-int QImageData::gray( ulong rgb )
+#if defined(_WS_X11_)
+#define	 GC GC_QQQ
+#include <X11/Xlib.h>				// needed for systemBitOrder
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#endif
+
+int QImageData::systemBitOrder()		// determine hardware bit order
 {
-    return gray( QImageData::red(rgb),
-		 QImageData::green(rgb),
-		 QImageData::blue(rgb) );
+#if defined(_WS_X11_)
+    return BitmapBitOrder(qXDisplay()) == MSBFirst ? BigEndian : LittleEndian;
+#else
+    return BigEndian;
+#endif
 }
 
 
-long QImageData::nBytes() const			// number of bytes image data
+
+long QImageData::numBytes() const		// number of bytes image data
 {
     long n;
     switch ( depth ) {
@@ -126,16 +268,26 @@ long QImageData::nBytes() const			// number of bytes image data
 }
 
 
+//
+// On 32-bit systems, the image data is always allocated as one block
+// (contigous data).
+// On Windows 3.1 (16 bit) the image data is allocated in smaller chunks,
+// (one block per scanline) when the image data occupies more than 64k.
+// The image data structure ('bits' member of QImageData) consists of a
+// table of pointers to each scanline.
+// We also store the image height just before the image data.
+//
+
 void QImageData::allocBits()			// allocate the image bits
 {
-    if ( bits )
+    if ( bits )					// deallocate old data
 	freeBits();
-    if ( width <= 0 || height <= 0 )
+    if ( width <= 0 || height <= 0 )		// invalid width or height
 	return;
-    long nbytes = nBytes();			// bytes total image bits
+    long nbytes = numBytes();			// bytes total image bits
     long bpl    = nbytes/height;		// bytes per line
     long ptrtbl = height*sizeof(uchar*);	// size of pointer table
-    long totsize= nbytes + ptrtbl + sizeof(int);
+    long totsize= nbytes + ptrtbl + sizeof(int);// size of data block
     uchar *p = 0;
 #if defined(_WS_WIN16_)
     if ( totsize < 64000L )			// try to alloc just one block
@@ -144,15 +296,15 @@ void QImageData::allocBits()			// allocate the image bits
 	p = (uchar *)malloc( ptrtbl + sizeof(int) );
 	CHECK_PTR( p );
 	*((int*)p) = height | 0x8000;
-	bits = p + sizeof(int);
+	bits = (uchar **)(p + sizeof(int));
 	for ( int i=0; i<height; i++ ) {
 	    bits[i] = (uchar *)calloc( bpl, 1 );
-	    CHECK_PTR( bits );
+	    CHECK_PTR( bits[i] );
 	}
 	return;
     }
 #else
-    p = (uchar *)calloc( totsize, 1 );
+    p = (uchar *)calloc( totsize, 1 );		// alloc a single block
     CHECK_PTR( p );
 #endif
     *((int *)p) = height;			// encode height as first int
@@ -209,8 +361,7 @@ static bool convert_24_to_8( const QImageData *src, QImageData *dst )
     register uchar *p;
     int	    ncols;
     ulong  *c;
-    uchar  *b;
-    long    n;
+    uchar  *b, *end;
     bool    do_quant = FALSE;
 
     dst->width  = src->width;			// set dst image params
@@ -223,13 +374,13 @@ static bool convert_24_to_8( const QImageData *src, QImageData *dst )
     QIntDictM(char) cdict( 2111 );		// dict of 24-bit RGB colors
     p = src->bits[0]-1;
     b = dst->bits[0];
-    n = dst->nBytes();
-    char *pixel=0, *pix;
-    while ( n-- ) {				// check if <= 256 colors
+    end = p + src->numBytes();
+    char *pixel=0, *pix;			// hack: use ptr as int value
+    while ( p < end ) {				// check if <= 256 colors
 	ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
-	if ( !(pix=cdict.find(rgb)) ) {
-	    cdict.insert( rgb, (pix=++pixel) );
-	    if ( cdict.count() > 256 ) {
+	if ( !(pix=cdict.find(rgb)) ) {		// new RGB color?
+	    cdict.insert( rgb, (pix=++pixel) );	// yes -> keep it
+	    if ( cdict.count() > 256 ) {	// oops: too many colors
 		do_quant = TRUE;
 		break;
 	    }
@@ -241,20 +392,20 @@ static bool convert_24_to_8( const QImageData *src, QImageData *dst )
     if ( !c )
 	return FALSE;
     if ( do_quant ) {				// quantization needed
-	for ( int i=0; i<ncols; i++ )		// build 3+3+2 colormap
+	for ( int i=0; i<ncols; i++ )		// build 3+3+2 color table
 	    c[i] = QImageData::setRGB(
 		((i & 0xe0)*255 + 0x70) / 0xe0,
 		(((i << 3) & 0xe0)*255 + 0x70) / 0xe0,
 		(((i << 6) & 0xc0)*255 + 0x60) / 0xc0 );
 	p = src->bits[0]-1;
 	b = dst->bits[0];
-	n = dst->nBytes();
-	while ( n-- )				// perform fast quantization
+	end = p + src->numBytes();
+	while ( p < end )			// perform fast quantization
 	    *b++ = (*++p & 0xe0) | ((*++p >> 3) & 0x1c) | ((*++p >> 6) & 0x03);
     }
-    else {					// #colors <= 256
+    else {					// number of colors <= 256
 	QIntDictIteratorM(char) cdictit( cdict );
-	while ( cdictit.current() ) {
+	while ( cdictit.current() ) {		// build color table
 	    c[(int)(cdictit.current())-1] = cdictit.currentKey();
 	    ++cdictit;
 	}
@@ -347,37 +498,37 @@ static bool convert_1_to_8( const QImageData *src, QImageData *dst )
 
 
 //
-// dither_image:  Floyd-Steinberg error diffusion algorithm.
+// dither_image:  Uses the Floyd-Steinberg error diffusion algorithm.
+// Floyd-Steinberg dithering is a one-pass algorithm that spreads errors
+// to neighbor pixels.
 //
 
 static bool dither_image( const QImageData *src, QImageData *dst )
 {
-    int w = src->width, h=src->height;
+    int w = src->width, h = src->height;
     dst->width  = w;				// set dst image params
     dst->height = h;
     dst->depth  = 1;
     dst->ncols  = 2;
-    delete dst->ctbl;				// no color table needed
+    delete dst->ctbl;				// delete old color table
     dst->ctbl   = new ulong[2];
-    dst->allocBits();				// allocate data
+    dst->allocBits();				// allocate image data
     if ( !(dst->ctbl && dst->bits) )		// could not allocate data
 	return FALSE;
     dst->bitOrder = QImageData::BigEndian;
     dst->ctbl[0] = QImageData::setRGB( 255, 255, 255 );
     dst->ctbl[1] = QImageData::setRGB(   0,   0,   0 );
-    uchar gray[256];
+    uchar gray[256];				// gray map for 8 bit images
     bool  use_gray = src->depth == 8;
-#define GRAY(r,g,b) ((r*11 + g*16 + b*5) / 32)
     if ( use_gray ) {				// make gray map
 	for ( int i=0; i<src->ncols; i++ )
-	    gray[i] = GRAY( QImageData::red(   src->ctbl[i] ),
-			    QImageData::green( src->ctbl[i] ),
-			    QImageData::blue(  src->ctbl[i] ) );
+	    gray[i] = gray_val( src->ctbl[i] );
     }
     int *line1 = new int[w];
     int *line2 = new int[w];
     uchar *bmline = new uchar[w];
-    if ( !(line1 && line2) )
+    int bmwidth = (w+7)/8;
+    if ( !(line1 && line2 && bmline) )
 	return FALSE;
     register uchar *p;
     int *b1, *b2, *end;
@@ -390,12 +541,12 @@ static bool dither_image( const QImageData *src, QImageData *dst )
     }
     else {					// 24 bit image
 	while ( b2 < end )
-	    *b2++ = GRAY(*++p,*++p,*++p);
+	    *b2++ = gray_val(*++p,*++p,*++p);
     }
     for ( int y=0; y<h; y++ ) {			// for each scan line...
 	int *tmp = line1; line1 = line2; line2 = tmp;
 	bool not_last_line = y < h - 1;
-	if ( not_last_line ) {
+	if ( not_last_line ) {			// calc. grayvals for next line
 	    p = src->bits[y+1] - 1;
 	    b2 = line2;
 	    end = b2 + w;
@@ -405,64 +556,36 @@ static bool dither_image( const QImageData *src, QImageData *dst )
 	    }
 	    else {				// 24 bit image
 		while ( b2 < end )
-		    *b2++ = GRAY(*++p,*++p,*++p);
+		    *b2++ = gray_val(*++p,*++p,*++p);
 	    }
 	}
 	int err;
-	if ( (y & 1) == 0 || 1) {		// left to right
-	    p = bmline;
-	    b1 = line1;  b2 = line2;
-	    end = b1 + w;
-	    while ( b1 < end ) {
-		if ( *b1 < 128 ) {		// black pixel
-		    err = *b1++;
-		    *p++ = 1;
-		}
-		else {				// white pixel
-		    err = *b1++ - 255;
-		    *p++ = 0;
-		}
-		if ( b1 != end )
-		    *b1 += (err*7)/16;
-		if ( not_last_line ) {
-		    b2[0] += (err*5)/16;
-		    if ( b1 != end )
-			b2[1] += err/16;
-		    if ( b1 != line1 )
-			b2[-1] += (err*3)/16;
-		}
-		b2++;
+	p = bmline;
+	b1 = line1;  b2 = line2;
+	end = b1 + w;
+	while ( b1 < end ) {
+	    if ( *b1 < 128 ) {			// black pixel
+		err = *b1++;
+		*p++ = 1;
 	    }
-	}
-	else {					// right to left
-	    p = bmline + w - 1;
-	    b1 = line1 + w - 1;  b2 = line2 + w - 1;
-	    end = line1 - 1;
-	    int *first = b1 - 1;
-	    while ( b1 > end ) {
-		if ( *b1 < 128 ) {		// black pixel
-		    err = *b1--;
-		    *p-- = 1;
-		}
-		else {				// white pixel
-		    err = *b1-- - 255;
-		    *p-- = 0;
-		}
-		if ( b1 != end )
-		    *b1 += (err*7)/16;
-		if ( not_last_line ) {
-		    b2[0] = (err*5)/16;
-		    if ( b1 != end )
-			b2[1] += err/16;
-		    if ( b1 != first )
-			b2[-1] += (err*3)/16;
-		}
-		b2++;
+	    else {				// white pixel
+		err = *b1++ - 255;
+		*p++ = 0;
 	    }
+	    if ( b1 != end )
+		*b1 += (err*7)/16;		// spread error to right pixel
+	    if ( not_last_line ) {
+		b2[0] += (err*5)/16;		// pixel below
+		if ( b1 != end )
+		    b2[1] += err/16;		// pixel below right
+		if ( b1 != line1 )
+		    b2[-1] += (err*3)/16;	// pixel below left
+	    }
+	    b2++;
 	}
 	p = bmline;
 	uchar *b = dst->bits[y];
-	memset( b, 0, (w+7)/8 );
+	memset( b, 0, bmwidth );
 	for ( int x=0; x<w; x++ ) {
 	    if ( *p++ )
 		*b |= 1 << (7 - (x & 7));
@@ -470,7 +593,6 @@ static bool dither_image( const QImageData *src, QImageData *dst )
 		b++;
 	}
     }
-#undef GRAY
     delete line1;
     delete line2;
     delete bmline;
@@ -478,17 +600,40 @@ static bool dither_image( const QImageData *src, QImageData *dst )
 }
 
 
+bool QImageData::copyData( QImageData *dst ) const
+{						// copy image data
+    dst->width    = width;
+    dst->height   = height;
+    dst->depth    = depth;
+    dst->ncols    = ncols;
+    dst->bitOrder = bitOrder;
+    if ( dst->ctbl )
+	delete dst->ctbl;
+    dst->ctbl	= new ulong[ncols];
+    if ( !dst->ctbl )
+	return FALSE;
+    memcpy( dst->ctbl, ctbl, ncols*sizeof(ulong) );
+    dst->allocBits();
+    if ( dst->bits != 0 ) {			// alloc ok
+	memcpy( dst->bits[0], bits[0], numBytes() );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+
 bool QImageData::convertDepth( int newDepth, QImageData *dst ) const
 {
     if ( dst == this ) {
 #if defined(CHECK_RANGE)
-	warning( "QImageData::convertDepth: 'this' and 'dst' must be different");
+	warning( "QImageData::convertDepth: Source and destination must be "
+		 "different image data structures" );
 #endif
 	return FALSE;
     }
     if ( depth == newDepth )			// !!! should copy
-	return FALSE;
-    if ( (depth == 8 || depth == 24) && newDepth == 1 ) // dither
+	return copyData( dst );
+    else if ( (depth == 8 || depth == 24) && newDepth == 1 ) // dither
 	return dither_image( this, dst );
     else if ( depth == 24 && newDepth == 8 )	// 24 -> 8
 	return convert_24_to_8( this, dst );
@@ -505,42 +650,43 @@ bool QImageData::convertDepth( int newDepth, QImageData *dst ) const
 void QImageData::convertBitOrder( int bo )
 {
     if ( bo == bitOrder || bo == IgnoreEndian || bitOrder == IgnoreEndian ||
-	 depth != 1 )
+	 depth != 1 )				// cannot convert bit order
 	return;
     setup_bitflip();
     bitOrder = bo;
     register uchar *p;
+    uchar *end;
     if ( contiguousBits() ) {			// contiguous bits
 	p = bits[0];
-	uchar *end = p + nBytes();
+	end = p + numBytes();
 	while ( p < end )
 	    *p++ = bitflip[*p];
     }
     else {
+	int w = (width+7)/8;
 	for ( int i=0; i<height; i++ ) {	// for each scanline
 	    p = bits[i];
-	    int j = (width+7)/8;
-	    while ( j-- )
+	    end = p + w;
+	    while ( p < end )
 		*p++ = bitflip[*p];
 	}
     }
 }
 
 
-void QImageData::togglePix01()			// 1-bit: swap 0 and 1 pixels
+static void swapPixel01( QImageData *d )	// 1-bit: swap 0 and 1 pixels
 {
-    if ( depth == 1 && ncols >= 2 &&
-	 QImageData::gray(ctbl[0]) < QImageData::gray(ctbl[1]) ) {
-	register ulong *p = (ulong *)bits[0];
-	long nbytes = nBytes();
+    if ( d->depth == 1 && d->ncols == 2 ) {
+	register ulong *p = (ulong *)d->bits[0];
+	long nbytes = d->numBytes();
 	for ( int i=0; i<nbytes/4; i++ )
 	    *p++ = ~*p;
 	uchar *p2 = (uchar *)p;
 	for ( i=0; i<(nbytes&3); i++ )
 	    *p2++ = ~*p2;
-	ulong t = ctbl[0];			// swap color 0 and 1
-	ctbl[0] = ctbl[1];
-	ctbl[1] = t;
+	ulong t = d->ctbl[0];			// swap color 0 and 1
+	d->ctbl[0] = d->ctbl[1];
+	d->ctbl[1] = t;
     }
 }
 
@@ -555,96 +701,115 @@ QImageIO::~QImageIO()
 {
 }
 
-
-// --------------------------------------------------------------------------
-// Image handler
-//
-
-struct QImageHandler {
-    char	     *format;			// image format
-    char	     *header;			// image header pattern
-    bool	      text_mode;		// image I/O mode
-    image_io_handler  read_image;		// image read function
-    image_io_handler  write_image;		// image write function
-};
-
-const		     max_image_handlers = 24;
-static QImageHandler image_handlers[max_image_handlers];
-static int	     num_image_handlers = 0;
-static bool	     is_installing_standards = FALSE;
-
-static void install_standard_handlers()		// install standard handlers
+static bool matchBytes( const char *hdr, const char *pattern )
 {
-    if ( num_image_handlers == 0 && !is_installing_standards ) {
-	is_installing_standards = TRUE;		// avoid total recursion
-	QImage::defineIOHandler( "QT", "^QIMG", "B",
-				 read_qt_image, write_qt_image );
-	QImage::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", "B",
-				 read_gif_image, write_gif_image );
-	QImage::defineIOHandler( "BMP", "^BM", "B",
-				 read_bmp_image, write_bmp_image );
-	QImage::defineIOHandler( "PBM", "^P1", "T",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "PBMRAW", "^P4", "B",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "PGM", "^P2", "T",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "PGMRAW", "^P5", "B",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "PPM", "^P3", "T",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "PPMRAW", "^P6", "B",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "PNM", "^P1", ".",
-				 read_pbm_image, write_pbm_image );
-	QImage::defineIOHandler( "XBM", "^#define", "T",
-				 read_xbm_image, write_xbm_image );
-	QImage::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
-				 read_xpm_image, write_xpm_image );
-	is_installing_standards = FALSE;
-    }
+    QRegExp r( pattern );
+    return r.match(hdr) == 0;
 }
 
-static QImageHandler *get_image_handler( const char *format )
-{						// get pointer to handler
-    if ( num_image_handlers == 0 )
-	install_standard_handlers();
-    register QImageHandler *p = &image_handlers[0];
-    for ( int i=0; i<num_image_handlers; i++ ) {
-	if ( strcmp(p->format,format) == 0 )
-	    return p;
-	p++;
-    }
-    return 0;					// no such handler
+
+const char *QImageIO::imageFormat( const char *fileName )
+{						// determine image format
+    QFile file( fileName );
+    if ( !file.open(IO_ReadOnly) )
+	return 0;
+    const char *format = imageFormat( &file );
+    file.close();
+    return format;
 }
 
-void QImage::defineIOHandler( const char *format,
-			      const char *header,
-			      const char *flags,
-			      image_io_handler read_image,
-			      image_io_handler write_image )
+const char *QImageIO::imageFormat( QIODevice *d )
+{						// determine image format
+    const  buflen = 14;
+    char   buf[buflen];
+    if ( imageHandlers == 0 )
+	init_image_handlers();
+    long pos = d->at();				// save position
+    int rdlen = d->readBlock( buf, buflen );	// read a few bytes
+    const char *format = 0;
+    if ( d->status() == IO_Ok && rdlen == buflen ) {
+	QImageHandler *p = imageHandlers->first();
+	while ( p ) {
+	    if ( matchBytes(buf,p->header) ) {	// try match with headers
+		format = p->format;
+		break;
+	    }
+	    p = imageHandlers->next();
+	}
+    }
+    d->at( pos );				// restore position
+    return format;
+}
+
+
+bool QImageIO::read()				// read image data
 {
-    if ( num_image_handlers == 0 )
-	install_standard_handlers();
-    if ( num_image_handlers >= max_image_handlers ) {
-#if defined(CHECK_RANGE)
-	warning( "QImage::defineIOHandler: Too many handlers" );
-#endif
-	return;
+    QFile 	   file;
+    const char 	  *image_format;
+    QImageHandler *h;
+
+    if ( iodev ) {				// read from io device
+	image_format = imageFormat( iodev );
+	h = get_image_handler( image_format );
     }
-    else if ( get_image_handler(format) != 0 ) {
-#if defined(CHECK_RANGE)
-	warning( "QImage::defineIOHandler: Handler for %s already defined",
-		 format );
-#endif
-	return;
+    else if ( !fname.isEmpty() ) {		// read from file
+	int fmode = IO_ReadOnly;
+	file.setFileName( fname );
+	image_format = imageFormat( fname );
+	if ( image_format ) {
+	    h = get_image_handler( image_format );
+	    if ( h->text_mode )
+		fmode |= IO_Translate;
+	    if ( !file.open(fmode) )		// cannot open file
+		return FALSE;
+	    iodev = &file;
+	}
     }
-    register QImageHandler *p = &image_handlers[num_image_handlers++];
-    p->format = (char *)format;
-    p->header = (char *)header;
-    p->text_mode = flags && *flags == 'T';
-    p->read_image = read_image;
-    p->write_image = write_image;
+    else					// no file name or io device
+	return FALSE;
+    if ( !image_format )			// unknown image format
+	return FALSE;
+    if ( !format.isEmpty() && format != image_format )
+	return FALSE;				// format doesn't match
+
+    status = 1;
+    (*h->read_image)( this );
+    if ( file.isOpen() ) {			// image was read using file
+	file.close();
+	iodev = 0;
+    }
+    format = image_format;
+    return status == 0;				// image successfully read?
+}
+
+bool QImageIO::write()
+{
+    const char *image_format = format.isEmpty() ? "QT" : format;
+    QImageHandler *h = get_image_handler( image_format );
+    if ( !h ) {
+#if defined(CHECK_RANGE)
+	warning( "QImageIO::write: No such image format handler: %s",
+		 (char *)format );
+#endif
+	return FALSE;
+    }
+    QFile file;
+    if ( iodev )
+	;
+    else if ( !fname.isEmpty() ) {
+	file.setFileName( fname );
+	int fmode = h->text_mode ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
+	if ( !file.open(fmode) )		// couldn't create file
+	    return FALSE;
+	iodev = &file;
+    }
+    status = 1;
+    (*h->write_image)( this );
+    if ( file.isOpen() ) {			// image was written using file
+	file.close();
+	iodev = 0;
+    }
+    return status == 0;				// image successfully written?
 }
 
 
@@ -654,7 +819,6 @@ void QImage::defineIOHandler( const char *format,
 
 QImage::QImage()
 {
-    install_standard_handlers();
     data = new QImagePix;
     CHECK_PTR( data );
     data->pm = 0;
@@ -662,7 +826,6 @@ QImage::QImage()
 
 QImage::QImage( int w, int h, int depth )
 {
-    install_standard_handlers();
     data = new QImagePix;
     CHECK_PTR( data );
     data->pm = new QPixMap( w, h, depth );
@@ -670,7 +833,6 @@ QImage::QImage( int w, int h, int depth )
 
 QImage::QImage( QPixMap *pixmap )
 {
-    install_standard_handlers();
     data = new QImagePix;
     CHECK_PTR( data );
     data->pm = pixmap;
@@ -678,7 +840,6 @@ QImage::QImage( QPixMap *pixmap )
 
 QImage::QImage( const QPixMap &pixmap )
 {
-    install_standard_handlers();
     data = new QImagePix;
     CHECK_PTR( data );
     int w=pixmap.width(), h=pixmap.height(), d=pixmap.depth();
@@ -689,18 +850,16 @@ QImage::QImage( const QPixMap &pixmap )
 
 QImage::QImage( const QImage &image )
 {
-    install_standard_handlers();
     data = image.data;
     data->ref();
 }
 
-QImage::QImage( QImageData *image )
+QImage::QImage( const QImageData *image )
 {
-    install_standard_handlers();
     data = new QImagePix;
     CHECK_PTR( data );
     data->pm = 0;
-    createImage( image );
+    setImageData( image );
 }
 
 QImage::~QImage()
@@ -750,12 +909,7 @@ QImage QImage::copy() const
 	return nullImage;
     }
     else {					// copy image
-	int w=data->pm->width(), h=data->pm->height();
-	int d=data->pm->depth();
-	QPixMap *pm = new QPixMap( w, h, d );	// create new pixmap
-	CHECK_PTR( pm );
-	bitBlt( pm, 0, 0, data->pm, 0, 0, w, h);// copy to new pixmap
-	QImage image( *pm );
+	QImage image( *data->pm );
 	return image;
     }
 }
@@ -763,17 +917,17 @@ QImage QImage::copy() const
 
 int QImage::width() const
 {
-    return data->pm ? data->pm->width() : -1;
+    return data->pm ? data->pm->width() : 0;
 }
 
 int QImage::height() const
 {
-    return data->pm ? data->pm->height() : -1;
+    return data->pm ? data->pm->height() : 0;
 }
 
 QSize QImage::size() const
 {
-    return data->pm ? data->pm->size() : QSize(-1,-1);
+    return data->pm ? data->pm->size() : QSize(0,0);
 }
 
 QRect QImage::rect() const
@@ -784,23 +938,26 @@ QRect QImage::rect() const
 
 int QImage::depth() const
 {
-    return data->pm ? data->pm->depth() : -1;
+    return data->pm ? data->pm->depth() : 0;
 }
 
 int QImage::numColors() const
 {
-    return data->pm ? (1 << data->pm->depth()) : -1;
+    return data->pm ? (1 << data->pm->depth()) : 0;
 }
 
 
 QImage::operator QPixMap &() const
 {
-    static QPixMap *dummy = 0;
-    if ( !data->pm && !dummy ) {		// !!!NOTE: Use pixmap cache
-	dummy = new QPixMap( 8, 8 );
-	dummy->fill( white );
+    if ( data->pm )
+	return *data->pm;
+    QPixMap *dummy = QPixMap::find( "$qt$DUMMY" );
+    if ( !dummy ) {				// create dummy pixmap
+	dummy = new QPixMap( 8, 8, 1 );
+	dummy->fill( color0 );
+	QPixMap::insert( "$qt$DUMMY", dummy );
     }
-    return data->pm ? *data->pm : *dummy;
+    return *dummy;
 }
 
 
@@ -812,6 +969,9 @@ HPS QImage::handle() const { return data->pm ? data->pm->handle() : 0; }
 WId QImage::handle() const { return data->pm ? data->pm->handle() : 0; }
 #endif
 
+
+#undef MIN
+#define MIN(x,y)  ((x)<(y) ? (x) : (y))
 
 void QImage::resize( int w, int h )
 {
@@ -825,7 +985,7 @@ void QImage::resize( int w, int h )
 	data->pm = pm;
     }
     else					// create new pixmap
-	data->pm = new QPixMap( w, h, depth() );
+	data->pm = new QPixMap( w, h, isBitMap() ? 1 : -1 );
 }
 
 void QImage::fill( const QColor &color )
@@ -835,121 +995,67 @@ void QImage::fill( const QColor &color )
 }
 
 
-void QImage::createImage( QImageData *image )	// create image from data
+bool QImage::getImageData( QImageData *image ) const  // image to data
 {
+    if ( data->pm )
+	return data->pm->getImageData( image );
+    else {
+	image->clear();
+	return FALSE;
+    }
+}
+
+bool QImage::setImageData( const QImageData *image )  // data to image
+{
+    delete data->pm;
+    if ( data->count > 1 ) {			// many references
+	if ( data->deref() )			// disconnect
+	    delete data;
+	data = new QImagePix;
+	CHECK_PTR( data );
+    }
+    data->pm = 0;
+    if ( image->bits == 0 )			// null data
+	return FALSE;
+
     QImageData image_bitmap;
     if ( isBitMap() && image->depth > 1 ) {	// convert to bitmap
 	image->convertDepth( 1, &image_bitmap );
 	image = &image_bitmap;
     }
-    if ( data->pm )
-	data->pm->createPixMap( image );
-    else
-	data->pm = new QPixMap( image );
+    data->pm = new QPixMap( image );
+    return !data->pm->isNull();
 }
 
-
-static bool matchBytes( const char *hdr, const char *pattern )
-{
-    QRegExp r( pattern );
-    return r.match(hdr) == 0;
-}
 
 const char *QImage::imageType( const char *fileName )
 {						// determine image format
-    const  buflen = 14;
-    char   buf[buflen];
-    if ( num_image_handlers == 0 )
-	install_standard_handlers();
-    QFile file( fileName );
-    if ( !file.open(IO_ReadOnly) )		// cannot open file?
-	return 0;
-    if ( file.size() < buflen ) {		// short file?
-	file.close();
-	return 0;
-    }
-    int rdlen = file.readBlock( buf, buflen );	// read file header
-    const char *format = 0;
-    if ( file.status() == IO_Ok && rdlen == buflen ) {
-	QImageHandler *p = &image_handlers[0];	// block read successful
-	for ( int i=0; i<num_image_handlers; i++ ) {
-	    if ( matchBytes(buf,p->header) ) {	// try match with headers
-		format = p->format;
-		break;
-	    }
-	    p++;
-	}
-    }
-    file.close();
-    return format;
+    return QImageIO::imageFormat(fileName);
 }
 
 
 bool QImage::load( const char *fileName, const char *format )
-{
-    if ( format == 0 ) {			// auto-detect format
-	format = imageType( fileName );
-	if ( !format )
-	    return FALSE;
-    }
-    else {
-	if ( strcmp(format,imageType(fileName)) != 0 )
-	    return FALSE;			// format does not match
-    }
-    QImageHandler *h = get_image_handler( format );
-    if ( !h ) {
-#if defined(CHECK_RANGE)
-	warning( "QImage::load: No such image format handler: %s", format );
-#endif
-	return FALSE;
-    }
-    QFile file( fileName );
-    int fmode = IO_ReadOnly;
-    if ( h->text_mode )				// image format needs text mode
-	fmode |= IO_Translate;
-    if ( !file.open(fmode) )			// cannot open file
-	return FALSE;
+{						// load image
     QImageIO io;
-    io.status = 1;
-    io.format = format;
-    io.iodev  = &file;
     io.fname  = fileName;
-    (*h->read_image)( &io );
-    file.close();
-    if ( io.status == 0 )			// image successfully read
-	createImage( &io );
-    return io.status == 0;
+    io.format = format;
+    if ( io.read() ) {
+	setImageData( &io );
+	return TRUE;
+    }
+    return FALSE;
 }
 
 
 bool QImage::save( const char *fileName, const char *format ) const
-{
-    if ( format == 0 )				// set default format
-	format = "QT";
-    QImageHandler *h = get_image_handler( format );
-    if ( !h ) {
-#if defined(CHECK_RANGE)
-	warning( "QImage::save: No such image format handler: %s", format );
-#endif
-	return FALSE;
-    }
-    if ( isNull() )				// null image/nothing to save
-	return FALSE;
-    QFile file( fileName );
-    int fmode = IO_WriteOnly;
-    if ( h->text_mode )				// image format needs text mode
-	fmode |= IO_Translate;
-    if ( !file.open(fmode) )
-	return FALSE;				// could not create file
+{						// save image
+    if ( isNull() )
+	return FALSE;				// nothing to save
     QImageIO io;
-    data->pm->getPixMap( &io );
-    io.status = 1;
-    io.format = format;
-    io.iodev  = &file;
     io.fname  = fileName;
-    (*h->write_image)( &io );
-    file.close();
-    return io.status == 0;			// image successfully written?
+    io.format = format;
+    getImageData( &io );
+    return io.write();
 }
 
 
@@ -960,43 +1066,21 @@ bool QImage::save( const char *fileName, const char *format ) const
 QDataStream &operator<<( QDataStream &s, const QImage &image )
 {
     QImageIO io;
-    if ( image.data->pm )
-	image.data->pm->getPixMap( &io );
-    io.iodev = s.device();
-    write_qt_image( &io );
+    if ( image.getImageData(&io) ) {
+	io.iodev = s.device();
+	io.format = "QT";
+	io.write();
+    }
     return s;
 }
 
 QDataStream &operator>>( QDataStream &s, QImage &image )
 {
     QImageIO io;
-    io.iodev = s.device();
-    read_qt_image( &io );
-    return s;
-}
-
-
-// --------------------------------------------------------------------------
-// Misc. utility functions
-//
-
-static QString fbname( const char *fileName )	// get file basename (sort of)
-{
-    QString s = fileName;
-    if ( !s.isEmpty() ) {
-	int i;
-	if ( (i=s.findRev('/')) >= 0 )
-	    s = &s[i];
-	if ( (i=s.findRev('\\')) >= 0 )
-	    s = &s[i];
-	QRegExp r( "[a-zA-Z][a-zA-Z0-9_]*" );
-	int p = r.match( s, 0, &i );
-	if ( p >= 0 )
-	    s = &s[p];
-	s.truncate(i);
-    }
-    if ( s.isEmpty() )
-	s = "dummy";
+    io.iodev  = s.device();
+    io.format = "QT";
+    io.read();
+    image.setImageData( &io );
     return s;
 }
 
@@ -1009,6 +1093,7 @@ static void read_qt_image( QImageIO *image )	// read Qt image data
 {
     QIODevice  *d = image->iodev;
     QDataStream s( d );
+    bool	depth4;
     const	buflen = 24;
     char	buf[buflen];
     int		i;
@@ -1027,6 +1112,8 @@ static void read_qt_image( QImageIO *image )	// read Qt image data
     if ( d->atEnd() )				// end of file
 	return;
 
+    if ( (depth4 = (depth == 4)) )		// 4 bit encoded?
+	depth = 8;
     ulong *c = 0;
     if ( ncols ) {				// read colormap
 	c = new ulong[ncols];
@@ -1046,23 +1133,35 @@ static void read_qt_image( QImageIO *image )	// read Qt image data
     if ( !image->bits )				// could not allocate bits
 	return;
     register uchar *p;
-    int  bpl  = image->nBytes()/image->height;
-    bool flip = image->depth == 24 &&
-	   QImageData::systemByteOrder() == QImageData::LittleEndian;
-    for ( int y=0; y<image->height; y++ ) {
-	if ( d->readBlock((char *)image->bits[y],bpl) != bpl )
-	    break;
-	if ( flip ) {
-	    uchar t;
-	    p = image->bits[y];
-	    for ( i=0; i<image->width; i++ ) {
-		t = p[0];
-		p[0] = p[2];
-		p[2] = t;
-		p += 3;
+    long nbytes = image->numBytes();
+    int  bpl  	= nbytes/image->height;
+    if ( image->contiguousBits() && !depth4 )
+	d->readBlock( (char*)image->bits[0], nbytes );
+    else {					// read each scanline
+	if ( depth4 )
+	    bpl = (bpl+1)/2;
+	uchar *buf = new uchar[bpl];
+	uchar *b, *end;
+	for ( int y=0; y<image->height; y++ ) {
+	    uchar *data = depth4 ? buf : image->bits[y];
+	    if ( d->readBlock((char *)data,bpl) != bpl )
+		break;
+	    if ( depth4 ) {			// convert 4 -> 8 bit depth
+		p = image->bits[y];
+		b = buf;
+		end = b + image->width/2;
+		while ( b < end ) {
+		    *p++ = *b >> 4;
+		    *p++ = *b++ & 0x0f;
+		}
+		if ( image->width & 1 )
+		    *p = *b >> 4;
 	    }
 	}
+	delete buf;
     }
+    if ( image->depth == 1 )
+	image->bitOrder == QImageData::BigEndian;
     image->status = 0;				// image successfully read
 }
 
@@ -1071,42 +1170,56 @@ static void write_qt_image( QImageIO *image )	// write Qt image data
 {
     QIODevice  *d = image->iodev;
     QDataStream s( d );
+    bool	depth4 = image->depth == 8  && image->ncols <= 16;
     int		i;
 
     d->writeBlock( "QIMG", 4 );			// write signature
-    s << (INT16)1 << (INT16)0;
+    s << (INT16)1 << (INT16)0;			// version x.y
     s << (INT32)image->width			// write image info
-      << (INT32)image->height
-      << (INT32)image->depth
-      << (INT32)image->ncols;
+      << (INT32)image->height;
+    s << (INT32)(depth4 ? 4 : image->depth);
+    s << (INT32)image->ncols;
     s << (INT16)0;				// size of extra info
 
     if ( image->ncols ) {			// write colormap
 	for ( i=0; i<image->ncols; i++ )
 	    s << (UINT32)image->ctbl[i];
     }
-    register uchar *p;
-    int    bpl  = image->nBytes()/image->height;
-    uchar *buf = 0;
-    bool flip = image->depth == 24 &&
-	   QImageData::systemByteOrder() == QImageData::LittleEndian;
-    if ( flip )
-	buf = new uchar[bpl];
-    for ( int y=0; y<image->height; y++ ) {
-	uchar *data = image->bits[y];
-	if ( flip ) {
-	    uchar *b = data;
-	    p = buf;
-	    for ( i=0; i<image->width; i++ ) {
-		*b++ = p[2];
-		b++;
-		*b++ = *p;
-		p += 3;
-	    }
-	}
-	d->writeBlock( (char *)data, bpl );
+
+    QImageIO tmp_image;
+    if ( image->depth == 1 && image->bitOrder != QImageData::BigEndian ) {
+	image->copyData( &tmp_image );		// get the right bit order
+	tmp_image.convertBitOrder( QImageData::BigEndian );
+	image = &tmp_image;
     }
-    delete buf;
+    register uchar *p;
+    long nbytes = image->numBytes();
+    int  bpl 	= nbytes/image->height;
+    if ( image->contiguousBits() && !depth4 )
+	d->writeBlock( (char*)image->bits[0], nbytes );
+    else {					// write as many scanlines
+	if ( depth4 )
+	    bpl = (bpl+1)/2;
+	uchar *buf = new uchar[bpl];
+	uchar *b, *end;
+	for ( int y=0; y<image->height; y++ ) {
+	    uchar *data = image->bits[y];
+	    if ( depth4 ) {			// convert 8 -> 4 bit depth
+		p = data;
+		b = buf;
+		end = b + image->width/2;
+		while ( b < end ) {
+		    *b++ = (*p << 4) | (*(p+1) & 0x0f);
+		    p += 2;
+		}
+		if ( image->width & 1 )
+		    *b = *p << 4;
+		data = buf;
+	    }
+	    d->writeBlock( (char *)data, bpl );
+	}
+	delete buf;
+    }
     image->status = 0;				// image successfully written
 }
 
@@ -1121,13 +1234,13 @@ static void write_qt_image( QImageIO *image )	// write Qt image data
 
 static void read_gif_image( QImageIO *image )	// read GIF image data
 {
-    debug( "READING GIF" );
+    warning( "Qt: GIF not supported in this version" );
 }
 
 
 static void write_gif_image( QImageIO *image )	// write GIF image data
 {
-    debug( "WRITING GIF" );
+    warning( "Qt: GIF not supported in this version" );
 }
 
 
@@ -1149,6 +1262,13 @@ QDataStream &operator>>( QDataStream &s, BMP_FILEHDR &bf )
 {						// read file header
     s.readRawBytes( bf.bfType, 2 );
     s >> bf.bfSize >> bf.bfReserved1 >> bf.bfReserved2 >> bf.bfOffBits;
+    return s;
+}
+
+QDataStream &operator<<( QDataStream &s, const BMP_FILEHDR &bf )
+{						// write file header
+    s.writeRawBytes( bf.bfType, 2 );
+    s << bf.bfSize << bf.bfReserved1 << bf.bfReserved2 << bf.bfOffBits;
     return s;
 }
 
@@ -1198,6 +1318,19 @@ QDataStream &operator>>( QDataStream &s, BMP_INFOHDR &bi )
     return s;
 }
 
+QDataStream &operator<<( QDataStream &s, const BMP_INFOHDR &bi )
+{
+    s << bi.biSize;
+    s << bi.biWidth << bi.biHeight;
+    s << bi.biPlanes;
+    s << bi.biBitCount;
+    s << bi.biCompression;
+    s << bi.biSizeImage;
+    s << bi.biXPelsPerMeter << bi.biYPelsPerMeter;
+    s << bi.biClrUsed << bi.biClrImportant;
+    return s;
+}
+
 
 static void read_bmp_image( QImageIO *image )	// read BMP image data
 {
@@ -1232,7 +1365,9 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
 	 bi.biPlanes != 1 || comp > BMP_RLE4 )
 	return;					// weird BMP image
-
+    if ( comp != BMP_RGB && (nbits == 4 && comp != BMP_RLE4) &&
+	 (nbits == 8 && comp != BMP_RLE8) )
+	 return;				// weird compression type
     d->at( startpos + BMP_FILEHDR_SIZE + bi.biSize ); // goto start of colormap
     int    ncols;
     ulong *c;
@@ -1268,7 +1403,7 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
     char padbuf[8];
 
     if ( nbits == 1 ) {				// 1 bit BMP image
-	image->bitOrder = QImageData::LittleEndian;
+	image->bitOrder = QImageData::BigEndian;
 	w = (w+7)/8;
 	padlen = ((w+3)/4)*4 - w;
 	while ( --h >= 0 ) {
@@ -1277,7 +1412,8 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
 	    if ( padlen )
 		d->readBlock( padbuf, padlen );
 	}
-	image->togglePix01();
+	if ( ncols == 2 && gray_val(c[0]) < gray_val(c[1]) )
+	    swapPixel01( image );
     }
 
     else if ( nbits == 4 ) {			// 4 bit BMP image
@@ -1421,7 +1557,92 @@ static void read_bmp_image( QImageIO *image )	// read BMP image data
 
 static void write_bmp_image( QImageIO *image )	// write BMP image data
 {
-    debug( "WRITING BMP" );
+    QIODevice  *d = image->iodev;
+    QDataStream s( d );
+    BMP_FILEHDR	bf;
+    BMP_INFOHDR	bi;
+    long	bpl = image->numBytes()/image->height;
+    bool	depth4 = image->depth == 8 && image->ncols <= 16;
+    long	bpl_bmp;
+
+    if ( depth4 )
+	bpl_bmp = (((bpl+1)/2+3)/4)*4;
+    else
+	bpl_bmp = ((bpl+3)/4)*4;
+
+    image->status = 0;
+    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
+    strncpy( bf.bfType, "BM", 2 );		// build file header
+    bf.bfReserved1 = bf.bfReserved2 = 0;	// reserved, should be zero
+    bf.bfOffBits   = BMP_FILEHDR_SIZE + BMP_WIN + image->ncols*4;
+    bf.bfSize      = bf.bfOffBits + bpl_bmp*image->height;
+    s << bf;					// write file header
+
+    bi.biSize          = BMP_WIN;		// build info header
+    bi.biWidth         = image->width;
+    bi.biHeight        = image->height;
+    bi.biPlanes        = 1;
+    bi.biBitCount      = depth4 ? 4 : image->depth;
+    bi.biCompression   = BMP_RGB;
+    bi.biSizeImage     = bpl_bmp*image->height;
+    bi.biXPelsPerMeter = 2834;			// 72 dpi
+    bi.biYPelsPerMeter = 2834;
+    bi.biClrUsed       = image->ncols;
+    bi.biClrImportant  = image->ncols;
+    s << bi;					// write info header
+
+    if ( image->depth != 24 ) {			// image has color table
+	uchar rgb[4];
+	ulong *c = image->ctbl;
+	rgb[3] = 0;
+	for ( int i=0; i<image->ncols; i++ ) {	// write color table
+	    rgb[0] = QImageData::blue(  c[i] );
+	    rgb[1] = QImageData::green( c[i] );
+	    rgb[2] = QImageData::red(   c[i] );
+	    d->writeBlock( (char *)rgb, 4 );
+	}
+    }
+
+    QImageIO tmp_image;
+    if ( image->depth == 1 && image->bitOrder != QImageData::BigEndian ) {
+	image->copyData( &tmp_image );		// get the right bit order
+	tmp_image.convertBitOrder( QImageData::BigEndian );
+	image = &tmp_image;
+    }
+    bool   flip = image->depth == 24;
+    uchar *buf  = new uchar[bpl_bmp];
+    uchar *b, *end;
+    register uchar *p;
+
+    memset( buf, 0, bpl_bmp );
+    for ( int y=image->height-1; y>=0; y-- ) {	// write the image bits
+	if ( depth4 ) {				// convert 8 -> 4 bits
+	    p = image->bits[y];
+	    b = buf;
+	    end = b + image->width/2;
+	    while ( b < end ) {
+		*b++ = (*p << 4) | (*(p+1) & 0x0f);
+		p += 2;
+	    }
+	    if ( image->width & 1 )
+		*b = *p << 4;
+	}
+	else if ( flip ) {			// RGB -> BGR
+	    b = image->bits[y];
+	    p = buf;
+	    end = p + bpl;
+	    while ( p < end ) {
+		*p++ = b[2];
+		*p++ = b[1];
+		*p++ = b[0];
+		b += 3;
+	    }
+	}
+	else
+	    memcpy( buf, image->bits[y], bpl );
+	d->writeBlock( (char*)buf, bpl_bmp );
+    }
+    delete buf;
 }
 
 
@@ -1480,7 +1701,7 @@ static void read_pbm_image( QImageIO *image )	// read PBM image data
 	case '1':				// ascii PBM
 	case '4':				// raw PBM
 	    nbits = 1;
-	    image->bitOrder = QImageData::LittleEndian;
+	    image->bitOrder = QImageData::BigEndian;
 	    break;
 	case '2':				// ascii PGM
 	case '5':				// raw PGM
@@ -1511,9 +1732,9 @@ static void read_pbm_image( QImageIO *image )	// read PBM image data
 
     if ( raw ) {				// read raw data
 	if ( image->contiguousBits() )		// read everything at once
-	    d->readBlock( (char *)image->bits[0], image->nBytes() );
+	    d->readBlock( (char *)image->bits[0], image->numBytes() );
 	else {
-	    long bpl = image->nBytes()/h;
+	    long bpl = image->numBytes()/h;
 	    for ( int i=0; i<h; i++ ) {		// read each scanline
 		if ( d->readBlock((char *)image->bits[i],bpl) != bpl )
 		    break;
@@ -1522,7 +1743,7 @@ static void read_pbm_image( QImageIO *image )	// read PBM image data
     }
     else {					// read ascii data
 	register uchar *p = image->bits[0];
-	long n = image->nBytes();
+	long n = image->numBytes();
 	if ( nbits == 1 ) {
 	    int b;
 	    while ( n-- ) {
@@ -1565,7 +1786,8 @@ static void read_pbm_image( QImageIO *image )	// read PBM image data
 
 static void write_pbm_image( QImageIO *image )	// write PBM image data
 {
-    debug( "WRITING PBM" );
+    warning( "Qt: %s output not supported in this version",
+	     (char *)image->format );
 }
 
 
@@ -1607,7 +1829,8 @@ static void read_xbm_image( QImageIO *image )	// read X bitmap image data
     }
 
     ulong *c = new ulong[2];			// create colormap table
-    CHECK_PTR( c );
+    if ( !c )
+	return;
     c[0] = QImageData::setRGB(255,255,255);	// white
     c[1] = QImageData::setRGB(0,0,0);		// black
     image->width  = w;				// set image data
@@ -1616,7 +1839,9 @@ static void read_xbm_image( QImageIO *image )	// read X bitmap image data
     image->ncols  = 2;
     image->ctbl   = c;
     image->allocBits();
-    image->bitOrder =  QImageData::BigEndian;
+    image->bitOrder =  QImageData::LittleEndian;
+    if ( !image->bits )
+	return;
 
     int	   x = 0, y = 0;
     uchar *b = image->bits[0];
@@ -1663,21 +1888,22 @@ static void write_xbm_image( QImageIO *image )	// write X bitmap image data
     image->status = 0;
 
     QImageIO tmp_image;
-    if ( image->depth != 1 || image->bitOrder != QImageData::BigEndian ) {
-	image->convertDepth( 1, &tmp_image );	// convert to monochrome
+    if ( image->depth != 1 || image->bitOrder != QImageData::LittleEndian ) {
+	if ( image->depth > 1 )			// convert to monochrome
+	    image->convertDepth( 1, &tmp_image );
+	else
+	    image->copyData( &tmp_image );
 	image = &tmp_image;
-	debug( "CONVERTING TO BITMAP BEFORE SAVING XBM IMAGE" );
+	image->convertBitOrder( QImageData::LittleEndian );
     }
 
-    bool toggle = QImageData::gray(image->ctbl[0]) <
-		  QImageData::gray(image->ctbl[1]);
-
+    bool invert = gray_val(image->ctbl[0]) < gray_val(image->ctbl[1]);
     char hexrep[16];
     for ( i=0; i<10; i++ )
 	hexrep[i] = '0' + i;
     for ( i=10; i<16; i++ )
 	hexrep[i] = 'a' -10 + i;
-    if ( toggle ) {
+    if ( invert ) {
 	char t;
 	for ( i=0; i<8; i++ ) {
 	    t = hexrep[15-i];
@@ -1685,12 +1911,12 @@ static void write_xbm_image( QImageIO *image )	// write X bitmap image data
 	    hexrep[i] = t;
 	}
     }
-
     int bcnt = 0;
     register char *p = buf;
     uchar *b = image->bits[0];
     int  x=0, y=0;
-    long nbytes = image->nBytes();
+    long nbytes = image->numBytes();
+    w = (w+7)/8;
     while ( nbytes-- ) {			// write all bytes
 	*p++ = '0';  *p++ = 'x';
 	*p++ = hexrep[*b >> 4];
@@ -1762,6 +1988,7 @@ static int read_xpm_char( QIODevice *d )
 
 static void read_xpm_image( QImageIO *image )	// read XPM image data
 {
+#if 0
     const       buflen = 200;
     char        buf[buflen];
     char       *p = buf;
@@ -1790,13 +2017,16 @@ static void read_xpm_image( QImageIO *image )	// read XPM image data
     image->ncols = ncols;
     image->width = w;
     image->height = h;
+#endif
 }
 
 
 static void write_xpm_image( QImageIO *image )	// write XPM image data
 {
+#if 0
     QIODevice *d = image->iodev;
     int w = image->width, h = image->height, depth = image->depth, i;
     QString s = fbname(image->fname);		// get file base name
     char buf[100];
+#endif
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#5 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#6 $
 **
 ** Definition of QImage class
 **
@@ -21,6 +21,8 @@ struct QImageData;
 struct QImageIO;
 typedef void (*image_io_handler)( QImageIO * );	// image IO handler
 
+class QIODevice;
+
 
 class QImage					// image class
 {
@@ -30,7 +32,7 @@ public:
     QImage( const QPixMap & );
     QImage( QPixMap * );
     QImage( const QImage & );
-    QImage( QImageData * );
+    QImage( const QImageData * );
     virtual ~QImage();
     QImage     &operator=( const QPixMap & );
     QImage     &operator=( const QImage & );
@@ -51,11 +53,16 @@ public:
 
     uchar      *bits()		const;
 
-    void	createImage( QImageData * );
-
     void	resize( int width, int height );
     void	resize( const QSize & );
     void	fill( const QColor & = white );
+
+    bool	getImageData( QImageData * ) const;
+    bool	setImageData( const QImageData * );
+
+    QPixMap    *pixmap()	     const { return data->pm; }
+		operator QPixMap &() const;
+		operator QPixMap *() const { return data->pm; }
 
     static void	defineIOHandler( const char *format,
 				 const char *header,
@@ -65,10 +72,7 @@ public:
 
     static const char *imageType( const char *fileName );
     bool	load( const char *fileName, const char *format=0 );
-    bool	save( const char *fileName, const char *format=0 ) const;
-
-		operator QPixMap &() const;
-		operator QPixMap *() const { return data->pm; }
+    bool	save( const char *fileName, const char *format ) const;
 
     friend QDataStream &operator<<( QDataStream &, const QImage & );
     friend QDataStream &operator>>( QDataStream &, QImage & );
@@ -109,7 +113,7 @@ QDataStream &operator>>( QDataStream &, QImage & );
 //
 
 struct QImageData {
-    enum	{ BigEndian, LittleEndian, IgnoreEndian };
+    enum	{ IgnoreEndian, BigEndian, LittleEndian };
 
     QImageData();
    ~QImageData();
@@ -121,23 +125,21 @@ struct QImageData {
     uchar     **bits;				// image data
     int		bitOrder;			// bit order (1 bit depth)
 
-    long	nBytes() const;
+    long	numBytes() const;
     void	allocBits();
     void	freeBits();
+    void	clear();
 
-    bool	contiguousBits()  const;	// contiguous
-    bool	convertDepth( int, QImageData *dest ) const;
-    void	convertBitOrder( int );		// convert bit  order (1 bit)
-    void	togglePix01();
-    int		systemBitOrder()  const;	// display HW bit order
+    bool	contiguousBits()			const;
+    bool	copyData( QImageData *dst )		const;
+    bool	convertDepth( int, QImageData *dst )	const;
+    void	convertBitOrder( int );
+    static int	systemBitOrder();		// display HW bit order
     static int	systemByteOrder();		// client computer byte order
 
-    static int red( ulong rgb )	  { return (int)(rgb & 0xff); }
-    static int green( ulong rgb ) { return (int)((rgb >> 8) & 0xff); }
-    static int blue( ulong rgb )  { return (int)((rgb >> 16) & 0xff); }
-    static int gray( int r, int g, int b )
-	{ return (r*11 + g*16 + b*5) / 32; }
-    static int gray( ulong rgb );
+    static int	red( ulong rgb )   { return (int)(rgb & 0xff); }
+    static int	green( ulong rgb ) { return (int)((rgb >> 8) & 0xff); }
+    static int	blue( ulong rgb )  { return (int)((rgb >> 16) & 0xff); }
     static ulong setRGB( int r, int g, int b )
 	{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
 };
@@ -147,12 +149,17 @@ struct QIODevice;
 struct QImageIO : public QImageData {
     QImageIO();
    ~QImageIO();
-    int	       status;				// IO status
-    QString    format;				// image format
-    QIODevice *iodev;				// IO device
-    QString    fname;				// file name
-    QString    params;				// image parameters
-    QString    descr;				// image description
+    int		status;				// IO status
+    QString	format;				// image format
+    QIODevice  *iodev;				// IO device
+    QString	fname;				// file name
+    QString	params;				// image parameters
+    QString	descr;				// image description
+
+    static const char *imageFormat( const char *fileName );
+    static const char *imageFormat( QIODevice * );
+    bool	read();
+    bool	write();
 };
 
 
