@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#524 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#525 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3497,24 +3497,24 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	}
     }
 
-#ifndef EE
+#ifndef Q_EE
     static int c  = 0;
     extern void qt_dialog_default_key();
-#define EE(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
+#define Q_EE(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
     if ( tlw && state == '0' ) {
 	switch ( code ) {
-	case 0x4f: EE(Key_Backtab); break;
-	case 0x52: EE(Key_Tab); break;
-	case 0x54: EE(Key_Escape); break;
+	case 0x4f: Q_EE(Key_Backtab); break;
+	case 0x52: Q_EE(Key_Tab); break;
+	case 0x54: Q_EE(Key_Escape); break;
 	case 0x4c:
 	    if (c == Key_Return )
 		qt_dialog_default_key();
 	    else
-		EE(Key_Backspace);
+		Q_EE(Key_Backspace);
 	    break;
 	}
     }
-#undef EE
+#undef Q_EE
 #endif
 
     if ( qApp->inPopupMode() ) {			// in popup mode
