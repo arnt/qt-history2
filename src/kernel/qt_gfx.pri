@@ -9,8 +9,7 @@ jpeg {
 !jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
 png {
-	PNG_INCLUDEPATH		= 3rdparty/libpng
-	INCLUDEPATH        += $$PNG_INCLUDEPATH
+	INCLUDEPATH  += 3rdparty/libpng
 	SOURCES	+= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
 		  3rdparty/libpng/pngget.c \
@@ -25,14 +24,13 @@ png {
 		  3rdparty/libpng/pngwio.c \
 		  3rdparty/libpng/pngwrite.c \
 		  3rdparty/libpng/pngwtran.c \
-		  3rdparty/libpng/pngwutil.c \
-		  $$KERNEL_CPP/qpngio.cpp
-	HEADERS += $$KERNEL_H/qpngio.h
+		  3rdparty/libpng/pngwutil.c 
 }
 
+!png:LIBS += -lpng
+
 zlib {
-	ZLIB_INCLUDEPATH	= 3rdparty/zlib
-	INCLUDEPATH       += $$ZLIB_INCLUDEPATH
+	INCLUDEPATH       += 3rdparty/zlib
 	SOURCES	+= 3rdparty/zlib/adler32.c \
 		  3rdparty/zlib/compress.c \
 		  3rdparty/zlib/crc32.c \
@@ -48,18 +46,19 @@ zlib {
 		  3rdparty/zlib/uncompr.c \
 		  3rdparty/zlib/zutil.c
 }
+!zlib:LIBS += -lz
 
 mng {
-	unix:LIBS	+= -lmng -ljpeg
-	MNG_INCLUDEPATH		= 3rdparty/libmng
-#	INCLUDEPATH        += $$MNG_INCLUDEPATH
+	REQUIRES = jpeg
+	!jpeg:message(mng support requires jpeg)
+	unix:LIBS	+= -lmng
+	INCLUDEPATH        += 3rdparty/libmng
 	HEADERS += $$KERNEL_H/qmngio.h
 	SOURCES += $$KERNEL_CPP/qmngio.cpp
 
 }
 !mng:DEFINES += QT_NO_IMAGEIO_MNG
 
-gif {
-	# use Qt gif
-	DEFINES += QT_BUILTIN_GIF_READER
-}
+#use Qt gif
+gif:DEFINES += QT_BUILTIN_GIF_READER
+
