@@ -64,7 +64,7 @@ QItemDelegate::~QItemDelegate()
 }
 
 void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
-                          const QModelIndex &item) const
+                          const QModelIndex &index) const
 {
 #if 0
     static unsigned char r = 0;
@@ -78,9 +78,9 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
 #endif
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
-    QVariant variant = model()->data(item, QAbstractItemModel::Decoration);
+    QVariant variant = model()->data(index, QAbstractItemModel::Decoration);
     QPixmap pixmap = decoration(options, variant);
-    QString text = model()->data(item, QAbstractItemModel::Display).toString();
+    QString text = model()->data(index, QAbstractItemModel::Display).toString();
 #if 1
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);

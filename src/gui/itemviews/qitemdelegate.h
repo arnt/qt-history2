@@ -13,18 +13,18 @@ public:
     virtual ~QItemDelegate();
 
     // painting
-    void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const;
+    void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &index) const;
     QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
                    const QModelIndex &index) const;
 
     // editing
-    QAbstractItemDelegate::EditorType editorType(const QModelIndex &item) const;
+    QAbstractItemDelegate::EditorType editorType(const QModelIndex &index) const;
     QWidget *editor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
-                    const QItemOptions &options, const QModelIndex &item);
+                    const QItemOptions &options, const QModelIndex &index);
 
     void setModelData(QWidget *editor, const QModelIndex &index) const;
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    
+
     void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
                               const QModelIndex &index) const;
     void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
