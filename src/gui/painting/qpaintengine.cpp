@@ -575,8 +575,10 @@ QPainter::RenderHints QPaintEngine::renderHints() const
 */
 void QPaintEngine::setRenderHints(QPainter::RenderHints hints)
 {
-    d->renderhints |= hints;
-    setDirty(DirtyHints);
+    if (QPainter::RenderHints(d->renderhints & hints) != hints) {
+        d->renderhints |= hints;
+        setDirty(DirtyHints);
+    }
 }
 
 /*!
@@ -584,8 +586,10 @@ void QPaintEngine::setRenderHints(QPainter::RenderHints hints)
 */
 void QPaintEngine::clearRenderHints(QPainter::RenderHints hints)
 {
-    d->renderhints &= ~hints;
-    setDirty(DirtyHints);
+    if (QPainter::RenderHints(d->renderhints & hints) != 0) {
+        d->renderhints &= ~hints;
+        setDirty(DirtyHints);
+    }
 }
 
 /*!
