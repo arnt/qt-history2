@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#63 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#62 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#63 $";
 #endif
 
 /*!
@@ -145,9 +145,9 @@ QWidget::~QWidget()
 {
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
-    if ( testWFlag(WFont_Metrics) )		// remove references to this
+    if ( testWFlags(WFont_Metrics) )		// remove references to this
 	QFontMetrics::reset( this );
-    if ( testWFlag(WFont_Info)) )		// remove references to this
+    if ( testWFlags(WFont_Info)) )		// remove references to this
 	QFontInfo::reset( this );
     if ( childObjects ) {			// widget has children
 	register QObject *obj = childObjects->first();
