@@ -964,9 +964,9 @@ void QPrinter::writeDevmode( HANDLE hdm )
 
 	/* Use some extra gunpowder to avoid some problems on 98 and ME.
 	   See task: 19052 */
-	DWORD caps = DeviceCapabilities( printer_name.ucs2(), 0, DC_BINS, 0, 0 );
+	DWORD caps = DeviceCapabilities( (TCHAR*)printer_name.ucs2(), 0, DC_BINS, 0, 0 );
 	LPTSTR bins = new TCHAR[caps];
-	if( !DeviceCapabilities( printer_name.ucs2(), 0, DC_BINS, bins, 0 ) ) {
+	if( !DeviceCapabilities( (TCHAR*)printer_name.ucs2(), 0, DC_BINS, bins, 0 ) ) {
 	    WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO )
 	} else {
 	    bool ok = FALSE;
