@@ -1514,7 +1514,7 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
 #if defined(Q_WS_X11)
     const uint screen_dpi = QPaintDevice::x11AppDpiY();
-#else if defined (Q_WS_WIN)
+#elif defined (Q_WS_WIN)
     const uint screen_dpi = GetDeviceCaps(shared_dc,LOGPIXELSY)
 #else
     // embedded uses 72dpi
