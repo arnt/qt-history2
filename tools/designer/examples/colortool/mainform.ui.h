@@ -12,15 +12,17 @@ const int CLIP_AS_NAME = 1;
 const int CLIP_AS_RGB = 2;
 const int COL_NAME = 0;
 const int COL_HEX = 1;
+const int COL_WEB = 3;
 
 void MainForm::init()
 {
     m_filename = "";
-    m_changed = false;
-    m_table_dirty = true;
-    m_icons_dirty = true;
+    m_changed = FALSE;
+    m_table_dirty = TRUE;
+    m_icons_dirty = TRUE;
     m_clip_as = CLIP_AS_HEX;
-    clearData( true );
+    m_show_web = TRUE;
+    clearData( TRUE );
 }
 
 void MainForm::clearData( bool fillWithDefaults )
@@ -70,10 +72,19 @@ void MainForm::populate()
 	    Table->setText( row, COL_NAME, it.key() );
 	    Table->setPixmap( row, COL_NAME, pixmap );
 	    Table->setText( row, COL_HEX, color.name().upper() );
+//	    QCheckTableItem *item = new QCheckTableItem( Table, "Web color" );
+	 //   item->setChecked( FALSE );
+	    Table->setItem( row, COL_WEB, new QCheckTableItem( Table, "Web color" ) );
 	    row++;
 	}
 	Table->adjustColumn( COL_NAME );
 	Table->adjustColumn( COL_HEX );
+	if ( m_show_web ) {
+	    Table->showColumn( COL_WEB );
+	    Table->adjustColumn( COL_WEB );
+	}
+	else
+	    Table->hideColumn( COL_WEB );
 	m_table_dirty = false;
     }
     

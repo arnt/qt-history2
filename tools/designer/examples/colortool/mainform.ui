@@ -45,6 +45,11 @@
                                 <string>Hex</string>
                             </property>
                         </column>
+                        <column>
+                            <property name="text">
+                                <string>Web</string>
+                            </property>
+                        </column>
                         <property name="name">
                             <cstring>Table</cstring>
                         </property>
@@ -52,7 +57,7 @@
                             <number>0</number>
                         </property>
                         <property name="numCols">
-                            <number>2</number>
+                            <number>3</number>
                         </property>
                         <property name="readOnly">
                             <bool>true</bool>
@@ -105,6 +110,8 @@
         <action name="optionsAction"/>
     </item>
     <item text="&amp;View" name="viewMenu">
+        <action name="viewTableAction"/>
+        <action name="viewIconsAction"/>
     </item>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpContentsAction"/>
@@ -413,13 +420,14 @@
     <forward>class QString;</forward>
 </forwards>
 <variables>
-    <variable>QStringList m_comments;</variable>
-    <variable>int m_clip_as;</variable>
-    <variable>bool m_icons_dirty;</variable>
-    <variable>bool m_table_dirty;</variable>
-    <variable>bool m_changed;</variable>
-    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
+    <variable>bool m_show_web;</variable>
     <variable>QString m_filename;</variable>
+    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
+    <variable>bool m_changed;</variable>
+    <variable>bool m_table_dirty;</variable>
+    <variable>bool m_icons_dirty;</variable>
+    <variable>int m_clip_as;</variable>
+    <variable>QStringList m_comments;</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>

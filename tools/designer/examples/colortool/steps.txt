@@ -126,7 +126,7 @@ middle of the widget stack. Change the name property to Table, numRows
 to 0 and readOnly to true. Right click the table, then click Edit to
 invoke the  Edit Table dialog. Change the Label for column 1 to
 'Name'. Click '2' in the Columns list and change the Label for column
-2 to 'Hex'. Click OK.
+2 to 'Hex'. Click OK. Ditto for column 3, 'Web'
 Click the 'page' object in the Object Explorer, then change its name
 property to 'tablePage'.
 
@@ -153,7 +153,8 @@ Variables' (towards the bottom), and click Edit.
 
 Click Add and enter 'QString m_filename;'. In a similar way add:
 'QMap<QString,QColor> m_colors;', 'bool m_changed', 'bool
-m_table_dirty', 'bool m_icons_dirty', 'QStringList m_comments;'
+m_table_dirty', 'bool m_icons_dirty', 'QStringList m_comments;', 'bool
+m_show_web'
 and 'int m_clip_as'. Click Close to finish.
 
 Right click Forward Declarations, then click Edit. Add the following
@@ -192,7 +193,7 @@ that the widget stack's aboutToShow signal connects to.
 We also need to connect up our view menu's action group. Click New and
 change the sender to viewActionGroup. Change the Signal to
 selected(QAction*). Change the receiver to MainForm. Create a new slot
-called changeView(QAction*)...
+called changeView(QAction*)  ###
 
 
 CODE
