@@ -2341,3 +2341,12 @@ QAction *FormWindow::findAction( const QString &name )
     }
     return 0;
 }
+
+void FormWindow::killAccels( QObject *top )
+{
+    QObjectList *l = top->queryList( "QAccel" );
+    if ( !l )
+	return;
+    l->setAutoDelete( TRUE );
+    delete l;
+}

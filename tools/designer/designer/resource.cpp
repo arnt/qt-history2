@@ -257,6 +257,9 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );
 
+    if ( formwindow )
+	formwindow->killAccels( formwindow );
+
     return TRUE;
 }
 
@@ -1233,9 +1236,9 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 		if ( attrib == "text" )
 		    txt = v.toString();
 		else if ( attrib == "pixmap" ) {
-		    hasPixmap = !n.firstChild().toText().data().isEmpty();
+		    hasPixmap = !n.firstChild().firstChild().toText().data().isEmpty();
 		    if ( hasPixmap )
-			pix = loadPixmap( n.firstChild().toElement().toElement() );
+			pix = loadPixmap( n.firstChild().toElement() );
 		} else if ( attrib == "field" )
 		    field = v.toString();
 	    }

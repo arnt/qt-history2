@@ -1128,7 +1128,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 		if ( attrib == "text" )
 		    txt = v.toString();
 		else if ( attrib == "pixmap" ) {
-		    hasPixmap = !n.firstChild().toText().data().isEmpty();
+		    hasPixmap = !n.firstChild().firstChild().toText().data().isEmpty();
 		    if ( hasPixmap )
 			pix = loadPixmap( n.firstChild().toElement().toElement() );
 		} else if ( attrib == "field" )

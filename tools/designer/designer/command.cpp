@@ -595,6 +595,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	( ( PropertyItem* )editor->propertyList()->currentItem() )->setChanged( MetaDataBase::isPropertyChanged( widget, propName ) );
     }
     editor->emitWidgetChanged();
+    formWindow()->killAccels( widget );
 }
 
 // ------------------------------------------------------------

@@ -175,6 +175,8 @@ public:
     void setProject( Project *pro );
     Project *project() const;
 
+    void killAccels( QObject *top );
+
 public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
