@@ -218,7 +218,7 @@ AddressView::AddressView(QWidget *parent)
     model = new AddressBookModel(this);
     treeView->setModel(model);
 
-    connect(treeView, SIGNAL(clicked(QModelIndex, int)), this, SLOT(itemSelected(QModelIndex, int)));
+    connect(treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(itemSelected(QModelIndex)));
 
     mainGrid->addWidget(treeView, 2, 0, 1, 5);
 }
@@ -257,9 +257,9 @@ void AddressView::selectionChanged()
     iEMail->setText("");
 }
 
-void AddressView::itemSelected(const QModelIndex &index, int button)
+void AddressView::itemSelected(const QModelIndex &index)
 {
-    if (!index.isValid() || button != Qt::LeftButton)
+    if (!index.isValid())
 	return;
 
     QAbstractItemModel *model = treeView->model();
