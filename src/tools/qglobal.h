@@ -744,41 +744,6 @@ Q_EXPORT int qWinVersion();
 #endif
 
 
-//
-// Avoid some particularly useless warnings from some stupid compilers.
-// To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
-// the line "#define QT_NO_WARNINGS"
-//
-
-#if !defined(QT_CC_WARNINGS)
-#  define QT_NO_WARNINGS
-#endif
-#if defined(QT_NO_WARNINGS)
-#  if defined(Q_CC_MSVC)
-#    pragma warning(disable: 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
-#    pragma warning(disable: 4275) // non - DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
-#    pragma warning(disable: 4514) // unreferenced inline/local function has been removed
-#    pragma warning(disable: 4800) // 'type' : forcing value to bool 'true' or 'false' (performance warning)
-#    pragma warning(disable: 4097) // typedef-name 'identifier1' used as synonym for class-name 'identifier2'
-#    pragma warning(disable: 4706) // assignment within conditional expression
-#    pragma warning(disable: 4786) // truncating debug info after 255 characters
-#    pragma warning(disable: 4660) // template-class specialization 'identifier' is already instantiated
-#    pragma warning(disable: 4355) // 'this' : used in base member initializer list
-#    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
-#  elif defined(Q_CC_BOR)
-#    pragma option -w-inl
-#    pragma option -w-aus
-#    pragma warn -inl
-#    pragma warn -pia
-#    pragma warn -ccc
-#    pragma warn -rch
-#    pragma warn -sig
-#  elif defined(Q_CC_MWERKS)
-#    pragma warn_possunwant off
-#  endif
-#endif
-
-
 #ifndef Q_INLINE_TEMPLATES
 #  define Q_INLINE_TEMPLATES 
 #endif
@@ -926,3 +891,37 @@ Q_EXPORT const char *qInstallPathData();
 #endif // __cplusplus
 
 #endif // QGLOBAL_H
+
+//
+// Avoid some particularly useless warnings from some stupid compilers.
+// To get ALL C++ compiler warnings, define QT_CC_WARNINGS or comment out
+// the line "#define QT_NO_WARNINGS"
+//
+
+#if !defined(QT_CC_WARNINGS)
+#  define QT_NO_WARNINGS
+#endif
+#if defined(QT_NO_WARNINGS)
+#  if defined(Q_CC_MSVC)
+#    pragma warning(disable: 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
+#    pragma warning(disable: 4275) // non - DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
+#    pragma warning(disable: 4514) // unreferenced inline/local function has been removed
+#    pragma warning(disable: 4800) // 'type' : forcing value to bool 'true' or 'false' (performance warning)
+#    pragma warning(disable: 4097) // typedef-name 'identifier1' used as synonym for class-name 'identifier2'
+#    pragma warning(disable: 4706) // assignment within conditional expression
+#    pragma warning(disable: 4786) // truncating debug info after 255 characters
+#    pragma warning(disable: 4660) // template-class specialization 'identifier' is already instantiated
+#    pragma warning(disable: 4355) // 'this' : used in base member initializer list
+#    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
+#  elif defined(Q_CC_BOR)
+#    pragma option -w-inl
+#    pragma option -w-aus
+#    pragma warn -inl
+#    pragma warn -pia
+#    pragma warn -ccc
+#    pragma warn -rch
+#    pragma warn -sig
+#  elif defined(Q_CC_MWERKS)
+#    pragma warn_possunwant off
+#  endif
+#endif
