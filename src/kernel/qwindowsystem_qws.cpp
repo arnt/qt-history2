@@ -456,8 +456,10 @@ void QWSClient::sendEvent( QWSEvent* event )
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket ) {
-	event->write( csocket );
-	csocket->flush();
+	if (csocket->state() == QSocket::Connection) {
+	    event->write( csocket );
+	    csocket->flush();
+	}
     }
     else
 #endif
@@ -1097,10 +1099,13 @@ void QWSServer::clientClosed()
 
     // Remove any queued commands for this client
     QPtrListIterator<QWSCommandStruct> it(commandQueue);
-    for (QWSCommandStruct* cs = it.current(); (cs=*it); ++it ) {
-	if ( cs->client == cl ) {
+    QWSCommandStruct *cs;
+    while ((cs = *it) != 0) {
+	if (cs->client == cl) {
 	    commandQueue.removeRef(cs);
 	    delete cs;
+	} else {
+	    ++it;
 	}
     }
 
@@ -1145,7 +1150,7 @@ void QWSServer::clientClosed()
     client.remove( cl->socket() );
     if ( cl == d->cursorClient )
 	d->cursorClient = 0;
-    delete cl;
+    cl->deleteLater();
     exposeRegion( exposed );
     syncRegions();
 }
