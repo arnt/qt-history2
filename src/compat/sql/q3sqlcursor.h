@@ -97,7 +97,7 @@ public:
 
 protected:
     void                afterSeek();
-    bool                exec(const QString & sql);
+    virtual bool        exec(const QString & sql);
 
     virtual QCoreVariant calculateField(const QString& name);
     virtual int                update(const QString & filter, bool invalidate = true);

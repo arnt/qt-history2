@@ -51,24 +51,24 @@ public:
     bool isForwardOnly() const;
     QSqlRecord record() const;
 
-    virtual void setForwardOnly(bool forward);
-    virtual bool exec(const QString& query);
-    virtual QCoreVariant value(int i) const;
+    void setForwardOnly(bool forward);
+    bool exec(const QString& query);
+    QCoreVariant value(int i) const;
 
-    virtual bool seek(int i, bool relative = false);
-    virtual bool next();
-    virtual bool previous();
+    bool seek(int i, bool relative = false);
+    bool next();
+    bool previous();
 #ifdef QT_COMPAT
     inline QT_COMPAT bool prev() { return previous(); }
 #endif
-    virtual bool first();
-    virtual bool last();
+    bool first();
+    bool last();
 
-    virtual void clear();
+    void clear();
 
     // prepared query support
-    virtual bool exec();
-    virtual bool prepare(const QString& query);
+    bool exec();
+    bool prepare(const QString& query);
     void bindValue(const QString& placeholder, const QCoreVariant& val,
                    QSql::ParamType type = QSql::In);
     void bindValue(int pos, const QCoreVariant& val, QSql::ParamType type = QSql::In);
@@ -83,7 +83,7 @@ protected:
     virtual void afterSeek();
 
 private:
-    void init(const QString& query, QSqlDatabase db);
+    void init(const QString& query, QSqlDatabase db); // TODO - move me to private
     QSqlQueryPrivate* d;
 };
 
