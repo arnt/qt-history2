@@ -1,6 +1,5 @@
 TARGET		= QtGui
 QPRO_PWD        = $$PWD
-QPRO_SYMBOLS   += ../compat/text #this should go away when Qt doesn't link against compat
 DEFINES += QT_BUILD_GUI_LIB
 
 include(../qbase.pri)
@@ -31,7 +30,5 @@ include(accessible/accessible.pri)
 include(itemviews/itemviews.pri)
 
 embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
-# ##### this should go away eventually
-include(compat.pri)
 
 QMAKE_LIBS += $$QMAKE_LIBS_GUI
