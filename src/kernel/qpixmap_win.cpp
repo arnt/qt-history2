@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#52 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#52 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -400,7 +400,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -506,11 +506,16 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = img.createAlphaMask();
+	m = img.createAlphaMask( adither );
 	setMask( m );
     }
 
     return TRUE;
+}
+
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+{
+    return convertFromImage( img, mode, FALSE );
 }
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )

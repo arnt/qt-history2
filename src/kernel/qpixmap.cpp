@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#72 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#72 $");
 
 
 /*!
@@ -114,6 +114,23 @@ QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
     init( size.width(), size.height(), depth );
+}
+
+/*!
+  Constructs a pixmap from the file \e fileName. If the file does not
+  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+
+  The parameters are passed on to load().
+
+  \sa isNull(), load(), loadFromData(), save(), imageFormat()
+*/
+
+QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode,
+	bool adither )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    init( 0, 0, 0 );
+    load( fileName, format, mode, adither );
 }
 
 /*!
@@ -464,6 +481,9 @@ bool qt_image_did_native_bmp()
   defaultDepth() native depth\endlink) pixmap.	This argument is ignored
   if this pixmap is a QBitmap.
 
+  The \e adither argument sets the
+  \link QImage::createAlphaMask() alpha dithering\endcode.
+
   See the convertFromImage() documentation for a detailed description
   of the \e mode argument, and note the effect of QImage::setDitherMode().
 
@@ -474,7 +494,7 @@ bool qt_image_did_native_bmp()
 */
 
 bool QPixmap::load( const char *fileName, const char *format,
-		    ColorMode mode )
+		    ColorMode mode, bool adither )
 {
     QImageIO io( fileName, format );
 #if defined(_WS_WIN_)
@@ -483,12 +503,21 @@ bool QPixmap::load( const char *fileName, const char *format,
     bool result = io.read();
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image(), mode );
+	result = convertFromImage( io.image(), mode, adither );
     }
 #if defined(_WS_WIN_)
     can_handle_bmp = did_handle_bmp = FALSE;
 #endif
     return result;
+}
+
+/*!
+  \overload
+*/
+bool QPixmap::load( const char *fileName, const char *format,
+		    ColorMode mode )
+{
+    return load( fileName, format, mode, FALSE );
 }
 
 /*!
@@ -507,6 +536,9 @@ bool QPixmap::load( const char *fileName, const char *format,
   See the convertFromImage() documentation for a detailed description
   of the \e mode argument, and note the effect of QImage::setDitherMode().
 
+  The \e adither argument sets the
+  \link QImage::createAlphaMask() alpha dithering\endcode.
+
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
 
@@ -514,7 +546,7 @@ bool QPixmap::load( const char *fileName, const char *format,
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
-			    ColorMode mode )
+			    ColorMode mode, bool adither )
 {
     QByteArray a;
     a.setRawData( (char *)buf, len );
@@ -529,7 +561,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     a.resetRawData( (char *)buf, len );
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image(), mode );
+	result = convertFromImage( io.image(), mode, adither );
     }
 #if defined(_WS_WIN_)
     can_handle_bmp = did_handle_bmp = FALSE;
@@ -537,6 +569,14 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     return result;
 }
 
+/*!
+  \overload
+*/
+bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
+			    ColorMode mode )
+{
+    return loadFromData( buf, len, format, mode, FALSE );
+}
 
 /*!
   Saves the pixmap to the file \e fileName, using the image file format

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#108 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#107 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#108 $");
 
 
 /*****************************************************************************
@@ -745,8 +745,8 @@ QImage QPixmap::convertToImage() const
   If \e image has more colors than the number of available colors, we
   try to pick the most important colors.
 
-  If the image has an alpha buffer, QImage::getDitherMode() determines
-  how this is converted to a mask.
+  If the image has an alpha buffer, and \a adither is TRUE,
+  QImage::alphaDitherMode() determines how this is converted to a mask.
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
@@ -755,7 +755,7 @@ QImage QPixmap::convertToImage() const
     hasAlphaBuffer()
 */
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode, bool adither )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -842,7 +842,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = image.createAlphaMask();
+	    m = image.createAlphaMask( adither );
 	    setMask( m );
 	}
 	return TRUE;
@@ -1117,13 +1117,20 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = img.createAlphaMask();
+	m = img.createAlphaMask( adither );
 	setMask( m );
     }
 
     return TRUE;
 }
 
+/*!
+  \overload
+*/
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
+{
+    return convertFromImage( img, mode, FALSE );
+}
 
 /*!
   Grabs the contents of a window and makes a pixmap out of it.

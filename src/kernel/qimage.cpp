@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#110 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#110 $");
 
 
 /*!
@@ -1183,20 +1183,20 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   dithering algorithm to create the mask. It gives accurate results but
   is somewhat slow.  
 */
-void QImage::setDitherMode( DitherMode mode )
+void QImage::setAlphaDitherMode( DitherMode mode )
 {
-    dithermode = mode;
+    alphadithermode = mode;
 }
 
 /*!
-  Returns the dithering mode set by setDitherMode().
+  Returns the dithering mode set by setAlphaDitherMode().
 */
-QImage::DitherMode QImage::getDitherMode()
+QImage::DitherMode QImage::alphaDitherMode()
 {
-    return dithermode;
+    return alphadithermode;
 }
 
-QImage::DitherMode QImage::dithermode = Threshold;
+QImage::DitherMode QImage::alphadithermode = Threshold;
 
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
@@ -1204,7 +1204,7 @@ QImage::DitherMode QImage::dithermode = Threshold;
   is disabled.
 
   The mask is dithered from the 8-bit alpha mask according to
-  the mode set by setDitherMode().
+  the mode set by setAlphaDitherMode().
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
@@ -1214,7 +1214,7 @@ QImage::DitherMode QImage::dithermode = Threshold;
 
 QImage QImage::createAlphaMask( bool dither ) const
 {
-    DitherMode dmode = dither ? dithermode : Threshold;
+    DitherMode dmode = dither ? alphadithermode : Threshold;
 
     if ( isNull() || !hasAlphaBuffer() ) {
 	QImage nullImage;
