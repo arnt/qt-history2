@@ -1389,12 +1389,12 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 bool QWidget::isEnabledTo( QWidget* ancestor ) const
 {
     const QWidget * w = this;
-    while ( w && !w->testWFlags(WState_ForceDisabled)
+    while ( w && !w->testWState(WState_ForceDisabled)
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget() != ancestor )
 	w = w->parentWidget();
-    return !w->testWFlags( WState_ForceDisabled );
+    return !w->testWState( WState_ForceDisabled );
 }
 
 
