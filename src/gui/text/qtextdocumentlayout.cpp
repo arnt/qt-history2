@@ -622,6 +622,7 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
     layoutStruct.x_left = 0;
     layoutStruct.x_right = width;
 
+    QList<QTextFrame *> floats;
     // ### speed up
     // layout out child frames in that cell first
     foreach (QTextFrame *frame, t->childFrames())
@@ -632,9 +633,20 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
             layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             td->layoutedFrames.removeAll(frame);
             layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->boundingRect.width());
+
+            if (cd->position != QTextFrameFormat::InFlow)
+                floats.append(frame);
         }
 
     layoutFlow(cell.begin(), &layoutStruct);
+
+    // floats that are located inside the text (like inline images) aren't taken into account by
+    // layoutFlow with regards to the cell height (layoutStruct->y), so for a safety measure we
+    // do that here. For example with <td><img align="right" src="..." />blah</td>
+    // when the image happens to be higher than the text
+    foreach (QTextFrame *frame, floats)
+        layoutStruct.y = qMax(layoutStruct.y, data(frame)->boundingRect.height());
+
     return layoutStruct;
 }
 
