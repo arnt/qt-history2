@@ -765,7 +765,7 @@ void QFontDatabase::createDatabase()
 	XftFontSet  *families;
 	XftFontSet  *styles;
 
-	QCString foundryName, familyName, styleName;
+	QCString foundryName, familyName;
 	bool hasFoundries;
     	char *value;
 	int weight_value;
@@ -840,6 +840,7 @@ void QFontDatabase::createDatabase()
 
 			    slant_value = XFT_SLANT_ROMAN;
 			    weight_value = XFT_WEIGHT_MEDIUM;
+			    spacing_value = XFT_PROPORTIONAL;
 			    XftPatternGetInteger (styles->fonts[s],
 						  XFT_SLANT, 0, &slant_value);
 			    XftPatternGetInteger (styles->fonts[s],
@@ -849,10 +850,8 @@ void QFontDatabase::createDatabase()
 			    style->ital = slant_value != XFT_SLANT_ROMAN;
 			    style->lesserItal = FALSE;
 			    style->weightString = getXftWeightString(weight_value);
-			    // ### Xft doesn't seem to use the spacing_value
-			    // at the moment
-			    // if (spacing_value >= XFT_MONO)
-			    // style->setFixedPitch();
+			    if (spacing_value >= XFT_MONO)
+				style->setFixedPitch();
 			    style->setSmoothlyScalable();
 			    family->addStyle (style);
 			}

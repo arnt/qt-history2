@@ -1451,33 +1451,66 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     XftResult res;
     XftPattern *pattern = 0, *result = 0;
 
-    if (! foundryName.isNull())
-	pattern = XftPatternBuild(0, XFT_ENCODING, XftTypeString, "iso10646-1",
-				  XFT_FOUNDRY, XftTypeString, foundryName.latin1(),
-				  XFT_FAMILY, XftTypeString, familyName.latin1(),
-				  XFT_FAMILY, XftTypeString, generic_value.data(),
-				  XFT_WEIGHT, XftTypeInteger, weight_value,
-				  XFT_SLANT, XftTypeInteger, slant_value,
-				  XFT_SIZE, XftTypeDouble, size_value,
-				  XFT_SPACING, XftTypeInteger, mono_value,
-				  0);
-    else if (! familyName.isNull())
-	pattern = XftPatternBuild(0, XFT_ENCODING, XftTypeString, "iso10646-1",
-				  XFT_FAMILY, XftTypeString, familyName.latin1(),
-				  XFT_FAMILY, XftTypeString, generic_value.data(),
-				  XFT_WEIGHT, XftTypeInteger, weight_value,
-				  XFT_SLANT, XftTypeInteger, slant_value,
-				  XFT_SIZE, XftTypeDouble, size_value,
-				  XFT_SPACING, XftTypeInteger, mono_value,
-				  0);
-    else
-	pattern = XftPatternBuild(0, XFT_ENCODING, XftTypeString, "iso10646-1",
-				  XFT_FAMILY, XftTypeString, generic_value.data(),
-				  XFT_WEIGHT, XftTypeInteger, weight_value,
-				  XFT_SLANT, XftTypeInteger, slant_value,
-				  XFT_SIZE, XftTypeDouble, size_value,
-				  XFT_SPACING, XftTypeInteger, mono_value,
-				  0);
+    if (mono_value >= XFT_MONO) {
+	if (! foundryName.isNull())
+	    pattern = XftPatternBuild(0,
+				      XFT_ENCODING, XftTypeString, "iso10646-1",
+				      XFT_FOUNDRY, XftTypeString, foundryName.latin1(),
+				      XFT_FAMILY, XftTypeString, familyName.latin1(),
+				      XFT_FAMILY, XftTypeString, generic_value.data(),
+				      XFT_WEIGHT, XftTypeInteger, weight_value,
+				      XFT_SLANT, XftTypeInteger, slant_value,
+				      XFT_SIZE, XftTypeDouble, size_value,
+				      XFT_SPACING, XftTypeInteger, mono_value,
+				      0);
+	else if (! familyName.isNull())
+	    pattern = XftPatternBuild(0,
+				      XFT_ENCODING, XftTypeString, "iso10646-1",
+				      XFT_FAMILY, XftTypeString, familyName.latin1(),
+				      XFT_FAMILY, XftTypeString, generic_value.data(),
+				      XFT_WEIGHT, XftTypeInteger, weight_value,
+				      XFT_SLANT, XftTypeInteger, slant_value,
+				      XFT_SIZE, XftTypeDouble, size_value,
+				      XFT_SPACING, XftTypeInteger, mono_value,
+				      0);
+	else
+	    pattern = XftPatternBuild(0,
+				      XFT_ENCODING, XftTypeString, "iso10646-1",
+				      XFT_FAMILY, XftTypeString, generic_value.data(),
+				      XFT_WEIGHT, XftTypeInteger, weight_value,
+				      XFT_SLANT, XftTypeInteger, slant_value,
+				      XFT_SIZE, XftTypeDouble, size_value,
+				      XFT_SPACING, XftTypeInteger, mono_value,
+				      0);
+    } else {
+	if (! foundryName.isNull())
+	    pattern = XftPatternBuild(0,
+				      XFT_ENCODING, XftTypeString, "iso10646-1",
+				      XFT_FOUNDRY, XftTypeString, foundryName.latin1(),
+				      XFT_FAMILY, XftTypeString, familyName.latin1(),
+				      XFT_FAMILY, XftTypeString, generic_value.data(),
+				      XFT_WEIGHT, XftTypeInteger, weight_value,
+				      XFT_SLANT, XftTypeInteger, slant_value,
+				      XFT_SIZE, XftTypeDouble, size_value,
+				      0);
+	else if (! familyName.isNull())
+	    pattern = XftPatternBuild(0,
+				      XFT_ENCODING, XftTypeString, "iso10646-1",
+				      XFT_FAMILY, XftTypeString, familyName.latin1(),
+				      XFT_FAMILY, XftTypeString, generic_value.data(),
+				      XFT_WEIGHT, XftTypeInteger, weight_value,
+				      XFT_SLANT, XftTypeInteger, slant_value,
+				      XFT_SIZE, XftTypeDouble, size_value,
+				      0);
+	else
+	    pattern = XftPatternBuild(0,
+				      XFT_ENCODING, XftTypeString, "iso10646-1",
+				      XFT_FAMILY, XftTypeString, generic_value.data(),
+				      XFT_WEIGHT, XftTypeInteger, weight_value,
+				      XFT_SLANT, XftTypeInteger, slant_value,
+				      XFT_SIZE, XftTypeDouble, size_value,
+				      0);
+    }
 
     if (pattern) {
 	result = XftFontMatch(QPaintDevice::x11AppDisplay(),
