@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#403 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#404 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -204,7 +204,7 @@ static void	activateZeroTimers();
 
 static int	translateKeyCode( int );
 
-Q_EXPORT Qt::WindowsVersion qt_winver = Qt::WV_NT;
+Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
 QObject	       *qt_clipboard   = 0;
 
@@ -3107,7 +3107,10 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	break;
 	}
 	BOOL onoff = enable;
-	SystemParametersInfo( api, 0, &onoff, 0 );
+        if ( qt_winver & WV_NT_based )
+	    SystemParametersInfo( api, 0, &onoff, 0 );
+        else
+            SystemParametersInfoA( api, 0, &onoff, 0 );
     }
 }
 
@@ -3115,7 +3118,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 {
     if ( desktopSettingsAware() && ( qt_winver == WV_98 || qt_winver == WV_2000 ) ) {
     // we know that they can be used when we are here
-	BOOL enabled;
+	BOOL enabled = FALSE;
 	UINT api;
 	switch (effect) {
 	case UI_AnimateMenu:
@@ -3130,7 +3133,10 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETCOMBOBOXANIMATION;
 	    break;
 	case UI_AnimateTooltip:
-	    api = SPI_GETTOOLTIPANIMATION;
+            if ( qt_winver != WV_2000 )
+                api = SPI_GETMENUANIMATION;
+            else
+	        api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
 	    if ( qt_winver != WV_2000 )
@@ -3141,7 +3147,10 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETUIEFFECTS;
 	    break;
 	}
-	SystemParametersInfo( api, 0, &enabled, 0 );
+        if ( qt_winver & WV_NT_based )
+	    SystemParametersInfo( api, 0, &enabled, 0 );
+        else
+            SystemParametersInfoA( api, 0, &enabled, 0 );
 	return enabled;
     } else {
 	switch( effect ) {

@@ -960,7 +960,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
 */
 QStoredDrag::~QStoredDrag()
 {
-    delete [] d->fmt;
+    delete [] (void*)d->fmt;
     delete d;
 }
 

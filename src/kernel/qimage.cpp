@@ -3082,7 +3082,7 @@ void QImageIO::init()
 QImageIO::~QImageIO()
 {
     if ( d->parameters )
-	delete [] d->parameters;
+	delete [] (void*)d->parameters;
     delete d;
 }
 
@@ -3397,7 +3397,7 @@ const char *QImageIO::parameters() const
 void QImageIO::setParameters( const char *parameters )
 {
     if ( d && d->parameters )
-	delete [] d->parameters;
+	delete [] (void*)d->parameters;
     d->parameters = qstrdup( parameters );
 }
 

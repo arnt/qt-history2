@@ -351,7 +351,7 @@ void QCursor::update() const
 	phand_bits, phandm_bits
     };
 
-    const char *sh;
+    unsigned short *sh;
     switch ( data->cshape ) {			// map to windows cursor
     case ArrowCursor:
 	sh = IDC_ARROW;
@@ -457,5 +457,5 @@ void QCursor::update() const
 	// ### LoadCursor has been superseded by the LoadImage function.
 	data->hcurs = LoadCursor( 0, (const TCHAR *)sh );
     else
-	data->hcurs = LoadCursorA( 0, sh );
+	data->hcurs = LoadCursorA( 0, (const char*)sh );
 }

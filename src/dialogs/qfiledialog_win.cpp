@@ -32,7 +32,7 @@
 #ifndef QT_NO_FILEDIALOG
 
 #include "qapplication.h"
-#include "./kernel/qapplication_p.h"
+#include "../kernel/qapplication_p.h"
 #include "qt_windows.h"
 #include "qregexp.h"
 #include "qbuffer.h"
