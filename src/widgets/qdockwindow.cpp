@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qdockwindow.cpp#67 $
 **
 ** Implementation of the QDockWindow class
 **
@@ -621,23 +621,21 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     areas the dock window will be undocked (floated) and will become a
     top level window. Double clicking a floating dock window's titlebar
     will dock the dock window to the last dock area it was docked in.
-    Double clicking a docked dock window's handle will undock (float)
-    the dock window. Single clicking a docked dock window's handle will
-    minimize the dock window (only its handle will appear, below the
-    menu bar). Single clicking the minimized handle will restore the
-    dock window to the last dock area that it was docked in. If the user
-    clicks the close button (which by default, appears on floating dock
-    windows) the dock window will disappear. In QMainWindow a
-    right-click popup menu (the dock window menu) is available which
-    lists dock windows and can be used to show or hide them. You can
-    control whether or not a dock window has a close button with
-    setCloseMode(). When a dock window's visibility changes, i.e. it is
-    shown or hidden, the visibilityChanged() signal is emitted.
-
+    Double clicking a docked dock window's handle will undock (float) the dock
+    window. Single clicking a docked dock window's handle will minimize the
+    dock window (only its handle will appear, below the menu bar). Single
+    clicking the minimized handle will restore the dock window to the last
+    dock area that it was docked in. If the user clicks the close button
+    (which appears on floating dock windows by default) the dock window will
+    disappear. You can control whether or not a dock window has a close button
+    with setCloseMode(). 
+    
     QMainWindow provides four dock areas (top, left, right and bottom)
-    which can be used by dock windows. For most applications using the
+    which can be used by dock windows. For many applications using the
     dock areas provided by QMainWindow will be sufficient. (See the \l
     QDockArea documentation if you want to create your own dock areas.)
+    In QMainWindow a right-click popup menu (the dock window menu) is
+    available which lists dock windows and can be used to show or hide them.
 
     When you construct a dock window you \e must pass it a QDockArea or
     a QMainWindow as its parent if you want it docked. Pass 0 for the
@@ -674,26 +672,27 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     windows and can be resized like any other top level windows, e.g. by
     dragging a corner or edge.
 
-    Dock windows can be docked and undocked programatically using dock()
-    and undock(). A dock window's orientation can be set with
-    setOrientation(). You can also use QDockArea::moveDockWindow() and
-    QDockArea::removeDockWindow(). If you're using a QMainWindow,
-    QMainWindow::moveDockWindow() and QMainWindow::removeDockWindow()
-    are available.
+    Dock windows can be docked and undocked using dock() and undock(). A dock
+    window's orientation can be set with setOrientation(). You can also use
+    QDockArea::moveDockWindow(). If you're using a QMainWindow,
+    QMainWindow::moveDockWindow() and QMainWindow::removeDockWindow() are
+    available.
 
-    A dock window can have some preferred settings, for example, you can
-    set a
-    preferred offset from the left edge (or top edge for vertical dock
-    areas) of the dock area using setOffset(). If you'd prefer a dock
-    window to start on a new line when it is docked use setNewLine().
-    The setFixedExtentWidth() and setFixedExtentHeight()
-    functions can be used to define the dock window's preferred size,
-    and the setHorizontallyStretchable() and setVerticallyStretchable()
-    functions set whether the dock window can be stretched or not.
-    Dock windows can be moved by default, but this can be changed with
-    setMovingEnabled(). When a dock window is moved it is shown as a
-    rectangular outline, but it can be shown normally using
-    setOpaqueMoving().
+    A dock window can have some preferred settings, for example, you can set a
+    preferred offset from the left edge (or top edge for vertical dock areas)
+    of the dock area using setOffset(). If you'd prefer a dock window to start
+    on a new \link qdockarea.html#lines line\endlink when it is docked use
+    setNewLine(). The setFixedExtentWidth() and setFixedExtentHeight()
+    functions can be used to define the dock window's preferred size, and the
+    setHorizontallyStretchable() and setVerticallyStretchable() functions set
+    whether the dock window can be stretched or not. Dock windows can be moved
+    by default, but this can be changed with setMovingEnabled(). When a dock
+    window is moved it is shown as a rectangular outline, but it can be shown
+    normally using setOpaqueMoving().
+
+    When a dock window's visibility changes, i.e. it is shown
+    or hidden, the visibilityChanged() signal is emitted. When a dock window
+    is docked or undocked the placeChanged() signal is emitted.
 
 */
 
@@ -702,8 +701,8 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
   This enum specifies the possible locations for a QDockWindow:
 
-  \value InDock  inside a QDockArea.
-  \value OutsideDock  floating as a top level window on the desktop.
+  \value InDock  Inside a QDockArea.
+  \value OutsideDock  Floating as a top level window on the desktop.
 */
 
 /*!
@@ -751,7 +750,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 
 /*! \fn QDockArea *QDockWindow::area() const
 
-  Returns the QDockArea in which this dock window is docked,
+  Returns the dock area in which this dock window is docked,
   or 0 if the dock window is floating.
 */
 
@@ -765,19 +764,21 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 
-/*! Constructs a QDockWindow.
+/*! 
+    Constructs a QDockWindow with parent \a parent, name \a name and widget
+    flags \a f.
 
-    If \a p is \c InDock, the dock window is docked into a QDockArea and
-    \a parent \e must be a QDockArea or a QMainWindow. If the \a parent
-    is a QMainWindow the dock window will be docked in the main window's
-    \c Top dock area.
+    If \a p is \c InDock, the dock window is docked into a dock area and \a
+    parent \e must be a QDockArea or a QMainWindow. If the \a parent is a
+    QMainWindow the dock window will be docked in the main window's \c Top
+    dock area.
 
-    If \a p is \c OutsideDock, the parent \e must be 0 and the dock
-    window is created as a floating window.
+    If \a p is \c OutsideDock, the parent \e must be 0 and the dock window is
+    created as a floating window.
 
-    We recommend creating the dock area \c InDock with a QMainWindow as
-    parent then calling QMainWindow::moveDockWindow() to move the dock
-    window where you want it.
+    We recommend creating the dock area \c InDock with a QMainWindow as parent
+    then calling QMainWindow::moveDockWindow() to move the dock window where
+    you want it.
 */
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
@@ -1173,8 +1174,8 @@ void QDockWindow::endRectDraw( bool drawRect )
 /*! \property QDockWindow::resizeEnabled
   \brief whether the dock window is resizeable
 
-  A resizeable QDockWindow can be resized using splitter-like handles
-  inside a QDockArea and like every other top level window when
+  A resizeable dock window can be resized using splitter-like handles
+  inside a dock area and like every other top level window when
   floating.
 */
 
@@ -1187,7 +1188,7 @@ void QDockWindow::setResizeEnabled( bool b )
 
 /*! \property QDockWindow::movingEnabled
   \brief whether the user can move the dock window within the
-  QDockArea, move the dock window to another dock area, or float the
+  dock area, move the dock window to another dock area, or float the
   dock window.
 */
 
@@ -1212,7 +1213,7 @@ bool QDockWindow::isMovingEnabled() const
 
   Defines when (if ever) the dock window has a close button. The
   choices are \c Never, \c Docked (i.e. only when docked), \c Undocked
-  (only when undocked - floated) or \c Always.
+  (only when undocked, i.e. floated) or \c Always.
 */
 
 void QDockWindow::setCloseMode( int m )
@@ -1226,7 +1227,7 @@ void QDockWindow::setCloseMode( int m )
     }
 }
 
-/*! Returns TRUE if the dock window has a close button, otherwise
+/*! Returns TRUE if the dock window has a close button; otherwise
     returns FALSE. The result depends on the dock window's \l Place and
     its \l CloseMode.
 
@@ -1245,7 +1246,7 @@ int QDockWindow::closeMode() const
 }
 
 /*! \property QDockWindow::horizontallyStretchable
-  \brief whether the dock window will be horizontally stretchable.
+  \brief whether the dock window is horizontally stretchable.
 */
 
 void QDockWindow::setHorizontallyStretchable( bool b )
@@ -1254,7 +1255,7 @@ void QDockWindow::setHorizontallyStretchable( bool b )
 }
 
 /*! \property QDockWindow::verticallyStretchable
-  \brief whether the dock window will be vertically stretchable.
+  \brief whether the dock window is vertically stretchable.
 */
 
 void QDockWindow::setVerticallyStretchable( bool b )
@@ -1312,7 +1313,7 @@ void QDockWindow::setOffset( int o )
     offs = o;
 }
 
-/*! Returns dock window's preferred size (fixed extent).
+/*! Returns the dock window's preferred size (fixed extent).
 
     \sa setFixedExtent()
 */
@@ -1427,10 +1428,10 @@ QSize QDockWindow::minimumSizeHint() const
 }
 
 /*!
-  Undocks the QDockWindow from its current QDockArea, if it is
-  docked, otherwise does nothing.
+  Undocks the QDockWindow from its current dock area, if it is
+  docked; otherwise does nothing.
 
-  Do not pass any \a w paramenter, this is for internal use only.
+  Do not pass any \a w paramenter, it is for internal use only.
 
   \sa dock() QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
   QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()
@@ -1479,7 +1480,7 @@ void QDockWindow::removeFromDock( bool fixNewLines )
 	dockArea->removeDockWindow( this, FALSE, FALSE, fixNewLines );
 }
 
-/*! Docks the dock window into the last QDockArea in which it was
+/*! Docks the dock window into the last dock area in which it was
     docked.
 
     If the dock window has no last dock area (e.g. it was created as a
@@ -1522,11 +1523,11 @@ void QDockWindow::showEvent( QShowEvent *e )
 }
 
 /*! \property QDockWindow::opaqueMoving
-  \brief whether the dock window will be shown normally when it is
-    moved.
+  \brief whether the dock window will be shown normally whilst it is
+    being moved.
 
     If this property is FALSE, (which is the default), the dock window
-    will be represented by an outline rectangle when it is moved.
+    will be represented by an outline rectangle whilst it is being moved.
 */
 
 void QDockWindow::setOpaqueMoving( bool b )

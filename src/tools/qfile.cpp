@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#136 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#137 $
 **
 ** Implementation of QFile class
 **
@@ -48,7 +48,6 @@
 
 extern bool qt_file_access( const QString& fn, int t );
 
-// NOT REVISED
 /*!
   \class QFile qfile.h
   \brief The QFile class is an I/O device that operates on files.
@@ -56,8 +55,22 @@ extern bool qt_file_access( const QString& fn, int t );
   \ingroup io
 
   QFile is an I/O device for reading and writing binary and text files.	A
-  QFile may be used by itself (readBlock and writeBlock) or by more
-  conveniently using QDataStream or QTextStream.
+  QFile may be used by itself or more conveniently using a QDataStream or
+  QTextStream.
+
+  The file name is usually passed in the constructor but can be changed with
+  setName(). You can check for a file's existence with exists() and remove a
+  file with remove().
+
+  The file is opened with open(), closed with close() and flushed with
+  flush(). Data is usually read and written using QDataStream or QTextStream,
+  but you can read with readBlock() and write with QIODevice::writeBlock().
+  QFile also supports getch(), ungetch() and putch().
+
+  The size of the file is returned by size(). You can get the current file
+  position or move to a new file position using the at() functions. If you've
+  reached the end of the file, atEnd() returns TRUE. The file handle is
+  returned by handle().
 
   Here is a code fragment that uses QTextStream to read a text
   file line by line. It prints each line with a line number.
@@ -80,6 +93,10 @@ extern bool qt_file_access( const QString& fn, int t );
 
   The QDir class manages directories and lists of file names.
 
+  Qt uses Unicode file names. If you want to do your own I/O on Unix systems
+  you may want to use encodeName() (and decodeName()) to convert the file name
+  into the local encoding.
+  
   \sa QDataStream, QTextStream
 */
 
@@ -139,14 +156,14 @@ void QFile::init()
 */
 
 /*!
-  Sets the name of the file. The name can include an absolute directory
-  path or it can be a name or a path relative to the current directory.
+  Sets the name of the file. The name may have no path, a relative path or
+  an absolute absolute directory path. 
 
   Do not call this function if the file has already been opened.
 
-  Note that if the name is relative QFile does not associate it with
-  the current directory.  If you change to a different directory
-  before calling open(), open uses the new current directory.
+  If the file name has no path or a relative path, the path used will be
+  whatever the current directory path is <em>at the time of the open()</em>
+  call.
 
   Example:
   \code
@@ -154,10 +171,10 @@ void QFile::init()
      QDir::setCurrent( "/tmp" );
      f.setName( "readme.txt" );
      QDir::setCurrent( "/home" );
-     f.open( IO_ReadOnly );	   // opens "/home/readme.txt" under UNIX
+     f.open( IO_ReadOnly );	   // opens "/home/readme.txt" under Unix
   \endcode
 
-  Also note that the directory separator '/' works for all operating
+  Note that the directory separator "/" works for all operating
   systems supported by Qt.
 
   \sa name(), QFileInfo, QDir
@@ -175,7 +192,7 @@ void QFile::setName( const QString &name )
 }
 
 /*!
-  Returns TRUE if this file exists, otherwise FALSE.
+  Returns TRUE if this file exists; otherwise returns FALSE.
   \sa name()
 */
 
@@ -185,7 +202,8 @@ bool QFile::exists() const
 }
 
 /*!
-  Returns TRUE if the file given by \e fileName exists, otherwise FALSE.
+  Returns TRUE if the file given by \e fileName exists; otherwise returns
+  FALSE.
 */
 
 bool QFile::exists( const QString &fileName )
@@ -196,7 +214,7 @@ bool QFile::exists( const QString &fileName )
 
 /*!
   Removes the file specified by the file name currently set.
-  Returns TRUE if successful, otherwise FALSE.
+  Returns TRUE if successful; otherwise returns FALSE.
 
   The file is closed before it is removed.
 */

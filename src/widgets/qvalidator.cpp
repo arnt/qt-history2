@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#73 $
 **
 ** Implementation of validator classes
 **
@@ -351,11 +351,16 @@ void QIntValidator::setTop( int top )
   on the number of digits after the decimal point.  It does not
   provide a fixup() function.
 
+  You can set the acceptable range in one call with setRange(), or with
+  setBottom() and setTop(). Set the number of decimal places with
+  setDecimals(). The validate() function returns the validation state.
+
   \sa QIntValidator QRegExpValidator
 */
 
 /*!
-  Constructs a validator object which accepts all doubles.
+  Constructs a validator object with parent \a parent, called \a name, which
+  accepts any double.
 */
 
 QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
@@ -368,9 +373,9 @@ QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
 
 
 /*!
-  Constructs a validator object which accepts all doubles from \a
-  bottom up to and including \a top with at most \a decimals digits
-  after the decimal point.
+  Constructs a validator object with parent \a parent, called \a name. This
+  validator will accept doubles from \a bottom to \a top inclusive, with up to
+  \a decimals digits after the decimal point.
 */
 
 QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
@@ -384,8 +389,7 @@ QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
 
 
 /*!
-  Destroys the validator, freeing any storage and other resources
-  used.
+  Destroys the validator, freeing any resources used.
 */
 
 QDoubleValidator::~QDoubleValidator()
@@ -393,11 +397,15 @@ QDoubleValidator::~QDoubleValidator()
 }
 
 
-/*!  Returns \c Acceptable if \a input contains a number that is within
-  the valid range and is in the correct format; \c Intermediate if it
-  contains a number that is outside the range or is in the wrong format,
-  e.g. with too many digits after the decimal point or is empty; and \c
-  Invalid if the \a input is not a number.
+/*!  
+    Returns \c Acceptable if the string \a input contains a double that is
+    within the valid range and is in the correct format. 
+    
+    Returns \c Intermediate if \a input contains a double that is outside the
+    range or is in the wrong format, e.g. with too many digits after the
+    decimal point or is empty. 
+    
+    Returns \c Invalid if the \a input is not a double.
 */
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
@@ -444,7 +452,7 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 
 
 /*!
-  Sets the validator to accept numbers from \a minimum up to and
+  Sets the validator to accept doubles from \a minimum up to and
   including \a maximum with at most \a decimals digits after the decimal
   point.
 */

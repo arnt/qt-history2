@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#171 $
 **
 ** Implementation of event classes
 **
@@ -51,11 +51,12 @@
   native window system events from the event queue, translates them
   into QEvent and sends the translated events to QObjects.
 
-  Generally, events come from the underlying window system, but it is
-  also possible to manually send events through the QApplication class
-  using QApplication::sendEvent() and QApplication::postEvent().
+  Generally, events come from the underlying window system (spontaneous()
+  returns TRUE) but it is also possible to manually send events through the
+  QApplication class using QApplication::sendEvent() and
+  QApplication::postEvent() (spontaneous() returns FALSE). 
 
-  QObject received events by having its QObject::event() function
+  QObjects receive events by having their QObject::event() function
   called. The function can be reimplemented in subclasses to customize
   event handling and add additional event types. QWidget::event() is
   a notable example. By default, events are dispatched to event handlers
@@ -100,59 +101,59 @@
 /*! \enum QEvent::Type
 
   This enum type defines the valid event types in Qt.  The currently
-  defined event types and the specialized classes for each type are as follow:
+  defined event types and the specialized classes for each type are:
 
-  \value None  not an event
-  \value Timer  regular timer events, QTimerEvent
-  \value MouseButtonPress  mouse press, QMouseEvent
-  \value MouseButtonRelease  mouse release, QMouseEvent
-  \value MouseButtonDblClick  mouse press again, QMouseEvent
-  \value MouseMove  mouse move, QMouseEvent
-  \value KeyPress  key press (including shift, for example), QKeyEvent
-  \value KeyRelease  key release, QKeyEvent
-  \value FocusIn  widget gains keyboard focus, QFocusEvent
-  \value FocusOut  widget loses keyboard focus, QFocusEvent
-  \value Enter  mouse enters widget's space
-  \value Leave  mouse leaves widget's space
-  \value Paint  screen update necessary, QPaintEvent
-  \value Move  widget's position changed, QMoveEvent
-  \value Resize  widget's size changed, QResizeEvent
-  \value Show  widget was shown on screen, QShowEvent
-  \value Hide  widget was removed from screen, QHideEvent
-  \value Close  widget was closed (permanently), QCloseEvent
-  \value Accel  key press in child for shortcut key handling, QKeyEvent
-  \value Wheel  mouse wheel rolled, QWheelEvent
-  \value AccelAvailable  internal event used by Qt on some platforms
-  \value AccelOverride  key press in child, for overriding shortcut key handling, QKeyEvent
-  \value WindowActivate  the window was activated
-  \value WindowDeactivate  the window was deactivated
-  \value CaptionChange  widget's caption changed
-  \value IconChange  widget's icon changed
-  \value ParentFontChange  the font of the parent widget changed
-  \value ApplicationFontChange  the default application font changed
-  \value ParentPaletteChange  the palette of the parent widget changed
-  \value ApplicationPaletteChange  the default application palette changed
-  \value Clipboard  system clipboard contents have changed
-  \value SockAct  socket activated, used to implement QSocketNotifier
-  \value DragEnter  drag-and-drop enters widget, QDragEnterEvent
-  \value DragMove  drag-and-drop in progress, QDragMoveEvent
-  \value DragLeave  drag-and-drop leaves widget, QDragLeaveEvent
-  \value Drop  drag-and-drop is completed, QDropEvent
-  \value DragResponse  internal event used by Qt on some platforms
-  \value ChildInserted  object gets a child, QChildEvent
-  \value ChildRemoved  object loses a child, QChildEvent
-  \value LayoutHint  a widget child has changed layout properties
-  \value ActivateControl  internal event used by Qt on some platforms
-  \value DeactivateControl  internal event used by Qt on some platforms
-  \value Quit  reserved
-  \value Create  reserved
-  \value Destroy  reserved
-  \value Reparent  reserved
-  \value User  user defined event
+  \value None  Not an event.
+  \value Timer  Regular timer events, \l{QTimerEvent}.
+  \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
+  \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
+  \value MouseButtonDblClick  Mouse press again, \l{QMouseEvent}.
+  \value MouseMove  Mouse move, \l{QMouseEvent}.
+  \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
+  \value KeyRelease  Key release, \l{QKeyEvent}.
+  \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
+  \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
+  \value Enter  Mouse enters widget's boundaries.
+  \value Leave  Mouse leaves widget's boundaries.
+  \value Paint  Screen update necessary, \l{QPaintEvent}.
+  \value Move  Widget's position changed, \l{QMoveEvent}.
+  \value Resize  Widget's size changed, \l{QResizeEvent}.
+  \value Show  Widget was shown on screen, \l{QShowEvent}.
+  \value Hide  Widget was hidden, \l{QHideEvent}.
+  \value Close  Widget was closed (permanently), \l{QCloseEvent}.
+  \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
+  \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
+  \value AccelAvailable  Internal event used by Qt on some platforms.
+  \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
+  \value WindowActivate  Window was activated.
+  \value WindowDeactivate  Window was deactivated.
+  \value CaptionChange  Widget's caption changed.
+  \value IconChange  Widget's icon changed.
+  \value ParentFontChange  Font of the parent widget changed.
+  \value ApplicationFontChange  Default application font changed.
+  \value ParentPaletteChange  Palette of the parent widget changed.
+  \value ApplicationPaletteChange  Default application palette changed.
+  \value Clipboard  Clipboard contents have changed.
+  \value SockAct  Socket activated, used to implement \l{QSocketNotifier}.
+  \value DragEnter  A drag-and-drop enters widget, \l{QDragEnterEvent}.
+  \value DragMove  A drag-and-drop is in progress, \l{QDragMoveEvent}.
+  \value DragLeave  A drag-and-drop leaves widget, \l{QDragLeaveEvent}.
+  \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
+  \value DragResponse  Internal event used by Qt on some platforms.
+  \value ChildInserted  Object gets a child, \l{QChildEvent}.
+  \value ChildRemoved  Object loses a child, \l{QChildEvent}.
+  \value LayoutHint  Widget child has changed layout properties.
+  \value ActivateControl  Internal event used by Qt on some platforms.
+  \value DeactivateControl  Internal event used by Qt on some platforms.
+  \value Quit  Reserved.
+  \value Create  Reserved.
+  \value Destroy  Reserved.
+  \value Reparent  Reserved.
+  \value User  User defined event.
 */
 /*!
   \fn QEvent::QEvent( Type type )
-  Contructs an event object with a \a type.
+  Contructs an event object of type \a type.
 */
 
 /*!
@@ -164,7 +165,7 @@
   \fn bool QEvent::spontaneous() const
 
   Returns TRUE if the event originated outside the application,
-  i.e. it is a system event.
+  i.e. it is a system event; otherwise returns FALSE.
 */
 
 
@@ -1333,10 +1334,10 @@ QCustomEvent::QCustomEvent( int type )
   \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, Type type )
 
   Creates a QDragMoveEvent for which the mouse is at point \a pos,
-  and the given event \a type.
+  and the event is of type \a type.
 
-  Note that internal state is also involved with QDragMoveEvent,
-  so it is not useful to create these yourself.
+  Do not create a QDragMoveEvent yourself since these objects rely on Qt's
+  internal state.
 */
 
 /*!
@@ -1355,7 +1356,8 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void   QDragMoveEvent::ignore( const QRect & r)
 
-  The opposite of accept(const QRect&).
+  The opposite of accept(const QRect&), i.e. says that moves within this
+  rectangle are not acceptable (will be ignored).
 */
 
 /*!
@@ -1390,7 +1392,7 @@ QCustomEvent::QCustomEvent( int type )
   such as QTextDrag::decode(), or your own subclasses.
 
   \warning To accept or reject the drop, call acceptAction(), not this
-  function.  This function indicates whether you processed the event
+  function. This function indicates whether you processed the event
   at all.
 
   \sa acceptAction()
@@ -1422,22 +1424,22 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \enum QDropEvent::Action
 
-  This type describes the action which a source requests that a target
-  perform with dropped data.  The values are:
+  This enum describes the action which a source requests that a target
+  perform with dropped data.  
 
-   \value Copy  the default action.  The source simply users the data
+   \value Copy  The default action.  The source simply uses the data
 	    provided in the operation.
    \value Link  The source should somehow create a link to the location
 	    specified by the data.
    \value Move  The source should somehow move the object from the location
 	    specified by the data to a new location.
    \value Private  The target has special knowledge of the MIME type, which
-	    the source should respond to similar to a Copy.
+	    the source should respond to in a similar way to a Copy.
    \value UserAction  The source and target can co-operate using special
 	    actions.  This feature is not supported in Qt at this time.
 
   The Link and Move actions only makes sense if the data is
-  a reference, such as text/uri-list file lists (see QUriDrag).
+  a reference, for example, text/uri-list file lists (see QUriDrag).
 */
 
 /*!
@@ -1461,19 +1463,19 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn void QDropEvent::ignore()
 
-  The opposite of accept().
+  The opposite of accept(), i.e. you have ignored the drop event.
 */
 
 /*! \fn bool QDropEvent::isActionAccepted () const
 
-  Returns TRUE if the drop action was accepted by the drop site, and
-  FALSE if not.
+  Returns TRUE if the drop action was accepted by the drop site; otherwise
+  returns FALSE.
 */
 
 
 /*! \fn void QDropEvent::setPoint (const QPoint & np)
 
-  Sets the drop to happen at \a np.  You do normally not need to use
+  Sets the drop to happen at point \a np.  You do not normally need to use
   this as it will be set internally before your widget receives the
   drop event.
 */ // ### here too - what coordinate system?
@@ -1483,10 +1485,10 @@ QCustomEvent::QCustomEvent( int type )
   \class QDragEnterEvent qevent.h
   \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop first drags onto the widget.
 
-  This event is always immediate followed by a QDragMoveEvent, thus you need
-  only respond to one or the other event.  Note that this class inherits most
-  of its functionality from QDragMoveEvent, which in turn inherits most
-  of its functionality from QDropEvent.
+  This event is always immediately followed by a QDragMoveEvent, so you only
+  need to respond to one or the other event.  This class inherits most of its
+  functionality from QDragMoveEvent, which in turn inherits most of its
+  functionality from QDropEvent.
 
   \sa QDragLeaveEvent, QDragMoveEvent, QDropEvent
 */
@@ -1494,8 +1496,9 @@ QCustomEvent::QCustomEvent( int type )
 /*!
   \fn QDragEnterEvent::QDragEnterEvent (const QPoint & pos)
   Constructs a QDragEnterEvent entering at the given point.
-  Note that QDragEnterEvent constructed outside of the Qt internals
-  will not work - they currently rely on internal state.
+
+  Do not create a QDragEnterEvent yourself since these objects rely on Qt's
+  internal state.
 */
 
 /*!
@@ -1503,15 +1506,17 @@ QCustomEvent::QCustomEvent( int type )
   \brief The QDragLeaveEvent class provides an event which is sent to the widget when a drag and drop leaves the widget.
 
   This event is always preceded by a QDragEnterEvent and a series
-  of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.
+  of \l{QDragMoveEvent}s.  It is not sent if a QDropEvent is sent instead.
 
   \sa QDragEnterEvent, QDragMoveEvent, QDropEvent
 */
 
 /*!
   \fn QDragLeaveEvent::QDragLeaveEvent()
-  Constructs a QDragLeaveEvent. You must not create QDragLeaveEvents
-  yourself, as they rely on Qt's internal state.
+  Constructs a QDragLeaveEvent. 
+
+  Do not create a QDragLeaveEvent yourself since these objects rely on Qt's
+  internal state.
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#155 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -61,8 +61,8 @@ static QWidget* last_target;
 
 /*!
   After the drag completes, this function will return the QWidget
-  which received the drop, or 0 if the data was dropped on some other
-  program.
+  which received the drop, or 0 if the data was dropped on another
+  application.
 
   This can be useful for detecting the case where drag-and-drop is to
   and from the same widget.
@@ -282,10 +282,11 @@ QDragManager::~QDragManager()
 #endif
 
 
-/*!  Constructs a drag object which is a child of \a dragSource and
-  named \a name.
+/*!  
+    Constructs a drag object called \a name, which is a child of \a
+    dragSource.
 
-  Note that the drag object will be deleted when \a dragSource is.
+  Note that the drag object will be deleted when \a dragSource is deleted.
 */
 
 QDragObject::QDragObject( QWidget * dragSource, const char * name )
@@ -314,10 +315,9 @@ QDragObject::~QDragObject()
 #ifndef QT_NO_DRAGANDDROP
 /*!
   Set the pixmap \a pm to display while dragging the object.
-  The platform-specific
-  implementation will use this in a loose fashion - so provide a small masked
-  pixmap, but do not require that the user ever sees it in all its splendor.
-  In particular, cursors on Windows 95 are of limited size.
+  The platform-specific implementation will use this where it can - so provide
+  a small masked pixmap, and do not assume that the user will actually see it.
+  For example, cursors on Windows 95 are of limited size.
 
   The \a hotspot is the point on (or off) the pixmap that should be under the
   cursor as it is dragged. It is relative to the top-left pixel of the pixmap.
@@ -363,10 +363,10 @@ QPoint QDragObject::pixmapHotSpot() const
   using DragDefault mode.
 
   The function returns TRUE if the caller should delete the
-  original copy of the dragged data (but also note target()).
+  original copy of the dragged data (but see target()).
 
-  Note that if the drag contains \e references to information
-  (eg. file names is a QUriDrag are references)
+  If the drag contains \e references to information
+  (eg. file names in a QUriDrag are references)
   then the return value should always be ignored, as the target
   is expected to manipulate the referred-to content directly.
   On X11 the return value should always be correct anyway, but
@@ -382,7 +382,9 @@ bool QDragObject::drag()
 
 /*!
   Starts a drag operation using the contents of this object,
-  using DragMove mode.
+  using \c DragMove mode. Be sure to read the constraints described in drag().
+
+  \sa drag() dragCopy() dragLink()
 */
 bool QDragObject::dragMove()
 {
@@ -392,9 +394,9 @@ bool QDragObject::dragMove()
 
 /*!
   Starts a drag operation using the contents of this object,
-  using DragCopy mode.
+  using \c DragCopy mode. Be sure to read the constraints described in drag().
 
-  See drag(DragMove) for important further information.
+  \sa drag() dragMove() dragLink()
 */
 void QDragObject::dragCopy()
 {
@@ -404,9 +406,9 @@ void QDragObject::dragCopy()
 
 /*!
   Starts a drag operation using the contents of this object,
-  using DragLink mode.
+  using \c DragLink mode. Be sure to read the constraints described in drag().
 
-  see drag(DragMove) for important further information.
+  \sa drag() dragCopy() dragMove()
 */
 void QDragObject::dragLink()
 {
@@ -416,14 +418,14 @@ void QDragObject::dragLink()
 
 /*! \enum QDragObject::DragMode
 
-  This enum type decides which of several types of drag each
-  individual drag is.  The available types are:
-   \value DragDefault  the mode is determined heuristically.
-   \value DragCopy  the data is copied, never moved.
-   \value DragMove  the data is moved, if dragged at all.
-   \value DragLink  the data is linked, if dragged at all.
-   \value DragCopyOrMove  the user chooses the mode
-	    by using control key to switch from the default.
+  This enum describes the possible drag modes. 
+
+   \value DragDefault  The mode is determined heuristically.
+   \value DragCopy  The data is copied, never moved.
+   \value DragMove  The data is moved, if dragged at all.
+   \value DragLink  The data is linked, if dragged at all.
+   \value DragCopyOrMove  The user chooses the mode
+	    by using a control key to switch from the default.
 */
 
 
@@ -440,13 +442,10 @@ void QDragObject::dragLink()
   indicating that the caller should remove the original source
   of the data (the drag object must continue to have a copy).
 
-  Normally one of simpler drag(), dragMove(), or dragCopy() functions
+  Normally one of the simpler drag(), dragMove(), or dragCopy() functions
   would be used instead.
 
-  \warning in Qt 1.x, drag operations all return FALSE.  This will change
-	    in later versions - the functions are provided in this way to
-	    assist preemptive development - code both move and copy with
-	    Qt 1.x to be prepared.
+  \warning in Qt 1.x, drag operations all return FALSE.  
 */
 bool QDragObject::drag( DragMode mode )
 { // ### In Qt 1.x?  huh?
@@ -474,7 +473,7 @@ QWidget * QDragObject::source()
 // NOT REVISED
 /*! \class QDragObject qdragobject.h
 
-  \brief The QDragObject class encapsulates MIME-based information transfer.
+  \brief The QDragObject class encapsulates MIME-based data transfer.
 
   \ingroup draganddrop
 
@@ -487,6 +486,13 @@ QWidget * QDragObject::source()
 
   See the QClipboard documentation for
   an overview of how to provide cut-and-paste in your application.
+
+  The drag() function is used to start a drag operation. You can specify the
+  \l DragMode in the call or use one of the convenience functions dragCopy(),
+  dragMove() or dragLink(). The drag source where the data originated is
+  retrieved with source(). If the data was dropped on a widget within the
+  application target() will return a pointer to that widget. Specify the
+  pixmap to display during the drag with setPixmap(). 
 */
 
 static

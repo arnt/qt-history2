@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qerrormessage.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qerrormessage.cpp#14 $
 **
 ** Implementation of a nice qInstallMsgHandler() handler
 **
@@ -58,20 +58,22 @@
 
 \ingroup dialogs
 
-This is basically a QLabel and a "show this message again" checkbox and a
-memory of what not to show.
+This is basically a QLabel and a "show this message again" checkbox which
+remembers what not to show.
 
-There are two ways to use this class: In production applications, it can
-productively be used to display messages such that the user doesn't need
-to look at all of them all the time. To use QErrorMessage like this, you
-create the dialog in the usual way and call the message() slot, or
-connect signals to it.
+There are two ways to use this class: 
+\list 1
+\i For production applications. In this context the class can be used to
+display messages which you don't need the user to see more than once. To use
+QErrorMessage like this, you create the dialog in the usual way and call the
+message() slot, or connect signals to it.
 
-The other way is intended for developers: The static qtHandler() installs
+\i For developers. In this context the static qtHandler() installs
 a message handler using qInstallMsgHandler() and creates a QErrorMessage
-that displays the qDebug()/qWarning()/qFatal() messages.
+that displays qDebug(), qWarning() and qFatal() messages.
+\endlist
 
-In both cases will QErrorMessage queue up pending messages, and display
+In both cases QErrorMessage will queue pending messages, and display
 them (or not) in order, as soon as the user presses Enter or clicks OK
 after seeing each message.
 
@@ -105,7 +107,7 @@ void jump( QtMsgType t, const char * m )
 
 /*!  Constructs and installs an error handler window. 
     The parent \a parent and name \a name are passed on to the QDialog
-    constructor
+    constructor.
 */
 
 QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
@@ -205,11 +207,11 @@ bool QErrorMessage::nextPending()
 }
 
 
-/*! Shows \a m and returns immediately.  If the user has requested
+/*! Shows message \a m and returns immediately.  If the user has requested
   that \a m not be shown, this function does nothing.
   
-  Normally, \a m is shown at once, but if there are pending messages
-  already \a m is queued for later display, not shown immediately.
+  Normally, \a m is shown at once, but if there are pending messages,
+  \a m is queued for later display.
 */
 
 void QErrorMessage::message( const QString & m )

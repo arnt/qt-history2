@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#72 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#73 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -619,8 +619,12 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
   Normally you will use the function QDomDocument::implementation() to get the
   implementation object.
 
+  You can create a new document type with createDocumentType() and a new
+  document with createDocument().
+
   For further information about the Document Object Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 
@@ -684,7 +688,7 @@ bool QDomImplementation::operator!=( const QDomImplementation& x ) const
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomImplementation::~QDomImplementation()
 {
@@ -713,14 +717,14 @@ bool QDomImplementation::hasFeature( const QString& feature, const QString& vers
   Creates a document type node for the name \a qName.
 
   \a publicId specifies the public identifier of the external subset; If you
-  specify QString::null as \a publicId, this means that the document type has
-  no public identifier.
+  specify QString::null as the \a publicId, this means that the document type
+  has no public identifier.
 
-  Similar, you specify the system identifier of the external subset with \a
-  systemId. If you specify QString::null as \a systemId, this means that the
-  document type has no system identifier. Since you cannot have a public
-  identifier without a system identifier, the public identifier is set also to
-  QString::null in this case (the value of \a publicId is ignored).
+  Similarly, you specify the system identifier of the external subset with \a
+  systemId. If you specify QString::null as the \a systemId, this means that
+  the document type has no system identifier. Since you cannot have a public
+  identifier without a system identifier, the public identifier is set to
+  QString::null if there is no system identifier.
 
   Other features of a document type declaration are not supported by DOM level
   2.
@@ -759,7 +763,8 @@ QDomDocument QDomImplementation::createDocument( const QString& nsURI, const QSt
 }
 
 /*!
-  Returns TRUE if the object was not created by QDomDocument::implementation().
+  Returns FALSE if the object was created by QDomDocument::implementation();
+  otherwise returns TRUE.
 */
 bool QDomImplementation::isNull()
 {
@@ -896,8 +901,12 @@ uint QDomNodeListPrivate::length() const
   to be "live": whenever you change the underlying document, the contents of
   the list will get updated.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  You can get a particular node from the list with item(). The number of items
+  in the list is returned by count() (and by length()).
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 
@@ -942,7 +951,8 @@ QDomNodeList& QDomNodeList::operator= ( const QDomNodeList& n )
 }
 
 /*!
-  Returns TRUE if \a n and this list are equal, otherwise FALSE.
+  Returns TRUE if the node list \a n and this node list are equal; otherwise
+  returns FALSE.
 */
 bool QDomNodeList::operator== ( const QDomNodeList& n ) const
 {
@@ -954,7 +964,8 @@ bool QDomNodeList::operator== ( const QDomNodeList& n ) const
 }
 
 /*!
-  Returns TRUE \a n and this list are not equal, otherwise FALSE.
+  Returns TRUE the node list \a n and this node list are not equal; otherwise
+  returns FALSE.
 */
 bool QDomNodeList::operator!= ( const QDomNodeList& n ) const
 {
@@ -962,7 +973,7 @@ bool QDomNodeList::operator!= ( const QDomNodeList& n ) const
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomNodeList::~QDomNodeList()
 {
@@ -975,6 +986,8 @@ QDomNodeList::~QDomNodeList()
 
   If \a index is negative or if \a index >= length() then a null node is
   returned (i.e. a node for which QDomNode::isNull() returns TRUE).
+
+  \sa count()
 */
 QDomNode QDomNodeList::item( int index ) const
 {
@@ -1486,22 +1499,60 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
 
 /*!
   \class QDomNode qdom.h
-  \brief The QDomNode class is the base class for all nodes of the DOM tree.
+  \brief The QDomNode class is the base class for all the nodes in a DOM tree.
 
   \module XML
 
-  This class is the base class for almost all other classes in the DOM. Many
-  functions in the DOM return a QDomNode. The various isXxx() functions are
-  useful to find out the type of the node. A QDomNode can be converted to a
-  subclass by using the toXxx() function family.
+  Many functions in the DOM return a QDomNode. 
+  
+  You can find out the type of a node using isAttr(), isCDATASection(),
+  isDocumentFragment(), isDocument(), isDocumentType(), isElement(),
+  isEntityReference(), isText(), isEntity(), isNotation(),
+  isProcessingInstruction(), isCharacterData() and isComment().
 
-  Copies of the QDomNode class share their data; this means modifying one will
-  change all copies. This is especially useful in combination with functions
-  which return a QDomNode, e.g. firstChild(). You can make an independent copy
-  of the node with cloneNode().
+  A QDomNode can be converted into one of its subclasses using toAttr(),
+  toCDATASection(), toDocumentFragment(), toDocument(), toDocumentType(),
+  toElement(), toEntityReference(), toText(), toEntity(), toNotation(),
+  toProcessingInstruction(), toCharacterData() or toComment(). You can convert
+  a node to a null node with clear().
+
+  Copies of the QDomNode class share their data; this means modifying one node
+  will change all copies. This is especially useful in combination with
+  functions which return a QDomNode, e.g. firstChild(). You can make an
+  independent (deep) copy of the node with cloneNode().
+
+  Nodes are inserted with insertBefore(), insertAfter() or appendChild(). You
+  can replace one node with another using replaceChild() and remove a node
+  with removeChild().
+
+  To traverse nodes use firstChild() to get a node's first child (if any), and
+  nextSibling() to traverse. QDomNode also provides lastChild(),
+  previousSibling() and parentNode(). To find the first child node with a
+  particular node name use namedItem().
+  
+  To find out if a node has children use hasChildNodes() and to get a list of
+  all of a node's children use childNodes(). 
+
+  The node's name and value (the meaning of which varies depending on its
+  type) is returned by nodeName() and nodeValue() respectively. The node's
+  type is returned by nodeType(). The node's value can be set with
+  setNodeValue().
+
+  The document to which the node belongs is returned by ownerDocument().
+
+  Adjacent QDomText nodes can be merged into a single node with normalize().
+
+  \l QDomElement nodes have attributes which can be retrieved with attributes().
+
+  QDomElement and QDomAttr nodes can have namespaces which can be retrieved
+  with namespaceURI(). Their local name is retrieved with localName(), and
+  their prefix with prefix(). The prefix can be set with setPrefix().
+
+  You can write the XML representation of the node to a text stream with
+  save().
 
   The following example looks for the first element in an XML document and
-  prints its name:
+  prints the names of all the elements that are its direct children.
   \code
   QDomDocument d;
   d.setContent( someXML );
@@ -1509,16 +1560,16 @@ void QDomNodePrivate::save( QTextStream& s, int indent ) const
   while ( !n.isNull() ) {
       if ( n.isElement() ) {
           QDomElement e = n.toElement();
-          cout << "The name of the element is " << e.tagName() << endl;
+          cout << "Element name: " << e.tagName() << endl;
 	  return;
       }
       n = n.nextSibling();
   }
-  cout << "no element in the Document" << endl;
   \endcode
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -1534,8 +1585,8 @@ QDomNode::QDomNode()
 /*!
   Constructs a copy of \a n.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomNode::QDomNode( const QDomNode& n )
 {
@@ -1555,8 +1606,8 @@ QDomNode::QDomNode( QDomNodePrivate* n )
 /*!
   Assigns a copy of \a n to this DOM node.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomNode& QDomNode::operator= ( const QDomNode& n )
 {
@@ -1568,7 +1619,7 @@ QDomNode& QDomNode::operator= ( const QDomNode& n )
 }
 
 /*!
-  Returns TRUE if \a n and this DOM node are equal, otherwise FALSE.
+  Returns TRUE if \a n and this DOM node are equal; otherwise returns FALSE.
 */
 bool QDomNode::operator== ( const QDomNode& n ) const
 {
@@ -1576,7 +1627,8 @@ bool QDomNode::operator== ( const QDomNode& n ) const
 }
 
 /*!
-  Returns TRUE if \a n and this DOM node are not equal, otherwise FALSE.
+  Returns TRUE if \a n and this DOM node are not equal; otherwise returns
+  FALSE.
 */
 bool QDomNode::operator!= ( const QDomNode& n ) const
 {
@@ -1584,7 +1636,7 @@ bool QDomNode::operator!= ( const QDomNode& n ) const
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomNode::~QDomNode()
 {
@@ -1597,18 +1649,18 @@ QDomNode::~QDomNode()
   The meaning of the name depends on the subclass:
 
   <ul>
-  <li> QDomElement - the tag name
   <li> QDomAttr - the name of the attribute
-  <li> QDomText - the string "#text"
   <li> QDomCDATASection - the string "#cdata-section"
-  <li> QDomEntityReference - the name of the referenced entity
-  <li> QDomEntity - the name of the entity
-  <li> QDomProcessingInstruction - the target of the processing instruction
-  <li> QDomDocument - the string "#document"
   <li> QDomComment - the string "#comment"
-  <li> QDomDocumentType - the name of the document type
+  <li> QDomDocument - the string "#document"
   <li> QDomDocumentFragment - the string "#document-fragment"
+  <li> QDomDocumentType - the name of the document type
+  <li> QDomElement - the tag name
+  <li> QDomEntity - the name of the entity
+  <li> QDomEntityReference - the name of the referenced entity
   <li> QDomNotation - the name of the notation
+  <li> QDomProcessingInstruction - the target of the processing instruction
+  <li> QDomText - the string "#text"
   </ul>
 
   \sa nodeValue()
@@ -1630,14 +1682,13 @@ QString QDomNode::nodeName() const
 
   <ul>
   <li> QDomAttr - the attribute value
-  <li> QDomText - the text
   <li> QDomCDATASection - the content of the CDATA section
-  <li> QDomProcessingInstruction - the data of the processing intruction
   <li> QDomComment - the comment
+  <li> QDomProcessingInstruction - the data of the processing intruction
+  <li> QDomText - the text
   </ul>
 
-  All other subclasses not listed above do not have a node value. These classes
-  will return a null string.
+  All other subclasses do not have a node value and will return a null string.
 
   \sa setNodeValue() nodeName()
 */
@@ -1664,23 +1715,20 @@ void QDomNode::setNodeValue( const QString& v )
   \enum QDomNode::NodeType
 
   This enum defines the type of the node:
-  \value ElementNode  the node is an element
-  \value AttributeNode  the node is an attribute
-  \value TextNode  the node is a text
-  \value CDATASectionNode  the node is a CDATA section
-  \value EntityReferenceNode  the node is an entity reference
-  \value EntityNode  the node is an entity
-  \value ProcessingInstructionNode  the node is a processing
-	  instruction
-  \value CommentNode  the node is a comment
-  \value DocumentNode  the node is a document
-  \value DocumentTypeNode  the node is a document type
-  \value DocumentFragmentNode  the node is a document fragment
-  \value NotationNode  the node is a notation
-  \value BaseNode  the node is a QDomNode object rather than a
-	  subclass of it
-  \value CharacterDataNode  the node is a QDomCharacterData object
-	  rather than a subclass of it.
+  \value ElementNode  
+  \value AttributeNode  
+  \value TextNode  
+  \value CDATASectionNode  
+  \value EntityReferenceNode  
+  \value EntityNode  
+  \value ProcessingInstructionNode  
+  \value CommentNode  
+  \value DocumentNode  
+  \value DocumentTypeNode  
+  \value DocumentFragmentNode  
+  \value NotationNode  
+  \value BaseNode  A QDomNode object, i.e. not a QDomNode subclass.
+  \value CharacterDataNode  
 */
 /*!
   Returns the type of the node.
@@ -1697,7 +1745,7 @@ QDomNode::NodeType QDomNode::nodeType() const
 }
 
 /*!
-  Returns the parent node. If this node has no parent, then a null node is
+  Returns the parent node. If this node has no parent, a null node is
   returned (i.e. a node for which isNull() returns TRUE).
 */
 QDomNode QDomNode::parentNode() const
@@ -1711,15 +1759,14 @@ QDomNode QDomNode::parentNode() const
   Returns a list of all child nodes.
 
   Most often you will call this function on a QDomElement object.
-  If the XML document looks like this:
 
+  For example, if the XML document looks like this:
   \code
   <body>
    <h1>Heading</h1>
    <p>Hallo <b>you</b></p>
   </body>
   \endcode
-
   Then the list of child nodes for the "body"-element will contain the node
   created by the &lt;h1&gt; tag and the node created by the &lt;p&gt; tag.
 
@@ -1737,7 +1784,8 @@ QDomNodeList QDomNode::childNodes() const
 
 /*!
   Returns the first child of the node. If there is no child node, a null node
-  is returned.
+  is returned. Changing the returned node will also change the node in the
+  document tree.
 
   \sa lastChild() childNodes()
 */
@@ -1749,8 +1797,9 @@ QDomNode QDomNode::firstChild() const
 }
 
 /*!
-  Returns the last child of the node. If there is no child node then a null
-  node is returned.
+  Returns the last child of the node. If there is no child node, a null
+  node is returned. Changing the returned node will also change the node in
+  the document tree.
 
   \sa firstChild() childNodes()
 */
@@ -1765,14 +1814,13 @@ QDomNode QDomNode::lastChild() const
   Returns the previous sibling in the document tree. Changing the returned node
   will also change the node in the document tree.
 
-  If you have XML like this:
+  For example, if you have XML like this:
   \code
   <h1>Heading</h1>
   <p>The text...</p>
   <h2>Next heading</h2>
   \endcode
-
-  and this QDomNode represents the &lt;p&gt; tag, the previousSibling
+  and this QDomNode represents the &lt;p&gt; tag, previousSibling()
   will return the node representing the &lt;h1&gt; tag.
 
   \sa nextSibling()
@@ -1794,8 +1842,7 @@ QDomNode QDomNode::previousSibling() const
   <p>The text...</p>
   <h2>Next heading</h2>
   \endcode
-
-  and this QDomNode represents the &lt;p&gt; tag, the nextSibling
+  and this QDomNode represents the &lt;p&gt; tag, nextSibling()
   will return the node representing the &lt;h2&gt; tag.
 
   \sa previousSibling()
@@ -1808,7 +1855,7 @@ QDomNode QDomNode::nextSibling() const
 }
 
 /*!
-  Returns a map of all attributes. Attributes are only provided for
+  Returns a named node map of all attributes. Attributes are only provided for
   QDomElement.
 
   Changing the attributes in the map will also change the attributes of this
@@ -1833,11 +1880,11 @@ QDomDocument QDomNode::ownerDocument() const
 }
 
 /*!
-  Creates a real copy of the QDomNode.
+  Creates a real (not shallow) copy of the QDomNode.
 
-  If \a deep is TRUE, then the cloning is done recursive.
-  That means all children are copied, too. Otherwise the cloned
-  node does not contain child nodes.
+  If \a deep is TRUE, then the cloning is done recursively which
+  means that all the node's children are copied, too. If \a deep is FALSE only
+  the node itself is copied and the copy will have no child nodes.
 */
 QDomNode QDomNode::cloneNode( bool deep ) const
 {
@@ -1847,9 +1894,9 @@ QDomNode QDomNode::cloneNode( bool deep ) const
 }
 
 /*!
-  Calling normalize() on an element brings all its children into a standard
-  form. This means, that adjacent QDomText objects will be merged to
-  one text object (QDomCDATASection nodes are not merged).
+  Calling normalize() on an element converts all its children into a standard
+  form. This means, that adjacent QDomText objects will be merged into
+  a single text object (QDomCDATASection nodes are not merged).
 */
 void QDomNode::normalize()
 {
@@ -1859,9 +1906,9 @@ void QDomNode::normalize()
 }
 
 /*!
-  Returns TRUE if the DOM implementation implements the feature \a feature and that
-  feature is supported by this node in the version \a version. Otherwise this
-  function returns FALSE.
+  Returns TRUE if the DOM implementation implements the feature \a feature and
+  that feature is supported by this node in the version \a version. Otherwise
+  this function returns FALSE.
 
   \sa QDomImplementation::hasFeature()
 */
@@ -1875,9 +1922,9 @@ bool QDomNode::isSupported( const QString& feature, const QString& version ) con
   Returns the namespace URI of this node; if the node has no namespace URI,
   this function returns QString::null.
 
-  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
-  namespace URI must be specified during creation time; it cannot be changed
-  afterwards.
+  Only nodes of type \l ElementNode or \l AttributeNode can have namespaces. A
+  namespace URI must be specified at creation time and cannot be changed
+  later.
 
   \sa prefix() localName() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -1893,16 +1940,15 @@ QString QDomNode::namespaceURI() const
   Returns the namespace prefix of the node; if a node has no namespace prefix,
   this function returns QString::null.
 
-  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
-  namespace prefix must be specified during creation time; if a node was
-  created with a namespace prefix, you can change it with setPrefix()
-  afterwards.
+  Only nodes of type ElementNode or AttributeNode can have namespaces. A
+  namespace prefix must be specified at creation time. If a node was
+  created with a namespace prefix, you can change it later with setPrefix().
 
-  If you create an elment or attribute with QDomDocument::createElement() or
+  If you create an element or attribute with QDomDocument::createElement() or
   QDomDocument::createAttribute(), the prefix will be null. If you use
-  QDomDocument::createElementNS() or QDomDocument::createAttributeNS() instead,
-  the prefix will not be null - even if the name does not have a prefix. In
-  that case, this function returns an empty, but not null string.
+  QDomDocument::createElementNS() or QDomDocument::createAttributeNS()
+  instead, the prefix will not be null - although it might be an empty string
+  if the name does not have a prefix. 
 
   \sa setPrefix() localName() namespaceURI() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -1918,8 +1964,8 @@ QString QDomNode::prefix() const
   If the node has a namespace prefix, this function changes the namespace
   prefix of the node to \a pre. Otherwise this function has no effect.
 
-  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
-  namespace prefix must be specified during creation time; it is not possible
+  Only nodes of type \l ElementNode or \l AttributeNode can have namespaces. A
+  namespace prefix must have be specified at creation time; it is not possible
   to add a namespace prefix afterwards.
 
   \sa prefix() localName() namespaceURI() QDomDocument::createElementNS()
@@ -1937,8 +1983,8 @@ void QDomNode::setPrefix( const QString& pre )
   If the node uses namespaces, this function returns the local name of the
   node. Otherwise it returns QString::null.
 
-  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
-  namespace must be specified during creation time; it is not possible
+  Only nodes of type \l ElementNode or \l AttributeNode can have namespaces. A
+  namespace must have been specified at creation time; it is not possible
   to add a namespace afterwards.
 
   \sa prefix() namespaceURI() QDomDocument::createElementNS()
@@ -1952,7 +1998,7 @@ QString QDomNode::localName() const
 }
 
 /*!
-  Returns TRUE if the node has attributes, otherwise it returns FALSE.
+  Returns TRUE if the node has attributes; otherwise returns FALSE.
 
   \sa attributes()
 */
@@ -1965,15 +2011,15 @@ bool QDomNode::hasAttributes() const
 
 /*!
   Inserts the node \a newChild before the child node \a refChild.  \a refChild
-  has to be a direct child of this node. If \a refChild is null then \a
-  newChild is inserted as first child.
+  must be a direct child of this node. If \a refChild is null then \a
+  newChild is inserted as the node's first child.
 
-  If \a newChild is currently child of another parent, then it is reparented.
-  If \a newChild is currently a child of this QDomNode, then its position in
-  the list of children is changed.
+  If \a newChild is the child of another node, it is reparented to this node.
+  If \a newChild is a child of this node, then its position in the list of
+  children is changed.
 
   If \a newChild is a QDomDocumentFragment, then the children of the fragment
-  are removed from the fragment and inserted after \a refChild.
+  are removed from the fragment and inserted before \a refChild.
 
   Returns a new reference to \a newChild on success or an empty node on
   failure.
@@ -1989,17 +2035,18 @@ QDomNode QDomNode::insertBefore( const QDomNode& newChild, const QDomNode& refCh
 
 /*!
   Inserts the node \a newChild after the child node \a refChild.  \a refChild
-  has to be a direct child of this node. If \a refChild is null then \a
-  newChild is appended as last child.
+  must be a direct child of this node. If \a refChild is null then \a
+  newChild is appended as this node's last child.
 
-  If \a newChild is currently child of another parent, then it is reparented.
-  If \a newChild is currently a child of this QDomNode, then its position in
-  the list of children is changed.
+  If \a newChild is the child of another node, it is reparented to this node.
+  If \a newChild is a child of this node, then its position in the list of
+  children is changed.
 
   If \a newChild is a QDomDocumentFragment, then the children of the fragment
   are removed from the fragment and inserted after \a refChild.
 
-  Returns a new reference to \a newChild on success or an empty node on failure.
+  Returns a new reference to \a newChild on success or an empty node on
+  failure.
 
   \sa insertBefore() replaceChild() removeChild() appendChild()
 */
@@ -2011,15 +2058,15 @@ QDomNode QDomNode::insertAfter( const QDomNode& newChild, const QDomNode& refChi
 }
 
 /*!
-  Replaces \a oldChild with \a newChild. \a oldChild has to be a direct child
+  Replaces \a oldChild with \a newChild. \a oldChild must be a direct child
   of this node.
 
-  If \a newChild is currently child of another parent, then it is reparented.
-  If \a newChild is currently a child of this QDomNode, then its position in
-  the list of children is changed.
+  If \a newChild is the child of another node, it is reparented to this node.
+  If \a newChild is a child of this node, then its position in the list of
+  children is changed.
 
-  If \a newChild is a QDomDocumentFragment, then \a oldChild is replaced by all
-  of the children of the fragment.
+  If \a newChild is a QDomDocumentFragment, then \a oldChild is replaced by
+  all of the children of the fragment.
 
   Returns a new reference to \a oldChild on success or a null node an failure.
 
@@ -2034,7 +2081,7 @@ QDomNode QDomNode::replaceChild( const QDomNode& newChild, const QDomNode& oldCh
 
 /*!
   Removes \a oldChild from the list of children.
-  \a oldChild has to be a direct child of this node.
+  \a oldChild must be a direct child of this node.
 
   Returns a new reference to \a oldChild on success or a null node on failure.
 
@@ -2052,11 +2099,11 @@ QDomNode QDomNode::removeChild( const QDomNode& oldChild )
 }
 
 /*!
-  Appends \a newChild to the end of the children list.
+  Appends \a newChild as the node's last child.
 
-  If \a newChild is currently child of another parent, then it is reparented.
-  If \a newChild is currently a child of this QDomNode, then its position in
-  the list of children is changed.
+  If \a newChild is the child of another node, it is reparented to this node.
+  If \a newChild is a child of this node, then its position in the list of
+  children is changed.
 
   Returns a new reference to \a newChild.
 
@@ -2070,7 +2117,7 @@ QDomNode QDomNode::appendChild( const QDomNode& newChild )
 }
 
 /*!
-  Returns TRUE if the node has one or more children, otherwise FALSE.
+  Returns TRUE if the node has one or more children; otherwise returns FALSE.
 */
 bool QDomNode::hasChildNodes() const
 {
@@ -2080,8 +2127,8 @@ bool QDomNode::hasChildNodes() const
 }
 
 /*!
-  Returns TRUE if this node does not reference any internal object, otherwise
-  FALSE.
+  Returns TRUE if this node does not reference any internal object; otherwise
+  returns FALSE.
 */
 bool QDomNode::isNull() const
 {
@@ -2089,7 +2136,7 @@ bool QDomNode::isNull() const
 }
 
 /*!
-  Dereferences the internal object. The node is then a null node.
+  Dereferences the internal object. The node becomes a null node.
 
   \sa isNull()
 */
@@ -2100,7 +2147,7 @@ void QDomNode::clear()
 }
 
 /*!
-  Returns the first child node for which nodeName() equals \a name.
+  Returns the first direct child node for which nodeName() equals \a name.
 
   If no such direct child exists, a null node is returned.
 
@@ -2115,7 +2162,7 @@ QDomNode QDomNode::namedItem( const QString& name ) const
 
 /*!
   Writes the XML representation of the node and all its children
-  to the stream \a str. This function uses \a indent as the amount of spaces to
+  to the stream \a str. This function uses \a indent as the amount of space to
   indent the node.
 */
 void QDomNode::save( QTextStream& str, int indent ) const
@@ -2136,9 +2183,9 @@ QTextStream& operator<<( QTextStream& str, const QDomNode& node )
 }
 
 /*!
-  Returns TRUE if the node is an attribute, otherwise FALSE.
+  Returns TRUE if the node is an attribute; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomAttribute; you can get the QDomAttribute with toAttribute().
 
   \sa toAttr()
@@ -2151,9 +2198,9 @@ bool QDomNode::isAttr() const
 }
 
 /*!
-  Returns TRUE if the node is a CDATA section, otherwise FALSE.
+  Returns TRUE if the node is a CDATA section; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomCDATASection; you can get the QDomCDATASection with toCDATASection().
 
   \sa toCDATASection()
@@ -2166,9 +2213,9 @@ bool QDomNode::isCDATASection() const
 }
 
 /*!
-  Returns TRUE if the node is a document fragment, otherwise FALSE.
+  Returns TRUE if the node is a document fragment; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomDocumentFragment; you can get the QDomDocumentFragment with
   toDocumentFragment().
 
@@ -2182,9 +2229,9 @@ bool QDomNode::isDocumentFragment() const
 }
 
 /*!
-  Returns TRUE if the node is a document, otherwise FALSE.
+  Returns TRUE if the node is a document; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomDocument; you can get the QDomDocument with toDocument().
 
   \sa toDocument()
@@ -2197,9 +2244,9 @@ bool QDomNode::isDocument() const
 }
 
 /*!
-  Returns TRUE if the node is a document type, otherwise FALSE.
+  Returns TRUE if the node is a document type; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomDocumentType; you can get the QDomDocumentType with toDocumentType().
 
   \sa toDocumentType()
@@ -2212,9 +2259,9 @@ bool QDomNode::isDocumentType() const
 }
 
 /*!
-  Returns TRUE if the node is an element, otherwise FALSE.
+  Returns TRUE if the node is an element; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomElement; you can get the QDomElement with toElement().
 
   \sa toElement()
@@ -2227,9 +2274,9 @@ bool QDomNode::isElement() const
 }
 
 /*!
-  Returns TRUE if the node is an entity reference, otherwise FALSE.
+  Returns TRUE if the node is an entity reference; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomEntityReference; you can get the QDomEntityReference with
   toEntityReference().
 
@@ -2243,9 +2290,9 @@ bool QDomNode::isEntityReference() const
 }
 
 /*!
-  Returns TRUE if the node is a text, otherwise FALSE.
+  Returns TRUE if the node is a text; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomText; you can get the QDomText with toText().
 
   \sa toText()
@@ -2258,9 +2305,9 @@ bool QDomNode::isText() const
 }
 
 /*!
-  Returns TRUE if the node is an entity, otherwise FALSE.
+  Returns TRUE if the node is an entity; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomEntity; you can get the QDomEntity with toEntity().
 
   \sa toEntity()
@@ -2273,9 +2320,9 @@ bool QDomNode::isEntity() const
 }
 
 /*!
-  Returns TRUE if the node is a notation, otherwise FALSE.
+  Returns TRUE if the node is a notation; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomNotation; you can get the QDomNotation with toNotation().
 
   \sa toNotation()
@@ -2288,9 +2335,10 @@ bool QDomNode::isNotation() const
 }
 
 /*!
-  Returns TRUE if the node is a processing instruction, otherwise FALSE.
+  Returns TRUE if the node is a processing instruction; otherwise returns
+  FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomProcessingInstruction; you can get the QProcessingInstruction with
   toProcessingInstruction().
 
@@ -2304,9 +2352,9 @@ bool QDomNode::isProcessingInstruction() const
 }
 
 /*!
-  Returns TRUE if the node is a character data node, otherwise FALSE.
+  Returns TRUE if the node is a character data node; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomCharacterData; you can get the QDomCharacterData with
   toCharacterData().
 
@@ -2320,9 +2368,9 @@ bool QDomNode::isCharacterData() const
 }
 
 /*!
-  Returns TRUE if the node is a comment, otherwise FALSE.
+  Returns TRUE if the node is a comment; otherwise returns FALSE.
 
-  If this function returns TRUE, this does not imply that this object is
+  If this function returns TRUE, it does not imply that this object is
   a QDomComment; you can get the QDomComment with toComment().
 
   \sa toComment()
@@ -2499,12 +2547,11 @@ bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & 
 
   \module XML
 
-  Note that QDomNamedNodeMap does not inherit from QDomNodeList;
-  QDomNamedNodeMaps does not provide any specific order of the nodes. Nodes
-  contained in a QDomNamedNodeMap may also be accessed by an ordinal index, but
-  this is simply to allow a convenient enumeration of the contents of a
-  QDomNamedNodeMap and does not imply that the DOM specifies an order on the
-  nodes.
+  Note that QDomNamedNodeMap does not inherit from QDomNodeList.
+  QDomNamedNodeMaps do not provide any specific node ordering. Although nodes
+  in a QDomNamedNodeMap may be accessed by an ordinal index, this is simply to
+  allow a convenient enumeration of the contents of a QDomNamedNodeMap, and
+  does not imply that the DOM specifies an ordering of the nodes.
 
   The QDomNamedNodeMap is used in three places:
 
@@ -2518,14 +2565,18 @@ bool QDomNamedNodeMapPrivate::containsNS( const QString& nsURI, const QString & 
   </ul>
 
   Items in the map are identified by the name which QDomNode::name() returns.
-  They can be queried using the namedItem() function and set using
-  setNamedItem().
+  Nodes are retrieved using namedItem(), namedItemNS() or item(). New nodes
+  are inserted with setNamedItem() or setNamedItem() and removed with
+  removeNamedItem() or removeNamedItemNS(). Use contains() to see if an item
+  with the given name is in the named node map. The number of items is
+  returned by length(). 
 
-  \sa namedItem() setNamedItem()
+  Terminology: in this class we use "item" and "node" interchangeably.
+
 */
 
 /*!
-  Constructs an empty map.
+  Constructs an empty named node map.
 */
 QDomNamedNodeMap::QDomNamedNodeMap()
 {
@@ -2564,7 +2615,8 @@ QDomNamedNodeMap& QDomNamedNodeMap::operator= ( const QDomNamedNodeMap& n )
 }
 
 /*!
-  Returns TRUE if \a n and this map are equal, FALSE otherwise.
+  Returns TRUE if \a n and this named node map are equal; otherwise returns
+  FALSE.
 */
 bool QDomNamedNodeMap::operator== ( const QDomNamedNodeMap& n ) const
 {
@@ -2572,7 +2624,8 @@ bool QDomNamedNodeMap::operator== ( const QDomNamedNodeMap& n ) const
 }
 
 /*!
-  Returns TRUE if \a n and this map are not equal, FALSE otherwise.
+  Returns TRUE if \a n and this named node map are not equal; otherwise
+  returns FALSE.
 */
 bool QDomNamedNodeMap::operator!= ( const QDomNamedNodeMap& n ) const
 {
@@ -2580,7 +2633,7 @@ bool QDomNamedNodeMap::operator!= ( const QDomNamedNodeMap& n ) const
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomNamedNodeMap::~QDomNamedNodeMap()
 {
@@ -2589,9 +2642,10 @@ QDomNamedNodeMap::~QDomNamedNodeMap()
 }
 
 /*!
-  Returns the node associated with they key \a name.
+  Returns the node called \a name.
 
-  If the map does not contain such a node, then a null node is returned.
+  If the named node map does not contain such a node, a null node is returned.
+  A node's name is the name returned by QDomNode::nodeName().
 
   \sa setNamedItem() namedItemNS()
 */
@@ -2603,10 +2657,11 @@ QDomNode QDomNamedNodeMap::namedItem( const QString& name ) const
 }
 
 /*!
-  Inserts the node \a newNode in the map. The key for the map is the node name
-  of \a newNode as returned by QDomNode::nodeName().
+  Inserts the node \a newNode into the named node map. The name used by the
+  map is the node name of \a newNode as returned by QDomNode::nodeName().
 
-  If the new node replaces an existing node, the replaced node is returned.
+  If the new node replaces an existing node, i.e. the map contains a node with
+  the same name, the replaced node is returned.
 
   \sa namedItem() removeNamedItem() setNamedItemNS()
 */
@@ -2618,10 +2673,10 @@ QDomNode QDomNamedNodeMap::setNamedItem( const QDomNode& newNode )
 }
 
 /*!
-  Removes the node with the name \a name from the map.
+  Removes the node called \a name from the map.
 
   The function returns the removed node or a null node
-  if the map did not contain a node with the name \a name.
+  if the map did not contain a node called \a name.
 
   \sa setNamedItem() namedItem() removeNamedItemNS()
 */
@@ -2635,7 +2690,8 @@ QDomNode QDomNamedNodeMap::removeNamedItem( const QString& name )
 /*!
   Retrieves the node at position \a index.
 
-  This can be used to iterate over the map.
+  This can be used to iterate over the map. Note that the nodes in the map are
+  ordered arbitrarily.
 
   \sa length()
 */
@@ -2650,7 +2706,7 @@ QDomNode QDomNamedNodeMap::item( int index ) const
   Returns the node associated with the local name \a localName and the
   namespace URI \a nsURI.
 
-  If the map does not contain such a node, then a null node is returned.
+  If the map does not contain such a node, a null node is returned.
 
   \sa setNamedItemNS() namedItem()
 */
@@ -2664,9 +2720,8 @@ QDomNode QDomNamedNodeMap::namedItemNS( const QString& nsURI, const QString& loc
 /*!
   Inserts the node \a newNode in the map. If a node with the same namespace URI
   and the same local name already exists in the map, it is replaced by \a
-  newNode.
-
-  If the new node replaces an existing node, the replaced node is returned.
+  newNode. If the new node replaces an existing node, the replaced node is
+  returned.
 
   \sa namedItemNS() removeNamedItemNS() setNamedItem()
 */
@@ -2710,8 +2765,8 @@ uint QDomNamedNodeMap::length() const
 }
 
 /*!
-  Returns TRUE if the map contains a node with the name \a name, otherwise
-  FALSE.
+  Returns TRUE if the map contains a node called \a name; otherwise
+  returns FALSE.
 */
 bool QDomNamedNodeMap::contains( const QString& name ) const
 {
@@ -2888,11 +2943,11 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 
   \module XML
 
-  The QDomDocumentType class allows readonly access to some of the data
+  The QDomDocumentType class allows read-only access to some of the data
   structures in the DTD: it can return a map of all entities() and notations().
-
   In addition the function name() returns the name of the document type as
-  specified in the &lt;!DOCTYPE name&gt; tag.
+  specified in the &lt;!DOCTYPE name&gt; tag. This class also provides the
+  publicId(), systemId() and internalSubset() functions.
 
   \sa QDomDocument
 */
@@ -2907,8 +2962,8 @@ QDomDocumentType::QDomDocumentType() : QDomNode()
 /*!
   Constructs a copy of \a n.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomDocumentType::QDomDocumentType( const QDomDocumentType& n )
     : QDomNode( n )
@@ -2923,8 +2978,8 @@ QDomDocumentType::QDomDocumentType( QDomDocumentTypePrivate* n )
 /*!
   Assigns \a n to this document type.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomDocumentType& QDomDocumentType::operator= ( const QDomDocumentType& n )
 {
@@ -2932,7 +2987,7 @@ QDomDocumentType& QDomDocumentType::operator= ( const QDomDocumentType& n )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomDocumentType::~QDomDocumentType()
 {
@@ -3076,8 +3131,7 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode( bool deep)
 
 /*!
   \class QDomDocumentFragment qdom.h
-  \brief The QDomDocumentFragment class is a tree of QDomNodes which is usually
-  not a complete QDomDocument.
+  \brief The QDomDocumentFragment class is a tree of QDomNodes which is not usually a complete QDomDocument.
 
   \module XML
 
@@ -3091,14 +3145,14 @@ QDomNodePrivate* QDomDocumentFragmentPrivate::cloneNode( bool deep)
   node. In these cases QDomDocumentFragment can be used as a temporary
   container for this list of children.
 
-  The most important feature of QDomDocumentFragment is, that it is treated in
+  The most important feature of QDomDocumentFragment is that it is treated in
   a special way by QDomNode::insertAfter(), QDomNode::insertBefore() and
-  QDomNode::replaceChild(): instead of inserting the fragment itself, all
-  children of the fragment are inserted.
+  QDomNode::replaceChild(): instead of inserting the fragment itself, all the
+  fragment's children are inserted.
 */
 
 /*!
-  Constructs an empty DocumentFragment.
+  Constructs an empty document fragment.
 */
 QDomDocumentFragment::QDomDocumentFragment()
 {
@@ -3112,8 +3166,8 @@ QDomDocumentFragment::QDomDocumentFragment( QDomDocumentFragmentPrivate* n )
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomDocumentFragment::QDomDocumentFragment( const QDomDocumentFragment& x )
     : QDomNode( x )
@@ -3123,8 +3177,8 @@ QDomDocumentFragment::QDomDocumentFragment( const QDomDocumentFragment& x )
 /*!
   Assigns \a x to this DOM document fragment.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomDocumentFragment& QDomDocumentFragment::operator= ( const QDomDocumentFragment& x )
 {
@@ -3132,7 +3186,7 @@ QDomDocumentFragment& QDomDocumentFragment::operator= ( const QDomDocumentFragme
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomDocumentFragment::~QDomDocumentFragment()
 {
@@ -3244,6 +3298,15 @@ void QDomCharacterDataPrivate::appendData( const QString& arg )
   More specialized versions of this class are QDomText, QDomComment
   and QDomCDATASection.
 
+    The data string is set with setData() and retrieved with data(). You can
+    retrieve a portion of the data string using substringData(). Extra data
+    can be appended with appendData(), or inserted with insertData(). Portions
+    of the data string can be deleted with deleteData() or replaced with
+    replaceData(). The length of the data string is returned by length().
+
+    The node type of the node containing this character data is returned by
+    nodeType().
+
   \sa QDomText QDomComment QDomCDATASection
 */
 
@@ -3257,8 +3320,8 @@ QDomCharacterData::QDomCharacterData()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomCharacterData::QDomCharacterData( const QDomCharacterData& x )
     : QDomNode( x )
@@ -3273,8 +3336,8 @@ QDomCharacterData::QDomCharacterData( QDomCharacterDataPrivate* n )
 /*!
   Assigns \a x to this character data.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomCharacterData& QDomCharacterData::operator= ( const QDomCharacterData& x )
 {
@@ -3282,7 +3345,7 @@ QDomCharacterData& QDomCharacterData::operator= ( const QDomCharacterData& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomCharacterData::~QDomCharacterData()
 {
@@ -3320,7 +3383,7 @@ uint QDomCharacterData::length() const
 }
 
 /*!
-  Returns the substring from position \a offset with length \a count.
+  Returns the substring of length \a count from position \a offset.
 */
 QString QDomCharacterData::substringData( unsigned long offset, unsigned long count )
 {
@@ -3330,7 +3393,7 @@ QString QDomCharacterData::substringData( unsigned long offset, unsigned long co
 }
 
 /*!
-  Appends \a arg to the stored string.
+  Appends the string \a arg, to the stored string.
 */
 void QDomCharacterData::appendData( const QString& arg )
 {
@@ -3339,7 +3402,7 @@ void QDomCharacterData::appendData( const QString& arg )
 }
 
 /*!
-  Inserts the string \a arg at position \a offset into the stored string.
+  Inserts the string \a arg into the stored string at position \a offset.
 */
 void QDomCharacterData::insertData( unsigned long offset, const QString& arg )
 {
@@ -3348,7 +3411,7 @@ void QDomCharacterData::insertData( unsigned long offset, const QString& arg )
 }
 
 /*!
-  Deletes the substring starting at position \a offset with length \a count.
+  Deletes a substring of length \a count from position \a offset.
 */
 void QDomCharacterData::deleteData( unsigned long offset, unsigned long count )
 {
@@ -3357,8 +3420,8 @@ void QDomCharacterData::deleteData( unsigned long offset, unsigned long count )
 }
 
 /*!
-  Replaces the substring starting at \a offset with length \a count with the
-  string \a arg.
+  Replaces the substring of length \a count starting at position \a offset
+  with the string \a arg.
 */
 void QDomCharacterData::replaceData( unsigned long offset, unsigned long count, const QString& arg )
 {
@@ -3495,13 +3558,14 @@ void QDomAttrPrivate::save( QTextStream& s, int ) const
   <link href="http://www.trolltech.com" color="red" />
   \endcode
 
-  One can use the attributes of an element with code similar to:
+  One can use the attributes of an element with code like this:
 
   \code
-  QDomElement e = ....;
+  QDomElement e = //...
+  //...
   QDomAttr a = e.attributeNode( "href" );
   cout << a.value() << endl // gives "http://www.trolltech.com"
-  a.setValue( "http://doc.trolltech.com" );
+  a.setValue( "http://doc.trolltech.com" ); // change the node's attribute
   QDomAttr a2 = e.attributeNode( "href" );
   cout << a2.value() << endl // gives "http://doc.trolltech.com"
   \endcode
@@ -3511,8 +3575,15 @@ void QDomAttrPrivate::save( QTextStream& s, int ) const
   value of the element's attribute you have to use cloneNode() to get an
   independent copy of the attribute.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  QDomAttr can return the name() and value() of an attribute. An
+  attribute's value is set with setValue(). If specified returns TRUE the
+  value was either set in the document or set with setValue(); otherwise the
+  value hasn't been set. The node this attribute is attached to (if any) is
+  returned by ownerElement().
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -3528,8 +3599,8 @@ QDomAttr::QDomAttr()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomAttr::QDomAttr( const QDomAttr& x )
     : QDomNode( x )
@@ -3544,8 +3615,8 @@ QDomAttr::QDomAttr( QDomAttrPrivate* n )
 /*!
   Assigns \a x to this DOM attribute.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomAttr& QDomAttr::operator= ( const QDomAttr& x )
 {
@@ -3553,7 +3624,7 @@ QDomAttr& QDomAttr::operator= ( const QDomAttr& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomAttr::~QDomAttr()
 {
@@ -3570,8 +3641,9 @@ QString QDomAttr::name() const
 }
 
 /*!
-  Returns TRUE if the attribute has been expicitly specified in the XML
-  document or was set by the user with setValue(), otherwise FALSE.
+  Returns TRUE if the attribute has either been expicitly specified in the XML
+  document or was set by the user with setValue(). Returns FALSE if the value
+  hasn't been specified or set.
 
   \sa setValue()
 */
@@ -3597,8 +3669,8 @@ QDomElement QDomAttr::ownerElement() const
 }
 
 /*!
-  Returns the current value of the attribute. Returns a null string
-  when the attribute has not been specified.
+  Returns the value of the attribute. Returns a null string
+  if the attribute has not been specified.
 
   \sa specified() setValue()
 */
@@ -3855,14 +3927,24 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 
   \module XML
 
-  Elements have a name() and zero or more attributes associated with them.
+  Elements have a tagName() and zero or more attributes associated with them.
+  The tag name can be changed with setTagName().
 
   Attributes of the element are represented by QDomAttr objects, that can be
   queried using the attribute() and attributeNode() functions. You can set
   attributes with the setAttribute() and setAttributeNode() functions.
+  Attributes can be removed with removeAttribute(). There are namespace-aware
+  equivalents to these functions, i.e. setAttributeNS(), setAttributeNodeNS()
+  and removeAttributeNS().
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  The tag's text is retrieved with text().
+
+  You can get a list of all the decendents of an element which have a
+  specified tag name with elementsByTagName() or  elementsByTagNameNS().
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -3879,8 +3961,8 @@ QDomElement::QDomElement()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomElement::QDomElement( const QDomElement& x )
     : QDomNode( x )
@@ -3895,8 +3977,8 @@ QDomElement::QDomElement( QDomElementPrivate* n )
 /*!
   Assigns \a x to this DOM element.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomElement& QDomElement::operator= ( const QDomElement& x )
 {
@@ -3904,7 +3986,7 @@ QDomElement& QDomElement::operator= ( const QDomElement& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomElement::~QDomElement()
 {
@@ -3946,7 +4028,7 @@ QString QDomElement::tagName() const
 }
 
 /*!
-  Returns the attribute with the name \a name. If the attribute does not exist
+  Returns the attribute called \a name. If the attribute does not exist
   \a defValue is returned.
 
   \sa setAttribute() attributeNode() setAttributeNode() attributeNS()
@@ -3959,8 +4041,8 @@ QString QDomElement::attribute( const QString& name,  const QString& defValue ) 
 }
 
 /*!
-  Adds an attribute with the name \a name to the string \a value. If an
-  attribute with the same name exists, its value is repaced by \a value.
+  Adds an attribute called name \a name with value \a value. If an
+  attribute with the same name exists, its value is replaced by \a value.
 
   \sa attribute() setAttributeNode() setAttributeNS()
 */
@@ -4005,7 +4087,7 @@ void QDomElement::setAttribute( const QString& name, double value )
 }
 
 /*!
-  Removes the attribute with the name \a name from this element.
+  Removes the attribute called name \a name from this element.
 
   \sa setAttribute() attribute() removeAttributeNS()
 */
@@ -4017,7 +4099,7 @@ void QDomElement::removeAttribute( const QString& name )
 }
 
 /*!
-  Returns the QDomAttr object that corresponds to the attribute with the name
+  Returns the QDomAttr object that corresponds to the attribute called
   \a name.  If no such attribute exists a null object is returned.
 
   \sa setAttributeNode() attribute() setAttribute() attributeNodeNS()
@@ -4059,7 +4141,7 @@ QDomAttr QDomElement::removeAttributeNode( const QDomAttr& oldAttr )
 
 /*!
   Returns a QDomNodeList containing all descendant elements of this element
-  with the name \a tagname. The order they are in the node list, is the order
+  called \a tagname. The order they are in the node list, is the order
   they are encountered in a preorder traversal of the element tree.
 
   \sa elementsByTagNameNS() QDomDocument::elementsByTagName()
@@ -4078,7 +4160,7 @@ bool QDomElement::isElement() const
 }
 
 /*!
-  Returns a QDomNamedNodeMap containing all attributes for this element.
+  Returns a QDomNamedNodeMap containing all this element's attributes.
 
   \sa attribute() setAttribute() attributeNode() setAttributeNode()
 */
@@ -4090,8 +4172,8 @@ QDomNamedNodeMap QDomElement::attributes() const
 }
 
 /*!
-  Returns TRUE is this element has an attribute with the name \a name,
-  otherwise FALSE.
+  Returns TRUE is this element has an attribute called \a name;
+  otherwise returns FALSE.
 */
 bool QDomElement::hasAttribute( const QString& name ) const
 {
@@ -4115,12 +4197,12 @@ QString QDomElement::attributeNS( const QString nsURI, const QString& localName,
 
 /*!
   Adds an attribute with the qualified name \a qName and the namespace URI \a
-  nsURI to the string \a value. If an attribute with the same local name and
+  nsURI with the value \a value. If an attribute with the same local name and
   namespace URI exists, its prefix is replaced by the prefix of \a qName and
   its value is repaced by \a value.
 
-  Please note that the argument \a qName is the qualified name, but the local
-  name is used for the test, if an existing attribute should be replaced.
+  Although \a qName is the qualified name, the local name is used to decide if
+  an existing attribute's value should be replaced.
 
   \sa attributeNS() setAttributeNodeNS() setAttribute()
 */
@@ -4211,10 +4293,10 @@ QDomAttr QDomElement::setAttributeNodeNS( const QDomAttr& newAttr )
 }
 
 /*!
-  Returns a QDomNodeList containing all descendant elements of this element
-  with the local name \a localName and the namespace URI \a nsURI. The order
-  they are in the node list, is the order they are encountered in a preorder
-  traversal of the element tree.
+  Returns a QDomNodeList containing all the descendant elements of this
+  element with the local name \a localName and the namespace URI \a nsURI. The
+  order they are in the node list, is the order they are encountered in a
+  preorder traversal of the element tree.
 
   \sa elementsByTagName() QDomDocument::elementsByTagNameNS()
 */
@@ -4225,7 +4307,7 @@ QDomNodeList QDomElement::elementsByTagNameNS( const QString& nsURI, const QStri
 
 /*!
   Returns TRUE is this element has an attribute with the local name \a
-  localName and the namespace URI \a nsURI, otherwise FALSE.
+  localName and the namespace URI \a nsURI; otherwise returns FALSE.
 */
 bool QDomElement::hasAttributeNS( const QString& nsURI, const QString& localName ) const
 {
@@ -4245,7 +4327,7 @@ bool QDomElement::hasAttributeNS( const QString& nsURI, const QString& localName
   The function text() of the QDomElement for the &lt;h1&gt; tag,
   will return "Hello Qt &lt;xml is cool&gt;".
 
-  Comments are ignored by this function. It evaluates only
+  Comments are ignored by this function. It only evaluates
   QDomText and QDomCDATASection objects.
 */
 QString QDomElement::text() const
@@ -4320,12 +4402,16 @@ void QDomTextPrivate::save( QTextStream& s, int ) const
 
 /*!
   \class QDomText qdom.h
-  \brief The QDomText class represents textual data in the parsed XML document.
+  \brief The QDomText class represents text data in the parsed XML document.
 
   \module XML
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  You can split the text in a QDomText object over two QDomText objecs with
+  splitText().
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4343,8 +4429,8 @@ QDomText::QDomText()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomText::QDomText( const QDomText& x )
     : QDomCharacterData( x )
@@ -4359,8 +4445,8 @@ QDomText::QDomText( QDomTextPrivate* n )
 /*!
   Assigns \a x to this DOM text.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomText& QDomText::operator= ( const QDomText& x )
 {
@@ -4368,7 +4454,7 @@ QDomText& QDomText::operator= ( const QDomText& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomText::~QDomText()
 {
@@ -4459,14 +4545,15 @@ void QDomCommentPrivate::save( QTextStream& s, int ) const
 
   \module XML
 
-  A comment in the parsed XML such as
+  A comment in the parsed XML such as this:
   \code
   <!-- this is a comment -->
   \endcode
   is represented by QDomComment objects in the parsed Dom tree.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4483,8 +4570,8 @@ QDomComment::QDomComment()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomComment::QDomComment( const QDomComment& x )
     : QDomCharacterData( x )
@@ -4499,8 +4586,8 @@ QDomComment::QDomComment( QDomCommentPrivate* n )
 /*!
   Assigns \a x to this DOM comment.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomComment& QDomComment::operator= ( const QDomComment& x )
 {
@@ -4508,7 +4595,7 @@ QDomComment& QDomComment::operator= ( const QDomComment& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomComment::~QDomComment()
 {
@@ -4590,15 +4677,16 @@ void QDomCDATASectionPrivate::save( QTextStream& s, int ) const
   CDATA sections are used to escape blocks of text containing
   characters that would otherwise be regarded as markup. The only
   delimiter that is recognized in a CDATA section is the "]]&gt;"
-  string that ends the CDATA section. CDATA sections can not be
-  nested. The primary purpose is for including material such as XML
+  string that terminates the CDATA section. CDATA sections cannot be
+  nested. Their primary purpose is for including material such as XML
   fragments, without needing to escape all the delimiters.
 
   Adjacent QDomCDATASection nodes are not merged by the
   QDomNode::normalize() function.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4615,8 +4703,8 @@ QDomCDATASection::QDomCDATASection()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomCDATASection::QDomCDATASection( const QDomCDATASection& x )
     : QDomText( x )
@@ -4631,8 +4719,8 @@ QDomCDATASection::QDomCDATASection( QDomCDATASectionPrivate* n )
 /*!
   Assigns \a x to this CDATA section.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomCDATASection& QDomCDATASection::operator= ( const QDomCDATASection& x )
 {
@@ -4640,7 +4728,7 @@ QDomCDATASection& QDomCDATASection::operator= ( const QDomCDATASection& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomCDATASection::~QDomCDATASection()
 {
@@ -4655,7 +4743,7 @@ QDomNode::NodeType QDomCDATASection::nodeType() const
 }
 
 /*!
-  Returns TRUE
+  Returns TRUE.
 */
 bool QDomCDATASection::isCDATASection() const
 {
@@ -4731,12 +4819,15 @@ void QDomNotationPrivate::save( QTextStream& s, int ) const
   formal declaration of processing instruction targets (see section
   2.6 of the XML 1.0 specification).
 
-  DOM does not support editing notation nodes; they are therefore readonly.
+  DOM does not support editing notation nodes; they are therefore read-only.
 
   A notation node does not have any parent.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  You can retrieve the publicId() and systemId() from a notation node.
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4753,8 +4844,8 @@ QDomNotation::QDomNotation()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomNotation::QDomNotation( const QDomNotation& x )
     : QDomNode( x )
@@ -4769,8 +4860,8 @@ QDomNotation::QDomNotation( QDomNotationPrivate* n )
 /*!
   Assigns \a x to this DOM notation.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomNotation& QDomNotation::operator= ( const QDomNotation& x )
 {
@@ -4778,7 +4869,7 @@ QDomNotation& QDomNotation::operator= ( const QDomNotation& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomNotation::~QDomNotation()
 {
@@ -4933,13 +5024,17 @@ void QDomEntityPrivate::save( QTextStream& s, int ) const
   DOM does not support editing entity nodes; if a user wants to make changes to
   the contents of an entity, every related QDomEntityReference node has to be
   replaced in the DOM tree by a clone of the entity's contents, and then
-  the desired changes must be made to each of those clones instead. All the
-  descendants of an entity node are readonly.
+  the desired changes must be made to each of the clones instead. All the
+  descendants of an entity node are read-only.
 
   An entity node does not have any parent.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  You can access the entity's publicId(), systemId() and notationName() when
+  available.
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -4957,8 +5052,8 @@ QDomEntity::QDomEntity()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomEntity::QDomEntity( const QDomEntity& x )
     : QDomNode( x )
@@ -4973,8 +5068,8 @@ QDomEntity::QDomEntity( QDomEntityPrivate* n )
 /*!
   Assigns \a x to this DOM entity.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomEntity& QDomEntity::operator= ( const QDomEntity& x )
 {
@@ -4982,7 +5077,7 @@ QDomEntity& QDomEntity::operator= ( const QDomEntity& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomEntity::~QDomEntity()
 {
@@ -5103,10 +5198,11 @@ void QDomEntityReferencePrivate::save( QTextStream& s, int ) const
   may be that there is no entity node representing the referenced entity; but
   if such an entity exists, then the child list of the entity reference node is
   the same as that of the entity  node.  As with the entity node, all
-  descendants of the entity reference are readonly.
+  descendants of the entity reference are read-only.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -5124,8 +5220,8 @@ QDomEntityReference::QDomEntityReference()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomEntityReference::QDomEntityReference( const QDomEntityReference& x )
     : QDomNode( x )
@@ -5140,8 +5236,8 @@ QDomEntityReference::QDomEntityReference( QDomEntityReferencePrivate* n )
 /*!
   Assigns \a x to this entity reference.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomEntityReference& QDomEntityReference::operator= ( const QDomEntityReference& x )
 {
@@ -5149,7 +5245,7 @@ QDomEntityReference& QDomEntityReference::operator= ( const QDomEntityReference&
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomEntityReference::~QDomEntityReference()
 {
@@ -5227,8 +5323,13 @@ void QDomProcessingInstructionPrivate::save( QTextStream& s, int ) const
   Processing instructions are used in XML as a way to keep processor-specific
   information in the text of the document.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  The content of the processing instruction is retrieved with data() and set
+  with setData(). The processing instruction's target is retrieved with
+  target().
+
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
   For a more general introduction of the DOM implementation see the
   QDomDocument documentation.
 */
@@ -5246,8 +5347,8 @@ QDomProcessingInstruction::QDomProcessingInstruction()
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomProcessingInstruction::QDomProcessingInstruction( const QDomProcessingInstruction& x )
     : QDomNode( x )
@@ -5262,8 +5363,8 @@ QDomProcessingInstruction::QDomProcessingInstruction( QDomProcessingInstructionP
 /*!
   Assigns \a x to this processing instruction.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomProcessingInstruction& QDomProcessingInstruction::operator= ( const QDomProcessingInstruction& x )
 {
@@ -5271,7 +5372,7 @@ QDomProcessingInstruction& QDomProcessingInstruction::operator= ( const QDomProc
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomProcessingInstruction::~QDomProcessingInstruction()
 {
@@ -5624,15 +5725,35 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   within whose context they were created.
 
   The parsed XML is represented internally by a tree of objects that can be
-  accessed using the various QDom classes. All QDom classes do only reference
+  accessed using the various QDom classes. All QDom classes only \e reference
   objects in the internal tree. The internal objects in the DOM tree will get
-  deleted, once the last QDom object referencing them and the QDomDocument are
-  deleted.
+  deleted, once the last QDom object referencing them and the QDomDocument
+  itself are deleted.
 
   Creation of elements, text nodes, etc. is done via the various factory
   functions provided in this class. Using the default constructors of the QDom
-  classes will only result in empty objects, that can not be manipulated or
+  classes will only result in empty objects, that cannot be manipulated or
   inserted into the Document.
+
+  The QDomDocument class has several functions for creating document data, for
+  example, createElement(), createTextNode(), createComment(),
+  createCDATASection(), createProcessingInstruction(), createAttribute() and
+  createEntityReference(). Some of these functions have versions that support
+  namespaces, i.e. createElementNS() and createAttributeNS(). The
+  createDocumentFragment() function is used to hold parts of the document,
+  e.g. for complex documents.
+
+  The entire content of the document is set with setContent(). This function
+  parses the string it is passed as an XML document and creates the DOM
+  tree that represents the document. The root element is available using
+  documentElement(). The textual representation of the document can be
+  obtained using toString().
+
+  It is possible to insert a node from another document into the document
+  using importNode().
+
+  You can obtain a list of all the elements that have a particular tag with
+  elementsByTagName() or with elementsByTagNameNS().
 
   The QDom classes are typically used as follows:
   \code
@@ -5646,15 +5767,15 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   }
   f.close();
 
-  // print out the element names of all elements that are a direct child
+  // print out the element names of all elements that are direct children
   // of the outermost element.
   QDomElement docElem = doc.documentElement();
 
   QDomNode n = docElem.firstChild();
   while( !n.isNull() ) {
       QDomElement e = n.toElement(); // try to convert the node to an element.
-      if( !e.isNull() ) { // the node was really an element.
-	  cout << e.tagName() << endl;
+      if( !e.isNull() ) { 
+	  cout << e.tagName() << endl; // the node really is an element.
       }
       n = n.nextSibling();
   }
@@ -5668,8 +5789,11 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
   Once \c doc and \c elem go out of scode, the whole internal tree representing
   the XML document will get deleted.
 
-  For further information about the Document Objct Model see
-  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a>.
+  For further information about the Document Object Model see
+  <a href="http://www.w3.org/TR/REC-DOM-Level-1/">http://www.w3.org/TR/REC-DOM-Level-1/</a> and
+  <a href="http://www.w3.org/TR/REC-DOM-Level-2/">http://www.w3.org/TR/REC-DOM-Level-2/</a>.
+  For a more general introduction of the DOM implementation see the
+  QDomDocument documentation.
 */
 
 
@@ -5702,8 +5826,8 @@ QDomDocument::QDomDocument( const QDomDocumentType& doctype )
 /*!
   Constructs a copy of \a x.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomDocument::QDomDocument( const QDomDocument& x )
     : QDomNode( x )
@@ -5718,8 +5842,8 @@ QDomDocument::QDomDocument( QDomDocumentPrivate* x )
 /*!
   Assigns \a x to this DOM document.
 
-  The data of the copy is shared: modifying one will also change the other. If
-  you want to make a real copy, use cloneNode() instead.
+  The data of the copy is shared (shallow copy): modifying one node will also
+  change the other. If you want to make a deep copy, use cloneNode().
 */
 QDomDocument& QDomDocument::operator= ( const QDomDocument& x )
 {
@@ -5727,7 +5851,7 @@ QDomDocument& QDomDocument::operator= ( const QDomDocument& x )
 }
 
 /*!
-  Destructor.
+  Destroys the object and frees its resources.
 */
 QDomDocument::~QDomDocument()
 {
@@ -5740,15 +5864,14 @@ QDomDocument::~QDomDocument()
   appropriate values. If \a namespaceProcessing is FALSE, the parser does no
   namespace processing when it reads the XML file.
 
-  If a parse error occurs, this function returns TRUE, otherwise FALSE. If \a
-  errorMsg, \a errorLine resp. \a errorColumn is non-null, then in the case of
-  a parse error, the error message, the line number where the error occurred
-  resp. the column number where the error occurred is stored in the
-  corresponding variable.
+  If a parse error occurs, the function returns FALSE; otherwise TRUE. If a
+  parse error occurs the error message is placed in \e*\a errorMsg, the line
+  number in \e*\a errorLine and the column number in \e*\a errorColumn. These
+  error variables will only be populated if they are non-null.
 
   If \a namespaceProcessing is TRUE, the function QDomNode::prefix() returns
-  not null for all elements and attributes (it returns an empty, but not null
-  string, if the element or attribute has no prefix).
+  a string for all elements and attributes. It returns an empty string if the
+  element or attribute has no prefix.
 
   If \a namespaceProcessing is FALSE, the functions QDomNode::prefix(),
   QDomNode::localName() and QDomNode::namespaceURI() return a null string.
@@ -5853,7 +5976,7 @@ QString QDomDocument::toString() const
 
 /*!
   Converts the parsed document back to its textual representation and returns a
-  QCString for it that is encoded in UTF-8.
+  QCString for that is encoded in UTF-8.
 
   \sa toString()
 */
@@ -5896,10 +6019,11 @@ QDomElement QDomDocument::documentElement() const
 }
 
 /*!
-  Creates a new element with the name \a tagName that can be inserted into the
-  DOM tree.
+  Creates a new element called \a tagName that can be inserted into the
+  DOM tree, e.g. using QDomNode::appendChild().
 
-  \sa createElementNS()
+  \sa createElementNS() QDomNode::appendChild() QDomNode::insertBefore()
+  QDomNode::insertAfter()
 */
 QDomElement QDomDocument::createElement( const QString& tagName )
 {
@@ -5909,8 +6033,8 @@ QDomElement QDomDocument::createElement( const QString& tagName )
 }
 
 /*!
-  Creates a new document fragment, that can be used to hold parts
-  of the document, when doing complex manipulations of the document tree.
+  Creates a new document fragment, that can be used to hold parts of the
+  document, e.g. when doing complex manipulations of the document tree.
 */
 QDomDocumentFragment QDomDocument::createDocumentFragment()
 {
@@ -5921,7 +6045,9 @@ QDomDocumentFragment QDomDocument::createDocumentFragment()
 
 /*!
   Creates a text node for the string \a value that can be inserted into the
-  document tree.
+  document tree, e.g. using QDomNode::appendChild(). 
+  
+  \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomText QDomDocument::createTextNode( const QString& value )
 {
@@ -5932,7 +6058,9 @@ QDomText QDomDocument::createTextNode( const QString& value )
 
 /*!
   Creates a new comment for the string \a value that can be inserted into the
-  Document.
+  document, e.g. using QDomNode::appendChild(). 
+  
+  \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomComment QDomDocument::createComment( const QString& value )
 {
@@ -5943,7 +6071,9 @@ QDomComment QDomDocument::createComment( const QString& value )
 
 /*!
   Creates a new CDATA section for the string \a value that can be inserted into
-  the document.
+  the document, e.g. using QDomNode::appendChild(). 
+  
+  \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomCDATASection QDomDocument::createCDATASection( const QString& value )
 {
@@ -5953,9 +6083,11 @@ QDomCDATASection QDomDocument::createCDATASection( const QString& value )
 }
 
 /*!
-  Creates a new processing instruction that can be inserted into the document.
-  This function sets the target for the processing insruction to \a target and
-  the data to \a data.
+  Creates a new processing instruction that can be inserted into the document,
+  e.g. using QDomNode::appendChild(). This function sets the target for the
+  processing instruction to \a target and the data to \a data.
+
+  \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomProcessingInstruction QDomDocument::createProcessingInstruction( const QString& target,
 								     const QString& data )
@@ -5967,8 +6099,8 @@ QDomProcessingInstruction QDomDocument::createProcessingInstruction( const QStri
 
 
 /*!
-  Creates a new attribute with the name \a name that can be inserted into an
-  element.
+  Creates a new attribute called \a name that can be inserted into an
+  element, e.g. using QDomElement::setAttributeNode().
 
   \sa createAttributeNS()
 */
@@ -5980,7 +6112,10 @@ QDomAttr QDomDocument::createAttribute( const QString& name )
 }
 
 /*!
-  Creates a new entity reference with the name \a name.
+  Creates a new entity reference called \a name that can be inserted
+  into the document, e.g. using QDomNode::appendChild(). 
+  
+  \sa QDomNode::appendChild() QDomNode::insertBefore() QDomNode::insertAfter()
 */
 QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 {
@@ -5990,8 +6125,8 @@ QDomEntityReference QDomDocument::createEntityReference( const QString& name )
 }
 
 /*!
-  Returns a QDomNodeList, that contains all elements in the document
-  with the name \a tagname. The order of the node list, is the order they are
+  Returns a QDomNodeList, that contains all the elements in the document
+  with the name \a tagname. The order of the node list is the order they are
   encountered in a preorder traversal of the element tree.
 
   \sa elementsByTagNameNS() QDomElement::elementsByTagName()
@@ -6011,12 +6146,12 @@ QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
   QDomDocumentType nodes. In those cases this function returns a null node.
 
   If \a deep is TRUE, this function imports not only the node \a importedNode
-  but the whole subtree; if it is TRUE, only \a importedNode is imported. The
-  argument \a deep has no effect for QDomAttr and QDomEntityReference nodes,
-  since the descendants of QDomAttr nodes are always imported and those of
-  QDomEntityReference nodes are never imported.
+  but the whole subtree; if it is FALSE, only the \a importedNode is imported.
+  The argument \a deep has no effect on QDomAttr and QDomEntityReference
+  nodes, since the descendants of QDomAttr nodes are always imported and those
+  of QDomEntityReference nodes are never imported.
 
-  The behavior of this function is slightly different for the possible node
+  The behavior of this function is slightly different depending on the node
   types:
   <ul>
   <li> QDomAttr - The owner element is set to 0 and the specified flag is set
@@ -6030,7 +6165,7 @@ QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
   <li> QDomDocumentType - Document type nodes cannot be imported.
   <li> QDomElement - Attributes for which QDomAttr::specified() is TRUE are
        also imported, other attributes are not imported.  If \a deep is TRUE,
-       this function imports also the subtree of \a importedNode, otherwise it
+       this function also imports the subtree of \a importedNode, otherwise it
        imports only the element node (and some attributes, see above).
   <li> QDomEntity - Entity nodes can be imported, but at the moment there is no
        way to use them since the document type is readonly in DOM level 2.
@@ -6086,10 +6221,10 @@ QDomAttr QDomDocument::createAttributeNS( const QString& nsURI, const QString& q
 }
 
 /*!
-  Returns a QDomNodeList, that contains all elements in the document
-  with the local name \a localName and the namespace URI \a nsURI. The order of
-  the node list, is the order they are encountered in a preorder traversal of
-  the element tree.
+  Returns a QDomNodeList that contains all the elements in the document
+  with the local name \a localName and a namespace URI of \a nsURI. The order
+  of the node list, is the order they are encountered in a preorder traversal
+  of the element tree.
 
   \sa elementsByTagName() QDomElement::elementsByTagNameNS()
 */

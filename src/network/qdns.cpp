@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#41 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#42 $
 **
 ** Implementation of QDns class.
 **
@@ -1436,39 +1436,39 @@ void QDnsSocket::answer()
 
   \module network
 
-  Both Windows and UNIX provides synchronous DNS lookups; Windows
-  provides some asynchronous support too.  Neither OS provides
-  asynchronous support for anything other than hostname-to-address
-  mapping.
+  Both Windows and Unix provide synchronous DNS lookups; Windows
+  provides some asynchronous support too.  At the time of writing neither
+  operating system provides asynchronous support for anything other than
+  hostname-to-address mapping.
 
-  QDns rectifies that, by providing asynchronous caching lookups for
-  the record types that we expect modern GUI applications to need in
-  the near future.
+  QDns rectifies this shortcoming, by providing asynchronous caching lookups
+  for the record types that we expect modern GUI applications to need in the
+  near future.
 
-  The class is a bit hard to use (although much simpler than the
-  native APIs); QSocket provides much simpler TCP connection
-  facilities.  The aim of QDns is to provide a correct and small API
-  to the DNS: Nothing more.  (Correctness implies that the DNS
+  The class is \e not straightforward to use (although it is much simpler than
+  the native APIs); QSocket provides much easier to use TCP connection
+  facilities. The aim of QDns is to provide a correct and small API to the
+  DNS and nothing more.  (We use "correctness" to mean that the DNS
   information is correctly cached, and correctly timed out.)
 
-  The API is made up of a constructor, functions to set the DNS node
+  The API comprises a constructor, functions to set the DNS node
   (the domain in DNS terminology) and record type (setLabel() and
-  setRecordType()), the corresponding getters, an isWorking() function
+  setRecordType()), the corresponding get functions, an isWorking() function
   to determine whether QDns is working or reading, a resultsReady()
-  signal, and finally query functions for the result.
+  signal and query functions for the result.
 
   There is one query function for each RecordType, namely addresses(),
   mailServers(), servers(), hostNames() and texts(). There are also two
-  generic query functions: canonicalName() return the name you'll presumably
-  end up using (the exact meaning of that depends on the record type)
-  and qualifiedNames() returns a list of the fully qualified names
-  label() maps to.
+  generic query functions: canonicalName() returns the name you'll presumably
+  end up using (the exact meaning of this depends on the record type) and
+  qualifiedNames() returns a list of the fully qualified names label() maps
+  to.
 
   \sa QSocket
 */
 
 /*!
-  Constructs a DNS query object with invalid settings both for the
+  Constructs a DNS query object with invalid settings for both the
   label and the search type.
 */
 
@@ -1482,11 +1482,11 @@ QDns::QDns()
 
 
 /*!
-  Constructs a DNS query object that will return \a rr
+  Constructs a DNS query object that will return record type \a rr
   information about \a label.
 
   The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emmitted.
+  loop. When the result is found the signal resultsReady() is emitted.
 
   \a rr defaults to \c A, IPv4 addresses.
 */
@@ -1502,13 +1502,13 @@ QDns::QDns( const QString & label, RecordType rr )
 
 
 /*!
-  Constructs a DNS query object that will return \a rr information about
-  \a address.  The label is set to the IN-ADDR.ARPA domain name. This is useful
-  in combination with the Ptr record type (i.e. if you want to look up a
-  hostname for a given address).
+  Constructs a DNS query object that will return record type \a rr information
+  about host address \a address.  The label is set to the IN-ADDR.ARPA domain
+  name. This is useful in combination with the Ptr record type (e.g. if you
+  want to look up a hostname for a given address).
 
   The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emmitted.
+  loop. When the result is found the signal resultsReady() is emitted.
 
   \a rr defaults to \c Ptr, that maps addresses to hostnames.
 */
@@ -1524,7 +1524,7 @@ QDns::QDns( const QHostAddress & address, RecordType rr )
 
 
 
-/*! Destroys the query object and frees its allocated resources. */
+/*! Destroys the DNS query object and frees its allocated resources. */
 
 QDns::~QDns()
 {
@@ -1545,13 +1545,13 @@ QDns::~QDns()
 
 
 /*!
-  Sets this query object to query for information about \a label.
+  Sets this DNS query object to query for information about \a label.
 
-  This does not change the recordType(), but its isWorking() most
-  likely changes as a result.
+  This does not change the recordType(), but its isWorking() status will
+  probably change as a result.
 
   The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emmitted.
+  loop. When the result is found the signal resultsReady() is emitted.
 */
 
 void QDns::setLabel( const QString & label )
@@ -1591,16 +1591,16 @@ void QDns::setLabel( const QString & label )
 
 
 /*!  \overload
-  Sets this query object to query for information about the address \a address.
-  The label is set to the IN-ADDR.ARPA domain name. This is useful in
-  combination with the Ptr record type (i.e. if you want to look up a hostname
-  for a given address.
+  Sets this DNS query object to query for information about the host address \a
+  address. The label is set to the IN-ADDR.ARPA domain name. This is useful in
+  combination with the Ptr record type (e.g. if you want to look up a hostname
+  for a given address).
 
-  This does not change the recordType(), but its isWorking() most
-  likely changes as a result.
+  This does not change the recordType(), but its isWorking() status will
+  probably change as a result.
 
   The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emmitted.
+  loop. When the result is found the signal resultsReady() is emitted.
 */
 
 void QDns::setLabel( const QHostAddress & address )
@@ -1630,7 +1630,7 @@ void QDns::setLabel( const QHostAddress & address )
   use, useful for GUI programs and important enough to support right
   away:
 
-  \value None  no information.  This exists only so that QDns can
+  \value None  No information.  This exists only so that QDns can
   have a default.
 
   \value A  IPv4 addresses.  By far the most common type.
@@ -1655,10 +1655,10 @@ void QDns::setLabel( const QHostAddress & address )
 */
 
 /*!
-  Sets this object to query for \a rr records.
+  Sets this object to query for record type \a rr records.
 
   The DNS lookup is started the next time the application enters the event
-  loop. When the result is found the signal resultsReady() is emmitted.
+  loop. When the result is found the signal resultsReady() is emitted.
 
   \sa RecordType
 */
@@ -1716,7 +1716,7 @@ QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 /*!
   \fn QDns::RecordType QDns::recordType() const
 
-  Returns the record type of this query object.
+  Returns the record type of this DNS query object.
 
   \sa setRecordType() RecordType
 */
@@ -1730,7 +1730,7 @@ QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 
 /*!
   Returns TRUE if QDns is doing a lookup for this object, and FALSE
-  if this object has the information it wants.
+  if this object already has the information it wants.
 
   QDns emits the resultsReady() signal when the status changes to FALSE.
 */
@@ -1762,7 +1762,7 @@ bool QDns::isWorking() const
 /*!
   Returns a list of the addresses for this name if this QDns object
   has a recordType() of \c QDns::A or \c QDns::Aaaa and the answer is
-  available, or an empty list else.
+  available; otherwise returns an empty list.
 
   As a special case, if label() is a valid numeric IP address, this function
   returns that address.

@@ -55,7 +55,7 @@
 
   Each editor factory provides the createEditor() function which
   given a QVariant will create and return a QWidget that can edit
-  that QVariant. For example if you have a a QVariant::String type,
+  that QVariant. For example if you have a QVariant::String type,
   a QLineEdit would be the default editor returned, whereas a
   QVariant::Int's default editor would be a QSpinBox.
 

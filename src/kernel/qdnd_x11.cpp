@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#141 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1316,10 +1316,10 @@ bool qt_xdnd_handle_badwindow()
   \brief The QDragMoveEvent class provides an event which is sent while a drag-and-drop is in progress.
 
   When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
-  it will receive this event repeatedly while the drag is inside that
-  widget.  The widget should examine the event, especially
-  seeing what data it \link QDragMoveEvent::provides provides\endlink,
-  and accept() the drop if appropriate.
+  it will receive this event repeatedly while the drag is within the
+  widget's boundaries.  The widget should examine the event to see what data
+  it \link QDragMoveEvent::provides provides\endlink, and accept() the drop if
+  appropriate.
 
   Note that this class inherits most of its functionality from QDropEvent.
 */
