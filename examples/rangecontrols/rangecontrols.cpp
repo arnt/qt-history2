@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/rangecontrols/rangecontrols.cpp#1 $
+** $Id: //depot/qt/main/examples/rangecontrols/rangecontrols.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -11,7 +11,7 @@
 #include "rangecontrols.h"
 
 #include <qhbox.h>
-//#include <qdial.h>
+#include <qdial.h>
 #include <qlcdnumber.h>
 #include <qspinbox.h>
 #include <qlabel.h>
@@ -25,14 +25,12 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
 {
     QHBox *row1 = new QHBox( this );
 
-    // QDial will be back right after the 2.0 release
-    
-    //QVBox *cell1 = new QVBox( row1 );
-    //cell1->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-    //cell1->setMargin( 10 );
-    //QDial *dial = new QDial( -5, 20, 1, 0, cell1 );
-    //QLCDNumber *lcd1 = new QLCDNumber( 3, cell1 );
-    //connect( dial, SIGNAL( valueChanged( int ) ), lcd1, SLOT( display( int ) ) );
+    QVBox *cell1 = new QVBox( row1 );
+    cell1->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+    cell1->setMargin( 10 );
+    QDial *dial = new QDial( -5, 20, 1, 0, cell1 );
+    QLCDNumber *lcd1 = new QLCDNumber( 3, cell1 );
+    connect( dial, SIGNAL( valueChanged( int ) ), lcd1, SLOT( display( int ) ) );
 
     QVBox *cell2 = new QVBox( row1 );
     cell2->setMargin( 10 );

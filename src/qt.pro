@@ -216,7 +216,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
-          $$WIDGETS_H/qiconview.h
+          $$WIDGETS_H/qiconview.h \
+          $$WIDGETS_H/qdial.h
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
@@ -388,6 +389,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
           widgets/qiconview.cpp \
+          widgets/qdial.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
