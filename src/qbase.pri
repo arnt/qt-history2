@@ -4,7 +4,7 @@ TEMPLATE	= lib
 VERSION		= 4.0.0
 
 # debug/release combos for our libraries
-dll:unix:!macx-xcode {
+shared:!win32-msvc:!macx-xcode {
   !build_pass {
      DebugPackage.target = debug
      DebugPackage.CONFIG = debug

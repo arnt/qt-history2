@@ -32,7 +32,9 @@ class VcprojGenerator : public Win32MakefileGenerator
     bool writeVcprojParts(QTextStream &);
 
     bool writeMakefile(QTextStream &);
-    virtual void writeSubDirs(QTextStream &t);
+    bool writeProjectMakefile();
+    void writeSubDirs(QTextStream &t);
+
     QString findTemplate(QString file);
     void init();
 
@@ -52,7 +54,10 @@ public:
 
 protected:
     virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
-    virtual bool supportsMetaBuild() { return false; }
+    virtual bool supportsMetaBuild() { return true; }
+    virtual bool supportsMergedBuilds() { return true; }
+    virtual bool mergeBuildProject(MakefileGenerator *other);
+
     virtual bool openOutput(QFile &file, const QString &build) const;
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
@@ -81,8 +86,13 @@ protected:
 
     void addMocArguments(VCFilter &filter);
 
-    VCProject vcProject;
     target projectTarget;
+
+    // Used for single project
+    VCProjectSingleConfig vcProject;
+
+    // Holds all configurations for glue (merged) project
+    QList<VcprojGenerator*> mergedProjects;
 
 private:
     QUuid getProjectUUID(const QString &filename=QString::null);

@@ -732,6 +732,77 @@ inline QDebug operator<<(QDebug dbg, const VCFilterFile &p)
 }
 #endif
 
+class VcprojGenerator;
+class VCFilter
+{
+public:
+    // Functions
+    VCFilter();
+    ~VCFilter(){};
+
+    void addFile(const QString& filename);
+    void addFile(const VCFilterFile& fileInfo);
+    void addFiles(const QStringList& fileList);
+    void addMOCstage(const VCFilterFile &str, bool hdr);
+    bool addExtraCompiler(const VCFilterFile &info);
+    void modifyPCHstage(QString str);
+    void outputFileConfig(XmlOutput &xml, const QString &filename);
+
+    // Variables
+    QString                 Name;
+    QString                 Filter;
+    triState                ParseFiles;
+    VcprojGenerator*        Project;
+    VCConfiguration*        Config;
+    QList<VCFilterFile>     Files;
+
+    customBuildCheck	    CustomBuild;
+    QString                 customMocArguments;
+
+    bool		    useCustomBuildTool;
+    VCCustomBuildTool       CustomBuildTool;
+
+    bool                    useCompilerTool;
+    VCCLCompilerTool        CompilerTool;
+
+private:
+    friend XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool);
+};
+
+typedef QList<VCFilter> VCFilterList;
+class VCProjectSingleConfig
+{
+public:
+    // Functions
+    VCProjectSingleConfig(){};
+    ~VCProjectSingleConfig(){}
+
+    // Variables
+    QString                 Name;
+    QString                 Version;
+    QString                 ProjectGUID;
+    QString                 SccProjectName;
+    QString                 SccLocalPath;
+    QString                 PlatformName;
+
+    // XML sub-parts
+    VCConfiguration         Configuration;
+    VCFilter                SourceFiles;
+    VCFilter                HeaderFiles;
+    VCFilter                MOCFiles;
+    VCFilter                FormFiles;
+    VCFilter                TranslationFiles;
+    VCFilter                LexYaccFiles;
+    VCFilter                ResourceFiles;
+    VCFilterList            ExtraCompilersFiles;
+
+    bool                    flat_files;
+
+    // Accessor for extracompilers
+    VCFilter               &filterForExtraCompiler(const QString &compilerName);
+};
+
+
 
 // Tree & Flat view of files --------------------------------------------------
 class VCFilter;
@@ -743,7 +814,7 @@ public:
     }
     virtual void addElement(const QString &filepath, const VCFilterFile &allInfo) = 0;
     virtual void removeElements()= 0;
-    virtual void generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool) = 0;
+    virtual void generateXML(XmlOutput &xml, const QString &tagName, VCProject &tool, const QString &filter) = 0;
     virtual bool hasElements() = 0;
 };
 
@@ -793,7 +864,7 @@ public:
         children.clear();
     }
 
-    void generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool);
+    void generateXML(XmlOutput &xml, const QString &tagName, VCProject &tool, const QString &filter);
     bool hasElements() {
         return children.size() != 0;
     }
@@ -801,7 +872,7 @@ public:
 
 class FlatNode : public Node
 {
-    typedef QMultiMap<QString, VCFilterFile> ChildrenMapFlat;
+    typedef QMap<QString, VCFilterFile> ChildrenMapFlat;
     ChildrenMapFlat children;
 
 public:
@@ -833,77 +904,16 @@ public:
         children.clear();
     }
 
-    void generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool);
+    void generateXML(XmlOutput &xml, const QString &tagName, VCProject &proj, const QString &filter);
     bool hasElements() {
         return children.size() != 0;
     }
 };
 // ----------------------------------------------------------------------------
 
-
-class VCFilterPrivate {
-public:
-    QAtomic ref;
-    Node *Files;
-
-    inline VCFilterPrivate() {
-        ref = 1;
-        Files = 0;
-    }
-};
-
-class VcprojGenerator;
-class VCFilter
-{
-public:
-    // Functions
-    VCFilter();
-    ~VCFilter();
-
-    VCFilter(const VCFilter &filter);
-
-    void addFile(const QString& filename);
-    void addFile(const VCFilterFile& fileInfo);
-    void addFiles(const QStringList& fileList);
-    void addMOCstage(const VCFilterFile &str, bool hdr);
-    bool addExtraCompiler(const VCFilterFile &info);
-    void modifyPCHstage(QString str);
-    void generateXml(XmlOutput &xml, const VCFilterFile &info);
-
-    // Variables
-    QString                 Name;
-    QString                 Filter;
-    triState                ParseFiles;
-    VcprojGenerator*        Project;
-    QList<VCConfiguration> *Config;
-
-    customBuildCheck	    CustomBuild;
-    QString		    customMocArguments;
-
-    bool		    useCustomBuildTool;
-    VCCustomBuildTool       CustomBuildTool;
-
-    bool                    useCompilerTool;
-    VCCLCompilerTool        CompilerTool;
-
-    bool                    flat_files;
-
-private:
-    void createOutputStructure();
-
-    VCFilterPrivate         *d;
-
-    friend XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool); // ####
-};
-
-typedef QList<VCFilter> VCFilterList;
 class VCProject
 {
 public:
-    // Functions
-    VCProject();
-    ~VCProject(){}
-
     // Variables
     QString                 Name;
     QString                 Version;
@@ -912,16 +922,19 @@ public:
     QString                 SccLocalPath;
     QString                 PlatformName;
 
-    // XML sub-parts
-    QList<VCConfiguration>  Configuration;
-    VCFilter                SourceFiles;
-    VCFilter                HeaderFiles;
-    VCFilter                MOCFiles;
-    VCFilter                FormFiles;
-    VCFilter                TranslationFiles;
-    VCFilter                LexYaccFiles;
-    VCFilter                ResourceFiles;
-    VCFilterList            ExtraCompilersFiles;
+    // Single projects
+    QList<VCProjectSingleConfig>  SingleProjects;
+
+    // List of all extracompilers
+    QStringList             ExtraCompilers;
+
+    // Functions
+    void                    outputFilter(XmlOutput &xml,
+                                         const QString &filtername);
+
+    void                    outputFileConfigs(XmlOutput &xml, 
+                                              const VCFilterFile &info, 
+                                              const QString &filtername);
 };
 
 XmlOutput &operator<<(XmlOutput &, const VCCLCompilerTool &);
@@ -933,6 +946,7 @@ XmlOutput &operator<<(XmlOutput &, const VCResourceCompilerTool &);
 XmlOutput &operator<<(XmlOutput &, const VCEventTool &);
 XmlOutput &operator<<(XmlOutput &, const VCConfiguration &);
 XmlOutput &operator<<(XmlOutput &, VCFilter &);
-XmlOutput &operator<<(XmlOutput &, const VCProject &);
+XmlOutput &operator<<(XmlOutput &, const VCProjectSingleConfig &);
+XmlOutput &operator<<(XmlOutput &, VCProject &);
 
 #endif //__MSVC_OBJECTMODEL_H__

@@ -1744,58 +1744,20 @@ XmlOutput &operator<<(XmlOutput &xml, const VCConfiguration &tool)
 }
 // VCFilter ---------------------------------------------------------
 VCFilter::VCFilter()
-    :   ParseFiles(unset), flat_files(true)
+    :   ParseFiles(unset)
 {
-    d = new VCFilterPrivate();
-
     useCustomBuildTool = false;
     useCompilerTool = false;
 }
 
-VCFilter::~VCFilter()
-{
-    if (!--d->ref)
-        delete d;
-}
-
-VCFilter::VCFilter(const VCFilter &filter)
-{
-    ++filter.d->ref;
-    d = filter.d;
-
-    Name = filter.Name;
-    Filter = filter.Filter;
-    ParseFiles = filter.ParseFiles;
-    Project = filter.Project;
-    Config = filter.Config;
-    CustomBuild = filter.CustomBuild;
-    customMocArguments = filter.customMocArguments;
-    useCustomBuildTool = filter.useCustomBuildTool;
-    useCompilerTool = filter.useCompilerTool;
-    flat_files = filter.flat_files;
-}
-
-void VCFilter::createOutputStructure()
-{
-    if (d->Files) // Only create one file structure
-        return;
-
-    if (flat_files)
-        d->Files = new FlatNode;
-    else
-        d->Files = new TreeNode;
-}
-
 void VCFilter::addFile(const QString& filename)
 {
-    createOutputStructure();
-    d->Files->addElement(filename, VCFilterFile(filename));
+    Files += VCFilterFile(filename);
 }
 
 void VCFilter::addFile(const VCFilterFile& fileInfo) 
 {
-    createOutputStructure();
-    d->Files->addElement(fileInfo.file, fileInfo);
+    Files += VCFilterFile(fileInfo);
 }
 
 void VCFilter::addFiles(const QStringList& fileList)
@@ -1817,7 +1779,7 @@ void VCFilter::addMOCstage(const VCFilterFile &file, bool hdr)
     useCustomBuildTool = true;
     CustomBuildTool.Description = QString("Moc'ing %1...").arg(filename);
     QString mocApp = Project->var("QMAKE_MOC");
-    CustomBuildTool.CommandLine += (mocApp + " " + customMocArguments + " " 
+    CustomBuildTool.CommandLine += (mocApp + " " + customMocArguments + " "
 				+ filename + " -o " + mocOutput);
     CustomBuildTool.AdditionalDependencies = mocApp;
     CustomBuildTool.Outputs += mocOutput;
@@ -1970,129 +1932,96 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
     return true;
 }
 
-// Tree file generation [Start] -----------------------------------------------
-void TreeNode::generateXML(XmlOutput &xml, const QString &tagName, VCFilter *tool) {
-    if (children.size()) {
-        // Filter
-        ChildrenMap::ConstIterator it, end = children.constEnd();
-        if (!tagName.isEmpty()) {
-            xml << tag("Filter")
-                << attr("Name", tagName)
-                << attr("Filter", "");
-        }
-        // First round, do nested filters
-        for(it = children.constBegin(); it != end; it++)
-            if ((*it)->children.size())
-                (*it)->generateXML(xml, it.key(), tool);
-        // Second round, do leafs
-        for(it = children.constBegin(); it != end; it++)
-            if (!(*it)->children.size())
-                (*it)->generateXML(xml, it.key(), tool);
-
-        if (!tagName.isEmpty())
-            xml << closetag("Filter");        
-    } else {
-        // Leaf
-        tool->generateXml(xml, info);
-    }
-}
-// Tree file generation [End] -------------------------------------------------
-
-// Flat file generation [Start] -----------------------------------------------
-void FlatNode::generateXML(XmlOutput &xml, const QString &/*tagName*/, VCFilter *tool) {
-    if (children.size()) {
-        ChildrenMapFlat::ConstIterator it = children.constBegin();
-        ChildrenMapFlat::ConstIterator end = children.constEnd();
-        for( ; it != end; it++) {
-            tool->generateXml(xml, (*it));
-        }
-    }
-}
-// Flat file generation [End] -------------------------------------------------
-
-void VCFilter::generateXml(XmlOutput &xml, const VCFilterFile &info)
+void VCFilter::outputFileConfig(XmlOutput &xml, const QString &filename)
 {
-    {
-        // Clearing each filter tool
-        useCustomBuildTool = false;
-        useCompilerTool = false;
-        CustomBuildTool = VCCustomBuildTool();
-        CompilerTool = VCCLCompilerTool();
+    // Clearing each filter tool
+    useCustomBuildTool = false;
+    useCompilerTool = false;
+    CustomBuildTool = VCCustomBuildTool();
+    CompilerTool = VCCLCompilerTool();
 
-        // Unset some default options
-        CompilerTool.BufferSecurityCheck = unset;
-        CompilerTool.DebugInformationFormat = debugUnknown;
-        CompilerTool.ExceptionHandling = unset;
-        CompilerTool.GeneratePreprocessedFile = preprocessUnknown;
-        CompilerTool.Optimization = optimizeDefault;
-        CompilerTool.ProgramDataBaseFileName = QString::null;
-        CompilerTool.RuntimeLibrary = rtUnknown;
-        CompilerTool.WarningLevel = warningLevelUnknown;
+    // Unset some default options
+    CompilerTool.BufferSecurityCheck = unset;
+    CompilerTool.DebugInformationFormat = debugUnknown;
+    CompilerTool.ExceptionHandling = unset;
+    CompilerTool.GeneratePreprocessedFile = preprocessUnknown;
+    CompilerTool.Optimization = optimizeDefault;
+    CompilerTool.ProgramDataBaseFileName = QString::null;
+    CompilerTool.RuntimeLibrary = rtUnknown;
+    CompilerTool.WarningLevel = warningLevelUnknown;
 
+    bool inBuild = false;
+    VCFilterFile info;
+    for (int i = 0; i < Files.count(); ++i) {
+        if (Files.at(i).file == filename) {
+            info = Files.at(i);
+            inBuild = true;
+        }
+    }
+    inBuild &= !info.excludeFromBuild;
+
+    if (inBuild) {
+        // Add MOC and PCH stages to file
+        if(CustomBuild == mocHdr || (CustomBuild == mocSrc 
+                && info.file.endsWith(Option::cpp_moc_ext))) {
+            addMOCstage(info, CustomBuild == mocHdr);
+        } else {
+            addExtraCompiler(info);
+        }
+        if(Project->usePCH)
+            modifyPCHstage(info.file);
+    } else {
         // Excluded files uses an empty compiler stage
         if(info.excludeFromBuild)
             useCompilerTool = true;
-
-        // Add UIC, MOC and PCH stages to file
-        if(addExtraCompiler(info)) {
-            ; // on purpose
-        } else if(CustomBuild == mocSrc) {
-            if (info.file.endsWith(Option::cpp_moc_ext))
-                addMOCstage(info, false);
-        } else if(CustomBuild == mocHdr) {
-            addMOCstage(info, true);
-        } 
-
-        if(Project->usePCH)
-            modifyPCHstage(info.file);
     }
 
     // Actual XML output ----------------------------------
-    xml << tag(_File)
-            << attrS(_RelativePath, info.file)
-        << data(); // In case no custom builds, to avoid "/>" endings
-    
-    // Output custom build and compiler options for all configurations
-    if(useCustomBuildTool || useCompilerTool) {
-        for(int i = 0; i < Config->count(); i++) {
-            xml << tag(_FileConfiguration)
-                    << attr(_Name, (*Config)[i].Name)
-                    << (info.excludeFromBuild ? attrS(_ExcludedFromBuild, "true") : noxml());
-            if (useCustomBuildTool)
-                xml << CustomBuildTool;
-            if (useCompilerTool)
-                xml << CompilerTool;
-            xml << closetag(_FileConfiguration);
-        }
+    if(useCustomBuildTool || useCompilerTool || !inBuild) {
+        xml << tag(_FileConfiguration)
+                << attr(_Name, (*Config).Name)
+                << (!inBuild ? attrS(_ExcludedFromBuild, "true") : noxml());
+        if (useCustomBuildTool)
+            xml << CustomBuildTool;
+        if (useCompilerTool)
+            xml << CompilerTool;
+        xml << closetag(_FileConfiguration);
     }
-    xml << closetag(_File);
 }
 
 XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool)
 {
-    if(!tool.d->Files)
-        return xml;
-    if(!tool.d->Files->hasElements())
+    if(!tool.Files.count())
         return xml;
 
     xml << tag(_Filter)
             << attrS(_Name, tool.Name)
             << attrT(_ParseFiles, tool.ParseFiles)
             << attrS(_Filter, tool.Filter);
-    tool.d->Files->generateXML(xml, QString(), &tool);
+    for (int i = 0; i < tool.Files.count(); ++i) {
+        const VCFilterFile &info = tool.Files.at(i);
+        xml << tag(_File)
+                << attrS(_RelativePath, info.file)
+            << data(); // In case no custom builds, to avoid "/>" endings
+        tool.outputFileConfig(xml, tool.Files.at(i).file);
+        xml << closetag(_File);
+    }
     xml << closetag(_Filter);
     return xml;
 }
 
-// VCProject --------------------------------------------------------
-VCProject::VCProject()
+// VCProjectSingleConfig --------------------------------------------
+VCFilter nullFilter;
+VCFilter& VCProjectSingleConfig::filterForExtraCompiler(const QString &compilerName)
 {
-    VCConfiguration conf;
-    Configuration += conf ; // Release
-    //Configuration += conf ; // Debug added later, after Release init
+    for (int i = 0; i < ExtraCompilersFiles.count(); ++i)
+        if (ExtraCompilersFiles.at(i).Name == compilerName)
+            return ExtraCompilersFiles[i];
+    return nullFilter;
 }
 
-XmlOutput &operator<<(XmlOutput &xml, const VCProject &tool)
+
+XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
 {
     xml << decl("1.0", "Windows-1252")
         << tag(_VisualStudioProject)
@@ -2106,9 +2035,8 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProject &tool)
                 << tag(_Platform)
                     << attrS(_Name, tool.PlatformName)
             << closetag(_Platforms)
-            << tag(_Configurations);
-    for(int i = 0; i < tool.Configuration.count(); ++i)
-        xml << tool.Configuration[i];
+            << tag(_Configurations)
+            << tool.Configuration;
     xml     << closetag(_Configurations)
             << tag(_Files)
                 << (VCFilter&)tool.SourceFiles
@@ -2120,6 +2048,174 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProject &tool)
                 << (VCFilter&)tool.ResourceFiles;
     for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
         xml     << (VCFilter&)tool.ExtraCompilersFiles.at(j);
+    xml     << closetag(_Files)
+            << tag(_Globals)
+                << data(); // No "/>" end tag
+    return xml;
+}
+
+
+// Tree file generation ---------------------------------------------
+void TreeNode::generateXML(XmlOutput &xml, const QString &tagName, VCProject &tool, const QString &filter) {
+    if (children.size()) {
+        // Filter
+        ChildrenMap::ConstIterator it, end = children.constEnd();
+        if (!tagName.isEmpty()) {
+            xml << tag("Filter")
+                << attr("Name", tagName)
+                << attr("Filter", "");
+        }
+        // First round, do nested filters
+        for(it = children.constBegin(); it != end; it++)
+            if ((*it)->children.size())
+                (*it)->generateXML(xml, it.key(), tool, filter);
+        // Second round, do leafs
+        for(it = children.constBegin(); it != end; it++)
+            if (!(*it)->children.size())
+                (*it)->generateXML(xml, it.key(), tool, filter);
+
+        if (!tagName.isEmpty())
+            xml << closetag("Filter");        
+    } else {
+        // Leaf
+        tool.outputFileConfigs(xml, info, filter);
+    }
+}
+
+
+// Flat file generation ---------------------------------------------
+void FlatNode::generateXML(XmlOutput &xml, const QString &/*tagName*/, VCProject &tool, const QString &filter) {
+    if (children.size()) {
+        ChildrenMapFlat::ConstIterator it = children.constBegin();
+        ChildrenMapFlat::ConstIterator end = children.constEnd();
+        for( ; it != end; it++) {
+            tool.outputFileConfigs(xml, (*it), filter);
+        }
+    }
+}
+
+
+// VCProject --------------------------------------------------------
+void VCProject::outputFileConfigs(XmlOutput &xml, 
+                                  const VCFilterFile &info, 
+                                  const QString &filtername)
+{
+    xml << tag(_File)
+            << attrS(_RelativePath, info.file);
+    for (int i = 0; i < SingleProjects.count(); ++i) {
+        VCFilter filter;
+        if (filtername == "Sources") {
+            filter = SingleProjects.at(i).SourceFiles;
+        } else if (filtername == "Headers") {
+            filter = SingleProjects.at(i).HeaderFiles;
+        } else if (filtername == "MOCFiles") {
+            filter = SingleProjects.at(i).MOCFiles;
+        } else if (filtername == "FormFiles") {
+            filter = SingleProjects.at(i).FormFiles;
+        } else if (filtername == "TranslationFiles") {
+            filter = SingleProjects.at(i).TranslationFiles;
+        } else if (filtername == "LexYaccFiles") {
+            filter = SingleProjects.at(i).LexYaccFiles;
+        } else if (filtername == "ResourceFiles") {
+            filter = SingleProjects.at(i).ResourceFiles;
+        } else {
+            // ExtraCompilers
+            filter = SingleProjects[i].filterForExtraCompiler(filtername);
+        }
+        filter.outputFileConfig(xml, info.file);
+    }
+    xml << closetag(_File);
+}
+
+void VCProject::outputFilter(XmlOutput &xml,
+                             const QString &filtername)
+{
+    Node *root;
+    if (SingleProjects.at(0).flat_files)
+        root = new FlatNode;
+    else
+        root = new TreeNode;
+    
+    QString name, extfilter;
+    triState parse;
+
+    for (int i = 0; i < SingleProjects.count(); ++i) {
+        VCFilter filter;
+        if (filtername == "Sources") {
+            filter = SingleProjects.at(i).SourceFiles;
+        } else if (filtername == "Headers") {
+            filter = SingleProjects.at(i).HeaderFiles;
+        } else if (filtername == "MOCFiles") {
+            filter = SingleProjects.at(i).MOCFiles;
+        } else if (filtername == "FormFiles") {
+            filter = SingleProjects.at(i).FormFiles;
+        } else if (filtername == "TranslationFiles") {
+            filter = SingleProjects.at(i).TranslationFiles;
+        } else if (filtername == "LexYaccFiles") {
+            filter = SingleProjects.at(i).LexYaccFiles;
+        } else if (filtername == "ResourceFiles") {
+            filter = SingleProjects.at(i).ResourceFiles;
+        } else {
+            // ExtraCompilers
+            filter = SingleProjects[i].filterForExtraCompiler(filtername);
+        }
+        if (name.isEmpty()) {
+            name = filter.Name;
+            extfilter = filter.Filter;
+            parse = filter.ParseFiles;
+        }
+        for (int x = 0; x < filter.Files.count(); ++x)
+            root->addElement(filter.Files.at(x));
+    }
+
+    // Actual XML output ----------------------------------
+    xml << tag(_Filter)
+            << attrS(_Name, name)
+            << attrT(_ParseFiles, parse)
+            << attrS(_Filter, extfilter);
+    root->generateXML(xml, "", *this, filtername);
+    xml << closetag(_Filter);
+
+}
+
+XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
+{
+    if (tool.SingleProjects.count() == 0) {
+        warn_msg(WarnLogic, "Generator: .NET: no single project in merge project, no output");
+        return xml;
+    }
+
+    xml << decl("1.0", "Windows-1252")
+        << tag(_VisualStudioProject)
+            << attrS(_ProjectType, "Visual C++")
+            << attrS(_Version, tool.Version)
+            << attrS(_Name, tool.Name)
+            << attrS(_ProjectGUID, tool.ProjectGUID)
+            << attrS(_SccProjectName, tool.SccProjectName)
+            << attrS(_SccLocalPath, tool.SccLocalPath)
+            << tag(_Platforms)
+                << tag(_Platform)
+                    << attrS(_Name, tool.PlatformName)
+            << closetag(_Platforms);
+
+    // Output each configuration
+    for (int i = 0; i < tool.SingleProjects.count(); ++i) {
+        xml << tag(_Configurations)
+            << tool.SingleProjects.at(i).Configuration;
+        xml << closetag(_Configurations);
+    }
+
+    xml     << tag(_Files);
+    tool.outputFilter(xml, "Sources");
+    tool.outputFilter(xml, "Headers");
+    tool.outputFilter(xml, "MOCFiles");
+    tool.outputFilter(xml, "FormFiles");
+    tool.outputFilter(xml, "TranslationFiles");
+    tool.outputFilter(xml, "LexYaccFiles");
+    tool.outputFilter(xml, "ResourceFiles");
+    for (int x = 0; x < tool.ExtraCompilers.count(); ++x) {
+        tool.outputFilter(xml, tool.ExtraCompilers.at(x));
+    }
     xml     << closetag(_Files)
             << tag(_Globals)
                 << data(); // No "/>" end tag

@@ -93,7 +93,9 @@ MetaMakefileGenerator::write(const QString &oldpwd)
 
         bool using_stdout = false;
         if(build->makefile && (Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
-                               Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)) {
+                               Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
+           && (!build->makefile->supportsMergedBuilds()
+            || (build->makefile->supportsMergedBuilds() && (!glue || build == glue)))) {
             //open output
             if(!(Option::output.state() & IO_Open)) {
                 if(Option::output.name() == "-") {
@@ -120,8 +122,11 @@ MetaMakefileGenerator::write(const QString &oldpwd)
             ret = false;
         else if(build == glue)
             ret = build->makefile->writeProjectMakefile();
-        else
+        else {
             ret = build->makefile->write();
+            if (glue && glue->makefile->supportsMergedBuilds())
+                ret = glue->makefile->mergeBuildProject(build->makefile);
+        }
         if(!using_stdout) {
             Option::output.close();
             if(!ret)
@@ -214,9 +219,5 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
 MetaMakefileGenerator *
 MetaMakefileGenerator::createMetaGenerator(QMakeProject *proj)
 {
-#if 0
-    if(gen == "MSVC" && proj->first("TEMPLATE").indexOf(QRegExp("^vc.*")) != -1) 
-        return new VcprojMetaGenerator(proj);
-#endif
     return new MetaMakefileGenerator(proj);
 }

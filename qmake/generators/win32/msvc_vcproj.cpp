@@ -110,14 +110,22 @@ const char* _slnExtSections        = "\n\tGlobalSection(ExtensibilityGlobals) = 
 VcprojGenerator::VcprojGenerator(QMakeProject *p) : Win32MakefileGenerator(p), init_flag(false)
 {
 }
-
-/* \internal
-    Generates a project file for the given profile.
-    Options are either a Visual Studio projectfiles, or
-    solutionfiles by parsing recursive projectdirectories.
-*/
 bool VcprojGenerator::writeMakefile(QTextStream &t)
 {
+    // Generate solution file
+    if(project->first("TEMPLATE") == "vcsubdirs") {
+        debug_msg(1, "Generator: MSVC.NET: Writing solution file");
+        writeSubDirs(t);
+        return true;
+    }
+    return false;
+}
+
+bool VcprojGenerator::writeProjectMakefile()
+{
+    usePlatformDir();
+    QTextStream t(&Option::output);
+
     // Check if all requirements are fullfilled
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
         fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
@@ -128,19 +136,28 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
     // Generate project file
     if(project->first("TEMPLATE") == "vcapp" ||
        project->first("TEMPLATE") == "vclib") {
-        debug_msg(1, "Generator: MSVC.NET: Writing project file");
-        XmlOutput xmlOut(t);
-        xmlOut << vcProject;
-        return true;
-    }
-    // Generate solution file
-    else if(project->first("TEMPLATE") == "vcsubdirs") {
-        debug_msg(1, "Generator: MSVC.NET: Writing solution file");
-        writeSubDirs(t);
-        return true;
-    }
-    return false;
+        if (!mergedProjects.count()) {
+            warn_msg(WarnLogic, "Generator: MSVC.NET: no single configuration created, cannot output project!");
+            return false;
+        }
 
+        debug_msg(1, "Generator: MSVC.NET: Writing project file");
+        VCProject mergedProject;
+        for (int i = 0; i < mergedProjects.count(); ++i)
+            mergedProject.SingleProjects += mergedProjects.at(i)->vcProject;
+        mergedProject.Name = mergedProjects.at(0)->vcProject.Name;
+        mergedProject.Version = mergedProjects.at(0)->vcProject.Version;
+        mergedProject.ProjectGUID = getProjectUUID();
+        mergedProject.SccProjectName = mergedProjects.at(0)->vcProject.SccProjectName;
+        mergedProject.SccLocalPath = mergedProjects.at(0)->vcProject.SccLocalPath;
+        mergedProject.PlatformName = mergedProjects.at(0)->vcProject.PlatformName;
+
+        XmlOutput xmlOut(t);
+        xmlOut << mergedProject;
+        return true;
+    }
+
+    return false;
 }
 
 struct VcsolutionDepend {
@@ -449,6 +466,17 @@ void VcprojGenerator::init()
     initProject(); // Fills the whole project with proper data
 }
 
+bool VcprojGenerator::mergeBuildProject(MakefileGenerator *other)
+{
+    VcprojGenerator *otherVC = static_cast<VcprojGenerator*>(other);
+    if (!otherVC) {
+        warn_msg(WarnLogic, "VcprojGenerator: Cannot merge other types of projects! (ignored)");
+        return false;
+    }
+    mergedProjects += otherVC;
+    return true;
+}
+
 void VcprojGenerator::initProject()
 {
     // Initialize XML sub elements
@@ -469,10 +497,11 @@ void VcprojGenerator::initProject()
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
     vcProject.Version = use_net2003_version() ? "7.10" : "7.00";
     vcProject.ProjectGUID = getProjectUUID().toString().toUpper();
-    vcProject.PlatformName = (vcProject.Configuration[0].idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32");
+    vcProject.PlatformName = (vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32");
     // These are not used by Qt, but may be used by customers
     vcProject.SccProjectName = project->first("SCCPROJECTNAME");
     vcProject.SccLocalPath = project->first("SCCLOCALPATH");
+    vcProject.flat_files = project->isActiveConfig("flat");
 }
 
 void VcprojGenerator::initConfiguration()
@@ -480,6 +509,8 @@ void VcprojGenerator::initConfiguration()
     // Initialize XML sub elements
     // - Do this first since main configuration elements may need
     // - to know of certain compiler/linker options
+    VCConfiguration &conf = vcProject.Configuration;
+
     initCompilerTool();
     if(projectTarget == StaticLib)
         initLibrarianTool();
@@ -491,37 +522,38 @@ void VcprojGenerator::initConfiguration()
     QString temp = project->first("BuildBrowserInformation");
     switch (projectTarget) {
     case SharedLib:
-        vcProject.Configuration[0].ConfigurationType = typeDynamicLibrary;
+        conf.ConfigurationType = typeDynamicLibrary;
         break;
     case StaticLib:
-        vcProject.Configuration[0].ConfigurationType = typeStaticLibrary;
+        conf.ConfigurationType = typeStaticLibrary;
         break;
     case Application:
     default:
-        vcProject.Configuration[0].ConfigurationType = typeApplication;
+        conf.ConfigurationType = typeApplication;
         break;
     }
 
-    // Release version of the Configuration ---------------
-    VCConfiguration &RConf = vcProject.Configuration[0];
-    RConf.Name = "Release";
-    RConf.Name += (RConf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32");
-    RConf.ATLMinimizesCRunTimeLibraryUsage = (project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True);
-    RConf.BuildBrowserInformation = triState(temp.isEmpty() ? (short)unset : temp.toShort());
+    // Only on configuration per build
+    bool isDebug = project->isActiveConfig("debug");
+
+    conf.Name = isDebug ? "Debug" : "Release";
+    conf.Name += (conf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32");
+    conf.ATLMinimizesCRunTimeLibraryUsage = (project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True);
+    conf.BuildBrowserInformation = triState(temp.isEmpty() ? (short)unset : temp.toShort());
     temp = project->first("CharacterSet");
-    RConf.CharacterSet = charSet(temp.isEmpty() ? (short)charSetNotSet : temp.toShort());
-    RConf.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
-    RConf.ImportLibrary = RConf.linker.ImportLibrary;
-    RConf.IntermediateDirectory = project->first("OBJECTS_DIR");
-    RConf.OutputDirectory = ".";
-    RConf.PrimaryOutput = project->first("PrimaryOutput");
-    RConf.WholeProgramOptimization = RConf.compiler.WholeProgramOptimization;
+    conf.CharacterSet = charSet(temp.isEmpty() ? (short)charSetNotSet : temp.toShort());
+    conf.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
+    conf.ImportLibrary = conf.linker.ImportLibrary;
+    conf.IntermediateDirectory = project->first("OBJECTS_DIR");
+    conf.OutputDirectory = ".";
+    conf.PrimaryOutput = project->first("PrimaryOutput");
+    conf.WholeProgramOptimization = conf.compiler.WholeProgramOptimization;
     temp = project->first("UseOfATL");
     if(!temp.isEmpty())
-        RConf.UseOfATL = useOfATL(temp.toShort());
+        conf.UseOfATL = useOfATL(temp.toShort());
     temp = project->first("UseOfMfc");
     if(!temp.isEmpty())
-        RConf.UseOfMfc = useOfMfc(temp.toShort());
+        conf.UseOfMfc = useOfMfc(temp.toShort());
 
     // Configuration does not need parameters from
     // these sub XML items;
@@ -530,38 +562,17 @@ void VcprojGenerator::initConfiguration()
     initPostBuildEventTools();
     initPreLinkEventTools();
 
-    // Debug version of the Configuration -----------------
-    VCConfiguration DConf = vcProject.Configuration[0]; // Create copy configuration for debug
-    DConf.Name = "Debug";
-    DConf.Name += (DConf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32");
-
     // Set definite values in both configurations
-    DConf.compiler.PreprocessorDefinitions.removeAll("NDEBUG");
-    RConf.compiler.PreprocessorDefinitions += "NDEBUG";
-    RConf.linker.GenerateDebugInformation = _False;
-    DConf.linker.GenerateDebugInformation = _True;
-
-    // Modify configurations, based on Qt build
-    if(project->isActiveConfig("debug")) {
-        RConf.IntermediateDirectory =
-        RConf.compiler.AssemblerListingLocation =
-        RConf.compiler.ObjectFile = "Release\\";
-        RConf.librarian.OutputFile =
-        RConf.linker.OutputFile = RConf.IntermediateDirectory + "\\" + project->first("MSVCPROJ_TARGET");
-        RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_RELEASE"]);
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CFLAGS_RELEASE"]);
+    if (isDebug) {
+        // Special debug options
+        conf.linker.GenerateDebugInformation = _True;
+        conf.compiler.PreprocessorDefinitions.removeAll("NDEBUG");
     } else {
-        DConf.IntermediateDirectory =
-        DConf.compiler.AssemblerListingLocation =
-        DConf.compiler.ObjectFile = "Debug\\";
-        DConf.librarian.OutputFile =
-        DConf.linker.OutputFile = DConf.IntermediateDirectory + "\\" + project->first("MSVCPROJ_TARGET");
-        DConf.linker.DelayLoadDLLs.clear();
-        DConf.compiler.parseOptions(project->variables()["QMAKE_CFLAGS_DEBUG"]);
+        // Special release options
+        conf.linker.GenerateDebugInformation = _False;
+        conf.compiler.PreprocessorDefinitions += "NDEBUG";
     }
 
-    // Add Debug configuration to project
-    vcProject.Configuration += DConf;
 }
 
 void VcprojGenerator::initCompilerTool()
@@ -570,16 +581,16 @@ void VcprojGenerator::initCompilerTool()
     if(placement.isEmpty())
         placement = ".\\";
 
-    VCConfiguration &RConf = vcProject.Configuration[0];
-    RConf.compiler.AssemblerListingLocation = placement ;
-    RConf.compiler.ProgramDataBaseFileName = ".\\" ;
-    RConf.compiler.ObjectFile = placement ;
+    VCConfiguration &conf = vcProject.Configuration;
+    conf.compiler.AssemblerListingLocation = placement ;
+    conf.compiler.ProgramDataBaseFileName = ".\\" ;
+    conf.compiler.ObjectFile = placement ;
     // PCH
     if (usePCH) {
-        RConf.compiler.UsePrecompiledHeader     = pchUseUsingSpecific;
-        RConf.compiler.PrecompiledHeaderFile    = "$(IntDir)\\" + precompPch;
-        RConf.compiler.PrecompiledHeaderThrough = precompHFilename;
-        RConf.compiler.ForcedIncludeFiles       = precompHFilename;
+        conf.compiler.UsePrecompiledHeader     = pchUseUsingSpecific;
+        conf.compiler.PrecompiledHeaderFile    = "$(IntDir)\\" + precompPch;
+        conf.compiler.PrecompiledHeaderThrough = precompHFilename;
+        conf.compiler.ForcedIncludeFiles       = precompHFilename;
         // Minimal build option triggers an Internal Compiler Error
         // when used in conjunction with /FI and /Yu, so remove it
         project->variables()["QMAKE_CFLAGS_DEBUG"].removeAll("-Gm");
@@ -588,99 +599,99 @@ void VcprojGenerator::initCompilerTool()
         project->variables()["QMAKE_CXXFLAGS_DEBUG"].removeAll("/Gm");
     }
 
-    RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
+    conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
     if(project->isActiveConfig("debug")){
         // Debug version
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_DEBUG"]);
+        conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
+        conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_DEBUG"]);
         if((projectTarget == Application) || (projectTarget == StaticLib))
-            RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT_DBG"]);
+            conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT_DBG"]);
         else
-            RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"]);
+            conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"]);
     } else {
         // Release version
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_RELEASE"]);
-        RConf.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
-        RConf.compiler.PreprocessorDefinitions += "NDEBUG";
+        conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS"]);
+        conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_RELEASE"]);
+        conf.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
+        conf.compiler.PreprocessorDefinitions += "NDEBUG";
         if((projectTarget == Application) || (projectTarget == StaticLib))
-            RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT"]);
+            conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT"]);
         else
-            RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT_DLL"]);
+            conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_MT_DLL"]);
     }
 
     // Common for both release and debug
     if(project->isActiveConfig("warn_off"))
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_WARN_OFF"]);
+        conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_WARN_OFF"]);
     else if(project->isActiveConfig("warn_on"))
-        RConf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_WARN_ON"]);
+        conf.compiler.parseOptions(project->variables()["QMAKE_CXXFLAGS_WARN_ON"]);
     if(project->isActiveConfig("windows"))
-        RConf.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
+        conf.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
 
     // Can this be set for ALL configs?
     // If so, use qmake.conf!
     if(projectTarget == SharedLib)
-        RConf.compiler.PreprocessorDefinitions += "_WINDOWS";
+        conf.compiler.PreprocessorDefinitions += "_WINDOWS";
 
-    RConf.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
-    RConf.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
-    RConf.compiler.parseOptions(project->variables()["MSVCPROJ_INCPATH"]);
+    conf.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
+    conf.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
+    conf.compiler.parseOptions(project->variables()["MSVCPROJ_INCPATH"]);
 }
 
 void VcprojGenerator::initLibrarianTool()
 {
-    VCConfiguration &RConf = vcProject.Configuration[0];
-    RConf.librarian.OutputFile = project->first("DESTDIR");
-    if(RConf.librarian.OutputFile.isEmpty())
-        RConf.librarian.OutputFile = ".\\";
+    VCConfiguration &conf = vcProject.Configuration;
+    conf.librarian.OutputFile = project->first("DESTDIR");
+    if(conf.librarian.OutputFile.isEmpty())
+        conf.librarian.OutputFile = ".\\";
 
-    if(!RConf.librarian.OutputFile.endsWith("\\"))
-        RConf.librarian.OutputFile += '\\';
+    if(!conf.librarian.OutputFile.endsWith("\\"))
+        conf.librarian.OutputFile += '\\';
 
-    RConf.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
+    conf.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
 }
 
 void VcprojGenerator::initLinkerTool()
 {
     findLibraries(); // Need to add the highest version of the libs
-    VCConfiguration &RConf = vcProject.Configuration[0];
-    RConf.linker.parseOptions(project->variables()["MSVCPROJ_LFLAGS"]);
-    RConf.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
+    VCConfiguration &conf = vcProject.Configuration;
+    conf.linker.parseOptions(project->variables()["MSVCPROJ_LFLAGS"]);
+    conf.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
 
     switch (projectTarget) {
     case Application:
-        RConf.linker.OutputFile = project->first("DESTDIR");
+        conf.linker.OutputFile = project->first("DESTDIR");
         break;
     case SharedLib:
-        RConf.linker.parseOptions(project->variables()["MSVCPROJ_LIBOPTIONS"]);
-        RConf.linker.OutputFile = project->first("DESTDIR");
+        conf.linker.parseOptions(project->variables()["MSVCPROJ_LIBOPTIONS"]);
+        conf.linker.OutputFile = project->first("DESTDIR");
         break;
     case StaticLib: //unhandled - added to remove warnings..
         break;
     }
 
-    if(RConf.linker.OutputFile.isEmpty())
-        RConf.linker.OutputFile = ".\\";
+    if(conf.linker.OutputFile.isEmpty())
+        conf.linker.OutputFile = ".\\";
 
-    if(!RConf.linker.OutputFile.endsWith("\\"))
-        RConf.linker.OutputFile += '\\';
+    if(!conf.linker.OutputFile.endsWith("\\"))
+        conf.linker.OutputFile += '\\';
 
-    RConf.linker.OutputFile += project->first("MSVCPROJ_TARGET");
+    conf.linker.OutputFile += project->first("MSVCPROJ_TARGET");
 
     if(project->isActiveConfig("debug")){
-        RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_DEBUG"]);
+        conf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_DEBUG"]);
     } else {
-        RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_RELEASE"]);
+        conf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_RELEASE"]);
     }
 
     if(project->isActiveConfig("dll")){
-        RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_QT_DLL"]);
+        conf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_QT_DLL"]);
     }
 
     if(project->isActiveConfig("console")){
-        RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_CONSOLE"]);
+        conf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_CONSOLE"]);
     } else {
-        RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_WINDOWS"]);
+        conf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_WINDOWS"]);
     }
 
 }
@@ -699,16 +710,16 @@ void VcprojGenerator::initPreBuildEventTools()
 
 void VcprojGenerator::initPostBuildEventTools()
 {
-    VCConfiguration &RConf = vcProject.Configuration[0];
+    VCConfiguration &conf = vcProject.Configuration;
     if(!project->variables()["QMAKE_POST_LINK"].isEmpty()) {
-        RConf.postBuild.Description = var("QMAKE_POST_LINK");
-        RConf.postBuild.CommandLine = var("QMAKE_POST_LINK");
+        conf.postBuild.Description = var("QMAKE_POST_LINK");
+        conf.postBuild.CommandLine = var("QMAKE_POST_LINK");
     }
     if(!project->variables()["MSVCPROJ_COPY_DLL"].isEmpty()) {
-        if(!RConf.postBuild.CommandLine.isEmpty())
-            RConf.postBuild.CommandLine += " && ";
-        RConf.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
-        RConf.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
+        if(!conf.postBuild.CommandLine.isEmpty())
+            conf.postBuild.CommandLine += " && ";
+        conf.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
+        conf.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
     }
 }
 
@@ -718,26 +729,25 @@ void VcprojGenerator::initPreLinkEventTools()
 
 void VcprojGenerator::addMocArguments(VCFilter &filter)
 {
-    filter.customMocArguments.clear();
+    QString &args = filter.customMocArguments;
+    args.clear();
     // Add Defines
-    filter.customMocArguments +=
-        varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
-        varGlue("DEFINES"," -D"," -D","") +
-        varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
+    args += varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
+            varGlue("DEFINES"," -D"," -D","") +
+            varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
     // Add Includes
-    filter.customMocArguments += " -I" + specdir();
-    filter.customMocArguments += varGlue("INCLUDEPATH"," -I", " -I", "");
+    args += " -I" + specdir();
+    args += varGlue("INCLUDEPATH"," -I", " -I", "");
     if(!project->isActiveConfig("no_include_pwd")) {
         QString pwd = fileFixify(QDir::currentDirPath());
         if(pwd.isEmpty())
             pwd = ".";
-        filter.customMocArguments += " -I\"" + pwd + "\"";
+        args += " -I\"" + pwd + "\"";
     }
 }
 
 void VcprojGenerator::initSourceFiles()
 {
-    vcProject.SourceFiles.flat_files = project->isActiveConfig("flat");
     vcProject.SourceFiles.Name = "Source Files";
     vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
 
@@ -751,7 +761,6 @@ void VcprojGenerator::initSourceFiles()
 void VcprojGenerator::initHeaderFiles()
 {
     QStringList list;
-    vcProject.HeaderFiles.flat_files = project->isActiveConfig("flat");
     vcProject.HeaderFiles.Name = "Header Files";
     vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
     list += project->variables()["HEADERS"];
@@ -769,7 +778,6 @@ void VcprojGenerator::initHeaderFiles()
 
 void VcprojGenerator::initMOCFiles()
 {
-    vcProject.MOCFiles.flat_files = project->isActiveConfig("flat");
     vcProject.MOCFiles.Name = "Generated MOC Files";
     vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
 
@@ -796,7 +804,6 @@ void VcprojGenerator::initMOCFiles()
 
 void VcprojGenerator::initFormsFiles()
 {
-    vcProject.FormFiles.flat_files = project->isActiveConfig("flat");
     vcProject.FormFiles.Name = "Forms";
     vcProject.FormFiles.ParseFiles = _False;
     vcProject.FormFiles.Filter = "ui";
@@ -810,7 +817,6 @@ void VcprojGenerator::initFormsFiles()
 
 void VcprojGenerator::initTranslationFiles()
 {
-    vcProject.TranslationFiles.flat_files = project->isActiveConfig("flat");
     vcProject.TranslationFiles.Name = "Translations Files";
     vcProject.TranslationFiles.ParseFiles = _False;
     vcProject.TranslationFiles.Filter = "ts";
@@ -824,7 +830,6 @@ void VcprojGenerator::initTranslationFiles()
 
 void VcprojGenerator::initLexYaccFiles()
 {
-    vcProject.LexYaccFiles.flat_files = project->isActiveConfig("flat");
     vcProject.LexYaccFiles.Name = "Lex / Yacc Files";
     vcProject.LexYaccFiles.ParseFiles = _False;
     vcProject.LexYaccFiles.Filter = "l;y";
@@ -839,7 +844,6 @@ void VcprojGenerator::initLexYaccFiles()
 
 void VcprojGenerator::initResourceFiles()
 {
-    vcProject.ResourceFiles.flat_files = project->isActiveConfig("flat");
     vcProject.ResourceFiles.Name = "Resources";
     vcProject.ResourceFiles.ParseFiles = _False;
     vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts";
@@ -861,7 +865,6 @@ void VcprojGenerator::initExtraCompilerOutputs()
     for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it, ++count) {
         // Create an extra compiler filter and add the files
         VCFilter extraCompile;
-        extraCompile.flat_files = project->isActiveConfig("flat");
         extraCompile.Name = (*it);
         extraCompile.ParseFiles = _False;
         extraCompile.Filter = "";

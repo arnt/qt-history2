@@ -123,6 +123,8 @@ public:
     virtual bool write();
     virtual bool writeProjectMakefile();
     virtual bool supportsMetaBuild() { return true; }
+    virtual bool supportsMergedBuilds() { return false; }
+    virtual bool mergeBuildProject(MakefileGenerator * /*other*/) { return false; }
     virtual bool openOutput(QFile &, const QString &build) const;
 };
 
