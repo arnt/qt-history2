@@ -1904,11 +1904,8 @@ QAccessibleInterface *QObject::accessibilityInterface() const
 
     QObject *that = (QObject*)this;
     d->accessible = that->createAccessibilityInterface();
-    if ( d->accessible ) {	
-	// initialize the new accessibility object
-	QEvent e( QEvent::Accessibility );
-	that->accessibilityEvent( &e );
-    }
+    if ( d->accessible )
+	d->accessible->addRef();
     return d->accessible;
 #else
     return 0;
