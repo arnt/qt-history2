@@ -1301,7 +1301,7 @@ void Configure::generateConfigfiles()
 	outStream << "\t\t\t\tVALUE \"FileDescription\", \"Qt\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"FileVersion\", \"" << prodVer << ",1\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"InternalName\", \"" << internalName << "\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003-2004 Trolltech\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003-$THISYEAR$ Trolltech AS\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"OriginalFilename\", \"" << prodFile << "\\0\"" << endl;
 	outStream << "\t\t\t\tVALUE \"ProductName\", \"Qt\\0\"" << endl;
