@@ -28,16 +28,18 @@ class QSqlFormMap
 {
 public:
     QSqlFormMap();
+    ~QSqlFormMap();
     
     void        add( QWidget * widget, QSqlField * field );
     QSqlField * whichField( QWidget * widget ) const;
     QWidget *   whichWidget( QSqlField * field ) const;
     void        syncWidgets();
     void        syncFields();
-
+    void        installPropertyMap( QSqlPropertyMap * map );
+    
 private:
     QMap< QWidget *, QSqlField * > map;
-    QSqlPropertyMap m;
+    QSqlPropertyMap * m;
 };
 
 class Q_EXPORT QSqlForm : public QWidget
@@ -47,9 +49,9 @@ public:
     QSqlForm( QWidget * parent = 0, const char * name = 0 );
     ~QSqlForm();
     
-    void associate( QWidget * widget, QSqlField * field );
-
-    void setView( QSqlView * view );
+    void       associate( QWidget * widget, QSqlField * field );
+    void       setView( QSqlView * view );
+    QSqlView * view() const;
    
 public slots:
     virtual void syncWidgets();
@@ -58,9 +60,9 @@ public slots:
     virtual void previous();
     virtual void next();
     virtual void last();    
-    virtual void insert();
-    virtual void update();
-    virtual void del();
+    virtual bool insert();
+    virtual bool update();
+    virtual bool del();
     virtual void seek( int i );
         
 signals:

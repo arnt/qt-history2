@@ -82,7 +82,34 @@ void QSqlPropertyMap::addClass( const QString & classname,
 */
 QSqlFormMap::QSqlFormMap()
 {
+    m = new QSqlPropertyMap;
 }
+
+/*!
+  
+  Destructor.
+*/
+QSqlFormMap::~QSqlFormMap()
+{
+    if( m ) 
+	delete m;
+}
+
+/*!
+  
+  Installs a custom QSqlPropertyMap.
+*/
+void QSqlFormMap::installPropertyMap( QSqlPropertyMap * map )
+{
+    if( m )
+	delete m;
+    
+    if( map )
+	m = map;
+    else
+	m = new QSqlPropertyMap;
+}
+
 
 /*!
 
@@ -132,7 +159,7 @@ void QSqlFormMap::syncWidgets()
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = whichField( it.key() );
 	if( !f ) continue;
-	m.setProperty( it.key(), f->value() );
+	m->setProperty( it.key(), f->value() );
     }       
 }
 
@@ -148,7 +175,7 @@ void QSqlFormMap::syncFields()
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = whichField( it.key() );
 	if( !f ) continue;
-	f->setValue( m.property( it.key() ) );
+	f->setValue( m->property( it.key() ) );
     }       
 }
 
@@ -200,6 +227,15 @@ void QSqlForm::associate( QWidget * widget, QSqlField * field )
 void QSqlForm::setView( QSqlView * view )
 {
     v = view;
+}
+
+/*!
+  
+  Returns the QSqlView that this form is associated with.
+*/
+QSqlView * QSqlForm::view() const
+{
+    return v;
 }
 
 /*!
@@ -256,25 +292,42 @@ void QSqlForm::previous()
     }
 }
 
-void QSqlForm::insert()
+bool QSqlForm::insert()
 {
-    qDebug("insert(): not implemented!"); 
+    if( v ){
+	syncFields();
+	v->insert();
+	v->select( v->filter(), v->sort() );
+	v->last();
+	syncWidgets();
+	return TRUE;
+    }
+    return FALSE;
 }
 
-void QSqlForm::update()
+bool QSqlForm::update()
 {
     if( v ){
 	syncFields();
 	int at = v->at();
-	v->update( v->primaryIndex() );
-	v->select( v->sort() );
-	v->seek( at );
+	if( v->update( v->primaryIndex() ) && 
+	    v->select( v->filter(), v->sort() ) &&
+	    v->seek( at ) )
+	    return TRUE;
     }
+    
+    return FALSE;
 }
 
-void QSqlForm::del()
+bool QSqlForm::del()
 {
-    qDebug("delete(): not implemented!");    
+    if( v && v->del( v->primaryIndex() ) ){
+	v->select( v->filter(), v->sort() );
+	v->first();
+	syncWidgets();
+	return TRUE;
+    }
+    return FALSE;
 }
 
 void QSqlForm::seek( int i )
