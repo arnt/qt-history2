@@ -768,7 +768,6 @@ QIconViewItem::~QIconViewItem()
     delete d;
     delete f;
     delete c;
-    removeRenameBox();
 }
 
 /*!
@@ -2865,13 +2864,13 @@ QIconViewItem *QIconView::findItem( const QString &text ) const
 	if ( item->text().lower().left( text.length() ) == text )
 	    return item;
     }
-    
+
     item = d->firstItem;
     for ( ; item && item != d->currentItem; item = item->next ) {
 	if ( item->text().lower().left( text.length() ) == text )
 	    return item;
     }
-    
+
     return 0;
 }
 
