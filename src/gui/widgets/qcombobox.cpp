@@ -70,7 +70,7 @@ bool QComboBoxPrivate::updateHoverControl(const QPoint &pos)
         q->update(lastHoverRect);
         q->update(hoverRect);
         return true;
-    } 
+    }
     return !doesHover;
 }
 
@@ -598,10 +598,12 @@ void QComboBoxPrivate::dataChanged(const QModelIndex &topLeft, const QModelIndex
         q->updateGeometry();
     }
 
-    if (lineEdit && currentIndex.row() >= topLeft.row()
-        && currentIndex.row() <= bottomRight.row()) {
-        lineEdit->setText(model->data(currentIndex, QAbstractItemModel::EditRole).toString());
-        updateLineEditGeometry();
+    if (currentIndex.row() >= topLeft.row() && currentIndex.row() <= bottomRight.row()) {
+        if (lineEdit) {
+            lineEdit->setText(model->data(currentIndex, QAbstractItemModel::EditRole).toString());
+            updateLineEditGeometry();
+        }
+        q->update();
     }
 }
 
@@ -1684,7 +1686,7 @@ bool QComboBox::event(QEvent *event)
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
-    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
         d->updateHoverControl(he->pos());
         break;
     default:
