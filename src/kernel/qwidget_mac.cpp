@@ -444,8 +444,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	Rect r;
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 	WindowClass wclass = kSheetWindowClass;
-	if(testWFlags(WType_Popup) )
-	    wclass = kToolbarWindowClass;
+	if(popup || testWFlags(WStyle_Tool))
+	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
 	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
@@ -482,7 +482,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    }
 	}
 
-	if( wclass == kSheetWindowClass ) {
+	if(wclass == kSheetWindowClass || testWFlags(WStyle_Tool)) {
 	    WindowDefSpec wds;
 	    wds.defType = kWindowDefProcPtr;
 	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
