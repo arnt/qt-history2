@@ -117,16 +117,22 @@ static inline uint checkForCode( uint code )
 static QString keyForCode( uint code )
 {
     QString s = encodeBaseZ( code, 7 );
-    uint extra = code & ( Feature_US | Feature_Enterprise | Feature_Unix );
-    s.prepend( QChar('A' + extra) );
+    uint extra = code & ( Feature_US | Feature_Enterprise | Feature_Unix |
+			  Feature_Embedded );
+    QChar ch( 'A' + extra );
+    if ( ch == QChar('I') ) {
+	ch = QChar( 'Y' );
+    } else if ( ch == QChar('O') ) {
+	ch = QChar( 'U' );
+    }
+    s.prepend( ch );
     s.insert( 4, QChar('-') );
-
     return s;
 }
 
 static uint codeForKey( const QString& key )
 {
-    QRegExp fmt( QString("[A-H]([A-Z0-9]{3})-([A-Z0-9]{4})(?:-[A-Z0-9]{4})?") );
+    QRegExp fmt( QString("[A-Z]([A-Z0-9]{3})-([A-Z0-9]{4})(?:-[A-Z0-9]{4})?") );
     QString t = key.stripWhiteSpace().upper();
 
     if ( fmt.exactMatch(t) ) {
@@ -167,21 +173,18 @@ uint featuresForKey( const QString& key )
 uint featuresForKeyOnUnix( const QString& key )
 {
     QString t = key.simplifyWhiteSpace().upper();
-
-    if ( t.isEmpty() || QString("ABCDEFGH").find(t[0]) == -1 )
+    if ( t.isEmpty() )
 	return 0;
 
     uint ch = t[0].unicode();
     uint features = 0;
-    if ( QString("EFGH").find(QChar(ch)) != -1 ) {
+    if ( QString("YJKLMNUP").find(QChar(ch)) != -1 )
+	features |= Feature_Embedded;
+    if ( QString("EFGHMNUP").find(QChar(ch)) != -1 )
 	features |= Feature_Unix;
-	ch -= 4;
-    }
-    if ( QString("CD").find(QChar(ch)) != -1 ) {
+    if ( QString("CDGHKLUP").find(QChar(ch)) != -1 )
 	features |= Feature_Enterprise;
-	ch -= 2;
-    }
-    if ( QChar(ch) == QChar('B') )
+    if ( QString("BDFHJLNP").find(QChar(ch)) != -1 )
 	features |= Feature_US;
     return features;
 }

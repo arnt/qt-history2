@@ -140,7 +140,7 @@ static void reset()
 	      correct feature sets. This accounts for most of the
 	      processing time of the function.
 	    */
-#if 1
+#if 0
 	    if ( featuresForKey(k) != features ) {
 		fprintf( stderr, "Internal error in featuresForKey(\"%s\")\n",
 			 k.stripWhiteSpace().latin1() );

@@ -47,7 +47,7 @@
   Feel free to use Feature_Extra{1,2} when the need arises.
 */
 enum { Feature_US = 0x1, Feature_Enterprise = 0x2, Feature_Unix = 0x4,
-       Feature_Windows = 0x8, Feature_Mac = 0x10, Feature_Embedded = 0x20,
+       Feature_Embedded = 0x8, Feature_Windows = 0x10, Feature_Mac = 0x20,
        Feature_Extra1 = 0x40, Feature_Extra2 = 0x80,
 
        NumFeatures = 8,
