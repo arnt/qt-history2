@@ -10,7 +10,6 @@ MainWindow::MainWindow ( QWidget * parent, const char * name, WFlags f )
     masterTable->setCursor( &master, TRUE );
     childTable->setCursor( &child, TRUE );
     childTable->removeColumn( 1 );
-    //    reloadChildTable( 1 ); ## fix this!!
     connect( masterTable, SIGNAL( currentChanged(const QSqlRecord*)),
 	     SLOT( newMasterSelection(const QSqlRecord*)));
 }
