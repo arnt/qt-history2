@@ -951,7 +951,7 @@ QApplication::~QApplication()
 
 QStyle& QApplication::style()
 {
-    extern QWidget *qt_style_global_context;
+    extern const QWidget *qt_style_global_context;
     qt_style_global_context = NULL;
     return *app_style;
 }

@@ -759,7 +759,7 @@ QWidget::~QWidget()
 	    qApp->quit();
     }
 
-    extern QWidget *qt_style_global_context;
+    extern const QWidget *qt_style_global_context;
     if(qt_style_global_context == this)
 	qt_style_global_context = NULL;
 
@@ -1097,12 +1097,14 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
-    extern QWidget *qt_style_global_context;
-    qt_style_global_context = this;
-
-    if ( extra && extra->style )
+    extern const QWidget *qt_style_global_context;
+    if ( extra && extra->style ) {
+	qt_style_global_context = this;
 	return *extra->style;
-    return qApp->style();
+    }
+    QStyle &ret = qApp->style();    
+    qt_style_global_context = this;
+    return ret;
 }
 
 /*!

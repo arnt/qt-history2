@@ -333,7 +333,7 @@ public:
     virtual void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
 
 protected:
-    static QWidget *contextWidget();
+    static const QWidget *contextWidget();
 
 private:
     class Private;
