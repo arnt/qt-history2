@@ -301,7 +301,7 @@ static QCoreVariant qGetBinaryData(SQLHANDLE hStmt, int column)
 	r = SQLGetData( hStmt,
 			column+1,
 			SQL_C_BINARY,
-			(SQLPOINTER)(fieldVal.data() - read),
+			(SQLPOINTER)(fieldVal.constData() - read),
 			fieldVal.size() - read,
 			&lengthIndicator );
 	if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
@@ -659,7 +659,7 @@ bool QODBCResult::reset ( const QString& query )
 #else
     QByteArray query8( query.local8Bit() );
     r = SQLExecDirect( d->hStmt,
-                       (SQLCHAR*) query8.data(),
+                       (SQLCHAR*) query8.constData(),
                        (SQLINTEGER) query8.length() );
 #endif
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
@@ -948,7 +948,7 @@ bool QODBCResult::prepare( const QString& query )
 #else
     QByteArray query8( query.local8Bit() );
     r = SQLPrepare( d->hStmt,
-		    (SQLCHAR*) query8.data(),
+		    (SQLCHAR*) query8.constData(),
 		    (SQLINTEGER) query8.length() );
 #endif
 
@@ -994,7 +994,7 @@ bool QODBCResult::exec()
             case QCoreVariant::Date: {
                 QByteArray ba;
                 ba.resize(sizeof(DATE_STRUCT));
-                DATE_STRUCT *dt = (DATE_STRUCT *)ba.data();
+                DATE_STRUCT *dt = (DATE_STRUCT *)ba.constData();
                 QDate qdt = val.toDate();
                 dt->year = qdt.year();
                 dt->month = qdt.month();
@@ -1014,7 +1014,7 @@ bool QODBCResult::exec()
             case QCoreVariant::Time: {
                 QByteArray ba;
                 ba.resize(sizeof(TIME_STRUCT));
-                TIME_STRUCT *dt = (TIME_STRUCT *)ba.data();
+                TIME_STRUCT *dt = (TIME_STRUCT *)ba.constData();
                 QTime qdt = val.toTime();
                 dt->hour = qdt.hour();
                 dt->minute = qdt.minute();
@@ -1034,7 +1034,7 @@ bool QODBCResult::exec()
             case QCoreVariant::DateTime: {
                 QByteArray ba;
                 ba.resize(sizeof(TIMESTAMP_STRUCT));
-                TIMESTAMP_STRUCT * dt = (TIMESTAMP_STRUCT *)ba.data();
+                TIMESTAMP_STRUCT * dt = (TIMESTAMP_STRUCT *)ba.constData();
                 QDateTime qdt = val.toDateTime();
                 dt->year = qdt.date().year();
                 dt->month = qdt.date().month();
@@ -1063,7 +1063,7 @@ bool QODBCResult::exec()
                                       SQL_INTEGER,
                                       0,
                                       0,
-                                      (void *) val.data(),
+                                      (void *) val.constData(),
                                       0,
                                       *ind == SQL_NULL_DATA ? ind : NULL );
                 break;
@@ -1075,7 +1075,7 @@ bool QODBCResult::exec()
                                       SQL_DOUBLE,
                                       0,
                                       0,
-                                      (void *) val.data(),
+                                      (void *) val.constData(),
                                       0,
                                       *ind == SQL_NULL_DATA ? ind : NULL );
                 break;
@@ -1090,7 +1090,7 @@ bool QODBCResult::exec()
                                       SQL_LONGVARBINARY,
                                       val.toByteArray().size(),
                                       0,
-                                      (void *) val.toByteArray().data(),
+                                      (void *) val.toByteArray().constData(),
                                       val.toByteArray().size(),
                                       ind );
                 break;
@@ -1100,8 +1100,7 @@ bool QODBCResult::exec()
                     QString str(val.toString());
                     str.ucs2();
                     if (bindValueType(i) & QSql::Out) {
-                        str.ucs2();
-                        QByteArray ba((char*)str.data(), str.length() * sizeof(QChar) * 2);
+                        QByteArray ba((char*)str.constData(), str.length() * sizeof(QChar) * 2);
                         r = SQLBindParameter(d->hStmt,
                                             i + 1,
                                             qParamType[ (QFlag)(bindValueType(i)) & QSql::InOut ],
@@ -1109,7 +1108,7 @@ bool QODBCResult::exec()
                                             SQL_WVARCHAR,
                                             0, // god knows... don't change this!
                                             0,
-                                            (void *)ba.data(),
+                                            (void *)ba.constData(),
                                             ba.capacity(),
                                             ind);
                         break;
@@ -1122,7 +1121,7 @@ bool QODBCResult::exec()
                                           SQL_WVARCHAR,
                                           0, // god knows... don't change this!
                                           0,
-                                          (void *)str.data(),
+                                          (void *)str.constData(),
                                           str.length() * sizeof(QChar),
                                           ind );
                     break;
@@ -1138,7 +1137,7 @@ bool QODBCResult::exec()
                                       SQL_VARCHAR,
                                       ba.length() + 1,
                                       0,
-                                      (void *) ba.data(),
+                                      (void *) ba.constData(),
                                       ba.length() + 1,
                                       ind );
                 tmpStorage.append(ba);
@@ -1177,16 +1176,16 @@ bool QODBCResult::exec()
     for (i = 0; i < values.count(); ++i) {
         switch (values.at(i).type()) {
             case QCoreVariant::Date: {
-                DATE_STRUCT ds = *((DATE_STRUCT *)tmpStorage.takeFirst().data());
+                DATE_STRUCT ds = *((DATE_STRUCT *)tmpStorage.takeFirst().constData());
                 values[i] = QCoreVariant(QDate(ds.year, ds.month, ds.day));
                 break; }
             case QCoreVariant::Time: {
-                TIME_STRUCT dt = *((TIME_STRUCT *)tmpStorage.takeFirst().data());
+                TIME_STRUCT dt = *((TIME_STRUCT *)tmpStorage.takeFirst().constData());
                 values[i] = QCoreVariant(QTime(dt.hour, dt.minute, dt.second));
                 break; }
             case QCoreVariant::DateTime: {
                 TIMESTAMP_STRUCT dt = *((TIMESTAMP_STRUCT*)
-                                        tmpStorage.takeFirst().data());
+                                        tmpStorage.takeFirst().constData());
                 values[i] = QCoreVariant(QDateTime(QDate(dt.year, dt.month, dt.day),
                                          QTime(dt.hour, dt.minute, dt.second)));
                 break; }
@@ -1198,14 +1197,14 @@ bool QODBCResult::exec()
             case QCoreVariant::String:
                 if (d->unicode) {
                     if (bindValueType(i) & QSql::Out)
-                        values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().data());
+                        values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().constData());
                     break;
                 }
                 // fall through
             default: {
                 QByteArray ba = tmpStorage.takeFirst();
                 if (bindValueType(i) & QSql::Out)
-                    values[i] = QString::fromLocal8Bit(tmpStorage.takeFirst().data());
+                    values[i] = QString::fromLocal8Bit(tmpStorage.takeFirst().constData());
                 break; }
         }
         if (indicators[i] == SQL_NULL_DATA)

@@ -104,6 +104,7 @@ void QOCIPrivate::setCharset( OCIBind* hbnd )
 {
     int r = 0;
 
+    Q_ASSERT(hbnd);
 #ifdef QOCI_USES_VERSION_9
     if ( serverVersion > 8 && !CSID_UTF16 ) {
 
@@ -159,7 +160,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
         if (isOutValue(i))
             values[i].detach();
         QVariant val = values.at(i);
-        void *data = val.data();
+        void *data = (void*)val.constData();
 
         //qDebug( "binding values: %d, %s", i, values.at(i).toString().ascii() );
         OCIBind * hbnd = 0; // Oracle handles these automatically
@@ -171,7 +172,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
             case QCoreVariant::ByteArray:
                 r = OCIBindByPos( sql, &hbnd, err,
                                   i + 1,
-                                  (dvoid *) ((QByteArray*)data)->data(),
+                                  (dvoid *) ((QByteArray*)data)->constData(),
                                   ((QByteArray*)data)->size(),
                                   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -182,7 +183,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                 QByteArray ba = qMakeOraDate(values.at(i).toDateTime());
                 r = OCIBindByPos( sql, &hbnd, err,
                                   i + 1,
-                                  (dvoid *) ba.data(),
+                                  (dvoid *) ba.constData(),
                                   ba.size(),
                                   SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -211,17 +212,18 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                     QByteArray ba((char*)s.ucs2(), s.length() * sizeof(QChar) * 2);
                     r = OCIBindByPos(sql, &hbnd, err,
                                     i + 1,
-                                    (dvoid *)ba.data(),
+                                    (dvoid *)ba.constData(),
                                     ba.capacity(),
                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
                     tmpStorage.append(ba);
                 } else {
+                    s.ucs2(); // append 0
                     r = OCIBindByPos(sql, &hbnd, err,
                                     i + 1,
                                     //yes, we cast away the const.
                                     // But Oracle should'nt touch IN values
-                                    (dvoid *)s.ucs2(),
+                                    (dvoid *)s.constData(),
                                     (s.length() + 1) * sizeof(QChar),
                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -256,7 +258,7 @@ void QOCIPrivate::outValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                 values[i] = qMakeDate(tmpStorage.takeFirst()).time();
                 break;
             case QCoreVariant::String:
-                values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().data());
+                values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().constData());
                 break;
             default:
                 break; //nothing
@@ -764,6 +766,7 @@ void QOCIResultPrivate::setCharset( OCIDefine* dfn )
 {
     int r = 0;
 
+    Q_ASSERT(dfn);
 #ifdef QOCI_USES_VERSION_9
     if ( d->serverVersion > 8 && !CSID_UTF16 ) {
 
@@ -884,7 +887,7 @@ int QOCIResultPrivate::readLOBs(QVector<QCoreVariant> &values, int index)
                             lob,
                             &amount,
                             1,
-                            (void*) buf.data(),
+                            (void*) buf.constData(),
                             (ub4) buf.size(),
                             0, 0,
                             0,
@@ -1401,7 +1404,7 @@ int QOCI9Result::numRowsAffected()
 
 bool QOCI9Result::prepare( const QString& query )
 {
-//    qDebug( "QOCI9Result::prepare: " + query );
+//    qDebug("QOCI9Result::prepare: %s", query.ascii());
 
     int r = 0;
     delete cols;
