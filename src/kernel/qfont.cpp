@@ -38,6 +38,7 @@
 #define QT_FATAL_ASSERT
 
 #include "qfont.h"
+#include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qpainter.h"
@@ -58,6 +59,50 @@
 #include "qtextengine_p.h"
 
 // #define QFONTCACHE_DEBUG
+
+
+
+
+bool QFontDef::operator==( const QFontDef &other ) const
+{
+    /*
+      QFontDef comparison is more complicated than just simple
+      per-member comparisons.
+
+      When comparing point/pixel sizes, we allow for them to be -1.
+      We use strict comparison if and only if the size members are not
+      -1 in this instance and \a other.
+
+      To compare the family members, we need to parse the font names
+      and compare the family/foundry strings separately.  This allows
+      us to compare e.g. "Helvetica" and "Helvetica [Adobe]" with
+      positive results.
+    */
+    QString this_family, this_foundry, other_family, other_foundry;
+    QFontDatabase::parseFontName(family, this_foundry, this_family);
+    QFontDatabase::parseFontName(other.family, other_foundry, other_family);
+
+    return ((pointSize == -1
+	     || other.pointSize == -1
+	     || pointSize == other.pointSize)
+	    && (pixelSize == -1
+		|| other.pixelSize == -1
+		|| pixelSize == other.pixelSize)
+	    && styleHint     == other.styleHint
+	    && styleStrategy == other.styleStrategy
+	    && weight        == other.weight
+	    && italic        == other.italic
+	    && fixedPitch    == other.fixedPitch
+	    && stretch       == other.stretch
+	    && this_family   == other_family
+	    && (this_foundry.isEmpty()
+		|| other_foundry.isEmpty()
+		|| this_foundry == other_foundry)
+#ifdef Q_WS_X11
+	    && addStyle == other.addStyle
+#endif // Q_WS_X11
+	    );
+}
 
 
 
@@ -2847,6 +2892,7 @@ bool QFontInfo::exactMatch() const
 #ifdef QT_CHECK_STATE
     Q_ASSERT( engine != 0 );
 #endif // QT_CHECK_STATE
+
     return d->request == engine->fontDef;
 }
 

@@ -122,8 +122,9 @@ private:
 
     static void createDatabase();
 
-    static void parseFontName(const QString &, QString &, QString &);
+    static void parseFontName(const QString &name, QString &foundry, QString &family);
 
+    friend class QFontDef;
     friend class QFontPrivate;
     friend class QFontDialog;
     friend class QFontEngineLatinXLFD;

@@ -62,7 +62,7 @@ class QPaintDevice;
 
 struct QFontDef
 {
-    QFontDef()
+    inline QFontDef()
 	: pointSize( -1 ), pixelSize( -1 ),
 	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
 	  weight( 50 ), italic( FALSE ), fixedPitch( FALSE ), stretch( 100 )
@@ -88,6 +88,7 @@ struct QFontDef
 
     uint reserved   : 16; // for future extensions
 
+    bool operator==( const QFontDef &other ) const;
     inline bool operator<( const QFontDef &other ) const
     {
 	if ( pixelSize != other.pixelSize ) return pixelSize < other.pixelSize;
@@ -103,22 +104,6 @@ struct QFontDef
 #endif // Q_WS_X11
 
 	return FALSE;
-    }
-    inline bool operator==( const QFontDef &other ) const
-    {
-	return ( pointSize     == other.pointSize     &&
-		 pixelSize     == other.pixelSize     &&
-		 styleHint     == other.styleHint     &&
-		 styleStrategy == other.styleStrategy &&
-		 weight        == other.weight        &&
-		 italic        == other.italic        &&
-		 fixedPitch    == other.fixedPitch    &&
-		 stretch       == other.stretch       &&
-		 family        == other.family
-#ifdef Q_WS_X11
-		 && addStyle == other.addStyle
-#endif // Q_WS_X11
-		 );
     }
 };
 
