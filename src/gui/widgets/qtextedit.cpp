@@ -1142,6 +1142,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
     }
 
     d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
+    d->updateCurrentCharFormatAndSelection();
     d->viewport->update();
 }
 
