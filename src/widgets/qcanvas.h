@@ -20,6 +20,7 @@ class QCanvasRectangle;
 class QCanvasPolygon;
 class QCanvasEllipse;
 class QCanvasText;
+class QCanvasLine;
 class QCanvasChunk;
 class QCanvas;
 class QCanvasItem;
@@ -99,14 +100,13 @@ public:
 private:
     // For friendly sublasses...
 
-    //friend QCanvas;
-
     friend QCanvasPolygonalItem;
     friend QCanvasSprite;
     friend QCanvasRectangle;
     friend QCanvasPolygon;
     friend QCanvasEllipse;
     friend QCanvasText;
+    friend QCanvasLine;
 
     virtual QPointArray chunks() const;
     virtual void addToChunks();
@@ -237,6 +237,8 @@ private:
     QColor bgcolor;
     bool debug_redraw_areas;
     bool dblbuf;
+
+    friend void qt_unview(QCanvas* c);
 };
 
 class Q_EXPORT QCanvasView : public QScrollView
@@ -255,6 +257,7 @@ protected:
 
 private:
     QCanvas* viewing;
+    friend void qt_unview(QCanvas* c);
 
 private slots:
     void cMoving(int,int);
@@ -381,8 +384,11 @@ public:
 
     bool collidesWith( const QCanvasItem* ) const;
 
-    void setPen(QPen p);
-    void setBrush(QBrush b);
+    virtual void setPen(QPen p);
+    virtual void setBrush(QBrush b);
+
+    QPen pen() const { return pn; }
+    QBrush brush() const { return br; }
 
     virtual QPointArray areaPoints() const=0;
     virtual QPointArray areaPointsAdvanced() const;
@@ -394,6 +400,9 @@ protected:
     void draw(QPainter &);
     virtual void drawShape(QPainter &) = 0;
 
+    bool winding() const;
+    void setWinding(bool);
+
 private:
     void scanPolygon(const QPointArray& pa, int winding, QPolygonalProcessor& process) const;
     QPointArray chunks() const;
@@ -404,8 +413,9 @@ private:
 			 const QCanvasEllipse*,
 			 const QCanvasText* ) const;
 
-    QBrush brush;
-    QPen pen;
+    QBrush br;
+    QPen pn;
+    uint wind:1;
 };
 
 class Q_EXPORT QCanvasRectangle : public QCanvasPolygonalItem
@@ -459,6 +469,25 @@ protected:
     void drawShape(QPainter &);
 };
 
+class Q_EXPORT QCanvasLine : public QCanvasPolygonalItem
+{
+public:
+    QCanvasLine();
+    ~QCanvasLine();
+    void setPoints(int x1, int y1, int x2, int y2);
+
+    int rtti() const;
+
+    void setPen(QPen p);
+
+protected:
+    void drawShape(QPainter &);
+    QPointArray areaPoints() const;
+
+private:
+    int x1,y1,x2,y2;
+};
+
 class Q_EXPORT QCanvasEllipse : public QCanvasPolygonalItem
 {
     int w, h;
@@ -493,6 +522,8 @@ private:
 			 const QCanvasText* ) const;
 };
 
+
+class QCanvasTextExtra;
 
 class Q_EXPORT QCanvasText : public QCanvasItem
 {
@@ -529,9 +560,10 @@ private:
     void setRect();
     QRect brect;
     QString text;
-	int flags;
+    int flags;
     QFont font;
     QColor col;
+    QCanvasTextExtra* extra;
 
     bool collidesWith(   const QCanvasSprite*,
 			 const QCanvasPolygonalItem*,

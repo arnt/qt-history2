@@ -451,11 +451,19 @@ QCanvas::QCanvas( QPixmap p,
     setTiles( p, h, v, tilewidth, tileheight );
 }
 
+void qt_unview(QCanvas* c)
+{
+    for (QCanvasView* view=c->viewList.first(); view != 0; view=c->viewList.next()) {
+	view->viewing = 0;
+    }
+}
+
 /*!
   Destructs the canvas.  Does \e not destroy items on the canvas.
 */
 QCanvas::~QCanvas()
 {
+    qt_unview(this);
 }
 
 /*!
@@ -912,6 +920,23 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 	    drawBackground(painter,area);
 	    allvisible.drawUnique(painter);
 	    drawForeground(painter,area);
+	}
+	if ( 0 ) {
+	    QArray<QRect> r = rgn.rects();
+	    painter.setBrush(NoBrush);
+	    painter.setPen(red);
+	    //painter.setPen(color1);
+	    //painter.setRasterOp(XorROP);
+	    QPoint tl = view->viewportToContents(QPoint(0,0));
+	    for ( int i=0; i<(int)r.count(); i++ ) {
+		if ( double_buffer ) {
+		    painter.drawRect(r[i]);
+		} else {
+		    QRect rr = r[i];
+		    rr.moveBy(tl.x(),tl.y());
+		    painter.drawRect(rr);
+		}
+	    }
 	}
     }
 }
@@ -1530,7 +1555,7 @@ void QCanvasItem::setVisible(bool yes)
   to use it if needed.
 
   Note that subclasses may not look any different
-  if there draw() functions ignore the value
+  if their draw() functions ignore the value
   of selected().
 */
 void QCanvasItem::setSelected(bool yes)
@@ -2532,8 +2557,8 @@ void QCanvasView::setCanvas(QCanvas* canvas)
     viewing=canvas;
     if (viewing) {
 	viewing->addView(this);
+	resizeContents(viewing->width(),viewing->height());
     }
-    resizeContents(viewing->width(),viewing->height());
 }
 
 
@@ -2607,6 +2632,7 @@ QSize QCanvasView::sizeHint() const
 */
 QCanvasPolygonalItem::QCanvasPolygonalItem()
 {
+    wind=0;
 }
 
 /*!
@@ -2617,6 +2643,30 @@ QCanvasPolygonalItem::QCanvasPolygonalItem()
 */
 QCanvasPolygonalItem::~QCanvasPolygonalItem()
 {
+}
+
+/*!
+  Returns TRUE if the polygonal item uses the \e winding algorithm
+  for determinine the "inside" of the polygon, of FALSE if
+  it uses the odd-even algorithm.
+
+  \sa setWinding()
+*/
+bool QCanvasPolygonalItem::winding() const
+{
+    return wind;
+}
+
+/*!
+  Sets whether the polygonal item to use \e winding algorithm
+  for determinine the "inside" of the polygon, rather than
+  the odd-even algorithm.
+
+  \sa winding()
+*/
+void QCanvasPolygonalItem::setWinding(bool enable)
+{
+    wind = enable;
 }
 
 
@@ -2633,6 +2683,8 @@ QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
     return r;
 }
 
+static QWidget* dbg_wid=0;
+static QPainter* dbg_ptr=0;
 
 struct QPolygonalProcessor {
     QPolygonalProcessor(QCanvas* c, const QPointArray& pa) :
@@ -2647,6 +2699,7 @@ struct QPolygonalProcessor {
 	bitmap = QImage(bounds.width(),bounds.height(),1,2,QImage::LittleEndian);
 	pnt = 0;
 	bitmap.fill(0);
+	dbg_start();
     }
 
     inline void add(int x, int y)
@@ -2655,6 +2708,12 @@ struct QPolygonalProcessor {
 	    result.resize(pnt*2+10);
 	}
 	result[pnt++] = QPoint(x+bounds.x(),y+bounds.y());
+	if ( dbg_ptr ) {
+	    int cs = canvas->chunkSize();
+	    QRect r(x*cs+bounds.x()*cs,y*cs+bounds.y()*cs,cs-1,cs-1);
+	    dbg_ptr->setPen(Qt::blue);
+	    dbg_ptr->drawRect(r);
+	}
     }
 
     inline void addBits(int x1, int x2, uchar newbits, int xo, int yo)
@@ -2662,6 +2721,18 @@ struct QPolygonalProcessor {
 	for (int i=x1; i<=x2; i++)
 	    if ( newbits & (1<<i) )
 		add(xo+i,yo);
+    }
+
+    void dbg_start()
+    {
+	if ( !dbg_wid ) {
+	    dbg_wid = new QWidget;
+	    dbg_wid->resize(800,600);
+	    dbg_wid->show();
+	    dbg_ptr = new QPainter(dbg_wid);
+	    dbg_ptr->setBrush(Qt::NoBrush);
+	}
+	dbg_ptr->fillRect(dbg_wid->rect(),Qt::white);
     }
 
     void doSpans(int n, QPoint* pt, int* w)
@@ -2672,20 +2743,24 @@ struct QPolygonalProcessor {
 	    uchar* l = bitmap.scanLine(y);
 	    int x = pt[j].x();
 	    int x1 = x/cs-bounds.x();
-	    int x2 = (x+w[j]-1)/cs-bounds.x();
+	    int x2 = (x+w[j])/cs-bounds.x();
 	    int x1q = x1/8;
 	    int x1r = x1%8;
 	    int x2q = x2/8;
 	    int x2r = x2%8;
+	    if ( dbg_ptr ) dbg_ptr->setPen(Qt::yellow);
 	    if ( x1q == x2q ) {
 		uchar newbits = (~l[x1q]) & (((2<<(x2r-x1r))-1)<<x1r);
 		if ( newbits ) {
+		    if ( dbg_ptr ) dbg_ptr->setPen(Qt::darkGreen);
 		    addBits(x1r,x2r,newbits,x1q*8,y);
 		    l[x1q] |= newbits;
 		}
 	    } else {
+		if ( dbg_ptr ) dbg_ptr->setPen(Qt::blue);
 		uchar newbits1 = (~l[x1q]) & (0xff<<x1r);
 		if ( newbits1 ) {
+		    if ( dbg_ptr ) dbg_ptr->setPen(Qt::green);
 		    addBits(x1r,7,newbits1,x1q*8,y);
 		    l[x1q] |= newbits1;
 		}
@@ -2697,9 +2772,13 @@ struct QPolygonalProcessor {
 		}
 		uchar newbits2 = (~l[x2q]) & (0xff>>(7-x2r));
 		if ( newbits2 ) {
+		    if ( dbg_ptr ) dbg_ptr->setPen(Qt::red);
 		    addBits(0,x2r,newbits2,x2q*8,y);
 		    l[x2q] |= newbits2;
 		}
+	    }
+	    if ( dbg_ptr ) {
+		dbg_ptr->drawLine(pt[j],pt[j]+QPoint(w[j],0));
 	    }
 	}
 	result.resize(pnt);
@@ -2722,7 +2801,7 @@ QPointArray QCanvasPolygonalItem::chunks() const
 
     QPolygonalProcessor processor(canvas(),pa);
 
-    scanPolygon(pa, 0, processor);
+    scanPolygon(pa, wind, processor);
 
     return processor.result;
 }
@@ -2742,8 +2821,8 @@ QRect QCanvasPolygonalItem::boundingRect() const
 */
 void QCanvasPolygonalItem::draw(QPainter & p)
 {
-    p.setPen(pen);
-    p.setBrush(brush);
+    p.setPen(pn);
+    p.setBrush(br);
     drawShape(p);
 }
 
@@ -2766,7 +2845,7 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 */
 void QCanvasPolygonalItem::setPen(QPen p)
 {
-    pen = p;
+    pn = p;
     changeChunks();
 }
 
@@ -2778,7 +2857,7 @@ void QCanvasPolygonalItem::setPen(QPen p)
 void QCanvasPolygonalItem::setBrush(QBrush b)
 {
     // XXX if transparent, needn't add to inner chunks
-    brush = b;
+    br = b;
     changeChunks();
 }
 
@@ -2876,6 +2955,92 @@ QPointArray QCanvasPolygon::points() const
 QPointArray QCanvasPolygon::areaPoints() const
 {
     return poly;
+}
+
+/*!
+  \class QCanvasLine qcanvas.h
+  \brief A lines on a canvas.
+
+  Currently, only width==1 lines are supported.
+*/
+
+/*!
+  Constructs a line from (0,0) to (0,0).
+
+  \sa setPoints().
+*/
+QCanvasLine::QCanvasLine()
+{
+    x1 = y1 = x2 = y2 = 0;
+}
+
+QCanvasLine::~QCanvasLine()
+{
+    hide();
+}
+
+/*!
+  \reimp
+*/
+void QCanvasLine::setPen(QPen p)
+{
+    if ( p.width() > 1 ) {
+	static int warned = 0;
+	if ( !warned ) {
+	    warned = 1;
+	    qWarning("Wide lines not supported yet.");
+	}
+	p.setWidth(1);
+    }
+    removeFromChunks();
+    QCanvasPolygonalItem::setPen(p);
+    addToChunks();
+}
+
+/*!
+  Sets the ends of the line to (\a x1,\a y1) and (\a x2,\a y2).
+*/
+void QCanvasLine::setPoints(int x1, int y1, int x2, int y2)
+{
+    removeFromChunks();
+    this->x1 = x1;
+    this->y1 = y1;
+    this->x2 = x2;
+    this->y2 = y2;
+    addToChunks();
+}
+
+/*!
+  \reimp
+*/
+void QCanvasLine::drawShape(QPainter &p)
+{
+    p.drawLine(x()+x1,y()+y1,x()+x2,y()+y2);
+}
+
+/*!
+  \reimp
+*/
+QPointArray QCanvasLine::areaPoints() const
+{
+    QPointArray p(4);
+    int xi = int(x());
+    int yi = int(y());
+    int pw = pen().width();
+    if ( pw <= 1 ) {
+	if ( QABS(x1-x2) > QABS(y1-y2) ) {
+	    p[0] = QPoint(x1+xi,y1+yi-1);
+	    p[1] = QPoint(x2+xi,y2+yi-1);
+	    p[2] = QPoint(x2+xi,y2+yi+1);
+	    p[3] = QPoint(x1+xi,y1+yi+1);
+	} else {
+	    p[0] = QPoint(x1+xi-1,y1+yi);
+	    p[1] = QPoint(x2+xi-1,y2+yi);
+	    p[2] = QPoint(x2+xi+1,y2+yi);
+	    p[3] = QPoint(x1+xi+1,y1+yi);
+	}
+    }
+    return p;
 }
 
 /*!
@@ -3088,7 +3253,8 @@ void QCanvasEllipse::setAngles(int start, int length)
 QPointArray QCanvasEllipse::areaPoints() const
 {
     QPointArray r;
-    r.makeArc(x()-w/2,y()-h/2,w,h,a1,a2);
+    // ##### makeArc is not a very pretty ellipse
+    r.makeArc(x()-w/2-1,y()-h/2-1,w+2,h+3,a1,a2);
     return r;
 }
 
@@ -3379,6 +3545,13 @@ Returns 6.
 */
 int QCanvasEllipse::rtti() const { return 6; }
 
+/*!
+Returns 7.
+
+\sa QCanvasItem::rtti()
+*/
+int QCanvasLine::rtti() const { return 7; }
+
 
 /*!
 Create a QCanvasSprite which uses images from the given array.
@@ -3503,6 +3676,7 @@ void QCanvasSprite::move(double nx, double ny, int nf)
 	frm=nf;
     }
 }
+
 
 
 // Based on Xserver code miFillGeneralPoly...

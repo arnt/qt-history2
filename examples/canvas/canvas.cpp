@@ -137,6 +137,7 @@ Main::Main() :
     edit->insertItem("Add &Circle", this, SLOT(addCircle()), CTRL+Key_C);
     edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), CTRL+Key_H);
     edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), CTRL+Key_P);
+    edit->insertItem("Add &Line", this, SLOT(addLine()), CTRL+Key_L);
     edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), CTRL+Key_R);
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
     menu->insertItem("&Edit", edit);
@@ -151,14 +152,16 @@ Main::Main() :
     setCentralWidget(editor);
 
     canvas.setAdvancePeriod(30);
-
+    /*
     for (int test=0; test<20; test++) {
 	addCircle();
 	addHexagon();
 	addPolygon();
+	addLine();
 	addRectangle();
 	addSprite();
     }
+    */
 }
 
 void Main::toggleDoubleBuffer()
@@ -213,6 +216,14 @@ void Main::addPolygon()
     i->setPoints(pa);
     i->setBrush( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
     i->move(lrand48()%canvas.width(),lrand48()%canvas.height());
+}
+
+void Main::addLine()
+{
+    QCanvasLine* i = new QCanvasLine;
+    i->setPoints( lrand48()%canvas.width(), lrand48()%canvas.height(),
+                  lrand48()%canvas.width(), lrand48()%canvas.height() );
+    i->setPen( QColor(lrand48()%32*8,lrand48()%32*8,lrand48()%32*8) );
 }
 
 void Main::addRectangle()

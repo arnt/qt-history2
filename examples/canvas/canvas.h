@@ -44,6 +44,7 @@ private slots:
     void addCircle();
     void addHexagon();
     void addPolygon();
+    void addLine();
     void addRectangle();
     void toggleDoubleBuffer();
 
