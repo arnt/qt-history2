@@ -2297,15 +2297,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 	parag->invalidate( 0 );
 	parag->format();
     }
-    if ( painter ) {
-	QColorGroup cg;
- 	painter->save();
-	int xoff = r.x();
-	int yoff = r.y();
-#if defined(FORMAT_TEXT_DEBUG)
-	QRect parRect = parag->rect();
-	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
-#endif
+    int xoff = 0;
+    int yoff = 0;
+    if ( painter || brect ) {
 	int align = QApplication::horizontalAlignment( tf );
 	if ( align & Qt::AlignRight )
 	    xoff += r.width() - parag->rect().width();
@@ -2315,15 +2309,26 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    yoff += r.height() - parag->rect().height();
 	else if ( tf & Qt::AlignVCenter )
 	    yoff += (r.height() - parag->rect().height())/2;
-  	painter->translate( xoff, yoff);
-	parag->paint( *painter, cg );
-	painter->restore();
     }
     if ( brect ) {
 	*brect = parag->rect();
+	brect->moveBy( xoff, yoff );
 #if defined(FORMAT_TEXT_DEBUG)
 	qDebug("par: %d/%d", brect->width(), brect->height() );
 #endif
+    }
+    if ( painter ) {
+	xoff += r.x();
+	yoff += r.y();
+	QColorGroup cg;
+ 	painter->save();
+#if defined(FORMAT_TEXT_DEBUG)
+	QRect parRect = parag->rect();
+	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+#endif
+  	painter->translate( xoff, yoff);
+	parag->paint( *painter, cg );
+	painter->restore();
     }
     if ( encode ) {
 	*internal = parag;
