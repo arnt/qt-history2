@@ -56,7 +56,6 @@
 //   GNU	- GNU Hurd
 //   DGUX	- DG Unix
 //   UNIX	- Any UNIX bsd/sysv system
-//   VMS	- DEC OpenVMS
 //
 
 #if defined(macintosh)
@@ -117,8 +116,6 @@
 #define _OS_UNIXWARE7_
 #elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
 #define _OS_UNIXWARE7_
-#elif defined(__VMS)
-#define _OS_VMS_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif

@@ -30,9 +30,7 @@
 #endif
 
 #include <pwd.h>
-#if !defined(_OS_VMS_)
 #include <grp.h>
-#endif
 
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
@@ -44,46 +42,12 @@
 extern "C" int readlink( const char *, void *, uint );
 #endif
 
-#if defined(_OS_VMS_)
-void QFileInfo::slashify( QString& s )
-{
-    if ( s[0] != QChar('/') )
-	s.prepend( QChar('/') );
-    int p0 = s.find( QChar('[') );
-    int p1 = s.findRev( QChar(']') );
-    if ( p0 >= 0 && p1 >= 0 && p0 < p1 ) {
-	for( int i = p0; i <= p1; i++ ) {
-	    QChar c = s[i];
-	    if ( c == QChar('[') || c == QChar('.') || c == QChar(']') )
-		s.replace( i, 1, QChar('/') );
-	}
-    }
-
-    int j = s.find( QString::fromLatin1( "/.." ) );
-    if ( j >= 0 ) {
-	int k = s.findRev( QChar('/'), -s.length() + j - 1 );
-	if ( k >= 0 )
-	    s.truncate( k+1 );
-    }
-    
-    int l = s.find( QString::fromLatin1( ".DIR;1" ) );
-    if ( l >= 0 ) {
-	if ( s.find( QChar('/'), l ) >= 0 ) {
-	    s[l] = QChar('/');
-	    l++;
-	}
-	s.truncate( l );
-    }
-}
-
-#else
 
 void QFileInfo::slashify( QString& )
 {
     return;
 }
 
-#endif
 
 void QFileInfo::makeAbs( QString & )
 {
@@ -144,7 +108,7 @@ QString QFileInfo::readLink() const
 {
     QString r;
 
-#if defined(_OS_UNIX_) && !defined(_OS_OS2EMX_)  && !defined(_OS_VMS_)
+#if defined(_OS_UNIX_) && !defined(_OS_OS2EMX_)
     char s[PATH_MAX+1];
     if ( !isSymLink() )
 	return QString();
@@ -210,14 +174,10 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-#if defined(_OS_VMS_)
-    return QString::null;
-#else
     struct group *gr = getgrgid( groupId() );
     if ( gr )
 	return QFile::decodeName( gr->gr_name );
     return QString::null;
-#endif
 }
 
 /*!
@@ -357,7 +317,7 @@ void QFileInfo::doStat() const
     STATBUF *b = &that->fic->st;
     that->fic->isSymLink = FALSE;
 
-#if defined(_OS_UNIX_) && defined(S_IFLNK) && !defined(_OS_VMS_)
+#if defined(_OS_UNIX_) && defined(S_IFLNK)
     if ( ::lstat(QFile::encodeName(fn),b) == 0 ) {
 	if ( S_ISLNK( b->st_mode ) )
 	    that->fic->isSymLink = TRUE;

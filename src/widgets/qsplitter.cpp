@@ -28,11 +28,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbitmap.h"
-#if defined(_OS_VMS_)
-#include "qlayoutengine_p.h"
-#else
 #include "../kernel/qlayoutengine_p.h"
-#endif
 #include "qlist.h"
 #include "qarray.h"
 #include "qobjectlist.h"
@@ -1061,7 +1057,7 @@ QValueList<int> QSplitter::sizes() const
   If the splitter is horizontal, the values set the sizes from
   left to right. If it is vertical, the sizes are applied from
   top to bottom.
-  Extra values in \a list are ignored. 
+  Extra values in \a list are ignored.
 
   If \a list contains to few values, the result is undefined
   but the program will still be well-behaved.

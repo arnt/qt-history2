@@ -53,6 +53,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#if defined(QT_CUPS_SUPPORT)
+#include <cups/cups.h>
+#endif
+
 // REVISED: warwick
 
 struct QPrintDialogPrivate
@@ -355,14 +359,15 @@ static char * parsePrintersConf( QListView * printers )
 			       printerDesc[j] != ',' )
 			    j++;
 			if ( printerName != printerDesc.mid( i, j-i ) ) {
-			    printerComment = 
+			    printerComment =
 				QString::fromLatin1("Remote name: ");
 			    printerComment += printerDesc.mid( i, j-i );
 			}
 		    }
 		}
 	    }
-	    if ( printerComment == ':' )
+	    debug( "<%s>", printerComment.ascii() );
+	    if ( printerComment == ":" )
 		printerComment = ""; // for cups
 	    if ( printerName.length() )
 		perhapsAddPrinter( printers, printerName, printerHost,
@@ -489,6 +494,8 @@ static void parseQconfig( QListView * printers )
     QString remoteHost; // null if local
     QString deviceName; // null if remote
 
+    QRegExp newStanza( QString::fromLatin1("^[0-z][0-z]*:$") );
+
     // our basic strategy here is to process each line, detecting new
     // stanzas.  each time we see a new stanza, we check if the
     // previous stanza was a valid queue for a) a remote printer or b)
@@ -517,8 +524,7 @@ static void parseQconfig( QListView * printers )
 	    // nothing to do
 	} else if ( ts.atEnd() || // end of file, or beginning of new stanza
 		    ( !indented &&
-		      line.contains(
-			QRegExp( QString::fromLatin1("^[0-z][0-z]*:$") ) ) ) ) {
+		      line.contains( newStanza ) ) ) {
 	    if ( up && stanzaName.length() > 0 && stanzaName.length() < 21 ) {
 		if ( remoteHost.length() ) // remote printer
 		    perhapsAddPrinter( printers, stanzaName, remoteHost,
@@ -539,21 +545,30 @@ static void parseQconfig( QListView * printers )
     } while( !ts.atEnd() );
 }
 
-// And here is VMS
-#if defined(_OS_VMS_)
-static void parseDollarPrinters( QListView * printers )
+
+static char * parseCupsOutput( QListView * printers )
 {
-    const char* dollarNames[] = { "PRINTER", "PRINTER2",
-				  "PRINTER3", "PRINTER4", 0 };
-    int i = 0;
-    while( dollarNames[i] ) {
-	char *t = getenv( dollarNames[i] );
-	if ( t )
-	    perhapsAddPrinter( printers, QString::fromLatin1( t ), "", "");
-	i++;
+    char * defaultPrinter = 0;
+#if defined(QT_CUPS_SUPPORT)
+    int nd;
+    cups_dest_t * d;
+    nd = cupsGetDests( &d );
+    if ( nd < 1 )
+	return 0;
+
+    int n = 0;
+    while( n < nd ) {
+	perhapsAddPrinter( printers, d[n].name, 
+			   qApp->translate( "QPrintDialog",
+					    "Unknown Location" ), 0 );
+	if ( d[n].is_default && !defaultPrinter )
+	    defaultPrinter = qstrdup( d[n].instance );
+	n++;
     }
-}
 #endif
+    return defaultPrinter;
+}
+
 
 static QPrintDialog * globalPrintDialog = 0;
 
@@ -757,47 +772,48 @@ QGroupBox * QPrintDialog::setupDestination()
     d->printers->addColumn( tr("Comment"), 150 );
     d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
-#if defined(_OS_UNIX_) && !defined(_OS_VMS_)
+#if defined(_OS_UNIX_)
     char * etcLpDefault = 0;
 
-    parsePrintcap( d->printers );
-    parseEtcLpMember( d->printers );
-    parseSpoolInterface( d->printers );
-    parseQconfig( d->printers );
+    etcLpDefault = parseCupsOutput( d->printers );
+    if ( d->printers->childCount() == 0 ) {
+	// we only use other schemes when cups fails.
+	parsePrintcap( d->printers );
+	parseEtcLpMember( d->printers );
+	parseSpoolInterface( d->printers );
+	parseQconfig( d->printers );
 
-    QFileInfo f;
-    f.setFile( QString::fromLatin1("/etc/lp/printers") );
-    if ( f.isDir() ) {
-	parseEtcLpPrinters( d->printers );
-	QFile def( QString::fromLatin1("/etc/lp/default") );
-	if ( def.open( IO_ReadOnly ) ) {
-	    etcLpDefault = new char[1025];
-	    def.readLine( etcLpDefault, 1024 );
-	    char * p = etcLpDefault;
-	    while( p && *p ) {
-		if ( !isprint(*p) || isspace(*p) )
-		    *p = 0;
-		else
-		    p++;
+	QFileInfo f;
+	f.setFile( QString::fromLatin1("/etc/lp/printers") );
+	if ( f.isDir() ) {
+	    parseEtcLpPrinters( d->printers );
+	    QFile def( QString::fromLatin1("/etc/lp/default") );
+	    if ( def.open( IO_ReadOnly ) ) {
+		if ( etcLpDefault )
+		    delete[] etcLpDefault;
+		etcLpDefault = new char[1025];
+		def.readLine( etcLpDefault, 1024 );
+		char * p = etcLpDefault;
+		while( p && *p ) {
+		    if ( !isprint(*p) || isspace(*p) )
+			*p = 0;
+		    else
+			p++;
+		}
+	    }
+	}
+
+	f.setFile( QString::fromLatin1("/etc/printers.conf") );
+	if ( f.isFile() ) {
+	    char * def = parsePrintersConf( d->printers );
+	    if ( def ) {
+		if ( etcLpDefault )
+		    delete[] etcLpDefault;
+		etcLpDefault = def;
 	    }
 	}
     }
 
-    f.setFile( QString::fromLatin1("/etc/printers.conf") );
-    if ( f.isFile() ) {
-	char * def = parsePrintersConf( d->printers );
-	if ( def ) {
-	    if ( etcLpDefault )
-		delete[] etcLpDefault;
-	    etcLpDefault = def;
-	}
-    }
-#elif defined(_OS_VMS_)
-    char * etcLpDefault = 0;
-    parseDollarPrinters( d->printers );
-#endif
-
-#if defined(_OS_UNIX_) || defined(_OS_VMS_)
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {
@@ -852,7 +868,7 @@ QGroupBox * QPrintDialog::setupDestination()
 	h = d->printers->firstChild()->height();
     d->printers->setMinimumSize( d->printers->sizeHint().width(),
 				 d->printers->header()->height() +
-				  3 * h );
+				 3 * h );
     horiz->addWidget( d->printers, 3 );
 
     tll->addSpacing( 6 );

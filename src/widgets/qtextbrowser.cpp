@@ -25,11 +25,7 @@
 
 #include "qtextbrowser.h"
 #ifndef QT_NO_TEXTBROWSER
-#if defined(_OS_VMS_)
-#include "qrichtext_p.h"
-#else
 #include "../kernel/qrichtext_p.h"
-#endif
 
 #include "qapplication.h"
 #include "qlayout.h"
@@ -201,7 +197,7 @@ void QTextBrowser::setSource(const QString& name)
 	d->curmain = url;
 	dosettext = TRUE;
     }
-    
+
     d->curmark = mark;
 
     if ( !mark.isEmpty() ) {
@@ -226,7 +222,7 @@ void QTextBrowser::setSource(const QString& name)
 
     if ( dosettext )
 	setText( txt, url );
-    
+
     if ( isVisible() && !mark.isEmpty() )
 	scrollToAnchor( mark );
     else

@@ -449,45 +449,11 @@ int QFile::ungetch( int ch )
 }
 
 
-#if defined(_OS_VMS_)
-#include <qregexp.h>
-static
-QCString locale_encoder( const QString &fileName )
-{
-    QString zeroDirMarker( QString::fromLatin1( "[000000]" ) );
-    QString s;
-    if ( fileName[0] == QChar('/') )
-	s = fileName.mid(1);
-    else
-	s = fileName;
-    int n = s.contains( '/' );
-    if ( n == 1 ) {
-	s.replace( s.find( '/' ), 1, zeroDirMarker );
-    }
-    else if ( n == 0 ) {
-	int itop = s.find( ':' );
-        if ( itop == -1 )
-	    s.prepend( zeroDirMarker );
-	else
-	    s.replace( itop + 1, 1, zeroDirMarker );
-    }
-    else if ( n > 1 ) {
-	s.replace( s.find( QChar('/') ), 1, QChar('[') );
-	s.replace( s.findRev( QChar('/') ), 1, QChar(']') );
-	s.replace( QRegExp( QChar('/')), QChar('.') );
-    }
-    return s.local8Bit();
-}
-
-#else
-
-static
-QCString locale_encoder( const QString &fileName )
+static QCString locale_encoder( const QString &fileName )
 {
     return fileName.local8Bit();
 }
 
-#endif
 
 static QFile::EncoderFn encoder = locale_encoder;
 

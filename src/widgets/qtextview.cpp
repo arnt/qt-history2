@@ -25,11 +25,7 @@
 
 #include "qtextview.h"
 #ifndef QT_NO_TEXTVIEW
-#if defined(_OS_VMS_)
-#include "qrichtext_p.h"
-#else
 #include "../kernel/qrichtext_p.h"
-#endif
 
 #include "qapplication.h"
 #include "qlayout.h"

@@ -2508,16 +2508,8 @@ QString QFileDialog::selectedFile() const
     QString res;
     QUrl u( d->currentFileName );
     if ( u.isLocalFile() )
-	res = u.path();
-    else
-	res = d->currentFileName;
-
-#if defined(_OS_VMS_)
-    if ( res[0] == '/' )
-	res = res.mid(1);
-#endif
-
-    return res;
+	return u.path();
+    return d->currentFileName;
 }
 
 /*!
@@ -2902,9 +2894,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     }
     delete dlg;
 
-#if defined(_OS_VMS_)
-    return QFile::encodeName( *workingDirectory + result );
-#endif
     return result;
 }
 
@@ -3413,13 +3402,6 @@ void QFileDialog::fileNameEditDone()
 
 void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 {
-#if defined(_OS_VMS_)
-    if ( newItem->text(0) == QString::fromLatin1( ".." ) ) {
-	cdUpClicked();
-	return;
-    }
-#endif
-
     *workingDirectory = d->url;
     detailViewMode = files->isVisible();
     *lastSize = size();
@@ -3685,18 +3667,7 @@ void QFileDialog::pathSelected( int )
 void QFileDialog::cdUpClicked()
 {
     QString oldName = nameEdit->text();
-#if defined(_OS_VMS_)
-    QString s( d->url );
-    int i = s.findRev( '/', -2 );
-    if ( i > 0 )
-	s.truncate( i+1 );
-    d->url = s;
-    i = s2.find( ":/" );
-    if ( i >= 0 && i < (int)s2.length()-2 )
-	setUrl( QUrlOperator( d->url ) );
-#else
     setUrl( QUrlOperator( d->url, ".." ) );
-#endif
     if ( !oldName.isEmpty() )
 	nameEdit->setText( oldName );
 }
@@ -3714,13 +3685,6 @@ void QFileDialog::newFolderClicked()
     if ( !lst.count() == 0 )
 	while ( lst.contains( dirname ) )
 	    dirname = tr( "New Folder %1" ).arg( ++i );
-
-#if defined(_OS_VMS_)
-    for ( i = 0; i < dirname.length(); i++ ) {
-	if ( dirname[i] == ' ' )
-	    dirname[i] = '_';
-    }
-#endif
 
     d->url.mkdir( dirname );
 }
