@@ -158,6 +158,11 @@ public:
 #endif
         }
 
+    // static stuff
+    static QString encodeFileName(const QString &filename);
+    static QString workingDirectory(const QString &path);
+    static QString initialSelection(const QString &path);
+
     // data
     QDirModel *model;
     QItemSelectionModel *selections;
@@ -955,11 +960,6 @@ void QFileDialogPrivate::mkdirClicked()
     QModelIndex index = model->mkdir(parent, "New Folder");
     if (!index.isValid())
         return;
-    if (!index.isValid()) {
-        selections->setCurrentIndex(model->index(0, 0, root()),
-                                    QItemSelectionModel::SelectCurrent);
-        return;
-    }
     selections->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
     if (listMode->isDown())
         listView->edit(index);
@@ -1778,7 +1778,7 @@ extern QString qt_mac_get_save_file_name(const QString &start,
                                          QString *selectedFilter);
 #endif
 
-static QString qt_encode_file_name(const QString &filename)
+QString QFileDialogPrivate::encodeFileName(const QString &filename)
 {
     QString str;
     QByteArray name = filename.toUtf8();
@@ -1804,23 +1804,25 @@ static QString qt_encode_file_name(const QString &filename)
     return str;
 }
 
-static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString *sel)
+QString QFileDialogPrivate::workingDirectory(const QString &path)
 {
     if (!path.isEmpty()) {
-        QFileInfo info(qt_encode_file_name(path));
-        if (info.exists()) {
-            if (info.isDir()) {
-                if (cwd) *cwd = path;
-                if (sel) *sel = QString();
-            } else {
-                if (cwd) *cwd = info.absolutePath();
-                if (sel) *sel = info.fileName();
-            }
-            return;
-        }
+        QFileInfo info(encodeFileName(path));
+        if (info.exists() && info.isDir())
+            return path;
+        return info.absolutePath();
     }
-    if (cwd) *cwd = QDir::currentPath();
-    if (sel) *sel = QString();
+    return QDir::currentPath();
+}
+
+QString QFileDialogPrivate::initialSelection(const QString &path)
+{
+    if (!path.isEmpty()) {
+        QFileInfo info(encodeFileName(path));
+        if (info.exists() && !info.isDir())
+            return info.fileName();
+    }
+    return QString();
 }
 
 /*!
@@ -1875,8 +1877,8 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
                                      QString *selectedFilter,
                                      QFileDialog::Options options)
 {
-    QString initialSelection;
-    qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
+    qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
+    QString initialSelection = QFileDialogPrivate::initialSelection(dir);
 
     // create a native dialog
 
@@ -1971,8 +1973,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                      QString *selectedFilter,
                                      Options options)
 {
-    QString initialSelection;
-    qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
+    QString initialSelection = QFileDialogPrivate::initialSelection(dir);
+    qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
 
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))
@@ -2066,7 +2068,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     }
 #endif
 
-    qt_get_dir_and_selection(dir, &qt_working_dir, 0);
+    qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
 
     QFileDialog *dlg = new QFileDialog(parent,
                                        caption.isEmpty() ? "Find Directory" : caption,
@@ -2152,7 +2154,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                           QString *selectedFilter,
                                           QFileDialog::Options options)
 {
-    qt_get_dir_and_selection(dir, &qt_working_dir, 0);
+    qt_working_dir = QFileDialogPrivate::workingDirectory(dir);
 
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style()))

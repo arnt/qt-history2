@@ -160,7 +160,7 @@ public:
     inline QIcon rootIcon() const { return iconProvider->computerIcon(); }
     inline QFileInfoList entryInfoList(const QString &path) const
         {
-            const QDir dir(path); // FIXME
+            const QDir dir(path);
             QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
             for (int i = 0; i < fil.count(); ++i) {
                 QString fn = fil.at(i).fileName();
@@ -168,6 +168,17 @@ public:
                     fil.removeAt(i--);
             }
             return fil;
+        }
+    inline QStringList entryList(const QString &path) const
+        {
+            const QDir dir(path);
+            QStringList sl = dir.entryList(nameFilters, filters, sort);
+            for (int i = 0; i < sl.count(); ++i) {
+                QString fn = sl.at(i);
+                if (fn == "." || fn == "..")
+                    sl.removeAt(i--);
+            }
+            return sl;
         }
     
     mutable QDirNode root;
@@ -844,7 +855,8 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
     d->savePersistentIndexes();
 
-    QDir dir(p->info.absoluteFilePath());
+    QString path = p->info.absoluteFilePath();
+    QDir dir(path);
     if (!dir.mkdir(name)) {
         d->restorePersistentIndexes();
         return QModelIndex();
@@ -853,7 +865,8 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
     d->restorePersistentIndexes();
 
-    int r = dir.entryList(d->nameFilters, d->filters, d->sort).indexOf(name);
+    QStringList entryList = d->entryList(path);
+    int r = entryList.indexOf(name);
     QModelIndex i = index(r, 0, parent); // return an invalid index
     emit rowsInserted(parent, r, 1);
     return i;
