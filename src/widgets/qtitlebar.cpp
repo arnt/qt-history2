@@ -295,8 +295,8 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 		emit doMaximize();
 		break;
 	    case QStyle::SC_TitleBarCloseButton:
-		emit doClose();
 		buttonDown = QStyle::SC_None;
+		emit doClose();
 		return;
 	    case QStyle::SC_TitleBarLabel:
 		break;
