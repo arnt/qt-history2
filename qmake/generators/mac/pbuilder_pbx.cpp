@@ -420,7 +420,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else if(!project->isActiveConfig("staticlib") &&
 	   !project->isActiveConfig("frameworklib")) {
 	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
-	    for(int n = 0; !li[i].isNull(); n++) {
+	    for(int n = 0; !li[n].isNull(); n++) {
 		QString t = project->first(li[n]);
 		slsh = t.findRev(Option::dir_sep);
 		if(slsh != -1)
@@ -447,12 +447,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString dstdir = project->first("DESTDIR");
 	    fixEnvVariables(dstdir);
 	    sht << "#!/bin/sh" << endl;
-	    sht << "cp -r \"$BUILD_ROOT/" << lib << "\" " << "\"" <<
+	    sht << "OUT_TARG=\"" << lib << "\"\n" 
+		<< "[ -z \"$BUILD_ROOT\" ] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
+	    sht << "cp -r \"$OUT_TARG\" " << "\"" <<
 		dstdir << targ << "\"" << endl;
 	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
-		sht << "ln -s \"" << targ <<  "\" " << "\"" << dstdir << lib << "\"" << endl;
+		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << lib << "\"" << endl;
 	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it)
-		sht << "ln -s \"" << targ <<  "\" " <<
+		sht << "ln -sf \"" << targ <<  "\" " <<
 		    "\"" << dstdir << (*it) << "\"" << endl;
 	    shf.close();
 #ifdef Q_OS_UNIX
@@ -528,7 +530,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "OTHER_REZFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "SECTORDER_FLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n";
-//    t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
+    t << "\t\t\t\t" << "BUILD_ROOT = \"" << QDir::currentDirPath() << "\";" << "\n";
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t\t" << "INSTALL_PATH = \"" << project->first("DESTDIR") << "\";" << "\n";
     if(!project->isEmpty("VERSION") && project->first("VERSION") != "0.0.0")
