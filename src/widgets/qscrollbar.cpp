@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#135 $
 **
 ** Implementation of QScrollBar class
 **
@@ -523,10 +523,11 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	  pressedControl == QStyle::Slider ) &&
 	 /*style() == MotifStyle &&*/
 	 e->button() == MidButton ) {
-	int dummy1, dummy2, dummy3, sliderLength;
-	metrics( dummy1, dummy2, sliderLength, dummy3 );
+	int sliderMin, dummy2, dummy3, sliderLength;
+	metrics( sliderMin, dummy2, sliderLength, dummy3 );
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
+	newSliderPos = QMAX( sliderMin, newSliderPos );
 	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
 	pressedControl = QStyle::Slider;
