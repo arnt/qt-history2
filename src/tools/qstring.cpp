@@ -16298,15 +16298,15 @@ const void* qt_winTchar(const QString& str, bool addnul)
 
     const QChar* uc = str.unicode();
 
-#define EXTEND if (str.length() > buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
+#  define EXTEND if (str.length() > buflen) { delete buf; buf = new TCHAR[buflen=str.length()+1]; }
 
-#if defined(Q_WS_X11) || defined(QT_WIN32BYTESWAP)
+#  if defined(Q_WS_X11) || defined(QT_WIN32BYTESWAP)
     EXTEND
     for ( int i=str.length(); i--; )
 	buf[i] = uc[i].row() << 8 | uc[i].cell();
     if ( addnul )
 	buf[str.length()] = 0;
-#else
+#  else
     // Same endianness of TCHAR
     if ( addnul ) {
 	EXTEND
@@ -16315,9 +16315,9 @@ const void* qt_winTchar(const QString& str, bool addnul)
     } else {
 	return uc;
     }
-#endif
+#  endif
     return buf;
-#undef EXTEND
+#  undef EXTEND
 
 #else
     Q_UNUSED(addnul)
@@ -16352,16 +16352,15 @@ QString qt_winQString(void* tc)
     int len=0;
     while ( ((TCHAR*)tc)[len] )
 	len++;
-#if defined(Q_WS_X11) || defined(QT_WIN32BYTESWAP)
+#  if defined(Q_WS_X11) || defined(QT_WIN32BYTESWAP)
     QString r;
     for ( int i=0; i<len; i++ )
 	r += QChar(((TCHAR*)tc)[i]&0xff,((TCHAR*)tc)[i]>>8);
     return r;
-#else
+#  else
     // Same endianness of TCHAR
     return QString((QChar*)tc,len);
-#endif
-#undef EXTEND
+#  endif
 #else
     return (TCHAR*)tc;
 #endif
