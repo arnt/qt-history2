@@ -226,12 +226,6 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     Q_UNUSED(dev);
     Q_UNUSED(rgn);
 #endif
-    if(task & EXISTS) {
-	if(task != EXISTS)
-	    qWarning("Qt: EXISTS must appear by itself!");
-	qWarning("Qt: need to implement exists()");
-	return 1;
-    }
 
     int ret = 0;
     QMacSetFontInfo fi(this, dev);
@@ -311,8 +305,8 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     RgnHandle rgnh = NULL;
     if(rgn && !rgn->isNull() && !rgn->isEmpty())
 	rgnh = rgn->handle(TRUE);
-    if(QDBeginCGContext(port, &ctx)) {
-	qDebug("Qt: internal: WH0A, QDBeginCGContext failed. %s:%d", __FILE__, __LINE__);
+    if(OSStatus err = QDBeginCGContext(port, &ctx)) {
+	qDebug("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
 	return 0;
     }
@@ -334,10 +328,18 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 #endif
 	return 0;
     }
-    ATSUSetTransientFontMatching(alayout, true);
 
+    ATSUSetTransientFontMatching(alayout, true);
     //do required task now
-    if(task & WIDTH) {
+    if(task & EXISTS) {
+	if(task != EXISTS)
+	    qWarning("Qt: EXISTS must appear by itself!");
+	ATSUFontID fid;
+	UniCharArrayOffset off;
+	UniCharCount off_len;
+	if(ATSUMatchFontsToText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off, &off_len) != kATSUFontsNotMatched)
+	    ret = 1;
+    } else if(task & WIDTH) {
 	ATSUTextMeasurement left, right, bottom, top;
 #if defined(MACOSX_102)
 	if(qMacVersion() >= Qt::MV_10_DOT_2)
