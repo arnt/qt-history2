@@ -692,7 +692,7 @@ public:
   \sa QTimeEdit QDateTimeEdit
 */
 
-/*
+/*!
   \enum QDateEdit::Order
 
   This enum defines the order in which the sections that comprise a date
