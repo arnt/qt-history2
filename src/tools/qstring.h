@@ -589,7 +589,7 @@ Q_CORE_EXPORT bool operator>=(const QString &s1, const QString &s2);
 inline bool operator==(QString::Null, const QString &s) { return s.isNull(); }
 inline bool operator==(const QString &s, QString::Null) { return s.isNull(); }
 inline bool operator!=(QString::Null, const QString &s) { return !s.isNull(); }
-inline bool operator!=(const QString &s, QString::Null) { return !!s.isNull(); }
+inline bool operator!=(const QString &s, QString::Null) { return !s.isNull(); }
 
 #ifndef QT_NO_CAST_FROM_ASCII
 Q_CORE_EXPORT bool operator==(const QString &s1, const char *s2);
