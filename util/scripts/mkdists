@@ -33,6 +33,7 @@ DO_GZIP=auto
 DO_BZIP=auto
 DO_ID=auto
 DO_DOC=auto
+SET_TYPE=auto
 
 die()
 {
@@ -60,6 +61,7 @@ showhelp()
     echo
 
     echo "P4 Versions:"
+    echo "  -type <type>       : Specify a type to override with (eg snapshot)"
     echo "  -local <directory> : Specify path to pre-p4'd depot"
     echo "  -version <version> : What version to retrieve from p4"
     echo "  -branch  <branch>  : What branch to retrieve from. If this"
@@ -138,6 +140,11 @@ while [ -n "$1" ]; do
 	VAR=qdoc_path
 	VAL=$1
 	;;
+   -type)
+        shift
+	VAR=type
+	VAL=$1
+	;;
    -no*)
 	VAR=`echo $1 | sed "s,^-no-*,,g"`
 	VAL=no
@@ -175,6 +182,7 @@ while [ -n "$1" ]; do
        LOCAL_TREE=$VAL
        ;;
    #versioning
+   type) SET_SETYP=$VAL ;;
    branch) BRANCH=$VAL ;;
    version)
        expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
@@ -337,7 +345,11 @@ myexpr () {
 
 # fixify qglobal's version number
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
-TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
+if [ "$SET_TYPE" = "auto" ]; then
+    TYPE=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
+else
+    TYPE="-${SET_TYPE}"
+fi
 VERSION_STR=${BRANCH}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
 sed -e "s,\(\#define *QT_VERSION  *\)[0-9]*,\1${BRANCH_DIGITS},g" \
     -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal >${TMP_FILE}
@@ -639,26 +651,36 @@ for plat in mac win x11 qws; do
 	status "First cleanup.."
 	case $edition in
 	free)
+	    rm -f $PLATDIR/tools/designer/util/util-pro.pro
 	    #remove non-GPL sql stuff
 	    for f in src/sql/src/oci; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
 	    ;;
 	professional)
-	    #remove sql & table from the main file
-	    sed -e 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' \
-		-e 's,\(<li>.*<a.*> *Table</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
-	    mv ${TMP_FILE} $PLATDIR/doc/indices.doc
-
-	    #Remove sql & table
-	    for f in src/sql examples/sqltable examples/sql src/table examples/table; do
+	    #Remove non-professional modules and stuff
+	    for module in SQL Table XML OpenGL Network Canvas; do
+		sed -e 's,\(<li>.*<a.*> *${module}</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
+		mv ${TMP_FILE} $PLATDIR/doc/indices.doc
+            done
+	    for f in src/sql examples/sqltable examples/sql src/table examples/table \
+		     src/canvas examples/canvas src/network examples/httpd examples/ftpclient \
+                     examples/mail examples/networkprotocol src/opengl examples/box examples/gear \
+                     examples/gear examples/glpixmap examples/overlay examples/sharedbox examples/texture ; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
+	    #fix designer
 	    rm -rf $PLATDIR/doc/*sql*.doc $PLATDIR/include/qsql*.h
 	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h $PLATDIR/tools/designer/plugins/wizards/*sql*
 	    rm -rf $PLATDIR/include/qdatatable.h $PLATDIR/include/qdatabrowser.h $PLATDIR/include/qdataview.h
-	    rm -rf $PLATDIR/doc/table.doc
-	    #move xml stuff into designer directory TBD ###
+	    rm -rf $PLATDIR/doc/table.doc 
+	    #xml is gross
+	    mv $PLATDIR/src/xml/* $PLATDIR/tools/designer/util
+	    rm -rf $PLATDIR/src/xml
+	    mv $PLATDIR/tools/designer/util/util-pro.pro $PLATDIR/tools/designer/util.pro
+	    ;;
+        enterprise)
+	    rm -f $PLATDIR/tools/designer/util/util-pro.pro
 	    ;;
 	esac
 	if [ "$plat" != "qws" ]; then
