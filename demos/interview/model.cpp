@@ -70,7 +70,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
     if (role == DisplayRole)
 	return "Item " + QString::number(index.row()) + ":" + QString::number(index.column());
     if (role == DecorationRole)
-	return qVariant(folder);
+	return qVariantFromValue(folder);
     return QVariant();
 }
 
@@ -80,7 +80,7 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
     if (role == DisplayRole)
         return QString::number(section);
     if (role == DecorationRole)
-        return qVariant(services);
+        return qVariantFromValue(services);
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 

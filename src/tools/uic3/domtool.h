@@ -232,7 +232,7 @@ public:
 inline Variant asVariant(const QVariant &v)
 {
     Variant var;
-    qVariantGet(v, var);
+    var = qVariantValue<Variant>(v);
     return var;
 }
 

@@ -111,7 +111,7 @@ public:
 //
     QVariant decoration() const { return QVariant(); }
     QString propertyName() const { return m_name; }
-    QVariant value() const { return qVariant(m_value); }
+    QVariant value() const { return qVariantFromValue(m_value); }
 
     bool hasEditor() const { return true; }
     bool hasExternalEditor() const { return false; }

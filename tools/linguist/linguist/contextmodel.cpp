@@ -199,11 +199,11 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
     }
     else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {
         if (cntxtItem->isContextObsolete())
-            return qVariant(*TrWindow::pxObsolete);
+            return qVariantFromValue(*TrWindow::pxObsolete);
         else if (cntxtItem->finished())
-            return qVariant(*TrWindow::pxOn);
+            return qVariantFromValue(*TrWindow::pxOn);
         else
-            return qVariant(*TrWindow::pxOff);
+            return qVariantFromValue(*TrWindow::pxOff);
     }
 
     return QVariant();

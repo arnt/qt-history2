@@ -71,12 +71,10 @@ namespace Utils
 
 inline int valueOf(const QVariant &value, bool *ok = 0)
 {
-    EnumType e;
-    FlagType f;
-    if (qVariantGet(value, e))
-        return e.value.toInt(ok);
-    else if (qVariantGet(value, f))
-        return f.value.toInt(ok);
+    if (qVariantCanConvert<EnumType>(value))
+        return qVariantValue<EnumType>(value).value.toInt(ok);
+    else if (qVariantCanConvert<FlagType>(value))
+        return qVariantValue<FlagType>(value).value.toInt(ok);
 
     return value.toInt(ok);
 }

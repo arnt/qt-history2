@@ -212,7 +212,7 @@ void Window::addColor(QComboBox *comboBox, const QString &text,
 {
     int row = comboBox->count();
     comboBox->insertItem(row, text);
-    comboBox->setItemData(row, qVariant(color), ColorRole);
+    comboBox->setItemData(row, qVariantFromValue(color), ColorRole);
 }
 
 void Window::populateWithColors(QComboBox *comboBox)

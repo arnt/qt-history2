@@ -172,8 +172,8 @@ QVariant IconProperty::decoration() const
         empty_icon = QIcon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
 
     if (m_value.isNull())
-        return qVariant(empty_icon);
-    return qVariant(m_value);
+        return qVariantFromValue(empty_icon);
+    return qVariantFromValue(m_value);
 }
 
 QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
@@ -220,11 +220,11 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         QVariant value = sheet->property(i);
 
         IProperty *p = 0;
-        EnumType e;
-        FlagType f;
-        if (qVariantGet(value, f)) {
+        if (qVariantCanConvert<FlagType>(value)) {
+            FlagType f = qvariant_cast<FlagType>(value);
             p = new FlagsProperty(f.items, f.value.toInt(), pname);
-        } else if (qVariantGet(value, e)) {
+        } else if (qVariantCanConvert<EnumType>(value)) {
+            EnumType e = qvariant_cast<EnumType>(value);
             p = new MapProperty(e.items, e.value, pname);
         }
 

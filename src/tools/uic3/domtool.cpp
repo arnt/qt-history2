@@ -139,7 +139,7 @@ QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValu
             n3 = n3.nextSibling().toElement();
         }
         var.createRect(x, y, w, h);
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("point")) {
         QDomElement n3 = e.firstChild().toElement();
         int x = 0, y = 0;
@@ -151,7 +151,7 @@ QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValu
             n3 = n3.nextSibling().toElement();
         }
         var.createPoint(x,y);
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("size")) {
         QDomElement n3 = e.firstChild().toElement();
         int w = 0, h = 0;
@@ -163,10 +163,10 @@ QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValu
             n3 = n3.nextSibling().toElement();
         }
         var.createSize(w, h);
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("color")) {
         var.color = readColor(e);
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("font")) {
         QDomElement n3 = e.firstChild().toElement();
         Font f;
@@ -187,7 +187,7 @@ QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValu
             n3 = n3.nextSibling().toElement();
         }
         var.font = f;
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("string")) {
         v = QVariant(e.firstChild().toText().data());
         QDomElement n = e;
@@ -228,10 +228,10 @@ QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValu
                 var.sizePolicy.verstretch = n3.firstChild().toText().data().toInt();
             n3 = n3.nextSibling().toElement();
         }
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("cursor")) {
         var.createCursor(e.firstChild().toText().data().toInt());
-        qVariantSet(v, var);
+        qVariantSetValue(v, var);
     } else if (e.tagName() == QLatin1String("stringlist")) {
         QStringList lst;
         QDomElement n;

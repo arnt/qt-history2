@@ -583,7 +583,7 @@ QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
             if (d != -1) {
                 Widget wgt = widget(d, index.row());
                 if (!wgt.isNull())
-                    result = qVariant(wgt.icon());
+                    result = qVariantFromValue(wgt.icon());
             }
             break;
         default:

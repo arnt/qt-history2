@@ -37,9 +37,25 @@ class QRectF;
 class QTextFormat;
 class QTextLength;
 class QUrl;
+class QVariant;
 class QVariantComparisonHelper;
 
 template <class Key, class Type> class QMap;
+
+
+#ifndef Q_NO_MEMBER_TEMPLATES
+template <typename T>
+inline QVariant qVariantFromValue(const T &);
+
+template <typename T>
+inline void qVariantSetValue(QVariant &, const T &);
+
+template<typename T>
+inline T qVariantValue(const QVariant &);
+
+template<typename T>
+inline bool qVariantCanConvert(const QVariant &);
+#endif
 
 class Q_CORE_EXPORT QVariant
 {
@@ -232,6 +248,24 @@ class Q_CORE_EXPORT QVariant
     const void *constData() const;
     inline const void *data() const { return constData(); }
 
+#ifndef Q_NO_MEMBER_TEMPLATES
+    template<typename T>
+    inline void setValue(const T &value)
+    { return qVariantSetValue(*this, value); }
+
+    template<typename T>
+    inline T value() const
+    { return qVariantValue<T>(*this); }
+
+    template<typename T>
+    static inline QVariant fromValue(const T &value)
+    { return qVariantFromValue(value); }
+
+    template<typename T>
+    bool canConvert() const
+    { return qVariantCanConvert<T>(); }
+#endif
+
  public:
 #ifndef qdoc
     struct PrivateShared
@@ -414,30 +448,18 @@ inline int qt_variant_metatype_id(QColorGroup *) { return QVariant::ColorGroup; 
 #endif
 
 template <typename T>
-QVariant qVariant(const T &t)
+inline QVariant qVariantFromValue(const T &t)
 {
     return QVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
 }
 
 template <>
-inline QVariant qVariant(const QVariant &t) { return t; }
+inline QVariant qVariantFromValue(const QVariant &t) { return t; }
 
 template <typename T>
-void qVariantSet(QVariant &v, const T &t)
+inline void qVariantSetValue(QVariant &v, const T &t)
 {
     v = QVariant(qt_variant_metatype_id<T>(static_cast<T *>(0)), &t);
-}
-
-template <typename T>
-bool qVariantGet(const QVariant &v, T &t)
-{
-    const int tp = qt_variant_metatype_id<T>(static_cast<T *>(0));
-    if (tp != v.userType())
-        return tp < int(QVariant::UserType)
-            ? qvariant_cast_helper(v, QVariant::Type(tp), &t)
-            : false;
-    t = *reinterpret_cast<const T *>(v.constData());
-    return true;
 }
 #endif
 
@@ -542,6 +564,15 @@ template<typename T> T qvariant_cast(const QVariant &v, T * = 0)
     return T();
 }
 
+template<typename T>
+inline T qVariantValue(const QVariant &variant, T *t = 0)
+{ return qvariant_cast<T>(variant, t); }
+
+template<typename T>
+inline bool qVariantCanConvert(const QVariant &variant, T *t = 0)
+{
+    return variant.canConvert(static_cast<QVariant::Type>(qt_variant_metatype_id<T>(t)));
+}
 #else
 
 template<typename T> T qvariant_cast(const QVariant &v)
@@ -557,6 +588,16 @@ template<typename T> T qvariant_cast(const QVariant &v)
     return T();
 }
 
+template<typename T>
+inline T qVariantValue(const QVariant &variant)
+{ return qvariant_cast<T>(variant); }
+
+template<typename T>
+inline bool qVariantCanConvert(const QVariant &variant)
+{
+    return variant.canConvert(static_cast<QVariant::Type>(
+                qt_variant_metatype_id<T>(static_cast<T *>(0))));
+}
 #endif
 #endif
 Q_DECLARE_SHARED(QVariant);

@@ -136,7 +136,7 @@ QVariant QDesignerPropertySheet::property(int index) const
             e.items.insert(k, me.keyToValue(k.toLatin1()));
         }
 
-        qVariantSet(v, e);
+        qVariantSetValue(v, e);
     } else if (p.isEnumType()) {
         EnumType e;
         e.value = v;
@@ -148,7 +148,7 @@ QVariant QDesignerPropertySheet::property(int index) const
             e.items.insert(k, me.keyToValue(k.toLatin1()));
         }
 
-        qVariantSet(v, e);
+        qVariantSetValue(v, e);
     }
 
     return v;
@@ -174,7 +174,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             e.items.insert(key, me.keyToValue(key.toLatin1()));
         }
 
-        qVariantSet(v, e);
+        qVariantSetValue(v, e);
     } else if (p.isEnumType()) {
         EnumType e;
         e.value = v;
@@ -188,7 +188,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             e.items.insert(key, me.keyToValue(key.toLatin1()));
         }
 
-        qVariantSet(v, e);
+        qVariantSetValue(v, e);
     }
 
     return v;
@@ -200,10 +200,10 @@ QVariant QDesignerPropertySheet::resolvePropertyValue(const QVariant &value) con
     EnumType e;
     FlagType f;
 
-    if (qVariantGet(value, f))
-        v = f.value;
-    else if (qVariantGet(value, e))
-        v = e.value;
+    if (qVariantCanConvert<FlagType>(value))
+        v = qvariant_cast<FlagType>(value).value;
+    else if (qVariantCanConvert<EnumType>(value))
+        v = qvariant_cast<EnumType>(value).value;
     else
         v = value;
 
@@ -214,20 +214,19 @@ void QDesignerPropertySheet::setFakeProperty(int index, const QVariant &value)
 {
     Q_ASSERT(isFakeProperty(index));
 
-    FlagType f;
-    EnumType e;
-
     QVariant &v = m_fakeProperties[index];
 
-    if (qVariantGet(value, f) || qVariantGet(value, e)) {
+    if (qVariantCanConvert<FlagType>(value) || qVariantCanConvert<EnumType>(value)) {
         v = value;
-    } else if (qVariantGet(v, f)) {
+    } else if (qVariantCanConvert<FlagType>(v)) {
+        FlagType f = qvariant_cast<FlagType>(v);
         f.value = value;
-        qVariantSet(v, f);
+        qVariantSetValue(v, f);
         Q_ASSERT(f.value.type() == QVariant::Int);
-    } else if (qVariantGet(v, e)) {
+    } else if (qVariantCanConvert<EnumType>(v)) {
+        EnumType e = qvariant_cast<EnumType>(v);
         e.value = value;
-        qVariantSet(v, e);
+        qVariantSetValue(v, e);
         Q_ASSERT(e.value.type() == QVariant::Int);
     } else {
         v = value;

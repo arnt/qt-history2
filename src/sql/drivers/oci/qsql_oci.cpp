@@ -1285,7 +1285,7 @@ QVariant QOCIResult::lastInsertId() const
         int r = OCIAttrGet((dvoid*) d->sql, OCI_HTYPE_STMT, ptr.constData()->id,
                            (ub4 *) 0, OCI_ATTR_ROWID, (OCIError *) d->err);
         if (r == OCI_SUCCESS)
-            return qVariant(ptr);
+            return qVariantFromValue(ptr);
     }
     return QVariant();
 }

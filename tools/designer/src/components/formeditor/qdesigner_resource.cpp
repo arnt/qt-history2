@@ -293,7 +293,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                     else if (p->elementPixmap() != 0)
                         name = p->elementPixmap()->text();
                     QString icon_path = m_formWindow->absolutePath(name);
-                    v = qVariant(m_core->iconCache()->nameToIcon(icon_path));
+                    v = qVariantFromValue(m_core->iconCache()->nameToIcon(icon_path));
                 } else {
                     v = toVariant(o->metaObject(), p);
                 }
@@ -974,10 +974,8 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
 
 DomProperty *QDesignerResource::createProperty(QObject *object, const QString &propertyName, const QVariant &value)
 {
-    EnumType e;
-    FlagType f;
-
-    if (qVariantGet(value, e)) {
+    if (qVariantCanConvert<EnumType>(value)) {
+        EnumType e = qvariant_cast<EnumType>(value);
         int v = e.value.toInt();
         QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {
@@ -991,9 +989,9 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         }
 
         return 0;
-    } else if (qVariantGet(value, f)) {
+    } else if (qVariantCanConvert<FlagType>(value)) {
 #if 0 // ### implement me
-        int v = f.value.toInt();
+        int v = qvariant_cast<FlagType>(value).value.toInt();
 
         QMapIterator<QString, QVariant> it(e.items);
         while (it.hasNext()) {

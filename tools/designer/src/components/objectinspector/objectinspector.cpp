@@ -146,7 +146,7 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
             item->setIcon(0, widgetItem->icon());
         }
 
-        item->setData(0, 1000, qVariant(object));
+        item->setData(0, 1000, qVariantFromValue(object));
 
         if (IContainer *c = qt_extension<IContainer*>(fw->core()->extensionManager(), object)) {
             for (int i=0; i<c->count(); ++i) {
@@ -190,8 +190,7 @@ void ObjectInspector::slotSelectionChanged()
 
     QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
     foreach (QTreeWidgetItem *item, items) {
-        QObject *object = 0;
-        Q_ASSERT(qVariantGet(item->data(0, 1000), object));
+        QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
         if (QWidget *widget = qobject_cast<QWidget*>(object))
             m_formWindow->selectWidget(widget);
     }

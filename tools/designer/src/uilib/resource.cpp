@@ -426,7 +426,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     case DomProperty::String: {
         int index = meta->indexOfProperty(p->attributeName().toLatin1());
         if (index != -1 && meta->property(index).type() == QVariant::KeySequence)
-            v = qVariant(QKeySequence(p->elementString()->text()));
+            v = qVariantFromValue(QKeySequence(p->elementString()->text()));
         else
             v = p->elementString()->text();
     } break;
@@ -438,7 +438,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     case DomProperty::Color: {
         DomColor *color = p->elementColor();
         QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
-        v = qVariant(c);
+        v = qVariantFromValue(c);
     } break;
 
     case DomProperty::Font: {
@@ -448,7 +448,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         f.setBold(font->elementBold());
         f.setUnderline(font->elementUnderline());
         f.setStrikeOut(font->elementStrikeOut());
-        v = qVariant(f);
+        v = qVariantFromValue(f);
     } break;
 
     case DomProperty::Date: {
@@ -477,7 +477,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     case DomProperty::IconSet: {
         DomResourcePixmap *iconset = p->elementIconSet();
         QIcon icon(QPixmap(iconset->text()));
-        v = qVariant(icon);
+        v = qVariantFromValue(icon);
     } break;
 
     case DomProperty::Palette: {
@@ -500,11 +500,11 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         }
 
         palette.setCurrentColorGroup(QPalette::Active);
-        v = qVariant(palette);
+        v = qVariantFromValue(palette);
     } break;
 
     case DomProperty::Cursor: {
-        v = qVariant(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
+        v = qVariantFromValue(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
     } break;
 
     case DomProperty::Set: {
@@ -533,7 +533,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
 
         sizePolicy.setHorizontalData((QSizePolicy::SizeType) sizep->elementHSizeType());
         sizePolicy.setVerticalData((QSizePolicy::SizeType) sizep->elementVSizeType());
-        v = qVariant(sizePolicy);
+        v = qVariantFromValue(sizePolicy);
     } break;
 
     default:

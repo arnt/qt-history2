@@ -20,7 +20,7 @@ QVariant PimModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid()) {
         switch (role) {
-        case PhotoRole: return qVariant(entries.at(index.row()).photo);
+        case PhotoRole: return qVariantFromValue(entries.at(index.row()).photo);
         case FirstNameRole: return entries.at(index.row()).firstName;
         case LastNameRole: return entries.at(index.row()).lastName;
         case MiddleNameRole: return entries.at(index.row()).middleName;

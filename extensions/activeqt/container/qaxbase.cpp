@@ -3248,7 +3248,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
                     proptype = 0;
                 } else if (t == QVariant::UserType) {
                     qvar = QVariant(qRegisterMetaType<void*>(prop.typeName()), (void**)v[0]);
-//                    qVariantSet(qvar, *(void**)v[0], prop.typeName());
+//                    qVariantSetValue(qvar, *(void**)v[0], prop.typeName());
                 } else {
                     proptype = 0;
                     qvar = QVariant(t, v[0]);
@@ -3335,9 +3335,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
             qvar = QVariant(vt, v[p + 1]);
         if (!qvar.isValid()) {
             if (type == "IDispatch*")
-                qVariantSet(qvar, *(IDispatch**)v[p+1]);
+                qVariantSetValue(qvar, *(IDispatch**)v[p+1]);
             else if (type == "IUnknown*")
-                qVariantSet(qvar, *(IUnknown**)v[p+1]);
+                qVariantSetValue(qvar, *(IUnknown**)v[p+1]);
             else if (type == "QVariant")
                 qvar = *(QVariant*)v[p + 1];
             else if (mo->indexOfEnumerator(type) != -1)
@@ -4118,15 +4118,15 @@ QVariant QAxBase::asVariant() const
     QByteArray cn(className());
     if (cn == "QAxObject" || cn == "QAxBase") {
         if (d->dispatch())
-            qVariantSet(qvar, d->dispatch());
+            qVariantSetValue(qvar, d->dispatch());
         else if (d->ptr)
-            qVariantSet(qvar, d->ptr);
+            qVariantSetValue(qvar, d->ptr);
     } else {
         cn = cn.mid(cn.lastIndexOf(':') + 1);
         QObject *object = qObject();
         if (QMetaType::type(cn))
             qvar = QVariant(qRegisterMetaType<QObject*>(cn + "*"), &object);
-//            qVariantSet(qvar, qObject(), cn + "*");
+//            qVariantSetValue(qvar, qObject(), cn + "*");
     }
 
     return qvar;

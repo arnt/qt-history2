@@ -71,10 +71,10 @@ QVariant SpreadSheetItem::data(int role) const
 
     if (role == QAbstractItemModel::TextColorRole) {
         if (!isNumber)
-            return qVariant(QColor(Qt::black));
+            return qVariantFromValue(QColor(Qt::black));
         else if (number < 0)
-            return qVariant(QColor(Qt::red));
-        return qVariant(QColor(Qt::blue));
+            return qVariantFromValue(QColor(Qt::red));
+        return qVariantFromValue(QColor(Qt::blue));
     }
 
     if (role == QAbstractItemModel::TextAlignmentRole)

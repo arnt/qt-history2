@@ -632,7 +632,7 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
         Variant var;
         var.createSize(0, 0);
 
-        QVariant def = qVariant(var);
+        QVariant def = qVariantFromValue(var);
 
         Size size = asVariant(DomTool::readProperty(e, QLatin1String("sizeHint"), def)).size;
         QString sizeType = DomTool::readProperty(e, QLatin1String("sizeType"), "Expanding").toString();

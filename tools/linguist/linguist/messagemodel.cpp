@@ -142,17 +142,17 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
     }
     else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {
         if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->translation().isEmpty())
-            return qVariant(*TrWindow::pxEmpty);
+            return qVariantFromValue(*TrWindow::pxEmpty);
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished && msgItem->danger())
-            return qVariant(*TrWindow::pxDanger);
+            return qVariantFromValue(*TrWindow::pxDanger);
         else if (msgItem->message().type() == MetaTranslatorMessage::Finished && msgItem->danger())
-            return qVariant(*TrWindow::pxWarning);
+            return qVariantFromValue(*TrWindow::pxWarning);
         else if (msgItem->message().type() == MetaTranslatorMessage::Finished)
-            return qVariant(*TrWindow::pxOn);
+            return qVariantFromValue(*TrWindow::pxOn);
         else if (msgItem->message().type() == MetaTranslatorMessage::Unfinished)
-            return qVariant(*TrWindow::pxOff);
+            return qVariantFromValue(*TrWindow::pxOff);
         else if (msgItem->message().type() == MetaTranslatorMessage::Obsolete)
-            return qVariant(*TrWindow::pxObsolete);
+            return qVariantFromValue(*TrWindow::pxObsolete);
     }
 
     return QVariant();
