@@ -1,5 +1,6 @@
 #include "qdockwidget.h"
 #include "qdockarea.h"
+#include "qwidgetresizehandler.h"
 
 #include <qpainter.h>
 #include <qapplication.h>
@@ -439,6 +440,8 @@ QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
       moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWidgetData( 0 ),
       lastPos( -1, -1 )
 {
+    widgetResizeHandler = new QWidgetResizeHandler( this );
+    
     hbox = new QVBoxLayout( this );
     hbox->setMargin( 2 );
     hbox->setSpacing( 1 );
@@ -564,6 +567,8 @@ void QDockWidget::updateGui()
 	hHandleBottom->hide();
 	vHandleRight->hide();
 	setLineWidth( 2 );
+	widgetResizeHandler->setActive( isResizeEnabled() );
+	widgetResizeHandler->setExtraHeight( titleBar->height() );
     } else {
 	titleBar->hide();
 	if ( orientation() == Horizontal ) {
@@ -618,6 +623,7 @@ void QDockWidget::updateGui()
 	    setLineWidth( 1 );
 	else
 	    setLineWidth( 0 );
+	widgetResizeHandler->setActive( FALSE );
     }
 }
 
@@ -643,13 +649,15 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
 	move( currRect.topLeft() );
 	show();
     }
-    curPlace = state;
-    updateGui();
-    emit orientationChanged( orientation() );
-    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-    if ( state == OutsideDock )
-	adjustSize();
-    emit positionChanged();
+    if ( curPlace != state ) {
+	curPlace = state;
+	updateGui();
+	emit orientationChanged( orientation() );
+	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
+	if ( state == OutsideDock )
+	    adjustSize();
+	emit positionChanged();
+    }
     tmpDockArea = 0;
 }
 

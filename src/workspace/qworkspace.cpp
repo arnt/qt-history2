@@ -55,6 +55,7 @@
 #include "qdatetime.h"
 #include "qguardedptr.h"
 #include "qiconset.h"
+#include "qwidgetresizehandler.h"
 
 // REVISED: arnt
 
@@ -120,7 +121,6 @@ const bool win32 = TRUE;
 #define TITLEBAR_SEPARATION 1
 #define BUTTON_WIDTH 16
 #define BUTTON_HEIGHT 14
-#define RANGE 16
 
 static const char * const close_xpm[] = {
 "12 12 2 1",
@@ -342,8 +342,6 @@ static const char * const shade_xpm[] = {
 
 
 
-static bool resizeHorizontalDirectionFixed = FALSE;
-static bool resizeVerticalDirectionFixed = FALSE;
 static bool inCaptionChange = FALSE;
 
 class QWorkspaceChildTitleButton : public QLabel
@@ -434,7 +432,8 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
     bool eventFilter( QObject *, QEvent * );
-
+    void enterEvent( QEvent *e );
+    
 private:
     QToolButton* closeB;
     QToolButton* maxB;
@@ -457,8 +456,9 @@ class QWorkspaceChild : public QFrame
 {
     Q_OBJECT
 
-friend class QWorkspace;
-
+    friend class QWorkspace;
+    friend class QWorkspaceChildTitleBar;
+    
 public:
     QWorkspaceChild( QWidget* window,
 		     QWorkspace *parent=0, const char *name=0 );
@@ -493,39 +493,16 @@ public slots:
     void move( int x, int y );
 
 protected:
-    void mousePressEvent( QMouseEvent * );
-    void mouseReleaseEvent( QMouseEvent * );
-    void mouseMoveEvent( QMouseEvent * );
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
     void childEvent( QChildEvent* );
-    void keyPressEvent( QKeyEvent * );
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
 
 private:
     QWidget* childWidget;
     QWidget* lastfocusw;
-    bool buttonDown	    :1;
-    enum MousePosition {
-	Nowhere,
-	TopLeft, BottomRight, BottomLeft, TopRight,
-	Top, Bottom, Left, Right,
-	Center
-    };
-    MousePosition mode;
-    bool moveResizeMode	    :1;
-#ifndef QT_NO_CURSOR
-    void setMouseCursor( MousePosition m );
-#endif
-    bool isMove() const {
-	return moveResizeMode && mode == Center;
-    }
-    bool isResize() const {
-	return moveResizeMode && !isMove();
-    }
-    QPoint moveOffset;
-    QPoint invertedMoveOffset;
+    QWidgetResizeHandler *widgetResizeHandler;
     QWorkspaceChildTitleBar* titlebar;
     QGuardedPtr<QWorkspaceChildTitleBar> iconw;
     QSize windowSize;
@@ -538,6 +515,15 @@ private:
 
 };
 
+void QWorkspaceChild::doResize()
+{
+    widgetResizeHandler->doResize();
+}
+
+void QWorkspaceChild::doMove()
+{
+    widgetResizeHandler->doMove();
+}
 
 class QWorkspaceData {
 public:
@@ -627,7 +613,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
 QWorkspace::~QWorkspace()
 {
-    delete d;    
+    delete d;
     d = 0;
 }
 
@@ -1333,7 +1319,7 @@ void QWorkspace::operationMenuActivated( int a )
 	break;
     case 6:
 	d->active->showShaded();
-    case 7: 
+    case 7:
 	{
 	    QWorkspace* w = (QWorkspace*)d->active->windowWidget();
 	    if ( !w )
@@ -1763,6 +1749,10 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
     return QWidget::eventFilter(o, e);
 }
 
+void QWorkspaceChildTitleBar::enterEvent( QEvent *e )
+{
+    ( (QWorkspaceChild*)parentWidget() )->leaveEvent( e );
+}
 
 void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 { // NOTE: called with 0 pointer
@@ -1836,8 +1826,9 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     : QFrame( parent, name,
 	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose )
 {
-    mode = Nowhere;
-    buttonDown = FALSE;
+    widgetResizeHandler = new QWidgetResizeHandler( this, window );
+    connect( widgetResizeHandler, SIGNAL( activate() ),
+	     this, SLOT( activate() ) );
     setMouseTracking( TRUE );
     act = FALSE;
     iconw = 0;
@@ -1911,6 +1902,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     resize( s );
 
     childWidget->installEventFilter( this );
+    
+    widgetResizeHandler->setExtraHeight( ( titlebar ? titlebar->sizeHint().height() : 0 ) + TITLEBAR_SEPARATION + 1 );
 }
 
 QWorkspaceChild::~QWorkspaceChild()
@@ -1926,9 +1919,9 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
-	titlebar->setGeometry( r.x() , r.y(), r.width(), th );
-	cr = QRect( r.x(), r.y() + titlebar->height() + TITLEBAR_SEPARATION + (shademode ? 5 : 0 ),
-	    r.width() , r.height() - titlebar->height() - TITLEBAR_SEPARATION );
+	titlebar->setGeometry( r.x() , r.y() + 1, r.width(), th );
+	cr = QRect( r.x(), r.y() + titlebar->height() + TITLEBAR_SEPARATION + (shademode ? 5 : 0 ) + 1,
+	    r.width() , r.height() - titlebar->height() - TITLEBAR_SEPARATION - 2 );
     } else {
 	cr = r;
     }
@@ -2083,138 +2076,6 @@ void QWorkspaceChild::childEvent( QChildEvent*  e)
     }
 }
 
-void QWorkspaceChild::mousePressEvent( QMouseEvent * e)
-{
-    if ( e->button() == LeftButton ) {
-	activate();
-	mouseMoveEvent( e );
-	buttonDown = TRUE;
-	moveOffset = e->pos();
-	invertedMoveOffset = rect().bottomRight() - e->pos();
-    }
-}
-
-void QWorkspaceChild::mouseReleaseEvent( QMouseEvent * e)
-{
-    if ( e->button() == LeftButton ) {
-	buttonDown = FALSE;
-	releaseMouse();
-	releaseKeyboard();
-	setCursor( arrowCursor );
-    }
-}
-
-void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
-{
-    if ( shademode )
-	return;
-
-    if ( !buttonDown ) {
-	if ( e->pos().y() <= RANGE && e->pos().x() <= RANGE)
-	    mode = TopLeft;
-	else if ( e->pos().y() >= height()-RANGE && e->pos().x() >= width()-RANGE)
-	    mode = BottomRight;
-	else if ( e->pos().y() >= height()-RANGE && e->pos().x() <= RANGE)
-	    mode = BottomLeft;
-	else if ( e->pos().y() <= RANGE && e->pos().x() >= width()-RANGE)
-	    mode = TopRight;
-	else if ( e->pos().y() <= RANGE )
-	    mode = Top;
-	else if ( e->pos().y() >= height()-RANGE )
-	    mode = Bottom;
-	else if ( e->pos().x() <= RANGE )
-	    mode = Left;
-	else if (  e->pos().x() >= width()-RANGE )
-	    mode = Right;
-	else
-	    mode = Center;
-#ifndef QT_NO_CURSOR
-	setMouseCursor( mode );
-#endif
-	return;
-    }
-
-    if ( testWState(WState_ConfigPending) )
- 	return;
-
-    QPoint globalPos = parentWidget()->mapFromGlobal( e->globalPos() );
-    if ( !parentWidget()->rect().contains( globalPos ) ) {
-	if ( globalPos.x() < 0 )
-	    globalPos.rx() = 0;
-	if ( globalPos.y() < 0 )
-	    globalPos.ry() = 0;
-	if ( globalPos.x() > parentWidget()->width() )
-	    globalPos.rx() = parentWidget()->width();
-	if ( globalPos.y() > parentWidget()->height() )
-	    globalPos.ry() = parentWidget()->height();
-    }
-    QPoint p = globalPos + invertedMoveOffset;
-    QPoint pp = globalPos - moveOffset;
-
-    int th = titlebar ? titlebar->sizeHint().height() : 0;
-    int ts = titlebar ? TITLEBAR_SEPARATION : 0;
-
-    int mw = QMAX(childWidget->minimumSizeHint().width(),
-		  childWidget->minimumWidth()) + 2 * frameWidth();
-    int mh = QMAX(childWidget->minimumSizeHint().height(),
-		  childWidget->minimumHeight()) +  2 * frameWidth() + ts + th + 1;
-
-    QSize mpsize( geometry().right() - pp.x() + 1,
-		  geometry().bottom() - pp.y() + 1 );
-    mpsize = mpsize.expandedTo( minimumSize() ).expandedTo( QSize(mw, mh) );
-    QPoint mp( geometry().right() - mpsize.width() + 1,
-	       geometry().bottom() - mpsize.height() + 1 );
-
-    QRect geom = geometry();
-
-    switch ( mode ) {
-    case TopLeft:
-	geom =  QRect( mp, geometry().bottomRight() ) ;
-	break;
-    case BottomRight:
-	geom =  QRect( geometry().topLeft(), p ) ;
-	break;
-    case BottomLeft:
-	geom =  QRect( QPoint(mp.x(), geometry().y() ), QPoint( geometry().right(), p.y()) ) ;
-	break;
-    case TopRight:
-	geom =  QRect( QPoint(geometry().x(), mp.y() ), QPoint( p.x(), geometry().bottom()) ) ;
-	break;
-    case Top:
-	geom =  QRect( QPoint( geometry().left(), mp.y() ), geometry().bottomRight() ) ;
-	break;
-    case Bottom:
-	geom =  QRect( geometry().topLeft(), QPoint( geometry().right(), p.y() ) ) ;
-	break;
-    case Left:
-	geom =  QRect( QPoint( mp.x(), geometry().top() ), geometry().bottomRight() ) ;
-	break;
-    case Right:
-	geom =  QRect( geometry().topLeft(), QPoint( p.x(), geometry().bottom() ) ) ;
-	break;
-    case Center:
-	geom.moveTopLeft( pp );
-	break;
-    default:
-	break;
-    }
-
-    geom = QRect( geom.topLeft(), geom.size().expandedTo( minimumSize() ).expandedTo( QSize(mw,mh) ).
-	boundedTo( childWidget->maximumSize() + QSize( 2*frameWidth(), 2*frameWidth()+ts+th+1 ) ) );
-
-    if ( geom != geometry() && parentWidget()->rect().intersects( geom ) )
-	setGeometry( geom );
-
-#ifdef _WS_WIN_
-    MSG msg;
-    while(PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
-	;
-#endif
-    QApplication::syncX();
-}
-
-
-
 void QWorkspaceChild::enterEvent( QEvent * )
 {
 }
@@ -2222,7 +2083,7 @@ void QWorkspaceChild::enterEvent( QEvent * )
 void QWorkspaceChild::leaveEvent( QEvent * )
 {
 #ifndef QT_NO_CURSOR
-    if ( !buttonDown )
+    if ( !widgetResizeHandler->isButtonDown() )
 	setCursor( arrowCursor );
 #endif
 }
@@ -2333,16 +2194,19 @@ QWidget* QWorkspaceChild::iconWidget() const
 void QWorkspaceChild::showMinimized()
 {
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
+    widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::showMaximized()
 {
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
+    widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::showNormal()
 {
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
+    widgetResizeHandler->setActive( TRUE );
 }
 
 void QWorkspaceChild::showShaded()
@@ -2367,6 +2231,7 @@ void QWorkspaceChild::showShaded()
 	shademode = TRUE;
 	resize( width(), titlebar->height() + TITLEBAR_SEPARATION + 2*lineWidth() );
     }
+    widgetResizeHandler->setActive( FALSE );
 }
 
 void QWorkspaceChild::adjustToFullscreen()
@@ -2376,204 +2241,6 @@ void QWorkspaceChild::adjustToFullscreen()
 		 parentWidget()->height() + height() - childWidget->height() );
 }
 
-
-#ifndef QT_NO_CURSOR
-/*!
-  Sets an appropriate cursor shape for the logical mouse position \a m
-
-  \sa QWidget::setCursor()
- */
-void QWorkspaceChild::setMouseCursor( MousePosition m )
-{
-    switch ( m ) {
-    case TopLeft:
-    case BottomRight:
-	setCursor( sizeFDiagCursor );
-	break;
-    case BottomLeft:
-    case TopRight:
-	setCursor( sizeBDiagCursor );
-	break;
-    case Top:
-    case Bottom:
-	setCursor( sizeVerCursor );
-	break;
-    case Left:
-    case Right:
-	setCursor( sizeHorCursor );
-	break;
-    default:
-	setCursor( arrowCursor );
-	break;
-    }
-}
-#endif
-
-void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
-{
-    if ( !isMove() && !isResize() )
-	return;
-    bool is_control = e->state() & ControlButton;
-    int delta = is_control?1:8;
-    QPoint pos = QCursor::pos();
-    switch ( e->key() ) {
-    case Key_Left:
-	pos.rx() -= delta;
-	if ( pos.x() <= QApplication::desktop()->geometry().left() ) {
-	    if ( mode == TopLeft || mode == BottomLeft ) {
-		moveOffset.rx() += delta;
-		invertedMoveOffset.rx() += delta;
-	    } else {
-		moveOffset.rx() -= delta;
-		invertedMoveOffset.rx() -= delta;
-	    }
-	}
-	if ( isResize() && !resizeHorizontalDirectionFixed ) {
-	    resizeHorizontalDirectionFixed = TRUE;
-	    if ( mode == BottomRight )
-		mode = BottomLeft;
-	    else if ( mode == TopRight )
-		mode = TopLeft;
-#ifndef QT_NO_CURSOR
-	    setMouseCursor( mode );
-	    grabMouse( cursor() );
-#else
-	    grabMouse();
-#endif
-	}
-	break;
-    case Key_Right:
-	pos.rx() += delta;
-	if ( pos.x() >= QApplication::desktop()->geometry().right() ) {
-	    if ( mode == TopRight || mode == BottomRight ) {
-		moveOffset.rx() += delta;
-		invertedMoveOffset.rx() += delta;
-	    } else {
-		moveOffset.rx() -= delta;
-		invertedMoveOffset.rx() -= delta;
-	    }
-	}
-	if ( isResize() && !resizeHorizontalDirectionFixed ) {
-	    resizeHorizontalDirectionFixed = TRUE;
-	    if ( mode == BottomLeft )
-		mode = BottomRight;
-	    else if ( mode == TopLeft )
-		mode = TopRight;
-#ifndef QT_NO_CURSOR
-	    setMouseCursor( mode );
-	    grabMouse( cursor() );
-#else
-	    grabMouse();
-#endif
-	}
-	break;
-    case Key_Up:
-	pos.ry() -= delta;
-	if ( pos.y() <= QApplication::desktop()->geometry().top() ) {
-	    if ( mode == TopLeft || mode == TopRight ) {
-		moveOffset.ry() += delta;
-		invertedMoveOffset.ry() += delta;
-	    } else {
-		moveOffset.ry() -= delta;
-		invertedMoveOffset.ry() -= delta;
-	    }
-	}
-	if ( isResize() && !resizeVerticalDirectionFixed ) {
-	    resizeVerticalDirectionFixed = TRUE;
-	    if ( mode == BottomLeft )
-		mode = TopLeft;
-	    else if ( mode == BottomRight )
-		mode = TopRight;
-#ifndef QT_NO_CURSOR
-	    setMouseCursor( mode );
-	    grabMouse( cursor() );
-#else
-	    grabMouse();
-#endif
-	}
-	break;
-    case Key_Down:
-	pos.ry() += delta;
-	if ( pos.y() >= QApplication::desktop()->geometry().bottom() ) {
-	    if ( mode == BottomLeft || mode == BottomRight ) {
-		moveOffset.ry() += delta;
-		invertedMoveOffset.ry() += delta;
-	    } else {
-		moveOffset.ry() -= delta;
-		invertedMoveOffset.ry() -= delta;
-	    }
-	}
-	if ( isResize() && !resizeVerticalDirectionFixed ) {
-	    resizeVerticalDirectionFixed = TRUE;
-	    if ( mode == TopLeft )
-		mode = BottomLeft;
-	    else if ( mode == TopRight )
-		mode = BottomRight;
-#ifndef QT_NO_CURSOR
-	    setMouseCursor( mode );
-	    grabMouse( cursor() );
-#else
-	    grabMouse();
-#endif
-	}
-	break;
-    case Key_Space:
-    case Key_Return:
-    case Key_Enter:
-	moveResizeMode = FALSE;
-	releaseMouse();
-	releaseKeyboard();
-	buttonDown = FALSE;
-	break;
-    default:
-	return;
-    }
-    QCursor::setPos( pos );
-}
-
-
-void QWorkspaceChild::doResize()
-{
-    moveResizeMode = TRUE;
-    buttonDown = TRUE;
-    moveOffset = mapFromGlobal( QCursor::pos() );
-    if ( moveOffset.x() < width()/2) {
-	if ( moveOffset.y() < height()/2)
-	    mode = TopLeft;
-	else
-	    mode = BottomLeft;
-    } else {
-	if ( moveOffset.y() < height()/2)
-	    mode = TopRight;
-	else
-	    mode = BottomRight;
-    }
-    invertedMoveOffset = rect().bottomRight() - moveOffset;
-#ifndef QT_NO_CURSOR
-    setMouseCursor( mode );
-    grabMouse( cursor()  );
-#else
-    grabMouse();
-#endif
-    grabKeyboard();
-    resizeHorizontalDirectionFixed = FALSE;
-    resizeVerticalDirectionFixed = FALSE;
-}
-
-void QWorkspaceChild::doMove()
-{
-    mode = Center;
-    moveResizeMode = TRUE;
-    buttonDown = TRUE;
-    moveOffset = mapFromGlobal( QCursor::pos() );
-    invertedMoveOffset = rect().bottomRight() - moveOffset;
-#ifndef QT_NO_CURSOR
-    grabMouse( SizeAllCursor );
-#else
-    grabMouse();
-#endif
-    grabKeyboard();
-}
 
 void QWorkspaceChild::setCaption( const QString& cap )
 {

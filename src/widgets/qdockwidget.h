@@ -13,6 +13,7 @@ class QBoxLayout;
 class QHBoxLayout;
 class QVBoxLayout;
 class QDockArea;
+class QWidgetResizeHandler;
 
 class Q_EXPORT QDockWidget : public QFrame
 {
@@ -118,7 +119,8 @@ private:
     QBoxLayout *layout;
     void *dockWidgetData;
     QPoint lastPos;
-
+    QWidgetResizeHandler *widgetResizeHandler;
+    
 };
 
 inline QDockArea *QDockWidget::area() const

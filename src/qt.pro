@@ -339,6 +339,7 @@ widgets:HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qvgroupbox.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
+		  $$WIDGETS_H/qwidgetresizehandler.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
 		  $$WIDGETS_H/qaction.h
 
@@ -586,6 +587,7 @@ widgets:SOURCES += widgets/qbuttongroup.cpp \
 		  widgets/qvbuttongroup.cpp \
 		  widgets/qvgroupbox.cpp \
 		  widgets/qwhatsthis.cpp \
+		  widgets/qwidgetresizehandler.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
 		  widgets/qaction.cpp \
