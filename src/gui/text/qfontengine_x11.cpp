@@ -1100,29 +1100,17 @@ QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
 {
     _face = XftLockFace(_font);
 
-    int symbol = -1;
-    int charmap = -1;
+    _cmap = -1;
+    // Xft maps Unicode and adobe roman for us.
     for (int i = 0; i < _face->num_charmaps; ++i) {
- 	FT_CharMap cm = _face->charmaps[i];
-//  	qDebug("font has charmap %x", cm->encoding);
- 	if (charmap == -1 && cm->encoding == ft_encoding_unicode)
- 	    charmap = i;
- 	// ####### FIXME: we don't use FT_ENCODING_MS_SYMBOL in 3.3, as it maps to U+0xf0xx. All of the fonts
- 	// tested also provide a FT_ENCODING_APPLE_ROMAN table that works for the basic range.
- 	if (symbol == -1
-	    && (/*cm->encoding == FT_ENCODING_MS_SYMBOL ||*/
- 		cm->encoding == ft_encoding_adobe_custom
- 		|| cm->encoding == ft_encoding_apple_roman)) {
- 	    symbol = i;
-	}
-    }
-
-    // symbol font
-    if (symbol != -1 && (charmap == -1 || cmap))
- 	charmap = symbol;
-    if (charmap != -1) {
-// 	qDebug("using charmap %x", _face->charmaps[charmap]->encoding);
- 	FT_Set_Charmap(_face, _face->charmaps[charmap]);
+        FT_CharMap cm = _face->charmaps[i];
+//         qDebug("font has charmap %x", cm->encoding);
+        if (cm->encoding == ft_encoding_adobe_custom
+            || cm->encoding == ft_encoding_symbol) {
+//             qDebug("font has adobe custom or ms symbol charmap");
+            _cmap = i;
+            break;
+        }
     }
 
     cache_cost = _font->height * _font->max_advance_width *
@@ -1165,6 +1153,15 @@ QFontEngine::FECaps QFontEngineXft::capabilites() const
     return (_face->face_flags & FT_FACE_FLAG_SCALABLE) ? FullTransformations : NoTransformations;
 }
 
+static glyph_t getAdobeCharIndex(XftFont *font, int cmap, uint ucs4)
+{
+    FT_Face _face = XftLockFace( font );
+    FT_Set_Charmap(_face, _face->charmaps[cmap]);
+    glyph_t g = FT_Get_Char_Index(_face, ucs4);
+    XftUnlockFace(font);
+    return g;
+}
+
 bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
     if (*nglyphs < len) {
@@ -1173,14 +1170,27 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     }
 
     bool mirrored = flags & QTextEngine::RightToLeft;
-    if (mirrored) {
+    if (_cmap != -1) {
+       for ( int i = 0; i < len; ++i ) {
+           unsigned short uc = ::mirroredChar(str[i]).unicode();
+           glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
+           if ( !glyphs[i].glyph ) {
+               glyph_t glyph = XftCharIndex(0, _font, uc);
+                if (!glyph)
+                    glyph = getAdobeCharIndex(_font, _cmap, uc);
+              glyphs[i].glyph = glyph;
+               if ( uc < cmapCacheSize )
+                   ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
+           }
+       }
+    } else if ( mirrored ) {
         for (int i = 0; i < len; ++i) {
             unsigned short uc = ::mirroredChar(str[i]).unicode();
             glyphs[i].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
             if (!glyphs[i].glyph) {
                 if (uc == 0xa0)
                     uc = 0x20;
-                glyph_t glyph = FT_Get_Char_Index(_face, uc);
+                glyph_t glyph = XftCharIndex(0, _font, uc);
                 glyphs[i].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -1193,7 +1203,7 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             if (!glyphs[i].glyph) {
                 if (uc == 0xa0)
                     uc = 0x20;
-                glyph_t glyph = FT_Get_Char_Index(_face, uc);
+                glyph_t glyph = XftCharIndex(0, _font, uc);
                 glyphs[i].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -1643,10 +1653,20 @@ bool QFontEngineXft::canRender(const QChar *string, int len)
 {
     bool allExist = true;
 
-    for (int i = 0; i < len; i++) {
-        if (!FT_Get_Char_Index(_face, string[i].unicode())) {
-            allExist = false;
-            break;
+    if (_cmap != -1) {
+        for ( int i = 0; i < len; i++ ) {
+            if (!XftCharExists(0, _font, string[i].unicode())
+                && getAdobeCharIndex(_font, _cmap, string[i].unicode()) == 0) {
+                allExist = FALSE;
+                break;
+            }
+        }
+    } else {
+        for ( int i = 0; i < len; i++ ) {
+            if (!XftCharExists(0, _font, string[i].unicode())) {
+                allExist = FALSE;
+                break;
+            }
         }
     }
 

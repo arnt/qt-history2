@@ -939,8 +939,11 @@ static void loadXft()
         QtFontFoundry *foundry
             = family->foundry(QString::null,  true);
 
-        for (int i = 0; i < QFont::LastPrivateScript; ++i)
+        for (int i = 0; i < QFont::LastPrivateScript; ++i) {
+            if (i == QFont::UnknownScript)
+                continue;
             family->scripts[i] = QtFontFamily::Supported;
+        }
 
         QtFontStyle::Key styleKey;
         styleKey.oblique = false;
