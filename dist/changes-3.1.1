@@ -14,9 +14,7 @@ compatibility (source and binary) with Qt 3.1.0
 
 - The installer and reconfigure tools on Windows have been fixed.
 
-- Apply changes to build with Borland Kylix/Linux.
-
-- Look'n'Feel improvements in the Qt/Mac version.
+- Look'n'Feel improvements have been made in the Qt/Mac version.
 
 
 ****************************************************************************
@@ -24,7 +22,7 @@ compatibility (source and binary) with Qt 3.1.0
 ****************************************************************************
 
 - QAccel
-	Fixed for single key accelerators. Make Shift modifier work
+	Fixed for single key accelerators. Made Shift modifier work
 	for all key combinations, unless an accelerator with Shift is
 	defined.
 
@@ -32,43 +30,43 @@ compatibility (source and binary) with Qt 3.1.0
 	Remove iconset when a null-iconset is being set.
 
 - QApplication
-	Don't overwrite explicitely set font with default font when
+	Don't overwrite explicitly set font with the default font when
 	using the static methods before calling the constructor.
-	X11 only: Support custom color maps on 8bit visuals.
+	X11 only: Support custom color maps on 8-bit visuals.
 
 - QCheckBox
-	Draw focus indicator into indicator if the text labels is empty.
+	Draw focus indicator into indicator if the text label is empty.
 
 - QClipboard
 	X11 only: Null-terminate encoded strings.
 
 - QComboBox
-	Make sure the current item is selected in the list. Call
+	Made sure the current item is selected in the list. Call
 	focusIn/OutEvent handlers when the lineedit changes focus.
 
 - QDataTable
-	Update the current cell when selecting rows
+	Update the current cell when selecting rows.
 
 - QDialog
-	Don't find a place for dialogs that have explicitely been
+	Don't find a place for dialogs that have been explicitly
 	moved.
 
 - QDir
-	Improve filtered lookup.
+	Improved filtered lookup.
 
 - QDockWindow
 	Emit visibilityChanged signal only if visibility relative to
 	the dock area has changed.
 
 - QEventLoop
-	Implement API on Windows and Mac.
+	Implement this API on Windows and Mac.
 
 - QFileDialog
-	Fix visibility of preview widgets. Renaming files works now
-	also in ExistingFiles mode.
+	Fix visibility of preview widgets. Renaming files now also
+	works in ExistingFiles mode.
 
 - QFont
-	X11 only: Fix width calculation for undefined characters.
+	X11 only: Fixed width calculation for undefined characters.
 
 - QFrame
 	Erase the margin region for flicker-optimized subclasses.
@@ -79,7 +77,7 @@ compatibility (source and binary) with Qt 3.1.0
 - QHttp
 	Fix special case for "Content-Length: 0" transfers.
 
-- IME
+- IME   (Input Methods)
 	Windows only: Accept the input when the widget loses focus.
 
 - QLibrary
@@ -92,10 +90,10 @@ compatibility (source and binary) with Qt 3.1.0
 	Mac only: Support for native navigation and selection with keyboard.
 
 - QListBox
-	Fix null-pointer crash in QFileDialog.
+	Fixed null-pointer crash in QFileDialog.
 
 - QListView
-	Fix null-pointer crash when reimplementing insertItem.
+	Fixed null-pointer crash when reimplementing insertItem.
 
 - QMenuBar
 	Improved focus handling.
@@ -105,26 +103,26 @@ compatibility (source and binary) with Qt 3.1.0
 	Windows only: Support URLs on network drives.
 
 - QOCIDriver
-	Improve handling for datatype mismatches
+	Improved handling for datatype mismatches
 
 - QODBCDriver
-	Don't report UNICODE support on Win9x/ME. Support
+	Don't report Unicode support on Win9x/ME. Support
 	high-precision values. Support fetchLast in forward-only
 	databases
 
 - QPainter
-	Make endpixel rendering for consistent on all platforms. Draw
-	focus rectangles with better contrast. Fix text rendering with
-	wordbreak.
+	Make endpixel rendering consistent on all platforms. Draw
+	focus rectangles with better contrast. Fixed text rendering
+	with wordbreak.
 
 - QPixmap
 	Mac only: Support alpha channels when converting from a
 	QImage.
 
 - QPopupMenu
-	Fix offset errors and keyboard navigation for invisible
-	items. Allow overlapping of menus with desktop elements
-	(e.g. taskbar). Avoid flicker for context menus.
+	Fixed offset errors and keyboard navigation for invisible
+	items. Allow overlapping of menus with desktop elements (e.g.
+	taskbar). Avoid flicker for context menus.
 
 - QPrinterDialog
 	Unix only: Try harder to find all printers.
@@ -142,7 +140,7 @@ compatibility (source and binary) with Qt 3.1.0
 	Win9x/ME. Fixed a resource leak.
 
 - QSqlCursor
-	Improve performance for multiple inserts
+	Improved performance for multiple inserts
 
 - QString
 	Pass base parameter to recursive calls in setNum().
@@ -151,7 +149,7 @@ compatibility (source and binary) with Qt 3.1.0
 	Make better use of the style flags.
 
 - QTabBar
-	Fix focus handling for dynamically created tab widgets.
+	Fixed focus handling for dynamically created tab widgets.
 
 - QTable
 	Make sizeHint implementation depend on header
@@ -166,14 +164,13 @@ compatibility (source and binary) with Qt 3.1.0
 	Load plugins correctly.
 
 - QTextEdit
-	Fix rendering of selections in inactive windows. Return the
+	Fixed rendering of selections in inactive windows. Return the
 	string with format tags in LogText mode. Non-breaking
-	whitespaces (0xa0) are not converted to spaces anymore in
-	text().
+	whitespaces (0xA0) are no longer converted to spaces in text().
 
 - QWheelEvent
 	X11 only: Support second mouse wheel (since there is no
-	documented API for that on windows).
+	documented API for this on Windows).
 
 - QWidget
 	Fix showHidden(). Propagate palettes and fonts correctly to
@@ -191,12 +188,12 @@ compatibility (source and binary) with Qt 3.1.0
 	Delete output files before aborting.
 
 - uic
-	Don't print debug messages from generated code. Fix column and
-	row labeling. Don't generate code for database specific
+	Don't print debug messages from generated code. Fixed column
+	and row labeling. Don't generate code for database specific
 	properties.
 
 - Qt Designer
-	Fix reported crashes.
+	Fixed reported crashes.
   
 - Qt Assistant
 	Flush stdout to make sure that clients get the correct port
@@ -208,8 +205,8 @@ compatibility (source and binary) with Qt 3.1.0
 ****************************************************************************
 
 - ActiveQt
-	Fix null-pointer crashes for QVariant parameters. Try harder
-	to convert types. Fix Qt control placement and property
-	handling in Visual Basic. Improve workaround for Word
-	typelibrary problems. Integrate hosted controls in tab focus
+	Fixed null-pointer crashes for QVariant parameters. Try harder
+	to convert types. Fixed Qt control placement and property
+	handling in Visual Basic. Improved workaround for Word
+	type library problems. Integrated hosted controls in tab focus
 	chain. Support property overloading in Qt controls.
