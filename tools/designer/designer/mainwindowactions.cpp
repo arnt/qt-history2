@@ -1257,8 +1257,6 @@ bool MainWindow::fileSaveForm()
 	if ( e->object() == formWindow() || e == qWorkspace()->activeWindow() ) {
 	    e->save();
 	}
-	if ( e->sourceFile() && e == qWorkspace()->activeWindow() )
-	    sourceFile()->save();
     }
 
     FormWindow *fw = 0;
