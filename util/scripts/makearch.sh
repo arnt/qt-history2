@@ -122,13 +122,13 @@ clean:
 	cd moc; \$(MAKE) clean
 	cd library; \$(MAKE) clean
 	cd tutorial; \$(MAKE) clean
-	cd tutorial; \$(MAKE) clean
+	cd examples; \$(MAKE) clean
 
 depend:
 	cd moc; \$(MAKE) depend
 	cd library; \$(MAKE) depend
 	cd tutorial; \$(MAKE) depend
-	cd tutorial; \$(MAKE) depend
+	cd examples; \$(MAKE) depend
 
 variables: Makefile
 	CC="\$(CC)" CFLAGS="\$(CFLAGS)" LFLAGS="\$(LFLAGS)" ./propagate
