@@ -49,7 +49,7 @@ void Table::initTable()
     // read all the Qt source and header files into a list
     QStringList all;
     int i = 0;
-    QString qtdir( QT_SOURCE_TREE );
+    QString qtdir( qInstallPath() );
     while ( dirs[ i ] ) {
 	QDir dir( qtdir + "/src/" + dirs[ i ] );
 	QStringList lst = dir.entryList( "*.cpp; *.h" );
