@@ -182,7 +182,7 @@ QPrinter::QPrinter( PrinterMode m )
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlgA( &pd ) != 0 )
             readPdlgA( &pd );
-    }
+    } )
     setPrinterMapping( hdc, res );    
 }
 
