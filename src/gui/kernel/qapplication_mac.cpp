@@ -652,9 +652,12 @@ void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
     EventLoopTimerRef otc = request_activate_pending.timer;
     qt_event_remove_activate();
     if(r == otc && !request_activate_pending.widget.isNull()) {
-        CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
-                    kEventAttributeUserEvent, &request_activate_pending.event);
-        PostEventToQueue(GetMainEventQueue(), request_activate_pending.event, kEventPriorityHigh);
+        const QWidget *tlw = request_activate_pending.widget->topLevelWidget();
+        if(tlw->isVisible() && !tlw->isDesktop() && !tlw->isPopup() && !tlw->testWFlags(Qt::WStyle_Tool)) {
+            CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
+                        kEventAttributeUserEvent, &request_activate_pending.event);
+            PostEventToQueue(GetMainEventQueue(), request_activate_pending.event, kEventPriorityHigh);
+        }
     }
 }
 void qt_event_request_activate(QWidget *w)
@@ -1616,7 +1619,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(request_activate_pending.widget) {
                 QWidget *w = request_activate_pending.widget;
                 request_activate_pending.widget = 0;
-                w->setActiveWindow();
+                SelectWindow((WindowPtr)w->handle());
             }
         } else if(ekind == kEventQtRequestContext) {
             bool send = false;
