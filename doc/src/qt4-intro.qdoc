@@ -3,28 +3,25 @@
 
 Dear Qt user,
 
-This is a Technology Preview release, a code snapshot that we are
-making available to our users. We're doing this because we want to
-show you some of the new technologies that will go into the final Qt
-4 release, and because we want you to have the opportunity to give us
-your feedback. The feedback we receive will help us to ensure that
-the final Qt 4 release provides as much value and productivity as
-possible.
+We are pleased to present our second Technology Preview release for
+Qt 4. We are releasing this code snapshot to our users because we
+want to show you some of the new technologies that will go into the
+final Qt 4 release, and because we want you to have the opportunity
+to give us your feedback. The feedback we receive will help us to
+ensure that the final Qt 4 release provides as much value and
+productivity as possible.
 
-Qt 4 still is in a very active state of development. Not everything is
-ready for prime time, and there are significant omissions.
-
-Most importantly, this Technology Preview is not meant to be used in
-production code or even for application development. Furthermore,
-please do not attempt to start porting your Qt 3 based projects over
-yet. Not all backward compatibility functionality is in place yet,
-and we have not yet finished the porting guide and the porting tools
-that will help you with the process once the Qt 4 final release is
-imminent.
+This technology preview is licensed under a non-commercial license.
+It is not meant to be used in production code or even for application
+development. Futhermore, please do not attempt to start porting your
+Qt 3 based projects over yet. Not all backward compatibility
+functionality is in place yet, and we have not yet finished the
+porting guide and the porting tools that will help you with the
+process once the Qt 4 final release is imminent.
 
 What you \e{can} do is write new small programs to experience what
 the next generation of Qt programming with be like. In particular,
-there are several new technologies that we hope you will try out and
+there are five new technologies that we hope you will try out and
 give us feedback on. All are new to Qt, written specifically for Qt
 4:
 
@@ -38,8 +35,8 @@ give us feedback on. All are new to Qt, written specifically for Qt
 \i \link qt4-scribe.html Scribe \endlink, the Unicode text
 renderer with a public API for performing low-level text layout.
 
-\i A modern action-based \link qt4-mainwindow.html mainwindow,
-toolbar, menu, and docking architecture \endlink.
+\i \link qt4-mainwindow.html Mainwindow \endlink, a modern
+action-based mainwindow, toolbar, menu, and docking architecture.
 \endlist
 
 Follow the hyperlinks above for a detailed description for each of
@@ -53,10 +50,10 @@ since Qt 3:
 \i A fully cross-platform \l{qt4-accessibility.html}{accessibility}
 module, with support for the emerging SP-API Unix standard in
 addition to Microsoft and Mac Accessibility.
+\i The \l{qt4-sql.html}{SQL} module, which is now based on the
+Interview model/view framework.
 \i The \l{qt4-network.html}{network module}, with better support
 for UDP and synchronous sockets.
-\i The \l{qt4-sql.html}{SQL} module, which is now based on the
-Interview MVC framework.
 \i The \l{qt4-styles.html}{style API}, which is now decoupled from
 the widgets, meaning that you can draw any user interface element on
 any device (widget, pixmap, etc.).
@@ -74,9 +71,11 @@ version of \e{Qt Assistant} to make it easier to read the online
 documentation provided with this package, although the Qt 4
 documentation itself is still far from complete.
 
-The Technology Preview is meant to be tested on a limited set of
-platforms only, not the entire range of platforms targeted by the
-final Qt product. The Technology Preview supports:
+\section1 Supported Platforms
+
+The Technology Preview has been not been tested on the entire range
+of platforms targeted by the final Qt 4.0 release. The following
+platforms are supported:
 
 \list
 \i GNU/Linux with gcc 2.95 or later on Intel x86
@@ -90,22 +89,23 @@ of the testing program.
 
 \section1 How to Provide Feedback
 
-Trolltech has set up a special mailing list, qt4-preview-feedback,
-for discussion of Qt Technology Preview-related issues. To subscribe,
+Trolltech has set up a special mailing list, \c qt4-preview-feedback,
+for discussion of Qt Technology Preview related issues. To subscribe,
 send a message containing just the word "subscribe" (without the
-quotes) to qt4-preview-feedback-request@trolltech.com. We encourage
-you to use this mailing list instead of qt-interest for
+quotes) to
+\l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
+We encourage you to use this mailing list instead of \c qt-interest for
 preview-specific issues. See \l http://lists.trolltech.com/ for more
 information on Trolltech's mailing lists, including archived
 discussions.
 
 \section1 Roadmap
 
-We plan to enter the beta phase in Q4 2004 and release the final Qt 4
-in late Q1 2005.
+We plan to enter the beta phase in Q4, 2004 and release the final Qt
+4.0 in late Q1, 2005.
 
-We hope you will have as much fun and pleasure experimenting with Qt
-4 as we had designing and building it.
+Enjoy the Technology Preview: We hope you will have as much fun and
+pleasure experimenting with Qt 4 as we had designing and building it.
 
 \e{--The Trolltech Qt 4 Team}
 
