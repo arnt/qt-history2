@@ -7,19 +7,19 @@
  */
 
 #if defined __cplusplus
-
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcursor.h>
-#include <qdatetime.h>
+#include <qdesktopwidget.h>
 #include <qevent.h>
-#include <qglobal.h>
 #include <qimage.h>
-#include <qmetaobject.h>
+#include <qlayout.h>
 #include <qpainter.h>
 #include <qpixmap.h>
-#include <qplatformdefs.h>
+#include <qstring.h>
 #include <qstyle.h>
+#include <qtimer.h>
 #include <qwidget.h>
 
+#include <stdlib.h>
 #endif
