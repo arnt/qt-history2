@@ -804,6 +804,14 @@ int QTextCursor::listItemNumber() const
     return QTextListItem(d->block()).itemNumber();
 }
 
+QString QTextCursor::listItemText() const
+{
+    if (!d)
+	return QString();
+
+    return QTextListItem(d->block()).text();
+}
+
 /*!
     \overload
 

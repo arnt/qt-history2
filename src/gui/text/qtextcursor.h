@@ -102,7 +102,9 @@ public:
     QTextList *createList(const QTextListFormat &format);
     QTextList *createList(int style);
     QTextList *currentList() const;
+    // ### these two are probably temporary....
     int listItemNumber() const;
+    QString listItemText() const;
 
     QTextTable *insertTable(int rows, int cols, const QTextTableFormat &format);
     QTextTable *insertTable(int rows, int cols);
