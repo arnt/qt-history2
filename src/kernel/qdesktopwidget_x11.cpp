@@ -289,4 +289,5 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
 {
     delete d;
     d = new QDesktopWidgetPrivate;
+    qt_desktopwidget_workarea_dirty = TRUE;
 }
