@@ -28,7 +28,6 @@ class HelpWindow : public QTextBrowser
 public:
     HelpWindow( MainWindow *m, QWidget *parent = 0);
     void setSource( const QUrl &name );
-    QMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
     void openLinkInNewWindow( const QString &link );
     void openLinkInNewPage( const QString &link );
@@ -42,6 +41,9 @@ public:
 
 signals:
     void chooseWebBrowser();
+
+protected:
+    virtual void contextMenuEvent(QContextMenuEvent *e);
 
 protected slots:
     void ensureCursorVisible();

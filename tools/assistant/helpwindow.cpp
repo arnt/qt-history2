@@ -179,13 +179,13 @@ void HelpWindow::openLinkInNewPage(const QString &link)
     openLinkInNewPage();
 }
 
-QMenu *HelpWindow::createPopupMenu(const QPoint& pos)
+void HelpWindow::contextMenuEvent(QContextMenuEvent *e)
 {
+    const QPoint pos = e->pos();
     QMenu *m = new QMenu(0);
-    QPoint p = pos + QPoint(horizontalScrollBar()->value(), verticalScrollBar()->value());
-    lastAnchor = document()->documentLayout()->anchorAt(p);
-    lastAnchor = source().resolved(lastAnchor);
+    lastAnchor = anchorAt(pos);
     if (!lastAnchor.isEmpty()) {
+        lastAnchor = source().resolved(lastAnchor);
         if (lastAnchor.at(0) == QLatin1Char('#')) {
             QString src = source().toString();
             int hsh = src.indexOf(QLatin1Char('#'));
@@ -197,7 +197,8 @@ QMenu *HelpWindow::createPopupMenu(const QPoint& pos)
                        this, SLOT(openLinkInNewPage()));
     }
     mw->setupPopupMenu(m);
-    return m;
+    m->exec(e->globalPos());
+    delete m;
 }
 
 void HelpWindow::blockScrolling(bool b)
