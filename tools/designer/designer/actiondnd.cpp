@@ -411,7 +411,8 @@ void QDesignerMenuBar::mouseReleaseEvent( QMouseEvent *e )
 
 void QDesignerMenuBar::dragEnterEvent( QDragEnterEvent *e )
 {
-    if ( e->provides( "application/x-designer-actions" ) )
+    if ( e->provides( "application/x-designer-actions" ) ||
+	 e->provides( "application/x-designer-actiongroup" ) )
 	e->accept();
     if ( e->provides( "application/x-designer-menuitem" ) )
 	e->accept();
@@ -422,11 +423,13 @@ void QDesignerMenuBar::dragEnterEvent( QDragEnterEvent *e )
 void QDesignerMenuBar::dragMoveEvent( QDragMoveEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-menuitem" ) )
+	 e->provides( "application/x-designer-menuitem" ) ||
+	 e->provides( "application/x-designer-actiongroup" ) )
 	e->accept();
     else
 	return;
-    if ( e->provides( "application/x-designer-actions" ) ) {
+    if ( e->provides( "application/x-designer-actions" ) ||
+	 e->provides( "application/x-designer-actiongroup" ) ) {
 	int item = itemAtPos( e->pos() );
 	activateItemAt( item );
 	if ( item == -1 )
@@ -590,14 +593,16 @@ void QDesignerPopupMenu::dragEnterEvent( QDragEnterEvent *e )
 {
     mousePressed = FALSE;
     lastIndicatorPos = QPoint( -1, -1 );
-    if ( e->provides( "application/x-designer-actions" ) )
+    if ( e->provides( "application/x-designer-actions" ) ||
+	 e->provides( "application/x-designer-actiongroup" ) )
 	e->accept();
 }
 
 void QDesignerPopupMenu::dragMoveEvent( QDragMoveEvent *e )
 {
     mousePressed = FALSE;
-    if ( e->provides( "application/x-designer-actions" ) )
+    if ( e->provides( "application/x-designer-actions" ) ||
+	 e->provides( "application/x-designer-actiongroup" ) )
 	e->accept();
     else
 	return;
@@ -615,19 +620,44 @@ void QDesignerPopupMenu::dragLeaveEvent( QDragLeaveEvent * )
 void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 {
     mousePressed = FALSE;
-    if ( e->provides( "application/x-designer-actions" ) )
+    if ( e->provides( "application/x-designer-actions" ) ||
+	 e->provides( "application/x-designer-actiongroup" ) )
 	e->accept();
     else
 	return;
-    QString s( e->encodedData( "application/x-designer-actions" ) );
-    // #####
-    QDesignerAction *a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
-    a->addTo( this );
-    actionList.insert( insertAt, a );
-    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
-    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
-    reInsert();
-    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
+    if ( e->provides( "application/x-designer-actiongroup" ) ) {
+	QString s( e->encodedData( "application/x-designer-actiongroup" ) );
+	QDesignerActionGroup *a = (QDesignerActionGroup*)s.toLong(); // #### huha, that is evil
+	if ( a->usesDropDown() ) {
+	    a->addTo( this );
+	    actionList.insert( insertAt, a );
+	} else {
+	    a->addTo( this );
+	    QObjectListIt it( *a->children() );
+	    int i = 0;
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		QDesignerAction *ac = (QDesignerAction*)o;
+		actionList.insert( insertAt + (i++), ac );
+	    }
+	}
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	reInsert();
+	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
+    } else {
+	QString s( e->encodedData( "application/x-designer-actions" ) );
+	QDesignerAction *a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
+	a->addTo( this );
+	actionList.insert( insertAt, a );
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	reInsert();
+	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
+    }
 }
 
 #endif
