@@ -409,7 +409,11 @@ bool QThread::wait(unsigned long time)
     if (d->finished || !d->running)
         return true;
 
-    return d->thread_done.wait(locker.mutex(), time);
+    while (d->running) {
+        if (!d->thread_done.wait(locker.mutex(), time))
+            return false;
+    }
+    return true;
 }
 
 /*!
