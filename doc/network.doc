@@ -247,39 +247,42 @@ the operation or and error occurred) the \c finished() signal with
 the network operation as argument. The whole network architecture
 relies on correctly emitted \c finished() signals! So be careful with that!
 Then there are some more special signals which are specific to operations:
-<ul>
-  <li>Emit in \c operationListChildren:
-  <ul>
-    <li>\c start() just before starting listing the children
-    <li>\c newChildren() when new children are read
-  </ul>
-  <li>Emit in \c operationMkDir:
-  <ul>
-    <li>\c createdDirectory() after the directory has been created
-    <li>\c newChild() (or newChildren()) after the directory has been created (as a new directory is a new child)
-  </ul>
-  <li>Emit in \c operationRemove:
-  <ul>
-    <li>\c removed() after the child has been removed
-  </ul>
-  <li>Emit in \c operationRename:
-  <ul>
-    <li>\c itemChanged() after the child has been renamed
-  </ul>
-  <li>Emit in \c operationGet:
-  <ul>
-    <li>\c data() each time new data has been read
-    <li>\c dataTransferProgress() each time new data has been read to indicate how much of the
-	data has been read now.
-  </ul>
-  <li>Emit in \c operationPut:
-  <ul>
-    <li>\c dataTransferProgress() each time data has been written to indicate how much of the data
-	has been written. Although you know the whole data when this operation is called, it's
-	suggested not to write the whole data at once, but to do it step by step to avoid
-	blocking the GUI and also this way the progress can be made visible to the user.
-  </ul>
-</ul>
+\list
+    \i Emit in \c operationListChildren:
+    \list
+	\i  \c start() just before starting listing the children
+	\i  \c newChildren() when new children are read
+    \endlist
+    \i Emit in \c operationMkDir:
+    \list
+	\i  \c createdDirectory() after the directory has been created
+	\i  \c newChild() (or newChildren()) after the directory has been
+	    created (as a new directory is a new child)
+    \endlist
+    \i Emit in \c operationRemove:
+    \list
+	\i  \c removed() after the child has been removed
+    \endlist
+    \i Emit in \c operationRename:
+    \list
+	\i  \c itemChanged() after the child has been renamed
+    \endlist
+    \i Emit in \c operationGet:
+    \list
+	\i  \c data() each time new data has been read
+	\i  \c dataTransferProgress() each time new data has been read to
+	    indicate how much of the data has been read now.
+    \endlist
+    \i Emit in \c operationPut:
+    \list
+	\i  \c dataTransferProgress() each time data has been written to
+	    indicate how much of the data has been written. Although you
+	    know the whole data when this operation is called, it's
+	    suggested not to write the whole data at once, but to do it
+	    step by step to avoid blocking the GUI and also this way the
+	    progress can be made visible to the user.
+    \endlist
+\endlist
 
 And remember, always emit the \c finished() signal at the end!
 
@@ -294,36 +297,42 @@ you can get and which you have to set in which method:
 which returns the pointer to the URL operator. Using that you can get the path, host,
 name filter and everything else of the URL)
 
-<ul>
-  <li>In \c operationListChildren:
-  <ul>
-   <li>Nothing.
-  </ul>
-  <li>In \c operationMkDir:
-  <ul>
-    <li>\c QNetworkOperation::arg( 0 ) contains the name of the directory which should be created
-  </ul>
-  <li>In \c operationRemove:
-  <ul>
-    <li>\c QNetworkOperation::arg( 0 ) contains the name of the file which should be removed. Normally this
-	is a relative name. But it may be absolute too, so use QUrl( op->arg( 0 ) ).fileName() to get
-	the filename.
-  </ul>
-  <li>In \c operationRename:
-  <ul>
-    <li>\c QNetworkOperation::arg( 0 ) contains the name of the file which should be renamed
-    <li>\c QNetworkOperation::arg( 1 ) contains the name to which it should be renamed.
-  </ul>
-  <li>In \c operationGet:
-  <ul>
-    <li>\c QNetworkOperation::arg( 0 ) contains the full URL of the file which should be retrieved.
-  </ul>
-  <li>In \c operationPut:
-  <ul>
-    <li>\c QNetworkOperation::arg( 0 ) contains the full URL of the file in which the data should be stored.
-    <li>\c QNetworkOperation::rawArg( 1 ) contains the data which should be stored in \c QNetworkOperation::arg( 0 )
-  </ul>
-</ul>
+\list
+    \i In \c operationListChildren:
+    \list
+       \i   Nothing.
+    \endlist
+    \i In \c operationMkDir:
+    \list
+	\i  \c QNetworkOperation::arg( 0 ) contains the name of the directory which should be created
+    \endlist
+    \i In \c operationRemove:
+    \list
+	\i  \c QNetworkOperation::arg( 0 ) contains the name of the file
+	    which should be removed. Normally this is a relative name. But
+	    it may be absolute too, so use QUrl( op->arg( 0 ) ).fileName()
+	    to get the filename.
+    \endlist
+    \i In \c operationRename:
+    \list
+	\i  \c QNetworkOperation::arg( 0 ) contains the name of the file
+	    which should be renamed
+	\i  \c QNetworkOperation::arg( 1 ) contains the name to which it
+	    should be renamed.
+    \endlist
+    \i In \c operationGet:
+    \list
+	\i  \c QNetworkOperation::arg( 0 ) contains the full URL of the
+	    file which should be retrieved.
+    \endlist
+    \i In \c operationPut:
+    \list
+	\i  \c QNetworkOperation::arg( 0 ) contains the full URL of the
+	    file in which the data should be stored.
+	\i  \c QNetworkOperation::rawArg( 1 ) contains the data which
+	    should be stored in \c QNetworkOperation::arg( 0 )
+    \endlist
+\endlist
 
 So, to sum it up: If you reimplement such an operation method, you
 have to emit some special signals and \e always at the end a
@@ -416,23 +425,23 @@ as argument the pointer to the processed \c QNetworkOperation. If the state of t
 is \c QNetworkProtocol::StFailed, the operation contains some more information about this
 error. Following error codes are defined in \c QNetworkProtocol:
 
-<ul>
-  <li>\c QNetworkProtocol::NoError - No error occurred
-  <li>\c QNetworkProtocol::ErrValid - The URL you are operating on is not valid
-  <li>\c QNetworkProtocol::ErrUnknownProtocol - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
-  <li>\c QNetworkProtocol::ErrUnsupported - The operation is not supported by the protocol
-  <li>\c QNetworkProtocol::ErrParse - Parse error of the URL
-  <li>\c QNetworkProtocol::ErrLoginIncorrect - You needed to login but the username and or password are wrong
-  <li>\c QNetworkProtocol::ErrHostNotFound - The specified host (in the URL) couldn´t be found
-  <li>\c QNetworkProtocol::ErrListChildren - An error occurred while listing the children
-  <li>\c QNetworkProtocol::ErrMkDir - An error occurred when creating a directory
-  <li>\c QNetworkProtocol::ErrRemove -An error occurred while removing a child
-  <li>\c QNetworkProtocol::ErrRename - An error occurred while renaming a child
-  <li>\c QNetworkProtocol::ErrGet - An error occurred while getting (retrieving) data
-  <li>\c QNetworkProtocol::ErrPut - An error occurred while putting (uploading) data
-  <li>\c QNetworkProtocol::ErrFileNotExisting - A file which is needed by the operation doesn't exist
-  <li>\c QNetworkProtocol::ErrPermissionDenied - The permission for doing the operation has been denied
-</ul>
+\list
+  \i \c QNetworkProtocol::NoError - No error occurred
+  \i \c QNetworkProtocol::ErrValid - The URL you are operating on is not valid
+  \i \c QNetworkProtocol::ErrUnknownProtocol - There is no protocol implementation available for the protocol of the URL you are operating on (e.g. if the protocol is http and no http implementation has been registered)
+  \i \c QNetworkProtocol::ErrUnsupported - The operation is not supported by the protocol
+  \i \c QNetworkProtocol::ErrParse - Parse error of the URL
+  \i \c QNetworkProtocol::ErrLoginIncorrect - You needed to login but the username and or password are wrong
+  \i \c QNetworkProtocol::ErrHostNotFound - The specified host (in the URL) couldn´t be found
+  \i \c QNetworkProtocol::ErrListChildren - An error occurred while listing the children
+  \i \c QNetworkProtocol::ErrMkDir - An error occurred when creating a directory
+  \i \c QNetworkProtocol::ErrRemove -An error occurred while removing a child
+  \i \c QNetworkProtocol::ErrRename - An error occurred while renaming a child
+  \i \c QNetworkProtocol::ErrGet - An error occurred while getting (retrieving) data
+  \i \c QNetworkProtocol::ErrPut - An error occurred while putting (uploading) data
+  \i \c QNetworkProtocol::ErrFileNotExisting - A file which is needed by the operation doesn't exist
+  \i \c QNetworkProtocol::ErrPermissionDenied - The permission for doing the operation has been denied
+\endlist
 
 \c QNetworkOperation::errorCode() returns then one of these codes or maybe a different one
 if you use an own network protocol implementation which defines additional error codes.
