@@ -22,7 +22,7 @@ class MenuExample : public QWidget
 {
     Q_OBJECT
 public:
-    MenuExample( QWidget *parent=0, const char *name=0 );
+    MenuExample( QWidget *parent=0 );
 
 public slots:
     void open();
@@ -55,7 +55,7 @@ private:
     QLabel   *label;
     bool isBold;
     bool isUnderline;
-    int boldID, underlineID;
+    QAction *boldAct, *underlineAct;
 };
 
 
