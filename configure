@@ -334,7 +334,10 @@ CFG_SQL_AVAILABLE=`find $relpath/src/plugins/sqldrivers/* -prune -type d -exec b
 CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`               # normalize whitespace
 CFG_STYLE_AVAILABLE=`find $relpath/src/plugins/styles/* -prune -type d -exec basename {} \;`
 CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`           # normalize whitespace
-CFG_DECORATION_AVAILABLE=`find $relpath/src/plugins/decorations/* -prune -type d -exec basename {} \;`
+CFG_DECORATION_AVAILABLE=""
+if [ -d "$relpath/src/plugins/decorations" ]; then
+    CFG_DECORATION_AVAILABLE=`find $relpath/src/plugins/decorations/* -prune -type d -exec basename {} \;`
+fi
 CFG_DECORATION_AVAILABLE=`echo $CFG_DECORATION_AVAILABLE` # normalize whitespace
 CFG_DECORATION_ON=`echo $CFG_DECORATION_AVAILABLE`        # All on by default
 
