@@ -1631,6 +1631,16 @@ void QWorkspace::cascade()
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
 
+    if ( d->vbar ) {
+	d->vbar->blockSignals( TRUE );
+	d->vbar->setValue( 0 );
+	d->vbar->blockSignals( FALSE );
+	d->hbar->blockSignals( TRUE );
+	d->hbar->setValue( 0 );
+	d->hbar->blockSignals( FALSE );
+	scrollBarChanged();
+    }   
+
     const int xoffset = 13;
     const int yoffset = 20;
 
@@ -1693,6 +1703,16 @@ void QWorkspace::tile()
 {
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
+
+    if ( d->vbar ) {
+	d->vbar->blockSignals( TRUE );
+	d->vbar->setValue( 0 );
+	d->vbar->blockSignals( FALSE );
+	d->hbar->blockSignals( TRUE );
+	d->hbar->setValue( 0 );
+	d->hbar->blockSignals( FALSE );
+	scrollBarChanged();
+    }   
 
     int rows = 1;
     int cols = 1;
@@ -1987,9 +2007,11 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	e->type() == QEvent::FocusIn ) ) {
 	if ( iconw ) {
 	    ((QWorkspace*)parentWidget())->normalizeWindow( windowWidget() );
-	    ((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
-	    delete iconw->parentWidget();
-	    iconw = 0;
+	    if ( iconw ) {
+		((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
+		delete iconw->parentWidget();
+		iconw = 0;
+	    }
 	}
 	activate();
     }
