@@ -229,10 +229,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 #ifndef QT_NO_SQL
 	QMap<QWidget*, SqlWidgetConnection>::Iterator cit = widgetFactory->sqlWidgetConnections.begin();
 	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
-	    if ( cit.key()->inherits( "QDesignerSqlWidget" ) )
-		( (QDesignerSqlWidget*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
-	    else if ( cit.key()->inherits( "QDesignerSqlDialog" ) )
-		( (QDesignerSqlDialog*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    if ( cit.key()->inherits( "QDesignerSqlDataForm" ) )
+		( (QDesignerSqlDataForm*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    // ### some init needed here????
+// 	    else if ( cit.key()->inherits( "QDesignerSqlDataView" ) )
+// 		( (QDesignerSqlDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
 	}
 	
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
@@ -496,10 +497,10 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	return new QTimeEdit( parent, name );
     } else if ( className == "QDateTimeEdit" ) {
 	return new QDateTimeEdit( parent, name );
-    } else if ( className == "QSqlWidget" ) {
-	return new QDesignerSqlWidget( parent, name );
-    } else if ( className == "QSqlDialog" ) {
-	return new QDesignerSqlDialog( parent, name );
+    } else if ( className == "QSqlDataForm" ) {
+	return new QDesignerSqlDataForm( parent, name );
+    } else if ( className == "QSqlDataView" ) {
+	return new QDesignerSqlDataView( parent, name );
     }
 #endif
 
@@ -777,7 +778,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		if ( !v.toString().isEmpty() )
 		    QWhatsThis::add( (QWidget*)obj, v.toString() );
 	    }
-	    if ( prop == "database" && !obj->inherits( "QSqlWidget" ) && !obj->inherits( "QSqlDialog" ) ) {
+	    if ( prop == "database" && !obj->inherits( "QSqlDataView" ) && !obj->inherits( "QSqlDataForm" ) ) {
 		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
 		if ( lst.count() > 2 ) {
 		    if ( dbControls )

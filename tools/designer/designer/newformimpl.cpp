@@ -59,16 +59,6 @@ NewForm::NewForm( QWidget *parent, const QString &tPath )
     i->setText( tr( "Mainwindow" ) );
     i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     i->setDragEnabled( FALSE );
-#ifndef QT_NO_SQL
-    i = new QIconViewItem( templateView );
-    i->setText( tr( "SQL Widget" ) );
-    i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-    i->setDragEnabled( FALSE );
-    i = new QIconViewItem( templateView );
-    i->setText( tr( "SQL Dialog" ) );
-    i->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-    i->setDragEnabled( FALSE );
-#endif
 
     QString templateDir = templatePath( templPath );
     QDir dir( templateDir );
@@ -103,10 +93,6 @@ NewForm::Form NewForm::formType() const
 	return Widget;
     if ( templateView->currentItem()->text() == tr( "Mainwindow" ) )
 	return Mainwindow;
-    if ( templateView->currentItem()->text() == tr( "SQL Widget" ) )
-	return SqlWidget;
-    if ( templateView->currentItem()->text() == tr( "SQL Dialog" ) )
-	return SqlDialog;
     return Custom;
 }
 

@@ -24,8 +24,8 @@
 #include "qfeatures.h"
 
 #ifndef QT_NO_SQL
-#include <qsqlwidget.h>
-#include <qsqldialog.h>
+#include <qsqldataview.h>
+#include <qsqldataform.h>
 #include <qsqlcursor.h>
 #include <qvector.h>
 #include <qstring.h>
@@ -55,35 +55,30 @@ protected:
 
 };
 
-class QDesignerSqlWidget : public QSqlWidget, public DatabaseSupport
+class QDesignerSqlDataForm : public QSqlDataForm, public DatabaseSupport
 {
     Q_OBJECT
 
 public:
-    QDesignerSqlWidget( QWidget *parent, const char *name );
+    QDesignerSqlDataForm( QWidget *parent, const char *name );
 
     QSqlCursor* defaultCursor() { return DatabaseSupport::defCursor(); }
     QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
 
 protected:
     bool event( QEvent* e );
-    void paintEvent( QPaintEvent *e );
 
 };
 
-class QDesignerSqlDialog : public QSqlDialog, public DatabaseSupport
+class QDesignerSqlDataView : public QSqlDataView, public DatabaseSupport
 {
     Q_OBJECT
 
 public:
-    QDesignerSqlDialog( QWidget *parent, const char *name );
-
-    QSqlCursor* defaultCursor() { return DatabaseSupport::defCursor(); }
-    QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
+    QDesignerSqlDataView( QWidget *parent, const char *name );
 
 protected:
     bool event( QEvent* e );
-    void paintEvent( QPaintEvent *e );
 
 };
 #endif

@@ -53,7 +53,7 @@ QStringList StandardTemplateWizardInterface::featureList() const
 {
     QStringList list;
 
-    list << "QSqlDialog" << "QDesignerSqlDialog" << "QSqlWidget" << "QDesignerSqlWidget" << "QMainWindow" << "QSqlTable";
+    list << "QSqlDataForm" << "QDesignerSqlDataForm" << "QSqlDataView" << "QDesignerSqlDataView" << "QMainWindow" << "QSqlTable";
 
     return list;
 }
@@ -62,10 +62,10 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 {
 #ifndef QT_NO_SQL
     appIface = aIface;
-    if ( templ == "QDesignerSqlWidget" ||
-	 templ == "QDesignerSqlDialog" ||
-	 templ == "QSqlWidget" ||
-	 templ == "QSqlDialog" ||
+    if ( templ == "QDesignerSqlDataView" ||
+	 templ == "QDesignerSqlDataForm" ||
+	 templ == "QSqlDataView" ||
+	 templ == "QSqlDataForm" ||
 	 templ == "QSqlTable" ) {
 	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, 0, fw, 0, TRUE );
 	wizard->exec();

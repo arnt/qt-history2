@@ -33,8 +33,6 @@ public:
 	Dialog,
 	Wizard,
 	Mainwindow,
-	SqlWidget,
-	SqlDialog,
 	Custom
     };
 

@@ -472,20 +472,22 @@ void WidgetDatabase::setupDataBase()
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
-    r->name = "QSqlWidget";
-    r->includeFile = "qsqlwidget.h";
+    r->name = "QSqlDataForm";
+    r->includeFile = "qsqldataform.h";
     r->group = widgetGroup( "Database" );
-    r->toolTip = "SQL Widget";
-    r->iconSet = "sqlwidget.h";
+    r->toolTip = "SQL Dataform";
+    r->iconSet = "sqldataform.xpm";
     r->isContainer = TRUE;
 
     append( r );
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
-    r->name = "QSqlDialog";
-    r->includeFile = "qsqldialog.h";
-    r->group = widgetGroup( "Temp" );
+    r->name = "QSqlDataView";
+    r->includeFile = "qsqldataview.h";
+    r->group = widgetGroup( "Database" );
+    r->toolTip = "SQL Dataview";
+    r->iconSet = "sqldataview.xpm";
     r->isContainer = TRUE;
 
     append( r );

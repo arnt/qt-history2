@@ -29,14 +29,14 @@
 #include <qsqlcursor.h>
 #include <qsqlrecord.h>
 
-QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
-    : QSqlWidget( parent, name )
+QDesignerSqlDataForm::QDesignerSqlDataForm( QWidget *parent, const char *name )
+    : QSqlDataForm( parent, name )
 {
 }
 
-bool QDesignerSqlWidget::event( QEvent* e )
+bool QDesignerSqlDataForm::event( QEvent* e )
 {
-    bool b = QSqlWidget::event( e );
+    bool b = QSqlDataForm::event( e );
     if (
 #if defined(DESIGNER)
 	MainWindow::self->isPreviewing()
@@ -55,52 +55,15 @@ bool QDesignerSqlWidget::event( QEvent* e )
     return b;
 }
 
-void QDesignerSqlWidget::paintEvent( QPaintEvent *e )
-{
-#if defined(DESIGNER)
-    if ( parentWidget() && parentWidget()->inherits( "FormWindow" ) )
-	( (FormWindow*)parentWidget() )->paintGrid( this, e );
-#else
-    Q_UNUSED( e );
-#endif
-}
-
-QDesignerSqlDialog::QDesignerSqlDialog( QWidget *parent, const char *name )
-    : QSqlDialog( parent, name )
+QDesignerSqlDataView::QDesignerSqlDataView( QWidget *parent, const char *name )
+    : QSqlDataView( parent, name )
 {
 }
 
-bool QDesignerSqlDialog::event( QEvent* e )
+bool QDesignerSqlDataView::event( QEvent* e )
 {
-    bool b = QSqlDialog::event( e );
-    if (
-#if defined(DESIGNER)
-	MainWindow::self->isPreviewing()
-#else
-	TRUE
-#endif
-	) {
-	if ( e->type() == QEvent::Show ) {
-	    setSqlCursor( defCursor() );
-	    setForm( defForm() );
-	    refresh();
-	    firstRecord();
-	    return TRUE;
-	}
-    }
-    return b;
+    return QSqlDataView::event( e );
 }
-
-void QDesignerSqlDialog::paintEvent( QPaintEvent *e )
-{
-#if defined(DESIGNER)
-    if ( parentWidget() && parentWidget()->inherits( "FormWindow" ) )
-	( (FormWindow*)parentWidget() )->paintGrid( this, e );
-#else
-    Q_UNUSED( e );
-#endif
-}
-
 
 DatabaseSupport::DatabaseSupport()
 {

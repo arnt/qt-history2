@@ -694,13 +694,13 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return mw;
     }
 #ifndef QT_NO_SQL
-    else if ( className == "QSqlWidget" ) {
-	QWidget *w = new QDesignerSqlWidget( parent, name );
+    else if ( className == "QSqlDataForm" ) {
+	QWidget *w = new QDesignerSqlDataForm( parent, name );
 	if ( parent )
 	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return w;
-    } else if ( className == "QSqlDialog" ) {
-	QWidget *w = new QDesignerSqlDialog( parent, name );
+    } else if ( className == "QSqlDataView" ) {
+	QWidget *w = new QDesignerSqlDataView( parent, name );
 	if ( parent )
 	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return w;
@@ -896,10 +896,10 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QRadioButton";
     else if ( o->inherits( "QDesignerCheckBox" ) )
 	return "QCheckBox";
-    else if ( o->inherits( "QDesignerSqlWidget" ) )
-	return "QSqlWidget";
-    else if ( o->inherits( "QDesignerSqlDialog" ) )
-	return "QSqlDialog";
+    else if ( o->inherits( "QDesignerSqlDataForm" ) )
+	return "QSqlDataForm";
+    else if ( o->inherits( "QDesignerSqlDataView" ) )
+	return "QSqlDataView";
     return o->className();
 }
 

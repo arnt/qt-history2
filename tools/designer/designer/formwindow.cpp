@@ -2188,7 +2188,7 @@ bool FormWindow::isDatabaseWidgetUsed() const
 bool FormWindow::isDatabaseAware() const
 {
 #ifndef QT_NO_SQL
-    if ( QString(mContainer->className()) == "QDesignerSqlWidget" || QString(mContainer->className()) == "QDesignerSqlDialog" )
+    if ( QString(mContainer->className()) == "QDesignerSqlDataForm" || QString(mContainer->className()) == "QDesignerSqlDataView" )
 	return TRUE;
     return isDatabaseWidgetUsed();
 #endif
