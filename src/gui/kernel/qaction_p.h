@@ -49,6 +49,9 @@ public:
     QList<QWidget *> widgets;
 
     void redoGrab(QShortcutMap &map);
+    void setShortcutEnabled(bool enable, QShortcutMap &map);
+
+    static QShortcutMap *globalMap;
 
 #ifdef QT_COMPAT //for menubar/menu compat
     QMenuItemEmitter *act_signal;

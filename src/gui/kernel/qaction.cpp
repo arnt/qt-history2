@@ -81,6 +81,12 @@ void QActionPrivate::redoGrab(QShortcutMap &map)
         map.setShortcutEnabled(false, shortcutId, q);
 }
 
+void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
+{
+    if (shortcutId)
+        map.setShortcutEnabled(enable, shortcutId, q);
+}
+
 
 /*!
     \class QAction qaction.h
@@ -654,7 +660,9 @@ void QAction::setEnabled(bool b)
 
     d->enabled = b;
     d->forceDisabled = !b;
-    d->redoGrab(qApp->d->shortcutMap);
+    if (d->shortcutId) 
+        d->setShortcutEnabled(b, qApp->d->shortcutMap);
+
     d->sendDataChanged();
 }
 
