@@ -100,7 +100,10 @@ public:
                    QList<QByteArray> &tmpStorage);
     void outValues(QVector<QVariant> &values, IndicatorArray &indicators,
                    QList<QByteArray> &tmpStorage);
-    bool isOutValue(int i) const;
+    inline bool isOutValue(int i) const
+    { return q->bindValueType(i) & QSql::Out; }
+    inline bool isBinaryValue(int i) const
+    { return q->bindValueType(i) & QSql::Binary; }
 };
 
 QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0),
@@ -148,7 +151,7 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
     int r = 0;
 
     Q_ASSERT(hbnd);
-#ifdef QOCI_USES_VERSION_9
+#if 0
     if (serverVersion > 8) {
 
         r = OCIAttrSet((void*)hbnd,
@@ -171,11 +174,6 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
                     err);
     if (r != 0)
         qOraWarning("QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", this);
-}
-
-bool QOCIPrivate::isOutValue(int i) const
-{
-    return q->bindValueType(i) & QSql::Out;
 }
 
 int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicators,
@@ -235,7 +233,14 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
             case QVariant::String:
             default: {
                 QString s = values.at(i).toString();
-                if (isOutValue(i)) {
+                if (isBinaryValue(i)) {
+                    r = OCIBindByPos(sql, &hbnd, err,
+                                     i + 1,
+                                     (dvoid *) s.utf16(),
+                                     s.length() * sizeof(QChar),
+                                     SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                     (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
+                } else if (isOutValue(i)) {
                     QByteArray ba((char*)s.utf16(), s.capacity() * sizeof(QChar));
                     r = OCIBindByPos(sql, &hbnd, err,
                                      i + 1,
