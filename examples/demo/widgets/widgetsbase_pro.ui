@@ -1132,7 +1132,7 @@
     </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in implementation">widgetsbase_pro.ui.h</include>
+    <include location="local" impldecl="in implementation">widgetsbase.ui.h</include>
 </includes>
 <slots>
     <slot access="protected">init()</slot>
