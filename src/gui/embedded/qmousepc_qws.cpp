@@ -100,17 +100,17 @@ public:
         int n = tryData();
 #ifdef QWS_MOUSE_DEBUG
         if (n) {
-            printf("QWSPcMouseSubHandler tryData read %d bytes:", n);
+            fprintf(stderr, "QWSPcMouseSubHandler tryData read %d bytes:", n);
             for (int i=0; i<n; ++i)
-                printf(" %02x", buffer[i]);
-            printf("\n");
+                fprintf(stderr, " %02x", buffer[i]);
+            fprintf(stderr, "\n");
         }
 #endif
         if (n > 0) {
             if (n<nbuf)
                 memmove(buffer, buffer+n, nbuf-n);
             nbuf -= n;
-            return pbstate == bstate ? Motion : Button;
+            return (wheel || pbstate != bstate) ? Button : Motion;
         }
         return Insufficient;
     }
@@ -175,12 +175,15 @@ public:
 #endif // QT_NO_QWS_TRANSFORMED
                 motion += delta;
                 int nbstate = buffer[0] & 0x7;
+#ifdef QWS_MOUSE_DEBUG
+                int debugwheel =
+#endif
                 wheel = packetsize > 3 ? (signed char)buffer[3] : 0;
                 if (wheel < -2 || wheel > 2)
                     wheel = 0;
                 wheel *= 120; // WHEEL_DELTA?
 #ifdef QWS_MOUSE_DEBUG
-                printf("Intellimouse: motion %d,%d, state %d, wheel %d\n", motion.x(), motion.y(), nbstate, wheel);
+                qDebug("Intellimouse: motion %d,%d, state %d, raw wheel %d, wheel %d", motion.x(), motion.y(), nbstate, debugwheel, wheel);
 #endif
                 if (motion.x() || motion.y() || bstate != nbstate || wheel) {
                     bstate = nbstate;
