@@ -1580,8 +1580,11 @@ void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index
 
 void QListBox::removeItem( int index )
 {
+    bool wasVisible = itemVisible( currentItem() );
     delete item( index );
     triggerUpdate( TRUE );
+    if ( wasVisible )
+	ensureCurrentVisible();
 }
 
 
@@ -3650,8 +3653,10 @@ void QListBox::refreshSlot()
     if ( d->mustPaintAll ||
 	 d->layoutDirty ) {
 	d->mustPaintAll = FALSE;
+	bool currentItemVisible = itemVisible( currentItem() );
 	doLayout();
 	if ( hasFocus() &&
+	     currentItemVisible &&
 	     d->currentColumn >= 0 &&
 	     d->currentRow >= 0 &&
 	     ( d->columnPos[d->currentColumn] < contentsX() ||
