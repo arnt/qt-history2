@@ -21,7 +21,7 @@ struct QTreeViewItem
     QTreeViewItem() : open(false), total(0), level(0), height(0) {}
     QModelIndex index;
     uint open : 1;
-    uint total : 30; // total number of children visible
+    uint total : 30; // total number of children visible (+ hidden children)
     uint level : 16; // indentation
     uint height : 16; // row height
 };
@@ -33,7 +33,9 @@ public:
 
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
-          header(0), indent(20), itemHeight(-1), reopen(-1) { }
+          header(0), indent(20), itemHeight(-1),
+          sameHeightItems(false), rootDecoration(true), reopen(-1) { }
+    // FIXME: add a sameHeightItems property to make drawing of millions rows faster
 
     ~QTreeViewPrivate() {}
 
@@ -50,6 +52,7 @@ public:
         { return (++item >= viewItems.count() ? viewItems.count() - 1 : item); }
 
     inline int height(int item) const {
+        if (sameHeightItems) return itemHeight;
         if (viewItems.at(item).height == 0)
             viewItems[item].height = q_func()->rowSizeHint(viewItems.at(item).index);
         return viewItems.at(item).height;
@@ -81,6 +84,7 @@ public:
 
     mutable QVector<QTreeViewItem> viewItems;
     int itemHeight; // this is just a number; contentsHeight() / numItems
+    bool sameHeightItems; // used when all rows have the same height
     bool rootDecoration;
 
     // used for drawing

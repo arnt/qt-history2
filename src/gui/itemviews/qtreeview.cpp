@@ -97,7 +97,6 @@ QTreeView::QTreeView(QWidget *parent)
     d->header->setModel(model());
     d->header->setSelectionModel(selectionModel());
     d->header->setMovable(true);
-    d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
 }
@@ -108,7 +107,6 @@ QTreeView::QTreeView(QWidget *parent)
 QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
-    d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
 
@@ -1186,7 +1184,7 @@ void QTreeViewPrivate::layout(int i)
     int last = 0;
     for (int j = first; j < first + count; ++j) {
         current = model->index(j - first, 0, parent);
-        if (q->isRowHidden(current.row(), parent)) {
+        if (q->isRowHidden(current.row(), parent)) { // slow with lots of hidden rows
             ++hidden;
             last = j - hidden;
         } else {
