@@ -165,7 +165,7 @@ bool FileDriver::create( const qdb::List& data )
     d->file.SetVersion( 4 );   /* create dbase IV style files */
     xbShort rc = d->file.CreateDatabase( name().latin1(), xbrec.data(), XB_OVERLAY );
     if ( rc != XB_NO_ERROR ) {
-	ERROR_RETURN( xbStrError( rc ) );
+	ERROR_RETURN( "Unable to  create table '" + name() + "': " + QString( xbStrError( rc ) ) );
     }
 
     d->file.CloseDatabase();   /* Close database and associated indexes */
@@ -185,7 +185,7 @@ bool FileDriver::open()
     }
     xbShort rc = d->file.OpenDatabase( name().latin1() );
     if ( rc != XB_NO_ERROR ) {
-	ERROR_RETURN( xbStrError( rc ) );
+	ERROR_RETURN( "Unable to open table '" + name() + "': " + QString ( xbStrError( rc ) ) );
     }
 #ifdef DEBUG_XBASE
     env->output() << name().latin1() << " opened..." << flush;
@@ -202,7 +202,7 @@ bool FileDriver::open()
 	rc = idx->OpenIndex( indexList[i].latin1() );
 	if ( rc != XB_NO_ERROR ) {
 	    delete idx;
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to open index: " + QString( xbStrError( rc ) ) );
 	}
 #ifdef DEBUG_XBASE
 	env->output() << indexList[i].latin1() << " index opened..." << flush;
@@ -316,7 +316,7 @@ bool FileDriver::insert( const qdb::List& data )
 	}
 	xbShort rc = d->file.PutField( pos, val.toString().latin1() );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc ) ) );
 	}
     }
     xbShort rc = d->file.AppendRecord();
@@ -324,7 +324,7 @@ bool FileDriver::insert( const qdb::List& data )
     case XB_NO_ERROR:
 	break;
     default:
-	ERROR_RETURN( xbStrError( rc ) );
+	ERROR_RETURN( "Unable to insert record: " + QString( xbStrError( rc ) ) );
 	break;
     }
 #ifdef DEBUG_XBASE
@@ -378,11 +378,11 @@ bool FileDriver::deleteMarked()
     for ( uint i = 0; i < d->marked.count(); ++i ) {
 	xbShort rc = d->file.GetRecord( d->marked[i] );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( QString( xbStrError( rc  ) ) );
+	    ERROR_RETURN( "Unable to get record: " + QString( xbStrError( rc  ) ) );
 	}
 	rc = d->file.DeleteRecord();
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( QString( xbStrError( rc  ) ) );
+	    ERROR_RETURN( "Unable to delete record: " + QString( xbStrError( rc  ) ) );
 	}
     }
 #ifdef DEBUG_XBASE
@@ -501,7 +501,7 @@ bool FileDriver::updateMarked( const qdb::List& data )
     for ( i = 0; i < d->marked.count(); ++i ) {
 	xbShort rc = d->file.GetRecord( d->marked[i] );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to get record: " + QString( xbStrError( rc ) ) );
 	}
 	uint j = 0;
 	for ( j = 0; j < data.count(); ++j ) {
@@ -509,12 +509,12 @@ bool FileDriver::updateMarked( const qdb::List& data )
 	    xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
 	    xbShort rc = d->file.PutField( fieldnum, updateData[1].toString().latin1() );
 	    if ( rc != XB_NO_ERROR ) {
-		ERROR_RETURN( xbStrError( rc ) );
+		ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc )  ) );
 	    }
 	}
 	rc = d->file.PutRecord();
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to update record: " + QString( xbStrError( rc ) ) );
 	}
     }
 #ifdef DEBUG_XBASE
@@ -589,13 +589,13 @@ bool FileDriver::update( const qdb::List& data )
 	}
 	rc = d->file.PutField( pos, data[1].toString().latin1() );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to put field data: " + QString( xbStrError( rc ) ) );
 	}
 
     }
     rc = d->file.PutRecord();
     if ( rc != XB_NO_ERROR ) {
-	ERROR_RETURN( xbStrError( rc ) );
+	ERROR_RETURN( "Unable to update record: " + QString( xbStrError( rc ) ) );
     }
 #ifdef DEBUG_XBASE
     env->output() << "success" << endl;
@@ -804,12 +804,12 @@ bool FileDriver::createIndex( const qdb::List& data, bool unique )
 				       unique ? XB_UNIQUE : XB_NOT_UNIQUE, XB_OVERLAY );
 	if ( rc != XB_NO_ERROR ) {
 	    QFile::remove( indexName );
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to create index: " + QString( xbStrError( rc ) ) );
 	}
 	/* build index */
 	if ( ( rc = idx->ReIndex() ) != XB_NO_ERROR ) {
 	    QFile::remove( indexName );
-	    ERROR_RETURN( xbStrError( rc ) );
+	    ERROR_RETURN( "Unable to build index: " + QString( xbStrError( rc ) ) );
 	}
 
     }
