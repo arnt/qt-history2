@@ -1145,13 +1145,14 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     Display *dpy   = owner->x11Display();
 
     d->setSource( src );
+
+    Window prevOwner = XGetSelectionOwner( dpy, atom );
+    XSetSelectionOwner( dpy, atom, win, qt_x_time );
+
     if ( mode == Selection )
 	emit selectionChanged();
     else
 	emit dataChanged();
-
-    Window prevOwner = XGetSelectionOwner( dpy, atom );
-    XSetSelectionOwner( dpy, atom, win, qt_x_time );
 
     // ### perhaps this should be QT_CHECK_RANGE ?
     if ( XGetSelectionOwner(dpy, atom) != win ) {
