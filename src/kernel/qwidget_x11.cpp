@@ -1477,6 +1477,8 @@ void QWidget::hideWindow()
 	// zero the frame strut and mark it dirty
 	top->fleft = top->fright = top->ftop = top->fbottom = 0;
 	fstrut_dirty = TRUE;
+
+	XFlush( x11Display() );
     } else {
 	if ( winId() ) // in nsplugin, may be 0
 	    XUnmapWindow( x11Display(), winId() );

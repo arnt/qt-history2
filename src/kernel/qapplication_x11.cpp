@@ -4145,6 +4145,8 @@ void QApplication::openPopup( QWidget *popup )
 
 	    if ( (popupGrabOk = (r == GrabSuccess)) )
 		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
+	    else
+		XUngrabKeyboard( popup->x11Display(), CurrentTime );
 	}
     } else if ( popupGrabOk ) {
 	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
