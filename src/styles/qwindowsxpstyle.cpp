@@ -474,6 +474,9 @@ void QWindowsXPStyle::polish( QApplication *app )
 {
     QWindowsStyle::polish( app );
 
+    if (!use_xp)
+	return;
+
     // Get text color for groupbox labels
     COLORREF cref;
     XPThemeData theme( 0, 0, "BUTTON", 0, 0 );
@@ -2406,6 +2409,9 @@ QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
 				       const QSize &contentsSize,
 				       const QStyleOption& opt ) const
 {
+    if ( !use_xp )
+	return QWindowsStyle::sizeFromContents( contents, widget, contentsSize, opt );
+
     QSize sz(contentsSize);
 
     switch (contents) {
