@@ -735,7 +735,7 @@ QColor QColor::toRgb() const
             const float h = ahsv.hue / 6000.;
             const float s = ahsv.saturation / float(USHRT_MAX);
             const float v = ahsv.value / float(USHRT_MAX);
-            const int i = floor(h);
+            const int i = int(h);
             const float f = h - i;
             const float p = v * (1.0f - s);
 
@@ -744,19 +744,19 @@ QColor QColor::toRgb() const
 
                 switch (i) {
                 case 1:
-                    color.argb.red   = q * USHRT_MAX;
-                    color.argb.green = v * USHRT_MAX;
-                    color.argb.blue  = p * USHRT_MAX;
+                    color.argb.red   = ushort(q * USHRT_MAX);
+                    color.argb.green = ushort(v * USHRT_MAX);
+                    color.argb.blue  = ushort(p * USHRT_MAX);
                     break;
                 case 3:
-                    color.argb.red   = p * USHRT_MAX;
-                    color.argb.green = q * USHRT_MAX;
-                    color.argb.blue  = v * USHRT_MAX;
+                    color.argb.red   = ushort(p * USHRT_MAX);
+                    color.argb.green = ushort(q * USHRT_MAX);
+                    color.argb.blue  = ushort(v * USHRT_MAX);
                     break;
                 case 5:
-                    color.argb.red   = v * USHRT_MAX;
-                    color.argb.green = p * USHRT_MAX;
-                    color.argb.blue  = q * USHRT_MAX;
+                    color.argb.red   = ushort(v * USHRT_MAX);
+                    color.argb.green = ushort(p * USHRT_MAX);
+                    color.argb.blue  = ushort(q * USHRT_MAX);
                     break;
                 }
             } else {
@@ -764,19 +764,19 @@ QColor QColor::toRgb() const
 
                 switch (i) {
                 case 0:
-                    color.argb.red   = v * USHRT_MAX;
-                    color.argb.green = t * USHRT_MAX;
-                    color.argb.blue  = p * USHRT_MAX;
+                    color.argb.red   = ushort(v * USHRT_MAX);
+                    color.argb.green = ushort(t * USHRT_MAX);
+                    color.argb.blue  = ushort(p * USHRT_MAX);
                     break;
                 case 2:
-                    color.argb.red   = p * USHRT_MAX;
-                    color.argb.green = v * USHRT_MAX;
-                    color.argb.blue  = t * USHRT_MAX;
+                    color.argb.red   = ushort(p * USHRT_MAX);
+                    color.argb.green = ushort(v * USHRT_MAX);
+                    color.argb.blue  = ushort(t * USHRT_MAX);
                     break;
                 case 4:
-                    color.argb.red   = t * USHRT_MAX;
-                    color.argb.green = p * USHRT_MAX;
-                    color.argb.blue  = v * USHRT_MAX;
+                    color.argb.red   = ushort(t * USHRT_MAX);
+                    color.argb.green = ushort(p * USHRT_MAX);
+                    color.argb.blue  = ushort(v * USHRT_MAX);
                     break;
                 }
             }
@@ -789,11 +789,13 @@ QColor QColor::toRgb() const
             const double y = acmyk.yellow / float(USHRT_MAX);
             const double k = acmyk.black / float(USHRT_MAX);
 
-            color.argb.red   = (1.0f - (c * (1.0f - k) + k)) * USHRT_MAX;
-            color.argb.green = (1.0f - (m * (1.0f - k) + k)) * USHRT_MAX;
-            color.argb.blue  = (1.0f - (y * (1.0f - k) + k)) * USHRT_MAX;
+            color.argb.red   = ushort((1.0f - (c * (1.0f - k) + k)) * USHRT_MAX);
+            color.argb.green = ushort((1.0f - (m * (1.0f - k) + k)) * USHRT_MAX);
+            color.argb.blue  = ushort((1.0f - (y * (1.0f - k) + k)) * USHRT_MAX);
             break;
         }
+    default:
+        break;
     }
 
     return color;
@@ -818,20 +820,20 @@ QColor QColor::toHsv() const
     const float max = qMax(r, qMax(g, b));
     const float min = qMin(r, qMin(g, b));
     const float delta = max - min;
-    color.ahsv.value = max * USHRT_MAX;
+    color.ahsv.value = ushort(max * USHRT_MAX);
     if (max == 0.0f) {
         // achromatic case, hue is undefined
         color.ahsv.hue = USHRT_MAX;
         color.ahsv.saturation = 0;
     } else {
         // chromatic case
-        color.ahsv.saturation = (delta / max) * USHRT_MAX;
+        color.ahsv.saturation = ushort((delta / max) * USHRT_MAX);
         if (r == max) {
-            color.ahsv.hue = ((g - b) /delta) * 6000;
+            color.ahsv.hue = ushort(((g - b) /delta) * 6000);
         } else if (g == max) {
-            color.ahsv.hue = (2.0f + (b - r) / delta) * 6000;
+            color.ahsv.hue = ushort((2.0f + (b - r) / delta) * 6000);
         } else if (b == max) {
-            color.ahsv.hue = (4.0f + (r - g) / delta) * 6000;
+            color.ahsv.hue = ushort((4.0f + (r - g) / delta) * 6000);
         } else {
             Q_ASSERT_X(false, "QColor::toHsv", "internal error");
         }
@@ -864,10 +866,10 @@ QColor QColor::toCmyk() const
     m = (m - k) / (1.0f - k);
     y = (y - k) / (1.0f - k);
 
-    color.acmyk.cyan    = c * USHRT_MAX;
-    color.acmyk.magenta = m * USHRT_MAX;
-    color.acmyk.yellow  = y * USHRT_MAX;
-    color.acmyk.black   = k * USHRT_MAX;
+    color.acmyk.cyan    = ushort(c * USHRT_MAX);
+    color.acmyk.magenta = ushort(m * USHRT_MAX);
+    color.acmyk.yellow  = ushort(y * USHRT_MAX);
+    color.acmyk.black   = ushort(k * USHRT_MAX);
 
     return color;
 }
@@ -883,6 +885,8 @@ QColor QColor::convertTo(QColor::Spec colorSpec) const
         return toHsv();
     case Cmyk:
         return toCmyk();
+    case Invalid:
+        break;
     }
     return *this; // must be invalid
 }
@@ -899,10 +903,10 @@ QColor QColor::fromRgb(float r, float g, float b, float a)
 
     QColor color;
     color.cspec = Rgb;
-    color.argb.alpha = a * USHRT_MAX;
-    color.argb.red   = r * USHRT_MAX;
-    color.argb.green = g * USHRT_MAX;
-    color.argb.blue  = b * USHRT_MAX;
+    color.argb.alpha = ushort(a * USHRT_MAX);
+    color.argb.red   = ushort(r * USHRT_MAX);
+    color.argb.green = ushort(g * USHRT_MAX);
+    color.argb.blue  = ushort(b * USHRT_MAX);
     color.argb.pad   = 0;
     return color;
 }
@@ -919,10 +923,10 @@ QColor QColor::fromHsv(float h, float s, float v, float a)
 
     QColor color;
     color.cspec = Hsv;
-    color.ahsv.alpha      = a * USHRT_MAX;
-    color.ahsv.hue        = h == -1.0f ? USHRT_MAX : h * 100;
-    color.ahsv.saturation = s * USHRT_MAX;
-    color.ahsv.value      = v * USHRT_MAX;
+    color.ahsv.alpha      = ushort(a * USHRT_MAX);
+    color.ahsv.hue        = h == -1.0f ? USHRT_MAX : ushort(h * 100);
+    color.ahsv.saturation = ushort(s * USHRT_MAX);
+    color.ahsv.value      = ushort(v * USHRT_MAX);
     color.ahsv.pad        = 0;
     return color;
 }
@@ -940,11 +944,11 @@ QColor QColor::fromCmyk(float c, float m, float y, float k, float a)
 
     QColor color;
     color.cspec = Cmyk;
-    color.acmyk.alpha   = a * USHRT_MAX;
-    color.acmyk.cyan    = c * USHRT_MAX;
-    color.acmyk.magenta = m * USHRT_MAX;
-    color.acmyk.yellow  = y * USHRT_MAX;
-    color.acmyk.black   = k * USHRT_MAX;
+    color.acmyk.alpha   = ushort(a * USHRT_MAX);
+    color.acmyk.cyan    = ushort(c * USHRT_MAX);
+    color.acmyk.magenta = ushort(m * USHRT_MAX);
+    color.acmyk.yellow  = ushort(y * USHRT_MAX);
+    color.acmyk.black   = ushort(k * USHRT_MAX);
     return color;
 }
 

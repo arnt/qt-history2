@@ -41,9 +41,9 @@ public:
     Colormap colormap;
     Visual *visual;
 
-    uint r_max;
-    uint g_max;
-    uint b_max;
+    int r_max;
+    int g_max;
+    int b_max;
 
     uint r_shift;
     uint g_shift;
@@ -478,12 +478,12 @@ uint QColormap::pixel(const QColor &color) const
     return (r << d->r_shift) + (g << d->g_shift) + (b << d->b_shift);
 }
 
-QColor QColormap::colorAt(uint pixel) const
+const QColor QColormap::colorAt(uint pixel) const
 {
     QColor c;
 
     if (d->mode != Direct) {
-        if (pixel > d->cells->size())
+        if (pixel > (uint)d->cells->size())
             return c;
         c.setRgb(d->cells->at(pixel).rgb);
         return c;
@@ -494,4 +494,10 @@ QColor QColormap::colorAt(uint pixel) const
     const int b = (((pixel & d->visual->blue_mask)  >> d->b_shift) << 8) / d->b_max;
     c.setRgb(r, g, b);
     return c;
+}
+
+
+const QVector<QColor> QColormap::colormap() const
+{
+    return QVector<QColor>();
 }
