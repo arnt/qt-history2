@@ -166,7 +166,7 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     int i = str.find( sep, j );
 
     while ( i != -1 ) {
-	if ( i > j && i <= str.length() )
+	if ( i > j && i <= (int)str.length() )
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
 	    lst << QString::null;
