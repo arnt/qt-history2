@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#49 $
 **
 ** Implementation of QGArray class
 **
@@ -663,7 +663,7 @@ void QGArray::msg_index( uint index )
   Returns a new shared array block.
 */
 
-array_data * QGArray::newData()
+QGArray::array_data * QGArray::newData()
 {
     return new array_data;
 }
