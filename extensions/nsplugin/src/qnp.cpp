@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#19 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#20 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -41,11 +41,12 @@
 // Qt stuff
 #include <qapplication.h>
 #include <qwidget.h>
-#include <qobjcoll.h>
-#include <qwidcoll.h>
+#include <qobjectlist.h>
 
 #include <qprinter.h>
+#ifdef _WS_X11_
 #include <qpsprinter.h>
+#endif
 #include <qfile.h>
 #include <qpainter.h>
 #include <qpaintdevicedefs.h>
@@ -698,6 +699,7 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	    next_pi = This;
 	    /* This->widget = */ // (happens sooner - in QNPWidget constructor)
 		This->instance->newWindow();
+	    This->widget->show();
 	} else {
 	    // New window for existing widget, and all its children.
 	    This->widget->setWindow(FALSE);
@@ -709,11 +711,11 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 	if ( This->widget->width() != (int)window->width
 	  || This->widget->height() != (int)window->height )
 	{
-#ifdef _WS_WIN_
-	    This->widget->setGeometry(window->x, window->y, window->width, window->height);
-#else
+//#ifdef _WS_WIN_
+	    //This->widget->setGeometry(window->x, window->y, window->width, window->height);
+//#else
 	    This->widget->resize(window->width, window->height);
-#endif
+//#endif
 	} else {
 	    This->widget->update();
 	}
@@ -1111,9 +1113,6 @@ public:
 
         // Fill the plugin widget
         child->setGeometry( 0, 0, width(), height() );
-
-        // Show now, since the QNPWidget is already shown
-        child->show();
     }
 
     void resizeEvent(QResizeEvent*)
@@ -1233,10 +1232,12 @@ void QNPWidget::setWindow(bool delold)
 
     create((WId)pi->window, FALSE, delold);
 
-#ifdef _WS_X11_
-    // It's open.  Believe me.
-    setWFlags( WState_Visible );
+   if ( delold ) {
+      // Make sure they get a show()
+      clearWFlags( WState_Visible );
+   }
 
+#ifdef _WS_X11_
     Widget w = XtWindowToWidget (qt_xdisplay(), pi->window);
     XtAddEventHandler(w, EnterWindowMask, FALSE, enter_event_handler, pi);
     XtAddEventHandler(w, LeaveWindowMask, FALSE, leave_event_handler, pi);
@@ -1258,11 +1259,11 @@ void QNPWidget::setWindow(bool delold)
 
     createNewWindowsForAllChildren(this);
 
-#ifdef _WS_WIN_
-    setGeometry( pi->x, pi->y, pi->width, pi->height );
-#else
+//#ifdef _WS_WIN_
+    //setGeometry( pi->x, pi->y, pi->width, pi->height );
+//#else
     resize( pi->width, pi->height );
-#endif
+//#endif
 }
 
 /*!
@@ -1371,7 +1372,7 @@ QNPWidget* QNPInstance::widget()
   by the most recent call to writeReady().
 
   Note that the AsFileOnly method is not supported by Netscape 2.0
-  and MS-Explorer 3.0.
+  and MS-Explorer 3.0.  A future version of Qt will hide this problem.
 
   See also:
   <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppnewstream>
@@ -1831,8 +1832,6 @@ QNPlugin::QNPlugin()
     // Encourage linker to include stuff.
     static void* a; 
     a = (void*)NP_Initialize;
-    a = (void*)NP_GetMIMEDescription;
-    a = (void*)NP_GetValue;
     a = (void*)NP_Shutdown;
 }
 
