@@ -177,7 +177,7 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
 
 void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font, const QColor &color )
 {
-    if ( !para || len <= 0 )
+    if ( !para || count <= 0 )
 	return;
     QTextFormat *f = 0;
     f = para->document()->formatCollection()->format( font, color );
@@ -189,7 +189,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font, con
 
 void QSyntaxHighlighter::setFormat( int start, int count, const QColor &color )
 {
-    if ( !para || len <= 0 )
+    if ( !para || count <= 0 )
 	return;
     QTextFormat *f = 0;
     QFont fnt = textEdit()->QWidget::font();
@@ -202,7 +202,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QColor &color )
 
 void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
 {
-    if ( !para || len <= 0 )
+    if ( !para || count <= 0 )
 	return;
     QTextFormat *f = 0;
     QColor c = textEdit()->viewport()->paletteForegroundColor();
