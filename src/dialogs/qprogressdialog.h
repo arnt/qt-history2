@@ -16,7 +16,7 @@
 #define QPROGRESSDIALOG_H
 
 #ifndef QT_H
-#include "qsemimodal.h"
+#include "qdialog.h"
 #include "qlabel.h"       // ### remove or keep for users' convenience?
 #include "qprogressbar.h" // ### remove or keep for users' convenience?
 #endif // QT_H
