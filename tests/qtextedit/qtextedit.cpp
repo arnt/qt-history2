@@ -1424,11 +1424,13 @@ QString QTextEdit::fileName() const
 
 void QTextEdit::load( const QString &fn, bool tabify )
 {
+    resizeContents( 0, 0 );
     doc->load( fn, tabify );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
     emit textChanged();
+    doResize();
 }
 
 void QTextEdit::save( const QString &fn, bool untabify )
