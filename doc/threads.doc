@@ -289,9 +289,10 @@ events from the underlying window system.</li>
 A common question asked is if a QSocket can be used in multiple threads.  This
 is unnecessary, since all of the QNetwork classes are asynchronous.</li>
 
-<li>Never call a function that attempts to processEvents from a thread that
-is not the GUI thread.  This includes QDialog::exec(), QPopupMenu::exec(),
-QApplication::processEvents() and others.</li>
+<li>Never call a function that attempts to processEvents() from a
+thread other than the GUI thread.  This includes QDialog::exec(),
+QPopupMenu::exec(), QApplication::processEvents() and others.</li>
+
 </ul>
  
 */
