@@ -4986,7 +4986,8 @@ int QListView::itemPos( const QListViewItem * item )
 }
 
 
-/*! \property QListView::multiSelection
+/*! \obsolete
+    \property QListView::multiSelection
     \brief whether the list view is in multi-selection or extended-selection mode
 
     If you enable multi-selection, \c Multi, mode, it is possible to
@@ -5549,7 +5550,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 		    indent += treeStepSize();
 		w += indent;
 	    }
-	    if ( w > columnWidth( col ) && !d->h->isStretchEnabled() ) {
+	    if ( w > columnWidth( col ) && !d->h->isStretchEnabled() && !d->h->isStretchEnabled( col ) ) {
 		d->updateHeader = TRUE;
 		setColumnWidth( col, w );
 	    }
