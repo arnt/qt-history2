@@ -8,13 +8,15 @@
 **
 *****************************************************************************/
 
-#if defined(Q_CC_MSVC)
-#pragma warning(disable:4305) // init: truncation from const double to float
-#endif
+/****************************************************************************
+**
+** This is the info widget for unix.
+** Most of the code was borrowed from Brian Pauls glxinfo.c
+**
+****************************************************************************/
 
 #include "glinfo.h"
-
-#include "qstring.h"
+#include <qstring.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -29,28 +31,6 @@
 #define GLX_NONE_EXT  0x8000
 #endif
 
-void mesa_hack(Display *dpy, int scrnum)
-{
-    static int attribs[] = {
-        GLX_RGBA,
-	GLX_RED_SIZE, 1,
-	GLX_GREEN_SIZE, 1,
-	GLX_BLUE_SIZE, 1,
-	GLX_DEPTH_SIZE, 1,
-	GLX_STENCIL_SIZE, 1,
-	GLX_ACCUM_RED_SIZE, 1,
-	GLX_ACCUM_GREEN_SIZE, 1,
-	GLX_ACCUM_BLUE_SIZE, 1,
-	GLX_ACCUM_ALPHA_SIZE, 1,
-	GLX_DOUBLEBUFFER,
-	None
-    };
-    XVisualInfo *visinfo;
- 
-    visinfo = glXChooseVisual(dpy, scrnum, attribs);
-    if (visinfo)
-        XFree(visinfo);
-}
 
 void GLInfo::print_extension_list(const char *ext)
 {
@@ -101,96 +81,43 @@ void GLInfo::print_extension_list(const char *ext)
 
 void GLInfo::print_screen_info(Display *dpy, int scrnum)
 {
-   Window root;
-   GLXContext ctx;
-   XVisualInfo *visinfo;
-   
-   int attribSingle[] = {
-      GLX_RGBA,
-      GLX_RED_SIZE, 1,
-      GLX_GREEN_SIZE, 1,
-      GLX_BLUE_SIZE, 1,
-      None };
-   int attribDouble[] = {
-      GLX_RGBA,
-      GLX_RED_SIZE, 1,
-      GLX_GREEN_SIZE, 1,
-      GLX_BLUE_SIZE, 1,
-      GLX_DOUBLEBUFFER,
-      None };
-   
-   root = RootWindow(dpy, scrnum);
- 
-   visinfo = glXChooseVisual(dpy, scrnum, attribSingle);
-   if (!visinfo) {
-      visinfo = glXChooseVisual(dpy, scrnum, attribDouble);
-      if (!visinfo) {
-         fprintf(stderr, "Error: couldn't find RGB GLX visual\n");
-         return;
-      }
-   }
-   
-   ctx = glXCreateContext( dpy, visinfo, NULL, GL_FALSE );
-   if (!ctx) {
-      fprintf(stderr, "Error: glXCreateContext failed\n");
-      return;
-      }
-   
-   if (glXMakeCurrent(dpy, root, ctx)) {
-      const char *serverVendor = glXQueryServerString(dpy, scrnum, GLX_VENDOR);
-      const char *serverVersion = glXQueryServerString(dpy, scrnum, GLX_VERSION);
-      const char *serverExtensions = glXQueryServerString(dpy, scrnum, GLX_EXTENSIONS);
-      const char *clientVendor = glXGetClientString(dpy, GLX_VENDOR);
-      const char *clientVersion = glXGetClientString(dpy, GLX_VERSION);
-      const char *clientExtensions = glXGetClientString(dpy, GLX_EXTENSIONS);
-      const char *glxExtensions = glXQueryExtensionsString(dpy, scrnum);
-      const char *glVendor = (const char *) glGetString(GL_VENDOR);
-      const char *glRenderer = (const char *) glGetString(GL_RENDERER);
-      const char *glVersion = (const char *) glGetString(GL_VERSION);
-      const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
-      //char *displayName = NULL;
-      //char *colon = NULL, *period = NULL;
-      //const char *gluVersion = (const char *) gluGetString(GLU_VERSION);
-      //const char *gluExtensions = (const char *) gluGetString(GLU_EXTENSIONS);
-      /* Strip the screen number from the display name, if present. */ 
-      /*if (!(displayName = malloc(strlen(DisplayString(dpy)) + 1))) {
-          fprintf(stderr, "Error: malloc() failed\n");
-	  exit(1);
-      }
-      strcpy(displayName, DisplayString(dpy));
-      colon = strrchr(displayName, ':');
-      if (colon) {
-         period = strchr(colon, '.');
-         if (period)
-            *period = '\0';
-      }
-      printf("display: %s  screen: %d\n", displayName, scrnum);
-      free(displayName);*/
-      infotext->sprintf("%sdirect rendering: %s\n", (const char*)*infotext, glXIsDirect(dpy, ctx) ? "Yes" : "No");
-      infotext->sprintf("%sserver glx vendor string: %s\n", (const char*)*infotext, serverVendor);
-      infotext->sprintf("%sserver glx version string: %s\n", (const char*)*infotext, serverVersion);
-      infotext->sprintf("%sserver glx extensions:\n", (const char*)*infotext);
-      print_extension_list(serverExtensions);
-      infotext->sprintf("%sclient glx vendor string: %s\n", (const char*)*infotext, clientVendor);
-      infotext->sprintf("%sclient glx version string: %s\n", (const char*)*infotext, clientVersion);
-      infotext->sprintf("%sclient glx extensions:\n", (const char*)*infotext);
-      print_extension_list(clientExtensions);
-      infotext->sprintf("%sGLX extensions:\n", (const char*)*infotext);
-      print_extension_list(glxExtensions);
-      infotext->sprintf("%sOpenGL vendor string: %s\n", (const char*)*infotext, glVendor);
-      infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, glRenderer);
-      infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, glVersion);
-      infotext->sprintf("%sOpenGL extensions:\n", (const char*)*infotext);
-      print_extension_list(glExtensions);
-      //printf("glu version: %s\n", gluVersion);
-      //printf("glu extensions:\n");
-      //print_extension_list(gluExtensions);
-   }
-      else {
-      fprintf(stderr, "Error: glXMakeCurrent failed\n");
-   }
- 
-   glXDestroyContext(dpy, ctx);
+    makeCurrent();
+
+    const char *serverVendor = glXQueryServerString(dpy, scrnum, GLX_VENDOR);
+    const char *serverVersion = glXQueryServerString(dpy, scrnum, GLX_VERSION);
+    const char *serverExtensions = glXQueryServerString(dpy, scrnum, GLX_EXTENSIONS);
+    const char *clientVendor = glXGetClientString(dpy, GLX_VENDOR);
+    const char *clientVersion = glXGetClientString(dpy, GLX_VERSION);
+    const char *clientExtensions = glXGetClientString(dpy, GLX_EXTENSIONS);
+    const char *glxExtensions = glXQueryExtensionsString(dpy, scrnum);
+    const char *glVendor = (const char *) glGetString(GL_VENDOR);
+    const char *glRenderer = (const char *) glGetString(GL_RENDERER);
+    const char *glVersion = (const char *) glGetString(GL_VERSION);
+    const char *glExtensions = (const char *) glGetString(GL_EXTENSIONS);
+    const char *gluVersion = (const char *) gluGetString((GLenum)GLU_VERSION);
+    const char *gluExtensions = (const char *) gluGetString((GLenum)GLU_EXTENSIONS);
+
+    infotext->sprintf("%sdirect rendering: %s\n", (const char*)*infotext, 
+		      format().directRendering() ? "Yes" : "No");
+    infotext->sprintf("%sserver glx vendor string: %s\n", (const char*)*infotext, serverVendor);
+    infotext->sprintf("%sserver glx version string: %s\n", (const char*)*infotext, serverVersion);
+    infotext->sprintf("%sserver glx extensions:\n", (const char*)*infotext);
+    print_extension_list(serverExtensions);
+    infotext->sprintf("%sclient glx vendor string: %s\n", (const char*)*infotext, clientVendor);
+    infotext->sprintf("%sclient glx version string: %s\n", (const char*)*infotext, clientVersion);
+    infotext->sprintf("%sclient glx extensions:\n", (const char*)*infotext);
+    print_extension_list(clientExtensions);
+    infotext->sprintf("%sGLX extensions:\n", (const char*)*infotext);
+    print_extension_list(glxExtensions);
+    infotext->sprintf("%sOpenGL vendor string: %s\n", (const char*)*infotext, glVendor);
+    infotext->sprintf("%sOpenGL renderer string: %s\n", (const char*)*infotext, glRenderer);
+    infotext->sprintf("%sOpenGL version string: %s\n", (const char*)*infotext, glVersion);
+    infotext->sprintf("%sOpenGL extensions:\n", (const char*)*infotext);
+    print_extension_list(glExtensions);
+    infotext->sprintf("%sglu version: %s\n", (const char*)*infotext, gluVersion);
+    infotext->sprintf("%sglu extensions:\n", (const char*)*infotext);
+    print_extension_list(gluExtensions);
+
    
 };
 
@@ -218,16 +145,11 @@ const char * visual_class_name(int cls)
 void get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
 			struct visual_attribs *attribs)
 {
-  //const char *ext = glXQueryExtensionsString(dpy, vInfo->screen);
  
     memset(attribs, 0, sizeof(struct visual_attribs));
  
     attribs->id = vInfo->visualid;
-#if defined(__cplusplus) || defined(c_plusplus)
     attribs->klass = vInfo->c_class;
-#else
-    attribs->klass = vInfo->class;
-#endif
     attribs->depth = vInfo->depth;
     attribs->redMask = vInfo->red_mask;
     attribs->greenMask = vInfo->green_mask;
@@ -337,7 +259,6 @@ GLInfo::GLInfo(QWidget* parent, const char* name)
     infotext->append("\n");
     
     for (scrnum = 0; scrnum < numScreens; scrnum++) {
-        mesa_hack(dpy, scrnum);
 	print_screen_info(dpy, scrnum);
 	print_visual_info(dpy, scrnum);
 	if (scrnum + 1 < numScreens)
