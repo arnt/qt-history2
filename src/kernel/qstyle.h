@@ -156,15 +156,16 @@ public:
     enum PrimitiveOperationFlags {
 	PStyle_Default = 		0x00000000,
 	PStyle_Enabled = 		0x00000001,
-	PStyle_Sunken = 		0x00000002,
-	PStyle_Off =			0x00000004,
-	PStyle_NoChange =		0x00000008,
-	PStyle_On =			0x00000010,
-	PStyle_Horizontal =		0x00000020,
-	PStyle_Vertical =		0x00000040,
-	PStyle_HasFocus =		0x00000080,
-	PStyle_Top =			0x00000100,
-	PStyle_Bottom =			0x00000200,
+	PStyle_Raised =			0x00000002,
+	PStyle_Sunken = 		0x00000004,
+	PStyle_Off =			0x00000008,
+	PStyle_NoChange =		0x00000010,
+	PStyle_On =			0x00000020,
+	PStyle_Horizontal =		0x00000040,
+	PStyle_Vertical =		0x00000080,
+	PStyle_HasFocus =		0x00000100,
+	PStyle_Top =			0x00000200,
+	PStyle_Bottom =			0x00000300,
 	PStyle_FocusAtBorder =		0x00000400
 
 	/*

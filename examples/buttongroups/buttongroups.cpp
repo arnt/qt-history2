@@ -84,13 +84,17 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     QGroupBox *grp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", this );
     box2->addWidget( grp4 );
 
-    // insert two pushbuttons...
+    // insert three pushbuttons...
     (void)new QPushButton( "&Push Button", grp4 );
-    QPushButton *tb = new QPushButton( "&Toggle Button", grp4 );
+    QPushButton *tb2 = new QPushButton( "&Toggle Button", grp4 );
+    QPushButton *tb3 = new QPushButton( "&Flat Button", grp4 );
 
     // ... and make the second one a toggle button
-    tb->setToggleButton( TRUE );
-    tb->setOn( TRUE );
+    tb2->setToggleButton( TRUE );
+    tb2->setOn( TRUE );
+
+    // ... and make the third one a flat button
+    tb3->setFlat(TRUE);
 }
 
 /*

@@ -138,9 +138,19 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
     switch (op) {
     case PO_ButtonCommand:
     case PO_ButtonBevel:
-    case PO_HeaderSection:
-	qDrawWinButton(p, r, cg, flags & PStyle_Sunken, &cg.brush(QColorGroup::Button));
-	break;
+    case PO_HeaderSection: {
+	QBrush fill;
+
+	if (! (flags & PStyle_Sunken) && (flags & PStyle_On))
+	    fill = QBrush(cg.light(), Dense4Pattern);
+	else
+	    fill = cg.brush(QColorGroup::Button);
+
+	if (flags & (PStyle_Raised | PStyle_Sunken | PStyle_On))
+	    qDrawWinButton(p, r, cg, flags & (PStyle_Sunken | PStyle_On), &fill);
+	else
+	    p->fillRect(r, fill);
+	break; }
 
     case PO_FocusRect: {
 	void **sdata = (void **) data;
@@ -412,8 +422,12 @@ void QWindowsStyle::drawControl( ControlElement element,
 	PFlags flags = PStyle_Default;
 	if (button->isEnabled())
 	    flags |= PStyle_Enabled;
-	if (button->isDown() || button->isOn())
+	if (button->isDown())
 	    flags |= PStyle_Sunken;
+	if (button->isOn())
+	    flags |= PStyle_On;
+	if (! button->isFlat() && ! (flags & PStyle_Sunken))
+	    flags |= PStyle_Raised;
 
 	if (button->isDefault() || button->autoDefault()) {
 	    if ( button->isDefault()) {

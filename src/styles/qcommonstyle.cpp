@@ -478,8 +478,12 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_PushButton: {
 	QPushButton *button = (QPushButton *) widget;
 
-	if (button->isDown() || button->isOn())
+	if (button->isOn())
+	    flags |= PStyle_On;
+	if (button->isDown())
 	    flags |= PStyle_Sunken;
+	else if (! button->isFlat() && ! (flags & PStyle_Sunken))
+	    flags |= PStyle_Raised;
 
 	drawPrimitive(PO_ButtonCommand, p, r, cg, flags, data);
 	break; }
@@ -943,6 +947,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	}
 
 	PFlags bflags = PStyle_Default, mflags = PStyle_Default;
+	if (drawraised) {
+	    bflags |= PStyle_Raised;
+	    mflags |= PStyle_Raised;
+	}
+
 	if (toolbutton->isEnabled()) {
 	    bflags |= PStyle_Enabled;
 	    mflags |= PStyle_Enabled;
@@ -1082,7 +1091,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    bool down = active & SC_TitleBarCloseButton;
 	    QPixmap pm(titleBarPixmap(titlebar, SC_TitleBarCloseButton));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Sunken : PStyle_Default);
+			  down ? PStyle_Sunken : PStyle_Raised);
 	    int xoff = 0, yoff = 0;
 	    if (down) {
 		xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -1099,7 +1108,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    down = active & SC_TitleBarMaxButton;
 	    pm = QPixmap(titleBarPixmap(titlebar, SC_TitleBarMaxButton));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Sunken : PStyle_Default);
+			  down ? PStyle_Sunken : PStyle_Raised);
 	    xoff = 0;
 	    yoff = 0;
 	    if(down) {
@@ -1118,7 +1127,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    down = active & ctrl;
 	    pm = QPixmap(titleBarPixmap(titlebar, ctrl));
 	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Sunken : PStyle_Default);
+			  down ? PStyle_Sunken : PStyle_Raised);
 	    xoff=0, yoff=0;
 	    if(down) {
 		xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -1154,7 +1163,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    if (active == controls ) {
 		flags |= PStyle_On;
 		flags |= PStyle_Sunken;
-	    }
+	    } else
+		flags |= PStyle_Raised;
+
 	    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
 		if ( controls == SC_SpinWidgetUp )
 		    op = PO_SpinWidgetPlus;
