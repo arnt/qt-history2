@@ -31,7 +31,7 @@ tools {
 		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qlibrary.h \
-		  $$TOOLS_H/qlibrary_p.h \
+		  $$TOOLS_P/qlibrary_p.h \
 		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qpluginmanager.h \
