@@ -63,10 +63,7 @@ public:
 protected:
     void readConfig();
     void writeConfig();
-    
-protected slots:
-    void menuAboutToShow();
-    
+        
 private slots:
     void doneAndNext();
     void prev();
