@@ -114,6 +114,8 @@ private:
 
 };
 
+Q_DECLARE_TYPEINFO(QPainterPath::Element, Q_PRIMITIVE_TYPE);
+
 #ifndef QT_NO_DATASTREAM
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);

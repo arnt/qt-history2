@@ -14,10 +14,9 @@
 #include "qbezier_p.h"
 #include <qpolygon.h>
 #include <qline.h>
-#include <qstack.h>
 
 // Manhattan length between two QPointF's
-#define mlen(a, b) (QABS(a.x() - b.x()) + QABS(a.y() - b.y()))
+#define mlen(a, b) (qAbs(a.x() - b.x()) + qAbs(a.y() - b.y()))
 
 /*!
   \internal
@@ -73,33 +72,39 @@ Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, b
 */
 QPolygon QBezier::toPolygon() const
 {
-    QStack<QBezierLineSegment> lines;
-    lines.reserve(32);
+    QBezierLineSegment *lines = (QBezierLineSegment *) malloc(32 * sizeof(QBezierLineSegment));
+    int pos = 0;
+    int alloc = 32;
     QPolygon polygon;
-    polygon.reserve(64);
+    polygon.reserve(32);
 
     polygon << QPointF(x1, y1);
 
     const float distance = 0.5;
 
-    QPointF at13 = pointAt(1/float(3));
-    QPointF at23 = pointAt(2/float(3));
+    QPointF at13 = pointAt(1.f/3.f);
+    QPointF at23 = pointAt(2.f/3.f);
 
-    lines.push(QBezierLineSegment(2/float(3), 1, QLineF(at23, QPointF(x4, y4))));
-    lines.push(QBezierLineSegment(1/float(3), 2/float(3), QLineF(at13, at23)));
-    lines.push(QBezierLineSegment(0, 1/float(3), QLineF(QPointF(x1, y1), at13)));
+    lines[pos++] = QBezierLineSegment(2.f/3.f, 1.f, QLineF(at23, QPointF(x4, y4))); //push
+    lines[pos++] = QBezierLineSegment(1.f/3.f, 2.f/3.f, QLineF(at13, at23)); // push
+    lines[pos++] = QBezierLineSegment(0.f, 1.f/3.f, QLineF(QPointF(x1, y1), at13)); // push
 
-    while (!lines.isEmpty()) {
-        QBezierLineSegment s = lines.pop();
-        float t_half = s.t_start + (s.t_end - s.t_start) / 2.0f;
+    while (pos > 0) {
+        QBezierLineSegment s = lines[--pos]; // pop
+        float t_half = (s.t_start + s.t_end) / 2.0f;
         QPointF curvePt = pointAt(t_half);
-        QPointF linePt = s.l.pointAt(1 / 2.0f);
+        QPointF linePt = s.l.pointAt(1.f / 2.0f);
         if (mlen(curvePt, linePt) < distance) {
-            polygon << s.l.end();
+            polygon.append(s.l.end());
         } else {
-            lines.push(QBezierLineSegment(t_half, s.t_end, QLineF(curvePt, s.l.end())));
-            lines.push(QBezierLineSegment(s.t_start, t_half, QLineF(s.l.start(), curvePt)));
+            if (pos >= alloc - 2) {
+                alloc *= 2;
+                lines = (QBezierLineSegment *) realloc(lines, alloc*sizeof(QBezierLineSegment));
+            }
+            lines[pos++] = QBezierLineSegment(t_half, s.t_end, QLineF(curvePt, s.l.end())); // push
+            lines[pos++] = QBezierLineSegment(s.t_start, t_half, QLineF(s.l.start(), curvePt)); // push
         }
     }
+    free(lines);
     return polygon;
 }

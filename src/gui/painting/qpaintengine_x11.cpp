@@ -525,6 +525,8 @@ void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h)
 #define FloatToXFixed(i) (int)((i) * 65536)
 #define IntToXFixed(i) ((i) << 16)
 
+Q_DECLARE_TYPEINFO(XTrapezoid, Q_PRIMITIVE_TYPE);
+
 // used by the edge point sort algorithm
 static float currentY = 0.f;
 
@@ -751,6 +753,19 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 	    }
 	}
 
+        XFixed yf, next_yf;
+        if (do_rounding) {
+            yf = FloatToXFixed(qRound(y));
+            next_yf = FloatToXFixed(qRound(next_y));
+        } else {
+            yf = FloatToXFixed(y);
+            next_yf = FloatToXFixed(next_y);
+        }
+        if (yf == next_yf) {
+            y = currentY = next_y;
+            continue;
+        }
+
 #ifdef QT_DEBUG_TESSELATOR
         qDebug("###> y = %f, next_y = %f, %d active edges", y, next_y, aet.size());
         qDebug("===> edges");
@@ -769,44 +784,34 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 	Q_ASSERT(isects.size()%2 == 1);
 
 	// sort intersection points
- 	qHeapSort(&isects[0], &isects[isects.size()-1], compareIntersections);
+ 	qSort(&isects[0], &isects[isects.size()-1], compareIntersections);
 
-        XFixed yf, next_yf;
-        if (do_rounding) {
-            yf = FloatToXFixed(qRound(y));
-            next_yf = FloatToXFixed(qRound(next_y));
-        } else {
-            yf = FloatToXFixed(y);
-            next_yf = FloatToXFixed(next_y);
-        }
-        if (yf != next_yf) {
-            if (winding) {
-                // winding fill rule
-                for (int i = 0; i < isects.size()-1;) {
-                    int winding = 0;
-                    const QEdge *left = isects[i].edge;
-                    const QEdge *right = 0;
+        if (winding) {
+            // winding fill rule
+            for (int i = 0; i < isects.size()-1;) {
+                int winding = 0;
+                const QEdge *left = isects[i].edge;
+                const QEdge *right = 0;
+                winding += isects[i].edge->winding;
+                for (++i; i < isects.size()-1 && winding != 0; ++i) {
                     winding += isects[i].edge->winding;
-                    for (++i; i < isects.size()-1 && winding != 0; ++i) {
-                        winding += isects[i].edge->winding;
-                        right = isects[i].edge;
-                    }
-                    if (!left || !right)
-                        break;
-                    if (do_rounding)
-                        traps->append(toXTrapezoidRound(yf, next_yf, *left, *right));
-                    else
-                        traps->append(toXTrapezoid(yf, next_yf, *left, *right));
+                    right = isects[i].edge;
                 }
-            } else {
-                // odd-even fill rule
+                if (!left || !right)
+                    break;
                 if (do_rounding)
-                    for (int i = 0; i < isects.size()-2; i += 2)
-                        traps->append(toXTrapezoidRound(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+                    traps->append(toXTrapezoidRound(yf, next_yf, *left, *right));
                 else
-                    for (int i = 0; i < isects.size()-2; i += 2)
-                        traps->append(toXTrapezoid(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+                    traps->append(toXTrapezoid(yf, next_yf, *left, *right));
             }
+        } else {
+            // odd-even fill rule
+            if (do_rounding)
+                for (int i = 0; i < isects.size()-2; i += 2)
+                    traps->append(toXTrapezoidRound(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+            else
+                for (int i = 0; i < isects.size()-2; i += 2)
+                    traps->append(toXTrapezoid(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
         }
 	y = currentY = next_y;
     }
