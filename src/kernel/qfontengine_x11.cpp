@@ -517,15 +517,22 @@ static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
 }
 #endif // QT_XFT2
 
-static inline FT_Face getFTFace( XftFont *font )
+static inline FT_Face lockFTFace( XftFont *font )
 {
 #ifdef QT_XFT2
-    FT_Face face = XftLockFace( font );
-    XftUnlockFace( font );
-    return face;
+    return XftLockFace( font );
 #else
     if (font->core) return 0;
     return font->u.ft.font->face;
+#endif // QT_XFT2
+}
+
+static inline void unlockFTFace( XftFont *font )
+{
+#ifdef QT_XFT2
+    XftUnlockFace( font );
+#else
+    Q_UNUSED( font );
 #endif // QT_XFT2
 }
 
@@ -545,10 +552,10 @@ QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     }
 #endif // QT_XFT2
 
-    FT_Face face = getFTFace( _font );
+    _face = lockFTFace( _font );
 
     cache_cost = _font->height * _font->max_advance_width *
-		 ( face ? face->num_glyphs : 1024 );
+		 ( _face ? _face->num_glyphs : 1024 );
 
     // if the Xft font is not antialiased, it uses bitmaps instead of
     // 8-bit alpha maps... adjust the cache_cost to reflect this
@@ -562,11 +569,13 @@ QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
 
 QFontEngineXft::~QFontEngineXft()
 {
+    delete _openType;
+    unlockFTFace( _font );
+
     XftFontClose( QPaintDevice::x11AppDisplay(),_font );
     XftPatternDestroy( _pattern );
     _font = 0;
     _pattern = 0;
-    delete _openType;
 }
 
 QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
@@ -590,19 +599,19 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 	}
     }
 #else
-    XftFontStruct *fs = getFontStruct( _font );
-    if ( !fs ) {
+    if ( !_face ) {
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i] = str[i].unicode();
     } else {
 	for ( int i = 0; i < len; i++ )
-	    glyphs[i] = FT_Get_Char_Index (fs->face, str[i].unicode() );
+	    glyphs[i] = FT_Get_Char_Index (_face, str[i].unicode() );
     }
 
     if ( advances ) {
 	for ( int i = 0; i < len; i++ ) {
 	    XGlyphInfo gi;
-	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font, (XftChar16 *) glyphs+i, 1, &gi);
+	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font,
+			     (XftChar16 *) glyphs+i, 1, &gi);
 	    *(advances++) = gi.xOff;
 	}
     }
@@ -814,16 +823,8 @@ QOpenType *QFontEngineXft::openType() const
     if ( _openType )
 	return _openType;
 
-    FT_Face face = getFTFace( _font );
-    if ( ! face ) {
-#ifdef QT_CHECK_STATE
-	qWarning( "QFontEngineXft: no FT_Face for Xft font" );
-#endif // QT_CHECK_STATE
-	return 0;
-    }
-
     QFontEngineXft *that = (QFontEngineXft *)this;
-    that->_openType = new QOpenType( face );
+    that->_openType = new QOpenType( that->_face );
     return _openType;
 }
 

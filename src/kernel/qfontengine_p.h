@@ -98,6 +98,7 @@ private:
     friend class QFontPrivate;
     XftFont *_font;
     XftPattern *_pattern;
+    FT_Face _face;
     QOpenType *_openType;
     int _cmap;
 };
@@ -189,7 +190,7 @@ class QFontEngineMac : public QFontEngine
     friend class QMacSetFontInfo;
 
 public:
-    QFontEngineMac(const QFontDef &f) : QFontEngine(), fdef(f), info(NULL), fnum(-1), 
+    QFontEngineMac(const QFontDef &f) : QFontEngine(), fdef(f), info(NULL), fnum(-1),
 					internal_fi(NULL) { cache_cost = 1; }
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
