@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>194</width>
-            <height>257</height>
+            <width>222</width>
+            <height>235</height>
         </rect>
     </property>
     <property name="caption">
@@ -30,7 +30,7 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout3</cstring>
+                <cstring>Layout20</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -40,7 +40,7 @@
                     <number>0</number>
                 </property>
                 <property name="spacing">
-                    <number>6</number>
+                    <number>2</number>
                 </property>
                 <widget class="QToolButton">
                     <property name="name">
@@ -70,8 +70,19 @@
                         <string>Delete Action</string>
                     </property>
                 </widget>
+                <widget class="QToolButton">
+                    <property name="name">
+                        <cstring>buttonConnect</cstring>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap>image2</pixmap>
+                    </property>
+                </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer1</cstring>
                     </property>
                     <property name="orientation">
@@ -94,47 +105,6 @@
                 <cstring>listActions</cstring>
             </property>
         </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>Layout2</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>buttonConnect</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Connect...</string>
-                    </property>
-                </widget>
-                <spacer>
-                    <property name="name" stdset="0">
-                        <cstring>Spacer1_2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-            </hbox>
-        </widget>
     </vbox>
 </widget>
 <customwidgets>
@@ -150,7 +120,7 @@
             <hordata>7</hordata>
             <verdata>7</verdata>
         </sizepolicy>
-        <pixmap>image2</pixmap>
+        <pixmap>image3</pixmap>
         <signal>selectionChanged( QListViewItem * )</signal>
         <signal>currentChanged( QListViewItem * )</signal>
         <signal>clicked( QListViewItem * )</signal>
@@ -164,6 +134,9 @@
         <data format="XPM.GZ" length="661">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523232520022630543251d2e253d856405bffcbc54105b19c856360003103711c6b53006abc40a90649491482ac92863955146d6822ca387474619c9301419a03842825819245bd064129513b1cb242602512216994430d44bc4904984c8c1a5e032897a3019a8144c26518f800c92715864d0ec81ab4dc4701b924fb0850e8a4cad351700fe117ccc</data>
     </image>
     <image name="image2">
+        <data format="XPM.GZ" length="1142">789cbdd1cb6e82401480e1bd4f4174671a1c70504cd3055e60d5a6cb264d17330378451450b44ddfbd73ce19489abae8caa30bbefccc108641df7a7b7db6fa834e59896aad2cb51285d58f4f59767dff78faea745dd7d2ffa16739dd874ed7b694f592ef13b85ee8eb1e630e971c786898605d1baad803ee5a622d1a2623e0b125d619d165b4f6d212ebd990d3dab225d60ae93bbe2f8121d061ae923170451cf2340506868a18217d7d33be9104baba2a5cbb6d483767c0e1849b07a5c491437509f4c478423c0105673ef3815343c5187083544dfd34343501aad8610eb206c69ec3897364d25018ea03005e81c9a8a9b9a1a97b64a21f848c8169ca19c76fdd238e27637c4145149ec0c3b16fce5d4b4fd0d8b21d2aa2a770e2c496e91267b5a62228c46263cb2d955d4665af07b6cb753a1c8b6359ee2a2a34b9fe9d6c599cf5ac7f15985a2728977f96ab0e9fb62ccb1bbbc18a2028ffee564f9b709e5199d7347a850cce380b3a1d136a389d308cc2288aeefc7d6e97efc7ce0ff25f14ae</data>
+    </image>
+    <image name="image3">
         <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
     </image>
 </images>
@@ -193,23 +166,23 @@
         <slot>currentActionChanged(QListViewItem*)</slot>
     </connection>
     <connection>
-        <sender>buttonConnect</sender>
-        <signal>clicked()</signal>
-        <receiver>ActionEditorBase</receiver>
-        <slot>connectionsClicked()</slot>
-    </connection>
-    <connection>
         <sender>buttonNewAction</sender>
         <signal>clicked()</signal>
         <receiver>ActionEditorBase</receiver>
         <slot>newAction()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="protected" language="C++">connectionsClicked()</slot>
-    <slot access="protected" language="C++">currentActionChanged( QListViewItem * )</slot>
-    <slot access="protected" language="C++">deleteAction()</slot>
-    <slot access="protected" language="C++">newAction()</slot>
+    <connection>
+        <sender>buttonConnect</sender>
+        <signal>clicked()</signal>
+        <receiver>ActionEditorBase</receiver>
+        <slot>connectionsClicked()</slot>
+    </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">connectionsClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">currentActionChanged( QListViewItem * )</slot>
+    <slot access="protected" language="C++" returnType="void">deleteAction()</slot>
+    <slot access="protected" language="C++" returnType="void">newAction()</slot>
 </connections>
 <tabstops>
     <tabstop>buttonDeleteAction</tabstop>
