@@ -221,8 +221,6 @@ uchar *qt_get_bitflip_array()			// called from QPixmap code
 
 QImage::QImage()
 {
-    data = new QImageData;
-    CHECK_PTR( data );
     init();
 }
 
@@ -238,8 +236,6 @@ QImage::QImage()
 
 QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
 {
-    data = new QImageData;
-    CHECK_PTR( data );
     init();
     create( w, h, depth, numColors, bitOrder );
 }
@@ -249,8 +245,6 @@ QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
 */
 QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
 {
-    data = new QImageData;
-    CHECK_PTR( data );
     init();
     create( size, depth, numColors, bitOrder );
 }
@@ -264,8 +258,6 @@ QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
 
 QImage::QImage( const QString &fileName, const char* format )
 {
-    data = new QImageData;
-    CHECK_PTR( data );
     init();
     load( fileName, format );
 }
@@ -282,8 +274,6 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
 
 QImage::QImage( const char *xpm[] )
 {
-    data = new QImageData;
-    CHECK_PTR( data );
     init();
     read_xpm_image_or_array( 0, xpm, *this );
 }
@@ -296,6 +286,7 @@ QImage::QImage( const char *xpm[] )
 */
 QImage::QImage( const QByteArray &array )
 {
+    init();
     loadFromData(array);
 }
 
@@ -322,7 +313,6 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		QRgb* colortable, int numColors,
 		Endian bitOrder )
 {
-    data = new QImageData;
     init();
     data->w = w;
     data->h = h;
@@ -624,7 +614,7 @@ void QImage::reset()
     freeBits();
     setNumColors( 0 );
     delete data->misc;
-    init(); // simply resets
+    reinit();
 }
 
 
@@ -913,6 +903,13 @@ bool QImage::create( const QSize& size, int depth, int numColors,
 */
 
 void QImage::init()
+{
+    data = new QImageData;
+    CHECK_PTR( data );
+    reinit();
+}
+
+void QImage::reinit()
 {
     data->w = data->h = data->d = data->ncols = 0;
     data->nbytes = 0;

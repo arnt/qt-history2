@@ -163,6 +163,7 @@ public:
 
 private:
     void	init();
+    void	reinit();
     void	freeBits();
     static void	warningIndexRange( const char *, int );
 
