@@ -910,7 +910,7 @@ void QGfxRasterBase::setSourcePen()
         qt_screen=tmp;
     } else
 #endif
-    srccol = cpen.color().rgb();
+    srccol = penPixel;
     src_normal_palette = true;
     srctype = SourcePen;
     setSourceWidgetOffset(0, 0);
