@@ -198,6 +198,7 @@ private:
     void init();
     void moveToJustAfter( QListViewItem * );
     void enforceSortOrderBackToRoot();
+    void removeRenameBox();
 
     int ownHeight;
     int maybeTotalHeight;

@@ -832,6 +832,25 @@ void QListViewItem::startRename( int col )
 }
 
 /*!
+    This function removes the rename box.
+*/
+
+void QListViewItem::removeRenameBox()
+{
+    // Sanity, it should be checked by the functions calling this first anyway
+    QListView *lv = listView();
+    if ( !lv || !renameBox )
+	return;
+    bool resetFocus = lv->viewport()->focusProxy() == renameBox;
+    delete renameBox;
+    renameBox = 0;
+    if ( resetFocus ) {
+	lv->viewport()->setFocusProxy( lv );
+	lv->setFocus();
+    }
+}
+
+/*!
     This function is called if the user presses Enter during in-place
     renaming of the item in column \a col.
 
@@ -844,7 +863,8 @@ void QListViewItem::okRename( int col )
     if ( !lv || !renameBox )
 	return;
     setText( col, renameBox->text() );
-    cancelRename( col );
+    removeRenameBox();
+    
     emit lv->itemRenamed( this, col );
     emit lv->itemRenamed( this, col, text( col ) );
 }
@@ -861,13 +881,7 @@ void QListViewItem::cancelRename( int )
     QListView *lv = listView();
     if ( !lv || !renameBox )
 	return;
-    bool resetFocus = lv->viewport()->focusProxy() == renameBox;
-    delete renameBox;
-    renameBox = 0;
-    if ( resetFocus ) {
-	lv->viewport()->setFocusProxy( lv );
-	lv->setFocus();
-    }
+    removeRenameBox();
 }
 
 /*!
