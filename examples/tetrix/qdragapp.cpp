@@ -95,7 +95,7 @@ private:
 
 
 QDragApplication::QDragApplication( int &argc, char **argv )
-    : QApplication( argc, argv )
+    : QApplication( argc, argv ), dragger( 0 )
 {
     dragger = new QDragger;
 }
@@ -107,7 +107,7 @@ QDragApplication::~QDragApplication()
 
 bool QDragApplication::notify( QObject *o, QEvent *e )
 {
-    if ( !dragger->notify( o, e ) )
+    if ( dragger && !dragger->notify( o, e ) )
 	return o->event( e );
     else
 	return FALSE;
