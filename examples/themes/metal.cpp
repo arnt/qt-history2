@@ -181,38 +181,32 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
     switch( pe ) {
     case PE_HeaderSection:
 	if ( flags & Style_Sunken )
-	    flags ^= Style_Sunken | Style_Raised; 
+	    flags ^= Style_Sunken | Style_Raised;
 	// fall through
     case PE_ButtonBevel:
     case PE_ButtonCommand:
-	{
 	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
-			     bool(flags & (Style_Sunken|Style_On|Style_Down)), TRUE, !(flags & Style_Raised) );
+			     (flags & (Style_Sunken|Style_On|Style_Down)),
+			     TRUE, !(flags & Style_Raised) );
 	    break;
-	}
     case PE_ScrollBarAddLine:	
-	{
-	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
-			     flags & Style_Down, !( flags & Style_Horizontal ) );
-	    drawPrimitive( ( flags & Style_Horizontal ) ? PE_ArrowRight : PE_ArrowDown,
-			   p, r, cg, flags );
-	    break;
-	}
+	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
+			 flags & Style_Down, !( flags & Style_Horizontal ) );
+	drawPrimitive( (flags & Style_Horizontal) ? PE_ArrowRight :PE_ArrowDown,
+		       p, r, cg, flags, data );
+	break;
     case PE_ScrollBarSubLine:
-	{
-	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
-			     flags & Style_Down, !( flags & Style_Horizontal ) );
-	    drawPrimitive( ( flags & Style_Horizontal ) ? PE_ArrowLeft : PE_ArrowUp,
-			   p, r, cg, flags );
-	    break;
-	}
+	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
+			 flags & Style_Down, !( flags & Style_Horizontal ) );
+	drawPrimitive( (flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp,
+		       p, r, cg, flags, data );
+	break;
+
 	
     case PE_ScrollBarSlider:
-	{
-	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(), FALSE,
-			     flags & Style_Horizontal );
-	    break;
-	}
+	drawMetalButton( p, r.x(), r.y(), r.width(), r.height(), FALSE,
+			 flags & Style_Horizontal );
+	break;
     default:
 	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
 	break;
@@ -269,7 +263,7 @@ void MetalStyle::drawControl( ControlElement element,
 		flags |= Style_Raised;
 	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-			   cg, flags );
+			   cg, flags, data );
 	
 	    if ( btn->isMenuButton() ) {
 		flags = Style_Default;
@@ -277,8 +271,9 @@ void MetalStyle::drawControl( ControlElement element,
 		    flags |= Style_Enabled;
 		
 		int dx = ( y1 - y2 - 4 ) / 3;
-		drawPrimitive( PE_ArrowDown, p, QRect(x2 - dx, dx, y1, y2 - y1),
-			       cg, flags );
+		drawPrimitive( PE_ArrowDown, p,
+			       QRect(x2 - dx, dx, y1, y2 - y1),
+			       cg, flags, data );
 	    }
 	    if ( p->brush().style() != NoBrush )
 		p->setBrush( NoBrush );
@@ -356,9 +351,12 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
 			                      &cg.brush( QColorGroup::Background ) );
 	    drawMetalButton( p, r.x() + r.width() - 2 - 16, r.y() + 2, 16, r.height() - 4,
 			     how & Style_Sunken, TRUE );
-	    drawPrimitive( PE_ArrowDown, p, QRect( r.x() + r.width() - 2 - 16 + 2,
-						   r.y() + 2 + 2, 16 - 4, r.height() - 4 -4 ),
-			   cg, cmb->isEnabled() ? Style_Enabled : Style_Default );
+	    drawPrimitive( PE_ArrowDown, p,
+			   QRect( r.x() + r.width() - 2 - 16 + 2,
+				  r.y() + 2 + 2, 16 - 4, r.height() - 4 -4 ),
+			   cg,
+			   cmb->isEnabled() ? Style_Enabled : Style_Default,
+			   data );
 	    break;
 	}
     default:
@@ -454,6 +452,7 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
     p->setPen( bot2 );
     p->drawLine( x+1, y2-1, x2-1, y2-1 );
     p->drawLine( x2-1, y2-1, x2-1, y+1 );
+
     if ( flat && !sunken ) {
 	    p->fillRect( x + 2, y + 2, w - 4,h -4, topgrad );
     } else {
@@ -461,64 +460,61 @@ void MetalStyle::drawMetalButton( QPainter *p, int x, int y, int w, int h,
 	int i = 0;
 	int x1 = x + 2;
 	int y1 = y + 2;
-    // Note that x2/y2 mean something else from this point down...
-    if ( horz )
-	x2 = x2 - 2;
-    else
-	y2 = y2 - 2;
-
-
+	if ( horz )
+	    x2 = x2 - 2;
+	else
+	    y2 = y2 - 2;
+	// Note that x2/y2 mean something else from this point down...
+	
 #define DRAWLINE if (horz) \
                     p->drawLine( x1, y1+i, x2, y1+i ); \
 		 else \
                     p->drawLine( x1+i, y1, x1+i, y2 ); \
                  i++;
 
-    if ( !sunken ) {
-	p->setPen( highlight );
-	DRAWLINE;
-	DRAWLINE;
-	p->setPen( subh1 );
-	DRAWLINE;
-	p->setPen( subh2 );
-	DRAWLINE;
-    }
-    // gradient:
-    int ng = (horz ? h : w) - 8; // how many lines for the gradient?
-
-    int h1, h2, s1, s2, v1, v2;
-    if ( !sunken ) {
-	topgrad.hsv( &h1, &s1, &v1 );
-	botgrad.hsv( &h2, &s2, &v2 );
-    } else {
-	botgrad.hsv( &h1, &s1, &v1 );
-	topgrad.hsv( &h2, &s2, &v2 );
-    }
-
-    if ( ng > 1 ) {
-	
-	for ( int j =0; j < ng; j++ ) {
-	    p->setPen( QColor( h1 + ((h2-h1)*j)/(ng-1),
-			       s1 + ((s2-s1)*j)/(ng-1),
-			       v1 + ((v2-v1)*j)/(ng-1),  QColor::Hsv ) );
+	if ( !sunken ) {
+	    p->setPen( highlight );
+	    DRAWLINE;
+	    DRAWLINE;
+	    p->setPen( subh1 );
+	    DRAWLINE;
+	    p->setPen( subh2 );
 	    DRAWLINE;
 	}
-    } else if ( ng == 1 ) {
-	p->setPen( QColor( (h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv ) );
-	DRAWLINE;
-    }
-    if ( sunken ) {
-	p->setPen( subh2 );
-	DRAWLINE;
+	// gradient:
+	int ng = (horz ? h : w) - 8; // how many lines for the gradient?
 	
-	p->setPen( subh1 );
-	DRAWLINE;
-
-	p->setPen( highlight );
-	DRAWLINE;
-	DRAWLINE;
-    }
-    }
-
+	int h1, h2, s1, s2, v1, v2;
+	if ( !sunken ) {
+	    topgrad.hsv( &h1, &s1, &v1 );
+	    botgrad.hsv( &h2, &s2, &v2 );
+	} else {
+	    botgrad.hsv( &h1, &s1, &v1 );
+	    topgrad.hsv( &h2, &s2, &v2 );
+	}
+	
+	if ( ng > 1 ) {	
+	    for ( int j =0; j < ng; j++ ) {
+		p->setPen( QColor( h1 + ((h2-h1)*j)/(ng-1),
+				   s1 + ((s2-s1)*j)/(ng-1),
+				   v1 + ((v2-v1)*j)/(ng-1),  QColor::Hsv ) );
+		DRAWLINE;
+	    }
+	} else if ( ng == 1 ) {
+	    p->setPen( QColor((h1+h2)/2, (s1+s2)/2, (v1+v2)/2, QColor::Hsv) );
+	    DRAWLINE;
+	}
+	if ( sunken ) {
+	    p->setPen( subh2 );
+	    DRAWLINE;
+	    
+	    p->setPen( subh1 );
+	    DRAWLINE;
+	    
+	    p->setPen( highlight );
+	    DRAWLINE;
+	    DRAWLINE;
+	}
+    }    
 }
 

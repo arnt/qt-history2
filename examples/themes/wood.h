@@ -72,8 +72,6 @@ public:
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
 
-    //    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
-
 private:
     void drawSemicircleButton(QPainter *p, const QRect &r, int dir,
 			      bool sunken, const QColorGroup &g ) const;

@@ -966,7 +966,6 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen( oldPen );
 	    break;
 	}
-	
     case PE_ScrollBarAddLine:
 	if ( flags & Style_Horizontal )
 	    drawSemicircleButton( p, r, PointRight, flags & Style_Down, cg );
@@ -1034,7 +1033,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		
 	    drawPrimitive( PE_ButtonCommand, p,
 			   QRect( x1, y1, x2 - x1 + 1, y2 - y1 + 1),
-			   myCg, flags );
+			   myCg, flags, data );
 	
 	    if ( btn->isDefault() ) {
 		QPen pen( Qt::black, 4 );
@@ -1052,7 +1051,8 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 		if ( btn->isEnabled() )
 		    flags |= Style_Enabled;		
 		drawPrimitive( PE_ArrowDown, p,
-			       QRect( x2 - dx, dx, y1, y2 - y1), myCg, flags );
+			       QRect( x2 - dx, dx, y1, y2 - y1),
+			       myCg, flags, data );
 	    }
 	
 	    if ( p->brush().style() != NoBrush )
@@ -1135,14 +1135,14 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    get_combo_parameters( subRect(SR_PushButtonContents, widget),
 				  ew, awh, ax, ay, sh, dh, sy );
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Raised );
+	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Raised, data );
 	    QStyle *mstyle = QStyleFactory::create( "Motif" );
 	    if ( mstyle )
 		mstyle->drawPrimitive( PE_ArrowDown, p,
-				       QRect(ax, ay, awh, awh), cg, how );
+				       QRect(ax, ay, awh, awh), cg, how, data );
 	    else
 		drawPrimitive( PE_ArrowDown, p,
-			       QRect(ax, ay, awh, awh), cg, how );
+			       QRect(ax, ay, awh, awh), cg, how, data );
 
 	    QPen oldPen = p->pen();
 	    p->setPen( cg.light() );
@@ -1359,8 +1359,8 @@ static inline int buttonthickness( int d )
 void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
 					       int dir, bool sunken,
 					       const QColorGroup &g ) const
-{
-    int b = pixelMetric( PM_ScrollBarExtent ) > 20 ? 3 : 2;
+{    
+    int b =  pixelMetric( PM_ScrollBarExtent ) > 20 ? 3 : 2;
 
      QRegion extrn(  r.x(),   r.y(),   r.width(),     r.height(),     QRegion::Ellipse );
      QRegion intern( r.x()+b, r.y()+b, r.width()-2*b, r.height()-2*b, QRegion::Ellipse );
@@ -1391,55 +1391,21 @@ void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
     extrn = extrn - intern;
     QPointArray a;
     a.setPoints( 3, r.x(), r.y(), r.x(), r.bottom(), r.right(), r.top() );
-
+    
     QRegion oldClip = p->clipRegion();
+    bool bReallyClip = p->hasClipping();  // clip only if we really want.
     p->setClipRegion( intern );
     p->fillRect( r, g.brush( QColorGroup::Button ) );
 
     p->setClipRegion( QRegion(a)&extrn );
     p->fillRect( r, sunken ? g.dark() : g.light() );
 
-    a.setPoints( 3, r.right(), r.bottom(), r.x(), r.bottom(), r.right(), r.top() );
+    a.setPoints( 3, r.right(), r.bottom(), r.x(), r.bottom(),
+		 r.right(), r.top() );
     p->setClipRegion( QRegion(a) &  extrn );
     p->fillRect( r, sunken ? g.light() : g.dark() );
 
     p->setClipRegion( oldClip );
+    p->setClipping( bReallyClip );
 }
-
-
-/*
-void NorwegianWoodStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
-						int sliderStart, uint controls,
-						uint activeControl )
-{
-    QWindowsStyle::drawScrollBarControls( p, sb, sliderStart, controls & ~(AddLine|SubLine),
-					activeControl & ~(AddLine|SubLine) );
-    bool horz = sb->orientation() == QScrollBar::Horizontal;
-    int b = 2;
-    int w = horz ? sb->height() : sb->width();
-
-    QColorGroup g = sb->colorGroup();
-
-    if ( controls & AddLine ) {
-	bool sunken = activeControl & AddLine;
-	QRect r( b, b, w-2*b, w-2*b ) ;
-	if ( horz ) {
-	    r.moveBy( sb->width() - w, 0 );
-	    drawSemicircleButton( p, r, PointRight, sunken, g );
-	} else {
-	    r.moveBy( 0, sb->height() - w );
-	    drawSemicircleButton( p, r, PointDown, sunken, g );
-	}
-    }
-    if ( controls & SubLine ) {
-	bool sunken = activeControl & SubLine;
-	QRect r( b, b, w-2*b, w-2*b ) ;
-	if ( horz ) {
-	    drawSemicircleButton( p, r, PointLeft, sunken, g );
-	} else {
-	    drawSemicircleButton( p, r, PointUp, sunken, g );
-	}
-    }
-}
-*/
 

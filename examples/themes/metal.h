@@ -41,6 +41,7 @@ public:
 		      const QColorGroup &cg,
 		      SFlags how = Style_Default,
 		      void **data = 0 ) const;
+
     void drawComplexControl( ComplexControl cc,
 			     QPainter *p,
 			     const QWidget *widget,
@@ -50,11 +51,11 @@ public:
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
+
     QRect querySubControlMetrics( ComplexControl cc,
 				  const QWidget *widget,
 				  SubControl sc,
 				  void **data ) const;
-
 private:
     void drawMetalButton( QPainter *p, int x, int y, int w, int h,
 			  bool sunken, bool horz, bool flat=FALSE ) const;
