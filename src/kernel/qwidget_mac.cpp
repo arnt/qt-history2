@@ -900,9 +900,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 #endif
 #endif
+#if 0
 	//We cannot use a window content paint proc because it causes problems on 10.2 (it
 	//is buggy). We have an outstanding issue with Apple right now.
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
+#endif
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
