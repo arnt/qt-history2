@@ -70,7 +70,9 @@ The easiest way to give your widgets a good layout is to use the
 layout widgets: \l QHBox, \l QVBox and \l QGrid. A layout widget
 automatically lays out its child widgets in the order they are
 constructed. To create more complex layouts, you can nest layout
-widgets inside each other.
+widgets inside each other. (Note that \l QWidget does not have a
+layout by default, you must add one if you want to lay out widgets
+inside a \l QWidget.)
 
 \list
 \i A \l QHBox lays out its child widgets in a horizontal row, left to right.
@@ -103,7 +105,7 @@ The grid shown above can be produced by the following code:
 You can adjust the layout to some extent by calling
 QWidget::setMinimumSize() or QWidget::setFixedSize() on the child widgets.
 
-\section1 QLayout
+\section1 Adding Widgets to a Layout
 
 When you add widgets to a layout the layout process works as follows:
 \list 1
@@ -147,7 +149,7 @@ proportion (but never less than their minimum size hint), e.g.
 \img layout2.png 3 stretch factored widgets in a row
 
 
-\section1 QLayout
+\section1 QLayout subclassing
 
 If you need more control over the layout, use a \link QLayout
 QLayout\endlink subclass. The layout classes included in Qt are \link

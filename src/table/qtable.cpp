@@ -4841,9 +4841,9 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
     setCellWidget() to the newly created editor. (After editing is
     complete endEdit() will be called to replace the cell's content
     with the editor's content.) If \a replace is TRUE the editor will
-    be initialized with the cell's content (if any), i.e. the user
-    will be modifying the original cell content; otherwise the user
-    will be entering new data.
+    start empty; otherwise it will be initialized with the cell's
+    content (if any), i.e. the user will be modifying the original
+    cell content.
 
     \sa endEdit()
 */

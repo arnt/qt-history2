@@ -95,6 +95,10 @@
     button into a top-level widget, but most people prefer to put
     their buttons inside other widgets, e.g. QDialog.)
 
+    If you want to use a QWidget to hold child widgets you will
+    probably want to add a layout to the parent QWidget. (See \link
+    layout.html Layouts\endlink.)
+
     QWidget has many member functions, but some of them have little
     direct functionality: for example, QWidget has a font property,
     but never uses this itself. There are many subclasses which
