@@ -1,11 +1,11 @@
 ####### This section is automatically generated from
-#######    /home/agulbra/qt/tutorial/Makefile
+#######    /home/hanord/qt/tutorial/Makefile
 
-INCDIR	= ${QTDIR}/include
-CFLAGS	= -O2 -fno-strength-reduce -W -Wtemplate-debugging -Wparentheses -Wuninitialized -Wchar-subscripts -Wformat -Wtrigraphs -Wcomment -Wswitch -Wunused -Wreturn-type -Wimplicit -Wpointer-arith -Wsynth -Wconversion -Wno-overloaded-virtual
-LFLAGS	= 
-CC	= gcc
-MOC	= moc
+INCDIR	=	$(QTDIR)/include
+CFLAGS	=	-O2
+LFLAGS	=	-L$(QTDIR)/lib -lqt
+CC	=	gcc
+MOC	=	moc
 
 ####### End of automatically generated section
 #
