@@ -2350,6 +2350,8 @@ QRect QTable::cellRect( int row, int col ) const
 void QTable::paintCell( QPainter* p, int row, int col,
 			const QRect &cr, bool selected )
 {
+    if ( cr.width() == 0 || cr.height() == 0 )
+	return;
     QColorGroup cg;
 #if defined(Q_WS_WIN)
     if ( !drawActiveSelection &&
