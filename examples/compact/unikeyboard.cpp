@@ -157,7 +157,7 @@ void UniScrollview::scrollTo( int unicode )
 }
 
 
-void UniScrollview::drawContents( QPainter *p, int cx, int cy, int cw, int ch ) 
+void UniScrollview::drawContents( QPainter *p, int /*cx*/, int cy, int /*cw*/, int ch )
 {
     QFontMetrics fm = fontMetrics();
     int row = cy / cellsize;
