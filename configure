@@ -1749,7 +1749,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     # add freetype2 include path
     if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.inc ];then
-	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xft.inc`\""
+	QMAKE_VARS="$QMAKE_VARS \"FREETYPE2_INCDIR=`cat $outpath/config.tests/x11/xft.inc`\""
     fi
     rm -f $outpath/config.tests/x11/xft.inc
     # add Xft specific libraries
