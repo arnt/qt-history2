@@ -408,7 +408,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 bool QAquaAnimate::focusable(QWidget *w)
 {
 #ifdef Q_WS_MAC
-    QStyle *style = &qApp->style();
+    QStyle *style = &w->style();
     if (style->inherits("QMacStyle")) {
 	QMacStyle::FocusRectPolicy p = ((QMacStyle*)style)->focusRectPolicy(w);
 	if (p == QMacStyle::FocusDisabled)
@@ -417,7 +417,6 @@ bool QAquaAnimate::focusable(QWidget *w)
 	    return true;
     }
 #endif
-    
     return (w && w->parentWidget(TRUE) && 
 	    (w->inherits("QSpinWidget") || w->inherits("QDateTimeEditor") || w->inherits("QComboBox") || 
 	     (w->inherits("QLineEdit") && w->parentWidget()->inherits("QSpinWidget")) ||
@@ -708,7 +707,22 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
     }
     QSize large = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeLarge),
 	  small = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeSmall);
+#ifdef Q_WS_MAC
+    QAquaWidgetSize ret = QAquaSizeUnknown;
+    QStyle *style = &widg->style();
+    if (style->inherits("QMacStyle")) {
+	QMacStyle::WidgetSizePolicy wsp = ((QMacStyle*)style)->widgetSizePolicy((QWidget*)widg);
+	if(wsp == QMacStyle::SizeSmall)
+	    ret = QAquaSizeSmall;
+	else if(wsp == QMacStyle::SizeLarge)
+	    ret = QAquaSizeLarge;
+    }
+    if(ret == QAquaSizeUnknown)
+	ret = qt_aqua_guess_size(widg, large, small);
+#else
     QAquaWidgetSize ret = qt_aqua_guess_size(widg, large, small);
+#endif
+
     QSize *sz = NULL;
     if(ret == QAquaSizeSmall)
 	sz = &small;

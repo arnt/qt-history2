@@ -103,8 +103,12 @@ public:
 			    const QStyleOption& = QStyleOption::Default ) const;
 
     enum FocusRectPolicy { FocusEnabled, FocusDisabled, FocusDefault };
-    void setFocusRectPolicy( QWidget *w, FocusRectPolicy policy);
-    FocusRectPolicy focusRectPolicy( QWidget *w );
+    static void setFocusRectPolicy( QWidget *w, FocusRectPolicy policy);
+    static FocusRectPolicy focusRectPolicy( QWidget *w );
+
+    enum WidgetSizePolicy { SizeSmall, SizeLarge, SizeDefault };
+    static void setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy);
+    static WidgetSizePolicy widgetSizePolicy( QWidget *w );
 
 protected:
     bool event(QEvent *);
@@ -114,9 +118,6 @@ private:        // Disabled copy constructor and operator=
     QMacStyle( const QMacStyle & );
     QMacStyle& operator=( const QMacStyle & );
 #endif
-
-private slots:
-    void focusMapWidgetDestroyed( QObject *obj );
 
 protected:
     QMacStylePrivate *d;

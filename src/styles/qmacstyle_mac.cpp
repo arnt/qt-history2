@@ -164,13 +164,40 @@ public:
     struct ListViewItemState {
 	QMap<QListViewItem*, int> lvis;
     } lviState;
-    QMap<QWidget*, QMacStyle::FocusRectPolicy> focusMap;
+    struct PolicyState {
+	static QMap<QWidget*, QMacStyle::FocusRectPolicy> focusMap;
+	static QMap<QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
+	static void watchObject(QObject *o);
+    };
     QMacStylePrivate();
     ~QMacStylePrivate();
 protected:
     bool doAnimate(QAquaAnimate::Animates);
     void doFocus(QWidget *);
 };
+QMap<QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
+QMap<QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState::sizeMap;
+class QMacStylePrivateObjectWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    QMacStylePrivateObjectWatcher(QObject *p) : QObject(p) { }
+public slots:
+    void destroyedObject(QObject *);
+};
+#include "qmacstyle_mac.moc"
+void QMacStylePrivate::PolicyState::watchObject(QObject *o) 
+{
+    static QGuardedPtr<QMacStylePrivateObjectWatcher> watcher;
+    if(!watcher)
+	watcher = new QMacStylePrivateObjectWatcher(NULL);
+    QObject::connect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
+}
+void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
+{
+    QMacStylePrivate::PolicyState::focusMap.remove((QWidget*)o);
+    QMacStylePrivate::PolicyState::sizeMap.remove((QWidget*)o);
+}
 QMacStylePrivate::QMacStylePrivate() : QAquaAnimate()
 {
     progressbarState.frame = 0;
@@ -1114,6 +1141,9 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(!widget)
 	    break;
 	QToolButton *toolbutton = (QToolButton *) widget;
+	ThemeButtonKind bkind = kThemeBevelButton;
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+	    bkind = kThemeSmallBevelButton;
 
 	QRect button, menuarea;
 	button   = querySubControlMetrics(ctrl, widget, SC_ToolButton, opt);
@@ -1137,7 +1167,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		{ //The AppManager draws outside my rectangle, so account for that difference..
 		    Rect macRect, myRect;
 		    SetRect(&myRect,r.x(), r.y(), r.width(), r.height());
-		    GetThemeButtonBackgroundBounds(&myRect, kThemeBevelButton, &info, &macRect);
+		    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
 		    off_rct = QRect(myRect.left - macRect.left, myRect.top - macRect.top,
 				    (myRect.left - macRect.left) + (macRect.right - myRect.right),
 				    (myRect.top - macRect.top) + (macRect.bottom - myRect.bottom));
@@ -1152,7 +1182,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 		((QMacPainter *)p)->setport();
 		DrawThemeButton(qt_glb_mac_rect(button, p, FALSE, off_rct),
-				kThemeBevelButton, &info, NULL, NULL, NULL, 0);
+				bkind, &info, NULL, NULL, NULL, 0);
 	    } else if(toolbutton->parentWidget() &&
 			toolbutton->parentWidget()->backgroundPixmap() &&
 			! toolbutton->parentWidget()->backgroundPixmap()->isNull()) {
@@ -1168,8 +1198,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(menuarea, p, FALSE),
-			    kThemeBevelButton, &info, NULL, NULL, NULL, 0);
+	    DrawThemeButton(qt_glb_mac_rect(menuarea, p, FALSE), bkind, &info, NULL, NULL, NULL, 0);
 	    QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
 	    DrawThemePopupArrow(qt_glb_mac_rect(r, p),
 				kThemeArrowDown, kThemeArrow7pt, tds, NULL, 0);
@@ -1263,8 +1292,10 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    else
 		p->fillRect(updown, sw->backgroundColor());
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(updown, p), kThemeIncDecButton,
-			    &info, NULL, NULL, NULL, 0);
+	    ThemeButtonKind kind = kThemeIncDecButton;
+	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+		kind = kThemeIncDecButtonSmall;
+	    DrawThemeButton(qt_glb_mac_rect(updown, p), kind, &info, NULL, NULL, NULL, 0);
 	}
 	break; }
     case CC_TitleBar: {
@@ -1461,8 +1492,12 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    info.adornment |= kThemeAdornmentArrowDownArrow;
 	    QRect buttonR = querySubControlMetrics(CC_ComboBox, widget, SC_ComboBoxArrow, opt);
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)),
-			    kThemeArrowButton, &info, NULL, NULL, NULL, 0);
+
+	    ThemeButtonKind bkind = kThemeArrowButton;
+	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+		bkind = kThemeArrowButtonSmall;
+	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)), 
+			    bkind, &info, NULL, NULL, NULL, 0);
 	} else {
 	    info.adornment |= kThemeAdornmentArrowLeftArrow;
 	    ((QMacPainter *)p)->setport();
@@ -2179,6 +2214,10 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    ThemeButtonKind bkind = kThemePushButton;
 	    if(contents == CT_ToolButton)
 	      bkind = kThemeBevelButton;
+	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
+		if(bkind == kThemeBevelButton)
+		    bkind = kThemeSmallBevelButton;
+	    }
 	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	    Rect macRect, myRect;
 	    SetRect(&myRect,0, 0, sz.width(), sz.height());
@@ -2212,8 +2251,6 @@ bool QMacStyle::event(QEvent *e)
 */
 
 /*!
-    \fn void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
-
     Sets the focus rectangle policy of \a w. The \a policy can be one of
     \l{QMacStyle::FocusRectPolicy}.
 
@@ -2221,8 +2258,8 @@ bool QMacStyle::event(QEvent *e)
 */
 void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 {
-    d->focusMap.replace( w, policy );
-    connect( w, SIGNAL(destroyed(QObject*)), SLOT(focusMapWidgetDestroyed(QObject*)));
+    QMacStylePrivate::PolicyState::focusMap.replace( w, policy );
+    QMacStylePrivate::PolicyState::watchObject(w);
     if (w->hasFocus()) {
 	w->clearFocus();
 	w->setFocus();
@@ -2230,8 +2267,6 @@ void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 }
 
 /*!
-    \fn void QMacStyle::focusRectPolicy( QWidget *w )
-
     Returns the focus rectangle policy for the widget \a w.
 
     The focus rectangle policy can be one of \l{QMacStyle::FocusRectPolicy}.
@@ -2240,14 +2275,42 @@ void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 */
 QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy( QWidget *w )
 {
-    if (d->focusMap.contains(w))
-	return d->focusMap[w];
+    if (QMacStylePrivate::PolicyState::focusMap.contains(w))
+	return QMacStylePrivate::PolicyState::focusMap[w];
     return FocusDefault;
 }
 
-void QMacStyle::focusMapWidgetDestroyed( QObject *obj )
+/*!
+    Sets the widget size policy of \a w. The \a policy can be one of
+    \l{QMacStyle::WidgetSizePolicy}.
+
+    \sa widgetSizePolicy()
+*/
+void QMacStyle::setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy )
 {
-    d->focusMap.remove( (QWidget*)obj );
+    QMacStylePrivate::PolicyState::sizeMap.replace( w, policy );
+    QMacStylePrivate::PolicyState::watchObject(w);
+}
+
+/*!
+    Returns the widget size policy for the widget \a w.
+
+    The widget size policy can be one of \l{QMacStyle::WidgetSizePolicy}.
+
+    \sa setWidgetSizePolicy()
+*/
+QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy( QWidget *w )
+{
+    WidgetSizePolicy ret = SizeDefault;
+    if(w) {
+	if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
+	    ret = QMacStylePrivate::PolicyState::sizeMap[w];
+	if(ret == SizeDefault) {
+	    for(QWidget *p = w->parentWidget(TRUE); ret == SizeDefault && p; p = p->parentWidget(TRUE))
+		ret = widgetSizePolicy(p);
+	}
+    }
+    return ret;
 }
 
 #endif
