@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#57 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#58 $
 **
 ** Definition of QMenuData class
 **
@@ -188,9 +188,11 @@ private:
     void	removePopup( QPopupMenu * );
     virtual void	setAllDirty( bool );
 
-private:	//Disabled copy constructor and operator=
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QMenuData( const QMenuData & );
     QMenuData &operator=( const QMenuData & );
+#endif
 };
 
 
