@@ -1500,6 +1500,7 @@ void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 {
     QTable::paintCell(p,row,col,cr, false);  // empty cell
 
+#if 0 // ### Reggie: This looks ugly, any reason for it?
     if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){
 	p->fillRect( 1, 1, cr.width() - 3, cr.height() - 3,
 		     colorGroup().brush( QColorGroup::Highlight ) );
@@ -1508,6 +1509,7 @@ void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     } else {
 	p->setPen( colorGroup().text() );
     }
+#endif
 
     if ( !sqlCursor() )
 	return;
