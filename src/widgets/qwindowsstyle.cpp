@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#5 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1102,7 +1102,6 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 				       bool act, bool enabled, int x, int y, int w, int h)
 {
     const QColorGroup & g = pal.normal();
-    GUIStyle gs	  = *this;
     bool dis	  = !enabled;
     QColorGroup itemg = dis ? pal.disabled()
 			: act ? pal.active()
@@ -1120,8 +1119,6 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	p->drawLine( x, y+1, x+w, y+1 );
 	return;
     }
-
-    int pw = 1;
 
     QBrush fill = act? g.brush( QColorGroup::Highlight ) :
 			    g.brush( QColorGroup::Button );
