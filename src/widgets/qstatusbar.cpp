@@ -289,7 +289,7 @@ void QStatusBar::reformat()
     } else {
 	vbox = d->box = new QVBoxLayout( this );
     }
-    vbox->addSpacing( 5 );
+    vbox->addSpacing( 3 );
     QBoxLayout* l = new QHBoxLayout( vbox );
     l->addSpacing( 3 );
     l->setSpacing( 4 );
