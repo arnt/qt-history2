@@ -504,6 +504,7 @@ void QCursor::update() const
 	"size_bdiag",
 	"size_fdiag",
 	"size_all",
+	"blank",
 	"split_v",
 	"split_h",
 	"pointing_hand",
