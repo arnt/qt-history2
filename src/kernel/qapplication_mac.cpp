@@ -1136,7 +1136,7 @@ static int get_modifiers(int key)
     int ret = 0;
     for(int i = 0; modifier_syms[i].desc; i++) {
 	if(key & modifier_syms[i].mac_code) {
-	    qDebug("got modifier: %s", modifier_syms[i].desc);
+//	    qDebug("got modifier: %s", modifier_syms[i].desc);
 	    ret |= modifier_syms[i].qt_code;
 	}
     }
@@ -1162,17 +1162,14 @@ static key_sym key_syms[] = {
 };
 static int get_key(int key)
 {
-    int ret = key;
     for(int i = 0; key_syms[i].desc; i++) {
 	if(key_syms[i].mac_code == key) {
-	    qDebug("got key: %s", key_syms[i].desc);
-	    ret = key_syms[i].qt_code;
-	    break;
+//	    qDebug("got key: %s", key_syms[i].desc);
+	    return key_syms[i].qt_code;
 	}
     }
-    if(ret == key)
-	qDebug("Falling back to ::%c::", key);
-    return ret;
+    //qDebug("Falling back to ::%c::", key);
+    return key;
 }
 
 
@@ -1355,15 +1352,14 @@ int QApplication::macProcessEvent(MSG * m)
 	    if( part == inContent ) {
 		if(qt_button_down) {
 		    widget = qt_button_down;
-		}
-		else if( mac_mouse_grabber ) {
+		} else if( mac_mouse_grabber ) {
 		    widget = mac_mouse_grabber;
 		} else {
 		    Point pp2 = er->where;
 		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 		}
-		if ( widget && (mouse_button_state != Qt::NoButton
-				|| widget->hasMouseTracking() || hasGlobalMouseTracking())) {
+		if ( widget /*&& (mouse_button_state != Qt::NoButton
+			      || widget->hasMouseTracking() || hasGlobalMouseTracking())*/) {
 		    QPoint p( er->where.h, er->where.v );
 		    QPoint plocal(widget->mapFromGlobal( p ));
 		    QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::NoButton, 
