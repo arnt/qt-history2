@@ -146,6 +146,16 @@ void QWSClient::sendPropertyReplyEvent( int property, int len, char *data )
     writeBlock( (char*)&event, sizeof( event ) - sizeof( event.data ) );
     if ( len > 0 )
 	writeBlock( data, len );
+    flush();
+}
+
+void QWSClient::sendSelectionClearEvent( int windowid )
+{
+    QWSSelectionClearEvent event;
+    event.type = QWSEvent::SelectionClear;
+    event.window = windowid;
+    writeBlock( (char*)&event, sizeof( event ) );
+    flush();
 }
 
 /*********************************************************************
@@ -189,6 +199,11 @@ QWSServer::QWSServer( bool fake, QObject *parent=0, const char *name=0 ) :
 
 
     }
+
+    // no selection yet
+    selectionOwner.windowid = -1;
+    selectionOwner.time.set( -1, -1, -1, -1 );
+    
     if ( !start() )
 	qFatal("Failed to bind to port %d",QTFB_PORT);
 }
@@ -234,6 +249,9 @@ QWSCommand* QWSClient::readMoreCommand()
 	    case QWSCommand::GetProperty:
 		command = new QWSGetPropertyCommand;
 		break;
+	    case QWSCommand::SetSelectionOwner:
+		command = new QWSSetSelectionOwnerCommand;
+		break;
 	    default:
 		qDebug( "QWSClient::readMoreCommand() : Protocol error - got %08x!", command_type );
 	    }
@@ -276,6 +294,9 @@ void QWSServer::doClient()
 	    break;
 	case QWSCommand::GetProperty:
 	    invokeGetProperty( (QWSGetPropertyCommand*)command, client );
+	    break;
+	case QWSCommand::SetSelectionOwner:
+	    invokeSetSelectionOwner( (QWSSetSelectionOwnerCommand*)command );
 	    break;
 	}
 
@@ -392,6 +413,26 @@ void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client
     }
 }
 
+void QWSServer::invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd )
+{
+    qDebug( "QWSServer::invokeSetSelectionOwner" );
+    
+    SelectionOwner so;
+    so.windowid = cmd->simpleData.windowid;
+    so.time.set( cmd->simpleData.hour, cmd->simpleData.minute,
+		 cmd->simpleData.sec, cmd->simpleData.ms );
+
+    if ( selectionOwner.windowid != -1 ) {
+	QWSWindow *win = findWindow( selectionOwner.windowid, 0 );
+	if ( win )
+	    win->client->sendSelectionClearEvent( selectionOwner.windowid );
+	else
+	    qDebug( "couldn't find window %d", selectionOwner.windowid );
+    }
+    
+    selectionOwner = so;
+}
+
 void QWSWindow::addAllocation(QRegion r)
 {
     allocated_region |= r;
@@ -440,7 +481,10 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 	if ( w->winId() == windowid )
 	    return w;
     }
-    return newWindow(windowid,client);
+    if ( client )
+	return newWindow(windowid,client);
+    else
+	return 0;
 }
 
 /*!

@@ -77,6 +77,28 @@ struct QWSPropertyReplyEvent {
     char *data;
 };
 
+struct QWSSelectionClearEvent {
+    int type;
+    int window;
+};
+
+struct QWSSelectionRequestEvent {
+    int type;
+    int window;
+    int requestor; // window which wants the selection
+    int property; // property on requestor into which the selection should be stored, normally QWSProperty::PropSelection
+    int mimeTypes; // Value is stored in the property mimeType on the requestor window. This value may contain
+    // multiple mimeTypes seperated by ;; where the order reflects the priority
+};
+
+struct QWSSelectionNotifyEvent {
+    int type;
+    int window;
+    int requestor; // the window which wanted the selection and to which this event is sent
+    int property; // property of requestor in which the data of the selection is stored
+    int mimeType; // a property on the requestor in which the mime type in which the selection is, is stored
+};
+
 union QWSEvent {
     enum Type {
 	NoEvent,
@@ -85,6 +107,9 @@ union QWSEvent {
 	Creation,
 	PropertyNotify,
 	PropertyReply,
+	SelectionClear,
+	SelectionRequest,
+	SelectionNotify,
 	NEvent
     };
 
@@ -102,6 +127,9 @@ union QWSEvent {
     QWSRegionRemoveEvent region_remove;
     QWSPropertyNotifyEvent property_notify;
     QWSPropertyReplyEvent property_reply;
+    QWSSelectionClearEvent selection_clear;
+    QWSSelectionRequestEvent selection_request;
+    QWSSelectionNotifyEvent selection_notify;
 };
 
 struct EventRec {

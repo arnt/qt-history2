@@ -34,6 +34,7 @@ class QWSClient;
 
 class QWSWindow
 {
+    friend class QWSServer;
 public:
     QWSWindow(int i, QWSClient* c) : id(i), client(c) { }
 
@@ -82,6 +83,7 @@ private:
     void invokeSetProperty( QWSSetPropertyCommand *cmd );
     void invokeRemoveProperty( QWSRemovePropertyCommand *cmd );
     void invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client );
+    void invokeSetSelectionOwner( QWSSetSelectionOwnerCommand *cmd );
 
 private slots:
     void doClient();
@@ -96,12 +98,21 @@ private:
     uchar* framebuffer;
     ClientMap client;
     QWSPropertyManager propertyManager;
-
+    struct SelectionOwner {
+	int windowid;
+	struct Time {
+	    void set( int h, int m, int s, int s2 ) {
+		hour = h; minute = m; sec = s; ms = s2;
+	    }
+	    int hour, minute, sec, ms;
+	} time;
+    } selectionOwner;
+    
     int mouseFD;
     int mouseIdx;
     uchar *mouseBuf;
     int mouseX, mouseY;
-    
+
     // Window management
     QList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
@@ -129,6 +140,7 @@ public:
     void sendMouseEvent(const QPoint& pos, int state);
     void sendPropertyNotifyEvent( int property, int state );
     void sendPropertyReplyEvent( int property, int len, char *data );
+    void sendSelectionClearEvent( int windowid );
     QWSCommand* readMoreCommand();
     void writeRegion( QRegion reg );
 

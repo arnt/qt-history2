@@ -39,6 +39,11 @@ public:
 	PropAppend
     };
 
+    // pre-defined properties
+    enum Atom {
+	PropSelection = 0
+    };
+    
     QWSPropertyManager();
 
     bool setProperty( int winId, int property, int mode, const char *data, int len );

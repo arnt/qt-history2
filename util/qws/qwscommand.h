@@ -93,7 +93,9 @@ struct QWSCommand
 	SetProperty,
 	AddProperty,
 	RemoveProperty,
-	GetProperty
+	GetProperty,
+	SetSelectionOwner,
+	ConvertSelection
     };
 
     // data
@@ -213,6 +215,33 @@ struct QWSGetPropertyCommand : public QWSCommand
 
     struct SimpleData {
 	int windowid, property;
+    } simpleData;
+
+};
+
+struct QWSSetSelectionOwnerCommand : public QWSCommand
+{
+    QWSSetSelectionOwnerCommand() :
+	QWSCommand( QWSCommand::SetSelectionOwner, 
+		    sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int windowid;
+	int hour, minute, sec, ms; // time
+    } simpleData;
+
+};
+
+struct QWSConvertSelectionCommand : public QWSCommand
+{
+    QWSConvertSelectionCommand() :
+	QWSCommand( QWSCommand::ConvertSelection, 
+		    sizeof( simpleData ), (char*)&simpleData ) {}
+
+    struct SimpleData {
+	int requestor; // requestor window of the selection
+	int selection; // property on requestor into which the selection should be stored
+	int mimeTypes; // property ion requestor in which the mimetypes, in which the selection may be, are stored
     } simpleData;
 
 };
