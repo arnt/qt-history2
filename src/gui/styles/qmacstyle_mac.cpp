@@ -1586,6 +1586,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     case QStyle::PE_PanelLineEdit:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (frame->state & QStyle::Style_Sunken) {
+                QColor baseColor(frame->palette.background());
                 HIThemeFrameDrawInfo fdi;
                 fdi.version = qt_mac_hitheme_version;
                 fdi.state = tds;
@@ -1594,6 +1595,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                     fdi.kind = kHIThemeFrameTextFieldSquare;
                     GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
                 } else {
+                    baseColor = QColor(150, 150, 150); //hardcoded since no query function --Sam
                     fdi.kind = kHIThemeFrameListBox;
                     GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
                 }
@@ -1601,14 +1603,13 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 int lw = frame->lineWidth;
                 if (lw <= 0)
                     lw = q->pixelMetric(QStyle::PM_DefaultFrameWidth, frame, w);
-                p->fillRect(frame->rect.x(), frame->rect.y(), lw, frame->rect.height(),
-                            frame->palette.background());
-                p->fillRect(frame->rect.right() - lw + 1, frame->rect.y(), lw, frame->rect.height(),
-                            frame->palette.background());
-                p->fillRect(frame->rect.x(), frame->rect.y(), frame->rect.width(), lw,
-                            frame->palette.background());
-                p->fillRect(frame->rect.x(), frame->rect.bottom() - lw + 1, frame->rect.width(), lw,
-                            frame->palette.background());
+                { //clear to base color
+                    p->save();
+                    p->setPen(QPen(baseColor, lw));
+                    p->setBrush(Qt::NoBrush);
+                    p->drawRect(frame->rect);
+                    p->restore();
+                }
                 HIRect hirect = qt_hirectForQRect(frame->rect, p, false,
                                                   QRect(frame_size, frame_size,
                                                         frame_size * 2, frame_size * 2));
@@ -3146,23 +3147,24 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             if (opt->state & QStyle::Style_Sunken) {
                 SInt32 frame_size;
-                if (pe == QStyle::PE_PanelLineEdit)
+                QColor baseColor(frame->palette.background());
+                if (pe == QStyle::PE_PanelLineEdit) {
                     GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
-                else
+                } else {
+                    baseColor = QColor(150, 150, 150); //hardcoded since no query function --Sam
                     GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
+                }
 
                 int lw = frame->lineWidth;
                 if (lw <= 0)
                     q->pixelMetric(QStyle::PM_DefaultFrameWidth, frame, w);
-
-                p->fillRect(frame->rect.x(), frame->rect.y(), lw, frame->rect.height(),
-                            frame->palette.background()); //left
-                p->fillRect(frame->rect.right()-lw+1, frame->rect.y(), lw, frame->rect.height(),
-                            frame->palette.background()); //right
-                p->fillRect(frame->rect.x(), frame->rect.y(), frame->rect.width(), lw,
-                            frame->palette.background()); //top
-                p->fillRect(frame->rect.x(), frame->rect.bottom()-lw+1, frame->rect.width(), lw,
-                            frame->palette.background()); //bottm
+                { //clear to base color
+                    p->save();
+                    p->setPen(QPen(baseColor, lw));
+                    p->setBrush(Qt::NoBrush);
+                    p->drawRect(frame->rect);
+                    p->restore();
+                }
 
                 const Rect *rect = qt_glb_mac_rect(frame->rect, p, false,
                                                    QRect(frame_size, frame_size, frame_size * 2,
