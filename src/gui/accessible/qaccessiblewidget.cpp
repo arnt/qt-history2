@@ -214,7 +214,7 @@ bool ConnectionObject::isSender(const QObject *receiver, const char *signal) con
     int sigindex = metaObject()->indexOfSignal(signal);
     if (sigindex < 0)
 	return false;
-
+/*
     int i = 0;
     QObjectPrivate::Connections::Connection *connections = d_func()->findConnection(sigindex, i);
     if (connections) do {
@@ -222,6 +222,7 @@ bool ConnectionObject::isSender(const QObject *receiver, const char *signal) con
 	    return true;
 	connections = d_func()->findConnection(sigindex, i);
     } while (connections);
+*/
     return false;
 }
 
@@ -232,24 +233,26 @@ QList<QObject*> ConnectionObject::receiverList(const char *signal) const
     int sigindex = metaObject()->indexOfSignal(signal);
     if (sigindex < 0)
 	return receivers;
-
+/*
     int i = 0;
     QObjectPrivate::Connections::Connection *connections = d_func()->findConnection(sigindex, i);
     if (connections) do {
 	receivers << connections->receiver;
     	connections = d_func()->findConnection(sigindex, i);
     } while (connections);
+*/
     return receivers;
 }
 
 QList<QObject*> ConnectionObject::senders() const
 {
     QList<QObject*> senders;
+/*
     if (!d_func()->senders)
 	return senders;
     for (int i = 0; i < d_func()->senders->count; ++i)
 	senders << d_func()->senders->senders[i].sender;
-
+*/
     return senders;
 }
 
