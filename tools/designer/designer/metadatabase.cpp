@@ -1361,3 +1361,18 @@ QValueList<int> MetaDataBase::breakPoints( QObject *o )
 
     return r->breakPoints;
 }
+
+bool MetaDataBase::hasEventFunctions( QObject *o )
+{
+    if ( !o )
+	return FALSE;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return FALSE;
+    }
+
+    return !r->eventFunctions.isEmpty();
+}

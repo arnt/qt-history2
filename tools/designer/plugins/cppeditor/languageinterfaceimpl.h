@@ -33,6 +33,7 @@ public:
     unsigned long release();
 
     void functions( const QString &code, QValueList<Function> *funcs ) const;
+    void initEventFunctions( QMap<QString, QString> & ) {}
     QString createFunctionStart( const QString &className, const QString &func, const QString &returnType );
     QStringList definitions() const;
     QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const;

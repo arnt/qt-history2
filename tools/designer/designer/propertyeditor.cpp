@@ -2851,7 +2851,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	qApp->processEvents();
 	newItem = item;
 	item->startRename( 0 );
-    } else if ( res == DEL_ITEM ) {
+    } else if ( res == DEL_ITEM && i->parent() ) {
 	QListViewItem *p = i->parent();
 	delete i;
 	save( p );

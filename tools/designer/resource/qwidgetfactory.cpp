@@ -300,7 +300,6 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			funcs += "\n";
 			for ( QStringList::Iterator vit = widgetFactory->variables.begin(); vit != widgetFactory->variables.end(); ++vit )
 			    funcs += interpreterInterface->createVariableDeclaration( *vit ) + "\n";
-			funcs += "init();\n";
 			if ( qwf_execute_code )
 			    interpreterInterface->exec( widgetFactory->toplevel, funcs );
 		    }
@@ -568,6 +567,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 
     EventFunction ef;
 
+    QObject *propertyObject = obj;
+
     while ( !n.isNull() ) {
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, layout );
@@ -632,7 +633,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	n = n.nextSibling().toElement();
     }
 
-    eventMap.insert( obj, ef );
+    eventMap.insert( propertyObject, ef );
 
     return w;
 }
