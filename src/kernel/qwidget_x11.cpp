@@ -2221,10 +2221,10 @@ int QWidget::metric( int m ) const
 		      DisplayHeight(dpy,scr);
 		break;
 	    case QPaintDeviceMetrics::PdmNumColors:
-		val = DisplayCells(dpy,scr);
+		val = x11Cells();
 		break;
 	    case QPaintDeviceMetrics::PdmDepth:
-		val = DisplayPlanes(dpy,scr);
+		val = x11Depth();
 		break;
 	    default:
 		val = 0;
