@@ -80,7 +80,10 @@ void QOpenGLPaintEngine::updatePen(QPainterState *ps)
     dgl->qglColor(ps->pen.color());
     d->cpen = ps->pen;
     d->cbrush = ps->brush;
-    glLineWidth(ps->pen.width());
+    if (ps->pen.width() == 0)
+	glLineWidth(1);
+    else
+	glLineWidth(ps->pen.width());
 }
 
 void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
@@ -482,7 +485,6 @@ static void bind_texture_from_cache(const QPixmap &pm)
     }
 }
 
-
 void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &)
 {
     // see if we have this pixmap cached as a texture - if not cache it
@@ -512,12 +514,48 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
     glColor4f(c[0], c[1], c[2], c[3]);
 }
 
-void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &p, bool)
 {
+    // see if we have this pixmap cached as a texture - if not cache it
+    bind_texture_from_cache(pm);
 
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLfloat c[4];
+    glGetFloatv(GL_CURRENT_COLOR, c);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+
+    GLfloat tc_w = (float) r.width()/pm.width();
+    GLfloat tc_h = (float) r.height()/pm.height();
+
+    // Rotate the texture so that it is aligned correctly and the
+    // wrapping is done correctly
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+    glRotatef(180.0, 0.0, 1.0, 0.0);
+    glRotatef(180.0, 0.0, 0.0, 1.0);
+    glBegin(GL_QUADS);
+    {
+	glTexCoord2f(0.0, 0.0); glVertex2i(r.x(), r.y());
+	glTexCoord2f(tc_w, 0.0); glVertex2i(r.x()+r.width(), r.y());
+	glTexCoord2f(tc_w, tc_h); glVertex2i(r.x()+r.width(), r.y()+r.height());
+	glTexCoord2f(0.0, tc_h); glVertex2i(r.x(), r.y()+r.height());
+    }
+    glEnd();
+    glPopMatrix();
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+    glColor4f(c[0], c[1], c[2], c[3]);
 }
 
-void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
+void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 {
 
 }
