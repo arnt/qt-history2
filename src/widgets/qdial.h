@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#2 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#3 $
 **
 ** Definition of something or other
 **
@@ -42,8 +42,8 @@ public:
 
 public slots:
     virtual void setValue( int );
-    void addStep();
-    void subtractStep();
+    void addLine();
+    void subtractLine();
     void addPage();
     void subtractPage();
 
@@ -70,7 +70,7 @@ private:
     QDialPrivate * d;
 
     int valueFromPoint( const QPoint & ) const;
-    
+
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDial( const QDial & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#4 $
 **
 ** Implementation of something useful.
 **
@@ -26,7 +26,7 @@
 #include "qpainter.h"
 #include "qpointarray.h"
 
-#include <math.h> // M_PI, sin(), cos(), atan() 
+#include <math.h> // M_PI, sin(), cos(), atan()
 //### Forutsetter linking med math lib - Jfr kommentar i qpainter_x11.cpp!
 
 #ifdef _OS_WIN32_
@@ -89,7 +89,7 @@ public:
   notches in pixels.  The default is 3.75 pixels.
 
   Like the slider, the dial makes the QRangeControl functions
-  setValue(), addStep(), substractStep(), addPage() and subtractPage()
+  setValue(), addLine(), substractLine(), addPage() and subtractPage()
   available as slots.
 
   The dial's keyboard interface is fairly simply: The left and right
@@ -177,7 +177,7 @@ void QDial::setValue( int newValue )
 
 /*!  Moves the dial one lineStep() upwards. */
 
-void QDial::addStep()
+void QDial::addLine()
 {
     QRangeControl::addLine();
 }
@@ -185,7 +185,7 @@ void QDial::addStep()
 
 /*!  Moves the dial one lineStep() downwards. */
 
-void QDial::subtractStep()
+void QDial::subtractLine()
 {
     QRangeControl::subtractLine();
 }
@@ -219,11 +219,11 @@ void QDial::paintEvent( QPaintEvent * e )
 
     if ( !d->lines.size() ) {
 	int ns = notchSize();
-	int notches = 1+(maxValue()+notchSize()-1-minValue()) / ns;
-	d->lines.resize( 2*notches );
+	int notches = (maxValue()+notchSize()-1-minValue()) / ns;
+	d->lines.resize( 2+2*notches );
 	int smallLineSize = bigLineSize / 2;
 	int i;
-	for( i=0; i<notches; i++ ) {
+	for( i=0; i<=notches; i++ ) {
 	    double angle = d->wrapping
 			   ? M_PI*3/2 - i*2*M_PI/notches
 			   : (M_PI*8 - i*10*M_PI/notches)/6;
@@ -480,8 +480,7 @@ double QDial::notchTarget() const
 }
 
 
-/*!  Moves the dial one pagePage() upwards.
-*/
+/*!  Moves the dial one pageStep() upwards. */
 
 void QDial::addPage()
 {
@@ -489,9 +488,7 @@ void QDial::addPage()
 }
 
 
-/*!  Moves the dial one pagePage() downwards.
-
-*/
+/*!  Moves the dial one pageStep() downwards. */
 
 void QDial::subtractPage()
 {
