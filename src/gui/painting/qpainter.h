@@ -180,7 +180,8 @@ public:
     void drawImage(const QRect &, const QImage &);
 
     void drawText(int x, int y, const QString &, TextDirection dir = Auto);
-    void drawText(const QPoint &, const QString &, TextDirection dir = Auto);
+    inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)
+    { drawText(p.x(), p.y(), s, dir); }
 
 #ifdef QT_COMPAT
     QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
@@ -383,11 +384,6 @@ inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
     drawPixmap(QRect(p.x(), p.y(), -1, -1),
 	       pm,
 	       QRect(0, 0, pm.width(), pm.height()));
-}
-
-inline void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir)
-{
-    drawText(p.x(), p.y(), s, dir);
 }
 
 inline void QPainter::eraseRect(const QRect &r)
