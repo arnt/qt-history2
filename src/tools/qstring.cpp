@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#228 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#229 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12296,7 +12296,7 @@ QString &QString::setNum( double n, char f, int prec )
   
   \sa setNum()
  */
-QString QString::number( long n, int base=10 )
+QString QString::number( long n, int base )
 {
     QString s;
     s.setNum( n, base );
@@ -12309,7 +12309,7 @@ QString QString::number( long n, int base=10 )
   
   \sa setNum()
  */
-QString QString::number( ulong n, int base=10)
+QString QString::number( ulong n, int base )
 {
     QString s;
     s.setNum( n, base );
@@ -12322,7 +12322,7 @@ QString QString::number( ulong n, int base=10)
   
   \sa setNum()
  */
-QString QString::number( int n, int base=10 )
+QString QString::number( int n, int base )
 {
     QString s;
     s.setNum( n, base );
@@ -12335,7 +12335,7 @@ QString QString::number( int n, int base=10 )
   
   \sa setNum()
  */
-QString QString::number( uint n, int base=10)
+QString QString::number( uint n, int base )
 {
     QString s;
     s.setNum( n, base );
@@ -12352,7 +12352,7 @@ QString QString::number( uint n, int base=10)
   
   \sa setNum()
  */
-QString QString::number( double n, char f='g', int prec=6 )
+QString QString::number( double n, char f, int prec )
 {
     QString s;
     s.setNum( n, f, prec );
