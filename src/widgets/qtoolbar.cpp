@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#53 $
 **
 ** Implementation of QToolBar class
 **
@@ -98,7 +98,7 @@ QToolBar::QToolBar( const QString &label,
 #if defined(CHECK_NULL)
     else
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
-#endif    
+#endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
 }
@@ -128,7 +128,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 #if defined(CHECK_NULL)
     else
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
-#endif    
+#endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
 }
@@ -151,7 +151,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 #if defined(CHECK_NULL)
     else
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
-#endif    
+#endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
 }
@@ -455,7 +455,7 @@ bool QToolBar::setConfiguration( const QDomElement& element )
 
 QObject* QToolBar::factory( QObject* parent )
 {
-  if ( !parent->inherits("QMainWindow") )
+  if ( !parent || !parent->inherits("QMainWindow") )
   {
     qDebug( "The parent of a toolbar must always be a QMainWindow.\n" );
     return 0;
