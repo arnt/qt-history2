@@ -60,7 +60,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
         QLibraryPrivate *library = 0;
         for (int j = 0; j < plugins.count(); ++j) {
             QString fileName = QDir::cleanPath(path + QLatin1Char('/') + plugins.at(j));
-            library = QLibraryPrivate::findOrCreate(QDir(fileName).canonicalPath());
+            library = QLibraryPrivate::findOrCreate(QFileInfo(fileName).canonicalFilePath());
             if (!library->isPlugin()) {
                 library->release();
                 continue;
