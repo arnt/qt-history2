@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#17 $
+# $Id: //depot/qt/main/Makefile.inc#18 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -250,6 +250,7 @@ cleandsp:
 	-del $(PROJECT).ncb
 	-del $(PROJECT).opt
 	-del $(PROJECT).plg
+	-del $(PROJECT).stt
 	-del /Q Debug\*
 	-del /Q Release\*
 	-rmdir Debug
