@@ -54,6 +54,14 @@
 
 // font description
 struct QFontDef {
+    QFontDef()
+	: pointSize(0), lbearing(SHRT_MIN), rbearing(SHRT_MIN),
+	  styleHint(QFont::AnyStyle), styleStrategy(QFont::PreferDefault),
+	  weight(0), italic(FALSE), underline(FALSE), strikeOut(FALSE),
+	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
+    { ; }
+    
+    
     QString family;
 
     short pointSize;
@@ -90,7 +98,7 @@ public:
     { ; }
 
     ~QFontStruct();
-    
+
     Qt::HANDLE handle;
     QCString name;
     QTextCodec *codec;
@@ -150,61 +158,28 @@ public:
 
     static Script scriptForChar(const QChar &c);
 
-
+    
     QFontPrivate()
-	: // printerHackFont(0),
-	exactMatch(FALSE), lineWidth(1)
+	: exactMatch(FALSE), lineWidth(1)
     {
-	request.pointSize = 0;
-	request.lbearing = SHRT_MIN;
-	request.rbearing = SHRT_MIN;
-	request.styleHint = QFont::AnyStyle;
-	request.styleStrategy = QFont::PreferDefault;
-	request.weight = 0;
-	request.italic = FALSE;
-	request.underline = FALSE;
-	request.strikeOut = FALSE;
-	request.fixedPitch = FALSE;
-	request.hintSetByUser = FALSE;
-	request.rawMode = FALSE;
-	request.dirty = TRUE;
-
-	actual.pointSize = 0;
-	actual.lbearing = SHRT_MIN;
-	actual.rbearing = SHRT_MIN;
-	actual.styleHint = QFont::AnyStyle;
-	actual.styleStrategy = QFont::PreferDefault;
-	actual.weight = 0;
-	actual.italic = FALSE;
-	actual.underline = FALSE;
-	actual.strikeOut = FALSE;
-	actual.fixedPitch = FALSE;
-	actual.hintSetByUser = FALSE;
-	actual.rawMode = FALSE;
-	actual.dirty = TRUE;
-
+	
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
 #endif
-
+	
     }
 
     QFontPrivate(const QFontPrivate &fp)
 	: QShared(fp), request(fp.request), actual(fp.actual),
-	  // printerHackFont(fp.printerHackFont),
-	  exactMatch(fp.exactMatch),
-	  lineWidth(1)
-
-#ifdef Q_WS_X11
-	, x11data(fp.x11data)
-#endif
-
+	  exactMatch(fp.exactMatch), lineWidth(1)
     {
-
+	
+	actual.dirty = TRUE;
+	
 #ifndef QT_NO_COMPAT
 	// charset = fp.charset;
 #endif
-
+	
     }
 
     // requested font
@@ -212,10 +187,9 @@ public:
     // actual font
     QFontDef actual;
 
-    // QFont *printerHackFont;
     bool exactMatch;
     int lineWidth;
-
+    
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
@@ -286,22 +260,7 @@ public:
 		fontstruct[i] = 0;
 	    }
 	}
-
-	QFontX11Data(const QFontX11Data &xd)
-	{
-	    QFontStruct *qfs;
-
-	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
-		qfs = xd.fontstruct[i];
-
-		if (qfs && qfs != (QFontStruct *) -1) {
-		    qfs->ref();
-		}
-
-		fontstruct[i] = qfs;
-	    }
-	}
-
+	
 	~QFontX11Data()
 	{
 	    QFontStruct *qfs;
@@ -316,8 +275,6 @@ public:
 	    }
 	}
     } x11data;
-
-    // QFontX11Data x11data;
 
     static QFontPrivate::Script defaultScript;
 
