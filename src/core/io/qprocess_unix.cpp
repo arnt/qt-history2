@@ -18,6 +18,7 @@
 
 #include <qdatetime.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qlist.h>
 #include <qmap.h>
 #include <qmutex.h>
@@ -215,13 +216,13 @@ void QProcessPrivate::execChild()
     argv[arguments.count() + 1] = 0;
 
     // allow invoking of .app bundles on the Mac.
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MAC
     QFileInfo fileInfo(prog);
-    if (prog.isDir() && prog.endsWith(".app")) {
+    if (fileInfo.isDir() && prog.endsWith(".app")) {
         QByteArray tmp = prog;
         int lastSlashPos = tmp.lastIndexOf('/');
         if(lastSlashPos != -1)
-            tmp.remove(0, lastSlashPos);
+            tmp.remove(0, lastSlashPos + 1);
         tmp = prog + "/Contents/MacOS/" + tmp;
         tmp.resize(tmp.size() - 4); // chop off the .app
         if(QFile::exists(tmp))
