@@ -4559,6 +4559,7 @@ void QFileDialog::setMode( Mode newMode )
     if ( d->mode != newMode ) {
 	d->mode = newMode;
 	QString sel = d->currentFileName;
+	int maxnamelen = 255; // _POSIX_MAX_PATH
 	if ( isDirectoryMode( newMode ) ) {
 	    files->setSelectionMode( QListView::Single );
 	    d->moreFiles->setSelectionMode( QListBox::Single );
@@ -4566,7 +4567,7 @@ void QFileDialog::setMode( Mode newMode )
 		sel = QString::fromLatin1(".");
 	    d->types->setEnabled( FALSE );
 	} else if ( newMode == ExistingFiles ) {
-	    files->setSelectionMode( QListView::Extended );
+	    maxnamelen = 16384;
 	    d->moreFiles->setSelectionMode( QListBox::Extended );
 	    d->types->setEnabled( TRUE );
 	} else {
@@ -4574,6 +4575,8 @@ void QFileDialog::setMode( Mode newMode )
 	    d->moreFiles->setSelectionMode( QListBox::Single );
 	    d->types->setEnabled( TRUE );
 	}
+	nameEdit->setMaxLength(maxnamelen);
+	files->setSelectionMode( QListView::Extended );
 	rereadDir();
 	QUrlInfo f( d->url, "." );
 	trySetSelection( f.isDir(), d->url, FALSE );
