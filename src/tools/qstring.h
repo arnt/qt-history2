@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#118 $
+** $Id: //depot/qt/main/src/tools/qstring.h#119 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -411,7 +411,7 @@ private:
     static QChar* asciiToUnicode( const QByteArray&, uint * len );
     static char* unicodeToAscii( const QChar*, uint len );
 
-    struct Data : public QShared {
+    struct Q_EXPORT Data : public QShared {
 	Data() :
 	    unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
 	Data(QChar *u, uint l, uint m) :
