@@ -55,13 +55,14 @@ class QTextDragPrivate : public QDragObjectPrivate
     Q_DECLARE_PUBLIC(QTextDrag)
 public:
     QTextDragPrivate() { setSubType("plain"); }
-    void setSubType(const QString & st);
-
-    enum { nfmt=4 };
+    void setSubType(const QString & st) {
+        subtype = st;
+        fmt = "text/" + subtype.toLatin1();
+    }
 
     QString txt;
-    QByteArray fmt[nfmt];
     QString subtype;
+    QByteArray fmt;
 };
 
 class QStoredDragPrivate : public QDragObjectPrivate
@@ -415,48 +416,6 @@ void stripws(QByteArray& s)
         s.remove(f,1);
 }
 
-static
-const char * staticCharset(int i)
-{
-    static QByteArray localcharset;
-
-    switch (i) {
-      case 0:
-        return "UTF-8";
-      case 1:
-        return "ISO-10646-UCS-2";
-      case 2:
-        return ""; // in the 3rd place - some Xdnd targets might only look at 3
-      case 3:
-        if (localcharset.isNull()) {
-            QTextCodec *localCodec = QTextCodec::codecForLocale();
-            if (localCodec) {
-                localcharset = localCodec->name();
-                localcharset = localcharset.toLower();
-                stripws(localcharset);
-            } else {
-                localcharset = "";
-            }
-        }
-        return localcharset;
-    }
-    return 0;
-}
-
-void QTextDragPrivate::setSubType(const QString & st)
-{
-    subtype = st.toLower();
-    for (int i=0; i<nfmt; i++) {
-        fmt[i] = "text/";
-        fmt[i].append(subtype.latin1());
-        QByteArray cs(staticCharset(i));
-        if (!cs.isEmpty()) {
-            fmt[i].append(";charset=");
-            fmt[i].append(cs);
-        }
-    }
-}
-
 /*!
     \class QTextDrag qdragobject.h
 
@@ -536,7 +495,7 @@ void QTextDrag::setSubtype(const QString & st)
 */
 void QTextDrag::setText(const QString &text)
 {
-    d->txt = text;
+    d->data->setText(text);
 }
 
 
@@ -545,9 +504,9 @@ void QTextDrag::setText(const QString &text)
 */
 const char * QTextDrag::format(int i) const
 {
-    if (i >= d->nfmt)
+    if (i > 0)
         return 0;
-    return d->fmt[i];
+    return d->fmt.constData();
 }
 
 QTextCodec* qt_findcharset(const QByteArray& mimetype)
@@ -567,7 +526,7 @@ QTextCodec* qt_findcharset(const QByteArray& mimetype)
         return QTextCodec::codecForName(cs);
     }
     // no charset=, use locale
-    return QTextCodec::codecForLocale();
+    return QTextCodec::codecForName("utf-8");
 }
 
 static QTextCodec *codecForHTML(const QByteArray &ba)
@@ -636,34 +595,9 @@ QTextCodec* findcodec(const QMimeSource* e)
 */
 QByteArray QTextDrag::encodedData(const char* mime) const
 {
-    QByteArray r;
-    if (0==qstrnicmp(mime,"text/",5)) {
-        QByteArray m(mime);
-        m = m.toLower();
-        QTextCodec *codec = qt_findcharset(m);
-        if (!codec)
-            return r;
-        QString text(d->txt);
-#if defined(Q_WS_WIN)
-        int index = text.indexOf(QString::fromLatin1("\r\n"), 0);
-        while (index != -1) {
-            text.replace(index, 2, QChar('\n'));
-            index = text.indexOf("\r\n", index);
-        }
-#endif
-        r = codec->fromUnicode(text);
-        if (!codec || codec->mibEnum() != 1000) {
-            // Don't include NUL in size (QByteArray::resize() adds NUL)
-#if defined(Q_WS_WIN)
-            // This is needed to ensure the \0 isn't lost on Windows 95
-            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
-                ((QByteArray&)r).resize(r.length()+1);
-            else
-#endif
-                ((QByteArray&)r).resize(r.length());
-        }
-    }
-    return r;
+    if (mime != d->fmt)
+        return QByteArray();
+    return d->txt.toUtf8();
 }
 
 /*!
@@ -682,7 +616,7 @@ bool QTextDrag::canDecode(const QMimeSource* e)
             return findcodec(e) != 0;
         }
     }
-    return 0;
+    return false;
 }
 
 /*!
@@ -834,7 +768,7 @@ QImageDrag::~QImageDrag()
 */
 void QImageDrag::setImage(QImage image)
 {
-    d->img = image; // ### detach?
+    d->img = image;
     QList<QByteArray> formats = QImageIO::outputFormats();
     formats.removeAll("PBM"); // remove non-raw PPM
     if (image.depth()!=32) {
@@ -897,9 +831,8 @@ bool QImageDrag::canDecode(const QMimeSource* e)
 {
     const QList<QByteArray> fileFormats = QImageIO::inputFormats();
 
-    static const QByteArray img("image/");
     for (int i = 0; i < fileFormats.count(); ++i) {
-        if (e->provides(img + fileFormats.at(i).toLower()))
+        if (e->provides("image" + fileFormats.at(i).toLower()))
             return true;
     }
 

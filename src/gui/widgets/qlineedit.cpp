@@ -18,7 +18,7 @@
 #include "qaction.h"
 #include "qapplication.h"
 #include "qclipboard.h"
-#include "qdragobject.h"
+#include "qdrag.h"
 #include "qdrawutil.h"
 #include "qevent.h"
 #include "qfontmetrics.h"
@@ -1875,7 +1875,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
 */
 void QLineEdit::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (!d->readOnly && QTextDrag::canDecode(e)) {
+    if (!d->readOnly && e->mimeData()->hasFormat("text/plain")) {
         e->acceptAction();
         d->cursor = d->xToPos(e->pos().x());
         d->cursorVisible = true;
@@ -1902,15 +1902,9 @@ void QLineEdit::dragLeaveEvent(QDragLeaveEvent *)
 /*!\reimp */
 void QLineEdit::dropEvent(QDropEvent* e)
 {
-    QString str;
-    // try text/plain
-    QString plain("plain");
-    bool decoded = QTextDrag::decode(e, str, plain);
-    // otherwise we'll accept any kind of text (like text/uri-list)
-    if (! decoded)
-        decoded = QTextDrag::decode(e, str);
+    QString str = e->mimeData()->text();
 
-    if (decoded && !d->readOnly) {
+    if (!str.isNull() && !d->readOnly) {
         if (e->source() == this && e->action() == QDropEvent::Copy)
             deselect();
         d->cursor =d->xToPos(e->pos().x());
@@ -1941,9 +1935,12 @@ void QLineEdit::dropEvent(QDropEvent* e)
 void QLineEditPrivate::drag()
 {
     dndTimer.stop();
-    QTextDrag *tdo = new QTextDrag(q->selectedText(), q);
-    // ### fix the check QDragObject::target() != q in Qt4 (should not be needed)
-    if (tdo->drag() && !readOnly && QDragObject::target() != q) {
+    QMimeData *data = new QMimeData;
+    data->setText(q->selectedText());
+    QDrag drag(q);
+    drag.setMimeData(data);
+    QDrag::DragOperation op = drag.start();
+    if (op == QDrag::MoveDrag && !readOnly && drag.target() != q) {
         int priorState = undoState;
         removeSelectedText();
         finishChange(priorState);

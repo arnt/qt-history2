@@ -8,7 +8,7 @@
 #include <qtextformat.h>
 #include <qbasictimer.h>
 
-class QMimeSource;
+class QMimeData;
 
 class QTextEditPrivate : public QViewportPrivate
 {
@@ -39,7 +39,7 @@ public:
 
     void startDrag();
 
-    void paste(const QMimeSource *source);
+    void paste(const QMimeData *source);
 
     void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);

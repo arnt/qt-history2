@@ -18,7 +18,8 @@
 #include <qpainter.h>
 #include <qevent.h>
 #include <qdebug.h>
-#include <qdragobject.h>
+#include <qmime.h>
+#include <qdrag.h>
 #include <qclipboard.h>
 #include <qmenu.h>
 #include <qstyle.h>
@@ -45,79 +46,24 @@
 #define d d_func()
 #define q q_func()
 
-class QRichTextDrag : public QTextDrag
+static QMimeData *createMimeData(const QTextDocumentFragment &fragment)
 {
-public:
-    QRichTextDrag(const QTextDocumentFragment &_fragment, QWidget *dragSource);
+    QMimeData *data = new QMimeData;
 
-    virtual const char *format(int i) const;
-    virtual QByteArray encodedData(const char *mime) const;
+    QByteArray binary;
+    QDataStream stream(&binary, IO_WriteOnly);
+    stream << fragment;
+    data->setData("application/x-qt-richtext", binary);
 
-    static bool decode(const QMimeSource *e, QTextDocumentFragment &fragment);
-    static bool canDecode(const QMimeSource* e);
-
-private:
-    QTextDocumentFragment fragment;
-    mutable bool plainTextSet;
+    data->setText(fragment.toPlainText());
+    return data;
 };
 
-QRichTextDrag::QRichTextDrag(const QTextDocumentFragment &_fragment, QWidget *dragSource)
-    : QTextDrag(dragSource), fragment(_fragment), plainTextSet(false)
+static bool dataHasText(const QMimeData *data)
 {
-}
-
-const char *QRichTextDrag::format(int i) const
-{
-    const char *fmt = QTextDrag::format(i);
-    if (fmt)
-        return fmt;
-    if (QTextDrag::format(i - 1))
-        return "application/x-qt-richtext";
-    return 0;
-}
-
-QByteArray QRichTextDrag::encodedData(const char *mime) const
-{
-    if (qstrcmp(mime, "application/x-qt-richtext") == 0) {
-        QByteArray binary;
-        QDataStream stream(&binary, IO_WriteOnly);
-        stream << fragment;
-        return binary;
-    }
-
-    if (!plainTextSet) {
-        const_cast<QRichTextDrag *>(this)->setText(fragment.toPlainText());
-        plainTextSet = true;
-    }
-
-    return QTextDrag::encodedData(mime);
-}
-
-bool QRichTextDrag::decode(const QMimeSource *e, QTextDocumentFragment &fragment)
-{
-    if (e->provides("application/x-qt-richtext")) {
-        QDataStream stream(e->encodedData("application/x-qt-richtext"));
-        stream >> fragment;
-        return true;
-    } else if (e->provides("application/x-qrichtext")) {
-        fragment = QTextDocumentFragment::fromHTML(e->encodedData("application/x-qrichtext"));
-        return true;
-    }
-
-    QString plainText;
-    if (!QTextDrag::decode( e, plainText ))
-        return false;
-
-    fragment = QTextDocumentFragment::fromPlainText(plainText);
-    return true;
-}
-
-bool QRichTextDrag::canDecode(const QMimeSource* e)
-{
-    if (e->provides("application/x-qt-richtext")
-        || e->provides("application/x-qrichtext"))
-        return true;
-    return QTextDrag::canDecode(e);
+    return data->hasFormat("text/plain")
+        || data->hasFormat("application/x-qrichtext")
+        || data->hasFormat("application/x-qt-richtext");
 }
 
 // could go into QTextCursor...
@@ -451,25 +397,42 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 void QTextEditPrivate::startDrag()
 {
     mousePressed = false;
-    QRichTextDrag *drag = new QRichTextDrag(cursor, viewport);
-    if (readOnly) {
-        drag->dragCopy();
-    } else {
-        if (drag->drag() && QDragObject::target() != q && QDragObject::target() != viewport)
+    QMimeData *data = createMimeData(cursor);
+
+    QDrag drag(q);
+    drag.setMimeData(data);
+
+    drag.setAllowedOperations(readOnly ? QDrag::CopyDrag : QDrag::DefaultDrag);
+    QDrag::DragOperation op = drag.start();
+
+    if (op == QDrag::MoveDrag && drag.target() != q)
             cursor.removeSelectedText();
-    }
 }
 
-void QTextEditPrivate::paste(const QMimeSource *source)
+void QTextEditPrivate::paste(const QMimeData *source)
 {
-    if (readOnly || !source || !QRichTextDrag::canDecode(source))
+    if (readOnly || !source)
 	return;
 
+    bool hasData = false;
     QTextDocumentFragment fragment;
-    if (!QRichTextDrag::decode(source, fragment))
-	return;
+    if (source->hasFormat("application/x-qt-richtext")) {
+        QDataStream stream(source->data("application/x-qt-richtext"));
+        stream >> fragment;
+        hasData = true;
+    } else if (source->hasFormat("application/x-qrichtext")) {
+        fragment = QTextDocumentFragment::fromHTML(source->data("application/x-qrichtext"));
+        hasData = true;
+    } else {
+        QString text = source->text();
+        if (!text.isNull()) {
+            fragment = QTextDocumentFragment::fromPlainText(text);
+            hasData = true;
+        }
+    }
 
-    cursor.insertFragment(fragment);
+    if (hasData)
+        cursor.insertFragment(fragment);
     q->ensureCursorVisible();
 }
 
@@ -561,8 +524,8 @@ void QTextEditPrivate::setClipboardSelection()
 {
     if (!d->cursor.hasSelection())
         return;
-    QRichTextDrag *drag = new QRichTextDrag(d->cursor, 0);
-    QApplication::clipboard()->setData(drag, QClipboard::Selection);
+    QMimeData *data = createMimeData(d->cursor);
+    QApplication::clipboard()->setMimeData(data, QClipboard::Selection);
 }
 
 void QTextEditPrivate::ensureVisible(int documentPosition)
@@ -1179,8 +1142,8 @@ void QTextEdit::copy()
 {
     if (!d->cursor.hasSelection())
 	return;
-    QRichTextDrag *drag = new QRichTextDrag(d->cursor, 0);
-    QApplication::clipboard()->setData(drag);
+    QMimeData *data = createMimeData(d->cursor);
+    QApplication::clipboard()->setMimeData(data);
 }
 
 /*!
@@ -1194,7 +1157,7 @@ void QTextEdit::copy()
 
 void QTextEdit::paste()
 {
-    d->paste(QApplication::clipboard()->data());
+    d->paste(QApplication::clipboard()->mimeData());
 }
 
 /*!
@@ -1614,7 +1577,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
         d->setCursorPosition(ev->pos());
-        d->paste(QApplication::clipboard()->data(QClipboard::Selection));
+        d->paste(QApplication::clipboard()->mimeData(QClipboard::Selection));
     }
 
     d->viewport->update();
@@ -1673,7 +1636,7 @@ void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
 */
 void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
 {
-    if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
+    if (d->readOnly || !dataHasText(ev->mimeData())) {
         ev->ignore();
         return;
     }
@@ -1684,7 +1647,7 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
 */
 void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 {
-    if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
+    if (d->readOnly || !dataHasText(ev->mimeData())) {
         ev->ignore();
         return;
     }
@@ -1704,7 +1667,7 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 */
 void QTextEdit::dropEvent(QDropEvent *ev)
 {
-    if (d->readOnly || !QRichTextDrag::canDecode(ev))
+    if (d->readOnly || !dataHasText(ev->mimeData()))
         return;
 
     ev->acceptAction();
@@ -1714,7 +1677,7 @@ void QTextEdit::dropEvent(QDropEvent *ev)
         d->cursor.removeSelectedText();
 
     d->setCursorPosition(ev->pos());
-    d->paste(ev);
+    d->paste(ev->mimeData());
 }
 
 /*! \reimp

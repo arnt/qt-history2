@@ -56,8 +56,8 @@
     QClipboard features some convenience functions to access common data
     types: setText() allows the exchange of Unicode text and
     setPixmap() and setImage() allows the exchange of QPixmaps
-    and QImages between applications. The setData() function is the
-    ultimate in flexibility: it allows you to add any QMimeSource into the
+    and QImages between applications. The setMimeData() function is the
+    ultimate in flexibility: it allows you to add any QMimeData into the
     clipboard. There are corresponding getters for each of these, e.g.
     text(), image() and pixmap().
 
@@ -205,9 +205,24 @@ QClipboard::~QClipboard()
 */
 QString QClipboard::text(QString &subtype, Mode mode) const
 {
-    QString r;
-    QTextDrag::decode(data(mode), r, subtype);
-    return r;
+    const QMimeData *data = mimeData(mode);
+    if (subtype.isEmpty()) {
+        QStringList formats = data->formats();
+        if (formats.contains("text/plain"))
+            subtype = "plain";
+        else {
+            for (int i = 0; i < formats.size(); ++i)
+                if (formats.at(i).startsWith("text/")) {
+                    subtype = formats.at(i).mid(5);
+                    break;
+                }
+        }
+    }
+    if (subtype.isEmpty())
+        return QString();
+    if (subtype == "plain")
+        return data->text();
+    return QString::fromUtf8(data->data("text/" + subtype));
 }
 
 /*!
@@ -224,8 +239,7 @@ QString QClipboard::text(QString &subtype, Mode mode) const
 */
 QString QClipboard::text(Mode mode) const
 {
-    QString subtype("plain");
-    return text(subtype, mode);
+    return mimeData(mode)->text();
 }
 
 /*!
@@ -241,7 +255,9 @@ QString QClipboard::text(Mode mode) const
 */
 void QClipboard::setText(const QString &text, Mode mode)
 {
-    setData(new QTextDrag(text), mode);
+    QMimeData *data = new QMimeData;
+    data->setText(text);
+    setMimeData(data, mode);
 }
 
 /*!
@@ -259,8 +275,8 @@ void QClipboard::setText(const QString &text, Mode mode)
 */
 QImage QClipboard::image(Mode mode) const
 {
-    QImage r;
-    QImageDrag::decode(data(mode), r);
+    QPixmap pm = mimeData(mode)->pixmap();
+    QImage r = pm.toImage();
     return r;
 }
 
@@ -275,14 +291,22 @@ QImage QClipboard::image(Mode mode) const
 
     This is shorthand for:
     \code
-        setData(new QImageDrag(image), mode)
+        QMimeData *data = new QMimeData;
+        QPixmap pm;
+        pm.fromImage(image);
+        data->setPixmap(pm);
+        setMimeData(data, mode);
     \endcode
 
     \sa image(), setPixmap() setData()
 */
 void QClipboard::setImage(const QImage &image, Mode mode)
 {
-    setData(new QImageDrag(image), mode);
+    QMimeData *data = new QMimeData;
+    QPixmap pm;
+    pm.fromImage(image);
+    data->setPixmap(pm);
+    setMimeData(data, mode);
 }
 
 /*!
@@ -302,9 +326,7 @@ void QClipboard::setImage(const QImage &image, Mode mode)
 */
 QPixmap QClipboard::pixmap(Mode mode) const
 {
-    QPixmap r;
-    QImageDrag::decode(data(mode), r);
-    return r;
+    return mimeData(mode)->pixmap();
 }
 
 /*!
@@ -322,11 +344,58 @@ QPixmap QClipboard::pixmap(Mode mode) const
 */
 void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
-    // *could* just use the handle, but that is X hackery, MIME is better.
-    setData(new QImageDrag(pixmap.toImage()), mode);
+    QMimeData *data = new QMimeData;
+    data->setPixmap(pixmap);
+    setMimeData(data, mode);
 }
 
 
+/*! \fn QMimeData *QClipboard::mimeData(Mode mode) const
+    Returns a reference to a QMimeData representation of the current
+    clipboard data.
+
+    The \a mode argument is used to control which part of the system
+    clipboard is used.  If \a mode is QClipboard::Clipboard, the
+    data is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the data is retrieved from the global
+    mouse selection.
+
+    The text(), image() and pixmap() functions are simpler
+    wrappers for retrieving text, image and pixmap data.
+
+    \sa setData()
+*/
+
+/*! \fn void QClipboard::setData(QMimeData *src, Mode mode)
+    Sets the clipboard data to \a src. Ownership of the data is
+    transferred to the clipboard. If you want to remove the data
+    either call clear() or call setData() again with new data.
+
+    The \a mode argument is used to control which part of the system
+    clipboard is used.  If \a mode is QClipboard::Clipboard, the
+    data is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the data is retrieved from the global
+    mouse selection.
+
+    The setText(), setImage() and setPixmap() functions are simpler
+    wrappers for setting text, image and pixmap data respectively.
+
+    \sa data()
+*/
+
+/*! \fn void QClipboard::clear(Mode mode)
+    Clear the clipboard contents.
+
+    The \a mode argument is used to control which part of the system
+    clipboard is used.  If \a mode is QClipboard::Clipboard, this
+    function clears the the global clipboard contents.  If \a mode is
+    QClipboard::Selection, this function clears the global mouse
+    selection contents.
+
+    \sa QClipboard::Mode, supportsSelection()
+*/
+
+#ifdef QT_COMPAT
 /*! \fn QMimeSource *QClipboard::data(Mode mode) const
     Returns a reference to a QMimeSource representation of the current
     clipboard data.
@@ -337,8 +406,22 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     QClipboard::Selection, the data is retrieved from the global
     mouse selection.
 
-    \sa setData()
+    \sa mimeData()
 */
+QMimeSource *QClipboard::data(Mode mode) const
+{
+    Q_D(const QClipboard);
+
+    if (mode != Clipboard && !supportsSelection())
+        return 0;
+
+    if (d->compat_data[mode])
+        return d->compat_data[mode];
+
+    d->wrapper[mode]->data = mimeData(mode);
+    return d->wrapper[mode];
+}
+
 
 /*! \fn void QClipboard::setData(QMimeSource *src, Mode mode)
     Sets the clipboard data to \a src. Ownership of the data is
@@ -361,36 +444,8 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     The setText(), setImage() and setPixmap() functions are simpler
     wrappers for setting text, image and pixmap data respectively.
 
-    \sa data()
+    \sa setMimeData()
 */
-
-/*! \fn void QClipboard::clear(Mode mode)
-    Clear the clipboard contents.
-
-    The \a mode argument is used to control which part of the system
-    clipboard is used.  If \a mode is QClipboard::Clipboard, this
-    function clears the the global clipboard contents.  If \a mode is
-    QClipboard::Selection, this function clears the global mouse
-    selection contents.
-
-    \sa QClipboard::Mode, supportsSelection()
-*/
-
-#ifdef QT_COMPAT
-QMimeSource *QClipboard::data(Mode mode) const
-{
-    Q_D(const QClipboard);
-
-    if (mode != Clipboard && !supportsSelection())
-        return 0;
-
-    if (d->compat_data[mode])
-        return d->compat_data[mode];
-
-    d->wrapper[mode]->data = mimeData(mode);
-    return d->wrapper[mode];
-}
-
 void QClipboard::setData(QMimeSource *source, Mode mode)
 {
     Q_D(QClipboard);

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#define QCLIPBOARD_DEBUG
-#define QCLIPBOARD_DEBUG_VERBOSE
+// #define QCLIPBOARD_DEBUG
+// #define QCLIPBOARD_DEBUG_VERBOSE
 
 #ifdef QCLIPBOARD_DEBUG
 #  define DEBUG qDebug
@@ -643,7 +643,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     if (formats.contains("image/pbm")) atoms++;
     if (formats.contains("text/plain")) atoms+=4;
 
-    VDEBUG("QClipboard: send_targets_selection(): %d provided types", atoms);
+    VDEBUG("QClipboard: send_targets_selection(): data provides %d types, mapped to %d provided types", formats.size(), atoms);
 
     // for 64 bit cleanness... XChangeProperty expects long* for data with format == 32
     QByteArray data;
@@ -651,8 +651,10 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     long *atarget = (long *) data.data();
 
     int n = 0;
-    for (n = 0; n < formats.size(); ++n)
-        atarget[n++] = qt_xdnd_str_to_atom(formats.at(n).latin1());
+    for (n = 0; n < formats.size(); ++n) {
+        VDEBUG("    original format %s", formats.at(n).latin1());
+        atarget[n] = qt_xdnd_str_to_atom(formats.at(n).latin1());
+    }
 
     if (formats.contains("image/ppm"))
         atarget[n++] = XA_PIXMAP;
@@ -1011,8 +1013,7 @@ bool QClipboard::event(QEvent *e)
             if (req->target == xa_multiple) {
                 QByteArray multi_data;
                 if (req->property == XNone
-                    || !qt_xclb_read_property(dpy, req->requestor, req->property,
-                                              false, &multi_data, 0, &multi_type, &multi_format, 0)
+                    || !qt_xclb_read_property(dpy, req->requestor, req->property, false, &multi_data, 0, &multi_type, &multi_format, 0)
                     || multi_format != 32) {
                     // MULTIPLE property not formatted correctly
                     XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
@@ -1176,6 +1177,7 @@ QStringList QClipboardWatcher::formats() const
                     formatList.append("text/plain");
                 else
                     formatList.append(qt_xdnd_atom_to_str(targets[i]));
+                VDEBUG("    data:\n%s\n", getDataInFormat(targets[i]).data());
             }
 
             DEBUG("QClipboardWatcher::format: %d formats available", formatList.count());
@@ -1220,7 +1222,6 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
                 if (fmtatom == 0 || fmtatom == XA_STRING || fmtatom == ATOM(TEXT) || fmtatom == ATOM(COMPOUND_TEXT))
                     fmtatom = targets[i];
             }
-            qDebug("        fmtatom=%s", qt_xdnd_atom_to_str(fmtatom));
         }
 
         if (fmtatom == 0)

@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QMimeData : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QMimeData)
 public:
-    QMimeData(QObject *parent);
+    QMimeData(QObject *parent = 0);
     ~QMimeData();
 
     QList<QUrl> urls() const;
