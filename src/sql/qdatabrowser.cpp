@@ -883,6 +883,7 @@ bool QDataBrowser::insertCurrent()
     if ( !buf || !cur )
 	return FALSE;
     writeFields();
+    emit beforeInsert( buf );
     int ar = cur->insert();
     if ( !ar || !cur->isActive() ) {
 	handleError( cur->lastError() );
@@ -920,6 +921,7 @@ bool QDataBrowser::updateCurrent()
     if ( !buf || !cur )
 	return FALSE;
     writeFields();
+    emit beforeUpdate( buf );
     int ar = cur->update();
     if ( !ar || !cur->isActive() ) {
 	handleError( cur->lastError() );
@@ -961,6 +963,7 @@ bool QDataBrowser::deleteCurrent()
 	return FALSE;
     writeFields();
     int n = cur->at();
+    emit beforeDelete( buf );
     int ar = cur->del();
     if ( ar ) {
 	refresh();
@@ -1165,6 +1168,21 @@ QSql::Confirm  QDataBrowser::confirmCancel( QSql::Op m )
 {
     return d->dat.confirmCancel( this, m );
 }
+
+/*! \fn void QDataBrowser::beforeInsert( QSqlRecord* buf )
+  This signal is emitted just before the cursor's edit buffer is inserted into the database.
+  The \a buf parameter points to the edit buffer being inserted.
+*/
+
+/*! \fn void QDataBrowser::beforeUpdate( QSqlRecord* buf )
+  This signal is emitted just before the cursor's edit buffer is updated in the database.
+  The \a buf parameter points to the edit buffer being updated.
+*/
+
+/*! \fn void QDataBrowser::beforeDelete( QSqlRecord* buf )
+  This signal is emitted just before the cursor's edit buffer  is deleted from the database.
+  The \a buf parameter points to the edit buffer being deleted.
+*/
 
 
 #endif

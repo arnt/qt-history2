@@ -123,6 +123,9 @@ signals:
     void primeInsert( QSqlRecord* buf );
     void primeUpdate( QSqlRecord* buf );
     void primeDelete( QSqlRecord* buf );
+    void beforeInsert( QSqlRecord* buf );
+    void beforeUpdate( QSqlRecord* buf );
+    void beforeDelete( QSqlRecord* buf );
     void cursorChanged( QSqlCursor::Mode mode );
 
 public slots:
