@@ -95,8 +95,9 @@
 
 #include <stdlib.h>
 
-struct QWidgetFactoryPrivate
+class QWidgetFactoryPrivate
 {
+public:
     QCString translationContext;
     QListViewItem *lastItem;
 };
