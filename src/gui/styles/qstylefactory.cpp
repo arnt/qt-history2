@@ -38,8 +38,10 @@ QString pstring2qstring(const unsigned char *c); //qglobal.cpp
 #include "qmacstyle_mac.h"
 #endif
 
+#ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/styles", Qt::CaseInsensitive))
+#endif
 
 /*!
     \class QStyleFactory qstylefactory.h
@@ -119,11 +121,12 @@ QStyle *QStyleFactory::create(const QString& key)
         ret = new QMacStyle;
 #endif
     { } // Keep these here - they make the #ifdefery above work
-
+#ifndef QT_NO_COMPONENT
     if(!ret) {
         if (QStyleFactoryInterface *factory = qt_cast<QStyleFactoryInterface*>(loader()->instance(style)))
             ret = factory->create(style);
     }
+#endif
     if(ret)
         ret->setObjectName(style);
     return ret;
@@ -136,8 +139,11 @@ QStyle *QStyleFactory::create(const QString& key)
 */
 QStringList QStyleFactory::keys()
 {
+#ifndef QT_NO_COMPONENT
     QStringList list = loader()->keys();
-
+#else
+    QStringList list;
+#endif
 #ifndef QT_NO_STYLE_WINDOWS
     if (!list.contains("Windows"))
         list << "Windows";

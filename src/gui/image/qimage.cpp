@@ -3745,13 +3745,15 @@ QImageHandler::QImageHandler(const char *f, const char *h, const QByteArray& fl,
 typedef QList<QImageHandler *> QIHList;
 static QIHList imageHandlers;
 
+#ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageFormatInterface_iid,
                            QCoreApplication::libraryPaths(),
                            "/imageformats"))
-
+#endif
 void qt_init_image_plugins()
 {
+#ifndef QT_NO_COMPONENT
     static QStaticMutex mutex = 0;
     if (mutex)
         return;
@@ -3764,6 +3766,7 @@ void qt_init_image_plugins()
         if (format)
             format->installIOHandler(keys.at(i));
     }
+#endif
 }
 
 static void cleanup()
@@ -6286,8 +6289,8 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
 
 #if defined(Q_WS_X11)
 QImage::Endian qX11BitmapBitOrder()
-{ 
-    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian; 
+{
+    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian;
 }
 #endif
 

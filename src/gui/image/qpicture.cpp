@@ -1437,13 +1437,15 @@ QPictureHandler::QPictureHandler(const char *f, const char *h, const QByteArray&
 typedef QList<QPictureHandler *> QPHList;
 static QPHList pictureHandlers;
 
+#ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QPictureFormatInterface_iid,
                            QCoreApplication::libraryPaths(),
                            "/pictureformats"))
-
+#endif
 void qt_init_picture_plugins()
 {
+#ifndef QT_NO_COMPONENT
     static QStaticMutex mutex = 0;
     if (mutex)
         return;
@@ -1453,6 +1455,7 @@ void qt_init_picture_plugins()
     for (int i = 0; i < keys.count(); ++i)
         if (QPictureFormatInterface *format = qt_cast<QPictureFormatInterface*>(loader->instance(keys.at(i))))
             format->installIOHandler(keys.at(i));
+#endif
 }
 
 static void cleanup()

@@ -297,8 +297,10 @@
     avoid unnecessary computations.
 */
 
+#ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessible"))
+#endif
 
 Q_GLOBAL_STATIC(QList<QAccessible::InterfaceFactory>, qAccessibleFactories);
 
@@ -433,13 +435,14 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
             if (iface)
                 return iface;
         }
-
+#ifndef QT_NO_COMPONENT
         QAccessibleFactoryInterface *factory = qt_cast<QAccessibleFactoryInterface*>(loader()->instance(cn));
         if (factory) {
             iface = factory->create(cn, object);
             if (iface)
                 return iface;
         }
+#endif
         mo = mo->superClass();
     }
 

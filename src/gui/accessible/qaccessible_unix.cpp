@@ -24,9 +24,10 @@
 
 #include <stdlib.h>
 
+#ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessiblebridge"))
-
+#endif
 Q_GLOBAL_STATIC(QVector<QAccessibleBridge *>, bridges)
 static bool isInit = false;
 
@@ -38,7 +39,7 @@ void QAccessible::initialize()
 
     if (qstrcmp(getenv("QT_ACCESSIBILITY"), "1") != 0)
         return;
-
+#ifndef QT_NO_COMPONENT
     const QStringList l = loader()->keys();
     for (int i = 0; i < l.count(); ++i) {
         qDebug("GOT: %s, %p", l.at(i).ascii(), loader()->instance(l.at(i)));
@@ -50,6 +51,7 @@ void QAccessible::initialize()
                 bridges()->append(bridge);
         }
     }
+#endif
 }
 
 void QAccessible::cleanup()
