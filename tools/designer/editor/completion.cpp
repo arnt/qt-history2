@@ -77,7 +77,8 @@ private:
 	    QTextFormat *f1 = parag->formatCollection()->format( listBox()->font(), getColor( type ) );
 	    QFont f( listBox()->font() );
 	    f.setBold( TRUE );
-	    QTextFormat *f2 = parag->formatCollection()->format( f, Qt::black );
+	    QTextFormat *f2 = parag->formatCollection()->format( f, selected() ? listBox()->colorGroup().highlightedText() :
+								 listBox()->colorGroup().text() );
 	    parag->setFormat( 1, type.length() + 1, f1 );
 	    parag->setFormat( type.length() + 2, QListBoxItem::text().length(), f2 );
 	    f1->removeRef();
