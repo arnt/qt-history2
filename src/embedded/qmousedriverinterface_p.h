@@ -30,8 +30,20 @@
 **
 **********************************************************************/
 
-#ifndef QMOUSEDRIVERINTERFACE_H
-#define QMOUSEDRIVERINTERFACE_H
+#ifndef QMOUSEDRIVERINTERFACE_P_H
+#define QMOUSEDRIVERINTERFACE_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  This header file may
+// change from version to version without notice, or even be
+// removed.
+//
+// We mean it.
+//
+//
 
 #ifndef QT_H
 #include <private/qcom_p.h>
@@ -53,4 +65,4 @@ struct Q_EXPORT QMouseDriverInterface : public QFeatureListInterface
 
 #endif // QT_NO_COMPONENT
 
-#endif // QMOUSEDRIVERINTERFACE_H
+#endif // QMOUSEDRIVERINTERFACE_P_H

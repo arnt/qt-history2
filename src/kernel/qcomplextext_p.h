@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Internal header file.
 **
 ** Created : 
 **
-** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QCOMPLEXTEXT_H
-#define QCOMPLEXTEXT_H
+#ifndef QCOMPLEXTEXT_P_H
+#define QCOMPLEXTEXT_P_H
 
 //
 //  W A R N I N G

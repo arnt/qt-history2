@@ -35,13 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QUCOM_H
-#define QUCOM_H
-
-#ifndef QT_H
-#include <qstring.h>
-#include "quuid.h"
-#endif // QT_H
+#ifndef QUCOM_P_H
+#define QUCOM_P_H
 
 //
 //  W A R N I N G
@@ -54,6 +49,11 @@
 // We mean it.
 //
 //
+
+#ifndef QT_H
+#include <qstring.h>
+#include "quuid.h"
+#endif // QT_H
 
 #ifdef check
 #undef check
@@ -496,4 +496,4 @@ struct Q_EXPORT QUType_QString : public QUType
 extern Q_EXPORT QUType_QString static_QUType_QString;
 
 
-#endif // QUCOM_H
+#endif // QUCOM_P_H

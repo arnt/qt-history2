@@ -33,8 +33,8 @@
 **
 **********************************************************************/
 
-#ifndef QCOM_H
-#define QCOM_H
+#ifndef QCOM_P_H
+#define QCOMP_H
 
 //
 //  W A R N I N G
@@ -334,4 +334,4 @@ public:		   \
 
 #endif //QT_NO_COMPONENT
 
-#endif //QCOM_H
+#endif //QCOM_P_H

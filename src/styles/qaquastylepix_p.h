@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Aqua-like style class
 **
@@ -29,7 +29,9 @@
 **
 **********************************************************************/
 
-#ifndef QT_NO_STYLE_AQUA
+#ifndef QAQUASTYLEPIX_P_H
+#define QAQUASTYLEPIX_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -41,8 +43,8 @@
 // We mean it.
 //
 //
-#ifndef __QAQUASTYLEPIX_H__
-#define __QAQUASTYLEPIX_H__
+
+#ifndef QT_NO_STYLE_AQUA
 
 #ifndef QT_H
 # include <qpixmapcache.h>
@@ -13068,4 +13070,4 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 }
 
 #endif /* QT_NO_STYLE_AQUA */
-#endif /* __QAQUASTYLEPIX_H__ */
+#endif /* QAQUASTYLEPIX_P_H */

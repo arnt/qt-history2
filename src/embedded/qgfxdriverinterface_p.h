@@ -30,8 +30,20 @@
 **
 **********************************************************************/
 
-#ifndef QGFXDRIVERINTERFACE_H
-#define QGFXDRIVERINTERFACE_H
+#ifndef QGFXDRIVERINTERFACE_P_H
+#define QGFXDRIVERINTERFACE_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  This header file may
+// change from version to version without notice, or even be
+// removed.
+//
+// We mean it.
+//
+//
 
 #ifndef QT_H
 #include <private/qcom_p.h>
@@ -53,4 +65,4 @@ struct Q_EXPORT QGfxDriverInterface : public QFeatureListInterface
 
 #endif // QT_NO_COMPONENT
 
-#endif // QGFXDRIVERINTERFACE_H
+#endif // QGFXDRIVERINTERFACE_P_H

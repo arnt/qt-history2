@@ -33,8 +33,8 @@
 **
 **********************************************************************/
 
-#ifndef QCRITICALSECTION_H
-#define QCRITICALSECTION_H
+#ifndef QCRITICALSECTION_P_H
+#define QCRITICALSECTION_P_H
 
 #ifndef QT_H
 #endif // QT_H

@@ -35,12 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QPLUGINMANAGER_H
-#define QPLUGINMANAGER_H
-
-#ifndef QT_H
-#include "qgpluginmanager_p.h"
-#endif // QT_H
+#ifndef QPLUGINMANAGER_P_H
+#define QPLUGINMANAGER_P_H
 
 //
 //  W A R N I N G
@@ -53,6 +49,10 @@
 // We mean it.
 //
 //
+
+#ifndef QT_H
+#include "qgpluginmanager_p.h"
+#endif // QT_H
 
 #ifndef QT_NO_COMPONENT
 
@@ -70,4 +70,4 @@ public:
 
 #endif //QT_NO_COMPONENT
 
-#endif //QPLUGINMANAGER_H
+#endif //QPLUGINMANAGER_P_H

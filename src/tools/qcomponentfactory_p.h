@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QCOMPONENTFACTORY_H
-#define QCOMPONENTFACTORY_H
+#ifndef QCOMPONENTFACTORY_P_H
+#define QCOMPONENTFACTORY_P_H
 
 #ifndef QT_H
 #include "qcom_p.h"
@@ -70,4 +70,4 @@ public:
 
 #endif // QT_NO_COMPONENT
 
-#endif // QCOMPONENTFACTORY_H
+#endif // QCOMPONENTFACTORY_P_H

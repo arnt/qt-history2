@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of ???
+** ...
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
@@ -33,8 +33,8 @@
 **
 **********************************************************************/
 
-#ifndef QIMAGEFORMATINTERFACE_H
-#define QIMAGEFORMATINTERFACE_H
+#ifndef QIMAGEFORMATINTERFACE_P_H
+#define QIMAGEFORMATINTERFACE_P_H
 
 #ifndef QT_H
 #include <private/qcom_p.h>
@@ -72,4 +72,4 @@ struct Q_EXPORT QImageFormatInterface : public QFeatureListInterface
 
 #endif // QT_NO_COMPONENT
 
-#endif // QIMAGEFORMATINTERFACE_H
+#endif // QIMAGEFORMATINTERFACE_P_H

@@ -33,8 +33,8 @@
 **
 **********************************************************************/
 
-#ifndef QUCOMLIBRARY_H
-#define QUCOMLIBRARY_H
+#ifndef QUCOMLIBRARY_P_H
+#define QUCOMLIBRARY_P_H
 
 //
 //  W A R N I N G
@@ -76,4 +76,4 @@ private:
 
 #endif //QT_NO_COMPONENT
 
-#endif // QUCOMLIBRARY_H
+#endif // QUCOMLIBRARY_P_H

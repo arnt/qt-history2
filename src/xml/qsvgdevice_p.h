@@ -35,8 +35,8 @@
 **
 *****************************************************************************/
 
-#ifndef QSVGDEVICE_H
-#define QSVGDEVICE_H
+#ifndef QSVGDEVICE_P_H
+#define QSVGDEVICE_P_H
 
 //
 //  W A R N I N G
@@ -131,4 +131,4 @@ inline QRect QSvgDevice::boundingRect() const
 
 #endif // QT_NO_SVG
 
-#endif // QSVGDEVICE_H
+#endif // QSVGDEVICE_P_H

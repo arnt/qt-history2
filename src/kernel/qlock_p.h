@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QLock class. This manages interprocess locking
 **
 ** Created : 20000406
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,8 +30,20 @@
 **
 **********************************************************************/
 
-#ifndef QLOCK_QWS_H
-#define QLOCK_QWS_H
+#ifndef QLOCK_P_H
+#define QLOCK_P_H
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  This header file may
+// change from version to version without notice, or even be
+// removed.
+//
+// We mean it.
+//
+//
 
 #ifndef QT_H
 #include <qstring.h>

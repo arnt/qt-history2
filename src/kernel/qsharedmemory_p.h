@@ -5,7 +5,7 @@
 **
 ** Created : 020124
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -30,6 +30,9 @@
 **
 **********************************************************************/
 
+#ifndef QSHAREDMEMORY_P_H
+#define QSHAREDMEMORY_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -38,10 +41,9 @@
 // of qapplication_qws.cpp and qgfxvnc_qws.cpp.  This header file may 
 // change from version to version without notice, or even be removed.
 //
+// We mean it.
 //
-
-#if !defined(QT_QSHM_H)
-#define QT_QSHM_H
+//
 
 #include <qstring.h>
 
@@ -81,4 +83,5 @@ private:
 };
 
 #endif
+
 #endif

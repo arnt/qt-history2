@@ -3,7 +3,7 @@
 **
 ** Definition of QGPluginManager class
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -33,8 +33,8 @@
 **
 **********************************************************************/
 
-#ifndef QGPLUGINMANAGER_H
-#define QGPLUGINMANAGER_H
+#ifndef QGPLUGINMANAGER_P_H
+#define QGPLUGINMANAGER_P_H
 
 #ifndef QT_H
 #include "qdict.h"
@@ -104,4 +104,4 @@ inline bool QGPluginManager::autoUnload() const
 
 #endif
 
-#endif //QGPLUGINMANAGER_H
+#endif //QGPLUGINMANAGER_P_H
