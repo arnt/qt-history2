@@ -652,6 +652,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     d->tabBase->setGeometry( 0, exty, width(), exth );
     if ( exth == 0 )
 	d->tabBase->hide();
+    else 
+	d->tabBase->show();
+    
     d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
 			   t.height()+QMAX(0, lw-2));
 
