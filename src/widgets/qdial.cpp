@@ -135,7 +135,7 @@ public:
 
 
 /*!  Constructs a dial called \a name with parent \a parent.
-    It has the default range of a QRangeControl. 
+    It has the default range of a QRangeControl.
 */
 
 QDial::QDial( QWidget *parent, const char *name )
@@ -150,7 +150,7 @@ QDial::QDial( QWidget *parent, const char *name )
 
 
 
-/*!  
+/*!
     Constructs a dial called \a name with parent \a parent. The dial's
     value can never be smaller than \a minValue or greater than \a
     maxValue. Its page step size is \a pageStep, and its initial value
@@ -186,7 +186,7 @@ void QDial::setTracking( bool enable )
 }
 
 
-/*!  
+/*!
   \property QDial::tracking
   \brief whether tracking is enabled
 
@@ -374,7 +374,7 @@ void QDial::repaintScreen( const QRect *cr )
 	p.setBrush( NoBrush );
 	p.drawRect( br );
 	p.restore();
-	style().drawFocusRect( &p, br, colorGroup() , &colorGroup().background() );
+	style().drawPrimitive( QStyle::PO_FocusRect, &p, br, colorGroup(), QStyle::PStyle_Default );
     }
     p.end();
 }
@@ -611,7 +611,7 @@ bool QDial::wrapping() const
 }
 
 
-/*!  
+/*!
   \property QDial::notchSize
   \brief the current notch size
 
@@ -654,7 +654,7 @@ void QDial::setNotchTarget( double target )
 }
 
 
-/*!  
+/*!
   \property QDial::notchTarget
   \brief the target number of pixels between notches
 
