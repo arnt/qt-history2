@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#4 $
 **
 ** Implementation of QTabWidget class
 **
@@ -115,7 +115,7 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name)
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    d->stack->setLineWidth( 2 );
+    d->stack->setLineWidth( style().defaultFrameWidth() );
 }
 
 QTabWidget::~QTabWidget()
@@ -344,11 +344,11 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     QSize t( d->tabs->sizeHint() );
     int lw = d->stack->lineWidth();
     if ( d->pos == Bottom ) {
-	d->tabs->setGeometry( QMAX(0, lw-1), height() - t.height(), t.width(), t.height() );
+	d->tabs->setGeometry( QMAX(0, lw-2), height() - t.height(), t.width(), t.height() );
 	d->stack->setGeometry( 0, 0, width(), height()-t.height()+lw );
     }
     else { // Top
-	d->tabs->setGeometry( QMAX(0, lw-1), 0, t.width(), t.height() );
+	d->tabs->setGeometry( QMAX(0, lw-2), 0, t.width(), t.height() );
 	d->stack->setGeometry( 0, t.height()-lw, width(), height()-t.height()+lw );
     }
 	

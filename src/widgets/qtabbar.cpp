@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#54 $
 **
 ** Implementation of QTabBar class
 **
@@ -292,19 +292,22 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     if ( d->s == RoundedAbove ) {
 	if ( selected ) {
 	    p->setPen( colorGroup().background() );
-	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
-	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
+	    p->drawLine( r.left()+2, r.bottom(), r.right()-2, r.bottom() );
+	    p->drawLine( r.left()+2, r.bottom(), r.left()+2, r.top()+2 );
+	    p->setPen( colorGroup().midlight() );
+	    p->drawLine( r.left(), r.top()+3,
+			 r.left(), r.bottom());
 	    p->setPen( colorGroup().light() );
 	} else {
 	    p->setPen( colorGroup().light() );
-	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	    p->drawLine( r.left()+1, r.bottom(), r.right(), r.bottom() );
 	    r.setRect( r.left() + 2, r.top() + 2,
 		       r.width() - 4, r.height() - 2 );
 	}
 
-	p->drawLine( r.left(), r.bottom(), r.left(), r.top() + 2 );
-	p->drawPoint( r.left()+1, r.top() + 1 );
-	p->drawLine( r.left()+2, r.top(),
+	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top() + 2 );
+	p->drawPoint( r.left()+2, r.top() + 1 );
+	p->drawLine( r.left()+3, r.top(),
 		     r.right() - 2, r.top() );
 
 	p->setPen( colorGroup().dark() );
@@ -318,12 +321,15 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     } else if ( d->s == RoundedBelow ) {
 	if ( selected ) {
 	    p->setPen( colorGroup().background() );
-	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
-	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
+	    p->drawLine( r.left()+2, r.top(), r.right()-2, r.top() );
+	    p->drawLine( r.left()+2, r.top(), r.left()+2, r.bottom()-2 );
+	    p->setPen( colorGroup().midlight() );
+	    p->drawLine( r.left(), r.top(),
+			 r.left(), r.bottom() - 3 );
 	    p->setPen( colorGroup().dark() );
 	} else {
 	    p->setPen( colorGroup().dark() );
-	    p->drawLine( r.left(), r.top(), r.right(), r.top() );
+	    p->drawLine( r.left()+1, r.top(), r.right(), r.top() );
 	    r.setRect( r.left() + 2, r.top(),
 		       r.width() - 4, r.height() - 2 );
 	}
@@ -333,20 +339,20 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->drawPoint( r.right() - 2, r.bottom() - 2 );
 	p->drawLine( r.right() - 2, r.bottom() - 1,
 		     r.left() + 1, r.bottom() - 1 );
-	p->drawPoint( r.left() + 1, r.bottom() - 2 );
-
+	p->drawPoint( r.left() + 1, r.bottom() - 2 );       
+	
 	p->setPen( colorGroup().shadow() );
 	if (style().defaultFrameWidth() > 1) {
 	    p->drawLine( r.right(), r.top(),
 			 r.right(), r.bottom() - 1 );
 	    p->drawPoint( r.right() - 1, r.bottom() - 1 );
 	    p->drawLine( r.right() - 1, r.bottom(),
-			 r.left() + 2, r.bottom() );
+			 r.left() + 3, r.bottom() );
 	}
 
 	p->setPen( colorGroup().light() );
-	p->drawLine( r.left(), r.top(),
-		     r.left(), r.bottom() - 2 );
+	p->drawLine( r.left()+1, r.top()+1,
+		     r.left()+1, r.bottom() - 2 );
     } else {
 	
 	// triangular, above or below
