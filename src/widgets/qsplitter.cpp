@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#42 $
 **
 **  Splitter widget
 **
@@ -262,15 +262,19 @@ void QSplitter::init()
 
 void QSplitter::setOrientation( Orientation o )
 {
-    //#### set orientation for all handles
-#if 0
     if ( orient == o )
 	return;
-
     orient = o;
-    d->setOrientation( o );
+
+    
+    QSplitterLayoutStruct *s = data->list.first();
+    while ( s ) {
+	if ( s->isSplitter ) {
+	    ((QSplitterHandle*)s->wid)->setOrientation( o );
+	}
+	s = data->list.next();
+    }
     recalc( isVisible() );
-#endif
 }
 
 /*!
