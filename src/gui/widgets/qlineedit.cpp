@@ -1325,32 +1325,6 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         e->ignore();
         return;
     }
-    if (!d->readOnly) {
-        QString t = e->text();
-        if (!t.isEmpty() && (!e->key() || (e->key() < 255 && e->key()>=32)) &&
-             e->key() != Key_Delete &&
-             e->key() != Key_Backspace) {
-#ifdef Q_WS_X11
-            extern bool qt_hebrew_keyboard_hack;
-            if (qt_hebrew_keyboard_hack) {
-                // the X11 keyboard layout is broken and does not reverse
-                // braces correctly. This is a hack to get halfway correct
-                // behaviour
-                if (d->isRightToLeft()) {
-                    QChar *c = (QChar *)t.unicode();
-                    int l = t.length();
-                    while(l--) {
-                        if (c->mirrored())
-                            *c = c->mirroredChar();
-                        c++;
-                    }
-                }
-            }
-#endif
-            insert(t);
-            return;
-        }
-    }
     bool unknown = false;
     if (e->state() & ControlButton) {
         switch (e->key()) {
@@ -1531,6 +1505,34 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
     if (e->key() == Key_Direction_L || e->key() == Key_Direction_R) {
         d->direction = (e->key() == Key_Direction_L) ? QChar::DirL : QChar::DirR;
         update();
+        unknown = false;
+    }
+
+    if (unknown && !d->readOnly) {
+        QString t = e->text();
+        if (!t.isEmpty() &&
+             e->key() != Key_Delete &&
+             e->key() != Key_Backspace) {
+#ifdef Q_WS_X11
+            extern bool qt_hebrew_keyboard_hack;
+            if (qt_hebrew_keyboard_hack) {
+                // the X11 keyboard layout is broken and does not reverse
+                // braces correctly. This is a hack to get halfway correct
+                // behaviour
+                if (d->isRightToLeft()) {
+                    QChar *c = (QChar *)t.unicode();
+                    int l = t.length();
+                    while(l--) {
+                        if (c->mirrored())
+                            *c = c->mirroredChar();
+                        c++;
+                    }
+                }
+            }
+#endif
+            insert(t);
+            return;
+        }
     }
 
     if (unknown)
