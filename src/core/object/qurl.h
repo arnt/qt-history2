@@ -80,10 +80,15 @@ public:
     bool operator==( const QUrl& url ) const;
     bool operator==( const QString& url ) const;
 
+    inline bool operator!=(const QUrl &url) const { return !(operator==(url)); }
+    inline bool operator!=(const QString &url) const { return !(operator==(url)); }
+
     static void decode( QString& url );
     static void encode( QString& url );
 
     operator QString() const;
+
+
     virtual QString toString( bool encodedPath = FALSE, bool forcePrependProtocol = TRUE ) const;
 
     virtual bool cdUp();

@@ -180,10 +180,6 @@ public:
     }
 #endif
 
-    friend bool operator==(QChar c1, QChar c2);
-    friend bool operator!=(QChar c1, QChar c2);
-    friend bool operator<=(QChar c1, QChar c2);
-
 private:
     ushort ucs;
 } Q_PACKED;
@@ -201,12 +197,12 @@ inline QChar::QChar(int rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(QChar::SpecialChars s) : ucs((ushort) s) {}
 inline QChar::QChar(const QLatin1Char &ch) : ucs((ushort) ch.latin1()) {}
 
-inline bool operator==(QChar c1, QChar c2) { return c1.ucs == c2.ucs; }
-inline bool operator!=(QChar c1, QChar c2) { return c1.ucs != c2.ucs; }
-inline bool operator<=(QChar c1, QChar c2) { return c1.ucs <= c2.ucs; }
-inline bool operator>=(QChar c1, QChar c2) { return c2 <= c1; }
-inline bool operator<(QChar c1, QChar c2) { return !(c2<=c1); }
-inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
+inline bool operator==(QChar c1, QChar c2) { return c1.unicode() == c2.unicode(); }
+inline bool operator!=(QChar c1, QChar c2) { return c1.unicode() != c2.unicode(); }
+inline bool operator<=(QChar c1, QChar c2) { return c1.unicode() <= c2.unicode(); }
+inline bool operator>=(QChar c1, QChar c2) { return c1.unicode() >= c2.unicode(); }
+inline bool operator<(QChar c1, QChar c2) { return c1.unicode() < c2.unicode(); }
+inline bool operator>(QChar c1, QChar c2) { return c1.unicode() > c2.unicode(); }
 
 Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 

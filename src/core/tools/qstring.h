@@ -278,6 +278,7 @@ public:
     inline QString &operator=(const QByteArray &a)
     { return (*this = fromAscii(a, a.size())); }
 
+    // these are needed, so it compiles with STL support enabled
     inline QString &prepend(const char *s)
     { return prepend(QString(s)); }
     inline QString &prepend(const QByteArray &s)
@@ -297,6 +298,14 @@ public:
     inline bool operator<=(const char *s2) const;
     inline bool operator>(const char *s2) const;
     inline bool operator>=(const char *s2) const;
+
+    inline bool operator==(const QByteArray &s) const { return (*this == s.constData()); }
+    inline bool operator!=(const QByteArray &s) const { return !(*this == s.constData()); }
+    inline bool operator<(const QByteArray &s) const { return *this < s.constData();}
+    inline bool operator>(const QByteArray &s) const { return *this < s.constData();}
+    inline bool operator<=(const QByteArray &s) const { return *this < s.constData();}
+    inline bool operator>=(const QByteArray &s) const { return *this < s.constData();}
+
 #endif
 #ifndef QT_NO_CAST_TO_ASCII
     inline operator const char *() const { return ascii(); }
@@ -671,18 +680,12 @@ inline bool operator>(const char *s1, const QString &s2) { return (QString(s1) >
 inline bool operator<=(const char *s1, const QString &s2) { return (QString(s1) <= s2); }
 inline bool operator>=(const char *s1, const QString &s2) { return (QString(s1) >= s2); }
 
-inline bool operator==(const QString &s1, const QByteArray &s2) { return (s1 == s2.constData()); }
-inline bool operator==(const QByteArray &s1, const QString &s2) { return (s2 == s1.constData()); }
-inline bool operator!=(const QString &s1, const QByteArray &s2) { return !(s1 == s2.constData()); }
-inline bool operator!=(const QByteArray &s1, const QString &s2) { return !(s2 == s1.constData()); }
-inline bool operator<(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
-inline bool operator<=(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
-inline bool operator>(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
-inline bool operator>=(const QString &s1, const QByteArray &s2) { return s1 < s2.constData();}
-inline bool operator<(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
-inline bool operator<=(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
-inline bool operator>(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
-inline bool operator>=(const QByteArray &s1, const QString &s2) { return s1.constData() < s2;}
+inline bool QByteArray::operator==(const QString &s) const { return constData() == s; }
+inline bool QByteArray::operator!=(const QString &s) const { return !(constData() == s); }
+inline bool QByteArray::operator<(const QString &s) const { return constData() < s;}
+inline bool QByteArray::operator>(const QString &s) const { return constData() < s;}
+inline bool QByteArray::operator<=(const QString &s) const { return constData() < s;}
+inline bool QByteArray::operator>=(const QString &s) const { return constData() < s;}
 #endif
 
 inline const QString operator+(const QString &s1, const QString &s2)
