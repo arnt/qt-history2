@@ -39,6 +39,7 @@
 #include <qfileinfo.h>
 #include <qdir.h>
 #include <qtextbrowser.h>
+#include <qaccel.h>
 
 class MyString : public QString
 {
@@ -696,4 +697,35 @@ void HelpDialog::showContentsTopic()
 {
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listContents->currentItem();
     emit showLink( i->link(), i->text( 0 ) );
+}
+
+void HelpDialog::toggleContents()
+{
+    if ( !isVisible() || tabWidget->currentPageIndex() != 0 ) {
+	tabWidget->setCurrentPage( 0 );
+	parentWidget()->show();
+    }
+    else
+	parentWidget()->hide();
+}
+
+void HelpDialog::toggleIndex()
+{
+    if ( !isVisible() || tabWidget->currentPageIndex() != 1 ) {
+	tabWidget->setCurrentPage( 1 );
+	parentWidget()->show();
+	editIndex->setFocus();
+    }
+    else
+	parentWidget()->hide();
+}
+
+void HelpDialog::toggleBookmarks()
+{
+    if ( !isVisible() || tabWidget->currentPageIndex() != 2 ) {
+	tabWidget->setCurrentPage( 2 );
+	parentWidget()->show();
+    }
+    else
+	parentWidget()->hide();
 }

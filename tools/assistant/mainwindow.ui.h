@@ -28,21 +28,17 @@ void MainWindow::init()
     dw->setFixedExtentWidth( 250 );
 
     connect( helpDock, SIGNAL( showLink( const QString&, const QString & ) ),
-    		this, SLOT( showLink( const QString&, const QString & ) ) );
+	     this, SLOT( showLink( const QString&, const QString & ) ) );
 
     goHome();
 
     connect( bookmarkMenu, SIGNAL( activated( int ) ),
-		this, SLOT( showBookmark( int ) ) );
+	     this, SLOT( showBookmark( int ) ) );
 
     setupBookmarkMenu();
     connect( browser, SIGNAL( highlighted( const QString & ) ), statusBar(), SLOT( message( const QString & ) ) );
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
     connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) );
-
-    QAccel *a = new QAccel( this );
-    a->insertItem( CTRL+Key_L, 100 );
-    a->connectItem( 100, helpDock->editIndex, SLOT( setFocus() ) );
 
     QFontDatabase fonts;
     fontComboBox->insertStringList( fonts.families() );
@@ -57,6 +53,15 @@ void MainWindow::init()
     browser->setFont( fnt );
 
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
+
+    QAccel *a = new QAccel( this, dw );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ), helpDock, SLOT( toggleContents() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ), helpDock, SLOT( toggleIndex() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ), helpDock, SLOT( toggleBookmarks() ) );
+    a = new QAccel( dw );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+T") ) ), helpDock, SLOT( toggleContents() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+I") ) ), helpDock, SLOT( toggleIndex() ) );
+    a->connectItem( a->insertItem( QAccel::stringToKey( tr("Ctrl+B") ) ), helpDock, SLOT( toggleBookmarks() ) );
 }
 
 void MainWindow::destroy()
@@ -139,7 +144,7 @@ void MainWindow::print()
 	    return;
 	QTextStream ts( &f );
 	QSimpleRichText richText( ts.read(), font, browser->context(), browser->styleSheet(),
-				  browser->mimeSourceFactory(), body.height(), 
+				  browser->mimeSourceFactory(), body.height(),
 				  Qt::black, FALSE );
 	richText.setWidth( &p, body.width() );
 	QRect view( body );
@@ -206,4 +211,3 @@ void MainWindow::setFamily( const QString & f )
     fnt.setFamily( f );
     browser->setFont( fnt );
 }
-

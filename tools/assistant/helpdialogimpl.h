@@ -78,6 +78,11 @@ protected slots:
     void currentBookmarkChanged( QListViewItem *i );
     void currentContentsChanged( QListViewItem *i );
 
+public slots:
+    void toggleContents();
+    void toggleIndex();
+    void toggleBookmarks();
+
 signals:
     void showLink( const QString &s, const QString& t );
 
