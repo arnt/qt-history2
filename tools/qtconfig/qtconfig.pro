@@ -12,7 +12,7 @@ target.path=$$bins.path
 INSTALLS	+= target
 
 FORMS	= mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui 
-IMAGES	= images/filesave 
+IMAGES	= images/filesave.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on
 INCLUDEPATH	+= .
