@@ -295,7 +295,7 @@ void QShadowFbScreen::checkUpdate()
 	    int offset=( ( r.left() * d )/8 );
 	    int width=( ( ( r.right()-r.left() ) +1 ) * d )/8;
 	    offset/=sizeof(PackType);
-	    width=( width + ( sizeof(PackType) ) ) / sizeof(PackType);
+	    width=( width + ( sizeof(PackType) * 2 ) ) / sizeof(PackType);
 	    PackType * dest=( ( PackType * ) (real_screen +
 			    ( lstep*loopc2 ) ) ) + offset;
 	    PackType * src=( ( PackType * ) ( data+  ( lstep*loopc2 ) ) )
