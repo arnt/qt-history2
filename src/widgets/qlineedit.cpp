@@ -502,13 +502,6 @@ void QLineEdit::init()
     setFrame( TRUE );
 }
 
-/*!
-  Sets the line edit's text.
-
-  Note: All undo/redo history will be cleared. Text is not validated when inserted with this function.
-
-  \sa insert()
-*/
 
 void QLineEdit::setText( const QString &text )
 {
@@ -582,8 +575,10 @@ void QLineEdit::deselect()
     \property QLineEdit::text
     \brief the line edit's text
 
-    Setting this property clears the selection, moves the cursor to
-    the end of the line and resets the edited property to FALSE.
+    Setting this property clears the selection, clears the undo/redo
+    history, moves the cursor to the end of the line and resets the
+    edited property to FALSE. The text is not validated when inserted
+    with setText().
 
     setText() ignores any validator.
 

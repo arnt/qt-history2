@@ -894,12 +894,6 @@ static void ignoreSignal( int )
 */
 
 /*!
-    \enum QWSServer::KeyOverride
-
-    \internal
-*/
-
-/*!
     \fn const QPtrList<QWSWindow> &QWSServer::clientWindows()
 
     Returns the list of top-level windows. This list will change as
@@ -1682,6 +1676,9 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
     }
 }
 
+/*!
+    \internal
+*/
 void QWSServer::beginDisplayReconfigure()
 {
     qwsServer->enablePainting( FALSE );
@@ -1690,6 +1687,9 @@ void QWSServer::beginDisplayReconfigure()
     qt_screen->disconnect();
 }
 
+/*!
+    \internal
+*/
 void QWSServer::endDisplayReconfigure()
 {
     delete qwsServer->gfx;

@@ -3100,15 +3100,6 @@ void QListBox::setColumnMode( LayoutMode mode )
 }
 
 
-/*!
-    \overload
-
-    Sets the column layout mode for this list box to \c FixedNumber
-    and sets the number of displayed columns to \a columns.
-
-    \sa setRowMode() columnMode() numColumns()
-*/
-
 void QListBox::setColumnMode( int columns )
 {
     if ( columns < 1 )
@@ -3128,14 +3119,6 @@ void QListBox::setRowMode( LayoutMode mode )
     triggerUpdate( TRUE );
 }
 
-/*!
-    \overload
-
-    Sets the row layout mode for this list box to \c FixedNumber and
-    sets the number of displayed rows to \a rows.
-
-    \sa columnMode rowMode numRows()
-*/
 
 void QListBox::setRowMode( int rows )
 {

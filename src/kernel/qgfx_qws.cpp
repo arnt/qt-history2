@@ -68,18 +68,6 @@ void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
 */
 
 /*!
-    \fn virtual void QScreen::haltUpdates()
-
-    \internal
-*/
-
-/*!
-    \fn virtual void QScreen::resumeUpdates()
-
-    \internal
-*/
-
-/*!
     \fn int * QScreen::opType()
 
     Returns the screen's operation type.
