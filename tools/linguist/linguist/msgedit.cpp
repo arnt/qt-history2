@@ -26,7 +26,7 @@
 #include <qclipboard.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qpalette.h>
 #include <qpushbutton.h>
 #include <qstring.h>
@@ -45,11 +45,11 @@
 
 static const int MaxCandidates = 5;
 
-class MED : public QTextEdit
+class MED : public Q3TextEdit
 {
 public:
     MED( QWidget *parent, const char *name = 0 )
-        : QTextEdit( parent, name ) {}
+        : Q3TextEdit( parent, name ) {}
 
     int cursorX() const { return textCursor()->x(); }
     int cursorY() const { return textCursor()->paragraph()->rect().y() +
@@ -534,7 +534,7 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
         QKeyEvent * ke = (QKeyEvent*)e;
         const int k = ke->key();
 
-        if ( qt_cast<QTextEdit*>(o) ) {
+        if ( qt_cast<Q3TextEdit*>(o) ) {
             if ( e->type() == QEvent::KeyPress ) {
                 // Hardcode the Tab key to do focus changes when pressed
                 // inside the editor
