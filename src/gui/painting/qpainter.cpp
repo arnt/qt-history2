@@ -2000,7 +2000,8 @@ void QPainter::drawLine(const QLineF &l)
     uint lineEmulation = d->engine->emulationSpecifier
                          & (QPaintEngine::CoordTransform
                             | QPaintEngine::PenWidthTransform
-                            | QPaintEngine::AlphaStroke);
+                            | QPaintEngine::AlphaStroke
+                            | QPaintEngine::LineAntialiasing);
     QLineF line(l);
     if (lineEmulation) {
         if (lineEmulation == QPaintEngine::CoordTransform
