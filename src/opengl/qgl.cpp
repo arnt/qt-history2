@@ -898,7 +898,6 @@ static int scramble(const QString &str)
 */
 GLuint QGLContext::bindTexture(const QString &fname) const
 {
-    ((QGLContext *)this)->makeCurrent();
     typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
 							   GLsizei, GLint, GLsizei, const GLvoid *);
     static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
