@@ -20,8 +20,6 @@
 #include "qdecorationdefault_qws.h"
 #include "qdecorationwindows_qws.h"
 #include "qdecorationstyled_qws.h"
-#include "qdecorationbeos_qws.h"
-#include "qdecorationhydro_qws.h"
 
 #ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
@@ -43,7 +41,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     a decoration plugin (see \l QDecorationPlugin).
 
     QDecorationFactory::keys() returns a list of valid keys, typically
-    including "default", "windows", "kde", "kde2", "beos", "hydro".
+    including "default", "windows", "styled".
 */
 
 /*!
@@ -70,16 +68,6 @@ QDecoration *QDecorationFactory::create(const QString& key)
 #ifndef QT_NO_QWS_DECORATION_STYLED
     if (decoration == "styled")
         ret = new QDecorationStyled;
-    else
-#endif
-#ifndef QT_NO_QWS_DECORATION_BEOS
-    if (decoration == "beos")
-        ret = new QDecorationBeOS;
-    else
-#endif
-#ifndef QT_NO_QWS_DECORATION_HYDRO
-    if (decoration == "hydro")
-        ret = new QDecorationHydro;
     else
 #endif
     { } // Keep these here - they make the #ifdefery above work
