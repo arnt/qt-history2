@@ -236,10 +236,12 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                 break;
             case QVariant::UserType:
                 if (qVariantCanConvert<QOCIRowIdPointer>(val) && !isOutValue(i)) {
+                    // use a const pointer to prevent a detach
                     const QOCIRowIdPointer rptr = qVariantValue<QOCIRowIdPointer>(val);
                     r = OCIBindByPos(sql, &hbnd, err,
                                      i + 1,
-                                     &const_cast<OCIRowid *>(rptr->id),
+                                     // it's an IN value, so const_cast is ok
+                                     const_cast<OCIRowid **>(&rptr->id),
                                      -1,
                                      SQLT_RDD, (dvoid *) indPtr, (ub2 *) 0, (ub2 *) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
