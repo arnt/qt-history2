@@ -963,12 +963,13 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 */
 QSize QDateEdit::sizeHint() const
 {
+    constPolish();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = fm.height();
     int w = 2 + fm.width( '9' ) * 8 + fm.width( d->ed->separator() ) * 2 + d->controls->upRect().width() + fw * 4;
 
-    return QSize( w, h + fw * 2 ).expandedTo( QApplication::globalStrut() );
+    return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
 
 /*! \reimp
@@ -2222,13 +2223,14 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 */
 QSize QTimeEdit::sizeHint() const
 {
+    constPolish();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = fm.height();
     int w = 2 + fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
 	    d->controls->upRect().width() + fw * 4;
 
-    return QSize( w, h + fw * 2 ).expandedTo( QApplication::globalStrut() );
+    return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
 
 /*! \reimp
@@ -2401,6 +2403,7 @@ void QDateTimeEdit::init()
 
 QSize QDateTimeEdit::sizeHint() const
 {
+    constPolish();
     QSize dsh = de->sizeHint();
     QSize tsh = te->sizeHint();
     return QSize( dsh.width() + tsh.width(),

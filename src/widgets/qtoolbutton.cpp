@@ -829,7 +829,7 @@ void QToolButton::popupPressed()
 
 void QToolButton::popupTimerDone()
 {
-    if ( !d->popup )
+    if ( (!isDown() && d->delay > 0 ) || !d->popup )
 	return;
 
     d->popup->installEventFilter( this );
