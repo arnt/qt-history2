@@ -70,6 +70,9 @@
 
     Note again that class \c T \e must inherit QObject, or a
     compilation or link error will result.
+
+    This class replaces the QGuardedPtr class from earlier Qt
+    versions.
 */
 
 /*!

@@ -93,8 +93,11 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
   QApplication object, no matter whether the application has 0, 1, 2
   or more windows at any time.
 
-  The QApplication object is accessible through the global pointer \c
-  qApp. Its main areas of responsibility are:
+  The QApplication object is accessible through the instance()
+  function. (In earlier Qt versions the qApp global was used instead
+  of instance().)
+
+  QApplication's main areas of responsibility are:
   \list
 
   \i It initializes the application with the user's desktop settings

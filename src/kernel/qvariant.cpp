@@ -676,6 +676,14 @@ const QVariant::Handler qt_gui_variant_handler = {
 };
 
 
+/*!
+    \class QVariant
+    \brief The QVariant class acts like a union for the most common Qt data types.
+
+    This class is derived from QCoreVariant. It includes all the types
+    from QCoreVariant and additional types which make sense for GUI
+    applications.
+*/
 
 
 

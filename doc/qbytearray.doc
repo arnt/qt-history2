@@ -1,0 +1,357 @@
+/****************************************************************************
+**
+** Documentation for the QByteArray class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \class QByteArray 
+*/
+
+/*!
+    \fn QByteArray::QByteArray()
+*/
+
+/*!
+    \fn QByteArray::QByteArray(const char *)
+*/
+
+/*!
+    \fn QByteArray::QByteArray(const char*, int size)
+*/
+
+/*!
+    \fn QByteArray::QByteArray(int size, char c)
+*/
+
+/*!
+    \fn QByteArray::QByteArray(const QByteArray &)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator=(const QByteArray &)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator=(const char  *)
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::size() const
+*/
+
+/*!
+    \fn bool QByteArray::isEmpty() const
+*/
+
+/*!
+    \fn void QByteArray::resize(int size)
+*/
+
+/*!
+    \fn bool QByteArray::operator!() const
+*/
+
+/*!
+    \fn QByteArray &QByteArray::fill(char c, int size = -1)
+*/
+
+/*!
+    \fn void QByteArray::reserve(int size)
+*/
+
+/*!
+    \fn int QByteArray::capacity() const
+*/
+
+/*!
+    \fn char *QByteArray::data()
+
+    \overload
+*/
+
+/*!
+    \fn const char *QByteArray::data() const
+*/
+
+/*!
+    \fn const char *QByteArray::constData() const
+*/
+
+/*!
+    \fn void QByteArray::detach()
+*/
+
+/*!
+    \fn bool QByteArray::isDetached() const
+*/
+
+/*!
+    \fn void QByteArray::clear()
+*/
+
+/*!
+    \fn char QByteArray::at(int i) const
+*/
+
+/*!
+    \fn char QByteArray::operator[](int i) const
+*/
+
+/*!
+    \fn QByteRef QByteArray::operator[](int i)
+
+    \overload
+*/
+
+/*!
+    \fn char QByteArray::operator[](uint i) const
+
+    \overload
+*/
+
+/*!
+    \fn QByteRef QByteArray::operator[](uint i)
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::indexOf(char c, int from = 0) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::indexOf(const char *c, int from = 0) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::indexOf(const QByteArray &a, int from = 0) const
+*/
+
+/*!
+    \fn int QByteArray::lastIndexOf(char c, int from = -1) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::lastIndexOf(const char *c, int from = -1) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::lastIndexOf(const QByteArray &a, int from = -1) const
+*/
+
+/*!
+    \fn QBool QByteArray::contains(char c) const
+
+    \overload
+*/
+
+/*!
+    \fn QBool QByteArray::contains(const char *a) const
+
+    \overload
+*/
+
+/*!
+    \fn QBool QByteArray::contains(const QByteArray &a) const
+*/
+
+/*!
+    \fn int QByteArray::count(char c) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::count(const char *a) const
+
+    \overload
+*/
+
+/*!
+    \fn int QByteArray::count(const QByteArray &a) const
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray QByteArray::left(int len)  const
+*/
+
+/*!
+    \fn QByteArray QByteArray::right(int len) const
+*/
+
+/*!
+    \fn QByteArray QByteArray::mid(int index, int len=-1) const
+*/
+
+/*!
+    \fn void QByteArray::truncate( int l )
+*/
+
+/*!
+    \fn QByteArray QByteArray::toLower() const
+*/
+
+/*!
+    \fn QByteArray QByteArray::toUpper() const
+*/
+
+/*!
+    \fn QByteArray QByteArray::trimmed() const
+*/
+
+/*!
+    \fn QByteArray QByteArray::simplified() const
+*/
+
+/*!
+    \fn QByteArray QByteArray::leftJustified(int width, char fill = ' ', bool truncate = false) const
+*/
+
+/*!
+    \fn QByteArray QByteArray::rightJustified(int width, char fill = ' ', bool truncate = false) const
+*/
+
+/*!
+    \fn QByteArray &QByteArray::prepend(char c)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::prepend(const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::prepend(const QByteArray &a)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::append(char c)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::append(const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::append(const QByteArray &a)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::insert(int i, char c)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::insert(int i, const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::insert(int i, const QByteArray &a)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::remove(int index, int len)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(int index, int len, const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(int index, int len, const QByteArray &s)
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(char before, const char *after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(char before, const QByteArray &after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(const char *before, const char *after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::replace(char before, char after)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator+=(char c)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator+=(const char *s)
+
+    \overload
+*/
+
+/*!
+    \fn QByteArray &QByteArray::operator+=(const QByteArray &a)
+*/
+
+/*!
+    \fn int QByteArray::count() const
+*/
+
+/*!
+    \fn int QByteArray::length() const
+*/
+
+/*!
+    \fn bool QByteArray::isNull() const
+*/
+
+

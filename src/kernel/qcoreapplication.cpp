@@ -181,6 +181,20 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     }
 }
 
+/*!
+    \class QCoreApplication
+    \brief The QCoreApplication class provides an event loop for Qt
+    applications.
+
+    \ingroup application
+
+    The QApplication class derives from QCoreApplication and adds many
+    features that are necessary for GUI programming.
+
+    The QCoreApplication object is available through the instance()
+    function.
+*/
+
 /*!\internal
  */
 QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
