@@ -544,7 +544,6 @@ bool QFontPrivate::fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
 	return FALSE;
 
     QCString xlfd = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
-    qDebug( "xlfd property: %s", (const char *) xlfd );
     return fillFontDef( xlfd.lower(), fd, screen );
 }
 
