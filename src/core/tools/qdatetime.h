@@ -45,10 +45,8 @@ public:
     static QString longMonthName(int month);
     static QString longDayName(int weekday);
 #endif // QT_NO_TEXTDATE
-#ifndef QT_NO_TEXTSTRING
-#if !defined(QT_NO_SPRINTF)
+#ifndef QT_NO_DATESTRING
     QString toString(Qt::DateFormat f = Qt::TextDate) const;
-#endif
     QString toString(const QString &format) const;
 #endif
     bool setYMD(int y, int m, int d);
@@ -111,9 +109,7 @@ public:
     int second() const;
     int msec() const;
 #ifndef QT_NO_DATESTRING
-#ifndef QT_NO_SPRINTF
     QString toString(Qt::DateFormat f = Qt::TextDate) const;
-#endif
     QString toString(const QString &format) const;
 #endif
     bool setHMS(int h, int m, int s, int ms = 0);
@@ -182,9 +178,7 @@ public:
     void setTimeSpec(Qt::TimeSpec spec);
     void setTime_t(uint secsSince1Jan1970UTC);
 #ifndef QT_NO_DATESTRING
-#ifndef QT_NO_SPRINTF
     QString toString(Qt::DateFormat f = Qt::TextDate) const;
-#endif
     QString toString(const QString &format) const;
 #endif
     QDateTime addDays(int days) const;

@@ -23,6 +23,9 @@
 #include <windows.h>
 #include <time.h>
 #endif
+#ifndef Q_WS_WIN
+#include <locale.h>
+#endif
 
 #if defined(Q_WS_MAC)
 #include <private/qcore_mac_p.h>
@@ -385,8 +388,12 @@ QString QDate::shortMonthName(int month)
     tm tt;
     memset(&tt, 0, sizeof(tm));
     tt.tm_mon = month - 1;
-    if (strftime(buffer, sizeof(buffer), "%b", &tt))
+    const QByteArray lctime(setlocale(LC_TIME, ""));
+    if (strftime(buffer, sizeof(buffer), "%b", &tt)) {
+        setlocale(LC_TIME, lctime.data());
         return QString::fromLocal8Bit(buffer);
+    }
+    setlocale(LC_TIME, lctime.data());
 #else
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -443,8 +450,12 @@ QString QDate::longMonthName(int month)
     tm tt;
     memset(&tt, 0, sizeof(tm));
     tt.tm_mon = month - 1;
-    if (strftime(buffer, sizeof(buffer), "%B", &tt))
+    const QByteArray lctime(setlocale(LC_TIME, ""));
+    if (strftime(buffer, sizeof(buffer), "%B", &tt)) {
+        setlocale(LC_TIME, lctime.data());
         return QString::fromLocal8Bit(buffer);
+    }
+    setlocale(LC_TIME, lctime.data());
 #else
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -496,8 +507,12 @@ QString QDate::shortDayName(int weekday)
     tm tt;
     memset(&tt, 0, sizeof(tm));
     tt.tm_wday = (weekday == 7) ? 0 : weekday;
-    if (strftime(buffer, sizeof(buffer), "%a", &tt))
+    const QByteArray lctime(setlocale(LC_TIME, ""));
+    if (strftime(buffer, sizeof(buffer), "%a", &tt)) {
+        setlocale(LC_TIME, lctime.data());
         return QString::fromLocal8Bit(buffer);
+    }
+    setlocale(LC_TIME, lctime.data());
 
 #else
     SYSTEMTIME st;
@@ -551,8 +566,12 @@ QString QDate::longDayName(int weekday)
     tm tt;
     memset(&tt, 0, sizeof(tm));
     tt.tm_wday = (weekday == 7) ? 0 : weekday;
-    if (strftime(buffer, sizeof(buffer), "%A", &tt))
+    const QByteArray lctime(setlocale(LC_TIME, ""));
+    if (strftime(buffer, sizeof(buffer), "%A", &tt)) {
+        setlocale(LC_TIME, lctime.data());
         return QString::fromLocal8Bit(buffer);
+    }
+    setlocale(LC_TIME, lctime.data());
 #else
     SYSTEMTIME st;
     memset(&st, 0, sizeof(SYSTEMTIME));
@@ -577,7 +596,6 @@ QString QDate::longDayName(int weekday)
 
 #ifndef QT_NO_DATESTRING
 
-#if !defined(QT_NO_SPRINTF)
 /*!
     \fn QString QDate::toString(Qt::DateFormat format) const
 
@@ -665,8 +683,12 @@ QString QDate::toString(Qt::DateFormat f) const
             tt.tm_year = year() - 1900;
 
             const char *avoidEgcsWarning = "%x";
-            if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt))
+            const QByteArray lctime(setlocale(LC_TIME, ""));
+            if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt)) {
+                setlocale(LC_TIME, lctime.data());
                 return QString::fromLocal8Bit(buf);
+            }
+            setlocale(LC_TIME, lctime.data());
 #endif
             return QString();
         }
@@ -674,13 +696,11 @@ QString QDate::toString(Qt::DateFormat f) const
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
         {
-            QString buf = shortDayName(dayOfWeek());
-            buf += QLatin1Char(' ');
-            buf += shortMonthName(m);
-            QString t;
-            t.sprintf(" %d %d", d, y);
-            buf += t;
-            return buf;
+            return QString("%0 %1 %2 %3")
+                .arg(shortDayName(dayOfWeek()))
+                .arg(shortMonthName(m))
+                .arg(d)
+                .arg(y);
         }
 #endif
     case Qt::ISODate:
@@ -691,7 +711,6 @@ QString QDate::toString(Qt::DateFormat f) const
         }
     }
 }
-#endif //QT_NO_SPRINTF
 
 /*!
     Returns the date as a string. The \a format parameter determines
@@ -1346,7 +1365,6 @@ int QTime::msec() const
 }
 
 #ifndef QT_NO_DATESTRING
-#ifndef QT_NO_SPRINTF
 /*!
     \overload
 
@@ -1432,20 +1450,25 @@ QString QTime::toString(Qt::DateFormat f) const
             tt.tm_sec = second();
             tt.tm_min = minute();
             tt.tm_hour = hour();
-            if (strftime(buf, sizeof(buf), "%X", &tt))
+
+            const QByteArray lctime(setlocale(LC_TIME, ""));
+            if (strftime(buf, sizeof(buf), "%X", &tt)) {
+                setlocale(LC_TIME, lctime.data());
                 return QString::fromLocal8Bit(buf);
+            }
+            setlocale(LC_TIME, lctime.data());
 #endif
             return QString();
         }
     default:
     case Qt::ISODate:
     case Qt::TextDate:
-        QString buf;
-        buf.sprintf("%.2d:%.2d:%.2d", hour(), minute(), second());
-        return buf;
+        return QString("%1:%2:%3")
+            .arg(hour(), 2, 10, QLatin1Char('0'))
+            .arg(minute(), 2, 10, QLatin1Char('0'))
+            .arg(second(), 2, 10, QLatin1Char('0'));
     }
 }
-#endif
 
 /*!
     Returns the time as a string. The \a format parameter determines
@@ -2120,7 +2143,6 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
 }
 
 #ifndef QT_NO_DATESTRING
-#ifndef QT_NO_SPRINTF
 /*!
     \fn QString QDateTime::toString(Qt::DateFormat format) const
 
@@ -2205,7 +2227,6 @@ QString QDateTime::toString(Qt::DateFormat f) const
     }
     return buf;
 }
-#endif
 
 /*!
     Returns the datetime as a string. The \a format parameter
@@ -3168,7 +3189,7 @@ void QDateTimePrivate::getUTC(QDate &outDate, QTime &outTime) const
         localToUtc(outDate, outTime, (int)spec);
 }
 
-#if !defined( QT_NO_DEBUG_OUTPUT ) && !defined( QT_NO_TEXTSTREAM ) && !defined( QT_NO_SPRINTF )
+#if !defined( QT_NO_DEBUG_OUTPUT ) && !defined( QT_NO_TEXTSTREAM )
 QDebug operator<<(QDebug dbg, const QDate &date)
 {
     dbg.nospace() << "QDate(" << date.toString() << ")";
