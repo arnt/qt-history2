@@ -9,6 +9,7 @@
 HelpFindDialog::HelpFindDialog( QWidget *parent )
     : QDialog( parent, "", FALSE )
 {
+    setCaption( tr( "Find in this Topic" ) );
     QGridLayout *layout = new QGridLayout( this, 3, 2 );
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
@@ -17,6 +18,7 @@ HelpFindDialog::HelpFindDialog( QWidget *parent )
     layout->addWidget( l, 0, 0 );
 
     findEdit = new QComboBox( TRUE, this );
+    findEdit->setEnableMultipleInsertion( FALSE );
     layout->addWidget( findEdit, 1, 0 );
     l->setBuddy( findEdit );
     connect( findEdit, SIGNAL( textChanged( const QString & ) ),
