@@ -167,7 +167,7 @@ public:
     static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
 };
 
-class QColorDrag : public QStoredDrag
+class Q_EXPORT QColorDrag : public QStoredDrag
 {
     Q_OBJECT
     QColor color;
