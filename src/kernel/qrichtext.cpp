@@ -1607,8 +1607,24 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			}
 		    }
 		    curtag.name = tagname;
-		    if ( curtag.name == "a" && attr.find( "name" ) != attr.end() && doc[ pos] == '<' )	// hack to be sure
-			doc.insert( pos, " " );						// <a name=".."></a> formats or inserted
+
+		    // hack to be sure <a name=".."></a> formats are inserted
+		    // we try to set the anchor name to the character directly before us
+		    if ( curtag.name == "a" && attr.find( "name" ) != attr.end() && doc[ pos ] == '<' ) {
+			QTextParag *p = curpar;
+			if ( p && p->length() == 0 && p->prev() )
+			    p = p->prev();
+			if ( p->length() > 0 ) {
+			    QTextFormat *f = p->at( p->length() - 1 )->format();
+			    if ( f ) {
+				f = fCollection->createFormat( *f );
+				f->anchor_name = attr[ "name" ];
+				f->update();
+				p->setFormat( p->length() - 1, 1, f, TRUE, QTextFormat::Format );
+			    }
+			}
+		    }
+		
 		    if ( attr.find( "align" ) != attr.end() &&
 			 ( curtag.name == "p" || curtag.name == "li" || curtag.name[ 0 ] == 'h' ) ) {
 			if ( *attr.find( "align" ) == "center" )

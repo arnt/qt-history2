@@ -1367,6 +1367,7 @@ public:
 class Q_EXPORT QTextFormat
 {
     friend class QTextFormatCollection;
+    friend class QTextDocument;
 
 public:
     enum Flags {
