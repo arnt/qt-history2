@@ -92,7 +92,7 @@ static QColor qt_aqua_text_active_color = Qt::black;
 static QColor qt_aqua_text_inactive_color = Qt::black;
 #endif
 static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
+QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 
 class QAquaStyleFocusWidget : public QAquaFocusWidget
 {

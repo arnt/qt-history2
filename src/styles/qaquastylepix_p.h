@@ -12381,14 +12381,14 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
     // Radio buttons
     if( s.contains("radio_") ){
-        QPixmapCache::insert( "$qt_aqua_radio_f", (const char **) aqua_radio_f_xpm );
-        QPixmapCache::insert( "$qt_aqua_radio_t", (const char **) aqua_radio_t_xpm );
+        QPixmapCache::insert( "$qt_aqua_radio_f", QPixmap((const char **) aqua_radio_f_xpm));
+        QPixmapCache::insert( "$qt_aqua_radio_t", QPixmap((const char **) aqua_radio_t_xpm));
         QPixmapCache::insert( "$qt_aqua_radio_dis_t",
-                              (const char **) aqua_radio_dis_t_xpm );
+                              QPixmap((const char **) aqua_radio_dis_t_xpm));
         QPixmapCache::insert( "$qt_aqua_radio_psh_t",
-                              (const char **) aqua_radio_psh_t_xpm );
+                              QPixmap((const char **) aqua_radio_psh_t_xpm));
         QPixmapCache::insert( "$qt_aqua_radio_psh_f",
-                              (const char **) aqua_radio_psh_f_xpm );
+                              QPixmap((const char **) aqua_radio_psh_f_xpm));
     }
 
     // Small bevel buttons
@@ -12449,31 +12449,31 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     // Checkboxes
     if( s.contains("chk_") ){
         QPixmapCache::insert( "$qt_aqua_chk_act_f",
-                              (const char **) aqua_chk_act_f_xpm );
+                              QPixmap((const char **) aqua_chk_act_f_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_act_t",
-                              (const char **) aqua_chk_act_t_xpm );
+                              QPixmap((const char **) aqua_chk_act_t_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_dis_t",
-                              (const char **) aqua_chk_dis_t_xpm );
+                              QPixmap((const char **) aqua_chk_dis_t_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_psh_t",
-                              (const char **) aqua_chk_psh_t_xpm );
+                              QPixmap((const char **) aqua_chk_psh_t_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_psh_f",
-                              (const char **) aqua_chk_psh_f_xpm );
+                              QPixmap((const char **) aqua_chk_psh_f_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_mid_t",
-                              (const char **) aqua_chk_mid_t_xpm );
+                              QPixmap((const char **) aqua_chk_mid_t_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_mid_psh_t",
-                              (const char **) aqua_chk_mid_psh_t_xpm );
+                              QPixmap((const char **) aqua_chk_mid_psh_t_xpm));
         QPixmapCache::insert( "$qt_aqua_chk_mid_dis_t",
-                              (const char **) aqua_chk_mid_dis_t_xpm );
+                              QPixmap((const char **) aqua_chk_mid_dis_t_xpm));
     }
 
     // Titlebars
     if( s.contains("win_") ) {
         QPixmapCache::insert( "$qt_aqua_win_act_controls",
-                              (const char **) aqua_win_act_controls_xpm );
+                              QPixmap((const char **) aqua_win_act_controls_xpm));
         QPixmapCache::insert( "$qt_aqua_win_dis_controls",
-                              (const char **) aqua_win_dis_controls_xpm );
+                              QPixmap((const char **) aqua_win_dis_controls_xpm));
         QPixmapCache::insert( "$qt_aqua_win_fill",
-                              (const char **) aqua_win_fill_xpm );
+                              QPixmap((const char **) aqua_win_fill_xpm));
     }
 
     // Horizontal scrollbar
@@ -12742,9 +12742,9 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     // Tabs - top position
     if( s.contains("tab_t_top") ) {
         QPixmapCache::insert( "$qt_aqua_tab_t_top_act",
-                              (const char **) aqua_tab_top_act_xpm );
+                              QPixmap((const char **) aqua_tab_top_act_xpm));
         QPixmapCache::insert( "$qt_aqua_tab_t_top_dis",
-                              (const char **) aqua_tab_top_dis_xpm );
+                              QPixmap((const char **) aqua_tab_top_dis_xpm));
     } else if( s.contains("tab_t_") ){
 	size = qAquaGetNum( s );
         QString sizestr = QString::number( size );
