@@ -51,12 +51,12 @@
 /*!
   \class QSqlPropertyMap qsqlform.h
   \module sql
-  \brief A class used for mapping SQL editor class names to SQL editor 
+  \brief A class used for mapping SQL editor class names to SQL editor
   properties
 
   The SQL module uses Qt <a href="properties.html">object properties</a>
   to insert and extract values from editor widgets.
-  
+
   This class is used to map SQL editor class names to the properties
   used to insert and extract values into and from the editor.
 
@@ -64,7 +64,7 @@
   data types in QSqlTable and QSqlForm. QLineEdit defines several
   properties, but it is only the "text" property that is used to
   insert and extract text into and from the QLineEdit. Both QSqlTable
-  and QSqlForm uses a QSqlPropertyMap for inserting and extracting 
+  and QSqlForm uses a QSqlPropertyMap for inserting and extracting
   values to and from an editor widget.
 
   If you want to use custom editors with your QSqlTable or QSqlForm,
@@ -82,7 +82,7 @@
   form.installPropertyMap( &map );
   form.installEditorFactory( &myFactory );
 
-  // Generate a form that uses MySuperEditor for certain fields - 
+  // Generate a form that uses MySuperEditor for certain fields -
   // the actual editors in the form are created by the installed
   // editor factory.
   form.populate( myWidget, cursor, cursor->updateBuffer() );
@@ -551,7 +551,7 @@ void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
 
     int visibleFields = 0;
     for( uint i = 0; i < fields->count(); i ++ ){
-	if( fields->field( i )->isVisible() )
+	if( fields->isVisible( fields->field( i )->name() ) )
 	    visibleFields++;
     }
 
@@ -569,13 +569,12 @@ void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
 	    currentCol += 2;
 	}
 
-	if( fields->field( j )->isPrimaryIndex() ||
-	    !fields->field( j )->isVisible() )
+	if( !fields->isVisible( fields->field( j )->name() ) )
 	{
 	    continue;
 	}
 
-	label = new QLabel( fields->field( j )->displayLabel(), widget );
+	label = new QLabel( fields->displayLabel( fields->field( j )->name() ), widget );
 	g->addWidget( label, col, currentCol );
 
 	editor = f->createEditor( widget, fields->value( j ) );

@@ -38,8 +38,6 @@
 
 #ifndef QT_NO_SQL
 
-#include "qnamespace.h"
-
 /*!
     \class QSqlField qsqlfield.h
     \brief Class used for manipulating SQL database fields
@@ -49,33 +47,20 @@
 
 
 /*!  Constructs an empty SQL field using the field name \a fieldName,
-  field type \a type and display label \a displayLabel.  If not
-  display label is specified, the display label defaults to \a
-  fieldName.
-
-  \sa setDisplayLabel() setReadOnly()
+  field type \a type.
+  
+  \sa setReadOnly()
 
 */
 
-QSqlField::QSqlField( const QString& fieldName, QVariant::Type type, const QString& displayLabel )
-    : nm(fieldName), label(displayLabel), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE)
+QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
+    : nm(fieldName), ro(FALSE), nul(FALSE)
 {
-    if ( label.isNull() )
-	label = fieldName;
     val.cast( type );
-    switch( type ) {
-    case QVariant::String:
-    case QVariant::CString:
-	af = Qt::AlignLeft;
-	break;
-    default:
-	af = Qt::AlignRight;
-	break;
-    }
 }
 
 QSqlField::QSqlField( const QSqlField& other )
-    : nm( other.nm ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), af( other.af )
+    : nm( other.nm ), val( other.val ), ro( other.ro ), nul( other.nul )
 {
 }
 
@@ -83,12 +68,8 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
 {
     nm = other.nm;
     val = other.val;
-    label = other.label;
     ro = other.ro;
     nul = other.nul;
-    pIdx = other.pIdx;
-    iv = other.iv;
-    af = other.af;
     return *this;
 }
 
@@ -96,11 +77,8 @@ bool QSqlField::operator==(const QSqlField& other) const
 {
     return ( nm == other.nm &&
 	     val == other.val &&
-	     label == other.label &&
 	     ro == other.ro &&
-	     nul == other.nul &&
-	     pIdx == other.pIdx &&
-	     iv == other.iv );
+	     nul == other.nul );
 }
 
 
@@ -118,20 +96,24 @@ QSqlField::~QSqlField()
   Returns the internal value of the field.
 */
 
-/*!  Sets the value of the field to \a value. If the data type of \a
-  value differs from the field's current data type, an attempt is made
-  to cast it to the proper type.  This preserves the data type of the
-  field in the face of assigning, e.g. a QString to an integer data
-  type.  For example:
+/*!  If the field is not read-only, sets the value of the field to \a
+  value. If the data type of \a value differs from the field's current
+  data type, an attempt is made to cast it to the proper type.  This
+  preserves the data type of the field in the face of assigning,
+  e.g. a QString to an integer data type.  For example:
 
   QSqlCursor myCursor( "classroom" );                     // classroom table
   QSqlField* myField = myCursor.field( "student_count" ); // an integer field
   ...
   myField->setValue( myLineEdit->text() ); // cast the line edit to an integer
+  
+  \sa isReadOnly()
 
 */
 void QSqlField::setValue( const QVariant& value )
 {
+    if ( isReadOnly() )
+	return;
     if ( value.type() != val.type() ) {
 	if ( !val.canCast( value.type() ) )
 	     qWarning("QSqlField::setValue: cannot cast from %s to %s", value.typeName(), val.typeName() );
@@ -145,11 +127,14 @@ void QSqlField::setValue( const QVariant& value )
 }
 
 /*! \fn void QSqlField::clear()
-  Clears the value of the field.
+  
+  Clears the value of the field, if the field is not read-only,
 */
 
 void QSqlField::clear()
 {
+    if ( isReadOnly() )
+	return;
     QVariant v;
     v.cast( type() );
     setValue( v );
@@ -167,43 +152,26 @@ void QSqlField::clear()
   Returns the field type.
 */
 
-/*! \fn void QSqlField::setDisplayLabel( const QString& l )
-  Sets the display label text of the field to \a l.
-*/
-
-/*! \fn QString QSqlField::displayLabel() const
-  Returns the display label of the field.
-*/
-
 /*! \fn void QSqlField::setReadOnly( bool readOnly )
-  Sets the read only flag of the field to \a readOnly.
+  Sets the read only flag of the field's value to \a readOnly.
+  
+  \sa setValue()
 */
 
 /*! \fn bool QSqlField::isReadOnly() const
-  Returns TRUE if the field is read only, otherwise FALSE.
+  Returns TRUE if the field's value is read only, otherwise FALSE.
 */
 
 /*! \fn void QSqlField::setNull( bool n )
-  Sets the null flag of the field to \a n.
+  
+  Sets the null flag of the field to \a n, if the field is not
+  read-only.  If \a n is TRUE, the field is also cleared with clear().
+  
+  \sa isReadOnly()
 */
 
 /*! \fn bool QSqlField::isNull() const
   Returns TRUE if the field is currently null, otherwise FALSE.
-*/
-
-/*! \fn void QSqlField::setVisible( bool visible )
-  Sets the visible flag of the field to \a visible.
-*/
-
-/*! \fn bool QSqlField::isVisible() const
-  Returns TRUE if the field is visible when used in a GUI, otherwise FALSE.
-*/
-
-/*! \fn void QSqlField::setPrimaryIndex( bool primaryIndex )
-  Sets the primary index flag to \a primaryIndex.
-*/
-/*! \fn bool QSqlField::isPrimaryIndex() const
-  Returns TRUE if the field is part of a primary index, otherwise FALSE.
 */
 
 #endif

@@ -49,42 +49,29 @@ class QSqlFieldPrivate;
 class Q_EXPORT QSqlField
 {
 public:
-    QSqlField( const QString& fieldName = QString::null, QVariant::Type type = QVariant::Invalid, const QString& displayLabel = QString::null );
+    QSqlField( const QString& fieldName = QString::null, QVariant::Type type = QVariant::Invalid );
     QSqlField( const QSqlField& other );
     QSqlField& operator=( const QSqlField& other );
     bool operator==(const QSqlField& other) const;
     ~QSqlField();
 
-    QVariant           value() const { return val; }
-    void               setValue( const QVariant& value );
-    void               clear();
 
+    void               setValue( const QVariant& value );
+    QVariant           value() const { return val; }
     void               setName( const QString& name ) { nm = name; }
     QString            name() const { return nm; }
-    QVariant::Type     type() const { return val.type(); }
-
-    void               setDisplayLabel( const QString& l ) { label = l; }
-    QString            displayLabel() const { return label; }
+    void               setNull( bool n ) { if ( !isReadOnly() ) nul = n; if ( n ) clear(); }
+    bool               isNull() const { return nul; }
     void               setReadOnly( bool readOnly ) { ro = readOnly; }
     bool               isReadOnly() const { return ro; }
-    void               setNull( bool n ) { nul = n; }
-    bool               isNull() const { return nul; }
-    void               setPrimaryIndex( bool primaryIndex ) { pIdx = primaryIndex; }
-    bool               isPrimaryIndex() const { return pIdx; }
-    void               setVisible( bool visible ) { iv = visible; }
-    bool               isVisible() const { return iv; }
-    void               setAlignment( int align ) { af = align; }
-    int                alignment() const { return af; }
+    void               clear();    
+    QVariant::Type     type() const { return val.type(); }
 
 private:
     QString       nm;
     QVariant      val;
-    QString       label;
     bool          ro;
     bool          nul;
-    bool          pIdx;
-    bool          iv;
-    int           af;
     QSqlFieldPrivate* d;
 };
 

@@ -97,8 +97,8 @@ public:
     QString           filter() const;
     virtual void      setName( const QString& name, bool autopopulate = TRUE );
     QString           name() const;
-    QString           toString( const QString& prefix = QString::null ) const;  
-    
+    QString           toString( const QString& prefix = QString::null ) const;
+
 protected:
     void              afterSeek();
     bool              exec( const QString & str );

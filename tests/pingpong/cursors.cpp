@@ -7,36 +7,36 @@ MatchCursor::MatchCursor()
 {
     teamCr = new QSqlCursor( "team" );
 
-    field("winnerid")->setVisible( FALSE );
-    field("loserid")->setVisible( FALSE );
+    setVisible( "winnerid", FALSE );
+    setVisible( "loserid", FALSE );
 
-    field("loserwins")->setDisplayLabel( "Loser Wins" );
-    field("winnerwins")->setDisplayLabel( "Winner Wins" );
-    field("date")->setDisplayLabel( "Date" );
+    setDisplayLabel( "loserwins", "Loser Wins" );
+    setDisplayLabel( "winnerwins", "Winner Wins" );
+    setDisplayLabel( "date", "Date" );
 
     // add lookup field
     QSqlField loser("loser", QVariant::String );
-    loser.setDisplayLabel("Loser");
     append( loser );
+    setDisplayLabel( "loser", "Loser" );
 
     QSqlField winner("winner", QVariant::String );
-    winner.setDisplayLabel("Winner");
     append( winner );
-    
+    setDisplayLabel( "winner", "Winner" );
+
     QSqlField sets("sets", QVariant::Int );
-    sets.setDisplayLabel("Sets");
     append( sets );
+    setDisplayLabel( "sets", "Sets" );
 
     setCalculated( loser.name(), TRUE );
     setCalculated( winner.name(), TRUE );
-    setCalculated( sets.name(), TRUE );    
+    setCalculated( sets.name(), TRUE );
 }
 
 QVariant MatchCursor::calculateField( const QString& name )
 {
-    if ( name == "sets" ) 
+    if ( name == "sets" )
 	return QVariant( field("winnerwins")->value().toInt() + field("loserwins")->value().toInt() );
-	
+
     if( name == "winner" )
 	teamCr->setValue( "id", field("winnerid")->value() );
     else if( name == "loser" )
@@ -62,7 +62,7 @@ void MatchCursor::primeInsert( QSqlRecord* buf )
 PlayerCursor::PlayerCursor()
     : QSqlCursor( "player" )
 {
-    field("name")->setDisplayLabel( "Player name" );
+    setDisplayLabel( "name", "Player name" );
 }
 
 void PlayerCursor::primeInsert( QSqlRecord* buf )
@@ -77,12 +77,12 @@ void PlayerCursor::primeInsert( QSqlRecord* buf )
 Player2TeamCursor::Player2TeamCursor()
     : QSqlCursor( "player2team" )
 {
-    field("playerid")->setVisible( FALSE );
-    field("teamid")->setVisible( FALSE );
+    setVisible( "playerid", FALSE );
+    setVisible( "teamid", FALSE );
 
     QSqlField f( "playername", QVariant::String );
-    f.setDisplayLabel( "Player name" );
     append( f );
+    setDisplayLabel( "playername", "Player name" );    
     setCalculated( f.name(), TRUE );
 }
 
@@ -110,7 +110,7 @@ void Player2TeamCursor::primeInsert( QSqlRecord* buf )
 TeamCursor::TeamCursor()
     : QSqlCursor( "team" )
 {
-    field("name")->setDisplayLabel( "Team name" );
+    setDisplayLabel( "name", "Team name" );
 }
 
 void TeamCursor::primeInsert( QSqlRecord* buf )

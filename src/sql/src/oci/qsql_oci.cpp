@@ -956,17 +956,17 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
 	QSqlField f( t.value(0).toString(), ty );
 	fil.append( f );
     }
-    QSqlQuery t2 = createQuery();
-    QString stmt2("select b.column_name "
-		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
-		  "where a.constraint_type='P' "
-		  "and a.table_name='%1' "
-		  "and c.index_name = a.constraint_name "
-		  "and b.column_name = c.column_name "
-		  "and b.table_name = a.table_name;");
-    t2.exec( stmt2.arg( tablename.upper() ) );
-    while ( t2.next() )
-	fil.field( t2.value(0).toString() )->setPrimaryIndex( TRUE );
+//     QSqlQuery t2 = createQuery();
+//     QString stmt2("select b.column_name "
+// 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+// 		  "where a.constraint_type='P' "
+// 		  "and a.table_name='%1' "
+// 		  "and c.index_name = a.constraint_name "
+// 		  "and b.column_name = c.column_name "
+// 		  "and b.table_name = a.table_name;");
+//     t2.exec( stmt2.arg( tablename.upper() ) );
+//     while ( t2.next() )
+// 	fil.field( t2.value(0).toString() )->setPrimaryIndex( TRUE );
     return fil;
 }
 

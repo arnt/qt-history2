@@ -1161,9 +1161,9 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 	count++;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
-    QSqlIndex priIdx = primaryIndex( tablename );
-    for ( uint i = 0; i < priIdx.count(); ++i )
-	fil.field( priIdx.field(i)->name() )->setPrimaryIndex( TRUE );
+//     QSqlIndex priIdx = primaryIndex( tablename );
+//     for ( uint i = 0; i < priIdx.count(); ++i )
+// 	fil.field( priIdx.field(i)->name() )->setPrimaryIndex( TRUE );
     return fil;
 }
 

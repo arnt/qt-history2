@@ -166,41 +166,41 @@ MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
     pm->insert( "TeamPicker", "teamid" );
     form->installPropertyMap( pm );
 
-    flabel = new QLabel( buf->field("winner")->displayLabel(), w );
+    flabel = new QLabel( buf->displayLabel( "winner" ), w );
     wteam = new TeamPicker( w );
     wteam->setTeamId( buf->value("winnerid").toInt() );
     formLayout->addWidget( flabel, 0, 0 );
     formLayout->addWidget( wteam, 0, 1 );
     form->associate( wteam, buf->field("winnerid") );
 
-    flabel = new QLabel( buf->field("loser")->displayLabel(), w );
+    flabel = new QLabel( buf->displayLabel("loser"), w );
     lteam = new TeamPicker( w );
     lteam->setTeamId( buf->value("loserid").toInt() );
     formLayout->addWidget( flabel, 0, 2 );
     formLayout->addWidget( lteam, 0, 3 );
     form->associate( lteam, buf->field("loserid") );
 
-    flabel = new QLabel( buf->field("winnerwins")->displayLabel(), w );
+    flabel = new QLabel( buf->displayLabel("winnerwins"), w );
     wins = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 0 );
     formLayout->addWidget( wins, 1, 1 );
     form->associate( wins, buf->field("winnerwins") );
     connect( wins, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
 
-    flabel = new QLabel( buf->field("loserwins")->displayLabel(), w );
+    flabel = new QLabel( buf->displayLabel("loserwins"), w );
     losses = new QSpinBox( w );
     formLayout->addWidget( flabel, 1, 2 );
     formLayout->addWidget( losses, 1, 3 );
     form->associate( losses, buf->field("loserwins") );
     connect( losses, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
 
-    flabel = new QLabel( buf->field("date")->displayLabel(), w );
+    flabel = new QLabel( buf->displayLabel("date"), w );
     editor = ef->createEditor( w, buf->value("date") );
     formLayout->addWidget( flabel, 2, 0 );
     formLayout->addWidget( editor, 2, 1 );
     form->associate( editor, buf->field("date") );
 
-    flabel = new QLabel( buf->field("sets")->displayLabel(), w );
+    flabel = new QLabel( buf->displayLabel("sets"), w );
     sets = new QLineEdit( w );
     formLayout->addWidget( flabel, 2, 2 );
     formLayout->addWidget( sets, 2, 3 );

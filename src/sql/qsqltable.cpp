@@ -140,7 +140,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 {
     setFocusProxy( viewport() );
     viewport()->setFocusPolicy( StrongFocus );
-    
+
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
     d->trueTxt = tr( "True" );
@@ -176,7 +176,7 @@ QSqlTable::~QSqlTable()
 
 void QSqlTable::addColumn( const QSqlField* field )
 {
-    if ( cursor() && field && field->isVisible() && !field->isPrimaryIndex() ) {
+    if ( cursor() && field && cursor()->isVisible( field->name() ) && !cursor()->primaryIndex().field( field->name() ) ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( cursor()->position( field->name() ) );
 	if ( field->isReadOnly() )
@@ -184,7 +184,7 @@ void QSqlTable::addColumn( const QSqlField* field )
 	else
 	    d->colReadOnly.append( FALSE );
 	QHeader* h = horizontalHeader();
-	h->setLabel( numCols()-1, field->displayLabel() );
+	h->setLabel( numCols()-1, cursor()->displayLabel( field->name() ) );
     }
 }
 
@@ -228,7 +228,7 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 	return;
     if ( !cursor() )
 	return;
-    if ( field->isVisible() && !field->isPrimaryIndex() ) {
+    if ( cursor()->isVisible( field->name() ) && !cursor()->primaryIndex().field( field->name() ) ) {
 	d->colIndex[ col ] = cursor()->position( field->name() );
 	if ( field->isReadOnly() )
 	    d->colReadOnly[ col ] =  TRUE;
@@ -1380,7 +1380,9 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
 {
-    return field->alignment() | Qt::AlignVCenter;
+    if ( !cursor() )
+	return Qt::AlignLeft | Qt::AlignVCenter;
+    return cursor()->alignment( field->name() ) | Qt::AlignVCenter;
 }
 
 

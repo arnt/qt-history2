@@ -141,40 +141,40 @@ QVariant::Type qFieldType( QPSQLPrivate* p, int i )
     return type;
 }
 
-bool qIsPrimaryIndex( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
-{
-    bool ispIdx = FALSE;
-    QString pIdx;
-    switch( protocol ) {
-    case QPSQLDriver::Version6:
-	pIdx = "select count(*) "
-		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
-		  "where c1.relname='%1' "
-		  "and a.attname='%2' "
-		  "and a.attnum > 0 "
-		  "and c1.oid=x.indrelid "
-		  "and c2.oid=a.attrelid "
-		  "and (x.indexrelid=c2.oid "
-		  "and a.attrelid=c2.oid);";
-	break;
-    case QPSQLDriver::Version7:
-	pIdx = "select count(1) "
-		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
-		  "where c1.relname='%1' "
-		  "and a.attname='%2' "
-		  "and a.attnum > 0 "
-		  "and c1.oid=x.indrelid "
-		  "and c2.oid=a.attrelid "
-		  "and (x.indexrelid=c2.oid "
-		  "and a.attrelid=c2.oid);";
-	break;
-    }
-    QSqlQuery pIdxs = driver->createQuery();
-    pIdxs.exec( pIdx.arg( tablename ).arg( fieldname ) );
-    if ( pIdxs.next() )
-	ispIdx = pIdxs.value(0).toInt();
-    return ispIdx;
-}
+// bool qIsPrimaryIndex( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+// {
+//     bool ispIdx = FALSE;
+//     QString pIdx;
+//     switch( protocol ) {
+//     case QPSQLDriver::Version6:
+// 	pIdx = "select count(*) "
+// 		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
+// 		  "where c1.relname='%1' "
+// 		  "and a.attname='%2' "
+// 		  "and a.attnum > 0 "
+// 		  "and c1.oid=x.indrelid "
+// 		  "and c2.oid=a.attrelid "
+// 		  "and (x.indexrelid=c2.oid "
+// 		  "and a.attrelid=c2.oid);";
+// 	break;
+//     case QPSQLDriver::Version7:
+// 	pIdx = "select count(1) "
+// 		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
+// 		  "where c1.relname='%1' "
+// 		  "and a.attname='%2' "
+// 		  "and a.attnum > 0 "
+// 		  "and c1.oid=x.indrelid "
+// 		  "and c2.oid=a.attrelid "
+// 		  "and (x.indexrelid=c2.oid "
+// 		  "and a.attrelid=c2.oid);";
+// 	break;
+//     }
+//     QSqlQuery pIdxs = driver->createQuery();
+//     pIdxs.exec( pIdx.arg( tablename ).arg( fieldname ) );
+//     if ( pIdxs.next() )
+// 	ispIdx = pIdxs.value(0).toInt();
+//     return ispIdx;
+// }
 
 QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
 {
@@ -205,7 +205,6 @@ QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
     fi.exec( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
 	QSqlField f( fieldname, qDecodePSQLType( fi.value(0).toInt()) );
-	f.setPrimaryIndex( qIsPrimaryIndex( protocol, driver, tablename, fieldname ) );
 	return f;
     }
     return QSqlField();

@@ -40,24 +40,33 @@
 
 #include "qregexp.h"
 #include "qmap.h"
+#include "qnamespace.h"
 
 class QSqlRecordPrivate
 {
 public:
+    struct info {
+	info() : nogen(FALSE),align(0),label(),visible(TRUE){}
+	bool    nogen;
+	int     align;
+	QString label;
+	bool    visible;
+    };
+    
     QSqlRecordPrivate() {}
     QSqlRecordPrivate( const QSqlRecordPrivate& other )
-	: fieldList( other.fieldList ), 
-	nogenFields( other.nogenFields )
+	: fieldList( other.fieldList ),
+	  fieldInfo( other.fieldInfo )
     {
     }
     QSqlRecordPrivate& operator=( const QSqlRecordPrivate& other )
     {
 	fieldList = other.fieldList;
-	nogenFields = other.nogenFields;
+	fieldInfo = other.fieldInfo;
 	return *this;
     }
     QValueList< QSqlField > fieldList;
-    QMap< int, bool >  nogenFields;
+    QMap< int, info > fieldInfo;
 };
 
 /*!
@@ -149,24 +158,46 @@ int QSqlRecord::position( const QString& name ) const
     return -1;
 }
 
+/*!  Returns a pointer to the field at position \a pos within the
+  record, or 0 if it cannot be found.
+
+*/
+
 QSqlField* QSqlRecord::field( int i )
 {
-    return &d->fieldList[ i ];
+    return findField( i );
 }
+
+/*!  Returns a pointer to the field at position \a pos within the
+  record, or 0 if it cannot be found.
+
+*/
 
 const QSqlField* QSqlRecord::field( int i ) const
 {
-    return &d->fieldList[ i ];
+    return findField( i );
 }
+
+/*!  Returns a pointer to the field with name \a name within the
+  record, or 0 if it cannot be found.  Field names are not
+  case-sensitive.
+
+*/
 
 QSqlField* QSqlRecord::field( const QString& name )
 {
-    return &d->fieldList[ position( name ) ];
+    return findField( name );
 }
+
+/*!  Returns a pointer to the field with name \a name within the
+  record, or 0 if it cannot be found.  Field names are not
+  case-sensitive.
+
+*/
 
 const QSqlField* QSqlRecord::field( const QString& name ) const
 {
-    return &d->fieldList[ position( name ) ];
+    return findField( name );
 }
 
 
@@ -219,7 +250,7 @@ void QSqlRecord::remove( int pos )
 void QSqlRecord::clear()
 {
     d->fieldList.clear();
-    d->nogenFields.clear();
+    d->fieldInfo.clear();
 }
 
 /*!  Returns TRUE if there are no fields in the record, otherwise
@@ -248,18 +279,131 @@ void QSqlRecord::clearValues( bool nullify )
     }
 }
 
+/*! Sets the generated flag for field \a name to \a generated.  If the
+  field does not exist, nothing happens.
+
+  \sa isGenerated()
+*/
+
 void QSqlRecord::setGenerated( const QString& name, bool generated )
 {
     if ( !field( name ) )
 	return;
-    d->nogenFields[ position( name ) ] = !generated;
+    d->fieldInfo[ position( name ) ].nogen = !generated;
 }
+
+/*! Returns TRUE if the field \a name is to be generated (the
+  default), otherwise FALSE is returned.  If the field does not exist,
+  FALSE is returned.
+  
+  \sa setGenerated()
+*/
 
 bool QSqlRecord::isGenerated( const QString& name ) const
 {
     if ( !field( name ) )
 	return FALSE;
-    return !d->nogenFields[ position( name ) ];
+    return !d->fieldInfo[ position( name ) ].nogen;
+}
+
+/*! Sets the alignment of field \a name to \a align (which is of type
+  Qt::AlignmentFlags).  If the field does not exist, nothing happens.
+
+  \sa alignment()
+
+*/
+void QSqlRecord::setAlignment( const QString& name, int align )
+{
+    if ( !field( name ) )
+	return;
+    d->fieldInfo[ position( name ) ].align = align;
+}
+
+/*! Returns the alignment associated with the field \a name.  If the
+   field does not exist, Qt::AlignLeft is returned.  If the field \a
+   name has not been assigned an alignment (using setAlignment()),
+   then the following rules are used:
+   
+   If the field is a string data type, Qt::AlignLeft is returned.
+   Otherwise, Qt::AlignRight is returned.
+   
+   \sa setAlignment()
+*/
+
+int QSqlRecord::alignment( const QString& name ) const
+{
+    if ( !field( name ) ) 
+	return Qt::AlignLeft;
+
+    if ( !d->fieldInfo.contains( position( name ) ) ) {
+	 int af = 0;
+	 switch( field( name )->type() ) {
+	 case QVariant::String:
+	 case QVariant::CString:
+	     af = Qt::AlignLeft;
+	     break;
+	 default:
+	     af = Qt::AlignRight;
+	     break;
+	 }
+	 return af;
+    }
+    return d->fieldInfo[ position( name ) ].align;
+}
+
+/*! Sets the display label of field \a name to \a label.  If the field
+  does not exist, nothing happens.
+  
+  \sa displayLabel()
+*/
+
+void QSqlRecord::setDisplayLabel( const QString& name, const QString& label )
+{
+    if ( !field( name ) )
+	return;
+    d->fieldInfo[ position( name ) ].label = label;
+}
+
+/*! Returns the display label associated with the field \a name.  If
+   the field does not exist, \a name is returned.
+    
+   \sa setDisplayLabel()
+*/
+
+QString QSqlRecord::displayLabel( const QString& name ) const
+{
+    if ( !field( name ) ) 
+	return name;
+    return d->fieldInfo[ position( name ) ].label;
+}
+
+/*! Sets the visible flag of field \a name to \a visible.  If the
+  field does not exist, nothing happens.
+
+  \sa isVisible()
+*/
+
+void QSqlRecord::setVisible( const QString& name, bool visible )
+{
+    if ( !field( name ) ) 
+	return;
+    d->fieldInfo[ position( name ) ].visible = visible;
+}
+
+/*! Returns TRUE if the field \a name is visible (the default),
+ otherwise FALSE is returned.  If the field does not exist, FALSE is
+ returned.
+ 
+ \sa setVisible()
+*/
+
+bool QSqlRecord::isVisible( const QString& name ) const
+{
+    if ( !field( name ) ) 
+	return FALSE;
+    if ( !d->fieldInfo.contains( position( name ) ) )
+	return TRUE;
+    return d->fieldInfo[ position( name ) ].visible;
 }
 
 /*!  Returns a comma-separated list of all field names as a string.
@@ -305,10 +449,9 @@ uint QSqlRecord::count() const
 const QSqlField* QSqlRecord::findField( int i ) const
 {
 #ifdef QT_CHECK_RANGE
-    static QSqlField dbg;
     if( (unsigned int) i > d->fieldList.count() ){
-	qWarning( "QSqlRecord::findField: index out of range" );
-	return &dbg;
+	qWarning( "QSqlRecord::findField: index out of range: " + QString::number( i ) );
+	return 0;
     }
 #endif // QT_CHECK_RANGE
     return &d->fieldList[ i ];
@@ -322,10 +465,9 @@ const QSqlField* QSqlRecord::findField( int i ) const
 QSqlField* QSqlRecord::findField( int i )
 {
 #ifdef QT_CHECK_RANGE
-    static QSqlField dbg;
     if( (unsigned int) i > d->fieldList.count() ){
-	qWarning( "QSqlRecord::findField: index out of range" );
-	return &dbg;
+	qWarning( "QSqlRecord::findField: index out of range: " + QString::number( i ) );
+	return 0;
     }
 #endif // QT_CHECK_RANGE
     return &d->fieldList[ i ];
@@ -339,10 +481,9 @@ QSqlField* QSqlRecord::findField( int i )
 const QSqlField* QSqlRecord::findField( const QString& name ) const
 {
 #ifdef QT_CHECK_RANGE
-    static QSqlField dbg;
     if( (unsigned int) position( name ) > d->fieldList.count() ){
-	qWarning( "QSqlRecord::findField : index out of range" );
-	return &dbg;
+	qWarning( "QSqlRecord::findField: field not found: " + name );
+	return 0;
     }
 #endif // QT_CHECK_RANGE
     return &d->fieldList[ position( name ) ];
@@ -359,8 +500,8 @@ QSqlField* QSqlRecord::findField( const QString& name )
 #ifdef QT_CHECK_RANGE
     static QSqlField dbg;
     if( (unsigned int) position( name ) > d->fieldList.count() ){
-	qWarning( "QSqlRecord::findField : index out of range" );
-	return &dbg;
+	qWarning( "QSqlRecord::findField: field not found: " + name );
+	return 0;
     }
 #endif // QT_CHECK_RANGE
     return &d->fieldList[ position( name ) ];
