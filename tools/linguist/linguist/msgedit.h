@@ -46,34 +46,55 @@ class PageCurl : public QWidget
     Q_OBJECT
 public:
     PageCurl( QWidget * parent = 0, const char * name = 0,
-	      WFlags f = 0 )
-	: QWidget( parent, name, f )
+              WFlags f = 0 )
+        : QWidget( parent, name, f )
     {
-	QPixmap px = TrWindow::pageCurl();
-	if ( px.mask() ) {
-	    setMask( *px.mask() );
-	}
-	setBackgroundPixmap( px );
-	setFixedSize( px.size() );
-
-	QRect r( 34, 0, width()-34, 19 );
-	QToolTip::add( this, r, tr("Next unfinished phrase") );
-	r.setSize( QSize(width()-34, height()-20) );
-	r.setX( 0 );
-	r.setY( 20 );
-	QToolTip::add( this, r, tr("Previous unfinished phrase") );
+        QPixmap px = TrWindow::pageCurl();
+        if ( px.mask() ) {
+            setMask( *px.mask() );
+        }
+        QPalette pal = palette();
+        pal.setBrush(backgroundRole(), px);
+        setPalette(pal);
+        setFixedSize( px.size() );
     }
 
 protected:
+    bool event(QEvent *e)
+    {
+        if (e->type() == QEvent::ToolTip && toolTip().isEmpty()) {
+            QRect r( 34, 0, width()-34, 19 );
+
+            QPoint pt = static_cast<QHelpEvent*>(e)->pos();
+
+            if (r.contains(pt)) {
+                QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(),
+                            tr("Next unfinished phrase"),
+                            this);
+            }
+
+            r.setSize( QSize(width()-34, height()-20) );
+            r.setX( 0 );
+            r.setY( 20 );
+
+            if (r.contains(pt)) {
+                QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(),
+                            tr("Previous unfinished phrase"),
+                            this);
+            }
+        }
+
+        return QWidget::event(e);
+    }
     void mouseReleaseEvent( QMouseEvent * e )
     {
-	int x = e->pos().x() - 14;
-	int y = e->pos().y() - 8;
+        int x = e->pos().x() - 14;
+        int y = e->pos().y() - 8;
 
-	if ( y <= x )
-	    emit nextPage();
-	else
-	    emit prevPage();
+        if ( y <= x )
+            emit nextPage();
+        else
+            emit prevPage();
     }
 
 signals:
@@ -140,16 +161,16 @@ class MessageEditor : public QWidget
     Q_OBJECT
 public:
     MessageEditor( MetaTranslator * t, QWidget * parent = 0,
-		   const char * name = 0 );
+                   const char * name = 0 );
     QListView * sourceTextList() const;
     QListView * phraseList() const;
 
     void showNothing();
     void showContext( const QString& context, bool finished );
     void showMessage( const QString& text, const QString& comment,
-		      const QString& fullContext, const QString& translation,
-		      MetaTranslatorMessage::Type type,
-		      const QList<Phrase>& phrases );
+                      const QString& fullContext, const QString& translation,
+                      MetaTranslatorMessage::Type type,
+                      const QList<Phrase>& phrases );
     void setFinished( bool finished );
     bool eventFilter( QObject *, QEvent * );
 

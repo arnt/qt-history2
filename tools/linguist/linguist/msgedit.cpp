@@ -49,60 +49,60 @@ class MED : public QTextEdit
 {
 public:
     MED( QWidget *parent, const char *name = 0 )
-	: QTextEdit( parent, name ) {}
+        : QTextEdit( parent, name ) {}
 
     int cursorX() const { return textCursor()->x(); }
     int cursorY() const { return textCursor()->paragraph()->rect().y() +
-			         textCursor()->y(); }
+                                 textCursor()->y(); }
 };
 
 
 QString richMeta( const QString& text )
 {
     return QString( "<small><font color=blue>(" ) + text +
-	   QString( ")</font></small>" );
+           QString( ")</font></small>" );
 }
 
 QString richText( const QString& text )
 {
     const char backTab[] = "\a\b\f\n\r\t";
     const char * const friendlyBackTab[] = {
-	QT_TRANSLATE_NOOP( "MessageEditor", "bell" ),
-	QT_TRANSLATE_NOOP( "MessageEditor", "backspace" ),
-	QT_TRANSLATE_NOOP( "MessageEditor", "new page" ),
-	QT_TRANSLATE_NOOP( "MessageEditor", "new line" ),
-	QT_TRANSLATE_NOOP( "MessageEditor", "carriage return" ),
-	QT_TRANSLATE_NOOP( "MessageEditor", "tab" )
+        QT_TRANSLATE_NOOP( "MessageEditor", "bell" ),
+        QT_TRANSLATE_NOOP( "MessageEditor", "backspace" ),
+        QT_TRANSLATE_NOOP( "MessageEditor", "new page" ),
+        QT_TRANSLATE_NOOP( "MessageEditor", "new line" ),
+        QT_TRANSLATE_NOOP( "MessageEditor", "carriage return" ),
+        QT_TRANSLATE_NOOP( "MessageEditor", "tab" )
     };
     QString rich;
 
     for ( int i = 0; i < (int) text.length(); i++ ) {
-	int ch = text[i].unicode();
+        int ch = text[i].unicode();
 
-	if ( ch < 0x20 ) {
-	    const char *p = strchr( backTab, ch );
-	    if ( p == 0 )
-		rich += richMeta( QString::number(ch, 16) );
-	    else
-		rich += richMeta( MessageEditor::tr(friendlyBackTab[p - backTab]) );
-	} else if ( ch == '<' ) {
-	    rich += QString( "&lt;" );
-	} else if ( ch == '>' ) {
-	    rich += QString( "&gt;" );
-	} else if ( ch == '&' ) {
-	    rich += QString( "&amp;" );
-	} else if ( ch == ' ' ) {
-	    if ( i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
-		 text[i + 1].isSpace() ) {
-		rich += richMeta( MessageEditor::tr("sp") );
-	    } else {
-		rich += ' ';
-	    }
-	} else {
-	    rich += QChar( ch );
-	}
-	if ( ch == '\n' )
-	    rich += QString( "<br>" );
+        if ( ch < 0x20 ) {
+            const char *p = strchr( backTab, ch );
+            if ( p == 0 )
+                rich += richMeta( QString::number(ch, 16) );
+            else
+                rich += richMeta( MessageEditor::tr(friendlyBackTab[p - backTab]) );
+        } else if ( ch == '<' ) {
+            rich += QString( "&lt;" );
+        } else if ( ch == '>' ) {
+            rich += QString( "&gt;" );
+        } else if ( ch == '&' ) {
+            rich += QString( "&amp;" );
+        } else if ( ch == ' ' ) {
+            if ( i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
+                 text[i + 1].isSpace() ) {
+                rich += richMeta( MessageEditor::tr("sp") );
+            } else {
+                rich += ' ';
+            }
+        } else {
+            rich += QChar( ch );
+        }
+        if ( ch == '\n' )
+            rich += QString( "<br>" );
     }
     return rich;
 }
@@ -118,7 +118,7 @@ ShadowWidget::ShadowWidget( QWidget * parent, const char * name )
 }
 
 ShadowWidget::ShadowWidget( QWidget * child, QWidget * parent,
-			    const char * name )
+                            const char * name )
     : QWidget( parent, name ), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
 {
     setWidget( child );
@@ -128,16 +128,18 @@ void ShadowWidget::setWidget( QWidget * child )
 {
     childWgt = child;
     if ( childWgt && childWgt->parent() != this ) {
-	childWgt->reparent( this, QPoint( 0, 0 ), TRUE );
+        childWgt->setParent(this);
+        childWgt->move(0,0);
+        childWgt->show();
     }
 }
 
 void ShadowWidget::resizeEvent( QResizeEvent * )
 {
     if( childWgt ) {
-	childWgt->move( wMargin, wMargin );
-	childWgt->resize( width() - sWidth - wMargin, height() - sWidth -
-			  wMargin );
+        childWgt->move( wMargin, wMargin );
+        childWgt->resize( width() - sWidth - wMargin, height() - sWidth -
+                          wMargin );
     }
 }
 
@@ -149,24 +151,24 @@ void ShadowWidget::paintEvent( QPaintEvent * e )
 
 
     if ( !((w > 0) && (h > 0)) )
-	return;
+        return;
 
     if ( p.begin( this ) ) {
-	p.setPen( colorGroup().shadow() );
+        p.setPen( colorGroup().shadow() );
 
-	p.drawPoint( w + 5, 6 );
-	p.drawLine( w + 3, 6, w + 5, 8 );
-	p.drawLine( w + 1, 6, w + 5, 10 );
-	int i;
-	for( i=7; i < h; i += 2 )
-	    p.drawLine( w, i, w + 5, i + 5 );
-	for( i = w - i + h; i > 6; i -= 2 )
-	    p.drawLine( i, h, i + 5, h + 5 );
-	for( ; i > 0 ; i -= 2 )
-	    p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
+        p.drawPoint( w + 5, 6 );
+        p.drawLine( w + 3, 6, w + 5, 8 );
+        p.drawLine( w + 1, 6, w + 5, 10 );
+        int i;
+        for( i=7; i < h; i += 2 )
+            p.drawLine( w, i, w + 5, i + 5 );
+        for( i = w - i + h; i > 6; i -= 2 )
+            p.drawLine( i, h, i + 5, h + 5 );
+        for( ; i > 0 ; i -= 2 )
+            p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
 
-//	p.eraseRect( w, 0, sWidth, 45 ); // Cheap hack for the page curl..
-	p.end();
+//        p.eraseRect( w, 0, sWidth, 45 ); // Cheap hack for the page curl..
+        p.end();
     }
     QWidget::paintEvent( e );
 }
@@ -189,11 +191,11 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( white ) );
     p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( white ) );
     p.setColor( QPalette::Active, QColorGroup::Background,
-		p.active().color( QColorGroup::Base ) );
+                p.active().color( QColorGroup::Base ) );
     p.setColor( QPalette::Inactive, QColorGroup::Background,
-		p.inactive().color( QColorGroup::Base ) );
+                p.inactive().color( QColorGroup::Base ) );
     p.setColor( QPalette::Disabled, QColorGroup::Background,
-		p.disabled().color( QColorGroup::Base ) );
+                p.disabled().color( QColorGroup::Base ) );
     setPalette( p );
 
     srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
@@ -207,7 +209,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     srcText = new QTextView( this, "source text view" );
     srcText->setFrameStyle( QFrame::NoFrame );
     srcText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
-					 QSizePolicy::Minimum ) );
+                                         QSizePolicy::Minimum ) );
     srcText->setResizePolicy( QScrollView::AutoOne );
     srcText->setHScrollBarMode( QScrollView::AlwaysOff );
     srcText->setVScrollBarMode( QScrollView::AlwaysOff );
@@ -219,7 +221,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     cmtText = new QTextView( this, "comment/context view" );
     cmtText->setFrameStyle( QFrame::NoFrame );
     cmtText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
-					 QSizePolicy::Minimum ) );
+                                         QSizePolicy::Minimum ) );
     cmtText->setResizePolicy( QScrollView::AutoOne );
     cmtText->setHScrollBarMode( QScrollView::AlwaysOff );
     cmtText->setVScrollBarMode( QScrollView::AlwaysOff );
@@ -232,7 +234,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     translationMed = new MED( this, "translation editor" );
     translationMed->setFrameStyle( QFrame::NoFrame );
     translationMed->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
-					     QSizePolicy::MinimumExpanding ) );
+                                             QSizePolicy::MinimumExpanding ) );
     translationMed->setHScrollBarMode( QScrollView::AlwaysOff );
     translationMed->setVScrollBarMode( QScrollView::AlwaysOff );
     translationMed->setResizePolicy( QScrollView::AutoOne );
@@ -243,7 +245,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     p.setColor( QPalette::Disabled, QColorGroup::Base, p.active().base() );
     translationMed->setPalette( p );
     connect( translationMed, SIGNAL(textChanged()),
-	     SLOT(handleTranslationChanges()) );
+             SLOT(handleTranslationChanges()) );
 
     pageCurl = new PageCurl( this, "page curl" );
 
@@ -264,9 +266,9 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
 void EditorPage::updateCommentField()
 {
     if( cmtText->text().isEmpty() )
-	cmtText->hide();
+        cmtText->hide();
     else
-	cmtText->show();
+        cmtText->show();
 
     layoutWidgets();
 }
@@ -293,9 +295,9 @@ void EditorPage::layoutWidgets()
     cmtText->resize( w - margin*2, cmtText->height() );
 
     if( cmtText->isHidden() )
-	transLbl->move( margin, srcText->y() + srcText->height() + space );
+        transLbl->move( margin, srcText->y() + srcText->height() + space );
     else
-	transLbl->move( margin, cmtText->y() + cmtText->height() + space );
+        transLbl->move( margin, cmtText->y() + cmtText->height() + space );
     transLbl->resize( w - margin*2, transLbl->height() );
 
     translationMed->move( margin, transLbl->y() + transLbl->height() + space );
@@ -304,16 +306,16 @@ void EditorPage::layoutWidgets()
     // Calculate the total height for the editor page - emit a signal
     // if the actual page size is larger/smaller
     int totHeight = margin + srcTextLbl->height() +
-		    srcText->height() + space +
-		    transLbl->height() + space +
-		    translationMed->height() + space +
-		    frameWidth()*lineWidth()*2 + space * 3;
+                    srcText->height() + space +
+                    transLbl->height() + space +
+                    translationMed->height() + space +
+                    frameWidth()*lineWidth()*2 + space * 3;
 
     if( !cmtText->isHidden() )
-	totHeight += cmtText->height() + space;
+        totHeight += cmtText->height() + space;
 
      if( height() != totHeight )
-	 emit pageHeightUpdated( totHeight );
+         emit pageHeightUpdated( totHeight );
 }
 
 void EditorPage::resizeEvent( QResizeEvent * )
@@ -349,11 +351,11 @@ void EditorPage::calculateFieldHeight( QTextView * field )
     int contentsHeight = field->contentsHeight();
 
     if( contentsHeight != field->height() ) {
-	int oldHeight = field->height();
-	if( contentsHeight < 30 )
-	    contentsHeight = 30;
-	field->resize( field->width(), contentsHeight );
-	emit pageHeightUpdated( height() + (field->height() - oldHeight) );
+        int oldHeight = field->height();
+        if( contentsHeight < 30 )
+            contentsHeight = 30;
+        field->resize( field->width(), contentsHeight );
+        emit pageHeightUpdated( height() + (field->height() - oldHeight) );
     }
 }
 
@@ -376,29 +378,29 @@ void EditorPage::fontChange( const QFont & )
    Handle layout of dock windows and the editor page.
 */
 MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
-			      const char * name )
+                              const char * name )
     : QWidget( parent, name ),
       tor( t )
 {
     doGuesses = TRUE;
     v = new QVBoxLayout( this );
     topDock = new QDockArea( Qt::Horizontal, QDockArea::Normal, this,
-			     "top dock area" );
+                             "top dock area" );
     topDock->setMinimumHeight( 10 );
     topDock->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
- 					 QSizePolicy::Minimum) );
+                                          QSizePolicy::Minimum) );
 
     topDockWnd = new QDockWindow( QDockWindow::InDock, topDock,
-				  "top dock window" );
+                                  "top dock window" );
     QMainWindow *mw = (QMainWindow*)topLevelWidget();
     if ( mw ) {
-	mw->setDockEnabled( topDockWnd, Qt::DockTop, TRUE );
-	mw->setDockEnabled( topDockWnd, Qt::DockLeft, TRUE );
-	mw->setDockEnabled( topDockWnd, Qt::DockRight, TRUE );
-	mw->setDockEnabled( topDockWnd, Qt::DockBottom, TRUE );
+        mw->setDockEnabled( topDockWnd, Qt::DockTop, TRUE );
+        mw->setDockEnabled( topDockWnd, Qt::DockLeft, TRUE );
+        mw->setDockEnabled( topDockWnd, Qt::DockRight, TRUE );
+        mw->setDockEnabled( topDockWnd, Qt::DockBottom, TRUE );
     }
 
-    topDockWnd->setCaption( tr("Source text") );
+    topDockWnd->setWindowTitle( tr("Source text") );
     topDockWnd->setCloseMode( QDockWindow::Always );
     topDockWnd->setResizeEnabled( TRUE );
     topDockWnd->setFixedExtentHeight( 110 );
@@ -425,36 +427,36 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 
     editorPage = new EditorPage( sv, "editor page" );
     connect( editorPage, SIGNAL(pageHeightUpdated(int)),
-	     SLOT(updatePageHeight(int)) );
+             SLOT(updatePageHeight(int)) );
 
     editorPage->translationMed->installEventFilter( this );
 
     sw = new ShadowWidget( editorPage, sv, "editor page shadow" );
     sw->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
-				    QSizePolicy::Expanding) );
+                                    QSizePolicy::Expanding) );
     sw->setMinimumSize( QSize( 100, 150 ) );
     sv->addChild( sw );
 
     bottomDock = new QDockArea( Qt::Horizontal, QDockArea::Reverse,
-				this, "bottom dock area" );
+                                this, "bottom dock area" );
     bottomDock->setMinimumHeight( 10 );
     bottomDock->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
-					    QSizePolicy::Minimum) );
+                                            QSizePolicy::Minimum) );
     bottomDockWnd = new QDockWindow( QDockWindow::InDock, bottomDock,
-				     "bottom dock window" );
+                                     "bottom dock window" );
     if ( mw ) {
-	mw->setDockEnabled( bottomDockWnd, Qt::DockTop, TRUE );
-	mw->setDockEnabled( bottomDockWnd, Qt::DockLeft, TRUE );
-	mw->setDockEnabled( bottomDockWnd, Qt::DockRight, TRUE );
-	mw->setDockEnabled( bottomDockWnd, Qt::DockBottom, TRUE );
+        mw->setDockEnabled( bottomDockWnd, Qt::DockTop, TRUE );
+        mw->setDockEnabled( bottomDockWnd, Qt::DockLeft, TRUE );
+        mw->setDockEnabled( bottomDockWnd, Qt::DockRight, TRUE );
+        mw->setDockEnabled( bottomDockWnd, Qt::DockBottom, TRUE );
     }
-    bottomDockWnd->setCaption( tr("Phrases") );
+    bottomDockWnd->setWindowTitle( tr("Phrases") );
     bottomDockWnd->setCloseMode( QDockWindow::Always );
     bottomDockWnd->setResizeEnabled( TRUE );
 
     QWidget * w = new QWidget( bottomDockWnd );
     w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
-				   QSizePolicy::Minimum ) );
+                                   QSizePolicy::Minimum ) );
     QHBoxLayout *hl = new QHBoxLayout( w, 6 );
     QVBoxLayout *vl = new QVBoxLayout( 6 );
 
@@ -469,7 +471,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     accel = new QAccel( this, "accel" );
     connect( accel, SIGNAL(activated(int)), this, SLOT(guessActivated(int)) );
     for ( int i = 0; i < 9; i++ )
-	accel->insertItem( CTRL + (Key_1 + i), i + 1 );
+        accel->insertItem( CTRL + (Key_1 + i), i + 1 );
 
     bottomDockWnd->setWidget( w );
 
@@ -479,48 +481,48 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 
     // Signals
     connect( editorPage->pageCurl, SIGNAL(nextPage()),
-	     SIGNAL(nextUnfinished()) );
+             SIGNAL(nextUnfinished()) );
     connect( editorPage->pageCurl, SIGNAL(prevPage()),
-	     SIGNAL(prevUnfinished()) );
+             SIGNAL(prevUnfinished()) );
 
     connect( editorPage->translationMed, SIGNAL(textChanged()),
-	     this, SLOT(emitTranslationChanged()) );
+             this, SLOT(emitTranslationChanged()) );
     connect( editorPage->translationMed, SIGNAL(textChanged()),
-	     this, SLOT(updateButtons()) );
+             this, SLOT(updateButtons()) );
     connect( editorPage->translationMed, SIGNAL(undoAvailable(bool)),
-	     this, SIGNAL(undoAvailable(bool)) );
+             this, SIGNAL(undoAvailable(bool)) );
     connect( editorPage->translationMed, SIGNAL(redoAvailable(bool)),
-	     this, SIGNAL(redoAvailable(bool)) );
+             this, SIGNAL(redoAvailable(bool)) );
     connect( editorPage->translationMed, SIGNAL(copyAvailable(bool)),
-	     this, SIGNAL(cutAvailable(bool)) );
+             this, SIGNAL(cutAvailable(bool)) );
     connect( editorPage->translationMed, SIGNAL(copyAvailable(bool)),
-	     this, SIGNAL(copyAvailable(bool)) );
+             this, SIGNAL(copyAvailable(bool)) );
     connect( qApp->clipboard(), SIGNAL(dataChanged()),
-	     this, SLOT(updateCanPaste()) );
+             this, SLOT(updateCanPaste()) );
     connect( phraseLv, SIGNAL(doubleClicked(QListViewItem *)),
-	     this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
+             this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
     connect( phraseLv, SIGNAL(returnPressed(QListViewItem *)),
-	     this, SLOT(insertPhraseInTranslationAndLeave(QListViewItem *)) );
+             this, SLOT(insertPhraseInTranslationAndLeave(QListViewItem *)) );
 
     // What's this
     QWhatsThis::add( this, tr("This whole panel allows you to view and edit "
-			      "the translation of some source text.") );
+                              "the translation of some source text.") );
     QWhatsThis::add( editorPage->srcText,
-		     tr("This area shows the source text.") );
+                     tr("This area shows the source text.") );
     QWhatsThis::add( editorPage->cmtText, tr("This area shows a comment that"
-			" may guide you, and the context in which the text"
-			" occurs.") );
+                        " may guide you, and the context in which the text"
+                        " occurs.") );
     QWhatsThis::add( editorPage->translationMed,
-		     tr("This is where you can enter or modify"
-			" the translation of some source text.") );
+                     tr("This is where you can enter or modify"
+                        " the translation of some source text.") );
 }
 
 void MessageEditor::toggleFinished()
 {
     if ( itemFinished )
-	itemFinished = FALSE;
+        itemFinished = FALSE;
     else
-	itemFinished = TRUE;
+        itemFinished = TRUE;
     emit finished( itemFinished );
 }
 
@@ -531,58 +533,58 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
     // Handle keypresses in the message editor - scroll the view if the current
     // line is hidden.
     if ( e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease ) {
-	QKeyEvent * ke = (QKeyEvent*)e;
-	const int k = ke->key();
+        QKeyEvent * ke = (QKeyEvent*)e;
+        const int k = ke->key();
 
-	if ( qt_cast<QTextEdit*>(o) ) {
-	    if ( e->type() == QEvent::KeyPress ) {
-		// Hardcode the Tab key to do focus changes when pressed
-		// inside the editor
-		if ( doFocusChange ) {
-		    if ( k == Key_BackTab ) {
-			emit focusSourceList();
-			doFocusChange = FALSE;
-			return TRUE;
-		    } else if ( k == Key_Tab ) {
-			emit focusPhraseList();
-			doFocusChange = FALSE;
-			return TRUE;
-		    }
-		}
-	    } else if ( e->type() == QEvent::KeyRelease ) {
-		MED * ed = (MED *) o;
-		switch( k ) {
-		case Key_Up:
-		    if (ed->cursorY() < 10)
-			sv->verticalScrollBar()->subtractLine();
-		    break;
+        if ( qt_cast<QTextEdit*>(o) ) {
+            if ( e->type() == QEvent::KeyPress ) {
+                // Hardcode the Tab key to do focus changes when pressed
+                // inside the editor
+                if ( doFocusChange ) {
+                    if ( k == Key_BackTab ) {
+                        emit focusSourceList();
+                        doFocusChange = FALSE;
+                        return TRUE;
+                    } else if ( k == Key_Tab ) {
+                        emit focusPhraseList();
+                        doFocusChange = FALSE;
+                        return TRUE;
+                    }
+                }
+            } else if ( e->type() == QEvent::KeyRelease ) {
+                MED * ed = (MED *) o;
+                switch( k ) {
+                case Key_Up:
+                    if (ed->cursorY() < 10)
+                        sv->verticalScrollBar()->subtractLine();
+                    break;
 
-		case Key_Down:
-		    if (ed->cursorY() >= ed->height() - 20)
-			sv->verticalScrollBar()->addLine();
-		    break;
+                case Key_Down:
+                    if (ed->cursorY() >= ed->height() - 20)
+                        sv->verticalScrollBar()->addLine();
+                    break;
 
-		case Key_PageUp:
-		    if (ed->cursorY() < 10)
-			sv->verticalScrollBar()->subtractPage();
-		    break;
+                case Key_PageUp:
+                    if (ed->cursorY() < 10)
+                        sv->verticalScrollBar()->subtractPage();
+                    break;
 
-		case Key_PageDown:
-		    if (ed->cursorY() >= ed->height() - 50)
-			sv->verticalScrollBar()->addPage();
-		    break;
-		default:
-		    sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),
-				       sw->margin() + ed->y() + ed->cursorY() );
-		    break;
-		}
-	    }
-	    doFocusChange = TRUE;
-	} else if ( qt_cast<QListView*>(o) ) {
-	    // handle the ESC key in the list views
-	    if ( e->type() == QEvent::KeyRelease && k == Key_Escape )
-		editorPage->translationMed->setFocus();
-	}
+                case Key_PageDown:
+                    if (ed->cursorY() >= ed->height() - 50)
+                        sv->verticalScrollBar()->addPage();
+                    break;
+                default:
+                    sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),
+                                       sw->margin() + ed->y() + ed->cursorY() );
+                    break;
+                }
+            }
+            doFocusChange = TRUE;
+        } else if ( qt_cast<QListView*>(o) ) {
+            // handle the ESC key in the list views
+            if ( e->type() == QEvent::KeyRelease && k == Key_Escape )
+                editorPage->translationMed->setFocus();
+        }
     }
     return QWidget::eventFilter( o, e );
 }
@@ -620,9 +622,9 @@ void MessageEditor::showContext( const QString& context, bool finished )
     guesses.clear();
 
     if( context.isEmpty() )
-	editorPage->cmtText->setText("");
+        editorPage->cmtText->setText("");
     else
-	editorPage->cmtText->setText( richText(context.simplifyWhiteSpace()) );
+        editorPage->cmtText->setText( richText(context.simplified()) );
     setTranslation( QString(""), FALSE );
     setFinished( finished );
     phraseLv->clear();
@@ -633,11 +635,11 @@ void MessageEditor::showContext( const QString& context, bool finished )
 }
 
 void MessageEditor::showMessage( const QString& text,
-				 const QString& comment,
-				 const QString& fullContext,
-				 const QString& translation,
-				 MetaTranslatorMessage::Type type,
-				 const QList<Phrase>& phrases )
+                                 const QString& comment,
+                                 const QString& fullContext,
+                                 const QString& translation,
+                                 MetaTranslatorMessage::Type type,
+                                 const QList<Phrase>& phrases )
 {
     bool obsolete = ( type == MetaTranslatorMessage::Obsolete );
     setEditionEnabled( !obsolete );
@@ -645,43 +647,43 @@ void MessageEditor::showMessage( const QString& text,
     guesses.clear();
 
     editorPage->srcText->setText( QString("<p>") + richText( text ) +
-				  QString("</p>") );
+                                  QString("</p>") );
 
     if ( !fullContext.isEmpty() && !comment.isEmpty() )
-	editorPage->cmtText->setText( richText(fullContext.simplifyWhiteSpace()) +
-				      "\n" + richText(comment.simplifyWhiteSpace()) );
+        editorPage->cmtText->setText( richText(fullContext.simplified()) +
+                                      "\n" + richText(comment.simplified()) );
     else if ( !fullContext.isEmpty() && comment.isEmpty() )
-	editorPage->cmtText->setText(richText(fullContext.simplifyWhiteSpace() ) );
+        editorPage->cmtText->setText(richText(fullContext.simplified() ) );
     else if ( fullContext.isEmpty() && !comment.isEmpty() )
-	editorPage->cmtText->setText( richText(comment.simplifyWhiteSpace() ) );
+        editorPage->cmtText->setText( richText(comment.simplified() ) );
     else
-	editorPage->cmtText->setText( "" );
+        editorPage->cmtText->setText( "" );
 
     setTranslation( translation, FALSE );
     setFinished( type != MetaTranslatorMessage::Unfinished );
     QList<Phrase>::ConstIterator p;
     phraseLv->clear();
     for ( p = phrases.begin(); p != phrases.end(); ++p )
- 	(void) new PhraseLVI( phraseLv, *p );
+         (void) new PhraseLVI( phraseLv, *p );
 
     if ( doGuesses && !sourceText.isEmpty() ) {
-	CandidateList cl = similarTextHeuristicCandidates( tor,
-							   sourceText.latin1(),
-							   MaxCandidates );
-	int n = 0;
-	QList<Candidate>::Iterator it = cl.begin();
-	while ( it != cl.end() ) {
-	    QString def;
-	    if ( n < 9 )
-		def = tr( "Guess (%1)" ).arg( QString(QKeySequence(CTRL | (Key_0 + (n + 1)))) );
-	    else
-		def = tr( "Guess" );
-	    (void) new PhraseLVI( phraseLv,
-				  Phrase((*it).source, (*it).target, def),
-				  n + 1 );
-	    n++;
-	    ++it;
-	}
+        CandidateList cl = similarTextHeuristicCandidates( tor,
+                                                           sourceText.latin1(),
+                                                           MaxCandidates );
+        int n = 0;
+        QList<Candidate>::Iterator it = cl.begin();
+        while ( it != cl.end() ) {
+            QString def;
+            if ( n < 9 )
+                def = tr( "Guess (%1)" ).arg( QString(QKeySequence(CTRL | (Key_0 + (n + 1)))) );
+            else
+                def = tr( "Guess" );
+            (void) new PhraseLVI( phraseLv,
+                                  Phrase((*it).source, (*it).target, def),
+                                  n + 1 );
+            n++;
+            ++it;
+        }
     }
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
@@ -698,7 +700,7 @@ void MessageEditor::setTranslation( const QString& translation, bool emitt )
     editorPage->translationMed->setText( translation );
     editorPage->translationMed->blockSignals( FALSE );
     if ( !emitt )
- 	updateButtons();
+         updateButtons();
     emit cutAvailable( FALSE );
     emit copyAvailable( FALSE );
 }
@@ -757,9 +759,9 @@ void MessageEditor::guessActivated( int accelKey )
 {
     QListViewItem *item = phraseLv->firstChild();
     while ( item != 0 && ((PhraseLVI *) item)->accelKey() != accelKey )
-	item = item->nextSibling();
+        item = item->nextSibling();
     if ( item != 0 )
-	insertPhraseInTranslation( item );
+        insertPhraseInTranslation( item );
 }
 
 void MessageEditor::insertPhraseInTranslation( QListViewItem *item )
@@ -778,8 +780,8 @@ void MessageEditor::insertPhraseInTranslationAndLeave( QListViewItem *item )
 void MessageEditor::updateButtons()
 {
     bool overwrite = ( !editorPage->translationMed->isReadOnly() &&
-	     (editorPage->translationMed->text().stripWhiteSpace().isEmpty() ||
-	      mayOverwriteTranslation) );
+             (editorPage->translationMed->text().trimmed().isEmpty() ||
+              mayOverwriteTranslation) );
     mayOverwriteTranslation = FALSE;
     emit updateActions( overwrite );
 }
@@ -789,7 +791,7 @@ void MessageEditor::beginFromSource()
     mayOverwriteTranslation = TRUE;
     setTranslation( sourceText, TRUE );
     if ( !editorPage->hasFocus() )
-	editorPage->setFocus();
+        editorPage->setFocus();
 }
 
 void MessageEditor::finishAndNext()
@@ -797,28 +799,28 @@ void MessageEditor::finishAndNext()
     setFinished( TRUE );
     emit nextUnfinished();
     if ( !editorPage->hasFocus() )
-	editorPage->setFocus();
+        editorPage->setFocus();
 }
 
 void MessageEditor::updateCanPaste()
 {
     bool oldCanPaste = canPaste;
     canPaste = ( !editorPage->translationMed->isReadOnly() &&
-		 !qApp->clipboard()->text().isNull() );
+                 !qApp->clipboard()->text().isNull() );
     if ( canPaste != oldCanPaste )
-	emit pasteAvailable( canPaste );
+        emit pasteAvailable( canPaste );
 }
 
 void MessageEditor::setFinished( bool finished )
 {
     if ( !finished != !itemFinished )
-	toggleFinished();
+        toggleFinished();
 }
 
 void MessageEditor::toggleGuessing()
 {
     doGuesses = !doGuesses;
     if ( !doGuesses ) {
-	phraseLv->clear();
+        phraseLv->clear();
     }
 }

@@ -6,13 +6,15 @@
 
 #include "arrowpad.h"
 
+#include <qlayout.h>
 #include <qpushbutton.h>
 
 ArrowPad::ArrowPad( QWidget *parent, const char *name )
     : QGrid( 3, Horizontal, parent, name )
 {
-    setMargin( 10 );
-    setSpacing( 10 );
+    QGridLayout *l = static_cast<QGridLayout*>(layout());
+    l->setMargin( 10 );
+    l->setSpacing( 10 );
 
     skip();
     (void) new QPushButton( tr("&Up"), this );

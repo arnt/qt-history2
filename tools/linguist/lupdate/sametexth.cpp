@@ -12,11 +12,10 @@
 
 #include <metatranslator.h>
 
-#include <qcstring.h>
 #include <qmap.h>
 
-typedef QMap<QCString, MetaTranslatorMessage> TMM;
-typedef QValueList<MetaTranslatorMessage> TML;
+typedef QMap<QByteArray, MetaTranslatorMessage> TMM;
+typedef QList<MetaTranslatorMessage> TML;
 
 /*
   Augments a MetaTranslator with trivially derived translations.
@@ -38,39 +37,39 @@ void applySameTextHeuristic( MetaTranslator *tor, bool verbose )
     int inserted = 0;
 
     for ( it = all.begin(); it != all.end(); ++it ) {
-	if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
-	    if ( (*it).translation().isEmpty() )
-		untranslated.append( *it );
-	} else {
-	    QCString key = (*it).sourceText();
-	    t = translated.find( key );
-	    if ( t != translated.end() ) {
-		/*
-		  The same source text is translated at least two
-		  different ways. Do nothing then.
-		*/
-		if ( (*t).translation() != (*it).translation() ) {
-		    translated.remove( key );
-		    avoid.insert( key, *it );
-		}
-	    } else if ( !avoid.contains(key) &&
-			!(*it).translation().isEmpty() ) {
-		translated.insert( key, *it );
-	    }
-	}
+        if ( (*it).type() == MetaTranslatorMessage::Unfinished ) {
+            if ( (*it).translation().isEmpty() )
+                untranslated.append( *it );
+        } else {
+            QByteArray key = (*it).sourceText();
+            t = translated.find( key );
+            if ( t != translated.end() ) {
+                /*
+                  The same source text is translated at least two
+                  different ways. Do nothing then.
+                */
+                if ( (*t).translation() != (*it).translation() ) {
+                    translated.remove( key );
+                    avoid.insert( key, *it );
+                }
+            } else if ( !avoid.contains(key) &&
+                        !(*it).translation().isEmpty() ) {
+                translated.insert( key, *it );
+            }
+        }
     }
 
     for ( u = untranslated.begin(); u != untranslated.end(); ++u ) {
-	QCString key = (*u).sourceText();
-	t = translated.find( key );
-	if ( t != translated.end() ) {
-	    MetaTranslatorMessage m( *u );
-	    m.setTranslation( (*t).translation() );
-	    tor->insert( m );
-	    inserted++;
-	}
+        QByteArray key = (*u).sourceText();
+        t = translated.find( key );
+        if ( t != translated.end() ) {
+            MetaTranslatorMessage m( *u );
+            m.setTranslation( (*t).translation() );
+            tor->insert( m );
+            inserted++;
+        }
     }
     if ( verbose && inserted != 0 )
-	fprintf( stderr, " same-text heuristic provided %d translation%s\n",
-		 inserted, inserted == 1 ? "" : "s" );
+        fprintf( stderr, " same-text heuristic provided %d translation%s\n",
+                 inserted, inserted == 1 ? "" : "s" );
 }

@@ -16,7 +16,7 @@
 #include "phrase.h"
 
 #include <qdialog.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 class QLineEdit;
 class QPushButton;
@@ -29,8 +29,8 @@ class PhraseBookBox : public QDialog
     Q_OBJECT
 public:
     PhraseBookBox( const QString& filename, const PhraseBook& phraseBook,
-		   QWidget *parent = 0, const char *name = 0,
-		   bool modal = FALSE );
+                   QWidget *parent = 0, const char *name = 0,
+                   bool modal = FALSE );
 
     const PhraseBook& phraseBook() const { return pb; }
 

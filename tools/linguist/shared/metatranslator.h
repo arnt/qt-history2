@@ -15,7 +15,6 @@
 
 #include <qmap.h>
 #include <qstring.h>
-#include <qcstring.h>
 #include <qtranslator.h>
 #include <qlist.h>
 
@@ -28,9 +27,9 @@ public:
 
     MetaTranslatorMessage();
     MetaTranslatorMessage( const char *context, const char *sourceText,
-			   const char *comment,
-			   const QString& translation = QString::null,
-			   bool utf8 = FALSE, Type type = Unfinished );
+                           const char *comment,
+                           const QString& translation = QString::null,
+                           bool utf8 = FALSE, Type type = Unfinished );
     MetaTranslatorMessage( const MetaTranslatorMessage& m );
 
     MetaTranslatorMessage& operator=( const MetaTranslatorMessage& m );
@@ -67,11 +66,11 @@ public:
     bool load( const QString& filename );
     bool save( const QString& filename ) const;
     bool release( const QString& filename, bool verbose = FALSE,
-		  bool ignoreUnfinished = FALSE,
-		  QTranslator::SaveMode mode = QTranslator::Stripped ) const;
+                  bool ignoreUnfinished = FALSE,
+                  QTranslator::SaveMode mode = QTranslator::Stripped ) const;
 
     bool contains( const char *context, const char *sourceText,
-		   const char *comment ) const;
+                   const char *comment ) const;
     void insert( const MetaTranslatorMessage& m );
 
     void stripObsoleteMessages();
@@ -88,7 +87,7 @@ private:
     typedef QMap<int, MetaTranslatorMessage> TMMInv;
 
     TMM mm;
-    QCString codecName;
+    QByteArray codecName;
     QTextCodec *codec;
 };
 

@@ -22,6 +22,7 @@
 #include <qwhatsthis.h>
 #include <qheader.h>
 
+#if 0 /// ### fixme
 class WhatPhrase : public QWhatsThis
 {
 public:
@@ -43,20 +44,21 @@ QString WhatPhrase::text( const QPoint& p )
 {
     QListViewItem *item = parent->itemAt( p );
     if ( item == 0 )
-	return PhraseLV::tr( "This is a list of phrase entries relevant to the"
-		  " source text.  Each phrase is supplemented with a suggested"
-		  " translation and a definition." );
+        return PhraseLV::tr( "This is a list of phrase entries relevant to the"
+                  " source text.  Each phrase is supplemented with a suggested"
+                  " translation and a definition." );
     else
-	return QString( PhraseLV::tr("<p><u>%1:</u>&nbsp;&nbsp;%2</p>"
-				     "<p><u>%3:</u>&nbsp;&nbsp;%4</p>"
-				     "<p><u>%5:</u>&nbsp;&nbsp;%6</p>") )
-	       .arg( parent->columnText(PhraseLVI::SourceTextShown) )
-	       .arg( item->text(PhraseLVI::SourceTextShown) )
-	       .arg( parent->columnText(PhraseLVI::TargetTextShown) )
-	       .arg( item->text(PhraseLVI::TargetTextShown) )
-	       .arg( parent->columnText(PhraseLVI::DefinitionText) )
-	       .arg( item->text(PhraseLVI::DefinitionText) );
+        return QString( PhraseLV::tr("<p><u>%1:</u>&nbsp;&nbsp;%2</p>"
+                                     "<p><u>%3:</u>&nbsp;&nbsp;%4</p>"
+                                     "<p><u>%5:</u>&nbsp;&nbsp;%6</p>") )
+               .arg( parent->columnText(PhraseLVI::SourceTextShown) )
+               .arg( item->text(PhraseLVI::SourceTextShown) )
+               .arg( parent->columnText(PhraseLVI::TargetTextShown) )
+               .arg( item->text(PhraseLVI::TargetTextShown) )
+               .arg( parent->columnText(PhraseLVI::DefinitionText) )
+               .arg( item->text(PhraseLVI::DefinitionText) );
 }
+#endif
 
 PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey )
     : QListViewItem( parent ),
@@ -68,36 +70,36 @@ PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey )
 QString PhraseLVI::key( int column, bool ascending ) const
 {
     if ( column == SourceTextShown ) {
-	if ( sourceTextKey.isEmpty() ) {
-	    if ( ascending ) {
-		return "";
-	    } else {
-		return QString::null;
-	    }
-	} else {
-	    return sourceTextKey;	
-	}
+        if ( sourceTextKey.isEmpty() ) {
+            if ( ascending ) {
+                return "";
+            } else {
+                return QString::null;
+            }
+        } else {
+            return sourceTextKey;
+        }
     } else if ( column == TargetTextShown ) {
-	return targetTextKey;
+        return targetTextKey;
     } else {
-	return QChar( '0' + akey ) + text( column );
+        return QChar( '0' + akey ) + text( column );
     }
 }
 
 void PhraseLVI::setText( int column, const QString& text )
 {
     if ( column == SourceTextShown ) {
-	sourceTextKey = makeKey( text );
+        sourceTextKey = makeKey( text );
     } else if ( column == TargetTextShown ) {
-	targetTextKey = makeKey( text );
+        targetTextKey = makeKey( text );
     }
     QListViewItem::setText( column, text );
 }
 
 void PhraseLVI::setPhrase( const Phrase& phrase )
 {
-    setText( SourceTextShown, phrase.source().simplifyWhiteSpace() );
-    setText( TargetTextShown, phrase.target().simplifyWhiteSpace() );
+    setText( SourceTextShown, phrase.source().simplified() );
+    setText( TargetTextShown, phrase.target().simplified() );
     setText( DefinitionText, phrase.definition() );
     setText( SourceTextOriginal, phrase.source() );
     setText( TargetTextOriginal, phrase.target() );
@@ -106,18 +108,18 @@ void PhraseLVI::setPhrase( const Phrase& phrase )
 Phrase PhraseLVI::phrase() const
 {
     return Phrase( text(SourceTextOriginal), text(TargetTextOriginal),
-		   text(DefinitionText) );
+                   text(DefinitionText) );
 }
 
 QString PhraseLVI::makeKey( const QString& text ) const
 {
     if ( text == NewPhrase )
-	return QString::null;
+        return QString::null;
 
     QString key;
     for ( int i = 0; i < (int) text.length(); i++ ) {
-	if ( text[i] != QChar('&') )
-	    key += text[i].lower();
+        if ( text[i] != QChar('&') )
+            key += text[i].toLower();
     }
     // see Section 5, Exercise 4 of The Art of Computer Programming
     key += QChar::null;
@@ -131,12 +133,13 @@ PhraseLV::PhraseLV( QWidget *parent, const char *name )
     setAllColumnsShowFocus( TRUE );
     setShowSortIndicator( TRUE );
     for ( int i = 0; i < 3; i++ )
-	addColumn( QString::null, 120 );
+        addColumn( QString::null, 120 );
     setColumnText( PhraseLVI::SourceTextShown, tr("Source phrase") );
     setColumnText( PhraseLVI::TargetTextShown, tr("Translation") );
     setColumnText( PhraseLVI::DefinitionText, tr("Definition") );
     header()->setStretchEnabled( TRUE, -1 );
-    what = new WhatPhrase( this );
+    //what = 0;
+    // ### fixme what = new WhatPhrase( this );
 }
 
 PhraseLV::~PhraseLV()

@@ -31,8 +31,8 @@ class QLabel;
 class QListView;
 class QListViewItem;
 class QPrinter;
+class QMenu;
 
-class Action;
 class FindDialog;
 class MessageEditor;
 
@@ -107,6 +107,8 @@ private slots:
     void updateStatistics();
 
 private:
+    static QIconSet loadPixmap(const QString &imageName);
+
     typedef QList<PhraseBook> PBL;
     typedef QHash<QString, PhraseBook> PBD;
 
@@ -124,12 +126,12 @@ private:
     void updatePhraseDict();
     PhraseBook getPhrases( const QString& source );
     bool danger( const QString& source, const QString& translation,
-		 bool verbose = FALSE );
+                 bool verbose = FALSE );
 
     int itemToIndex( QListView * view, QListViewItem * item );
     QListViewItem * indexToItem( QListView * view, int index );
     bool searchItem( const QString & searchWhat, QListViewItem * j,
-		     QListViewItem * k );
+                     QListViewItem * k );
     void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
 
     QListView     * plv;
@@ -164,48 +166,48 @@ private:
     int foundWhere;
     int foundOffset;
 
-    QPopupMenu * phrasep;
-    QPopupMenu * closePhraseBookp;
-    QPopupMenu * editPhraseBookp;
-    QPopupMenu * printPhraseBookp;
-    QPopupMenu * recentFilesMenu;
-    int closePhraseBookId;
-    int editPhraseBookId;
-    int printPhraseBookId;
-    Action *openAct;
-    Action *saveAct;
-    Action *saveAsAct;
-    Action *releaseAct;
-    Action *printAct;
-    Action *exitAct;
-    Action *undoAct;
-    Action *redoAct;
-    Action *cutAct;
-    Action *copyAct;
-    Action *pasteAct;
-    Action *selectAllAct;
-    Action *findAct;
-    Action *findAgainAct;
-    Action *replaceAct;
-    Action *newPhraseBookAct;
-    Action *openPhraseBookAct;
-    Action *acceleratorsAct;
-    Action *endingPunctuationAct;
-    Action *phraseMatchesAct;
-    Action *revertSortingAct;
-    Action *aboutAct;
-    Action *aboutQtAct;
-    Action *manualAct;
-    Action *whatsThisAct;
-    Action *beginFromSourceAct;
-    Action *prevAct;
-    Action *nextAct;
-    Action *prevUnfinishedAct;
-    Action *nextUnfinishedAct;
-    Action *doneAndNextAct;
+    QMenu *phrasep;
+    QMenu *closePhraseBookp;
+    QMenu *editPhraseBookp;
+    QMenu *printPhraseBookp;
+    QMenu *recentFilesMenu;
+    QAction *closePhraseBookId;
+    QAction *editPhraseBookId;
+    QAction *printPhraseBookId;
+    QAction *openAct;
+    QAction *saveAct;
+    QAction *saveAsAct;
+    QAction *releaseAct;
+    QAction *printAct;
+    QAction *exitAct;
+    QAction *undoAct;
+    QAction *redoAct;
+    QAction *cutAct;
+    QAction *copyAct;
+    QAction *pasteAct;
+    QAction *selectAllAct;
+    QAction *findAct;
+    QAction *findAgainAct;
+    QAction *replaceAct;
+    QAction *newPhraseBookAct;
+    QAction *openPhraseBookAct;
+    QAction *acceleratorsAct;
+    QAction *endingPunctuationAct;
+    QAction *phraseMatchesAct;
+    QAction *revertSortingAct;
+    QAction *aboutAct;
+    QAction *aboutQtAct;
+    QAction *manualAct;
+    QAction *whatsThisAct;
+    QAction *beginFromSourceAct;
+    QAction *prevAct;
+    QAction *nextAct;
+    QAction *prevUnfinishedAct;
+    QAction *nextUnfinishedAct;
+    QAction *doneAndNextAct;
     QAction *doneAndNextAlt;
-    Action *doGuessesAct;
-    Action *toggleStats;
+    QAction *doGuessesAct;
+    QAction *toggleStats;
     Statistics * stats;
     int  srcWords;
     int  srcChars;
