@@ -587,6 +587,8 @@ number of projects and applications.
     <i>all</i> of an application's translation source files.
     <li><em>Print...</em><br>pops up a print dialog. If you click OK the
     translation source and the translations will be printed.
+    <li><em>Recently opened files</em><br>shows the \c .ts files that
+    have been opened recently, click one to open it.
     <li><em>Exit</em><br>quits <em>Qt Linguist</em>.
     </ul>
     <br><br>
@@ -614,6 +616,33 @@ number of projects and applications.
     was last entered in the Find dialog.
     </ul>
     <br><br>
+<li><em>Translation</em>
+    <ul>
+    <li><em>Start From Source</em><br>copy the source text into the
+    translation
+    <li><em>Prev Unfinished</em><br>move to the nearest previous
+    unfinished source phrase (unfinished means untranslated or
+    translated but failed validation)
+    <li><em>Next Unfinished</em><br>move to the next unfinished source
+    phrase
+    <li><em>Prev</em><br>move the the previous source phrase
+    <li><em>Next</em><br>move the the next source phrase
+    <li><em>Done & Next</em><br>mark this phrase as 'done' (translated)
+    and move to the next unfinished source phrase
+    </ul>
+    <br><br>
+<li><em>Validation</em> (See the <a href="#Validation">"Validation"</a>
+    section)
+    <ul>
+    <li><em>Accelerators</em><br> toggles validation on or off for Alt
+    accelerators.
+    <li><em>Ending Punctuation</em><br> switches validation on or off
+    for phrase ending punctuation, e.g. ellipsis, exclamation mark,
+    question mark, etc.
+    <li><em>Phrase Matches</em><br> sets validation on or off for
+    matching against translations that are in the current phrase book.
+    </ul>
+    <br><br>
 <li><em>Phrase</em> (See the section 
 <a href="#Creating_and_Using_Phrase_Books">"Creating and Using Phrase
 Books"</a> for details.) 
@@ -633,18 +662,6 @@ Books"</a> for details.)
     add, edit or delete phrases.
     <li><em>Print Phrase Book...</em><br> pops up a print dialog. If
     you click OK the phrase book will be printed.
-    </ul>
-    <br><br>
-<li><em>Validation</em> (See the <a href="#Validation">"Validation"</a>
-    section)
-    <ul>
-    <li><em>Accelerators</em><br> toggles validation on or off for Alt
-    accelerators.
-    <li><em>Ending Punctuation</em><br> switches validation on or off
-    for phrase ending punctuation, e.g. ellipsis, exclamation mark,
-    question mark, etc.
-    <li><em>Phrase Matches</em><br> sets validation on or off for
-    matching against translations that are in the current phrase book.
     </ul>
     <br><br>
 <li><em>View</em>
@@ -689,6 +706,19 @@ the clipboard.</dd>
 <dd>Delete the highlighted text in the translation pane.</dd>
 <dt><p><img src="images/editfind.png"></dt>
 <dd>Pop up the <a href="#The_Find_Dialog">Find dialog</a>.</dd>
+<dt><p><img src="images/startfromsource.png"></dt>
+<dd>Copy the source phrase to the translation area.</dd>
+<dt><p><img src="images/prev.png"></dt>
+<dd>Move to the previous source phrase.</dd>
+<dt><p><img src="images/next.png"></dt>
+<dd>Move to the next source phrase.</dd>
+<dt><p><img src="images/prevunfinished.png"></dt>
+<dd>Move to the previous unfinished source phrase.</dd>
+<dt><p><img src="images/nextunfinished.png"></dt>
+<dd>Move to the next unfinished source phrase.</dd>
+<dt><p><img src="images/doneandnext.png"></dt>
+<dd>Mark the phrase as 'done' (translated) and move to the next
+unfinished source phrase.</dd>
 <dt><p><img src="images/validateaccelerators.png"></dt>
 <dd>Toggle accelerator validation on and off.</dd>
 <dt><p><img src="images/validatepunctuation.png"></dt>
