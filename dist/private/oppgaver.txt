@@ -68,9 +68,13 @@ Funksjonalitet:
 Ferdigstilling:
 ---------------
 
+    Dokumentasjon:
+	QTextStream (må forklare flagg og formattering)
+	QCache, QStack, QQueue
+
     Font metrics & info direkte av QFont.
 
-    Windows porting
+    Windows porting:
 	- Rotert tekst
 	- Bruk color RGB verdi i painter hvis device == printer (fargekube)
 	- Fargekube bug (når paletten endres har vi et problem)
