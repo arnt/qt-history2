@@ -15,8 +15,7 @@ HEADERS		= qwidgetfactory.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
 		  ../designer/config.h \
-		  ../designer/pixmapchooser.h \
-		  ../designer/pixmapfunction.h
+		  ../designer/pixmapchooser.h
 
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database.h
