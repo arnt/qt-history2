@@ -1434,6 +1434,9 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 void QPainter::drawText( int x, int y, const QString &str, int len )
 {
+    if(memorymanager->fontAscent(cfont.handle())==0)
+	return;
+    
     if ( !isActive() )
 	return;
     if ( len < 0 )

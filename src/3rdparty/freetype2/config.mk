@@ -17,6 +17,8 @@ ifndef TOP
   TOP := .
 endif
 
+CC=gcc
+
 DELETE   := rm -f
 SEP      := /
 HOSTSEP  := $(SEP)
@@ -93,7 +95,7 @@ T := -o # Don't remove this comment line!  We need the space after `-o'.
 #   ANSI compliance.
 #
 ifndef CFLAGS
-  CFLAGS := -c -g -O6 -Wall
+  CFLAGS := -c -g -fPIC -Wall
 endif
 
 # ANSIFLAGS: Put there the flags used to make your compiler ANSI-compliant.

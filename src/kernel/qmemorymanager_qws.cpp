@@ -350,9 +350,9 @@ public:
 };
 
 // ####### We don't use this info yet
-void* qt_unused_vram; 
-int qt_unused_vramsize; 
-void* qt_unused_fontrom; 
+void* qt_unused_vram;
+int qt_unused_vramsize;
+void* qt_unused_fontrom;
 
 QMemoryManager::QMemoryManager(
     void* vram, int vramsize,
@@ -481,6 +481,15 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    f.readBlock((char*)&mmf->fm,sizeof(mmf->fm));
 	    mmf->tree = new QGlyphTree(f);
 	} else {
+	    if(!mmf->renderer) {
+		mmf->fm.ascent=0;
+		mmf->fm.descent=0;
+		mmf->fm.leftbearing=0;
+		mmf->fm.rightbearing=0;
+		mmf->fm.maxwidth=0;
+		mmf->fm.smooth=false;
+		return (FontID)mmf;
+	    }
 	    mmf->fm.ascent = mmf->renderer->fascent;
 	    mmf->fm.descent = mmf->renderer->fdescent;
 	    mmf->fm.leftbearing = mmf->renderer->fleftbearing;
