@@ -350,6 +350,14 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 CGContextRef cgref;
                 GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, NULL, sizeof(cgref), NULL, &cgref);
                 widget->cg_hd = cgref;
+#if 0
+                for(QWidget *w = widget; w && !w->isTopLevel(); w = w->parentWidget()) {
+                    if(w->inherits("QWorkspaceChild")) {
+                        CGContextSetAlpha(cgref, 0.2);
+                        break;
+                    }
+                }
+#endif
 
                 //update qd port
                 GrafPtr qdref = 0;
