@@ -91,11 +91,29 @@ by a section showing how you can create new components.
 
 \list
 \i \l{model-view-model.html}{Model Classes}
+  \list
+  \tableofcontents{1 model-view-model.html}
+  \endlist
 \i \l{model-view-subclassing-model.html}{Creating New Models}
+  \list
+  \tableofcontents{1 model-view-subclassing-model.html}
+  \endlist
 \i \l{model-view-view.html}{View Classes}
+  \list
+  \tableofcontents{1 model-view-view.html}
+  \endlist
 \i \l{model-view-selection.html}{Handling Selections}
+  \list
+  \tableofcontents{1 model-view-selection.html}
+  \endlist
 \i \l{model-view-delegate.html}{Delegate Classes}
+  \list
+  \tableofcontents{1 model-view-delegate.html}
+  \endlist
 \i \l{model-view-convenience.html}{Convenience Classes}
+  \list
+  \tableofcontents{1 model-view-convenience.html}
+  \endlist
 \endlist
 
 See also the \l{model-view.html}{list of model/view classes}.
