@@ -1,11 +1,14 @@
 TEMPLATE	= lib
 CONFIG		= qt warn_on release
 unix:CONFIG    += x11inc
+win32:CONFIG   += png zlib
 
 win32:TMAKE_CFLAGS     += -DUNICODE
 win32:TMAKE_CXXFLAGS   += -DUNICODE
 
-win32:INCLUDEPATH	= tmp
+png:INCLUDEPATH	       += 3rdparty/libpng
+zlib:INCLUDEPATH       += 3rdparty/zlib
+win32:INCLUDEPATH      += tmp
 win32-borland:INCLUDEPATH += kernel
 
 win32:MOC_DIR	= tmp
@@ -344,6 +347,37 @@ SOURCES	       += tools/qbitarray.cpp \
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h
+
+png:SOURCES    += 3rdparty/libpng/png.c \
+		  3rdparty/libpng/pngerror.c \
+		  3rdparty/libpng/pngget.c \
+		  3rdparty/libpng/pngmem.c \
+		  3rdparty/libpng/pngpread.c \
+		  3rdparty/libpng/pngread.c \
+		  3rdparty/libpng/pngrio.c \
+		  3rdparty/libpng/pngrtran.c \
+		  3rdparty/libpng/pngrutil.c \
+		  3rdparty/libpng/pngset.c \
+		  3rdparty/libpng/pngtrans.c \
+		  3rdparty/libpng/pngwio.c \
+		  3rdparty/libpng/pngwrite.c \
+		  3rdparty/libpng/pngwtran.c \
+		  3rdparty/libpng/pngwutil.c
+
+zlib:SOURCES   += 3rdparty/zlib/adler32.c \
+		  3rdparty/zlib/compress.c \
+		  3rdparty/zlib/crc32.c \
+		  3rdparty/zlib/deflate.c \
+		  3rdparty/zlib/gzio.c \
+		  3rdparty/zlib/infblock.c \
+		  3rdparty/zlib/infcodes.c \
+		  3rdparty/zlib/inffast.c \
+		  3rdparty/zlib/inflate.c \
+		  3rdparty/zlib/inftrees.c \
+		  3rdparty/zlib/infutil.c \
+		  3rdparty/zlib/trees.c \
+		  3rdparty/zlib/uncompr.c \
+		  3rdparty/zlib/zutil.c
 
 TARGET		= qt
 VERSION		= 2.00
