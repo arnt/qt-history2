@@ -151,6 +151,7 @@ protected:
 
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );
+    virtual void customEvent( QCustomEvent * );
 
     virtual void connectNotify( const char *signal );
     virtual void disconnectNotify( const char *signal );

@@ -450,7 +450,6 @@ protected:
 
     virtual void showEvent( QShowEvent * );
     virtual void hideEvent( QHideEvent * );
-    virtual void customEvent( QCustomEvent * );
 
 #if defined(Q_WS_MAC)
     virtual bool macEvent( MSG * );		// Macintosh event

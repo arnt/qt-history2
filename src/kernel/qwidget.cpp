@@ -4485,19 +4485,6 @@ void QWidget::hideEvent( QHideEvent * )
 {
 }
 
-/*!
-  This event handler can be reimplemented in a subclass to receive
-  custom events. Custom events are user-defined events with a type
-  value at least as large as the "User" item of the QEvent::Type enum,
-  and is typically a QCustomEvent or QCustomEvent subclass.
-
-  \sa event(), QCustomEvent
-*/
-void QWidget::customEvent( QCustomEvent * )
-{
-}
-
-
 #if defined(Q_WS_MAC)
 
 /*!

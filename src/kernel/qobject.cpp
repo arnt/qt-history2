@@ -690,6 +690,19 @@ void QObject::childEvent( QChildEvent * )
 {
 }
 
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  custom events. Custom events are user-defined events with a type
+  value at least as large as the "User" item of the QEvent::Type enum,
+  and is typically a QCustomEvent or QCustomEvent subclass.
+
+  \sa event(), QCustomEvent
+*/
+void QObject::customEvent( QCustomEvent * )
+{
+}
+
+
 
 /*!
   Filters events if this object has been installed as an event filter for
