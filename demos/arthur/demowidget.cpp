@@ -97,11 +97,13 @@ void DemoWidget::fillBackground(QPainter *p)
     case Attributes::Solid:
         p->fillRect(0, 0, width(), height(), attributes->color);
         break;
-    case Attributes::Gradient:
-        p->fillRect(0, 0, width(), height(),
-                    QBrush(QPoint(0, 0), attributes->color,
-                           QPoint(0, height()), attributes->secondaryColor));
+    case Attributes::Gradient: {
+        QLinearGradient lg(0, 0, 0, height());
+        lg.appendStop(0, attributes->color);
+        lg.appendStop(1, attributes->secondaryColor);
+        p->fillRect(0, 0, width(), height(), QBrush(lg));
         break;
+    }
     case Attributes::Tiles:
         p->drawTiledPixmap(0, 0, width(), height(), attributes->tile);
         break;

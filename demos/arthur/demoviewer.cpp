@@ -82,10 +82,18 @@ void ItemDelegate::paint(QPainter *painter,
 
     QRect r = options.rect;
     r.setBottom(r.top() +  (selected?1:2)*r.height()/3);
-    painter->fillRect(r, QBrush(r.topLeft(), g1, r.bottomLeft(), base));
+
+    QLinearGradient lg1(r.topLeft(), r.bottomLeft());
+    lg1.appendStop(0, g1);
+    lg1.appendStop(1, base);
+    painter->fillRect(r, QBrush(lg1));
+
     r = options.rect;
     r.setTop(r.top() +  (selected?1:2)*r.height()/3);
-    painter->fillRect(r, QBrush(r.topLeft(), base, r.bottomLeft(), g2));
+    QLinearGradient lg2(r.topLeft(), r.bottomLeft());
+    lg2.appendStop(0, base);
+    lg2.appendStop(1, g2);
+    painter->fillRect(r, QBrush(lg2));
     r = options.rect;
 
     painter->setPen(pen);
@@ -155,8 +163,10 @@ DemoViewer::DemoViewer(QWidget *parent)
     QColor betweenBaseAndBackground((base.red() + background.red())/2,
                                     (base.green() + background.green())/2,
                                     (base.blue() + background.blue())/2);
-    pal.setBrush(QPalette::All, QPalette::Base, QBrush(QPoint(0, 0), pal.base().color(),
-                                                       QPoint(0, 1000), betweenBaseAndBackground));
+    QLinearGradient lg(0, 0, 0, 1000);
+    lg.appendStop(0, base);
+    lg.appendStop(1, betweenBaseAndBackground);
+    pal.setBrush(QPalette::All, QPalette::Base, QBrush(lg));
     sourceViewer->setPalette(pal);
 
     QApplication::sendPostedEvents();

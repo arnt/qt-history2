@@ -159,8 +159,10 @@ void Window::brushChanged()
         (Qt::BrushStyle)brushStyleComboBox->itemData(brushStyleComboBox->currentIndex(), IdRole).toInt();
 
     if (style == Qt::LinearGradientPattern) {
-        renderArea->setBrush(QBrush(QPoint(0, 0), Qt::red,
-                                    QPoint(400, 200), Qt::green));
+        QLinearGradient lg(0, 0, 400, 200);
+        lg.appendStop(0, Qt::red);
+        lg.appendStop(1, Qt::green);
+        renderArea->setBrush(lg);
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
     } else {
