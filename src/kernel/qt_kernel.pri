@@ -14,6 +14,7 @@ kernel {
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
+		  $$KERNEL_P/qcomplextext_p.h \
 		  $$KERNEL_H/qcomponentinterface.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
@@ -167,6 +168,7 @@ kernel {
 		  $$KERNEL_CPP/qclipboard.cpp \
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
+		  $$KERNEL_CPP/qcomplextext.cpp \
 		  $$KERNEL_CPP/qcomponentinterface.cpp \
 		  $$KERNEL_CPP/qconnection.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \

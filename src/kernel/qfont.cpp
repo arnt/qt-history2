@@ -2595,12 +2595,14 @@ QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
 
     case 0xfb:
 	if (c.cell() >= 0x50)
-	    return QFontPrivate::ArabicPresentationA;
+//	    return QFontPrivate::ArabicPresentationA;
+	    	    return QFontPrivate::Arabic;
 	break;
 
     case 0xfe:
 	if (c.cell() >= 0x70)
-	    return QFontPrivate::ArabicPresentationB;
+	    	    return QFontPrivate::Arabic;
+//	    return QFontPrivate::ArabicPresentationB;
 	break;
 
     case 0xff:

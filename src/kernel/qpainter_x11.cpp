@@ -41,6 +41,7 @@
 #include "qpixmapcache.h"
 #include "qintdict.h"
 #include "qfontdata_p.h"
+#include "qcomplextext_p.h"
 #include "qtextcodec.h"
 #include <ctype.h>
 #include <stdlib.h>
@@ -2869,7 +2870,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
     int currx = x;
 
     // step 2
-    const QChar *uc = str.unicode() + pos;
+    const QChar *shaped = QComplexText::shapedString( str,  pos, len , &len);
+    const QChar *uc = shaped;
     QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
     QFontStruct *qfs;
     XFontStruct *f;
@@ -2916,8 +2918,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			if (f->max_byte1) {
 			    currx +=
 				XTextWidth16(f, (XChar2b *)
-					     (str.unicode() +
-					      truples[currt - 1].stroffset),
+					     (shaped + truples[currt - 1].stroffset - pos),
 					     i + pos - truples[currt - 1].stroffset);
 			} else {
 			    // STOP: we want to use unicode, but don't have a multi-byte
@@ -2977,7 +2978,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		if (f->max_byte1) {
 		    currx +=
 			XTextWidth16(f, (XChar2b *)
-				     (str.unicode() + truples[currt - 1].stroffset),
+				     (shaped + truples[currt - 1].stroffset - pos),
 				     i + pos - truples[currt - 1].stroffset);
 		} else {
 		    // STOP: we want to use unicode, but don't have a multi-byte
@@ -3039,7 +3040,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		if (truples[j].mapped.isNull()) {
 		    if (f->max_byte1) {
 			XDrawString16(dpy, hd, gc, truples[j].xoffset, y,
-				      (XChar2b *) (str.unicode() + truples[j].stroffset),
+				      (XChar2b *) (shaped + truples[j].stroffset - pos),
 				      l);
 		    } else {
 			// STOP: we want to use unicode, but don't have a multi-byte

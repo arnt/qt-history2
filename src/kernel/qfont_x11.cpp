@@ -38,6 +38,7 @@
 
 #include "qfont.h"
 #include "qfontdata_p.h"
+#include "qcomplextext_p.h"
 #include "qfontinfo.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
@@ -1366,8 +1367,6 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
     QTextCodec *codec = 0;
     if (script < QFontPrivate::Unicode) {
 	codec = QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
-    } else {
-	codec = QTextCodec::codecForName("ArabicUnicode");
     }
 
 #ifdef QFONTLOADER_DEBUG
@@ -1478,8 +1477,8 @@ void QFont::initialize()
     (void) new QFontKsc5601Codec;
     (void) new QFontGB2312Codec;
     (void) new QFontBig5Codec;
-    (void) new QFontArabic68Codec;
-    (void) new QFontArabicUnicodeCodec;
+//    (void) new QFontArabic68Codec;
+//    (void) new QFontArabicUnicodeCodec;
 #endif
 
 }
@@ -1753,7 +1752,7 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f,
     if (codec) {
 	ch = QChar(codec->characterFromUnicode(str, pos));
     } else {
-	ch = *( str.unicode() + pos );
+	ch = QComplexText::shapedCharacter( str, pos);
     }
 
     if( ch.unicode() == 0 ) {
