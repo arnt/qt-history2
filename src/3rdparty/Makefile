@@ -1,4 +1,4 @@
-PNGMAK=scripts/makefile.lnx
+PNGMAK=scripts/makefile.linux
 
 all:
 	cd zlib; ./configure; make
