@@ -708,7 +708,7 @@ void QTextCursor::restoreState()
 	pop();
 }
 
-bool QTextCursor::place( const QPoint &p, QTextParag *s )
+bool QTextCursor::place( const QPoint &p, QTextParag *s, bool link )
 {
     QPoint pos( p );
     QRect r;
@@ -776,7 +776,8 @@ bool QTextCursor::place( const QPoint &p, QTextParag *s )
 	    bool dm = d < 0 ? !chr->rightToLeft : chr->rightToLeft;
 	    if ( QABS( d ) < dist || (dist == d && dm == TRUE ) ) {
 		dist = QABS( d );
-		curpos = i;
+		if ( !link || pos.x() >= x + chr->x )
+		    curpos = i;
 	    }
 	}
 	i++;

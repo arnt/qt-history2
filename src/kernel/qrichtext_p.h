@@ -321,7 +321,8 @@ public:
     int totalOffsetX() const;
     int totalOffsetY() const;
 
-    bool place( const QPoint &pos, QTextParag *s );
+    bool place( const QPoint &pos, QTextParag *s ) { return place( pos, s, FALSE ); }
+    bool place( const QPoint &pos, QTextParag *s, bool link );
     void restoreState();
 
     int x() const;

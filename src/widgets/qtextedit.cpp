@@ -1670,7 +1670,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
     if ( isReadOnly() && linksEnabled() ) {
 	QTextCursor c = *cursor;
-	placeCursor( e->pos(), &c );
+	placeCursor( e->pos(), &c, TRUE );
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 	     c.parag()->at( c.index() )->format()->isAnchor() &&
@@ -1927,6 +1927,7 @@ void QTextEdit::doAutoScroll()
 }
 
 /*!
+  \fn void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
   Places the cursor \a c at the character which is closest to position
   \a pos (in contents coordinates). If \a c is 0, the default text
   cursor is used.
@@ -1934,7 +1935,7 @@ void QTextEdit::doAutoScroll()
   \sa setCursorPosition()
 */
 
-void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
+void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c, bool link )
 {
     if ( !c )
 	c = cursor;
@@ -1942,7 +1943,7 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
     resetInputContext();
     c->restoreState();
     QTextParag *s = doc->firstParag();
-    c->place( pos,  s );
+    c->place( pos, s, link );
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
 	QFont f = cursor->parag()->at( cursor->index() )->format()->font();
