@@ -168,7 +168,7 @@ private:
     friend class QCoreApplication;
     friend class QCoreApplicationPrivate;
     friend class QApplication;
-    friend class QAccelManager;
+    friend class Q3AccelManager;
     friend class QShortcutMap;
     friend class QETWidget;
 };
