@@ -141,7 +141,8 @@ platformKeep["embedded"] = [ new RegExp(".") ];
 editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
 
-editionRemove["opensource"] = [ new RegExp("^src/plugins/sqldrivers/db2"),
+editionRemove["opensource"] = [ new RegExp("^extensions"),
+				new RegExp("^src/plugins/sqldrivers/db2"),
 				new RegExp("^src/plugins/sqldrivers/oci"),
 				new RegExp("^src/plugins/sqldrivers/tds"),
 				new RegExp("^src/sql/drivers/db2"),
@@ -180,7 +181,7 @@ moduleMap["example classes"]             = new RegExp("^examples");
 moduleMap["qmake application"]           = new RegExp("^qmake");
 moduleMap["activeqt module"]             = new RegExp("^extensions/activeqt");
 moduleMap["motif module"]                = new RegExp("^extensions/motif");
-moduleMap["compatibility classes"]       = new RegExp("^src/compat");
+moduleMap["Qt 3 compatibility classes"]  = new RegExp("^src/qt3support");
 moduleMap["core module"]                 = new RegExp("^src/core");
 moduleMap["accessibility module"]        = new RegExp("(^src/gui/accessible|^src/plugins/accessible)");
 moduleMap["dialog module"]               = new RegExp("^src/gui/dialogs");
