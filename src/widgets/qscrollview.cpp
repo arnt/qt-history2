@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#54 $
 **
 ** Implementation of QScrollView class
 **
@@ -518,7 +518,7 @@ QWidget* QScrollView::cornerWidget() const
 
   All widgets set here will be deleted by the QScrollView when it destructs
   unless you seperately
-  recreate the widget after setting some other corner widget (or 0).
+  reparent the widget after setting some other corner widget (or 0).
 
   Any \e newly set widget should have no current parent.
 
@@ -535,7 +535,7 @@ void QScrollView::setCornerWidget(QWidget* corner)
 
 	if ( corner && corner->parentWidget() != this ) {
 	    // #### No clean way to get current WFlags
-	    corner->recreate( this, (((QScrollView*)corner))->getWFlags(),
+	    corner->reparent( this, (((QScrollView*)corner))->getWFlags(),
 			      QPoint(0,0), FALSE );
 	}
 
@@ -617,7 +617,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	child->removeEventFilter( this );
     }
     if ( child->parentWidget() != &d->viewport ) {
-	child->recreate( &d->viewport, 0, QPoint(0,0), FALSE );
+	child->reparent( &d->viewport, 0, QPoint(0,0), FALSE );
     }
     child->hide();
     d->addChildRec(child,x,y)->hideOrShow(this);

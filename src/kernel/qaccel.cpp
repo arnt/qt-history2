@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#47 $
 **
 ** Implementation of QAccel class
 **
@@ -324,7 +324,7 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 /*!
   Make sure that the accelerator is watching the correct event
-  filter.  Used by QWidget::recreate().
+  filter.  Used by QWidget::reparent().
 */
 
 void QAccel::repairEventFilter()

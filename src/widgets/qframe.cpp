@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#62 $
 **
 ** Implementation of QFrame widget class
 **
@@ -440,16 +440,6 @@ QSize QFrame::sizeHint() const
 void QFrame::paintEvent( QPaintEvent *event )
 {
     QPainter paint( this );
-
-#if QT_VERSION >= 200
-#error "remove this hack"
-#else
-    
-    QPaintEvent kscdhack( rect() );
-    if ( !event )
-	event = &kscdhack;
-
-#endif
 
     if ( !contentsRect().contains( event->rect() ) ) {
 	paint.save();

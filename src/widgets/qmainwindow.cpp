@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#29 $
 **
 ** Implementation of QMainWindow class
 **
@@ -813,7 +813,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 	 !rect().contains( lp ) ) {
 	// not a dock
 	if ( t->parentWidget() ) {
-	    t->recreate( 0, 0,
+	    t->reparent( 0, 0,
 			 QPoint( p.x() - d->offset.x(),
 				 p.y() - d->offset.y() ),
 			 TRUE );
@@ -890,7 +890,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 	    // ct goes in just before c, and takes over nl
 	    dock->insert( dock->at(), ct );
 	    if ( t->parentWidget() != this )
-		t->recreate( this, 0, QPoint( 0, -t->height() ), TRUE );
+		t->reparent( this, 0, QPoint( 0, -t->height() ), TRUE );
 	    t->setOrientation( (dock == d->top || dock == d->bottom )
 			       ? QToolBar::Horizontal : QToolBar::Vertical );
 	    ct->nl = c->nl;
@@ -905,7 +905,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 		if ( betweenLines.contains( lp ) ) {
 		    dock->insert( linestart, ct );
 		    if ( t->parentWidget() != this )
-			t->recreate( this, 0, QPoint( 0, -t->height() ),
+			t->reparent( this, 0, QPoint( 0, -t->height() ),
 				     TRUE );
 		    t->setOrientation( (dock == d->top || dock == d->bottom )
 				       ? QToolBar::Horizontal
@@ -928,7 +928,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 		    if ( inLine.contains( lp ) ) {
 			dock->insert( dock->at(), ct );
 			if ( t->parentWidget() != this )
-			    t->recreate( this, 0, QPoint( 0, -t->height() ),
+			    t->reparent( this, 0, QPoint( 0, -t->height() ),
 					 TRUE );
 			t->setOrientation( (dock == d->top ||
 					    dock == d->bottom )
@@ -949,7 +949,7 @@ void QMainWindow::moveToolBar( QToolBar * , QMouseEvent * )
 	debug( "4a" );
 	dock->append( ct );
 	if ( t->parentWidget() != this )
-	    t->recreate( this, 0, QPoint( 0, -t->height() ), TRUE );
+	    t->reparent( this, 0, QPoint( 0, -t->height() ), TRUE );
 	t->setOrientation( (dock == d->top || dock == d->bottom )
 			   ? QToolBar::Horizontal : QToolBar::Vertical );
 	ct->nl = TRUE;

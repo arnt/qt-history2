@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#24 $
 **
 ** Implementation of QSignal class
 **
@@ -138,9 +138,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 			     receiver, member );
 }
 
-#if (QT_VERSION >= 200)
-#error "disconnect const foo"
-#endif
+#warning "disconnect const foo -- Arnt"
 
 /*!
   Disonnects the signal from \e member in object \e receiver.

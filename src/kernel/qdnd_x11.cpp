@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#47 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -608,7 +608,7 @@ void QDragManager::cancel()
 static
 Window findRealWindow( const QPoint & pos, Window w, int md )
 {
-    if ( w == qt_xdnd_deco->winId() && !md )
+    if ( qt_xdnd_deco && w == qt_xdnd_deco->winId() && !md )
 	return 0;
 
     if ( md ) {
@@ -660,8 +660,10 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
-    qt_xdnd_deco->move(globalPos-qt_xdnd_source_object->pixmapHotSpot());
-    qt_xdnd_deco->raise();
+    if ( qt_xdnd_deco ) {
+	qt_xdnd_deco->move(globalPos-qt_xdnd_source_object->pixmapHotSpot());
+	qt_xdnd_deco->raise();
+    }
 
     Window target = 0;
     int lx = 0, ly = 0;
@@ -672,7 +674,7 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
-    if ( target == qt_xdnd_deco->winId() ) {
+    if ( qt_xdnd_deco && target == qt_xdnd_deco->winId() ) {
 	target = findRealWindow(globalPos,qt_xrootwin(),4);
     } else if ( target == qt_xrootwin() ) {
 	// Ok.
@@ -1020,12 +1022,14 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
 
 void QDragManager::updatePixmap()
 {
-    if ( object && !object->pixmap().isNull() ) {
-	qt_xdnd_deco->setPixmap(object->pixmap());
-	qt_xdnd_deco->move(QCursor::pos()-qt_xdnd_source_object->pixmapHotSpot());
-	//qt_xdnd_deco->repaint(FALSE);
-	qt_xdnd_deco->show();
-    } else if ( qt_xdnd_deco ) {
-	qt_xdnd_deco->hide();
+    if ( qt_xdnd_deco ) {
+	if ( object && !object->pixmap().isNull() ) {
+	    qt_xdnd_deco->setPixmap(object->pixmap());
+	    qt_xdnd_deco->move(QCursor::pos()-qt_xdnd_source_object->pixmapHotSpot());
+	    //qt_xdnd_deco->repaint(FALSE);
+	    qt_xdnd_deco->show();
+	} else if ( qt_xdnd_deco ) {
+	    qt_xdnd_deco->hide();
+	}
     }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#78 $
 **
 ** Implementation of QLabel widget class
 **
@@ -30,27 +30,19 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-#if QT_VERSION == 200
-#error "Remove QLabel dict!"
-#endif
-
-#include "qintdict.h"
-
-struct QLabel_Private
+class QLabelExtra
 {
+public:
+    QLabelExtra(QLabel* l) :
+	buddy(0),
+	accel(new QAccel( l, "label accel" )),
+	movie(0)
+    { }
+
     QWidget * buddy;
-    QAccel * accel;
+    QAccel * accel;  // NON NULL
     QMovie * movie;
 };
-
-static QIntDict<QLabel_Private> *qlabel_extraStuff = 0;
-
-static void cleanupLabel()
-{
-    delete qlabel_extraStuff;
-    qlabel_extraStuff = 0;
-}
-
 
 /*!
   \class QLabel qlabel.h
@@ -122,6 +114,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
+    extra      = 0;
 }
 
 
@@ -191,13 +184,7 @@ QLabel::~QLabel()
 {
     unsetMovie();
     delete lpixmap;
-    if ( qlabel_extraStuff ) {
-	QLabel_Private *d = qlabel_extraStuff->find( (long)this );
-        if ( d ) {
-	    qlabel_extraStuff->take( (long)this );
-	    delete d;
-	}
-    }
+    delete extra;
 }
 
 
@@ -227,15 +214,15 @@ void QLabel::setText( const char *text )
 	delete lpixmap;
 	lpixmap = 0;
     }
-    QLabel_Private *d;
-    if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
-	d->accel->clear();
+    if ( extra ) {
+	extra->accel->clear();
 	const char *p = strchr( ltext, '&' );
 	while( p && *p && p[1] == '&' )
 	    p = strchr( p+2, '&' );
 	if ( p && *p && isalpha(p[1]) ) {
-	    d->accel->connectItem( d->accel->insertItem( ALT+toupper(p[1]) ),
-				   this, SLOT(acceleratorSlot()) );
+	    extra->accel->connectItem(
+		extra->accel->insertItem( ALT+toupper(p[1]) ),
+	        this, SLOT(acceleratorSlot()) );
 	}
     }
     if ( autoresize ) {
@@ -298,9 +285,8 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 	adjustSize();
     else
 	updateLabel();
-    QLabel_Private *d;
-    if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) )
-	d->accel->clear();
+    if ( extra )
+	extra->accel->clear();
 }
 
 
@@ -391,9 +377,7 @@ void QLabel::setNum( double num )
 
 void QLabel::setAlignment( int alignment )
 {
-    if ( !(align & ShowPrefix)
-	 && qlabel_extraStuff
-	 && qlabel_extraStuff->find( (long)this ) )
+    if ( extra && extra->buddy )
 	align = alignment | ShowPrefix;
     else
 	align = alignment;
@@ -529,7 +513,7 @@ void QLabel::drawContents( QPainter *p )
 
     QMovie *mov = movie();
     if ( mov ) {
-	// ### should add movie to qDrawItem when this Dict workaround is gone
+	// ### should add movie to qDrawItem
 	QRect r = qItemRect( p, style(),
 			cr.x(), cr.y(), cr.width(), cr.height(),
 			align, isEnabled(), &(mov->framePixmap()), ltext );
@@ -566,16 +550,12 @@ void QLabel::updateLabel()
 
 void QLabel::acceleratorSlot()
 {
-    if ( !qlabel_extraStuff )
-	return;
-
-    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
-    if ( that && that->buddy && 
-	 !that->buddy->hasFocus() &&
-	 that->buddy->isEnabledToTLW() &&
-	 that->buddy->isVisibleToTLW() &&
-	 that->buddy->focusPolicy() != NoFocus )
-	that->buddy->setFocus();
+    if ( extra && extra->buddy && 
+	 !extra->buddy->hasFocus() &&
+	 extra->buddy->isEnabledToTLW() &&
+	 extra->buddy->isVisibleToTLW() &&
+	 extra->buddy->focusPolicy() != NoFocus )
+	extra->buddy->setFocus();
 }
 
 
@@ -585,11 +565,8 @@ void QLabel::acceleratorSlot()
 
 void QLabel::buddyDied() // I can't remember if I cried.
 {
-    if ( !qlabel_extraStuff )
-	return;
-    QLabel_Private *that = qlabel_extraStuff->find( (long)this );
-    if ( that )
-	that->buddy = 0;
+    if ( extra )
+	extra->buddy = 0;
 }
 
 
@@ -606,33 +583,25 @@ void QLabel::setBuddy( QWidget *buddy )
 {
     setAlignment( alignment() | ShowPrefix );
 
-    if ( !qlabel_extraStuff ) {
-	qlabel_extraStuff = new QIntDict<QLabel_Private>;
-	CHECK_PTR( qlabel_extraStuff );
-	qAddPostRoutine( cleanupLabel );
-    }
-    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
-    if ( that ) {
-	if ( that->buddy )
-	    disconnect( that->buddy, SIGNAL(destroyed()),
+    if ( extra ) {
+	if ( extra->buddy )
+	    disconnect( extra->buddy, SIGNAL(destroyed()),
 			this, SLOT(buddyDied()) );
     } else {
-	that = new QLabel_Private;
-	that->buddy = buddy;
-	that->accel = new QAccel( this, "accel label accel" );
+	extra = new QLabelExtra(this);
+	extra->buddy = buddy;
     }
-		
+
     const char * p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
     while( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
     if ( p && *p && isalnum(p[1]) ) {
-	that->accel->connectItem( that->accel->insertItem(ALT+
+	extra->accel->connectItem( extra->accel->insertItem(ALT+
 							  toupper(p[1])),
 				  this, SLOT(acceleratorSlot()) );
     }
-    qlabel_extraStuff->insert( (long)this, that );
 
-    that->buddy = buddy;
+    extra->buddy = buddy;
     connect( buddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
 }
 
@@ -643,11 +612,7 @@ void QLabel::setBuddy( QWidget *buddy )
 
 QWidget * QLabel::buddy() const
 {
-    if ( !qlabel_extraStuff )
-	return 0;
-
-    QLabel_Private * that = qlabel_extraStuff->find( (long)this );
-    return that && that->buddy ? that->buddy : 0;
+    return extra ? extra->buddy : 0;
 }
 
 
@@ -682,61 +647,42 @@ void QLabel::movieResized(const QSize& size)
 */
 void QLabel::setMovie( const QMovie& movie )
 {
-    //## ugle private data.
-    if ( !qlabel_extraStuff ) {
-	qlabel_extraStuff = new QIntDict<QLabel_Private>;
-	CHECK_PTR( qlabel_extraStuff );
-	qAddPostRoutine( cleanupLabel );
-    }
-    QLabel_Private * d = qlabel_extraStuff->find( (long)this );
-    if ( !d ) {
-	d = new QLabel_Private;
-	d->buddy = 0;
-	d->movie = 0;
-	d->accel = new QAccel( this, "accel label accel" );
-	qlabel_extraStuff->insert( (long)this, d );
+    unsetMovie();
+
+    if ( !extra ) {
+	if ( movie.isNull() )
+	    return;
+	extra = new QLabelExtra(this);
     }
 
-    if ( d->movie ) {
-	d->movie->disconnectResize(this, SLOT(movieResized(const QSize&)));
-	d->movie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
+    if ( !movie.isNull() ) {
+	if ( !extra->movie )
+	    extra->movie = new QMovie;
+	*extra->movie = movie;
     }
-
-    if ( movie.isNull() ) {
-	delete d->movie;
-	d->movie = 0;
-    } else {
-	if ( !d->movie ) d->movie = new QMovie;
-	*d->movie = movie;
-	ltext = "MOVIE";
-    }
-    d->accel->clear();
+    extra->accel->clear();
 
     if ( lpixmap ) {
 	delete lpixmap;
 	lpixmap = 0;
     }
 
-    if ( d->movie ) {
-	d->movie->connectResize(this, SLOT(movieResized(const QSize&)));
-	d->movie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
+    if ( extra->movie ) {
+	extra->movie->connectResize(this, SLOT(movieResized(const QSize&)));
+	extra->movie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
     }
 }
 
 /*
-  Efficiently unset the movie.
+  Unset the movie.
 */
 void QLabel::unsetMovie()
 {
-    if (!lpixmap && ltext=="MOVIE" && qlabel_extraStuff) {
-	// You think you are a movie...
-	QLabel_Private * d = qlabel_extraStuff->find( (long)this );
-	if (d && d->movie) {
-	    d->movie->disconnectResize(this, SLOT(movieResized(const QSize&)));
-	    d->movie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
-	    delete d->movie;
-	    d->movie = 0;
-	}
+    if (extra && extra->movie) {
+	extra->movie->disconnectResize(this, SLOT(movieResized(const QSize&)));
+	extra->movie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
+	delete extra->movie;
+	extra->movie = 0;
     }
 }
 
@@ -746,10 +692,5 @@ void QLabel::unsetMovie()
 */
 QMovie* QLabel::movie() const
 {
-    if (!lpixmap && ltext=="MOVIE" && qlabel_extraStuff) {
-	// You think you are a movie...
-	QLabel_Private * d = qlabel_extraStuff->find( (long)this );
-	return d ? d->movie : 0;
-    }
-    return 0;
+    return extra ? extra->movie : 0;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#77 $
 **
 ** Implementation of QColor class for X11
 **
@@ -217,14 +217,8 @@ void QColor::initialize()
     Colormap cmap;
     const int tc = TrueColor;
 
-#if QT_VERSION == 200
-#error "Remove old colorspecs"
     if ( spec == (int)QApplication::ManyColor ||
 	 qt_visual_option == TrueColor ) {
-#else /* } bracket match */
-    if ( (spec & ((int)QApplication::ManyColor | 2)) ||
-	 (qt_visual_option == TrueColor) ) {
-#endif
 	g_vis = find_truecolor_visual( dpy, &depth, &ncols );
     } else {
 	g_vis = DefaultVisual(dpy,scr);
@@ -243,9 +237,7 @@ void QColor::initialize()
     if ( defCmap ) {
 	cmap = DefaultColormap(dpy,scr);
     } else {
-#if QT_VERSION >= 149
-#error "Add qt_create_colormap similar to the code in qgl"
-#endif
+#warning "Add qt_create_colormap similar to the code in qgl"
 	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone);
     }
 
@@ -303,12 +295,7 @@ void QColor::initialize()
 	((QColor*)(&white))->alloc();
     }
 
-#if QT_VERSION == 200
-#error "Remove old colorspecs"
     if ( spec == (int)QApplication::ManyColor ) {
-#else /* } bracket match */
-    if ( spec & ((int)QApplication::ManyColor | 2) ) {
-#endif
 	color_reduce = TRUE;
 
 	switch ( qt_ncols_option ) {
@@ -568,7 +555,7 @@ void QColor::setSystemNamedColor( const char *name )
 	return;					// success
     }
     // The name lookup failed if we got here
-    if ( lalloc ) {
+    if ( lazy_alloc ) {
 	rgbVal = RGB_INVALID | RGB_DIRTY;
 	pix = 0;
     } else {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#138 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1669,7 +1669,7 @@ void QComboBox::setListBox( QListBox * newListBox )
     else
 	delete d->popup;
 
-    newListBox->recreate( 0, WType_Popup, QPoint(0,0), FALSE );
+    newListBox->reparent( 0, WType_Popup, QPoint(0,0), FALSE );
 
     d->listBox = newListBox;
     d->usingListBox = TRUE;

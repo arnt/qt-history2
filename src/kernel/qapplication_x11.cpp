@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#327 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#328 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1551,31 +1551,31 @@ static void cleanupPostedEvents()		// cleanup list
 
 
 /*****************************************************************************
-  Special lookup functions for windows that have been recreated recently
+  Special lookup functions for windows that have been reparented recently
  *****************************************************************************/
 
 static QWidgetIntDict *wPRmapper = 0;		// alternative widget mapper
 
 void qPRCreate( const QWidget *widget, Window oldwin )
-{						// QWidget::recreate mechanism
+{						// QWidget::reparent mechanism
     if ( !wPRmapper ) {
 	wPRmapper = new QWidgetIntDict;
 	CHECK_PTR( wPRmapper );
     }
     wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
     QETWidget *w = (QETWidget *)widget;
-    w->setWFlags( WRecreated );			// set recreated flag
+    w->setWFlags( WReparented );			// set reparented flag
 }
 
 void qPRCleanup( QETWidget *widget )
 {
-    if ( !(wPRmapper && widget->testWFlags(WRecreated)) )
-	return;					// not a recreated widget
+    if ( !(wPRmapper && widget->testWFlags(WReparented)) )
+	return;					// not a reparented widget
     QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
-	    widget->clearWFlags( WRecreated );	// clear recreated flag
+	    widget->clearWFlags( WReparented );	// clear reparented flag
 	    wPRmapper->remove( it.currentKey());// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
@@ -1909,7 +1909,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->xany.window );
 
-    if ( wPRmapper ) {				// just did a widget recreate?
+    if ( wPRmapper ) {				// just did a widget reparent?
 	if ( widget == 0 ) {			// not in std widget mapper
 	    switch ( event->type ) {		// only for mouse/key events
 	    case ButtonPress:
@@ -1921,7 +1921,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		break;
 	    }
 	}
-	else if ( widget->testWFlags(WRecreated) )
+	else if ( widget->testWFlags(WReparented) )
 	    qPRCleanup( widget );		// remove from alt mapper
     }
 

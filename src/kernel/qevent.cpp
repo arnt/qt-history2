@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#59 $
 **
 ** Implementation of event classes
 **
@@ -725,10 +725,6 @@ void QEvent::peErrMsg()				// posted event error message
   QObject::eventFilter() to handle these events.
 
 */
-
-#if QT_VERSION >= 200
-#error "Implement child event handlers"
-#endif
 
 /*!
   \fn QChildEvent::QChildEvent( int type, QWidget *child )

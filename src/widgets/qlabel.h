@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#35 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#36 $
 **
 ** Definition of QLabel widget class
 **
@@ -28,6 +28,7 @@
 #include "qframe.h"
 #endif // QT_H
 
+class QLabelExtra;
 
 class QLabel : public QFrame
 {
@@ -77,9 +78,11 @@ private:
     void	updateLabel();
     QString	ltext;
     QPixmap    *lpixmap;
-    int		extraMargin;
-    int		align;
-    bool	autoresize;
+    ushort	align;
+    int		extraMargin:8;
+    uint	autoresize:1;
+    QLabelExtra* extra;
+
     void	unsetMovie();
 
 private:	// Disabled copy constructor and operator=

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#113 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#114 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -323,32 +323,6 @@ UINT16 qchecksum( const char *data, uint len )
     }
     return (~crc & 0xffff);
 }
-
-//#define QSTRING_COMPATIBILITY 200
-
-#ifndef QSTRING_COMPATIBILITY
-#define QSTRING_COMPATIBILITY QT_VERSION
-#endif
-
-#if QSTRING_COMPATIBILITY < 200
-//
-// Explicitly-shared QString (ie. QString before Qt 2.0):
-//
-# define QSTRING_DETACH(s)
-#else
-# if QSTRING_COMPATIBILITY == 200
-//
-// Implicitly-shared QString, with warnings on potentially buggy old calls.
-//
-#  define QSTRING_DETACH(s) { if ((s)->nrefs()>1) warning("Changed behavior of QString"); (s)->detach(); }
-# else
-//
-// Implicitly-shared QString, with warnings turned off, once it is safe
-// to rely on the new QString behavior.
-//
-#  define QSTRING_DETACH(s) (s)->detach();
-# endif
-#endif
 
 
 /*****************************************************************************
@@ -2314,7 +2288,7 @@ QString::QString( const char *str, uint maxlen )
 
 bool QString::resize( uint len )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     if ( !QByteArray::resize(len) )
 	return FALSE;
     if ( len )
@@ -2353,7 +2327,7 @@ bool QString::resize( uint len )
 
 QString &QString::sprintf( const char *format, ... )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     va_list ap;
     va_start( ap, format );
     if ( size() < 256 )
@@ -2377,7 +2351,7 @@ QString &QString::sprintf( const char *format, ... )
 
 bool QString::fill( char c, int len )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     if ( len < 0 )
 	len = length();
     if ( !QByteArray::fill(c,len+1) )
@@ -2915,13 +2889,13 @@ QString &QString::insert( uint index, const char *s )
     uint olen = length();
     int nlen = olen + len;
     if ( index >= olen ) {			// insert after end of string
-	QSTRING_DETACH(this)
+	// **SHOULD DETACH**
 	if ( QByteArray::resize(nlen+index-olen+1) ) {
 	    memset( data()+olen, ' ', index-olen );
 	    memcpy( data()+index, s, len+1 );
 	}
     } else if ( QByteArray::resize(nlen+1) ) {	// normal insert
-	QSTRING_DETACH(this)
+	// **SHOULD DETACH**
 	memmove( data()+index+len, data()+index, olen-index+1 );
 	memcpy( data()+index, s, len );
     }
@@ -2981,11 +2955,11 @@ QString &QString::remove( uint index, uint len )
     uint olen = length();
     if ( index + len >= olen ) {		// range problems
 	if ( index < olen ) {			// index ok
-	    QSTRING_DETACH(this)
+	    // **SHOULD DETACH**
 	    resize( index+1 );
 	}
     } else if ( len != 0 ) {
-	QSTRING_DETACH(this)
+	// **SHOULD DETACH**
 	memmove( data()+index, data()+index+len, olen-index-len+1 );
 	QByteArray::resize(olen-len+1);
     }
@@ -3212,7 +3186,7 @@ QString &QString::setStr( const char *str )
 
 QString &QString::setNum( long n )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     char buf[20];
     register char *p = &buf[19];
     bool neg;
@@ -3240,7 +3214,7 @@ QString &QString::setNum( long n )
 
 QString &QString::setNum( ulong n )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     char buf[20];
     register char *p = &buf[19];
     *p = '\0';
@@ -3332,7 +3306,7 @@ QString &QString::setNum( double n, char f, int prec )
 
 bool QString::setExpand( uint index, char c )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     uint oldlen = length();
     if ( index >= oldlen ) {
 	if ( !QByteArray::resize( index+2 ) )	// no memory
@@ -3371,7 +3345,7 @@ QString& QString::operator+=( const char *str )
 {
     if ( !str )
 	return *this;				// nothing to append
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     uint len1 = length();
     uint len2 = strlen(str);
     if ( !QByteArray::resize( len1 + len2 + 1 ) )
@@ -3386,7 +3360,7 @@ QString& QString::operator+=( const char *str )
 
 QString &QString::operator+=( char c )
 {
-    QSTRING_DETACH(this)
+    // **SHOULD DETACH**
     uint len = length();
     if ( !QByteArray::resize( len + 2 ) )
 	return *this;				// no memory
@@ -3419,7 +3393,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
-    QSTRING_DETACH(&str)
+    // **SHOULD DETACH** (str)
     Q_UINT32 len;
     s >> len;					// read size of string
     if ( len == 0 || s.eof() ) {		// end of file reached

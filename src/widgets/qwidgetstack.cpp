@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#13 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -94,14 +94,14 @@ QWidgetStack::~QWidgetStack()
 /*!  Adds \a w to this stack of widgets, with id \a id.
 
   If \a w is not a child of \c this, QWidgetStack moves it using
-  recreate().
+  reparent().
 */
 
 void QWidgetStack::addWidget( QWidget * w, int id )
 {
     dict->insert( id+1, w );
     if ( w->parent() != this )
-	w->recreate( this, 0, QPoint(0,0), FALSE );
+	w->reparent( this, 0, QPoint(0,0), FALSE );
 }
 
 

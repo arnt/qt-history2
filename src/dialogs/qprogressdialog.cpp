@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#28 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#29 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -229,7 +229,7 @@ void QProgressDialog::setLabel( QLabel *label )
 	if ( label->parentWidget() == this ) {
 	    label->hide(); // until we resize
 	} else {
-	    label->recreate( this, 0, QPoint(0,0), FALSE );
+	    label->reparent( this, 0, QPoint(0,0), FALSE );
 	}
     }
     resize(sizeHint());
@@ -267,7 +267,7 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 	if ( cancelButton->parentWidget() == this ) {
 	    cancelButton->hide(); // until we resize
 	} else {
-	    cancelButton->recreate( this, 0, QPoint(0,0), FALSE );
+	    cancelButton->reparent( this, 0, QPoint(0,0), FALSE );
 	}
 	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
 	QAccel *accel = new QAccel( this );

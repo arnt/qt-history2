@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#95 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -826,7 +826,8 @@ void  QFont::setDefaultFont( const QFont &f )
  *****************************************************************************/
 
 
-// ###
+#warning "fontSubst does not delete its entries."
+// #######
 // fixme: fontSubst does not delete its entries.  this is correct for
 // 1.4x, because insertSubstitution() doesn't do a deep copy either,
 // but should probably be changed in 2.0.
@@ -835,17 +836,10 @@ typedef Q_DECLARE(QDictM,char)	       QFontSubst;
 typedef Q_DECLARE(QDictIteratorM,char) QFontSubstIt;
 static QFontSubst *fontSubst = 0;
 
-#if (QT_VERSION == 200)
-#error "fixme"
-#endif
-static QFont * staticFont = 0;
-
 static void cleanup()
 {
     delete fontSubst;
     fontSubst = 0;
-    delete staticFont;
-    staticFont = 0;
 }
 
 static void initFontSubst()			// create substitution dict
@@ -897,8 +891,7 @@ static void initFontSubst()			// create substitution dict
 
 const char *QFont::substitute( const char *familyName )
 {
-    if ( !fontSubst )
-	initFontSubst();
+    initFontSubst();
     const char *f = fontSubst->find( familyName );
     return f ? f : familyName;
 }
@@ -916,8 +909,7 @@ const char *QFont::substitute( const char *familyName )
 void QFont::insertSubstitution( const char *familyName,
 				const char *replacementName )
 {
-    if ( !fontSubst )
-	initFontSubst();
+    initFontSubst();
     fontSubst->replace( familyName, replacementName );
 }
 
@@ -930,8 +922,7 @@ void QFont::insertSubstitution( const char *familyName,
 
 void QFont::removeSubstitution( const char *familyName )
 {
-    if ( !fontSubst )
-	initFontSubst();
+    initFontSubst();
     if ( fontSubst )
 	fontSubst->remove( familyName );
 }
@@ -945,8 +936,7 @@ void QFont::removeSubstitution( const char *familyName )
 
 void QFont::listSubstitutions( QStrList *list )
 {
-    if ( !fontSubst )
-	initFontSubst();
+    initFontSubst();
     list->clear();
     list->setAutoDelete( TRUE );
     QFontSubstIt it( *fontSubst );
@@ -1206,9 +1196,7 @@ void QFontMetrics::reset( const QPainter *p )
   \sa QFont, QFontInfo
 */
 
-#if QT_VERSION == 200
-#error "Fix doc above. No longer automatic font metrics update"
-#endif
+#warning "Fix doc above. No longer automatic font metrics update"
 
 /*!
   Constructs a font metrics object for \a font.
@@ -1351,10 +1339,8 @@ const QFont &QFontMetrics::font() const
 		 "future version of Qt" );
 #endif
     }
-    // ### uglehack wrt naming
-    if ( !staticFont )
-	initFontSubst();
-    return *staticFont;
+    static QFont f;
+    return f;
 }
 
 
@@ -1474,10 +1460,8 @@ void QFontInfo::reset( const QPainter *p )
   \sa QFont, QFontMetrics
 */
 
-#if QT_VERSION == 200
-#error "Fix doc above. No longer automatic font info update"
-#error "Get rid of FontInternalExactMatch"
-#endif
+#warning "Fix doc above. No longer automatic font info update"
+#warning "Get rid of FontInternalExactMatch"
 
 /*!
   Constructs a font info object for \a font.
@@ -1770,10 +1754,8 @@ const QFont &QFontInfo::font() const
 		 "future version of Qt" );
 #endif
     }
-    // ### uglehack wrt naming
-    if ( !staticFont )
-	initFontSubst();
-    return *staticFont;
+    static QFont f;
+    return f;
 }
 
 // From qpainter.cpp

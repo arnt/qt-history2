@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#257 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#258 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -67,9 +67,7 @@ static QWidget *keyboardGrb = 0;
   QWidget member functions
  *****************************************************************************/
 
-#if QT_VERSION == 200
-#error "Make create and destroy virtual, remove the old functions."
-#endif
+#warning "Make create and destroy virtual, remove the old functions. -- Haavard"
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
@@ -330,12 +328,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 }
 
 
-#if QT_VERSION == 200
-#error "Cleanup here"
+#warning "Cleanup here -- Haavard"
 //
 // Remove create(window) and create().  Return void.
 // Default arguments: (window=0, destroyW=TRUE)
-#endif
 
 
 /*!
@@ -427,31 +423,27 @@ bool QWidget::destroy()
 }
 
 
-#if QT_VERSION == 200
-#error "Rename recreate as reparent"
-#endif
-
 /*!
   Reparents the widget.  The widget gets a new \a parent, new widget
   flags (\a f, but as usual, use 0) at a new position in its new
   parent (\a p).
 
   If \a showIt is TRUE, show() is called once the widget has been
-  recreated.
+  reparent.
 
   If the new parent widget is in a different top-level widget, the
   reparented widget and its children are appended to the end of the
   \link setFocusPolicy() TAB chain \endlink of the new parent widget,
   in the same internal order as before.  If one of the moved widgets
-  had keyboard focus, recreate() calls clearFocus() for that widget.
+  had keyboard focus, reparent() calls clearFocus() for that widget.
 
   If the new parent widget is in the same top-level widget as the old
-  parent, recreate doesn't change the TAB order or keyboard focus.
+  parent, reparent doesn't change the TAB order or keyboard focus.
 
   \sa getWFlags()
 */
 
-void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
+void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
     extern void qPRCreate( const QWidget *, Window );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#26 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#27 $
 **
 ** Definition of QCursor class
 **
@@ -63,6 +63,7 @@ public:
 private:
     void	  update() const;
     QCursorData	 *data;
+    QCursor	 *find_cur(int);
 };
 
 
@@ -97,6 +98,8 @@ extern const QCursor sizeBDiagCursor;		// diagonal resize (/)
 extern const QCursor sizeFDiagCursor;		// diagonal resize (\)
 extern const QCursor sizeAllCursor;		// all directions resize
 extern const QCursor blankCursor;		// blank/invisible cursor
+extern const QCursor splitVCursor;		// vertical bar with left-rigth arrows
+extern const QCursor splitHCursor;		// horizontal bar with up-down arrows
 
 
 /*****************************************************************************

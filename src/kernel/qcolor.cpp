@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#72 $
 **
 ** Implementation of QColor class
 **
@@ -109,11 +109,7 @@ const QColor darkYellow ( 128, 128,   0 );
 
 bool QColor::color_init   = FALSE;		// color system not initialized
 bool QColor::globals_init = FALSE;		// global color not initialized
-bool QColor::lalloc = TRUE;			// lazy color allocation
-
-#if QT_VERSION == 200
-#error "Rename lalloc to lazy_alloc"
-#endif
+bool QColor::lazy_alloc = TRUE;			// lazy color allocation
 
 /*!
   Initializes the global colors.  This function is called if a global
@@ -474,7 +470,7 @@ void QColor::setRgb( int r, int g, int b )
 	warning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
     rgbVal = qRgb(r,g,b);
-    if ( lalloc || !color_init ) {
+    if ( lazy_alloc || !color_init ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;
     } else {
@@ -498,7 +494,7 @@ void QColor::setRgb( int r, int g, int b )
 
 void QColor::setRgb( QRgb rgb )
 {
-    if ( lalloc || !color_init ) {
+    if ( lazy_alloc || !color_init ) {
 	rgbVal = (rgb & 0x00ffffff) | RGB_DIRTY;// alloc later
 	pix = 0;
     } else {
@@ -627,7 +623,7 @@ QColor QColor::dark( int factor ) const
 
 void QColor::setLazyAlloc( bool enable )
 {
-    lalloc = enable;
+    lazy_alloc = enable;
 }
 
 

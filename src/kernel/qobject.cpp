@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#160 $
 **
 ** Implementation of QObject class
 **
@@ -896,18 +896,16 @@ QConnectionList *QObject::receivers( const char *signal ) const
 }
 
 
-#if QT_VERSION == 200
-#error "insertChild and removeChild should be virtual."
-#endif
+#warning "insertChild and removeChild should be virtual.  -- Haavard"
 
 /*!
   Inserts an object \e obj into the list of child objects.
 
   \warning This function cannot be used to make a widget a child
   widget of another.  Child widgets can be created only by setting the
-  parent widget in the constructor or by calling QWidget::recreate().
+  parent widget in the constructor or by calling QWidget::reparent().
 
-  \sa removeChild(), QWidget::recreate()
+  \sa removeChild(), QWidget::reparent()
 */
 
 void QObject::insertChild( QObject *obj )
@@ -916,7 +914,7 @@ void QObject::insertChild( QObject *obj )
 #if defined(CHECK_STATE)
 	if ( obj->parentObj != this && obj->isWidgetType() )
 	    warning( "QObject::insertChild: Cannot reparent a widget, "
-		     "use QWidget::recreate() instead" );
+		     "use QWidget::reparent() instead" );
 #endif
 	obj->parentObj->removeChild( obj );
     }
@@ -946,7 +944,7 @@ void QObject::insertChild( QObject *obj )
   This function will not remove a child widget from the screen.
   It will only remove it from the parent widget's list of children.
 
-  \sa insertChild(), QWidget::recreate()
+  \sa insertChild(), QWidget::reparent()
 */
 
 void QObject::removeChild( QObject *obj )
@@ -1405,9 +1403,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
   involved are destroyed.
 */
 
-#if (QT_VERSION >= 200)
-#error "disconnect const foo"
-#endif
+#warning "disconnect const foo.  -- Arnt"
 
 /*!
   Disconnects \e signal in object \e sender from \e member in object \e

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#29 $
 **
 ** Implementation of QRegion class
 **
@@ -194,22 +194,11 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
     if ( a.isEmpty() ) {
 	s << (Q_UINT32)0;
     } else {
-#if QT_VERSION >= 200
 	s << (Q_UINT32)(4+4+8*a.size());
 	s << (int)QRGN_RECTS;
 	s << (Q_UINT32)a.size();
 	for ( int i=0; i<(int)a.size(); i++ )
 	    s << a[i];
-#else
-	int i;
-	for ( i=(int)a.size()-1; i>0; i-- ) {
-	    s << (Q_UINT32)(12+i*24);
-	    s << (int)QRGN_OR;
-	}
-	for ( i=0; i<(int)a.size(); i++ ) {
-	    s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
-	}
-#endif
     }
     return s;
 }

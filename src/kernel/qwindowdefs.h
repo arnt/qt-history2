@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#111 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#112 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -241,7 +241,7 @@ const uint WPaintUnclipped	= 0x00800000;
 const uint WPaintClever		= 0x01000000;
 const uint WConfigPending	= 0x02000000;
 const uint WResizeNoErase	= 0x04000000;
-const uint WRecreated		= 0x08000000;
+const uint WReparented		= 0x08000000;
 const uint WExportFontMetrics	= 0x10000000;
 const uint WExportFontInfo	= 0x20000000;
 const uint WFocusSet		= 0x40000000; // not used any more

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#40 $
 **
 ** Implementation of layout classes
 **
@@ -566,9 +566,7 @@ void QBoxLayout::addStrut( int size )
   \sa addLayout(), addSpacing()
 */
 
-#if QT_VERSION == 200
-#error "Binary compatibility."
-#endif
+#warning "Binary compatibility.  -- Paul"
 
 
 void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )

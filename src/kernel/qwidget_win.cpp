@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#120 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -317,7 +317,7 @@ bool QWidget::destroy()
 }
 
 
-void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
+void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
     WId old_winid = winid;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#259 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#260 $
 **
 ** Implementation of QWidget class
 **
@@ -214,7 +214,7 @@
   <li> System functions:
 	parentWidget(),
 	topLevelWidget(),
-	recreate(),
+	reparent(),
 	winId(),
 	find(),
 	metric().
@@ -1774,9 +1774,7 @@ void QWidget::fontChange( const QFont & )
 }
 
 
-#if QT_VERSION == 200
-#error "Fix doc below. No longer automatic font metrics update"
-#endif
+#warning "Fix doc below. No longer automatic font metrics update"
 
 /*!
   \fn QFontMetrics QWidget::fontMetrics() const
@@ -2204,7 +2202,7 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
   that of \a parent, if there's anything to move and we're really
   moving
 
-  \sa recreate()
+  \sa reparent()
 */
 
 void QWidget::reparentFocusWidgets( QWidget * parent )
@@ -2540,14 +2538,6 @@ void QWidget::hide()
 	    emit qApp->lastWindowClosed();
     }
 
-#if QT_VERSION == 200
-#error "Do this inherits-stuff by overriding hide() in QDialog"
-#error "Be sure to test for testWFlags(WState_Visible) or anything"
-#error " else that makes QWidget::hide() return early."
-#endif
-    if ( testWFlags(WType_Modal)
-      && inherits("QDialog") ) qApp->exit_loop();
-
     QHideEvent e(FALSE);
     QApplication::sendEvent( this, &e );
 }
@@ -2759,7 +2749,7 @@ QSize QWidget::sizeHint() const
   <dt>WPaintClever<dd> The widget wants every update rectangle.
   <dt>WConfigPending<dd> Config (resize,move) event pending.
   <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
-  <dt>WRecreated<dd> The widet has been recreated.
+  <dt>WReparented<dd> The widget has been reparented.
   <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
   <dt>WExportFontInfo<dd> Somebody refers the font's info.
   </dl>
