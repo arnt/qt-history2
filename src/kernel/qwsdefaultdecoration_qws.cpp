@@ -452,18 +452,8 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 
     QRect rect(widget->rect());
 
-    // Border rect
-    QRect br( rect.left() - BORDER_WIDTH,
-                rect.top() - BORDER_WIDTH - titleHeight,
-                rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
-
     // title bar rect
-    QRect tr;
-
-    {
-        tr = QRect( titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
-    }
+    QRect tr(titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
 
     QRegion oldClip = painter->clipRegion();
     painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
@@ -473,6 +463,12 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 //    const QColorGroup &cg = widget->palette().active();
 
 #if !defined(QT_NO_DRAWUTIL)
+    // Border rect
+    QRect br( rect.left() - BORDER_WIDTH,
+                rect.top() - BORDER_WIDTH - titleHeight,
+                rect.width() + 2 * BORDER_WIDTH,
+                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
+
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
 		  br.height() - 4, cg, FALSE,
 		  &cg.brush(QColorGroup::Background));
