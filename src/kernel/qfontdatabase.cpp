@@ -159,8 +159,8 @@ struct QtFontStyle
 			      weight( o.weight ), stretch( o.stretch ) { }
 	uint italic : 1;
 	uint oblique : 1;
-	uint  weight : 8;
-	uint stretch : 12;
+	signed int  weight : 8;
+	signed int stretch : 12;
 
 	bool operator==( const Key & other ) {
 	    return ( italic == other.italic &&
