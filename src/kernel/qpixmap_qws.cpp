@@ -425,7 +425,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     	dd=32;
     }
 
-    init( w, h, dd, FALSE, defOptim );
+    init( w, h, dd, isQBitmap(), defOptim );
 
     QGfx * mygfx=graphicsContext();
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
