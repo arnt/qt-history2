@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#25 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#25 $");
 
 
 /*!
@@ -65,6 +65,8 @@ QBuffer::QBuffer( QByteArray buf ) : a(buf)
     setFlags( IO_Direct );
     a_len = a.size();
     a_inc = (a_len > 512) ? 512 : a_len;	// initial increment
+    if ( a_inc < 16 )
+	a_inc = 16;
 }
 
 /*!
