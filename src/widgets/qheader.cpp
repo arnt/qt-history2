@@ -165,12 +165,12 @@ public:
     occupy the full width (or height).
 
     A section can be moved with moveSection(). If setMovingEnabled()
-    is TRUE the user may drag a section from one position to another.
-    If a section is moved, the index positions at which sections were
-    added (with addLabel()), may not be the same after the move. You
-    don't have to worry about this in practice because the QHeader API
-    works in terms of section numbers, so it doesn't matter where a
-    particular section has been moved to.
+    is TRUE (the default)the user may drag a section from one position
+    to another. If a section is moved, the index positions at which
+    sections were added (with addLabel()), may not be the same after the
+    move. You don't have to worry about this in practice because the
+    QHeader API works in terms of section numbers, so it doesn't matter
+    where a particular section has been moved to.
 
     If you want the current index position of a section call
     mapToIndex() giving it the section number. (This is the number
@@ -1354,8 +1354,8 @@ void QHeader::setResizeEnabled( bool enable, int section )
     \property QHeader::moving
     \brief whether the header sections can be moved
 
-    If this property is TRUE the user can move sections. If the user
-    moves a section the indexChange() signal is emitted.
+    If this property is TRUE (the default) the user can move sections.
+    If the user moves a section the indexChange() signal is emitted.
 
     \sa setClickEnabled(), setResizeEnabled()
 */
