@@ -302,7 +302,7 @@ const char* QWindowsMimeText::mimeFor(int cf)
 
 bool QWindowsMimeText::canConvert( const char* mime, int cf )
 {
-    return cfFor(mime) == cf;
+    return cf && cfFor(mime) == cf;
 }
 
 /*
@@ -858,6 +858,10 @@ void QWindowsMime::initialize()
 QWindowsMime*
 QWindowsMime::convertor( const char *mime, int cf )
 {
+    // return nothing for illegal requests
+    if ( !cf )
+	return 0;
+
     QWindowsMime* wm;
     for ( wm = mimes.first(); wm; wm = mimes.next() ) {
 	if ( wm->canConvert(mime,cf) ) {
