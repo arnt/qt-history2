@@ -7,6 +7,7 @@
 \i \link #Commands Command Line Options \endlink
 \i \link #SystemVariables System Variables \endlink
 \i \link #Functions Functions \endlink
+\i \link #Properties Properties \endlink
 \i \link #Environment Environment Variables and Configuration \endlink
 \i \link #Extensions File Extensions \endlink
 \i \link #Customizing Customizing Makefile Output \endlink
@@ -1820,7 +1821,62 @@ For example:
   release:debug:error(You can't have release and debug at the same time!)
 \endcode
 
+\target Properties
+\section1 Properties
 
+\e qmake has a system of persistant information, this allows you to
+'set' a variable in qmake once, and each time qmake is invoked this
+value can be queried. Use the following to set a property in qmake:
+
+\code
+qmake -set VARIABLE VALUE
+\endcode
+
+To retrieve this information back from qmake you can do:
+
+\code
+qmake -query VARIABLE
+qmake -query #queries all current VARIABLE/VALUE pairs..
+\endcode
+
+This information will be saved into a QSettings object (meaning it
+will be stored in different places for different platforms). As
+VARIABLE is versioned as well, you can set one value in an older
+version of qmake, and newer versions will retrieve this value, however
+if you -set VARIABLE into a newer version of qmake the older version
+will not use this value. You can however query a specific version of a
+variable if you prefix that version of qmake to VARIABLE, as in:
+
+\code
+qmake -query "1.06a/VARIABLE"
+\encode
+
+qmake also has the notion of 'builtin' properties, for example you can
+query the installation of Qt for this version of qmake with the
+QT_INSTALL_PREFIX property:
+
+\code
+qmake -query "QT_INSTALL_PREFIX"
+\encode
+
+These builtin properties cannot have a version prefixed to them as
+they are not versioned and each qmake will have its own notion of
+these values. The table below outlines the builtin properties:
+
+\table
+\header \i Property
+	\i Description
+\row \i QT_INSTALL_PREFIX \i Where the version of Qt this qmake is built for resides
+\row \i QT_INSTALL_DATA \i Where data for this version of Qt resides
+\row \i QMAKE_VERSION \i The current version of qmake
+\endtable
+
+Finally, these values can be queried in a project file with a special
+notation such as:
+
+\code
+QMAKE_VERS = $$[QMAKE_VERSION]
+\endcode
 
 \target Environment
 \section1 Environment Variables and Configuration
@@ -2027,3 +2083,24 @@ course you may want to tie one of these targets to actually building the
 \link #TARGET qmake build target \endlink. To do this, you simply need to
 include your Makefile target in the list of \link #TARGETDEPS TARGETDEPS
 \endlink.
+
+For convenience there is also a method of customizing (UNIX) projects
+for generic new compilers (or even preprocessors).
+
+\code
+new_moc.output  = moc_${QMAKE_FILE_BASE}.cpp
+new_moc.commands = moc ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+new_moc.depends = g++ -E -M ${QMAKE_FILE_NAME} | sed "s,^.*: ,,"
+new_moc.input = NEW_HEADERS
+QMAKE_EXTRA_UNIX_COMPILERS += new_moc
+\endcode
+
+With this you can create a new moc for qmake, the commands will be
+executed over all arguments given to a NEW_HEADERS variable (from the
+input variable), and write to output (and automatically hand this
+filename to the compiler to be linked into your target). Additionally
+qmake will execute depends to generate dependency information and
+place this in the project as well.
+
+These commands can easily be placed into a cache file, and subsequent
+.pro files can give several arguments to NEW_HEADERS.
