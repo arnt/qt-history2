@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#11 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -236,6 +236,11 @@ void QSpinBox::setWrapping( bool w )
     enableButtons();
 }
 
+/*!  \fn bool wrapping() const
+
+  Returns the most recent setWrapping() value.
+*/
+
 
 /*!  Sets the spin box to display item \a i.
 
@@ -247,11 +252,24 @@ void QSpinBox::setWrapping( bool w )
 
 void QSpinBox::setCurrent( int i )
 {
-    c = i;
-    enableButtons();
-    repaint();
-    emit selected( text( i ) );
+    if ( c != i ) {
+	c = i;
+	enableButtons();
+	repaint();
+	emit selected( text( i ) );
+    }
 }
+
+/*!  \fn int current() const
+
+  Returns the most recent setCurrent() value.
+*/
+
+/*!  \fn void selected( const char * )
+
+  This signal is emitted when the spinbox item is set to the given
+  string.
+*/
 
 
 /*!  Moves the spin box to the next value.  This is the same as
