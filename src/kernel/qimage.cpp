@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#211 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2582,7 +2582,6 @@ static void init_image_handlers()		// initialize image handlers
 				   read_xbm_image, write_xbm_image );
 	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 				   read_xpm_image, write_xpm_image );
-	qInitPngIO();
     }
 }
 
@@ -3786,6 +3785,7 @@ public:
 
     void changed(const QRect&) { }
     void end() { }
+    void frameDone(const QPoint&, const QRect&) { }
     void frameDone() { framecount++; }
     void setLooping(int) { }
     void setFramePeriod(int) { }

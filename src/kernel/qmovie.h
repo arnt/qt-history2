@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#21 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#22 $
 **
 ** Definition of movie classes
 **
@@ -57,13 +57,6 @@ private:
     int time_offset;
     QPixmap mypixmap;
 };
-
-typedef QList<QMovieFrame> QMovieFrames;
-
-QDataStream& operator>>(QDataStream&, QMovieFrame&);
-QDataStream& operator<<(QDataStream&, QMovieFrame&);
-QDataStream& operator>>(QDataStream&, QMovieFrames&);
-QDataStream& operator<<(QDataStream&, QMovieFrames&);
 
 class Q_EXPORT QMovie {
 public:

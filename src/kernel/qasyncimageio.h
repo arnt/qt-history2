@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#21 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#22 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -38,9 +38,15 @@
 
 class Q_EXPORT QImageConsumer {
 public:
-    virtual void changed(const QRect&)=0;
     virtual void end()=0;
+
+    // Change transfer type 1.
+    virtual void changed(const QRect&)=0;
     virtual void frameDone()=0;
+
+    // Change transfer type 2.
+    virtual void frameDone(const QPoint&, const QRect&)=0;
+
     virtual void setLooping(int)=0;
     virtual void setFramePeriod(int)=0;
     virtual void setSize(int, int)=0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#204 $
 **
 ** Implementation of QApplication class
 **
@@ -36,6 +36,7 @@
 #include "qcdestyle.h"
 #include "qtranslator.h"
 #include "qtextcodec.h"
+#include "qpngio.h"
 
 /*!
   \class QApplication qapplication.h
@@ -332,9 +333,10 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     }
 
+    qInitPngIO();
+
     app_style->polish( *app_pal );
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
-
 
     if ( makeqdevel ) {
 	qdevel = new QDeveloper;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#57 $
 **
 ** Implementation of movie classes
 **
@@ -120,7 +120,9 @@ public: // for QMovie
     // This as QImageConsumer
     void changed(const QRect& rect);
     void end();
+    void preFrameDone(); //util func
     void frameDone();
+    void frameDone(const QPoint&, const QRect& rect);
     void restartTimer();
     void setLooping(int l);
     void setFramePeriod(int milliseconds);
@@ -625,7 +627,7 @@ void QMovieFilePrivate::end()
 {
 }
 
-void QMovieFilePrivate::frameDone()
+void QMovieFilePrivate::preFrameDone()
 {
     if (stepping > 0) {
 	stepping--;
@@ -637,7 +639,27 @@ void QMovieFilePrivate::frameDone()
 	waitingForFrameTick = TRUE;
 	restartTimer();
     }
+}
+void QMovieFilePrivate::frameDone()
+{
+    preFrameDone();
     showChanges();
+    emit dataStatus(QMovie::EndOfFrame);
+    framenumber++;
+}
+void QMovieFilePrivate::frameDone(const QPoint& p,
+				const QRect& rect)
+{
+    preFrameDone();
+    const QImage& gimg = decoder->image();
+    if (framenumber==0) {
+	mypixmap.resize(gimg.width(), gimg.height());
+	emit sizeChanged(gimg.size());
+    }
+    bitBlt(&mypixmap, p.x(), p.y(), &gimg, rect.x(), rect.y(),
+		    rect.width(), rect.height());
+    // TODO: transparency
+    emit areaChanged(QRect(p,rect.size()));
     emit dataStatus(QMovie::EndOfFrame);
     framenumber++;
 }
@@ -1253,51 +1275,6 @@ int QMovieFrame::timeOffset() const
     return time_offset;
 }
 
-QDataStream& operator>>(QDataStream& str, QMovieFrame& frame)
-{
-    Q_INT32 x, y, t;
-    QPixmap p;
-    str >> x >> y >> t >> p;
-    frame.set( p, x, y, t );
-    return str;
-}
-
-QDataStream& operator>>(QDataStream& str, QMovieFrames& frames)
-{
-    frames.clear();
-    frames.setAutoDelete( true );
-
-    Q_INT32 count;
-    str >> count;
-
-    for( int i = 0; i < count; i++ ) {
-	Q_INT32 x, y, t;
-	QPixmap p;
-	str >> x >> y >> t >> p;
-	QMovieFrame* f = new QMovieFrame(p,x,y,t);
-	// str >> *f;
-	frames.append( f );
-    }
-    return str;
-}
-
-QDataStream& operator<<(QDataStream& str, QMovieFrame& frame)
-{
-    str << (Q_INT32)frame.xOffset() << (Q_INT32)frame.yOffset()
-	<< (Q_INT32)frame.timeOffset() << frame.pixmap();
-
-    return str;
-}
-
-QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
-{
-    str << (Q_INT32)frames.count();
-    QMovieFrame* f;
-    for( f = frames.first(); f != 0; f = frames.next() ) {
-	str << *f;
-    }
-    return str;
-}
 
 /* tmake ignore Q_OBJECT */
 
@@ -1306,7 +1283,7 @@ QDataStream& operator<<(QDataStream& str, QMovieFrames& frames)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.56 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.57 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
