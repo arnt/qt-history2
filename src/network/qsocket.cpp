@@ -330,9 +330,12 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s)::tryConnecting()", q->name());
 #endif
+
+    QList<QHostAddress> addrs = hostInfo.addresses();
+
     // if there are no addresses in the host list, report this to the
     // user.
-    if (hostInfo.addresses.isEmpty()) {
+    if (addrs.isEmpty()) {
         state = QSocket::Idle;
         emit q->error(QSocket::ErrHostNotFound);
         return;
@@ -347,8 +350,8 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 
     // put any IPv4 addresses upfront, and IPv6 at the end. this
     // decides the order in which the addresses will be tested.
-    for (int i = 0; i < hostInfo.addresses.size(); ++i) {
-        const QHostAddress &a = hostInfo.addresses.at(i);
+    for (int i = 0; i < addrs.size(); ++i) {
+        const QHostAddress &a = addrs.at(i);
         if (a.isIPv4Address())
             addresses.prepend(a);
         else if (a.isIPv6Address())
@@ -878,7 +881,7 @@ QIODevice::Offset QSocket::at() const
 
 bool QSocket::at(Offset index)
 {
-    if (index > d->rba.size())
+    if (index < 0 || index > d->rba.size())
         return false;
     d->rba.consumeBytes((Q_ULONG)index, 0);                        // throw away data 0..index-1
     // After we read data from our internal buffer, if we use the
