@@ -50,7 +50,7 @@
 
 QString qws_topdir()
 {
-    const char* r = getenv("QWSDIR");
+    const char* r = getenv("QTDIR");
     if ( !r ) r = "/usr/local/qt-embedded";
     return r;
 }

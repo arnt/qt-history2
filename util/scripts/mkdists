@@ -384,8 +384,15 @@ for $platform ( "x11", "qws" ) {
 
 	opendir( D, "$distdir/qt/dist/$platform" );
 	foreach ( readdir( D ) ) {
-	    &copy_version( "$distdir/qt/dist/$platform/$_",
+	    $p = $platform eq "qws" ? "embedded" : $platform;
+	    $d = "$distdir/qt/dist/$p/$_";
+	    if ( -f $d ) {
+		&copy_version( $d,
 			   "$distdir/$platform-$freedom/qt-$version$type/$_" );
+	    } else {
+		# Copy it verbatim
+		system("cp -r $d $distdir/$platform-$freedom/qt-$version$type/$_");
+	    }
 	}
 	closedir( D );
     }
