@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#416 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#417 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -56,8 +56,6 @@ static UINT WM95_MOUSEWHEEL = 0;
 #endif
 
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
-
-static uint WM95_MOUSEWHEEL = 0;
 
 /*
   Internal functions.
