@@ -833,10 +833,14 @@ void Configure::displayConfig()
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
 	cout << "Trolltech license file used." << qtDir + "/LICENSE.TROLL" << endl;
     } else if ( QFile::exists( QDir::homeDirPath() + "/.qt-license" ) ) {
-	cout << "Licensee...................." << licenseInfo[ "LICENSEE" ] << endl;
-	cout << "License ID.................." << licenseInfo[ "LICENSEID" ] << endl;
-	cout << "Product license............." << licenseInfo[ "PRODUCTS" ] << endl;
-	cout << "Expiry Date................." << licenseInfo[ "EXPIRYDATE" ] << endl << endl;
+	QString l1 = licenseInfo[ "LICENSEE" ];
+	QString l2 = licenseInfo[ "LICENSEID" ];
+	QString l3 = licenseInfo[ "PRODUCTS" ];
+	QString l4 = licenseInfo[ "EXPIRYDATE" ];
+	cout << "Licensee...................." << (l1.isNull() ? "" : l1) << endl;
+	cout << "License ID.................." << (l2.isNull() ? "" : l2) << endl;
+	cout << "Product license............." << (l3.isNull() ? "" : l3) << endl;
+	cout << "Expiry Date................." << (l4.isNull() ? "" : l4) << endl << endl;
     }
 
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
@@ -1098,7 +1102,7 @@ void Configure::readLicense()
 	cout << "Reading license file in....." << QDir::homeDirPath().latin1() << endl;
 	QString buffer;
 
-	while( licenseFile.readLine( buffer, 1024 ) != -1 ) {
+	while( licenseFile.readLine( buffer, 1024 ) > 0 ) {
 	    if( buffer[ 0 ] != '#' ) {
 		QStringList components = QStringList::split( '=', buffer );
 		QStringList::Iterator it = components.begin();
