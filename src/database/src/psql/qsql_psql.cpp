@@ -1,5 +1,3 @@
-#if defined(QT_SQL_SUPPORT)
-
 #include "qsql_psql.h"
 
 #include <qlist.h>
@@ -439,5 +437,4 @@ bool QPSQLDriver::rollbackTransaction()
     PQclear( res );
     return TRUE;
 }
-#endif
 

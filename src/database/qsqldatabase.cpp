@@ -2,6 +2,7 @@
 #include "qsqldriverplugin.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
+#include <stdlib.h> //### for getenv, get rid of this
 
 class QNullResult : public QSqlResult
 {
@@ -75,8 +76,7 @@ public:
      <li>QODBC - ODBC (Open Database Connectivity) Driver
      <li>QOCI - Oracle Call Interface Driver
      <li>QPSQL - PostgreSQL Driver
-     <li>QMySQL - MySQL Driver
-     <li>QMSQL - MiniSQL Driver
+     <li>QMYSQL - MySQL Driver
      </ul>
 */
 QSqlDatabase::QSqlDatabase( const QString& type, QObject * parent, const char * name)
@@ -110,7 +110,7 @@ void QSqlDatabase::init( const QString& type )
 {
     qDebug("QSqlDatabase::init");
     d = new QSqlDatabasePrivate();
-    d->plugIns = new QSqlDriverPlugInManager( "../lib" );
+    d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ### make this better
     QPlugIn* pi = d->plugIns->plugIn( type );
     //    QPlugIn* pi;
     //    if ( d->plugIns->selectFeature( type ) )
