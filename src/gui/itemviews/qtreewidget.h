@@ -142,6 +142,7 @@ public:
     int topLevelItemCount() const;
     void insertTopLevelItem(int index, QTreeWidgetItem *item);
     void appendTopLevelItem(QTreeWidgetItem *item);
+    int indexOfTopLevelItem(QTreeWidgetItem *item);
 
     QTreeWidgetItem *headerItem();
     void setHeaderItem(QTreeWidgetItem *item);

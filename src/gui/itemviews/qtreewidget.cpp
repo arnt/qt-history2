@@ -1267,6 +1267,15 @@ void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 }
 
 /*!
+  Returns the index of the top-level item or -1 if the item
+  cannot be found.
+ */
+int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
+{
+    return d->model()->tree.indexOf(item);
+}
+
+/*!
     Returns the item used for the tree widget's header.
 
     \sa setHeaderItem()
