@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#8 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#9 $
 **
 ** Definition of QStyle class
 **
@@ -91,7 +91,7 @@ public:
 
     virtual void drawArrow( QPainter *p, ArrowType type, bool down,
 		     int x, int y, int w, int h,
-		     const QColorGroup &g, bool enabled );
+		     const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
     // "radio button"
     virtual QSize exclusiveIndicatorSize() const;
@@ -100,7 +100,7 @@ public:
 
     // "check box"
     virtual QSize indicatorSize() const;
-    virtual void drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g, 
+    virtual void drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g,
 				bool on, bool down = FALSE, bool enabled = TRUE );
     virtual void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
 
@@ -141,12 +141,12 @@ public:
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,
-		    const QColorGroup &g, bool enabled );
+		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
 			bool on, bool down = FALSE, bool enabled = TRUE );
-    
+
 
     void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
@@ -178,16 +178,16 @@ public:
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
 		    int x, int y, int w, int h,
-		    const QColorGroup &g, bool enabled );
+		    const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
 			bool on, bool down = FALSE, bool enabled = TRUE );
-    
-    
+
+
     void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
-    
+
 //     void initialize( QApplication*);
 //     void polish( QWidget* );
 };
@@ -205,7 +205,7 @@ public:
 			  const QBrush *fill = 0 );
     void drawPushButton( QPushButton* btn, QPainter *p);
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
-    
+
     void scrollbarMetrics( const QScrollBar*,  int *, int *, int * );
     void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
 
@@ -213,7 +213,7 @@ public:
     void drawIndicator( QPainter* p, int x, int y, int w, int h,  const QColorGroup &g,
 			bool on, bool down = FALSE, bool enabled = TRUE );
     void drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on);
-    
+
     void initialize( QApplication*);
     //     void polish( QWidget* );
 

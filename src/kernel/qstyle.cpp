@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#9 $
 **
 ** Implementation of QStyle class
 **
@@ -1013,7 +1013,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 void
 QStyle::drawArrow( QPainter *, ArrowType , bool ,
 		 int , int , int , int ,
-		 const QColorGroup &, bool  )
+		 const QColorGroup &, bool, const QBrush *)
 {
 }
 
@@ -1051,7 +1051,7 @@ QStyle::indicatorSize() const
   Draws a mark indicating the state of a choice.
 */
 void
-QStyle::drawIndicator( QPainter* , int , int , int , int , const QColorGroup &, 
+QStyle::drawIndicator( QPainter* , int , int , int , int , const QColorGroup &,
 		       bool , bool , bool  )
 {
     // move code here ...
@@ -1060,7 +1060,7 @@ QStyle::drawIndicator( QPainter* , int , int , int , int , const QColorGroup &,
 /*!
   Draws the mask of a mark indicating the state of a choice.
 */
-void 
+void
 QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on */)
 {
     p->fillRect(x, y, w, h, color1);
@@ -1089,7 +1089,7 @@ QWindowsStyle::QWindowsStyle() : QStyle(WindowsStyle)
 
 
 void QWindowsStyle::drawIndicator( QPainter* p,
-				   int x, int y, int w, int h, const QColorGroup &g, 
+				   int x, int y, int w, int h, const QColorGroup &g,
 				   bool on, bool down, bool /* enabled */ )
 {
     QBrush fill;
@@ -1179,7 +1179,7 @@ void QWindowsStyle::drawWinShades( QPainter *p,
 void
 QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool enabled )
+		 const QColorGroup &g, bool enabled, const QBrush *fill )
 {
     QPointArray a;				// arrow polygon
     switch ( type ) {
@@ -1207,7 +1207,7 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
     QPen savePen = p->pen();			// save current pen
     if (down)
 	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-    p->fillRect( x, y, w, h, g.fillButton() );
+    p->fillRect( x, y, w, h, fill?*fill:g.fillButton() );
     if (down)
 	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
@@ -1481,7 +1481,7 @@ QMotifStyle::QMotifStyle() : QStyle(MotifStyle)
 }
 
 void QMotifStyle::drawIndicator( QPainter* p,
-				 int x, int y, int w, int h, const QColorGroup &g, 
+				 int x, int y, int w, int h, const QColorGroup &g,
 				 bool on, bool down, bool /* enabled */ )
 {
     bool showUp = !(down ^ on);
@@ -1500,7 +1500,7 @@ QMotifStyle::indicatorSize() const
 void
 QMotifStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool /* enabled */ )
+		 const QColorGroup &g, bool /* enabled */, const QBrush * /* fill */ )
 {
     QPointArray bFill;				// fill polygon
     QPointArray bTop;				// top shadow.
@@ -1816,7 +1816,7 @@ void QMotifStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
 }
 
-QPlatinumStyle::QPlatinumStyle() 
+QPlatinumStyle::QPlatinumStyle()
 {
 }
 
@@ -2262,11 +2262,11 @@ void QPlatinumStyle::drawScrollbarBackground( QPainter *p, int x, int y, int w, 
 	p->setPen(oldPen);
 	return;
     }
-    
+
 
     if (horizontal) {
 	p->fillRect(x+2, y+2, w-2, h-4,fill?*fill:g.fillMid());
-    
+
 	// the dark side
 	p->setPen(g.dark().dark());
 	p->drawLine(x, y, x+w-1, y);
@@ -2366,14 +2366,15 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
     if ( controls & ADD_LINE ) {
-	drawBevelButton( p, addB.x(), addB.y(),
-			 addB.width(), addB.height(), g,
-			 ADD_LINE_ACTIVE, &g.fillButton() );
+ 	drawBevelButton( p, addB.x(), addB.y(),
+ 			 addB.width(), addB.height(), g,
+ 			 ADD_LINE_ACTIVE);
 	p->setPen(black);
 	p->drawRect( addB );
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
-		   ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-		   addB.width()-4, addB.height()-4, g, !maxedOut );
+		   FALSE, addB.x()+2, addB.y()+2,
+		   addB.width()-4, addB.height()-4, g, !maxedOut,
+		   ADD_LINE_ACTIVE?&g.fillMid():&g.fillButton());
     }
     if ( controls & SUB_LINE ) {
 	drawBevelButton( p, subB.x(), subB.y(),
@@ -2382,17 +2383,18 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 	p->setPen(black);
 	p->drawRect( subB );
 	drawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-		    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-		   subB.width()-4, subB.height()-4, g, !maxedOut );
+		    FALSE, subB.x()+2, subB.y()+2,
+		   subB.width()-4, subB.height()-4, g, !maxedOut,
+		   SUB_LINE_ACTIVE?&g.fillMid():&g.fillButton());
     }
 
 
     if ( controls & SUB_PAGE )
-	drawScrollbarBackground( p, subPageR.x(), subPageR.y(), subPageR.width(), 
+	drawScrollbarBackground( p, subPageR.x(), subPageR.y(), subPageR.width(),
 				 subPageR.height(),
 				 g, HORIZONTAL );
     if ( controls & ADD_PAGE )
-	drawScrollbarBackground( p, addPageR.x(), addPageR.y(), addPageR.width(), 
+	drawScrollbarBackground( p, addPageR.x(), addPageR.y(), addPageR.width(),
 				 addPageR.height(),
 				 g, HORIZONTAL );
     if ( controls & SLIDER ) {
@@ -2409,13 +2411,13 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 	    int i ;
 	    p->setPen(g.light());
 	    for (i=0; i<n; i++) {
-		p->drawLine(mx, my+2*i, mx + 2*n-1, my+2*i); 
+		p->drawLine(mx, my+2*i, mx + 2*n-1, my+2*i);
 	    }
 	    p->setPen(g.dark());
 	    mx++;
 	    my++;
 	    for (i=0; i<n; i++) {
-		p->drawLine(mx, my+2*i, mx + 2*n-1, my+2*i); 
+		p->drawLine(mx, my+2*i, mx + 2*n-1, my+2*i);
 	    }
 	}
 	else {
@@ -2425,19 +2427,19 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 	    int i ;
 	    p->setPen(g.light());
 	    for (i=0; i<n; i++) {
-		p->drawLine(mx+2*i, my, mx + 2*i, my+2*n-1); 
+		p->drawLine(mx+2*i, my, mx + 2*i, my+2*n-1);
 	    }
 	    p->setPen(g.dark());
 	    mx++;
 	    my++;
 	    for (i=0; i<n; i++) {
-		p->drawLine(mx+2*i, my, mx + 2*i, my+2*n-1); 
+		p->drawLine(mx+2*i, my, mx + 2*i, my+2*n-1);
 	    }
 	}
 	p->setPen(black);
 	p->drawRect( sliderR );
     }
-    
+
     // ### perhaps this should not be able to accept focus if maxedOut?
     if ( sb->hasFocus() && (controls & SLIDER) )
 	p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
@@ -2448,7 +2450,7 @@ void QPlatinumStyle::drawScrollbarControls( QPainter* p, const QScrollBar* sb, i
 
 
 void QPlatinumStyle::drawIndicator( QPainter* p,
-				    int x, int y, int w, int h, const QColorGroup &g, 
+				    int x, int y, int w, int h, const QColorGroup &g,
 				    bool on , bool down, bool /*enabled */ )
 {
     QBrush fill;
@@ -2471,10 +2473,10 @@ void QPlatinumStyle::drawIndicator( QPainter* p,
 	p->setPen( oldPen );
     }
 
-    
+
 }
 
-void 
+void
 QPlatinumStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool on)
 {
     p->fillRect(x, y, w-2, h, color1);
