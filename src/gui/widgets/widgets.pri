@@ -34,6 +34,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qrangecontrol.h \
 	widgets/qscrollbar.h \
 	widgets/qscrollview.h \
+        widgets/qscrollview_p.h \
 	widgets/qsizegrip.h \
 	widgets/qslider.h \
 	widgets/qabstractslider.h \

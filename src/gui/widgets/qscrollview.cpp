@@ -29,6 +29,10 @@
 # include "qt_mac.h"
 #endif
 
+#include "qscrollview_p.h"
+#define d d_func()
+#define q q_func()
+
 static const int coord_limit = 4000;
 static const int autoscroll_margin = 16;
 static const int initialScrollTime = 30;
@@ -92,124 +96,78 @@ public:
 
 #include "qscrollview.moc"
 
-class QScrollViewData {
-public:
-    QScrollViewData(QScrollView* parent, Qt::WFlags vpwflags) :
-        hbar( new QScrollBar( QScrollBar::Horizontal, parent, "qt_hbar" ) ),
-        vbar( new QScrollBar( QScrollBar::Vertical, parent, "qt_vbar" ) ),
-        viewport( new QViewportWidget( parent, "qt_viewport", vpwflags ) ),
-        clipped_viewport( 0 ),
-        flags( vpwflags ),
-        vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
-#ifndef QT_NO_DRAGANDDROP
-        autoscroll_timer( parent, "scrollview autoscroll timer" ),
-	drag_autoscroll( TRUE ),
-#endif
-	scrollbar_timer( parent, "scrollview scrollbar timer" ),
-        inresize( FALSE ), use_cached_size_hint( TRUE )
-    {
-	l_marg = r_marg = t_marg = b_marg = 0;
-	viewport->ensurePolished();
-	viewport->setBackgroundRole( QPalette::Dark );
-	parent->setBackgroundRole( QPalette::Background );
-	vMode = QScrollView::Auto;
-	hMode = QScrollView::Auto;
-	corner = 0;
-	defaultCorner = new QWidget( parent, "qt_default_corner" );
-	defaultCorner->hide();
-	vbar->setSteps( 20, 1/*set later*/ );
-	hbar->setSteps( 20, 1/*set later*/ );
-	policy = QScrollView::Default;
-	signal_choke = FALSE;
-	static_bg = FALSE;
-	fake_scroll = FALSE;
-	hbarPressed = FALSE;
-	vbarPressed = FALSE;
-    }
-    ~QScrollViewData();
-
-    QSVChildRec* rec(QWidget* w)
-    {
-	QHash<QWidget *, QSVChildRec *>::iterator it;
-	it = childDict.find(w);
-	if (it != childDict.end())
-	    return *it;
-	return 0;
-    }
-    QSVChildRec* ancestorRec(QWidget* w);
-    QSVChildRec* addChildRec(QWidget* w, int x, int y )
-    {
-        QSVChildRec *r = new QSVChildRec(w,x,y);
-        children.append(r);
-        childDict.insert(w, r);
-        return r;
-    }
-    void deleteChildRec(QSVChildRec* r)
-    {
-        childDict.remove(r->child);
-        children.remove(r);
-        delete r;
-    }
-
-    void hideOrShowAll(QScrollView* sv, bool isScroll = FALSE );
-    void moveAllBy(int dx, int dy);
-    bool anyVisibleChildren();
-    void autoMove(QScrollView* sv);
-    void autoResize(QScrollView* sv);
-    void autoResizeHint(QScrollView* sv);
-    void viewportResized( int w, int h );
-
-    QScrollBar*  hbar;
-    QScrollBar*  vbar;
-    bool hbarPressed;
-    bool vbarPressed;
-    QViewportWidget*	viewport;
-    QClipperWidget*	clipped_viewport;
-    Qt::WFlags flags;
-    QList<QSVChildRec *> children;
-    QHash<QWidget *, QSVChildRec *> childDict;
-    QWidget*    corner, *defaultCorner;
-    int         vx, vy, vwidth, vheight; // for drawContents-style usage
-    int         l_marg, r_marg, t_marg, b_marg;
-    QScrollView::ResizePolicy policy;
-    QScrollView::ScrollBarMode  vMode;
-    QScrollView::ScrollBarMode  hMode;
-#ifndef QT_NO_DRAGANDDROP
-    QPoint cpDragStart;
-    QTimer autoscroll_timer;
-    int autoscroll_time;
-    int autoscroll_accel;
-    bool drag_autoscroll;
-#endif
-    QTimer scrollbar_timer;
-
-    uint static_bg : 1;
-    uint fake_scroll : 1;
-
-    // This variable allows ensureVisible to move the contents then
-    // update both the sliders.  Otherwise, updating the sliders would
-    // cause two image scrolls, creating ugly flashing.
-    //
-    uint signal_choke : 1;
-
-    // This variables indicates in updateScrollBars() that we are
-    // in a resizeEvent() and thus don't want to flash scrollbars
-    uint inresize : 1;
-    uint use_cached_size_hint : 1;
-    QSize cachedSizeHint;
-
-    inline int contentsX() const { return -vx; }
-    inline int contentsY() const { return -vy; }
-    inline int contentsWidth() const { return vwidth; }
-};
-
-inline QScrollViewData::~QScrollViewData()
+QScrollViewPrivate::QScrollViewPrivate(): QFramePrivate()
 {
-    while (!children.isEmpty())
-	delete children.takeFirst();
 }
 
-QSVChildRec* QScrollViewData::ancestorRec(QWidget* w)
+void QScrollViewPrivate::init()
+{
+    hbar = new QScrollBar( QScrollBar::Horizontal, q, "qt_hbar" );
+    vbar = new QScrollBar( QScrollBar::Vertical, q, "qt_vbar" );
+    viewport = new QViewportWidget( q, "qt_viewport", flags );
+    clipped_viewport = 0;
+    vx = vy = 0;
+    vwidth = vheight = 1;
+#ifndef QT_NO_DRAGANDDROP
+    autoscroll_timer.setParent(q);
+    autoscroll_timer.setObjectNameConst("scrollview autoscroll timer");
+    drag_autoscroll = TRUE;
+#endif
+    scrollbar_timer.setParent(q);
+    scrollbar_timer.setObjectNameConst("scrollview scrollbar timer");
+    inresize = false;
+    use_cached_size_hint = true;
+
+    l_marg = r_marg = t_marg = b_marg = 0;
+    viewport->ensurePolished();
+    viewport->setBackgroundRole( QPalette::Dark );
+    q->setBackgroundRole( QPalette::Background );
+    vMode = QScrollView::Auto;
+    hMode = QScrollView::Auto;
+    corner = 0;
+    defaultCorner = new QWidget( q, "qt_default_corner" );
+    defaultCorner->hide();
+    vbar->setSteps( 20, 1/*set later*/ );
+    hbar->setSteps( 20, 1/*set later*/ );
+    policy = QScrollView::Default;
+    signal_choke = FALSE;
+    static_bg = FALSE;
+    fake_scroll = FALSE;
+    hbarPressed = FALSE;
+    vbarPressed = FALSE;
+}
+
+QScrollViewPrivate::~QScrollViewPrivate()
+{
+    while (!children.isEmpty())
+        delete children.takeFirst();
+}
+
+QSVChildRec* QScrollViewPrivate::rec(QWidget* w)
+{
+    QHash<QWidget *, QSVChildRec *>::iterator it;
+    it = childDict.find(w);
+    if (it != childDict.end())
+        return *it;
+    return 0;
+}
+
+QSVChildRec* QScrollViewPrivate::addChildRec(QWidget* w, int x, int y )
+{
+    QSVChildRec *r = new QSVChildRec(w,x,y);
+    children.append(r);
+    childDict.insert(w, r);
+    return r;
+}
+
+void QScrollViewPrivate::deleteChildRec(QSVChildRec* r)
+{
+    childDict.remove(r->child);
+    children.remove(r);
+    delete r;
+}
+
+QSVChildRec* QScrollViewPrivate::ancestorRec(QWidget* w)
 {
     if ( clipped_viewport ) {
 	while (w->parentWidget() != clipped_viewport) {
@@ -225,7 +183,7 @@ QSVChildRec* QScrollViewData::ancestorRec(QWidget* w)
     return rec(w);
 }
 
-void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
+void QScrollViewPrivate::hideOrShowAll(QScrollView* sv, bool isScroll )
 {
     if ( !clipped_viewport )
 	return;
@@ -256,7 +214,7 @@ void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
     }
 }
 
-void QScrollViewData::moveAllBy(int dx, int dy)
+void QScrollViewPrivate::moveAllBy(int dx, int dy)
 {
     if ( clipped_viewport && !static_bg ) {
 	clipped_viewport->move( clipped_viewport->x()+dx,
@@ -271,7 +229,7 @@ void QScrollViewData::moveAllBy(int dx, int dy)
     }
 }
 
-bool QScrollViewData::anyVisibleChildren()
+bool QScrollViewPrivate::anyVisibleChildren() const
 {
     for (int i = 0; i < children.size(); ++i) {
 	QSVChildRec *r = children.at(i);
@@ -280,7 +238,7 @@ bool QScrollViewData::anyVisibleChildren()
     return FALSE;
 }
 
-void QScrollViewData::autoMove(QScrollView* sv)
+void QScrollViewPrivate::autoMove(QScrollView* sv)
 {
     if ( policy == QScrollView::AutoOne ) {
 	QSVChildRec* r = children.first();
@@ -289,7 +247,7 @@ void QScrollViewData::autoMove(QScrollView* sv)
     }
 }
 
-void QScrollViewData::autoResize(QScrollView* sv)
+void QScrollViewPrivate::autoResize(QScrollView* sv)
 {
     if ( policy == QScrollView::AutoOne ) {
 	QSVChildRec* r = children.first();
@@ -298,7 +256,7 @@ void QScrollViewData::autoResize(QScrollView* sv)
     }
 }
 
-void QScrollViewData::autoResizeHint(QScrollView* sv)
+void QScrollViewPrivate::autoResizeHint(QScrollView* sv)
 {
     if ( policy == QScrollView::AutoOne ) {
 	QSVChildRec* r = children.first();
@@ -317,7 +275,7 @@ void QScrollViewData::autoResizeHint(QScrollView* sv)
     }
 }
 
-void QScrollViewData::viewportResized( int w, int h )
+void QScrollViewPrivate::viewportResized( int w, int h )
 {
     if ( policy == QScrollView::AutoOneFit ) {
 	QSVChildRec* r = children.first();
@@ -564,10 +522,13 @@ void QScrollViewData::viewportResized( int w, int h )
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( parent, name, f & (~WStaticContents) & (~WNoAutoErase) )
+    QFrame( *new QScrollViewPrivate(),
+            parent, f & (~WStaticContents) & (~WNoAutoErase) )
 {
-    WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WNoAutoErase) | (f&WStaticContents);
-    d = new QScrollViewData( this, flags );
+    d->flags = WResizeNoErase | (f&WPaintClever) | (f&WNoAutoErase) | (f&WStaticContents);
+    d->init();
+    if (name)
+        setObjectName(name);
 
 #ifndef QT_NO_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
@@ -616,8 +577,6 @@ QScrollView::~QScrollView()
     d->hbar = 0;
     delete d->viewport;
     d->viewport = 0;
-    delete d;
-    d = 0;
 }
 
 /*!

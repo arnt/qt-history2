@@ -21,11 +21,12 @@
 
 #ifndef QT_NO_SCROLLVIEW
 
-class QScrollViewData;
+class QScrollViewPrivate;
 
 class Q_GUI_EXPORT QScrollView : public QFrame
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QScrollView);
     Q_ENUMS( ResizePolicy ScrollBarMode )
     Q_PROPERTY( ResizePolicy resizePolicy READ resizePolicy WRITE setResizePolicy )
     Q_PROPERTY( ScrollBarMode vScrollBarMode READ vScrollBarMode WRITE setVScrollBarMode )
@@ -207,8 +208,6 @@ protected:
 private:
     void drawContents( QPainter* );
     void moveContents(int x, int y);
-
-    QScrollViewData* d;
 
 private slots:
     void hslide(int);
