@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#101 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#102 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1472,15 +1472,18 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
     if ( updatelined && !d->currentFileName.isNull() ) {
 	// If the selection is valid, or if its a directory, allow OK.
 	nameEdit->setText( !d->currentFileName.isNull() || info.isDir()
-			    ? info.fileName() : QString("") );
+			   ? info.fileName() : QString("") );
     }
 
-    okB->setEnabled( !d->currentFileName.isNull() || info.isDir() );
-    if ( d->currentFileName.isNull() && info.isDir() ) {
-	okB->setText(tr("Open"));
+    if ( !d->currentFileName.isNull() || info.isDir() ) {
+	okB->setEnabled( TRUE );
+	if ( d->currentFileName.isNull() && info.isDir() )
+	    okB->setText(tr("Open"));
+	else
+	    okB->setText(tr("OK")); // ### Or "Save"...
     } else {
-	okB->setText(tr("OK")); // ### Or "Save"...
-    }
+	okB->setEnabled( FALSE );
+    }	
 
     if ( old != d->currentFileName )
 	emit fileSelected( d->currentFileName );
