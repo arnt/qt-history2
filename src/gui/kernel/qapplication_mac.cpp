@@ -1080,18 +1080,16 @@ void QApplication::beep()
  *****************************************************************************/
 
 /* key maps */
-#ifdef DEBUG_KEY_MAPS
-#define MAP_MAC_ENUM(x) x, #x
-#else
-#define MAP_MAC_ENUM(x) x
-#endif
 
 struct mac_enum_mapper
 {
     int mac_code;
     int qt_code;
-#ifdef DEBUG_KEY_MAPS
+#if defined(DEBUG_KEY_MAPS) || defined(DEBUG_MOUSE_MAPS)
+#   define MAP_MAC_ENUM(x) x, #x
     const char *desc;
+#else
+#   define MAP_MAC_ENUM(x) x
 #endif
 };
 
@@ -1147,7 +1145,7 @@ static Qt::MouseButtons get_buttons(int buttons)
 #endif
     Qt::MouseButtons ret = Qt::NoButton;
     for(int i = 0; mouse_symbols[i].qt_code; i++) {
-        if(buttons & (1<<mouse_symbols[i].mac_code)) {
+        if(buttons & (0x01<<(mouse_symbols[i].mac_code-1))) {
 #ifdef DEBUG_MOUSE_MAPS
             qDebug("Qt: internal: got button: %s", mouse_symbols[i].desc);
 #endif
