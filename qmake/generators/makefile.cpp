@@ -850,6 +850,8 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "UICDECLS");
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
+
+    t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");
     return TRUE;
 }

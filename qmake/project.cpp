@@ -155,7 +155,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
 #define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
     int rep, rep_len;
-    QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
+    QRegExp reg_var("\\$\\$[a-zA-Z0-9_\\.-]*");
     while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
 	QString rep_var = UN_TMAKEIFY(vals.mid(rep + 2, rep_len - 2));
 	const QString &replacement = place[rep_var].join(" ");
@@ -415,7 +415,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	file.replace(QRegExp("\""), "");
 
 	int rep, rep_len;
-	QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
+	QRegExp reg_var("\\$\\$[a-zA-Z0-9_\\.-]*");
 	while((rep = reg_var.match(file, 0, &rep_len)) != -1)
 	    file.replace(rep, rep_len, place[file.mid(rep + 2, rep_len - 2)].join(" "));
 

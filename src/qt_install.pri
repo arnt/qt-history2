@@ -10,7 +10,8 @@ INSTALLS += headers
 
 #plugins
 isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
-plugins.files = $(QTDIR)/plugins/*
+win32:plugins.files = $(QTDIR)/plugins/*
+unix:plugins.extra = $(COPY) -a $(QTDIR)/plugins/* $$plugins.path
 INSTALLS += plugins
 
 #docs
