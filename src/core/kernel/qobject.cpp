@@ -1660,6 +1660,8 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
         Connections *c = (Connections *) qMalloc(sizeof(Connections));
         new (&c->lock) QSpinLock();
         c->count = 1;
+        c->active = false;
+        c->dirty = false;
 
         c->lock.acquire();
         if (!q_atomic_test_and_set_ptr(&connections, 0, c)) {
@@ -1673,8 +1675,30 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
 
     if (!created) {
         connections->lock.acquire();
-        while (i < connections->count && connections->connections[i].receiver)
-            ++i;
+
+        if (connections->dirty && !connections->active) {
+            // some items in the connection list have null-receivers
+            // due to disconnect, indicated by the dirty flag.  The
+            // list is not active currently, which gives us a splendid
+            // opportunity to compress it.
+            int j = 0;
+            while (i < connections->count) {
+                while (j < connections->count && !connections->connections[j].receiver)
+                    ++j;
+                if (j < connections->count)
+                    connections->connections[i] = connections->connections[j++];
+                else
+                    connections->connections[i].receiver = 0;
+                ++i;
+            }
+            connections->dirty = false;
+        }
+
+
+        // pick the first spare item from the end, otherwise grow the list
+        i = connections->count;
+        while (i >0 && !connections->connections[i-1].receiver)
+            --i;
         if (i == connections->count) {
             connections = (Connections *) qRealloc(connections, sizeof(Connections) +
                                                    i*sizeof(Connections::Connection));
@@ -2228,6 +2252,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
                                || (member_index<<1)+membcode-1 == c.member)))) {
             c.receiver->d->derefSender(s);
             c.receiver = 0;
+            s->d->connections->dirty = true;
             if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
                 qFree(c.types);
                 c.types = 0;
@@ -2288,6 +2313,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
         argv = static_argv;
     for (; first || c != 0; c = nc) {
         obj->d->connections->lock.acquire();
+        obj->d->connections->active = true;
         if (first) {
             first = false;
             c = obj->d->findConnection(signal_index, i);
@@ -2315,6 +2341,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             }
         }
 
+        obj->d->connections->active = false;
         obj->d->connections->lock.release();
 
         if (queued) { // QueuedConnection

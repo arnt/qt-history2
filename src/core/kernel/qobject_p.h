@@ -89,6 +89,8 @@ public:
     // signal connections
     struct Connections {
         QSpinLock lock;
+        uint active : 1;
+        uint dirty : 1;
         int count;
         struct Connection {
             int signal;
