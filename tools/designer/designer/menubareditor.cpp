@@ -400,8 +400,7 @@ void MenuBarEditor::showLineEdit( int index )
     lineEdit->setText( i->menuText() );
     lineEdit->selectAll();
     QPoint pos = itemPos( index );
-    lineEdit->move( pos.x() + borderSize, pos.y() );
-    QPainter p( this );
+    lineEdit->move( pos.x() + borderSize, pos.y() - ( borderSize / 2 ) );
     lineEdit->resize( itemSize( i ) );
     lineEdit->show();
     lineEdit->setFocus();
@@ -545,15 +544,18 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
 {
     mousePressPos = e->pos();
     hideItem();
+    lineEdit->hide();
     currentIndex = findItem( mousePressPos );
     showItem();
     update();
     e->accept();
 }
 
-void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * )
+void MenuBarEditor::mouseDoubleClickEvent( QMouseEvent * e )
 {
+    mousePressPos = e->pos();
     currentIndex = findItem( mousePressPos );
+    lineEdit->hide();
     if ( currentIndex > (int)itemList.count() ) {
 	insertSeparator();
 	update();
@@ -838,7 +840,7 @@ QSize MenuBarEditor::itemSize( MenuBarEditorItem * i )
 {
     if ( i->isSeparator() )
 	return QSize( separatorWidth, itemHeight );
-    QRect r = fontMetrics().boundingRect( i->menuText() );
+    QRect r = fontMetrics().boundingRect( i->menuText().remove( "&") );
     return QSize( r.width() + borderSize * 2, r.height() + borderSize * 4 );
 }
 

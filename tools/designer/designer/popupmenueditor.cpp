@@ -375,6 +375,7 @@ void PopupMenuEditor::insert( PopupMenuEditorItem * item, const int index )
 	if ( isVisible() )
 	    currentIndex = index;
     }
+    resizeToContents();
     if ( isVisible() && parentMenu ) {
 	if ( parentMenu->inherits( "PopupMenuEditor" ) )
 	     ((PopupMenuEditor*)parentMenu)->currentItem()->setDirty( TRUE );
@@ -634,6 +635,7 @@ void PopupMenuEditor::remove( const int index )
     PopupMenuEditorItem * i = itemList.at( idx );
     if ( i && i->isRemovable() ) {
 	itemList.remove( idx );
+	resizeToContents();
 	int n = itemList.count() + 1;
 	if ( currentIndex >= n )
 	    currentIndex = itemList.count() + 1;
@@ -1068,6 +1070,7 @@ void PopupMenuEditor::drawItems( QPainter * p )
 {
     int flags = 0;
     int idx = 0;
+    bool dragging = dropLine->isVisible();
     QColorGroup enabled = colorGroup();
     QColorGroup disabled = palette().disabled();
     QRect focus;
@@ -1079,7 +1082,7 @@ void PopupMenuEditor::drawItems( QPainter * p )
 	    rect.setHeight( itemHeight( i ) );
 	    if ( idx == currentIndex )
 		focus = rect;
-	    if ( drawAll || i->isDirty() || draggedItem ) {
+	    if ( drawAll || i->isDirty() || dragging ) {
 		if ( i->anyAction()->isEnabled() ) {
 		    flags = QStyle::Style_Enabled;
 		    p->setPen( enabled.buttonText() );
@@ -1100,14 +1103,14 @@ void PopupMenuEditor::drawItems( QPainter * p )
     rect.setHeight( itemHeight( &addItem ) );
     if ( idx == currentIndex )
 	focus = rect;
-    if ( drawAll || addItem.isDirty() || draggedItem )
+    if ( drawAll || addItem.isDirty() || dragging )
 	drawItem( p, &addItem, rect, QStyle::Style_Default );
     rect.moveBy( 0, rect.height() );
     idx++;
     rect.setHeight( itemHeight( &addSeparator ) );
     if ( idx == currentIndex )
 	focus = rect;
-    if ( drawAll || addSeparator.isDirty() || draggedItem )
+    if ( drawAll || addSeparator.isDirty() || dragging )
 	drawItem( p, &addSeparator, rect, QStyle::Style_Default );
     idx++;
 
