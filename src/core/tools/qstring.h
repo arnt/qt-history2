@@ -186,8 +186,10 @@ public:
 
     enum SplitBehavior { KeepEmptyParts, SkipEmptyParts };
 
-    QStringList split(const QString &sep, SplitBehavior behavior = KeepEmptyParts) const;
-    QStringList split(const QChar &sep, SplitBehavior behavior = KeepEmptyParts) const;
+    QStringList split(const QString &sep, SplitBehavior behavior = KeepEmptyParts, 
+                      Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    QStringList split(const QChar &sep, SplitBehavior behavior = KeepEmptyParts, 
+                      Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     QStringList split(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const;
 
     inline const char *ascii() const { return toAscii(); }

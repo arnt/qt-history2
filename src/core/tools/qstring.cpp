@@ -2442,7 +2442,8 @@ int QString::count(const QRegExp& rx) const
 
 QString QString::section(const QString &sep, int start, int end, int flags) const
 {
-    QStringList sections = split(sep);
+    QStringList sections = split(sep, KeepEmptyParts, 
+                                 (flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive : Qt::CaseSensitive);
     if(sections.isEmpty())
         return QString();
     if(!(flags & SectionSkipEmpty)) {
@@ -2463,29 +2464,30 @@ QString QString::section(const QString &sep, int start, int end, int flags) cons
     }
     int x = 0, run = 0;
     QString ret;
-    for(QStringList::ConstIterator it = sections.constBegin(); x <= end && it != sections.constEnd(); ++it) {
+    for(int i = 0; x <= end && i != sections.size(); ++i) {
+        QString section = sections.at(i);
         if(x >= start) {
-            if((*it).isEmpty()) {
+            if(section.isEmpty()) {
                 run++;
             } else {
                 if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
                     int i_end = run;
                     if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
                         i_end++;
-                    if((flags & SectionIncludeLeadingSep) && it != sections.constBegin() && x == start)
+                    if((flags & SectionIncludeLeadingSep) && i && x == start)
                         i_end++;
                     for(int i = 0; i < i_end; i++)
                         ret += sep;
-                } else if((flags & SectionIncludeLeadingSep) && it != sections.constBegin()) {
+                } else if((flags & SectionIncludeLeadingSep) && i) {
                     ret += sep;
                 }
                 run = 0;
-                ret += (*it);
-                if((flags & SectionIncludeTrailingSep) && it != sections.end())
+                ret += section;
+                if((flags & SectionIncludeTrailingSep) && i != sections.size()-1) 
                     ret += sep;
             }
         }
-        if(!(*it).isEmpty() || !(flags & SectionSkipEmpty))
+        if(!section.isEmpty() || !(flags & SectionSkipEmpty))
             x++;
     }
     return ret;
@@ -5106,13 +5108,13 @@ QString QString::number(double n, char f, int prec)
 
     \sa QStringList::join(), section()
 */
-QStringList QString::split(const QString &sep, SplitBehavior behavior) const
+QStringList QString::split(const QString &sep, SplitBehavior behavior,  Qt::CaseSensitivity cs) const
 {
     QStringList list;
     int start = 0;
     int extra = 0;
     int end;
-    while ((end = indexOf(sep, start + extra)) != -1) {
+    while ((end = indexOf(sep, start + extra, cs)) != -1) {
         if (start != end || behavior == KeepEmptyParts)
             list.append(mid(start, end - start));
         start = end + sep.size();
@@ -5126,12 +5128,12 @@ QStringList QString::split(const QString &sep, SplitBehavior behavior) const
 /*!
     \overload
 */
-QStringList QString::split(const QChar &sep, SplitBehavior behavior) const
+QStringList QString::split(const QChar &sep, SplitBehavior behavior, Qt::CaseSensitivity cs) const
 {
     QStringList list;
     int start = 0;
     int end;
-    while ((end = indexOf(sep, start)) != -1) {
+    while ((end = indexOf(sep, start, cs)) != -1) {
         if (start != end || behavior == KeepEmptyParts)
             list.append(mid(start, end - start));
         start = end + 1;
