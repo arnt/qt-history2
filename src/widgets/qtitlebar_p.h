@@ -40,7 +40,7 @@ class QToolTip;
 class QTitleBarPrivate;
 class QPixmap;
 
-class Q_EXPORT QTitleBar : public QWidget
+class Q_GUI_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )

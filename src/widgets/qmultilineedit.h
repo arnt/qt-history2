@@ -25,7 +25,7 @@ class QMultiLineEditCommand;
 class QValidator;
 class QMultiLineEditData;
 
-class Q_EXPORT QMultiLineEdit : public QTextEdit
+class Q_GUI_EXPORT QMultiLineEdit : public QTextEdit
 {
     Q_OBJECT
     Q_PROPERTY( int numLines READ numLines )

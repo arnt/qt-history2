@@ -26,7 +26,7 @@ class QLineEdit;
 class QValidator;
 class QSpinBoxPrivate;
 
-class Q_EXPORT QSpinBox: public QWidget, public QRangeControl
+class Q_GUI_EXPORT QSpinBox: public QWidget, public QRangeControl
 {
     Q_OBJECT
     Q_ENUMS( ButtonSymbols )

@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_SIZEGRIP
 
-class Q_EXPORT QSizeGrip: public QWidget
+class Q_GUI_EXPORT QSizeGrip: public QWidget
 {
     Q_OBJECT
 public:

@@ -24,7 +24,7 @@
 #ifndef QT_NO_VALIDATOR
 
 
-class Q_EXPORT QValidator : public QObject
+class Q_GUI_EXPORT QValidator : public QObject
 {
     Q_OBJECT
 public:
@@ -44,7 +44,7 @@ private:
 };
 
 
-class Q_EXPORT QIntValidator : public QValidator
+class Q_GUI_EXPORT QIntValidator : public QValidator
 {
     Q_OBJECT
     Q_PROPERTY( int bottom READ bottom WRITE setBottom )
@@ -76,7 +76,7 @@ private:
 
 #ifndef QT_NO_REGEXP
 
-class Q_EXPORT QDoubleValidator : public QValidator
+class Q_GUI_EXPORT QDoubleValidator : public QValidator
 {
     Q_OBJECT
     Q_PROPERTY( double bottom READ bottom WRITE setBottom )
@@ -111,7 +111,7 @@ private:
 };
 
 
-class Q_EXPORT QRegExpValidator : public QValidator
+class Q_GUI_EXPORT QRegExpValidator : public QValidator
 {
     Q_OBJECT
     // Q_PROPERTY( QRegExp regExp READ regExp WRITE setRegExp )

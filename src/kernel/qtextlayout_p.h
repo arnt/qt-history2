@@ -22,7 +22,7 @@
 class QTextEngine;
 class QFont;
 
-class Q_EXPORT QTextItem
+class Q_GUI_EXPORT QTextItem
 {
 public:
     QTextItem( int i, QTextEngine *e ) : itm( i ), eng( e ) {}
@@ -76,7 +76,7 @@ private:
 
 class QPainter;
 
-class Q_EXPORT QTextLayout
+class Q_GUI_EXPORT QTextLayout
 {
 public:
     // does itemization

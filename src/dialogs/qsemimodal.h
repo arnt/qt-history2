@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_COMPAT
 #ifndef QT_NO_SEMIMODAL
-class Q_EXPORT QSemiModal : public QDialog
+class Q_GUI_EXPORT QSemiModal : public QDialog
 {
     Q_OBJECT
 public:

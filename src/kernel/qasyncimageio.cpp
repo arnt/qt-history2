@@ -19,6 +19,7 @@
 #include "qlist.h"
 #include "qtl.h"
 #include "qgif.h"
+#include "qkernelapplication.h"
 #include <stdlib.h>
 
 extern void qt_init_image_handlers();
@@ -400,7 +401,7 @@ QImageFormatType* QImageDecoder::format( QByteArray name )
     qt_init_image_plugins();
 
     int count = QImageDecoderPrivate::factories->count();
-    for (int i = 0; i < count; ++i)	
+    for (int i = 0; i < count; ++i)
     {
 	if ( qstricmp(name,QImageDecoderPrivate::factories->at(i)->formatName())==0 )
 	    return QImageDecoderPrivate::factories->at(i);
@@ -410,7 +411,7 @@ QImageFormatType* QImageDecoder::format( QByteArray name )
 
 /*!
     Call this function to find the name of the format of the given
-    header. The function will look at the first \a length characters 
+    header. The function will look at the first \a length characters
     in the \a buffer.
 
     Returns 0 if the format is not recognized.
@@ -419,7 +420,7 @@ QByteArray QImageDecoder::formatName(const uchar* buffer, int length)
 {
     QImageDecoderPrivate::ensureFactories();
 
-    QByteArray name;    
+    QByteArray name;
     for (int i = 0; name.isEmpty() && i < QImageDecoderPrivate::factories->count(); ++i) {
 	QImageFormat *decoder = QImageDecoderPrivate::factories->at(i)->decoderFor(buffer, length);
 	if (decoder) {

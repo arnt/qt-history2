@@ -26,7 +26,7 @@ class QTipManager;
 class QIconViewToolTip;
 class QListViewToolTip;
 
-class Q_EXPORT QToolTipGroup: public QObject
+class Q_GUI_EXPORT QToolTipGroup: public QObject
 {
     Q_OBJECT
     Q_PROPERTY( bool delay READ delay WRITE setDelay )
@@ -61,7 +61,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class Q_EXPORT QToolTip: public Qt
+class Q_GUI_EXPORT QToolTip: public Qt
 {
 public:
     QToolTip( QWidget *, QToolTipGroup * = 0 );

@@ -26,7 +26,7 @@ class QSyntaxHighlighterInternal;
 class QSyntaxHighlighterPrivate;
 class QTextParagraph;
 
-class Q_EXPORT QSyntaxHighlighter : public Qt
+class Q_GUI_EXPORT QSyntaxHighlighter : public Qt
 {
     friend class QSyntaxHighlighterInternal;
 

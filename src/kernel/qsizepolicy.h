@@ -21,7 +21,7 @@
 
 // Documentation is in qabstractlayout.cpp.
 
-class Q_EXPORT QSizePolicy
+class Q_GUI_EXPORT QSizePolicy
 {
 private:
     enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,

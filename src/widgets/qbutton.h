@@ -27,7 +27,7 @@ class QButtonGroup;
 class QToolBar;
 class QButtonData;
 
-class Q_EXPORT QButton : public QWidget
+class Q_GUI_EXPORT QButton : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( ToggleType ToggleState )

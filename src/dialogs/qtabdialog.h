@@ -26,7 +26,7 @@ class  QTabBar;
 class  QTab;
 class  QTabDialogPrivate;
 
-class Q_EXPORT QTabDialog : public QDialog
+class Q_GUI_EXPORT QTabDialog : public QDialog
 {
     Q_OBJECT
 public:

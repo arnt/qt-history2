@@ -24,7 +24,7 @@
 
 class QBoxLayout;
 
-class Q_EXPORT QHBox : public QFrame
+class Q_GUI_EXPORT QHBox : public QFrame
 {
     Q_OBJECT
 public:

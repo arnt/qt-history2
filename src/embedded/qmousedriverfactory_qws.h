@@ -20,7 +20,7 @@
 class QString;
 class QWSMouseHandler;
 
-class Q_EXPORT QMouseDriverFactory
+class Q_GUI_EXPORT QMouseDriverFactory
 {
 public:
 #ifndef QT_NO_STRINGLIST

@@ -31,7 +31,7 @@ class QBrush;
 class QMimeSourceFactory;
 class QSimpleRichTextData;
 
-class Q_EXPORT QSimpleRichText
+class Q_GUI_EXPORT QSimpleRichText
 {
 public:
     QSimpleRichText( const QString& text, const QFont& fnt,

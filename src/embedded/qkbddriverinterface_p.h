@@ -40,7 +40,7 @@
 
 class QWSKeyboardHandler;
 
-struct Q_EXPORT QKbdDriverInterface : public QFeatureListInterface
+struct Q_GUI_EXPORT QKbdDriverInterface : public QFeatureListInterface
 {
     virtual QWSKeyboardHandler* create( const QString& driver, const QString& device ) = 0;
 };

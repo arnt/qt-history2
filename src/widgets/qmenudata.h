@@ -33,7 +33,7 @@ class QSignal;
 class QCustomMenuItem;
 class QMenuItemData;
 
-class Q_EXPORT QMenuItem			// internal menu item class
+class Q_GUI_EXPORT QMenuItem			// internal menu item class
 {
 friend class QMenuData;
 public:
@@ -97,7 +97,7 @@ typedef QPtrList<QMenuItem>	 QMenuItemList;
 typedef QPtrListIterator<QMenuItem> QMenuItemListIt;
 
 
-class Q_EXPORT QCustomMenuItem : public Qt
+class Q_GUI_EXPORT QCustomMenuItem : public Qt
 {
 public:
     QCustomMenuItem();
@@ -111,7 +111,7 @@ public:
 };
 
 
-class Q_EXPORT QMenuData			// menu data class
+class Q_GUI_EXPORT QMenuData			// menu data class
 {
 friend class QMenuBar;
 friend class QPopupMenu;

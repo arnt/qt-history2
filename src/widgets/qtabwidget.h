@@ -28,7 +28,7 @@ class QTab;
 class QWidgetStack;
 
 
-class Q_EXPORT QTabWidget : public QWidget
+class Q_GUI_EXPORT QTabWidget : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( TabPosition )

@@ -25,7 +25,7 @@
 class QWSMouseHandler;
 class QMouseDriverPluginPrivate;
 
-class Q_EXPORT QMouseDriverPlugin : public QGPlugin
+class Q_GUI_EXPORT QMouseDriverPlugin : public QGPlugin
 {
     Q_OBJECT
 public:

@@ -22,7 +22,7 @@
 class QString;
 class QStyle;
 
-class Q_EXPORT QStyleFactory
+class Q_GUI_EXPORT QStyleFactory
 {
 public:
 #ifndef QT_NO_STRINGLIST

@@ -40,7 +40,7 @@
 
 class QWSMouseHandler;
 
-struct Q_EXPORT QMouseDriverInterface : public QFeatureListInterface
+struct Q_GUI_EXPORT QMouseDriverInterface : public QFeatureListInterface
 {
     virtual QWSMouseHandler* create( const QString& driver, const QString &device ) = 0;
 };

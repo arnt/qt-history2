@@ -27,7 +27,7 @@ class QToolButton;
 class QPopupMenu;
 class QStyleSheet;
 
-class Q_EXPORT QWhatsThis: public Qt
+class Q_GUI_EXPORT QWhatsThis: public Qt
 {
 public:
     QWhatsThis( QWidget *);

@@ -25,7 +25,7 @@
 
 class QSessionManagerPrivate;
 
-class Q_EXPORT  QSessionManager : public QObject
+class Q_GUI_EXPORT  QSessionManager : public QObject
 {
     Q_OBJECT
     QSessionManager( QApplication *app, QString &id, QString &key );

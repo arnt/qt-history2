@@ -25,7 +25,7 @@ class QIODevice;
 class QObject;
 class QMoviePrivate;
 
-class Q_EXPORT QMovie {
+class Q_GUI_EXPORT QMovie {
 public:
     QMovie();
     QMovie(int bufsize);

@@ -22,7 +22,7 @@
 
 class QSoundData;
 
-class Q_EXPORT QSound : public QObject {
+class Q_GUI_EXPORT QSound : public QObject {
     Q_OBJECT
 public:
     static bool isAvailable();

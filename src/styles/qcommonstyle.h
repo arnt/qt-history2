@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_STYLE
 
-class Q_EXPORT QCommonStyle: public QStyle
+class Q_GUI_EXPORT QCommonStyle: public QStyle
 {
     Q_OBJECT
 

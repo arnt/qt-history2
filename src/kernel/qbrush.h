@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QBrush: public Qt
+class Q_GUI_EXPORT QBrush: public Qt
 {
 public:
     QBrush();
@@ -74,8 +74,8 @@ private:
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QBrush & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QBrush & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QBrush & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QBrush & );
 #endif
 
 #endif // QBRUSH_H

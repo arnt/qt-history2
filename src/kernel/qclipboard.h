@@ -24,7 +24,7 @@
 
 class QMimeSource;
 
-class Q_EXPORT QClipboard : public QObject
+class Q_GUI_EXPORT QClipboard : public QObject
 {
     Q_OBJECT
 private:

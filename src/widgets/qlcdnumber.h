@@ -25,7 +25,7 @@
 
 class QLCDNumberPrivate;
 
-class Q_EXPORT QLCDNumber : public QFrame		// LCD number widget
+class Q_GUI_EXPORT QLCDNumber : public QFrame		// LCD number widget
 {
     Q_OBJECT
     Q_ENUMS( Mode SegmentStyle )

@@ -24,7 +24,7 @@
 class QSimpleRichText;
 class QLabelPrivate;
 
-class Q_EXPORT QLabel : public QFrame
+class Q_GUI_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )

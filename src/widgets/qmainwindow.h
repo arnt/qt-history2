@@ -31,7 +31,7 @@ class QMainWindowPrivate;
 class QMainWindowLayout;
 class QPopupMenu;
 
-class Q_EXPORT QMainWindow: public QWidget
+class Q_GUI_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool rightJustification READ rightJustification WRITE setRightJustification DESIGNABLE false )
@@ -225,8 +225,8 @@ inline void QMainWindow::setToolBarsMovable( bool b )
 #endif
 
 #ifndef QT_NO_TEXTSTREAM
-Q_EXPORT QTextStream &operator<<( QTextStream &, const QMainWindow & );
-Q_EXPORT QTextStream &operator>>( QTextStream &, QMainWindow & );
+Q_GUI_EXPORT QTextStream &operator<<( QTextStream &, const QMainWindow & );
+Q_GUI_EXPORT QTextStream &operator>>( QTextStream &, QMainWindow & );
 #endif
 
 #endif // QT_NO_MAINWINDOW

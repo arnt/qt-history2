@@ -71,7 +71,7 @@ struct QBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextStringChar
+class Q_GUI_EXPORT QTextStringChar
 {
     friend class QTextString;
 
@@ -147,11 +147,11 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<QTextStringChar>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMemArray<QTextStringChar>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QTextString
+class Q_GUI_EXPORT QTextString
 {
 public:
 
@@ -270,12 +270,12 @@ inline bool QTextString::validCursorPosition( int idx )
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QStack<int>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QStack<QTextParagraph*>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QStack<int>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QStack<QTextParagraph*>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QTextCursor
+class Q_GUI_EXPORT QTextCursor
 {
 public:
     QTextCursor( QTextDocument * = 0 );
@@ -366,7 +366,7 @@ private:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextCommand
+class Q_GUI_EXPORT QTextCommand
 {
 public:
     enum Commands { Invalid, Insert, Delete, Format, Style };
@@ -387,11 +387,11 @@ protected:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextCommand *>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextCommand *>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QTextCommandHistory
+class Q_GUI_EXPORT QTextCommandHistory
 {
 public:
     QTextCommandHistory( int s ) : current( -1 ), steps( s ) { history.setAutoDelete( TRUE ); }
@@ -426,7 +426,7 @@ inline QTextCommandHistory::~QTextCommandHistory()
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_EXPORT QTextCustomItem
+class Q_GUI_EXPORT QTextCustomItem
 {
 public:
     QTextCustomItem( QTextDocument *p )
@@ -478,12 +478,12 @@ public:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, QString>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<QString, QString>;
 // MOC_SKIP_END
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_EXPORT QTextImage : public QTextCustomItem
+class Q_GUI_EXPORT QTextImage : public QTextCustomItem
 {
 public:
     QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
@@ -511,7 +511,7 @@ private:
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_EXPORT QTextHorizontalLine : public QTextCustomItem
+class Q_GUI_EXPORT QTextHorizontalLine : public QTextCustomItem
 {
 public:
     QTextHorizontalLine( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
@@ -536,12 +536,12 @@ private:
 #ifndef QT_NO_TEXTCUSTOMITEM
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextCustomItem *>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextCustomItem *>;
 // MOC_SKIP_END
 #endif
 #endif
 
-class Q_EXPORT QTextFlow
+class Q_GUI_EXPORT QTextFlow
 {
     friend class QTextDocument;
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -590,7 +590,7 @@ inline int QTextFlow::width() const { return w; }
 #ifndef QT_NO_TEXTCUSTOMITEM
 class QTextTable;
 
-class Q_EXPORT QTextTableCell : public QLayoutItem
+class Q_GUI_EXPORT QTextTableCell : public QLayoutItem
 {
     friend class QTextTable;
 
@@ -656,13 +656,13 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextTableCell *>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QTextCursor*, int>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextTableCell *>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<QTextCursor*, int>;
 // MOC_SKIP_END
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_EXPORT QTextTable: public QTextCustomItem
+class Q_GUI_EXPORT QTextTable: public QTextCustomItem
 {
     friend class QTextTableCell;
 
@@ -727,7 +727,7 @@ class QTextTableCell;
 class QTextParagraph;
 #endif
 
-struct Q_EXPORT QTextDocumentSelection
+struct Q_GUI_EXPORT QTextDocumentSelection
 {
     QTextCursor startCursor, endCursor;
     bool swapped;
@@ -736,14 +736,14 @@ struct Q_EXPORT QTextDocumentSelection
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QColor>;
-//Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, bool>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextDocumentSelection>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextDocument *>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QColor>;
+//Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, bool>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QTextDocumentSelection>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QList<QTextDocument *>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QTextDocument : public QObject
+class Q_GUI_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
 
@@ -952,7 +952,7 @@ private:
     void setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *> *>& styles, QTextParagraph* stylesPar );
 
 private:
-    struct Q_EXPORT Focus {
+    struct Q_GUI_EXPORT Focus {
 	QTextParagraph *parag;
 	int start, len;
 	QString href;
@@ -1018,7 +1018,7 @@ private:
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-class Q_EXPORT QTextDeleteCommand : public QTextCommand
+class Q_GUI_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
     QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
@@ -1038,7 +1038,7 @@ protected:
 
 };
 
-class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
+class Q_GUI_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
     QTextInsertCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
@@ -1054,7 +1054,7 @@ public:
 
 };
 
-class Q_EXPORT QTextFormatCommand : public QTextCommand
+class Q_GUI_EXPORT QTextFormatCommand : public QTextCommand
 {
 public:
     QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl );
@@ -1072,7 +1072,7 @@ protected:
 
 };
 
-class Q_EXPORT QTextStyleCommand : public QTextCommand
+class Q_GUI_EXPORT QTextStyleCommand : public QTextCommand
 {
 public:
     QTextStyleCommand( QTextDocument *dc, int fParag, int lParag, const QByteArray& beforeChange  );
@@ -1093,13 +1093,13 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-struct Q_EXPORT QTextParagraphSelection
+struct Q_GUI_EXPORT QTextParagraphSelection
 {
     int start, end;
     Q_DUMMY_COMPARISON_OPERATOR(QTextParagraphSelection)
 };
 
-struct Q_EXPORT QTextLineStart
+struct Q_GUI_EXPORT QTextLineStart
 {
     QTextLineStart() : y( 0 ), baseLine( 0 ), h( 0 )
     {  }
@@ -1114,12 +1114,12 @@ public:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextParagraphSelection>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextLineStart*>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QTextParagraphSelection>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QMap<int, QTextLineStart*>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QTextParagraphData
+class Q_GUI_EXPORT QTextParagraphData
 {
 public:
     QTextParagraphData() {}
@@ -1131,7 +1131,7 @@ class QTextParagraphPseudoDocument;
 
 class QSyntaxHighlighter;
 
-class Q_EXPORT QTextParagraph
+class Q_GUI_EXPORT QTextParagraph
 {
     friend class QTextDocument;
     friend class QTextCursor;
@@ -1352,7 +1352,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextFormatter
+class Q_GUI_EXPORT QTextFormatter
 {
 public:
     QTextFormatter();
@@ -1391,7 +1391,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextFormatterBreakInWords : public QTextFormatter
+class Q_GUI_EXPORT QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakInWords();
@@ -1403,7 +1403,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextFormatterBreakWords : public QTextFormatter
+class Q_GUI_EXPORT QTextFormatterBreakWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakWords();
@@ -1415,7 +1415,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextIndent
+class Q_GUI_EXPORT QTextIndent
 {
 public:
     QTextIndent();
@@ -1427,7 +1427,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextPreProcessor
+class Q_GUI_EXPORT QTextPreProcessor
 {
 public:
     enum Ids {
@@ -1444,7 +1444,7 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_EXPORT QTextFormat
+class Q_GUI_EXPORT QTextFormat
 {
     friend class QTextFormatCollection;
     friend class QTextDocument;
@@ -1553,11 +1553,11 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QTextFormat>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QDict<QTextFormat>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QTextFormatCollection
+class Q_GUI_EXPORT QTextFormatCollection
 {
     friend class QTextDocument;
     friend class QTextFormat;
@@ -1595,7 +1595,7 @@ private:
     QPaintDevice *paintdevice;
 };
 
-class Q_EXPORT QTextParagraphPseudoDocument
+class Q_GUI_EXPORT QTextParagraphPseudoDocument
 {
 public:
     QTextParagraphPseudoDocument();

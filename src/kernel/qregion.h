@@ -25,7 +25,7 @@
 struct QRegionPrivate;
 #endif
 
-class Q_EXPORT QRegion
+class Q_GUI_EXPORT QRegion
 {
 public:
     enum RegionType { Rectangle, Ellipse };
@@ -86,8 +86,8 @@ public:
 #endif
 
 #ifndef QT_NO_DATASTREAM
-    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
-    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
+    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
+    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
 #endif
 private:
     QRegion copy() const;   // helper of detach.
@@ -143,8 +143,8 @@ QRegion operator*(const QWMatrix &, const QRegion &);
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
 #endif
 
 #endif // QREGION_H

@@ -22,7 +22,7 @@
 class QApplication;
 class QDesktopWidgetPrivate; /* Don't touch! */
 
-class Q_EXPORT QDesktopWidget : public QWidget
+class Q_GUI_EXPORT QDesktopWidget : public QWidget
 {
     Q_OBJECT
 public:

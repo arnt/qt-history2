@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QBitmap : public QPixmap
+class Q_GUI_EXPORT QBitmap : public QPixmap
 {
 public:
     QBitmap();

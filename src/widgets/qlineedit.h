@@ -30,7 +30,7 @@ class QPopupMenu;
 class QTextParagraph;
 class QTextCursor;
 
-class Q_EXPORT QLineEdit : public QFrame
+class Q_GUI_EXPORT QLineEdit : public QFrame
 {
     Q_OBJECT
     Q_ENUMS( EchoMode )

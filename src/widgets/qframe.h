@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_FRAME
 
-class Q_EXPORT QFrame : public QWidget
+class Q_GUI_EXPORT QFrame : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( Shape Shadow )

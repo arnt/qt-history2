@@ -26,7 +26,7 @@ struct QSliderPrivate;
 
 class QTimer;
 
-class Q_EXPORT QSlider : public QWidget, public QRangeControl
+class Q_GUI_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
     Q_ENUMS( TickSetting )

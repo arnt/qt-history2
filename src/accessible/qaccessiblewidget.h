@@ -23,7 +23,7 @@
 
 class QAccessibleWidgetPrivate;
 
-class Q_EXPORT QAccessibleWidget : public QAccessibleObject
+class Q_GUI_EXPORT QAccessibleWidget : public QAccessibleObject
 {
 public:
     QAccessibleWidget(QWidget *o, Role r = Client, const QString& name = QString());

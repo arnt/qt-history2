@@ -33,7 +33,7 @@
 #if !defined( QT_MODULE_ICONVIEW ) || defined( QT_INTERNAL_ICONVIEW )
 #define QM_EXPORT_ICONVIEW
 #else
-#define QM_EXPORT_ICONVIEW Q_EXPORT
+#define QM_EXPORT_ICONVIEW Q_GUI_EXPORT
 #endif
 
 class QIconView;

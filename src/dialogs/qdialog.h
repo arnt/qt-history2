@@ -26,7 +26,7 @@ Q_OBJECT
 class QPushButton;
 class QDialogPrivate;
 
-class Q_EXPORT QDialog : public QWidget
+class Q_GUI_EXPORT QDialog : public QWidget
 {
 friend class QPushButton;
     Q_OBJECT

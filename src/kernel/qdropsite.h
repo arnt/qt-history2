@@ -23,7 +23,7 @@
 class QWidget;
 
 
-class Q_EXPORT QDropSite {
+class Q_GUI_EXPORT QDropSite {
 public:
     QDropSite( QWidget* parent );
     virtual ~QDropSite();

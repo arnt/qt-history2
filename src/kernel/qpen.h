@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPen: public Qt
+class Q_GUI_EXPORT QPen: public Qt
 {
 public:
     QPen();
@@ -65,8 +65,8 @@ private:
   QPen stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QPen & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QPen & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPen & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPen & );
 #endif
 
 #endif // QPEN_H

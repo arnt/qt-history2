@@ -19,6 +19,7 @@
 #include "qasyncimageio.h"
 #include "qiodevice.h"
 #include "qlist.h"
+#include "qkernelapplication.h"
 
 #include <png.h>
 

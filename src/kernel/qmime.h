@@ -26,7 +26,7 @@ class QImageDrag;
 class QTextDrag;
 template<class Key, class T> class QMap;
 
-class Q_EXPORT QMimeSource
+class Q_GUI_EXPORT QMimeSource
 {
     friend class QClipboardData;
 
@@ -68,7 +68,7 @@ inline int QMimeSource::serialNumber() const
 class QStringList;
 class QMimeSourceFactoryData;
 
-class Q_EXPORT QMimeSourceFactory {
+class Q_GUI_EXPORT QMimeSourceFactory {
 public:
     QMimeSourceFactory();
     virtual ~QMimeSourceFactory();
@@ -105,7 +105,7 @@ private:
   directly.
 */
 
-class Q_EXPORT QWindowsMime {
+class Q_GUI_EXPORT QWindowsMime {
 public:
     QWindowsMime();
     virtual ~QWindowsMime();
@@ -137,7 +137,7 @@ public:
   directly.
 */
 
-class Q_EXPORT QMacMime {
+class Q_GUI_EXPORT QMacMime {
     char type;
 public:
     enum QMacMimeType { MIME_DND=0x01, MIME_CLIP=0x02, MIME_QT_CONVERTOR=0x04, MIME_ALL=MIME_DND|MIME_CLIP };

@@ -25,7 +25,7 @@
 class QWSKeyboardHandler;
 class QKbdDriverPluginPrivate;
 
-class Q_EXPORT QKbdDriverPlugin : public QGPlugin
+class Q_GUI_EXPORT QKbdDriverPlugin : public QGPlugin
 {
     Q_OBJECT
 public:

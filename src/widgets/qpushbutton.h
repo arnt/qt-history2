@@ -24,7 +24,7 @@
 class QPushButtonPrivate;
 class QPopupMenu;
 
-class Q_EXPORT QPushButton : public QButton
+class Q_GUI_EXPORT QPushButton : public QButton
 {
     Q_OBJECT
 

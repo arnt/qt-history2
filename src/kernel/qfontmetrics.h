@@ -27,7 +27,7 @@ class QFontEngine;
 class QTextCodec;
 class QTextParag;
 
-class Q_EXPORT QFontMetrics
+class Q_GUI_EXPORT QFontMetrics
 {
 public:
     QFontMetrics( const QFont & );

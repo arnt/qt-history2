@@ -37,7 +37,7 @@ class QMimeSource;
 class QLineEdit;
 class QListViewToolTip;
 
-class Q_EXPORT QListViewItem : public Qt
+class Q_GUI_EXPORT QListViewItem : public Qt
 {
     friend class QListViewItemIterator;
     friend class QListViewToolTip;
@@ -208,7 +208,7 @@ private:
 
 class QCheckListItem;
 
-class Q_EXPORT QListView: public QScrollView
+class Q_GUI_EXPORT QListView: public QScrollView
 {
     friend class QListViewItemIterator;
     friend class QListViewItem;
@@ -440,7 +440,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-class Q_EXPORT QCheckListItem : public QListViewItem
+class Q_GUI_EXPORT QCheckListItem : public QListViewItem
 {
 public:
     enum Type { RadioButton,
@@ -512,7 +512,7 @@ private:
     QCheckListItemPrivate *d;
 };
 
-class Q_EXPORT QListViewItemIterator
+class Q_GUI_EXPORT QListViewItemIterator
 {
     friend struct QListViewPrivate;
     friend class QListView;

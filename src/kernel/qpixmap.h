@@ -32,7 +32,7 @@ class QMultiCellPixmap;
 #endif
 
 
-class Q_EXPORT QPixmap : public QPaintDevice, public Qt
+class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt
 {
 public:
     enum ColorMode { Auto, Color, Mono };
@@ -228,13 +228,13 @@ private:
 				   int sw, int sh, bool useDstAlpha );
 #endif
     static Optimization defOptim;
-    friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
+    friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
 				 int, int, int, int, RasterOp, bool );
-    friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
+    friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QImage* src,
 				 int, int, int, int, int conversion_flags );
-    friend Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+    friend Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 				  const QPixmap *src, int sx, int sy,
 				  int sw, int sh );
 
@@ -312,15 +312,15 @@ inline bool QPixmap::isMultiCellPixmap() const
  *****************************************************************************/
 
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
 #endif
 
 /*****************************************************************************
   QPixmap (and QImage) helper functions
  *****************************************************************************/
 
-Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
+Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx = 0, int sy = 0,
 		       int sw = -1, int sh = -1 );
 

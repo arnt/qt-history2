@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_VBUTTONGROUP
 
-class Q_EXPORT QVButtonGroup : public QButtonGroup
+class Q_GUI_EXPORT QVButtonGroup : public QButtonGroup
 {
     Q_OBJECT
 public:

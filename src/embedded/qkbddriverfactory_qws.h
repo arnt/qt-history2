@@ -20,7 +20,7 @@
 class QString;
 class QWSKeyboardHandler;
 
-class Q_EXPORT QKbdDriverFactory
+class Q_GUI_EXPORT QKbdDriverFactory
 {
 public:
 #ifndef QT_NO_STRINGLIST

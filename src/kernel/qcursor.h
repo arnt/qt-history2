@@ -25,7 +25,7 @@
 */
 #ifdef QT_NO_CURSOR
 
-class Q_EXPORT QCursor : public Qt
+class Q_GUI_EXPORT QCursor : public Qt
 {
 public:
     static QPoint pos();
@@ -42,7 +42,7 @@ private:
 struct QCursorData;
 
 
-class Q_EXPORT QCursor : public Qt
+class Q_GUI_EXPORT QCursor : public Qt
 {
 public:
     QCursor();				// create default arrow cursor
@@ -112,8 +112,8 @@ typedef Qt::CursorShape QCursorShape;
   QCursor stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QCursor & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QCursor & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QCursor & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QCursor & );
 #endif
 #endif // QT_NO_CURSOR
 

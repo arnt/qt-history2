@@ -25,7 +25,7 @@
 class QScreen;
 class QGfxDriverPluginPrivate;
 
-class Q_EXPORT QGfxDriverPlugin : public QGPlugin
+class Q_GUI_EXPORT QGfxDriverPlugin : public QGPlugin
 {
     Q_OBJECT
 public:

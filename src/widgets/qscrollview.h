@@ -23,7 +23,7 @@
 
 class QScrollViewData;
 
-class Q_EXPORT QScrollView : public QFrame
+class Q_GUI_EXPORT QScrollView : public QFrame
 {
     Q_OBJECT
     Q_ENUMS( ResizePolicy ScrollBarMode )

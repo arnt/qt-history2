@@ -25,7 +25,7 @@ class  QLabel;
 class  QPushButton;
 struct QMessageBoxData;
 
-class Q_EXPORT QMessageBox : public QDialog
+class Q_GUI_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
     Q_ENUMS( Icon )

@@ -22,7 +22,7 @@
 #  include "qrgb.h"
 #endif // QT_H
 
-class Q_EXPORT QColor
+class Q_GUI_EXPORT QColor
 {
 public:
     enum Spec { Rgb, Hsv };
@@ -166,8 +166,8 @@ inline bool QColor::operator!=( const QColor &c ) const
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QColor & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QColor & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QColor & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QColor & );
 #endif
 
 #endif // QCOLOR_H

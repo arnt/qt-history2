@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPaintDeviceMetrics			// paint device metrics
+class Q_GUI_EXPORT QPaintDeviceMetrics			// paint device metrics
 {
 public:
     QPaintDeviceMetrics( const QPaintDevice * );

@@ -21,7 +21,7 @@
 
 class QGridLayout;
 
-class Q_EXPORT QGrid : public QFrame
+class Q_GUI_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:

@@ -29,7 +29,7 @@
 
 class QPrinterPrivate;
 
-class Q_EXPORT QPrinter : public QPaintDevice
+class Q_GUI_EXPORT QPrinter : public QPaintDevice
 {
 public:
     enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution, Compatible };

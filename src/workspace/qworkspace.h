@@ -24,7 +24,7 @@
 #if !defined( QT_MODULE_WORKSPACE ) || defined( QT_INTERNAL_WORKSPACE )
 #define QM_EXPORT_WORKSPACE
 #else
-#define QM_EXPORT_WORKSPACE Q_EXPORT
+#define QM_EXPORT_WORKSPACE Q_GUI_EXPORT
 #endif
 
 class QWorkspaceChild;

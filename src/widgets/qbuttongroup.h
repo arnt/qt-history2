@@ -26,7 +26,7 @@ class QButton;
 class QButtonList;
 
 
-class Q_EXPORT QButtonGroup : public QGroupBox
+class Q_GUI_EXPORT QButtonGroup : public QGroupBox
 {
     Q_OBJECT
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )

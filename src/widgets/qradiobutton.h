@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_RADIOBUTTON
 
-class Q_EXPORT QRadioButton : public QButton
+class Q_GUI_EXPORT QRadioButton : public QButton
 {
     Q_OBJECT
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )

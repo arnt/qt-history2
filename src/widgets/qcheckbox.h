@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_CHECKBOX
 
-class Q_EXPORT QCheckBox : public QButton
+class Q_GUI_EXPORT QCheckBox : public QButton
 {
     Q_OBJECT
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )

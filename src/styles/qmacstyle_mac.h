@@ -24,14 +24,14 @@
 class QPalette;
 
 #if defined(QT_PLUGIN)
-#define Q_EXPORT_STYLE_MAC
+#define Q_GUI_EXPORT_STYLE_MAC
 #else
-#define Q_EXPORT_STYLE_MAC Q_EXPORT
+#define Q_GUI_EXPORT_STYLE_MAC Q_GUI_EXPORT
 #endif
 
 class QMacStylePrivate;
 
-class Q_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
+class Q_GUI_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:

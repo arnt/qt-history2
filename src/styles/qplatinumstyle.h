@@ -24,12 +24,12 @@
 class QPalette;
 
 #if defined(QT_PLUGIN)
-#define Q_EXPORT_STYLE_PLATINUM
+#define Q_GUI_EXPORT_STYLE_PLATINUM
 #else
-#define Q_EXPORT_STYLE_PLATINUM Q_EXPORT
+#define Q_GUI_EXPORT_STYLE_PLATINUM Q_GUI_EXPORT
 #endif
 
-class Q_EXPORT_STYLE_PLATINUM QPlatinumStyle : public QWindowsStyle
+class Q_GUI_EXPORT_STYLE_PLATINUM QPlatinumStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:

@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QPixmapCache				// global pixmap cache
+class Q_GUI_EXPORT QPixmapCache				// global pixmap cache
 {
 public:
     static  int  cacheLimit();

@@ -22,14 +22,14 @@
 #ifndef QT_NO_STYLE_POCKETPC
 
 #if defined(QT_PLUGIN)
-#define Q_EXPORT_STYLE_POCKETPC
+#define Q_GUI_EXPORT_STYLE_POCKETPC
 #else
-#define Q_EXPORT_STYLE_POCKETPC Q_EXPORT
+#define Q_GUI_EXPORT_STYLE_POCKETPC Q_GUI_EXPORT
 #endif
 
 
 #ifndef Q_QDOC
-class Q_EXPORT_STYLE_POCKETPC QPocketPCStyle : public QWindowsStyle
+class Q_GUI_EXPORT_STYLE_POCKETPC QPocketPCStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:

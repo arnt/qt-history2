@@ -27,7 +27,7 @@ class QPushButton;
 class QTimer;
 class QProgressDialogData;
 
-class Q_EXPORT QProgressDialog : public QDialog
+class Q_GUI_EXPORT QProgressDialog : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY( bool wasCancelled READ wasCancelled DESIGNABLE false STORED false ) // ### remove in 4.0

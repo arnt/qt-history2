@@ -20,7 +20,7 @@
 class QString;
 class QScreen;
 
-class Q_EXPORT QGfxDriverFactory
+class Q_GUI_EXPORT QGfxDriverFactory
 {
 public:
 #ifndef QT_NO_STRINGLIST

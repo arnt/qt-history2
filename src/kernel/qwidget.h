@@ -58,7 +58,7 @@ class QHideEvent;
 
 class QWidgetPrivate;
 
-class Q_EXPORT QWidget : public QObject, public QPaintDevice
+class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
     Q_ENUMS( BackgroundMode FocusPolicy )

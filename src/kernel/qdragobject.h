@@ -31,7 +31,7 @@ class QImageDragData;
 
 #ifndef QT_NO_MIME
 
-class Q_EXPORT QDragObject: public QObject, public QMimeSource {
+class Q_GUI_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
 public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
@@ -69,7 +69,7 @@ private:
 #endif
 };
 
-class Q_EXPORT QStoredDrag: public QDragObject {
+class Q_GUI_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
     QStoredDragData * d;
 
@@ -90,7 +90,7 @@ private:
 #endif
 };
 
-class Q_EXPORT QTextDrag: public QDragObject {
+class Q_GUI_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
     QTextDragPrivate* d;
 public:
@@ -116,7 +116,7 @@ private:
 #endif
 };
 
-class Q_EXPORT QImageDrag: public QDragObject {
+class Q_GUI_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     QImageDragData* d;
 
@@ -142,7 +142,7 @@ private:
 };
 
 
-class Q_EXPORT QUriDrag: public QStoredDrag {
+class Q_GUI_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
@@ -171,7 +171,7 @@ private:
 #endif
 };
 
-class Q_EXPORT QColorDrag : public QStoredDrag
+class Q_GUI_EXPORT QColorDrag : public QStoredDrag
 {
     Q_OBJECT
     QColor color;
@@ -202,7 +202,7 @@ typedef QUriDrag QUrlDrag;
 // member functions.
 //
 
-class Q_EXPORT QDragManager: public QObject {
+class Q_GUI_EXPORT QDragManager: public QObject {
     Q_OBJECT
 
 private:

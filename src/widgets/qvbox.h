@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_VBOX
 
-class Q_EXPORT QVBox : public QHBox
+class Q_GUI_EXPORT QVBox : public QHBox
 {
     Q_OBJECT
 public:

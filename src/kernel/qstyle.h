@@ -97,7 +97,7 @@ private:
 
 class QStyleHintReturn; // not defined yet
 
-class Q_EXPORT QStyle: public QObject
+class Q_GUI_EXPORT QStyle: public QObject
 {
     Q_OBJECT
 

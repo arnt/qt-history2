@@ -145,4 +145,9 @@ inline QString QKernelApplication::translate( const char *, const char *sourceTe
 }
 #endif
 
+Q_KERNEL_EXPORT void qAddPostRoutine( QtCleanUpFunction );
+Q_KERNEL_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
+Q_KERNEL_EXPORT const char *qAppName();		// get application name
+
+
 #endif

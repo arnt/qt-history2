@@ -30,7 +30,7 @@ class QListBox;
 class QComboBoxData;
 class QWheelEvent;
 
-class Q_EXPORT QComboBox : public QWidget
+class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( Policy )

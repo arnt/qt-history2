@@ -40,7 +40,7 @@ class QMacSavedPortInfo;
 #endif
 class QPainterPrivate;
 
-class Q_EXPORT QPainter : public Qt
+class Q_GUI_EXPORT QPainter : public Qt
 {
 public:
     enum CoordinateMode { CoordDevice, CoordPainter };

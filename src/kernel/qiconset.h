@@ -24,7 +24,7 @@
 
 class QIconSetData;
 
-class Q_EXPORT QIconSet
+class Q_GUI_EXPORT QIconSet
 {
 public:
     enum Size { Automatic, Small, Large };

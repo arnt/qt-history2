@@ -40,7 +40,7 @@
 
 class QScreen;
 
-struct Q_EXPORT QGfxDriverInterface : public QFeatureListInterface
+struct Q_GUI_EXPORT QGfxDriverInterface : public QFeatureListInterface
 {
     virtual QScreen* create( const QString& driver, int displayId ) = 0;
 };

@@ -26,7 +26,7 @@
 class QStyle;
 class QStylePluginPrivate;
 
-class Q_EXPORT QStylePlugin : public QGPlugin
+class Q_GUI_EXPORT QStylePlugin : public QGPlugin
 {
     Q_OBJECT
 public:

@@ -34,7 +34,7 @@ class QMouseEvent;
 class QDockWindowResizeHandle;
 class QDockAreaPrivate;
 
-class Q_EXPORT QDockAreaLayout : public QLayout
+class Q_GUI_EXPORT QDockAreaLayout : public QLayout
 {
     Q_OBJECT
     friend class QDockArea;
@@ -77,7 +77,7 @@ private:
 #endif
 };
 
-class Q_EXPORT QDockArea : public QWidget
+class Q_GUI_EXPORT QDockArea : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( HandlePosition )
@@ -154,8 +154,8 @@ private:	// Disabled copy constructor and operator=
 };
 
 #ifndef QT_NO_TEXTSTREAM
-Q_EXPORT QTextStream &operator<<( QTextStream &, const QDockArea & );
-Q_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
+Q_GUI_EXPORT QTextStream &operator<<( QTextStream &, const QDockArea & );
+Q_GUI_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
 #endif
 
 #define Q_DEFINED_QDOCKAREA

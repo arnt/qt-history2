@@ -22,12 +22,12 @@
 #if !defined(QT_NO_STYLE_COMPACT) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
-#define Q_EXPORT_STYLE_COMPACT
+#define Q_GUI_EXPORT_STYLE_COMPACT
 #else
-#define Q_EXPORT_STYLE_COMPACT Q_EXPORT
+#define Q_GUI_EXPORT_STYLE_COMPACT Q_GUI_EXPORT
 #endif
 
-class Q_EXPORT_STYLE_COMPACT QCompactStyle : public QWindowsStyle
+class Q_GUI_EXPORT_STYLE_COMPACT QCompactStyle : public QWindowsStyle
 {
 public:
     QCompactStyle();

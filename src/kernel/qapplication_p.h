@@ -44,9 +44,9 @@ class QKeyEvent;
 class QMouseEvent;
 class QWheelEvent;
 
-extern Q_EXPORT bool qt_modal_state();
-extern Q_EXPORT void qt_enter_modal( QWidget* );
-extern Q_EXPORT void qt_leave_modal( QWidget* );
+extern Q_GUI_EXPORT bool qt_modal_state();
+extern Q_GUI_EXPORT void qt_enter_modal( QWidget* );
+extern Q_GUI_EXPORT void qt_leave_modal( QWidget* );
 
 extern bool qt_is_gui_used;
 #ifndef QT_NO_CLIPBOARD

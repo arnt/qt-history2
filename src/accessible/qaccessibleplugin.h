@@ -24,7 +24,7 @@
 class QAccessiblePluginPrivate;
 struct QAccessibleInterface;
 
-class Q_EXPORT QAccessiblePlugin : public QGPlugin
+class Q_GUI_EXPORT QAccessiblePlugin : public QGPlugin
 {
 public:
     QAccessiblePlugin();

@@ -21,7 +21,7 @@
 
 #ifndef QT_NO_VGROUPBOX
 
-class Q_EXPORT QVGroupBox : public QGroupBox
+class Q_GUI_EXPORT QVGroupBox : public QGroupBox
 {
     Q_OBJECT
 public:

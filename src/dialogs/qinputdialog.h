@@ -27,7 +27,7 @@ class QSpinBox;
 class QComboBox;
 class QInputDialogPrivate;
 
-class Q_EXPORT QInputDialog : public QDialog
+class Q_GUI_EXPORT QInputDialog : public QDialog
 {
 #if defined(Q_CC_MSVC)
     friend class QInputDialog;

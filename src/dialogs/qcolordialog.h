@@ -23,7 +23,7 @@
 
 class QColorDialogPrivate;
 
-class Q_EXPORT QColorDialog : public QDialog
+class Q_GUI_EXPORT QColorDialog : public QDialog
 {
     Q_OBJECT
 

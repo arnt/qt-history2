@@ -24,14 +24,14 @@
 #if !defined(QT_NO_STYLE_SGI) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
-#define Q_EXPORT_STYLE_SGI
+#define Q_GUI_EXPORT_STYLE_SGI
 #else
-#define Q_EXPORT_STYLE_SGI Q_EXPORT
+#define Q_GUI_EXPORT_STYLE_SGI Q_GUI_EXPORT
 #endif
 
 class QSGIStylePrivate;
 
-class Q_EXPORT_STYLE_SGI QSGIStyle: public QMotifStyle
+class Q_GUI_EXPORT_STYLE_SGI QSGIStyle: public QMotifStyle
 {
     Q_OBJECT
 public:

@@ -25,7 +25,7 @@
 class QProgressBarPrivate;
 
 
-class Q_EXPORT QProgressBar : public QFrame
+class Q_GUI_EXPORT QProgressBar : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( int totalSteps READ totalSteps WRITE setTotalSteps )

@@ -27,7 +27,7 @@ class QSplitterLayoutStruct;
 class QTextStream;
 template <typename T> class QList;
 
-class Q_EXPORT QSplitter : public QFrame
+class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
@@ -122,8 +122,8 @@ private:
     friend class QSplitterHandle;
 
 #ifndef QT_NO_TEXTSTREAM
-    friend Q_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
-    friend Q_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
+    friend Q_GUI_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
+    friend Q_GUI_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
 #endif
 
 private:
@@ -134,8 +134,8 @@ private:
 };
 
 #ifndef QT_NO_TEXTSTREAM
-Q_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
-Q_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
+Q_GUI_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
+Q_GUI_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
 #endif
 
 #endif // QT_NO_SPLITTER

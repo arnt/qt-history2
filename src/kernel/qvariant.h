@@ -66,9 +66,6 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     inline QVariant(const QPixmap &pixmap);
     inline QVariant(const QImage &image);
     inline QVariant(const QBrush &brush);
-    inline QVariant(const QPoint &pt);
-    inline QVariant(const QRect &rect);
-    inline QVariant(const QSize &size);
     inline QVariant(const QColor &color);
 #ifndef QT_NO_PALETTE
     inline QVariant(const QPalette &palette);
@@ -122,9 +119,6 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     QPixmap toPixmap() const;
     const QImage toImage() const;
     QBrush toBrush() const;
-    QPoint toPoint() const;
-    QRect toRect() const;
-    QSize toSize() const;
     QColor toColor() const;
     QPalette toPalette() const;
 #ifndef QT_NO_COMPAT
@@ -147,9 +141,6 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
     QPixmap &asPixmap();
     QImage &asImage();
     QBrush &asBrush();
-    QPoint &asPoint();
-    QRect &asRect();
-    QSize &asSize();
     QColor &asColor();
 #ifndef QT_NO_PALETTE
     QPalette &asPalette();
@@ -208,12 +199,6 @@ inline QVariant::QVariant(const QImage &val)
 { d = create(Image, &val); }
 inline QVariant::QVariant(const QBrush &val)
 { d = create(Brush, &val); }
-inline QVariant::QVariant(const QPoint &val)
-{ d = create(Point, &val); }
-inline QVariant::QVariant(const QRect &val)
-{ d = create(Rect, &val); }
-inline QVariant::QVariant(const QSize &val)
-{ d = create(Size, &val); }
 inline QVariant::QVariant(const QColor &val)
 { d = create(Color, &val); }
 #ifndef QT_NO_PALETTE
@@ -253,12 +238,6 @@ inline QImage& QVariant::asImage()
 { return *static_cast<QImage *>(castOrDetach(Image)); }
 inline QBrush& QVariant::asBrush()
 { return *static_cast<QBrush *>(castOrDetach(Brush)); }
-inline QPoint& QVariant::asPoint()
-{ return *static_cast<QPoint *>(castOrDetach(Point)); }
-inline QRect& QVariant::asRect()
-{ return *static_cast<QRect *>(castOrDetach(Rect)); }
-inline QSize& QVariant::asSize()
-{ return *static_cast<QSize *>(castOrDetach(Size)); }
 inline QColor& QVariant::asColor()
 { return *static_cast<QColor *>(castOrDetach(Color)); }
 #ifndef QT_NO_PALETTE
@@ -309,29 +288,6 @@ inline QBrush QVariant::toBrush() const
     return *static_cast<QBrush *>(d->value.ptr);
 }
 
-inline QPoint QVariant::toPoint() const
-{
-    if (d->type != Point)
-	return QPoint();
-
-    return *static_cast<QPoint *>(d->value.ptr);
-}
-
-inline QRect QVariant::toRect() const
-{
-    if (d->type != Rect)
-	return QRect();
-
-    return *static_cast<QRect *>(d->value.ptr);
-}
-
-inline QSize QVariant::toSize() const
-{
-    if (d->type != Size)
-	return QSize();
-
-    return *static_cast<QSize *>(d->value.ptr);
-}
 
 #ifndef QT_NO_PALETTE
 inline QPalette QVariant::toPalette() const

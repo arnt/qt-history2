@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_PICTURE
 
-class Q_EXPORT QPicture : public QPaintDevice		// picture class
+class Q_GUI_EXPORT QPicture : public QPaintDevice		// picture class
 {
 public:
     QPicture( int formatVersion = -1 );
@@ -48,8 +48,8 @@ public:
 
     QPicture& operator= (const QPicture&);
 
-    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
-    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
+    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
+    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
 
 #ifndef QT_NO_IMAGEIO
     static const char* pictureFormat( const QString &fileName );
@@ -108,7 +108,7 @@ typedef void (*picture_io_handler)( QPictureIO * ); // picture IO handler
 
 struct QPictureIOData;
 
-class Q_EXPORT QPictureIO
+class Q_GUI_EXPORT QPictureIO
 {
 public:
     QPictureIO();
@@ -169,8 +169,8 @@ private:	// Disabled copy constructor and operator=
   QPicture stream functions
  *****************************************************************************/
 
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
 
 #endif // QT_NO_PICTURE
 

@@ -24,7 +24,7 @@ class QTimer;
 
 #ifndef QT_NO_SCROLLBAR
 
-class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
+class Q_GUI_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
     Q_PROPERTY( int minValue READ minValue WRITE setMinValue )

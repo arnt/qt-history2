@@ -20,14 +20,14 @@
 #if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
-#define Q_EXPORT_STYLE_WINDOWSXP
+#define Q_GUI_EXPORT_STYLE_WINDOWSXP
 #else
-#define Q_EXPORT_STYLE_WINDOWSXP Q_EXPORT
+#define Q_GUI_EXPORT_STYLE_WINDOWSXP Q_GUI_EXPORT
 #endif
 
 class QWindowsXPStylePrivate;
 
-class Q_EXPORT_STYLE_WINDOWSXP QWindowsXPStyle : public QWindowsStyle
+class Q_GUI_EXPORT_STYLE_WINDOWSXP QWindowsXPStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:

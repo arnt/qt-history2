@@ -24,7 +24,7 @@
 class QPageSetupDialogPrivate;
 class QPrinter;
 
-class Q_EXPORT QPageSetupDialog : public QDialog
+class Q_GUI_EXPORT QPageSetupDialog : public QDialog
 {
     Q_OBJECT
 public:

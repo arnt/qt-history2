@@ -36,7 +36,7 @@
 
 class QFontDialogPrivate;
 
-class Q_EXPORT QFontDialog: public QDialog
+class Q_GUI_EXPORT QFontDialog: public QDialog
 {
     Q_OBJECT
 

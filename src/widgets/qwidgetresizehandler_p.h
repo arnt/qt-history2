@@ -35,7 +35,7 @@
 class QMouseEvent;
 class QKeyEvent;
 
-class Q_EXPORT QWidgetResizeHandler : public QObject
+class Q_GUI_EXPORT QWidgetResizeHandler : public QObject
 {
     Q_OBJECT
 

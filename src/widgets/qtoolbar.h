@@ -26,7 +26,7 @@ class QButton;
 class QBoxLayout;
 class QToolBarPrivate;
 
-class Q_EXPORT QToolBar: public QDockWindow
+class Q_GUI_EXPORT QToolBar: public QDockWindow
 {
     Q_OBJECT
     Q_PROPERTY( QString label READ label WRITE setLabel )

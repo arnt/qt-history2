@@ -28,7 +28,7 @@ class QToolButtonPrivate;
 class QToolBar;
 class QPopupMenu;
 
-class Q_EXPORT QToolButton : public QButton
+class Q_GUI_EXPORT QToolButton : public QButton
 {
     Q_OBJECT
     Q_ENUMS( TextPosition )

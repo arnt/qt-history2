@@ -25,7 +25,7 @@ class QGroupBox;
 class QPrintDialogPrivate;
 class QListView;
 
-class Q_EXPORT QPrintDialog : public QDialog
+class Q_GUI_EXPORT QPrintDialog : public QDialog
 {
     Q_OBJECT
 public:

@@ -26,7 +26,7 @@
 class QWidgetStackPrivate;
 
 
-class Q_EXPORT QWidgetStack: public QFrame
+class Q_GUI_EXPORT QWidgetStack: public QFrame
 {
     Q_OBJECT
 public:

@@ -35,7 +35,7 @@
 class QWidgetPluginPrivate;
 class QWidget;
 
-class Q_EXPORT QWidgetPlugin : public QGPlugin
+class Q_GUI_EXPORT QWidgetPlugin : public QGPlugin
 {
     Q_OBJECT
 public:
@@ -58,7 +58,7 @@ private:
 
 class QWidgetContainerPluginPrivate;
 
-class Q_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
+class Q_GUI_EXPORT QWidgetContainerPlugin : public QWidgetPlugin
 {
      Q_OBJECT
 public:

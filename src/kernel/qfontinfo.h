@@ -20,7 +20,7 @@
 #endif // QT_H
 
 
-class Q_EXPORT QFontInfo
+class Q_GUI_EXPORT QFontInfo
 {
 public:
     QFontInfo( const QFont & );

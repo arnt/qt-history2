@@ -28,7 +28,7 @@ class QVBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 
-class Q_EXPORT QGroupBox : public QFrame
+class Q_GUI_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QString title READ title WRITE setTitle )

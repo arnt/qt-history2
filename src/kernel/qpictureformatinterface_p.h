@@ -39,7 +39,7 @@
 
 class QPicutre;
 
-struct Q_EXPORT QPictureFormatInterface : public QFeatureListInterface
+struct Q_GUI_EXPORT QPictureFormatInterface : public QFeatureListInterface
 {
     virtual QRESULT loadPicture( const QString &format, const QString &filename, QPicture * ) = 0;
     virtual QRESULT savePicture( const QString &format, const QString &filename, const QPicture & ) = 0;

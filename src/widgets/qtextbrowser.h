@@ -26,7 +26,7 @@
 
 class QTextBrowserData;
 
-class Q_EXPORT QTextBrowser : public QTextEdit
+class Q_GUI_EXPORT QTextBrowser : public QTextEdit
 {
     Q_OBJECT
     Q_PROPERTY( QString source READ source WRITE setSource )

@@ -106,7 +106,7 @@ public:
 };
 #endif
 
-class Q_EXPORT QTextEdit : public QScrollView
+class Q_GUI_EXPORT QTextEdit : public QScrollView
 {
     friend class QTextBrowser;
     friend class QSyntaxHighlighter;
@@ -438,7 +438,7 @@ private slots:
     void clipboardChanged();
 
 private:
-    struct Q_EXPORT UndoRedoInfo {
+    struct Q_GUI_EXPORT UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Style };
 
 	UndoRedoInfo( QTextDocument *dc );

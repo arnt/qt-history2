@@ -60,7 +60,7 @@ union QPDevCmdParam {
 
 
 
-class Q_EXPORT QPaintDevice				// device for QPainter
+class Q_GUI_EXPORT QPaintDevice				// device for QPainter
 {
 public:
     virtual ~QPaintDevice();
@@ -225,10 +225,10 @@ protected:
     friend class QPainter;
     friend class QPaintDeviceMetrics;
 #if defined(Q_WS_MAC)
-    friend Q_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
+    friend Q_GUI_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
 						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool, bool );
 #else
-    friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
+    friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
 				 int, int, int, int, Qt::RasterOp, bool );
 #endif
@@ -275,12 +275,12 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-Q_EXPORT
+Q_GUI_EXPORT
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
 	     Qt::RasterOp = Qt::CopyROP, bool ignoreMask=FALSE );
 
-Q_EXPORT
+Q_GUI_EXPORT
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
 	     int conversion_flags=0 );
@@ -288,7 +288,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 #if defined(Q_WS_X11)
 
-struct Q_EXPORT QPaintDeviceX11Data : public QShared {
+struct Q_GUI_EXPORT QPaintDeviceX11Data : public QShared {
     Display*	x_display;
     int		x_screen;
     int		x_depth;
@@ -396,7 +396,7 @@ inline bool QPaintDevice::x11AppDefaultVisual()
 #endif // Q_WS_X11
 
 
-Q_EXPORT
+Q_GUI_EXPORT
 inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
 		    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
 		    Qt::RasterOp rop=Qt::CopyROP, bool ignoreMask=FALSE )

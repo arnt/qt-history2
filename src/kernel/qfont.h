@@ -25,7 +25,7 @@ class QFontPrivate;                                     /* don't touch */
 class QStringList;
 class QTextFormatCollection;
 
-class Q_EXPORT QFont
+class Q_GUI_EXPORT QFont
 {
 public:
     enum StyleHint {
@@ -309,8 +309,8 @@ private:
     friend class QTextItem;
 
 #ifndef QT_NO_DATASTREAM
-    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
-    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
+    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
+    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 #endif
 
     QFontPrivate *d;
@@ -332,8 +332,8 @@ inline void QFont::setBold( bool enable )
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QFont & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QFont & );
 #endif
 
 

@@ -21,7 +21,7 @@ class QTextParag;
 
 class
 #ifdef Q_Q4PAINTER
-Q_EXPORT
+Q_GUI_EXPORT
 #endif
 QPainter : public Qt
 {

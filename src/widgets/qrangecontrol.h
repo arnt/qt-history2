@@ -26,7 +26,7 @@
 class QRangeControlPrivate;
 
 
-class Q_EXPORT QRangeControl
+class Q_GUI_EXPORT QRangeControl
 {
 public:
     QRangeControl();
@@ -101,7 +101,7 @@ inline int QRangeControl::pageStep() const
 #ifndef QT_NO_SPINWIDGET
 
 class QSpinWidgetPrivate;
-class Q_EXPORT QSpinWidget : public QWidget
+class Q_GUI_EXPORT QSpinWidget : public QWidget
 {
     Q_OBJECT
 public:

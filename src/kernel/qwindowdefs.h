@@ -114,12 +114,12 @@ typedef struct _XGC *GC;
 typedef struct _XRegion *Region;
 typedef unsigned long  WId;
 
-Q_EXPORT Display *qt_xdisplay();
-Q_EXPORT int	 qt_xscreen();
-Q_EXPORT WId	 qt_xrootwin(); // ### REMOVE 4.0
-Q_EXPORT WId	 qt_xrootwin( int scrn ); // ### 4.0 add default arg of -1
-Q_EXPORT GC	 qt_xget_readonly_gc( int scrn, bool monochrome );
-Q_EXPORT GC	 qt_xget_temp_gc( int scrn, bool monochrome );
+Q_GUI_EXPORT Display *qt_xdisplay();
+Q_GUI_EXPORT int	 qt_xscreen();
+Q_GUI_EXPORT WId	 qt_xrootwin(); // ### REMOVE 4.0
+Q_GUI_EXPORT WId	 qt_xrootwin( int scrn ); // ### 4.0 add default arg of -1
+Q_GUI_EXPORT GC	 qt_xget_readonly_gc( int scrn, bool monochrome );
+Q_GUI_EXPORT GC	 qt_xget_temp_gc( int scrn, bool monochrome );
 
 #endif // Q_WS_X11
 
@@ -144,13 +144,8 @@ typedef Q_INT32 QCOORD;				// coordinate type
 const QCOORD QCOORD_MAX =  2147483647;
 const QCOORD QCOORD_MIN = -QCOORD_MAX - 1;
 
-Q_EXPORT const char *qAppName();		// get application name
-
 // Misc functions
 
 typedef void (*QtCleanUpFunction)();
-Q_EXPORT void qAddPostRoutine( QtCleanUpFunction );
-Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
-
 
 #endif // QWINDOWDEFS_H

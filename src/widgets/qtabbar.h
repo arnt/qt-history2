@@ -25,7 +25,7 @@
 class QTabBar;
 class QIconSet;
 
-class Q_EXPORT QTab : public Qt
+class Q_GUI_EXPORT QTab : public Qt
 {
     friend class QTabBar;
     friend class QTabWidget;
@@ -61,7 +61,7 @@ private:
 struct QTabPrivate;
 //class *QAccel;
 
-class Q_EXPORT QTabBar: public QWidget
+class Q_GUI_EXPORT QTabBar: public QWidget
 {
     Q_OBJECT
     Q_ENUMS( Shape )

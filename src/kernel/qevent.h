@@ -26,7 +26,7 @@
 #include "qkernelevent.h"
 #endif // QT_H
 
-class Q_EXPORT QMouseEvent : public QEvent
+class Q_GUI_EXPORT QMouseEvent : public QEvent
 {
 public:
     QMouseEvent( Type type, const QPoint &pos, int button, int state );
@@ -57,7 +57,7 @@ protected:
 
 
 #ifndef QT_NO_WHEELEVENT
-class Q_EXPORT QWheelEvent : public QEvent
+class Q_GUI_EXPORT QWheelEvent : public QEvent
 {
 public:
     QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
@@ -86,7 +86,7 @@ protected:
 };
 #endif
 
-class Q_EXPORT QTabletEvent : public QEvent
+class Q_GUI_EXPORT QTabletEvent : public QEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
@@ -125,7 +125,7 @@ protected:
 
 };
 
-class Q_EXPORT QKeyEvent : public QEvent
+class Q_GUI_EXPORT QKeyEvent : public QEvent
 {
 public:
     QKeyEvent( Type type, int key, int state, const QString& text=QString::null,
@@ -167,7 +167,7 @@ protected:
 };
 
 
-class Q_EXPORT QFocusEvent : public QEvent
+class Q_GUI_EXPORT QFocusEvent : public QEvent
 {
 public:
 
@@ -188,7 +188,7 @@ private:
 };
 
 
-class Q_EXPORT QPaintEvent : public QEvent
+class Q_GUI_EXPORT QPaintEvent : public QEvent
 {
 public:
     QPaintEvent( const QRegion& paintRegion )
@@ -225,7 +225,7 @@ public:
 };
 #endif
 
-class Q_EXPORT QMoveEvent : public QEvent
+class Q_GUI_EXPORT QMoveEvent : public QEvent
 {
 public:
     QMoveEvent( const QPoint &pos, const QPoint &oldPos )
@@ -239,7 +239,7 @@ protected:
 };
 
 
-class Q_EXPORT QResizeEvent : public QEvent
+class Q_GUI_EXPORT QResizeEvent : public QEvent
 {
 public:
     QResizeEvent( const QSize &size, const QSize &oldSize )
@@ -253,7 +253,7 @@ protected:
 };
 
 
-class Q_EXPORT QCloseEvent : public QEvent
+class Q_GUI_EXPORT QCloseEvent : public QEvent
 {
 public:
     QCloseEvent()
@@ -266,7 +266,7 @@ protected:
 };
 
 
-class Q_EXPORT QShowEvent : public QEvent
+class Q_GUI_EXPORT QShowEvent : public QEvent
 {
 public:
     QShowEvent()
@@ -274,14 +274,14 @@ public:
 };
 
 
-class Q_EXPORT QHideEvent : public QEvent
+class Q_GUI_EXPORT QHideEvent : public QEvent
 {
 public:
     QHideEvent()
 	: QEvent(Hide) {}
 };
 
-class Q_EXPORT QContextMenuEvent : public QEvent
+class Q_GUI_EXPORT QContextMenuEvent : public QEvent
 {
 public:
     enum Reason { Mouse, Keyboard, Other };
@@ -317,7 +317,7 @@ protected:
 };
 
 
-class Q_EXPORT QIMEvent : public QEvent
+class Q_GUI_EXPORT QIMEvent : public QEvent
 {
 public:
     QIMEvent( Type type, const QString &text, int cursorPosition, int selLength = 0 )
@@ -342,7 +342,7 @@ private:
 // own DND event objects, write to qt-bugs@trolltech.com and we'll try to
 // find a way to extend it so it covers your needs.
 
-class Q_EXPORT QDropEvent : public QEvent, public QMimeSource
+class Q_GUI_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
     QDropEvent( const QPoint& pos, Type typ=Drop )
@@ -381,7 +381,7 @@ protected:
 
 
 
-class Q_EXPORT QDragMoveEvent : public QDropEvent
+class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
     QDragMoveEvent( const QPoint& pos, Type typ=DragMove )
@@ -398,7 +398,7 @@ protected:
 };
 
 
-class Q_EXPORT QDragEnterEvent : public QDragMoveEvent
+class Q_GUI_EXPORT QDragEnterEvent : public QDragMoveEvent
 {
 public:
     QDragEnterEvent( const QPoint& pos ) :
@@ -407,7 +407,7 @@ public:
 
 
 /* An internal class */
-class Q_EXPORT QDragResponseEvent : public QEvent
+class Q_GUI_EXPORT QDragResponseEvent : public QEvent
 {
 public:
     QDragResponseEvent( bool accepted )
@@ -418,7 +418,7 @@ protected:
 };
 
 
-class Q_EXPORT QDragLeaveEvent : public QEvent
+class Q_GUI_EXPORT QDragLeaveEvent : public QEvent
 {
 public:
     QDragLeaveEvent()

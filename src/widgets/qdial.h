@@ -25,7 +25,7 @@
 
 class QDialPrivate;
 
-class Q_EXPORT QDial: public QWidget, public QRangeControl
+class Q_GUI_EXPORT QDial: public QWidget, public QRangeControl
 {
     Q_OBJECT
     Q_PROPERTY( bool tracking READ tracking WRITE setTracking )

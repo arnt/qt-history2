@@ -36,7 +36,7 @@ class QDockWindowPrivate;
 class QToolBar;
 class QWindowsXPStyle;
 
-class Q_EXPORT QDockWindow : public QFrame
+class Q_GUI_EXPORT QDockWindow : public QFrame
 {
     Q_OBJECT
     Q_ENUMS( CloseMode Place )

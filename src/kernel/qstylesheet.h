@@ -31,7 +31,7 @@ class QTextDocument;
 template<class Key, class T> class QMap;
 class QStyleSheetItemData;
 
-class Q_EXPORT QStyleSheetItem : public Qt
+class Q_GUI_EXPORT QStyleSheetItem : public Qt
 {
 public:
     QStyleSheetItem( QStyleSheet* parent, const QString& name );
@@ -153,7 +153,7 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QStyleSheetItem>;
+Q_TEMPLATE_EXTERN template class Q_GUI_EXPORT QDict<QStyleSheetItem>;
 // MOC_SKIP_END
 #endif
 
@@ -161,7 +161,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QStyleSheetItem>;
 class QTextCustomItem;
 #endif
 
-class Q_EXPORT QStyleSheet : public QObject
+class Q_GUI_EXPORT QStyleSheet : public QObject
 {
     Q_OBJECT
 public:

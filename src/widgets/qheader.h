@@ -27,7 +27,7 @@ class QShowEvent;
 class QHeaderData;
 class QTable;
 
-class Q_EXPORT QHeader : public QWidget
+class Q_GUI_EXPORT QHeader : public QWidget
 {
     friend class QTable;
     friend class QTableHeader;
@@ -184,7 +184,7 @@ inline QHeader::Orientation QHeader::orientation() const
 inline void QHeader::setTracking( bool enable ) { trackingIsOn = enable; }
 inline bool QHeader::tracking() const { return trackingIsOn; }
 
-extern Q_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
+extern Q_GUI_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
 
 #endif // QT_NO_HEADER
 

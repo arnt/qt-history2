@@ -40,7 +40,7 @@ class QMenuBar;
 class QSpacerItem;
 class QWidget;
 
-class Q_EXPORT QGLayoutIterator
+class Q_GUI_EXPORT QGLayoutIterator
 {
 public:
     virtual ~QGLayoutIterator();
@@ -50,7 +50,7 @@ public:
     QAtomic ref;
 };
 
-class Q_EXPORT QLayoutIterator
+class Q_GUI_EXPORT QLayoutIterator
 {
 public:
     inline QLayoutIterator( QGLayoutIterator *i ) : it(i) {}
@@ -77,7 +77,7 @@ private:
     QGLayoutIterator *it;
 };
 
-class Q_EXPORT QLayoutItem
+class Q_GUI_EXPORT QLayoutItem
 {
 public:
     QLayoutItem( Qt::Alignment alignment = 0 ) : align( alignment ) { }
@@ -106,7 +106,7 @@ protected:
     Qt::Alignment align;
 };
 
-class Q_EXPORT QSpacerItem : public QLayoutItem
+class Q_GUI_EXPORT QSpacerItem : public QLayoutItem
 {
 public:
     QSpacerItem( int w, int h,
@@ -132,7 +132,7 @@ private:
     QRect rect;
 };
 
-class Q_EXPORT QWidgetItem : public QLayoutItem
+class Q_GUI_EXPORT QWidgetItem : public QLayoutItem
 {
 public:
     QWidgetItem( QWidget *w ) : wid( w ) { }
@@ -152,7 +152,7 @@ private:
     QWidget *wid;
 };
 
-class Q_EXPORT QLayout : public QObject, public QLayoutItem
+class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
 {
     Q_OBJECT
     Q_ENUMS( ResizeMode )
@@ -271,7 +271,7 @@ inline void QLayoutIterator::deleteCurrent()
     delete takeCurrent();
 }
 
-class Q_EXPORT QGridLayout : public QLayout
+class Q_GUI_EXPORT QGridLayout : public QLayout
 {
     Q_OBJECT
 public:
@@ -350,7 +350,7 @@ public:
 class QBoxLayoutData;
 class QDockWindow;
 
-class Q_EXPORT QBoxLayout : public QLayout
+class Q_GUI_EXPORT QBoxLayout : public QLayout
 {
     Q_OBJECT
 public:
@@ -419,7 +419,7 @@ private:
     QBoxLayout *createTmpCopy();
 };
 
-class Q_EXPORT QHBoxLayout : public QBoxLayout
+class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
 {
     Q_OBJECT
 public:
@@ -438,7 +438,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-class Q_EXPORT QVBoxLayout : public QBoxLayout
+class Q_GUI_EXPORT QVBoxLayout : public QBoxLayout
 {
     Q_OBJECT
 public:

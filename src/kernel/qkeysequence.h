@@ -29,13 +29,13 @@
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 class QKeySequence;
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
+Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
+Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
 #endif
 
 class QKeySequencePrivate;
 
-class Q_EXPORT QKeySequence : public Qt
+class Q_GUI_EXPORT QKeySequence : public Qt
 {
 public:
     QKeySequence();
@@ -64,14 +64,14 @@ private:
 
     QKeySequencePrivate* d;
 
-    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
-    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
+    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
+    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
     friend class QAccelManager;
 };
 
 #else
 
-class Q_EXPORT QKeySequence : public Qt
+class Q_GUI_EXPORT QKeySequence : public Qt
 {
 public:
     QKeySequence() {}
