@@ -121,6 +121,7 @@ public:
     void shear(double sh, double sv);
     void rotate(double a);
 #endif
+    inline void translate(const QPoint &offset);
     void translate(double dx, double dy);
     void resetXForm();
     double translationX() const;
@@ -193,7 +194,7 @@ public:
         { drawText(x, y, s.left(len), dir); }
     inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
         { drawText(p, s.left(len), dir); }
-    inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init) 
+    inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
 #endif
 
@@ -436,6 +437,11 @@ inline void QPainter::drawImage(const QPoint &p, const QImage &i, const QRect &s
 inline void QPainter::drawImage(const QPoint &p, const QImage &i, int conversion_flags)
 {
     drawImage(p.x(), p.y(), i, 0, 0, i.width(), i.height(), conversion_flags);
+}
+
+inline void QPainter::translate(const QPoint &offset)
+{
+    translate(offset.x(), offset.y());
 }
 
 inline void QPainter::map(int x, int y, int *rx, int *ry) const
