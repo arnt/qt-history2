@@ -44,6 +44,8 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 #include <math.h>
 #endif
 
+#include <limits.h>
+
 #ifndef QT_NO_WMATRIX
 
 /*!
@@ -151,6 +153,45 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 */
 
 bool qt_old_transformations = TRUE;
+
+/*! 
+    \enum QWMatrix::TransformationMode
+
+    \keyword transformation
+    \keyword matrix
+
+    QWMatrix offers two transformation modes, that differ a bit due to
+    integer arithmetics. When scaling for example a rectangle up by a
+    factor of 2, you can either scale its width and height by a factor
+    of two or scale it's topLeft and bottomRight point. Both lead to
+    slightly different results.
+
+    \value Points maps points in the structure
+    \value Areas maps the structure such that areas are invariant
+
+    The default mode is Points.
+
+    An example illustrating the difference is a QRect( 10, 20, 30, 40
+    ) and a transformation matrix QWMatrix( 2, 0, 0, 2, 0, 0 ). The
+    result of transforming the rectangle under the matrix will be
+    slightly different under both modes. 
+
+    In Points mode, the matrix will map the topLeft (=10/20) and
+    bottomRight (=39/59) points of the rectangle leading to a
+    rectangle that has a topLeft point at (20/40) and a bottomRight
+    point at (78/118), corresponding to a rectangle with width 59 and
+    height 79.
+
+    In Areas mode, the width and height of the rectangle will be
+    invariant under scaling, leading to a rectangle with the same
+    topleft corner but with a width of 40 and a height of 80.
+*/
+
+/*! 
+    Sets the transformation mode QWMatrix and painter transformations operate in.
+
+    \sa QWMatrix::TransformationMode
+*/
 void QWMatrix::setTransformationMode( QWMatrix::TransformationMode m )
 {
     if ( m == QWMatrix::Points )
@@ -159,6 +200,34 @@ void QWMatrix::setTransformationMode( QWMatrix::TransformationMode m )
 	qt_old_transformations = FALSE;
 }
 
+
+/*! 
+    returns the current transformation mode.
+
+    \sa QWMatrix::TransformationMode
+*/
+QWMatrix::TransformationMode QWMatrix::transformationMode()
+{
+    return (qt_old_transformations ? QWMatrix::Points : QWMatrix::Areas );
+}
+
+
+// some defines to inline some code
+#define MAPDOUBLE( x, y, nx, ny ) \
+{ \
+    double fx = x; \
+    double fy = y; \
+    nx = _m11*fx + _m21*fy + _dx; \
+    ny = _m12*fx + _m22*fy + _dy; \
+}    
+
+#define MAPINT( x, y, nx, ny ) \
+{ \
+    double fx = x; \
+    double fy = y; \
+    nx = qRound(_m11*fx + _m21*fy + _dx); \
+    ny = qRound(_m12*fx + _m22*fy + _dy); \
+}
 
 /*****************************************************************************
   QWMatrix member functions
@@ -253,8 +322,7 @@ void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
 
 void QWMatrix::map( double x, double y, double *tx, double *ty ) const
 {
-    *tx = _m11*x + _m21*y + _dx;
-    *ty = _m12*x + _m22*y + _dy;
+    MAPDOUBLE( x, y, *tx, *ty );
 }
 
 /*!
@@ -268,10 +336,7 @@ void QWMatrix::map( double x, double y, double *tx, double *ty ) const
 
 void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 {
-    double fx = x;
-    double fy = y;
-    *tx = qRound(_m11*fx + _m21*fy + _dx);
-    *ty = qRound(_m12*fx + _m22*fy + _dy);
+    MAPINT( x, y, *tx, *ty );
 }
 
 /*!
@@ -343,22 +408,22 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 	    // see mapToPolygon for explanations of the algorithm.
 	    double x0, y0;
 	    double x, y;
-	    map( rect.left(), rect.top(), &x0, &y0 );
+	    MAPDOUBLE( rect.left(), rect.top(), x0, y0 );
 	    double xmin = x0;
 	    double ymin = y0;
 	    double xmax = x0;
 	    double ymax = y0;
-	    map( rect.right() + 1, rect.top(), &x, &y );
+	    MAPDOUBLE( rect.right() + 1, rect.top(), x, y );
 	    xmin = QMIN( xmin, x );
 	    ymin = QMIN( ymin, y );
 	    xmax = QMAX( xmax, x );
 	    ymax = QMAX( ymax, y );
-	    map( rect.right() + 1, rect.bottom() + 1, &x, &y );
+	    MAPDOUBLE( rect.right() + 1, rect.bottom() + 1, x, y );
 	    xmin = QMIN( xmin, x );
 	    ymin = QMIN( ymin, y );
 	    xmax = QMAX( xmax, x );
 	    ymax = QMAX( ymax, y );
-	    map( rect.left(), rect.bottom() + 1, &x, &y );
+	    MAPDOUBLE( rect.left(), rect.bottom() + 1, x, y );
 	    xmin = QMIN( xmin, x );
 	    ymin = QMIN( ymin, y );
 	    xmax = QMAX( xmax, x );
@@ -393,22 +458,83 @@ QPoint QWMatrix::operator *( const QPoint &p ) const
 }
 
 
+struct QWMDoublePoint {
+    double x;
+    double y;
+};
+
 /*!
   \overload
 
   Returns the point array \a a transformed by calling map for each point.
 */
-
 QPointArray QWMatrix::operator *( const QPointArray &a ) const
 {
-    QPointArray result = a.copy();
-    int x, y;
-    for ( int i=0; i<(int)result.size(); i++ ) {
-	result.point( i, &x, &y );
-	map( x, y, &x, &y );
-	result.setPoint( i, x, y );
+    if( qt_old_transformations ) {
+	QPointArray result = a.copy();
+	int x, y;
+	for ( int i=0; i<(int)result.size(); i++ ) {
+	    result.point( i, &x, &y );
+	    MAPINT( x, y, x, y );
+	    result.setPoint( i, x, y );
+	}
+	return result;
+    } else {
+	int size = a.size();
+	int i;
+	QMemArray<QWMDoublePoint> p( size );
+	QPoint *da = a.data();
+	QWMDoublePoint *dp = p.data();
+	double xmin = INT_MAX;
+	double ymin = xmin;
+	double xmax = INT_MIN;
+	double ymax = xmax;
+	int xminp = 0;
+	int yminp = 0;
+	for( i = 0; i < size; i++ ) {
+	    dp[i].x = da[i].x();
+	    dp[i].y = da[i].y();
+	    if ( dp[i].x < xmin ) {
+		xmin = dp[i].x;
+		xminp = i;
+	    }
+	    if ( dp[i].y < ymin ) {
+		ymin = dp[i].y;
+		yminp = i;
+	    }
+	    xmax = QMAX( xmax, dp[i].x );
+	    ymax = QMAX( ymax, dp[i].y );
+	}
+	double w = QMAX( xmax - xmin, 1 );
+	double h = QMAX( ymax - ymin, 1 );
+	for( i = 0; i < size; i++ ) {
+	    dp[i].x += (dp[i].x - xmin)/w;
+	    dp[i].y += (dp[i].y - ymin)/h;
+	    MAPDOUBLE( dp[i].x, dp[i].y, dp[i].x, dp[i].y );
+	}
+
+	// now apply correction back for transformed values...
+	xmin = INT_MAX;
+	ymin = xmin;
+	xmax = INT_MIN;
+	ymax = xmax;
+	for( i = 0; i < size; i++ ) {
+	    xmin = QMIN( xmin, dp[i].x );
+	    ymin = QMIN( ymin, dp[i].y );
+	    xmax = QMAX( xmax, dp[i].x );
+	    ymax = QMAX( ymax, dp[i].y );
+	}
+	w = QMAX( xmax - xmin, 1 );
+	h = QMAX( ymax - ymin, 1 );
+	
+	QPointArray result( size );
+	QPoint *dr = result.data();
+	for( i = 0; i < size; i++ ) {
+	    dr[i].setX( qRound( dp[i].x - (dp[i].x - dp[xminp].x)/w ) );
+	    dr[i].setY( qRound( dp[i].y - (dp[i].y - dp[yminp].y)/h ) );
+	}
+	return result;
     }
-    return result;
 }
 
 /*!
@@ -450,13 +576,7 @@ QRegion QWMatrix::operator * (const QRect &rect ) const
 	    result = QRect( x, y, w, h );
 	}
     } else {
-	if( qt_old_transformations ) {
-	    QPointArray a( rect );
-	    a = map( a );
-	    result = QRegion( a );
-	} else {
-	    result = QRegion( mapToPolygon( rect ) );
-	}
+	result = QRegion( mapToPolygon( rect ) );
     }
     return result;
 
@@ -499,10 +619,10 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 	y[2] = y[0]+h-1;
 	y[3] = y[2];
     } else {
-	map( rect.left(), rect.top(), &x[0], &y[0] );
-	map( rect.right() + 1, rect.top(), &x[1], &y[1] );
-	map( rect.right() + 1, rect.bottom() + 1, &x[2], &y[2] );
-	map( rect.left(), rect.bottom() + 1, &x[3], &y[3] );
+	MAPINT( rect.left(), rect.top(), x[0], y[0] );
+	MAPINT( rect.right() + 1, rect.top(), x[1], y[1] );
+	MAPINT( rect.right() + 1, rect.bottom() + 1, x[2], y[2] );
+	MAPINT( rect.left(), rect.bottom() + 1, x[3], y[3] );
 
 	/*
 	Including rectangles as we have are evil.

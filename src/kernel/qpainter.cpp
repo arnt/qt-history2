@@ -1838,9 +1838,7 @@ QRect QPainter::xForm( const QRect &rv ) const
     if ( txop == TxNone )
 	return rv;
     if ( txop == TxRotShear ) {			// rotation/shear
-	QPointArray a( rv );
-	a = xForm( a );
-	return a.boundingRect();
+	return xmat.mapRect( rv );
     }
     // Just translation/scale
     int x, y, w, h;
@@ -1870,13 +1868,7 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
     if ( xlatex || xlatey )
 #endif
     {
-	a = a.copy();
-	int x, y, i;
-	for ( i=0; i<(int)a.size(); i++ ) {
-	    a.point( i, &x, &y );
-	    map( x, y, &x, &y );
-	    a.setPoint( i, x, y );
-	}
+	return xmat * av;
     }
     return a;
 }
@@ -1909,13 +1901,8 @@ QPointArray QPainter::xForm( const QPointArray &av, int index,
 {
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
     QPointArray a( lastPoint-index );
-    int x, y, i=index, j=0;
-    while ( i<lastPoint ) {
-	av.point( i++, &x, &y );
-	map( x, y, &x, &y );
-	a.setPoint( j++, x, y );
-    }
-    return a;
+    memcpy( a.data(), av.data()+index, (lastPoint-index)*sizeof( QPoint ) );
+    return xmat*a;
 }
 
 /*!
@@ -1962,9 +1949,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	that->updateInvXForm();
     }
     if ( txop == TxRotShear ) {			// rotation/shear
-	QPointArray a( rd );
-	a = xFormDev( a );
-	return a.boundingRect();
+	return ixmat.mapRect( rd );
     }
 #endif
     // Just translation/scale
@@ -1985,22 +1970,18 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
 {
-    QPointArray a = ad;
 #ifndef QT_NO_TRANSFORMATIONS
-    if ( txop != TxNone )
-#else
-    if ( xlatex || xlatey )
-#endif
-    {
-	a = a.copy();
-	int x, y, i;
-	for ( i=0; i<(int)a.size(); i++ ) {
-	    a.point( i, &x, &y );
-	    mapInv( x, y, &x, &y );
-	    a.setPoint( i, x, y );
-	}
+    if ( txop == TxNone )
+	return ad;
+    if ( !txinv ) {
+	QPainter *that = (QPainter*)this;	// mutable
+	that->updateInvXForm();
     }
-    return a;
+    return ixmat * ad;
+#else
+    // ###
+    return ad;
+#endif
 }
 
 /*!
@@ -2031,13 +2012,19 @@ QPointArray QPainter::xFormDev( const QPointArray &ad, int index,
 {
     int lastPoint = npoints < 0 ? ad.size() : index+npoints;
     QPointArray a( lastPoint-index );
-    int x, y, i=index, j=0;
-    while ( i<lastPoint ) {
-	ad.point( i++, &x, &y );
-	mapInv( x, y, &x, &y );
-	a.setPoint( j++, x, y );
+    memcpy( a.data(), ad.data()+index, (lastPoint-index)*sizeof( QPoint ) );
+#ifndef QT_NO_TRANSFORMATIONS
+    if ( txop == TxNone )
+	return a;
+    if ( !txinv ) {
+	QPainter *that = (QPainter*)this;	// mutable
+	that->updateInvXForm();
     }
+    return ixmat * a;
+#else
+    // ###
     return a;
+#endif
 }
 
 

@@ -98,6 +98,7 @@ public:
 	Points, Areas 
     };
     static void setTransformationMode( QWMatrix::TransformationMode m );
+    static TransformationMode transformationMode();
 private:
     QWMatrix   &bmul( const QWMatrix & );
     double	_m11, _m12;
