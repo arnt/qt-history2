@@ -505,7 +505,7 @@ void QWaitCondition::wakeAll()
     d->s.enter();
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
-        if ( !SetEvent( d->handle ) ) {
+        if ( !PulseEvent( d->handle ) ) {
     #ifdef QT_CHECK_RANGE
         qSystemWarning( "Condition could not be set" );
     #endif
