@@ -70,9 +70,6 @@ resources?
 EAa: We should probably strive to match Win Look & Feel even closer
 
 
-Use big enough ints/long-pairs in QPainter world transform to allow at
- int-range for at least offsets.  This will improve QScrollView.
-
 Use "top" and "bottom" logical color names rather than "light" and
  "dark" physical names. THEN, use Motif's algorithm for setting those
   colours (it's not just "lighter" and "darker", see -bg white and -bg black)
@@ -80,7 +77,6 @@ Support for Multiple X11 displays.  Tricky.  Not very useful.
 Completely rework "modality".
     - Remove "parent widget is window to centre wrt if modal"
 	- add real "widget to centre wrt" functionality.
-Provide virtual functions for all new Event_* types.
 All QApplication statics should be virtual methods - use qApp->... to
  access them.  This allows for overriding, and paves the way for supporting
  multiple QApplication objects.
@@ -89,7 +85,6 @@ PNG.  MNG MNG MNG.  !GIF.  Unisys die die die.
 Light-weight KDE stuff (eg. respecting colours, style, etc.)
 QListView *Event() redirection is BAD.  Especially since QScrollView
  already does something similar.
-QPaintEvent should have a region(), and we should use it throughout.
 Change QMultiLineEdit to use QString* much less - use QString instead.
 Q*Dict must use QString, so the QIntDict and QPtrDict hackery
  needs to be done some other way (eg. implement QDictTemplate that
