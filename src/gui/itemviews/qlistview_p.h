@@ -222,17 +222,15 @@ public:
     inline QListViewItem(QRect r, int i)
         : x(r.x()), y(r.y()), w(r.width()), h(r.height()),
           indexHint(i), visited(0xffff) {}
-
-    inline bool operator==(const QListViewItem &other) const
-    {
+    inline bool operator==(const QListViewItem &other) const {
         return (x == other.x && y == other.y && w == other.w && h == other.h &&
-                indexHint == other.indexHint);
-    }
-
-    inline bool operator!=(const QListViewItem &other) const { return !(*this == other); }
-
-    inline QRect rect() { return QRect(x, y, w, h); }
-    inline bool isValid() { return (x > -1) && (y > -1) && (w > -1) && (h > -1) && (indexHint > -1); }
+                indexHint == other.indexHint); }
+    inline bool operator!=(const QListViewItem &other) const
+        { return !(*this == other); }
+    inline QRect rect()
+        { return QRect(x, y, w, h); }
+    inline bool isValid()
+        { return (x > -1) && (y > -1) && (w > -1) && (h > -1) && (indexHint > -1); }
 
     int x, y;
     short w, h;
@@ -288,6 +286,8 @@ public:
     QListView::LayoutMode layoutMode;
     QListView::ViewMode viewMode; 
 
+    // the properties controlling the
+    // icon- or list-view modes
     enum ModeProperties {
         Wrap = 1,
         Spacing = 2,
