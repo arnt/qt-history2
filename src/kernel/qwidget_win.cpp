@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#65 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#65 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -532,73 +532,35 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 }
 
 
-void QWidget::show()
+/*!
+  \internal
+  Platform-specific part of QWidget::show().
+*/
+
+void QWidget::showWindow()
 {
-    if ( testWFlags(WState_Visible) )
-	return;
-    if ( extra ) {
-	int w = crect.width();
-	int h = crect.height();
-	if ( w < extra->minw || h < extra->minh ||
-	     w > extra->maxw || h > extra->maxh ) {
-	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
-	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
-	    resize( w, h );			// deferred resize
-	}
-    }
-    sendDeferredEvents();
-    if ( children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {				// show all widget children
-	    object = it.current();		//   (except popups)
-	    ++it;
-	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
-		if ( !widget->testWFlags(WState_DoHide) )
-		    widget->show();
-	    }
-	}
-    }
-    if ( testWFlags(WStyle_Tool) ) {
+    if ( testWFlags(WStyle_Tool) )
 	SetWindowPos( winId(), 0,
 		      frect.x(), frect.y(), crect.width(), crect.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
-    } else if ( testWFlags(WType_TopLevel) && !testWFlags(WType_Popup) ) {
-	while ( QApplication::activePopupWidget() )
-	    QApplication::activePopupWidget()->hide();
-    }
-    ShowWindow( winId(), SW_SHOW );
+    else
+	ShowWindow( winId(), SW_SHOW );
     setWFlags( WState_Visible );
     clearWFlags( WState_DoHide );
     UpdateWindow( winId() );
-    if ( testWFlags(WType_Modal) )
-	qt_enter_modal( this );
-    else if ( testWFlags(WType_Popup) )
-	qt_open_popup( this );
 }
 
-void QWidget::hide()
+
+/*!
+  \internal
+  Platform-specific part of QWidget::hide().
+*/
+
+void QWidget::hideWindow()
 {
-    if ( testWFlags(WFocusSet) || focusChild ) {
-	QWidget *w = this;
-	while ( w->focusChild )			// descend focus chain
-	    w = w->focusChild;
-	w->clearFocus();
-    }
-    setWFlags( WState_DoHide );
-    if ( !testWFlags(WState_Visible) )
-	return;
-    if ( testWFlags(WType_Modal) )
-	qt_leave_modal( this );
-    else if ( testWFlags(WType_Popup) )
-	qt_close_popup( this );
     ShowWindow( winId(), SW_HIDE );
-    clearWFlags( WState_Visible );
-    cancelMove();
-    cancelResize();
 }
+
 
 void QWidget::iconify()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#175 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#174 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#175 $");
 
 
 /*!
@@ -602,6 +602,9 @@ QWidget::~QWidget()
 	QFontMetrics::reset( this );
     if ( testWFlags(WExportFontInfo) )		// remove references to this
 	QFontInfo::reset( this );
+
+    if ( isTopLevel() && isVisible() )
+	hide();					// emit lastWindowClosed?
 
     // A parent widget must destroy all its children before destroying itself
     if ( childObjects ) {			// delete children objects
@@ -1778,7 +1781,7 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 /*
   Returns TRUE if there's no visible top level window (except the desktop).
-  This is an internal function used by QWidget::close().
+  This is an internal function used by QWidget::hide().
 */
 
 static bool noVisibleTLW()
@@ -1792,6 +1795,105 @@ static bool noVisibleTLW()
     }
     delete list;
     return widget == 0;
+}
+
+
+void qt_enter_modal( QWidget * );		// defined in qapp_xxx.cpp
+void qt_leave_modal( QWidget * );		// --- "" ---
+bool qt_modal_state();				// --- "" ---
+void qt_open_popup( QWidget * );		// --- "" ---
+void qt_close_popup( QWidget * );		// --- "" ---
+
+
+/*!
+  Shows the widget and its child widgets.
+
+  If its size or position has changed, Qt guarantees that a widget gets
+  move and resize events just before the widget is shown.
+
+  \sa hide(), iconify(), isVisible()
+*/
+
+void QWidget::show()
+{
+    if ( testWFlags(WState_Visible) )
+	return;
+    if ( extra ) {
+	int w = crect.width();
+	int h = crect.height();
+	if ( w < extra->minw || h < extra->minh ||
+	     w > extra->maxw || h > extra->maxh ) {
+	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
+	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
+	    resize( w, h );			// deferred resize
+	}
+    }
+    sendDeferredEvents();
+    if ( children() ) {
+	QObjectListIt it(*children());
+	register QObject *object;
+	QWidget *widget;
+	while ( it ) {				// show all widget children
+	    object = it.current();		//   (except popups)
+	    ++it;
+	    if ( object->isWidgetType() ) {
+		widget = (QWidget*)object;
+		if ( !widget->testWFlags(WState_DoHide) )
+		    widget->show();
+	    }
+	}
+    }
+    if ( testWFlags(WStyle_Tool) ) {
+	raise();
+    } else if ( testWFlags(WType_TopLevel) && !testWFlags(WType_Popup) ) {
+	while ( QApplication::activePopupWidget() )
+	    QApplication::activePopupWidget()->hide();
+    }
+    showWindow();
+#if !defined(_WS_WIN_)
+    // The Windows implementation does this in showWindow()
+    setWFlags( WState_Visible );
+    clearWFlags( WState_DoHide );
+#endif
+    if ( testWFlags(WType_Modal) )
+	qt_enter_modal( this );
+    else if ( testWFlags(WType_Popup) )
+	qt_open_popup( this );
+}
+
+
+/*!
+  Hides the widget.
+
+  The QApplication::lastWindowClosed() signal is emitted when the last
+  visible top level widget is hidden,
+
+  \sa show(), iconify(), isVisible()
+*/
+
+void QWidget::hide()
+{
+    if ( testWFlags(WFocusSet) || focusChild ) {
+	QWidget *w = this;
+	while ( w->focusChild )			// descend focus chain
+	    w = w->focusChild;
+	w->clearFocus();
+    }
+    setWFlags( WState_DoHide );
+    if ( !testWFlags(WState_Visible) )
+	return;
+    if ( testWFlags(WType_Modal) )
+	qt_leave_modal( this );
+    else if ( testWFlags(WType_Popup) )
+	qt_close_popup( this );
+    hideWindow();
+    clearWFlags( WState_Visible );
+    cancelMove();
+    cancelResize();
+    if ( isTopLevel() ) {			// last TLW hidden?
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
+    }
 }
 
 
@@ -1810,6 +1912,9 @@ static bool noVisibleTLW()
   The application is \link QApplication::quit() terminated\endlink when
   the \link QApplication::setMainWidget() main widget\endlink is closed.
 
+  The QApplication::lastWindowClosed() signal is emitted when the last
+  visible top level widget is closed.
+
   \sa closeEvent(), QCloseEvent, hide(), QApplication::quit(),
   QApplication::setMainWidget()
 */
@@ -1821,8 +1926,6 @@ bool QWidget::close( bool forceKill )
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
-	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	return TRUE;
@@ -1831,8 +1934,6 @@ bool QWidget::close( bool forceKill )
 	accept = TRUE;
     if ( accept ) {
 	hide();
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
-	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
 	else if ( forceKill || testWFlags(WDestructiveClose) )

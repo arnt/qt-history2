@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#183 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#182 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#183 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -378,13 +378,11 @@ bool QWidget::destroy()
 #endif
 
 /*!
-  This function is provided in case a widget should feel \e really
-  bad, regret that it was even born.
+  Reparents the widget.  The widget gets a new \aparent, new widget
+  flags (\af, but as usual, use 0) at a new position in its new parent
+  (\ap).
 
-  It gives the widget a fresh start, new \e parent, new widget flags
-  (\e f, but as usual, use 0) at a new position in its new parent (\e p).
-
-  If \e showIt is TRUE, show() is called once the widget has been
+  If \a showIt is TRUE, show() is called once the widget has been
   recreated.
 
   \sa getWFlags()
@@ -920,83 +918,24 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 
 /*!
-  Shows the widget and its child widgets.
-
-  If its size or position has changed, Qt guarantees that a widget gets
-  move and resize events just before the widget is shown.
-
-  \sa hide(), iconify(), isVisible()
+  \internal
+  Platform-specific part of QWidget::show().
 */
 
-void QWidget::show()
+void QWidget::showWindow()
 {
-    if ( testWFlags(WState_Visible) )
-	return;
-    if ( extra ) {
-	int w = crect.width();
-	int h = crect.height();
-	if ( w < extra->minw || h < extra->minh ||
-	     w > extra->maxw || h > extra->maxh ) {
-	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
-	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
-	    resize( w, h );			// deferred resize
-	}
-    }
-    sendDeferredEvents();
-    if ( children() ) {
-	QObjectListIt it(*children());
-	register QObject *object;
-	QWidget *widget;
-	while ( it ) {				// show all widget children
-	    object = it.current();		//   (except popups)
-	    ++it;
-	    if ( object->isWidgetType() ) {
-		widget = (QWidget*)object;
-		if ( !widget->testWFlags(WState_DoHide) )
-		    widget->show();
-	    }
-	}
-    }
-    if ( testWFlags(WType_Popup) ) {
-	raise();
-    } else if ( testWFlags(WType_TopLevel) && !testWFlags(WStyle_Tool) ) {
-	while ( QApplication::activePopupWidget() )
-	    QApplication::activePopupWidget()->hide();
-    }
-    XMapWindow( dpy, winid );
-    setWFlags( WState_Visible );
-    clearWFlags( WState_DoHide );
-    if ( testWFlags(WType_Modal) )
-	qt_enter_modal( this );
-    else if ( testWFlags(WType_Popup) )
-	qt_open_popup( this );
+    XMapWindow( dpy, winId() );
 }
 
 
 /*!
-  Hides the widget.
-  \sa show(), iconify(), isVisible()
+  \internal
+  Platform-specific part of QWidget::hide().
 */
 
-void QWidget::hide()
+void QWidget::hideWindow()
 {
-    if ( testWFlags(WFocusSet) || focusChild ) {
-	QWidget *w = this;
-	while ( w->focusChild )			// descend focus chain
-	    w = w->focusChild;
-	w->clearFocus();
-    }
-    setWFlags( WState_DoHide );
-    if ( !testWFlags(WState_Visible) )
-	return;
-    if ( testWFlags(WType_Modal) )
-	qt_leave_modal( this );
-    else if ( testWFlags(WType_Popup) )
-	qt_close_popup( this );
-    XUnmapWindow( dpy, winid );
-    clearWFlags( WState_Visible );
-    cancelMove();
-    cancelResize();
+    XUnmapWindow( dpy, winId() );
 }
 
 
