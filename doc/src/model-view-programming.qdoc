@@ -618,10 +618,10 @@ view.
 The delegate implemented here uses a \l QSpinBox to provide editing
 facilities, and is mainly intended for use with models that display
 integers. Although we set up a custom integer-based table model for
-this purpose, the way that data in the model is accessed would also
-allow a string-based model to be used with only minor inconvenience
-when editing. We also construct a table view so that we can manipulate
-the model's data.
+this purpose, we could easily have used \l QStandardItemModel instead
+since the custom delegate will control data entry. We construct a
+table view to display the contents of the model, and this will use
+the custom delegate for editing.
 
 \img spinbox-delegate.png
 
@@ -641,28 +641,30 @@ constructed. We only construct an editor widget when it is needed.
 In this example, when the table view needs to provide an editor, it
 asks the delegate to provide an editor widget that is appropriate
 for the item being modified. The
-\l{QAbstractItemDelegate::editor()}{editor()} function is supplied
-with everything that the delegate needs to be able to set up a
-suitable widget.
+\l{QAbstractItemDelegate::createEditor()}{createEditor()} function is
+supplied with everything that the delegate needs to be able to set up
+a suitable widget:
 
 \quotefile spinbox-delegate/delegate.cpp
-\skipto QWidget *SpinBoxDelegate::editor
+\skipto QWidget *SpinBoxDelegate::createEditor
 \printuntil }
 
-We provide basic editing features with a spin box, checking only that
-we are allowed to provide an editor. If the editor is not the expected
-spin box, we cancel the editor process. We install the delegate's default
-event filter on the editor to ensure that it provides the standard editing
-shortcuts that users expect. Additional shortcuts can be added to the
-editor to allow more sophisticated behavior; these are discussed in the
-section on \l{#EditingHints}{Editing Hints}.
+Note that we do not need to keep a pointer to the editor widget because
+the view takes responsibility for destroying it when it is no longer
+needed.
 
-The view ensures that we set up the editor's data and geometry
-correctly by calling functions that we define later for this purpose.
-We can create different editors depending on say, the model index, for
-example if we have a column of integers and a column of strings we
-could return a \c QSpinBox or a \c QLineEdit depending on which column
-the item to be edited is in.
+We install the delegate's default event filter on the editor to ensure
+that it provides the standard editing shortcuts that users expect.
+Additional shortcuts can be added to the editor to allow more
+sophisticated behavior; these are discussed in the section on
+\l{#EditingHints}{Editing Hints}.
+
+The view ensures that the editor's data and geometry are set
+correctly by calling functions that we define later for these purposes.
+We can create different editors depending on the model index supplied
+by the view. For example, if we have a column of integers and a column
+of strings we could return either a \c QSpinBox or a \c QLineEdit,
+depending on which column is being edited.
 
 The delegate must provide a function to copy model data into the
 editor. In this example, we read the data stored in the
@@ -674,42 +676,30 @@ spin box accordingly.
 
 In this example, we know that the editor widget is a spin box, but we
 could have provided different editors for different types of data in
-the model, in which case we'd need to determine the type used and cast
-accordingly.
+the model, in which case we would need to cast the widget to the
+appropriate type before accessing its member functions.
 
 \section2 Submitting Data to the Model
 
 When the user has finished editing the value in the spin box, the view
 asks the delegate to store the edited value in the model by calling the
 \l{QAbstractItemDelegate::setModelData()}{setModelData()} function.
-Delegates can inform the view that they want to write data to the model
-by emitting the
-\l{QAbstractItemDelegate::commitData()}{commitData()} signal.
 
 \quotefile spinbox-delegate/delegate.cpp
 \skipto void SpinBoxDelegate::setModelData
 \printuntil /^\}/
 
-Since we only create one editor widget at a time, we can easily check
-whether the editor supplied is the spin box that we created, and update
-the model. We ensure that the spin box is up-to-date, and update the
-model with its value using the index specified.
+Since the view manages the editor widgets for the delegate, we only
+need to update the model with the contents of the editor supplied.
+In this case, we ensure that the spin box is up-to-date, and update
+the model with the value it contains using the index specified.
 
 The standard \l QItemDelegate class informs the view when it has
 finished editing by emitting the 
 \l{QAbstractItemDelegate::closeEditor()}{closeEditor()} signal.
-The view calls the delegate's
-\l{QAbstractItemDelegate::releaseEditor()}{releaseEditor()} function
-to ensure that the editor widget is closed:
-
-\quotefile spinbox-delegate/delegate.cpp
-\skipto void SpinBoxDelegate::releaseEditor
-\printuntil /^\}/
-
-In this function, we check that the supplied editor is the spin box
-widget before removing its event filter and cleaning up.
-A new editor widget will be created by the delegate the
-next time the view requires one.
+The view ensures that the editor widget is closed and destroyed. In
+this example, we only provide simple editing facilities, so we need
+never emit this signal.
 
 All the operations on data are performed through the interface
 provided by \l QAbstractItemModel. This makes the delegate mostly
@@ -742,10 +732,10 @@ position the editor in relation to the other elements in the item.
 After editing, delegates should provide hints to the other components
 about the result of the editing process, and provide hints that will
 assist any subsequent editing operations. This is achieved by
-providing a suitable hint with the
-\l{QAbstractItemDelegate::closeEditor()}{closeEditor()} signal, and
-this is taken care of by the default QItemDelegate event filter which
-we installed on the spin box when it was constructed.
+emitting the \l{QAbstractItemDelegate::closeEditor()}{closeEditor()}
+signal with a suitable hint. This is taken care of by the default
+QItemDelegate event filter which we installed on the spin box when
+it was constructed.
 
 The behavior of the spin box could be adjusted to make it more user
 friendly. In the default event filter supplied by QItemDelegate, if
@@ -753,8 +743,8 @@ the user hits \key Return to confirm their choice in the spin box,
 the delegate commits the value to the model and closes the spin box.
 We can change this behavior by installing our own event filter on the
 spin box, and provide editing hints that suit our needs; for example,
-we might emit closeEditor() with the
-\l{QAbstractItemDelegate::EndEditHint}{EditNextItem} hint to
+we might emit \l{QAbstractItemDelegate::closeEditor()}{closeEditor()}
+with the \l{QAbstractItemDelegate::EndEditHint}{EditNextItem} hint to
 automatically start editing the next item in the view.
 
 Another approach that does not require the use of an event
@@ -763,19 +753,11 @@ QSpinBox for convenience. This alternative approach would give us
 more control over how the editor widget behaves at the cost of
 writing additional code. It is usually easier to install an event
 filter in the delegate if you need to customize the behavior of
-standard Qt editor widgets.
+a standard Qt editor widget.
 
 Delegates do not have to emit these hints, but those that do not will
 be less integrated into applications, and will be less usable than
 those that emit hints to support common editing actions.
-
-\section2 Comments
-
-The way the delegate provides editor widgets in this example is
-quite simple: they are constructed on demand, and deleted when no
-longer needed. A more sophisticated approach might be used to
-provide user-friendly editing features, such as a record of
-previously submitted values.
 
 */
 
