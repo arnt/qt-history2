@@ -131,7 +131,7 @@ private:
 public:
     QMacMimeAnyMime() : QMacMime(MIME_QT_CONVERTOR|MIME_ALL) {
 #ifdef USE_INTERNET_CONFIG
-        internet_config = NULL;
+        internet_config = 0;
 #else
         current_max = 'QT00';
 #endif
@@ -386,7 +386,7 @@ const char* QMacMimeAnyMime::mimeFor(int flav)
         if(it.value() == flav)
             return it.key().latin1();
     }
-    return NULL;
+    return 0;
 }
 
 bool QMacMimeAnyMime::canConvert(const char* mime, int flav)
@@ -467,7 +467,7 @@ const char* QMacMimeText::mimeFor(int flav)
         return "text/plain";
     else if(flav == kScrapFlavorTypeUnicode)
         return "text/plain;charset=ISO-10646-UCS-2";
-    return NULL;
+    return 0;
 }
 
 bool QMacMimeText::canConvert(const char* mime, int flav)
@@ -667,7 +667,7 @@ const char* QMacMimeFileUri::mimeFor(int flav)
 {
     if(flav == typeFileURL)
         return "text/uri-list";
-    return NULL;
+    return 0;
 }
 
 bool QMacMimeFileUri::canConvert(const char* mime, int flav)
@@ -758,7 +758,7 @@ const char* QMacMimeHFSUri::mimeFor(int flav)
 {
     if(flav == kDragFlavorTypeHFS)
         return "text/uri-list";
-    return NULL;
+    return 0;
 }
 
 bool QMacMimeHFSUri::canConvert(const char* mime, int flav)
@@ -850,10 +850,12 @@ const char* QMacMime::flavorToMime(QMacMimeType t, int flav)
 {
     MimeList *mimes = globalMimeList();
     for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
-        if((*it)->type & t)
-            return (*it)->mimeFor(flav);
+        if((*it)->type & t) {
+            if(const char *mimeType = (*it)->mimeFor(flav))
+                return mimeType; 
+        }
     }
-    return NULL;
+    return 0;
 }
 
 /*!
