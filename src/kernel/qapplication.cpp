@@ -292,6 +292,7 @@ int	  QApplication::cursor_flash_time = 1000;	// text caret flash time
 int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 bool	  qt_is_gui_used;
+bool      qt_resolve_symlinks = TRUE;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
@@ -456,7 +457,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    if ( !setStyle( s ) )
 		qWarning("Invalid -style option");
 	}
-#endif	
+#endif
     }
 
 #ifdef Q_WS_MACX
@@ -667,7 +668,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
   the default Visual and Colormap contexts.
 
   This is available only on X11.
-    
+
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
@@ -1150,12 +1151,12 @@ void QApplication::setColorSpec( int spec )
 */
 
 /*!
-  Sets the application's global strut to \a strut.  
-  
+  Sets the application's global strut to \a strut.
+
   The strut is a size object whose dimensions are the minimum that any
   GUI element that the user can interact with should have. For example
   no button should be resized to be smaller than the global strut size.
-  
+
   The strut size should be considered when reimplementing GUI controls
   that may be used on touch-screens or similar IO-devices.
 
@@ -1668,7 +1669,7 @@ void QApplication::closeAllWindows()
 /*!
   \fn void QApplication::lastWindowClosed()
 
-  This signal is emitted when the user has closed the last 
+  This signal is emitted when the user has closed the last
   top level window.
 
   The signal is very useful when your application has many top level
@@ -1735,8 +1736,8 @@ void QApplication::closeAllWindows()
   mouse, wheel and key events.
 
   Reimplementing this virtual function is one of five ways to process
-  an event: 
-  <ol> 
+  an event:
+  <ol>
   <li> Reimplementing this function.  Very powerful,
   you get \e complete control, but of course only one subclass can be
   qApp.
@@ -1757,7 +1758,7 @@ void QApplication::closeAllWindows()
   gets all the events except Tab and Shift-Tab key presses.
 
   <li> Finally, reimplementing paintEvent(), mousePressEvent() and so
-  on.  This is the normal, easiest and least powerful way. 
+  on.  This is the normal, easiest and least powerful way.
   </ol>
 
   \sa QObject::event(), installEventFilter()
@@ -1991,8 +1992,8 @@ void QApplication::processEvents()
   Waits for an event to occur, processes it, then returns.
 
   This function is useful for adapting Qt to situations where the
-  event processing must be grafted into existing program loops. 
-  
+  event processing must be grafted into existing program loops.
+
   Using this function in new applications may be an indication of design
   problems.
 
@@ -2063,7 +2064,7 @@ void QApplication::syncX()	{}		// do nothing
 
   Multiple messages files can be installed. Translations are searched
   for in the last message file installed back to the first message file
-  installed. The search stops as soon as a matching translation is found. 
+  installed. The search stops as soon as a matching translation is found.
 
   \sa removeTranslator() translate() QTranslator::load()
 */
@@ -2076,7 +2077,7 @@ void QApplication::installTranslator( QTranslator * mf )
 	translators->insert( 0, mf );
 
     // hook to set the layout direction of dialogs.
-    if( tr( "QT_LAYOUT_DIRECTION", 
+    if( tr( "QT_LAYOUT_DIRECTION",
 	    "this should return the string 'RTL' for languages that "
 	    "are written from right to left such as Hebrew and Arabic. "
 	    "It has the effect of mirroring the whole layout of the "
@@ -2288,7 +2289,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 }
 
 
-/*! Dispatches all posted events, i.e. empties the event queue. 
+/*! Dispatches all posted events, i.e. empties the event queue.
 \overload
 */
 void QApplication::sendPostedEvents()

@@ -390,6 +390,8 @@ extern Atom qt_xdnd_selection;
 // gui or non-gui from qapplication.cpp
 extern bool qt_is_gui_used;
 
+extern bool qt_resolve_symlinks; // from qapplication.cpp
+
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
@@ -936,6 +938,9 @@ bool QApplication::x11_apply_settings()
 
     qt_broken_wm =
 	settings.readBoolEntry("/qt/brokenWindowManager", FALSE);
+
+    qt_resolve_symlinks =
+	settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
 
     if (update_timestamp) {
 	QBuffer stamp;

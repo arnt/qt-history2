@@ -888,6 +888,7 @@ void QUrl::setEncodedPathAndQuery( const QString& pathAndQuery )
   parsed or set.
 */
 
+extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 QString QUrl::path( bool correct ) const
 {
     if ( !correct )
@@ -917,13 +918,19 @@ QString QUrl::path( bool correct ) const
 		if ( !fi.exists() )
 		    d->cleanPath = d->path;
 		else if ( fi.isDir() ) {
-		    QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
+		    QString dir =
+			QDir::cleanDirPath( qt_resolve_symlinks ?
+					    QDir( d->path ).canonicalPath() :
+					    QDir( d->path ).absPath() ) + "/";
 		    if ( dir == "//" )
 			d->cleanPath = "/";
 		    else
 			d->cleanPath = dir;
 		} else {
-		    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
+		    QString p =
+			QDir::cleanDirPath( qt_resolve_symlinks ?
+					    fi.dir().canonicalPath() :
+					    fi.dir().absPath() );
 		    d->cleanPath = p + "/" + fi.fileName();
 		}
 	    }

@@ -108,23 +108,27 @@ public:
 				    const QString &filter = QString::null,
 				    QWidget *parent = 0, const char* name = 0,
 				    const QString &caption = QString::null,
-				    QString *selectedFilter = 0 );
+				    QString *selectedFilter = 0,
+				    bool resolveSymlinks = TRUE);
     static QString getSaveFileName( const QString &initially = QString::null,
 				    const QString &filter = QString::null,
 				    QWidget *parent = 0, const char* name = 0,
 				    const QString &caption = QString::null,
-				    QString *selectedFilter = 0 );
+				    QString *selectedFilter = 0,
+				    bool resolveSymlinks = TRUE);
     static QString getExistingDirectory( const QString &dir = QString::null,
 					 QWidget *parent = 0,
 					 const char* name = 0,
 					 const QString &caption = QString::null,
-					 bool dirOnly = TRUE );
+					 bool dirOnly = TRUE,
+					 bool resolveSymlinks = TRUE);
     static QStringList getOpenFileNames( const QString &filter= QString::null,
 					 const QString &dir = QString::null,
 					 QWidget *parent = 0,
 					 const char* name = 0,
 					 const QString &caption = QString::null,
-					 QString *selectedFilter = 0 );
+					 QString *selectedFilter = 0,
+					 bool resolveSymlinks = TRUE);
 
     // other static functions
 

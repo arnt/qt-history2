@@ -3092,7 +3092,7 @@ void QFileDialog::rereadDir()
   The file dialog's working directory will be set to \a startWith. If \a
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
-  are shown.  The filter selected is set to \a selectedFilter. The parameters 
+  are shown.  The filter selected is set to \a selectedFilter. The parameters
   \a startWith, \a selectedFilter and \a filter may be QString::null.
 
     The dialog's caption is set to \a caption. If \a caption is not
@@ -3104,15 +3104,27 @@ void QFileDialog::rereadDir()
   static function will use the native Mac file dialog and not a
   QFileDialog.
 
+  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
+  the file dialog will change to /var/tmp after entering /usr/tmp.
+  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
+  symlinks, but it will treat them as regular directories.
+
   \sa getOpenFileNames(), getSaveFileName(), getExistingDirectory()
 */
+
+extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 QString QFileDialog::getOpenFileName( const QString & startWith,
 				      const QString& filter,
 				      QWidget *parent, const char* name,
 				      const QString& caption,
-				      QString *selectedFilter )
+				      QString *selectedFilter,
+				      bool resolveSymlinks )
 {
+    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
+    qt_resolve_symlinks = resolveSymlinks;
+
     QStringList filters;
     if ( !filter.isEmpty() )
 	filters = makeFiltersList( filter );
@@ -3176,6 +3188,8 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     }
     delete dlg;
 
+    qt_resolve_symlinks = save_qt_resolve_symlinks;
+
     return result;
 }
 
@@ -3198,7 +3212,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   The file dialog's working directory will be set to \a startWith. If \a
   startWith includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
-  are shown.  The filter selected is set to \a selectedFilter. The parameters 
+  are shown.  The filter selected is set to \a selectedFilter. The parameters
   \a startWith, \a selectedFilter and \a filter may be QString::null.
 
     The dialog's caption is set to \a caption. If \a caption is not
@@ -3210,6 +3224,12 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   static function will use the native Mac file dialog and not a
   QFileDialog.
 
+  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
+  the file dialog will change to /var/tmp after entering /usr/tmp.
+  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
+  symlinks, but it will treat them as regular directories.
+
   \sa getOpenFileName(), getOpenFileNames(), getExistingDirectory()
 */
 
@@ -3217,8 +3237,12 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 				      const QString& filter,
 				      QWidget *parent, const char* name,
 				      const QString& caption,
-				      QString *selectedFilter )
+				      QString *selectedFilter,
+				      bool resolveSymlinks)
 {
+    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
+    qt_resolve_symlinks = resolveSymlinks;
+
     QStringList filters;
     if ( !filter.isEmpty() )
 	filters = makeFiltersList( filter );
@@ -3273,6 +3297,9 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	    *selectedFilter = dlg->selectedFilter();
     }
     delete dlg;
+
+    qt_resolve_symlinks = save_qt_resolve_symlinks;
+
     return result;
 }
 
@@ -4065,6 +4092,12 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   If \a dirOnly is TRUE, then only directories will be shown in
   the file dialog; otherwise both directories and files will be shown.
 
+  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
+  the file dialog will change to /var/tmp after entering /usr/tmp.
+  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
+  symlinks, but it will treat them as regular directories.
+
   \sa getOpenFileName(), getOpenFileNames(), getSaveFileName()
 */
 
@@ -4072,8 +4105,12 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 					   QWidget *parent,
 					   const char* name,
 					   const QString& caption,
-					   bool dirOnly )
+					   bool dirOnly,
+					   bool resolveSymlinks)
 {
+    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
+    qt_resolve_symlinks = resolveSymlinks;
+
     makeVariables();
     QString wd;
     if ( workingDirectory )
@@ -4137,6 +4174,8 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 
     if ( !result.isEmpty() && result.right( 1 ) != "/" )
 	result += "/";
+
+    qt_resolve_symlinks = save_qt_resolve_symlinks;
 
     return result;
 }
@@ -5004,7 +5043,7 @@ void QFileDialog::modeButtonsDestroyed()
   The file dialog's working directory will be set to \a dir. If \a
   dir includes a file name, the file will be selected. The filter
   is set to \a filter so that only those files which match the filter
-  are shown.  The filter selected is set to \a selectedFilter. The parameters 
+  are shown.  The filter selected is set to \a selectedFilter. The parameters
   \a dir, \a selectedFilter and \a filter may be QString::null.
 
     The dialog's caption is set to \a caption. If \a caption is not
@@ -5015,6 +5054,12 @@ void QFileDialog::modeButtonsDestroyed()
   than Windows style.  In the Mac OS X version of Qt, this static function will use the native Mac
   file dialog and not a QFileDialog.
 
+  Note: under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks.  For example, if /usr/tmp is a symlink to /var/tmp,
+  the file dialog will change to /var/tmp after entering /usr/tmp.
+  If \a resolveSymlinks is FALSE, the file dialog will not resolve and follow
+  symlinks, but it will treat them as regular directories.
+
   \sa getOpenFileName(), getSaveFileName(), getExistingDirectory()
 */
 
@@ -5023,8 +5068,12 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 					   QWidget *parent,
 					   const char* name,
 					   const QString& caption,
-					   QString *selectedFilter )
+					   QString *selectedFilter,
+					   bool resolveSymlinks )
 {
+    bool save_qt_resolve_symlinks = qt_resolve_symlinks;
+    qt_resolve_symlinks = resolveSymlinks;
+
     QStringList filters;
     if ( !filter.isEmpty() )
 	filters = makeFiltersList( filter );
@@ -5091,6 +5140,9 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	    *selectedFilter = dlg->selectedFilter();
     }
     delete dlg;
+
+    qt_resolve_symlinks = save_qt_resolve_symlinks;
+
     return lst;
 }
 
