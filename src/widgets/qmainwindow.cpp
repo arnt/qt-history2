@@ -2331,10 +2331,10 @@ QDockArea *QMainWindow::bottomDock() const
     means of telling the application that they wish to customize the
     main window, dock windows or dock areas.
 
-    The default implementation does nothing, but this may change in
-    later Qt versions. In view of this the Customize menu item is not
-    shown on the right-click menu by default. If you want the item to
-    appear then reimplement isCustomizable() to return TRUE.
+    The default implementation does nothing and the Customize menu
+    item is not shown on the right-click menu by default. If you want
+    the item to appear then reimplement isCustomizable() to return
+    TRUE, and reimplement this function to do whatever you want.
 
     \sa isCustomizable()
 */

@@ -43,6 +43,7 @@
 \keyword explicit sharing
 \keyword implicitly shared
 \keyword explicitly shared
+\keyword explicit sharing
 \keyword shared implicitly
 \keyword shared explicitly
 
@@ -188,9 +189,8 @@ These classes have a detach() function that can be called if you want your
 object to get a private copy of the shared data.  They also have a copy()
 function that returns a deep copy with a reference count of 1.
 
-The same is true for \l QImage, which does not inherit QMemArray.  \l QMovie
+The same is true for \l QImage, which does not inherit QMemArray. \l QMovie
 is also explicitly shared, but it does not support detach() and copy().
-
 
 \section1 Implicitly Shared Classes
 

@@ -2947,8 +2947,8 @@ bool QWidget::hasFocus() const
 
 /*!
     Gives the keyboard input focus to this widget (or its focus
-    proxy) if this widget is the \link isActiveWindow() active
-    window\endlink.
+    proxy) if this widget or one of its parents is the \link
+    isActiveWindow() active window\endlink.
 
     First, a focus out event is sent to the focus widget (if any) to
     tell it that it is about to lose the focus. Then a focus in event

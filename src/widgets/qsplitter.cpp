@@ -889,6 +889,8 @@ void QSplitter::recalc( bool update )
     This enum type describes how QSplitter will resize each of its
     child widgets.
 
+    \value Auto (internal)
+
     \value Stretch  the widget will be resized when the splitter
     itself is resized.
 
