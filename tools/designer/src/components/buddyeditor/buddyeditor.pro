@@ -11,7 +11,8 @@ DESTDIR = ../../../lib
 INCLUDEPATH += ../../lib/sdk \
     ../../shared \
     ../../uilib \
-    ../../lib/extension
+    ../../lib/extension \
+    ../formeditor
 
 HEADERS += buddyeditor.h buddyeditor_global.h
 

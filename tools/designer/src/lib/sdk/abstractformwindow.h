@@ -103,6 +103,8 @@ signals:
     void aboutToUnmanageWidget(QWidget *widget);
     void activated(QWidget *widget);
     void featureChanged(Feature f);
+    void widgetRemoved(QWidget *w);
+    void widgetsChanged();
     
 private:
     QString m_comment, m_author;

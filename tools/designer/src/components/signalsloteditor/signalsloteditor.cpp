@@ -375,7 +375,7 @@ QString SignalSlotConnection::receiver() const
 */
 
 SignalSlotEditor::SignalSlotEditor(AbstractFormWindow *form_window, QWidget *parent)
-    : ConnectionEdit(parent, form_window->commandHistory())
+    : ConnectionEdit(parent, form_window)
 {
     m_form_window = form_window;
 }

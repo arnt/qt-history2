@@ -191,6 +191,7 @@ public:
     void endCommand();
 
     void emitSelectionChanged();
+    void emitWidgetsChanged();
 
     bool unify(QObject *w, QString &s, bool changeIt);
 
@@ -240,9 +241,6 @@ public slots:
 
     void breakLayout();
 
-    void addBuddy(Connection *con);
-    void removeBuddy(Connection *con);
-    
 protected:
     virtual QMenu *createPopupMenu(QWidget *w);
     virtual void resizeEvent(QResizeEvent *e);

@@ -310,16 +310,10 @@ void FormWindow::init()
     core()->metaDataBase()->add(this);
 
     m_signalSlotEditor = new SignalSlotEditor(this, this);
-    connect(this, SIGNAL(widgetUnmanaged(QWidget*)),
-                m_signalSlotEditor, SLOT(deleteWidgetItem(QWidget*)));
     m_signalSlotEditor->setGeometry(rect());
     m_signalSlotEditor->show();
 
     m_buddyEditor = new BuddyEditor(this, this);
-    connect(this, SIGNAL(widgetUnmanaged(QWidget*)),
-                m_buddyEditor, SLOT(deleteWidgetItem(QWidget*)));
-    connect(m_buddyEditor, SIGNAL(added(Connection*)), this, SLOT(addBuddy(Connection*)));
-    connect(m_buddyEditor, SIGNAL(aboutToRemove(Connection*)), this, SLOT(removeBuddy(Connection*)));
     m_buddyEditor->setGeometry(rect());
     m_buddyEditor->show();
 
@@ -376,7 +370,7 @@ void FormWindow::setMainContainer(QWidget *w)
     }
 
     m_signalSlotEditor->setBackground(w);
-//    m_buddyEditor->setBackground(w);
+    m_buddyEditor->setBackground(w);
 }
 
 void FormWindow::handlePaintEvent(QWidget *w, QPaintEvent *e)
@@ -817,6 +811,11 @@ void FormWindow::emitSelectionChanged()
     m_selectionChangedTimer->start(0);
 }
 
+void FormWindow::emitWidgetsChanged()
+{
+    emit widgetsChanged();
+}
+
 void FormWindow::selectionChangedTimerDone()
 {
     emit selectionChanged();
@@ -1213,7 +1212,7 @@ void FormWindow::deleteWidgets(const QList<QWidget*> &widget_list)
     beginCommand(tr("Delete"));
 
     foreach (QWidget *w, widget_list) {
-        m_signalSlotEditor->widgetRemoved(w);
+        emit widgetRemoved(w);
         DeleteWidgetCommand *cmd = new DeleteWidgetCommand(this);
         cmd->init(w);
         m_commandHistory->push(cmd);
@@ -1584,7 +1583,7 @@ void FormWindow::setContents(QIODevice *dev)
     m_insertedWidgets.clear();
     m_widgets.clear();
     m_signalSlotEditor->clear();
-//    m_buddyEditor->clear();
+    m_buddyEditor->clear();
     emit changed();
 
     QDesignerResource r(this);
@@ -2088,7 +2087,6 @@ void FormWindow::setEditMode(EditMode mode)
         case ConnectionEditMode:
             m_signalSlotEditor->updateBackground();
             m_signalSlotEditor->raise();
-            m_signalSlotEditor->updateLines();
             break;
 
         case TabOrderEditMode:
@@ -2096,9 +2094,8 @@ void FormWindow::setEditMode(EditMode mode)
             break;
 
         case BuddyEditMode:
-//            m_buddyEditor->updateBackground();
+            m_buddyEditor->updateBackground();
             m_buddyEditor->raise();
-//            m_buddyEditor->updateAllItems();
             break;
 
 #ifdef DESIGNER_VIEW3D
@@ -2136,20 +2133,6 @@ QList<QWidget *> FormWindow::widgets(QWidget *widget) const
 void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
 {
     m_signalSlotEditor->fromUi(connections, parent);
-}
-
-void FormWindow::addBuddy(Connection *con)
-{
-/*    SetBuddyCommand *command = new SetBuddyCommand(this);
-    command->init(qt_cast<BuddyConnection*>(con));
-    commandHistory()->push(command); */
-}
-
-void FormWindow::removeBuddy(Connection *con)
-{
-/*    ClearBuddyCommand *command = new ClearBuddyCommand(this);
-    command->init(qt_cast<BuddyConnection*>(con));
-    commandHistory()->push(command); */
 }
 
 #include "formwindow.moc"

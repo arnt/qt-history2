@@ -18,6 +18,7 @@
 #include <QMatrix>
 #include <qdebug.h>
 
+#include <abstractformwindow.h>
 #include "connectionedit.h"
 #include "qtundo.h"
 
@@ -114,6 +115,7 @@ void AddConnectionCommand::redo()
 {
     edit()->selectNone();
     edit()->m_con_list.append(m_con);
+    m_con->inserted();
     edit()->setSelected(m_con, true);
 }
 
@@ -121,6 +123,7 @@ void AddConnectionCommand::undo()
 {
     edit()->setSelected(m_con, false);
     m_con->update();
+    m_con->removed();
     edit()->m_con_list.removeAll(m_con);
 }
 
@@ -191,6 +194,7 @@ void DeleteConnectionsCommand::redo()
         Q_ASSERT(edit()->m_con_list.contains(con));
         edit()->setSelected(con, false);
         con->update();
+        con->removed();
         edit()->m_con_list.removeAll(con);
     }
 }
@@ -202,6 +206,7 @@ void DeleteConnectionsCommand::undo()
         edit()->m_con_list.append(con);
         edit()->setSelected(con, true);
         con->update();
+        con->inserted();
     }
 }
 
@@ -675,17 +680,20 @@ void Connection::checkWidgets()
 ** ConnectionEdit
 */
 
-ConnectionEdit::ConnectionEdit(QWidget *parent, QtUndoStack *undo_stack)
+ConnectionEdit::ConnectionEdit(QWidget *parent, AbstractFormWindow *form)
     : QWidget(parent)
 {
     m_bg_widget = 0;
     m_widget_under_mouse = 0;
     m_tmp_con = 0;
-    m_undo_stack = undo_stack;
+    m_undo_stack = form->commandHistory();
     m_active_color = Qt::red;
     m_inactive_color = Qt::blue;
     setAttribute(Qt::WA_MouseTracking, true);
     setFocusPolicy(Qt::ClickFocus);
+
+    connect(form, SIGNAL(widgetsChanged()), this, SLOT(updateBackground()));
+    connect(form, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
 }
 
 
@@ -706,7 +714,6 @@ void ConnectionEdit::setBackground(QWidget *background)
     
 void ConnectionEdit::updateBackground()
 {    
-    qDebug() << "ConnectionEdit::updateBackground()";
     if (m_bg_widget != 0) {
         m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
         updateLines();

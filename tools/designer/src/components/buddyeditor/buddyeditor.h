@@ -1,3 +1,4 @@
+//depot/qt/main/tools/designer/src/components/buddyeditor/buddyeditor.h#2 - edit change 165263 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -15,17 +16,25 @@
 #define BUDDYEDITOR_H
 
 #include <connectionedit.h>
-#include <abstractformwindow.h>
 #include "buddyeditor_global.h"
+
+class FormWindow;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditor : public ConnectionEdit
 {
     Q_OBJECT
 
 public:    
-    BuddyEditor(AbstractFormWindow *form_window, QWidget *parent);
+    BuddyEditor(FormWindow *form, QWidget *parent);
+    FormWindow *form() const { return m_form; }
+    
+protected:
+    virtual QWidget *widgetAt(const QPoint &pos) const;
+
 private:    
-    AbstractFormWindow *m_form_window;
+    virtual Connection *createConnection(QWidget *source, QWidget *destination);
+    
+    FormWindow *m_form;
 };
 
 #endif

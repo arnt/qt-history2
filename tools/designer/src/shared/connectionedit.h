@@ -24,6 +24,7 @@
 
 #include "shared_global.h"
 
+class AbstractFormWindow;
 class QtUndoStack;
 class Connection;
 class ConnectionEdit;
@@ -51,6 +52,7 @@ public:
     Connection(ConnectionEdit *edit);
     Connection(ConnectionEdit *edit, QWidget *source, QWidget *target);
     virtual ~Connection() {}
+    
     QWidget *widget(EndPoint::Type type) const 
         { return type == EndPoint::Source ? m_source : m_target; }
     QPoint endPointPos(EndPoint::Type type) const;
@@ -63,6 +65,7 @@ public:
     virtual void paint(QPainter *p) const;
 
     void update(bool update_widgets = true) const;
+    void checkWidgets();
 
     QString label(EndPoint::Type type) const 
         { return type == EndPoint::Source ? m_source_label : m_target_label; }
@@ -72,9 +75,10 @@ public:
         { return type == EndPoint::Source ? m_source_label_pm : m_target_label_pm; }
         
     ConnectionEdit *edit() const { return m_edit; }
-
-    void checkWidgets();
             
+    virtual void inserted() {}
+    virtual void removed() {}
+    
 private:
     QPoint m_source_pos, m_target_pos;
     QWidget *m_source, *m_target;
@@ -97,7 +101,7 @@ class QT_SHARED_EXPORT ConnectionEdit : public QWidget, public CETypes
 {
     Q_OBJECT
 public:
-    ConnectionEdit(QWidget *parent, QtUndoStack *undo_stack);
+    ConnectionEdit(QWidget *parent, AbstractFormWindow *form);
     
     inline QWidget *background() const { return m_bg_widget; }
     void setBackground(QWidget *background);
@@ -129,14 +133,14 @@ protected:
     QRect widgetRect(QWidget *w) const;
     void addConnection(Connection *con);
 
+    enum State { Editing, Connecting, Dragging };
+    State state() const;
+        
 private:    
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
 
-    enum State { Editing, Connecting, Dragging };
-    State state() const;
-        
     Connection *m_tmp_con; // the connection we are currently editing
     ConnectionList m_con_list;
     void startConnection(QWidget *source, const QPoint &pos);

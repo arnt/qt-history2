@@ -24,7 +24,6 @@
 #include <abstractpropertyeditor.h>
 #include <qextensionmanager.h>
 #include <propertysheet.h>
-#include <signalsloteditor.h>
 
 #include <QToolBox>
 #include <QStackedWidget>
@@ -162,7 +161,7 @@ void SetPropertyCommand::redo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
-        formWindow()->signalSlotEditor()->updateBackground();
+        formWindow()->emitWidgetsChanged();
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -184,8 +183,7 @@ void SetPropertyCommand::undo()
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
-        formWindow()->signalSlotEditor()->updateBackground();
-        formWindow()->signalSlotEditor()->updateLines();
+        formWindow()->emitWidgetsChanged();
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
@@ -265,7 +263,7 @@ void InsertWidgetCommand::redo()
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
-    formWindow()->signalSlotEditor()->updateBackground();
+    formWindow()->emitWidgetsChanged();
 }
 
 void InsertWidgetCommand::undo()
@@ -284,7 +282,7 @@ void InsertWidgetCommand::undo()
 
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();
-    formWindow()->signalSlotEditor()->updateBackground();
+    formWindow()->emitWidgetsChanged();
 }
 
 // ---- RaiseWidgetCommand ----
@@ -387,7 +385,7 @@ void DeleteWidgetCommand::redo()
     m_widget->setParent(formWindow());
 
     formWindow()->emitSelectionChanged();
-    formWindow()->signalSlotEditor()->updateBackground();
+    formWindow()->emitWidgetsChanged();
 }
 
 void DeleteWidgetCommand::undo()
@@ -419,7 +417,7 @@ void DeleteWidgetCommand::undo()
 
     m_widget->show();
     formWindow()->emitSelectionChanged();
-    formWindow()->signalSlotEditor()->updateBackground();
+    formWindow()->emitWidgetsChanged();
 }
 
 // ---- ReparentWidgetCommand ----
