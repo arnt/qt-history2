@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#53 $
 **
 **  Splitter widget
 **
@@ -301,20 +301,19 @@ void QSplitter::resizeEvent( QResizeEvent * )
 QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 {
     QSplitterLayoutStruct *s;
+    QSplitterHandle *newHandle = 0;
     if ( data->num++ ) {
 	s = new QSplitterLayoutStruct;
 	s->mode = KeepSize;
-	QSplitterHandle *sh = new QSplitterHandle( orientation(), this );
-	s->wid = sh;
-	sh->setId(data->list.count());
+	newHandle = new QSplitterHandle( orientation(), this );
+	s->wid = newHandle;
+	newHandle->setId(data->list.count());
 	s->isSplitter = TRUE;
-	s->sizer = pick( sh->sizeHint() );
+	s->sizer = pick( newHandle->sizeHint() );
 	if ( first )
 	    data->list.insert( 0, s );
 	else
 	    data->list.append( s );
-	if ( isVisible() )
-	    sh->show();
     }
     s = new QSplitterLayoutStruct;
     s->mode = Stretch;
@@ -325,6 +324,8 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 	data->list.insert( 0, s );
     else
 	data->list.append( s );
+    if ( newHandle && isVisible() )
+	newHandle->show(); //will trigger sending of post events
     return s;
 }
 
@@ -333,11 +334,11 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 */
 void QSplitter::childEvent( QChildEvent *c )
 {
-    if ( !c->child()->isWidgetType() )
-	return;
-
     if ( c->type() == QEvent::ChildInserted ) {
-	//debug( "QSplitter::child %p inserted", c->child() );
+	if ( !c->child()->isWidgetType() )
+	    return;
+	//debug( "%p QSplitter::child %s %p inserted", this, 
+	//       c->child()->className(), c->child() );
 	QSplitterLayoutStruct *s = data->list.first();
 	while ( s ) {
 	    if ( s->wid == c->child() )
@@ -348,7 +349,7 @@ void QSplitter::childEvent( QChildEvent *c )
 	recalc( isVisible() );
 
     } else if ( c->type() == QEvent::ChildRemoved ) {
-	//debug( "QSplitter::child %p removed", c->child() );
+	//debug( "%p QSplitter::child %p removed", this, c->child() );
 	QSplitterLayoutStruct *p = 0;
 	if ( data->list.count() > 1 )
 	    p = data->list.at(1); //remove handle _after_ first widget.
@@ -359,8 +360,8 @@ void QSplitter::childEvent( QChildEvent *c )
 		delete s;
 		if ( p && p->isSplitter ) {
 		    data->list.removeRef( p );
-		    delete p->wid;
-		    delete p;
+		    delete p->wid; //will call childEvent
+		    delete p; 
 		}
 		recalcId();
 		doResize();
