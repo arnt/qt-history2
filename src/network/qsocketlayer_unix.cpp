@@ -86,10 +86,14 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 
 static void qt_ignore_sigpipe()
 {
-    struct sigaction noaction;
-    memset(&noaction, 0, sizeof(noaction));
-    noaction.sa_handler = SIG_IGN;
-    ::sigaction(SIGPIPE, &noaction, 0);
+    // Set to ignore SIGPIPE once only.
+    static QBasicAtomic atom = Q_ATOMIC_INIT(0);
+    if (atom.testAndSet(0, 1)) {
+        struct sigaction noaction;
+        memset(&noaction, 0, sizeof(noaction));
+        noaction.sa_handler = SIG_IGN;
+        ::sigaction(SIGPIPE, &noaction, 0);
+    }
 }
 
 /*
