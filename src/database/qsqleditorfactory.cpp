@@ -9,23 +9,38 @@
 
 #ifndef QT_NO_SQL
 
-QSqlEditorFactory::QSqlEditorFactory()
+/*!  Constructs a SQL editor factory
+
+*/
+
+QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
+    : QObject( parent, name )
 {
 
 }
 
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QSqlEditorFactory::~QSqlEditorFactory()
+{
+    
+}
+
 /*!
 
-  Creates and returns the appropriate editor for the QVariant \a v.  A
-  null pointer is returned if the QVariant is invalid.
-  
+  Creates and returns the appropriate editor for the QVariant \a v.
+  If the QVariant is invalid, 0 is returned.
+
 */
+
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 {
-    QWidget * w;
-    
+    QWidget * w(0);
+
     switch( v.type() ){
-	
+
 	case QVariant::Invalid:
 	    w = 0;
 	    break;
@@ -35,8 +50,8 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 	    ((QComboBox *) w)->insertItem( "True" );
 	    break;
 	case QVariant::Date:
-/*	    w = new DateBookMonth( 0 ); 
-	    w->reparent( 0, QWidget::WStyle_Customize + 
+/*	    w = new DateBookMonth( 0 );
+	    w->reparent( 0, QWidget::WStyle_Customize +
 			 QWidget::WStyle_NoBorder, QPoint( 0, 0 ) );
 	    w->resize( 100, 100 );
 */
@@ -74,23 +89,24 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 	    w = new QLineEdit( parent );
 	    break;
     }
+#ifdef CHECK_RANGE    
+    CHECK_PTR( w );
+#endif    
     return w;
 }
 
-
 /*!
-  
-  Returns a pointer to the sole instance of QSqlEditorFactory.
+
+  Creates and returns the appropriate editor for the field \a f.
+
 */
-QSqlEditorFactory * QSqlEditorFactory::instance()
+
+QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QSqlField & f )
 {
-    static QSqlEditorFactory * _instance = 0;
-
-    if( _instance == 0 ){
-	_instance = new QSqlEditorFactory();
-    }
-
-    return _instance;
+    QVariant v = f.value();
+    return createEditor( parent, v );
 }
 
 #endif // QT_NO_SQL
+
+

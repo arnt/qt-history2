@@ -21,7 +21,7 @@ public:
     virtual bool operator==( const QSqlResultField& other );
     virtual ~QSqlResultField();
 
-    QVariant      value();
+    QVariant      value() const;
     void          setValue( const QVariant& value );
 
     void          setName( const QString& name ) { nm = name; }
@@ -57,14 +57,14 @@ public:
     bool          isVisible() const { return iv; }
     void          setCalculated( bool calculated ) { cf = calculated; }
     bool          isCalculated() const { return cf; }
-    
+
 private:
     QString       label;
     bool          ro;
     bool          nul;
     bool          pIdx;
     bool          iv;
-    bool          cf;    
+    bool          cf;
 };
 
 #if defined(Q_TEMPLATEDLL)
@@ -95,7 +95,7 @@ public:
     void                 clear();
     uint                 count() const;
     virtual QString      toString( const QString& prefix = QString::null ) const;
-    
+
 private:
     QSqlField&           findField( int i );
     QSqlField&           findField( const QString& name );

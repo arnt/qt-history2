@@ -17,7 +17,7 @@
 
 #ifndef QT_NO_SQL
 
-class QSqlPrivate;
+class QSqlTablePrivate;
 class Q_EXPORT QSqlTable : public QTable
 {
     Q_OBJECT
@@ -45,8 +45,7 @@ public:
     QVariant     value ( int row, int col ) const;
     QSqlFieldList currentFieldSelection() const;
 
-    void         installEditorFactory( QSqlEditorFactory * f );
-
+    void         setEditorFactory( QSqlEditorFactory * f );
 
 signals:
     void         currentChanged( const QSqlFieldList* fields );
@@ -79,8 +78,7 @@ private slots:
 
 private:
     void         setNumCols ( int r );
-    QSqlPrivate* d;
-    QSqlEditorFactory * editorFactory;
+    QSqlTablePrivate* d;
 };
 
 #endif

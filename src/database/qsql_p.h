@@ -23,7 +23,7 @@ class QSqlPrivate
 {
 public:
     QSqlPrivate() : nullTxt("<null>"), haveAllRows(FALSE), s( 0 ) {}
-    ~QSqlPrivate() { if ( s ) delete s; }
+    virtual ~QSqlPrivate() { if ( s ) delete s; }
 
     enum Mode {
 	Sql,

@@ -7,6 +7,12 @@
 
 #ifndef QT_NO_SQL
 
+class QSqlTablePrivate : public QSqlPrivate
+{
+public:
+    QSqlEditorFactory* editorFactory;
+};
+
 
 /*!
   \class QSqlTable qsqltable.h
@@ -44,9 +50,9 @@
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     : QTable(parent,name)
 {
-    d = new QSqlPrivate();
+    d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
-    editorFactory = QSqlEditorFactory::instance();
+    d->editorFactory = new QSqlEditorFactory( this, "Default QSqlEditorFactory");
     connect( this, SIGNAL( currentChanged( int, int ) ),
 			   SLOT( setCurrentSelection( int, int )));
 }
@@ -143,7 +149,7 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 
     m.addClass( "QSqlCustomEd", "state" );
     if( initFromCell && vw->seek( row ) ){
-	w = editorFactory->createEditor( viewport(), (*vw)[ indexOf( col )] );
+	w = d->editorFactory->createEditor( viewport(), (*vw)[ indexOf( col )] );
 	m.setProperty( w, vw->value( indexOf( col ) ) );
     }
     return w;
@@ -654,13 +660,20 @@ void QSqlTable::takeItem ( QTableItem * )
 
 /*!
 
-  Installs a new SQL editor factory. This enables the user to create and
-  instantiate their own editors for the different cells in a table.
+  Installs a new SQL editor factory. This enables the user to create
+  and instantiate their own editors for the different cells in a
+  table.  Note that QSqlTable takes ownership of this pointer, and
+  will delete it when it is no longer needed or when
+  setEditorFactory() is called again.
+  
 */
-void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
+
+void QSqlTable::setEditorFactory( QSqlEditorFactory * f )
 {
-    if( f )
-	editorFactory = f;
+    if( f ) {
+	delete d->editorFactory;
+	d->editorFactory = f;
+    }
 }
 
 /*!

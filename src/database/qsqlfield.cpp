@@ -58,7 +58,7 @@ QSqlResultField::~QSqlResultField()
 
 */
 
-QVariant QSqlResultField::value()
+QVariant QSqlResultField::value() const
 {
     return val;
 }
@@ -135,7 +135,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     return *this;
 }
 
-bool QSqlField::operator==(const QSqlField& other) const 
+bool QSqlField::operator==(const QSqlField& other) const
 {
     return (QSqlResultField)*this == (QSqlResultField)other &&
 	label == other.label &&
@@ -205,7 +205,7 @@ QSqlField::~QSqlField()
 
 QSqlFieldList::QSqlFieldList()
 {
-    
+
 }
 
 /*!  Constructs a copy of \a other.
@@ -215,7 +215,7 @@ QSqlFieldList::QSqlFieldList()
 QSqlFieldList::QSqlFieldList( const QSqlFieldList& other )
     : fieldList( other.fieldList ), fieldListStr( other.fieldListStr ), posMap( other.posMap )
 {
-    
+
 }
 
 QSqlFieldList::QSqlFieldList( const QSqlField& t )
@@ -238,18 +238,18 @@ QSqlFieldList& QSqlFieldList::operator=( const QSqlFieldList& other )
 
 QSqlFieldList::~QSqlFieldList()
 {
-    
+
 }
 
-   
+
 /*!
   Returns a reference to the field located at position \a i in the list.
   It is up to you to check wether this item really exists.
 
 */
 
-QVariant& QSqlFieldList::operator[]( int i ) 
-{ 
+QVariant& QSqlFieldList::operator[]( int i )
+{
     return findField(i).val;
 }
 
@@ -260,8 +260,8 @@ QVariant& QSqlFieldList::operator[]( int i )
 */
 
 QVariant& QSqlFieldList::operator[]( const QString& name )
-{ 
-    return findField( name ).val; 
+{
+    return findField( name ).val;
 }
 
 /*!
@@ -270,9 +270,9 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 
 */
 
-QVariant  QSqlFieldList::value( int i ) 
-{ 
-    return findField(i).val; 
+QVariant  QSqlFieldList::value( int i )
+{
+    return findField(i).val;
 }
 
 /*!
@@ -281,7 +281,7 @@ QVariant  QSqlFieldList::value( int i )
 
 */
 
-QVariant  QSqlFieldList::value( const QString& name ) 
+QVariant  QSqlFieldList::value( const QString& name )
 {
     return findField( name ).val;
 }
@@ -302,24 +302,24 @@ int QSqlFieldList::position( const QString& name ) const
     return -1;
 }
 
-QSqlField& QSqlFieldList::field( int i ) 
+QSqlField& QSqlFieldList::field( int i )
 {
-    return fieldList[ i ]; 
+    return fieldList[ i ];
 }
 
-const QSqlField& QSqlFieldList::field( int i ) const 
-{ 
-    return fieldList[ i ]; 
-}
-
-QSqlField& QSqlFieldList::field( const QString& name ) 
-{ 
-    return fieldList[ position( name ) ]; 
-}
-
-const QSqlField& QSqlFieldList::field( const QString& name ) const 
+const QSqlField& QSqlFieldList::field( int i ) const
 {
-    return fieldList[ position( name ) ]; 
+    return fieldList[ i ];
+}
+
+QSqlField& QSqlFieldList::field( const QString& name )
+{
+    return fieldList[ position( name ) ];
+}
+
+const QSqlField& QSqlFieldList::field( const QString& name ) const
+{
+    return fieldList[ position( name ) ];
 }
 
 
@@ -373,9 +373,9 @@ QString QSqlFieldList::toString( const QString& prefix ) const
 
 */
 
-uint QSqlFieldList::count() const 
+uint QSqlFieldList::count() const
 {
-    return fieldList.count(); 
+    return fieldList.count();
 }
 
 /*!
