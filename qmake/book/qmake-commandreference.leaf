@@ -1389,6 +1389,21 @@ value of this variable is typically handled by \e qmake or
  \link #QMAKESPEC qmake.conf \endlink and rarely needs to be modified.
 
 
+\section3 QMAKE_POST_LINK
+
+This variable contains the command to execute after linking the TARGET
+together. This variable is normally empty and therefore nothing is
+executed, additionally some backends will not support this - mostly only
+Makefile backends.
+
+
+
+\section3 QMAKE_PRE_LINK
+
+This variable contains the command to execute before linking the TARGET
+together. This variable is normally empty and therefore nothing is
+executed, additionally some backends will not support this - mostly only
+Makefile backends.
 
 
 
