@@ -1291,6 +1291,9 @@ if [ -z "$PLATFORM" ]; then
      CYGWIN*:*)
 	PLATFORM=cygwin-g++
 	;;
+     LynxOS*:*)
+	PLATFORM=lynxos-g++
+	;;
      OpenUNIX:*)
 	#PLATFORM=unixware-g++
         PLATFORM=unixware-cc
