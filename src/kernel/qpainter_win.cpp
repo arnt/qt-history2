@@ -380,6 +380,7 @@ void QPainter::setFont( const QFont &font )
 
 void QPainter::updateFont()
 {
+    QFont *temp = 0;
     clearf(DirtyFont);
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -395,17 +396,18 @@ void QPainter::updateFont()
 	bool vxfScale = testf(Qt2Compat) && testf(VxF)
 			&& ( dw != ww || dw != vw || dh != wh || dh != vh );
 
-	if ( pfont ) delete pfont;
+	if ( pfont ) temp = pfont;
 	pfont = new QFont( cfont.d, pdev );
 	hfont = pfont->handle();
     } else {
 	if ( pfont ) {
-	    delete pfont;
+	    temp = pfont;
 	    pfont = 0;
 	}
 	hfont = cfont.handle();
     }
     SelectObject( hdc, hfont );
+    delete temp;
 }
 
 
