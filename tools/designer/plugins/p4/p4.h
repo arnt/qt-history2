@@ -66,7 +66,7 @@ signals:
     void showStatusBarMessage( const QString &s );
 
 private slots:
-    void newData( const QString& );
+    void newData();
     void newStats( const QString&, P4Info* );
     void cmdProcessed();
 

@@ -28,8 +28,8 @@ bool P4Action::run( const QString &command )
 {
     if ( !process ) {
 	process = new QProcess( this );
-	connect( process, SIGNAL( dataStdout( const QString & ) ),
-		 this, SLOT( newData( const QString & ) ) );
+	connect( process, SIGNAL( readyReadStdout() ),
+		 this, SLOT( newData() ) );
 	connect( process, SIGNAL( processExited() ),
 		 this, SLOT( processExited() ) );
     }
@@ -41,7 +41,7 @@ bool P4Action::run( const QString &command, const QString &in )
 {
     if ( run( command ) ) {
 	connect( process, SIGNAL(wroteStdin()), this, SLOT(cmdProcessed()) );
-	process->dataStdin( in );
+	process->writeToStdin( in );
 	return TRUE;
     }
     return FALSE;
@@ -60,9 +60,9 @@ void P4Action::updateStats()
     fstat->execute();
 }
 
-void P4Action::newData( const QString &s )
+void P4Action::newData()
 {
-    p4Data += s;
+    p4Data += QString( process->readStdout() );
 }
 
 void P4Action::newStats( const QString &s, P4Info *p4i )
