@@ -1,7 +1,7 @@
 #############################################################################
-# $Id: //depot/qt/main/util/qtranslator/Makefile#3 $
+# $Id: //depot/qt/main/util/qtranslator/GNUmakefile#1 $
 #
-# Win32 Makefile, requires Microsoft nmake.
+# Unix Makefile, requires GNU make (gmake).
 #
 # Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
@@ -9,4 +9,4 @@
 
 PROJECT = qtranslator
 
-!INCLUDE $(QTDIR)\Makefile.inc
+include $(QTDIR)/GNUmakefile.inc
