@@ -1034,9 +1034,9 @@ void QAbstractItemModel::sort(int column, Qt::SortOrder order)
   Returns a model index for the buddy of the item represented by \a index.
   When the user wants to edit an item, the view will call this function to
   check whether another item in the model should be edited instead, and
-  construct a delegate using the buddy's index returned.
+  construct a delegate using the model index returned by the buddy item.
 
-  In the default implementation an item is its own buddy.
+  In the default implementation each item is its own buddy.
 */
 QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 {

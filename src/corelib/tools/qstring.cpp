@@ -377,8 +377,8 @@ const QString::Null QString::null = QString::Null();
     \endlist
 
     One way to define these prepocessor symbols globally for your
-    application is to add the following entry to your \l qmake .pro
-    file:
+    application is to add the following entry to your
+    \l{qmake Project Files}{qmake project file}:
 
     \code
         DEFINES += QT_NO_CAST_FROM_ASCII \

@@ -1095,13 +1095,18 @@ void QObject::killTimer(int id)
     \sa children()
 */
 
-/*! \fn const QObjectList &QObject::children() const
+/*! 
+    \fn const QObjectList &QObject::children() const
 
     Returns a list of child objects, or 0 if this object has no
     children.
 
-    The QObjectList class is defined in the \c qobjectlist.h header
-    file.
+    The QObjectList class is defined in the \c qobject.h header
+    file as the following:
+
+    \quotefromfile src/corelib/kernel/qobject.h
+    \skipto /typedef .*QObjectList/
+    \printuntil QObjectList
 
     The first child added is the \link QList::first() first\endlink
     object in the list and the last child added is the \link
