@@ -277,14 +277,6 @@ void QProgressBar::show()
 
 void QProgressBar::initFrame()
 {
-    QPalette pal = palette();
-    QColorGroup ia = pal.inactive();
-    if ( pal.inactive().highlight() == pal.inactive().background() ) {
-	ia.setColor( QColorGroup::Highlight, pal.active().highlight() );
-	pal.setInactive( ia );
-	setPalette( pal );
-    }
-
     setFrameStyle(QFrame::NoFrame);
 }
 
