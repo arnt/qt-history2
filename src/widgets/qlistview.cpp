@@ -1070,6 +1070,9 @@ void QListViewItem::dragLeft()
     Inserts \a newChild into this list view item's list of children.
     You should not need to call this function; it is called
     automatically by the constructor of \a newChild.
+
+    Note: The item(s) you insert needs to be unselected if you want to maintain the listviews
+    consistency when it is set to Single selection mode.
 */
 
 void QListViewItem::insertItem( QListViewItem * newChild )
