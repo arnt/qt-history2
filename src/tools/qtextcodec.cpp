@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#77 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#78 $
 **
 ** Implementation of QTextCodec class
 **
@@ -427,7 +427,9 @@ static const char * iso8859_2locales[] = {
     "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
 
 static const char * iso8859_5locales[] = {
-    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", /*"ru",*/ "ru_RU", "ru_SU",
+    "bg", "bg_BG", "bulgarian", "mk", "mk_MK",
+    /*"ru", "ru_SU", */ // Russians (and errr... Russian speaking Sudanese(!)
+    "ru_RU",
     "russian", "sp", "sp_YU", 0 };
 
 // This is NOT CORRECT.  But so many Russians use this rather than the
@@ -441,7 +443,7 @@ static const char * iso8859_5locales[] = {
 // ru_RU.KOI8-R
 //
 static const char * koi8_rlocales[] = {
-    "ru", 0 };
+    "ru", "ru_SU", 0 };
 
 static const char * iso8859_6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
