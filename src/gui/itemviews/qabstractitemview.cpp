@@ -1502,7 +1502,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 {
     if (old.isValid()) {
         QModelIndex buddy = model()->buddy(old);
-        endEdit(buddy.isValid() ? buddy : old, false);
+        bool accept = d->beginEditActions & CurrentChanged; // FIXME: is this assumption correct ?
+        endEdit(buddy.isValid() ? buddy : old, accept);
         int behavior = selectionBehavior();
         QRect rect = itemViewportRect(old);
         if (behavior & SelectRows) {
