@@ -1397,14 +1397,18 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         case Qt::Key_Right:
         case Qt::Key_Left:
             if (d->isRightToLeft() == (e->key() == Qt::Key_Right)) {
+#ifndef Q_WS_MAC
                 if (echoMode() == Normal)
                     cursorWordBackward(e->state() & Qt::ShiftButton);
                 else
+#endif
                     home(e->state() & Qt::ShiftButton);
             } else {
+#ifndef Q_WS_MAC
                 if (echoMode() == Normal)
                     cursorWordForward(e->state() & Qt::ShiftButton);
                 else
+#endif
                     end(e->state() & Qt::ShiftButton);
             }
             break;
@@ -1431,7 +1435,22 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         case Qt::Key_Left:
         case Qt::Key_Right: {
             int step =  (d->isRightToLeft() == (e->key() == Qt::Key_Right)) ? -1 : 1;
-            cursorForward(e->state() & Qt::ShiftButton, step);
+#ifdef Q_WS_MAC
+            if (e->state() & Qt::AltButton) {
+                if (step < 0)
+                    cursorWordBackward(e->state() & Qt::ShiftButton);
+                else
+                    cursorWordForward(e->state() & Qt::ShiftButton);
+            } else if (e->state() & Qt::MetaButton) {
+                if (step < 0)
+                    home(e->state() & Qt::ShiftButton);
+                else
+                    end(e->state() & Qt::ShiftButton);
+            } else
+#endif
+            {
+                cursorForward(e->state() & Qt::ShiftButton, step);
+            }
         }
         break;
         case Qt::Key_Backspace:
@@ -1441,12 +1460,14 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Home:
 #ifdef Q_WS_MAC
+            break; // Home and End do nothing on the mac (but Up and Down do).
         case Qt::Key_Up:
 #endif
             home(e->state() & Qt::ShiftButton);
             break;
         case Qt::Key_End:
 #ifdef Q_WS_MAC
+            break;
         case Qt::Key_Down:
 #endif
             end(e->state() & Qt::ShiftButton);
