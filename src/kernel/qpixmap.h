@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#35 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#36 $
 **
 ** Definition of QPixmap class
 **
@@ -121,7 +121,7 @@ inline HANDLE QPixmap::hbm() const
 }
 #endif
 
-bool QPixmap::isQBitmap() const
+inline bool QPixmap::isQBitmap() const
 {
     return data->bitmap;
 }
