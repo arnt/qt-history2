@@ -88,9 +88,10 @@ void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList
     QStringList::ConstIterator mit = errors.begin();
     QValueList<int>::ConstIterator lit = lines.begin();
     QStringList::ConstIterator it = locations.begin();
-    QObject *o = locationObjects.first();
+    QObjectList objects = (QObjectList)locationObjects;
+    QObject *o = objects.first();
     QListViewItem *after = 0;
-    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it, o = locationObjects.next() )
+    for ( ; lit != lines.end() && mit != errors.end(); ++lit, ++mit, ++it, o = objects.next() )
 	after = new ErrorItem( errorView, after, *mit, *lit, *it, o );
     setCurrentPage( 1 );
 }
