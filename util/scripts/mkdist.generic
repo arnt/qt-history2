@@ -35,8 +35,8 @@ if [ "${disttype}" = "free" -a "${platform}" != "x11" ]; then
 fi
 
 echo "Removing and creating new ${DISTDIR}" >&2
-rm -rf ${DISTDIR}
-mkdir -p ${DISTDIR}
+rm -rf ${DISTDIR} || ( echo unable to remove ${DISTDIR} ; exit 1 )
+mkdir ${DISTDIR}
 cd ${DISTDIR}
 
 echo "Exporting the entire Qt archive" >&2
