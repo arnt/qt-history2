@@ -7,7 +7,7 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
-// <ioctl.h> should include <sys/filio.h> to #define FIONREAD
+// make <sys/ioctl.h> include <sys/filio.h> to #define FIONREAD
 #ifndef BSD_COMP
 #define BSD_COMP
 #endif                                                                          
