@@ -575,13 +575,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             CGContextConcatCTM(ctx, newMatrix);
             CGContextSetTextMatrix(ctx, newMatrix);
             ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, 
-                         IntToFixed(x), IntToFixed(y));
+                         FixRatio(x, 1), FixRatio(y, 1));
             CGContextConcatCTM(ctx, CGAffineTransformInvert(CGContextGetCTM(ctx)));
             CGContextConcatCTM(ctx, oldMatrix);
             CGContextSetTextMatrix(ctx, oldMatrix);
         } else {
             ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, 
-                         IntToFixed(x), IntToFixed(y));
+                         FixRatio(x, 1), FixRatio(y, 1));
         }
     }
     if(ctx_port)
