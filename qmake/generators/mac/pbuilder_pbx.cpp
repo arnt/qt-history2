@@ -917,6 +917,8 @@ bool
 ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
 {
     if(project->first("TEMPLATE") != "subdirs") {
+	if(QDir::isRelativePath(file.name()))
+	    file.setName(Option::output_dir + file.name()); //pwd when qmake was run
 	QFileInfo fi(file);
 	if(fi.extension() != "pbxproj" || file.name().isEmpty()) {
 	    QString output = file.name();
