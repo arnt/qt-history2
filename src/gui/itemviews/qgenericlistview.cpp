@@ -405,6 +405,12 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
     qApp->processEvents(); // make sure we can draw items
 }
 
+void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
+{
+    d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
+    d->viewport->update(d->draggedItemsRect); // erase the area
+}
+
 void QGenericListView::dropEvent(QDropEvent *e)
 {
     if (e->source() == this && d->movement != Static /*&& e->action() == QDropEvent::Move*/) {
@@ -482,7 +488,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
  	delegate->paint(&painter, options, *it);
     }
 
-    if (!d->draggedItems.isEmpty())
+    if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos))
    	d->drawDraggedItems(&painter, d->draggedItemsPos);
 }
 
@@ -1061,7 +1067,7 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
     QPoint delta = (movement == QGenericListView::Snap ? snapToGrid(pos) - snapToGrid(start) : pos - start);
     QVector<QModelIndex>::const_iterator it = draggedItems.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
-    draggedItemsRect.setRect(item.x + delta.x(), item.y + delta.y(), item.w, item.h);
+    draggedItemsRect.setRect(item.x + delta.x() - cx, item.y + delta.y() - cy, item.w, item.h);
     for (; it != draggedItems.end(); ++it) {
 	item = indexToListViewItem(*it);
  	x = item.x + delta.x() - cx;

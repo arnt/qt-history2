@@ -42,6 +42,7 @@ protected:
     void stopItemsLayout();
 
     void dragMoveEvent(QDragMoveEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
 
     QDragObject *dragObject();
