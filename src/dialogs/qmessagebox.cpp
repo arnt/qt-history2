@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#6 $
 **
 ** Implementation of QMessageBox class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#6 $";
 #endif
 
 
@@ -60,6 +60,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     label->setAlignment( AlignCenter );
     button = new QPushButton( "Ok", this, "button" );
     CHECK_PTR( button );
+    button->setDefault( TRUE );
     connect( button, SIGNAL(clicked()), SLOT(accept()) );
 }
 
