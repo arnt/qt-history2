@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#271 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#272 $
 **
 ** Implementation of QFileDialog class
 **
@@ -398,6 +398,8 @@ struct QFileDialogPrivate {
 
     QList<WaitForStruct> waitFor;
 
+    bool ignoreNextKeyPress;
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1495,7 +1497,8 @@ void QFileDialog::init()
     d->infoPreview = TRUE;
     d->contentsPreview = TRUE;
     d->hadDotDot = FALSE;
-
+    d->ignoreNextKeyPress = FALSE;
+    
     d->waitFor.setAutoDelete( TRUE );
 
     d->url = QUrl( "file:/" );
@@ -2831,12 +2834,16 @@ void QFileDialog::deleteFile( const QString &filename )
 
 void QFileDialog::error( int ecode, const QString &msg )
 {
+    if ( d->paths->hasFocus() )
+	d->ignoreNextKeyPress = TRUE;
+    
     QMessageBox::critical( this, tr( "ERROR" ), msg );
 
-    if ( ecode == QUrl::ReadDir ) {
+    if ( ecode == QUrl::ReadDir || ecode == QUrl::ParseError /*|| 
+							       ecode == QUrl::UnknownProtocol*/ ) {
 	// #### todo
 	d->url = "/";
-	rereadDir();
+	setDir( "/" );
     }
 }
 
@@ -3064,7 +3071,8 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 
 void QFileDialog::keyPressEvent( QKeyEvent * ke )
 {
-    if ( ke && ( ke->key() == Key_Enter ||
+    if ( !d->ignoreNextKeyPress &&
+	 ke && ( ke->key() == Key_Enter ||
 		 ke->key() == Key_Return ) ) {
 	ke->ignore();
 	if ( d->paths->hasFocus() ) {
@@ -3104,6 +3112,8 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 	ke->ignore();
     }
 
+    d->ignoreNextKeyPress = FALSE;
+    
     if ( !ke->isAccepted() ) {
 	QDialog::keyPressEvent( ke );
     }
