@@ -255,7 +255,7 @@ QKeySequence::~QKeySequence()
 }
 
 /*!
-    /internal
+    \internal
     KeySequences should never be modified, but rather just created.
     Internally though we do need to modify to keep pace in event
     delivery.
