@@ -20,6 +20,7 @@
 #include <qstringlist.h>
 #include <qregexp.h>
 #include <qcorevariant.h>
+#include <qvarlengtharray.h>
 #include <private/qinternal_p.h>
 #include <stdlib.h>
 
@@ -33,6 +34,8 @@ static const ub2 CSID_UTF16 = OCI_UTF16ID;
 static const ub2 CSID_UTF16 = 0;
 #endif
 
+typedef QVarLengthArray<sb2, 32> IndicatorArray;
+
 QByteArray qMakeOraDate( const QDateTime& dt );
 QDateTime qMakeDate( const char* oraDate );
 QString qOraWarn( const QOCIPrivate* d );
@@ -44,6 +47,7 @@ public:
     QOCIPrivate();
     ~QOCIPrivate();
 
+    QSqlResult *q;
     OCIEnv *env;
     OCIError *err;
     OCISvcCtx *svc;
@@ -59,12 +63,16 @@ public:
     sb4 oraTextLength( const QString& str ) const;
     sb4 oraByteLength( const QString& str ) const;
     void setCharset( OCIBind* hbnd );
-    int bindValues( QVector<QCoreVariant>& values, QList<QVirtualDestructor*> & tmpStorage );
-    void outValues( QVector<QCoreVariant> &values, QList<QVirtualDestructor*> & tmpStorage );
+    int bindValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+                   QList<QByteArray> &tmpStorage);
+    void outValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+                   QList<QByteArray> &tmpStorage);
+    bool isOutValue(int i) const;
 };
 
-QOCIPrivate::QOCIPrivate(): env(0), err(0), svc(0), sql(0), transaction( FALSE ), serverVersion(-1),
-    utf8( FALSE ), nutf8( FALSE ), utf16bind( FALSE )
+QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0),
+        svc(0), sql(0), transaction(FALSE), serverVersion(-1),
+        utf8(FALSE), nutf8(FALSE), utf16bind(FALSE)
 {
 }
 
@@ -127,123 +135,133 @@ void QOCIPrivate::setCharset( OCIBind* hbnd )
 #endif
 }
 
-int QOCIPrivate::bindValues( QVector<QCoreVariant>& values, QList<QVirtualDestructor*> & tmpStorage )
+bool QOCIPrivate::isOutValue(int i) const
+{
+#ifdef QOCI_USES_VERSION_9
+    if (serverVersion >= 9) {
+        if (((QOCI9Result*)q)->bindValueType(i) & QSql::Out)
+            return TRUE;
+    } else {
+        if (((QOCIResult*)q)->bindValueType(i) & QSql::Out)
+            return TRUE;
+    }
+#else
+    if (((QOCIResult*)q)->bindValueType(i) & QSql::Out)
+        return TRUE;
+#endif
+    return FALSE;
+}
+
+int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+                            QList<QByteArray> &tmpStorage)
 {
     int r = OCI_SUCCESS;
-    int i;
-    for ( i = 0; i < values.count(); ++i ) {
-	QCoreVariant val( values.at( i ) );
-	//qDebug( "binding values: %d, %s", i, values.at(i).toString().ascii() );
-	OCIBind * hbnd = 0; // Oracle handles these automatically
-	sb2 * indPtr = new sb2(0);
-	tmpStorage.append( qAutoDeleter(indPtr) );
-	if ( val.isNull() )
-	    *indPtr = -1;
-	//	    qDebug( "Binding: type: %s utf16: %d holder: %i value: %s", QCoreVariant::typeToName( val.type() ), utf16bind, i, val.toString().ascii() );
-	switch ( val.type() ) {
-	    case QCoreVariant::ByteArray:
-		r = OCIBindByPos( sql, &hbnd, err,
-				  i + 1,
-				  (dvoid *) val.toByteArray().data(),
-				  val.toByteArray().size(),
-				  SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-	    break;
-	    case QCoreVariant::Time:
-		case QCoreVariant::Date:
-		case QCoreVariant::DateTime: {
-		QByteArray * ba = new QByteArray( qMakeOraDate( val.toDateTime() ) );
-		tmpStorage.append( qAutoDeleter(ba) );
-		r = OCIBindByPos( sql, &hbnd, err,
-				  i + 1,
-				  (dvoid *) ba->data(),
-				  ba->size(),
-				  SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		break; }
-	    case QCoreVariant::Int:
-		r = OCIBindByPos( sql, &hbnd, err,
-				  i + 1,
-				  (dvoid *) values[ i ].data(), // avoid deep cpy
-				  sizeof(int),
-				  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-	    break;
-	    case QCoreVariant::Double:
-		r = OCIBindByPos( sql, &hbnd, err,
-				  i + 1,
-				  (dvoid *) values[ i ].data(), // avoid deep cpy
-				  sizeof(double),
-				  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-	    break;
-	    default: {
-		QString* str = new QString( val.toString() );
-		tmpStorage.append( qAutoDeleter(str) );
-		r = OCIBindByPos( sql, &hbnd, err,
-				  i + 1,
-				  (dvoid *)str->ucs2(),
-				  (str->length() + 1) * sizeof(QChar), // number of bytes + 0 term. scan limit
-				  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
-				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		setCharset( hbnd );
-		break; }
-	}
-	if (r != OCI_SUCCESS)
-	    qOraWarning( "QOCIPrivate::bindValues:", this);
+    for (int i = 0; i < values.count(); ++i) {
+        if (isOutValue(i))
+            values[i].detach();
+        QVariant val = values.at(i);
+        void *data = val.data();
+
+        //qDebug( "binding values: %d, %s", i, values.at(i).toString().ascii() );
+        OCIBind * hbnd = 0; // Oracle handles these automatically
+        sb2 *indPtr = &indicators[i];
+        *indPtr = val.isNull() ? -1 : 0;
+        //            qDebug( "Binding: type: %s utf16: %d holder: %i value: %s",
+        // QCoreVariant::typeToName( val.type() ), utf16bind, i, val.toString().ascii() );
+        switch ( val.type() ) {
+            case QCoreVariant::ByteArray:
+                r = OCIBindByPos( sql, &hbnd, err,
+                                  i + 1,
+                                  (dvoid *) ((QByteArray*)data)->data(),
+                                  ((QByteArray*)data)->size(),
+                                  SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+            break;
+            case QCoreVariant::Time:
+            case QCoreVariant::Date:
+            case QCoreVariant::DateTime: {
+                QByteArray ba = qMakeOraDate(values.at(i).toDateTime());
+                r = OCIBindByPos( sql, &hbnd, err,
+                                  i + 1,
+                                  (dvoid *) ba.data(),
+                                  ba.size(),
+                                  SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+                tmpStorage.append(ba);
+                break; }
+            case QCoreVariant::Int:
+                r = OCIBindByPos( sql, &hbnd, err,
+                                  i + 1,
+                                  (dvoid *) data,
+                                  sizeof(int),
+                                  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+            break;
+            case QCoreVariant::Double:
+                r = OCIBindByPos( sql, &hbnd, err,
+                                  i + 1,
+                                  (dvoid *) data,
+                                  sizeof(double),
+                                  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+            break;
+            case QCoreVariant::String:
+            default: {
+                QString s = values.at(i).toString();
+                if (isOutValue(i)) {
+                    QByteArray ba((char*)s.ucs2(), s.length() * sizeof(QChar) * 2);
+                    r = OCIBindByPos(sql, &hbnd, err,
+                                    i + 1,
+                                    (dvoid *)ba.data(),
+                                    ba.capacity(),
+                                    SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                    (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+                    tmpStorage.append(ba);
+                } else {
+                    r = OCIBindByPos(sql, &hbnd, err,
+                                    i + 1,
+                                    (dvoid *)s.data(),
+                                    (s.length() + 1) * sizeof(QChar),
+                                    SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                    (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+                }
+                setCharset( hbnd );
+                break; }
+        }
+        if (r != OCI_SUCCESS)
+            qOraWarning( "QOCIPrivate::bindValues:", this);
     }
     return r;
 }
 
-void QOCIPrivate::outValues( QVector<QCoreVariant> &values, QList<QVirtualDestructor*> & tmpStorage )
+void QOCIPrivate::outValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+                            QList<QByteArray> &tmpStorage)
 {
-    int i;
-    for ( i = 0; i < values.count(); ++i ) {
-	QCoreVariant::Type typ = values[i].type();
-	sb2 *indPtr;
-	if (tmpStorage.isEmpty() || !(indPtr = qAutoDeleterData((QAutoDeleter<sb2>*)tmpStorage.at(0))) )
-	    return;
-	bool isNull = (*indPtr == -1);
-	tmpStorage.removeFirst();
+    for (int i = 0; i < values.count(); ++i) {
 
-	if ( isNull ) {
-	    values[ i ] = QCoreVariant(typ);
-	    if ( !tmpStorage.isEmpty() && typ != QCoreVariant::ByteArray && typ != QCoreVariant::Int && typ != QCoreVariant::Double )
-		tmpStorage.removeFirst();
-	    continue;
-	}
+        if (!isOutValue(i))
+            continue;
 
-	if (tmpStorage.isEmpty())
-	    return;
+        QCoreVariant::Type typ = values.at(i).type();
 
-	switch ( typ ) {
-	    case QCoreVariant::ByteArray:
-	    case QCoreVariant::Int:
-	    case QCoreVariant::Double:
-		break;
-	    case QCoreVariant::Time:
-		case QCoreVariant::Date:
-		case QCoreVariant::DateTime: {
-		    QByteArray *ba = qAutoDeleterData((QAutoDeleter<QByteArray>*)tmpStorage.at(0));
-		    QDateTime dt = qMakeDate( ba->data() );
-		    if ( typ == QCoreVariant::DateTime )
-			values[ i ] = dt;
-		    else if ( typ == QCoreVariant::Date )
-			values[ i ] = dt.date();
-		    else if ( typ == QCoreVariant::Time )
-			values[ i ] = dt.time();
-		    tmpStorage.removeFirst();
-		}
-	    break;
-	    default: {
-		QString *str = qAutoDeleterData((QAutoDeleter<QString>*)tmpStorage.at(0));
-		if (!str)
-		    return;
-		//		    qDebug( "received: %d, '%s'", str->length(), QString::fromUcs2( str->ucs2() ).ascii() );
-		values[ i ] = QString::fromUcs2( str->ucs2() );
-		tmpStorage.removeFirst();
-		break; }
-	}
+        switch(typ) {
+            case QCoreVariant::Time:
+                values[i] = qMakeDate(tmpStorage.takeFirst()).time();
+                break;
+            case QCoreVariant::Date:
+                values[i] = qMakeDate(tmpStorage.takeFirst()).date();
+                break;
+            case QCoreVariant::DateTime:
+                values[i] = qMakeDate(tmpStorage.takeFirst()).time();
+                break;
+            case QCoreVariant::String:
+                values[i] = QString::fromUcs2((ushort*)tmpStorage.takeFirst().data());
+                break;
+            default:
+                break; //nothing
+        }
+        if (indicators[i] == -1) // NULL
+            values[i] = QCoreVariant(typ);
     }
 }
 
@@ -280,17 +298,7 @@ QString qOraWarn( const QOCIPrivate* d )
 
 void qOraWarning( const char* msg, const QOCIPrivate* d )
 {
-    unsigned char   errbuf[512];
-    sb4             errcode;
-    errbuf[0] = 0;
-    OCIErrorGet((dvoid *)d->err,
-                (ub4) 1,
-                (text *) NULL,
-                &errcode,
-                errbuf,
-                (ub4) sizeof(errbuf),
-                OCI_HTYPE_ERROR);
-    qWarning( "%s %s", msg, errbuf );
+    qWarning("%s %s", msg, qOraWarn(d).local8Bit());
 }
 
 int qOraErrorNumber( const QOCIPrivate* d )
@@ -1039,6 +1047,7 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 {
     d = new QOCIPrivate();
     (*d) = (*p);
+    d->q = this;
 }
 
 QOCIResult::~QOCIResult()
@@ -1171,15 +1180,16 @@ bool QOCIResult::exec()
 {
     int r = 0;
     ub2 stmtType;
-    QList<QVirtualDestructor*> tmpStorage;
-    QtSqlCachedResult::clear();
+    QList<QByteArray> tmpStorage;
+    IndicatorArray indicators(boundValueCount());
+
+//    QtSqlCachedResult::clear();
 
     // bind placeholders
     if ( boundValueCount() > 0
-	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
+	 && d->bindValues( boundValues(), indicators, tmpStorage ) != OCI_SUCCESS ) {
 	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
 	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
-	qDeleteAll(tmpStorage);
 	return FALSE;
     }
 
@@ -1203,7 +1213,6 @@ bool QOCIResult::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCIResult::exec: unable to execute select statement:", d );
 	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
-	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	ub4 parmCount = 0;
@@ -1229,8 +1238,8 @@ bool QOCIResult::exec()
 				      (void**)&param,
 				      count );
 	}
-        QtSqlCachedResult::init(parmCount);
 	setSelect( TRUE );
+        QtSqlCachedResult::init(parmCount);
     } else { /* non-SELECT */
 	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
@@ -1239,7 +1248,6 @@ bool QOCIResult::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCIResult::exec: unable to execute statement:", d );
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	setSelect( FALSE );
@@ -1248,9 +1256,8 @@ bool QOCIResult::exec()
     setActive( TRUE );
 
     if ( hasOutValues() )
-	d->outValues( boundValues(), tmpStorage );
+        d->outValues(boundValues(), indicators, tmpStorage);
 
-    qDeleteAll(tmpStorage);
     return TRUE;
 }
 
@@ -1272,6 +1279,7 @@ QOCI9Result::QOCI9Result( const QOCIDriver * db, QOCIPrivate* p )
 {
     d = new QOCIPrivate();
     (*d) = (*p);
+    d->q = this;
 }
 
 QOCI9Result::~QOCI9Result()
@@ -1503,17 +1511,17 @@ bool QOCI9Result::exec()
 {
     int r = 0;
     ub2 stmtType;
-    QList<QVirtualDestructor*> tmpStorage;
+    QList<QByteArray> tmpStorage;
+    IndicatorArray indicators(boundValueCount());
 
 //    qDebug( "QOCI9Result::exec: %s", executedQuery().ascii() );
 
     // bind placeholders
     if ( boundValueCount() > 0
-	 && d->bindValues( boundValues(), tmpStorage ) != OCI_SUCCESS ) {
-	qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
-	setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
-	qDeleteAll(tmpStorage);
-	return FALSE;
+        && d->bindValues(boundValues(), indicators, tmpStorage ) != OCI_SUCCESS ) {
+        qOraWarning( "QOCIResult::exec: unable to bind value: ", d );
+        setLastError( qMakeError( "Unable to bind value", QSqlError::Statement, d ) );
+        return FALSE;
     }
 
     r = OCIAttrGet( d->sql,
@@ -1539,7 +1547,6 @@ bool QOCI9Result::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCI9Result::reset: unable to execute select statement: ", d );
 	    setLastError( qMakeError( "Unable to execute select statement", QSqlError::Statement, d ) );
-	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	ub4 parmCount = 0;
@@ -1574,7 +1581,6 @@ bool QOCI9Result::exec()
 	if ( r != 0 ) {
 	    qOraWarning( "QOCI9Result::reset: unable to execute statement: ", d );
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-	    qDeleteAll(tmpStorage);
 	    return FALSE;
 	}
 	setSelect( FALSE );
@@ -1583,9 +1589,8 @@ bool QOCI9Result::exec()
     setActive( TRUE);
 
     if ( hasOutValues() )
-	d->outValues( boundValues(), tmpStorage );
+        d->outValues(boundValues(), indicators, tmpStorage);
 
-    qDeleteAll(tmpStorage);
     return TRUE;
 }
 
@@ -1788,7 +1793,7 @@ QSqlQuery QOCIDriver::createQuery() const
 {
 #ifdef QOCI_USES_VERSION_9
     if ( d->serverVersion >= 9 )
-	return QSqlQuery( new QOCI9Result( this, d ) );
+        return QSqlQuery( new QOCI9Result( this, d ) );
 #endif
     return QSqlQuery( new QOCIResult( this, d ) );
 }
