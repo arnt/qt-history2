@@ -567,11 +567,11 @@ public:
     inline int tx(int x, int y) {
         switch (qt_trans_screen->transformation()) {
             case QTransformedScreen::Rot90:
-                return y - xoffs + yoffs;
+                return y - this->xoffs + this->yoffs;
             case QTransformedScreen::Rot180:
-                return (width - x - 1) - xoffs - xoffs;
+                return (this->width - x - 1) - this->xoffs - this->xoffs;
             case QTransformedScreen::Rot270:
-                return (height - y - 1) - xoffs - yoffs;
+                return (this->height - y - 1) - this->xoffs - this->yoffs;
             default:
                 return x;
         }
@@ -579,11 +579,11 @@ public:
     inline int ty(int x, int y) {
         switch (qt_trans_screen->transformation()) {
             case QTransformedScreen::Rot90:
-                return (width - x - 1) - yoffs - xoffs;
+                return (this->width - x - 1) - this->yoffs - this->xoffs;
             case QTransformedScreen::Rot180:
-                return (height - y - 1) - yoffs - yoffs;
+                return (this->height - y - 1) - this->yoffs - this->yoffs;
             case QTransformedScreen::Rot270:
-                return x - yoffs + xoffs;
+                return x - this->yoffs + this->xoffs;
             default:
                 return y;
         }
@@ -611,23 +611,23 @@ QGfxTransformedRaster<depth,type>::~QGfxTransformedRaster()
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::setSourceWidgetOffset(int x, int y)
 {
-    if (srcbits == buffer) {
+    if (this->srcbits == this->buffer) {
         switch (qt_trans_screen->transformation()) {
             case QTransformedScreen::Rot90:
-                srcwidgetoffs = QPoint(y, width - x - srcwidth);
+                this->srcwidgetoffs = QPoint(y, this->width - x - this->srcwidth);
                 break;
             case QTransformedScreen::Rot180:
-                srcwidgetoffs = QPoint(width - x - srcwidth, height - y - srcheight);
+                this->srcwidgetoffs = QPoint(this->width - x - this->srcwidth, this->height - y - this->srcheight);
                 break;
             case QTransformedScreen::Rot270:
-                srcwidgetoffs = QPoint(height - y - srcheight, x);
+                this->srcwidgetoffs = QPoint(this->height - y - this->srcheight, x);
                 break;
             default:
-                srcwidgetoffs = QPoint(x, y);
+                this->srcwidgetoffs = QPoint(x, y);
                 break;
         }
     } else
-        srcwidgetoffs = QPoint(x, y);
+        this->srcwidgetoffs = QPoint(x, y);
 }
 
 template <const int depth, const int type>
@@ -635,8 +635,8 @@ void QGfxTransformedRaster<depth,type>::setSource(const QImage * i)
 {
     QT_TRANS_GFX_BASE<depth,type>::setSource(i);
     QSize s = qt_screen->mapToDevice(QSize(i->width(), i->height()));
-    srcwidth = s.width();
-    srcheight = s.height();
+    this->srcwidth = s.width();
+    this->srcheight = s.height();
 }
 
 template <const int depth, const int type>
@@ -678,7 +678,7 @@ void QGfxTransformedRaster<depth,type>::fillRect(int x, int y, int w, int h)
     if (w == 0 || h == 0)
         return;
     QRect r(x, y, w, h);
-    if (cbrush.style() == Qt::SolidPattern) {
+    if (this->cbrush.style() == Qt::SolidPattern) {
         r.setCoords(tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1));
         r = r.normalize();
     }
@@ -693,7 +693,7 @@ void QGfxTransformedRaster<depth,type>::drawPolygon(const QPointArray &a, bool w
     // solution. The brush offset logic is complicated enough, so we don't
     // fastpath patternedbrush.
 
-    if (inDraw  || cpen.style()==Qt::NoPen || patternedbrush) {
+    if (inDraw  || this->cpen.style()==Qt::NoPen || this->patternedbrush) {
         //slowpath
         QT_TRANS_GFX_BASE<depth,type>::drawPolygon(a, w, idx, num);
     } else {
@@ -715,7 +715,7 @@ void QGfxTransformedRaster<depth,type>::drawPolygon(const QPointArray &a, bool w
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::processSpans(int n, QPoint* point, int* width)
 {
-    if (inDraw || patternedbrush && srcwidth != 0 && srcheight != 0) {
+    if (inDraw || this->patternedbrush && this->srcwidth != 0 && this->srcheight != 0) {
         //in the patternedbrush case, we let blt do the transformation
         // so we leave inDraw false.
         QT_TRANS_GFX_BASE<depth,type>::processSpans(n, point, width);
@@ -723,21 +723,21 @@ void QGfxTransformedRaster<depth,type>::processSpans(int n, QPoint* point, int* 
         inDraw = true;
         while (n--) {
             if (*width > 0) {
-                int x=tx(point->x(),point->y())+xoffs;
-                int y=ty(point->x(),point->y())+yoffs;
+                int x=tx(point->x(),point->y())+this->xoffs;
+                int y=ty(point->x(),point->y())+this->yoffs;
 
                 switch(qt_trans_screen->transformation()) {
                 case QTransformedScreen::Rot90:
-                    vline(x, y-(*width-1), y);
+                    this->vline(x, y-(*width-1), y);
                     break;
                 case QTransformedScreen::Rot180:
-                    hline(x - (*width-1), x, y);
+                    this->hline(x - (*width-1), x, y);
                     break;
                 case QTransformedScreen::Rot270:
-                    vline(x, y, y+*width-1);
+                    this->vline(x, y, y+*width-1);
                     break;
                 default:
-                    hline(x, x+*width-1, y);
+                    this->hline(x, x+*width-1, y);
                     break;
                 }
             }
@@ -792,14 +792,14 @@ void QGfxTransformedRaster<depth,type>::blt(int x, int y, int w, int h, int sx, 
         switch (qt_trans_screen->transformation()) {
         case QTransformedScreen::Rot90:
             rsx = sy;
-            rsy = srcwidth - sx - w;
+            rsy = this->srcwidth - sx - w;
             break;
         case QTransformedScreen::Rot180:
-            rsx = srcwidth - sx - w;
-            rsy = srcheight - sy - h;
+            rsx = this->srcwidth - sx - w;
+            rsy = this->srcheight - sy - h;
             break;
         case QTransformedScreen::Rot270:
-            rsx = srcheight - sy - h;
+            rsx = this->srcheight - sy - h;
             rsy = sx;
             break;
         default:
@@ -837,19 +837,19 @@ void QGfxTransformedRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     r.setCoords(tx(rx,ry), ty(rx,ry), tx(rx+w-1,ry+h-1), ty(rx+w-1,ry+h-1));
     r = r.normalize();
 
-    QPoint oldBrushOrig = brushorig;
-    brushorig = qt_screen->mapToDevice(brushorig, QSize(qt_screen->width(),qt_screen->height()));
-    int oldsw = srcwidth;
-    int oldsh = srcheight;
-    QSize s = qt_screen->mapToDevice(QSize(srcwidth,srcheight));
-    srcwidth = s.width();
-    srcheight = s.height();
+    QPoint oldBrushOrig = this->brushorig;
+    this->brushorig = qt_screen->mapToDevice(this->brushorig, QSize(qt_screen->width(),qt_screen->height()));
+    int oldsw = this->srcwidth;
+    int oldsh = this->srcheight;
+    QSize s = qt_screen->mapToDevice(QSize(this->srcwidth,this->srcheight));
+    this->srcwidth = s.width();
+    this->srcheight = s.height();
 
     QT_TRANS_GFX_BASE<depth,type>::tiledBlt(r.x(), r.y(), r.width(), r.height());
 
-    srcwidth = oldsw;
-    srcheight = oldsh;
-    brushorig = oldBrushOrig;
+    this->srcwidth = oldsw;
+    this->srcheight = oldsh;
+    this->brushorig = oldBrushOrig;
     inDraw = false;
 }
 
