@@ -1098,30 +1098,8 @@ void QTextEdit::setFormat( QTextEditFormat *f, int flags )
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	drawCursor( FALSE );
 	doc->setFormat( QTextEditDocument::Standard, f, flags );
-
-	QTextEditParag *start = doc->selectionStart( QTextEditDocument::Standard );
-	QTextEditParag *end = doc->selectionEnd( QTextEditDocument::Standard );
-
-	lastFormatted = start;
-	int dy = 0;
-	while ( lastFormatted ) {
-	    int h = lastFormatted->rect().height();
-	    lastFormatted->move( dy );
-	    lastFormatted->format( 0, FALSE );
-	    dy += lastFormatted->rect().height() - h;
-	    if ( lastFormatted == end )
-		break;
-	    lastFormatted = lastFormatted->next();
-	}
-
-	if ( lastFormatted )
-	    lastFormatted = lastFormatted->next();
-	while ( lastFormatted ) {
-	    lastFormatted->move( dy );
-	    lastFormatted = lastFormatted->next();
-	}
-	
 	repaintChanged();
+	formatMore();
 	drawCursor( TRUE );
     }
     if ( currentFormat && currentFormat->key() != f->key() ) {
