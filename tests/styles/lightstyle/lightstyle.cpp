@@ -17,163 +17,19 @@
 #include "qslider.h"
 
 
-static QPixmap blend(const QSize &size, const QColor &color)
-{
-    QImage image(size, 32);
-    image.setAlphaBuffer(TRUE);
-    int i;
-    uint *p, pixel;
-
-    i = image.numBytes() / 4;
-    // i = image.bytesPerLine() / 4;
-    p = (uint *) image.scanLine(0);
-    pixel = qRgba(color.red(), color.green(), color.blue(), 0xdd);
-    while (i > 4) {
-	p[0] = pixel;
-	p[1] = pixel;
-	p[2] = pixel;
-	p[3] = pixel;
-	i-=4;
-	p+=4;
-    }
-    if (i > 0) {
-	p[0] = pixel;
-	if (i > 1) {
-	    p[1] = pixel;
-	    if (i > 2) {
-		p[2] = pixel;
-	    }
-	}
-    }
-
-    // the interlacing stuff is below
-
-    // QColor color2 = color.dark(115);
-    // i = image.bytesPerLine() / 4;
-    // p = (uint *) image.scanLine(1);
-    // pixel = qRgba(color2.red(), color2.green(), color2.blue(), 0xdd);
-    // while (i > 4) {
-    //     p[0] = pixel;
-    //     p[1] = pixel;
-    //     p[2] = pixel;
-    //     p[3] = pixel;
-    //     i-=4;
-    //     p+=4;
-    // }
-    // if (i > 0) {
-    //     p[0] = pixel;
-    //     if (i > 1) {
-    //         p[1] = pixel;
-    // 	   if (i > 2) {
-    // 	       p[2] = pixel;
-    // 	   }
-    //     }
-    // }
-
-    // for (i = 2; i < image.height() - 1; i += 2)
-    // memcpy(image.scanLine(i), image.scanLine(0),
-    // image.bytesPerLine() * 2);
-    // if (image.height() % 2)
-    // memcpy(image.scanLine(image.height() - 1), image.scanLine(0),
-    // image.bytesPerLine());
-
-    return image;
-}
-
-
-class LightStyleFilter : public QObject
-{
-public:
-    QPixmap menupixmap, selpixmap;
-
-    LightStyleFilter()
-	: QObject(0)
-    {
-    }
-
-    void constrainPixmap(const QSize &constraint, const QColorGroup &cg)
-    {
-	if (menupixmap.width() < constraint.width() ||
-	    menupixmap.height() < constraint.height())
-	    menupixmap = blend(QSize(QMAX(selpixmap.width(), constraint.width()),
-				     QMAX(selpixmap.height(), constraint.height())),
-			       cg.button());
-
-	if (selpixmap.width() < constraint.width() ||
-	    selpixmap.height() < constraint.height())
-	    selpixmap = blend(QSize(QMAX(selpixmap.width(), constraint.width()),
-				    QMAX(selpixmap.height(), constraint.height())),
-			      cg.highlight());
-    }
-
-    bool eventFilter(QObject *object, QEvent *event)
-    {
-	QPopupMenu *popup = (QPopupMenu *) object;
-	if (event->type() == QEvent::Show) {
-	    QPixmap pix =
-		QPixmap::grabWindow( QApplication::desktop()->winId(),
-				     popup->x(), popup->y(),
-				     popup->width(), popup->height()),
-		pix2(pix.size());
-
-	    constrainPixmap(pix.size(), popup->colorGroup());
-
-	    QPainter p;
-
-	    p.begin(&pix2);
-	    p.drawPixmap(0, 0, pix);
-	    p.drawPixmap(0, 0, selpixmap);
-	    p.end();
-
-	    p.begin(&pix);
-	    p.drawPixmap(0, 0, menupixmap);
-	    p.end();
-
-	    QPalette pal(popup->palette());
-	    pal.setBrush(QPalette::Active, QColorGroup::Button,
-			 QBrush(pal.active().button(), pix));
-	    pal.setBrush(QPalette::Inactive, QColorGroup::Button,
-			 QBrush(pal.active().button(), pix));
-	    pal.setBrush(QPalette::Disabled, QColorGroup::Button,
-			 QBrush(pal.active().button(), pix));
-	    pal.setBrush(QPalette::Active, QColorGroup::Highlight,
-			 QBrush(pal.active().button(), pix2));
-	    pal.setBrush(QPalette::Inactive, QColorGroup::Highlight,
-			 QBrush(pal.active().button(), pix2));
-	    pal.setBrush(QPalette::Disabled, QColorGroup::Highlight,
-			 QBrush(pal.active().button(), pix2));
-	    popup->setPalette(pal);
-	} else if (event->type() == QEvent::Hide) {
-	    popup->move(-popup->x(), -popup->y());
-	    popup->setBackgroundPixmap(QPixmap());
-	    int count = 0;
-	    QApplication::syncX();
-	    while (qApp->hasPendingEvents() && count++ < 5)
-		qApp->processEvents();
-	}
-
-	return FALSE;
-    }
-};
-
-
 class LightStylePrivate
 {
 public:
     LightStylePrivate()
 	: ref(1)
     {
-	filter = new LightStyleFilter;
     }
 
     ~LightStylePrivate()
     {
-	delete filter;
-	filter = 0;
     }
 
     QPalette oldPalette;
-    LightStyleFilter *filter;
     int ref;
 };
 
@@ -183,38 +39,9 @@ static LightStylePrivate *singleton = 0;
 LightStyle::LightStyle()
     : QWindowsStyle()
 {
-    if (! singleton) {
+    if (! singleton)
 	singleton = new LightStylePrivate;
-
-	QPalette pal = QApplication::palette();
-	singleton->oldPalette = pal;
-
-	QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
-	QColor prelight;
-
-	if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
-	    prelight = pal.color(QPalette::Active,
-				 QColorGroup::Background).light(110);
-	else
-	    prelight = pal.color(QPalette::Active,
-				 QColorGroup::Background).light(120);
-
-	QColorGroup active2(pal.color(QPalette::Active,
- 				      QColorGroup::Foreground),      // foreground
-			    prelight,                                // button
-			    prelight.light(),                        // light
-			    prelight.dark(),                         // dark
-			    prelight.dark(120),                      // mid
-			    pal.color(QPalette::Active,
-				      QColorGroup::Text),            // text
-			    pal.color(QPalette::Active,
-				      QColorGroup::BrightText),      // bright text
-			    pal.color(QPalette::Active,
-				      QColorGroup::Base),            // base
-			    bg);                                     // background
-	active2.setColor(QColorGroup::Highlight,
-			 pal.color(QPalette::Active, QColorGroup::Highlight));
-    } else
+    else
 	singleton->ref++;
 }
 
@@ -225,17 +52,6 @@ LightStyle::~LightStyle()
 	delete singleton;
 	singleton = 0;
     }
-}
-
-
-void LightStyle::unPolish(QWidget *widget)
-{
-    if (widget->inherits("QPopupMenu")) {
-	widget->removeEventFilter(singleton->filter);
-	widget->unsetPalette();
-    }
-
-    QWindowsStyle::unPolish(widget);
 }
 
 
@@ -298,32 +114,6 @@ void LightStyle::polish(QApplication *app)
 
     singleton->oldPalette = pal;
 
-    QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
-    QColor prelight;
-
-    if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
-	prelight = pal.color(QPalette::Active,
-			     QColorGroup::Background).light(110);
-    else
-	prelight = pal.color(QPalette::Active,
-			     QColorGroup::Background).light(120);
-
-    QColorGroup active2(pal.color(QPalette::Active,
-				  QColorGroup::Foreground),      // foreground
-			prelight,                                // button
-			prelight.light(),                        // light
-			prelight.dark(),                         // dark
-			prelight.dark(120),                      // mid
-			pal.color(QPalette::Active,
-				  QColorGroup::Text),            // text
-			pal.color(QPalette::Active,
-				  QColorGroup::BrightText),      // bright text
-			pal.color(QPalette::Active,
-				  QColorGroup::Base),            // base
-			bg);                                     // background
-    active2.setColor(QColorGroup::Highlight,
-		     pal.color(QPalette::Active, QColorGroup::Highlight));
-
     app->setPalette(pal);
 }
 
@@ -331,15 +121,6 @@ void LightStyle::polish(QApplication *app)
 void LightStyle::unPolish(QApplication *app)
 {
     app->setPalette(singleton->oldPalette);
-}
-
-
-void LightStyle::polishPopupMenu(QPopupMenu *menu)
-{
-    menu->installEventFilter(singleton->filter);
-    menu->setMouseTracking(TRUE);
-    if (! menu->testWState(WState_Polished))
-	menu->setCheckable(TRUE);
 }
 
 
@@ -369,8 +150,6 @@ static void drawLightBevel(QPainter *p, const QRect &r, const QColorGroup &cg,
 
     if (flags & (QStyle::Style_Down | QStyle::Style_On |
 		 QStyle::Style_Sunken | QStyle::Style_Raised)) {
-	bool sunken =
-	    (flags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Sunken));
 	// button bevel
 	if (sunken)
 	    p->setPen(cg.mid());
@@ -419,6 +198,53 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonTool:
 	drawLightBevel(p, r, cg, flags);
 	break;
+
+    case PE_ButtonDropDown:
+	{
+	    QBrush thefill;
+	    bool sunken =
+		(flags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Sunken));
+
+	    if (flags & QStyle::Style_Enabled) {
+		if (sunken)
+		    thefill = cg.brush(QColorGroup::Midlight);
+		else
+		    thefill = cg.brush(QColorGroup::Button);
+	    } else
+		thefill = cg.brush(QColorGroup::Background);
+
+	    p->setPen(cg.dark());
+	    p->drawLine(r.topLeft(),     r.topRight());
+	    p->drawLine(r.topRight(),    r.bottomRight());
+	    p->drawLine(r.bottomRight(), r.bottomLeft());
+
+	    if (flags & (QStyle::Style_Down | QStyle::Style_On |
+			 QStyle::Style_Sunken | QStyle::Style_Raised)) {
+		// button bevel
+		if (sunken)
+		    p->setPen(cg.mid());
+		else
+		    p->setPen(cg.light());
+
+		p->drawLine(r.x(), r.y() + 2,
+			    r.x(), r.y() + r.height() - 3); // left
+		p->drawLine(r.x(), r.y() + 1,
+			    r.x() + r.width() - 2, r.y() + 1); // top
+
+		if (sunken)
+		    p->setPen(cg.light());
+		else
+		    p->setPen(cg.mid());
+
+		p->drawLine(r.x() + r.width() - 2, r.y() + 2,
+			    r.x() + r.width() - 2, r.y() + r.height() - 3); // right
+		p->drawLine(r.x() + 1, r.y() + r.height() - 2,
+			    r.x() + r.width() - 2, r.y() + r.height() - 2); // bottom
+	    }
+
+	    p->fillRect(r.x() + 1, r.y() + 2, r.width() - 3, r.height() - 4, thefill);
+	    break;
+	}
 
     case PE_ButtonDefault:
 	p->setPen(cg.dark());
@@ -508,9 +334,8 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		if (drawTitle) {
 		    QPixmap pm(r.height(), r.width());
 		    QPainter p2(&pm);
-		    p2.setPen(cg.background());
-		    p2.setBrush(cg.brush(QColorGroup::Highlight));
-		    p2.drawRect(0, 0, pm.width(), pm.height());
+		    p2.fillRect(0, 0, pm.width(), pm.height(),
+				cg.brush(QColorGroup::Highlight));
 		    p2.setPen(cg.highlightedText());
 		    p2.drawText(0, 0, pm.width(), pm.height(), AlignCenter, title);
 		    p2.end();
@@ -520,33 +345,76 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		    pm = pm.xForm(m);
 		    p->drawPixmap(r.x(), r.y(), pm);
 		} else {
-		    drawLightBevel(p, QRect(r.x() + 2, r.y() + 2, 8, r.height() - 4),
-				   cg, flags);
-
-		    p->setPen(cg.dark());
-		    p->drawLine(r.left() + 5, r.top() + 5,
-				r.left() + 6, r.top() + 5);
-		    p->drawLine(r.left() + 5, r.bottom() - 5,
-				r.left() + 6, r.bottom() - 5);
+		    p->fillRect(r, cg.background());
+		    p->setPen(cg.mid().dark());
+		    p->drawLine(r.right() - 6, r.top() + 2,
+				r.right() - 6, r.bottom() - 2);
+		    p->drawLine(r.right() - 3, r.top() + 2,
+				r.right() - 3, r.bottom() - 2);
+		    p->setPen(cg.light());
+		    p->drawLine(r.right() - 5, r.top() + 2,
+				r.right() - 5, r.bottom() - 2);
+		    p->drawLine(r.right() - 2, r.top() + 2,
+				r.right() - 2, r.bottom() - 2);
 		}
 	    } else {
 		if (drawTitle) {
-		    p->setPen(cg.background());
-		    p->setBrush(cg.brush(QColorGroup::Highlight));
-		    p->drawRect(r);
+		    p->fillRect(r, cg.brush(QColorGroup::Highlight));
 		    p->setPen(cg.highlightedText());
 		    p->drawText(r, AlignCenter, title);
 		} else {
-
-		    drawLightBevel(p, QRect(r.x() + 2, r.y() + 2, r.width() - 4, 8),
-				   cg, flags);
-
-		    p->setPen(cg.dark());
-		    p->drawLine(r.left() + 5, r.top() + 5,
-				r.left() + 5, r.top() + 6);
-		    p->drawLine(r.right() - 5, r.top() + 5,
-				r.right() - 5, r.top() + 6);
+		    p->fillRect(r, cg.background());
+		    p->setPen(cg.mid().dark());
+		    p->drawLine(r.left() + 2,  r.bottom() - 6,
+				r.right() - 2, r.bottom() - 6);
+		    p->drawLine(r.left() + 2,  r.bottom() - 3,
+				r.right() - 2, r.bottom() - 3);
+		    p->setPen(cg.light());
+		    p->drawLine(r.left() + 2,  r.bottom() - 5,
+				r.right() - 2, r.bottom() - 5);
+		    p->drawLine(r.left() + 2,  r.bottom() - 2,
+				r.right() - 2, r.bottom() - 2);
 		}
+	    }
+	    break;
+	}
+
+    case PE_DockWindowSeparator:
+	{
+	    if (r.width() > 20 || r.height() > 20) {
+		if (flags & Style_Horizontal) {
+		    p->setPen(cg.mid().dark(120));
+		    p->drawLine(r.left() + 1, r.top() + 6, r.left() + 1, r.bottom() - 6);
+		    p->setPen(cg.light());
+		    p->drawLine(r.left() + 2, r.top() + 6, r.left() + 2, r.bottom() - 6);
+		} else {
+		    p->setPen(cg.mid().dark(120));
+		    p->drawLine(r.left() + 6, r.top() + 1, r.right() - 6, r.top() + 1);
+		    p->setPen(cg.light());
+		    p->drawLine(r.left() + 6, r.top() + 2, r.right() - 6, r.top() + 2);
+		}
+	    } else
+		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
+	    break;
+	}
+
+    case PE_DockWindowResizeHandle:
+	{
+	    p->fillRect(r, cg.background());
+	    if (flags & Style_Horizontal) {
+		p->setPen(cg.highlight().light());
+		p->drawLine(r.left() + 1, r.top() + 1, r.right() - 1, r.top() + 1);
+		p->setPen(cg.highlight());
+		p->drawLine(r.left() + 1, r.top() + 2, r.right() - 1, r.top() + 2);
+		p->setPen(cg.highlight().dark());
+		p->drawLine(r.left() + 1, r.top() + 3, r.right() - 1, r.top() + 3);
+	    } else {
+		p->setPen(cg.highlight().light());
+		p->drawLine(r.left() + 1, r.top() + 1, r.left() + 1, r.bottom() - 1);
+		p->setPen(cg.highlight());
+		p->drawLine(r.left() + 2, r.top() + 1, r.left() + 2, r.bottom() - 1);
+		p->setPen(cg.highlight().dark());
+		p->drawLine(r.left() + 3, r.top() + 1, r.left() + 3, r.bottom() - 1);
 	    }
 	    break;
 	}
@@ -688,6 +556,64 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
 
+    case PE_FocusRect:
+	{
+	    QRect fr = r;
+	    QColor one, two;
+	    if (! data.isDefault()) {
+		if (qGray(data.color().rgb()) < 128) {
+		    one = cg.light();
+		    two = cg.light().dark(120);
+		} else {
+		    one = cg.dark();
+		    two = cg.mid().dark(120);
+		}
+	    } else {
+		one = cg.dark();
+		two = cg.mid().dark(120);
+	    }
+
+	    p->setPen(one);
+	    //  [   ]  style focus rect
+	    p->drawLine(fr.left(),      fr.top(),
+			fr.left() + 3,  fr.top());
+	    p->drawLine(fr.left(),      fr.top() + 1,
+			fr.left() + 3,  fr.top() + 1);
+	    p->drawLine(fr.left(),      fr.bottom(),
+			fr.left() + 3,  fr.bottom());
+	    p->drawLine(fr.left(),      fr.bottom() - 1,
+			fr.left() + 3,  fr.bottom() - 1);
+	    p->drawLine(fr.left(),      fr.top() + 2,
+			fr.left(),      fr.bottom() - 2);
+	    p->drawLine(fr.left() + 1,  fr.top() + 2,
+			fr.left() + 1,  fr.bottom() - 2);
+	    p->drawLine(fr.right(),     fr.top(),
+			fr.right() - 3, fr.top());
+	    p->drawLine(fr.right(),     fr.top() + 1,
+			fr.right() - 3, fr.top() + 1);
+	    p->drawLine(fr.right(),     fr.bottom(),
+			fr.right() - 3, fr.bottom());
+	    p->drawLine(fr.right(),     fr.bottom() - 1,
+			fr.right() - 3, fr.bottom() - 1);
+	    p->drawLine(fr.right(),     fr.top() + 1,
+			fr.right(),     fr.bottom() - 1);
+	    p->drawLine(fr.right() - 1, fr.top() + 1,
+			fr.right() - 1, fr.bottom() - 1);
+
+	    if (fr.width() > 16) {
+		if (flags & Style_FocusAtBorder)
+		    fr.addCoords(1, 1, -1, -1);
+		p->setPen(two);
+		p->drawLine(fr.left() + 3, fr.top(),    fr.right() - 3, fr.top());
+		p->drawLine(fr.left() + 3, fr.bottom(), fr.right() - 3, fr.bottom());
+	    }
+	    break;
+	}
+
+    case PE_ProgressBarChunk:
+	p->fillRect(r.x(), r.y() + 2, r.width(), r.height() - 4, cg.highlight());
+	break;
+
     default:
 	QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
 	break;
@@ -786,17 +712,18 @@ void LightStyle::drawControl( ControlElement control,
 	    if ( mi && mi->isSeparator() ) {
 		// draw separator
 		p->fillRect(r, cg.brush(QColorGroup::Button));
-		p->setPen(cg.dark());
-		if (r.width() > 18)
-		    p->drawLine(r.left() + 8, r.top() + 1, r.right() - 8, r.top() + 1);
-		else
-		    p->drawLine(r.left(), r.top() + 1, r.right(), r.top() + 1);
+		p->setPen(cg.mid().dark(120));
+		p->drawLine(r.left() + 12,  r.top() + 1,
+			    r.right() - 12, r.top() + 1);
+		p->setPen(cg.light());
+		p->drawLine(r.left() + 12,  r.top() + 2,
+			    r.right() - 12, r.top() + 2);
 		break;
 	    }
 
 	    if (flags & Style_Active)
 		qDrawShadePanel(p, r, cg, TRUE, 1,
-				&cg.brush(QColorGroup::Highlight));
+				&cg.brush(QColorGroup::Midlight));
 	    else
 		p->fillRect(r, cg.brush(QColorGroup::Button));
 
@@ -844,10 +771,10 @@ void LightStyle::drawControl( ControlElement control,
 	    QColor embosscolor;
 	    if (flags & Style_Active) {
 		if (! (flags & Style_Enabled))
-		    textcolor = cg.highlight().dark(110);
+		    textcolor = cg.midlight().dark();
 		else
-		    textcolor = cg.highlightedText();
-		embosscolor = cg.highlight().light(110);
+		    textcolor = cg.buttonText();
+		embosscolor = cg.midlight().light();
 	    } else if (! (flags & Style_Enabled)) {
 		textcolor = cg.text();
 		embosscolor = cg.light();
@@ -919,7 +846,7 @@ void LightStyle::drawControl( ControlElement control,
     case CE_MenuBarItem:
 	{
 	    if (flags & Style_Active)
-		qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Highlight));
+		qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Midlight));
 	    else
 		p->fillRect(r, cg.brush(QColorGroup::Button));
 
@@ -927,10 +854,9 @@ void LightStyle::drawControl( ControlElement control,
 		break;
 
 	    QMenuItem *mi = data.menuItem();
-	    drawItem( p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
-		      flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
-		      ((flags & Style_Active) ? &
-		       cg.highlightedText() : &cg.buttonText()));
+	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
+		     flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+		     &cg.buttonText());
 	    break;
 	}
 
@@ -1139,32 +1065,28 @@ void LightStyle::drawComplexControl( ComplexControl control,
 
        	    if ((controls & SC_ScrollBarSubLine) && subline.isValid()) {
 		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarSubLine) ?
-			       Style_Down : Style_Default) |
+			      Style_Enabled | ((active == SC_ScrollBarSubLine) ?
+					       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       Style_Horizontal : 0));
 
 		if (subline2.isValid())
 		    drawPrimitive(PE_ScrollBarSubLine, p, subline2, cg,
-				  ((maxedOut) ? Style_Default : Style_Enabled) |
-				  ((active == SC_ScrollBarSubLine) ?
-				   Style_Down : Style_Default) |
+				  Style_Enabled | ((active == SC_ScrollBarSubLine) ?
+						   Style_Down : Style_Default) |
 				  ((scrollbar->orientation() == Qt::Horizontal) ?
 				   Style_Horizontal : 0));
 	    }
 	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
 		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarAddLine) ?
-			       Style_Down : Style_Default) |
+			      Style_Enabled | ((active == SC_ScrollBarAddLine) ?
+					       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarSubPage) ?
-			       Style_Down : Style_Default) |
+			      Style_Enabled | ((active == SC_ScrollBarSubPage) ?
+					       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
@@ -1176,23 +1098,20 @@ void LightStyle::drawComplexControl( ComplexControl control,
 			       Style_Horizontal : 0));
        	    if ((controls & SC_ScrollBarFirst) && first.isValid())
 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarFirst) ?
-			       Style_Down : Style_Default) |
+			      Style_Enabled | ((active == SC_ScrollBarFirst) ?
+					       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarLast) && last.isValid())
 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarLast) ?
-			       Style_Down : Style_Default) |
+			      Style_Enabled | ((active == SC_ScrollBarLast) ?
+					       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       Style_Horizontal : 0));
 	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
 		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
-			      ((maxedOut) ? Style_Default : Style_Enabled) |
-			      ((active == SC_ScrollBarSlider) ?
-			       Style_Down : Style_Default) |
+			      Style_Enabled | ((active == SC_ScrollBarSlider) ?
+					       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       Style_Horizontal : 0));
 
@@ -1398,7 +1317,20 @@ int LightStyle::pixelMetric( PixelMetric metric,
 	break;
 
     case PM_ScrollBarExtent:
+    case PM_ScrollBarSliderMin:
 	ret = 14;
+	break;
+
+    case PM_MenuBarFrameWidth:
+	ret = 1;
+	break;
+
+    case PM_ProgressBarChunkWidth:
+	ret = 2;
+	break;
+
+    case PM_DockWindowSeparatorExtent:
+	ret = 4;
 	break;
 
     default:
@@ -1433,7 +1365,7 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 		h = mi->custom()->sizeHint().height();
 	    } else if (mi->isSeparator()) {
 		w = 10;
-		h = 3;
+		h = 4;
 	    } else {
 		// most iconsets are 22x22 in menus
 		if (h < 22)
@@ -1463,6 +1395,26 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 
     default:
 	ret = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
+	break;
+    }
+
+    return ret;
+}
+
+
+int LightStyle::styleHint( StyleHint stylehint,
+			   const QWidget *widget = 0,
+			   QStyleHintReturn* returnData = 0 ) const
+{
+    int ret;
+
+    switch (stylehint) {
+    case SH_MainWindow_SpaceBelowMenuBar:
+	ret = 0;
+	break;
+
+    default:
+	ret = QWindowsStyle::styleHint(stylehint, widget, returnData);
 	break;
     }
 

@@ -23,12 +23,8 @@ public:
     LightStyle();
     virtual ~LightStyle();
 
-    void unPolish(QWidget *widget);
-
     void polish(QApplication *app);
     void unPolish(QApplication *app);
-
-    void polishPopupMenu(QPopupMenu *menu);
 
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
@@ -77,6 +73,10 @@ public:
 			    const QWidget *widget,
 			    const QSize &contentsSize,
 			    const QStyleOption &data = QStyleOption::Default ) const;
+
+    int styleHint( StyleHint stylehint,
+		   const QWidget *widget = 0,
+		   QStyleHintReturn* returnData = 0 ) const;
 };
 
 
