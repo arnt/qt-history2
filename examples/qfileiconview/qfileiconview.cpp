@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#25 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#26 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -433,7 +433,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     else if ( itemFileInfo->isSymLink() )
 	itemType = Link;
 
-    setAllowDrop( FALSE );
+    setDropEnabled( FALSE );
 
     switch ( itemType )
     {
@@ -442,7 +442,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 	    setIcon( *iconFolderLocked, FALSE );
 	else
 	    setIcon( *iconFolder, FALSE );
-	setAllowDrop( QDir( itemFileName ).isReadable() );
+	setDropEnabled( QDir( itemFileName ).isReadable() );
 	break;
     case File:
 	setIcon( *iconFile, FALSE );
@@ -454,7 +454,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 
     if ( itemFileInfo->fileName() == "." ||
 	 itemFileInfo->fileName() == ".." )
-	setAllowRename( FALSE );
+	setRenameEnabled( FALSE );
 
     checkSetText = TRUE;
 
@@ -486,7 +486,7 @@ void QtFileIconViewItem::setText( const QString &text )
 bool QtFileIconViewItem::acceptDrop( const QMimeSource *e ) const
 {
     if ( type() == Dir && e->provides( "text/uri-list" ) &&
-	 allowDrop() )
+	 dropEnabled() )
 	return TRUE;
 
     return FALSE;
@@ -648,7 +648,7 @@ void QtFileIconView::readDir( const QDir &dir )
 	    else
 		allowRenameSet = TRUE;
 	}
-	item->setAllowRename( allowRename );
+	item->setRenameEnabled( allowRename );
 	qApp->processEvents();
     }
     emit readDirDone();
@@ -776,7 +776,7 @@ void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
     if ( id == -1 )
 	return;
 
-    if ( id == RENAME_ITEM && item->allowRename() )
+    if ( id == RENAME_ITEM && item->renameEnabled() )
 	item->rename();
     else if ( id == REMOVE_ITEM )
 	QMessageBox::information( this, "Not implemented!", "Deleting files not implemented yet..." );
