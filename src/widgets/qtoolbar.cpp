@@ -49,7 +49,7 @@ public:
 
   \ingroup realwidgets
   \ingroup application
-  
+
   A toolbar is a panel that contains a set of controls, usually
   represented by small icons.  It's purpose is to provide quick access
   to frequently used commands or options. Within a main window, the
@@ -60,9 +60,9 @@ public:
   QMainWindow, create a number of QToolButton widgets (or other
   widgets) in left to right (or top to bottom) order, call
   addSeparator() when you want a separator, and that's all.
-  
+
   The application/application.cpp example does precisely this.
-  
+
   You may use any kind of widget within a toolbar, with QToolButton
   and QComboBox being the two most common ones.
 
@@ -71,7 +71,7 @@ public:
   bars that start a new line are always positioned at the left end or
   top of the tool bar dock; others are placed next to the previous
   tool bar and word-wrapped as necessary.
-  
+
   Usually, a toolbar gets just the space it needs. However, with
   setStretchable() or setStretchableWidget() you can advise the main
   window to expand the toolbar horizontally to fill all available width.
@@ -83,9 +83,7 @@ public:
   child widgets need adjustification.
 
   \sa QToolButton QMainWindow
-  <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design,</a>
-  <a href="http://www.microsoft.com/win32dev/uiguide/uigui192.htm">Microsoft Style Guide,</a>
-  <a href="http://www.microsoft.com/win32dev/uiguide/uigui196.htm">some common buttons (NB: read the license),</a>
+  <a href="http://www.iarchitect.com/visual.htm">Parts of Isys on Visual Design</a>
   <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar.</a>
 */
 
@@ -214,9 +212,9 @@ void QToolBar::addSeparator()
 /*!  Sets this toolbar to organize its content vertically if \a
   newOrientation is \c Vertical and horizontally if \a newOrientation
   is \c Horizontal.
-  
+
   Emits the orientationChanged() signal.
-  
+
   \sa orientation()
 */
 
@@ -444,9 +442,9 @@ void QToolBar::endMoving( QToolBar *tb )
 
   A stretchable toolbar fills all available width in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
-  
+
   The default is FALSE.
-  
+
   \sa QMainWindow::setRightJustification()
 */
 
