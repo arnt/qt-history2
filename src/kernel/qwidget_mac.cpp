@@ -1112,7 +1112,6 @@ void QWidget::showNormal()
 	}
 	{
 	    Rect bounds;
-	    GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
 	    ZoomWindow( (WindowPtr)hd, inZoomIn, FALSE);
 	    GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
 	    qt_dirty_wndw_rgn("showNormal",this, &bounds);

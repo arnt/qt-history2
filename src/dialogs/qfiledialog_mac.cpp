@@ -115,8 +115,7 @@ QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 				      FSSpec *spec);
 
 QString QFileDialog::macGetOpenFileName( const QString &/*initialSelection*/,
-					 const QString &filter,
-					 QString* initialDirectory,
+					 const QString &filter, QString* initialDirectory,
 					 QWidget *parent, const char* name,
 					 const QString& caption )
 {
@@ -124,56 +123,64 @@ QString QFileDialog::macGetOpenFileName( const QString &/*initialSelection*/,
 			       parent, name, caption).first();
 }
 
-QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
-					      QString* initialDirectory,
-					      QWidget *parent,
-					      const char* /*name*/,
+QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString*,
+					      QWidget *parent, const char* /*name*/,
 					      const QString& caption )
 {
     OSErr err;
     QString tmpstr;
     QStringList retstrl;
-    NavDialogOptions options;
-    NavGetDefaultDialogOptions( &options );
+    static const int w = 450, h = 350;
+    NavDialogCreationOptions options;
+    NavGetDefaultDialogCreationOptions( &options );
     options.version = kNavDialogOptionsVersion;
+    options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
-    if(parent)
-	strcpy((char *)options.clientName,
-	       (const char *) p_str(parent->caption()));
-    if(caption.length())
-	strcpy((char *)options.windowTitle,
-	       (const char *)p_str(caption));
-
-    bool use_initial = FALSE;
-    AEDesc initial;
-    if(initialDirectory) {
-	QString macFilename = initialDirectory->mid( 1 );
-	while ( macFilename.find( "/" ) != -1 )
-	    macFilename.replace( macFilename.find( "/" ), 1, ":" );
-	//FIXME: prepend the volume name to the macFilename
-
-	FSSpec fileSpec;
-	err = FSpLocationFromFullPath( macFilename.length(),
-				       macFilename.latin1(), &fileSpec );
-	if(err == noErr) {
-	    err = AECreateDesc(typeFSS, &fileSpec, sizeof(fileSpec), &initial );
-	    if(err == noErr)
-		use_initial = TRUE;
+    if(caption.length()) 
+	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
+							   caption.length());
+    if(parent) {
+	parent = parent->topLevelWidget();
+	QString s = parent->caption();
+	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
+	options.parentWindow = (WindowPtr)parent->handle();
+	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
+	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
+    } else if(QWidget *p = qApp->mainWidget()) {
+	static int last_screen = -1;
+	int scr = QApplication::desktop()->screenNumber(p);
+	if(last_screen != scr) {
+	    QRect r = QApplication::desktop()->screenGeometry(scr);
+	    options.location.h = (r.x() + (r.width() / 2)) - (w / 2);
+	    options.location.v = (r.y() + (r.height() / 2)) - (h / 2);
 	}
     }
 
-    NavReplyRecord ret;
+    NavDialogRef dlg;
     QPtrList<QRegExp> filts = makeFiltersList(filter);
-    NavGetFile(use_initial ? &initial : NULL, &ret, &options, NULL, NULL,
-	       make_navUPP(), NULL, (void *) (filts.isEmpty() ? NULL : &filts));
+    if(NavCreateGetFileDialog( &options, NULL, NULL, NULL, make_navUPP(),
+			       (void *) (filts.isEmpty() ? NULL : &filts), &dlg)) {
+	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	return retstrl;
+    }
+
+    NavDialogRun(dlg); 
     filts.setAutoDelete(TRUE);
     filts.clear();
+    if(NavDialogGetUserAction(dlg) != kNavUserActionOpen) {
+	NavDialogDispose(dlg);
+	return retstrl;
+    }
 
+    NavReplyRecord ret;
+    NavDialogGetReply(dlg, &ret);
+    NavDialogDispose(dlg);
     long count;
     err = AECountItems(&(ret.selection), &count);
-
-    if(!ret.validRecord || err != noErr || !count)
-	goto get_name_out;
+    if(!ret.validRecord || err != noErr || !count) {
+	NavDisposeReply(&ret);
+	return retstrl;
+    }
 
     AEKeyword	keyword;
     DescType    type;
@@ -184,7 +191,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
 	err = AEGetNthPtr(&(ret.selection), index, typeFSS, &keyword,
 			  &type,&FSSpec, sizeof(FSSpec), &size);
 	if(err != noErr)
-	    goto get_name_out;
+	    break;
 
 	//we must *try* to create a file, and remove it if successfull
 	//to actually get a path, bogus? I think so.
@@ -202,57 +209,56 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter,
 	retstrl.append(tmpstr);
     }
 
- get_name_out:
-    if(use_initial)
-	AEDisposeDesc(&initial);
     NavDisposeReply(&ret);
     return retstrl;
 }
 
-QString QFileDialog::macGetSaveFileName( const QString &,
-					 const QString &filter,
-					 QString* initialDirectory,
+QString QFileDialog::macGetSaveFileName( const QString &, const QString &, QString*,
 					 QWidget *parent, const char* /*name*/,
 					 const QString& caption )
 {
     OSErr err;
     QString retstr;
-    NavDialogOptions options;
-    NavGetDefaultDialogOptions( &options );
+    NavDialogCreationOptions options;
+    NavGetDefaultDialogCreationOptions( &options );
+    static const int w = 450, h = 150;
     options.version = kNavDialogOptionsVersion;
+    options.modality = kWindowModalityAppModal;
     options.location.h = options.location.v = -1;
-    if(parent)
-	strcpy((char *)options.clientName,
-	       (const char *) p_str(parent->caption()));
     if(caption.length())
-	strcpy((char *)options.windowTitle,
-	       (const char *)p_str(caption));
-
-    bool use_initial = FALSE;
-    AEDesc initial;
-    if(initialDirectory) {
-	QString macFilename = initialDirectory->mid( 1 );
-	while ( macFilename.find( "/" ) != -1 )
-	    macFilename.replace( macFilename.find( "/" ), 1, ":" );
-	//FIXME: prepend the volume name to the macFilename
-
-	FSSpec fileSpec;
-	err = FSpLocationFromFullPath( macFilename.length(),
-				       macFilename.latin1(), &fileSpec );
-	if(err == noErr) {
-	    err = AECreateDesc(typeFSS, &fileSpec, sizeof(fileSpec), &initial );
-	    if(err == noErr)
-		use_initial = TRUE;
+	options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(), 
+							   caption.length());
+    if(parent) {
+	parent = parent->topLevelWidget();
+	QString s = parent->caption();
+	options.clientName = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), s.length());
+	options.parentWindow = (WindowPtr)parent->handle();
+	options.location.h = (parent->x() + (parent->width() / 2)) - (w / 2);
+	options.location.v = (parent->y() + (parent->height() / 2)) - (h / 2);
+    } else if(QWidget *p = qApp->mainWidget()) {
+	static int last_screen = -1;
+	int scr = QApplication::desktop()->screenNumber(p);
+	if(last_screen != scr) {
+	    QRect r = QApplication::desktop()->screenGeometry(scr);
+	    options.location.h = (r.x() + (r.width() / 2)) - (w / 2);
+	    options.location.v = (r.y() + (r.height() / 2)) - (h / 2);
 	}
     }
 
-    NavReplyRecord ret;
-    QPtrList<QRegExp> filts = makeFiltersList(filter);
-    NavPutFile(use_initial ? &initial : NULL, &ret, &options, NULL,
-	       'cute', kNavGenericSignature, (void *) filts.isEmpty() ? NULL : &filts);
-    filts.setAutoDelete(TRUE);
-    filts.clear();
+    NavDialogRef dlg;
+    if(NavCreatePutFileDialog( &options, 'CUTE', kNavGenericSignature, NULL, NULL, &dlg)) {
+	qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
+	return retstr;
+    }
+    NavDialogRun(dlg); 
+    if(NavDialogGetUserAction(dlg) != kNavUserActionSaveAs) {
+	NavDialogDispose(dlg);
+	return retstr;
+    }
 
+    NavReplyRecord ret;
+    NavDialogGetReply(dlg, &ret);
+    NavDialogDispose(dlg);
     long count;
     err = AECountItems(&(ret.selection), &count);
 
@@ -284,8 +290,6 @@ QString QFileDialog::macGetSaveFileName( const QString &,
     retstr = QString::fromUtf8((const char *)str_buffer);
 
  put_name_out:
-    if(use_initial)
-	AEDisposeDesc(&initial);
     NavDisposeReply(&ret);
     return retstr;
 }

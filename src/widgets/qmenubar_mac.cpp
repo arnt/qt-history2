@@ -345,6 +345,7 @@ bool QMenuBar::updateMenuBar()
 	checking = FALSE;
 	if(!valid) {
 	    qDebug("Invalid after many attempts to correct, waazupwitdat!?");
+	    qt_event_request_menubarupdate();
 	    return FALSE;
 	}
 	InvalMenuBar();
