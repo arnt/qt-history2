@@ -68,7 +68,7 @@ QMakeProperty::value(QString v, bool just_check)
 	    QStringList subs = sett->subkeyList(keyBase(FALSE));
 	    subs.sort();
 	    for(QStringList::Iterator it = subs.fromLast(); it != subs.end(); --it) {
-		if((*it).isEmpty())
+		if((*it).isEmpty() || (*it) > version)
 		    continue;
 		ret = sett->readEntry(keyBase(FALSE) + (*it) + "/" + v, QString::null, &ok);
 		if(ok) {
