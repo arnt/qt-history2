@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.h#17 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.h#18 $
 **
 ** Definition of QScrollBar class
 **
@@ -45,7 +45,6 @@ signals:
     void        previousLine();
     void        nextPage();
     void        previousPage();
-    
 
 protected:
     void	timerEvent( QTimerEvent * );
