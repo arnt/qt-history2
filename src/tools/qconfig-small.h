@@ -9,7 +9,7 @@
 
 
 #define QT_NO_ACTION
-#ifndef QT_NO_CODECS // moc?
+#ifndef QT_NO_TEXTCODEC // moc?
 #define QT_NO_TEXTCODEC
 #endif
 #define QT_NO_UNICODETABLES
