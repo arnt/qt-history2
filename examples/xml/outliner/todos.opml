@@ -25,6 +25,7 @@
 		</outline>
 	    </outline>
 	    <outline text="Qt Books (in English)">
+		<outline text="Blanchette &amp; Summerfield: C++ GUI Programming with Qt 3"/>
 		<outline text="Dalheimer: Programming with Qt"/>
 		<outline text="Griffith: KDE 2/Qt Programming Bible"/>
 		<outline text="Hughes: Linux Rapid Application Development"/>

@@ -6,6 +6,9 @@ are useful for learning particular Qt classes and techniques, but to
 learn Qt itself we recommend starting with the documentation's short
 "How to Learn Qt" document.
 
+It is best to run each example from its own directory since some of
+them assume they are run from there.
+
 
 aclock
     This example displays an analog clock widget.
@@ -116,7 +119,7 @@ fileiconview
     It also shows how to add a QComboBox to a QToolBar and how to
     implement a context menu using QPopupMenu.
 
-fonts [obsolete]
+fonts [obsolete; see the qfd example instead]
 
 forever
     WARNING: this program has a strobe effect.
@@ -143,195 +146,268 @@ helpviewer
     The HelpViewer example implements a simple HTML help browser using
     Qt's richtext capabilities.
 
-- i18n
-  This example shows how to internationalize applications. Start it with
-  	./i18n de
-  to get a german version and with
+i18n
+    This example shows how to internationalize applications. Start it with
   	./i18n en
-  to get the english version.
+    to run the application in English, and with
+  	./i18n de
+    to run it in German. Other languages are also available including,
+    Arabic (ar), French (fr), Italian (it), Japanese (jp), Korean
+    (ko), Norwegian (no), and Russian (ru). Some languages depend on
+    the availability of suitable fonts.
 
-- iconview
-  This example implements a flexible icon view which can store
-  lots of icon items. It supports Drag'n'Drop, different selection modes,
-  view modes, rubberband selection, etc.
+iconview
+    This example implements a flexible icon view which can store lots
+    of icon items. It supports Drag'n'Drop and different selection
+    modes using QIconView.
 
-- kiosk
+kiosk [Qt/Embedded-specific]
+    An MPEG player.
 
-- launcher
+launcher [Qt/Embedded-specific]
+    A program launcher.
 
-- layout
-  This example shows simple and intermediate use of Qt's layout
-  classes, QGridLaout, QBoxLayout etc.
+layout [obsolete]
+    This example shows simple and intermediate use of Qt's layout
+    classes, QGridLaout, QBoxLayout etc.
 
-- life
-  An implementation of the life game. Very UNIX-ish GUI design ;-)
+life
+    An implementation of the life game with a Unix-flavor GUI. 
 
-- lineedits
-  The Lineedits example shows how to work with single Lineedit widgets, and
-  how to use different Echo Modes and Validators.
+lineedits
+    This example shows how to use various properties of QLineEdit
+    including echo modes, input masks, and validators.
 
-- listbox
-  Shows QListBox options.
+listbox
+    Shows QListBox options.
 
-- listboxcombo
-  This example program demonstrates how to use Listboxes (with single
-  selection and multi selection) and Comboboxes (editable and non-editable).
+listboxcombo
+    This example shows how to use QListBox (with single selection and
+    multi selection) and QComboBox (editable and non-editable).
 
-- listviews
-  This examples shows how to work with Listviews (hierarchical and
-  multi-columns). It also shows how to subclass Listview Items for
-  special reasons. It looks and works like the mainwindow of a mail client.
+listviews
+    This examples shows how to work with QListView (a tree view
+    widget)
 
-- mdi
-  Similar to the application and action examples, but this time using
-  MDI (Multiple Document Interface).
+mdi
+    Similar to the action example, but this time using MDI (Multiple
+    Document Interface). It subclasses QMainWindow and uses the
+    QWorkspace class to provide MDI and shows how to implement an MDI
+    Window menu.
 
-- menu
-  This example demonstrates simple use of menus (a menu bar and
-  pull-down menus). Qt also supports popup menus, but this example
-  doesn't contain any (but the popup example does).
+menu
+    This example demonstrates the simple use of menus (a menu bar and
+    pull-down menus), and a context menu. (See also the popup
+    example.)
 
-- movies
-  The Movies example displays animated GIF files using the QMovie and
-  QLabel classes.
+movies
+    The Movies example displays animated GIF files using the QMovie
+    and QLabel classes.
 
-- network
+network/archivesearch
+    Shows how to use QHttp to request and receive data from a web
+    site.
 
-- opengl
+network/clientserver
+    Provides a client application and a server application that
+    communicate using QSocket and QServerSocket.
 
-- picture
-  This example shows how to make, store to file, and read a picture as
-  a set of drawing commands.
+network/ftpclient
+    A simple FTP client that uses QFtp to retrieve directory listings
+    and to download and upload files.
 
-- popup
-  This examples shows how to implement widgets which should
-  popup.
+network/httpd
+    An extremely simple HTTP daemon built using QServerSocket.
 
-- process
+network/infoprotocol
+    A more complex client/server example.
 
-- progress
-  This example displays either a simple (text-only) or a
-  custom-labelled (user-supplied widget) progress dialog. It also
-  demonstrates simple use of menus.
+network/mail
+    A simple mail client that can send email using the QSocket class.
 
-- progressbar
-  Shows a QProgressBar.
+network/networkprotocol
+    A simple implementation of a subset of the NNTP protocol. This
+    shows how to implement your own network protocols by subclassing
+    QNetworkProtocol.
 
-- qdir
-  Shows how to use and customize Qt's file dialog. See
+network/remotecontrol
+    Controlling one application from another using QSocket-based IPC.
+
+opengl/box
+    Shows how to use OpenGL in Qt using QGLWidget.
+
+opengl/gear
+    Shows how to build OpenGL display lists.
+
+opengl/glpixmap
+    This is based on the box example. It shows how to render an OpenGL
+    scene into a QPixmap.
+
+opengl/overlay
+    Demonstrates the use of OpenGL overlays (where supported).
+
+opengl/sharedbox
+    Demonstrates how to share OpenGL display lists with QGLWidgets.
+
+opengl/texture
+    Shows how to use OpenGL textures.
+
+picture
+    This example shows how to make, store to file, and read back, a
+    picture as a set of vector drawing commands.
+
+popup
+    This examples shows how to implement popup widgets.
+
+process
+    Shows how to execute a non-GUI application in a separate process
+    with I/O redirection.
+
+progress
+    WARNING: this program has a strobe effect.
+    This example presents a long-running process (drawing lots of
+    rectangles) and a QProgressDialog. Two types of progress dialog
+    are offered, one that simply shows text, and a custom one that
+    shows an animation using a QLabel and a QTimer.
+
+progressbar
+    Shows how to use a QProgressBar.
+
+qdir
+    Shows how to use and customize QFileDialog. Run
   	qdir --help
-  for details
+    for details. Also shows QFileInfo.
 
-- qfd
-  This example program displays all characters of a font.
+qfd
+    This example program displays all the characters of a selected
+    font. It shows the use of QFontDialog, QFontMetrics and QFontInfo,
+    and a QTable subclass.
 
-- qmag
-  This is a simple magnifier-type program. It shows how one can do
-  some quite low-level operations portably using Qt.
+qmag
+    This is a simple magnifier-type program. It shows how one can do
+    some quite low-level operations portably using Qt.
 
-  Run it, click in the magnifier window, then click where you want to
-  magnify or drag out a rectangle. Two combo boxes let you select
-  amplification and refresh frequency, a text label tells you the color
-  of the pixel the cursor is on, and a button lets you save the
-  magnified area as a .bmp file.
+qwerty
+    Simple text editor for testing different character encodings.
 
-- qwerty
-  Small text editor to test different character encodings.
+rangecontrols
+    This examples shows how to use QSpinBox and QSlider.
 
-- rangecontrols
-  This examples shows the different types of Rangecontrols which
-  are supported by Qt. These are Dials, Spinboxes and Sliders.
+richtext
+    This example shows the use of QTextView (a read/only QTextEdit
+    subclass).
 
-- richtext
-  In this examples it's demonstrated how to display rich text, using
-  Qt, in a widget. In this example some sayings taken from the famous
-  Unix "Fortune" are displayed nicely formatted.
+rot13
+    A simple implementation of the rot13 algorithm.
 
-- rot13
-  In this example you can enter a text in one Mulitilineedit widget
-  and it is displayed in the edit widget at the right transformed using
-  the rot13 algorithm.
+scribble
+    An implementation of the well known scribble program. You can draw
+    with different pen colors and widths and save the result as a
+    pixmap in various formats. It shows how to do drawing using a
+    QWidget subclass (rather than a QCanvas for example). It also
+    shows how to add a QSpinBox to a QToolBar and how to implement a
+    button that pops up a menu (using QPushButton and QPopupMenu), and
+    also how to use the QColorDialog.
 
-- scribble
-  This example implements the famous scribble example. You can draw
-  around in the canvas with different pens and save the result as picture.
+scrollview
+    This example shows one way of using a QScrollview. This widget is
+    highly optimized for showing very large contents including child
+    widgets.
 
-- scrollview
-  This example shows how to use Qt's Scrollview. This is a widget
-  which can contain a very large contents and is very optimized for
-  that. Also child widgets can be inserted.
+showimg
+    This example reads and displays an image in any supported image
+    format (GIF, BMP, PPM, XMP, etc.)
 
-- showimg
-  This example reads and displays an image in any supported image
-  format (GIF, BMP, PPM, XMP etc.)
+sound
+    Shows how to play sounds from a Qt application (and how to see if
+    sound is supported) using QSound.
 
-- sound
+splitter
+    This example shows how to use QSplitter to give the user control
+    over how much vertical or horizontal space is given to child
+    widgets.
 
-- splitter
-  This example shows how to use Splitters. Splitters can contain
-  multiple child items and using the Splitter the user can decide
-  herself/himself, how much space each child should get.
+sql/blob
+    Shows how to connect to a database and how to write to and read
+    BLOB fields (for those databases that support BLOBs).
 
-- sql
+sql/overview [to be withdrawn]
+    This is just a series of tiny examples used by the SQL module
+    overview (sql.html).
 
-- tabdialog
-  This example shows how to use a dialog with multiple tabs (pages).
-  When starting it you have to specify a filename as first argument.
-  The dialog shows information about that file seperated into some
-  tabs.
+sql/sqltable
+    A very simple example that shows how to relate a database table to
+    a QDataTable.
 
-- table
-  The table program displays a spreadsheet-like table. It is an example
-  of how to inherit the QScrollView widget for presentations of 2D data
-  arrays.
-  Left-click the mouse to set a current cell. Press the arrow buttons to
-  move the current mark around. Type something to edit a cell's contents.
+tabdialog
+    This example shows how to use a dialog with multiple tabs (pages).
+    It shows the use of QTabDialog and QFileInfo.
 
-- tablet
+table/bigtable
+    This shows how to create a sparse very large (1M x 1M cells)
+    QTable by avoiding the use of table items.
 
-- tetrix
-  This is the Qt implementation of the well known game Tetris.
+table/small-table-demo
+    A small, simple QTable example that uses QTableItems to show text
+    and pixmaps, and QComboTableItems and QCheckTableItems to show how
+    they work.
 
-- textedit
-  A simple text editor.
+table/statistics
+    A QTable example that shows how to subclass QTableItem.
 
-- themes
-  This examples demonstrates how to draw widgets in different styles
-  (themes). Example themes looking like wood and metal are
-  implemented. You can switch between the different styles at runtime
-  using the pulldown menu.
+tablet
+    This shows how to interact with a tablet device. It will only run
+    if a compatible tablet is installed.
 
-- tictac
-  This is an implementation of the Tic-tac-toe game.
+tetrix
+    This is the Qt implementation of the well known game Tetris, but
+    with an unusual twist, not to mention a comment that's almost a
+    work of art.
 
-  We didn't put much effort in making a clever algorithm so it's not a
-  challenge to play against the computer. Instead, study the source code
-  to see how you can make reusable components such as the TicTacGameBoard
-  widget.
+textedit
+    A simple text editor based on QTextEdit.
 
-- tooltip
-  This example widget demonstrates how to use tool tips for static and
-  dynamic regions within a widget.
-  It displays two blue and one red rectangle. The blue ones move every
-  time you click on them, the red one is static. There are dynamic
-  tool tips on the blue rectangles and a static tool tip on the red one.
+themes
+    This examples demonstrates how to draw widgets in different styles
+    (themes). Example themes looking like wood and metal are
+    implemented. You can switch between the different styles at
+    runtime using the menu. Shows how to create a QStyle subclass. Not
+    for the faint-hearted.
 
-- toplevel
+tictac
+    This is an implementation of the Tic-Tac-Toe game.
 
-- trayicon
+tooltip
+    This example widget demonstrates how to use tool tips for static
+    and dynamic regions within a widget using a QToolTip subclass.
 
-- tux
+toplevel
+    This program allows you to set all the flags for a widget and then
+    displays the widget using the flags.
 
-- widgets
-  Shows the Qt widgets (see the demo example too).
+trayicon [work in progress]
 
-- wizard
-  This example shows the usage of Qt's wizard class. Wizards are
-  useful for taking users step-by-step through complex or infrequently
-  used actions.
+tux
+    Shows how to create a non-rectangular window.
 
-- xform
-  This example lets the user rotate, shear and scale text and graphics
-  arbitrarily.
+widgets
+    Shows many Qt widgets (See also the demo example).
 
-- xml
+wizard
+    This example shows how to use QWizard.
+
+xform
+    Demonstrates how to arbitrarily rotate, shear and scale text and
+    graphics using QWMatrix.
+
+xml/outliner
+    Shows how to read in an XML file using Qt's DOM classes and
+    display the data in a list view.
+
+xml/tagreader
+    Shows how to read an XML file using Qt's SAX classes.
+
+xml/tagreader-with-features
+    Shows how to read an XML file using Qt's SAX classes, and displays
+    the data showing the effects of different feature settings.
+

@@ -126,17 +126,6 @@ void TextEdit::setupTextActions()
     QPopupMenu *menu = new QPopupMenu( this );
     menuBar()->insertItem( tr( "F&ormat" ), menu );
 
-    comboStyle = new QComboBox( FALSE, tb );
-    comboStyle->insertItem( "Standard" );
-    comboStyle->insertItem( "Bullet List (Disc)" );
-    comboStyle->insertItem( "Bullet List (Circle)" );
-    comboStyle->insertItem( "Bullet List (Square)" );
-    comboStyle->insertItem( "Ordered List (Decimal)" );
-    comboStyle->insertItem( "Ordered List (Alpha lower)" );
-    comboStyle->insertItem( "Ordered List (Alpha upper)" );
-    connect( comboStyle, SIGNAL( activated( int ) ),
-	     this, SLOT( textStyle( int ) ) );
-
     comboFont = new QComboBox( TRUE, tb );
     QFontDatabase db;
     comboFont->insertStringList( db.families() );
@@ -402,27 +391,6 @@ void TextEdit::textSize( const QString &p )
     if ( !currentEditor() )
 	return;
     currentEditor()->setPointSize( p.toInt() );
-    currentEditor()->viewport()->setFocus();
-}
-
-void TextEdit::textStyle( int i )
-{
-    if ( !currentEditor() )
-	return;
-    if ( i == 0 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayBlock, QStyleSheetItem::ListDisc );
-    else if ( i == 1 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
-    else if ( i == 2 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListCircle );
-    else if ( i == 3 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListSquare );
-    else if ( i == 4 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDecimal );
-    else if ( i == 5 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListLowerAlpha );
-    else if ( i == 6 )
-	currentEditor()->setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListUpperAlpha );
     currentEditor()->viewport()->setFocus();
 }
 

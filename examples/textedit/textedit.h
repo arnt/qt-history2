@@ -56,7 +56,6 @@ private slots:
     void textItalic();
     void textFamily( const QString &f );
     void textSize( const QString &p );
-    void textStyle( int s );
     void textColor();
     void textAlign( QAction *a );
 
@@ -74,7 +73,7 @@ private:
 	*actionAlignCenter,
 	*actionAlignRight,
 	*actionAlignJustify;
-    QComboBox *comboStyle,
+    QComboBox
 	*comboFont,
 	*comboSize;
     QTabWidget *tabWidget;

@@ -7,8 +7,7 @@ $Id$
   \title Splitter
 
   This example shows how to use splitters. With their help users can
-  decide herself/himself, how much space each of the multiple child 
-  items should get.
+  decide for themselves how much space each child item should get.
 
   <hr>
 
