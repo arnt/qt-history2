@@ -345,10 +345,10 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
 {
     QRectF result;
     if (_m12 == 0.0F && _m21 == 0.0F) {
-        int x = _m11*rect.x() + _dx;
-        int y = _m22*rect.y() + _dy;
-        int w = _m11*rect.width();
-        int h = _m22*rect.height();
+        int x = int(_m11*rect.x() + _dx);
+        int y = int(_m22*rect.y() + _dy);
+        int w = int(_m11*rect.width());
+        int h = int(_m22*rect.height());
         if (w < 0) {
             w = -w;
             x -= w;
