@@ -180,9 +180,16 @@ static bool preventAnimation = FALSE;
   possible for the user to "tear off" frequently used menus and
   position them in a convenient place on the screen. If you want that
   functionality for a certain menu, insert a tear-off handle with
-  insertTearOffHandle(). When using tear-off menus, bear in mind that
-  the concept isn't typically used on Microsoft Windows so users may
-  not be familiar with it. Consider using a QToolBar instead.
+  insertTearOffHandle().
+  \omit
+  If you want to include custom widgets in a
+  tear-off menu, you should connect to the popup menu's signal (using
+  connectItem() and the item ID that insertTearOffHandle() returns),
+  and add the custom widgets you want to include.
+  \endomit
+  When using tear-off menus, bear in mind that the concept isn't
+  typically used on Microsoft Windows so users may not be familiar
+  with it. Consider using a QToolBar instead.
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 

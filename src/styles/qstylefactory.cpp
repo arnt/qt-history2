@@ -40,7 +40,6 @@
 #ifndef QT_NO_STYLE
 
 #include "qapplication.h"
-#include <private/qpluginmanager_p.h>
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"
@@ -58,6 +57,8 @@ QCString p2qstring(const unsigned char *c); //qglobal.cpp
 #endif
 #include <stdlib.h>
 
+#if defined(QT_MAKEDLL)
+#include <private/qpluginmanager_p.h>
 #ifndef QT_NO_COMPONENT
 class QStyleFactoryPrivate : public QObject
 {
@@ -86,6 +87,7 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 }
 
 #endif //QT_NO_COMPONENT
+#endif //QT_MAKEDLL
 
 /*!
   \class QStyleFactory qstylefactory.h
@@ -155,6 +157,7 @@ QStyle *QStyleFactory::create( const QString& key )
 	return new QMacStyle;
 #endif
 
+#if defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QStyleFactoryPrivate;
@@ -164,7 +167,7 @@ QStyle *QStyleFactory::create( const QString& key )
 
     if ( iface )
 	return iface->create( style );
-
+#endif
 #endif
     return 0;
 }
@@ -178,14 +181,15 @@ QStyle *QStyleFactory::create( const QString& key )
 */
 QStringList QStyleFactory::keys()
 {
+    QStringList list;
+#if defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QStyleFactoryPrivate;
 
-    QStringList list = QStyleFactoryPrivate::manager->featureList();
-#else
-    QStringList list;
+    list = QStyleFactoryPrivate::manager->featureList();
 #endif //QT_NO_COMPONENT
+#endif //QT_MAKEDLL
 
 #ifndef QT_NO_STYLE_WINDOWS
     if ( !list.contains( "Windows" ) )
