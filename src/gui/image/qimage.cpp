@@ -82,8 +82,8 @@ struct QImageData {        // internal image data
     int bitordr;              // bit order (1 bit depth)
     int ser_no;               // serial number
 
-    int  dpmx;                // dots per meter X (or 0)
-    int  dpmy;                // dots per meter Y (or 0)
+    qreal  dpmx;                // dots per meter X (or 0)
+    qreal  dpmy;                // dots per meter Y (or 0)
     QPoint  offset;           // offset in pixels
 
 #ifndef QT_NO_IMAGE_TEXT
@@ -117,6 +117,8 @@ struct QImageData {        // internal image data
     QPaintEngine *paintEngine;
 };
 
+extern int qt_defaultDpi();
+
 QImageData::QImageData()
 {
     static int serial = 0;
@@ -132,8 +134,8 @@ QImageData::QImageData()
     bitordr = QImage::IgnoreEndian;
     alpha = false;
 
-    dpmx = 0;
-    dpmy = 0;
+    dpmx = qt_defaultDpi()*100./2.54;
+    dpmy = qt_defaultDpi()*100./2.54;
     offset = QPoint(0,0);
 
     paintEngine = 0;
@@ -3718,11 +3720,11 @@ int QImage::metric(PaintDeviceMetric metric) const
         break;
 
     case PdmWidthMM:
-        return d->w / d->dpmx;
+        return d->w * 1000 / d->dpmx;
         break;
 
     case PdmHeightMM:
-        return d->h / d->dpmy;
+        return d->h * 1000 / d->dpmy;
         break;
 
     case PdmNumColors:
@@ -3734,19 +3736,19 @@ int QImage::metric(PaintDeviceMetric metric) const
         break;
 
     case PdmDpiX:
-        return (int)(d->dpmx / 0.0254);
+        return (int)(d->dpmx * 0.0254);
         break;
 
     case PdmDpiY:
-        return (int)(d->dpmy / 0.0254);
+        return (int)(d->dpmy * 0.0254);
         break;
 
     case PdmPhysicalDpiX:
-        return (int)(d->dpmx / 0.0254);
+        return (int)(d->dpmx * 0.0254);
         break;
 
     case PdmPhysicalDpiY:
-        return (int)(d->dpmy / 0.0254);
+        return (int)(d->dpmy * 0.0254);
         break;
 
     default:
