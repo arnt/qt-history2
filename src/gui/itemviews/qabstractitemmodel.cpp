@@ -536,15 +536,15 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     have children. Each item has a number of data elements associated
     with them, each with a particular \c Role. Data elements are set
     individually with setData(), or for all roles with setItemData().
-    Data is retrieved from an item with data() (for a single role),
-    or with itemData() (for every role). Items can be queried with
-    isSelectable() and isEditable(). An item can be searched for using
+    Data is retrieved from an item with data() (for a single role), or
+    with itemData() (for every role). Items can be queried with
+    flags() (see {QAbstractTableModel::ItemFlag}) to see if they
+    are selectable, dragable etc.  An item can be searched for using
     match().
 
     The model has a rowCount() and a columnCount() for each level of
-    the hierarchy.
-    Rows and columns can be inserted and removed with insertRow(),
-    insertColumn(), removeRow(), and removeColumn().
+    the hierarchy. Rows and columns can be inserted and removed with
+    insertRows(), insertColumns(), removeRows(), and removeColumns().
 
     The model emits signals to indicate changes. For example,
     dataChanged() is emitted whenever the contents of the model are
@@ -558,9 +558,9 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     greaterThan().
 
     When subclassing QAbstractItemModel, at the very least you must
-    implement index(), parent(), rowCount(), columnCount(), and data().
-    To enable editing in your model, you must also implement isEditable()
-    and setData().
+    implement index(), parent(), rowCount(), columnCount(), and
+    data().  To enable editing in your model, you must also implement
+    flags() to return ItemIsEditable and setData().
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
@@ -718,8 +718,8 @@ QAbstractItemModel::~QAbstractItemModel()
 
     The general purpose roles are:
 
-    \value DisplayRole    The data to be rendered as text.
-    \value DecorationRole The data to be rendered as an icon.
+    \value DisplayRole    The key data to be rendered (usually text).
+    \value DecorationRole The data to be rendered as a decoration (usually an icon).
     \value EditRole       The data in a form suitable for editing in an
                           editor.
     \value ToolTipRole    The data displayed in the item's tooltip.
@@ -731,6 +731,8 @@ QAbstractItemModel::~QAbstractItemModel()
 
     \value FontRole            The font used for items rendered with the default
                                delegate.
+    \value TextAlignmentRole   The alignment of the text for items rendered with the
+                               default delegate.
     \value BackgroundColorRole The background color used for items rendered with
                                the default delegate.
     \value TextColorRole       The text color used for items rendered with
@@ -830,8 +832,8 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     Sets the \a role data for the item at \a index to \a value.
     Returns true if successful; otherwise returns false.
 
-    The base class implementation returns false. This function (and
-    data()) must be reimplemented.
+    The base class implementation returns false. This function and
+    data() must be reimplemented for editable models.
 
     \sa data() itemData()
 */
@@ -1021,7 +1023,7 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
   the delegate may ask for the item's buddy, and edit that
   item instead.
 
-  \sa isEditable()
+  \sa flags()
 */
 QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 {
@@ -1130,8 +1132,8 @@ QVariant QAbstractItemModel::headerData(int section, Qt::Orientation, int role) 
 }
 
 /*!
-  Sets the title for the \a section in the header with the given
-  \a orientation to the \a value for the specified \a role.
+  Sets the \a role for the header \a section to \a value.
+  The \a orientation gives the orientation of the header.
 
   \sa headerData()
 */
