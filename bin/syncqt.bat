@@ -72,7 +72,7 @@ mkdir $privatedir, 0777;
 opendir SRC, "$basedir/src";
 my @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
 closedir SRC;
-@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "extensions/motif/src/", "tools/designer/uilib" );
+@dirs = ( @dirs, "extensions/xt/src", "extensions/nsplugin/src", "extensions/activeqt/control", "extensions/activeqt/container", "extensions/motif/src/", "tools/designer/uilib" );
 
 push @dirs, "mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"}; 
 

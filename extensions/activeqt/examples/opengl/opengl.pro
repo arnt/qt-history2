@@ -8,4 +8,3 @@ SOURCES		= glbox.cpp \
 		  main.cpp
 
 RC_FILE	    = ../../control/qaxserver.rc
-INCLUDEPATH     += ../../control

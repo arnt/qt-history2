@@ -1,6 +1,7 @@
-/*! \page index.html
+/*! \page activeqt.html
 
     \title The ActiveQt framework
+    \keyword ActiveQt
 
     Qt's ActiveX support allows Qt/Windows developers to access 
     and use ActiveX controls provided by any ActiveX server in their
@@ -39,7 +40,7 @@
     \i QAxFactory defines a factory for the creation of ActiveX components.
     \endlist
 
-    and includes four \link examples.html example implementations \endlink 
+    and includes four \link activeqt-examples.html example implementations \endlink 
     of ActiveX controls.
 
     \section1 Building the library
@@ -284,7 +285,7 @@
     \endcode
 
     If the web browser supports scripting use JavaScript, VBScript and forms to 
-    script the control. The \link examples.html examples \endlink include 
+    script the control. The \link activeqt-examples.html examples \endlink include 
     demonstration HTML pages for the different example controls.
 
     \section1 Enhanced features
@@ -376,7 +377,7 @@
     \i QAxWidget is a QWidget that wraps an ActiveX control.
     \endlist
 
-    and includes two \link examples.html example applications \endlink
+    and includes two \link activeqt-examples.html example applications \endlink
     that use standard ActiveX controls to provide high level user
     interface functionality.
 

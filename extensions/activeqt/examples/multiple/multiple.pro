@@ -6,4 +6,3 @@ HEADERS	    = ax1.h ax2.h
 
 RC_FILE	    = ../../control/qaxserver.rc
 DEF_FILE    = ../../control/qaxserver.def
-INCLUDEPATH += ../../control

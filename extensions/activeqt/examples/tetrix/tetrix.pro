@@ -14,4 +14,3 @@ SOURCES	    = gtetrix.cpp \
 	      tpiece.cpp
 
 RC_FILE	    = ../../control/qaxserver.rc
-INCLUDEPATH +=../../control
