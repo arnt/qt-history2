@@ -56,17 +56,16 @@ extern "C" void yyerror(const char *foo)
 
 static bool createDir( const QString& fullPath )
 {
-    QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
-    QString pathComponent, tmpPath;
     QDir dirTmp;
-    bool success;
-
+    QString pathComponent, tmpPath;
+    QStringList hierarchy = QStringList::split( QString( Option::dir_sep ), fullPath );
     for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
 	pathComponent = *it + QDir::separator();
 	tmpPath += pathComponent;
-	success = dirTmp.mkdir( tmpPath );
+	if(!dirTmp.mkdir( tmpPath ))
+	    return FALSE;
     }
-    return success;
+    return TRUE;
 }
 
 // for Borland, main is defined to qMain which breaks qmake
@@ -101,14 +100,18 @@ int main(int argc, char **argv)
 
 	    /* read project.. */
 	    if(!proj.read(fn, oldpwd)) {
-		fprintf(stderr, "Error processing project file: %s\n", fn == "-" ? "(stdin)" : (*pfile).latin1());
+		fprintf(stderr, "Error processing project file: %s\n", 
+			fn == "-" ? "(stdin)" : (*pfile).latin1());
 		exit_val = 2;
 		continue;
 	    }
+	    if(Option::mkfile::do_preprocess) //no need to create makefile
+		continue;
 
 	    /* let Option post-process */
 	    if(!Option::postProcessProject(&proj)) {
-		fprintf(stderr, "Error post-processing project file: %s", fn == "-" ? "(stdin)" : (*pfile).latin1());
+		fprintf(stderr, "Error post-processing project file: %s", 
+			fn == "-" ? "(stdin)" : (*pfile).latin1());
 		exit_val = 8;
 		continue;
 	    }
@@ -124,8 +127,9 @@ int main(int argc, char **argv)
 			proj.variables()["QMAKE_MAKEFILE"].append(default_makefile);
 		    }
 		    if(Option::output.name().isEmpty()) {
-			if(default_makefile.findRev(Option::dir_sep) != -1) //yes, it can (see pbuilder)..
-			    createDir(default_makefile.left(default_makefile.findRev(Option::dir_sep)));
+			if(default_makefile.findRev(Option::dir_sep) != -1) 
+			    createDir(default_makefile.left(
+				default_makefile.findRev(Option::dir_sep)));
 			Option::output.setName(default_makefile);
 		    }
 		    if(Option::output.name().isEmpty() || Option::output.name() == "-") {

@@ -95,8 +95,13 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    if(*(d+1) == '=') {
 		break;
 	    } else if(*(d+1) == ' ') {
-		yyerror(file + ": " + *d + " must be followed immediatly by =");
-		return FALSE;
+		const char *k = d + 1;
+		SKIP_WS(k);
+		if(*k == '=') {
+		    QString msg;
+		    yyerror(file + ": + *d + must be followed immediatly by =");
+		    return FALSE;
+		}
 	    }
 	}
 
@@ -173,7 +178,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     SKIP_WS(d);
     QString vals(d); /* vals now contains the space separated list of values */
     if(vals.right(1) == "}") {
-	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), line_count, scope_block);
+	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), 
+		  line_count, scope_block);
 	scope_block--;
 	vals.truncate(vals.length()-1);
     }
@@ -182,12 +188,18 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     var = var.stripWhiteSpace();
 #undef SKIP_WS
 
-    if(!var.isEmpty() && Option::mkfile::do_preprocess)
-	debug_msg(0, "%s:%d :: %s %s %s",  file.latin1(), line_count, var.latin1(), op.latin1(), vals.latin1());
+    if(!var.isEmpty() && Option::mkfile::do_preprocess) {
+	static QString last_file("*none*");
+	if(file != last_file) {
+	    fprintf(stderr, "#file %s:%d\n", file.latin1(), line_count);
+	    last_file = file;
+	}
+	fprintf(stderr, "%s %s %s\n", var.latin1(), op.latin1(), vals.latin1());
+    }
     var = varMap(var); //backwards compatability
 
     QStringList vallist;  /* vallist is the broken up list of values */
-    if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) { //these guys use ; for space reasons I guess
+    if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) { 
 	QRegExp rp("([^;]*)[;$]");
 	for(int x = 0; (x = rp.search(vals, 0)) != -1; ) {
 	    vallist.append("\"" + rp.cap(1) + "\"");
@@ -366,12 +378,14 @@ QMakeProject::read(QString project, QString)
 
 	/* commandline */
 	cfile = project;
+	line_count = 1; //really arg count now.. duh
 	for(QStringList::Iterator it = Option::before_user_vars.begin();
 	    it != Option::before_user_vars.end(); ++it) {
 	    if(!parse("(internal)", (*it), base_vars)) {
 		fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
 		return FALSE;
 	    }
+	    line_count++;
 	}
     }
 
@@ -386,12 +400,14 @@ QMakeProject::read(QString project, QString)
     if(!read(pfile, vars))
 	return FALSE;
 
+    line_count = 1; //really arg count now.. duh
     for(QStringList::Iterator it = Option::after_user_vars.begin();
 	it != Option::after_user_vars.end(); ++it) {
 	if(!parse("(internal after)", (*it), vars)) {
 	    fprintf(stderr, "Argument failed to parse: %s\n", (*it).latin1());
 	    return FALSE;
 	}
+	line_count++;
     }
 
     /* now let the user override the template from an option.. */
@@ -417,7 +433,7 @@ QMakeProject::read(QString project, QString)
     }
 
     QString test_version = getenv("QTESTVERSION");
-    if (!test_version.isNull() && test_version != "") {
+    if (!test_version.isEmpty()) {
 	QString s = vars["TARGET"].first();
 	if (s == "qt" || s == "qt-mt" || s == "qte" || s == "qte-mt") {
 	    QString &ver = vars["VERSION"].first();

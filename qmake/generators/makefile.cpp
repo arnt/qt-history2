@@ -230,8 +230,6 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	ftype = UI_FILE;
     else
 	ftype = C_FILE;
-
-
     for(int x = 0; x < total_size_read; x++) {
 	QString inc;
 	if(ftype == C_FILE) {
@@ -298,6 +296,21 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	}
 
 	if(!inc.isEmpty()) {
+	    if(!project->isEmpty("SKIP_DEPENDS")) {
+		bool found = FALSE;
+		QStringList &nodeplist = project->values("SKIP_DEPENDS");
+		for(QStringList::Iterator it = nodeplist.begin(); 
+		    it != nodeplist.end(); ++it) {
+		    QRegExp regx((*it));
+		    if(regx.match(inc) != -1) {
+			found = TRUE;
+			break;
+		    }
+		}
+		if(found)
+		    continue;
+	    }
+
 	    QString fqn;
 	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") && !stat(fndir + inc, &fst)) {
 		fqn = fndir + inc;
