@@ -87,7 +87,7 @@ void QFontDatabase::createDatabase()
 	int u3 = dir[i].find('.',u1+1);
 	if ( u2 < 0 ) u2 = u3;
 
-#if 1	
+#if 1
 	/*
 	  Skip fonts for other screen orientations. Such fonts may be
 	  installed even on a production device. Different orientations
@@ -103,16 +103,17 @@ void QFontDatabase::createDatabase()
 	    QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
 	    screenr += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
 	}
-	
+
 	if ( rotation != screenr )
 	    continue;
 #endif
-	
+
 	QString familyname = dir[i].left(u0);
 	int pointSize = dir[i].mid(u0+1,u1-u0-1).toInt()/10;
 	bool italic = dir[i].mid(u2-1,1) == "i";
 	int weight = dir[i].mid(u1+1,u2-u1-1-(italic?1:0)).toInt();
 	QtFontFamily *f = db->family( familyname, true );
+	f->scripts[QFont::Unicode] = QtFontFamily::Supported;
 	QtFontFoundry *foundry = f->foundry( "qt", true );
 	QtFontStyle::Key styleKey;
 	styleKey.italic = italic;
@@ -125,5 +126,5 @@ void QFontDatabase::createDatabase()
 #endif
 }
 
-static inline void load(const QString & = QString::null, 
+static inline void load(const QString & = QString::null,
 			int = -1 ) {}
