@@ -13,6 +13,7 @@ CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
 		-tWR -w -O2 \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -I$(QTDIR)\include -I$(QTDIR)\src\tools \
+		-I$(QTDIR)\mkspecs\$(QMAKESPEC) \
 		-DQT_NO_CODECS -DQT_LITE_COMPONENT -DQT_NODLL
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
 LIBS	    =	import32.lib cw32i.lib
