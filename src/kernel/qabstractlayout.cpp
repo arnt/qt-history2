@@ -793,30 +793,24 @@ void QLayout::invalidate()
     rect = QRect();
 }
 
-/*
-  Arnt wrote: This is an ugly workaround. For some reason, the layout
-  system would add two QWidgetItems for some QWidgets, and can then
-  later delete one and derefence the other. The scope of this bug is
-  unknown.
-*/
-static bool removeWidget( QLayoutItem *lay, QWidget *w )
+static bool removeWidgetRecursively( QLayoutItem *lay, QWidget *w )
 {
-    bool foo = FALSE;
+    bool didSomething = FALSE;
     QLayoutIterator it = lay->iterator();
     QLayoutItem *child;
-    while ( (child = it.current() ) ) {
+    while ( (child = it.current()) != 0 ) {
 	if ( child->widget() == w ) {
 	    it.deleteCurrent();
-	    lay->invalidate();
-	    foo = TRUE;
-	} else if ( removeWidget( child, w ) ) {
-	    lay->invalidate();
-	    foo = TRUE;
+	    lay->invalidate(); // maybe redundant
+	    didSomething = TRUE;
+	} else if ( removeWidgetRecursively(child, w) ) {
+	    lay->invalidate(); // maybe redundant
+	    didSomething = TRUE;
 	} else {
 	    ++it;
 	}
     }
-    return foo;
+    return didSomething;
 }
 
 /*!
@@ -858,7 +852,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 		if ( w == menubar )
 		    menubar = 0;
 #endif
-		if ( removeWidget( this, w ) ) {
+		if ( removeWidgetRecursively( this, w ) ) {
 		    QEvent *lh = new QEvent( QEvent::LayoutHint );
 		    QApplication::postEvent( o, lh );
 		}
@@ -1806,6 +1800,54 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 
     return QRect( x, y, s.width(), s.height() );
 
+}
+
+/*!
+    Removes the widget \a widget from the layout. After this call, it
+    is the caller's responsability to give the widget a reasonable
+    geometry or to put the widget back into a layout.
+
+    \sa removeItem(), QWidget::setGeometry(), add()
+*/
+void QLayout::remove( QWidget *widget )
+{
+    QLayoutIterator it = iterator();
+    QLayoutItem *child;
+    while ( (child = it.current()) != 0 ) {
+	if ( child->widget() == widget ) {
+	    it.deleteCurrent();
+	    invalidate(); // maybe redundant
+	    QApplication::postEvent( mainWidget(),
+				     new QEvent(QEvent::LayoutHint) );
+	} else {
+	    ++it;
+	}
+    }
+}
+
+/*!
+    Removes the layout item \a item from the layout. It is the
+    caller's responsability to delete the item.
+
+    Notice that \a item can be a layout (since QLayout inherits
+    QLayoutItem).
+
+    \sa remove(), addItem()
+*/
+void QLayout::removeItem( QLayoutItem *item )
+{
+    QLayoutIterator it = iterator();
+    QLayoutItem *child;
+    while ( (child = it.current()) != 0 ) {
+	if ( child == item ) {
+	    it.takeCurrent();
+	    invalidate(); // maybe redundant
+	    QApplication::postEvent( mainWidget(),
+				     new QEvent(QEvent::LayoutHint) );
+	} else {
+	    ++it;
+	}
+    }
 }
 
 /*!

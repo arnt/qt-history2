@@ -44,8 +44,7 @@
 #include "qptrlist.h"
 #include "qsizepolicy.h"
 
-#include <limits.h> // ### remove for 3.1
-#include "qlayoutengine_p.h" // ### remove for 3.1
+#include "qlayoutengine_p.h"
 
 /*
   Three internal classes related to QGridLayout: (1) QGridBox is a
@@ -904,10 +903,9 @@ inline QGridLayoutDataIterator::QGridLayoutDataIterator( QGridLayoutData *d )
     to distribute the size over the columns/rows (based on the stretch
     factors).
 
-    To remove a widget from a layout, either delete it or reparent it
-    with QWidget::reparent(). Hiding a widget with QWidget::hide()
-    also effectively removes the widget from the layout, until
-    QWidget::show() is called.
+    To remove a widget from a layout, call removeWidget(). Calling
+    QWidget::hide() on a widget also effectively removes the widget
+    from the layout until QWidget::show() is called.
 
     This illustration shows a fragment of a dialog with a five-column,
     three-row grid (the grid is shown overlaid in magenta):
@@ -1012,7 +1010,7 @@ QGridLayout::QGridLayout( int nRows, int nCols,
     Destroys the grid layout. Geometry management is terminated if
     this is a top-level grid.
 
-    The layout's widgets are \e not destroyed.
+    The layout's widgets aren't destroyed.
 */
 QGridLayout::~QGridLayout()
 {
@@ -1383,7 +1381,7 @@ void QGridLayout::setColStretch( int col, int stretch )
 void QGridLayout::addRowSpacing( int row, int minsize )
 {
     QLayoutItem *b = new QSpacerItem( 0, minsize );
-    //b.setAlignment( align );
+    // b.setAlignment( align );
     add( b, row, 0 );
 }
 
@@ -1393,7 +1391,7 @@ void QGridLayout::addRowSpacing( int row, int minsize )
 void QGridLayout::addColSpacing( int col, int minsize )
 {
     QLayoutItem *b = new QSpacerItem( minsize, 0 );
-    //b.setAlignment( align );
+    // b.setAlignment( align );
     add( b, 0, col );
 }
 
@@ -1438,7 +1436,7 @@ void QGridLayout::invalidate()
     data->setReversed( FALSE, QApplication::reverseLayout() );
 
     QLayout::invalidate();
-    QLayout::setGeometry( QRect() ); //###binary compatibility
+    QLayout::setGeometry( QRect() ); // for binary compatibility (?)
     data->setDirty();
 }
 
@@ -1450,26 +1448,40 @@ QLayoutIterator QGridLayout::iterator()
 
 struct QBoxLayoutItem
 {
-    QBoxLayoutItem( QLayoutItem *it, int stretch_ = 0)
-	: item(it), stretch(stretch_), magic(FALSE) {}
+    QBoxLayoutItem( QLayoutItem *it, int stretch_ = 0 )
+	: item( it ), stretch( stretch_ ), magic( FALSE ) { }
     ~QBoxLayoutItem() { delete item; }
+
     int hfw( int w ) {
-	if ( item->hasHeightForWidth() )
+	if ( item->hasHeightForWidth() ) {
 	    return item->heightForWidth( w );
-	else
+	} else {
 	    return item->sizeHint().height();
+	}
     }
     int mhfw( int w ) {
-	if ( item->hasHeightForWidth() )
+	if ( item->hasHeightForWidth() ) {
 	    return item->heightForWidth( w );
-	else
+	} else {
 	    return item->minimumSize().height();
+	}
     }
+    int hStretch() {
+	if ( stretch == 0 && item->widget() ) {
+	    return item->widget()->sizePolicy().horStretch();
+	} else {
+	    return stretch;
+	}
+    }
+    int vStretch() {
+	if ( stretch == 0 && item->widget() ) {
+	    return item->widget()->sizePolicy().verStretch();
+	} else {
+	    return stretch;
+	}
+    }
+
     QLayoutItem *item;
-    int hStretch() { if (stretch == 0 && item->widget())
-	return item->widget()->sizePolicy().horStretch(); else return stretch;}
-    int vStretch() { if (stretch == 0 && item->widget())
-	return item->widget()->sizePolicy().verStretch(); else return stretch;}
     int stretch;
     bool magic;
 };
@@ -1606,10 +1618,9 @@ private:
     margin width for a top-level layout, or to the same as the parent
     layout. Both are parameters to the constructor.
 
-    To remove a widget from a layout, either delete it or reparent it
-    with QWidget::reparent(). Hiding a widget with QWidget::hide()
-    also effectively removes the widget from the layout, until
-    QWidget::show() is called.
+    To remove a widget from a layout, call removeWidget(). Calling
+    QWidget::hide() on a widget also effectively removes the widget
+    from the layout until QWidget::show() is called.
 
     You will almost always want to use QVBoxLayout and QHBoxLayout
     rather than QBoxLayout because of their convenient constructors.
@@ -1693,7 +1704,7 @@ QBoxLayout::QBoxLayout( Direction d, int spacing, const char *name )
 /*!
     Destroys this box layout.
 
-    The layout's widgets are \e not destroyed.
+    The layout's widgets aren't destroyed.
 */
 QBoxLayout::~QBoxLayout()
 {
@@ -2424,7 +2435,7 @@ QHBoxLayout::QHBoxLayout( int spacing, const char *name )
 /*!
     Destroys this box layout.
 
-    The layout's widgets are \e not destroyed.
+    The layout's widgets aren't destroyed.
 */
 QHBoxLayout::~QHBoxLayout()
 {
@@ -2501,7 +2512,7 @@ QVBoxLayout::QVBoxLayout( int spacing, const char *name )
 /*!
     Destroys this box layout.
 
-    The layout's widgets are \e not destroyed.
+    The layout's widgets aren't destroyed.
 */
 QVBoxLayout::~QVBoxLayout()
 {

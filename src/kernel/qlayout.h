@@ -205,7 +205,7 @@ public:
     ResizeMode resizeMode() const;
 
 #ifndef QT_NO_MENUBAR
-    virtual void  setMenuBar( QMenuBar *w );
+    virtual void setMenuBar( QMenuBar *w );
     QMenuBar *menuBar() const { return menubar; }
 #endif
 
@@ -220,7 +220,10 @@ public:
     bool activate();
 
     void add( QWidget *w ) { addItem( new QWidgetItem(w) ); }
-    virtual void addItem ( QLayoutItem * ) = 0;
+    virtual void addItem( QLayoutItem * ) = 0;
+
+    void remove( QWidget *w );
+    void removeItem( QLayoutItem * );
 
     QSizePolicy::ExpandData expanding() const;
     QSize minimumSize() const;
@@ -317,7 +320,6 @@ public:
     void addItem( QLayoutItem *item, int row, int col );
     void addMultiCell( QLayoutItem *, int fromRow, int toRow,
 			       int fromCol, int toCol, int align = 0 );
-    // void setAlignment( QWidget* );
 
     void addWidget( QWidget *, int row, int col, int align = 0 );
     void addMultiCellWidget( QWidget *, int fromRow, int toRow,
@@ -327,6 +329,7 @@ public:
 			     int fromCol, int toCol, int align = 0 );
     void addRowSpacing( int row, int minsize );
     void addColSpacing( int col, int minsize );
+
     void expand( int rows, int cols );
 
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
