@@ -38,6 +38,8 @@
 #ifndef QSQLDIALOG_H
 #define QSQLDialog_H
 
+#ifndef QT_NO_SQL
+
 #ifndef QT_H
 #include "qdialog.h"
 #include "qsqlnavigator.h"
@@ -88,5 +90,6 @@ protected:
 
 };
 
+#endif // QT_NO_SQL
 
 #endif
