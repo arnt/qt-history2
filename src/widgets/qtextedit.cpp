@@ -1959,6 +1959,9 @@ void QTextEdit::ensureCursorVisible()
     ensureVisible( x, y + h / 2, w, h / 2 + 2 );
 }
 
+/*!
+    \internal
+*/
 void QTextEdit::sliderReleased()
 {
     if ( d->ensureCursorVisibleInShowEvent && isVisible() ) {
