@@ -16,6 +16,7 @@
 #define __MSVC_OBJECTMODEL_H__
 
 #include "project.h"
+#include <qdebug.h>
 #include <qlist.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -112,102 +113,102 @@ enum eAppProtectionOption {
     eAppProtectHigh
 };
 enum enumResourceLangID {
-    rcUseDefault                = 0,
-    rcAfrikaans                        = 1078,
-    rcAlbanian                        = 1052,
-    rcArabicAlgeria                = 5121,
-    rcArabicBahrain                = 15361,
+    rcUseDefault                 = 0,
+    rcAfrikaans                  = 1078,
+    rcAlbanian                   = 1052,
+    rcArabicAlgeria              = 5121,
+    rcArabicBahrain              = 15361,
     rcArabicEgypt                = 3073,
-    rcArabicIraq                = 2049,
-    rcArabicJordan                = 11265,
-    rcArabicKuwait                = 13313,
-    rcArabicLebanon                = 12289,
+    rcArabicIraq                 = 2049,
+    rcArabicJordan               = 11265,
+    rcArabicKuwait               = 13313,
+    rcArabicLebanon              = 12289,
     rcArabicLibya                = 4097,
-    rcArabicMorocco                = 6145,
-    rcArabicOman                = 8193,
+    rcArabicMorocco              = 6145,
+    rcArabicOman                 = 8193,
     rcArabicQatar                = 16385,
     rcArabicSaudi                = 1025,
     rcArabicSyria                = 10241,
-    rcArabicTunisia                = 7169,
-    rcArabicUnitedArabEmirates        = 14337,
+    rcArabicTunisia              = 7169,
+    rcArabicUnitedArabEmirates   = 14337,
     rcArabicYemen                = 9217,
-    rcBasque                        = 1069,
-    rcBulgarian                        = 1026,
-    rcByelorussian                = 1059,
-    rcCatalan                        = 1027,
-    rcChineseHongKong                = 3076,
-    rcChinesePRC                = 2052,
-    rcChineseSingapore                = 4100,
-    rcChineseTaiwan                = 1028,
-    rcCroatian                        = 1050,
-    rcCzech                        = 1029,
-    rcDanish                        = 1030,
-    rcDutchBelgium                = 2067,
-    rcDutchStandard                = 1043,
-    rcEnglishAustralia                = 3081,
-    rcEnglishBritain                = 2057,
-    rcEnglishCanada                = 4105,
-    RcEnglishCaribbean                = 9225,
-    rcEnglishIreland                = 6153,
-    rcEnglishJamaica                = 8201,
-    rcEnglishNewZealand                = 5129,
-    rcEnglishSouthAfrica        = 7177,
-    rcEnglishUS                        = 1033,
-    rcEstonian                        = 1061,
-    rcFarsi                        = 1065,
-    rcFinnish                        = 1035,
-    rcFrenchBelgium                = 2060,
-    rcFrenchCanada                = 3084,
-    rcFrenchLuxembourg                = 5132,
-    rcFrenchStandard                = 1036,
-    rcFrenchSwitzerland                = 4108,
-    rcGermanAustria                = 3079,
-    rcGermanLichtenstein        = 5127,
-    rcGermanLuxembourg                = 4103,
-    rcGermanStandard                = 1031,
-    rcGermanSwitzerland                = 2055,
-    rcGreek                        = 1032,
-    rcHebrew                        = 1037,
-    rcHungarian                        = 1038,
-    rcIcelandic                        = 1039,
-    rcIndonesian                = 1057,
-    rcItalianStandard                = 1040,
-    rcItalianSwitzerland        = 2064,
-    rcJapanese                        = 1041,
-    rcKorean                        = 1042,
+    rcBasque                     = 1069,
+    rcBulgarian                  = 1026,
+    rcByelorussian               = 1059,
+    rcCatalan                    = 1027,
+    rcChineseHongKong            = 3076,
+    rcChinesePRC                 = 2052,
+    rcChineseSingapore           = 4100,
+    rcChineseTaiwan              = 1028,
+    rcCroatian                   = 1050,
+    rcCzech                      = 1029,
+    rcDanish                     = 1030,
+    rcDutchBelgium               = 2067,
+    rcDutchStandard              = 1043,
+    rcEnglishAustralia           = 3081,
+    rcEnglishBritain             = 2057,
+    rcEnglishCanada              = 4105,
+    RcEnglishCaribbean           = 9225,
+    rcEnglishIreland             = 6153,
+    rcEnglishJamaica             = 8201,
+    rcEnglishNewZealand          = 5129,
+    rcEnglishSouthAfrica         = 7177,
+    rcEnglishUS                  = 1033,
+    rcEstonian                   = 1061,
+    rcFarsi                      = 1065,
+    rcFinnish                    = 1035,
+    rcFrenchBelgium              = 2060,
+    rcFrenchCanada               = 3084,
+    rcFrenchLuxembourg           = 5132,
+    rcFrenchStandard             = 1036,
+    rcFrenchSwitzerland          = 4108,
+    rcGermanAustria              = 3079,
+    rcGermanLichtenstein         = 5127,
+    rcGermanLuxembourg           = 4103,
+    rcGermanStandard             = 1031,
+    rcGermanSwitzerland          = 2055,
+    rcGreek                      = 1032,
+    rcHebrew                     = 1037,
+    rcHungarian                  = 1038,
+    rcIcelandic                  = 1039,
+    rcIndonesian                 = 1057,
+    rcItalianStandard            = 1040,
+    rcItalianSwitzerland         = 2064,
+    rcJapanese                   = 1041,
+    rcKorean                     = 1042,
     rcKoreanJohab                = 2066,
-    rcLatvian                        = 1062,
-    rcLithuanian                = 1063,
-    rcNorwegianBokmal                = 1044,
-    rcNorwegianNynorsk                = 2068,
-    rcPolish                        = 1045,
+    rcLatvian                    = 1062,
+    rcLithuanian                 = 1063,
+    rcNorwegianBokmal            = 1044,
+    rcNorwegianNynorsk           = 2068,
+    rcPolish                     = 1045,
     rcPortugueseBrazilian        = 1046,
-    rcPortugueseStandard        = 2070,
-    rcRomanian                        = 1048,
-    rcRussian                        = 1049,
-    rcSerbian                        = 2074,
-    rcSlovak                        = 1051,
-    rcSpanishArgentina                = 11274,
-    rcSpanishBolivia                = 16394,
-    rcSpanishChile                = 13322,
-    rcSpanishColombia                = 9226,
-    rcSpanishCostaRica                = 5130,
-    rcSpanishDominicanRepublic        = 7178,
-    rcSpanishEcuador                = 12298,
-    rcSpanishGuatemala                = 4106,
-    rcSpanishMexico                = 2058,
-    rcSpanishModern                = 3082,
-    rcSpanishPanama                = 6154,
-    rcSpanishParaguay                = 15370,
+    rcPortugueseStandard         = 2070,
+    rcRomanian                   = 1048,
+    rcRussian                    = 1049,
+    rcSerbian                    = 2074,
+    rcSlovak                     = 1051,
+    rcSpanishArgentina           = 11274,
+    rcSpanishBolivia             = 16394,
+    rcSpanishChile               = 13322,
+    rcSpanishColombia            = 9226,
+    rcSpanishCostaRica           = 5130,
+    rcSpanishDominicanRepublic   = 7178,
+    rcSpanishEcuador             = 12298,
+    rcSpanishGuatemala           = 4106,
+    rcSpanishMexico              = 2058,
+    rcSpanishModern              = 3082,
+    rcSpanishPanama              = 6154,
+    rcSpanishParaguay            = 15370,
     rcSpanishPeru                = 10250,
-    rcSpanishTraditional        = 1034,
-    rcSpanishUruguay                = 14346,
-    rcSpanishVenezuela                = 8202,
-    rcSwedish                        = 1053,
-    rcThai                        = 1054,
-    rcTurkish                        = 1055,
-    rcUkrainian                        = 1058,
-    rcUrdu                        = 1056
+    rcSpanishTraditional         = 1034,
+    rcSpanishUruguay             = 14346,
+    rcSpanishVenezuela           = 8202,
+    rcSwedish                    = 1053,
+    rcThai                       = 1054,
+    rcTurkish                    = 1055,
+    rcUkrainian                  = 1058,
+    rcUrdu                       = 1056
 };
 enum enumSccEvent {
     eProjectInScc,
@@ -401,66 +402,66 @@ public:
     bool parseOption(const char* option);
 
     // Variables
-    QStringList                    AdditionalIncludeDirectories;
-    QStringList                    AdditionalOptions;
-    QStringList                    AdditionalUsingDirectories;
-    QString                    AssemblerListingLocation;
-    asmListingOption            AssemblerOutput;
+    QStringList             AdditionalIncludeDirectories;
+    QStringList             AdditionalOptions;
+    QStringList             AdditionalUsingDirectories;
+    QString                 AssemblerListingLocation;
+    asmListingOption        AssemblerOutput;
     basicRuntimeCheckOption BasicRuntimeChecks;
-    browseInfoOption            BrowseInformation;
-    QString                    BrowseInformationFile;
-    triState                    BufferSecurityCheck;
+    browseInfoOption        BrowseInformation;
+    QString                 BrowseInformationFile;
+    triState                BufferSecurityCheck;
     callingConventionOption CallingConvention;
-    CompileAsOptions            CompileAs;
+    CompileAsOptions        CompileAs;
     compileAsManagedOptions CompileAsManaged;
-    triState                    CompileOnly;
-    debugOption                    DebugInformationFormat;
-    triState                    DefaultCharIsUnsigned;
-    triState                    Detect64BitPortabilityProblems;
-    triState                    DisableLanguageExtensions;
-    QStringList                    DisableSpecificWarnings;
-    triState                    EnableFiberSafeOptimizations;
-    triState                    EnableFunctionLevelLinking;
-    triState                    EnableIntrinsicFunctions;
-    triState                    ExceptionHandling;
-    triState                    ExpandAttributedSource;
+    triState                CompileOnly;
+    debugOption             DebugInformationFormat;
+    triState                DefaultCharIsUnsigned;
+    triState                Detect64BitPortabilityProblems;
+    triState                DisableLanguageExtensions;
+    QStringList             DisableSpecificWarnings;
+    triState                EnableFiberSafeOptimizations;
+    triState                EnableFunctionLevelLinking;
+    triState                EnableIntrinsicFunctions;
+    triState                ExceptionHandling;
+    triState                ExpandAttributedSource;
     favorSizeOrSpeedOption  FavorSizeOrSpeed;
-    triState                    ForceConformanceInForLoopScope;
-    QStringList                    ForcedIncludeFiles;
-    QStringList                    ForcedUsingFiles;
-    preprocessOption            GeneratePreprocessedFile;
-    triState                    GlobalOptimizations;
-    triState                    IgnoreStandardIncludePath;
-    triState                    ImproveFloatingPointConsistency;
+    triState                ForceConformanceInForLoopScope;
+    QStringList             ForcedIncludeFiles;
+    QStringList             ForcedUsingFiles;
+    preprocessOption        GeneratePreprocessedFile;
+    triState                GlobalOptimizations;
+    triState                IgnoreStandardIncludePath;
+    triState                ImproveFloatingPointConsistency;
     inlineExpansionOption   InlineFunctionExpansion;
-    triState                    KeepComments;
-    triState                    MinimalRebuild;
-    QString                    ObjectFile;
-    triState                    OmitFramePointers;
-    optimizeOption            Optimization;
+    triState                KeepComments;
+    triState                MinimalRebuild;
+    QString                 ObjectFile;
+    triState                OmitFramePointers;
+    optimizeOption          Optimization;
     ProcessorOptimizeOption OptimizeForProcessor;
-    triState                    OptimizeForWindowsApplication;
-    QString                    OutputFile;
-    QString                    PrecompiledHeaderFile;
-    QString                    PrecompiledHeaderThrough;
-    QStringList                    PreprocessorDefinitions;
-    QString                    ProgramDataBaseFileName;
+    triState                OptimizeForWindowsApplication;
+    QString                 OutputFile;
+    QString                 PrecompiledHeaderFile;
+    QString                 PrecompiledHeaderThrough;
+    QStringList             PreprocessorDefinitions;
+    QString                 ProgramDataBaseFileName;
     runtimeLibraryOption    RuntimeLibrary;
-    triState                    RuntimeTypeInfo;
-    triState                    ShowIncludes;
-    triState                    SmallerTypeCheck;
-    triState                    StringPooling;
+    triState                RuntimeTypeInfo;
+    triState                ShowIncludes;
+    triState                SmallerTypeCheck;
+    triState                StringPooling;
     structMemberAlignOption StructMemberAlignment;
-    triState                    SuppressStartupBanner;
-    triState                    TreatWChar_tAsBuiltInType;
-    triState                    TurnOffAssemblyGeneration;
-    triState                    UndefineAllPreprocessorDefinitions;
-    QStringList                    UndefinePreprocessorDefinitions;
-    pchOption                    UsePrecompiledHeader;
-    triState                    WarnAsError;
-    warningLevelOption            WarningLevel;
-    triState                    WholeProgramOptimization;
-    VCConfiguration*            config;
+    triState                SuppressStartupBanner;
+    triState                TreatWChar_tAsBuiltInType;
+    triState                TurnOffAssemblyGeneration;
+    triState                UndefineAllPreprocessorDefinitions;
+    QStringList             UndefinePreprocessorDefinitions;
+    pchOption               UsePrecompiledHeader;
+    triState                WarnAsError;
+    warningLevelOption      WarningLevel;
+    triState                WholeProgramOptimization;
+    VCConfiguration*        config;
 };
 
 class VCLinkerTool : public VCToolBase
@@ -472,60 +473,60 @@ public:
     bool parseOption(const char* option);
 
     // Variables
-    QStringList                    AdditionalDependencies;
-    QStringList                    AdditionalLibraryDirectories;
-    QStringList                    AdditionalOptions;
-    QStringList                    AddModuleNamesToAssembly;
-    QString                    BaseAddress;
-    QStringList                    DelayLoadDLLs;
-    optFoldingType            EnableCOMDATFolding;
-    QString                    EntryPointSymbol;
-    QStringList                    ForceSymbolReferences;
-    QString                    FunctionOrder;
-    triState                    GenerateDebugInformation;
-    triState                    GenerateMapFile;
+    QStringList             AdditionalDependencies;
+    QStringList             AdditionalLibraryDirectories;
+    QStringList             AdditionalOptions;
+    QStringList             AddModuleNamesToAssembly;
+    QString                 BaseAddress;
+    QStringList             DelayLoadDLLs;
+    optFoldingType          EnableCOMDATFolding;
+    QString                 EntryPointSymbol;
+    QStringList             ForceSymbolReferences;
+    QString                 FunctionOrder;
+    triState                GenerateDebugInformation;
+    triState                GenerateMapFile;
     long                    HeapCommitSize;
     long                    HeapReserveSize;
-    triState                    IgnoreAllDefaultLibraries;
-    QStringList                    IgnoreDefaultLibraryNames;
-    triState                    IgnoreEmbeddedIDL;
-    triState                    IgnoreImportLibrary;
-    QString                    ImportLibrary;
+    triState                IgnoreAllDefaultLibraries;
+    QStringList             IgnoreDefaultLibraryNames;
+    triState                IgnoreEmbeddedIDL;
+    triState                IgnoreImportLibrary;
+    QString                 ImportLibrary;
     addressAwarenessType    LargeAddressAware;
-    triState                    LinkDLL;
+    triState                LinkDLL;
     linkIncrementalType     LinkIncremental;
-    triState                    LinkTimeCodeGeneration;
-    QString                    LinkToManagedResourceFile;
-    triState                    MapExports;
-    QString                    MapFileName;
-    triState                    MapLines;
-    QString                    MergedIDLBaseFileName;
-    QString                    MergeSections;            // Should be list?
-    QString                    MidlCommandFile;
-    QString                    ModuleDefinitionFile;   // Should be list?
+    triState                LinkTimeCodeGeneration;
+    QString                 LinkToManagedResourceFile;
+    triState                MapExports;
+    QString                 MapFileName;
+    triState                MapLines;
+    QString                 MergedIDLBaseFileName;
+    QString                 MergeSections;          // Should be list?
+    QString                 MidlCommandFile;
+    QString                 ModuleDefinitionFile;   // Should be list?
     optWin98Type            OptimizeForWindows98;
-    optRefType                    OptimizeReferences;
-    QString                    OutputFile;
-    QString                    ProgramDatabaseFile;
-    triState                    RegisterOutput;
-    triState                    ResourceOnlyDLL;
-    triState                    SetChecksum;
-    linkProgressOption            ShowProgress;
+    optRefType              OptimizeReferences;
+    QString                 OutputFile;
+    QString                 ProgramDatabaseFile;
+    triState                RegisterOutput;
+    triState                ResourceOnlyDLL;
+    triState                SetChecksum;
+    linkProgressOption      ShowProgress;
     long                    StackCommitSize;
     long                    StackReserveSize;
-    QString                    StripPrivateSymbols;    // Should be list?
-    subSystemOption            SubSystem;
-    triState                    SupportUnloadOfDelayLoadedDLL;
-    triState                    SuppressStartupBanner;
-    triState                    SwapRunFromCD;
-    triState                    SwapRunFromNet;
+    QString                 StripPrivateSymbols;    // Should be list?
+    subSystemOption         SubSystem;
+    triState                SupportUnloadOfDelayLoadedDLL;
+    triState                SuppressStartupBanner;
+    triState                SwapRunFromCD;
+    triState                SwapRunFromNet;
     machineTypeOption       TargetMachine;
     termSvrAwarenessType    TerminalServerAware;
-    triState                    TurnOffAssemblyGeneration;
-    QString                    TypeLibraryFile;
+    triState                TurnOffAssemblyGeneration;
+    QString                 TypeLibraryFile;
     long                    TypeLibraryResourceID;
-    QString                    Version;
-    VCConfiguration*            config;
+    QString                 Version;
+    VCConfiguration*        config;
 };
 
 class VCMIDLTool : public VCToolBase
@@ -537,37 +538,37 @@ public:
     bool parseOption(const char* option);
 
     // Variables
-    QStringList                    AdditionalIncludeDirectories;
-    QStringList                    AdditionalOptions;
-    QStringList                    CPreprocessOptions;
-    midlCharOption            DefaultCharType;
-    QString                    DLLDataFileName;    // Should be list?
+    QStringList             AdditionalIncludeDirectories;
+    QStringList             AdditionalOptions;
+    QStringList             CPreprocessOptions;
+    midlCharOption          DefaultCharType;
+    QString                 DLLDataFileName;    // Should be list?
     midlErrorCheckOption    EnableErrorChecks;
-    triState                    ErrorCheckAllocations;
-    triState                    ErrorCheckBounds;
-    triState                    ErrorCheckEnumRange;
-    triState                    ErrorCheckRefPointers;
-    triState                    ErrorCheckStubData;
-    QStringList                    FullIncludePath;
-    triState                    GenerateStublessProxies;
-    triState                    GenerateTypeLibrary;
-    QString                    HeaderFileName;
-    triState                    IgnoreStandardIncludePath;
-    QString                    InterfaceIdentifierFileName;
-    triState                    MkTypLibCompatible;
-    QString                    OutputDirectory;
-    QStringList                    PreprocessorDefinitions;
-    QString                    ProxyFileName;
-    QString                    RedirectOutputAndErrors;
+    triState                ErrorCheckAllocations;
+    triState                ErrorCheckBounds;
+    triState                ErrorCheckEnumRange;
+    triState                ErrorCheckRefPointers;
+    triState                ErrorCheckStubData;
+    QStringList             FullIncludePath;
+    triState                GenerateStublessProxies;
+    triState                GenerateTypeLibrary;
+    QString                 HeaderFileName;
+    triState                IgnoreStandardIncludePath;
+    QString                 InterfaceIdentifierFileName;
+    triState                MkTypLibCompatible;
+    QString                 OutputDirectory;
+    QStringList             PreprocessorDefinitions;
+    QString                 ProxyFileName;
+    QString                 RedirectOutputAndErrors;
     midlStructMemberAlignOption StructMemberAlignment;
-    triState                    SuppressStartupBanner;
+    triState                SuppressStartupBanner;
     midlTargetEnvironment   TargetEnvironment;
-    QString                    TypeLibraryName;
-    QStringList                    UndefinePreprocessorDefinitions;
-    triState                    ValidateParameters;
-    triState                    WarnAsError;
+    QString                 TypeLibraryName;
+    QStringList             UndefinePreprocessorDefinitions;
+    triState                ValidateParameters;
+    triState                WarnAsError;
     midlWarningLevelOption  WarningLevel;
-    VCConfiguration*            config;
+    VCConfiguration*        config;
 };
 
 class VCLibrarianTool : public VCToolBase
@@ -579,16 +580,16 @@ public:
     bool parseOption(const char*){ return false; };
 
     // Variables
-    QStringList                    AdditionalDependencies;
-    QStringList                    AdditionalLibraryDirectories;
-    QStringList                    AdditionalOptions;
-    QStringList                    ExportNamedFunctions;
-    QStringList                    ForceSymbolReferences;
-    triState                    IgnoreAllDefaultLibraries;
-    QStringList                    IgnoreDefaultLibraryNames;
-    QString                    ModuleDefinitionFile;
-    QString                    OutputFile;
-    triState                    SuppressStartupBanner;
+    QStringList             AdditionalDependencies;
+    QStringList             AdditionalLibraryDirectories;
+    QStringList             AdditionalOptions;
+    QStringList             ExportNamedFunctions;
+    QStringList             ForceSymbolReferences;
+    triState                IgnoreAllDefaultLibraries;
+    QStringList             IgnoreDefaultLibraryNames;
+    QString                 ModuleDefinitionFile;
+    QString                 OutputFile;
+    triState                SuppressStartupBanner;
 };
 
 class VCCustomBuildTool : public VCToolBase
@@ -600,12 +601,12 @@ public:
     bool parseOption(const char*){ return false; };
 
     // Variables
-    QStringList                    AdditionalDependencies;
-    QStringList                    CommandLine;
-    QString                    Description;
-    QStringList                    Outputs;
-    QString                    ToolName;
-    QString                    ToolPath;
+    QStringList             AdditionalDependencies;
+    QStringList             CommandLine;
+    QString                 Description;
+    QStringList             Outputs;
+    QString                 ToolName;
+    QString                 ToolPath;
 };
 
 class VCResourceCompilerTool : public VCToolBase
@@ -617,15 +618,15 @@ public:
     bool parseOption(const char*){ return false; };
 
     // Variables
-    QStringList                    AdditionalIncludeDirectories;
-    QStringList                    AdditionalOptions;
-    enumResourceLangID            Culture;
-    QStringList                    FullIncludePath;
-    triState                    IgnoreStandardIncludePath;
-    QStringList                    PreprocessorDefinitions;
-    QString                    ResourceOutputFileName;
-    linkProgressOption            ShowProgress;
-    QString                    ToolPath;
+    QStringList             AdditionalIncludeDirectories;
+    QStringList             AdditionalOptions;
+    enumResourceLangID      Culture;
+    QStringList             FullIncludePath;
+    triState                IgnoreStandardIncludePath;
+    QStringList             PreprocessorDefinitions;
+    QString                 ResourceOutputFileName;
+    linkProgressOption      ShowProgress;
+    QString                 ToolPath;
 };
 
 class VCEventTool : public VCToolBase
@@ -638,11 +639,11 @@ protected:
 
 public:
     // Variables
-    QString                    CommandLine;
-    QString                    Description;
-    triState                    ExcludedFromBuild;
-    QString                    ToolName;
-    QString                    ToolPath;
+    QString                 CommandLine;
+    QString                 Description;
+    triState                ExcludedFromBuild;
+    QString                 ToolName;
+    QString                 ToolPath;
 };
 
 class VCPostBuildEventTool : public VCEventTool
@@ -676,30 +677,83 @@ public:
     // Variables
     triState                ATLMinimizesCRunTimeLibraryUsage;
     triState                BuildBrowserInformation;
-    charSet                CharacterSet;
-    ConfigurationTypes        ConfigurationType;
-    QString                DeleteExtensionsOnClean;
-    QString                ImportLibrary;
-    QString                IntermediateDirectory;
-    QString                Name;
-    QString                OutputDirectory;
-    QString                PrimaryOutput;
-    QString                ProgramDatabase;
+    charSet                 CharacterSet;
+    ConfigurationTypes      ConfigurationType;
+    QString                 DeleteExtensionsOnClean;
+    QString                 ImportLibrary;
+    QString                 IntermediateDirectory;
+    QString                 Name;
+    QString                 OutputDirectory;
+    QString                 PrimaryOutput;
+    QString                 ProgramDatabase;
     triState                RegisterOutput;
     useOfATL                UseOfATL;
     useOfMfc                UseOfMfc;
     triState                WholeProgramOptimization;
 
     // XML sub-parts
-    VCCLCompilerTool            compiler;
+    VCCLCompilerTool        compiler;
     VCLinkerTool            linker;
-    VCLibrarianTool            librarian;
-    VCCustomBuildTool            custom;
-    VCMIDLTool                    idl;
+    VCLibrarianTool         librarian;
+    VCCustomBuildTool       custom;
+    VCMIDLTool              idl;
     VCPostBuildEventTool    postBuild;
-    VCPreBuildEventTool            preBuild;
-    VCPreLinkEventTool            preLink;
+    VCPreBuildEventTool     preBuild;
+    VCPreLinkEventTool      preLink;
     VCResourceCompilerTool  resource;
+};
+
+struct VCFilterFile
+{
+    VCFilterFile()
+    { excludeFromBuild = false; }
+    VCFilterFile(const QString &filename, bool exclude = false )
+    { file = filename; excludeFromBuild = exclude; }
+    VCFilterFile(const QString &filename, const QString &additional, bool exclude = false )
+    { file = filename; excludeFromBuild = exclude; additionalFile = additional; }
+    bool operator==(const VCFilterFile &other){
+        return file == other.file
+               && additionalFile == other.additionalFile
+               && excludeFromBuild == other.excludeFromBuild;
+    }
+
+    bool                    excludeFromBuild;
+    QString                 file;
+    QString                 additionalFile; // For tools like MOC
+};
+
+#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
+#ifndef QT_NO_DEBUG
+inline QDebug operator<<(QDebug dbg, const VCFilterFile &p)
+{
+    dbg.nospace() << "VCFilterFile(file(" << p.file
+                  << ") additionalFile(" << p.additionalFile
+                  << ") excludeFromBuild(" << p.excludeFromBuild << "))" << endl;
+    return dbg.space();
+}
+#endif
+#endif
+
+class VCFilterFileList : public QList<VCFilterFile>
+{
+public:
+    inline VCFilterFileList() { }
+    inline VCFilterFileList(const VCFilterFileList &l) : QList<VCFilterFile>(l) { }
+    inline VCFilterFileList(const QList<VCFilterFile> &l) : QList<VCFilterFile>(l) { }
+    void operator+=(const VCFilterFileList &l) {
+        for(int i = 0; i < l.count(); ++i)
+            append(l.at(i));
+    }
+    void operator+=(const VCFilterFile &f) {
+        append(f);
+    }
+    void operator+=(const QStringList &l) {
+        for(int i = 0; i < l.count(); ++i)
+            append(VCFilterFile(l.at(i)));
+    }
+    void operator+=(const QString &f) {
+        append(VCFilterFile(f));
+    }
 };
 
 class VcprojGenerator;
@@ -709,24 +763,25 @@ public:
     // Functions
     VCFilter();
     ~VCFilter(){}
-    void addMOCstage(QTextStream &strm, QString str);
+    void addMOCstage(QTextStream &strm, const VCFilterFile &str, bool hdr);
     void addUICstage(QTextStream &strm, QString str);
     bool addIMGstage(QTextStream &strm, QString str);
     void modifyPCHstage(QTextStream &strm, QString str);
 
     // Variables
-    QString                Name;
-    QString                Filter;
+    QString                 Name;
+    QString                 Filter;
     triState                ParseFiles;
-    QStringList                Files;
+    VCFilterFileList        Files;
     VcprojGenerator*        Project;
     QList<VCConfiguration> *Config;
-    customBuildCheck        CustomBuild;
-    bool                useCustomBuildTool;
-    VCCustomBuildTool   CustomBuildTool;
-    bool                useCompilerTool;
-    VCCLCompilerTool    CompilerTool;
-    bool                flat_files;
+    customBuildCheck	    CustomBuild;
+    QString		    customMocArguments;
+    bool		    useCustomBuildTool;
+    VCCustomBuildTool       CustomBuildTool;
+    bool                    useCompilerTool;
+    VCCLCompilerTool        CompilerTool;
+    bool                    flat_files;
 };
 
 class VCProject
@@ -737,15 +792,15 @@ public:
     ~VCProject(){}
 
     // Variables
-    QString                Name;
-    QString                Version;
-    QString                ProjectGUID;
-    QString                SccProjectName;
-    QString                SccLocalPath;
-    QString                PlatformName;
+    QString                 Name;
+    QString                 Version;
+    QString                 ProjectGUID;
+    QString                 SccProjectName;
+    QString                 SccLocalPath;
+    QString                 PlatformName;
 
     // XML sub-parts
-    QList<VCConfiguration> Configuration;
+    QList<VCConfiguration>  Configuration;
     VCFilter                SourceFiles;
     VCFilter                HeaderFiles;
     VCFilter                MOCFiles;
