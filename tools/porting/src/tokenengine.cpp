@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
@@ -56,6 +56,10 @@ TokenContainer TokenContainer::tokenContainer(const int index) const
     return *this;
 }
 
+Token TokenContainer::token(const int index) const
+{
+    return d->tokens.at(index);
+}
 
 TypeInfo *TokenContainer::typeInfo()
 {

@@ -168,6 +168,7 @@ public:
     TokenContainer tokenContainer(const int index) const;
     inline int containerIndex(const int index) const
     { return index; }
+    Token token(const int index) const;
     TypeInfo *typeInfo();
     TokenAttributes *tokenAttributes();
 private:

@@ -19,22 +19,25 @@
 #include "portingrules.h"
 #include "replacetoken.h"
 #include "filewriter.h"
+#include "preprocessorcontrol.h"
 
 class FilePorter
 {
 public:
     enum FileType {Header, Source};
-    FilePorter(QString rulesFileName);
-    void port(QString inBasePath, QString inFilePath, 
+    FilePorter(QString rulesFileName, PreprocessorCache &preprocessorCache);
+    void port(QString inBasePath, QString inFilePath,
              QString outBasePath, QString outFilePath, FileType fileType );
 private:
     QByteArray noPreprocess(const QString &fileName);
-    QByteArray includeAnalyse(QByteArray file, FileType fileType);
+    QByteArray includeAnalyse(QByteArray fileContents, FileType fileType);
 
     PortingRules portingRules;
+    PreprocessorCache &preprocessorCache;
     QList<TokenReplacement*> tokenReplacementRules;
     ReplaceToken replaceToken;
     QMap<QString, int> qt4HeaderNames;
+    Tokenizer tokenizer;    //used by includeAnalyse
 };
 
 #endif

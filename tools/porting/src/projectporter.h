@@ -14,10 +14,11 @@
 #ifndef PROJECTPORTER_H
 #define PROJECTPORTER_H
 
-#include "fileporter.h"
-#include "filewriter.h"
 #include <QString>
 #include <QMap>
+#include "fileporter.h"
+#include "filewriter.h"
+#include "preprocessorcontrol.h"
 
 class ProjectPorter
 {
@@ -27,11 +28,11 @@ public:
 private:
     QString portProFile(QString contents, QMap<QString, QString> tagMap);
     void portFiles(QString basePath, QStringList fileNames, FilePorter::FileType fileType);
-    
+
     QString rulesFileName;
     QMap<QString, int> processedFilesSet;
+    PreprocessorCache preprocessorCache;
     FilePorter filePorter;
-
 };
 
 #endif

@@ -19,9 +19,6 @@
 #include <QList>
 #include "tokenengine.h"
 
-class Tokenizer;
-
-
 class Tokenizer
 {
 public:
@@ -54,7 +51,6 @@ private:
     int m_ptr;
 
     QList<TokenEngine::Token> m_tokens;
-
 };
 
 #endif

@@ -14,23 +14,20 @@
 #ifndef REPLACETOKEN_H
 #define REPLACETOKEN_H
 
-#include "tokenreplacements.h"
-#include "textreplacement.h"
-#include "lexer.h"
 #include <QList>
 #include <QMultiMap>
-
-void printTokenStream(TokenStream *stream);
-void printContents(QByteArray contents);
+#include "tokenengine.h"
+#include "tokenreplacements.h"
+#include "textreplacement.h"
 
 class ReplaceToken
 {
 public:
-    ReplaceToken(QList<TokenReplacement*> tokenReplacementRules);
-    TextReplacements getTokenTextReplacements(FileSymbol *inFileSymbol);
+    ReplaceToken(QList<TokenReplacement*> &tokenReplacementRules);
+    TextReplacements getTokenTextReplacements(const TokenEngine::TokenContainer &tokenContainer);
 private:
-    bool isInterestingToken(QByteArray token);
-    bool isPreprocessorDirective(QByteArray token);
+    bool isInterestingToken(const QByteArray &token);
+    bool isPreprocessorDirective(const QByteArray &token);
     QMultiMap<QByteArray, TokenReplacement*> tokenRuleLookup;
     QList<TokenReplacement*> tokenReplacementRules;
 };

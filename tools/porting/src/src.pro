@@ -6,7 +6,15 @@ DEPENDPATH += .
 TARGET =qt3to4
 DESTDIR = ../../../bin
 
-HEADERS +=  replacetoken.h            \
+HEADERS +=  smallobject.h             \
+            tokenengine.h             \
+            tokenizer.h               \
+            rpplexer.h                \
+            rpp.h                     \
+            rpptreeevaluator.h        \
+            rppexpressionbuilder.h    \
+            preprocessorcontrol.h     \
+            replacetoken.h            \
             tokenreplacements.h       \
             textreplacement.h         \
             portingrules.h            \
@@ -19,6 +27,14 @@ HEADERS +=  replacetoken.h            \
             filewriter.h
 
 SOURCES += port.cpp                  \
+           smallobject.cpp           \
+           tokenengine.cpp           \
+           tokenizer.cpp             \
+           rpplexer.cpp              \
+           rpp.cpp                   \
+           rpptreeevaluator.cpp      \
+           rppexpressionbuilder.cpp  \
+           preprocessorcontrol.cpp   \
            replacetoken.cpp          \
            tokenreplacements.cpp     \
            textreplacement.cpp       \
@@ -28,7 +44,7 @@ SOURCES += port.cpp                  \
            proparser.cpp             \
            fileporter.cpp            \
            logger.cpp                \
-           filewriter.cpp
+           filewriter.cpp            \
 
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared

@@ -10,15 +10,17 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "fileporter.h"
-#include "lexer.h"
-#include "replacetoken.h"
-#include "logger.h"
+#include <iostream>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
-#include <iostream>
+#include "preprocessorcontrol.h"
+#include "fileporter.h"
+#include "replacetoken.h"
+#include "logger.h"
+#include "tokenizer.h"
 
+using namespace TokenEngine;
 using std::cout;
 using std::endl;
 
@@ -30,8 +32,9 @@ QByteArray FilePorter::noPreprocess(const QString &filePath)
     return f.readAll();
 }
 
-FilePorter::FilePorter(QString rulesfilename)
+FilePorter::FilePorter(QString rulesfilename, PreprocessorCache &preprocessorCache)
 :portingRules(rulesfilename)
+,preprocessorCache(preprocessorCache)
 ,tokenReplacementRules(portingRules.getNoPreprocessPortingTokenRules())
 ,replaceToken(tokenReplacementRules)
 {
@@ -46,22 +49,14 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     QString fullInFileName = inBasePath + inFilePath;
     QFileInfo infileInfo(fullInFileName);
     if(!infileInfo.exists()) {
-        cout<<"Could not open file: " << fullInFileName.toLocal8Bit().constData() <<endl;
+        cout<< "Could not open file: " << fullInFileName.toLocal8Bit().constData() << endl;
         return;
     }
 
-    Lexer lexer;
-    FileSymbol *sym = new FileSymbol();
-    sym->contents = noPreprocess(fullInFileName);
-    sym->tokenStream = lexer.tokenize(sym);
-
+    TokenContainer sourceTokens = preprocessorCache.sourceTokens(fullInFileName);
     Logger::instance()->globalState["currentFileName"] = inFilePath;
-/*
-    TextReplacements textReplacements;
-    textReplacements += getTokenTextReplacements(sym, tokenReplacementRules);
-    QByteArray portedContents = textReplacements.apply(sym->contents);
-*/
-    QByteArray portedContents = replaceToken.getTokenTextReplacements(sym).apply(sym->contents);
+    QByteArray portedContents =
+        replaceToken.getTokenTextReplacements(sourceTokens).apply(sourceTokens.fullText());
 
     //This step needs to be done after the token replacements, since
     //we need to know which new class names that has been inserted in the source
@@ -71,24 +66,22 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
         QString fullOutfileName = outBasePath + outFilePath;
         FileWriter::instance()->writeFileVerbously(fullOutfileName, portedContents);
     }
-    delete sym;
 }
 
 QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileType*/)
 {
-    //Get list of used classes and included headers
-    Lexer lexer;
-    FileSymbol *sym = new FileSymbol();
-    sym->contents = fileContents;
-    TokenStream *inStream = lexer.tokenize(sym);
+    QList<TokenEngine::Token> tokens  = tokenizer.tokenize(fileContents);
+    TokenEngine::TokenContainer tokenContainer(fileContents, tokens);
 
     QMap<QByteArray, int> classes;
     QMap<QByteArray, int> headers;
 
-    inStream->rewind(0);
-    while(!inStream->tokenAtEnd())
+    //Get list of used classes and included headers
+    int t = 0;
+    const int numTokens = tokenContainer.count();
+    while(t < numTokens )
     {
-        QByteArray tokenText=inStream->currentTokenText();
+        QByteArray tokenText = tokenContainer.text(t);
         if(tokenText[0] =='Q' && qt4HeaderNames.contains(tokenText))
             classes.insert(tokenText, 0);
         else if(tokenText.startsWith("#include")) {
@@ -99,7 +92,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
                     headers.insert(subToken.toLatin1(), 0);
             }
         }
-        inStream->nextToken();
+        ++t;
     }
 
     //compare class and header names, find classes that lacks a
@@ -141,17 +134,17 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
     //insert headers in files, at the end of the first block of
     //include files
     //TODO: make this more intelligent by not inserting inside #ifdefs
-    inStream->rewind(0);
     bool includeEnd = false;
     bool includeStart = false;
-    while(!inStream->tokenAtEnd() && !includeEnd)
+    t = 0;
+    while(t < numTokens && !includeEnd)
     {
-        QByteArray tokenText=inStream->currentTokenText();
+        QByteArray tokenText = tokenContainer.text(t);
         if(tokenText.trimmed().startsWith("#include"))
             includeStart=true;
         else if(includeStart &&(!tokenText.trimmed().isEmpty() || tokenText == "\n" ))
             includeEnd=true;
-        inStream->nextToken();
+        ++t;
     }
     /*
     //back up a bit to get just at the end of the last include
@@ -161,7 +154,7 @@ QByteArray FilePorter::includeAnalyse(QByteArray fileContents, FileType /*fileTy
     */
     int insertPos=0;
     if(includeStart != false)
-        insertPos = inStream->token().position;
+        insertPos = tokenContainer.token(t).start;
 
     int insertCount = headersToInsert.count();
     if(insertCount>0) {

@@ -28,11 +28,9 @@ using std::endl;
 
 
 ProjectPorter::ProjectPorter(QString rulesFileName)
-    :rulesFileName(rulesFileName),
-     filePorter(rulesFileName)
-{
-
-}
+:rulesFileName(rulesFileName)
+,filePorter(rulesFileName, preprocessorCache)
+{}
 
 void ProjectPorter::portProject(QString basePath, QString proFileName)
 {

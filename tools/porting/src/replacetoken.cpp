@@ -11,84 +11,62 @@
 **
 ****************************************************************************/
 
+#include <QByteArray>
 #include "replacetoken.h"
 #include "tokenreplacements.h"
-#include <QByteArray>
-#include <stdio.h>
-
-void printTokenStream(TokenStream *stream)
-{
-    printf("Printing tokens\n");
-    stream->rewind(0);
-    while(!stream->tokenAtEnd())
-    {
-        printf("%s|", stream->currentTokenText().data());
-        stream->nextToken();
-    }
-    stream->rewind(0);
-    printf("\n");
-}
-
-void printContents(QByteArray contents)
-{
-    printf(contents.constData());
-    printf("\n");
-}
-
-
-ReplaceToken::ReplaceToken(QList<TokenReplacement*> tokenReplacementRules)
+/*
+    Add an entry to the tokenRuleLookup map for each token replacement rule.
+*/
+ReplaceToken::ReplaceToken(QList<TokenReplacement*> &tokenReplacementRules)
 :tokenReplacementRules(tokenReplacementRules)
 {
     foreach (TokenReplacement* rep, tokenReplacementRules) {
         QByteArray key = rep->getReplaceKey();
         if(!key.isEmpty()) {
-    //        printf("Creating replace key: |%s| \n", rep->getReplaceKey().constData());
             tokenRuleLookup.insert(key, rep);
         }
     }
 }
 
-TextReplacements ReplaceToken::getTokenTextReplacements(FileSymbol *inFileSymbol)
+TextReplacements ReplaceToken::getTokenTextReplacements(const TokenEngine::TokenContainer &container)
 {
-    TokenStream *inStream = inFileSymbol->tokenStream;
-    QByteArray  inContents = inFileSymbol->contents;
     TextReplacements textReplacements;
-    inStream->rewind(0);
 
-    while(!inStream->tokenAtEnd())
-    {
-        QByteArray tokenText=inStream->currentTokenText();
-        bool changed=false;
+    int t=0;
+    const int numTokens = container.count();
+    while(t < numTokens) {
+        QByteArray tokenText = container.text(t);
+        bool changed = false;
 
         if(isPreprocessorDirective(tokenText)) {
             foreach(TokenReplacement *tokenReplacementRule, tokenReplacementRules) {
                 if(!changed)
-                    changed = tokenReplacementRule->doReplace(inStream, textReplacements);
+                    changed = tokenReplacementRule->doReplace(container, t, textReplacements);
                 if(changed)
                     break;
             }
         } else if (isInterestingToken(tokenText.trimmed())) {
             foreach (TokenReplacement* value, tokenRuleLookup.values(tokenText)) {
-                changed = value->doReplace(inStream, textReplacements);
+                changed = value->doReplace(container, t, textReplacements);
                 if(changed) {
                     goto end;
                 }
             }
         }
     end:
-        inStream->nextToken();
+        ++t;
     }
     return textReplacements;
 }
 
-bool ReplaceToken::isInterestingToken(QByteArray text)
+bool ReplaceToken::isInterestingToken(const QByteArray &text)
 {
     return !(text.isEmpty() || text==";" || text=="(" || text==")" || text=="{" || text=="}" || text=="="
             || text=="+=" || text=="-=" || text=="if" || text=="then" || text=="else"
     );
 }
 
-bool ReplaceToken::isPreprocessorDirective(QByteArray token)
+bool ReplaceToken::isPreprocessorDirective(const QByteArray &token)
 {
     return (token[0]=='#');
 }

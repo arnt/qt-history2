@@ -25,6 +25,7 @@
 #include "projectporter.h"
 #include "fileporter.h"
 #include "logger.h"
+#include "preprocessorcontrol.h"
 using std::cout;
 using std::endl;
 
@@ -97,8 +98,9 @@ int fileMode(QString inFile)
         cout << "Could not find file " << inFile.toLocal8Bit().constData() << endl;
         return 1;
     }
-
-    FilePorter filePorter(rulesFilePath);
+    
+    PreprocessorCache cache;
+    FilePorter filePorter(rulesFilePath, cache);
     if (QFileInfo(rulesFilePath).suffix() == "h" || (QFileInfo(rulesFilePath).suffix() == "hpp"))
         filePorter.port(QString::null, inFile, QString::null, inFile, FilePorter::Header );
     else
@@ -136,7 +138,6 @@ void usage(char **argv)
     cout << endl;
     cout << "The porting documentation contains more information on how " << endl;
     cout << "to use qt3to4 as wall as general porting information." << endl;
-
 }
 
 /*

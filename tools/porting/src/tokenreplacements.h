@@ -14,15 +14,17 @@
 #ifndef TOKENREPLACEMENTS_H
 #define TOKENREPLACEMENTS_H
 
-#include "lexer.h"    //for TokenStream
-#include "textreplacement.h"
 #include <QStringList>
 #include <QByteArray>
+#include "tokenengine.h"
+#include "textreplacement.h"
 
 class TokenReplacement
 {
 public:
-    virtual bool doReplace(TokenStream * /*tokenStream*/, TextReplacements &/*textReplacements*/){return false;};
+    virtual bool doReplace(const TokenEngine::TokenContainer & /**/,
+                           int tokenIndex,
+                           TextReplacements &/*textReplacements*/){return false;};
     /*
         returns the replace key for this replacement. Every time a token matches the replace key,
         doReplace() will be called for this TokenReplacement.
@@ -30,8 +32,8 @@ public:
     virtual QByteArray getReplaceKey(){return QByteArray();};
     virtual ~TokenReplacement(){};
 protected:
-    void addLogSourceEntry(QString text, TokenStream *tokenStream);
-    void addLogWarning(QString text);
+    void addLogSourceEntry(const QString &text, const TokenEngine::TokenContainer&, const int index) const;
+    void addLogWarning(const QString &text) const;
 };
 
 /*
@@ -42,7 +44,8 @@ class IncludeTokenReplacement : public TokenReplacement
 public:
     IncludeTokenReplacement(QByteArray fromFile, QByteArray toFile);
  //   bool doReplace(QByteArray tokenText, QByteArray &newTokenText);
-    bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
+    bool doReplace(const TokenEngine::TokenContainer &tokenContainer,
+                   int tokenIndex, TextReplacements &textReplacements);
 private:
     QByteArray fromFile;
     QByteArray toFile;
@@ -55,7 +58,8 @@ class GenericTokenReplacement : public TokenReplacement
 {
 public:
     GenericTokenReplacement(QByteArray oldToken, QByteArray newToken);
-    bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
+    bool doReplace(const TokenEngine::TokenContainer &tokenContainer,
+                   int tokenIndex, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
     QByteArray oldToken;
@@ -77,7 +81,8 @@ class ClassNameReplacement : public TokenReplacement
 {
 public:
     ClassNameReplacement(QByteArray oldToken, QByteArray newToken);
-    bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
+    bool doReplace(const TokenEngine::TokenContainer &tokenContainer,
+                   int tokenIndex, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
     QByteArray oldToken;
@@ -97,7 +102,8 @@ class ScopedTokenReplacement : public TokenReplacement
 {
 public:
     ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken);
-    bool doReplace(TokenStream *tokenStream, TextReplacements &textReplacements);
+    bool doReplace(const TokenEngine::TokenContainer &tokenContainer,
+                   int tokenIndex, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
     QByteArray oldToken;
@@ -107,9 +113,11 @@ private:
 class QualifiedNameParser
 {
 public:
-    QualifiedNameParser(TokenStream *tokenStream, int index);
+    QualifiedNameParser(const TokenEngine::TokenContainer &tokenContainer,
+                        const int tokenIndex);
     enum Direction { Left=-1, Right=1 };
     bool isPartOfQualifiedName();
+    bool isValidIndex(int index);
     bool isQualifier();
     bool isName();
     int peek(Direction direction);
@@ -117,7 +125,7 @@ public:
 private:
     int nextScopeToken(Direction direction);
     int findScopeOperator(Direction direction);
-    TokenStream *tokenStream;
+    const TokenEngine::TokenContainer tokenContainer;
     int currentIndex;
 };
 

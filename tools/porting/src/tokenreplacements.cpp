@@ -12,20 +12,18 @@
 ****************************************************************************/
 
 #include "tokenreplacements.h"
-#include <stdio.h>
-#include <iostream>
 #include "logger.h"
 #include "portingrules.h"
+#include <iostream>
+using namespace TokenEngine;
+using namespace std;
 
-using std::cout;
-using std::endl;
-
-void TokenReplacement::addLogSourceEntry(QString text, TokenStream *tokenStream)
+void TokenReplacement::addLogSourceEntry(const QString &text, const TokenContainer &tokenContainer, const int index) const
 {
     Logger *logger = Logger::instance();
-    int line;
-    int col;
-    tokenStream->positionAtAux(tokenStream->token().position, &line, &col);
+    //TODO: figue ut how to get line/col from a tokenContainer
+    int line = 0;
+    int col = 0;;
     SourcePointLogEntry *logEntry =
                 new SourcePointLogEntry("Info", "Porting",
                                         logger->globalState.value("currentFileName"),
@@ -34,21 +32,27 @@ void TokenReplacement::addLogSourceEntry(QString text, TokenStream *tokenStream)
 }
 
 
-void TokenReplacement::addLogWarning(QString text)
+void TokenReplacement::addLogWarning(const QString &text) const
 {
      Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", text));
 }
 
-QualifiedNameParser::QualifiedNameParser(TokenStream *tokenStream, int index)
-:tokenStream(tokenStream)
-,currentIndex(index)
+QualifiedNameParser::QualifiedNameParser(const TokenContainer &tokenContainer, const int tokenIndex)
+:tokenContainer(tokenContainer)
+,currentIndex(tokenIndex)
 {
-    Q_ASSERT(index < tokenStream->m_tokens.count() && index >= 0);
+    Q_ASSERT(isValidIndex(currentIndex));
 }
 
 bool QualifiedNameParser::isPartOfQualifiedName()
 {
     return ((nextScopeToken(Left) != -1) || (nextScopeToken(Right) != -1));
+}
+
+
+bool QualifiedNameParser::isValidIndex(int index)
+{
+    return (index < tokenContainer.count() && index >= 0);
 }
 
 /*
@@ -97,14 +101,14 @@ int QualifiedNameParser::findScopeOperator(Direction direction)
     int tokenIndex = currentIndex;
     QByteArray tokenText;
     //loop until we get a token containg text or we pass the beginning/end of the source
-    while(tokenText.isEmpty() && tokenStream->isValidIndex(tokenIndex + direction)) {
+    tokenIndex += direction;
+    while(tokenText.isEmpty() && isValidIndex(tokenIndex)) {
+        tokenText = tokenContainer.text(tokenIndex).trimmed();
+        if(tokenText=="::")
+           return tokenIndex;
         tokenIndex += direction;
-        tokenText = tokenStream->tokenText(tokenIndex).trimmed();
     }
-    if(tokenText=="::")
-       return tokenIndex;
-    else
-       return -1;
+    return -1;
 }
 /*
     Walks a qualified name. Returns the token index
@@ -117,11 +121,12 @@ int QualifiedNameParser::nextScopeToken(Direction direction)
         return -1;
     QByteArray tokenText;
    //loop until we get a token containg text or we pass the start of the source
-    while(tokenText.isEmpty() && tokenStream->isValidIndex(tokenIndex + direction)) {
+    tokenIndex += direction;
+    while(tokenText.isEmpty() && isValidIndex(tokenIndex)) {
+       tokenText = tokenContainer.text(tokenIndex).trimmed();
        tokenIndex += direction;
-       tokenText = tokenStream->tokenText(tokenIndex).trimmed();
     }
-    return tokenIndex;
+    return tokenIndex - direction;
 }
 
 IncludeTokenReplacement::IncludeTokenReplacement(QByteArray fromFile, QByteArray toFile)
@@ -129,17 +134,25 @@ IncludeTokenReplacement::IncludeTokenReplacement(QByteArray fromFile, QByteArray
 ,toFile(toFile)
 {  }
 
-bool IncludeTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
+bool IncludeTokenReplacement::doReplace(const TokenContainer &tokenContainer,
+                                        int index, TextReplacements &textReplacements)
 {
-    QByteArray tokenText=tokenStream->currentTokenText();
+    QByteArray tokenText;
+    // read a line of tokens, index points to a "#" token
+    int currentIndex = index;
+    while(currentIndex < tokenContainer.count()) {
+        QByteArray newText = tokenContainer.text(currentIndex);
+        if(newText == "\n")
+            break;
+        tokenText += newText;
+        ++currentIndex;
+    }
     if(tokenText.startsWith("#") && tokenText.contains("include") ) {
-    //     printf("Include token: %s Matching aganinst %s \n", tokenText.constData(), fromFile.constData() );
-        int pos=tokenText.indexOf(fromFile);
+        int pos = tokenText.indexOf(fromFile);
         if(pos!=-1) {
-    //      printf("a match was made\n");
-            Token token = tokenStream->token();
-            addLogSourceEntry(tokenText + " -> " + toFile, tokenStream);
-            textReplacements.insert(toFile, token.position+pos, fromFile.size());
+            addLogSourceEntry(tokenText + " -> " + toFile, tokenContainer, index);
+            TokenEngine::Token token = tokenContainer.token(index);
+            textReplacements.insert(toFile, token.start + pos, fromFile.size());
             return true;
         }
     }
@@ -158,13 +171,14 @@ QByteArray GenericTokenReplacement::getReplaceKey()
     return QByteArray(oldToken);
 }
 
-bool GenericTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
+bool GenericTokenReplacement::doReplace(const TokenContainer &tokenContainer,
+                            int index, TextReplacements &textReplacements)
 {
-    QByteArray tokenText=tokenStream->currentTokenText();
-    if(tokenText==oldToken){
-        Token token = tokenStream->token();
-        addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
-        textReplacements.insert(newToken, token.position, tokenText.size());
+    QByteArray tokenText = tokenContainer.text(index);
+    if(tokenText == oldToken){
+        addLogSourceEntry(tokenText + " -> " + newToken, tokenContainer, index);
+        TokenEngine::Token token = tokenContainer.token(index);
+        textReplacements.insert(newToken, token.start, token.length);
         return true;
     }
     return false;
@@ -187,36 +201,33 @@ QByteArray ClassNameReplacement::getReplaceKey()
     in a qualified name, we check if qualified name will be replaced by a porting rule.
     If so, we don't do the class name replacement.
 */
-bool ClassNameReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
+bool ClassNameReplacement::doReplace(const TokenContainer &tokenContainer, int index, TextReplacements &textReplacements)
 {
-    QByteArray tokenText = tokenStream->currentTokenText();
-    if(tokenText!=oldToken)
+    QByteArray tokenText = tokenContainer.text(index);
+    if(tokenText != oldToken)
         return false;
 
-    int replaceTokenIndex = tokenStream->cursor();
-    QualifiedNameParser nameParser(tokenStream, tokenStream->cursor());
+    QualifiedNameParser nameParser(tokenContainer, index);
     if(nameParser.isPartOfQualifiedName() &&
        nameParser.peek(QualifiedNameParser::Right) != -1) {
         int nameTokenIndex = nameParser.peek(QualifiedNameParser::Right);
-        QByteArray name = tokenStream->tokenText(nameTokenIndex);
-        tokenStream->rewind(nameTokenIndex);
+        QByteArray name = tokenContainer.text(nameTokenIndex);
 
         TextReplacements textReplacements;
         QList<TokenReplacement*> tokenReplacements
             = PortingRules::instance()->getNoPreprocessPortingTokenRules();
         bool changed = false;
         foreach(TokenReplacement *tokenReplacement, tokenReplacements) {
-            changed = tokenReplacement->doReplace(tokenStream, textReplacements);
+            changed = tokenReplacement->doReplace(tokenContainer, nameTokenIndex, textReplacements);
             if(changed)
                 break;
         }
-        tokenStream->rewind(replaceTokenIndex);
         if(changed)
             return false;
     }
-    Token token = tokenStream->token();
-    addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
-    textReplacements.insert(newToken, token.position, tokenText.size());
+    addLogSourceEntry(tokenText + " -> " + newToken, tokenContainer, index);
+    TokenEngine::Token token = tokenContainer.token(index);
+    textReplacements.insert(newToken, token.start, token.length);
     return true;
 }
 
@@ -228,7 +239,7 @@ ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
 ,newToken(newToken)
 {}
 
-bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
+bool ScopedTokenReplacement::doReplace(const TokenContainer &tokenContainer, int index, TextReplacements &textReplacements)
 {
     if (oldToken.contains("::") == false) {
         addLogWarning("Warning: in ScopedTokenReplacement::doReplace(): token "
@@ -238,13 +249,13 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
 
     QByteArray oldTokenName = oldToken.mid(oldToken.lastIndexOf(':')+1);
     QByteArray oldTokenScope = oldToken.mid(0, oldToken.indexOf(':'));
-    Token token = tokenStream->token();
-    QByteArray tokenText=tokenStream->currentTokenText();
+    Token token = tokenContainer.token(index);
+    QByteArray tokenText = tokenContainer.text(index);
 
     if(tokenText != oldTokenName)
         return false;
 
-    QualifiedNameParser nameParser(tokenStream, tokenStream->cursor());
+    QualifiedNameParser nameParser(tokenContainer, index);
 
     if(nameParser.isPartOfQualifiedName() == false)
     {
@@ -258,8 +269,8 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
             && newTokenScope != "QValidator")
             return false;
 
-        addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
-        textReplacements.insert(newToken, token.position, tokenText.size());
+        addLogSourceEntry(tokenText + " -> " + newToken, tokenContainer, index);
+        textReplacements.insert(newToken, token.start, tokenText.size());
         return true;
     }
 
@@ -278,8 +289,8 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
         return false;
     }
 
-    Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
-    QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);
+    Token scopeToken = tokenContainer.token(scopeTokenIndex);
+    QByteArray scopeText = tokenContainer.text(scopeTokenIndex);
 
     if(scopeText != oldTokenScope) {
         // special case! if oldTokenScope is Qt, meaning the Qt class,
@@ -296,13 +307,13 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
     if (newToken.count("::") != 1 || newToken.contains("(") ) {
         //Spcecial cases, such as QIODevice::Offset -> Q_LONGLONG
         //or Qt::WType_Modal -> (Qt::WType_Dialog | Qt::WShowModal)
-        addLogSourceEntry(scopeText + "::" + tokenText + " -> " + newToken, tokenStream);
-        int beginPos = scopeToken.position;
-        int endPos = token.position - scopeToken.position + tokenText.size();
+        addLogSourceEntry(scopeText + "::" + tokenText + " -> " + newToken, tokenContainer, index);
+        int beginPos = scopeToken.start;
+        int endPos = token.start - scopeToken.start + token.length;
         textReplacements.insert(newToken, beginPos, endPos);
         return true;
     }
-    //The rest of the code expects that newToken contains one andv only one "::"
+    //The rest of the code expects that newToken contains one and only one "::"
     QByteArray newTokenName = newToken.mid(newToken.lastIndexOf(':')+1);
     QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
     if(newTokenScope == scopeText){
@@ -310,14 +321,14 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
         if (tokenText == newTokenName)
             //names are equal, no need to do anything
             return true;
-        addLogSourceEntry(tokenText + " -> " + newTokenName, tokenStream);
-        textReplacements.insert(newTokenName, token.position, tokenText.size());
+        addLogSourceEntry(tokenText + " -> " + newTokenName, tokenContainer, index);
+        textReplacements.insert(newTokenName, token.start, token.length);
         return true;
     } else {
         //replace scope and name
-        addLogSourceEntry(tokenText + " -> " + newToken, tokenStream);
-        textReplacements.insert(newTokenScope, scopeToken.position, scopeText.size());
-        textReplacements.insert(newTokenName, token.position, tokenText.size());
+        addLogSourceEntry(tokenText + " -> " + newToken, tokenContainer, index);
+        textReplacements.insert(newTokenScope, scopeToken.start, scopeToken.length);
+        textReplacements.insert(newTokenName, token.start, token.length);
         return true;
     }
 }
