@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#22 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#23 $
 **
 ** Definition of QTabBar class
 **
@@ -44,7 +44,7 @@ struct Q_EXPORT QTab
     QRect r;
     bool enabled;
     int id;
-    
+
     // an optional iconset
     QIconSet* iconset;
 };

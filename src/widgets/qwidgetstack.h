@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#17 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#18 $
 **
 ** Definition of QWidgetStack class
 **
@@ -49,6 +49,7 @@ public:
     void removeWidget( QWidget * );
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
     void show();
 
     QWidget * widget( int ) const;

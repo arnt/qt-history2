@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#4 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#5 $
 **
 ** Definition of QTabWidget class
 **
@@ -55,7 +55,8 @@ public:
 
     QWidget * currentPage() const;
 
-    virtual QSize	sizeHint() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
     enum TabPosition { Top, Bottom };
     TabPosition tabPosition() const;
@@ -82,6 +83,13 @@ private slots:
 private:
     QTabWidgetData *d;
     void setUpLayout(bool = FALSE);
+
+#if 1 //def TOTAL_LOSER_COMPILER
+    friend class QTabDialog;
+#else
+    friend void QTabDialog::setTabBar( QTabBar* );
+    friend void QTabBar* QTabDialog::tabBar() const;
+#endif
 };
 
 

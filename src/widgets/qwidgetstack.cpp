@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#40 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -438,6 +438,30 @@ QSize QWidgetStack::sizeHint() const
 	    if ( o->isWidgetType() )
 		if ( o != invisible )
 		    size = size.expandedTo( ((QWidget *)o)->sizeHint() );
+	}
+    }
+    if ( size.isNull() )
+	return QSize(100,50); //### paul did not like this one
+    return size;
+}
+
+
+/*!
+  \reimp
+*/
+QSize QWidgetStack::minimumSizeHint() const
+{
+    QSize size(0,0);
+    if ( children() ) {
+	const QObjectList * c = children();
+	QObjectListIt it( *c );
+	QObject * o;
+
+	while( (o=it.current()) != 0 ) {
+	    ++it;
+	    if ( o->isWidgetType() )
+		if ( o != invisible )
+		    size = size.expandedTo( ((QWidget *)o)->minimumSizeHint() );
 	}
     }
     if ( size.isNull() )

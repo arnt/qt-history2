@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#62 $
 **
 ** Implementation of QTabBar class
 **
@@ -162,10 +162,10 @@ int QTabBar::addTab( QTab * newTab )
 	ih = newTab->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
     }
     int h = QMAX( fm.height(), ih );
-    
+
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
-    
+
     h += vframe;
     if ( t ) {
 	QRect r( t->r );
@@ -276,6 +276,7 @@ QSize QTabBar::sizeHint() const
     }
 }
 
+
 /*!
   Specifies that this widget can use more, but is able to survive on
   less, horizontal space; and has a fixed height.
@@ -300,7 +301,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     QRect r( t->r );
 
     style().drawTab( p, this, t, selected );
-    
+
     p->setFont( font() );
 
     int iw = 0;
