@@ -42,6 +42,7 @@ unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qfiledialog.h \
+		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
@@ -177,7 +178,9 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgroupbox.h \
 		  $$WIDGETS_H/qgrid.h \
+		  $$WIDGETS_H/qhbuttongroup.h \
 		  $$WIDGETS_H/qheader.h \
+		  $$WIDGETS_H/qhgroupbox.h \
 		  $$WIDGETS_H/qhbox.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnumber.h \
@@ -212,6 +215,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
 		  $$WIDGETS_H/qvbox.h \
+		  $$WIDGETS_H/qvbuttongroup.h \
+		  $$WIDGETS_H/qvgroupbox.h \
 		  $$WIDGETS_H/qwellarray.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
@@ -351,7 +356,9 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgroupbox.cpp \
 		  widgets/qgrid.cpp \
+		  widgets/qhbuttongroup.cpp \
 		  widgets/qheader.cpp \
+		  widgets/qhgroupbox.cpp \
 		  widgets/qhbox.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlcdnumber.cpp \
@@ -386,6 +393,8 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qtooltip.cpp \
 		  widgets/qvalidator.cpp \
 		  widgets/qvbox.cpp \
+		  widgets/qvbuttongroup.cpp \
+		  widgets/qvgroupbox.cpp \
 		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
@@ -395,6 +404,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
+		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
