@@ -622,6 +622,9 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   }
 #endif  
 
+  /* FIXME FIXME FIXME! setting the depth to d breaks masking (for example radio buttons), however
+     setting it to 0 crashes lots of things, might need to setup a clut (as above) or something? 
+     **** This needs immediate attention!! *****/
   /* actually create world */
   e=NewGWorld( (GWorldPtr *)&hd, 0, &rect, data->clut ? &data->clut : NULL, 0, someflags );
 
