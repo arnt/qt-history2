@@ -34,13 +34,9 @@ getFontStruct( XftFont *font )
 }
 
 // ditto
-static inline bool getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
+static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
 {
-    if (XftGlyphExists(QPaintDevice::x11AppDisplay(), font, glyph)) {
-	XftTextExtents32(QPaintDevice::x11AppDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
-	return TRUE;
-    }
-    return FALSE;
+    XftTextExtents32(QPaintDevice::x11AppDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
 }
 
 
@@ -182,23 +178,15 @@ QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *a
     int ymax = 0;
     int xmax = 0;
     for (int i = 0; i < numGlyphs; i++) {
-	if ( getGlyphInfo( &xgi, _font, glyphs[i] ) ) {
-	    int x = overall.xoff + offsets[i].x - xgi.x;
-	    int y = overall.yoff + offsets[i].y - xgi.y;
-	    overall.x = QMIN( overall.x, x );
-	    overall.y = QMIN( overall.y, y );
-	    xmax = QMAX( xmax, x + xgi.width );
-	    ymax = QMAX( ymax, y + xgi.height );
-	    overall.xoff += advances[i].x;
-	    overall.yoff -= advances[i].y;
-	} else {
-	    int size = ascent();
-	    overall.x = QMIN(overall.x, overall.xoff );
-	    overall.y = QMIN(overall.y, overall.yoff - size );
-	    ymax = QMAX( ymax, overall.yoff );
-	    overall.xoff += advances[i].x;
-	    xmax = QMAX( xmax, overall.xoff );
-	}
+	getGlyphInfo( &xgi, _font, glyphs[i] );
+	int x = overall.xoff + offsets[i].x - xgi.x;
+	int y = overall.yoff + offsets[i].y - xgi.y;
+	overall.x = QMIN( overall.x, x );
+	overall.y = QMIN( overall.y, y );
+	xmax = QMAX( xmax, x + xgi.width );
+	ymax = QMAX( ymax, y + xgi.height );
+	overall.xoff += advances[i].x;
+	overall.yoff -= advances[i].y;
     }
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;
@@ -209,11 +197,8 @@ QGlyphInfo FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *a
 QGlyphInfo FontEngineXft::boundingBox( GlyphIndex glyph )
 {
     XGlyphInfo xgi;
-    if ( getGlyphInfo( &xgi, _font, glyph ) ) {
-	return QGlyphInfo( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
-    }
-    int size = ascent();
-    return QGlyphInfo( 0, size, size, size, size, 0 );
+    getGlyphInfo( &xgi, _font, glyph );
+    return QGlyphInfo( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
 }
 
 
@@ -260,9 +245,8 @@ bool FontEngineXft::canRender( const QChar *string,  int len )
     }
 
     bool allExist = TRUE;
-    XGlyphInfo xgi;
     for ( int i = 0; i < nglyphs; i++ ) {
-	if ( !getGlyphInfo( &xgi, _font, g[i] ) ) {
+	if ( !XftGlyphExists(QPaintDevice::x11AppDisplay(), _font, g[i]) ) {
 	    allExist = FALSE;
 	    break;
 	}
