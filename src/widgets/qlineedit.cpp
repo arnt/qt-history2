@@ -1184,7 +1184,8 @@ bool QLineEdit::event( QEvent * e )
 	     || ke->state() == Keypad ) {
 	    if ( ke->key() < Key_Escape ) {
 		ke->accept();
-	    } else if ( ke->state() == NoButton ) {
+	    } else if ( ke->state() == NoButton
+			|| ke->state() == ShiftButton ) {
 		switch ( ke->key() ) {
   		case Key_Delete:
   		case Key_Home:
