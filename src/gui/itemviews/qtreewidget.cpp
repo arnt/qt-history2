@@ -1739,11 +1739,12 @@ void QTreeWidget::sortItems(int column)
 }
 
 /*!
-  Clears the tree widget by removing all of its items.
+  Clears the tree widget by removing all of its items and selections.
 */
 
 void QTreeWidget::clear()
 {
+    selectionModel()->clear();
     d->model()->clear();
 }
 

@@ -1468,11 +1468,12 @@ void QTableWidget::removeColumn(int column)
 }
 
 /*!
-  Removes all items in the view.
+  Removes all items and selections in the view.
 */
 
 void QTableWidget::clear()
 {
+    selectionModel()->clear();
     d->model()->clear();
 }
 

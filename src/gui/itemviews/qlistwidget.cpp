@@ -1009,10 +1009,11 @@ void QListWidget::ensureItemVisible(const QListWidgetItem *item)
 }
 
 /*!
-  Removes all items in the view.
+  Removes all items and selections in the view.
 */
 void QListWidget::clear()
 {
+    selectionModel()->clear();
     d->model()->clear();
 }
 
