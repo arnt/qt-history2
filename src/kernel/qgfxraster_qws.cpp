@@ -5516,7 +5516,7 @@ variable pixel for drawing points, lines and rectangles.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::useBrush()
 {
-    if(depth==32) {
+    if(depth==32||depth==24) {
 	pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
 	      | (cbrush.color().blue());
     } else if(depth==16) {
@@ -5541,7 +5541,7 @@ variable pixel for drawing points, lines and rectangles.
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::usePen()
 {
-    if(depth==32) {
+    if(depth==32||depth==24) {
 	pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
 	      | (cpen.color().blue());
     } else if(depth==16) {
