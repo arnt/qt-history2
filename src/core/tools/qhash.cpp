@@ -234,7 +234,7 @@ void QHashData::free()
     \class QHash
     \brief The QHash class is a generic container that provides a hash-table-based dictionary.
 
-    QHash\<Key, T\> is one of Qt's \l{generic container classes}. It
+    QHash\<Key, T\> is one of Qt's generic \l{container classes}. It
     stores (key, value) pairs and provides very fast lookup of the
     value associated with a key.
 
@@ -280,8 +280,7 @@ void QHashData::free()
     \endcode
 
     If there is no item with the specified key in the hash, these
-    functions return a \l{default-constructed value}, and in the
-    operator[]() case, a new key--value pair is inserted.
+    functions return a \l{default-constructed value}.
 
     If you want to check whether the hash contains a certain key, use
     contains():
@@ -333,19 +332,15 @@ void QHashData::free()
     Here's the same code, but using an \l{STL-style iterator} this time:
 
     \code
-	QHash<QString, int>::ConstIterator it = hash.constBegin();
+	QHash<QString, int>::const_iterator it = hash.constBegin();
         while (it != hash.constEnd()) {
 	    cout << it.key() << ": " << it.value() << endl;
 	    ++it;
         }
     \endcode
 
-    QHash is unordered so an iterator's sequence cannot be assumed to
-    be predictable. If ordering by key is required they use QMap.
-    Alternatively, if ordering is only needed occasionally, or for
-    small hashes, calling keys(), sorting the resulting list, and
-    iterating over the hash based on the list of sorted keys might
-    prove sufficient.
+    QHash is unordered, so an iterator's sequence cannot be assumed
+    to be predictable. If ordering by key is required, use a QMap.
 
     Normally, a QHash allows only one value per key. If you call
     insert() with a key that already exists in the QHash, the
@@ -373,7 +368,7 @@ void QHashData::free()
     and iterate from there:
 
     \code
-	QHash<QString, int>::Iterator it = hash.find("plenty");
+	QHash<QString, int>::iterator it = hash.find("plenty");
         while (it != hash.end() && it.key() == "plenty") {
 	    cout << it.value() << endl;
 	    ++it;
@@ -442,12 +437,6 @@ void QHashData::free()
 
 	#endif // EMPLOYEE_H
     \endcode
-    As the example shows, a qHash() function need not be difficult to
-    implement since we can build on the qHash() functions that Qt
-    provides. Here we've relied on Qt's global qHash(const QString&)
-    to give us a hash value for the employee's name, and XORed this
-    with the day they were born to help produce unique hashes for
-    people with the same name.
 
     The qHash() function computes a numeric value based on a key. It
     can use any algorithm imaginable, as long as it always returns
@@ -457,6 +446,11 @@ void QHashData::free()
     attempt to return different hash values for different keys to the
     largest extent possible.
 
+    In the example above, we've relied on Qt's global qHash(const
+    QString&) to give us a hash value for the employee's name, and
+    XOR'ed this with the day they were born to help produce unique
+    hashes for people with the same name.
+
     Internally, QHash uses a hash table to perform lookups. Unlike Qt
     3's QDict, which needed to be initialized with a prime number,
     QHash's hash table automatically grows and shrinks to provide fast
@@ -464,7 +458,7 @@ void QHashData::free()
     size of the hash table by calling reserve() if you already know
     approximately how many items the QHash will contain, but this isn't
     necessary to obtain good performance. You can also call capacity()
-    to retreive the hash table's size.
+    to retrieve the hash table's size.
 
     \sa QMap
 */
@@ -544,7 +538,7 @@ void QHashData::free()
 
 /*! \fn bool QHash::operator!() const
 
-    ### needed?
+    \internal
 */
 
 /*! \fn QHash::operator QSafeBool() const
@@ -573,18 +567,14 @@ void QHashData::free()
 
     \code
 	QHash<QString, int> hash;
-        hash.reserve(5000);
-	for (int i = 0; i < 5000; ++i)
+        hash.reserve(20000);
+	for (int i = 0; i < 20000; ++i)
 	    hash.insert(keys[i], values[i]);
     \endcode
-#### Jasmin: 5000 is not huge to my mind; if reserve() is applicable
-on something that only has 5000 entries I'd use the word "big"; if you
-only really need reserve for > 10000 then I'd use 10000 in the example
-and stick with "huge"
 
     Ideally, \a size should be slightly more than the maximum number
-    of items expected in the hash. \a size doesn't have to be prime
-    since QHash will use a prime number internally anyway. If \a size
+    of items expected in the hash. \a size doesn't have to be prime,
+    because QHash will use a prime number internally anyway. If \a size
     is an underestimate, the worse that will happen is that the QHash
     will be a bit slower.
 
@@ -649,7 +639,7 @@ and stick with "huge"
     the value associated with it.
 
     If the item does not exist in the hash, the function simply
-    returns a \l{default-constructed} value. If there are multiple
+    returns a \l{default-constructed value}. If there are multiple
     items for \a key in the hash, only the most recently inserted one
     is removed.
 
@@ -669,11 +659,11 @@ and stick with "huge"
     Returns the value associated with the key \a key.
 
     If the hash contains no item with key \a key, the function
-    returns a \l{default-constructed} value. If there are multiple
+    returns a \l{default-constructed value}. If there are multiple
     items for \a key in the hash, the value of the most recently
     inserted one is returned.
 
-    \sa contains() operator[]()
+    \sa values(), contains(), operator[]()
 */
 
 /*! \fn const T QHash::value(const Key &key, const T &defaultValue) const
@@ -690,7 +680,7 @@ and stick with "huge"
     reference.
 
     If the hash contains no item with key \a key, the function inserts
-    a \l{default-constructed} value into the hash with key \a key, and
+    a \l{default-constructed value} into the hash with key \a key, and
     returns a reference to it. If the hash contains multiple items
     with key \a key, this function returns the most recently inserted
     value.
@@ -707,12 +697,11 @@ and stick with "huge"
 
 /*! \fn QList<Key> QHash::keys() const
 
-    Returns a list of all the keys in the hash, in an arbitrary order.
-    The order is the same as that used by values().
-### Jasmin: I don't like us commiting to "the order they're stored in
-in the hash" because that limits us and reveals an internal detail
-that I don't think's appropriate: from the user's point of view the
-ordering is arbitrary.
+    Returns a list of all the keys in the hash, in an arbitrary
+    order. Keys that occur multiple times in the hash also occur
+    multiple times in the list.
+
+    The order is guaranteed to be the same as that used by values().
 
     \sa values()
 */
@@ -720,10 +709,10 @@ ordering is arbitrary.
 /*! \fn QList<T> QHash::values() const
 
     Returns a list of all the values in the hash, in an arbitrary
-    order. The order is the same as that used by keys(). For keys that
-    have \link insertMulti() multiple values\endlink, only the most
-    recent value is included in the list.
-### Jasmin: what about insertMulti()'s values? I've guessed.
+    order. If a key is associated multiple values, all of its values
+    will be in the list, and not just the most recently inserted one.
+
+    The order is guaranteed to be the same as that used by keys().
 
     \sa keys()
 */
@@ -736,7 +725,7 @@ ordering is arbitrary.
     from the most recently inserted to the least recently inserted
     one.
 
-    \sa insertMulti()
+    \sa count(), insertMulti()
 */
 
 /*! \fn int QHash::count(const Key &key) const
@@ -753,62 +742,57 @@ ordering is arbitrary.
     Same as size().
 */
 
-/*! \fn QHash::Iterator QHash::begin()
+/*! \fn QHash::iterator QHash::begin()
 
     Returns a \l{STL-style iterator} pointing to the first item in
-    the hash. (First means the first key in the hash's arbitrary
-    internal ordering.)
+    the hash.
 
     \sa constBegin(), end()
 */
 
-/*! \fn QHash::ConstIterator QHash::begin() const
+/*! \fn QHash::const_iterator QHash::begin() const
 
     \overload
 */
 
-/*! \fn QHash::ConstIterator QHash::constBegin() const
+/*! \fn QHash::const_iterator QHash::constBegin() const
 
     Returns a const \l{STL-style iterator} pointing to the first item
-    in the hash. (First means the first key in the hash's arbitrary
-    internal ordering.)
+    in the hash.
 
     \sa begin(), constEnd()
 */
 
-/*! \fn QHash::Iterator QHash::end()
+/*! \fn QHash::iterator QHash::end()
 
-    Returns a \l{STL-style iterator} pointing to the imaginary "item"
-    after the last item in the hash. (Last means the last key in the
-    hash's arbitrary internal ordering.)
-
+    Returns a \l{STL-style iterator} pointing to the imaginary item
+    after the last item in the hash.
 
     \sa begin(), constEnd()
 */
 
-/*! \fn QHash::ConstIterator QHash::end() const
+/*! \fn QHash::const_iterator QHash::end() const
 
     \overload
 */
 
-/*! \fn QHash::ConstIterator QHash::constEnd() const
+/*! \fn QHash::const_iterator QHash::constEnd() const
 
     Returns a const \l{STL-style iterator} pointing to the imaginary
-    "item" after the last item in the hash. (Last means the last key
-    in the hash's arbitrary internal ordering.)
+    item after the last item in the hash.
 
     \sa constBegin(), end()
 */
 
-/*! \fn Iterator QHash::erase(Iterator it)
+/*! \fn QHash::iterator QHash::erase(iterator it)
 
-    Removes the item (key and values) associated with the iterator \a
-    it from the hash.
+    Removes the (key, value) pair associated with the iterator \a it
+    from the hash.
 
     \sa remove()
 */
 
-/*! \fn Iterator QHash::find(const Key &key)
+/*! \fn QHash::iterator QHash::find(const Key &key)
 
     Returns an iterator pointing to the item with key \a key in the
     hash.
@@ -825,22 +809,22 @@ ordering is arbitrary.
     \code
 	QHash<QString, int> hash;
         ...
-	QHash<QString, int>::Iterator it = hash.find("HDR");
+	QHash<QString, int>::const_iterator it = hash.find("HDR");
         while (it != hash.end() && it.key() == "HDR") {
 	    cout << it.value() << endl;
 	    ++it;
         }
     \endcode
 
-    \sa value() values()
+    \sa value(), values()
 */
 
-/*! \fn ConstIterator QHash::find(const Key &key) const
+/*! \fn QHash::const_iterator QHash::find(const Key &key) const
 
     \overload
 */
 
-/*! \fn Iterator QHash::insert(const Key &key, const T &value)
+/*! \fn QHash::iterator QHash::insert(const Key &key, const T &value)
 
     Inserts a new item with the key \a key and a value of \a value.
 
@@ -853,7 +837,7 @@ ordering is arbitrary.
     \sa insertMulti()
 */
 
-/*! \fn Iterator QHash::insertMulti(const Key &key, const T &value)
+/*! \fn QHash::iterator QHash::insertMulti(const Key &key, const T &value)
 
     Inserts a new item with the key \a key and a value of \a value.
 
@@ -861,11 +845,6 @@ ordering is arbitrary.
     function will simply create a new one. (This behavior is
     different from insert(), which overwrites the value of an
     existing item.)
-### Jasmin: I'm confused. I thought that if I use insertMulti() on a
-key that already exists my value will be pushed on top of the stack of
-values associated with that value, and that every _key_ is always
-unique in a hash. The text above implies that there could be multiple
-identical keys.
 
     \sa insert(), values()
 */
@@ -873,8 +852,8 @@ identical keys.
 /*! \fn QHash<Key, T> &QHash::operator+=(const QHash<Key, T> &other)
 
     Inserts all the items in the \a other hash into this hash. If a
-    key is common to both hashes, the value from the \a other hash
-    will overwrite the value in this hash.
+    key is common to both hashes, the resulting hash will contain the
+    key multiple times.
 
     \sa insertMulti()
 */
@@ -883,8 +862,7 @@ identical keys.
 
     Returns a hash that contains all the items in this hash in
     addition to all the items in \a other. If a key is common to both
-    hashes, the value from the \a other hash will be the one used in
-    the returned hash.
+    hashes, the resulting hash will contain the key multiple times.
 
     \sa insertMulti()
 */
@@ -909,17 +887,118 @@ identical keys.
     \internal
 */
 
-/*! \class QHash::Iterator
+/*! \class QHash::iterator
+    \brief The QHash::iterator class provides an STL-style non-const iterator for QHash.
 
-    ###
+    QHash provides both \l{STL-style iterators} and \l{Java-style
+    iterators}. The STL-style iterators are more low-level and more
+    cumbersome to use; in exchange, they are slightly faster and, for
+    developers who already know STL, have the advantage of
+    familiarity.
+
+    QHash::iterator allows you to iterate over a QHash and to modify
+    the value (but not the key) stored in a hash. If you want to
+    iterate over a const QHash, you need to use
+    QHash::const_iterator. It is generally a good practice to use
+    QHash::const_iterator on a non-const QHash as well, unless you
+    change the QHash through the iterator. This will result in
+    slightly faster code and in increased code readability.
+
+    The default QHash::iterator constructor creates an uninitialized
+    iterator. You must initialize it using a QHash function like
+    QHash::begin(), QHash::end(), and QHash::find() before you can
+    start iterating. Here's a typical loop that prints all the (key,
+    value) pairs stored in a hash:
+
+    \code
+	QHash<QString, int> hash;
+        hash.insert("January", 1);
+        hash.insert("February", 2);
+        ...
+        hash.insert("December", 12);
+
+        QHash<QString, int>::iterator i;
+        for (i = hash.begin(); i != hash.end(); ++i)
+	    cout << i.key() << ": " << i.value() << endl;
+    \endcode
+
+    Unlike QMap, which orders its items by key, QHash stores its
+    items in an apparently random order. The only guarantee is that
+    items that share the same key (because they were inserted using
+    QHash::insertMulti()) will appear consecutively, from the most
+    recently to the less recently inserted value.
+
+    Let's see a few examples of things we can do with a
+    QHash::iterator that we cannot do with a QHash::const_iterator.
+    Here's an example that increments every value stored in the QHash
+    by 2:
+
+    \code
+	QHash<QString, int>::iterator i;
+        for (i = hash.begin(); i != hash.end(); ++i)
+	    i.value() += 2;
+    \endcode
+
+    Here's an example that removes all the items whose key is a
+    string that starts with an underscore character:
+
+    \code
+	QHash<QString, int>::iterator i = hash.begin();
+        while (i != hash.end()) {
+	    if (i.key().startsWith("_"))
+		i = hash.erase(i);
+	    else
+		++i;
+        }
+    \endcode
+
+    The call to QHash::erase() removes the item pointed to by the
+    iterator from the hash, and returns an iterator to the next item.
+    Here's another correct way of removing an item while iterating:
+
+    \code
+	QHash<QString, int>::iterator i;
+        while (i != hash.end()) {
+	    QHash<QString, int>::iterator prev = i;
+	    ++i;
+            if (prev.key().startsWith("_"))
+		hash.erase(prev);
+        }
+    \endcode
+
+    It might be tempting to write code like this:
+
+    \code
+	// WRONG
+        while (i != hash.end()) {
+	    if (i.key().startsWith("_"))
+		hash.erase(i);
+	    ++i;
+        }
+    \endcode
+
+    However, this will potentially crash in \c{++i}, because \c i is
+    a dangling iterator after the call to erase().
+
+    Multiple iterators can be used on the same hash. However, be
+    aware that any modification performed directly on the QHash has
+    the potential of changing the order in which the items are stored
+    in the hash drastically, as they might cause QHash to rehash its
+    internal data structure. There is one notable exception:
+    QHash::erase(). This function can safely be called while
+    iterating, and won't affect the order of items in the hash. If
+    you need to keep iterators over a long period of time, we
+    recommend that you use QMap rather than QHash.
+
+    \sa QHash::const_iterator, QHashMutableIterator
 */
 
-/*! \fn QHash::Iterator::operator Node *() const
+/*! \fn QHash::iterator::operator Node *() const
 
     \internal
 */
 
-/*! \fn QHash::Iterator::Iterator()
+/*! \fn QHash::iterator::iterator()
 
     Creates an unitialized iterator.
 
@@ -928,12 +1007,12 @@ identical keys.
     value to it before using it.
 */
 
-/*! \fn QHash::Iterator::Iterator(void *node)
+/*! \fn QHash::iterator::iterator(void *node)
 
     \internal
 */
 
-/*! \fn const Key &QHash::Iterator::key() const
+/*! \fn const Key &QHash::iterator::key() const
 
     Returns the current item's key as a const reference.
 
@@ -944,7 +1023,7 @@ identical keys.
     \sa value()
 */
 
-/*! \fn T &QHash::Iterator::value() const
+/*! \fn T &QHash::iterator::value() const
 
     Returns a non-const reference to the current item's value.
 
@@ -956,10 +1035,10 @@ identical keys.
 	    it.value() = "Bonjour";
     \endcode
 
-    \sa key() operator*()
+    \sa key(), operator*()
 */
 
-/*! \fn T &QHash::Iterator::operator*() const
+/*! \fn T &QHash::iterator::operator*() const
 
     Returns a non-const reference to the current item's value.
 
@@ -968,7 +1047,7 @@ identical keys.
     \sa key()
 */
 
-/*! \fn bool QHash::Iterator::operator==(const Iterator &other)
+/*! \fn bool QHash::iterator::operator==(const iterator &other)
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -976,7 +1055,7 @@ identical keys.
     \sa operator!=()
 */
 
-/*! \fn bool QHash::Iterator::operator!=(const Iterator &other)
+/*! \fn bool QHash::iterator::operator!=(const iterator &other)
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
@@ -984,33 +1063,26 @@ identical keys.
     \sa operator==()
 */
 
-/*! \fn QHash::Iterator &QHash::Iterator::operator++()
+/*! \fn QHash::iterator &QHash::iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the hash and returns an iterator to the new current
-    item. If there are no more items QHash::end() is returned.
+    item.
 
     Calling this function on QHash::end() leads to undefined results.
 
     \sa operator--()
 */
 
-/*! \fn QHash::Iterator QHash::Iterator::operator++(int)
+/*! \fn QHash::iterator QHash::iterator::operator++(int)
 
     \overload
-
-    The postfix ++ operator (\c{it++}) advances the iterator to the
-    next item in the hash and returns an iterator to the previously
-    current item.
-
-    Calling this function on QHash::end() leads to undefined results.
 */
 
-/*! \fn QHash::Iterator &QHash::Iterator::operator--()
+/*! \fn QHash::iterator &QHash::iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator pointing to the new current item.
-    If there are no more items QHash::begin() is returned.
 
     Calling this function on QHash::begin() leads to undefined
     results.
@@ -1018,29 +1090,69 @@ identical keys.
     \sa operator++()
 */
 
-/*! \fn QHash::Iterator QHash::Iterator::operator--(int)
+/*! \fn QHash::iterator QHash::iterator::operator--(int)
 
     \overload
-
-    The postfix -- operator (\c{it--}) makes the preceding item
-    current and returns an iterator pointing to the previously
-    current item.
-
-    Calling this function on QHash::begin() leads to undefined
-    results.
 */
 
-/*! \class QHash::ConstIterator
+/*! \class QHash::const_iterator
 
-    ###
+    \brief The QHash::const_iterator class provides an STL-style const iterator for QHash.
+
+    QHash provides both \l{STL-style iterators} and \l{Java-style
+    iterators}. The STL-style iterators are more low-level and more
+    cumbersome to use; in exchange, they are slightly faster and, for
+    developers who already know STL, have the advantage of
+    familiarity.
+
+    QHash::const_iterator allows you to iterate over a QHash. If you
+    want to modify the QHash as you iterate over it, you must use
+    QHash::iterator instead. It is generally a good practice to use
+    QHash::const_iterator on a non-const QHash as well, unless you
+    change the QHash through the iterator. This will result in
+    slightly faster code and in increased code readability.
+
+    The default QHash::const_iterator constructor creates an
+    uninitialized iterator. You must initialize it using a QHash
+    function like QHash::constBegin(), QHash::constEnd(), and
+    QHash::find() before you can start iterating. Here's a typical
+    loop that prints all the (key, value) pairs stored in a hash:
+
+    \code
+	QHash<QString, int> hash;
+        hash.insert("January", 1);
+        hash.insert("February", 2);
+        ...
+        hash.insert("December", 12);
+
+        QHash<QString, int>::const_iterator i;
+        for (i = hash.begin(); i != hash.end(); ++i)
+	    cout << i.key() << ": " << i.value() << endl;
+    \endcode
+
+    Unlike QMap, which orders its items by key, QHash stores its
+    items in an apparently random order. The only guarantee is that
+    items that share the same key (because they were inserted using
+    QHash::insertMulti()) will appear consecutively, from the most
+    recently to the less recently inserted value.
+
+    Multiple iterators can be used on the same hash. However, be
+    aware that any modification performed directly on the QHash has
+    the potential of changing the order in which the items are stored
+    in the hash drastically, as they might cause QHash to rehash its
+    internal data structure. If you need to keep iterators over a
+    long period of time, we recommend that you use QMap rather than
+    QHash.
+
+    \sa QHash::iterator, QHashIterator
 */
 
-/*! \fn QHash::ConstIterator::operator Node *() const
+/*! \fn QHash::const_iterator::operator Node *() const
 
     \internal
 */
 
-/*! \fn QHash::ConstIterator::ConstIterator()
+/*! \fn QHash::const_iterator::const_iterator()
 
     Creates an uinitialized iterator.
 
@@ -1049,31 +1161,31 @@ identical keys.
     value to it before using it.
 */
 
-/*! \fn QHash::ConstIterator::ConstIterator(void *node)
+/*! \fn QHash::const_iterator::const_iterator(void *node)
 
     \internal
 */
 
-/*! \fn QHash::ConstIterator::ConstIterator(const Iterator &other)
+/*! \fn QHash::const_iterator::const_iterator(const iterator &other)
 
     Constructs a copy of \a other.
 */
 
-/*! \fn const Key &QHash::ConstIterator::key() const
+/*! \fn const Key &QHash::const_iterator::key() const
 
     Returns the current item's key.
 
     \sa value()
 */
 
-/*! \fn const T &QHash::ConstIterator::value() const
+/*! \fn const T &QHash::const_iterator::value() const
 
     Returns the current item's value.
 
-    \sa key() operator*()
+    \sa key(), operator*()
 */
 
-/*! \fn const T &QHash::ConstIterator::operator*() const
+/*! \fn const T &QHash::const_iterator::operator*() const
 
     Returns the current item's value.
 
@@ -1082,7 +1194,7 @@ identical keys.
     \sa key()
 */
 
-/*! \fn bool QHash::ConstIterator::operator==(const ConstIterator &other)
+/*! \fn bool QHash::const_iterator::operator==(const const_iterator &other)
 
     Returns true if \a other points to the same item as this
     iterator; otherwise returns false.
@@ -1090,7 +1202,7 @@ identical keys.
     \sa operator!=()
 */
 
-/*! \fn bool QHash::ConstIterator::operator!=(const ConstIterator &other)
+/*! \fn bool QHash::const_iterator::operator!=(const const_iterator &other)
 
     Returns true if \a other points to a different item than this
     iterator; otherwise returns false.
@@ -1098,33 +1210,26 @@ identical keys.
     \sa operator==()
 */
 
-/*! \fn QHash::ConstIterator QHash::ConstIterator::operator++()
+/*! \fn QHash::const_iterator QHash::const_iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the hash and returns an iterator to the new current
-    item. If there are no more items QHash::end() is returned.
+    item.
 
     Calling this function on QHash::end() leads to undefined results.
 
     \sa operator--()
 */
 
-/*! \fn QHash::ConstIterator QHash::ConstIterator::operator++(int)
+/*! \fn QHash::const_iterator QHash::const_iterator::operator++(int)
 
     \overload
-
-    The postfix ++ operator (\c{it++}) advances the iterator to the
-    next item in the hash and returns an iterator to the previously
-    current item.
-
-    Calling this function on QHash::end() leads to undefined results.
 */
 
-/*! \fn QHash::ConstIterator &QHash::ConstIterator::operator--()
+/*! \fn QHash::const_iterator &QHash::const_iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator pointing to the new current item.
-    If there are no more items QHash::begin() is returned.
 
     Calling this function on QHash::begin() leads to undefined
     results.
@@ -1132,16 +1237,9 @@ identical keys.
     \sa operator++()
 */
 
-/*! \fn QHash::ConstIterator QHash::ConstIterator::operator--(int)
+/*! \fn QHash::const_iterator QHash::const_iterator::operator--(int)
 
     \overload
-
-    The postfix -- operator (\c{it--}) makes the preceding item
-    current and returns an iterator pointing to the previously
-    current item.
-
-    Calling this function on QHash::begin() leads to undefined
-    results.
 */
 
 /*! \fn uint qHash(char key)
