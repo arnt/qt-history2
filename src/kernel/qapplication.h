@@ -241,7 +241,7 @@ private:
     void	     process_cmdline( int* argcptr, char ** argv );
 
 #if defined(QT_THREAD_SUPPORT)
-    QMutex qt_mutex;
+    static QMutex qt_mutex;
 #endif
 
     int		     app_argc;
