@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#40 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#41 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#41 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -651,11 +651,13 @@ void QMessageBox::adjustSize()
     label->adjustSize();
     int bw = mbd->numButtons * smax.width() + (mbd->numButtons-1)*border;
     int w = QMAX( bw, label->width() ) + 2*border;
+    int h = smax.height();
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )  {
 	mbd->iconLabel.adjustSize();
 	w += mbd->iconLabel.pixmap()->width() + border;
+	if ( label->height() < mbd->iconLabel.pixmap()->height() )
+	    h += mbd->iconLabel.pixmap()->height() - label->height();
     }
-    int h = smax.height();
     if ( label->height() )
 	h += label->height() + 3*border;
     else
