@@ -60,16 +60,6 @@ protected:
     void invalidate(const QRect &r);
     void invalidate(const QRegion &r);
 
-    QTextBlock findBlock(int pos) const;
-    QTextBlock begin() const;
-    QTextBlock end() const;
-
-    QTextFrame *frameAt(int pos) const;
-    QTextFrame *rootFrame() const;
-
-    QTextObject *object(int objectIndex) const;
-    QTextObject *objectForFormat(const QTextFormat &) const;
-
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
 

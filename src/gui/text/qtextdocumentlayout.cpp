@@ -158,9 +158,10 @@ public:
 int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
     QTextFrameData *fd = data(frame);
+    const QTextDocument *doc = q->document();
 
     LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point;
-    if (!fd->boundingRect.contains(point) && frame != q->rootFrame()) {
+    if (!fd->boundingRect.contains(point) && frame != q->document()->rootFrame()) {
         LDEBUG << "outside";
         return -1;
     }
@@ -168,14 +169,14 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
 
     QPoint p = point - fd->boundingRect.topLeft();
 
-    QTextBlock it = q->findBlock(frame->firstPosition());
-    QTextBlock end = q->findBlock(frame->lastPosition()+1);
+    QTextBlock it = doc->findBlock(frame->firstPosition());
+    QTextBlock end = doc->findBlock(frame->lastPosition()+1);
 
     QList<QTextFrame *> children = frame->childFrames();
     int pos = -1;
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        QTextBlock s = q->findBlock(c->firstPosition());
+        QTextBlock s = doc->findBlock(c->firstPosition());
         while (it != s) {
             pos = hitTest(it, p, accuracy);
             if (pos != -1)
@@ -185,7 +186,7 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
         pos = hitTest(c, p, accuracy);
         if (pos != -1)
             goto end;
-        it = q->findBlock(c->lastPosition()+1);
+        it = doc->findBlock(c->lastPosition()+1);
     }
     while (it != end) {
         pos = hitTest(it, p, accuracy);
@@ -197,8 +198,8 @@ int QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPoint &point, 
     DEC_INDENT;
     if (pos == -1 && accuracy == QText::FuzzyHit) {
         int p = frame->lastPosition();
-        QTextBlock it = q->findBlock(frame->lastPosition());
-        if (it == q->end())
+        QTextBlock it = doc->findBlock(frame->lastPosition());
+        if (it == doc->end())
             it = it.previous();
         QRect r = it.layout()->rect();
         QPoint relative(point.x(), r.bottom() - 1);
@@ -253,7 +254,7 @@ int QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
     QTextBlockFormat blockFormat = bl.blockFormat();
     int indent = blockFormat.indent();
 
-    QTextObject *object = q->objectForFormat(blockFormat);
+    QTextObject *object = q->document()->objectForFormat(blockFormat);
     if (object)
         indent += object->format().toListFormat().indent();
 
@@ -286,19 +287,20 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         painter->restore();
     }
 
-    QTextBlock it = q->findBlock(frame->firstPosition());
-    QTextBlock end = q->findBlock(frame->lastPosition()+1);
+    const QTextDocument *doc = q->document();
+    QTextBlock it = doc->findBlock(frame->firstPosition());
+    QTextBlock end = doc->findBlock(frame->lastPosition()+1);
 
     QList<QTextFrame *> children = frame->childFrames();
     for (int i = 0; i < children.size(); ++i) {
         QTextFrame *c = children.at(i);
-        QTextBlock s = q->findBlock(c->firstPosition());
+        QTextBlock s = doc->findBlock(c->firstPosition());
         while (it != s) {
             drawBlock(off, painter, context, it);
             it = it.next();
         }
         drawFrame(off, painter, context, children.at(i));
-        it = q->findBlock(c->lastPosition()+1);
+        it = doc->findBlock(c->lastPosition()+1);
     }
     while (it != end) {
         drawBlock(off, painter, context, it);
@@ -338,7 +340,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         ++nSel;
     }
 
-    QTextObject *object = q->objectForFormat(bl.blockFormat());
+    QTextObject *object = q->document()->objectForFormat(bl.blockFormat());
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, s);
 
@@ -372,7 +374,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextCharFormat charFormat = bl.charFormat();
     QFontMetrics fontMetrics(charFormat.font());
-    QTextObject *object = q->objectForFormat(blockFormat);
+    QTextObject *object = q->document()->objectForFormat(blockFormat);
     QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
     QString itemText;
@@ -446,7 +448,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 void QTextDocumentLayoutPrivate::relayoutDocument()
 {
     widthUsed = 0;
-    q->documentChange(0, 0, q->end().position() + q->end().length());
+    const QTextDocument *doc = q->document();
+    q->documentChange(0, 0, doc->end().position() + doc->end().length());
 }
 
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
@@ -583,9 +586,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
 void QTextDocumentLayoutPrivate::layoutFlow(LayoutStruct *layoutStruct, int from, int to)
 {
+    const QTextDocument *doc = q->document();
 //     qDebug("layoutFlow (%d--%d)", from, to);
-    QTextBlock it = q->findBlock(from);
-    QTextBlock end = q->findBlock(to+1);
+    QTextBlock it = doc->findBlock(from);
+    QTextBlock end = doc->findBlock(to+1);
 
     while (it != end) {
 //         qDebug("layouting block at pos %d", it.position());
@@ -714,7 +718,7 @@ QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
 
 void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 {
-    QTextFrame *frame = rootFrame();
+    QTextFrame *frame = document()->rootFrame();
     d->drawFrame(QPoint(), painter, context, frame);
 }
 
@@ -735,14 +739,14 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
 
     // mark all frames between f_start and f_end as dirty
-    markFrames(rootFrame(), from, from + length);
+    markFrames(document()->rootFrame(), from, from + length);
 
-    d->layoutFrame(rootFrame(), from, from + length);
+    d->layoutFrame(document()->rootFrame(), from, from + length);
 }
 
 int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
-    QTextFrame *f = rootFrame();
+    QTextFrame *f = document()->rootFrame();
     return d->hitTest(f, point, accuracy);
 }
 
@@ -754,7 +758,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
     if (!handler.component)
         return;
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(f));
+    QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
     if (frame)
         pos = frame->format().position();
 
@@ -775,7 +779,7 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
     if (!handler.component)
         return;
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(f));
+    QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
     if (frame)
         pos = frame->format().position();
     if (pos == QTextFrameFormat::InFlow)
@@ -818,7 +822,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
-    QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(f));
+    QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
     QRect r = rect;
     if (frame) {
 #if 0
@@ -838,8 +842,10 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
 int QTextDocumentLayout::totalHeight() const
 {
     int height = 0;
-    QTextBlock it = begin();
-    for (; it != end(); it = it.next())
+    const QTextDocument *doc = document();
+    QTextBlock it = doc->begin();
+    QTextBlock end = doc->end();
+    for (; it != end; it = it.next())
         height = qMax(height, it.layout()->rect().bottom());
 
     return height;

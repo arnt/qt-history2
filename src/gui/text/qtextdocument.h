@@ -16,6 +16,7 @@ class QTextCursor;
 class QTextObject;
 class QTextFormat;
 class QTextFrame;
+class QTextBlock;
 
 namespace QText
 {
@@ -74,6 +75,13 @@ public:
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;
+
+    QTextObject *object(int objectIndex) const;
+    QTextObject *objectForFormat(const QTextFormat &) const;
+
+    QTextBlock findBlock(int pos) const;
+    QTextBlock begin() const;
+    QTextBlock end() const;
 
 signals:
     void contentsChanged();

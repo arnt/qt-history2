@@ -414,6 +414,33 @@ QTextFrame *QTextDocument::rootFrame() const
     return d->rootFrame();
 }
 
+QTextObject *QTextDocument::object(int objectIndex) const
+{
+    return d->objectForIndex(objectIndex);
+}
+
+QTextObject *QTextDocument::objectForFormat(const QTextFormat &f) const
+{
+    return d->objectForFormat(f);
+}
+
+
+QTextBlock QTextDocument::findBlock(int pos) const
+{
+    return QTextBlock(docHandle(), d->blockMap().findNode(pos));
+}
+
+QTextBlock QTextDocument::begin() const
+{
+    return QTextBlock(docHandle(), d->blockMap().begin().n);
+}
+
+QTextBlock QTextDocument::end() const
+{
+    return QTextBlock(docHandle(), 0);
+}
+
+
 /*!
   \internal
 

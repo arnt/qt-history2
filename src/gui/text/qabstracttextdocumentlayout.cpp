@@ -114,37 +114,6 @@ void QAbstractTextDocumentLayout::invalidate(const QRegion & /* r */)
 {
 }
 
-QTextBlock QAbstractTextDocumentLayout::findBlock(int pos) const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return QTextBlock(pieceTable, pieceTable->blockMap().findNode(pos));
-}
-
-QTextBlock QAbstractTextDocumentLayout::begin() const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return QTextBlock(pieceTable, pieceTable->blockMap().begin().n);
-}
-
-QTextBlock QAbstractTextDocumentLayout::end() const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return QTextBlock(pieceTable, 0);
-}
-
-QTextFrame *QAbstractTextDocumentLayout::frameAt(int pos) const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return pieceTable->frameAt(pos);
-}
-
-QTextFrame *QAbstractTextDocumentLayout::rootFrame() const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return pieceTable->rootFrame();
-}
-
-
 int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
     QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
@@ -158,18 +127,6 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
     return pieceTable->formatCollection()->charFormat(idx);
 }
 
-
-QTextObject *QAbstractTextDocumentLayout::object(int objectIndex) const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return pieceTable->objectForIndex(objectIndex);
-}
-
-QTextObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
-{
-    QTextDocumentPrivate *pieceTable = qt_cast<QTextDocument *>(parent())->docHandle();
-    return pieceTable->objectForFormat(f);
-}
 
 
 const QTextDocument *QAbstractTextDocumentLayout::document() const
