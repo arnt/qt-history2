@@ -651,7 +651,7 @@ void QToolTip::setPalette( const QPalette &palette )
   tips on regions that can move within the widget (most often because
   the widget's contents can scroll).
 
-  \a parent is widget you want to add dynamic tool tips to and \a
+  \a parent is the widget you want to add dynamic tool tips to and \a
   group (optional) is the tool tip group they should belong to.
 
   \sa maybeTip().
@@ -839,7 +839,7 @@ void QToolTip::tip( const QRect & rect, const QString &text,
 
 
 /*!
-  Removes all tool tips for this widget immediately.
+  Removes all tool tips for this tooltip's parent widget immediately.
 */
 
 void QToolTip::clear()

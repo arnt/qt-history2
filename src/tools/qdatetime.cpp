@@ -1344,7 +1344,7 @@ QDateTime QDateTime::currentDateTime()
   \relates QDate
   Writes the date to the stream.
 
-  Serialization format: [Q_UINT32], Julian day.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QDate &d )
@@ -1355,6 +1355,8 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
 /*!
   \relates QDate
   Reads a date from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QDate &d )
@@ -1369,7 +1371,7 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
   \relates QTime
   Writes a time to the stream.
 
-  Serialization format: [Q_UINT32], milliseconds since midnight.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QTime &t )
@@ -1380,6 +1382,8 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
 /*!
   \relates QTime
   Reads a time from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QTime &t )
@@ -1394,7 +1398,7 @@ QDataStream &operator>>( QDataStream &s, QTime &t )
   \relates QDateTime
   Writes a datetime to the stream.
 
-  Serialization format: [QDate QTime].
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
@@ -1405,6 +1409,8 @@ QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
 /*!
   \relates QDateTime
   Reads a datetime from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QDateTime &dt )

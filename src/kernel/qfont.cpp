@@ -1241,6 +1241,8 @@ QString QFont::key() const
 /*!
   \relates QFont
   Writes a font to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QFont &f )
@@ -1263,6 +1265,8 @@ QDataStream &operator<<( QDataStream &s, const QFont &f )
 /*!
   \relates QFont
   Reads a font from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QFont &f )

@@ -54,5 +54,5 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
     int argc = 0;
     QArray<pchar> argv( 8 );
     qWinMain( instance, prevInstance, qstrdup(cmdParam), cmdShow, argc, argv );
-    return main( argc, argv.data() ); 
+    return main( argc, argv.data() );
 }

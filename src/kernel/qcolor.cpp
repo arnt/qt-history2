@@ -732,7 +732,7 @@ void QColor::setLazyAlloc( bool enable )
   \relates QColor
   Writes a color object to the stream.
 
-  Serialization format: RGB value serialized as an Q_UINT32.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )
@@ -746,6 +746,8 @@ QDataStream &operator<<( QDataStream &s, const QColor &c )
 /*!
   \relates QColor
   Reads a color object from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QColor &c )

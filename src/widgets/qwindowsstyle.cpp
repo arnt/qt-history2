@@ -465,17 +465,17 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     //qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     // #### DO SUNKEN!
     if ( sunken )
-	drawWinShades( p, w-2-16, 2, 16, h-4,
+	drawWinShades( p, x+w-2-16, y+2, 16, h-4,
 		       g.dark(), g.dark(), g.button(), g.button(), 
 		       fill ? fill : &g.brush( QColorGroup::Button ) );
     else
-	drawWinShades( p, w-2-16, 2, 16, h-4,
+	drawWinShades( p, x+w-2-16, y+2, 16, h-4,
 		       g.midlight(), g.shadow(), g.light(), g.dark(), 
 		       fill ? fill : &g.brush( QColorGroup::Button ) );
 
 
     drawArrow( p, QStyle::DownArrow, sunken,
-	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled,
+	       x+w-2-16+ 2, y+2+ 2, 16- 4, h-4- 4, g, enabled,
 	       fill ? fill : &g.brush( QColorGroup::Button ) );
 
 }

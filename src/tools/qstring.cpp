@@ -14792,7 +14792,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Writes a string to the stream.
 
-  Output format: isNull() ? [0xffffffff] : [length (Q_UINT32) data...]
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QString &str )
@@ -14838,6 +14838,8 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 /*!
   \relates QString
   Reads a string from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QString &str )

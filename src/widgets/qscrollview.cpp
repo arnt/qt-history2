@@ -175,7 +175,7 @@ struct QScrollViewData {
 		// clipped_viewport still covers viewport
 		if ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) )
 		    clipped_viewport->repaint( clipped_viewport->visibleRect(),
-			       !clipped_viewport->testWFlags(Qt::WRepaintNoErase) );
+			       !clipped_viewport->testWFlags(Qt::WResizeNoErase) );
 		} else {
 		    // Re-center
 		    int nx = ( viewport.width() - clipped_viewport->width() ) / 2;
@@ -418,6 +418,36 @@ QScrollView is clicked - and the only such part is the "corner" (if
 you don't set a cornerWidget()) and the frame, everything else being
 covered up by the viewport, clipper, or scrollbars.
 
+When you contruct a QScrollView, some of the widget flags apply to the
+viewport(), instead of being sent to the QWidget constructor for the
+QScrollView. This applies to \c WResizeNoErase, \c WNorthWestGravity,
+\c WRepaintNoErase and \c WPaintClever. See Qt::WidgetFlags for
+documentation about these flags.  Here are some examples: <ul>
+
+<li> An image manipulation widget would use \c
+WResizeNoErase|WNorthWestGravity, because the widget draws all pixels
+itself and when the size increases, it only needs a paint event for
+the new part, since the old part remains unchanged.  
+
+<li>A word processing widget might use \c WResizeNoErase and repaint
+itself line by line to get a less flickery resizing. If the widget is
+in a mode where no text justification can take place, it might use \c
+WNorthWestGravity too, so that it would only get a repaint for the
+newly visible parts.
+
+<li>A scrolling game widget where the background scrolls as the
+characters move might use \c WRepaintNoErase (in addition to \c
+WNorthWestGravity and \c WResizeNoErase) so that the window system
+background does not flash in and out during scrolling.
+</ul>
+
+\warning WResizeNoErase is currently set by default, i.e. you always
+have to clear the background manually in scrollview subclasses. This
+will change in a future version of Qt, and we recommend specifying the
+flag explicitly.
+
+
+
 <img src=qscrollview-m.png> <img src=qscrollview-w.png>
 */
 
@@ -440,13 +470,14 @@ covered up by the viewport, clipper, or scrollbars.
   </ul>
 */
 
-/*!
-Constructs a QScrollView.
+/*!  
+  
+  Constructs a QScrollView with a \a parent, a \a name and widget
+  flags \a f.
 
-If you intend to add child widgets, you may see improved refresh
-if you include \c WPaintClever in the widgets flags, \a f.  \c WPaintClever
-as well as \c WNorthWestGravity and \c WRepaintNoErase
-is propagated to the viewport() widget.
+  The widget flags \c WNorthWestGravity, \c WRepaintNoErase and \c
+  WPaintClever are propagated to the viewport() widget. The other
+  widget flags are propagated to the parent constructor as usual.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :

@@ -235,7 +235,7 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
     if ( !ok )
 	return QValidator::Invalid;
     else if ( tmp < b || tmp > t )
-	return QValidator::Valid;
+	return QValidator::Intermediate;
     else
 	return QValidator::Acceptable;
 }
@@ -353,9 +353,9 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
-    QRegExp empty( QString::fromLatin1("^ *-?.? *$") );
+    QRegExp empty( QString::fromLatin1("^ *-?\\.? *$") );
     if ( empty.match( input ) >= 0 )
-	return QValidator::Valid;
+	return QValidator::Intermediate;
     bool ok = TRUE;
     double tmp = input.toDouble( &ok );
     if ( !ok ) {
@@ -366,10 +366,10 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	    QString mantissa = input.left( eeePos );
 	    tmp = input.toDouble( &ok );
 	    if ( ok )
-		return QValidator::Valid;
+		return QValidator::Intermediate;
 	}
 	else if ( eeePos == 0 ) {
-	    return QValidator::Valid;
+	    return QValidator::Intermediate;
 	}
 	else {
 	    return QValidator::Invalid;
@@ -384,11 +384,11 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	while( input[j].isDigit() )
 	    j++;
 	if ( j - i > d )
-	    return QValidator::Valid;
+	    return QValidator::Intermediate;
     }
 
     if ( tmp < b || tmp > t )
-	return QValidator::Valid;
+	return QValidator::Intermediate;
     else
 	return QValidator::Acceptable;
 }

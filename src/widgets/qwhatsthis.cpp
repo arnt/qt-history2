@@ -378,6 +378,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		      kev->key() != Key_Meta )  // not a modifier key
 		leaveWhatsThisMode();
 
+	} else if ( e->type() == QEvent::MouseButtonDblClick ) {
+	    return TRUE;
 	}
 	break;
     case Inactive:

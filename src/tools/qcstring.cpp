@@ -327,8 +327,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
   \relates QByteArray
   Writes a byte array to a stream and returns a reference to the stream.
 
-  The serialization format is the byte array size (\c Q_UINT32) followed by
-  this number of bytes.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
@@ -339,6 +338,8 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 /*!
   \relates QByteArray
   Reads a byte array from a stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QByteArray &a )
@@ -1747,7 +1748,7 @@ QCString &QCString::operator+=( char c )
   \relates QCString
   Writes a string to the stream.
 
-  Output format: [length (Q_UINT32) data...]
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QCString &str )
@@ -1758,6 +1759,8 @@ QDataStream &operator<<( QDataStream &s, const QCString &str )
 /*!
   \relates QCString
   Reads a string from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QCString &str )

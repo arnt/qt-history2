@@ -558,11 +558,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
   \relates QBitArray
   Writes a bit array to a stream.
 
-  Serialization format:
-  <ol>
-  <li> The array size (Q_UINT32)
-  <li> The array bits, (size+7)/8 bytes
-  </ol>
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QBitArray &a )
@@ -577,6 +573,8 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 /*!
   \relates QBitArray
   Reads a bit array from a stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QBitArray &a )

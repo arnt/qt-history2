@@ -483,8 +483,7 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
   \relates QWMatrix
   Writes a matrix to the stream and returns a reference to the stream.
 
-  Serialization format: m11, m12, m21, m22, dx and dy are serialized as
-  \c double in the listed order.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
@@ -501,6 +500,8 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 /*!
   \relates QWMatrix
   Reads a matrix from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QWMatrix &m )

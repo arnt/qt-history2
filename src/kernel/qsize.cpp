@@ -290,7 +290,7 @@ void QSize::warningDivByZero()
   \relates QSize
   Writes the size to the stream and returns a reference to the stream.
 
-  Serialization format: [width (Q_INT32), height (Q_INT32)].
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QSize &sz )
@@ -305,6 +305,8 @@ QDataStream &operator<<( QDataStream &s, const QSize &sz )
 /*!
   \relates QSize
   Reads the size from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QSize &sz )

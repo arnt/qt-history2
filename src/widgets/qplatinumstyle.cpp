@@ -1104,8 +1104,8 @@ void QPlatinumStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
     // now the arrow button
 
     {
-	int xx = w-20;
-	int yy = 0;
+	int xx = x+w-20;
+	int yy = y;
 	int ww = 20;
 	int hh = h;
 	// the bright side

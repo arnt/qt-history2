@@ -139,8 +139,14 @@ void QRegion::exec( const QByteArray &buffer, int ver )
     int test_cnt = 0;
 #endif
     while ( !s.eof() ) {
-	int id;
-	s >> id;
+	Q_INT32 id;
+	if ( s.version() == 1 ) {
+	    int id_int;
+	    s >> id_int;
+	    id = id_int;
+	} else {
+	    s >> id;
+	}
 #if defined(CHECK_STATE)
 	if ( test_cnt > 0 && id != QRGN_TRANSLATE )
 	    qWarning( "QRegion::exec: Internal error" );
@@ -201,6 +207,8 @@ void QRegion::exec( const QByteArray &buffer, int ver )
   \relates QRegion
   Writes the region \a r to the stream \a s and returns a reference to 
   the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QRegion &r )
@@ -221,7 +229,7 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
 	}
 	else {
 	    s << (Q_UINT32)(4+4+16*a.size()); // 16: storage size of QRect
-	    s << (int)QRGN_RECTS;
+	    s << (Q_INT32)QRGN_RECTS;
 	    s << (Q_UINT32)a.size();
 	    for ( int i=0; i<(int)a.size(); i++ )
 		s << a[i];
@@ -234,6 +242,8 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
   \relates QRegion
   Reads a region from the stream \a s into \a r and returns a 
   reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QRegion &r )

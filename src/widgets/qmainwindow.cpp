@@ -1748,6 +1748,9 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     if ( !isDockEnabled( edge ) )
 	return;
 
+    if ( !isDockEnabled( edge ) )
+	return;
+
     // if the toolbar is just moved a bit (offset change), but the order in the dock doesn't change,
     // then don't do the hard work
     if ( relative == toolBar || ipos == QMainWindowPrivate::SameIndex ) {
@@ -1818,7 +1821,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    dl = d->hidden;
 	}
 
-	// if the dock couldn't be dound
+	// if the dock couldn't be found
 	if ( !dl ) {
 	    if ( edge != Minimized ) {
 		ct->oldDock = edge;
@@ -3054,7 +3057,7 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 
   The default is TRUE.
 
-  \sa setDockEnabled(), toolbarsMovable(), setOpaqueMoving()
+  \sa setDockEnabled(), toolBarsMovable(), setOpaqueMoving()
 */
 
 void QMainWindow::setToolBarsMovable( bool enable )
@@ -3072,7 +3075,7 @@ void QMainWindow::setToolBarsMovable( bool enable )
 /*!
   Returns whether or not the toolbars of this main window are movable.
 
-  \sa setToolbarsMovable()
+  \sa setToolBarsMovable()
 */
 
 bool QMainWindow::toolBarsMovable() const

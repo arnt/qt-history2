@@ -718,8 +718,7 @@ bool operator!=( const QRect &r1, const QRect &r2 )
 
   Writes a QRect to the stream and returns a reference to the stream.
 
-  Serialization format: [left (Q_INT32), top (Q_INT32), right (Q_INT32),
-  bottom (Q_INT32)].
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QRect &r )
@@ -737,6 +736,8 @@ QDataStream &operator<<( QDataStream &s, const QRect &r )
   \relates QRect
 
   Reads a QRect from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QRect &r )

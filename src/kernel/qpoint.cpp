@@ -324,7 +324,7 @@ void QPoint::warningDivByZero()
   \relates QPoint
   Writes a QPoint to the stream and returns a reference to the stream.
 
-  Serialization format: [x (Q_INT32), y (Q_INT32)].
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )
@@ -339,6 +339,8 @@ QDataStream &operator<<( QDataStream &s, const QPoint &p )
 /*!
   \relates QPoint
   Reads a QPoint from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPoint &p )

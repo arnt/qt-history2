@@ -975,7 +975,9 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 /*!
   \relates QPixmap
   Writes a pixmap to the stream as a PNG image.
+
   \sa QPixmap::save()
+  \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
@@ -996,6 +998,7 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
   \relates QPixmap
   Reads a pixmap from the stream.
   \sa QPixmap::load()
+  \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )

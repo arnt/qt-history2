@@ -3075,12 +3075,7 @@ bool QPen::operator==( const QPen &p ) const
   \relates QPen
   Writes a pen to the stream and returns a reference to the stream.
 
-  The serialization format is:
-  <ol>
-  <li> The pen style(s) (Q_UINT8)
-  <li> The pen width (Q_UINT8)
-  <li> The pen color (QColor)
-  </ol>
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
@@ -3095,6 +3090,8 @@ QDataStream &operator<<( QDataStream &s, const QPen &p )
 /*!
   \relates QPen
   Reads a pen from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
@@ -3419,12 +3416,7 @@ bool QBrush::operator==( const QBrush &b ) const
   \relates QBrush
   Writes a brush to the stream and returns a reference to the stream.
 
-  The serialization format is:
-  <ol>
-  <li> The brush style (Q_UINT8)
-  <li> The brush color (QColor)
-  <li> If style == \c CustomPattern: the brush pixmap (QPixmap)
-  </ol>
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
@@ -3438,6 +3430,8 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 /*!
   \relates QBrush
   Reads a brush from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )

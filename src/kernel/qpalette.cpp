@@ -818,24 +818,7 @@ bool QPalette::operator==( const QPalette &p ) const
   \relates QColorGroup
   Writes a color group to the stream.
 
-  Serialization format:
-  <ol>
-  <li> QBrush foreground
-  <li> QBrush button
-  <li> QBrush light
-  <li> QBrush midLight
-  <li> QBrush dark
-  <li> QBrush mid
-  <li> QBrush text
-  <li> QBrush brightText
-  <li> QBrush ButtonText
-  <li> QBrush base
-  <li> QBrush background
-  <li> QBrush shadow
-  <li> QBrush highlight
-  <li> QBrush highlightedText
-  </ol>
-  The colors are serialized in the listed order.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
@@ -858,6 +841,8 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 /*!
   \related QColorGroup
   Reads a color group from the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QColorGroup &g )
@@ -889,13 +874,7 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
   \relates QPalette
   Writes a palette to the stream and returns a reference to the stream.
 
-  Serialization format:
-  <ol>
-  <li> QColorGroup active
-  <li> QColorGroup disabled
-  <li> QColorGroup inactive
-  </ol>
-  The color groups are serialized in the listed order.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPalette &p )
@@ -937,6 +916,8 @@ void readV1ColorGroup( QDataStream &s, QColorGroup &g,
 /*!
   \relates QPalette
   Reads a palette from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPalette &p )

@@ -567,6 +567,8 @@ void QButtonGroup::moveFocus( int key )
 
 /*!  Returns a pointer to the selected radio button in this group, if
   one exists, or 0 if there is no selected radio button in this group.
+
+  <b>Warning: </b>In future versions of Qt, the selected toggle button will be returned.
 */
 
 QButton * QButtonGroup::selected()

@@ -412,9 +412,9 @@ template<class T>
 inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 {
     l.clear();
-    uint c;
+    Q_UINT32 c;
     s >> c;
-    for( uint i = 0; i < c; ++i )
+    for( Q_UINT32 i = 0; i < c; ++i )
     {
 	T t;
 	s >> t;
@@ -426,7 +426,7 @@ inline QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 template<class T>
 inline QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 {
-    s << l.count();
+    s << (Q_UINT32)l.count();
     QValueListConstIterator<T> it = l.begin();
     for( ; it != l.end(); ++it )
 	s << *it;

@@ -192,7 +192,7 @@ static QCString qt_rmWS( const char *src )
 }
 
 
-// Event functions, implemented in qapp_xxx.cpp
+// Event functions, implemented in qapplication_xxx.cpp
 
 int   qStartTimer( int interval, QObject *obj );
 bool  qKillTimer( int id );

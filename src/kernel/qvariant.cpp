@@ -1102,6 +1102,7 @@ void QVariant::save( QDataStream& s ) const
 
 /*!
   Reads a variant \a p from the stream \a s.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 QDataStream& operator>> ( QDataStream& s, QVariant& p )
 {
@@ -1111,6 +1112,7 @@ QDataStream& operator>> ( QDataStream& s, QVariant& p )
 
 /*!
   Writes a variant \a p to the stream \a s.
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 QDataStream& operator<< ( QDataStream& s, const QVariant& p )
 {

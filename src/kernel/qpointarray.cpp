@@ -134,6 +134,13 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 
 
 /*!
+  \fn QPointArray::~QPointArray()
+
+  Destructs the point array.
+*/
+
+
+/*!
   \fn QPointArray &QPointArray::operator=( const QPointArray &a )
 
   Assigns a shallow copy of \a a to this point array and returns a
@@ -941,11 +948,7 @@ QPointArray QPointArray::quadBezier() const
   \relates QPointArray
   Writes a point array to the stream and returns a reference to the stream.
 
-  The serialization format is:
-  <ol>
-  <li> The array size (Q_UINT32)
-  <li> The array points (QPoint)
-  </ol>
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QPointArray &a )
@@ -961,6 +964,8 @@ QDataStream &operator<<( QDataStream &s, const QPointArray &a )
 /*!
   \relates QPointArray
   Reads a point array from the stream and returns a reference to the stream.
+
+  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QPointArray &a )

@@ -1044,7 +1044,7 @@ void QHeader::setResizeEnabled( bool enable, int section )
     if ( section < 0 ) {
 	d->resize.fill( enable );
 	// and future ones...
-	d->clicks_default = enable;
+	d->resize_default = enable;
     } else if ( section < count() ) {
 	d->resize[ section ] = enable;
     }
