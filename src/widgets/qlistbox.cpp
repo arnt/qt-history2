@@ -1115,7 +1115,7 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
   \sa insertStrList()
 */
 
-void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index=-1 )
+void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index )
 {
     insertItem( new QListBoxPixmap(pixmap, text), index );
 }
