@@ -613,6 +613,14 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
         if (d->type == QVariant::KeySequence)
             return true;
         break;
+    case QVariant::Image:
+        return d->type == QVariant::Pixmap;
+    case QVariant::Pixmap:
+        return d->type == QVariant::Image;
+    case QVariant::ByteArray:
+        if (d->type == QVariant::Color)
+            return true;
+        break;
     case QVariant::String:
         if (d->type == QVariant::KeySequence || d->type == QVariant::Font || d->type == QVariant::Color)
             return true;
@@ -622,7 +630,7 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
     case QVariant::Font:
         return d->type == QVariant::String;
     case QVariant::Color:
-        return d->type == QVariant::String;
+        return d->type == QVariant::String || d->type == QVariant::ByteArray;
     default:
         break;
     }
