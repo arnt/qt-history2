@@ -6,6 +6,7 @@
 #include "qwidget.h"
 #include "qinputcontext_p.h"
 
+#include <stdlib.h>
 
 #if !defined(QT_NO_XIM)
 

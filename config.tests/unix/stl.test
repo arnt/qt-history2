@@ -2,20 +2,28 @@
 
 QMKSPEC=$1
 VERBOSE=$2
-
+SRCDIR=$3
+OUTDIR=$4
 
 # debuggery
 
 if [ "$VERBOSE" = "yes" ]
 then
-    echo "Testing STL support..."
+    echo "Testing STL support... ($*)"
 fi
 
 
 # ?
 
-cd $QTDIR/config.tests/unix
-$QTDIR/bin/qmake -nocache -spec "$QMKSPEC" stltest.pro -o Makefile >/dev/null 2>&1
+ABSPATH=
+if [ "$SRCDIR" != "$OUTDIR" ]
+then
+    ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/unix"
+fi
+
+test -d $OUTDIR/config.tests/unix || mkdir -p $OUTDIR/config.tests/unix
+$OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" "$ABSPATH" $SRCDIR/config.tests/unix/stltest.pro -o $OUTDIR/config.tests/unix/Makefile >/dev/null 2>&1
+cd $OUTDIR/config.tests/unix
 
 if [ "$VERBOSE" = "yes" ]; then
   make || exit 0

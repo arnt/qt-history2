@@ -58,7 +58,7 @@ then
 	exit 1
     fi
 
-    #qmake must be symlinked
+    # qmake must be symlinked
     for a in `find $relpath/qmake`
     do
        my_a=`echo $a | sed "s,^${relpath}/,${outpath}/,"`
@@ -1262,7 +1262,7 @@ fi
 if [ $STL = auto ]
 then
     STL=yes
-    $unixtests/stl.test $XQMAKESPEC $VERBOSE && STL=no
+    $unixtests/stl.test $XQMAKESPEC $VERBOSE $relpath $outpath && STL=no
 fi
 
 if [ "$QWS_DEPTHS" = prompted -a "$EMBEDDED" != no ]
@@ -1535,7 +1535,7 @@ else
 fi
 
 sed "s,\(INSTALL_BIN_DIR=\).*$,\1${QT_INSTALL_BINS}," Makefile >Makefile.tmp
-mv Makefile.tmp Makefile
+mv -f Makefile.tmp Makefile
 
 
 #do modules.h
