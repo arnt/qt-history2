@@ -353,6 +353,7 @@ public:
     RenameAction defaultRenameAction() const;
     bool isRenaming() const;
 
+    virtual void hideColumn( int column );
 
 public slots:
     virtual void clear();

@@ -7674,4 +7674,16 @@ void QListView::windowActivationChange( bool oldActive )
 	viewport()->update();
 }
 
+/*!
+    Hides the column specified at \a column.  This is a convenience function that 
+    calls setColumnWidth( column, 0 ).
+    
+    \sa setColumnWidth
+*/
+
+void QListView::hideColumn( int column )
+{
+    setColumnWidth( column, 0 );
+}
+
 #endif // QT_NO_LISTVIEW
