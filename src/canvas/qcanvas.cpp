@@ -1020,6 +1020,7 @@ void QCanvas::advance()
 }
 
 // Don't call this unless you know what you're doing.
+// p is in the content's co-ordinate example.
 /*!
   \internal
 */
@@ -1127,6 +1128,9 @@ void QCanvas::update()
 		QRect r = changeBounds(view->inverseWorldMatrix().map(area));
 		if ( !r.isEmpty() ) {
 		    QPainter p(view->viewport());
+		    // Translate to the coordinate system of drawViewArea().
+		    QPoint tl = view->contentsToViewport(QPoint(0,0));
+		    p.translate(tl.x(),tl.y());
 		    drawViewArea( view, &p, wm.map(r), dblbuf );
 		    doneareas.append(new QRect(r));
 		}
