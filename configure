@@ -326,8 +326,10 @@ while [ -n "$1" ]; do
 	;;
     #Qt Builtin/System style options
     -qt-*|-system-*|-no-*)
-	VAR=`echo $1 | sed "s,^-.*-\(.*\),\1,"`
-	VAL=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
+	VAR=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
+	VAL=`echo $1 | sed "s,^-\([^-]*\)-.*,\1,"`
+	echo "VAR=$VAR"
+	echo "VAL=$VAL"
 	;;
     #Options that cannot be generalized
     -embedded) 	
@@ -579,7 +581,7 @@ while [ -n "$1" ]; do
 	;;
     libpng)
 	[ "$VAL" = "yes" ] && VAL=qt
-	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
+	if [ "$VAL" = "no " ]; then
 	    echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
 	    CFG_PNG=no
 	fi
@@ -591,7 +593,7 @@ while [ -n "$1" ]; do
 	;;
     libmng)
 	[ "$VAL" = "yes" ] && VAL=qt
-	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
+	if [ "$VAL" = "no " ]; then
 	    echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
 	    CFG_MNG=no
 	fi
@@ -611,7 +613,7 @@ while [ -n "$1" ]; do
 	else
 	    UNKNOWN_OPT=yes
 	fi
-	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
+	if [ "$VAL" = "no " ]; then
 	    echo "-no-jpeg is left for compatibility, in the future please use -no-imgfmt-jpeg"
 	    CFG_JPEG=no
 	fi
