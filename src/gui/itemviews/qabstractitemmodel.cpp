@@ -1288,6 +1288,34 @@ QAbstractListModel::~QAbstractListModel()
 }
 
 /*!
+    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex(), QModelIndex::Type type = QModelIndex::View) const
+
+    Returns the index of the data in \a row and \a column with \a
+    parent, of the given \a type.
+
+    \sa parent()
+*/
+
+QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent,
+                                     QModelIndex::Type type) const
+{
+    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex();
+}
+
+/*!
+    \fn QModelIndex QAbstractListModel::parent(const QModelIndex &index) const
+
+    Returns the parent of the model item with the given \a index.
+
+    \sa index() hasChildren()
+*/
+
+QModelIndex QAbstractListModel::parent(const QModelIndex &) const
+{
+    return QModelIndex();
+}
+
+/*!
     \internal
 
     Returns the number of rows in the table with the given \a parent.
