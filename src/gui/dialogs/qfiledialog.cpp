@@ -268,6 +268,7 @@ public:
     void refresh();
     void setDirSorting(int spec);
     void setDirFilter(int spec);
+    void setSelectionMode(int mode);
 
     QDirModel *model;
     QGenericListView *lview;
@@ -389,20 +390,24 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 void QFileDialog::setFileMode(FileMode mode)
 {
     d->fileMode = mode;
-    
     QDir::FilterSpec spec;
     switch (mode) {
-    case Directory:
     case DirectoryOnly:
         d->fileType->clear();
         d->fileType->insertItem(QFileDialog::tr("Directories"));
         d->fileType->setEnabled(false);
+        d->setSelectionMode(QAbstractItemView::Single);
         spec = QDir::Dirs;
         break;
+    case Directory:
     case AnyFile:
     case ExistingFile:
+        d->setSelectionMode(QAbstractItemView::Single);
+        spec = QDir::All;
+        break;
     case ExistingFiles:
     default:
+        d->setSelectionMode(QAbstractItemView::Multi);
         spec = QDir::All;
     }
     
@@ -427,7 +432,28 @@ void QFileDialog::done(int result)
 
 void QFileDialog::accept()
 {
-    QDialog::accept();
+    QModelIndexList indices = d->lview->selectionModel()->selectedItems();
+    if (indices.count() < 1)
+        return; // nothing was selected
+    switch (d->fileMode) {
+    case DirectoryOnly:
+    case Directory:
+        if (d->model->isDir(indices.last()))
+            QDialog::accept();
+        return;
+    case ExistingFile:// FIXME: not supported, as we rely on selected files
+        qDebug("accept: ExistingFile is not supported yet");
+    case AnyFile:
+        if (!d->model->isDir(indices.last()))
+            QDialog::accept();
+        return;
+    case ExistingFiles:
+        for (int i = 0; i < indices.count(); ++i)
+            if (d->model->isDir(indices.last()))
+                return;
+        QDialog::accept();
+        return;
+    }
 }
 
 void QFileDialog::reject()
@@ -901,6 +927,12 @@ void QFileDialogPrivate::setDirFilter(int spec)
     setRoot(QModelIndex());
     model->setFilter(spec);
     setRoot(model->index(path));
+}
+
+void QFileDialogPrivate::setSelectionMode(int mode)
+{
+    lview->setSelectionMode(mode);
+    tview->setSelectionMode(mode);
 }
 
 /******************************************************************
