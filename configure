@@ -29,9 +29,11 @@ if [ "$relpath" != `pwd` ]; then
 
     #need a top level makefile, prefer gnu internally
     if [ -f $relpath/GNUmakefile ]; then
-	ln -f -s $relpath/GNUmakefile $outpath/Makefile
+	rm -f $relpath/GNUmakefile $outpath/Makefile
+	ln -s $relpath/GNUmakefile $outpath/Makefile
     elif [ -f $relpath/Makefile ]; then
-	ln -f -s $relpath/Makefile $outpath/Makefile
+	rm -f $relpath/GNUmakefile $outpath/Makefile
+	ln -s $relpath/Makefile $outpath/Makefile
     else
 	echo "No top level Makefile."
 	exit 1
@@ -48,15 +50,17 @@ if [ "$relpath" != `pwd` ]; then
 	   [ -d $a_dir ] || mkdir -p $a_dir
 	   case `basename $a` in
 	   *.o|*.d|GNUmakefile*|qmake) ;;
-	   *) ln -f -s $a $my_a ;;
+	   *) rm -f $my_a; ln -s $a $my_a ;;
 	   esac
        fi
     done
 
     # symlink the include directory
-    ln -f -s $relpath/include $outpath/include
+    rm -f $outpath/include
+    ln -s $relpath/include $outpath/include
     # symlink the doc directory
-    ln -f -s $relpath/doc $outpath/doc
+    rm -f $outpath/doc
+    ln -s $relpath/doc $outpath/doc
 
     #let qmake see qconfig/qmodules.h
     #binaries from qt
@@ -728,7 +732,8 @@ then
     exit 2
 fi
 # Link the platform include file into the include directory
-ln -f -s ${relpath}/mkspecs/${XPLATFORM}/qplatformdefs.h ${relpath}/include/qplatformdefs.h
+rm -f ${relpath}/include/qplatformdefs.h
+ln -s ${relpath}/mkspecs/${XPLATFORM}/qplatformdefs.h ${relpath}/include/qplatformdefs.h
 
 # Auto-detect opengl support
 if echo $MODULES | grep opengl >/dev/null 
