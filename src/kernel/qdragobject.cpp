@@ -252,7 +252,7 @@ static const char * const link_xpm[] = {
 #ifndef QT_NO_DRAGANDDROP
 
 // the universe's only drag manager
-static QDragManager * manager = 0;
+export QDragManager * qt_dnd_manager = 0;
 
 
 QDragManager::QDragManager()
@@ -266,8 +266,8 @@ QDragManager::QDragManager()
     object = 0;
     dragSource = 0;
     dropWidget = 0;
-    if ( !manager )
-	manager = this;
+    if ( !qt_dnd_manager )
+	qt_dnd_manager = this;
     beingCancelled = FALSE;
     restoreCursor = FALSE;
     willDrop = FALSE;
@@ -280,7 +280,7 @@ QDragManager::~QDragManager()
     if ( restoreCursor )
 	QApplication::restoreOverrideCursor();
 #endif
-    manager = 0;
+    qt_dnd_manager = 0;
     delete [] pm_cursor;
 }
 
@@ -300,7 +300,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 {
     d = new QDragObjectData();
 #ifndef QT_NO_DRAGANDDROP
-    if ( !manager && qApp )
+    if ( !qt_dnd_manager && qApp )
 	(void)new QDragManager();
 #endif
 }
@@ -314,8 +314,8 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 QDragObject::~QDragObject()
 {
 #ifndef QT_NO_DRAGANDDROP
-    if ( manager && manager->object == this )
-	manager->cancel( FALSE );
+    if ( qt_dnd_manager && qt_dnd_manager->object == this )
+	qt_dnd_manager->cancel( FALSE );
 #endif
     delete d;
 }
@@ -341,8 +341,8 @@ void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 {
     d->pixmap = pm;
     d->hot = hotspot;
-    if ( manager && manager->object == this )
-	manager->updatePixmap();
+    if ( qt_dnd_manager && qt_dnd_manager->object == this )
+	qt_dnd_manager->updatePixmap();
 }
 
 /*!
@@ -473,8 +473,8 @@ void QDragObject::dragLink()
 */
 bool QDragObject::drag( DragMode mode )
 { // ### In Qt 1.x?  huh?
-    if ( manager )
-	return manager->drag( this, mode );
+    if ( qt_dnd_manager )
+	return qt_dnd_manager->drag( this, mode );
     else
 	return FALSE;
 }
@@ -1525,7 +1525,7 @@ bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
 */
 QWidget* QDropEvent::source() const
 {
-    return manager ? manager->dragSource : 0;
+    return qt_dnd_manager ? qt_dnd_manager->dragSource : 0;
 }
 #endif
 
