@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#11 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#11 $";
 #endif
 
 
@@ -34,7 +34,7 @@ width.
 The different frame types are \c NoFrame, \c Box, \c Panel, \c HLine and
 \c VLine.  Notice that the two latter ones specify lines, not rectangles.
 
-The frame styles are \c Plain, \c Raised and \c Sunken.  See setFrame()
+The frame styles are \c Plain, \c Raised and \c Sunken.  See setFrameStyle()
 for a description of frame types and frame styles.
 
 The frame width is the width of the frame border.
@@ -45,7 +45,7 @@ the border, that uses a third color to get a special 3D effect.
 Example of use:
 \code
   QFrame *f = new QFrame;
-  f->setFrame( QFrame::Panel | QFrame::Sunken );
+  f->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 \endcode
 */
 
@@ -61,37 +61,37 @@ QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
     initMetaObject();
     frect  = QRect( 0, 0, 0, 0 );
     fstyle = NoFrame;				// set default frame style
-    fwidth = 1;
+    lwidth = 1;
     mwidth = 0;
 }
 
 /*!
 Returns the geometry of the rectangle inside the frame.
-
 \sa frameRect().
 */
 
 QRect QFrame::contentsRect() const
 {
     QRect r = frameRect();
-    int tw = fwidth+mwidth;			// total width
-    r.setRect( r.x()+tw, r.y()+tw, r.width()-tw*2, r.height()-tw*2 );
+    int   w = frameWidth();			// total width
+    r.setRect( r.x()+w, r.y()+w, r.width()-w*2, r.height()-w*2 );
     return r;
 }
 
 
 /*!
-\fn int QFrame::frame() const
+\fn int QFrame::frameStyle() const
 Returns the frame type and style.
-\sa setFrame().
+\sa setFrameStyle().
 */
 
 /*!
-Sets the frame type and style to \e f.
+Sets the frame style to \e style.
 
-The \e f is the bitwise OR between a frame type and a style.
+The \e style is the bitwise OR between a frame geometry style and a frame
+shadow style.
 
-The frame types are:
+The geometry styles are:
 <ul>
 <li> \c NoFrame draws nothing.
 <li> \c Box draws a rectangular box.
@@ -100,7 +100,7 @@ The frame types are:
 <li> \c VLine draws a vertical line (horizontally centered).
 </ul>
 
-The frame styles are:
+The shadow styles are:
 <ul>
 <li> \c Plain draws using the palette foreground color.
 <li> \c Raised draws a 3D raised line using the palette light and dark colors.
@@ -108,31 +108,34 @@ The frame styles are:
 </ul>
 
 \c Raised and \c Sunken will draw an additional middle line if a mid-line
-width greater than 0 was specified.
+width greater than 0 was specified.  The palette mid color is used for
+drawing middle lines.
 
-\sa frame(), QPalette.
+\sa frameStyle(), QPalette.
 */
 
-void QFrame::setFrame( int f )
+void QFrame::setFrameStyle( int style )
 {
-    fstyle = (short)f;
+    fstyle = (short)style;
+    updateFrameWidth();
 }
 
 /*!
-\fn int QFrame::frameWidth() const
-Returns the frame width.
+\fn int QFrame::lineWidth() const
+Returns the line width.
 \sa setFrameWidth().
 */
 
 /*!
 Sets the frame width to \e fw.
 
-\sa frameWidth()
+\sa lineWidth()
 */
 
-void QFrame::setFrameWidth( int fw )
+void QFrame::setLineWidth( int fw )
 {
-    fwidth = fw;
+    lwidth = fw;
+    updateFrameWidth();
 }
 
 /*!
@@ -150,12 +153,75 @@ Sets the width of the middle line to \e mw.
 void QFrame::setMidLineWidth( int mw )
 {
     mwidth = mw;
+    updateFrameWidth();
+}
+
+
+void QFrame::updateFrameWidth()
+{
+    int	type  = fstyle & MType;
+    int	style = fstyle & MStyle;
+
+    fwidth = -1;
+
+    switch ( type ) {
+
+        case NoFrame:
+	    fwidth = 0;
+	    break;
+
+	case Box:
+	    switch ( style ) {
+		case Plain:
+		    fwidth = lwidth;
+		    break;
+		case Raised:
+		case Sunken:
+		    fwidth = lwidth*2 + mwidth;
+		    break;
+	    }
+	    break;
+
+	case Panel:
+	    switch ( style ) {
+		case Plain:
+		case Raised:
+		case Sunken:
+		    fwidth = lwidth;
+		    break;
+	    }
+	    break;
+
+	case HLine:
+	case VLine:
+	    switch ( style ) {
+		case Plain:
+		    fwidth = lwidth;
+		    break;
+		case Raised:
+		case Sunken:
+		    fwidth = 2*lwidth + mwidth;
+		    break;
+	    }
+	    break;
+    }
+    if ( fwidth == -1 ) {			// invalid style?
+	fwidth = 0;
+#if defined(CHECK_RANGE)
+	warning( "QFrame::updateFrameWidth: Internal error" );
+#endif
+    }
 }
 
 
 /*!
-Returns the frame rectangle.
+\fn int QFrame::frameWidth() const
+Returns the width of the frame that is drawn.
+*/
 
+
+/*!
+Returns the frame rectangle.
 \sa setFrameRect()
 */
 
@@ -219,13 +285,13 @@ void QFrame::drawFrame( QPainter *p )
 	case Box:
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadePanel( r, fg, fg, fwidth );
+		    paint->drawShadePanel( r, fg, fg, lwidth );
 		    break;
 		case Raised:
-		    paint->drawShadeRect( r, light, dark, fwidth, mid, mwidth);
+		    paint->drawShadeRect( r, light, dark, lwidth, mid, mwidth);
 		    break;
 		case Sunken:
-		    paint->drawShadeRect( r, dark, light, fwidth, mid, mwidth);
+		    paint->drawShadeRect( r, dark, light, lwidth, mid, mwidth);
 		    break;
 	    }
 	    break;
@@ -233,13 +299,13 @@ void QFrame::drawFrame( QPainter *p )
 	case Panel:
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadePanel( r, fg, fg, fwidth );
+		    paint->drawShadePanel( r, fg, fg, lwidth );
 		    break;
 		case Raised:
-		    paint->drawShadePanel( r, light, dark, fwidth );
+		    paint->drawShadePanel( r, light, dark, lwidth );
 		    break;
 		case Sunken:
-		    paint->drawShadePanel( r, dark, light, fwidth );
+		    paint->drawShadePanel( r, dark, light, lwidth );
 		    break;
 	    }
 	    break;
@@ -256,15 +322,15 @@ void QFrame::drawFrame( QPainter *p )
 	    }
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadeLine( p1, p2, fg, fg, fwidth, fg, mwidth );
+		    paint->drawShadeLine( p1, p2, fg, fg, lwidth, fg, mwidth );
 		    break;
 		case Raised:
 		    paint->drawShadeLine( p1, p2, light, dark,
-					  fwidth, mid, mwidth );
+					  lwidth, mid, mwidth );
 		    break;
 		case Sunken:
 		    paint->drawShadeLine( p1, p2, dark, light,
-					  fwidth, mid, mwidth );
+					  lwidth, mid, mwidth );
 		    break;
 	    }
 	    break;
