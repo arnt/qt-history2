@@ -183,7 +183,7 @@ QMimeSourceFactory::QMimeSourceFactory() :
     setExtensionType("html", "text/html;charset=iso8859-1");
     setExtensionType("txt", "text/plain");
     setExtensionType("xml", "text/xml;charset=UTF-8");
-    setExtensionType("jpg", "image/jpeg"); // support missspelled jpeg files
+    setExtensionType("jpg", "image/jpeg"); // support misspelled jpeg files
 }
 
 /*!
@@ -253,7 +253,7 @@ static QMimeSource* data_internal(const QString& abs_name,
   encode any Unicode characters without resorting to encoding definitions
   inside the file.
 
-  Any file data that is not recognized will be retreived as a QMimeSource
+  Any file data that is not recognized will be retrieved as a QMimeSource
   providing the "application/octet-stream" MIME type, which is just
   uninterpreted binary data.
   You can add further extensions or change existing ones with
