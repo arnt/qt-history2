@@ -137,7 +137,7 @@
   example</a> contains a typical complete main() that does the usual
   things with QApplication.
 
-  Since the QApplication object does so much initialization, it is
+  Since the QApplication object does so much initialization, it
   <b>must</b> be created before any other objects related to the user
   interface are created.
 
@@ -1705,7 +1705,7 @@ QFontMetrics QApplication::fontMetrics()
   event loop and returns from the call to exec(). The exec() function
   returns \a retcode.
 
-  By convention, \a retcode 0 means success, any non-zero value
+  By convention, \a retcode 0 means success. Any non-zero value
   indicates an error.
 
   Note that unlike the C library function of the same name, this
