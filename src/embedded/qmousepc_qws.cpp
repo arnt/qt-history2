@@ -95,7 +95,7 @@ public:
 	int n = tryData();
 	if ( n > 0 ) {
 	    if ( n<nbuf )
-		memcpy( buffer, buffer+n, nbuf-n );
+		memmove( buffer, buffer+n, nbuf-n );
 	    nbuf -= n;
 	    return pbstate == bstate ? Motion : Button;
 	}
@@ -549,6 +549,13 @@ void QWSPcMouseHandlerPrivate::openDevices()
 	    sub[nsub++] = new QWSPcMouseSubHandler_intellimouse(fd);
 	    notify(fd);
 	}
+	fd = open( "/dev/input/mice", O_RDWR | O_NDELAY );
+	if ( fd >= 0 ) {
+	    sub[nsub++] = new QWSPcMouseSubHandler_intellimouse(fd);
+	    notify(fd);
+	    qDebug( "/dev/input/mice fd %d #%d", fd, nsub-1 );
+	}
+
 	char fn[] = "/dev/ttyS?";
 	for (int ch='0'; ch<='3'; ch++) {
 	    fn[9] = ch;
@@ -596,6 +603,7 @@ void QWSPcMouseHandlerPrivate::readMouseData(int fd)
 		    switch ( h.useData() ) {
 		      case QWSPcMouseSubHandler::Button:
 			sendEvent(h);
+			break;
 		      case QWSPcMouseSubHandler::Insufficient:
 			goto breakbreak;
 		      case QWSPcMouseSubHandler::Motion:
