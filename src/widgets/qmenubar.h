@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#20 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#21 $
 **
 ** Definition of QMenuBar class
 **
@@ -32,9 +32,9 @@ public:
 
     int		heightForWidth(int) const;
 
-    enum { Never=0, InWindowsStyle=1 };
-    int		separatorUsage() const;
-    void	setSeparatorUsage( int when );
+    enum	Separator { Never=0, InWindowsStyle=1 };
+    Separator 	separator() const;
+    void	setSeparator( Separator when );
 
 signals:
     void	activated( int itemId );

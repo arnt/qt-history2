@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#76 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#76 $");
 
 
 /*!
@@ -324,6 +324,7 @@ bool QMenuBar::tryMouseEvent( QPopupMenu *popup, QMouseEvent *e )
     return TRUE;
 }
 
+
 void QMenuBar::tryKeyEvent( QPopupMenu *, QKeyEvent *e )
 {
     event( e );
@@ -343,20 +344,21 @@ void QMenuBar::openActPopup()
     if ( actItem < 0 )
 	return;
     QPopupMenu *popup = mitems->at(actItem)->popup();
-    if ( popup ) {
-	QRect  r = itemRect( actItem );
-	QPoint pos = r.bottomLeft() + QPoint(0,1);
-	if ( popup->badSize )
-	    popup->updateSize();
-	pos = mapToGlobal(pos);
-	int sh = QApplication::desktop()->height();
-	int ph = popup->height();
-	if ( pos.y() + ph > sh ) {
-	    pos = mapToGlobal( r.topLeft() );
-	    pos.ry() -= (QCOORD)ph;
-	}
-	popup->popup( pos );
+    if ( !popup )
+	return;
+
+    QRect  r = itemRect( actItem );
+    QPoint pos = r.bottomLeft() + QPoint(0,1);
+    if ( popup->badSize )
+	popup->updateSize();
+    pos = mapToGlobal(pos);
+    int sh = QApplication::desktop()->height();
+    int ph = popup->height();
+    if ( pos.y() + ph > sh ) {
+	pos = mapToGlobal( r.topLeft() );
+	pos.ry() -= (QCOORD)ph;
     }
+    popup->popup( pos );
 }
 
 /*!
@@ -577,6 +579,7 @@ int QMenuBar::itemAtPos( const QPoint &pos )
 /*# QT_VERSION 200
   Move the flag for separator usage down from QMenuData to QMenuBar.
 */
+
 /*!
   When a menubar is used above an unframed widget, it may look better
   with a separating line when displayed with \link QWidget::style()
@@ -587,17 +590,17 @@ int QMenuBar::itemAtPos( const QPoint &pos )
 
   The default is QMenuBar::Never.
 */
-void QMenuBar::setSeparatorUsage( int when )
+void QMenuBar::setSeparator( Separator when )
 {
     mseparator = when;
 }
 
 /*!
-  Returns the currently set \link setSeparatorUsage() separator usage\endlink.
+  Returns the currently set \link setSeparator() separator usage\endlink.
 */
-int QMenuBar::separatorUsage() const
+QMenuBar::Separator QMenuBar::separator() const
 {
-    return mseparator;
+    return mseparator ? InWindowsStyle : Never;
 }
 
 /*****************************************************************************
@@ -663,7 +666,7 @@ void QMenuBar::drawContents( QPainter *p )
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton &&  e->button() != RightButton )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
@@ -680,8 +683,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
     }
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
-	popup->actItem = -1;
-	if ( popup->isVisible() ) {		// sub menu already open
+	if ( popup->isVisible() ) {	// sub menu already open
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
 	} else {				// open sub menu
@@ -700,11 +702,11 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( e->button() != LeftButton &&  e->button() != RightButton )
 	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
-    if ( actItem == -1 && item != -1 )		// ignore mouse release
+    if ( actItem == -1 || item != actItem )	// ignore mouse release
 	return;
     actItem = item;
     repaint( FALSE );
@@ -712,9 +714,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	QMenuItem  *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
 	if ( popup ) {
-	    if ( style() == MacStyle )
-		popup->hide();
-	    else if ( !hasMouseTracking() )
+	    if (!hasMouseTracking() )
 		popup->setFirstItemActive();
 	} else {				// not a popup
 	    actItem = -1;
@@ -733,8 +733,11 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !(mouseBtDn || (actItem >= 0 && hasMouseTracking())) )
+    if ( actItem < 0 && !mouseBtDn )
 	return;
+    //    if ( !(mouseBtDn || (actItem >= 0 && hasMouseTracking())) )
+    //-	return;
+
     int item = itemAtPos( e->pos() );
     if ( item == -1 )
 	return;
