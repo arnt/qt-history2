@@ -101,11 +101,15 @@ QIcon QFileIconProvider::icon(const QFileInfo &info) const
     if (info.isRoot())
         return d_ptr->driveHD;
     if (info.isFile())
-        return d_ptr->file;
+        if (info.isSymLink())
+            return d_ptr->fileLink;
+        else
+            return d_ptr->file;
     if (info.isDir())
-        return d_ptr->dir;
-    if (info.isSymLink())
-        return d_ptr->fileLink;
+        if (info.isSymLink())
+            return d_ptr->dirLink;
+        else
+            return d_ptr->dir;
     return QIcon();
 }
 
@@ -1033,14 +1037,14 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
     for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
         // FIXME: we should only resolve when the user _enters_ the directory.
-        if (d->resolveSymlinks && info.at(i).isSymLink()) {
-            QString link = info.at(i).readLink();
-            if (link.at(link.size() - 1) == QDir::separator())
-                link.chop(1);
-            nodes[i].info = QFileInfo(link);
-        } else {
+//         if (d->resolveSymlinks && info.at(i).isSymLink()) {
+//             QString link = info.at(i).readLink();
+//             if (link.at(link.size() - 1) == QDir::separator())
+//                 link.chop(1);
+//             nodes[i].info = QFileInfo(link);
+//         } else {
             nodes[i].info = info.at(i);
-        }
+//        }
     }
 
     return nodes;
