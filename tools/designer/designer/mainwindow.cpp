@@ -93,6 +93,7 @@
 #include <stdlib.h>
 #include <qdockwindow.h>
 #include <qregexp.h>
+#include "actioneditorimpl.h"
 
 static int forms = 0;
 
@@ -144,6 +145,7 @@ MainWindow::MainWindow( bool asClient )
     actionWindowPropertyEditor = 0;
     hierarchyView = 0;
     actionPluginManager = 0;
+    actionEditor = 0,
 
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
@@ -169,7 +171,8 @@ MainWindow::MainWindow( bool asClient )
     setupPropertyEditor();
     setupHierarchyView();
     setupFormList();
-
+    setupActionEditor();
+    
     setupActionManager();
     setupHelpActions();
     setupRMBMenus();
@@ -849,6 +852,12 @@ void MainWindow::setupWindowActions()
 					       "which forms have been changed.</p>") );
 	connect( actionWindowFormList, SIGNAL( toggled(bool) ), this, SLOT( windowFormList(bool) ) );
 
+	actionWindowActionEditor = new QAction( tr( "Action Editor" ), tr( "&Action Editor" ), 0, this, 0, TRUE );
+	actionWindowActionEditor->setStatusTip( tr("Toggles the Action Edior") );
+	actionWindowActionEditor->setWhatsThis( tr("<b>Toggle the Action Editor</b>"
+					       "<p>Todo</p>") );
+	connect( actionWindowActionEditor, SIGNAL( toggled(bool) ), this, SLOT( windowActionEditor(bool) ) );
+
 	actionWindowTile = new QAction( tr( "Tile" ), tr( "&Tile" ), 0, this );
 	actionWindowTile->setStatusTip( tr("Arranges all windows tiled") );
 	actionWindowTile->setWhatsThis( tr("Arrange all windows tiled") );
@@ -1047,6 +1056,23 @@ void MainWindow::setupFormList()
     connect( formList, SIGNAL( hidden() ),
 	     this, SLOT( formListHidden() ) );
     actionWindowFormList->setOn( FALSE );
+    dw->hide();
+}
+
+void MainWindow::setupActionEditor()
+{
+    QDockWindow *dw = new QDockWindow( QDockWindow::OutsideDock, this, 0 );
+    dw->setResizeEnabled( TRUE );
+    dw->setCloseMode( QDockWindow::Always );
+    actionEditor = new ActionEditor( dw );
+    dw->setWidget( actionEditor );
+    actionEditor->show();
+    dw->setFixedExtentWidth( 300 );
+    dw->setCaption( tr( "Action Editor" ) );
+    QWhatsThis::add( propertyEditor, tr("<b>The Action Editor</b><p>Todo Whatsthis</p>" ) );
+    connect( actionEditor, SIGNAL( hidden() ),
+	     this, SLOT( actionEditorHidden() ) );
+    actionWindowActionEditor->setOn( FALSE );
     dw->hide();
 }
 
@@ -1796,7 +1822,6 @@ void MainWindow::windowPropertyEditor( bool showIt )
     if ( !propertyEditor )
 	setupPropertyEditor();
     if ( showIt ) {
-	correctGeometry( propertyEditor, workspace );
 	propertyEditor->parentWidget()->show();
 	propertyEditor->setFocus();
     } else {
@@ -1810,7 +1835,6 @@ void MainWindow::windowHierarchyView( bool showIt )
     if ( !hierarchyView )
 	setupHierarchyView();
     if ( showIt ) {
-	correctGeometry( hierarchyView, workspace );
 	hierarchyView->parentWidget()->show();
 	hierarchyView->setFocus();
     } else {
@@ -1824,13 +1848,25 @@ void MainWindow::windowFormList( bool showIt )
     if ( !formList )
 	setupFormList();
     if ( showIt ) {
-	correctGeometry( formList, workspace );
 	formList->parentWidget()->show();
 	formList->setFocus();
     } else {
 	formList->parentWidget()->hide();
     }
     actionWindowFormList->setOn( showIt );
+}
+
+void MainWindow::windowActionEditor( bool showIt )
+{
+    if ( !actionEditor )
+	setupActionEditor();
+    if ( showIt ) {
+	actionEditor->parentWidget()->show();
+	actionEditor->setFocus();
+    } else {
+	actionEditor->parentWidget()->hide();
+    }
+    actionWindowActionEditor->setOn( showIt );
 }
 
 void MainWindow::toolsCustomWidget()
@@ -2248,6 +2284,11 @@ void MainWindow::formListHidden()
     actionWindowFormList->setOn( FALSE );
 }
 
+void MainWindow::actionEditorHidden()
+{
+    actionWindowActionEditor->setOn( FALSE );
+}
+
 void MainWindow::activeWindowChanged( QWidget *w )
 {
     if ( !w )
@@ -2263,6 +2304,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 		formWindow()->clearSelection();
 	}
 	formlist()->activeFormChanged( (FormWindow*)w );
+	actionWindowActionEditor->setOn( lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
     } else if ( w == propertyEditor ) {
 	propertyEditor->resetFocus();
     } else if ( !lastActiveFormWindow ) {
@@ -3049,6 +3091,13 @@ PropertyEditor *MainWindow::propertyeditor() const
     if ( !propertyEditor )
 	( (MainWindow*)this )->setupPropertyEditor();
     return propertyEditor;
+}
+
+ActionEditor *MainWindow::actioneditor() const
+{
+    if ( !actionEditor )
+	( (MainWindow*)this )->setupActionEditor();
+    return actionEditor;
 }
 
 bool MainWindow::openEditor( QWidget *w )

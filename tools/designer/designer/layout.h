@@ -141,6 +141,7 @@ public:
     Orientation orientation() const;
     void setOrientation( Orientation o );
     void setAutoResize( bool b ) { ar = b; };
+    void resize( const QSize &s ) { QWidget::resize( s ); } // make moc happy 
     
 protected:
     void paintEvent( QPaintEvent *e );

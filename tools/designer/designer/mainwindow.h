@@ -44,6 +44,8 @@ class QCloseEvent;
 class FormList;
 class Help;
 class ActionPlugInManager;
+class ActionEditor;
+
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
 #else
@@ -68,7 +70,8 @@ public:
     HierarchyView *objectHierarchy() const;
     FormList *formlist() const;
     PropertyEditor *propertyeditor() const;
-
+    ActionEditor *actioneditor() const;
+    
     void resetTool();
     int currentTool() const;
 
@@ -160,6 +163,7 @@ private slots:
     void windowPropertyEditor( bool );
     void windowHierarchyView( bool );
     void windowFormList( bool );
+    void windowActionEditor( bool );
 
     void toolsCustomWidget();
 
@@ -171,7 +175,8 @@ private slots:
     void propertyEditorHidden();
     void hierarchyViewHidden();
     void formListHidden();
-
+    void actionEditorHidden();
+    
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
 
@@ -201,6 +206,7 @@ private:
     void setupPropertyEditor();
     void setupHierarchyView();
     void setupFormList();
+    void setupActionEditor();
 
     void setupActionManager();
 
@@ -260,7 +266,7 @@ private:
     QAction* actionPointerTool, *actionConnectTool, *actionOrderTool;
     QAction* actionCurrentTool;
     QAction *actionHelpContents, *actionHelpAbout, *actionHelpAboutQt, *actionHelpWhatsThis;
-    QAction *actionWindowHierarchyView, *actionWindowFormList, *actionHelpManual;
+    QAction *actionWindowHierarchyView, *actionWindowFormList, *actionHelpManual, *actionWindowActionEditor;
     QAction *actionToolsCustomWidget, *actionEditPreferences;
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;
@@ -277,7 +283,8 @@ private:
     bool client;
     QString templPath;
     ActionPlugInManager *actionPluginManager;
-
+    ActionEditor *actionEditor;
+    
 };
 
 #endif

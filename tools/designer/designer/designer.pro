@@ -45,7 +45,8 @@ HEADERS	= command.h \
 		  actioniface.h \
 		  actionplugin.h \
 		  filteriface.h \
-		  filterplugin.h 
+		  filterplugin.h \
+		  actioneditorimpl.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -88,7 +89,8 @@ SOURCES	= command.cpp \
 		  designerapp.cpp \
 		  designerappiface.cpp \
 		  actionplugin.cpp \
-		  filterplugin.cpp
+		  filterplugin.cpp \
+		  actioneditorimpl.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \
@@ -111,7 +113,8 @@ INTERFACES	= listboxeditor.ui \
 		  formsettings.ui \
 		  about.ui \
 		  pixmapfunction.ui \
-		  createtemplate.ui
+		  createtemplate.ui \
+		  actioneditor.ui
 		
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
