@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#40 $
+** $Id: //depot/qt/main/src/xml/qxml.h#41 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -369,6 +369,7 @@ private:
 
     bool insertXmlRef( const QString&, const QString&, bool );
 
+    bool reportEndEntities();
     void reportParseError( const QString& error );
 
     typedef bool (QXmlSimpleReader::*ParseFunction) ();

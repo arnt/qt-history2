@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#86 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#87 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -3359,24 +3359,11 @@ bool QXmlSimpleReader::parseContent()
 		    stringClear();
 		}
 		stringAddC();
+		if ( d->reportEntities ) {
+		    if ( !reportEndEntities() )
+			return FALSE;
+		}
 		next();
-#if 0
-	    if ( d->reportEntities ) {
-		if ( contentHnd ) {
-		    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
-			if ( !contentHnd->characters( string() ) ) {
-			    // ### missing reportParseError( contentHnd->errorString() );
-			}
-		    }
-		}
-		stringClear();
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->endEntity(d->xmlRefName.top()) ) {
-			// ### missing reportParseError( lexicalHnd->errorString() );
-		    }
-		}
-	    }
-#endif
 		break;
 	    case ChD1:
 		// on first call: clear string
@@ -3385,10 +3372,18 @@ bool QXmlSimpleReader::parseContent()
 		    stringClear();
 		}
 		stringAddC();
+		if ( d->reportEntities ) {
+		    if ( !reportEndEntities() )
+			return FALSE;
+		}
 		next();
 		break;
 	    case ChD2:
 		stringAddC();
+		if ( d->reportEntities ) {
+		    if ( !reportEndEntities() )
+			return FALSE;
+		}
 		next();
 		break;
 	    case Ref:
@@ -3479,6 +3474,31 @@ bool QXmlSimpleReader::parseContent()
 		break;
 	}
     }
+}
+bool QXmlSimpleReader::reportEndEntities()
+{
+    int count = d->xmlRef.count();
+    while ( count != 0 && d->xmlRef.top().isEmpty() ) {
+	if ( contentHnd ) {
+	    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+		if ( !contentHnd->characters( string() ) ) {
+		    reportParseError( contentHnd->errorString() );
+		    return FALSE;
+		}
+	    }
+	}
+	stringClear();
+	if ( lexicalHnd ) {
+	    if ( !lexicalHnd->endEntity(d->xmlRefName.top()) ) {
+		reportParseError( lexicalHnd->errorString() );
+		return FALSE;
+	    }
+	}
+	d->xmlRef.pop();
+	d->xmlRefName.pop();
+	count--;
+    }
+    return TRUE;
 }
 
 /*
@@ -6823,21 +6843,6 @@ void QXmlSimpleReader::next()
     int count = d->xmlRef.count();
     while ( count != 0 ) {
 	if ( d->xmlRef.top().isEmpty() ) {
-	    if ( d->reportEntities ) {
-		if ( contentHnd ) {
-		    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
-			if ( !contentHnd->characters( string() ) ) {
-			    // ### missing reportParseError( contentHnd->errorString() );
-			}
-		    }
-		}
-		stringClear();
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->endEntity(d->xmlRefName.top()) ) {
-			// ### missing reportParseError( lexicalHnd->errorString() );
-		    }
-		}
-	    }
 	    d->xmlRef.pop();
 	    d->xmlRefName.pop();
 	    count--;
