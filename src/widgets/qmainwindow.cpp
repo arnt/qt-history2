@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#22 $
 **
 ** Implementation of QMainWindow class
 **
@@ -477,6 +477,14 @@ void QMainWindow::setUpLayout()
     d->timer->stop();
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
+    if ( !d->mb ) {
+	// slightly evil hack here.  reconsider this after 1.40.
+	QObjectList * l
+	    = ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
+	if ( l && l->count() )
+	    d->mb = menuBar();
+	delete l;
+    }
     if ( d->mb && !d->mb->testWFlags( WState_DoHide ) )
 	d->tll->setMenuBar( d->mb );
     if ( style() == WindowsStyle )
@@ -499,6 +507,14 @@ void QMainWindow::setUpLayout()
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			d->justify, style() );
+    if ( !d->sb ) {
+	// as above.
+	QObjectList * l
+	    = ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
+	if ( l && l->count() )
+	    d->sb = statusBar();
+	delete l;
+    }
     if ( d->sb && !d->sb->testWFlags( WState_DoHide ) )
 	d->tll->addWidget( d->sb, 0 );
     d->tll->activate();
