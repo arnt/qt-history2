@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#589 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#590 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4155,6 +4155,8 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
+    clearWState(WState_ConfigPending);
+    
     if ( !testWFlags( WType_TopLevel )
 	 || testWFlags( WType_Popup )
 	 || (!testWFlags( WStyle_DialogBorder ) &&
@@ -4162,11 +4164,9 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	 || testWFlags( WType_Desktop ) )
 	return TRUE;			// child widget or override_redirect
 
-    clearWState(WState_ConfigPending);
-
     QPoint newCPos( geometry().topLeft() );
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
-    
+
     if (event->xconfigure.send_event ||
 	( topData()->parentWinId == None ||
 	  topData()->parentWinId == appRootWin ) ) {
@@ -4174,8 +4174,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	   trust its values. */
 	newCPos.rx() = event->xconfigure.x;
 	newCPos.ry() = event->xconfigure.y;
-//     } 
-//     else { 
+//     }
+//     else {
 // 	Display *dpy = x11Display();
 // 	Window child;
 // 	// ### this slows down display of all top-level widgets, and most
@@ -4183,7 +4183,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 // 	XTranslateCoordinates( dpy, winId(), DefaultRootWindow(dpy),
 // 			       0, 0, &x, &y, &child );
     }
-    
+
     XEvent otherEvent;
     while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
 	if ( qApp->x11EventFilter( &otherEvent ) )
@@ -4215,7 +4215,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( !testWFlags( WNorthWestGravity ) )
 	    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     }
-    
+
     if ( newCPos != cr.topLeft() ) { // compare with cpos (exluding frame)
 	QPoint oldPos = pos();
 	cr.moveTopLeft( newCPos );
@@ -4462,7 +4462,6 @@ public slots:
 };
 
 
-
 static SmcConn smcConnection = 0;
 static bool sm_interactionActive;
 static bool sm_smActive;
@@ -4488,7 +4487,6 @@ static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer clientData 
 static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer clientData );
 static void sm_interactCallback( SmcConn smcConn, SmPointer clientData );
 static void sm_performSaveYourself( QSessionManager* );
-
 
 static void resetSmState()
 {
@@ -4736,7 +4734,6 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
     else {
 	sm_receiver = new QSmSocketReceiver(  IceConnectionNumber( SmcGetIceConnection( smcConnection ) ) );
     }
-
 }
 
 QSessionManager::~QSessionManager()

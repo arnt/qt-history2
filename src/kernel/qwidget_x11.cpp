@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#412 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#413 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1285,6 +1285,7 @@ void QWidget::showMinimized()
 	else {
 	    topData()->showMode = 1;
 	    show();
+	    clearWState( WState_Visible );
 	}
     }
     QCustomEvent e( QEvent::ShowMinimized, 0 );
@@ -1466,7 +1467,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     setCRect( r );
 
     if ( isTopLevel() ) {
-	setWState( WState_ConfigPending );
 	XSizeHints size_hints;
 	size_hints.flags = USSize | PSize;
 	if ( isMove )
@@ -1493,7 +1493,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QMoveEvent e( r.topLeft(), oldp );
 	    QApplication::sendEvent( this, &e );
 	}
-	if ( isResize && olds != r.size() ) {
+	if ( isResize ) {
+	    if ( isTopLevel() )
+		setWState( WState_ConfigPending );
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
 	    if ( !testWFlags( WNorthWestGravity ) )
@@ -1503,7 +1505,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isMove && oldp != r.topLeft() )
 	    QApplication::postEvent( this,
 				     new QMoveEvent( r.topLeft(), oldp ) );
-	if ( isResize && olds != r.size() )
+	if ( isResize )
 	    QApplication::postEvent( this,
 				     new QResizeEvent( r.size(), olds ) );
     }
