@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#21 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#22 $
 **
 ** Definition of QBitmap class
 **
@@ -41,14 +41,14 @@ public:
 
 
 #if defined(OBSOLETE)
-inline QBitmap::QBitmap( int w, int h,  const char *bits, bool isXBitmap=FALSE )
+inline QBitmap::QBitmap( int w, int h,  const char *bits, bool isXBitmap )
     : QPixmap( w, h, (const uchar *)bits, isXBitmap )
 { 
     qObsolete( "QBitmap", "QBitmap(int, int, const char *, bool )",
 	       "QBitmap(int, int, const uchar *, bool )" );
     data->bitmap = TRUE; 
 }
-inline QBitmap::QBitmap( const QSize &s, const char *bits, bool isXBitmap=FALSE )
+inline QBitmap::QBitmap( const QSize &s, const char *bits, bool isXBitmap )
     : QPixmap( s.width(), s.height(), (const uchar *)bits, isXBitmap )
 { 
     qObsolete( "QBitmap", "QBitmap( const QSize &s, const char *, bool )",

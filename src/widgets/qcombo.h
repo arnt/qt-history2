@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#16 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#17 $
 **
 ** Definition of QComboBox class
 **
@@ -96,7 +96,7 @@ inline void QComboBox::setStrList( const QStrList *list )
     clear(); 
     insertStrList(list,0); 
 }
-inline void QComboBox::setStrList( const char **strings, int numStrings=-1 )
+inline void QComboBox::setStrList( const char **strings, int numStrings )
 { 
     qObsolete("QComboBox","setStrList","insertStrList (probably)");
     clear(); 	
