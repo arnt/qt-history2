@@ -3828,7 +3828,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     // send the event to the widget or its ancestors
     {
 	QWidget* popup = qApp->activePopupWidget();
-	if ( popup && w != popup )
+	if ( popup && w->topLevelWidget() != popup )
 	    popup->close();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
@@ -3838,7 +3838,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     // send the event to the widget that has the focus or its ancestors, if different
     if ( w != qApp->focusWidget() && ( w = qApp->focusWidget() ) ) {
 	QWidget* popup = qApp->activePopupWidget();
-	if ( popup && w != popup )
+	if ( popup && w->topLevelWidget() != popup )
 	    popup->close();
 	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
