@@ -244,6 +244,7 @@ int main( int argc, char ** argv )
     QString keybase("/Qt Assistant/3.1/");
     QSettings *config = new QSettings();
     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QStringList oldSelected = config->readListEntry( keybase + "CategoriesSelectedOld" );
     if( !catlist.isEmpty() ) {
 	QStringList buf;
 	QStringList oldCatList = config->readListEntry( keybase + "CategoriesAvailable" );
@@ -253,7 +254,15 @@ int main( int argc, char ** argv )
 		    buf << (*it2);
 	    }
 	}
+	if ( oldSelected.isEmpty() ) {
+	    QStringList selected = config->readListEntry( keybase + "CategoriesSelected" );
+	    config->writeEntry( keybase + "CategoriesSelectedOld", selected );
+	}
 	config->writeEntry( keybase + "CategoriesSelected", buf );
+	config->writeEntry( keybase + "NewDoc", TRUE );
+    } else if ( !oldSelected.isEmpty() ) {
+	config->removeEntry( keybase + "CategoriesSelectedOld" );
+	config->writeEntry( keybase + "CategoriesSelected", oldSelected );
 	config->writeEntry( keybase + "NewDoc", TRUE );
     }
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
