@@ -218,7 +218,7 @@ void SourceTemplateItem::insert( Project *pro )
 
 void SourceTemplateItem::setProject( Project *pro )
 {
-    bool v = lang == pro->language();
+    bool v = !pro->isDummy() && lang == pro->language();
     if ( v == visible )
 	return;
     visible = v;
