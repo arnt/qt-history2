@@ -344,9 +344,8 @@ void QVFbView::timeout()
 		animation->appendFrame(img,QPoint(r.x(),r.y()));
 	    }
     }
-    if ( hdr->dirty ) {
-	drawScreen();
-    }
+    if ( hdr->dirty )
+        viewport()->repaint();
     unlock();
 }
 
