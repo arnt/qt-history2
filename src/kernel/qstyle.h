@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QStyle class
 **
 ** Created : 980616
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -389,7 +389,7 @@ public:
 				     const QRect &r,
 				     const QColorGroup &cg,
 				     SFlags how = Style_Default,
-				     SCFlags sub = SC_All,
+				     SCFlags sub = (SCFlags)SC_All,
 				     SCFlags subActive = SC_None,
 				     const QStyleOption& = QStyleOption::Default ) const = 0;
     virtual void drawComplexControlMask( ComplexControl control,
