@@ -305,14 +305,14 @@ do
 	;;
     -embedded)
 	# this option may or may not be followed by an argument
-	if echo $1 | grep '^-' >/dev/null 2>&1
+	if echo $2 | grep '^-' >/dev/null 2>&1
 	then
 	    CFG_EMBEDDED=auto
 	else
 	    shift;
 	    CFG_EMBEDDED=$1
 	fi
-	if [ "$PLATFORM_QNX" != "no" -a "$PLATFORM_QWS" != "no" ]
+	if [ "$PLATFORM_QNX" != "no" -o "$PLATFORM_QWS" != "no" ]
 	then
 	    if [ "$PLATFORM_QNX" = "maybe" ]
 	    then
