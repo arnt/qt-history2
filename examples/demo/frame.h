@@ -28,6 +28,7 @@ private slots:
     void clickedCategory( QListBoxItem * );
 
 private:
+    QWidget *createCategory( const QString& );
     int idEnglish;
 
     QString title;

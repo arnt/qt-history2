@@ -1615,9 +1615,12 @@ const char* QTextCodec::locale()
 {
     static QCString lang;
     if ( lang.isEmpty() ) {
-#ifndef Q_WS_WIN
 	lang = getenv( "LANG" );
-#else
+
+#if defined(Q_WS_WIN)
+	if ( !lang.isEmpty() )
+	    return lang;
+
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 	    TCHAR out[256];
@@ -1646,7 +1649,6 @@ const char* QTextCodec::locale()
 	if ( lang.isEmpty() )
 	    lang = "C";
     }
-
 
     return lang;
 }

@@ -33,7 +33,8 @@ public:
     virtual int height( const QListBox * ) const;
     virtual int width( const QListBox * )  const;
 
-
+    int id() const { return _id; }
+    void setWidget(QWidget *w) { Q_ASSERT(!_widget); _widget = w; }
     QWidget *widget() const { return _widget; }
 protected:
     virtual void paint( QPainter * );
@@ -51,7 +52,6 @@ CategoryItem::CategoryItem( QListBox *parent, QWidget *widget,
       _widget( widget ),
       pm_Unsel( p ),
       pm_Sel( p )
-
 {
     setText( name );
 }
@@ -175,7 +175,8 @@ void Frame::addCategory( QWidget *w, const QPixmap &p, const QString &n )
 void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n )
 {
     int i = categories->count();
-    stack->addWidget( w, i );
+    if(w)
+	stack->addWidget( w, i );
     CategoryItem *item = new CategoryItem( categories, w, p1, p2, n, i );
     if ( !stack->visibleWidget() ) {
 	categories->setCurrentItem( item );
@@ -197,6 +198,14 @@ void Frame::clickedCategory( QListBoxItem *item )
     if ( item ) {
 	CategoryItem *c = (CategoryItem*)item;
 	topLevelWidget()->setCaption( title + " - " + item->text() );
+	if(!c->widget()) {
+	    if(QWidget *w = createCategory(item->text())) {
+		c->setWidget(w);
+		stack->addWidget(w, c->id());
+	    } else {
+		qDebug("Lazy creation of %s failed", item->text().latin1());
+	    }
+	}
 	stack->raiseWidget( c->widget() );
     }
 }

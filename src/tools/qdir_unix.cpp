@@ -81,7 +81,7 @@ QString QDir::canonicalPath() const
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-#ifdef Q_MAC_OS_X  // Mac X doesn't support trailing /'s
+#ifdef Q_OS_MACX  // Mac X doesn't support trailing /'s
     QString name = dirName;
     if (dirName[dirName.length() - 1] == "/")
 	name = dirName.left( dirName.length() - 1 );

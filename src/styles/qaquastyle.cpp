@@ -252,6 +252,7 @@ void QAquaStylePrivate::objDestroyed(QObject *o)
 {
     if(o == buttonState.stop_pulse)
 	buttonState.stop_pulse = NULL;
+    while(progressBars.remove((QProgressBar*)o));
     if(o == defaultButton)
 	defaultButton = NULL;
 }
@@ -362,10 +363,11 @@ void QAquaStyle::polish( QWidget * w )
 {
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
-        if( btn->isDefault() || btn->autoDefault() ){
+        if( btn->isDefault() || (btn->autoDefault() && btn->hasFocus()) ){
+	    d->defaultButton = btn;
 	    QObject::connect(btn, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
             btn->installEventFilter( this );
-            if( d->buttonTimerId == -1 )
+            if( btn->isVisible() && d->buttonTimerId == -1 )
                 d->buttonTimerId = startTimer( 50 );
         }
     }
@@ -387,9 +389,12 @@ void QAquaStyle::polish( QWidget * w )
     }
 
     if( w->inherits("QProgressBar") ){
-	d->progressBars.append((QProgressBar*)w);
-	if( d->progressTimerId == -1 )
+	w->installEventFilter( this );
+	QObject::connect(w, SIGNAL(destroyed(QObject*)), d, SLOT(objDestroyed(QObject*)));
+	if( w->isVisible() && d->progressTimerId == -1 ) {
+	    d->progressBars.append((QProgressBar*)w);
 	    d->progressTimerId = startTimer( 50 );
+	}
     }
 
     if ( !w->isTopLevel() ) {
@@ -489,14 +494,20 @@ void QAquaStyle::unPolish( QWidget * w )
 void QAquaStyle::timerEvent( QTimerEvent * te )
 {
     if( te->timerId() == d->buttonTimerId ) {
-	if( d->defaultButton != 0 && d->defaultButton->isEnabled() && 
-	    (d->defaultButton->isDefault() || d->defaultButton->autoDefault()) ) 
+	if( d->defaultButton != 0 && d->defaultButton->isEnabled() && d->defaultButton->isVisibleTo(0) &&
+	    (d->defaultButton->isDefault() || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()) ) )
 	    d->defaultButton->repaint( FALSE );
-    } else if( te->timerId() == d->progressTimerId ) {
-	if( !d->progressBars.isEmpty() ) {
-	    d->progressOff--;
-	    for( QPtrListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
-		(*it)->repaint( FALSE );
+    } else if( te->timerId() == d->progressTimerId && !d->progressBars.isEmpty() ) {
+	d->progressOff--;
+	if( d->progressBars.count() == 1) {
+	    QProgressBar *b = d->progressBars.first();
+	    if(b->progress() > 0)
+		b->repaint(FALSE);
+	} else {
+	    for( QPtrListIterator<QProgressBar> it(d->progressBars); it.current(); ++it) {
+		if((*it)->progress() > 0)
+		    (*it)->repaint( FALSE );
+	    }
 	}
     }
 }
@@ -512,15 +523,33 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    d->focusWidget->setFocusWidget( NULL );
     }
     if( o && o->isWidgetType() && e->type() == QEvent::FocusIn ) {
-	if( QAquaFocusWidget::handles((QWidget *)o) ) {
+	QWidget *w = (QWidget *)o;
+	if( QAquaFocusWidget::handles(w) ) {
 	    if (!d->focusWidget)
 		d->focusWidget = new QAquaFocusWidget();
-	    d->focusWidget->setFocusWidget( (QWidget*)o );
-	} else if( o->inherits("QPushButton") ) { // Kb Focus received - make this the default button
-	    d->defaultButton = (QPushButton *) o;
+	    d->focusWidget->setFocusWidget( w );
+	} else if( o->inherits("QPushButton") && ((QPushButton *)w)->autoDefault()) {
+	    // Kb Focus received - make this the default button
+	    d->defaultButton = (QPushButton *) w;
+            if( w->isVisible() && d->buttonTimerId == -1 )
+                d->buttonTimerId = startTimer( 50 );
+	}
+    } else if(e->type() == QEvent::Show && o->inherits("QProgressBar")) {
+	d->progressBars.append((QProgressBar*)o);
+	if(d->progressTimerId == -1)
+	    d->progressTimerId = startTimer( 50 );
+    } else if(e->type() == QEvent::Hide && d->progressBars.find((QProgressBar*)o) != -1) {
+	while(d->progressBars.remove((QProgressBar*)o));
+	if(d->progressBars.isEmpty() && d->progressTimerId != -1) {
+	    killTimer(d->progressTimerId);
+	    d->progressTimerId = -1;
 	}
     } else if( e->type() == QEvent::Hide && d->defaultButton == o ) {
 	d->defaultButton = NULL;
+	if( d->buttonTimerId != -1 ) {
+	    killTimer(d->buttonTimerId);
+	    d->buttonTimerId = -1;
+	}
     } else if( (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) &&
 	       o->inherits("QPushButton") ) {
 	QMouseEvent *me = (QMouseEvent*)e;
@@ -536,9 +565,8 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	while ( (pb = (QPushButton*)it.current()) ) {
 	    ++it;
 	    if( ((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
-						     pb->autoDefault() &&
-						     (pb != btn)) ) ||
-		((e->type() == QEvent::Show) && pb->isDefault()) )
+						     (pb->autoDefault() && pb->hasFocus())) && (pb != btn)) ||
+		((e->type() == QEvent::Show) && pb->isDefault()))
 	    {
 		QPushButton * tmp = d->defaultButton;
 		d->defaultButton = 0;
@@ -550,6 +578,13 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
 	    }
 	}
 	delete list;
+	if(d->defaultButton) {
+	    if(d->buttonTimerId == -1)
+                d->buttonTimerId = startTimer( 50 );
+	} else if(d->buttonTimerId != -1) {
+	    killTimer(d->buttonTimerId);
+	    d->buttonTimerId = -1;
+	}
     }
     return FALSE;
 }
@@ -1157,7 +1192,8 @@ void QAquaStyle::drawControl( ControlElement element,
 
 	QString hstr = QString::number( h - y );
 	if( (!d->buttonState.stop_pulse || d->buttonState.stop_pulse == btn || !d->buttonState.stop_pulse->isDown()) &&
-	    btn->isEnabled() && (btn->isDefault() || btn->autoDefault()) && (d->defaultButton == btn) ) {
+	    btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())) && 
+	    (d->defaultButton == btn) ) {
 	    int & alt = d->buttonState.frame;
 	    int & dir = d->buttonState.dir;
 	    if( alt > 0 && !(how & Style_Down) ){
