@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#129 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#128 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#129 $");
 
 
 /*****************************************************************************
@@ -935,7 +935,7 @@ bool QApplication::processNextEvent( bool canWait )
     MSG	 msg;
 
     if ( postedEvents && postedEvents->count() )
-	sendPostedEvents();
+	::sendPostedEvents();
 
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers
