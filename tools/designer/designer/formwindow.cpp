@@ -52,6 +52,7 @@
 #include <qmetaobject.h>
 #include <qtooltip.h>
 #include <qfeatures.h>
+#include <qaccel.h>
 
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
@@ -2347,6 +2348,7 @@ void FormWindow::killAccels( QObject *top )
     QObjectList *l = top->queryList( "QAccel" );
     if ( !l )
 	return;
-    l->setAutoDelete( TRUE );
+    for ( QObject *o = l->first(); o; o = l->next() )
+	( (QAccel*)o )->setEnabled( FALSE );
     delete l;
 }
