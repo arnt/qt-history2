@@ -341,10 +341,10 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 
     // enter Connecting state (see also sn_write, which is called by
     // the write socket notifier after connect())
-    state = QSocket::Connecting;    
-    
+    state = QSocket::Connecting;
+
     // attempt to connect to all addresses, one at a time.
-    for (;;) {    
+    for (;;) {
         // reset the socket device if it's 0
         if (!socket) {
             addr = addresses.takeFirst();
@@ -359,7 +359,7 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
             if (wsn) wsn->setEnabled(true);
             break;
         }
-        
+
         // an error occurred. we ignore the cause of this error and
         // delete our socket notifiers and socket device. if there are
         // more addresses we can try then we will continue.
@@ -380,10 +380,9 @@ void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
         // address is tested.
         if (addresses.isEmpty()) {
             emit q->error(QSocket::ErrConnectionRefused);
-            break;            
+            break;
         }
     }
-#endif
 }
 
 void QSocketPrivate::emitErrorConnectionRefused()
@@ -580,8 +579,6 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     // be called after this.
     QDns::getHostByName(host, this, SLOT(tryConnecting(QDnsHostInfo)));
 }
-
-#endif
 
 /*!
     \enum QSocket::Error
