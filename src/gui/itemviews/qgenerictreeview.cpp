@@ -141,7 +141,7 @@ void QGenericTreeView::open(const QModelIndex &item)
     if (!item.isValid())
         return;
     int idx = d->viewIndex(item);
-    if (idx > -1)
+    if (idx > -1) // is visible
         d->open(idx);
     else
         d->opened.append(item);
@@ -152,7 +152,7 @@ void QGenericTreeView::close(const QModelIndex &item)
     if (!item.isValid())
         return;
     int idx = d->viewIndex(item);
-    if (idx > -1)
+    if (idx > -1) // is visible
         d->close(idx);
     else
         d->opened.remove(d->opened.indexOf(item));
@@ -262,7 +262,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
         QStyle::SFlags flags = QStyle::Style_Item
                                | (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
-                               | (d->isOpen(d->current) ? QStyle::Style_Open : 0);
+                               | (d->items.at(d->current).open ? QStyle::Style_Open : 0);
         style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(), flags);
     }
     // then go out level by level
@@ -294,7 +294,7 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
             QAbstractItemView::mousePressEvent(e);
             return; // we are on an item - select it
         }
-        if (d->isOpen(vi))
+        if (d->items.at(vi).open)
             d->close(vi);
         else
             d->open(vi);
@@ -393,11 +393,11 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
     case QAbstractItemView::MoveUp:
         return d->modelIndex(d->above(vi));
     case QAbstractItemView::MoveLeft:
-        if (d->isOpen(vi))
+        if (d->items.at(vi).open)
             d->close(vi);
         break;
     case QAbstractItemView::MoveRight:
-        if (!d->isOpen(vi))
+        if (!d->items.at(vi).open)
             d->open(vi);
         break;
     case QAbstractItemView::MovePageUp:
@@ -528,41 +528,13 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (!(topLeft.isValid() && bottomRight.isValid()))
-        return;
-
-    QModelIndex parent = model()->parent(topLeft);
-    // do a local relayout of the items
-    if (parent.isValid()) {
-        int pi = d->viewIndex(parent);
-        if (d->isOpen(pi)) {
-            d->close(pi);
-            d->open(pi);
-        }
-    } else {
-        updateGeometries();
-        d->items.resize(0);
-        startItemsLayout();
-    }
+    if (topLeft.isValid() && bottomRight.isValid())
+        d->relayout(model()->parent(topLeft));
 }
 
-void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
-                                       const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void QGenericTreeView::contentsRemoved(const QModelIndex &parent, const QModelIndex &, const QModelIndex &)
 {
-    // do a local relayout of the items
-    if (parent.isValid()) {
-        int pi = d->viewIndex(parent);
-        if (d->isOpen(pi)) {
-            d->close(pi);
-            d->open(pi);
-        }
-    } else {
-        int count = bottomRight.row() - topLeft.row();
-        updateGeometries();
-        // FIXME: this won't work if there are open branches
-        qCollapse<QGenericTreeViewItem>(d->items, bottomRight.row() - 1, count);
-        d->viewport->update();
-    }
+    d->relayout(parent);
 }
 
 void QGenericTreeView::columnCountChanged(int, int)
@@ -743,35 +715,30 @@ int QGenericTreeView::columnSizeHint(int column) const
     return w;
 }
 
-bool QGenericTreeViewPrivate::isOpen(int i) const
-{
-    if (i < 0 || i >= items.count())
-        return false;
-    return items.at(i).open;
-}
-
 void QGenericTreeViewPrivate::open(int i)
 {
     QModelIndex index = items.at(i).index;
     opened.append(index);
     items[i].open = true;
-    int c = q->model()->rowCount(index);
-    if (c <= 0)
+    if (q->model()->rowCount(index) <= 0)
         return;
     layout(i);
 
-    // make sure we open children that are already open
-//    for (int j = 0; j < opened.count(); ++j) {
-//        if (q->model()->parent(opened.at(j)) == index) {
-//             QModelIndex idx = opened.at(j);
-//             int vi = d->viewIndex(item);
-//             opened.remove(j);
-//             q->open(idx);
-//         }
-//    }
-
     q->updateGeometries();
     viewport->update();
+    qApp->processEvents();
+
+    // make sure we open children that are already open
+    // FIXME: this is slow: optimize
+    QVector<QModelIndex> o = opened;
+    for (int j = 0; j < o.count(); ++j) {
+        if (q->model()->parent(o.at(j)) == index) {
+            int k = opened.indexOf(o.at(j));
+            opened.remove(k);
+            int v = viewIndex(o.at(j));
+            open(v);
+        }
+    }
 }
 
 void QGenericTreeViewPrivate::close(int i)
@@ -780,10 +747,8 @@ void QGenericTreeViewPrivate::close(int i)
     int total = items.at(i).total;
     items[i].open = false;
     QModelIndex index = modelIndex(i);
-
-    int j = opened.indexOf(index);
-    opened.remove(j);
-
+    opened.remove(opened.indexOf(index));
+    
     int idx = i;
     while (index.isValid()) {
         items[idx].total -= total;
@@ -792,7 +757,7 @@ void QGenericTreeViewPrivate::close(int i)
     }
     qCollapse<QGenericTreeViewItem>(items, i, total);
     q->updateGeometries();
-    q->d->viewport->update();
+    viewport->update();
 }
 
 void QGenericTreeViewPrivate::layout(int i)
@@ -930,8 +895,7 @@ int QGenericTreeViewPrivate::viewIndex(const QModelIndex &index) const
 {
     // NOTE: this function is slow if the item is outside the visible area
     // search in visible items first, then below
-    int v = q->verticalScrollBar()->value();
-    int t = itemAt(v);
+    int t = itemAt(q->verticalScrollBar()->value());
     t = t > 100 ? t - 100 : 0; // start 100 items above the visible area
     for (int i = t; i < items.count(); ++i)
         if (items.at(i).index.row() == index.row() &&
@@ -965,4 +929,19 @@ int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
     int factor = q->verticalFactor();
     int above = (value % factor) * iheight; // what's left; in "item units"
     return -(above / factor); // above the page
+}
+
+void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
+{
+    // do a local relayout of the items
+    if (parent.isValid()) {
+        int p = viewIndex(parent);
+        if (p > -1 && items.at(p).open) {
+            close(p);
+            open(p);
+        }
+    } else {
+        items.resize(0);
+        q->startItemsLayout();
+    }
 }

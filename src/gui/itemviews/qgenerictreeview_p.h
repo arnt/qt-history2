@@ -23,7 +23,6 @@ public:
 
     ~QGenericTreeViewPrivate() {}
 
-    bool isOpen(int item) const;
     void open(int item);
     void close(int item);
     void layout(int item);
@@ -45,6 +44,8 @@ public:
     int itemAt(int value) const;
     int coordinateAt(int value, int iheight) const;
 
+    void relayout(const QModelIndex &parent);
+
     QGenericHeader *header;
     int indent;
     int editColumn;
@@ -58,7 +59,7 @@ public:
     int right;
     int current;
 
-    // used when opening
+    // used when opening and closing items
     QVector<QModelIndex> opened;
 };
 
