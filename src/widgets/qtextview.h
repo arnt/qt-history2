@@ -47,7 +47,6 @@
 class Q_EXPORT QTextView : public QTextEdit
 {
     Q_OBJECT
-    Q_ENUMS( WordWrap WrapPolicy )
     Q_OVERRIDE( int undoDepth DESIGNABLE false SCRIPTABLE false )
     Q_OVERRIDE( bool overwriteMode DESIGNABLE false SCRIPTABLE false )
 
