@@ -417,10 +417,6 @@ All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Qt Linguist - Find</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot find the string &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
