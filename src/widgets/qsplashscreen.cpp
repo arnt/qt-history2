@@ -55,7 +55,8 @@ public:
    \brief The QSplashScreen widget provides a splash screen that can be shown during
    application startup.
 
-   \mainclass
+    \ingroup misc
+    \mainclass
 
    A splash screen is a widget that is usually displayed when an
    application is being started. Splash screens are often used for

@@ -250,8 +250,9 @@ void QToolBoxButton::drawButton( QPainter *p )
 
 /*!
     \class QToolBox
-
     \brief The QToolBox class provides a column of tabbed widgets.
+    \mainclass
+    \ingroup advanced
 
     A toolbox is a widget that displays a column of tabs one above the
     other, with the current page displayed below the current tab.
