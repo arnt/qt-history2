@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#70 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -73,7 +73,7 @@ struct QHeaderData
 */
 
 QHeader::QHeader( QWidget *parent, const char *name )
-    : QTableView( parent, name )
+    : QWidget( parent, name )
 {
     orient = Horizontal;
     init( 0 );
@@ -87,7 +87,7 @@ QHeader::QHeader( QWidget *parent, const char *name )
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
-    : QTableView( parent, name )
+    : QWidget( parent, name )
 {
     orient = Horizontal;
     init( n );
@@ -195,7 +195,7 @@ int QHeader::count() const
 void QHeader::init( int n )
 {
     state = Idle;
-
+    offs = 0;
     data = new QHeaderData;
 
     data->sizes.resize(n+1);
@@ -212,7 +212,7 @@ void QHeader::init( int n )
     data->clicks.fill( TRUE );
     data->resize.fill( TRUE );
     data->move = TRUE;
-
+    /*
     setFrameStyle( QFrame::NoFrame );
 
     if ( orient == Horizontal ) {
@@ -226,6 +226,7 @@ void QHeader::init( int n )
 	setNumCols( 1 );
 	setNumRows( n );
     }
+    */
     handleIdx = 0;
     //################
     data->sizes[n] = 0;
@@ -250,6 +251,7 @@ void QHeader::setOrientation( Orientation orientation )
 {
     if (orient==orientation) return;
     orient = orientation;
+    /*
     int n = count();
     if ( orient == Horizontal ) {
 	setCellWidth( 0 );
@@ -263,6 +265,7 @@ void QHeader::setOrientation( Orientation orientation )
 	setNumRows( n );
     }
     updateTableSize();
+    */
     repaint();
 }
 
@@ -336,11 +339,17 @@ void QHeader::unMarkLine( int idx )
 }
 
 /*!
-  Returns the actual index of the section at position \a c, or -1 if outside.
+  Returns the actual index of the section at widget position \a c, or -1 if outside.
  */
 int QHeader::cellAt( int c ) const
 {
-    int i = ( orient == Horizontal ) ?  findCol( c ) :  findRow( c );
+    int pos = c + offset();
+    int i = 0;
+    while ( pos > pSize( i ) && i < count() ) {
+	pos -= pSize(i);
+	i++;
+    }
+	
     return i >= count() ? -1 : i;
 }
 
@@ -391,6 +400,7 @@ void QHeader::moveAround( int fromIdx, int toIdx )
     }
 }
 
+#if 0
 /*!
   sets up the painter
 */
@@ -400,51 +410,7 @@ void QHeader::setupPainter( QPainter *p )
     p->setPen( colorGroup().buttonText() );
     p->setFont( font() );
 }
-
-
-/*!
-  paints a section of the header
-*/
-
-void QHeader::paintCell( QPainter *p, int row, int col )
-{
-    int i = ( orient == Horizontal ) ? col : row;
-    int size = pSize( i );
-    bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
-
-    QRect fr( 0, 0, orient == Horizontal ?  size : width(),
-	      orient == Horizontal ?  height() : size );
-
-//     if ( style() == WindowsStyle )
-// 	qDrawWinButton( p, fr, colorGroup(), down );
-//     else
-// 	qDrawShadePanel( p, fr, colorGroup(), down );
-
-    style().drawBevelButton(p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down);
-
-    int logIdx = mapToLogical(i);
-
-    QString s;
-    if ( data->labels[logIdx] )
-	s = *(data->labels[logIdx]);
-    else if ( orient == Horizontal )
-	s.sprintf( "Col %d", logIdx );
-    else
-	s.sprintf( "Row %d", logIdx );
-
-    int d = 0;
-    if ( style() == WindowsStyle  &&
-	 i==handleIdx && ( state == Pressed || state == Moving ) )
-	d = 1;
-
-    QRect r;
-    if (orient == Horizontal )
-      r = QRect( QH_MARGIN+d, 2+d, size - 6, height() - 4 );
-    else
-      r = QRect( QH_MARGIN+d, 2+d, width() - 6, size - 4 );
-
-    p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
-}
+#endif
 
 
 void QHeader::mousePressEvent( QMouseEvent *m )
@@ -674,12 +640,13 @@ int QHeader::addLabel( const QString &s, int size )
     data->resize.resize(n+1);
     data->clicks.setBit(n-1);
     data->resize.setBit(n-1);
-
+#if 0
     //    recalc();
     if ( orient == Horizontal )
 	setNumCols( n );
     else
 	setNumRows( n );
+#endif
     repaint(); //####
     return n - 1;
 }
@@ -691,10 +658,12 @@ int QHeader::addLabel( const QString &s, int size )
 
 void QHeader::resizeEvent( QResizeEvent * )
 {
+#if 0
     if ( orient == Horizontal )
         setCellHeight( height() );
     else
         setCellWidth( width() );
+#endif
 }
 
 /*!
@@ -710,7 +679,7 @@ QSize QHeader::sizeHint() const
 		      fm.lineSpacing() + 6 );
     else {
         int width = fm.width( " " );
-        for ( int i=0 ; i<count() ; i++ )
+	for ( int i=0 ; i<count() ; i++ )
 	    if ( data->labels[i] )
 		width = QMAX( width , fm.width( *data->labels[i] ) );
 	return QSize( width + 2*QH_MARGIN,
@@ -721,13 +690,16 @@ QSize QHeader::sizeHint() const
 }
 
 /*!
-  Specifies that this widget may stretch horizontally, but is fixed
+  A horizontal header may stretch horizontally, but is fixed
   vertically.
 */
 
 QSizePolicy QHeader::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    if ( orient == Horizontal )
+	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
+    else
+	return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum );
 }
 
 
@@ -738,10 +710,12 @@ QSizePolicy QHeader::sizePolicy() const
 
 void QHeader::setOffset( int x )
 {
+    int oldOff = offs;
+    offs = x;
     if ( orient == Horizontal )
-	setXOffset( x );
+	scroll( oldOff-offs, 0 );
     else
-	setYOffset( x );
+	scroll( 0, oldOff-offs);
 }
 
 
@@ -752,18 +726,12 @@ void QHeader::setOffset( int x )
  */
 int QHeader::pPos( int i ) const
 {
+    //####### optimizations for headers inside the widget
+    //if ( i >= firstSection ) ...
     int r = 0;
-    bool ok;
-    if ( orient == Horizontal )
-	ok = colXPos( i, &r );
-    else
-	ok = rowYPos( i, &r );
-    if ( !ok ) {
-	r = 0;
-	for ( int j = 0; j < i; j++ )
-	    r += pSize( j );
-	r -= offset();
-    }
+    for ( int j = 0; j < i; j++ )
+	r += pSize( j );
+    r -= offset();
     return r;
 }
 
@@ -786,13 +754,10 @@ int QHeader::pSize( int i ) const
 
 int QHeader::offset() const
 {
-     if ( orient == Horizontal )
-	return xOffset();
-    else
-	return yOffset();
+    return offs;
 }
 
-
+#if 0
 /*! \reimp */
 
 int QHeader::cellHeight( int row )
@@ -813,7 +778,7 @@ int QHeader::cellWidth( int col )
     else
 	return QTableView::cellWidth();
 }
-
+#endif
 
 /*!
   Translates from actual index \a a to logical index.  Returns -1 if
@@ -896,3 +861,65 @@ void QHeader::setClickEnabled( bool enable, int i )
 	data->clicks[i] = enable;
     }
 }
+
+
+
+
+/*!
+  paints section \a id of the header, inside rectangle \a fr in widget coordinates.
+*/
+
+void QHeader::paintSection( QPainter *p, int id, QRect fr )
+{
+    bool down = (id==handleIdx) && ( state == Pressed || state == Moving );
+    p->setBrushOrigin( fr.topLeft() );
+    style().drawBevelButton(p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down);
+
+    int logIdx = mapToLogical(id);
+
+    QString s;
+    if ( data->labels[logIdx] )
+	s = *(data->labels[logIdx]);
+    else if ( orient == Horizontal )
+	s.sprintf( "Col %d", logIdx );
+    else
+	s.sprintf( "Row %d", logIdx );
+
+    int d = 0;
+    if ( style() == WindowsStyle  &&
+	 id==handleIdx && ( state == Pressed || state == Moving ) )
+	d = 1;
+
+    QRect r( fr.x() + QH_MARGIN+d, fr.y() + 2+d, fr.width() - 6, fr.height() - 4 );
+
+    p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
+}
+
+
+/*!
+  Paints the header.
+*/
+
+void QHeader::paintEvent( QPaintEvent *e )
+{
+    QPainter p( this );
+    p.setPen( colorGroup().buttonText() );
+    int id = cellAt( orient == Horizontal ? e->rect().left() : e->rect().top() );
+
+    for ( int i = id; i < count(); i++ ) {
+	QRect r = sRect( i );
+	paintSection( &p, i, r );
+	if ( orient == Horizontal && r. right() >= e->rect().right() ||
+	     orient == Vertical && r. bottom() >= e->rect().bottom() )
+	    return;
+    }
+    
+}
+
+
+//########## We should optimize, using firstSection
+// * cellAt()
+// * mouseMoveEvent()
+// * mousePressEvent()
+
+//#### what about lastSectionCoversAll?

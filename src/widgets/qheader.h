@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#27 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#28 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -30,7 +30,7 @@
 
 struct QHeaderData;
 
-class Q_EXPORT QHeader : public QTableView
+class Q_EXPORT QHeader : public QWidget
 {
     Q_OBJECT
 public:
@@ -60,7 +60,7 @@ public:
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
-    
+
     int		mapToLogical( int ) const;
     int		mapToActual( int ) const;
 
@@ -75,14 +75,14 @@ protected:
     //    void	timerEvent( QTimerEvent * );
 
     void	resizeEvent( QResizeEvent * );
-
+    void	paintEvent( QPaintEvent * );
     QRect	sRect( int i );
 
-    void	paintCell( QPainter *, int, int );
-    void	setupPainter( QPainter * );
+    void	paintSection( QPainter *, int, QRect );
+    //    void	setupPainter( QPainter * );
 
-    int		cellHeight( int );
-    int		cellWidth( int );
+    //    int		cellHeight( int );
+    //    int		cellWidth( int );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -103,6 +103,7 @@ private:
 
     void	moveAround( int fromIdx, int toIdx );
 
+    int		offs;
     int		handleIdx;
     int		oldHIdxSize;
     int		moveToIdx;
@@ -110,9 +111,9 @@ private:
     State	state;
     QCOORD	clickPos;
     bool	trackingIsOn;
-
+    int       firstSection;
     Orientation orient;
-
+    
     QHeaderData *data;
 
 private:	// Disabled copy constructor and operator=
