@@ -937,6 +937,8 @@ void NETRootInfo::update(unsigned long dirty) {
     unsigned char *data_ret;
     unsigned long nitems_ret, unused;
 
+    dirty = dirty & p->protocols;
+    
     if (dirty & ClientList)
 	if (XGetWindowProperty(p->display, p->root, net_client_list,
 			       0l, (long) BUFSIZE, False, XA_WINDOW, &type_ret,
@@ -1493,39 +1495,26 @@ unsigned long NETWinInfo::event(XEvent *e) {
 
 		changeDesktop(e->xclient.data.l[0]);
 	    }
-	} else if (e->type == PropertyNotify) {
-	    XEvent pe = *e;
-
-	    Bool done = False;
-	    while (! done) {
-		if (pe.xproperty.atom == net_wm_name)
-		    dirty |= WMName;
-		else if (pe.xproperty.atom == net_wm_window_type)
-		    dirty |=WMWindowType;
-		else if (pe.xproperty.atom == net_wm_strut)
-		    dirty |= WMStrut;
-		else if (pe.xproperty.atom == net_wm_icon_geometry)
-		    dirty |= WMIconGeometry;
-		else if (pe.xproperty.atom == net_wm_icon)
-		    dirty |= WMIcon;
-		else {
-		    XPutBackEvent(p->display, &pe);
-		    done = True;
-		}
-
-		if (! XCheckTypedWindowEvent(p->display, p->window,
-					     PropertyNotify, &pe))
-		    done = True;
-	    }
-
-	    update(dirty);
 	}
-    } else if (e->type == PropertyNotify) {
+    }
+	    
+	    
+    if (e->type == PropertyNotify) {
 	XEvent pe = *e;
 
 	Bool done = False;
 	while (! done) {
-	    if (pe.xproperty.atom == xa_wm_state)
+	    if (pe.xproperty.atom == net_wm_name)
+		dirty |= WMName;
+	    else if (pe.xproperty.atom == net_wm_window_type)
+		dirty |=WMWindowType;
+	    else if (pe.xproperty.atom == net_wm_strut)
+		dirty |= WMStrut;
+	    else if (pe.xproperty.atom == net_wm_icon_geometry)
+		dirty |= WMIconGeometry;
+	    else if (pe.xproperty.atom == net_wm_icon)
+		dirty |= WMIcon;
+	    else if (pe.xproperty.atom == xa_wm_state)
 		dirty |= INTERNAL_XAWMState;
 	    else if (pe.xproperty.atom == net_wm_state)
 		dirty |= WMState;
@@ -1554,6 +1543,8 @@ void NETWinInfo::update(unsigned long dirty) {
     unsigned long nitems_ret, unused;
     unsigned char *data_ret;
 
+    dirty = dirty & p->properties;
+    
     if (dirty & INTERNAL_XAWMState)
 	if (XGetWindowProperty(p->display, p->window, xa_wm_state, 0l, 1l,
 			       False, xa_wm_state, &type_ret, &format_ret,

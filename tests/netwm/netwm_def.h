@@ -75,6 +75,7 @@ public:
 	Sticky       = 1<<1,
 	MaxVert      = 1<<2,
 	MaxHoriz     = 1<<3,
+	Max = MaxVert | MaxHoriz,
 	Shaded       = 1<<4,
 	SkipTaskbar  = 1<<5
     };

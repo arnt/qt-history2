@@ -119,8 +119,8 @@ private:
 
 class NETWinInfo : public NET {
 public:
-    NETWinInfo(Display * /* display */, Window /* root window */,
-	       Window /* support window */, unsigned long /* support flags */,
+    NETWinInfo(Display * /* display */, Window /*  window */,
+	       Window /* root window */, unsigned long /* support flags */,
 	       Role /* role */ = Client);
     NETWinInfo(const NETWinInfo & /* wininfo */);
     virtual ~NETWinInfo();
@@ -133,6 +133,8 @@ public:
     void setState(unsigned long /* state */, unsigned long /* mask */);
     void setWindowType(WindowType /* type */);
     void setName(const char * /* name */);
+    
+    enum { OnAllDesktops = 0xFFFFFF };
     void setDesktop(CARD32 /* desktop */);
     void setPid(CARD32 /* pid */);
     void setHandledIcons(Bool /* handled */);
