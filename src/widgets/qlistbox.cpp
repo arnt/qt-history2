@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#273 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#274 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2055,8 +2055,8 @@ void QListBox::doLayout() const
     }
 
     d->layoutDirty = FALSE;
-    int w = d->columnPos[d->columnPos.size()-1];
-    int h = d->rowPos[d->rowPos.size()-1];
+    int w = d->columnPos[(int)d->columnPos.size()-1];
+    int h = d->rowPos[(int)d->rowPos.size()-1];
     QSize s( viewportSize( w, h ) );
     w = QMAX( w, s.width() );
     h = QMAX( h, s.height() );
