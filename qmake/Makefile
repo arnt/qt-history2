@@ -14,7 +14,7 @@ qmake: $(OBJS)
 -include $(OBJS:.o=.d)
 
 clean::
-	rm -f $(OBJS) y.tab.? scanner.c 
+	rm -f $(OBJS)
 
 distclean:: clean
 	rm -rf qmake .deps/
