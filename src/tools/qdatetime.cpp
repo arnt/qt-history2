@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#38 $
 **
 ** Implementation of date and time classes
 **
@@ -30,7 +30,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#38 $")
 
 
 static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
@@ -369,6 +369,7 @@ bool QDate::leapYear( int y )
 /*----------------------------------------------------------------------------
   \internal
   Converts a Gregorian date to a Julian day.
+  This algorithm is taken from Communications of the ACM, Vol 6, No 8.
   \sa jul2greg()
  ----------------------------------------------------------------------------*/
 
@@ -386,12 +387,13 @@ ulong QDate::greg2jul( int y, int m, int d )
     c = y;					// NOTE: Sym C++ 6.0 bug
     c /= 100;
     ya = y - 100*c;
-    return (146097L*c)/4 + (1461*ya)/4 + (153*m+2)/5 + d + 1721119L;
+    return 1721119L + d + (146097L*c)/4 + (1461*ya)/4 + (153*m+2)/5;
 }
 
 /*----------------------------------------------------------------------------
   \internal
   Converts a Julian day to a Gregorian date.
+  This algorithm is taken from Communications of the ACM, Vol 6, No 8.
   \sa greg2jul()
  ----------------------------------------------------------------------------*/
 
@@ -399,16 +401,16 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 {
     ulong x;
     ulong j = jd - 1721119L;
-    y = (int) ((j*4 - 1) / 146097L);
-    j = j*4 - 1 - 146097L*y;
+    y = (int)((j*4 - 1)/146097L);
+    j = j*4 - 146097L*y - 1;
     x = j/4;
     j = (x*4 + 3) / 1461;
+    y = (int)(100*y + j);
     x = (x*4) + 3 - 1461*j;
     x = (x + 4)/4;
     m = (int)(5*x - 3)/153;
     x = 5*x - 3 - 153*m;
     d = (int)((x + 5)/5);
-    y = (int)(100*y + j);
     if ( m < 10 )
 	m += 3;
     else {
@@ -434,8 +436,8 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 
   The time resolution of QTime is a millisecond, although the accuracy
   depends on the underlying operating system.  Some operating systems
-  (e.g. Linux) support a one-millisecond resolution, while others (MS-DOS
-  and Windows 3.1) support only a 55 millisecond resolution.
+  (e.g. Linux and Window NT) support a one-millisecond resolution, while
+  others (MS-DOS and Windows 3.1) support only a 55 millisecond resolution.
 
   \sa QDate, QDateTime
  ----------------------------------------------------------------------------*/
