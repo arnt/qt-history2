@@ -291,7 +291,7 @@ static inline const QChar *prevChar( const QString &str, int pos )
     pos--;
     const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
-	if( ch->isLetter() )
+	if( !ch->isMark() )
 	    return ch;
 	pos--;
 	ch--;
@@ -306,7 +306,7 @@ static inline const QChar *nextChar( const QString &str, int pos)
     const QChar *ch = str.unicode() + pos;
     while( pos < len ) {
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ch->isLetter() )
+	if( !ch->isMark() )
 	    return ch;
 	// assume it's a transparent char, this might not be 100% correct
 	pos++;
@@ -950,13 +950,16 @@ static const ushort arabicUnicodeMapping[256][4] = {
     
 };
 
-static const uchar arabicUnicodeLamAlefMapping[6][4] = {
-    { 0xc2, 0xff, 0xc2, 0xff }, // 0x622 	R 	Alef with Madda above
-    { 0xc3, 0xff, 0xc3, 0xff }, // 0x623 	R	Alef with Hamza above
-    { 0xc4, 0xff, 0xc4, 0xff }, // 0x624 	R	Waw with Hamza above
-    { 0xc5, 0xff, 0xc5, 0xff }, // 0x625 	R	Alef with Hamza below
-    { 0xc6, 0xc0, 0xc6, 0xc0 }, // 0x626 	D	Yeh with Hamza above
-    { 0xc7, 0xff, 0xc7, 0xff } // 0x627 	R	Alef
+// this is a bit tricky. Alef always binds to the right, so the second parameter descibing the shape
+// of the lam can be either initial of medial. So initial maps to the isolated form of the ligature,
+// medial to the final form
+static const ushort arabicUnicodeLamAlefMapping[6][4] = {
+    { 0xfffd, 0xfef5, 0xfffd, 0xfef6 }, // 0x622 	R 	Alef with Madda above
+    { 0xfffd, 0xfef7, 0xfffd, 0xfef8 }, // 0x623 	R	Alef with Hamza above
+    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x624 	R	Waw with Hamza above
+    { 0xfffd, 0xfef9, 0xfffd, 0xfefa }, // 0x625 	R	Alef with Hamza below
+    { 0xfffd, 0xfffd, 0xfffd, 0xfffd }, // 0x626 	D	Yeh with Hamza above
+    { 0xfffd, 0xfefb, 0xfffd, 0xfefc } // 0x627 	R	Alef
 };
 
 int QFontArabicUnicodeCodec::heuristicContentMatch(const char *, int) const

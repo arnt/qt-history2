@@ -2838,7 +2838,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int bw = 0;
     int cy = 0;
     int curx = -1, cury, curh;
-    bool lastDirection = FALSE; // left to right
+    bool lastDirection = at(0)->rightToLeft;
     int tw = 0;
 
     int selectionStarts[ numSelections ];
