@@ -170,7 +170,7 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
  *********************************************************************/
 
 QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
-    QServerSocket(QTFB_PORT,parent,name),
+    QServerSocket(QTFB_PORT,16,parent,name),
     mouseBuf(0), pending_region_acks(0)
 {
     swidth = sw;
@@ -211,9 +211,6 @@ QWSServer::QWSServer( int sw, int sh, QObject *parent=0, const char *name=0 ) :
     // no selection yet
     selectionOwner.windowid = -1;
     selectionOwner.time.set( -1, -1, -1, -1 );
-
-    if ( !start() )
-	qFatal("Failed to bind to port %d",QTFB_PORT);
 }
 
 QWSServer::~QWSServer()
