@@ -78,7 +78,7 @@ public:
 
     const char *name() const;
     const char *typeName() const;
-    uint type() const;
+    int type() const;
 
     bool isReadable() const;
     bool isWritable() const;
@@ -130,18 +130,18 @@ public:
     };
 
     typedef void (*Destructor)(void *);
-    typedef void *(*CopyConstructor)(const void *);
+    typedef void *(*Constructor)(const void *);
     typedef void (*SaveOperator)(QDataStream &, const void *);
     typedef void (*LoadOperator)(QDataStream &, void *);
 
     static int registerType(const char *typeName, Destructor destructor,
-                            CopyConstructor copyConstructor);
+                            Constructor constructor);
     static void registerStreamOperators(const char *typeName, SaveOperator saveOp,
                                         LoadOperator loadOp);
     static int type(const char *typeName);
     static const char *typeName(int type);
     static bool isRegistered(int type);
-    static void *copy(int type, const void *data);
+    static void *construct(int type, const void *copy);
     static void destroy(int type, void *data);
     static bool save(QDataStream &stream, int type, const void *data);
     static bool load(QDataStream &stream, int type, void *data);
@@ -154,10 +154,10 @@ void qMetaTypeDeleteHelper(T *t)
 }
 
 template <typename T>
-void *qMetaTypeCopyHelper(const T *t)
+void *qMetaTypeConstructHelper(const T *t)
 {
     if (!t)
-        return 0;
+        return new T;
     return new T(*static_cast<const T*>(t));
 }
 
@@ -176,13 +176,13 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 template <typename T>
 static int qRegisterMetaType(const char *typeName, T * = 0)
 {
-    typedef void*(*CopyPtr)(const T*);
-    CopyPtr cptr = qMetaTypeCopyHelper<T>;
+    typedef void*(*ConstructPtr)(const T*);
+    ConstructPtr cptr = qMetaTypeConstructHelper<T>;
     typedef void(*DeletePtr)(T*);
     DeletePtr dptr = qMetaTypeDeleteHelper<T>;
 
     return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
-                                   reinterpret_cast<QMetaType::CopyConstructor>(cptr));
+                                   reinterpret_cast<QMetaType::Constructor>(cptr));
 }
 
 template <typename T>

@@ -257,7 +257,7 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
         for (i = 1; i < ParamCount; ++i) {
             types[i] = QMetaType::type(typeNames[i]);
             if (types[i]) {
-                args[i] = QMetaType::copy(types[i], param[i]);
+                args[i] = QMetaType::construct(types[i], param[i]);
                 ++nargs;
             } else if (param[i]) {
                 qWarning("qInvokeMetaMember: Unable to handle unregistered datatype '%s'",

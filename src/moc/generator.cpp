@@ -109,10 +109,6 @@ int qvariant_nameToType(const char* name)
             if (!strcmp(type_map[i], name))
                 return i;
         }
-
-        // usertype
-        if (QByteArray(name).endsWith('*'))
-            return ntypes;
     }
     return 0;
 }
@@ -418,7 +414,7 @@ void Generator::generateProperties()
                     tmp = "QByteArray";
             if (tmp.left(6) == "const ")
                 tmp = tmp.mid(6);
-            if (tmp.endsWith('*')) {
+            if (p.type != tmp && tmp.endsWith('*')) {
                 tmp.chop(1);
                 spec = PropertyDef::PointerSpec;
             } else if (f.type.endsWith('&')) { // raw type, not normalized type

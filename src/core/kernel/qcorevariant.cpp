@@ -81,9 +81,9 @@ inline T *v_cast(void *&p)
 
 #define QCONSTRUCT(vType) \
     if (QTypeInfo<vType >::isLarge) \
-        x->value.ptr = new vType(*static_cast<const vType *>(v)); \
+        x->value.ptr = new vType(*static_cast<const vType *>(copy)); \
     else \
-        new (&x->value.ptr) vType(*static_cast<const vType *>(v))
+        new (&x->value.ptr) vType(*static_cast<const vType *>(copy))
 
 #define QCONSTRUCT_EMPTY(vType) \
     if (QTypeInfo<vType >::isLarge) \
@@ -91,9 +91,9 @@ inline T *v_cast(void *&p)
     else \
         new (&x->value.ptr) vType
 
-static void construct(QCoreVariant::Private *x, const void *v)
+static void construct(QCoreVariant::Private *x, const void *copy)
 {
-    if (v) {
+    if (copy) {
         switch(x->type) {
         case QCoreVariant::String:
             QCONSTRUCT(QString);
@@ -125,27 +125,27 @@ static void construct(QCoreVariant::Private *x, const void *v)
             QCONSTRUCT(QBitArray);
             break;
         case QCoreVariant::Int:
-            x->value.i = *static_cast<const int *>(v);
+            x->value.i = *static_cast<const int *>(copy);
             break;
         case QCoreVariant::UInt:
-            x->value.u = *static_cast<const uint *>(v);
+            x->value.u = *static_cast<const uint *>(copy);
             break;
         case QCoreVariant::Bool:
-            x->value.b = *static_cast<const bool *>(v);
+            x->value.b = *static_cast<const bool *>(copy);
             break;
         case QCoreVariant::Double:
-            x->value.d = *static_cast<const double *>(v);
+            x->value.d = *static_cast<const double *>(copy);
             break;
         case QCoreVariant::LongLong:
-            x->value.ll = *static_cast<const Q_LLONG *>(v);
+            x->value.ll = *static_cast<const Q_LLONG *>(copy);
             break;
         case QCoreVariant::ULongLong:
-            x->value.ull = *static_cast<const Q_ULLONG *>(v);
+            x->value.ull = *static_cast<const Q_ULLONG *>(copy);
             break;
         case QCoreVariant::Invalid:
             break;
         default:
-            x->value.ptr = QMetaType::copy(x->type, v);
+            x->value.ptr = QMetaType::construct(x->type, copy);
             Q_ASSERT_X(x->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
             break;
         }
@@ -202,9 +202,8 @@ static void construct(QCoreVariant::Private *x, const void *v)
             x->value.ull = Q_ULLONG(0);
             break;
         default:
-            Q_ASSERT_X(QMetaType::isRegistered(x->type), "QCoreVariant::construct()",
-                       "Unknown datatype");
-            x->value.ptr = 0;
+            x->value.ptr = QMetaType::construct(x->type, copy);
+            Q_ASSERT_X(x->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
             break;
         }
     }
@@ -1057,10 +1056,10 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 
 
 /*!
-    \fn QCoreVariant::QCoreVariant(Type type, const void *v)
+    \fn QCoreVariant::QCoreVariant(int typeOrUserType, const void *copy)
 
-    Constructs a non-null variant of type \a type, and initializes with \a v if
-    \a v is not 0.
+    Constructs variant of type \a typeOrUserType, and initializes with
+    \a copy if \a copy is not 0.
 */
 
 /*!
@@ -1070,24 +1069,25 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
 */
 
 
+
 /*!
-    \fn QCoreVariant::create(Type type, const void *v)
+    \fn QCoreVariant::create(int type, const void *copy)
 
     \internal
 
-    Constructs a variant of type \a type, and initializes with \a v if
-    \a v is not 0.
+    Constructs a variant private of type \a type, and initializes with \a copy if
+    \a copy is not 0.
 */
 
 
-QCoreVariant::Private *QCoreVariant::create(Type t, const void *v)
+QCoreVariant::Private *QCoreVariant::create(int type, const void *copy)
 {
     Private *x = new Private;
     x->ref = 1;
-    x->type = t;
+    x->type = type;
     x->is_null = true;
     x->str_cache = 0;
-    handler->construct(x, v);
+    handler->construct(x, copy);
     return x;
 }
 
@@ -1238,8 +1238,8 @@ QCoreVariant::QCoreVariant(const char *val)
 
 QCoreVariant::QCoreVariant(Type type)
 { d = create(type, 0); }
-QCoreVariant::QCoreVariant(Type type, const void *v)
-{ d = create(type, v); d->is_null = false; }
+QCoreVariant::QCoreVariant(int typeOrUserType, const void *copy)
+{ d = create(typeOrUserType, copy); if (copy) d->is_null = false; }
 QCoreVariant::QCoreVariant(int val)
 { d = create(Int, &val); }
 QCoreVariant::QCoreVariant(uint val)
@@ -1275,9 +1275,27 @@ QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &map)
 { d = create(Map, &map); }
 #endif
 
-QCoreVariant::Type QCoreVariant::type() const
-{ return d->type >= QMetaType::User ? UserType : static_cast<Type>(d->type); }
+/*!
+    Returns the storage type of the value stored in the variant.
+    Usually it's best to test with canCast() whether the variant can
+    deliver the data type you are interested in.
+*/
 
+QCoreVariant::Type QCoreVariant::type() const
+{
+    return d->type >= QMetaType::User ? UserType : static_cast<Type>(d->type);
+}
+
+/*!
+    Returns the storage type of the value stored in the variant. For
+    non-user types, this is the same as type().
+
+    \sa type()
+*/
+int QCoreVariant::userType() const
+{
+    return d->type;
+}
 
 /*!
     Assigns the value of the variant \a variant to this variant.
@@ -1519,14 +1537,6 @@ QDataStream& operator<<(QDataStream &s, const QCoreVariant::Type p)
 }
 
 #endif //QT_NO_DATASTREAM
-
-/*!
-    \fn Type QCoreVariant::type() const
-
-    Returns the storage type of the value stored in the variant.
-    Usually it's best to test with canCast() whether the variant can
-    deliver the data type you are interested in.
-*/
 
 /*!
     \fn bool QCoreVariant::isValid() const

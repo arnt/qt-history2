@@ -83,7 +83,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QCoreVariant();
     inline ~QCoreVariant();
     QCoreVariant(Type type);
-    QCoreVariant(Type type, const void *v);
+    QCoreVariant(int typeOrUserType, const void *copy);
     inline QCoreVariant(const QCoreVariant &other);
 
 #ifndef QT_NO_DATASTREAM
@@ -118,6 +118,7 @@ class Q_CORE_EXPORT QCoreVariant
     { return !(other == *this); }
 
     Type type() const;
+    int userType() const;
     const char *typeName() const;
 
     bool canCast(Type t) const;
@@ -239,7 +240,7 @@ protected:
 
     static const Handler *handler;
 
-    Private *create(Type t, const void *v);
+    Private *create(int type, const void *copy);
     inline void cleanUp(Private *p)
     { handler->clear(p); delete p; }
     void *castOrDetach(Type t);
@@ -248,7 +249,7 @@ protected:
 template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
 {
-    v = QCoreVariant(QCoreVariant::Type(qRegisterMetaType<T>(typeName)), &t);
+    v = QCoreVariant(qRegisterMetaType<T>(typeName), &t);
 }
 
 template <typename T>

@@ -2306,7 +2306,7 @@ static void queued_activate(QObject *obj, QObjectPrivate::Connections::Connectio
     types[0] = 0; // return type
     args[0] = 0; // return value
     for (int n = 1; n < nargs; ++n)
-        args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
+        args[n] = QMetaType::construct((types[n] = c->types[n-1]), argv[n]);
     QCoreApplication::postEvent(c->receiver,
                                 new QMetaCallEvent(c->member, obj, nargs, types, args));
 }

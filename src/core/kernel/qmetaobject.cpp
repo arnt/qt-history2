@@ -1241,17 +1241,20 @@ const char *QMetaProperty::typeName() const
 
 /*!
     Returns this property's type. The return value is one
-    of the values of the QCoreVariant::Type enumeration, or
-    -1 for properties of type QVariant.
+    of the values of the QCoreVariant::Type enumeration.
 */
-uint QMetaProperty::type() const
+int QMetaProperty::type() const
 {
     if (!mobj[QMetaObject::ReadProperty])
         return 0;
 
     int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
     int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-    return (QCoreVariant::Type)flags >> 24;
+
+    uint type = flags >> 24;
+    if (!type)
+        type = QMetaType::type(typeName());
+    return type;
 }
 
 
@@ -1328,36 +1331,32 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     if (!obj || !mobj[QMetaObject::ReadProperty])
         return QCoreVariant();
 
-    QCoreVariant::Type t = QCoreVariant::Int;
+    int  t = QCoreVariant::Int;
     if (!isEnumType()) {
         int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
         int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-        t = (QCoreVariant::Type)(flags >> 24);
+        const char *type = mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle + 1];
+        t = (flags >> 24);
         if (t == QCoreVariant::Invalid)
-            t = QCoreVariant::nameToType(mobj[QMetaObject::ReadProperty]->d.stringdata
-                                      + mobj[QMetaObject::ReadProperty]->d.data[handle + 1]);
+            t = QMetaType::type(type);
+        if (t == QCoreVariant::Invalid)
+            t = QCoreVariant::nameToType(type);
         if (t == QCoreVariant::Invalid)
             return QCoreVariant();
     }
     QCoreVariant value;
     void *argv[1];
-    void *user = 0;
     if ((uint)t == 0xffffffff) {
         argv[0] = &value;
-    } else if (t == QCoreVariant::UserType) {
-        qVariantSet(value, user, typeName());
-        argv[0] = &user;
     } else {
-        value = QCoreVariant(t, (void*)0);
+        value = QCoreVariant((QCoreVariant::Type)t);
         argv[0] = value.data();
     }
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if (t == QCoreVariant::UserType)
-        qVariantSet(value, user, typeName());
-    else if ((uint)t != 0xffffffff && argv[0] != value.data())
-        return QCoreVariant(t, argv[0]);
+    if ((uint)t != 0xffffffff && argv[0] != value.data())
+        return QCoreVariant((QCoreVariant::Type)t, argv[0]);
     return value;
 }
 
@@ -1375,7 +1374,7 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
         return false;
 
     QCoreVariant v = value;
-    QCoreVariant::Type t = QCoreVariant::Invalid;
+    uint t = QCoreVariant::Invalid;
     if (isEnumType()) {
         if (v.type() == QCoreVariant::String || v.type() == QCoreVariant::CString) {
             if (isFlagType())
@@ -1389,11 +1388,15 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     } else {
         int handle = priv(mobj[QMetaObject::WriteProperty]->d.data)->propertyData + 3*idx[QMetaObject::WriteProperty];
         int flags = mobj[QMetaObject::WriteProperty]->d.data[handle + 2];
-        t = (QCoreVariant::Type)(flags >> 24);
+        const char *type = mobj[QMetaObject::WriteProperty]->d.stringdata + mobj[QMetaObject::WriteProperty]->d.data[handle + 1];
+        t = flags >> 24;
         if (t == QCoreVariant::Invalid)
-            t = QCoreVariant::nameToType(mobj[QMetaObject::WriteProperty]->d.stringdata
-                                      + mobj[QMetaObject::WriteProperty]->d.data[handle + 1]);
-        if (t != QCoreVariant::Invalid && (uint)t != 0xffffffff && t != QCoreVariant::UserType &&  !v.cast(t))
+            t = QMetaType::type(type);
+        if (t == QCoreVariant::Invalid)
+            t = QCoreVariant::nameToType(type);
+        if (t == QCoreVariant::Invalid)
+            return false;
+        if (t != 0xffffffff && (t != value.userType() || (t < QCoreVariant::UserType && !v.cast((QCoreVariant::Type)t))))
             return false;
     }
 
@@ -1450,7 +1453,7 @@ bool QMetaProperty::isWritable() const
         return false;
     int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
     int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-    return !(flags & EnumOrFlag) || menum.name();
+    return !(flags & EnumOrFlag) || menum.name() || QMetaType::type(typeName());
 }
 
 
@@ -1627,16 +1630,16 @@ static const struct { const char * typeName; int type; } types[] = {
 class QCustomTypeInfo
 {
 public:
-    QCustomTypeInfo() : typeName(0, '\0'), copy(0), destr(0), saveOp(0), loadOp(0) {}
-    inline void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
-    { typeName = tname; copy = cp; destr = de; }
-    inline void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
-    { copy = cp; destr = de; }
+    QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0), saveOp(0), loadOp(0) {}
+    inline void setData(const char *tname, QMetaType::Constructor cp, QMetaType::Destructor de)
+    { typeName = tname; constr = cp; destr = de; }
+    inline void setData(QMetaType::Constructor cp, QMetaType::Destructor de)
+    { constr = cp; destr = de; }
     inline void setOperators(QMetaType::SaveOperator sOp, QMetaType::LoadOperator lOp)
     { saveOp = sOp; loadOp = lOp; }
 
     QByteArray typeName;
-    QMetaType::CopyConstructor copy;
+    QMetaType::Constructor constr;
     QMetaType::Destructor destr;
     QMetaType::SaveOperator saveOp;
     QMetaType::LoadOperator loadOp;
@@ -1685,11 +1688,11 @@ const char *QMetaType::typeName(int type)
     or -1 if the type could not be registered.
  */
 int QMetaType::registerType(const char *typeName, Destructor destructor,
-                            CopyConstructor copyConstructor)
+                            Constructor constructor)
 {
     QVector<QCustomTypeInfo> *ct = customTypes();
     static int currentIdx = User;
-    if (!ct || !typeName || !destructor || !copyConstructor)
+    if (!ct || !typeName || !destructor || !constructor)
         return -1;
     int idx = type(typeName);
     if (idx) {
@@ -1697,11 +1700,11 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
             qWarning("cannot re-register basic type '%s'", typeName);
             return -1;
         }
-        (*ct)[idx - User].setData(copyConstructor, destructor);
+        (*ct)[idx - User].setData(constructor, destructor);
     } else {
         idx = currentIdx++;
         ct->resize(ct->count() + 1);
-        (*ct)[idx - User].setData(typeName, copyConstructor, destructor);
+        (*ct)[idx - User].setData(typeName, constructor, destructor);
     }
     return idx;
 }
@@ -1768,52 +1771,90 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
 }
 
 /*
-  Returns a copy of data, assuming it is of type \a type.
+  Returns a copy of \a copy, assuming it is of type \a type. If \a
+  copy is zero, creates a default type.
  */
-void *QMetaType::copy(int type, const void *data)
+void *QMetaType::construct(int type, const void *copy)
 {
-    if (!data)
-        return 0;
-    switch(type) {
-    case QMetaType::VoidStar:
-        return new void *(*static_cast<void* const *>(data));
-    case QMetaType::Long:
-        return new long(*static_cast<const long*>(data));
-    case QMetaType::Int:
-        return new int(*static_cast<const int*>(data));
-    case QMetaType::Short:
-        return new short(*static_cast<const short*>(data));
-    case QMetaType::Char:
-        return new char(*static_cast<const char*>(data));
-    case QMetaType::ULong:
-        return new ulong(*static_cast<const ulong*>(data));
-    case QMetaType::UInt:
-        return new uint(*static_cast<const uint*>(data));
-    case QMetaType::UShort:
-        return new ushort(*static_cast<const ushort*>(data));
-    case QMetaType::UChar:
-        return new uchar(*static_cast<const uchar*>(data));
-    case QMetaType::Bool:
-        return new bool(*static_cast<const bool*>(data));
-    case QMetaType::Float:
-        return new float(*static_cast<const float*>(data));
-    case QMetaType::Double:
-        return new double(*static_cast<const double*>(data));
-    case QMetaType::QChar:
-        return new ::QChar(*static_cast<const ::QChar*>(data));
-    case QMetaType::QByteArray:
-        return new ::QByteArray(*static_cast<const ::QByteArray*>(data));
-    case QMetaType::QString:
-        return new ::QString(*static_cast<const ::QString*>(data));
-    case QMetaType::Void:
-        return 0;
-    default:
-        {
-            const QVector<QCustomTypeInfo> * const ct = customTypes();
-            if (type >= User && (ct && ct->count() > type - User))
-                return ct->at(type - User).copy(data);
+    if (copy) {
+        switch(type) {
+        case QMetaType::VoidStar:
+            return new void *(*static_cast<void* const *>(copy));
+        case QMetaType::Long:
+            return new long(*static_cast<const long*>(copy));
+        case QMetaType::Int:
+            return new int(*static_cast<const int*>(copy));
+        case QMetaType::Short:
+            return new short(*static_cast<const short*>(copy));
+        case QMetaType::Char:
+            return new char(*static_cast<const char*>(copy));
+        case QMetaType::ULong:
+            return new ulong(*static_cast<const ulong*>(copy));
+        case QMetaType::UInt:
+            return new uint(*static_cast<const uint*>(copy));
+        case QMetaType::UShort:
+            return new ushort(*static_cast<const ushort*>(copy));
+        case QMetaType::UChar:
+            return new uchar(*static_cast<const uchar*>(copy));
+        case QMetaType::Bool:
+            return new bool(*static_cast<const bool*>(copy));
+        case QMetaType::Float:
+            return new float(*static_cast<const float*>(copy));
+        case QMetaType::Double:
+            return new double(*static_cast<const double*>(copy));
+        case QMetaType::QChar:
+            return new ::QChar(*static_cast<const ::QChar*>(copy));
+        case QMetaType::QByteArray:
+            return new ::QByteArray(*static_cast<const ::QByteArray*>(copy));
+        case QMetaType::QString:
+            return new ::QString(*static_cast<const ::QString*>(copy));
+        case QMetaType::Void:
+            return 0;
+        default:
+            ;
+        }
+    } else {
+        switch(type) {
+        case QMetaType::VoidStar:
+            return new void *;
+        case QMetaType::Long:
+            return new long;
+        case QMetaType::Int:
+            return new int;
+        case QMetaType::Short:
+            return new short;
+        case QMetaType::Char:
+            return new char;
+        case QMetaType::ULong:
+            return new ulong;
+        case QMetaType::UInt:
+            return new uint;
+        case QMetaType::UShort:
+            return new ushort;
+        case QMetaType::UChar:
+            return new uchar;
+        case QMetaType::Bool:
+            return new bool;
+        case QMetaType::Float:
+            return new float;
+        case QMetaType::Double:
+            return new double;
+        case QMetaType::QChar:
+            return new ::QChar;
+        case QMetaType::QByteArray:
+            return new ::QByteArray;
+        case QMetaType::QString:
+            return new ::QString;
+        case QMetaType::Void:
+            return 0;
+        default:
+            ;
         }
     }
+
+    const QVector<QCustomTypeInfo> * const ct = customTypes();
+    if (type >= User && (ct && ct->count() > type - User))
+        return ct->at(type - User).constr(copy);
     return 0;
 }
 
