@@ -13,10 +13,9 @@
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
     if ( Project('TEMPLATE') eq "qt.t" ) {
 	#! Qt/Embedded hackery.
-	Project('TMAKE_LIBS += -L../lib');
-	Project('TMAKE_LIBS += -lfreetype');
-	Project('TMAKE_LIBS += -lpng');
-	Project('TMAKE_LIBS += -lz');
+	Project('TMAKE_LIBS += ../lib/libfreetype.a');
+	Project('TMAKE_LIBS += ../lib/libpng.a');
+	Project('TMAKE_LIBS += ../lib/libz.a');
     }
 
     if ( Config("qt") || Config("opengl") ) {
@@ -208,10 +207,10 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 #$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk LIB_DIR=../../../lib ../../../lib/libfreetype.a');
 
 #$ Substitute('../lib/libz.a:');
-#$ Substitute('	cd 3rdparty/zlib; make; cp libz.a ../../lib');
+#$ Substitute('	cd 3rdparty/zlib; make; cp libz.a ../../../lib');
 
 #$ Substitute('../lib/libpng.a:');
-#$ Substitute('	cd 3rdparty/libpng; make -f scripts/makefile.linux; cp libpng.a ../../lib');
+#$ Substitute('	cd 3rdparty/libpng; make -f scripts/makefile.linux; cp libpng.a ../../../lib');
 
 moc: $(SRCMOC)
 
