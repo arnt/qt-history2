@@ -1017,14 +1017,20 @@ QPixmap Resource::loadPixmap( const QDomElement &e, const QString &/*tagname*/ )
 	return pix;
     } else if ( formwindow && formwindow->savePixmapInProject() ) {
 	QPixmap pix;
-	if ( mainwindow && mainwindow->currProject() )
+	if ( mainwindow && mainwindow->currProject() ) {
 	    pix = mainwindow->currProject()->pixmapCollection()->pixmap( arg );
-	else
+	} else {
 	    pix = QPixmap::fromMimeSource( "image.png" );
+	    // we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
+	    pix.convertFromImage( pix.convertToImage() );
+	}
+
 	MetaDataBase::setPixmapKey( formwindow, pix.serialNumber(), arg );
 	return pix;
     }
     QPixmap pix = QPixmap::fromMimeSource( "image.png" );
+    // we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
+    pix.convertFromImage( pix.convertToImage() );
     MetaDataBase::setPixmapArgument( formwindow, pix.serialNumber(), arg );
     return pix;
 }

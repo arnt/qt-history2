@@ -353,8 +353,12 @@ void FormWindow::insertWidget()
     if ( !w )
 	return;
 
-    if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) ) // ### what to do for pixmaps in project
-	( (QLabel*)w )->setPixmap( QPixmap::fromMimeSource( "image.png" ) );
+    if ( !savePixmapInline() && currTool == WidgetDatabase::idFromClassName( "PixmapLabel" ) ) { // ### what to do for pixmaps in project
+	QPixmap pix;
+	// we have to force the pixmap to get a new and unique serial number. Unfortunately detatch() doesn't do that
+	pix.convertFromImage( QPixmap::fromMimeSource( "image.png" ).convertToImage() );
+	( (QLabel*)w )->setPixmap( pix );
+    }
     int id = WidgetDatabase::idFromClassName( WidgetFactory::classNameOf(w) );
     if ( WidgetDatabase::isCustomWidget( id ) ) {
 	QWhatsThis::add( w, tr("<b>A %1 (custom widget)</b> "
