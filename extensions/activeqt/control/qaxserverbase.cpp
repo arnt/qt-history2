@@ -1808,7 +1808,7 @@ HRESULT QAxServerBase::DoVerb( LONG iVerb, LPMSG /*lpmsg*/, IOleClientSite* /*pA
     case OLEIVERB_HIDE:
 	UIDeactivate();
 	if ( m_hWnd )
-	    ShowWindow(SW_HIDE);
+	    ::ShowWindow( m_hWnd, SW_HIDE );
 	hr = S_OK;
 	return hr;
 

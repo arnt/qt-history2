@@ -52,7 +52,7 @@ public:
 
 extern CExeModule _Module;
 #include <atlcom.h>
-#include <atlctl.h>
+#include <atlwin.h>
 
 extern GUID IID_IAxServerBase;
 
