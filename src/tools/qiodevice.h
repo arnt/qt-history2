@@ -88,7 +88,11 @@
 class Q_EXPORT QIODevice			// IO device class
 {
 public:
+#if defined(QT_NEWABI)
     typedef QtFileOffset Offset;
+#else
+    typedef Q_ULONG Offset;
+#endif
 
     QIODevice();
     virtual ~QIODevice();
