@@ -1356,7 +1356,7 @@ bool QRegExpEngine::badCharMatch()
 	} else if ( sk > 0 ) {
 	    int k = slideNext + minl - sk;
 	    if ( k >= mmSlideTabSize )
-		k -= minl + 1;
+		k -= mmSlideTabSize;
 	    if ( sk > mmSlideTab[k] )
 		mmSlideTab[k] = sk;
 	}
@@ -2691,20 +2691,16 @@ struct QRegExpPrivate
 
 #ifndef QT_NO_REGEXP_OPTIM
 static QCache<QRegExpEngine> *engineCache = 0;
-
-static QString engineKey( const QString& pattern, bool caseSensitive )
-{
-    return pattern + QChar( caseSensitive ? '1' : '0' );
-}
 #endif
 
 static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
 {
 #ifndef QT_NO_REGEXP_OPTIM
     if ( engineCache != 0 ) {
-	QRegExpEngine *eng =
-		engineCache->take( engineKey(pattern, caseSensitive) );
-	if ( eng != 0 ) {
+	QRegExpEngine *eng = engineCache->take( pattern );
+	if ( eng == 0 || eng->caseSensitive() != caseSensitive ) {
+	    delete eng;
+	} else {
 	    eng->ref();
 	    return eng;
 	}
@@ -2721,8 +2717,7 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
 	    engineCache = new QCache<QRegExpEngine>;
 	    engineCache->setAutoDelete( TRUE );
 	}
-	if ( engineCache->insert(engineKey(pattern, eng->caseSensitive()), eng,
-				 1 + pattern.length() / 4) )
+	if ( engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
 	    return;
 #endif
 	delete eng;
