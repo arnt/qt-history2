@@ -349,13 +349,13 @@ void QHeader::init( int n )
 
 /*! \property QHeader::orientation
     \brief the header's physical orientation
-    
+
   The orientation can be either QHeader::Vertical or
   QHeader::Horizontal.
 
   When adding labels without the size parameter, setOrientation()
   should be called first, otherwise labels will be sized incorrectly.
-  
+
 */
 
 void QHeader::setOrientation( Orientation orientation )
@@ -967,7 +967,7 @@ QSize QHeader::sizeHint() const
 
 /*! \property QHeader::offset
     \brief the header's leftmost (or uppermost) visible pixel
-    
+
   Setting this property will scroll the header so that \e offset becomes
   the leftmost (or uppermost for vertical headers) visible pixel.
 */
@@ -1129,7 +1129,7 @@ void QHeader::setResizeEnabled( bool enable, int section )
 
 /*! \property QHeader::moving
     \brief whether the header sections can be moved
-   
+
   If you set this property to TRUE, the indexChange() signal is emitted if
   the user moves a section.
 
@@ -1246,9 +1246,9 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     if ( d->labels[section] )
 	s = *(d->labels[section]);
     else if ( orient == Horizontal )
-	s = tr("Col %1").arg(section);
+	s = tr("%1").arg(section);
     else
-	s = tr("Row %1").arg(section);
+	s = tr("%1").arg(section);
 
     int m = 0;
     if ( style() == WindowsStyle  &&
@@ -1608,7 +1608,7 @@ void QHeader::calculatePositions()
 /*! \property QHeader::stretching
     \brief whether the header sections always cover the full width
     (or height) of the header or not
-    
+
   If you set this property to TRUE, the section \e section of the
   header will adjust itself when resized, so that the sections always
   cover the full width (or height, if it is a vertical header) of the

@@ -1563,14 +1563,10 @@ void QTable::init( int rows, int cols )
     leftHeader->setUpdatesEnabled( FALSE );
     // Initialize headers
     int i = 0;
-    for ( i = 0; i < numCols(); ++i ) {
-	topHeader->setLabel( i, QString::number( i + 1 ) );
+    for ( i = 0; i < numCols(); ++i )
 	topHeader->resizeSection( i, 100 );
-    }
-    for ( i = 0; i < numRows(); ++i ) {
-	leftHeader->setLabel( i, QString::number( i + 1 ) );
+    for ( i = 0; i < numRows(); ++i )
 	leftHeader->resizeSection( i, 20 );
-    }
     topHeader->setUpdatesEnabled( TRUE );
     leftHeader->setUpdatesEnabled( TRUE );
 
