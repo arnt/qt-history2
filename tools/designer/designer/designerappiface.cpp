@@ -1,4 +1,5 @@
 #include "designerappiface.h"
+
 #include "mainwindow.h"
 #include "formwindow.h"
 #include "formlist.h"
@@ -11,9 +12,8 @@
 /*
  * Application Interface
 */
-
 DesignerApplicationInterfaceImpl::DesignerApplicationInterfaceImpl()
-: ref( 0 ), sbIface( 0 )
+: ref( 0 )
 {
 }
 
@@ -25,7 +25,11 @@ QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QGuid
     else if ( guid == IID_QComponentInterface )
 	iface = (QComponentInterface*)this;
     else if ( guid == IID_DesignerStatusBarInterface )
-	iface = sbIface ? sbIface : ( sbIface = new DesignerStatusBarInterfaceImpl( (QComponentInterface*)this ) );
+	iface = new DesignerStatusBarInterfaceImpl( this );
+    else if ( guid == IID_DesignerFormListInterface )
+	iface = new DesignerFormListInterfaceImpl( this );
+    else if ( guid == IID_DesignerFormInterface )
+	iface = new DesignerFormInterfaceImpl( 0, this );
 
     if ( iface )
 	iface->addRef();
@@ -39,8 +43,10 @@ unsigned long DesignerApplicationInterfaceImpl::addRef()
 
 unsigned long DesignerApplicationInterfaceImpl::release()
 {
-    if ( !--ref )
+    if ( !--ref ) {
 	delete this;
+	return 0;
+    }
 
     return ref;
 }
@@ -68,12 +74,14 @@ QString DesignerApplicationInterfaceImpl::author() const
 /*
  * StatusBar Interface
 */
-DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QComponentInterface *ai )
-: DesignerStatusBarInterface(), appIface( ai ), statusBar( 0 )
+DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QUnknownInterface *ai )
+: DesignerStatusBarInterface(), appIface( ai ), statusBar( 0 ), ref( 0 )
 {
     QWidget *mw = qApp ? qApp->mainWidget() : 0;
     if ( mw && mw->inherits( "QMainWindow" ) )
 	statusBar = ((QMainWindow*)mw)->statusBar();
+    
+    appIface->addRef();
 }
 
 QUnknownInterface *DesignerStatusBarInterfaceImpl::queryInterface( const QGuid& guid )
@@ -83,12 +91,18 @@ QUnknownInterface *DesignerStatusBarInterfaceImpl::queryInterface( const QGuid& 
 
 unsigned long DesignerStatusBarInterfaceImpl::addRef()
 {
-    return appIface->addRef();
+    return ref++;
 }
 
 unsigned long DesignerStatusBarInterfaceImpl::release()
 {
-    return appIface->release();
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
+    }
+
+    return ref;
 }
 
 void DesignerStatusBarInterfaceImpl::setMessage( const QString &text, int ms )
@@ -97,40 +111,48 @@ void DesignerStatusBarInterfaceImpl::setMessage( const QString &text, int ms )
 	statusBar->message( text, ms );
 }
 
-#if 0
-/*
- * DesignerFormListInterface
-*/
-DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl )
-    : DesignerFormListInterface(), formList( fl )
+void DesignerStatusBarInterfaceImpl::clear()
 {
-    new DesignerActiveFormWindowInterfaceImpl( fl, this );
-    listIterator = 0;
+    if ( statusBar )
+	statusBar->clear();
+}
+
+/*
+ * FormList Interface
+*/
+DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( QUnknownInterface *ai )
+: DesignerFormListInterface(), appIface( ai ), formList( 0 ), listIterator( 0 ), ref( 0 )
+{
+    QWidget *mw = qApp ? qApp->mainWidget() : 0;
+    if ( mw && mw->inherits( "MainWindow" ) )
+	formList = ((MainWindow*)mw)->formlist();
+    if ( formList )
+	listIterator = new QListViewItemIterator( formList );
+
+    appIface->addRef();
+}
+
+QUnknownInterface *DesignerFormListInterfaceImpl::queryInterface( const QGuid& guid )
+{
+    return appIface->queryInterface( guid );
 }
 
 unsigned long DesignerFormListInterfaceImpl::addRef()
 {
-    unsigned long rc = DesignerFormListInterface::addRef();
-    if ( !rc ) {
-	delete listIterator;
-	listIterator = new QListViewItemIterator( formList );
-    }
-
-    return rc;
+    return ref++;
 }
 
 unsigned long DesignerFormListInterfaceImpl::release()
 {
-    unsigned long rc = DesignerFormListInterface::release();
-    if ( !rc ) {
-	delete listIterator;
-        listIterator = 0;
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
     }
-
-    return rc;
+    return ref;;
 }
 
-QString DesignerFormListInterfaceImpl::text( DesignerFormWindowInterface *form, int col ) const
+QString DesignerFormListInterfaceImpl::text( DesignerFormInterface * /*form*/, int /*col*/ ) const
 {
 /*    QString formname = form->requestProperty( "name" ).toString();
     DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
@@ -144,7 +166,7 @@ QString DesignerFormListInterfaceImpl::text( DesignerFormWindowInterface *form, 
     return QString::null;
 }
 
-void DesignerFormListInterfaceImpl::setText( DesignerFormWindowInterface *form, int col, const QString& s )
+void DesignerFormListInterfaceImpl::setText( DesignerFormInterface * /*form*/, int /*col*/, const QString& /*s*/ )
 {
 /*    QString formname = form->requestProperty( "name" ).toString();
     QListViewItemIterator it( (FormList*)component() );
@@ -158,7 +180,7 @@ void DesignerFormListInterfaceImpl::setText( DesignerFormWindowInterface *form, 
     }*/
 }
 
-const QPixmap* DesignerFormListInterfaceImpl::pixmap( DesignerFormWindowInterface *form, int col ) const
+const QPixmap* DesignerFormListInterfaceImpl::pixmap( DesignerFormInterface * /*form*/, int /*col*/ ) const
 {
 /*    QString formname = form->requestProperty( "name" ).toString();
     DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
@@ -172,7 +194,7 @@ const QPixmap* DesignerFormListInterfaceImpl::pixmap( DesignerFormWindowInterfac
     return 0;
 }
 
-void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form, int col, const QPixmap& pix )
+void DesignerFormListInterfaceImpl::setPixmap( DesignerFormInterface * /*form*/, int /*col*/, const QPixmap& /*pix*/ )
 {
  /*   QString formname = form->requestProperty( "fileName" ).toString();
     QListViewItemIterator it( (FormList*)component() );
@@ -191,21 +213,25 @@ uint DesignerFormListInterfaceImpl::count() const
     return formList ? formList->childCount() : 0;
 }
 
-DesignerFormWindowInterface *DesignerFormListInterfaceImpl::current()
+DesignerFormInterface *DesignerFormListInterfaceImpl::current()
 {
     FormListItem *item = (FormListItem*)listIterator->current();
+    DesignerFormInterface *iface;
 
-    return item ? new DesignerFormWindowInterfaceImpl( item, this ) : 0;
+    iface = item ? new DesignerFormInterfaceImpl( item, appIface ) : 0;
+    if ( iface )
+	iface->addRef();
+    return iface;
 }
 
-DesignerFormWindowInterface *DesignerFormListInterfaceImpl::next()
+DesignerFormInterface *DesignerFormListInterfaceImpl::next()
 {
     ++(*listIterator);
 
     return current();
 }
 
-DesignerFormWindowInterface *DesignerFormListInterfaceImpl::prev()
+DesignerFormInterface *DesignerFormListInterfaceImpl::prev()
 {
     --(*listIterator);
 
@@ -264,18 +290,52 @@ bool DesignerFormListInterfaceImpl::connect( const char * signal, QObject *recei
 /*
  * DesignerFormWindowInterface
 */
-
-DesignerFormWindowInterfaceImpl::DesignerFormWindowInterfaceImpl( FormListItem *fw )
-    : DesignerFormWindowInterface(), item( fw )
+DesignerFormInterfaceImpl::DesignerFormInterfaceImpl( FormListItem *fw, QUnknownInterface *ai )
+    : DesignerFormInterface(), item( fw ), appIface( ai ), ref( 0 )
 {
-    MainWindow *mw = (MainWindow*)qApp->mainWidget();
-    PropertyEditor *pe = mw->propertyeditor();
+    appIface->addRef();
 
-    new DesignerWidgetListInterfaceImpl( item ? item->formWindow() : 0, this );
-    new DesignerActiveWidgetInterfaceImpl( pe, this );
+    if ( !item ) {
+	FormList *fl = 0;
+	QWidget *mw = qApp ? qApp->mainWidget() : 0;
+	if ( mw && mw->inherits( "MainWindow" ) )
+	    fl = ((MainWindow*)mw)->formlist();
+	item = fl ? (FormListItem*)fl->currentItem() : 0;
+    }
 }
 
-void DesignerFormWindowInterfaceImpl::save() const
+QUnknownInterface *DesignerFormInterfaceImpl::queryInterface( const QGuid& guid )
+{
+    return appIface->queryInterface( guid );
+}
+
+unsigned long DesignerFormInterfaceImpl::addRef()
+{
+    return ref++;
+}
+
+unsigned long DesignerFormInterfaceImpl::release()
+{
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QVariant DesignerFormInterfaceImpl::property( const QCString& p )
+{
+    return ( item && item->formWindow() ) ? item->formWindow()->property( p ) : QVariant();
+}
+
+bool DesignerFormInterfaceImpl::setProperty( const QCString& p, const QVariant& v )
+{
+    return ( item && item->formWindow() ) ? item->formWindow()->setProperty( p, v ) : FALSE;
+}
+
+void DesignerFormInterfaceImpl::save() const
 {
     FormWindow *fw = item->formWindow();
     if ( !fw )
@@ -284,7 +344,7 @@ void DesignerFormWindowInterfaceImpl::save() const
     fw->save( "Dudeldi" );
 }
 
-void DesignerFormWindowInterfaceImpl::close() const
+void DesignerFormInterfaceImpl::close() const
 {
     FormWindow *fw = item->formWindow();
     if ( !fw )
@@ -293,7 +353,7 @@ void DesignerFormWindowInterfaceImpl::close() const
     fw->close( TRUE );
 }
 
-void DesignerFormWindowInterfaceImpl::undo() const
+void DesignerFormInterfaceImpl::undo() const
 {
     FormWindow *fw = item->formWindow();
     if ( !fw )
@@ -302,7 +362,7 @@ void DesignerFormWindowInterfaceImpl::undo() const
     fw->undo();
 }
 
-void DesignerFormWindowInterfaceImpl::redo() const
+void DesignerFormInterfaceImpl::redo() const
 {
     FormWindow *fw = item->formWindow();
     if ( !fw )
@@ -311,46 +371,7 @@ void DesignerFormWindowInterfaceImpl::redo() const
     fw->redo();
 }
 
-QObject *DesignerFormWindowInterfaceImpl::component() const
-{ 
-    return item ? item->formWindow() : 0; 
-}
-
-void DesignerFormWindowInterfaceImpl::setFormListItem( FormListItem *fl )
-{
-    item = fl;
-}
-
-FormListItem *DesignerFormWindowInterfaceImpl::formListItem() const
-{
-    return item;
-}
-
-QString DesignerFormWindowInterfaceImpl::fileName() const
-{
-    if ( !item )
-	return QString::null;
-    return item->text( 1 );
-}
-
-void DesignerFormWindowInterfaceImpl::setFileName( const QString & fn )
-{
-    qDebug( "TODO: DesignerFormWindowInterfaceImpl::setFileName" );
-}
-
-QPixmap DesignerFormWindowInterfaceImpl::icon() const
-{
-    if ( !item )
-	return QPixmap();
-    return *(item->pixmap( 0 ));
-}
-
-void DesignerFormWindowInterfaceImpl::setIcon( const QPixmap & fn )
-{
-    qDebug( "TODO: DesignerFormWindowInterfaceImpl::setIcon" );
-}
-
-bool DesignerFormWindowInterfaceImpl::connect( const char *signal, QObject *receiver, const char *slot )
+bool DesignerFormInterfaceImpl::connect( const char *signal, QObject *receiver, const char *slot )
 {
     FormWindow *fw = 0;
     if ( item )
@@ -359,6 +380,7 @@ bool DesignerFormWindowInterfaceImpl::connect( const char *signal, QObject *rece
     return fw ? fw->connect( fw, signal, receiver, slot ) : FALSE;
 }
 
+#if 0
 /*
  * DesignerActiveFormWindowInterface
 */

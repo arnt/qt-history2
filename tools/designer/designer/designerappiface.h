@@ -15,76 +15,6 @@ class PropertyEditor;
 class QStatusBar;
 class QListViewItemIterator;
 /*
-class DesignerFormWindowInterfaceImpl : public DesignerFormWindowInterface
-{
-public:
-    DesignerFormWindowInterfaceImpl( FormListItem *fw );
-
-    void save() const;
-    void close() const;
-    void undo() const;
-    void redo() const;
-
-    QString fileName() const;
-    void setFileName( const QString & );
-
-    QPixmap icon() const;
-    void setIcon( const QPixmap & );
-
-    bool connect( const char *, QObject *, const char * );
-
-protected:
-    QObject *component() const;
-    void setFormListItem( FormListItem * );
-    FormListItem *formListItem() const;
-
-private:
-    FormListItem *item;
-
-    unsigned long ref;
-};
-
-class DesignerActiveFormWindowInterfaceImpl : public DesignerFormWindowInterfaceImpl
-{
-public:
-    DesignerActiveFormWindowInterfaceImpl( FormList *fl );
-
-    unsigned long addRef();
-
-private:
-    QGuardedPtr<FormList> formList;
-};
-
-class DesignerFormListInterfaceImpl : public DesignerFormListInterface
-{
-public:
-    DesignerFormListInterfaceImpl( FormList *fl );
-
-    unsigned long addRef();
-    unsigned long release();
-
-    const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const;
-    void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& );
-    QString text( DesignerFormWindowInterface*, int col ) const;
-    void setText( DesignerFormWindowInterface*, int col, const QString& );
-
-    uint count() const;
-    DesignerFormWindowInterface* current();
-    DesignerFormWindowInterface* next();
-    DesignerFormWindowInterface* prev();
-
-    bool newForm();
-    bool loadForm();
-    bool saveAll() const;
-    void closeAll() const;
-
-    bool connect( const char *, QObject *, const char * );
-
-private:
-    FormList *formList;
-    QListViewItemIterator *listIterator;
-};
-
 class DesignerWidgetListInterfaceImpl : public DesignerWidgetListInterface
 {
     friend class DesignerActiveFormWindowInterfaceImpl;
@@ -141,7 +71,6 @@ private:
 
 class DesignerApplicationInterfaceImpl : public QComponentInterface
 {
-    friend class DesignerStatusBarInterfaceImpl;
 public:
     DesignerApplicationInterfaceImpl();
 
@@ -157,24 +86,83 @@ public:
 
 private:
     unsigned long ref;
-
-    DesignerStatusBarInterface *sbIface;
 };
 
 class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
 {
 public:
-    DesignerStatusBarInterfaceImpl( QComponentInterface* );
+    DesignerStatusBarInterfaceImpl( QUnknownInterface* );
 
     QUnknownInterface *queryInterface( const QGuid & );
     unsigned long addRef();
     unsigned long release();
 
     void setMessage( const QString &, int ms = 3000 );
+    void clear();
 
 public:
-    QComponentInterface* appIface;
+    QUnknownInterface* appIface;
     QStatusBar *statusBar;
+    unsigned long ref;
+};
+
+class DesignerFormListInterfaceImpl : public DesignerFormListInterface
+{
+public:
+    DesignerFormListInterfaceImpl( QUnknownInterface* );
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    const QPixmap* pixmap( DesignerFormInterface*, int col ) const;
+    void setPixmap( DesignerFormInterface*, int col, const QPixmap& );
+    QString text( DesignerFormInterface*, int col ) const;
+    void setText( DesignerFormInterface*, int col, const QString& );
+
+    uint count() const;
+    DesignerFormInterface* current();
+    DesignerFormInterface* next();
+    DesignerFormInterface* prev();
+
+    bool newForm();
+    bool loadForm();
+    bool saveAll() const;
+    void closeAll() const;
+
+    bool connect( const char *, QObject *, const char * );
+
+private:
+    QUnknownInterface* appIface;
+    FormList *formList;
+    QListViewItemIterator *listIterator;
+    unsigned long ref;
+};
+
+class DesignerFormInterfaceImpl : public DesignerFormInterface
+{
+public:
+    DesignerFormInterfaceImpl( FormListItem *fw, QUnknownInterface *ai );
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    QVariant property( const QCString& );
+    bool setProperty( const QCString&, const QVariant& );
+
+    void save() const;
+    void close() const;
+    void undo() const;
+    void redo() const;
+
+    bool connect( const char *, QObject *, const char * );
+
+private:
+    FormListItem *item;
+    QUnknownInterface *appIface;
+
+    unsigned long ref;
 };
 
 #endif
