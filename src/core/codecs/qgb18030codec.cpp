@@ -422,7 +422,9 @@ QTextDecoder* QGb18030Codec::makeDecoder() const
 */
 
 
-/*! \reimp */
+/*!
+    Constructs a QGbkCodec object.
+*/
 QGbkCodec::QGbkCodec()
     : QGb18030Codec()
 {
@@ -624,7 +626,9 @@ QString QGbkCodec::toUnicode(const char* chars, int len) const
 */
 
 
-/*! \reimp */
+/*!
+    Constructs a QGb2312Codec object.
+*/
 QGb2312Codec::QGb2312Codec()
     : QGb18030Codec()
 {

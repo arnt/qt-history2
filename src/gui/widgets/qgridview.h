@@ -30,10 +30,10 @@ class Q_GUI_EXPORT QGridView : public QScrollView
     Q_PROPERTY(int numCols READ numCols WRITE setNumCols)
     Q_PROPERTY(int cellWidth READ cellWidth WRITE setCellWidth)
     Q_PROPERTY(int cellHeight READ cellHeight WRITE setCellHeight)
-public:
 
+public:
     QGridView(QWidget *parent=0, const char *name=0, Qt::WFlags f=0);
-   ~QGridView();
+    ~QGridView();
 
     int numRows() const;
     virtual void setNumRows(int);
@@ -65,7 +65,6 @@ protected:
     virtual void dimensionChange(int, int);
 
 private:
-    void drawContents(QPainter*);
     void updateGrid();
 
     int nrows;
@@ -105,9 +104,6 @@ inline QRect QGridView::cellRect() const
 inline QSize QGridView::gridSize() const
 { return QSize(ncols * cellw, nrows * cellh); }
 
-
-
 #endif // QT_NO_GRIDVIEW
-
 
 #endif // QTABLEVIEW_H

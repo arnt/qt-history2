@@ -260,15 +260,6 @@ void QGridView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 }
 
 /*!
-    \reimp
-
-    (Implemented to get rid of a compiler warning.)
-*/
-void QGridView::drawContents(QPainter *)
-{
-}
-
-/*!
     \fn void QGridView::dimensionChange(int oldNumRows, int oldNumCols)
 
     This change handler is called whenever any of the grid's
@@ -276,9 +267,9 @@ void QGridView::drawContents(QPainter *)
     old dimensions, numRows() and numCols() contain the new
     dimensions.
 */
-void QGridView::dimensionChange(int, int) {}
-
-
+void QGridView::dimensionChange(int, int)
+{
+}
 
 /*!
     \fn int QGridView::rowAt(int y) const

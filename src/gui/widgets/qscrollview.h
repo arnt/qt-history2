@@ -89,8 +89,6 @@ public:
     int                contentsX() const;
     int                contentsY() const;
 
-    void        resize(int w, int h);
-    void        resize(const QSize&);
     void        show();
 
     void        updateContents(int x, int y, int w, int h);
@@ -137,7 +135,6 @@ public slots:
     void        center(int x, int y, float xmargin, float ymargin);
 
     void        updateScrollBars(); // ### virtual in 4.0
-    void        setEnabled(bool enable);
 
 protected:
     QScrollView(QScrollViewPrivate &, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
@@ -205,7 +202,6 @@ protected:
     QSize cachedSizeHint() const;
 
 private:
-    void drawContents(QPainter*);
     void moveContents(int x, int y);
 
 private slots:

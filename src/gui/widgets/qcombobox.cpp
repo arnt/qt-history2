@@ -1063,42 +1063,7 @@ void QComboBox::internalClickTimeout()
     d->shortClick = false;
 }
 
-/*!
-    Sets the palette for both the combobox button and the combobox
-    popup list to \a palette.
-*/
-
-void QComboBox::setPalette(const QPalette &palette)
-{
-    QWidget::setPalette(palette);
-    if (d->listBox())
-        d->listBox()->setPalette(palette);
-    if (d->popup())
-        d->popup()->setPalette(palette);
-}
-
-/*!
-    Sets the font for both the combobox button and the combobox popup
-    list to \a font.
-*/
-
-void QComboBox::setFont(const QFont &font)
-{
-    d->sizeHint = QSize();                // invalidate size hint
-    QWidget::setFont(font);
-    if (d->usingListBox())
-        d->listBox()->setFont(font);
-    else
-        d->popup()->setFont(font);
-    if (d->ed)
-        d->ed->setFont(font);
-    if (d->autoresize)
-        adjustSize();
-}
-
-/*!\reimp
-*/
-
+/*! \reimp */
 void QComboBox::resizeEvent(QResizeEvent * e)
 {
     if (d->ed)
@@ -1108,9 +1073,7 @@ void QComboBox::resizeEvent(QResizeEvent * e)
     QWidget::resizeEvent(e);
 }
 
-/*!\reimp
-*/
-
+/*! \reimp */
 void QComboBox::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
@@ -1131,7 +1094,7 @@ void QComboBox::paintEvent(QPaintEvent *)
 
     bool reverse = QApplication::reverseLayout();
     if (!d->usingListBox() &&
-         style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {                        // motif 1.x style
+         style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) { // motif 1.x style
         int dist, buttonH, buttonW;
         dist     = 8;
         buttonH  = 7;
@@ -1926,26 +1889,6 @@ void QComboBox::returnPressed()
     emit activated(s);
 }
 
-
-/*! \reimp
-*/
-
-void QComboBox::setEnabled(bool enable)
-{
-    if (!enable) {
-        if (d->usingListBox()) {
-            d->popDownListBox();
-        } else {
-            d->popup()->removeEventFilter(this);
-            d->popup()->close();
-            d->poppedUp = false;
-        }
-    }
-    QWidget::setEnabled(enable);
-}
-
-
-
 /*!
     Applies the validator \a v to the combobox so that only text which
     is valid according to \a v is accepted.
@@ -2098,15 +2041,49 @@ bool QComboBox::autoCompletion() const
     return d->useCompletion;
 }
 
-/*!\reimp
- */
+/*! \reimp */
 void QComboBox::changeEvent(QEvent *ev)
 {
-    if(ev->type() == QEvent::StyleChange) {
-        d->sizeHint = QSize();                // invalidate size hint...
+    switch (ev->type()) {
+    case QEvent::StyleChange:
+        d->sizeHint = QSize();                // invalidate size hint
         if (d->ed)
             d->updateLinedGeometry();
+        break;
+    case QEvent::EnabledChange:
+        if (!isEnabled()) {
+            if (d->usingListBox()) {
+                d->popDownListBox();
+            } else {
+                d->popup()->removeEventFilter(this);
+                d->popup()->close();
+                d->poppedUp = false;
+            }
+        }
+        break;
+    case QEvent::ApplicationPaletteChange:
+    case QEvent::PaletteChange:
+        if (d->listBox())
+            d->listBox()->setPalette(palette());
+        if (d->popup())
+            d->popup()->setPalette(palette());
+        break;
+    case QEvent::ApplicationFontChange:
+    case QEvent::FontChange:
+        d->sizeHint = QSize();                // invalidate size hint
+        if (d->usingListBox())
+            d->listBox()->setFont(font());
+        else
+            d->popup()->setFont(font());
+        if (d->ed)
+            d->ed->setFont(font());
+        if (d->autoresize)
+            adjustSize();
+        break;
+    default:
+        ;
     }
+
     QWidget::changeEvent(ev);
 }
 

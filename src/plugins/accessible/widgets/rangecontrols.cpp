@@ -39,7 +39,6 @@ QAccessibleSpinBox::QAccessibleSpinBox(QWidget *w)
     addControllingSignal("valueChanged(QString)");
 }
 
-/*! \reimp */
 QSpinBox *QAccessibleSpinBox::spinBox() const
 {
     return qt_cast<QSpinBox*>(object());
@@ -453,7 +452,6 @@ QAccessible::Role QAccessibleSlider::role(int child) const
     }
 }
 
-/*! \reimp */
 int QAccessibleSlider::defaultAction(int /*child*/) const
 {
 /*

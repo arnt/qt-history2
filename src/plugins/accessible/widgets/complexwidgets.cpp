@@ -248,7 +248,6 @@ bool QAccessibleTabBar::doAction(int, int child, const QVariantList &)
     return true;
 }
 
-/*! \reimp */
 bool QAccessibleTabBar::setSelected(int child, bool on, bool extend)
 {
     if (!child || !on || extend || child > tabBar()->count())
@@ -260,7 +259,6 @@ bool QAccessibleTabBar::setSelected(int child, bool on, bool extend)
     return true;
 }
 
-/*! \reimp */
 QVector<int> QAccessibleTabBar::selection() const
 {
     QVector<int> array;

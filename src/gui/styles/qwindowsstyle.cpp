@@ -187,7 +187,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 */
 
 /*!
-    Constructs a QWindowsStyle
+    Constructs a QWindowsStyle object.
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(), d(0)
 {
@@ -196,7 +196,7 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(), d(0)
 #endif
 }
 
-/*! \reimp */
+/*! Destroys the QWindowsStyle object. */
 QWindowsStyle::~QWindowsStyle()
 {
     delete d;

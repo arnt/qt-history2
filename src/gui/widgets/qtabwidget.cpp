@@ -207,7 +207,7 @@ QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
 }
 
 /*!
-    \reimp
+    Destroys the tabbed widget.
 */
 QTabWidget::~QTabWidget()
 {

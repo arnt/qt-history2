@@ -96,14 +96,15 @@ public:
 
 #include "qscrollview.moc"
 
-QScrollViewPrivate::QScrollViewPrivate(): QFramePrivate()
+QScrollViewPrivate::QScrollViewPrivate()
+    : QFramePrivate()
 {
 }
 
 void QScrollViewPrivate::init()
 {
     Qt::WFlags f = q->getWFlags();
-    flags = Qt::WResizeNoErase | (f&Qt::WPaintClever) | (f&Qt::WNoAutoErase) | (f&Qt::WStaticContents);
+    flags = Qt::WResizeNoErase | (f & (Qt::WPaintClever | Qt::WNoAutoErase | Qt::WStaticContents));
     hbar = new QScrollBar(Qt::Horizontal, q, "qt_hbar");
     vbar = new QScrollBar(Qt::Vertical, q, "qt_vbar");
     viewport = new QViewportWidget(q, "qt_viewport", flags);
@@ -136,14 +137,11 @@ void QScrollViewPrivate::init()
     vbarPressed = false;
 
 #ifndef QT_NO_DRAGANDDROP
-    QObject::connect(&autoscroll_timer, SIGNAL(timeout()),
-             q, SLOT(doDragAutoScroll()));
+    QObject::connect(&autoscroll_timer, SIGNAL(timeout()), q, SLOT(doDragAutoScroll()));
 #endif
 
-    QObject::connect(hbar, SIGNAL(valueChanged(int)),
-        q, SLOT(hslide(int)));
-    QObject::connect(vbar, SIGNAL(valueChanged(int)),
-        q, SLOT(vslide(int)));
+    QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
+    QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
 
     QObject::connect(hbar, SIGNAL(sliderPressed()), q, SLOT(hbarIsPressed()));
     QObject::connect(hbar, SIGNAL(sliderReleased()), q, SLOT(hbarIsReleased()));
@@ -1050,22 +1048,6 @@ void QScrollView::show()
 
 /*!
     \reimp
- */
-void QScrollView::resize(int w, int h)
-{
-    QWidget::resize(w, h);
-}
-
-/*!
-    \reimp
-*/
-void QScrollView::resize(const QSize& s)
-{
-    resize(s.width(), s.height());
-}
-
-/*!
-    \reimp
 */
 void QScrollView::resizeEvent(QResizeEvent* event)
 {
@@ -1292,14 +1274,6 @@ void QScrollView::setResizePolicy(ResizePolicy r)
 QScrollView::ResizePolicy QScrollView::resizePolicy() const
 {
     return d->policy;
-}
-
-/*!
-    \reimp
-*/
-void QScrollView::setEnabled(bool enable)
-{
-    QFrame::setEnabled(enable);
 }
 
 /*!
@@ -2620,15 +2594,6 @@ QSize QScrollView::minimumSizeHint() const
     return QSize((6 * h) + f, (4 * h) + f);
 }
 
-
-/*!
-    \reimp
-
-    (Implemented to get rid of a compiler warning.)
-*/
-void QScrollView::drawContents(QPainter *)
-{
-}
 
 #ifndef QT_NO_DRAGANDDROP
 

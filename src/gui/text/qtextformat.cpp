@@ -620,7 +620,7 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 /*!
     \fn void QTextFormat::setObjectType(int type)
 
-    Set's the text format's object type to \a type. See
+    Sets the text format's object type to \a type. See
     \c{ObjectTypes}.
 */
 
@@ -647,7 +647,7 @@ int QTextFormat::objectIndex() const
 }
 
 /*!
-    Set's the format object's object index to \a o.
+    Sets the format object's object index to \a o.
 
     \sa objectIndex()
 */
@@ -1124,13 +1124,14 @@ QFont QTextCharFormat::font() const
 /*!
     \fn QTextBlockFormat::isValid() const
 
-    \reimp
+    Returns true if this block format is valid; otherwise returns
+    false.
 */
 
 /*!
     \fn void QTextBlockFormat::setDirection(Direction dir)
 
-    Set's the text's direction to \a dir.
+    Sets the text's direction to \a dir.
 
     \sa direction()
 */
@@ -1347,7 +1348,8 @@ QFont QTextCharFormat::font() const
 /*!
     \fn bool QTextListFormat::isValid() const
 
-    \reimp
+    Returns true if this list format is valid; otherwise
+    returns false.
 */
 
 
@@ -1413,7 +1415,8 @@ QFont QTextCharFormat::font() const
 /*!
     \fn bool QTextTableFormat::isValid() const
 
-    \reimp
+    Returns true if this table format is valid; otherwise
+    returns false.
 */
 
 
@@ -1459,7 +1462,8 @@ QFont QTextCharFormat::font() const
 /*!
     \fn bool QTextImageFormat::isValid() const
 
-    \reimp
+    Returns true if this image format is valid; otherwise
+    returns false.
 */
 
 

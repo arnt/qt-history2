@@ -3621,16 +3621,6 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 }
 
 /*!
-  \reimp
-  \internal
-
-  (Implemented to get rid of a compiler warning.)
-*/
-void QCanvasView::drawContents(QPainter *)
-{
-}
-
-/*!
     Suggests a size sufficient to view the entire canvas.
 */
 QSize QCanvasView::sizeHint() const
@@ -5251,14 +5241,6 @@ void QCanvasSprite::advance(int phase)
     QCanvasPixmapArray.
 */
 
-
-/*!
-  \reimp
-  \internal
-  Moves the sprite to the position \a x, \a y.
-    Keep it visible.
-*/
-void QCanvasSprite::move(double x, double y) { QCanvasItem::move(x,y); }
 
 /*!
     \fn void QCanvasSprite::move(double nx, double ny, int nf)

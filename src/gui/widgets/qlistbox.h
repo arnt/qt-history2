@@ -54,8 +54,6 @@ public:
     QListBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0 );
     ~QListBox();
 
-    virtual void setFont(const QFont &);
-
     uint count() const;
 
     void insertStringList(const QStringList&, int index=-1);

@@ -1712,8 +1712,6 @@ void QGLWidget::paintEvent(QPaintEvent *)
 
 /*!
   \fn void QGLWidget::setMouseTracking(bool enable)
-
-  \reimp
 */
 
 

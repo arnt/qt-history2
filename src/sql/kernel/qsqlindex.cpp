@@ -145,8 +145,6 @@ void QSqlIndex::setDescending(int i, bool desc)
 }
 
 /*!
-    \reimp
-
     Returns a comma-separated list of all the index's field names as a
     string. This string is suitable, for example, for generating a
     SQL SELECT statement. Only generated fields are included in the
@@ -174,8 +172,6 @@ QString QSqlIndex::toString(const QString& prefix, const QString& sep, bool verb
 }
 
 /*!
-    \reimp
-
     Returns a list of all the index's field names. Only generated
     fields are included in the list (see \l{isGenerated()}). If a \a
     prefix is specified, e.g. a table name, all fields are prefixed in

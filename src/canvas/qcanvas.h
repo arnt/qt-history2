@@ -336,7 +336,6 @@ protected:
     void drawContents(QPainter*, int cx, int cy, int cw, int ch);
 
 private:
-    void drawContents(QPainter*);
     QCanvas* viewing;
     QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);
@@ -438,7 +437,7 @@ public:
 
     virtual ~QCanvasSprite();
 
-    void move(double x, double y);
+    using QCanvasItem::move;
     virtual void move(double x, double y, int frame);
     void setFrame(int);
     enum FrameAnimationType { Cycle, Oscillate };

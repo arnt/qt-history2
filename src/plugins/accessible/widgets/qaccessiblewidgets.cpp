@@ -261,7 +261,6 @@ bool QAccessibleListBox::setFocus(int child)
     return true;
 }*/
 
-/*! \reimp */
 bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
@@ -286,13 +285,11 @@ bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
     return true;
 }
 
-/*! \reimp */
 void QAccessibleListBox::clearSelection()
 {
     listBox()->clearSelection();
 }
 
-/*! \reimp */
 QVector<int> QAccessibleListBox::selection() const
 {
     QVector<int> array;

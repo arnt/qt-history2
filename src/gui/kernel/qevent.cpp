@@ -1756,21 +1756,6 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 */
 
 /*!
-  \fn void QDragMoveEvent::accept(bool y)
-  \reimp
-  \internal
-  Remove in 3.0
-*/
-
-/*!
-  \fn void QDragMoveEvent::ignore()
-  \reimp
-  \internal
-  Remove in 3.0
-*/
-
-
-/*!
     \enum QDropEvent::Action
 
     When a drag and drop action is completed, the target is expected

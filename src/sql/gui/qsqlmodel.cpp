@@ -94,8 +94,6 @@ QSqlModel::~QSqlModel()
 {
 }
 
-/*! \reimp
- */
 void QSqlModel::fetchMore()
 {
     d->prefetch(d->bottom.row() + QSQL_PREFETCH);

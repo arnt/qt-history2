@@ -311,7 +311,9 @@ QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
     setBackgroundRole(QPalette::Button);
 }
 
-/*! \reimp */
+/*!
+    Destroys the toolbox.
+*/
 
 QToolBox::~QToolBox()
 {

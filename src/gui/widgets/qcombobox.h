@@ -79,10 +79,6 @@ public:
     virtual void setAutoResize(bool);
     QSize        sizeHint() const;
 
-    void        setPalette(const QPalette &);
-    void        setFont(const QFont &);
-    void        setEnabled(bool);
-
     virtual void setSizeLimit(int);
     int                sizeLimit() const;
 

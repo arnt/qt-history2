@@ -1044,15 +1044,6 @@ QListBox::~QListBox()
     \sa currentChanged() highlighted() selectionChanged()
 */
 
-/*! \reimp */
-
-void QListBox::setFont(const QFont &font)
-{
-    QScrollView::setFont(font);
-    triggerUpdate(true);
-}
-
-
 /*!
     \property QListBox::count
     \brief the number of items in the list box
@@ -4402,13 +4393,16 @@ void QListBox::selectRange(QListBoxItem *from, QListBoxItem *to, bool invert, bo
 /*! \reimp */
 void QListBox::changeEvent(QEvent *ev)
 {
-    if(ev->type() == QEvent::ActivationChange) {
+    if (ev->type() == QEvent::ActivationChange) {
         if (!isActiveWindow() && d->scrollTimer)
             d->scrollTimer->stop();
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             viewport()->update();
     }
     QScrollView::changeEvent(ev);
+
+    if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange)
+        triggerUpdate(true);
 }
 
 /*!
