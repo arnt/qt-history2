@@ -330,8 +330,10 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (shareContext) {
         d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi,
                                (GLXContext)shareContext->d->cx, direct);
-        if (d->cx)
+        if (d->cx) {
             d->sharing = true;
+            const_cast<QGLContext *>(shareContext)->d->sharing = true;
+        }
     }
     if (!d->cx)
         d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi, NULL, direct);

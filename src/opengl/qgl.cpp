@@ -741,7 +741,10 @@ static int nearest_gl_texture_size(int v)
 class QGLTexture {
 public:
     QGLTexture(const QGLContext *ctx, GLuint tx_id) : context(ctx), id(tx_id) {}
-    ~QGLTexture() { glDeleteTextures(1, &id); }
+    ~QGLTexture() {
+        if (!context->isSharing())
+            glDeleteTextures(1, &id);
+     }
 
     const QGLContext *context;
     GLuint id;
@@ -1112,8 +1115,10 @@ GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLint format)
 }
 
 /*!
-    Removes the texture identified by \a id from the texture cache and
-    calls glDeleteTexture() on it.
+    Removes the texture identified by \a id from the texture cache. If
+    the context is not shared by any other QGLContext,
+    glDeleteTextures() will be called to delete the texture from the
+    context.
 
     \sa bindTexture()
 */
@@ -1254,11 +1259,10 @@ void QGLContext::init(QPaintDevice *dev, const QGLFormat &format)
 /*!
     \fn bool QGLContext::isSharing() const
 
-    Returns true if display list sharing with another context was
-    requested in the create() call and the GL system was able to
-    fulfill this request; otherwise returns false. Note that display
-    list sharing might not be supported between contexts with
-    different formats.
+    Returns true if this context is sharing its GL context with
+    another QGLContext, otherwise false is returned. Note that context
+    sharing might not be supported between contexts with different
+    formats.
 */
 
 /*!
@@ -1839,10 +1843,9 @@ bool QGLWidget::isValid() const
 /*!
     \fn bool QGLWidget::isSharing() const
 
-    Returns true if display list sharing with another QGLWidget was
-    requested in the constructor, and the GL system was able to
-    provide it; otherwise returns false. The GL system may fail to
-    provide display list sharing if the two QGLWidgets use different
+    Returns true if this widget's GL context is shared with another GL
+    context, otherwise false is returned. The GL system may fail to
+    provide context sharing if the two QGLWidgets use different
     formats.
 
     \sa format()

@@ -129,7 +129,10 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
     }
     d->cx = ctx;
-    d->sharing = shareContext && shareContext->d->cx;
+    if (shareContext && shareContext->d->cx) {
+        d->sharing = true;
+        const_cast<QGLContext *>(shareContext)->d->sharing = true;
+    }
     return true;
 }
 

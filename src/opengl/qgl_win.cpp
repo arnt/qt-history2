@@ -529,8 +529,10 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
             d->cmap->setEntry(lpfd.crTransparent, qRgb(1, 2, 3));//, QGLCmap::Reserved);
         }
 
-        if (shareContext && shareContext->isValid())
+        if (shareContext && shareContext->isValid()) {
             d->sharing = (wglShareLists(shareContext->d->rc, d->rc) != 0);
+            const_cast<QGLContext *>(shareContext)->d->sharing = d->sharing;
+        }
 
         goto end;
     }
