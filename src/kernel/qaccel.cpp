@@ -286,7 +286,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     QAccelItem* lastitem = 0;
     while ( accel ) {
 	if ( match( w, accel ) ) {
-	    item = accel->aitems.first();
+	    item = accel->aitems.last();
 	    while( item ) {
 		if ( match( e, item ) ) {
 		    if ( !firstaccel ) {
@@ -299,7 +299,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 		    if ( n > QMAX(clash,0) )
 			goto doclash;
 		}
-		item = accel->aitems.next();
+		item = accel->aitems.prev();
 	    }
 	}
 	accel = accels.next();
