@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#9 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#9 $";
 #endif
 
 
@@ -178,14 +178,14 @@ char *getSegments( char ch )			// gets list of segments for ch
 
 
 QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
-	: QWidget( parent, name )
+	: QFrame( parent, name )
 {
     ndigits = 1;
     init();
 }
 
 QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
-	: QWidget( parent, name )
+	: QFrame( parent, name )
 {
     ndigits = numDigits;
     init();
@@ -194,6 +194,7 @@ QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
 void QLCDNumber::init()
 {
     initMetaObject();
+    setFrame( QFrame::Box | QFrame::Raised );
     base = DEC;
     smallPoint = FALSE;
     setNumDigits( ndigits );
@@ -380,21 +381,12 @@ void QLCDNumber::resizeEvent( QResizeEvent * )
 {
 }
 
-void QLCDNumber::paintEvent( QPaintEvent * )
+void QLCDNumber::drawContents( QPainter *p )
 {
-    QPainter p;
-    QColor tc, bc;
-
-    p.begin(this);
-    tc = backgroundColor().dark();
-    bc = backgroundColor().light();
-    p.drawShadePanel( clientRect(), tc, bc, 1 );
-    p.pen().setColor( black );
     if ( smallPoint )
-	drawString( digitStr, p, &points, FALSE );
+	drawString( digitStr, *p, &points, FALSE );
     else
-	drawString( digitStr, p, 0, FALSE );
-    p.end();
+	drawString( digitStr, *p, 0, FALSE );
 }
 
 void QLCDNumber::drawString( const char *s, QPainter &p,

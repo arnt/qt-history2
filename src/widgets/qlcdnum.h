@@ -1,23 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#6 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#7 $
 **
 ** Definition of QLCDNumber class
 **
 ** Author  : Eirik Eng
 ** Created : 940518
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #ifndef QLCDNUM_H
 #define QLCDNUM_H
 
-#include "qwidget.h"
+#include "qframe.h"
 #include "qbitarry.h"
 
 
-class QLCDNumber : public QWidget		// LCD number widget
+class QLCDNumber : public QFrame		// LCD number widget
 {
     Q_OBJECT
 public:
@@ -49,7 +49,7 @@ signals:
 
 protected:
     void    resizeEvent( QResizeEvent * );
-    void    paintEvent( QPaintEvent * );
+    void    drawContents( QPainter * );
 
 private:
     void    init();
