@@ -3,6 +3,7 @@
 <include location="local" impldecl="in declaration">finddialog.h</include>
 <include location="global" impldecl="in declaration">qmap.h</include>
 <include location="global" impldecl="in declaration">qguardedptr.h</include>
+<include location="global" impldecl="in implementation">qsettings.h</include>
 <include location="global" impldecl="in implementation">qlineedit.h</include>
 <include location="global" impldecl="in implementation">qstatusbar.h</include>
 <include location="global" impldecl="in implementation">qurl.h</include>
@@ -22,6 +23,7 @@
 <include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
 <include location="global" impldecl="in implementation">qcombobox.h</include>
 <include location="global" impldecl="in implementation">qaccel.h</include>
+<include location="global" impldecl="in implementation">qfontdatabase.h</include>
 <forward>class HelpDialog;</forward>
 <forward>class HelpWindow;</forward>
 <variable>QGuardedPtr&lt;FindDialog&gt; findDialog;</variable>
@@ -36,8 +38,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>902</width>
-            <height>758</height>
+            <width>894</width>
+            <height>754</height>
         </rect>
     </property>
     <property name="caption">
@@ -94,6 +96,14 @@
         <separator/>
         <action name="actionZoomIn"/>
         <action name="actionZoomOut"/>
+        <widget class="QComboBox">
+            <property name="name">
+                <cstring>fontComboBox</cstring>
+            </property>
+            <property name="editable">
+                <bool>true</bool>
+            </property>
+        </widget>
         <separator/>
         <action name="actionGoHome"/>
         <action name="actionGoPrev"/>
@@ -341,53 +351,59 @@
     </image>
 </images>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>actionGoHome</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>goHome()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionAbout</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>about()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionAboutQt</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>aboutQt()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionEditFind</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>find()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionFilePrint</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>print()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionGoDesigner</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>showDesignerHelp()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionGoQt</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>showQtHelp()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>actionGoLinguist</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>showLinguistHelp()</slot>
+    </connection>
+    <connection language="C++">
+        <sender>fontComboBox</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setFamily(const QString&amp;)</slot>
     </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="protected" language="C++" returnType="void">destroy()</slot>
@@ -402,9 +418,11 @@
     <slot access="public" language="C++" returnType="void">showDesignerHelp()</slot>
     <slot access="public" language="C++" returnType="void">showLink( const QString &amp; link, const QString &amp; title )</slot>
     <slot access="public" language="C++" returnType="void">showQtHelp()</slot>
+    <slot access="public" language="C++" returnType="void">setFamily( const QString &amp; f )</slot>
 </connections>
 <functions>
     <function name="init()" >{
+    setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, "qt_assistant_helpwindow" );
     browser-&gt;setFrameStyle( QFrame::Panel | QFrame::Sunken ); 
     setCentralWidget( browser );
@@ -446,9 +464,23 @@
     QAccel *a = new QAccel( this );
     a-&gt;insertItem( CTRL+Key_L, 100 );
     a-&gt;connectItem( 100, helpDock-&gt;editIndex, SLOT( setFocus() ) );
+             
+    QFontDatabase fonts;   
+    fontComboBox-&gt;insertStringList( fonts.families() );   
+    fontComboBox-&gt;lineEdit()-&gt;setText( browser-&gt;QWidget::font().family() );  
+    
+    QSettings config;  
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );  
+    QFont fnt( browser-&gt;QWidget::font() ); 
+    fnt.setFamily( config.readEntry( "/Assistant/3.0/Family", fnt.family() ) );
+    fnt.setPointSize( config.readNumEntry( "/Assistant/3.0/Size", fnt.pointSize() ) );
+    browser-&gt;setFont( fnt ); 
 }</function>
     <function name="destroy()" >{
-    
+    QSettings config; 
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" ); 
+    config.writeEntry( "/Assistant/3.0/Family",  browser-&gt;QWidget::font().family() );
+    config.writeEntry( "/Assistant/3.0/Size",  browser-&gt;QWidget::font().pointSize() );
 }</function>
     <function name="about()" >{
 }</function>
@@ -550,6 +582,11 @@
 }</function>
     <function name="showQtHelp()" >{
     showLink( "index.html", tr( "Qt Reference Documentation" ) ); 
+}</function>
+    <function name="setFamily(const QString&amp;)" >{
+    QFont fnt( browser-&gt;QWidget::font() );
+    fnt.setFamily( f );
+    browser-&gt;setFont( fnt );
 }</function>
 </functions>
 </UI>
