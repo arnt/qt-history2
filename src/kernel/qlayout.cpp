@@ -25,6 +25,7 @@
 
 #include "qlayout.h"
 
+#include "qapplication.h" //for postEvent() in QBoxLayout::setDirection
 #include "qwidget.h"
 #include "qlist.h"
 #include "qsizepolicy.h"
@@ -1828,8 +1829,48 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
 void QBoxLayout::setDirection( Direction direction )
 {
+    if ( dir == direction )
+	return;
+    if ( horz(dir) != horz(direction) ) {
+	//swap around the spacers (the "magic" bits)
+	//#### a bit yucky, knows too much.
+	//#### probably best to add access functions to spacerItem
+	//#### or even a QSpacerItem::flip()
+	QListIterator<QBoxLayoutItem> it( data->list );
+	QBoxLayoutItem *box;
+	while ( (box=it.current()) != 0 ) {
+	    ++it;
+	    if ( box->magic ) {
+		QSpacerItem *sp = box->item->spacerItem();
+		if ( sp ) {
+		    if ( sp->expanding() == QSizePolicy::NoDirection ) {
+			//spacing or strut
+			QSize s = sp->sizeHint();
+			sp->changeSize( s.height(), s.width(), 
+		horz(direction) ? QSizePolicy::Fixed:QSizePolicy::Minimum,
+		horz(direction) ? QSizePolicy::Minimum:QSizePolicy::Fixed );
+					
+		    } else {
+			//stretch
+			if ( horz(direction) )
+			    sp->changeSize( 0, 0, QSizePolicy::Expanding,
+					    QSizePolicy::Minimum );
+			else
+			    sp->changeSize( 0, 0, QSizePolicy::Minimum,
+					    QSizePolicy::Expanding );
+		    }
+		}
+		
+	    }
+	}
+    }
     dir = direction;
     invalidate();
+    if ( mainWidget() ) {
+	QEvent *lh = new QEvent( QEvent::LayoutHint );
+	QApplication::postEvent( mainWidget(), lh );
+    }
+
 }
 
 
