@@ -76,7 +76,6 @@ public:
     QString author();
 
     QUnknownInterface *queryInterface( const QString& );
-    QStringList interfaceList();
 
 private:
     bool use();

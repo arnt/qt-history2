@@ -34,7 +34,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-
 #include "qcomponentinterface.h"
 #ifndef QT_NO_PLUGIN
 #include "qplugin.h"
@@ -296,7 +295,7 @@ bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
 	if ( info ) {
-	    if ( !info->disconnectNotify() && !force )
+	    if ( !info->release() && !force )
 		return FALSE;
 
 	    delete info;
@@ -393,7 +392,7 @@ bool QPlugIn::loadInterface()
     if ( !info )
 	return FALSE;
 
-    return info->connectNotify( appInterface );
+    return info->initialize( appInterface );
 }
 
 /*!
@@ -439,18 +438,10 @@ QUnknownInterface* QPlugIn::queryInterface( const QString &request )
 
     QUnknownInterface *iface = info->queryInterface( request );
    
-    if ( !iface || !iface->connectNotify( appInterface ) )
+    if ( !iface )
 	return 0;
 
     return iface;
-}
-
-QStringList QPlugIn::interfaceList()
-{
-    if ( !use() )
-	return 0;
-
-    return info->interfaceList();
 }
 
 /*!
