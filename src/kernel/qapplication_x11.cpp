@@ -4291,10 +4291,10 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
  *****************************************************************************/
 
 
-static bool contextMenuPopupShown = FALSE;
+static int openPopupCount = 0;
 void QApplication::openPopup( QWidget *popup )
 {
-    contextMenuPopupShown = TRUE;
+    openPopupCount++;
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR( popupWidgets );
@@ -4973,8 +4973,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 	Display* dpy = x11Display(); // store display, send() may destroy us
 
-	if ( type == QEvent::MouseButtonPress && button == RightButton )
-	    contextMenuPopupShown = FALSE;
+
+	int oldOpenPopupCount = openPopupCount;
 	
 	if ( popupButtonFocus ) {
 	    QMouseEvent e( type, popupButtonFocus->mapFromGlobal(globalPos),
@@ -4993,7 +4993,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    QApplication::sendSpontaneousEvent( popup, &e );
 	}
 
-	if ( type == QEvent::MouseButtonPress && button == RightButton && !contextMenuPopupShown) {
+	if ( type == QEvent::MouseButtonPress && button == RightButton && ( openPopupCount == oldOpenPopupCount ) ) {
 	    QWidget *popupEvent = popup;
 	    if(popupButtonFocus)
 		popupEvent = popupButtonFocus;
@@ -5045,13 +5045,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    qt_button_down = 0;
 	}
 
-	if ( type == QEvent::MouseButtonPress && button == RightButton )
-	    contextMenuPopupShown = FALSE;
+	int oldOpenPopupCount = openPopupCount;
 	
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendSpontaneousEvent( widget, &e );
 	
-	if ( type == QEvent::MouseButtonPress && button == RightButton && !contextMenuPopupShown ) {
+	if ( type == QEvent::MouseButtonPress && button == RightButton && ( openPopupCount == oldOpenPopupCount ) ) {
 	    QContextMenuEvent e( QContextMenuEvent::Mouse, pos, globalPos, state );
 	    QApplication::sendSpontaneousEvent( widget, &e );
 	}
