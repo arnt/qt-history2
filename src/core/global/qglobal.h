@@ -1186,6 +1186,9 @@ inline QT_COMPAT void qSuppressObsoleteWarnings(bool = true) {}
 inline QT_COMPAT void qObsolete(const char *, const char * = 0, const char * = 0) {}
 #endif
 
+
+#define Q_GLOBAL_STATIC(type, name) static type *name(){ static type this_##name; return &this_##name; }
+
 //
 // Install paths from configure
 //
