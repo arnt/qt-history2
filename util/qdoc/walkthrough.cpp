@@ -193,6 +193,43 @@ QString Walkthrough::start( bool include, bool firstPass,
 
     fname = fileName;
     QString filePath = config->findDepth( fileName, config->exampleDirList() );
+
+    if ( filePath.isEmpty() ) {
+	QString ext = fileName.mid( fileName.findRev(QChar('.')) );
+
+	if ( ext == QString(".cpp") || ext == QString(".h") ) {
+	    /*
+	      The .cpp or .h file does not exist. Maybe it's a
+	      uic-generated file? Look for a .ui file and generate the
+	      .cpp or .h file.
+	    */
+	    QString uiFileName = fileName;
+	    uiFileName.truncate( uiFileName.findRev(QChar('.')) );
+	    uiFileName.append( QString(".ui") );
+
+	    QString uiFilePath = config->findDepth( uiFileName,
+						    config->exampleDirList() );
+
+	    if ( !uiFilePath.isEmpty() ) {
+		QString cmd( "uic %1 -o %2" );
+
+		filePath = uiFilePath.left( uiFilePath.length() - 3 ) + ext;
+		if ( ext == QString(".cpp") ) {
+		    QString hFileName = fileName.left( fileName.length() - 4 ) +
+					QString( ".h" );
+		    cmd.append( QString(" -impl %1").arg(hFileName) );
+		}
+
+		if ( system(QString("uic %1 -o %2")
+			    .arg(uiFilePath).arg(filePath).latin1()) != 0 ) {
+		    message( 1, "Problems with generation of '%s'",
+			     filePath.latin1() );
+		    filePath = QString::null;
+		}
+	    }
+	}
+    }
+
     if ( justIncluded && filePath == fpath ) {
 	/*
 	  It's already started. This happens with '\include' followed
@@ -201,8 +238,8 @@ QString Walkthrough::start( bool include, bool firstPass,
 	justIncluded = FALSE;
 	return includeText;
     }
-    fpath = filePath;
 
+    fpath = filePath;
     shutUp = firstPass;
 
     if ( filePath.isEmpty() ) {

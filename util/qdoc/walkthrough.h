@@ -63,7 +63,7 @@ class Walkthrough
 {
 public:
     Walkthrough()
-	: totalOccCount( 0 ), shutUp( FALSE ), justIncluded( TRUE ) { }
+	: totalOccCount( 0 ), shutUp( FALSE ), justIncluded( FALSE ) { }
 
     void includePass1( const QString& fileName, const Resolver *resolver );
     QString includePass2( const QString& fileName, const Resolver *resolver = 0,
