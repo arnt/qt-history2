@@ -371,6 +371,9 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
         case EINVAL:
             setError(Qt::UnsupportedSocketOperationError, "Unsupported socket operation");
             break;
+        case EADDRNOTAVAIL:
+            setError(Qt::SocketAddressNotAvailableError, "The address is not available");
+            break;
         default:
             break;
         }
