@@ -24,7 +24,7 @@ class FindDialog : public QDialog
 public:
     enum { SourceText = 0x1, Translations = 0x2, Comments = 0x4 };
 
-    FindDialog( bool replace, QWidget *parent = 0, const char *name = 0, bool modal = FALSE );
+    FindDialog( bool replace, QWidget *parent = 0);
 
 signals:
     void findNext( const QString& text, int where, bool matchCase );

@@ -25,20 +25,19 @@
 #include <qpushbutton.h>
 #include <qwhatsthis.h>
 
-FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
-                        bool modal )
-    : QDialog( parent, name, modal )
+FindDialog::FindDialog( bool replace, QWidget *parent )
+    : QDialog(parent)
 {
     sourceText = 0;
 
     led = new QLineEdit( this, "find line edit" );
-    QLabel *findWhat = new QLabel( led, tr("Fi&nd what:"), this, "find what" );
+    QLabel *findWhat = new QLabel( led, tr("Fi&nd what:"), this);
     QLabel *replaceWith = 0;
     QPushButton *findNxt = new QPushButton( tr("&Find Next"), this,
                                             "find next" );
     findNxt->setDefault( TRUE );
     connect( findNxt, SIGNAL(clicked()), this, SLOT(emitFindNext()) );
-    QPushButton *cancel = new QPushButton( tr("Cancel"), this, "cancel find" );
+    QPushButton *cancel = new QPushButton( tr("Cancel"), this);
     connect( cancel, SIGNAL(clicked()), this, SLOT(reject()) );
 
     QVBoxLayout *bl = new QVBoxLayout( 6, "find button layout" );
@@ -52,8 +51,7 @@ FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
                                   " some text in the translations."));
 
         red = new QLineEdit( this, "replace line edit" );
-        replaceWith = new QLabel( red, tr("Replace &with:"), this,
-                                  "replace with" );
+        replaceWith = new QLabel( red, tr("Replace &with:"), this);
         setTabOrder( led, red );
 
         QPushButton *replace = new QPushButton( tr("&Replace"), this,
@@ -111,10 +109,10 @@ FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
         gl->addWidget( matchCase, 1, 2 );
         gl->addMultiCell( bl, 0, 2, 3, 3 );
         gl->addMultiCell( cl, 1, 2, 0, 1 );
-        gl->setColStretch( 0, 0 );
+        gl->setColumnStretch( 0, 0 );
         gl->addColSpacing( 1, 40 );
-        gl->setColStretch( 2, 1 );
-        gl->setColStretch( 3, 0 );
+        gl->setColumnStretch( 2, 1 );
+        gl->setColumnStretch( 3, 0 );
 
         cl->addWidget( sourceText );
         cl->addWidget( translations );

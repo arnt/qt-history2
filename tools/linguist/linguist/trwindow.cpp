@@ -196,7 +196,7 @@ TrWindow::TrWindow()
     dwScope->setWidget(lv);
 
     messageIsShown = FALSE;
-    me = new MessageEditor( &tor, this, "message editor" );
+    me = new MessageEditor( &tor, this);
     setCenterWidget( me );
     slv = me->sourceTextList();
     plv = me->phraseList();
@@ -204,10 +204,9 @@ TrWindow::TrWindow()
     setupMenuBar();
     setupToolBars();
 
-    progress = new QLabel( statusBar(), "progress" );
+    progress = new QLabel( statusBar() );
     statusBar()->addWidget( progress, 0, TRUE );
-    modified = new QLabel( QString(" %1 ").arg(tr("MOD")), statusBar(),
-                           "modified?" );
+    modified = new QLabel( QString(" %1 ").arg(tr("MOD")), statusBar() );
     statusBar()->addWidget( modified, 0, TRUE );
 
     dirtyItem = -1;
@@ -219,9 +218,9 @@ TrWindow::TrWindow()
     dirty = FALSE;
     updateCaption();
 
-    f = new FindDialog( FALSE, this, "find", FALSE );
+    f = new FindDialog( FALSE, this );
     f->setWindowTitle( tr("Qt Linguist") );
-    h = new FindDialog( TRUE, this, "replace", FALSE );
+    h = new FindDialog( TRUE, this );
     h->setWindowTitle( tr("Qt Linguist") );
     findMatchCase = FALSE;
     findWhere = 0;
@@ -1348,13 +1347,16 @@ void TrWindow::setupMenuBar()
     connect( printPhraseBookp, SIGNAL(activated(int)),
              this, SLOT(printPhraseBook(int)) );
     // File menu
-    openAct = filep->addAction(loadPixmap("fileopen.png"), tr("&Open..."), this, SLOT(open()), QKeySequence("Ctrl+O") );
+    openAct = filep->addAction(loadPixmap("fileopen.png"), tr("&Open..."), this, SLOT(open()));
+    openAct->setShortcut(QKeySequence("Ctrl+O"));
     filep->addSeparator();
-    saveAct = filep->addAction(loadPixmap("filesave.png"), tr("&Save"), this, SLOT(save()), QKeySequence("Ctrl+S") );
+    saveAct = filep->addAction(loadPixmap("filesave.png"), tr("&Save"), this, SLOT(save()));
+    saveAct->setShortcut(QKeySequence("Ctrl+S"));
     saveAsAct = filep->addAction(tr("Save &As..."), this, SLOT(saveAs()) );
     releaseAct = filep->addAction(tr("&Release..."), this, SLOT(release()) );
     filep->addSeparator();
-    printAct = filep->addAction(loadPixmap("print.png"), tr("&Print..."), this, SLOT(print()), QKeySequence("Ctrl+P") );
+    printAct = filep->addAction(loadPixmap("print.png"), tr("&Print..."), this, SLOT(print()));
+    printAct->setShortcut(QKeySequence("Ctrl+P"));
     filep->addSeparator();
 
     recentFilesMenu = new QMenu( this );
@@ -1366,69 +1368,79 @@ void TrWindow::setupMenuBar()
 
     filep->addSeparator();
 
-    exitAct = filep->addAction(tr("E&xit"), this, SLOT(close()), QKeySequence("Ctrl+Q") );
+    exitAct = filep->addAction(tr("E&xit"), this, SLOT(close()));
+    exitAct->setShortcut(QKeySequence("Ctrl+Q"));
     // Edit menu
-    undoAct = editp->addAction(loadPixmap("undo.png"), tr("&Undo"), me, SLOT(undo()), QKeySequence("Ctrl+Z") );
+    undoAct = editp->addAction(loadPixmap("undo.png"), tr("&Undo"), me, SLOT(undo()));
+    undoAct->setShortcut(QKeySequence("Ctrl+Z"));
     undoAct->setEnabled( FALSE );
     connect( me, SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)) );
-    redoAct = editp->addAction(loadPixmap("redo.png"), tr("&Redo"), me, SLOT(redo()), QKeySequence("Ctrl+Y") );
+    redoAct = editp->addAction(loadPixmap("redo.png"), tr("&Redo"), me, SLOT(redo()));
+    redoAct->setShortcut(QKeySequence("Ctrl+Y"));
     redoAct->setEnabled( FALSE );
     connect( me, SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)) );
     editp->addSeparator();
-    cutAct = editp->addAction(loadPixmap("editcut.png"), tr("Cu&t"), me, SLOT(cut()), QKeySequence("Ctrl+X") );
+    cutAct = editp->addAction(loadPixmap("editcut.png"), tr("Cu&t"), me, SLOT(cut()));
+    cutAct->setShortcut(QKeySequence("Ctrl+X"));
     cutAct->setEnabled( FALSE );
     connect( me, SIGNAL(cutAvailable(bool)), cutAct, SLOT(setEnabled(bool)) );
-    copyAct = editp->addAction(loadPixmap("editcopy.png"), tr("&Copy"), me, SLOT(copy()), QKeySequence("Ctrl+C") );
+    copyAct = editp->addAction(loadPixmap("editcopy.png"), tr("&Copy"), me, SLOT(copy()));
+    copyAct->setShortcut(QKeySequence("Ctrl+C"));
     copyAct->setEnabled( FALSE );
     connect( me, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)) );
-    pasteAct = editp->addAction(loadPixmap("editpaste.png"), tr("&Paste"), me, SLOT(paste()), QKeySequence("Ctrl+V") );
+    pasteAct = editp->addAction(loadPixmap("editpaste.png"), tr("&Paste"), me, SLOT(paste()));
+    pasteAct->setShortcut(QKeySequence("Ctrl+V"));
     pasteAct->setEnabled( FALSE );
     connect( me, SIGNAL(pasteAvailable(bool)),
              pasteAct, SLOT(setEnabled(bool)) );
-    selectAllAct = editp->addAction(tr("Select &All"), me, SLOT(selectAll()), QKeySequence("Ctrl+A") );
+    selectAllAct = editp->addAction(tr("Select &All"), me, SLOT(selectAll()));
+    selectAllAct->setShortcut(QKeySequence("Ctrl+A"));
     selectAllAct->setEnabled( FALSE );
     editp->addSeparator();
-    findAct = editp->addAction(loadPixmap("searchfind.png"), tr("&Find..."), this, SLOT(find()), QKeySequence("Ctrl+F") );
+    findAct = editp->addAction(loadPixmap("searchfind.png"), tr("&Find..."), this, SLOT(find()));
+    findAct->setShortcut(QKeySequence("Ctrl+F"));
     findAct->setEnabled( FALSE );
-    findAgainAct = editp->addAction(tr("Find &Next"), this, SLOT(findAgain()), Qt::Key_F3 );
+    findAgainAct = editp->addAction(tr("Find &Next"), this, SLOT(findAgain()));
+    findAgainAct->setShortcut(Qt::Key_F3);
     findAgainAct->setEnabled( FALSE );
 #ifdef notyet
-    replaceAct = editp->addAction(tr("&Replace..."), this, SLOT(replace()), QKeySequence("Ctrl+H") );
+    replaceAct = editp->addAction(tr("&Replace..."), this, SLOT(replace()));
+    replaceAct->setShortcut(QKeySequence("Ctrl+H");
     replaceAct->setEnabled( FALSE );
 #endif
 
     // Translation menu
     // when updating the accelerators, remember the status bar
     prevUnfinishedAct = translationp->addAction(loadPixmap("prevunfinished.png"), tr("&Prev Unfinished"),
-                                    this, SLOT(prevUnfinished()), QKeySequence("Ctrl+K") );
+                                    this, SLOT(prevUnfinished()));
+    prevUnfinishedAct->setShortcut(QKeySequence("Ctrl+K"));
     nextUnfinishedAct = translationp->addAction(loadPixmap("nextunfinished.png"), tr("&Next Unfinished"),
-                                    this, SLOT(nextUnfinished()), QKeySequence("Ctrl+L") );
+                                    this, SLOT(nextUnfinished()));
+    nextUnfinishedAct->setShortcut(QKeySequence("Ctrl+L"));
 
     prevAct = translationp->addAction(loadPixmap("prev.png"), tr("P&rev"),
-                          this, SLOT(prev()),
-                          QKeySequence("Ctrl+Shift+K") );
+                          this, SLOT(prev()));
+    prevAct->setShortcut(QKeySequence("Ctrl+Shift+K"));
     nextAct = translationp->addAction(loadPixmap("next.png"), tr("Ne&xt"),
-                          this, SLOT(next()),
-                          QKeySequence("Ctrl+Shift+L") );
+                          this, SLOT(next()));
+    nextAct->setShortcut(QKeySequence("Ctrl+Shift+L"));
     doneAndNextAct = translationp->addAction(loadPixmap("doneandnext.png"), tr("Done and &Next"),
-                                 this, SLOT(doneAndNext()),
-                                 QKeySequence("Ctrl+Enter") );
-    doneAndNextAlt = new QAction( this );
-    doneAndNextAlt->setShortcut( QKeySequence("Ctrl+Return") );
-    connect( doneAndNextAlt, SIGNAL(triggered()), this, SLOT(doneAndNext()) );
+                                 this, SLOT(doneAndNext()));
+    doneAndNextAct->setShortcut(QKeySequence("Ctrl+Enter"));
     beginFromSourceAct = translationp->addAction(tr("&Begin from Source"),
-                                     me, SLOT(beginFromSource()),
-                                     QKeySequence("Ctrl+B") );
+                                     me, SLOT(beginFromSource()));
+    beginFromSourceAct->setShortcut(QKeySequence("Ctrl+B"));
     connect( me, SIGNAL(updateActions(bool)), beginFromSourceAct,
              SLOT(setEnabled(bool)) );
 
     // Phrasebook menu
     newPhraseBookAct = phrasep->addAction(tr("&New Phrase Book..."),
-                                   this, SLOT(newPhraseBook()),
-                                   QKeySequence("Ctrl+N") );
+                                   this, SLOT(newPhraseBook()));
+    newPhraseBookAct->setShortcut(QKeySequence("Ctrl+N"));
     openPhraseBookAct = phrasep->addAction(loadPixmap("book.png"), tr("&Open Phrase Book..."),
-                                    this, SLOT(openPhraseBook()),
-                                    QKeySequence("Ctrl+H") );
+                                    this, SLOT(openPhraseBook()))
+                                    ;
+    openPhraseBookAct->setShortcut(QKeySequence("Ctrl+H"));
     closePhraseBookId = phrasep->addMenu( tr("&Close Phrase Book"),
                                              closePhraseBookp );
     phrasep->addSeparator();
@@ -1469,13 +1481,15 @@ void TrWindow::setupMenuBar()
 #endif
 
     // Help
-    manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()), Qt::Key_F1 );
+    manualAct = helpp->addAction(tr("&Manual"), this, SLOT(manual()));
+    manualAct->setShortcut(Qt::Key_F1);
     helpp->addSeparator();
     aboutAct = helpp->addAction(tr("&About"), this, SLOT(about()) );
     aboutQtAct = helpp->addAction(tr("About &Qt"), this, SLOT(aboutQt()) );
     helpp->addSeparator();
     whatsThisAct = helpp->addAction(loadPixmap("whatsthis.xpm"), tr("&What's This?"),
-                               this, SLOT(whatsThis()), Qt::SHIFT + Qt::Key_F1 );
+                               this, SLOT(whatsThis()));
+    whatsThisAct->setShortcut(Qt::SHIFT + Qt::Key_F1);
 
     openAct->setWhatsThis( tr("Open a Qt translation source file (TS file) for"
                               " editing.") );

@@ -44,9 +44,8 @@ class PageCurl : public QWidget
 {
     Q_OBJECT
 public:
-    PageCurl( QWidget * parent = 0, const char * name = 0,
-              Qt::WFlags f = 0 )
-        : QWidget( parent, name, f )
+    PageCurl( QWidget *parent = 0 )
+        : QWidget( parent)
     {
         QPixmap px = TrWindow::pageCurl();
         if ( px.mask() ) {
@@ -104,8 +103,8 @@ signals:
 class ShadowWidget : public QWidget
 {
 public:
-    ShadowWidget( QWidget * parent = 0, const char * name = 0 );
-    ShadowWidget( QWidget * child, QWidget * parent = 0, const char * name = 0 );
+    ShadowWidget( QWidget * parent = 0 );
+    ShadowWidget( QWidget * child, QWidget * parent = 0 );
 
     void setShadowWidth( int width ) { sWidth = width; }
     int  shadowWidth() const { return sWidth; }
@@ -159,8 +158,7 @@ class MessageEditor : public QWidget
 {
     Q_OBJECT
 public:
-    MessageEditor( MetaTranslator * t, QMainWindow *parent = 0,
-                   const char * name = 0 );
+    MessageEditor( MetaTranslator * t, QMainWindow *parent = 0);
     Q3ListView * sourceTextList() const;
     Q3ListView * phraseList() const;
 

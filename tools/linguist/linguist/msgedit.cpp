@@ -111,14 +111,13 @@ QString richText( const QString& text )
 
    Used to create a shadow like effect for a widget
 */
-ShadowWidget::ShadowWidget( QWidget * parent, const char * name )
-    : QWidget( parent, name ), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
+ShadowWidget::ShadowWidget(QWidget * parent)
+    : QWidget(parent), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
 {
 }
 
-ShadowWidget::ShadowWidget( QWidget * child, QWidget * parent,
-                            const char * name )
-    : QWidget( parent, name ), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
+ShadowWidget::ShadowWidget( QWidget * child, QWidget * parent)
+    : QWidget( parent), sWidth( 10 ), wMargin( 3 ), childWgt( 0 )
 {
     setWidget( child );
 }
@@ -197,15 +196,15 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
                 p.color( QPalette::Disabled, QPalette::Base ) );
     setPalette( p );
 
-    srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
-    transLbl   = new QLabel( tr("Translation"), this, "translation label" );
+    srcTextLbl = new QLabel( tr("Source text"), this);
+    transLbl   = new QLabel( tr("Translation"), this);
 
     QFont fnt = font();
     fnt.setBold( TRUE );
     srcTextLbl->setFont( fnt );
     transLbl->setFont( fnt );
 
-    srcText = new QTextView( this, "source text view" );
+    srcText = new QTextView( this);
     srcText->setFrameStyle( QFrame::NoFrame );
     srcText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
                                          QSizePolicy::Minimum ) );
@@ -246,7 +245,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     connect( translationMed, SIGNAL(textChanged()),
              SLOT(handleTranslationChanges()) );
 
-    pageCurl = new PageCurl( this, "page curl" );
+    pageCurl = new PageCurl(this);
 
     // Focus
     setFocusPolicy( Qt::StrongFocus );
@@ -376,9 +375,8 @@ void EditorPage::fontChange( const QFont & )
 
    Handle layout of dock windows and the editor page.
 */
-MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
-                              const char * name )
-    : QWidget( parent, name ),
+MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent )
+    : QWidget( parent),
       tor( t )
 {
     doGuesses = TRUE;
@@ -417,7 +415,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
 
     editorPage->translationMed->installEventFilter( this );
 
-    sw = new ShadowWidget( editorPage, sv, "editor page shadow" );
+    sw = new ShadowWidget( editorPage, sv);
     sw->setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
                                     QSizePolicy::Expanding) );
     sw->setMinimumSize( QSize( 100, 150 ) );
