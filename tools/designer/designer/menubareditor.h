@@ -132,8 +132,8 @@ protected:
     void drawItem( QPainter & p, MenuBarEditorItem * i, int idx, QPoint & pos );
     void drawSeparator( QPainter & p, QPoint & pos );
     
-    QSize itemSize( QPainter & p, MenuBarEditorItem * i );
-    void addItemSizeToCoords( QPainter & p, MenuBarEditorItem * i, int & x, int & y, const int w );
+    QSize itemSize( MenuBarEditorItem * i );
+    void addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, const int w );
 
     QPoint itemPos( const int index );
     QPoint snapToItem( const QPoint & pos );

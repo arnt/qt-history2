@@ -348,14 +348,13 @@ int MenuBarEditor::findItem( QPoint & pos )
     QSize s;
     QRect r;
 
-    QPainter p( this );
     MenuBarEditorItem * i = itemList.first();
 
     while ( i ) {
 
 	if ( i->isVisible() ) {
 
-	    s = itemSize( p, i );
+	    s = itemSize( i );
 	    dx = s.width();
 
 	    if ( x + dx > w && x > borderSize ) {
@@ -368,14 +367,14 @@ int MenuBarEditor::findItem( QPoint & pos )
 	    if ( r.contains( pos ) )
 		return itemList.at();
 
-	    addItemSizeToCoords( p, i, x, y, w );
+	    addItemSizeToCoords( i, x, y, w );
 	}
 
 	i = itemList.next();
     }
 
     // check add item
-    s = itemSize( p, &addItem );
+    s = itemSize( &addItem );
     dx = s.width();
 
     if ( x + dx > w && x > borderSize ) {
@@ -488,7 +487,7 @@ void MenuBarEditor::showLineEdit( int index )
     QPoint pos = itemPos( index );
     lineEdit->move( pos.x() + borderSize, pos.y() ); //FIXME: move
     QPainter p( this );
-    lineEdit->resize( itemSize( p, i ) );
+    lineEdit->resize( itemSize( i ) );
     lineEdit->show();
     lineEdit->setFocus();
 }
@@ -563,17 +562,17 @@ int MenuBarEditor::heightForWidth( int max_width ) const
     int y = 0;
 
     QPainter p( this );
-    that->itemHeight = that->itemSize( p, & that->addItem ).height();
+    that->itemHeight = that->itemSize( &(that->addItem) ).height();
 
     MenuBarEditorItem * i = that->itemList.first();
     while ( i ) {
 	if ( i->isVisible() )
-	    that->addItemSizeToCoords( p, i, x, y, max_width );
+	    that->addItemSizeToCoords( i, x, y, max_width );
 	i = that->itemList.next();
     }
 
-    that->addItemSizeToCoords( p, & that->addItem, x, y, max_width );
-    that->addItemSizeToCoords( p, & that->addSeparator, x, y, max_width );
+    that->addItemSizeToCoords( &(that->addItem), x, y, max_width );
+    that->addItemSizeToCoords( &(that->addSeparator), x, y, max_width );
 
     return y + itemHeight;
 }
@@ -877,7 +876,7 @@ void MenuBarEditor::drawItem( QPainter & p,
 			      int idx,
 			      QPoint & pos )
 {
-    int w = itemSize( p, i ).width();
+    int w = itemSize( i ).width();
 
     // If the item passes the right border, and it is not the first item on the line
     if ( pos.x() + w > width() && pos.x() > borderSize ) { // wrap
@@ -920,21 +919,17 @@ void MenuBarEditor::drawSeparator( QPainter & p, QPoint & pos )
     p.restore();
 }
 
-QSize MenuBarEditor::itemSize( QPainter & p, MenuBarEditorItem * i )
+QSize MenuBarEditor::itemSize( MenuBarEditorItem * i )
 {
     if ( i->isSeparator() )
 	return QSize( separatorWidth, itemHeight );
-    QRect r = p.boundingRect( rect(), Qt::ShowPrefix, i->menuText() );
-    return QSize( r.width() + borderSize * 2, r.height() + borderSize * 2 );
+    QRect r = fontMetrics().boundingRect( i->menuText() );
+    return QSize( r.width() + borderSize * 2, r.height() + borderSize * 4 );
 }
 
-void MenuBarEditor::addItemSizeToCoords( QPainter & p,
-					 MenuBarEditorItem * i,
-					 int & x,
-					 int & y,
-					 const int w )
+void MenuBarEditor::addItemSizeToCoords( MenuBarEditorItem * i, int & x, int & y, const int w )
 {
-    int dx = itemSize( p, i ).width();
+    int dx = itemSize( i ).width();
     if ( x + dx > w && x > borderSize ) {
 	y += itemHeight;
 	x = borderSize;
@@ -950,12 +945,11 @@ QPoint MenuBarEditor::itemPos( const int index )
     int dx = 0;
     int c = 0;
 
-    QPainter p( this );
     MenuBarEditorItem * i = itemList.first();
 
     while ( i ) {
 	if ( i->isVisible() ) {
-	    dx = itemSize( p, i ).width();
+	    dx = itemSize( i ).width();
 	    if ( x + dx > w && x > borderSize ) {
 		y += itemHeight;
 		x = borderSize;
@@ -967,7 +961,7 @@ QPoint MenuBarEditor::itemPos( const int index )
 	}
 	i = itemList.next();
     }
-    dx = itemSize( p, &addItem ).width();
+    dx = itemSize( &addItem ).width();
     if ( x + dx > width() && x > borderSize ) {
 	y += itemHeight;
 	x = borderSize;
@@ -982,12 +976,11 @@ QPoint MenuBarEditor::snapToItem( const QPoint & pos )
     int y = 0;
     int dx = 0;
 
-    QPainter p( this );
     MenuBarEditorItem * n = itemList.first();
 
     while ( n ) {
 	if ( n->isVisible() ) {
-	    dx = itemSize( p, n ).width();
+	    dx = itemSize( n ).width();
 	    if ( x + dx > width() && x > borderSize ) {
 		y += itemHeight;
 		x = borderSize;
@@ -1012,12 +1005,11 @@ void MenuBarEditor::dropInPlace( MenuBarEditorItem * i, const QPoint & pos )
     int dx = 0;
     int idx = 0;
 
-    QPainter p( this );
     MenuBarEditorItem * n = itemList.first();
 
     while ( n ) {
 	if ( n->isVisible() ) {
-	    dx = itemSize( p, n ).width();
+	    dx = itemSize( n ).width();
 	    if ( x + dx > width() && x > borderSize ) {
 		y += itemHeight;
 		x = borderSize;

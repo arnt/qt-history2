@@ -162,12 +162,13 @@ protected:
     void focusOutEvent( QFocusEvent * e );
 
     void drawItems( QPainter * p ) const;
-    void drawAction( QPainter * p, const QAction * a, const QPoint & pt, const int f ) const;
-    void drawWinFocusRect( QPainter * p, const int y ) const;
+    void drawItem( QPainter * p, const PopupMenuEditorItem * i, const QRect & r, const int f ) const;
+    void drawWinFocusRect( QPainter * p, const QRect & r ) const;
 
     QSize contentsSize();
-
-    int currentItemYCoord();
+    int itemHeight( const PopupMenuEditorItem * item ) const;
+    int itemPos( const PopupMenuEditorItem * item ) const;
+    
     int snapToItem( int y );
     void dropInPlace( PopupMenuEditorItem * i, int y );
 
@@ -195,8 +196,6 @@ private:
     int textWidth;
     int accelWidth;
     int arrowWidth;
-    int actionHeight;
-    int separatorHeight;
     int borderSize;
     
     int currentField;
