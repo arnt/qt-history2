@@ -1,9 +1,7 @@
 /****************************************************************************
-** $Id$
+** Definition of QGb18030Codec template/macro class
 **
-** Definition of QGbkCodec template/macro class
-**
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -33,18 +31,16 @@
 **
 **********************************************************************/
 
-// Contributed by Justin Yu <justiny@turbolinux.com.cn>
-//                Sean Chen <seanc@turbolinux.com.cn>
-// See the documentation for their license statement for the code as
-// it was at the time of contribution.
+// Contributed by James Su <suzhe@gnuchina.org>
 
-#ifndef QGBKCODEC_H
-#define QGBKCODEC_H
+#ifndef QGb18030CODEC_H
+#define QGb18030CODEC_H
 
 #ifndef QT_H
 #include "qglobal.h"
 #include "qtextcodec.h"
 #endif // QT_H
+
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -54,21 +50,29 @@
 #define Q_EXPORT_CODECS_CN Q_EXPORT
 #endif
 
-class Q_EXPORT_CODECS_CN QGbkCodec : public QTextCodec {
+class Q_EXPORT_CODECS_CN QGb18030Codec : public QTextCodec {
 public:
-    QGbkCodec();
+    QGb18030Codec();
 
-    virtual int mibEnum() const;
+    int mibEnum() const;
     const char* name() const;
-    const char* mimeName() const;
 
     QTextDecoder* makeDecoder() const;
 
-#if !defined(Q_NO_USING_KEYWORD)
-    using QTextCodec::fromUnicode;
-#endif
     QCString fromUnicode(const QString& uc, int& len_in_out) const;
     QString toUnicode(const char* chars, int len) const;
+
+    int heuristicContentMatch(const char* chars, int len) const;
+    int heuristicNameMatch(const char* hint) const;
+};
+
+class Q_EXPORT_CODECS_CN QGbkCodec : public QGb18030Codec {
+public:
+    QGbkCodec();
+
+    int mibEnum() const;
+    const char* name() const;
+    const char* mimeName() const;
 
     int heuristicContentMatch(const char* chars, int len) const;
     int heuristicNameMatch(const char* hint) const;

@@ -41,7 +41,7 @@
 #ifndef QT_NO_BIG_CODECS
 
 
-extern unsigned int qt_UnicodeToGBK(unsigned int code);
+extern int qt_UnicodeToGb18030(uint unicode, uchar *gbchar);
 
 
 int QFontGB2312Codec::heuristicContentMatch(const char *, int) const
@@ -69,7 +69,7 @@ int QFontGB2312Codec::mibEnum() const
 
 QString QFontGB2312Codec::toUnicode(const char* /*chars*/, int /*len*/) const
 {
-    return QString(); //###
+    return QString();
 }
 
 
@@ -81,21 +81,13 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
+	uchar buf[4];
 
-#if 0
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-#endif
+	int len = qt_UnicodeToGb18030( ch.unicode(), buf );
 
-	ch = qt_UnicodeToGBK(ch.unicode());
-
-	if ( ch.row() > 0xa0 && ch.cell() > 0xa0  ) {
-	    *rdata++ = ch.row() & 0x7f ;
-	    *rdata++ = ch.cell() & 0x7f;
+	if ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0  ) {
+	    *rdata++ = buf[0] & 0x7f ;
+	    *rdata++ = buf[1] & 0x7f;
 	} else {
 	    //white square
 	    *rdata++ = 0x21;
@@ -111,8 +103,9 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
 bool QFontGB2312Codec::canEncode( QChar ch ) const
 {
-    ch = qt_UnicodeToGBK( ch.unicode() );
-    return ( ch.row() > 0xa0 && ch.cell() > 0xa0 );
+    uchar buf[4];
+    int len = qt_UnicodeToGb18030( ch.unicode(), buf );
+    return ( len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0  );
 }
 
 

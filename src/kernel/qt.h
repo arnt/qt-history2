@@ -80,7 +80,7 @@
 #include "qgroupbox.h"
 #include "qcommonstyle.h"
 #include <qeuckrcodec.h>
-#include <qgbkcodec.h>
+#include <qgb18030codec.h>
 #include "qgcache.h"
 #include "qdockwindow.h"
 #include <qgif.h>

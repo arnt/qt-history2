@@ -8,7 +8,7 @@ tools {
 		$$CODECS_H/qbig5codec.h \
 		  $$CODECS_H/qeucjpcodec.h \
 		  $$CODECS_H/qeuckrcodec.h \
-		  $$CODECS_H/qgbkcodec.h \
+		  $$CODECS_H/qgb18030codec.h \
 		  $$CODECS_H/qjiscodec.h \
 		  $$CODECS_H/qjpunicode.h \
 		  $$CODECS_H/qrtlcodec.h \
@@ -25,7 +25,7 @@ tools {
 		$$CODECS_CPP/qbig5codec.cpp \
 		  $$CODECS_CPP/qeucjpcodec.cpp \
 		  $$CODECS_CPP/qeuckrcodec.cpp \
-		  $$CODECS_CPP/qgbkcodec.cpp \
+		  $$CODECS_CPP/qgb18030codec.cpp \
 		  $$CODECS_CPP/qjiscodec.cpp \
 		  $$CODECS_CPP/qjpunicode.cpp \
 		  $$CODECS_CPP/qrtlcodec.cpp \

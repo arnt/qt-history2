@@ -52,7 +52,7 @@
 #include "qbig5codec.h"
 #include "qeucjpcodec.h"
 #include "qeuckrcodec.h"
-#include "qgbkcodec.h"
+#include "qgb18030codec.h"
 #include "qjiscodec.h"
 #include "qjpunicode.h"
 #include "qsjiscodec.h"
@@ -2586,6 +2586,7 @@ static void setupBuiltinCodecs()
     (void)new QEucJpCodec;
     (void)new QEucKrCodec;
     (void)new QGbkCodec;
+    (void)new QGb18030Codec;
     (void)new QJisCodec;
     (void)new QSjisCodec;
 #endif // QT_NO_BIG_CODECS

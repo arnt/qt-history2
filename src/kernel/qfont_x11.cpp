@@ -110,7 +110,7 @@ static const char * const latinA15_encodings[] = { "iso8859-15", 0 };
 
 // we select on of these at initialization time for Han use
 static const char * const hancn_encodings[] =
-    { "gb2312.1980-0", "big5*-*", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+    { "gb18030.2000-1", "gb18030.2000-0", "gb2312.1980-0", "big5*-*", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
 static const char * const hanjp_encodings[] =
     { "jisx0208.1983-0", "gb2312.1980-0", "big5*-*", "ksc5601.1987-0", 0 };
 static const char * const hankr_encodings[] =
@@ -2750,9 +2750,9 @@ void QFont::initialize()
 	switch (codec->mibEnum()) {
 	case 57: // GB 2312-1980
 	case 2027: // GBK
+	case -2025: // GB18030
 	    script_table[QFont::Han].list = hancn_encodings;
 	    break;
-
 	case 2026: // Big5
 	    script_table[QFont::Han].list = hantw_encodings;
 	    break;
