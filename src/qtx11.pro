@@ -100,6 +100,8 @@ HEADERS     =	dialogs/qfiledlg.h \
 		widgets/qradiobt.h \
 		widgets/qrangect.h \
 		widgets/qscrbar.h \
+		widgets/qslider.h \
+		widgets/qspinbox.h \
 		widgets/qtabbar.h \
 		widgets/qtablevw.h \
 		widgets/qtooltip.h
@@ -190,6 +192,8 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qradiobt.cpp \
 		widgets/qrangect.cpp \
 		widgets/qscrbar.cpp \
+		widgets/qslider.cpp \
+		widgets/qspinbox.cpp \
 		widgets/qtabbar.cpp \
 		widgets/qtablevw.cpp \
 		widgets/qtooltip.cpp
