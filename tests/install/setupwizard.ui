@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>489</width>
-            <height>343</height>
+            <width>485</width>
+            <height>341</height>
         </rect>
     </property>
     <property name="caption">
@@ -251,14 +251,6 @@
                         </property>
                         <property name="text">
                             <string>Borland C++</string>
-                        </property>
-                    </widget>
-                    <widget class="QRadioButton">
-                        <property name="name">
-                            <cstring>sysGcc</cstring>
-                        </property>
-                        <property name="text">
-                            <string>CygWin / GCC</string>
                         </property>
                     </widget>
                 </vbox>
@@ -855,14 +847,14 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedDevSysPath()</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">clickedDevSysPath()</slot>
     <slot access="public" language="C++">clickedEnvironmentButton()</slot>
     <slot access="public" language="C++">clickedFolderPath()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
-    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
-    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>
@@ -875,7 +867,6 @@
     <tabstop>installTutorials</tabstop>
     <tabstop>sysMsvc</tabstop>
     <tabstop>sysBorland</tabstop>
-    <tabstop>sysGcc</tabstop>
     <tabstop>configList</tabstop>
     <tabstop>advancedList</tabstop>
     <tabstop>folderPath</tabstop>
