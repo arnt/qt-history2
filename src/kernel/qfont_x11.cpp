@@ -755,7 +755,6 @@ void QFont::initialize()
 	(void) new QFontGb18030_0Codec;
 	(void) new QFontBig5Codec;
 	(void) new QFontBig5hkscsCodec;
-	(void) new QFontArabic68Codec;
 	(void) new QFontLaoCodec;
 	codecs_once = TRUE;
     }
