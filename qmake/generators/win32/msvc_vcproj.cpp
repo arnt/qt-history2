@@ -605,10 +605,7 @@ bool VcprojGenerator::hasBuiltinCompiler(const QString &file)
     for (int i = 0; i < Option::cpp_ext.count(); ++i)
         if (file.endsWith(Option::cpp_ext.at(i)))
             return true;
-    if (file.endsWith(".c"))
-        return true;
-    // Resource files
-    if (file.endsWith(".rc"))
+    if (file.endsWith(".c") || file.endsWith(".rc"))
         return true;
     return false;
 }
@@ -624,6 +621,7 @@ void VcprojGenerator::init()
 
     debug_msg(1, "Generator: MSVC.NET: Initializing variables");
 
+    processVars();
     initOld();           // Currently calling old DSP code to set variables. CLEAN UP!
 
     // Figure out what we're trying to build
@@ -759,6 +757,7 @@ void VcprojGenerator::initConfiguration()
         initLibrarianTool();
     else
         initLinkerTool();
+    initResourceTool();
     initIDLTool();
 
     // Own elements -----------------------------
@@ -941,6 +940,13 @@ void VcprojGenerator::initLinkerTool()
 
 }
 
+void VcprojGenerator::initResourceTool()
+{
+    VCConfiguration &conf = vcProject.Configuration;
+    conf.resource.PreprocessorDefinitions = conf.compiler.PreprocessorDefinitions;
+}
+
+
 void VcprojGenerator::initIDLTool()
 {
 }
@@ -1021,7 +1027,7 @@ void VcprojGenerator::initGeneratedFiles()
     vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_SOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
-    vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);                 // compat
+    vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
     if(!extraCompilerOutputs.isEmpty())
         vcProject.GeneratedFiles.addFiles(extraCompilerOutputs.keys());
@@ -1191,43 +1197,10 @@ void VcprojGenerator::initOld()
         QString minor = version.right(version.length() - firstDot - 1);
         minor.replace(QRegExp("\\."), "");
         project->variables()["MSVCPROJ_VERSION"].append("/VERSION:" + major + "." + minor);
-    }
-
-    // QT ------------------------------------------------------------
-    if(project->isActiveConfig("qt")) {
-        project->variables()["CONFIG"].append("moc");
-        project->variables()["INCLUDEPATH"] +=        project->variables()["QMAKE_INCDIR_QT"];
-        project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
-
-        if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-        } else {
-            if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-                int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-                if(hver != -1) {
-                    QString ver;
-                    ver.sprintf("qt" QTDLL_POSTFIX "%d.lib", hver);
-                    QStringList &libs = project->variables()["QMAKE_LIBS"];
-                    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-                        (*libit).replace(QRegExp("qt\\.lib"), ver);
-                }
-            }
-        }
-    }
-
-    fixTargetExt();
-
-    // /VERSION:x.yz -------------------------------------------------
-    if(!project->variables()["VERSION"].isEmpty()) {
-        QString version = project->variables()["VERSION"][0];
-        int firstDot = version.indexOf(".");
-        QString major = version.left(firstDot);
-        QString minor = version.right(version.length() - firstDot - 1);
-        minor.replace(".", "");
         project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    processFileTagsVar();
 
      // Get filename w/o extention -----------------------------------
     QString msvcproj_project = "";
@@ -1237,15 +1210,8 @@ void VcprojGenerator::initOld()
         targetfilename = msvcproj_project;
     }
 
-    // Save filename w/o extention in $$QMAKE_ORIG_TARGET ------------
-    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
-
-    // TARGET (add extention to $$TARGET)
-    //project->variables()["MSVCPROJ_DEFINES"].append(varGlue(".first() += project->first("TARGET_EXT");
-
     // Init base class too -------------------------------------------
     MakefileGenerator::init();
-
 
     if(msvcproj_project.isEmpty())
         msvcproj_project = Option::output.fileName();
@@ -1274,12 +1240,6 @@ void VcprojGenerator::initOld()
                 project->variables()["MSVCPROJ_VCPROJTYPE"].append("0x0101");
                 project->variables()["MSVCPROJ_SUBSYSTEM"].append("WINDOWS");
             }
-    } else {
-        if(project->isActiveConfig("dll")) {
-            project->variables()["MSVCPROJ_TEMPLATE"].append("win32dll" + project->first("VCPROJ_EXTENSION"));
-        } else {
-            project->variables()["MSVCPROJ_TEMPLATE"].append("win32lib" + project->first("VCPROJ_EXTENSION"));
-        }
     }
 
     // $$QMAKE.. -> $$MSVCPROJ.. -------------------------------------
@@ -1295,9 +1255,6 @@ void VcprojGenerator::initOld()
         project->variables()["MSVCPROJ_LFLAGS"] += strl;
     }
     project->variables()["MSVCPROJ_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS"];
-    // We don't use this... Direct manipulation of compiler object
-    //project->variables()["MSVCPROJ_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
-    //project->variables()["MSVCPROJ_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
         QString inc = (*incit);

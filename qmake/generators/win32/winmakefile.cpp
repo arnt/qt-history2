@@ -269,17 +269,12 @@ void Win32MakefileGenerator::processVars()
 void Win32MakefileGenerator::fixTargetExt()
 {
     if (project->isActiveConfig("dll")) {
-        if (!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
             project->variables()["TARGET_EXT"].append(project->first("TARGET_VERSION_EXT") + ".dll");
-        } else {
-            project->variables()["TARGET_EXT"].append(".dll");
-        }
     } else {
-        if (!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+        if (!project->variables()["QMAKE_APP_FLAG"].isEmpty())
             project->variables()["TARGET_EXT"].append(".exe");
-        } else {
+        else
             project->variables()["TARGET_EXT"].append(".lib");
-        }
     }
 }
 
@@ -389,9 +384,9 @@ void Win32MakefileGenerator::processRcFileVar()
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
         project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
-    if(!project->variables()["RES_FILE"].isEmpty()) {
-        project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
-    }
+    //if(!project->variables()["RES_FILE"].isEmpty()) {
+    //    project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    //}
 }
 
 void Win32MakefileGenerator::processQtConfig()
