@@ -1431,6 +1431,16 @@ bool QTextDocument::setMinimumWidth( int needed, int used, QTextParagraph *p )
 	p = 0;
     }
     if ( p == minwParag ) {
+	if (minw > needed) {
+	    QTextParagraph *tp = fParag;
+	    while (tp) {
+		if (tp != p && tp->minwidth > needed) {
+		    needed = tp->minwidth;
+		    minwParag = tp;
+		}
+		tp = tp->n;
+	    }
+	}
 	minw = needed;
 	emit minimumWidthChanged( minw );
     } else if ( needed > minw ) {
@@ -4009,7 +4019,7 @@ QTextParagraph::QTextParagraph( QTextDocument *dc, QTextParagraph *pr, QTextPara
       mFloatingItems( 0 ),
 #endif
       utm( 0 ), ubm( 0 ), ulm( 0 ), urm( 0 ), uflm( 0 ), ulinespacing( 0 ),
-      tabStopWidth(0), tArray(0), eData( 0 ), ldepth( 0 )
+      tabStopWidth(0), minwidth(0), tArray(0), eData( 0 ), ldepth( 0 )
 {
     lstyle = QStyleSheetItem::ListDisc;
     if ( !hasdoc )
@@ -4323,7 +4333,7 @@ void QTextParagraph::format( int start, bool doMove )
     if ( !visible ) {
 	r.setHeight( 0 );
     } else {
-	int minw = formatter()->minimumWidth();
+	int minw = minwidth = formatter()->minimumWidth();
 	int wused = formatter()->widthUsed();
 	wused = qMax( minw, wused );
 	if ( hasdoc ) {

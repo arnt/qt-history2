@@ -1293,7 +1293,7 @@ private:
     QList<QTextCustomItem *> *mFloatingItems;
 #endif
     short utm, ubm, ulm, urm, uflm, ulinespacing;
-    short tabStopWidth;
+    short tabStopWidth, minwidth;
     int *tArray;
     QTextParagraphData *eData;
     short list_val;
