@@ -333,7 +333,7 @@ void QRollEffect::run( int time )
 
     if ( duration < 0 )
 	duration = QMIN( QMAX((totalWidth - currentWidth) +
-			      (totalHeight - currentHeight), 200 ), 400 );
+			      (totalHeight - currentHeight), 100 ), 300 );
 
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 

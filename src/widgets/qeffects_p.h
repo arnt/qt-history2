@@ -18,6 +18,6 @@ struct QEffects
 };
 
 extern void Q_EXPORT qScrollEffect( QWidget*, QEffects::DirFlags dir = QEffects::DownScroll, int time = -1 );
-extern void Q_EXPORT qFadeEffect( QWidget*, int time = 200 );
+extern void Q_EXPORT qFadeEffect( QWidget*, int time = -1 );
 
 #endif // QEFFECTS_H
