@@ -173,10 +173,6 @@ void ConfigureApp::parseCmdLine()
 	    ++args;
 	    qmakeIncludes += (*args);
 	}
-	else if( (*args) == "-L" ) {
-	    ++args;
-	    qmakeLibs += (*args);
-	}
 	else if( (*args) == "-no-dsp" )
 	    dictionary[ "DSPFILES" ] = "no";
 	else if( (*args) == "-dsp" )
@@ -303,7 +299,7 @@ bool ConfigureApp::displayHelp()
 	cout << "                    (qt.pro, qtmain.pro)." << endl;
 	cout << "-D <define>         Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>    Add <includepath> to the include searchpath." << endl;
-	cout << "-L <libpath>        Add <libpath> to the library searchpath." << endl;
+//	cout << "-L <libpath>        Add <libpath> to the library searchpath." << endl;
 	cout << "-enable-*           Enable the specified module, where module is one of" << endl;
 	cout << "                    " << modules.join( " " ) << endl;
 	cout << "-disable-*          Disable the specified module, where module is one of" << endl;
@@ -396,18 +392,12 @@ void ConfigureApp::generateCachefile()
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
-	cacheStream << "CONFIG=" << qmakeConfig.join( " " ) << endl;
+	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	if( !qmakeIncludes.isEmpty() ) {
 	    cacheStream << "INCLUDEPATH=";
 	    for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
 		cacheStream << (*incs);
-	    cacheStream << endl;
-	}
-	if( !qmakeLibs.isEmpty() ) {
-	    cacheStream << "LIBPATH=";
-	    for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
-		cacheStream << (*libs);
 	    cacheStream << endl;
 	}
 	cacheFile.close();
@@ -426,18 +416,12 @@ void ConfigureApp::generateCachefile()
 	for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
 	}
-	cacheStream << "CONFIG=" << srcConfig.join( " " ) << endl;
+	cacheStream << "CONFIG+=" << srcConfig.join( " " ) << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
 	if( !qmakeIncludes.isEmpty() ) {
 	    cacheStream << "INCLUDEPATH=";
 	    for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
 		cacheStream << (*incs);
-	    cacheStream << endl;
-	}
-	if( !qmakeLibs.isEmpty() ) {
-	    cacheStream << "LIBPATH=";
-	    for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
-		cacheStream << (*libs);
 	    cacheStream << endl;
 	}
 	cacheFile.close();
@@ -526,12 +510,6 @@ void ConfigureApp::displayConfig()
 	for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
 	    cout << (*incs) << " ";
 	cout << endl;
-    }
-    if( !qmakeLibs.isEmpty() ) {
-	cout << "Library paths...............";
-	for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
-	    cout << (*libs) << " ";
-	cout << endl << endl;
     }
     if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" ) {
 	cout << "Licensing forced to professional edition.  If this is not what you want, unset" << endl;
