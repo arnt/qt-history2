@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.29 1999/07/13 08:37:24 warwick Exp $
+** $Id: i18n.doc,v 1.30 1999/07/13 13:08:14 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -389,7 +389,7 @@ The current state of activity is:
  <dt><b>KOI8-R</b>
   <dd>Fully supported.
  <dt><b>eucJP, JIS, and ShiftJIS</b>
-  <dd>Fully supported. Uses eucJP with the XIMP protocol on X11,
+  <dd>Fully supported. Uses eucJP with the XIM protocol on X11,
 	and the IME Windows NT in Japanese Windows NT.
 	Serika Kurusugawa and other are assisting with this effort.
 	<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>kinput2</a>
@@ -399,6 +399,10 @@ The current state of activity is:
 	Mizi Research are assisting with this effort.
 	<a href=http://www.mizi.com/>hanIM</a>
        	is the tested input method.
+ <dt><b>Big5</b>
+  <dd>Qt contains a Big5 codec developed by Ming Che-Chuang, but we have
+	not tested this significantly; we are not aware of an XIM-compliant
+	Chinese input method for X11.
  <dt><b>eucTW</b>
   <dd>Under external development.
 </dl>

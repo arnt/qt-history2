@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#385 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#386 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -570,7 +570,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   sets the IME composition window in Far East Asian language input systems.
 
   In the X11 version of Qt, if \a text is TRUE,
-  this method sets the XIMP "spot" point for
+  this method sets the XIM "spot" point for
   complex language input handling.
 */
 void QWidget::setMicroFocusHint(int x, int y, int /*width*/, int height, bool text)
