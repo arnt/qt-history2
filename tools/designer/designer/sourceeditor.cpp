@@ -41,7 +41,7 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInt
 			    this, MainWindow::self->designerInterface() );
     iFace->onBreakPointChange( MainWindow::self, SLOT( breakPointsChanged() ) );
     resize( 600, 400 );
-    setIcon( QPixmap::fromMimeSource( "filenew.png" ) );
+    setIcon( QPixmap::fromMimeSource( "designer_filenew.png" ) );
 }
 
 SourceEditor::~SourceEditor()
