@@ -53,7 +53,7 @@
 
      Normally, QSqlIndex objects are created by \l QSqlDatabase or
      QSqlCursor.
-     
+
 */
 
 /*!  Constructs an empty index using the cursor name \a cursorname and
@@ -97,13 +97,16 @@ QSqlIndex::~QSqlIndex()
 
 }
 
-/*!  \fn void QSqlIndex::setName( const QString& name )
-  
-  Sets the name of the index to \a n.
+/*! Sets the name of the index to \a n.
 */
 
+void QSqlIndex::setName( const QString& name ) 
+{ 
+    nm = name; 
+}
+
 /*!  \fn QString QSqlIndex::name() const
-  
+
   Returns the name of the index.
 */
 
@@ -170,14 +173,17 @@ QString QSqlIndex::toString( const QString& prefix ) const
 }
 
 /*! \fn QString QSqlIndex::cursorName() const
-  
+
   Returns the name of the cursor which the index is associated with.
 */
 
-/*! \fn void QSqlIndex::setCursorName( const QString& cursorName )
-  
-  Sets the name of the cursor that the index is associated with to \a
-  cursorName.
+
+/*!  Sets the name of the cursor that the index is associated with to
+  \a cursorName.
 */
+void QSqlIndex::setCursorName( const QString& cursorName )
+{ 
+    cursor = cursorName; 
+}
 
 #endif

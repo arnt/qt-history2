@@ -53,16 +53,15 @@ public:
     QSqlField( const QSqlField& other );
     QSqlField& operator=( const QSqlField& other );
     bool operator==(const QSqlField& other) const;
-    ~QSqlField();
+    virtual ~QSqlField();
 
-
-    void               setValue( const QVariant& value );
-    QVariant           value() const { return val; }
-    void               setName( const QString& name ) { nm = name; }
+    virtual void       setValue( const QVariant& value );
+    virtual QVariant   value() const { return val; }
+    virtual void       setName( const QString& name ) { nm = name; }
     QString            name() const { return nm; }
-    void               setNull( bool n ) { if ( !isReadOnly() ) nul = n; if ( n ) clear(); }
+    virtual void       setNull( bool n ) { if ( !isReadOnly() ) nul = n; if ( n ) clear(); }
     bool               isNull() const { return nul; }
-    void               setReadOnly( bool readOnly ) { ro = readOnly; }
+    virtual void       setReadOnly( bool readOnly ) { ro = readOnly; }
     bool               isReadOnly() const { return ro; }
     void               clear();
     QVariant::Type     type() const { return val.type(); }

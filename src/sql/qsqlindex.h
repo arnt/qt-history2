@@ -59,9 +59,9 @@ public:
     QSqlIndex( const QSqlIndex& other );
     ~QSqlIndex();
     QSqlIndex&       operator=( const QSqlIndex& other );
-    virtual void     setCursorName( const QString& cursorName ) { cursor = cursorName; }    
+    virtual void     setCursorName( const QString& cursorName );
     QString          cursorName() const { return cursor; }
-    virtual void     setName( const QString& name ) { nm = name; }
+    virtual void     setName( const QString& name );
     QString          name() const { return nm; }
 
     void             append( const QSqlField& field );
