@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#166 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,12 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#165 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#166 $")
+
+
+#if !defined(XlibSpecificationRelease)
+typedef char *XPointer;				// X11R4
+#endif
 
 
 /*****************************************************************************
@@ -340,7 +345,7 @@ void qt_save_rootinfo()				// save new root info
 	    if ( type == XA_PIXMAP && format == 32 && length == 1 &&
 		 after == 0 && data ) {
 		XKillClient( appDpy, *((Pixmap*)data) );
-		XFree( data );
+		XFree( (char *)data );
 	    }
 	    Pixmap dummy = XCreatePixmap( appDpy, appRootWin, 1, 1, 1 );
 	    XChangeProperty( appDpy, appRootWin, prop, XA_PIXMAP, 32,

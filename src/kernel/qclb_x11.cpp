@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#8 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#8 $")
 
 
 /*****************************************************************************
@@ -267,7 +267,7 @@ void *QClipboard::data( const char *format ) const
 	    buf.resize( buf.size()*2 );
 	memcpy( buf.data()+nread, back, nitems );
 	nread += nitems;
-	XFree( back );
+	XFree( (char *)back );
     } while ( bytes_after > 0 );
 
     buf[nread] = 0;
