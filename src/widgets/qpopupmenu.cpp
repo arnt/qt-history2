@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#20 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#20 $";
 #endif
 
 
@@ -398,16 +398,17 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	const char *s = mi->string();
 	const char *t = strchr( s, '\t' );
 	int x = motifItemFrame + motifItemHMargin;
-        QFontMetrics fm = fontMetrics();
-	int bo = fm.descent() + motifItemVMargin/2;
+	int m = motifItemVMargin;
+	const text_flags = AlignVCenter | ShowPrefix | DontClip;
 	if ( mi->isDisabled() )
 	    p->setPen( palette().disabled().text() );
-	if ( t ) {				// make tab effect
-	    p->drawText( x, cellh-bo, s, (int)t-(int)s );
+	if ( t ) {				// draw text before tab
+	    p->drawText( x, m, cellw, cellh-2*m, text_flags,
+			 s, (int)t-(int)s );
 	    s = t + 1;
 	    x = tabMark;
 	}
-	p->drawText( x, cellh-bo, s );
+	p->drawText( x, m, cellw, cellh-2*m, text_flags, s );
     }
     if ( mi->popup() ) {			// draw sub menu arrow
 	int dim = (cellh-2*motifItemFrame);
