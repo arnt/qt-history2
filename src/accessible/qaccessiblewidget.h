@@ -31,6 +31,8 @@ public:
 	QString help = QString(), int defAction = SetFocus, QString defActionName = QString(),
 	QString accelerator = QString(), State s = Normal );
 
+    void	addControllingSignal(const QString &signal);
+
     int		childCount() const;
     int		indexOfChild(const QAccessibleInterface*) const;
     int		relationTo(int, const QAccessibleInterface *, int) const;

@@ -39,6 +39,7 @@ public:
     int	    defAction;
     QString defActionName;
     QString accelerator;
+    QStringList primarySignals;
 };
 
 /*!
@@ -139,6 +140,46 @@ QRect	QAccessibleWidget::rect( int control ) const
     return QRect(wpos.x(), wpos.y(), w->width(), w->height());
 }
 
+class FindConnectionObject : public QObject
+{
+public:
+    bool isConnected(const QObject *receiver, const char *signal);
+};
+
+#include <private/qobject_p.h>
+
+bool FindConnectionObject::isConnected(const QObject *receiver, const char *signal)
+{
+    int sigindex = metaObject()->indexOfSignal(signal);
+    if (sigindex < 0)
+	return FALSE;
+
+    int i = 0;
+    QObjectPrivate::Connections::Connection *connections = d->findConnection(sigindex, i);
+    if (connections) do {
+	if (connections->receiver == receiver)
+	    return TRUE;
+	connections = d->findConnection(sigindex, i);
+    } while (connections);
+    return FALSE;
+}
+
+#undef d
+
+/*! 
+    Registers \a signal as a controlling signal.
+    
+    An object is a Controller to any other object connected to a controlling signal.
+*/
+void QAccessibleWidget::addControllingSignal(const QString &signal)
+{
+    QByteArray s = QMetaObject::normalizedSignature(signal.ascii());
+    if (object()->metaObject()->indexOfSignal(s) < 0)
+	qWarning("Signal %s unknown in %s", (const char*)s, object()->className());
+    d->primarySignals << s;
+}
+
+
 /*! \reimp */
 int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 {
@@ -158,6 +199,14 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 
 	if(focusIsChild)
 	    relation |= FocusChild;
+    }
+
+    FindConnectionObject *findConnection = (FindConnectionObject*)object();
+    for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
+	if (findConnection->isConnected(o, d->primarySignals.at(sig).ascii())) {
+	    relation |= Controller;
+	    break;
+	}
     }
 
     if(o == object()) {
@@ -202,16 +251,9 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 	return relation;
     }
 
-    while(parent) {
-	if (parent == o)
-	    return relation | Descendent;
-	parent = parent->parent();
-    }
-
-    parent = o->parent();
-    while (parent && object() != parent)
-	parent = parent->parent();
-    if (object() == parent)
+    if (o->isAncestorOf(object()))
+	return relation | Descendent;
+    if (object()->isAncestorOf(o))
 	return relation | Ancestor;
 
     return relation;
