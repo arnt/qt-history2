@@ -14,7 +14,6 @@ public:
     QRect       frect;
     int         frameStyle;
     short       lineWidth;
-    short       margin;
     short       midLineWidth;
     short       frameWidth;
 

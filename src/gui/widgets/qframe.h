@@ -29,12 +29,12 @@ class Q_GUI_EXPORT QFrame : public QWidget
     Q_DECLARE_PRIVATE(QFrame);
 
     Q_ENUMS(Shape Shadow)
-    QDOC_PROPERTY(int frameWidth READ frameWidth)
     Q_PROPERTY(Shape frameShape READ frameShape WRITE setFrameShape)
     Q_PROPERTY(Shadow frameShadow READ frameShadow WRITE setFrameShadow)
     Q_PROPERTY(int lineWidth READ lineWidth WRITE setLineWidth)
-    Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int midLineWidth READ midLineWidth WRITE setMidLineWidth)
+    QDOC_PROPERTY(int frameWidth READ frameWidth)
+    QDOC_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect)
 
 public:
     QFrame(QWidget* parent = 0, WFlags f = 0);
@@ -79,9 +79,6 @@ public:
     int         lineWidth()     const;
     void setLineWidth(int);
 
-    int         margin()        const;
-    void setMargin(int);
-
     int         midLineWidth()  const;
     void setMidLineWidth(int);
 
@@ -107,6 +104,7 @@ private:
 class Q_GUI_EXPORT Q3Frame : public QFrame
 {
     Q_OBJECT
+    Q_PROPERTY(int margin READ margin WRITE setMargin)
 
 public:
     Q3Frame(QWidget* parent, const char* name = 0, WFlags f = 0);
@@ -114,6 +112,12 @@ public:
 #ifndef Q_QDOC
     bool        lineShapesOk()  const { return true; }
 #endif
+
+    int margin() const { return marg; }
+    void setMargin(int);
+
+    QRect contentsRect() const;
+    int frameWidth() const;
 
 protected:
     void        paintEvent(QPaintEvent *);
@@ -124,6 +128,7 @@ protected:
     virtual void drawContents(QPainter *);
 
 private:
+    int marg;
 #if defined(Q_DISABLE_COPY)
     Q3Frame(const QFrame &);
     Q3Frame &operator=(const QFrame &);

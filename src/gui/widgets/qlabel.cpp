@@ -31,13 +31,14 @@ class QLabelPrivate
 {
 public:
     QLabelPrivate()
-        :img(0), pix(0), valid_hints(-1)
+        :img(0), pix(0), valid_hints(-1), margin(0)
     {}
     QImage* img; // for scaled contents
     QPixmap* pix; // for scaled contents
     QSize sh;
     QSize msh;
     int valid_hints; // stores the frameWidth() for the stored size hint, -1 otherwise
+    int margin;
 };
 
 
@@ -449,7 +450,7 @@ void QLabel::setAlignment(int alignment)
     the effective indent becomes half the width of the "x" character
     of the widget's current font().
 
-    \sa alignment, frameWidth(), font()
+    \sa alignment, margin, frameWidth(), font()
 */
 
 void QLabel::setIndent(int indent)
@@ -457,6 +458,33 @@ void QLabel::setIndent(int indent)
     extraMargin = indent;
     updateLabel(QSize(-1, -1));
 }
+
+/*!
+    \property QLabel::margin
+    \brief the width of the margin
+
+    The margin is the distance between the innermost pixel of the
+    frame and the outermost pixel of contents.
+
+    The default margin is 0.
+
+    \sa indent
+*/
+int QLabel::margin() const
+{
+    return d->margin;
+}
+
+void QLabel::setMargin(int margin)
+{
+    if (d->margin == margin)
+        return;
+    d->margin = margin;
+    updateGeometry();
+    update();
+}
+
+
 
 
 /*!
@@ -516,14 +544,14 @@ QSize QLabel::sizeForWidth(int w) const
 #else
     const int mov = 0;
 #endif
-    int hextra = 2 * frameWidth();
+    int hextra = 2 * frameWidth() + 2 * d->margin;
     int vextra = hextra;
     QFontMetrics fm(fontMetrics());
     int xw = fm.width('x');
     if (!mov && !pix && !pic) {
         int m = indent();
         if (m < 0 && hextra) // no indent, but we do have a frame
-            m = xw / 2 - margin();
+            m = xw / 2 - d->margin;
         if (m >= 0) {
             int horizAlign = QApplication::horizontalAlignment(QFlag(align));
             if ((horizAlign & AlignLeft) || (horizAlign & AlignRight))
@@ -608,11 +636,11 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
-    if (d->valid_hints == frameWidth())
+    if (d->valid_hints == frameWidth() + d->margin)
         return d->msh;
 
     ensurePolished();
-    d->valid_hints = frameWidth();
+    d->valid_hints = frameWidth() + d->margin;
     d->sh = sizeForWidth(-1);
     QSize sz(-1, -1);
 
@@ -646,6 +674,7 @@ void QLabel::paintEvent(QPaintEvent *)
     QPainter paint(this);
     drawFrame(&paint);
     QRect cr = contentsRect();
+    cr.addCoords(d->margin, d->margin, -d->margin, -d->margin);
 
     QPixmap *pix = pixmap();
 #ifndef QT_NO_PICTURE
@@ -662,7 +691,7 @@ void QLabel::paintEvent(QPaintEvent *)
     if (!mov && !pix && !pic) {
         int m = indent();
         if (m < 0 && frameWidth()) // no indent, but we do have a frame
-            m = fontMetrics().width('x') / 2 - margin();
+            m = fontMetrics().width('x') / 2 - d->margin;
         if (m > 0) {
             int hAlign = QApplication::horizontalAlignment(QFlag(align));
             if (hAlign & AlignLeft)
@@ -1092,6 +1121,5 @@ void QLabel::setScaledContents(bool enable)
 }
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE
-
 
 #endif // QT_NO_LABEL

@@ -32,6 +32,7 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
     Q_PROPERTY(bool scaledContents READ hasScaledContents WRITE setScaledContents)
     Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
     Q_OVERRIDE(BackgroundMode backgroundMode DESIGNABLE true)
 
@@ -59,6 +60,9 @@ public:
     void setAlignment(int);
     int                 indent() const                { return extraMargin; }
     void          setIndent(int);
+
+    int margin() const;
+    void setMargin(int);
 
     bool          autoResize() const        { return autoresize; }
     void setAutoResize(bool);

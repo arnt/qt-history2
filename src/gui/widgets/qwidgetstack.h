@@ -45,6 +45,11 @@ public:
 
     QWidget * visibleWidget() const;
 
+    void setMargin(int);
+    int margin() const;
+
+    QRect contentsRect() const;
+
 signals:
     void aboutToShow(int);
     void aboutToShow(QWidget *);

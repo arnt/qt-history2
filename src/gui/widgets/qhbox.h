@@ -30,6 +30,7 @@ class Q_GUI_EXPORT QHBox : public QFrame
 public:
     QHBox(QWidget* parent=0, const char* name=0, WFlags f=0);
 
+    void setMargin(int);
     void setSpacing(int);
     bool setStretchFactor(QWidget*, int stretch);
     QSize sizeHint() const;

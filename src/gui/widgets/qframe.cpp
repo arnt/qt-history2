@@ -30,7 +30,6 @@ QFramePrivate::QFramePrivate()
     : frect(QRect(0, 0, 0, 0)),
       frameStyle(QFrame::NoFrame | QFrame::Plain),
       lineWidth(1),
-      margin(0),
       midLineWidth(0),
       frameWidth(0)
 {
@@ -311,33 +310,6 @@ int QFrame::midLineWidth() const
 }
 
 
-
-/*!
-    \property QFrame::margin
-    \brief the width of the margin
-
-    The margin is the distance between the innermost pixel of the
-    frame and the outermost pixel of contentsRect(). It is included in
-    frameWidth().
-
-    The margin is filled according to backgroundMode().
-
-    The default value is 0.
-
-    \sa setMargin(), lineWidth(), frameWidth()
-*/
-
-void QFrame::setMargin(int w)
-{
-    d->margin = (short)w;
-    d->updateFrameWidth();
-}
-
-int QFrame::margin() const
-{
-    return d->margin;
-}
-
 /*!
   \internal
   Updated the frameWidth parameter.
@@ -406,8 +378,6 @@ void QFramePrivate::updateFrameWidth()
     if (frameWidth == -1)                                // invalid style
         frameWidth = 0;
 
-    frameWidth += margin;
-
     q->setFrameRect(fr);
 }
 
@@ -420,10 +390,9 @@ void QFramePrivate::updateFrameWidth()
     QFrame::setFrameStyle() frame style \endlink, not only the line
     width and the mid-line width. For example, the style \c NoFrame
     always has a frame width of 0, whereas the style \c Panel has a
-    frame width equivalent to the line width. The frame width also
-    includes the margin.
+    frame width equivalent to the line width.
 
-    \sa lineWidth(), midLineWidth(), frameStyle(), margin()
+    \sa lineWidth(), midLineWidth(), frameStyle()
 */
 int QFrame::frameWidth() const
 {
@@ -432,9 +401,19 @@ int QFrame::frameWidth() const
 
 
 /*!
-    Returns the frame's rectangle.
+    \property QFrame::frameRect
+    \brief the frame's rectangle
 
-    \sa setFrameRect() contentsRect()
+    The frame's rectangle is the rectangle the frame is drawn in. By
+    default, this is the entire widget. Setting the rectangle does
+    does \e not cause a widget update. The frame rectangle is
+    automatically adjusted when the widget changes size.
+
+    If you set the rectangle to a null rectangle (for example
+    \c{QRect(0, 0, 0, 0)}), then the resulting frame rectangle is
+    equivalent to the \link QWidget::rect() widget rectangle\endlink.
+
+    \sa contentsRect
 */
 
 QRect QFrame::frameRect() const
@@ -443,18 +422,6 @@ QRect QFrame::frameRect() const
     fr.addCoords(-d->frameWidth, -d->frameWidth, d->frameWidth, d->frameWidth);
     return fr;
 }
-
-/*!
-    Sets the frame's rectangle to \a r. The frame's rectangle is the
-    rectangle the frame is drawn in. By default, this is the entire
-    widget. Calling this function does \e not cause a widget update.
-
-    If \a r is a null rectangle (for example \c{QRect(0, 0, 0, 0)}),
-    then the frame rectangle is equivalent to the \link
-    QWidget::rect() widget rectangle\endlink.
-
-    \sa contentsRect()
-*/
 
 void QFrame::setFrameRect(const QRect &r)
 {
@@ -515,7 +482,7 @@ void QFrame::drawFrame(QPainter *p)
     default:
         // most frame styles do not handle customized line and midline widths
         // (see updateFrameWidth()).
-        lw = d->frameWidth - d->margin;
+        lw = d->frameWidth;
         break;
     }
 
@@ -650,7 +617,7 @@ void QFrame::changeEvent(QEvent *ev)
 
 
 Q3Frame::Q3Frame(QWidget* parent, const char* name, WFlags f)
-    :QFrame(parent, f)
+    :QFrame(parent, f), marg(0)
 {
     if (name)
         setObjectName(name);
@@ -729,6 +696,43 @@ void Q3Frame::resizeEvent(QResizeEvent *)
 
 void Q3Frame::frameChanged()
 {
+}
+
+
+/*!
+    \property Q3Frame::margin
+    \brief the width of the margin
+
+    The margin is the distance between the innermost pixel of the
+    frame and the outermost pixel of contentsRect(). It is included in
+    frameWidth().
+
+    The margin is filled according to backgroundMode().
+
+    The default value is 0.
+
+    \sa setMargin(), lineWidth(), frameWidth()
+*/
+
+void Q3Frame::setMargin(int w)
+{
+    if (marg == w)
+        return;
+    marg = w;
+    update();
+    frameChanged();
+}
+
+QRect Q3Frame::contentsRect() const
+{
+    QRect cr(QFrame::contentsRect());
+    cr.addCoords(marg, marg, -marg, -marg);
+    return cr;
+}
+
+int Q3Frame::frameWidth() const
+{
+    return QFrame::frameWidth() + marg;
 }
 
 #endif //QT_NO_FRAME

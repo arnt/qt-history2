@@ -136,7 +136,6 @@ QWellArray::QWellArray(QWidget *parent, const char * name, bool popup)
         setCellWidth(18);
         setCellHeight(18);
         setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-        setMargin(1);
         setLineWidth(2);
     } else {
         setFrameStyle(QFrame::NoFrame);

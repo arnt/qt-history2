@@ -3273,8 +3273,6 @@ QListBoxItem * QListBox::itemAt(const QPoint& p) const
         doLayout();
     QPoint np = p;
 
-    // take into acount frame margin to get to viewport
-    np -= QPoint(margin(), margin());
     if ((np.x() < 0) || (np.y() < 0))
         return 0;
 

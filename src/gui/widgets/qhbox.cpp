@@ -92,6 +92,16 @@ void QHBox::childEvent(QChildEvent *e)
 
 
 /*!
+    Set the width of the outside border \a margin
+*/
+
+void QHBox::setMargin(int margin)
+{
+    if (layout()) // ### why not use this->lay?
+        layout()->setMargin(margin);
+}
+
+/*!
     Sets the spacing between the child widgets to \a space.
 */
 

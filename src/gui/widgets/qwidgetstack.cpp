@@ -38,6 +38,7 @@ public:
     QHash<int, QWidget *> hash;
     QWidget * topWidget;
     QWidget * invisible;
+    int margin;
 };
 
 
@@ -87,6 +88,7 @@ QWidgetStack::QWidgetStack(QWidget * parent, const char *name, WFlags f)
 {
    d = new QWidgetStackPrivate;
    d->topWidget = 0;
+   d->margin = 0;
    d->invisible = new QWidgetStackPrivate::Invisible(this);
    d->invisible->hide();
 }
@@ -435,7 +437,7 @@ QSize QWidgetStack::sizeHint() const
     }
     if (size.isNull())
         size = QSize(128, 64);
-    size += QSize(2*frameWidth(), 2*frameWidth());
+    size += QSize(2*frameWidth() + 2*d->margin, 2*frameWidth() + 2*d->margin);
     return size;
 }
 
@@ -463,7 +465,7 @@ QSize QWidgetStack::minimumSizeHint() const
     }
     if (size.isNull())
         size = QSize(64, 32);
-    size += QSize(2*frameWidth(), 2*frameWidth());
+    size += QSize(2*frameWidth() + 2*d->margin, 2*frameWidth() + 2*d->margin);
     return size;
 }
 
@@ -488,4 +490,25 @@ bool QWidgetStack::event(QEvent* e)
         updateGeometry(); // propgate layout hints to parent
     return QFrame::event(e);
 }
+
+void QWidgetStack::setMargin(int margin)
+{
+    if (d->margin == margin)
+        return;
+    d->margin = margin;
+    updateGeometry();
+    setChildGeometries();
+}
+int QWidgetStack::margin() const
+{
+    return d->margin;
+}
+
+QRect QWidgetStack::contentsRect() const
+{
+    QRect cr(QFrame::contentsRect());
+    cr.addCoords(d->margin, d->margin, -d->margin, -d->margin);
+    return cr;
+}
+
 #endif
