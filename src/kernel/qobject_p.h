@@ -33,9 +33,6 @@
 #include "qlist.h"
 #include "qobject.h"
 #include "qpointer.h"
-#if defined(QT_THREAD_SUPPORT)
-#  include "qthread.h"
-#endif
 
 #define Q_DECL_PUBLIC( Class ) \
 private: \
@@ -57,7 +54,7 @@ public:
     QObjectPrivate()
 	:
 #if defined(QT_THREAD_SUPPORT)
-	thread(QThread::currentThread()),
+	thread(0),
 #endif
 	connections(0),
 	senders(0),
@@ -72,8 +69,8 @@ public:
     virtual ~QObjectPrivate() {}
 
 #if defined(QT_THREAD_SUPPORT)
-    // id of the thread that created the QObject
-    const Qt::HANDLE thread;
+    // id of the thread that owns the object
+    Qt::HANDLE thread;
 #endif
 
     // signal connections

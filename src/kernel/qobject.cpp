@@ -19,6 +19,9 @@
 #include "qregexp.h"
 #include "qmetaobject.h"
 #include "qdebug.h"
+#if defined(QT_THREAD_SUPPORT)
+#  include <qthread.h>
+#endif
 
 #include <ctype.h>
 #include <limits.h>
@@ -293,9 +296,9 @@ QObject::QObject( QObject *parent, const char *name )
     d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
+    setParent(parent);
     if (name)
 	setObjectName(name);
-    setParent(parent);
     QEvent e( QEvent::Create );
     QCoreApplication::sendEvent( this, &e );
     QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
@@ -336,7 +339,15 @@ QObject::QObject(QWidgetPrivate &dd, QObject *parent)
     if (parent) {
 	parentObj = parent;
 	parentObj->d->children.append(this);
+#if defined(QT_THREAD_SUPPORT)
+	d->thread = parentObj->d->thread;
+#endif
     }
+#if defined(QT_THREAD_SUPPORT)
+    else {
+	d->thread = QThread::currentThread();
+    }
+#endif
     // no events sent here, this is done at the end of the QWidget constructor
 }
 
@@ -886,8 +897,17 @@ bool QObject::blockSignals( bool block )
     Returns the thread id in which this object was created.
  */
 Qt::HANDLE QObject::thread() const
+{ return d->thread; }
+
+/*!
+ */
+void QObject::setThread(Qt::HANDLE thread)
 {
-    return d->thread;
+    Q_ASSERT_X(!parentObj, "QObject::setThread",
+	       "Cannot set the thread on an object with a parent.");
+    Q_ASSERT_X(thread != 0, "QObject::setThread",
+	       "thread argument must not be zero.");
+    d->thread = thread;
 }
 #endif
 
@@ -1136,7 +1156,7 @@ void QObject::setParent(QObject *parent)
 
 void QObject::setParent_helper(QObject *parent)
 {
-    if (parent == parentObj)
+    if (parent && parent == parentObj)
 	return;
     if (parentObj && parentObj->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
@@ -1145,8 +1165,8 @@ void QObject::setParent_helper(QObject *parent)
     parentObj = parent;
     if (parentObj) {
 #if defined(QT_THREAD_SUPPORT)
-	Q_ASSERT_X(parent->thread() == thread(), "QObject::setParent",
-		   "Cannot use a parent object which is owned by a different thread");
+	// object heirarchies are constrained to a single thread
+	d->thread = parentObj->d->thread;
 #endif
 	parentObj->d->children.append(this);
 	const QMetaObject *polished = d->polished;
@@ -1158,6 +1178,11 @@ void QObject::setParent_helper(QObject *parent)
 	}
 #ifdef QT_COMPAT
 	QCoreApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
+#endif
+#ifdef QT_THREAD_SUPPORT
+    } else {
+	// when setting the parent to zero, move ownership to the current thread
+	d->thread = QThread::currentThread();
 #endif
     }
 }

@@ -76,6 +76,7 @@ public:
 
 #if defined(QT_THREAD_SUPPORT)
     Qt::HANDLE thread() const;
+    void setThread(Qt::HANDLE thread);
 #endif
 
     int startTimer(int interval);
