@@ -386,8 +386,7 @@
 #    define Q_CC_HPACC
 #  else
 #    define Q_CC_HP
-/* bool is a reserved keyword in later versions */
-#    define bool int
+#    define Q_NO_BOOL_TYPE
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_NO_EXPLICIT_KEYWORD
@@ -468,7 +467,12 @@
 //
 
 #if defined(Q_NO_BOOL_TYPE)
+#if defined(Q_CC_HP)
+// bool is an unsupported reserved keyword in later versions
+#define bool int
+#else
 typedef int bool;
+#endif
 #endif
 
 typedef unsigned char   uchar;
