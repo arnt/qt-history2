@@ -2618,7 +2618,7 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( ( t == Font && ( d->typ == String ) ) )
 	return TRUE;
-    if ( ( t == Color && ( d->typ = String ) ) )
+    if ( ( t == Color && ( d->typ == String ) ) )
 	return TRUE;
 #ifndef QT_NO_STRINGLIST
     if ( t == List && d->typ == StringList )
