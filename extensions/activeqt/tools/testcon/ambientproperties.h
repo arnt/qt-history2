@@ -12,10 +12,10 @@ public:
     void setControl(QWidget *widget);
 
 public slots:
-    void backColor();
-    void foreColor();
-    void pickFont();
-    void toggleEnabled(bool on);
+    void on_buttonBackground_clicked();
+    void on_buttonForeground_clicked();
+    void on_buttonFont_clicked();
+    void on_buttonEnabled_toggled(bool on);
 
 private:
     QWidget *container;

@@ -18,6 +18,8 @@ AmbientProperties::AmbientProperties(QWidget *parent)
 : QDialog(parent), container(0)
 {
     setupUi(this);
+
+    connect(buttonClose, SIGNAL(clicked()), this, SLOT(close()));
 }
 
 void AmbientProperties::setControl(QWidget *widget)
@@ -31,11 +33,11 @@ void AmbientProperties::setControl(QWidget *widget)
     p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
 
     fontSample->setFont( container->font() );
-    enabledButton->setOn( container->isEnabled() );
+    buttonEnabled->setOn( container->isEnabled() );
     enabledSample->setEnabled( container->isEnabled() );
 }
 
-void AmbientProperties::backColor()
+void AmbientProperties::on_buttonBackground_clicked()
 {
     QColor c = QColorDialog::getColor(backSample->palette().color(backSample->backgroundRole()), this);
     QPalette p = backSample->palette(); p.setColor(backSample->backgroundRole(), c); backSample->setPalette(p);
@@ -50,7 +52,7 @@ void AmbientProperties::backColor()
     }
 }
 
-void AmbientProperties::foreColor()
+void AmbientProperties::on_buttonForeground_clicked()
 {
     QColor c = QColorDialog::getColor(foreSample->palette().color(foreSample->backgroundRole()), this);
     QPalette p = foreSample->palette(); p.setColor(foreSample->backgroundRole(), c); foreSample->setPalette(p);
@@ -65,7 +67,7 @@ void AmbientProperties::foreColor()
     }
 }
 
-void AmbientProperties::pickFont()
+void AmbientProperties::on_buttonFont_clicked()
 {
     bool ok;
     QFont f = QFontDialog::getFont( &ok, fontSample->font(), this );
@@ -83,7 +85,7 @@ void AmbientProperties::pickFont()
     }
 }
 
-void AmbientProperties::toggleEnabled(bool on)
+void AmbientProperties::on_buttonEnabled_toggled(bool on)
 {
     enabledSample->setEnabled( on );
     container->setEnabled( on );

@@ -29,7 +29,7 @@
         <number>6</number>
       </property>
       <item>
-        <widget class="Q3GroupBox" name="boxProperties" >
+        <widget class="QGroupBox" name="boxProperties" >
           <property name="objectName" >
             <string notr="true" >boxProperties</string>
           </property>
@@ -87,7 +87,7 @@
               </widget>
             </item>
             <item row="1" column="1" >
-              <widget class="Q3Frame" name="foreSample" >
+              <widget class="QFrame" name="foreSample" >
                 <property name="objectName" >
                   <string notr="true" >foreSample</string>
                 </property>
@@ -100,7 +100,7 @@
               </widget>
             </item>
             <item row="0" column="1" >
-              <widget class="Q3Frame" name="backSample" >
+              <widget class="QFrame" name="backSample" >
                 <property name="objectName" >
                   <string notr="true" >backSample</string>
                 </property>
@@ -113,9 +113,9 @@
               </widget>
             </item>
             <item row="0" column="2" >
-              <widget class="QToolButton" name="backButton" >
+              <widget class="QToolButton" name="buttonBackground" >
                 <property name="objectName" >
-                  <string notr="true" >backButton</string>
+                  <string notr="true" >buttonBackground</string>
                 </property>
                 <property name="sizePolicy" >
                   <sizepolicy>
@@ -131,9 +131,9 @@
               </widget>
             </item>
             <item row="1" column="2" >
-              <widget class="QToolButton" name="foreButton" >
+              <widget class="QToolButton" name="buttonForeground" >
                 <property name="objectName" >
-                  <string notr="true" >foreButton</string>
+                  <string notr="true" >buttonForeground</string>
                 </property>
                 <property name="sizePolicy" >
                   <sizepolicy>
@@ -149,9 +149,9 @@
               </widget>
             </item>
             <item row="2" column="2" >
-              <widget class="QToolButton" name="fontButton" >
+              <widget class="QToolButton" name="buttonFont" >
                 <property name="objectName" >
-                  <string notr="true" >fontButton</string>
+                  <string notr="true" >buttonFont</string>
                 </property>
                 <property name="sizePolicy" >
                   <sizepolicy>
@@ -167,7 +167,7 @@
               </widget>
             </item>
             <item row="3" column="1" >
-              <widget class="Q3Frame" name="Frame6" >
+              <widget class="QFrame" name="Frame6" >
                 <property name="objectName" >
                   <string notr="true" >Frame6</string>
                 </property>
@@ -204,9 +204,9 @@
               </widget>
             </item>
             <item row="3" column="2" >
-              <widget class="QToolButton" name="enabledButton" >
+              <widget class="QToolButton" name="buttonEnabled" >
                 <property name="objectName" >
-                  <string notr="true" >enabledButton</string>
+                  <string notr="true" >buttonEnabled</string>
                 </property>
                 <property name="sizePolicy" >
                   <sizepolicy>
@@ -225,7 +225,7 @@
               </widget>
             </item>
             <item row="2" column="1" >
-              <widget class="Q3Frame" name="fontSample" >
+              <widget class="QFrame" name="fontSample" >
                 <property name="objectName" >
                   <string notr="true" >fontSample</string>
                 </property>
@@ -277,7 +277,7 @@
               <property name="sizeHint" >
                 <size>
                   <width>1</width>
-                  <height>1729677848</height>
+                  <height>1</height>
                 </size>
               </property>
               <property name="sizeType" >
@@ -289,9 +289,9 @@
             </spacer>
           </item>
           <item>
-            <widget class="QPushButton" name="PushButton3" >
+            <widget class="QPushButton" name="buttonClose" >
               <property name="objectName" >
-                <string notr="true" >PushButton3</string>
+                <string notr="true" >buttonClose</string>
               </property>
               <property name="text" >
                 <string>C&amp;lose</string>
@@ -303,5 +303,4 @@
     </layout>
   </widget>
   <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
 </ui>

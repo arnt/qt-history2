@@ -18,23 +18,24 @@ public:
     ~MainWindow();
 
 protected slots:
-    void setControl();
-    void on_actionControlInfo_triggered();
     void on_actionFileNew_triggered();
     void on_actionFileLoad_triggered();
     void on_actionFileSave_triggered();
-    void showDocumentation();
-    void renderPixmap();
-    void runMacro();
-    void loadScript();
-    void changeProperties();
-    void clearControl();
-    void containerProperties();
-    void invokeMethods();
+
+    void on_actionContainerSet_triggered();
+    void on_actionContainerClear_triggered();
+    void on_actionContainerProperties_triggered();
+
+    void on_actionControlInfo_triggered();
+    void on_actionControlDocumentation_triggered();
+    void on_actionControlPixmap_triggered();
+    void on_actionControlProperties_triggered();
+    void on_actionControlMethods_triggered();
+
+    void on_actionScriptLoad_triggered();
+    void on_actionScriptRun_triggered();
 
 private:
-    void updateGUI();
-
     InvokeMethod *dlgInvoke;
     ChangeProperties *dlgProperties;
     AmbientProperties *dlgAmbient;
@@ -44,7 +45,7 @@ private:
     QtMsgHandler oldDebugHandler;
 
 private slots:
-    void windowActivated(QWidget *widget);
+    void updateGUI();
     void logPropertyChanged(const QString &prop);
     void logSignal(const QString &signal, int argc, void *argv);
     void logException(int code, const QString&source, const QString&desc, const QString&help);
