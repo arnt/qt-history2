@@ -283,7 +283,7 @@ public:
     creating your own style see the \link customstyles.html Style
     overview\endlink.
 
-    Styles can also be created as \link plugins.html plugins\endlink.
+    Styles can also be created as \link plugins-howto.html plugins\endlink.
 */
 
 /*!

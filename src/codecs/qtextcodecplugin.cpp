@@ -9,11 +9,11 @@
   The style plugin is a simple plugin interface that makes it easy to
   create custom text codecs that can be loaded dynamically into
   applications.
-  
+
   Writing a text codec plugin is achieved by subclassing this
   baseclass, reimplementing the pure virtual functions names(),
   createForName(), mibEnums() and createForMib() , and exporting the
-  class with the Q_EXPORT_PLUGIN macro.  See the \link plugins.html Qt
+  class with the Q_EXPORT_PLUGIN macro.  See the \link plugins-howto.html Qt
   Plugins documentation \endlink for details.
 
   See the \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets IANA
@@ -23,38 +23,38 @@
 */
 
 /*! \fn QStringList QTextCodecPlugin::names() const
-  
-  Returns the list of mime names this plugin supports. 
-  
-  
+
+  Returns the list of mime names this plugin supports.
+
+
   \sa createForName()
 */
 
 /*! \fn QTextCodec *QTextCodecPlugin::createForName( const QString &name );
-  
+
   Creates a QTextCodec object for \a name.
-  
+
   \sa names()
 */
 
 
 /*! \fn QValueList<int> QTextCodecPlugin::mibEnums() const
-  
+
   Returns the list of mib enums this plugin supports.
-  
-  
+
+
   \sa createForMib()
 */
 
 /*! \fn QTextCodec *QTextCodecPlugin::createForMib( int mib );
-  
+
   Creates a QTextCodec object for the mib enum \a mib.
   (see \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
   the IANA character-sets encoding file\endlink for more information)
-  
+
   \sa mibEnums()
 */
-  
+
 
 
 class QTextCodecPluginPrivate : public QTextCodecFactoryInterface
@@ -119,7 +119,7 @@ QTextCodec *QTextCodecPluginPrivate::createForName( const QString &name )
 }
 
 
-/*!  
+/*!
   Constructs a text codec plugin. This is invoked automatically by
   the Q_EXPORT_PLUGIN macro.
  */
@@ -131,10 +131,10 @@ QTextCodecPlugin::QTextCodecPlugin()
 
 /*!
   Destroys the text codec plugin.
-  
+
   You never have to call this explicitely. Qt destroys a plugin
   automatically when it is no longer used.
-  
+
 */
 QTextCodecPlugin::~QTextCodecPlugin()
 {

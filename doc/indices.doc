@@ -127,7 +127,7 @@ Overviews
 \i \link i18n.html   Internationalization (i18n)  \endlink
 \i \link debug.html   Debugging Techniques \endlink
 \i \link threads.html  Thread Support in Qt  \endlink
-\i \link plugins.html Qt Plugins\endlink
+\i \link plugins-howto.html Qt Plugins\endlink
 \omit
 \i \link component.html  Qt Component Model \endlink
 \endomit
@@ -258,11 +258,6 @@ multimedia.html Multimedia\endlink)
         composing complex dialogs.
 
 \row
-\i \link plugin-classes.html Plugin Classes\endlink
-\i Plugin related classes.
-
-
-\row
 \i \link shared.html	Implicitly and Explicitly Shared
 Classes\endlink
 \i Classes that use reference counting for fast copying.
@@ -294,6 +289,10 @@ images.html Image Processing\endlink)
 \row 
 \i \link organizers.html   Organizers \endlink
 \i User interface organizers such as splitters, tab bars, button groups, etc.
+
+\row
+\i \link plugins.html Plugin Classes\endlink
+\i Plugin related classes.
 
 \row 
 \i \link dialogs.html   Standard Dialogs \endlink
@@ -536,11 +535,11 @@ These classes and interfaces form the basis of the \link component.html Qt Compo
 
 */
 
-/*! \defgroup plugin
+/*! \defgroup plugins
 
 \title Plugins
 
-These classes are used with Qt \link plugins.html Plugins\endlink.
+These classes are used with Qt \link plugins-howto.html Plugins\endlink.
 
 */
 

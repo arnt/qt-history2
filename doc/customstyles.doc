@@ -202,7 +202,7 @@ You may want to use your custom style in a Qt application that you
 don't want to, or have the opportunity to recompile. The Qt Plugin
 system makes it possible to create styles as plugins. Styles created
 as plugins are loaded as shared objects at runtime by Qt itself.
-Please refer to the \link plugins.html Qt Plugin\endlink documentation
+Please refer to the \link plugins-howto.html Qt Plugin\endlink documentation
 for more information on how to go about creating a style plugin.
 
 Compile your plugin and put it into $QTDIR/plugins/styles. We now have

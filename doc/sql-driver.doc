@@ -41,7 +41,7 @@
 \target Introduction
 \section1 Introduction
 
-The \link sql.html SQL Module\endlink uses driver \link plugins.html
+The \link sql.html SQL Module\endlink uses driver \link plugins-howto.html
 plugins\endlink in order to communicate with different database APIs.
 Since the SQL Module API is database-independent, all
 database-specific code is contained within these drivers.  Several
@@ -412,7 +412,7 @@ abstract virtual methods in each class must be implemented.
 
 To implement a Qt SQL driver as a plugin (so that it is recognized and
 loaded by the Qt library at runtime), the driver must use the
-Q_EXPORT_PLUGIN macro. Please read the \link plugins.html Qt
+Q_EXPORT_PLUGIN macro. Please read the \link plugins-howto.html Qt
 Plugin\endlink documentation for more information on this. You can
 also check out how this is done in the SQL plugins that is provided
 with Qt in \c{QTDIR/plugins/src/sqldrivers} and \c{QTDIR/src/sql/drivers}.

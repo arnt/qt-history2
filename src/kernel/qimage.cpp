@@ -165,7 +165,7 @@
   The QImage class uses explicit \link shclass.html sharing\endlink,
   similar to that used by QMemArray.
 
-    New image formats can be added as \link plugins.html plugins\endlink.
+    New image formats can be added as \link plugins-howto.html plugins\endlink.
 
   \sa QImageIO QPixmap \link shclass.html Shared Classes\endlink
 */

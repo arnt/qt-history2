@@ -565,3 +565,20 @@ We have two recommendations that you should consider when creating a
 	run \QD it will detect your new plugin and load it
 	automatically, displaying its icon in the toolbar you specified.
 
+	\section3 Using the Widget Plugin
+
+	Once the plugin has been compiled it will automatically be
+	found and loaded by \QD the next time \QD is run. Use your
+	custom widget just like any other. 
+
+	When you want to distribute your application, include the
+	compiled plugin with the executable. Install the plugin in
+	\c{$QTDIR/plugins/widgets}. If you don't want to use the
+	standard plugin path, have your installation process determine
+	the path you want to use for the plugin, and save the path,
+	e.g. using QSettings, for the application to read when it
+	runs. The application can then call
+	QApplication::addLibraryPath() with this path and your plugins
+	will be available to the application. Note that the final part
+	of the path, i.e. \c styles, \c widgets, etc. cannot be
+	changed.

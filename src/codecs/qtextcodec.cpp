@@ -274,7 +274,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
   new text encodings can be added to Qt.
 
   You may find it more convenient to make your codec class available
-  as a plugin; see the \link plugins.html plugin
+  as a plugin; see the \link plugins-howto.html plugin
   documentation\endlink for more details.
 
   The abstract virtual functions describe the encoder to the
@@ -370,7 +370,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
    \endcode
    Test if a possibly non-standard name is referring to the codec.
 
-    Codecs can also be created as \link plugins.html plugins\endlink.
+    Codecs can also be created as \link plugins-howto.html plugins\endlink.
 */
 
 

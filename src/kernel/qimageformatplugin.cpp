@@ -10,27 +10,27 @@
   The image format  plugin is a simple plugin interface that makes it easy to
   create custom image formats  that can be loaded dynamically into
   applications.
-  
+
   Writing an image format plugin is achieved by subclassing this
   baseclass, reimplementing the pure virtual functions keys() and
   installIOHandler(), and exporting the class with the Q_EXPORT_PLUGIN
-  macro.  See the \link plugins.html Plugins \endlink documentation
+  macro.  See the \link plugins-howto.html Plugins \endlink documentation
   for details.
 */
 
 /*! \fn QStringList QImageFormatPlugin::keys() const
-  
+
   Returns the list of image formats this plugin supports.
-  
+
   \sa installIOHandler()
 */
 
 
 /*! \fn  bool QImageFormatPlugin::installIOHandler( const QString &format )
-  
+
   Installs a QImageIO image I/O handler for the image format \a
   format.
-  
+
   \sa keys()
 */
 
@@ -111,10 +111,10 @@ QImageFormatPlugin::QImageFormatPlugin()
 
 /*!
   Destroys the image format plugin.
-  
+
   You never have to call this explicitely. Qt destroys a plugin
   automatically when it is no longer used.
-  
+
 */
 QImageFormatPlugin::~QImageFormatPlugin()
 {

@@ -166,7 +166,7 @@ database application programming.  See \link sql-driver.html here
 \section1 SQL Driver Plugins
 
 The Qt SQL module can dynamically load new drivers at runtime using
-the \link plugins.html Plugins \endlink.
+the \link plugins-howto.html Plugins \endlink.
 
 The \link sql-driver.html SQL driver documentation\endlink describes
 how to build plugins for specific database management systems.

@@ -4,13 +4,13 @@
 \list
 \i
 
-Ctrl+A -- Selects all GUI elements in the currently active form.
+Ctrl+A -- Selects all GUI elements in the active form.
 \i
 
-Ctrl+B -- Breaks the currently selected layout so that you can add or delete GUI elements.
+Ctrl+B -- Breaks the selected layout so that you can add or delete GUI elements.
 \i
 
-Ctrl+C -- Copies the selected GUI elements from the currently active form into the clipboard.
+Ctrl+C -- Copies the selected GUI elements from the active form into the clipboard.
 \i
 
 Alt+E -- Pulls down the \Menu Edit menu.
@@ -19,10 +19,10 @@ Alt+E -- Pulls down the \Menu Edit menu.
 Alt+F -- Pulls down the \Menu File menu.
 \i
 
-Ctrl+G -- Applies a grid layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a grid layout to this container.
+Ctrl+G -- Applies a grid layout to the selected container, or creates a new container containing the selected GUI elements and applies a grid layout to this container.
 \i
 
-Ctrl+H -- Applies a horizontal box layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a horizontal box layout to this container.
+Ctrl+H -- Applies a horizontal box layout to the selected container, or creates a new container containing the selected GUI elements and applies a horizontal box layout to this container.
 \i
 
 Alt+H -- Pulls down the \Menu Help menu.
@@ -31,13 +31,13 @@ Alt+H -- Pulls down the \Menu Help menu.
 Ctrl+J Adjusts the size of the selected GUI element (or elements) so that it has the minimal size needed for displaying itself properly.
 \i
 
-Ctrl+L -- Applies a vertical box layout to the currently selected container, or creates a new container containing the currently selected GUI elements and applies a vertical box layout to this container.
+Ctrl+L -- Applies a vertical box layout to the selected container, or creates a new container containing the selected GUI elements and applies a vertical box layout to this container.
 \i
 
 Alt+L -- Pulls down the \Menu Layout menu.
 \i
 
-Ctrl+M -- Opens an online version of this manual in the help browser.
+Ctrl+M -- Opens an online version of this manual in Qt Assistant.
 \i
 
 Ctrl+N -- Invokes the \Dialog {New File} dialog.
@@ -49,25 +49,25 @@ Ctrl+O -- Invokes the \Dialog {Open File} dialog.
 Alt+P -- Pulls down the \Menu Preview menu.
 \i
 
-Ctrl+R -- Checks the accelerators in the currently active form for duplicates.
+Ctrl+R -- Checks the accelerators in the active form for duplicates.
 \i
 
-Ctrl+S -- Saves the currently active form.
+Ctrl+S -- Saves the active form.
 \i
 
-Ctrl+T -- Previews the currently active form in the default GUI style of the platform.
+Ctrl+T -- Previews the active form in the default GUI style of the platform.
 \i
 
 Alt+T -- Pulls down the \Menu Tools menu.
 \i
 
-Ctrl+V -- Pastes the GUI element (or elements) in the clipboard into the currently active form at the position it had in its original form plus a little offset. Does nothing if the clipboard does not contain a GUI element.
+Ctrl+V -- Pastes the GUI element (or elements) in the clipboard into the active form at the position it had in its original form plus a little offset. Does nothing if the clipboard does not contain a GUI element.
 \i
 
 Alt+W -- Pulls down the \Menu Window menu.
 \i
 
-Ctrl+X -- Cuts the selected GUI element (or elements) from the currently active form and puts it into the clipboard.
+Ctrl+X -- Cuts the selected GUI element (or elements) from the active form and puts it into the clipboard.
 \i
 
 Ctrl+Y -- Redoes the last undo action.
@@ -76,7 +76,7 @@ Ctrl+Y -- Redoes the last undo action.
 Ctrl+Z -- Undoes the last action.
 \i
 
-Del -- Deletes the selected GUI elements from the currently active form.
+Del -- Deletes the selected GUI elements from the active form.
 \i
 
 F1 -- Opens the introductory page of the Qt Designer manual in Qt Assistant.
@@ -91,10 +91,10 @@ F2 -- Activates the pointer tool that lets you select GUI elements.
 F3 -- Activates the connection tool that lets you edit the connections between signals and slots in a form.
 \i
 
-F4 -- Activates the tab order tool that lets you change the tab order of the GUI elements on the currently active form.
+F4 -- Activates the tab order tool that lets you change the tab order of the GUI elements on the active form.
 \i
 
-Ctrl+F4 -- Closes the currently active window.
+Ctrl+F4 -- Closes the active window.
 \i
 
 Ctrl+F6 -- Activates the next window in the order of window creation.

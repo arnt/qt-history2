@@ -10,7 +10,7 @@
 \list
 \i \link porting.html Porting to Qt 3.x \endlink
 \i \link commonproblems.html Common Problems and Special Use Cases \endlink
-\i \link plugins.html Qt Plugins\endlink
+\i \link plugins-howto.html Qt Plugins\endlink
 \omit
 \i \link component.html The Qt Component Model \endlink
 \endomit

@@ -1,0 +1,98 @@
+/*!
+    \page plugins-howto.html
+
+\title Qt Plugins
+
+Qt provides a simple plugin interface which makes it easy to create
+custom database drivers, image formats, text codecs, styles and
+widgets as stand-alone components.
+
+Writing a plugin is achieved by subclassing the appropriate plugin
+base clase, implementing a few functions, and adding a macro. 
+
+There are five plugin base classes, and their plugins are stored in
+the standard plugin directory.
+\table
+\header
+\i Base Class
+\i Default Path
+\row
+\i \l QImageFormatPlugin
+\i \c{$QTDIR/plugins/imageformats}
+\row
+\i \l QSqlDriverPlugin
+\i \c{$QTDIR/plugins/sqldrivers}
+\row
+\i \l QStylePlugin
+\i \c{$QTDIR/plugins/styles}
+\row
+\i \l QTextCodecPlugin
+\i \c{$QTDIR/plugins/codecs}
+\row
+\i \l QWidgetPlugin
+\i \c{$QTDIR/plugins/widgets}
+\endtable
+
+Suppose that you have a new style class called 'MyStyle' that you want
+to make available as a plugin. The required code is straightforward:
+\code
+    class MyStylePlugin : public QStylePlugin
+    {
+    public:
+	MyStylePlugin() {}
+	~MyStylePlugin() {}
+
+	QStringList keys() const { 
+	    return QStringList() << "MyStyle"; 
+	}
+
+	QStyle* create( const QString& key ) { 
+	    if ( key == "MyStyle" ) 
+		return new MyStyle;
+	    return 0;
+	}
+    };
+
+    Q_EXPORT_PLUGIN( MyStylePlugin )
+\endcode
+
+The constructor and destructor do not need to do anything, so are left
+empty. There are only two virtual functions that must be implemented.
+The first is keys() which returns a string list of the classes
+implemented in the plugin. (We've just implemented one class in the
+example above.) The second is create() which returns an object of the
+required class (or 0 if the plugin is asked to create an object of a
+class that it doesn't implement). It is possible to implement any
+number of plugin subclasses in a single plugin, providing they are all
+derived from the same base class, e.g. QStylePlugin.
+
+For database drivers, image formats, custom widgets and text codecs,
+no explicit object creation is required. Qt will find and create them
+as required. Styles are an exception, since you might want to set a
+style explicitly in code. To apply a style, use code like this:
+\code
+    QApplication::setStyle( QStyleFactory::create( "MyStyle" ) );
+\endcode
+
+Some plugin classes require additional functions to be implemented,
+see the \link designer-manual.book Qt Designer manual's\endlink,
+'Creating Custom Widgets' section in the 'Creating Custom Widgets'
+chapter, for a complete example of a QWidgetPlugin, which implements
+extra functions to integrate the plugin into \e{Qt Designer}.
+
+Qt applications automatically know which plugins are available,
+because plugins are stored in the standard plugin subdirectories.
+Because of this applications don't require any code to find and load
+plugins, since Qt handles them automatically.
+
+The default directory for plugins is \c{$QTDIR/plugins}, with each
+type of plugin in a subdirectory for that type, e.g. \c styles. If you
+want your applications to use plugins and you don't want to use the
+standard plugins path, have your installation process determine the
+path you want to use for the plugins, and save the path, e.g. using
+QSettings, for the application to read when it runs. The application
+can then call QApplication::addLibraryPath() with this path and
+your plugins will be available to the application. Note that the final
+part of the path, i.e. \c styles, \c widgets, etc. cannot be changed.
+
+*/
