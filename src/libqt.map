@@ -9,6 +9,7 @@
 	QPSPrinter*;
 	Q*RegExpEngine::*;
 	Q*SvgDevice::*;
+	*QSvgDeviceState*;
 	QRenameEdit::*;
 	QRollEffect::*;
 	QSVChildRec::*;

@@ -20,6 +20,8 @@ win32-borland {
 	QMAKE_CXXFLAGS_DEBUG += -vi -y-
 }
 
+version_script:QMAKE_LFLAGS += -Wl,--version-script=libqt.map
+
 KERNEL_CPP	= kernel	
 CANVAS_CPP      = canvas
 WIDGETS_CPP	= widgets

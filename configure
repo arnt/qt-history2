@@ -332,7 +332,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -503,6 +503,11 @@ while [ "$#" -gt 0 ]; do
 	    CFG_EXCEPTION_SUPPORT=no
 	else
 	    UNKNOWN_OPT=yes
+	fi
+	;;
+    version-script)
+	if [ "$VAL" = "yes" ]; then
+	    QMAKE_CONFIG="$QMAKE_CONFIG version_script"	
 	fi
 	;;
     platform)
@@ -1750,7 +1755,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir]
 	[-sm] [-qt-zlib] [-system-zlib] [-qt-libjpeg] [-system-libjpeg]
 	[-qt-libpng] [-system-libpng] [-qt-libmng] [-system-libmng]
 	[-no-thread] [-thread] [-no-nis] [-nis] [-no-cups] [-cups]
-	[-no-largefile] [-largefile] [-no-stl] [-stl]
+	[-no-largefile] [-largefile] [-version-script] [-no-stl] [-stl]
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
 	[-with-<module setting>] [-without-<module setting>] [-fast] [-no-fast]
 
@@ -1810,6 +1815,10 @@ Configure options:
 			 project files.
 
     -no-exceptions ..... Disable exceptions on platforms that support it.
+
+    -version-script .... Use a version script when linking the Qt library.
+			 Internal symbols will be marked as local. Requires
+			 a recent GNU binutils package.
 
     -platform target ... The operating system and compiler you are building
 			 on ($PLATFORM).
