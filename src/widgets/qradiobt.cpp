@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#62 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#62 $");
 
 
 /*!
@@ -126,9 +126,8 @@ QSize QRadioButton::sizeHint() const
     getSizeOfBitmap( style(), &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
-    w += wbm+6;
 
-    return QSize( w, h );
+    return QSize( w + wbm + 8, h + 4 );
 }
 
 
