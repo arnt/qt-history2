@@ -76,9 +76,9 @@
        company in 1994, but parts of Qt were written for earlier
        projects. The first line of code was written in 1992.
 
-       Most of our income comes from a contract with a beta customer; we
-       develop code based on Qt for the Norwegian division of NCR
-       (previously AT&T).
+       Our income comes from selling Qt licenses and from a development
+       contract with a beta customer; we develop code based on Qt for the
+       Norwegian division of NCR (previously AT&T).
 
 13: Can I use Qt's classes without writing a graphical user interface?
 
