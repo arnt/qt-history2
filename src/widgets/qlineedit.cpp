@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#20 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#20 $";
 #endif
 
 /*!
@@ -84,8 +84,8 @@ static uint showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 
 /*!
 Creates a new line editor inside widget \e parent, named \e name.
-Both \e parent and name are as usual (in fact both are passed straight
-to the QWidget constructor).
+Both \e parent and name are as usual - in fact both are passed straight
+to the QWidget constructor.
 
 This constructor sets the cursor position to the start of the line,
 the maximum length to 32767 characters, and the current contents of
@@ -337,9 +337,9 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
         paint();
 }
 
-/*! Repaints the line editor as needed.  The line is painted nicely
-(using a pixmap buffer to avoid flickering) if the line editor is in
-focus, otherwise, a faster direct drawing method is used. */
+/*! Repaints the line editor as needed.  If the line editor is in
+  focus, the line is painted using a pixmap buffer. If not, a faster
+  but flickering drawing method is used. */
 void QLineEdit::paint( bool frame )
 {
     QPainter p;
@@ -371,7 +371,7 @@ void QLineEdit::pixmapPaint()
 
 
 /*! Paints the line editor quickly, efficently and without the
-slightest thought about flicker or other luxury problems */
+  slightest thought about flicker or other bourgeois problems */
 void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 {
     QColorGroup  g  = colorGroup();
@@ -437,11 +437,11 @@ bool QLineEdit::cursorLeft()
     return FALSE;
 }
 
-  /*! Moves the cursor rightwards one character, restarts the blink
+/*! Moves the cursor rightwards one character, restarts the blink
   timer, and returns TRUE.
 
-  Or finds that it can't move the cursor rightwards, and returns FALSE.
-  */
+  Or finds that it can't move the cursor rightwards, and returns
+  FALSE. */
 
 
 bool QLineEdit::cursorRight()
@@ -487,7 +487,7 @@ bool QLineEdit::remove()
 }
 
 /*! Moves the text cursor to the left end of the line, restarts the
-  blink timer, and returns TRUE.  Or, if the cursor was already there,
+  blink timer, and returns TRUE.  Or, if the cursor is already there,
   returns FALSE. */
 
 bool QLineEdit::home()
@@ -505,7 +505,7 @@ bool QLineEdit::home()
 
 
 /*! Moves the text cursor to the right end of the line, restarts the
-  blink timer, and returns TRUE.  Or, if the cursor was already there,
+  blink timer, and returns TRUE.  Or, if the cursor is already there,
   returns FALSE. */
 
 bool QLineEdit::end()
