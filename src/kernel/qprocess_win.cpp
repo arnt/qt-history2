@@ -268,7 +268,7 @@ bool QProcess::start( QStringList *env )
 	    0, 0, 0,
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
 	};
-	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
+	TCHAR *commandLine = _wcsdup( args.ucs2() );
 	QByteArray envlist;
 	if ( env != 0 ) {
 	    int pos = 0;
@@ -304,7 +304,7 @@ bool QProcess::start( QStringList *env )
 		, env==0 ? 0 : envlist.data(),
 		workingDir.absPath().ucs2(),
 		&startupInfo, d->pid );
-	delete[] commandLine;
+	free( commandLine );
 #  ifndef Q_OS_TEMP
     } else
 #  endif

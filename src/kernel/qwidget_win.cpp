@@ -288,7 +288,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	cx = si.rcVisibleDesktop.right - si.rcVisibleDesktop.left;
 	cy = si.rcVisibleDesktop.bottom - si.rcVisibleDesktop.top - iDelta;
 
-	TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+	TCHAR *cname = windowClassName.wchar();
 	if ( exsty )
 	    id = CreateWindowEx( exsty, cname, ttitle, style, x, y, cx, cy, parentw, 0, appinst, 0 );
 	else
@@ -297,7 +297,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 #  ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based ) {
-		// ### can this give problems due to the buffer in qt_winTchar????
 	    const TCHAR *cname = windowClassName.ucs2();
 	    if ( exsty )
 		id = CreateWindowEx( exsty, cname, ttitle, style,

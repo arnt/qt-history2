@@ -76,7 +76,7 @@ bool QLibraryPrivate::loadLibrary()
     }
     else {
 #ifdef Q_OS_TEMP
-	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
+	pHnd = LoadLibraryW( filename.ucs2() );
 #else
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
@@ -144,7 +144,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 	return 0;
 
 #ifdef Q_OS_TEMP
-    void* address = GetProcAddress( pHnd, (TCHAR*)qt_winTchar( f, TRUE) );
+    void* address = GetProcAddress( pHnd, f.ucs2() );
 #else
     void* address = GetProcAddress( pHnd, f );
 #endif

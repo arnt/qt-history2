@@ -2456,8 +2456,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    map( x, y, &x, &y );
     }
 
-
-    //const TCHAR *tc = (const TCHAR *) qt_winTchar( shaped, FALSE );
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     font->d->buildCache( hdc, shaped, 0, len, cache );
     if ( rop == CopyROP ) {
