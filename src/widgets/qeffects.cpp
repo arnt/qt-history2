@@ -243,7 +243,7 @@ void QAlphaWidget::render()
 	qApp->removeEventFilter( this );
 	BackgroundMode bgm;
 	QColor erc;
-	const QPixmap *erp;
+	const QPixmap *erp = 0;
 	if ( widget ) {
 	    widget->removeEventFilter( this );
 	    bgm = widget->backgroundMode();
@@ -563,7 +563,7 @@ void QRollEffect::scroll()
 	qApp->removeEventFilter( this );
 	BackgroundMode bgm;
 	QColor erc;
-	const QPixmap *erp;
+	const QPixmap *erp = 0;
 	if ( widget ) {
 	    widget->removeEventFilter( this );
 	    bgm = widget->backgroundMode();
