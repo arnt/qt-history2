@@ -1014,7 +1014,7 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 }
 
 /*!
-    Returns the format of the character immediately following the
+    Returns the format of the character immediately before the
     cursor position().
 
     \sa insertText(), blockFormat()
