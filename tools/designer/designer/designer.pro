@@ -391,7 +391,8 @@ IMAGES		+= images/designer_adjustsize.png \
 		images/designer_textfont.png \
 		images/designer_object.png \
 		images/designer_appicon.png \
-		images/designer_wordwrap.png
+		images/designer_wordwrap.png \
+		images/designer_d_wordwrap.png
 
 
 OBJECTS_DIR	= .
