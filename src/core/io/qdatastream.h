@@ -233,17 +233,27 @@ QDataStream& operator<<(QDataStream& s, const QLinkedList<T>& l)
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
 {
+    QDataStream::Status oldStatus = in.status();
+    in.resetStatus();
     hash.clear();
+
     Q_UINT32 n;
     in >> n;
+
     for (Q_UINT32 i = 0; i < n; ++i) {
+        if (in.status() != QDataStream::Ok)
+            break;
+
         Key k;
         T t;
         in >> k >> t;
         hash.insert(k, t);
-        if (in.atEnd())
-            break;
     }
+
+    if (in.status() != QDataStream::Ok)
+        hash.clear();
+    if (oldStatus != QDataStream::Ok)
+        in.setStatus(oldStatus);
     return in;
 }
 
@@ -291,19 +301,30 @@ template <class aKey, class aT>
 Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &map)
 #endif
 {
+    QDataStream::Status oldStatus = in.status();
+    in.resetStatus();
     map.clear();
+
     Q_UINT32 n;
     in >> n;
+
+    map.detach();
     map.d->insertInOrder = true;
     for (Q_UINT32 i = 0; i < n; ++i) {
+        if (in.status() != QDataStream::Ok)
+            break;
+
         aKey key;
         aT value;
         in >> key >> value;
         map.insert(key, value);
-        if (in.atEnd())
-            break;
     }
     map.d->insertInOrder = false;
+
+    if (in.status() != QDataStream::Ok)
+        map.clear();
+    if (oldStatus != QDataStream::Ok)
+        in.setStatus(oldStatus);
     return in;
 }
 

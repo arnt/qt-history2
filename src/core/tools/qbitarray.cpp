@@ -697,18 +697,28 @@ QDataStream &operator<<(QDataStream &out, const QBitArray &ba)
 
 QDataStream &operator>>(QDataStream &in, QBitArray &ba)
 {
+    ba.clear();
     Q_UINT32 len;
     in >> len;
-    if (!len) {
-        ba.clear();
-    } else {
-        ba.resize(len);
-        if (ba.size() != int(len)) {
-            qWarning("QDataStream: Not enough memory to read QBitArray");
-        } else {
-            in.readRawData(ba.d.data() + 1, ba.d.size() - 1);
-            *ba.d.data() = ba.d.size() * 8 - len;
+
+    const Q_UINT32 Step = 8 * 1024 * 1024;
+    Q_UINT32 allocated = 0;
+
+    while (allocated < len) {
+        int blockSize = qMin(Step, len - allocated);
+        ba.resize(allocated + blockSize);
+        if (in.readRawData(ba.d.data() + 1 + ((allocated + 7) / 8), (blockSize + 7) / 8) != (blockSize + 7) / 8) {
+            ba.clear();
+            in.setStatus(QDataStream::ReadPastEnd);
+            return in;
         }
+        allocated += blockSize;
+    }
+
+    int paddingMask = ~((0x1 << (len & 0x7)) - 1);
+    if (paddingMask != ~0x0 && (ba.d.constData()[ba.d.size() - 1] & paddingMask)) {
+        ba.clear();
+        in.setStatus(QDataStream::ReadCorruptData);
     }
     return in;
 }
