@@ -811,7 +811,8 @@ QTextCodec* QTextCodec::codecForLocale()
 		localeMapper = ru_RU_hack( lang );
 	}
 
-	
+	delete [] ctype;
+	delete [] lang;
     }
     if ( localeMapper && localeMapper->mibEnum() == 11 )
 	localeMapper = codecForName( "ISO 8859-8-I" );
@@ -821,6 +822,7 @@ QTextCodec* QTextCodec::codecForLocale()
     if ( !localeMapper )
 	localeMapper = codecForName( "ISO 8859-1" );
 #endif
+
     return localeMapper;
 }
 
