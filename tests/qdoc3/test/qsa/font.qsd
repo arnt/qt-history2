@@ -1,0 +1,31 @@
+/*!
+    \quickproperty Font.family : String
+*/
+
+/*!
+    \quickproperty Font.pointSize : Number
+*/
+
+/*!
+    \quickproperty Font.weight : Number
+*/
+
+/*!
+    \quickproperty Font.bold : Boolean
+*/
+
+/*!
+    \quickproperty Font.italic : Boolean
+*/
+
+/*!
+    \quickproperty Font.underline : Boolean
+*/
+
+/*!
+    \quickproperty Font.strikeout : Boolean
+*/
+
+/*!
+    \quickproperty Font.fixedPitch : Boolean
+*/

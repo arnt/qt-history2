@@ -1,0 +1,15 @@
+/*!
+    \quickproperty RegExp.empty : Boolean
+*/
+
+/*!
+    \quickproperty RegExp.valid : Boolean
+*/
+
+/*!
+    \quickproperty RegExp.matchedLength : Number
+*/
+
+/*!
+    \quickproperty RegExp.capturedTexts : Array
+*/

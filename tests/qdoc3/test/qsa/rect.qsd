@@ -1,0 +1,35 @@
+/*!
+    \quickproperty Rect.x : Number
+*/
+
+/*!
+    \quickproperty Rect.y : Number
+*/
+
+/*!
+    \quickproperty Rect.width : Number
+*/
+
+/*!
+    \quickproperty Rect.height : Number
+*/
+
+/*!
+    \quickproperty Rect.left : Number
+*/
+
+/*!
+    \quickproperty Rect.right : Number
+*/
+
+/*!
+    \quickproperty Rect.top : Number
+*/
+
+/*!
+    \quickproperty Rect.bottom : Number
+*/
+
+/*!
+    \quickproperty Rect.center : Point
+*/

@@ -1,6 +1,9 @@
+Array
+Boolean
 ByteArray
 Color
 Font
+Number
 Pixmap
 Point
 Qt

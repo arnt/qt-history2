@@ -1,0 +1,7 @@
+/*!
+    \quickproperty ByteArray.length : Number
+*/
+
+/*!
+    \quickproperty ByteArray.size : Number
+*/
