@@ -3197,3 +3197,14 @@ void MainWindow::resetBreakPoints()
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
 	e->resetBreakPoints();
 }
+
+SourceFile *MainWindow::sourceFile()
+{
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->hasFocus() ) {
+	    if ( e->object()->inherits( "SourceFile" ) )
+		return (SourceFile*)e->object();
+	}
+    }
+    return 0;
+}

@@ -21,11 +21,18 @@
 #include "sourcefile.h"
 #include <qfile.h>
 #include <qtextstream.h>
+#include "designerappiface.h"
 
 SourceFile::SourceFile( const QString &fn )
     : filename( fn )
 {
     load();
+    iface = 0;
+}
+
+SourceFile::~SourceFile()
+{
+    delete iface;
 }
 
 QString SourceFile::text() const
@@ -56,4 +63,11 @@ bool SourceFile::load()
     QTextStream ts( &f );
     txt = ts.read();
     return TRUE;
+}
+
+DesignerSourceFile *SourceFile::iFace()
+{
+    if ( !iface )
+	iface = new DesignerSourceFileImpl( this );
+    return iface;
 }

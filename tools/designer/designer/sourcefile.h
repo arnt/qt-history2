@@ -23,12 +23,15 @@
 
 #include <qobject.h>
 
+class DesignerSourceFile;
+
 class SourceFile : public QObject
 {
     Q_OBJECT
 
 public:
     SourceFile( const QString &fn );
+    ~SourceFile();
 
     QString text() const;
     void setText( const QString &s );
@@ -39,9 +42,12 @@ public:
     void setFileName( const QString &fn ) { filename = fn; save(); }
     QString fileName() const { return filename; }
 
+    DesignerSourceFile *iFace();
+
 private:
     QString filename;
     QString txt;
+    DesignerSourceFile *iface;
 
 };
 

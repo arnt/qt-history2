@@ -28,6 +28,7 @@ class FormWindow;
 class MainWindow;
 class Project;
 class OutputWindow;
+class SourceFile;
 
 class DesignerInterfaceImpl : public DesignerInterface
 {
@@ -36,6 +37,7 @@ public:
 
     DesignerProject *currentProject() const;
     DesignerFormWindow *currentForm() const;
+    DesignerSourceFile *currentSourceFile() const;
     QPtrList<DesignerProject> projectList() const;
     void showStatusMessage( const QString &, int ms = 0 ) const;
     DesignerDock *createDock() const;
@@ -231,6 +233,17 @@ public:
 
 private:
     OutputWindow *outWin;
+
+};
+
+class DesignerSourceFileImpl : public DesignerSourceFile
+{
+public:
+    DesignerSourceFileImpl( SourceFile *e );
+    QString fileName() const;
+
+private:
+    SourceFile *ed;
 
 };
 

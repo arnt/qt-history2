@@ -50,6 +50,7 @@ struct DesignerOutputDock;
 struct DesignerOutput;
 struct DesignerOutputError;
 struct DesignerPixmapCollection;
+class DesignerSourceFile;
 
 class QDockWindow;
 class QWidget;
@@ -73,6 +74,7 @@ struct DesignerInterface : public QUnknownInterface
 {
     virtual DesignerProject *currentProject() const = 0;
     virtual DesignerFormWindow *currentForm() const = 0;
+    virtual DesignerSourceFile *currentSourceFile() const = 0;
     virtual QPtrList<DesignerProject> projectList() const = 0;
     virtual void showStatusMessage( const QString &, int ms = 0 ) const = 0;
     virtual DesignerDock *createDock() const = 0;
@@ -207,6 +209,11 @@ struct DesignerFormWindow
     virtual void addToolBarSeparator( const QString &tb ) = 0;
 
     virtual void onModificationChange( QObject *receiver, const char *slot ) = 0;
+};
+
+struct DesignerSourceFile
+{
+    virtual QString fileName() const = 0;
 };
 
 struct DesignerDock

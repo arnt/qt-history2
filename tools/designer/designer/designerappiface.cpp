@@ -85,6 +85,13 @@ DesignerFormWindow *DesignerInterfaceImpl::currentForm() const
     return 0;
 }
 
+DesignerSourceFile *DesignerInterfaceImpl::currentSourceFile() const
+{
+    if ( mainWindow->sourceFile() )
+	return mainWindow->sourceFile()->iFace();
+    return 0;
+}
+
 QPtrList<DesignerProject> DesignerInterfaceImpl::projectList() const
 {
     return mainWindow->projectList();
@@ -946,4 +953,14 @@ void DesignerOutputDockImpl::appendError( const QString &s, int l )
 
 void DesignerOutputDockImpl::clearError()
 {
+}
+
+DesignerSourceFileImpl::DesignerSourceFileImpl( SourceFile *e )
+    : ed( e )
+{
+}
+
+QString DesignerSourceFileImpl::fileName() const
+{
+    return ed->fileName();
 }

@@ -156,6 +156,8 @@ public:
     void saveAllBreakPoints();
     void resetBreakPoints();
 
+    SourceFile *sourceFile();
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -238,6 +240,7 @@ public slots:
     void helpAbout();
     void helpAboutQt();
     void helpRegister();
+
 private slots:
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
