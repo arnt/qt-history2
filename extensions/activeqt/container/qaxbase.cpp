@@ -1314,6 +1314,8 @@ private:
             prop.second |= vartype << 24;
         else if (prop.first == "QVariant")
             prop.second |= 0xff << 24;
+        else if (prop.first.endsWith('*'))
+            prop.second |= QVariant::UserType << 24;
     }
     
     inline bool hasProperty(const char *name)
@@ -2628,6 +2630,8 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
     UINT argerr = 0;
     HRESULT hres = E_FAIL;
     
+    QByteArray proptype(prop.type());
+
     switch (call) {
     case QMetaObject::ReadProperty:
         params.cArgs = 0;
@@ -2638,7 +2642,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
         hres = disp->Invoke(dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0);
         
         // map result VARIANTARG to void*
-        QVariantToVoidStar(VARIANTToQVariant(arg, prop.type()), *v, prop.type());
+        QVariantToVoidStar(VARIANTToQVariant(arg, proptype), *v, proptype);
         break;
         
     case QMetaObject::WriteProperty:
@@ -2652,15 +2656,15 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
             arg.scode = DISP_E_TYPEMISMATCH;
             
             // map void* to VARIANTARG.
-            if (!qstrcmp(prop.type(), "QVariant"))
-                QVariantToVARIANT(*(QVariant*)v[0], arg, prop.type());
+            if (proptype == "QVariant")
+                QVariantToVARIANT(*(QVariant*)v[0], arg, proptype);
             else if (!prop.isEnumType())
-                QVariantToVARIANT(QCoreVariant(QCoreVariant::nameToType(prop.type()), v[0]), arg, prop.type());
+                QVariantToVARIANT(QCoreVariant(QCoreVariant::nameToType(proptype), v[0]), arg, proptype);
             else
-                QVariantToVARIANT(QVariant(QVariant::Int, v[0]), arg, prop.type());
+                QVariantToVARIANT(QVariant(QVariant::Int, v[0]), arg, proptype);
             if (arg.vt == VT_EMPTY) {
 #ifndef QT_NO_DEBUG
-                qWarning("QAxBase::setProperty(): Unhandled property type");
+                qWarning("QAxBase::setProperty(): Unhandled property type %s", proptype.constData());
 #endif
                 break;
             }
