@@ -566,12 +566,13 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 */
 
 /*!
-    Constructs a QDockWindow with parent \a parent.  The dock window
-    will be placed in the left dock window area.
+    Constructs a QDockWindow with parent \a parent and widget flags \a
+    flags.  The dock window will be placed in the left dock window
+    area.
 */
-QDockWindow::QDockWindow(QMainWindow *parent)
+QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
+             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
     Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
     d->init();
@@ -579,12 +580,12 @@ QDockWindow::QDockWindow(QMainWindow *parent)
 }
 
 /*!
-    Constructs a QDockWindow with the given \a parent, placed in the
-    specified \a area.
+    Constructs a QDockWindow with parent \a parent, placed in \a area
+    and with widget flags \a flags.
 */
-QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area)
+QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
+             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
     Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
     d->init();
