@@ -88,6 +88,12 @@ public:
 
 private:
     QSimpleRichTextData* d;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSimpleRichText( const QSimpleRichText & );
+    QSimpleRichText &operator=( const QSimpleRichText & );
+#endif
 };
 
 #endif // QT_NO_RICHTEXT
