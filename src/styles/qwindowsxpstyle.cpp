@@ -231,7 +231,7 @@ struct XPThemeData
     {
 	HRGN hrgn = mask();
 	if ( hrgn )
-	    SetWindowRgn( QWindowsXPStylePrivate::winId( widget ), hrgn, FALSE );
+	    SetWindowRgn( QWindowsXPStylePrivate::winId( widget ), hrgn, TRUE );
     }
 
     void drawBackground( int pId = 0, int sId = 0 )
@@ -430,9 +430,6 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	XPThemeData theme( widget, 0, "WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
-	theme.rec = widget->parentWidget()->rect();
-	RECT r = theme.rect();
-	InvalidateRect( widget->parentWidget()->winId(), &r, TRUE );
     }
 }
 
