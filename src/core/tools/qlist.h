@@ -131,6 +131,7 @@ public:
         inline iterator operator-(int j) const { return iterator(i-j); }
         inline int operator-(iterator j) const { return i - j.i; }
     };
+    friend class iterator;
 
     class const_iterator {
     public:
@@ -164,6 +165,7 @@ public:
         inline const_iterator operator-(int j) const { return const_iterator(i-j); }
         inline int operator-(const_iterator j) const { return i - j.i; }
     };
+    friend class const_iterator;
 
     // stl style
     inline iterator begin() { detach(); return reinterpret_cast<Node*>(p.begin()); }
