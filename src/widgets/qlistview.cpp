@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#120 $
 **
 ** Implementation of QListView widget class
 **
@@ -334,8 +334,6 @@ void QListViewItem::init()
 
 QListViewItem::~QListViewItem()
 {
-    if ( parentItem )
-	parentItem->removeItem( this );
     QListViewItem * nextChild = childItem;
     while ( childItem ) {
 	nextChild = childItem->siblingItem;
@@ -343,6 +341,8 @@ QListViewItem::~QListViewItem()
 	childItem = nextChild;
     }
     delete (QListViewPrivate::ItemColumnInfo *)columns;
+    if ( parentItem )
+	parentItem->removeItem( this );
 }
 
 
