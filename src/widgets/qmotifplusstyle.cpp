@@ -1390,7 +1390,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
  */
 void QMotifPlusStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
 				bool highlight, const QColorGroup &cg,
-				bool drawBorder )
+				bool /*drawBorder*/ )
 {
     p->save();
     p->translate( r.x(), r.y() );
