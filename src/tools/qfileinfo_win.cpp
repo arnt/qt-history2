@@ -58,22 +58,14 @@
 
 typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
 static PtrGetNamedSecurityInfoW ptrGetNamedSecurityInfoW = 0;
-typedef DWORD (WINAPI *PtrGetNamedSecurityInfoA)(LPSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
-static PtrGetNamedSecurityInfoA ptrGetNamedSecurityInfoA = 0;
 typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrLookupAccountSidW)(LPCWSTR, PSID, LPWSTR, LPDWORD, LPWSTR, LPDWORD, PSID_NAME_USE);
 static PtrLookupAccountSidW ptrLookupAccountSidW = 0;
-typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrLookupAccountSidA)(LPCSTR, PSID, LPSTR, LPDWORD, LPSTR, LPDWORD, PSID_NAME_USE);
-static PtrLookupAccountSidA ptrLookupAccountSidA = 0;
 typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrAllocateAndInitializeSid)(PSID_IDENTIFIER_AUTHORITY, BYTE, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, PSID*);
 static PtrAllocateAndInitializeSid ptrAllocateAndInitializeSid = 0;
 typedef VOID (WINAPI *PtrBuildTrusteeWithSidW)(PTRUSTEE_W, PSID);
 static PtrBuildTrusteeWithSidW ptrBuildTrusteeWithSidW = 0;
-typedef VOID (WINAPI *PtrBuildTrusteeWithSidA)(PTRUSTEE_A, PSID);
-static PtrBuildTrusteeWithSidA ptrBuildTrusteeWithSidA = 0;
 typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclW)(PACL, PTRUSTEE_W, OUT PACCESS_MASK);
 static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0;
-typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclA)(PACL, PTRUSTEE_A, OUT PACCESS_MASK);
-static PtrGetEffectiveRightsFromAclA ptrGetEffectiveRightsFromAclA = 0;
 typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
 
@@ -100,19 +92,15 @@ static void resolveLibs()
 #endif
 
 	triedResolve = TRUE;
-	if ( qWinVersion() & Qt::WV_NT_based ) {
+	if ( qt_winunicode ) {
 	    QLibrary lib("advapi32");
 	    lib.setAutoUnload( FALSE );
 
 	    ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW) lib.resolve( "GetNamedSecurityInfoW" );
-	    ptrGetNamedSecurityInfoA = (PtrGetNamedSecurityInfoA) lib.resolve( "GetNamedSecurityInfoA" );
 	    ptrLookupAccountSidW = (PtrLookupAccountSidW) lib.resolve( "LookupAccountSidW" );
-	    ptrLookupAccountSidA = (PtrLookupAccountSidA) lib.resolve( "LookupAccountSidA" );
 	    ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid) lib.resolve( "AllocateAndInitializeSid" );
 	    ptrBuildTrusteeWithSidW = (PtrBuildTrusteeWithSidW) lib.resolve( "BuildTrusteeWithSidW" );
-	    ptrBuildTrusteeWithSidA = (PtrBuildTrusteeWithSidA) lib.resolve( "BuildTrusteeWithSidA" );
 	    ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW) lib.resolve( "GetEffectiveRightsFromAclW" );
-	    ptrGetEffectiveRightsFromAclA = (PtrGetEffectiveRightsFromAclA) lib.resolve( "GetEffectiveRightsFromAclA" );
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 	}
     }
@@ -264,13 +252,12 @@ QString QFileInfo::readLink() const
 QString QFileInfo::owner() const
 {
 #ifndef Q_OS_TEMP
-    if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) {
+    if ( qt_winunicode ) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
 	resolveLibs();
 
-#if defined(UNICODE)
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
 	    if ( ptrGetNamedSecurityInfoW( (TCHAR *)fn.ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lowner = 0, ldomain = 0;
@@ -288,31 +275,11 @@ QString QFileInfo::owner() const
 		delete [] domain;
 	    }
 	}
-#else
-	if ( ptrGetNamedSecurityInfoA && ptrLookupAccountSidA ) {
-	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
-		DWORD lowner = 0, ldomain = 0;
-		SID_NAME_USE use;
-		// First call, to determine size of the strings (with '\0').
-		ptrLookupAccountSidA( NULL, pOwner, NULL, &lowner, NULL, &ldomain, &use );
-		char *owner = new char[lowner];
-		char *domain = new char[ldomain];
-		// Second call, size is without '\0'
-		if ( ptrLookupAccountSidA( NULL, pOwner, (LPSTR)owner, &lowner, (LPSTR)domain, &ldomain, &use ) ) {
-		    name = owner;
-		}
-		LocalFree( pSD );
-		delete [] owner;
-		delete [] domain;
-	    }
-	}
-#endif
-
 	return name;
 
-    } else
+    }
 
-	return QString::null;
+    return QString::null;
 #else
     // ### need to query this for CE
     return QString();
@@ -329,13 +296,12 @@ uint QFileInfo::ownerId() const
 QString QFileInfo::group() const
 {
 #ifndef Q_OS_TEMP
-    if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) {
+    if ( qt_winunicode ) {
 	PSID pGroup = 0;
 	PSECURITY_DESCRIPTOR pSD;
 	QString name;
 	resolveLibs();
 
-#if defined(UNICODE)
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
 	    if ( ptrGetNamedSecurityInfoW( (TCHAR *)fn.ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
 		DWORD lgroup = 0, ldomain = 0;
@@ -353,31 +319,10 @@ QString QFileInfo::group() const
 		delete [] domain;
 	    }
 	}
-#else
-	if ( ptrGetNamedSecurityInfoA && ptrLookupAccountSidA ) {
-	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
-		DWORD lgroup = 0, ldomain = 0;
-		SID_NAME_USE use;
-		// First call, to determine size of the strings (with '\0').
-		ptrLookupAccountSidA( NULL, pGroup, NULL, &lgroup, NULL, &ldomain, &use );
-		char *group = new char[lgroup];
-		char *domain = new char[ldomain];
-		// Second call, size is without '\0'
-		if ( ptrLookupAccountSidA( NULL, pGroup, (LPSTR)group, &lgroup, (LPSTR)domain, &ldomain, &use ) ) {
-		    name = group;
-		}
-		LocalFree( pSD );
-		delete [] group;
-		delete [] domain;
-	    }
-	}
-#endif
-
 	return name;
 
-    } else
-
-	return QString::null;
+    }
+    return QString::null;
 #else
     // ### need to query this
     return QString();
@@ -393,7 +338,7 @@ uint QFileInfo::groupId() const
 bool QFileInfo::permission( int p ) const
 {
 #ifndef Q_OS_TEMP
-    if ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) {
+    if ( qt_winunicode ) {
 	PSID pOwner = 0, pGroup = 0;
 	PACL pDacl;
 	PSECURITY_DESCRIPTOR pSD;
@@ -401,7 +346,6 @@ bool QFileInfo::permission( int p ) const
 	PACCESS_MASK pAccess = &access_mask;
 	enum { ReadMask = 0x00000001, WriteMask = 0x00000002, ExecMask = 0x00000020 };
 	resolveLibs();
-#if defined(UNICODE)
         TRUSTEE_W trustee;
 	PTRUSTEE_W pTrustee = &trustee;
 	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
@@ -446,72 +390,23 @@ bool QFileInfo::permission( int p ) const
 		LocalFree( pSD );
 	    }
 	}
-#else
-        TRUSTEE_A trustee;
-	PTRUSTEE_A pTrustee = &trustee;
-	if ( ptrGetNamedSecurityInfoA && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidA && ptrGetEffectiveRightsFromAclA && ptrFreeSid ) {
-	    if ( ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT,
-			OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-			&pOwner, &pGroup, &pDacl, NULL, &pSD ) == ERROR_SUCCESS ) {
-
-		// Create SID for Everyone (World)
-		SID_IDENTIFIER_AUTHORITY worldAuth = { SECURITY_WORLD_SID_AUTHORITY };
-		PSID pWorld = 0;
-		if ( ptrAllocateAndInitializeSid( &worldAuth, 1, SECURITY_WORLD_RID, 0,0,0,0,0,0,0, &pWorld ) ) {
-
-		    if ( p & ( ReadUser | WriteUser | ExeUser) ) {
-			ptrBuildTrusteeWithSidA( pTrustee, pOwner );
-			if ( ptrGetEffectiveRightsFromAclA( pDacl, pTrustee, pAccess ) != ERROR_SUCCESS )
-			    *pAccess = 0;
-			if ( ( p & ReadUser ) && !( *pAccess & ReadMask )   ||
-			     ( p & WriteUser ) && !( *pAccess & WriteMask ) ||
-			     ( p & ExeUser ) && !( *pAccess & ExecMask )      )
-			    return FALSE;
-		    }
-		    if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
-			ptrBuildTrusteeWithSidA( pTrustee, pGroup );
-			if ( ptrGetEffectiveRightsFromAclA( pDacl, pTrustee, pAccess ) != ERROR_SUCCESS )
-			    *pAccess = 0;
-			if ( ( p & ReadGroup ) && !( *pAccess & ReadMask )   ||
-			     ( p & WriteGroup ) && !( *pAccess & WriteMask ) ||
-			     ( p & ExeGroup ) && !( *pAccess & ExecMask )      )
-			    return FALSE;
-		    }
-		    if ( p & ( ReadOther | WriteOther | ExeOther) ) {
-			ptrBuildTrusteeWithSidA( pTrustee, pWorld );
-			if ( ptrGetEffectiveRightsFromAclA( pDacl, pTrustee, pAccess ) != ERROR_SUCCESS )
-			    *pAccess = 0;
-			if ( ( p & ReadOther ) && !( *pAccess & ReadMask )   ||
-			     ( p & WriteOther ) && !( *pAccess & WriteMask ) ||
-			     ( p & ExeOther ) && !( *pAccess & ExecMask )      )
-			    return FALSE;
-		    }
-		    ptrFreeSid( pWorld );
-		}
-		LocalFree( pSD );
-	    }
-	}
-#endif
     }
 #endif // !Q_OS_TEMP
     // just check if it's ReadOnly
 
-#if defined(UNICODE)
-    if ( qt_winunicode ) {
+    QT_WA( {
 	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
 	    DWORD attr = GetFileAttributes( fn.ucs2() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
-    } else
-#endif
-    {
+    } , {
 	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
 	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
 	    if ( attr & FILE_ATTRIBUTE_READONLY )
 		return FALSE;
 	}
-    }
+    } );
 
     return TRUE;
 }
@@ -527,12 +422,11 @@ void QFileInfo::doStat() const
     QT_STATBUF *b = &that->fic->st;
 
     int r;
-#ifdef UNICODE
-    if ( qt_winunicode )
+    QT_WA( {
 	r = _wstat(fn.ucs2(), (QT_STATBUF4TSTAT*)b);
-    else
-#endif
+    } , {
 	r = QT_STAT(qt_win95Name(fn), b);
+    } );
     if ( r!=0 ) {
 	bool is_dir=FALSE;
 	if ( fn[0] == '/' && fn[1] == '/'
@@ -627,9 +521,9 @@ QString QFileInfo::fileName() const
 */
 bool QFileInfo::isHidden() const
 {
-#if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
+    QT_WA( {
 	return GetFileAttributesW( fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
-#endif
+    } , {
     return GetFileAttributesA( fn.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN;
+    } );
 }
