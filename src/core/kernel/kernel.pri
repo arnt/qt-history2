@@ -47,6 +47,7 @@ win32 {
 
 mac {
        SOURCES += \
+		kernel/qcore_mac.cpp \
                 kernel/qcoreapplication_mac.cpp
 }
 
