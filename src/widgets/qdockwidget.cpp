@@ -182,7 +182,8 @@ public:
     QSize minimumSizeHint() const;
     QSize minimumSize() const { return minimumSizeHint(); }
     QSize sizeHint() const { return minimumSize(); }
-
+    QSizePolicy sizePolicy() const;
+    
 protected:
     void paintEvent( QPaintEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -280,6 +281,12 @@ QSize QDockWidgetHandle::minimumSizeHint() const
     return QSize( 0, dockWidget->isCloseEnabled() ? 18 : 12 );
 }
 
+QSizePolicy QDockWidgetHandle::sizePolicy() const
+{
+    if ( dockWidget->orientation() != Horizontal )
+	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred );
+}
 
 class QDockWidgetTitleBar : public QWidget
 {
@@ -427,10 +434,10 @@ static QWidget *widgetAt( const QPoint &gp )
 	    mw = (QMainWindow*)w;
 	w = w->parentWidget();
     }
-    
+
     if ( !mw )
 	return 0;
-    
+
     return mw->dockingArea( mw->mapFromGlobal( gp ) );
 }
 
