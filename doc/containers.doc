@@ -119,14 +119,15 @@
     \keyword default-constructed values
 
     The documentation of certain container class functions refer to
-    \e{default-constructed values}; for example, QMap::value() returns
-    a default-constructed value if the specified key isn't in the map.
-    For most value types, this simply means that a value is created
-    using the default constructor (e.g. an empty string for QString).
-    But for built-in types like \c{int} and \c{double}, as well as for
-    pointer types, the C++ language doesn't specify any
-    initialization; in those cases, Qt's containers automatically
-    initialize the value to 0.
+    \e{default-constructed values}; for example, QVector
+    automatically initializes its items with default-constructed
+    values, and QMap::value() returns a default-constructed value if
+    the specified key isn't in the map. For most value types, this
+    simply means that a value is created using the default
+    constructor (e.g. an empty string for QString). But for built-in
+    types like \c{int} and \c{double}, as well as for pointer types,
+    the C++ language doesn't specify any initialization; in those
+    cases, Qt's containers automatically initialize the value to 0.
 
     Here's an example custom data type that meets the requirement of
     an assignable data type:
@@ -158,9 +159,8 @@
     \code
 	struct Movie
         {
-	    int id;
 	    QString title;
-            int year;
+            QDate releaseDate;
         };
     \endcode
 
@@ -481,28 +481,26 @@
     QHash have the same interface as QMap's iterators.
 
     Here's a typical loop for iterating through all the elements of a
-    QList\<QString\> in order and printing them to the console:
+    QList\<QString\> in order and converting them to lower-case:
 
     \code
 	QList<QString> list;
         list << "A" << "B" << "C" << "D";
 
-	QList<QString>::const_iterator i;
+	QList<QString>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
-	    cout << (*i).ascii() << endl;
+	    *i = (*i).toLower();
     \endcode
-
-    If the list is empty, begin() equals end(), so we never execute
-    the loop.
 
     Unlike Java-style iterators (covered \link {Java-style iterators}
     above \endlink), STL-style iterators point directly at items. The
-    begin() function of a container returns an iterator that
-    points to the first item in the container. The end() function
-    of a container returns an iterator to the imaginary item one
-    position past the last item in the container. end() marks an
-    invalid position; it must never be dereferenced. It is typically
-    used in a loop's break condition.
+    begin() function of a container returns an iterator that points
+    to the first item in the container. The end() function of a
+    container returns an iterator to the imaginary item one position
+    past the last item in the container. end() marks an invalid
+    position; it must never be dereferenced. It is typically used in
+    a loop's break condition. If the list is empty, begin() equals
+    end(), so we never execute the loop.
 
     The diagram below shows the valid iterator positions as red
     arrows for a vector containing four items:
@@ -517,17 +515,27 @@
 	QList<QString> list;
         list << "A" << "B" << "C" << "D";
 
-	QList<QString>::const_iterator i = list.end();
+	QList<QString>::iterator i = list.end();
         while (i != list.begin()) {
 	    --i;
-	    cout << (*i).ascii() << endl;
+	    *i = (*i).toLower();
 	}
     \endcode
 
     In the code snippets so far, we used the unary \c * operator to
     retrieve the item (of type QString) stored at a certain iterator
-    position, and we then called QString::ascii() on it. Most C++
-    compilers also allow us to write \c{i->ascii()}, but some don't.
+    position, and we then called QString::toLower() on it. Most C++
+    compilers also allow us to write \c{i->toLower()}, but some
+    don't.
+
+    For read-only access, you can use const_iterator, constBegin(),
+    and constEnd(). For example:
+
+    \code
+	QList<QString>::const_iterator i;
+        for (i = list.constBegin(); i != list.constEnd(); ++i)
+	    cout << (*i).ascii() << endl;
+    \endcode
 
     The following table summarizes the STL-style iterators' API:
 
@@ -563,16 +571,9 @@
 	QMap<int, int> map;
         ...
         QMap<int, int>::const_iterator i;
-        for (i = map.begin(); i != map.end(); ++i)
+        for (i = map.constBegin(); i != map.constEnd(); ++i)
 	    cout << i.key() << ": " << i.value() << endl;
     \endcode
-
-    Final remark: On the side of begin() and end(), Qt's containers
-    also provide constBegin() and constEnd(), which return a const
-    iterator. We didn't use them in the examples above for
-    simplicity, but when iterating with a const iterator, you can
-    gain a little speed by calling constBegin() and constEnd()
-    instead of begin() and end().
 
     \target foreach
     \section1 The foreach Keyword
@@ -668,6 +669,15 @@
     Without the \c QT_KEYWORDS symbol defined, \c foreach is
     accessible under the name \c Q_FOREACH.
 
+    In addition to \c foreach, the \c QT_KEYWORDS symbol also defines
+    a \c forever pseudo-keyword for infinite loops:
+
+    \code
+	forever {
+	    ...
+        }
+    \endcode
+
     \section1 Performance Terminology
 
     The containers documentation provides information about how fast
@@ -727,5 +737,4 @@
 
     Additional non-template types that compete with Qt's template
     containers are QBitArray, QByteArray, QString, and QStringList.
-
 */
