@@ -18,7 +18,7 @@
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
 #define COMMAND_REPLACE             Doc::alias( "replace" )
 
-static QString balancedParentheses = "(?:[^()]+|\\([^()]*\\))*";
+static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
 
 int QsCodeParser::tabSize;
 
@@ -132,21 +132,27 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	}
 	return 0;
     } else if ( command == COMMAND_QUICKCLASS ) {
-	QString className = arg;
-	QString bare = className;
-	if ( bare[0] == 'Q' && bare[1].lower() != bare[1] )
-	    bare = bare.mid( 1 );
+	QString quickClassName = arg;
+	QString qtClassName = arg;
+	QString bare = arg;
+	if ( arg != "Qt" ) {
+	    if ( arg.startsWith("Q") ) {
+		bare = bare.mid( 1 );
+	    } else {
+		qtClassName.prepend( "Q" );
+	    }
+	}
 
 	if ( (wrapperClass = tryClass("Quick" + bare + "Interface")) != 0 ) {
-	    if ( (qtClass = tryClass(className)) == 0 ) {
+	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
 		doc.location().warning( tr("Cannot find Qt class '%1'"
 					   " corresponding to '%2'")
-					.arg(className)
+					.arg(qtClassName)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
 	} else if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
-	    qtClass = tryClass( className );
+	    qtClass = tryClass( qtClassName );
 	    if ( qtClass == 0 ) {
 		qtClass = wrapperClass;
 		wrapperClass = 0;
@@ -157,34 +163,34 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 		    wrapperClass->findFunctionNode( wrapperClass->name() );
 	    if ( ctor != 0 && !ctor->parameters().isEmpty() &&
 		 ptrToQtType.exactMatch(ctor->parameters().first().leftType()) )
-		className = ptrToQtType.cap( 1 );
+		qtClassName = ptrToQtType.cap( 1 );
 
-	    if ( (qtClass = tryClass(className)) == 0 ) {
+	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
 		doc.location().warning( tr("Cannot find Qt class '%1'"
 					   " corresponding to '%2'")
-					.arg(className)
+					.arg(qtClassName)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
 	} else if ( (wrapperClass = tryClass("Q" + bare + "Ptr")) != 0 ) {
-	    if ( (qtClass = tryClass(className)) == 0 ) {
+	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
 		doc.location().warning( tr("Cannot find Qt class '%1'"
 					   " corresponding to '%2'")
-					.arg(className)
+					.arg(qtClassName)
 					.arg(wrapperClass->name()) );
 		return 0;
 	    }
 	} else {
-	    qtClass = tryClass( className );
+	    qtClass = tryClass( qtClassName );
 	    if ( qtClass == 0 ) {
 		doc.location().warning( tr("Cannot find C++ class '%1'")
-					.arg(className) );
+					.arg(qtClassName) );
 		return 0;
 	    }
 	}
 
-	ClassNode *quickClass = new ClassNode( qsTre->root(), className );
-qDebug( "Quickifying '%s'", className.latin1() );
+	ClassNode *quickClass = new ClassNode( qsTre->root(), quickClassName );
+qDebug( "Quickifying '%s'", qtClassName.latin1() );
 	quickifyClass( quickClass, qtClass, wrapperClass );
 	setQuickDoc( quickClass, doc );
 	return 0;
@@ -352,7 +358,15 @@ QString QsCodeParser::quickifiedDataType( const QString& leftType,
 	if ( s == "QCString" ) {
 	    return "String";
 	} else {
-	    return s.mid( 1 );
+	    Node *node = qsTre->findNode( s, Node::Class );
+	    if ( node == 0 )
+		node = qsTre->findNode( s.mid(1), Node::Class );
+
+	    if ( node == 0 ) {
+		return "UNKNOWN";
+	    } else {
+		return node->name();
+	    }
 	}
 	break;
     case 'b':
@@ -361,9 +375,11 @@ QString QsCodeParser::quickifiedDataType( const QString& leftType,
 	break;
     case 'c':
 	if ( s == "char" ) {
-	    return "Number";
-	} else if ( s == "const char *" ) {
-	    return "String";
+	    if ( leftType == "const char *" ) {
+		return "String";
+	    } else {
+		return "Number";	    
+	    }
 	}
 	break;
     case 'd':
@@ -406,13 +422,17 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 {
     QRegExp funcRegExp(
 	    "^([ \t]*)(?:[\\w<>,&*]+[ \t]+)+((?:\\w+::)*\\w+)\\((" +
-	    balancedParentheses + ")\\)(?:[ \t]*const)?(?=[ \n\t]*\\{)" );
+	    balancedParens + ")\\)(?:[ \t]*const)?(?=[ \n\t]*\\{)" );
     QRegExp paramRegExp(
 	     "\\s*(const\\s+)?([^\\s=]+)\\b[^=]*\\W(\\w+)\\s*(?:=.*)?" );
     QRegExp qtVarRegExp(
 	     "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
-	     "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParentheses +
+	     "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParens +
 	     ")\\))?\\s*;" );
+    QRegExp connectRegExp(
+	     "^(connect\\(\\s*[^,]*,\\s*)SIGNAL\\((" +
+	     balancedParens + ")\\)(,[^,]*,\\s*)SLOT\\((" + balancedParens +
+	     ")\\)(\\s*\\))" );
     QString result;
     bool inString = FALSE;
     QChar quote;
@@ -473,6 +493,11 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 		quote = code[i];
 		result += code[i++];
 		inString = TRUE;
+	    } else if ( code[i] == 'F' && leftWordBoundary(code, i) &&
+			code.mid(i, 5) == "FALSE" &&
+			rightWordBoundary(code, i + 5) ) {
+		result += "\\c{false}";
+		i += 5;
 	    } else if ( code[i] == 'Q' && leftWordBoundary(code, i) ) {
 		if ( code.mid(i - 4, 3) == "new" ) {
 		    if ( code[i + 1].lower() == code[i + 1] ) {
@@ -489,16 +514,22 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 			    !code[i].isLetterOrNumber() && code[i] != '\n' )
 			i++;
 		}
+	    } else if ( code[i] == 'c' && leftWordBoundary(code, i) &&
+			code.mid(i, 8) == "connect(" ) {
+		if ( connectRegExp.search(code, i, QRegExp::CaretAtOffset) !=
+		     -1 ) {
+		    result += connectRegExp.cap( 1 ) + "SIGNAL(\"" +
+			      connectRegExp.cap( 2 ) + "\")" +
+			      connectRegExp.cap( 3 ) + "SLOT(\"" +
+			      connectRegExp.cap( 4 ) + "\")" +
+			      connectRegExp.cap( 5 );
+		    i += connectRegExp.matchedLength();
+		}
 	    } else if ( code[i] == 'T' && leftWordBoundary(code, i) &&
 			code.mid(i, 4) == "TRUE" &&
 			rightWordBoundary(code, i + 4) ) {
 		result += "\\c{true}";
 		i += 4;
-	    } else if ( code[i] == 'F' && leftWordBoundary(code, i) &&
-			code.mid(i, 5) == "FALSE" &&
-			rightWordBoundary(code, i + 5) ) {
-		result += "\\c{false}";
-		i += 5;
 	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
 		int numSpaces = columnForIndex( code, i ) -
 				columnForIndex( result, result.length() );
@@ -617,12 +648,8 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
 				     QStringList *pathPtr,
 				     FunctionNode **funcPtr )
 {
-    /*
-      This is a quick and dirty implementation. It will be rewritten
-      when the rest of the class is implemented for real.
-    */
     QRegExp funcRegExp( "\\s*([A-Za-z0-9_]+)\\.([A-Za-z0-9_]+)\\s*\\((" +
-			balancedParentheses + ")\\)\\s*" );
+			balancedParens + ")\\)\\s*" );
     QRegExp paramRegExp( "\\s*var\\s+([A-Za-z0-9_]+)?"
 			 "\\s*(?::\\s*([A-Za-z0-9_]+)\\s*)?" );
 
