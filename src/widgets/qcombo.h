@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#23 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#24 $
 **
 ** Definition of QComboBox class
 **
@@ -39,9 +39,9 @@ public:
     void	clear();
 
     const char *text( int index ) const;
-    QPixmap    *pixmap( int index ) const;
+    const QPixmap *pixmap( int index ) const;
 
-    void	changeItem( const char *text, int index );
+    void	changeItem( const char *txt, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
     int		currentItem()	const;
@@ -72,10 +72,14 @@ protected:
     void	keyPressEvent( QKeyEvent *e );
 
     void	popup();
+    void	popDown();
 
 private:
     void	reIndex();
     void	currentChanged();
+    QRect	arrowRect() const;
+    bool	getMetrics( int *dist, int *buttonW, int *buttonH ) const;
+    bool	eventFilter( QObject *object, QEvent *event );
 
     QComboData	*d;
 
