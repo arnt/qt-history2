@@ -1372,9 +1372,10 @@ bool QLineEdit::event( QEvent * e )
 	    if(!hasSelectedText() || style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ))
 		d->setCursorVisible( !d->cursorVisible );
 #ifndef QT_NO_DRAGANDDROP
-	else if ( timerId == d->dndTimer.timerId() )
+	} else if ( timerId == d->dndTimer.timerId() ) {
 	    d->drag();
 #endif
+	}
 	else if ( timerId == d->tripleClickTimer.timerId() )
 	    d->tripleClickTimer.stop();
     }
