@@ -136,7 +136,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	if ( glFormat.doubleBuffer() ) 
 	    attribs[cnt++] = AGL_DOUBLEBUFFER;
 
-#if 1
+#if 0
 	attribs[cnt++] = AGL_RENDERER_ID;
 	attribs[cnt++] = AGL_RENDERER_GENERIC_ID;
 #else
@@ -225,6 +225,7 @@ void QGLContext::makeCurrent()
 
 void QGLContext::fixBufferRect() 
 {
+#if 1
     if(paintDevice->devType() == QInternal::Widget) {
 	if(!aglIsEnabled((AGLContext)cx, AGL_BUFFER_RECT))
 	   aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
@@ -242,6 +243,7 @@ void QGLContext::fixBufferRect()
 	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
 	}
     }
+#endif
 }
 
 void QGLContext::doneCurrent()
@@ -310,17 +312,9 @@ uint QGLContext::colorIndex( const QColor&c) const
 
 void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 {
-#if 0
-    gl_pix = new QWidget;
-    gl_pix->hide();
-    gl_pix->resize(width(), height());
-#else
-    gl_pix = NULL;
-#endif
-
     glcx = 0;
     autoSwap = TRUE;
-    setContext( new QGLContext( format, gl_pix ? gl_pix : this), shareWidget ? shareWidget->context() : NULL );
+    setContext( new QGLContext( format, this), shareWidget ? shareWidget->context() : NULL );
     setBackgroundMode( NoBackground );
 
     if ( isValid() && this->format().hasOverlay() ) {
@@ -348,7 +342,7 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 
 void QGLWidget::fixReparented()
 {
-    setContext( new QGLContext( glcx->requestedFormat(), gl_pix ? gl_pix : this ) );
+    setContext( new QGLContext( glcx->requestedFormat(), this ) );
 }
 
 void QGLWidget::setMouseTracking( bool enable )
@@ -361,8 +355,6 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 {
     if ( !isValid() )
 	return;
-    if(gl_pix) 
-	gl_pix->resize(width(), height());
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
@@ -418,7 +410,7 @@ void QGLWidget::setContext( QGLContext *context,
 #endif
 	return;
     }
-    if ( !context->deviceIsPixmap() && context->device() != (gl_pix ? gl_pix : this) ) {
+    if ( !context->deviceIsPixmap() && context->device() != this ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
 #endif

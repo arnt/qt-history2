@@ -320,7 +320,6 @@ private:
     QGLOverlayWidget*	olw;
     friend class QGLOverlayWidget;
 #elif defined(Q_WS_MAC)
-    QWidget *gl_pix;
     QGLContext*		olcx;
 #endif
 

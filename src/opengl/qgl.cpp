@@ -1188,10 +1188,6 @@ QGLWidget::~QGLWidget()
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
-#if defined(Q_WS_MAC)
-    delete gl_pix;
-    gl_pix = NULL;
-#endif
 }
 
 
@@ -1288,12 +1284,6 @@ void QGLWidget::makeCurrent()
 void QGLWidget::swapBuffers()
 {
     glcx->swapBuffers();
-#ifdef Q_WS_MAC
-    if(gl_pix) {
-	QPixmap pm(grabFrameBuffer(FALSE));
-	bitBlt(this, 0, 0, &pm);
-    }
-#endif
 }
 
 
