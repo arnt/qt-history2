@@ -2244,21 +2244,23 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                // otherwise, it was just some delayed focus event to ignore
                 break;
             }
-            setActiveWindow(widget);
-            (static_cast<QETWidget *>(QApplicationPrivate::active_window))->repaintDecoration(desktop()->rect(), false);
+            if (activeWindow() != widget) {
+                setActiveWindow(widget);
+                static_cast<QETWidget *>(QApplicationPrivate::active_window)->repaintDecoration(desktop()->rect(), false);
 
-            QWidget *w = widget->focusWidget();
-            while (w && w->focusProxy())
-                w = w->focusProxy();
-            if (w && w->isFocusEnabled())
-                w->setFocus();
-            else
-                widget->focusNextPrevChild(true);
-            if (!QApplicationPrivate::focus_widget) {
-                if (widget->focusWidget())
-                    widget->focusWidget()->setFocus();
+                QWidget *w = widget->focusWidget();
+                while (w && w->focusProxy())
+                    w = w->focusProxy();
+                if (w && w->isFocusEnabled())
+                    w->setFocus();
                 else
-                    widget->topLevelWidget()->setFocus();
+                    widget->focusNextPrevChild(true);
+                if (!QApplicationPrivate::focus_widget) {
+                    if (widget->focusWidget())
+                        widget->focusWidget()->setFocus();
+                    else
+                        widget->topLevelWidget()->setFocus();
+                }
             }
         } else {        // lost focus
             if (widget == static_cast<QWidget *>(desktop()))
@@ -2873,15 +2875,18 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     //therefore, normal ways of painting do not work.
     // However, it does listen to paint events.
 
-    if (testWFlags(Qt::WType_TopLevel) && d->topData()->qwsManager) {
+    if (testWFlags(Qt::WType_TopLevel) && d->topData()->qwsManager
+        && !d->topData()->decor_allocated_region.isEmpty()) {
         r &= d->topData()->qwsManager->region();
-        r.translate(-data->crect.x(),-data->crect.y());
-        //### something's very wrong here. What are we supposed to do with r?
-        if (post) {
-            QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(clipRegion()));
-        } else {
-            QPaintEvent e(clipRegion());
-            QApplication::sendEvent(d->topData()->qwsManager, &e);
+        if (!r.isEmpty()) {
+            r.translate(-data->crect.x(),-data->crect.y());
+            if (post) {
+                //### why not use r here as well?
+                QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(clipRegion()));
+            } else {
+                QPaintEvent e(r&clipRegion());
+                QApplication::sendEvent(d->topData()->qwsManager, &e);
+            }
         }
     }
 #endif
