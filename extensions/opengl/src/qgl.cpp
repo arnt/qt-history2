@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#2 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#2 $");
 
 
 #if defined(_CC_MSVC_)
@@ -437,8 +437,9 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 
 /*!
   \class QGLContext qgl.h
-  The QGLContext class provides an OpenGL context.
+  \brief The QGLContext class provides an OpenGL context.
 
+  A context is...
 */
 
 
@@ -512,6 +513,11 @@ void QGLContext::setFormat( const QGLFormat &format )
     glFormat = format;
 }
 
+
+/*!
+  \fn bool QGLContext::isValid() const
+  Returns TRUE if the widget was able to satisfy the specified constraints 
+*/
 
 /*!
   Creates the GL context. Returns TRUE if it was successful in creating
@@ -667,6 +673,9 @@ void QGLContext::reset()
 
 static QGLContext *currentContext = 0;
 
+/*!
+  Makes this context the current context
+ */
 void QGLContext::makeCurrent()
 {
     if ( currentContext ) {
@@ -704,7 +713,6 @@ void QGLContext::doneCurrent()
     }
     currentContext = 0;
 }
-
 
 /*!
   Swaps the screen contents with an off-screen buffer. Works only if
@@ -928,6 +936,31 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
   Returns the widget's format.
   \sa setFormat()
 */
+
+/*!
+  \fn bool QGLWidget::doubleBuffer() const
+  Returns TRUE if double buffering is set for this widget.
+  \sa QGLFormat::doubleBuffer()
+*/
+
+
+/*!
+  \fn bool QGLWidget::isValid() const
+  Returns TRUE if the widget was able to satisfy the specified constraints 
+*/
+
+/*!
+  \fn void QGLWidget::makeCurrent()
+  Makes this widget the current widget for OpenGL operations.
+*/
+
+/*!
+  \fn void QGLWidget::swapBuffers()
+  Swaps the screen contents with an off-screen buffer. Works only if
+  the  context is in double buffer mode.
+  \sa QGLFormat::setDoubleBuffer()
+*/
+
 
 /*!
   Sets a new format for this widget. The widget becomes invalid if the
