@@ -1150,9 +1150,10 @@ void QMotifStyle::drawControl( ControlElement element,
     }
 }
 
-static int get_combo_extra_width( int h, int *return_awh=0 )
+static int get_combo_extra_width( int h, int w, int *return_awh=0 )
 {
-    int awh;
+    int awh,
+	tmp;
     if ( h < 8 ) {
         awh = 6;
     } else if ( h < 14 ) {
@@ -1160,9 +1161,16 @@ static int get_combo_extra_width( int h, int *return_awh=0 )
     } else {
         awh = h/2;
     }
+    tmp = (awh * 3) / 2;
+    if ( tmp > w / 2 ) {
+	awh = w / 2 - 3;
+	tmp = w / 2 + 3;
+    }
+
     if ( return_awh )
         *return_awh = awh;
-    return awh*3/2;
+
+    return tmp;
 }
 
 static void get_combo_parameters( const QRect &r,
@@ -1170,7 +1178,7 @@ static void get_combo_parameters( const QRect &r,
                                   int &ay, int &sh, int &dh,
                                   int &sy )
 {
-    ew = get_combo_extra_width( r.height(), &awh );
+    ew = get_combo_extra_width( r.height(), r.width(), &awh );
 
     sh = (awh+3)/4;
     if ( sh < 3 )
@@ -1689,7 +1697,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		int fw = pixelMetric( PM_DefaultFrameWidth, cb );
 		rect = cb->rect();
 		rect.addCoords( fw, fw, -fw, -fw );
-		int ew = get_combo_extra_width( rect.height() );
+		int ew = get_combo_extra_width( rect.height(), rect.width() );
 
  		rect.addCoords( 1, 1, -1-ew, -1 );
 		break;
