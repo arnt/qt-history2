@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Creates a new Qt source distribution
 #
@@ -19,7 +19,7 @@
 # Leave -e set - it ensures we don't miss any vital error messages.
 set -e
 # Use this if something mysterious exits
-#set -x
+set -x
 
 release=HEAD
 
@@ -70,7 +70,8 @@ if [ "${disttype}" = "free" -a "${platform}" != "x11" ]; then
   exit
 fi
 
-DISTDIR=`p4 fstat //depot/qt/$VERSION/doc.conf | awk '/ clientFile / { gsub("doc.conf/",""); print $3 }'`
+DISTDIR=`p4 fstat //depot/qt/$VERSION/doc.conf |
+    awk '/ clientFile / { gsub("/doc.conf",""); print $3 }'`
 if [ -z "$DISTDIR" ]
 then
     T=`p4 fstat //depot/qt/$VERSION/doc.conf | awk '/ depotFile / { print $3 }'`
@@ -88,26 +89,36 @@ then
     exit 1
 fi
 
+TMP=/tmp/t$$
+
 echo "Ensuring ${DISTDIR} is up-to-date..." >&2
 p4 sync $DISTDIR/...
-T=`p4 opened /usr/local/qt-release/2.1/... 2>&1 | grep -v 'not opened on this client'`
-if [ -n "$T" ]
+set +e
+p4 opened $DISTDIR/... 2>&1 |
+    grep -v 'mkdist.' |
+    grep -v 'not opened on this client' >$TMP
+set -e
+if [ -s $TMP ]
 then
     echo "Some files are still opened.  Fix these:" >&2
-    echo $T >&2
+    cat $TMP >&2
+    rm $TMP
     exit 1
 fi
+rm $TMP
 
 echo "Checking that ${DISTDIR} is clean..." >&2
 
-TMP=/tmp/t$$
-p4 files $DISTDIR/... | perl -p -e "s{^//depot/qt/$VERSION}{$DISTDIR}" >$TMP
-BAD=`find $DISTDIR -type f | xargs fgrep -f $TMP`
+set +e
+p4 files $DISTDIR/... | perl -p -e "s{^//depot/qt/$VERSION(.*)#.*}{$DISTDIR\$1}" >$TMP
+BAD=`find $DISTDIR -type f | fgrep -v -f $TMP`
+set -e
+cp $TMP /tmp/t
 rm $TMP
 if [ -n "$BAD" ]
 then
     echo "Not clean!  Remove these files...";
-    echo $BAD
+    echo "$BAD"
     exit 1
 fi
 
@@ -138,6 +149,8 @@ cd ${DISTDIR}
 
 
 # At this point, $DISTDIR is a clean checkout
+
+exit 1 # Use the view to do the stuff below
 
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
