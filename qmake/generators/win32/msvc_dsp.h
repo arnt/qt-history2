@@ -29,6 +29,7 @@ class DspMakefileGenerator : public Win32MakefileGenerator
     bool writeBuildstepForFile(QTextStream &t, const QString &file, const QString &listName);
     static bool writeDspConfig(QTextStream &t, DspMakefileGenerator *config);
     static QString writeBuildstepForFileForConfig(const QString &file, const QString &listName, DspMakefileGenerator *config);
+    QString configName(DspMakefileGenerator * config);
 
     bool writeMakefile(QTextStream &);
     bool writeProjectMakefile();
@@ -74,8 +75,6 @@ protected:
 
 
 
-    QString name;
-    
     // Holds all configurations for glue (merged) project
     QList<DspMakefileGenerator*> mergedProjects;
 };

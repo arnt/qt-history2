@@ -63,6 +63,13 @@ QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, 
     return ret;
 }
 
+
+// if config is part of a multibuild thenthe gule (this) has the correct MSVCDSP_PROJECT
+QString DspMakefileGenerator::configName(DspMakefileGenerator * config)
+{
+    return var("MSVCDSP_PROJECT") + config->var("MSVCDSP_CONFIG_NAME");
+}
+
 bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
 {
     DspMakefileGenerator * config = this;
@@ -75,7 +82,7 @@ bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
     t << endl;
     t << "# TARGTYPE \"Win32 (x86) " << var("MSVCDSP_TARGETTYPE") << "\" " << var("MSVCDSP_DSPTYPE") << endl;
     t << endl;
-    t << "CFG=" << config->name << endl;
+    t << "CFG=" << configName(config) << endl;
     t << "!MESSAGE This is not a valid makefile. To build this project using NMAKE," << endl;
     t << "!MESSAGE use the Export Makefile command and run" << endl;
     t << "!MESSAGE " << endl;
@@ -84,17 +91,17 @@ bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
     t << "!MESSAGE You can specify a configuration when running NMAKE" << endl;
     t << "!MESSAGE by defining the macro CFG on the command line. For example:" << endl;
     t << "!MESSAGE " << endl;
-    t << "!MESSAGE NMAKE /f \"" << var("TARGET") << ".mak\" CFG=\"" << config->name << "\"" << endl;
+    t << "!MESSAGE NMAKE /f \"" << var("TARGET") << ".mak\" CFG=\"" << configName(config) << "\"" << endl;
     t << "!MESSAGE " << endl;
     t << "!MESSAGE Possible choices for configuration are:" << endl;
     t << "!MESSAGE " << endl;
     if (mergedProjects.count()) {
         for (int i = 0; i < mergedProjects.count(); ++i) {
             DspMakefileGenerator * config = mergedProjects.at(i);
-            t << "!MESSAGE \"" << config->name << "\" (based on \"Win32 (x86) " << config->var("MSVCDSP_TARGETTYPE") << "\")" << endl;
+            t << "!MESSAGE \"" << configName(config) << "\" (based on \"Win32 (x86) " << config->var("MSVCDSP_TARGETTYPE") << "\")" << endl;
         }
     } else {
-        t << "!MESSAGE \"" << config->name << "\" (based on \"Win32 (x86) " << config->var("MSVCDSP_TARGETTYPE") << "\")" << endl;
+        t << "!MESSAGE \"" << configName(config) << "\" (based on \"Win32 (x86) " << config->var("MSVCDSP_TARGETTYPE") << "\")" << endl;
     }
     t << "!MESSAGE " << endl;
     t << endl;
@@ -120,7 +127,7 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
     t << endl;
     t << "# Begin Target" << endl;
     t << endl;
-    t << "# Name \"" << name << "\"" << endl;
+    t << "# Name \"" << configName(this) << "\"" << endl;
     t << endl;
 
     if (project->isActiveConfig("flat")) {
@@ -352,7 +359,7 @@ DspMakefileGenerator::init()
     usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
     if (usePCH) {
         // Created files
-        QString origTarget = project->first("QMAKE_ORIG_TARGET");
+        QString origTarget = project->first("TARGET");
         origTarget.replace(QRegExp("-"), "_");
         precompObj = "\"$(IntDir)\\" + origTarget + Option::obj_ext + "\"";
         precompPch = "\"$(IntDir)\\" + origTarget + ".pch\"";
@@ -360,7 +367,7 @@ DspMakefileGenerator::init()
         if (!project->variables()["HEADERS"].contains(precompH))
             project->variables()["HEADERS"] += precompH;
         // Add precompile compiler options
-        project->variables()["PRECOMPILED_FLAGS"]  = QStringList("/Fp\"" + precompPch + "\" /Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ");
+        project->variables()["PRECOMPILED_FLAGS"]  = QStringList("/Fp" + precompPch + " /Yu\"" + namePCH + "\" /FI\"" + namePCH + "\" ");
         // Return to variable pool
         project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
         project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
@@ -374,7 +381,7 @@ DspMakefileGenerator::init()
     else
         buildName = "Release";
 
-    name = var("MSVCDSP_PROJECT").remove('d') + " - " + platform + " " + buildName; ///## now i remove the d suffix stuff
+    project->variables()["MSVCDSP_CONFIG_NAME"] = QStringList(" - " + platform + " " + buildName);
 }
 
 void DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
@@ -515,7 +522,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
                 t << "!IF";
             else
                 t << "!ELSEIF";
-            t << "  \"$(CFG)\" == \"" << config->name << "\"" << endl;
+            t << "  \"$(CFG)\" == \"" << configName(config) << "\"" << endl;
             t << endl;
             writeDspConfig(t, config);
         }
@@ -525,7 +532,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
         t << "# Begin Target" << endl;
         t << endl;
         for (i = 0; i < mergedProjects.count(); ++i)
-            t << "# Name \"" << mergedProjects.at(i)->name << "\"" << endl;
+            t << "# Name \"" << configName(mergedProjects.at(i)) << "\"" << endl;
         t << endl;
 
         if (project->isActiveConfig("flat")) {
@@ -664,7 +671,7 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
                 t << "!IF";
             else 
                 t << "!ELSEIF";
-            t << "\"$(CFG)\" == \"" << mergedProjects.at(i)->name << "\"" << endl;
+            t << "\"$(CFG)\" == \"" << configName(mergedProjects.at(i)) << "\"" << endl;
             t << endl;
             t << specialBuilds.at(i);
             t << endl;
