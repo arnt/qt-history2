@@ -61,7 +61,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
         QFile mkwrapf(mkwrap);
         if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());
-            QTextStream mkwrapt(&mkwrapf);
+            QMakeOutTextStream mkwrapt(&mkwrapf);
             UnixMakefileGenerator::writeSubDirs(mkwrapt);
         }
     }
@@ -389,7 +389,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QFile mkf(mkfile);
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
-            QTextStream mkt(&mkf);
+            QMakeOutTextStream mkt(&mkf);
             writeHeader(mkt);
             mkt << "QMAKE    = "        <<
                 (project->isEmpty("QMAKE_QMAKE") ? QString("$(QTDIR)/bin/qmake") :
@@ -574,7 +574,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             did_preprocess = true;
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
-            QTextStream mkt(&mkf);
+            QMakeOutTextStream mkt(&mkf);
             writeHeader(mkt);
             mkt << "MOC       = " << Option::fixPathToTargetOS(var("QMAKE_MOC")) << endl;
             mkt << "UIC       = " << Option::fixPathToTargetOS(var("QMAKE_UIC")) << endl;
@@ -800,7 +800,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QFile mkf(mkfile);
         if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
-            QTextStream mkt(&mkf);
+            QMakeOutTextStream mkt(&mkf);
             writeHeader(mkt);
             mkt << "SUBLIBS= ";
             tmp = project->variables()["SUBLIBS"];
@@ -1093,7 +1093,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         if(exists(plist)) {
             QFile plist_in_file(plist);
             if(plist_in_file.open(QIODevice::ReadOnly)) {
-                QTextStream plist_in(&plist_in_file);
+                QMakeOutTextStream plist_in(&plist_in_file);
                 QString plist_in_text = plist_in.read();
                 plist_in_text = plist_in_text.replace("@ICON@",
                   (project->isEmpty("ICON") ? QString("") : project->first("ICON").section(Option::dir_sep, -1)));
@@ -1102,7 +1102,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)));
                 QFile plist_out_file("Info.plist");
                 if(plist_out_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                    QTextStream plist_out(&plist_out_file);
+                    QMakeOutTextStream plist_out(&plist_out_file);
                     plist_out << plist_in_text;
                     t << "\t\t\t\t" << "INFOPLIST_FILE = \"Info.plist\";" << "\n";
                 }
@@ -1196,7 +1196,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 QFile plist("Info.plist");
                 if (plist.open(QIODevice::ReadOnly)) {
                     read_plist = true;
-                    QTextStream stream(&plist);
+                    QMakeOutTextStream stream(&plist);
                     while(!stream.atEnd())
                         t << stream.readLine().replace('"', "\\\"") << endl;
                 }
@@ -1309,7 +1309,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QFile mkwrapf(mkwrap);
         if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.toLatin1().constData());
-            QTextStream mkwrapt(&mkwrapf);
+            QMakeOutTextStream mkwrapt(&mkwrapf);
             writeHeader(mkwrapt);
             const char cleans[] = "preprocess_clean ";
             mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
@@ -1424,7 +1424,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
         QFile version_file(version_plist);
         if (version_file.open(QIODevice::ReadOnly)) {
             debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.toLatin1().constData());
-            QTextStream plist(&version_file);
+            QMakeOutTextStream plist(&version_file);
 
             bool in_dict = false;
             QString current_key;

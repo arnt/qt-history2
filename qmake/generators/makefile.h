@@ -27,6 +27,13 @@
 #define QT_POPEN popen
 #endif
 
+class QMakeOutTextStream : public QTextStream
+{
+public:
+    QMakeOutTextStream(QFile *);
+    ~QMakeOutTextStream();
+};
+
 class MakefileGenerator : protected QMakeSourceFileInfo
 {
     QString spec;
