@@ -27,7 +27,6 @@ public:
     void resizeEvent(QResizeEvent* e )
     {
 	QXtWidget::resizeEvent( e );
-	qDebug("resize event %d %d ", width(), height() );
 	mle->resize(width(),height());
     }
 };

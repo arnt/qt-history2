@@ -51,11 +51,9 @@ class QXtWidget : public QWidget {
 		    Widget parent, QWidget* qparent,
 		    ArgList args, Cardinal num_args,
 		    bool managed);
-    friend void qwidget_realize(
-	Widget                widget,
-	XtValueMask*          mask,
-	XSetWindowAttributes* attributes
-    );
+    friend void qwidget_realize( Widget widget, XtValueMask* mask,
+				 XSetWindowAttributes* attributes );
+    
 public:
     QXtWidget(const char* name, Widget parent, bool managed=FALSE);
     QXtWidget(const char* name, WidgetClass widget_class,
@@ -65,14 +63,12 @@ public:
 
     Widget xtWidget() const { return xtw; }
     bool isActiveWindow() const;
+    void setActiveWindow();
 
 protected:
-    void enterEvent(QEvent*);
-    void leaveEvent(QEvent*);
-    void focusInEvent( QFocusEvent * );
-    void focusOutEvent( QFocusEvent * );
     void moveEvent( QMoveEvent* );
     void resizeEvent( QResizeEvent* );
+    bool x11Event( XEvent * );
 };
 
 #endif

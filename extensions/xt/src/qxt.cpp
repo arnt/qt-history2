@@ -487,17 +487,18 @@ QXtWidget::~QXtWidget()
   Reimplemented to produce the Xt effect of getting focus when the
   mouse enters the widget. <em>This may be changed.</em>
 */
-void QXtWidget::enterEvent(QEvent* ev)
+bool QXtWidget::x11Event( XEvent * e )
 {
-    QWidget::enterEvent(ev);
-    if ( isFocusEnabled() )
-	setFocus();
-    else
-	focusNextPrevChild( TRUE );
-    if ( focusWidget() )
-	focusWidget()->setFocus();
-    else
-	setFocus();
+    if ( e->type == EnterNotify ) {
+	if  ( xtparent )
+	    setActiveWindow();
+    }
+    return QWidget::x11Event( e );
+}
+
+
+void QXtWidget::setActiveWindow()
+{
     if  ( xtparent ) {
 	if ( !QWidget::isActiveWindow() && isActiveWindow() ) {
 	    XFocusChangeEvent e;
@@ -507,6 +508,8 @@ void QXtWidget::enterEvent(QEvent* ev)
 	    e.detail = NotifyPointerRoot;
 	    XSendEvent( qt_xdisplay(), e.window, TRUE, NoEventMask, (XEvent*)&e );
 	}
+    } else {
+	QWidget::setActiveWindow();
     }
 }
 
@@ -539,25 +542,6 @@ bool QXtWidget::isActiveWindow() const
 	}
 	return FALSE;
     }
-}
-
-/*!\reimp
-*/
-void QXtWidget::leaveEvent( QEvent* ev )
-{
-    QWidget::leaveEvent(ev);
-}
-
-/*!\reimp
- */
-void QXtWidget::focusInEvent( QFocusEvent * )
-{
-}
-
-/*!\reimp
- */
-void QXtWidget::focusOutEvent( QFocusEvent * )
-{
 }
 
 /*!\reimp
