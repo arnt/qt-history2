@@ -247,7 +247,7 @@ CFG_EXCEPTION_SUPPORT=unspecified
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
 CFG_EMBEDDED=no
-CFG_DEBUG=no
+CFG_DEBUG=auto
 CFG_SHARED=yes
 CFG_GIF=no
 CFG_SM=auto
@@ -1140,6 +1140,12 @@ if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
     echo "Performing shadow build..."
 fi
 
+#detect build style
+if [ "$CFG_DEBUG" = "auto" ]; then
+    CFG_DEBUG=yes
+    QMAKE_CONFIG="$QMAKE_CONFIG build_all"
+fi
+
 #detect how mng should be built
 if [ "$CFG_MNG" = "auto" ]; then
     if [ "$PLATFORM_QWS" = "yes" ]; then
@@ -1275,7 +1281,6 @@ fi
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC3=$outpath/bin/uic3\""
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_RCC=$outpath/bin/rcc\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
 # hacky src line
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
@@ -2969,7 +2974,9 @@ fi
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_INCDIR_QT=$outpath/include\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_RTLDIR_QT=$QT_INSTALL_LIBS\""
-QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
+QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\""
+QMAKE_VARS="$QMAKE_VARS \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
+QMAKE_VARS="$QMAKE_VARS \"RCC_DIR=.rcc/$QMAKE_OUTDIR\""
 if [ "$CFG_LARGEFILE" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG largefile"
 fi
@@ -3643,6 +3650,7 @@ fi
 
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
+echo "Debug................ $CFG_DEBUG"
 echo "Qt-3 compatibility... $CFG_COMPAT"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
