@@ -698,13 +698,6 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 
 void QMultiLineEdit::leaveEvent( QEvent * )
 {
-#if defined(_WS_X11_)
-    if ( style() == WindowsStyle ) {
-	// X11 users are very accustomed to "auto-copy"
-	if ( echoMode() == Normal )
-	    copy();
-    }
-#endif
 }
 
 
@@ -714,14 +707,6 @@ void QMultiLineEdit::leaveEvent( QEvent * )
 
 void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
-#if defined(_WS_X11_)
-    if ( style() == WindowsStyle ) {
-	// X11 users are very accustomed to "auto-copy"
-	if ( echoMode() == Normal )
-	    copy();
-    }
-#endif
-
     stopAutoScroll();
     killTimer( blinkTimer );
     blinkTimer = 0;
@@ -1967,7 +1952,7 @@ void QMultiLineEdit::pixelPosToCursorPos(QPoint p, int* x, int* y) const
     QFontMetrics fm( font() );
     *x = xPosToCursorPos( stringShown( *y ), fm,
 			  p.x() - d->lr_marg + xOffset(),
-			  cellWidth() - 2 * d->lr_marg - d->marg_extra, 
+			  cellWidth() - 2 * d->lr_marg - d->marg_extra,
 			  d->align );
 }
 
@@ -2270,7 +2255,7 @@ int QMultiLineEdit::mapFromView( int xPos, int line )
     QFontMetrics fm( font() );
     int index = xPosToCursorPos( s, fm,
 				 xPos - d->lr_marg,
-				 cellWidth() - 2 * d->lr_marg - d->marg_extra, 
+				 cellWidth() - 2 * d->lr_marg - d->marg_extra,
 				 d->align );
     return index;
 }
