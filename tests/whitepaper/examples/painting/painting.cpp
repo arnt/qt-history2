@@ -25,10 +25,10 @@ void BarGraph::paintEvent( QPaintEvent * )
 {
     QPainter painter( this );
 
-    draw_bar( &painter, 10, 39, Qt::DiagCrossPattern );
-    draw_bar( &painter, 40, 31, Qt::BDiagPattern );
-    draw_bar( &painter, 70, 44, Qt::FDiagPattern );
-    draw_bar( &painter, 100, 68, Qt::SolidPattern );
+    draw_bar( &painter, 0, 39, Qt::DiagCrossPattern );
+    draw_bar( &painter, 1, 31, Qt::BDiagPattern );
+    draw_bar( &painter, 2, 44, Qt::FDiagPattern );
+    draw_bar( &painter, 3, 68, Qt::SolidPattern );
 
     painter.setPen( black );
     painter.drawLine( 0, 0, 0, height() - 1 );
@@ -38,12 +38,13 @@ void BarGraph::paintEvent( QPaintEvent * )
     painter.drawText( rect(), AlignHCenter | AlignTop, "Sales" );
 }
 
-void BarGraph::draw_bar( QPainter *painter, int x, int barHeight,
+void BarGraph::draw_bar( QPainter *painter, int month, int barHeight,
 			 BrushStyle pattern )
 {
     painter->setPen( blue );
     painter->setBrush( QBrush(darkGreen, pattern) );
-    painter->drawRect( x, height() - barHeight, 20, barHeight );
+    painter->drawRect( 10 + 30 * month, height() - barHeight, 20,
+		       barHeight );
 }
 // endquote
 
