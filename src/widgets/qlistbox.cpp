@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#302 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#303 $
 **
 ** Implementation of QListBox widget class
 **
@@ -510,8 +510,9 @@ int QListBoxPixmap::width( const QListBox* ) const
 
   Each item in a QListBox contains a QListBoxItem.  One of the items
   can be the current item.  The highlighted() signal is emitted when
-  the user highlights a new current item; selected() is emitted when
-  the user double-clicks on an item or presses return when an item is
+  a new item gets highlighted, e.g. because the user clicks on it or
+  QListBox::setCurrentItem() is called. The selected() signal is emitted
+  when the user double-clicks on an item or presses return when an item is
   highlighted.
 
   If the user does not select anything, no signals are emitted and
