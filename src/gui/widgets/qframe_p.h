@@ -3,7 +3,7 @@
 
 #include <private/qwidget_p.h>
 
-class QFramePrivate : public QWidgetPrivate
+class Q_GUI_EXPORT QFramePrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QFrame)
 public:
