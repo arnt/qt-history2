@@ -406,8 +406,6 @@ void Project::parse()
 	templ = parse_part( part );
     }
 
-    qDebug( templ );
-
     readPlatformSettings( contents, "CONFIG", cfg );
     readPlatformSettings( contents, "LIBS", lbs );
     readPlatformSettings( contents, "INCLUDEPATH", inclPath );
