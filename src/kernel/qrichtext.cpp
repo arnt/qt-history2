@@ -3032,8 +3032,7 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	p->setBrushOrigin( -int( p->translationX() ),
 			   -int( p->translationY() ) );
 
-//xxx	p->fillRect( rect, *paper );
-	p->fillRect( rect, QColor( 255, 0, 0 ) );
+	p->fillRect( rect, *paper );
     }
 
     if ( formatCollection()->defaultFormat()->color() != cg.text() )
@@ -4181,8 +4180,8 @@ void QTextParagraph::format( int start, bool doMove )
     QTextStringChar *c = 0;
     if ( !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 	// do not do this on mac, as the paragraph
-	// with has to be the full document width on mac as the selections
-	// always extend completely to the right. This is a bit unefficient,
+	// width has to be the full document width on mac as the selections
+	// always extend completely to the right. This is a bit inefficient,
 	// as this results in a bigger double buffer than needed but ok for
 	// now.
 	if ( lineStarts.count() == 1 ) {
