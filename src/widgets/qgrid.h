@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#10 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -17,7 +17,7 @@
 
 class QGridLayout;
 
-class QGrid : public QWidget
+class Q_EXPORT QGrid : public QWidget
 {
     Q_OBJECT
 public:
