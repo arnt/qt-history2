@@ -765,8 +765,7 @@ inline bool QWidgetMapper::remove( WId id )
     Example:
     \code
     QLabel *splashScreen = new QLabel( 0, "mySplashScreen",
-				WStyle_Customize | WStyle_NoBorder |
-				WStyle_Tool );
+				WStyle_Customize | WStyle_Splash );
     \endcode
 */
 
@@ -797,12 +796,12 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #ifndef QT_NO_PALETTE
     if(isTopLevel() || !parentWidget() || !parentWidget()->ownPalette())
 	pal = QApplication::palette(this);
-    else 
+    else
 	pal = parentWidget()->palette();
 #endif
     if(isTopLevel() || !parentWidget() || !parentWidget()->ownPalette())
 	fnt = QApplication::font(this);
-    else 
+    else
 	fnt = parentWidget()->font();
 #if defined(Q_WS_X11)
     fnt.x11SetScreen( x11Screen() );
