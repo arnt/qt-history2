@@ -238,11 +238,11 @@ public:
     QGLWidget(const QGLFormat& format, QWidget* parent=0, const QGLWidget* shareWidget = 0,
               Qt::WFlags f=0);
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QGLWidget(QWidget* parent=0, const char* name=0,
+    QT_COMPAT_CONSTRUCTOR QGLWidget(QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QGLWidget(QGLContext *context, QWidget* parent=0, const char* name=0,
+    QT_COMPAT_CONSTRUCTOR QGLWidget(QGLContext *context, QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QT_COMPAT_CONSTRUCTOR QGLWidget(const QGLFormat& format, QWidget* parent=0, const char* name=0,
+    QT_COMPAT_CONSTRUCTOR QGLWidget(const QGLFormat& format, QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
 #endif
     ~QGLWidget();
