@@ -65,13 +65,13 @@ QTOBJS= \
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
-	-cp qmake.exe ..\bin\qmake.exe
+	-copy qmake.exe ..\bin\qmake.exe
 
 clean::
-	-rm $(OBJS) $(QTOBJS) $(ADDCLEAN)
+	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
 
 distclean:: clean
-	-rm qmake
+	-del qmake
 
 .c.o:
 	$(CXX) $(CFLAGS) $<
