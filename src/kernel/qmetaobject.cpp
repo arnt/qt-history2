@@ -289,7 +289,7 @@ int QMetaObject::numSignals( bool super ) const	// number of signals
  */
 QMetaData *QMetaObject::slot( int index, bool super ) const
 {
-    int idx = index - slotOffset();
+    int idx = index - ( super ? slotOffset() : 0 );
     if ( slotDict && idx >= 0 && idx < (int) slotDict->count() )
 	return slotData + idx;
     if ( !super || !superclass )
@@ -305,7 +305,7 @@ QMetaData *QMetaObject::slot( int index, bool super ) const
  */
 QMetaData *QMetaObject::signal( int index, bool super ) const
 {
-    int idx = index - signalOffset();
+    int idx = index - ( super ? signalOffset() : 0 );
     if ( signalDict && idx >= 0 && idx < (int) signalDict->count() )
 	return signalData + idx;
     if ( !super || !superclass )
