@@ -691,7 +691,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_PushButtonLabel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             QRect ir = btn->rect;
-            uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextHideMnemonic;
+            uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic;
             if (!btn->icon.isNull()) {
                 QIconSet::Mode mode = btn->state & Style_Enabled ? QIconSet::Normal
                                                                  : QIconSet::Disabled;
@@ -717,7 +717,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             } else {
                 tf |= Qt::AlignHCenter;
             }
-            drawItem(p, ir, tf, btn->palette, btn->state & Style_Enabled, QPixmap(), btn->text, -1,
+            drawItem(p, ir, tf, btn->palette, (btn->state & Style_Enabled), QPixmap(), btn->text, -1,
                      &(btn->palette.buttonText().color()));
         }
         break;
