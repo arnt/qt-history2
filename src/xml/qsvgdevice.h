@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#1 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#2 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -49,6 +49,7 @@
 #ifndef QT_H
 #include "qpaintdevice.h"
 #include "qrect.h"
+#include "qdom.h"
 #endif // QT_H
 
 #ifndef QT_NO_SVG
@@ -61,6 +62,8 @@ public:
     QSVGDevice();
     ~QSVGDevice();
 
+    bool load( const QString& );
+
     QRect boundingRect() const;
 
 protected:
@@ -68,7 +71,8 @@ protected:
     virtual int	 metric( int ) const;
 
 private:
-    QRect brect;
+    QRect brect;	    		// bounding rectangle
+    QDomDocument doc;			// document tree
 
     QSVGDevicePrivate *d;
 };

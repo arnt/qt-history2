@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#1 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#2 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -40,6 +40,7 @@
 #ifndef QT_NO_SVG
 
 #include "qpaintdevicemetrics.h"
+#include "qfile.h"
 
 struct QSVGDevicePrivate {
 };
@@ -71,6 +72,21 @@ QSVGDevice::QSVGDevice()
 QSVGDevice::~QSVGDevice()
 {
     delete d;
+}
+
+/*!
+  Loads and parses \a file into the device. Returns TRUE on success,
+  FALSE if errors were encountered.
+ */
+
+bool QSVGDevice::load( const QString &file )
+{
+    QFile f( file );
+    if ( !f.open( IO_ReadOnly ) ) {
+	qWarning( "QSVGDevice::load: Could not open input file" );
+	return FALSE;
+    }
+    return doc.setContent( &f );
 }
 
 /*!  \fn QRect QSVGDevice::boundingRect() const
