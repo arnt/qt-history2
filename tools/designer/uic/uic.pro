@@ -7,7 +7,7 @@ HEADERS	= uic.h \
 		  ../shared/parser.h \
 		  ../interfaces/widgetinterface.h
 
-SOURCES	= uic.cpp  form.cpp object.cpp \
+SOURCES	= uic.cpp form.cpp object.cpp \
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
 		  ../shared/parser.cpp \
@@ -15,9 +15,8 @@ SOURCES	= uic.cpp  form.cpp object.cpp \
 
 TARGET		= uic
 INCLUDEPATH	+= ../shared ../util ../../../src/3rdparty/zlib/
-!zlib:unix:LIBS      += -lz
-
-unix:LIBS	+= -lqutil -L../lib
+!zlib:unix:LIBS	+= -lz
+unix:LIBS	+= -lqutil
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES 	+= UIC
 DESTDIR		= ../../../bin
