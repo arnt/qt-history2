@@ -224,12 +224,14 @@ public:
 
     virtual int rowCount() const = 0;
     int columnCount() const { return 1; }
-
+    
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex(),
+                      QModelIndex::Type type = QModelIndex::View) const;
+    
 protected:
     QAbstractListModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
 private:
-    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;

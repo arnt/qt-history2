@@ -1071,7 +1071,7 @@ void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &ind
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_NO_STREAMING_DEBUG
-    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << ",";
+    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ",";
     switch (idx.type()) {
     case QModelIndex::View:
         dbg.nospace() << "View";
