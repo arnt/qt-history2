@@ -291,15 +291,15 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 	}
     }
 
-    if ( !r ) {
-	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first(); f; f = defaultFactory()->d->factories.next() ) {
-	    if ( f == this )
-		continue;
-	    r = (QMimeSource*)f->data( abs_name );
-	    if ( r )
-		return r;
-	}
-    }
+    // we didn't find the mime-source, so ask the default factory for
+    // the mime-source (this one will iterate over all installed ones)
+    //
+    // this looks dangerous, as this dataInternal() function will be
+    // called again when the default factory loops over all installed
+    // factories (including this), but the static bool looping in
+    // data() avoids endless recursions
+    if ( !r && this != defaultFactory() )
+	r = (QMimeSource*)defaultFactory()->data( abs_name );
 
     return r;
 }
@@ -371,15 +371,34 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 	}
     }
 
-    if ( !r ) {
-	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first();
-	      f; f = defaultFactory()->d->factories.next() ) {
-	    if ( f == this )
-		continue;
-	    r = (QMimeSource*)f->data( abs_name );
-	    if ( r )
-		return r;
+    static bool looping = FALSE;
+    if ( !r && this == defaultFactory() ) {
+	// we found no mime-source and we are the default factory, so
+	// we know all the other installed mime-source factories, so
+	// ask them
+	if ( !looping ) {
+	    // to avoid endless recustions, don't enter the loop below
+	    // if data() got called from within the loop below
+	    looping = TRUE;
+	    QPtrListIterator<QMimeSourceFactory> it( d->factories );
+	    QMimeSourceFactory *f;
+	    while ( ( f = it.current() ) ) {
+		++it;
+		if ( f == this )
+		    continue;
+		r = (QMimeSource*)f->data( abs_name );
+		if ( r ) {
+		    looping = FALSE;
+		    return r;
+		}
+	    }
+	    looping = FALSE;
 	}
+    } else if ( !r ) {
+	// we are not the default mime-source factory, so ask the
+	// default one for the mime-source, as this one will loop over
+	// all installed mime-source factories and ask these
+	r = (QMimeSource*)defaultFactory()->data( abs_name );
     }
 
 
