@@ -40,6 +40,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qcleanuphandler.h"
+#include "qmap.h"
 #include "qptrdict.h"
 
 static QGLFormat* qgl_default_format = 0;
