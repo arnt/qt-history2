@@ -2307,7 +2307,7 @@ void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
     ulong len = bazip.size();
     ts << makeIndent( indent ) << "<data format=\"" + format + "\" length=\"" << ba.size() << "\">";
     static const char hexchars[] = "0123456789abcdef";
-    for (i; i < (int)len; ++i ) {
+    for (; i < (int)len; ++i ) {
 	uchar s = (uchar) bazip[i];
 	ts << hexchars[s >> 4];
 	ts << hexchars[s & 0x0f];
