@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#219 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#218 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#219 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -866,11 +866,12 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
 
 
 /*!
-  Returns a pointer to the widget at global screen position \e (x,y), or a
+  Returns a pointer to the widget at global screen position \a (x,y), or a
   null pointer if there is no Qt widget there.
 
-  If \e child is FALSE and there is a child widget at position \e (x,y),
-  the top-level widget containing it will be returned.
+  If \a child is FALSE and there is a child widget at position \a (x,y),
+  the top-level widget containing it is returned.  If \a child is TRUE
+  the child widget at position \a (x,y) is returned.
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
@@ -883,20 +884,28 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	return 0;
     if ( !target || target == appRootWin )
 	return 0;
+    QWidget *w, *c;
+    w = QWidget::find( target );
+    if ( child && w ) {
+	c = findChildWidget( w, w->mapFromParent(QPoint(x,y)) );
+	if ( c )
+	    return c;
+    }
     static Atom WM_STATE = 0;
     if ( WM_STATE == 0 )
 	WM_STATE = XInternAtom( appDpy, "WM_STATE", TRUE );
     if ( !WM_STATE )
-	return 0;
+	return w;
     target = findClientWindow( target, WM_STATE, TRUE );
-    QWidget *w = QWidget::find( target );
-    if ( !w )
-	return 0;
+    c = QWidget::find( target );
+    if ( !c )
+	return w;
     if ( child ) {
-	QWidget *c = findChildWidget( w, w->mapFromParent(QPoint(x,y)) );
-	w = c ? c : w;
+	c = findChildWidget( c, c->mapFromParent(QPoint(x,y)) );
+	if ( !c )
+	    c = w;
     }
-    return w;
+    return c;
 }
 
 /*!
