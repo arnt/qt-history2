@@ -112,7 +112,7 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
   other cases, an "expression" contains conditionals, and the
   evaluation of such an "expression" leaves nothing on the stack but
   rather jumps to a certain instruction if true and to another
-  \instruction if false.
+  instruction if false.
 */
 enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
        Node_Divide, Node_Eq, Node_Floor, Node_GreaterEq, Node_In,
@@ -141,9 +141,9 @@ static QVariant resolvedField( int tableId, const QString& fieldName )
     return f;
 }
 
-static bool isIdent( QChar ch )
+static bool isIdent( int ch )
 {
-    return ch.isLetterOrNumber() || ch == QChar( '_' );
+    return isalnum( ch ) || ch == '_';
 }
 
 /*
@@ -875,7 +875,10 @@ void Parser::computeUsedFields( const QVariant& expr,
 	    if ( (*usedFields)[id].contains(field) == 0 )
 		(*usedFields)[id].append( field );
 	} else {
-	    ++v;
+	    /*
+	      Don't do ++v here, as the top-level list might be a
+	      forest, not a tree.
+	    */
 	    while ( v != expr.listEnd() ) {
 		computeUsedFields( *v, usedFields );
 		++v;
