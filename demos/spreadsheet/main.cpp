@@ -143,11 +143,8 @@ QPoint SpreadSheetItem::convertCoords(const QString coords) const
     return QPoint(c, --r);
 }
 
-//   Here we subclass QTableWidget for two reasons:
-//   1. We want to change the selection behavior to only select with the left mouse button
+//   Here we subclass QTableWidget to change the selection behavior to only select with the left mouse button
 //   (so we keep the selection when opening the context menu on an item).
-//   2. We want the view to use our own SpreadSheetItem when creating new items internally
-//   (when the user starts editing in an empty cell).
 
 class SpreadSheetTable : public QTableWidget
 {
