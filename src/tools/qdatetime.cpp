@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#58 $
 **
 ** Implementation of date and time classes
 **
@@ -33,7 +33,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#58 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -346,6 +346,9 @@ QDate QDate::currentDate()
 
 /*!
   Returns TRUE if the specified date is valid.
+
+  Note that years 00-99 are treated as 1900-1999.
+
   \sa isNull()
 */
 
