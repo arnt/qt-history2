@@ -298,7 +298,7 @@ QString QLibrary::library() const
     if ( filename.findRev( '.' ) <= filename.findRev( '/' ) )
 	filename += ".dll";
 #else
-#ifdef Q_OS_MACX
+#ifdef Q_OS_DARWIN
     QString filter = ".dylib";
 #elif defined(Q_OS_HPUX)
     QString filter = ".sl";

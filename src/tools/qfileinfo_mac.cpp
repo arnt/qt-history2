@@ -19,7 +19,7 @@
 #include "qdir.h"
 #include "qt_mac.h"
 
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
 #include <pwd.h>
 #include <grp.h>
 #endif
@@ -65,7 +65,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
     char s[PATH_MAX+1];
     if ( !isSymLink() )
 	return QString();
@@ -82,7 +82,7 @@ static const uint nobodyID = (uint) -2;
 
 QString QFileInfo::owner() const
 {
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
     passwd *pw = getpwuid( ownerId() );
     if ( pw )
 	return QFile::decodeName( pw->pw_name );
@@ -101,7 +101,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
     struct group *gr = getgrgid( groupId() );
     if ( gr )
 	return QFile::decodeName( gr->gr_name );

@@ -69,7 +69,7 @@
 #ifdef QT_NO_QSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#ifndef Q_OS_MACX
+#ifndef Q_OS_DARWIN
 # include <sys/sem.h>
 #endif
 #include <sys/socket.h>

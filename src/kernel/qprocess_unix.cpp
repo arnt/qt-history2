@@ -756,7 +756,7 @@ bool QProcess::start( QStringList *env )
 
 	if ( env == 0 ) { // inherit environment and start process
 	    QString command = _arguments[0];
-#if defined(Q_OS_MACX) //look in a bundle
+#if defined(Q_OS_DARWIN) //look in a bundle
 	    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
 	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
 		QString exec = command;
@@ -776,7 +776,7 @@ bool QProcess::start( QStringList *env )
 	} else { // start process with environment settins as specified in env
 	    // construct the environment for exec
 	    int numEntries = env->count();
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
 	    QString ld_library_path("DYLD_LIBRARY_PATH");
 #else
 	    QString ld_library_path("LD_LIBRARY_PATH");
@@ -808,7 +808,7 @@ bool QProcess::start( QStringList *env )
 		    QStringList pathList = QStringList::split( ':', getenv( "PATH" ) );
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
 			QString dir = *it;
-#if defined(Q_OS_MACX) //look in a bundle
+#if defined(Q_OS_DARWIN) //look in a bundle
 			if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app"))
 			    dir += "/" + command + ".app/Contents/MacOS";
 #endif
@@ -818,7 +818,7 @@ bool QProcess::start( QStringList *env )
 			QFileInfo fileInfo( dir + "/" + command );
 #endif
 			if ( fileInfo.isExecutable() ) {
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
 			    arglistQ[0] = fileInfo.absFilePath().local8Bit();
 #else
 			    arglistQ[0] = fileInfo.filePath().local8Bit();
@@ -829,7 +829,7 @@ bool QProcess::start( QStringList *env )
 		    }
 		}
 	    }
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
 	    if(!QFile::exists(arglist[0])) {
 		QString command = arglist[0];
 		const QString mac_bundle_suffix = ".app/Contents/MacOS/";

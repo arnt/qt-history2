@@ -2392,7 +2392,7 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
 	return QString::null;
     if (len < 0)
 	len = strlen(local8Bit);
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
     return fromUtf8(local8Bit,len);
 #elif defined(Q_OS_WIN32)
     if ( len >= 0 ) {

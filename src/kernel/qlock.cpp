@@ -18,7 +18,7 @@
 
 #include <unistd.h>
 #include <sys/types.h>
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
 #define Q_NO_SEMAPHORE
 #include <sys/stat.h>
 #include <sys/file.h>

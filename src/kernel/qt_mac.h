@@ -36,7 +36,7 @@
 #ifdef Q_OS_MAC9
 # define QMAC_DEFAULT_STYLE "QPlatinumStyle" //Default style
 # include "qt_mac9.h"
-#elif defined(Q_OS_MACX)
+#elif defined(Q_WS_MACX)
 # define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
 #endif
 

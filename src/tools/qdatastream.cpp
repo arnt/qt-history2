@@ -491,7 +491,7 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     extern "C" long long __strtoll( const char *, char**, int );
     return __strtoll( buf, (char**)0, 10 );
 #  endif
-#elif defined(Q_OS_MACX) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
+#elif defined(Q_OS_DARWIN) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
     return strtoq( buf, (char**)0, 10 );
 #elif defined(Q_OS_OSF) && defined(Q_CC_DEC)
     return strtol( buf, (char**)0, 10 );

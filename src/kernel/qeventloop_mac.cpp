@@ -135,7 +135,7 @@ typedef QPtrList<TimerInfo> TimerList;	// list of TimerInfo structs
 static TimerList *timerList	= 0;		// timer list
 static EventLoopTimerUPP timerUPP = NULL;       //UPP
 
-#ifdef Q_OS_MACX
+#ifdef Q_OS_DARWIN
 static inline bool operator<(const timeval &t1, const timeval &t2)
 {
     return t1.tv_sec < t2.tv_sec ||
@@ -346,7 +346,7 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
     if(!timerList || !timerList->count())	// no timers
 	return 0;
     int n_act = 0;
-#ifdef Q_OS_MACX
+#ifdef Q_OS_DARWIN
     bool first = TRUE;
     int maxCount = timerList->count();
     timeval currentTime;
@@ -401,7 +401,7 @@ int qStartTimer(int interval, QObject *obj)
     TimerInfo *t = new TimerInfo;		// create timer
     t->obj = obj;
     t->pending = TRUE;
-#ifdef Q_OS_MACX
+#ifdef Q_OS_DARWIN
     if(!qt_is_gui_used) {
 	t->type = TimerInfo::TIMER_QT;
 	t->u.qt_timer.interval.tv_sec  = interval/1000;
@@ -560,7 +560,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	for(QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it)
 	    (**it)();
     }
-#ifdef Q_OS_MACX
+#ifdef Q_OS_DARWIN
     int highest = 0;
     if(d->sn_highest >= 0) {			// has socket notifier(s)
 	if(d->sn_vec[0].list && ! d->sn_vec[0].list->isEmpty())
@@ -595,7 +595,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	for(QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it)
 	    (**it)();
     }
-#ifdef Q_OS_MACX
+#ifdef Q_OS_DARWIN
     if(nsel == -1) {
 	if(errno == EINTR || errno == EAGAIN)
 	    errno = 0;

@@ -64,7 +64,7 @@ void yyerror(const char *msg);
 #include "qstrlist.h"
 #include "qstringlist.h"
 #ifdef MOC_MWERKS_PLUGIN
-# ifdef Q_OS_MACX
+# ifdef Q_OS_DARWIN
 #  undef OLD_DEBUG
 #  ifdef DEBUG
 #   define OLD_DEBUG DEBUG

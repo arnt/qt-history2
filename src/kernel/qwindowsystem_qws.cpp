@@ -47,7 +47,7 @@
 #include <sys/socket.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#ifndef Q_OS_MACX
+#ifndef Q_OS_DARWIN
 # include <sys/sem.h>
 #endif
 #include <sys/param.h>
@@ -56,7 +56,7 @@
 #include <signal.h>
 #include <fcntl.h>
 
-#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_DARWIN )
 #ifdef QT_USE_OLD_QWS_SOUND
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -671,7 +671,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #ifndef QT_NO_QWS_MULTIPROCESS
 
     if ( !geteuid() ) {
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_MACX)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_DARWIN)
 	if( mount(0,"/var/shm", "shm", 0, 0) ) {
 	    /* This just confuses people with 2.2 kernels
 	    if ( errno != EBUSY )
@@ -710,7 +710,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
 
-#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_DARWIN )
     soundserver = new QWSSoundServer(this);
 #endif
 #ifndef QT_NO_QWS_IM
@@ -1009,7 +1009,7 @@ void QWSServer::doClient( QWSClient *client )
 	case QWSCommand::GrabKeyboard:
 	    invokeGrabKeyboard( (QWSGrabKeyboardCommand*)cs->command, cs->client );
 	    break;
-#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_DARWIN )
 	case QWSCommand::PlaySound:
 	    invokePlaySound( (QWSPlaySoundCommand*)cs->command, cs->client );
 	    break;
@@ -1890,7 +1890,7 @@ void QWSServer::invokeGrabKeyboard( QWSGrabKeyboardCommand *cmd, QWSClient *clie
 #if !defined( QT_NO_SOUND ) 
 void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient * )
 {
-#if !defined( Q_OS_MACX )
+#if !defined( Q_OS_DARWIN )
     soundserver->playFile(cmd->filename);
 #endif
 }

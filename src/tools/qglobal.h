@@ -24,9 +24,8 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     MACX	- Mac OS X
      MAC9	- Mac OS 9
-     DARWIN     - Darwin OS (Without Mac OS X)
+     DARWIN     - Darwin OS (synonym for Q_OS_MACX)
      MSDOS	- MS-DOS and Windows
      OS2	- OS/2
      OS2EMX	- XFree86 on OS/2 (not PM)
@@ -56,12 +55,8 @@
      UNIX	- Any UNIX BSD/SYSV system
 */
 
-#if defined(__DARWIN_X11__)
+#if defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_DARWIN
-#elif defined(__APPLE__) && defined(__GNUC__)
-#  define Q_OS_MACX
-#elif defined(__MACOSX__)
-#  define Q_OS_MACX
 #elif defined(macintosh)
 #  define Q_OS_MAC9
 #elif defined(__CYGWIN__)
@@ -136,7 +131,10 @@
 #  define Q_OS_WIN
 #endif
 
-#if defined(Q_OS_MAC9) || defined(Q_OS_MACX)
+#if defined(Q_OS_DARWIN)
+#  define Q_OS_MACX /* Q_OS_MACX is mostly for compatiblity, but also more clear */
+#endif
+#if defined(Q_OS_MAC9) || defined(Q_OS_DARWIN)
 #  define Q_OS_MAC
 #endif
 
@@ -146,7 +144,7 @@
 #  define Q_OS_UNIX
 #endif
 
-#if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
+#if defined(Q_OS_DARWIN) && !defined(QT_LARGEFILE_SUPPORT)
 #  define QT_LARGEFILE_SUPPORT 64
 #endif
 
@@ -527,7 +525,7 @@
 #  if defined(QWS)
 #    define Q_WS_QWS
 #    define QT_NO_QWS_IM
-#  elif defined(Q_OS_MACX)
+#  elif defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__)
 #    define Q_WS_MACX
 #  else
 #    define Q_WS_X11
@@ -688,6 +686,12 @@ inline Q_ULLONG qMin(Q_ULLONG a, ushort b) { return (a < b) ? a : b; }
 inline Q_ULLONG qMin(ushort a, Q_ULLONG b) { return (a < b) ? a : b; }
 inline Q_ULLONG qMin(Q_ULLONG a, uchar b) { return (a < b) ? a : b; }
 inline Q_ULLONG qMin(uchar a, Q_ULLONG b) { return (a < b) ? a : b; }
+inline double qMin(double a, int b) { return (a < b) ? a : b; }
+inline double qMin(int a, double b) { return (a < b) ? a : b; }
+inline double qMin(double a, short b) { return (a < b) ? a : b; }
+inline double qMin(short a, double b) { return (a < b) ? a : b; }
+inline double qMin(double a, char b) { return (a < b) ? a : b; }
+inline double qMin(char a, double b) { return (a < b) ? a : b; }
 inline long qMin(long a, int b) { return (a < b) ? a : b; }
 inline long qMin(int a, long b) { return (a < b) ? a : b; }
 inline long qMin(long a, short b) { return (a < b) ? a : b; }
@@ -729,6 +733,14 @@ inline Q_ULLONG qMax(Q_ULLONG a, ushort b) { return (b < a) ? a : b; }
 inline Q_ULLONG qMax(ushort a, Q_ULLONG b) { return (b < a) ? a : b; }
 inline Q_ULLONG qMax(Q_ULLONG a, uchar b) { return (b < a) ? a : b; }
 inline Q_ULLONG qMax(uchar a, Q_ULLONG b) { return (b < a) ? a : b; }
+inline double qMax(double a, int b) { return (b < a) ? a : b; }
+inline double qMax(int a, double b) { return (b < a) ? a : b; }
+inline double qMax(double a, short b) { return (b < a) ? a : b; }
+inline double qMax(short a, double b) { return (b < a) ? a : b; }
+inline double qMax(double a, char b) { return (b < a) ? a : b; }
+inline double qMax(char a, double b) { return (b < a) ? a : b; }
+inline double qMax(double a, long b) { return (b < a) ? a : b; }
+inline double qMax(long a, double b) { return (b < a) ? a : b; }
 inline long qMax(long a, int b) { return (b < a) ? a : b; }
 inline long qMax(int a, long b) { return (b < a) ? a : b; }
 inline long qMax(long a, short b) { return (b < a) ? a : b; }
