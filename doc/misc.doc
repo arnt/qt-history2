@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.23 1996/09/04 16:39:56 paul Exp $
+** $Id: misc.doc,v 1.24 1996/09/04 17:38:03 paul Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.23 1996/09/04 16:39:56 paul Exp $";
+static char ident[] = "$Id: misc.doc,v 1.24 1996/09/04 17:38:03 paul Exp $";
 #endif
 
 
@@ -245,10 +245,21 @@ archive is distributed unchanged and as a whole, including this notice.
 You may use the Qt toolkit to create application programs provided that:
 <ul>
 <li>You accept this license.
-<li>Your software is distributed including source code.
 <li>Your software does not require modifications to Qt.
-<li>Third parties may legally modify and/or redistribute your software for
-no charge.
+<li>You satisfy ONE of the following three requirements
+ <dl>
+ <dt>EITHER 
+ <dd>Users of your software can obtain source code for the software, freely
+ modify the source code (possibly with restrictions on copyright
+ notices, attributions and legal responsibility), and freely
+ redistribute original or modified versions of the software.
+ <dt>OR 
+ <dd>Your software is distributed under the GNU GENERAL PUBLIC LICENSE,
+ version 2 or later, as defined by the Free Software Foundation.
+ <dt>OR 
+ <dd>Your software is distributed under the GNU LIBRARY GENERAL PUBLIC 
+ LICENSE, version 2 or later, as defined by the Free Software Foundation.
+ </dl>
 </ul>
 
 <p>
@@ -256,12 +267,17 @@ no charge.
 If you are paid to develop something with Qt or it is a part of your job
 the following conditions also apply:
 <ul>
-<li>Your software must be suitable for use outside your organization.
-<li>You must upload your software (including source) to ftp.troll.no
-    before you start using it.
-<li>When you change your software in any significant way, you must upload
-    the new version of your software (including source) to ftp.troll.no
-    before you start using it.
+<li>Your software must not require libraries, programs, data or
+    documentation that are not available outside your organization in
+    order to compile or use.
+<li>If and when your organization starts using the software, you must 
+    notify Troll Tech AS of the following:
+    <ul>
+    <li>Your organization's name and purpose.
+    <li>The software's name and purpose.
+    <li>The software's license.
+    <li>That your organization considers the software to be free software.
+    </ul>
 </ul>
 
 <p>

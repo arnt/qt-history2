@@ -66,7 +66,7 @@ Here is the license intended for free software:
 
 Copyright (C) 1992-1996 Troll Tech AS.  All rights reserved.
 
-This is the non-commercial license for Qt version 0.98; it covers
+This is the non-commercial license for Qt version 0.99; it covers
 private use and development of free software for the free software
 community.
 
@@ -81,23 +81,35 @@ archive is distributed unchanged and as a whole, including this notice.
 
 You may use the Qt toolkit to create application programs provided that:
   - You accept this license.
-  - Your software is distributed including source code.
   - Your software does not require modifications to Qt.
-  - Third parties may legally modify and/or redistribute your software for
-    no charge.
+  - You satisfy ONE of the following three requirements
+    EITHER 
+      Users of your software can obtain source code for the software, freely
+      modify the source code (possibly with restrictions on copyright
+      notices, attributions and legal responsibility), and freely
+      redistribute original or modified versions of the software.
+    OR 
+      Your software is distributed under the GNU GENERAL PUBLIC LICENSE,
+      version 2 or later, as defined by the Free Software Foundation.
+    OR 
+      Your software is distributed under the GNU LIBRARY GENERAL PUBLIC 
+      LICENSE, version 2 or later, as defined by the Free Software Foundation.
 
 If you are paid to develop something with Qt or it is a part of your job
 the following conditions also apply:
-  - Your software must be suitable for use outside your organization.
-  - You must upload your software (including source) to ftp.troll.no
-    before you start using it.
-  - When you change your software in any significant way, you must upload
-    the new version of your software (including source) to ftp.troll.no
-    before you start using it.
+  - Your software must not require libraries, programs, data or
+    documentation that are not available outside your organization in
+    order to compile or use.
+  - If and when your organization starts using the software, you must 
+    notify Troll Tech AS of the following:
+       * Your organization's name and purpose.
+       * The software's name and purpose.
+       * The software's license.
+       * That your organization considers the software to be free software.
 
 You may also use the Qt toolkit to create reusable components (such as
 libraries) provided that you accept the terms above, and in addition that:
-  - Your components' license includes the following text:
+  - Your components' documentation includes the following text:
 	[Your package] requires the Qt library, which is copyright
 	Troll Tech AS.  Freely distributable programs may generally
 	use Qt for free, see [README.QT] for details.
@@ -106,7 +118,7 @@ libraries) provided that you accept the terms above, and in addition that:
 
 
                        LIMITATIONS OF LIABILITY
- 
+
 Troll Tech AS makes no obligation under this license to support or upgrade
 Qt, or assist in the use of Qt.
 
