@@ -37,6 +37,7 @@
 #include "qbuffer.h"
 #include "qapplication_p.h"
 #include "qt_mac.h"
+#include "qsignalslotimp.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -315,14 +316,29 @@ void QClipboard::ownerDestroyed()
 }
 
 
-void QClipboard::connectNotify( const char * )
+static int clipWatcherId = -1;
+
+void QClipboard::connectNotify( const char *signal )
 {
+    if ( qstrcmp(signal,SIGNAL(dataChanged())) == 0 && clipWatcherId == -1 )
+	clipWatcherId = startTimer(100);
 }
 
 
 bool QClipboard::event( QEvent *e )
 {
-    if ( e->type() != QEvent::Clipboard )
+    QTimerEvent *te = 0;
+    if (clipWatcherId != -1  && e->type() == QEvent::Timer) {
+	te = (QTimerEvent *)e;
+	if (te->timerId() != clipWatcherId)
+	    te = 0;
+	if (te && !receivers(SIGNAL(dataChanged()))) {
+	    killTimer(clipWatcherId);
+	    clipWatcherId = -1;
+	    te = 0;
+	}
+    }
+    if ( e->type() != QEvent::Clipboard && !te)
 	return QObject::event( e );
 
     if(hasScrapChanged()) {
