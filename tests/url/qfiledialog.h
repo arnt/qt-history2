@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#5 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#6 $
 **
 ** Definition of QFileDialog class
 **
@@ -177,32 +177,6 @@ private:
     bool firstMousePressEvent;
 };
 
-class Q_EXPORT QFilePreview
-{
-public:
-    QFilePreview() : filename( QString::null ), fi() {}
-    virtual ~QFilePreview() {}
-
-    virtual void drawPreview( QPainter *p, const QRect &r ) = 0;
-
-    virtual void setPreviewFileName( const QString &fn ) {
-	filename = fn;
-	fi = QFileInfo( filename );
-    }
-    virtual QString previewFilename() const {
-	return filename;
-    }
-    virtual const QFileInfo &fileInfo() const {
-	return fi;
-    }
-
-protected:
-    QString filename;
-    QFileInfo fi;
-
-};
-
-
 class Q_EXPORT QFileDialog : public QDialog
 {
     friend class QFileListBox;
@@ -258,9 +232,10 @@ public:
 
     bool eventFilter( QObject *, QEvent * );
 
-    void setFilePreview( QFilePreview *p );
-    QFilePreview *filePreview() const;
-
+    void setPreviewMode( bool info, bool contents );
+    void setInfoPreviewWidget( QWidget *w );
+    void setContentsPreviewWidget( QWidget *w );
+    
     QUrl url() const;
 
 public slots:
@@ -273,7 +248,8 @@ signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
-
+    void showPreview( const QUrl &, const QUrlInfo & );
+    
 protected slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
@@ -319,7 +295,7 @@ private slots:
     void createdDirectory( const QUrlInfo &info );
     void couldNotDelete( const QString &filename );
     void itemChanged( const QString &oldname, const QString &newname );
-    
+
 private:
     enum PopupAction {
         PA_Open = 0,

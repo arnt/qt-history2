@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#8 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#9 $
 **
 ** Implementation of QFileDialog class
 **
@@ -345,101 +345,6 @@ QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
 
 /************************************************************************
  *
- * Internal Class: QPreviewWidget
- *
- ************************************************************************/
-
-class QPreviewWidget : public QLabel
-{
-    Q_OBJECT
-
-public:
-    enum PreviewMode {
-	PM_Info = 0,
-	PM_Contents
-    };
-
-    QPreviewWidget( QWidget *parent );
-
-    void setPreview( QFilePreview *p );
-    void setPreviewMode( QPreviewWidget::PreviewMode m );
-
-    QFilePreview *preview() const {
-	return preview_;
-    }
-
-public slots:
-    void setPreviewFileName( const QString &fn );
-
-protected:
-    void drawContents( QPainter *p );
-
-    QFilePreview *preview_;
-    QPreviewWidget::PreviewMode prevMode;
-    QString filename;
-
-};
-
-QPreviewWidget::QPreviewWidget( QWidget *parent )
-    : QLabel( parent ), preview_( 0 ), prevMode( PM_Info ), filename( QString::null )
-{
-    setPreviewMode( PM_Contents );
-    setFrameStyle( StyledPanel | Sunken );
-}
-
-void QPreviewWidget::setPreview( QFilePreview *p )
-{
-    preview_ = p;
-    preview_->setPreviewFileName( filename );
-    repaint( TRUE );
-}
-
-void QPreviewWidget::setPreviewMode( QPreviewWidget::PreviewMode m )
-{
-    prevMode = m;
-    if ( prevMode == QPreviewWidget::PM_Info ) {
-	QFileInfo fi( filename );
-	setText( QString( "Name: %1\nSize: %2" ).arg( fi.fileName() ).arg( fi.size() ) );
-	repaint( TRUE );
-    } else
-	repaint( TRUE );
-}
-
-void QPreviewWidget::setPreviewFileName( const QString &fn )
-{
-    if ( fn == filename )
- 	return;
-    filename = fn;
-    if ( preview_ && prevMode == PM_Contents ) {
-	preview_->setPreviewFileName( fn );
-	repaint( TRUE );
-    } else if ( prevMode == QPreviewWidget::PM_Info ) {
-	QFileInfo fi( filename );
-	setText( QString( "Name: %1\nSize: %2" ).arg( fi.fileName() ).arg( fi.size() ) );
-	repaint( TRUE );
-    }
-}
-
-void QPreviewWidget::drawContents( QPainter *p )
-{
-    if ( filename.isEmpty() )
-	QLabel::drawContents( p );
-    else {
-	if ( prevMode == QPreviewWidget::PM_Info ) {
-	    QLabel::drawContents( p );
-	} else {
-	    if ( preview_ ) {
-		p->save();
-		preview_->drawPreview( p, frameRect() );
-		p->restore();
-	    }
-	}
-    }
-}
-
-
-/************************************************************************
- *
  * copying files
  *
  ************************************************************************/
@@ -625,11 +530,12 @@ struct QFileDialogPrivate {
     QString dir;
     QString symLinkToSpecial;
     QString special;
-    QPreviewWidget *preview;
-    bool previewModes;
+    QWidgetStack *preview;
+    bool infoPreview, contentsPreview;
     QSplitter *splitter;
     QUrl url;
-
+    QWidget *infoPreviewWidget, *contentsPreviewWidget;
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1729,7 +1635,8 @@ void QFileDialog::init()
     d->mode = AnyFile;
     d->last = 0;
     d->moreFiles = 0;
-    d->previewModes = TRUE;
+    d->infoPreview = TRUE;
+    d->contentsPreview = TRUE;
 
     d->url = QUrl( "file:/" );
     connect( &d->url, SIGNAL( start() ),
@@ -1750,7 +1657,7 @@ void QFileDialog::init()
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
-    if ( d->previewModes )
+    if ( d->infoPreview || d->contentsPreview )
 	d->splitter = new QSplitter( this );
     else
 	d->splitter = 0;
@@ -1876,12 +1783,14 @@ void QFileDialog::init()
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
 
-    if ( d->previewModes ) {
+    if ( d->infoPreview ) {
 	d->previewInfo = new QPushButton( this, "preview info view" );
 	QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
 	d->previewInfo->setPixmap( *previewInfoViewIcon );
 	d->previewInfo->setToggleButton( TRUE );
 	d->modeButtons->insert( d->previewInfo );
+    }
+    if ( d->contentsPreview ) {
 	d->previewContents = new QPushButton( this, "preview info view" );
 	QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
 	d->previewContents->setPixmap( *previewContentsViewIcon );
@@ -1909,9 +1818,14 @@ void QFileDialog::init()
 
     QHBoxLayout * h;
 
-    if ( d->previewModes )
-	d->preview = new QPreviewWidget( d->splitter ? d->splitter : this );
-    else
+    if ( d->infoPreview || d->contentsPreview ) {
+	d->preview = new QWidgetStack( d->splitter ? d->splitter : this );
+	
+	if ( d->infoPreview )
+	    d->infoPreviewWidget = new QWidget( d->preview );
+	if ( d->contentsPreview )
+	    d->contentsPreviewWidget = new QWidget( d->preview );
+    } else
 	d->preview = 0;
 
     h = new QHBoxLayout( 0 );
@@ -1926,14 +1840,14 @@ void QFileDialog::init()
     h->addSpacing( 8 );
     h->addWidget( d->detailView );
     h->addWidget( d->mcView );
-    if ( d->previewModes ) {
+    if ( d->infoPreview )
 	h->addWidget( d->previewInfo );
+    if ( d->contentsPreview )
 	h->addWidget( d->previewContents );
-    }
     h->addSpacing( 16 );
 
 
-    if ( d->splitter && d->previewModes )
+    if ( d->splitter && d->infoPreview || d->contentsPreview )
 	d->topLevelLayout->addWidget( d->splitter );
     else
 	d->topLevelLayout->addWidget( d->stack );
@@ -2019,22 +1933,22 @@ void QFileDialog::init()
 
 void QFileDialog::changeMode( int id )
 {
-//     QPushButton *pb = (QPushButton*)d->modeButtons->find( id );
-//     if ( !pb )
-// 	return;
+    QPushButton *pb = (QPushButton*)d->modeButtons->find( id );
+    if ( !pb )
+	return;
 
-//     if ( pb != d->previewContents && pb != d->previewInfo ) {
-// 	d->preview->hide();
-//     } else {
-// 	d->preview->setPreviewFileName( files->currentItem() ?
-// 					d->url.canonicalPath() + "/" + files->currentItem()->text( 0 )
-// 					: QString::null);
-// 	if ( pb == d->previewInfo )
-// 	    d->preview->setPreviewMode( QPreviewWidget::PM_Info );
-// 	else
-// 	    d->preview->setPreviewMode( QPreviewWidget::PM_Contents );
-// 	d->preview->show();
-//     }
+    if ( pb != d->previewContents && pb != d->previewInfo ) {
+	d->preview->hide();
+    } else {
+	if ( files->currentItem() )
+	    emit showPreview( QUrl( d->url, files->currentItem()->text( 0 ) ), 
+			      QUrlInfo( d->url, files->currentItem()->text( 0 ) ) );
+	if ( pb == d->previewInfo )
+	    d->preview->raiseWidget( d->infoPreviewWidget );
+	else
+	    d->preview->raiseWidget( d->contentsPreviewWidget );
+	d->preview->show();
+    }
 }
 
 /*!
@@ -2605,9 +2519,8 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 */
 bool QFileDialog::trySetSelection( const QUrlInfo& info, const QUrl &u, bool updatelined )
 {
-// #### todo
-//     if ( d->preview && d->preview->isVisible() )
-// 	d->preview->setPreviewFileName( info.absFilePath() );
+    if ( d->preview && d->preview->isVisible() )
+ 	emit showPreview( QUrl( d->url, info.name() ), info );
 
     QString old = d->currentFileName;
 
@@ -3260,17 +3173,6 @@ QFileDialog::Mode QFileDialog::mode() const
     return d->mode;
 }
 
-
-void QFileDialog::setFilePreview( QFilePreview *p )
-{
-    d->preview->setPreview( p );
-}
-
-QFilePreview *QFileDialog::filePreview() const
-{
-    return d->preview->preview();
-}
-
 /*!  Adds 1-3 widgets to the bottom of the file dialog.	 \a l is the
   (optional) label, which is put beneath the "file name" and "file
   type" labels, \a w is a (optional) widget, which is put beneath the
@@ -3734,5 +3636,45 @@ void QFileDialog::itemChanged( const QString &oldname, const QString &newname )
     }
 }
 
-#include "qfiledialog.moc"
+void QFileDialog::setPreviewMode( bool info, bool contents )
+{
+}
+
+void QFileDialog::setInfoPreviewWidget( QWidget *w )
+{
+    if ( !w )
+	return;
+    
+    if ( d->infoPreviewWidget ) {
+	d->preview->removeWidget( d->infoPreviewWidget );
+
+	disconnect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
+		    d->infoPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+
+	delete d->infoPreviewWidget;
+    }
+    d->infoPreviewWidget = w;
+    connect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
+	     d->infoPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+    w->recreate( d->preview, 0, QPoint( 0, 0 ) );
+}
+ 
+void QFileDialog::setContentsPreviewWidget( QWidget *w )
+{
+    if ( !w )
+	return;
+    
+    if ( d->contentsPreviewWidget ) {
+	d->preview->removeWidget( d->contentsPreviewWidget );
+
+	disconnect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
+		    d->contentsPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+	
+	delete d->contentsPreviewWidget;
+    }
+    d->contentsPreviewWidget = w;
+    connect( this, SIGNAL( showPreview( const QUrl &, const QUrlInfo & ) ),
+	     d->contentsPreviewWidget, SLOT( showPreview( const QUrl &, const QUrlInfo & ) ) );
+    w->recreate( d->preview, 0, QPoint( 0, 0 ) );
+}
 
