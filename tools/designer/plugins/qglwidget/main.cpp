@@ -10,18 +10,16 @@ public:
     OpenGLWidgetInterface( QUnknownInterface *parent );
     ~OpenGLWidgetInterface();
 
-    bool cleanup();
-
     QStringList featureList() const;
 
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
-    QString group( const QString& );
-    QString iconSet( const QString& );
-    QIconSet iconset( const QString& );
-    QString includeFile( const QString& );
-    QString toolTip( const QString& );
-    QString whatsThis( const QString& );
-    bool isContainer( const QString& );
+    QString group( const QString& ) const;
+    QString iconSet( const QString& ) const;
+    QIconSet iconset( const QString& ) const;
+    QString includeFile( const QString& ) const;
+    QString toolTip( const QString& ) const;
+    QString whatsThis( const QString& ) const;
+    bool isContainer( const QString& ) const;
 
 private:
     QGuardedCleanupHandler<QObject> objects;
@@ -34,13 +32,6 @@ OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent )
 
 OpenGLWidgetInterface::~OpenGLWidgetInterface()
 {
-}
-
-bool OpenGLWidgetInterface::cleanup()
-{
-    if ( !objects.isEmpty() )
-	return FALSE;
-    return TRUE;
 }
 
 QStringList OpenGLWidgetInterface::featureList() const
@@ -63,64 +54,65 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
     return w;
 }
 
-QString OpenGLWidgetInterface::group( const QString& description )
+QString OpenGLWidgetInterface::group( const QString& description ) const
 {
     if ( description == "QGLWidget" )
 	return "Views";
     return QString::null;
 }
 
-QString OpenGLWidgetInterface::iconSet( const QString& description )
+QString OpenGLWidgetInterface::iconSet( const QString& description ) const
 {
     if ( description == "QGLWidget" )
 	return "pushbutton.xpm";
     return QString::null;
 }
 
-QIconSet OpenGLWidgetInterface::iconset( const QString& )
+QIconSet OpenGLWidgetInterface::iconset( const QString& ) const
 {
     return QIconSet();
 }
 
-QString OpenGLWidgetInterface::includeFile( const QString& description )
+QString OpenGLWidgetInterface::includeFile( const QString& description ) const
 {
     if ( description == "QGLWidget" )
         return "qgl.h";
     return QString::null;
 }
 
-QString OpenGLWidgetInterface::toolTip( const QString& description )
+QString OpenGLWidgetInterface::toolTip( const QString& description ) const
 {
     if ( description == "QGLWidget" )
 	return QT_TR_NOOP("OpenGL Widget");
     return QString::null;
 }
 
-QString OpenGLWidgetInterface::whatsThis( const QString& description )
+QString OpenGLWidgetInterface::whatsThis( const QString& description ) const
 {
     if ( description == "QGLWidget" )
 	return "A widget for OpenGL rendering";
     return QString::null;
 }
 
-bool OpenGLWidgetInterface::isContainer( const QString& )
+bool OpenGLWidgetInterface::isContainer( const QString& ) const
 {
     return FALSE;
 }
 
-class OpenGLPlugIn : public QComponentInterface
+class OpenGLPlugIn : public QUnknownInterface
 {
 public:
     OpenGLPlugIn();
     ~OpenGLPlugIn();
-
+/*
     QString name() const { return "QGLWidget"; }
     QString description() const { return "Qt Designer plugin for the OpenGL widget"; }
     QString author() const { return "Trolltech"; }
+*/
 };
 
 OpenGLPlugIn::OpenGLPlugIn()
-: QComponentInterface()
+: QUnknownInterface()
 {
     new OpenGLWidgetInterface( this );
 }

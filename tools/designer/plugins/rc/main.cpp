@@ -13,9 +13,6 @@ public:
     QStringList featureList() const;
 
     QStringList import( const QString& filter, const QString& filename );
-
-private:
-    QGuardedPtr<QApplicationInterface> appInterface;
 };
 
 RCInterface::RCInterface( QUnknownInterface *parent )
@@ -48,19 +45,20 @@ QStringList RCInterface::import( const QString &, const QString& filename )
     return c.targetFiles;
 }
 
-class RCPlugIn : public QComponentInterface
+class RCPlugIn : public QUnknownInterface
 {
 public:
     RCPlugIn();
     ~RCPlugIn();
-
+/*
     QString name() const { return "MS Resource File import"; }
     QString description() const { return "Qt Designer import filter for Microsoft Resource Files"; }
     QString author() const { return "Trolltech"; }
+*/
 };
 
 RCPlugIn::RCPlugIn()
-: QComponentInterface()
+: QUnknownInterface()
 {
     new RCInterface( this );
 }

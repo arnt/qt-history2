@@ -44,11 +44,10 @@ public:
     TestInterface( QUnknownInterface *parent );
     ~TestInterface();
 
-    bool initialize();
-
     QStringList featureList() const;
     QAction* create( const QString &actionname, QObject* parent = 0 );
-    QString group( const QString &actionname );
+    QString group( const QString &actionname ) const;
+    void connectTo( QUnknownInterface *ai );
 
 protected:
     bool event( QEvent* );
@@ -67,10 +66,11 @@ private:
     TestThread* thread;
     QDialog* dialog;
     QLCDNumber* lcd;
+    QUnknownInterface *appInterface;
 };
 
 TestInterface::TestInterface( QUnknownInterface *parent )
-: ActionInterface( parent ), styleMapper( 0 ), thread( 0 ), dialog( 0 )
+: ActionInterface( parent ), styleMapper( 0 ), thread( 0 ), dialog( 0 ), appInterface( 0 )
 {
 }
 
@@ -84,14 +84,6 @@ TestInterface::~TestInterface()
     delete dialog;
 }
 
-bool TestInterface::initialize()
-{
-    if ( !applicationInterface() )
-	return FALSE;
-
-    return TRUE;    
-}
-
 QStringList TestInterface::featureList() const
 {
     QStringList list;
@@ -99,6 +91,11 @@ QStringList TestInterface::featureList() const
     list << "Count Widgets";
     list << "Set Style";
     return list;
+}
+
+void TestInterface::connectTo( QUnknownInterface *ai )
+{
+    appInterface = ai;
 }
 
 /* XPM */
@@ -115,7 +112,6 @@ static const char * const editmark_xpm[] ={
 "...ccc......",
 "....c.......",
 };
-
 
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
@@ -166,17 +162,17 @@ void TestInterface::setStyle( const QString& style )
     QApplication::setStyle( style );
 }
 
-QString TestInterface::group( const QString & )
+QString TestInterface::group( const QString & ) const
 {
     return "Test";
 }
 
 void TestInterface::countWidgets()
 {
-    if ( !applicationInterface() )
+    if ( !appInterface )
 	return;
 
-    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)applicationInterface()->queryInterface( "*DesignerWidgetListInterface" );
+    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)appInterface->queryInterface( "DesignerWidgetListInterface" );
     if ( !wlIface )
 	return;
 
@@ -185,7 +181,7 @@ void TestInterface::countWidgets()
     int c = wlIface->count();
     wlIface->release();
 
-    DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)applicationInterface()->queryInterface( "*DesignerStatusBarInterface" );
+    DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)appInterface->queryInterface( "DesignerStatusBarInterface" );
     sbIface->requestSetProperty( "message", tr("There are %1 widgets in this form").arg( c ) );
     sbIface->release();
 }
@@ -270,25 +266,21 @@ void TestThread::run()
 
 #include "main.moc"
 
-class TestPlugIn : public QComponentInterface
+class TestPlugIn : public QUnknownInterface
 {
 public:
     TestPlugIn();
-    ~TestPlugIn();
-
+/*
     QString name() const { return "Test plugin"; }
     QString description() const { return "PlugIn to show what kind of stupid things you can do here"; }
     QString author() const { return "Trolltech"; }
+*/
 };
 
 TestPlugIn::TestPlugIn()
-: QComponentInterface()
+: QUnknownInterface()
 {
     new TestInterface( this );
-}
-
-TestPlugIn::~TestPlugIn()
-{
 }
 
 Q_EXPORT_INTERFACE(TestPlugIn)

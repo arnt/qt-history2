@@ -6,7 +6,6 @@
 #include <qdict.h>
 
 class QProcess;
-class QComponentInterface;
 
 struct P4Info
 {

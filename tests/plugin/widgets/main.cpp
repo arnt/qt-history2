@@ -98,18 +98,17 @@ public:
     ExtraWidgetsInterface( QUnknownInterface *parent );
     ~ExtraWidgetsInterface();
 
-    bool cleanup();
-
     QStringList featureList() const;
     QWidget* create( const QString &classname, QWidget* parent = 0, const char *name = 0 );
-    QString group( const QString& );
-    QString iconSet( const QString& );
-    QIconSet iconset( const QString& );
-    QString includeFile( const QString& );
-    QString toolTip( const QString& );
-    QString whatsThis( const QString& );
-    bool isContainer( const QString& );
+    QString group( const QString& ) const;
+    QString iconSet( const QString& ) const;
+    QIconSet iconset( const QString& ) const;
+    QString includeFile( const QString& ) const;
+    QString toolTip( const QString& ) const;
+    QString whatsThis( const QString& ) const;
+    bool isContainer( const QString& ) const;
 
+private:
     QGuardedCleanupHandler<QObject> objects;
 };
 
@@ -120,14 +119,6 @@ ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent )
 
 ExtraWidgetsInterface::~ExtraWidgetsInterface()
 {
-}
-
-bool ExtraWidgetsInterface::cleanup()
-{
-    qDebug( "ExtraWidgetsInterface::cleanup()" );
-    if ( !objects.isEmpty() )
-	return FALSE;
-    return TRUE;
 }
 
 QStringList ExtraWidgetsInterface::featureList() const
@@ -152,7 +143,7 @@ QWidget* ExtraWidgetsInterface::create( const QString &description, QWidget* par
     return w;
 }
 
-QString ExtraWidgetsInterface::group( const QString& description )
+QString ExtraWidgetsInterface::group( const QString& description ) const
 {
     if ( description == "QCanvasView" )
 	return "Views";
@@ -160,12 +151,12 @@ QString ExtraWidgetsInterface::group( const QString& description )
     return QString::null;
 }
 
-QString ExtraWidgetsInterface::iconSet( const QString& )
+QString ExtraWidgetsInterface::iconSet( const QString& ) const
 {
     return QString::null;
 }
 
-QIconSet ExtraWidgetsInterface::iconset( const QString& description )
+QIconSet ExtraWidgetsInterface::iconset( const QString& description ) const
 {
     if ( description == "QCanvasView" )
 	return QIconSet((const char**)canvas_xpm);
@@ -173,44 +164,41 @@ QIconSet ExtraWidgetsInterface::iconset( const QString& description )
     return QIconSet();
 }
 
-QString ExtraWidgetsInterface::includeFile( const QString& )
+QString ExtraWidgetsInterface::includeFile( const QString& ) const
 {
     return "qcanvas.h";
 }
 
-QString ExtraWidgetsInterface::toolTip( const QString& )
+QString ExtraWidgetsInterface::toolTip( const QString& ) const
 {
     return QString::null;
 }
 
-QString ExtraWidgetsInterface::whatsThis( const QString& )
+QString ExtraWidgetsInterface::whatsThis( const QString& ) const
 {
     return QString::null;
 }
 
-bool ExtraWidgetsInterface::isContainer( const QString& )
+bool ExtraWidgetsInterface::isContainer( const QString& ) const
 { 
     return FALSE;
 }
 
-class ExtraWidgetsPlugIn : public QComponentInterface
+class ExtraWidgetsPlugIn : public QUnknownInterface
 {
 public:
     ExtraWidgetsPlugIn();
-    ~ExtraWidgetsPlugIn();
+/*
     QString name() const { return "Extra-Widgets plugin"; }
     QString description() const { return "QCanvas support for the Qt Designer"; }
     QString author() const { return "Trolltech"; }
+*/
 };
 
 ExtraWidgetsPlugIn::ExtraWidgetsPlugIn()
-: QComponentInterface()
+: QUnknownInterface()
 {
     new ExtraWidgetsInterface( this );
-}
-
-ExtraWidgetsPlugIn::~ExtraWidgetsPlugIn()
-{
 }
 
 Q_EXPORT_INTERFACE(ExtraWidgetsPlugIn)
