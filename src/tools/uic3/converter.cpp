@@ -289,6 +289,10 @@ QString Ui3Reader::fixClassName(const QString &className) const
         return QLatin1String("Q3TextEdit");
     else if (className == QLatin1String("QMainWindow"))
         return QLatin1String("Q3MainWindow");
+    else if (className == QLatin1String("QDateEdit"))
+        return QLatin1String("QDateTimeEdit");
+    else if (className == QLatin1String("QTimeEdit"))
+        return QLatin1String("QDateTimeEdit");
 
     return className;
 }
