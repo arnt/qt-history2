@@ -35,17 +35,11 @@ fi
 cat <<EOF
 ------------------------------------------------------------------------------
 
-                       Qt/Embedded Demonstration Package
-                      -----------------------------------
-
-  This demonstration package has been provided to you purely for the purpose
-  of privately demonstrating the Qt/Embedded system.
+                       Qt/Embedded Alpha Release
+                      -----------------------------
 
   This is an ALPHA QUALITY release. Expect strange crashes, odd memory and
-  peformance characteristics.
-
-  For Qt/Embedded pricing and other information, see the file "FAQ".
-
+  performance characteristics.
 
 ------------------------------------------------------------------------------
 
@@ -112,6 +106,10 @@ if [ ! -f "$FUSER" ]
 then
     FUSER=/usr/sbin/fuser
 fi
+if [ ! -f "$FUSER" ]
+then
+    FUSER=/sbin/fuser
+fi
 
 if [ -z "$FB0" ]
 then
@@ -126,6 +124,10 @@ then
     if [ ! -f "$FBSET" ]
     then
 	FBSET=/usr/sbin/fbset
+    fi
+    if [ ! -f "$FBSET" ]
+    then
+	FBSET=/sbin/fbset
     fi
     if [ ! -f "$FBSET" ]
     then
