@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#9 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#9 $";
 #endif
 
 
@@ -24,14 +24,31 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#8 $";
 
   \ingroup paintdevice
 
-  All window systems that Qt supports, except X-Windows, has built-in
+  All window systems that Qt supports, except X-Windows, have built-in
   printer drivers.  For X-Windows, Qt provides Postscript (tm)
-  printing.
+  printing.  Note that the postscript support is incomplete and very
+  much beta-quality at the present time.
+
+  drawPixmap(), clipping, even-odd filling, landscape orientation/page
+  size support and pixmap brushes are all either unimplemented or
+  badly broken.
+
+  Font support is limited to Times, Helvetica, Courier and Symbol, and
+  will be for "a few weeks" (which is a quote from Adobe's FTP server
+  about AFM file availability) and font metrics even for these four
+  fonts can be inaccurate.
 
   Drawing graphics on a printer is almost identical to drawing graphics
   in a widget or a pixmap.  The only difference is that the programmer
   must think about dividing the document into pages and handling abort
   commands.
+
+  The default coordinate system of a printer is a 72 dpi (dots per
+  inch) system with (0,0) at the upper left corner, with increasing
+  values to the right and downwards.  This causes printer output to be
+  roughly the same size as screen output on most screens.  You can
+  easily change the coordinate system using QPainter::setViewport()
+  and/or QPainter::setWindow().
 
   The newPage() function should be called to finish the current page and
   start printing a new page.
@@ -40,7 +57,30 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#8 $";
   The QPrinter class handles abortion automatically, but the programmer
   should from time to time check the aborted() flag and stop painting
   if the print job has been aborted.
- ----------------------------------------------------------------------------*/
+
+  Here is a helloworld for QPrinter:
+
+  \code
+  #include <qapp.h>
+  #include <qpainter.h>
+  #include <qprinter.h>
+
+  int main( int argc, char **argv )
+  {
+      QApplication a( argc, argv );
+
+      QPrinter prt;
+      if ( prt.select( 0 ) ) {
+          QPainter p;
+          p.begin( &prt );
+          p.setFont( QFont( "times", 96, QFont::Bold ) );
+          p.drawText( 10,100, "Hello world!" );
+          p.end();
+      }
+      return 0;
+  }
+  \endcode
+  ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -151,7 +191,8 @@ void QPrinter::setOutputFileName( const char *fileName )
   If an output file has been defined, the printer driver will print to
   the output file instead of directly to the printer.
 
-  This function is only supported under X-Windows.
+  On X11, this function sets the program to call with the postscript
+  output.  On other platforms, it has no effect.
 
   \sa printProgram()
  ----------------------------------------------------------------------------*/
@@ -199,7 +240,7 @@ void QPrinter::setDocName( const char *name )
 /*----------------------------------------------------------------------------
   Sets the creator name.
 
-  Calling this function has only effect for the X-Windows version of Qt.
+  Calling this function only has effect for the X-Windows version of Qt.
   The creator name is the name of the application that created the document.
   If no creator name is specified, then the creator will be set to "Qt".
 
