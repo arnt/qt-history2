@@ -45,6 +45,14 @@ MS Visual Studio project (.dsp and .vcproj) files are provided for all Qt
 example and tutorial programs.
 
 
+Borland
+-------
+
+If you installed Borland 5.5 make sure that you set the PATH and
+create the configuration files with the correct options as described
+in the Appendix.
+
+
 The Qt Reference Manual
 -----------------------
 
