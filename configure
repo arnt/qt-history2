@@ -2294,7 +2294,7 @@ esac
 #     network canvas table xml opengl sql
 #
 #   Options:
-#     stl tablet
+#     stl
 #
 # Things that do not affect the Qt API/ABI:
 #     system-jpeg no-jpeg jpeg
@@ -2313,11 +2313,12 @@ esac
 #     nis
 #     nas
 #     bigcodecs
+#     tablet
 #
 #     X11     : xftnameunparse x11sm xinerama xrender xftfreetype xkb
 #     Embedded: embedded ft
 #
-ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl tablet"
+ALL_OPTIONS="styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql stl"
 BUILD_CONFIG=
 BUILD_OPTIONS=
 
@@ -2331,7 +2332,7 @@ for config_option in $QMAKE_CONFIG; do
 	BUILD_CONFIG="$config_option"
 	;;
 
-    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl|tablet)
+    styles|tools|kernel|widgets|dialogs|iconview|workspace|network|canvas|table|xml|opengl|sql|stl)
 	# these config options affect the Qt API/ABI. they should influence
 	# the generation of the buildkey, so we don't skip them
    	SKIP="no" 
