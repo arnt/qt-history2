@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef QATOMIC_P_H
-#define QATOMIC_P_H
+#ifndef GENERIC_QATOMIC_H
+#define GENERIC_QATOMIC_H
 
 extern "C" {
 
@@ -61,4 +61,4 @@ extern "C" {
 
 } // extern "C"
 
-#endif // QATOMIC_P_H
+#endif // GENERIC_QATOMIC_H
