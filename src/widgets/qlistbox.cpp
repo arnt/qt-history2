@@ -3256,15 +3256,15 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     {
 	// this stuff has been useful enough times that from now I'm
 	//  leaving it in the source.
-	int i = 0;
-	debug( "%s/%s: %i rects", className(), name(), r.rects().size() );
+	uint i = 0;
+	qDebug( "%s/%s: %i rects", className(), name(), r.rects().size() );
 	while( i < r.rects().size() ) {
-	    debug( "rect %d: %d, %d, %d, %d", i,
+	    qDebug( "rect %d: %d, %d, %d, %d", i,
 		   r.rects()[i].left(), r.rects()[i].top(),
 		   r.rects()[i].width(), r.rects()[i].height() );
 	    i++;
 	}
-	debug( "" );
+	qDebug( "" );
     }
 #endif
 
@@ -3645,7 +3645,7 @@ QListBox * QListBoxItem::listBox() const
 
   \sa QListBox::insertItem()
 */
-void QListBox::takeItem( const QListBoxItem * item)
+void QListBox::takeItem( const QListBoxItem * item )
 {
     if ( !item || d->clearing )
 	return;
