@@ -1,6 +1,6 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
-#include "pingpongapp.h"
+#include "pingpongfrontend.h"
 
 int main( int argc, char ** argv )
 {
@@ -18,7 +18,7 @@ int main( int argc, char ** argv )
 	return 0;
     }
 
-    PingPongApp dbapp;
+    PingpongFrontEnd dbapp;
 
     a.setMainWidget( &dbapp );
     dbapp.show();

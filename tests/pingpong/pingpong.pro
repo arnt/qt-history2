@@ -1,11 +1,13 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= pingpongapp.h \
+HEADERS		= pingpongfrontend.h \
 		  dialogs.h \
-		  cursors.h
-SOURCES		= pingpongapp.cpp \
+		  cursors.h \
+		  widgets.h
+SOURCES		= pingpongfrontend.cpp \
 		  dialogs.cpp \
 		  main.cpp \
-		  cursors.cpp
+		  cursors.cpp \
+		  widgets.cpp
 TARGET		= pingpong
 unix:LIBS      += -lpthread

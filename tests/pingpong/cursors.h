@@ -1,5 +1,5 @@
-#ifndef CURSOR_H
-#define CURSOR_H
+#ifndef CURSORS_H
+#define CURSORS_H
 
 #include <qsqlcursor.h>
 
@@ -59,4 +59,4 @@ protected:
 };
 
 
-#endif // CURSOR_H
+#endif // CURSORS_H

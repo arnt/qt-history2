@@ -1,6 +1,7 @@
-#include "pingpongapp.h"
+#include "pingpongfrontend.h"
 #include "dialogs.h"
 #include "cursors.h"
+#include "widgets.h"
 
 #include <qlayout.h>
 #include <qsqltable.h>
@@ -19,15 +20,15 @@
 #include <qgroupbox.h>
 
 //
-//  PingpongApp class
+//  PingpongFrontEnd class
 //
-PingPongApp::PingPongApp( QWidget * parent, const char * name )
+PingpongFrontEnd::PingpongFrontEnd( QWidget * parent, const char * name )
     : QMainWindow( parent, name )
 {
     init();
 }
 
-void PingPongApp::init()
+void PingpongFrontEnd::init()
 {
     setCaption( "Skandinavisk Bordtennis Forbund (SBF) - Ligatabell" );
     QPixmap icon( "pingpong.xpm" );
@@ -94,7 +95,7 @@ void PingPongApp::init()
     matchTable->setReadOnly( TRUE );
 }
 
-void PingPongApp::insertMatch()
+void PingpongFrontEnd::insertMatch()
 {
      MatchDialog dlg( matchCursor.insertBuffer(), MatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
@@ -105,7 +106,7 @@ void PingPongApp::insertMatch()
      }
 }
 
-void PingPongApp::updateMatch()
+void PingpongFrontEnd::updateMatch()
 {
     QSqlRecord r = matchTable->currentFieldSelection();
     if ( !r.count() )
@@ -123,7 +124,7 @@ void PingPongApp::updateMatch()
     }
 }
 
-void PingPongApp::deleteMatch()
+void PingpongFrontEnd::deleteMatch()
 {
     QSqlRecord r = matchTable->currentFieldSelection();
     if ( !r.count() )
@@ -142,7 +143,7 @@ void PingPongApp::deleteMatch()
     }
 }
 
-void PingPongApp::updateIcons( QWidget * w )
+void PingpongFrontEnd::updateIcons( QWidget * w )
 {
     if( w == matchTable ){
 	insertResultAc->setEnabled( TRUE );
@@ -155,7 +156,7 @@ void PingPongApp::updateIcons( QWidget * w )
     }
 }
 
-void PingPongApp::editTeams()
+void PingpongFrontEnd::editTeams()
 {
     if( tab->currentPage() != teamEditor ){
 	tab->showPage( teamEditor );

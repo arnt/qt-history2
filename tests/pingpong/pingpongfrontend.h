@@ -1,5 +1,5 @@
-#ifndef PINGPONGAPP_H
-#define PINGPONGAPP_H
+#ifndef PINGPONGFRONTEND_H
+#define PINGPONGFRONTEND_H
 
 #include <qmainwindow.h>
 #include <qsqltable.h>
@@ -16,11 +16,11 @@ class TeamEditor;
 class Statistics;
 class HighscoreList;
 
-class PingPongApp : public QMainWindow
+class PingpongFrontEnd : public QMainWindow
 {
     Q_OBJECT
 public:
-    PingPongApp( QWidget * parent = 0, const char * name = 0 );
+    PingpongFrontEnd( QWidget * parent = 0, const char * name = 0 );
 
 protected:
     void init();
