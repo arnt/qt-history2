@@ -133,7 +133,7 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
 /*! \reimp */
 QMotifPlusStyle::~QMotifPlusStyle()
 {
-    if ( singleton && singleton->ref-- <= 0) {
+    if ( singleton && --singleton->ref <= 0) {
         delete singleton;
         singleton = 0;
     }
