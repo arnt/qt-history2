@@ -605,12 +605,12 @@ private:
  *
  ****************************************************************************/
 
-class ProgressAnimation : public QWidget
+class QFDProgressAnimation : public QWidget
 {
     Q_OBJECT
 
 public:
-    ProgressAnimation( QWidget *parent );
+    QFDProgressAnimation( QWidget *parent );
     void start();
 
 private slots:
@@ -625,7 +625,7 @@ private:
 
 };
 
-ProgressAnimation::ProgressAnimation( QWidget *parent )
+QFDProgressAnimation::QFDProgressAnimation( QWidget *parent )
     : QWidget( parent )
 {
     setFixedSize( 300, 50 );
@@ -636,12 +636,12 @@ ProgressAnimation::ProgressAnimation( QWidget *parent )
 	     this, SLOT( next() ) );
 }
 
-void ProgressAnimation::start()
+void QFDProgressAnimation::start()
 {
     timer->start( 150, FALSE );
 }
 
-void ProgressAnimation::next()
+void QFDProgressAnimation::next()
 {
     ++step;
     if ( step > 10 )
@@ -649,7 +649,7 @@ void ProgressAnimation::next()
     repaint();
 }
 
-void ProgressAnimation::paintEvent( QPaintEvent * )
+void QFDProgressAnimation::paintEvent( QPaintEvent * )
 {
     erase();
 
@@ -679,12 +679,12 @@ void ProgressAnimation::paintEvent( QPaintEvent * )
 }
 
 
-class ProgressDialog : public QSemiModal
+class QFDProgressDialog : public QSemiModal
 {
     Q_OBJECT
 
 public:
-    ProgressDialog( QWidget *parent, const QString &fn, int steps );
+    QFDProgressDialog( QWidget *parent, const QString &fn, int steps );
 
     void setReadProgress( int p );
     void setWriteProgress( int p );
@@ -697,11 +697,11 @@ private:
     QProgressBar *readBar;
     QProgressBar *writeBar;
     QLabel *writeLabel;
-    ProgressAnimation *animation;
+    QFDProgressAnimation *animation;
 
 };
 
-ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
+QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int steps )
     : QSemiModal( parent, "", TRUE )
 {
     setCaption( tr( "Copy or Move a File" ) );
@@ -709,7 +709,7 @@ ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
     layout->setSpacing( 5 );
     layout->setMargin( 5 );
 
-    animation = new ProgressAnimation( this );
+    animation = new QFDProgressAnimation( this );
     layout->addWidget( animation );
 
     layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this ) );
@@ -733,17 +733,17 @@ ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
     animation->start();
 }
 
-void ProgressDialog::setReadProgress( int p )
+void QFDProgressDialog::setReadProgress( int p )
 {
     readBar->setProgress( p );
 }
 
-void ProgressDialog::setWriteProgress( int p )
+void QFDProgressDialog::setWriteProgress( int p )
 {
     writeBar->setProgress( p );
 }
 
-void ProgressDialog::setWriteLabel( const QString &s )
+void QFDProgressDialog::setWriteLabel( const QString &s )
 {
     writeLabel->setText( tr( "Write: %1" ).arg( s ) );
 }
@@ -877,7 +877,7 @@ struct QFileDialogPrivate {
     bool hadDotDot;
 
     bool ignoreNextKeyPress;
-    ProgressDialog *progressDia;
+    QFDProgressDialog *progressDia;
     bool checkForFilter;
     bool ignoreReturn;
     bool ignoreStop;
@@ -4350,7 +4350,7 @@ void QFileDialog::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkO
     if ( !d->progressDia ) {
 	if ( bytesDone < bytesTotal) {
 	    d->ignoreStop = FALSE;
-	    d->progressDia = new ProgressDialog( this, label, bytesTotal );
+	    d->progressDia = new QFDProgressDialog( this, label, bytesTotal );
 	    connect( d->progressDia, SIGNAL( cancelled() ),
 		     this, SLOT( stopCopy() ) );
 	    d->progressDia->show();
