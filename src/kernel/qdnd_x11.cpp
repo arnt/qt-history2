@@ -177,7 +177,7 @@ static QIntDict<QCString> * qt_xdnd_drag_types = 0;
 static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
 // timer used when target wants "continuous" move messages (eg. scroll)
-static int heartbeat = 0;
+static int heartbeat = -1;
 // rectangle in which the answer will be the same
 static QRect qt_xdnd_source_sameanswer;
 //static QRect qt_xdnd_target_sameanswer;
@@ -1019,6 +1019,7 @@ void QDragManager::updateCursor()
 void QDragManager::cancel( bool deleteSource )
 {
     killTimer( heartbeat );
+    heartbeat = -1;
     if ( object ) {
 	beingCancelled = TRUE;
 	object = 0;
@@ -1268,6 +1269,7 @@ void QDragManager::move( const QPoint & globalPos )
 void QDragManager::drop()
 {
     killTimer( heartbeat );
+    heartbeat = -1;
     if ( !qt_xdnd_current_target )
 	return;
 
@@ -1665,7 +1667,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
     killTimer( heartbeat );
-    heartbeat = 0;
+    heartbeat = -1;
     qt_xdnd_current_screen = -1;
     qt_xdnd_dragging = FALSE;
 
