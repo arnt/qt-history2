@@ -320,6 +320,8 @@ bool RC2UI::makeDialog()
 	do {
 	    line = "";
 	    do {
+		if ( in->eof() )
+		    return TRUE;
 		line += in->readLine();
 	    } while ( line[(int)line.length()-1] == '|' ||
 		      line[(int)line.length()-1] == ',' );
@@ -362,6 +364,9 @@ bool RC2UI::makeDialog()
 	writeFont( fontname, pointsize );
 
 	do {
+	    if ( in->eof() )
+		return TRUE;
+
 	    line = in->readLine().stripWhiteSpace();
 	    if ( line == "END" )
 		continue;
