@@ -312,16 +312,12 @@ void QFontPrivate::load(QFont::Script script)
 
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
 	Q_ASSERT(e->type() == QFontEngine::Mac);
-	engine = (QFontEngineMac*)e;
+	engine = engineData->engine = (QFontEngineMac*)e;
 	engine->ref();
-
-	// the font info and fontdef should already be filled
-	return;
+	return; // the font info and fontdef should already be filled
     }
 
-    engine = new QFontEngineMac;
-    engineData->engine = engine;
-
+    engineData->engine = engine = new QFontEngineMac;
     if(engine->fnum == -1) {
 	//find the font
 	QStringList family_list = QStringList::split( ',', request.family );
