@@ -21,60 +21,79 @@ class Q_GUI_EXPORT QItemSelectionRange
 {
 
 public:
-    inline QItemSelectionRange() :
-        t(-1), l(-1), b(-1), r(-1) {}
+    inline QItemSelectionRange() : m(0) {}
     inline QItemSelectionRange(const QItemSelectionRange &other)
-        : p(other.p), t(other.t), l(other.l), b(other.b), r(other.r) {}
-    inline QItemSelectionRange(const QModelIndex &parent,
-                               int top, int left, int bottom, int right)
-        : p(parent), t(top), l(left), b(bottom), r(right) {}
-    inline QItemSelectionRange(const QModelIndex &parent, const QModelIndex &index)
-        : p(parent), t(index.row()), l(index.column()),
-          b(index.row()), r(index.column()) {}
+        : m(other.m), tl(other.tl), br(other.br) {}
+    inline QItemSelectionRange(int top, int left, int bottom, int right,
+                               const QModelIndex &parent, const QAbstractItemModel *model)
+        : m(model)
+        {
+            if (model) {
+                tl = QPersistentModelIndex(model->index(top, left, parent),
+                                           const_cast<QAbstractItemModel*>(model));
+                br = QPersistentModelIndex(model->index(bottom, right, parent),
+                                           const_cast<QAbstractItemModel*>(model));
+            }
+        }
+    inline QItemSelectionRange(const QModelIndex &index, const QAbstractItemModel *model) : m(model)
+        { tl = QPersistentModelIndex(index, const_cast<QAbstractItemModel*>(model)); br = tl; }
 
-    inline int top() const { return t; }
-    inline int left() const { return l; }
-    inline int bottom() const { return b; }
-    inline int right() const { return r; }
-    inline int width() const { return r - l + 1; }
-    inline int height() const { return b - t + 1; }
-    inline QModelIndex parent() const { return p; }
+    inline QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight,
+                               const QAbstractItemModel *model)
+        : m(model)
+        {
+            tl = QPersistentModelIndex(topLeft, const_cast<QAbstractItemModel*>(model));
+            br = QPersistentModelIndex(bottomRight, const_cast<QAbstractItemModel*>(model));
+        }
 
+    inline int top() const { return tl.row(); }
+    inline int left() const { return tl.column(); }
+    inline int bottom() const { return br.row(); }
+    inline int right() const { return br.column(); }
+    inline int width() const { return br.column() - tl.column() + 1; }
+    inline int height() const { return br.row() - tl.row() + 1; }
+    inline QModelIndex parent() const { return (m ? m->parent(tl) : QModelIndex::Null); }
+    inline const QAbstractItemModel *model() const { return m; }
     inline bool contains(const QModelIndex &item, const QAbstractItemModel *model) const
     {
-        return (p == model->parent(item)
-                && t <= item.row() && l <= item.column()
-                && b >= item.row() && r >= item.column());
+        return (model && model->parent(tl) == model->parent(item)
+                && tl.row() <= item.row() && tl.column() <= item.column()
+                && br.row() >= item.row() && br.column() >= item.column());
     }
 
     inline bool intersects(const QItemSelectionRange &other) const
     {
-        return (p == other.p
-                && ((t <= other.t && b >= other.t) || (t >= other.t && t <= other.b))
-                && ((l <= other.l && r >= other.l) || (l >= other.l && l <= other.r)));
+        return (parent() == other.parent()
+                && ((top() <= other.top() && bottom() >= other.top())
+                    || (top() >= other.top() && top() <= other.bottom()))
+                && ((left() <= other.left() && right() >= other.left())
+                    || (left() >= other.left() && left() <= other.right())));
     }
 
     inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
     {
-        return QItemSelectionRange(p, qMax(t, other.t), qMax(l, other.l),
-                                   qMin(b, other.b), qMin(r, other.r));
+        return QItemSelectionRange(qMax(top(), other.top()), qMax(left(), other.left()),
+                                   qMin(bottom(), other.bottom()), qMin(right(), other.right()),
+                                   other.parent(), other.model());
     }
 
     inline bool operator==(const QItemSelectionRange &other) const
     {
-        return (p == other.p
-                && t == other.t && l == other.l
-                && b == other.b && r == other.r);
+        return (parent() == other.parent()
+                && top() == other.top() && left() == other.left()
+                && bottom() == other.bottom() && right() == other.right());
     }
 
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
-    inline bool isValid() const { return (t <= b && l <= r && t > -1 && l > -1); }
+    inline bool isValid() const { return m && tl.isValid() && br.isValid()
+                                      && top() <= bottom() && left() <= right()
+                                      && top() > -1 && left() > -1; }
 
     QModelIndexList items(const QAbstractItemModel *model) const;
 
 private:
-    QModelIndex p;
-    int t, l, b, r;
+    const QAbstractItemModel *m;
+    QPersistentModelIndex tl, br;
 };
 
 class QItemSelection;

@@ -1484,33 +1484,35 @@ void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::Selectio
         if (previous.isValid() &&
             q->model()->parent(index) == q->model()->parent(previous)) {
             // same parent
-            currentRange = QItemSelectionRange(currentRange.parent(),
-                                               currentRange.top(),
+            currentRange = QItemSelectionRange(currentRange.top(),
                                                currentRange.left(),
                                                index.row(),
-                                               index.column());
+                                               index.column(),
+                                               currentRange.parent(),
+                                               q->model());
         } else if (previous.isValid()
                    && q->model()->parent(index) == q->model()->sibling(previous.row(),
                                                                  0, previous)) {
             // item is child of prevItem
             rangeStack.push(currentRange);
-            currentRange = QItemSelectionRange(q->model()->parent(index), index);
+            currentRange = QItemSelectionRange(index, q->model());
         } else {
             if (currentRange.isValid())
                 selection.append(currentRange);
             if (rangeStack.isEmpty()) {
-                currentRange = QItemSelectionRange(q->model()->parent(index), index);
+                currentRange = QItemSelectionRange(index, q->model());
             } else {
                 currentRange = rangeStack.pop();
                 if (q->model()->parent(index) == currentRange.parent()) {
-                    currentRange = QItemSelectionRange(currentRange.parent(),
-                                                       currentRange.top(),
+                    currentRange = QItemSelectionRange(currentRange.top(),
                                                        currentRange.left(),
                                                        index.row(),
-                                                       index.column());
+                                                       index.column(),
+                                                       currentRange.parent(),
+                                                       q->model());
                 } else {
                     selection.append(currentRange);
-                    currentRange = QItemSelectionRange(q->model()->parent(index), index);
+                    currentRange = QItemSelectionRange(index, q->model());
                 }
             }
         }

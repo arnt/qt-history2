@@ -666,9 +666,10 @@ QModelIndex QAbstractItemView::root() const
 void QAbstractItemView::selectAll()
 {
     QItemSelection selection;
-    selection.append(QItemSelectionRange(root(), 0, 0,
+    selection.append(QItemSelectionRange(0, 0,
                                          model()->rowCount(root()) - 1,
-                                         model()->columnCount(root()) - 1));
+                                         model()->columnCount(root()) - 1,
+                                         root(), model()));
     selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
 }
 

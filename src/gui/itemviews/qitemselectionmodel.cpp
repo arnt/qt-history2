@@ -186,8 +186,8 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
     QModelIndex index;
     QModelIndexList indexes;
     if (isValid()) {
-        for (int column = l; column <= r; ++column) {
-            for (int row = t; row <= b; ++row) {
+        for (int column = left(); column <= right(); ++column) {
+            for (int row = top(); row <= bottom(); ++row) {
                 index = model->index(row, column, parent());
                 if (model->flags(index) & QAbstractItemModel::ItemIsSelectable)
                     indexes.append(index);
@@ -275,9 +275,7 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
     if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
         qWarning("topLeft and bottomRight are swapped!");
 
-    append(QItemSelectionRange(model->parent(bottomRight),
-                               topLeft.row(), topLeft.column(),
-                               bottomRight.row(), bottomRight.column()));
+    append(QItemSelectionRange(topLeft, bottomRight, model));
 }
 
 /*!
@@ -379,14 +377,15 @@ void QItemSelection::split(const QItemSelectionRange &range,
     int other_left = other.left();
     int other_bottom = other.bottom();
     int other_right = other.right();
+    const QAbstractItemModel *model = range.model();
     if (other_top > top)
-        result->append(QItemSelectionRange(parent, top, left, other_top - 1,right));
+        result->append(QItemSelectionRange(top, left, other_top - 1, right, parent, model));
     if (other_bottom < bottom)
-        result->append(QItemSelectionRange(parent, other_bottom + 1, left, bottom, right));
+        result->append(QItemSelectionRange(other_bottom + 1, left, bottom, right, parent, model));
     if (other_left > left)
-        result->append(QItemSelectionRange(parent, top, left, bottom, other_left - 1));
+        result->append(QItemSelectionRange(top, left, bottom, other_left - 1, parent, model));
     if (other_right < right)
-        result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
+        result->append(QItemSelectionRange(top, other_right + 1, bottom, right, parent, model));
 }
 
 /*!
@@ -409,22 +408,24 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
         for (int i = 0; i < selection.count(); ++i) {
             QModelIndex parent = selection.at(i).parent();
             int colCount = model->columnCount(parent);
-            expanded.append(QItemSelectionRange(selection.at(i).parent(),
-                                                selection.at(i).top(),
+            expanded.append(QItemSelectionRange(selection.at(i).top(),
                                                 0,
                                                 selection.at(i).bottom(),
-                                                colCount - 1));
+                                                colCount - 1,
+                                                selection.at(i).parent(),
+                                                selection.at(i).model()));
         }
     }
     if (command & QItemSelectionModel::Columns) {
         for (int i = 0; i < selection.count(); ++i) {
             QModelIndex parent = selection.at(i).parent();
             int rowCount = model->rowCount(parent);
-            expanded.append(QItemSelectionRange(selection.at(i).parent(),
-                                                0,
+            expanded.append(QItemSelectionRange(0,
                                                 selection.at(i).left(),
                                                 rowCount - 1,
-                                                selection.at(i).right()));
+                                                selection.at(i).right(),
+                                                selection.at(i).parent(),
+                                                selection.at(i).model()));
         }
     }
     return expanded;
