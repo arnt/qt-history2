@@ -58,7 +58,7 @@ class QString;
 
 
 #ifdef Q_WS_X11
-#include "qbytearray.h"
+#include "qbitarray.h"
 #include "qwindowdefs.h"
 #include "qt_x11_p.h"
 #endif
@@ -92,7 +92,7 @@ public:
     bool composing;
     QFont font;
     XFontSet fontset;
-    QMemArray<bool> selectedChars;
+    QBitArray selectedChars;
 #endif // Q_WS_X11
 
 #ifdef Q_WS_QWS

@@ -216,33 +216,30 @@ extern "C" {
 
 	    if ( qic->selectedChars.size() < qic->text.length() ) {
 		// expand the selectedChars array if the compose string is longer
-		uint from = qic->selectedChars.size();
+		int from = qic->selectedChars.size();
 		qic->selectedChars.resize( qic->text.length() );
-		for ( uint x = from; from < qic->selectedChars.size(); ++x )
-		    qic->selectedChars[x] = 0;
+		for ( int x = from; from < qic->selectedChars.size(); ++x )
+		    qic->selectedChars.clearBit(x);
 	    }
 
-	    uint x;
-	    bool *p = qic->selectedChars.data() + drawstruct->chg_first;
 	    // determine if the changed chars are selected based on text->feedback
-	    for ( x = 0; x < s.length(); ++x )
-		*p++ = ( text->feedback ? ( text->feedback[x] & XIMReverse ) : 0 );
+	    for ( int x = 0; x < s.length(); ++x )
+		qic->selectedChars.setBit(x, (text->feedback ?
+					      (text->feedback[x] & XIMReverse ) : 0));
 
 	    // figure out where the selection starts, and how long it is
-	    p = qic->selectedChars.data();
 	    bool started = FALSE;
-	    for ( x = 0; x < qic->selectedChars.size(); ++x ) {
+	    for ( int x = 0; x < qic->selectedChars.size(); ++x ) {
 		if ( started ) {
-		    if ( *p ) ++sellen;
+		    if (qic->selectedChars.testBit(x)) ++sellen;
 		    else break;
 		} else {
-		    if ( *p ) {
+		    if (qic->selectedChars.testBit(x)) {
 			cursor = x;
 			started = TRUE;
 			sellen = 1;
 		    }
 		}
-		++p;
 	    }
 	} else {
 	    if (drawstruct->chg_length == 0)
