@@ -118,12 +118,12 @@ struct QListViewPrivate
     // for sorting
     class SortableItem {
     public:
-	QString key;
-	QListViewItem * i;
-	bool operator<( const SortableItem& i ) const { return key < i.key; }
-	bool operator<=(const SortableItem& i ) const { return key <= i.key; }
-	bool operator>( const SortableItem& i ) const { return key > i.key; }
-	bool operator>=( const SortableItem& i ) const { return key >= i.key; }
+	QListViewItem * item;
+	int col;
+	bool asc;
+	bool operator<( const SortableItem& i ) const { return item->compare( i.item, col, asc ) < 0; }
+	bool operator<=(const SortableItem& i ) const { return item->compare( i.item, col, asc ) <= 0; }
+	bool operator>( const SortableItem& i ) const { return item->compare( i.item, col, asc ) > 0; }
     };
 
     class ItemColumnInfo {
@@ -727,7 +727,12 @@ void QListViewItem::takeItem( QListViewItem * item )
     return tmpString;
   \endcode
 
-  \sa sortChildItems()
+  For sorting, actually compare() is used, which uses in its default
+  implementation key(). If you use non-string values for sorting,
+  rather reimplement compare(), as this is more efficient that
+  convering the key into a string and comparing that.
+
+  \sa compare(), sortChildItems()
 */
 
 QString QListViewItem::key( int column, bool ) const
@@ -735,6 +740,23 @@ QString QListViewItem::key( int column, bool ) const
     return text( column );
 }
 
+
+/*!  Compares this listview item to \a i using the column \a col in \a
+  ascending order. Returns -1 if this item is less than \a i, 0 if
+  they are equal and 1 if this item is greater than \a i.
+
+  The default implementation uses QIListViewItem::key() to compare the
+  items. A reimplementation may use different values.
+
+  This function is used for sorting.
+
+  \sa key()
+*/
+
+int QListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
+{
+    return key( col, ascending ).compare( i->key( col, ascending ) );
+}
 
 /*!  Sorts the children of this item by the return values of
   key(\a column, \a ascending), in ascending order if \a ascending
@@ -770,8 +792,9 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     QListViewItem * s = childItem;
     int i = 0;
     while ( s && i<nChildren ) {
-	siblings[i].key = s->key( column, ascending );
-	siblings[i].i = s;
+	siblings[i].col = column;
+	siblings[i].asc = ascending;
+	siblings[i].item = s;
 	s = s->siblingItem;
 	i++;
     }
@@ -784,14 +807,14 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     // child.
     if ( ascending ) {
 	for( i=0; i < nChildren-1; i++ )
-	    siblings[i].i->siblingItem = siblings[i+1].i;
-	siblings[nChildren-1].i->siblingItem = 0;
-	childItem = siblings[0].i;
+	    siblings[i].item->siblingItem = siblings[i+1].item;
+	siblings[nChildren-1].item->siblingItem = 0;
+	childItem = siblings[0].item;
     } else {
 	for( i=nChildren-1; i >0; i-- )
-	    siblings[i].i->siblingItem = siblings[i-1].i;
-	siblings[0].i->siblingItem = 0;
-	childItem = siblings[nChildren-1].i;
+	    siblings[i].item->siblingItem = siblings[i-1].item;
+	siblings[0].item->siblingItem = 0;
+	childItem = siblings[nChildren-1].item;
     }
 
     // we don't want no steenking memory leaks.
@@ -1161,6 +1184,7 @@ void QListViewItem::setText( int column, const QString &text )
     widthChanged( column );
     if ( lv ) {
 	lv->triggerUpdate();
+	lv->d->makeCurrentVisibleOnUpdate = FALSE;
 	lv->d->useDoubleBuffer = TRUE;
     }
 }
@@ -1226,6 +1250,7 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
     QListView *lv = listView();
     if ( lv ) {
 	lv->triggerUpdate();
+	lv->d->makeCurrentVisibleOnUpdate = FALSE;
 	lv->d->useDoubleBuffer = TRUE;
     }
 }

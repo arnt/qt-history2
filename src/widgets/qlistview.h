@@ -111,6 +111,7 @@ public:
     virtual const QPixmap * pixmap( int ) const;
 
     virtual QString key( int, bool ) const;
+    virtual int compare( QListViewItem *i, int col, bool ) const;
     virtual void sortChildItems( int, bool );
 
     int childCount() const { return nChildren; }
@@ -189,7 +190,7 @@ class Q_EXPORT QListView: public QScrollView
     friend class QListViewItemIterator;
     friend class QListViewItem;
     friend class QCheckListItem;
-    
+
     Q_OBJECT
     Q_ENUMS( SelectionMode )
     Q_PROPERTY( int columns READ columns )
