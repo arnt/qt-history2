@@ -198,7 +198,9 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	if (!xt_grab && event->xany.display == QMotif::x11Display()
             && (event->type == XFocusIn
                 && (event->xfocus.mode == NotifyGrab
-                    || event->xfocus.mode == NotifyWhileGrabbed))) {
+                    || event->xfocus.mode == NotifyWhileGrabbed))
+            && (event->xfocus.detail != NotifyPointer
+                && event->xfocus.detail != NotifyPointerRoot)) {
             GDEBUG("Xt: grab started for 0x%lx (detail %d)",
                    event->xany.window, event->xfocus.detail);
 	    xt_grab = TRUE;
