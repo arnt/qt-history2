@@ -811,8 +811,10 @@ void QLayout::setSpacing(int spacing)
     if (spacing < 0) {
         if (d->topLevel)
             d->insideSpacing = d->outsideBorder;
-        else
+        else if (parent())
             d->insideSpacing = static_cast<QLayout*>(parent())->d->insideSpacing;
+        else
+            d->insideSpacing = -1; //propagate later
     } else {
         d->insideSpacing = spacing;
     }
