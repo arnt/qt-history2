@@ -1268,8 +1268,11 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
 	    QUriDrag* drag = new QUriDrag( viewport() );
-	    QStringList files = ( filedialog->mode() == QFileDialog::ExistingFiles ) ?
-		filedialog->selectedFiles() : filedialog->selectedFile();
+	    QStringList files;
+	    if ( filedialog->mode() == QFileDialog::ExistingFiles )
+		files = filedialog->selectedFiles();
+	    else
+		filedialog->selectedFile();
 	    drag->setUnicodeUris( files );
 
 	    if ( lined->parentWidget()->isVisible() )
@@ -1682,8 +1685,11 @@ void QFileDialogQFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 	dragItem = 0;
 	if ( item ) {
 	    QUriDrag* drag = new QUriDrag( viewport() );
-	    QStringList files = ( filedialog->mode() == QFileDialog::ExistingFiles ) ?
-		filedialog->selectedFiles() : filedialog->selectedFile();
+	    QStringList files;
+	    if ( filedialog->mode() == QFileDialog::ExistingFiles )
+		files = filedialog->selectedFiles();
+	    else
+		filedialog->selectedFile();
 	    drag->setUnicodeUris( files );
 
 	    if ( lined->isVisible() )
