@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#459 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#460 $
 **
 ** Implementation of QWidget class
 **
@@ -3749,19 +3749,18 @@ void QWidget::wheelEvent( QWheelEvent *e )
 
 
 /*!
-  This event handler can be reimplemented in a subclass to receive
-  key press events for the widget.
+  This event handler can be reimplemented in a subclass to receive key
+  press events for the widget.
 
-  A widget must \link setFocusPolicy() accept focus\endlink initially
-  and \link hasFocus() have focus\endlink in order to receive a key press
-  event.
+  A widget must call setFocusPolicy() to accept focus initially and
+  have focus in order to receive a key press event.
 
-  If you reimplement this handler, it is very important that you \link
-  QKeyEvent ignore()\endlink the press if you do not understand it, so
-  that the widget's parent can interpret it.
+  If you reimplement this handler, it is very important that you
+  ignore() the event if you do not understand it, so that the widget's
+  parent can interpret it.
 
   The default implementation closes popup widgets if you hit
-  escape. Otherwise the event is ignored.
+  escape.  Otherwise the event is ignored.
 
   As a special case to support applications not utilizing focus,
   \link isTopLevel() Top-level widgets \endlink that have
@@ -4397,21 +4396,17 @@ void QWidget::setStyle( QStyle *style )
 bool QWidget::setConfiguration( const QDomElement& element )
 {
     // Some widgets handle their children on their own.
-    if ( !inherits( "QGroupBox" ) )
-    {
+    if ( !inherits( "QGroupBox" ) ) {
 	QDomElement e = element.firstChild().toElement();
-	for( ; !e.isNull(); e = e.nextSibling().toElement() )
-        {
-	    if ( e.tagName() == "Widget" )
-	    {
+	while ( !e.isNull() ) {
+	    if ( e.tagName() == "Widget" ) {
 		if ( !e.firstChild().toElement().toWidget( this ) )
 		    return FALSE;
-	    }
-	    else if ( e.tagName() == "Layout" )
-	    {
+	    } else if ( e.tagName() == "Layout" ) {
 		if ( !( e.firstChild().toElement().toLayout( this ) ) )
 		    return FALSE;
 	    }
+	    e = e.nextSibling().toElement();
 	}
     }
 
