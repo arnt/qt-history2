@@ -94,6 +94,12 @@ embedded {
 		3rdparty/freetype/src/smooth/smooth.c \
 		3rdparty/freetype/src/truetype/truetype.c \
 		3rdparty/freetype/src/type1/type1.c \
+		3rdparty/freetype/src/type42/type42.c \
+		3rdparty/freetype/src/pshinter/pshinter.c \
+		3rdparty/freetype/src/pcf/pcf.c \
+		3rdparty/freetype/src/pfr/pfr.c \
+		3rdparty/freetype/src/bdf/bdf.c \
+		3rdparty/freetype/src/gzip/ftgzip.c \
 		3rdparty/freetype/src/winfonts/winfnt.c
 
 	ft:INCLUDEPATH += \
@@ -103,9 +109,10 @@ embedded {
 
 	else:DEFINES += QT_NO_FREETYPE
 
+	ft:DEFINES += FT_CONFIG_OPTION_SYSTEM_ZLIB
 
 	PRECOMPH=$$QT_SOURCE_TREE/include/qt.h
-	INCLUDEPATH += 3rdparty/freetype2/include 
+
 
 	qnx6 { 
 		HEADERS += $$KERNEL_H/qwsgfx_qnx6.h
