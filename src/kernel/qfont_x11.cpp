@@ -1049,7 +1049,10 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 		if (tmp != QFont::UnknownScript) {
 		    load(tmp);
 		    qfs = x11data.fontstruct[tmp];
-		    scale = qfs->scale;
+		    if (qfs && qfs != (QFontStruct *) -1 )
+			scale = qfs->scale;
+		    else 
+			scale = 1.;
 		} else {
 		    qfs = 0;
 		    scale = 1.;
