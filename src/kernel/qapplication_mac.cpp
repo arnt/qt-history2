@@ -1633,7 +1633,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	//map it into qt keys
 	QString mystr;
+	
+#ifdef DEBUG_KEY_MAPS
+	qDebug("************ Mapping modifiers and key ***********");
+#endif
 	int modifiers = get_modifiers(modif), mychar=get_key(modifiers, chr, keyc);
+#ifdef DEBUG_KEY_MAPS
+	qDebug("------------ Mapping modifiers and key -----------");
+#endif
 	if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
 	    chr = 0;
 	} else {  	//now get the real ascii value
