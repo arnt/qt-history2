@@ -2421,6 +2421,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
     int ret;
 
     switch (sh) {
+    case SH_GroupBox_TextLabelVerticalAlignment:
+	ret = Qt::AlignVCenter;
+	break;
+
     case SH_TabBar_SelectMouseType:
 	ret = QEvent::MouseButtonPress;
 	break;

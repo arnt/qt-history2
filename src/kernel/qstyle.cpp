@@ -1628,6 +1628,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_PopupMenu_Scrollable whether popupmenu's must support
 	scrolling.
 
+    \value SH_GroupBox_TextLabelVerticalAlignment how to vertically align a
+        groupbox's text label.
+
     \value SH_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Therefore,
 	custom values must be greater than this value.

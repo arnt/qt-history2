@@ -308,8 +308,10 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 		x = 8;
 	}
 	QRect r( x, 0, tw, h );
-
-	style().drawItem( &paint, r, AlignCenter | ShowPrefix, colorGroup(),
+	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
+	if(va & AlignTop)
+	    r.setTop(fm.descent());
+	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
 			  isEnabled(), 0, str );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     }
@@ -611,7 +613,6 @@ void QGroupBox::calculateFrame()
 
     if ( lenvisible ) { // do we have a label?
 	QFontMetrics fm = fontMetrics();
-	int h = fm.height();
 	while ( lenvisible ) {
 	    int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
 	    if ( tw < width() )
@@ -620,7 +621,11 @@ void QGroupBox::calculateFrame()
 	}
 	if ( lenvisible ) { // but do we also have a visible label?
 	    QRect r = rect();
-	    r.setTop( h/2 );				// frame rect should be
+	    int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
+	    if(va & AlignVCenter)
+		r.setTop( fm.height()/2 );				// frame rect should be
+	    else if(va & AlignTop)
+		r.setTop(fm.ascent());
 	    setFrameRect( r );			//   smaller than client rect
 	    return;
 	}

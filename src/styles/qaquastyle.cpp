@@ -2114,6 +2114,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 {
     int ret = 0;
     switch(sh) {
+    case SH_GroupBox_TextLabelVerticalAlignment:
+	ret = Qt::AlignTop;
+	break;
     case SH_ScrollView_FrameOnlyAroundContents:
 	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel()) &&  
 	   (w->inherits("QScrollView") || w->inherits("QWorkspaceChild")))

@@ -578,6 +578,10 @@ public:
 	//bool - popupmenu supports scrolling instead of multicolumn mode
 	SH_PopupMenu_Scrollable,
 
+	// Qt::AlignmentFlags - text label vertical alignment in groupboxes
+	// Center on windows, Auto|VCenter otherwize
+	SH_GroupBox_TextLabelVerticalAlignment,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };
