@@ -1592,6 +1592,8 @@ int QHeader::headerWidth() const
 
 void QHeader::calculatePositions( bool onlyVisible, int start )
 {
+    if ( count() == 0 )
+	return;
     d->positionsDirty = FALSE;
     d->lastPos = d->positions[start];
     for ( int i = start; i < count(); i++ ) {
