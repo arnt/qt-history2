@@ -314,7 +314,7 @@ bool SourceEditor::isModified() const
 
 void SourceEditor::checkTimeStamp()
 {
-    if ( formWindow->inherits( "FormWindow" ) &&
+    if ( formWindow && formWindow->inherits( "FormWindow" ) &&
 	 lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	QString fn = MetaDataBase::formSourceFile( formWindow );
 	if ( QFile::exists( fn ) ) {
@@ -339,7 +339,7 @@ void SourceEditor::checkTimeStamp()
 
 void SourceEditor::updateTimeStamp()
 {
-    if ( formWindow->inherits( "FormWindow" ) &&
+    if ( formWindow && formWindow->inherits( "FormWindow" ) &&
 	 lIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	QString fn = MetaDataBase::formSourceFile( formWindow );
 	lastTimeStamp = QFileInfo( fn ).lastModified();
