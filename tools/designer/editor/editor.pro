@@ -18,6 +18,6 @@ SOURCES		= editor.cpp \
 INTERFACES	= preferences.ui
 		
 TARGET		= editor
-DESTDIR		= $(QTDIR)/lib
+DESTDIR		= ../../../lib
 VERSION		= 1.0.0
 INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces

@@ -7,7 +7,7 @@ sql {
 }
 INTERFACES	+= mainwindowwizard.ui
 SOURCES		+= main.cpp
-DESTDIR		= $(QTDIR)/plugins/designer
+DESTDIR		= ../../../../plugins/designer
 PROJECTNAME	= Wizards
 INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces
 

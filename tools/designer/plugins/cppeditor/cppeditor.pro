@@ -20,7 +20,7 @@ SOURCES		= cppeditor.cpp \
 		  yyreg.cpp
 		
 TARGET		= cppeditor
-DESTDIR		= $(QTDIR)/plugins/designer
+DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 unix:LIBS	+= -leditor
 win32:LIBS	+= $(QTDIR)/lib/editor.lib

@@ -107,4 +107,4 @@ INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/ $(KDEDIR)/include
 unix:LIBS		+= -lqutil -L$(QTDIR)/lib -L$(KDEDIR)/lib -lkdecore -lkdeui -lDCOP
 win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES		+= DESIGNER HAVE_KDE
-DESTDIR		= $(QTDIR)/bin
+DESTDIR		= ../../../bin

@@ -4,5 +4,5 @@ TARGET		= inspector
 HEADERS		= cppparser.h
 SOURCES		= main.cpp cppparser.cpp
 INTERFACES	= inspector.ui
-DESTDIR		= $(QTDIR)/bin
+DESTDIR		= ../../bin
 LANGUAGE	= C++

@@ -4,7 +4,7 @@ HEADERS		= glwidget.h
 SOURCES		= main.cpp \
 		  glwidget.cpp
 INTERFACES	=
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= ../../../../plugins/designer
 INCLUDEPATH     += ../../interfaces
 
 target.path=$$plugins.path

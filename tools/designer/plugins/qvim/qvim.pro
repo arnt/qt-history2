@@ -55,7 +55,7 @@ DEFINES		+= HAVE_CONFIG_H USE_GUI_QT
 LIBS		+= -lncurses
 		
 TARGET		= qvim
-DESTDIR		= $(QTDIR)/plugins
+DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 unix:LIBS	+= -leditor
 INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces $(QTDIR)/tools/designer/editor

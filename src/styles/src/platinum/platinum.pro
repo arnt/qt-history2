@@ -13,7 +13,7 @@ unix:OBJECTS_DIR	= .obj
 win32:OBJECTS_DIR	= obj
 
 TARGET		= qplatinumstyle
-DESTDIR		= $(QTDIR)/plugins/styles
+DESTDIR		= ../../../../plugins/styles
 
 target.path=$$plugins.path
 isEmpty(target.path):target.path=$$QT_PREFIX/plugins

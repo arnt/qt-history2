@@ -7,4 +7,4 @@ INTERFACES	= mainwindow.ui topicchooser.ui finddialog.ui helpdialog.ui
 DBFILE	= assistiant.db
 PROJECTNAME	= Assistant
 LANGUAGE	= C++
-DESTDIR	= $(QTDIR)/bin
+DESTDIR	= ../../bin
