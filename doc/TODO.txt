@@ -123,6 +123,13 @@ QHostAddress (rms)
 QLineEdit
   public undo/redo API, like in QMultiLineEdit right now (borland)
 
+QFont/X11 (brad & lars)
+  complete rewrite of the x11 font handling to be really unicode compliant.
+  One QFont will use several X11 fonts to be able to render one QString
+  that contains eg all of arabic, chinese and russian. Will make 
+  QFont/X11 more compatible with the windows version, and remove the 
+  burden of handling charset/encoding issues from the developer.
+
 New functionality
 -----------------
 
@@ -147,6 +154,8 @@ BiDi (Lars)
     widgets rtl. Like a listview has to have the first column on the
     right, scrollbars have to be at the right and not at the left,
     menubars have to go from right to left, etc.
+    clean up the old bidi functions in qstring and qtrlcodec
+
 
 Database classes (Dave)
     Classes to query SQL databases.  Eventually use the plugin system to
