@@ -1664,7 +1664,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         return pm;
     }
 
-#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+#if 0 //!defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
     // server side pixmap transformations. We have to find a way to fix the alpha
     // channel to get it to work correctly.
     if (X11->has_xft && X11->use_xrender && data->xft_hd) {
