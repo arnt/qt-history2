@@ -403,7 +403,7 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 void
 UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
-    if(var == "QMAKE_PRL_LIBS")
+    if(var == "QMAKE_PRL_LIBS") 
 	project->variables()["QMAKE_CURRENT_PRL_LIBS"] = combineSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"] +
 									  project->variables()["QMAKE_LIBS"], l);
     else
@@ -542,6 +542,14 @@ UnixMakefileGenerator::findLibraries()
     return FALSE;
 }
 
+QString linkLib(const QString &file, const QString &libName) {
+  QString ret;
+  QRegExp reg("^.*lib(" + libName + "[^./=]*).*$");
+  if(reg.exactMatch(file))
+    ret = "-l" + reg.cap(1);
+  return ret;
+}
+
 void
 UnixMakefileGenerator::processPrlFiles()
 {
@@ -555,7 +563,7 @@ UnixMakefileGenerator::processPrlFiles()
 	    QStringList &l = project->variables()[lflags[i]];
 	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 		project->variables()["QMAKE_CURRENT_PRL_LIBS"].clear();
-		QString opt = (*it).stripWhiteSpace();;
+		QString opt = (*it).stripWhiteSpace();
 		if(opt.startsWith("-")) {
 		    if(opt.startsWith("-L")) {
 			QString r = opt.right(opt.length() - 2), l = r;
@@ -578,10 +586,7 @@ UnixMakefileGenerator::processPrlFiles()
 			    if(processPrlFile(prl)) {
 				if(prl.startsWith(mdd->local_dir))
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
-				QRegExp reg("^.*lib(" + lib + "[^./=]*).*$");
-				if(reg.exactMatch(prl))
-				    prl = "-l" + reg.cap(1);
-				opt = prl;
+				opt = linkLib(prl, lib);
 				processed.insert(opt, (void*)1);
 				ret = TRUE;
 				break;
@@ -604,18 +609,21 @@ UnixMakefileGenerator::processPrlFiles()
 			l_out.append(opt);
 		    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
 		} else {
-		    if(!processed[opt] && processPrlFile(opt)) {
-			processed.insert(opt, (void*)1);
-			ret = TRUE;
+		    QString lib = opt;
+		    if(!processed[lib] && processPrlFile(lib)) {
+		      processed.insert(lib, (void*)1);
+		      ret = TRUE;
 		    }
+		    if(ret)
+		      opt = linkLib(lib, "");
 		    if(!opt.isEmpty())
-			l_out.append(opt);
+		      l_out.append(opt);
 		    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
 		}
 	    }
 	    if(ret && l != l_out)
 		l = l_out;
-	    else
+	    else 
 		break;
 	}
     }

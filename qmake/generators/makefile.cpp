@@ -1237,8 +1237,10 @@ MakefileGenerator::processPrlFile(QString &file)
 	}
     }
     if(try_replace_file && file.isEmpty()) {
+#if 0
 	warn_msg(WarnLogic, "Found prl [%s] file with no target [%s]!", meta_file.latin1(),
 		 orig_file.latin1());
+#endif
 	file = orig_file;
     }
     return ret;
