@@ -607,7 +607,7 @@ void MainWindow::showGoActionLink()
 
     QAction *action = (QAction*) origin;
     QString docfile = *(goActionDocFiles->find(action));
-    showLink(docfile);
+    showLink(urlifyFileName(docfile));
 }
 
 void MainWindow::on_actionHelpAssistant_triggered()
