@@ -902,8 +902,9 @@ void QTableItem::setSpan( int rs, int cs )
     int rrow = rw;
     int rcol = cl;
     if ( rowspan > 1 || colspan > 1 ) {
-	table()->takeItem( this );
-	table()->setItem( rrow, rcol, this );
+	QTable* t = table();
+	t->takeItem( this );
+	t->setItem( rrow, rcol, this );
     }
 
     rowspan = rs;
