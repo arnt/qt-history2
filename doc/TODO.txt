@@ -2,11 +2,13 @@ General clean-up
 ----------------
 
 64-bit-clean sizeof and size_t
-  On 64-bit platforms sizeof and size_t are 64-bit and cannot be cast to
-  uint. Review code and API to get 64-bit-clean.
+  On 64-bit platforms sizeof and size_t are 64-bit and cannot be cast to uint.
+  Use ptrdiff_t instead of uint or whatever for pointer substraction.
+  Review code and API to get 64-bit-clean.
 
 Check > 2Gb file access is possible on 64-bit platforms
-  Offsets must be ulong, not uint, etc.
+  On 64-bit platforms offsets must be ulong, not uint, etc.
+  On 32-bit platforms, Qt should be "large file safe" if not "large file aware".
 
 const-correctness for char* (Dimitri)
   Some functions in the API return char* instead of const char*.
@@ -16,11 +18,8 @@ const-correctness for char* (Dimitri)
     char *str = "constant!"
 
 Pointer to pointer to member function
-  Avoid it in the code and the API. Use a pointer to member function. This
-  way a cast will be an implicit reinterpret_cast.
-  QMember* QConnection::member()
-  should be
-  QMember QConnection::member().
+  Rework signals/slots so that no member function pointer casting is used.
+  No member function pointer casting up and down the inheritance tree!
 
 Use _OS_*_ and _CC_*_
   Use _OS_*_ and _CC_*_ everywhere or create new Q_* flags.
@@ -32,6 +31,7 @@ Use _OS_*_ and _CC_*_
     #if defined(Q_BSD44_SOCKET_API)
   At least this is how it was done until now because this level of indirection
   had proved useful in the past...
+  Well, maybe we just need _OS_BSD_ or _OS_SYSV_.
 
 QPicture
   Change the format of a written QPicture that also the size is written to the
