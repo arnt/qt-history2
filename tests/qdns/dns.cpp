@@ -79,8 +79,10 @@ public slots:
 	HostAddresses::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    cout << (*it).toString().latin1() << endl;
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
     void reportAaaa()
@@ -90,8 +92,10 @@ public slots:
 	HostAddresses::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    cout << (*it).toString().latin1() << endl;
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
     void reportMx()
@@ -103,8 +107,10 @@ public slots:
 	    cout << (*it).name.latin1() <<
 		" (" << (*it).priority << ")" << endl;
 	}
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
     void reportSrv()
@@ -117,16 +123,20 @@ public slots:
 		" (" << (*it).priority << ")" <<
 		"weight: " << (*it).weight << endl;
 	}
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
     void reportCname()
     {
 	QString cname = dns->canonicalName();
 	cout << "Found cname: " << cname.latin1() << endl;
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
     void reportPtr()
@@ -137,8 +147,10 @@ public slots:
 	for( it = list.begin(); it != list.end(); ++it ) {
 	    cout << (*it).latin1() << endl;
 	}
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
     void reportTxt()
@@ -149,8 +161,10 @@ public slots:
 	for( it = list.begin(); it != list.end(); ++it ) {
 	    cout << (*it).latin1() << endl;
 	}
-	if ( !sync )
-	    qApp->quit();
+	if ( !sync ) {
+	    if ( !dns->isWorking() )
+		qApp->quit();
+	}
     }
 
 private:
