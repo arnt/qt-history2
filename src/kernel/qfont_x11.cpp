@@ -2802,7 +2802,7 @@ bool QFontMetrics::inFont(QChar ch) const
     if (painter)
 	D = painter->cfont.d;
 
-    return d->inFont( ch );
+    return D->inFont( ch );
 }
 
 
