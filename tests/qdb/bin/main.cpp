@@ -12,29 +12,37 @@
 
 static QString appname;
 
-void usage( const QString& message = QString::null )
+void usage( bool details = FALSE )
 {
-    if ( !message.isNull() )
-	qWarning( appname + ": " + message );
     qWarning( "Usage: " + appname + " <options> [command] ..." );
-    qWarning( " General Options:" );
-    qWarning( " -a             Analyse and quit" );
-    qWarning( " -c <commands>  Execute <commands>" );
-    qWarning( " -d <dir>       Specify db directory (default:current dir)" );
-    qWarning( " -e             Echo commands" );
-    qWarning( " -f <file>      Read commands from file" );
-    qWarning( " -o <file>      Place query output in file" );
-    qWarning( " -v             Verbose" );
-    qWarning( "\n Diagnostic Options:" );
-    qWarning( " -i <table>     Dump table index information to stdout and exit" );
-    qWarning( " -r <table>     Rebuild indexes for table" );
-    qWarning( " -t <table>     Dump table description to stdout and exit" );
-    qWarning( "\nExit status is 0 if command(s) successful, 1 if trouble." );
+    if ( details ) {
+	qWarning( " General Options:" );
+	qWarning( " -a             Analyse and quit" );
+	qWarning( " -c <commands>  Execute <commands>" );
+	qWarning( " -d <dir>       Specify db directory (default:current dir)" );
+	qWarning( " -e             Echo commands" );
+	qWarning( " -f <file>      Read commands from file" );
+	qWarning( " -h             Supress query header output" );
+	qWarning( " -o <file>      Place query output in file" );
+	qWarning( " -s <char>      Specify query column separation char" );
+	qWarning( " -v             Verbose" );
+	qWarning( "\n Diagnostic Options:" );
+	qWarning( " -i <table>     Dump table index information to stdout and exit" );
+	qWarning( " -r <table>     Rebuild indexes for table" );
+	qWarning( " -t <table>     Dump table description to stdout and exit" );
+	qWarning( "\nExit status is 0 if command(s) successful, 1 if trouble." );
+    }
 }
 
-void die( const QString& message = QString::null )
+void die( const QString& message = QString::null, bool doUsage = FALSE )
 {
-    usage( message );
+    if ( !message.isNull() ) {
+	qWarning( appname + ": " + message );
+	if ( doUsage ) {
+	    usage();
+	    qWarning( "Try " + appname + " --help for more information." );
+	}
+    }
     exit(1);
 }
 
@@ -57,6 +65,7 @@ int main( int argc, char** argv )
     QString tablename;
     bool index = FALSE;
     bool rebuildindexes = FALSE;
+    bool suppressheader = FALSE;
 
     /* process all command line options, die if problem */
     for ( int i = 1; i < app.argc(); ++i ) {
@@ -65,44 +74,50 @@ int main( int argc, char** argv )
 	    analyse = TRUE;
 	} else if ( arg == "-c" ) {
 	    if ( i+1 > app.argc()-1 )
-		die( "no command(s) specified" );
+		die( "no command(s) specified", TRUE );
 	    commands = app.argv()[++i];
 	} else if ( arg == "-d" ) {
 	    if ( i+1 > app.argc()-1 )
-		die( "-d requires dirname" );
+		die( "-d requires dirname", TRUE );
 	    dbdirname = app.argv()[++i];
 	} else if ( arg == "-e" ) {
 	    echo = TRUE;
 	} else if ( arg == "-f" ) {
 	    if ( i+1 > app.argc()-1 )
-		die( "-f requires filename" );
+		die( "-f requires filename", TRUE );
 	    infilename = app.argv()[++i];
+	} else if ( arg == "-h" ) {
+	    suppressheader = TRUE;
 	} else if ( arg == "-i" ) {
 	    index = TRUE;
 	    if ( i+1 > app.argc()-1 )
-		die( "-i requires table name" );
+		die( "-i requires table name", TRUE );
 	    tablename = app.argv()[++i];
 	} else if ( arg == "-o" ) {
 	    if ( i+1 > app.argc()-1 )
-		die( "-o requires filename" );
+		die( "-o requires filename", TRUE );
 	    outfilename = app.argv()[++i];
 	} else if ( arg == "-r" ) {
 	    index = TRUE;
 	    rebuildindexes = TRUE;
 	    if ( i+1 > app.argc()-1 )
-		die( "-r requires table name" );
+		die( "-r requires table name", TRUE );
 	    tablename = app.argv()[++i];
+	} else if ( arg == "-s" ) {
+	    if ( i+1 > app.argc()-1 )
+		die( "-s requires char", TRUE );
+	    sep = app.argv()[++i];
 	} else if ( arg == "-t" ) {
 	    if ( i+1 > app.argc()-1 )
-		die( "-t requires table name" );
+		die( "-t requires table name", TRUE );
 	    tablename = app.argv()[++i];
 	} else if ( arg == "-v" ) {
 	    verbose = TRUE;
 	} else if ( arg == "-help" || arg == "-h" || arg == "--help" ) {
-	    usage();
+	    usage( TRUE );
 	    return 0;
 	} else if ( arg[0] == '-' )
-	    die( "invalid option: " + arg );
+	    die( "invalid option: " + arg, TRUE );
 	else
 	    commands += commands.length() ? (" " + arg) : arg;
     }
@@ -171,11 +186,13 @@ int main( int argc, char** argv )
 	qdb::FileDriver* driver = env.fileDriver( 0 );
 	if ( !driver->open() )
 	    die( "unable to open table:" + tablename );
-	outstream << "Table \"" << tablename << "\"" << endl;
-	outstream << sep << "   Attribute   " << sep << "     Type      " << sep
-		  << "    Size       " << sep << endl;
-	outstream << sep << "---------------" << sep << "---------------" << sep
-		  << "---------------" << sep << endl;
+	if ( !suppressheader ) {
+	    outstream << "Table \"" << tablename << "\"" << endl;
+	    outstream << sep << "   Attribute   " << sep << "     Type      " << sep
+		      << "    Size       " << sep << endl;
+	    outstream << sep << "---------------" << sep << "---------------" << sep
+		      << "---------------" << sep << endl;
+	}
 	for ( uint i = 0; i < driver->count(); ++i ) {
 	    QVariant v;
 	    if ( !driver->fieldDescription( i, v ) )
@@ -228,14 +245,16 @@ int main( int argc, char** argv )
 	uint fieldcount = rs->count();
 	uint i = 0;
 	QString line = " ";
-	QStringList cols = rs->columnNames();
-	for ( i = 0; i < fieldcount; ++i )
-	    line += cols[i].rightJustify( 15 ) + " ";
-	outstream << line << endl;
-	line = sep;
-	for ( i = 0; i < fieldcount; ++i )
-	    line += QString().rightJustify( 15, '-' ) + sep;
-	outstream << line << endl;
+	if ( !suppressheader ) {
+	    QStringList cols = rs->columnNames();
+	    for ( i = 0; i < fieldcount; ++i )
+		line += cols[i].rightJustify( 15 ) + " ";
+	    outstream << line << endl;
+	    line = sep;
+	    for ( i = 0; i < fieldcount; ++i )
+		line += QString().rightJustify( 15, '-' ) + sep;
+	    outstream << line << endl;
+	}
 	rs->first();
 	do {
 	    line = sep;

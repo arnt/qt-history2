@@ -11,7 +11,7 @@
 #include <qstringlist.h>
 #include <xdb/xbase.h>
 
-#define DEBUG_XBASE 1
+//#define DEBUG_XBASE 1
 //#define VERBOSE_DEBUG_XBASE
 
 #ifdef DEBUG_XBASE
