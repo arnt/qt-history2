@@ -1,6 +1,6 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release
-win32:DEFINES   += CPP_DLL
+win32:DEFINES   += EDITOR_DLL
 HEADERS		= editor.h  \
 		  parenmatcher.h  \
 		  completion.h \
