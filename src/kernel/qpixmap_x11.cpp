@@ -1566,7 +1566,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     if ( w == 0 || h == 0 )
 	return QPixmap();
 
-    Display *dpy = x11AppDisplay();
+    Display *dpy = gc()->x11AppDisplay();
     XWindowAttributes window_attr;
     if ( ! XGetWindowAttributes( dpy, window, &window_attr ) )
 	return QPixmap();
