@@ -142,12 +142,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "all: " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
+	t << "all: Makefile " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     }
     else if(!project->isActiveConfig("staticlib")) {
-	t << "all: " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
+	t << "all: Makefile " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
 	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
 	if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
 	    t << "\n\t"
@@ -184,7 +184,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGETA)") << endl << endl;
     }
     else {
-	t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
+	t << "all: Makefile " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << "\n\t"
 	  << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "-rm -f $(TARGET)" << "\n\t"
@@ -194,7 +194,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "moc: $(SRCMOC)" << endl << endl;
 
-    t << "qmake: " << "\n\t"
+    t << "Makefile qmake: " << project->projectFile() << "\n\t"
       << "qmake " << project->projectFile();
     if (Option::output.name())
 	t << " -o " << Option::output.name();
@@ -251,12 +251,12 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "QMAKE =	" << var("QMAKE") << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
-    t << "all: $(SUBDIRS)" << endl << endl;
+    t << "all: Makefile $(SUBDIRS)" << endl << endl;
 
     t << "$(SUBDIRS): tmake_all FORCE" << "\n\t"
       << "cd $@ && $(MAKE)" << endl << endl;
 
-    t << "qmake: " << "\n\t"
+    t << "Makefile qmake: " << project->projectFile() << "\n\t"
       << "qmake " << project->projectFile();
     if (Option::output.name())
 	t << " -o " << Option::output.name();
