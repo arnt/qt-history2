@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#89 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#90 $
 **
 ** Definition of QWidget class
 **
@@ -383,7 +383,7 @@ inline void QWidget::drawText( const QPoint &p, const char *s )
 { drawText( p.x(), p.y(), s ); }
 
 inline QWidget *QWidget::parentWidget() const
-{ return (QWidget *)QObject::parent(); };
+{ return (QWidget *)QObject::parent(); }
 
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#61 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#61 $")
 
 
 static const int fontFields = 14;
@@ -463,7 +463,7 @@ void QFont::loadFont( HANDLE ) const
 		fn->name       = family();
 		fn->exactMatch = TRUE;
 	    } else {
-		fn->name       = PRIV->lastResortFont();
+		fn->name       = lastResortFont();
 		fn->exactMatch = FALSE;
 	    }
 	} else {

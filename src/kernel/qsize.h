@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#10 $
 **
 ** Definition of QSize class
 **
@@ -14,6 +14,10 @@
 #define QSIZE_H
 
 #include "qpoint.h"
+
+#if defined(QSIZE_C) || defined(DEBUG)
+#define QSIZE_DEBUG
+#endif
 
 
 class QSize
@@ -41,16 +45,21 @@ public:
     QSize &operator/=( int c );
     QSize &operator/=( float c );
 
-    friend bool	  operator==( const QSize &, const QSize & );
-    friend bool	  operator!=( const QSize &, const QSize & );
-    friend QSize  operator+( const QSize &, const QSize & );
-    friend QSize  operator-( const QSize &, const QSize & );
-    friend QSize  operator*( const QSize &, int );
-    friend QSize  operator*( int, const QSize & );
-    friend QSize  operator*( const QSize &, float );
-    friend QSize  operator*( float, const QSize & );
-    friend QSize  operator/( const QSize &, int );
-    friend QSize  operator/( const QSize &, float );
+    friend inline bool	operator==( const QSize &, const QSize & );
+    friend inline bool	operator!=( const QSize &, const QSize & );
+    friend inline QSize operator+( const QSize &, const QSize & );
+    friend inline QSize operator-( const QSize &, const QSize & );
+    friend inline QSize operator*( const QSize &, int );
+    friend inline QSize operator*( int, const QSize & );
+    friend inline QSize operator*( const QSize &, float );
+    friend inline QSize operator*( float, const QSize & );
+#if defined(QSIZE_DEBUG)
+    friend	  QSize operator/( const QSize &, int );
+    friend	  QSize	operator/( const QSize &, float );
+#else
+    friend inline QSize operator/( const QSize &, int );
+    friend inline QSize operator/( const QSize &, float );
+#endif
 
 private:
     QCOORD wd;
@@ -136,7 +145,7 @@ inline QSize operator*( const QSize &s, float c )
 inline QSize operator*( float c, const QSize &s )
 { return QSize((QCOORD)(s.wd*c), (QCOORD)(s.ht*c)); }
 
-#if !(defined(QSIZE_C) || defined(DEBUG))
+#if !defined(QSIZE_DEBUG)
 
 inline QSize &QSize::operator/=( int c )
 { wd/=(QCOORD)c; ht/=(QCOORD)c; return *this; }

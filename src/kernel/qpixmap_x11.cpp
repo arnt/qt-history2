@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#83 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#82 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#83 $")
 
 
 /*****************************************************************************
@@ -870,9 +870,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    dst = newbits + xi->bytes_per_line*y;
 	    p   = (QRgb *)src;
 	    for ( int x=0; x<w; x++ ) {
-		if ( d8 )
+		if ( d8 ) {
 		    pixel = pix[*src++];
-		else {
+		} else {
 		    r = qRed  ( *p );
 		    g = qGreen( *p );
 		    b = qBlue ( *p++ );
@@ -945,8 +945,8 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	memcpy( p, image.bits(), nbytes );	// copy image data into newbits
 
 /*
- * The following lines of code that sort the color table comes from XV 3.10
- * (C) John Bradley.
+ * The code below picks the most important colors. It is based on the
+ * diversity algorithm, implemented in XV 3.10. XV is (C) by John Bradley.
  */
 
 	struct PIX {				// pixel sort element
@@ -1011,8 +1011,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 			}
 		    }
 		}
-	    }
-	    else {				// sort on max popularity
+	    } else {				// sort on max popularity
 		for ( j=0; j<ncols; j++ ) {
 		    px = &pixarr[j];
 		    if ( px->use ) {
@@ -1064,8 +1063,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    }
 	    free( newbits );
 	    newbits = (uchar *)newerbits;
-	}
-	else if ( xi->bits_per_pixel != 8 ) {
+	} else if ( xi->bits_per_pixel != 8 ) {
 #if defined(CHECK_RANGE)
 	    warning( "QPixmap::setImageData: DISPLAY NOT SUPPORTED (BPP=%d)",
 		     xi->bits_per_pixel );
@@ -1432,8 +1430,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		return pm;
 		}
 	    }
-	}
-	else if ( msbfirst ) {
+	} else if ( msbfirst ) {		// mono bitmap MSB first
 	    while ( p < maxp ) {
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
@@ -1454,8 +1451,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		IWX(128);
 		p++;
 	    }
-	}
-	else {
+	} else {				// mono bitmap LSB first
 	    while ( p < maxp ) {
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
@@ -1484,31 +1480,30 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( data->optim ) {			// keep ximage that we fetched
 	data->dirty  = FALSE;
 	data->ximage = xi;
-    }
-    else
+    } else {
 	XDestroyImage( xi );
+    }
 
-    if ( depth1 ) {
+    if ( depth1 ) {				// mono bitmap
 	QPixmap pm( w, h, dptr, TRUE );
 	pm.data->bitmap = data->bitmap;
 	free( dptr );
-	if ( data->mask ) {
-	    if ( data->mask->data == data )	// pixmap == mask
+	QPixmap *m = data->mask;
+	if ( m ) {
+	    if ( m->data == data )		// pixmap == mask
 		pm.setMask( *((QBitmap*)(&pm)) );
 	    else
 		pm.setMask( data->mask->xForm(matrix) );
 	}
 	return pm;
-    }
-    else {
+    } else {					// color pixmap
 	GC gc = qt_xget_readonly_gc();
 	QPixmap pm( w, h );
 	pm.data->uninit = FALSE;
 #if defined(MITSHM)
 	if ( use_mitshm ) {
 	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
-	}
-	else {
+	} else {
 #endif
 	    int scr = qt_xscreen();
 	    int dd  = DefaultDepth(dpy,scr);

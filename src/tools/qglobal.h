@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#57 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#58 $
 **
 ** Global type declarations and definitions
 **
@@ -79,8 +79,9 @@
 //   BOR    -	Borland/Turbo C++
 //   GNU    -	GNU C++
 //   OC	    -	CenterLine ObjectCenter C++
-//   SUN    -	Sun C++ (if not a compiler above)
-//   HP     -	HPUX C++ (if not a compiler above)
+//   SUN    -	Sun C++
+//   HP     -	HPUX C++
+//   DEC    -	DEC C++
 //
 
 #if defined(__SC__)
@@ -99,8 +100,10 @@
 #define _CC_SUN_
 #elif defined(_OS_HPUX_)
 #define _CC_HP_
+#elif defined(__DECCXX)
+#define _CC_DEC_
 #else
-#error "Qt does not recognize this compiler - talk to qt-bugs@troll.no"
+#error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
 #endif
 
 

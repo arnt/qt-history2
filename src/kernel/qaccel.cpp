@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#26 $
 **
 ** Implementation of QAccel class
 **
@@ -13,10 +13,11 @@
 #define QAccelList QListM_QAccelItem
 #include "qaccel.h"
 #include "qapp.h"
+#include "qwidget.h"
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#25 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#26 $")
 
 
 /*----------------------------------------------------------------------------
@@ -77,8 +78,7 @@ static QAccelItem *find_key( QAccelList *list, int key, int ascii )
 	int k = item->key;
 	if ( (k & ASCII_ACCEL) != 0 && (k & 0xff) == ascii ) {
 	    break;
-	}
-	else {
+	} else {
 	    if ( k == key )
 		break;
 	}

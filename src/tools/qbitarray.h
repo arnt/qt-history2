@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#13 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#14 $
 **
 ** Definition of QBitArray class
 **
@@ -46,10 +46,9 @@ public:
     QBitArray( uint size );
     QBitArray( const QBitArray &a ) : QByteArray( a ) {}
 
-    QBitArray &operator=( const QBitArray &a )
-		{ return (QBitArray&)assign( a ); }
+    QBitArray &operator=( const QBitArray & );
 
-    uint    size() const { return ((bitarr_data*)sharedBlock())->nbits; }
+    uint    size() const;
     bool    resize( uint size );
 
     bool    fill( bool v, int size = -1 );
@@ -57,17 +56,14 @@ public:
     void    detach();
     QBitArray copy() const;
 
-    bool    testBit( uint i ) const;
-    void    setBit( uint i );
-    void    setBit( uint i, bool v )
-		{ if ( v ) setBit(i); else clearBit(i); }
-    void    clearBit( uint i );
-    bool    toggleBit( uint i );
+    bool    testBit( uint index ) const;
+    void    setBit( uint index );
+    void    setBit( uint index, bool value );
+    void    clearBit( uint index );
+    bool    toggleBit( uint index );
 
-    bool    at( uint i ) const
-		{ return testBit(i); }
-    QBitVal operator[]( int i )
-		{ return QBitVal( (QBitArray*)this, i ); }
+    bool    at( uint index ) const;
+    QBitVal operator[]( int index );
 
     QBitArray &operator&=( const QBitArray & );
     QBitArray &operator|=( const QBitArray & );
@@ -83,6 +79,22 @@ protected:
 private:
     void    pad0();
 };
+
+
+inline QBitArray &QBitArray::operator=( const QBitArray &a )
+{ return (QBitArray&)assign( a ); }
+
+inline uint QBitArray::size() const
+{ return ((bitarr_data*)sharedBlock())->nbits; }
+
+inline void QBitArray::setBit( uint index, bool value )
+{ if ( value ) setBit(index); else clearBit(index); }
+
+inline bool QBitArray::at( uint index ) const
+{ return testBit(index); }
+
+inline QBitVal QBitArray::operator[]( int index )
+{ return QBitVal( (QBitArray*)this, index ); }
 
 
 // --------------------------------------------------------------------------

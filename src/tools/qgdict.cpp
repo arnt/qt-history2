@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#33 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -492,7 +492,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 	QBucket *n = vec[i];
 	while ( n ) {				// write all buckets
 	    if ( triv )
-		s << (UINT32)n->getKey();	// write key as long int
+		s << (UINT32)n->getKey();	// write key as 32-bit int
 	    else
 		s << n->getKey();		// write key as string
 	    write( s, n->getData() );		// write data

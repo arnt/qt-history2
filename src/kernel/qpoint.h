@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#11 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#12 $
 **
 ** Definition of QPoint class
 **
@@ -14,6 +14,10 @@
 #define QPOINT_H
 
 #include "qwindefs.h"
+
+#if defined(QPOINT_C) || defined(DEBUG)
+#define QPOINT_DEBUG
+#endif
 
 
 class QPoint
@@ -39,17 +43,22 @@ public:
     QPoint &operator/=( int c );
     QPoint &operator/=( double c );
 
-    friend bool	  operator==( const QPoint &, const QPoint & );
-    friend bool	  operator!=( const QPoint &, const QPoint & );
-    friend QPoint operator+( const QPoint &, const QPoint & );
-    friend QPoint operator-( const QPoint &, const QPoint & );
-    friend QPoint operator*( const QPoint &, int );
-    friend QPoint operator*( int, const QPoint & );
-    friend QPoint operator*( const QPoint &, double );
-    friend QPoint operator*( double, const QPoint & );
-    friend QPoint operator/( const QPoint &, int );
-    friend QPoint operator/( const QPoint &, double );
-    friend QPoint operator-( const QPoint & );
+    friend inline bool	 operator==( const QPoint &, const QPoint & );
+    friend inline bool	 operator!=( const QPoint &, const QPoint & );
+    friend inline QPoint operator+( const QPoint &, const QPoint & );
+    friend inline QPoint operator-( const QPoint &, const QPoint & );
+    friend inline QPoint operator*( const QPoint &, int );
+    friend inline QPoint operator*( int, const QPoint & );
+    friend inline QPoint operator*( const QPoint &, double );
+    friend inline QPoint operator*( double, const QPoint & );
+    friend inline QPoint operator-( const QPoint & );
+#if defined(QPOINT_DEBUG)
+    friend	  QPoint operator/( const QPoint &, int );
+    friend	  QPoint operator/( const QPoint &, double );
+#else
+    friend inline QPoint operator/( const QPoint &, int );
+    friend inline QPoint operator/( const QPoint &, double );
+#endif
 
 private:
 #if defined(_OS_MAC_)
@@ -143,7 +152,7 @@ inline QPoint operator-( const QPoint &p )
 // before dividing by zero.
 //
 
-#if !(defined(QPOINT_C) || defined(DEBUG))
+#if !defined(QPOINT_DEBUG)
 
 inline QPoint &QPoint::operator/=( int c )
 { xp/=(QCOORD)c; yp/=(QCOORD)c; return *this; }

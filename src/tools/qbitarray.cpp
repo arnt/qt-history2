@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#31 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,7 +13,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#31 $")
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
@@ -236,12 +236,12 @@ void QBitArray::setBit( uint index )
 }
 
 /*----------------------------------------------------------------------------
-  \fn void QBitArray::setBit( uint index, bool v )
-  Sets the bit at position \e index to \e v.
+  \fn void QBitArray::setBit( uint index, bool value )
+  Sets the bit at position \e index to \e value.
 
   Equivalent to:
   \code
-    if ( v )
+    if ( value )
         setBit( index );
     else
         clearBit( index );
