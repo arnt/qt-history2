@@ -2104,7 +2104,7 @@ QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
     drop or for copying to the clipboard for example.
 
     If you re-implement this function note that the ownership of
-    he returned QMimeData object is passed to the caller. The
+    the returned QMimeData object is passed to the caller. The
     selection can be retrieved using the textCursor() function.
 */
 QMimeData *QTextEdit::createMimeDataFromSelection() const
