@@ -91,7 +91,7 @@ public:
 
 QSqlError qMakeError( const QString& err, int type, const QMYSQLDriverPrivate* p )
 {
-    return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error( p->mysql )), type);
+    return QSqlError(QMYSQL_DRIVER_NAME ": " + err, QString(mysql_error( p->mysql )), type, mysql_errno( p->mysql ));
 }
 
 QVariant::Type qDecodeMYSQLType( int mysqltype )
