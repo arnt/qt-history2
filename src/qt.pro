@@ -668,6 +668,7 @@ table:SOURCES += table/qtable.cpp
 
 database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqldatabase.h \
+		    $$DATABASE_H/qsqlfield.h \
 		    $$DATABASE_H/qsqldriver.h \
 		    $$DATABASE_H/qsqldriverinterface.h \
 		    $$DATABASE_H/qsqldriverplugin.h \
@@ -677,6 +678,7 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqlindex.h
 database:SOURCES += database/qsql.cpp \
 		    database/qsqldatabase.cpp \
+		    database/qsqlfield.cpp \
 		    database/qsqldriver.cpp \
 		    database/qsqldriverplugin.cpp \
 		    database/qsqlerror.cpp \
