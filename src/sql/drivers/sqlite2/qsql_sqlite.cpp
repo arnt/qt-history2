@@ -42,23 +42,23 @@ static QCoreVariant::Type nameToType(const QString& typeName)
     return QCoreVariant::String;
 }
 
-class QSQLiteDriverPrivate
+class QSQLite2DriverPrivate
 {
 public:
-    QSQLiteDriverPrivate();
+    QSQLite2DriverPrivate();
     sqlite *access;
     bool utf8;
 };
 
-QSQLiteDriverPrivate::QSQLiteDriverPrivate() : access(0)
+QSQLite2DriverPrivate::QSQLite2DriverPrivate() : access(0)
 {
     utf8 = (qstrcmp(sqlite_encoding, "UTF-8") == 0);
 }
 
-class QSQLiteResultPrivate
+class QSQLite2ResultPrivate
 {
 public:
-    QSQLiteResultPrivate(QSQLiteResult *res);
+    QSQLite2ResultPrivate(QSQLite2Result *res);
     void cleanup();
     bool fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch);
     bool isSelect();
@@ -66,7 +66,7 @@ public:
     void init(const char **cnames, int numCols);
     void finalize();
 
-    QSQLiteResult* q;
+    QSQLite2Result* q;
     sqlite *access;
 
     // and we have too keep our own struct for the data (sqlite works via
@@ -82,12 +82,12 @@ public:
 
 static const uint initial_cache_size = 128;
 
-QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : q(res), access(0), currentTail(0),
+QSQLite2ResultPrivate::QSQLite2ResultPrivate(QSQLite2Result* res) : q(res), access(0), currentTail(0),
     currentMachine(0), skippedStatus(false), skipRow(false), utf8(false)
 {
 }
 
-void QSQLiteResultPrivate::cleanup()
+void QSQLite2ResultPrivate::cleanup()
 {
     finalize();
     rInf.clear();
@@ -100,7 +100,7 @@ void QSQLiteResultPrivate::cleanup()
     q->cleanup();
 }
 
-void QSQLiteResultPrivate::finalize()
+void QSQLite2ResultPrivate::finalize()
 {
     if (!currentMachine)
         return;
@@ -117,7 +117,7 @@ void QSQLiteResultPrivate::finalize()
 }
 
 // called on first fetch
-void QSQLiteResultPrivate::init(const char **cnames, int numCols)
+void QSQLite2ResultPrivate::init(const char **cnames, int numCols)
 {
     if (!cnames)
         return;
@@ -135,7 +135,7 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols)
     }
 }
 
-bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch)
+bool QSQLite2ResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch)
 {
     // may be caching.
     const char **fvals;
@@ -195,15 +195,15 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
     return false;
 }
 
-QSQLiteResult::QSQLiteResult(const QSQLiteDriver* db)
+QSQLite2Result::QSQLite2Result(const QSQLite2Driver* db)
 : QSqlCachedResult(db)
 {
-    d = new QSQLiteResultPrivate(this);
+    d = new QSQLite2ResultPrivate(this);
     d->access = db->d->access;
     d->utf8 = db->d->utf8;
 }
 
-QSQLiteResult::~QSQLiteResult()
+QSQLite2Result::~QSQLite2Result()
 {
     d->cleanup();
     delete d;
@@ -212,7 +212,7 @@ QSQLiteResult::~QSQLiteResult()
 /*
    Execute \a query.
 */
-bool QSQLiteResult::reset (const QString& query)
+bool QSQLite2Result::reset (const QString& query)
 {
     // this is where we build a query.
     if (!driver())
@@ -249,22 +249,22 @@ bool QSQLiteResult::reset (const QString& query)
     return true;
 }
 
-bool QSQLiteResult::gotoNext(QSqlCachedResult::ValueCache& row, int idx)
+bool QSQLite2Result::gotoNext(QSqlCachedResult::ValueCache& row, int idx)
 {
     return d->fetchNext(row, idx, false);
 }
 
-int QSQLiteResult::size()
+int QSQLite2Result::size()
 {
     return -1;
 }
 
-int QSQLiteResult::numRowsAffected()
+int QSQLite2Result::numRowsAffected()
 {
     return sqlite_changes(d->access);
 }
 
-QSqlRecord QSQLiteResult::record() const
+QSqlRecord QSQLite2Result::record() const
 {
     if (!isActive() || !isSelect())
         return QSqlRecord();
@@ -273,28 +273,28 @@ QSqlRecord QSQLiteResult::record() const
 
 /////////////////////////////////////////////////////////
 
-QSQLiteDriver::QSQLiteDriver(QObject * parent)
+QSQLite2Driver::QSQLite2Driver(QObject * parent)
     : QSqlDriver(parent)
 {
-    d = new QSQLiteDriverPrivate();
+    d = new QSQLite2DriverPrivate();
 }
 
-QSQLiteDriver::QSQLiteDriver(sqlite *connection, QObject *parent)
+QSQLite2Driver::QSQLite2Driver(sqlite *connection, QObject *parent)
     : QSqlDriver(parent)
 {
-    d = new QSQLiteDriverPrivate();
+    d = new QSQLite2DriverPrivate();
     d->access = connection;
     setOpen(true);
     setOpenError(false);
 }
 
 
-QSQLiteDriver::~QSQLiteDriver()
+QSQLite2Driver::~QSQLite2Driver()
 {
     delete d;
 }
 
-bool QSQLiteDriver::hasFeature(DriverFeature f) const
+bool QSQLite2Driver::hasFeature(DriverFeature f) const
 {
     switch (f) {
     case Transactions:
@@ -311,7 +311,7 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
    SQLite dbs have no user name, passwords, hosts or ports.
    just file names.
 */
-bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, const QString &, int, const QString &)
+bool QSQLite2Driver::open(const QString & db, const QString &, const QString &, const QString &, int, const QString &)
 {
     if (isOpen())
         close();
@@ -337,7 +337,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
     return false;
 }
 
-void QSQLiteDriver::close()
+void QSQLite2Driver::close()
 {
     if (isOpen()) {
         sqlite_close(d->access);
@@ -347,12 +347,12 @@ void QSQLiteDriver::close()
     }
 }
 
-QSqlResult *QSQLiteDriver::createResult() const
+QSqlResult *QSQLite2Driver::createResult() const
 {
-    return new QSQLiteResult(this);
+    return new QSQLite2Result(this);
 }
 
-bool QSQLiteDriver::beginTransaction()
+bool QSQLite2Driver::beginTransaction()
 {
     if (!isOpen() || isOpenError())
         return false;
@@ -369,7 +369,7 @@ bool QSQLiteDriver::beginTransaction()
     return false;
 }
 
-bool QSQLiteDriver::commitTransaction()
+bool QSQLite2Driver::commitTransaction()
 {
     if (!isOpen() || isOpenError())
         return false;
@@ -386,7 +386,7 @@ bool QSQLiteDriver::commitTransaction()
     return false;
 }
 
-bool QSQLiteDriver::rollbackTransaction()
+bool QSQLite2Driver::rollbackTransaction()
 {
     if (!isOpen() || isOpenError())
         return false;
@@ -403,7 +403,7 @@ bool QSQLiteDriver::rollbackTransaction()
     return false;
 }
 
-QStringList QSQLiteDriver::tables(QSql::TableType type) const
+QStringList QSQLite2Driver::tables(QSql::TableType type) const
 {
     QStringList res;
     if (!isOpen())
@@ -431,7 +431,7 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
     return res;
 }
 
-QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
+QSqlIndex QSQLite2Driver::primaryIndex(const QString &tblname) const
 {
     QSqlRecord rec(record(tblname)); // expensive :(
 
@@ -465,7 +465,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
     return index;
 }
 
-QSqlRecord QSQLiteDriver::record(const QString &tbl) const
+QSqlRecord QSQLite2Driver::record(const QString &tbl) const
 {
     if (!isOpen())
         return QSqlRecord();

@@ -24,18 +24,18 @@
 # include <qt_windows.h>
 #endif
 
-class QSQLiteDriverPrivate;
-class QSQLiteResultPrivate;
-class QSQLiteDriver;
+class QSQLite2DriverPrivate;
+class QSQLite2ResultPrivate;
+class QSQLite2Driver;
 struct sqlite;
 
-class QSQLiteResult : public QSqlCachedResult
+class QSQLite2Result : public QSqlCachedResult
 {
-    friend class QSQLiteDriver;
-    friend class QSQLiteResultPrivate;
+    friend class QSQLite2Driver;
+    friend class QSQLite2ResultPrivate;
 public:
-    QSQLiteResult(const QSQLiteDriver* db);
-    ~QSQLiteResult();
+    QSQLite2Result(const QSQLite2Driver* db);
+    ~QSQLite2Result();
 
 protected:
     bool gotoNext(QSqlCachedResult::ValueCache& row, int idx);
@@ -45,16 +45,16 @@ protected:
     QSqlRecord record() const;
 
 private:
-    QSQLiteResultPrivate* d;
+    QSQLite2ResultPrivate* d;
 };
 
-class QSQLiteDriver : public QSqlDriver
+class QSQLite2Driver : public QSqlDriver
 {
-    friend class QSQLiteResult;
+    friend class QSQLite2Result;
 public:
-    QSQLiteDriver(QObject *parent = 0);
-    QSQLiteDriver(sqlite *connection, QObject *parent = 0);
-    ~QSQLiteDriver();
+    QSQLite2Driver(QObject *parent = 0);
+    QSQLite2Driver(sqlite *connection, QObject *parent = 0);
+    ~QSQLite2Driver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
                    const QString & user,
@@ -78,6 +78,6 @@ public:
     QSqlIndex primaryIndex(const QString &table) const;
 
 private:
-    QSQLiteDriverPrivate* d;
+    QSQLite2DriverPrivate* d;
 };
 #endif
