@@ -6465,7 +6465,7 @@ QString	QListView::stateDescription() const
     if ( currentItem()->childCount() ) {
 	t += tr( ", item has sub items" );
 	if ( !currentItem()->isOpen() )
-	    t += tr( ". To open sub items, press +" );
+	    t += tr( ". Press + to open sub items." );
     }
 
     return tr( "selected item: %1" ).arg( t );
@@ -6474,7 +6474,7 @@ QString	QListView::stateDescription() const
 /*! \reimp */
 QString	QListView::useDescription() const
 {
-    return tr( "To change item, use cursor keys." );
+    return tr( "Use the cursor keys to change the item." );
 }
 
 /*! \reimp */

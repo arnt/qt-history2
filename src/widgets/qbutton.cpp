@@ -964,7 +964,7 @@ QString	QButton::stateDescription() const
 /*! \reimp */
 QString	QButton::useDescription() const
 {
-    return tr("To press, use space bar");
+    return tr("Press the space bar to press the button.");
 }
 
 /*! \reimp */

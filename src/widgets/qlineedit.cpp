@@ -2003,9 +2003,9 @@ QString QLineEdit::typeDescription() const
 QString QLineEdit::useDescription() const
 {
     if ( parentWidget() && parentWidget()->isA( "QSpinBox" ) )
-	return tr( "To change value, use up and down keys" );
+	return tr( "Use the up and down arrow keys to change the value." );
     if ( parentWidget() && parentWidget()->isA( "QComboBox" ) )
-	return tr( "To change value, use up and down keys" );
+	return tr( "Use the up and down arrow keys to change the value." );
     return QString::null;
 }
 

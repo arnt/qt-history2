@@ -2030,9 +2030,9 @@ QString QComboBox::typeDescription() const
 QString QComboBox::useDescription() const
 {
     if ( editable() )
-	return tr( "To select item, use up and down keys." );
+	return tr( "Use the up and down arrow keys to select an item." );
     else
-	return tr( "To open list, press space bar." );
+	return tr( "Press the space bar to open the list." );
 }
 #endif
 

@@ -4762,7 +4762,7 @@ QString	QTable::stateDescription() const
 /*! \reimp */
 QString	QTable::useDescription() const
 {
-    return tr( "To change cell, use cursor keys." );
+    return tr( "Use the cursor keys to change cell." );
 }
 
 /*! \reimp */

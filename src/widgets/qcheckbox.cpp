@@ -375,7 +375,8 @@ QString QCheckBox::stateDescription() const
 /*! \reimp */
 QString QCheckBox::useDescription() const
 {
-    return isChecked() ? tr("To uncheck, use space bar") : tr("To check, use space bar");
+    return isChecked() ? tr("Press the space bar to uncheck the checkbox.") : 
+		         tr("Press the space bar to check the checkbox.");
 }
 
 /*! \reimp */

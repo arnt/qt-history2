@@ -1367,7 +1367,7 @@ QString QMenuBar::stateDescription() const
 /*! \reimp */
 QString QMenuBar::useDescription() const
 {
-    return tr( "To change item, use cursor keys." );
+    return tr( "Use the cursor keys to change the item." );
 }
 
 /*! \reimp */

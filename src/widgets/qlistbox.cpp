@@ -4133,7 +4133,7 @@ QString	QListBox::stateDescription() const
 /*! \reimp */
 QString	QListBox::useDescription() const
 {
-    return tr( "To change item, use up and down keys." );
+    return tr( "Use the up and down arrow keys to change the item." );
 }
 
 /*! \reimp */

@@ -950,7 +950,7 @@ QString	QDial::stateDescription() const
 /*! \reimp */
 QString	QDial::useDescription() const
 {
-    return tr( "To change value, use cursor keys." );
+    return tr( "Use the cursor keys to change the dial's value." );
 }
 
 /*! \reimp */

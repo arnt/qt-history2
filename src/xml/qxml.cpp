@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#91 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#92 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -56,19 +56,19 @@
 #define XMLERR_ERRORBYCONSUMER            QT_TRANSLATE_NOOP( "QXml", "error triggered by consumer" )
 #define XMLERR_UNEXPECTEDEOF              QT_TRANSLATE_NOOP( "QXml", "unexpected end of file" )
 #define XMLERR_MORETHANONEDOCTYPE         QT_TRANSLATE_NOOP( "QXml", "more than one document type definition" )
-#define XMLERR_ERRORPARSINGELEMENT        QT_TRANSLATE_NOOP( "QXml", "error while parsing element" )
+#define XMLERR_ERRORPARSINGELEMENT        QT_TRANSLATE_NOOP( "QXml", "error occurred while parsing element" )
 #define XMLERR_TAGMISMATCH                QT_TRANSLATE_NOOP( "QXml", "tag mismatch" )
-#define XMLERR_ERRORPARSINGCONTENT        QT_TRANSLATE_NOOP( "QXml", "error while parsing content" )
+#define XMLERR_ERRORPARSINGCONTENT        QT_TRANSLATE_NOOP( "QXml", "error occurred while parsing content" )
 #define XMLERR_UNEXPECTEDCHARACTER        QT_TRANSLATE_NOOP( "QXml", "unexpected character" )
 #define XMLERR_INVALIDNAMEFORPI           QT_TRANSLATE_NOOP( "QXml", "invalid name for processing instruction" )
 #define XMLERR_VERSIONEXPECTED            QT_TRANSLATE_NOOP( "QXml", "version expected while reading the XML declaration" )
 #define XMLERR_WRONGVALUEFORSDECL         QT_TRANSLATE_NOOP( "QXml", "wrong value for standalone declaration" )
 #define XMLERR_EDECLORSDDECLEXPECTED      QT_TRANSLATE_NOOP( "QXml", "EDecl or SDDecl expected while reading the XML declaration" )
 #define XMLERR_SDDECLEXPECTED             QT_TRANSLATE_NOOP( "QXml", "SDDecl expected while reading the XML declaration" )
-#define XMLERR_ERRORPARSINGDOCTYPE        QT_TRANSLATE_NOOP( "QXml", "error while parsing document type definition" )
+#define XMLERR_ERRORPARSINGDOCTYPE        QT_TRANSLATE_NOOP( "QXml", "error occurred while parsing document type definition" )
 #define XMLERR_LETTEREXPECTED             QT_TRANSLATE_NOOP( "QXml", "letter is expected" )
-#define XMLERR_ERRORPARSINGCOMMENT        QT_TRANSLATE_NOOP( "QXml", "error while parsing comment" )
-#define XMLERR_ERRORPARSINGREFERENCE      QT_TRANSLATE_NOOP( "QXml", "error while parsing reference" )
+#define XMLERR_ERRORPARSINGCOMMENT        QT_TRANSLATE_NOOP( "QXml", "error occurred while parsing comment" )
+#define XMLERR_ERRORPARSINGREFERENCE      QT_TRANSLATE_NOOP( "QXml", "error occurred while parsing reference" )
 #define XMLERR_INTERNALGENERALENTITYINDTD QT_TRANSLATE_NOOP( "QXml", "internal general entity reference not allowed in DTD" )
 #define XMLERR_EXTERNALGENERALENTITYINAV  QT_TRANSLATE_NOOP( "QXml", "external parsed general entity reference not allowed in attribute value" )
 #define XMLERR_EXTERNALGENERALENTITYINDTD QT_TRANSLATE_NOOP( "QXml", "external parsed general entity reference not allowed in DTD" )

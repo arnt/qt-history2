@@ -5809,7 +5809,7 @@ QString QIconView::typeDescription() const
 /*! \reimp */
 QString QIconView::useDescription() const
 {
-    return tr("To select item, use cursor keys.");
+    return tr("Use the cursor keys to select an item.");
 }
 #endif
 

@@ -3914,7 +3914,7 @@ void QFileDialog::deleteFile( const QString &filename )
 
     if ( QMessageBox::warning( this,
 			       tr( "Delete %1" ).arg( t ),
-			       tr( "<qt>Do you really want to delete %1 \"%2\"?</qt>" )
+			       tr( "<qt>Are you sure you wish to delete %1 \"%2\"?</qt>" )
 			       .arg( t ).arg(filename),
 			       tr( "&Yes" ), tr( "&No" ), QString::null, 1 ) == 0 )
 	d->url.remove( filename );

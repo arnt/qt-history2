@@ -1047,7 +1047,7 @@ QString QTabBar::typeDescription() const
 /*! \reimp */
 QString QTabBar::useDescription() const
 {
-    return tr("To switch page, use cursor keys.");
+    return tr("Use the cursor keys to change pages.");
 }
 
 #endif

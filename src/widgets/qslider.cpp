@@ -1096,7 +1096,7 @@ QString	QSlider::stateDescription() const
 /*! \reimp */
 QString	QSlider::useDescription() const
 {
-    return tr( "To change value, use cursor keys." );
+    return tr( "Use the cursor keys to change the value." );
 }
 
 /*! \reimp */
