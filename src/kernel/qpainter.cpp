@@ -1200,8 +1200,14 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     x += si->x;
     y += si->y;
 
-    QGlyphFragment gf = { si->analysis, si->hasPositioning, si->ascent, si->descent, si->width,
-			  si->num_glyphs, engine->glyphs( si ) };
+    QGlyphFragment gf;
+    gf.analysis = si->analysis;
+    gf.hasPositioning = si->hasPositioning;
+    gf.ascent = si->ascent;
+    gf.descent = si->descent;
+    gf.width = si->width;
+    gf.num_glyphs = si->num_glyphs;
+    gf.glyphs = engine->glyphs( si );
     fe->draw( this, x,  y, gf, textFlags );
 }
 

@@ -406,7 +406,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
 
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
-    QGlyphLayout *glyphs = si->glyphs;
+    QGlyphLayout *glyphs = si.glyphs;
 #if 0
     // ###### should be moved to the printer GC
     if(p->pdev->devType() == QInternal::Printer) {
@@ -783,7 +783,6 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
     Q_UNUSED( p );
     Q_UNUSED( x );
     Q_UNUSED( y );
-    Q_UNUSED( engine );
     Q_UNUSED( si );
     Q_UNUSED( textFlags );
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
