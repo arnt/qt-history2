@@ -172,7 +172,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
                              "<p>This wizard will generate a skeleton class "
                              "definition and member function definitions."),
                           this);
-    topLabel->setWordWrap(true);
+    topLabel->setWordWrap(false);
 
     classNameLabel = new QLabel(tr("Class &name:"), this);
     classNameLineEdit = new QLineEdit(this);
