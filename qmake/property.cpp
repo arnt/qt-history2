@@ -45,13 +45,14 @@ QMakeProperty::value(QString v, bool just_check)
 #elif defined(HAVE_QCONFIG_CPP)
 	return qInstallPath();
 #endif
-    }
-    if(v == "QT_INSTALL_DATA") {
+    } else if(v == "QT_INSTALL_DATA") {
 #ifdef QT_INSTALL_DATA
 	return QT_INSTALL_DATA;
 #elif defined(HAVE_QCONFIG_CPP)
 	return qInstallPathData();
 #endif
+    } else if(v == "QMAKE_VERSION") {
+	return qmake_version();
     }
 
     if(initSettings()) {
