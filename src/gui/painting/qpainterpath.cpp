@@ -132,9 +132,29 @@ public:
 
         // If we inserted we want to check if the set is closeable
         if (insert>=0) {
+            // Try to connect existing sets
+            for (int i=0; i<openSets.size(); ++i) {
+                // Selfcheck doesn't make sense
+                if (i == insert)
+                    continue;
+                if (openSets.at(i).first() == openSets.at(insert).last()) {
+                    openSets[i].removeAt(0);
+                    openSets[insert] += openSets[i];
+                    openSets.removeAt(i);
+                    if (i < insert)
+                        --insert;
+                }
+                else if (openSets.at(i).last() == openSets.at(insert).first()) {
+                    openSets[insert].removeAt(0);
+                    openSets[i] += openSets[insert];
+                    openSets.removeAt(insert);
+                    insert = i;
+                }
+            }
             if (openSets.at(insert).first() == openSets.at(insert).last()) {
                 closedSets.append(openSets.at(insert));
                 openSets.removeAt(insert);
+
             }
 
         // Create a new set if no connection was found.
@@ -189,7 +209,6 @@ void qt_vectorize_region(const QRegion &region, QPainterPath *path)
     int yc = rects.at(0).y();
     for (int i=0; i<rectCount && rects.at(i).y() == yc; ++i) {
         int right = rects.at(i).x() + rects.at(i).width();
-        int bottom = rects.at(i).y() + rects.at(i).height();
         sets.addLine(rects.at(i).x(), yc, right, yc, false);
     }
 
