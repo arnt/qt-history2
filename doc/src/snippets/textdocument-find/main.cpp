@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
     QTextEdit *editor = new QTextEdit();
 
     QTextCursor cursor(editor->textCursor());
-    cursor.movePosition(QTextCursor::Start); 
+    cursor.movePosition(QTextCursor::Start);
 
     QTextCharFormat plainFormat(cursor.charFormat());
     QTextCharFormat colorFormat = plainFormat;
@@ -32,9 +32,7 @@ int main(int argc, char *argv[])
             newCursor.movePosition(QTextCursor::WordRight,
                                    QTextCursor::KeepAnchor);
 
-            QString text = newCursor.selectedText();
-            newCursor.removeSelectedText();
-            newCursor.insertText(text, colorFormat);
+            newCursor.mergeCharFormat(colorFormat);
         }
     }
 
@@ -42,6 +40,6 @@ int main(int argc, char *argv[])
     editor->resize(320, 480);
     editor->show();
     app.setMainWidget(editor);
-    
+
     return app.exec();
 }
