@@ -84,6 +84,10 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         }
     }
 
+    QRect rect(option.rect.x() + 1, option.rect.y() + 1,
+               option.rect.width() - 3, option.rect.height() - 3);
+    drawFocus(painter, option, rect);
+
     QPen pen = painter->pen();
     painter->setPen(Qt::gray);
     painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
