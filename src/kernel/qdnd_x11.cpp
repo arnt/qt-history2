@@ -993,8 +993,8 @@ void QDragManager::updateCursor()
 	    qt_xdnd_deco->show();
     } else {
 	c = noDropCursor;
-	if ( qt_xdnd_deco )
-	    qt_xdnd_deco->hide();
+	//if ( qt_xdnd_deco )
+	//    qt_xdnd_deco->hide();
     }
 #ifndef QT_NO_CURSOR
     if ( c )
@@ -1631,12 +1631,12 @@ void QDragManager::updatePixmap()
 	}
 	qt_xdnd_deco->setPixmap(pm);
 	qt_xdnd_deco->move(QCursor::pos()-pm_hot);
-	//qt_xdnd_deco->repaint(FALSE);
-	if ( willDrop ) {
+	qt_xdnd_deco->repaint(FALSE);
+            //if ( willDrop ) {
 	    qt_xdnd_deco->show();
-	} else {
-	    qt_xdnd_deco->hide();
-	}
+            //} else {
+            //    qt_xdnd_deco->hide();
+            //}
     }
 }
 
