@@ -350,7 +350,7 @@ void QScreenCursor::show()
 
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
     bool save = restoreUnder(data->bound);
@@ -375,7 +375,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
 		   data->width+1, data->height+1 );
     if (save) saveUnder();
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 }
@@ -390,7 +390,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 void QScreenCursor::move(int x, int y)
 {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
     bool save = restoreUnder(data->bound);
@@ -399,7 +399,7 @@ void QScreenCursor::move(int x, int y)
     data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
 		   data->width+1, data->height+1 );
     if (save) saveUnder();
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 }
@@ -430,10 +430,10 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
     }
 
     if (!save_under) {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::grab( TRUE );
 #endif
-	
+
 	int x = data->x - data->hotx;
 	int y = data->y - data->hoty;
 
@@ -541,10 +541,10 @@ void QScreenCursor::saveUnder()
 
     save_under = FALSE;
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
-    
+
 }
 
 /*!
@@ -855,6 +855,10 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 	qDebug("QGfx buffer unaligned: %lx",(unsigned long)b);
     }
 
+#ifdef QT_PAINTER_LOCKING
+    QWSDisplay::grab();
+#endif
+    
     gfx_screen=qt_screen;
 #ifndef QT_NO_QWS_CURSOR
     gfx_screencursor=qt_screencursor;
@@ -910,6 +914,9 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 
 QGfxRasterBase::~QGfxRasterBase()
 {
+#ifdef QT_PAINTER_LOCKING
+    QWSDisplay::ungrab();
+#endif
     sync();
     delete [] dashes;
     delete [] cliprect;
@@ -1363,7 +1370,7 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText grab");
 #endif
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab(); // we need it later, and grab-must-precede-lock
 #endif
 #ifdef DEBUG_LOCKS
@@ -1404,7 +1411,7 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText ungrab");
 #endif
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
     setAlphaType(IgnoreAlpha);

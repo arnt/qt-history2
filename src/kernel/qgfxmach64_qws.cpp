@@ -408,7 +408,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
@@ -521,7 +521,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
     // Release display again - not doing so will cause Qt/Embedded applications
     // to deadlock
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 
@@ -546,7 +546,7 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     setDest();
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
@@ -638,7 +638,7 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     GFX_END
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 
@@ -702,7 +702,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	return;
     }
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
@@ -712,7 +712,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	&& check_result ) {
 	int x2=(rx+w)-1;
 	int y2=(ry+h)-1;
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	// This is special handling for using the 3d engine for
@@ -827,12 +827,12 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 
 	GFX_END
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	return;
     } else {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	// software fallback
@@ -853,12 +853,12 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     if(ncliprect<1)
 	return;
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
     if ( srctype!=SourceImage || !checkSourceDest() ) {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
@@ -977,7 +977,7 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	reset_engine();
     }
     GFX_END
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 }
@@ -1024,12 +1024,12 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 	return;
     }
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
     if ( srctype==SourceImage && !checkSourceDest() ) {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
@@ -1147,7 +1147,7 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     GFX_END
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 
@@ -1189,12 +1189,12 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
     if(no3d)
 	return;
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
     if(!checkSourceDest()) {
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	return;
@@ -1435,7 +1435,7 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
     GFX_END
 
-#ifdef QT_NO_QWS_MULTIPROCESS
+#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 
