@@ -801,20 +801,59 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     td->maxWidths.resize(columns);
     td->maxWidths.fill(INT_MAX);
 
+    // calculate minimum and maximum sizes of the columns
+    for (int i = 0; i < columns; ++i) {
+        for (int row = 0; row < rows; ++row) {
+            const QTextTableCell cell = table->cellAt(row, i);
+            const int cspan = cell.columnSpan();
+
+            if (cspan > 1 && i != cell.column())
+                continue;
+
+            // to figure out the min and the max width lay out the cell at
+            // maximum width. otherwise the maxwidth calculation sometimes
+            // returns wrong values
+            LayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX);
+
+            // distribute the minimum width over all columns the cell spans
+            int widthToDistribute = layoutStruct.minimumWidth + 2 * td->cellPadding;
+            for (int n = 0; n < cspan; ++n) {
+                const int col = i + n;
+                int w = widthToDistribute / (cspan - n);
+                td->minWidths[col] = qMax(td->minWidths.at(col), w);
+                widthToDistribute -= td->minWidths.at(col);
+                if (widthToDistribute <= 0)
+                    break;
+            }
+
+            // ### colspans
+            int maxW = td->maxWidths.at(i);
+            if (layoutStruct.maximumWidth != INT_MAX) {
+                if (maxW == INT_MAX)
+                    maxW = layoutStruct.maximumWidth + 2 * td->cellPadding;
+                else
+                    maxW = qMax(maxW, layoutStruct.maximumWidth + 2 * td->cellPadding);
+            }
+            td->maxWidths[i] = qMax(td->minWidths.at(i), maxW);
+        }
+    }
+
     // set fixed values, figure out total percentages used and number of
-    // variable length cells
+    // variable length cells. Also assign the minimum width for variable columns.
     int totalPercentage = 0;
     int variableCols = 0;
     for (int i = 0; i < columns; ++i) {
         const QTextLength &length = columnWidthConstraints.at(i);
         if (length.type() == QTextLength::FixedLength) {
-            const int width = length.rawValue();
-            td->widths[i] = width;
-            totalWidth -= width;
+            td->widths[i] = qMax(length.rawValue(), td->minWidths.at(i));
+            totalWidth -= td->widths.at(i);
         } else if (length.type() == QTextLength::PercentageLength) {
             totalPercentage += length.rawValue();
         } else if (length.type() == QTextLength::VariableLength) {
             variableCols++;
+
+            td->widths[i] = td->minWidths.at(i);
+            totalWidth -= td->minWidths.at(i);
         }
     }
 
@@ -822,86 +861,46 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     {
         const int totalPercentagedWidth = totalWidth * totalPercentage / 100;
         for (int i = 0; i < columns; ++i)
-            if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength)
-                td->widths[i] = totalPercentagedWidth * columnWidthConstraints.at(i).rawValue() / totalPercentage;
-
-        totalWidth -= totalPercentagedWidth;
+            if (columnWidthConstraints.at(i).type() == QTextLength::PercentageLength) {
+                const int percentWidth = totalPercentagedWidth * columnWidthConstraints.at(i).rawValue() / totalPercentage;
+                td->widths[i] = qMax(percentWidth, td->minWidths.at(i));
+                totalWidth -= td->widths.at(i);
+            }
     }
 
-    // for variable columsn set the minimum sizes first and distribute the remaining space
-    if (variableCols > 0) {
-        // minWidths array is filled with zero at this point
-
+    // for variable columns distribute the remaining space
+    if (variableCols > 0 && totalWidth > 0) {
+        QVarLengthArray<int> anySizeColumns;
+        QVarLengthArray<int> columnsWithProperMaxSize;
         for (int i = 0; i < columns; ++i)
             if (columnWidthConstraints.at(i).type() == QTextLength::VariableLength) {
-                for (int row = 0; row < rows; ++row) {
-                    const QTextTableCell cell = table->cellAt(row, i);
-                    const int cspan = cell.columnSpan();
-
-                    if (cspan > 1 && i != cell.column())
-                        continue;
-
-                    // to figure out the min and the max width lay out the cell at
-                    // maximum width. otherwise the maxwidth calculation sometimes
-                    // returns wrong values
-                    LayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX);
-
-                    int widthToDistribute = layoutStruct.minimumWidth + 2 * td->cellPadding;
-                    for (int n = 0; n < cspan; ++n) {
-                        const int col = i + n;
-                        int w = widthToDistribute / (cspan - n);
-                        td->minWidths[col] = qMax(td->minWidths.at(col), w);
-                        widthToDistribute -= td->minWidths.at(col);
-                        if (widthToDistribute <= 0)
-                            break;
-                    }
-                    // ### colspans
-                    int maxW = td->maxWidths.at(i);
-                    if (layoutStruct.maximumWidth != INT_MAX) {
-                        if (maxW == INT_MAX)
-                            maxW = layoutStruct.maximumWidth + 2 * td->cellPadding;
-                        else
-                            maxW = qMax(maxW, layoutStruct.maximumWidth + 2 * td->cellPadding);
-                    }
-                    td->maxWidths[i] = qMax(td->minWidths.at(i), maxW);
-                }
-                td->widths[i] = td->minWidths.at(i);
-                totalWidth -= td->minWidths.at(i);
+                if (td->maxWidths.at(i) == INT_MAX)
+                    anySizeColumns.append(i);
+                else
+                    columnsWithProperMaxSize.append(i);
             }
 
-        if (totalWidth > 0) {
-            QVarLengthArray<int> anySizeColumns;
-            QVarLengthArray<int> columnsWithProperMaxSize;
-            for (int i = 0; i < columns; ++i)
-                if (columnWidthConstraints.at(i).type() == QTextLength::VariableLength) {
-                    if (td->maxWidths.at(i) == INT_MAX)
-                        anySizeColumns.append(i);
-                    else
-                        columnsWithProperMaxSize.append(i);
-                }
-
-            int lastTotalWidth = totalWidth;
-            while (totalWidth > 0) {
-                for (int k = 0; k < columnsWithProperMaxSize.count(); ++k) {
-                    const int col = columnsWithProperMaxSize[k];
-                    const int colsLeft = columnsWithProperMaxSize.count() - k;
-                    const int w = qMin(td->maxWidths.at(col) - td->widths.at(col), totalWidth / colsLeft);
-                    td->widths[col] += w;
-                    totalWidth -= w;
-                }
-                if (totalWidth == lastTotalWidth)
-                    break;
-                lastTotalWidth = totalWidth;
+        int lastTotalWidth = totalWidth;
+        while (totalWidth > 0) {
+            for (int k = 0; k < columnsWithProperMaxSize.count(); ++k) {
+                const int col = columnsWithProperMaxSize[k];
+                const int colsLeft = columnsWithProperMaxSize.count() - k;
+                const int w = qMin(td->maxWidths.at(col) - td->widths.at(col), totalWidth / colsLeft);
+                td->widths[col] += w;
+                totalWidth -= w;
             }
+            if (totalWidth == lastTotalWidth)
+                break;
+            lastTotalWidth = totalWidth;
+        }
 
-            if (totalWidth > 0 && !anySizeColumns.isEmpty()
+        if (totalWidth > 0 && !anySizeColumns.isEmpty()
                 // don't unnecessarily grow variable length sized tables
                 && fmt.width().type() != QTextLength::VariableLength) {
-                const int widthPerAnySizedCol = totalWidth / anySizeColumns.count();
-                for (int k = 0; k < anySizeColumns.count(); ++k) {
-                    const int col = anySizeColumns[k];
-                    td->widths[col] += widthPerAnySizedCol;
-                }
+            const int widthPerAnySizedCol = totalWidth / anySizeColumns.count();
+            for (int k = 0; k < anySizeColumns.count(); ++k) {
+                const int col = anySizeColumns[k];
+                td->widths[col] += widthPerAnySizedCol;
             }
         }
     }
