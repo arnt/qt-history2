@@ -422,8 +422,11 @@ while [ -n "$1" ]; do
    -no-jpeg)
 	JPEG=no
 	;;
-   -system-jpeg)
+   -qt-jpeg)
 	JPEG=yes
+	;;
+   -system-jpeg)
+	JPEG=system
 	;;
    -no-nas-sound)
 	NAS_SOUND=no
@@ -464,7 +467,7 @@ while [ -n "$1" ]; do
 	;;
    -enable-*)
 	MODULE=`echo $1 | sed "s/-enable-//"`
-	if [ -n $MODULE -a -d "src/$MODULE" ]
+	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
 	then
 	    echo "${MODULES}" | grep $MODULE
 	    if [ '!' $? ]
@@ -474,8 +477,8 @@ while [ -n "$1" ]; do
 	fi
 	;;
    -disable-*)
-	MODULE=`echo $1 | sed -e "s/-disable-//"`
-	if [ -d "src/$MODULE" ]
+    	MODULE=`echo $1 | sed -e "s/-disable-//"`
+	if [ -d "$relpath/src/$MODULE" ]
 	then
 	    MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
 	else
@@ -556,7 +559,7 @@ then
     then
 	# This is a Qt/Embedded distribution
 	SM=no
-	MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
+	MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
 	case "$UNAME_MACHINE" in
 	 *86) ARCH=x86-
@@ -715,7 +718,7 @@ then
 fi
 
 # Auto-detect opengl support
-if [ "x$EMBEDDED" = "xno" ]
+if echo $MODULES | grep > /dev/null opengl
 then
     LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XMKSPEC`
     for L in $LIBS
@@ -732,7 +735,7 @@ then
 	done
 	if [ -z "$F" ]
 	then
-	    MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
+	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	    break
 	fi
     done
@@ -1116,6 +1119,7 @@ Installation options:
 			 See http://www.libmng.com
 
  *  -no-jpeg ........... Do not compile in JPEG I/O support.
+    -qt-jpeg ........... Use the libjpeg bundled with Qt.
     -system-jpeg ....... Use jpeglib from the operating system.
 			 See http://www.ijg.org
 
@@ -1212,6 +1216,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$SHARED" = "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
 [ "x$NAS_SOUND" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "x$JPEG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
+[ "x$JPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
 [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"

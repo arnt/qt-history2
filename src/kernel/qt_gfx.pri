@@ -66,6 +66,7 @@ jpeg {
 		  3rdparty/libjpeg/jutils.c \
 		  3rdparty/libjpeg/jmemansi.c
 }
+system-jpeg:LIBS += -ljpeg
 !jpeg:DEFINES += QT_NO_IMAGEIO_JPEG
 
 #png support
