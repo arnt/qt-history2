@@ -860,6 +860,11 @@ bool QFtpPI::processReply()
 	    dtp.connectToHost( host, port );
 	}
     } else if ( replyCodeInt == 230 ) {
+	if ( currentCmd.startsWith("USER ") && pendingCommands.count()>0 &&
+		pendingCommands.first().startsWith("PASS ") ) {
+	    // no need to send the PASS -- we are already logged in
+	    pendingCommands.pop_front();
+	}
 	// 230 User logged in, proceed.
 	emit connectState( QFtp::LoggedIn );
     } else if ( replyCodeInt == 213 ) {
