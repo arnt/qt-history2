@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#53 $
 **
 ** Implementation of QTextCodec class
 **
@@ -270,7 +270,8 @@ QTextCodec* QTextCodec::codecForIndex(int i)
 
 
 /*!
-  Returns the QTextCodec which matches the MIBenum \a mib.
+  Returns the QTextCodec which matches the
+  \link QTextCodec::mibEnum() MIBenum\endlink \a mib.
 */
 QTextCodec* QTextCodec::codecForMib(int mib)
 {
@@ -438,7 +439,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   Subclasses of QTextCodec must override this function.  It returns the
   MIBenum (see 
   <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets> 
-  the IANA character-sets encoding file) for more information.  
+  the IANA character-sets encoding file</a>) for more information.  
   It is important that each QTextCodec subclass return the correct unique
   value for this function.
 */

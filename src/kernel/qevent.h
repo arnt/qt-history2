@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#77 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#78 $
 **
 ** Definition of event classes
 **
@@ -38,7 +38,15 @@ class Q_EXPORT QEvent: public Qt		// event base class
 {
 public:
     enum Type {
+
+	// NOTE: if you get a strange compiler error on the line with "None",
+	//       it's probably because you're trying to include X11, which
+	//	 has a mess of #defines in it.  Put the messy X11 includes
+	//	 *AFTER* the nice clean Qt includes.
+	//
 	None = 0,				// invalid event
+
+
 	Timer = 1,				// timer event
 	MouseButtonPress = 2,			// mouse button pressed
         MouseButtonRelease = 3,			// mouse button released

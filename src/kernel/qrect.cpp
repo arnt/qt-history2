@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#49 $
 **
 ** Implementation of QRect class
 **
@@ -217,7 +217,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-  \fn QCOORD &QRect::rLeft() const
+  \fn QCOORD &QRect::rLeft()
 
   Returns the reference to the left coordinate of the rectangle.
 
@@ -225,7 +225,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-  \fn QCOORD &QRect::rTop() const
+  \fn QCOORD &QRect::rTop()
 
   Returns the reference to the top coordinate of the rectangle.
 
@@ -233,7 +233,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-  \fn QCOORD &QRect::rRight() const
+  \fn QCOORD &QRect::rRight()
 
   Returns the reference to the right coordinate of the rectangle.
 
@@ -241,7 +241,7 @@ QRect QRect::normalize() const
 */
 
 /*!
-  \fn QCOORD &QRect::rBottom() const
+  \fn QCOORD &QRect::rBottom()
 
   Returns the reference to the bottom coordinate of the rectangle.
 
