@@ -205,6 +205,8 @@ void SenderItem::senderChanged( const QString &sender )
 {
     QObject *o = formWindow->child( sender, "QObject" );
     if ( !o )
+	o = formWindow->findAction( sender );
+    if ( !o )
 	return;
     emit currentSenderChanged( o );
 }
@@ -262,6 +264,8 @@ void ReceiverItem::setReceiverEx( QObject *receiver )
 void ReceiverItem::receiverChanged( const QString &receiver )
 {
     QObject *o = formWindow->child( receiver, "QObject" );
+    if ( !o )
+	o = formWindow->findAction( receiver );
     if ( !o )
 	return;
     emit currentReceiverChanged( o );
