@@ -62,6 +62,8 @@ bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, b
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, dgl->width(), dgl->height(), 0, -999999, 999999);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     return true;
 }
 
@@ -78,6 +80,7 @@ void QOpenGLPaintEngine::updatePen(QPainterState *ps)
     dgl->qglColor(ps->pen.color());
     d->cpen = ps->pen;
     d->cbrush = ps->brush;
+    glLineWidth(ps->pen.width());
 }
 
 void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
@@ -151,32 +154,39 @@ void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 void QOpenGLPaintEngine::drawRect(const QRect &r)
 {
     dgl->makeCurrent();
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
     if (d->cbrush.style() != NoBrush) {
  	dgl->qglColor(d->cbrush.color());
- 	glBegin(GL_POLYGON);
+ 	glBegin(GL_QUADS);
 	{
-	    glVertex2i(r.x(), r.y());
-	    glVertex2i(r.x()+r.width(), r.y());
-	    glVertex2i(r.x()+r.width(), r.y()+r.height());
-	    glVertex2i(r.x(), r.y()+r.height());
+	    glVertex2i(x, y);
+	    glVertex2i(x+w, y);
+	    glVertex2i(x+w, y+h);
+	    glVertex2i(x, y+h);
 	}
 	glEnd();
  	dgl->qglColor(d->cpen.color());
 	if (d->cpen.style() == NoPen)
 	    return;
     }
-    QRect rr = r;
-    rr.setWidth(r.width()-1);
-    rr.setHeight(r.height()-1);
-    rr.moveBy(0,1);
+    w--;
+    h--;
+    y++;
 
     if (d->cpen.style() != NoPen) {
- 	glBegin(GL_LINE_LOOP);
+	// Specify the outline as 4 separate lines since a quad or a
+	// polygon won't give us exactly what we want
+ 	glBegin(GL_LINES);
 	{
-	    glVertex2i(rr.x(), rr.y());
-	    glVertex2i(rr.x()+rr.width(), rr.y());
-	    glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
-	    glVertex2i(rr.x(), rr.y()+rr.height());
+ 	    glVertex2i(x, y);
+	    glVertex2i(x+w, y);
+	    glVertex2i(x+w, y-1);
+	    glVertex2i(x+w, y+h-1);
+	    glVertex2i(x+w+1, y+h);
+	    glVertex2i(x+1, y+h);
+	    glVertex2i(x, y+h);
+	    glVertex2i(x, y);
 	}
  	glEnd();
     }
