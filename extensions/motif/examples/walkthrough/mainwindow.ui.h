@@ -58,7 +58,7 @@ void MainWindow::fileSaveAs()
 
 void MainWindow::filePrint()
 {
-    ::ShowPrintDialog(NULL, NULL, NULL);
+    ::ShowPrintDialog(NULL, this, NULL);
 }
 
 
