@@ -251,9 +251,8 @@ void QMacStyleCG::polish(QWidget *w)
         bginfo.state = kThemeStateActive;
         bginfo.kind = kThemeBackgroundMetal;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        CGContextRef context = qt_macCreateCGHandle(&px);
-        HIThemeDrawBackground(&rect, &bginfo, context, kHIThemeOrientationNormal);
-        CGContextRelease(context);
+        HIThemeDrawBackground(&rect, &bginfo, QCFType<CGContextRef>(qt_macCreateCGHandle(&px)),
+                              kHIThemeOrientationNormal);
     }
 
     if (::qt_cast<QMenu*>(w)) {
@@ -262,9 +261,8 @@ void QMacStyleCG::polish(QWidget *w)
         mtinfo.version = qt_mac_hitheme_version;
         mtinfo.menuType = kThemeMenuTypePopUp;
         HIRect rect = CGRectMake(0, 0, px.width(), px.height());
-        CGContextRef context = qt_macCreateCGHandle(&px);
-        HIThemeDrawMenuBackground(&rect, &mtinfo, context, kHIThemeOrientationNormal);
-        CGContextRelease(context);
+        HIThemeDrawMenuBackground(&rect, &mtinfo, QCFType<CGContextRef>(qt_macCreateCGHandle(&px)),
+                                  kHIThemeOrientationNormal);
         w->setWindowOpacity(0.95);
     }
     if (!px.isNull()) {
@@ -791,20 +789,10 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         gdi.version = qt_mac_hitheme_version;
         gdi.state = tds;
         gdi.kind = kHIThemeGrowBoxKindNormal;
-        gdi.direction = kThemeGrowLeft | kThemeGrowDown;
-        switch (qt_aqua_size_constrain(w)) {
-            case QAquaSizeLarge:
-            case QAquaSizeUnknown:
-                gdi.size = kHIThemeGrowBoxSizeNormal;
-                break;
-            case QAquaSizeSmall:
-            case QAquaSizeMini:
-                gdi.size = kHIThemeGrowBoxSizeSmall;
-                break;
-        }
-        HIPoint pt = { opt->rect.x(), opt->rect.y() };
-        HIThemeDrawGrowBox(&pt, &gdi, cg,
-                           kHIThemeOrientationNormal);
+        gdi.direction = kThemeGrowRight | kThemeGrowDown;
+        gdi.size = kHIThemeGrowBoxSizeNormal;
+        HIPoint pt = CGPointMake(opt->rect.x(), opt->rect.y());
+        HIThemeDrawGrowBox(&pt, &gdi, cg, kHIThemeOrientationNormal);
         break; }
     case PE_HeaderArrow:
         if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
