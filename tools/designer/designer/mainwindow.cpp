@@ -3231,12 +3231,6 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 	if ( ids.isEmpty() )
 	    ids << rmbFormWindow->insertSeparator( 0 );
 
-	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages..."), -1, 0 ) );
-	commands.insert( "edit", id );
-
-	ids << ( id = rmbFormWindow->insertItem( tr("Rename Page"), -1, 0 ) );
-	commands.insert( "rename", id );
-
 	if ( ( (QWizard*)fw->mainContainer() )->pageCount() > 1) {
 	    ids << ( id = rmbFormWindow->insertItem( tr("Remove Page"), -1, 0 ) );
 	    commands.insert( "remove", id );
@@ -3244,6 +3238,12 @@ void MainWindow::setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, in
 
 	ids << ( id = rmbFormWindow->insertItem( tr("Add Page"), -1, 0 ) );
 	commands.insert( "add", id );
+
+	ids << ( id = rmbFormWindow->insertItem( tr("Edit Page Title..."), -1, 0 ) );
+	commands.insert( "rename", id );
+
+	ids << ( id = rmbFormWindow->insertItem( tr("Edit Pages..."), -1, 0 ) );
+	commands.insert( "edit", id );
 
     } else if ( fw->mainContainer()->inherits( "QMainWindow" ) ) {
 	if ( ids.isEmpty() )
