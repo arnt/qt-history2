@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#101 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -3037,8 +3037,8 @@ int QMultiLineEdit::hMargin() const
 /*!
   Not supported at this time.
 */
-void QMultiLineEdit::setSelection( int row_from, int col_from,
-				   int row_to, int col_to )
+void QMultiLineEdit::setSelection( int /*row_from*/, int /*col_from*/,
+				   int /*row_to*/, int /*col_to*/ )
 {
     /*
     markAnchorY = row_from;
