@@ -84,10 +84,10 @@ void warning( int level, const Location& loc, const char *message, ... )
     if ( !filenameBase.isEmpty() &&
 	 currentDirectory != filenameBase ) {
 	if ( currentDirectory.length() )
-	    fprintf( stderr, "qdoc: Leaving directory '%s'\n",
+	    fprintf( stderr, "qdoc: Leaving directory `%s'\n",
 		     currentDirectory.latin1() );
 	currentDirectory = filenameBase;
-	fprintf( stderr, "qdoc: Entering directory '%s'\n",
+	fprintf( stderr, "qdoc: Entering directory `%s'\n",
 		 currentDirectory.latin1() );
     }
 
