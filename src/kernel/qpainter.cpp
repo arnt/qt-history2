@@ -1913,7 +1913,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 */
 
 
-#if !defined(Q_WS_X11) && !defined(Q_WS_QWS)
+#if !defined(Q_WS_X11) && !defined(Q_WS_QWS) && !defined(Q_WS_MAC)
 // The doc and X implementation of this functions is in qpainter_x11.cpp
 void QPainter::drawWinFocusRect( int, int, int, int,
 				 bool, const QColor & )
