@@ -872,6 +872,9 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             pat->image = image;
         }
+    } else {
+        w = CGImageGetWidth(pat->image);
+        h = CGImageGetHeight(pat->image);
     }
     CGRect rect = CGRectMake(0, 0, w, h);
     HIViewDrawCGImage(c, &rect, pat->image); //top left
