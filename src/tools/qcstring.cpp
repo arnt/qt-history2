@@ -1175,8 +1175,9 @@ int QCString::contains( const char *str, bool cs ) const
 {
     int count = 0;
     int i = -1;
+    uint l = length();
     // use find for the faster hashing algorithm
-    while ( ( i = find ( str, i+1, cs ) ) != -1 )
+    while ( ( i = find ( str, i+1, cs, l ) ) != -1 )
 	count++;
     return count;
 }
