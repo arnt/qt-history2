@@ -395,7 +395,7 @@ void QDateTimeEditBase::layoutArrows()
 
 /*!
   \class QDateEdit qdatetimeedit.h
-  \brief The QDateEdit class provides a combined line edit box and spin box to edit dates
+  \brief The QDateEdit class provides a combined line edit box and spin box to edit dates.
 
     QDateEdit allows the user to edit the date by using the keyboard or
     the arrow keys to increase/decrease date values.  The Tab key can be
@@ -679,7 +679,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QTimeEdit qdatetimeedit.h
-  \brief The QTimeEdit class provides a combined line edit box and spin box to edit times
+  \brief The QTimeEdit class provides a combined line edit box and spin box to edit times.
 
     QTimeEdit allows the user to edit the time by using the keyboard or
     the arrow buttons to increase/decrease time values. Times appear in
@@ -852,7 +852,7 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
-  \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit widget into a single widget for editing datetimes
+  \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit widget into a single widget for editing datetimes.
 
     QDateTimeEdit consists of a QDateEdit and QTimeEdit widget placed
     side by side and offers the functionality of both. The user can edit
