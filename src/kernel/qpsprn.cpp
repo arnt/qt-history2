@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#50 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2286,6 +2286,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    if ( p[0].ptarr->size() > 0 ) {
 		QPointArray a = *p[0].ptarr;
 		QPoint pt;
+		stream << "NP\n";
 		for ( int i=0; i<(int)a.size(); i+=2 ) {
 		    pt = a.point( i );
 		    stream << XCOORD(pt.x()) << ' '
@@ -2301,7 +2302,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    if ( p[0].ptarr->size() > 1 ) {
 		QPointArray a = *p[0].ptarr;
 		QPoint pt = a.point( 0 );
-		stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
+		stream << "NP\n"
+		       << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
 		for ( int i=1; i<(int)a.size(); i++ ) {
 		    pt = a.point( i );
 		    stream << XCOORD(pt.x()) << ' '
@@ -2331,6 +2333,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_DRAWQUADBEZIER:
 	    if ( p[0].ptarr->size() == 4 ) {
+		stream << "NP\n";
 		QPointArray a = *p[0].ptarr;
 		stream << XCOORD(a[0].x()) << ' '
 		       << YCOORD(a[0].y()) << " MT ";
@@ -2630,7 +2633,7 @@ void QPSPrinter::clippingSetup( QPainter *paint )
 	for( i = 0 ; i < (int)rects.size() ; i++ ) {
 	    putRect( stream, rects[i] );
 	    stream << "ACR\n";		// add clip rect
-	} 
+	}
 	stream << "CLEND\n";		// end clipping
 	d->firstClipOnPage = FALSE;
     } else {
