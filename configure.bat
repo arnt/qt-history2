@@ -78,7 +78,7 @@ for %%m in ( %MODULES% ) do (
 	set ENABLEMODULE=x-enable-%%m%
 	set DISABLEMODULE=x-disable-%%m%
 	if x%1==x-enable-%%m% (
-		echo enable-* not supported yet.
+		set QMAKE_CONFIG=!QMAKE_CONFIG! %%m%
 		)
 	if x%1==x-disable-%%m% (
 		set DISABLED_%%m%=yes
@@ -86,7 +86,8 @@ for %%m in ( %MODULES% ) do (
 )
 cd ..
 
-if x%1==x-internal set QMAKE_CONFIG=internal
+rem *** The following is a workaround
+if x%1==x-internal set QMAKE_CONFIG=%MODULES%
 shift
 goto loop
 :endloop
