@@ -190,7 +190,7 @@ public:
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 21;
+static const int ntypes = 24;
 static const char* type_map[ntypes] =
 {
     0,
@@ -213,7 +213,10 @@ static const char* type_map[ntypes] =
     "uint",
     "bool",
     "double",
-    "QCString"
+    "QCString",
+    "PointArray",
+    "Region",
+    "Bitmap"
 };
 
 int qvariant_nameToType( const char* name )
@@ -804,15 +807,15 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 					   " access permission to \"private\".");
 			      Q_OBJECTdetected = TRUE;
 			  }
-			| Q_PROPERTY { tmpYYStart = YY_START; 
-				       tmpPropOverride = FALSE; 
+			| Q_PROPERTY { tmpYYStart = YY_START;
+				       tmpPropOverride = FALSE;
 				       BEGIN IN_PROPERTY; }
 			  '(' property ')' {
 						BEGIN tmpYYStart;
 				   	   }
 			  opt_property_candidates
-			| Q_OVERRIDE { tmpYYStart = YY_START; 
-				       tmpPropOverride = TRUE; 
+			| Q_OVERRIDE { tmpYYStart = YY_START;
+				       tmpPropOverride = TRUE;
 				       BEGIN IN_PROPERTY; }
 			  '(' property ')' {
 						BEGIN tmpYYStart;
@@ -1107,14 +1110,14 @@ enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 )
 			  enumerator_expression {  if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 );  }
 			;
 
-property:		IDENTIFIER IDENTIFIER 
-				{ 
-				     propWrite = ""; 
-				     propRead = ""; 
-				     propStored = "true"; 
+property:		IDENTIFIER IDENTIFIER
+				{
+				     propWrite = "";
+				     propRead = "";
+				     propStored = "true";
 				     propOverride = tmpPropOverride;
-				     propDesignable = TRUE; 
-				     propDefault = ""; 
+				     propDesignable = TRUE;
+				     propDefault = "";
 				     propNoDefault = TRUE;
 				}
 			prop_statements
@@ -1127,13 +1130,13 @@ property:		IDENTIFIER IDENTIFIER
 				    for( QListIterator<Property> lit( props ); lit.current(); ++lit ) {
 					if ( lit.current()->name == $2 ) {
 					    if ( displayWarnings )
-						moc_err( "Property '%s' defined twice.", 
+						moc_err( "Property '%s' defined twice.",
 							 (const char*)lit.current()->name );
 					}
 				    }
-				    props.append( new Property( lineNo, $1, $2, 
+				    props.append( new Property( lineNo, $1, $2,
 								propWrite, propRead, propStored,
-								propDesignable, propDefault, 
+								propDesignable, propDefault,
 								propNoDefault, FALSE ) );
 				}
 			;
