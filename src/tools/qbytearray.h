@@ -200,12 +200,7 @@ private:
 class Q_EXPORT QConstByteArray : public QByteArray
 {
 public:
-    inline QConstByteArray(const char *chars, int length) : QByteArray(new QByteArray::Data) {
-	d->ref = 1;
-	d->alloc = d->size = length;
-	d->data = chars ? (char *)chars : d->array;
-	*d->array = '\0';
-    }
+    QConstByteArray(const char *chars, int length);
 };
 
 inline QByteArray:: QByteArray():d(&shared_null)

@@ -1111,4 +1111,13 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     return s;
 }
 
+
+QConstByteArray::QConstByteArray(const char *chars, int length)
+    : QByteArray((Data *)qMalloc(sizeof(Data))) {
+    d->ref = 1;
+    d->alloc = d->size = length;
+    d->data = chars ? (char *)chars : d->array;
+    *d->array = '\0';
+}
+
 #endif //QT_NO_DATASTREAM
