@@ -447,7 +447,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 void QWidget::setFontSys( QFont *f )
 {
     HFONT hf;
-    if ( f ) 
+    if ( f )
 	hf = f->handle();
     else
 	hf = font().handle();
@@ -475,7 +475,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
     if ( text ) {
 	// Translate x,y to be relative to the TLW
 	QPoint p(x,y);
-	mapTo( topLevelWidget(), p );
+	p = mapTo( topLevelWidget(), p );
 
 	COMPOSITIONFORM cf;
 	// ### need X-like inputStyle config settings
