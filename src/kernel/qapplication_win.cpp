@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#2 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#2 $";
 #endif
 
 
@@ -352,7 +352,7 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	    }
 #endif
 
-#if defined(STUPID_WINDOWS_NT)
+#if !defined(STUPID_WINDOWS_NT)
 	case WM_ERASEBKGND: {			// erase window background
 	    HDC hdc = (HDC)wParam;
 	    RECT rect;
