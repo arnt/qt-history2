@@ -1,5 +1,8 @@
-CONFIG   = console release flat
+CONFIG   = console flat precompile_header
 DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD QT4_TECH_PREVIEW
+
+PRECOMPILED_HEADER = configure_pch.h
+
 HEADERS	 = configureapp.h \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearray.h \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.h \
