@@ -818,7 +818,6 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
 	d->wrapVector.push_back(last + 1);
     }
 
-    qDebug("w %d h %d", rect.width(), rect.height());
     resizeContents(rect.width(), rect.height());
     if (visibleRect().intersects(rect))
   	d->viewport->update();
