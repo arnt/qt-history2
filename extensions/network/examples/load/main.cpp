@@ -10,11 +10,7 @@ main( int argc, char** argv )
 
     QString url;
 
-    if ( argc > 1 )
-	url = argv[1];
-    else // ##### name server trouble...
-	//url = "http://ice.trolltech.com.au/cgi-bin/isdninfo";
-	url = "http://203.46.225.145/cgi-bin/isdninfo";
+    url = argv[1];
 
     Load ice(url);
     app.setMainWidget(&ice);

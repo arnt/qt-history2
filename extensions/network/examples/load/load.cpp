@@ -16,8 +16,12 @@ class LoadData {
 private:
     void rescale(int need)
     {
-	while ( max < need )
-	    max *= 2;
+	while ( max < need ) {
+	    if ( max < 4096 )
+		max *= 2;
+	    else
+		max += 4096;
+	}
 	setLabel();
 	widget->repaint(FALSE);
     }
@@ -63,7 +67,7 @@ public:
     void addDataPoint(int in, int out)
     {
 	ins[current]=in;
-	outs[current]=in;
+	outs[current]=out;
 	current=(current+1)%ins.size();
 
 	if (in+out > max) {
