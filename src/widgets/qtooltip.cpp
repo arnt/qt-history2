@@ -834,8 +834,8 @@ void QToolTip::hide()
   implementation will be of the form:
 
   \code
-    if ( \\<something\\> ) {
-	tip( \\<something\\>, \\<something\\> );
+    if ( <something> ) {
+	tip( <something>, <something> );
     }
   \endcode
 
