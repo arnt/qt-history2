@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.h#6 $
+** $Id: //depot/qt/main/etc/opengl/qgl.h#7 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -38,10 +38,10 @@ public:
 
     bool    doubleBuffer() const;
     void    setDoubleBuffer( bool );
-    bool    rgba() const;
-    void    setRgba( bool );
     bool    depth() const;
     void    setDepth( bool );
+    bool    rgba() const;
+    void    setRgba( bool );
     bool    alpha() const;
     void    setAlpha( bool );
     bool    accum() const;
@@ -59,8 +59,8 @@ public:
 public:
     struct Internal : /* public */ QShared {
 	bool	doubleBuffer;
-	bool	rgba;
 	bool	depth;
+	bool	rgba;
 	bool	alpha;
 	bool	accum;
 	bool	stencil;
@@ -93,35 +93,37 @@ public:
     void	reset();
 
 protected:
-    virtual bool  chooseContext();
+    bool	chooseContext();
 #if defined(Q_WGL)
-    virtual bool  choosePixelFormat( void * );
+    virtual int choosePixelFormat( void * );
 #elif defined(Q_GLX)
-    virtual bool  chooseVisual();
+    virtual void *chooseVisual();
 #endif
-    void	  doneCurrent();
+    void	doneCurrent();
 
 protected:
 #if defined(Q_WGL)
-    bool	  tmp_dc;
-    HANDLE	  rc, win, dc;
+    HANDLE	rc;
+    HANDLE	dc;
+    HANDLE	win;
+    bool	tmp_dc;
 #endif
 #if defined(Q_GLX)
-    void	 *vi;
-    void	 *cx;
+    void       *vi;
+    void       *cx;
 #endif
 
 private:
-    bool	  valid;
-    QGLFormat	  glFormat;
+    bool	valid;
+    QGLFormat	glFormat;
     QPaintDevice *paintDevice;
+
+    friend class QGLWidget;
 
 private:	// Disabled copy constructor and operator=
     QGLContext() {}
     QGLContext( const QGLContext & ) {}
     QGLContext &operator=( const QGLContext & ) { return *this; }
-
-    friend class QGLWidget;
 };
 
 
