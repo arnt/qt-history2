@@ -57,14 +57,15 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     }
 
     /*
-      Strip comments, merge lines ending with backslash, add
-      spaces around '=' and '+=', replace '\n' with ';', and
-      simplify white spaces.
+      Strip comments, merge lines ending with backslash, add spaces
+      around '=', '+=', and '*=', replace '\n' with ';', and simplify
+      white spaces.
     */
     t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
     t.replace( QRegExp(QString("\\\\\n")), QString(" ") );
     t.replace( "=", QString(" = ") );
     t.replace( "+ =", QString(" += ") );
+    t.replace( "* =", QString(" *= ") );
     t.replace( "\n", QString(";") );
     t = t.simplifyWhiteSpace();
 
@@ -78,7 +79,8 @@ QMap<QString, QString> proFileTagMap( const QString& text )
 	QStringList toks = QStringList::split( QChar(' '), *line );
 
 	if ( toks.count() >= 3 &&
-	     (toks[1] == QString("=") || toks[1] == QString("+=")) ) {
+	     (toks[1] == QString("=") || toks[1] == QString("+=") ||
+	      toks[1] == QString("*=")) ) {
 	    QString tag = toks.first();
 	    int k = tag.findRev( QChar(':') ); // as in 'unix:'
 	    if ( k != -1 )
