@@ -1,0 +1,31 @@
+@SysInclude { picture }
+@SysInclude { tbl }
+@SysInclude { diag }
+@Illustration
+    @InitialFont { Helvetica Base 14p }
+{
+@Centre @Diag
+    outline { shadowbox }
+    shadow { 0.15f }
+    margin { 0.5f }
+    arrowwidth { 0.55f }
+    arrowlength { 0.55f }
+    pathwidth { medium }
+{
+@Tbl
+    margin { 0.5f }
+    aformat { @Cell A | @StartHSpan @Cell B | @HSpan | @HSpan }
+    bformat { @Cell A | @Cell B | @StartHSpan @Cell C | @HSpan }
+{
+    @Rowa A { VIEWWIDGET:: @Node { View Widget } }
+    @Rowa B { MAINWINDOW:: @Node { Main Window with Popup Menu Hierarchy } }
+    @Rowb C { OPEN:: @Node { Open Dialog } }
+    @Rowb C { SAVEAS:: @Node { Save As Dialog } }
+    @Rowb C { PAGEDELETE:: @Node { Page Delete Dialog } }
+    @Rowb C { IOERROR:: @Node { IO Error Dialog } }
+    @Rowb C { PAGEEDIT:: @Node { Page Edit Dialog } }
+    @Rowb C { HELP:: @Node { Help Dialog } }
+    @Rowb B { PRINT:: @Node { Print Dialog } }
+}
+}
+}

@@ -3,36 +3,43 @@
 /*! \page motif-walkthrough.html
     \title Qt Motif Extension - A Migration Walkthrough
 
+\tableofcontents
+
 \section1 Introduction
 
 This walkthrough covers a complete migration of a Motif based program
 to the Qt toolkit using the \e {Qt Motif Extension}.
 
-Large projects with several millon lines of code cannot be migrated
-all at once; such an endeavor requires too many development resources.
-Every line of code must be rewritten, every user interface must be
-redesigned and quality assurance tests/procedures must be rewritten.
-The \e {Qt Motif Extension} provides a complete and working solution
-for gradual, long term migration.  The user interface and related code
-can be migrated in steps while the rest of the project remains
-unchanged.
+It is rarely practical for a large project with hundreds of thousands
+or even millons of lines of code to be migrated all at once; such an
+endeavor would require too many development resources and would incur
+significant risks. Every line of code would have to be rewritten,
+every user interface redesigned, and quality assurance tests and
+procedures all rewritten. The \e {Qt Motif Extension} provides a
+complete and working solution for incremental migration that can be
+paced to suit each individual project and the available resources. The
+user interface and related code can be migrated in steps while the
+rest of the project need not be changed at all.
 
-This document is intended for programmers that will be migrating an
-existing Motif based project to the Qt toolkit.  We assume that you
-have experience with C/C++ and Xt/Motif.  Experience with the Qt
-toolkit is desirable, but not required.  Such knowledge can get gained
-through training during the migration process.
+This document is intended for programmers who will be migrating an
+existing Motif based project to the Qt toolkit. We assume that they
+have experience with C/C++ and Xt/Motif. Some experience with the Qt
+toolkit is also necessary. For developers completely new to Qt we
+recommend following the learning plan outlined in \link
+how-to-learn-qt.html How to Learn Qt\endlink; or to go on a Qt
+training course. (See \link http://www.trolltech.com\endlink for
+details of training courses.)
 
 \section2 Goals for this Document
 
-The ultimate goal of this document is to provide the reader with
-enough knowledge to migrate to the Qt toolkit.  We will do this by
-example; we will convert a real-world Motif based program
-step-by-step.  This walkthrough will discuss both technique and
-rationale throughout the process.
+The goal of this document is to provide the reader with enough
+knowledge to migrate Motif applications to the Qt toolkit. We will do
+this by example: We will convert a real-world Motif based program
+step-by-step. This walkthrough will discuss both techniques and their
+rationales throughout the process.
 
 We will use the \e todo demo program included with the Motif 2.x
-distribution as our migration project.  This walkthrough contains
+distribution as our migration project. This walkthrough contains
 references to the source code, which is included in the \c
 extensions/motif/examples/walkthrough subdirectory.
 
@@ -52,29 +59,31 @@ three requirements.
 \section2 X11R6.x and Motif 2.x libraries
 
 The mechanisms used by the \e {Qt Motif Extension} require libraries
-from the X11R6 release and the Motif 2.0 release.  Newer versions of
-these can be used.
+from the X11R6 release and the Motif 2.0 release. Newer versions of
+these can also be used.
+
+###<font color=red>What about header files?</font>
 
 \section2 C++ Compiler
 
-Since Qt is a C++ toolkit, all new code will be written in C++.  In
+Since Qt is a C++ toolkit, all new code will be written in C++. In
 order for existing code to coexist with new code, a C++ compiler must
 be able to compile the existing code.
 
 It is possible to keep existing code and new code separate, and only
-convert and/or rewrite existing code as needed.  This is a normal part
+convert or rewrite existing code as needed. This is a normal part
 of the migration process, and does not need to be done before the
-migration process begins.  This is the most common scenario.  Because
-of this, we will migrate existing C code to C++ as needed in this
-walkthrough.
+migration process begins. This is the most common scenario, and we
+will demonstrate it by migrating existing C code to C++ as needed in
+this walkthrough.
 
 
-\section2 Build and install the Qt Motif Extension
+\section2 Build and Install the Qt Motif Extension
 
 The \e {Qt Motif Extension} is not built and installed along with the
-Qt toolkit.  The extension resides in the \c extensions/motif
-subdirectory.  Run \e make in this directory to build the extension
-and the examples.  Once the extension has been built, run \e {make
+Qt toolkit. The extension resides in the \c extensions/motif
+subdirectory. Run \e make in this directory to build the extension
+and the examples. Once the extension has been built, run \e {make
 install}
 
 \code
@@ -89,10 +98,10 @@ The \e {Qt Motif Extension} is now installed and ready to use.
 \section2 Build and link your project with the Qt toolkit and the Qt
 Motif Extension
 
-For simplicity, we use \e qmake to create the \c Makefile.  The \c
+For simplicity, we use \e qmake to create the \c Makefile. The \c
 -project option causes \e qmake to automatically generate a project
-file.  After \e {qmake -project} has generated our project file, we
-run \e qmake again to generate a \c Makefile.  Now, we just run \e
+file. After \e {qmake -project} has generated our project file, we
+run \e qmake again to generate a \c Makefile. Now, we can just run \e
 make to build our project.
 
 \code
@@ -102,17 +111,17 @@ make to build our project.
 \endcode
 
 Everything builds correctly, but fails to link because we don't link
-with the Motif library.  We tell \e qmake to do this by adding the \c
--lXm to the \c LIBS variable in our project file.  Since we are
-planning to use the \e {Qt Motif Extension} in this project a well, we
-should add \c -lqmotif to the list of libraries as well.
+with the Motif library. We tell \e qmake to do this by adding the \c
+-lXm to the \c LIBS variable in our project file. Since we are
+planning to use the \e {Qt Motif Extension} in this project as well,
+we should also add \c -lqmotif to the list of libraries.
 
 \code
     LIBS += -lXm -lqmotif
 \endcode
 
-And now, we regenerate our \c Makefile by running \c qmake again, and
-rebuild with \c make.  This time, our project succesfully links, and
+Now we regenerate our \c Makefile by running \c qmake again, and
+rebuild using \c make. This time, our project succesfully links, and
 the application runs as expected.
 
 We are now ready to start using the \e {Qt Motif Extension}.
@@ -122,13 +131,13 @@ We are now ready to start using the \e {Qt Motif Extension}.
 
 \section2 Starting with QMotif and QApplication
 
-To be able to use Qt, we need to create a QApplication object.  The
-QApplication class controls all of the event deliver and display
-management for all other Qt objects/widgets.  We need to use the
+To be able to use Qt, we need to create a QApplication object. The
+QApplication class controls all the event delivery and display
+management for all other Qt objects and widgets. We need to use the
 QMotif class from the \e {Qt Motif Extension} to allow QApplication
 and the \c XtAppContext to coexist.
 
-The QApplication object should be created in your \c main() function,
+The QApplication object must be created in the \c main() function,
 We will need to modify \c {todo.c} to compile with a C++ compiler, so we
 rename \c {todo.c} to \c {todo.cpp}.
 
@@ -140,8 +149,8 @@ classes.
 \skipto REV_INFO
 \printuntil pwd.h
 
-Next, we create the QMotif and QApplication objects.  We create QMotif
-with an foreign \c XtAppContext, and we create QApplication with an
+Next, we create the QMotif and QApplication objects. We create QMotif
+with a foreign \c XtAppContext, and we create QApplication with a
 foreign \c Display.
 
 \skipto strcmp(argv[1], "-help")
@@ -150,23 +159,23 @@ foreign \c Display.
 The next change is not yet necessary, but it is included to show that
 the \e {Qt Motif Extension} provides a complete intregration.
 Normally, a Motif based program would use the \c XtAppMainLoop()
-function to run the application's event loop.  This is still possible,
+function to run the application's event loop. This is still possible,
 but since we are migrating to the Qt toolkit, we would like to use the
 QApplication::exec() function for running the event loop.
 
 \skipuntil Eventloop integration
 \printuntil }
 
-Since we renamed \c {todo.c} to \c {todo.cpp}, we need to change the
-project file and rerun \e qmake to regenerate our \c Makefile.  When
-we build our project, there are compile and link errors.
+Since we renamed \c {todo.c} to \c {todo.cpp}, we must change the
+project file and rerun \e qmake to regenerate our \c Makefile. When we
+build our project, there are compile and link errors.
 
 \section2 Migrating to C++
 
 We need to convert the code in this file to proper C++ code.
-Thankfully, the changes are not too large.  Most include files from
-existing C projects are not C++ safe, so we make them safe by wrapping
-them in an \c {extern "C"} block.
+Fortunately, the changes are not too large. Most files included from
+existing C projects are not C++ compatible, so we make them compatible
+by wrapping them in an \c {extern "C"} block.
 
 \quotefile walkthrough/todo-gettingstarted.cpp
 
@@ -184,7 +193,7 @@ The \c manageCB() function needs to be converted to proper C++.
 \skipuntil Use proper C++ function declarations
 \printuntil }
 
-And we need to fix two invalid casts.  One is in the \c Save() function.
+And we need to fix two invalid casts. One is in the \c Save() function.
 
 \skipuntil Temporarily fix invalid casts
 \printuntil SaveDB
@@ -202,14 +211,14 @@ application runs and operates correctly.
 
 We are ready to start migrating the user interface for our project.
 As mentioned in the introduction, we do this in steps, ensuring that
-our application is still usable during the migration process. 
+our application is still usable at every step of the migration process. 
 
 The user interface can be viewed as a heirarchy; each top-level window
 and dialog depends upon a parent (which is another top-level window or
-dialog).  When using the Motif \c XmMainWindow widgets, these should
+dialog). When using the Motif \c XmMainWindow widgets, these should
 be viewed as two separate entities: the \e {Main Window} widget with
 the popup-menu heirarchy and the \e View widget contained in the \e
-{Main Window} widget.  The \e View widget depends on the \e {Main
+{Main Window} widget. The \e View widget depends on the \e {Main
 Window} widget.
 
 We begin migrating the pieces that have no dependencies, and work our
@@ -244,21 +253,21 @@ We will begin by migrating and replacing all of the dialogs, then the
 \e {Main Window} widget with popup-menu heirarchy, and finally the \e
 View widget.
 
-However, we are not ready to begin just yet.  The migration process
-can be long, but it does not have to be difficult.  The \e Open, \e
+However, we are not ready to begin just yet. The migration process
+can be long, but it does not have to be difficult. The \e Open, \e
 {Save As}, \e {Page Delete} and \e {IO Error} dialogs use a Motif
-predefined dialog type.  Qt provides similar functionality with
+predefined dialog type. Qt provides similar functionality with
 QFileDialog and QMessageBox, which we can begin using immediately.
 
-The \e Print dialog is special, however.  The \e Print dialog cannot
-be replaced until after we have replaced the \e View widget.  Qt
+The \e Print dialog is special, however. The \e Print dialog cannot
+be replaced until after we have replaced the \e View widget. Qt
 provides a complete printing mechanism with QPrinter, but we cannot
 start using it until we have replaced the \e View widget.
 
 \section2 Using Qt Standard Dialogs
 
 We start by using two of the \link dialogs.html Qt Standard
-Dialogs\endlink: QFileDialog and QMessageBox.  Both of these classes
+Dialogs\endlink: QFileDialog and QMessageBox. Both of these classes
 provide static convenience functions that we can use.
 
 \list
@@ -268,10 +277,10 @@ provide static convenience functions that we can use.
 \i QMessageBox::warning() - replacement for \e {IO Error} dialog.
 \endlist
 
-Each of these functions take a \c {QWidget *parent} argument.  If we
+Each of these functions take a \c {QWidget *parent} argument. If we
 pass zero as the \e parent argument, then we will have dialogs that
 are centered on the screen, instead of being centered over our main
-window.  We can accomplish this by using QMotifWidget.  We can have
+window. We can accomplish this by using QMotifWidget. We can have
 QMotifWidget create our \c XmMainWindow, and we can then use this
 class as the parent for both Motif dialogs and Qt dialogs.
 
@@ -284,13 +293,13 @@ QFileDialog.
 \printuntil qmotifwidget.h
 
 Next, we make a few modifications to how the application is
-initialized.  We could initialize Xt/Motif and create the \c
+initialized. We could initialize Xt/Motif and create the \c
 XtAppContext ourselves, but QMotif can do this for us, so we let it.
-We also let QApplication open the connection to the X server.  Next,
+We also let QApplication open the connection to the X server. Next,
 we create a QMotifWidget, passing \c xmMainWindowWidgetClass as the \e
-widgetclass argument.  We can now use the QMotifWidget::motifWidget()
-function to access the Motif widget.  The shell widget is created
-automatically by QMotifWidget.  We use \c XtParent() to access it.
+widgetclass argument. We can now use the QMotifWidget::motifWidget()
+function to access the Motif widget. The shell widget is created
+automatically by QMotifWidget. We use \c XtParent() to access it.
 The top-level window is now a QMotifWidget, which means we can use it
 as the parent for the Qt Standard Dialogs.
 
@@ -301,9 +310,9 @@ as the parent for the Qt Standard Dialogs.
 \section3 Using QFileDialog
 
 First, we completely remove all use of the existing Motif file
-selection dialog.  We remove the \c Xm/FileSB.h include, the global \c
-file_dialog variable, and the code to create the dialog.  We also
-remove the \c PresentFDialog() callback function.  None of this code
+selection dialog. We remove the \c Xm/FileSB.h include, the global \c
+file_dialog variable, and the code to create the dialog. We also
+remove the \c PresentFDialog() callback function. None of this code
 is needed to use QFileDialog.
 
 Since we removed the \c PresentFDialog() callback function, we need to
@@ -317,7 +326,7 @@ We first need to change the declaration of these two functions.
 \skipuntil Wrap extern/callback functions and global variables with extern "C"
 \printuntil void Print
 
-And we change the arguments to the callbacks.  We pass the top-level
+And we change the arguments to the callbacks. We pass the top-level
 QMotifWidget as the \c client_data to these functions, since we will
 be using this as the parent for the QFileDialog.
 
@@ -336,17 +345,17 @@ QFileDialog::getSaveFileName().
 \printuntil ReadDB
 
 After we build the project, the application runs and operates as
-expected.  The difference is that the \e Open and \e {Save As} dialogs
+expected. The difference is that the \e Open and \e {Save As} dialogs
 now use QFileDialog.
 
 
 \section3 Using QMessageBox
 
 The \e {Page Delete} dialog is created and used in \c {actions.c}. We
-need to migrate this file to C++.  We rename it to \c {actions.cpp},
+need to migrate this file to C++. We rename it to \c {actions.cpp},
 modify the project file and regenerate the \c Makefile.
 
-The changes required to make \c {actions.cpp} compile are minimal.  We
+The changes required to make \c {actions.cpp} compile are minimal. We
 need to wrap more C header files and global variables in an \c {extern
 "C"} block.
 
@@ -389,8 +398,8 @@ The code for \c DeletePage() looks like this:
 \skipuntil DeletePage using QMessageBox
 \printuntil return
 
-At this point in the code, the page should be deleted.  The code to do
-this is in the \c DoDeletePage() function.  We move the contents of \c
+At this point in the code, the page should be deleted. The code to do
+this is in the \c DoDeletePage() function. We move the contents of \c
 DoDeletePage() to this point and remove the \c DoDeletePage() function
 completely.
 
@@ -406,10 +415,10 @@ Next, we change \c {todo.cpp} to pass the top-level QMotifWidget as the
 \printuntil (XtCallbackProc) DeletePage, (XtPointer) &toplevel
 
 The \e {IO Error} dialog is created and used in \c {io.c}. We need to
-migrate this file to C++.  We rename it to \c {io.cpp}, modify the
+migrate this file to C++. We rename it to \c {io.cpp}, modify the
 project file and regenerate the \c Makefile.
 
-The changes required to make \c {io.cpp} compile are minimal.  We need
+The changes required to make \c {io.cpp} compile are minimal. We need
 to wrap more C header files and global variables in an \c {extern "C"}
 block.
 
@@ -457,7 +466,7 @@ The code for \c SaveDB() looks like this:
 \printuntil Append a ~ to make the old filename
 
 After we build the project, the application runs and operates as
-expected.  The difference is that the \e {Page Delete} and \e {IO
+expected. The difference is that the \e {Page Delete} and \e {IO
 Error} dialogs now use QMessageBox.
 
 
