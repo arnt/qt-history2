@@ -2881,7 +2881,7 @@ bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
     The returned byte array is undefined if the string contains
     non-Latin1 characters.
 
-    \sa fromLatin1(), ascii(), utf8(), local8Bit(), QTextCodec
+    \sa fromLatin1(), toAscii(), toUtf8(), toLocal8Bit(), QTextCodec
 */
 QByteArray QString::toLatin1() const
 {
@@ -2906,7 +2906,7 @@ QByteArray QString::toLatin1() const
     it is used to convert Unicode to 8-bit char; otherwise this
     function does the same as latin1().
 
-    \sa fromAscii(), latin1(), utf8(), local8Bit(), QTextCodec
+    \sa fromAscii(), toLatin1(), toUtf8(), toLocal8Bit(), QTextCodec
 */
 QByteArray QString::toAscii() const
 {
@@ -2925,7 +2925,7 @@ QByteArray QString::toAscii() const
     QTextCodec::codecForLocale() is used to perform the conversion
     from Unicode.
 
-    \sa fromLocal8Bit(), ascii(), latin1(), utf8(), QTextCodec
+    \sa fromLocal8Bit(), toAscii(), toLatin1(), toUtf8(), QTextCodec
 */
 QByteArray QString::toLocal8Bit() const
 {
@@ -2939,7 +2939,7 @@ QByteArray QString::toLocal8Bit() const
 /*!
     Returns a UTF-8 representation of the string as a QByteArray.
 
-    \sa fromUtf8(), ascii(), latin1(), local8Bit(), QTextCodec
+    \sa fromUtf8(), toAscii(), toLatin1(), toLocal8Bit(), QTextCodec
 */
 QByteArray QString::toUtf8() const
 {
