@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#12 $
 **
 ** Implementation of QLibrary class
 **
@@ -49,6 +49,13 @@
 #endif // QT_H
 
 //#define QT_DEBUG_COMPONENT 1
+
+
+// KAI C++ has at the moment problems with unloading the Qt plugins. So don't
+// unload them as a workaround for now.
+#if defined(Q_CC_KAI)
+#define QT_NO_LIBRARY_UNLOAD
+#endif
 
 /*
   Private helper class that saves the platform dependent handle
@@ -405,7 +412,13 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return TRUE;
 
+#if defined(QT_NO_LIBRARY_UNLOAD)
+    // ### this is a hack to solve problems with plugin unloading und KAI C++
+    // (other compilers may have the same problem)
+    int ec = 0;
+#else
     int ec = dlclose( pHnd );
+#endif
     if ( !ec )
 	pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
