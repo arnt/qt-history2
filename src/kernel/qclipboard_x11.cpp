@@ -47,6 +47,7 @@
 #include "qdragobject.h"
 #include "qbuffer.h"
 #include "qt_x11.h"
+#include "qapplication_p.h"
 
 // REVISED: arnt
 

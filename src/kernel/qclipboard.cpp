@@ -40,6 +40,7 @@
 #ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
+#include "qapplication_p.h"
 #include "qdragobject.h"
 #include "qpixmap.h"
 
@@ -125,8 +126,6 @@ QClipboard::~QClipboard()
 /*****************************************************************************
   QApplication member functions related to QClipboard.
  *****************************************************************************/
-
-extern QObject *qt_clipboard;			// defined in qapp_xyz.cpp
 
 static void cleanupClipboard()
 {
