@@ -2239,10 +2239,11 @@ void pnmscale(const QImage& src, QImage& dst)
 		xelrow = (QRgb*)src.scanLine(rowsread++);
 		needtoreadrow = 0;
 	    }
+	    register long a=0;
 	    for ( col = 0, xP = xelrow, nxP = tempxelrow;
 		  col < cols; ++col, ++xP, ++nxP )
 	    {
-		register long a=0, r, g, b;
+		register long r, g, b;
 
 		if ( as ) {
 		    r = rs[col] + fracrowtofill * qRed( *xP ) * qAlpha( *xP ) / 255;
