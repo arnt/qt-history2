@@ -4297,7 +4297,10 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 	repaintItem( d->firstItem );
     }
 
-    d->startDragItem = 0;
+    if (item && item->dragEnabled())
+	d->startDragItem = item;
+    else
+	d->startDragItem = 0;
 
     if ( e->button() == LeftButton && !( e->state() & ShiftButton ) &&
 	 !( e->state() & ControlButton ) && item && item->isSelected() &&
