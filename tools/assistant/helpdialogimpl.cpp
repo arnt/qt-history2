@@ -239,7 +239,7 @@ void HelpDialog::initialize()
     initDoneMsgShown = FALSE;
     fullTextIndex = 0;
     indexDone = FALSE;
-    contentsDone = FALSE;
+    titleMapDone = FALSE;
     contentsInserted = FALSE;
     bookmarksInserted = FALSE;
     setupTitleMap();
@@ -263,7 +263,7 @@ void HelpDialog::generateNewDocu()
 	}
     }
     indexDone = FALSE;
-    contentsDone = FALSE;
+    titleMapDone = FALSE;
     contentsInserted = FALSE;
     contentList.clear();
     if ( fullTextIndex ) {
@@ -443,11 +443,12 @@ void HelpDialog::buildKeywordDB()
 
 void HelpDialog::setupTitleMap()
 {
-    if ( contentsDone )
+    if ( titleMapDone )
 	return;
     if ( contentList.isEmpty() )
 	getAllContents();
 
+    titleMapDone = TRUE;
     QDictIterator<ContentList> lstIt( contentList );
     for ( ; lstIt.current(); ++lstIt ) {
 	QValueList<ContentItem> &lst = *(lstIt.current());
@@ -465,6 +466,7 @@ void HelpDialog::setupTitleMap()
 void HelpDialog::getAllContents()
 {
     QFile contentFile( QDir::homeDirPath() + "/.contentdb" );
+    contentList.clear();
     if ( !contentFile.open( IO_ReadOnly ) ) {
 	buildContentDict();
 	return;
@@ -543,18 +545,14 @@ void HelpDialog::buildContentDict()
 
 void HelpDialog::currentTabChanged( const QString &s )
 {
-    if ( s.contains( tr( "&Index" ) ) ) {
-	if ( !indexDone )
-	    QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
-    } else if ( s.contains( tr( "&Bookmarks" ) ) ) {
-	if ( !bookmarksInserted )
-	    insertBookmarks();
-    } else if ( s.contains( tr( "Con&tents" ) ) ) {
-	if ( !contentsInserted )
-	    QTimer::singleShot( 0, this, SLOT( insertContents() ) );
-    } else if ( s.contains( tr( "&Search" ) ) ) {
-	    QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
-    }
+    if ( s.contains( tr( "&Index" ) ) )
+	QTimer::singleShot( 0, this, SLOT( loadIndexFile() ) );
+    else if ( s.contains( tr( "&Bookmarks" ) ) )
+	insertBookmarks();
+    else if ( s.contains( tr( "Con&tents" ) ) )
+	QTimer::singleShot( 0, this, SLOT( insertContents() ) );
+    else if ( s.contains( tr( "&Search" ) ) )
+	QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
 }
 
 void HelpDialog::showInitDoneMessage()
@@ -755,7 +753,7 @@ void HelpDialog::insertContents()
     contentsInserted = TRUE;
     listContents->clear();
     setCursor( waitCursor );
-    if ( !contentsDone )
+    if ( !titleMapDone )
 	setupTitleMap();
 
     listContents->setSorting( -1 );

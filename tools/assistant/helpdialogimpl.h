@@ -131,7 +131,7 @@ private:
 
     QMap<QString, QString> titleMap;
     QMap<QString, uint> categoryMap;
-    bool indexDone, bookmarksInserted, contentsDone, contentsInserted;
+    bool indexDone, bookmarksInserted, titleMapDone, contentsInserted;
     bool lwClosed;
     MainWindow *help;
     HelpWindow *viewer;
