@@ -42,6 +42,7 @@
 #include <qapplication.h>
 #endif
 #include <qdatetime.h>
+#include <private/qsqlextension_p.h>
 
 // undefine this to prevent initial check of the ODBC driver 
 #define ODBC_CHECK_DRIVER
@@ -69,6 +70,25 @@ public:
 
     bool checkDriver() const;
     void checkUnicode();
+};
+
+class QODBCPreparedExtension : public QSqlExtension
+{
+public:
+    QODBCPreparedExtension( QODBCResult * r )
+	: result( r ) {}
+
+    bool prepare( const QString& query )
+    {
+	return result->prepare( query );
+    }
+
+    bool exec()
+    {
+	return result->exec();
+    }
+    
+    QODBCResult * result;
 };
 
 QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
@@ -352,6 +372,7 @@ QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
 {
     d = new QODBCPrivate();
     (*d) = (*p);
+    setExtension( new QODBCPreparedExtension( this ) );
 }
 
 QODBCResult::~QODBCResult()
@@ -374,25 +395,25 @@ bool QODBCResult::reset ( const QString& query )
     SQLRETURN r;
 
     d->rInf.clear();
-    // If a statement handle exists - reuse it
+    // Always reallocate the statement handle - the statement attributes
+    // are not reset if SQLFreeStmt() is called which causes some problems.
     if ( d->hStmt ) {
-	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
+	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 	if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	    qSqlWarning( "QODBCResult::reset: Unable to close statement", d );
+	    qSqlWarning( "QODBCResult::reset: Unable to free statement handle", d );
 #endif
 	    return FALSE;
 	}
-    } else {
-	r  = SQLAllocHandle( SQL_HANDLE_STMT,
-	    		     d->hDbc,
-			     &d->hStmt );
-	if ( r != SQL_SUCCESS ) {
+    }
+    r  = SQLAllocHandle( SQL_HANDLE_STMT,
+			 d->hDbc,
+			 &d->hStmt );
+    if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-	    qSqlWarning( "QODBCResult::reset: Unable to allocate statement handle", d );
+	qSqlWarning( "QODBCResult::reset: Unable to allocate statement handle", d );
 #endif
-	    return FALSE;
-	}
+	return FALSE;
     }
 
     if ( isForwardOnly() ) {
@@ -685,7 +706,209 @@ int QODBCResult::numRowsAffected()
     return -1;
 }
 
+bool QODBCResult::prepare( const QString& query )
+{
+    setActive( FALSE );
+    setAt( QSql::BeforeFirst );
+    SQLRETURN r;
 
+    d->rInf.clear();
+    // If a statement handle exists - reuse it
+    if ( d->hStmt ) {
+	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
+	if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	    qSqlWarning( "QODBCResult::prepare: Unable to close statement", d );
+#endif
+	    return FALSE;
+	}
+    } //else {
+	r  = SQLAllocHandle( SQL_HANDLE_STMT,
+	    		     d->hDbc,
+			     &d->hStmt );
+	if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	    qSqlWarning( "QODBCResult::prepare: Unable to allocate statement handle", d );
+#endif
+	    return FALSE;
+	}
+//    }
+
+    if ( isForwardOnly() ) {
+	r = SQLSetStmtAttr( d->hStmt,
+	    		    SQL_ATTR_CURSOR_TYPE,
+			    (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+			    SQL_IS_UINTEGER );
+    } else {
+	r = SQLSetStmtAttr( d->hStmt,
+			    SQL_ATTR_CURSOR_TYPE,
+			    (SQLPOINTER)SQL_CURSOR_STATIC,
+			    SQL_IS_UINTEGER );
+    }
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qSqlWarning( "QODBCResult::prepare: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration", d );
+#endif
+	return FALSE;
+    }
+
+    r = SQLPrepare( d->hStmt,
+#ifdef UNICODE
+		    (SQLWCHAR*)query.unicode(),
+#else
+		    // the ODBC driver manager will translate charsets for us
+		    (SQLCHAR*)query.local8Bit().data(),
+#endif
+		    (SQLINTEGER)query.length() /* count of characters, not bytes */ );
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qSqlWarning( "QODBCResult::prepare: Unable to prepare statement", d );
+#endif
+	return FALSE;
+    }    
+    return TRUE;
+}
+
+bool QODBCResult::exec()
+{
+    SQLRETURN r;
+    QPtrList<void> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
+    tmpStorage.setAutoDelete( TRUE );
+    
+    // bind parameters
+    if ( extension()->values.count() > 0 ) {
+	QMap<QString, QVariant>::Iterator it;
+	int para = 1;
+	SQLINTEGER indicator;
+	for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
+	    switch( it.data().type() ) {
+		case QVariant::Date: {
+		    DATE_STRUCT * dt = new DATE_STRUCT;
+		    tmpStorage.append( dt );
+		    QDate qdt = it.data().toDate();
+ 		    dt->year = qdt.year();
+ 		    dt->month = qdt.month();
+ 		    dt->day = qdt.day();
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_DATE,
+					  SQL_DATE,
+					  0,
+					  0,
+					  (void *) dt,
+					  0,
+					  NULL );
+		    break; }
+		case QVariant::Time: {
+		    TIME_STRUCT * dt = new TIME_STRUCT;
+		    tmpStorage.append( dt );
+		    QTime qdt = it.data().toTime();
+ 		    dt->hour = qdt.hour();
+ 		    dt->minute = qdt.minute();
+ 		    dt->second = qdt.second();
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_TIME,
+					  SQL_TIME,
+					  0,
+					  0,
+					  (void *) dt,
+					  0,
+					  NULL );
+		    break; }
+		case QVariant::DateTime: {
+		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
+		    tmpStorage.append( dt );
+		    QDateTime qdt = it.data().toDateTime();
+ 		    dt->year = qdt.date().year();
+ 		    dt->month = qdt.date().month();
+ 		    dt->day = qdt.date().day();
+ 		    dt->hour = qdt.time().hour();
+ 		    dt->minute = qdt.time().minute();
+ 		    dt->second = qdt.time().second();
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_TIMESTAMP,
+					  SQL_TIMESTAMP,
+					  0,
+					  0,
+					  (void *) dt,
+					  0,
+					  NULL );
+		    break; }
+		case QVariant::Int:
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_SLONG,
+					  SQL_INTEGER,
+					  0,
+					  0,
+					  (void *) &it.data().asInt(),
+					  0,
+					  NULL );
+		    break;
+		case QVariant::Double:
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_DOUBLE,
+					  SQL_DOUBLE,
+					  0,
+					  0,
+					  (void *) &it.data().asDouble(),
+					  0,
+					  NULL );
+		    break;
+		default:
+		    indicator = SQL_NTS;
+		    r = SQLBindParameter( d->hStmt,
+					  para,
+					  SQL_PARAM_INPUT,
+					  SQL_C_CHAR,
+					  SQL_VARCHAR,
+					  it.data().asString().length() + 1,
+					  0,
+					  (void *) it.data().asString().latin1(), // ### why not local8Bit()?!
+					  it.data().asString().length() + 1,
+					  &indicator );
+		    break;
+	    }
+	    para++;
+	    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+		qWarning( "QODBCResult::exec: unable to bind variable: " + qODBCWarn( d ) );
+#endif
+		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
+		return FALSE;
+	    }
+	}
+    }
+    
+    r = SQLExecute( d->hStmt );
+    if ( r != SQL_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QODBCResult::exec: Unable to execute statement: " + qODBCWarn( d ) );
+#endif
+	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    SQLSMALLINT count;
+    r = SQLNumResultCols( d->hStmt, &count );
+    if ( count ) {
+	setSelect( TRUE );
+	for ( int i = 0; i < count; ++i ) {
+	    d->rInf.append( qMakeFieldInfo( d, i ) );
+	}
+    } else {
+	setSelect( FALSE );
+    }
+    setActive( TRUE );
+    return TRUE;
+}
 
 ////////////////////////////////////////
 
@@ -731,6 +954,8 @@ bool QODBCDriver::hasFeature( DriverFeature f ) const
 	return FALSE;
     case Unicode:
 	return d->unicode;
+    case PreparedQueries:
+	return TRUE;
     default:
 	return FALSE;
     }
