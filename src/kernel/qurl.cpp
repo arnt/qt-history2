@@ -666,6 +666,14 @@ bool QUrl::parse( const QString& url )
     if ( !d->host.isEmpty() && d->host[ 0 ] == '@' )
 	d->host.remove( 0, 1 );
 
+#if defined(_OS_WIN32_)
+    // hack for windows
+    if ( d->protocol == "file" ) { 	
+	if ( url.left( 7 ) == "file://" && d->path[ 1 ] != '/' )
+	    d->path.prepend( "/" );
+    }
+#endif
+
     decode( d->path );
     d->cleanPathDirty = TRUE;
 
@@ -825,21 +833,38 @@ QString QUrl::path( bool correct ) const
 	return d->path;
 
     if ( d->cleanPathDirty ) {
+	bool check = TRUE;
 	if ( QDir::isRelativePath( d->path ) ) {
 	    d->cleanPath = d->path;
 	} else if ( isLocalFile() ) {
-	    QFileInfo fi( d->path );
-	    if ( !fi.exists() )
+#if defined(_OS_WIN32_)
+	    // hack for stuff like \\machine\path and //machine/path on windows
+	    if ( ( d->path.left( 1 ) == "/" || d->path.left( 1 ) == "\\" ) &&
+		 d->path.length() > 1 ) {
 		d->cleanPath = d->path;
-	    else if ( fi.isDir() ) {
-		QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
-		if ( dir == "//" )
-		    d->cleanPath = "/";
-		else
-		    d->cleanPath = dir;
-	    } else {
-		QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
-		d->cleanPath = p + "/" + fi.fileName();
+		bool share = d->cleanPath[ 1 ] == '\\' || d->cleanPath[ 1 ] == '/';
+ 		slashify( d->cleanPath, FALSE );
+		d->cleanPath = QDir::cleanDirPath( d->cleanPath );
+		if ( share ) {
+		    check = FALSE;
+		    d->cleanPath.prepend( "/" );
+		}
+	    }
+#endif
+	    if ( check ) {
+		QFileInfo fi( d->path );
+		if ( !fi.exists() )
+		    d->cleanPath = d->path;
+		else if ( fi.isDir() ) {
+		    QString dir = QDir::cleanDirPath( QDir( d->path ).canonicalPath() ) + "/";
+		    if ( dir == "//" )
+			d->cleanPath = "/";
+		    else
+			d->cleanPath = dir;
+		} else {
+		    QString p = QDir::cleanDirPath( fi.dir().canonicalPath() );
+		    d->cleanPath = p + "/" + fi.fileName();
+		}
 	    }
 	} else {
 	    if ( d->path != "/" && d->path.right( 1 ) == "/" )
@@ -848,11 +873,12 @@ QString QUrl::path( bool correct ) const
 		d->cleanPath = QDir::cleanDirPath( d->path );
 	}
 
-	if ( d->cleanPath.length() > 1 ) {
+	if ( check && d->cleanPath.length() > 1 ) {
 	    if ( d->cleanPath.left( 2 ) == "//" )
 		d->cleanPath.remove( d->cleanPath.length() - 1, 1 );
 	}
-	slashify( d->cleanPath, FALSE );
+	if ( check )
+	    slashify( d->cleanPath, FALSE );
 	d->cleanPathDirty = FALSE;
     }
 
