@@ -4006,39 +4006,62 @@ static void shearX(QImage *image, int height, int iwidth, double shear)
 }
 
 
-static void shearY(QImage *image, int width, int iheight, double shear)
+static void shearY(QImage *image, int width, int iheight, double shear, double offset)
 {
-//     qDebug("shearX: width=%d, iheight=%d, shear=%f", width, iheight, shear);
+//     qDebug("shearY: width=%d, iheight=%d, shear=%f", width, iheight, shear);
     if (QABS(shear*width) < 0.3)
         return;
 
     Q_ASSERT(image->height() >= iheight + qRound(QABS(shear*(width-1))));
     Q_ASSERT(width <= image->width());
 
-    const double skewoffset = shear < 0 ? -shear*(width-1) : 0;
-
     QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
     for (int x = 0; x < width; ++x) {
-        const double skew = shear*x + skewoffset;
+        const double skew = shear*(x - offset);
         int skewi = (int(skew*256.));
-        int fraction = 0xff - skewi & 0xff;
-        skewi >>= 8;
-        uint lastPixel = 0;
-        for (int y = iheight - 1; y >= 0; --y) {
-            QRgb pixel = bits[y][x];
-            QRgb next = pixel;
-            next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
-                qRgba(
-                    (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
-                    (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
+        int fraction;
+        if (skew >= 0) {
+            fraction = 0xff - skewi & 0xff;
+            skewi >>= 8;
+            uint lastPixel = 0;
+            for (int y = iheight - 1; y >= 0; --y) {
+                QRgb pixel = bits[y][x];
+                QRgb next = pixel;
+                next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
+                    qRgba(
+                        (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
+                        (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
 
-            bits[y+skewi][x] = pixel - next + lastPixel;
-            lastPixel = next;
-        }
-        if (skewi > 0) {
-            bits[skewi - 1][x] = lastPixel;
-            while (skewi > 1)
-                bits[--skewi][x] = 0;
+                bits[y+skewi][x] = pixel - next + lastPixel;
+                lastPixel = next;
+            }
+            if (skewi > 0) {
+                bits[--skewi][x] = lastPixel;
+                while (skewi > 0)
+                    bits[--skewi][x] = 0;
+            }
+        } else {
+            fraction = skewi & 0xff;
+            skewi >>= 8;
+            skewi -= 1;
+            uint lastPixel = 0;
+            for (int y = -skewi; y < iheight - 1; ++y) {
+                QRgb pixel = bits[y][x];
+                QRgb next = pixel;
+                next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
+                    qRgba(
+                        (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
+                        (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
+
+                bits[y+skewi][x] = pixel - next + lastPixel;
+                lastPixel = next;
+            }
+            bits[iheight + skewi][x] = lastPixel;
+            ++skewi;
+            while (skewi < 0) {
+                bits[iheight + skewi][x] = 0;
+                skewi++;
+            }
         }
     }
 }
@@ -4249,7 +4272,12 @@ QImage smoothXForm(const QImageData *data, const QMatrix &matrix)
     scaleX(&result2, result.height(), iwidth, owidth);
     scaleY(&result2, owidth, iheight, oheight);
     shearX(&result2, oheight, owidth, shear_x);
-    shearY(&result2, sheared_width, oheight, shear_y);
+
+    double offset = shear_y < 0
+                    ? (shear_x < 0 ? sheared_width : owidth)
+                    : (shear_x < 0 ? -shear_x*oheight : 0);
+//     qDebug("shear_x=%f, oheight=%d, offset=%f", shear_x, oheight, offset);
+    shearY(&result2, sheared_width, oheight, shear_y, offset);
 
     QImage final(qRound(QABS(v1x*data->w) + QABS(v2x*data->h)),
                  qRound(QABS(v1y*data->w) + QABS(v2y*data->h)), 32);
