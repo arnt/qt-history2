@@ -911,6 +911,10 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_DATE|VT_BYREF:
 	var = DATEToQDateTime( *arg.pdate );
 	break;
+    case VT_VARIANT:
+    case VT_VARIANT|VT_BYREF:
+	var = VARIANTToQVariant( *arg.pvarVal, hint );
+	break;
 
     case VT_DISPATCH:
     case VT_DISPATCH|VT_BYREF:
