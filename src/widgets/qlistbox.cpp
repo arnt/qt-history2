@@ -994,7 +994,10 @@ void QListBox::setFont( const QFont &font )
 }
 
 
-/*! Returns the number of items in the list box. */
+/*!
+  \property QListBox::count
+  \brief the number of items in the list box
+*/
 
 uint QListBox::count() const
 {
@@ -1433,8 +1436,10 @@ void QListBox::changeItem( const QListBoxItem *lbi, int index )
 
 
 /*!
-  Returns the number of visible items.	Both partially and entirely
-  visible items are counted.
+  \property QListBox::numItemsVisible
+  \brief the number of visible items.
+
+  Both partially and entirely visible items are counted.
 */
 
 int QListBox::numItemsVisible() const
@@ -1480,7 +1485,7 @@ int QListBox::numItemsVisible() const
   Returns the index of the current (highlighted) item of the list box,
   or -1 if no item has been selected.
 
-  \sa topItem()
+  \sa topItem
 */
 
 int QListBox::currentItem() const
@@ -1493,16 +1498,19 @@ int QListBox::currentItem() const
 
 
 /*!
-  \fn QString QListBox::currentText() const
-
-  Returns the text of the current item.
+  \property QListBox::currentText
+  \brief the text of the current item.
 
   This is equivalent to text(currentItem()).
 */
 
-/*! \overload
 
-  This is a bit slower than the QListBoxItem * version.
+/*!
+  \property QListBox::currentItem
+  \brief the current highlighted item
+
+  When setting this property, the highlighting is moved and the list
+  box scrolled as necessary.
 */
 
 void QListBox::setCurrentItem( int index )
@@ -1511,12 +1519,8 @@ void QListBox::setCurrentItem( int index )
 }
 
 
-/*!  Sets the highlighted item to the item \a i.  The highlighting is moved and
-  the list box scrolled as necessary.
-
-  \sa currentItem()
-*/
-
+/*! \overload
+ */
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
     if ( !i || d->current == i )
@@ -2272,10 +2276,13 @@ void QListBox::updateItem( QListBoxItem * i )
 
 
 /*!
+  \property QListBox::selectionMode
+  \brief the selection mode of the list box
+
   Sets the list box to selection mode \a mode, which may be one of
   \c Single (the default), \c Extended, \c Multi or \c NoSelection.
 
-  \sa selectionMode()
+  \sa SelectionMode
 */
 
 void QListBox::setSelectionMode( SelectionMode mode )
@@ -2288,12 +2295,6 @@ void QListBox::setSelectionMode( SelectionMode mode )
 }
 
 
-/*!
-  Returns the selection mode of the list box.  The initial mode is \c Single.
-
-  \sa setSelectionMode()
-*/
-
 QListBox::SelectionMode QListBox::selectionMode() const
 {
     return d->selectionMode;
@@ -2302,13 +2303,19 @@ QListBox::SelectionMode QListBox::selectionMode() const
 
 /*!
   \obsolete
-  Consider using selectionMode() instead of this method.
+  \property QListBox::multiSelection
+  \brief whether or not the list box is in Multi selection mode
 
-  Returns TRUE if the list box is in Multi selection mode or
-  Extended selection mode, and FALSE if it is in Single selection mode
-  or NoSelection more.
+  Consider using the \l selectionMode property instead of this property.
 
-  \sa selectionMode() setSelectionMode()
+  When setting this property, Multi selection mode is used if set to TRUE and
+  to Single selection mode if set to FALSE.
+
+  When getting this property, TRUE is returned if the list box is in
+  Multi selection mode or Extended selection mode, and FALSE if it is
+  in Single selection mode or NoSelection more.
+
+  \sa selectionMode
 */
 
 bool QListBox::isMultiSelection() const
@@ -2318,13 +2325,9 @@ bool QListBox::isMultiSelection() const
 
 /*!
   \obsolete
-  Consider using setSelectionMode() instead of this method.
+  Consider using the \l selectionMode property instead of this method.
 
-  Sets the list box to Multi selection mode if \a enable is TRUE and
-  to Single selection mode if \a enable is FALSE.  We recommend using
-  setSelectionMode() instead; that function also offers two other modes.
-
-  \sa setSelectionMode() selectionMode()
+  \sa selectionMode
 */
 
 void QListBox::setMultiSelection( bool enable )
@@ -2637,7 +2640,7 @@ void QListBox::setColumnMode( int columns )
 
   If \a mode is \c Variable, this function returns without doing anything.
 
-  \sa setColumnMode() rowMode()
+  \sa columnMode rowMode
 */
 
 void QListBox::setRowMode( LayoutMode mode )
@@ -2654,7 +2657,7 @@ void QListBox::setRowMode( LayoutMode mode )
   Sets the row layout mode for this list box to \c FixedNumber and sets the
   number of displayed rows accordingly.
 
-  \sa setColumnMode() rowMode() numRows()
+  \sa columnMode rowMode numRows()
 */
 
 void QListBox::setRowMode( int rows )
@@ -2668,10 +2671,11 @@ void QListBox::setRowMode( int rows )
 }
 
 
-/*!  Returns the column layout mode for this list box.	This is
-  normally \c FixedNumber but can be changed by calling setColumnMode().
+/*!
+  \property QListBox::columnMode
+  \brief the column layout mode for this list box.
 
-  \sa rowMode(), setColumnMode(), numColumns()
+  \sa rowMode numColumns
 */
 
 QListBox::LayoutMode QListBox::columnMode() const
@@ -2683,10 +2687,13 @@ QListBox::LayoutMode QListBox::columnMode() const
 }
 
 
-/*!  Returns the row layout mode for this list box.  This is normally
-  \c Variable, but can be changed by calling setRowMode().
+/*!
+  \property QListBox::rowMode
+  \brief the row layout mode for this list box
 
-  \sa columnMode(), setRowMode(), numRows()
+  This property is normally \c Variable.
+
+  \sa columnMode numRows
 */
 
 QListBox::LayoutMode QListBox::rowMode() const
@@ -2698,11 +2705,14 @@ QListBox::LayoutMode QListBox::rowMode() const
 }
 
 
-/*!  Returns the number of columns in the list box.  This is normally
-1, but can be different if setColumnMode() or setRowMode() has been
-called.
+/*!
+  \property QListBox::numColumns
+  \brief the number of columns in the list box
 
-\sa setColumnMode() setRowMode() numRows()
+  This is normally 1, but can be different if \l columnMode or
+  \l rowMode has been set.
+
+  \sa columnMode rowMode numRows
 */
 
 int QListBox::numColumns() const
@@ -2714,11 +2724,14 @@ int QListBox::numColumns() const
 }
 
 
-/*!  Returns the number of rows in the list box.  This is equal to the
-number of items in the default single-column layout, but can be
-different.
+/*!
+  \property QListBox::numRows
+  \brief the number of rows in the list box.
 
-\sa setRowMode() numColumns()
+  This is equal to the number of items in the default single-column
+  layout, but can be different.
+
+  \sa columnMode rowMode numColumns
 */
 
 int QListBox::numRows() const
@@ -2947,13 +2960,6 @@ int QListBox::currentColumn() const
 }
 
 
-/*!
-  Scrolls the list box so the item at position \a index in the list
-  is displayed in the top row of the list box.
-
-  \sa topItem(), ensureCurrentVisible()
-*/
-
 void QListBox::setTopItem( int index )
 {
     if ( index >= (int)count() )
@@ -3108,8 +3114,15 @@ void QListBox::doAutoScroll()
 
 
 /*!
-  Returns the index of an item at the top of the screen.  If there
-  are more than one of them, an arbitrary item is selected and returned.
+  \property QListBox::topItem
+  \brief the index of an item at the top of the screen.
+
+  When getting this property and the listbox has multiple columns, an
+  arbitrary item is selected and returned.
+
+  When setting this property, the list box is scrolled so the item at
+  position \a index in the list is displayed in the top row of the
+  list box.
 */
 
 int QListBox::topItem() const
@@ -3144,10 +3157,16 @@ int QListBox::topItem() const
 }
 
 
-/*!  Returns TRUE if this list box has variable-height rows, and
-FALSE if all the rows have the same height.
+/*!
+  \property QListBox::variableHeight
+  \brief whether this list box has variable-height rows
 
-\sa setVariableHeight() setVariableWidth()
+  When the list box has variable-height rows (the default), each
+  row is as high as the highest item in that row.  When it has
+  same-sized rows, all rows are as high as the highest item in
+  the list box.
+
+  \sa variableWidth
 */
 
 bool QListBox::variableHeight() const
@@ -3155,18 +3174,6 @@ bool QListBox::variableHeight() const
     return d->variableHeight;
 }
 
-
-/*!  Sets this list box to have variable-height rows if \a enable is
-TRUE and equal-height rows if \a enable is FALSE.
-
-When the list box has variable-height rows, each row is as high as the
-highest item in that row.  When it has same-sized rows, all rows are
-as high as the highest item in the list box.
-
-The default is TRUE.
-
-\sa setVariableWidth() variableHeight()
-*/
 
 void QListBox::setVariableHeight( bool enable )
 {
@@ -3178,10 +3185,16 @@ void QListBox::setVariableHeight( bool enable )
 }
 
 
-/*!  Returns TRUE if this list box has variable-width columns, and
-FALSE if all the columns have the same width.
+/*!
+  \property QListBox::variableWidth
+  \brief whether this list box has variable-width columns
 
-\sa setVariableHeight() setVariableWidth()
+  When the list box has variable-width columns, each column is as
+  wide as the widest item in that column.  When it has same-sized
+  columns (the default), all columns are as wide as the widest item
+  in the list box.
+
+  \sa variableHeight
 */
 
 bool QListBox::variableWidth() const
@@ -3189,18 +3202,6 @@ bool QListBox::variableWidth() const
     return d->variableWidth;
 }
 
-
-/*!  Sets this list box to have variable-width columns if \a enable is
-TRUE and equal-width columns if \a enable is FALSE.
-
-When the list box has variable-width columns, each column is as wide
-as the widest item in that column.  When it has same-sized columns,
-all columns are as wide as the widest item in the list box.
-
-The default is FALSE.
-
-\sa setVariableHeight() variableWidth()
-*/
 
 void QListBox::setVariableWidth( bool enable )
 {
@@ -3212,8 +3213,9 @@ void QListBox::setVariableWidth( bool enable )
 }
 
 
-/*!  Repaints just what really needs to be repainted. */
-
+/*!
+  Repaints just what really needs to be repainted.
+*/
 void QListBox::refreshSlot()
 {
     if ( d->mustPaintAll ||

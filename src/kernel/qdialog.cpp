@@ -100,7 +100,13 @@
   <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
 */
 
+/*!
+  \property QDialog::sizeGripEnabled
+  \brief whether the size grip is enabled
 
+  A QSizeGrip is placed in the bottom right corner of the dialog when this
+  property is enabled.  By default, the size grip is disabled.
+*/
 
 class QDialog::Private : public Qt
 {
@@ -696,14 +702,6 @@ QSize QDialog::minimumSizeHint() const
 }
 
 
-/*!
-  \fn bool QDialog::isSizeGripEnabled() const
-
-  Returns TRUE if the QDialog has a QSizeGrip in the bottom right of
-  the dialog, and FALSE if it does not.
-
-  \sa setSizeGripEnabled()
-*/
 
 bool QDialog::isSizeGripEnabled() const
 {
@@ -714,12 +712,7 @@ bool QDialog::isSizeGripEnabled() const
 #endif
 }
 
-/*!
-  Enables or disables the QSizeGrip in the bottom right of the dialog.
-  By default, the size grip is disabled.
 
-  \sa isSizeGripEnabled()
-*/
 void QDialog::setSizeGripEnabled(bool enabled)
 {
 #ifndef QT_NO_SIZEGRIP

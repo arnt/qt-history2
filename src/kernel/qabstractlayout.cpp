@@ -609,7 +609,7 @@ bool QWidgetItem::isEmpty() const
   QBoxLayout and QGridLayout inherit from this one.
 
   For users of Q*Layout or QMainWindow there is seldom need to use any of
-  the basic functions provided by QLayout, such as setResizeMode() or
+  the basic functions provided by QLayout, such as \l resizeMode or
   setMenuBar(). See the \link layout.html layout overview page \endlink
   for more information.
 
@@ -775,11 +775,27 @@ QLayout::QLayout( int space, const char *name )
 
 
 /*!
-  \fn int QLayout::margin () const
-  Returns the width of the outside border of the layout.
-  \sa spacing() setMargin()
+  \property QLayout::margin
+  \brief the width of the outside border of the layout
+
+  For some layout classes this property has an effect only on
+  top-level layouts; QBoxLayout and QGridLayout support margins for
+  child layouts.
+
+  For some layout classes this propety has an effect only on
+  top-level layouts; QBoxLayout and QGridLayout support margins for
+  child layouts.
+
+  \sa spacing
  */
 
+
+/*!
+  \property QLayout::spacing
+  \brief the spacing between widgets inside the layout
+
+  \sa margin
+*/
 
 
 #if 1 // OBSOLETE
@@ -792,28 +808,6 @@ QLayout::QLayout( int space, const char *name )
 */
 #endif
 
-/*!
-  \fn int QLayout::spacing() const
-  Returns the spacing between widgets inside the layout.
-  \sa margin() setSpacing()
-*/
-
-
-
-
-/*!
-  Sets the outside border of the layout to \a border.
-
-  For some layout classes this function has an effect only on
-  top-level layouts; QBoxLayout and QGridLayout support margins for
-  child layouts.
-
-  For some layout classes this function has an effect only on
-  top-level layouts; QBoxLayout and QGridLayout support margins for
-  child layouts.
-
-  \sa margin() setSpacing() supportsMargin()
- */
 
 void QLayout::setMargin( int border )
 {
@@ -826,11 +820,6 @@ void QLayout::setMargin( int border )
 }
 
 
-/*!
-  Sets the internal spacing of the layout to \a space.
-
-  \sa spacing() setMargin()
- */
 //##### bool recursive = FALSE ????
 void QLayout::setSpacing( int space )
 {
@@ -1661,8 +1650,10 @@ QGLayoutIterator::~QGLayoutIterator()
 
 */
 
+
 /*!
-  Sets the resize mode to \a mode.
+  \property QLayout::resizeMode
+  \brief the resize mode of the layout
 
   The default mode is \c Minimum for top-level widgets and \c FreeResize
   for all others.
@@ -1690,10 +1681,6 @@ void QLayout::setResizeMode( ResizeMode mode )
     activate();
 }
 
-
-/*!
-  Returns the resize mode.
-*/
 
 QLayout::ResizeMode QLayout::resizeMode() const
 {
@@ -1727,10 +1714,10 @@ void QLayout::setAutoAdd( bool b )
 /*!
   \fn  bool QLayout::supportsMargin() const
 
-  Returns TRUE if this layout supports setMargin() on non-top-level
+  Returns TRUE if this layout supports \l QLayout::margin on non-top-level
   layouts.
 
-  \sa setMargin()
+  \sa margin
 */
 
 
