@@ -6,7 +6,7 @@ CONFIG		+= png zlib
 
 # Uncomment the next line for builder development
 # Also define QT_BUILDER in qglobal.h
-# CONFIG		+= builder
+#CONFIG		+= builder
 
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
@@ -73,6 +73,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qfontdata.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
+		  $$KERNEL_H/qguardedptr.h \
 		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
@@ -316,6 +317,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
 		  kernel/qfontdatabase.cpp \
+		  kernel/qguardedptr.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
