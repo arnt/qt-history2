@@ -181,7 +181,7 @@
 /*!
   \fn bool QCache::isEmpty() const
 
-  Returns TRUE if the cache is empty, or TRUE if there is at least one
+  Returns TRUE if the cache is empty, or FALSE if there is at least one
   object in it.
 */
 
