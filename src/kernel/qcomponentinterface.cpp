@@ -175,6 +175,8 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
 
 bool QUnknownInterface::hasInterface( const QString &request )
 {
+    if ( request.isEmpty() || request == interfaceID() )
+	return TRUE;
     if ( !children )
 	return FALSE;
     QListIterator<QUnknownInterface> it( *children );
@@ -194,11 +196,13 @@ bool QUnknownInterface::hasInterface( const QString &request )
 /*!
   Returns an interface that matches \a request. 
   The function returns NULL if this interface doesn't have a child interface 
-  with the requested interfaceID.
+  with the requested interfaceID. If \a request is null, this interface is returned.
 */
 
 QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
 { 
+    if ( request.isEmpty() || request == interfaceID() )
+	return this;
     if ( !children )
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
