@@ -36,7 +36,7 @@
 #include "qiconset.h"
 #include "qvariant.h"
 
-// BEING REVISED: warwick
+// REVISED: warwick
 /*!
   \class QVariant qvariant.h
   \brief Acts like a union for the most common Qt data types.
