@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#129 $
 **
 ** Implementation of QListView widget class
 **
@@ -427,7 +427,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 
   You can use this function to sort by non-alphabetic data.  This code
   excerpt sort by file modification date, for example
-  
+
   \code
     if ( column == 3 ) {
         QDateTime epoch( QDate( 1980, 1, 1 ) );
@@ -2411,6 +2411,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Return:
 	emit returnPressed( currentItem() );
 	d->currentPrefix.truncate( 0 );
+	e->ignore();
 	// do NOT accept.  QDialog.
 	return;
     case Key_Down:
