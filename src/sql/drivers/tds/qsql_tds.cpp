@@ -31,6 +31,8 @@
 #include <qsqlindex.h>
 #include <qstringlist.h>
 
+#include <stdlib.h>
+
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
 #define QERRHANDLE DBERRHANDLE_PROC
