@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#567 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#568 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -253,6 +253,8 @@ int		qt_ncols_option  = 216;		// used in qcolor_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
+
+extern bool is_gui_used; // qwidget.cpp
 
 struct QScrollInProgress {
     static long serial;
@@ -849,7 +851,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 #endif
 	// Connect to X server
 
-	if( QApplication::is_gui_used ) {
+	if( is_gui_used ) {
 	    if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 		qWarning( "%s: cannot connect to X server %s", appName,
 			  XDisplayName(appDpyName) );
@@ -865,7 +867,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     // Get X parameters
 
-    if( QApplication::is_gui_used ) {
+    if( is_gui_used ) {
 	appScreen  = DefaultScreen(appDpy);
 	appRootWin = RootWindow(appDpy,appScreen);
 
@@ -948,7 +950,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
     gettimeofday( &watchtime, 0 );
 
-    if( QApplication::is_gui_used ) {
+    if( is_gui_used ) {
 	qApp->setName( appName );
 
 	XSelectInput( appDpy, appRootWin,
@@ -960,7 +962,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
-    if ( QApplication::is_gui_used ) {
+    if ( is_gui_used ) {
 #if !defined(NO_XIM)
 	qt_xim = 0;
 	if ( !XSupportsLocale() )
@@ -1080,7 +1082,7 @@ void qt_cleanup()
     }
 #endif
 
-    if ( QApplication::is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
+    if ( is_gui_used && !QPaintDevice::x11AppDefaultColormap() )
 	XFreeColormap( QPaintDevice::x11AppDisplay(),
 		       QPaintDevice::x11AppColormap() );
 
@@ -1095,7 +1097,7 @@ void qt_cleanup()
 	sip_list = 0;
     }
 
-    if ( QApplication::is_gui_used && !appForeignDpy )
+    if ( is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
 
@@ -1160,22 +1162,20 @@ bool qt_wstate_iconified( WId winid )
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
 
-
-  The function given by \a p should take no arguments and return nothing.
-
-  Example of use:
+  The function given by \a p should take no arguments and return
+  nothing, like this:
   \code
     static int *global_ptr = 0;
 
-    void cleanup_ptr()
+    static void cleanup_ptr()
     {
 	delete [] global_ptr;
     }
 
     void init_ptr()
     {
-	global_ptr = new int[100];		// allocate data
-	qAddPostRoutine( cleanup_ptr );		// delete later
+	global_ptr = new int[100];	// allocate data
+	qAddPostRoutine( cleanup_ptr );	// delete later
     }
   \endcode
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#135 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#136 $
 **
 ** Definition of QApplication class
 **
@@ -181,9 +181,6 @@ public:
     QString	     sessionId() const;
     virtual void     commitData( QSessionManager& sm );
     virtual void     saveState( QSessionManager& sm );
-
-    // ### Experimental:
-    static bool	     is_gui_used;
 
 signals:
     void	     lastWindowClosed();

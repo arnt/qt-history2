@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#288 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#289 $
 **
 ** Implementation of QApplication class
 **
@@ -249,7 +249,7 @@ QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
 bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
 int	  QApplication::cursor_flash_time = 1000;      // text caret flash time
 int	  QApplication::mouse_double_click_time = 400; // mouse dbl click limit
-bool	  QApplication::is_gui_used;
+bool	  is_gui_used;
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -449,6 +449,7 @@ QApplication::QApplication( int &argc, char **argv )
 
 #if defined(_WS_X11_)
 
+// note: #ifdef'ed stuff is NOT documented.
 /*!
   Constructs an application object
   with the command line arguments \e argc and \e argv.
@@ -476,6 +477,8 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
     initialize( argc, argv );
 }
 
+
+// note: #ifdef'ed stuff is NOT documented.
 /*!
   Create an application, given an already open display.  This is
   available only on X11.
@@ -491,6 +494,7 @@ QApplication::QApplication( Display* dpy )
 }
 
 #endif // _WS_X11_
+
 
 void QApplication::init_precmdline()
 {
@@ -528,6 +532,8 @@ void QApplication::initialize( int argc, char **argv )
 	app_style = new QMotifStyle;		// default style for X Windows
 #elif defined(_WS_MAC_)
 	app_style = new QPlatinumStyle;
+#else
+#error "Toto... I have a feeling we're not in Kansas anymore."
 #endif
     }
 
@@ -660,7 +666,7 @@ void QApplication::setStyle( QStyle *style )
 	return;
     }
 
-    
+
     // clean up the old style
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
@@ -676,7 +682,7 @@ void QApplication::setStyle( QStyle *style )
 	}
 	old->unPolish( qApp );
     }
-    
+
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
     // might call QApplication::setStyle() itself
@@ -686,10 +692,10 @@ void QApplication::setStyle( QStyle *style )
     app_style->polish( tmpPal );
     if ( tmpPal != *app_pal )
 	setPalette( tmpPal, TRUE );
-    
+
     // initialize the application with the new style
     app_style->polish( qApp );
-    
+
     // re-polish existing widgets if necessary
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
@@ -1092,21 +1098,17 @@ void QApplication::polish( QWidget *w )
     // Shows all hidden top level widgets.
     //
     QWidgetList	 *list = QApplication::topLevelWidgets();
-    QWidgetListIt it( *list );		// iterate over the widgets
-    while ( it.current() ) {		// for each top level widget...
+    QWidgetListIt it( *list );	// iterate over the widgets
+    while ( it.current() ) {	// for each top level widget...
 	if ( !it.current()->isVisible() )
 	    it.current()->show();
 	++it;
     }
-    delete list;			// delete the list, not the widgets
+    delete list;		// delete the list, not the widgets
   \endcode
 
-  The QWidgetList class is defined in the qwidcoll.h header file.
-
-  \warning
-  Delete the list away as soon you have finished using it.
-  You can get in serious trouble if you for instance try to access
-  a widget that has been deleted.
+  \warning Delete the list away as soon you have finished using it.
+  The widgets in the list may be deleted by someone else at any time.
 
   \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
       QList::isEmpty()
