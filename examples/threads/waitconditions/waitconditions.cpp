@@ -1,7 +1,4 @@
-#include <QCoreApplication>
-#include <QMutex>
-#include <QThread>
-#include <QWaitCondition>
+#include <QtCore>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,8 +7,8 @@ const int DataSize = 100000;
 const int BufferSize = 8192;
 char buffer[BufferSize];
 
-QWaitCondition bufferNotFull;
 QWaitCondition bufferNotEmpty;
+QWaitCondition bufferNotFull;
 QMutex mutex;
 int numUsedBytes = 0;
 

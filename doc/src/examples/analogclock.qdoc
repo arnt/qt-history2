@@ -1,116 +1,132 @@
 /*!
-\example widgets/analogclock
-\title Analog Clock Example
+    \example widgets/analogclock
+    \title Analog Clock Example
 
-The Analog Clock example shows how to draw the contents of a custom
-widget.
+    The Analog Clock example shows how to draw the contents of a custom
+    widget.
 
-\image analogclock-example.png Screenshot of the Analog Clock example
+    \image analogclock-example.png Screenshot of the Analog Clock example
 
-This example also demonstrates how the transformation and scaling
-features of \l QPainter can be used to make drawing custom widgets
-easier.
+    This example also demonstrates how the transformation and scaling
+    features of QPainter can be used to make drawing custom widgets
+    easier.
 
-\section1 AnalogClock Class Definition
+    \section1 AnalogClock Class Definition
 
-The \c AnalogClock class provides a clock widget with hour and minute
-hands that is automatically updated every few seconds. 
-We subclass \l QWidget and reimplement the standard
-\l{QWidget::paintEvent()}{paintEvent()} function to draw the clock face:
+    The \c AnalogClock class provides a clock widget with hour and minute
+    hands that is automatically updated every few seconds. 
+    We subclass \l QWidget and reimplement the standard
+    \l{QWidget::paintEvent()}{paintEvent()} function to draw the clock face:
 
-\quotefromfile widgets/analogclock/analogclock.h
-\skipto class AnalogClock
-\printuntil };
+    \quotefromfile widgets/analogclock/analogclock.h
+    \skipto class AnalogClock
+    \printuntil };
 
-\section1 AnalogClock Class Implementation
+    \section1 AnalogClock Class Implementation
 
-When the widget is constructed, we set up a timer to keep track of the
-current time, and we connect it to the standard
-\l{QWidget::update()}{update()} slot so that the clock face is updated
-when the timer emits the \l{QTimer::timeout()}{timeout()} signal.
+    \quotefromfile widgets/analogclock/analogclock.cpp
+    \skipto AnalogClock::AnalogClock
+    \printuntil /^\}/
 
-\quotefromfile widgets/analogclock/analogclock.cpp
-\skipto AnalogClock::AnalogClock
-\printuntil /^\}/
+    When the widget is constructed, we set up a one-second timer to
+    keep track of the current time, and we connect it to the standard
+    \l{QWidget::update()}{update()} slot so that the clock face is
+    updated when the timer emits the \l{QTimer::timeout()}{timeout()}
+    signal.
 
-We use a five second timer, so the clock may run five seconds late. Since
-we are only interested in keeping the clock accurate to the nearest minute,
-this margin of error is acceptable.
-Finally, we resize the widget so that it is displayed at a reasonable size.
+    Finally, we resize the widget so that it is displayed at a
+    reasonable size.
 
-The \c paintEvent() function is called whenever the widget's contents need
-to be updated. This happens when the widget is first shown, and when it is
-covered then exposed, but it is also executed when the 
-widget's \l{QWidget::update()}{update()} slot is called. Since we connected
-the timer's \c timeout() signal to this slot, it will be called at least
-once every five seconds.
+    \printline paintEvent(
+    \printuntil QTime
 
-Before we set up the painter and draw the clock, we first define two
-lists of coordinates that will be used for the hour and minute hands.
+    The \c paintEvent() function is called whenever the widget's
+    contents need to be updated. This happens when the widget is
+    first shown, and when it is covered then exposed, but it is also
+    executed when the  widget's \l{QWidget::update()}{update()} slot
+    is called. Since we connected the timer's
+    \l{QTimer::timeout()}{timeout()} signal to this slot, it will be
+    called at least once every five seconds.
 
-\skipto paintEvent(
-\printuntil QTime
+    Before we set up the painter and draw the clock, we first define
+    two lists of coordinates and two \l{QColor}s that will be used
+    for the hour and minute hands. The minute hand's color has an
+    alpha component of 191, meaning that it's 75% opaque.
 
-We also determine the length of the widget's shortest side so that we
-can fit the clock face inside the widget. It is also useful to determine
-the current time before we start drawing.
+    We also determine the length of the widget's shortest side so that we
+    can fit the clock face inside the widget. It is also useful to determine
+    the current time before we start drawing.
 
-The contents of custom widgets are drawn with a \l QPainter. Painters
-can be used to draw on any \l QPaintDevice, but they are usually used
-with widgets, so we pass the widget instance to the painter's constructor.
+    \printline QPainter
+    \printline setRenderHint
+    \printline translate
+    \printline scale
 
-\skipto QPainter
-\printuntil setBrush
+    The contents of custom widgets are drawn with a QPainter.
+    Painters can be used to draw on any QPaintDevice, but they are
+    usually used with widgets, so we pass the widget instance to the
+    painter's constructor.
 
-We use a brush with the same color as the default pen.
-Brushes are used when filling in polygons and other graphics primitives.
-We use a brush that uses the widget's standard foreground color to provide
-a contrast between the clock face and the widget's background color.
+    We call QPainter::setRenderHint() with QPainter::Antialiasing to
+    turn on antialiasing. This makes drawing of diagonal lines much
+    smoother.
 
-To make our code simpler, we will draw a fixed size clock face that will
-be positioned and scaled so that it lies in the center of the widget.
+    The translation moves the origin to the center of the widget, and
+    the scale operation ensures that the following drawing operations
+    are scaled to fit within the widget. We use a scale factor that
+    let's us use x and y coordinates between -100 and 100, and that
+    ensures that these lie within the length of the widget's shortest
+    side.
 
-\skipto translate
-\printuntil scale
+    To make our code simpler, we will draw a fixed size clock face that will
+    be positioned and scaled so that it lies in the center of the widget.
 
-The translation moves the origin to the center of the widget, and the
-scale operation ensures that the following drawing operations are
-scaled to fit within the widget. We use a scale factor that let's us
-use x and y-coordinates between -50 and 50, and that ensures that these
-lie within the length of the widget's shortest side.
+    The painter takes care of all the transformations made during the
+    paint event, and ensures that everything is drawn correctly. Letting
+    the painter handle transformations is often easier than performing
+    manual calculations just to draw the contents of a custom widget.
 
-\img analogclock-viewport.png
+    \omit
+    Need to retake that screenshot.
+    \img analogclock-viewport.png
+    \endomit
 
-We draw the hour hand first, using a formula that rotates the coordinate
-system counterclockwise by a number of degrees determined by the current
-hour and minute. This means that the hand will be shown rotated clockwise
-by the required amount.
+    We draw the hour hand first, using a formula that rotates the coordinate
+    system counterclockwise by a number of degrees determined by the current
+    hour and minute. This means that the hand will be shown rotated clockwise
+    by the required amount.
 
-\skipto save
-\printuntil restore
+    \printline setPen
+    \printline setBrush
 
-We save and restore the transformation matrix before and after the
-rotation because we want to place the minute hand without having to
-take into account any previous rotations.
+    We set the pen to be Qt::NoPen because we don't want any outline,
+    and we use a solid brush with the color appropriate for
+    displaying hours. Brushes are used when filling in polygons and
+    other geometric shapes.
 
-The minute hand is rotated in a similar way to the hour hand.
+    \printline save
+    \printuntil restore
 
-\skipto save
-\printuntil restore
+    We save and restore the transformation matrix before and after the
+    rotation because we want to place the minute hand without having to
+    take into account any previous rotations.
 
-Finally, we draw markers around the edge of the clock for each hour.
-We draw each marker then rotate the coordinate system so that the painter
-is ready for the next one.
+    \printline setPen
+    \printuntil }
 
-\skipto for
-\printuntil /^\}/
+    We draw markers around the edge of the clock for each hour. We
+    draw each marker then rotate the coordinate system so that the
+    painter is ready for the next one.
 
-We do not need to save and restore the transformation matrix after
-these rotations because we are not drawing anything afterwards.
+    \printline setPen
+    \printuntil restore
 
-The painter takes care of all the transformations made during the
-paint event, and ensures that everything is drawn correctly. Letting
-the painter handle transformations is often easier than performing
-manual calculations just to draw the contents of a custom widget.
+    The minute hand is rotated in a similar way to the hour hand.
 
+    \printline setPen
+    \printuntil /^\}$/
+
+    Again, we draw markers around the edge of the clock, but this
+    time to indicate minutes. We skip multiple of 5 to avoid drawing
+    minute markers on top of hour markers.
 */

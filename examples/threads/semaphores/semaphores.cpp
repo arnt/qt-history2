@@ -1,6 +1,4 @@
-#include <QCoreApplication>
-#include <QSemaphore>
-#include <QThread>
+#include <QtCore>
 
 #include <stdio.h>
 #include <stdlib.h>

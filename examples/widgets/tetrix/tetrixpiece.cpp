@@ -4,8 +4,6 @@
 
 #include "tetrixpiece.h"
 
-using namespace std;
-
 void TetrixPiece::setRandomShape()
 {
     setShape(TetrixShape(rand() % 7 + 1));

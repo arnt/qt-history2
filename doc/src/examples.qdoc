@@ -81,6 +81,7 @@
     \list
     \o \l{threads/mandelbrot}{Mandelbrot}\raisedaster
     \o \l{threads/semaphores}{Semaphores}\raisedaster
+    \o \l{threads/waitconditions}{Wait Conditions}\raisedaster
     \endlist
 
     \section1 Network Examples
