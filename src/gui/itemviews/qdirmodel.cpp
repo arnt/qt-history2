@@ -362,16 +362,15 @@ int QDirModel::rowCount(const QModelIndex &parent) const
 {
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
 
-    bool isDir = !p || p->info.isDir();
+    bool isDir = !p || p->info.isDir(); // no node pointer means that it is the root
     QVector<QDirModelPrivate::QDirNode> *nodes = p ? &(p->children) : &(d->root.children);
 
-    if (isDir && nodes->isEmpty()) {
-//        qDebug("rowCount: refreshing children");
+    if (isDir && nodes->isEmpty()) { //FIXME: this is strange!
+        //qDebug("rowCount: refreshing children");
 	*nodes = d->children(p); // lazy population
     }
 
-//    qDebug("rowCount: returning %d", nodes->count());
-
+    //qDebug("rowCount: returning %d", nodes->count());
     return nodes->count();
 }
 
@@ -1144,16 +1143,17 @@ void QDirModelPrivate::init(const QDir &directory)
 {
     rootIsVirtual = false;
 
-    root.parent = 0;
-    root.info = QFileInfo(directory.absolutePath());
-    root.children = children(0); // FIXME: ???
-
     filterSpec = directory.filter();
     sortSpec = directory.sorting();
     nameFilters = directory.nameFilters();
 
+    root.parent = 0;
+    root.info = QFileInfo(directory.absolutePath());
+    root.children = children(0); // FIXME: ???
+
 //     qDebug("init: %s", root.info.absoluteFilePath().latin1());
 //     qDebug("init: %s", root.info.fileName().latin1());
+//     qDebug("init: %s", root.children.count());
 }
 
 QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) const
