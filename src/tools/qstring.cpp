@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#87 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#88 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#88 $");
 
 
 /*****************************************************************************
@@ -45,8 +45,7 @@ void *qmemmove( void *dst, const void *src, uint len )
 	s = (char *)src + len - 1;
 	while ( len-- )
 	    *d-- = *s--;
-    }
-    else if ( dst < src ) {
+    } else if ( dst < src ) {
 	d = (char *)dst;
 	s = (char *)src;
 	while ( len-- )
@@ -595,9 +594,9 @@ int QString::find( char c, int index, bool cs ) const
     if ( (uint)index >= size() )		// index outside string
 	return -1;
     register const char *d;
-    if ( cs )					// case sensitive
+    if ( cs ) {					// case sensitive
 	d = strchr( data()+index, c );
-    else {
+    } else {
 	d = data()+index;
 	c = tolower( c );
 	while ( *d && tolower(*d) != c )
@@ -623,9 +622,9 @@ int QString::find( const char *str, int index, bool cs ) const
     if ( (uint)index >= size() )		// index outside string
 	return -1;
     register const char *d;
-    if ( cs )					// case sensitive
+    if ( cs ) {					// case sensitive
 	d = strstr( data()+index, str );
-    else {					// case insensitive
+    } else {					// case insensitive
 	d = data()+index;
 	int len = strlen( str );
 	while ( *d ) {
@@ -661,15 +660,14 @@ int QString::findRev( char c, int index, bool cs ) const
 	    return d ? (int)(d - b) : -1;
 	}
 	index = length();
-    }
-    else if ( (uint)index >= size() )		// bad index
+    } else if ( (uint)index >= size() ) {	// bad index
 	return -1;
+    }
     d = b+index;
     if ( cs ) {					// case sensitive
 	while ( d >= b && *d != c )
 	    d--;
-    }
-    else {					// case insensitive
+    } else {					// case insensitive
 	c = tolower( c );
 	while ( d >= b && tolower(*d) != c )
 	    d--;
@@ -704,8 +702,7 @@ int QString::findRev( const char *str, int index, bool cs ) const
 	for ( int i=index; i>=0; i-- )
 	    if ( strncmp(d--,str,slen)==0 )
 		return i;
-    }
-    else {					// case insensitive
+    } else {					// case insensitive
 	for ( int i=index; i>=0; i-- )
 	    if ( strnicmp(d--,str,slen)==0 )
 		return i;
@@ -731,8 +728,7 @@ int QString::contains( char c, bool cs ) const
 	while ( *d )
 	    if ( *d++ == c )
 		count++;
-    }
-    else {					// case insensitive
+    } else {					// case insensitive
 	c = tolower( c );
 	while ( *d ) {
 	    if ( tolower(*d) == c )
@@ -766,8 +762,7 @@ int QString::contains( const char *str, bool cs ) const
 	if ( cs ) {
 	    if ( strncmp( d, str, len ) == 0 )
 		count++;
-	}
-	else {
+	} else {
 	    if ( strnicmp(d, str, len) == 0 )
 		count++;
 	}
@@ -796,12 +791,10 @@ QString QString::left( uint len ) const
     if ( isEmpty() ) {
 	QString empty;
 	return empty;
-    }
-    else if ( len >= size() ) {
+    } else if ( len >= size() ) {
 	QString same( data() );
 	return same;
-    }
-    else {
+    } else {
 	QString s( len+1 );
 	strncpy( s.data(), data(), len );
 	*(s.data()+len) = '\0';
@@ -829,8 +822,7 @@ QString QString::right( uint len ) const
     if ( isEmpty() ) {
 	QString empty;
 	return empty;
-    }
-    else {
+    } else {
 	char *p = data() + (length() - len);
 	if ( p < data() )
 	    p = data();
@@ -861,8 +853,7 @@ QString QString::mid( uint index, uint len ) const
     if ( isEmpty() || index >= slen ) {
 	QString empty;
 	return empty;
-    }
-    else {
+    } else {
 	register char *p = data()+index;
 	QString s( len+1 );
 	strncpy( s.data(), p, len );
@@ -899,8 +890,7 @@ QString QString::leftJustify( uint width, char fill, bool truncate ) const
 	memcpy( result.data(), data(), len );
 	memset( result.data()+len, fill, padlen );
 	result[len+padlen] = '\0';
-    }
-    else {
+    } else {
 	if ( truncate )
 	    result = left( width );
 	else
@@ -937,8 +927,7 @@ QString QString::rightJustify( uint width, char fill, bool truncate ) const
 	memset( result.data(), fill, padlen );
 	memcpy( result.data()+padlen, data(), len );
 	result[len+padlen] = '\0';
-    }
-    else {
+    } else {
 	if ( truncate )
 	    result = left( width );
 	else
@@ -1113,8 +1102,7 @@ QString &QString::insert( uint index, const char *s )
 	    memset( data()+olen, ' ', index-olen );
 	    memcpy( data()+index, s, len+1 );
 	}
-    }
-    else if ( QByteArray::resize(nlen+1) ) {	// normal insert
+    } else if ( QByteArray::resize(nlen+1) ) {	// normal insert
 	memmove( data()+index+len, data()+index, olen-index+1 );
 	memcpy( data()+index, s, len );
     }
@@ -1227,9 +1215,9 @@ long QString::toLong( bool *ok ) const
     if ( *p == '-' ) {
 	p++;
 	neg = 1;
-    }
-    else if ( *p == '+' )
+    } else if ( *p == '+' ) {
 	p++;
+    }
     if ( !isdigit(*p) )
 	goto bye;
     while ( isdigit(*p) ) {
@@ -1409,9 +1397,9 @@ QString &QString::setNum( long n )
     if ( n < 0 ) {
 	neg = TRUE;
 	n = -n;
-    }
-    else
+    } else {
 	neg = FALSE;
+    }
     *p = '\0';
     do {
 	*--p = ((int)(n%10)) + '0';
@@ -1490,9 +1478,9 @@ QString &QString::setNum( double n, char f, int prec )
     if ( prec >= 10 ) {
 	*fs++ = prec / 10 + '0';
 	*fs++ = prec % 10 + '0';
-    }
-    else
+    } else {
 	*fs++ = prec + '0';
+    }
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
