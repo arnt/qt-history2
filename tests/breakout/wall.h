@@ -16,6 +16,7 @@ const int InitLives = 3;
 const int BrickPoints = 10;
 const char LevelFile[] = "levels.dat";
 const char LevelBeginTag[] = "START LEVEL";
+const char LevelMultiplayerTag[] = "MULTIPLAYER LEVEL";
 const char LevelEndTag[] = "END LEVEL";
 const Q_UINT16 NetworkPort = 7731;
 
@@ -32,9 +33,11 @@ class Ball : public QObject, public QCanvasEllipse
 public:
     enum { RTTI = 7731 };
     Ball( GameMain *game, Player *pl = 0 );
-    void advance( int phase );
+    void advance( int phase );  //virtual
     int rtti() const { return RTTI; }
     void putOnPad();
+    void start();
+    void stop();
 public slots:
     void setBall( double x, double y, double ang, double sp );
     void setSpeed( double ang, double sp );
@@ -56,6 +59,7 @@ class Pad : public QObject, public QCanvasRectangle
 public:
     enum { RTTI = 7732 };
     Pad( GameMain *game, Player *pl );
+    void advance( int phase );  //virtual
     int rtti() const { return RTTI; }
     Player *getPlayer() const { return player; }
 public slots:
@@ -65,6 +69,7 @@ signals:
 private:
     GameMain *game;
     Player *player;
+    int oldPosition;
 };
 
 class Brick : public QObject, public QCanvasRectangle
@@ -79,6 +84,7 @@ public:
 signals:
     void score( int value );
     void allDestroyed();
+    void brickHit( int x, int y );
 protected:
     GameMain *game;
     int points;
@@ -197,8 +203,11 @@ public:
     void load( const QString &filename = 0 );
     bool start();
     bool next();
+public slots:
+    void createLevel( QStringList *levelShape = 0 );
+signals:
+    void levelCreated( QStringList *levelShape );
 private:
-    void createLevel();
     GameMain *game;
     QString levelFile;
     QString levelStartTag;
@@ -215,6 +224,8 @@ public:
     Lives *getLives() const { return lives; }
     Score *getScore() const { return score; }
     PlayerPosition getPosition() const { return position; }
+public slots:
+    void setMyBall();
 signals:
     void livesChange( int value );
     void padChange( int value );
@@ -256,14 +267,17 @@ public:
     Score *getScore( Player *pl ) const { return pl->getScore(); }
     Score *getMyScore() const { return getScore( player ); }
     Ball *getBall() const { return ball; }
+    Player *getMyPlayer() const { return player; }
+    Remote *getRemote() const { return remote; }
     bool isMyBall() const { return currentPlayer == player; }
     int getBrickWidth() const { return brickWidth; }
     int getBrickHeight() const { return brickHeight; }
     int getBrickCols() const { return brickCols; }
     int getBrickRows() const { return brickHeight; }
     double getMaxBallSpeed() const { return maxBallSpeed; }
-    bool getRunning() const { return running; }
-    bool getGluedBall() const { return gluedBall; }
+    bool isRunning() const { return running; }
+    bool isMultiplayer() const { return multiplayer; }
+    bool isGluedBall() const { return gluedBall; }
     void setGluedBall( bool glued );
     const QColor& getBallColor() const { return ballColor; }
     const QColor& getPadColor() const { return padColor; }
@@ -280,9 +294,14 @@ public slots:
     void help();
     void about();
     void toggleColors();
-    void setCurrentPlayer( Player *pl ) { currentPlayer = pl; }
+    void togglePause();
+    void setCurrentPlayer( Player *pl );
+    void setItsBall();
+    void brickHit( int x, int y );
 signals:
     void lostLife();
+    void myBall();
+    void start();
 protected:
     void keyPressEvent( QKeyEvent* e );
 private:
@@ -290,6 +309,8 @@ private:
     QCanvas *canvas;
     QPopupMenu *optionsMenu;
     int colors_id;
+    int paused_id;
+    QCanvasText *textPaused;
 
     int brickWidth;
     int brickHeight;
@@ -338,23 +359,29 @@ class Remote : public QObject
 {
     Q_OBJECT
 public:
-    Remote( Q_UINT16 port = NetworkPort, QObject *parent = 0);
-    Remote( const QString &host, Q_UINT16 port = NetworkPort, QObject *parent = 0);
+    Remote( GameMain *g, Q_UINT16 port = NetworkPort );
+    Remote( GameMain *g, const QString &host, Q_UINT16 port = NetworkPort );
     bool isServer() const { return iAmServer; }
 public slots:
     void sendPad( double x );
     void sendBall( double x, double y, double ang, double sp );
     void sendLives( int lives );
     void sendScore( int score );
+    void sendBrickHit( int x, int y );
+    void sendStart();
     //void sendDied();
-    //void ownBall();
+    void sendMyBall();
+    void sendLevel( QStringList *levelShape );
 signals:
     void readPad( double x );
     void readBall( double x, double y, double ang, double sp );
     void readLives( int lives );
     void readScore( int score );
     void readDied();
-    void myBall();
+    void brickHit( int x, int y );
+    void itsBall();
+    void start();
+    void readLevel( QStringList *levelShape );
     void success();
     void failed();
 private slots:
@@ -366,6 +393,7 @@ private slots:
     //void closeConnection();
     //void socketClosed();
 private:
+    GameMain *game;
     void init();
     void send( const QString &line );
     QTextStream stream;
@@ -379,18 +407,18 @@ class QLineEdit;
 class NetworkDialog : public QDialog {
     Q_OBJECT
 public:
-    static Remote *makeConnection( bool srv, QWidget *parent = 0, const char *name = 0 );
+    static Remote *makeConnection( bool srv, GameMain *parent = 0, const char *name = 0 );
 public slots:
     void tryConnect();
     void failed();
 private:
-    NetworkDialog( bool server, QWidget *parent = 0, const char *name = 0 );
+    NetworkDialog( bool server, GameMain *parent, const char *name = 0 );
     QLineEdit *editPort;
     QLineEdit *editHost;
     QPushButton *ok;
     Remote *remote;
     bool server;
-    QObject *owner;
+    GameMain *owner;
 };
 
 

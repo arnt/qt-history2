@@ -23,15 +23,28 @@ Ball::Ball( GameMain *g, Player *pl ) :
     game( g ), owner( pl )
 {
     setBrush( game->getBallColor() );
-    setAnimated( FALSE );
+    stop();
     emit ballOwnedBy( owner );
 }
 
+void Ball::start()
+{
+    setAnimated( TRUE );
+    if ( game->isMyBall() )
+	emit ballPosition( (double)x() / game->getBrickWidth(),
+			   (double)y() / game->getBrickHeight(),
+		           angle, speed );
+}
+
+void Ball::stop()
+{
+    setAnimated( FALSE );
+}
 
 void Ball::advance( int phase )
 {
-    if ( game->getGluedBall() ) {
-	setAnimated( FALSE );
+    if ( game->isGluedBall() ) {
+	stop();
 	putOnPad();
 	return;
     }
@@ -112,10 +125,11 @@ void Ball::advance( int phase )
 				newVy = - vy;
 			}
 			Brick *brick = (Brick*)item;
-			if ( owner ) {
-         		    connect( brick, SIGNAL(score(int)), game->getScore( owner ), SLOT(addScore(int)) );
-			}
-			brick->hit();
+			if ( game->isMyBall() ) {
+         		    connect( brick, SIGNAL(score(int)), game->getMyScore(), SLOT(addScore(int)) );
+    			    brick->hit();
+			} else 
+			    disconnect( brick, SIGNAL(score(int)) );
 			break;
 		    }
 		    case DeathLine::RTTI: {
@@ -131,15 +145,20 @@ void Ball::advance( int phase )
 	    if ( ( rect.top() < 0 && vy < 0 ) ||
 		 ( rect.bottom() >= canvas()->height() && vy > 0 ) )
 		newVy = - vy;
-	    angle = atan2( - newVy, newVx );
-	    if ( angle < 0 )
-		angle += 2 * Pi;
-	    setSpeed( angle, speed );
+	    if ( ( newVx != vx ) || ( newVy != vy ) ) {
+		angle = atan2( - newVy, newVx );
+		if ( angle < 0 )
+		    angle += 2 * Pi;
+		setSpeed( angle, speed );
+		emit ballPosition( ( (double)x() + newVx ) / game->getBrickWidth(),
+		                   ( (double)y() + newVy ) / game->getBrickHeight(),
+				   angle, speed );
+	    }  
 	    break;
 	}
         case 1:
 	    QCanvasItem::advance( phase );
-	break;
+	    break;
     }
 }
 
@@ -149,6 +168,7 @@ void Ball::setBall( double x, double y, double ang, double sp )
 	xpos = game->getCanvas()->width() - boundingRect().width();*/
     move( x * game->getBrickWidth(), y * game->getBrickHeight() );
     setSpeed( ang, sp );
+    game->setGluedBall( FALSE );
 }
 
 void Ball::setSpeed( double ang, double sp ) 
@@ -182,6 +202,7 @@ Pad::Pad( GameMain *g, Player *pl ) :
     QCanvasRectangle( 0, 0, 2*g->getBrickWidth(), g->getBrickHeight()/2 , g->getCanvas() ), 
     game( g ), player ( pl )
 {
+    oldPosition = 0;
     setBrush( game->getPadColor() );
     if ( player->getPosition() == PlayerDown )
 	move( ( g->getBrickCols()/2 - 1 ) * g->getBrickWidth(), ( BricksVertical - 1.5 ) * g->getBrickHeight());
@@ -199,6 +220,15 @@ void Pad::setPosition( double x )
     setX( xpos );
 }
 
+void Pad::advance( int phase )
+{
+    if ( phase == 1 ) 
+	return;
+    if ( x() == oldPosition )
+	return;
+    oldPosition = x();
+    emit padPosition( (double)oldPosition / game->getBrickWidth() );
+}
 
 Brick::Brick( GameMain *g, int x, int y, const QColor& col, int score ) :
     QCanvasRectangle( x * g->getBrickWidth(), y * g->getBrickHeight(), 
@@ -218,7 +248,7 @@ int Brick::bricksToDestroy = 0;
 
 Brick::~Brick()
 {
-    if ( !game->getRunning() )
+    if ( !game->isRunning() )
 	return;
     QRect rect = boundingRect();
     int x = rect.center().x();
@@ -257,6 +287,8 @@ Brick::~Brick()
 void Brick::hit()
 {
     emit score( points );
+    if ( game->isMyBall() )
+	emit brickHit( boundingRect().center().x() / game->getBrickWidth(), boundingRect().center().x() / game->getBrickHeight() );
     delete this;
 }
 
@@ -296,30 +328,30 @@ void HardBrick::hit()
 {
     if ( --hitsLeft <= 0 )
 	Brick::hit();
-    else
+    else {
 	paintIt();
+        if ( game->isMyBall() )
+	    emit brickHit( boundingRect().center().x() / game->getBrickWidth(), boundingRect().center().x() / game->getBrickHeight() );
+    }
 }
 
 void HardBrick::paintIt()
 {
     switch ( hitsLeft ) {
-	case 1: {
+	case 1: 
 	    setBrush( QBrush( color, QCanvasRectangle::SolidPattern ) );
 	    break;
-	}
-	case 2:  {
+	case 2:  
 	    setBrush( QBrush( color, QCanvasRectangle::Dense1Pattern ) );
 	    break;
-	}
-	case 3: {
+	case 3: 
 	    setBrush( QBrush( color, QCanvasRectangle::Dense2Pattern ) );
 	    break;
-	}
-	case 4: {
+	case 4: 
 	    setBrush( QBrush( color, QCanvasRectangle::Dense3Pattern ) );
 	    break;
-	}
-	default: setBrush( QBrush( color, QCanvasRectangle::Dense4Pattern ) );
+	default: 
+	    setBrush( QBrush( color, QCanvasRectangle::Dense4Pattern ) );
     }
     update();
 }
@@ -371,8 +403,9 @@ void Lives::looseLife()
     emit livesChanged( number );
     if ( number <= 0) 
 	emit noMoreLives();
-    else 
+    else {
 	emit newBall();
+    }
 }
 
 void Lives::setLives( int value )
@@ -467,7 +500,7 @@ Level::Level( GameMain *g, const QString &filename, const QString &startTag ) :
     game( g ), levelFile( filename ), levelStartTag( startTag )
 {
     levels.setAutoDelete( TRUE );
-    load();
+    //load();
 }
 
 void Level::load( const QString &filename ) 
@@ -480,11 +513,16 @@ void Level::load( const QString &filename )
 	// no level file
 	return;
     }
+    QString startTag;
+    if ( game->isMultiplayer() )
+	startTag = LevelMultiplayerTag;
+    else
+	startTag = levelStartTag;
     QTextStream t( &f );
     QStringList *lines;
     QString line;
     while ( !( line = t.readLine() ).isNull() ) {
-	if ( line.contains( levelStartTag, FALSE ) ) {
+	if ( line.contains( startTag, FALSE ) ) {
 	    lines = new QStringList;
 	    while ( !( line = t.readLine() ).isNull() && !line.contains( LevelEndTag, FALSE ) ) 
 		lines->append( line );
@@ -513,11 +551,20 @@ bool Level::next()
     return ok;
 }
 
-void Level::createLevel()
+void Level::createLevel( QStringList *levelShape )
 {
-    QStringList *level = levels.current();
+    QStringList *level;
+    if ( levelShape )
+	level = levelShape;
+    else
+	level = levels.current();
     if ( !level )
 	return;
+    QStringList invLevel;
+    QString emptyLine;
+    emptyLine.fill( '  ', game->getBrickCols() );
+    for ( int i = game->getBrickRows() - 1; i >= 0; --i )
+	invLevel.append( emptyLine );
     Brick *brick;
     char brickType;
     char brickColor;
@@ -525,48 +572,43 @@ void Level::createLevel()
     for ( QStringList::Iterator it = level->begin(); 
 	    it != level->end() && row < game->getBrickRows() ; ++it, ++row ) {
 	QString &line = (*it);
+qDebug( "level: %s ", line.latin1() );
 	for ( int col = 0; 
 		col < QMIN( game->getBrickCols(), (int)line.length() / 2 ); ++col ) {
 	    brickType = line[2 * col].upper();
 	    brickColor = line[2 * col + 1].upper();
+	    QString brickString = QString( QChar( brickType ) ) + QString( QChar( brickColor ) );
+	    invLevel[ game->getBrickRows() - row - 1 ].replace( 2 * ( game->getBrickCols() - col - 1 ), 2, brickString );
 	    QColor color;
 	    switch( brickColor ) {
-		case 'R': {
+		case 'R': 
 		    color = QColor( "red" );
 		    break;
-		}
-		case 'G': {
+		case 'G': 
 		    color = QColor( "green" );
 		    break;
-		}
-		case 'B': {
+		case 'B': 
 		    color = QColor( "blue" );
 		    break;
-		}
-		case 'C': {
+		case 'C': 
 		    color = QColor( "cyan" );
 		    break;
-		}
-		case 'M': {
+		case 'M': 
 		    color = QColor( "magenta" );
 		    break;
-		}
-		case 'Y': {
+		case 'Y': 
 		    color = QColor( "yellow" );
 		    break;
-		}
-		case 'S': {
+		case 'S': 
 		    color = QColor( "gray" );
 		    break;
-		}
 	    }
 	    if ( color.isValid() ) {
 		brick = 0;
 		switch( brickType ) {
-		    case 'B': {
+		    case 'B': 
 			brick = new StandardBrick( game, col, row, color, BrickPoints );
 			break;
-		    }
 		    case '1': case '2': case '3': case '4': case '5': 
 		    case '6': case '7': case '8': case '9':
 		    {
@@ -574,21 +616,28 @@ void Level::createLevel()
 			brick = new HardBrick( game, col, row, color, hits, hits * BrickPoints );
 			break;
 		    }
-		    case 'S': case '0': {
+		    case 'S': case '0': 
 			brick = new StoneBrick( game, col, row, color, 10 * BrickPoints );
 			break;
-		    }
-
 		}
 		if ( brick ) {
 		    //connect( brick, SIGNAL(score(int)), game->getMyScore(), SLOT(addScore(int)) );
 		    connect( brick, SIGNAL(allDestroyed()), game, SLOT(endLevel()) );
+		    if ( game->getRemote() )
+			connect( brick, SIGNAL(brickHit(int,int)), game->getRemote(), SLOT(sendBrickHit(int,int)) );
 		    brick->show();
 		}
 	    
 	    } //if ( color.isValid() )
 	} //for int col
     } //for QStringList::Iterator it
+
+for ( int q=0; q < game->getBrickRows(); ++q )
+qDebug( "invlv: %s ", invLevel[ q ].latin1() );
+
+    if ( game->isMyBall() ) {
+	emit levelCreated( &invLevel );
+    }
 }
 
 
@@ -606,8 +655,10 @@ Player::Player( GameMain *g, PlayerPosition pos ) :
     pad->show();
 }
 
-
-
+void Player::setMyBall()
+{
+    game->setCurrentPlayer( this );
+}
 
 TableView::TableView( GameMain *parent, const char *name, WFlags f ) :
     QCanvasView( parent->getCanvas(), parent, name, f ), game( parent )
@@ -626,7 +677,7 @@ void TableView::contentsMouseMoveEvent( QMouseEvent* me)
     if ( x + pad->boundingRect().width() > game->getCanvas()->width() ) 
 	x = game->getCanvas()->width() - pad->boundingRect().width();
     pad->setX( x );
-    if ( game->getGluedBall() && game->isMyBall() && game->getBall()) {
+    if ( game->isGluedBall() && game->isMyBall() && game->getBall()) {
 	game->getBall()->putOnPad();
     }
 }
@@ -635,7 +686,7 @@ void TableView::contentsMousePressEvent( QMouseEvent *me)
 {
     if ( !mouseTaken ) {
 	takeMouse( TRUE );
-    } else if ( game->getGluedBall() ) {
+    } else if ( game->isGluedBall() ) {
 	game->setGluedBall( FALSE );
     }
 }
@@ -695,6 +746,7 @@ GameMain::GameMain( int cols, int rows, int width, int height, QWidget *parent, 
     gluedBall = TRUE;
     multiplayer = FALSE;
     remote = 0;
+    textPaused = 0;
 
     QMenuBar *menu = menuBar();
 
@@ -705,9 +757,11 @@ GameMain::GameMain( int cols, int rows, int width, int height, QWidget *parent, 
     menu->insertItem( "&Game", gameMenu );
 
     optionsMenu = new QPopupMenu( menu );
+    paused_id = optionsMenu->insertItem( "&Pause", this, SLOT(togglePause()), Key_P );
+    optionsMenu->setItemChecked(paused_id, FALSE);
+    optionsMenu->insertSeparator();
     colors_id = optionsMenu->insertItem( "Inversed &Colors", this, SLOT(toggleColors()), CTRL+Key_C );
     optionsMenu->setItemChecked(colors_id, TRUE);
-    //optionsMenu->insertSeparator();
     menu->insertItem( "&Options", optionsMenu );
     
     QPopupMenu *multiplayerMenu = new QPopupMenu( menu );
@@ -735,14 +789,20 @@ GameMain::~GameMain()
 
 void GameMain::newGame( bool multi )
 {
-    multiplayer = multi;
+    if ( remote )
+	multiplayer = multi;
+    else
+	multiplayer = FALSE;
     running = FALSE;
     QCanvasItemList cil = canvas->allItems();
     for (QCanvasItemList::Iterator it = cil.begin(); it != cil.end(); ++it) {
 	if ( *it )
 	    delete *it;
     }
-    
+    if ( !multiplayer )
+	optionsMenu->setItemEnabled( paused_id, TRUE );
+    else
+	optionsMenu->setItemEnabled( paused_id, FALSE );
     player = new Player( this, PlayerDown );
     currentPlayer = player;
     if ( multiplayer ) {
@@ -756,11 +816,29 @@ void GameMain::newGame( bool multi )
 
 	connect( player->getPad(), SIGNAL(padPosition(double)), remote, SLOT(sendPad(double)) );
 	connect( remote, SIGNAL(readPad(double)), player2->getPad(), SLOT(setPosition(double)) );
+	player->getPad()->setAnimated( TRUE );
 
+	connect( this, SIGNAL(myBall()), remote, SLOT(sendMyBall()) );
+	connect( remote, SIGNAL(itsBall()), this, SLOT(setItsBall()) );
+
+	connect( remote, SIGNAL(brickHit(int,int)), this, SLOT(brickHit(int,int)) );
+
+	connect( this, SIGNAL(start()), remote, SLOT(sendStart()) );
+	connect( remote, SIGNAL(start()), this, SLOT(startBall()) );
+
+	if ( !remote->isServer() ) {
+	    currentPlayer = player;
+	    connect( remote, SIGNAL(readLevel(QStringList*)), level, SLOT(createLevel(QStringList*)) );
+	} else {
+    	    connect( level, SIGNAL(levelCreated(QStringList*)), remote, SLOT(sendLevel(QStringList*)) );
+	}
 	//level multiplayer..
     }
-
-    level->start();
+    
+    if ( !multiplayer || remote->isServer() ) {
+	level->load();
+	level->start();
+    }
 
     deathLine = new DeathLine( this, player->getPosition() );
     deathLine->show();
@@ -805,6 +883,7 @@ void GameMain::killBall()
 {
     delete ball;
     ball = 0;
+    setCurrentPlayer( player );
 }
 
 void GameMain::endGame()
@@ -821,8 +900,10 @@ void GameMain::endGame()
 
 void GameMain::endLevel()
 {
-    if ( !level->next() )
-	level->start();
+    if ( remote && remote->isServer() ) {
+	if ( !level->next() )
+	    level->start();
+    }
     startBall();
 }
 
@@ -844,7 +925,34 @@ void GameMain::startBall()
     else
 	ball->setSpeed( 1.25 * Pi, maxBallSpeed / 2 );
     ball->show();
+    if ( isMyBall() )
+	emit start();
 }
+
+void GameMain::setCurrentPlayer( Player *pl )
+{
+    currentPlayer = pl;
+    if ( currentPlayer == player )
+	emit myBall();
+}
+
+void GameMain::setItsBall()
+{
+    currentPlayer = player2;
+}
+
+void GameMain::brickHit( int x, int y )
+{
+    QCanvasItemList cil = canvas->collisions( QPoint(x * brickWidth + brickWidth / 2, y * brickHeight + brickHeight / 2 ) );
+    for ( QCanvasItemList::Iterator it = cil.begin(); it != cil.end(); ++it) {
+	QCanvasItem *item = *it;
+	if ( item->rtti() == Brick::RTTI ) {
+	    ( (Brick*)item )->hit();
+	    break;
+	}
+    }
+}
+
 
 void GameMain::help()
 {
@@ -882,22 +990,23 @@ void GameMain::setInverseColors( bool inver )
     for ( QCanvasItemList::Iterator it = cil.begin(); it != cil.end(); ++it) {
 	QCanvasItem *item = *it;
 	switch ( item->rtti() ) {
-	    case Ball::RTTI: {
+	    case Ball::RTTI: 
 		( (Ball*)item )->setBrush( ballColor );
 		break;
-	    }
-	    case Pad::RTTI: {
+	    case Pad::RTTI: 
 		( (Pad*)item )->setBrush( padColor );
 		break;
-	    }
-	    case Lives::RTTI: {
+	    case Lives::RTTI: 
 		( (Lives*)item )->setColor( textColor );
 		break;
-	    }
-	    case Score::RTTI: {
+	    case Score::RTTI: 
 		( (Score*)item )->setColor( textColor );
 		break;
-	    }
+	    default: 
+		if( item->rtti() == QCanvasText::RTTI) {
+		    ( (QCanvasText*)item )->setColor( textColor );
+		    break;
+		}
 	}
     }
     canvas->update();
@@ -910,11 +1019,39 @@ void GameMain::toggleColors()
     setInverseColors( inv );
 }
 
+void GameMain::togglePause()
+{
+    bool paused = !optionsMenu->isItemChecked( paused_id );
+    optionsMenu->setItemChecked( paused_id, paused );
+    if ( paused ) {
+	QFont font;
+	font.setBold( TRUE );
+	font.setPixelSize( brickHeight * 4 );
+	textPaused = new QCanvasText( "PAUSED", font, canvas );
+	textPaused->setColor( textColor );
+	textPaused->move( 5 * brickWidth, 5 * brickWidth );
+	textPaused->setZ( 255 );
+	textPaused->show();
+	running = FALSE;
+        canvas->setAdvancePeriod( -1 );
+    } else {
+	delete textPaused;
+	textPaused = 0;
+	running = TRUE;
+        canvas->setAdvancePeriod( advancePeriod );
+    }
+    canvas->update();
+}
+
 void GameMain::setGluedBall( bool glued )
 {
     gluedBall = glued;
-    if ( ball )
-	ball->setAnimated( !glued );
+    if ( ball ) {
+	if ( glued )
+	    ball->stop();
+	else
+	    ball->start();
+    }
 }
 
 
@@ -949,8 +1086,8 @@ RemoteSocket::RemoteSocket( const QString &host, Q_UINT16 port, QObject *parent,
     connectToHost( host, port );
 }
 
-Remote::Remote( Q_UINT16 port, QObject *parent) :
-    QObject( parent )
+Remote::Remote( GameMain *g, Q_UINT16 port ) :
+    QObject( g ), game( g )
 {
     remoteSocket = 0;
     iAmServer = TRUE;
@@ -958,8 +1095,8 @@ Remote::Remote( Q_UINT16 port, QObject *parent) :
     connect( remoteServer, SIGNAL(newRemoteSocket(RemoteSocket*)), this, SLOT(remoteSocketCreated(RemoteSocket*)) );
 }
 
-Remote::Remote( const QString &host, Q_UINT16 port, QObject *parent ) :
-    QObject( this )
+Remote::Remote( GameMain *g, const QString &host, Q_UINT16 port ) :
+    QObject( g ), game( g )
 {
     remoteServer = 0;
     iAmServer = FALSE;
@@ -1010,10 +1147,31 @@ qDebug( "Received: %s", line.latin1() );
 	else if ( line.section( ',', 0, 0 ) == "lives" )
 	    emit readLives( line.section( ',', 1, 1 ).toInt() );
 	else if ( line.section( ',', 0, 0 ) == "pad" )
-	    emit readPad( line.section( ',', 1, 1 ).toDouble() );
+	    emit readPad( game->getBrickCols() - line.section( ',', 1, 1 ).toDouble() - 2 ); 
+	    // 2 is pad width
 	else if ( line.section( ',', 0, 0 ) == "ball" )
-	    emit readBall( line.section( ',', 1, 1 ).toDouble(), line.section( ',', 2, 2 ).toDouble(), 
-	                  line.section( ',', 3, 3 ).toDouble(), line.section( ',', 4, 4 ).toDouble() );
+	    emit readBall( game->getBrickCols() - line.section( ',', 1, 1 ).toDouble(),
+	                   game->getBrickRows() - line.section( ',', 2, 2 ).toDouble(), 
+	                   Pi + line.section( ',', 3, 3 ).toDouble(), 
+			   line.section( ',', 4, 4 ).toDouble() );
+	else if ( line.section( ',', 0, 0 ) == "myball" )
+	    emit itsBall();
+	else if ( line.section( ',', 0, 0 ) == "brick" )
+	    emit brickHit( game->getBrickCols() - line.section( ',', 1, 1 ).toInt() - 1,
+			   game->getBrickRows() - line.section( ',', 2, 2 ).toInt() - 1);
+	else if ( line.section( ',', 0, 0 ) == "start" )
+	    emit start();
+	else if ( line.startsWith( "level" ) ) {
+	    QStringList level;
+	    while ( remoteSocket->canReadLine() ) {
+		line = remoteSocket->readLine();  
+qDebug( "Received: %s", line.latin1() );
+		level.append( line );
+		if ( line.contains( LevelEndTag, FALSE ) )
+		    break;
+	    }
+	    emit readLevel( &level );
+	}
     }
 }
 
@@ -1025,26 +1183,52 @@ qDebug( "Sent: %s", line.latin1() );
 
 void Remote::sendScore( int score )
 {
-    send( "score," + QString::number( score ) );
+    send( QString( "score,%1" ).arg( score ) );
 }
 
 void Remote::sendLives( int lives )
 {
-    send( "lives," + QString::number( lives ) );
+    send( QString( "lives,%1" ).arg( lives ) );
 }
 
 void Remote::sendPad( double xpos )
 {
-    send( "pad," + QString::number( xpos ) );
+    send( QString( "pad,%1" ).arg( xpos ) );
 }
 
 void Remote::sendBall( double x, double y, double ang, double sp )
 {
-    send( QString("ball,%1,%2,%3,%4").arg( x ).arg( y ).arg( ang ).arg( sp ) );
+    send( QString( "ball,%1,%2,%3,%4" ).arg( x ).arg( y ).arg( ang ).arg( sp ) );
+}
+
+void Remote::sendMyBall()
+{
+    send( "myball" );
+}
+
+void Remote::sendBrickHit( int x, int y )
+{
+    send( QString( "brick,%1,%2" ).arg( x ).arg( y ) );
+}
+
+void Remote::sendStart()
+{
+    send( "start" );
+}
+
+void Remote::sendLevel( QStringList *levelShape )
+{
+    send( "level" );
+    send( LevelMultiplayerTag );
+    for ( QStringList::Iterator it = levelShape->begin(); it != levelShape->end(); ++it ) {
+	send( *it );
+    }
+    send( LevelEndTag );
 }
 
 
-NetworkDialog::NetworkDialog( bool srv, QWidget *parent, const char *name ) :
+
+NetworkDialog::NetworkDialog( bool srv, GameMain *parent, const char *name ) :
     QDialog( parent, name, TRUE ), server( srv ), remote( 0 ), owner( parent )
 {
     QVBoxLayout *vbox = new QVBoxLayout( this, 6, 6 );
@@ -1089,9 +1273,9 @@ void NetworkDialog::tryConnect()
 {
     ok->hide();
     if ( server ) {
-	remote = new Remote( editPort->text().toInt(), owner );
+	remote = new Remote( owner, editPort->text().toInt() );
     } else {
-	remote = new Remote( editHost->text(), editPort->text().toInt(), owner );
+	remote = new Remote( owner, editHost->text(), editPort->text().toInt() );
     }
     connect( remote, SIGNAL(success()), this, SLOT(accept()) );
     connect( remote, SIGNAL(failed()), this, SLOT(failed()) );
@@ -1105,7 +1289,7 @@ void NetworkDialog::failed()
     ok->show();
 }
 
-Remote *NetworkDialog::makeConnection( bool srv, QWidget *parent, const char *name )
+Remote *NetworkDialog::makeConnection( bool srv, GameMain *parent, const char *name )
 {
     NetworkDialog dlg( srv, parent, name );
     bool ok = ( dlg.exec() == QDialog::Accepted );
