@@ -732,7 +732,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_I4:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor(arg.lVal);
-        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+        else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
             var = QCursor(arg.lVal);
         else
             var = (int)arg.lVal;
@@ -740,7 +740,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_I4|VT_BYREF:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor((int)*arg.plVal);
-        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+        else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
             var = QCursor((int)*arg.plVal);
         else
             var = (int)*arg.plVal;
@@ -766,7 +766,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_UI4:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor(arg.ulVal);
-        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+        else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
             var = QCursor(arg.ulVal);
         else
             var = (int)arg.ulVal;
@@ -774,7 +774,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_UI4|VT_BYREF:
         if (type == QVariant::Color || (!type && typeName == "QColor"))
             var = OLEColorToQColor((uint)*arg.pulVal);
-        else if (type == QVariant::Cursor || (!type && typeName == "QCursor"))
+        else if (type == QVariant::Cursor || (!type && (typeName == "QCursor" || typeName == "QCursor*")))
             var = QCursor((int)*arg.pulVal);
         else
             var = (int)*arg.pulVal;
