@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#32 $
 **
 ** Implementation of date and time classes
 **
@@ -12,6 +12,9 @@
 
 #include "qdatetm.h"
 #include "qdstream.h"
+#if defined(UNIX)
+#define gettimeofday	__hide_gettimeofday
+#endif
 #include <stdio.h>
 #include <time.h>
 #if defined(_OS_WIN32_)
@@ -21,7 +24,6 @@
 #elif defined(_OS_OS2_)
 #include <os2.h>
 #elif defined(UNIX)
-#define gettimeofday	__hide_gettimeofday
 #include <sys/time.h>
 #include <unistd.h>
 #undef  gettimeofday
@@ -29,7 +31,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#32 $";
 #endif
 
 
