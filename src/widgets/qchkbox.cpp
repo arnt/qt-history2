@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#34 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#34 $";
 #endif
 
 
@@ -101,6 +101,17 @@ void QCheckBox::setChecked( bool checked )
 }
 
 
+
+static int extraWidth(int gs) {
+    if ( gs == MacStyle || gs == Win3Style )
+	return 7;
+    else if ( gs == MotifStyle )
+	return 8;
+    else
+	return 6;
+}
+
+
 /*----------------------------------------------------------------------------
   Adjusts the size of the check box to fit the contents.
 
@@ -115,11 +126,12 @@ void QCheckBox::adjustSize()
     QFontMetrics fm = fontMetrics();
     int w = fm.width( text() );
     int h = fm.height();
+    int gs = style();
     int wbm, hbm;
     getSizeOfBitmap( style(), &wbm, &hbm );
     if ( h < hbm )
 	h = hbm;
-    w += wbm+6;
+    w += wbm+extraWidth( style() );
     if ( w!=width() || h!=height() )
 	resize( w, h );
     else
@@ -306,12 +318,8 @@ void QCheckBox::drawButtonLabel( QPainter *p )
     int x, y, w, h;
     int gs = style();
     getSizeOfBitmap( gs, &w, &h );
-    if ( gs == MacStyle || gs == Win3Style )
-	w++;
-    else if ( gs == MotifStyle )
-	w += 2;
     y = 0;
-    x = w + 6;
+    x = w + extraWidth( gs );
     w = width() - x;
     h = height();
 
