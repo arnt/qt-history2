@@ -97,7 +97,7 @@ extern "C" {
 }
 #endif
 
-class QApplicationPrivate : public QCoreApplicationPrivate
+class Q_GUI_EXPORT QApplicationPrivate : public QCoreApplicationPrivate
 {
     Q_DECLARE_PUBLIC(QApplication)
 public:
