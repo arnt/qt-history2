@@ -15,7 +15,7 @@ HelpDemo::HelpDemo( QWidget *parent, const char *name )
     : HelpDemoBase( parent, name )
 {
     leFileName->setText( "./doc/index.html" );
-    assistant = new QAssistantClient( qInstallPathBins(), this );
+    assistant = new QAssistantClient( QDir( "../../bin" ).absPath(), this );
     widgets.insert( (QWidget*)openQAButton, "./doc/manual.html#openqabutton" );
     widgets.insert( (QWidget*)closeQAButton, "./doc/manual.html#closeqabutton" );
     widgets.insert( (QWidget*)checkOnlyExampleDoc, "./doc/manual.html#onlydoc" );
