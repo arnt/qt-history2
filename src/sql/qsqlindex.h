@@ -44,6 +44,7 @@
 #include "qsqlrecord.h"
 #endif // QT_H
 
+#ifdef QT_NO_QWINEXPORT
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
 #define QM_EXPORT_SQL
 #define QM_TEMPLATE_EXTERN_SQL
@@ -51,6 +52,7 @@
 #define QM_EXPORT_SQL Q_EXPORT
 #define QM_TEMPLATE_EXTERN_SQL Q_TEMPLATE_EXTERN
 #endif
+#endif /* QT_NO_QWINEXPORT */
 
 #ifndef QT_NO_SQL
 

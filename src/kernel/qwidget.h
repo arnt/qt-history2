@@ -1010,4 +1010,8 @@ struct Q_EXPORT QWExtra {
 #define Q_DEFINED_QWIDGET
 #include "qwinexport.h"
 
+#ifndef QT_NO_QWINEXPORT
+#define Q_DEFINED_QWIDGET
+#include "qwinexport.h"
+#endif /* QT_NO_QWINEXPORT */
 #endif // QWIDGET_H

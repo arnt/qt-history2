@@ -177,6 +177,10 @@ private:
 #define Q_DEFINED_QTABLE_ITEM
 #include "qwinexport.h"
 
+#ifndef QT_NO_QWINEXPORT
+#define Q_DEFINED_QTABLE_ITEM
+#include "qwinexport.h"
+#endif /* QT_NO_QWINEXPORT */
 class QM_EXPORT_TABLE QComboTableItem : public QTableItem
 {
 public:
