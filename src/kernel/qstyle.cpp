@@ -743,9 +743,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	  \i Options
 	  \i Notes
 
-  \row \i16 \l CE_PushButton
+  \row \i16 \l{CE_PushButton}(const \l QPushButton *)
 
-	    (const \l QPushButton *)
+    and
+
+	\l{CE_PushButtonLabel}(const \l QPushButton *)
        \i \l Style_Enabled \i Set if the button is enabled.
        \i16 Unused.
        \i16 &nbsp;
@@ -756,21 +758,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 			   space bar is pressed on the button).
   \row \i \l Style_ButtonDefault \i Set if the button a default button.
 
-  \row \i16 \l CE_PushButtonLabel
+  \row \i16 \l{CE_CheckBox}(const \l QCheckBox *)
 
-	    (const QPushButton *)
-       \i \l Style_Enabled \i Set if the button is enabled.
-       \i16 Unused.
-       \i16 &nbsp;
-  \row \i \l Style_HasFocus \i Set if the button has input focus.
-  \row \i \l Style_Raised \i Set if the button is not down, not on and not flat.
-  \row \i \l Style_On \i Set if the button is a toggle button and toggled on.
-  \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
-			   space bar is pressed on the button).
-  \row \i \l Style_ButtonDefault \i Set if the button a default button.
-  \row \i16 \l CE_CheckBox
+  and
 
-	    (const \l QCheckBox *)
+    \l{CE_CheckBoxLabel}(const \l QCheckBox *)
+
        \i \l Style_Enabled \i Set if the checkbox is enabled.
        \i16 Unused.
        \i16 &nbsp;
@@ -781,22 +774,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \row \i \l Style_Down \i Set if the checkbox is down (i.e., the mouse button or
 			   space bar is pressed on the button).
 
-  \row \i16 \l CE_CheckBoxLabel
+  \row \i15 \l{CE_RadioButton}(const QRadioButton *)
 
-	    (const \l QCheckBox *)
-       \i \l Style_Enabled \i Set if the checkbox is enabled.
-       \i16 Unused.
-       \i16 &nbsp;
-  \row \i \l Style_HasFocus \i Set if the checkbox has input focus.
-  \row \i \l Style_On \i Set if the checkbox is checked.
-  \row \i \l Style_Off \i Set if the checkbox is not checked.
-  \row \i \l Style_NoChange \i Set if the checkbox is in the NoChange state.
-  \row \i \l Style_Down \i Set if the checkbox is down (i.e., the mouse button
-			   or the space is pressed on the checkbox).
+  and
 
-  \row \i15 \l CE_RadioButton
-
-	    (const QRadioButton *)
+    \l{CE_RadioButtonLabel}(const QRadioButton *)
        \i \l Style_Enabled \i Set if the radiobutton is enabled.
        \i15 Unused.
        \i15 &nbsp;
@@ -806,62 +788,34 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \row \i \l Style_Down \i Set if the radiobutton is down (i.e., the mouse
 			   button or space bar is pressed on the radiobutton).
 
-  \row \i15 \l CE_RadioButtonLabel
+  \row \i12 \l{CE_TabBarTab}(const \l QTabBar *)
 
-	    (const QRadioButton *)
-       \i \l Style_Enabled \i Set if the radiobutton is enabled.
-       \i15 Unused.
-       \i15 &nbsp;
-  \row \i \l Style_HasFocus \i Set if the radiobutton has input focus.
-  \row \i \l Style_On \i Set if the radiobutton is checked.
-  \row \i \l Style_Off \i Set if the radiobutton is not checked.
-  \row \i \l Style_Down \i Set if the radiobutton is down (i.e., the mouse
-			   button or space bar is pressed on the radiobutton).
+    and
 
-  \row \i12 \l CE_TabBarTab
+    \l{CE_TabBarTabLabel}(const \l QTabBar *)
 
-	    (const \l QTabBar *)
-       \i \l Style_Enabled \i Set is the tabbar and tab is enabled.
+       \i \l Style_Enabled \i Set if the tabbar and tab is enabled.
        \i12 \l QStyleOption ( \l QTab *t )
 	    \list
 	    \i opt.\link QStyleOption::tab() tab\endlink()
 	    \endlist
        \i12 \e t is the QTab being drawn.
-  \row \i \l Style_Selected \i Set is the tab is the current tab.
+  \row \i \l Style_Selected \i Set if the tab is the current tab.
 
-  \row \i12 \l CE_TabBarLabel
+  \row \i12 \l{CE_ProgressBarGroove}(const QProgressBar *)
 
-	    (const \l QTabBar *)
-       \i \l Style_Enabled \i Set is the tabbar and tab is enabled.
-       \i12 \l QStyleOption ( \l QTab *t )
-	    \list
-	    \i opt.\link QStyleOption::tab() tab\endlink()
-	    \endlist
-       \i12 \e t is the QTab being drawn.
-  \row \i \l Style_HasFocus \i Set is the tab has input focus.
+  and
 
-  \row \i12 \l CE_ProgressBarGroove
+\l{CE_ProgressBarContents}(const QProgressBar *)
 
-	    (const QProgressBar *)
-       \i \l Style_Enabled \i Set is the progressbar is enabled.
+    and
+
+\l{CE_ProgressBarLabel}(const QProgressBar *)
+
+       \i \l Style_Enabled \i Set if the progressbar is enabled.
        \i12 Unused.
        \i12 &nbsp;
-  \row \i \l Style_HasFocus \i Set is the progressbar has input focus.
-
-  \row \i12 \l CE_ProgressBarContents
-
-	    (const \l QProgressBar *)
-       \i \l Style_Enabled \i Set is the progressbar is enabled.
-       \i12 Unused.
-       \i12 &nbsp;
-  \row \i \l Style_HasFocus \i Set is the progressbar has input focus.
-
-  \row \i12 \l CE_ProgressBarLabel
-	    (const \l QProgressBar *)
-       \i \l Style_Enabled \i Set is the progressbar is enabled.
-       \i12 Unused.
-       \i12 &nbsp;
-  \row \i \l Style_HasFocus \i Set is the progressbar has input focus.
+  \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
 
   \row \i13 \l CE_PopupMenuItem
 
