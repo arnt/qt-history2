@@ -1123,7 +1123,13 @@ inline QT_COMPAT int qWinVersion() { return QSysInfo::WindowsVersion; }
 //
 // Use to avoid "unused parameter" warnings
 //
-#define Q_UNUSED(x) (void)x;
+#if defined(Q_CC_INTEL)
+template <typename T>
+inline void qUnused(T &x) { (void)x; }
+#  define Q_UNUSED(x) qUnused(x);
+#else
+#  define Q_UNUSED(x) (void)x;
+#endif
 
 //
 // Debugging and error handling
