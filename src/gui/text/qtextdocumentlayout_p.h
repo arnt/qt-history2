@@ -38,6 +38,9 @@ public:
     // flags passed to QTextLayout objects of blocks
     void setBlockTextFlags(int flags);
     int blockTextFlags() const;
+
+    // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
+    void setFixedColumnWidth(int width);
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

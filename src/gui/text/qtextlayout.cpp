@@ -950,7 +950,7 @@ int QTextLine::textWidth() const
 void QTextLine::layout(int width, LineWidthUnit unit)
 {
     int maxGlyphs = INT_MAX;
-    if (unit == UnitIsGlpyhs) {
+    if (unit == UnitIsGlyphs) {
         maxGlyphs = width;
         width = INT_MAX >> 6;
     }

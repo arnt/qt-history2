@@ -209,7 +209,7 @@ public:
 
     enum LineWidthUnit {
         UnitIsPixels,
-        UnitIsGlpyhs
+        UnitIsGlyphs
     };
 
     void layout(int width, LineWidthUnit unit = UnitIsPixels);

@@ -1026,27 +1026,21 @@ process:
 void QTextEdit::resizeEvent(QResizeEvent *)
 {
     QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
+    Q_ASSERT(layout);
 
     if (d->wordWrap == NoWrap)
         layout->setBlockTextFlags(layout->blockTextFlags() | Qt::SingleLine);
     else
         layout->setBlockTextFlags(layout->blockTextFlags() & ~Qt::SingleLine);
 
-    int width = 0;
-    switch (d->wordWrap) {
-        case NoWrap:
-            width = d->viewport->width();
-            break;
-        case WidgetWidth:
-            width = d->viewport->width();
-            break;
-        case FixedPixelWidth:
-            width = d->wrapColumnOrWidth;
-            break;
-        case FixedColumnWidth:
-            // ###
-            break;
-    }
+    int width = d->viewport->width();
+    if (d->wordWrap == FixedPixelWidth)
+        width = d->wrapColumnOrWidth;
+
+    if (d->wordWrap == FixedColumnWidth)
+        layout->setFixedColumnWidth(d->wrapColumnOrWidth);
+    else
+        layout->setFixedColumnWidth(-1);
 
     d->doc->documentLayout()->setPageSize(QSize(width, INT_MAX));
 
@@ -1506,6 +1500,7 @@ int QTextEdit::wrapColumnOrWidth() const
 void QTextEdit::setWrapColumnOrWidth(int w)
 {
     d->wrapColumnOrWidth = w;
+    resizeEvent(0);
 }
 
 /*!

@@ -140,7 +140,7 @@ public:
 #endif
 
     QTextDocumentLayoutPrivate()
-        : widthUsed(0)
+        : widthUsed(0), fixedColumnWidth(-1)
     { }
 
     QSize pageSize;
@@ -152,6 +152,8 @@ public:
 #ifdef LAYOUT_DEBUG
     mutable QString debug_indent;
 #endif
+
+    int fixedColumnWidth;
 
     int indent(QTextBlock bl) const;
 
@@ -778,13 +780,17 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
         left = qMax(left, l);
         right = qMin(right, r);
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
-        line.layout(right-left);
+
+        if (d->fixedColumnWidth != -1)
+            line.layout(d->fixedColumnWidth, QTextLine::UnitIsGlyphs);
+        else
+            line.layout(right - left);
 
         floatMargins(layoutStruct, &left, &right);
         left = qMax(left, l);
         right = qMax(right, r);
 
-        if (line.width() > right-left) {
+        if (d->fixedColumnWidth == -1 && line.width() > right-left) {
             // float has been added in the meantime, redo
             line.layout(right-left);
 //             qDebug() << "    redo: left=" << left << " right=" << right;
@@ -1060,5 +1066,10 @@ void QTextDocumentLayout::setBlockTextFlags(int flags)
 int QTextDocumentLayout::blockTextFlags() const
 {
     return d->blockTextFlags;
+}
+
+void QTextDocumentLayout::setFixedColumnWidth(int width)
+{
+    d->fixedColumnWidth = width;
 }
 
