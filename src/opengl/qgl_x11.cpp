@@ -712,8 +712,8 @@ void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
             qDebug("failed loading glyph %d from font", i);
             Q_ASSERT(!err);
         }
-        err = FT_Render_Glyph(face->glyph, (antialiased ? FT_RENDER_MODE_NORMAL
-                                            : FT_RENDER_MODE_MONO));
+        err = FT_Render_Glyph(face->glyph, (antialiased ? ft_render_mode_normal
+                                            : ft_render_mode_mono));
         if (err) {
             qDebug("failed rendering glyph %d from font", i);
             Q_ASSERT(!err);
