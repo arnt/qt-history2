@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#158 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#157 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#158 $");
 
 
 /*!
@@ -1483,7 +1483,7 @@ bool QWidget::focusNextPrevChild( bool next )
 	    }
 	}
     }
-#if !defined(_CC_EDG_) // has working dead code detection
+#if !defined(NO_DEADCODE)
     return FALSE;
 #endif
 }
