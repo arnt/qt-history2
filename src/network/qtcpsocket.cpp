@@ -153,7 +153,8 @@ public:
     The \a parent argument is passed on to the QObject
     constructor.
 */
-QTcpSocket::QTcpSocket(QObject *parent) : QAbstractSocket(*new QTcpSocketPrivate, parent)
+QTcpSocket::QTcpSocket(QObject *parent) : QAbstractSocket(Qt::TcpSocket,
+                                                          *new QTcpSocketPrivate, parent)
 {
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::QTcpSocket()");
@@ -161,7 +162,6 @@ QTcpSocket::QTcpSocket(QObject *parent) : QAbstractSocket(*new QTcpSocketPrivate
     setFlags(Sequential | Async);
     setState(Qt::UnconnectedState);
     d->isBuffered = true;
-    setSocketType(Qt::TcpSocket);
 }
 
 /*!
@@ -175,8 +175,6 @@ QTcpSocket::~QTcpSocket()
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::~QTcpSocket()");
 #endif
-    if (state() != Qt::UnconnectedState)
-        close();
 }
 
 /*!
