@@ -546,26 +546,21 @@ inline int QString::grow(int size)
     \sa fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
 
-/*! \fn QString::QString(const std::string &str)
+/*! \fn QString QString::fromStdString(const std::string &str)
 
-    Constructs a copy of \a str. \a str is converted to Unicode using
+    Returns a copy of \a str. \a str is converted to Unicode using
     fromAscii().
-
-    You can disable this constructor by defining \c
-    QT_NO_CAST_FROM_ASCII when you compile your applications. This
-    can be useful if you want to ensure that all user-visible strings
-    go through QObject::tr(), for example.
 
     This constructor is only available if Qt is configured with STL
     compabitility enabled.
 
-    \sa fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
+    \sa  fromAscii(), fromLatin1(), fromLocal8Bit(), fromUtf8()
 */
 
 #ifndef QT_NO_STL
-/*! \fn QString::QString(const std::wstring &str)
+/*! \fn QString QString::fromStdWString(const std::wstring &str)
 
-    Constructs a copy of \a str. \a str is assumed to be encoded in
+    Returns a copy of \a str. \a str is assumed to be encoded in
     utf16 if the size of wchar_t is 2 bytes (e.g. on windows) and ucs4
     if the size of wchar_t is 4 bytes (most Unix systems).
 
@@ -577,13 +572,14 @@ inline int QString::grow(int size)
 
 /*! \internal
 */
-void QString::fromWCharArray(const wchar_t *a, int l)
+QString QString::fromWCharArray(const wchar_t *a, int l)
 {
+    QString s;
     if (sizeof(wchar_t) == sizeof(QChar)) {
-        *this = fromUtf16((ushort *)a);
+        s = fromUtf16((ushort *)a);
     } else {
-        resize(l*2); // worst case
-        QChar *uc = data();
+        s.resize(l*2); // worst case
+        QChar *uc = s.data();
         for (int i = 0; i < l; ++i) {
             uint u = a[i];
             if (u > 0xffff) {
@@ -596,8 +592,9 @@ void QString::fromWCharArray(const wchar_t *a, int l)
             *uc = QChar(u);
             ++uc;
         }
-        resize(uc - data());
+        s.resize(uc - s.data());
     }
+    return s;
 }
 
 /*! \fn std::wstring QString::toStdWString() const

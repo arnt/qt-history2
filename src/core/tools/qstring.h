@@ -358,13 +358,13 @@ public:
     inline void push_front(const QString &s) { prepend(s); }
 
 #ifndef QT_NO_STL
-    inline explicit QString(const std::string &s);
+    static inline QString fromStdString(const std::string &s);
     inline std::string toStdString() const;
 #ifdef qdoc
-    inline explicit QString(const std::wstring &s);
+    static inline QString fromStdWString(const std::wstring &s);
     inline std::wstring toStdWString() const;
 #else
-    inline explicit QString(const QStdWString &s);
+    static inline QString fromStdWString(const QStdWString &s);
     inline QStdWString toStdWString() const;
 #endif
 #endif
@@ -494,7 +494,7 @@ private:
                      const QString &a3 = QString(), const QString &a4 = QString()) const;
 #ifndef QT_NO_STL
     int toWCharArray(wchar_t *array) const;
-    void fromWCharArray(const wchar_t *, int);
+    static QString fromWCharArray(const wchar_t *, int);
 #endif
     friend class QCharRef;
     friend class QTextCodec;
@@ -777,16 +777,11 @@ inline const QString operator+(const QString &s, const QByteArray &ba)
 
 #ifndef QT_NO_STL
 inline std::string QString::toStdString() const
-{
-    return toAscii().data();
-}
+{ return toAscii().data(); }
 
-inline QString::QString(const std::string &s)
-    : d(&shared_null)
-{
-    ++d->ref;
-    *this = fromAscii(s.c_str());
-}
+inline QString QString::fromStdString(const std::string &s)
+{ return fromAscii(s.c_str()); }
+
 inline QStdWString QString::toStdWString() const
 {
     QStdWString str;
@@ -794,12 +789,8 @@ inline QStdWString QString::toStdWString() const
     str.resize(toWCharArray(&(*str.begin())));
     return str;
 }
-inline QString::QString(const QStdWString &s)
-    : d(&shared_null)
-{
-    ++d->ref;
-    fromWCharArray(s.c_str(), s.length());
-}
+inline QString QString::fromStdWString(const QStdWString &s)
+{ return fromWCharArray(s.c_str(), s.length()); }
 #endif
 
 #ifdef QT3_SUPPORT
