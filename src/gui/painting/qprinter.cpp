@@ -1130,7 +1130,7 @@ QString QPrinter::printerSelectionOption() const
     \sa printerSelectionOption()
 */
 
-void QPrinter::setPrinterSelectionOption(const QString &option)
+void QPrinter::setPrinterSelectionOption(const QString &/*option*/)
 {
     Q_UNUSED(option);
 }
@@ -1150,7 +1150,14 @@ bool qt_compat_QPrinter_printSetup(QPrinter *p, QPrinterPrivate *pd, QWidget *pa
     return pd->printDialog->exec() != 0;
 }
 
+
 #ifdef Q_WS_MAC
+bool qt_compat_QPrinter_pageSetup(QPrinter *p, QWidget *parent)
+{
+    QPageSetupDialog psd(p, parent);
+    return psd.exec() != 0;
+}
+
 /*!
     Executes a page setup dialog so that the user can configure the type of
     page used for printing. Returns true if the contents of the dialog are
@@ -1158,8 +1165,7 @@ bool qt_compat_QPrinter_printSetup(QPrinter *p, QPrinterPrivate *pd, QWidget *pa
 */
 bool QPrinter::pageSetup(QWidget *parent)
 {
-    QPageSetupDialog psd(this, parent);
-    return psd.exec() != 0;
+    return qt_compat_QPrinter_pageSetup(this, parent);
 }
 
 /*!
@@ -1191,7 +1197,7 @@ bool QPrinter::setup(QWidget *parent)
 {
     return qt_compat_QPrinter_printSetup(this, d, parent)
 #ifdef Q_WS_MAC
-        && pageSetup(parent);
+        && qt_compat_QPrinter_pageSetup(this, parent);
 #endif
         ;
 }
