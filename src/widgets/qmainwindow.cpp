@@ -2281,10 +2281,14 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 			    dw->setGeometry( x.toInt(), y.toInt(), w.toInt(), h.toInt() );
 			else
 			    dw->setGeometry( x.toInt(), y.toInt(), dw->width(), dw->height() );
-			if ( !(bool)visible.toInt() )
+			if ( !(bool)visible.toInt() ) {
 			    dw->hide();
-			else
-			    dw->show();
+			} else {
+			    if ( mw->appropriate( dw ) )
+				dw->show();
+			    else
+				dw->hide();
+			}
 			break;
 		    }
 		}
