@@ -46,13 +46,23 @@
 #include <stdio.h> // jpeglib needs this to be pre-included
 #include <setjmp.h>
 
+
+// including jpeglib.h seems to be a little messy
+#if !defined(_OS_UNIXWARE7_)
 extern "C" {
+#endif
 #define XMD_H // Shut JPEGlib up.
+#if defined(_OS_UNIXWARE7_)
+#  define HAVE_BOOLEAN // libjpeg under Unixware seems to need this
+#endif
 #include <jpeglib.h>
 #ifdef const
-#undef const // Remove crazy C hackery in jconfig.h
+#  undef const // Remove crazy C hackery in jconfig.h
 #endif
+#if !defined(_OS_UNIXWARE7_)
 }
+#endif
+
 
 struct my_error_mgr : public jpeg_error_mgr {
     jmp_buf setjmp_buffer;
