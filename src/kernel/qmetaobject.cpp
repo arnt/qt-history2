@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QMetaObject class
 **
@@ -136,24 +136,23 @@ public:
   Internal dictionary for fast access to class members
  *****************************************************************************/
 
-class Q_EXPORT QMemberDict : public QAsciiDict<const QMetaData>
+#if defined(Q_CANNOT_DELETE_CONSTANT)
+typedef QMetaData QConstMetaData;
+#else
+typedef const QMetaData QConstMetaData;
+#endif
+
+class Q_EXPORT QMemberDict : public QAsciiDict<QConstMetaData>
 {
 public:
     QMemberDict( int size = 17, bool cs = TRUE, bool ck = TRUE ) :
-	QAsciiDict<const QMetaData>(size,cs,ck) {}
-    QMemberDict( const QMemberDict &dict ) : QAsciiDict<const QMetaData>(dict) {}
+	QAsciiDict<QConstMetaData>(size,cs,ck) {}
+    QMemberDict( const QMemberDict &dict ) : QAsciiDict<QConstMetaData>(dict) {}
     ~QMemberDict() { clear(); }
     QMemberDict &operator=(const QMemberDict &dict)
-    { return (QMemberDict&)QAsciiDict<const QMetaData>::operator=(dict); }
+    { return (QMemberDict&)QAsciiDict<QConstMetaData>::operator=(dict); }
 };
 
-// this is necessary for MSVC (delete of const datatype not defined)
-// IRIX, IBM and other older compilers don't grok that
-#if defined(Q_CC_MSVC)
-template<> inline void QAsciiDict<const QMetaData>::deleteItem( Item )
-{
-}
-#endif
 
 /*
   Calculate optimal dictionary size for n entries using prime numbers,

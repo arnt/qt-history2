@@ -199,6 +199,7 @@
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
 /* proper support of bool for _MSC_VER >= 1100 */
+#  define Q_CANNOT_DELETE_CONSTANT
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
 #  if __BORLANDC__ < 0x500
@@ -242,6 +243,7 @@
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#    define Q_CANNOT_DELETE_CONSTANT
 #  endif
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 /* __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b */
