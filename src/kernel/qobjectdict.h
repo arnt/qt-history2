@@ -48,12 +48,6 @@
 // The object dictionary is a collection of QMetaObjects
 //
 
-
-#if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QAsciiDict<QMetaObject>;
-#endif
-
-
 class Q_EXPORT QObjectDictionary : public QAsciiDict<QMetaObject>
 {
 public:
