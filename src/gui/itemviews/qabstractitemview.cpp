@@ -482,10 +482,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
                 this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                 this, SLOT(currentChanged(QModelIndex,QModelIndex)));
-        bool block = d->selectionModel->blockSignals(true);
-        if (!currentIndex().isValid() && model())
-            setCurrentIndex(model()->index(0, 0, root()));
-        d->selectionModel->blockSignals(block);
     }
 }
 
