@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#28 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#29 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -44,18 +44,18 @@ public:
 	      QWidget* parent = 0, const char* name = 0 );
     ~QSpinBox();
 
-    QString 	text() const;
+    QString 		text() const;
     virtual QString 	prefix() const;
     virtual QString 	suffix() const;
     virtual QString 	cleanText() const;
 
-    virtual void		setSpecialValueText( const QString &text );
-    QString 	specialValueText() const;
+    virtual void	setSpecialValueText( const QString &text );
+    QString 		specialValueText() const;
 
-    virtual void 		setWrapping( bool on );
+    virtual void 	setWrapping( bool on );
     bool 		wrapping() const;
 
-    virtual void		setValidator( QValidator* v );
+    virtual void	setValidator( QValidator* v );
 
     QSize 		sizeHint() const;
     QSizePolicy 	sizePolicy() const;
@@ -66,6 +66,7 @@ public slots:
     virtual void	setSuffix( const QString &text );
     virtual void	stepUp();
     virtual void	stepDown();
+    virtual void	setEnabled( bool );
 
 signals:
     void		valueChanged( int value );
@@ -90,10 +91,7 @@ protected:
     void		resizeEvent( QResizeEvent* ev );
     void		wheelEvent( QWheelEvent * );
 
-    void		paletteChange( const QPalette& );
-    void		enabledChange( bool );
-    void		fontChange( const QFont& );
-    void		styleChange( GUIStyle );
+    void		styleChange( GUIStyle ); //#?
 
 protected slots:
     void		textChanged();
@@ -110,6 +108,13 @@ private:
     QString specText;
     bool wrap;
     bool edited;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QSpinBox( const QSpinBox& );
+    QSpinBox& operator=( const QSpinBox& );
+#endif
+
 };
 
 

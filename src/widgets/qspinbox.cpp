@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#57 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -95,7 +95,8 @@ struct QSpinBoxData {
 */
 
 QSpinBox::QSpinBox( QWidget * parent , const char *name )
-    : QFrame( parent, name )
+    : QFrame( parent, name ),
+      QRangeControl()
 {
     initSpinBox();
 }
@@ -124,6 +125,7 @@ void QSpinBox::initSpinBox()
 {
     extra = 0; 			// not used; reserved for future expansion
     wrap = FALSE;
+    edited = FALSE;
 
     up = new QPushButton( this, "up" );
     up->setFocusPolicy( QWidget::NoFocus );
@@ -146,6 +148,9 @@ void QSpinBox::initSpinBox()
     else
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
+
+    setPalettePropagation( AllChildren );
+    setFontPropagation( AllChildren );
 
     updateDisplay();
 
@@ -204,7 +209,7 @@ QString QSpinBox::cleanText() const
 
 /*!
   Sets the special-value text to \a text. If set, the spin box will
-  display this text in stead of a numeric value whenever the current
+  display this text instead of a numeric value whenever the current
   value is equal to minVal(). Typically used for indicating that this
   choice has a special (default) meaning.
 
@@ -368,9 +373,10 @@ QSize QSpinBox::sizeHint() const
     s.prepend( prefix() );
     s.append( suffix() );
     w = QMAX( w, fm.width( s ) + wx );
-    s = specialValueText();
-    w = QMAX( w, fm.width( s ) + wx );
-
+    if ( !specialValueText().isNull() ) {
+	s = specialValueText();
+	w = QMAX( w, fm.width( s ) + wx );
+    }
     QSize r( h // buttons AND frame both sides - see resizeevent()
 	     + 6 // right/left margins
 	     + w, // widest value
@@ -482,7 +488,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
     if ( obj != vi )
 	return FALSE;
 
-    if ( ev->type() == QEvent::FocusOut ) {
+    if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave ) {
 	interpretText();
     } else if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
@@ -494,10 +500,9 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    stepDown();
 	    k->accept();
 	    return TRUE;
-	} else if ( k->key() == Key_Return ) { // Workaround for use in dialogs
+	} else if ( k->key() == Key_Return ) {
 	    interpretText();
-	    k->accept();
-	    return TRUE;
+	    return FALSE;
 	}
     }
     return FALSE;
@@ -508,7 +513,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
   Handles resize events for the spin box.
 */
 
-void QSpinBox::resizeEvent( QResizeEvent* e )
+void QSpinBox::resizeEvent( QResizeEvent* )
 {
     if ( !up || !down ) // may happen if the application has a pointer error
 	return;
@@ -666,7 +671,7 @@ void QSpinBox::interpretText()
     bool ok = TRUE;
     bool done = FALSE;
     int newVal = 0;
-    if ( !specialValueText().isEmpty() ) {
+    if ( !specialValueText().isNull() ) {
 	QString s = QString(text()).stripWhiteSpace();
 	QString t = QString(specialValueText()).stripWhiteSpace();
 	if ( s == t ) {
@@ -787,7 +792,7 @@ int QSpinBox::mapTextToValue( bool* ok )
 QString QSpinBox::currentValueText()
 {
     QString s;
-    if ( (value() == minValue()) ) {
+    if ( (value() == minValue()) && !specialValueText().isNull() ) {
 	s = specialValueText();
     } else {
 	s = prefix();
@@ -798,46 +803,19 @@ QString QSpinBox::currentValueText()
 }
 
 
+
 /*!
-  Reimplemented for internal purposes.
+  \reimp
 */
 
-void QSpinBox::paletteChange( const QPalette& )
+void QSpinBox::setEnabled( bool on )
 {
-    vi->setPalette( palette() );
-    up->setPalette( palette() );
-    down->setPalette( palette() );
+    QFrame::setEnabled( on );
+    vi->setEnabled( on );
+    updateDisplay();
     update();
 }
 
-
-/*!
-  Reimplemented for internal purposes.
-*/
-
-void QSpinBox::enabledChange( bool )
-{
-    if ( !isEnabled() ) {
-	vi->setEnabled( FALSE );
-	up->setEnabled( FALSE );
-	down->setEnabled( FALSE );
-    }
-    else {
-	vi->setEnabled( TRUE );
-	updateDisplay();
-    }
-    update();
-}
-
-
-/*!
-  Reimplemented for internal purposes.
-*/
-
-void QSpinBox::fontChange( const QFont& )
-{
-    vi->setFont( font() );
-}
 
 
 /*!
@@ -853,6 +831,6 @@ void QSpinBox::styleChange( GUIStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
-    resizeEvent( 0 );
+    //resizeEvent( 0 );
     update();
 }
