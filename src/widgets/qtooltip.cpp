@@ -27,6 +27,7 @@
 #include "qptrdict.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
+#include "qtimer.h"
 
 static bool globally_enabled = TRUE;
 
@@ -112,6 +113,7 @@ private:
     Tip *currentTip;
     Tip *previousTip;
     bool isApplicationFilter;
+    QTimer *removeTimer;
 };
 
 
@@ -150,6 +152,7 @@ QTipManager::QTipManager()
     isApplicationFilter = FALSE;
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
+    removeTimer = new QTimer( this );
 }
 
 
@@ -202,14 +205,20 @@ void QTipManager::add( const QRect &gm, QWidget *w, const QRect &r, const QStrin
 
     tips->insert( w, t );
 
-    if ( a && t->rect.contains( pos ) && (!g || g->enabled()) )
+    if ( a && t->rect.contains( pos ) && (!g || g->enabled()) ) {
+	removeTimer->stop();
 	showTip();
+    }
 
     if ( !isApplicationFilter && qApp ) {
 	isApplicationFilter = TRUE;
 	qApp->installEventFilter( tipManager );
 	qApp->setGlobalMouseTracking( TRUE );
     }
+    
+    if ( t->group )
+	connect( removeTimer, SIGNAL( timeout() ),
+		 t->group, SIGNAL( removeTip() ) );
 }
 
 void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
@@ -308,8 +317,12 @@ void QTipManager::removeFromGroup( QToolTipGroup *g )
     while( (t = i.current()) != 0 ) {
 	++i;
 	while ( t ) {
-	    if ( t->group == g )
+	    if ( t->group == g ) {
+		if ( t->group )
+		    disconnect( removeTimer, SIGNAL( timeout() ),
+				t->group, SIGNAL( removeTip() ) );
 		t->group = 0;
+	    }
 	    t = t->next;
 	}
     }
@@ -393,8 +406,10 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 			wakeUp.start( 700, TRUE );
 		    }
 		    if ( t->group && t->group->ena &&
-			    !t->group->del && !t->groupText.isEmpty() )
+			 !t->group->del && !t->groupText.isEmpty() ) {
+			removeTimer->stop();
 			emit t->group->showTip( t->groupText );
+		    }
 		}
 		widget = w;
 		pos = mousePos;
@@ -469,8 +484,11 @@ void QTipManager::showTip()
 	fallAsleep.start( 10000, TRUE );
     }
 
-    if ( t->group && t->group->del && !t->groupText.isEmpty() )
+    if ( t->group && t->group->del && !t->groupText.isEmpty() ) {
+	removeTimer->stop();
 	emit t->group->showTip( t->groupText );
+    }
+	
     currentTip = t;
     previousTip = 0;
 }
@@ -483,12 +501,12 @@ void QTipManager::hideTip()
 	fallAsleep.start( 2000, TRUE );
 	wakeUp.stop();
 	if ( currentTip && currentTip->group )
-	    emit currentTip->group->removeTip();
+	    removeTimer->start( 100, TRUE );
     } else if ( wakeUp.isActive() ) {
 	wakeUp.stop();
 	if ( currentTip && currentTip->group &&
 	     !currentTip->group->del && !currentTip->groupText.isEmpty() )
-	    emit currentTip->group->removeTip();
+	    removeTimer->start( 100, TRUE );
     }
 
     previousTip = currentTip;
