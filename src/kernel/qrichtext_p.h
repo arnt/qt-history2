@@ -251,6 +251,8 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<bool>;
 // MOC_SKIP_END
 #endif
 
+#include "qtextlayout_p.h"
+
 class Q_EXPORT QTextCursor
 {
 public:
@@ -307,7 +309,7 @@ public:
     int globalX() const;
     int globalY() const;
 
-    QTextParagraph *topParagraph() const { return paras.isEmpty() ? para : paras.first(); }
+    QTextParagraph *topParagraph() const { return paras.isEmpty() ? para.paragraph() : paras.first(); }
     int offsetX() const { return ox; } // inner document  offset
     int offsetY() const { return oy; } // inner document offset
     int totalOffsetX() const; // total document offset
@@ -323,6 +325,7 @@ public:
     void setValid( bool b ) { valid = b; }
     bool isValid() const { return valid; }
 
+    void fixCursorPosition();
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
 
@@ -332,7 +335,29 @@ private:
     void invalidateNested();
     void gotoIntoNested( const QPoint &globalPos );
 
-    QTextParagraph *para;
+    class Paragraph {
+    public:
+	Paragraph() : para( 0 ) {}
+	Paragraph( const Paragraph &other );
+	Paragraph &operator = ( const Paragraph &other );
+	~Paragraph();
+	Paragraph &operator = ( QTextParagraph *p );
+	bool operator == ( QTextParagraph *p ) const {
+	    return para == p;
+	}
+	bool operator == ( const Paragraph &o ) const {
+	    return para == o.para;
+	}
+	bool operator !() const { return !para; }
+	QTextParagraph *paragraph() const { return para; }
+	QTextParagraph *operator->() const { return para; }
+	operator QTextParagraph *() { return para; }
+	QTextParagraph *next() const;
+	QTextLayout *layout() const;
+    private:
+	QTextParagraph *para;
+    };
+    Paragraph para;
     int idx, tmpIndex;
     int ox, oy;
     QValueStack<int> indices;
@@ -1163,7 +1188,7 @@ public:
     int length() const; // maybe remove later
 
     void setListStyle( QStyleSheetItem::ListStyle ls ) { lstyle = ls; changed = TRUE; }
-    QStyleSheetItem::ListStyle listStyle() const { return lstyle; }
+    QStyleSheetItem::ListStyle listStyle() const { return (QStyleSheetItem::ListStyle)lstyle; }
     void setListItem( bool li );
     bool isListItem() const { return litem; }
     void setListValue( int v ) { list_val = v; }
@@ -1315,6 +1340,19 @@ public:
     void readStyleInformation( QDataStream& stream );
     void writeStyleInformation( QDataStream& stream ) const;
 
+    QTextLayout *layout() const {
+	if ( !_layout && numCursors)
+	    ((QTextParagraph *)this)->_layout = new QTextLayout( str->toString() );
+	return _layout;
+    }
+    void refCursor() { numCursors++; }
+    void derefCursor() {
+	if ( !--numCursors ) {
+	    delete _layout;
+	    _layout = 0;
+	}
+    }
+
 protected:
     virtual void setColorForSelection( QColor &c, QPainter &p, const QColorGroup& cg, int selection );
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -1332,7 +1370,6 @@ private:
     void invalidateStyleCache();
 
     QMap<int, QTextLineStart*> lineStarts;
-    int invalid;
     QRect r;
     QTextParagraph *p, *n;
     void *docOrPseudo;
@@ -1350,21 +1387,25 @@ private:
     uint litem : 1; // whether the paragraph is a list item
     uint rtext : 1; // whether the paragraph needs rich text margin
     int align : 4;
+    int invalid : 12;
+    uint /*QStyleSheetItem::ListStyle*/ lstyle : 4;
     int state, id;
     QTextString *str;
     QMap<int, QTextParagraphSelection> *mSelections;
 #ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> *mFloatingItems;
 #endif
-    QStyleSheetItem::ListStyle lstyle;
     short utm, ubm, ulm, urm, uflm, ulinespacing;
-    int *tArray;
     short tabStopWidth;
+    int *tArray;
     QTextParagraphData *eData;
     short list_val;
-    QColor *bgcol;
     ushort ldepth;
+    QColor *bgcol;
     QPaintDevice *paintdevice;
+
+    QTextLayout *_layout;
+    int numCursors;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1652,7 +1693,7 @@ inline QRect QTextParagraph::rect() const
 
 inline QTextParagraph *QTextCursor::paragraph() const
 {
-    return para;
+    return para.paragraph();
 }
 
 inline int QTextCursor::index() const
@@ -1660,6 +1701,48 @@ inline int QTextCursor::index() const
     return idx;
 }
 
+inline QTextCursor::Paragraph::Paragraph( const Paragraph &other )
+{
+    para = other.para;
+    if ( para )
+	para->refCursor();
+}
+
+inline QTextCursor::Paragraph &QTextCursor::Paragraph::operator = ( const Paragraph &other )
+{
+    if ( other.para )
+	other.para->refCursor();
+    if ( para )
+	para->derefCursor();
+    para = other.para;
+    return *this;
+}
+
+inline QTextLayout *QTextCursor::Paragraph::layout() const
+{
+    return para ? para->layout() : 0;
+}
+
+
+inline QTextCursor::Paragraph::~Paragraph()
+{
+    if ( para ) para->derefCursor();
+}
+
+inline QTextCursor::Paragraph::Paragraph &QTextCursor::Paragraph::operator = ( QTextParagraph *p )
+{
+    if ( p )
+	p->refCursor();
+    if ( para )
+	para->derefCursor();
+    para = p;
+    return *this;
+}
+
+inline QTextParagraph *QTextCursor::Paragraph::next() const
+{
+    return para->next();
+}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

@@ -99,6 +99,7 @@ public:
     };
     int nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
+    bool validCursorPosition( int pos ) const;
 
 private:
     /* disable copy and assignment */

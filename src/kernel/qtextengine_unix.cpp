@@ -138,6 +138,8 @@ const QCharAttributes *QTextEngine::attributes()
     if ( charAttributes )
 	return charAttributes;
 
+    if ( !items.d )
+	itemize();
 
     charAttributes = (QCharAttributes *)malloc( sizeof(QCharAttributes)*string.length() );
     for ( int i = 0; i < items.size(); i++ ) {
