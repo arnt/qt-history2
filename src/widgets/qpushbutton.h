@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#3 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#4 $
 **
 ** Definition of QPushButton class
 **
@@ -46,8 +46,6 @@ protected:
 
 private:
     void    init();
-    bool    extraSize( int &, int &, bool );
-    void    fixDefButton();
 
     uint    autoDefButton : 1;
     uint    defButton	  : 1;
