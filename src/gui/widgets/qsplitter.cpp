@@ -1088,7 +1088,6 @@ bool QSplitter::event(QEvent *e)
     return QWidget::event(e);
 }
 
-#if 0
 #ifdef QT_COMPAT
 /*!
     Returns the ID of the widget to the right of or below the widget
@@ -1107,7 +1106,6 @@ int QSplitter::idAfter(QWidget* w) const
     }
     return 0;
 }
-#endif
 #endif
 
 /*!
