@@ -67,7 +67,7 @@ showfiles:
 	@echo $(HEADERS) $(SOURCES)
 
 include:
-	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/kernel/-'` $(INCDIR)
+	ln -s `echo $(HEADERS) | fmt -1 | sed 's-^-../src/widgets/-'` $(INCDIR)
 
 showheaders:
 	@echo $(HEADERS)
