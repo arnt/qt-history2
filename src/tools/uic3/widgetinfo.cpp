@@ -43,6 +43,7 @@
 #include <qslider.h>
 #include <qiconview.h>
 #include <qaction.h>
+#include <q3buttongroup.h>
 
 WidgetInfo::WidgetInfo()
 {
@@ -59,9 +60,9 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QRadioButton"))
         return &QRadioButton::staticMetaObject;
     else if (widgetName == QLatin1String("QGroupBox"))
-        return &QGroupBox::staticMetaObject;
+        return &Q3GroupBox::staticMetaObject;
     else if (widgetName == QLatin1String("QButtonGroup"))
-        return &QButtonGroup::staticMetaObject;
+        return &Q3ButtonGroup::staticMetaObject;
     else if (widgetName == QLatin1String("QDateEdit"))
         return &QDateEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QTimeEdit"))
