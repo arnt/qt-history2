@@ -82,11 +82,11 @@ component relying on the binary compatibility of the interface.
 
 A Universally Unique Identifier is a 128 bit value that is unique over both time and space. 
 UUIDs are used by various component models to assign a 128 bit value to an interface or a 
-component, so that interfaces and components can be compared efficently.
+component, so that interfaces and components can be compared efficiently.
 Most platforms provide an API that generates UUIDs (or GUIDs) with an algorithm that 
 guarantees that the resulting ID is unique, using the network card address of the computer
-and a 60bit timestamp that represents the count of 100-nanosecond intervals since 15 October
-1582.
+and a 60-bit timestamp that represents the number of 100-nanosecond intervals since
+15 October 1582.
 
 \section1 Components
 
@@ -267,7 +267,7 @@ ulong NumberComponent::release()
 
 If the reference count runs out of sync it is usually the reason for hard to
 find bugs - crashes when the interface get's released to often, or memory
-leaks when there are to many addRef calls.
+leaks when there are to many \e addRef calls.
 
 The above standard implementations of \e addRef and \e release are provided by
 the C macro \e Q_REFCOUNT that can be used in the declaration of every class
