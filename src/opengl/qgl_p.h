@@ -42,13 +42,7 @@ public:
     QGLOverlayWidget*	olw;
 #endif
 #if defined(Q_WS_MAC)
-    const QGLContext *slcx;
-    uint pending_fix : 1,
-	 glcx_dblbuf : 2,
-	 dblbuf : 1,
-	 clp_serial : 15;
-    QPixmap *gl_pix;
-    QGLFormat req_format;
+    uint clp_serial : 15;
 #endif
 };
 

@@ -40,16 +40,6 @@ QM_EXPORT_OPENGL inline QT_COMPAT const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_MAC)
-#if !defined( QMAC_OPENGL_DOUBLEBUFFER )
-/* This macro is different now. If the macro is not defined QGLWidget will
- * try to determine when you need double buffering.  If set to 0 it will
- * never double buffer and *can* be acclerated. If set to 1 (the default)
- * it will always double buffer. Unlike before the value of this macro does
- * not upset binary compatability either. */
-#if QT_MACOSX_VERSION >= 0x1020
-# define QMAC_OPENGL_DOUBLEBUFFER 0
-#endif
-#endif
 # include <OpenGL/gl.h>
 # include <OpenGL/glu.h>
 #else
@@ -221,14 +211,14 @@ private:
     void init( QPaintDevice *dev = 0 );
     class Private {
     public:
-	bool valid;
-	bool sharing;
-	bool initDone;
-	bool crWin;
+	uint valid : 1;
+	uint sharing : 1;
+	uint initDone : 1;
+	uint crWin : 1;
 	QPaintDevice* paintDevice;
 	QColor transpColor;
 #ifdef Q_WS_MAC
-	QRect oldR;
+	QRegion oldR;
 #endif
     };
     Private* d;
@@ -338,10 +328,6 @@ private:	// Disabled copy constructor and operator=
     Q_DECL_PRIVATE(QGLWidget);
 
 #if defined(Q_WS_MAC)
-    void macInternalRecreateContext( QGLContext *ctx,
-				     const QGLContext* = NULL,
-				     bool update = TRUE );
-    bool macInternalDoubleBuffer( bool fix = TRUE );
     virtual void setRegionDirty( bool );
     virtual void macWidgetChangedWindow();
 #endif

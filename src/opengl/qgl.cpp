@@ -869,9 +869,7 @@ void QGLContext::init( QPaintDevice *dev )
     pixelFormatId = 0;
     cmap = 0;
 #endif
-#if defined(Q_WS_MAC)
     d->oldR = QRect(1, 1, 1, 1);
-#endif
     d->crWin = FALSE;
     d->initDone = FALSE;
     d->sharing = FALSE;
@@ -1355,12 +1353,6 @@ QGLWidget::~QGLWidget()
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
-#if defined(Q_WS_MAC)
-    if(d->gl_pix) {
-	delete d->gl_pix;
-	d->gl_pix = NULL;
-    }
-#endif
     cleanupColormaps();
 }
 
@@ -1447,9 +1439,6 @@ bool QGLWidget::isSharing() const
 
 void QGLWidget::makeCurrent()
 {
-#if defined( Q_WS_MAC )
-    macInternalDoubleBuffer(); //make sure the correct context is used
-#endif
     d->glcx->makeCurrent();
 }
 
@@ -1482,10 +1471,6 @@ void QGLWidget::doneCurrent()
 void QGLWidget::swapBuffers()
 {
     d->glcx->swapBuffers();
-#if defined(Q_WS_MAC)
-    if(macInternalDoubleBuffer() && d->gl_pix)
-	bitBlt(this, 0, 0, d->gl_pix);
-#endif
 }
 
 
@@ -1896,10 +1881,6 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 */
 QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 {
-#if defined( Q_WS_MAC )
-    if(d->dblbuf == macInternalDoubleBuffer(FALSE) && d->gl_pix) //why not optimize?
-	return ((QPixmap*)d->gl_pix)->convertToImage();
-#endif
     makeCurrent();
     QImage res;
     int w = width();
@@ -1989,10 +1970,6 @@ void QGLWidget::glDraw()
 	    swapBuffers();
     } else {
 	glFlush();
-#if defined( Q_WS_MAC )
-	if(d->dblbuf && d->gl_pix)
-	    bitBlt(this, 0, 0, d->gl_pix);
-#endif
     }
 }
 
