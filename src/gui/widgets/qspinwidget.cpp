@@ -152,13 +152,13 @@ void QSpinWidget::mousePressEvent(QMouseEvent *e)
 
 void QSpinWidget::arrange()
 {
-    d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinWidget, this,
-                                                                QStyle::SC_SpinWidgetUp), this);
-    d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinWidget, this,
-                                                                  QStyle::SC_SpinWidgetDown), this);
+    d->up = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
+                                                                QStyle::SC_SpinBoxUp), this);
+    d->down = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
+                                                                  QStyle::SC_SpinBoxDown), this);
     if (d->ed) {
-        QRect r = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinWidget, this,
-                                                                  QStyle::SC_SpinWidgetEditField), this);
+        QRect r = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, this,
+                                                                  QStyle::SC_SpinBoxEditField), this);
         d->ed->setGeometry(r);
     }
 }
@@ -303,16 +303,16 @@ void QSpinWidget::paintEvent(QPaintEvent *)
 
     QStyle::SCFlags active;
     if (d->theButton & 1)
-        active = QStyle::SC_SpinWidgetDown;
+        active = QStyle::SC_SpinBoxDown;
     else if (d->theButton & 2)
-        active = QStyle::SC_SpinWidgetUp;
+        active = QStyle::SC_SpinBoxUp;
     else
         active = QStyle::SC_None;
 
     QRect fr = QStyle::visualRect(
-        style().querySubControlMetrics(QStyle::CC_SpinWidget, this,
-                                        QStyle::SC_SpinWidgetFrame), this);
-    style().drawComplexControl(QStyle::CC_SpinWidget, &p, this,
+        style().querySubControlMetrics(QStyle::CC_SpinBox, this,
+                                        QStyle::SC_SpinBoxFrame), this);
+    style().drawComplexControl(QStyle::CC_SpinBox, &p, this,
                                 fr, palette(),
                                 flags,
                                 QStyle::SC_All,

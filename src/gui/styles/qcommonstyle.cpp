@@ -144,8 +144,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
 
     switch (pe) {
 
-    case PE_SpinWidgetPlus:
-    case PE_SpinWidgetMinus: {
+    case PE_SpinBoxPlus:
+    case PE_SpinBoxMinus: {
         p->save();
         int fw = pixelMetric(PM_DefaultFrameWidth, 0);
         QRect br;
@@ -170,14 +170,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
 
         p->drawLine(x + xmarg, (y + h / 2 - 1),
                      x + xmarg + length - 1, (y + h / 2 - 1));
-        if (pe == PE_SpinWidgetPlus)
+        if (pe == PE_SpinBoxPlus)
             p->drawLine((x+w / 2) - 1, y + ymarg,
                          (x+w / 2) - 1, y + ymarg + length - 1);
         p->restore();
         break; }
 
-    case PE_SpinWidgetUp:
-    case PE_SpinWidgetDown: {
+    case PE_SpinBoxUp:
+    case PE_SpinBoxDown: {
         int fw = pixelMetric(PM_DefaultFrameWidth, 0);
         QRect br;
         br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
@@ -196,7 +196,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         int sy = y + h / 2 - sh / 2 - 1;
 
         QPointArray a;
-        if (pe == PE_SpinWidgetDown)
+        if (pe == PE_SpinBoxDown)
             a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
         else
             a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
@@ -1782,8 +1782,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                     interval = slider->singleStep;
                     if (QStyle::positionFromValue(slider->minimum, slider->maximum, interval,
                                                   available)
-                            - QStyle::positionFromValue(slider->minimum, slider->maximum,
-                                                        0, available) < 3)
+                        - QStyle::positionFromValue(slider->minimum, slider->maximum,
+                                                    0, available) < 3)
                         interval = slider->pageStep;
                 }
                 if (!interval)
@@ -1809,7 +1809,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                 int v = slider->minimum;
                 while (v <= slider->maximum + 1) {
                     pos = QStyle::positionFromValue(slider->minimum, slider->maximum,
-                            v, available) + fudge;
+                                                    v, available) + fudge;
                     if (slider->orientation == Horizontal) {
                         if (ticks & QSlider::Above)
                             p->drawLine(pos, 0, pos, tickOffset - 2);
@@ -1922,7 +1922,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                     if (scrollbar->state & Style_HasFocus) {
                         Q4StyleOptionFocusRect fropt(0);
                         fropt.rect.setRect(newScrollbar.rect.x() + 2, newScrollbar.rect.y() + 2,
-                                newScrollbar.rect.width() - 5, newScrollbar.rect.height() - 5);
+                                           newScrollbar.rect.width() - 5, newScrollbar.rect.height() - 5);
                         fropt.palette = newScrollbar.palette;
                         fropt.state = Style_Default;
                         drawPrimitive(PE_FocusRect, &fropt, p, widget);
@@ -1937,6 +1937,52 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComp
                 p->fillRect(lv->rect, lv->viewportPalette.brush(lv->viewportBGRole));
         }
         break;
+    case CC_SpinBox:
+        if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
+            SFlags flags;
+            PrimitiveElement pe;
+
+            if (sb->parts & SC_SpinBoxFrame)
+                qDrawWinPanel(p, sb->rect, sb->palette, true); //cstyle == Sunken);
+
+            if (sb->parts & SC_SpinBoxUp) {
+                flags = Style_Default | Style_Enabled;
+                if (sb->activeParts == SC_SpinBoxUp) {
+                    flags |= Style_On;
+                    flags |= Style_Sunken;
+                } else {
+                    flags |= Style_Raised;
+                }
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxPlus : PE_SpinBoxUp);
+
+                QRect re = querySubControlMetrics(CC_SpinBox, widget, SC_SpinBoxUp);
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled))
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
+                drawPrimitive(pe, p, re, pal2, flags);
+            }
+
+            if (sb->parts & SC_SpinBoxDown) {
+                flags = Style_Default | Style_Enabled;
+                if (sb->activeParts == SC_SpinBoxDown) {
+                    flags |= Style_On;
+                    flags |= Style_Sunken;
+                } else {
+                    flags |= Style_Raised;
+                }
+                pe = (sb->buttonSymbols == QAbstractSpinBox::PlusMinus ? PE_SpinBoxMinus : PE_SpinBoxDown);
+
+                QRect re = querySubControlMetrics(CC_SpinBox, widget, SC_SpinBoxDown);
+                QPalette pal2 = sb->palette;
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled))
+                    pal2.setCurrentColorGroup(QPalette::Disabled);
+                drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
+                drawPrimitive(pe, p, re, pal2, flags);
+            }
+        }
+        break;
+
     default:
         qWarning("drawComplexControl control not handled %d", cc);
     }
@@ -2336,54 +2382,54 @@ void QCommonStyle::drawComplexControl(ComplexControl control,
         }
 #endif //QT_NO_TITLEBAR
 
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
 #ifndef QT_NO_SPINWIDGET
-        const QSpinWidget * sw = (const QSpinWidget *) widget;
-        SFlags flags;
-        PrimitiveElement pe;
+//         const QSpinBox * sw = (const QSpinBox *) widget;
+//         SFlags flags;
+//         PrimitiveElement pe;
 
-        if (controls & SC_SpinWidgetFrame)
-            qDrawWinPanel(p, r, pal, true); //cstyle == Sunken);
+//         if (controls & SC_SpinBoxFrame)
+//             qDrawWinPanel(p, r, pal, true); //cstyle == Sunken);
 
-        if (controls & SC_SpinWidgetUp) {
-            flags = Style_Default | Style_Enabled;
-            if (active == SC_SpinWidgetUp) {
-                flags |= Style_On;
-                flags |= Style_Sunken;
-            } else
-                flags |= Style_Raised;
-            if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
-                pe = PE_SpinWidgetPlus;
-            else
-                pe = PE_SpinWidgetUp;
+//         if (controls & SC_SpinBoxUp) {
+//             flags = Style_Default | Style_Enabled;
+//             if (active == SC_SpinBoxUp) {
+//                 flags |= Style_On;
+//                 flags |= Style_Sunken;
+//             } else
+//                 flags |= Style_Raised;
+//             if (sw->buttonSymbols() == QSpinBox::PlusMinus)
+//                 pe = PE_SpinBoxPlus;
+//             else
+//                 pe = PE_SpinBoxUp;
 
-            QRect re = sw->upRect();
-            QPalette pal2 = pal;
-            if(!sw->isUpEnabled())
-                pal2.setCurrentColorGroup(QPalette::Disabled);
-            drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
-            drawPrimitive(pe, p, re, pal2, flags);
-        }
+//             QRect re = sw->upRect();
+//             QPalette pal2 = pal;
+//             if(!sw->isUpEnabled())
+//                 pal2.setCurrentColorGroup(QPalette::Disabled);
+//             drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
+//             drawPrimitive(pe, p, re, pal2, flags);
+//         }
 
-        if (controls & SC_SpinWidgetDown) {
-            flags = Style_Default | Style_Enabled;
-            if (active == SC_SpinWidgetDown) {
-                flags |= Style_On;
-                flags |= Style_Sunken;
-            } else
-                flags |= Style_Raised;
-            if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
-                pe = PE_SpinWidgetMinus;
-            else
-                pe = PE_SpinWidgetDown;
+//         if (controls & SC_SpinBoxDown) {
+//             flags = Style_Default | Style_Enabled;
+//             if (active == SC_SpinBoxDown) {
+//                 flags |= Style_On;
+//                 flags |= Style_Sunken;
+//             } else
+//                 flags |= Style_Raised;
+//             if (sw->buttonSymbols() == QSpinBox::PlusMinus)
+//                 pe = PE_SpinBoxMinus;
+//             else
+//                 pe = PE_SpinBoxDown;
 
-            QRect re = sw->downRect();
-            QPalette pal2 = pal;
-            if(!sw->isDownEnabled())
-                pal2.setCurrentColorGroup(QPalette::Disabled);
-            drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
-            drawPrimitive(pe, p, re, pal2, flags);
-        }
+//             QRect re = sw->downRect();
+//             QPalette pal2 = pal;
+//             if(!sw->isDownEnabled())
+//                 pal2.setCurrentColorGroup(QPalette::Disabled);
+//             drawPrimitive(PE_ButtonBevel, p, re, pal2, flags);
+//             drawPrimitive(pe, p, re, pal2, flags);
+//        }
 #endif
         break; }
 
@@ -2494,7 +2540,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl control,
     }
 
     switch (control) {
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
         int fw = pixelMetric(PM_SpinBoxFrameWidth, widget);
         QSize bs;
         bs.setHeight(widget->height()/2 - fw);
@@ -2504,19 +2550,19 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl control,
         bs = bs.expandedTo(QApplication::globalStrut());
         int y = fw;
         int x, lx, rx;
-        x = widget->width() - y - bs.width();
-        lx = fw;
+        x = (QApplication::reverseLayout() ? fw : widget->width() - y - bs.width());
+        lx = (QApplication::reverseLayout() ? bs.width() + fw : fw);
         rx = x - fw;
         switch (sc) {
-        case SC_SpinWidgetUp:
+        case SC_SpinBoxUp:
             return QRect(x, y, bs.width(), bs.height());
-        case SC_SpinWidgetDown:
+        case SC_SpinBoxDown:
             return QRect(x, y + bs.height(), bs.width(), bs.height());
-        case SC_SpinWidgetButtonField:
+        case SC_SpinBoxButtonField:
             return QRect(x, y, bs.width(), widget->height() - 2*fw);
-        case SC_SpinWidgetEditField:
+        case SC_SpinBoxEditField:
             return QRect(lx, fw, rx, widget->height() - 2*fw);
-        case SC_SpinWidgetFrame:
+        case SC_SpinBoxFrame:
             return widget->rect();
         default:
             break;

@@ -270,11 +270,11 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
             p->fillRect(r, pal.brush(QPalette::Button));
         break;
 
-    case PE_SpinWidgetUp:
+    case PE_SpinBoxUp:
         drawPrimitive(PE_ArrowUp, p, r, pal, flags, opt);
         break;
 
-    case PE_SpinWidgetDown:
+    case PE_SpinBoxDown:
         drawPrimitive(PE_ArrowDown, p, r, pal, flags, opt);
         break;
 
@@ -1388,25 +1388,25 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
             break;
         }
 
-    case CC_SpinWidget:
+    case CC_SpinBox:
         {
 #ifndef QT_NO_SPINWIDGET
             const QSpinWidget * sw = (const QSpinWidget *) widget;
             SFlags flags = Style_Default;
 
-            if (controls & SC_SpinWidgetFrame)
+            if (controls & SC_SpinBoxFrame)
                 drawMotifPlusShade(p, r, pal, true, false, &pal.brush(QPalette::Base));
 
-            if (controls & SC_SpinWidgetUp) {
+            if (controls & SC_SpinBoxUp) {
                 flags = Style_Enabled;
-                if (active == SC_SpinWidgetUp)
+                if (active == SC_SpinBoxUp)
                     flags |= Style_Down;
 
                 PrimitiveElement pe;
                 if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
-                    pe = PE_SpinWidgetPlus;
+                    pe = PE_SpinBoxPlus;
                 else
-                    pe = PE_SpinWidgetUp;
+                    pe = PE_SpinBoxUp;
 
                 QRect re = sw->upRect();
                 QPalette pal2 = pal;
@@ -1415,16 +1415,16 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                 drawPrimitive(pe, p, re, pal2, flags);
             }
 
-            if (controls & SC_SpinWidgetDown) {
+            if (controls & SC_SpinBoxDown) {
                 flags = Style_Enabled;
-                if (active == SC_SpinWidgetDown)
+                if (active == SC_SpinBoxDown)
                     flags |= Style_Down;
 
                 PrimitiveElement pe;
                 if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
-                    pe = PE_SpinWidgetMinus;
+                    pe = PE_SpinBoxMinus;
                 else
-                    pe = PE_SpinWidgetDown;
+                    pe = PE_SpinBoxDown;
 
                 QRect re = sw->downRect();
                 QPalette pal2 = pal;
@@ -1500,7 +1500,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
                                               const QStyleOption& opt) const
 {
     switch (control) {
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
             int fw = pixelMetric(PM_SpinBoxFrameWidth, 0);
             QSize bs;
             bs.setHeight((widget->height() + 1)/2);
@@ -1516,15 +1516,15 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
             h = bs.height() * 2;
 
             switch (subcontrol) {
-            case SC_SpinWidgetUp:
+            case SC_SpinBoxUp:
                 return QRect(x + 1, y, bs.width(), bs.height() - 1);
-            case SC_SpinWidgetDown:
+            case SC_SpinBoxDown:
                 return QRect(x + 1, y + bs.height() + 1, bs.width(), bs.height());
-            case SC_SpinWidgetButtonField:
+            case SC_SpinBoxButtonField:
                 return QRect(x, y, bs.width(), h - 2*fw);
-            case SC_SpinWidgetEditField:
+            case SC_SpinBoxEditField:
                 return QRect(lx, fw, rx, h - 2*fw);
-            case SC_SpinWidgetFrame:
+            case SC_SpinBoxFrame:
                 return QRect(0, 0, widget->width() - bs.width(), h);
             default:
                 break;

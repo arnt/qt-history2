@@ -665,11 +665,11 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value PE_ArrowLeft  left arrow.
 
 
-    \value PE_SpinWidgetUp  up symbol for a spin widget, for example a
+    \value PE_SpinBoxUp  up symbol for a spin widget, for example a
         QSpinBox.
-    \value PE_SpinWidgetDown down symbol for a spin widget.
-    \value PE_SpinWidgetPlus  increase symbol for a spin widget.
-    \value PE_SpinWidgetMinus  decrease symbol for a spin widget.
+    \value PE_SpinBoxDown down symbol for a spin widget.
+    \value PE_SpinBoxPlus  increase symbol for a spin widget.
+    \value PE_SpinBoxMinus  decrease symbol for a spin widget.
 
 
     \value PE_Indicator  on/off indicator, for example, a QCheckBox.
@@ -1226,7 +1226,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     different behavior depending upon where the user clicks on them
     or which keys are pressed.
 
-    \value CC_SpinWidget
+    \value CC_SpinBox
     \value CC_ComboBox
     \value CC_ScrollBar
     \value CC_Slider
@@ -1262,11 +1262,11 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
         area in which the slider handle may move.
 
 
-    \value SC_SpinWidgetUp  spinwidget up/increase; see also QSpinBox.
-    \value SC_SpinWidgetDown  spinwidget down/decrease.
-    \value SC_SpinWidgetFrame  spinwidget frame.
-    \value SC_SpinWidgetEditField  spinwidget edit field.
-    \value SC_SpinWidgetButtonField  spinwidget button field.
+    \value SC_SpinBoxUp  spinwidget up/increase; see also QSpinBox.
+    \value SC_SpinBoxDown  spinwidget down/decrease.
+    \value SC_SpinBoxFrame  spinwidget frame.
+    \value SC_SpinBoxEditField  spinwidget edit field.
+    \value SC_SpinBoxButtonField  spinwidget button field.
 
 
     \value SC_ComboBoxEditField  combobox edit field; see also QComboBox.
@@ -1347,7 +1347,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
             \i Options
             \i Notes
 
-    \row \i12 \l{CC_SpinWidget}(const QSpinWidget *)
+    \row \i12 \l{CC_SpinBox}(const QSpinBox *)
          \i \l Style_Enabled \i Set if the spinwidget is enabled.
          \i12 Unused.
          \i12 &nbsp;

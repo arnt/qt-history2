@@ -553,13 +553,13 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 {
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
         const QSpinWidget *sw = static_cast<const QSpinWidget *>(w);
-        if (sub & SC_SpinWidgetFrame)
+        if (sub & SC_SpinBoxFrame)
             drawPrimitive(PE_PanelLineEdit, p,
-                          querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame), pal,
+                          querySubControlMetrics(CC_SpinBox, sw, SC_SpinBoxFrame), pal,
                           Style_Sunken);
-        if (sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown) {
+        if (sub & SC_SpinBoxUp || sub & SC_SpinBoxDown) {
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             switch (qt_aqua_size_constrain(sw)) {
@@ -580,9 +580,9 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             }
             if (!sw->isUpEnabled() && !sw->isDownEnabled())
                 tds = kThemeStateUnavailable;
-            if (subActive == SC_SpinWidgetDown)
+            if (subActive == SC_SpinBoxDown)
                 tds = kThemeStatePressedDown;
-            else if (subActive == SC_SpinWidgetUp)
+            else if (subActive == SC_SpinBoxUp)
                 tds = kThemeStatePressedUp;
             bdi.state = tds;
             bdi.value = kThemeButtonOff;
@@ -906,28 +906,28 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
 {
     QRect rect;
     switch (control) {
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
         const int spinner_w = 10,
                 spinner_h = 15;
         int fw = pixelMetric(PM_SpinBoxFrameWidth, widget),
             y = fw,
             x = widget->width() - fw - spinner_w;
         switch(sc) {
-            case SC_SpinWidgetUp:
+            case SC_SpinBoxUp:
                 rect = QRect(x, y + ((widget->height() - fw * 2) / 2 - spinner_h),
                              spinner_w, spinner_h);
                 break;
-            case SC_SpinWidgetDown:
+            case SC_SpinBoxDown:
                 rect = QRect(x, y + (widget->height() - fw * 2) / 2, spinner_w, spinner_h);
                 break;
-            case SC_SpinWidgetButtonField:
+            case SC_SpinBoxButtonField:
                 rect = QRect(x, y, spinner_w, widget->height() - fw * 2);
                 break;
-            case SC_SpinWidgetEditField:
+            case SC_SpinBoxEditField:
                 rect = QRect(fw, fw, widget->width() - spinner_w - fw * 2 - macSpinBoxSep,
                              widget->height() - fw * 2);
                 break;
-            case SC_SpinWidgetFrame:
+            case SC_SpinBoxFrame:
                 rect = QRect(0, 0, widget->width() - spinner_w - macSpinBoxSep, widget->height());
                 break;
             default:

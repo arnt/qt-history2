@@ -18,6 +18,7 @@
 #include "qslider.h"
 #include "qstyle.h"
 #include "qtabbar.h"
+#include "qabstractspinbox.h"
 
 struct Q_GUI_EXPORT Q4StyleOption {
     int version;
@@ -26,7 +27,7 @@ struct Q_GUI_EXPORT Q4StyleOption {
     QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
     enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
-           ListView, ListViewItem, Header, DockWindow };
+           ListView, ListViewItem, Header, DockWindow, SpinBox };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -120,6 +121,13 @@ struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
     int singleStep;
     int pageStep;
     Q4StyleOptionSlider(int version) : Q4StyleOptionComplex(version, Slider) {}
+};
+
+struct Q4StyleOptionSpinBox : public Q4StyleOptionComplex {
+    enum { Type = SpinBox };
+    QAbstractSpinBox::ButtonSymbols buttonSymbols;
+    QAbstractSpinBox::StepEnabled stepEnabled;
+    Q4StyleOptionSpinBox(int version) : Q4StyleOptionComplex(version, SpinBox) {}
 };
 
 struct Q4StyleOptionListViewItem : public Q4StyleOption

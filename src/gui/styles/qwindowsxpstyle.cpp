@@ -1522,12 +1522,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
         flags |= Style_MouseOver;
 
     switch (control) {
-    case CC_SpinWidget:
+    case CC_SpinBox:
         {
             QSpinWidget *spin = (QSpinWidget*)w;
             XPThemeData theme(w, p, "SPIN");
 
-            if (sub & SC_SpinWidgetFrame) {
+            if (sub & SC_SpinBoxFrame) {
                 partId = EP_EDITTEXT;
                 if ((!flags & Style_Enabled))
                     stateId = ETS_DISABLED;
@@ -1539,12 +1539,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                 XPThemeData ftheme(w, p, "EDIT", partId, stateId, r);
                 ftheme.drawBackground();
             }
-            if (sub & SC_SpinWidgetUp) {
-                theme.rec = visualRect(querySubControlMetrics(CC_SpinWidget, w, SC_SpinWidgetUp, opt),w);
+            if (sub & SC_SpinBoxUp) {
+                theme.rec = visualRect(querySubControlMetrics(CC_SpinBox, w, SC_SpinBoxUp, opt),w);
                 partId = SPNP_UP;
                 if (!spin->isUpEnabled())
                     stateId = UPS_DISABLED;
-                else if (subActive == SC_SpinWidgetUp)
+                else if (subActive == SC_SpinBoxUp)
                     stateId = UPS_PRESSED;
                 else if (flags & Style_MouseOver && theme.rec.contains(d->hotSpot))
                     stateId = UPS_HOT;
@@ -1552,12 +1552,12 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                     stateId = UPS_NORMAL;
                 theme.drawBackground(partId, stateId);
             }
-            if (sub & SC_SpinWidgetDown) {
-                theme.rec = visualRect(querySubControlMetrics(CC_SpinWidget, w, SC_SpinWidgetDown, opt),w);
+            if (sub & SC_SpinBoxDown) {
+                theme.rec = visualRect(querySubControlMetrics(CC_SpinBox, w, SC_SpinBoxDown, opt),w);
                 partId = SPNP_DOWN;
                 if (!spin->isDownEnabled())
                     stateId = DNS_DISABLED;
-                else if (subActive == SC_SpinWidgetDown)
+                else if (subActive == SC_SpinBoxDown)
                     stateId = DNS_PRESSED;
                 else if (flags & Style_MouseOver && theme.rec.contains(d->hotSpot))
                     stateId = DNS_HOT;

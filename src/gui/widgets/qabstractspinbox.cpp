@@ -93,6 +93,41 @@ QAbstractSpinBox::~QAbstractSpinBox()
 }
 
 /*!
+    \enum QAbstractSpinBox::ButtonSymbols
+
+    This enum type determines what the buttons in a spin box show.
+
+    \value UpDownArrows the buttons show little arrows in the classic
+    style.
+
+    \value PlusMinus the buttons show <b>+</b> and <b>-</b> symbols.
+
+    \sa QAbstractSpinBox::buttonSymbols
+*/
+
+/*!
+    \property QAbstractSpinBox::buttonSymbols
+
+    \brief the current button symbol mode
+
+    The possible values can be either \c UpDownArrows or \c PlusMinus.
+    The default is \c UpDownArrows.
+
+    \sa ButtonSymbols
+*/
+
+QAbstractSpinBox::ButtonSymbols QAbstractSpinBox::buttonSymbols() const
+{
+    return d->buttonsymbols;
+}
+
+void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
+{
+    if (d->buttonsymbols != (d->buttonsymbols = bs))
+        update();
+}
+
+/*!
     \property QAbstractSpinBox::text
 
     \brief the spin box's text, including any prefix() and suffix()
@@ -314,17 +349,6 @@ void QAbstractSpinBox::interpretText()
     !\reimp
 */
 
-void QAbstractSpinBox::polishEvent(QEvent *e)
-{
-    if (!d->spinuprect.isValid())
-        d->initSpinRect();
-    QWidget::polishEvent(e);
-}
-
-/*
-    !\reimp
-*/
-
 void QAbstractSpinBox::showEvent(QShowEvent *)
 {
     if (d->dirty) {
@@ -368,7 +392,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
-    d->initSpinRect();
+    d->edit->setGeometry(style().querySubControlMetrics(QStyle::CC_SpinBox, this, QStyle::SC_SpinBoxEditField));
     QWidget::resizeEvent(e);
 }
 
@@ -396,36 +420,9 @@ QSize QAbstractSpinBox::minimumSizeHint() const
 
 void QAbstractSpinBox::paintEvent(QPaintEvent *)
 {
+    Q4StyleOptionSpinBox opt = d->styleOption();
     QPainter p(this);
-    QStyle::SFlags upflags = 0;
-    QStyle::SFlags downflags = 0;
-    QPalette palup(palette());
-    QPalette paldown(palette());
-
-    if (isEnabled()) {
-	uint enabled = stepEnabled();
-
-	if (enabled & StepUpEnabled) {
-	    upflags |= QStyle::Style_Enabled;
-	} else {
-	    palup.setCurrentColorGroup(QPalette::Disabled);
-        }
-
-	if (enabled & StepDownEnabled) {
-	    downflags |= QStyle::Style_Enabled;
-	} else {
-	    paldown.setCurrentColorGroup(QPalette::Disabled);
-        }
-
-	if (d->buttonstate & Up) {
-	    upflags |= QStyle::Style_Sunken;
-        } else if (d->buttonstate & Down) {
-	    downflags |= QStyle::Style_Sunken;
-	}
-    }
-
-    style().drawPrimitive(QStyle::PE_SpinWidgetUp, &p, d->spinuprect, palup, upflags, QStyleOption()); // ### QStyleOption(this)?
-    style().drawPrimitive(QStyle::PE_SpinWidgetDown, &p, d->spindownrect, paldown, downflags, QStyleOption());
+    style().drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
 
 /*
@@ -600,8 +597,8 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 {
     const QPoint p(e->pos());
-    const uint se = stepEnabled();
-    if (d->spinuprect.contains(p)) {
+    const StepEnabled se = stepEnabled();
+    if (style().querySubControlMetrics(QStyle::CC_SpinBox, this, QStyle::SC_SpinBoxUp).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepUpEnabled) || d->buttonstate != None) {
 	    e->accept();
 	    return;
@@ -609,7 +606,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 	d->spinclicktimerid = startTimer(d->spinclicktimerinterval);
 	d->buttonstate = (Mouse | Up);
 	stepBy(1);
-    } else if (d->spindownrect.contains(p)) {
+    } else if (style().querySubControlMetrics(QStyle::CC_SpinBox, this, QStyle::SC_SpinBoxDown).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepDownEnabled) || d->buttonstate != None) {
 	    e->accept();
 	    return;
@@ -646,7 +643,8 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), spinclicktimerid(-1), spinkeytimerid(-1), spinclicktimerinterval(100), spinkeytimerinterval(200),
       buttonstate(None), sizehintdirty(true), dirty(true), useprivate(false), pendingemit(false),
-      tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false)
+      tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false),
+      buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
     resetState();
 }
@@ -817,8 +815,7 @@ QLineEdit *QAbstractSpinBoxPrivate::lineEdit()
 void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
-        initSpinRect();
-	q->update(QRect(spinuprect.topLeft(), spindownrect.bottomRight())); // ###update? fuckedrect?
+	q->update(q->style().querySubControlMetrics(QStyle::CC_SpinBox, q, QStyle::SC_SpinBoxButtonField));
     }
 }
 
@@ -868,7 +865,9 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
             w = qMax(w, fm.width(s) + wx);
         }
         w += 30;
-        cachedsizehint = QSize(w + spinuprect.width(), h + q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2).
+
+        cachedsizehint = QSize(w + q->style().querySubControlMetrics(QStyle::CC_SpinBox, q, QStyle::SC_SpinBoxButtonField).
+                               width(), h + q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2).
                          expandedTo(QApplication::globalStrut());
 
 
@@ -879,7 +878,28 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
     }
 }
 
+/*!
+    \internal
 
+    Creates a Q4StyleOptionSpinBox with the right flags set.
+*/
+
+Q4StyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
+{
+    Q4StyleOptionSpinBox opt(0);
+    opt.init(q);
+    opt.stepEnabled = q->stepEnabled();
+    opt.activeParts = 0;
+    opt.buttonSymbols = buttonsymbols;
+    opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
+    if (d->buttonstate & Up) {
+        opt.activeParts = QStyle::PE_SpinBoxUp;
+    } else if (d->buttonstate & Down) {
+        opt.activeParts = QStyle::PE_SpinBoxDown;
+    }
+
+    return opt;
+}
 
 /*!
     \internal
@@ -989,25 +1009,6 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     e->blockSignals(sb);
 
     dirty = false;
-}
-
-/*!
-    \internal
-
-    Initializes the rectangle in which the arrows will be painted.
-*/
-
-void QAbstractSpinBoxPrivate::initSpinRect()
-{
-    if (q) {
-        const bool rtol = qApp->reverseLayout();
-        const int spinwidth = q->style().sizeFromContents(QStyle::CT_SpinBox, q, q->size()).width();
-        const int editwidth = q->width() - spinwidth;
-
-        d->edit->setGeometry((rtol ? spinwidth : 0) , 0, editwidth, q->height());
-        d->spinuprect = QRect((rtol ? 0 : editwidth), 0, q->width() - editwidth, (int)(q->height() / 2));
-        d->spindownrect = QRect((rtol ? 0 : editwidth), (int)(q->height() / 2), q->width() - editwidth, (int)(q->height() / 2));
-    }
 }
 
 /*!

@@ -199,10 +199,10 @@ public:
         PE_ArrowRight,
         PE_ArrowLeft,
 
-        PE_SpinWidgetUp,
-        PE_SpinWidgetDown,
-        PE_SpinWidgetPlus,
-        PE_SpinWidgetMinus,
+        PE_SpinBoxUp,
+        PE_SpinBoxDown,
+        PE_SpinBoxPlus,
+        PE_SpinBoxMinus,
 
         PE_Indicator,
         PE_IndicatorMask,
@@ -377,7 +377,7 @@ public:
 
 
     enum ComplexControl{
-        CC_SpinWidget,
+        CC_SpinBox,
         CC_ComboBox,
         CC_ScrollBar,
         CC_Slider,
@@ -401,11 +401,11 @@ public:
         SC_ScrollBarSlider =                0x00000040,
         SC_ScrollBarGroove =                0x00000080,
 
-        SC_SpinWidgetUp =                0x00000001,
-        SC_SpinWidgetDown =                0x00000002,
-        SC_SpinWidgetFrame =                0x00000004,
-        SC_SpinWidgetEditField =        0x00000008,
-        SC_SpinWidgetButtonField =        0x00000010,
+        SC_SpinBoxUp =                0x00000001,
+        SC_SpinBoxDown =                0x00000002,
+        SC_SpinBoxFrame =                0x00000004,
+        SC_SpinBoxEditField =        0x00000008,
+        SC_SpinBoxButtonField =        0x00000010,
 
         SC_ComboBoxFrame =                0x00000001,
         SC_ComboBoxEditField =                0x00000002,

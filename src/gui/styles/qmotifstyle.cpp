@@ -485,8 +485,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             break;
         }
 
-    case PE_SpinWidgetPlus:
-    case PE_SpinWidgetMinus:
+    case PE_SpinBoxPlus:
+    case PE_SpinBoxMinus:
         {
             p->save();
             int fw = pixelMetric(PM_DefaultFrameWidth);
@@ -516,15 +516,15 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 
             p->drawLine(x + xmarg, (y + h / 2 - 1),
                          x + xmarg + length - 1, (y + h / 2 - 1));
-            if (pe == PE_SpinWidgetPlus)
+            if (pe == PE_SpinBoxPlus)
                 p->drawLine((x+w / 2) - 1, y + ymarg,
                              (x+w / 2) - 1, y + ymarg + length - 1);
             p->restore();
             break;
         }
 
-    case PE_SpinWidgetUp:
-    case PE_SpinWidgetDown:
+    case PE_SpinBoxUp:
+    case PE_SpinBoxDown:
         {
             p->save();
             int fw = pixelMetric(PM_DefaultFrameWidth);
@@ -549,7 +549,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
             int sy = y + h / 2 - sh / 2 - 1;
 
             QPointArray a;
-            if (pe == PE_SpinWidgetDown)
+            if (pe == PE_SpinBoxDown)
                 a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
             else
                 a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
@@ -1358,17 +1358,17 @@ void QMotifStyle::drawComplexControl(ComplexControl control,
                                      const QStyleOption& opt) const
 {
     switch (control) {
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
         SCFlags drawSub = SC_None;
-        if (sub & SC_SpinWidgetFrame)
+        if (sub & SC_SpinBoxFrame)
             qDrawShadePanel(p, r, pal, true,
                              pixelMetric(PM_DefaultFrameWidth));
 
-        if (sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown) {
-            if (sub & SC_SpinWidgetUp)
-                drawSub |= SC_SpinWidgetUp;
-            if (sub & SC_SpinWidgetDown)
-                drawSub |= SC_SpinWidgetDown;
+        if (sub & SC_SpinBoxUp || sub & SC_SpinBoxDown) {
+            if (sub & SC_SpinBoxUp)
+                drawSub |= SC_SpinBoxUp;
+            if (sub & SC_SpinBoxDown)
+                drawSub |= SC_SpinBoxDown;
 
             QCommonStyle::drawComplexControl(control, p, widget, r, pal, flags,
                                               drawSub, subActive, opt);
@@ -1675,7 +1675,7 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
                                            const QStyleOption& opt) const
 {
     switch (control) {
-    case CC_SpinWidget: {
+    case CC_SpinBox: {
         if (!widget)
             return QRect();
         int fw = pixelMetric(PM_SpinBoxFrameWidth, 0);
@@ -1691,15 +1691,15 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
         lx = fw;
         rx = x - fw * 2;
         switch (sc) {
-        case SC_SpinWidgetUp:
+        case SC_SpinBoxUp:
             return QRect(x, y, bs.width(), bs.height());
-        case SC_SpinWidgetDown:
+        case SC_SpinBoxDown:
             return QRect(x, y + bs.height(), bs.width(), bs.height());
-        case SC_SpinWidgetButtonField:
+        case SC_SpinBoxButtonField:
             return QRect(x, y, bs.width(), widget->height() - 2*fw);
-        case SC_SpinWidgetEditField:
+        case SC_SpinBoxEditField:
             return QRect(lx, fw, rx, widget->height() - 2*fw);
-        case SC_SpinWidgetFrame:
+        case SC_SpinBoxFrame:
             return QRect(0, 0,
                           widget->width() - bs.width(), widget->height());
         default:

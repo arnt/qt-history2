@@ -1522,7 +1522,7 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
         }
 #endif // QT_NO_SCROLLBAR
 
-    case CC_SpinWidget:
+    case CC_SpinBox:
         {
             const int PM_SPINBOXBUTTONWIDTH = 12;
             const int fw  = PM_SPINBOXFRAMEWIDTH; // pixelMetric(PM_SpinBoxFrameWidth, widget);
@@ -1534,15 +1534,15 @@ QRect QPocketPCStyle::querySubControlMetrics(ComplexControl         complex,
             const int xU  = xD - PM_SPINBOXBUTTONWIDTH; // up button X
 
             switch (sc) {
-            case SC_SpinWidgetUp:
+            case SC_SpinBoxUp:
                 return QRect(xU, fw, PM_SPINBOXBUTTONWIDTH, dh);
-            case SC_SpinWidgetDown:
+            case SC_SpinBoxDown:
                 return QRect(xD, fw, PM_SPINBOXBUTTONWIDTH, dh);
-            case SC_SpinWidgetButtonField:
+            case SC_SpinBoxButtonField:
                 return QRect(xU, fw, PM_SPINBOXBUTTONWIDTH*2, dh);
-            case SC_SpinWidgetEditField:
+            case SC_SpinBoxEditField:
                 return QRect(fw, fw, w-(w-xU)-PM_SPINBOXFRAMEWIDTH, dh);
-            case SC_SpinWidgetFrame:
+            case SC_SpinBoxFrame:
                 return widget->rect();
             }
             break;
@@ -2066,8 +2066,8 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
         }
 #endif
 
-    case PE_SpinWidgetPlus:
-    case PE_SpinWidgetMinus:
+    case PE_SpinBoxPlus:
+    case PE_SpinBoxMinus:
         {
             p->save();
             int fw = PM_DEFAULTFRAMEWIDTH; // pixelMetric(PM_DefaultFrameWidth, 0);
@@ -2093,7 +2093,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 
             p->drawLine(x + xmarg, (y + h / 2 - 1),
                         x + xmarg + length - 1, (y + h / 2 - 1));
-            if (primitive == PE_SpinWidgetPlus)
+            if (primitive == PE_SpinBoxPlus)
                 p->drawLine((x+w / 2) - 1, y + ymarg,
                             (x+w / 2) - 1, y + ymarg + length - 1);
             p->restore();
@@ -3018,27 +3018,27 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
     activePainter = p;
 
     switch (complex) {
-    case CC_SpinWidget:
+    case CC_SpinBox:
         {
             PrimitiveElement pe;
             const QSpinWidget * sw = (const QSpinWidget *) widget;
 
-            if (sub & SC_SpinWidgetFrame) {
+            if (sub & SC_SpinBoxFrame) {
                 QPen old = p->pen();
                 p->setPen(pal.foreground());
                 p->drawRect(r);
                 p->setPen(old);
             }
 
-            if (sub & SC_SpinWidgetUp) {
+            if (sub & SC_SpinBoxUp) {
                 flags = Style_Default | Style_Enabled;
                 // Which button symbol?
                 pe = sw->buttonSymbols() == QSpinWidget::PlusMinus
-                        ? PE_SpinWidgetPlus : PE_ArrowUp;
+                        ? PE_SpinBoxPlus : PE_ArrowUp;
 
                 QRect re = sw->upRect();
                 // Button Up pressed?
-                if (subActive == SC_SpinWidgetUp) {
+                if (subActive == SC_SpinBoxUp) {
                     flags |= Style_Down;
                     p->fillRect(re, pal.foreground());
                 } else {
@@ -3057,15 +3057,15 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
                 drawPrimitive(pe, p, re, upal, flags);
             }
 
-            if (sub & SC_SpinWidgetDown) {
+            if (sub & SC_SpinBoxDown) {
                 flags = Style_Default | Style_Enabled;
                 // Which button symbol?
                 pe = sw->buttonSymbols() == QSpinWidget::PlusMinus
-                        ? PE_SpinWidgetMinus : PE_ArrowDown;
+                        ? PE_SpinBoxMinus : PE_ArrowDown;
 
                 QRect re = sw->downRect();
                 // Button Down pressed?
-                if (subActive == SC_SpinWidgetDown) {
+                if (subActive == SC_SpinBoxDown) {
                     flags |= Style_Down;
                     p->fillRect(re, pal.foreground());
                 } else {

@@ -29,6 +29,9 @@ public:
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
 
+    ButtonSymbols buttonSymbols() const;
+    void setButtonSymbols(ButtonSymbols bs);
+
     QString text() const;
     QString cleanText() const;
 
@@ -41,16 +44,11 @@ public:
     void setAlignment(Alignment flag);
     Alignment alignment() const;
 
-    void setButtonSymbols(ButtonSymbols) {}
-    ButtonSymbols buttonSymbols () const { return UpDownArrows; };
-
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
     void interpretText();
 protected:
-
-    void polishEvent(QEvent *e);
     void resizeEvent(QResizeEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void keyReleaseEvent(QKeyEvent *e);

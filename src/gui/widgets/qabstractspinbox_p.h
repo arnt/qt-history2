@@ -3,6 +3,7 @@
 
 #include "qabstractspinbox.h"
 #include <qlineedit.h>
+#include <qstyleoption.h>
 #include <qdatetime.h>
 #include <qvariant.h>
 #include <qvalidator.h>
@@ -54,8 +55,9 @@ public:
     void updateSpinBox();
     void updateEdit() const;
     void update();
-    void initSpinRect();
     void calculateSizeHints() const;
+
+    Q4StyleOptionSpinBox styleOption() const;
 
     virtual void emitSignals();
     virtual void refresh(EmitPolicy ep);
@@ -71,7 +73,6 @@ public:
     bool eq(const QCoreVariant &arg1, const QCoreVariant &arg2) const;
 
     QLineEdit *edit;
-    QRect spinuprect, spindownrect;
     QString prefix, suffix, specialvaluetext;
     QCoreVariant value, minimum, maximum, singlestep;
     QCoreVariant::Type type;
@@ -88,6 +89,7 @@ public:
     uint wrapping : 1;
     uint dragging : 1;
     uint ignorecursorpositionchanged : 1;
+    QAbstractSpinBox::ButtonSymbols buttonsymbols;
 };
 
 class QSpinBoxValidator : public QValidator
