@@ -469,6 +469,18 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 prop->setAttributeName("icon");
             }
 
+            if (name == QLatin1String("accel")
+                    && !WidgetInfo::isValidProperty(className, "accel")
+                    && WidgetInfo::isValidProperty(className, "shortcut")) {
+                prop->setAttributeName("shortcut");
+            }
+
+            if (name == QLatin1String("textLabel")
+                    && !WidgetInfo::isValidProperty(className, "textLabel")
+                    && WidgetInfo::isValidProperty(className, "text")) {
+                prop->setAttributeName("text");
+            }
+
             name = prop->attributeName(); // sync the name
 
             if (className.size() && !(className == QLatin1String("QLabel") && name == QLatin1String("buddy"))) {
