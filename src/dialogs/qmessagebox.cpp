@@ -5,7 +5,7 @@
 **
 ** Created : 950503
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the dialogs module of the Qt GUI Toolkit.
 **
@@ -1143,10 +1143,8 @@ int QMessageBox::critical( QWidget *parent,
 
   about() looks for a suitable icon in four locations:
   \list 1
-  \i It prefers \link QWidget::icon() parent->icon() \endlink
-  if that exists.
-  \i If not, it tries the top-level widget
-  containing \a parent.
+  \i It prefers \link QWidget::icon() parent->icon() \endlink if that exists.
+  \i If not, it tries the top-level widget containing \a parent.
   \i If that fails, it tries the \link
   QApplication::mainWidget() main widget. \endlink
   \i As a last resort it uses the Information icon.
@@ -1166,6 +1164,21 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
                                        parent, "qt_msgbox_simple_about_box", TRUE,
 				       WDestructiveClose);
     Q_CHECK_PTR( mb );
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    const QPixmap *pm = parent ? parent->icon() : 0;
+    if ( pm && !pm->isNull() )
+	mb->setIconPixmap( *pm );
+    else {
+	pm = parent ? parent->topLevelWidget()->icon() : 0;
+	if ( pm && !pm->isNull() )
+	    mb->setIconPixmap( *pm );
+	else {
+	    pm = qApp && qApp->mainWidget() ? qApp->mainWidget()->icon() : 0;
+	    if ( pm && !pm->isNull() )
+		mb->setIconPixmap( *pm );
+	}
+    }
+#endif
     mb->exec();
 }
 
