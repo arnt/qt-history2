@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#168 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#167 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#168 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -835,7 +835,6 @@ void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
-
     if ( extra ) {
 	int w = crect.width();
 	int h = crect.height();
@@ -843,12 +842,10 @@ void QWidget::show()
 	     w > extra->maxw || h > extra->maxh ) {
 	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
 	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
-	    resize( w, h ); // may defer resize event :)
+	    resize( w, h );			// deferred resize
 	}
     }
-
-    sendDeferredEvents( FALSE, FALSE );
-
+    sendDeferredEvents();
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -1012,14 +1009,13 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 
 void QWidget::move( int x, int y )
 {
-    QPoint p(x,y);
-    QPoint oldp = frameGeometry().topLeft();
-    QRect  r = frect;
     if ( testWFlags(WType_Desktop) )
 	return;
+    QPoint p(x,y);
+    QPoint oldp = pos();
+    QRect  r = frect;
     r.moveTopLeft( p );
     setFRect( r );
-
     if ( !isVisible() ) {
 	deferMove( oldp );
 	return;
@@ -1087,7 +1083,6 @@ void QWidget::resize( int w, int h )
     QSize olds = size();
     r.setSize( s );
     setCRect( r );
-
     if ( !isVisible() ) {
 	deferResize( olds );
 	return;
@@ -1139,6 +1134,8 @@ void QWidget::internalResize( int w, int h )
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
+    if ( testWFlags(WType_Desktop) )
+	return;
     if ( w < 1 )				// invalid size
 	w = 1;
     if ( h < 1 )
@@ -1152,17 +1149,12 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QPoint oldp = frameGeometry().topLeft();
     QSize  olds = size();
     QRect  r( x, y, w, h );
-    if ( testWFlags(WType_Desktop) )
-	return;
-
     setCRect( r );
-
     if ( !isVisible() ) {
 	deferMove( oldp );
 	deferResize( olds );
 	return;
     }
-
     cancelMove();
     cancelResize();
     internalSetGeometry( x, y, w, h );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#107 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#108 $
 **
 ** Definition of QWidget class
 **
@@ -263,7 +263,7 @@ private:
     void	 deferResize( const QSize & );
     void	 cancelMove();
     void	 cancelResize();
-    void	 sendDeferredEvents( bool, bool );
+    void	 sendDeferredEvents();
 
     WId		 winid;
     WFlags	 flags;

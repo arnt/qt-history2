@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#165 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#166 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#165 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#166 $");
 
 
 /*!
@@ -398,7 +398,7 @@ inline bool QWidgetMapper::remove( WId id )
 typedef Q_DECLARE(QIntDictM,int) QDeferDict;
 
 static QDeferDict *deferredMoves   = 0;
-static QDeferDict  *deferredResizes = 0;
+static QDeferDict *deferredResizes = 0;
 
 static void cleanupDeferredDicts()
 {
@@ -419,20 +419,23 @@ static void initDeferredDicts()
     qAddPostRoutine( cleanupDeferredDicts );
 }
 
+/*
+  The compress functions below store two short values in a pointer.
+*/
 
 static inline uint compress( int a, int b )
 {
     return ((uint)(a-QCOORD_MIN) << 16) | ((b-QCOORD_MIN) & 0xffff);
 }
 
-static inline int decompress_a( uint n )
+static inline short decompress_a( uint n )
 {
-    return (int)(n >> 16) + QCOORD_MIN;
+    return (short)((int)(n >> 16) + QCOORD_MIN);
 }
 
-static inline int decompress_b( uint n )
+static inline short decompress_b( uint n )
 {
-    return (int)(n & 0xffff) + QCOORD_MIN;
+    return (short)((int)(n & 0xffff) + QCOORD_MIN);
 }
 
 void QWidget::deferMove( const QPoint &oldPos )
@@ -467,30 +470,24 @@ void QWidget::cancelResize()
 
 /*!
   Send deferred or enforced move and resize events for this widget.
-  If \a m is TRUE, X told us that the widget has moved and that's it.
-  If \a r is TRUE, X told us that the widget has been resized and
-  that's it.
 */
 
-void QWidget::sendDeferredEvents( bool m, bool r )
+void QWidget::sendDeferredEvents()
 {
-    uint i;
-    if ( m || (i=(uint)deferredMoves->find((long)this)) ) {
+    uint n;
+    if ( (n=(uint)deferredMoves->find((long)this)) ) {
 	deferredMoves->take( (long)this );
-	QMoveEvent e( pos(), QPoint(decompress_a(i), decompress_b(i)) );
-	if ( !m )
-	    internalMove( x(), y() );
+	QMoveEvent e( pos(), QPoint(decompress_a(n), decompress_b(n)) );
+	internalMove( x(), y() );
 	QApplication::sendEvent( this, &e );
     }
-    if ( r || (i=(uint)deferredResizes->find((long)this)) ) {
+    if ( (n=(uint)deferredResizes->find((long)this)) ) {
 	deferredResizes->take( (long)this );
-	QResizeEvent e( size(), QSize(decompress_a(i), decompress_b(i)) );
-	if ( !r )
-	    internalResize( width(), height() );
+	QResizeEvent e( size(), QSize(decompress_a(n), decompress_b(n)) );
+	internalResize( width(), height() );
 	QApplication::sendEvent( this, &e );
     }
 }
-
 
 
 /*!
@@ -571,8 +568,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
 QWidget::~QWidget()
 {
-    deferredMoves->take( (long)this );		// clean deferred move/resize
-    deferredResizes->take( (long)this );
+    if ( deferredMoves ) {
+	deferredMoves->take( (long)this );	// clean deferred move/resize
+	deferredResizes->take( (long)this );
+    }
     if ( QApplication::main_widget == this )	// reset main widget
 	QApplication::main_widget = 0;
     if ( testWFlags(WFocusSet) )

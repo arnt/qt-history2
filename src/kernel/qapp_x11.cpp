@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#207 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#206 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#207 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2422,29 +2422,31 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     QPoint newPos( x, y );
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
     QRect  r = geometry();
-    bool   resized = FALSE;
-    bool   moved = FALSE;
     if ( newSize != size() ) {			// size changed
 	XClearArea( dpy, winId(), 0, 0, 0, 0, FALSE );
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );
-	if ( !isVisible() )
+	if ( isVisible() ) {
+	    cancelResize();
+	    QResizeEvent e( newSize, oldSize );
+	    QApplication::sendEvent( this, &e );
+	} else {
 	    deferResize( oldSize );
-	else
-	    resized = TRUE;
+	}
     }
     if ( newPos != geometry().topLeft() ) {
 	QPoint oldPos = pos();
 	r.moveTopLeft( newPos );
 	setCRect( r );
-	if ( !isVisible() )
+	if ( isVisible() ) {
+	    cancelMove();
+	    QMoveEvent e( newPos, oldPos );
+	    QApplication::sendEvent( this, &e );
+	} else {
 	    deferMove( oldPos );
-	else
-	    moved = TRUE;
+	}
     }
-    if ( resized || moved )
-	sendDeferredEvents( moved, resized );
     return TRUE;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#84 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#84 $");
 
 
 /*****************************************************************************
@@ -1721,12 +1721,6 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
 bool QETWidget::translatePaintEvent( const MSG & )
 {
-    QWExtra *data = extraData();
-    if ( data && !data->resized ) {		// force resize
-	data->resized = TRUE;
-	QResizeEvent e( size(), size() );
-	QApplication::sendEvent( this, &e );
-    }
     PAINTSTRUCT ps;
     RECT rect;
     GetUpdateRect( winId(), &rect, FALSE );
@@ -1755,20 +1749,22 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
     if ( msg.message == WM_SIZE ) {		// resize event
-	QWExtra *d = extraData();
-	if ( d )
-	    d->resized = TRUE;
 	QSize oldSize = size();
 	QSize newSize( a, b );
 	r.setSize( newSize );
 	setCRect( r );
-	QResizeEvent e( newSize, oldSize );
-	QApplication::sendEvent( this, &e );
 	if ( isTopLevel() ) {			// update caption/icon text
 	    if ( IsIconic(winId()) && iconText() )
 		SetWindowText( winId(), iconText() );
 	    else if ( caption() )
 		SetWindowText( winId(), caption() );
+	}
+	if ( isVisible() ) {
+	    cancelResize();
+	    QResizeEvent e( newSize, oldSize );
+	    QApplication::sendEvent( this, &e );
+	} else {
+	    deferResize( oldSize );
 	}
 	update();
     } else if ( msg.message == WM_MOVE ) {	// move event
@@ -1776,8 +1772,13 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	QPoint newPos( a, b );
 	r.moveTopLeft( newPos );
 	setCRect( r );
-	QMoveEvent e( newPos, oldPos );
-	QApplication::sendEvent( this, &e );
+	if ( isVisible() ) {
+	    cancelMove();
+	    QMoveEvent e( newPos, oldPos );
+	    QApplication::sendEvent( this, &e );
+	} else {
+	    deferMove( oldPos );
+	}
     }
     clearWFlags( WConfigPending );		// clear config flag
     return TRUE;
