@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#33 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#34 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -31,10 +31,12 @@
 #include "qrangecontrol.h"
 #endif // QT_H
 
+
 class QPushButton;
 class QLineEdit;
 class QValidator;
-struct QSpinBoxData;
+
+struct QSpinBoxPrivate;
 
 
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
@@ -57,6 +59,10 @@ public:
     virtual void 	setWrapping( bool on );
     bool 		wrapping() const;
 
+    enum ButtonSymbols { UpDownArrows, PlusMinus };
+    void		setButtonSymbols( ButtonSymbols ); // 3.0: virtual
+    ButtonSymbols	buttonSymbols() const;
+    
     virtual void	setValidator( const QValidator* v );
     const QValidator * validator() const;
 
@@ -101,7 +107,7 @@ protected slots:
 
 private:
     void initSpinBox();
-    struct QSpinBoxData* extra;
+    struct QSpinBoxPrivate* d;
     QPushButton* up;
     QPushButton* down;
     QLineEdit* vi;
@@ -111,6 +117,8 @@ private:
     QString specText;
     bool wrap;
     bool edited;
+
+    void updateButtonSymbols();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
