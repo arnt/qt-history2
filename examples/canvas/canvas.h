@@ -54,7 +54,8 @@ private slots:
     void addPolygon();
     void addLine();
     void addRectangle();
-
+    void addMesh();
+    
     void enlarge();
     void shrink();
 

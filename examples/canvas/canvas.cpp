@@ -8,9 +8,105 @@
 #include <qpainter.h>
 #include <qlabel.h>
 
+
+#include <qprogressdialog.h>
+
 #include "canvas.h"
 
 #include <stdlib.h>
+
+static QBrush tb( Qt::red );
+static QPen tp( Qt::black );
+
+class EdgeItem;
+class NodeItem;
+
+class EdgeItem: public QCanvasLine
+{
+public:
+    EdgeItem( NodeItem*, NodeItem*, QCanvas *canvas );
+    void setFromPoint( int x, int y ) ;
+    void setToPoint( int x, int y );
+    static int count() { return c; }
+    void moveBy(double dx, double dy);
+private:
+    static int c;
+};
+
+class NodeItem: public QCanvasEllipse
+{
+public:
+    NodeItem( QCanvas *canvas );
+
+    void addInEdge( EdgeItem *edge ) { inList.append( edge ); }
+    void addOutEdge( EdgeItem *edge ) { outList.append( edge ); }
+
+    void moveBy(double dx, double dy);
+    
+    //    QPoint center() { return boundingRect().center(); }
+private:
+    QList<EdgeItem> inList;
+    QList<EdgeItem> outList;
+};
+
+
+int EdgeItem::c = 0;
+
+
+void EdgeItem::moveBy(double, double)
+{
+    //nothing
+}
+
+EdgeItem::EdgeItem( NodeItem *from, NodeItem *to, QCanvas *canvas )
+    : QCanvasLine( canvas )
+{
+    c++;
+    setPen( tp );
+    setBrush( tb );
+    from->addOutEdge( this );
+    to->addInEdge( this );
+    setPoints( from->x(), from->y(), to->x(), to->y() );
+    setZ( 127 );
+}
+
+void EdgeItem::setFromPoint( int x, int y )
+{
+    setPoints( x,y, endPoint().x(), endPoint().y() );
+}
+
+void EdgeItem::setToPoint( int x, int y )
+{
+    setPoints( startPoint().x(), startPoint().y(), x, y );
+}    
+
+
+
+void NodeItem::moveBy(double dx, double dy)
+{
+    QCanvasEllipse::moveBy( dx, dy );
+    
+    QListIterator<EdgeItem> it1( inList );
+    EdgeItem *edge;
+    while (( edge = it1.current() )) {
+	++it1;
+	edge->setToPoint( x(), y() );
+    }
+    QListIterator<EdgeItem> it2( outList );
+    while (( edge = it2.current() )) {
+	++it2;
+	edge->setFromPoint( x(), y() );
+    }
+}
+
+
+NodeItem::NodeItem( QCanvas *canvas )
+    : QCanvasEllipse( 6, 6, canvas )
+{
+    setPen( tp );
+    setBrush( tb );
+    setZ( 128 );
+}
 
 FigureEditor::FigureEditor(
 	QCanvas& c, QWidget* parent,
@@ -159,6 +255,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Line", this, SLOT(addLine()), CTRL+Key_L);
     edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), CTRL+Key_R);
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
+    edit->insertItem("Create &Mesh", this, SLOT(addMesh()) );
     file->insertSeparator();
     edit->insertItem("&Enlarge", this, SLOT(enlarge()), CTRL+Key_Plus);
     edit->insertItem("Shr&ink", this, SLOT(shrink()), CTRL+Key_Minus);
@@ -307,6 +404,65 @@ void Main::addLine()
     i->setZ(lrand48()%256);
 }
 
+void Main::addMesh()
+{
+    
+    
+    
+    int x0 = 0;
+    int y0 = 0;
+    
+    int nodecount = 0;
+    
+    int w = canvas.width();
+    int h = canvas.height();
+
+    const int dist = 30;
+    int rows = h / dist;
+    int cols = w / dist;
+
+    QProgressDialog progress( "Creating mesh...", "Abort", rows,
+			      this, "progress", TRUE );
+    
+    QArray<NodeItem*> lastRow(cols);
+    for ( int j = 0; j < rows; j++ ) {
+	int n = j%2 ? cols-1 : cols;
+	NodeItem *prev = 0;
+	for ( int i = 0; i < n; i++ ) {
+	    NodeItem *el = new NodeItem( &canvas );
+	    nodecount++;
+	    int r = lrand48();
+	    int xrand = r %20;
+	    int yrand = (r/20) %20;
+	    el->move( xrand + x0 + i*dist + (j%2 ? dist/2 : 0 ), 
+		      yrand + y0 + j*dist );
+
+	    if ( j > 0 ) {
+		if ( i < cols-1 )
+		    new EdgeItem( lastRow[i], el, &canvas );
+		if ( j%2 )
+		    new EdgeItem( lastRow[i+1], el, &canvas );
+		else if ( i > 0 )
+		   new EdgeItem( lastRow[i-1], el, &canvas );
+	    }
+	    if ( prev )
+		new EdgeItem( prev, el, &canvas );
+	    if ( i > 0 ) lastRow[i-1] = prev;
+	    prev = el;
+	}
+	lastRow[n-1]=prev;
+	progress.setProgress( j );
+	if ( progress.wasCancelled() )
+	    break;
+    }
+    progress.setProgress( rows );
+    qDebug( "%d nodes, %d edges", nodecount, EdgeItem::count() );
+}
+
+
+
+
+
 void Main::addRectangle()
 {
     QCanvasPolygonalItem *i = new QCanvasRectangle( lrand48()%canvas.width(),lrand48()%canvas.height(),
@@ -327,17 +483,22 @@ int main(int argc, char** argv)
     qDebug("sizeof(QLabel)=%d",sizeof(QLabel));
     */
 
-    QCanvas canvas(800,600);
+    //QCanvas canvas( 3000, 3000 );
+    QCanvas canvas( 800, 600 );
+    
     canvas.setAdvancePeriod(30);
     Main m(canvas);
+
     qApp->setMainWidget(&m);
     m.show();
-    m.help();
+    //    m.help();
     qApp->setMainWidget(0);
 
     QObject::connect( qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()) );
 
     return app.exec();
 }
+
+
 
 
