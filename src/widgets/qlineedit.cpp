@@ -165,10 +165,27 @@ struct QLineEditPrivate {
     }
 
     void checkUndoRedoInfo( UndoRedoInfo::Type t ) {
-	if ( undoRedoInfo.valid() && t != undoRedoInfo.type ) {
-	    undoRedoInfo.clear();
+	bool compress = ( t == undoRedoInfo.type );
+	if ( compress ) {
+	    switch ( t ) {
+	    case UndoRedoInfo::Insert:
+		compress = ( undoRedoInfo.index + undoRedoInfo.text.length() ==
+			     (uint) cursor->index() );
+		break;
+	    case UndoRedoInfo::Delete:
+	    case UndoRedoInfo::Backspace:
+		compress = ( undoRedoInfo.index == cursor->index() );
+		break;
+	    default:
+		compress = FALSE;
+	    }
 	}
-	undoRedoInfo.type = t;
+
+	if ( !compress ) {
+	    undoRedoInfo.clear();
+	    undoRedoInfo.type = t;
+	    undoRedoInfo.index = cursor->index();
+	}
     }
 
     bool readonly : 1;
@@ -1666,7 +1683,7 @@ void QLineEdit::dropEvent( QDropEvent *e )
 
     d->cursorOn = hasFocus();
 
-    if ( !d->readonly && decoded) {
+    if ( !d->readonly && decoded ) {
 	if ( e->source() == this && hasSelectedText() )
 	    deselect();
 	if ( !hasSelectedText() ) {
@@ -1757,12 +1774,6 @@ void QLineEdit::insert( const QString &newText )
     if ( t.isEmpty() && !hasSelectedText() )
 	return;
 
-    d->checkUndoRedoInfo( UndoRedoInfo::Insert );
-    if ( !d->undoRedoInfo.valid() ) {
-	d->undoRedoInfo.index = d->cursor->index();
-	d->undoRedoInfo.text = QString::null;
-    }
-
     for ( int i=0; i<(int)t.length(); i++ )
 	if ( t[i] < ' ' )  // unprintable/linefeed becomes space
 	    t[i] = ' ';
@@ -1772,10 +1783,16 @@ void QLineEdit::insert( const QString &newText )
     int cp1 = d->cursor->index();
 
     if ( hasSelectedText() ) {
-	t1.remove( d->parag->selectionStart(0),
-		   d->parag->selectionEnd(0) - d->parag->selectionStart(0) );
-	cp1 = d->parag->selectionStart( 0 );
+	int start = d->parag->selectionStart( 0 );
+	int len = d->parag->selectionEnd( 0 ) - d->parag->selectionStart( 0 );
+	d->checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
+	d->undoRedoInfo.index = start;
+	d->undoRedoInfo.text = t1.mid( start, len );
+	t1.remove( start, len );
+	cp1 = start;
     }
+
+    d->checkUndoRedoInfo( UndoRedoInfo::Insert );
 
     QString t2 = t1;
     t2.insert( cp1, t );
@@ -2206,11 +2223,8 @@ void QLineEdit::delOrBackspace( bool backspace )
 	    }
 
 	    if ( ok ) {
-		d->checkUndoRedoInfo( UndoRedoInfo::Delete );
-		if ( !d->undoRedoInfo.valid() ) {
-		    d->undoRedoInfo.index = d->cursor->index();
-		    d->undoRedoInfo.text = QString::null;
-		}
+		d->checkUndoRedoInfo( backspace ? UndoRedoInfo::Backspace :
+				      UndoRedoInfo::Delete );
 		if ( backspace ) {
 		    d->cursor->gotoPreviousLetter();
 		    d->undoRedoInfo.index = d->cursor->index();
