@@ -37,20 +37,20 @@ public:
 
     QSql* sql()
     {
+	// any mode
 	return s;
     }
 
     QSqlRowset* rowset()
     {
-	if ( mode == Rowset || mode == View ) {
+	if ( mode == Rowset || mode == View ) 
 	    return (QSqlRowset*)s;
-	}
 	return 0;
     }
 
     QSqlView* view()
     {
-	if ( mode == View )
+	if ( mode == View ) 
 	    return (QSqlView*)s;
 	return 0;
     }
@@ -135,7 +135,7 @@ void QSqlTable::addColumn( const QSqlField& field )
 	//	qDebug("current num cols:" + QString::number(numCols()));
 	setNumCols( numCols() + 1 );
 	//	qDebug("new num cols:" + QString::number(numCols()));
-	//qDebug("fieldnumber:" + QString::number(field.fieldNumber()));
+	//	qDebug("fieldnumber:" + QString::number(field.fieldNumber()));
 	d->colIndex.append( field.fieldNumber() );
 	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, field.displayLabel() );
@@ -195,14 +195,16 @@ void QSqlTable::setColumn( uint col, const QSqlField& field )
 
 QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 {
-    QSqlRowset* rset = d->rowset();
+    QSqlRowset* vw = d->view();
+    if ( !vw )
+	return 0;
     QSqlPropertyManager m;
     QWidget * w = 0;
 
     m.addClass( "QSqlCustomEd", "state" );
-    if( initFromCell && rset && rset->seek( row ) ){
-	w = editorFactory->createEditor( viewport(), (*rset)[col] );
-	m.setProperty( w, rset->value( col ) );
+    if( initFromCell && vw->seek( row ) ){
+	w = editorFactory->createEditor( viewport(), (*vw)[col] );
+	m.setProperty( w, vw->value( col ) );
     }
     return w;
 }
@@ -215,14 +217,16 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 
 void QSqlTable::setCellContentFromEditor( int row, int col )
 {
+    QSqlRowset* vw = d->view();
+    if ( !vw )
+	return;
     QSqlPropertyManager m;
-    QSqlRowset* rset = d->rowset();
     QWidget * editor = cellWidget( row, col );
-    
+
     if ( !editor )
 	return;
-    rset->seek( row );
-    (*rset)[col] = m.property( editor );
+    vw->seek( row );
+    (*vw)[col] = m.property( editor );
 }
 
 /*!
@@ -236,19 +240,19 @@ void QSqlTable::findString( const QString & str, bool caseSensitive,
 {
     // ### Searching backwards is not implemented yet.
     Q_UNUSED( backwards );
-    
+
     QSqlRowset * rset = d->rowset();
     unsigned int  row = currentRow(), startRow = row,
 		  col = currentColumn() + 1;
-    bool  wrap = TRUE, 
+    bool  wrap = TRUE,
 	 found = FALSE;
 
     if( str.isEmpty() || str.isNull() )
 	return;
-    
+
     QApplication::setOverrideCursor( Qt::waitCursor );
     if( rset ){
-	while( wrap ){	    
+	while( wrap ){
 	    while( !found && rset->seek( row ) ){
 		for(unsigned int i = col; i < rset->count(); i++){
 		    // ## Sort out the colIndex stuff
@@ -267,10 +271,10 @@ void QSqlTable::findString( const QString & str, bool caseSensitive,
 		col = 0;
 		row++;
 	    }
-		    
-	    if( startRow != 0 ){ 
+
+	    if( startRow != 0 ){
 		startRow = 0;
-	    } else { 
+	    } else {
 		wrap = FALSE;
 	    }
 	    rset->first();
@@ -298,8 +302,10 @@ void QSqlTable::reset()
     setNumCols(0);
     d->haveAllRows = FALSE;
     d->colIndex.clear();
-    if ( sorting() )
+    if ( sorting() ) {
 	horizontalHeader()->setSortIndicator( -1 );
+	setSorting( FALSE );
+    }
 }
 
 /*!
@@ -312,7 +318,7 @@ void QSqlTable::reset()
 int QSqlTable::indexOf( uint i )
 {
     QSqlTablePrivate::ColIndex::ConstIterator it = d->colIndex.at( i );
-    if ( it != d->colIndex.end() )
+    if ( it != d->colIndex.end() ) 
 	return *it;
     return -1;
 }
@@ -493,7 +499,7 @@ void QSqlTable::columnClicked ( int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    // ### 
+    // ###
     QTable::paintCell(p,row,col,cr,selected);
     QSql* sql = d->sql();
     if ( !sql )
@@ -512,7 +518,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 
 void QSqlTable::addColumns( const QSqlFieldList& fieldList )
 {
-    for ( uint j = 0; j < fieldList.count(); ++j )
+    for ( uint j = 0; j < fieldList.count(); ++j ) 
 	addColumn( fieldList.field(j) );
 }
 
@@ -545,14 +551,13 @@ void QSqlTable::setSize( const QSql* sql )
   Displays the SQL \a query in the table.  By default, SQL queries
   cannot be sorted.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
-  columns are automatically created based upon the \a query.
+  columns are automatically created based upon the fields in the \a query.
 
 */
 
 void QSqlTable::setQuery( const QString& query, const QString& databaseName, bool autoPopulate )
 {
-    QSql s( databaseName );
-    s.setQuery( query );
+    QSql s( query, databaseName );
     setQuery( s, autoPopulate );
 }
 
@@ -580,7 +585,7 @@ void QSqlTable::setQuery( const QSql& query, bool autoPopulate )
   Displays the rowset \a name in the table.  By default, the rowset
   can be sorted.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
-  columns are automatically created based upon the \a query.
+  columns are automatically created based upon the fields in the rowset.
 
 */
 
@@ -616,7 +621,7 @@ void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
   Displays the view \a name in the table.  By default, the view
   can be sorted and edited.  If a \a databaseName is not specified, the
   default database connection is used.  If autopoulate is TRUE,
-  columns are automatically created based upon the \a query.
+  columns are automatically created based upon the fields in the view.
 
 */
 
