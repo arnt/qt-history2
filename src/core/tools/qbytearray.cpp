@@ -807,7 +807,7 @@ QByteArray::QByteArray(const char*s, int size)
 	   d->alloc = d->size = len;
 	   d->data = d->array;
 	   memcpy(d->array, s, len);
-	   d->array[size] = '\0';
+	   d->array[len] = '\0';
        }
    }
    ++d->ref;
