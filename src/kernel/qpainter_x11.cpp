@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#50 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#49 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#50 $";
 #endif
 
 
@@ -2021,10 +2021,10 @@ static QString gen_xbm_key(  const QWorldMatrix &m, const QFont &f,
     if ( fi.rawMode() )
 	fd.sprintf( "&%s", fi.family() );
     else
-	fd.sprintf( "x%s_%i_%i_%i_%i_%i_%i_%i_%i",
+	fd.sprintf( "x%s_%i_%i_%i_%i_%i_%i_%i",
 		    fi.family(), fi.pointSize(), fi.italic(), fi.weight(),
 		    fi.underline(), fi.strikeOut(), fi.fixedPitch(),
-		    fi.styleHint(), fi.charSet() );
+		    fi.charSet() );
     k.resize( len + 100 + fd.length() );
     k.sprintf( "$%s,%g,%g,%g,%g,%g,%g,%s", (char *)s,
 	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(), (char *)fd );
@@ -2094,9 +2094,9 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	}
 	if ( testf(WxF) ) {			// draw transformed text
 	    QFontMetrics fm(cfont);
-	    int w = fm.width( str, len );
-	    int h = fm.height();
-	    int asc = fm.ascent();
+	    QRect bbox = fm.boundingRect( str, len );
+	    int w = bbox.width(), h=bbox.height();
+	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    QWorldMatrix eff_mat( wm11/65536.0, wm12/65536.0,
 				  wm21/65536.0, wm22/65536.0,
 				  wdx/65536.0,  wdy/65536.0 );
@@ -2110,14 +2110,14 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
 		paint.setFont( cfont );
-		paint.drawText( 0, asc, str, len );
+		paint.drawText( tx, ty, str, len );
 		paint.end();
 		wx_bm = bm.xForm( mat );	// transform bitmap
 	    }
 	    WXFORM_P( x, y );
 	    mat = QBitMap::trueMatrix( mat, w, h );
 	    int dx, dy;
-	    mat.map( 0, asc, &dx, &dy );	// compute position of bitmap
+	    mat.map( tx, ty, &dx, &dy );	// compute position of bitmap
 	    x -= dx;  y -= dy;
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(4);
