@@ -22,9 +22,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <signal.h>
-#include <dl.h>
-#define QT_HPUX_LD
-#define QT_NO_LIBRARY_UNLOAD
+#include <dlfcn.h>
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
