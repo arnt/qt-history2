@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#104 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -83,6 +83,7 @@ Atom qt_xdnd_status;
 Atom qt_xdnd_leave;
 Atom qt_xdnd_drop;
 Atom qt_xdnd_finished;
+Atom qt_xdnd_type_list;
 int qt_xdnd_version = 4;
 
 // Actions
@@ -143,7 +144,8 @@ Atom qt_xdnd_proxy;
 static Atom qt_xdnd_dragsource_xid = 0;
 
 // the types in this drop.  100 is no good, but at least it's big.
-static Atom qt_xdnd_types[100];
+const int qt_xdnd_max_type = 100;
+static Atom qt_xdnd_types[qt_xdnd_max_type];
 
 static QIntDict<QCString> * qt_xdnd_drag_types = 0;
 static QDict<Atom> * qt_xdnd_atom_numbers = 0;
@@ -375,6 +377,7 @@ void qt_xdnd_setup() {
     qt_x11_intern_atom( "XdndLeave", &qt_xdnd_leave );
     qt_x11_intern_atom( "XdndDrop", &qt_xdnd_drop );
     qt_x11_intern_atom( "XdndFinished", &qt_xdnd_finished );
+    qt_x11_intern_atom( "XdndTypeList", &qt_xdnd_type_list );
 
     qt_x11_intern_atom( "XdndSelection", &qt_xdnd_selection );
 
@@ -504,17 +507,27 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe, bool /*passive*/ )
 
     qt_xdnd_dragsource_xid = l[0];
 
-    // get the first types
-    int i;
     int j = 0;
-    for( i=2; i < 5; i++ )
-	qt_xdnd_types[j++] = l[i];
-    qt_xdnd_types[j] = 0;
-
     if ( l[1] & 1 ) {
-	// should retrieve that property
-	//debug( "more types from %08lx", qt_xdnd_dragsource_xid );
+	// get the types from XdndTypeList 
+	Atom   type = None;
+	int f;
+	unsigned long n, a;
+	Atom *data;
+	XGetWindowProperty( qt_xdisplay(), qt_xdnd_dragsource_xid,
+		    qt_xdnd_type_list, 0,
+		    qt_xdnd_max_type, False, XA_ATOM, &type, &f,&n,&a,(uchar**)&data );
+	for ( ; j<qt_xdnd_max_type && j < (int)n; j++ ) {
+	    qt_xdnd_types[j] = data[j];
+	}
+    } else {
+	// get the types from the message
+	int i;
+	for( i=2; i < 5; i++ ) {
+	    qt_xdnd_types[j++] = l[i];
+	}
     }
+    qt_xdnd_types[j] = 0;
 }
 
 
@@ -1137,21 +1150,32 @@ void QDragManager::move( const QPoint & globalPos )
 	qt_xdnd_current_target = target;
 	qt_xdnd_current_proxy_target = proxy_target;
 	if ( target ) {
-	    Atom * type[3]={0,0,0};
+	    QArray<Atom> type;
+	    int flags = target_version << 24;
 	    const char* fmt;
 	    int nfmt=0;
-	    for (nfmt=0; nfmt<3 && (fmt=object->format(nfmt)); nfmt++)
-		type[nfmt] = qt_xdnd_str_to_atom( fmt );
+	    for (nfmt=0; (fmt=object->format(nfmt)); nfmt++) {
+		type.resize(nfmt+1);
+		type[nfmt] = *qt_xdnd_str_to_atom( fmt );
+	    }
+	    if ( nfmt >= 3 ) {
+		XChangeProperty( qt_xdisplay(),
+		    object->source()->winId(), qt_xdnd_type_list,
+		    XA_ATOM, 32, PropModeReplace,
+		    (unsigned char *)type.data(),
+		    type.size() );
+		flags |= 0x0001;
+	    }
 	    XClientMessageEvent enter;
 	    enter.type = ClientMessage;
 	    enter.window = target;
 	    enter.format = 32;
 	    enter.message_type = qt_xdnd_enter;
 	    enter.data.l[0] = object->source()->winId();
-	    enter.data.l[1] = target_version << 24; // flags
-	    enter.data.l[2] = type[0] ? *type[0] : 0; // ###
-	    enter.data.l[3] = type[1] ? *type[1] : 0;
-	    enter.data.l[4] = type[2] ? *type[2] : 0;
+	    enter.data.l[1] = flags;
+	    enter.data.l[2] = type.size()>0 ? type[0] : 0;
+	    enter.data.l[3] = type.size()>1 ? type[1] : 0;
+	    enter.data.l[4] = type.size()>2 ? type[2] : 0;
 	    // provisionally set the rectangle to 5x5 pixels...
 	    qt_xdnd_source_sameanswer = QRect( globalPos.x() - 2,
 					       globalPos.y() -2 , 5, 5 );
