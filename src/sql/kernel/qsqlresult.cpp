@@ -21,8 +21,6 @@
 #include "qvector.h"
 #include "qsqldriver.h"
 
-#ifndef QT_NO_SQL
-
 struct Holder {
     Holder(const QString& hldr = QString(), int pos = -1): holderName(hldr), holderPos(pos) {}
     bool operator==(const Holder& h) const { return h.holderPos == holderPos && h.holderName == holderName; }
@@ -722,4 +720,3 @@ QSqlRecord QSqlResult::record() const
     return QSqlRecord();
 }
 
-#endif // QT_NO_SQL

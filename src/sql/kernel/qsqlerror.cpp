@@ -14,8 +14,6 @@
 #include "qsqlerror.h"
 #include "qdebug.h"
 
-#ifndef QT_NO_SQL
-
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
@@ -213,4 +211,3 @@ QString QSqlError::text() const
         return databaseError + QLatin1Char(' ') + driverError;
 }
 
-#endif // QT_NO_SQL

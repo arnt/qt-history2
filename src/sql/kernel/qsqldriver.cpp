@@ -13,8 +13,6 @@
 
 #include "qsqldriver.h"
 
-#ifndef QT_NO_SQL
-
 #include "qdatetime.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
@@ -558,5 +556,3 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
 
 */
 
-
-#endif // QT_NO_SQL

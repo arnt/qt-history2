@@ -13,8 +13,6 @@
 
 #include "qsqlquery.h"
 
-#ifndef QT_NO_SQL
-
 //#define QT_DEBUG_SQL
 
 #include "qatomic.h"
@@ -22,7 +20,6 @@
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldatabase.h"
-#include "qsql.h"
 #include "private/qsqlnulldriver_p.h"
 #include "qvector.h"
 #include "qmap.h"
@@ -1018,4 +1015,3 @@ QString QSqlQuery::executedQuery() const
     Use previous() instead.
 */
 
-#endif // QT_NO_SQL

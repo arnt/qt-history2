@@ -18,8 +18,6 @@
 #include "qsqldatabase.h"
 #include "qstring.h"
 
-#ifndef QT_NO_SQL
-
 class QCoreVariant;
 class QSqlDriver;
 class QSqlError;
@@ -89,6 +87,4 @@ private:
     QSqlQueryPrivate* d;
 };
 
-
-#endif // QT_NO_SQL
 #endif

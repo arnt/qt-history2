@@ -13,8 +13,6 @@
 
 #include "qsqldriverplugin.h"
 
-#ifndef QT_NO_SQL
-
 /*!
     \class QSqlDriverPlugin qsqldriverplugin.h
     \brief The QSqlDriverPlugin class provides an abstract base for custom QSqlDriver plugins.
@@ -75,4 +73,3 @@ QSqlDriverPlugin::~QSqlDriverPlugin()
 {
 }
 
-#endif // QT_NO_SQL

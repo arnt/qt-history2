@@ -17,7 +17,6 @@
 #include <qdatetime.h>
 #include <qvector.h>
 
-#ifndef QT_NO_SQL
 static const uint initial_cache_size = 128;
 
 class QSqlCachedResultPrivate
@@ -237,6 +236,4 @@ QSqlCachedResult::ValueCache &QSqlCachedResult::cache()
 {
     return d->cache;
 }
-
-#endif // QT_NO_SQL
 

@@ -16,9 +16,6 @@
 #include "qsqlfield.h"
 #include "qstringlist.h"
 
-
-#ifndef QT_NO_SQL
-
 /*!
     \class QSqlIndex qsqlindex.h
     \brief The QSqlIndex class provides functions to manipulate and
@@ -143,6 +140,8 @@ void QSqlIndex::setDescending(int i, bool desc)
         sorts[i] = desc;
 }
 
+#ifdef QT_COMPAT
+
 /*!
     Returns a comma-separated list of all the index's field names as a
     string. This string is suitable, for example, for generating a
@@ -200,6 +199,7 @@ QStringList QSqlIndex::toStringList(const QString& prefix, bool verbose) const
         s += createField(i, prefix, verbose);
     return s;
 }
+#endif
 
 /*! \internal
 
@@ -236,4 +236,3 @@ void QSqlIndex::setCursorName(const QString& cursorName)
     cursor = cursorName;
 }
 
-#endif

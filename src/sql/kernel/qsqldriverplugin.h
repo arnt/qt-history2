@@ -17,7 +17,6 @@
 #include "qplugin.h"
 #include "qfactoryinterface.h"
 
-#ifndef QT_NO_SQL
 class QSqlDriver;
 
 struct Q_SQL_EXPORT QSqlDriverFactoryInterface : public QFactoryInterface
@@ -39,7 +38,5 @@ public:
     virtual QSqlDriver *create(const QString &key) = 0;
 
 };
-
-#endif // QT_NO_SQL
 
 #endif // QSQLDRIVERPLUGIN_H

@@ -18,14 +18,6 @@
 #include "qstring.h"
 #include "qsqlquery.h"
 
-#if  defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
 class QStringList;
 class QSqlDatabase;
 class QSqlDriverPrivate;
@@ -33,7 +25,7 @@ class QSqlError;
 class QSqlField;
 class QSqlIndex;
 
-class QM_EXPORT_SQL QSqlDriver : public QObject
+class Q_SQL_EXPORT QSqlDriver : public QObject
 {
     friend class QSqlDatabase;
     Q_OBJECT
@@ -95,5 +87,4 @@ private:
     Q_DISABLE_COPY(QSqlDriver)
 };
 
-#endif// QT_NO_SQL
 #endif

@@ -16,14 +16,6 @@
 
 #include "qsql.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
 class QString;
 class QSqlRecord;
 template <typename T> class QVector;
@@ -32,10 +24,9 @@ class QCoreVariant;
 
 class QSqlDriver;
 class QSqlError;
-class QSql;
 class QSqlResultPrivate;
 
-class QM_EXPORT_SQL QSqlResult
+class Q_SQL_EXPORT QSqlResult
 {
 friend class QSqlQuery;
 friend class QSqlAsyncQuery;
@@ -104,5 +95,4 @@ private:
     Q_DISABLE_COPY(QSqlResult)
 };
 
-#endif // QT_NO_SQL
 #endif

@@ -20,14 +20,6 @@
 #include "qsqlrecord.h"
 #endif
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
 class QSqlError;
 class QSqlDriver;
 class QSqlIndex;
@@ -35,7 +27,7 @@ class QSqlRecord;
 class QSqlQuery;
 class QSqlDatabasePrivate;
 
-class QM_EXPORT_SQL QSqlDriverCreatorBase
+class Q_SQL_EXPORT QSqlDriverCreatorBase
 {
 public:
     virtual QSqlDriver* createObject() const = 0;
@@ -48,7 +40,7 @@ public:
     QSqlDriver* createObject() const { return new type; }
 };
 
-class QM_EXPORT_SQL QSqlDatabase
+class Q_SQL_EXPORT QSqlDatabase
 {
 public:
     QSqlDatabase();
@@ -121,9 +113,8 @@ private:
 };
 
 #ifndef QT_NO_DEBUG
-QM_EXPORT_SQL QDebug operator<<(QDebug, const QSqlDatabase &);
+Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlDatabase &);
 #endif
 
-#endif // QT_NO_SQL
 #endif
 

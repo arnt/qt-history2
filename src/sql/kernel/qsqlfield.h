@@ -17,17 +17,9 @@
 #include "qcorevariant.h"
 #include "qstring.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
 class QSqlFieldPrivate;
 
-class QM_EXPORT_SQL QSqlField
+class Q_SQL_EXPORT QSqlField
 {
 public:
     enum State { Unknown = -1, No = 0, Yes = 1 };
@@ -81,8 +73,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG
-QM_EXPORT_SQL QDebug operator<<(QDebug, const QSqlField &);
+Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlField &);
 #endif
 
-#endif        // QT_NO_SQL
 #endif

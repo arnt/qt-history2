@@ -16,15 +16,7 @@
 
 #include "qstring.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
-class QM_EXPORT_SQL QSqlError
+class Q_SQL_EXPORT QSqlError
 {
 public:
     enum ErrorType {
@@ -67,8 +59,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG
-QM_EXPORT_SQL QDebug operator<<(QDebug, const QSqlError &);
+Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlError &);
 #endif
 
-#endif // QT_NO_SQL
 #endif

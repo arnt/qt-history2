@@ -16,20 +16,12 @@
 
 #include "qstring.h"
 
-#ifndef QT_NO_SQL
-
 class QSqlField;
 class QStringList;
 class QCoreVariant;
 class QSqlRecordPrivate;
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-class QM_EXPORT_SQL QSqlRecord
+class Q_SQL_EXPORT QSqlRecord
 {
 public:
     QSqlRecord();
@@ -87,8 +79,7 @@ private:
 };
 
 #ifndef QT_NO_DEBUG
-QM_EXPORT_SQL QDebug operator<<(QDebug, const QSqlRecord &);
+Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlRecord &);
 #endif
 
-#endif        // QT_NO_SQL
 #endif

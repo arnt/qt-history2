@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_SQL
-
 #ifndef QSQLNULLDRIVER_P_H
 #define QSQLNULLDRIVER_P_H
 
@@ -83,4 +81,3 @@ protected:
 };
 
 #endif //QSQLNULLDRIVER_P_H
-#endif //QT_NO_SQL

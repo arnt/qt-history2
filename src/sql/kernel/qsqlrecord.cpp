@@ -13,8 +13,6 @@
 
 #include "qsqlrecord.h"
 
-#ifndef QT_NO_SQL
-
 #include "qdebug.h"
 #include "qstringlist.h"
 #include "qatomic.h"
@@ -575,5 +573,3 @@ QDebug operator<<(QDebug dbg, const QSqlRecord &r)
     Use indexOf() instead.
 */
 
-
-#endif

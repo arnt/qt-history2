@@ -15,8 +15,6 @@
 #include "qatomic.h"
 #include "qdebug.h"
 
-#ifndef QT_NO_SQL
-
 class QSqlFieldPrivate
 {
 public:
@@ -515,7 +513,4 @@ QDebug operator<<(QDebug dbg, const QSqlField &f)
 
     Use clear() instead.
 */
-
-
-#endif
 

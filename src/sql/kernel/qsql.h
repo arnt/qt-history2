@@ -16,18 +16,8 @@
 
 #include "qglobal.h"
 
-#if defined(QT_LICENSE_PROFESSIONAL)
-#define QM_EXPORT_SQL
-#else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
-#endif
-
-#ifndef QT_NO_SQL
-
-class QM_EXPORT_SQL QSql
+namespace QSql
 {
-public:
-    QSql() {}
     enum Op {
         None = -1,
         Insert = 0,
@@ -60,12 +50,8 @@ public:
         Views = 0x04,
         AllTables = 0xff
     };
-
-private:
-    Q_DISABLE_COPY(QSql)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)
 
-#endif
 #endif

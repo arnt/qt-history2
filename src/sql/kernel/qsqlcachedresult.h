@@ -31,8 +31,6 @@
 class QCoreVariant;
 template <typename T> class QVector;
 
-#ifndef QT_NO_SQL
-
 class QSqlCachedResultPrivate;
 
 class Q_SQL_EXPORT QSqlCachedResult: public QSqlResult
@@ -65,8 +63,5 @@ private:
     bool cacheNext();
     QSqlCachedResultPrivate *d;
 };
-
-
-#endif
 
 #endif
