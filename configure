@@ -1414,7 +1414,7 @@ then
     if [ "$CFG_SM" = "auto" ]
     then
 	CFG_SM=yes
-	$x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && SM=no
+	$x11tests/sm.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_SM=no
     fi
     # auto-detect Xinerama support
     if [ "$CFG_XINERAMA" != "no" ]
