@@ -1452,15 +1452,6 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	bool on = toolbutton->isOn();
 	bool down = toolbutton->isDown();
-	bool use3d = FALSE;
-	bool drawarrow = FALSE;
-	Qt::ArrowType arrowType = Qt::DownArrow;
-
-	if (data) {
-	    use3d      = *((bool *) data[0]);
-	    drawarrow  = *((bool *) data[1]);
-	    arrowType  = *((Qt::ArrowType *) data[2]);
-	}
 
 	SFlags bflags = flags,
 	       mflags = flags;
