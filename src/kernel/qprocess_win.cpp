@@ -373,12 +373,12 @@ bool QProcess::start( QStringList *env )
 
 static BOOL CALLBACK qt_terminateApp( HWND hwnd, LPARAM procId )
 {
-  DWORD procId_win;
-  GetWindowThreadProcessId( hwnd, &procId_win );
-  if( procId_win == (DWORD)procId )
-     PostMessage( hwnd, WM_CLOSE, 0, 0 );
+    DWORD procId_win;
+    GetWindowThreadProcessId( hwnd, &procId_win );
+    if( procId_win == (DWORD)procId )
+	PostMessage( hwnd, WM_CLOSE, 0, 0 );
 
-  return TRUE;
+    return TRUE;
 }
 
 void QProcess::tryTerminate() const
