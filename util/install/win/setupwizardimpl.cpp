@@ -608,10 +608,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		envSpec |= QEnvironment::GlobalEnv;
 */
 	    path.clear();
-	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
+	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
 	    if( path.findIndex( qtDir + "\\bin" ) == -1 ) {
 		path.prepend( qtDir + "\\bin" );
-		QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
+		QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
 	    }
 	}
 
