@@ -1328,6 +1328,9 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
     m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
 }
 
+extern bool ignoreSlots( const char *test );
+extern bool ignoreProps( const char *test );
+
 /*!
     Creates mappings between DISPIDs and Qt signal/slot/property data.
 */
@@ -1345,6 +1348,9 @@ void QAxServerBase::readMetaData()
 	const QMetaObject *mo = activeqt->metaObject();
 	for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
 	    const QMetaData *slot = mo->slot( islot, TRUE );
+
+	    if ( ignoreSlots( slot->method->name ) || slot->access != QMetaData::Public )
+		continue;
 
 	    BSTR bstrNames = QStringToBSTR( slot->method->name );
 	    UINT cNames = 1;
@@ -1416,6 +1422,9 @@ void QAxServerBase::readMetaData()
 	}
 	for ( int iproperty = mo->numProperties( TRUE )-1; iproperty >= 0; --iproperty ) {
 	    const QMetaProperty *property = mo->property( iproperty, TRUE );
+
+	    if ( ignoreProps( property->name() ) )
+		continue;
 
 	    BSTR bstrNames = QStringToBSTR( property->name() );
 	    UINT cNames = 1;
@@ -1616,7 +1625,6 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 	    if ( cc ) {
 		// setup parameters
 		unsigned int argErr = 0;
-		VARIANT arg;
 		DISPPARAMS dispParams;
 		dispParams.cArgs = signalcount;
 		dispParams.cNamedArgs = 0;
@@ -1625,11 +1633,13 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		int p;
 		for ( p = 0; p < signalcount; ++p ) {
 		    QUObject *obj = _o + p + 1;
+		    VARIANT *arg = dispParams.rgvarg + (signalcount - p - 1);
+		    VariantInit( arg );
+
 		    const QUParameter *param = signal ? signal->method->parameters + p : 0;
-		    QUObjectToVARIANT( obj, arg, param );
 		    if ( param && ( param->inOut & QUParameter::Out ) )
-			arg.vt |= VT_BYREF;
-		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
+			arg->vt |= VT_BYREF;
+		    QUObjectToVARIANT( obj, *arg, param );
 		}
 		// call listeners (through IDispatch)
 		GUID IID_QAxEvents = qAxFactory()->eventsID( class_name );
@@ -1880,7 +1890,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		objects = new QUObject[pcount+1];
 		for ( int p = 0; p < pcount; ++p ) {
 		    // map the VARIANT to the QUObject, and try to get the required type
-		    objects[p+1].type = params[p+retoff].type;  // first object is return value
+		    objects[p+1].payload.ptr = 0;
 		    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p + retoff );
 		}
 	    } else if ( retoff ) {
@@ -1919,8 +1929,10 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
 		return DISP_E_BADPARAMCOUNT;
 
-	    emitRequestPropertyChange( dispidMember );
+	    if ( !emitRequestPropertyChange( dispidMember ) )
+		break;
 
+	    QVariant oldvar = activeqt->property( property->name() );
 	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg, property->type() );
 	    if ( !var.isValid() ) {
 		if ( puArgErr )
@@ -1932,11 +1944,12 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		    *puArgErr = 0;
 		return DISP_E_TYPEMISMATCH;
 	    }
-
-	    emitPropertyChanged( dispidMember );
+	    
+	    if ( oldvar != var )
+		emitPropertyChanged( dispidMember );
 	    res = S_OK;
 
-	    if ( m_spAdviseSink )
+	    if ( m_spAdviseSink && oldvar != var )
 		m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, 0 );
 	}
 	break;

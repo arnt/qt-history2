@@ -310,12 +310,12 @@ static QStrList *enums = 0;
 static const char* const type_map[][2] =
 {
     // QVariant/Qt Value data types
-    { "int",		"int" },
-    { "uint",		"int" },
-    { "bool",		"VARIANT_BOOL" },
     { "QString",	"BSTR" },
-    { "double",		"double" },
     { "QCString",	"BSTR" },
+    { "bool",		"VARIANT_BOOL" },
+    { "int",		"int" },
+    { "uint",		"unsigned int" },
+    { "double",		"double" }, 
     { "QColor",		"OLE_COLOR" },
     { "QDate",		"DATE" },
     { "QTime",		"DATE" },
@@ -360,7 +360,8 @@ static const char* const keyword_map[][2] =
     { "arrays",		"array"		    },
     { "async",		"asynchronous"	    },
     { "bindable",	"binding"	    },
-    { "Boolean",	"boolean"	    },
+    { "Boolean",	"boolval"	    },
+    { "boolean",	"boolval"	    },
     { "broadcast",	"broadCast"	    },
     { "callback",	"callBack"	    },
     { "code",		"code_"		    },
@@ -496,6 +497,15 @@ static bool ignore( const char *test, const char *const *table )
     return FALSE;
 }
 
+bool ignoreSlots( const char *test )
+{
+    return ignore( test, ignore_slots );
+}
+
+bool ignoreProps( const char *test )
+{
+    return ignore( test, ignore_props );
+}
 
 #define STRIPCB(x) x = x.mid( 1, x.length()-2 )
 
@@ -694,13 +704,16 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 #if QT_VERSION >= 0x030100
 		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-		    int vartable = (QVariant::Type)*(int*)param->typeExtra;
-		    QVariant::Type vartype = (QVariant::Type)qt_variant_types[vartable];
+		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
 		} else 
 #endif
-		    if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
+		if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+		    QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		    QCString type = QVariant::typeToName( vartype );
+		    paramType = convertTypes( type, &ok );
+		} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
 		    QCString type = (const char*)param->typeExtra;
 		    if ( type.right(1) == "&" )
 			type = type.left( type.length()-1 );

@@ -126,7 +126,7 @@ private:
 
     static QMetaObject *staticMetaObject() { return 0; }
     virtual QMetaObject *parentMetaObject() const = 0;
-    bool internalInvoke( const QCString &name, void *out, QVariant var[] );
+    bool internalInvoke( const QCString &name, void *out, QVariant var[], QCString &type );
 
     QString ctrl;
 };

@@ -245,50 +245,20 @@ public:
 	    const QUParameter *params = signal->method->parameters;
 	    QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
 	    int p;
-	    for ( p = 0; p < pcount; ++p ) // map the VARIANT to the QUObject
+	    for ( p = 0; p < pcount; ++p ) {// map the VARIANT to the QUObject
+		objects[p+1].payload.ptr = 0;
 		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1, params + p );
+	    }
 
 	    // emit the generated signal
 	    bool ret = combase->qt_emit( index, objects );
 
 	    for ( p = 0; p < pcount; ++p ) { // update the VARIANT for references and free memory
-		VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
-		VARTYPE vt = arg->vt;
-		QUObject *obj = objects + p + 1;
-		switch ( vt )
-		{
-		case VT_DATE:
-		case VT_DATE|VT_BYREF:
-		    {
-			QDateTime *dt = (QDateTime*)static_QUType_ptr.get( obj );
-			if ( vt & VT_BYREF )
-			    *arg->pdate = QDateTimeToDATE( *dt );
-			delete dt;
-		    }
-		    break;
-		case VT_BSTR|VT_BYREF:
-		    {
-			BSTR *bstr = arg->pbstrVal;
-			QString *str = (QString*)static_QUType_ptr.get( obj );
-			*bstr = QStringToBSTR( *str );
-			delete str;
-		    }
-		case VT_UNKNOWN|VT_BYREF:
-		    {
-			IUnknown *iface = (IUnknown*)static_QUType_ptr.get( obj );
-			*arg->ppunkVal = iface;
-		    }
-		    break;
-
-		case VT_DISPATCH|VT_BYREF:
-		    {
-			IDispatch *iface = (IDispatch*)static_QUType_ptr.get( obj );
-			*arg->ppdispVal = iface;
-		    }
-		    break;
-
-		default:
-		    break;
+		const QUParameter *param = params+p;
+		if ( param->inOut & QUParameter::Out ) {
+		    VARIANT *arg = &(pDispParams->rgvarg[ pcount-p-1 ]);
+		    QUObject *obj = objects + p + 1;
+		    QUObjectToVARIANT( obj, *arg, param );
 		}
 	    }
 	    // cleanup
@@ -344,6 +314,7 @@ public:
 		return S_OK;
 
 	    QUObject o[2];
+	    o[1].payload.ptr = 0;
 	    QVariantToQUObject( var, o[1], signal->method->parameters );
 
 	    // emit the "changed" signal
@@ -620,9 +591,7 @@ public:
     \i char, unsigned char
     \i const char*
     \i float, double
-    \i short, unsigned short
     \i int, unsigned int
-    \i long, unsigned long
     \i BSTR
     \i DATE
     \i IFont*
@@ -941,31 +910,36 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 {
     QString str;
     switch ( tdesc.vt ) {
+    case VT_VOID:
+	str = "void";
+	break;
+    case VT_BSTR:
+	str = "QString";
+	break;
+    case VT_BOOL:
+	str = "bool";
+	break;
+    case VT_I1:
     case VT_I2:
     case VT_I4:
+    case VT_INT:
 	str = "int";
+	break;
+    case VT_UI1:
+    case VT_UI2:
+    case VT_UI4:
+    case VT_UINT:
+	str = "uint";
 	break;
     case VT_R4:
     case VT_R8:
 	str = "double";
 	break;
-    case VT_CY:
-	str = "long long"; // ### 64bit struct CY { ulong lo, long hi };
-	break;
     case VT_DATE:
 	str = "QDateTime";
 	break;
-    case VT_BSTR:
-	str = "QString";
-	break;
     case VT_DISPATCH:
 	str = "IDispatch*";
-	break;
-    case VT_ERROR:
-	str = "long";
-	break;
-    case VT_BOOL:
-	str = "bool";
 	break;
     case VT_VARIANT:
 	str = "QVariant";
@@ -973,40 +947,32 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
     case VT_UNKNOWN:
 	str = "IUnknown*";
 	break;
-    case VT_I1:
-	str = "char";
-	break;
-    case VT_UI1:
-	str = "unsigned char";
-	break;
-    case VT_UI2:
-	str = "unsigned short";
-	break;
-    case VT_UI4:
-	str = "unsigned int";
-	break;
-    case VT_INT:
-	str = "int";
-	break;
-    case VT_UINT:
-	str = "unsigned int";
-	break;
-    case VT_VOID:
-	str = "void";
-	break;
     case VT_HRESULT:
 	str = "HRESULT";
 	break;
-    case VT_LPSTR:
-	str = "const char*";
-	break;
-    case VT_LPWSTR:
-	str = "const unsigned short*";
-	break;
     case VT_PTR:
 	str = guessTypes( *tdesc.lptdesc, info, enumlist, function );
-	if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
-	    str += "*";
+	switch( tdesc.lptdesc->vt ) {
+	case VT_BSTR:
+	case VT_I1:
+	case VT_I2:
+	case VT_I4:
+	case VT_UI1:
+	case VT_UI2:
+	case VT_UI4:
+	case VT_BOOL:
+	case VT_R4:
+	case VT_R8:
+	case VT_INT:
+	case VT_UINT:
+	    str += "&";
+	    break;
+	default:
+	    if ( str == "QColor" )
+		str += "&";
+	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
+		str += "*";
+	}
 	break;
     case VT_SAFEARRAY:
 	str = guessTypes( tdesc.lpadesc->tdescElem, info, enumlist, function );
@@ -1058,16 +1024,23 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 {
     param->typeExtra = 0;
     QMetaEnum *enumData = 0;
-    if ( type == "int" || type == "long" ) {
+    if ( type == "int" || type == "int&" ) {
 	param->type = &static_QUType_int;
-    } else if ( type == "bool" ) {
+    } else if ( type == "short" || type == "long" ) {
+	param->type = &static_QUType_int;
+    } else if ( type == "uint" || type == "uint&" ) {
+	param->type = &static_QUType_uint;
+    } else if ( type == "bool" || type == "bool&" ) {
 	param->type = &static_QUType_bool;
-    } else if ( type == "QString" || type == "const QString&" ) {
+    } else if ( type == "QString" || type == "const QString&" || type == "QString&" ) {
 	param->type = &static_QUType_QString;
-    } else if ( type == "double" ) {
+    } else if ( type == "double" || type == "double&" ) {
 	param->type = &static_QUType_double;
     } else if ( type == "QVariant" || type == "const QVariant&" ) {
 	param->type = &static_QUType_QVariant;
+    } else if ( type == "QColor" || type == "const QColor&" || type == "QColor&" ) {
+	param->type = &static_QUType_varptr;
+	param->typeExtra = new int(QVariant::Color);
     } else if ( (enumData = enumDict.find( type )) != 0 ) {
 	param->type = &static_QUType_enum;
 	QUEnum *uEnum = new QUEnum;
@@ -2156,29 +2129,29 @@ QString QAxBase::generateDocumentation()
 	    }
 	    stream << " " << slot->name << ";</li>" << endl;
 	}
-	stream << "</ul>";
+	stream << "</ul>" << endl;
     }
     int propCount = mo->numProperties();
     if ( propCount ) {
 	stream << "<h2>Properties:</h2>" << endl;
-	stream << "<ul>";
+	stream << "<ul>" << endl;
 	for ( int iprop = 0; iprop < propCount; ++iprop ) {
 	    const QMetaProperty *prop = mo->property( iprop );
 	    stream << "<li>" << prop->type() << " " << prop->name() << ";</li>" << endl;
 	}
-	stream << "</ul>";
+	stream << "</ul>" << endl;
     }
     int signalCount = mo->numSignals();
     if ( signalCount ) {
 	stream << "<h2>Signals:</h2>" << endl;
-	stream << "<ul>";
+	stream << "<ul>" << endl;
 	for ( int isignal = 0; isignal < signalCount; ++isignal ) {
 	    const QMetaData *signal = mo->signal( isignal );
 	    const QUMethod *method = signal->method;
 	    stream << "<li>void ";
-	    stream << signal->name << ";</li>";
+	    stream << signal->name << ";</li>" << endl;
 	}
-	stream << "</ul>";
+	stream << "</ul>" << endl;
     }
 
     return docu;
@@ -2305,7 +2278,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     // Get the Dispatch ID of the method to be called
     bool fakedslot = FALSE;
     DISPID dispid;
-    OLECHAR *names = (TCHAR*)qt_winTchar(slot->name, TRUE );
+    OLECHAR *names = (TCHAR*)QString(slot->name).ucs2();
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
     if ( dispid == DISPID_UNKNOWN ) {
 	// see if we are calling a property set function as a slot
@@ -2314,7 +2287,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
 	    return FALSE;
 	QString realname = slot->name;
 	realname = realname.right( realname.length() - 3 );
-	OLECHAR *realnames = (TCHAR*)qt_winTchar(realname, TRUE );
+	OLECHAR *realnames = (TCHAR*)realname.ucs2();
 	disp->GetIDsOfNames( IID_NULL, &realnames, 1, LOCALE_USER_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
@@ -2401,7 +2374,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 	QString pname( prop->n );
 
 	DISPID dispid;
-	OLECHAR *names = (TCHAR*)qt_winTchar(prop->n, TRUE );
+	OLECHAR *names = (TCHAR*)pname.ucs2();
 	disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
 	if ( dispid == DISPID_UNKNOWN )
 	    return FALSE;
@@ -2437,6 +2410,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 	case 1: // Get
 	    {
 		VARIANTARG arg;
+		VariantInit( &arg );
 		DISPPARAMS params;
 		params.cArgs = 0;
 		params.cNamedArgs = 0;
@@ -2515,7 +2489,7 @@ static inline QCString qt_rmWS( const char *s )
 /*!
     \internal
 */
-bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[] )
+bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[], QCString &type )
 {
     IDispatch *disp = d->dispatch();
     if ( !disp )
@@ -2537,8 +2511,23 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    const QMetaData *slot = metaObject()->slot( id, TRUE );
 	    function = slot->method->name;
 	    int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
+	    if ( retoff ) {
+		const QUParameter *retparam = slot->method->parameters;
+		if ( QUType::isEqual( retparam->type, &static_QUType_ptr ) )
+		    type = (const char*)retparam->typeExtra;
+		else if ( QUType::isEqual( retparam->type, &static_QUType_QVariant ) )
+		    type = QVariant::typeToName( (QVariant::Type)*(int*)retparam->typeExtra );
+		else if ( QUType::isEqual( retparam->type, &static_QUType_varptr ) )
+		    type = QVariant::typeToName( (QVariant::Type)*(int*)retparam->typeExtra );
+		else
+		    type = retparam->type->desc();
+	    }
+
 	    for ( int i = 0; i < varc; ++i ) {
 		const QUParameter *param = slot->method->parameters + i + retoff;
+		VariantInit( arg + (varc-i-1) );
+		if ( param->inOut & QUParameter::Out )
+		    arg[varc-i-1].vt |= VT_BYREF;
 		QVariantToVARIANT( vars[i], arg[varc-i-1], param );
 	    }
 	    disptype = DISPATCH_METHOD;
@@ -2553,10 +2542,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     } else {
 	id = metaObject()->findProperty( name, TRUE );
 	if ( id >= 0 ) {
+	    const QMetaProperty *prop = metaObject()->property( id, TRUE );
+	    type = prop->type();
 	    if ( varc ) {
 		varc = 1;
-		const QMetaProperty *prop = metaObject()->property( id, TRUE );
-		QVariantToVARIANT( vars[0], arg[0], prop->type() );
+		QVariantToVARIANT( vars[0], arg[0], type );
 		res = 0;
 		disptype = DISPATCH_PROPERTYPUT;
 	    } else {
@@ -2604,13 +2594,9 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     if ( hres == DISP_E_MEMBERNOTFOUND && disptype == DISPATCH_METHOD )
 	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, 0 );
 
-    if ( disptype == DISPATCH_METHOD && id >= 0 ) {
-	const QMetaData *slot = metaObject()->slot( id, TRUE );
-	function = slot->method->name;
-	int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
+    if ( disptype == DISPATCH_METHOD && id >= 0 && varc ) {
 	for ( int i = 0; i < varc; ++i )
 	    vars[i] = VARIANTToQVariant( arg[varc-i-1], vars[i].typeName() );
-	disptype = DISPATCH_METHOD;
     }
 
     // clean up
@@ -2675,6 +2661,7 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 							 const QVariant &var8 )
 {
     VARIANTARG res;
+    res.vt = VT_EMPTY;
 
     int varc = 0;
     QVariant vars[9]; // 8 + terminating invalid
@@ -2688,17 +2675,11 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
     vars[varc++] = var8;
     vars[varc++] = QVariant();
 
-    if ( !internalInvoke( function, &res, vars ) )
+    QCString rettype;
+    if ( !internalInvoke( function, &res, vars, rettype ) )
 	return QVariant();
 
-    int p = metaObject()->findProperty( function );
-    const char *type = 0;
-    if ( p != -1 ) {
-	const QMetaProperty *prop = metaObject()->property( p );
-	type = prop->type();
-    }
-
-    QVariant qvar = VARIANTToQVariant( res, type );
+    QVariant qvar = VARIANTToQVariant( res, rettype );
     VariantClear( &res );
 
     return qvar;
@@ -2727,7 +2708,8 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
     for ( QValueList<QVariant>::Iterator it = vars.begin(); it != vars.end(); ++it )
 	vararray[i++] = *it;
 
-    bool ok = internalInvoke( function, &res, vararray );
+    QCString rettype;
+    bool ok = internalInvoke( function, &res, vararray, rettype );
     if ( ok ) {
 	vars.clear();
 	for ( i = 0; i < count; ++i )
@@ -2735,13 +2717,7 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
     }
     delete[] vararray;
 
-    int p = metaObject()->findProperty( function );
-    const char *type = 0;
-    if ( p != -1 ) {
-	const QMetaProperty *prop = metaObject()->property( p );
-	type = prop->type();
-    }
-    QVariant qvar = VARIANTToQVariant( res, type );
+    QVariant qvar = VARIANTToQVariant( res, rettype );
     VariantClear( &res );
 
     return qvar;
@@ -2804,7 +2780,8 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
     vars[varc++] = var8;
     vars[varc++] = QVariant();
 
-    if ( !internalInvoke( name, &res, vars ) )
+    QCString rettype;
+    if ( !internalInvoke( name, &res, vars, rettype ) )
 	return 0;
 
     switch ( res.vt ) {
