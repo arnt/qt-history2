@@ -653,7 +653,7 @@ void qWarning(const char *msg, ...)
 
     Calls the message handler with the critical message \a msg. If no
     message handler has been installed, the message is printed to
-    stderr. Under Windows, the message is sent to the debugger. 
+    stderr. Under Windows, the message is sent to the debugger.
 
     This function takes a format string and a list of arguments, similar
     to the C printf() function.
@@ -675,7 +675,7 @@ void qWarning(const char *msg, ...)
     lead to crashes on certain platforms due to the platforms printf
     implementation.
 
-    \sa qDebug(), qWarning(), qFatal(), qInstallMsgHandler(), 
+    \sa qDebug(), qWarning(), qFatal(), qInstallMsgHandler(),
         \link debug.html Debugging\endlink
 */
 void qCritical(const char *msg, ...)
@@ -705,7 +705,7 @@ void qCritical(const char *msg, ...)
 }
 #ifdef QT_COMPAT
 void qSystemWarning(const char *msg, int code)
-{ qCritical("%s (%s)", msg, qt_error_string(code)); }
+{ qCritical("%s (%s)", msg, qt_error_string(code).local8Bit()); }
 #endif // QT_COMPAT
 
 
@@ -714,7 +714,7 @@ void qSystemWarning(const char *msg, int code)
 
     Calls the message handler with the fatal message \a msg. If no
     message handler has been installed, the message is printed to
-    stderr. Under Windows, the message is sent to the debugger. 
+    stderr. Under Windows, the message is sent to the debugger.
 
     For a release library this function will exit the application
     with return value 1. For the debug version this function will
