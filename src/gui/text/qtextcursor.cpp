@@ -500,7 +500,7 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     if (format.isBlockFormat())
 	blockFmt = format.toBlockFormat();
 
-    QStringList blocks = QStringList::split(QTextParagraphSeparator, text, true /*allow empty entries*/);
+    QStringList blocks = text.split(QTextParagraphSeparator);
     for (int i = 0; i < blocks.size(); ++i) {
 	if (i > 0)
 	    insertBlock(blockFmt);
