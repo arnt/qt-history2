@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.21 1999/02/13 14:43:28 warwick Exp $
+** $Id: tutorial.doc,v 2.22 1999/03/16 15:32:23 eiriken Exp $
 **
 ** Tutorial
 **
@@ -3113,8 +3113,18 @@ the CannonField.
 
 <h2>Excercises</h2>
 
-Write a space invaders game and give it to the
+Write a space invaders game.
+<p>
+This excercise was first done by 
+<a href="mailto:igorr@ifi.uio.no">Igor Rafienko</a>. You can 
+<a href="http://www.stud.ifi.uio.no/~igorr/download.html">
+download his game</a>.
+<p>
+The new excercise is:
+<p>
+Write a breakout clone and give it to the
 <a href="http://www.kde.org/">KDE project.</a>
+<p>
 
 You may now go on to write your own Qt applications.
 
