@@ -363,25 +363,25 @@ void SqlFormWizard::accept()
 		QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First",
 						 QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "firstRecord()" );
-		formWindow->addConnection( widget, "firstRecordAvailable( bool )", pb, "setEnabled()" );
+		formWindow->addConnection( widget, "firstRecordAvailable( bool )", pb, "setEnabled( bool )" );
 	    }
 	    if ( checkBoxPrev->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev",
 						 QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "prevRecord()" );
-		formWindow->addConnection( widget, "prevRecordAvailable( bool )", pb, "setEnabled()" );
+		formWindow->addConnection( widget, "prevRecordAvailable( bool )", pb, "setEnabled( bool )" );
 	    }
 	    if ( checkBoxNext->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>",
 						 QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "nextRecord()" );
-		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb, "setEnabled()" );
+		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb, "setEnabled( bool )" );
 	    }
 	    if ( checkBoxLast->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
 						 QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "lastRecord()" );
-		formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb, "setEnabled()" );
+		formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb, "setEnabled( bool )" );
 	    }
 	}
 
