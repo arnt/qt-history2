@@ -208,6 +208,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     bool checked = q->isChecked();
     opt.text = q->text();
     opt.icon = q->icon();
+    opt.iconSize = q->iconSize();
     opt.arrowType = arrow;
     if (down)
         opt.state |= QStyle::Style_Down;
@@ -235,16 +236,12 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
     }
     opt.features = QStyleOptionToolButton::None;
-    if (q->toolButtonStyle() != Qt::ToolButtonIconOnly)
-        opt.features |= QStyleOptionToolButton::TextLabel;
     if (hasArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
     if (menu && popupMode == QToolButton::MenuButtonPopupMode)
         opt.features |= QStyleOptionToolButton::Menu;
     if (popupMode == QToolButton::DelayedPopupMode)
         opt.features |= QStyleOptionToolButton::PopupDelay;
-    if (q->iconSize() == Qt::LargeIconSize)
-        opt.features |= QStyleOptionToolButton::BigPixmap;
     opt.toolButtonStyle = q->toolButtonStyle();
     opt.pos = q->pos();
     opt.font = q->font();

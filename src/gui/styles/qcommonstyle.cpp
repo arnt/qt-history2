@@ -1000,9 +1000,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                              opt->state & Style_Enabled, tb->text, -1, &btext);
                 } else {
                     QPixmap pm;
-                    Qt::IconSize size =
-                        tb->features & QStyleOptionToolButton::BigPixmap ? Qt::LargeIconSize
-                                                                         : Qt::SmallIconSize;
+                    Qt::IconSize size = tb->iconSize;
                     QIcon::State state = tb->state & Style_On ? QIcon::On : QIcon::Off;
                     QIcon::Mode mode;
                     if (!(tb->state & Style_Enabled))
@@ -1014,7 +1012,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         mode = QIcon::Normal;
                     pm = tb->icon.pixmap(size, mode, state);
 
-                    if (tb->features & QStyleOptionToolButton::TextLabel) {
+                    if (tb->toolButtonStyle != Qt::ToolButtonIconOnly) {
                         p->setFont(tb->font);
                         QRect pr = rect,
                         tr = rect;

@@ -465,8 +465,7 @@ public:
     enum { Type = SO_ToolButton };
     enum { Version = 1 };
 
-    enum ToolButtonFeature { None = 0x00, Arrow = 0x01, TextLabel = 0x02, Menu = 0x04,
-                             PopupDelay = 0x08, BigPixmap = 0x10 };
+    enum ToolButtonFeature { None = 0x00, Arrow = 0x01, Menu = 0x04, PopupDelay = 0x08 };
     Q_DECLARE_FLAGS(ToolButtonFeatures, ToolButtonFeature)
 
     ToolButtonFeatures features;
@@ -484,6 +483,8 @@ public:
     QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(QString text)
     QDOC_PROPERTY(Qt::ArrowType arrowType)
+    QDOC_PROPERTY(Qt::IconSize iconSize)
+    QDOC_PROPERTY(Qt::ToolButtonStyle toolButtonStyle)
     QDOC_PROPERTY(QPoint pos)
     QDOC_PROPERTY(QFont font)
 

@@ -1143,13 +1143,11 @@ QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
 
     \value None A normal tool button.
     \value Arrow The tool button is an arrow.
-    \value TextLabel The tool button has a text label.
     \value Menu The tool button has a menu.
     \value PopupDelay There is a delay to showing the menu.
-    \value BigPixmap The tool button uses big pixmaps.
 
-    \sa features, QToolButton::usesTextLabel(), QToolButton::popupDelay(),
-        QToolButton::usesBigPixmap()
+    \sa features, QToolButton::toolButtonStyle(), QToolButton::popupMode(),
+        QToolButton::iconSize()
 */
 
 /*!
@@ -1200,6 +1198,20 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \brief The direction of the arrow for the tool button
 
     This value is only used if \l features includes \l Arrow.
+*/
+
+/*!
+    \property QStyleOptionToolButton::iconSize
+    \brief The size of the tool button icon
+
+    \sa QToolButton::iconSize()
+*/
+
+/*!
+    \property QStyleOptionToolButton::toolButtonStyle
+    \brief Used to describe the appearance of a tool button
+
+    \sa QToolButton::toolButtonStyle()
 */
 
 /*!
