@@ -40,9 +40,9 @@ Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
     \code
     class Number {
     public:
-	Number( double n ) : num ( n ) { }
+	Number(double n) : num (n) { }
 
-	void setNumber( double n ) { num = n; }
+	void setNumber(double n) { num = n; }
 	double number() const { return num; }
 
     private:
@@ -59,10 +59,10 @@ Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
     like this:
 
     \code
-    void calcSquare( Number *num )
+    void calcSquare(Number *num)
     {
-	QMutexLocker locker( mutexpool.get( num ) );
-	num.setNumber( num.number() * num.number() );
+	QMutexLocker locker(mutexpool.get(num));
+	num.setNumber(num.number() * num.number());
     }
     \endcode
 
@@ -80,11 +80,11 @@ Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
     The QMutexes are created when needed, and deleted when the
     QMutexPool is destructed.
 */
-QMutexPool::QMutexPool( bool recursive, int size )
-    : mutex( false ), count( size ), recurs( recursive )
+QMutexPool::QMutexPool(bool recursive, int size)
+    : mutex(false), count(size), recurs(recursive)
 {
     mutexes = new QMutex*[count];
-    for ( int index = 0; index < count; ++index ) {
+    for (int index = 0; index < count; ++index) {
 	mutexes[index] = 0;
     }
 }
@@ -95,8 +95,8 @@ QMutexPool::QMutexPool( bool recursive, int size )
 */
 QMutexPool::~QMutexPool()
 {
-    QMutexLocker locker( &mutex );
-    for ( int index = 0; index < count; ++index ) {
+    QMutexLocker locker(&mutex);
+    for (int index = 0; index < count; ++index) {
 	delete mutexes[index];
 	mutexes[index] = 0;
     }
@@ -108,19 +108,19 @@ QMutexPool::~QMutexPool()
     Returns a QMutex from the pool. QMutexPool uses the value \a address
     to determine which mutex is returned from the pool.
 */
-QMutex *QMutexPool::get( void *address )
+QMutex *QMutexPool::get(const void *address)
 {
-    int index = (int) ( (unsigned long) address % count );
+    Q_ASSERT_X(address != 0, "QMutexPool::get()", "'address' argument cannot be zero");
+    int index = int((ulong(address) >> (sizeof(address) >> 1)) % count);
 
-    if ( ! mutexes[index] ) {
+    if (!mutexes[index]) {
 	// mutex not created, create one
 
-	QMutexLocker locker( &mutex );
+	QMutexLocker locker(&mutex);
 	// we need to check once again that the mutex hasn't been created, since
-	// 2 threads could be trying to create a mutex as the same index...
-	if ( ! mutexes[index] ) {
-	    mutexes[index] = new QMutex( recurs );
-	}
+	// 2 threads could be trying to create a mutex at the same index...
+	if (!mutexes[index])
+	    mutexes[index] = new QMutex(recurs);
     }
 
     return mutexes[index];

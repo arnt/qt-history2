@@ -33,10 +33,10 @@
 class Q_CORE_EXPORT QMutexPool
 {
 public:
-    QMutexPool( bool recursive = false, int size = 128 );
+    QMutexPool(bool recursive = false, int size = 128);
     ~QMutexPool();
 
-    QMutex *get( void *address );
+    QMutex *get(const void *address);
 
 private:
     QMutex mutex;
