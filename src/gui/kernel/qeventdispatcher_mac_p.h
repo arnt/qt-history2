@@ -86,7 +86,7 @@ public:
     int zero_timer_count;
     EventLoopTimerRef select_timer;
     MacTimerList *macTimerList;
-    void activateTimers();
+    int activateTimers();
 
     QHash<QSocketNotifier *, MacSocketInfo *> *macSockets;
 };

@@ -350,7 +350,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         return false;
     }
 #endif
-    int nevents = 0;
+    emit awake();
 
     if(!qt_mac_safe_pdev) { //create an empty widget and this can be used for a port anytime
         QWidget *tlw = new QWidget;
@@ -360,49 +360,45 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         qt_mac_safe_pdev = tlw;
     }
 
-    QApplication::sendPostedEvents();
-    d->activateTimers(); //send null timers
+    bool canWait;
+    bool retVal = false;
 
-    EventRef event;
     do {
-        do {
+        QApplication::sendPostedEvents();
+        retVal = d->activateTimers() > 0; //send null timers
+
+        while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue())) {
+            EventRef event;
             if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, true, &event) != noErr)
                 break;
             if (!filterEvent(&event) && qt_mac_send_event(flags, event))
-                nevents++;
+                retVal = true;
             ReleaseEvent(event);
-        } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
-        QApplication::sendPostedEvents();
-    } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
+        }
 
-    if (d->interrupt) {
+        QThreadData *data = QThreadData::current();
+        canWait = (!retVal
+                   && data->postEventList.size() == 0
+                   && !d->interrupt
+                   && (flags & QEventLoop::WaitForMoreEvents)
+                   && !d->zero_timer_count);
+
+        if (canWait) {
+            emit aboutToBlock();
+            while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut)
+                ;
+        }
+    } while (canWait);
+
+    if (d->interrupt)
         d->interrupt = false;
-        return false;
-    }
-
-    QApplication::sendPostedEvents();
-
-    QThreadData *data = QThreadData::current();
-    const bool canWait = (data->postEventList.size() == 0
-                          && (flags & QEventLoop::WaitForMoreEvents));
-
-    if (d->interrupt) {
-        d->interrupt = false;
-        return false;
-    }
-
-    if(canWait && !d->zero_timer_count) {
-        emit aboutToBlock();
-        while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
-    }
-    emit awake();
-    return nevents > 0;
+    return retVal;
 }
 
-void QEventDispatcherMacPrivate::activateTimers()
+int QEventDispatcherMacPrivate::activateTimers()
 {
     if(!d->zero_timer_count)
-        return;
+        return 0;
     int ret = 0;
     for (int i = 0; i < d->macTimerList->size(); ++i) {
         const MacTimerInfo &t = d->macTimerList->at(i);
@@ -412,6 +408,7 @@ void QEventDispatcherMacPrivate::activateTimers()
             QApplication::sendEvent(t.obj, &e);
         }
     }
+    return ret;
 }
 
 void QEventDispatcherMac::wakeUp()
