@@ -1335,7 +1335,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		if ( that->qt.widget->focusWidget() && !that->inDesignMode )
 		    that->qt.widget->focusWidget()->setFocus();
 		else {
-/* XXX
+/* ###
 		    QFocusData *focusData = ((HackWidget*)that->qt.widget)->focusData();
 		    QWidget *candidate = 0;
 		    if ( ::GetKeyState(VK_SHIFT) < 0 )
@@ -2343,8 +2343,24 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    // setup parameters (pcount + return)
 	    bool ok = TRUE;
-	    void **argv = pcount || !type.isEmpty() ? new void*[pcount + 1] : 0;
-	    QVariant *varp = pcount || !type.isEmpty() ? new QVariant[pcount + 1] : 0;
+            void *static_argv[QAX_NUM_PARAMS + 1];
+            QVariant static_varp[QAX_NUM_PARAMS];
+            int totalParam = pcount;
+            if (!type.isEmpty())
+                ++totalParam;
+
+	    void **argv = 0;
+	    QVariant *varp = 0;
+            if (totalParam) {
+                if (totalParam <= QAX_NUM_PARAMS) {
+                    argv = static_argv;
+                    varp = static_varp;
+                } else {
+                    argv = new void*[pcount + 1];
+                    varp = new QVariant[pcount + 1];
+                }
+            }
+
 	    for ( int p = 0; p < pcount; ++p ) {
 		// map the VARIANT to the QVariant
 		bool out;
@@ -2359,7 +2375,12 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		}
 	    }
 	    if (!type.isEmpty()) {
-		varp[0] = QVariant(QVariant::nameToType(slot.type()));
+                if (mo->indexOfEnumerator(slot.type()) != -1) {
+                    varp[0] = QVariant(QVariant::Int);
+                } else {
+		    varp[0] = QVariant(QVariant::nameToType(slot.type()));
+                }
+                Q_ASSERT(varp[0].type() != QVariant::Invalid);
 		argv[0] = varp[0].data();
 	    }
 
@@ -2379,6 +2400,10 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		if (!type.isEmpty() && pvarResult)
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
 	    }
+            if (argv && argv != static_argv) {
+                delete []argv;
+                delete []varp;
+            }
 
 	    res = ok ? S_OK : DISP_E_TYPEMISMATCH;
 	}
@@ -3173,7 +3198,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW( MSG *pMsg )
     case VK_TAB:
 	if ( isUIActive ) {
 	    bool shift = ::GetKeyState(VK_SHIFT) < 0;
-/* XXX
+/* ###
 	    QFocusData *data = ((HackWidget*)qt.widget)->focusData();
 	    bool giveUp = TRUE;
 	    if ( shift ) {
