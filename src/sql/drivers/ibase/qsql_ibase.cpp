@@ -532,7 +532,7 @@ static char* fillList(char *buffer, const QList<QCoreVariant> &list, T* = 0)
 {
     for (int i = 0; i < list.size(); ++i) {
         T val;
-        val = QVariant_to<T>(list.at(i));
+        val = qVariant_to<T>(list.at(i));
         memcpy(buffer, &val, sizeof(T));
         buffer += sizeof(T);
     }
@@ -545,7 +545,7 @@ static char* fillList<float>(char *buffer, const QList<QCoreVariant> &list, floa
     for (int i = 0; i < list.size(); ++i) {
         double val;
         float val2 = 0;
-        val = QVariant_to<double>(list.at(i));
+        val = qVariant_to<double>(list.at(i));
         val2 = (float)val;
         memcpy(buffer, &val2, sizeof(float));
         buffer += sizeof(float);
