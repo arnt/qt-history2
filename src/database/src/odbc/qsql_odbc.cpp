@@ -677,7 +677,7 @@ QSqlFieldList QODBCResult::fields()
 	for ( int i = 0; i < count; ++i ) {
 	    QSqlField fi = qMakeField( d, i );
 	    if ( isActive() && isValid() )
-		fi.value() = data( i );
+		fi.setValue( data( i ) );
             fil.append( fi );
         }
     }

@@ -511,7 +511,7 @@ QSqlFieldList QOCIResult::fields()
     for ( ub4 i = 0; i < numCols; ++i ) {
 	QSqlField fi = qMakeField( d, i+1 );
 	if ( isActive() && isValid() )
-	    fi.value() = data( i );
+	    fi.setValue( data( i ) );
 	fil.append( fi );
     }
     return fil;

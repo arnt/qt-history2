@@ -199,7 +199,7 @@ QSqlFieldList QMySQLResult::fields()
 		if ( f ) {
 		    QSqlField fi( QString((const char*)f->name), count, qDecodeMYSQLType( f->type ) );
 		    if ( isValid() )
-			fi.value() = data( count );
+			fi.setValue( data( count ) );
 		    fil.append( fi  );
 		} else
 		    break;
