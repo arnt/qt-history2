@@ -85,6 +85,8 @@ int main(int argc, char *argv[])
     QString inputFile;
     if (fileName)
         inputFile = QFile::encodeName(fileName);
+    else
+        driver.option().headerProtection = false;
 
     bool rtn = driver.uic(inputFile, out);
     if (!rtn)
