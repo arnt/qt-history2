@@ -769,15 +769,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	pm.convertFromImage( destImg );
     }
 
-    if ( depth1 ) {
-	if ( data->mask ) {
-	    if ( data->selfmask )               // pixmap == mask
-		pm.setMask( *((QBitmap*)(&pm)) );
-	    else
-		pm.setMask( data->mask->xForm(matrix) );
-	}
-    } else {
-	if ( data->mask )
+    if ( data->mask ) {
+	if ( depth1 && data->selfmask )               // pixmap == mask
+	    pm.setMask( *((QBitmap*)(&pm)) );
+	else
 	    pm.setMask( data->mask->xForm(matrix) );
     }
 
