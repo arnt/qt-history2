@@ -976,6 +976,9 @@ bool QApplication::x11_apply_settings()
 
 	prop.close();
 
+	if (prop.buffer().size() == 0)
+	    return FALSE;
+
 	QDataStream d(prop.buffer(), IO_ReadOnly);
 
 	QPalette pal;
