@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#62 $
 **
 ** Implementation of QTextCodec class
 **
@@ -189,8 +189,8 @@ QTextCodec::~QTextCodec()
   Returns a value indicating how likely this decoder is
   for decoding some format that has the given name.
 
-  A good match returns a positive number around the length of
-  the string.  A bad match is negative.
+  A good match returns a positive number around
+  the length of the string.  A bad match is negative.
 
   The default implementation calls simpleHeuristicNameMatch()
   with the name of the codec.
@@ -434,10 +434,19 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 /*!
   \fn const char* QTextCodec::name() const
   Subclasses of QTextCodec must override this function.  It returns
-  the name of the encoding supported by the subclass.
-
-  Note that this name, with "text/" prepended is a potential
-  encoding for \link QTextDrag text Drag and Drop.\endlink
+  the name of the encoding supported by the subclass.  When choosing
+  a name for an encoding, consider these points:
+  <ul>
+    <li>On X11,
+	\link heuristicNameMatch() \code heuristicNameMatch(\e charset)\endcode \endlink
+	is used to test if a the QTextCodec
+	can convert between Unicode and the encoding of a font
+	with encoding \e charset, such as "iso8859-1" for Latin-1 fonts,
+	"koi8-r" for Russian KOI8 fonts.
+	The default algorithm of heuristicNameMatch() uses name().
+    <li>Some applications may use this function to present
+	encodings to the end user.
+  </ul>
 */
 
 /*!
