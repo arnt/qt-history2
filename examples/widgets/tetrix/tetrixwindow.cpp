@@ -59,3 +59,4 @@ QLabel *TetrixWindow::createLabel(const QString &text)
     lbl->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
     return lbl;
 }
+
