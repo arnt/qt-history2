@@ -1122,6 +1122,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    else
 		unknown++;
 	    break;
+	case Key_Copy:
+	    if ( echoMode() == Normal )
+		copy();
+	    else
+		unknown++;
+	    break;
 #endif
 	default:
 	    unknown++;
@@ -1272,6 +1278,24 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 		paste();
 	    else
 		unknown++;
+	    break;
+#endif
+	case Key_Undo:
+	    undo();
+	    break;
+	case Key_Redo:
+	    redo();
+	    break;
+#ifndef QT_NO_CLIPBOARD
+	case Key_Copy:
+	    if ( echoMode() == Normal )
+		copy();
+	    break;
+	case Key_Paste:
+	    paste();
+	    break;
+	case Key_Cut:
+	    cut();
 	    break;
 #endif
 	default:

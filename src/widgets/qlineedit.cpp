@@ -597,6 +597,29 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		unknown++;
 	    break;
 #endif
+	case Key_Undo:
+	    if ( !d->readonly )
+		undoInternal();
+	    break;
+	case Key_Redo:
+	    if ( !d->readonly )
+		redoInternal();
+	    break;
+#ifndef QT_NO_CLIPBOARD
+	case Key_Copy:
+	    copy();
+	    break;
+	case Key_Paste:
+	    if ( !d->readonly )
+		insert( QApplication::clipboard()->text() );
+	    break;
+	case Key_Cut:
+	    if ( !d->readonly && hasMarkedText() && echoMode() == Normal ) {
+		copy();
+		del();
+	    }
+	    break;
+#endif
 	default:
 	    unknown++;
 	}
