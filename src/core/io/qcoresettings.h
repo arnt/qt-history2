@@ -25,16 +25,14 @@ public:
     enum Status { NoError = 0, AccessError, FormatError };
 
     QCoreSettings(const QString &organization, const QString &application = QString(),
-                    QObject *parent = 0);
+                  QObject *parent = 0);
     QCoreSettings(Qt::SettingsScope scope, const QString &organization,
-                    const QString &application = QString(), QObject *parent = 0);
+                  const QString &application = QString(), QObject *parent = 0);
     QCoreSettings(Qt::SettingsFormat format, Qt::SettingsScope scope,
-                    const QString &organization, const QString &application = QString(),
-                    QObject *parent = 0);
-    QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
-                    QObject *parent = 0);
-     // qmake doesn't link against QCoreApplication, which this constructor needs
-     QCoreSettings(QObject *parent = 0);
+                  const QString &organization, const QString &application = QString(),
+                  QObject *parent = 0);
+    QCoreSettings(const QString &fileName, Qt::SettingsFormat format, QObject *parent = 0);
+    QCoreSettings(QObject *parent = 0);
     ~QCoreSettings();
 
     void clear();

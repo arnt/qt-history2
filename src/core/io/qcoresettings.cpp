@@ -752,15 +752,16 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
         confFiles[i] = 0;
     cs = Qt::CaseSensitive;
 
-    if (organization.isEmpty()) {
+    QString org = organization;
+    if (org.isEmpty()) {
         setStatus(QCoreSettings::AccessError);
-        return;
+        org = QLatin1String("unknown-organization.trolltech.com");
     }
 
     const char *extension = ".ini";
 
-    QString appFile = organization + QDir::separator() + application + QLatin1String(extension);
-    QString orgFile = organization + QLatin1String(extension);
+    QString appFile = org + QDir::separator() + application + QLatin1String(extension);
+    QString orgFile = org + QLatin1String(extension);
 
     if (scope == Qt::UserScope) {
         if (!application.isEmpty())

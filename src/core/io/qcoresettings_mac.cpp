@@ -258,12 +258,18 @@ QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString 
     int curPos = 0;
     int nextDot;
 
-    while ((nextDot = organization.indexOf(QLatin1Char('.'), curPos)) != -1) {
-        javaPackageName.prepend(organization.mid(curPos, nextDot - curPos));
+    QString org = organization;
+    if (org.isEmpty()) {
+        setStatus(QCoreSettings::AccessError);
+        org = QLatin1String("unknown-organization.trolltech.com");
+    }
+
+    while ((nextDot = org.indexOf(QLatin1Char('.'), curPos)) != -1) {
+        javaPackageName.prepend(org.mid(curPos, nextDot - curPos));
         javaPackageName.prepend(QLatin1Char('.'));
         curPos = nextDot + 1;
     }
-    javaPackageName.prepend(organization.mid(curPos));
+    javaPackageName.prepend(org.mid(curPos));
     javaPackageName = javaPackageName.toLower();
     if (curPos == 0)
         javaPackageName.prepend(QLatin1String("com."));
@@ -395,11 +401,11 @@ bool QMacSettingsPrivate::isWritable() const
 }
 
 QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
-                                                    Qt::SettingsScope scope,
-                                                    const QString &organization,
-                                                    const QString &application,
-                                                    VariantToStringFunc vts,
-                                                    StringToVariantFunc stv)
+                                                   Qt::SettingsScope scope,
+                                                   const QString &organization,
+                                                   const QString &application,
+                                                   VariantToStringFunc vts,
+                                                   StringToVariantFunc stv)
 {
     if (format == Qt::NativeFormat) {
         QMacSettingsPrivate *p = new QMacSettingsPrivate(scope, organization, application);
@@ -407,7 +413,7 @@ QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
         return p;
     } else {
         QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
-                                                                organization, application);
+                                                                   organization, application);
         p->setStreamingFunctions(vts, stv);
         p->init();
         return p;
