@@ -23,14 +23,14 @@ class Q_SQL_EXPORT QSqlRelationalDelegate: public QItemDelegate
 {
 public:
 
-explicit QSqlRelationalDelegate::QSqlRelationalDelegate(QObject *parent)
+explicit QSqlRelationalDelegate(QObject *parent)
     : QItemDelegate(parent)
 {}
 
-QSqlRelationalDelegate::~QSqlRelationalDelegate()
+~QSqlRelationalDelegate()
 {}
 
-QWidget *QSqlRelationalDelegate::createEditor(QWidget *parent,
+QWidget *createEditor(QWidget *parent,
                                               const QStyleOptionViewItem &option,
                                               const QModelIndex &index) const
 {
@@ -45,7 +45,7 @@ QWidget *QSqlRelationalDelegate::createEditor(QWidget *parent,
     return combo;
 }
 
-void QSqlRelationalDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     if (!index.isValid())
         return;
@@ -73,7 +73,7 @@ void QSqlRelationalDelegate::setEditorData(QWidget *editor, const QModelIndex &i
         combo->setCurrentItem(currentItem);
 }
 
-void QSqlRelationalDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+void setModelData(QWidget *editor, QAbstractItemModel *model,
                                           const QModelIndex &index) const
 {
     if (!index.isValid())
