@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#317 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#318 $
 **
 ** Implementation of QListView widget class
 **
@@ -2184,7 +2184,8 @@ int QListView::columnWidth( int c ) const
 
   <li> \c Maximum - the column is automatically sized according to the
   widths of all items in the column.  (Note: The column never shrinks
-  in this case.)
+  in this case.) This means the column is always resized to the 
+  width of the item with the largest width in the column.
 
   </ul>
 
