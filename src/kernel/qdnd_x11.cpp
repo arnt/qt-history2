@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#77 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -397,9 +397,8 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     response.data.l[4] = 0; // just null
 
     while ( c && !c->acceptDrops() && !c->isTopLevel() ) {
-	p = w->mapToParent( p );
-	c = (QWidget*)c->parent();
-	ASSERT( c && c->isWidgetType() );
+	p = c->mapToParent( p );
+	c = c->parentWidget();
     }
 
     QRect answerRect( c->mapToGlobal( p ), QSize( 1,1 ) );
