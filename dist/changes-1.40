@@ -4,6 +4,10 @@ Qt 1.40 supports drag and drop, with a simple, platform independent
 API. There are eleven new widget classes in 1.40. Asynchronous I/O
 support is now in the official Qt API.
 
+Since Qt no longer support any 8.3-only systems, the file names have
+been made simpler.  #include <qcombobox.h> instead of qcombo.h, etc.
+The old names are still present for compatibility.
+
 The new Qt Xt/Motif Extension allows Qt widgets and applications to
 coexist with old Xt/Motif-based applications and widgets.
 
