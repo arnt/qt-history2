@@ -269,6 +269,14 @@ int Q3MenuData::insertAny(const QString *text, const QPixmap *pixmap,
     }
 
     mitems->insert(index, mi);
+    Q3PopupMenu* p = (Q3PopupMenu*)(QWidget*)Q3MenuData::d->aWidget;
+    if ( p && p->isVisible() ) {
+	p->mitems->clear();
+	for (int i = 0; i < mitems->size(); ++i) {
+	    if (mitems->at(i)->id() != Q3MenuData::d->aInt && !mitems->at(i)->widget())
+		p->mitems->append(mitems->at(i));
+	}
+    }
     menuContentsChanged();                        // menu data changed
     return mi->ident;
 }
@@ -810,6 +818,10 @@ void Q3MenuData::clear()
             delete mitems->takeFirst();
     } else {
         mitems->clear();
+    }
+    Q3PopupMenu* p = (Q3PopupMenu*)(QWidget*)Q3MenuData::d->aWidget;
+    if ( p && p->isVisible() ) {
+	p->mitems->clear();
     }
     if (!QApplication::closingDown())                // avoid trouble
         menuContentsChanged();
