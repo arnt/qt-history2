@@ -73,7 +73,7 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
 	return;
     QObjectList childObjects=p->children();
     for (int i = 0; i < childObjects.size(); ++i) {
-        QObject * o;
+        QObject * o = childObjects.at(i);
 
 	if(o->isWidgetType()) {
 		QWidget *w = static_cast<QWidget *>(o);
