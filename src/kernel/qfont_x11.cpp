@@ -70,164 +70,176 @@
 #include "qt_x11.h"
 
 
-//#define QFONTLOADER_DEBUG
+// #define QFONTLOADER_DEBUG
 // #define QFONTLOADER_DEBUG_VERBOSE
 
 
 // to get which font encodings are installed:
 // xlsfonts | egrep -- "^-.*-.*-.*$" | cut -f 14- -d- | sort | uniq
 
-// This array must be kept in sync with the QFontPrivate::Script enum in
-// qfontdata_p.h
-static const char *qt_x11encodings[][QFont::LastPrivateScript + 1] = {
-    { "iso8859-1"        , 0 }, // Latin
-    { "iso8859-7"        , 0 }, // Greek
-    { "iso8859-5",
-      "koi8-r",
-      "koi8-ru"          , 0 }, // Cyrillic
-    { 0                      }, // Armenian
-    { 0                      }, // Georgian
-    { 0                      }, // Runic
-    { 0                      }, // Ogham
-    { 0                      }, // SpacingModifiers
-    { 0                      }, // CombiningMarks
+static const char * const empty_encodings[] = { 0 };
+static const char * const latin_encodings[] = { "iso8859-1", 0 };
+static const char * const greek_encodings[] = { "iso8859-7", 0 };
+static const char * const cyrillic_encodings[] = { "iso8859-5", "koi8-r", "koi8-ru", 0 };
+static const char * const hebrew_encodings[] = { "iso8859-8", 0 };
+static const char * const arabic_encodings[] = { "iso8859-6.8x", 0 };
+static const char * const tamil_encodings[] = { "tscii-*", 0 };
+static const char * const thai_encodings[] = { "tis620*-0", "iso8859-11", 0 };
+static const char * const hiragana_encodings[] = { "jisx0208.1983-0", 0 };
+static const char * const katakana_encodings[] = { "jisx0208.1983-0", 0 };
+static const char * const hangul_encodings[] = { "ksc5601.1987-0", 0 };
+static const char * const bopomofo_encodings[] = { "gb2312.1980-0", 0 };
+static const char * const unicode_encodings[] = { "iso10646-1", "unicode-*", 0 };
+static const char * const hanx11_encodings[] = { "big5*-*", 0 };
+static const char * const latinA2_encodings[] = { "iso8859-2", 0 };
+static const char * const latinA3_encodings[] = { "iso8859-3", 0 };
+static const char * const latinA4_encodings[] = { "iso8859-4", 0 };
+static const char * const latinA14_encodings[] = { "iso8859-14", 0 };
+static const char * const latinA15_encodings[] = { "iso8859-15", 0 };
 
-    { "iso8859-8"      , 0 }, // Hebrew
-    { "iso8859-6.8x"     , 0 }, // Arabic
-    { 0                      }, // Syriac
-    { 0                      }, // Thaana
+// we select on of these at initialization time for Han use
+static const char * const hancn_encodings[] =
+    { "gb2312.1980-0", "big5*-*", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+static const char * const hanjp_encodings[] =
+    { "jisx0208.1983-0", "gb2312.1980-0", "big5*-*", "ksc5601.1987-0", 0 };
+static const char * const hankr_encodings[] =
+    { "ksc5601.1987-0", "jisx0208.1983-0", "gb2312.1980-0", "big5*-*", 0 };
+static const char * const hantw_encodings[] =
+    { "big5*-*", "gb2312.1980-0", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
 
-    { 0                      }, // Devanagari
-    { 0                      }, // Bengali
-    { 0                      }, // Gurmukhi
-    { 0                      }, // Gujarati
-    { 0                      }, // Oriya
-    { "tscii-*"          , 0 }, // Tamil
-    { 0                      }, // Telugu
-    { 0                      }, // Kannada
-    { 0                      }, // Malayalam
-    { 0                      }, // Sinhala
-    { "tis620*-0",
-      "iso8859-11"       , 0 }, // Thai
-    { 0                      }, // Lao
-    { 0                      }, // Tibetan
-    { 0                      }, // Myanmar
-    { 0                      }, // Khmer
+static struct
+{
+    int index;
+    const char * const * list;
+}  script_table[QFont::LastPrivateScript] = {
+    // Latin
+    { 0, latin_encodings },
+    // Greek
+    { 0, greek_encodings },
+    // Cyrillic
+    { 0, cyrillic_encodings },
+    // Armenian
+    { 0, empty_encodings },
+    // Georgian
+    { 0, empty_encodings },
+    // Runic
+    { 0, empty_encodings },
+    // Ogham
+    { 0, empty_encodings },
+    // SpacingModifiers
+    { 0, empty_encodings },
+    // CombiningMarks
+    { 0, empty_encodings },
 
-    { "jisx0208.1983-0",
-      "gb2312.1980-0",
-      "big5*-*",
-      "ksc5601.1987-0",    0 }, // Han
-    { "jisx0208.1983-0",   0 }, // Hiragana
-    { "jisx0208.1983-0"  , 0 }, // Katakana
-    { "ksc5601.1987-0"   , 0 }, // Hangul
-    { "gb2312.1980-0"    , 0 }, // Bopomofo
-    { 0                      }, // Yi
+    // Hebrew
+    { 0, hebrew_encodings },
+    // Arabic
+    { 0, arabic_encodings },
+    // Syriac
+    { 0, empty_encodings },
+    // Thaana
+    { 0, empty_encodings },
 
-    { 0                      }, // Ethiopic
-    { 0                      }, // Cherokee
-    { 0                      }, // CanadianAboriginal
-    { 0                      }, // Mongolian
+    // Devanagari
+    { 0, empty_encodings },
+    // Bengali
+    { 0, empty_encodings },
+    // Gurmukhi
+    { 0, empty_encodings },
+    // Gujarati
+    { 0, empty_encodings },
+    // Oriya
+    { 0, empty_encodings },
+    // Tamil
+    { 0, tamil_encodings },
+    // Telugu
+    { 0, empty_encodings },
+    // Kannada
+    { 0, empty_encodings },
+    // Malayalam
+    { 0, empty_encodings },
+    // Sinhala
+    { 0, empty_encodings },
+    // Thai
+    { 0, thai_encodings },
+    // Lao
+    { 0, empty_encodings },
+    // Tibetan
+    { 0, empty_encodings },
+    // Myanmar
+    { 0, empty_encodings },
+    // Khmer
+    { 0, empty_encodings },
 
-    { 0                      }, // CurrencySymbols
-    { 0                      }, // LetterlikeSymbols
-    { 0                      }, // NumberForms
-    { 0                      }, // MathematicalOperators
-    { 0                      }, // TechnicalSymbols
-    { 0                      }, // GeometricSymbols
-    { 0                      }, // MiscellaneousSymbols
-    { 0                      }, // EnclosedAndSquare
-    { 0                      }, // Braille
+    // Han
+    { 0, empty_encodings },
+    // Hiragana
+    { 0, hiragana_encodings },
+    // Katakana
+    { 0, katakana_encodings },
+    // Hangul
+    { 0, hangul_encodings },
+    // Bopomofo
+    { 0, bopomofo_encodings },
+    // Yi
+    { 0, empty_encodings },
 
-    { "iso10646-1",
-      "unicode-*"        , 0 }, // Unicode == ISO-10646-1 (for now)
+    // Ethiopic
+    { 0, empty_encodings },
+    // Cherokee
+    { 0, empty_encodings },
+    // CanadianAboriginal
+    { 0, empty_encodings },
+    // Mongolian
+    { 0, empty_encodings },
 
-    { "*-*"              , 0 }, // UnknownScript
-    { 0                  , 0 }, // NoScript
+    // CurrencySymbols
+    { 0, empty_encodings },
+    // LetterlikeSymbols
+    { 0, empty_encodings },
+    // NumberForms
+    { 0, empty_encodings },
+    // MathematicalOperators
+    { 0, empty_encodings },
+    // TechnicalSymbols
+    { 0, empty_encodings },
+    // GeometricSymbols
+    { 0, empty_encodings },
+    // MiscellaneousSymbols
+    { 0, empty_encodings },
+    // EnclosedAndSquare
+    { 0, empty_encodings },
+    // Braille
+    { 0, empty_encodings },
 
-    { "big5*-*"          , 0 }, // HanX11
+    // Unicode
+    { 0, unicode_encodings },
+
+    // UnknownScript
+    { 0, empty_encodings },
+    // NoScript
+    { 0, empty_encodings },
+
+    // HanX11
+    { 0, hanx11_encodings },
 
     // LatinBasic == Latin
-    { "iso8859-2"        , 0 }, // LatinExtendedA_2
-    { "iso8859-3"        , 0 }, // LatinExtendedA_3
-    { "iso8859-4"        , 0 }, // LatinExtendedA_4
-    { "iso8859-14"       , 0 }, // LatinExtendedA_14
-    { "iso8859-15"       , 0 }, // LatinExtendedA_15
-
-    { 0                      }  // LastPrivateScript
+    // LatinExtendedA_2
+    { 0, latinA2_encodings },
+    // LatinExtendedA_3
+    { 0, latinA3_encodings },
+    // LatinExtendedA_4
+    { 0, latinA4_encodings },
+    // LatinExtendedA_14
+    { 0, latinA14_encodings },
+    // LatinExtendedA_15
+    { 0, latinA15_encodings }
 };
 
 
-static int qt_x11indices[QFont::LastPrivateScript + 1] = {
-    0, // Latin
-    0, // Greek
-    0, // Cyrillic
-    0, // Armenian
-    0, // Georgian
-    0, // Runic
-    0, // Ogham
-    0, // SpacingModifiers
-    0, // CombiningMarks
 
-    0, // Hebrew
-    0, // Arabic
-    0, // Syriac
-    0, // Thaana
 
-    0, // Devanagari
-    0, // Bengali
-    0, // Gurmukhi
-    0, // Gujarati
-    0, // Oriya
-    0, // Tamil
-    0, // Telugu
-    0, // Kannada
-    0, // Malayalam
-    0, // Sinhala
-    0, // Thai
-    0, // Lao
-    0, // Tibetan
-    0, // Myanmar
-    0, // Khmer
 
-    0, // Han
-    0, // Hiragana
-    0, // Katakana
-    0, // Hangul
-    0, // Bopomofo
-    0, // Yi
-
-    0, // Ethiopic
-    0, // Cherokee
-    0, // CanadianAboriginal
-    0, // Mongolian
-
-    0, // CurrencySymbols
-    0, // LetterlikeSymbols
-    0, // NumberForms
-    0, // MathematicalOperators
-    0, // TechnicalSymbols
-    0, // GeometricSymbols
-    0, // MiscellaneousSymbols
-    0, // EnclosedAndSquare
-    0, // Braille
-
-    0, // Unicode
-
-    0, // UnknownScript
-    0, // NoScript
-
-    0, // HanX11
-
-    // LatinBasic == Latin
-    0, // LatinExtendedA_2
-    0, // LatinExtendedA_3
-    0, // LatinExtendedA_4
-    0, // LatinExtendedA_14
-    0, // LatinExtendedA_15
-
-    0, // LastPrivateScript
-};
 
 
 
@@ -1449,16 +1461,16 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 
     QCString bestName;
     bool done = FALSE;
-    int start_index = qt_x11indices[script];
+    int start_index = script_table[script].index;
 
     while (! done) {
 	bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	if (bestName.isNull()) {
-	    if (! qt_x11encodings[script][++qt_x11indices[script]])
-		qt_x11indices[script] = 0;
+	    if (! script_table[script].list[++script_table[script].index])
+		script_table[script].index = 0;
 
-	    if (qt_x11indices[script] == start_index)
+	    if (script_table[script].index == start_index)
 		done = TRUE;
 	} else
 	    done = TRUE;
@@ -1479,7 +1491,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 
 	if (request.family != familyName) {
 	    done = FALSE;
-	    qt_x11indices[script] = start_index;
+	    script_table[script].index = start_index;
 
 	    if ( familyName.contains('-') ) {
 		int i = familyName.find('-');
@@ -1491,10 +1503,10 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 		bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 		if (bestName.isNull()) {
-		    if (! qt_x11encodings[script][++qt_x11indices[script]])
-			qt_x11indices[script] = 0;
+		    if (! script_table[script].list[++script_table[script].index])
+			script_table[script].index = 0;
 
-		    if (qt_x11indices[script] == start_index)
+		    if (script_table[script].index == start_index)
 			done = TRUE;
 		} else
 		    done = TRUE;
@@ -1513,16 +1525,16 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     if ( request.family != f ) {
 	familyName = f;
 	done = FALSE;
-	qt_x11indices[script] = start_index;
+	script_table[script].index = start_index;
 
 	while (! done) {
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	    if (bestName.isNull()) {
-		if (! qt_x11encodings[script][++qt_x11indices[script]])
-		    qt_x11indices[script] = 0;
+		if (! script_table[script].list[++script_table[script].index])
+		    script_table[script].index = 0;
 
-		if (qt_x11indices[script] == start_index)
+		if (script_table[script].index == start_index)
 		    done = TRUE;
 	    } else
 		done = TRUE;
@@ -1538,16 +1550,16 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     if ( request.family != f ) {
 	familyName = f;
 	done = FALSE;
-	qt_x11indices[script] = start_index;
+	script_table[script].index = start_index;
 
 	while (! done) {
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	    if (bestName.isNull()) {
-		if (! qt_x11encodings[script][++qt_x11indices[script]])
-		    qt_x11indices[script] = 0;
+		if (! script_table[script].list[++script_table[script].index])
+		    script_table[script].index = 0;
 
-		if (qt_x11indices[script] == start_index)
+		if (script_table[script].index == start_index)
 		    done = TRUE;
 	    } else
 		done = TRUE;
@@ -1563,16 +1575,16 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     if (request.family != f) {
 	familyName = f;
 	done = FALSE;
-	qt_x11indices[script] = start_index;
+	script_table[script].index = start_index;
 
 	while (! done) {
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
 
 	    if (bestName.isNull()) {
-		if (! qt_x11encodings[script][++qt_x11indices[script]])
-		    qt_x11indices[script] = 0;
+		if (! script_table[script].list[++script_table[script].index])
+		    script_table[script].index = 0;
 
-		if (qt_x11indices[script] == start_index)
+		if (script_table[script].index == start_index)
 		    done = TRUE;
 	    } else
 		done = TRUE;
@@ -1603,7 +1615,7 @@ QCString QFontPrivate::bestFamilyMember(QFont::Script script,
     if ( !foundry.isEmpty() ) {
 	QString pattern
 	    = "-" + foundry + "-" + family + "-*-*-*-*-*-*-*-*-*-*-" +
-	    (qt_x11encodings[script])[(qt_x11indices[script])];
+	    (script_table[script].list)[(script_table[script].index)];
 	result = bestMatch(pattern.latin1(), &bestScore, script);
     }
 
@@ -1621,7 +1633,7 @@ QCString QFontPrivate::bestFamilyMember(QFont::Script script,
 
 	    QString fam = family.mid( alternator, next-alternator );
 	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-" +
-			      (qt_x11encodings[script])[(qt_x11indices[script])];
+			      (script_table[script].list)[(script_table[script].index)];
 	    testResult = bestMatch( pattern.latin1(), &testScore, script );
 	    bestScore -= bias;
 
@@ -2115,7 +2127,7 @@ bool QFontPrivate::loadUnicode(QFont::Script script, const QChar &sample)
 #ifdef QFONTLOADER_DEBUG_VERBOSE
 	    qDebug("QFontLoader: unicode font has char 0x%02x%02x for %d %s",
 		   sample.row(), sample.cell(), script,
-		   qt_x11encodings[script][qt_x11indices[script]]);
+		   script_table[script].list[script_table[script].index]);
 #endif
 
 	    x11data.fontstruct[script] = qfs;
@@ -2188,7 +2200,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif // QT_NO_XFTFREETYPE
 
     // Look for font name in fontNameDict based on QFont::key()
-    QString k(key() + qt_x11encodings[script][qt_x11indices[script]]);
+    QString k(key() + script_table[script].list[script_table[script].index]);
     QXFontName *qxfn = fontNameDict->find(k);
 
     if (! qxfn) {
@@ -2234,7 +2246,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	if (name.isNull()) {
 	    // no font name... this can only happen with Unicode
 	    //qDebug("QFontLoader: no font name - this must be unicode (%d %s)",
-	    //script, qt_x11encodings[script][qt_x11indices[script]]);
+	    //script, script_table[script].list[script_table[script].index]);
 
 	    name = k + "NU";
 	}
@@ -2292,7 +2304,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     if (use_core) {
 	// if we have no way to map this script, we give up
-	if (! qt_x11encodings[script][qt_x11indices[script]]) {
+	if (! script_table[script].list[script_table[script].index]) {
 
 #ifdef QFONTLOADER_DEBUG_VERBOSE
 	    qDebug("QFontLoader: no nothing about script %d, giving up", script);
@@ -2308,13 +2320,13 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		codec = QTextCodec::codecForName( "ISO 8859-8-I" );
 	    else
 		codec =
-		    QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
+		    QTextCodec::codecForName(script_table[script].list[script_table[script].index]);
 
 #ifdef QFONTLOADER_DEBUG
 	    if (codec) {
 		qDebug("QFontLoader: got codec %s for script %d %s",
 		       codec->name(), script,
-		       qt_x11encodings[script][qt_x11indices[script]]);
+		       script_table[script].list[script_table[script].index]);
 	    }
 #endif
 
@@ -2323,7 +2335,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #ifdef QFONTLOADER_DEBUG
 		qDebug("QFontLoader: no codec for script %d %s",
 		       script,
-		       qt_x11encodings[script][qt_x11indices[script]]);
+		       script_table[script].list[script_table[script].index]);
 #endif
 
 		x11data.fontstruct[script] = (QFontStruct *) -1;
@@ -2335,7 +2347,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	// font was never loaded, we need to do that now
 #ifdef QFONTLOADER_DEBUG
 	qDebug("QFontLoader: %p loading font for %d %s\n\t%s", this,
-	       script, qt_x11encodings[script][qt_x11indices[script]],
+	       script, script_table[script].list[script_table[script].index],
 	       fontname.data());
 #endif
 
@@ -2434,45 +2446,15 @@ extern bool qt_use_xrender; // defined in qapplication_x11.cpp
 */
 void QFont::initialize()
 {
-    // get some sample text based on the users locale.  we use this to determine the
-    // default script for the font system
-    QCString oldlctime = setlocale(LC_TIME, 0);
-    QCString lctime = setlocale(LC_TIME, "");
+    // create font cache and name dict
+    QFontPrivate::fontCache = new QFontCache();
+    Q_CHECK_PTR(QFontPrivate::fontCache);
+    cleanup_fontcache.add(QFontPrivate::fontCache);
 
-    time_t ttmp = time(NULL);
-    struct tm *tt = 0;
-    char samp[64];
-    QString sample;
-
-    if (ttmp != -1 && (tt = localtime(&ttmp)) != 0 &&
-	strftime(samp, 64, "%A%B", tt) > 0) {
-
-	QTextCodec *codec = QTextCodec::codecForLocale();
-	if (codec) {
-	    sample = codec->toUnicode(samp);
-	}
-    }
-
-    if (! sample.isNull() && ! sample.isEmpty()) {
-	QFont::Script cs = QFont::UnknownScript, tmp;
-	const QChar *uc = sample.unicode();
-	QFontPrivate *priv = new QFontPrivate;
-
-	for (uint i = 0; i < sample.length(); i++) {
-	    tmp = priv->scriptForChar(*uc++);
-	    if (tmp != cs && tmp != QFont::UnknownScript) {
-		cs = tmp;
-		break;
-	    }
-	}
-	delete priv;
-
-	if (cs != QFont::UnknownScript) {
-	    QFontPrivate::defaultScript = cs;
-	}
-    }
-
-    setlocale(LC_TIME, oldlctime.data());
+    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size(), FALSE);
+    Q_CHECK_PTR(fontNameDict);
+    fontNameDict->setAutoDelete(TRUE);
+    cleanup_fontnamedict.add(fontNameDict);
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -2483,16 +2465,6 @@ void QFont::initialize()
     (void) new QFontArabic68Codec;
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
-
-    // create font cache and name dict
-    QFontPrivate::fontCache = new QFontCache();
-    Q_CHECK_PTR(QFontPrivate::fontCache);
-    cleanup_fontcache.add(QFontPrivate::fontCache);
-
-    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size(), FALSE);
-    Q_CHECK_PTR(fontNameDict);
-    fontNameDict->setAutoDelete(TRUE);
-    cleanup_fontnamedict.add(fontNameDict);
 
 #ifndef QT_NO_XFTFREETYPE
     qt_has_xft = FALSE;
@@ -2506,6 +2478,72 @@ void QFont::initialize()
     }
 #endif // QT_NO_XFTFREETYPE
 
+    QTextCodec *codec = QTextCodec::codecForLocale();
+    // we have a codec for the locale - lets see if it's one of the CJK codecs,
+    // and change the script_table[Han].list to an appropriate list
+    if (codec) {
+	switch (codec->mibEnum()) {
+	case 57: // GB 2312-1980
+	case 2027: // GBK
+	    script_table[QFont::Han].list = hancn_encodings;
+	    break;
+
+	case 2026: // Big5
+	    script_table[QFont::Han].list = hantw_encodings;
+	    break;
+
+	case 36: // KS C 5601
+	case 38: // EUC KR
+	    script_table[QFont::Han].list = hankr_encodings;
+	    break;
+
+	case 16: // JIS7
+	case 17: // SJIS
+	case 18: // EUC JP
+	case 63: // JIS X 0208
+	default:
+	    script_table[QFont::Han].list = hanjp_encodings;
+	    break;
+	}
+    } else
+	script_table[QFont::Han].list = hanjp_encodings;
+
+    // get some sample text based on the users locale.  we use this to determine the
+    // default script for the font system
+    QCString oldlctime = setlocale(LC_TIME, 0);
+    QCString lctime = setlocale(LC_TIME, "");
+
+    time_t ttmp = time(NULL);
+    struct tm *tt = 0;
+    char samp[64];
+    QString sample;
+
+    if (ttmp != -1 && (tt = localtime(&ttmp)) != 0 &&
+	strftime(samp, 64, "%A%B", tt) > 0) {
+
+	if (codec)
+	    sample = codec->toUnicode(samp);
+    }
+
+    if (! sample.isNull() && ! sample.isEmpty()) {
+	QFont::Script cs = QFont::NoScript, tmp;
+	const QChar *uc = sample.unicode();
+	QFontPrivate *priv = new QFontPrivate;
+
+	for (uint i = 0; i < sample.length(); i++) {
+	    tmp = priv->scriptForChar(*uc++);
+	    if (tmp != cs && tmp != QFont::UnknownScript) {
+		cs = tmp;
+		break;
+	    }
+	}
+	delete priv;
+
+	if (cs != QFont::UnknownScript)
+	    QFontPrivate::defaultScript = cs;
+    }
+
+    setlocale(LC_TIME, oldlctime.data());
 }
 
 
