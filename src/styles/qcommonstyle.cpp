@@ -564,7 +564,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
 
 		ir.moveBy(pixw + 4, 0);
-		ir.setWidth(ir.width() - pixw + 4);
+		ir.setWidth(ir.width() - (pixw + 4));
 	    }
 
 	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,

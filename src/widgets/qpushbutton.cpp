@@ -367,7 +367,7 @@ QSize QPushButton::sizeHint() const
     if ( iconSet() && !iconSet()->isNull() ) {
 	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	w += iw - 2;
+	w += iw;
 	h = QMAX( h, ih );
     }
 
