@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#92 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#92 $");
 
 
 /*!
@@ -289,8 +289,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->discardNextMousePress = FALSE;
     d->shortClick = FALSE;
 
-    if ( style() == MotifStyle )
-	setFocusPolicy( TabFocus );
+    setFocusPolicy( StrongFocus );
 
     if ( rw ) {
 	d->ed = new QLineEdit( this, "this is not /bin/ed" );
@@ -301,8 +300,10 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
 	}
 	d->ed->installEventFilter( this );
-	d->ed->setFocusPolicy( focusPolicy() );
-    
+	d->ed->setFocusPolicy( NoFocus );
+
+	setBackgroundColor( d->ed->backgroundColor() );
+
 	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     } else {
 	d->ed = 0;
@@ -1131,7 +1132,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	}
 	// fall through for windows
     case Key_Down:
-c	 = currentItem();
+	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
 	else
@@ -1282,12 +1283,16 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    default:
 		break;
 	    }
-	} else if ( style() == MotifStyle &&
-		    (event->type() == Event_FocusIn ||
+	} else if ( (event->type() == Event_FocusIn ||
 		     event->type() == Event_FocusOut ) ) {
 	    // to get the focus indication right
-	    repaint();
-	}	
+	    update();
+	} else if ( event->type() == Event_MouseButtonPress &&
+		    !hasFocus() && !d->ed->hasFocus() &&
+		    (focusPolicy() & ClickFocus) ) {
+	    setFocus();
+	    return FALSE;
+	}
     } else if ( d->usingListBox && object == d->listBox ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
@@ -1346,6 +1351,11 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		return TRUE;
 	    }
 	    break;
+	case Event_KeyPress:
+	    if ( ((QKeyEvent *)event)->key() == Key_Escape ) {
+		popDownListBox();
+		return TRUE;
+	    }
 	default:
 	    break;
 	}
@@ -1523,17 +1533,19 @@ void QComboBox::setEnabled( bool enable )
 }
 
 
+
+#if QT_VERSION == 200
+#error "Redo focusInEvent()."
+#endif
+
 /*!
   Reimplemented for internal purposes.
 */
 
 void QComboBox::focusInEvent( QFocusEvent * )
 {
-    if ( d && d->ed ) {
-	// ### 2.0 alert!
-	d->ed->setFocusPolicy( focusPolicy() );
-	setFocusPolicy( (QWidget::FocusPolicy)(focusPolicy() &
-					       QWidget::ClickFocus) );
+    if ( d && d->ed )
 	d->ed->setFocus();
-    }
+    else
+	repaint();
 }
