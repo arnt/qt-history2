@@ -98,6 +98,7 @@ protected:
 #if defined(Q_WS_WIN)
     friend class QWin32GC;
 #elif defined(Q_WS_MAC)
+    friend class QFontEngineMac;
     friend class QQuickDrawGC;
 #endif
 #if defined(Q_WS_MAC)

@@ -133,7 +133,6 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
 
     //create style
     QATSUStyle *st = new QATSUStyle;
-    st->rgb.red = st->rgb.green = st->rgb.blue = 0;
     ATSUCreateStyle(&st->style);
     if(OSStatus e = ATSUSetAttributes(st->style, arr, tags, valueSizes, values)) {
 	qDebug("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);

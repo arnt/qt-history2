@@ -18,12 +18,9 @@
 #include <private/qapplication_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
-
-#ifndef QMAC_FONT_NO_ANTIALIAS
-# include "qpixmap.h"
-# include "qpaintdevicemetrics.h"
-# include <ApplicationServices/ApplicationServices.h>
-#endif
+#include <qpixmap.h>
+#include <qpaintdevicemetrics.h>
+#include <ApplicationServices/ApplicationServices.h>
 
 //Externals
 QByteArray p2qstring(const unsigned char *c); //qglobal.cpp
@@ -85,8 +82,7 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
 }
 
 void
-QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
-		     const QScriptItem *si, int textFlags)
+QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags)
 {
     int txop = p->d->txop;
     QWMatrix xmat = p->d->matrix;
@@ -134,17 +130,11 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	p->map(x, y, &x, &y);
     }
 
-    QPoint off;
-    QRegion rgn;
-    if(p->d->gc && (p->d->gc->type() == QAbstractGC::QuickDraw || p->d->gc->type() == QAbstractGC::CoreGraphics)) {
+    if(p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw) {
 	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
 	mgc->updateState(mgc->state);
-	mgc->setupQDPort(false, &off, &rgn);
-	if(rgn.isEmpty())
-	    return;
-#ifdef USE_CORE_GRAPHICS
-	QMacSavedPortInfo::setClipRegion(rgn);
-#endif
+	mgc->setupQDPort(false, 0, 0);
+	mgc->setupQDFont();
     }
 
     glyph_t *glyphs = engine->glyphs(si);
@@ -154,11 +144,6 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	glyph_metrics_t br = boundingBox(glyphs, advances, offsets, si->num_glyphs);
 	p->fillRect(x+br.x, y+br.y, br.width, br.height, p->backgroundColor());
     }
-    if(p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw)
-	((QQuickDrawGC*)p->d->gc)->setupQDFont();
-
-    x += off.x();
-    y += off.y();
 
 
     int w = 0;
@@ -173,61 +158,22 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 	    glyphs--;
 	    offsets--;
 	    advances--;
-	    MoveTo(x, y);
-	    w += doTextTask((QChar*)glyphs, 0, 1, 1, task, x, y, p->device(), &rgn);
+	    w += doTextTask((QChar*)glyphs, 0, 1, 1, task, x, y, p);
 	    x += *advances;
 	}
     } else {
-	MoveTo(x, y);
-	w = doTextTask((QChar*)glyphs, 0, si->num_glyphs, si->num_glyphs, task, x, y, p->device(), &rgn);
+	w = doTextTask((QChar*)glyphs, 0, si->num_glyphs, si->num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
 	int lineWidth = p->fontMetrics().lineWidth();
-	if(textFlags & Qt::Underline) {
-	    Rect r;
-	    int start_x = x, end_x = x + w;
-	    if(si->analysis.bidiLevel % 2) {
-		start_x = x - w;
-		end_x = x;
-	    }
-	    SetRect(&r, x, (y + 2) - (lineWidth / 2),
-		    end_x, (y + 2) + (lineWidth / 2));
-	    if(!(r.bottom - r.top))
-		r.bottom++;
-	    PaintRect(&r);
-	}
-	if(textFlags & Qt::Overline) {
-	    int spos = ascent() + 1;
-	    Rect r;
-	    int start_x = x, end_x = x + w;
-	    if(si->analysis.bidiLevel % 2) {
-		start_x = x - w;
-		end_x = x;
-	    }
-	    SetRect(&r, start_x, (y - spos) - (lineWidth / 2),
-		    end_x, (y - spos) + (lineWidth / 2));
-	    if(!(r.bottom - r.top))
-		r.bottom++;
-	    PaintRect(&r);
-	}
-	if(textFlags & Qt::StrikeOut) {
-	    int spos = ascent() / 3;
-	    if(!spos)
-		spos = 1;
-	    Rect r;
-	    int start_x = x, end_x = x + w;
-	    if(si->analysis.bidiLevel % 2) {
-		start_x = x - w;
-		end_x = x;
-	    }
-	    SetRect(&r, start_x, (y - spos) - (lineWidth / 2),
-		    end_x, (y - spos) + (lineWidth / 2));
-	    if(!(r.bottom - r.top))
-		r.bottom++;
-	    PaintRect(&r);
-	}
+	if(textFlags & Qt::Underline) 
+	    p->drawRect(x, (y + 2) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	if(textFlags & Qt::Overline) 
+	    p->drawRect(x, (y - (ascent() + 1)) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	if(textFlags & Qt::StrikeOut)
+	    p->drawRect(x, (y - qMax(1, (ascent() / 3))) - (lineWidth / 2), (si->analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
     }
-    }
+}
 
 glyph_metrics_t
 QFontEngineMac::boundingBox(const glyph_t *, const advance_t *advances, const qoffset_t *, int numGlyphs)
@@ -261,27 +207,31 @@ QFontEngineMac::calculateCost()
 }
 
 int
-QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int, int y,
-			   QPaintDevice *dev, const QRegion *rgn) const
+QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int x, int y, QPainter *p) const
 {
-#if defined(QMAC_FONT_NO_ANTIALIAS)
-    Q_UNUSED(dev);
-    Q_UNUSED(rgn);
-#endif
-
     int ret = 0;
-    QMacSetFontInfo fi(this, dev);
+    QMacSetFontInfo fi(this, p ? p->device() : 0);
     QMacFontInfo::QATSUStyle *st = fi.atsuStyle();
     if(!st)
 	return 0;
 
     if(task & DRAW) {
-	RGBColor fcolor;
-	GetForeColor(&fcolor);
-	if(st->rgb.red != fcolor.red || st->rgb.green != fcolor.green ||
-	   st->rgb.blue != fcolor.blue) {
-	    st->rgb = fcolor;
+	Q_ASSERT(p); //really need a p to do any drawing!!!
+
+	if(p->device()->devType() == QInternal::Widget) { //offset correctly..
+	    QPoint pos = posInWindow((QWidget*)p->device());
+	    x += pos.x();
+	    y += pos.y();
+	}
+
+	QColor rgb = p->pen().color();
+	if(rgb != st->rgb) {
+	    st->rgb = rgb;
 	    const ATSUAttributeTag tag = kATSUColorTag;
+	    ::RGBColor fcolor;
+	    fcolor.red = rgb.red()*256;
+	    fcolor.green = rgb.green()*256;
+	    fcolor.blue = rgb.blue()*256;
 	    ByteCount size = sizeof(fcolor);
 	    ATSUAttributeValuePtr value = &fcolor;
 	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
@@ -344,43 +294,60 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
-#if !defined(QMAC_FONT_NO_ANTIALIAS)
+
     tags[arr] = kATSUCGContextTag; //cgcontext
-    CGrafPtr port = NULL;
     CGContextRef ctx = NULL;
-    if(dev) {
-	if(dev->devType() == QInternal::Widget)
-	    port = GetWindowPort((WindowPtr)dev->handle());
-	else
-	    port = (CGrafPtr)dev->handle();
+#ifdef USE_CORE_GRAPHICS
+    if(p && p->device()) {
+	ctx = (CGContextRef)p->handle();
     } else {
-	static QPixmap *p = NULL;
-	if(!p)
-	    p = new QPixmap(1, 1, 32);
-	port = (CGrafPtr)p->handle();
+	static QPixmap *pixmap = NULL;
+	if(!pixmap)
+	    pixmap = new QPixmap(1, 1, 32);
+	ctx = (CGContextRef)pixmap->macCGHandle();
     }
-    RgnHandle rgnh = NULL;
-    if(rgn && !rgn->isEmpty())
-	rgnh = rgn->handle(TRUE);
+#else
+    CGrafPtr port = NULL;
+    if(p && p->device()) {
+	if(p->device()->devType() == QInternal::Widget)
+	    port = GetWindowPort((WindowPtr)p->device()->handle());
+	else
+	    port = (CGrafPtr)p->device()->handle();
+    } else {
+	static QPixmap *pixmap = NULL;
+	if(!pixmap)
+	    pixmap = new QPixmap(1, 1, 32);
+	port = (CGrafPtr)pixmap->handle();
+    }
     if(OSStatus err = QDBeginCGContext(port, &ctx)) {
 	qDebug("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
 	return 0;
     }
-    Rect clipr;
-    GetPortBounds(port, &clipr);
-    if(rgnh)
+    
+    RgnHandle rgnh = NULL;
+    if(p && p->d->gc && p->d->gc->type() == QAbstractGC::QuickDraw) {
+	QRegion rgn;
+	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
+	mgc->setupQDPort(false, 0, &rgn);
+	if(!rgn.isEmpty())
+	    rgnh = rgn.handle(TRUE);
+    }
+    if(rgnh) {
+	Rect clipr;
+	GetPortBounds(port, &clipr);
 	ClipCGContextToRegion(ctx, &clipr, rgnh);
+    }
+#endif
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
     arr++;
-#endif
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
 	qDebug("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
 	qDebug("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 	ATSUDisposeTextLayout(alayout);
-#if !defined(QMAC_FONT_NO_ANTIALIAS)
+#ifndef USE_CORE_GRAPHICS
 	QDEndCGContext(port, &ctx);
 #endif
 	return 0;
@@ -410,18 +377,17 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
  	if(use_len == 1 && s->unicode() < widthCacheSize)
  	    widthCache[s->unicode()] = ret;
     }
-    if(task & DRAW) {
-	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
-#if !defined(QMAC_FONT_NO_ANTIALIAS)
-		     kATSUUseGrafPortPenLoc, FixRatio((clipr.bottom-clipr.top)-y, 1)
-#else
-		     kATSUUseGrafPortPenLoc, kATSUUseGrafPortPenLoc
-#endif
-	    );
+    if(p && (task & DRAW)) {
+	int height = 0;
+	if(p->device()->devType() == QInternal::Widget)
+	    height = ((QWidget*)p->device())->topLevelWidget()->height();
+	else
+	    height = p->device()->metric(QPaintDeviceMetrics::PdmHeight);
+	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1), FixRatio(height-y, 1));
     }
     //cleanup
     ATSUDisposeTextLayout(alayout);
-#if !defined(QMAC_FONT_NO_ANTIALIAS)
+#ifndef USE_CORE_GRAPHICS
     QDEndCGContext(port, &ctx);
 #endif
     return ret;

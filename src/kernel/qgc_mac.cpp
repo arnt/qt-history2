@@ -1691,11 +1691,8 @@ QCoreGraphicsGC::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
     Q_ASSERT(isActive());
     if(pm.isNull())
 	return;
-#if 0
-    unclippedBitBlt(d->pdev, r.x(), r.y(), &pm, sr.x(), sr.y(), sr.width(), sr.height(), (RasterOp)d->current.rop, false, false);
-#else
-    qDebug("Must implement drawPixmap!!");
-#endif
+    qDebug("Must implement (correct) drawPixmap!!");
+    bitBlt(d->pdev, r.x(), r.y(), &pm, sr.x(), sr.y(), sr.width(), sr.height(), CopyROP, false);
 }
 
 void 

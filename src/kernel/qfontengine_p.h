@@ -545,7 +545,7 @@ public:
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
     int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int =-1, int y=-1,
-		   QPaintDevice *dev=NULL, const QRegion *rgn=NULL) const;
+		   QPainter *p=NULL) const;
 };
 
 #elif defined( Q_WS_WIN )
