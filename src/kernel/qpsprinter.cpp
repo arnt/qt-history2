@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#56 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -112,7 +112,7 @@ static const char *ps_header[] = {
 "    0.94 0.88 0.63 0.50 0.37 0.12 0.6",
 "] def",
 "",
-"/ArcDict 6 dict def",
+"/ArcDict 8 dict def",
 "ArcDict begin",
 "    /tmp matrix def",
 "end",
@@ -189,7 +189,7 @@ static const char *ps_header[] = {
 "    QS",
 "} D",
 "",
-"/RDict 4 dict def",
+"/RDict 5 dict def",
 "/R {",					// PDC_DRAWRECT [x y w h]
 "    RDict begin",
 "    /h ED /w ED /y ED /x ED",
@@ -204,7 +204,7 @@ static const char *ps_header[] = {
 "    end",
 "} D",
 "",
-"/ACRDict 4 dict def",
+"/ACRDict 5 dict def",
 "/ACR {",					// add clip rect
 "    ACRDict begin",
 "    /h ED /w ED /y ED /x ED",
@@ -234,7 +234,7 @@ static const char *ps_header[] = {
 "    defM SM",				// set coordsys (defensive progr.)
 "} D",
 "",
-"/RRDict 6 dict def",
+"/RRDict 11 dict def",
 "/RR {",				// PDC_DRAWROUNDRECT [x y w h xr yr]
 "    RRDict begin",
 "    /yr ED /xr ED /h ED /w ED /y ED /x ED",
@@ -289,7 +289,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/PieDict 6 dict def",
+"/PieDict 7 dict def",
 "/PIE {",				// PDC_DRAWPIE [x y w h ang1 ang2]
 "    PieDict begin",
 "    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
@@ -414,7 +414,7 @@ static const char *ps_header[] = {
 "} D",
 "",
 "",
-"/BFDict 2 dict def",
+"/BFDict 3 dict def",
 "/BF {",				// brush fill
 "    BSt 9 ge BSt 14 le and",		// valid brush pattern?
 "    {",
@@ -500,8 +500,9 @@ static const char *ps_header[] = {
 "    {currentfile sl readhexstring pop} false 3 colorimage",
 "  } D",
 "} {", // the hard way.  based on PD code by John Walker <kelvin@autodesk.com>
+"  /QCIDict 25 dict def",
 "  /QCI {",
-"    50 dict begin",
+"    QCIDict begin",
 "      /Matrix exch def",
 "      /Bcomp exch def",
 "      /Height exch def",
@@ -527,6 +528,7 @@ static const char *ps_header[] = {
 "    end",
 "  } D",
 "} ifelse",
+//"/setstrokeadjust where { pop true setstrokeadjust } if",
 0};
 
 
@@ -1807,32 +1809,51 @@ static void cleanup()
 
 static void wordwrap( char * s )
 {
-    int i = 0, j = 0, k = 0, l = 0;
+    int ip = 0, ilp = 0, op = 0, olp = 0, oline = 0;
+    bool needws = FALSE, insertws = FALSE;
 
-    while( s[i] ) {
-	if ( s[i] == '%' )
-	    while( s[i] != '\n' && s[i] )
-		s[i++] = ' ';
-	i++;
-    }
-
-    i = 0;
-    while( s[i] ) {
-	if ( j - l > 78 && k != l ) {
-	    s[k] = '\n';
-	    l = k;
+    while( s[ip] ) {
+	if ( ilp && op - oline > 79 ) {
+	    // we have a possible line start position and a long line - let's
+	    // use it.
+	    ip = ilp;
+	    s[olp] = '\n';
+	    op = olp;
+	    op++;
+	    oline = op;
+	    needws = FALSE;
 	}
 
-	if ( isspace( s[i] ) ) {
-	    k = j;
-	    s[j++] = ' ';
-	    while( isspace( s[i] ) )
-		i++;
+	if ( isspace( s[ip] ) ) {
+	    if ( needws )
+		insertws = TRUE;
+	    olp = op;
+	    ilp = ip++;
+	    needws = FALSE;
+	} else if ( s[ip] == '/' || s[ip] == '{' || s[ip] == '}' ||
+		    s[ip] == '[' || s[ip] == ']' ) {
+	    if ( insertws ) {
+		// if there was whitespace, we can start a new line here
+		ilp = ip;
+		olp = op;
+		// but we don't need whitespace before it
+		insertws = FALSE;
+	    }
+	    // don't need ws after it either
+	    needws = FALSE;
+	    s[op++] = s[ip++];
 	} else {
-	    s[j++] = s[i++];
+	    if ( insertws ) {
+		ilp = ip;
+		olp = op;
+		s[op++] = ' ';
+		insertws = FALSE;
+	    }
+	    needws = TRUE;
+	    s[op++] = s[ip++];
 	}
     }
-    s[j] = '\0';
+    s[op] = '\0';
 }
 
 
