@@ -169,7 +169,7 @@ static void readLocaleSettings()
 
 #ifndef Q_WS_WIN
 	QString sep = d.mid( QMIN( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
-	if ( d.find( sep ) == 2 ) {
+	if ( d.count( sep ) == 2 ) {
 	    *lDateSep = sep;
 	}
 #endif
