@@ -490,7 +490,7 @@
   and returns the position of the next element.
 */
 
-/*! \fn bool QValueVector::operator==( const QValueVector<T>& x )
+/*! \fn bool QValueVector::operator==( const QValueVector<T>& x ) const
   Returns TRUE if each element in this vector equals each
   corresponding element in \a x, otherwise FALSE is returned.
 */
