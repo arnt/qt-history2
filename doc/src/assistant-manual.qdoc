@@ -36,10 +36,10 @@
 
     \list
 
-    \i The \l{All Classes} page lists every class
+    \i The \l{Qt's Classes} page lists every class
     in Qt's public API, and consists of several hundred classes.
 
-    \i The \l{Main Classes} page lists the
+    \i The \l{Qt's Main Classes} page lists the
     classes you're most likely to use most often, and provides a much
     shorter and more managable list than the All Classes list.
 
@@ -47,10 +47,10 @@
     of groups, each of which leads to a list of related classes, for
     example, the \l{Advanced Widgets} list.
 
-    \i The \l{Inheritance Hierarchy} page
+    \i The \l{Class Inheritance Hierarchy} page
     presents a list of classes in terms of the hierarchy of Qt classes.
 
-    \i The \l{All Functions} page lists all the
+    \i The \l{Member Function Index} page lists all the
     functions provided by Qt classes, each one with links to the class(es)
     in which it appears.
 
