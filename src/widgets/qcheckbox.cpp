@@ -15,11 +15,7 @@
 #include "qcheckbox.h"
 #ifndef QT_NO_CHECKBOX
 #include "qpainter.h"
-#include "qdrawutil.h"
-#include "qpixmap.h"
-#include "qpixmapcache.h"
 #include "qbitmap.h"
-#include "qtextstream.h"
 #include "qapplication.h"
 #include "qstyle.h"
 
@@ -167,43 +163,6 @@ void QCheckBox::drawButton( QPainter *paint )
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
     const QPalette &pal = palette();
 
-#if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
-#   define  SAVE_CHECKBOX_PIXMAPS
-#endif
-#if defined(SAVE_CHECKBOX_PIXMAPS)
-    QString pmkey;				// pixmap key
-    int kf = 0;
-    if ( isDown() )
-	kf |= 1;
-    if ( isEnabled() )
-	kf |= 2;
-    if ( hasFocus() )
-	kf |= 4;				// active vs. normal colorgroup
-    if( isActiveWindow() )
-	kf |= 8;
-    if ( hasMouse() )
-	kf |= 16;
-
-    kf |= state() << 5;
-    QTextOStream os(&pmkey);
-    os << "$qt_check_" << style().className() << "_"
-       << palette().serialNumber() << "_" << irect.width() << "x" << irect.height() << "_" << kf;
-    QPixmap pm;
-    if ( QPixmapCache::find( pmkey, pm ) ) {					// pixmap exists
-	p->drawPixmap( irect.topLeft(), pm );
-	drawButtonLabel( p );
-	return;
-    }
-    QPainter pmpaint;
-    pm = QPixmap( irect.size() );	// create new pixmap
-    int wx = irect.x();				// save x,y coords
-    int wy = irect.y();
-    pm.fill(this, wx, wy);
-    pmpaint.begin(&pm, this);
-    p = &pmpaint;				// draw in pixmap
-    irect.moveTopLeft(QPoint(0, 0));
-#endif
-
     QStyle::SFlags flags = QStyle::Style_Default;
     if ( isEnabled() )
 	flags |= QStyle::Style_Enabled;
@@ -221,13 +180,6 @@ void QCheckBox::drawButton( QPainter *paint )
 	flags |= QStyle::Style_NoChange;
 
     style().drawControl(QStyle::CE_CheckBox, p, this, irect, pal, flags);
-
-#if defined(SAVE_CHECKBOX_PIXMAPS)
-    pmpaint.end();
-    p = paint;				// draw in default device
-    p->drawPixmap( wx, wy, pm );
-    QPixmapCache::insert(pmkey, pm);	// save in cache
-#endif
 
     drawButtonLabel( paint );
 }

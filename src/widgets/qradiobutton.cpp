@@ -16,11 +16,7 @@
 #ifndef QT_NO_RADIOBUTTON
 #include "qbuttongroup.h"
 #include "qpainter.h"
-#include "qdrawutil.h"
-#include "qpixmap.h"
-#include "qpixmapcache.h"
 #include "qbitmap.h"
-#include "qtextstream.h"
 #include "qapplication.h"
 #include "qstyle.h"
 
@@ -171,44 +167,6 @@ void QRadioButton::drawButton( QPainter *paint )
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
     const QPalette &pal = palette();
 
-#if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
-#   define  SAVE_RADIOBUTTON_PIXMAPS
-#endif
-#if defined(SAVE_RADIOBUTTON_PIXMAPS)
-    QString pmkey;				// pixmap key
-    int kf = 0;
-    if ( isDown() )
-	kf |= 1;
-    if ( isOn() )
-	kf |= 2;
-    if ( isEnabled() )
-	kf |= 4;
-    if( isActiveWindow() )
-	kf |= 8;
-    if ( hasMouse() )
-	kf |= 16;
-    if ( hasFocus() )
-	kf |= 32;
-
-    QTextOStream os(&pmkey);
-    os << "$qt_radio_" << style().className() << "_"
-       << palette().serialNumber() << "_" << irect.width() << "x" << irect.height() << "_" << kf;
-    QPixmap pm;
-    if (QPixmapCache::find( pmkey, pm)) {
-	drawButtonLabel( p );
-	p->drawPixmap( irect.topLeft(), pm );
-	return;
-    }
-    QPainter pmpaint;
-    pm = QPixmap( irect.size() );	// create new pixmap
-    int wx = irect.x();				// save x,y coords
-    int wy = irect.y();
-    pm.fill(this, wx, wy);
-    pmpaint.begin(&pm, this);
-    p = &pmpaint;				// draw in pixmap
-    irect.moveTopLeft(QPoint(0, 0));
-#endif
-
     QStyle::SFlags flags = QStyle::Style_Default;
     if ( isEnabled() )
 	flags |= QStyle::Style_Enabled;
@@ -224,13 +182,6 @@ void QRadioButton::drawButton( QPainter *paint )
 	flags |= QStyle::Style_Off;
 
     style().drawControl(QStyle::CE_RadioButton, p, this, irect, pal, flags);
-
-#if defined(SAVE_RADIOBUTTON_PIXMAPS)
-    pmpaint.end();
-    p = paint;				// draw in default device
-    p->drawPixmap( wx, wy, pm );
-    QPixmapCache::insert(pmkey, pm);	// save in cache
-#endif
 
     drawButtonLabel( p );
 }
