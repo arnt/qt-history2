@@ -86,11 +86,11 @@ void MainWindow::createActions()
 
     saveAct = new QAction(tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
-    saveAct->setStatusTip(tr("Save the spreadsheet to disk"));
+    saveAct->setStatusTip(tr("Save the document to disk"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
-    saveAsAct->setStatusTip(tr("Save the spreadsheet under a new name"));
+    saveAsAct->setStatusTip(tr("Save the document under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     for (int i = 0; i < MaxRecentFiles; ++i) {
