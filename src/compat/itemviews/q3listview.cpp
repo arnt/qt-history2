@@ -7101,7 +7101,7 @@ void Q3ListView::startDrag()
 
 /*!
     \property Q3ListView::defaultRenameAction
-    \brief whether the list view accepts the rename operation by default
+    \brief What action to perform when the editor loses focus during renaming
 
     If this property is \c Accept, and the user renames an item and
     the editor loses focus (without the user pressing Enter), the
