@@ -832,6 +832,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
       case QEvent::Wheel:
       case QEvent::Accel:
       case QEvent::AccelAvailable:
+      case QEvent::AccelOverride:
         return true;
       default:
         return false;
