@@ -70,7 +70,7 @@ public:
     QSizePolicy() : data( 0 ) {}
 
     QSizePolicy( SizeType hor, SizeType ver, bool hfw = FALSE )
-	: data( hor | (ver<<HSize) | (hfw ? (Q_UINT16)(1<<2*HSize) : 0) ) {}
+	: data( hor | (ver<<HSize) | (hfw ? (Q_UINT32)(1<<2*HSize) : 0) ) {}
     QSizePolicy( SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw = FALSE );
 
     SizeType horData() const { return (SizeType)( data & HMask ); }
@@ -87,12 +87,12 @@ public:
 			     (int)(horData()&ExpMask ? Horizontally : 0) );
     }
 
-    void setHorData( SizeType d ) { data = (Q_UINT16)(data & ~HMask) | d; }
-    void setVerData( SizeType d ) { data = (Q_UINT16)(data & ~(HMask<<HSize)) |
+    void setHorData( SizeType d ) { data = (Q_UINT32)(data & ~HMask) | d; }
+    void setVerData( SizeType d ) { data = (Q_UINT32)(data & ~(HMask<<HSize)) |
 					   (d<<HSize); }
 		
-    void setHeightForWidth( bool b ) { data = b ? (Q_UINT16)( data | ( 1 << 2*HSize ) )
-					      : (Q_UINT16)( data & ~( 1 << 2*HSize ) );  }
+    void setHeightForWidth( bool b ) { data = b ? (Q_UINT32)( data | ( 1 << 2*HSize ) )
+					      : (Q_UINT32)( data & ~( 1 << 2*HSize ) );  }
     bool hasHeightForWidth() const { return data & ( 1 << 2*HSize ); }
 
     bool operator==( const QSizePolicy& s ) const { return data == s.data; }
@@ -111,7 +111,7 @@ private:
 };
 
 inline QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, uchar hors, uchar vers, bool hfw )
-    : data( hor | (ver<<HSize) | (hfw ? (Q_UINT16)(1<<2*HSize) : 0) ) {
+    : data( hor | (ver<<HSize) | (hfw ? (Q_UINT32)(1<<2*HSize) : 0) ) {
 	setHorStretch( hors );
 	setVerStretch( vers );
 }
