@@ -7,7 +7,7 @@ P4PORT=p4.troll.no:866	#point p4 to the correct server
 #internal variables
 YEAR=`date +%Y`
 CREATED_MANIFEST=no
-TMP_DIR=/tmp
+TMP_DIR=/home/reggie/tmp
 TMP_FILE=${TMP_DIR}/qt-tmpf-$$
 MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
