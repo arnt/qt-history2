@@ -330,12 +330,14 @@ QSize QToolButton::sizeHint() const
 	switch ( d->textPos ) {
 	case Under: {
 	    h += 4 + fontMetrics().height();
-	    int tw = fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
+	    int tw = fontMetrics().size( Qt::ShowPrefix, textLabel() ).width() +
+		     fontMetrics().width("  ");
 	    if ( tw > w )
 		w = tw;
 	} break;
 	case Right: {
-	    w += 4 + fontMetrics().width( textLabel() ) + fontMetrics().width("  ");
+	    w += 4 + fontMetrics().size( Qt::ShowPrefix, textLabel() ).width() +
+		 fontMetrics().width("  ");
 	    int th = fontMetrics().height();
 	    if ( th > h )
 		h = th;
@@ -347,7 +349,6 @@ QSize QToolButton::sizeHint() const
     if ( popup() && ! popupDelay() )
      	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 #endif
-
     return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
 	    expandedTo(QApplication::globalStrut()));
 }
