@@ -54,6 +54,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qlayout.h \
+		  $$KERNEL_H/qlayoutengine.h \
 		  $$KERNEL_H/qmessagefile.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmotifstyle.h \
@@ -245,6 +246,7 @@ SOURCES		+= \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
+		  kernel/qlayoutengine.cpp \
 		  kernel/qmessagefile.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmotifstyle.cpp \

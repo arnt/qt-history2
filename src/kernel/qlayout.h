@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#30 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#31 $
 **
 ** Definition of layout classes
 **
@@ -54,7 +54,7 @@ public:
     QSizePolicy::Expansiveness expansive();
     void invalidate();
 
-    void add ( QLayoutItem * );
+    void addItem( QLayoutItem * );
     // void setAlignment( QWidget* );
 
     void addWidget( QWidget *, int row, int col, int align = 0 );
@@ -100,8 +100,8 @@ public:
 
     ~QBoxLayout();
 
-    void add( QLayoutItem * );
-    
+    void addItem( QLayoutItem * );
+
     Direction direction() const { return dir; }
 
     //#if 1	//OBSOLETE ?????

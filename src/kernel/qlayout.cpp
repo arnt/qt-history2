@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#62 $
 **
 ** Implementation of layout classes
 **
@@ -27,7 +27,7 @@
 #include "qlist.h"
 #include "qsizepolicy.h"
 
-
+#include "qlayoutengine.h"
 
 
 // This cannot be a subclass of QLayoutItem, since it can contain different item classes.
@@ -48,7 +48,7 @@ public:
     QSizePolicy::Expansiveness expansive() const { return item->expansive(); }
     bool isEmpty() const { return item->isEmpty(); }
     QLayoutItem::SearchResult removeWidget( QWidget *w ) { return item->removeW(w); }
-    
+
     void setAlignment( int a ) { item->setAlignment( a ); }
     void setGeometry( const QRect &r ) { item->setGeometry( r ); }
     int alignment() const { return item->alignment(); }
@@ -86,174 +86,6 @@ static QSize smartMaxPrefSize( QWidget *w )
 }
 #endif
 
-struct LayoutStruct
-{
-    void init() { stretch = 0; initParameters(); }
-    void initParameters() { minimumSize = sizeHint = 0;
-    maximumSize = QCOORD_MAX; expansive = FALSE; empty = TRUE; }
-    //permanent storage:
-    int stretch;
-    //parameters:
-    QCOORD sizeHint;
-    QCOORD maximumSize;
-    QCOORD minimumSize;
-    bool expansive;
-    bool empty;
-    //temporary storage:
-    bool done;
-    //result:
-    int pos;
-    int size;
-};
-
-
-static inline int toFixed( int i ) { return i * 256; }
-static inline int fRound( int i ) {
-    return  i % 256 < 128 ? i / 256 : 1 + i / 256;
-}
-/*
-  \internal
-  This is the main workhorse of the QGridLayout. It portions out
-  available space to the chain's children.
-
-  The calculation is done in fixed point: "fixed" variables are scaled
-  by a factor of 256.
-
-  If the layout runs "backwards" (i.e. RightToLeft or Up) the layout
-  is computed mirror-reversed, and it is the callers responsibility do
-  reverse the values before use.
-
-  chain contains input and output parameters describing the geometry.
-  count is the count of items in the chain,
-  pos and space give the interval (relative to parentWidget topLeft.)
-*/
-
-static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
-		      int space, int spacer )
-{
-    typedef int fixed;
-    int cHint = 0;
-    int cMin = 0;
-    int cMax = 0;
-    int sumStretch = 0;
-    int spacerCount = 0;
-
-    bool wannaGrow = FALSE; // anyone who really wants to grow?
-    //    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
-
-    int i; //some hateful compilers do not handle for loops correctly
-    for ( i = 0; i < count; i++ ) {
-	chain[i].done = FALSE;
-	cHint += chain[i].sizeHint;
-	cMin += chain[i].minimumSize;
-	cMax += chain[i].maximumSize;
-	sumStretch += chain[i].stretch;
-	if ( !chain[i].empty )
-	    spacerCount++;
-	wannaGrow = wannaGrow ||  chain[i].expansive;
-    }
-
-    if ( spacerCount )
-	spacerCount -= 1; //only spacers between things
-    if ( space < cMin + spacerCount*spacer ) {
-	//	debug("not enough space");
-	for ( int i = 0; i < count; i++ ) {
-	    chain[i].size = chain[i].minimumSize;
-	    chain[i].done = TRUE;
-	}
-    } else if ( space < cHint + spacerCount*spacer ) {
-	int n = count;
-	int space_left = space - spacerCount*spacer;
-	int overdraft = cHint - space_left;
-	//first give to the fixed ones:
-	for ( i = 0; i < count; i++ ) {
-	    if ( !chain[i].done && chain[i].minimumSize >= chain[i].sizeHint) {
-		chain[i].size = chain[i].sizeHint;
-		chain[i].done = TRUE;
-		space_left -= chain[i].sizeHint;
-		sumStretch -= chain[i].stretch;
-		n--;
-	    }
-	}
-	bool finished = n == 0;
-	while ( !finished ) {
-	    finished = TRUE;
-	    fixed fp_over = toFixed( overdraft );
-	    fixed fp_w = 0;
-
-	    for ( i = 0; i < count; i++ ) {
-		if ( chain[i].done )
-		    continue;
-		// if ( sumStretch <= 0 )
-		fp_w += fp_over / n;
-		// else
-		//    fp_w += (fp_space * chain[i].stretch) / sumStretch;
-		int w = fRound( fp_w );
-		chain[i].size = chain[i].sizeHint - w;
-		fp_w -= toFixed( w ); //give the difference to the next
-		if ( chain[i].size < chain[i].minimumSize ) {
-		    chain[i].done = TRUE;
-		    chain[i].size = chain[i].minimumSize;
-		    finished = FALSE;
-		    overdraft -= chain[i].sizeHint - chain[i].minimumSize;
-		    sumStretch -= chain[i].stretch;
-		    n--;
-		    break;
-		}
-	    }
-	}
-    } else { //to much space
-	int n = count;
-	int space_left = space - spacerCount*spacer;
-	//first give to the fixed ones:
-	for ( i = 0; i < count; i++ ) {
-	    if ( !chain[i].done && ( chain[i].maximumSize <= chain[i].sizeHint
-				     || wannaGrow && !chain[i].expansive )) {
-		chain[i].size = chain[i].sizeHint;
-		chain[i].done = TRUE;
-		space_left -= chain[i].sizeHint;
-		sumStretch -= chain[i].stretch;
-		n--;
-	    }
-	}
-	bool finished = n == 0;
-	while ( !finished ) {
-	    finished = TRUE;
-	    fixed fp_space = toFixed( space_left );
-	    fixed fp_w = 0;
-
-	    for ( i = 0; i < count; i++ ) {
-		if ( chain[i].done )
-		    continue;
-		if ( sumStretch <= 0 )
-		    fp_w += fp_space / n;
-		else
-		    fp_w += (fp_space * chain[i].stretch) / sumStretch;
-		int w = fRound( fp_w );
-		chain[i].size = w;
-		fp_w -= toFixed( w ); //give the difference to the next
-		if ( w < chain[i].sizeHint ) {
-		    chain[i].done = TRUE;
-		    chain[i].size = chain[i].sizeHint;
-		    finished = FALSE;
-		    space_left -= chain[i].sizeHint;
-		    sumStretch -= chain[i].stretch;
-		    n--;
-		    break;
-		}
-	    }
-	}
-    }
-
-    int p = pos;
-    for ( i = 0; i < count; i++ ) {
-	chain[i].pos = p;
-	p = p + chain[i].size;
-	if ( !chain[i].empty )
-	    p += spacer;
-    }
-}
-
 class QLayoutArray
 {
 public:
@@ -283,7 +115,7 @@ public:
 
 private:
     void init();
-    QSize findSize( QCOORD LayoutStruct::*, int ) const;
+    QSize findSize( QCOORD QLayoutStruct::*, int ) const;
     void addData ( QLayoutBox *b, bool r = TRUE, bool c = TRUE );
     void setSize( int rows, int cols );
     void setupLayoutData();
@@ -291,8 +123,8 @@ private:
     int cc;
     bool hReversed;
     bool vReversed;
-    QArray<LayoutStruct> rowData;
-    QArray<LayoutStruct> colData;
+    QArray<QLayoutStruct> rowData;
+    QArray<QLayoutStruct> colData;
     QList<QLayoutBox> things;
     QList<QMultiBox> *multi;
     bool needRecalc;
@@ -329,7 +161,7 @@ bool QLayoutArray::removeWidget( QWidget *w )
 	case QLayoutItem::FoundAndDeleteable:
 	    things.removeRef( box );
 	    return TRUE;
-	case QLayoutItem::Found:	    
+	case QLayoutItem::Found:	
 	    return TRUE;
 	}
     }
@@ -345,7 +177,7 @@ bool QLayoutArray::removeWidget( QWidget *w )
 	    case QLayoutItem::FoundAndDeleteable:
 		multi->removeRef( mbox );
 		return TRUE;
-	    case QLayoutItem::Found:	    
+	    case QLayoutItem::Found:	
 		return TRUE;
 	    }
 	}
@@ -371,7 +203,7 @@ QSizePolicy QLayoutArray::sizePolicy()
 }
 #endif
 
-QSize QLayoutArray::findSize( QCOORD LayoutStruct::*size, int spacer ) const
+QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
     QLayoutArray *This = (QLayoutArray*)this;
     This->setupLayoutData(); //###A very clever optimizer could cause trouble
@@ -418,17 +250,17 @@ QSizePolicy::Expansiveness QLayoutArray::expansive()
 
 QSize QLayoutArray::sizeHint( int spacer ) const
 {
-    return findSize( &LayoutStruct::sizeHint, spacer );
+    return findSize( &QLayoutStruct::sizeHint, spacer );
 }
 
 QSize QLayoutArray::maximumSize( int spacer ) const
 {
-    return findSize( &LayoutStruct::maximumSize, spacer );
+    return findSize( &QLayoutStruct::maximumSize, spacer );
 }
 
 QSize QLayoutArray::minimumSize( int spacer ) const
 {
-    return findSize( &LayoutStruct::minimumSize, spacer );
+    return findSize( &QLayoutStruct::minimumSize, spacer );
 }
 
 void QLayoutArray::setSize( int r, int c )
@@ -509,7 +341,7 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 }
 
 
-static void distributeMultiBox( QArray<LayoutStruct> &chain,
+static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 				int start, int end,
 				int minSize, int sizeHint )
 {
@@ -609,8 +441,8 @@ void QLayoutArray::distribute( QRect r, int spacing )
     //setDirty(); (???) --- so we know that it is clean
     setupLayoutData();
 
-    geomCalc( colData, cc, r.x(), r.width(), spacing );
-    geomCalc( rowData, rr, r.y(), r.height(), spacing );
+    qGeomCalc( colData, cc, r.x(), r.width(), spacing );
+    qGeomCalc( rowData, rr, r.y(), r.height(), spacing );
 
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
@@ -934,10 +766,10 @@ void QGridLayout::init( int nRows, int nCols )
 }
 
 
-void QGridLayout::add( QLayoutItem *item )
+void QGridLayout::addItem( QLayoutItem *item )
 {
     int r =0;
-    int c =0; 
+    int c =0;
     //######################################################################
     add( item, r, c );
 }
@@ -1169,7 +1001,7 @@ static inline bool horz( QBoxLayout::Direction dir )
 #if 0
 class QBoxLayoutData {
 public:
-    QArray<LayoutStruct> arr;
+    QArray<QLayoutStruct> arr;
 };
 #endif
 
@@ -1228,7 +1060,7 @@ QBoxLayout::~QBoxLayout()
   Adds \a item to this box.
 */
 
-void QBoxLayout::add( QLayoutItem *item )
+void QBoxLayout::addItem( QLayoutItem *item )
 {
     if ( horz( dir ) ) {
 	int n = numCols();
@@ -1237,7 +1069,7 @@ void QBoxLayout::add( QLayoutItem *item )
 	int n = numRows();
 	QGridLayout::add( item, n, 0 ) ;
     }
-    
+
 }
 
 
