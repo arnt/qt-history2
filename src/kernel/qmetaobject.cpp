@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#6 $
 **
 ** Implementation of QMetaObject class
 **
@@ -15,7 +15,7 @@
 #include "qstrlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#6 $";
 #endif
 
 /*! \class QMetaObject qmetaobj.h
@@ -178,6 +178,7 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	else					// not found
 	    return 0;
     }
+    return 0;					// never reached!
 }
 
 QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
@@ -211,4 +212,5 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	else					// bad index
 	    return 0;
     }
+    return 0;					// never reached!
 }
