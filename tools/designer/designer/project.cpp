@@ -1246,7 +1246,7 @@ void Project::writePlatformSettings( QString &contents, const QString &setting,
 	i = 1;
     else
 	i = 0;
-    for ( i; platforms[ i ] != QString::null; ++i ) {
+    for (; platforms[ i ] != QString::null; ++i ) {
 	QString p = platforms[ i ];
 	if ( !p.isEmpty() )
 	    p += ":";
