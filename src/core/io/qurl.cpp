@@ -2387,13 +2387,17 @@ QString QUrl::fromPunycode(const QByteArray &pc)
 }
 
 /*!
-    \fn bool QUrl::operator <(const QUrl &url) const
-
     \internal
 
     Returns true if this URL is "less than" the given \a url. This
     provides a means of ordering URLs.
 */
+bool QUrl::operator <(const QUrl &url) const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+    if (!QURL_HASFLAG(url.d->stateFlags, QUrlPrivate::Parsed)) url.d->parse();
+    return d->normalized() < url.d->normalized();
+}
 
 /*!
     Returns true if this URL and the given \a url are equal;
