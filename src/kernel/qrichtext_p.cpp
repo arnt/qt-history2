@@ -630,10 +630,8 @@ int QTextParag::minimumWidth() const
 
 void QTextParag::setTabArray( int *a )
 {
-    if ( doc )
-	doc->setTabArray( a );
-    else
-	tabArray = a;
+    delete [] tabArray;
+    tabArray = a;
 }
 
 void QTextParag::setTabStops( int tw )

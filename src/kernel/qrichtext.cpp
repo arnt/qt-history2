@@ -3895,22 +3895,19 @@ void QTextParag::decDepth()
 
 int QTextParag::nextTab( int x )
 {
+    int *ta = tabArray;
     if ( doc ) {
-	tabArray = doc->tabArray();
+	if ( !ta )
+	    ta = doc->tabArray();
 	tabStopWidth = doc->tabStopWidth();
     }
-    if ( tabArray ) {
+    if ( ta ) {
 	int i = 0;
-	while ( tabArray[ i ] ) {
-	    if ( tabArray[ i ] >= x ) {
-		if ( doc )
-		    tabArray = 0;
+	while ( ta[ i ] ) {
+	    if ( ta[ i ] >= x )
 		return tabArray[ i ];
-	    }
 	    ++i;
 	}
-	if ( doc )
-	    tabArray = 0;
 	return tabArray[ 0 ];
     } else {
 	int d;
