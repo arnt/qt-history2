@@ -7,10 +7,10 @@ isEmpty(RCC_DIR):RCC_DIR = .
 isEmpty(QMAKE_RESOURCE_PREFIX):QMAKE_RESOURCE_PREFIX = /tmp/
 
 resource_split {
-   rcc.output  = $$RCC_DIR/resource_${QMAKE_FILE_BASE}.cpp
+   rcc.output  = $$RCC_DIR/resource_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
 } else {
    rcc.CONFIG += combine
-   rcc.output  = $$RCC_DIR/resources.cpp
+   rcc.output  = $$RCC_DIR/resources$${first(QMAKE_EXT_CPP)}
 }
 !contains(QMAKE_RESOURCE_FLAGS, -root):!isEmpty(QMAKE_RESOURCE_ROOT):QMAKE_RESOURCE_FLAGS += -root $$QMAKE_RESOURCE_ROOT
 !contains(QMAKE_RESOURCE_FLAGS, -name) {

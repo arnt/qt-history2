@@ -1822,6 +1822,19 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                         }
                     }
                 }
+            } else if(val.toLower() == "first" || val.toLower() == "last") {
+                if(arg_list.count() != 1) {
+                    fprintf(stderr, "%s:%d: %s(var) requires one argument.\n",
+                            parser.file.latin1(), parser.line_no, val.latin1());
+                } else {
+                    const QStringList &var = place[varMap(arg_list.first())];
+                    if(!var.isEmpty()) {
+                        if(val.toLower() == "first")
+                            replacement = var[0];
+                        else
+                            replacement = var[var.size()-1];
+                    }
+                }
             } else if(val.toLower() == "cat") {
                 if(arg_list.count() != 1) {
                     fprintf(stderr, "%s:%d: cat(file) requires one arguments.\n",
