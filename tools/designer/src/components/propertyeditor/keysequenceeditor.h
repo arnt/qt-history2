@@ -1,0 +1,45 @@
+#ifndef KEYSEQUENCEEDITOR_H
+#define KEYSEQUENCEEDITOR_H
+
+#include "propertyeditor_global.h"
+
+#include <QHBoxWidget>
+#include <QKeySequence>
+
+class QLineEdit;
+class QToolButton;
+
+class QT_PROPERTYEDITOR_EXPORT KeySequenceEditor: public QHBoxWidget
+{
+    Q_OBJECT
+public:
+    KeySequenceEditor(QWidget *parent = 0);
+    virtual ~KeySequenceEditor();
+
+    QKeySequence keySequence() const;
+    
+    QToolButton *resetButton() const;
+    QLineEdit *lineEdit() const;
+
+    virtual bool eventFilter(QObject *o, QEvent *e);
+
+signals:
+    void changed();
+    
+public slots:
+    void setKeySequence(const QKeySequence &keySequence);
+    void reset();
+
+protected:
+    void handleKeyEvent(QKeyEvent *e);
+    int translateModifiers(Qt::ButtonState state);
+
+private:
+    QLineEdit *m_lineEdit;
+    QToolButton *m_resetButton;
+    bool mouseEnter;
+    int num;
+    int k1, k2, k3, k4;
+};
+
+#endif // KEYSEQUENCEEDITOR_H

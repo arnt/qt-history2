@@ -1,0 +1,676 @@
+#include "qdesigner_resource.h"
+#include "formwindow.h"
+#include "widgetdatabase.h"
+#include "layout.h"
+#include "qdesigner_widget.h"
+#include "qdesigner_tabwidget.h"
+#include "qdesigner_toolbox.h"
+#include "qdesigner_stackedbox.h"
+#include "qdesigner_customwidget.h"
+
+// shared
+#include <layoutinfo.h>
+#include <spacer.h>
+
+// sdk
+#include <container.h>
+#include <propertysheet.h>
+#include <qextensionmanager.h>
+#include <abstractwidgetfactory.h>
+#include <abstractmetadatabase.h>
+#include <abstractformeditor.h>
+#include <ui4.h>
+
+#include <QMainWindow>
+#include <QLayout>
+#include <QTabWidget>
+#include <QToolBox>
+#include <QTabBar>
+#include <QtXml/QDomDocument>
+
+#include <qdebug.h>
+
+QDesignerResource::QDesignerResource(FormWindow *formWindow)
+   : m_formWindow(formWindow), m_core(formWindow->core())
+{
+    m_internal_to_qt.insert("QDesignerWidget", "QWidget");
+    m_internal_to_qt.insert("QDesignerStackedWidget", "QStackedWidget");
+    m_internal_to_qt.insert("QLayoutWidget", "QWidget");
+    m_internal_to_qt.insert("QDesignerTabWidget", "QTabWidget");
+    m_internal_to_qt.insert("QDesignerDialog", "QDialog");
+    m_internal_to_qt.insert("QDesignerLabel", "QLabel");
+    m_internal_to_qt.insert("QDesignerToolBox", "QToolBox");
+
+    // invert
+    QHashIterator<QString, QString> it(m_internal_to_qt);
+    while (it.hasNext()) {
+        it.next();
+
+        if (it.value() == QLatin1String("QDesignerWidget")
+                || it.value() == QLatin1String("QLayoutWidget"))
+            continue;
+
+        m_qt_to_internal.insert(it.value(), it.key());
+    }
+}
+
+QDesignerResource::~QDesignerResource()
+{
+}
+
+QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
+{
+    m_isMainWidget = true;
+    return Resource::create(ui, parentWidget);
+}
+
+QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
+{
+    QString className = ui_widget->attributeClass();
+    if (!m_isMainWidget && className == QLatin1String("QWidget") && ui_widget->elementLayout().size()) {
+        // ### check if elementLayout.size() == 1
+        ui_widget->setAttributeClass("QLayoutWidget");
+    }
+
+    QWidget *w = Resource::create(ui_widget, parentWidget);
+    if (!w)
+        return 0;
+
+    ui_widget->setAttributeClass(className); // fix the class name
+
+    // update the metainfo
+    if (ui_widget->hasAttributeName()) {
+        AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(w);
+        Q_ASSERT(item);
+        item->setName(ui_widget->attributeName());
+    }
+    
+    if (QMainWindow *mainWindow = qt_cast<QMainWindow*>(w)) {
+        QWidget *central_widget = createWidget(QLatin1String("QWidget"), mainWindow, "__qt_central_widget");
+        Q_ASSERT(qt_cast<QDesignerWidget*>(central_widget));
+        mainWindow->setCentralWidget(central_widget);
+    }
+
+    return w;
+}
+
+QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
+{
+    return Resource::create(ui_layout, layout, parentWidget);
+}
+
+QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWidget *parentWidget)
+{
+    if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
+        QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
+
+        Qt::Orientation o = Qt::Horizontal;
+        if (properties.contains("orientation") && isVertical(properties.value("orientation")->elementEnum()))
+            o = Qt::Vertical;
+
+        Spacer *spacer = (Spacer*) m_core->widgetFactory()->createWidget("Spacer", parentWidget);
+        spacer->setOrientation(o);
+        spacer->setInteraciveMode(false);
+        if (properties.contains("sizeHint"))
+            spacer->setSizeHint(toVariant(spacer->metaObject(), properties.value("sizeHint")).toSize());
+#if 0
+        while (!n.isNull()) {
+            if (n.tagName() == QLatin1String("property"))
+                setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
+            n = n.nextSibling().toElement();
+        }
+#endif
+        spacer->setInteraciveMode(true);
+        if (m_formWindow) {
+            m_formWindow->manageWidget(spacer);
+            if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), spacer))
+                sheet->setChanged(sheet->indexOf("orientation"), true);
+        }
+
+        // ### spacer->alignment()
+
+        return new QWidgetItem(spacer);
+    } else if (ui_layoutItem->kind() == DomLayoutItem::Layout && parentWidget) {
+        DomLayout *ui_layout = ui_layoutItem->elementLayout();
+        QLayoutWidget *layoutWidget = new QLayoutWidget(m_formWindow, parentWidget);
+        applyProperties(layoutWidget, ui_layout->elementProperty());
+
+        if (m_formWindow) {
+            m_formWindow->manageWidget(layoutWidget);
+        }
+
+        (void) create(ui_layout, 0, layoutWidget);
+        layoutWidget->updateSizePolicy();
+        return new QWidgetItem(layoutWidget);
+    }
+    return Resource::create(ui_layoutItem, layout, parentWidget);
+}
+
+void QDesignerResource::changeObjectName(QObject *o, QString objName)
+{
+    if (m_formWindow)
+        m_formWindow->unify(o, objName, true);
+        
+    o->setObjectName(objName);
+}
+
+void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
+{
+    Resource::applyProperties(o, properties);
+
+    // handle special properties like `objectName'
+    QHash<QString, DomProperty*> m = propertyMap(properties);
+    if (m.contains(QLatin1String("objectName"))) {
+        changeObjectName(o, o->objectName());
+    }
+
+    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), o)) {
+        for (int i=0; i<properties.size(); ++i) {
+            QString propertyName = properties.at(i)->attributeName();
+            sheet->setChanged(sheet->indexOf(propertyName), true);
+        }
+    }
+}
+
+QWidget *QDesignerResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
+{
+    QString className = widgetName;
+    if (m_isMainWidget)
+        m_isMainWidget = false;
+
+    QWidget *w = m_core->widgetFactory()->createWidget(className, parentWidget);
+    if (!w)
+        return 0;
+
+    if (name.isEmpty()) {
+        AbstractWidgetDataBase *db = m_core->widgetDataBase();
+        if (AbstractWidgetDataBaseItem *item = db->item(db->indexOfObject(w)))
+            changeObjectName(w, qtify(item->name()));
+    } else
+        changeObjectName(w, name);
+
+    IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget);
+    if (!parentWidget || !container) {
+        m_formWindow->manageWidget(w);
+    } else {
+        m_core->metaDataBase()->add(w);
+    }
+
+    if (qt_cast<QDialog*>(w))
+        w->setParent(parentWidget);
+    
+    return w;
+}
+
+QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *parent, const QString &name)
+{
+    QWidget *layoutBase = 0;
+    QLayout *layout = qt_cast<QLayout*>(parent);
+
+    if (parent->isWidgetType())
+        layoutBase = static_cast<QWidget*>(parent);
+    else {
+        Q_ASSERT( layout != 0 );
+        layoutBase = layout->parentWidget();
+    }
+    
+    LayoutInfo::Type layoutType = LayoutInfo::Grid;
+    if (layoutName == QLatin1String("QVBoxLayout"))
+        layoutType = LayoutInfo::VBox;
+    else if (layoutName == QLatin1String("QHBoxLayout"))
+        layoutType = LayoutInfo::HBox;
+    else if (layoutName == QLatin1String("QStackedLayout"))
+        layoutType = LayoutInfo::Stacked;
+
+    if (QLayout *lay = m_core->widgetFactory()->createLayout(layoutBase, layout, layoutType)) {
+        changeObjectName(lay, name);
+        return lay;
+    }
+
+    return 0;
+}
+
+// save
+DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
+{
+    AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(widget);
+    if (!item)
+        return 0;
+
+    int widgetInfoIndex = m_core->widgetDataBase()->indexOfObject(widget, false);
+    if (widgetInfoIndex != -1) {
+        AbstractWidgetDataBaseItem *widgetInfo = m_core->widgetDataBase()->item(widgetInfoIndex);
+        if (widgetInfo->isCustom())
+            m_usedCustomWidgets.insert(widgetInfo, true);
+    }
+
+    DomWidget *w = 0;
+
+    if (QDesignerTabWidget *tabWidget = qt_cast<QDesignerTabWidget*>(widget))
+        w = saveWidget(tabWidget, ui_parentWidget);
+    else if (QDesignerStackedWidget *stackedWidget = qt_cast<QDesignerStackedWidget*>(widget))
+        w = saveWidget(stackedWidget, ui_parentWidget);
+    else if (QDesignerToolBox *toolBox = qt_cast<QDesignerToolBox*>(widget))
+        w = saveWidget(toolBox, ui_parentWidget);
+    else if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget))
+        w = saveWidget(widget, container, ui_parentWidget);
+    else
+        w = Resource::createDom(widget, ui_parentWidget, recursive);
+
+    Q_ASSERT( w != 0 );
+
+    QString className = w->attributeClass();
+    if (QDesignerCustomWidget *customWidget = qt_cast<QDesignerCustomWidget*>(widget)) {
+        w->setAttributeClass(customWidget->widgetClassName());
+    } else if (m_internal_to_qt.contains(className))
+        w->setAttributeClass(m_internal_to_qt.value(className));
+
+    // save the metainfo
+    if (!item->name().isEmpty())
+        w->setAttributeName(item->name());
+
+    return w;
+}
+
+DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget)
+{
+    if (!m_core->metaDataBase()->item(layout)) {
+        return 0;
+    }
+
+    m_chain.push(layout);
+
+    DomLayout *l = Resource::createDom(layout, ui_layout, ui_parentWidget);
+
+    QString className = l->attributeClass();
+    if (m_internal_to_qlayout.contains(className))
+        l->setAttributeClass(m_internal_to_qlayout.value(className));
+    m_chain.pop();
+
+    return l;
+}
+
+DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_layout, DomWidget *ui_parentWidget)
+{
+    DomLayoutItem *ui_item = 0;
+
+    if (Spacer *s = qt_cast<Spacer*>(item->widget())) {
+        if (!m_core->metaDataBase()->item(s))
+            return 0;
+
+        DomSpacer *spacer = new DomSpacer();
+        QList<DomProperty*> properties = computeProperties(item->widget());
+        
+        spacer->setElementProperty(properties); // ### filter the properties
+                
+        ui_item = new DomLayoutItem();
+        ui_item->setElementSpacer(spacer);
+        m_laidout.insert(item->widget(), true);
+    } else if (QLayoutWidget *layoutWidget = qt_cast<QLayoutWidget*>(item->widget())) {
+        Q_ASSERT(layoutWidget->layout());
+        DomLayout *l = createDom(layoutWidget->layout(), ui_layout, ui_parentWidget);
+        ui_item = new DomLayoutItem();
+        ui_item->setElementLayout(l);
+        m_laidout.insert(item->widget(), true);
+    } else if (!item->spacerItem()) { // we use spacer as fake item in the Designer
+        ui_item = Resource::createDom(item, ui_layout, ui_parentWidget);
+    }
+
+    if (m_chain.size() && item->widget()) {
+        if (QGridLayout *grid = qt_cast<QGridLayout*>(m_chain.top())) {
+            int index = Utils::indexOfWidget(grid, item->widget());
+            
+            int row, column, rowspan, colspan;
+            grid->getItemPosition(index, &row, &column, &rowspan, &colspan);
+            ui_item->setAttributeRow(row);
+            ui_item->setAttributeColumn(column);
+
+            if (colspan != 1)
+                ui_item->setAttributeColSpan(colspan);
+                
+            if (rowspan != 1)
+                ui_item->setAttributeRowSpan(rowspan);
+        }
+    }
+
+    return ui_item;
+}
+
+
+DomConnections *QDesignerResource::saveConnections()
+{
+    return m_formWindow->saveConnections();
+}
+
+void QDesignerResource::createConnections(DomConnections *connections, QWidget *w)
+{
+    m_formWindow->createConnections(connections, w);
+}
+
+DomWidget *QDesignerResource::saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget)
+{
+    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    QList<DomWidget*> ui_widget_list;
+    
+    for (int i=0; i<container->count(); ++i) {
+        QWidget *page = container->widget(i);
+        Q_ASSERT(page);
+            
+        DomWidget *ui_page = createDom(page, ui_widget);
+        Q_ASSERT( ui_page != 0 );
+            
+        ui_widget_list.append(ui_page);
+    }
+    
+    ui_widget->setElementWidget(ui_widget_list);
+
+    return ui_widget;
+}
+
+DomWidget *QDesignerResource::saveWidget(QDesignerStackedWidget *widget, DomWidget *ui_parentWidget)
+{
+    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    QList<DomWidget*> ui_widget_list;
+    if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget)) {
+        for (int i=0; i<container->count(); ++i) {
+            QWidget *page = container->widget(i);
+            Q_ASSERT(page);
+            
+            DomWidget *ui_page = createDom(page, ui_widget);
+            Q_ASSERT( ui_page != 0 );
+            
+            ui_widget_list.append(ui_page);
+        }
+    }
+    
+    ui_widget->setElementWidget(ui_widget_list);
+
+    return ui_widget;
+}
+
+DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *ui_parentWidget)
+{
+    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    QList<DomWidget*> ui_widget_list;
+
+    if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget)) {
+        for (int i=0; i<container->count(); ++i) {
+            QWidget *page = container->widget(i);
+            Q_ASSERT(page);
+            
+            DomWidget *ui_page = createDom(page, ui_widget);
+            Q_ASSERT( ui_page != 0 );
+
+            // attribute `title'
+            DomProperty *p = new DomProperty();
+            p->setAttributeName("title");
+            DomString *str = new DomString();
+            str->setText(widget->tabText(i));
+            p->setElementString(str);
+    
+            QList<DomProperty*> ui_attribute_list;
+            ui_attribute_list.append(p);
+    
+            ui_page->setElementAttribute(ui_attribute_list);
+            
+            ui_widget_list.append(ui_page);
+        }
+    }
+
+    ui_widget->setElementWidget(ui_widget_list);
+
+    return ui_widget;
+}
+
+DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget)
+{
+    DomWidget *ui_widget = Resource::createDom(widget, ui_parentWidget, false);
+    QList<DomWidget*> ui_widget_list;
+
+    if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), widget)) {
+        for (int i=0; i<container->count(); ++i) {
+            QWidget *page = container->widget(i);
+            Q_ASSERT(page);
+            
+            DomWidget *ui_page = createDom(page, ui_widget);
+            Q_ASSERT( ui_page != 0 );
+
+            // attribute `label'
+            DomProperty *p = new DomProperty();
+            p->setAttributeName("label");
+            DomString *str = new DomString();
+            str->setText(widget->itemText(i));
+            p->setElementString(str); // ### check f tb->indexOf(page) == i ??
+    
+            QList<DomProperty*> ui_attribute_list;
+            ui_attribute_list.append(p);
+    
+            ui_page->setElementAttribute(ui_attribute_list);
+            
+            ui_widget_list.append(ui_page);
+        }
+    }
+
+    ui_widget->setElementWidget(ui_widget_list);
+
+    return ui_widget;
+}
+
+bool QDesignerResource::checkProperty(QDesignerStackedWidget *widget, const QString &prop) const
+{
+    Q_UNUSED(widget);
+    Q_UNUSED(prop);
+    return true;
+}
+
+bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
+{
+    if (!checkProperty(qt_cast<QDesignerTabWidget*>(obj), prop))
+        return false;
+    else if (!checkProperty(qt_cast<QDesignerToolBox*>(obj), prop))
+        return false;
+    else if (!checkProperty(qt_cast<QLayoutWidget*>(obj), prop))
+        return false;
+
+    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), obj))
+        return sheet->isChanged(sheet->indexOf(prop));
+
+    return false;
+}
+
+bool QDesignerResource::checkProperty(QLayoutWidget *widget, const QString &prop) const
+{
+    if (!widget)
+        return true;
+
+    return widget->QWidget::metaObject()->indexOfProperty(prop) != -1;
+}
+
+bool QDesignerResource::checkProperty(QDesignerTabWidget *widget, const QString &prop) const
+{
+    if (!widget)
+        return true;
+
+    return widget->QTabWidget::metaObject()->indexOfProperty(prop) != -1;
+}
+
+bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &prop) const
+{
+    if (!widget)
+        return true;
+
+    return widget->QToolBox::metaObject()->indexOfProperty(prop) != -1;
+}
+
+bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
+{
+    QGridLayout *grid = qt_cast<QGridLayout*>(layout);
+
+    if (grid && item->widget()) {
+        int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
+        int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
+        grid->addWidget(item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
+                        rowSpan, colSpan, item->alignment());
+        return true;
+    } 
+    
+    return Resource::addItem(ui_item, item, layout);
+}
+
+bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
+{
+    if (Resource::addItem(ui_widget, widget, parentWidget))
+        return true;
+        
+    if (IContainer *container = qt_extension<IContainer*>(m_core->extensionManager(), parentWidget)) {
+        container->addWidget(widget);
+        return true;
+    }
+    
+    return false;
+}
+
+void QDesignerResource::copy(QIODevice *dev, const QList<QWidget*> &selection)
+{
+    DomUI *ui = copy(selection);
+    QDomDocument doc;
+    doc.appendChild(ui->write(doc));
+    dev->write(doc.toString().toUtf8());
+
+    m_laidout.clear();
+
+    delete ui;
+}
+
+DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
+{
+    DomUI *ui = new DomUI();
+    ui->setAttributeVersion(QLatin1String("4.0"));
+
+    DomWidget *ui_widget = new DomWidget();
+    QList<DomWidget*> ui_widget_list;
+    ui_widget->setAttributeName("__qt_fake_top_level");
+
+    for (int i=0; i<selection.size(); ++i) {
+        QWidget *w = selection.at(i);
+        DomWidget *ui_child = createDom(w, ui_widget);
+        if (!ui_child)
+            continue;
+
+        ui_widget_list.append(ui_child);
+    }
+
+    ui_widget->setElementWidget(ui_widget_list);
+    ui->setElementWidget(ui_widget);
+
+    m_laidout.clear();
+    
+    return ui;
+}
+
+QList<QWidget*> QDesignerResource::paste(DomUI *ui, QWidget *parentWidget)
+{
+    int saved = m_isMainWidget;
+    m_isMainWidget = false;
+    QList<QWidget*> createdWidgets;
+
+    DomWidget *topLevel = ui->elementWidget();
+    QList<DomWidget*> widgets = topLevel->elementWidget();
+    for (int i=0; i<widgets.size(); ++i) {
+        QWidget *w = create(widgets.at(i), parentWidget);
+        if (!w)
+            continue;
+
+        w->move(w->pos() + m_formWindow->grid());
+        // ### change the init properties of w
+        createdWidgets.append(w);
+    }
+
+    m_isMainWidget = saved;
+
+    return createdWidgets;
+}
+
+QList<QWidget*> QDesignerResource::paste(QIODevice *dev, QWidget *parentWidget)
+{
+    QDomDocument doc;
+    if (!doc.setContent(dev))
+        return QList<QWidget*>();
+
+    QDomElement root = doc.firstChild().toElement();
+    DomUI ui;
+    ui.read(root);
+    return paste(&ui, parentWidget);
+}
+
+QList<DomProperty*> QDesignerResource::computeProperties(QObject *obj)
+{
+    QList<DomProperty*> properties = Resource::computeProperties(obj);
+
+    if (qt_cast<Spacer*>(obj)) {
+        QListIterator<DomProperty*> it(properties);
+        while (it.hasNext()) {
+            DomProperty *p = it.next();
+
+            if (p->kind() != DomProperty::Enum || p->attributeName() != QLatin1String("sizeType"))
+                continue;
+
+            QString e = p->elementEnum();
+            p->setElementEnum(e.replace("Spacer::", ""));
+        }
+    }
+
+    return properties;
+}
+
+void QDesignerResource::layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing)
+{
+    Resource::layoutInfo(widget, parent, margin, spacing);
+
+    if (margin && qt_cast<QLayoutWidget*>(parent))
+        *margin = 0;
+}
+
+QString QDesignerResource::qtify(const QString &name)
+{
+    QString qname = name;
+
+    if (qname.at(0) == QLatin1Char('Q') || qname.at(0) == QLatin1Char('K'))
+        qname = qname.mid(1);
+
+    int i=0;
+    while (i < qname.length()) {
+        if (qname.at(i).toLower() != qname.at(i))
+            qname[i] = qname.at(i).toLower();
+        else
+            break;
+
+        ++i;
+    }
+
+    return qname;
+}
+
+DomCustomWidgets *QDesignerResource::saveCustomWidgets()
+{    
+    if (m_usedCustomWidgets.isEmpty())
+        return 0;
+
+    QList<DomCustomWidget*> custom_widget_list;    
+    foreach (AbstractWidgetDataBaseItem *item, m_usedCustomWidgets.keys()) {
+        DomCustomWidget *custom_widget = new DomCustomWidget;
+        custom_widget->setElementClass(item->name());
+        custom_widget->setElementContainer(item->isContainer());
+        
+        DomHeader *header = new DomHeader;
+        header->setText(item->includeFile());
+        custom_widget->setElementHeader(header);
+        
+        custom_widget_list.append(custom_widget);
+    }
+    
+    DomCustomWidgets *customWidgets = new DomCustomWidgets;
+    customWidgets->setElementCustomWidget(custom_widget_list);
+    return customWidgets;
+}
+

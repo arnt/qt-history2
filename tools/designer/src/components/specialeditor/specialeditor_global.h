@@ -1,0 +1,17 @@
+#ifndef SPECIALEDITORSUPPORT_GLOBAL_H
+#define SPECIALEDITORSUPPORT_GLOBAL_H
+
+#include <qglobal.h>
+
+#ifdef Q_OS_WIN
+#ifdef QT_SPECIALEDITORSUPPORT_LIBRARY
+# define QT_SPECIALEDITORSUPPORT_EXPORT __declspec(dllexport)
+#else
+# define QT_SPECIALEDITORSUPPORT_EXPORT __declspec(dllimport)
+#endif
+#else
+#define QT_SPECIALEDITORSUPPORT_EXPORT
+#endif
+
+#endif // SPECIALEDITORSUPPORT_GLOBAL_H
+
