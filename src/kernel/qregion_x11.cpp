@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#47 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -143,9 +143,9 @@ Region qt_x11_bitmapToRegion(const QBitmap& bitmap)
 	    XUnionRectWithRegion( &xr, region, region ); \
 	}
 
-    // deal with 0<->1 problem
-    int zero=0;//(qGray(image.color(0)) < qGray(image.color(1))
-	    //? 0x00 : 0xff);
+    // deal with 0<->1 problem (not on X11 anymore)
+    int zero=0;//(qGray(image.color(0)) < qGray(image.color(1)) ? 0x00 : 0xff);
+    bool little = image.bitOrder() == QImage::LittleEndian;
 
     int x, y;
     for (y=0; y<image.height(); y++) {
@@ -156,21 +156,40 @@ Region qt_x11_bitmapToRegion(const QBitmap& bitmap)
 	for (x=0; x<w; ) {
 	    uchar byte = line[x/8];
 	    if ( x>w-8 || byte!=all ) {
-		for ( int b=8; b>0 && x<w; b-- ) {
-		    if ( !(byte&0x80) == !all ) {
-			// More of the same
-		    } else {
-			// A change.
-			if ( all!=zero ) {
-			    AddSpan;
-			    all = zero;
+		if ( little ) {
+		    for ( int b=8; b>0 && x<w; b-- ) {
+			if ( !(byte&0x01) == !all ) {
+			    // More of the same
 			} else {
-			    prev1 = x;
-			    all = ~zero;
+			    // A change.
+			    if ( all!=zero ) {
+				AddSpan;
+				all = zero;
+			    } else {
+				prev1 = x;
+				all = ~zero;
+			    }
 			}
+			byte >>= 1;
+			x++;
 		    }
-		    byte <<= 1;
-		    x++;
+		} else {
+		    for ( int b=8; b>0 && x<w; b-- ) {
+			if ( !(byte&0x80) == !all ) {
+			    // More of the same
+			} else {
+			    // A change.
+			    if ( all!=zero ) {
+				AddSpan;
+				all = zero;
+			    } else {
+				prev1 = x;
+				all = ~zero;
+			    }
+			}
+			byte <<= 1;
+			x++;
+		    }
 		}
 	    } else {
 		x+=8;
@@ -193,7 +212,10 @@ Region qt_x11_bitmapToRegion(const QBitmap& bitmap)
 */
 QRegion::QRegion( const QBitmap & bm )
 {
-#warning "Not implemented"
+    data = new QRegionData;
+    CHECK_PTR( data );
+    data->is_null = FALSE;
+    data->rgn = qt_x11_bitmapToRegion(bm);
 }
 
 /*!
