@@ -4338,7 +4338,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFont &f, QByteArray& d)
   replacementList = makePSFontNameList( f, psname );
 }
 
-void QPSPrinterFontPFA::download(QTextStream& s, bool)
+void QPSPrinterFontPFA::download(QTextStream& s, bool global)
 {
   char* p = data.data();
 
@@ -4346,6 +4346,7 @@ void QPSPrinterFontPFA::download(QTextStream& s, bool)
   s << "% Font resource\n";
   for (int i=0; i < (int)data.size(); i++) s << p[i];
   s << "% End of font resource\n";
+  downloadMapping( s, global );
 }
 
 // ================== PFB ====================
@@ -4397,7 +4398,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
   replacementList = makePSFontNameList( f, psname );
 }
 
-void QPSPrinterFontPFB::download(QTextStream& s, bool)
+void QPSPrinterFontPFB::download(QTextStream& s, bool global)
 {
   unsigned char* p = (unsigned char*) data.data();
   int pos;
@@ -4461,6 +4462,7 @@ void QPSPrinterFontPFB::download(QTextStream& s, bool)
     }
   }
   s << "% End of font resource\n";
+  downloadMapping( s, global );
 }
 
 // ================== AFontFileNotFound ============
