@@ -1,3 +1,5 @@
+#include <qobjectlist.h>
+
 void WidgetsBase::init()
 {
 	timeEdit->setTime( QTime::currentTime() );
@@ -11,12 +13,30 @@ void WidgetsBase::destroy()
 
 void WidgetsBase::resetColors()
 {
-	groupBox->setPalette( palette() );
+    groupBox->setPalette( palette(), FALSE );
+    if(QObjectList *chldn = groupBox->queryList()) {
+	for(QObject *obj=chldn->first(); obj; obj = chldn->next()) {
+	    if(obj->isWidgetType()) {
+		QWidget *w = (QWidget *)obj;
+		if(!w->isTopLevel())
+		    w->setPalette(palette(), FALSE);
+	    }
+	}
+    }
 }
 
 void WidgetsBase::setColor( const QString & color )
 {
-	groupBox->setPalette( QColor( color ) );
+    groupBox->setPalette( QColor( color ), FALSE );
+    if(QObjectList *chldn = groupBox->queryList()) {
+	for(QObject *obj=chldn->first(); obj; obj = chldn->next()) {
+	    if(obj->isWidgetType()) {
+		QWidget *w = (QWidget *)obj;
+		if(!w->isTopLevel())
+		    w->setPalette(QColor(color), FALSE);
+	    }
+	}
+    }
 }
 
 void WidgetsBase::setColor()
@@ -31,7 +51,7 @@ void WidgetsBase::updateClock()
 
 void WidgetsBase::updateColorTest( const QString & color )
 {
-	colorTest->setPalette( QColor( color ) );
+    colorTest->setPalette( QColor( color ), TRUE);
 }
 
 void WidgetsBase::updateDateTimeString()
