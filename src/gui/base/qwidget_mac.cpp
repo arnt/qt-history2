@@ -1660,7 +1660,7 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = FALSE;
     if (isTopLevel()) {
 	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized))
-	    CollapseWindow((WindowPtr)hd, (newstate & WindowMinimized) ? TRUE : FALSE);
+	    CollapseWindow((WindowPtr)hd, (newstate & WindowMinimized) ? true : false);
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
 	    if(newstate & WindowFullScreen) {
@@ -1707,10 +1707,10 @@ void QWidget::setWindowState(uint newstate)
 		    Rect oldr;
 		    SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
 		    SetWindowUserState((WindowPtr)hd, &oldr);
+		    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
 		    SetWindowStandardState((WindowPtr)hd, &bounds);
 		    ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
-		    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
 		    data->crect = nrect;
 		    if(isVisible()) {

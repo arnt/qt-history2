@@ -2485,7 +2485,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
 		if(widget->width() != nw || widget->height() != nh) {
 		    widget->resize(nw, nh);
-		    if(widget->isVisible())
+		    if(widget->isVisible() && (flags & kWindowBoundsChangeUserResize))
 			widget->d->propagateUpdates();
 		}
 	    }
