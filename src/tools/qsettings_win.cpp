@@ -207,11 +207,15 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 	QT_WA( {
 	    if ( write && !remove )
 		res = RegCreateKeyExW( local, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else if ( !write && !remove )
+		res = RegOpenKeyExW( local, (TCHAR*)f.ucs2(), 0, KEY_READ, &handle );
 	    else
 		res = RegOpenKeyExW( local, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 	} , {
 	    if ( write && !remove )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else if ( !write && !remove )
+		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_READ, &handle );
 	    else
 		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	} );
@@ -220,11 +224,15 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
 	QT_WA( {
 	    if ( write && !remove )
 		res = RegCreateKeyExW( user, (TCHAR*)f.ucs2(), 0, empty_t, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else if ( !write && !remove )
+		res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_READ, &handle );
 	    else
 		res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
 	} , {
 	    if ( write && !remove )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
+	    else if ( !write && !remove )
+		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_READ, &handle );
 	    else
 		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	} );
