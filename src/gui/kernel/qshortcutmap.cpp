@@ -532,32 +532,26 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
 
     QWidget *tlw = w->window();
 
-#ifndef QT_NO_MAINWINDOW
-    /* if we live in a floating dock window, keep our parent's
-     * shortcuts working */
-    if ((tlw->windowType() == Qt::Dialog) && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
-        return tlw->parentWidget()->window() == active_window;
-#endif
+    /* if a floating tool window is active, keep shortcuts on the
+     * parent working */
+    if (active_window != tlw && active_window && active_window->windowType() == Qt::Tool && active_window->parentWidget()) {
+        active_window = active_window->parentWidget()->window();
+    }
 
     if (active_window  != tlw)
         return false;
 
-#if 0 // #ifndef QT_NO_WORKSPACE
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     const QWidget* sw = w;
     while (sw && !(sw->windowType() == Qt::SubWindow) && !sw->isWindow())
         sw = sw->parentWidget();
     if (sw && (sw->windowType() == Qt::SubWindow)) {
-        const QWidget *actW = ::qt_cast<const QWorkspace*>(sw->parentWidget())->activeWindow();
-        // If workspace has no active window return false
-        if (!actW)
-            return false;
-        // Return true, if shortcut belongs to widget
-        // inside active workspace child window
-        return sw == actW->parentWidget();
+        QWidget *focus_widget = QApplication::focusWidget();
+        while (focus_widget && focus_widget != sw)
+            focus_widget = focus_widget->parentWidget();
+        return sw == focus_widget;
     }
-#endif
 
 #if defined(Debug_QShortcutMap)
     qDebug().nospace() << "..true [Pass-through]";
