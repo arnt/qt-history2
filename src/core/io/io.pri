@@ -16,6 +16,7 @@ HEADERS +=  \
         io/qresource.h \
         io/qresourceengine_p.h \
 	io/qurl.h \
+	io/qhexdump.h \
 	io/qcoresettings.h \
 	io/qcoresettings_p.h
 
@@ -34,6 +35,7 @@ SOURCES += \
         io/qresource.cpp \
         io/qresourceengine.cpp \
 	io/qurl.cpp \
+	io/qhexdump.cpp \
 	io/qcoresettings.cpp
 
 win32 {

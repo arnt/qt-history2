@@ -148,19 +148,9 @@ private:
 #undef QHEXDUMP_MAX
 
 #ifndef QT_NO_DEBUG
-#include <qdebug.h>
-QDebug &operator<<(QDebug &dbg, QHexDump *hd) {
-    if (!hd)
-        return dbg << "QHexDump(0x0)";
-    QString result = hd->output();
-    dbg.nospace() << result;
-    return dbg.space();
-}
-
+QDebug &operator<<(QDebug &dbg, QHexDump *hd);
 // GCC & Intel wont handle references here
-QDebug operator<<(QDebug dbg, QHexDump hd) {
-    return dbg << &hd;
-}
+QDebug operator<<(QDebug dbg, QHexDump hd);
 #endif // QT_NO_DEBUG
 
 #endif // QHEXDUMP_H
