@@ -691,8 +691,30 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
         p->setBrush(color1);
         p->drawEllipse(opt->rect);
         break;
+    case PE_FocusRect:
+        if (Q4StyleOptionFocusRect *fropt = qt_cast<Q4StyleOptionFocusRect *>(opt)) {
+            QColor bg = fropt->backgroundColor;
+            QPen oldPen = p->pen();
+            if (bg.isValid()) {
+                int h, s, v;
+                bg.getHsv(&h, &s, &v);
+                if (v >= 128)
+                    p->setPen(Qt::black);
+                else
+                    p->setPen(Qt::white);
+            } else {
+                p->setPen(opt->palette.foreground());
+            }
+            if (opt->state & Style_FocusAtBorder)
+                p->drawRect(QRect(opt->rect.x() + 1, opt->rect.y() + 1, opt->rect.width() - 2,
+                            opt->rect.height() - 2));
+            else
+                p->drawRect(opt->rect);
+            p->setPen(oldPen);
+        }
+        break;
     default:
-        qWarning("Primitive not handled %d", pe);
+        qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
 }
 
@@ -1280,11 +1302,14 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                      &(btn->palette.buttonText().color()));
         }
         break;
+    case CE_RadioButton:
     case CE_CheckBox:
-        drawPrimitive(PE_Indicator, opt, p, w);
+        drawPrimitive(ce == CE_RadioButton ? PE_ExclusiveIndicator : PE_Indicator, opt, p, w);
         break;
+    case CE_RadioButtonLabel:
     case CE_CheckBoxLabel:
         if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
+            bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
             if (styleHint(SH_UnderlineAccelerator, w, QStyleOption::Default, 0))
                 alignment |= NoAccel;
@@ -1293,10 +1318,18 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                 pix = btn->icon.pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, btn->rect, alignment | AlignVCenter | ShowPrefix, btn->palette,
                      btn->state & Style_Enabled, pix, btn->text);
+            if (btn->state & Style_HasFocus) {
+                Q4StyleOptionFocusRect fropt(0);
+                fropt.state = btn->state;
+                fropt.palette = btn->palette;
+                fropt.rect = visualRect(subRect(isRadio ? SR_RadioButtonFocusRect
+                                                        : SR_CheckBoxFocusRect, w), w);
+                drawPrimitive(PE_FocusRect, &fropt, p, w);
+            }
         }
         break;
     default:
-        qWarning("not currently handled %d", ce);
+        qWarning("QCommonStyle::drawControl not currently handled %d", ce);
     }
 }
 

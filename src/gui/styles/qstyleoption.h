@@ -25,10 +25,16 @@ struct Q4StyleOption {
     QStyle::SFlags state;
     QRect rect;             // Right now we also use this as the rect for drawing the label too...
     QPalette palette;
-    enum { Default, Button, Tab, MenuItem, Complex, Slider };
+    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
+};
+
+struct Q4StyleOptionFocusRect  : public Q4StyleOption {
+    enum { Type = FocusRect };
+    QColor backgroundColor;
+    Q4StyleOptionFocusRect(int version) : Q4StyleOption(version, FocusRect) {}
 };
 
 struct Q4StyleOptionButton : public Q4StyleOption {

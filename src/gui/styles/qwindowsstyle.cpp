@@ -2531,10 +2531,100 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             p->drawLineSegments(a);
         }
         break;
+    case PE_FocusRect:
+        if (Q4StyleOptionFocusRect *fropt = qt_cast<Q4StyleOptionFocusRect *>(opt)) {
+#if defined (Q_WS_WIN) && !defined(QT_GDIPLUS_SUPPORT)
+            {
+                HDC hdc = p->handle();
+                RECT rect = { opt->rect.left(), opt->rect.top(), opt->rect.right() + 1,
+                    opt->rect.bottom() + 1 };
+                    DrawFocusRect(hdc, &rect);
+            }
+#else
+            QRect r = opt->rect;
+            p->save();
+            p->setBackgroundMode(TransparentMode);
+            QColor bg_col = fropt->backgroundColor;
+            if (!bg_col.isValid())
+                bg_col = p->background().color();
+            if (qGray(bg_col.rgb()) < 128)
+                p->setBrush(QBrush(white, Dense4Pattern));
+            else
+                p->setBrush(QBrush(black, Dense4Pattern));
+            p->setPen(NoPen);
+            p->drawRect(r.left(), r.top(), r.width(), 1);    // Top
+            p->drawRect(r.left(), r.bottom(), r.width(), 1); // Bottom
+            p->drawRect(r.left(), r.top(), 1, r.height());   // Left
+            p->drawRect(r.right(), r.top(), 1, r.height());  // Right
+            p->restore();
+#endif
+        }
+        break;
+    case PE_ExclusiveIndicator:
+        {
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+            static const QCOORD pts1[] = {              // dark lines
+                1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+            static const QCOORD pts2[] = {              // black lines
+                2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+            static const QCOORD pts3[] = {              // background lines
+                2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+            static const QCOORD pts4[] = {              // white lines
+                2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+                11,4, 10,3, 10,2 };
+            static const QCOORD pts5[] = {              // inner fill
+                4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+
+            // make sure the indicator is square
+            QRect ir = opt->rect;
+
+            if (opt->rect.width() < opt->rect.height()) {
+                ir.setTop(opt->rect.top() + (opt->rect.height() - opt->rect.width()) / 2);
+                ir.setHeight(opt->rect.width());
+            } else if (opt->rect.height() < opt->rect.width()) {
+                ir.setLeft(opt->rect.left() + (opt->rect.width() - opt->rect.height()) / 2);
+                ir.setWidth(opt->rect.height());
+            }
+
+            bool down = opt->state & Style_Down;
+            bool enabled = opt->state & Style_Enabled;
+            bool on = opt->state & Style_On;
+            QPointArray a;
+            a.setPoints(QCOORDARRLEN(pts1), pts1);
+            a.translate(ir.x(), ir.y());
+            p->setPen(opt->palette.dark());
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts2), pts2);
+            a.translate(ir.x(), ir.y());
+            p->setPen(opt->palette.shadow());
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts3), pts3);
+            a.translate(ir.x(), ir.y());
+            p->setPen(opt->palette.midlight());
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts4), pts4);
+            a.translate(ir.x(), ir.y());
+            p->setPen(opt->palette.light());
+            p->drawPolyline(a);
+            a.setPoints(QCOORDARRLEN(pts5), pts5);
+            a.translate(ir.x(), ir.y());
+            QColor fillColor = (down || !enabled) ? opt->palette.button() : opt->palette.base();
+            p->setPen(fillColor);
+            p->setBrush(fillColor) ;
+            p->drawPolygon(a);
+            if (on) {
+                p->setPen(NoPen);
+                p->setBrush(opt->palette.text());
+                p->drawRect(ir.x() + 5, ir.y() + 4, 2, 4);
+                p->drawRect(ir.x() + 4, ir.y() + 5, 4, 2);
+            }
+            break;
+        }
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }
 }
+
 void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
                          const QWidget *w) const
 {

@@ -2832,6 +2832,8 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
             }
         }
         break;
+    case PE_FocusRect:
+        break;     //This is not used because of the QAquaFocusWidget thingie..
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;

@@ -1748,6 +1748,9 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
         HIThemeDrawPopupArrow(&macRect, &pdi, static_cast<CGContextRef>(p->handle()),
                               kHIThemeOrientationNormal);
         break; }
+    case PE_FocusRect:
+        // Use the our own focus widget stuff.
+        break;
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }
