@@ -13001,9 +13001,11 @@ bool QString::findArg(int& pos, int& len) const
     return lowest != 0;
 }
 
-/*!
-  Doing this function last because it makes my head hurt ;o)
+#if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
+static QCleanupHandler<QRegExp> qt_regexp_cleanup;
+#endif
 
+/*!
   Safely builds a formatted string from the format string \a cformat and an
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
@@ -13029,10 +13031,6 @@ bool QString::findArg(int& pos, int& len) const
 
   \sa arg()
 */
-
-#if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
-static QCleanupHandler<QRegExp> qt_regexp_cleanup;
-#endif
 
 QString &QString::sprintf( const char* cformat, ... )
 {
@@ -14026,7 +14024,7 @@ QString &QString::remove( uint index, uint len )
   If \a index is beyond the length of the string, nothing is deleted 
   and \a s is appended at the end of the string.  If \a index is valid, 
   but \a index plus \a len is beyond the end of the string, the string 
-  is truncated at position \a index, then \a str is appended at the
+  is truncated at position \a index, then \a s is appended at the
   end.
 
 
