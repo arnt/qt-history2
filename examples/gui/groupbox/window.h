@@ -25,10 +25,10 @@ public:
     Window(QWidget *parent = 0);
 
 private:
-    QGroupBox *firstExclusiveGroup();
-    QGroupBox *nonExclusiveGroup();
-    QGroupBox *secondExclusiveGroup();
-    QGroupBox *pushButtonGroup();
+    QGroupBox *createFirstExclusiveGroup();
+    QGroupBox *createSecondExclusiveGroup();
+    QGroupBox *createNonExclusiveGroup();
+    QGroupBox *createPushButtonGroup();
 };
 
 #endif

@@ -15,17 +15,11 @@
 
 #include "window.h"
 
-/*
-    Creates a window to show the use of group boxes in Qt 4.
-*/
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-
-    Window *window = new Window;
-    window->show();
-    app.setMainWidget(window);
-
+    Window window;
+    app.setMainWidget(&window);
+    window.show();
     return app.exec();
 }
