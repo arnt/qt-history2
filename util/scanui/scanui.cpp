@@ -12,7 +12,8 @@
 
 
 void error( const QString &msg = QString::null );
-void printFunction( const QString &fn, const QDomDocument & ui );
+void printFunction( 
+	const QString &className, const QString &fn, const QDomDocument & ui );
 
 
 int main( int argc, char **argv )
@@ -29,8 +30,17 @@ int main( int argc, char **argv )
     if ( ! ui.setContent( &uiFile ) )
 	error( QString( "failed to DOM " ) + argv[1] );
 
+    QString className;
+    QDomNodeList list = ui.elementsByTagName( "class" );
+    for ( uint i = 0; i < list.length(); ++i ) {
+	QDomNode node = list.item( i );
+	QDomCharacterData nameData = node.firstChild().toCharacterData();
+	className = nameData.data();
+	break;
+    }
+
     for ( int i = 2; i < argc; i++ )
-	printFunction( argv[i], ui );
+	printFunction( className, argv[i], ui );
 
     uiFile.close();
 
@@ -38,7 +48,8 @@ int main( int argc, char **argv )
 }
 
 
-void printFunction( const QString &fn, const QDomDocument & ui )
+void printFunction( 
+	const QString &className, const QString &fn, const QDomDocument & ui )
 {
     QRegExp re( "^" + fn + "\\(" );
     QString returnType;
@@ -58,7 +69,7 @@ void printFunction( const QString &fn, const QDomDocument & ui )
 	}
     }
     if ( returnType.isNull() ) returnType = "void";
-    cout << returnType << " " << fnName << "\n";
+    cout << returnType << " " << className << "::" << fnName << "\n";
 
     QString lines;
     list = ui.elementsByTagName( "function" );
