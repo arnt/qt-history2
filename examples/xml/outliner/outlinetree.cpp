@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xml/outliner/outlinetree.cpp#1 $
+** $Id: //depot/qt/main/examples/xml/outliner/outlinetree.cpp#2 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -17,6 +17,7 @@ OutlineTree::OutlineTree( const QString fileName, QWidget *parent, const char *n
 {
     // div. configuration of the list view
     addColumn( "Outlines" );
+    setSorting( -1 );
     setRootIsDecorated( TRUE );
 
     // read the XML file and create DOM tree
