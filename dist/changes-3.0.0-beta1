@@ -405,7 +405,7 @@ QMake
 
 To ease portability we now provide the qmake utility to replace tmake.
 QMake is a C++ version of tmake which offers additional functionallity
-that is difficult to reproduce in tmake. TrollTech uses qmake in its
+that is difficult to reproduce in tmake. Trolltech uses qmake in its
 build system for Qt and related products and we have released it as
 free software.
 
