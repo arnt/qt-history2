@@ -160,14 +160,14 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
 		    base.replace(QRegExp("\\..*$"), ext);
-		    t << "Begin Source File\n\nSOURCE=.\\" << base << "\n# End Source File" << endl;
+		    t << "# Begin Source File\n\nSOURCE=.\\" << base << "\n# End Source File" << endl;
 		}
 	    }
 	    else if(variable == "MSVCDSP_INTERFACES") {
 		if(project->variables()["INTERFACES"].isEmpty())
 		    continue;
 
-		QString uicpath = var("QMAKE_UIC");
+		QString uicpath = "%QTDIR%\\bin\\" + var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
 		QStringList &list = project->variables()["INTERFACES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -178,15 +178,15 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + (*it) + "...\n"
-			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= " + uicpath + (*it) +
-		     " -o " + fname + ".h\\\n" "\t" + uicpath  + (*it) +
-		     " -i " + fname + ".h -o " + fname + ".cpp\\\n"
+			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
+		     " -o " + fname + ".h \\\n" "\t" + uicpath  + (*it) +
+		     " -i " + fname + ".h -o " + fname + ".cpp \\\n"
 		     "\t%QTDIR%\\bin\\moc " + fname + ".h -o moc_" + fname + ".cpp \\\n\n"
-		     "\"" + fname + ".h" ": \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
+		     "\"" + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 		     "\t$(BuildCmds)\n\n"
-		     "\"" + fname + ".cpp" ": \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+		     "\"" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n"
-		     "\"moc_" + fname + ".cpp" ": \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+		     "\"moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n" "# End Custom Build\n\n";
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
