@@ -41,7 +41,7 @@ public:
     }
 
     QPainterPathData(const QPainterPathData &other) :
-        cStart(other.cStart), fillRule(other.fillRule), containsCache(other.containsCache)
+        QPainterPathPrivate(), cStart(other.cStart), fillRule(other.fillRule), containsCache(other.containsCache)
     {
         ref = 1;
         elements = other.elements;
