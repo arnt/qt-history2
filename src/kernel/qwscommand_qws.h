@@ -132,10 +132,10 @@ struct QWSIdentifyCommand : public QWSCommand
     {
 	id = i;
 	int l = simpleData.idLen = id.length()*2;
-	QByteArray ba(l);
-	char *d = ba.data();
+	char *d = new char[l];
 	memcpy( d, id.unicode(), simpleData.idLen );
 	setData( d, l, TRUE );
+	delete[] d;
     }
 
     struct SimpleData {
@@ -169,11 +169,11 @@ struct QWSRegionNameCommand : public QWSCommand
 	caption = c;
 	int l = simpleData.nameLen = name.length()*2;
 	l += simpleData.captionLen = caption.length()*2;
-	QByteArray ba(l);
-	char *d = ba.data();
+	char *d = new char[l];
 	memcpy( d, name.unicode(), simpleData.nameLen );
 	memcpy( d+simpleData.nameLen, caption.unicode(), simpleData.captionLen );
 	setData( d, l, TRUE );
+	delete[] d;
     }
 
     struct SimpleData {
@@ -470,7 +470,7 @@ struct QWSQCopSendCommand : public QWSCommand
 	d += simpleData.clen;
 	message = QByteArray( d, simpleData.mlen + 1 );
 	d += simpleData.mlen;
-	data.duplicate( d, simpleData.dlen );
+	data = QByteArray( d, simpleData.dlen );
     }
 
     void setMessage( const QByteArray &c, const QByteArray &m,
@@ -479,14 +479,15 @@ struct QWSQCopSendCommand : public QWSCommand
 	int l = simpleData.clen = c.length();
 	l += simpleData.mlen = m.length();
 	l += simpleData.dlen = data.size();
-	QByteArray tmp( l );
-	char *d = tmp.data();
+	char *tmp = new char[l];
+	char *d = tmp;
 	memcpy( d, c.data(), simpleData.clen );
 	d += simpleData.clen;
 	memcpy( d, m.data(), simpleData.mlen );
 	d += simpleData.mlen;
 	memcpy( d, data.data(), simpleData.dlen );
-	setData( (char*)tmp.data(), l, TRUE );
+	setData( tmp, l, TRUE );
+	delete[] tmp;
     }
 
     struct SimpleData {
@@ -554,11 +555,9 @@ struct QWSSetIMFontCommand : public QWSCommand
     void setData( char *d, int len, bool allocateMem ) {
 	QWSCommand::setData( d, len, allocateMem );
 
-	QByteArray  tmp;
-	tmp.setRawData( d, len );
+	QByteArray tmp(d, len);
 	QDataStream s( tmp, IO_ReadOnly );
 	s >> font;
-	tmp.resetRawData( d, len );
     }
     void setFont( const QFont & f )
     {

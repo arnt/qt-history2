@@ -233,7 +233,7 @@ struct QWSQCopMessageEvent : QWSEvent {
 	p += simpleData.lchannel;
 	message = QByteArray( p, simpleData.lmessage + 1 );
 	p += simpleData.lmessage;
-	data.duplicate( p, simpleData.ldata );
+	data = QByteArray(p, simpleData.ldata);
     }
 
     struct SimpleData {
