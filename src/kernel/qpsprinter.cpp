@@ -196,8 +196,9 @@ static const char *const ps_header =
 //   The Adobe Glyph List (AGL) list relates Unicode values (UVs) to glyph
 //   names, and should be used only as described in the document "Unicode and
 //   Glyph Names," at
-//   http://www.adobe.com/asn/developer/typeforum/unicodegn.html .
+//   http://partners.adobe.com:80/asn/developer/type/unicodegn.html
 //
+// IMPORTANT NOTE:
 // the list contains glyphs in the private use area of unicode. These should get removed when regenerating the glyphlist.
 // also 0 shout be mapped to .notdef
 static const struct {
@@ -1393,7 +1394,7 @@ public:
                            const QString &text, QPSPrinterPrivate *d, QPainter *paint);
     virtual unsigned short mapUnicode( unsigned short unicode );
     void downloadMapping( QTextStream &s, bool global );
-    virtual QString glyphName(unsigned short glyphindex);
+    QString glyphName( unsigned short glyphindex, bool *glyphSet = 0 );
     virtual void restore();
 
     virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
@@ -1747,7 +1748,7 @@ unsigned short QPSPrinterFontPrivate::mapUnicode( unsigned short unicode )
     return offset + *res;
 }
 
-QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
+QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex, bool *glyphSet )
 {
     QString glyphname;
     int l = 0;
@@ -1758,9 +1759,55 @@ QString QPSPrinterFontPrivate::glyphName( unsigned short glyphindex )
     } else {
 	while( unicodetoglyph[l].u < unicode )
 	    l++;
-	if ( unicodetoglyph[l].u == unicode )
+	if ( unicodetoglyph[l].u == unicode ) {
 	    glyphname = unicodetoglyph[l].g;
-	else {
+	    if ( glyphSet ) {
+		int other = 0;
+		switch ( unicode ) {
+		    // some glyph names are duplicate in postscript. Make sure we give the
+		    // duplicate a different name to avoid infinite recursion
+		    case 0x0394:
+			other = 0x2206;
+			break;
+		    case 0x03a9:
+			other = 0x2126;
+			break;
+		    case 0x0162:
+			other = 0x021a;
+			break;
+		    case 0x2215:
+			other = 0x2044;
+			break;
+		    case 0x00ad:
+			other = 0x002d;
+			break;
+		    case 0x02c9:
+			other = 0x00af;
+			break;
+		    case 0x03bc:
+			other = 0x00b5;
+			break;
+		    case 0x2219:
+			other = 0x00b7;
+			break;
+		    case 0x00a0:
+			other = 0x0020;
+			break;
+		    case 0x0163:
+			other = 0x021b;
+			break;
+		    default:
+			break;
+		}
+		if ( other ) {
+		    int oglyph = glyph_for_unicode( other );
+		    if( oglyph && oglyph != glyphindex && glyphSet[oglyph] ) {
+			glyphname = "uni";
+			glyphname += toHex( unicode );
+		    }
+		}
+	    }
+	} else {
 	    glyphname = "uni";
 	    glyphname += toHex( unicode );
 	}
@@ -1963,7 +2010,6 @@ private:
   bool           defective; // if we can't process this file
 
   BYTE*   getTable(const char *);
-  QString glyphName(unsigned short glyphindex);
       void uni2glyphSetup();
       unsigned short unicode_for_glyph(int glyphindex);
       unsigned short glyph_for_unicode(unsigned short unicode);
@@ -1989,9 +2035,9 @@ private:
 
   void subsetGlyph(int charindex,bool* glyphset);
 
-  void charproc(int charindex, QTextStream& s);
+  void charproc(int charindex, QTextStream& s, bool *glyphSet);
   BYTE* charprocFindGlyphData(int charindex);
-  void charprocComposite(BYTE *glyph, QTextStream& s);
+  void charprocComposite(BYTE *glyph, QTextStream& s, bool *glyphSet);
   void charprocLoad(BYTE *glyph, charproc_data* cd);
 
   int target_type;                      /* 42 or 3 */
@@ -2468,9 +2514,9 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 
 	    //qDebug("emitting charproc for glyph %d, name=%s", x, glyphName(x).latin1() );
             s << "/";
-            s << glyphName( x );
+            s << glyphName( x, glyphset );
             s << "{";
-            charproc(x,s);
+            charproc(x,s, glyphset);
             s << "}_d\n";     /* "} bind def" */
         }
     }
@@ -2628,66 +2674,6 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
     }
 
     return 0;
-}
-
-QString QPSPrinterFontTTF::glyphName(unsigned short charindex)
-{
-    return QPSPrinterFontPrivate::glyphName( charindex );
-#if 0
-    // I don't see why we would need to use this at all!
-    USHORT c;
-    if ((c=unicode_for_glyph(charindex)) != 0x000) {
-        //fprintf(stdout,"glyph %04x char %04x\n",charindex,c);
-        for (int i=0; unicodetoglyph[i].u != 0xffff; i++) {
-            //if (unicodetoglyph[i].u >  c) break;
-            if (unicodetoglyph[i].u == c) {
-                //qDebug("using name %s for char %04x\n",unicodetoglyph[i].g,c);
-                return unicodetoglyph[i].g;
-            }
-        }
-    }
-
-    Fixed post_format = getFixed( post_table );
-
-    if( post_format.whole != 2 || post_format.fraction != 0 ) {
-        QString name;
-        ushort  u;
-        // We must have a notdef glyph. I am not sure how it is uncoded in
-        // unicode, so I assume it's the first glyph.
-        if (charindex == 0)
-            name = ".notdef";
-        else if ((u=unicode_for_glyph(charindex)) != 0x0000) {
-	    name = "uni";
-	    name += toHex( u );
-        } else {
-	    name = "gl";
-	    name += toHex( charindex );
-	}
-        return name;
-    }
-
-    int GlyphIndex = (int)getUSHORT( post_table + 34 + (charindex * 2) );
-
-    if( GlyphIndex <= 257 ) {           /* If a standard Apple name, */
-        //qDebug("post name for glyph is %s 1\n",Apple_CharStrings[GlyphIndex]);
-        return QString(Apple_CharStrings[GlyphIndex]);
-    } else {                    /* Otherwise, use one */
-                                /* of the pascal strings. */
-        GlyphIndex -= 258;
-
-        /* Set pointer to start of Pascal strings. */
-        char* ptr = (char*)(post_table + 34 + (numGlyphs * 2));
-
-        int len = (int)*(ptr++);        /* Step thru the strings */
-        while(GlyphIndex--) {   /* until we get to the one */
-                                /* that we want. */
-            ptr += len;
-            len = (int)*(ptr++);
-        }
-
-        return QString::fromLatin1(ptr,len);
-    }
-#endif
 }
 
 void QPSPrinterFontTTF::uni2glyphSetup()
@@ -3613,7 +3599,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
 /*
 ** Emmit PostScript code for a composite character.
 */
-void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
+void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s, bool *glyphSet)
 {
   USHORT flags;
   USHORT glyphIndex;
@@ -3704,7 +3690,7 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
 
       /* Invoke the CharStrings procedure to print the component. */
       s << "false CharStrings /";
-      s << glyphName( glyphIndex );
+      s << glyphName( glyphIndex, glyphSet );
       s << " get exec\n";
 
       //  printf("false CharStrings /%s get exec\n",
@@ -3746,7 +3732,7 @@ BYTE* QPSPrinterFontTTF::charprocFindGlyphData(int charindex)
     return (BYTE*)NULL;
 }
 
-void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s)
+void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s, bool *glyphSet )
 {
   int llx,lly,urx,ury;
   int advance_width;
@@ -3816,7 +3802,7 @@ void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s)
     delete [] cd.ycoor;
     delete [] cd.epts_ctr;
   } else if( cd.num_ctr < 0 ) { // composite
-    charprocComposite(glyph,s);
+    charprocComposite(glyph,s, glyphSet);
   }
 
   stack_end(s);
