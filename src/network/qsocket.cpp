@@ -816,7 +816,14 @@ bool QSocket::at( Offset index )
     if ( index > d->rba.size() )
 	return FALSE;
     d->rba.consumeBytes( (Q_ULONG)index, 0 );			// throw away data 0..index-1
-    if ( d->rsn )
+    // After we read data from our internal buffer, if we use the
+    // setReadBufferSize() to limit our buffer, we might now be able to
+    // read more data in our buffer. So enable the read socket notifier,
+    // but do this only if we are not in a slot connected to the
+    // readyRead() signal since this might cause a bad recursive behavior.
+    // We can test for this condition by looking at the
+    // sn_read_alreadyCalled flag.
+    if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
 	d->rsn->setEnabled( TRUE );
     return TRUE;
 }
@@ -938,7 +945,14 @@ Q_LONG QSocket::readBlock( char *data, Q_ULONG maxlen )
     qDebug( "QSocket (%s): readBlock %d bytes", name(), (int)maxlen );
 #endif
     d->rba.consumeBytes( maxlen, data );
-    if ( d->rsn )
+    // After we read data from our internal buffer, if we use the
+    // setReadBufferSize() to limit our buffer, we might now be able to
+    // read more data in our buffer. So enable the read socket notifier,
+    // but do this only if we are not in a slot connected to the
+    // readyRead() signal since this might cause a bad recursive behavior.
+    // We can test for this condition by looking at the
+    // sn_read_alreadyCalled flag.
+    if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
 	d->rsn->setEnabled( TRUE );
     return maxlen;
 }
@@ -1009,7 +1023,14 @@ int QSocket::getch()
     if ( isOpen() && d->rba.size() > 0 ) {
 	uchar c;
 	d->rba.consumeBytes( 1, (char*)&c );
-	if ( d->rsn )
+	// After we read data from our internal buffer, if we use the
+	// setReadBufferSize() to limit our buffer, we might now be able to
+	// read more data in our buffer. So enable the read socket notifier,
+	// but do this only if we are not in a slot connected to the
+	// readyRead() signal since this might cause a bad recursive behavior.
+	// We can test for this condition by looking at the
+	// sn_read_alreadyCalled flag.
+	if ( d->rsn && QSocketPrivate::sn_read_alreadyCalled.findRef(this) == -1 )
 	    d->rsn->setEnabled( TRUE );
 	return c;
     }
