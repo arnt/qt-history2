@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#55 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#55 $";
 #endif
 
 
@@ -365,13 +365,13 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   Tells the application to quit.
 
   After quit has been called, the application leaves the main event
-  loop an returns from the call to exec(). The exec() function
+  loop and returns from the call to exec(). The exec() function
   returns \e retcode.
 
-  Exit code 0 means success. Any non-zero exit code indicates an error.
+  By convention, \e retcode 0 means success, any non-zero value indicates
+  an error.
 
-  \sa quitApp(), exec()
-*/
+  \sa quitApp(), exec() */
 
 void QApplication::quit( int retcode )		// quit application
 {
