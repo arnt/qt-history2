@@ -375,6 +375,7 @@ struct IntegerModuloInterface : public QUnknownInterface
 {
     virtual int modulo( int a, int b ) = 0;
 };
+\endcode
 
 An application that knows about this new interface can use it by explicitely asking the component
 for it's implementation using \e queryInterface(). The next version of the component will behave 
@@ -626,11 +627,11 @@ On Windows, this will use the system registry and register the component
 along with all the other components. On UNIX, this will create a
 settings file .CLSID that lists all installed components. To register
 all components in a server, it is sufficient to load the library, 
-query for the QComponentRegistrationInterface and call the registerComponent
+query for the \l QComponentRegistrationInterface and call the registerComponents()
 function during the installation process of the component.
 
 Any client application that wants to use this specific component can then use the static
-functions of the QComponentFactory class to get an interface to the requested component:
+functions of the QComponentFactory class to get an interface of the requested component:
 
 \code
 int sum;
@@ -642,6 +643,9 @@ if ( QComponentFactory::createInstance(
     sum = iface->add( 5, 3 );
 }
 \endcode
+
+See the \link QComponentFactory QComponentFactory API reference \endlink for more 
+information about Component IDs, and how you can register and instantiate components.
 
 
 \section2 Using Components as Plugins
@@ -777,7 +781,7 @@ for more information.
 On certain platforms, additional problems result from the implementation of the library
 loader, or the memory management
 
-\section2 on Windows, all modules running in one address space should use the same instance of the C runtime library
+\section2 On Windows, all modules running in one address space should use the same instance of the C runtime library
 
 The qmake tool will apply settings to generate code for the shared C runtime to make sure that all
 binaries use the same instance of the runtime library.

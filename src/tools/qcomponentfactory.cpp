@@ -52,13 +52,48 @@
   and by component servers to register components.
 
   The createInstance() function provides a pointer to an interface implemented in a specific 
-  component.
+  component if the component requested has been installed properly and implements the interface.
 
   Use registerServer() to load a component server and register its components, and unregisterServer()
   to unregister the components. The component exported by the component server has to implement the
-  QComponentRegistrationInterface. The static functions registerComponent() and unregisterComponent() 
-  register and unregister a single component from the system component registry, and should be used when
-  implementing the QComponentRegistrationInterface.
+  QComponentRegistrationInterface. 
+  
+  The static functions registerComponent() and unregisterComponent() register and unregister a single 
+  component in the system component registry, and should be used when implementing the 
+  \link QComponentRegistrationInterface::registerComponents() registerCompontents() \endlink and
+  \link QComponentRegistrationInterface::unregisterComponents() unregisterCompontents() \endlink functions
+  in the QComponentRegistrationInterface.
+
+  A component is registered using a UUID, but can additionally be registered with a name, version and
+  description. A component registered with a name and a version can be instantiated by client applications 
+  using the name and specific version number, or the highest available version number for that component by
+  just using the name. A component that is registered calling
+
+  \code
+  QComponentFactory::registerComponent( QUuid(...), filename, "MyProgram.Component", 1 );
+  \endcode
+
+  can be instantiated calling either:
+
+  \code
+  QComponentFactory::createInstance( QUuid(...), IID_XYZ, (QUnknownInterface**)&iface );
+  \endcode
+  or
+  \code
+  QComponentFactory::createInstance( "MyProgram.Component", IID_XYZ, (QUnknownInterface**)&iface );
+  \endcode
+  or
+  \code
+  QComponentFactory::createInstance( "MyProgram.Component.1", IID_XYZ, (QUnknownInterface**)&iface );
+  \endcode
+
+  The first and the last way will always instantiate exactly the component registered above, while
+  the second call might also return a later version of the same component. This allows smoother upgrading 
+  of components, and is easier to use in application source code, but should only be used when new versions
+  of the component are guaranteed to work with the application.
+
+  The component name can be anything, but should be unique on the system the component is being
+  installed on. A common naming convention for components is \e application.component.
 
   \sa QComponentRegistrationInterface QComponentFactoryInterface
 */
@@ -67,11 +102,11 @@
   Searches for the component identifier \a cid in the system component registry,
   loads the corresponding component server and queries for the interface \a iid. 
   \a iface is set to the resulting interface pointer. \a cid can either be the
-  UUID or the human-readable name of the component.
+  UUID or the name of the component.
 
   The parameter \a outer is a pointer to the outer interface used
   for containment and aggregation and is propagated to the \link
-  QComponentFactoryInterface::createInstance() createInstance \endlink
+  QComponentFactoryInterface::createInstance() createInstance() \endlink
   implementation of the QComponentFactoryInterface in the component server if 
   provided.
 
@@ -81,10 +116,10 @@
 
   Example:
   \code
-  MyInterface *iface;
+  QInterfacePtr<MyInterface> iface;
   if ( QComponentFactory::createInstance( IID_MyInterface, CID_MyComponent, (QUnknownInterface**)&iface ) == QS_OK )
+      iface->doSomething();
       ...
-      iface->release();
   }
   \endcode
 */
@@ -179,8 +214,8 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
 /*!
   Registers the component with id \a cid in the system component registry and
   returns TRUE if the component was registerd successfully, otherwise returns
-  FALSE. The component is provided by the server at \a filepath and registered 
-  with an optional \a name, \a version and \a description. 
+  FALSE. The component is provided by the component server at \a filepath and 
+  registered with an optional \a name, \a version and \a description. 
   
   This function does nothing and returns FALSE if a component with an identical 
   \a cid does already exist on the system.
@@ -193,11 +228,11 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
 
   \sa unregisterComponent(), registerServer(), createInstance()
 */
-bool QComponentFactory::registerComponent( const QUuid &cid, const QString &filepath, const QString &name, const QString &version, const QString &description )
+bool QComponentFactory::registerComponent( const QUuid &cid, const QString &filepath, const QString &name, int version, const QString &description )
 {
+    bool ok = FALSE;
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    bool ok = FALSE;
 
     QString cidStr = cid.toString().upper();
     QString old = settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
@@ -208,15 +243,15 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
     if ( ok && !!description )
 	settings.writeEntry( "/CLSID/" + cidStr + "/Default", description );
 
-    // register the human-readable part
+    // register the human readable part
     if ( ok && !!name ) {
-	QString vName = !!version ? name + "." + version : name;
+	QString vName = version ? name + "." + QString::number( version ) : name;
 	settings.writeEntry( "/CLSID/" + cidStr + "/ProgID/Default", vName );
 	ok = settings.writeEntry( "/" + vName + "/CLSID/Default", cidStr );
 	if ( ok && !!description )
 	    settings.writeEntry( "/" + vName + "/Default", description );
 
-	if ( ok && !!version ) {
+	if ( ok && version ) {
 	    settings.writeEntry( "/CLSID/" + cidStr + "/VersionIndependentProgID/Default", name );
 	    QString curVer = settings.readEntry( "/" + name + "/CurVer/Default" );
 	    if ( !curVer || curVer < vName ) { // no previous, or a lesser version installed
@@ -250,7 +285,7 @@ bool QComponentFactory::unregisterComponent( const QUuid &cid )
     if ( cidStr.isEmpty() )
 	return FALSE;
 
-    // unregister the human-readable part
+    // unregister the human readable part
     QString vName = settings.readEntry( "/CLSID/" + cidStr + "/ProgID/Default", QString::null, &ok );
     if ( ok ) {
 	QString name = settings.readEntry( "/CLSID/" + cidStr + "/VersionIndependentProgID/Default", QString::null );
@@ -261,6 +296,7 @@ bool QComponentFactory::unregisterComponent( const QUuid &cid )
 	    QString newCidStr;
 	    if ( version.find( '.' ) == -1 ) {
 		int ver = version.toInt();
+		// see if a lesser version is installed, and make that the CurVer
 		while ( ver-- ) {
 		    newVerName = name + "." + QString::number( ver );
 		    newCidStr = settings.readEntry( "/" + newVerName + "/CLSID/Default" );
