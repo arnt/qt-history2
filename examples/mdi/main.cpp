@@ -14,6 +14,7 @@
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
     ApplicationWindow * mw = new ApplicationWindow();
+    a.setMainWidget(mw);
     mw->setCaption( "Qt Example - Multiple Documents Interface (MDI)" );
     mw->show();
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
