@@ -38,7 +38,9 @@
 #endif
 #else
 #define QM_EXPORT_TABLE Q_EXPORT
-#define QM_TEMPLATE_EXTERN_TABLE Q_TEMPLATE_EXTERN
+#ifndef QM_TEMPLATE_EXTERN_TABLE
+#   define QM_TEMPLATE_EXTERN_TABLE Q_TEMPLATE_EXTERN
+#endif
 #endif
 
 class QTableHeader;
