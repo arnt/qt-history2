@@ -326,7 +326,6 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 {
     t << "clean: compiler_clean";
     char *clean_targets[] = { "OBJECTS", "QMAKE_CLEAN", "CLEAN_FILES", 0 };
-    const int qtdirSize = replaceExtraCompilerVariables("$(QTDIR)", QString(), QString()).count();
     for(int i = 0; clean_targets[i]; ++i) {
         const QStringList &list = project->values(clean_targets[i]);
         const QString del_statement("-$(DEL_FILE)");
