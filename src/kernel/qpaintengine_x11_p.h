@@ -18,7 +18,7 @@
 #include "qregion.h"
 #include "qpen.h"
 #include "qx11info_x11.h"
-#include <X11/Xlib.h>
+#include "qt_x11_p.h"
 
 static const short ropCodes[] = {                     // ROP translation table
     GXcopy, // CopyROP
