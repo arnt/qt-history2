@@ -3878,7 +3878,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	void *data[1];
 	data[0] = (void *) (i->selected() ? &g.highlight() : &g.base());
 	style().drawPrimitive( QStyle::PE_FocusRect, p, QRect( 0, 0, cw, ch ), g,
-			       QStyle::PStyle_FocusAtBorder, data);
+			       QStyle::Style_FocusAtBorder, data);
     }
 
     p->restore();

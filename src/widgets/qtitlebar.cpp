@@ -247,7 +247,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	if(window && window->isMinimized())
 	    ctrl |= QStyle::SC_TitleBarNormalButton;
 	style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(), colorGroup(),
-				   QStyle::CStyle_Default, ctrl, buttonDown);
+				   QStyle::Style_Default, ctrl, buttonDown);
 	p.end();
     }
 }
@@ -272,7 +272,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	if (ctrl == buttonDown) {
 	    QPainter p(this);
 	    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
-				       colorGroup(), QStyle::CStyle_Default,
+				       colorGroup(), QStyle::Style_Default,
 				       ctrl | (window && window->isMinimized() ?
 					       QStyle::SC_TitleBarNormalButton : QStyle::SC_None),
 				       QStyle::SC_None);
@@ -330,7 +330,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	if(ctrl != last_ctrl) {
 	    QPainter p(this);
 	    style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(),
-				       colorGroup(), QStyle::CStyle_Default,
+				       colorGroup(), QStyle::Style_Default,
 				       ctrl | (window && window->isMinimized() ?
 					       QStyle::SC_TitleBarNormalButton : QStyle::SC_None),
 				       ((ctrl == buttonDown) ? buttonDown :
@@ -390,7 +390,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
     buffer.begin( this, rect() );
     style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
-			       colorGroup(), QStyle::CStyle_Default, ctrls, buttonDown);
+			       colorGroup(), QStyle::Style_Default, ctrls, buttonDown);
 }
 
 void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
@@ -460,7 +460,7 @@ void QTitleBar::setIcon( const QPixmap& icon )
 
     QPainter p(this);
     style().drawComplexControl(QStyle::CC_TitleBar, &p, this, rect(), colorGroup(),
-			       QStyle::CStyle_Default, QStyle::SC_TitleBarSysMenu);
+			       QStyle::Style_Default, QStyle::SC_TitleBarSysMenu);
 }
 
 void QTitleBar::enterEvent( QEvent * )

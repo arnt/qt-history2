@@ -391,7 +391,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \enum QStyle::PrimitiveElementFlags
+  \enum QStyle::StyleFlags
 
   This enum represents flags for drawing PrimitiveElements.  Not all
   primitives use all of these flags.  Note that these flags may mean
@@ -399,29 +399,32 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   relationship between primitives and their flags, as well as the
   different meanings of the flags, see the \link customstyles.html Style overview\endlink.
 
-  \value PStyle_Default
-  \value PStyle_Enabled
-  \value PStyle_Raised
-  \value PStyle_Sunken
-  \value PStyle_Off
-  \value PStyle_NoChange
-  \value PStyle_On
-  \value PStyle_Down
-  \value PStyle_Horizontal
-  \value PStyle_Vertical
-  \value PStyle_HasFocus
-  \value PStyle_Top
-  \value PStyle_Bottom
-  \value PStyle_FocusAtBorder
-  \value PStyle_AutoRaise
-  \value PStyle_MouseOver
-  \value PStyle_Up
+  \value Style_Default
+  \value Style_Enabled
+  \value Style_Raised
+  \value Style_Sunken
+  \value Style_Off
+  \value Style_NoChange
+  \value Style_On
+  \value Style_Down
+  \value Style_Horizontal
+  \value Style_Vertical
+  \value Style_HasFocus
+  \value Style_Top
+  \value Style_Bottom
+  \value Style_FocusAtBorder
+  \value Style_AutoRaise
+  \value Style_MouseOver
+  \value Style_Up
+  \value Style_Selected
+  \value Style_HasFocus
+  \value Style_Active
 
   \sa drawPrimitive()
 */
 
 /*!
-  \fn void QStyle::drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
+  \fn void QStyle::drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r, const QColorGroup &cg, SFlags flags = Style_Default, void **data = 0 ) const;
 
   Draws the style PrimitiveElement \a pe using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
@@ -432,7 +435,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   Multiple flags can be OR'ed together.
 
   For example, a pressed button would be drawn with the flags \c
-  PStyle_Enabled and \c PStyle_Down.
+  Style_Enabled and \c Style_Down.
 
   The \a data argument can be used to control how various
   PrimitiveElements are drawn. Note that \a data may be zero even for
@@ -504,7 +507,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   For all other \link QStyle::PrimitiveElement
   PrimitiveElements\endlink, \a data is unused.
 
-  \sa PrimitiveElementFlags
+  \sa StyleFlags
 */
 
 /*!
@@ -545,22 +548,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \enum QStyle::ControlElementFlags
-
-  This enum represents flags for drawing ControlElements.  Not all
-  controls use all of these flags. Note that these flags may mean
-  different things to different controls. For an explanation of the
-  relationship between control elements and their flags, as well as the
-  different meanings of the flags, see the \link customstyles.html Style overview\endlink.
-
-  \value CStyle_Default
-  \value CStyle_Selected
-  \value CStyle_HasFocus
-  \value CStyle_Active
-*/
-
-/*!
-  \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags how = CStyle_Default, void **data = 0 ) const;
+  \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, void **data = 0 ) const;
 
   Draws the ControlElement \a element using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
@@ -693,7 +681,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   </table>
   </center>
 
-  \sa ControlElement, ControlElementFlags
+  \sa ControlElement, StyleFlags
 */
 
 /*!
@@ -909,7 +897,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags flags = CStyle_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, void **data = 0 ) const;
+  \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, SFlags how = Style_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, void **data = 0 ) const;
 
   Draws the ComplexControl \a control using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.  The \a sub
@@ -922,9 +910,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   coordinates into screen coordinates when using drawPrimitive() and
   drawControl().
 
-  The \a flags argument is used to control how the ComplexControl is
+  The \a how argument is used to control how the ComplexControl is
   drawn.  Multiple flags can OR'ed together. See \l
-  ControlElementFlags.
+  StyleFlags.
 
   The \a widget argument is a pointer to a QWidget or one of its
   subclasses.  The widget can be cast to the appropriate type based on

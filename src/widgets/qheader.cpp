@@ -1251,16 +1251,16 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     int section = mapToSection( index );
     if ( section < 0 ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), QStyle::PStyle_Raised );
+			       colorGroup(), QStyle::Style_Raised );
 	return;
     }
 
-    QStyle::PFlags flags = QStyle::PStyle_Raised;
+    QStyle::SFlags flags = QStyle::Style_Raised;
     if(index == handleIdx) {
 	if(state == Pressed || state == Moving)
-	    flags = QStyle::PStyle_Down;
+	    flags = QStyle::Style_Down;
 	else if(state != Sliding)
-	    flags = QStyle::PStyle_Sunken;
+	    flags = QStyle::Style_Sunken;
     }
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
@@ -1358,7 +1358,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     int arrowWidth = orient == Qt::Horizontal ? height() / 2 : width() / 2;
     int arrowHeight = fr.height() - 6;
     int tw = tw = p->fontMetrics().width( s ) + 16, ew = 0;
-    if( style().styleHint( QStyle::SH_Header_Arrow_Alignment, this ) & AlignRight) 
+    if( style().styleHint( QStyle::SH_Header_Arrow_Alignment, this ) & AlignRight)
 	ew = fr.width() - tw - pw - arrowWidth - 8;
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
 	if( reverse() ) {
@@ -1366,7 +1366,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	    ew = fr.width() - ew - tw;
 	}
 	style().drawPrimitive( QStyle::PE_HeaderArrow, p, QRect(fr.x() + pw + tw + ew, 4, arrowWidth, arrowHeight),
-			       colorGroup(), d->sortDirection ? QStyle::PStyle_Down : QStyle::PStyle_Up);
+			       colorGroup(), d->sortDirection ? QStyle::Style_Down : QStyle::Style_Up);
     }
 }
 

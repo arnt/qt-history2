@@ -74,7 +74,7 @@ public:
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,
-			PFlags flags = PStyle_Default,
+			SFlags flags = Style_Default,
 			void **data = 0 ) const;
 
     void drawControl( ControlElement element,
@@ -82,7 +82,7 @@ public:
 		      const QWidget *widget,
 		      const QRect &r,
 		      const QColorGroup &cg,
-		      CFlags how = CStyle_Default,
+		      SFlags how = Style_Default,
 		      void **data = 0 ) const;
 
     void drawComplexControl( ComplexControl control,
@@ -90,7 +90,7 @@ public:
 			     const QWidget* widget,
 			     const QRect& r,
 			     const QColorGroup& cg,
-			     CFlags flags = CStyle_Default,
+			     SFlags how = Style_Default,
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;

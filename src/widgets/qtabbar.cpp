@@ -369,13 +369,13 @@ QSize QTabBar::minimumSizeHint() const
 
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
-    QStyle::CFlags flags = QStyle::CStyle_Default;
+    QStyle::SFlags flags = QStyle::Style_Default;
 
     void *data[1];
     data[0] = t;
 
     if ( selected )
-	flags |= QStyle::CStyle_Selected;
+	flags |= QStyle::Style_Selected;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags, data );
 
@@ -421,7 +421,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     data[0] = (void *) t;
     data[1] = (void *) &has_focus;
     style().drawControl( QStyle::CE_TabBarLabel, p, this, r, colorGroup(),
-			 QStyle::CStyle_Default, data );
+			 QStyle::Style_Default, data );
 }
 
 
@@ -584,7 +584,7 @@ void QTabBar::setCurrentTab( int id )
 }
 
 
-/*! 
+/*!
     \overload
     Raises \a tab and emits the selected() signal unless the tab was
   already current.
@@ -883,8 +883,8 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 				   r.top() + ( r.height()-h ) / 2 - 1,
 			       w + 2, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
 
-	    QStyle::CFlags flags = QStyle::CStyle_Default;
-	    flags |= QStyle::CStyle_Selected;
+	    QStyle::SFlags flags = QStyle::Style_Default;
+	    flags |= QStyle::Style_Selected;
 	    void *data[1];
 	    data[0] = t;
 	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),

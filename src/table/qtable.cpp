@@ -1215,7 +1215,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
     c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
     table()->style().drawPrimitive( QStyle::PE_Indicator, p,
 				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), c,
-				    isChecked() ? QStyle::PStyle_On : QStyle::PStyle_Off );
+				    isChecked() ? QStyle::Style_On : QStyle::Style_Off );
     int x = sz.width() + 6;
     w = w - x;
     if ( selected )
@@ -2601,7 +2601,7 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 	    if ( cellWidget( itm->row(), itm->col() ) )
 		cellWidget( itm->row(), itm->col() )->setFocus();
 	}
-	
+
 	if ( updateSelections && isRowSelection( selectionMode() ) ) {
 	    if ( !isSelected( curRow, curCol, FALSE ) ) {
 		clearSelection();
@@ -5279,7 +5279,7 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	QHeader::paintSection( p, index, fr );
     } else {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), QStyle::PStyle_Down );
+			       colorGroup(), QStyle::Style_Down );
 	paintSectionLabel( p, index, fr );
     }
 }

@@ -409,7 +409,7 @@ void QToolButton::drawButton( QPainter * p )
 
     style().drawComplexControl(QStyle::CC_ToolButton,
 			       p, this, rect(), colorGroup(),
-			       QStyle::CStyle_Default,
+			       QStyle::Style_Default,
 			       controls, active, data);
 }
 

@@ -93,12 +93,12 @@ QSize QDesignerToolBarSeparator::sizeHint() const
 void QDesignerToolBarSeparator::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    QStyle::PFlags flags = QStyle::PStyle_Default;
+    QStyle::SFlags flags = QStyle::Style_Default;
 
     if ( orientation() == Horizontal )
-	flags |= QStyle::PStyle_Horizontal;
+	flags |= QStyle::Style_Horizontal;
     else
-	flags |= QStyle::PStyle_Vertical;
+	flags |= QStyle::Style_Vertical;
 
     style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(),
 			   colorGroup(), flags );

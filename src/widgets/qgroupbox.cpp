@@ -316,7 +316,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     data[2] = &lw;
     data[3] = &mw;
     style().drawPrimitive( QStyle::PE_GroupBoxFrame, &paint, frameRect(),
-			   colorGroup(), QStyle::PStyle_Default, data );
+			   colorGroup(), QStyle::Style_Default, data );
     drawContents( &paint );			// draw the contents
 }
 

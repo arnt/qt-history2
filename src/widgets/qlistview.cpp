@@ -1864,8 +1864,8 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
     data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
     listView()->style().drawPrimitive( QStyle::PE_FocusRect, p, r, cg,
 				       (isSelected() ?
-					QStyle::PStyle_FocusAtBorder :
-					QStyle::PStyle_Default),
+					QStyle::Style_FocusAtBorder :
+					QStyle::Style_Default),
 				       data);
 }
 
@@ -1897,7 +1897,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	data[0] = this;
 	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
 					QRect( 0, y, w, h ),
-					cg, QStyle::CStyle_Default,
+					cg, QStyle::Style_Default,
 					(QStyle::SC_ListViewBranch |
 					 QStyle::SC_ListViewExpand),
 					QStyle::SC_None, data);

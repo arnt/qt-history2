@@ -140,13 +140,13 @@ protected:
         if( obj ){
             QTabWidget * t = (QTabWidget *) obj;
             QPainter p( this );
-	    QStyle::PFlags flags = QStyle::PStyle_Default;
+	    QStyle::SFlags flags = QStyle::Style_Default;
 
 	    if ( t->tabPosition() == QTabWidget::Top )
-		flags |= QStyle::PStyle_Top;
+		flags |= QStyle::Style_Top;
 	    if ( t->tabPosition() == QTabWidget::Bottom )
-		flags |= QStyle::PStyle_Bottom;
-	
+		flags |= QStyle::Style_Bottom;
+
 	    style().drawPrimitive( QStyle::PE_TabBarBase, &p, rect(),
 				   colorGroup(), flags );
         }
@@ -652,9 +652,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     d->tabBase->setGeometry( 0, exty, width(), exth );
     if ( exth == 0 )
 	d->tabBase->hide();
-    else 
+    else
 	d->tabBase->show();
-    
+
     d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
 			   t.height()+QMAX(0, lw-2));
 
@@ -852,7 +852,7 @@ QIconSet QTabWidget::tabIconSet( QWidget * w ) const
         return QIconSet();
     if ( t->iconset )
 	return QIconSet( *t->iconset );
-    else 
+    else
 	return QIconSet();
 }
 

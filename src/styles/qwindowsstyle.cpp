@@ -115,7 +115,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 				   QPainter *p,
 				   const QRect &r,
 				   const QColorGroup &cg,
-				   PFlags flags,
+				   SFlags flags,
 				   void **data ) const
 {
     switch (pe) {
@@ -125,13 +125,13 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QBrush fill;
 
-	    if (! (flags & PStyle_Down) && (flags & PStyle_On))
+	    if (! (flags & Style_Down) && (flags & Style_On))
 		fill = QBrush(cg.light(), Dense4Pattern);
 	    else
 		fill = cg.brush(QColorGroup::Button);
 
-	    if (flags & (PStyle_Raised | PStyle_Down | PStyle_On | PStyle_Sunken))
-		qDrawWinButton(p, r, cg, flags & (PStyle_Down | PStyle_On), &fill);
+	    if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+		qDrawWinButton(p, r, cg, flags & (Style_Down | Style_On), &fill);
 	    else
 		p->fillRect(r, fill);
 	    break;
@@ -141,20 +141,20 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QBrush fill;
 
-	    if (! (flags & (PStyle_Down | PStyle_MouseOver)) &&
-		(flags & PStyle_On) &&
-		(flags & PStyle_Enabled) &&
+	    if (! (flags & (Style_Down | Style_MouseOver)) &&
+		(flags & Style_On) &&
+		(flags & Style_Enabled) &&
 		use2000style)
 		fill = QBrush(cg.light(), Dense4Pattern);
 	    else
 		fill = cg.brush(QColorGroup::Button);
 
-	    if (flags & (PStyle_Raised | PStyle_Down | PStyle_On)) {
-		if (flags & PStyle_AutoRaise)
-		    qDrawShadePanel(p, r, cg, flags & (PStyle_Down | PStyle_On),
+	    if (flags & (Style_Raised | Style_Down | Style_On)) {
+		if (flags & Style_AutoRaise)
+		    qDrawShadePanel(p, r, cg, flags & (Style_Down | Style_On),
 				    1, &fill);
 		else
-		    qDrawWinButton(p, r, cg, flags & (PStyle_Down | PStyle_On),
+		    qDrawWinButton(p, r, cg, flags & (Style_Down | Style_On),
 				   &fill);
 	    } else
 		p->fillRect(r, fill);
@@ -172,7 +172,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	{
 #ifndef QT_NO_BUTTON
 	    QBrush fill;
-	    if (flags & PStyle_NoChange) {
+	    if (flags & Style_NoChange) {
 		QBrush b = p->brush();
 		QColor c = p->backgroundColor();
 		p->setBackgroundMode( TransparentMode );
@@ -180,15 +180,15 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		fill = QBrush(cg.base(), Dense4Pattern);
 		p->setBackgroundColor( c );
 		p->setBrush( b );
-	    } else if (flags & PStyle_Down)
+	    } else if (flags & Style_Down)
 		fill = cg.brush( QColorGroup::Button );
-	    else if (flags & PStyle_Enabled)
+	    else if (flags & Style_Enabled)
 		fill = cg.brush( QColorGroup::Base );
 	    else
 		fill = cg.brush( QColorGroup::Background );
 
 	    qDrawWinPanel( p, r, cg, TRUE, &fill );
-	    if (! (flags & PStyle_Off)) {
+	    if (! (flags & Style_Off)) {
 		QPointArray a( 7*2 );
 		int i, xx, yy;
 		xx = r.x() + 3;
@@ -207,7 +207,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		    xx++; yy--;
 		}
 
-		if (flags & PStyle_NoChange)
+		if (flags & Style_NoChange)
 		    p->setPen( cg.dark() );
 		else
 		    p->setPen( cg.text() );
@@ -258,9 +258,9 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 
 	    p->eraseRect(ir);
 	    bool reverse = QApplication::reverseLayout();
-	    bool down = flags & PStyle_Down;
-	    bool enabled = flags & PStyle_Enabled;
-	    bool on = flags & PStyle_On;
+	    bool down = flags & Style_Down;
+	    bool enabled = flags & Style_Enabled;
+	    bool on = flags & Style_On;
 	    QPointArray a;
 	    if( reverse )
 		a.setPoints( QCOORDARRLEN(rpts1), rpts1 );
@@ -316,7 +316,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		lw = *((int *) data[0]);
 
 	    if (lw == 2)
-		qDrawWinPanel(p, r, cg, flags & PStyle_Sunken);
+		qDrawWinPanel(p, r, cg, flags & Style_Sunken);
 	    else
 		QCommonStyle::drawPrimitive(pe, p, r, cg, flags, data);
 	    break;
@@ -329,33 +329,33 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_ScrollBarSubLine:
 	if (use2000style) {
-	    if (flags & PStyle_Down) {
+	    if (flags & Style_Down) {
 		p->setPen( cg.dark() );
 		p->setBrush( cg.brush( QColorGroup::Button ) );
 		p->drawRect( r );
 	    } else
-		drawPrimitive(PE_ButtonBevel, p, r, cg, flags | PStyle_Raised);
+		drawPrimitive(PE_ButtonBevel, p, r, cg, flags | Style_Raised);
 	} else
-	    drawPrimitive(PE_ButtonBevel, p, r, cg, (flags & PStyle_Enabled) |
-			  ((flags & PStyle_Down) ? PStyle_Down : PStyle_Raised));
+	    drawPrimitive(PE_ButtonBevel, p, r, cg, (flags & Style_Enabled) |
+			  ((flags & Style_Down) ? Style_Down : Style_Raised));
 
-	drawPrimitive(((flags & PStyle_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
+	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
 		      p, r, cg, flags);
 	break;
 
     case PE_ScrollBarAddLine:
 	if (use2000style) {
-	    if (flags & PStyle_Down) {
+	    if (flags & Style_Down) {
 		p->setPen( cg.dark() );
 		p->setBrush( cg.brush( QColorGroup::Button ) );
 		p->drawRect( r );
 	    } else
-		drawPrimitive(PE_ButtonBevel, p, r, cg, flags | PStyle_Raised);
+		drawPrimitive(PE_ButtonBevel, p, r, cg, flags | Style_Raised);
 	} else
-	    drawPrimitive(PE_ButtonBevel, p, r, cg, (flags & PStyle_Enabled) |
-			  ((flags & PStyle_Down) ? PStyle_Down : PStyle_Raised));
+	    drawPrimitive(PE_ButtonBevel, p, r, cg, (flags & Style_Enabled) |
+			  ((flags & Style_Down) ? Style_Down : Style_Raised));
 
-	drawPrimitive(((flags & PStyle_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
+	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
 		      p, r, cg, flags);
 	break;
 
@@ -368,7 +368,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen(NoPen);
 	    p->setBackgroundMode(OpaqueMode);
 
-	    if (flags & PStyle_Down) {
+	    if (flags & Style_Down) {
 		br = QBrush(cg.shadow(), Dense4Pattern);
 		p->setBackgroundColor( cg.dark() );
 		p->setBrush( QBrush(cg.shadow(), Dense4Pattern) );
@@ -385,7 +385,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_ScrollBarSlider:
-	if (! (flags & PStyle_Enabled)) {
+	if (! (flags & Style_Enabled)) {
 	    QBrush br = (cg.brush(QColorGroup::Light).pixmap() ?
 			 cg.brush(QColorGroup::Light) :
 			 QBrush(cg.light(), Dense4Pattern));
@@ -394,7 +394,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setBackgroundMode(OpaqueMode);
 	    p->drawRect(r);
 	} else
-	    drawPrimitive(PE_ButtonBevel, p, r, cg, PStyle_Enabled | PStyle_Raised);
+	    drawPrimitive(PE_ButtonBevel, p, r, cg, Style_Enabled | Style_Raised);
 	break;
 
     default:
@@ -426,11 +426,11 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		return;
 
 	    p->save();
-	    if ( flags & PStyle_Down )
+	    if ( flags & Style_Down )
 		p->translate( pixelMetric( PM_ButtonShiftHorizontal ),
 			      pixelMetric( PM_ButtonShiftVertical ) );
 
-	    if ( flags & PStyle_Enabled ) {
+	    if ( flags & Style_Enabled ) {
 		a.translate( r.x() + r.width() / 2, r.y() + r.height() / 2 );
 		p->setPen( cg.buttonText() );
 		p->drawLineSegments( a, 0, 3 );         // draw arrow
@@ -460,7 +460,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 const QWidget *widget,
 				 const QRect &r,
 				 const QColorGroup &cg,
-				 CFlags how,
+				 SFlags how,
 				 void **data ) const
 {
     switch (element) {
@@ -470,15 +470,15 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    QRect br = r;
 	    int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
 
-	    PFlags flags = PStyle_Default;
+	    SFlags flags = Style_Default;
 	    if (button->isEnabled())
-		flags |= PStyle_Enabled;
+		flags |= Style_Enabled;
 	    if (button->isDown())
-		flags |= PStyle_Down;
+		flags |= Style_Down;
 	    if (button->isOn())
-		flags |= PStyle_On;
-	    if (! button->isFlat() && ! (flags & PStyle_Down))
-		flags |= PStyle_Raised;
+		flags |= Style_On;
+	    if (! button->isFlat() && ! (flags & Style_Down))
+		flags |= Style_Raised;
 
 	    if (button->isDefault() || button->autoDefault()) {
 		if ( button->isDefault()) {
@@ -508,7 +508,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 
 	    const QTabBar * tb = (const QTabBar *) widget;
 	    bool lastIsCurrent = FALSE;
-	    bool selected = how & CStyle_Selected;
+	    bool selected = how & Style_Selected;
 
 	    if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
 		 tb->currentTab() == tb->indexOf(tb->count()-1) )
@@ -619,7 +619,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    int maxpmw = *((int *) data[2]);
 	    bool dis = ! mi->isEnabled();
 	    bool checkable = popupmenu->isCheckable();
-	    bool act = how & CStyle_Selected;
+	    bool act = how & Style_Selected;
 	    int x, y, w, h;
 
 	    r.rect(&x, &y, &w, &h);
@@ -693,11 +693,11 @@ void QWindowsStyle::drawControl( ControlElement element,
 		if ( mi->isChecked() ) {
 		    int xp = xpos + windowsItemFrame;
 
-		    PFlags cflags = PStyle_Default;
+		    SFlags cflags = Style_Default;
 		    if (! dis)
-			cflags |= PStyle_Enabled;
+			cflags |= Style_Enabled;
 		    if (act)
-			cflags |= PStyle_On;
+			cflags |= Style_On;
 
 		    drawPrimitive(PE_CheckMark, p,
 				  QRect(xp, y + windowsItemFrame,
@@ -775,10 +775,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 				    discol, white );
 
 		    drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-				  g2, PStyle_Enabled);
+				  g2, Style_Enabled);
 		} else {
 		    drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-				  cg, mi->isEnabled() ? PStyle_Enabled : PStyle_Default);
+				  cg, mi->isEnabled() ? Style_Enabled : Style_Default);
 		}
 	    }
 
@@ -788,9 +788,9 @@ void QWindowsStyle::drawControl( ControlElement element,
 
     case CE_MenuBarItem:
 	{
-	    bool active = how & CStyle_Active;
-	    bool hasFocus = how & CStyle_HasFocus;
-	    bool down = how & CStyle_Selected;
+	    bool active = how & Style_Active;
+	    bool hasFocus = how & Style_HasFocus;
+	    bool down = how & Style_Down;
 	    QRect pr = r;
 
 	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
@@ -1162,7 +1162,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QWidget *widget,
 					const QRect &r,
 					const QColorGroup &cg,
-					CFlags flags,
+					SFlags how,
 					SCFlags sub,
 					SCFlags subActive,
 					void **data ) const
@@ -1303,7 +1303,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	switch ( sub ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
 					      sub, subActive, data );
 	    break;
 	case SC_SpinWidgetFrame:
@@ -1315,7 +1315,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
 	if ( sub & SC_ComboBoxArrow ) {
-	    PFlags flags = PStyle_Default;
+	    SFlags flags = Style_Default;
 
 	    qDrawWinPanel( p, r, cg, TRUE, widget->isEnabled() ?
 			   &cg.brush( QColorGroup::Base ):
@@ -1334,10 +1334,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	    ar.addCoords( 2, 2, -2, -2 );
 	    if ( widget->isEnabled() )
-		flags |= PStyle_Enabled;
+		flags |= Style_Enabled;
 
-	    if ( subActive & PStyle_Sunken ) {
-		flags |= PStyle_Sunken;
+	    if ( subActive & Style_Sunken ) {
+		flags |= Style_Sunken;
 	    }
 	    drawPrimitive( PE_ArrowDown, p, ar, cg, flags );
 	}
@@ -1365,7 +1365,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), widget );
 		void *pdata[1];
 		pdata[0] = (void *) &cg.highlight();
-		drawPrimitive( PE_FocusRect, p, re, cg, PStyle_FocusAtBorder, pdata);
+		drawPrimitive( PE_FocusRect, p, re, cg, Style_FocusAtBorder, pdata);
 	    }
 	}
 
@@ -1416,7 +1416,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	if ( sub & SC_SliderTickmarks )
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
 					      SC_SliderTickmarks, subActive,
 					      data );
 
@@ -1628,7 +1628,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #endif // QT_NO_SLIDER
 
 	default:
-	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub,
+	    QCommonStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
 					      subActive, data );
 	break;
     }

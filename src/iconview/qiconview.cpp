@@ -414,7 +414,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 
 /*!
   \class QIconDragItem qiconview.h
-  \ingroup draganddrop 
+  \ingroup draganddrop
 
   \brief The QIconDragItem class encapsulates a drag item.
 
@@ -1963,8 +1963,8 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 				       textRect( FALSE ).width(),
 				       textRect( FALSE ).height() ), cg,
 				(isSelected() ?
-				 QStyle::PStyle_FocusAtBorder :
-				 QStyle::PStyle_Default),
+				 QStyle::Style_FocusAtBorder :
+				 QStyle::Style_Default),
 				data);
 
     if ( this != view->d->currentItem ) {
@@ -1974,7 +1974,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
 					   pixmapRect( FALSE ).y(),
 					   pixmapRect( FALSE ).width(),
 					   pixmapRect( FALSE ).height() ),
-				    cg, QStyle::PStyle_Default, data);
+				    cg, QStyle::Style_Default, data);
     }
 }
 
@@ -4930,7 +4930,7 @@ void QIconView::drawRubber( QPainter *p )
     style().drawPrimitive(QStyle::PE_FocusRect, p,
 			  QRect( pnt.x(), pnt.y(),
 				 d->rubber->width(), d->rubber->height() ),
-			  colorGroup(), QStyle::PStyle_Default, data);
+			  colorGroup(), QStyle::Style_Default, data);
 }
 
 /*!  Returns the QDragObject that should be used for
@@ -5146,9 +5146,9 @@ void QIconView::drawDragShapes( const QPoint &pos )
 		continue;
 
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, ir, colorGroup(),
-				  QStyle::PStyle_Default, data);
+				  QStyle::Style_Default, data);
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, colorGroup(),
-				  QStyle::PStyle_Default, data);
+				  QStyle::Style_Default, data);
 	}
 
 	p.end();
@@ -5161,7 +5161,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
 	    style().drawPrimitive(QStyle::PE_FocusRect, &p, r, colorGroup(),
-				  QStyle::PStyle_Default, data);
+				  QStyle::Style_Default, data);
 	}
 
 	p.end();

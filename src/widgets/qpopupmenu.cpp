@@ -1206,12 +1206,12 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 	QMenuItem dummy;
 	data[0] = &dummy;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
-			    (act ? QStyle::CStyle_Selected : QStyle::CStyle_Default),
+			    (act ? QStyle::Style_Selected : QStyle::Style_Default),
 			    data);
 	mi->custom()->paint( p, cg, act, !dis, x, y, w, h );
     } else
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
-			    (act ? QStyle::CStyle_Selected : QStyle::CStyle_Default),
+			    (act ? QStyle::Style_Selected : QStyle::Style_Default),
 			    data);
 }
 
@@ -1249,7 +1249,7 @@ void QPopupMenu::drawContents( QPainter* p )
 		data[2] = &maxPMWidth;
 		style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 				    QRect(x, y, itemw, contentsRect().bottom() - y),
-				    colorGroup(), QStyle::CStyle_Default, data);
+				    colorGroup(), QStyle::Style_Default, data);
 	    }
 	    y = contentsRect().y();
 	    x +=itemw;
@@ -1264,7 +1264,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	data[2] = &maxPMWidth;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this,
 			    QRect(x, y, itemw, contentsRect().bottom() - y),
-			    colorGroup(), QStyle::CStyle_Default, data);
+			    colorGroup(), QStyle::Style_Default, data);
     }
 }
 

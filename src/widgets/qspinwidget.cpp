@@ -98,7 +98,7 @@ QWidget * QSpinWidget::editWidget()
     return d->ed;
 }
 
-/*! 
+/*!
     Sets the editing widget to \a w.
 */
 void QSpinWidget::setEditWidget( QWidget * w )
@@ -300,7 +300,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 								   QStyle::SC_SpinWidgetFrame ), this );
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				fr, colorGroup(),
-				QStyle::CStyle_Default,
+				QStyle::Style_Default,
 				QStyle::SC_SpinWidgetFrame,
 				active );
 
@@ -308,7 +308,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 				d->up,
 				d->upEnabled ? colorGroup() :
 				palette().disabled(),
-				QStyle::CStyle_Default,
+				QStyle::Style_Default,
 				QStyle::SC_SpinWidgetUp,
 				active );
 
@@ -316,7 +316,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 				d->down,
 				d->downEnabled ? colorGroup() :
 				palette().disabled(),
-				QStyle::CStyle_Default,
+				QStyle::Style_Default,
 				QStyle::SC_SpinWidgetDown,
 				active );
 }

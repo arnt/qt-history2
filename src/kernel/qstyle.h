@@ -86,6 +86,7 @@ public:
 
     enum PrimitiveElement {
 	PE_ButtonCommand,
+	PE_ButtonDefault,
 	PE_ButtonBevel,
 	PE_ButtonTool,
 	PE_ButtonDropDown,
@@ -143,36 +144,34 @@ public:
 	PE_ProgressBarChunk
     };
 
-    enum PrimitiveElementFlags {
-	PStyle_Default = 		0x00000000,
-	PStyle_Enabled = 		0x00000001,
-	PStyle_Raised =			0x00000002,
-	PStyle_Sunken = 		0x00000004,
-	PStyle_Off =			0x00000008,
-	PStyle_NoChange =		0x00000010,
-	PStyle_On =			0x00000020,
-	PStyle_Down =			0x00000040,
-	PStyle_Horizontal =		0x00000080,
-	PStyle_Vertical =		0x00000100,
-	PStyle_HasFocus =		0x00000200,
-	PStyle_Top =			0x00000400,
-	PStyle_Bottom =			0x00000800,
-	PStyle_FocusAtBorder =		0x00001000,
-	PStyle_AutoRaise =		0x00002000,
-	PStyle_MouseOver =		0x00004000,
-	PStyle_Up =                     0x00008000
-
-	/*
-	  PStyle_FocusHighlight=	0x00000001,
-	*/
+    enum StyleFlags {
+	Style_Default = 		0x00000000,
+	Style_Enabled = 		0x00000001,
+	Style_Raised =			0x00000002,
+	Style_Sunken =	 		0x00000004,
+	Style_Off =			0x00000008,
+	Style_NoChange =		0x00000010,
+	Style_On =			0x00000020,
+	Style_Down =			0x00000040,
+	Style_Horizontal =		0x00000080,
+	Style_Vertical =		0x00000100,
+	Style_HasFocus =		0x00000200,
+	Style_Top =			0x00000400,
+	Style_Bottom =			0x00000800,
+	Style_FocusAtBorder =		0x00001000,
+	Style_AutoRaise =		0x00002000,
+	Style_MouseOver =		0x00004000,
+	Style_Up =			0x00008000,
+	Style_Selected =	 	0x00010000,
+	Style_Active =			0x00020000
     };
-    typedef uint PFlags;
+    typedef uint SFlags;
 
     virtual void drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
 				const QRect &r,
 				const QColorGroup &cg,
-				PFlags flags = PStyle_Default,
+				SFlags flags = Style_Default,
 				void **data = 0 ) const = 0;
 
 
@@ -197,20 +196,12 @@ public:
 	CE_MenuBarItem
     };
 
-    enum ControlElementFlags{
-	CStyle_Default = 		0x00000000,
-	CStyle_Selected =	 	0x00000001,
-	CStyle_HasFocus =		0x00000002,
-	CStyle_Active =			0x00000004
-    };
-    typedef uint CFlags;
-
     virtual void drawControl( ControlElement element,
 			      QPainter *p,
 			      const QWidget *widget,
 			      const QRect &r,
 			      const QColorGroup &cg,
-			      CFlags how = CStyle_Default,
+			      SFlags how = Style_Default,
 			      void **data = 0 ) const = 0;
     virtual void drawControlMask( ControlElement element,
 				  QPainter *p,
@@ -311,7 +302,7 @@ public:
 				     const QWidget *widget,
 				     const QRect &r,
 				     const QColorGroup &cg,
-				     CFlags flags = CStyle_Default,
+				     SFlags how = Style_Default,
 				     SCFlags sub = SC_All,
 				     SCFlags subActive = SC_None,
 				     void **data = 0 ) const = 0;

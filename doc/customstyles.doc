@@ -90,7 +90,7 @@ public:
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,
-			PFlags flags = PStyle_Default,
+			SFlags flags = Style_Default,
 			void **data = 0 ) const;
 
 private:
@@ -120,7 +120,7 @@ void CustomStyle::drawPrimitive( PrimitiveElement pe,
 				 QPainter *p,
 				 const QRect &r,
 				 const QColorGroup &cg,
-				 PFlags flags = PStyle_Default,
+				 SFlags flags = Style_Default,
 				 void **data = 0 ) const
 {
     // we are only interested in the arrows
@@ -162,7 +162,7 @@ void CustomStyle::drawPrimitive( PrimitiveElement pe,
 
 	// use different colors to indicate that the arrow is 
 	// enabled/disabled
-	if ( flags & PStyle_Enabled ) {
+	if ( flags & Style_Enabled ) {
 	    p->setPen( cg.mid() );
 	    p->setBrush( cg.brush( QColorGroup::ButtonText ) );
 	} else {

@@ -998,13 +998,13 @@ void QMenuBar::drawContents( QPainter *p )
 
 	    void *data[1];
 	    data[0] = (void *) mi;
-	    QStyle::CFlags flags = QStyle::CStyle_Default;
+	    QStyle::SFlags flags = QStyle::Style_Default;
 	    if ( i == actItem )
-		flags |= QStyle::CStyle_Active;
+		flags |= QStyle::Style_Active;
 	    if ( actItemDown )
-		flags |= QStyle::CStyle_Selected;
+		flags |= QStyle::Style_Down;
 	    if (hasFocus() || hasmouse || popupvisible)
-		flags |= QStyle::CStyle_HasFocus;
+		flags |= QStyle::Style_HasFocus;
 	    style().drawControl(QStyle::CE_MenuBarItem, buffer.painter(), this,
 				r, g, flags, data);
 	}

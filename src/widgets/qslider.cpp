@@ -371,7 +371,7 @@ void QSlider::paintEvent( QPaintEvent * )
     data[0] = (void *) &sliderPos;
     style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(),
 				colorGroup(),
-				QStyle::CStyle_Default,
+				QStyle::Style_Default,
 				QStyle::SC_All,
 				QStyle::SC_None,
 				data );

@@ -856,7 +856,7 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
     void *data[1];
     data[0] = (void *) &sliderPos;
     style().drawComplexControl(QStyle::CC_ScrollBar, p, this, rect(), colorGroup(),
-			       QStyle::CStyle_Default,
+			       QStyle::Style_Default,
 			       (QStyle::SubControl) controls,
 			       (QStyle::SubControl) activeControl,
 			       data);

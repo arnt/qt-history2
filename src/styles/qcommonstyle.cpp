@@ -113,13 +113,13 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 				  QPainter *p,
 				  const QRect &r,
 				  const QColorGroup &cg,
-				  PFlags flags,
+				  SFlags flags,
 				  void **data ) const
 {
     switch (pe) {
     case PE_HeaderArrow:
 	p->save();
-	if ( flags & PStyle_Down ) {
+	if ( flags & Style_Down ) {
 	    QPointArray pa( 3 );
 	    p->setPen( cg.light() );
 	    p->drawLine( r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height() );
@@ -150,13 +150,13 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonTool:
     case PE_ButtonDropDown:
     case PE_HeaderSection:
-	qDrawShadePanel(p, r, cg, flags & (PStyle_Sunken | PStyle_Down | PStyle_On) , 1,
+	qDrawShadePanel(p, r, cg, flags & (Style_Sunken | Style_Down | Style_On) , 1,
 			&cg.brush(QColorGroup::Button));
 	break;
 
     case PE_Separator:
 	qDrawShadeLine( p, r.left(), r.top(), r.right(), r.bottom(), cg,
-			flags & PStyle_Sunken, 1, 0);
+			flags & Style_Sunken, 1, 0);
 	break;
 
     case PE_FocusRect: {
@@ -177,7 +177,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	} else
 	    p->setPen(cg.foreground());
 
-	if (flags & PStyle_FocusAtBorder)
+	if (flags & Style_FocusAtBorder)
 	    p->drawRect(QRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2));
 	else
 	    p->drawRect(r);
@@ -244,7 +244,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    a.setPoints( 3,  0, sh-1,  sw-1, sh-1,  sh-2, 1 );
 	int bsx = 0;
 	int bsy = 0;
-	if ( flags & PStyle_Sunken ) {
+	if ( flags & Style_Sunken ) {
 	    bsx = pixelMetric(PM_ButtonShiftHorizontal);
 	    bsy = pixelMetric(PM_ButtonShiftVertical);
 	}
@@ -256,14 +256,14 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 
     case PE_Indicator: {
-	if (flags & PStyle_NoChange) {
+	if (flags & Style_NoChange) {
 	    p->setPen(cg.foreground());
 	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	    p->drawRect(r);
 	    p->drawLine(r.topLeft(), r.bottomRight());
 	} else
 	    qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(),
-			    cg, flags & (PStyle_Sunken | PStyle_On), 1,
+			    cg, flags & (Style_Sunken | Style_On), 1,
 			    &cg.brush(QColorGroup::Button));
 	break; }
 
@@ -276,7 +276,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	p->setPen(cg.dark());
 	p->drawArc(r, 0, 5760);
 
-	if (flags & (PStyle_Sunken | PStyle_On)) {
+	if (flags & (Style_Sunken | Style_On)) {
 	    ir.addCoords(2, 2, -2, -2);
 	    p->setBrush(cg.foreground());
 	    p->drawEllipse(ir);
@@ -291,11 +291,11 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 
     case PE_DockWindowHandle: {
-	bool highlight = flags & PStyle_On;
+	bool highlight = flags & Style_On;
 
 	p->save();
 	p->translate( r.x(), r.y() );
-	if ( flags & PStyle_Vertical ) {
+	if ( flags & Style_Vertical ) {
 	    if ( r.width() > 4 ) {
 		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
 				 cg, highlight, 1, 0 );
@@ -316,7 +316,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_DockWindowSeparator: {
 	QPoint p1, p2;
-	if ( flags & PStyle_Vertical ) {
+	if ( flags & Style_Vertical ) {
 	    p1 = QPoint( 0, r.height()/2 );
 	    p2 = QPoint( r.width(), p1.y() );
 	} else {
@@ -332,7 +332,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	if (data)
 	    lw = *((int *) data[0]);
 
-	qDrawShadePanel(p, r, cg, (flags & PStyle_Sunken), lw);
+	qDrawShadePanel(p, r, cg, (flags & Style_Sunken), lw);
 	break; }
 
     case PE_PanelDockWindow: {
@@ -417,7 +417,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    a.setPoint( 2*i+1, xx, yy+2 );
 	    xx++; yy--;
 	}
-	if ( !(flags & PStyle_Enabled) && !(flags & PStyle_On)) {
+	if ( !(flags & Style_Enabled) && !(flags & Style_On)) {
 	    int pnt;
 	    p->setPen( cg.highlightedText() );
 	    QPoint offset(1,1);
@@ -500,7 +500,7 @@ void QCommonStyle::drawControl( ControlElement element,
 				const QWidget *widget,
 				const QRect &r,
 				const QColorGroup &cg,
-				CFlags how,
+				SFlags how,
 				void **data ) const
 {
 #if defined(QT_CHECK_STATE)
@@ -510,9 +510,9 @@ void QCommonStyle::drawControl( ControlElement element,
     }
 #endif
 
-    PFlags flags = PStyle_Default;
+    SFlags flags = Style_Default;
     if (widget->isEnabled())
-	flags |= PStyle_Enabled;
+	flags |= Style_Enabled;
 
     switch (element) {
     case CE_PushButton:
@@ -520,11 +520,11 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QPushButton *button = (const QPushButton *) widget;
 
 	    if (button->isOn())
-		flags |= PStyle_On;
+		flags |= Style_On;
 	    if (button->isDown())
-		flags |= PStyle_Down;
-	    else if (! button->isFlat() && ! (flags & PStyle_Sunken))
-		flags |= PStyle_Raised;
+		flags |= Style_Down;
+	    else if (! button->isFlat() && ! (flags & Style_Sunken))
+		flags |= Style_Raised;
 
 	    drawPrimitive(PE_ButtonCommand, p, r, cg, flags, data);
 	    break;
@@ -536,7 +536,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    QRect ir = r;
 
 	    if (button->isDown() || button->isOn()) {
-		flags |= PStyle_Sunken;
+		flags |= Style_Sunken;
 		ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 			  pixelMetric(PM_ButtonShiftVertical, widget));
 	    }
@@ -568,7 +568,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    }
 
 	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
-		     flags & PStyle_Enabled, button->pixmap(), button->text());
+		     flags & Style_Enabled, button->pixmap(), button->text());
 
 	    if (button->hasFocus())
 		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
@@ -592,13 +592,13 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    if (checkbox->isDown())
-		flags |= PStyle_Down;
+		flags |= Style_Down;
 	    if (checkbox->state() == QButton::On)
-		flags |= PStyle_On;
+		flags |= Style_On;
 	    else if (checkbox->state() == QButton::Off)
-		flags |= PStyle_Off;
+		flags |= Style_Off;
 	    else if (checkbox->state() == QButton::NoChange)
-		flags |= PStyle_NoChange;
+		flags |= Style_NoChange;
 
 	    drawPrimitive(PE_Indicator, p, ir, cg, flags, data);
 	    break;
@@ -610,7 +610,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
-		     flags & PStyle_Enabled, checkbox->pixmap(), checkbox->text());
+		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
 	    if (checkbox->hasFocus()) {
 		QRect fr = subRect(SR_CheckBoxFocusRect, widget);
@@ -636,11 +636,11 @@ void QCommonStyle::drawControl( ControlElement element,
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    if (radiobutton->isDown())
-		flags |= PStyle_Down;
+		flags |= Style_Down;
 	    if (radiobutton->state() == QButton::On)
-		flags |= PStyle_On;
+		flags |= Style_On;
 	    else if (radiobutton->state() == QButton::Off)
-		flags |= PStyle_Off;
+		flags |= Style_Off;
 
 	    drawPrimitive(PE_ExclusiveIndicator, p, ir, cg, flags, data);
 	    break;
@@ -652,7 +652,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
 	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
-		     flags & PStyle_Enabled, radiobutton->pixmap(), radiobutton->text());
+		     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
 	    if (radiobutton->hasFocus()) {
 		QRect fr = subRect(SR_RadioButtonFocusRect, widget);
@@ -694,7 +694,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		a.translate( r.left(), r.top() );
 
-		if ( how & CStyle_Selected )
+		if ( how & Style_Selected )
 		    p->setBrush( cg.base() );
 		else
 		    p->setBrush( cg.background() );
@@ -771,7 +771,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
-				   cg, PStyle_Default, data );
+				   cg, Style_Default, data );
 		    x += reverse ? -unit_width: unit_width;
 		}
 	    }
@@ -817,15 +817,15 @@ void QCommonStyle::drawControlMask( ControlElement control,
 
     switch (control) {
     case CE_PushButton:
-	drawPrimitive(PE_ButtonCommand, p, r, cg, PStyle_Default, data);
+	drawPrimitive(PE_ButtonCommand, p, r, cg, Style_Default, data);
 	break;
 
     case CE_CheckBox:
-	drawPrimitive(PE_IndicatorMask, p, r, cg, PStyle_Default, data);
+	drawPrimitive(PE_IndicatorMask, p, r, cg, Style_Default, data);
 	break;
 
     case CE_RadioButton:
-	drawPrimitive(PE_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
+	drawPrimitive(PE_ExclusiveIndicatorMask, p, r, cg, Style_Default, data);
 	break;
 
     default:
@@ -1054,7 +1054,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       const QWidget *widget,
 				       const QRect &r,
 				       const QColorGroup &cg,
-				       CFlags,
+				       SFlags how,
 				       SCFlags controls,
 				       SCFlags active,
 				       void **data ) const
@@ -1084,59 +1084,59 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 
        	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
 		drawPrimitive(PE_ScrollBarSubLine, p, subline, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSubLine) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
 	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
 		drawPrimitive(PE_ScrollBarAddLine, p, addline, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddLine) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
 	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
 		drawPrimitive(PE_ScrollBarSubPage, p, subpage, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSubPage) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
 	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
 		drawPrimitive(PE_ScrollBarAddPage, p, addpage, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarAddPage) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
        	    if ((controls & SC_ScrollBarFirst) && first.isValid())
 		drawPrimitive(PE_ScrollBarFirst, p, first, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarFirst) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
 	    if ((controls & SC_ScrollBarLast) && last.isValid())
 		drawPrimitive(PE_ScrollBarLast, p, last, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarLast) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
 	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
 		drawPrimitive(PE_ScrollBarSlider, p, slider, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((maxedOut) ? Style_Default : Style_Enabled) |
 			      ((active == SC_ScrollBarSlider) ?
-			       PStyle_Down : PStyle_Default) |
+			       Style_Down : Style_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
-			       PStyle_Horizontal : PStyle_Vertical));
+			       Style_Horizontal : Style_Vertical));
 
 		// ### perhaps this should not be able to accept focus if maxedOut?
 		if (scrollbar->hasFocus()) {
 		    QRect fr(slider.x() + 2, slider.y() + 2,
 			     slider.width() - 5, slider.height() - 5);
-		    drawPrimitive(PE_FocusRect, p, fr, cg, PStyle_Default);
+		    drawPrimitive(PE_FocusRect, p, fr, cg, Style_Default);
 		}
 	    }
 
@@ -1166,47 +1166,47 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		arrowType  = *((Qt::ArrowType *) data[2]);
 	    }
 
-	    PFlags bflags = PStyle_Default,
-		   mflags = PStyle_Default;
+	    SFlags bflags = Style_Default,
+		   mflags = Style_Default;
 
 	    if (toolbutton->isEnabled()) {
-		bflags |= PStyle_Enabled;
-		mflags |= PStyle_Enabled;
+		bflags |= Style_Enabled;
+		mflags |= Style_Enabled;
 	    }
 
 	    if (down) {
-		bflags |= PStyle_Down;
-		mflags |= PStyle_Down;
+		bflags |= Style_Down;
+		mflags |= Style_Down;
 	    }
 	    if (on) {
-		bflags |= PStyle_On;
-		mflags |= PStyle_On;
+		bflags |= Style_On;
+		mflags |= Style_On;
 	    }
 	    if (autoraise) {
-		bflags |= PStyle_AutoRaise;
-		mflags |= PStyle_AutoRaise;
+		bflags |= Style_AutoRaise;
+		mflags |= Style_AutoRaise;
 
 		if (use3d) {
-		    bflags |= PStyle_MouseOver;
-		    mflags |= PStyle_MouseOver;
+		    bflags |= Style_MouseOver;
+		    mflags |= Style_MouseOver;
 
 		    if (active & SC_ToolButton)
-			bflags |= PStyle_Down;
+			bflags |= Style_Down;
 		    if (active & SC_ToolButtonMenu)
-			mflags |= PStyle_Down;
+			mflags |= Style_Down;
 
 		    if (! on && ! down) {
-			bflags |= PStyle_Raised;
-			mflags |= PStyle_Raised;
+			bflags |= Style_Raised;
+			mflags |= Style_Raised;
 		    }
 		}
 	    } else if (! on && ! down) {
-		bflags |= PStyle_Raised;
-		mflags |= PStyle_Raised;
+		bflags |= Style_Raised;
+		mflags |= Style_Raised;
 	    }
 
 	    if (controls & SC_ToolButton) {
-		if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+		if (bflags & (Style_Down | Style_On | Style_Raised))
 		    drawPrimitive(PE_ButtonTool, p, button, cg, bflags, data);
 		else if ( toolbutton->parentWidget() &&
 			  toolbutton->parentWidget()->backgroundPixmap() &&
@@ -1214,7 +1214,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
 					toolbutton->pos() );
 
-		if (bflags & (PStyle_Down | PStyle_On))
+		if (bflags & (Style_Down | Style_On))
 		    button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
 				  pixelMetric(PM_ButtonShiftVertical, widget));
 
@@ -1236,7 +1236,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			! toolbutton->text().isNull() &&
 			! toolbutton->usesTextLabel()) {
 			drawItem(p, button, AlignCenter | ShowPrefix, cg,
-				 bflags & PStyle_Enabled, 0, toolbutton->text(),
+				 bflags & Style_Enabled, 0, toolbutton->text(),
 				 toolbutton->text().length(), &btext);
 		    } else {
 			QPixmap pm;
@@ -1247,7 +1247,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			QIconSet::Mode mode;
 			if (! toolbutton->isEnabled())
 			    mode = QIconSet::Disabled;
-			else if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+			else if (bflags & (Style_Down | Style_On | Style_Raised))
 			    mode = QIconSet::Active;
 			else
 			    mode = QIconSet::Normal;
@@ -1262,7 +1262,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			    tr.addCoords(0, tr.height() - fh, 0, 0);
 			    drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
 			    drawItem( p, tr, AlignCenter | ShowPrefix, cg,
-				      bflags & PStyle_Enabled, 0, toolbutton->textLabel(),
+				      bflags & Style_Enabled, 0, toolbutton->textLabel(),
 				      toolbutton->textLabel().length(), &btext);
 			} else
 			    drawItem( p, button, AlignCenter, cg, TRUE, &pm, QString::null );
@@ -1271,7 +1271,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    }
 
 	    if (controls & SC_ToolButtonMenu) {
-		if (mflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+		if (mflags & (Style_Down | Style_On | Style_Raised))
 		    drawPrimitive(PE_ButtonDropDown, p, menuarea, cg, mflags, data);
 		drawPrimitive(PE_ArrowDown, p, menuarea, cg, mflags, data);
 	    }
@@ -1337,7 +1337,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		bool down = active & SC_TitleBarCloseButton;
 		QPixmap pm(stylePixmap(SP_TitleBarCloseButton, widget));
 		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
-			      down ? PStyle_Down : PStyle_Raised);
+			      down ? Style_Down : Style_Raised);
 		int xoff = 0, yoff = 0;
 		if (down) {
 		    xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -1354,7 +1354,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		down = active & SC_TitleBarMaxButton;
 		pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
 		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
-			      down ? PStyle_Down : PStyle_Raised);
+			      down ? Style_Down : Style_Raised);
 		xoff = 0;
 		yoff = 0;
 		if(down) {
@@ -1377,7 +1377,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		down = active & ctrl;
 		pm = QPixmap(stylePixmap(spixmap, widget));
 		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
-			      down ? PStyle_Down : PStyle_Raised);
+			      down ? Style_Down : Style_Raised);
 		xoff=0, yoff=0;
 		if(down) {
 		    xoff = pixelMetric(PM_ButtonShiftHorizontal);
@@ -1407,16 +1407,16 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown: {
 	    const QSpinWidget * sw = (const QSpinWidget *) widget;
-	    PFlags flags = PStyle_Default;
+	    SFlags flags = Style_Default;
 	    PrimitiveElement pe = (controls == SC_SpinWidgetUp) ?
-				    PE_SpinWidgetUp : PE_SpinWidgetDown;
+				  PE_SpinWidgetUp : PE_SpinWidgetDown;
 
-	    flags |= PStyle_Enabled;
+	    flags |= Style_Enabled;
 	    if (active == controls ) {
-		flags |= PStyle_On;
-		flags |= PStyle_Sunken;
+		flags |= Style_On;
+		flags |= Style_Sunken;
 	    } else
-		flags |= PStyle_Raised;
+		flags |= Style_Raised;
 
 	    if ( sw->buttonSymbols() == QSpinWidget::PlusMinus ) {
 		if ( controls == SC_SpinWidgetUp )
