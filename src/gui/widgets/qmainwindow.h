@@ -51,6 +51,7 @@ public:
     inline QT_COMPAT void setCentralWidget(QWidget *w) { setCenterWidget(w); }
     inline QT_COMPAT QWidget *centralWidget() const { return centerWidget(); }
 #endif
+
 protected:
     void childEvent(QChildEvent *event);
     bool event(QEvent *event);

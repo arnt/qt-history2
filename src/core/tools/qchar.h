@@ -177,7 +177,7 @@ public:
     Joining joining() const;
     bool hasMirrored() const;
 #ifdef QT_COMPAT
-    inline bool mirrored() const { return hasMirrored(); }
+    inline QT_COMPAT bool mirrored() const { return hasMirrored(); }
 #endif
     QChar mirroredChar() const;
     QString decomposition() const;

@@ -38,7 +38,7 @@ public:
     QPalette(const QColor &foreground, const QColor &background, const QColor &light,
              const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
 #ifdef QT_COMPAT
-    QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
+    QT_COMPAT_CONSTRUCTOR QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
 #endif
     QPalette(const QPalette &palette);
     ~QPalette();
@@ -90,7 +90,7 @@ public:
     inline const QBrush &linkVisited() const { return brush(LinkVisited); }
 
 #ifdef QT_COMPAT
-    QT_COMPAT QPalette copy() const { QPalette p = *this; p.detach(); return p; }
+    inline QT_COMPAT QPalette copy() const { QPalette p = *this; p.detach(); return p; }
     QT_COMPAT QColorGroup normal() const;
     inline QT_COMPAT void setNormal(const QColorGroup &cg) { setColorGroup(Active, cg); }
 
@@ -98,8 +98,8 @@ public:
     QT_COMPAT QColorGroup disabled() const;
     QT_COMPAT QColorGroup inactive() const;
     inline QT_COMPAT void setActive(const QColorGroup &cg) { setColorGroup(Active, cg); }
-    QT_COMPAT void setDisabled(const QColorGroup &cg) { setColorGroup(Disabled, cg); }
-    QT_COMPAT void setInactive(const QColorGroup &cg) { setColorGroup(Inactive, cg); }
+    inline QT_COMPAT void setDisabled(const QColorGroup &cg) { setColorGroup(Disabled, cg); }
+    inline QT_COMPAT void setInactive(const QColorGroup &cg) { setColorGroup(Inactive, cg); }
 #endif
 
     bool operator==(const QPalette &p) const;

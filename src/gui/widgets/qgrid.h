@@ -32,8 +32,8 @@ public:
     void setSpacing(int);
 
 #ifdef QT_COMPAT
-    QGrid(int n, QWidget* parent, const char* name, Qt::WFlags f);
-    QGrid(int n, Qt::Orientation orient, QWidget* parent, const char* name, Qt::WFlags f);
+    QT_COMPAT_CONSTRUCTOR QGrid(int n, QWidget* parent, const char* name, Qt::WFlags f);
+    QT_COMPAT_CONSTRUCTOR QGrid(int n, Qt::Orientation orient, QWidget* parent, const char* name, Qt::WFlags f);
     typedef Qt::Orientation Direction;
 #endif
 

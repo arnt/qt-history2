@@ -96,7 +96,6 @@ private:
     QFontDatabasePrivate *d;
 };
 
-
 #ifdef QT_COMPAT
 inline QStringList QFontDatabase::families(bool) const
 {

@@ -755,18 +755,16 @@ public:
 
 private:
 #ifdef QT_COMPAT
-    // cause a compile error when trying to use style functions that
-    // accept QColorGroup arguments... remove 5.x
+    // Cause a compile error when trying to use style functions that
+    // accept QColorGroup arguments. Remove in Qt 5.x.
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
                    int flags, const QColorGroup &colorgroup, bool enabled,
                    const QString &text, int len = -1,
                    const QColor *penColor = 0) const;
-
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
                    int flags, const QColorGroup colorgroup, bool enabled,
                    const QPixmap &pixmap,
                    const QColor *penColor = 0) const;
-
     void QT_COMPAT drawItem(QPainter *p, const QRect &r,
                    int flags, const QColorGroup colorgroup, bool enabled,
                    const QPixmap *pixmap,

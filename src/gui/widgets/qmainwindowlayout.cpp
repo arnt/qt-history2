@@ -1150,11 +1150,10 @@ int QMainWindowLayout::constrain(QDockWindowLayout *dock, int delta)
     } else if (info[RIGHT].item && info[RIGHT].item->layout() == dock) {
         pos = RIGHT;
         delta = -delta;
-    } else if (info[BOTTOM].item && info[BOTTOM].item->layout() == dock) {
+    } else {
+        Q_ASSERT(info[BOTTOM].item && info[BOTTOM].item->layout() == dock);
         pos = BOTTOM;
         delta = -delta;
-    } else {
-        Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
     }
 
     // remove delta from 'dock'

@@ -98,7 +98,7 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
+    QT_COMPAT_CONSTRUCTOR QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
 #endif
 };
 

@@ -218,7 +218,6 @@ public:
     inline static QT_COMPAT void setGlobalMouseTracking(bool) {};
     inline static QT_COMPAT void flushX() { flush(); }
 #ifndef QT_NO_PALETTE
-    // obsolete functions
     static inline QT_COMPAT void setWinStyleHighlightColor(const QColor &c) {
         QPalette p(palette());
         p.setColor(QPalette::Highlight, c);
@@ -236,8 +235,8 @@ public:
         { QWidget *w = widgetAt(x, y); return child ? w : (w ? w->topLevelWidget() : 0); }
     static inline QT_COMPAT QWidget *widgetAt(const QPoint &p, bool child)
         { QWidget *w = widgetAt(p); return child ? w : (w ? w->topLevelWidget() : 0); }
-
 #endif // QT_COMPAT
+
 private:
     static QWidget *widgetAt_sys(int x, int y);
     bool notify_helper(QObject *receiver, QEvent * e);

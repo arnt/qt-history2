@@ -369,10 +369,10 @@ public:
     inline QT_COMPAT QString &replace(const QString &before, const QString &after, bool cs)
     { return replace(before, after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
 #ifndef QT_NO_CAST_FROM_ASCII
-    QString &replace(char c, const QString &after, bool cs)
+    inline QT_COMPAT QString &replace(char c, const QString &after, bool cs)
     { return replace(QChar(c), after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
     // strange overload, required to avoid GCC 3.3 error
-    QString &replace(char c, const QString &after, Qt::CaseSensitivity cs)
+    inline QT_COMPAT QString &replace(char c, const QString &after, Qt::CaseSensitivity cs)
     { return replace(QChar(c), after, cs?Qt::CaseSensitive:Qt::CaseInsensitive); }
 #endif
     inline QT_COMPAT int find(QChar c, int i = 0, bool cs = true) const
@@ -612,7 +612,7 @@ public:
     QChar::Joining joining() const { return ((QChar)*this).joining(); }
     bool hasMirrored() const { return ((QChar)*this).hasMirrored(); }
 #ifdef QT_COMPAT
-    bool QT_COMPAT mirrored() const { return hasMirrored(); }
+    inline bool QT_COMPAT mirrored() const { return hasMirrored(); }
 #endif
     QChar mirroredChar() const { return ((QChar)*this).mirroredChar(); }
     QString decomposition() const { return ((QChar)*this).decomposition(); }

@@ -58,11 +58,11 @@ protected:
 #ifdef QT_COMPAT
 public:
     inline QT_COMPAT void setNoChange() { setState(NoChange); }
-    QCheckBox(QWidget *parent, const char* name);
-    QCheckBox(const QString &text, QWidget *parent, const char* name);
-
+    QT_COMPAT_CONSTRUCTOR QCheckBox(QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QCheckBox(const QString &text, QWidget *parent, const char* name);
 #endif
-private:        // Disabled copy constructor and operator=
+
+private:
 #if defined(Q_DISABLE_COPY)
     QCheckBox(const QCheckBox &);
     QCheckBox &operator=(const QCheckBox &);

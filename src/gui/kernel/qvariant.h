@@ -72,7 +72,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #ifndef QT_NO_PALETTE
     inline QVariant(const QPalette &palette);
 #ifdef QT_COMPAT
-    inline QVariant(const QColorGroup &cg);
+    inline QT_COMPAT_CONSTRUCTOR QVariant(const QColorGroup &cg);
 #endif // QT_COMPAT
 #endif // QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
@@ -103,7 +103,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(double d);
     inline QVariant(bool b);
 #ifdef QT_COMPAT
-    inline QVariant(bool b, int);
+    inline QT_COMPAT_CONSTRUCTOR QVariant(bool b, int);
 #endif
 
     inline QVariant(const char *str);
@@ -151,7 +151,6 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QPoint toPoint() const;
     QRect toRect() const;
     QSize toSize() const;
-
 
 #ifdef QT_COMPAT
     QT_COMPAT QPoint &asPoint();

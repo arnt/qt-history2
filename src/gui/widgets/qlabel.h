@@ -107,10 +107,13 @@ public:
            Qt::WFlags f=0);
     QT_COMPAT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
            QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
-    void setAlignment(int alignment);
+    QT_COMPAT void setAlignment(int alignment);
+
+    // don't mark the next function with QT_COMPAT
+    inline void setAlignment(Qt::AlignmentFlag flag) { setAlignment((Qt::Alignment)flag); }
 #endif
 
-private: // Disabled copy constructor and operator=
+private:
     friend class QTipLabel;
 
 #if defined(Q_DISABLE_COPY)

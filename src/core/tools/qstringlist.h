@@ -73,8 +73,8 @@ public:
         { return replace(before, after, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
     inline QT_COMPAT QStringList &gres(const QRegExp &rx, const QString &after)
         { return replace(rx, after); }
-    Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }
-    ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
+    inline Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }
+    inline ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
 };
 

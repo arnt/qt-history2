@@ -72,7 +72,7 @@ class Q_GUI_EXPORT QListWidget : public QListView
 
 public:
 #ifdef QT_COMPAT
-    QListWidget(QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QListWidget(QWidget *parent, const char* name);
 #endif
     QListWidget(QWidget *parent = 0);
     ~QListWidget();

@@ -32,8 +32,7 @@ public:
     QPointArray(int nPoints, const QCOORD *points);
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT QPointArray copy() const
-        { return *this; }
+    inline QT_COMPAT QPointArray copy() const { return *this; }
     inline QT_COMPAT bool isNull() { return isEmpty(); }
 #endif
 

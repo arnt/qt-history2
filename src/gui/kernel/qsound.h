@@ -43,7 +43,7 @@ public:
     */
 
 #ifdef QT_COMPAT
-    static QT_COMPAT bool available() { return isAvailable(); }
+    static inline QT_COMPAT bool available() { return isAvailable(); }
 #endif
 
     int loops() const;

@@ -52,7 +52,7 @@ protected:
     ushort        devFlags;                        // device flags
     ushort        painters;                        // refcount
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QPaintDevice(const QPaintDevice &);
     QPaintDevice &operator=(const QPaintDevice &);
@@ -83,6 +83,7 @@ public:
     static QT_COMPAT void x11SetAppDpiX(int, int);
     static QT_COMPAT void x11SetAppDpiY(int, int);
 #endif
+
     friend class QPainter;
     friend class QPaintDeviceMetrics;
     friend class QQuickDrawPaintEngine;

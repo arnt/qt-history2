@@ -74,10 +74,9 @@ public slots:
 signals:
     void currentChanged(int index);
 
-
 #ifdef QT_COMPAT
 public slots:
-    QT_MOC_COMPAT void setCurrentTab(int index) {setCurrentIndex(index); }
+    QT_MOC_COMPAT void setCurrentTab(int index) { setCurrentIndex(index); }
 signals:
     QT_MOC_COMPAT void selected(int);
 #endif

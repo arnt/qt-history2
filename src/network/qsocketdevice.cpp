@@ -107,6 +107,8 @@ QSocketDevicePrivate::~QSocketDevicePrivate()
     \value NetworkFailure  There is a network failure.
 
     \value UnknownError    The operating system did something unexpected.
+
+    \omitvalue Bug
 */
 
 /*!

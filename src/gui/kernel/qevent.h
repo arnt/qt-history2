@@ -140,14 +140,14 @@ public:
     }
     int    key()        const   { return k; }
 #ifdef QT_COMPAT
-    /*QT_COMPAT*/ QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text = QString::null,
+    inline QT_COMPAT_CONSTRUCTOR QKeyEvent( Type type, int key, int /*ascii*/, int state, const QString& text = QString::null,
                              bool autorep = FALSE, ushort count = 1 )
         : QInputEvent(type), txt(text), k(key), s((ushort)state), c(count), autor(autorep)
     {
         if ( key >= Qt::Key_Back && key <= Qt::Key_MediaLast )
             ignore();
     }
-    QT_COMPAT int          ascii()      const   {
+    inline QT_COMPAT int ascii() const {
         return (txt.length() ? txt.unicode()->latin1() : 0);
     }
 #endif
@@ -203,12 +203,13 @@ public:
           rec(paintRect),
           reg(paintRegion){}
 
-    const QRect &rect()         const { return rec; }
-    const QRegion &region()     const { return reg; }
+    inline const QRect &rect()         const { return rec; }
+    inline const QRegion &region()     const { return reg; }
 
 #ifdef QT_COMPAT
-    QT_COMPAT bool erased()     const { return true; }
+    inline QT_COMPAT bool erased()     const { return true; }
 #endif
+
 protected:
     friend class QApplication;
     friend class QCoreApplication;

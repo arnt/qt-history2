@@ -72,7 +72,7 @@
 */
 
 QProgressBar::QProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(parent, name, f),
+    : QFrame(parent, f),
       total_steps(100),
       progress_val(-1),
       percentage(-1),
@@ -81,7 +81,8 @@ QProgressBar::QProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
       percentage_visible(true),
       d(0)
 {
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    setObjectName(name);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     initFrame();
 }
 
@@ -101,9 +102,8 @@ QProgressBar::QProgressBar(QWidget *parent, const char *name, Qt::WFlags f)
     \sa setTotalSteps(), setProgress()
 */
 
-QProgressBar::QProgressBar(int totalSteps,
-                            QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(parent, name, f),
+QProgressBar::QProgressBar(int totalSteps, QWidget *parent, const char *name, Qt::WFlags f)
+    : QFrame(parent, f),
       total_steps(totalSteps),
       progress_val(-1),
       percentage(-1),
@@ -112,7 +112,8 @@ QProgressBar::QProgressBar(int totalSteps,
       percentage_visible(true),
       d(0)
 {
-    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    setObjectName(name);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     initFrame();
 }
 #endif

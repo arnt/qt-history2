@@ -144,9 +144,9 @@ public:
     QByteArray rightJustified(int width, char fill = ' ', bool truncate = false) const;
 
 #ifdef QT_COMPAT
-    inline QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
+    inline QT_COMPAT QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
     { return leftJustified((int)width, fill, truncate); }
-    inline QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
+    inline QT_COMPAT QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
     { return rightJustified((int)width, fill, truncate); }
 #endif
 
@@ -253,14 +253,12 @@ public:
     // compatibility
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QByteArray(int size);
-    QT_COMPAT QByteArray& duplicate(const QByteArray& a)
-    { *this = a; return *this; }
-    QT_COMPAT QByteArray& duplicate(const char *a, uint n)
+    inline QT_COMPAT QByteArray& duplicate(const QByteArray& a) { *this = a; return *this; }
+    inline QT_COMPAT QByteArray& duplicate(const char *a, uint n)
     { *this = QByteArray(a, n); return *this; }
-    QT_COMPAT QByteArray& setRawData(const char *a, uint n)
+    inline QT_COMPAT QByteArray& setRawData(const char *a, uint n)
     { *this = fromRawData(a, n); return *this; }
-    QT_COMPAT void resetRawData(const char *, uint)
-    { clear(); }
+    inline QT_COMPAT void resetRawData(const char *, uint) { clear(); }
     inline QT_COMPAT QByteArray lower() const { return toLower(); }
     inline QT_COMPAT QByteArray upper() const { return toUpper(); }
     inline QT_COMPAT QByteArray stripWhiteSpace() const { return trimmed(); }

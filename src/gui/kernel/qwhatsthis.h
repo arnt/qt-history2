@@ -25,6 +25,7 @@
 #ifdef QT_COMPAT
 class QToolButton;
 #endif
+
 class Q_GUI_EXPORT QWhatsThis
 {
     QWhatsThis();

@@ -61,7 +61,7 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT void rgb(int *r, int *g, int *b) const;
     inline QT_COMPAT void hsv(int *h, int *s, int *v) const { getHsv(h, s, v); }
-    inline QT_COMPAT void getHsv(int &h, int &s, int &v) const { getHsv(&h, &s, &v); } // obsolete
+    inline QT_COMPAT void getHsv(int &h, int &s, int &v) const { getHsv(&h, &s, &v); }
 #endif
 
     QColor light(int f = 150) const;

@@ -859,6 +859,7 @@ void QSocket::setSocketDevice(QSocketDevice *device)
     \value Connecting  A TCP connection is being established.
     \value Connected   There is an operational connection.
     \value Closing     The socket is closing down, but is not yet closed.
+    \omitvalue Connection
 */
 
 /*!

@@ -19,7 +19,7 @@
 #include <qtextdocument.h>
 #endif // QT_H
 
-#if defined(QT_COMPAT)
+#ifdef QT_COMPAT
 #include <qtextcursor.h>
 #include <qtextformat.h>
 #include <qtextobject.h>
@@ -77,7 +77,7 @@ public:
         MoveEnd,
         MovePageUp,
         MovePageDown
-#if defined(QT_COMPAT)
+#ifdef QT_COMPAT
         ,
         MovePgUp = MovePageUp,
         MovePgDown = MovePageDown
@@ -139,10 +139,9 @@ public:
 
     void ensureCursorVisible();
 
-#if defined(QT_COMPAT)
-    void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+#ifdef QT_COMPAT
+    QT_COMPAT void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 #endif
-
     virtual int heightForWidth(int width) const;
 
 public slots:
@@ -209,7 +208,7 @@ signals:
     QT_MOC_COMPAT void currentFontChanged(const QFont &f);
     QT_MOC_COMPAT void currentColorChanged(const QColor &c);
 
-#if defined(QT_COMPAT)
+#ifdef QT_COMPAT
 public:
     QT_COMPAT_CONSTRUCTOR QTextEdit(QWidget *parent, const char *name);
     inline QT_COMPAT bool find(const QString &exp, bool cs, bool wo)

@@ -41,8 +41,8 @@ protected:
 
 #ifdef QT_COMPAT
 public:
-    QRadioButton(QWidget *parent, const char* name);
-    QRadioButton(const QString &text, QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QRadioButton(QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QRadioButton(const QString &text, QWidget *parent, const char* name);
 
 #endif
 

@@ -115,7 +115,6 @@ public:
                                         Options options = 0);
 
 #ifdef QT_COMPAT
-
     inline static QString QT_COMPAT getOpenFileName(const QString &dir,
                                                     const QString &filter = QString::null,
                                                     QWidget *parent = 0, const char* name = 0,
@@ -157,7 +156,6 @@ public:
         { Q_UNUSED(name);
           return getOpenFileNames(parent, caption, dir, filter, selectedFilter,
                                   resolveSymlinks ? Option(0) : DontResolveSymlinks); }
-
 #endif // QT_COMPAT
 
 protected:

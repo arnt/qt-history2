@@ -158,18 +158,18 @@ protected:
     void contextMenuEvent(QContextMenuEvent *);
     virtual QMenu *createPopupMenu();
 #ifdef QT_COMPAT
-    QT_COMPAT void repaintArea(int, int) { update(); }
+    inline QT_COMPAT void repaintArea(int, int) { update(); }
 #endif
 
 public:
 #ifdef QT_COMPAT
-    QT_COMPAT void cursorLeft(bool mark, int steps = 1) { cursorForward(mark, -steps); }
-    QT_COMPAT void cursorRight(bool mark, int steps = 1) { cursorForward(mark, steps); }
+    inline QT_COMPAT void cursorLeft(bool mark, int steps = 1) { cursorForward(mark, -steps); }
+    inline QT_COMPAT void cursorRight(bool mark, int steps = 1) { cursorForward(mark, steps); }
     QT_COMPAT bool validateAndSet(const QString &, int, int, int);
     inline QT_COMPAT bool frame() const { return hasFrame(); }
     inline QT_COMPAT void clearValidator() { setValidator(0); }
-    QT_COMPAT bool hasMarkedText() const { return hasSelectedText(); }
-    QT_COMPAT QString markedText() const { return selectedText(); }
+    inline QT_COMPAT bool hasMarkedText() const { return hasSelectedText(); }
+    inline QT_COMPAT QString markedText() const { return selectedText(); }
     QT_COMPAT bool edited() const;
     QT_COMPAT void setEdited(bool);
     QT_COMPAT int characterAt(int, QChar*) const;

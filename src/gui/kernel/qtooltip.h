@@ -31,7 +31,6 @@ public:
     { w->setToolTip(s); }
     static inline QT_COMPAT void remove(QWidget *w) { w->setToolTip(QString()); }
 #endif
-
 };
 
 #endif // QTOOLTIP_H

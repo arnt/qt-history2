@@ -95,13 +95,13 @@ public:
     bool isActive() const
         { return (bool)act; }
 #ifdef QT_COMPAT
-    QT_COMPAT bool visible() const
+    inline QT_COMPAT bool visible() const
         { return (bool)vis; }
-    QT_COMPAT bool selected() const
+    inline QT_COMPAT bool selected() const
         { return (bool)sel; }
-    QT_COMPAT bool enabled() const
+    inline QT_COMPAT bool enabled() const
         { return (bool)ena; }
-    QT_COMPAT bool active() const
+    inline QT_COMPAT bool active() const
         { return (bool)act; }
 #endif
 

@@ -355,6 +355,7 @@ QLibraryPrivate::~QLibraryPrivate()
     if (map) {
         QLibraryPrivate *that = map->take(fileName);
         Q_ASSERT(this == that);
+	Q_UNUSED(that);
     }
 }
 

@@ -485,7 +485,7 @@ private:
 #endif
 #ifdef QT_COMPAT
 #ifndef QT_NO_QWS_KEYBOARD
-    static inline void setKeyboardFilter(KeyboardFilter *f)
+    static inline QT_COMPAT void setKeyboardFilter(KeyboardFilter *f)
         { if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }
 #endif
 #endif

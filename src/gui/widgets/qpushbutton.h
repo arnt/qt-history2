@@ -65,9 +65,9 @@ private:
 
 public:
 #ifdef QT_COMPAT
-    QPushButton(QWidget *parent, const char* name);
-    QPushButton(const QString &text, QWidget *parent, const char* name);
-    QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QPushButton(QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QPushButton(const QString &text, QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char* name);
     inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT bool isMenuButton() const { return menu() !=  0; }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }

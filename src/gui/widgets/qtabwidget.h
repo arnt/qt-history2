@@ -113,7 +113,6 @@ private:        // Disabled copy constructor and operator=
 
 #ifdef QT_COMPAT
 public:
-
     QT_COMPAT_CONSTRUCTOR QTabWidget(QWidget *parent, const char *name, Qt::WFlags f = 0);
 
     inline QT_COMPAT void insertTab(QWidget * w, const QString &s, int index = -1) { insertTab(index, w, s); }
@@ -151,10 +150,8 @@ public slots:
     inline QT_MOC_COMPAT void removePage(QWidget *w) { removeTab(indexOf(w)); }
 
 signals:
-    void currentChanged(QWidget *);
-
+    QT_MOC_COMPAT void currentChanged(QWidget *);
 #endif // QT_COMPAT
-
 };
 
 #endif // QT_NO_TABWIDGET

@@ -792,10 +792,8 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
             break;
         case Qt::DockWindowAreaTop:
         case Qt::DockWindowAreaBottom:
+	default:
             direction = Qt::Horizontal;
-            break;
-        default:
-            Q_ASSERT(false);
         }
         d->place(area, direction, true);
     }

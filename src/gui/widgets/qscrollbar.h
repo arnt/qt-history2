@@ -46,14 +46,14 @@ protected:
 
 #ifdef QT_COMPAT
 public:
-    QScrollBar(QWidget *parent, const char* name);
-    QScrollBar(Qt::Orientation, QWidget *parent, const char* name);
-    QScrollBar(int minValue, int maxValue, int lineStep, int pageStep,
+    QT_COMPAT_CONSTRUCTOR QScrollBar(QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QScrollBar(Qt::Orientation, QWidget *parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QScrollBar(int minValue, int maxValue, int lineStep, int pageStep,
                 int value, Qt::Orientation, QWidget *parent=0, const char* name = 0);
     inline QT_COMPAT bool draggingSlider() { return isSliderDown(); }
 #endif
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QScrollBar(const QScrollBar &);
     QScrollBar &operator=(const QScrollBar &);

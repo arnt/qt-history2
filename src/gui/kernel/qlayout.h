@@ -108,15 +108,14 @@ private:
     QWidget *wid;
 };
 
-
 #ifdef QT_COMPAT
 class Q_GUI_EXPORT QLayoutIterator
 {
 public:
-    inline QLayoutIterator(QLayout *i) : layout(i), index(0) {}
-    inline QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), index(i.index) {
-    }
-    inline QT_COMPAT QLayoutIterator &operator=(const QLayoutIterator &i) {
+    inline QT_COMPAT_CONSTRUCTOR QLayoutIterator(QLayout *i) : layout(i), index(0) {}
+    inline QLayoutIterator(const QLayoutIterator &i)
+	: layout(i.layout), index(i.index) {}
+    inline QLayoutIterator &operator=(const QLayoutIterator &i) {
         layout = i.layout;
         index = i.index;
         return *this;
@@ -127,7 +126,7 @@ public:
     inline QT_COMPAT void deleteCurrent();
 
 private:
-    //hack to avoid deprecated warning
+    // hack to avoid deprecated warning
     friend class QLayout;
     inline QLayoutIterator(QLayout *i, bool) : layout(i), index(0) {}
     QLayout *layout;
@@ -421,11 +420,11 @@ public:
     ~QHBoxLayout();
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR  QHBoxLayout(QWidget *parent, int border,
+    QT_COMPAT_CONSTRUCTOR QHBoxLayout(QWidget *parent, int border,
                  int spacing = -1, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR  QHBoxLayout(QLayout *parentLayout,
+    QT_COMPAT_CONSTRUCTOR QHBoxLayout(QLayout *parentLayout,
                  int spacing, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR  QHBoxLayout(int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QHBoxLayout(int spacing, const char *name = 0);
 #endif
 
 private:        // Disabled copy constructor and operator=
@@ -445,12 +444,13 @@ public:
     ~QVBoxLayout();
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR  QVBoxLayout(QWidget *parent, int border,
+    QT_COMPAT_CONSTRUCTOR QVBoxLayout(QWidget *parent, int border,
                  int spacing = -1, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR  QVBoxLayout(QLayout *parentLayout,
+    QT_COMPAT_CONSTRUCTOR QVBoxLayout(QLayout *parentLayout,
                  int spacing, const char *name = 0);
-    QT_COMPAT_CONSTRUCTOR  QVBoxLayout(int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QVBoxLayout(int spacing, const char *name = 0);
 #endif
+
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QVBoxLayout(const QVBoxLayout &);

@@ -177,7 +177,7 @@ class Q_CORE_EXPORT QCoreVariant
     static Type nameToType(const char *name);
 
 #ifdef QT_COMPAT
-    QCoreVariant(bool, int);
+    QT_COMPAT_CONSTRUCTOR QCoreVariant(bool, int);
     inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
     inline QT_COMPAT QByteArray &asCString() { return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
