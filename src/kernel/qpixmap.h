@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#45 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#46 $
 **
 ** Definition of QPixmap class
 **
@@ -68,12 +68,13 @@ public:
     static bool isGloballyOptimized();
     static void optimizeGlobally( bool );
 
+    virtual void detach();
+
     bool	isQBitmap()	const;
 
 protected:
     QPixmap( int w, int h, const char *data, bool isXbitmap );
     long	metric( int ) const;
-    virtual void detach();
 
 #if defined(_WS_WIN_)
     HANDLE	allocMemDC();
