@@ -39,7 +39,7 @@ public:
     static QPixmap* getInfoImage();
 #if defined(Q_OS_WIN32)
     static ULARGE_INTEGER dirFreeSpace( QString dirPath );
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MAC)
     static long dirFreeSpace( QString dirPath );
 #endif
 };

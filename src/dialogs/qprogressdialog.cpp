@@ -590,7 +590,7 @@ void QProgressDialog::setProgress( int progress )
 		d->shown_once = TRUE;
 	    }
 	}
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	QApplication::flush();
 #endif
     }

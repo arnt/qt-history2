@@ -586,7 +586,7 @@ void MainWindow::forwardAvailable( bool enable )
 void MainWindow::updateProfileSettings()
 {
     Config *config = Config::configuration();
-#ifndef Q_WS_MACX
+#ifndef Q_WS_MAC
     setIcon( config->applicationIcon() );
 #endif
     helpMenu->clear();

@@ -420,7 +420,7 @@ ULARGE_INTEGER WinShell::dirFreeSpace( QString dirPath )
     }
     return freeSpace;
 }
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MAC)
 long  WinShell::dirFreeSpace( QString dirPath )
 {
     struct statfs buf;

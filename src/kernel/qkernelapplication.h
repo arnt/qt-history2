@@ -93,7 +93,7 @@ private:
     friend class QETWidget;
     friend class QAccelManager;
     friend class QWidget;
-#if defined(Q_WS_WIN) || defined (Q_WS_MACX)
+#if defined(Q_WS_WIN) || defined (Q_WS_MAC)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif
 };

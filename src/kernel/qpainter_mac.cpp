@@ -219,12 +219,10 @@ void QPainter::updatePen()
     PenPat(&pat);
 
     //penmodes
-#if defined(Q_WS_MACX)
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
     if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop())
 	qt_recreate_root_win();
-#endif
     PenMode(ropCodes[rop]);
 }
 
@@ -310,12 +308,10 @@ void QPainter::updateBrush()
     }
 
     //penmodes
-#if defined(Q_WS_MACX)
     //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
     //xor doesn't really work on an overlay widget FIXME
     if(rop != CopyROP && pdev->devType() == QInternal::Widget && ((QWidget *)pdev)->isDesktop())
 	qt_recreate_root_win();
-#endif
     PenMode(ropCodes[rop]);
 }
 
@@ -416,13 +412,11 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 	    d->locked = TRUE;
 	}
 
-#ifdef Q_WS_MACX
 	if(w->isDesktop()) {
 	    if(!d->unclipped)
 		qWarning("QPainter::begin: Does not support clipped desktop on MacOSX");
 	    ShowWindow((WindowPtr)w->handle());
 	}
-#endif
     } else if(pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if(pm->isNull()) {
@@ -489,11 +483,9 @@ bool QPainter::end()				// end painting
     d->saved = 0;
     if(qt_mac_current_painter == this)
 	qt_mac_current_painter = 0;
-#ifdef Q_WS_MACX
     if(pdev->painters == 1 &&
        pdev->devType() == QInternal::Widget && ((QWidget*)pdev)->isDesktop())
 	HideWindow((WindowPtr)pdev->handle());
-#endif
     if(pfont) {
 	delete pfont;
 	pfont = 0;

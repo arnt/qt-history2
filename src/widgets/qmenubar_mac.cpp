@@ -318,7 +318,6 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		if(st != -1)
 		    text.remove(st, text.length()-st);
 		text.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
-#ifdef Q_WS_MACX
 		if(ret == kHICommandAbout && text.lower() == tr("About").lower()) {
 		    ProcessSerialNumber psn;
 		    if(GetCurrentProcess(&psn) == noErr) {
@@ -331,7 +330,6 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 			text += " " + prog.section('/', -1, -1);;
 		    }
 		}
-#endif
 		CFStringRef cfref;
 		qt_mac_no_ampersands(text, &cfref);
 		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu,

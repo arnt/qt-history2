@@ -404,7 +404,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	// from qt.arq in the current directory instead.
 	QArchive ar;
 	QString archiveName = "qt.arq";
-# if defined(Q_OS_MACX)
+# if defined(Q_OS_MAC)
 	QString appDir = qApp->argv()[0];
 	int truncpos = appDir.findRev( "/Contents/MacOS/" );
 	if (truncpos != -1)
@@ -700,7 +700,7 @@ void SetupWizardImpl::clickedDevSysPath()
 
 void SetupWizardImpl::sysOtherComboChanged( int ) 
 {
-#ifndef Q_OS_MACX
+#ifndef Q_OS_MAC
     if (optionsPage->sysOtherCombo->currentText() == "win32-g++" )
 	clickedSystem(MINGW_BUTTON);
     else
@@ -710,7 +710,7 @@ void SetupWizardImpl::sysOtherComboChanged( int )
 
 void SetupWizardImpl::clickedSystem( int sys )
 {
-#ifndef Q_OS_MACX
+#ifndef Q_OS_MAC
     switch ( sys ) {
 	case MSVCNET_BUTTON:
 	    globalInformation.setSysId( GlobalInformation::MSVCNET );
@@ -1562,7 +1562,7 @@ void SetupWizardImpl::showPageProgress()
 	    // bytes, we have the dummy qt.arq: try to find and install
 	    // from qt.arq in the current directory instead.
 	    QString archiveName = "qt.arq";
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
 	    QString appDir = qApp->argv()[0];
 	    int truncpos = appDir.findRev( "/Contents/MacOS/" );
 	    if (truncpos != -1)
@@ -1718,7 +1718,7 @@ void SetupWizardImpl::showPageProgress()
 		}
 	    }
 #  endif
-#  if !defined(Q_OS_MACX)
+#  if !defined(Q_OS_MAC)
 	    // copy lib/*.dll bin/
 	    QStringList dlls = lib.entryList( "*.dll" );
 	    for ( it=dlls.begin(); it!=dlls.end(); ++it ) {
@@ -1815,7 +1815,7 @@ void SetupWizardImpl::showPageFinish()
 	if( globalInformation.reconfig() ) {
 	    finishMsg = "Qt has been reconfigured and rebuilt, and is ready for use.";
 	} else {
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
             finishMsg = QString( "Qt has been installed to " ) + optionsPage->installPath->text() +
                         " and is ready to use.\n\nPlease try out the developer tools in the bin folder and example "
                         "programs in the examples folder.\n\nFor further information please consult the "
@@ -2130,7 +2130,7 @@ void SetupWizardImpl::licenseChanged()
     if ( !date.isValid() ) {
 	goto rejectLicense;
     }
-#  if defined(Q_OS_MACX)
+#  if defined(Q_OS_MAC)
     testFeature = Feature_Mac;
     platformString = "Mac OS X";
 #  elif defined(Q_OS_WIN32)

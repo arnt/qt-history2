@@ -36,7 +36,7 @@ ResourceLoader::ResourceLoader( char *resourceName, int minimumSize )
 	return;
     }
     ba.setRawData( arData, arSize );
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MAC)
     valid = FALSE;
     arSize = 0;
     arData = 0;
@@ -68,7 +68,7 @@ ResourceLoader::~ResourceLoader()
 {
     if ( isValid() )
 	ba.resetRawData( arData, arSize );
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
     delete[] arData;
 #endif
 }

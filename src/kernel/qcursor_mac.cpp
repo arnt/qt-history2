@@ -20,9 +20,7 @@
 #include "qnamespace.h"
 #include "qt_mac.h"
 #include "qevent.h"
-#ifdef Q_WS_MACX
-# include <ApplicationServices/ApplicationServices.h>
-#endif
+#include <ApplicationServices/ApplicationServices.h>
 #if QT_MACOSX_VERSION >= 0x1030
 # define QMAC_USE_BIG_CURSOR_API
 #endif
@@ -368,25 +366,10 @@ QPoint QCursor::pos()
 
 void QCursor::setPos(int x, int y)
 {
-#ifdef Q_WS_MACX
     CGPoint p;
     p.x = x;
     p.y = y;
     CGWarpMouseCursorPosition(p);
-#else
-// some kruft I found on the web.. it doesn't work, but I want to test more FIXME
-#   define MTemp 0x828
-#   define RawMouse 0x82c
-#   define CrsrNewCouple 0x8ce
-    HideCursor();
-    Point where;
-    where.h = x;
-    where.v = y;
-    *((Point *) RawMouse) = where ;
-    *((Point *) MTemp) = where ;
-    *((short *) CrsrNewCouple) = -1 ;
-    ShowCursor() ;
-#endif
 
     /* I'm not too keen on doing this, but this makes it a lot easier, so I just
        send the event back through the event system and let it get propagated correctly

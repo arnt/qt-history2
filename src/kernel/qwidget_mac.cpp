@@ -30,9 +30,7 @@
 #include "qstyle.h"
 #include "qtextcodec.h"
 #include "qtimer.h"
-#ifdef Q_WS_MACX
-# include <ApplicationServices/ApplicationServices.h>
-#endif
+#include <ApplicationServices/ApplicationServices.h>
 #include <limits.h>
 
 #include "qwidget_p.h"
@@ -289,7 +287,6 @@ void qt_clean_root_win() {
 static bool qt_create_root_win() {
     if(qt_root_win)
 	return false;
-#if defined(Q_WS_MACX)
     Rect r;
     int w = 0, h = 0;
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
@@ -298,7 +295,6 @@ static bool qt_create_root_win() {
     }
     SetRect(&r, 0, 0, w, h);
     CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
-#endif //MACX
     if(!qt_root_win)
 	return false;
     qAddPostRoutine(qt_clean_root_win);
@@ -580,7 +576,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 
 bool qt_mac_is_macdrawer(QWidget *w)
 {
-#if defined(Q_WS_MACX) && 0
+#if 0
     if(w && w->isTopLevel() && w->parentWidget() && w->testWFlags(Qt::WMacDrawer))
 	return true;
 #else
@@ -614,7 +610,7 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
 
 bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=false)
 {
-#if defined(Q_WS_MACX) && 0
+#if 0
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
        (ignore_exclusion || !w->testWFlags(Qt::WMacNotSheet)) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
@@ -865,7 +861,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 #endif
 	if(dialog && !parentWidget() && !testWFlags(WShowModal))
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
-#ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    d->createTLExtra();
 	    if(d->topData()->group)
@@ -893,7 +888,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	} else {
 	    qDebug("Qt: internal: No window group!!!");
 	}
-#endif
 #endif
 #if 0
 	//We cannot use a window content paint proc because it causes problems on 10.2 (it
@@ -1216,7 +1210,6 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
     }
     if(!pixmap.isNull())
 	d->topData()->icon = new QPixmap(pixmap);
-#ifdef Q_WS_MACX
     if(isTopLevel()) {
 	if(qApp && qApp->mainWidget() == this) {
 	    if(pixmap.isNull()) {
@@ -1243,7 +1236,6 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
     } else {
 
     }
-#endif
     QEvent e( QEvent::IconChange );
     QApplication::sendEvent( this, &e );
 }

@@ -61,12 +61,10 @@
 #  include "qmutex.h"
 #endif
 
-#ifdef Q_WS_MACX
-#  include "qdir.h"
-#  include <unistd.h>
-#  include <sys/time.h>
-#  include <sys/select.h>
-#endif
+#include "qdir.h"
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/select.h>
 
 #include <string.h>
 #include "private/qwidget_p.h"
@@ -740,7 +738,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 		mac_display_changeUPP = NewDMExtendedNotificationUPP(qt_mac_display_change_callbk);
 		DMRegisterExtendedNotifyProc(mac_display_changeUPP, NULL, 0, &psn);
 	    }
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	    SetFrontProcess(&psn);
 #endif
 	}
@@ -772,19 +770,17 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 			else
 			    qDebug("Qt: internal: Misunderstood input style '%s'", s.constData());
 		    }
-		} else
-#ifdef Q_WS_MACX
+		} else {
 		    //just ignore it, this seems to be passed from the finder (no clue what it does) FIXME
 		    if(arg.left(5) == "-psn_");
 		    else
-#endif
 			argv[j++] = argv[i];
+		}
 	}
 	priv->argc = j;
 	// Set application name
 	char *p = strrchr(argv[0], '/');
 	appName = p ? p + 1 : argv[0];
-#ifdef Q_WS_MACX
 	if(qt_is_gui_used && argv[0] && *argv[0] != '/')
 	    qWarning("Qt: QApplication: Warning argv[0] == '%s' is relative.\n"
 		     "In order to dispatch events correctly Mac OS X may "
@@ -799,7 +795,6 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 		QDir::setCurrent(path.left(rfork+1));
 	}
     }
-#endif
 
     QMacMime::initialize();
 

@@ -544,7 +544,7 @@ void QApplication::process_cmdline()
     }
 
     if(j < argc) {
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	static char* empty = "\0";
 	argv[j] = empty;
 #else
@@ -2493,7 +2493,7 @@ void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 }
 
 
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 extern QWidget *qt_tryModalHelperMac( QWidget * top ); //qapplication_mac.cpp
 #endif
 
@@ -2510,7 +2510,7 @@ bool qt_tryModalHelper( QWidget *widget, QWidget **rettop ) {
     if ( qApp->activePopupWidget() )
 	return TRUE;
 
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
     top = qt_tryModalHelperMac( top );
     if ( rettop ) *rettop = top;
 #endif

@@ -645,7 +645,7 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
     QTextParagraph *str = s;
     if ( pos.y() < s->rect().y() ) {
 	pos.setY( s->rect().y() );
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	pos.setX( s->rect().x() );
 #endif
     }
@@ -657,7 +657,7 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
 	if ( pos.y() >= r.y() && pos.y() <= r.y() + r.height() )
 	    break;
 	if ( !s->next() ) {
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	    pos.setX( s->rect().x() + s->rect().width() );
 #endif
 	    break;

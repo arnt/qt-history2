@@ -16,10 +16,6 @@
 #include "qbitmap.h"
 #include "qapplication_p.h"
 
-//antialiasing
-#ifndef Q_WS_MACX
-# define QMAC_FONT_NO_ANTIALIAS
-#endif
 #ifndef QMAC_FONT_NO_ANTIALIAS
 # include "qpixmap.h"
 # include "qpaintdevicemetrics.h"

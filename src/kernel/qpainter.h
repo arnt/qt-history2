@@ -281,7 +281,7 @@ private:
     void	map( int, int, int, int, int *, int *, int *, int * ) const;
     void	mapInv( int, int, int *, int * ) const;
     void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
     void	drawPolyInternal( const QPointArray &, bool close=TRUE, bool inset=TRUE );
 #else
     void	drawPolyInternal( const QPointArray &, bool close=TRUE );

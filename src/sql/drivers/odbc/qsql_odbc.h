@@ -26,7 +26,7 @@
 #include <qt_windows.h>
 #endif
 
-#if defined (Q_OS_MACX)
+#if defined (Q_OS_MAC)
 // assume we use iodbc on MACX
 // comment next line out if you use a 
 // unicode compatible manager

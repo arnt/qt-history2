@@ -441,16 +441,9 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     SetRect(&boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height());
     SetDragItemBounds(theDrag, (ItemReference)1 , &boundsRect);
 
-#if defined(Q_WS_MACX)
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
     QRegion r(0, 0, pix.width(), pix.height());
     SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), r.handle(TRUE), boundsPoint, 0);
-#else
-    QBitmap pixbits;
-    pixbits = pix;
-    QRegion dragRegion(pixbits);
-    dragRegion.translate(boundsPoint.h, boundsPoint.v);
-#endif
 
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
     if(!widget) {

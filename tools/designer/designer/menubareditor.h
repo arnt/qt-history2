@@ -14,6 +14,7 @@
 #define MENUBAREDITOR_H
 
 #include <qmenubar.h>
+#include <qmap.h>
 #include <qptrlist.h>
 
 class PopupMenuEditor;

@@ -72,10 +72,7 @@ typedef struct OpaqueMenuHandle *MenuRef;
 typedef struct __EventLoopTimer*        EventLoopTimerRef;
 typedef struct OpaqueMenuRef*        MenuRef;
 #endif
-
-#ifndef Q_WS_MACX
 typedef struct CGContext *CGContextRef;
-#endif
 typedef struct OpaqueWindowGroupRef *WindowGroupRef;
 typedef struct OpaqueGrafPtr *CGrafPtr;
 typedef struct OpaquePMPrintSession *PMPrintSession;
@@ -98,7 +95,6 @@ typedef struct BitMap BitMap;
 typedef struct EventRecord EventRecord;
 typedef void * MSG;
 typedef int WId;
-
 #endif // Q_WS_MAC
 
 #if defined(Q_WS_WIN)

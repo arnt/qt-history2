@@ -36,7 +36,7 @@
 #include "qdockarea.h"
 #include "qstringlist.h"
 #include "qstyle.h"
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 #  include "qt_mac.h"
 #endif
 
@@ -855,7 +855,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     setAttribute(WA_PaintOnScreen); // disable double buffering
     d = new QMainWindowPrivate;
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
     d->opaque = TRUE;
 #else
     d->opaque = FALSE;

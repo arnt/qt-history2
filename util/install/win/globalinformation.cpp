@@ -6,7 +6,7 @@ GlobalInformation::GlobalInformation() :
 {
 #if defined(Q_OS_WIN32)
     _sysId = MSVC;
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MAC)
     _sysId = MACX;
 #else
     _sysId = GCC;

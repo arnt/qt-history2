@@ -83,7 +83,7 @@ static QString entitize( const QString &s, bool attribute = FALSE )
     return s2;
 }
 
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 static struct {
     int key;
     const char* name;
@@ -175,7 +175,7 @@ static struct {
 #endif
 static QString platformNeutralKeySequence(const QKeySequence &ks)
 {
-#ifndef Q_WS_MACX
+#ifndef Q_WS_MAC
     return QString(ks);
 #else
     uint k;

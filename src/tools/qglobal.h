@@ -24,7 +24,7 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     DARWIN     - Darwin OS (synonym for Q_OS_MACX)
+     DARWIN     - Darwin OS (synonym for Q_OS_MAC)
      MSDOS	- MS-DOS and Windows
      OS2	- OS/2
      OS2EMX	- XFree86 on OS/2 (not PM)
@@ -129,10 +129,7 @@
 #endif
 
 #if defined(Q_OS_DARWIN)
-#  define Q_OS_MACX /* Q_OS_MACX is mostly for compatiblity, but also more clear */
-#endif
-#if defined(Q_OS_DARWIN)
-#  define Q_OS_MAC
+#  define Q_OS_MAC /* Q_OS_MAC is mostly for compatiblity, but also more clear */
 #endif
 
 #if defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)
@@ -521,7 +518,7 @@
 #    define Q_WS_QWS
 #    define QT_NO_QWS_IM
 #  elif defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__)
-#    define Q_WS_MACX
+#    define Q_WS_MAC
 #  else
 #    define Q_WS_X11
 #  endif
@@ -533,11 +530,6 @@
 #if defined(Q_WS_WIN16) || defined(Q_WS_WIN32)
 #  define Q_WS_WIN
 #endif
-
-#if defined(Q_WS_MACX) && !defined(Q_WS_QWS) && !defined(Q_WS_X11)
-#  define Q_WS_MAC
-#endif
-
 
 /*
    Some classes do not permit copies to be made of an object.
@@ -824,7 +816,7 @@ class QDataStream;
 # define QT_NO_SQL
 #endif
 
-#if defined(Q_WS_MACX)
+#if defined(Q_WS_MAC)
 #  ifndef QMAC_QMENUBAR_NO_EVENT
 #    define QMAC_QMENUBAR_NO_EVENT
 #  endif

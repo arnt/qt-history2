@@ -18,16 +18,7 @@
 #include <string.h>
 
 #include "mwerks_mac.h"
-#ifdef Q_OS_MAC9
-using namespace std;
-/* system headers */
-#include <Files.h>
-#include <Strings.h>
-#include <Errors.h>
-#else
-# include "qt_mac.h"
-#endif
-# include "mwerks_mac.h"
+#include "qt_mac.h"
 
 /* compiler headers */
 #include "DropInCompilerLinker.h"

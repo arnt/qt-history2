@@ -1347,7 +1347,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     default: {
 	    if ( e->text().length() &&
 		( !( e->state() & ControlButton ) &&
-#ifndef Q_OS_MACX
+#ifndef Q_OS_MAC
 		  !( e->state() & AltButton ) &&
 #endif
 		  !( e->state() & MetaButton ) ||
@@ -1868,7 +1868,7 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
     if ( d->optimMode )
 	return;
 #endif
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
     QTextCursor c1 = *cursor;
     QTextCursor c2;
 #endif
@@ -1877,7 +1877,7 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
 	if ( !doc->hasSelection( QTextDocument::Standard ) )
 	    doc->setSelectionStart( QTextDocument::Standard, *cursor );
 	moveCursor( action );
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	c2 = *cursor;
 	if (c1 == c2)
 	    if (action == MoveDown || action == MovePgDown)
@@ -1895,7 +1895,7 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
 	emit selectionChanged();
 	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     } else {
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	QTextCursor cStart = doc->selectionStartCursor( QTextDocument::Standard );
 	QTextCursor cEnd = doc->selectionEndCursor( QTextDocument::Standard );
 	bool redraw = doc->removeSelection( QTextDocument::Standard );

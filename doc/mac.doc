@@ -81,16 +81,16 @@ LFLAGS settings.
 
 \section1 Compile-time Flags
 
-If you want to wrap any specific MacOSX code in a define, use the Q_OS_MACX
+If you want to wrap any specific MacOS X code in a define, use the Q_OS_MAC
 flag, as in:
 
 \code
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
 // the code used
 #endif
 \endcode
 
-Note that when you build under MacOSX 10.2, then the MACOSX_102 flag is
+Note that when you build under MacOS X 10.2, then the MACOSX_102 flag is
 automatically included in the make builds.
 
 
@@ -128,7 +128,7 @@ do this:
 	qDebug("Path = %s", pathPtr);
 \endcode
 
-Do not forget to enclosure this in an #if defined(Q_OS_MACX) macro statement.
+Do not forget to enclosure this in an #if defined(Q_OS_MAC) macro statement.
 
 
 \title User Interface

@@ -211,7 +211,7 @@ TrWindow::TrWindow()
     : QMainWindow( 0, "translation window", WType_TopLevel | WDestructiveClose )
 {
 
-#ifndef Q_WS_MACX
+#ifndef Q_WS_MAC
     setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
 #endif
 
@@ -837,7 +837,7 @@ void TrWindow::manual()
 {
     QString path = QDir::cleanDirPath( QString( qInstallPath() ) +
 				       QDir::separator() + "bin/" );
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
     path += QDir::separator() + ".app/Contents/MacOS/";
 #endif
     QAssistantClient *ac = new QAssistantClient( path, this );

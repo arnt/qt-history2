@@ -17,7 +17,6 @@
 static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
 QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, &qrp };
 
-#if defined( Q_WS_MACX )
 #define RGN_CACHE_SIZE 200
 static bool rgncache_init = false;
 static int rgncache_used;
@@ -73,10 +72,6 @@ void qt_mac_dispose_rgn(RgnHandle r)
 	DisposeRgn(r);
     }
 }
-#else
-RgnHandle qt_mac_get_rgn() { return NewRgn(); }
-void qt_mac_dispose_rgn(RgnHandle r) { DisposeRgn(r); }
-#endif
 
 static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *reg)
 {
@@ -124,4 +119,3 @@ RgnHandle QRegion::handle(bool require_rgn) const
     }
     return d->rgn;
 }
-

@@ -111,7 +111,7 @@ void LicenseAgreementPageImpl::licenseAction(int act)
 LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
     : LicensePage( parent, name, fl )
 {
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
     // StyledPanel style looks very windowsish
     customerID->setFrameShape( QFrame::LineEditPanel );
 #endif
@@ -197,7 +197,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 	    );
     installPath->setValidator( new InstallPathValidator( this ) );
     connect( sysMsvcNet, SIGNAL(toggled(bool)), installNETIntegration, SLOT(setEnabled(bool)) );
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MAC)
     // ### the replace for Windows is done because qmake has problems with
     // spaces and Borland has problems with "-" in the filenames -- I don't
     // think that there is a need for this on Mac (rms)
@@ -249,7 +249,7 @@ void OptionsPageImpl::choosePath()
 	dir.setPath( dest );
 	installPath->setText( QDir::convertSeparators(dir.absPath()) );
     }
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MAC)
     if( !dir.exists() )
 	dir.setPath( "/" );
 

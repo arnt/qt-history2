@@ -606,7 +606,7 @@ void SetupWizardImpl::showPageConfig()
 	item->setOn( findFile( "db2cli.dll" ) );
 	db2PluginInstall = item;
 
-#if !defined(Q_OS_MACX)
+#if !defined(Q_OS_MAC)
 	item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
 	item->setOn( findFile( "ntwdblib.dll" ) );
 	tdsPluginInstall = item;
@@ -629,7 +629,7 @@ void SetupWizardImpl::showPageConfig()
 	item->setOn( TRUE );
 	mysqlPluginInstall = item;
 
-#if !defined(Q_OS_MACX)
+#if !defined(Q_OS_MAC)
 	item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
 	item->setOn( findFile( "odbc32.dll" ) );
 	odbcPluginInstall = item;

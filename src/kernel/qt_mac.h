@@ -33,11 +33,11 @@
 #include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 #include "qglobal.h"
 
-#if defined(Q_WS_MACX)
+#if defined(Q_WS_MAC)
 # define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
 #endif
 
-#if !defined(Q_WS_MACX) || QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
+#if !defined(Q_WS_MAC) || QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
 # define QMAC_NO_FAKECURSOR
 #endif
 
@@ -218,7 +218,6 @@ public:
 inline bool 
 QMacSavedPortInfo::flush(QPaintDevice *pdev) 
 {
-#ifdef Q_WS_MACX
     if(pdev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)pdev;
 	if(!w->isHidden() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle()))) {
@@ -226,16 +225,12 @@ QMacSavedPortInfo::flush(QPaintDevice *pdev)
 	    return TRUE;
 	}
     } 
-#else
-    Q_UNUSED(pdev);
-#endif
     return FALSE;
 }
 
 inline bool 
 QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force) 
 {
-#ifdef Q_WS_MACX
     if(pdev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)pdev;
 	r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
@@ -244,15 +239,9 @@ QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force)
 	    return TRUE;
 	}
     } 
-#else
-    Q_UNUSED(pdev);
-    Q_UNUSED(r);
-    Q_UNUSED(force);
-#endif
     return FALSE;
 }
 
-#ifdef Q_WS_MACX
 extern "C" {
     typedef struct CGSConnection *CGSConnectionRef;
     typedef struct CGSWindow *CGSWindowRef;
@@ -260,17 +249,11 @@ extern "C" {
     extern CGSWindowRef GetNativeWindowFromWindowRef(WindowRef);
     extern CGSConnectionRef _CGSDefaultConnection();
 }
-#endif
 inline void 
 QMacSavedPortInfo::setAlphaTransparency(QWidget *w, float l)
 {
-#ifdef Q_WS_MACX
     CGSSetWindowAlpha(_CGSDefaultConnection(), 
 		      GetNativeWindowFromWindowRef((WindowRef)w->handle()), l);
-#else
-    Q_UNUSED(w);
-    Q_UNUSED(l);
-#endif
 }
 
 inline bool 

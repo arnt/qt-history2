@@ -597,7 +597,7 @@ MetrowerksMakefileGenerator::findTemplate(const QString &file)
 bool
 MetrowerksMakefileGenerator::createFork(const QString &f)
 {
-#if !defined(QWS) && defined(Q_OS_MACX)
+#if !defined(QWS) && defined(Q_OS_MAC)
     FSRef fref;
     FSSpec fileSpec;
     if(QFile::exists(f)) {
@@ -640,7 +640,7 @@ MetrowerksMakefileGenerator::fixifyToMacPath(QString &p, QString &v, bool )
     static QString st_volume;
     if(st_volume.isEmpty()) {
 	st_volume = var("QMAKE_VOLUMENAME");
-#if !defined(QWS) && defined(Q_OS_MACX)
+#if !defined(QWS) && defined(Q_OS_MAC)
 	if(st_volume.isEmpty()) {
 	    uchar foo[512];
 	    HVolumeParam pb;

@@ -33,7 +33,7 @@
 #include "qcursor.h"
 #include "qstyle.h"
 
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 static bool default_opaque = TRUE;
 #else
 static bool default_opaque = FALSE;

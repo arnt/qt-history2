@@ -1676,13 +1676,13 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 	    }
 	    break;
 	case Key_Home:
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	case Key_Up:
 #endif
 	    home( e->state() & ShiftButton );
 	    break;
 	case Key_End:
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
 	case Key_Down:
 #endif
 	    end( e->state() & ShiftButton );

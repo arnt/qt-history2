@@ -124,7 +124,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 	    assistantCommand = path;
     }
 
-#if defined(Q_OS_MACX)
+#if defined(Q_OS_MAC)
     assistantCommand += ".app/Contents/MacOS/assistant";
 #endif
 

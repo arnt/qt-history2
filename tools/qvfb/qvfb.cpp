@@ -207,7 +207,7 @@ void QVFb::changeRate()
 
 void QVFb::about()
 {
-#if defined( Q_WS_MAC )
+#if defined(Q_WS_MAC)
     QString platform("Mac OS X");
     QString qt("Mac");
 #elif defined( Q_WS_WIN )

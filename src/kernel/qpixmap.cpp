@@ -430,7 +430,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	hd = pixmap.hd;				// copy QPaintDevice drawable
 	rendhd = pixmap.rendhd;
 	copyX11Data( &pixmap );			// copy x11Data
-#elif defined(Q_WS_MACX)
+#elif defined(Q_WS_MAC)
 	hd = pixmap.hd;
 #endif
     }
