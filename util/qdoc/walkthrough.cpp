@@ -120,7 +120,6 @@ void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 	while ( links.key() > lineNo ) {
 	    lineNo++;
 	    k = text->find( QChar('\n'), k ) + 1;
-
 	    if ( k == 0 ) // shouldn't happen
 		return;
 	}
@@ -134,6 +133,14 @@ void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 
 	    while ( link != (*links).end() ) {
 		text->insert( k, QString("<a name=\"%1\"></a>").arg(*link) );
+
+// ### take out, when all is right
+#if 0
+		k = text->find( QChar('\n'), k );
+		text->insert( k, QString("   \t<b>[%1:%2]</b>")
+		.arg(links.key()).arg(*link) );
+#endif
+
 		++link;
 	    }
 	}

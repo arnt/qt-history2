@@ -299,10 +299,10 @@ static QString getArgument( const QString& in, int& pos )
 static QMap<QString, LinkMap> includeLinkMaps;
 static QMap<QString, LinkMap> walkthroughLinkMaps;
 
-// QMap<link, QMap<score, ExampleLocation> >
+// QMap<function link, QMap<score, ExampleLocation> >
 static QMap<QString, QMap<int, ExampleLocation> > megaExampleMap;
 
-// QMap<example file, links>
+// QMap<example file, example links>
 static QMap<QString, StringSet> exampleLinks;
 
 /*
@@ -1078,11 +1078,14 @@ void DocParser::flushWalkthrough( const Walkthrough& walkthrough,
     if ( walkthrough.fileName().isEmpty() )
 	return;
 
+    if ( examples->contains(walkthrough.fileName()) )
+	return;
     examples->insert( walkthrough.fileName() );
 
     ScoreMap scoreMap = walkthrough.scoreMap();
     ScoreMap::ConstIterator score = scoreMap.begin();
     while ( score != scoreMap.end() ) {
+	// score.key() is qaction.html#setWhatsThis, (*score) is a HighScore
 	ExampleLocation exloc( walkthrough.fileName(), (*score).inInclude(),
 			       (*score).lineNum(), xunique++ );
 	int total = (*score).total();
@@ -1340,6 +1343,7 @@ QString Doc::href( const QString& name, const QString& text )
     // try a URL
     if ( k.isEmpty() ) {
 	if ( name.left(5) == QString("file:") ||
+	     name.left(4) == QString("ftp:") ||
 	     name.left(5) == QString("http:") ||
 	     name.left(7) == QString("mailto:") ) {
 	    k = name;
@@ -2127,20 +2131,22 @@ QString Doc::finalHtml() const
 						QString(".\n") );
 	QValueList<ExampleLocation>::ConstIterator e = examples.begin();
 	while ( e != examples.end() ) {
-	    QString link = exampleLinks[(*e).exampleFile()].first();
-	    int k = link.find( QChar('#') );
-	    if ( k != -1 )
-		link.truncate( k );
-	    link += QString( "#x%1" ).arg( (*e).uniqueNum() );
-
 	    /*
 	      An example file is usually included only once. If it's
-	      more than that, we take the first link in alphabetical
-	      order.
+	      more than that, we are confused.
 	    */
-	    yyOut += QString( "<a href=\"%1\">%2</a>" )
-		     .arg( link ).arg( (*e).exampleFile() );
-	    yyOut += seps.pop();
+	    StringSet links = exampleLinks[(*e).exampleFile()];
+	    if ( links.count() == 1 ) {
+		QString link = links.first();
+		int k = link.find( QChar('#') );
+		if ( k != -1 )
+		    link.truncate( k );
+		link += QString( "#x%1" ).arg( (*e).uniqueNum() );
+
+		yyOut += QString( "<a href=\"%1\">%2</a>" )
+			 .arg( link ).arg( (*e).exampleFile() );
+		yyOut += seps.pop();
+	    }
 	    ++e;
 	}
     }
