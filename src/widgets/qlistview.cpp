@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#50 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#50 $");
 
 
 const int Unsorted = 32767;
@@ -1003,10 +1003,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	 d->bottomPixel < cy + ch - 1 ||
 	 d->r->maybeTotalHeight < 0 )
 	buildDrawableList();
-    
-    QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
-    debug( "uh %d-%d", cy, cy+ch-1 );
+    QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
     QRect r;
     int l;
@@ -1128,7 +1126,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 /*!  Paints \a rect so that it looks like empty background using
   painter p.  \a rect is is widget coordinates, ready to be fed to \a
   p.
-  
+
   The default function fills \a rect with colorGroup().base().
 */
 
