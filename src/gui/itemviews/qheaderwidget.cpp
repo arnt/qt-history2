@@ -209,15 +209,211 @@ void QHeaderModel::emitDataChanged(QHeaderWidgetItem *item)
 
 /*!
   \class QHeaderWidgetItem
-  \brief The QHeaderWidgetItem class provides an item for use with the
+  \brief The QHeaderWidgetItem class provides an item widget for use with the
   QHeaderWidget item view class.
 
   \ingroup model-view
 
+  Header items are used to display header labels for headers provided by the
+  QHeaderWidget class used by QTableWidget and QTreeWidget. Each item
+  provides a generic text label with an optional icon, and supports standard
+  user interface features such as tooltips, "What's This?" help, and status
+  tips.
+
+  Items can be made checkable by specifying the appropriate flags to
+  setFlags(). You can determine if an item is already checkable by calling
+  flags() and comparing the value returned against the values defined in
+  \l{QAbstractItemModel::ItemFlags}. Checkable items can be checked with
+  setChecked(), and the checked() function returns a value that can be
+  compared with the values defined in \l{QCheckBox::ToggleState}.
+
+  The appearance of header items can be customized in a variety of ways:
+
+  \list
+  \i The background color can be obtained with backgroundColor() and set
+     with setBackgroundColor().
+  \i The text color can be obtained with textColor() and set
+     with setTextColor().
+  \i The font used for the text can be obtained with font() and set
+     with setFont().
+  \i If the header item has been given an icon to use, this can be obtained
+     with the icon() function and set with setIcon().
+  \endlist
+
+  Additionally, the item can provide tooltips, status tips, and "What's This?"
+  help. The text used for each of these can be found with toolTip(),
+  statusTip(), and whatsThis(). The text used for these features can be
+  set with setToolTip(), setStatusTip(), and setWhatsThis().
+
+  \sa QHeaderWidget QHeaderView
 */
 
 /*!
-  Creates an empty header item.
+    \fn QHeaderWidget *QHeaderWidgetItem::headerWidget() const
+
+    Returns the header widget that contains the item.
+*/
+
+/*!
+    \fn QAbstractItemModel::ItemFlags QHeaderWidgetItem::flags() const
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setFlags()
+
+    Sets the item flags for the item to \a flags (see
+    \l{QAbstractItemModel::ItemFlags}).
+*/
+
+/*!
+    \fn QString QHeaderWidgetItem::text() const
+
+    Returns the text displayed in the item.
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setText(const QString &text)
+
+    Sets the text displayed in the item to the given \a text.
+
+    \sa text() setIcon()
+*/
+
+/*!
+    \fn QIcon QHeaderWidgetItem::icon() const
+
+    Returns the icon displayed in the item.
+
+    \sa setIcon() text()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setIcon(const QIcon &icon)
+
+    Sets the icon displayed in the item to the given \a icon.
+
+    \sa icon() setText()
+*/
+
+/*!
+    \fn QString QHeaderWidgetItem::statusTip() const
+
+    Returns the item's status tip text.
+
+    \sa setStatusTip() toolTip() whatsThis()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setStatusTip(const QString &statusTip)
+
+    Sets the status tip for the item to \a statusTip.
+
+    \sa statusTip() setToolTip() setWhatsThis()
+*/
+
+/*!
+    \fn QString QHeaderWidgetItem::toolTip() const
+
+    Returns the item's tooltip text.
+
+    \sa setToolTip() statusTip() whatsThis()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setToolTip(const QString &toolTip)
+
+    Sets the tooltip for the item to \a toolTip.
+
+    \sa toolTip() setStatusTip() setWhatsThis()
+*/
+
+/*!
+    \fn QString QHeaderWidgetItem::whatsThis() const
+
+    Returns the item's "What's This?" text.
+
+    \sa setWhatsThis() statusTip() toolTip()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setWhatsThis(const QString &whatsThis)
+
+    Sets the "What's This?" help for this item to \a whatsThis.
+
+    \sa whatsThis() setStatusTip() setToolTip()
+*/
+
+/*!
+    \fn QFont QHeaderWidgetItem::font() const
+
+    Returns the font used for the item's text.
+
+    \sa setFont() textColor()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setFont(const QFont &font)
+
+    Sets the font used for the item's text to the given \a font.
+
+    \sa font() setTextColor()
+*/
+
+/*!
+    \fn QColor QHeaderWidgetItem::backgroundColor() const
+
+    Returns the background color of the item.
+
+    \sa setBackgroundColor() textColor()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setBackgroundColor(const QColor &color)
+
+    Sets the background color of the item to the given \a color.
+
+    \sa backgroundColor() textColor()
+*/
+
+/*!
+    \fn QColor QHeaderWidgetItem::textColor() const
+
+    Returns the color used for the item's text.
+
+    \sa setTextColor() backgroundColor() font()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setTextColor(const QColor &color)
+
+    Sets the color used for the item's text to the given \a color.
+
+    \sa color() setFont()
+*/
+
+/*!
+    \fn int QHeaderWidgetItem::checked() const
+
+    Returns the checked state of the item (see \l{QCheckBox::ToggleState}).
+
+    Only checkable items can be checked. By default, items are not
+    checkable.
+
+    \sa flags()
+*/
+
+/*!
+    \fn void QHeaderWidgetItem::setChecked(const bool checked)
+
+    Checks the item if \a checked is true; otherwise the item
+    will be shown as unchecked.
+
+    \sa checked()
+*/
+
+
+/*!
+  Constructs an empty header item.
 */
 
 QHeaderWidgetItem::QHeaderWidgetItem()
@@ -239,8 +435,8 @@ QHeaderWidgetItem::~QHeaderWidgetItem()
 }
 
 /*!
-    This function sets \a value for a given \a role (see
-  {QAbstractItemModel::Role}). Reimplement this function if you need
+  This function sets \a value for the given \a role (see
+  \l{QAbstractItemModel::Role}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
 */
 
@@ -259,8 +455,8 @@ void QHeaderWidgetItem::setData(int role, const QVariant &value)
 }
 
 /*!
-   This function returns the items data for a given \a role (see
-   {QAbstractItemModel::Role}). Reimplement this function if you need
+   This function returns the items data for the given \a role (see
+   \l{QAbstractItemModel::Role}). Reimplement this function if you need
    extra roles or special behavior for certain roles.
 */
 
@@ -357,6 +553,21 @@ void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int firs
   Model/View Programming\endlink
 */
 
+/*!
+    \fn void QHeaderWidget::clicked(QHeaderWidgetItem *item, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+
+    This signal is emitted when the specified \a item is clicked.
+    The state of the mouse buttons is described by \a button; the
+    \a modifiers reflect the state of the keyboard's modifier keys.
+
+    The item may be 0 if the mouse was not clicked on an item.
+*/
+
+/*!
+    \fn void QHeaderWidget::itemChanged(QHeaderWidgetItem *item)
+
+    This signal is emitted when the specified \a item has changed.
+*/
 
 /*!
     Constructs a header view with the given \a orientation and \a parent widget.

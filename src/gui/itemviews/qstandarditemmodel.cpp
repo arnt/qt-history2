@@ -39,7 +39,8 @@
 */
 
 /*!
-    Creates an empty model with no rows or columns.
+    Creates an empty model that contains no rows or columns with the given
+    \a parent.
 */
 QStandardItemModel::QStandardItemModel(QObject *parent)
     : QAbstractItemModel(*new QStandardItemModelPrivate(0, 0), parent)
