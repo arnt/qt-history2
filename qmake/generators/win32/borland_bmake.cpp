@@ -104,6 +104,9 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "MOC	=	" << Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE) << endl;
     t << "UIC	=	" << var("QMAKE_UIC") << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
+    t << "COPY  =       " << var("QMAKE_COPY") << endl;
+    t << "DEL   =       " << var("QMAKE_DEL") << endl;
+    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
     t << endl;
 
     t << "####### Files" << endl << endl;

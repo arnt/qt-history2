@@ -60,3 +60,7 @@ QMAKE_RANLIB		= ranlib
 
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
+
+QMAKE_COPY              = cp -f
+QMAKE_MOVE              = mv
+QMAKE_DEL               = rm -f

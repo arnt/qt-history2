@@ -69,3 +69,7 @@ QMAKE_LIB		= tlib /C /P256
 QMAKE_RC		= brc32
 
 QMAKE_ZIP		= zip -r -9
+
+QMAKE_COPY              = copy
+QMAKE_MOVE              = move
+QMAKE_DEL               = del

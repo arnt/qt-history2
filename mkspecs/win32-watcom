@@ -54,3 +54,7 @@ QMAKE_LIB		= wlib -b -c -n -q -p=512
 QMAKE_RC		= rc
 
 QMAKE_ZIP		= zip -r -9
+
+QMAKE_COPY              = copy
+QMAKE_MOVE              = move
+QMAKE_DEL               = del

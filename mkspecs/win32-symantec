@@ -56,3 +56,7 @@ QMAKE_LIB		= lib /C /N /NOI /P:32
 QMAKE_RC		= rc
 
 QMAKE_ZIP		= zip -r -9
+
+QMAKE_COPY              = copy
+QMAKE_MOVE              = move
+QMAKE_DEL               = del
