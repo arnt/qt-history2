@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#52 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#52 $");
 
 
 const int Unsorted = 32767;
@@ -2671,4 +2671,35 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 {
     p->fillRect( 0, 0, w, h, cg.base() );
 
+}
+
+
+/*!  Returns a size suitable for this scroll view.  This is as wide as
+  mostly upon QHeader's sizeHint() recommends and tall enough for
+  perhaps 10 items.
+*/
+
+QSize QListView::sizeHint() const
+{
+    QSize s( d->h->sizeHint() );
+    QListViewItem * l = d->r;
+    while( l && !l->height() ) {
+	if ( l->childItem )
+	    l = l->childItem;
+	else if ( l->siblingItem )
+	    l = l->siblingItem;
+    }
+    if ( l && l->height() )
+	s.setHeight( s.height() + 10 * l->height() );
+    else
+	s.setHeight( s.height() + 140 );
+    
+    if ( s.width() > s.height() * 3 )
+	s.setHeight( s.width() / 3 );
+    else if ( s.width() > s.height() * 2 )
+	s.setHeight( s.width() / 2 );
+    else if ( s.width() * 2 > s.height() * 3 )
+	s.setHeight( s.width() * 3 / 2 );
+
+    return s;
 }
