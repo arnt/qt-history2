@@ -39,6 +39,59 @@
 
 #include "glinfo.h"
 
+class Triangles : public QGLWidget
+{
+public:
+    Triangles( const QGLFormat& fmt, QWidget * parent )
+	: QGLWidget( fmt, parent ), angle( 0 )
+    { 
+	startTimer( 40 );
+    }
+    
+protected:
+    int angle;
+    void timerEvent( QTimerEvent * ) {
+	update(); // updates the widget every 40 ms
+    }	
+    void initializeGL() { 
+	glClearColor( 0.0, 0.0, 0.0, 1.0 ); // black background
+ 	glShadeModel( GL_SMOOTH ); // interpolate colors btw. vertices
+   	glEnable( GL_DEPTH_TEST ); // removes hidden surfaces
+ 	glMatrixMode( GL_PROJECTION );
+ 	glLoadIdentity();	
+ 	glOrtho( -5.0, 5.0, -5.0, 5.0, 1.0, 100.0 );
+ 	glMatrixMode( GL_MODELVIEW );
+    }
+    void resizeGL( int w, int h ) {
+	glViewport( 0, 0, w, h ); // resize the GL drawing area
+    }
+    void paintGL() {
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT ); 
+ 	glLoadIdentity();
+ 	glTranslatef( 0.0, 0.0, -6.0 );
+ 	glRotatef( angle, 1.0, 1.0, 0.0 ); // rotate around the x and y axis
+	angle += 3;
+	glBegin( GL_TRIANGLES ); { // draw a tetrahedron
+  	    glColor3f( 1.0, 0.0, 0.0 ); glVertex3f( -2.0, -2.0, 0.0 );
+  	    glColor3f( 0.0, 1.0, 0.0 ); glVertex3f( -2.0, 2.0, 0.0 );
+  	    glColor3f( 0.0, 0.0, 1.0 ); glVertex3f( 2.0, -2.0, 0.0 );
+
+  	    glColor3f( 0.0, 1.0, 1.0 ); glVertex3f( -2.0, -2.0, -4.0 );
+  	    glColor3f( 0.0, 1.0, 0.0 ); glVertex3f( -2.0, 2.0, 0.0 );
+  	    glColor3f( 0.0, 0.0, 1.0 ); glVertex3f( 2.0, -2.0, 0.0 );
+
+  	    glColor3f( 1.0, 0.0, 0.0 ); glVertex3f( -2.0, -2.0, 0.0 );
+  	    glColor3f( 0.0, 1.0, 0.0 ); glVertex3f( -2.0, 2.0, 0.0 );
+  	    glColor3f( 0.0, 1.0, 1.0 ); glVertex3f( -2.0, -2.0, -4.0 );
+
+   	    glColor3f( 0.0, 1.0, 1.0 ); glVertex3f( -2.0, -2.0, -4.0 );
+   	    glColor3f( 1.0, 0.0, 0.0 ); glVertex3f( -2.0, -2.0, 0.0 );
+   	    glColor3f( 0.0, 0.0, 1.0 ); glVertex3f( 2.0, -2.0, 0.0 );
+ 	}
+ 	glEnd();
+    }
+};
+
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
@@ -94,15 +147,13 @@ void ApplicationWindow::info()
 
 void ApplicationWindow::about()
 {
-    QMessageBox::about( this, "Qt Application Example",
-			"This example demonstrates simple use of\n "
-			"Qt's Multiple Document Interface (MDI).");
+    QMessageBox::about( this, "Qt GL test", "Qt GL test");
 }
 
 
 void ApplicationWindow::aboutQt()
 {
-    QMessageBox::aboutQt( this, "Qt Application Example" );
+    QMessageBox::aboutQt( this, "Qt GL test" );
 }
 
 
@@ -111,12 +162,16 @@ MDIWindow::MDIWindow( const QGLFormat &f, QWidget* parent, const char* name )
 {
     QString str;
     QVBoxLayout *layout = new QVBoxLayout( this );
-    gl = new QGLWidget( f, this );
+//     gl = new QGLWidget( f, this );
+    gl = new Triangles( f, this );
     if ( !gl->isValid() ) {
 	QLabel * l = new QLabel( "Unable to create a GL widget with that config", this);
 	layout->addWidget( l );
 	return;
     }
+    gl->setMinimumSize( QSize( 100, 100 ) );
+    gl->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    layout->addWidget( gl );
     str.sprintf("Double Buffer: %d", gl->format().doubleBuffer());
     QLabel *l = new QLabel( str, this);
     layout->addWidget( l );
