@@ -162,7 +162,7 @@ bool qt_free_library( void* handle )
     if ( error )
 	qWarning( error );
 #endif
-    return ok != 0;
+    return ok == 0;
 }
 
 void* qt_resolve_symbol( void* handle, const char* f )

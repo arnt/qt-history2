@@ -243,7 +243,9 @@ QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recurs
 	}
     }
 
-    QUnknownInterface *iface = info->queryInterface( request, recursive, regexp );
+    QUnknownInterface * iface = 0;
+    if( info ) 
+	iface = info->queryInterface( request, recursive, regexp );
 
     return iface;
 }
