@@ -17,9 +17,9 @@ public:
     static QString entry( const QString& );
 
     bool writeKey( const QString &key, const QByteArray &value, ulong type );
-    QByteArray readKey( const QString &key, ulong type );
+    QByteArray readKey( const QString &key, ulong type, bool *ok );
 
-    HKEY openFolder( const QString &folder );
+    HKEY createFolder( const QString &folder );
 };
 
 QSettingsPrivate::QSettingsPrivate()
@@ -91,7 +91,7 @@ inline QString QSettingsPrivate::entry( const QString &key )
     return key.right( key.length() - key.findRev( "/" ) - 1 );
 }
 
-inline HKEY QSettingsPrivate::openFolder( const QString &f )
+inline HKEY QSettingsPrivate::createFolder( const QString &f )
 {
     HKEY handle = 0;
     long res;
@@ -126,7 +126,7 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
     QString e = entry( key );
     long res;
 
-    HKEY handle = openFolder( folder( key ) );
+    HKEY handle = createFolder( folder( key ) );
     if ( !handle )
 	return FALSE;
 
@@ -146,7 +146,7 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
     return TRUE;
 }
 
-inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
+inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *ok )
 {
     HKEY handle = 0;
     long res;
@@ -172,9 +172,8 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
 #endif
 		res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
 
-	    if ( res != ERROR_SUCCESS ) {
+	    if ( res != ERROR_SUCCESS && handle )
 		RegCloseKey( handle );
-	    }
 	}
     }
     if ( !size && local ) {
@@ -197,8 +196,11 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
 		qSystemWarning( "Couldn't read value " + key, res );
 	}
     }
-    if ( !size || type != t )
+    if ( !size || type != t ) {
+	if ( ok )
+	    *ok = FALSE;
 	return QByteArray();
+    }
 
     uchar* data = new uchar[ size ];
 #if defined(UNICODE)
@@ -212,6 +214,8 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t )
     result.setRawData( (const char*)data, size );
     RegCloseKey( handle );
 
+    if ( ok )
+	*ok = TRUE;
     return result;
 }
 
@@ -236,12 +240,12 @@ bool QSettings::sync()
     return TRUE;
 }
 
-bool QSettings::writeEntry(const QString &key, bool value )
+bool QSettings::writeEntry( const QString &key, bool value )
 {
     return writeEntry( key, int(value) );
 }
 
-bool QSettings::writeEntry(const QString &key, double value )
+bool QSettings::writeEntry( const QString &key, double value )
 {
     QByteArray array( sizeof(double) );
     const char *data = (char*)&value;
@@ -252,7 +256,7 @@ bool QSettings::writeEntry(const QString &key, double value )
     return d->writeKey( key, array, REG_BINARY );
 }
 
-bool QSettings::writeEntry(const QString &key, int value)
+bool QSettings::writeEntry( const QString &key, int value )
 {
     QByteArray array( sizeof(int) );
     const char* data = (char*)&value;
@@ -262,12 +266,12 @@ bool QSettings::writeEntry(const QString &key, int value)
     return d->writeKey( key, array, REG_DWORD );
 }
 
-bool QSettings::writeEntry(const QString &key, const char *value)
+bool QSettings::writeEntry( const QString &key, const char *value )
 {
     return writeEntry( key, QString( value ) );
 }
 
-bool QSettings::writeEntry(const QString &key, const QString &value)
+bool QSettings::writeEntry( const QString &key, const QString &value )
 {
     QByteArray array( 0 );
 #if defined(UNICODE)
@@ -291,22 +295,28 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
     return d->writeKey( key, array, REG_SZ );
 }
 
-bool QSettings::writeEntry(const QString &key, const QStringList &value, const QChar &sep)
+bool QSettings::writeEntry( const QString &key, const QStringList &value, const QChar &sep )
 {
     QString joined = value.join( sep );
     return writeEntry( key, joined );
 }
 
-QStringList QSettings::readListEntry(const QString &key, const QChar &sep)
+QStringList QSettings::readListEntry( const QString &key, const QChar &sep, bool *ok )
 {
-    QString joined = readEntry( key );
-    return QStringList::split( sep, joined );
+    QString joined = readEntry( key, ok );
+    if ( ok && *ok )
+	return QStringList::split( sep, joined );
+    else
+	return QStringList();
 }
 
-QString QSettings::readEntry( const QString &key )
+QString QSettings::readEntry( const QString &key, bool *ok )
 {
     QString result = QString::null;
-    QByteArray array = d->readKey( key, REG_SZ );
+    QByteArray array = d->readKey( key, REG_SZ, ok );
+    if ( ok && !*ok )
+	return result;
+
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	int s = array.size();
@@ -321,11 +331,17 @@ QString QSettings::readEntry( const QString &key )
     return result;
 }
 
-int QSettings::readNumEntry( const QString &key )
+int QSettings::readNumEntry( const QString &key, bool *ok )
 {
-    QByteArray array = d->readKey( key, REG_DWORD );
-    if ( array.size() != sizeof(int) )
+    QByteArray array = d->readKey( key, REG_DWORD, ok );
+    if ( ok && !*ok )
 	return 0;
+
+    if ( array.size() != sizeof(int) ) {
+	if ( ok )
+	    *ok = FALSE;
+	return 0;
+    }
 
     int res = 0;
     char* data = (char*)&res;
@@ -335,11 +351,16 @@ int QSettings::readNumEntry( const QString &key )
     return res;
 }
 
-double QSettings::readDoubleEntry( const QString &key )
+double QSettings::readDoubleEntry( const QString &key, bool *ok )
 {
-    QByteArray array = d->readKey( key, REG_BINARY );
-    if ( array.size() != sizeof(double) )
+    QByteArray array = d->readKey( key, REG_BINARY, ok );
+    if ( ok && !*ok )
 	return 0;
+    if ( array.size() != sizeof(double) ) {
+	if ( ok )
+	    *ok = FALSE;
+	return 0;
+    }
 
     double res = 0;
     char* data = (char*)&res;
@@ -349,16 +370,16 @@ double QSettings::readDoubleEntry( const QString &key )
     return res;
 }
 
-bool QSettings::readBoolEntry( const QString &key )
+bool QSettings::readBoolEntry( const QString &key, bool *ok )
 {
-    return readNumEntry( key );
+    return readNumEntry( key, ok );
 }
 
 bool QSettings::removeEntry( const QString &key )
 {
     QString e = d->entry( key );
     long res;
-    HKEY handle = d->openFolder( d->folder( key ) );
+    HKEY handle = d->createFolder( d->folder( key ) );
     if ( !handle )
 	return FALSE;
 
