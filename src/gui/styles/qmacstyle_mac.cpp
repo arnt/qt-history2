@@ -14,6 +14,7 @@
 #include "qmacstyle_mac.h"
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
+#define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 
 #include <private/qpainter_p.h>
 #include <private/qtitlebar_p.h>
@@ -21,6 +22,7 @@
 #include <qbitmap.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
+#include <qdockwindow.h>
 #include <qevent.h>
 #include <qgroupbox.h>
 #include <qhash.h>
@@ -670,6 +672,73 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     }
     return ret;
 }
+
+
+#if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
+static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSize small, QSize mini)
+{
+    if(large == QSize(-1, -1)) {
+        if(small != QSize(-1, -1))
+            return QAquaSizeSmall;
+        if(mini != QSize(-1, -1))
+            return QAquaSizeMini;
+        return QAquaSizeUnknown;
+    } else if(small == QSize(-1, -1)) {
+        if(mini != QSize(-1, -1))
+            return QAquaSizeMini;
+        return QAquaSizeLarge;
+    } else if(mini == QSize(-1, -1)) {
+        return QAquaSizeLarge;
+    }
+
+#ifndef QT_NO_MAINWINDOW
+    if(qt_cast<QDockWindow *>(widg->topLevelWidget()) || getenv("QWIDGET_ALL_SMALL")) {
+        //if(small.width() != -1 || small.height() != -1)
+        return QAquaSizeSmall;
+    } else if(getenv("QWIDGET_ALL_MINI")) {
+        return QAquaSizeMini;
+    }
+#endif
+
+#if 0
+    /* Figure out which size we're closer to, I just hacked this in, I haven't
+       tested it as it would probably look pretty strange to have some widgets
+       big and some widgets small in the same window?? -Sam */
+    int large_delta=0;
+    if(large.width() != -1) {
+        int delta = large.width() - widg->width();
+        large_delta += delta * delta;
+    }
+    if(large.height() != -1) {
+        int delta = large.height() - widg->height();
+        large_delta += delta * delta;
+    }
+    int small_delta=0;
+    if(small.width() != -1) {
+        int delta = small.width() - widg->width();
+        small_delta += delta * delta;
+    }
+    if(small.height() != -1) {
+        int delta = small.height() - widg->height();
+        small_delta += delta * delta;
+    }
+    int mini_delta=0;
+    if(mini.width() != -1) {
+        int delta = mini.width() - widg->width();
+        mini_delta += delta * delta;
+    }
+    if(mini.height() != -1) {
+        int delta = mini.height() - widg->height();
+        mini_delta += delta * delta;
+    }
+    if(mini_delta < small_delta && mini_delta < large_delta)
+        return QAquaSizeMini;
+    else if(small_delta < large_delta)
+        return QAquaSizeSmall;
+#endif
+    return QAquaSizeLarge;
+}
+#endif
 
 QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
                                        QStyle::ContentsType ct = QStyle::CT_CustomBase,
