@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#10 $
 **
 ** Implementation of QTimer class
 **
@@ -13,29 +13,39 @@
 #include "qtimer.h"
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#10 $")
 
 
 /*----------------------------------------------------------------------------
   \class QTimer qtimer.h
-
   \brief The QTimer class provides timer signals and single-shot timers.
 
   \ingroup time
   \ingroup event
 
-  It uses the \link QTimerEvent timer event \endlink internally to
-  provide a more versatile timer.  QTimer is very easy to use, create
-  a QTimer, call start() to start it and connect its timeout() to the
-  appropriate slots, then when the time is up it will emit timeout().
+  It uses \link QTimerEvent timer events\endlink internally to provide a
+  more versatile timer.  QTimer is very easy to use, create a QTimer, call
+  start() to start it and connect its timeout() to the appropriate slots,
+  then when the time is up it will emit timeout().
 
   Note that a QTimer object is destroyed automatically when its parent
   object is destroyed.
 
-  \todo add QTimer::timeLeft()
+  Example:
+  \code
+    QTimer *timer = new QTimer( myObject );
+    timer->start( 2000, TRUE );			// 2 seconds single-shot
+    connect( timer, SIGNAL(timeout()),
+	     myObject, SLOT(timerDone()) );
+  \endcode
 
-  \sa QTimerEvent QObject::event() QWidget::timerEvent()
-  ----------------------------------------------------------------------------*/
+  An alternative is to call QObject::startTimer() for your object and
+  reimplement the QObject::timerEvent() event handler in your class (it
+  must inherit QObject).  The advantage is that you can have multiple
+  running timers, each having a unique identifier.  The disadvantage is
+  that it does not support such high-level features as single-shot timers
+  or signals.
+ ----------------------------------------------------------------------------*/
 
 
 const int INV_TIMER = -1;			// invalid timer id
@@ -44,9 +54,10 @@ const int INV_TIMER = -1;			// invalid timer id
 /*----------------------------------------------------------------------------
   Constructs a timer with a \e parent and a \e name.
 
-  Notice that the destructor of the parent object will
-  destroy this timer object.
+  Notice that the destructor of the parent object will destroy this timer
+  object.
  ----------------------------------------------------------------------------*/
+  
 
 QTimer::QTimer( QObject *parent, const char *name )
     : QObject( parent, name )
@@ -89,7 +100,7 @@ QTimer::~QTimer()
   \sa stop(), changeInterval(), isActive()
  ----------------------------------------------------------------------------*/
 
-int QTimer::start( long msec, bool sshot )	// start timer
+int QTimer::start( long msec, bool sshot )
 {
     if ( id != INV_TIMER )			// stop running timer
 	stop();
@@ -107,7 +118,7 @@ int QTimer::start( long msec, bool sshot )	// start timer
   \sa start(), isActive()
  ----------------------------------------------------------------------------*/
 
-void QTimer::changeInterval( long msec )	// change running timer
+void QTimer::changeInterval( long msec )
 {
     if ( id == INV_TIMER )			// create new timer
 	start( msec );
