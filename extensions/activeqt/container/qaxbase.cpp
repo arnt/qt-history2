@@ -1231,18 +1231,23 @@ class MetaObjectGenerator
 {
 public:
     MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr);
+    MetaObjectGenerator(ITypeLib *typelib, ITypeInfo *typeinfo);
     ~MetaObjectGenerator();
     
-    QMetaObject *metaObject(const QMetaObject *parentObject);
-    
-private:
+    QMetaObject *metaObject(const QMetaObject *parentObject, const QByteArray &className = QByteArray());
+
     void readClassInfo();
     void readEnumInfo();
     void readInterfaceInfo();
     void readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs);
     void readVarsInfo(ITypeInfo *typeinfo, ushort nVars);
     void readEventInfo();
-    
+    void readEventInterface(ITypeInfo *eventinfo, IConnectionPoint *cpoint);
+
+private:
+    void init();
+
+   
     QMetaObject *tryCache();
     
     QByteArray createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QList<QByteArray> &names,
@@ -1399,10 +1404,10 @@ private:
     {
         return enum_list.contains(enumname);
     }
-    
+
     QAxBase *that;
     QAxBasePrivate *d;
-    
+
     IDispatch *disp;
     ITypeInfo *typeinfo;
     ITypeLib *typelib;
@@ -1414,21 +1419,115 @@ private:
     QUuid iid_propNotifySink;
 };
 
-MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
-: that(ax), d(dptr), typeinfo(0), typelib(0)
+QMetaObject *qax_readEnumInfo(ITypeLib *typeLib, const QMetaObject *parentObject)
 {
-    if (d->useClassInfo)
+    MetaObjectGenerator generator(typeLib, 0);
+
+    generator.readEnumInfo();
+    return generator.metaObject(parentObject, "EnumInfo");
+}
+
+QMetaObject *qax_readInterfaceInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject)
+{
+    MetaObjectGenerator generator(typeLib, typeInfo);
+
+    QString className;
+    BSTR bstr;
+    if (S_OK == typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
+        className = BSTRToQString(bstr);
+    else
+        return 0;
+
+    generator.readEnumInfo();
+    generator.readFuncsInfo(typeInfo, 0);
+    generator.readVarsInfo(typeInfo, 0);
+
+    return generator.metaObject(parentObject, className.latin1());
+}
+
+QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMetaObject *parentObject)
+{
+    MetaObjectGenerator generator(typeLib, typeInfo);
+
+    QString className;
+    BSTR bstr;
+    if (S_OK == typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
+        className = BSTRToQString(bstr);
+    else
+        return 0;
+
+    generator.readEnumInfo();
+
+    TYPEATTR *typeattr;
+    typeInfo->GetTypeAttr(&typeattr);
+    if (typeattr) {
+        int nInterfaces = typeattr->cImplTypes;
+        typeInfo->ReleaseTypeAttr(typeattr);
+
+        for (int index = 0; index < nInterfaces; ++index) {
+            HREFTYPE refType;
+            if (S_OK != typeInfo->GetRefTypeOfImplType(index, &refType))
+                continue;
+
+            int flags = 0;
+            typeInfo->GetImplTypeFlags(index, &flags);
+            if (flags & IMPLTYPEFLAG_FRESTRICTED)
+                continue;
+
+            ITypeInfo *interfaceInfo = 0;
+            typeInfo->GetRefTypeInfo(refType, &interfaceInfo);
+            if (!interfaceInfo)
+                continue;
+
+            if (flags & IMPLTYPEFLAG_FSOURCE) {
+                generator.readEventInterface(interfaceInfo, 0);
+            } else {
+                generator.readFuncsInfo(interfaceInfo, 0);
+                generator.readVarsInfo(interfaceInfo, 0);
+            }
+
+            interfaceInfo->Release();
+        }
+    }
+
+
+    return generator.metaObject(parentObject, className.latin1());
+}
+
+MetaObjectGenerator::MetaObjectGenerator(QAxBase *ax, QAxBasePrivate *dptr)
+: that(ax), d(dptr), disp(0), typeinfo(0), typelib(0)
+{
+    init();
+}
+
+MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
+: that(0), d(0), disp(0), typeinfo(tinfo), typelib(tlib)
+{
+    init();
+
+    if (typeinfo)
+        typeinfo->AddRef();
+    if (typelib)
+        typelib->AddRef();
+    readClassInfo();
+}
+
+void MetaObjectGenerator::init()
+{
+    if (!d || d->useClassInfo)
         iidnames.insertSearchPath(QSettings::Windows, "/Classes");
     
     if (d)
         disp = d->dispatch();
-    
+
     iid_propNotifySink = IID_IPropertyNotifySink;
-    
-    addSignal("signal(QString,int,void*)", "name,argc,argv");
-    addSignal("exception(int,QString,QString,QString)", "code,source,disc,help");
-    addSignal("propertyChanged(QString)", "name");
-    addProperty("QString", "control", Readable|Writable|Designable|Scriptable|Stored|Editable|StdCppSet);
+
+    if (d || typeinfo) {
+        addSignal("signal(QString,int,void*)", "name,argc,argv");
+        addSignal("exception(int,QString,QString,QString)", "code,source,disc,help");
+        addSignal("propertyChanged(QString)", "name");
+        addProperty("QString", "control", Readable|Writable|Designable|Scriptable|Stored|Editable|StdCppSet);
+    }
 }
 
 MetaObjectGenerator::~MetaObjectGenerator()
@@ -1619,7 +1718,8 @@ void MetaObjectGenerator::readClassInfo()
 {
     // Read class information
     IProvideClassInfo *classinfo = 0;
-    d->ptr->QueryInterface(IID_IProvideClassInfo, (void**)&classinfo);
+    if (d)
+        d->ptr->QueryInterface(IID_IProvideClassInfo, (void**)&classinfo);
     if (classinfo) {
         ITypeInfo *info = 0;
         classinfo->GetClassInfo(&info);
@@ -1684,10 +1784,10 @@ void MetaObjectGenerator::readClassInfo()
         }
     }
     
-    if (!typeinfo && typelib)
+    if (!typeinfo && typelib && that)
         typelib->GetTypeInfoOfGuid(QUuid(that->control()), &typeinfo);
     
-    if (!typeinfo || !cacheKey.isEmpty() || !d->tryCache)
+    if (!d || !typeinfo || !cacheKey.isEmpty() || !d->tryCache)
         return;
     
     TYPEATTR *typeattr = 0;
@@ -1712,7 +1812,7 @@ void MetaObjectGenerator::readEnumInfo()
 
     QUuid libUuid;
 
-    if (d->tryCache) {
+    if (d && d->tryCache) {
         TLIBATTR *libAttr = 0;
         typelib->GetLibAttr(&libAttr);
         if (libAttr) {
@@ -1785,10 +1885,13 @@ void MetaObjectGenerator::readEnumInfo()
 
 void MetaObjectGenerator::addChangedSignal(const QByteArray &function, const QByteArray &type, int memid)
 {
-    QAxEventSink *eventSink = d->eventSink.value(iid_propNotifySink);
-    if (!eventSink && d->useEventSink) {
-        eventSink = new QAxEventSink(that);
-        d->eventSink.insert(iid_propNotifySink, eventSink);
+    QAxEventSink *eventSink = 0;
+    if (d) {
+        eventSink = d->eventSink.value(iid_propNotifySink);
+        if (!eventSink && d->useEventSink) {
+            eventSink = new QAxEventSink(that);
+            d->eventSink.insert(iid_propNotifySink, eventSink);
+        }
     }
     // generate changed signal
     QByteArray signalName(function);
@@ -1865,6 +1968,15 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
 
 void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
 {
+    if (!nFuncs) {
+        TYPEATTR *typeattr = 0;
+        typeinfo->GetTypeAttr(&typeattr);
+        if (typeattr) {
+            nFuncs = typeattr->cFuncs;
+            typeinfo->ReleaseTypeAttr(typeattr);
+        }
+    }
+
     // get information about all functions
     for (ushort fd = 0; fd < nFuncs ; ++fd) {
         FUNCDESC *funcdesc = 0;
@@ -2001,6 +2113,15 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
 
 void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
 {
+    if (!nVars) {
+        TYPEATTR *typeattr = 0;
+        typeinfo->GetTypeAttr(&typeattr);
+        if (typeattr) {
+            nVars = typeattr->cVars;
+            typeinfo->ReleaseTypeAttr(typeattr);
+        }
+    }
+
     // get information about all variables
     for (ushort vd = 0; vd < nVars; ++vd) {
         VARDESC *vardesc;
@@ -2094,7 +2215,7 @@ void MetaObjectGenerator::readInterfaceInfo()
             if ((typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_INTERFACE) &&
                 (typeattr->guid != IID_IDispatch && typeattr->guid != IID_IUnknown)) {
 #ifndef QAX_NO_CLASSINFO
-                if (d->useClassInfo) {
+                if (d && d->useClassInfo) {
                     // UUID
                     QUuid uuid(typeattr->guid);
                     QString uuidstr = uuid.toString().toUpper();
@@ -2134,11 +2255,94 @@ void MetaObjectGenerator::readInterfaceInfo()
     }
 }
 
+void MetaObjectGenerator::readEventInterface(ITypeInfo *eventinfo, IConnectionPoint *cpoint)
+{
+    TYPEATTR *eventattr;
+    eventinfo->GetTypeAttr(&eventattr);
+    if (!eventattr)
+        return;
+    if (eventattr->typekind != TKIND_DISPATCH) {
+        eventinfo->ReleaseTypeAttr(eventattr);
+        return;
+    }
+
+    QAxEventSink *eventSink = 0;
+    if (d) {
+        IID conniid;
+        cpoint->GetConnectionInterface(&conniid);
+        eventSink = d->eventSink.value(QUuid(conniid));
+        if (!eventSink) { 
+            eventSink = new QAxEventSink(that);
+            d->eventSink.insert(QUuid(conniid), eventSink);
+            eventSink->advise(cpoint, conniid);
+        }
+    }
+    
+    // get information about all event functions
+    for (UINT fd = 0; fd < (UINT)eventattr->cFuncs; ++fd) {
+        FUNCDESC *funcdesc;
+        eventinfo->GetFuncDesc(fd, &funcdesc);
+        if (!funcdesc)
+            break;
+        if (funcdesc->invkind != INVOKE_FUNC ||
+            funcdesc->funckind != FUNC_DISPATCH) {
+            eventinfo->ReleaseTypeAttr(eventattr);
+            eventinfo->ReleaseFuncDesc(funcdesc);
+            continue;
+        }
+        
+        QByteArray function;
+        QByteArray prototype;
+        QList<QByteArray> parameters;
+        
+        // parse event function description
+        BSTR bstrNames[256];
+        UINT maxNames = 255;
+        UINT maxNamesOut;
+        eventinfo->GetNames(funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut);
+        QList<QByteArray> names;
+        int p;
+        for (p = 0; p < (int)maxNamesOut; ++p) {
+            names << BSTRToQString(bstrNames[p]).latin1();
+            SysFreeString(bstrNames[p]);
+        }
+        
+        // get event function prototype
+        function = names.at(0);
+        QByteArray type; // dummy - we don't care about return values for signals
+        prototype = createPrototype(/*in*/ funcdesc, eventinfo, names, /*out*/type, parameters);
+        if (!hasSignal(prototype)) {
+            QByteArray pnames;
+            for (p = 0; p < parameters.count(); ++p) {
+                pnames += parameters.at(p);
+                if (p < parameters.count() - 1)
+                    pnames += ',';
+            }
+            addSignal(prototype, pnames);
+        }
+        if (eventSink)
+            eventSink->addSignal(funcdesc->memid, prototype);
+        
+#if 0 // documentation in metaobject would be cool?
+        // get function documentation
+        BSTR bstrDocu;
+        eventinfo->GetDocumentation(funcdesc->memid, 0, &bstrDocu, 0, 0);
+        QString strDocu = BSTRToQString(bstrDocu);
+        if (!!strDocu)
+            desc += "[" + strDocu + "]";
+        desc += "\n";
+        SysFreeString(bstrDocu);
+#endif
+        eventinfo->ReleaseFuncDesc(funcdesc);
+    }
+    eventinfo->ReleaseTypeAttr(eventattr);
+}
+
 void MetaObjectGenerator::readEventInfo()
 {
     int event_serial = 0;
     IConnectionPointContainer *cpoints = 0;
-    if (d->useEventSink)
+    if (d && d->useEventSink)
         d->ptr->QueryInterface(IID_IConnectionPointContainer, (void**)&cpoints);
     if (cpoints) {
         // Get connection point enumerator
@@ -2187,81 +2391,8 @@ void MetaObjectGenerator::readEventInfo()
                 if (eventinfo) {
                     // avoid recursion (see workaround above)
                     cpointlist.append(connuuid);
-                    
-                    TYPEATTR *eventattr;
-                    eventinfo->GetTypeAttr(&eventattr);
-                    if (!eventattr)
-                        continue;
-                    if (eventattr->typekind != TKIND_DISPATCH) {
-                        eventinfo->ReleaseTypeAttr(eventattr);
-                        continue;
-                    }
-                    
-                    QAxEventSink *eventSink = d->eventSink.value(QUuid(conniid));
-                    if (!eventSink) { 
-                        eventSink = new QAxEventSink(that);
-                        d->eventSink.insert(QUuid(conniid), eventSink);
-                        eventSink->advise(cpoint, conniid);
-                    }
-                    
-                    // get information about all event functions
-                    for (UINT fd = 0; fd < (UINT)eventattr->cFuncs; ++fd) {
-                        FUNCDESC *funcdesc;
-                        eventinfo->GetFuncDesc(fd, &funcdesc);
-                        if (!funcdesc)
-                            break;
-                        if (funcdesc->invkind != INVOKE_FUNC ||
-                            funcdesc->funckind != FUNC_DISPATCH) {
-                            eventinfo->ReleaseTypeAttr(eventattr);
-                            eventinfo->ReleaseFuncDesc(funcdesc);
-                            continue;
-                        }
-                        
-                        QByteArray function;
-                        QByteArray prototype;
-                        QList<QByteArray> parameters;
-                        
-                        // parse event function description
-                        BSTR bstrNames[256];
-                        UINT maxNames = 255;
-                        UINT maxNamesOut;
-                        eventinfo->GetNames(funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut);
-                        QList<QByteArray> names;
-                        int p;
-                        for (p = 0; p < (int)maxNamesOut; ++p) {
-                            names << BSTRToQString(bstrNames[p]).latin1();
-                            SysFreeString(bstrNames[p]);
-                        }
-                        
-                        // get event function prototype
-                        function = names.at(0);
-                        QByteArray type; // dummy - we don't care about return values for signals
-                        prototype = createPrototype(/*in*/ funcdesc, eventinfo, names, /*out*/type, parameters);
-                        if (!hasSignal(prototype)) {
-                            QByteArray pnames;
-                            for (p = 0; p < parameters.count(); ++p) {
-                                pnames += parameters.at(p);
-                                if (p < parameters.count() - 1)
-                                    pnames += ',';
-                            }
-                            addSignal(prototype, pnames);
-                        }
-                        if (eventSink)
-                            eventSink->addSignal(funcdesc->memid, prototype);
-                        
-#if 0 // documentation in metaobject would be cool?
-                        // get function documentation
-                        BSTR bstrDocu;
-                        eventinfo->GetDocumentation(funcdesc->memid, 0, &bstrDocu, 0, 0);
-                        QString strDocu = BSTRToQString(bstrDocu);
-                        if (!!strDocu)
-                            desc += "[" + strDocu + "]";
-                        desc += "\n";
-                        SysFreeString(bstrDocu);
-#endif
-                        eventinfo->ReleaseFuncDesc(funcdesc);
-                    }
-                    eventinfo->ReleaseTypeAttr(eventattr);
+
+                    readEventInterface(eventinfo, cpoint);
                     eventinfo->Release();
                 }
             } while (c);
@@ -2306,21 +2437,23 @@ QMetaObject *MetaObjectGenerator::tryCache()
     return 0;
 }
 
-QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
+QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, const QByteArray &className)
 {
-    readClassInfo();
-    if (d->tryCache && tryCache())
-        return d->metaobj;
-    readEnumInfo();
-    readInterfaceInfo();
-    readEventInfo();
+    if (that) {
+        readClassInfo();
+        if (d->tryCache && tryCache())
+            return d->metaobj;
+        readEnumInfo();
+        readInterfaceInfo();
+        readEventInfo();
+    }
     
 #ifndef QAX_NO_CLASSINFO
     if (!debugInfo.isEmpty() && d->useClassInfo)
         addClassInfo("debugInfo", debugInfo);
 #endif
     
-    d->metaobj = new QAxMetaObject;
+    QAxMetaObject *metaobj = new QAxMetaObject;
     
     // revision + classname + table + zero terminator
     int int_data_size = 1+1+2+2+2+2+2+1;
@@ -2352,7 +2485,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     
     char null('\0');
     // data + zero-terminator
-    QByteArray stringdata = that->className();
+    QByteArray stringdata = that ? that->className() : className;
     stringdata += null;
     stringdata.reserve(8192);
     
@@ -2377,7 +2510,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
         QByteArray type(it.value().type);
         QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
-            d->metaobj->realPrototype[prototype] = it.value().realPrototype;
+            metaobj->realPrototype[prototype] = it.value().realPrototype;
         QByteArray tag;
         int flags = it.value().flags;
         
@@ -2403,7 +2536,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
         QByteArray type(it.value().type);
         QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
-            d->metaobj->realPrototype[prototype] = it.value().realPrototype;
+            metaobj->realPrototype[prototype] = it.value().realPrototype;
         QByteArray tag;
         int flags = it.value().flags;
         
@@ -2474,10 +2607,13 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     memcpy(string_data, stringdata, stringdata.length());
     
     // put the metaobject together
-    d->metaobj->d.data = int_data;
-    d->metaobj->d.stringdata = string_data;
-    d->metaobj->d.superdata = parentObject;
+    metaobj->d.data = int_data;
+    metaobj->d.stringdata = string_data;
+    metaobj->d.superdata = parentObject;
     
+    if (d)
+        d->metaobj = metaobj;
+
     if (!cacheKey.isEmpty()) {
         mo_cache.insert(cacheKey, d->metaobj);
         d->cachedMetaObject = true;
@@ -2494,7 +2630,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
         }
     }
     
-    return d->metaobj;
+    return metaobj;
 }
 
 static const uint qt_meta_data_QAxBase[] = {
