@@ -562,39 +562,47 @@ QSize QListView::gridSize() const
     return d->gridSize;
 }
 
+/*!
+    \property QListView::ViewMode
+    \brief the view mode of the QListView.
+
+    This property will change the other unset properties to conform
+    with the set view mode. Properties that have already been set
+    will not be changed, unless clearPropertyFlags() has been called.
+*/
 void QListView::setViewMode(ViewMode mode)
 {
     d->viewMode = mode;
 
     if (mode == ListMode) {
-        if (!d->modeProperties & QListViewPrivate::Wrap)
+        if (!(d->modeProperties & QListViewPrivate::Wrap))
             d->wrap = false;
-        if (!d->modeProperties & QListViewPrivate::Spacing)
+        if (!(d->modeProperties & QListViewPrivate::Spacing))
             d->spacing = 0;
-        if (!d->modeProperties & QListViewPrivate::GridSize)
+        if (!(d->modeProperties & QListViewPrivate::GridSize))
             d->gridSize = QSize();
-        if (!d->modeProperties & QListViewPrivate::Flow)
+        if (!(d->modeProperties & QListViewPrivate::Flow))
             d->flow = TopToBottom;
-        if (!d->modeProperties & QListViewPrivate::Movement)
+        if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Static;
-        if (!d->modeProperties & QListViewPrivate::IconSize)
+        if (!(d->modeProperties & QListViewPrivate::IconSize))
             d->iconSize = Small;
-        if (!d->modeProperties & QListViewPrivate::ResizeMode)
+        if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Fixed;
     } else {
-        if (!d->modeProperties & QListViewPrivate::Wrap)
+        if (!(d->modeProperties & QListViewPrivate::Wrap))
             d->wrap = true;
-        if (!d->modeProperties & QListViewPrivate::Spacing)
+        if (!(d->modeProperties & QListViewPrivate::Spacing))
             d->spacing = 0;
-        if (!d->modeProperties & QListViewPrivate::GridSize)
+        if (!(d->modeProperties & QListViewPrivate::GridSize))
             d->gridSize = QSize();
-        if (!d->modeProperties & QListViewPrivate::Flow)
+        if (!(d->modeProperties & QListViewPrivate::Flow))
             d->flow = LeftToRight;
-        if (!d->modeProperties & QListViewPrivate::Movement)
+        if (!(d->modeProperties & QListViewPrivate::Movement))
             d->movement = Free;
-        if (!d->modeProperties & QListViewPrivate::IconSize)
+        if (!(d->modeProperties & QListViewPrivate::IconSize))
             d->iconSize = Large;
-        if (!d->modeProperties & QListViewPrivate::ResizeMode)
+        if (!(d->modeProperties & QListViewPrivate::ResizeMode))
             d->resizeMode = Adjust;
     }
 
