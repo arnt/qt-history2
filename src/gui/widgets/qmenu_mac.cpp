@@ -61,12 +61,12 @@ extern bool qt_modal_state(); //qapplication_mac.cpp
 /*****************************************************************************
   QMenu utility functions
  *****************************************************************************/
-inline static QCFString qt_mac_no_ampersands(QString str) {
+inline static QString qt_mac_no_ampersands(QString str) {
     for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
         if(w < (int)str.length()-1)
             str.remove(w, 1);
     }
-    return QCFString(str);
+    return str;
 }
 
 bool watchingAboutToShow(QMenu *menu)
@@ -93,11 +93,6 @@ static short qt_mac_menu_find_action(MenuRef menu, QMacMenuAction *action)
 //enabling of commands
 void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
 {
-#if 0
-    qDebug("setting %c%c%c%c to %s", (char)(cmd >> 24) & 0xFF, (char)(cmd >> 16) & 0xFF,
-           (char)(cmd >> 8) & 0xFF, (char)cmd & 0xFF,  b ? "on" : "off");
-#endif
-
     short index = qt_mac_menu_find_action(menu, cmd);
     if(index != -1) {
         UInt32 size;
@@ -485,7 +480,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //string
     data.whichData |= kMenuItemDataCFString;
-    data.cfText = CFStringCreateCopy(0, qt_mac_no_ampersands(text));
+    data.cfText = QCFString::toCFStringRef(qt_mac_no_ampersands(text));
 
     //enabled
     data.whichData |= kMenuItemDataEnabled;
@@ -724,7 +719,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
     }
     if(submenu) {
         SetMenuItemHierarchicalMenu(action->menu, index, submenu);
-        SetMenuTitleWithCFString(submenu, qt_mac_no_ampersands(action->action->text()));
+        SetMenuTitleWithCFString(submenu, QCFString(qt_mac_no_ampersands(action->action->text())));
         if(release_submenu) //no pointers to it
             ReleaseMenu(submenu);
     } else {
