@@ -15,6 +15,7 @@
 #include <qmetaobject.h>
 #include <quuid.h>
 #include <qt_windows.h>
+#include <qtextstream.h>
 
 #include "../shared/types.h"
 
