@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#7 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#8 $
 **
 ** Definition of QTimer class
 **
@@ -32,8 +32,10 @@ public:
 signals:
     void	timeout();
 
-private:
+protected:
     bool	event( QEvent * );
+
+private:
     int		id;
     bool	single;
 };
