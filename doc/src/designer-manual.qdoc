@@ -800,8 +800,7 @@ with the way that the line edit handles return key events:
 \quotefromfile snippets/designer/noautoconnection/imagedialog.cpp
 \skipto ImageDialog::ImageDialog
 \printuntil cancelButton
-\skipto ...
-\printuntil ...
+\dots
 \skipto connect(okButton
 \printuntil /^\}/
 

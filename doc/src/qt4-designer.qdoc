@@ -94,12 +94,13 @@ property editor to a widget.
 Special editors that allow in-place editing of widgets. For example, an 
 editor is being developed for adding items to a combo box.
 
-More layout editing features, allowing the user to
+More layout editing features, allowing the user to perform the following
+tasks:
 
 \list
-\i create widgets that span multiple rows/columns in a layout,
-\i move widgets inside a layout,
-\i remove empty rows/columns from a layout.
+\i Create widgets that span multiple rows/columns in a layout.
+\i Move widgets inside a layout.
+\i Remove empty rows/columns from a layout.
 \endlist
 
 \section2 Connection Editing Mode
@@ -116,13 +117,13 @@ more convenient experience.
 \list
 \i Plugin support. Plugins can be used to add new widgets, special editors, and
    support for Qt 3 compatibility widgets.
-\i Action editor.
+\i An action editor for setting up QActions.
 \i Integration with the new \l{resources.html}{resource system}.
-\i QMainWindow support.
+\i Support for QMainWindow-based forms.
 \i Form templates for other types of widgets.
-\i SDK - a library for writing Designer plugins and for integrating Designer
+\i SDK - a library for writing \QD plugins and for integrating \QD
    components into other environments.
-\i Buddy editor.
+\i A buddy widget editor.
 \endlist
 
 \section1 Known Issues
