@@ -473,7 +473,7 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
     QObject * bar;
     QWidget * frobnitz;
     int bigx=0;
-    int biyy=0;
+    int bigy=0;
     bar=it.toFirst();
     do {
 	if(bar->inherits("QWidget")) {
