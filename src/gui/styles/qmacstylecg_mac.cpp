@@ -865,8 +865,6 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
             else
                 mdi.itemType |= kThemeMenuItemPopUpBackground;
-            if (mi->checkState != QStyleOptionMenuItem::NotCheckable)
-                maxpmw = qMax(maxpmw, 12);
             if (enabled)
                 mdi.state = kThemeMenuActive;
             else
@@ -920,9 +918,9 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 float outWidth, outHeight, outBaseline;
                 HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
                                          &outBaseline);
-                QFontMetrics fm(p->font());
                 QRect r(xp, y + macItemFrame, mw, mh);
-                r.moveBy(0, fm.ascent() - (int)outBaseline + 1);
+                qDebug("ascent %d, baseline %f", p->fontMetrics().ascent() , outBaseline);
+                r.moveBy(0, p->fontMetrics().ascent() - int(outBaseline) + 1);
                 HIRect bounds = qt_hirectForQRect(r);
                 HIThemeDrawTextBox(checkmark, &bounds, &tti,
                                    cg,
@@ -943,13 +941,6 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 xpos += pixw + 6;
             }
 
-            if (mi->menuItemType == QStyleOptionMenuItem::Q3Custom) {
-                /*
-                int m = macItemVMargin;
-                mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
-                */
-            }
-            // ### Must come back here, we don't draw accels correct.
             QString s = mi->text;
             if (!s.isEmpty()) {
                 int t = s.indexOf('\t');
