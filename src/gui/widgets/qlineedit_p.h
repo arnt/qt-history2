@@ -118,6 +118,7 @@ public:
     // masking
     void parseInputMask(const QString &maskFields);
     bool isValidInput(QChar key, QChar mask) const;
+    bool hasAcceptableInput(const QString &text) const;
     QString maskString(uint pos, const QString &str, bool clear = false) const;
     QString clearString(uint pos, uint len) const;
     QString stripString(const QString &str) const;
@@ -130,7 +131,7 @@ public:
     QTextLayout textLayout;
     void updateTextLayout();
     void moveCursor(int pos, bool mark = false);
-    void setText(const QString& txt);
+    void setText(const QString& txt, int pos = -1);
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::BetweenCharacters) const;
     inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? AlignRight : AlignLeft); }
     QRect cursorRect() const;

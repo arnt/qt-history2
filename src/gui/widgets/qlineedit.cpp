@@ -267,10 +267,7 @@ QString QLineEdit::text() const
 
 void QLineEdit::setText(const QString& text)
 {
-    resetInputContext();
-    d->setText(text);
-    d->modified = false;
-    d->finishChange(-1, false);
+    d->setText(text, -1);
 }
 
 
@@ -858,31 +855,8 @@ void QLineEdit::setDragEnabled(bool b)
 */
 bool QLineEdit::hasAcceptableInput() const
 {
-#ifndef QT_NO_VALIDATOR
-    QString text = d->text;
-    int cursor = d->cursor;
-    if (d->validator && d->validator->validate(text, cursor) != QValidator::Acceptable)
-        return false;
-#endif
-
-    if (!d->maskData)
-        return true;
-
-    if (d->text.length() != d->maxLength)
-        return false;
-
-    for (int i=0; i < d->maxLength; ++i) {
-        if (d->maskData[i].separator) {
-            if (d->text[(int)i] != d->maskData[i].maskChar)
-                return false;
-        } else {
-            if (!d->isValidInput(d->text[(int)i], d->maskData[i].maskChar))
-                return false;
-        }
-    }
-    return true;
+    return d->hasAcceptableInput(d->text);
 }
-
 
 /*!
     \property QLineEdit::inputMask
@@ -1320,13 +1294,16 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             emit returnPressed();
         }
 #ifndef QT_NO_VALIDATOR
-        else if (v && v->validate(d->text, d->cursor) != QValidator::Acceptable) {
-            QString vstr = d->text;
-            v->fixup(vstr);
-            if (vstr != d->text) {
-                setText(vstr);
-                if (hasAcceptableInput())
-                    emit returnPressed();
+        else {
+            QString textCopy = d->text;
+            int cursorCopy = d->cursor;
+            if (v && v->validate(textCopy, cursorCopy) != QValidator::Acceptable)
+                v->fixup(textCopy);
+
+            if (d->hasAcceptableInput(textCopy)) {
+                if (v && (textCopy != d->text || cursorCopy != d->cursor))
+                    d->setText(textCopy, cursorCopy);
+                emit returnPressed();
             }
         }
 #endif
@@ -2067,9 +2044,7 @@ void QLineEditPrivate::finishChange(int validateFromState, bool setModified)
             validInput = (validator->validate(textCopy, cursorCopy) != QValidator::Invalid);
             if (validInput) {
                 if (text != textCopy) {
-                    q->setText(textCopy);
-                    cursor = cursorCopy;
-                    emitCursorPositionChanged();
+                    setText(textCopy, cursorCopy);
                     return;
                 }
                 cursor = cursorCopy;
@@ -2113,8 +2088,9 @@ void QLineEditPrivate::emitCursorPositionChanged()
     }
 }
 
-void QLineEditPrivate::setText(const QString& txt)
+void QLineEditPrivate::setText(const QString& txt, int pos)
 {
+    q->resetInputContext();
     deselect();
     QString oldText = text;
     if (maskData) {
@@ -2125,9 +2101,10 @@ void QLineEditPrivate::setText(const QString& txt)
     }
     history.clear();
     undoState = 0;
-    cursor = text.length();
+    cursor = (pos < 0 || pos > text.length()) ? text.length() : pos;
     textDirty = (oldText != text);
-    emitCursorPositionChanged();
+    d->modified = false;
+    d->finishChange(-1, false);
 }
 
 
@@ -2367,6 +2344,34 @@ bool QLineEditPrivate::isValidInput(QChar key, QChar mask) const
         break;
     }
     return false;
+}
+
+bool QLineEditPrivate::hasAcceptableInput(const QString &str) const
+{
+#ifndef QT_NO_VALIDATOR
+    QString textCopy = str;
+    int cursorCopy = cursor;
+    if (validator && validator->validate(textCopy, cursorCopy)
+        != QValidator::Acceptable)
+        return false;
+#endif
+
+    if (!maskData)
+        return true;
+
+    if (str.length() != maxLength)
+        return false;
+
+    for (int i=0; i < maxLength; ++i) {
+        if (maskData[i].separator) {
+            if (str.at(i) != maskData[i].maskChar)
+                return false;
+        } else {
+            if (!isValidInput(str.at(i), maskData[i].maskChar))
+                return false;
+        }
+    }
+    return true;
 }
 
 /*
