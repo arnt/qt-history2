@@ -81,6 +81,8 @@ public:
     void removeAt(int i);
     int take(const T &t);
     T takeAt(int i);
+    T takeFirst();
+    T takeLast();
     void move(int from, int to);
     void swap(int i, int j);
     int indexOf(const T &t, int from = 0) const;
@@ -302,6 +304,12 @@ inline T QList<T>::takeAt(int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::takeAt", "index out of range");
  detach(); Node*n = (Node*)p.at(i); T t = n->t(); node_take(n);
  p.remove(i); return t; }
+template <typename T>
+inline T QList<T>::takeFirst()
+{ if (p.isEmpty()) { T t; qInit(t); return t; } else return takeAt(0); }
+template <typename T>
+inline T QList<T>::takeLast()
+{ if (p.isEmpty()) { T t; qInit(t); return t; } else return takeAt(p.size()-1); }
 template <typename T>
 inline void QList<T>::append(const T &t)
 { detach();node_construct((Node*)p.append(), t); }
