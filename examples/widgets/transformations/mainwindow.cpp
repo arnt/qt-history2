@@ -65,33 +65,31 @@ void MainWindow::setupFrame(QFrame *frame)
 void MainWindow::setupShapes()
 {
     QMenu *shapesMenu = new QMenu(tr("&Shapes"));
-    QAction *carAction = shapesMenu->addAction(tr("&Car"));
+    QActionGroup *shapeActions = new QActionGroup(this);
     QAction *clockAction = shapesMenu->addAction(tr("&Clock"));
+    shapeActions->addAction(clockAction);
     QAction *houseAction = shapesMenu->addAction(tr("&House"));
+    shapeActions->addAction(houseAction);
+    QAction *truckAction = shapesMenu->addAction(tr("&Truck"));
+    shapeActions->addAction(truckAction);
     menuBar()->addMenu(shapesMenu);
 
-    QPainterPath car;
-    car.setFillRule(Qt::WindingFill);
-    car.addEllipse(20, 75, 25, 25);
-    car.addEllipse(60, 75, 25, 25);
-    car.moveTo(0, 87);
-    car.lineTo(0, 60);
-    car.lineTo(10, 60);
-    car.lineTo(35, 35);
-    car.lineTo(75, 35);
-    car.lineTo(100, 60);
-    car.lineTo(100, 87);
-    car.lineTo(0, 87);
-    car.moveTo(17, 60);
-    car.lineTo(37, 40);
-    car.lineTo(55, 40);
-    car.lineTo(55, 60);
-    car.lineTo(17, 60);
-    car.moveTo(60, 60);
-    car.lineTo(60, 40);
-    car.lineTo(75, 40);
-    car.lineTo(95, 60);
-    car.lineTo(60, 60);
+    QPainterPath truck;
+    truck.setFillRule(Qt::WindingFill);
+    truck.addEllipse(20, 75, 25, 25);
+    truck.addEllipse(60, 75, 25, 25);
+    truck.moveTo(0, 87);
+    truck.lineTo(0, 60);
+    truck.lineTo(10, 60);
+    truck.lineTo(35, 35);
+    truck.lineTo(100, 35);
+    truck.lineTo(100, 87);
+    truck.lineTo(0, 87);
+    truck.moveTo(17, 60);
+    truck.lineTo(37, 40);
+    truck.lineTo(55, 40);
+    truck.lineTo(55, 60);
+    truck.lineTo(17, 60);
 
     QPainterPath clock;
     clock.addEllipse(-50, -50, 100, 100);
@@ -117,9 +115,9 @@ void MainWindow::setupShapes()
     house.addRect(15, 5, 20, 35);
     house.addRect(-35, -15, 25, 25);
 
-    shapesMap[houseAction] = house;
+    shapesMap[truckAction] = truck;
     shapesMap[clockAction] = clock;
-    shapesMap[carAction] = car;
+    shapesMap[houseAction] = house;
 
     connect(shapesMenu, SIGNAL(triggered(QAction *)),
             this, SLOT(setShape(QAction *)));
@@ -153,6 +151,7 @@ void MainWindow::changeOperations(int row)
 void MainWindow::setShape(QAction *action)
 {
     QPainterPath shape = shapesMap[action];
+    action->setChecked(true);
     originalPaintWidget->setShape(shape);
     firstPaintWidget->setShape(shape);
     secondPaintWidget->setShape(shape);
