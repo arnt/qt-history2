@@ -9,8 +9,7 @@ class MainWindow : public QMotifWidget
 public:
     MainWindow();
 
-    void showDialog();
-    void showCustomDialog();
+    void showMotifDialog();
     void showQtDialog();
 };
 

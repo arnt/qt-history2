@@ -15,16 +15,10 @@
 #include <qapplication.h>
 
 
-static void dialogCallback( Widget, XtPointer client_data, XtPointer )
+static void motifDialogCallback( Widget, XtPointer client_data, XtPointer )
 {
     MainWindow *mw = (MainWindow *) client_data;
-    mw->showDialog();
-}
-
-static void customDialogCallback( Widget, XtPointer client_data, XtPointer )
-{
-    MainWindow *mw = (MainWindow *) client_data;
-    mw->showCustomDialog();
+    mw->showMotifDialog();
 }
 
 static void qtDialogCallback( Widget, XtPointer client_data, XtPointer )
@@ -47,17 +41,13 @@ MainWindow::MainWindow()
     Widget filemenu = XmCreatePulldownMenu( menubar, "filemenu", NULL, 0 );
     Widget item;
 
-    item = XtVaCreateManagedWidget( "Dialog...",
-				    xmPushButtonGadgetClass, filemenu,
-				    XmNmnemonic, 'D',
-				    NULL );
-    XtAddCallback( item, XmNactivateCallback, dialogCallback, this );
-
-    item = XtVaCreateManagedWidget( "Custom Dialog...",
+    item = XtVaCreateManagedWidget( "Motif Dialog...",
 				    xmPushButtonGadgetClass, filemenu,
 				    XmNmnemonic, 'C',
+				    XmNaccelerator, "Ctrl<Key>C",
+				    XmNacceleratorText, tmp,
 				    NULL );
-    XtAddCallback( item, XmNactivateCallback, customDialogCallback, this );
+    XtAddCallback( item, XmNactivateCallback, motifDialogCallback, this );
 
     item = XtVaCreateManagedWidget( "Qt Dialog...",
 				    xmPushButtonGadgetClass, filemenu,
@@ -103,43 +93,15 @@ MainWindow::MainWindow()
 
 }
 
-void MainWindow::showDialog()
+void MainWindow::showMotifDialog()
 {
-    Arg args[1];
-    XmString message =
-	XmStringCreateLocalized( "This is an Information dialog.\n\n"
-				 "It is one of many predefined Motif dialog types." );
-    XtSetArg( args[0], XmNmessageString, message );
-
-    QMotifDialog dialog( QMotifDialog::Information, XtParent( motifWidget() ),
-			 args, 1, "predefined motif dialog", TRUE );
-    dialog.setCaption( tr("Prefined Motif Dialog") );
-
-    XtAddCallback( dialog.dialog(), XmNokCallback,
-                   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
-    XtAddCallback( dialog.dialog(), XmNcancelCallback,
-                   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
-
-    XtUnmanageChild( XmMessageBoxGetChild( dialog.dialog(),
-					   XmDIALOG_CANCEL_BUTTON ) );
-    XtUnmanageChild( XmMessageBoxGetChild( dialog.dialog(),
-					   XmDIALOG_HELP_BUTTON ) );
-
-    dialog.exec();
-
-    XmStringFree( message );
-}
-
-void MainWindow::showCustomDialog()
-{
-    QMotifDialog dialog( XtParent( motifWidget() ),
-			 NULL, 0, "custom dialog", TRUE );
+    QMotifDialog dialog( this, "custom dialog", TRUE );
     dialog.setCaption( tr("Custom Motif Dialog") );
 
     Widget form = XmCreateForm( dialog.shell(), "custom motif dialog", NULL, 0 );
 
     XmString str;
-    Arg args[11];
+    Arg args[9];
 
     str = XmStringCreateLocalized( "Close" );
     XtSetArg( args[0], XmNlabelString, str );
@@ -154,7 +116,9 @@ void MainWindow::showCustomDialog()
     Widget button = XmCreatePushButton( form, "Close", args, 9 );
     XmStringFree( str );
 
-    str = XmStringCreateLocalized( "This is a Custom dialog." );
+    str =
+        XmStringCreateLocalized( "This is a custom Motif-based dialog using\n"
+                                 "QMotifDialog with a QWidget-based parent." );
     XtSetArg( args[0], XmNlabelString, str );
     XtSetArg( args[1], XmNleftAttachment, XmATTACH_FORM );
     XtSetArg( args[2], XmNrightAttachment, XmATTACH_FORM );
