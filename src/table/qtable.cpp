@@ -1201,7 +1201,8 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 
     int w = cr.width();
     int h = cr.height();
-    QSize sz = QSize( 13, 13 ); // ##########
+    QSize sz = QSize( table()->style().pixelMetric( QStyle::PM_IndicatorWidth ),
+		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
     QColorGroup c( cg );
     c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
     table()->style().drawPrimitive( QStyle::PO_Indicator, p,
