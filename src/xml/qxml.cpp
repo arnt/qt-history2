@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#71 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#72 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1076,7 +1076,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
   interface; subclassing from this class is very convenient if you want only be
   informed of some parsing events.
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1279,7 +1279,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
 
   You can set the error handler with QXmlReader::setErrorHandler().
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlLexicalHandler
@@ -1341,7 +1341,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
   recommendation requires processors to report: notation and unparsed entity
   declarations.
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDeclHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1390,7 +1390,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
   entities, it must implement this interface and register it with
   QXmlReader::setEntityResolver().
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlErrorHandler
   QXmlLexicalHandler
@@ -1440,7 +1440,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
   This interface is designed after the SAX2 extension LexicalHandler. The
   functions startEntity() and endEntity() are not included though.
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlErrorHandler
@@ -1530,7 +1530,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
 
   This interface is designed after the SAX2 extension DeclHandler.
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDTDHandler QXmlContentHandler QXmlEntityResolver QXmlErrorHandler
   QXmlLexicalHandler
@@ -1601,7 +1601,7 @@ QString QXmlInputSource::inputToString( QByteArray *data )
   the handler classes (most of the time: do nothing). Normally this is the
   class you subclass for implementing your customized handler.
 
-  See also the <a href="xml.html#introSAX2">Introduction to SAX2</a>.
+  See also the <a href="xml-sax.html#introSAX2">Introduction to SAX2</a>.
 
   \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
   QXmlErrorHandler QXmlLexicalHandler
@@ -1991,7 +1991,7 @@ private:
   (do nothing) for all functions.
 
   For getting started see also the
-  <a href="xml-sax.html#quickStart">Quick start</a>.
+  \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
 
   \sa QXmlSimpleReader
 */
