@@ -77,7 +77,7 @@
 /*****************************************************************************
   QApplication debug facilities
  *****************************************************************************/
-//#define DEBUG_KEY_MAPS
+#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 
 #define QMAC_SPEAK_TO_ME
@@ -2345,7 +2345,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			       qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
 			    if(QMenuBar::activateCommand(hic.commandID) ||
-			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
+			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex,
+						  FALSE, TRUE)) {
 #ifdef DEBUG_KEY_MAPS
 				qDebug("KeyEvent: Consumed by Menubar(1)");
 #endif
@@ -2398,7 +2399,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		if(QMenuBar::activateCommand(hic.commandID) ||
-		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
+		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex, FALSE, TRUE)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: Consumed by Menubar(2)");
 #endif
@@ -2567,8 +2568,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand,
 			      NULL, sizeof(cmd), NULL, &cmd);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    if(!QMenuBar::activateCommand(cmd.commandID) &&
-	       !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex))
+	    if(!QMenuBar::activateCommand(cmd.commandID))
 		handled_event = FALSE;
 #else
 	    if(cmd.commandID == kHICommandQuit) {
@@ -2580,6 +2580,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		handled_event = FALSE;
 	    }
 #endif
+	} else {
+	    handled_event = FALSE;
 	}
 	break;
     }

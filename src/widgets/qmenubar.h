@@ -178,7 +178,7 @@ private:
     uint mac_eaten_menubar : 1;
     class MacPrivate;
     MacPrivate *mac_d;
-    static bool activate(MenuRef, short, bool highlight=FALSE);
+    static bool activate(MenuRef, short, bool highlight=FALSE, bool by_accel=FALSE);
     static bool activateCommand(uint cmd);
     static void macUpdateMenuBar();
     static void macUpdatePopup(MenuRef);

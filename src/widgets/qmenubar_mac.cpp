@@ -210,16 +210,16 @@ uint QMenuBar::isCommand(QMenuItem *it)
     t.replace(QRegExp("\\.*$"), ""); //no ellipses
     //now the fun part
     uint ret = 0;
-    if(t.find("about", 0, FALSE) == 0) {
+    if(t.find(tr("about"), 0, FALSE) == 0) {
 	if(t.find(QRegExp("qt$", FALSE)) == -1)
 	    ret = kHICommandAbout;
 	else
 	    ret = 'CUTE';
-    } else if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 ||
-	      t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0 ||
-	      t.find("setup", 0, FALSE) == 0 ) {
+    } else if(t.find(tr("config"), 0, FALSE) == 0 || t.find(tr("preference"), 0, FALSE) == 0 ||
+	      t.find(tr("options"), 0, FALSE) == 0 || t.find(tr("setting"), 0, FALSE) == 0 ||
+	      t.find(tr("setup"), 0, FALSE) == 0 ) {
 	ret = kHICommandPreferences;
-    } else if(t.find("quit", 0, FALSE) == 0 || t.find("exit", 0, FALSE) == 0) {
+    } else if(t.find(tr("quit"), 0, FALSE) == 0 || t.find(tr("exit"), 0, FALSE) == 0) {
 	ret = kHICommandQuit;
     }
     //shall we?
@@ -235,7 +235,7 @@ uint QMenuBar::isCommand(QMenuItem *it)
 		    text.remove(st, text.length()-st);
 		text.replace(QRegExp("\\.*$"), ""); //no ellipses
 #ifdef Q_WS_MACX
-		if(ret == kHICommandAbout && text == "About") {
+		if(ret == kHICommandAbout && text.lower() == tr("about")) {
 		    QString prog = qApp->argv()[0];
 		    text += " " + prog.section('/', -1, -1);;
 		}
@@ -488,7 +488,7 @@ bool QMenuBar::activateCommand(uint cmd)
 /*!
   Internal function..
 */
-bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
+bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 {
     if(!activeMenuBar) {
 	HiliteMenu(0);
@@ -499,6 +499,16 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
     if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
+	if(by_accel) {
+	    int key = mpb->qpopup->findItem(cmd)->key();
+	    if(key == Qt::Key_unknown) {
+#ifdef DEBUG_MENUBAR_ACTIVATE
+		qDebug("ActivateMenuitem: ignored due to fake accelerator '%s' %d",
+		       mpb->qpopup->text(cmd).latin1(), highlight);
+#endif
+		return FALSE;
+	    }
+	}
 #ifdef DEBUG_MENUBAR_ACTIVATE
 	qDebug("ActivateMenuitem: activating internal menubar binding '%s' %d",
 	       mpb->qpopup->text(cmd).latin1(), highlight);
