@@ -871,6 +871,10 @@ void QMenuBar::drawContents( QPainter *p )
     GUIStyle gs = style().guiStyle();
     bool e;
 
+    // ### this shouldn't happen.
+    if ( !irects )
+	return;
+    
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	if ( !mi->text().isNull() || mi->pixmap() ) {
