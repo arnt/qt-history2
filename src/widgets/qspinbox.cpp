@@ -193,7 +193,7 @@ void QSpinBox::initSpinBox()
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setBackgroundMode( PaletteBackground, PaletteBase );
-    
+
     updateDisplay();
 
     connect( vi, SIGNAL(textChanged(const QString&)), SLOT(textChanged()) );
@@ -417,7 +417,7 @@ QSize QSpinBox::sizeHint() const
 // Does the layout of the lineedit and the buttons
 
 void QSpinBox::arrangeWidgets()
-{    
+{
     d->controls->arrange();
 }
 
@@ -815,13 +815,10 @@ QString QSpinBox::currentValueText()
   \reimp
 */
 
-void QSpinBox::setEnabled( bool /*on*/ ) // ###??
+void QSpinBox::enabledChange( bool old )
 {
-    bool b = isEnabled();
-    if ( isEnabled() != b ) {
-	// ## enabledChange() might have been a better choice
-	updateDisplay();
-    }
+    QWidget::enabledChange( old );
+    updateDisplay();
 }
 
 

@@ -152,7 +152,7 @@ void QSpinWidget::arrange()
 					    QStyle::SC_SpinWidgetUp );
     d->down = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					      QStyle::SC_SpinWidgetDown );
-    QRect r = style().querySubControlMetrics( QStyle::CC_SpinWidget, this, 
+    QRect r = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					      QStyle::SC_SpinWidgetEditField );
     d->vi->setGeometry( r );
 }
@@ -296,7 +296,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 				QStyle::SC_SpinWidgetDown,
 				active );
 
-    QRect fr = style().querySubControlMetrics( QStyle::CC_SpinWidget, this, 
+    QRect fr = style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					      QStyle::SC_SpinWidgetFrame );
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
 				fr, colorGroup(),
@@ -363,13 +363,11 @@ void QSpinWidget::updateDisplay()
 
 */
 
-void QSpinWidget::setEnabled( bool on )
+void QSpinWidget::enableChanged( bool )
 {
-    bool b = isEnabled();
-    d->upEnabled = on;
-    d->downEnabled = on;
-    if ( isEnabled() != b )
-	updateDisplay();
+    d->upEnabled = isEnabled();
+    d->downEnabled = isEnabled();
+    updateDisplay();
 }
 
 

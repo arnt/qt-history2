@@ -84,7 +84,7 @@ struct UndoRedoInfo {
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
 	readonly( FALSE ),
-	cursorOn( FALSE ), 
+	cursorOn( FALSE ),
 	inDoubleClick( FALSE ),
 	mousePressed( FALSE ),
 	dnd_primed( FALSE ), ed( FALSE ),
@@ -460,7 +460,7 @@ QString QLineEdit::displayText() const
 
 
 
-/*! 
+/*!
     \obsolete
     \property QLineEdit::hasMarkedText
     \brief whether part of the text has been selected by the user (e.g.
@@ -468,7 +468,7 @@ QString QLineEdit::displayText() const
 
   \sa selectedText()
 */
-/*! 
+/*!
     Returns TRUE if some or all of the text has been selected by the
     user (e.g. by clicking and dragging); otherwise returns FALSE.
 
@@ -485,7 +485,7 @@ bool QLineEdit::hasSelectedText() const
 	d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
-/*! 
+/*!
     \obsolete
     \property QLineEdit::markedText
     \brief the text selected by the user (e.g. by clicking and
@@ -493,7 +493,7 @@ bool QLineEdit::hasSelectedText() const
 
   \sa hasSelectedText()
 */
-/*! 
+/*!
     Returns the text selected by the user (e.g. by clicking and
     dragging), or QString::null if no text is selected.
 
@@ -509,8 +509,8 @@ QString QLineEdit::selectedText() const
 /*! \property QLineEdit::maxLength
     \brief the maximum permitted length of the text in the editor
 
-  If the text is too long, it is truncated at the limit. 
-  
+  If the text is too long, it is truncated at the limit.
+
   If truncation occurs any selected text will be unselected, the
   cursor position is set to 0 and the first part of the string is
   shown.
@@ -1163,7 +1163,7 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
   \sa cursorBackward()
 */
 
-/*! 
+/*!
     Moves the cursor back \a steps characters. If \a mark is TRUE each
     character moved over is added to the selection; if \a mark is
     FALSE the selection is cleared.
@@ -1206,8 +1206,8 @@ void QLineEdit::cursorForward( bool mark, int steps )
   Deletes the character to the left of the text cursor and moves the
   cursor one position to the left. If any text has been selected by the user
   (e.g. by clicking and dragging), the cursor will be put at the beginning
-  of the selected text and the selected text will be removed.  
-  
+  of the selected text and the selected text will be removed.
+
   \sa del()
 */
 
@@ -1239,8 +1239,8 @@ void QLineEdit::backspace()
   Deletes the character on the right side of the text cursor. If any text
   has been selected by the user (e.g. by clicking and dragging), the cursor
   will be put at the beginning of the selected text and the selected text will
-  be removed.  
-  
+  be removed.
+
   \sa backspace()
 */
 
@@ -1268,8 +1268,8 @@ void QLineEdit::del()
 
 /*!  Moves the text cursor to the beginning of the line. If \a mark is TRUE,
   text is selected towards the first position; otherwise, any selected text is
-  unselected if the cursor is moved.  
-  
+  unselected if the cursor is moved.
+
   \sa end()
 */
 
@@ -1286,11 +1286,11 @@ void QLineEdit::home( bool mark )
     update();
 }
 
-/*!  
+/*!
     Moves the text cursor to the end of the line. If \a mark is TRUE,
     text is selected towards the last position; otherwise, any selected
-    text is unselected if the cursor is moved. 
-    
+    text is unselected if the cursor is moved.
+
     \sa home()
 */
 
@@ -1747,14 +1747,6 @@ void QLineEdit::insert( const QString &newText )
 */
 
 
-/*!  \reimp */
-
-void QLineEdit::setEnabled( bool e )
-{
-    QWidget::setEnabled( e );
-}
-
-
 /*! \reimp */
 
 void QLineEdit::setFont( const QFont & f )
@@ -2037,7 +2029,7 @@ bool QLineEdit::dragEnabled() const
     return d->dragEnabled;
 }
 
-/*! 
+/*!
     This function sets \c *\a start to the position in the text where the
     selection starts and \c *\a end to the position where the selection
     ends. Returns TRUE if \a start and \a end are not null and if
@@ -2068,7 +2060,7 @@ void QLineEdit::windowActivationChange( bool )
 	update();
 }
 
-/*! 
+/*!
     Returns the index position of the character which is at \a xpos
     (in logical coordinates from the left). If \a chr is not 0, \c *\a chr
     is populated with the character at this position.

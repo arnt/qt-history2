@@ -109,7 +109,6 @@ public slots:
     virtual void	setSuffix( const QString &text );
     virtual void	stepUp();
     virtual void	stepDown();
-    virtual void	setEnabled( bool );
 
 signals:
     void		valueChanged( int value );
@@ -134,6 +133,7 @@ protected:
     void		leaveEvent( QEvent* );
 
     void		styleChange( QStyle& );
+    void 		enabledChange( bool old );
 
 protected slots:
     void		textChanged();

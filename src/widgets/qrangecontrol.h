@@ -153,7 +153,6 @@ signals:
     void stepDownPressed();
 
 public slots:
-    void setEnabled( bool on );
     void stepUp();
     void stepDown();
 
@@ -165,6 +164,7 @@ protected:
     void wheelEvent( QWheelEvent * );
     void styleChange( QStyle& );
     void paintEvent( QPaintEvent * );
+    void enableChanged( bool old );
 
 private:
     QSpinWidgetPrivate * d;

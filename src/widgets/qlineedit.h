@@ -136,7 +136,6 @@ public slots:
     virtual void setEchoMode( EchoMode );
     virtual void setReadOnly( bool );
     virtual void setValidator( const QValidator * );
-    virtual void setEnabled( bool );
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
     virtual void setSelection( int, int );
