@@ -1,9 +1,0 @@
-[version]
-    signature="$CHICAGO$"
-    AdvancedINF=2.0
- [Add.Code]
-    tetrax.exe=tetrax.exe
- [tetrax.exe]
-    file-win32-x86=thiscab
-    clsid={852558AD-CBD6-4f07-844C-D1E8983CD6FC}
-    RegisterServer=yes
