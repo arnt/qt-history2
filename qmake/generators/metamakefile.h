@@ -30,6 +30,8 @@ public:
     static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
     static MakefileGenerator *createMakefileGenerator(QMakeProject *proj);
 
+    inline QMakeProject *projectFile() const { return project; }
+
     virtual bool init() = 0;
     virtual bool write(const QString &) = 0;
 };

@@ -102,8 +102,8 @@ BuildsMetaMakefileGenerator::write(const QString &oldpwd)
     Build *glue = 0;
     if(!makefiles.isEmpty() && !makefiles.first()->name.isNull()) {
         glue = new Build;
-        project->variables()["CONFIG"] += "no_fileio";
         glue->makefile = createMakefileGenerator(project);
+        glue->makefile->setNoIO(true);
         makefiles += glue;
     }
 
@@ -207,7 +207,7 @@ class SubdirsMetaMakefileGenerator : public MetaMakefileGenerator
     bool init_flag;
 private:
     struct Subdir {
-        QString output;
+        QString output_dir, output_file;
         MetaMakefileGenerator *makefile;
     };
     QList<Subdir *> subs;
@@ -229,7 +229,7 @@ SubdirsMetaMakefileGenerator::init()
     init_flag = true;
 
     if(Option::recursive) {
-        const QString &old_output_dir = Option::output_dir;
+        const QString old_output_dir = Option::output_dir;
         const QString oldpwd = qmake_getpwd();
         const QStringList &subdirs = project->values("SUBDIRS");
         for(int i = 0; i < subdirs.size(); ++i) {
@@ -245,28 +245,35 @@ SubdirsMetaMakefileGenerator::init()
 
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properities());
-            sub_proj->read(subdir.filePath());
-            Option::output_dir = subdir.path();
-            qDebug("reading %s [%s]", qPrintable(subdir.filePath()), qPrintable(Option::output_dir));
+            printf("RECURSIVE: reading %s\n", subdir.absoluteFilePath().toLatin1().constData());
+            qmake_setpwd(subdir.path());
+            sub->output_dir = qmake_getpwd();
+            Option::output_dir = qmake_getpwd();
+            if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
+                Option::output_dir += QLatin1Char('/');
+            sub_proj->read(subdir.fileName());
             sub->makefile = MetaMakefileGenerator::createMetaGenerator(sub_proj);
             Option::output_dir = old_output_dir;
+            qmake_setpwd(oldpwd);
 
-            //handle output
-            sub->output = subdir.path() + "/";
+#if 0
+            //handle output file
             if(!Option::output.fileName().isEmpty()) {
                 QFileInfo output(Option::output.fileName());
                 if(!output.isDir())
-                    sub->output += output.fileName();
+                    sub->output_file += output.fileName();
             }
-#if 0
             if(subPro)
-                sub->output += "." + subdir.baseName();
+                sub->output_file += "." + subdir.baseName();
 #endif
         }
+        Option::output_dir = old_output_dir;
+        qmake_setpwd(oldpwd);
     }
 
     Subdir *self = new Subdir;
-    self->output = Option::output.fileName();
+    self->output_dir = Option::output_dir;
+    self->output_file = Option::output.fileName();
     self->makefile = new BuildsMetaMakefileGenerator(project);
     self->makefile->init();
     subs.append(self);
@@ -274,29 +281,37 @@ SubdirsMetaMakefileGenerator::init()
 }
 
 bool
-SubdirsMetaMakefileGenerator::write(const QString &oldpwd)
+SubdirsMetaMakefileGenerator::write(const QString &)
 {
     bool ret = true;
-    const QString &pwd = qmake_getpwd();
+    const QString &oldpwd = qmake_getpwd();
     const QString &output_dir = Option::output_dir;
     const QString &output_name = Option::output.fileName();
     for(int i = 0; ret && i < subs.count(); i++) {
-        Option::output_dir = QFileInfo(subs.at(i)->output).path();
-        qmake_setpwd(Option::output_dir);
-        Option::output.setFileName(subs.at(i)->output);
-        ret = subs.at(i)->makefile->write(oldpwd);
+        qmake_setpwd(subs.at(i)->output_dir);
+        Option::output_dir = qmake_getpwd();
+        if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
+            Option::output_dir += QLatin1Char('/');
+        Option::output.setFileName(subs.at(i)->output_file);
+        if(i != subs.count()-1)
+            printf("RECURSIVE: writing %s/%s\n", Option::output_dir.toLatin1().constData(),
+                   Option::output.fileName().toLatin1().constData());
+        ret = subs.at(i)->makefile->write(qmake_getpwd());
+        qmake_setpwd(oldpwd);
     }
     //restore because I'm paranoid
     Option::output.setFileName(output_name);
     Option::output_dir = output_dir;
-    qmake_setpwd(pwd);
     return ret;
 }
 
 SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 {
-    for(int i = 0; i < subs.count(); i++)
-        delete subs[i];
+    for(int i = 0; i < subs.count(); i++) {
+        Subdir *sub = subs[i];
+        delete sub->makefile;
+        delete sub;
+    }
     subs.clear();
 }
 
@@ -364,13 +379,11 @@ MetaMakefileGenerator *
 MetaMakefileGenerator::createMetaGenerator(QMakeProject *proj)
 {
     MetaMakefileGenerator *ret = 0;
-#if 0
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
         Option::qmake_mode == Option::QMAKE_GENERATE_PRL)) {
         if(proj->first("TEMPLATE").endsWith("subdirs"))
             ret = new SubdirsMetaMakefileGenerator(proj);
     }
-#endif
     if(!ret)
         ret = new BuildsMetaMakefileGenerator(proj);
     ret->init();
