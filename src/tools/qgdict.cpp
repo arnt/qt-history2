@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#62 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#63 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -324,10 +324,11 @@ void QGDict::resize( uint newsize )
 
 /*!
   \internal
-  Unlinks the bucket with the specified key.
+  Unlinks the bucket with the specified key (and specifed
+  data pointer, if it is set).
 */
 
-QBucket *QGDict::unlink( const char *key )
+QBucket *QGDict::unlink( const char *key, GCI d )
 {
     if ( numItems == 0 )			// nothing in dictionary
 	return 0;
@@ -345,7 +346,9 @@ QBucket *QGDict::unlink( const char *key )
 	else
 	    equal = (cases ? strcmp(n->getKey(),key)
 			   : stricmp(n->getKey(),key)) == 0;
-	if ( equal ) {				// found key to be removed
+	if ( equal && d )
+	    equal = (n->getData() == d);
+	if ( equal ) {				// found node to be removed
 	    if ( iterators ) {			// update iterators
 		register QGDictIterator *i = iterators->first();
 		while ( i ) {			// fix all iterators that
@@ -381,6 +384,24 @@ bool QGDict::remove( const char *key )
 	delete n;				// delete bucket
     }
     return n != 0;
+}
+
+/*!
+  \internal
+  Removes the item with the specified key and with data \a item .
+  Use to remove a specific item when several items have the same key.
+*/
+
+bool QGDict::removeItem( const char *key, GCI item )
+{
+    register QBucket *n = unlink( key, item );
+    if ( n ) {
+	if ( copyk )
+	    delete [] n->getKey();
+	deleteItem( n->getData() );
+	delete n;				// delete bucket
+    }
+    return n != 0;    
 }
 
 /*!

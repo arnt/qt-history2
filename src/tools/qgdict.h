@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#27 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#28 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -67,6 +67,7 @@ protected:
     QGDict     &operator=( const QGDict & );
 
     bool	remove( const char *key );
+    bool	removeItem( const char *key, GCI item );
     GCI		take( const char *key );
     void	clear();
     void	resize( uint );
@@ -86,7 +87,7 @@ private:
     uint	copyk	: 1;
     uint	triv	: 1;
     QGDItList  *iterators;
-    QBucket    *unlink( const char * );
+    QBucket    *unlink( const char *, GCI item = 0 );
     void        init( uint );
 };
 

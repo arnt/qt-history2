@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#38 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -180,7 +180,8 @@ public:
 		  { return (QCacheItem*)QGDict::take(key); }
     bool  insert( const char *key, const QCacheItem *ci )
 		  { return QGDict::look(key,(GCI)ci,1)!=0;}
-    bool  remove( const char *key )	{ return QGDict::remove(key); }
+    bool  removeItem( QCacheItem* item ) 
+	          { return QGDict::removeItem( item->key, item ); } 
     void  statistics()			{ QGDict::statistics(); }
 };
 
@@ -390,7 +391,7 @@ void QGCache::clear()
 {
     register QCacheItem *ci;
     while ( (ci = lruList->first()) ) {
-	dict->remove( ci->key );		// remove from dict
+	dict->removeItem( ci );			// remove from dict
 	deleteItem( ci->data );			// delete data
 	if ( copyK )
 	    delete [] (char *)ci->key;
@@ -457,7 +458,7 @@ bool QGCache::makeRoomFor( int cost, int priority )
 	lruList->dumps++;
 	lruList->dumpCosts += ci->cost;
 #endif
-	dict->remove( ci->key );		// remove from dict
+	dict->removeItem( ci );			// remove from dict
 	if ( copyK )
 	    delete [] (char *)ci->key;
 	deleteItem( ci->data );			// delete data
