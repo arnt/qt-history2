@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of validator classes
 **
@@ -128,7 +128,7 @@
   are passed to the QObject constructor.
 */
 
-QValidator::QValidator( QWidget * parent, const char *name )
+QValidator::QValidator( QObject * parent, const char *name )
     : QObject( parent, name )
 {
 }
@@ -241,7 +241,7 @@ void QValidator::fixup( QString & ) const
   \a parent and name \a name.
 */
 
-QIntValidator::QIntValidator( QWidget * parent, const char *name )
+QIntValidator::QIntValidator( QObject * parent, const char *name )
     : QValidator( parent, name )
 {
     b = INT_MIN;
@@ -256,7 +256,7 @@ QIntValidator::QIntValidator( QWidget * parent, const char *name )
 */
 
 QIntValidator::QIntValidator( int minimum, int maximum,
-			      QWidget * parent, const char* name )
+			      QObject * parent, const char* name )
     : QValidator( parent, name )
 {
     b = minimum;
@@ -366,7 +366,7 @@ void QIntValidator::setTop( int top )
   accepts any double.
 */
 
-QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
+QDoubleValidator::QDoubleValidator( QObject * parent, const char *name )
     : QValidator( parent, name )
 {
     b = -HUGE_VAL;
@@ -382,7 +382,7 @@ QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
 */
 
 QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
-				    QWidget * parent, const char* name )
+				    QObject * parent, const char* name )
     : QValidator( parent, name )
 {
     b = bottom;
@@ -580,7 +580,7 @@ void QDoubleValidator::setDecimals( int decimals )
   name.
 */
 
-QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
+QRegExpValidator::QRegExpValidator( QObject *parent, const char *name )
     : QValidator( parent, name ), r( QString::fromLatin1(".*") )
 {
 }
@@ -594,7 +594,7 @@ QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
   <b>[A-Fa-f0-9]+</b> it will be treated as <b>^[A-Fa-f0-9]+$</b>.
 */
 
-QRegExpValidator::QRegExpValidator( const QRegExp& rx, QWidget *parent,
+QRegExpValidator::QRegExpValidator( const QRegExp& rx, QObject *parent,
 				    const char *name )
     : QValidator( parent, name ), r( rx )
 {

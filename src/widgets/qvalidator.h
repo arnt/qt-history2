@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of validator classes
 **
@@ -51,7 +51,7 @@ class Q_EXPORT QValidator : public QObject
 {
     Q_OBJECT
 public:
-    QValidator( QWidget * parent, const char *name = 0 );
+    QValidator( QObject * parent, const char *name = 0 );
     ~QValidator();
 
     enum State { Invalid, Intermediate, Valid=Intermediate, Acceptable };
@@ -74,9 +74,9 @@ class Q_EXPORT QIntValidator : public QValidator
     Q_PROPERTY( int top READ top WRITE setTop )
 
 public:
-    QIntValidator( QWidget * parent, const char *name = 0 );
+    QIntValidator( QObject * parent, const char *name = 0 );
     QIntValidator( int bottom, int top,
-		   QWidget * parent, const char *name = 0 );
+		   QObject * parent, const char *name = 0 );
     ~QIntValidator();
 
     QValidator::State validate( QString &, int & ) const;
@@ -106,9 +106,9 @@ class Q_EXPORT QDoubleValidator : public QValidator
     Q_PROPERTY( int decimals READ decimals WRITE setDecimals )
 
 public:
-    QDoubleValidator( QWidget * parent, const char *name = 0 );
+    QDoubleValidator( QObject * parent, const char *name = 0 );
     QDoubleValidator( double bottom, double top, int decimals,
-		      QWidget * parent, const char *name = 0 );
+		      QObject * parent, const char *name = 0 );
     ~QDoubleValidator();
 
     QValidator::State validate( QString &, int & ) const;
@@ -139,8 +139,8 @@ class Q_EXPORT QRegExpValidator : public QValidator
     // Q_PROPERTY( QRegExp regExp READ regExp WRITE setRegExp )
 
 public:
-    QRegExpValidator( QWidget *parent, const char *name = 0 );
-    QRegExpValidator( const QRegExp& rx, QWidget *parent,
+    QRegExpValidator( QObject *parent, const char *name = 0 );
+    QRegExpValidator( const QRegExp& rx, QObject *parent,
 		      const char *name = 0 );
     ~QRegExpValidator();
 
