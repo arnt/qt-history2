@@ -891,7 +891,7 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 		typeName = userTypeName;
 	    else if ( userTypeName == "OLE_COLOR" || userTypeName == "VB_OLE_COLOR" )
 		typeName = "QColor";
-	    else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
+	    else if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" || userTypeName == "IFont" || userTypeName == "IFont*" )
 		typeName = "QFont";
 	    else if ( userTypeName == "Picture" || userTypeName == "Picture*" )
 		typeName = "QPixmap";
@@ -1412,7 +1412,7 @@ QMetaObject *QAxBase::metaObject() const
 
 	    // get information about all functions
 	    if ( interesting ) for ( ushort fd = 0; fd < nFuncs ; ++fd ) {
-		FUNCDESC *funcdesc;
+		FUNCDESC *funcdesc = 0;
 		info->GetFuncDesc( fd, &funcdesc );
 		if ( !funcdesc )
 		    break;
@@ -1445,6 +1445,7 @@ QMetaObject *QAxBase::metaObject() const
 		     ( maxNamesOut == 6 && function == "GetIDsOfNames" ) ||
 		     ( maxNamesOut == 2 && function == "GetTypeInfoCount" ) ||
 		     ( maxNamesOut == 4 && function == "GetTypeInfo" ) ) {
+		    info->ReleaseFuncDesc( funcdesc );
 		    continue;
 		}
 
@@ -1467,7 +1468,6 @@ QMetaObject *QAxBase::metaObject() const
 				paramTypes << returnType;
 			    }
 			}
-
 			continue;
 		    }
 
@@ -1706,8 +1706,10 @@ QMetaObject *QAxBase::metaObject() const
 		UINT maxNames = 1;
 		UINT maxNamesOut;
 		info->GetNames( vardesc->memid, &bstrName, maxNames, &maxNamesOut );
-		if ( maxNamesOut != 1 )
+		if ( maxNamesOut != 1 ) {
+		    info->ReleaseVarDesc( vardesc );
 		    continue;
+		}
 		QString variableName = BSTRToQString( bstrName );
 		SysFreeString( bstrName );
 
@@ -1887,8 +1889,10 @@ QMetaObject *QAxBase::metaObject() const
 		    eventinfo->GetTypeAttr( &eventattr );
 		    if ( !eventattr )
 			continue;
-		    if ( eventattr->typekind != TKIND_DISPATCH )
+		    if ( eventattr->typekind != TKIND_DISPATCH ) {
+			eventinfo->ReleaseTypeAttr( eventattr );
 			continue;
+		    }
 
 		    QAxEventSink *eventSink = d->eventSink.find( QUuid(conniid) );
 		    if ( !eventSink ) {
@@ -1905,6 +1909,7 @@ QMetaObject *QAxBase::metaObject() const
 			    break;
 			if ( funcdesc->invkind != INVOKE_FUNC ||
 			     funcdesc->funckind != FUNC_DISPATCH ) {
+			    eventinfo->ReleaseTypeAttr( eventattr );
 			    eventinfo->ReleaseFuncDesc( funcdesc );
 			    continue;
 			}
@@ -1993,6 +1998,7 @@ QMetaObject *QAxBase::metaObject() const
 #endif
 			eventinfo->ReleaseFuncDesc( funcdesc );
 		    }
+		    eventinfo->ReleaseTypeAttr( eventattr );
 		    eventinfo->Release();
 		}
 	    } while ( c );
