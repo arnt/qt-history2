@@ -31,7 +31,7 @@ class Resolver;
 class Walkthrough
 {
 public:
-    Walkthrough() { }
+    Walkthrough() : shutUp( FALSE ) { }
     Walkthrough( const Walkthrough& w );
 
     Walkthrough& operator=( const Walkthrough& w );
@@ -62,6 +62,7 @@ private:
     QStringList plainlines;
     QStringList processedlines;
     Location walkloc;
+    bool shutUp;
 };
 
 #endif
