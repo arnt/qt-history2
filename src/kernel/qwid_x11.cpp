@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#21 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#21 $";
 #endif
 
 
@@ -198,6 +198,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     flags = f;
     clearFlag( WState_Created );
     clearFlag( WState_Visible );
+    qXFreeGC( gc );				// free graphics context
     create();
     qPRCreate( this, old_ident );
     setBackgroundColor( bgc );			// restore colors
