@@ -344,15 +344,24 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 #endif
 #if QT_FEATURE_QWS_DEPTH_8
     } else if (d==8) {
-	ret = new QGfxVFb<8,0>(bytes,w,h);
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVFb<8,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
     } else if (d==8) {
-	ret = new QGfxVFb<8,0>(bytes,w,h);
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVFb<8,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_32
     } else if (d==32) {
-	ret = new QGfxVFb<32,0>(bytes,w,h);
+	if ( bytes == qt_screen->base() )
+	    ret = new QGfxVFb<32,0>(bytes,w,h);
+	else
+	    ret = new QGfxRaster<32,0>(bytes,w,h);
 #endif
     } else {
 	qFatal("Can't drive depth %d",d);
