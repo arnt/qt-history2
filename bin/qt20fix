@@ -32,12 +32,12 @@ sub parseline{
 
     if ( $line =~ m%^([-a-zA-Z0-9_\./]+\.[a-zA-Z]+):(\d+):\s*\`(.+)\' undeclared% ) {
 	@r = ($1,$2,$3);
-	$r[0] = $currentdir . $r[0] if ( defined($currentdir) && 
+	$r[0] = $currentdir . $r[0] if ( defined($currentdir) &&
 					 $r[0] =~ m%^[^/]% );
 	return @r;
     } elsif ( $line =~ m%^([-a-zA-Z0-9_\./]+\.[a-zA-Z]+):(\d+):\s*\`(.+)\' was not declared% ) {
 	@r = ($1,$2,$3);
-	$r[0] = $currentdir . $r[0] if ( defined($currentdir) && 
+	$r[0] = $currentdir . $r[0] if ( defined($currentdir) &&
 					 $r[0] =~ m%^[^/]% );
 	return @r;
     } elsif ( $line =~ m%^g?make\[(\d+)\]: Entering directory \`(.*)\'% ) {
@@ -66,7 +66,7 @@ sub parseline{
 # at will.
 #
 
-%globals = 
+%globals =
 (
  "Event_None" => "QEvent::None",
  "Event_Timer" => "QEvent::Timer",
@@ -101,16 +101,6 @@ sub parseline{
  "Event_ChildRemoved" => "QEvent::ChildRemoved",
  "Event_LayoutHint" => "QEvent::LayoutHint",
  "Event_User" => "QEvent::User",
-
- "NoButton" => "Qt::NoButton",
- "LeftButton" => "Qt::LeftButton",
- "RightButton" => "Qt::RightButton",
- "MidButton" => "Qt::MidButton",
- "MouseButtonMask" => "Qt::MouseButtonMask",
- "ShiftButton" => "Qt::ShiftButton",
- "ControlButton" => "Qt::ControlButton",
- "AltButton" => "Qt::AltButton",
- "KeyButtonMask" => "Qt::KeyButtonMask",
 
  "color0" => "Qt::color0",
  "color1" => "Qt::color1",
@@ -158,9 +148,67 @@ sub parseline{
 
  "WindowsStyle" => "Qt::WindowsStyle",
  "MotifStyle" => "Qt::MotifStyle",
+
+ "Horizontal" => "Qt::Horizontal",
+ "Vertical" => "Qt::Vertical",
+
+ "PenStyle" => "Qt::PenStyle",
+ "NoPen" => "Qt::NoPen",
+ "SolidLine" => "Qt::SolidLine",
+ "DashLine" => "Qt::DashLine",
+ "DotLine" => "Qt::DotLine",
+ "DashDotLine" => "Qt::DashDotLine",
+ "DashDotDotLine" => "Qt::DashDotDotLine",
+
+ "BrushStyle" => "Qt::BrushStyle",
+ "NoBrush" => "Qt::NoBrush",
+ "SolidPattern" => "Qt::SolidPattern",
+ "Dense1Pattern" => "Qt::Dense1Pattern",
+ "Dense2Pattern" => "Qt::Dense2Pattern",
+ "Dense3Pattern" => "Qt::Dense3Pattern",
+ "Dense4Pattern" => "Qt::Dense4Pattern",
+ "Dense5Pattern" => "Qt::Dense5Pattern",
+ "Dense6Pattern" => "Qt::Dense6Pattern",
+ "Dense7Pattern" => "Qt::Dense7Pattern",
+ "HorPattern" => "Qt::HorPattern",
+ "VerPattern" => "Qt::VerPattern",
+ "CrossPattern" => "Qt::CrossPattern",
+ "BDiagPattern" => "Qt::BDiagPattern",
+ "FDiagPattern" => "Qt::FDiagPattern",
+ "DiagCrossPattern" => "Qt::DiagCrossPattern",
+ "CustomPattern" => "Qt::CustomPattern",
+
+ "arrowCursor" => "Qt::arrowCursor",
+ "upArrowCursor" => "Qt::upArrowCursor",
+ "crossCursor" => "Qt::crossCursor",
+ "waitCursor" => "Qt::waitCursor",
+ "ibeamCursor" => "Qt::ibeamCursor",
+ "sizeVerCursor" => "Qt::sizeVerCursor",
+ "sizeHorCursor" => "Qt::sizeHorCursor",
+ "sizeBDiagCursor" => "Qt::sizeBDiagCursor",
+ "sizeFDiagCursor" => "Qt::sizeFDiagCursor",
+ "sizeAllCursor" => "Qt::sizeAllCursor",
+ "blankCursor" => "Qt::blankCursor",
+ "splitVCursor" => "Qt::splitVCursor",
+ "splitHCursor" => "Qt::splitHCursor",
+ "pointingHandCursor" => "Qt::pointingHandCursor"
 );
 
-# 
+if ( defined( $ENV{"QTDIR"} ) &&
+     open( I, "< ". $ENV{"QTDIR"} . "/src/kernel/q1xcompatibility.h" ) ) {
+    while( <I> ) {
+	if ( /\#define\s+([a-zA-Z0-9_]+)\s+(\S+)/ ) {
+	    if ( !defined( $globals{$1} ) ) {
+		$globals{$1} = $2;
+	    } elsif ( $globals{$1} ne $2 ) {
+		#print "conflict: $1 is mapped to $2 and $globals{$1}\n";
+	    }
+	}
+    }
+    close I;
+}
+
+#
 # do the do
 #
 
