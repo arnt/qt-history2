@@ -17,7 +17,7 @@ public:
     TetrixWindow();
 
 private:
-    void createLabel(const QString &text, int x, int y, int width, int height);
+    QLabel *createLabel(const QString &text);
 
     TetrixBoard *board;
     QLabel *nextPieceLabel;

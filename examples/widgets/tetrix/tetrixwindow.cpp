@@ -35,28 +35,27 @@ TetrixWindow::TetrixWindow()
     connect(board, SIGNAL(linesRemovedChanged(int)),
             linesLcd, SLOT(display(int)));
 
-    board->setGeometry(150, 20, 152, 332);
-    nextPieceLabel->setGeometry(50, 40, 78, 90);
-    scoreLcd->setGeometry(330, 40, 178, 90);
-    levelLcd->setGeometry(50, 160, 78, 90);
-    linesLcd->setGeometry(330, 160, 178, 90);
-    startButton->setGeometry(46, 288, 90, 30);
-    quitButton->setGeometry(370, 265, 90, 30);
-    pauseButton->setGeometry(370, 310, 90, 30);
-
-    createLabel(tr("NEXT"), 50, 10, 78, 30);
-    createLabel(tr("SCORE"), 330, 10, 178, 30);
-    createLabel(tr("LEVEL"), 50, 130, 78, 30);
-    createLabel(tr("LINES REMOVED"), 330, 130, 178, 30);
+    QGridLayout *layout = new QGridLayout(this);
+    layout->addWidget(createLabel(tr("NEXT")), 0, 0);
+    layout->addWidget(nextPieceLabel, 1, 0);
+    layout->addWidget(createLabel(tr("LEVEL")), 2, 0);
+    layout->addWidget(levelLcd, 3, 0);
+    layout->addWidget(startButton, 4, 0);
+    layout->addWidget(board, 0, 1, 6, 1);
+    layout->addWidget(createLabel(tr("SCORE")), 0, 2);
+    layout->addWidget(scoreLcd, 1, 2);
+    layout->addWidget(createLabel(tr("LINES REMOVED")), 2, 2);
+    layout->addWidget(linesLcd, 3, 2);
+    layout->addWidget(quitButton, 4, 2);
+    layout->addWidget(pauseButton, 5, 2);
 
     setWindowTitle(tr("Tetrix"));
-    setFixedSize(550, 370);
+    resize(320, 270);
 }
 
-void TetrixWindow::createLabel(const QString &text, int x, int y,
-                               int width, int height)
+QLabel *TetrixWindow::createLabel(const QString &text)
 {
-    QLabel *label = new QLabel(text, this);
-    label->setGeometry(x, y, width, height);
-    label->setAlignment(Qt::AlignCenter);
+    QLabel *lbl = new QLabel(text, this);
+    lbl->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+    return lbl;
 }
