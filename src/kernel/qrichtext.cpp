@@ -2004,7 +2004,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		curpar->append( s );
 		if (curtag.wsm != QStyleSheetItem::WhiteSpaceNormal) {
 		    QTextString *str = curpar->string();
-		    for (uint i = index; i < index + s.length(); ++i)
+		    for (int i = index; i < index + s.length(); ++i)
 			str->at(i).nobreak = TRUE;
 		}
 
