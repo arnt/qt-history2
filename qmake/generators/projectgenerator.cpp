@@ -396,6 +396,6 @@ ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
 	join = vals.join(" \\\n" + spaces);
     } 
     if(fixPath)
-	join = join.replace(QRegExp("\\"), "/");
+	join = join.replace(QRegExp("\\\\"), "/");
     return ret + join + "\n";
 }
