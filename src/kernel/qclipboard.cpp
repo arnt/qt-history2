@@ -65,12 +65,11 @@
     Example:
     \code
     QClipboard *cb = QApplication::clipboard();
-    QString text;
 
     // Copy text from the clipboard (paste)
-    text = cb->text();
-    if ( text )
-	qDebug( "The clipboard contains: %s", text );
+    QString text = cb->text();
+    if ( !text.isNull() )
+	qDebug( "The clipboard contains: " + text );
 
     // Copy text into the clipboard
     cb->setText( "This text can be pasted by other programs" );
@@ -154,10 +153,10 @@ QClipboard::~QClipboard()
     This enum type is used to control which part of the system clipboard is
     used by QClipboard::data(), QClipboard::setData() and related functions.
 
-    \value Clipboard  indicates that data should be stored and retreived from
+    \value Clipboard  indicates that data should be stored and retrieved from
     the global clipboard.
 
-    \value Selection  indicates that data should be stored and retreived from
+    \value Selection  indicates that data should be stored and retrieved from
     the global mouse selection.
 
     \e Note: Support for \c Selection is provided only on systems with a
@@ -184,8 +183,8 @@ QClipboard::~QClipboard()
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    text is retreived from the global clipboard.  If \a mode is
-    QClipboard::Selection, the text is retreived from the global
+    text is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the text is retrieved from the global
     mouse selection.
 
     Common values for \a subtype are "plain" and "html".
@@ -219,8 +218,8 @@ QString QClipboard::text( QCString& subtype ) const
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    text is retreived from the global clipboard.  If \a mode is
-    QClipboard::Selection, the text is retreived from the global
+    text is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the text is retrieved from the global
     mouse selection.
 
     \sa setText(), data(), QString::operator!()
@@ -282,8 +281,8 @@ void QClipboard::setText( const QString &text )
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    image is retreived from the global clipboard.  If \a mode is
-    QClipboard::Selection, the image is retreived from the global
+    image is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the image is retrieved from the global
     mouse selection.
 
     \sa setImage() pixmap() data(), QImage::isNull()
@@ -353,8 +352,8 @@ void QClipboard::setImage( const QImage &image )
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    pixmap is retreived from the global clipboard.  If \a mode is
-    QClipboard::Selection, the pixmap is retreived from the global
+    pixmap is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the pixmap is retrieved from the global
     mouse selection.
 
     \sa setPixmap() image() data() QPixmap::convertFromImage().
@@ -420,8 +419,8 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    data is retreived from the global clipboard.  If \a mode is
-    QClipboard::Selection, the data is retreived from the global
+    data is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the data is retrieved from the global
     mouse selection.
 
     \sa setData()
@@ -448,8 +447,8 @@ QMimeSource *QClipboard::data() const
 
     The \a mode argument is used to control which part of the system
     clipboard is used.  If \a mode is QClipboard::Clipboard, the
-    data is retreived from the global clipboard.  If \a mode is
-    QClipboard::Selection, the data is retreived from the global
+    data is retrieved from the global clipboard.  If \a mode is
+    QClipboard::Selection, the data is retrieved from the global
     mouse selection.
 
     The QDragObject subclasses are reasonable objects to put into the
