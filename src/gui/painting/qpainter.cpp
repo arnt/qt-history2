@@ -3074,7 +3074,9 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                 bitmap = *p->mask();
                 QPainter pt(&bitmap);
                 Q_ASSERT(!pm.mask()->mask());
-                pt.drawPixmap(x, y, w, h, *pm.mask(), sx, sy, sw, sh);
+                pt.drawPixmap(qRound(x), qRound(y), qRound(w), qRound(h), 
+                              *pm.mask(), qRound(sx), qRound(sy), qRound(sw), 
+                              qRound(sh));
                 pt.end();
                 p->setMask(bitmap);
             }
