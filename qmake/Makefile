@@ -89,6 +89,7 @@ QTOBJS= \
 	qstringlist.obj \
 	qstringmatcher.obj \
 	qtextstream.obj \
+	qdatastream.obj \
 	qunicodetables.obj \
 	quuid.obj \
 	qvector.obj \
@@ -133,6 +134,7 @@ clean::
 	-del qstringlist.obj
 	-del qstringmatcher.obj
 	-del qtextstream.obj
+	-del qdatastream.obj
 	-del qunicodetables.obj
 	-del quuid.obj
 	-del qvector.obj
@@ -198,6 +200,9 @@ qurl.obj: ..\src\core\io\qurl.cpp
 
 qtextstream.obj: ..\src\core\io\qtextstream.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qtextstream.cpp
+
+qdatastream.obj: ..\src\core\io\qdatastream.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp
 
 qiodevice.obj: ..\src\core\io\qiodevice.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qiodevice.cpp
