@@ -93,7 +93,7 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
     Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
     Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(double singleStep READ singleStep WRITE setSingleStep)
-    Q_PROPERTY(int precision READ precision WRITE setPrecision)
+    Q_PROPERTY(int decimals READ decimals WRITE setDecimals)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
@@ -123,8 +123,8 @@ public:
 
     void setRange(double min, double max);
 
-    int precision() const;
-    void setPrecision(int prec);
+    int decimals() const;
+    void setDecimals(int prec);
 
     virtual QValidator::State validate(QString &input, int &pos) const;
     virtual double valueFromText(const QString &text) const;

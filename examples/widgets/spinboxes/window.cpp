@@ -168,9 +168,9 @@ void Window::createDoubleSpinBoxes()
     spinBoxLayout->addWidget(priceSpinBox);
 }
 
-void Window::changePrecision(int precision)
+void Window::changePrecision(int decimals)
 {
-    doubleSpinBox->setPrecision(precision);
-    scaleSpinBox->setPrecision(precision);
-    priceSpinBox->setPrecision(precision);
+    doubleSpinBox->setDecimals(decimals);
+    scaleSpinBox->setDecimals(decimals);
+    priceSpinBox->setDecimals(decimals);
 }

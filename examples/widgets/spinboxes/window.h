@@ -16,7 +16,7 @@ public:
     Window();
 
 public slots:
-    void changePrecision(int precision);
+    void changePrecision(int decimals);
     void setFormatString(const QString &formatString);
 
 private:

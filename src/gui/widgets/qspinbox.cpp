@@ -54,7 +54,7 @@ public:
                                   QValidator::State &state) const;
 
     // variables
-    int precision;
+    int decimals;
     QChar delimiter, thousand;
 };
 
@@ -566,7 +566,7 @@ QValidator::State QSpinBox::validate(QString &text, int &pos) const
     constructors, and can be changed later with setMinimum(),
     setMaximum() and setLineStep(). The spinbox has a default
     precision of 2 decimal places but this can be changed using
-    setPrecision().
+    setDecimals().
 
     Most spin boxes are directional, but QDoubleSpinBox can also
     operate as a circular spin box, i.e. if the range is 0.0-99.9 and
@@ -846,27 +846,27 @@ void QDoubleSpinBox::setRange(double min, double max)
 }
 
 /*!
-     \property QDoubleSpinBox::precision
+     \property QDoubleSpinBox::decimals
 
-     \brief the precision of the spin box
+     \brief the precision of the spin box, in decimals
 
-     The precision sets how many decimals you want to display when
-     displaying double values. Valid ranges for decimals is 0-14.
+     Sets how many decimals you want to display when displaying double
+     values. Valid ranges for decimals is 0-14.
 
 
 */
 
-int QDoubleSpinBox::precision() const
+int QDoubleSpinBox::decimals() const
 {
-    return d->precision;
+    return d->decimals;
 }
 
-void QDoubleSpinBox::setPrecision(int precision)
+void QDoubleSpinBox::setDecimals(int decimals)
 {
-    d->precision = qMin<int>(qMax<int>(0, precision), 14);
-    if (d->precision != precision)
-	qWarning("QDoubleSpinBox::setPrecision() %d is not a valid precision. 0-14 is allowed",
-		 precision);
+    d->decimals = qMin<int>(qMax<int>(0, decimals), 14);
+    if (d->decimals != decimals)
+	qWarning("QDoubleSpinBox::setDecimals() %d is not a valid precision. 0-14 is allowed",
+		 decimals);
     // more than fifteen seems to cause problems in QLocale::doubleToString
     d->update();
 }
@@ -877,7 +877,7 @@ void QDoubleSpinBox::setPrecision(int precision)
     This virtual function is used by the spin box whenever it needs to
     display value \a v. The default implementation returns a string
     containing \a v printed using QLocale().toString(v, QLatin1Char('f'),
-    precision()). Reimplementations may return anything.
+    decimals()). Reimplementations may return anything.
 
     Note that Qt does not call this function for specialValueText()
     and that neither prefix() nor suffix() should be included in the
@@ -892,7 +892,7 @@ void QDoubleSpinBox::setPrecision(int precision)
 
 QString QDoubleSpinBox::textFromValue(double v) const
 {
-    return QLocale().toString(v, 'f', d->precision);
+    return QLocale().toString(v, 'f', d->decimals);
 }
 
 /*!
@@ -1071,7 +1071,7 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     maximum = QVariant(99.99);
     value = minimum;
     singlestep = QVariant(1.0);
-    precision = 2;
+    decimals = 2;
     type = QVariant::Double;
     const QString str = QLocale().toString(4567.1);
     if (str.size() == 6) {
