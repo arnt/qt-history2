@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#53 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -259,15 +259,10 @@ QPoint QDragObject::pixmapHotSpot() const
 }
 
 /*!
-  Starts a drag operation using the contents of this object.
+  Starts a drag operation using the contents of this object,
+  using DragDefault mode.
 
-  The drag will use DragDefault mode, whereby the copy or move
-  will be determined by heuristics.
-
-  Returns TRUE if the dragged data was dragged as a \e move,
-  indicating that the caller should remove the data.
-
-  It does not return until the drag is complete.
+  See drag(DragMove) for important further information.
 */
 bool QDragObject::drag()
 {
@@ -279,14 +274,10 @@ bool QDragObject::drag()
 
 
 /*!
-  Starts a drag operation using the contents of this object.
+  Starts a drag operation using the contents of this object,
+  using DragMove mode.
 
-  The drag will use DragMove mode.
-
-  Returns TRUE if the dragged data was successfully moved,
-  indicating that the caller should remove the data.
-
-  It does not return until the drag is complete.
+  See drag(DragMove) for important further information.
 */
 bool QDragObject::dragMove()
 {
@@ -298,12 +289,10 @@ bool QDragObject::dragMove()
 
 
 /*!
-  Starts a drag operation using the contents of this object.
+  Starts a drag operation using the contents of this object,
+  using DragCopy mode.
 
-  The drag will use DragCopy mode.  The caller should not
-  remove the data after the drag completes.
-
-  It does not return until the drag is complete.
+  See drag(DragMove) for important further information.
 */
 void QDragObject::dragCopy()
 {
@@ -315,10 +304,30 @@ void QDragObject::dragCopy()
 /*!
   Starts a drag operation using the contents of this object.
 
+  At this point, the object becomes owned by Qt, not the
+  application.  You should not delete the drag object nor
+  anything it references.  The actual transfer of data to
+  the target application will be done during future event
+  processing - after that time the drag object will be deleted.
+
+  Returns TRUE if the dragged data was dragged as a \e move,
+  indicating that the caller should remove the original source
+  of the data (the drag object must continue to have a copy).
+
+  \define DragMode
+
+  The \a mode is one of:
+
+  <ul>
+   <li>\c DragDefault - the mode is determined heuristically.
+   <li>\c DragCopy - the data is copied, never moved.
+   <li>\c DragMove - the data is moved, if dragged at all.
+   <li>\c DragCopyOrMove - the user chooses the mode
+	    by using control key to switch from the default.
+  </ul>
+
   Normally one of simpler drag(), dragMove(), or dragCopy() functions
   would be used instead.
-
-  It does not return until the drag is complete.
 */
 bool QDragObject::drag(DragMode mode)
 {

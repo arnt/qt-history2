@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#58 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1059,6 +1059,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
+    // qt_xdnd_source_object will become 0 later.
 
     return FALSE;
 }
