@@ -2067,7 +2067,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_INPUTLANGCHANGE: {
 	    char info[7];
 	    if ( !GetLocaleInfoA( MAKELCID(lParam, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, info, 6 ) ) {
-		qDebug("GetLocaleInfo failed, msg= %d", GetLastError() );
 		inputcharset = CP_ACP;
 	    } else {
 		inputcharset = QString( info ).toInt();
