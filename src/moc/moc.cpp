@@ -363,7 +363,8 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
     if (def->type.isEmpty()) {
         if (templateFunction)
             error("Template function as signal or slot");
-        return;
+        else
+            error();
 }
     if (test(LPAREN)) {
         def->name = def->type;
