@@ -717,7 +717,7 @@ void QWidget::repaint(const QRegion& rgn)
     QPoint redirectionOffset;
     QWSDoubleBuffer *qDoubleBuffer = 0;
     if (double_buffer) {
-        qt_qws_get_double_buffer(&qDoubleBuffer, br.width(), br.height(), qwsDisplay()->depth());
+        qt_qws_get_double_buffer(&qDoubleBuffer, br.width(), br.height(), QPixmap::defaultDepth());
         redirectionOffset = br.topLeft();
         QPainter::setRedirected(this, qDoubleBuffer->hd, redirectionOffset);
     }
