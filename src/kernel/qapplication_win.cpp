@@ -61,6 +61,7 @@
 		      PK_ORIENTATION | PK_CURSOR )
 #define PACKETMODE  0
 
+extern bool chokeMouse;
 // Wacom isn't being nice by not providing updated headers for this. so
 // define it here so we can do things correctly according to their
 // software implementation guide, and make it somewhat standard.
@@ -1963,7 +1964,14 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QFocusEvent::resetReason();
 		}
 	    }
-	    widget->translateMouseEvent( msg );	// mouse event
+#if defined(QT_TABLET_SUPPORT)
+	    if ( !chokeMouse )
+#endif
+		widget->translateMouseEvent( msg );	// mouse event
+#if defined(QT_TABLET_SUPPORT)
+	    else
+		chokeMouse = FALSE;
+#endif
 	} else if ( message == WM95_MOUSEWHEEL ) {
 	    result = widget->translateWheelEvent( msg );
 	} else {
@@ -2438,7 +2446,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    }
 		}
 		break;
-	    case WT_PROXIMITY: 
+	    case WT_PROXIMITY:		
 		// flush the QUEUE
 		if ( ptrWTPacketsGet )
 		    ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
@@ -3086,7 +3094,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     if ( sm_blockUserInput ) //block user interaction during session management
 	return TRUE;
 
-    if ( msg.message == WM_MOUSEMOVE ) {
+    if ( msg.message == WM_MOUSEMOVE ) {	
 	// Process only the most current mouse move event. Otherwise you
 	// end up queueing events in certain situations. Very bad for graphics 
 	// applications. Just grabbing the million poly model and moving the 
@@ -3874,11 +3882,31 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     DWORD btnNew;
     UINT prsNew;
     ORIENTATION ort;
-    int i;
-    int dev;
-    int tiltX, tiltY;
+    static bool button_pressed = FALSE;
+    int i,
+	dev,
+	tiltX,
+	tiltY;
     bool sendEvent;
-    
+    QEvent::Type t;
+
+    MSG msg1;
+    // the most typical event that we get...
+    t = QEvent::TabletMove;
+    if ( winPeekMessage( &msg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE) ) {
+	switch (msg1.message) {
+	case WM_MOUSEMOVE:    
+	    chokeMouse = TRUE;
+	    t = QEvent::TabletMove;
+	    break;
+	case WM_LBUTTONDOWN:
+	    button_pressed = TRUE;
+	    t = QEvent::TabletPress;
+	    break;
+	default:
+	    break;
+	}
+    }
     for ( i = 0; i < numPackets; i++ ) {
 	if ( localPacketBuf[i].pkCursor == 2 ) {
 	    dev = QTabletEvent::Eraser;
@@ -3889,11 +3917,15 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	}
 
 	btnNew = localPacketBuf[i].pkButtons;
-
-	if ( btnNew ) {
-	    ptNew.x = (UINT)localPacketBuf[i].pkX;
-	    ptNew.y = (UINT)localPacketBuf[i].pkY;
+	ptNew.x = (UINT)localPacketBuf[i].pkX;
+	ptNew.y = (UINT)localPacketBuf[i].pkY;
+	prsNew = 0;
+	if ( btnNew ) {	    
 	    prsNew = prsAdjust( localPacketBuf[i], hTab );
+	} else if ( button_pressed ) {
+	    // One button press, should only give one button release
+	    t = QEvent::TabletRelease;
+	    button_pressed = FALSE;
 	}
 	QPoint globalPos( ptNew.x, ptNew.y );
 
@@ -3929,7 +3961,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type );
 	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid );
 	QPair<int,int> llId( csr_type, csr_physid );	
-	QTabletEvent e( localPos, localPos, dev, prsNew, tiltX, tiltY, llId );
+	QTabletEvent e( t, localPos, globalPos, dev, prsNew, tiltX, tiltY, llId );
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
     }
     return sendEvent;
