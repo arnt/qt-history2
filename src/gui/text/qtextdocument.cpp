@@ -693,6 +693,66 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         attributesEmitted = true;
     }
 
+    if (format.hasProperty(QTextFormat::FontWeight)) {
+        html += QLatin1String(" font-weight:");
+        html += QString::number(format.fontWeight() * 8);
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+
+    }
+
+    if (format.hasProperty(QTextFormat::FontItalic)) {
+        html += QLatin1String(" font-style:");
+        html += (format.fontItalic() ? QLatin1String("italic") : QLatin1String("normal"));
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+    }
+
+    QLatin1String decorationTag(" text-decoration:");
+    html += decorationTag;
+    bool hasDecoration = false;
+    bool atLeastOneDecorationSet = false;
+
+    if (format.hasProperty(QTextFormat::FontUnderline)) {
+        hasDecoration = true;
+        if (format.fontUnderline()) {
+            html += QLatin1String(" underline");
+            atLeastOneDecorationSet = true;
+        }
+    }
+
+    if (format.hasProperty(QTextFormat::FontOverline)) {
+        hasDecoration = true;
+        if (format.fontOverline()) {
+            html += QLatin1String(" overline");
+            atLeastOneDecorationSet = true;
+        }
+    }
+
+    if (format.hasProperty(QTextFormat::FontStrikeOut)) {
+        hasDecoration = true;
+        if (format.fontStrikeOut()) {
+            html += QLatin1String(" line-through");
+            atLeastOneDecorationSet = true;
+        }
+    }
+
+    if (hasDecoration) {
+        if (!atLeastOneDecorationSet)
+            html += QLatin1String("none");
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+    } else {
+        html.truncate(html.size() - qstrlen(decorationTag.latin1()));
+    }
+
+    if (format.hasProperty(QTextFormat::TextColor)) {
+        html += QLatin1String(" color:");
+        html += format.textColor().name();
+        html += QLatin1Char(';');
+        attributesEmitted = true;
+    }
+
     return attributesEmitted;
 }
 
