@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#39 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#40 $
 #
 # this is a massive hack, written very quickly
 #
@@ -11,6 +11,8 @@
 # escapes:
 #
 # "\e word" emphasises that word
+#
+# "\c word" outputs the word in code style
 #
 # "\warning" outputs "Warning:" in boldface or equivalent
 #
@@ -44,6 +46,9 @@
 # "\page filename.html" directs the rest of the file to that filename
 #
 # "\sa" outputs "See also: " and clears the has-shown-link table
+#
+# "\header filename.h" adds filename.h to the list of header files that
+# are to be included in the documentation.
 
 sub urlencode {
     local($_) = @_;
@@ -128,6 +133,20 @@ sub findlink {
     }
 }
 
+sub preprocessdocs {
+    local ($url);
+
+    foreach $url ( sort keys %type ) {
+	$doc{$url} =~ s@\\header\s+([a-z0-9\.]+)@
+	    my ($h1, $h2);
+	    $h1 = $1;
+	    $h2 = $h1;
+	    $h2 =~ s/\.h$/-h.html/;
+	    $headerfiles{$h1} = $h2;
+	    sprintf("");
+	@egsx;
+    }
+}
 
 
 
@@ -183,9 +202,9 @@ sub processdocs {
 	}
 
 	$_ = "To do:\n<ul>\n";
-	$_ .= "<li>" . $1 . "\n" 
+	$_ .= "<li>" . $1 . "\n"
 	    while ($doc =~ s/\s*\\todo\s+(.*?)
-		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
+		   (?:(?:\n\s*?\n\s*)|(?=\\todo\s)|(?:$ ))/\n\n/sx);
 	$_ .= "</ul>\n";
 	$doc .= $_ if (/<li>/s);
 
@@ -201,6 +220,7 @@ sub processdocs {
 	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
+	$doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;
 
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/\s*\\sa\s+/\n\nmagicwordthatyoushouldavoid /g;
@@ -937,12 +957,11 @@ foreach $arg ( 0..$#ARGV ) {
 $date = sprintf("%02d:%02d, %d/%d/%d", $hour, $min, $mday, 1+$mon, 1900+$year);
 $outputdir = "/local/qt/doc/html";
 
+&preprocessdocs();
 &makenames();
-&readfiles();
 &makearglinks();
 &processdocs();
-
-#chdir("/local/qt/doc/html") || die "can't cd to /local/qt/doc/html";
+&readfiles();
 
 &printout();
 
