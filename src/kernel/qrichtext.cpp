@@ -5213,6 +5213,9 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
 	--ch;
     }
 
+    if (space < 0)
+	space = 0;
+
     // do alignment Auto == Left in this case
     if ( align & Qt::AlignHCenter || align & Qt::AlignRight ) {
 	if ( align & Qt::AlignHCenter )
@@ -5310,6 +5313,11 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 	if ( text->isRightToLeft() )
 	    align = Qt::AlignRight;
     }
+
+    // This is not really correct, but as we can't make the scrollbar move to the left of the origin,
+    // this ensures all text can be scrolled to and read.
+    if (space < 0)
+	space = 0;
 
     if ( align & Qt::AlignHCenter )
 	x += space/2;
