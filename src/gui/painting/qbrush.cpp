@@ -463,8 +463,8 @@ QPixmap *QBrush::pixmap() const
 /*!
     \fn QPixmap QBrush::texture() const
 
-    Returns a pointer to the custom brush pattern, or a null pixmap if
-    no custom brush pattern has been set.
+    Returns the custom brush pattern, or a null pixmap if no custom brush pattern
+    has been set.
 
     \sa setPixmap()
 */
