@@ -87,9 +87,9 @@ public:
     QSize sizeHint() const;
 
 public slots:
+    void    display( const QString &str );
     void    display( int num );
     void    display( double num );
-    void    display( const QString &str );
     virtual void setHexMode();
     virtual void setDecMode();
     virtual void setOctMode();
