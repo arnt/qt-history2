@@ -23,8 +23,6 @@
 #include <qsimplerichtext.h>
 #include <qstatusbar.h>
 
-#include <unistd.h>
-
 extern int modified;
 
 
@@ -50,21 +48,19 @@ void AdjustPages(int startpage, int ins)
 
 void MainWindow::fileNew()
 {
-    char buf[128];
+    QString buf;
     bool found = FALSE;
     int i = 0;
 
     while(! found) {
-	sprintf(buf, "untitled%d.todo", i++);
-	found = access(buf, F_OK) != 0;
+	buf.sprintf("untitled%d.todo", i++);
+	found = QFileInfo( buf ).exists();
     }
 
-    delete [] options.todoFile;
-    options.todoFile = qstrdup( buf );
+    options.todoFile = buf;
     readDB( options.todoFile );
 
-    statusBar()->message( tr("Created new file '%1'").
-			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+    statusBar()->message( tr("Created new file '%1'").arg( options.todoFile ) );
 
     setPage( 0 );
 }
@@ -76,12 +72,10 @@ void MainWindow::fileOpen()
 	QFileDialog::getOpenFileName( QString::null, QString::null, this );
 
     if ( ! filename.isEmpty() ) {
-	delete [] options.todoFile;
-	options.todoFile = qstrdup( filename.local8Bit() );
+	options.todoFile = filename;
 	readDB( options.todoFile );
 
-	statusBar()->message( tr("Opened file '%1'").
-			      arg( QString::fromLocal8Bit( options.todoFile ) ) );
+	statusBar()->message( tr("Opened file '%1'").arg( options.todoFile ) );
 
 	setPage( currentPage );
     }
@@ -92,8 +86,7 @@ void MainWindow::fileSave()
 {
     saveDB( options.todoFile );
 
-    statusBar()->message( tr("Saved file '%1'").
-			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+    statusBar()->message( tr("Saved file '%1'").arg( options.todoFile ) );
 }
 
 
@@ -103,12 +96,10 @@ void MainWindow::fileSaveAs()
 	QFileDialog::getSaveFileName( QString::null, QString::null, this );
 
     if ( ! filename.isEmpty() ) {
-	delete [] options.todoFile;
-	options.todoFile = qstrdup( filename.local8Bit() );
+	options.todoFile = filename;
 	saveDB( options.todoFile );
 
-	statusBar()->message( tr("Saved file '%1'").
-			      arg( QString::fromLocal8Bit( options.todoFile ) ) );
+	statusBar()->message( tr("Saved file '%1'").arg( options.todoFile ) );
     }
 }
 
@@ -133,14 +124,14 @@ void MainWindow::filePrint()
 
     QString printtext;
     for( int i = 0 ; i <= maxpages ; i++ ) {
-	if ( pages[i]->label ) {
+	if ( ! pages[i]->label.isEmpty() ) {
 	    printtext += prelabel;
-	    printtext += QString::fromLocal8Bit( pages[i]->label );
+	    printtext += pages[i]->label;
 	    printtext += postlabel;
 	}
 
 	printtext += prepage;
-	printtext += QString::fromLocal8Bit( pages[i]->page );
+	printtext += pages[i]->page;
 	printtext += postpage;
 
 	if ( i != maxpages )
@@ -193,11 +184,11 @@ void MainWindow::selProperties()
 
     PageEditDialog pedlg( this, "page edit dialog", TRUE );
 
-    if (pages[currentPage] -> label != NULL)
+    if ( ! pages[currentPage]->label.isEmpty() )
 	pedlg.titleEdit->setText( pages[currentPage]->label );
-    if (pages[currentPage] -> majorTab != NULL)
+    if ( ! pages[currentPage]->majorTab.isEmpty() )
 	pedlg.majorEdit->setText( pages[currentPage]->majorTab );
-    if (pages[currentPage] -> minorTab != NULL)
+    if ( ! pages[currentPage]->minorTab.isEmpty() )
 	pedlg.minorEdit->setText( pages[currentPage]->minorTab );
 
     int result = pedlg.exec();
@@ -205,34 +196,12 @@ void MainWindow::selProperties()
     if ( result != QDialog::Accepted )
 	return;
 
-    char *temp;
-
-    QString qstr = pedlg.titleEdit->text().simplifyWhiteSpace();
-    pages[currentPage]->label = qstrdup( qstr.local8Bit().data() );
-
-    delete [] pages[currentPage] -> minorTab;
-    qstr = pedlg.minorEdit->text().simplifyWhiteSpace();
-    temp = qstrdup( qstr.local8Bit().data() );
-    if ( qstrlen(temp) > 0 )
-	pages[currentPage] -> minorTab = temp;
-    else {
-	delete [] temp;
-	pages[currentPage] -> minorTab = NULL;
-    }
-
-    delete [] pages[currentPage] -> majorTab;
-    qstr = pedlg.majorEdit->text().simplifyWhiteSpace();
-    temp = qstrdup( qstr.local8Bit().data() );
-    if ( qstrlen(temp) > 0 )
-	pages[currentPage] -> majorTab = temp;
-    else {
-	delete [] temp;
-	pages[currentPage] -> majorTab = NULL;
-    }
+    pages[currentPage]->label    = pedlg.titleEdit->text().simplifyWhiteSpace();
+    pages[currentPage]->majorTab = pedlg.majorEdit->text().simplifyWhiteSpace();
+    pages[currentPage]->minorTab = pedlg.minorEdit->text().simplifyWhiteSpace();
 
     /* Get contents before update */
-    delete pages[currentPage] -> page;
-    pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
+    pages[currentPage]->page = textedit->text();
 
     setPage(currentPage);
 }
@@ -240,10 +209,10 @@ void MainWindow::selProperties()
 
 void MainWindow::selNewPage()
 {
-    if (modified && pages[currentPage] != NULL) {
-	delete pages[currentPage] -> page;
-	pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
-    }
+    if ( modified && pages[currentPage] )
+	pages[currentPage]->page = textedit->text();
+
+
     AdjustPages(currentPage, 1);
     pages[currentPage] = new Page();
     spinbox->setMaxValue( maxpages + 1 );
@@ -285,29 +254,20 @@ void MainWindow::setPage( int pageNumber )
 	spinbox->setValue( pageNumber + 1 );
 
     if ( pages[pageNumber] ) {
-	textedit->setText( QString::fromLocal8Bit( pages[pageNumber]->page ) );
+	textedit->setText( pages[pageNumber]->page );
 	textedit->setCursorPosition( pages[pageNumber]->lasttoppos,
 				     pages[pageNumber]->lastcursorpos );
 
-	QString labeltext;
-	if ( pages[pageNumber]->label ) {
-	    labeltext =
-		QString::fromLocal8Bit( pages[pageNumber]->label );
-	} else {
-	    labeltext =
-		QString::fromLocal8Bit( "Page %1" ). arg( pageNumber + 1 );
+	QString labeltext = pages[pageNumber]->label;
+	if ( labeltext.isEmpty() )
+	    labeltext = QString::fromLocal8Bit( "Page %1" ). arg( pageNumber + 1 );
+
+	if ( ! pages[pageNumber]->majorTab.isEmpty() ) {
+	    labeltext += QString::fromLocal8Bit( " - " ) + pages[pageNumber]->majorTab;
 	}
 
-	if ( pages[pageNumber]->majorTab ) {
-	    labeltext +=
-		QString::fromLocal8Bit( " - " ) +
-		QString::fromLocal8Bit( pages[pageNumber]->majorTab );
-	}
-
-	if ( pages[pageNumber]->minorTab ) {
-	    labeltext +=
-		QString::fromLocal8Bit( " - " ) +
-		QString::fromLocal8Bit( pages[pageNumber]->minorTab );
+	if ( ! pages[pageNumber]->minorTab.isEmpty() ) {
+	    labeltext += QString::fromLocal8Bit( " - " ) + pages[pageNumber]->minorTab;
 	}
 
 	textlabel->setText( labeltext );
@@ -324,9 +284,7 @@ void MainWindow::setPage( int pageNumber )
 void MainWindow::pageChange( int pageNumber )
 {
     if ( modified && pages[currentPage] ) {
-	delete pages[currentPage]->page;
-	pages[currentPage]->page = qstrdup( textedit->text().local8Bit() );
-
+	pages[currentPage]->page = textedit->text();
 	textedit->getCursorPosition( &pages[currentPage]->lasttoppos,
 				     &pages[currentPage]->lastcursorpos );
     }

@@ -48,11 +48,14 @@ static char *rcsid = "$XConsortium: io.c /main/6 1995/07/14 09:46:23 drk $";
 #include "page.h"
 
 // Qt includes
+#include <qdir.h>
+#include <qfile.h>
+#include <qfileinfo.h>
 #include <qmessagebox.h>
 #include <qspinbox.h>
+#include <qtextcodec.h>
 #include <qtextedit.h>
-
-#include <unistd.h>
+#include <qtextstream.h>
 
 extern int modified;
 
@@ -67,218 +70,139 @@ extern int modified;
  * regular lines start with .
  */
 
-// Convert ParseNewLines to proper C++
-/*
-void ParseNewLines(char *label)
-char * label;
-*/
-void ParseNewLines(char *label)
+void MainWindow::readDB( const QString &filename )
 {
-    /* look for "\n" and change in '\n' and compact */
+    int i, number, first = 1;
+    char line[1024];
 
-    char * s ;
-
-    while (*label) {
-	if ((*label == '\\') && (*(label+1) == 'n')) {
-            *label = '\n' ;
-            s = label+1 ;
-            while (*s) {
-		*s = *(s+1) ;
-		s++ ;
-	    }
-	}
-	label ++ ;
+    /* Destroy current pages on reread */
+    for(i = 0; i < maxpages; i++) {
+	delete pages[i];
+	pages[i] = 0;
     }
 
-}
+    QFile file( filename );
+    if ( ! file.open( IO_ReadOnly ) &&
+	 ! filename.startsWith( QString::fromLatin1( "untitled" ) ) ) {
+	QString message = "Cannot access (%1) for reading";
+	QMessageBox::warning( this, "IO Error", message.arg(filename) );
 
-// Convert PrintWithNewLines to proper C++
-/*
-static void PrintWithNewLines(output, label)
-FILE * output;
-char * label;
-*/
-static void PrintWithNewLines(FILE *output, char *label)
-{
-    /* look for '\n' and print "\n" */
-
-    while (*label) {
-	if (*label == '\n') {
-	    fprintf(output,"\\n");
-	} else
-	    fprintf(output,"%c", *label);
-	label ++ ;
+	// setup a single page
+	pages[0] = new Page();
+	return;
     }
-    fprintf(output,"\n"); label ++ ;
-}
 
-void MainWindow::readDB( char *filename )
-{
-  FILE *input;
-  int i, number, first = 1;
-  char *buffer;
-  int max, current;
-  char line[1024];
-
-  input = fopen(filename, "r");
-
-  if (input == NULL && strncmp(filename,"untitled",8) != 0) {
-    QString message = "Cannot access (%1) for reading";
-    QMessageBox::warning( this, "IO Error", message.arg(filename) );
-  }
-
-  /* Destroy current pages on reread */
-  for(i = 0; i < maxpages; i++) {
-    delete pages[i];
-    pages[i] = 0;
-  }
-
-  number = 0;
-
-  if (input != NULL) {
-    max = MAXINIT;
-    buffer = new char[max];
-    buffer[0] = 0; /* Reset page buffer */
-    current = 0;
-    pages[0] = new Page();
-
-    while(fgets(line, 1024, input) != NULL) {
-      if (line[0] == '*') /* Special */
-	{
-	  if (line[1] == 'P') /* New Page */
-	    {
-	      if (first == 1) {
-		first = 0;
-	      }
-	      else {
-		pages[number] -> page = buffer;
-		current = 0;
-		max = MAXINIT;
-		buffer = new char[max];
-		buffer[0] = 0; /* Reset page buffer */
-		number++;
-		pages[number] = new Page();
-	      }
-	      if (strlen(line) > 3) {
-		line[strlen(line) - 1] = 0; /* Remove newline */
-		pages[number] -> label = qstrdup( &line[2] );
-	      }
-	    }
-	  else if (line[1] == 'T') /* Tab */
-	    {
-	      line[strlen(line) - 1] = 0; /* Remove newline */
-	      if (strlen(line) > 3) {
-		pages[number] -> majorTab = qstrdup( &line[2] );
-		i = 0;
-		ParseNewLines(pages[number] -> majorTab);
-	      }
-	    }
-	  else if (line[1] == 'M') /* Minor Tab */
-	    {
-	      line[strlen(line) - 1] = 0; /* Remove newline */
-	      if (strlen(line) > 3) {
-		pages[number] -> minorTab = qstrdup( &line[2] );
-		i = 0;
-		ParseNewLines(pages[number] -> minorTab);
-	      }
-	    }
-	  else if (line[1] == 'C') /* Cursor position */
-	    {
-	      pages[number] -> lastcursorpos = strtol(&line[2], NULL, 0);
-	    }
-	  else if (line[1] == 'L') /* Top line position */
-	    {
-	      pages[number] -> lasttoppos = strtol(&line[2], NULL, 0);
-	    }
-	}
-      else /* Regular line.  "Remove" . and append */
-	{
-	  current += strlen(&line[1]);
-	  if ((current - 2) > max) {
-	    // C++ doesn't have 'renew', so we need to create a new
-	    // buffer, copy the existing data from old to new and then
-	    // delete the old
-
-	    int newmax = 2 * max;
-	    char *b = new char[newmax];
-	    memcpy( b, buffer, max );
-
-	    delete [] buffer;
-	    buffer = b;
-	    max = newmax;
-	  }
-	  strcat(buffer, &line[1]);
-	}
-    }
-  }
-
-  /* If we didn't have a file to read,  we need to setup a page */
-  if (input == NULL) {
     number = 0;
     pages[0] = new Page();
-  } else {
-    pages[number] -> page = buffer;
-  }
 
-  maxpages = number;
-  spinbox->setMaxValue( maxpages + 1 );
-  spinbox->setValue( 1 );
+    QString currentText;
 
-  if (input) fclose(input);
+    while ( file.readLine( line, 1024 ) > 0 ) {
+	if (line[0] == '*') {/* Special */
+            if (line[1] == 'P') {/* New Page */
+                if (first == 1) {
+                    first = 0;
+                } else {
+                    pages[number]->page = currentText;
+                    currentText = QString::null;
+                    number++;
+                    pages[number] = new Page();
+                }
+                if (strlen(line) > 3) {
+                    line[strlen(line) - 1] = 0; /* Remove newline */
+                    pages[number]->label = QString::fromLocal8Bit( &line[2] );
+                }
+            } else if (line[1] == 'T') { /* Tab */
+                line[strlen(line) - 1] = 0; /* Remove newline */
+                if (strlen(line) > 3) {
+                    pages[number]->majorTab = QString::fromLocal8Bit( &line[2] );
+                    i = 0;
+                    pages[number]->majorTab.replace( QString::fromLatin1( "\\n" ),
+                                                     QChar( '\n' ) );
+                }
+            } else if (line[1] == 'M') { /* Minor Tab */
+                line[strlen(line) - 1] = 0; /* Remove newline */
+                if (strlen(line) > 3) {
+                    pages[number]->minorTab = QString::fromLocal8Bit( &line[2] );
+                    i = 0;
+                    pages[number]->minorTab.replace( QString::fromLatin1( "\\n" ),
+                                                     QChar( '\n' ) );
+                }
+            } else if (line[1] == 'C') { /* Cursor position */
+                pages[number]->lastcursorpos = strtol(&line[2], NULL, 0);
+            } else if (line[1] == 'L') {/* Top line position */
+                pages[number]->lasttoppos = strtol(&line[2], NULL, 0);
+            }
+        } else { /* Regular line.  "Remove" . and append */
+            currentText += QString::fromLocal8Bit( &line[1] );
+        }
+    }
+
+    pages[number]->page = currentText;
+
+    maxpages = number;
+    spinbox->setMaxValue( maxpages + 1 );
+    spinbox->setValue( 1 );
+
+    file.close();
 }
 
-void MainWindow::saveDB( char *filename )
+void MainWindow::saveDB( const QString &filename )
 {
-  int number;
-  FILE *output;
-  int i;
-  char oldfilename[256];
+    QFileInfo fileinfo( filename );
 
-  if (access(filename, F_OK) == 0 &&
-      access(filename, W_OK) != 0) {
-    QString message = "Cannot access (%1) for writing";
-    QMessageBox::warning( this, "IO Error", message.arg(filename) );
-    return;
-  }
-
-  /* Append a ~ to make the old filename */
-  if (access(filename, F_OK) == 0) {
-    strcpy(oldfilename, filename);
-    strcat(oldfilename, "~");
-    rename(filename, oldfilename);
-  }
-
-  /* Make sure to grab current page */
-  if (modified) {
-    delete pages[currentPage] -> page;
-    pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
-  }
-
-  output = fopen(filename, "w");
-  for(number = 0; number <= maxpages; number++) {
-    if (pages[number] -> label != NULL)
-      fprintf(output, "*P%s\n", pages[number] -> label);
-    else
-      fprintf(output, "*P\n");
-    if (pages[number] -> majorTab != NULL) {
-	fprintf(output, "*T");
-	PrintWithNewLines(output, pages[number] -> majorTab);
+    if ( fileinfo.exists() && ! fileinfo.isWritable() ) {
+	QString message = "Cannot access (%1) for writing";
+	QMessageBox::warning( this, "IO Error", message.arg(filename) );
+	return;
     }
-    if (pages[number] -> minorTab != NULL) {
-	fprintf(output, "*M");
-	PrintWithNewLines(output, pages[number] -> minorTab);
+
+    /* Append a ~ to make the old filename */
+    if ( fileinfo.exists() ) {
+	QString oldfilename = filename + '~';
+	fileinfo.dir().remove( oldfilename );
+	fileinfo.dir().rename( filename, oldfilename );
     }
-    fprintf(output, "*C%d\n", pages[number] -> lastcursorpos);
-    fprintf(output, "*L%d\n", pages[number] -> lasttoppos);
-    fputc('.', output);
-    if (pages[number] -> page != NULL) {
-      for(i = 0; pages[number] -> page[i] != 0; i++) {
-	fputc(pages[number] -> page[i], output);
-	if (pages[number] -> page[i] == '\n')
-	  fputc('.', output);
-      }
+
+    /* Make sure to grab current page */
+    if (modified)
+	pages[currentPage]->page = textedit->text();
+
+    QFile file( filename );
+    if ( ! file.open( IO_WriteOnly | IO_Truncate ) ) {
+	QString message = "Cannot open (%1) for writing";
+	QMessageBox::warning( this, "IO Error", message.arg(filename) );
+	return;
     }
-    fputc('\n', output);
-  }
-  fclose(output);
+
+    QTextStream stream( &file );
+
+    // maintain backwards compatibility by writing all data in the
+    // current encoding
+    stream.setCodec( QTextCodec::codecForLocale() );
+
+    for( int number = 0; number <= maxpages; number++ ) {
+	if ( ! pages[number]->label.isEmpty() )
+	    stream << "*P" << pages[number]->label << endl;
+	else
+	    stream << "*P" << endl;
+	if ( ! pages[number]->majorTab.isEmpty() ) {
+	    stream << "*T";
+	    QString tmp( pages[number]->majorTab );
+	    stream << tmp.replace( '\n', "\\n" ) << endl;
+	}
+	if ( ! pages[number]->minorTab.isEmpty() ) {
+	    stream << "*M";
+	    QString tmp( pages[number]->minorTab );
+	    stream << tmp.replace( '\n', "\\n" ) << endl;
+	}
+
+	stream << "*C" << pages[number]->lastcursorpos << endl;
+	stream << "*L" << pages[number]->lasttoppos << endl;
+
+	QString tmp( pages[number]->page );
+	stream << '.' << tmp.replace( '\n', "\n." ) << endl;
+    }
+
+    file.close();
 }

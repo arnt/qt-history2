@@ -1462,22 +1462,87 @@ used in our application.  We remove these as well.
 After regenerating the \c Makefile and building our project, we
 confirm that the application works correctly.
 
-
-
-
-
-<font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
-
 \section1 Continuing Development
+
+We are not yet done with the migration to Qt, even though our project
+does not use Motif anymore.  Qt provides many useful features that we
+can begin using immediately.  Some some of the interesting ones are
+presented below as a guide for where to start extending your existing
+projects.
 
 \section2 Using Unicode
 
+Support for \link i18n.html internationalization\endlink is very easy
+with Qt.  Using QString instead of \c {char *} for storing text gives
+us support for most of the written languages around the world.  Our \c
+Page and \c Options structs look much simpler now.
+
+\quotefile walkthrough/page.h
+
+\skipto struct Page
+\printuntil };
+
+\skipto struct Options
+\printuntil };
+
+All functions that use the \c Page and \c Options structs need to be
+updated to use QString properly.  Since QString is also an implicitly
+shared class, we no longer have to do any memory management with our
+strings.  We can remove all occurences of the \c qstrdup() function,
+and we never need to use \e new or \e delete when done with a string.
+QString will allocate and delete data when needed.
+
+Here are the \c MainWindow::fileOpen() and \c MainWindow::pageChange()
+functions from \c mainwindow.ui.h.  Notice that the code no longer
+uses \e delete or \c qstrdup() when storing text.
+
+\quotefile walkthrough/mainwindow.ui.h
+
+\skipto void MainWindow::fileOpen()
+\printuntil setPage( currentPage );
+\printline
+\printline
+
+\code
+    ...
+\endcode
+
+\skipto void MainWindow::pageChange
+\printuntil setPage( pageNumber - 1 );
+\printline
+
+Almost all of the functions in our application are affected by this
+change.  In most cases, we end up removing more code than we are
+adding.  Due to space considerations, we include only a small portion
+of the required changes, since these changes are very similar to the above.
+
 \section2 Writing Platform-Independent Code
 
-We deploy our application(s) on UNIX... this year.
+Qt provides many \link io.html input and output\endlink classes.  We
+can use these in \c MainWindow::readDB() and \c MainWindow::saveDB().
+Currently, these functions use functions only found on UNIX machines.
+Using QFile and friends removes this dependency on UNIX, and we can
+begin building and testing our application on Microsoft Windows and
+Apple MacOS X.
 
-\section2 Exploiting Qt Features
+The platform-independent versions of the \c MainWindow::readDB() and
+\c MainWindow::saveDB() functions can be found in the \c io.cpp file.
 
-Since we have a bright and shiny new interface, let's give it a face-lift.
+\section2 Designing a Modern User Interface
+
+Since we used the \e {Qt Designer} to design the \e {Main Window}
+widget, we can extend the interface easily.  We can use some of the
+more advanced features of QMainWindow, which includes dockable
+toolbars.  Adding these is simple with the \e {Qt Designer}.  The
+final version of our project includes a toolbar, which provides quick
+access to the \e Open, \e Save, \e Print, \e {New Page} and \e {Delete
+to Trash} actions.  
+
+The possibilities are endless.  An \e Edit menu, with the common \e
+Cut, \e Copy and \e Paste actions, could be added in a relatively
+short period of time.  As our project expands to other platforms, we
+could add menus and dialogs that allow us synchronize todo lists
+between a normal desktop computer and a handheld device running with
+Qt/Embedded.
 
 */

@@ -46,28 +46,17 @@ static char *rcsidpageH = "$XConsortium: page.h /main/5 1995/07/14 09:46:34 drk 
 #ifndef Page_H
 #define Page_H
 
+#include <qstring.h>
+
 #define MAXPAGES 100
-#define MAXINIT 512
 
 struct Page {
-    Page()
-	: page( 0 ), majorTab( 0 ), minorTab( 0 ),
-	  label( 0 ), lasttoppos( 0 ), lastcursorpos( 0 )
-    {
-    }
+    Page() : lasttoppos( 0 ), lastcursorpos( 0 ) { }
 
-    ~Page()
-    {
-	delete [] page;
-	delete [] majorTab;
-	delete [] minorTab;
-	delete [] label;
-    }
-
-    char *page;
-    char *majorTab;
-    char *minorTab;
-    char *label;
+    QString page;
+    QString majorTab;
+    QString minorTab;
+    QString label;
     int lasttoppos;
     int lastcursorpos;
 };
@@ -77,10 +66,7 @@ extern int currentPage;
 extern int maxpages;
 
 struct Options {
-    Options() : todoFile( 0 ) { }
-    ~Options() { delete [] todoFile; }
-
-    char *todoFile;
+    QString todoFile;
 };
 
 extern Options options;

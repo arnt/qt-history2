@@ -49,12 +49,7 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 
 // Qt includes
 #include <qapplication.h>
-
-#include <pwd.h>
-#include <unistd.h>
-#include <stdlib.h>
-
-#define APP_CLASS "XmdTodo"
+#include <qdir.h>
 
 // Global data
 Page *pages[MAXPAGES];
@@ -68,36 +63,31 @@ int modified = 0;
 
 int main( int argc, char **argv )
 {
-  int i;
-  char temppath[256];
+    if (argc == 2 && strcmp(argv[1], "-help") == 0) {
+	printf("Usage: todo [-todoFile pathname]\n");
+	return 0;
+    }
 
-  if (argc == 2 && strcmp(argv[1], "-help") == 0) {
-    printf("Usage: todo [-todoFile pathname]\n");
-    return(0);
-  }
+    int i;
+    for ( i = 0; i < MAXPAGES; i++ )
+	pages[i] = 0;
 
-  QApplication app( argc, argv );
-  MainWindow mainwindow;
-  app.setMainWidget( &mainwindow );
+    QApplication app( argc, argv );
+    MainWindow mainwindow;
+    app.setMainWidget( &mainwindow );
 
-  struct passwd *user = getpwuid(getuid());
-  for (i = 0; i < MAXPAGES; i++) {
-    pages[i] = NULL;
-  }
+    for ( i = 1; i < app.argc(); ++i ) {
+	if ( qstrcmp( app.argv()[i], "-todoFile" ) == 0 && ++i < app.argc() )
+	    options.todoFile = app.argv()[i];
+    }
 
-  if (options.todoFile == NULL) {
-    strcpy(temppath, user -> pw_dir);
-    strcat(temppath, "/.todo");
-    options.todoFile = qstrdup( temppath );
-  } else {
-    /* Copy the string for consistency */
-    options.todoFile = qstrdup( options.todoFile );
-  }
+    if ( options.todoFile.isNull() )
+	options.todoFile = QDir::homeDirPath() + QString::fromLatin1( "/.todo" );
 
-  mainwindow.readDB(options.todoFile);
-  mainwindow.setPage(0);
+    mainwindow.readDB(options.todoFile);
+    mainwindow.setPage(0);
 
-  mainwindow.show();
+    mainwindow.show();
 
-  return app.exec();
+    return app.exec();
 }
