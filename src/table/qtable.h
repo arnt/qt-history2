@@ -95,6 +95,8 @@ private:
 
 class Q_EXPORT QTableItem : public Qt
 {
+    friend class QTable;
+
 public:
     enum EditType { Never, OnTyping, WhenCurrent, Always };
 

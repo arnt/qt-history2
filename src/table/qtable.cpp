@@ -610,7 +610,6 @@ QWidget *QTableItem::createEditor() const
     e->setFrame( FALSE );
     e->setText( text() );
     QObject::connect( e, SIGNAL( textChanged( const QString & ) ), table(), SLOT( doValueChanged() ) );
-    QObject::connect( e, SIGNAL( returnPressed() ), table(), SLOT( doValueChanged() ) );
     return e;
 }
 
@@ -4297,7 +4296,6 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 	e = new QLineEdit( viewport(), "qt_lineeditor" );
 	( (QLineEdit*)e )->setFrame( FALSE );
 	connect( e, SIGNAL( textChanged( const QString & ) ), this, SLOT( doValueChanged() ) );
-	QObject::connect( e, SIGNAL( returnPressed() ), this, SLOT( doValueChanged() ) );
     }
 
     return e;
@@ -4390,6 +4388,9 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 
     viewport()->setFocus();
     updateCell( row, col );
+
+    if ( !i || editor->inherits( "QLineEdit" ) && i && i->txt !=  ( (QLineEdit*)editor )->text() )
+	emit valueChanged( row, col );
 
     clearCellWidget( row, col );
 }
