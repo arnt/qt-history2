@@ -19,8 +19,8 @@
 */
 
 /*!
-  \enum QAccessible::Reason
-  This enum type defines reasons why the state of the accessible object has changed.
+  \enum QAccessible::Event
+  This enum type defines event types why the state of the accessible object has changed.
 
   \value Focus
 */
@@ -30,11 +30,18 @@
 */
 
 /*!
-  \fn QRect QAccessibleInterface::location() const
+  \enum QAccessible::NavDirection
 
-  Returns the object's current location in screen coordinates. 
-  
-  All visual objects provide this information.
+  \value NavDirectionMin
+  \value NavUp
+  \value NavDown
+  \value NavLeft
+  \value NavRight
+  \value NavNext
+  \value NavPrevious
+  \value NavFirstChild
+  \value NavLastChild
+  \value NavDirectionMax
 */
 
 /*!
@@ -52,6 +59,31 @@
 */
 
 /*!
+  \fn QRect QAccessibleInterface::location( int who ) const
+
+  Returns the object's current location in screen coordinates if \a who is 0,
+  or the location of the object's subelement with ID \a who.
+  
+  All visual objects provide this information.
+*/
+
+/*!
+  \fn QAccessibleInterface* QAccessibleInterface::navigate( NavDirection direction, int *target ) const
+*/
+
+/*!
+  \fn int QAccessibleInterface::childCount() const
+
+  Returns the number of accessible child objects. Every subelement of this
+  object that can provide accessibility information is a child, e.g. items
+  in a list view.
+*/
+
+/*!
+  \fn QAccessibleInterface* QAccessibleInterface::child( int who ) const
+*/
+
+/*!
   \fn QAccessibleInterface* QAccessibleInterface::parent() const
 
   Returns the QAccessibleInterface implementation of the parent object, or NULL if there
@@ -61,25 +93,29 @@
 */
 
 /*!
-  \fn QAccessible::State QAccessibleInterface::state() const
+  \fn QAccessible::State QAccessibleInterface::state( int who ) const
 
-  Returns the current state of this object. All objects have a state.
+  Returns the current state of the object if \a who is 0, or the state of 
+  the object's subelement element with ID \a who. All objects have a state.
 
   \sa role()
 */
 
 /*!
-  \fn QAccessible::Role QAccessibleInterface::role() const
+  \fn QAccessible::Role QAccessibleInterface::role( int who ) const
 
-  Returns the role of the object. All objects have a role.
+  Returns the role of the object if \a who is 0, or the role of the object's 
+  subelement with ID \a who. The role of an object is usually static. 
+  All accessible objects have a role.
 
   \sa state()
 */
 
 /*!
-  \fn QString QAccessibleInterface::name() const
+  \fn QString QAccessibleInterface::name( int who ) const
 
-  Returns the current name of this object.
+  Returns the current name of the object if \a who is 0, or the name of 
+  the object's subelement with ID \a who.
 
   The \e name is a string used by clients to identify, 
   find or announce an accessible object for the user.
@@ -91,9 +127,10 @@
 */
 
 /*!
-  \fn QString QAccessibleInterface::description() const
+  \fn QString QAccessibleInterface::description( int who ) const
 
-  Returns the current description text of this object.
+  Returns the current description text of the object if \a who is 0, or the
+  name of the object's subelement with ID \a who.
 
   An accessible object's \e description provides a textual description about
   an object's visual appearance. The description is primarily used to provide
@@ -107,9 +144,10 @@
 */
 
 /*!
-  \fn QString QAccessibleInterface::help() const
+  \fn QString QAccessibleInterface::help( int who ) const
 
-  Returns the current help text of this object.
+  Returns the current help text of the object if \a who is 0, or the help
+  text of the object's subelement with ID \a who.
 
   The \e help text provides information about the function of an 
   accessible object. Not all objects provide this information.
@@ -118,22 +156,30 @@
 */
 
 /*!
-  \fn QString QAccessibleInterface::value() const
+  \fn QString QAccessibleInterface::value( int who ) const
 
-  Returns the current value of this object.
+  Returns the current value of the object if \a who is 0, or the value
+  of the object's subelement with ID \a who.
 
   The \e value of an accessible object represents visual information
-  contained by the object, e.g. the text in a line edit. Usually, this
+  contained by the object, e.g. the text in a line edit. Usually, the
   value can be modified by the user.
 
-  Not all objects have a value, e.g. static text labels don't.
+  Not all objects have a value, e.g. static text labels don't, and some
+  objects have a state that already is the value, e.g. toggle buttons.
 
   \sa name(), state()
 */
 
 /*!
-  \fn QString QAccessibleInterface::defaultAction() const
-  Returns the current default action of this object.
+  \fn bool QAccessibleInterface::doDefaultAction( int who )
+*/
+
+/*!
+  \fn QString QAccessibleInterface::defaultAction( int who ) const
+
+  Returns the current default action of the object if \a who is 0, or the
+  value of the object's subelement with ID \a who.
 
   An accessible object's \e defaultAction describes the object's primary
   method of manipulation, and should be a verb or a short phrase, e.g. 
@@ -143,9 +189,10 @@
 */
 
 /*!
-  \fn QString QAccessibleInterface::accelerator() const
+  \fn QString QAccessibleInterface::accelerator( int who ) const
 
-  Returns the current keyboard shortcut for this object.
+  Returns the keyboard shortcut for this object if \a who is 0, or
+  the keyboard shortcut of the object's subelement with ID \a who.
 
   A keyboard shortcut is an underlined character in the text of a menu, menu item 
   or control, and is either the character itself, or a combination of this character
@@ -159,14 +206,21 @@
   \sa help()
 */
 
+/*!
+  \fn QAccessibleInterface *QAccessibleInterface::hasFocus( int *who ) const
+*/
+
 
 /*!
   \class QAccessibleObject qaccessible.h
-  \brief The QAccessibleObject class implements the QAccessibleInterface.
+  \brief The QAccessibleObject class implements the QUnknownInterface.
+
+  This class is mainly provided for convenience. All further implementations 
+  of the QAccessibleInterface should use this class as the base class.
 */
 
 /*!
-  Constructs a QAccessibleObject.
+  Creates a QAccessibleObject.
 */
 QAccessibleObject::QAccessibleObject()
 : ref( 0 )
@@ -225,6 +279,11 @@ ulong QAccessibleObject::release()
   \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
 */
 
+/*!
+  Creates a QAccessibleWidget object for the widget \a w with \a role, \a name, \a description,
+  \a value, \a help, \a defAction and \a accelerator being optional parameters for static values
+  of the object's property.
+*/
 QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name, 
     QString description, QString value, QString help, QString defAction, QString accelerator )
     : QAccessibleObject(), widget_( w ), role_(role), name_(name), 
@@ -233,11 +292,19 @@ QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name,
 {
 }
 
+/*!
+  Returns the widget for which this QAccessibleInterface implementation provides information.
+*/
 QWidget *QAccessibleWidget::widget() const
 {
     return widget_;
 }
 
+/*! 
+  \reimp
+
+  For widgets with subelements, e.g. item views, this function has to be reimplemented.
+*/
 QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
 {
     *who = -1;
@@ -254,6 +321,11 @@ QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
     return widget_->accessibilityInterface();
 }
 
+/*!
+  \reimp
+
+  For widgets with subelements, e.g. item views, this function has to be reimplemented.
+*/
 QRect	QAccessibleWidget::location( int who ) const
 {
     QPoint wpos = widget_->mapToGlobal( QPoint( 0, 0 ) );
@@ -261,7 +333,12 @@ QRect	QAccessibleWidget::location( int who ) const
     return QRect( wpos.x(), wpos.y(), widget_->width(), widget_->height() );
 }
 
-QAccessibleInterface *QAccessibleWidget::navigate( int dir, int *target ) const
+/*!
+  \reimp
+
+  For widgets with subelements, e.g. item views, this function has to be reimplemented.
+*/
+QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target ) const
 {
     *target = -1;
     QObject *o = 0;
@@ -316,6 +393,12 @@ QAccessibleInterface *QAccessibleWidget::navigate( int dir, int *target ) const
     return 0;
 }
 
+/*!
+  \reimp
+
+  Returns the number of all child widgets. For widgets with subelements, 
+  e.g. item views, this function has to be reimplemented.
+*/
 int QAccessibleWidget::childCount() const
 {
     QObjectList *cl = widget_->queryList( "QWidget", 0, FALSE, FALSE );
@@ -327,6 +410,11 @@ int QAccessibleWidget::childCount() const
     return count;
 }
 
+/*!
+  \reimp
+
+  For widgets with subelements, e.g. item views, this function has to be reimplemented.
+*/
 QAccessibleInterface *QAccessibleWidget::child( int who ) const
 {
     if ( !who )
@@ -345,6 +433,11 @@ QAccessibleInterface *QAccessibleWidget::child( int who ) const
     return o->accessibilityInterface();    
 }
 
+/*!
+  \reimp
+
+  Returns the parent widget.
+*/
 QAccessibleInterface *QAccessibleWidget::parent() const
 {
     QWidget *p = widget_->parentWidget();
@@ -354,16 +447,32 @@ QAccessibleInterface *QAccessibleWidget::parent() const
     return p->accessibilityInterface();
 }
 
+/*!
+  \reimp
+
+  Does nothing and returns FALSE.
+*/
 bool	QAccessibleWidget::doDefaultAction( int /*who*/ )
 {
     return FALSE;
 }
 
+/*!
+  \reimp
+*/
 QString	QAccessibleWidget::defaultAction( int /*who*/ ) const
 {
     return defAction_;
 }
 
+/*!
+  \reimp
+
+  Returns the object's className() when no description is provided 
+  and if compiled with debug symbols.
+
+  \sa QObject::className
+*/
 QString	QAccessibleWidget::description( int /*who*/ ) const
 {
 #if defined(QT_DEBUG)
@@ -373,16 +482,31 @@ QString	QAccessibleWidget::description( int /*who*/ ) const
 #endif
 }
 
+/*!
+  \reimp
+*/
 QString	QAccessibleWidget::help( int /*who*/) const
 {
     return help_;
 }
 
+/*!
+  \reimp
+*/
 QString	QAccessibleWidget::accelerator( int /*who*/ ) const
 {
     return accelerator_;
 }
 
+/*!
+  \reimp
+
+  If the widget is a top level widget, the caption() is returned.
+  Returns the object's name when no  name is provided otherwise and
+  if compiled with debug symbols 
+
+  \a QWidget::caption, QObject::name
+*/
 QString	QAccessibleWidget::name( int /*who*/ ) const
 {
     if ( widget_->isTopLevel() )
@@ -394,32 +518,48 @@ QString	QAccessibleWidget::name( int /*who*/ ) const
 #endif
 }
 
+/*!
+  \reimp
+*/
 QString	QAccessibleWidget::value( int /*who*/ ) const
 {
     return value_;
 }
 
+/*!
+  \reimp
+*/
 QAccessible::Role	QAccessibleWidget::role( int /*who*/ ) const
 {
     return role_;
 }
 
+/*!
+  \reimp
+
+  Sets the state flags Invisible, Focusable, Focused and Unavailable as
+  appropriate. Reimplementations should call this implementation and
+  use the returned value to add further flags.
+*/
 QAccessible::State	QAccessibleWidget::state( int /*who*/ ) const
 {
     int state = QAccessible::Normal;
 
     if ( widget_->isHidden() )
-	state |= QAccessible::Invisible;
+	state |= Invisible;
     if ( widget_->focusPolicy() != QWidget::NoFocus )
-	state |= QAccessible::Focusable;
+	state |= Focusable;
     if ( widget_->hasFocus() )
-	state |= QAccessible::Focused;
+	state |= Focused;
     if ( !widget_->isEnabled() )
-	state |= QAccessible::Unavailable;
+	state |= Unavailable;
 
     return (State)state;
 }
 
+/*!
+  \reimp
+*/
 QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 {
     widget_->setActiveWindow();
@@ -453,13 +593,25 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
   \brief The QAccessibleButton class provides accessibility information for button type widgets.
 */
 
-QAccessibleButton::QAccessibleButton( QButton *b, Role r, QString description,
+/*!
+  Creates a QAccessibleButton object.
+  \a role, \a description and \a help are propagated to the QAccessibleWidget constructor.
+  The default action is set to "Press".
+*/
+QAccessibleButton::QAccessibleButton( QButton *b, Role role, QString description,
 				     QString help )
-: QAccessibleWidget( b, r, QString::null, description, QString::null, 
-			   QString::null, "Press", QString::null )
+: QAccessibleWidget( b, role, QString::null, description, QString::null, 
+		    QString::null, QApplication::tr("Press"), QString::null )
 {
 }
 
+/*!
+  \reimp
+
+  Reimplemented to press the button.
+
+  \sa QButton::animateClick()
+*/
 bool	QAccessibleButton::doDefaultAction( int /*who*/ )
 {
     ((QButton*)widget())->animateClick();
@@ -467,9 +619,18 @@ bool	QAccessibleButton::doDefaultAction( int /*who*/ )
     return TRUE;
 }
 
+/*!
+  \reimp
+
+  If available, returns the first character in the button's text
+  that is marked as the accelerator with an ampersand.
+
+  \sa QButton::text
+*/
 QString	QAccessibleButton::accelerator( int who ) const
 {
     QString text = ((QButton*)widget())->text();
+
     int fa = 0;
     bool ac = FALSE;
     while ( ( fa = text.find( "&", fa ) ) != -1 ) {
@@ -483,6 +644,13 @@ QString	QAccessibleButton::accelerator( int who ) const
     return QAccessibleWidget::accelerator( who );
 }
 
+/*!
+  \reimp
+
+  Returns the text of the button.
+
+  \sa QButton::text
+*/
 QString	QAccessibleButton::name( int /*who*/ ) const
 {
     QString text = ((QButton*)widget())->text();
@@ -495,6 +663,13 @@ QString	QAccessibleButton::name( int /*who*/ ) const
     return text;
 }
 
+/*!
+  \reimp
+
+  Adds states "Checked" or "Pressed" to the widget's state.
+
+  \sa QButton::isToggleButton, QButton::isOn
+*/
 QAccessible::State QAccessibleButton::state( int who ) const
 {
     int state = QAccessibleWidget::state( who );
