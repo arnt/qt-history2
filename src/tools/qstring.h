@@ -852,6 +852,8 @@ inline QString &QString::operator+=( const QByteArray &s )
 #ifndef QT_NO_STL
 inline QString &QString::append( const std::string& s )
 { return operator+=(s); }
+inline QString &QString::operator+=( const std::string& s )
+{ return operator+=(s.c_str()); }
 #endif
 
 inline QString &QString::setNum( short n, int base )
