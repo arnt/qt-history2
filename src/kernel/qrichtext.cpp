@@ -1457,18 +1457,19 @@ void QTextDocument::setPlainText( const QString &text )
 	    lParag = createParagraph( this, lParag, 0 );
 	    if ( !fParag )
 		fParag = lParag;
-	    QString s = text.mid( lastNl, nl - lastNl );
-	    if ( !s.isEmpty() ) {
-		if ( s[ (int)s.length() - 1 ] == '\r' )
-		    s.remove( s.length() - 1, 1 );
-		lParag->append( s );
+	    int l = nl - lastNl;
+	    if ( l > 0 ) {
+		if (text.unicode()[nl-1] == '\r')
+		    l--;
+		QConstString cs(text.unicode()+lastNl, l);
+		lParag->append( cs.string() );
 	    }
-	    if ( nl == 0xffffff )
+	    if ( nl == (int)text.length() )
 		break;
 	    lastNl = nl + 1;
 	    nl = text.find( '\n', nl + 1 );
 	    if ( nl == -1 )
-		nl = 0xffffff;
+		nl = text.length();
 	}
     }
     if ( !lParag )
@@ -3661,16 +3662,16 @@ void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat 
 	memmove( data.data() + index + len, data.data() + index,
 		 sizeof( QTextStringChar ) * ( os - index ) );
     }
+    QTextStringChar *ch = data.data() + index;
     for ( int i = 0; i < len; ++i ) {
-	QTextStringChar &ch = data[ (int)index + i ];
-	ch.x = 0;
-	ch.lineStart = 0;
-	ch.p.format = 0;
-	ch.nobreak = FALSE;
-	ch.type = QTextStringChar::Regular;
-	ch.rightToLeft = 0;
-	ch.c = unicode[i];
-	ch.setFormat( f );
+	ch->x = 0;
+	ch->lineStart = 0;
+	ch->nobreak = FALSE;
+	ch->type = QTextStringChar::Regular;
+ 	ch->p.format = f;
+	ch->rightToLeft = 0;
+	ch->c = unicode[i];
+	++ch;
     }
     bidiDirty = TRUE;
 }
@@ -3795,7 +3796,7 @@ void QTextString::checkBidi() const
 
     // determines the properties we need for layouting
     QTextEngine textEngine( toString(), 0 );
-    textEngine.itemize();
+    textEngine.itemize(QTextEngine::SingleLine);
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     QTextStringChar *ch = (QTextStringChar *)end - 1;
     QScriptItem *item = &textEngine.items[textEngine.items.size()-1];
@@ -4032,7 +4033,8 @@ QTextParagraph::QTextParagraph( QTextDocument *dc, QTextParagraph *pr, QTextPara
     }
 
     str = new QTextString();
-    str->insert( 0, " ", formatCollection()->defaultFormat() );
+    QChar ch(' ');
+    str->insert( 0, &ch, 1, formatCollection()->defaultFormat() );
 }
 
 QTextParagraph::~QTextParagraph()
