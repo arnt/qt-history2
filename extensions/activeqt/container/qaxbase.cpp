@@ -463,7 +463,7 @@ QString QAxMetaObject::paramType(const QString &prototype, int index, bool *out)
 	param.truncate(param.length() - 1);
     } else if (param.endsWith("**")) {
 	byRef = true;
-	param.truncate(param.length() - 2);
+	param.truncate(param.length() - 1);
     }
 
     if (out)
@@ -1723,7 +1723,7 @@ QString MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *type
 	    if (ptype.endsWith("&")) {
 		ptype.truncate(ptype.length() - 1);
 	    } else if (ptype.endsWith("**")) {
-		ptype.truncate(ptype.length() - 2);
+		ptype.truncate(ptype.length() - 1);
 	    }
 	    if (ptype.startsWith("const "))
 		type = ptype.mid(6);
@@ -2736,7 +2736,14 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     for (p = 0; p < params.cArgs; ++p) {
 	bool out;
 	QString type = d->metaobj->paramType(signature, p, &out);
-	QVariantToVARIANT(QVariant(QVariant::nameToType(type.latin1()), v[p+1]), params.rgvarg[params.cArgs - p - 1], type, out);
+	QVariant qvar;
+	if (type == "IDispatch*")
+	    qvar.rawAccess(v[p + 1], (QCoreVariant::Type)1000);
+	else if (type == "IUnknown*")
+	    qvar.rawAccess(v[p + 1], (QCoreVariant::Type)1001);
+	else
+	    qvar = QVariant(QVariant::nameToType(type.latin1()), v[p + 1]);
+	QVariantToVARIANT(qvar, params.rgvarg[params.cArgs - p - 1], type, out);
     }
 
     // return value
@@ -2814,8 +2821,6 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 */
 bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QList<QVariant> &vars, QString &type )
 {
-    bool bo = qObject()->signalsBlocked();
-
     IDispatch *disp = d->dispatch();
     if ( !disp )
 	return FALSE;
@@ -3064,6 +3069,7 @@ QVariant QAxBase::dynamicCall( const QString &function, const QVariant &var1,
 	case 6: var = var6; break;
 	case 7: var = var7; break;
 	case 8: var = var8; break;
+	default:var = QVariant(); break;
 	}
     }
 
@@ -3150,6 +3156,7 @@ QAxObject *QAxBase::querySubObject( const QString &name, const QVariant &var1,
 	case 6: var = var6; break;
 	case 7: var = var7; break;
 	case 8: var = var8; break;
+	default:var = QVariant(); break;
 	}
     }
 
