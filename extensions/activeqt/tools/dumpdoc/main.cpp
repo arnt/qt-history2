@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     }
     QFile outfile;
     if (!outname.isEmpty()) {
-        outfile.setName(outname);
+        outfile.setFileName(outname);
         if (!outfile.open(IO_WriteOnly | IO_Translate)) {
             qWarning("dumpdoc: Could not open output file '%s'", outname.data());
         }
