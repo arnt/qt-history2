@@ -135,7 +135,9 @@ private:
     QPainter painter;
     QPixmap *doubleBuffer;
     int currentAlignment, currentParagType;
-
+    bool inDoubleClick;
+    QPoint oldMousePos, mousePos;
+    
 };
 
 inline QTextEditDocument *QTextEdit::document() const

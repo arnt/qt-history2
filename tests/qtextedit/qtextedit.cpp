@@ -91,6 +91,7 @@ void QTextEdit::init()
     completionPopup->installEventFilter( this );
     completionPopup->setFocusProxy( completionListBox );
     completionOffset = 0;
+    inDoubleClick = FALSE;
 }
 
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
@@ -710,7 +711,8 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 {
     undoRedoInfo.clear();
     QTextEditCursor c = *cursor;
-
+    mousePos = e->pos();
+    
     if ( e->button() == LeftButton ) {
 	mousePressed = TRUE;
 	drawCursor( FALSE );
@@ -748,10 +750,12 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
     updateCurrentFormat();
 }
 
-void QTextEdit::contentsMouseMoveEvent( QMouseEvent * )
+void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
     if ( mousePressed ) {
+	mousePos = e->pos();
 	doAutoScroll();
+	oldMousePos = mousePos;
     }
 }
 
@@ -770,20 +774,22 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     updateCurrentFormat();
 }
 
-void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent *e )
+void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
 {
     QTextEditCursor c1 = *cursor;
     QTextEditCursor c2 = *cursor;
     c1.gotoWordLeft();
     c2.gotoWordRight();
-    
+
     doc->setSelectionStart( QTextEditDocument::Standard, &c1 );
     doc->setSelectionEnd( QTextEditDocument::Standard, &c2 );
-    
+
     *cursor = c2;
-    
+
     repaintChanged();
-    
+
+    inDoubleClick = TRUE;
+    mousePressed = TRUE;
 }
 
 void QTextEdit::doAutoScroll()
@@ -794,6 +800,14 @@ void QTextEdit::doAutoScroll()
     QPoint pos( mapFromGlobal( QCursor::pos() ) );
     drawCursor( FALSE );
     placeCursor( viewportToContents( pos ) );
+    if ( inDoubleClick ) {
+	if ( mousePos.y() > oldMousePos.y() ||
+	     mousePos.y() == oldMousePos.y() &&
+	     mousePos.x() > oldMousePos.x() )
+	    cursor->gotoWordRight();
+	else
+	    cursor->gotoWordLeft();
+    }
     ensureCursorVisible();
 
     bool redraw = FALSE;
