@@ -286,8 +286,7 @@ cat << EOF
 # a shared library for linux or 'make solaris-static' to make a static
 # library for solaris 2.
 
-all:
-	echo say e.g. make linux-shared to make an architecture tree
+all: none
 
 # pseudo target to force mkdir for the others
 
@@ -307,3 +306,12 @@ EOF
     echo
 
 done
+
+echo 'none: '
+echo '	echo Available platforms:'
+for a in ../makefiles/*[a-z] ; do
+    PLATFORM=`basename $a`
+    echo '	 echo "	"' ${PLATFORM}
+done
+
+echo '	echo Send mail to qt-info@troll.no for info about other platforms'
