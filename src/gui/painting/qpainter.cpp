@@ -2477,8 +2477,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
                               QRect(0, 0, pmx.width(), pmx.height()), mode);
     } else {
         if (!d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-            x += d->state->matrix.dx();
-            y += d->state->matrix.dy();
+            x += qRound(d->state->matrix.dx());
+            y += qRound(d->state->matrix.dy());
         }
         d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
     }
