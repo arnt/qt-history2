@@ -283,11 +283,14 @@ void Win32MakefileGenerator::processRcFileVar()
         }
         project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
         project->variables()["RES_FILE"].first().replace(".rc", mingw ? ".o" : ".res");
+        if (!project->variables()["OBJECTS_DIR"].isEmpty())
+            project->variables()["RES_FILE"].first().prepend(project->variables()["OBJECTS_DIR"].first() + "\\");
         project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
         project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
     }
-    if(!project->variables()["RES_FILE"].isEmpty())
+    if(!project->variables()["RES_FILE"].isEmpty()) {
         project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    }
 }
 
 void Win32MakefileGenerator::processQtConfig()
@@ -455,7 +458,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
             t << "\n\t" << "-$(COPY_FILE) \"$(TARGET)\" " << *dlldir;
         }
     }
-
     t << endl << endl;
 
     writeRcFilePart(t);
@@ -542,7 +544,13 @@ void Win32MakefileGenerator::writeRcFilePart(QTextStream &t)
 {
     if(!project->variables()["RC_FILE"].isEmpty()) {
         t << var("RES_FILE") << ": " << var("RC_FILE") << "\n\t"
-            << var("QMAKE_RC") << " " << var("RC_FILE") << endl << endl;
+          << var("QMAKE_RC") << " " << var("RC_FILE");
+        if (!project->variables()["OBJECTS_DIR"].isEmpty()) {
+            QString resFile = QFileInfo(var("RES_FILE")).fileName();
+            t << "\n\t" << "-$(COPY_FILE) " << resFile << " " << var("OBJECTS_DIR").replace(QRegExp("\\\\$"), "");
+            t << "\n\t" << "-$(DEL_FILE) " << resFile;
+        }
+        t << endl << endl;
     }
 }
 
