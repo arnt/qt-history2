@@ -319,7 +319,7 @@ QOpenType *QFontEngineFT::openType() const
         return 0;
 
     QFontEngineFT *that = const_cast<QFontEngineFT *>(this);
-    that->_openType = new QOpenType(that->face);
+    that->_openType = new QOpenType(that, that->face);
     return _openType;
 }
 

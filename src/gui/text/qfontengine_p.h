@@ -292,6 +292,7 @@ public:
     FT_Face freetypeFace() const { return _face; }
 private:
     friend class QFontPrivate;
+    friend class QOpenType;
     XftFont *_font;
     XftPattern *_pattern;
     FT_Face _face;
@@ -409,7 +410,7 @@ class QFontEngineMac : public QFontEngine
     mutable ATSUTextLayout mTextLayout;
     mutable QATSUStyle *internal_fi;
     enum { widthCacheSize = 0x500 };
-    mutable unsigned char widthCache[widthCacheSize];
+    mutable int widthCache[widthCacheSize];
     QATSUStyle *getFontStyle() const;
 
 public:

@@ -141,8 +141,8 @@ static const unsigned int supported_scripts [] = {
 //     FT_MAKE_TAG('j', 'a', 'm', 'o'),
 };
 
-QOpenType::QOpenType(FT_Face _face)
-    : face(_face), gdef(0), gsub(0), gpos(0), current_script(0)
+QOpenType::QOpenType(QFontEngine *fe, FT_Face _face)
+    : fontEngine(fe), face(_face), gdef(0), gsub(0), gpos(0), current_script(0)
 {
     hasGDef = hasGSub = hasGPos = true;
     str = tmp = 0;
@@ -411,10 +411,17 @@ void QOpenType::applyGPOSFeatures()
 #ifdef OT_DEBUG
             qDebug("applying POS feature %s with index %d", tag_to_string(r->FeatureTag), feature_index);
 #endif
-
             str->pos = 0;
+#ifdef Q_WS_X11
+            Q_ASSERT(fontEngine->type() == QFontEngine::Xft);
+            face = XftLockFace(static_cast<QFontEngineXft *>(fontEngine)->_font);
             TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
                                    str, &positions, false, false);
+            XftUnlockFace(static_cast<QFontEngineXft *>(fontEngine)->_font);
+#else
+            TT_GPOS_Apply_Feature(face, gpos, feature_index, loadFlags,
+                                   str, &positions, false, false);
+#endif
         }
     }
     positioned = true;

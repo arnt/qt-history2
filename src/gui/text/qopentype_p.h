@@ -30,7 +30,7 @@ class QShaperItem;
 class QOpenType
 {
 public:
-    QOpenType(FT_Face face);
+    QOpenType(QFontEngine *fe, FT_Face face);
     ~QOpenType();
 
     bool supportsScript(unsigned int script);
@@ -48,6 +48,7 @@ public:
 private:
     bool loadTables(FT_ULong script);
 
+    QFontEngine *fontEngine;
     FT_Face face;
     TTO_GDEF gdef;
     TTO_GSUB gsub;

@@ -143,7 +143,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyp
             GetTextExtentPoint32W(hdc, (wchar_t *)str, 1, &size);
             glyphs[i].advance = size.cx;
             // if glyph's within cache range, store it for later
-            if (glyph < widthCacheSize)
+            if (glyph < widthCacheSize && size.cx > 0 && size.cx < 0x100)
                 ((QFontEngineWin *)this)->widthCache[glyph] = size.cx;
         }
         str++;
