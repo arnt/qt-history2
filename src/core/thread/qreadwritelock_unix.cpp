@@ -195,20 +195,10 @@ bool QReadWriteLock::tryLock(AccessMode mode)
 */
 void QReadWriteLock::unlock()
 {
-    for (;;) {
-        int localAccessCount=d->accessCount;
-        if (localAccessCount==0) {
-            qFatal("QReadWriteLock::unlock(): Trying to unlock a unlocked lock");
-            break;
-        }
-        if (localAccessCount==-1) {
-            if(d->accessCount.testAndSet(-1, 0))
-                break;
-        } else {
-            if(d->accessCount.testAndSet(localAccessCount, localAccessCount - 1 ))
-                break;
-        }
-    }
+    Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
+    if (!d->accessCount.testAndSet(-1, 0))
+        --d->accessCount;
+
     if (d->waitingWriters != 0) {
         report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
         pthread_cond_signal(&d->writerWait);
