@@ -4602,7 +4602,6 @@ bool QWidget::event( QEvent *e )
 		type = QEvent::ShowMaximized;
 	    else
 		type = QEvent::ShowNormal;
-
 	    if (e->spontaneous()) {
 		QEvent e2(type);
 		QApplication::sendEvent(this, &e2);
