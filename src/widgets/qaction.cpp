@@ -1372,9 +1372,9 @@ void QActionGroup::addSeparator()
 
 
 /*! \fn void insert( QAction* a )
-  
+
   \obsolete
-  
+
   Use add() instead.
  */
 
@@ -1414,7 +1414,7 @@ bool QActionGroup::addTo( QWidget* w )
 		QAction *defAction = it.current();
 
 		QToolButton* btn = new QToolButton( (QToolBar*) w );
-		addedTo( btn, w, defAction );
+		addedTo( btn, w );
 		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
 
