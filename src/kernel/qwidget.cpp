@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#49 $
 **
 ** Implementation of QWidget class
 **
@@ -22,14 +22,18 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#49 $";
 #endif
 
 /*!
 \class QWidget qwidget.h
 \brief The QWidget class is the base class of all user interface objects.
 
-Lots of verbiage here...
+A widget without a parent, called a top level widget, is a window with
+a frame and title bar (depends on the widget style specified by the widget
+flags).
+
+A widget with a parent becomes a child window in the parent's window.
 */
 
 // --------------------------------------------------------------------------
@@ -106,20 +110,20 @@ inline bool QWidgetMapper::remove( WId id )
 //
 
 /*!
-Constructs a new QWidget inside \e parent, named \e name,
-optionally with widget flags \e f.
+Constructs a widget which is a child of \e parent, with the name \e name and
+widget flags set to \e f.
 
-The widget flags are strictly internal and likely to change before
-1.0.  You are strongly advised to use 0.
+If \e parent is 0, the new widget will be a top level window. If \e parent
+is another widget, the new widget will be a child window inside \e parent.
 
-If \e parent is 0, the new widget will be a top level window.
+The \e name is sent to the QObject constructor.
 
-The widget name is not used in this version of Qt, it
-is reserved for future use. */
+The widget flags are strictly internal.  You are strongly advised to use 0.
+*/
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-	: QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
-	  pal( *qApp->palette() )		// use application palette
+    : QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
+      pal( *qApp->palette() )			// use application palette
 {
     initMetaObject();				// initialize meta object
     isWidget = TRUE;				// is a widget
@@ -130,9 +134,12 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     create();					// platform-dependent init
 }
 
-/*! Destroys the widget.  All children of this widget are deleted
-  first.  The application exits if this widget is (was) the main
-  widget. */
+/*!
+Destroys the widget.
+
+All children of this widget are deleted first.
+The application exits if this widget is (was) the main widget.
+*/
 
 QWidget::~QWidget()
 {
@@ -264,7 +271,8 @@ Sets the GUI style of the widget.
 
 Only \c MotifStyle is allowed in this version of Qt.
 
-\sa style() and QApplication::setStyle(). */
+\sa style() and QApplication::setStyle().
+*/
 
 void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 {
@@ -281,7 +289,8 @@ void QWidget::setStyle( GUIStyle gs )		// set widget GUI style
 
 /*!
 Enables the widget so that it can receive mouse and keyboard events.
-\sa disable() and isDisabled(). */
+\sa disable() and isDisabled().
+*/
 
 void QWidget::enable()				// enable events
 {
@@ -289,8 +298,9 @@ void QWidget::enable()				// enable events
 }
 
 /*!
-Disables the widget, so that it will not receive mouse and keyboard events.
-\sa enable() and isDisabled(). */
+Disables the widget so that it will not receive mouse and keyboard events.
+\sa enable() and isDisabled().
+*/
 
 void QWidget::disable()				// disable events
 {
@@ -557,9 +567,10 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
 }
 
 /*!
-Closes this widget.  First it sends the widget a closeEvent, then,
-if the widget did not accept that, it does an explicit delete of the
-widget and all its children. */
+Closes this widget.  First it sends the widget a QCloseEvent, then,
+if the widget did accept that, it does an explicit delete of the
+widget and all its children.
+*/
 
 bool QWidget::close( bool forceKill )		// close widget
 {
@@ -570,7 +581,8 @@ bool QWidget::close( bool forceKill )		// close widget
     return event.isAccepted();
 }
 
-/*! \fn bool QWidget::isVisible() const
+/*!
+\fn bool QWidget::isVisible() const
 Returns TRUE if the widget is visible, or FALSE if the widget is invisible.
 
 Calling show() makes the widget visible. Calling hide() makes the widget
@@ -585,9 +597,10 @@ Returns a pointer to the parent of this widget, or a null pointer if
 it does not have any parent widget.
 */
 
-/*! \fn bool QWidget::testFlag( WFlags n ) const
+/*!
+\fn bool QWidget::testFlag( WFlags n ) const
 
-Returns non-zero if any of the widget flags in \e n are set.  The
+Returns non-zero if any of the widget flags in \e n are set. The
 widget flags are listed in qwindefs.h, and are strictly for
 internal use.
 
@@ -639,23 +652,32 @@ public:
     void setAccel()	  { accel = TRUE; }
 };
 
-/*! This is the main event handler.  It passes the incoming events
-  through any event filters, and if none of the filters intercept
-  the event, calls one of the specialized virtual functions to handle
-  each type of event.
+/*!
+This is the main event handler. You may reimplement this function in
+a sub class, but we recommend using one of the specialized event
+handlers instead.
 
-  Key presses are treated specially; after trying the event filters,
-  event() looks for an accelerator that can handle the key press,
-  finally it tries the widget that has the keyboard focus.
+The main event handler first passes an event through all event
+filters that have been installed (see QObject::installEventFilter()).
+If none of the filters intercept the event, it calls one of the
+specialized event handlers.
 
-  event() returns TRUE if it is able to pass the event over to someone,
-  FALSE if nobody wanted the event.
+Key press/release events are treated differently from other events.
+First it checks if there exists an accelerator object (QAccel)
+that want the key press (accelerators do not get key release events).
+If not, it sends the event to the widget that has the keyboard focus.
+If there is no widget in focus or the focus widget did not want the key,
+the event is sent to the top level widget.
 
-  \sa QObject::event(), installEventFilter(), closeEvent(),
-  focusInEvent(), focusOutEvent(), keyPressEvent(), keyReleaseEvent(),
-  mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
-  mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent(),
-  timerEvent(). */
+This function returns TRUE if it is able to pass the event over to someone,
+or FALSE if nobody wanted the event.
+
+\sa QObject::event(), closeEvent(),
+focusInEvent(), focusOutEvent(), keyPressEvent(), keyReleaseEvent(),
+mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
+mouseReleaseEvent(), moveEvent(), paintEvent(), resizeEvent() and
+timerEvent().
+*/
 
 bool QWidget::event( QEvent *e )		// receive event(), 
 {
@@ -723,14 +745,21 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    if ( res )
 		break;
 #endif
-	    if ( qApp->focusWidget() )
+	    if ( qApp->focusWidget() ) {	// send to focus widget
 		w = qApp->focusWidget();
-	    else
-	        w = this;
+	    }
+	    else {
+	        w = this;			// search for parent widget
+		while ( w->parentWidget() )
+		    w = w->parentWidget();
+	    }
 	    w->keyPressEvent( k );
 #if defined(_WS_X11_)
-	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
-		return parentObj->event( e );	// pass event to parent
+	    if ( !k->isAccepted() && w->parentWidget() ) {
+		while ( w->parentWidget() )
+		    w = w->parentWidget();
+		w->keyPressEvent( k );		// pass event to top level
+	    }
 #endif
 	    }
 	    break;
@@ -783,83 +812,177 @@ bool QWidget::event( QEvent *e )		// receive event(),
     return TRUE;
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+timer events for the widget.
+
+The default implementation does nothing.
+
+\sa QObject::startTimer(), QObject::killTimer() and event().
+*/
 
 void QWidget::timerEvent( QTimerEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+mouse move events for the widget.
+
+If mouse tracking is switched off, mouse move events will only occur
+if a mouse button is down.  If mouse tracking is swithed on, mouse
+move events will occur even if no mouse button is down.
+
+The default implementation does nothing.
+
+\sa setMouseTracking() and event().
+*/
 
 void QWidget::mouseMoveEvent( QMouseEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+mouse press events for the widget.
+
+The default implementation does nothing.
+
+\sa mousePressEvent() and event().
+*/
 
 void QWidget::mousePressEvent( QMouseEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+mouse release events for the widget.
+
+The default implementation does nothing.
+
+\sa mousePressEvent() and event().
+*/
 
 void QWidget::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
-/*! This function is virtual and translates to a single click by
-  default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+mouse double click events for the widget.
+
+The default implementation generates a normal mouse press event.
+
+\sa mousePressEvent() and event().
+*/
 
 void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 {
     mousePressEvent( e );			// try mouse press event
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+key press events for the widget.
+
+The default implementation ignores the key.
+
+\sa keyReleaseEvent() and event().
+*/
 
 void QWidget::keyPressEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+key release events for the widget.
+
+The default implementation ignores the key.
+
+\sa keyPressEvent() and event().
+*/
 
 void QWidget::keyReleaseEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+keyboard focus events (focus received) for the widget.
+
+The default implementation does nothing.
+
+\sa focusOutEvent() and event().
+*/
 
 void QWidget::focusInEvent( QFocusEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+keyboard focus events (focus lost) for the widget.
+
+The default implementation does nothing.
+
+\sa focusInEvent() and event().
+*/
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+widget paint events.
+
+The default implementation does nothing.
+
+\sa event().
+*/
 
 void QWidget::paintEvent( QPaintEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+widget move events.
+
+The default implementation does nothing.
+
+\sa resizeEvent() and event().
+*/
 
 void QWidget::moveEvent( QMoveEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+widget resize events.
+
+The default implementation does nothing.
+
+\sa moveEvent() and event().
+*/
 
 void QWidget::resizeEvent( QResizeEvent * )
 {
 }
 
-/*! This function is virtual and does nothing by default. \sa event() */
+/*!
+This event handler can be reimplemented in a sub class to receive
+widget close events.
+
+The default implementation does nothing.
+
+\sa event().
+*/
 
 void QWidget::closeEvent( QCloseEvent *e )
 {
