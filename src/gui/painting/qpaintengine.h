@@ -59,6 +59,7 @@ public:
         DrawRects               = 0x0040,               // Can draw rectangles
 	SolidAlphaFill          = 0x0080,               // Can fill with alpha.
         PainterPaths            = 0x0100,               // Can fill, outline and clip paths
+        ClipTransform           = 0x0200,               // Can trasform clip regions.
         UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, Features);

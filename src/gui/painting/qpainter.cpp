@@ -808,13 +808,19 @@ void QPainter::setClipRegion(const QRegion &r)
         qWarning("QPainter::setClipRegion(); painter not active");
         return;
     }
-    if (d->state->WxF)
-	d->state->clipRegion = d->state->matrix * r;
-    else
-	d->state->clipRegion = r;
+
+    d->engine->updateState(d->state);
+
+//     qDebug() << "QPainter::setClipRegion() unchanged.." << r.boundingRect();
+    d->state->clipRegion = r;
+    if (d->state->txop > TxNone && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
+//         qDebug() << "QPainter::setClipRegion() xformed.." << r.boundingRect();
+	d->state->clipRegionXFormed = d->state->matrix * r;
+    }
     d->state->clipEnabled = true;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyClip);
+    d->engine->updateState(d->state);
 }
 
 

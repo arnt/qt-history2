@@ -92,7 +92,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         clearDirty(DirtyTransform);
     }
     if (testDirty(DirtyClip)) {
-        updateClipRegion(s->clipRegion, s->clipEnabled);
+        updateClipRegion(s->txop > QPainter::TxNone && !hasFeature(ClipTransform)
+                         ? s->clipRegionXFormed
+                         : s->clipRegion,
+                         s->clipEnabled);
         clearDirty(DirtyClip);
     }
     if (testDirty(DirtyHints)) {

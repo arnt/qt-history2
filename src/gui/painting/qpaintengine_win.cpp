@@ -1468,14 +1468,14 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 
 void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
 {
+#ifdef NO_NATIVE_XFORM
+    return;
+#endif
+
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateXForm(mtx);
         return;
     }
-
-#ifdef NO_NATIVE_XFORM
-    return;
-#endif
 
     if (mtx.m12() != 0 || mtx.m21() != 0)
         d->txop = QPainter::TxRotShear;
@@ -1485,6 +1485,7 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
         d->txop = QPainter::TxTranslate;
     else
         d->txop = QPainter::TxNone;
+    d->matrix = mtx;
 
     XFORM m;
     if (d->txop >= QPainter::TxNone && !d->noNativeXform) {
@@ -1510,12 +1511,18 @@ void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
 
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
+//     qDebug() << "QWin32PaintEngine::updateClipRegion()" << region.boundingRect();
+
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateClipRegion(region, clipEnabled);
         return;
     }
     if (clipEnabled) {
-        QRegion rgn = region;
+        QRegion rgn =
+#ifndef NO_NATIVE_XFORM
+            d->matrix *
+#endif
+            region;
 
         // Setting an empty region as clip region on Win just dmainisables clipping completely.
         // To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
@@ -1801,22 +1808,34 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         qt_resolve_gdiplus();
 
     if (qt_gdiplus_support) { // GDI+ combined engine...
-        return QPaintEngine::PaintEngineFeatures(QPaintEngine::CoordTransform
+        return QPaintEngine::PaintEngineFeatures(
+#ifndef NO_NATIVE_XFORM
+                                                 QPaintEngine::CoordTransform
                                                  | QPaintEngine::PenWidthTransform
                                                  | QPaintEngine::PixmapTransform
                                                  | QPaintEngine::PixmapScale
-                                                 | QPaintEngine::UsesFontEngine
+                                                 | QPaintEngine::ClipTransform
+                                                 |
+#endif
+                                                 QPaintEngine::UsesFontEngine
                                                  | QPaintEngine::SolidAlphaFill
                                                  | QPaintEngine::LinearGradients
-                                                 | QPaintEngine::PainterPaths);
+                                                 | QPaintEngine::PainterPaths
+                                                 );
     } else { // GDI only
-        return QPaintEngine::PaintEngineFeatures(QPaintEngine::CoordTransform
+        return QPaintEngine::PaintEngineFeatures(
+#ifndef NO_NATIVE_XFORM
+                                                 QPaintEngine::CoordTransform
                                                  | QPaintEngine::PenWidthTransform
                                                  | QPaintEngine::PixmapTransform
                                                  | QPaintEngine::PixmapScale
-                                                 | QPaintEngine::UsesFontEngine
+                                                 | QPaintEngine::ClipTransform
+                                                 |
+#endif
+                                                 QPaintEngine::UsesFontEngine
                                                  | QPaintEngine::LinearGradients
-                                                 | QPaintEngine::PainterPaths);
+                                                 | QPaintEngine::PainterPaths
+                                                 );
     }
 }
 
