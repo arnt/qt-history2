@@ -94,6 +94,9 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 	    chain[i].done = TRUE;
 	}
     } else if ( space < cHint + spacerCount*spacer ) {
+	// Less space than sizeHint, but more than minimum.
+	// Currently take space equally from each, like in Qt 2.x.
+	// Commented-out lines will give more space to stretchier items.
 	int n = count;
 	int space_left = space - spacerCount*spacer;
 	int overdraft = cHint - space_left;
@@ -103,7 +106,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		chain[i].size = chain[i].sizeHint;
 		chain[i].done = TRUE;
 		space_left -= chain[i].sizeHint;
-		// sumStretch -= chain[i].stretch; NOT USED
+		// sumStretch -= chain[i].stretch;
 		n--;
 	    }
 	}
@@ -119,7 +122,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		// if ( sumStretch <= 0 )
 		fp_w += fp_over / n;
 		// else
-		//    fp_w += (fp_space * chain[i].stretch) / sumStretch;
+		//    fp_w += (fp_over * chain[i].stretch) / sumStretch;
 		int w = fRound( fp_w );
 		chain[i].size = chain[i].sizeHint - w;
 		fp_w -= toFixed( w ); //give the difference to the next
@@ -128,7 +131,7 @@ void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count, int pos,
 		    chain[i].size = chain[i].minimumSize;
 		    finished = FALSE;
 		    overdraft -= chain[i].sizeHint - chain[i].minimumSize;
-		    // sumStretch -= chain[i].stretch; NOT USED
+		    // sumStretch -= chain[i].stretch;
 		    n--;
 		    break;
 		}
