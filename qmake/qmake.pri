@@ -51,6 +51,7 @@ bootstrap { #Qt code
         qstringmatcher.cpp \
         qtemporaryfile.cpp \
         qtextstream.cpp \
+        qurl.cpp \
         qunicodetables.cpp \
         quuid.cpp \
 	qcoresettings.obj \
@@ -85,6 +86,7 @@ bootstrap { #Qt code
         qstringmatcher.h \
         qtemporaryfile.h \
         qtextstream.h \
+        qurl.h \
         quuid.h \
         qvector.h
  
@@ -95,7 +97,7 @@ bootstrap { #Qt code
 
     unix {
         SOURCES += qfileengine_unix.cpp
-        mac:SOURCES += qurl.cpp qcore_mac.cpp qcoresettings_mac.cpp
+        mac:SOURCES += qcore_mac.cpp qcoresettings_mac.cpp
     } else:win32 {
 	SOURCES += qfileengine_win.cpp qcoresettings_win.cpp
         win32-msvc*:LIBS += ole32.lib advapi32.lib

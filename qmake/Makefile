@@ -74,6 +74,7 @@ QTOBJS= \
 	qvector.obj \
 	qcoresettings.obj \
 	qcorevariant.obj \
+        qurl.obj \
 	qcoresettings_win.obj \
 	qrect.obj \
 	qpoint.obj \
@@ -115,6 +116,9 @@ qcoresettings.obj: ..\src\core\io\qcoresettings.cpp
 
 qcorevariant.obj: ..\src\core\kernel\qcorevariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
+
+qurl.obj: ..\src\core\io\qurl.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp
 
 qrect.obj: ..\src\core\tools\qrect.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
