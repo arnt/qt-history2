@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#36 $
 **
 ** Implementation of QRect class
 **
@@ -13,7 +13,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#36 $");
 
 
 /*!
@@ -554,13 +554,22 @@ bool QRect::contains( const QRect &r, bool proper ) const
 
 QRect QRect::unite( const QRect &r ) const
 {
-    QRect tmp;
-    tmp.setLeft(   QMIN( x1, r.x1 ) );
-    tmp.setRight(  QMAX( x2, r.x2 ) );
-    tmp.setTop(	   QMIN( y1, r.y1 ) );
-    tmp.setBottom( QMAX( y2, r.y2 ) );
-    return tmp;
+    if ( isValid() ) {
+	if ( r.isValid() ) {
+	    QRect tmp;
+	    tmp.setLeft(   QMIN( x1, r.x1 ) );
+	    tmp.setRight(  QMAX( x2, r.x2 ) );
+	    tmp.setTop(	   QMIN( y1, r.y1 ) );
+	    tmp.setBottom( QMAX( y2, r.y2 ) );
+	    return tmp;
+	} else {
+	    return *this;
+	}
+    } else {
+	return r;
+    }
 }
+
 
 /*!
   Returns the intersection rectangle of this rectangle and \e r.
