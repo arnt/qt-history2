@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#148 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#147 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#148 $");
 
 
 /*!
@@ -850,6 +850,7 @@ void QWidget::setFixedSize( const QSize & s)
 {
     setMinimumSize( s );
     setMaximumSize( s );
+    resize( s );
 }
 
 
@@ -861,6 +862,7 @@ void QWidget::setFixedSize( int w, int h )
 {
     setMinimumSize( w, h );
     setMaximumSize( w, h );
+    resize( w, h );
 }
 
 
