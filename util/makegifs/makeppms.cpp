@@ -210,8 +210,8 @@ public:
     EgQProgressBar() :
 	QProgressBar(100)
     {
-	setProgress(35);
-	resize(sizeHint());
+	setProgress(65);
+	resize(70,sizeHint().height());
     }
 };
 
@@ -519,6 +519,7 @@ public:
 	resize(190,160);
 
 	centerOn(150,150);
+	setFrameStyle(WinPanel|Sunken);
     }
 };
 
