@@ -53,7 +53,6 @@ public:
 
     inline short style() const { return fi_face; }
     inline void setStyle(short f) { fi_face = f; }
-    inline short realStyleMask() const { return ~(underline); }
 
     inline int size() const { return fi_size; }
     inline void setSize(int f) { fi_size = f; }
@@ -92,9 +91,6 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	short face = normal;
 	if(d->request.italic)
 	    face |= italic;
-	if(d->request.underline) 
-	    face |= underline;
-	//strikeout? FIXME
 	if(d->request.weight == QFont::Bold)
 	    face |= bold;
 	fi->setStyle(face);
@@ -152,10 +148,8 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	if(is_latin) {
 	    int ret = 0;
 	    const unsigned char *str = p_str(s.mid(pos, len));
-	    if(task & GIMME_DRAW) {
-		TextFace(fi.style() & fi.realStyleMask()); //do my own underlining
+	    if(task & GIMME_DRAW) 
 		DrawString(str);
-	    }
 	    if(task & GIMME_WIDTH)
 		ret = StringWidth(str);
 	    return ret;
@@ -225,11 +219,8 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	    int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
 
 	    //do the requested task
-	    if(task & GIMME_DRAW) {
-		TextFace(fi.style() & fi.realStyleMask()); //do my own underlining
+	    if(task & GIMME_DRAW) 
 		DrawText(buf, off, rlen);
-		TextFace(fi.style());
-	    }
 	    if(task & GIMME_WIDTH)
 		ret += TextWidth(buf, off, rlen);
 
@@ -253,10 +244,8 @@ static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar tas
     int ret = 0; //latin1 optimization
     if(task & GIMME_WIDTH)
 	ret = CharWidth((char)c.cell());
-    if(task & GIMME_DRAW) {
-	TextFace(fi.style() & fi.realStyleMask()); //do my own underlining
+    if(task & GIMME_DRAW) 
 	DrawChar((char)c.cell());
-    }
     return ret;
 }
 
