@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#23 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,9 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#22 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#23 $")
 
 
 /*! \class QLCDNumber qlcdnum.h

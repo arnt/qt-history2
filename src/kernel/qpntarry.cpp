@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#19 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,9 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#18 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#19 $")
 
 
 // --------------------------------------------------------------------------

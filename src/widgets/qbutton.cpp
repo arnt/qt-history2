@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#34 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,9 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#33 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------

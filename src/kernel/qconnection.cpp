@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#7 $
 **
 ** Implementation of QConnection class
 **
@@ -12,9 +12,7 @@
 
 #include "qconnect.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qconnection.cpp#6 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#7 $")
 
 /*! \class QConnection qconnect.h
 

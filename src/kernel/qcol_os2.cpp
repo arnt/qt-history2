@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#5 $
 **
 ** Implementation of QColor class for OS/2 PM
 **
@@ -15,9 +15,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#4 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#5 $")
 
 
 // --------------------------------------------------------------------------

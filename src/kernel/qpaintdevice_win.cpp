@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#12 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -17,9 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#11 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#12 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )

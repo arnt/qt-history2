@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#4 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
@@ -15,9 +15,7 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#3 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#4 $")
 
 
 // --------------------------------------------------------------------------

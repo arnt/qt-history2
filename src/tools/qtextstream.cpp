@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#19 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,9 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#18 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#19 $")
 
 
 /*!

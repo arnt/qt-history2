@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#24 $
 **
 ** Implementation of event classes
 **
@@ -12,9 +12,7 @@
 
 #include "qevent.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#23 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#24 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp

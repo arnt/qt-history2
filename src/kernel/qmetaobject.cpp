@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#8 $
 **
 ** Implementation of QMetaObject class
 **
@@ -14,9 +14,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#7 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#8 $")
 
 /*! \class QMetaObject qmetaobj.h
 

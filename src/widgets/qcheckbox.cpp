@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#35 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,9 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#34 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------

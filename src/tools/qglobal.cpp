@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#13 $
 **
 ** Global functions
 **
@@ -15,9 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#12 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#13 $")
 
 
 const char *qVersion() { return "0.92"; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#5 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,9 +18,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#4 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#5 $")
 
 
 /*----------------------------------------------------------------------------

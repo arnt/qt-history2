@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#43 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,9 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#42 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#43 $")
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpm_os2.cpp#2 $
 **
 ** Implementation of QPixMap class for OS/2 PM
 **
@@ -15,9 +15,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_os2.cpp#1 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_os2.cpp#2 $")
 
 
 QPixMap::QPixMap( const QSize &size, int nPlanes )

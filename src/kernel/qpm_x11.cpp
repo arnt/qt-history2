@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#43 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,9 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#42 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#43 $")
 
 
 /*

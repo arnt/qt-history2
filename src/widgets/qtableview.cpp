@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#5 $
 **
 ** Implementation of QTableView class
 **
@@ -19,9 +19,7 @@
 #include "qscrbar.h"
 #include "qpainter.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qtableview.cpp#4 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#5 $")
 
 
 const int sbDim = 16;

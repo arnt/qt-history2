@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#47 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,9 +24,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#46 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#47 $")
 
 
 static const int fontFields = 14;

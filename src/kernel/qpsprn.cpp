@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#10 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,9 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#9 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#10 $")
 
 
 #if !defined(QT_HEADER_PS)

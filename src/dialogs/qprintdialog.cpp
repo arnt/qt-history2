@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#8 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -19,9 +19,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#7 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#8 $")
 
 
 //

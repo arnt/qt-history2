@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#10 $
 **
 ** Implementation of QCursor class
 **
@@ -14,9 +14,7 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#9 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#10 $")
 
 
 /*!

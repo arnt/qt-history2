@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#12 $
 **
 ** Implementation of QDir class
 **
@@ -16,9 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#11 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#12 $")
 
 
 #if !defined(PATH_MAX)

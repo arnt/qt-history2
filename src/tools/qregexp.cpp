@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#21 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,9 +18,7 @@
 #include <malloc.h>
 #endif
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#20 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#21 $")
 
 
 /*!

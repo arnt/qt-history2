@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#18 $
 **
 ** Implementation of QGArray class
 **
@@ -27,9 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#17 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#18 $")
 
 
 #if !defined(CHECK_MEMORY)

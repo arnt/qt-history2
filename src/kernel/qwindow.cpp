@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#3 $
 **
 ** Implementation of QWindow class
 **
@@ -13,9 +13,7 @@
 #include "qwindow.h"
 #include "qpixmap.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwindow.cpp#2 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#3 $")
 
 
 /*!

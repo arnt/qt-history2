@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#6 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,9 +22,7 @@
 #include <windows.h>
 #endif
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#6 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#7 $")
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#49 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,9 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#48 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#49 $")
 
 
 // Mac style parameters

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#9 $
 **
 ** Implementation of QTimer class
 **
@@ -13,9 +13,7 @@
 #include "qtimer.h"
 #include "qevent.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#8 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#9 $")
 
 
 /*----------------------------------------------------------------------------

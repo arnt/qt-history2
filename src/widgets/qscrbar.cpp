@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#35 $
 **
 ** Implementation of QScrollBar class
 **
@@ -13,9 +13,7 @@
 #include "qscrbar.h"
 #include "qpainter.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#34 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#35 $")
 
 
 void qDrawWinButton( QPainter *p, int x1, int y1, int w, int h,

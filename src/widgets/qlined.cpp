@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#36 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -16,9 +16,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#35 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#36 $")
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#8 $
 **
 ** Implementation of QRangeControl class
 **
@@ -13,9 +13,7 @@
 #include "qrangect.h"
 #include "qglobal.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#7 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#8 $")
 
 
 /*----------------------------------------------------------------------------

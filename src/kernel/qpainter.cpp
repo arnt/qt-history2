@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#54 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,9 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#53 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#54 $")
 
 
 /*!

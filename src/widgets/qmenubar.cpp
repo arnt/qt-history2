@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#39 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,9 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#38 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#39 $")
 
 /*!
   \class QMenuBar qmenubar.h

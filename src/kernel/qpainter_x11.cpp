@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#122 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,9 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#121 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#122 $")
 
 
 // --------------------------------------------------------------------------

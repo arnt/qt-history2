@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#18 $
 **
 ** Implementation of QDialog class
 **
@@ -16,9 +16,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#17 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#18 $")
 
 
 /*!

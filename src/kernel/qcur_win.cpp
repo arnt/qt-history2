@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#8 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -17,9 +17,7 @@
 #include "qdstream.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_win.cpp#7 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#8 $")
 
 
 // --------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#7 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -19,9 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#6 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#7 $")
 
 
 /*****************************************************************************

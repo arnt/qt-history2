@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#15 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,9 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#14 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#15 $")
 
 
 /*!

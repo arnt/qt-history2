@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollect.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qcollect.cpp#3 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,9 +12,7 @@
 
 #include "qcollect.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qcollect.cpp#2 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollect.cpp#3 $")
 
 
 // Default implementation of virtual functions

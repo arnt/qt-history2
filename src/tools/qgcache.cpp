@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#17 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -15,9 +15,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#16 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#17 $")
 
 
 // --------------------------------------------------------------------------

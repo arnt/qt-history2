@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#14 $
 **
 ** Implementation of QMessageBox class
 **
@@ -14,9 +14,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#13 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#14 $")
 
 
 /*!

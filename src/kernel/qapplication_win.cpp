@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#13 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,9 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#12 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#13 $")
 
 
 // --------------------------------------------------------------------------

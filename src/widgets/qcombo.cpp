@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#24 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,9 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#23 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#24 $")
 
 /*!
   \class QComboBox qcombo.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#61 $
 **
 ** Implementation of QObject class
 **
@@ -15,9 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#60 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#61 $")
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#27 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,9 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#26 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------

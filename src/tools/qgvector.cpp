@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#12 $
 **
 ** Implementation of QGVector class
 **
@@ -29,9 +29,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#11 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#12 $")
 
 
 #if !defined(CHECK_MEMORY)

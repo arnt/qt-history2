@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#21 $
 **
 ** Implementation of QFrame widget class
 **
@@ -13,9 +13,7 @@
 #include "qframe.h"
 #include "qpainter.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#20 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#21 $")
 
 
 /*!

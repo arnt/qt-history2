@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#9 $
 **
 ** Implementation of QSignal class
 **
@@ -14,9 +14,7 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#8 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#9 $")
 
 /*! \class QSignal qsignal.h
 

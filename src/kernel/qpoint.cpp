@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#15 $
 **
 ** Implementation of QPoint class
 **
@@ -14,9 +14,7 @@
 #include "qpoint.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#14 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpoint.cpp#15 $")
 
 
 /*!

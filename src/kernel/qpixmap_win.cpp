@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#9 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,9 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#8 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#9 $")
 
 
 // --------------------------------------------------------------------------

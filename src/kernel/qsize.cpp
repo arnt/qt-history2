@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#11 $
 **
 ** Implementation of QSize class
 **
@@ -14,9 +14,7 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#10 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#11 $")
 
 /*!
 \class QSize qsize.h

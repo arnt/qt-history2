@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#11 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,9 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#10 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#11 $")
 
 /*! \class QBuffer qbuffer.h
 

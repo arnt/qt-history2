@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#4 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -13,9 +13,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#3 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#4 $")
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#15 $
 **
 ** Implementation of QAccel class
 **
@@ -16,9 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qaccel.cpp#14 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#15 $")
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#92 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,9 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#91 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#92 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp

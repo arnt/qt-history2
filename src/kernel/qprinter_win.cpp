@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#6 $
 **
 ** Implementation of QPrinter class for Windows
 **
@@ -15,9 +15,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#5 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#6 $")
 
 
 // QPrinter states

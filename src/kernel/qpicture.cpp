@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#31 $
 **
 ** Implementation of QPicture class
 **
@@ -17,9 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#30 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#31 $")
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#19 $
 **
 ** Implementation of QRect class
 **
@@ -14,9 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#18 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#19 $")
 
 
 /*! \class QRect qrect.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#26 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,9 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#25 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#26 $")
 
 
 // --------------------------------------------------------------------------

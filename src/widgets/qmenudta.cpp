@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#31 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,9 +15,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#30 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#31 $")
 
 
 /*!

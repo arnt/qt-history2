@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#77 $
 **
 ** Implementation of QWidget class
 **
@@ -20,9 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#76 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#77 $")
 
 /*!
   \class QWidget qwidget.h

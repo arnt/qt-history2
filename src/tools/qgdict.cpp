@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#17 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,9 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#16 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#17 $")
 
 
 declare(QListM,QGDictIterator);			// list of iterators (Qditlst)

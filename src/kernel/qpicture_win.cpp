@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpicture_win.cpp#6 $
 **
 ** Implementation of QPicture class for Windows
 **
@@ -13,9 +13,7 @@
 #include "qpicture.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_win.cpp#5 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture_win.cpp#6 $")
 
 
 QPicture::QPicture()

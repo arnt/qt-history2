@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#17 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,9 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#16 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#17 $")
 
 
 static HANDLE stock_nullPen;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#8 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -15,9 +15,7 @@
 #include "qbuffer.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#7 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#8 $")
 
 
 QRegion::QRegion()				// create empty region

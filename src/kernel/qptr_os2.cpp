@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#8 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -18,9 +18,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#7 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#8 $")
 
 
 // --------------------------------------------------------------------------

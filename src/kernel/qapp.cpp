@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#63 $
 **
 ** Implementation of QApplication class
 **
@@ -16,9 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#62 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#63 $")
 
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#9 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,9 +19,7 @@
 # include <grp.h>
 #endif
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#8 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#9 $")
 
 
 struct QFileInfoCache

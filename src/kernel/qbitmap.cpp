@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#17 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,9 +13,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#16 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#17 $")
 
 
 /*!

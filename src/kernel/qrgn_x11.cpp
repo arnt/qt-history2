@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#15 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -18,9 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#14 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#15 $")
 
 
 /*!

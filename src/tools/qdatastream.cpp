@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#16 $
 **
 ** Implementation of QDataStream class
 **
@@ -21,9 +21,7 @@
 #include <netinet/in.h>
 #endif
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#15 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatastream.cpp#16 $")
 
 
 /*!

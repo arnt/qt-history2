@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#15 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,9 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#14 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#15 $")
 
 
 // --------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#11 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -18,9 +18,7 @@
 #include "qpainter.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#10 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#11 $")
 
 
 QFont *QFont::defFont = 0;			// default font

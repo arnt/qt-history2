@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#7 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -12,9 +12,7 @@
 
 #include "qpdevmet.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#6 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#7 $")
 
 
 /*!

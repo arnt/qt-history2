@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#15 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,9 +12,7 @@
 
 #include "qiodev.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodev.cpp#14 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#15 $")
 
 
 /*----------------------------------------------------------------------------

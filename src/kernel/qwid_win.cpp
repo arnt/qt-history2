@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#12 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,9 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#11 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#12 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp

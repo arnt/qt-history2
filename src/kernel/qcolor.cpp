@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#29 $
 **
 ** Implementation of QColor class
 **
@@ -13,9 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#28 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#29 $")
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#35 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,9 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-#if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#34 $";
-#endif
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
