@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#23 $
 **
 ** Implementation of QWMatrix class
 **
@@ -234,8 +234,10 @@ void QWMatrix::map( float x, float y, float *tx, float *ty ) const
 
 void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 {
-    *tx = qRound(_m11*x + _m21*y + _dx);
-    *ty = qRound(_m12*x + _m22*y + _dy);
+    double fx = (double)x;
+    double fy = (double)y;
+    *tx = qRound(_m11*fx + _m21*fy + _dx);
+    *ty = qRound(_m12*fx + _m22*fy + _dy);
 }
 
 /*!
@@ -244,8 +246,10 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 QPoint QWMatrix::map( const QPoint &p ) const
 {
-    return QPoint( qRound(_m11*p.x() + _m21*p.y() + _dx),
-		   qRound(_m12*p.x() + _m22*p.y() + _dy) );
+    double fx = (double)p.x();
+    double fy = (double)p.y();
+    return QPoint( qRound(_m11*fx + _m21*fy + _dx),
+		   qRound(_m12*fx + _m22*fy + _dy) );
 }
 
 /*!
