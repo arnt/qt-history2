@@ -413,7 +413,7 @@ public:
   The convenience function clientList() returns a list of all document
   windows. This is especially useful to create a popup menu "&Windows"
   on the fly.
-  
+
   QWorkspace provides two built-in layout strategies for child
   windows, cascade() and tile(). Both are slots, so you can easily
   provide them in the windows menu.
@@ -988,19 +988,19 @@ void QWorkspace::activatePreviousClient()
 
 /*!
   Arranges all child windows in a cascade pattern
-  
+
   \sa tile()
  */
 void QWorkspace::cascade()
 {
     const int xoffset = TITLEBAR_HEIGHT * 2/3;
     const int yoffset = TITLEBAR_HEIGHT+2;
-    
+
     int w = width() - d->windows.count() * xoffset;
     int h = height() - d->windows.count() * yoffset;
     int x = 0;
     int y = 0;
-    
+
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
 	c->showNormal();
 	c->setGeometry( x, y, w, h );
@@ -1012,7 +1012,7 @@ void QWorkspace::cascade()
 
 /*!
   Arranges all child windows in a tile pattern
-  
+
   \sa cascade()
  */
 void QWorkspace::tile()
@@ -1030,7 +1030,7 @@ void QWorkspace::tile()
     bool used[ cols*rows ];
     for ( int i = 0; i < rows*cols; i++ )
 	used[i] = FALSE;
-    
+
     int row = 0;
     int col = 0;
     int w = width() / cols;
@@ -1067,7 +1067,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 
     titleL = new QLabel( this, "__workspace_child_title_bar" );
     titleL->setTextFormat( PlainText );
-    titleL->setIndent( 10 );
+    titleL->setIndent( 2 );
 
     closeB = new QToolButton( this, "close" );
     closeB->setFocusPolicy( NoFocus );
@@ -1103,7 +1103,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 
     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
-    titleL->setAlignment( AlignVCenter | SingleLine );
+    titleL->setAlignment( AlignLeft | AlignVCenter | SingleLine );
     QFont fnt = font();
     fnt.setBold( TRUE );
     titleL->setFont( fnt );
