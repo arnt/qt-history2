@@ -2517,8 +2517,6 @@ bool QXmlSimpleReader::parse( const QXmlInputSource* input )
 
   \sa parseContinue() QSocket
 */
-// ### How to detect when end is reached? (If incremental is TRUE, the
-// returned TRUE doesn't mean that parsing is finished!)
 bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 {
     init( input );
@@ -2551,13 +2549,20 @@ bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
   reached; this is quite important, especially if you want to use the reader to
   parse more than one XML file.
 
-  This function returns FALSE in the case of a parsing error. The case that the
-  end of the XML file is reached without having finished the parsing is also an
-  error. Otherwise this function returns TRUE. A return value of TRUE does not
-  mean that the parsing is finished. Use ### instead to determine if the
-  parsing is really finished.
+  This function returns FALSE in the case of a parsing error, otherwise it
+  returns TRUE.
+  
+  The case that the end of the XML file is reached without having finished the
+  parsing is not considered as an error -- you can continue parsing at a later
+  state by calling this function again when there is more data available to
+  parse.
+  
+  This function assumes that the end of the XML document is reached if the
+  QXmlInputSource::next() function returns QXmlInputSource::EndOfDocument. If
+  the parser has not finished the parsing when it encounters this symbol, then
+  it considers this situation as an error and this function returns FALSE.
 
-  \sa parse()
+  \sa parse() QXmlInputSource::next()
 */
 bool QXmlSimpleReader::parseContinue()
 {
