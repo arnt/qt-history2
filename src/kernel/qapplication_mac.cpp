@@ -89,8 +89,6 @@
 #include <qdir.h>
 #endif
 
-#define	 GC GC_QQQ
-
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
 #endif
@@ -109,6 +107,8 @@ QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
 
+static EventLoopTimerRef mac_select_timer = NULL;
+static EventLoopTimerUPP mac_select_timerUPP = NULL;
 static EventHandlerRef app_proc_handler = NULL;
 static EventHandlerUPP app_proc_handlerUPP = NULL;
 
@@ -116,12 +116,6 @@ static EventHandlerUPP app_proc_handlerUPP = NULL;
 //and very special case, if you plan on using these variables be VERY careful!!
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
-
-#define QMAC_CAN_WAIT_FOREVER // idle handling
-#ifdef QMAC_CAN_WAIT_FOREVER 
-static EventLoopTimerRef mac_select_timer = NULL;
-static EventLoopTimerUPP mac_select_timerUPP = NULL;
-#endif
 
 void qt_mac_destroy_widget(QWidget *w)
 {
@@ -266,13 +260,11 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    InstallEventHandler( GetApplicationEventTarget(), app_proc_handlerUPP,
 				 GetEventTypeCount(events), events, (void *)qApp, &app_proc_handler);
 	}
-#ifdef QMAC_CAN_WAIT_FOREVER
 	if(!mac_select_timer) {
 	    mac_select_timerUPP = NewEventLoopTimerUPP(QApplication::qt_select_timer_callbk);
 	    InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
 				  mac_select_timerUPP, (void *)qApp, &mac_select_timer);
 	}
-#endif
     }
 }
 
@@ -581,10 +573,6 @@ int qStartTimer( int interval, QObject *obj )
 	initTimers();
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
-#ifdef QMAC_CAN_WAIT_FOREVER //disable null timer cruft
-    if(!interval)
-	interval = 1;
-#endif
     if(interval == 0) {
 	t->mac_timer = NULL;
 	timeval tv;
@@ -650,6 +638,7 @@ struct QSockNot {
     int	     fd;
     fd_set  *queue;
 };
+
 
 typedef QList<QSockNot> QSNList;
 typedef QListIterator<QSockNot> QSNListIt;
@@ -848,6 +837,7 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 bool QApplication::processNextEvent( bool canWait )
 {
     int	   nevents = 0;
+    bool broke_early = FALSE;
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->lock();
@@ -873,44 +863,35 @@ bool QApplication::processNextEvent( bool canWait )
 #else
 #define QMAC_EVENT_NOWAIT kEventDurationNoWait
 #endif
-	do {
-#ifdef QMAC_CAN_WAIT_FOREVER
-	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
-#else
-	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, QMAC_EVENT_NOWAIT, TRUE, &event );
-#endif
-
-	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
-		break;
-
-	    ret = SendEventToApplication(event);
-	    ReleaseEvent(event);
-	    if(ret != noErr)
-		break;
-	    nevents++;
-
-	    //if there are no events in the queue, this is a good time to do "stuff"
-	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, QMAC_EVENT_NOWAIT, FALSE, &event );
-	    if(ret == eventLoopQuitErr) {
-		break;
-	    } else if(ret == eventLoopTimedOutErr) {
-		activateNullTimers();       //try to send null timers..
-		sendPostedEvents();
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-		QMenuBar::macUpdateMenuBar();
-#endif
-#ifndef QT_NO_CLIPBOARD
-		if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
-		    QEvent ev(QEvent::Clipboard);
-		    QApplication::sendEvent(qt_clipboard, &ev);
+	while(GetNumEventsInQueue(GetCurrentEventQueue())) {
+	    while(GetNumEventsInQueue(GetCurrentEventQueue())) {
+		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
+		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) {
+		    broke_early = TRUE;
+		    break;
 		}
-#endif
-		break; //no more events means end the event loop
+		ret = SendEventToApplication(event);
+		ReleaseEvent(event);
+		if(ret != noErr)
+		    break;
+		nevents++;
 	    }
-	} while(1);
-	sendPostedEvents();
-    }
+	    sendPostedEvents();
+	}
 #undef QMAC_EVENT_NOWAIT
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+	QMenuBar::macUpdateMenuBar();
+#endif
+    }
+
+    //if there are no events in the queue, this is a good time to do "stuff"
+    sendPostedEvents();
+#ifndef QT_NO_CLIPBOARD
+    if(qt_clipboard) { //manufacture an event so the clipboard can see if it has changed
+	QEvent ev(QEvent::Clipboard);
+	QApplication::sendEvent(qt_clipboard, &ev);
+    }
+#endif
 
     if( quit_now || app_exit_loop ) {
 #if defined(QT_THREAD_SUPPORT)
@@ -919,9 +900,10 @@ bool QApplication::processNextEvent( bool canWait )
 	return FALSE;
     }
 
-#ifndef QMAC_CAN_WAIT_FOREVER
-    qt_select_timer_callbk(NULL, this);
-#endif
+    if(!broke_early && canWait && !zero_timer_count) {
+	EventRef event;
+	ReceiveNextEvent( 0, 0, kEventDurationForever, FALSE, &event );
+    } 
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
@@ -1746,7 +1728,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if(ekind == kEventCommandProcess) {
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
-	    if(cmd.commandID == kHICommandQuit)
+	    if(cmd.commandID == kHICommandQuit) 
 		qApp->closeAllWindows();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 	    else
