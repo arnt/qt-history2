@@ -42,15 +42,15 @@
 #define Q_META_PROPERTY( name, value )		// meta property
 
 /* tmake ignore Q_OBJECT */
-#define Q_OBJECT							\
-public:									\
-    QMetaObject *metaObject() const { return metaObj; }			\
-    const char  *className()  const;					\
-    static QMetaObject* staticMetaObject();				\
-    static QString tr(const char*);					\
-protected:								\
-    void	 initMetaObject();					\
-private:								\
+#define Q_OBJECT					\
+public:							\
+    QMetaObject *metaObject()const { return metaObj; }	\
+    const char *className() const;			\
+    static void staticMetaObject();			\
+    static QString tr(const char*);			\
+protected:						\
+    void initMetaObject();				\
+private:						\
     static QMetaObject *metaObj;
 
 /* tmake ignore Q_OBJECT */
