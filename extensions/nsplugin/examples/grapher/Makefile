@@ -57,51 +57,7 @@ clean:
 ####### Compile
 
 grapher.o: grapher.cpp \
-		grapher.moc \
-		/home/warwick/qt/include/qpainter.h \
-		/home/warwick/qt/include/qpaintd.h \
-		/home/warwick/qt/include/qwindefs.h \
-		/home/warwick/qt/include/qobjdefs.h \
-		/home/warwick/qt/include/qglobal.h \
-		/home/warwick/qt/include/qrect.h \
-		/home/warwick/qt/include/qsize.h \
-		/home/warwick/qt/include/qpoint.h \
-		/home/warwick/qt/include/qcolor.h \
-		/home/warwick/qt/include/qfontmet.h \
-		/home/warwick/qt/include/qfont.h \
-		/home/warwick/qt/include/qstring.h \
-		/home/warwick/qt/include/qarray.h \
-		/home/warwick/qt/include/qgarray.h \
-		/home/warwick/qt/include/qshared.h \
-		/home/warwick/qt/include/qgeneric.h \
-		/home/warwick/qt/include/qfontinf.h \
-		/home/warwick/qt/include/qregion.h \
-		/home/warwick/qt/include/qpen.h \
-		/home/warwick/qt/include/qbrush.h \
-		/home/warwick/qt/include/qpntarry.h \
-		/home/warwick/qt/include/qwmatrix.h \
-		/home/warwick/qt/include/qtstream.h \
-		/home/warwick/qt/include/qiodev.h \
-		/home/warwick/qt/include/qbuffer.h \
-		/home/warwick/qt/include/qpixmap.h \
-		/home/warwick/qt/include/qmenubar.h \
-		/home/warwick/qt/include/qpopmenu.h \
-		/home/warwick/qt/include/qtablevw.h \
-		/home/warwick/qt/include/qframe.h \
-		/home/warwick/qt/include/qwidget.h \
-		/home/warwick/qt/include/qobject.h \
-		/home/warwick/qt/include/qevent.h \
-		/home/warwick/qt/include/qpalette.h \
-		/home/warwick/qt/include/qcursor.h \
-		/home/warwick/qt/include/qmenudta.h \
-		/home/warwick/qt/include/qsignal.h \
-		/home/warwick/qt/include/qlist.h \
-		/home/warwick/qt/include/qglist.h \
-		/home/warwick/qt/include/qcollect.h \
-		/home/warwick/qt/include/qpushbt.h \
-		/home/warwick/qt/include/qbutton.h \
-		/home/warwick/qt/include/qmsgbox.h \
-		/home/warwick/qt/include/qdialog.h
+		grapher.moc
 
 grapher.moc: grapher.cpp
 	$(MOC) grapher.cpp -o grapher.moc

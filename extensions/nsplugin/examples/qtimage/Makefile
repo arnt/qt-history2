@@ -59,36 +59,5 @@ clean:
 
 ####### Compile
 
-qtimage.o: qtimage.cpp \
-		/home/warwick/qt/include/qpainter.h \
-		/home/warwick/qt/include/qpaintd.h \
-		/home/warwick/qt/include/qwindefs.h \
-		/home/warwick/qt/include/qobjdefs.h \
-		/home/warwick/qt/include/qglobal.h \
-		/home/warwick/qt/include/qrect.h \
-		/home/warwick/qt/include/qsize.h \
-		/home/warwick/qt/include/qpoint.h \
-		/home/warwick/qt/include/qcolor.h \
-		/home/warwick/qt/include/qfontmet.h \
-		/home/warwick/qt/include/qfont.h \
-		/home/warwick/qt/include/qstring.h \
-		/home/warwick/qt/include/qarray.h \
-		/home/warwick/qt/include/qgarray.h \
-		/home/warwick/qt/include/qshared.h \
-		/home/warwick/qt/include/qgeneric.h \
-		/home/warwick/qt/include/qfontinf.h \
-		/home/warwick/qt/include/qregion.h \
-		/home/warwick/qt/include/qpen.h \
-		/home/warwick/qt/include/qbrush.h \
-		/home/warwick/qt/include/qpntarry.h \
-		/home/warwick/qt/include/qwmatrix.h \
-		/home/warwick/qt/include/qimage.h \
-		/home/warwick/qt/include/qpixmap.h \
-		/home/warwick/qt/include/qmsgbox.h \
-		/home/warwick/qt/include/qdialog.h \
-		/home/warwick/qt/include/qwidget.h \
-		/home/warwick/qt/include/qobject.h \
-		/home/warwick/qt/include/qevent.h \
-		/home/warwick/qt/include/qpalette.h \
-		/home/warwick/qt/include/qcursor.h
+qtimage.o: qtimage.cpp
 
