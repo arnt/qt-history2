@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#3 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#4 $
 **
 ** Definition of QThumbWheel class
 **
@@ -232,7 +232,7 @@ void QThumbWheel::drawContents( QPainter *p )
 		   double(maxValue()-minValue())*transmissionRatio();
     alpha = fmod(alpha, delta);
     QPen pen0( colorGroup().midlight() );
-    QPen pen1( colorGroup().mid() );
+    QPen pen1( colorGroup().dark() );
 
     if ( orient == Horizontal ) {
 	double r = 0.5*cr.width();
