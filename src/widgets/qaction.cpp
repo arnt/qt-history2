@@ -599,7 +599,7 @@ int QAction::accel() const
     action is a command action; a command action is simply executed. For
     example a file open toolbar button would invoke a file open dialog.
 
-  For exclusive toggling ("one of many choice"), add toggle actions to
+  For exclusive toggling, add toggle actions to
   a QActionGroup with the \l QActionGroup::exclusive property set to TRUE.
 
 */
@@ -1138,8 +1138,7 @@ QActionGroup::~QActionGroup()
 }
 
 /*! \property QActionGroup::exclusive
-  \brief whether the action group does exclusive toggling ("one of
-  many choice")
+  \brief whether the action group does exclusive toggling
 
     If exclusive is TRUE only one toggle action in the action group can
     ever be active at any one time. If the user chooses another toggle
