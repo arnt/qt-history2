@@ -2964,7 +2964,6 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
             case QEvent::ContextMenu:
                 e->spont = false;
                 return true;
-                break;
             default:
                 break;
             }
