@@ -10,7 +10,8 @@ divided into the following sections:
 \i The 1 Minute Guide to using Qt Assistant
 \i Qt Assistant in More Detail
 \i Full Text Searching
-\i Adding Documentation to Qt Assistant
+\i Customize Qt Assistant with Profiles
+\i Adding Documentation to Profiles
 \endlist
 
 \chapter Introduction to the Qt Reference Documentation
@@ -116,7 +117,7 @@ documentation window.
 
 \section1 The Sidebar
 
-The sidebar provides three ways of navigating documentation:
+The sidebar provides four ways of navigating documentation:
 \list 1
 \i The \Toolbutton Contents tab presents a tree view of the
 documentation sets that are available. If you click an item, its
@@ -269,32 +270,33 @@ links, click the 'Link color' color button. Uncheck the
 \i Web Settings 
 
 Some pages contain links to external web pages. In order to display
-these links, you must specify a web browser. Click \Button Browse to
+these links, you must specify a web browser. Click \Button ... to
 invoke the \Widget Assistant dialog and navigate until you find the
-web browser you wish to use. Click \OK to accept the
-selection. Alternatively, type in the name of your browser's
-executable in the line edit.
+web browser you wish to use. Click \OK to accept the selection.
+Alternatively, type in the name of your browser's executable in the
+line edit. If you want to change the home page of \QA, enter the
+file name in the line edit below. For that purpose you can also
+click \Button ... and select the file.
 
-\i Documentation 
+\i Pdf Settings
 
-To add your own documentation to \QA, click \Button Add to invoke the
-\Widget Assistant dialog. Navigate through the files until you find
-the documentation you want to add and then click \OK. Click \Button
-Delete to remove obsolete documentation from the Documentation
-list box. Read more about adding your own documentation in the next
-chapter, \l {Adding Documentation to Qt Assistant}. 
+Some pages contain links to pdf documents. In order to display these
+links, you must specify a pdf viewer. Click \Button ... to invoke the
+\Widget Assistant dialog and navigate until you find the pdf viewer
+you wish to use. Click \OK to accept the selection. Alternatively,
+type in the name of your pdf viewer's executable in the line edit.
 
-\i Categories
+\i Profiles
 
-All documentation is categorized, for example,
-development, office, multimedia, etc. To create a new category, type
-its name in the Category Name line edit and click \Button Add. The
-new category appears in the Categories list box with a checkbox to its
-left. Leave the box checked to display all of the category's
-available documentation. To remove a category, select it from the list
-box and click \Button Delete. For further information about
-categories read the next chapter, \l {Adding Documentation to Qt Assistant}.
-\endlist
+Profiles make it possible to customize \QA on a large scale. Profiles
+mainly control which documentation is shown. Depending on that, \QA
+appearance may change. This starts with other documentation icons in
+the toolbar and ends with a new name for \QA. To change the current
+used profile, select another one and click \Button Ok. If you want
+to add a new profile click \Button Add, for modifying or deleting
+existing one's select the profile and click \Button Modify or \Button
+Delete. Read more about profiles and customization in chapter
+\l {Customize Qt Assistant}.
 
 \chapter Full Text Searching
 
@@ -325,33 +327,86 @@ highest number of occurrences appearing first. Simply click any
 document in the list to have it display in the document pane.
 
 If the documentation is changed, e.g. if new documents are added or
-old ones removed, \QA will reindex. At present this only works for
-latin1 encoded documents, i.e. Unicode is not yet supported.
+old ones removed, \QA will reindex.
 
-\chapter Adding Documentation to Qt Assistant
+\chapter Customize Qt Assistant with Profiles
 
-Adding new documentation to \QA is straight-forward. You simply
-specify a new documentation content file for \QA to use.
+You can change several properties of \QA to adapt it for your needs.
+Those properties are organized in profiles. Profiles contain information
+about e.g. documentation files or icons. If you want to add or modify
+a profile, open the settings dialog, goto the profile tab and click
+\Button Modify or \Button. A new dialog pops up. Insert the name of the
+profile in the first line edit. This name is used either in the
+settings dialog to select it or if you want to start \QA with a certain
+profile. Click the toolbutton in the upper right corner to change
+the application icon of \QA. Title specifies the caption of \QA, so can
+rename \QA to your own application name. The next line edit contains
+the base path of your application. For further information on this issue
+see below. You can also click the button \Button ... to invoke a
+file dialog and navigate until you find the right directory. Homepage
+specifies the starting page of the profile. Usually, this is the html
+file which contains the content directory. In order to customize the
+about text which appears in the help menu fill out the next line edit.
+The about url specifies a file which contains the about text of your
+application. For adding or removing documentation see next chapter,
+\l {Adding Documentation to a Profile}.
+
+\section {Using Profiles}
+If you just want to change the used documentation, add or remove
+documentation files, click \Button Ok and everything is done. If you
+want to create a profile for your own application which is shipped
+along your application then click \Button {Save As} and select a file
+name. Then \QA creates a file and saves all information about the
+profile. The base path - already mentioned above - points to the
+application path. While saving, \QA determines the relative path
+between the documentation content files and the base path. The same
+is done for other properties as well. So, in the end, all specified
+paths and files are saved relatively to the base path. This file
+is later used to initialize \QA for your application, i.e. you have
+to ship this file with your application. The initialization itself
+is then straight-forward. Call \QA from your installation program
+with the following options:
+\code
+assistant -addProfile file path
+\endcode
+The parameter file specifies your created profile file as described
+above. The following parameter specifies the base path of your
+application, i.e. the installation path on that machine. If this
+path is not specified, \QA will use the old one from the profile
+file. Starting \QA that way will not show a mainwindow. Instead,
+only the profile is installed and when it is done \QA will quit.
+If you start \QA the very first time it tries to find a profile
+for displaying. If there is none, a default profile containing all
+Qt related documentations is created. If there is already one, 
+meaning \QA was started with the above options, no Qt profile will
+be created.
+If \QA has more than one profiles, select the wished one either on
+startup with
+\code
+assistant -profile profilename
+\endcode
+or later in the settings dialog. Sometimes, documentations are quite
+short, i.e. it makes no sense to waste screen space with \QA side bar
+since the functions provided by the side bar are not neccessary.
+Therefore you can hide the side bar on startup with the option
+\code
+assistant -onlyBrowser
+\endcode
+
+
+\chapter Adding Documentation to a Profile
+
+In order to add new documentation to a profile you simply have
+to specify a new documentation content file.
 
 Click \Menu Edit|Settings to invoke the \Widget Settings dialog. Click
-the \Menu{Documentation} tab. Now click \Button Add to invoke a
-file open dialog. Select the new documentation's content file. (This
-file must be an XML file in \QA's documentation content file format.)
+the \Menu{Profile} tab. Now select or create a new profile and click
+\Button Add or \Button Modify to invoke the profile dialog. Then goto
+section Documentations and click \Button Add. A file dialog pops up.
 
-Another way to add your own documentation is, to start \QA with the
-commandline option '-addContentFile' followed by the documentation
-content file.
-Example: assistant -addContentFile /mycompany/myapp/help.xml
-
-\QA will parse this file, add it and quit, i.e. no mainwindow will
-be shown. This way can be used when adding documentation during an
-installation process. 
-
-If the new documentation belongs to a category which does not
-currently appear in the Categories list box, you can add the category
-using the \Widget Settings dialog. It is not normally necessary to do
-this manually since \QA detects new categories and adds them
-automatically. 
+Select the new documentation's content file. (This file must be an
+XML file in \QA's documentation content file format.) \QA will check
+this file if it is valid and if so, add it to the profile.
 
 The format of the documentation content file is described in the
 following section.
@@ -360,16 +415,19 @@ following section.
 \section1 Documentation Content File format
 
 The file must contain the documentation's table of contents and all
-important keywords for the index. Furthermore, it should inherit a
-category specification.
+important keywords for the index. In addition, it may inherit an
+icon for that documentation which is shown later in \QA toolbar.
+Furthermore, an extra directory path for additional images used in
+the documentation may be specified.
 
-An example of a content file with all available tags is shown below:
+An example of a content file with all available tags and attributes is
+shown below:
 
 \c demodoc.xml
 
 \code
 <!DOCTYPE DCF>
-<DCF ref="demo.html" category="qt/development" title="Development Demo Handbook">
+<DCF ref="demo.html" icon="handbook.png" imagedir="../img/" title="Development Demo Handbook">
 <section ref="./chap1/chap1.html" title="Chapter1">
     <section ref="./chap1/section1.html" title="Section1">
 	<keyword ref="./chap1/section1.html#foo">foo</keyword>
