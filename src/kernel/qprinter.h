@@ -165,6 +165,7 @@ private:
 #if defined(Q_WS_WIN)
     void        readPdlg( void* );
     void        readPdlgA( void* );
+    void	reinit();
 
     bool        viewOffsetDone;
     QPainter*   painter;

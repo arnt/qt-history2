@@ -464,6 +464,9 @@ void QPrinter::setCreator( const QString &creator )
 void QPrinter::setOrientation( Orientation orientation )
 {
     orient = orientation;
+#if defined(Q_WS_WIN)
+    reinit();
+#endif
 }
 
 

@@ -1112,4 +1112,46 @@ QSize QPrinter::margins() const
 }
 
 
+/*
+  This private function creates a new HDC for the printer. It takes the
+  different user settings into account. This is used by the setter functions,
+  like setOrientation() to create a printer HDC with the appropriate settings
+  -- otherwise you don't get the settings except if you show a print dialog.
+*/
+void QPrinter::reinit()
+{
+    if ( hdevmode ) {
+	HDC hdcTmp;
+#ifdef Q_OS_TEMP
+	DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
+        if ( dm ) {
+	    dm->dmOrientation = orient==Portrait ? DMORIENT_PORTRAIT : DMORIENT_LANDSCAPE;
+	    hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
+	}
+#else
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
+	    if ( dm ) {
+		dm->dmOrientation = orient==Portrait ? DMORIENT_PORTRAIT : DMORIENT_LANDSCAPE;
+		hdcTmp = CreateDC( L"WINSPOOL", dm->dmDeviceName, 0, dm );
+	    }
+	} else
+#endif
+	{
+	    DEVMODEA* dm = (DEVMODEA*)GlobalLock( hdevmode );
+	    if ( dm ) {
+		dm->dmOrientation = orient==Portrait ? DMORIENT_PORTRAIT : DMORIENT_LANDSCAPE;
+		hdcTmp = CreateDCA( "WINSPOOL", dm->dmDeviceName, 0, dm );
+	    }
+	}
+#endif
+	if ( hdcTmp ) {
+	    DeleteDC( hdc );
+	    hdc = hdcTmp;
+	}
+	GlobalUnlock( hdevmode );
+    }
+}
+
 #endif // QT_NO_PRINTER
