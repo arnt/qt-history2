@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#61 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#61 $")
 
 
 /*!
@@ -244,6 +244,151 @@ void QPainter::restore()			// restore/pop painter state
   Font info can only be obtained when the painter is active.
   \sa fontMetrics(), isActive()
 */
+
+
+/*!
+  \fn const QFont &QPainter::font() const
+  Returns the current painter font.
+  \sa setFont(), QFont
+*/
+
+/*!
+  Sets a new painter font.
+
+  This font is used by all subsequent drawText() functions.
+  The text color is the same as the pen color.
+
+  \sa font(), drawText()
+*/
+
+void QPainter::setFont( const QFont &font )
+{
+    if ( cfont.d != font.d ) {
+	cfont = font;
+	updateFont();
+    }
+}
+
+/*!
+  \fn const QPen &QPainter::pen() const
+  Returns the current painter pen.
+  \sa setPen()
+*/
+
+/*!
+  Sets a new painter pen.
+
+  The pen defines how to draw lines and outlines, and it also defines
+  the text color.
+
+  \sa pen()
+*/
+
+void QPainter::setPen( const QPen &pen )
+{
+    cpen = pen;
+    updatePen();
+}
+
+/*!
+  Sets a new painter pen with style \c style, width 0 and black color.
+  \sa pen(), QPen
+*/
+
+void QPainter::setPen( PenStyle style )
+{
+    register QPen::QPenData *d = cpen.data;	// low level access
+    if ( d->count != 1 ) {
+	cpen.detach();
+	d = cpen.data;
+    }
+    d->style = style;
+    d->width = 0;
+    d->color = black;
+    updatePen();
+}
+
+/*!
+  Sets a new painter pen with style \c SolidLine, width 0 and the specified
+  \e color.
+  \sa pen(), QPen
+*/
+
+void QPainter::setPen( const QColor &color )
+{
+    register QPen::QPenData *d = cpen.data;	// low level access
+    if ( d->count != 1 ) {
+	cpen.detach();
+	d = cpen.data;
+    }
+    d->style = SolidLine;
+    d->width = 0;
+    d->color = color;
+    updatePen();
+}
+
+/*!
+  \fn const QBrush &QPainter::brush() const
+  Returns the current painter brush.
+  \sa QPainter::setBrush()
+*/
+
+/*!
+  Sets a new painter brush.
+
+  The brush defines how to fill shapes.
+
+  \sa brush()
+*/
+
+void QPainter::setBrush( const QBrush &brush )
+{
+    cbrush = brush;
+    updateBrush();
+}
+
+/*!
+  Sets a new painter brush with black color and the specified \e style.
+  \sa brush(), QBrush
+*/
+
+void QPainter::setBrush( BrushStyle style )
+{
+    register QBrush::QBrushData *d = cbrush.data; // low level access
+    if ( d->count != 1 ) {
+	cbrush.detach();
+	d = cbrush.data;
+    }
+    d->style = style;
+    d->color = black;
+    if ( d->pixmap ) {
+	delete d->pixmap;
+	d->pixmap = 0;
+    }
+    updateBrush();
+}
+
+/*!
+  Sets a new painter brush with the style \c SolidPattern and the specified
+  \e color.
+  \sa brush(), QBrush
+*/
+
+void QPainter::setBrush( const QColor &color )
+{
+    register QBrush::QBrushData *d = cbrush.data; // low level access
+    if ( d->count != 1 ) {
+	cbrush.detach();
+	d = cbrush.data;
+    }
+    d->style = SolidPattern;
+    d->color = color;
+    if ( d->pixmap ) {
+	delete d->pixmap;
+	d->pixmap = 0;
+    }
+    updateBrush();
+}
 
 
 /*!
