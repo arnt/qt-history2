@@ -203,7 +203,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		var("TARGETDEPS") << "\n\t"
 	      << "-rm -f $(TARGETA) " << "\n\t"
 	      << var("QMAKE_AR_CMD") << "\n\t" 
-	      << varGlue("QMAKE_RANLIB","",""," $(TARGETA)") 
+	      << varGlue("QMAKE_RANLIB",""," "," $(TARGETA)") 
 	      << endl << endl;
 	}
     } else {
@@ -215,7 +215,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "[ -d " << destdir << " ] || mkdir -p " << destdir << "\n\t";
 	t << "-rm -f $(TARGET)" << "\n\t"
 	  << var("QMAKE_AR_CMD") << "\n\t"
-	  << varGlue("QMAKE_RANLIB","",""," $(TARGET)") 
+	  << varGlue("QMAKE_RANLIB",""," "," $(TARGET)") 
 	  << endl << endl;
     }
 
@@ -296,8 +296,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		tmp = tmp.right(tmp.length() - (s + 1));
 	    QString intern = "INTERNAL_" + tmp + "_files";
 	    t << (*it) << ": " << varList(intern) << "\n\t"
+	      << "rm -f " << (*it) << "\n\t"
 	      << "$(AR) " << (*it) << " " << var(intern) << "\n\t"
-	      << varGlue("QMAKE_RANLIB","",""," " + (*it)) << endl;
+	      << varGlue("QMAKE_RANLIB",""," "," " + (*it)) << endl;
 	    t << (objlibs[x] == "OBJMOC" ? "moc_" : "") << "tmp_lib" << y++ << "_clean:" << "\n\t"
 	      << "rm -f " << var(intern) << endl;
 	    t << endl;

@@ -61,7 +61,7 @@ QMAKE_MOC		= $(QTDIR)/bin/moc
 QMAKE_UIC		= $(QTDIR)/bin/uic
 
 QMAKE_AR		= ar cq
-QMAKE_RANLIB		= ranlib
+QMAKE_RANLIB		= ranlib -s
 
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
