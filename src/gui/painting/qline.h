@@ -52,6 +52,8 @@ public:
 
     float angle(const QLineF &l) const;
 
+    QPointF pointAt(float t) const;
+
     inline void moveBy(const QLineF &p);
 
     inline void operator+=(const QPointF &d);
@@ -136,6 +138,13 @@ inline void QLineF::setLength(float len)
     Q_ASSERT(!isNull());
     QLineF v = unitVector();
     p2 = QPointF(p1.x() + v.vx() * len, p1.y() + v.vy() * len);
+}
+
+inline QPointF QLineF::pointAt(float t) const
+{
+    float vx = p2.x() - p1.x();
+    float vy = p2.y() - p1.y();
+    return QPointF(p1.x() + vx * t, p1.y() + vy * t);
 }
 
 inline void QLineF::operator+=(const QPointF &d)

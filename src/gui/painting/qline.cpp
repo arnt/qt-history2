@@ -155,6 +155,12 @@
     Performs a vector addition of this line with the \a other line given.
 */
 
+/*!
+  \fn float QLineF::pointAt(float t) const
+
+  Returns the point at the parametrized position \a t, where
+  the start and end point are defined to be positions 0 and 1.
+*/
 
 /*!
     Returns the length of the line.
