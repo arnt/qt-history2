@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#94 $
 **
 ** Implementation of QCheckBox class
 **
@@ -274,7 +274,7 @@ void QCheckBox::updateMask()
 	int x, y, w, h;
 	GUIStyle gs = style();
 	bm.fill(color0);
-	QPainter p(&bm);
+	QPainter p( &bm, this );
 
 	QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1, color0);
 	const QFontMetrics & fm = fontMetrics();
@@ -306,12 +306,7 @@ void QCheckBox::updateMask()
 	    br.setBottom( br.bottom()+2);
 	    br = br.intersect( QRect(0,0,width(),height()) );
 
-	    if ( gs == WindowsStyle ) {
-		p.drawWinFocusRect( br );
-	    } else {
-		p.setPen( color1 );
-		p.drawRect( br );
-	    }
+	    style().drawFocusRect( &p, br, cg );
 	}
     }
     setMask(bm);

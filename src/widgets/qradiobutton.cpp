@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#108 $
 **
 ** Implementation of QRadioButton class
 **
@@ -51,18 +51,6 @@
   <a href="guibooks.html#fowler">GUI Design Handbook: Radio Button</a>
 */
 
-
-static QSize sizeOfBitmap( Qt::GUIStyle gs )
-{
-    switch ( gs ) {
-	case Qt::WindowsStyle:
-	    return QSize(12,12);
-	case Qt::MotifStyle:
-	    return QSize(13,13);
-	default:
-	    return QSize(10,10);
-    }
-}
 
 static const int gutter = 6; // between button and text
 static const int margin = 2; // to right of text
@@ -146,8 +134,7 @@ QSize QRadioButton::sizeHint() const
 	sz = pixmap()->size();
     else
 	sz = fontMetrics().size( ShowPrefix, text() );
-    GUIStyle gs = style();
-    QSize bmsz = sizeOfBitmap( gs );
+    QSize bmsz = style().exclusiveIndicatorSize();
     if ( sz.height() < bmsz.height() )
 	sz.setHeight( bmsz.height() );
 
@@ -255,7 +242,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 {
     int x, y, w, h;
     GUIStyle gs = style();
-    QSize sz = sizeOfBitmap( gs );
+    QSize sz = style().exclusiveIndicatorSize();
     if ( gs == WindowsStyle )
 	sz.setWidth(sz.width()+1);
     y = 0;
@@ -279,12 +266,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 	br.setBottom( br.bottom()+2);
 	br = br.intersect( QRect(0,0,width(),height()) );
 
-	if ( gs == WindowsStyle ) {
-	    p->drawWinFocusRect( br, backgroundColor() );
-	} else {
-	    p->setPen( black );
-	    p->drawRect( br );
-	}
+	style().drawFocusRect(p, br, colorGroup());
     }
 }
 
@@ -294,7 +276,7 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
     QButton::resizeEvent(e);
     int x, w, h;
     GUIStyle gs = style();
-    QSize sz = sizeOfBitmap( gs );
+    QSize sz = style().exclusiveIndicatorSize();
     if ( gs == WindowsStyle )
 	sz.setWidth(sz.width()+1);
     x = sz.width() + gutter;
@@ -317,12 +299,12 @@ void QRadioButton::updateMask()
     QBitmap bm(width(),height());
     {
 	bm.fill(color0);
-	QPainter p(&bm);
+	QPainter p( &bm, this );
 	int x, y, w, h;
 	GUIStyle gs = style();
 	const QFontMetrics & fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
-	QSize sz = sizeOfBitmap( gs );
+	QSize sz = style().exclusiveIndicatorSize();
 	if ( gs == WindowsStyle )
 	    sz.setWidth(sz.width()+1);
 	y = 0;
@@ -356,12 +338,7 @@ void QRadioButton::updateMask()
 	    br.setBottom( br.bottom()+2);
 	    br = br.intersect( QRect(0,0,width(),height()) );
 
-	    if ( gs == WindowsStyle ) {
-		p.drawWinFocusRect( br );
-	    } else {
-		p.setPen( color1 );
-		p.drawRect( br );
-	    }
+	    style().drawFocusRect( &p, br, cg );
 	}
     }
     setMask(bm);
