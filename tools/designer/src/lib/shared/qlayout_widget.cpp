@@ -288,7 +288,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     m_currentCell = qMakePair(row, qMax(0, column + incr));
                 } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout())) {
-                    m_currentCell = qMakePair(0, box->findWidget(item->widget()) + incr);
+                    m_currentCell = qMakePair(0, box->indexOf(item->widget()) + incr);
                 }
             }
         } else {
@@ -307,7 +307,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
                     gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
                     m_currentCell = qMakePair(qMax(0, row + incr), column);
                 } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout())) {
-                    m_currentCell = qMakePair(box->findWidget(item->widget()) + incr, 0);
+                    m_currentCell = qMakePair(box->indexOf(item->widget()) + incr, 0);
                 }
             }
         }

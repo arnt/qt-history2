@@ -166,7 +166,7 @@ const char *WidgetFactory::classNameOf(QObject* o)
   which can be \c HBox, \c VBox or \c Grid.
 */
 
-QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type) const
+QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type) const // ### (sizepolicy)
 {
     AbstractMetaDataBase *metaDataBase = core()->metaDataBase();
 
@@ -180,16 +180,16 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
     if (layout) {
         switch (type) {
         case LayoutInfo::HBox:
-            l = new QHBoxLayout(layout);
+            l = new QHBoxLayout();
             break;
         case LayoutInfo::VBox:
-            l = new QVBoxLayout(layout);
+            l = new QVBoxLayout();
             break;
         case LayoutInfo::Grid:
-            l = new QGridLayout(layout);
+            l = new QGridLayout();
             break;
         case LayoutInfo::Stacked:
-            l = new QStackedLayout(layout);
+            l = new QStackedLayout();
             break;
         case LayoutInfo::NoLayout:
             return 0;

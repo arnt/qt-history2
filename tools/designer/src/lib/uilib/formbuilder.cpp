@@ -90,11 +90,12 @@ QLayout *FormBuilder::createLayout(const QString &layoutName, QObject *parent, c
 
 #define DECLARE_WIDGET(W, C)
 #define DECLARE_COMPAT_WIDGET(W, C)
+
 #define DECLARE_LAYOUT(L, C) \
     if (layoutName == QLatin1String(#L)) { \
         Q_ASSERT(l == 0); \
         l = parentLayout \
-            ? new L(static_cast<QLayout*>(0)) \
+            ? new L() \
             : new L(parentWidget); \
     }
 

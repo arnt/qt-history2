@@ -16,7 +16,8 @@
 
 #include "shared_global.h"
 
-#include <QWidget>
+#include <QtGui/QWidget>
+#include <QtGui/QSizePolicy>
 
 class AbstractFormWindow;
 
@@ -27,21 +28,10 @@ class QT_SHARED_EXPORT Spacer: public QWidget
     Q_ENUMS(SizeType)
 
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
-    Q_PROPERTY(SizeType sizeType READ sizeType WRITE setSizeType)
+    Q_PROPERTY(QSizePolicy::Policy sizeType READ sizeType WRITE setSizeType)
     Q_PROPERTY(QSize sizeHint READ sizeHint WRITE setSizeHint DESIGNABLE true STORED true)
 
-private:
-    enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
-           MayGrow = 1, ExpMask = 2, MayShrink = 4 };
-
 public:
-    enum SizeType { Fixed = 0,
-                    Minimum = MayGrow,
-                    Maximum = MayShrink,
-                    Preferred = MayGrow | MayShrink,
-                    MinimumExpanding = MayGrow | ExpMask,
-                    Expanding = MayGrow | MayShrink | ExpMask,
-                    Ignored = ExpMask /* magic value */ };
 
     Spacer(QWidget *parent = 0);
 
@@ -50,8 +40,8 @@ public:
     QSize sizeHint() const;
     void setSizeHint(const QSize &s);
 
-    Spacer::SizeType sizeType() const;
-    void setSizeType(Spacer::SizeType t);
+    QSizePolicy::Policy sizeType() const;
+    void setSizeType(QSizePolicy::Policy t);
 
     Qt::Alignment alignment() const;
     Qt::Orientation orientation() const;

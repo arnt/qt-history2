@@ -703,12 +703,12 @@ SizePolicyProperty::SizePolicyProperty(const QSizePolicy &value, const QString &
     lst << "Fixed" << "Minimum" << "Maximum" << "Preferred" << "MinimumExpanding" << "Expanding" << "Ignored";
 
     IProperty *i = 0;
-    i = new ListProperty(lst, size_type_to_int(value.horizontalData()), QLatin1String("hSizeType"));
+    i = new ListProperty(lst, size_type_to_int(value.horizontalPolicy()), QLatin1String("hSizeType"));
     i->setFake(true);
     i->setParent(this);
     m_properties << i;
 
-    i = new ListProperty(lst, size_type_to_int(value.verticalData()), QLatin1String("vSizeType"));
+    i = new ListProperty(lst, size_type_to_int(value.verticalPolicy()), QLatin1String("vSizeType"));
     i->setFake(true);
     i->setParent(this);
     m_properties << i;
@@ -727,8 +727,8 @@ SizePolicyProperty::SizePolicyProperty(const QSizePolicy &value, const QString &
 QVariant SizePolicyProperty::value() const
 {
     QSizePolicy sizePolicy;
-    sizePolicy.setHorizontalData(int_to_size_type(propertyAt(0)->value().toInt()));
-    sizePolicy.setVerticalData(int_to_size_type(propertyAt(1)->value().toInt()));
+    sizePolicy.setHorizontalPolicy(int_to_size_type(propertyAt(0)->value().toInt()));
+    sizePolicy.setVerticalPolicy(int_to_size_type(propertyAt(1)->value().toInt()));
     sizePolicy.setHorizontalStretch(propertyAt(2)->value().toInt());
     sizePolicy.setVerticalStretch(propertyAt(3)->value().toInt());
     return qVariantFromValue(sizePolicy);
@@ -738,8 +738,8 @@ void SizePolicyProperty::setValue(const QVariant &value)
 {
     QSizePolicy sizePolicy = qvariant_cast<QSizePolicy>(value);
 
-    propertyAt(0)->setValue(size_type_to_int(sizePolicy.horizontalData()));
-    propertyAt(1)->setValue(size_type_to_int(sizePolicy.verticalData()));
+    propertyAt(0)->setValue(size_type_to_int(sizePolicy.horizontalPolicy()));
+    propertyAt(1)->setValue(size_type_to_int(sizePolicy.verticalPolicy()));
     propertyAt(2)->setValue(sizePolicy.horizontalStretch());
     propertyAt(3)->setValue(sizePolicy.verticalStretch());
 }

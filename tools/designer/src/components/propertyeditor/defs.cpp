@@ -13,7 +13,7 @@
 
 #include "defs.h"
 
-int size_type_to_int( QSizePolicy::SizeType t )
+int size_type_to_int( QSizePolicy::Policy t )
 {
     if ( t == QSizePolicy::Fixed )
 	return 0;
@@ -32,7 +32,7 @@ int size_type_to_int( QSizePolicy::SizeType t )
     return 0;
 }
 
-QString size_type_to_string( QSizePolicy::SizeType t )
+QString size_type_to_string( QSizePolicy::Policy t )
 {
     if ( t == QSizePolicy::Fixed )
 	return "Fixed";
@@ -51,7 +51,7 @@ QString size_type_to_string( QSizePolicy::SizeType t )
     return QString();
 }
 
-QSizePolicy::SizeType int_to_size_type( int i )
+QSizePolicy::Policy int_to_size_type( int i )
 {	
     if ( i == 0 )
 	return QSizePolicy::Fixed;

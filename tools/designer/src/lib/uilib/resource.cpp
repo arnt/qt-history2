@@ -345,7 +345,7 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
 
     case DomLayoutItem::Spacer: {
         QSize size(0, 0);
-        QSizePolicy::SizeType sizeType = QSizePolicy::Expanding;
+        QSizePolicy::Policy sizeType = QSizePolicy::Expanding;
         bool isVspacer = false;
 
         DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
@@ -534,8 +534,8 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         sizePolicy.setHorizontalStretch(sizep->elementHorStretch());
         sizePolicy.setVerticalStretch(sizep->elementVerStretch());
 
-        sizePolicy.setHorizontalData((QSizePolicy::SizeType) sizep->elementHSizeType());
-        sizePolicy.setVerticalData((QSizePolicy::SizeType) sizep->elementVSizeType());
+        sizePolicy.setHorizontalPolicy((QSizePolicy::Policy) sizep->elementHSizeType());
+        sizePolicy.setVerticalPolicy((QSizePolicy::Policy) sizep->elementVSizeType());
         v = qVariantFromValue(sizePolicy);
     } break;
 
@@ -756,12 +756,12 @@ DomSpacer *Resource::createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWid
     // orientation property
     prop = new DomProperty();
     prop->setAttributeName("orientation");
-    prop->setElementEnum(spacer->expanding() == QSizePolicy::Vertically ? QLatin1String("Qt::Vertical") : QLatin1String("Qt::Horizontal"));
+    prop->setElementEnum((spacer->expandingDirections() & Qt::Horizontal) ? QLatin1String("Qt::Horizontal") : QLatin1String("Qt::Vertical"));
     properties.append(prop);
 
 #if 0 /// ### implement me
     // sizeType property
-    QSizePolicy::SizeType sizeType = QSizePolicy::Expanding;
+    QSizePolicy::Policy sizeType = QSizePolicy::Expanding;
     prop = new DomProperty();
     prop->setAttributeName("sizeType");
     if (isVspacer)
@@ -899,8 +899,8 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());
 
-            dom->setElementHSizeType(sizePolicy.horizontalData());
-            dom->setElementVSizeType(sizePolicy.verticalData());
+            dom->setElementHSizeType(sizePolicy.horizontalPolicy());
+            dom->setElementVSizeType(sizePolicy.verticalPolicy());
 
             dom_prop->setElementSizePolicy(dom);
         } break;

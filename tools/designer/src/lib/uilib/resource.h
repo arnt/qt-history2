@@ -123,7 +123,7 @@ private:
     void setupColorGroup(QPalette &palette, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
 
-    QHash<QString, QSizePolicy::SizeType> m_idToSizeType;
+    QHash<QString, QSizePolicy::Policy> m_idToSizeType;
     int m_defaultMargin;
     int m_defaultSpacing;
 

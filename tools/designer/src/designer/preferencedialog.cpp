@@ -41,7 +41,8 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     m_preferences.append(iface);
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    QHBoxLayout *hBox = new QHBoxLayout(mainLayout);
+    QHBoxLayout *hBox = new QHBoxLayout();
+    mainLayout->addLayout(hBox);
 
     m_treeWidget = new QTreeWidget(this);
     hBox->addWidget(m_treeWidget);

@@ -349,10 +349,10 @@ void DeleteWidgetCommand::init(QWidget *widget)
 
         switch (m_layoutType) {
             case LayoutInfo::VBox:
-                m_index = static_cast<QVBoxLayout*>(m_parentWidget->layout())->findWidget(m_widget);
+                m_index = static_cast<QVBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
                 break;
             case LayoutInfo::HBox:
-                m_index = static_cast<QHBoxLayout*>(m_parentWidget->layout())->findWidget(m_widget);
+                m_index = static_cast<QHBoxLayout*>(m_parentWidget->layout())->indexOf(m_widget);
                 break;
             case LayoutInfo::Grid: {
                 m_index = 0;

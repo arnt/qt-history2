@@ -27,7 +27,7 @@ Spacer::Spacer(QWidget *parent)
     setAttribute(Qt::WA_MouseNoMask);
     m_formWindow = AbstractFormWindow::findFormWindow(this);
 
-    setSizeType(Spacer::Expanding);
+    setSizeType(QSizePolicy::Expanding);
 }
 
 void Spacer::paintEvent(QPaintEvent *)
@@ -95,22 +95,22 @@ void Spacer::updateMask()
     setMask(r);
 }
 
-void Spacer::setSizeType(Spacer::SizeType t)
+void Spacer::setSizeType(QSizePolicy::Policy t)
 {
     QSizePolicy sizeP;
     if (orient == Qt::Vertical)
-        sizeP = QSizePolicy(QSizePolicy::Minimum, (QSizePolicy::SizeType)t);
+        sizeP = QSizePolicy(QSizePolicy::Minimum, (QSizePolicy::Policy)t);
     else
-        sizeP = QSizePolicy((QSizePolicy::SizeType)t, QSizePolicy::Minimum);
+        sizeP = QSizePolicy((QSizePolicy::Policy)t, QSizePolicy::Minimum);
     setSizePolicy(sizeP);
 }
 
 
-Spacer::SizeType Spacer::sizeType() const
+QSizePolicy::Policy Spacer::sizeType() const
 {
     if (orient == Qt::Vertical)
-        return (Spacer::SizeType) int(sizePolicy().verticalData());
-    return (Spacer::SizeType) int(sizePolicy().horizontalData());
+        return sizePolicy().verticalPolicy();
+    return sizePolicy().horizontalPolicy();
 }
 
 Qt::Alignment Spacer::alignment() const
@@ -123,7 +123,7 @@ Qt::Alignment Spacer::alignment() const
 QSize Spacer::minimumSize() const
 {
     QSize s = QSize(20,20);
-    if (sizeType() == Spacer::Expanding)
+    if (sizeType() == QSizePolicy::Expanding)
         if (orient == Qt::Vertical)
             s.rheight() = 0;
         else
@@ -156,7 +156,7 @@ void Spacer::setOrientation(Qt::Orientation o)
     if (orient == o)
         return;
 
-    Spacer::SizeType st = sizeType();
+    QSizePolicy::Policy st = sizeType();
     orient = o;
     setSizeType(st);
 

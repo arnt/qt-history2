@@ -186,8 +186,8 @@ public:
     virtual QSize maximumSize() const
     { return theLayout()->maximumSize(); }
 
-    virtual QSizePolicy::ExpandData expanding() const
-    { return theLayout()->expanding(); }
+    virtual Qt::Orientations expandingDirections() const
+    { return theLayout()->expandingDirections(); }
 
     void addTo(QLayout *layout);
     void removeFrom(QLayout *layout);

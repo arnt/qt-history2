@@ -43,7 +43,7 @@ public:
     QString slot() const;
 
     void setSignalSlot(const QString &signal, const QString &slot);
-    
+
 private slots:
     void selectSignal(QListWidgetItem *item);
     void selectSlot(QListWidgetItem *item);
@@ -156,7 +156,7 @@ void SignalSlotDialog::populateSlotList(const QString &signal)
         if (sig == selectedName)
             m_slot_list->setItemSelected(item, true);
     }
-    
+
     if (m_slot_list->selectedItems().isEmpty())
         m_ok_button->setEnabled(false);
 }
@@ -210,6 +210,7 @@ void SignalSlotDialog::populateSignalList()
     }
 }
 
+// ### use designer
 SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QWidget *destination,
                                     QWidget *parent)
     : QDialog(parent)
@@ -246,15 +247,24 @@ SignalSlotDialog::SignalSlotDialog(AbstractFormEditor *core, QWidget *source, QW
 
     QVBoxLayout *l1 = new QVBoxLayout(this);
 
-    QHBoxLayout *l2 = new QHBoxLayout(l1);
-    QVBoxLayout *l3 = new QVBoxLayout(l2);
+    QHBoxLayout *l2 = new QHBoxLayout();
+    l1->addLayout(l2);
+
+    QVBoxLayout *l3 = new QVBoxLayout();
+    l2->addLayout(l3);
+
     l3->addWidget(source_label);
     l3->addWidget(m_signal_list);
-    QVBoxLayout *l4 = new QVBoxLayout(l2);
+
+    QVBoxLayout *l4 = new QVBoxLayout();
+    l2->addLayout(l4);
+
     l4->addWidget(destination_label);
     l4->addWidget(m_slot_list);
 
-    QHBoxLayout *l5 = new QHBoxLayout(l1);
+    QHBoxLayout *l5 = new QHBoxLayout();
+    l1->addLayout(l5);
+
     l5->addWidget(m_show_all_checkbox);
     l5->addStretch();
 #ifdef Q_WS_MAC
@@ -286,12 +296,12 @@ static QListWidgetItem *findItem(const QListWidget &list_widget, const QString &
 void SignalSlotDialog::setSignalSlot(const QString &signal, const QString &slot)
 {
     QListWidgetItem *sig_item = findItem(*m_signal_list, signal);
-    
+
     if (sig_item == 0) {
         m_show_all_checkbox->setChecked(true);
         sig_item = findItem(*m_signal_list, signal);
     }
-    
+
     if (sig_item != 0) {
         selectSignal(sig_item);
         QListWidgetItem *slot_item = findItem(*m_slot_list, slot);
@@ -367,22 +377,22 @@ DomConnection *SignalSlotConnection::toUi() const
 
     DomConnectionHints *hints = new DomConnectionHints;
     QList<DomConnectionHint*> list;
-    
+
     QPoint sp = endPointPos(EndPoint::Source);
     QPoint tp = endPointPos(EndPoint::Target);
-    
+
     DomConnectionHint *hint = new DomConnectionHint;
     hint->setAttributeType(QLatin1String("sourcelabel"));
     hint->setElementX(sp.x());
     hint->setElementY(sp.y());
     list.append(hint);
-        
+
     hint = new DomConnectionHint;
     hint->setAttributeType(QLatin1String("destinationlabel"));
     hint->setElementX(tp.x());
     hint->setElementY(tp.y());
     list.append(hint);
-    
+
     hints->setElementHint(list);
     result->setElementHints(hints);
 
@@ -432,7 +442,7 @@ void SignalSlotEditor::modifyConnection(Connection *con)
     SignalSlotConnection *sigslot_con = static_cast<SignalSlotConnection*>(con);
 
     SignalSlotDialog *dialog = new SignalSlotDialog(m_form_window->core(),
-                                                    sigslot_con->widget(EndPoint::Source), 
+                                                    sigslot_con->widget(EndPoint::Source),
                                                     sigslot_con->widget(EndPoint::Target));
     dialog->setSignalSlot(sigslot_con->signal(), sigslot_con->slot());
     if (dialog->exec() == QDialog::Accepted) {
@@ -525,7 +535,7 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
             sp = widgetRect(source).center();
         if (tp == QPoint(-1, -1))
             tp = widgetRect(destination).center();
-        
+
         SignalSlotConnection *con = new SignalSlotConnection(this);
         con->setEndPoint(EndPoint::Source, source, sp);
         con->setEndPoint(EndPoint::Target, destination, tp);
@@ -561,7 +571,7 @@ QWidget *SignalSlotEditor::widgetAt(const QPoint &pos) const
             continue;
         break;
     }
-    
+
     return widget;
 }
 

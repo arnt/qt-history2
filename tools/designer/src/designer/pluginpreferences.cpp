@@ -37,17 +37,17 @@ class PluginPreferenceWidget : public QWidget
     Q_OBJECT
 public:
     PluginPreferenceWidget(PluginPreferences *prefs, QWidget *parent = 0);
-    
+
 public slots:
     void addPath();
     void removePath();
-    
+
 private slots:
     void populateTree();
     void updateButtons();
     void itemChanged(QTreeWidgetItem *item, int col);
 
-private:        
+private:
     QTreeWidget *m_tree;
     QPushButton *m_add_path_button, *m_remove_path_button;
 
@@ -60,13 +60,15 @@ PluginPreferenceWidget::PluginPreferenceWidget(PluginPreferences *prefs, QWidget
     : QWidget(parent)
 {
     m_prefs = prefs;
-    
+
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setMargin(0);
     m_tree = new QTreeWidget(this);
     mainLayout->addWidget(m_tree);
-    
-    QHBoxLayout *hLayout = new QHBoxLayout(mainLayout);
+
+    QHBoxLayout *hLayout = new QHBoxLayout();
+    mainLayout->addLayout(hLayout);
+
     m_add_path_button = new QPushButton(tr("Add path..."), this);
     connect(m_add_path_button, SIGNAL(clicked()), this, SLOT(addPath()));
     hLayout->addWidget(m_add_path_button);
@@ -74,12 +76,12 @@ PluginPreferenceWidget::PluginPreferenceWidget(PluginPreferences *prefs, QWidget
     connect(m_remove_path_button, SIGNAL(clicked()), this, SLOT(removePath()));
     hLayout->addWidget(m_remove_path_button);
     m_remove_path_button->setEnabled(false);
-    
+
     connect(m_tree, SIGNAL(itemSelectionChanged()),
                 this, SLOT(updateButtons()));
     connect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                 this, SLOT(itemChanged(QTreeWidgetItem*, int)));
-    
+
     populateTree();
 }
 
@@ -89,7 +91,7 @@ void PluginPreferenceWidget::itemChanged(QTreeWidgetItem *item, int col)
         return;
     if (item->parent() == 0)
         return;
-        
+
     QString plugin = QDir::cleanPath(item->parent()->text(0) + "/" + item->text(0));
 
     if (item->checkState(1) != Qt::Checked) {
@@ -98,7 +100,7 @@ void PluginPreferenceWidget::itemChanged(QTreeWidgetItem *item, int col)
     } else {
         m_prefs->m_disabled_plugins.removeAll(plugin);
     }
-    
+
     m_prefs->m_dirty = true;
     emit m_prefs->changed();
 }
@@ -108,7 +110,7 @@ void PluginPreferenceWidget::populateTree()
     disconnect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
                 this, SLOT(itemChanged(QTreeWidgetItem*, int)));
     m_tree->clear();
-    
+
     m_tree->setColumnCount(2);
     m_tree->setHeaderLabels(QStringList() << tr("Path") << tr("Enabled"));
 
@@ -116,9 +118,9 @@ void PluginPreferenceWidget::populateTree()
         QTreeWidgetItem *path_item = new QTreeWidgetItem(m_tree);
         path_item->setText(0, path);
         m_tree->setItemExpanded(path_item, true);
-        
+
         QStringList plugin_list = m_prefs->m_plugin_manager->findPlugins(path);
-        
+
         foreach (QString plugin, plugin_list) {
             QTreeWidgetItem *item = new QTreeWidgetItem(path_item);
             QFileInfo fi(plugin);
@@ -153,7 +155,7 @@ void PluginPreferenceWidget::addPath()
         return;
 
     path = QDir::cleanPath(path);
-        
+
     if (!m_prefs->m_plugin_paths.contains(path)) {
         m_prefs->m_plugin_paths.append(path);
         populateTree();
@@ -216,7 +218,7 @@ bool PluginPreferences::saveSettings()
     m_plugin_manager->setDisabledPlugins(m_disabled_plugins);
     m_plugin_manager->syncSettings();
     m_dirty = false;
-    
+
     return true;
 }
 
@@ -224,10 +226,10 @@ bool PluginPreferences::readSettings()
 {
     m_plugin_paths = m_plugin_manager->pluginPaths();
     m_disabled_plugins = m_plugin_manager->disabledPlugins();
-    
+
     m_dirty = false;
     emit updateWidget();
-    
+
     return true;
 }
 

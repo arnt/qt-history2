@@ -17,8 +17,8 @@
 #include <QSizePolicy>
 #include <QString>
 
-int size_type_to_int(QSizePolicy::SizeType t);
-QString size_type_to_string(QSizePolicy::SizeType t);
-QSizePolicy::SizeType int_to_size_type(int i);
+int size_type_to_int(QSizePolicy::Policy t);
+QString size_type_to_string(QSizePolicy::Policy t);
+QSizePolicy::Policy int_to_size_type(int i);
 
 #endif // DEFS_H
