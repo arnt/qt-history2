@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -43,6 +43,15 @@ struct QUrlInfoPrivate
 };
 
 
+/*!
+  \class QUrlInfo qurlinfo.h
+  #### todo
+*/
+
+/*!
+  #### todo
+*/
+
 QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
 		    const QString &group, uint size, const QDateTime &lastModified,
 		    const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
@@ -63,6 +72,11 @@ QUrlInfo::QUrlInfo( const QString &name, int permissions, const QString &owner,
     d->isReadable = isReadable;
     d->isExecutable = isExecutable;
 }
+
+
+/*!
+  #### todo
+*/
 
 QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 		    const QString &group, uint size, const QDateTime &lastModified,
@@ -85,12 +99,20 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
     d->isExecutable = isExecutable;
 }
 
+/*!
+  #### todo
+*/
+
 QUrlInfo::QUrlInfo()
 {
     d = new QUrlInfoPrivate;
     d->isDir = FALSE;
     d->isFile = TRUE;
 }
+
+/*!
+  #### todo
+*/
 
 QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
 {
@@ -100,46 +122,82 @@ QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
     *d = *inf.d;
 }
 
+/*!
+  #### todo
+*/
+
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 {
     d = new QUrlInfoPrivate;
     *d = *ui.d;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrlInfo::setName( const QString &name )
 {
     d->name = name;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrlInfo::setDir( bool b )
 {
     d->isDir = b;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrlInfo::setFile( bool b )
 {
     d->isFile = b;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrlInfo::setOwner( const QString &s )
 {
     d->owner = s;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrlInfo::setGroup( const QString &s )
 {
     d->group = s;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrlInfo::setSize( uint s )
 {
     d->size = s;
 }
 
+/*!
+  #### todo
+*/
+
 QUrlInfo::~QUrlInfo()
 {
     delete d;
 }
+
+/*!
+  #### todo
+*/
 
 QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
 {
@@ -147,65 +205,117 @@ QUrlInfo &QUrlInfo::operator=( const QUrlInfo &ui )
     return *this;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrlInfo::name() const
 {
     return d->name;
 }
+
+/*!
+  #### todo
+*/
 
 int QUrlInfo::permissions() const
 {
     return d->permissions;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrlInfo::owner() const
 {
     return d->owner;
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrlInfo::group() const
 {
     return d->group;
 }
 
+/*!
+  #### todo
+*/
+
 uint QUrlInfo::size() const
 {
     return d->size;
 }
+
+/*!
+  #### todo
+*/
 
 QDateTime QUrlInfo::lastModified() const
 {
     return d->lastModified;
 }
 
+/*!
+  #### todo
+*/
+
 QDateTime QUrlInfo::lastRead() const
 {
     return d->lastRead;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrlInfo::isDir() const
 {
     return d->isDir;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrlInfo::isFile() const
 {
     return d->isFile;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrlInfo::isSymLink() const
 {
     return d->isSymLink;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrlInfo::isWritable() const
 {
     return d->isWritable;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrlInfo::isReadable() const
 {
     return d->isReadable;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrlInfo::isExecutable() const
 {

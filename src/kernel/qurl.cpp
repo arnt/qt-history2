@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -54,6 +54,8 @@ struct QUrlPrivate
 };
 
 /*!
+  \class QUrl qurl.h
+  
   Mention that URL has some restrictions regarding the path
   encoding. URL works intern with the decoded path and
   and encoded query. For example in
@@ -65,7 +67,7 @@ struct QUrlPrivate
   Since path is internally always encoded you may NOT use
   "%00" in the path while this is ok for the query.
 */
-
+  
 /*!
   \a url is considered to be encoded. You can pass strings like
   "/home/weis", in this case the protocol "file" is assumed.
@@ -83,6 +85,10 @@ QUrl::QUrl()
     d->networkProtocol = 0;
 }
 
+/*!
+  #### todo
+*/
+
 QUrl::QUrl( const QString& url )
 {
     d = new QUrlPrivate;
@@ -95,6 +101,10 @@ QUrl::QUrl( const QString& url )
     parse( tmp );
 }
 
+/*!
+  #### todo
+*/
+
 QUrl::QUrl( const QUrl& url )
     : QObject()
 {
@@ -102,6 +112,10 @@ QUrl::QUrl( const QUrl& url )
     *d = *url.d;
     getNetworkProtocol();
 }
+
+/*!
+  #### todo
+*/
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
@@ -152,6 +166,10 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     d->nameFilter = "*";
 }
 
+/*!
+  #### todo
+*/
+
 QUrl::~QUrl()
 {
     if ( d->networkProtocol )
@@ -159,70 +177,126 @@ QUrl::~QUrl()
     delete d;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::protocol() const
 {
     return d->protocol;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setProtocol( const QString& protocol )
 {
     d->protocol = protocol;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::user() const
 {
     return  d->user;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setUser( const QString& user )
 {
     d->user = user;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::hasUser() const
 {
     return !d->user.isEmpty();
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::pass() const
 {
     return d->pass;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::setPass( const QString& pass )
 {
     d->pass = pass;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrl::hasPass() const
 {
     return !d->pass.isEmpty();
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::host() const
 {
     return d->host;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setHost( const QString& host )
 {
     d->host = host;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::hasHost() const
 {
     return !d->host.isEmpty();
 }
+
+/*!
+  #### todo
+*/
 
 int QUrl::port() const
 {
     return d->port;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::setPort( int port )
 {
     d->port = port;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setPath( const QString& path )
 {
@@ -231,40 +305,72 @@ void QUrl::setPath( const QString& path )
 	d->networkProtocol->setUrl( this );
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::hasPath() const
 {
     return !d->path.isEmpty();
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setQuery( const QString& txt )
 {
     d->queryEncoded = txt;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::query() const
 { 	
     return d->queryEncoded;
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::ref() const
 {
     return d->refEncoded;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::setRef( const QString& txt )
 {
     d->refEncoded = txt;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrl::hasRef() const
 {
     return !d->refEncoded.isEmpty();
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::isMalformed() const
 {
     return d->isMalformed;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::reset()
 {
@@ -282,6 +388,10 @@ void QUrl::reset()
  	delete d->networkProtocol;
     d->networkProtocol = 0;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::parse( const QString& url )
 {
@@ -470,6 +580,10 @@ NodeErr:
 
 }
 
+/*!
+  #### todo
+*/
+
 QUrl& QUrl::operator=( const QString& url )
 {
     reset();
@@ -478,12 +592,20 @@ QUrl& QUrl::operator=( const QString& url )
     return *this;
 }
 
+/*!
+  #### todo
+*/
+
 QUrl& QUrl::operator=( const QUrl& url )
 {
     *d = *url.d;
     getNetworkProtocol();
     return *this;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrl::operator==( const QUrl& url ) const
 {
@@ -504,11 +626,19 @@ bool QUrl::operator==( const QUrl& url ) const
     return FALSE;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::operator==( const QString& url ) const
 {
     QUrl u( url );
     return ( *this == u );
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrl::cmp( QUrl &url, bool ignoreTrailing )
 {
@@ -534,6 +664,10 @@ bool QUrl::cmp( QUrl &url, bool ignoreTrailing )
 
     return ( *this == url );
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setFileName( const QString& name )
 {
@@ -594,6 +728,10 @@ void QUrl::setFileName( const QString& name )
 	d->networkProtocol->setUrl( this );
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::encodedPathAndQuery( int trailing, bool noEmptyPath )
 {
     QString tmp = path( trailing );
@@ -609,6 +747,10 @@ QString QUrl::encodedPathAndQuery( int trailing, bool noEmptyPath )
 
     return tmp;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setEncodedPathAndQuery( const QString& path )
 {
@@ -626,10 +768,18 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 	d->networkProtocol->setUrl( this );
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::path() const
 {
     return QDir::cleanDirPath( d->path );
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::path( int trailing ) const
 {
@@ -662,16 +812,28 @@ QString QUrl::path( int trailing ) const
     return QString::null;
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::isLocalFile() const
 {
     return d->protocol == "file";
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::url()
 {
     QString result = url( 0 );
     return result;
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::url( int trailing, bool stripRef )
 {
@@ -715,6 +877,10 @@ QString QUrl::url( int trailing, bool stripRef )
     return u;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::filename( bool stripTrailingSlash )
 {
     QString fname;
@@ -745,6 +911,10 @@ QString QUrl::filename( bool stripTrailingSlash )
     return fname;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::addPath( const QString& txt )
 {
     if ( txt.isEmpty() )
@@ -765,6 +935,10 @@ void QUrl::addPath( const QString& txt )
     if ( d->networkProtocol )
 	d->networkProtocol->setUrl( this );
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::directory( bool stripTrailingSlashFromResult,
 			bool ignoreTrailingSlashInPath )
@@ -802,6 +976,10 @@ QString QUrl::directory( bool stripTrailingSlashFromResult,
     return result;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::encode( QString& url )
 {
     int old_length = url.length();
@@ -838,6 +1016,10 @@ void QUrl::encode( QString& url )
     url = new_url;
 }
 
+/*!
+  #### todo
+*/
+
 char QUrl::hex2int( char c )
 {
     if ( c >= 'A' && c <='F')
@@ -848,6 +1030,10 @@ char QUrl::hex2int( char c )
 	return c - '0';
     return 0;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::decode( QString& url )
 {
@@ -874,11 +1060,19 @@ void QUrl::decode( QString& url )
     url = new_url;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
 			int sortSpec   = QDir::DefaultSort )
 {
     listEntries( d->nameFilter, filterSpec, sortSpec );
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 			int sortSpec = QDir::DefaultSort )
@@ -915,6 +1109,10 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::mkdir( const QString &dirname )
 {
     if ( isLocalFile() ) {
@@ -936,6 +1134,10 @@ void QUrl::mkdir( const QString &dirname )
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::remove( const QString &filename )
 {
     if ( isLocalFile() ) {
@@ -952,6 +1154,10 @@ void QUrl::remove( const QString &filename )
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::rename( const QString &oldname, const QString &newname )
 {
     if ( isLocalFile() ) {
@@ -963,6 +1169,10 @@ void QUrl::rename( const QString &oldname, const QString &newname )
     } else
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::copy( const QString &from, const QString &to )
 {
@@ -1004,6 +1214,10 @@ void QUrl::copy( const QString &from, const QString &to )
     return;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 {
     if ( isLocalFile() ) {
@@ -1024,6 +1238,10 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
+/*!
+  #### todo
+*/
+
 bool QUrl::isDir()
 {
     if ( isLocalFile() ) {
@@ -1037,9 +1255,13 @@ bool QUrl::isDir()
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
     }
-    
+
     return TRUE;
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrl::isFile()
 {
@@ -1054,19 +1276,31 @@ bool QUrl::isFile()
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
     }
-    
+
     return TRUE;
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::setNameFilter( const QString &nameFilter )
 {
     d->nameFilter = nameFilter;
 }
 
+/*!
+  #### todo
+*/
+
 QString QUrl::nameFilter() const
 {
     return d->nameFilter;
 }
+
+/*!
+  #### todo
+*/
 
 QString QUrl::toString() const
 {
@@ -1081,10 +1315,18 @@ QString QUrl::toString() const
     return QString::null;
 }
 
+/*!
+  #### todo
+*/
+
 QUrl::operator QString() const
 {
     return toString();
 }
+
+/*!
+  #### todo
+*/
 
 bool QUrl::cdUp()
 {
@@ -1094,20 +1336,36 @@ bool QUrl::cdUp()
     return TRUE;
 }
 
+/*!
+  #### todo
+*/
+
 void QUrl::clearEntries()
 {
     d->entryMap.clear();
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::addEntry( const QUrlInfo &i )
 {
     d->entryMap[ i.name().stripWhiteSpace() ] = i;
 }
 
+/*!
+  #### todo
+*/
+
 QUrlInfo QUrl::info( const QString &entry ) const
 {
     return d->entryMap[ entry ];
 }
+
+/*!
+  #### todo
+*/
 
 void QUrl::getNetworkProtocol()
 {

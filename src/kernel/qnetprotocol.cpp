@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetprotocol.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qnetprotocol.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -46,71 +46,140 @@ QNetworkProtocol *qGetNetworkProtocol( const QString &protocol )
     return ( *it )->copy();
 }
 
+/*!
+  \class QNetworkProtocol qnetprotocol.h
+  #### todo
+*/
+
+/*!
+  #### todo
+*/
+
 QNetworkProtocol::QNetworkProtocol()
     : url( 0 )
 {
 }
+
+/*!
+  #### todo
+*/
 
 QNetworkProtocol::~QNetworkProtocol()
 {
     url = 0;
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::openConnection( QUrl *u )
 {
     setUrl( u );
 }
+
+/*!
+  #### todo
+*/
 
 bool QNetworkProtocol::isOpen()
 {
     return FALSE;
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::close()
 {
 }
+
+/*!
+  #### todo
+*/
 
 void QNetworkProtocol::setUrl( QUrl *u )
 {
     url = u;
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::listEntries( const QString &, int, int)
 {
 }
+
+/*!
+  #### todo
+*/
 
 void QNetworkProtocol::mkdir(const QString & )
 {
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::remove( const QString & )
 {
 }
+
+/*!
+  #### todo
+*/
 
 void QNetworkProtocol::rename( const QString &, const QString & )
 {
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
 {
 }
+
+/*!
+  #### todo
+*/
 
 void QNetworkProtocol::get()
 {
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::isDir()
 {
 }
+
+/*!
+  #### todo
+*/
 
 void QNetworkProtocol::isFile()
 {
 }
 
+/*!
+  #### todo
+*/
+
 QNetworkProtocol *QNetworkProtocol::copy() const
 {
     return new QNetworkProtocol();
 }
+
+/*!
+  #### todo
+*/
 
 QString QNetworkProtocol::toString() const
 {
