@@ -884,7 +884,17 @@ void QMacStyle::drawControl(ControlElement element,
 	    p->save();
 	    p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
 	    ((QMacPainter *)p)->setport();
-	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tds);
+	    ThemeDrawState tabpane_tds = kThemeStateActive;
+	    if(qAquaActive(cg)) {
+		if(!tb->isEnabled()) 
+		    tabpane_tds = kThemeStateUnavailable;
+	    } else { 
+		if(tb->isEnabled()) 
+		    tabpane_tds = kThemeStateInactive;
+		else 
+		    tabpane_tds = kThemeStateUnavailableInactive;
+	    }
+	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tabpane_tds);
 	    p->restore();
 	}
 	break; }
