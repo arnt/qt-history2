@@ -263,11 +263,13 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
     const QChar *unicode = engine->string.unicode();
     int current = 0;
 
-    QChar::Direction dir = QChar::DirON;
+    QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
     BidiStatus status;
     QChar::Direction sdir = direction(*unicode);
     if (sdir != QChar::DirL && sdir != QChar::DirR && sdir != QChar::DirEN && sdir != QChar::DirAN)
-        sdir = QChar::DirON;
+	sdir = QChar::DirON;
+    else
+        dir = QChar::DirON;
     status.eor = sdir;
     status.lastStrong = rightToLeft ? QChar::DirR : QChar::DirL;
     status.last = status.lastStrong;
